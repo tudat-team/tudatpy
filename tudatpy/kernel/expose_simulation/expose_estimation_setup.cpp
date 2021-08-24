@@ -11,6 +11,7 @@
 #include "expose_estimation_setup.h"
 
 #include "tudat/astro/propagators/propagateCovariance.h"
+#include "tudat/simulation/estimation_setup/observationSimulationSettings.h"
 
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
@@ -26,7 +27,54 @@ namespace ts = tudat::statistics;
 namespace tss = tudat::simulation_setup;
 namespace tni = tudat::numerical_integrators;
 namespace tom = tudat::observation_models;
+namespace tudat
+{
 
+    namespace simulation_setup
+    {
+        // Dominic
+        void addNoiseFunctionToObservationSimulationSettingsNoTemplates(
+                const std::vector< std::shared_ptr< ObservationSimulationSettings< double > > >& observationSimulationSettings,
+                const std::function< Eigen::VectorXd( const double ) > observationNoiseFunction,
+                const tom::ObservableType observableType )
+        {
+            addNoiseFunctionToObservationSimulationSettings< double, Eigen::VectorXd, const tom::ObservableType >(
+                    observationSimulationSettings, observationNoiseFunction, observableType );
+
+        }
+
+        // Michael
+        void addGaussianNoiseFunctionToObservationSimulationSettingsNoTemplates(
+                const std::vector< std::shared_ptr< ObservationSimulationSettings< double > > >& observationSimulationSettings,
+                const double observationNoiseAmplitude,
+                const tom::ObservableType observableType )
+        {
+            addGaussianNoiseFunctionToObservationSimulationSettings< double, const tom::ObservableType >(
+                    observationSimulationSettings, observationNoiseAmplitude, observableType );
+        }
+
+        void addViabilityToObservationSimulationSettingsNoTemplates(
+                const std::vector< std::shared_ptr< ObservationSimulationSettings< double > > >& observationSimulationSettings,
+                const std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >& viabilitySettingsList)
+        {
+            addViabilityToObservationSimulationSettings< double >(
+                    observationSimulationSettings, viabilitySettingsList );
+        }
+
+        void addViabilityToObservationSimulationSettingsNoTemplates2(
+                const std::vector< std::shared_ptr< ObservationSimulationSettings< double > > >& observationSimulationSettings,
+                const std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >& viabilitySettingsList,
+                const tom::ObservableType observableType)
+        {
+            addViabilityToObservationSimulationSettings< double, const tom::ObservableType >(
+                    observationSimulationSettings, viabilitySettingsList, observableType );
+
+        }
+
+
+    }
+
+}
 
 namespace tudatpy {
 
@@ -309,7 +357,7 @@ void expose_observation_setup(py::module &m) {
           const std::vector< std::shared_ptr< tss::ObservationSimulationSettings< double > > >&,
           const std::function< Eigen::VectorXd( const double ) >,
           const tom::ObservableType >(
-                &tss::addNoiseFunctionToObservationSimulationSettings< double, Eigen::VectorXd, const tom::ObservableType > ),
+                  &tss::addNoiseFunctionToObservationSimulationSettingsNoTemplates ),
             py::arg("observation_simulation_settings"),
             py::arg("noise_functiton"),
             py::arg("observable_type") );
@@ -319,7 +367,7 @@ void expose_observation_setup(py::module &m) {
           const std::vector< std::shared_ptr< tss::ObservationSimulationSettings< double > > >&,
           const double,
           const tom::ObservableType >(
-                &tss::addGaussianNoiseFunctionToObservationSimulationSettings< double, const tom::ObservableType > ),
+                &tss::addGaussianNoiseFunctionToObservationSimulationSettingsNoTemplates ),
             py::arg("observation_simulation_settings"),
             py::arg("noise_amplitude"),
             py::arg("observable_type") );
@@ -329,7 +377,7 @@ void expose_observation_setup(py::module &m) {
           py::overload_cast<
           const std::vector< std::shared_ptr< tss::ObservationSimulationSettings< double > > >&,
           const std::vector< std::shared_ptr< tom::ObservationViabilitySettings > >& >(
-                &tss::addViabilityToObservationSimulationSettings< double > ),
+                &tss::addViabilityToObservationSimulationSettingsNoTemplates ),
             py::arg("observation_simulation_settings"),
             py::arg("viability_settings") );
 
@@ -338,7 +386,7 @@ void expose_observation_setup(py::module &m) {
           const std::vector< std::shared_ptr< tss::ObservationSimulationSettings< double > > >&,
           const std::vector< std::shared_ptr< tom::ObservationViabilitySettings > >&,
           const tom::ObservableType >(
-                &tss::addViabilityToObservationSimulationSettings< double, const tom::ObservableType > ),
+                &tss::addViabilityToObservationSimulationSettingsNoTemplates2 ),
             py::arg("observation_simulation_settings"),
             py::arg("viability_settings"),
             py::arg("observable_type") );
@@ -783,7 +831,11 @@ void expose_estimation_setup(py::module &m) {
                                         &tss::PodOutput<double, double>::getUnnormalizedCovarianceMatrix)
                 .def_property_readonly("formal_errors",
                                         &tss::PodOutput<double, double>::getFormalErrorVector)
-                .def_property_readonly("correlations",
+                // Michael
+                .def_property_readonly("weights_matrix",
+                                       &tss::PodInput<double, double>::getWeightsMatrixDiagonals)
+
+                .def_property_readonly("cogit purrelations",
                                         &tss::PodOutput<double, double>::getCorrelationMatrix)
                 .def_property_readonly("residual_history",
                                         &tss::PodOutput<double, double>::getResidualHistoryMatrix)
