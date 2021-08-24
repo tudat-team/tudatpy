@@ -83,6 +83,10 @@ void expose_frames(py::module &m) {
           &trf::getInertialToRswSatelliteCenteredFrameRotationMatrix,
           py::arg("inertial_cartesian_state") );
 
+    m.def("lv_to_body_fixed_rotation_matrix",
+          &trf::getLocalVerticalToRotatingPlanetocentricFrameTransformationMatrix,
+            py::arg("longitude"),
+            py::arg("latitude") );
 
     m.def("lvlh_to_inertial_rotation_matrix",
           &trf::getVelocityBasedLvlhToInertialRotation,
