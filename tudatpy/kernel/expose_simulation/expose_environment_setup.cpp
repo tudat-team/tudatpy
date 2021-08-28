@@ -1039,7 +1039,8 @@ void expose_environment_setup(py::module &m) {
     m.def("create_body_ephemeris", &tss::createBodyEphemeris,
           py::arg("ephemeris_settings"), py::arg("body_name"));
 
-    m.def("create_simplified_system_of_bodies", &tss::createSimplifiedSystemOfBodies);
+    m.def("create_simplified_system_of_bodies", &tss::createSimplifiedSystemOfBodies,
+          py::arg("initial_time") = 0);
 
     m.def("get_safe_interpolation_interval", &tss::getSafeInterpolationInterval,
           py::arg("ephemeris_model"));

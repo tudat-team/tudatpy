@@ -21,6 +21,8 @@ namespace tudatpy {
 
 void expose_trajectory_design(py::module &m) {
 
+    m.attr("DEFAULT_MINIMUM_PERICENTERS") = tms::DEFAULT_MINIMUM_PERICENTERS;
+
     py::enum_<tms::TransferLegTypes>(m, "TransferLegTypes")
             .value("unpowered_unperturbed_leg_type", tms::TransferLegTypes::unpowered_unperturbed_leg)
             .value("dsm_position_based_leg_type", tms::TransferLegTypes::dsm_position_based_leg)
