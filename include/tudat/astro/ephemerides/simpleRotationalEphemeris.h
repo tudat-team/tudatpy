@@ -57,7 +57,7 @@ public:
     //! Constructor from rotation state angles.
     /*!
      * Constructor from rotation state angles, i.e., right ascension and declination of pole
-     * (both assumuned constant) and the position of the prime meridian at a given epoch
+     * (both assumed constant) and the position of the prime meridian at a given epoch
      * (reference Julian day and seconds since that Julian day). Calculates member variables from
      * constructor arguments.
      * \param poleRightAscension Right ascension of body's pole in base frame.
