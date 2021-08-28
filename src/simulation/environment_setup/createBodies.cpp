@@ -9,6 +9,7 @@
  */
 
 #include <iostream>
+#include <cmath>
 
 #include <boost/make_shared.hpp>
 #include <boost/lambda/lambda.hpp>
@@ -21,6 +22,9 @@
 
 #include "tudat/simulation/environment_setup/createBodies.h"
 #include "tudat/astro/basic_astro/sphericalBodyShapeModel.h"
+#include "tudat/astro/ephemerides/simpleRotationalEphemeris.h"
+//#include "tudat/astro/reference_frames/referenceFrameTransformations.h"
+#include "tudat/interface/spice/spiceRotationalEphemeris.h"
 
 namespace tudat
 {
@@ -254,13 +258,12 @@ SystemOfBodies createSystemOfBodies(
 }
 
 
-simulation_setup::SystemOfBodies createSimplifiedSystemOfBodies( )
+simulation_setup::SystemOfBodies createSimplifiedSystemOfBodies(const double initialTime)
 {
     using namespace ephemerides;
     using namespace gravitation;
 
-
-    SystemOfBodies bodies;
+    SystemOfBodies bodies("SSB","ECLIPJ2000");
     bodies.createEmptyBody( "Sun" );
     bodies.createEmptyBody( "Mercury" );
     bodies.createEmptyBody( "Venus" );
@@ -272,8 +275,8 @@ simulation_setup::SystemOfBodies createSimplifiedSystemOfBodies( )
     bodies.createEmptyBody( "Neptune" );
     bodies.createEmptyBody( "Pluto" );
 
-    bodies.getBody( "Sun" )->setEphemeris( std::make_shared< ConstantEphemeris >( Eigen::Vector6d::Zero( ) ) );
-    bodies.getBody( "Mercury" )->setEphemeris( std::make_shared< ApproximateGtopEphemeris >("Mercury" ) );
+    bodies.getBody( "Sun" )->setEphemeris( std::make_shared< ConstantEphemeris >( Eigen::Vector6d::Zero( ), "SSB", "ECLIPJ2000" ) );
+    bodies.getBody( "Mercury" )->setEphemeris( std::make_shared< ApproximateGtopEphemeris >("Mercury") );
     bodies.getBody( "Venus" )->setEphemeris( std::make_shared< ApproximateGtopEphemeris >("Venus" ) );
     bodies.getBody( "Earth" )->setEphemeris( std::make_shared< ApproximateGtopEphemeris >("Earth" ) );
     bodies.getBody( "Mars" )->setEphemeris( std::make_shared< ApproximateGtopEphemeris >("Mars" ) );
@@ -296,8 +299,52 @@ simulation_setup::SystemOfBodies createSimplifiedSystemOfBodies( )
 
     bodies.getBody( "Earth" )->setShapeModel( std::make_shared< SphericalBodyShapeModel >(celestial_body_constants::EARTH_EQUATORIAL_RADIUS ) );
 
+    //bodies.getBody( "Earth" )->setRotationalEphemeris( std::make_shared< SimpleRotationalEphemeris >(Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ),
+    //                                                                                                 7.2921159E-5, 0.0, "ECLIPJ2000", "Earth_Fixed" ) );
+
+    // Calculate position of rotation axis at initialTime, with respect to J2000 frame. Values from
+    // "Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2009", B.A. Archinal et al.(2011)
+    /*
+    const double initialTimeDays = initialTime / 86400;
+    const double initialTimeCenturies = initialTimeDays / 36525;
+    const double poleRightAscension = (0 - 0.641 * initialTimeCenturies) * mathematical_constants::PI/180;
+    const double poleDeclination = (90 - 0.557 * initialTimeCenturies) * mathematical_constants::PI/180;
+    const double initialRotationAngle = 190.147 * mathematical_constants::PI/180;
+    const double rotationRate = 360.985235 * mathematical_constants::PI/180 / physical_constants::JULIAN_DAY;
+
+    bodies.getBody( "Earth" )->setRotationalEphemeris(
+            std::make_shared< SimpleRotationalEphemeris >(
+                    reference_frames::getInertialToPlanetocentricFrameTransformationQuaternion (
+                            poleDeclination, poleRightAscension, initialRotationAngle),
+                            rotationRate, initialTime, "J2000", "Earth_Fixed" ) );
+    */
+
+    std::string originalFrame = "ECLIPJ2000";
+    std::string targetFrame = "IAU_Earth";
+    bodies.getBody( "Earth" )->setRotationalEphemeris(std::make_shared< SpiceRotationalEphemeris >( originalFrame, targetFrame,
+                                                                                                    initialTime/86400 + 2451545.0));
+
     return bodies;
 }
+
+/*
+Eigen::Matrix3d rotationMatrixAroundX (const double angle)
+    {
+        return (Eigen::Matrix3d() <<
+            1, 0, 0,
+            0, std::cos(angle), std::sin(angle),
+            0, -std::sin(angle), std::cos(angle)).finished() ;
+    }
+
+Eigen::Matrix3d rotationMatrixAroundZ (const double angle)
+    {
+        return (Eigen::Matrix3d() <<
+            std::cos(angle), std::sin(anglea), 0,
+            -std::sin(angle), std::cos(angle), 0,
+            0, 0, 1).finished() ;
+    }
+*/
+
 
 } // namespace simulation_setup
 

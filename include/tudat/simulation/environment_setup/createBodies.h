@@ -162,7 +162,7 @@ SystemOfBodies createSystemOfBodies(
         const BodyListSettings& bodySettings );
 
 
-simulation_setup::SystemOfBodies createSimplifiedSystemOfBodies( );
+simulation_setup::SystemOfBodies createSimplifiedSystemOfBodies(const double initialTime = 0 );
 
 
 } // namespace simulation_setup
