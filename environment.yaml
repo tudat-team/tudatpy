@@ -3,7 +3,7 @@ channels:
   - conda-forge
   - tudat-team
 dependencies:
-  - eigen
+  - eigen=3.3.7
   - boost-cpp=1.72
   - tudat-resources
   - sofa-cmake
