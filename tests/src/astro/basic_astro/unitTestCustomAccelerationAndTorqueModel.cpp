@@ -341,7 +341,7 @@ BOOST_AUTO_TEST_CASE( test_customTorqueModelCreation )
 
     std::vector< std::shared_ptr< SingleArcPropagatorSettings< double > > >  propagatorSettingsList;
     propagatorSettingsList.push_back( translationalPropagatorSettings );
-    propagatorSettingsList.push_back(rotationalStatePropagatorSettings);
+    propagatorSettingsList.push_back( rotationalStatePropagatorSettings );
 
     std::shared_ptr< PropagatorSettings< double > > propagatorSettings =
             std::make_shared< MultiTypePropagatorSettings< double > >(
