@@ -13,7 +13,11 @@ add_subdirectory(problems)
 
 TUDAT_ADD_EXECUTABLE(application_PagmoHimmelblauOptimization
         "himmelblauOptimization.cpp"
-        tudat_pagmo_example_problems tudat_input_output ${Boost_LIBRARIES} )
+        tudat_pagmo_example_problems tudat_input_output)
+
+    TUDAT_ADD_EXECUTABLE(application_PagmoMgaTransferExample
+            "mgaTransferExample.cpp"
+            tudat_pagmo_example_problems tudat_mission_segments ${Tudat_PROPAGATION_LIBRARIES} )
 
 #add_executable(application_PagmoHimmelblauOptimization "${SRCROOT}/himmelblauOptimization.cpp")
 #setup_executable_target(application_PagmoHimmelblauOptimization "${SRCROOT}")

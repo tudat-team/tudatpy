@@ -157,20 +157,7 @@ executeEarthMoonSimulation(
     // Define parameters.
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
     {
-//        parameterNames = getInitialStateParameterSettings< double >( propagatorSettings, bodies );
-
-        parameterNames.push_back(
-                    std::make_shared< InitialTranslationalStateEstimatableParameterSettings< StateScalarType > >(
-                        "Moon", propagators::getInitialStateOfBody< TimeType, StateScalarType >(
-                            "Moon", centralBodies[ 0 ], bodies, TimeType( initialEphemerisTime ) ) +
-                    initialStateDifference.segment( 0, 6 ),
-                    centralBodies[ 0 ] ) );
-        parameterNames.push_back(
-                    std::make_shared< InitialTranslationalStateEstimatableParameterSettings< StateScalarType > >(
-                        "Earth", propagators::getInitialStateOfBody< TimeType, StateScalarType >(
-                            "Earth", centralBodies[ 1 ], bodies, TimeType( initialEphemerisTime ) ) +
-                    initialStateDifference.segment( 6, 6 ),
-                    centralBodies[ 1 ] ) );
+        parameterNames = getInitialStateParameterSettings< StateScalarType >( propagatorSettings, bodies );
         parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Moon", gravitational_parameter ) );
         parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Earth", gravitational_parameter ) );
         parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Sun", gravitational_parameter ) );
@@ -398,8 +385,8 @@ executeOrbiterSimulation(
                     asterixRadiationPressureSettings, "Vehicle", bodies ) );
 
     bodies.at( "Vehicle" )->setEphemeris( std::make_shared< TabulatedCartesianEphemeris< > >(
-                                            std::shared_ptr< interpolators::OneDimensionalInterpolator
-                                            < double, Eigen::Vector6d > >( ), "Earth", "ECLIPJ2000" ) );
+                                              std::shared_ptr< interpolators::OneDimensionalInterpolator
+                                              < double, Eigen::Vector6d > >( ), "Earth", "ECLIPJ2000" ) );
 
 
 
@@ -464,10 +451,7 @@ executeOrbiterSimulation(
     // Define parameters.
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
     {
-        parameterNames.push_back(
-                    std::make_shared< InitialTranslationalStateEstimatableParameterSettings< StateScalarType > >(
-                        "Vehicle", initialTranslationalState, "Earth" ) );
-
+        parameterNames = getInitialStateParameterSettings< StateScalarType >( propagatorSettings, bodies );
         parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Vehicle", radiation_pressure_coefficient ) );
         parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Vehicle", constant_drag_coefficient ) );
         parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Moon", gravitational_parameter ) );
@@ -608,7 +592,7 @@ BOOST_AUTO_TEST_CASE( testEarthOrbiterVariationalEquationCalculation )
 }
 
 template< typename TimeType = double , typename StateScalarType  = double >
-        std::pair< std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > >,
+std::pair< std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > >,
 std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > >
 executePhobosRotationSimulation(
         const Eigen::Matrix< StateScalarType, 13, 1 > initialStateDifference,
@@ -623,7 +607,7 @@ executePhobosRotationSimulation(
     SystemOfBodies bodies = SystemOfBodies( "Mars", "ECLIPJ2000" );
     bodies.createEmptyBody( "Mars", false );
     bodies.at( "Mars" )->setEphemeris( std::make_shared< ephemerides::ConstantEphemeris >(
-                                         [ = ]( ){ return Eigen::Vector6d::Zero( ); } ) );
+                                           [ = ]( ){ return Eigen::Vector6d::Zero( ); } ) );
     bodies.at( "Mars" )->setRotationalEphemeris(
                 simulation_setup::createRotationModel( simulation_setup::getDefaultRotationModelSettings(
                                                            "Mars", initialEphemerisTime, finalEphemerisTime ), "Mars" ) );
@@ -702,7 +686,7 @@ executePhobosRotationSimulation(
     std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Matrix< double, 7, 1 > > > dummyInterpolator =
             std::make_shared< interpolators::LinearInterpolator< double, Eigen::Matrix< double, 7, 1 > > >( dummyRotationMap );
     bodies.at( "Phobos" )->setRotationalEphemeris( std::make_shared< TabulatedRotationalEphemeris< double, double > >(
-                                                     dummyInterpolator, "ECLIPJ2000", "Phobos_Fixed" ) );
+                                                       dummyInterpolator, "ECLIPJ2000", "Phobos_Fixed" ) );
 
     // Create empty bodies, phobos and mars.
     std::shared_ptr< Body > phobos = bodies.at( "Phobos" );
@@ -710,8 +694,8 @@ executePhobosRotationSimulation(
 
     SelectedAccelerationMap accelerationMap;
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfEarth;
-//    accelerationMap[ "Phobos" ][ "Mars" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
-   accelerationMap[ "Phobos" ][ "Mars" ].push_back( std::make_shared< MutualSphericalHarmonicAccelerationSettings >( 2, 2, 2, 2 ) );
+    //    accelerationMap[ "Phobos" ][ "Mars" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+    accelerationMap[ "Phobos" ][ "Mars" ].push_back( std::make_shared< MutualSphericalHarmonicAccelerationSettings >( 2, 2, 2, 2 ) );
 
     std::vector< std::string > translationalBodiesToIntegrate;
     std::vector< std::string > translationalCentralBodies;
@@ -771,7 +755,7 @@ executePhobosRotationSimulation(
     // Define parameters.
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
     {
-//        parameterNames = getInitialStateParameterSettings< double >( propagatorSettings, bodies );
+        //        parameterNames = getInitialStateParameterSettings< double >( propagatorSettings, bodies );
 
         parameterNames.push_back( std::make_shared< InitialRotationalStateEstimatableParameterSettings< double > >(
                                       "Phobos", unitRotationState, "ECLIPJ2000" ) );
@@ -807,10 +791,10 @@ executePhobosRotationSimulation(
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > parameterVector =
             parametersToEstimate->template getFullParameterValues< StateScalarType >( );
     parameterVector.block( 13, 0, numberOfParametersToEstimate, 1 ) += parameterPerturbation;
-//    std::cout<<"Parameter perturbation "<<
-//               ( parametersToEstimate->template getFullParameterValues< StateScalarType >( ) -
-//                 parameterVector ).transpose( )<<std::endl<<
-//               parameterPerturbation.transpose( )<<std::endl;;
+    //    std::cout<<"Parameter perturbation "<<
+    //               ( parametersToEstimate->template getFullParameterValues< StateScalarType >( ) -
+    //                 parameterVector ).transpose( )<<std::endl<<
+    //               parameterPerturbation.transpose( )<<std::endl;;
     parametersToEstimate->resetParameterValues( parameterVector );
 
 
@@ -909,14 +893,14 @@ BOOST_AUTO_TEST_CASE( testPhobosRotationVariationalEquationCalculation )
 
             Eigen::VectorXd stateDifferenceUp = upPerturbedState - nominalState;
 
-//            std::cout<<"Test output "<<test<<" "<<j<<"stateDifferenceUp"<<std::endl<<
-//                       stateDifferenceUp<<std::endl<<std::endl<<
-//                       "stateTransitionAndSensitivityMatrixAtEpoch"<<std::endl<<
-//                                              stateTransitionAndSensitivityMatrixAtEpoch<<std::endl<<std::endl<<
-//                       "appliedStateDifferenceUp"<<std::endl<<
-//                                              appliedStateDifferenceUp<<std::endl<<std::endl<<
-//                       "( stateTransitionAndSensitivityMatrixAtEpoch * appliedStateDifferenceUp )"<<std::endl<<
-//                                              ( stateTransitionAndSensitivityMatrixAtEpoch * appliedStateDifferenceUp )<<std::endl<<std::endl;
+            //            std::cout<<"Test output "<<test<<" "<<j<<"stateDifferenceUp"<<std::endl<<
+            //                       stateDifferenceUp<<std::endl<<std::endl<<
+            //                       "stateTransitionAndSensitivityMatrixAtEpoch"<<std::endl<<
+            //                                              stateTransitionAndSensitivityMatrixAtEpoch<<std::endl<<std::endl<<
+            //                       "appliedStateDifferenceUp"<<std::endl<<
+            //                                              appliedStateDifferenceUp<<std::endl<<std::endl<<
+            //                       "( stateTransitionAndSensitivityMatrixAtEpoch * appliedStateDifferenceUp )"<<std::endl<<
+            //                                              ( stateTransitionAndSensitivityMatrixAtEpoch * appliedStateDifferenceUp )<<std::endl<<std::endl;
             if( test == 0 )
             {
                 Eigen::VectorXd testMatrix =
@@ -1032,6 +1016,166 @@ BOOST_AUTO_TEST_CASE( testPhobosRotationVariationalEquationCalculation )
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                 ( manualPartial.block( 0, 13, 13, 8 ) ), ( stateTransitionAndSensitivityMatrixAtEpoch.block( 0, 13, 13, 8 ) ), 1.0E-4 );
 }
+
+BOOST_AUTO_TEST_CASE( testMassRateVariationalEquations )
+{
+    spice_interface::loadStandardSpiceKernels( );
+
+    // Set simulation time settings.
+    const double simulationStartEpoch = 0.0;
+    const double simulationEndEpoch = tudat::physical_constants::JULIAN_DAY;
+
+    // Define body settings for simulation.
+    std::vector< std::string > bodiesToCreate;
+    bodiesToCreate.push_back( "Earth" );
+
+    // Create body objects.
+    BodyListSettings bodySettings =
+            getDefaultBodySettings( bodiesToCreate, "Earth", "J2000" );
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+    bodies.createEmptyBody( "Asterix" );
+    double initialBodyMass = 2000.0;
+    bodies.getBody( "Asterix" )->setConstantBodyMass( initialBodyMass );
+    bodies.getBody( "Asterix" )->setEphemeris( std::make_shared< TabulatedCartesianEphemeris< > >(
+                                                   std::shared_ptr< interpolators::OneDimensionalInterpolator
+                                                   < double, Eigen::Vector6d > >( ), "Earth", "J2000" ) );
+
+    Eigen::MatrixXd finalStateTransitionTranslationalOnly;
+    Eigen::MatrixXd finalStateTransitionCoupled;
+
+    for( int test = 0; test < 2; test++ )
+    {
+        std::cout<<"Test "<<test<<std::endl;
+        // Define propagator settings variables.
+        SelectedAccelerationMap accelerationMap;
+        std::vector< std::string > bodiesToPropagate;
+        std::vector< std::string > centralBodies;
+
+        // Define propagation settings.
+        std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfAsterix;
+        accelerationsOfAsterix[ "Earth" ].push_back( std::make_shared< AccelerationSettings >(
+                                                         basic_astrodynamics::central_gravity ) );
+        accelerationsOfAsterix[ "Asterix" ].push_back( std::make_shared< ThrustAccelerationSettings >(
+                                                           std::make_shared< ThrustDirectionFromStateGuidanceSettings >(
+                                                               "Earth", true, false  ),
+                                                           std::make_shared< ConstantThrustMagnitudeSettings >(
+                                                               1.0E-4, 300.0 ) ) );
+
+        accelerationMap[ "Asterix" ] = accelerationsOfAsterix;
+        bodiesToPropagate.push_back( "Asterix" );
+        centralBodies.push_back( "Earth" );
+
+        basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
+                    bodies, accelerationMap, bodiesToPropagate, centralBodies );
+
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        ///////////////////////             CREATE PROPAGATION SETTINGS            ////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        // Set Keplerian elements for Asterix.
+        Eigen::Vector6d asterixInitialStateInKeplerianElements =
+                ( Eigen::Vector6d( ) << 7500.0E3, 0.1, unit_conversions::convertDegreesToRadians( 85.3 ),
+                  unit_conversions::convertDegreesToRadians( 235.7 ),
+                  unit_conversions::convertDegreesToRadians( 23.4 ),
+                  unit_conversions::convertDegreesToRadians( 139.87 ) ).finished( );
+
+        double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
+        const Eigen::Vector6d asterixInitialState = convertKeplerianToCartesianElements(
+                    asterixInitialStateInKeplerianElements, earthGravitationalParameter );
+
+        std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings;
+        std::shared_ptr< SingleArcPropagatorSettings< double > > translationalPropagatorSettings =
+                std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                    centralBodies, accelerationModelMap, bodiesToPropagate, asterixInitialState, simulationEndEpoch );
+        if( test == 0 )
+        {
+            propagatorSettings = translationalPropagatorSettings;
+        }
+        else
+        {
+            std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
+            massRateModels[ "Asterix" ] = createMassRateModel(
+                        "Asterix", std::make_shared< FromThrustMassRateSettings >( 1 ),
+                        bodies, accelerationModelMap );
+            std::shared_ptr< SingleArcPropagatorSettings< double > > massPropagatorSettings =
+                    std::make_shared< MassPropagatorSettings< double > >(
+                        std::vector< std::string >{ "Asterix" }, massRateModels,
+                        ( Eigen::VectorXd( 1 ) << initialBodyMass ).finished( ),
+                        std::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ) );
+
+            std::vector< std::shared_ptr< SingleArcPropagatorSettings< double > > >  propagatorSettingsList;
+            propagatorSettingsList.push_back( translationalPropagatorSettings );
+            propagatorSettingsList.push_back( massPropagatorSettings );
+            propagatorSettings = std::make_shared< MultiTypePropagatorSettings< double > >(
+                        propagatorSettingsList, std::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ) );
+        }
+
+        const double fixedStepSize = 5.0;
+        std::shared_ptr< IntegratorSettings< > > integratorSettings =
+                std::make_shared< IntegratorSettings< > >( rungeKutta4, 0.0, fixedStepSize );
+
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        ///////////////////////    DEFINE PARAMETERS FOR WHICH SENSITIVITY IS TO BE COMPUTED   ////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        // Define list of parameters to estimate.
+        std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
+        parameterNames = getInitialStateParameterSettings< double >( propagatorSettings, bodies );
+
+        // Create parameters
+        std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate =
+                createParametersToEstimate( parameterNames, bodies );
+
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        ///////////////////////             PROPAGATE ORBIT AND VARIATIONAL EQUATIONS         /////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        // Create simulation object and propagate dynamics.
+        SingleArcVariationalEquationsSolver< > variationalEquationsSimulator(
+                    bodies, integratorSettings, propagatorSettings, parametersToEstimate, true,
+                    std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ), false, true );
+
+        std::map< double, Eigen::MatrixXd > stateTransitionResult =
+                variationalEquationsSimulator.getNumericalVariationalEquationsSolution( ).at( 0 );
+        std::map< double, Eigen::MatrixXd > sensitivityResult =
+                variationalEquationsSimulator.getNumericalVariationalEquationsSolution( ).at( 1 );
+        std::map< double, Eigen::VectorXd > integrationResult =
+                variationalEquationsSimulator.getDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
+
+        if( test == 0 )
+        {
+            finalStateTransitionTranslationalOnly = stateTransitionResult.rbegin( )->second;
+        }
+        else
+        {
+            finalStateTransitionCoupled = stateTransitionResult.rbegin( )->second;
+        }
+
+        Eigen::MatrixXd initialStateTransition = stateTransitionResult.begin( )->second;
+        int numberOfStateEntries = ( test == 0 ) ? 6 : 7;
+
+        for( int i = 0; i < numberOfStateEntries; i++ )
+        {
+            for( int j = 0; j < numberOfStateEntries; j++ )
+            {
+                if( i == j )
+                {
+                    BOOST_CHECK_EQUAL( initialStateTransition( i, j ), 1.0 );
+                }
+                else
+                {
+                    BOOST_CHECK_EQUAL( initialStateTransition( i, j ), 0.0 );
+                }
+            }
+
+        }
+    }
+
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                finalStateTransitionCoupled.block( 0, 0, 6, 6 ), finalStateTransitionTranslationalOnly, 1.0E-6 );
+
+}
+
 
 BOOST_AUTO_TEST_SUITE_END( )
 

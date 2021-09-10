@@ -53,28 +53,6 @@ public:
     //! Function to compute ideal position observation at given time.
     /*!
      *  This function computes the ideal position observation at a given time (without biases).
-     *  \param time Time at which observation is to be simulated
-     *  \param linkEndAssociatedWithTime Link end at which given time is valid (must be observed_body for this derived class)
-     *  \return Calculated observed position of body.
-     */
-    Eigen::Matrix< ObservationScalarType, 3, 1 > computeIdealObservations(
-            const TimeType time,
-            const LinkEndType linkEndAssociatedWithTime = observed_body )
-    {
-        // Check link end
-        if( linkEndAssociatedWithTime != observed_body )
-        {
-            throw std::runtime_error(
-                        "Error when computing position observable, associated link end must be observed_body " );
-        }
-
-        // Compute and return state.
-        return stateFunction_( time ).segment( 0, 3 );
-    }
-
-    //! Function to compute ideal position observation at given time.
-    /*!
-     *  This function computes the ideal position observation at a given time (without biases).
      *  The times and states of the link ends are also returned in full precision (determined by class template
      *  arguments). These states and times are returned by reference.
      * \param time Time at which observable is to be evaluated.

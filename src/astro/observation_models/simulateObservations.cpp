@@ -1,4 +1,4 @@
-#include "tudat/astro/observation_models/simulateObservations.h"
+#include "tudat/simulation/estimation_setup/simulateObservations.h"
 
 namespace tudat
 {

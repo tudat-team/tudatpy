@@ -28,7 +28,7 @@ using namespace boost::placeholders;
 #include <boost/make_shared.hpp>
 #include <memory>
 #include <boost/test/unit_test.hpp>
-#include <boost/test/floating_point_comparison.hpp>
+#include <boost/test/tools/floating_point_comparison.hpp>
 
 #include <Eigen/Core>
 
@@ -111,128 +111,59 @@ BOOST_AUTO_TEST_CASE( test_derived3dAccelerationModel )
     }
 }
 
-//! Test whether AnotherDerivedAccelerationModel (acceleration data type=Eigen::Vector2f) functions
-//! correctly.
-BOOST_AUTO_TEST_CASE( test_derived2fAccelerationModel )
-{
-    // NOTE: For this test, it is imperative that the float values are given with the "f"
-    // suffix, to ensure that their precision is indeed of float-type.
 
-    // Shortcuts.
-    typedef TestBody< 2, float > TestBody2f;
-    typedef std::shared_ptr< TestBody2f > TestBody2fPointer;
-    typedef AccelerationModel< Eigen::Vector2f > AccelerationModel2f;
-    typedef std::shared_ptr< AccelerationModel2f > AccelerationModel2fPointer;
-    typedef AnotherDerivedAccelerationModel< Eigen::Vector2f, Eigen::Vector2f,
-            Eigen::Vector2f, float > AnotherDerivedAccelerationModel2f;
 
-    // Create body with initial state and time.
-    TestBody2fPointer body = std::make_shared< TestBody2f >(
-                ( Eigen::VectorXf( 4 ) << -0.3f, 4.5f, 0.1f, 0.2f ).finished( ), -2.3f );
+////! Test whether DerivedAccelerationModel (acceleration data type=Eigen::Vector1i) functions
+////! correctly.
+//BOOST_AUTO_TEST_CASE( test_derived1iAccelerationModel )
+//{
+//    // Shortcuts.
+//    typedef TestBody< 1, int > TestBody1i;
+//    typedef std::shared_ptr< TestBody1i > TestBody1iPointer;
+//    typedef AccelerationModel< int > AccelerationModel1i;
+//    typedef std::shared_ptr< AccelerationModel1i > AccelerationModel1iPointer;
+//    typedef DerivedAccelerationModel< int, int, int > DerivedAccelerationModel1i;
 
-    // Create acceleration model using AnotherDerivedAccelerationModel class, and pass pointers to
-    // functions in body.
-    AccelerationModel2fPointer accelerationModel2f
-            = std::make_shared< AnotherDerivedAccelerationModel2f >(
-                std::bind( &TestBody2f::getCurrentPosition, body ),
-                std::bind( &TestBody2f::getCurrentVelocity, body ),
-                std::bind( &TestBody2f::getCurrentTime, body ) );
+//    // Create body with initial state and time.
+//    TestBody1iPointer body = std::make_shared< TestBody1i >( Eigen::Vector2i( 20, 1 ), 2 );
 
-    // Declare container of computed accelerations.
-    std::vector< Eigen::Vector2f > computedAccelerations( 3 );
+//    // Create acceleration model using DerivedAccelerationModel class, and pass pointers to
+//    // functions in body.
+//    AccelerationModel1iPointer accelerationModeli1
+//            = std::make_shared< DerivedAccelerationModel1i >(
+//                std::bind( ( &TestBody1i::getCurrentPosition ), body ),
+//                std::bind( ( &TestBody1i::getCurrentTime ), body ) );
 
-    // Get acceleration vector before members are updated.
-    computedAccelerations.at( 0 ) = accelerationModel2f->getAcceleration( );
+//    // Declare container of computed accelerations.
+//    std::vector< int > computedAccelerations( 3 );
 
-    // Update time and state.
-    body->setCurrentTimeAndState(
-                0.33f, ( Eigen::VectorXf( 4 ) << 1.34f, 2.65f, -0.23f, 0.1f ).finished( ) );
+//    // Get scalar acceleration before members are updated.
+//    computedAccelerations.at( 0 ) = accelerationModeli1->getAcceleration( );
 
-    // Update acceleration model members.
-    accelerationModel2f->updateMembers( );
+//    // Update time and state.
+//    body->setCurrentTimeAndState( -3, Eigen::Vector2i( 90, 3 ) );
 
-    // Get acceleration vector, now after members have been updated.
-    computedAccelerations.at( 1 ) = accelerationModel2f->getAcceleration( );
+//    // Update acceleration model members.
+//    accelerationModeli1->updateMembers( );
 
-    // Update time and state.
-    body->setCurrentTimeAndState(
-                -10.3f, ( Eigen::VectorXf( 4 ) << -98.99f, 1.53f, 1.23f, -0.11f ).finished( ) );
+//    // Get scalar acceleration, now after members have been updated.
+//    computedAccelerations.at( 1 ) = accelerationModeli1->getAcceleration( );
 
-    // Update and get acceleration with single function.
-    computedAccelerations.at( 2 ) = updateAndGetAcceleration( accelerationModel2f );
+//    // Update time and state.
+//    body->setCurrentTimeAndState( 4, Eigen::Vector2i( 16, -4 ) );
 
-    // Set expected accelerations.
-    std::vector< Eigen::Vector2f > expectedAccelerations;
-    expectedAccelerations.push_back( 0.5 * Eigen::Vector2f( -0.3f, 4.5f )
-                                     / ( 3.2 * ( -2.3f + 3.4 ) * -2.3f )
-                                     + Eigen::Vector2f( 0.1f, 0.2f ) / -2.3f );
-    expectedAccelerations.push_back( 0.5 * Eigen::Vector2f( 1.34f, 2.65f )
-                                     / ( 3.2 * ( 0.33f + 3.4 ) * 0.33f )
-                                     + Eigen::Vector2f( -0.23f, 0.1f ) / 0.33f );
-    expectedAccelerations.push_back( 0.5 * Eigen::Vector2f( -98.99f, 1.53f )
-                                     / ( 3.2 * ( -10.3f + 3.4 ) * -10.3f )
-                                     + Eigen::Vector2f( 1.23f, -0.11f ) / -10.3f );
+//    // Update and get scalar acceleration with single function.
+//    computedAccelerations.at( 2 ) = updateAndGetAcceleration( accelerationModeli1 );
 
-    // Check that the acceleration vectors before and after the update match expected values.
-    for ( unsigned int i = 0; i < computedAccelerations.size( ); i++ )
-    {
-        TUDAT_CHECK_MATRIX_BASE( computedAccelerations.at( i ), expectedAccelerations.at( i ) )
-                BOOST_CHECK_CLOSE_FRACTION( computedAccelerations.at( i ).coeff( row, col ),
-                                   expectedAccelerations.at( i ).coeff( row, col ), 5.0e-7 );
-    }
-}
+//    // Set expected accelerations.
+//    const std::vector< int > expectedAccelerations = { 20 / ( 2 * 2 ), 90 / ( -3 * -3 ), 16 / ( 4 * 4 ) };
 
-//! Test whether DerivedAccelerationModel (acceleration data type=Eigen::Vector1i) functions
-//! correctly.
-BOOST_AUTO_TEST_CASE( test_derived1iAccelerationModel )
-{
-    // Shortcuts.
-    typedef TestBody< 1, int > TestBody1i;
-    typedef std::shared_ptr< TestBody1i > TestBody1iPointer;
-    typedef AccelerationModel< int > AccelerationModel1i;
-    typedef std::shared_ptr< AccelerationModel1i > AccelerationModel1iPointer;
-    typedef DerivedAccelerationModel< int, int, int > DerivedAccelerationModel1i;
-
-    // Create body with initial state and time.
-    TestBody1iPointer body = std::make_shared< TestBody1i >( Eigen::Vector2i( 20, 1 ), 2 );
-
-    // Create acceleration model using DerivedAccelerationModel class, and pass pointers to
-    // functions in body.
-    AccelerationModel1iPointer accelerationModeli1
-            = std::make_shared< DerivedAccelerationModel1i >(
-                std::bind( ( &TestBody1i::getCurrentPosition ), body ),
-                std::bind( ( &TestBody1i::getCurrentTime ), body ) );
-
-    // Declare container of computed accelerations.
-    std::vector< int > computedAccelerations( 3 );
-
-    // Get scalar acceleration before members are updated.
-    computedAccelerations.at( 0 ) = accelerationModeli1->getAcceleration( );
-
-    // Update time and state.
-    body->setCurrentTimeAndState( -3, Eigen::Vector2i( 90, 3 ) );
-
-    // Update acceleration model members.
-    accelerationModeli1->updateMembers( );
-
-    // Get scalar acceleration, now after members have been updated.
-    computedAccelerations.at( 1 ) = accelerationModeli1->getAcceleration( );
-
-    // Update time and state.
-    body->setCurrentTimeAndState( 4, Eigen::Vector2i( 16, -4 ) );
-
-    // Update and get scalar acceleration with single function.
-    computedAccelerations.at( 2 ) = updateAndGetAcceleration( accelerationModeli1 );
-
-    // Set expected accelerations.
-    const std::vector< int > expectedAccelerations = { 20 / ( 2 * 2 ), 90 / ( -3 * -3 ), 16 / ( 4 * 4 ) };
-
-    // Check that the acceleration vectors before and after the update match expected values.
-    for ( unsigned int i = 0; i < computedAccelerations.size( ); i++ )
-    {
-        BOOST_CHECK_EQUAL( computedAccelerations.at( i ), expectedAccelerations.at( i ) );
-    }
-}
+//    // Check that the acceleration vectors before and after the update match expected values.
+//    for ( unsigned int i = 0; i < computedAccelerations.size( ); i++ )
+//    {
+//        BOOST_CHECK_EQUAL( computedAccelerations.at( i ), expectedAccelerations.at( i ) );
+//    }
+//}
 
 BOOST_AUTO_TEST_SUITE_END( )
 

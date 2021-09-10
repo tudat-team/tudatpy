@@ -595,7 +595,6 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartial )
                     createParametersToEstimate( wrongParameterNames, bodies );
         }
         catch( std::runtime_error const& )
-
         {
             isExceptionCaught = true;
         }
@@ -614,7 +613,6 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartial )
                     createParametersToEstimate( wrongParameterNames, bodies );
         }
         catch( std::runtime_error const& )
-
         {
             isExceptionCaught = true;
         }
@@ -629,7 +627,6 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartial )
                     createParametersToEstimate( wrongParameterNames, bodies );
         }
         catch( std::runtime_error const& )
-
         {
             isExceptionCaught = true;
         }
@@ -644,7 +641,6 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartial )
                     createParametersToEstimate( wrongParameterNames, bodies );
         }
         catch( std::runtime_error const& )
-
         {
             isExceptionCaught = true;
         }
