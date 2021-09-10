@@ -31,7 +31,6 @@
 #include "tudat/simulation/propagation_setup/propagationLambertTargeterFullProblem.h"
 #include "tudat/simulation/propagation_setup/propagationOutput.h"
 #include "tudat/simulation/propagation_setup/propagationOutputSettings.h"
-#include "tudat/simulation/propagation_setup/propagationPatchedConicFullProblem.h"
 #include "tudat/simulation/propagation_setup/propagationSettings.h"
 #include "tudat/simulation/propagation_setup/propagationTermination.h"
 #include "tudat/simulation/propagation_setup/propagationTerminationSettings.h"
