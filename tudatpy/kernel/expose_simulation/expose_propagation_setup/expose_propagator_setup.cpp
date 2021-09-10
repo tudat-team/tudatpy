@@ -69,17 +69,13 @@ namespace propagator {
                        tp::RotationalPropagatorType::exponential_map)
                 .export_values();
 
-        // TODO: why is this enum defined here and not in Tudat?
-          py::enum_<tss::PropagationTerminationTypes,
-                    std::shared_ptr<>>
-          enum PropagationTerminationTypes
-          {
-            time_stopping_condition = 0,
-            cpu_time_stopping_condition = 1,
-            dependent_variable_stopping_condition = 2,
-            hybrid_stopping_condition = 3,
-            custom_stopping_condition = 4
-          };
+        py::enum_<tp::PropagationTerminationTypes>(m, "PropagationTerminationTypes")
+                .value("time_stopping_condition_type", tp::PropagationTerminationTypes::time_stopping_condition)
+                .value("cpu_time_stopping_condition_type", tp::PropagationTerminationTypes::cpu_time_stopping_condition)
+                .value("dependent_variable_stopping_condition_type", tp::PropagationTerminationTypes::dependent_variable_stopping_condition)
+                .value("hybrid_stopping_condition_type", tp::PropagationTerminationTypes::hybrid_stopping_condition)
+                .value("custom_stopping_condition_type", tp::PropagationTerminationTypes::custom_stopping_condition)
+                .export_values();
 
         py::enum_<tp::IntegratedStateType>(m, "StateType")
                 .value("hybrid_type", tp::IntegratedStateType::hybrid)
