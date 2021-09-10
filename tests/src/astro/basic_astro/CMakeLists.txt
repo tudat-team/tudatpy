@@ -62,10 +62,10 @@ TUDAT_ADD_TEST_CASE(AccelerationModel
         tudat_basic_astrodynamics
         )
 
-#TUDAT_ADD_TEST_CASE(CustomAccelerationAndTorqueModel
-#        PRIVATE_LINKS
-#        ${Tudat_PROPAGATION_LIBRARIES}
-#        )
+TUDAT_ADD_TEST_CASE(CustomAccelerationAndTorqueModel
+        PRIVATE_LINKS
+        ${Tudat_PROPAGATION_LIBRARIES}
+        )
 
 TUDAT_ADD_TEST_CASE(ClohessyWiltshirePropagator
         PRIVATE_LINKS
