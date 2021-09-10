@@ -276,8 +276,7 @@ namespace environment_setup {
               py::arg("ephemeris_origin") = "");
 
         // Tudat/SimulationSetup/EnvironmentSetup/createEphemeris.cpp
-        m.def(
-                "create_tabulated_ephemeris_from_spice",
+        m.def("create_tabulated_ephemeris_from_spice",
                 &tss::createTabulatedEphemerisFromSpice<>, py::arg("body"),
                 py::arg("initial_time"), py::arg("end_time"), py::arg("time_step"),
                 py::arg("observer_name"), py::arg("reference_frame_name"),
@@ -336,6 +335,16 @@ namespace environment_setup {
               py::arg("bank_angle_function") = std::function<double()>(),
               py::arg("update_function") = std::function<void(const double)>());
 
+        m.def("get_ground_station_list",
+              &tss::getGroundStationsLinkEndList,
+              py::arg( "body" ) );
+
+        m.def("get_target_elevation_angles",
+              &tss::getTargetElevationAngles,
+              py::arg( "observing_body" ),
+              py::arg( "target_body" ),
+              py::arg( "station_name" ),
+              py::arg( "times" ) );
 
 
         auto aerodynamic_coefficient_setup = m.def_submodule("aerodynamic_coefficients");

@@ -39,18 +39,6 @@ namespace ephemeris {
         // approximatePlanetPositionsBase.h
         /////////////////////////////////////////////////////////////////////////////
 
-        py::enum_<te::ApproximatePlanetPositionsBase::BodiesWithEphemerisData>(
-                m, "BodiesWithEphemerisData", "<no_doc>")
-                .value("mercury", te::ApproximatePlanetPositionsBase::mercury)
-                .value("venus", te::ApproximatePlanetPositionsBase::venus)
-                .value("earth_moon_barycenter", te::ApproximatePlanetPositionsBase::earthMoonBarycenter)
-                .value("mars", te::ApproximatePlanetPositionsBase::mars)
-                .value("jupiter", te::ApproximatePlanetPositionsBase::jupiter)
-                .value("saturn", te::ApproximatePlanetPositionsBase::saturn)
-                .value("uranus", te::ApproximatePlanetPositionsBase::uranus)
-                .value("neptune", te::ApproximatePlanetPositionsBase::neptune)
-                .value("pluto", te::ApproximatePlanetPositionsBase::pluto)
-                .export_values();
 
         /////////////////////////////////////////////////////////////////////////////
         // createEphemeris.h (complete, unverified)
@@ -110,18 +98,13 @@ namespace ephemeris {
                 .def_property_readonly("time_step", &tss::InterpolatedSpiceEphemerisSettings::getTimeStep);
 
 
-        py::class_<tss::ApproximatePlanetPositionSettings,
-                std::shared_ptr<tss::ApproximatePlanetPositionSettings>,
-                tss::EphemerisSettings>(m, "ApproximatePlanetPositionSettings",
-                                        get_docstring("ApproximatePlanetPositionSettings").c_str())
-//            .def(py::init<const tudat::ephemerides::ApproximatePlanetPositionsBase::
-//                 BodiesWithEphemerisData,
-//                 const bool>(),
-//                 py::arg("body_identifier"),
-//                 py::arg("use_circular_coplanar_approximation"))
-                .def_property_readonly("body_identifier", &tss::ApproximatePlanetPositionSettings::getBodyIdentifier)
+        py::class_<tss::ApproximateJplEphemerisSettings,
+                std::shared_ptr<tss::ApproximateJplEphemerisSettings>,
+                tss::EphemerisSettings>(m, "ApproximateJplEphemerisSettings",
+                                        get_docstring("ApproximateJplEphemerisSettings").c_str())
+                .def_property_readonly("body_name", &tss::ApproximateJplEphemerisSettings::getBodyName)
                 .def_property_readonly("use_circular_coplanar_approximation",
-                                       &tss::ApproximatePlanetPositionSettings::getUseCircularCoplanarApproximation);
+                                       &tss::ApproximateJplEphemerisSettings::getUseCircularCoplanarApproximation);
 
 
         py::class_<tss::ConstantEphemerisSettings,
@@ -217,13 +200,13 @@ namespace ephemeris {
 
 
         m.def("approximate_planet_positions",
-              py::overload_cast<const std::string>(&tss::approximatePlanetPositionsSettings),
+              py::overload_cast<const std::string>(&tss::approximateJplEphemerisSettings),
               py::arg("body_name_to_use"),
               get_docstring("approximate_planet_positions", 0).c_str());
 
-        m.def("approximate_planet_positions",
-              py::overload_cast<>(&tss::approximatePlanetPositionsSettings),
-              get_docstring("approximate_planet_positions", 1).c_str());
+//        m.def("approximate_planet_positions",
+//              py::overload_cast<>(&tss::approximateJplEphemerisSettings),
+//              get_docstring("approximate_planet_positions", 1).c_str());
 
         m.def("direct_spice",
               py::overload_cast<const std::string, const std::string, const std::string>(
