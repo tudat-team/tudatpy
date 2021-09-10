@@ -83,7 +83,6 @@ void GroundStationState::resetGroundStationPositionAtEpoch(
                     stationPosition, inputElementType, coordinate_conversions::geodetic_position, bodySurface_ );
     }
     catch( std::runtime_error const& )
-
     {
         geodeticPosition = Eigen::Vector3d::Constant( TUDAT_NAN );
     }

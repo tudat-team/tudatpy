@@ -11,54 +11,44 @@
 #ifndef TUDAT_EXAMPLE_PAGMO_MULTIPLE_GRAVITY_ASSIST_H
 #define TUDAT_EXAMPLE_PAGMO_MULTIPLE_GRAVITY_ASSIST_H
 
-
-#include <vector>
-#include <utility>
-#include <limits>
-
-#include <boost/make_shared.hpp>
-#include <boost/shared_ptr.hpp>
-
-#include <tudat/astro/basic_astro/physicalConstants.h>
-#include <tudat/basics/testMacros.h>
-#include <tudat/math/basic/mathematicalConstants.h>
-#include "tudat/astro/basic_astro/unitConversions.h"
-#include <tudat/astro/basic_astro/orbitalElementConversions.h>
-
-#include <tudat/io/basicInputOutput.h>
-
-#include "tudat/astro/ephemerides/approximatePlanetPositions.h"
-#include "tudat/astro/trajectory_design/trajectory.h"
-#include <random>
-
-#include "pagmo/island.hpp"
-#include "pagmo/io.hpp"
-#include "pagmo/problem.hpp"
-#include <pagmo/rng.hpp>
-
-
-#include <Eigen/Core>
+#include <tudat/simulation/environment/body.h>
+#include <tudat/astro/mission_segments/createTransferTrajectory.h>
 
 typedef Eigen::Matrix< double, 6, 1 > StateType;
 
 using namespace tudat::ephemerides;
-using namespace tudat::basic_astrodynamics;
-using namespace tudat::orbital_element_conversions;
+using namespace tudat::simulation_setup;
+using namespace tudat::mission_segments;
 using namespace tudat::basic_mathematics;
 using namespace tudat::input_output;
-using namespace tudat::transfer_trajectories; //NEED TO CHANGE THIS TO: transfer_trajectories
-using namespace tudat;
-using namespace pagmo;
 
 //! Test function for a new interplanetary trajectory class in Tudat
 struct MultipleGravityAssist
 {
 
-    MultipleGravityAssist( const bool useTripTime = false ): useTripTime_( useTripTime ){ }
+    MultipleGravityAssist( ){ }
 
-    MultipleGravityAssist( std::vector< std::vector< double > > &bounds,
-                           std::vector< int > flybySequence,
-                           const bool useTripTime = false );
+    MultipleGravityAssist(
+            const SystemOfBodies& bodyMap,
+            const std::vector< std::shared_ptr< TransferLegSettings > >& legSettings,
+            const std::vector< std::shared_ptr< TransferNodeSettings > >& nodeSettings,
+            const std::vector< std::string >& nodeIds,
+            const std::string& centralBody,
+            const std::vector< std::vector< double > > problemBounds_ ):
+        bodyMap_( bodyMap ), legSettings_( legSettings ), nodeSettings_( nodeSettings ),
+        nodeIds_( nodeIds ), centralBody_( centralBody ), problemBounds_( problemBounds_ )
+    {
+        numberOfNodes_ = nodeIds_.size( );
+
+        getParameterVectorDecompositionIndices(
+               legSettings_,  nodeSettings_, legParameterIndices_, nodeParameterIndices_ );
+    }
+
+    void getDecomposedDecisionVector(
+            const Eigen::VectorXd rawDecisionVariables,
+            std::vector< double >& currentNodeTimes,
+            std::vector< Eigen::VectorXd >& currentLegFreeParameters,
+            std::vector< Eigen::VectorXd >& currentNodeFreeParameters ) const;
 
     // Calculates the fitness
     std::vector< double > fitness( const std::vector< double > &x ) const;
@@ -73,33 +63,26 @@ struct MultipleGravityAssist
         ar(problemBounds_);
     }
 
-    vector_double::size_type get_nobj() const
+    std::vector< double >::size_type get_nobj() const
     {
-        if(useTripTime_ )
-        {
-            return 2u;
-        }
-        else
-        {
-            return 1u;
-        }
-
+        return 1u;
     }
 
 private:
 
+    SystemOfBodies bodyMap_;
+    std::vector< std::shared_ptr< TransferLegSettings > > legSettings_;
+    std::vector< std::shared_ptr< TransferNodeSettings > > nodeSettings_;
+    std::vector< std::string > nodeIds_;
+    std::string centralBody_;
     const std::vector< std::vector< double > > problemBounds_;
 
-    bool useTripTime_;
+    std::vector< std::pair< int, int > > nodeParameterIndices_;
+    std::vector< std::pair< int, int > > legParameterIndices_;
 
-    int numberOfLegs_;
-    std::vector< TransferLegType > legTypeVector_;
-    std::vector< std::string > bodyNamesVector_;
-    std::vector< ephemerides::EphemerisPointer > ephemerisVector_;
-    Eigen::VectorXd gravitationalParameterVector_;
-    Eigen::VectorXd semiMajorAxes_;
-    Eigen::VectorXd eccentricities_;
-    Eigen::VectorXd minimumPericenterRadii_;
+    unsigned int numberOfNodes_;
+
+    mutable std::shared_ptr< TransferTrajectory > transferTrajectory_;
 };
 
 #endif // TUDAT_EXAMPLE_PAGMO_MULTIPLE_GRAVITY_ASSIST_H

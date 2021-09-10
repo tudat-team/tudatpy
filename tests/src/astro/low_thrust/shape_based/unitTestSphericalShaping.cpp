@@ -59,10 +59,10 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_earth_mars_transfer )
     double timeOfFlight = 580.0 * physical_constants::JULIAN_DAY;
 
     // Ephemeris departure body.
-    EphemerisPointer pointerToDepartureBodyEphemeris = std::make_shared< ApproximatePlanetPositions>(
-                ApproximatePlanetPositionsBase::BodiesWithEphemerisData::earthMoonBarycenter );
-    EphemerisPointer pointerToArrivalBodyEphemeris = std::make_shared< ApproximatePlanetPositions >(
-                ApproximatePlanetPositionsBase::BodiesWithEphemerisData::mars );
+    EphemerisPointer pointerToDepartureBodyEphemeris = std::make_shared< ApproximateJplEphemeris>(
+                "Earth"  );
+    EphemerisPointer pointerToArrivalBodyEphemeris = std::make_shared< ApproximateJplEphemeris >(
+                "Mars"  );
     Eigen::Vector6d initialState = pointerToDepartureBodyEphemeris->getCartesianState( julianDate );
     Eigen::Vector6d finalState = pointerToArrivalBodyEphemeris->getCartesianState(
                 julianDate + timeOfFlight );
@@ -116,8 +116,8 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_earth_1989ML_transfer )
     double timeOfFlight = 600.0 * physical_constants::JULIAN_DAY;
 
     // Ephemeris departure body.
-    EphemerisPointer pointerToDepartureBodyEphemeris = std::make_shared< ApproximatePlanetPositions>(
-                ApproximatePlanetPositionsBase::BodiesWithEphemerisData::earthMoonBarycenter );
+    EphemerisPointer pointerToDepartureBodyEphemeris = std::make_shared< ApproximateJplEphemeris>(
+                "Earth"  );
     Eigen::Vector6d initialState = pointerToDepartureBodyEphemeris->getCartesianState( julianDate );
 
     // Final state derived from ML1989 ephemeris (from Spice).
@@ -186,10 +186,10 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_earth_mars_transfer_multi_revolutio
     std::vector< double > timeOfFlightVector = { 300.0, 580.0, 750.0 };
 
     // Ephemeris departure body.
-    EphemerisPointer pointerToDepartureBodyEphemeris = std::make_shared< ApproximatePlanetPositions>(
-                ApproximatePlanetPositionsBase::BodiesWithEphemerisData::earthMoonBarycenter );
-    EphemerisPointer pointerToArrivalBodyEphemeris = std::make_shared< ApproximatePlanetPositions >(
-                ApproximatePlanetPositionsBase::BodiesWithEphemerisData::mars );
+    EphemerisPointer pointerToDepartureBodyEphemeris = std::make_shared< ApproximateJplEphemeris>(
+                "Earth"  );
+    EphemerisPointer pointerToArrivalBodyEphemeris = std::make_shared< ApproximateJplEphemeris >(
+                "Mars"  );
 
     // Define root finder settings (used to update the updated value of the free coefficient, so that it matches the required time of flight).
     std::shared_ptr< RootFinderSettings > rootFinderSettings =
@@ -296,10 +296,10 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_full_propagation )
     double  timeOfFlight = 580.0;
 
     // Ephemeris for arrival and departure body.
-    EphemerisPointer pointerToDepartureBodyEphemeris = std::make_shared< ApproximatePlanetPositions>(
-                ApproximatePlanetPositionsBase::BodiesWithEphemerisData::earthMoonBarycenter );
-    EphemerisPointer pointerToArrivalBodyEphemeris = std::make_shared< ApproximatePlanetPositions >(
-                ApproximatePlanetPositionsBase::BodiesWithEphemerisData::mars );
+    EphemerisPointer pointerToDepartureBodyEphemeris = std::make_shared< ApproximateJplEphemeris>(
+                "Earth"  );
+    EphemerisPointer pointerToArrivalBodyEphemeris = std::make_shared< ApproximateJplEphemeris >(
+                "Mars"  );
     Eigen::Vector6d stateAtDeparture = pointerToDepartureBodyEphemeris->getCartesianState( julianDate );
     Eigen::Vector6d stateAtArrival = pointerToArrivalBodyEphemeris->getCartesianState(
                 julianDate + timeOfFlight * physical_constants::JULIAN_DAY );
@@ -401,10 +401,10 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_full_propagation )
 //    std::function< double( const double ) > specificImpulseFunction = [ = ]( const double ) { return 3000.0; };
 
 //    // Ephemeris for arrival and departure body.
-//    EphemerisPointer pointerToDepartureBodyEphemeris = std::make_shared< ApproximatePlanetPositions>(
-//                ApproximatePlanetPositionsBase::BodiesWithEphemerisData::earthMoonBarycenter );
-//    EphemerisPointer pointerToArrivalBodyEphemeris = std::make_shared< ApproximatePlanetPositions >(
-//                ApproximatePlanetPositionsBase::BodiesWithEphemerisData::mars );
+//    EphemerisPointer pointerToDepartureBodyEphemeris = std::make_shared< ApproximateJplEphemeris>(
+//                "Earth"  );
+//    EphemerisPointer pointerToArrivalBodyEphemeris = std::make_shared< ApproximateJplEphemeris >(
+//                "Mars"  );
 //    Eigen::Vector6d stateAtDeparture = pointerToDepartureBodyEphemeris->getCartesianState( julianDate );
 //    Eigen::Vector6d stateAtArrival = pointerToArrivalBodyEphemeris->getCartesianState( julianDate + timeOfFlight * physical_constants::JULIAN_DAY );
 

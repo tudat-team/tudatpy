@@ -289,7 +289,8 @@ int getSingleArcParameterSetSize(
                           initialStateParameters.at( i ) )->getNumberOfStateArcs( ) - 1 ) * 6;
         }
         else if( ( initialStateParameters.at( i )->getParameterName( ).first != initial_body_state ) &&
-                 ( initialStateParameters.at( i )->getParameterName( ).first != initial_rotational_body_state ))
+                 ( initialStateParameters.at( i )->getParameterName( ).first != initial_rotational_body_state ) &&
+                 ( initialStateParameters.at( i )->getParameterName( ).first != initial_mass_state ))
         {
             throw std::runtime_error(
                         "Error when getting single arc paramater vector, did not recognize initial state parameter " +
