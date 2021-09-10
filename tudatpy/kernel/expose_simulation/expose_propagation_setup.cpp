@@ -35,12 +35,12 @@ namespace trf = tudat::reference_frames;
 namespace tmrf = tudat::root_finders;
 
 namespace tudatpy {
-    namespace simulation {
-        namespace propagation_setup {
+namespace simulation {
+namespace propagation_setup {
 
-            void expose_propagation_setup(py::module &m) {
+void expose_propagation_setup(py::module &m) {
 
-                /*
+    /*
                * propagation_setup
                *  ├── accelerationSettings.h
                *  ├── createAccelerationModels.h
@@ -84,24 +84,24 @@ namespace tudatpy {
                *
                */
 
-                auto acceleration_setup = m.def_submodule("acceleration");
-                acceleration::expose_acceleration_setup(acceleration_setup);
+    auto acceleration_setup = m.def_submodule("acceleration");
+    acceleration::expose_acceleration_setup(acceleration_setup);
 
-                auto torque_setup = m.def_submodule("torque");
-                torque::expose_torque_setup(torque_setup);
+    auto torque_setup = m.def_submodule("torque");
+    torque::expose_torque_setup(torque_setup);
 
-                auto integrator_setup = m.def_submodule("integrator");
-                integrator::expose_integrator_setup(integrator_setup);
+    auto integrator_setup = m.def_submodule("integrator");
+    integrator::expose_integrator_setup(integrator_setup);
 
-                auto propagator_setup = m.def_submodule("propagator");
-                propagator::expose_propagator_setup(propagator_setup);
+    auto propagator_setup = m.def_submodule("propagator");
+    propagator::expose_propagator_setup(propagator_setup);
 
-                auto mass_setup = m.def_submodule("mass");
-                mass::expose_mass_rate_setup(mass_setup);
+    auto mass_setup = m.def_submodule("mass");
+    mass::expose_mass_rate_setup(mass_setup);
 
-                auto dependent_variable_setup = m.def_submodule("dependent_variable");
-                dependent_variable::expose_dependent_variable_setup(dependent_variable_setup);
-            }
-        }// namespace propagation_setup
-    }// namespace simulation
+    auto dependent_variable_setup = m.def_submodule("dependent_variable");
+    dependent_variable::expose_dependent_variable_setup(dependent_variable_setup);
+}
+}// namespace propagation_setup
+}// namespace simulation
 }// namespace tudatpy
