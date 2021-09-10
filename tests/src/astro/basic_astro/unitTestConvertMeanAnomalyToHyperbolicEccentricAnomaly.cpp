@@ -289,7 +289,6 @@ void testMeanToHyperbolicEccentricAnomalyConversions(
                         testEccentricity, testMeanAnomaly );
         }
         catch( std::runtime_error const& )
-
         {
             // Store the fact that a runtime error occurred, such that the values will be stored.
             aRuntimeErrorOccurred = true;

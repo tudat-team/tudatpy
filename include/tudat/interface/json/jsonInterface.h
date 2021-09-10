@@ -552,8 +552,8 @@ protected:
         {
             printOutputVariables = getValue< bool >( jsonObject_, "printVariableTypes", false );
         }
-        catch( std::runtime_error const& )
-{ }
+        catch( std::runtime_error const& ){ }
+
 
         resetDependentVariableSaveSettings< StateScalarType >( propagatorSettings_, exportSettingsVector_, printOutputVariables );
 

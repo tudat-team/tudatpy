@@ -83,7 +83,7 @@ int main( )
 
     using namespace tudat::basic_astrodynamics;
     accelerationsOfAsterix[ "Earth" ] = {
-            sphericalHarmonicAcceleration( 5, 5 ),
+            sphericalHarmonicAcceleration( 8, 8 ),
             aerodynamicAcceleration() };
 
     accelerationsOfAsterix[ "Sun" ] = {

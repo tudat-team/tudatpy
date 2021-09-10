@@ -241,7 +241,6 @@ public:
                             currentKeplerianState, static_cast< StateScalarType >( centralBodyGravitationalParameters_.at( i )( ) ) );
             }
             catch( std::runtime_error const& )
-
             {
                 currentTrueAnomalies_[ i ] = TUDAT_NAN;
                 currentCartesianLocalSolution.segment( i * 6, 6 ) = Eigen::Matrix< StateScalarType, 6, 1 >::Constant( TUDAT_NAN );

@@ -47,18 +47,18 @@ protected:
     //! List of variables that can be computed by flight condition
     enum FlightConditionVariables
     {
-        altitude_flight_condition,
-        density_flight_condition,
-        pressure_flight_condition,
-        temperature_flight_condition,
-        latitude_flight_condition,
-        longitude_flight_condition,
-        mach_number_flight_condition,
-        speed_of_sound_flight_condition,
-        airspeed_flight_condition,
-        geodetic_latitude_condition,
-        dynamic_pressure_condition,
-        aerodynamic_heat_rate
+        altitude_flight_condition = 0,
+        density_flight_condition = 1,
+        pressure_flight_condition = 2,
+        temperature_flight_condition = 3,
+        latitude_flight_condition = 4,
+        longitude_flight_condition = 5,
+        mach_number_flight_condition = 6,
+        speed_of_sound_flight_condition = 7,
+        airspeed_flight_condition = 8,
+        geodetic_latitude_condition = 9,
+        dynamic_pressure_condition = 10,
+        aerodynamic_heat_rate = 11
     };
 
 public:
@@ -93,7 +93,7 @@ public:
      */
     double getCurrentAltitude( )
     {
-        if( scalarFlightConditions_.count( altitude_flight_condition ) == 0 )
+        if( isScalarFlightConditionComputed_.at( altitude_flight_condition ) == 0 )
         {
             computeAltitude( );
         }
@@ -107,7 +107,7 @@ public:
      */
     double getCurrentLongitude( )
     {
-        if( scalarFlightConditions_.count( longitude_flight_condition ) == 0 )
+        if( isScalarFlightConditionComputed_.at( longitude_flight_condition ) == 0 )
         {
             computeLatitudeAndLongitude( );
         }
@@ -121,7 +121,7 @@ public:
      */
     double getCurrentGeodeticLatitude( )
     {
-        if( scalarFlightConditions_.count( geodetic_latitude_condition ) == 0 )
+        if( isScalarFlightConditionComputed_.at( geodetic_latitude_condition ) == 0 )
         {
             computeGeodeticLatitude( );
         }
@@ -173,7 +173,7 @@ public:
     {
         currentTime_ = currentTime;
 
-        scalarFlightConditions_.clear( );
+        isScalarFlightConditionComputed_ = allScalarFlightConditionsUncomputed;
         isLatitudeAndLongitudeSet_ = 0;
 
         aerodynamicAngleCalculator_->resetCurrentTime( currentTime_ );
@@ -196,8 +196,12 @@ protected:
     {
         scalarFlightConditions_[ latitude_flight_condition ] = aerodynamicAngleCalculator_->getAerodynamicAngle(
                     reference_frames::latitude_angle );
+        isScalarFlightConditionComputed_[ latitude_flight_condition ] = true;
+
         scalarFlightConditions_[ longitude_flight_condition ] = aerodynamicAngleCalculator_->getAerodynamicAngle(
                     reference_frames::longitude_angle );
+        isScalarFlightConditionComputed_[ longitude_flight_condition ] = true;
+
         isLatitudeAndLongitudeSet_ = 1;
     }
 
@@ -206,6 +210,7 @@ protected:
     {
         scalarFlightConditions_[ altitude_flight_condition ] =
                 shapeModel_->getAltitude( currentBodyCenteredAirspeedBasedBodyFixedState_.segment( 0, 3 ) );
+        isScalarFlightConditionComputed_[ altitude_flight_condition ] = true;
     }
 
     //! Function to compute and set the current geodetic latitude.
@@ -215,14 +220,16 @@ protected:
         {
             scalarFlightConditions_[ geodetic_latitude_condition ] = geodeticLatitudeFunction_(
                         currentBodyCenteredAirspeedBasedBodyFixedState_.segment( 0, 3 ) );
+            isScalarFlightConditionComputed_[ geodetic_latitude_condition ] = true;
         }
         else
         {
-            if( scalarFlightConditions_.count( latitude_flight_condition ) == 0 || !isLatitudeAndLongitudeSet_ )
+            if( isScalarFlightConditionComputed_.at( latitude_flight_condition ) == 0 || !isLatitudeAndLongitudeSet_ )
             {
                 computeLatitudeAndLongitude( );
             }
             scalarFlightConditions_[ geodetic_latitude_condition ] = scalarFlightConditions_[ latitude_flight_condition ] ;
+            isScalarFlightConditionComputed_[ geodetic_latitude_condition ] = true;
         }
     }
 
@@ -251,7 +258,11 @@ protected:
     bool isLatitudeAndLongitudeSet_;
 
     //! List of atmospheric/flight properties computed at current time step.
-    std::map< FlightConditionVariables, double > scalarFlightConditions_;
+    std::vector< double > scalarFlightConditions_;
+
+    std::vector< bool > isScalarFlightConditionComputed_;
+
+    const std::vector< bool > allScalarFlightConditionsUncomputed = std::vector< bool >( 12, false );
 
     //! Function from which to compute the geodetic latitude as function of body-fixed position (empty if equal to
     //! geographic latitude).
@@ -311,7 +322,7 @@ public:
      */
     double getCurrentDensity( )
     {
-        if( scalarFlightConditions_.count( density_flight_condition ) == 0 )
+        if( isScalarFlightConditionComputed_.at( density_flight_condition ) == 0 )
         {
             computeDensity( );
         }
@@ -325,7 +336,7 @@ public:
      */
     double getCurrentFreestreamTemperature( )
     {
-        if( scalarFlightConditions_.count( temperature_flight_condition ) == 0 )
+        if( isScalarFlightConditionComputed_.at( temperature_flight_condition ) == 0 )
         {
             computeTemperature( );
         }
@@ -339,7 +350,7 @@ public:
      */
     double getCurrentDynamicPressure( )
     {
-        if( scalarFlightConditions_.count( dynamic_pressure_condition ) == 0 )
+        if( isScalarFlightConditionComputed_.at( dynamic_pressure_condition ) == 0 )
         {
             computeDynamicPressure( );
         }
@@ -353,7 +364,7 @@ public:
      */
     double getCurrentAerodynamicHeatRate( )
     {
-        if( scalarFlightConditions_.count( aerodynamic_heat_rate ) == 0 )
+        if( isScalarFlightConditionComputed_.at( aerodynamic_heat_rate ) == 0 )
         {
             computeAerodynamicHeatRate( );
         }
@@ -367,7 +378,7 @@ public:
      */
     double getCurrentPressure( )
     {
-        if( scalarFlightConditions_.count( pressure_flight_condition ) == 0 )
+        if( isScalarFlightConditionComputed_.at( pressure_flight_condition ) == 0 )
         {
             computeFreestreamPressure( );
         }
@@ -380,7 +391,7 @@ public:
      */
     double getCurrentAirspeed( )
     {
-        if( scalarFlightConditions_.count( airspeed_flight_condition ) == 0 )
+        if( isScalarFlightConditionComputed_.at( airspeed_flight_condition ) == 0 )
         {
             computeAirspeed( );
         }
@@ -394,7 +405,7 @@ public:
      */
     double getCurrentSpeedOfSound( )
     {
-        if( scalarFlightConditions_.count( speed_of_sound_flight_condition ) == 0 )
+        if( isScalarFlightConditionComputed_.at( speed_of_sound_flight_condition ) == 0 )
         {
             computeSpeedOfSound( );
         }
@@ -408,7 +419,7 @@ public:
      */
     double getCurrentMachNumber( )
     {
-        if( scalarFlightConditions_.count( mach_number_flight_condition ) == 0 )
+        if( isScalarFlightConditionComputed_.at( mach_number_flight_condition ) == 0 )
         {
             computeMachNumber( );
         }
@@ -500,7 +511,7 @@ public:
     {
         currentTime_ = currentTime;
 
-        scalarFlightConditions_.clear( );
+        isScalarFlightConditionComputed_ = allScalarFlightConditionsUncomputed;
         isLatitudeAndLongitudeSet_ = 0;
 
         aerodynamicAngleCalculator_->resetCurrentTime( currentTime_ );
@@ -522,27 +533,7 @@ private:
             const std::string& secondaryIdentifier = "" );
 
     //! Function to update input to atmosphere model (altitude, as well as latitude and longitude if needed).
-    void updateAtmosphereInput( )
-    {
-        if( ( scalarFlightConditions_.count( latitude_flight_condition ) == 0 ||
-              scalarFlightConditions_.count( longitude_flight_condition ) == 0 ) )
-        {
-            if( updateLatitudeAndLongitudeForAtmosphere_ )
-            {
-                computeLatitudeAndLongitude( );
-            }
-            else
-            {
-                scalarFlightConditions_[ latitude_flight_condition ] = 0.0;
-                scalarFlightConditions_[ longitude_flight_condition ] = 0.0;
-            }
-        }
-
-        if( scalarFlightConditions_.count( altitude_flight_condition ) == 0 )
-        {
-            computeAltitude( );
-        }
-    }
+    void updateAtmosphereInput( );
 
     //! Function to compute and set the current freestream density
     void computeDensity( )
@@ -553,6 +544,7 @@ private:
                     scalarFlightConditions_.at( altitude_flight_condition ),
                     scalarFlightConditions_.at( longitude_flight_condition ),
                     scalarFlightConditions_.at( latitude_flight_condition ), currentTime_ );
+        isScalarFlightConditionComputed_[ density_flight_condition ] = true;
     }
 
     //! Function to compute and set the current freestream temperature
@@ -564,6 +556,7 @@ private:
                     scalarFlightConditions_.at( altitude_flight_condition ),
                     scalarFlightConditions_.at( longitude_flight_condition ),
                     scalarFlightConditions_.at( latitude_flight_condition ), currentTime_ );
+        isScalarFlightConditionComputed_[ temperature_flight_condition ] = true;
     }
 
     //! Function to compute and set the current freestream pressure.
@@ -575,6 +568,7 @@ private:
                     scalarFlightConditions_.at( altitude_flight_condition ),
                     scalarFlightConditions_.at( longitude_flight_condition ),
                     scalarFlightConditions_.at( latitude_flight_condition ), currentTime_ );
+        isScalarFlightConditionComputed_[ pressure_flight_condition ] = true;
     }
 
 
@@ -587,12 +581,14 @@ private:
                     scalarFlightConditions_.at( altitude_flight_condition ),
                     scalarFlightConditions_.at( longitude_flight_condition ),
                     scalarFlightConditions_.at( latitude_flight_condition ), currentTime_ );
+        isScalarFlightConditionComputed_[ speed_of_sound_flight_condition ] = true;
     }
 
     //! Function to compute and set the current airspeed
     void computeAirspeed( )
     {
         scalarFlightConditions_[ airspeed_flight_condition ] = currentBodyCenteredAirspeedBasedBodyFixedState_.segment( 3, 3 ).norm( );
+        isScalarFlightConditionComputed_[ airspeed_flight_condition ] = true;
     }
 
     //! Function to compute and set the current freestream dynamic pressure.
@@ -601,6 +597,7 @@ private:
         double currentAirspeed = getCurrentAirspeed( );
         scalarFlightConditions_[ dynamic_pressure_condition ] = 0.5 *
                 getCurrentDensity( ) * currentAirspeed * currentAirspeed;
+        isScalarFlightConditionComputed_[ dynamic_pressure_condition ] = true;
     }
 
     //! Function to compute and set the current aerodynamic heat rate.
@@ -609,6 +606,7 @@ private:
         double currentAirspeed = getCurrentAirspeed( );
         scalarFlightConditions_[ aerodynamic_heat_rate ] = 0.5 *
                 getCurrentDensity( ) * currentAirspeed * currentAirspeed * currentAirspeed;
+        isScalarFlightConditionComputed_[ aerodynamic_heat_rate ] = true;
     }
 
     //! Function to compute and set the current Mach number.
@@ -616,6 +614,7 @@ private:
     {
         scalarFlightConditions_[ mach_number_flight_condition ] =
                 getCurrentAirspeed( ) / getCurrentSpeedOfSound( );
+        isScalarFlightConditionComputed_[ mach_number_flight_condition ] = true;
     }
 
     //! Function to update the independent variables of the aerodynamic coefficient interface

@@ -92,16 +92,6 @@ public:
     //! Destructor
     ~ThrustAcceleration( ){ }
 
-    //! Function to retrieve the current acceleration, as set by last call to updateMembers function.
-    /*!
-     * Function to retrieve the current acceleration, as set by last call to updateMembers function.
-     * \return Current thrust acceleration.
-     */
-    Eigen::Vector3d getAcceleration( )
-    {
-        return currentAcceleration_;
-    }
-
     //! Function to reset the current time
     /*!
      * Function to reset the current time of the acceleration model.
@@ -234,9 +224,6 @@ protected:
     //! Function used to update the thrust magnitude and direction to current time.
     std::function< void( const double ) > thrustUpdateFunction_;
 
-    //! Current acceleration, as computed by last call to updateMembers function.
-    Eigen::Vector3d currentAcceleration_;
-
     //! Current acceleration direction, as computed by last call to updateMembers function.
     Eigen::Vector3d currentAccelerationDirection_;
 
@@ -304,16 +291,6 @@ public:
                     thrustStartTimes_ );
     }
 
-
-    //! Function to retrieve the current acceleration, as set by last call to updateMembers function.
-    /*!
-     * Function to retrieve the current acceleration, as set by last call to updateMembers function.
-     * \return Current momentum wheel desaturation acceleration.
-     */
-    Eigen::Vector3d getAcceleration( )
-    {
-        return currentAcceleration_;
-    }
 
     //! Update member variables used by the momentum wheel desaturation acceleration model.
     /*!
@@ -476,10 +453,6 @@ private:
 
     //! Current desaturation thrust multiplier.
     double currentThrustMultiplier_;
-
-    //! Current acceleration vector.
-    Eigen::Vector3d currentAcceleration_;
-
 };
 
 } // namespace propulsion

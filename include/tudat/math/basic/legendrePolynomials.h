@@ -77,6 +77,7 @@ public:
      */
     LegendreCache( const int maximumDegree, const int maximumOrder, const bool useGeodesyNormalization = 1 );
 
+    ~LegendreCache( ){ }
     //! Update maximum degree and order of cache
     /*!
      * Update maximum degree and order of cache
@@ -182,7 +183,9 @@ public:
         currentPolynomialParameter_ = TUDAT_NAN;
     }
 
+    double getVerticalLegendreValuesComputationMultipliersOne( const int degree, const int order );
 
+    double getVerticalLegendreValuesComputationMultipliersTwo( const int degree, const int order );
 
 private:
 
@@ -198,12 +201,18 @@ private:
     //! Current 'complement' to polynomial parameter (cosine of latitude).
     double currentPolynomialParameterComplement_;
 
+    double currentOneOverPolynomialParameterComplement_;
+
     //! List of current values of Legendre polynomials at degree and order (n,m)
     /*!
      * List of current values of Legendre polynomials at degree and order (n,m). The corresponding polynomial is at entry
      * n * ( maximumOrder_ + 1 ) + m.
      */
     std::vector< double > legendreValues_;
+
+    std::vector< double > verticalLegendreValuesComputationMultipliersOne_;
+
+    std::vector< double > verticalLegendreValuesComputationMultipliersTwo_;
 
     //! List of current values of first derivatives of Legendre polynomials at degree and order (n,m)
     /*!
@@ -426,9 +435,9 @@ double computeLegendrePolynomialDerivative( const int order,
  * \param normalizationCorrection Pre-computed scaling term used for part of computations.
  * \return Geodesy-normalized Legendre polynomial derivative with respect to the polynomial parameter.
 */
-double computeGeodesyLegendrePolynomialDerivative( const int degree,
-                                                   const int order,
+double computeGeodesyLegendrePolynomialDerivative( const int order,
                                                    const double polynomialParameter,
+                                                   const double oneOverPolynomialParameterComplement,
                                                    const double currentLegendrePolynomial,
                                                    const double incrementedLegendrePolynomial,
                                                    const double normalizationCorrection );
@@ -480,9 +489,9 @@ double computeGeodesyLegendrePolynomialDerivative( const int degree,
  * \param normalizationCorrection Pre-computed scaling term used for part of computations.
  * \return Geodesy-normalized Legendre polynomial derivative with respect to the polynomial parameter.
 */
-double computeGeodesyLegendrePolynomialSecondDerivative( const int degree,
-                                                         const int order,
+double computeGeodesyLegendrePolynomialSecondDerivative( const int order,
                                                          const double polynomialParameter,
+                                                         const double oneOverPolynomialParameterComplement,
                                                          const double currentLegendrePolynomial,
                                                          const double incrementedLegendrePolynomial,
                                                          const double currentLegendrePolynomialDerivative,
@@ -594,6 +603,14 @@ double computeLegendrePolynomialVertical( const int degree,
                                           const double polynomialParameter,
                                           const double oneDegreePriorPolynomial,
                                           const double twoDegreesPriorPolynomial );
+
+double computeGeodesyLegendrePolynomialVertical( const int degree,
+                                                 const int order,
+                                                 const double polynomialParameter,
+                                                 const double firstMultiplier,
+                                                 const double secondMultiplier,
+                                                 const double oneDegreePriorPolynomial,
+                                                 const double twoDegreesPriorPolynomial );
 
 //! Compute geodesy-normalized Legendre polynomial through degree recursion.
 /*!

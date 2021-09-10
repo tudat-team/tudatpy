@@ -32,7 +32,7 @@ double PointingAnglesCalculator::calculateElevationAngle(
 }
 
 //! Function to calculate the azimuth angle from body-fixed point to given point.
-double PointingAnglesCalculator::calculationAzimuthAngle( const Eigen::Vector3d inertialVectorAwayFromStation,
+double PointingAnglesCalculator::calculateAzimuthAngle( const Eigen::Vector3d inertialVectorAwayFromStation,
                                 const double time )
 {
     // Transform vector to local topocentric frame.
@@ -69,6 +69,31 @@ Eigen::Vector3d PointingAnglesCalculator::convertVectorFromInertialToTopocentric
     // Calculate anf combine constituent rotations.
     return rotationFromBodyFixedToTopoCentricFrame_( time ) * rotationFromInertialToBodyFixedFrame_( time ) * inertialVector;
 }
+
+double calculateGroundStationElevationAngle(
+        const std::shared_ptr< PointingAnglesCalculator > angleCalculator,
+        const std::vector< Eigen::Vector6d > linkEndStates,
+        const std::vector< double > linkEndTimes,
+        const std::pair< int, int >& linkEndIndices )
+{
+    double stationTime = linkEndTimes.at( linkEndIndices.first );
+    Eigen::Vector3d targetRelativeState = ( linkEndStates.at( linkEndIndices.second ) -
+            linkEndStates.at( linkEndIndices.first ) ).segment( 0, 3 );
+    return angleCalculator->calculateElevationAngle( targetRelativeState, stationTime );
+}
+
+double calculateGroundStationAzimuthAngle(
+        const std::shared_ptr< PointingAnglesCalculator > angleCalculator,
+        const std::vector< Eigen::Vector6d > linkEndStates,
+        const std::vector< double > linkEndTimes,
+        const std::pair< int, int >& linkEndIndices )
+{
+    double stationTime = linkEndTimes.at( linkEndIndices.first );
+    Eigen::Vector3d targetRelativeState = ( linkEndStates.at( linkEndIndices.second ) -
+            linkEndStates.at( linkEndIndices.first ) ).segment( 0, 3 );
+    return angleCalculator->calculateAzimuthAngle( targetRelativeState, stationTime );
+}
+
 
 }
 

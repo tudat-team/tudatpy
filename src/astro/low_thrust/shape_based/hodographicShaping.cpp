@@ -41,7 +41,8 @@ HodographicShaping::HodographicShaping(
     numberOfRevolutions_( numberOfRevolutions ),
     freeCoefficientsRadialVelocityFunction_( freeCoefficientsRadialVelocityFunction ),
     freeCoefficientsNormalVelocityFunction_( freeCoefficientsNormalVelocityFunction ),
-    freeCoefficientsAxialVelocityFunction_( freeCoefficientsAxialVelocityFunction )
+    freeCoefficientsAxialVelocityFunction_( freeCoefficientsAxialVelocityFunction ),
+    radialPositionHasBeenNegative_( true )
 {
     // Define composite function in radial direction.
     Eigen::VectorXd radialVelocityCoefficients;
@@ -470,7 +471,6 @@ Eigen::Vector6d HodographicShaping::computeStateVectorInCylindricalCoordinates( 
                                          velocityCylindricalCoordinates[ 0 ],
             velocityCylindricalCoordinates[ 1 ],
             velocityCylindricalCoordinates[ 2 ] ).finished();
-
     return cylindricalState;
 }
 
@@ -492,7 +492,6 @@ Eigen::Vector3d HodographicShaping::computeThrustAccelerationInCylindricalCoordi
     // Compute radial distance from the central body.
     double radialDistance = radialVelocityFunction_->evaluateCompositeFunctionIntegralCurrentTime( timeSinceDeparture )
             - radialVelocityFunction_->evaluateCompositeFunctionIntegralCurrentTime( 0.0 ) + radialBoundaryConditions_[0];
-
     // Compute axial distance from the central body.
     double axialDistance = axialVelocityFunction_->evaluateCompositeFunctionIntegralCurrentTime( timeSinceDeparture )
             - axialVelocityFunction_->evaluateCompositeFunctionIntegralCurrentTime( 0.0 ) + axialBoundaryConditions_[0];
@@ -547,7 +546,10 @@ Eigen::Vector3d HodographicShaping::computeCurrentThrustAcceleration( double tim
         Eigen::Vector3d cylindricalAcceleration = computeThrustAccelerationInCylindricalCoordinates( timeSinceDeparture );
         Eigen::Vector3d cylindricalState = computeStateVectorInCylindricalCoordinates( timeSinceDeparture ).segment(0,3);
         Eigen::Vector3d cartesianState = computeCurrentStateVector( timeSinceDeparture ).segment(0,3);
-
+        if( cylindricalState( 0 ) < 0.0 )
+        {
+            radialPositionHasBeenNegative_ = true;
+        }
         Eigen::Vector3d cartesianAcceleration;
 
         cartesianAcceleration[ 0 ] = ( 1.0 / ( cartesianState[ 0 ] + ( std::pow( cartesianState[ 1 ], 2 ) / cartesianState[ 0 ] ) ) )
@@ -582,6 +584,8 @@ Eigen::Vector3d HodographicShaping::computeCurrentThrustAccelerationDirection(
 //! Compute DeltaV.
 double HodographicShaping::computeDeltaV( )
 {
+    radialPositionHasBeenNegative_ = false;
+
     // Define the derivative of the deltaV, ie thrust acceleration function, as a function of time.
     std::function< double( const double ) > derivativeFunctionDeltaVtest =
             std::bind( &HodographicShaping::computeCurrentThrustAccelerationMagnitude, this,
@@ -591,7 +595,12 @@ double HodographicShaping::computeDeltaV( )
     std::shared_ptr< numerical_quadrature::NumericalQuadrature< double, double > > quadrature =
             numerical_quadrature::createQuadrature( derivativeFunctionDeltaVtest, quadratureSettings_, timeOfFlight_ );
 
-    return quadrature->getQuadrature( );
+    double deltaV = quadrature->getQuadrature( );
+    if( radialPositionHasBeenNegative_ )
+    {
+        deltaV *= 1000.0;
+    }
+    return deltaV;
 }
 
 

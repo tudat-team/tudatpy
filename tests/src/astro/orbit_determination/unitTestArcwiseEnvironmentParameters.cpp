@@ -174,9 +174,8 @@ BOOST_AUTO_TEST_CASE( test_ArcwiseEnvironmentParameters )
 
     LinkEnds linkEnds;
     linkEnds[ observed_body ] = std::make_pair( "Vehicle", "" );
-    observation_models::ObservationSettingsMap observationSettingsMap;
-    observationSettingsMap.insert(
-                std::make_pair( linkEnds, std::make_shared< ObservationSettings >( position_observable ) ) );
+    std::vector< std::shared_ptr< ObservationModelSettings > >  observationSettingsList;
+    observationSettingsList.push_back( std::make_shared< ObservationModelSettings >( position_observable, linkEnds ) );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////    DEFINE PARAMETERS THAT ARE TO BE ESTIMATED      ////////////////////////////////////////////
@@ -215,7 +214,7 @@ BOOST_AUTO_TEST_CASE( test_ArcwiseEnvironmentParameters )
     // Create orbit determination object (propagate orbit, create observation models)
     OrbitDeterminationManager< double, double > orbitDeterminationManager =
             OrbitDeterminationManager< double, double >(
-                bodies, parametersToEstimate, observationSettingsMap,
+                bodies, parametersToEstimate, observationSettingsList,
                 integratorSettings, propagatorSettings );
 
     std::map< double, Eigen::VectorXd > dependentVariableData =
@@ -272,20 +271,14 @@ BOOST_AUTO_TEST_CASE( test_ArcwiseEnvironmentParameters )
     }
 
     // Create measureement simulation input
-    std::map< ObservableType, std::map< LinkEnds, std::pair< std::vector< double >, LinkEndType > > > measurementSimulationInput;
-    measurementSimulationInput[ position_observable ][ linkEnds ] =
-            std::make_pair( baseTimeList, observed_body );
-
-    // Set typedefs for POD input (observation types, observation link ends, observation values, associated times with
-    // reference link ends.
-    typedef Eigen::Matrix< double, Eigen::Dynamic, 1 > ObservationVectorType;
-    typedef std::map< LinkEnds, std::pair< ObservationVectorType, std::pair< std::vector< double >, LinkEndType > > >
-            SingleObservablePodInputType;
-    typedef std::map< ObservableType, SingleObservablePodInputType > PodInputDataType;
+    std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > measurementSimulationInput;
+    measurementSimulationInput.push_back(
+                std::make_shared< TabulatedObservationSimulationSettings< > >(
+                    position_observable, linkEnds, baseTimeList, observed_body ) );
 
     // Simulate observations
-    PodInputDataType observationsAndTimes = simulateObservations< double, double >(
-                measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ) );
+    std::shared_ptr< ObservationCollection< > > observationsAndTimes = simulateObservations< double, double >(
+                measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //////////////////    PERTURB PARAMETER VECTOR AND ESTIMATE PARAMETERS     ////////////////////////////////////////////

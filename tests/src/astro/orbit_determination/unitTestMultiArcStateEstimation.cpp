@@ -23,7 +23,7 @@
 #include "tudat/basics/testMacros.h"
 #include "tudat/simulation/simulation.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
-#include "tudat/astro/observation_models/simulateObservations.h"
+#include "tudat/simulation/estimation_setup/simulateObservations.h"
 #include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
 #include "tudat/simulation/environment_setup/createGroundStations.h"
 #include "tudat/simulation/estimation_setup/podProcessing.h"
@@ -149,10 +149,28 @@ Eigen::VectorXd  executeParameterEstimation(
     while( currentEndTime < integrationEndTime );
     integrationArcLimits.push_back( currentStartTime + arcOverlap );
 
+
+    std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > propagatorSettingsList;
+    for( unsigned int i = 0; i < integrationArcStartTimes.size( ); i++ )
+    {
+        Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > currentInitialState =
+                getInitialStateOfBody< TimeType, StateScalarType>(
+                    bodiesToIntegrate.at( 0 ), centralBodies.at( 0 ), bodies, integrationArcStartTimes.at( i ) );
+        propagatorSettingsList.push_back(
+                    std::make_shared< TranslationalStatePropagatorSettings< StateScalarType > >
+                    ( centralBodies, accelerationModelMap, bodiesToIntegrate,
+                      currentInitialState,
+                      integrationArcEndTimes.at( i ) ) );
+    }
+    std::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings =
+            std::make_shared< MultiArcPropagatorSettings< StateScalarType > >( propagatorSettingsList, linkArcs );
+
+
     // Set parameters that are to be estimated.
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
     parameterNames.push_back( std::make_shared< ArcWiseInitialTranslationalStateEstimatableParameterSettings< StateScalarType > >(
                                   "Earth", integrationArcStartTimes ) );
+//    parameterNames = getInitialStateParameterSettings< double >( propagatorSettings, bodies );
     parameterNames.push_back( std::make_shared< EstimatableParameterSettings >
                               ( "Mars", constant_rotation_rate ) );
     parameterNames.push_back(  std::make_shared< EstimatableParameterSettings >
@@ -171,37 +189,22 @@ Eigen::VectorXd  executeParameterEstimation(
     linkEnds2[ 1 ][ receiver ] = grazStation;
     linkEnds2[ 1 ][ transmitter ] = mslStation;
 
-    observation_models::ObservationSettingsMap observationSettingsMap;
-    observationSettingsMap.insert( std::make_pair( linkEnds2[ 0 ], std::make_shared< ObservationSettings >(
-                                       one_way_range ) ) );
-    observationSettingsMap.insert( std::make_pair( linkEnds2[ 1 ], std::make_shared< ObservationSettings >(
-                                       one_way_range ) ) );
+    std::vector< std::shared_ptr< ObservationModelSettings > > observationSettingsList;
+    observationSettingsList.push_back( std::make_shared< ObservationModelSettings >(
+                                       one_way_range, linkEnds2[ 0 ] ) );
+    observationSettingsList.push_back( std::make_shared< ObservationModelSettings >(
+                                       one_way_range, linkEnds2[ 1 ] ) );
 
     // Define integrator settings.
     std::shared_ptr< IntegratorSettings< TimeType > > integratorSettings =
             std::make_shared< IntegratorSettings< TimeType > >
             ( rungeKutta4, TimeType( initialEphemerisTime - 4.0 * maximumTimeStep ), 3600.0 );
 
-    std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > propagatorSettingsList;
-    for( unsigned int i = 0; i < integrationArcStartTimes.size( ); i++ )
-    {
-        Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > currentInitialState =
-                getInitialStateOfBody< TimeType, StateScalarType>(
-                    bodiesToIntegrate.at( 0 ), centralBodies.at( 0 ), bodies, integrationArcStartTimes.at( i ) );
-        propagatorSettingsList.push_back(
-                    std::make_shared< TranslationalStatePropagatorSettings< StateScalarType > >
-                    ( centralBodies, accelerationModelMap, bodiesToIntegrate,
-                      currentInitialState,
-                      integrationArcEndTimes.at( i ) ) );
-    }
-    std::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings =
-            std::make_shared< MultiArcPropagatorSettings< StateScalarType > >( propagatorSettingsList, linkArcs );
-
     // Create orbit determination object.
     OrbitDeterminationManager< ObservationScalarType, TimeType > orbitDeterminationManager =
             OrbitDeterminationManager< ObservationScalarType, TimeType >(
                 bodies, parametersToEstimate,
-                observationSettingsMap, integratorSettings, propagatorSettings );
+                observationSettingsList, integratorSettings, propagatorSettings );
 
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialParameterEstimate =
             parametersToEstimate->template getFullParameterValues< StateScalarType >( );
@@ -227,21 +230,13 @@ Eigen::VectorXd  executeParameterEstimation(
         }
     }
 
+    std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > measurementSimulationInput;
+    measurementSimulationInput.push_back(
+                std::make_shared< TabulatedObservationSimulationSettings< > >(
+                    one_way_range, linkEnds2[ 0 ], initialObservationTimes, receiver ) );
 
-    std::map< ObservableType, std::map< LinkEnds, std::pair< std::vector< TimeType >, LinkEndType > > > measurementSimulationInput;
-    std::map< LinkEnds, std::pair< std::vector< TimeType >, LinkEndType > > singleObservableSimulationInput;
-
-
-    singleObservableSimulationInput[ linkEnds2[ 0 ] ] = std::make_pair( initialObservationTimes, receiver );
-    measurementSimulationInput[ one_way_range ] = singleObservableSimulationInput;
-
-
-    typedef Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > ObservationVectorType;
-    typedef std::map< LinkEnds, std::pair< ObservationVectorType, std::pair< std::vector< TimeType >, LinkEndType > > > SingleObservablePodInputType;
-    typedef std::map< ObservableType, SingleObservablePodInputType > PodInputDataType;
-
-    PodInputDataType observationsAndTimes = simulateObservations< ObservationScalarType, TimeType >(
-                measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( )  );
+    std::shared_ptr< ObservationCollection< > > observationsAndTimes = simulateObservations< ObservationScalarType, TimeType >(
+                measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies  );
 
 
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > truthParameters = initialParameterEstimate;
@@ -474,13 +469,13 @@ Eigen::VectorXd  executeMultiBodyMultiArcParameterEstimation( )
 
     // Define links and observations in simulation.
     std::vector< LinkEnds > linkEndsList;
-    observation_models::ObservationSettingsMap observationSettingsMap;
+    std::vector< std::shared_ptr< ObservationModelSettings > > observationSettingsList;
     linkEndsList.resize( numberOfVehicles );
     for( int i = 0; i < numberOfVehicles; i++ )
     {
         linkEndsList[ i ][ observed_body ] = std::make_pair( vehicleNames.at( i ), "" );
-        observationSettingsMap.insert( std::make_pair( linkEndsList[ i ], std::make_shared< ObservationSettings >(
-                                                           position_observable ) ) );
+        observationSettingsList.push_back( std::make_shared< ObservationModelSettings >(
+                                                           position_observable, linkEndsList[ i ] ) );
     }
 
 
@@ -488,7 +483,7 @@ Eigen::VectorXd  executeMultiBodyMultiArcParameterEstimation( )
     OrbitDeterminationManager< ObservationScalarType, TimeType > orbitDeterminationManager =
             OrbitDeterminationManager< ObservationScalarType, TimeType >(
                 bodies, parametersToEstimate,
-                observationSettingsMap, integratorSettings, propagatorSettings );
+                observationSettingsList, integratorSettings, propagatorSettings );
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialParameterEstimate =
             parametersToEstimate->template getFullParameterValues< StateScalarType >( );
 
@@ -514,20 +509,17 @@ Eigen::VectorXd  executeMultiBodyMultiArcParameterEstimation( )
 
 
     // Define observation simulation settings
-    std::map< ObservableType, std::map< LinkEnds, std::pair< std::vector< TimeType >, LinkEndType > > > measurementSimulationInput;
-    std::map< LinkEnds, std::pair< std::vector< TimeType >, LinkEndType > > singleObservableSimulationInput;
+    std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > measurementSimulationInput;
     for( int i = 0; i < numberOfVehicles; i++ )
     {
-        singleObservableSimulationInput[ linkEndsList[ i ] ] = std::make_pair( initialObservationTimes, observed_body );
+        measurementSimulationInput.push_back(
+                    std::make_shared< TabulatedObservationSimulationSettings< > >(
+                        position_observable, linkEndsList[ i ], initialObservationTimes, observed_body ) );
     }
-    measurementSimulationInput[ position_observable ] = singleObservableSimulationInput;
 
     // Simulate observations
-    typedef Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > ObservationVectorType;
-    typedef std::map< LinkEnds, std::pair< ObservationVectorType, std::pair< std::vector< TimeType >, LinkEndType > > > SingleObservablePodInputType;
-    typedef std::map< ObservableType, SingleObservablePodInputType > PodInputDataType;
-    PodInputDataType observationsAndTimes = simulateObservations< ObservationScalarType, TimeType >(
-                measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( )  );
+    std::shared_ptr< ObservationCollection< > > observationsAndTimes = simulateObservations< ObservationScalarType, TimeType >(
+                measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies  );
 
     // Perturb initial states
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > truthParameters = initialParameterEstimate;

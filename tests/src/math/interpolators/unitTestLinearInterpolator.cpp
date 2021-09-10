@@ -194,7 +194,6 @@ BOOST_AUTO_TEST_CASE( test_linearInterpolation_boundary_case )
                 linearInterpolator.interpolate( valueBelowMinimumValue );
             }
             catch( std::runtime_error const& )
-
             {
                 exceptionIsCaught = true;
             }
@@ -206,7 +205,6 @@ BOOST_AUTO_TEST_CASE( test_linearInterpolation_boundary_case )
                 linearInterpolator.interpolate( valueAboveMaximumValue );
             }
             catch( std::runtime_error const& )
-
             {
                 exceptionIsCaught = true;
             }

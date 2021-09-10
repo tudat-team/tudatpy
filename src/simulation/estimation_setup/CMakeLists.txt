@@ -10,7 +10,10 @@
 
 # Add source files.
 set(estimation_HEADERS
+        simulateObservations.h
+        observationOutputSettings.h
         createObservationModel.h
+        createObservationViability.h
         createLightTimeCalculator.h
         createAccelerationPartials.h
         createLightTimeCorrection.h
@@ -34,6 +37,8 @@ set(estimation_HEADERS
         createAngularPositionPartials.h
         createDifferencedOneWayRangeRatePartials.h
         createNWayRangePartials.h
+        observationOutputSettings.h
+        observationOutput.h
         )
 
 # Add header files.
@@ -54,8 +59,12 @@ set(estimation_SOURCES
         createNumericalSimulator.cpp
         createAccelerationPartials.cpp
         createObservationModel.cpp
+        createObservationViability.cpp
         createDopplerPartials.cpp
         createAngularPositionPartials.cpp
+        simulateObservations.cpp
+        observationOutputSettings.cpp
+        observationOutput.cpp
         )
 
 # Add library.

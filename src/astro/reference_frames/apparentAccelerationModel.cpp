@@ -79,6 +79,12 @@ void ApparentAccelerationModel::updateMembers( const double currentTime )
                 positionOfBodyInNonInertialReferenceFrameFunction_( );
         currentVelocityOfBodyInNonInertialReferenceFrame_ =
                 velocityOfBodyInNonInertialReferenceFrameFunction_( );
+        currentAcceleration_ =
+                computeApparentAcceleration( currentAccelerationOfNonInertialReferenceFrame_,
+                                                            currentAngularVelocityOfNonInertialReferenceFrame_,
+                                                            currentAngularAccelerationOfNonInertialReferenceFrame_,
+                                                            currentPositionOfBodyInNonInertialReferenceFrame_,
+                                                            currentVelocityOfBodyInNonInertialReferenceFrame_ );
     }
 }
 
