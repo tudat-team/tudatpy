@@ -541,6 +541,18 @@ Eigen::Quaterniond getRotatingPlanetocentricToEnuLocalVerticalFrameTransformatio
 Eigen::Quaterniond getEnuLocalVerticalToRotatingPlanetocentricFrameTransformationQuaternion(
         const double longitude, const double latitude );
 
+//! Get transformation matrix from J2000 to ECLIPJ2000. Transformation matrix with values from SPICE
+/*!
+ * @return Transformation matrix
+ */
+Eigen::Matrix3d getJ2000toECLIPJ2000TransformationMatrix ();
+
+//! Get transformation matrix from ECLIPJ2000 to J2000. Transformation matrix with values from SPICE
+/*!
+ * @return Transformation matrix
+ */
+Eigen::Matrix3d getECLIPJ2000toJ2000TransformationMatrix ();
+
 //! Pre-multiplier used to take derivative of rotation matrix about x-axis w.r.t. the rotation angle
 static const Eigen::Matrix3d X_AXIS_ROTATION_MATRIX_DERIVATIVE_PREMULTIPLIER =
         ( Eigen::Matrix3d( ) <<
