@@ -79,7 +79,7 @@ namespace propagator {
             custom_stopping_condition = 4
           };
         // TODO: expose enum
-//        py::enum_<tss::PropagationTerminationTypes,
+//         py::enum_<tss::PropagationTerminationTypes,
 //                std::shared_ptr<>>;
 
         py::enum_<tp::IntegratedStateType>(m, "StateType")
