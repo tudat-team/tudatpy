@@ -12,7 +12,7 @@
 #define TUDAT_PROPAGATION_PATCHED_CONIC_FULL
 
 #include "tudat/simulation/simulation.h"
-#include "tudat/astro/trajectory_design/trajectory.h"
+#include "tudat/astro/mission_segments/transferTrajectory.h"
 
 namespace tudat
 {
