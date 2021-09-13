@@ -369,7 +369,6 @@ private:
     std::vector< TimeType > concatenatedTimes_;
 
 
-
     std::map< ObservableType, std::map< LinkEnds, std::vector< std::pair< int, int > > > > observationSetStartAndSize_;
 
     std::map< ObservableType, std::pair< int, int > > observationTypeStartAndSize_;

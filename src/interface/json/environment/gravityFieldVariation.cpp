@@ -43,7 +43,6 @@ void to_json( nlohmann::json& jsonObject, const std::shared_ptr< GravityFieldVar
         assertNonnullptrPointer( basicSolidBodySettings );
         jsonObject[ K::deformingBodies ] = basicSolidBodySettings->getDeformingBodies( );
         jsonObject[ K::loveNumbers ] = basicSolidBodySettings->getLoveNumbers( );
-        jsonObject[ K::referenceRadius ] = basicSolidBodySettings->getBodyReferenceRadius( );
         return;
     }
     case tabulated_variation:
@@ -77,12 +76,12 @@ void from_json( const nlohmann::json& jsonObject, std::shared_ptr< GravityFieldV
     switch ( bodyDeformationType ) {
     case basic_solid_body:
     {
-        BasicSolidBodyGravityFieldVariationSettings defaults( { }, { }, TUDAT_NAN );
-        variationSettings = std::make_shared< BasicSolidBodyGravityFieldVariationSettings >(
-                    getValue< std::vector< std::string > >( jsonObject, K::deformingBodies ),
-                    getValue< std::vector< std::vector< std::complex< double > > > >( jsonObject, K::loveNumbers ),
-                    getValue< double >( jsonObject, K::referenceRadius ),
-                    getValue( jsonObject, K::modelInterpolation, defaults.getInterpolatorSettings( ) ) );
+        throw std::runtime_error( "Error, BasicSolidBodyGravityFieldVariationSettings not yet enabled in JSON interface." );
+//        BasicSolidBodyGravityFieldVariationSettings defaults( { }, { } );
+//        variationSettings = std::make_shared< BasicSolidBodyGravityFieldVariationSettings >(
+//                    getValue< std::vector< std::string > >( jsonObject, K::deformingBodies ),
+//                    getValue< std::vector< std::vector< std::complex< double > > > >( jsonObject, K::loveNumbers ),
+//                    getValue( jsonObject, K::modelInterpolation, defaults.getInterpolatorSettings( ) ) );
         return;
     }
     case tabulated_variation:

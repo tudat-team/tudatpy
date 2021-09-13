@@ -249,6 +249,7 @@ std::shared_ptr< Ephemeris > getTabulatedEphemeris(
         const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings =
         std::make_shared< interpolators::LagrangeInterpolatorSettings >( 8 ) )
 {
+
     typedef Eigen::Matrix< StateScalarType, 6, 1 > StateType;
 
     // Create state map that is to be interpolated
@@ -262,10 +263,12 @@ std::shared_ptr< Ephemeris > getTabulatedEphemeris(
     }
 
     // Create tabulated ephemeris model
-    return std::make_shared< TabulatedCartesianEphemeris< StateScalarType, TimeType > >(
+    auto ephemeris = std::make_shared< TabulatedCartesianEphemeris< StateScalarType, TimeType > >(
                 interpolators::createOneDimensionalInterpolator( stateMap, interpolatorSettings ),
                 ephemerisToInterrogate->getReferenceFrameOrigin( ),
                 ephemerisToInterrogate->getReferenceFrameOrientation( ) );
+
+    return ephemeris;
 
 }
 
