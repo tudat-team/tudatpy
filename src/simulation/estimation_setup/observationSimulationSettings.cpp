@@ -1,4 +1,4 @@
-#include "tudat/simulation/estimation_setup/simulateObservations.h"
+#include "tudat/simulation/estimation_setup/observationSimulationSettings.h"
 
 namespace tudat
 {

@@ -73,10 +73,9 @@ int main( )
                 ( physical_constants::JULIAN_DAY ) );
 
     SystemOfBodies bodies = createSystemOfBodies( bodySettings );
-
     
 
-    // Creatre ground stations: same position, but different representation
+    // Creatre ground stations
     std::vector< std::string > groundStationNames;
     groundStationNames.push_back( "Station1" );
     groundStationNames.push_back( "Station2" );
@@ -89,6 +88,7 @@ int main( )
     // Define parameters.
     std::vector< LinkEnds > stationReceiverLinkEnds;
     std::vector< LinkEnds > stationTransmitterLinkEnds;
+    std::vector< LinkEnds > twoWayLinkEnds;
 
     // Define link ends to/from ground stations to Moon
     for( unsigned int i = 0; i < groundStationNames.size( ); i++ )
@@ -102,11 +102,21 @@ int main( )
         linkEnds[ receiver ] = std::make_pair( "Earth", groundStationNames.at( i ) );
         linkEnds[ transmitter ] = std::make_pair( "Moon", "" );
         stationReceiverLinkEnds.push_back( linkEnds );
+
+        twoWayLinkEnds.clear( );
+        linkEnds[ receiver ] = std::make_pair( "Earth", groundStationNames.at( i ) );
+        linkEnds[ retransmitter ] = std::make_pair( "Moon", "" );
+        linkEnds[ transmitter ] = std::make_pair( "Earth", groundStationNames.at( i ) );
+        twoWayLinkEnds.push_back( linkEnds );
     }
 
     // Define (arbitrary) link ends for each observable
     std::map< ObservableType, std::vector< LinkEnds > > linkEndsPerObservable;
     linkEndsPerObservable[ one_way_range ].push_back( stationReceiverLinkEnds[ 0 ] );
+    linkEndsPerObservable[ one_way_range ].push_back( stationReceiverLinkEnds[ 1 ] );
+
+    linkEndsPerObservable[ one_way_doppler ].push_back( stationReceiverLinkEnds[ 0 ] );
+    linkEndsPerObservable[ one_way_doppler ].push_back( stationReceiverLinkEnds[ 1 ] );
 
     // Define observation settings for each observable/link ends combination
     std::vector< std::shared_ptr< ObservationModelSettings > > observationSettingsList;
@@ -128,13 +138,13 @@ int main( )
     std::vector< std::shared_ptr< ObservationSimulatorBase< double, double > > >  observationSimulators =
             createObservationSimulators( observationSettingsList, bodies );
 
-    // Define osbervation times. NOTE: These times are not checked w.r.t. visibility and are used for testing purposes only.
+    // Define osbervation times.
     std::vector< double > baseTimeList;
     double observationTimeStart = initialEphemerisTime + 1000.0;
-    double observationInterval = 5.0;
-    for( unsigned int i = 0; i < 3; i++ )
+    double observationInterval = 10.0;
+    for( unsigned int i = 0; i < 14; i++ )
     {
-        for( unsigned int j = 0; j < 10000; j++ )
+        for( unsigned int j = 0; j < 4320; j++ )
         {
             baseTimeList.push_back( observationTimeStart + static_cast< double >( i ) * 86400.0 +
                                     static_cast< double >( j ) * observationInterval );
@@ -156,13 +166,34 @@ int main( )
         }
     }
 
+    std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > > viabilitySettingsList;
+    viabilitySettingsList.push_back( elevationAngleViabilitySettings(
+                                         std::make_pair( "Earth", "Station1" ), 25.0 * mathematical_constants::PI / 180.0 ) );
+    viabilitySettingsList.push_back( elevationAngleViabilitySettings(
+                                         std::make_pair( "Earth", "Station2" ), 25.0 * mathematical_constants::PI / 180.0 ) );
+
+    addViabilityToObservationSimulationSettings(
+            measurementSimulationInput, viabilitySettingsList );
+
+    // Define settings for dependent variables
     std::vector< std::shared_ptr< ObservationDependentVariableSettings > > dependentVariableList;
-    dependentVariableList.push_back(
-                std::make_shared< StationAngleObservationDependentVariableSettings >(
-                    station_elevation_angle, std::make_pair( "Earth", "Station1" ) ) );
+
+    std::shared_ptr< ObservationDependentVariableSettings > elevationAngleSettings1 =
+            std::make_shared< StationAngleObservationDependentVariableSettings >(
+                station_elevation_angle, std::make_pair( "Earth", "Station1" ) );
+    std::shared_ptr< ObservationDependentVariableSettings > azimuthAngleSettings1 =
+            std::make_shared< StationAngleObservationDependentVariableSettings >(
+                station_azimuth_angle, std::make_pair( "Earth", "Station1" ) );
+
+//    std::shared_ptr< ObservationDependentVariableSettings > elevationAngleSettings2 =
+//            std::make_shared< StationAngleObservationDependentVariableSettings >(
+//                station_elevation_angle, std::make_pair( "Earth", "Station2" ) );
+
+    dependentVariableList.push_back( elevationAngleSettings1 );
+    dependentVariableList.push_back( azimuthAngleSettings1 );
 
     addDependentVariablesToObservationSimulationSettings(
-            measurementSimulationInput, dependentVariableList, bodies );
+                measurementSimulationInput, dependentVariableList, bodies );
 
 
 
@@ -170,8 +201,67 @@ int main( )
     std::shared_ptr< ObservationCollection< > > idealObservationsAndTimes = simulateObservations< double, double >(
                 measurementSimulationInput, observationSimulators, bodies );
 
+    std::cout<<"Simulated observations "<<std::endl;
+    std::map< double, Eigen::VectorXd > elevationAngles;
+    std::map< double, Eigen::VectorXd > azimuthAngles;
+
+    std::cout<<"Getting elevation angle"<<std::endl;
+    elevationAngles = getDependentVariableResultList(
+                idealObservationsAndTimes, elevationAngleSettings1,
+                one_way_range );
+    input_output::writeDataMapToTextFile( elevationAngles,
+                                          "elevationAngles1_range.dat",
+                                          "/home/dominic/Software/Tudat30Bundle/test-output/" );
+
+    std::cout<<"Getting azimuth angle"<<std::endl;
+    azimuthAngles = getDependentVariableResultList(
+                idealObservationsAndTimes, azimuthAngleSettings1,
+                one_way_range );
+    input_output::writeDataMapToTextFile( azimuthAngles,
+                                          "azimuthAngles1_range.dat",
+                                          "/home/dominic/Software/Tudat30Bundle/test-output/" );
+
+//    elevationAngles = getDependentVariableResultList(
+//                idealObservationsAndTimes, elevationAngleSettings1,
+//                one_way_range, stationReceiverLinkEnds[ 0 ] );
+//    input_output::writeDataMapToTextFile( elevationAngles,
+//                                          "elevationAngles2_range.dat",
+//                                          "/home/dominic/Software/Tudat30Bundle/test-output/" );
+
+//    elevationAngles = getDependentVariableResultList(
+//                idealObservationsAndTimes, elevationAngleSettings2,
+//                one_way_doppler );
+//    input_output::writeDataMapToTextFile( elevationAngles,
+//                                          "elevationAngles1_doppler.dat",
+//                                          "/home/dominic/Software/Tudat30Bundle/test-output/" );
+
+//    elevationAngles = getDependentVariableResultList(
+//                idealObservationsAndTimes, elevationAngleSettings2,
+//                one_way_doppler, stationReceiverLinkEnds[ 1 ] );
+//    input_output::writeDataMapToTextFile( elevationAngles,
+//                                          "elevationAngles2_doppler.dat",
+//                                          "/home/dominic/Software/Tudat30Bundle/test-output/" );
+
 
 }
+
+//class ObservationDependentVariableWrapper
+//{
+//  ObservableType observableType_;
+
+//  LinkEnds linkEnds;
+
+//  std::map< double, Eigen::VectorXd > dependentVariables_;
+
+//  std::vector< std::shared_ptr< ObservationDependentVariableSettings > > dependentVariableList;
+
+//  std::vector< int > sizeIndices_;
+
+//  std::map< double, Eigen::VectorXd > getSingleDependentVariables( std::shared_ptr< ObservationDependentVariableSettings > );
+
+
+
+//};
 
 //BOOST_AUTO_TEST_SUITE_END( )
 
