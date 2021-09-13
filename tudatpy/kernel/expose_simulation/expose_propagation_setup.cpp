@@ -9,6 +9,7 @@
  */
 
 #include "expose_propagation_setup.h"
+#include "tudat/astro/propagators/getZeroProperModeRotationalInitialState.h"
 
 #include <pybind11/chrono.h>
 #include <pybind11/eigen.h>
@@ -374,7 +375,7 @@ void expose_torque_setup(py::module &m) {
             .export_values();
 
     py::class_<tss::TorqueSettings,
-            std::shared_ptr<tss::TorqueSettings>>(m, "AccelerationSettings");
+            std::shared_ptr<tss::TorqueSettings>>(m, "TorqueSettings");
 
     py::class_<tss::SphericalHarmonicTorqueSettings,
             std::shared_ptr<tss::SphericalHarmonicTorqueSettings>,
@@ -927,7 +928,9 @@ void expose_propagator_setup(py::module &m)
     py::class_<
             tp::PropagatorSettings<double>,
             std::shared_ptr<tp::PropagatorSettings<double>>>(m, "PropagatorSettings")
-            .def("reset_initial_states", &tp::PropagatorSettings<double>::resetInitialStates);
+            .def_property("initial_states",
+                          &tp::PropagatorSettings<double>::getInitialStates,
+                          &tp::PropagatorSettings<double>::resetInitialStates);
 
     py::class_<
             tp::SingleArcPropagatorSettings<double>,
@@ -1030,6 +1033,10 @@ void expose_propagator_setup(py::module &m)
             .def_property_readonly("propagator_settings_per_type", &tp::MultiTypePropagatorSettings<double>::getPropagatorSettingsMap);
 
 
+    py::class_<
+            tp::RotationalStatePropagatorSettings<double>,
+            std::shared_ptr<tp::RotationalStatePropagatorSettings<double>>,
+            tp::SingleArcPropagatorSettings<double>>(m, "RotationalStatePropagatorSettings");
 
 
     py::class_<
@@ -1212,6 +1219,24 @@ void expose_propagator_setup(py::module &m)
           const tba::TorqueModelMap&,
           const std::vector< std::string >&,
           const Eigen::Matrix< double, Eigen::Dynamic, 1 >&,
+          const double,
+          const tp::RotationalPropagatorType,
+          const std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >,
+          const double
+          >(&tp::rotatonalPropagatorSettings<double>),
+          py::arg("torque_models"),
+          py::arg("bodies_to_propagate"),
+          py::arg("initial_states"),
+          py::arg("termination_settings"),
+          py::arg("propagator") = tp::quaternions,
+          py::arg("output_variables") = std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >(),
+          py::arg("print_interval") = TUDAT_NAN);
+
+    m.def("rotational",
+          py::overload_cast<
+          const tba::TorqueModelMap&,
+          const std::vector< std::string >&,
+          const Eigen::Matrix< double, Eigen::Dynamic, 1 >&,
           const std::shared_ptr< tp::PropagationTerminationSettings >,
           const tp::RotationalPropagatorType,
           const std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >,
@@ -1328,6 +1353,18 @@ void expose_propagator_setup(py::module &m)
           py::arg("termination_settings"),
           py::arg("output_variables") = std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >( ),
           py::arg("print_interval") = TUDAT_NAN );
+
+    m.def("multitype",
+          py::overload_cast<
+          const std::vector< std::shared_ptr< tp::SingleArcPropagatorSettings< double > > >,
+          const double,
+          const std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >,
+          const double >( &tp::multiTypePropagatorSettings<double> ),
+          py::arg("propagator_settings_list"),
+          py::arg("final_time"),
+          py::arg("output_variables") = std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >( ),
+          py::arg("print_interval") = TUDAT_NAN );
+
 
     m.def("multi_arc",
           &tp::multiArcPropagatorSettings<double>,
@@ -1525,6 +1562,45 @@ void expose_propagation_setup(py::module &m) {
           py::arg("central_bodies"),
           py::arg("body_system"),
           py::arg("initial_time"));
+
+    m.def("get_initial_state_of_body",// overload [2/2]
+          py::overload_cast<const std::string&,
+          const std::string&,
+          const tss::SystemOfBodies&,
+          const double>(
+              &tp::getInitialStateOfBody<>),
+          py::arg("body_to_propagate"),
+          py::arg("central_body"),
+          py::arg("bodies"),
+          py::arg("initial_time"));
+
+    m.def("get_initial_rotational_state_of_body",
+          py::overload_cast<const std::string&,
+          const std::string&,
+          const tss::SystemOfBodies&,
+          const double>(
+              &tp::getInitialRotationalStateOfBody<>),
+          py::arg("body_to_propagate"),
+          py::arg("base_orientation"),
+          py::arg("bodies"),
+          py::arg("initial_time"));
+
+    m.def("get_zero_proper_mode_rotational_state",
+          py::overload_cast<
+          const tss::SystemOfBodies&,
+          const std::shared_ptr< tni::IntegratorSettings< double > >,
+          const std::shared_ptr< tp::SingleArcPropagatorSettings< double > >,
+          const double,
+          const std::vector< double >,
+          const bool >( &tp::getZeroProperModeRotationalState< > ),
+          py::arg("bodies"),
+          py::arg("integrator_settings"),
+          py::arg("propagator_settings"),
+          py::arg("body_mean_rotational_rate"),
+          py::arg("dissipation_times"),
+          py::arg("propagate_undamped") = true );
+
+
 
     py::class_<
             tp::SingleArcDynamicsSimulator<double, double>,

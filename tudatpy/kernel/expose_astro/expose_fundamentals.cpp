@@ -27,6 +27,11 @@ void expose_fundamentals(py::module &m) {
       std::shared_ptr<tba::AccelerationModel<Eigen::Vector3d>>>
       acceleration_model(m, "AccelerationModel");
 
+  py::class_<
+      tba::TorqueModel,
+      std::shared_ptr<tba::TorqueModel> >
+          (m, "TorqueModel");
+
   // TODO: This should be moved in the tudat source to propagation_setup.
 //  py::enum_<tba::AvailableAcceleration>(m, "AvailableAcceleration")
 //      .value("undefined_acceleration", tba::AvailableAcceleration::undefined_acceleration)

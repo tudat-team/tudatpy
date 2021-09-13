@@ -14,6 +14,7 @@
 #include <time.h>
 
 #include <tudat/astro/observation_models.h>
+#include <tudat/simulation/estimation_setup/observations.h>
 
 #include <pybind11/pybind11.h>
 #include <pybind11/eigen.h>

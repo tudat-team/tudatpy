@@ -389,6 +389,14 @@ void expose_rotation_model_setup(py::module &m) {
           py::arg("target_frame")
           );
 
+    m.def("tabulated",
+          &tss::tabulatedRotationSettings,
+          py::arg("rotational_state_history"),
+          py::arg("original_frame"),
+          py::arg("target_frame"),
+          py::arg("interpolator_settings") = std::make_shared< ti::LagrangeInterpolatorSettings >( 8 )
+          );
+
     m.def("spice",
           &tss::spiceRotationModelSettings,
           py::arg("originalFrame"),
@@ -475,13 +483,32 @@ void expose_gravity_field_setup(py::module &m) {
     m.def("central_spice",
           &tss::centralGravitySettings);
 
+
     m.def("spherical_harmonic",
-          &tss::sphericalHarmonicsGravitySettings,
+          py::overload_cast< const double,
+          const double,
+          const Eigen::MatrixXd&,
+          const Eigen::MatrixXd&,
+          const std::string& >( &tss::sphericalHarmonicsGravitySettings ),
           py::arg("gravitational_parameter"),
           py::arg("reference_radius"),
           py::arg("normalized_cosine_coefficients"),
           py::arg("normalized_sine_coefficients"),
-          py::arg("associated_reference_frame"));
+          py::arg("associated_reference_frame") );
+
+    m.def("spherical_harmonic",
+          py::overload_cast< const double,
+          const double,
+          const Eigen::Matrix3d&,
+          const Eigen::MatrixXd&,
+          const Eigen::MatrixXd&,
+          const std::string& >( &tss::sphericalHarmonicsGravitySettings ),
+          py::arg("gravitational_parameter"),
+          py::arg("reference_radius"),
+          py::arg("inertia_tensor"),
+          py::arg("normalized_cosine_coefficients"),
+          py::arg("normalized_sine_coefficients"),
+          py::arg("associated_reference_frame") );
 
     m.def("spherical_harmonic_triaxial_body",
           &tss::createHomogeneousTriAxialEllipsoidGravitySettings,
@@ -685,10 +712,23 @@ void expose_ephemeris_setup(py::module &m) {
           py::arg("body_name_to_use") = "" );
 
     m.def("tabulated",
-          &tss::tabulatedEphemerisSettings,
+          py::overload_cast< const std::map< double, Eigen::Vector6d >&, std::string, std::string >(
+              &tss::tabulatedEphemerisSettings ),
           py::arg("body_state_history"),
           py::arg("frame_origin") = "SSB",
           py::arg("frame_orientation") = "ECLIPJ2000");
+
+    m.def("tabulated",
+          py::overload_cast< const std::shared_ptr< tss::EphemerisSettings >,
+          const double, const double, const double, const std::shared_ptr< ti::InterpolatorSettings > >(
+              &tss::tabulatedEphemerisSettings ),
+          py::arg("ephemeris_settings"),
+          py::arg("start_time"),
+          py::arg("end_time"),
+          py::arg("time_step"),
+          py::arg("interpolator_settings") =  std::make_shared< ti::LagrangeInterpolatorSettings >( 8 ) );
+
+
 
     m.def("constant",
           &tss::constantEphemerisSettings,
@@ -1025,6 +1065,21 @@ void expose_environment_setup(py::module &m) {
     /////////////////////////////////////////////////////////////////////////////
     // defaultBodies.h //////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////
+
+    m.def("get_default_single_body_settings",
+          py::overload_cast< const std::string&, const std::string& >(
+              &tss::getDefaultSingleBodySettings),
+          py::arg("body_name"),
+          py::arg("base_frame_orientation") = "ECLIPJ2000" );
+
+    m.def("get_default_single_body_settings",
+          py::overload_cast< const std::string&, const double, const double, const std::string&, const double >(
+              &tss::getDefaultSingleBodySettings),
+          py::arg("body_name"),
+          py::arg("initial_time"),
+          py::arg("final_time"),
+          py::arg("base_frame_orientation") = "ECLIPJ2000",
+          py::arg("time_step") );
 
     // getDefaultBodySettings (overload 1)
     m.def("get_default_body_settings",

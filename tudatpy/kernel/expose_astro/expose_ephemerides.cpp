@@ -172,6 +172,30 @@ void expose_ephemerides(py::module &m) {
       m, "KeplerEphemeris");
 
   //////////////////////////////////////////////////////////////////////////////
+  // synchronousRotationalEphemeris.h
+  //////////////////////////////////////////////////////////////////////////////
+
+  py::class_<te::LongitudeLibrationCalculator,
+             std::shared_ptr<te::LongitudeLibrationCalculator>>(
+      m, "LongitudeLibrationCalculator");
+
+  py::class_<te::DirectLongitudeLibrationCalculator,
+             std::shared_ptr<te::DirectLongitudeLibrationCalculator>,
+             te::LongitudeLibrationCalculator>(
+      m, "DirectLongitudeLibrationCalculator")
+          .def(py::init< const double >(),
+               py::arg("scaled_libration_amplitude"));
+
+
+  py::class_<te::SynchronousRotationalEphemeris,
+             std::shared_ptr<te::SynchronousRotationalEphemeris>,
+             te::RotationalEphemeris>(
+      m, "SynchronousRotationalEphemeris")
+          .def_property("libration_calculator",
+                        &te::SynchronousRotationalEphemeris::getLongitudeLibrationCalculator,
+                        &te::SynchronousRotationalEphemeris::setLibrationCalculation);
+
+  //////////////////////////////////////////////////////////////////////////////
   // tleEphemeris.h / tleEphemeris.cpp
   //////////////////////////////////////////////////////////////////////////////
   py::class_<te::Tle, std::shared_ptr<te::Tle>>(m, "Tle")

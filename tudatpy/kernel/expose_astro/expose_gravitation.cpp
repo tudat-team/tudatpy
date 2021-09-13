@@ -14,6 +14,7 @@
 
 #include <pybind11/functional.h>
 #include <pybind11/pybind11.h>
+#include <pybind11/eigen.h>
 
 namespace py = pybind11;
 namespace tg = tudat::gravitation;
@@ -44,6 +45,19 @@ void expose_gravitation(py::module &m) {
                           &tg::SphericalHarmonicsGravityField::setCosineCoefficients)
             .def_property("sine_coefficients", &tg::SphericalHarmonicsGravityField::getSineCoefficients,
                           &tg::SphericalHarmonicsGravityField::setSineCoefficients);
+
+    m.def("degree_spherical_harmonic_coefficients_from_inertia",
+          py::overload_cast<
+          const Eigen::Matrix3d,
+          const double,
+          const double,
+          const int,
+          const bool >( &tg::getDegreeTwoSphericalHarmonicCoefficients ),
+          py::arg("inertia_tensor"),
+          py::arg("gravitational_parameter"),
+          py::arg("reference_radius"),
+          py::arg("maximum_output_degree") = 2,
+          py::arg("output_normalized_coefficients") = true );
 };
 
 }// namespace tudatpy
