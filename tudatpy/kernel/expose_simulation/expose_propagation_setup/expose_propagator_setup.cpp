@@ -70,8 +70,6 @@ namespace propagator {
                 .export_values();
 
         // TODO: why is this enum defined here and not in Tudat?
-          py::enum_<tss::PropagationTerminationTypes,
-                    std::shared_ptr<>>
           enum PropagationTerminationTypes
           {
             time_stopping_condition = 0,
@@ -80,6 +78,9 @@ namespace propagator {
             hybrid_stopping_condition = 3,
             custom_stopping_condition = 4
           };
+        // TODO: expose enum
+//        py::enum_<tss::PropagationTerminationTypes,
+//                std::shared_ptr<>>;
 
         py::enum_<tp::IntegratedStateType>(m, "StateType")
                 .value("hybrid_type", tp::IntegratedStateType::hybrid)
