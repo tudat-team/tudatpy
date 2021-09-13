@@ -100,6 +100,10 @@ todo_include_todos = True
 #
 # html_theme = 'sphinx_rtd_theme'
 html_theme = 'furo'
+html_theme_options = {
+    "navigation_with_keys": True,
+    "announcement": "<em>These docs are a work-in-progress!</em>",
+}
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -117,12 +121,12 @@ html_static_path = ['_static']
 #
 # This is required for the alabaster theme
 # refs: http://alabaster.readthedocs.io/en/latest/installation.html#sidebars
-html_sidebars = {
-    '**': [
-        'relations.html',  # needs 'show_related': True theme option to display
-        'searchbox.html',
-    ]
-}
+# html_sidebars = {
+#     '**': [
+#         'relations.html',  # needs 'show_related': True theme option to display
+#         'searchbox.html',
+#     ]
+# }
 
 # -- Options for HTMLHelp output ------------------------------------------
 
