@@ -1,5 +1,6 @@
 #include <iostream>
 
+#include "tudat/basics/utilities.h"
 #include "tudat/math/basic/rotationRepresentations.h"
 
 namespace tudat
@@ -7,6 +8,44 @@ namespace tudat
 
 namespace basic_mathematics
 {
+
+Eigen::Matrix< double, 4, 3 > calculateQuaternionWrtEulerAngle313Partial(
+        const Eigen::Quaterniond& quaternion )
+{
+    double phiPlus = -std::atan2( quaternion.z( ), quaternion.w( ) );
+    double cosPhiPlus = std::cos( phiPlus );
+    double sinPhiPlus = std::sin( phiPlus );
+
+    double phiMinus = -std::atan2( quaternion.y( ), -quaternion.x( ) );
+    double cosPhiMinus = std::cos( phiMinus );
+    double sinPhiMinus = std::sin( phiMinus );
+
+    double cosineTheta = -quaternion.x( ) * quaternion.x( ) - quaternion.y( ) * quaternion.y( ) +
+            quaternion.z( ) * quaternion.z( ) + quaternion.w( ) * quaternion.w( );
+    if( cosineTheta > 1.0 )
+    {
+        cosineTheta = 1.0;
+    }
+    else if( cosineTheta < -1.0 )
+    {
+        cosineTheta = -1.0;
+    }
+    double thetaZero = std::acos( cosineTheta ) / 2.0;
+    double cosThetaZero = std::cos( thetaZero );
+    double sinThetaZero = std::sin( thetaZero );
+
+    Eigen::MatrixXd scaledPartials = Eigen::MatrixXd::Zero( 4, 3 );
+
+    scaledPartials << -sinThetaZero * cosPhiPlus, -cosThetaZero * sinPhiPlus, 0.0,
+             -cosThetaZero * cosPhiMinus, 0.0, -sinThetaZero * sinPhiMinus,
+              -cosThetaZero * sinPhiMinus, 0.0, sinThetaZero * cosPhiMinus,
+              sinThetaZero * sinPhiPlus, -cosThetaZero * cosPhiPlus, 0.0;
+
+    static Eigen::Matrix3d transformationMatrix =
+            0.5 * ( Eigen::Matrix3d( ) << 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, -1.0 ).finished( );
+
+    return scaledPartials * transformationMatrix;
+}
 
 //! Function to compute the partial derivative of 3-1-3 Euler angles w.r.t. entries of associated quaternion
 Eigen::Matrix< double, 3, 4 > calculateEulerAngle313WrtQuaternionPartial(
@@ -82,19 +121,12 @@ Eigen::Vector3d get313EulerAnglesFromQuaternion(
     double phiMinus = -std::atan2( quaternion.y( ), -quaternion.x( ) );
 
     double psi = phiPlus - phiMinus;
+    double phi = phiPlus + phiMinus;
+
     double cosineTheta = -quaternion.x( ) * quaternion.x( ) - quaternion.y( ) * quaternion.y( ) +
             quaternion.z( ) * quaternion.z( ) + quaternion.w( ) * quaternion.w( );
-    if( cosineTheta > 1.0 )
-    {
-        cosineTheta = 1.0;
-    }
-    else if( cosineTheta < -1.0 )
-    {
-        cosineTheta = -1.0;
-    }
-    double theta = std::acos( cosineTheta );
 
-    double phi = phiPlus + phiMinus;
+    double theta = std::acos( !( std::fabs( cosineTheta ) > 1.0 ) ? cosineTheta : utilities::sgn( cosineTheta ) * 1.0 );
 
     return ( Eigen::Vector3d( )<< psi, theta, phi ).finished( );
 }
