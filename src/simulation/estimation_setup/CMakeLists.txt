@@ -39,6 +39,8 @@ set(estimation_HEADERS
         createNWayRangePartials.h
         observationOutputSettings.h
         observationOutput.h
+        observationSimulationSettings.h
+        observations.h
         )
 
 # Add header files.
@@ -62,7 +64,7 @@ set(estimation_SOURCES
         createObservationViability.cpp
         createDopplerPartials.cpp
         createAngularPositionPartials.cpp
-        simulateObservations.cpp
+        observationSimulationSettings.cpp
         observationOutputSettings.cpp
         observationOutput.cpp
         )

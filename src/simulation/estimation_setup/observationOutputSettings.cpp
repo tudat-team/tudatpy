@@ -18,9 +18,34 @@ namespace simulation_setup
 {
 
 std::string getObservationDependentVariableName(
+        const ObservationDependentVariables variableType )
+{
+    std::string dependentVariableName;
+    switch( variableType )
+    {
+    case station_elevation_angle:
+    {
+        dependentVariableName = "Station elevation angle";
+        break;
+    }
+    case station_azimuth_angle:
+    {
+        dependentVariableName = "Station azimuth angle";
+        break;
+    }
+    default:
+        throw std::runtime_error( "Error when checking observation dependent variable. Type " +
+                                  std::to_string( variableType ) +
+                                  " not found when checking fif variable is vectorial." );
+    }
+    return dependentVariableName;
+}
+
+std::string getObservationDependentVariableId(
         const std::shared_ptr< ObservationDependentVariableSettings > variableSettings )
 {
-    return "Variable name not yet implemented.";
+    return getObservationDependentVariableName( variableSettings->variableType_ ) + ". " +
+            variableSettings->getIdentifier( );
 }
 
 
@@ -53,7 +78,7 @@ bool isObservationDependentVariableVectorial(
         break;
     default:
         throw std::runtime_error( "Error when checking observation dependent variable. Type " +
-                                  getObservationDependentVariableName( variableSettings ) +
+                                  getObservationDependentVariableId( variableSettings ) +
                                   " not found when checking fif variable is vectorial." );
 
     }
@@ -89,7 +114,7 @@ bool isObservationDependentVariableGroundStationProperty(
         break;
     default:
         throw std::runtime_error( "Error when checking observation dependent variable. Type " +
-                                  getObservationDependentVariableName( variableSettings ) +
+                                  getObservationDependentVariableId( variableSettings ) +
                                   " not found when checking for ground station dependency." );
 
     }
@@ -110,12 +135,66 @@ int getObservationDependentVariableSize(
         {
         default:
             throw std::runtime_error( "Error when checking observation dependent variable. Type " +
-                                      getObservationDependentVariableName( variableSettings ) +
+                                      getObservationDependentVariableId( variableSettings ) +
                                       " not found when determining parameter size." );
 
         }
     }
     return variableSize;
+}
+
+bool checkStationAngleVariableForGivenLink(
+        const observation_models::ObservableType observableType,
+        const observation_models::LinkEnds& linkEnds,
+        const std::shared_ptr< StationAngleObservationDependentVariableSettings > variableSettings )
+{
+    bool doesLinkHaveDependency = false;
+
+    if( linkEnds.size( ) > 1 )
+    {
+        std::vector< observation_models::LinkEndType > linkEndTypeList = getLinkEndTypesForGivenLinkEndId(
+                linkEnds, variableSettings->relevantLinkEnd_ );
+        if( linkEndTypeList.size( ) > 0 )
+        {
+            if( linkEndTypeList.size( ) > 1 )
+            {
+                throw std::runtime_error( "Error when checking for station angle; multiple link ends detected" );
+            }
+            else
+            {
+                doesLinkHaveDependency = true;
+            }
+        }
+    }
+    return doesLinkHaveDependency;
+}
+
+bool checkObservationDependentVariableForGivenLink(
+        const observation_models::ObservableType observableType,
+        const observation_models::LinkEnds& linkEnds,
+        const std::shared_ptr< ObservationDependentVariableSettings > variableSettings )
+{
+    bool doesLinkHaveDependency = false;
+    switch( variableSettings->variableType_ )
+    {
+    case station_elevation_angle:
+        doesLinkHaveDependency = checkStationAngleVariableForGivenLink(
+                   observableType, linkEnds, std::dynamic_pointer_cast< StationAngleObservationDependentVariableSettings >(
+                        variableSettings ) );
+        break;
+    case station_azimuth_angle:
+        doesLinkHaveDependency = checkStationAngleVariableForGivenLink(
+                   observableType, linkEnds, std::dynamic_pointer_cast< StationAngleObservationDependentVariableSettings >(
+                        variableSettings ) );
+        break;
+
+    default:
+        throw std::runtime_error( "Error when checking observation dependent variable. Type " +
+                                  getObservationDependentVariableId( variableSettings ) +
+                                  " not found when checking if variable exists for given link." );
+
+    }
+    return doesLinkHaveDependency;
 }
 
 }

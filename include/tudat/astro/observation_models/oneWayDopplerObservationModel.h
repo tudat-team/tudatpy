@@ -456,6 +456,7 @@ public:
      *  at receiver w.r.t. coordinate time.
      */
     OneWayDopplerObservationModel(
+            const LinkEnds& linkEnds,
             const std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > >
             lightTimeCalculator,
             const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr,
@@ -463,7 +464,7 @@ public:
             = std::function< ObservationScalarType( const TimeType ) >( ),
             const std::function< ObservationScalarType( const TimeType ) > receiverProperTimeRateFunction
             = std::function< ObservationScalarType( const TimeType ) >( ) ):
-        ObservationModel< 1, ObservationScalarType, TimeType >( one_way_doppler, observationBiasCalculator ),
+        ObservationModel< 1, ObservationScalarType, TimeType >( one_way_doppler, linkEnds, observationBiasCalculator ),
         lightTimeCalculator_( lightTimeCalculator ),
         transmitterProperTimeRateCalculator_(
             ( transmitterProperTimeRateFunction == nullptr ) ?
@@ -490,12 +491,13 @@ public:
      *  observable, i.e. deviations from the physically ideal observable between reference points (default none).
      */
     OneWayDopplerObservationModel(
+            const LinkEnds& linkEnds,
             const std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > >
             lightTimeCalculator,
             const std::shared_ptr< DopplerProperTimeRateInterface > transmitterProperTimeRateCalculator,
             const std::shared_ptr< DopplerProperTimeRateInterface > receiverProperTimeRateFunction,
             const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr ):
-        ObservationModel< 1, ObservationScalarType, TimeType >( one_way_doppler, observationBiasCalculator ),
+        ObservationModel< 1, ObservationScalarType, TimeType >( one_way_doppler, linkEnds, observationBiasCalculator ),
         lightTimeCalculator_( lightTimeCalculator ),
         transmitterProperTimeRateCalculator_( transmitterProperTimeRateCalculator ),
         receiverProperTimeRateCalculator_( receiverProperTimeRateFunction )

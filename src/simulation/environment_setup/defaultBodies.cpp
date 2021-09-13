@@ -322,6 +322,13 @@ std::shared_ptr< BodySettings > getDefaultSingleBodySettings(
     return singleBodySettings;
 }
 
+std::shared_ptr< BodySettings > getDefaultSingleBodySettings(
+        const std::string& bodyName,
+        const std::string& baseFrameOrientation )
+{
+    return getDefaultSingleBodySettings(
+                bodyName, TUDAT_NAN, TUDAT_NAN, baseFrameOrientation );
+}
 
 //! Function to create default settings from which to create a set of body objects.
 BodyListSettings getDefaultBodySettings(

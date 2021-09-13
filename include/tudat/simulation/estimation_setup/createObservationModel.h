@@ -1000,7 +1000,7 @@ public:
             // Create observation model
             observationModel = std::make_shared< OneWayRangeObservationModel<
                     ObservationScalarType, TimeType > >(
-                        createLightTimeCalculator< ObservationScalarType, TimeType >(
+                        linkEnds, createLightTimeCalculator< ObservationScalarType, TimeType >(
                             linkEnds.at( transmitter ), linkEnds.at( receiver ),
                             bodies, observationSettings->lightTimeCorrectionsList_ ),
                         observationBias );
@@ -1039,6 +1039,7 @@ public:
                 // Create observation model
                 observationModel = std::make_shared< OneWayDopplerObservationModel<
                         ObservationScalarType, TimeType > >(
+                            linkEnds,
                             createLightTimeCalculator< ObservationScalarType, TimeType >(
                                 linkEnds.at( transmitter ), linkEnds.at( receiver ),
                                 bodies, observationSettings->lightTimeCorrectionsList_ ),
@@ -1067,6 +1068,7 @@ public:
                 // Create observation model
                 observationModel = std::make_shared< OneWayDopplerObservationModel<
                         ObservationScalarType, TimeType > >(
+                            linkEnds,
                             createLightTimeCalculator< ObservationScalarType, TimeType >(
                                 linkEnds.at( transmitter ), linkEnds.at( receiver ),
                                 bodies, observationSettings->lightTimeCorrectionsList_ ),
@@ -1128,6 +1130,7 @@ public:
             {
                 observationModel = std::make_shared< TwoWayDopplerObservationModel<
                         ObservationScalarType, TimeType > >(
+                            linkEnds,
                             std::dynamic_pointer_cast< OneWayDopplerObservationModel< ObservationScalarType, TimeType > >(
                                 ObservationModelCreator< 1, ObservationScalarType, TimeType >::createObservationModel(
                                     std::make_shared< ObservationModelSettings >(
@@ -1142,6 +1145,7 @@ public:
             {
                 observationModel = std::make_shared< TwoWayDopplerObservationModel<
                         ObservationScalarType, TimeType > >(
+                            linkEnds,
                             std::dynamic_pointer_cast< OneWayDopplerObservationModel< ObservationScalarType, TimeType > >(
                                 ObservationModelCreator< 1, ObservationScalarType, TimeType >::createObservationModel(
                                      twoWayDopplerSettings->uplinkOneWayDopplerSettings_, bodies ) ),
@@ -1190,6 +1194,7 @@ public:
             // Create observation model
             observationModel = std::make_shared< OneWayDifferencedRangeObservationModel<
                     ObservationScalarType, TimeType > >(
+                        linkEnds,
                         createLightTimeCalculator< ObservationScalarType, TimeType >(
                             linkEnds.at( transmitter ), linkEnds.at( receiver ),
                             bodies, observationSettings->lightTimeCorrectionsList_ ),
@@ -1303,6 +1308,7 @@ public:
             // Create observation model
             observationModel = std::make_shared< NWayRangeObservationModel<
                     ObservationScalarType, TimeType > >(
+                        linkEnds,
                         lightTimeCalculators, retransmissionTimesFunction_,
                         observationBias );
             break;
@@ -1377,6 +1383,7 @@ public:
             // Create observation model
             observationModel = std::make_shared< AngularPositionObservationModel<
                     ObservationScalarType, TimeType > >(
+                        linkEnds,
                         createLightTimeCalculator< ObservationScalarType, TimeType >(
                             linkEnds.at( transmitter ), linkEnds.at( receiver ),
                             bodies, observationSettings->lightTimeCorrectionsList_ ),
@@ -1462,6 +1469,7 @@ public:
             // Create observation model
             observationModel = std::make_shared< PositionObservationModel<
                     ObservationScalarType, TimeType > >(
+                        linkEnds,
                         std::bind( &simulation_setup::Body::getStateInBaseFrameFromEphemeris<
                                    ObservationScalarType, TimeType >,
                                    bodies.at( linkEnds.at( observed_body ).first ), std::placeholders::_1 ),
@@ -1519,6 +1527,7 @@ public:
             // Create observation model
             observationModel = std::make_shared< EulerAngle313ObservationModel<
                     ObservationScalarType, TimeType > >(
+                        linkEnds,
                         toBodyFixedFrameFunction, observationBias );
 
             break;
@@ -1560,6 +1569,7 @@ public:
             // Create observation model
             observationModel = std::make_shared< VelocityObservationModel<
                     ObservationScalarType, TimeType > >(
+                        linkEnds,
                         std::bind( &simulation_setup::Body::getStateInBaseFrameFromEphemeris<
                                    ObservationScalarType, TimeType >,
                                    bodies.at( linkEnds.at( observed_body ).first ), std::placeholders::_1 ),

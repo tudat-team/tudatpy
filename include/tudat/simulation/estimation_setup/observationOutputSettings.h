@@ -44,6 +44,8 @@ public:
 
     ObservationDependentVariables variableType_;
 
+    virtual std::string getIdentifier( ) = 0;
+
 };
 
 enum IntegratedObservationPropertyHandling
@@ -70,6 +72,21 @@ public:
         useIncomingLink_( useIncomingLink )
     {
 
+    }
+
+    std::string getIdentifier( )
+    {
+        std::string identifier = "Station: (" + relevantLinkEnd_.first + ", " + relevantLinkEnd_.second + ")";
+        if( linkEndRole_ != observation_models::unidentified_link_end )
+        {
+            throw std::runtime_error( "Error, StationAngleObservationDependentVariableSettings ID not yet implemented for link end roles" );
+        }
+
+        if( integratedObservableHandling_ != interval_undefined )
+        {
+            throw std::runtime_error( "Error, StationAngleObservationDependentVariableSettings ID not yet implemented for integrated obs. handling" );
+        }
+        return identifier;
     }
 
     observation_models::LinkEndId relevantLinkEnd_;
@@ -114,7 +131,11 @@ public:
 };
 
 
+
 std::string getObservationDependentVariableName(
+        const ObservationDependentVariables variableType );
+
+std::string getObservationDependentVariableId(
         const std::shared_ptr< ObservationDependentVariableSettings > variableSettings );
 
 bool isObservationDependentVariableVectorial(
@@ -125,6 +146,17 @@ bool isObservationDependentVariableGroundStationProperty(
 
 int getObservationDependentVariableSize(
         const std::shared_ptr< ObservationDependentVariableSettings > variableSettings );
+
+bool checkStationAngleVariableForGivenLink(
+        const observation_models::ObservableType observableType,
+        const observation_models::LinkEnds& linkEnds,
+        const std::shared_ptr< StationAngleObservationDependentVariableSettings > variableSettings );
+
+bool checkObservationDependentVariableForGivenLink(
+        const observation_models::ObservableType observableType,
+        const observation_models::LinkEnds& linkEnds,
+        const std::shared_ptr< ObservationDependentVariableSettings > variableSettings );
+
 }
 
 }
