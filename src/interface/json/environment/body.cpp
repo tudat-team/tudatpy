@@ -49,6 +49,12 @@ void to_json( nlohmann::json& jsonObject, const std::shared_ptr< BodySettings >&
     assignIfNotEmpty( jsonObject, K::groundStation, bodySettings->groundStationSettings );
 }
 
+void to_json( nlohmann::json& jsonObject, const BodyListSettings& bodyListSettings )
+{
+    throw std::runtime_error( "Error writing BodyListSettings to JSON not yet enabled." );
+}
+
+
 } // namespace simulation_setup
 
 

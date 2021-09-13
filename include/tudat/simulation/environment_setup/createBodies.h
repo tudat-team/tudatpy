@@ -118,6 +118,17 @@ public:
         bodySettings_[ bodyName ] = std::make_shared< BodySettings >( );
     }
 
+    void clear( )
+    {
+        bodySettings_.clear( );
+    }
+
+    void resetFrames( const std::string frameOrigin = "SSB", const std::string frameOrientation = "ECLIPJ2000" )
+    {
+        frameOrigin_ = frameOrigin;
+        frameOrientation_ = frameOrientation;
+    }
+
     std::string getFrameOrigin( ) const { return frameOrigin_; }
 
     std::string getFrameOrientation( ) const { return frameOrientation_; }

@@ -28,7 +28,7 @@ namespace observation_models
 static std::map< ObservableType, std::string > observationTypes =
 {
     { one_way_range, "oneWayRange" },
-    { angular_position, "angularPos#include "tudat/simulation/estimation_setup/simulateObservations.h"ition" },
+    { angular_position, "angularPosition" },
     { position_observable, "positionObservable" },
     { one_way_doppler, "oneWayDoppler" },
     { one_way_differenced_range, "oneWayDifferencedRange" },

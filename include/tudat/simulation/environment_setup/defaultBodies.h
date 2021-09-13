@@ -135,8 +135,12 @@ std::shared_ptr< BodySettings > getDefaultSingleBodySettings(
         const std::string& body,
         const double initialTime,
         const double finalTime,
-        const std::string baseFrameOrientation = "ECLIPJ2000",
+        const std::string& baseFrameOrientation = "ECLIPJ2000",
         const double timeStep = 300.0 );
+
+std::shared_ptr< BodySettings > getDefaultSingleBodySettings(
+        const std::string& body,
+        const std::string& baseFrameOrientation = "ECLIPJ2000" );
 
 //! Function to create default settings from which to create a set of body objects.
 /*!

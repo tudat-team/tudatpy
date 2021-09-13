@@ -249,6 +249,8 @@ createRotationalEquationsOfMotionEnvironmentUpdaterSettings(
                     break;
                 case inertial_torque:
                     break;
+                case dissipative_torque:
+                    break;
                 default:
                     std::cerr << "Error, update information not found for torque model " << currentTorqueModelType << std::endl;
                     break;

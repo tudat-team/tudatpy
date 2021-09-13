@@ -126,17 +126,43 @@ public:
      */
     SphericalHarmonicsGravityFieldSettings( const double gravitationalParameter,
                                             const double referenceRadius,
-                                            const Eigen::MatrixXd cosineCoefficients,
-                                            const Eigen::MatrixXd sineCoefficients,
+                                            const Eigen::MatrixXd& cosineCoefficients,
+                                            const Eigen::MatrixXd& sineCoefficients,
                                             const std::string& associatedReferenceFrame ):
         GravityFieldSettings( spherical_harmonic ),
         gravitationalParameter_( gravitationalParameter ),
         referenceRadius_( referenceRadius ),
+        inertiaTensor_( Eigen::Matrix3d::Constant( TUDAT_NAN ) ),
+        cosineCoefficients_( cosineCoefficients ),
+        sineCoefficients_( sineCoefficients ),
+        associatedReferenceFrame_( associatedReferenceFrame ),
+        createTimeDependentField_( 0 ),
+        scaledMeanMomentOfInertia_( TUDAT_NAN )
+    {  }
+
+    SphericalHarmonicsGravityFieldSettings( const double gravitationalParameter,
+                                            const double referenceRadius,
+                                            const Eigen::Matrix3d& inertiaTensor,
+                                            const Eigen::MatrixXd& cosineCoefficients,
+                                            const Eigen::MatrixXd& sineCoefficients,
+                                            const std::string& associatedReferenceFrame ):
+        GravityFieldSettings( spherical_harmonic ),
+        gravitationalParameter_( gravitationalParameter ),
+        referenceRadius_( referenceRadius ),
+        inertiaTensor_( inertiaTensor ),
         cosineCoefficients_( cosineCoefficients ),
         sineCoefficients_( sineCoefficients ),
         associatedReferenceFrame_( associatedReferenceFrame ),
         createTimeDependentField_( 0 )
-    {  }
+    {
+        std::tuple< Eigen::MatrixXd, Eigen::MatrixXd, double > degreeTwoField = gravitation::getDegreeTwoSphericalHarmonicCoefficients(
+                inertiaTensor_, gravitationalParameter_, referenceRadius_ );
+
+        cosineCoefficients_.block( 2, 0, 1, 3 ) = std::get< 0 >( degreeTwoField ).block( 2, 0, 1, 3 );
+        sineCoefficients_.block( 2, 1, 1, 2 ) = std::get< 1 >( degreeTwoField ).block( 2, 1, 1, 2 );
+        scaledMeanMomentOfInertia_ = std::get< 2 >( degreeTwoField );
+
+    }
 
     virtual ~SphericalHarmonicsGravityFieldSettings( ){ }
 
@@ -162,6 +188,8 @@ public:
      */
     double getReferenceRadius( ){ return referenceRadius_; }
 
+    Eigen::Matrix3d getInertiaTensor( ){ return inertiaTensor_; }
+
     //! Function to return cosine spherical harmonic coefficients (geodesy normalized).
     /*!
      *  Function to return cosine spherical harmonic coefficients (geodesy normalized).
@@ -180,6 +208,12 @@ public:
     Eigen::MatrixXd getSineCoefficients( ){ return sineCoefficients_; }
 
     void resetSineCoefficients( const Eigen::MatrixXd sineCoefficients ){ sineCoefficients_ = sineCoefficients; }
+
+    double getScaledMeanMomentOfInertia( )
+    {
+        return scaledMeanMomentOfInertia_;
+    }
+
 
     //! Function to return identifier for body-fixed reference frame.
     /*!
@@ -228,6 +262,8 @@ protected:
     //! Reference radius of spherical harmonic field expansion.
     double referenceRadius_;
 
+    Eigen::Matrix3d inertiaTensor_;
+
     //! Cosine spherical harmonic coefficients (geodesy normalized).
     Eigen::MatrixXd cosineCoefficients_;
 
@@ -239,6 +275,8 @@ protected:
 
     //! Boolean that denotes whether the field should be created as time-dependent (even if no variations are imposed intially)
     bool createTimeDependentField_;
+
+    double scaledMeanMomentOfInertia_;
 
 };
 
@@ -469,16 +507,32 @@ inline std::shared_ptr< GravityFieldSettings > centralGravityFromSpiceSettings(
 inline std::shared_ptr< GravityFieldSettings > sphericalHarmonicsGravitySettings(
 		const double gravitationalParameter,
 		const double referenceRadius,
-		const Eigen::MatrixXd normalizedCosineCoefficients,  // NOTE: entry (i,j) denotes coefficient at degree i and order j
-		const Eigen::MatrixXd normalizedSineCoefficients,  // NOTE: entry (i,j) denotes coefficient at degree i and order j
-		const std::string associatedReferenceFrame
+        const Eigen::MatrixXd& normalizedCosineCoefficients,  // NOTE: entry (i,j) denotes coefficient at degree i and order j
+        const Eigen::MatrixXd& normalizedSineCoefficients,  // NOTE: entry (i,j) denotes coefficient at degree i and order j
+        const std::string& associatedReferenceFrame
 		)
 {
 	return std::make_shared< SphericalHarmonicsGravityFieldSettings >(
 			gravitationalParameter, referenceRadius,
 			normalizedCosineCoefficients, normalizedSineCoefficients,
-			associatedReferenceFrame
-			);
+            associatedReferenceFrame
+            );
+}
+
+inline std::shared_ptr< GravityFieldSettings > sphericalHarmonicsGravitySettings(
+        const double gravitationalParameter,
+        const double referenceRadius,
+        const Eigen::Matrix3d& inertiaTensor,
+        const Eigen::MatrixXd& normalizedCosineCoefficients,  // NOTE: entry (i,j) denotes coefficient at degree i and order j
+        const Eigen::MatrixXd& normalizedSineCoefficients,  // NOTE: entry (i,j) denotes coefficient at degree i and order j
+        const std::string& associatedReferenceFrame
+        )
+{
+    return std::make_shared< SphericalHarmonicsGravityFieldSettings >(
+            gravitationalParameter, referenceRadius, inertiaTensor,
+            normalizedCosineCoefficients, normalizedSineCoefficients,
+            associatedReferenceFrame
+            );
 }
 
 } // namespace simulation_setup

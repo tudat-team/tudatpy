@@ -41,7 +41,8 @@ enum RotationModelType
     spice_rotation_model,
     gcrs_to_itrs_rotation_model,
     synchronous_rotation_model,
-    planetary_rotation_model
+    planetary_rotation_model,
+    tabulated_rotation_model
 };
 
 //! Class for providing settings for rotation model.
@@ -376,6 +377,33 @@ private:
     //!  Name of central body to which this body is locked.
     std::string centralBodyName_;
 };
+
+class TabulatedRotationSettings: public RotationModelSettings
+{
+public:
+
+    TabulatedRotationSettings(
+            const std::map< double, Eigen::Vector7d >& rotationalStateHistory,
+            const std::string& baseFrameOrientation,
+            const std::string& targetFrameOrientation,
+            const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings =
+            std::make_shared< interpolators::LagrangeInterpolatorSettings >( 8 ) ):
+        RotationModelSettings( tabulated_rotation_model, baseFrameOrientation, targetFrameOrientation ),
+        rotationalStateHistory_( rotationalStateHistory ), interpolatorSettings_( interpolatorSettings ){ }
+
+    std::map< double, Eigen::Vector7d > getBodyStateHistory( )
+    { return rotationalStateHistory_; }
+
+    std::shared_ptr< interpolators::InterpolatorSettings > getInterpolatorSettings( )
+    { return interpolatorSettings_; }
+
+private:
+
+    std::map< double, Eigen::Vector7d > rotationalStateHistory_;
+
+    const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings_;
+};
+
 
 //! Function to retrieve a state from one of two functions
 /*!
@@ -715,6 +743,17 @@ inline std::shared_ptr< RotationModelSettings > synchronousRotationModelSettings
 {
     return std::make_shared< SynchronousRotationModelSettings >(
             centralBodyName, baseFrameOrientation, targetFrameOrientation );
+}
+
+inline std::shared_ptr< RotationModelSettings > tabulatedRotationSettings(
+        const std::map< double, Eigen::Vector7d >& rotationalStateHistory,
+        const std::string& baseFrameOrientation,
+        const std::string& targetFrameOrientation,
+        const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings =
+        std::make_shared< interpolators::LagrangeInterpolatorSettings >( 8 ) )
+{
+    return std::make_shared< TabulatedRotationSettings >(
+            rotationalStateHistory, baseFrameOrientation, targetFrameOrientation, interpolatorSettings );
 }
 
 } // namespace simulation_setup
