@@ -75,10 +75,6 @@ TUDAT_ADD_TEST_CASE(WindModel
 if (TUDAT_BUILD_WITH_NRLMSISE00)
     TUDAT_ADD_TEST_CASE(NRLMSISE00Atmosphere
             PRIVATE_LINKS
-            Tudat::tudat_aerodynamics
-            Tudat::tudat_interpolators
-            Tudat::tudat_basic_mathematics
-            nrlmsise00
-            Tudat::tudat_input_output
-            Tudat::tudat_basic_astrodynamics)
+            ${Tudat_PROPAGATION_LIBRARIES}
+            )
 endif ()
