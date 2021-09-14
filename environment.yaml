@@ -7,6 +7,7 @@ dependencies:
   - boost-cpp=1.72
   - tudat-resources
   - sofa-cmake
+  - nrlmsise-00
   - cspice-cmake
   - python=3.8
   - pybind11
