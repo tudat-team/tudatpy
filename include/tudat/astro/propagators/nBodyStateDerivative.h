@@ -216,7 +216,7 @@ public:
 
         for( unsigned int i = 0; i < centralBodyStatesWrtGlobalOrigin_.size( ); i++ )
         {
-            currentCartesianLocalSoluton.segment( i * 6, 6 ) += centralBodyStatesWrtGlobalOrigin_[ i ];
+            currentCartesianLocalSoluton.block( i * 6, 0, 6, 1 ) += centralBodyStatesWrtGlobalOrigin_[ i ];
         }
     }
 

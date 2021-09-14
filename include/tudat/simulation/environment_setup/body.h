@@ -237,12 +237,12 @@ class Body {
     ephemerisFrameToBaseFrame_ = ephemerisFrameToBaseFrame;
   }
 
-	//! Get current state.
-	/*!
-	 * Returns the internally stored current state vector.
-	 * \return Current state.
-	 */
-	Eigen::Vector6d getState() { return currentState_; }
+    //! Get current state.
+    /*!
+     * Returns the internally stored current state vector.
+     * \return Current state.
+     */
+    Eigen::Vector6d getState() { return currentState_; }
 
   //! Set current state of body manually
   /*!
@@ -520,12 +520,12 @@ class Body {
 
     currentRotationToLocalFrame_ = currentRotationToGlobalFrame.inverse();
     currentAngularVelocityVectorInGlobalFrame_ =
-        currentRotationToGlobalFrame * currentRotationalStateFromLocalToGlobalFrame.block(4, 0, 3, 1);
-    currentAngularVelocityVectorInLocalFrame_ = currentRotationalStateFromLocalToGlobalFrame.block(4, 0, 3, 1);
+        currentRotationToGlobalFrame * currentRotationalStateFromLocalToGlobalFrame.block< 3, 1 >(4, 0);
+    currentAngularVelocityVectorInLocalFrame_ = currentRotationalStateFromLocalToGlobalFrame.block< 3, 1 >(4, 0);
 
     Eigen::Matrix3d currentRotationMatrixToLocalFrame = (currentRotationToLocalFrame_).toRotationMatrix();
     currentRotationToLocalFrameDerivative_ = linear_algebra::getCrossProductMatrix(
-                                                 currentRotationalStateFromLocalToGlobalFrame.block(4, 0, 3, 1))
+                                                 currentRotationalStateFromLocalToGlobalFrame.block< 3, 1 >(4, 0 ))
         * currentRotationMatrixToLocalFrame;
   }
 
@@ -1174,8 +1174,8 @@ class Body {
     }
 protected:
 private:
-	//! Variable denoting whether this body is the global frame origin (1 if true, 0 if false, -1 if not yet set)
-	int bodyIsGlobalFrameOrigin_;
+    //! Variable denoting whether this body is the global frame origin (1 if true, 0 if false, -1 if not yet set)
+    int bodyIsGlobalFrameOrigin_;
 
   //! Current state.
   Eigen::Vector6d currentState_;
@@ -1266,11 +1266,11 @@ private:
   //!  Boolean defining whether the body is currently being propagated, or not
   bool isBodyInPropagation_ = false;
 
-	bool suppressDependentOrientationCalculatorWarning_ = false;
+    bool suppressDependentOrientationCalculatorWarning_ = false;
 
-	std::string bodyName_;
+    std::string bodyName_;
 
-	std::function< void( ) > resetBaseFrames_;
+    std::function< void( ) > resetBaseFrames_;
 };
 
 
