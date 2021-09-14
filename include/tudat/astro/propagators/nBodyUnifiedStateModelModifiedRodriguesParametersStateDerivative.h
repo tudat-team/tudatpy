@@ -210,7 +210,7 @@ public:
         // Convert state to Cartesian for each body
         for( unsigned int i = 0; i < this->bodiesToBeIntegratedNumerically_.size( ); i++ )
         {
-            currentCartesianLocalSolution.segment( i * 6, 6 ) =
+            currentCartesianLocalSolution.block( i * 6, 0, 6, 1 ) =
                     orbital_element_conversions::convertUnifiedStateModelModifiedRodriguesParametersToCartesianElements(
                         internalSolution.block( i * 7, 0, 7, 1 ).template cast< double >( ), static_cast< double >(
                             centralBodyGravitationalParameters_.at( i )( ) ) ).template cast< StateScalarType >( );
@@ -259,7 +259,7 @@ public:
             if ( modifiedRodriguesParametersMagnitude >= 1.0 )
             {
                 // Invert flag
-                unprocessedState.segment( i * 7 + 6, 1 ) = ( unprocessedState.block( i * 7 + 6, 0, 1, 1 ) -
+                unprocessedState.block( i * 7 + 6, 0, 1, 1 ) = ( unprocessedState.block( i * 7 + 6, 0, 1, 1 ) -
                                                              Eigen::Matrix< StateScalarType, 1, 1 >::Ones( ) ).cwiseAbs( );
 
                 // Convert to MRP/SMRP
@@ -267,7 +267,7 @@ public:
                         modifiedRodriguesParametersMagnitude;
 
                 // Replace MRP with SMPR, or vice-versa
-                unprocessedState.segment( i * 7 + 3, 3 ) = modifiedRodriguesParametersVector;
+                unprocessedState.block( i * 7 + 3, 0, 3, 1 ) = modifiedRodriguesParametersVector;
             }
         }
     }
