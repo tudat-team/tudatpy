@@ -717,6 +717,19 @@ std::map< KeyType, ValueType > createMapFromVectors(
 
 }
 
+template< typename KeyType, typename ScalarType, int SizeType >
+std::map< KeyType, ScalarType > getSingleVectorEntryHistory(
+        const std::map< KeyType, Eigen::Matrix< ScalarType, SizeType, 1 > > originalMap, int vectorEntry )
+{
+    std::map< KeyType, ScalarType > extractedMap;
+    for( auto mapIterator : originalMap )
+    {
+        extractedMap[ mapIterator.first ] = mapIterator.second( vectorEntry );
+    }
+    return extractedMap;
+}
+
+
 } // namespace utilities
 
 } // namespace tudat

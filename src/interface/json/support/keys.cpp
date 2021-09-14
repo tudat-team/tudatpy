@@ -218,7 +218,6 @@ const std::string Keys::Body::gravityFieldVariation = "gravityFieldVariation";
 const std::string Keys::Body::GravityFieldVariation::bodyDeformationType = "bodyDeformationType";
 const std::string Keys::Body::GravityFieldVariation::deformingBodies = "deformingBodies";
 const std::string Keys::Body::GravityFieldVariation::loveNumbers = "loveNumbers";
-const std::string Keys::Body::GravityFieldVariation::referenceRadius = "referenceRadius";
 const std::string Keys::Body::GravityFieldVariation::modelInterpolation = "modelInterpolation";
 const std::string Keys::Body::GravityFieldVariation::cosineCoefficientCorrections = "cosineCoefficientCorrections";
 const std::string Keys::Body::GravityFieldVariation::sineCoefficientCorrections = "sineCoefficientCorrections";
