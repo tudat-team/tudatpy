@@ -38,6 +38,7 @@
 #include "tudat/astro/orbit_determination/estimatable_parameters/coreFactor.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/freeCoreNutationRate.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/desaturationDeltaV.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/longitudeLibrationAmplitude.h"
 #include "tudat/astro/relativity/metric.h"
 #include "tudat/astro/basic_astro/accelerationModelTypes.h"
 #include "tudat/simulation/estimation_setup/estimatableParameterSettings.h"
@@ -844,6 +845,37 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
             {
                 doubleParameterToEstimate = std::make_shared< FreeCoreNutationRate >
                         ( std::dynamic_pointer_cast< PlanetaryRotationModel > ( currentBody->getRotationalEphemeris( ) ), currentBodyName);
+
+            }
+            break;
+        }
+        case scaled_longitude_libration_amplitude:
+        {
+            if( std::dynamic_pointer_cast< SynchronousRotationalEphemeris >( currentBody->getRotationalEphemeris( ) ) == nullptr )
+            {
+                std::string errorMessage = "Warning, no synchronous rotation model present in body " + currentBodyName +
+                        " when making longitude libration parameter";
+                throw std::runtime_error( errorMessage );
+            }
+            else
+            {
+                std::shared_ptr< LongitudeLibrationCalculator > longitudeLibrationCalculator =
+                        std::dynamic_pointer_cast< SynchronousRotationalEphemeris >( currentBody->getRotationalEphemeris( ) )->
+                        getLongitudeLibrationCalculator( );
+
+                if( std::dynamic_pointer_cast< DirectLongitudeLibrationCalculator >( longitudeLibrationCalculator ) == nullptr )
+                {
+                    std::string errorMessage = "Warning, no direct libration model " + currentBodyName +
+                            " when making scaled longitude libration parameter";
+                    throw std::runtime_error( errorMessage );
+                }
+                else
+                {
+
+                doubleParameterToEstimate = std::make_shared< ScaledLongitudeLibrationAmplitude >
+                        ( std::dynamic_pointer_cast< DirectLongitudeLibrationCalculator >( longitudeLibrationCalculator ),
+                          currentBodyName );
+                }
 
             }
             break;

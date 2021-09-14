@@ -288,7 +288,7 @@ std::shared_ptr< BodySettings > getDefaultSingleBodySettings(
         const std::string& bodyName,
         const double initialTime,
         const double finalTime,
-        const std::string baseFrameOrientation,
+        const std::string& baseFrameOrientation,
         const double timeStep )
 {
     std::shared_ptr< BodySettings > singleBodySettings = std::make_shared< BodySettings >( );

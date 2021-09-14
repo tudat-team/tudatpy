@@ -128,6 +128,14 @@ public:
         }
     }
 
+    void setConstantPerObservableAndLinkEndsWeights(
+            const observation_models::ObservableType observableType,
+            const std::vector< observation_models::LinkEnds >& linkEnds,
+            const double weight )
+    {
+
+    }
+
     //! Function to set a values for observation weights, constant per observable type and link ends type
     /*!
      * Function to set a values for observation weights, constant per observable type and link ends type

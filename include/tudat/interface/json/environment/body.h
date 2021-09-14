@@ -27,6 +27,8 @@ namespace simulation_setup
 //! Create a `json` object from a shared pointer to a `BodySettings` object.
 void to_json( nlohmann::json& jsonObject, const std::shared_ptr< BodySettings >& bodySettings );
 
+void to_json( nlohmann::json& jsonObject, const BodyListSettings& bodyListSettings );
+
 } // namespace simulation_setup
 
 
@@ -80,6 +82,7 @@ void updateBodiesFromJSON(
     using namespace simulation_setup;
 
     bodySettingsMap.clear( );
+    bodySettingsMap.resetFrames( globalFrameOrigin, globalFrameOrientation );
 
     std::map< std::string, nlohmann::json > jsonBodySettingsMap =
             getValue< std::map< std::string, nlohmann::json > >( jsonObject, Keys::bodies );
@@ -112,6 +115,8 @@ void updateBodiesFromJSON(
                     bodySettingsMap = getDefaultBodySettings( defaultBodyNames,
                                                               earliestInterpolationEpoch,
                                                               latestInterpolationEpoch,
+                                                              globalFrameOrigin,
+                                                              globalFrameOrientation,
                                                               spiceSettings->interpolationStep_ );
                 }
                 else
@@ -139,7 +144,7 @@ void updateBodiesFromJSON(
         const nlohmann::json jsonBodySettings = jsonBodySettingsMap.at( bodyName );
         if ( bodySettingsMap.count( bodyName ) )
         {
-            std::shared_ptr< BodySettings >& bodySettings = bodySettingsMap[ bodyName ];
+            std::shared_ptr< BodySettings > bodySettings = bodySettingsMap.at( bodyName );
             // Reset ephemeris and rotational models frames.
             if ( bodySettings->ephemerisSettings )
             {
@@ -155,7 +160,7 @@ void updateBodiesFromJSON(
         else
         {
             // Create body settings from JSON.
-            bodySettingsMap[ bodyName ] = createBodySettings( jsonBodySettings );
+            bodySettingsMap.addSettings( createBodySettings( jsonBodySettings ), bodyName );
         }
     }
 
@@ -163,7 +168,6 @@ void updateBodiesFromJSON(
     bodies = createSystemOfBodies( bodySettingsMap );
 
     
-    setGlobalFrameBodyEphemerides( bodies, globalFrameOrigin, globalFrameOrientation );
 }
 
 } // namespace json_interface

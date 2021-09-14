@@ -224,7 +224,6 @@ struct Keys
             static const std::string bodyDeformationType;
             static const std::string deformingBodies;
             static const std::string loveNumbers;
-            static const std::string referenceRadius;
             static const std::string modelInterpolation;
             static const std::string cosineCoefficientCorrections;
             static const std::string sineCoefficientCorrections;

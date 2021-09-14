@@ -364,6 +364,20 @@ std::shared_ptr< RotationMatrixPartial > createRotationMatrixPartialsWrtParamete
                     std::dynamic_pointer_cast< PlanetaryRotationModel >( currentBody->getRotationalEphemeris() ));
 
         break;
+    case estimatable_parameters::scaled_longitude_libration_amplitude:
+
+        if( std::dynamic_pointer_cast< ephemerides::SynchronousRotationalEphemeris >(
+                    currentBody->getRotationalEphemeris() ) == nullptr ){
+            std::string errorMessage = "Warning, body's rotation model is not a synchronous rotational model when making"
+                                       "position w.r.t. longitude libration amplitude partial";
+            throw std::runtime_error( errorMessage );
+        }
+
+        // Create rotation matrix partial object
+        rotationMatrixPartial = std::make_shared< RotationMatrixPartialWrtScaledLongitudeLibrationAmplitude >(
+                    std::dynamic_pointer_cast< SynchronousRotationalEphemeris >( currentBody->getRotationalEphemeris( ) ) );
+
+        break;
     default:
         std::string errorMessage = "Warning, rotation matrix partial not implemented for parameter " +
                 std::to_string( parameterToEstimate->getParameterName( ).first );
@@ -450,7 +464,6 @@ std::shared_ptr< RotationMatrixPartial > createRotationMatrixPartialsWrtParamete
         }
 
         break;
-
     default:
         std::string errorMessage = "Warning, rotation matrix partial not implemented for parameter " +
                 std::to_string( parameterToEstimate->getParameterName( ).first );
