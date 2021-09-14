@@ -143,10 +143,10 @@ public:
         // Convert state to quaternions for each body
         for( unsigned int i = 0; i < this->bodiesToPropagate_.size( ); i++ )
         {
-            currentLocalSolution.segment( i * 7, 4 ) =
+            currentLocalSolution.block( i * 7, 0, 4, 1 ) =
                     orbital_element_conversions::convertModifiedRodriguesParametersToQuaternionElements(
                         internalSolution.block( i * 7, 0, 4, 1 ).template cast< double >( ) ).template cast< StateScalarType >( );
-            currentLocalSolution.segment( i * 7 + 4, 3 ) = internalSolution.block( i * 7 + 4, 0, 3, 1 ); // rotational velocity is the same
+            currentLocalSolution.block( i * 7 + 4, 0, 3, 1 ) = internalSolution.block( i * 7 + 4, 0, 3, 1 ); // rotational velocity is the same
         }
     }
 
@@ -170,7 +170,7 @@ public:
             if ( modifiedRodriguesParametersMagnitude >= 1.0 )
             {
                 // Invert flag
-                unprocessedState.segment( i * 7 + 3, 1 ) = ( unprocessedState.block( i * 7 + 3, 0, 1, 1 ) -
+                unprocessedState.block( i * 7 + 3, 0, 1, 1 ) = ( unprocessedState.block( i * 7 + 3, 0, 1, 1 ) -
                                                              Eigen::Matrix< StateScalarType, 1, 1 >::Ones( ) ).cwiseAbs( );
 
                 // Convert to MRP/SMRP
@@ -178,7 +178,7 @@ public:
                         modifiedRodriguesParametersMagnitude;
 
                 // Replace MRP with SMPR, or vice-versa
-                unprocessedState.segment( i * 7, 3 ) = modifiedRodriguesParametersVector;
+                unprocessedState.block( i * 7, 0, 3, 1 ) = modifiedRodriguesParametersVector;
             }
         }
     }

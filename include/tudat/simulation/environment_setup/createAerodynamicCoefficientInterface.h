@@ -464,9 +464,12 @@ inline std::shared_ptr< AerodynamicCoefficientSettings > scaledAerodynamicCoeffi
         const double momentScaling,
         const bool isScalingAbsolute )
 {
+    std::function< Eigen::Vector3d( const double ) > forceScalingFunction =
+            [=]( const double ){ return Eigen::Vector3d::Constant( forceScaling ); };
+    std::function< Eigen::Vector3d( const double ) > momentScalingFunction =
+            [=]( const double ){ return Eigen::Vector3d::Constant( momentScaling ); };
     return std::make_shared< ScaledAerodynamicCoefficientInterfaceSettings >(
-                baseSettings, Eigen::Vector3d::Constant( forceScaling ), Eigen::Vector3d::Constant( momentScaling ),
-                isScalingAbsolute );
+                baseSettings, forceScalingFunction, momentScalingFunction, isScalingAbsolute );
 }
 
 inline std::shared_ptr< AerodynamicCoefficientSettings > scaledAerodynamicCoefficientSettings(
@@ -475,8 +478,12 @@ inline std::shared_ptr< AerodynamicCoefficientSettings > scaledAerodynamicCoeffi
         const Eigen::Vector3d momentScaling,
         const bool isScalingAbsolute )
 {
+    std::function< Eigen::Vector3d( const double ) > forceScalingFunction =
+            [=]( const double ){ return forceScaling; };
+    std::function< Eigen::Vector3d( const double ) > momentScalingFunction =
+            [=]( const double ){ return momentScaling; };
     return std::make_shared< ScaledAerodynamicCoefficientInterfaceSettings >(
-                baseSettings, forceScaling, momentScaling, isScalingAbsolute );
+                baseSettings, forceScalingFunction, momentScalingFunction, isScalingAbsolute );
 }
 
 
