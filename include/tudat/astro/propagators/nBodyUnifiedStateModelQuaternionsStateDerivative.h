@@ -207,7 +207,7 @@ public:
         // Convert state to Cartesian for each body
         for( unsigned int i = 0; i < this->bodiesToBeIntegratedNumerically_.size( ); i++ )
         {
-            currentCartesianLocalSolution.segment( i * 6, 6 ) =
+            currentCartesianLocalSolution.block( i * 6, 0, 6, 1 ) =
                     orbital_element_conversions::convertUnifiedStateModelQuaternionsToCartesianElements(
                         internalSolution.block( i * 7, 0, 7, 1 ).template cast< double >( ), static_cast< double >(
                             centralBodyGravitationalParameters_.at( i )( ) ), true ).template cast< StateScalarType >( );
@@ -260,7 +260,7 @@ public:
                 quaternionsVector /= quaternionsMagnitude;
 
                 // Replace old quaternions with normalized quaternions
-                unprocessedState.segment( i * 7 + 3, 4 ) = quaternionsVector;
+                unprocessedState.block( i * 7 + 3, 0, 4, 1 ) = quaternionsVector;
             }
         }
     }
