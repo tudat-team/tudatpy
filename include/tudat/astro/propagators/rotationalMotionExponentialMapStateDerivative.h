@@ -143,10 +143,10 @@ public:
         // Convert state to quaternions for each body
         for( unsigned int i = 0; i < this->bodiesToPropagate_.size( ); i++ )
         {
-            currentLocalSolution.segment( i * 7, 4 ) =
+            currentLocalSolution.block( i * 7, 0, 4, 1 ) =
                     orbital_element_conversions::convertExponentialMapToQuaternionElements(
                         internalSolution.block( i * 7, 0, 4, 1 ).template cast< double >( ) ).template cast< StateScalarType >( );
-            currentLocalSolution.segment( i * 7 + 4, 3 ) = internalSolution.block( i * 7 + 4, 0, 3, 1 ); // rotational velocity is the same
+            currentLocalSolution.block( i * 7 + 4, 0, 3, 1 ) = internalSolution.block( i * 7 + 4, 0, 3, 1 ); // rotational velocity is the same
         }
     }
 
@@ -170,14 +170,14 @@ public:
             if ( exponentialMapMagnitude >= mathematical_constants::PI )
             {
                 // Invert flag
-                unprocessedState.segment( i * 7 + 3, 1 ) = ( unprocessedState.block( i * 7 + 3, 0, 1, 1 ) -
+                unprocessedState.block( i * 7 + 3, 1, 1, 0 ) = ( unprocessedState.block( i * 7 + 3, 0, 1, 1 ) -
                                                              Eigen::Matrix< StateScalarType, 1, 1 >::Ones( ) ).cwiseAbs( );
 
                 // Convert to EM/SEM
                 exponentialMapVector *= ( 1.0 - ( 2.0 * mathematical_constants::PI / exponentialMapMagnitude ) );
 
                 // Replace EM with SEM, or vice-versa
-                unprocessedState.segment( i * 7, 3 ) = exponentialMapVector;
+                unprocessedState.block( i * 7, 1, 3, 0 ) = exponentialMapVector;
             }
         }
     }
