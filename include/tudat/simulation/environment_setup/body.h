@@ -541,24 +541,24 @@ public:
      * \param currentRotationalStateFromLocalToGlobalFrame Quaternion from body-fixed to propagation frame
      * (in vector form) and the body's angular velocity vector in body-fixed frame.
      */
-    void setCurrentRotationalStateToLocalFrame( const Eigen::Vector7d currentRotationalStateFromLocalToGlobalFrame )
-    {
-        currentRotationToGlobalFrame_ =
-                Eigen::Quaterniond( currentRotationalStateFromLocalToGlobalFrame( 0 ),
-                                    currentRotationalStateFromLocalToGlobalFrame( 1 ),
-                                    currentRotationalStateFromLocalToGlobalFrame( 2 ),
-                                    currentRotationalStateFromLocalToGlobalFrame( 3 ) );
-        currentRotationToGlobalFrame_.normalize( );
+  void setCurrentRotationalStateToLocalFrame(const Eigen::Vector7d currentRotationalStateFromLocalToGlobalFrame) {
+    Eigen::Quaterniond currentRotationToGlobalFrame =
+        Eigen::Quaterniond(currentRotationalStateFromLocalToGlobalFrame(0),
+                           currentRotationalStateFromLocalToGlobalFrame(1),
+                           currentRotationalStateFromLocalToGlobalFrame(2),
+                           currentRotationalStateFromLocalToGlobalFrame(3));
+    currentRotationToGlobalFrame.normalize();
 
-        currentRotationToLocalFrame_ = currentRotationToGlobalFrame_.inverse( );
-        currentAngularVelocityVectorInGlobalFrame_ =
-                currentRotationToGlobalFrame_ * currentRotationalStateFromLocalToGlobalFrame.block( 4, 0, 3, 1 );
-        currentAngularVelocityVectorInLocalFrame_ = currentRotationalStateFromLocalToGlobalFrame.block( 4, 0, 3, 1 );
+    currentRotationToLocalFrame_ = currentRotationToGlobalFrame.inverse();
+    currentAngularVelocityVectorInGlobalFrame_ =
+        currentRotationToGlobalFrame * currentRotationalStateFromLocalToGlobalFrame.block< 3, 1 >(4, 0);
+    currentAngularVelocityVectorInLocalFrame_ = currentRotationalStateFromLocalToGlobalFrame.block< 3, 1 >(4, 0);
 
-        Eigen::Matrix3d currentRotationMatrixToLocalFrame = ( currentRotationToLocalFrame_ ).toRotationMatrix( );
-        currentRotationToLocalFrameDerivative_ = linear_algebra::getCrossProductMatrix(
-                    currentRotationalStateFromLocalToGlobalFrame.block( 4, 0, 3, 1 ) ) * currentRotationMatrixToLocalFrame;
-    }
+    Eigen::Matrix3d currentRotationMatrixToLocalFrame = (currentRotationToLocalFrame_).toRotationMatrix();
+    currentRotationToLocalFrameDerivative_ = linear_algebra::getCrossProductMatrix(
+                                                 currentRotationalStateFromLocalToGlobalFrame.block< 3, 1 >(4, 0 ))
+        * currentRotationMatrixToLocalFrame;
+  }
 
     //! Get current rotation from body-fixed to inertial frame.
     /*!
