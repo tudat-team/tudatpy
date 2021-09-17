@@ -49,17 +49,16 @@ YACMA_PYTHON_MODULE(kernel
 
         # kernel/astro
         kernel/expose_astro.cpp
-        kernel/expose_astro/expose_two_body_dynamics.cpp
-        kernel/expose_astro/expose_fundamentals.cpp
         kernel/expose_astro/expose_gravitation.cpp
-        kernel/expose_astro/expose_conversion.cpp
-        kernel/expose_astro/expose_ephemerides.cpp
-        kernel/expose_astro/expose_aerodynamics.cpp
-        kernel/expose_astro/expose_propagators.cpp
-        kernel/expose_astro/expose_reference_frames.cpp
-        kernel/expose_astro/expose_shape.cpp
+        kernel/expose_astro/expose_element_conversion.cpp        
+        kernel/expose_astro/expose_frame_conversion.cpp
         kernel/expose_astro/expose_observations.cpp
+        kernel/expose_astro/expose_two_body_dynamics.cpp
 
+        # kernel/trajectory_design
+        kernel/expose_trajectory_design.cpp
+        kernel/expose_trajectory_design/expose_transfer_trajectory.cpp
+        kernel/expose_trajectory_design/expose_shape_based_thrust.cpp
 
         # kernel/constants
         kernel/expose_constants.cpp
@@ -67,6 +66,7 @@ YACMA_PYTHON_MODULE(kernel
         # kernel/interface
         kernel/expose_interface.cpp
         kernel/expose_interface/expose_spice.cpp
+
         #        kernel/expose_interface/expose_json_interface.cpp
         #        kernel/expose_interface/expose_sofa_interface.cpp
 
@@ -75,7 +75,6 @@ YACMA_PYTHON_MODULE(kernel
 
         # kernel/math
         kernel/expose_math.cpp
-        kernel/expose_math/expose_basic_functions.cpp
         kernel/expose_math/expose_interpolators.cpp
         kernel/expose_math/expose_numerical_integrators.cpp
         kernel/expose_math/expose_root_finders.cpp
@@ -83,6 +82,10 @@ YACMA_PYTHON_MODULE(kernel
 
         # kernel/simulation
         kernel/expose_simulation.cpp
+
+        kernel/expose_simulation/expose_propagation.cpp
+        kernel/expose_simulation/expose_environment.cpp
+
 
         kernel/expose_simulation/expose_environment_setup.cpp
         kernel/expose_simulation/expose_environment_setup/expose_aerodynamic_coefficient_setup.cpp
@@ -106,9 +109,12 @@ YACMA_PYTHON_MODULE(kernel
         kernel/expose_simulation/expose_estimation_setup.cpp
         kernel/expose_simulation/expose_estimation_setup/expose_observation_setup.cpp
         kernel/expose_simulation/expose_estimation_setup/expose_estimated_parameter_setup.cpp
-        kernel/expose_simulation/expose_shape_based_thrust.cpp
+
+        kernel/expose_simulation/expose_astro_setup.cpp
+
 
         kernel/expose_unit_tests.cpp
+
 
         kernel/expose_example.cpp
         )
@@ -161,7 +167,6 @@ INSTALL_PURE_PYTHON_MODULE_DIR(plotting)
 INSTALL_PURE_PYTHON_MODULE_DIR(util)
 
 #install(FILES test.py "${CMAKE_CURRENT_BINARY_DIR}/_version.py")
-
 file(COPY ../tests DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/../)
 
 # collect all example-X.py files

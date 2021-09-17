@@ -58,7 +58,6 @@ void expose_observations(py::module &m) {
                tom::ObservationSimulatorBase<double,double>>(m, "ObservationSimulator_6");
 
 
-
 }
 
 }// namespace tudatpy

@@ -1,5 +1,5 @@
 /*    Copyright (c) 2010-2018, Delft University of Technology
- *    All rigths reserved
+ *    All rights reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
  *    binary forms, with or without modification, are permitted exclusively
@@ -8,17 +8,23 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef TUDATPY_EXPOSE_FUNDAMENTALS_H
-#define TUDATPY_EXPOSE_FUNDAMENTALS_H
+#ifndef TUDATPY_EXPOSE_SHAPE_BASED_THRUST_H
+#define TUDATPY_EXPOSE_SHAPE_BASED_THRUST_H
 
 #include <pybind11/pybind11.h>
 
 namespace py = pybind11;
 
 namespace tudatpy {
+//namespace astro {
+//namespace shape_based_thrust {
 
-void expose_fundamentals(py::module &m);
 
-}
+void expose_shape_based_thrust(py::module &m);
 
-#endif//TUDATPY_EXPOSE_FUNDAMENTALS_H
+
+//}// namespace shape_based_thrust
+//}// namespace astro
+}// namespace tudatpy
+
+#endif//TUDATPY_EXPOSE_SHAPE_BASED_THRUST_H

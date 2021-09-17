@@ -73,30 +73,7 @@ class PyLambertTargeter : public tms::LambertTargeter {
 }// namespace trampoline
 
 void expose_two_body_dynamics(py::module &m) {
-  /*
-    * mission_segments/
-    * ├── escapeAndCapture.cpp
-    * ├── gravityAssist.cpp
-    * ├── improvedInversePolynomialWall.cpp
-    * ├── lambertRoutines.cpp
-    * ├── lambertTargeterGooding.cpp
-    * ├── lambertTargeterIzzo.cpp
-    * ├── multiRevolutionLambertTargeterIzzo.cpp
-    * ├── oscillatingFunctionNovak.cpp
-    * └── zeroRevolutionLambertTargeterIzzo.cpp
-    *
-    * mission_segments
-    * ├── escapeAndCapture.h
-    * ├── gravityAssist.h
-    * ├── improvedInversePolynomialWall.h
-    * ├── lambertRoutines.h
-    * ├── lambertTargeterGooding.h
-    * ├── lambertTargeter.h
-    * ├── lambertTargeterIzzo.h
-    * ├── multiRevolutionLambertTargeterIzzo.h
-    * ├── oscillatingFunctionNovak.h
-    * └── zeroRevolutionLambertTargeterIzzo.h
-    */
+
 
   //////////////////////////////////////////////////////////////////////
   // escapeAndCapture.cpp
@@ -111,49 +88,7 @@ void expose_two_body_dynamics(py::module &m) {
   //////////////////////////////////////////////////////////////////////
   //  gravityAssist.cpp
   //////////////////////////////////////////////////////////////////////
-//  m.def("gravity_assist",// overload 1 (returns double)
-//        py::overload_cast<const double,
-//                          const Eigen::Vector3d &,
-//                          const Eigen::Vector3d &,
-//                          const Eigen::Vector3d &,
-//                          const double,
-//                          const bool,
-//                          const double,
-//                          trf::RootFinderPointer>(&tms::gravityAssist),
-//        py::arg("gravitational_param"),
-//        py::arg("central_body_velocity"),
-//        py::arg("incoming_velocity"),
-//        py::arg("outgoing_velocity"),
-//        py::arg("smallest_periapsis_distance"),
-//        py::arg("use_eccentricity_over_pericenter") = true,
-//        py::arg("speed_tolerance") = 1.0e-6,
-//        py::arg("root_finder") = std::make_shared<trf::NewtonRaphson< > >(1.0e-12, 1000));
 
-//  m.def("gravity_assist",// overload 2: unassisted (returns 3 dim vector)
-//        py::overload_cast<const double,
-//                          const Eigen::Vector3d &,
-//                          const Eigen::Vector3d &,
-//                          const double,
-//                          const double>(&tms::gravityAssist),
-//        py::arg("gravitational_param"),
-//        py::arg("central_body_velocity"),
-//        py::arg("incoming_velocity"),
-//        py::arg("rotation_angle"),
-//        py::arg("pericenter_radius"));
-
-//  m.def("gravity_assist",// overload 3: assisted (returns 3 dim vector)
-//        py::overload_cast<const double,
-//                          const Eigen::Vector3d &,
-//                          const Eigen::Vector3d &,
-//                          const double,
-//                          const double,
-//                          const double>(&tms::gravityAssist),
-//        py::arg("gravitational_param"),
-//        py::arg("central_body_velocity"),
-//        py::arg("incoming_velocity"),
-//        py::arg("rotation_angle"),
-//        py::arg("pericenter_radius"),
-//        py::arg("delta_v"));
 
   py::class_<tms::PericenterFindingFunctions,
              std::shared_ptr<tms::PericenterFindingFunctions>>(m, "PericenterFindingFunctions")
@@ -256,10 +191,6 @@ void expose_two_body_dynamics(py::module &m) {
       .def("get_transverse_departure_velocity", &tms::LambertTargeterIzzo::getTransverseVelocityAtDeparture)
       .def("get_transverse_arrival_velocity", &tms::LambertTargeterIzzo::getTransverseVelocityAtArrival)
       .def("get_semi_major_axis", &tms::LambertTargeterIzzo::getSemiMajorAxis);
-
-  //////////////////////////////////////////////////////////////////////
-  //  oscillatingFunctionNovak.cpp
-  //////////////////////////////////////////////////////////////////////
 
   //////////////////////////////////////////////////////////////////////
   //  zeroRevolutionLambertTargeterIzzo.cpp (complete)

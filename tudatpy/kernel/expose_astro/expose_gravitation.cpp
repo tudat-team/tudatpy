@@ -11,39 +11,48 @@
 #include "expose_gravitation.h"
 
 #include <tudat/astro/gravitation.h>
+#include <tudat/math/basic.h>
 
 #include <pybind11/functional.h>
 #include <pybind11/pybind11.h>
 
 namespace py = pybind11;
 namespace tg = tudat::gravitation;
+namespace tbm = tudat::basic_mathematics;
 
 namespace tudatpy {
 
 void expose_gravitation(py::module &m) {
 
-    py::class_<tg::GravityFieldModel,
-            std::shared_ptr<tg::GravityFieldModel>>(m, "GravityFieldModel")
-            .def(py::init<
-                 const double,
-                 const std::function<void()>>(),
-                 py::arg("gravitational_parameter"),
-                 py::arg("update_inertia_tensor") = std::function<void()>()// <pybind11/functional.h>
-            )
-            .def("get_gravitational_parameter", &tg::GravityFieldModel::getGravitationalParameter)
-            .def_property("gravitational_parameter", &tg::GravityFieldModel::getGravitationalParameter,
-                          &tg::GravityFieldModel::resetGravitationalParameter);
+    m.def("legendre_normalization_factor",
+          &tbm::calculateLegendreGeodesyNormalizationFactor,
+          py::arg("degree"),
+          py::arg("order") );
 
-    py::class_<tg::SphericalHarmonicsGravityField,
-            std::shared_ptr<tg::SphericalHarmonicsGravityField >,
-            tg::GravityFieldModel>(m, "SphericalHarmonicsGravityField")
-            .def_property_readonly("reference_radius", &tg::SphericalHarmonicsGravityField::getReferenceRadius )
-            .def_property_readonly("maximum_degree", &tg::SphericalHarmonicsGravityField::getDegreeOfExpansion )
-            .def_property_readonly("maximum_order", &tg::SphericalHarmonicsGravityField::getOrderOfExpansion )
-            .def_property("cosine_coefficients", &tg::SphericalHarmonicsGravityField::getCosineCoefficients,
-                          &tg::SphericalHarmonicsGravityField::setCosineCoefficients)
-            .def_property("sine_coefficients", &tg::SphericalHarmonicsGravityField::getSineCoefficients,
-                          &tg::SphericalHarmonicsGravityField::setSineCoefficients);
+    m.def("normalize_spherical_harmonic_coefficients",
+          py::overload_cast< const Eigen::MatrixXd&, const Eigen::MatrixXd& >(
+              &tbm::convertUnnormalizedToGeodesyNormalizedCoefficients ),
+          py::arg("unnormalized_cosine_coefficients"),
+          py::arg("unnormalized_sine_coefficients") );
+
+    m.def("unnormalize_spherical_harmonic_coefficients",
+          py::overload_cast< const Eigen::MatrixXd&, const Eigen::MatrixXd& >(
+              &tbm::convertGeodesyNormalizedToUnnormalizedCoefficients ),
+          py::arg("normalized_cosine_coefficients"),
+          py::arg("normalized_sine_coefficients") );
+
+    m.def("spherical_harmonic_coefficients_from_inertia",
+          py::overload_cast<
+          const Eigen::Matrix3d,
+          const double,
+          const double,
+          const int,
+          const bool >( &tg::getDegreeTwoSphericalHarmonicCoefficients ),
+          py::arg("inertia_tensor"),
+          py::arg("gravitational_parameter"),
+          py::arg("reference_radius"),
+          py::arg("maximum_output_degree") = 2,
+          py::arg("output_normalized_coefficients") = true );
 };
 
 }// namespace tudatpy
