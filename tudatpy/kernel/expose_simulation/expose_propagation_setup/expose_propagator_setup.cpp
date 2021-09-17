@@ -11,7 +11,9 @@
 #include "expose_propagator_setup.h"
 
 #include "tudatpy/docstrings.h"
+
 #include <tudat/simulation/propagation_setup.h>
+#include <tudat/astro/propagators/getZeroProperModeRotationalInitialState.h>
 
 #include <pybind11/chrono.h>
 #include <pybind11/eigen.h>
@@ -101,28 +103,28 @@ namespace propagator {
                 tp::SingleArcDynamicsSimulator<double, double>,
                 std::shared_ptr<tp::SingleArcDynamicsSimulator<double, double>>>(m,
                                                                                  "SingleArcDynamicsSimulator")
-//                .def(py::init<
-//                             const tudat::simulation_setup::SystemOfBodies &,
-//                             const std::shared_ptr<tudat::numerical_integrators::IntegratorSettings<double>>,
-//                             const std::shared_ptr<tp::PropagatorSettings<double>>,
-//                             const bool,
-//                             const bool,
-//                             const bool,
-//                             const bool,
-//                             const std::chrono::steady_clock::time_point,
-//                             const std::vector<std::shared_ptr<tp::SingleStateTypeDerivative<double, double>>> &,
-//                             const bool>(),
-//                     py::arg("body_map"),
-//                     py::arg("integrator_settings"),
-//                     py::arg("propagator_settings"),
-//                     py::arg("are_equations_of_motion_to_be_integrated") = true,
-//                     py::arg("clear_numerical_solutions") = false,
-//                     py::arg("set_integrated_result") = false,
-//                     py::arg("print_number_of_function_evaluations") = false,
-//                     py::arg("initial_clock_time") = std::chrono::steady_clock::now(),
-//                     py::arg("state_derivative_models") =
-//                             std::vector<std::shared_ptr<tp::SingleStateTypeDerivative<double, double>>>(),
-//                     py::arg("print_dependent_variable_data") = true)
+                .def(py::init<
+                             const tudat::simulation_setup::SystemOfBodies &,
+                             const std::shared_ptr<tudat::numerical_integrators::IntegratorSettings<double>>,
+                             const std::shared_ptr<tp::PropagatorSettings<double>>,
+                             const bool,
+                             const bool,
+                             const bool,
+                             const bool,
+                             const std::chrono::steady_clock::time_point,
+                             const std::vector<std::shared_ptr<tp::SingleStateTypeDerivative<double, double>>> &,
+                             const bool>(),
+                     py::arg("body_map"),
+                     py::arg("integrator_settings"),
+                     py::arg("propagator_settings"),
+                     py::arg("are_equations_of_motion_to_be_integrated") = true,
+                     py::arg("clear_numerical_solutions") = false,
+                     py::arg("set_integrated_result") = false,
+                     py::arg("print_number_of_function_evaluations") = false,
+                     py::arg("initial_clock_time") = std::chrono::steady_clock::now(),
+                     py::arg("state_derivative_models") =
+                             std::vector<std::shared_ptr<tp::SingleStateTypeDerivative<double, double>>>(),
+                     py::arg("print_dependent_variable_data") = true)
                 .def("integrate_equations_of_motion",
                      &tp::SingleArcDynamicsSimulator<double, double>::integrateEquationsOfMotion,
                      py::arg("initial_states"))
@@ -202,8 +204,9 @@ namespace propagator {
                 tp::PropagatorSettings<double>,
                 std::shared_ptr<tp::PropagatorSettings<double>>>(m, "PropagatorSettings",
                                                                  get_docstring("PropagatorSettings").c_str())
-                .def("reset_initial_states", &tp::PropagatorSettings<double>::resetInitialStates,
-                     py::arg("initial_states"));
+                .def_property("initial_states",
+                                          &tp::PropagatorSettings<double>::getInitialStates,
+                                          &tp::PropagatorSettings<double>::resetInitialStates);
 
         py::class_<
                 tp::MultiArcPropagatorSettings<double>,
@@ -349,6 +352,43 @@ namespace propagator {
               py::arg("body_system"),
               py::arg("initial_time"),
               get_docstring("get_initial_state_of_bodies").c_str());
+
+        m.def("get_initial_state_of_body",// overload [2/2]
+              py::overload_cast<const std::string&,
+              const std::string&,
+              const tss::SystemOfBodies&,
+              const double>(
+                  &tp::getInitialStateOfBody<>),
+              py::arg("body_to_propagate"),
+              py::arg("central_body"),
+              py::arg("bodies"),
+              py::arg("initial_time"));
+
+        m.def("get_initial_rotational_state_of_body",
+              py::overload_cast<const std::string&,
+              const std::string&,
+              const tss::SystemOfBodies&,
+              const double>(
+                  &tp::getInitialRotationalStateOfBody<>),
+              py::arg("body_to_propagate"),
+              py::arg("base_orientation"),
+              py::arg("bodies"),
+              py::arg("initial_time"));
+
+        m.def("get_zero_proper_mode_rotational_state",
+              py::overload_cast<
+              const tss::SystemOfBodies&,
+              const std::shared_ptr< tni::IntegratorSettings< double > >,
+              const std::shared_ptr< tp::SingleArcPropagatorSettings< double > >,
+              const double,
+              const std::vector< double >,
+              const bool >( &tp::getZeroProperModeRotationalState< > ),
+              py::arg("bodies"),
+              py::arg("integrator_settings"),
+              py::arg("propagator_settings"),
+              py::arg("body_mean_rotational_rate"),
+              py::arg("dissipation_times"),
+              py::arg("propagate_undamped") = true );
 
         m.def("combine_initial_states",
               &tp::createCombinedInitialState<double>,
@@ -566,6 +606,23 @@ namespace propagator {
               py::arg("print_interval") = TUDAT_NAN,
               get_docstring("rotational", 1).c_str());
 
+        m.def("rotational",
+              py::overload_cast<
+              const tba::TorqueModelMap&,
+              const std::vector< std::string >&,
+              const Eigen::Matrix< double, Eigen::Dynamic, 1 >&,
+              const double,
+              const tp::RotationalPropagatorType,
+              const std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >,
+              const double
+              >(&tp::rotationalStatePropagatorSettings<double>),
+              py::arg("torque_models"),
+              py::arg("bodies_to_propagate"),
+              py::arg("initial_states"),
+              py::arg("final_time"),
+              py::arg("propagator") = tp::quaternions,
+              py::arg("output_variables") = std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >(),
+              py::arg("print_interval") = TUDAT_NAN);
 
         m.def("mass",
               py::overload_cast<
@@ -675,6 +732,17 @@ namespace propagator {
               py::arg("output_variables") = std::vector<std::shared_ptr<tp::SingleDependentVariableSaveSettings> >(),
               py::arg("print_interval") = TUDAT_NAN,
               get_docstring("multitype", 1).c_str());
+
+        m.def("multitype",
+                py::overload_cast<
+                const std::vector< std::shared_ptr< tp::SingleArcPropagatorSettings< double > > >,
+                const double,
+                const std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >,
+                const double >( &tp::multiTypePropagatorSettings<double> ),
+                py::arg("propagator_settings_list"),
+                py::arg("final_time"),
+                py::arg("output_variables") = std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >( ),
+                py::arg("print_interval") = TUDAT_NAN );
 
         m.def("multi_arc",
               &tp::multiArcPropagatorSettings<double>,

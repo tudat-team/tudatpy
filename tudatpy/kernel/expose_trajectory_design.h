@@ -1,5 +1,5 @@
 /*    Copyright (c) 2010-2018, Delft University of Technology
- *    All rights reserved
+ *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
  *    binary forms, with or without modification, are permitted exclusively
@@ -8,24 +8,17 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "expose_shape.h"
+#ifndef TUDATPY_EXPOSE_TRAJECTORY_DESIGN_H
+#define TUDATPY_EXPOSE_TRAJECTORY_DESIGN_H
 
-#include "tudat/astro/basic_astro/bodyShapeModel.h"
 #include <pybind11/pybind11.h>
 
 namespace py = pybind11;
 
-namespace tba = tudat::basic_astrodynamics;
-
 namespace tudatpy {
 
-void expose_shape(py::module &m) {
+void expose_trajectory_design(py::module &m);
 
-  py::class_<tba::BodyShapeModel,
-             std::shared_ptr<tba::BodyShapeModel>>(m, "ShapeModel")
-             .def("get_average_radius", &tba::BodyShapeModel::getAverageRadius)
-             .def_property_readonly("average_radius", &tba::BodyShapeModel::getAverageRadius);
+}// namespace tudatpy
 
-};
-
-};// namespace tudatpy
+#endif// TUDATPY_EXPOSE_TRAJECTORY_DESIGN_H

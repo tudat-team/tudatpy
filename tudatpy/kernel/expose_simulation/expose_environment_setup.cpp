@@ -265,8 +265,25 @@ namespace environment_setup {
               py::arg("base_frame_orientation") = "ECLIPJ2000",
               py::arg("time_step") = 300.0);
 
+        m.def("get_default_single_body_settings",
+              py::overload_cast<const std::string&, const std::string&>(
+                      &tss::getDefaultSingleBodySettings),
+              py::arg("body_name"),
+              py::arg("base_frame_orientation") = "ECLIPJ2000");
+
+        m.def("get_default_single_body_settings",
+              py::overload_cast< const std::string&, const double, const double, const std::string&, const double >(
+                  &tss::getDefaultSingleBodySettings),
+              py::arg("body_name"),
+              py::arg("initial_time"),
+              py::arg("final_time"),
+              py::arg("base_frame_orientation") = "ECLIPJ2000",
+              py::arg("time_step") );
+
 
         m.def("get_global_frame_origin", &tss::getGlobalFrameOrigin);
+
+        m.def("create_simplified_system_of_bodies", &tss::createSimplifiedSystemOfBodies);
 
         m.def("create_system_of_bodies", &tss::createSystemOfBodies);
 

@@ -13,9 +13,10 @@
  #define cartesian_to_keplerian
 
  // classes
+#include "tudat/math/basic.h"
+#include "expose_element_conversion.h"
 
-#include "expose_conversion.h"
-
+#include <tudat/math/basic.h>
 #include <tudat/astro/conversions.h>
 #include <tudat/astro/basic_astro/stateRepresentationConversions.h>
 #include <tudat/astro/ephemerides/rotationalEphemeris.h>
@@ -27,7 +28,7 @@
 namespace py = pybind11;
 namespace toec = tudat::orbital_element_conversions;
 namespace tcc = tudat::coordinate_conversions;
-
+namespace tla = tudat::linear_algebra;
 namespace te = tudat::ephemerides;
 
 namespace tudatpy {
@@ -118,6 +119,16 @@ void expose_conversion(py::module &m) {
           py::arg("speed"),
           py::arg("flight_path_angle"),
           py::arg("heading_angle"));
+
+
+
+    m.def("quaterion_entries_to_rotation_matrix",
+          &tla::convertVectorQuaternionToMatrixFormat,
+          py::arg( "quaterion_entries" ) );
+
+    m.def("rotation_matrix_to_quaternion_entries",
+          &tla::convertMatrixToVectorQuaternionFormat,
+          py::arg( "rotation_matrix" ) );
 
 };
 

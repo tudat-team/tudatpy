@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef TUDATPY_EXPOSE_CONVERSIONS_H
-#define TUDATPY_EXPOSE_CONVERSIONS_H
+#ifndef TUDATPY_EXPOSE_ELEMENT_CONVERSIONS_H
+#define TUDATPY_EXPOSE_ELEMENT_CONVERSIONS_H
 
 #include <pybind11/pybind11.h>
 
@@ -17,8 +17,8 @@ namespace py = pybind11;
 
 namespace tudatpy {
 
-void expose_conversion(py::module &m);
+void expose_element_conversion(py::module &m);
 
 }
 
-#endif// TUDATPY_EXPOSE_CONVERSIONS_H
+#endif// TUDATPY_EXPOSE_ELEMENT_CONVERSIONS_H

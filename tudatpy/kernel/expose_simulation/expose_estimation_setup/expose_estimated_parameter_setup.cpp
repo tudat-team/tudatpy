@@ -8,6 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#include "expose_estimated_parameter_setup.h"
+
 #include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
 
 #include "tudatpy/docstrings.h"
@@ -17,8 +19,8 @@ namespace tss = tudat::simulation_setup;
 
 namespace tudatpy {
 namespace simulation {
-namespace propagation_setup {
-namespace acceleration {
+namespace estimation_setup {
+namespace parameter {
 
 void expose_estimated_parameter_setup(py::module &m) {
 
@@ -263,7 +265,7 @@ void expose_estimated_parameter_setup(py::module &m) {
 
 }
 
-}// namespace acceleration
-}// namespace propagation_setup
+}// namespace
+}// namespace
 }// namespace simulation
 }// namespace tudatpy

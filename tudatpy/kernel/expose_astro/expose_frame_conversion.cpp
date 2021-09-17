@@ -8,7 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "expose_reference_frames.h"
+#include "expose_frame_conversion.h"
 
 #include <tudat/astro/reference_frames.h>
 
@@ -23,7 +23,7 @@ namespace py = pybind11;
 
 namespace tudatpy {
 
-void expose_frames(py::module &m) {
+void expose_frame_conversion(py::module &m) {
 
     py::enum_<trf::AerodynamicsReferenceFrameAngles>(m, "AerodynamicsReferenceFrameAngles" )
             .value("latitude_angle", trf::AerodynamicsReferenceFrameAngles::latitude_angle)

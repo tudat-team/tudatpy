@@ -13,7 +13,7 @@
 #include "expose_simulation/expose_environment_setup.h"
 #include "expose_simulation/expose_estimation_setup.h"
 #include "expose_simulation/expose_propagation_setup.h"
-#include "expose_simulation/expose_shape_based_thrust.h"
+#include "expose_simulation/expose_astro_setup.h"
 
 #include <pybind11/pybind11.h>
 
@@ -33,8 +33,9 @@ void expose_simulation(py::module &m) {
   auto estimation_setup_submodule = m.def_submodule("estimation_setup");
   estimation_setup::expose_estimation_setup(estimation_setup_submodule);
 
-  auto shape_based_thrust_submodule = m.def_submodule("shape_based_thrust");
-  shape_based_thrust::expose_shape_based_thrust(shape_based_thrust_submodule);
+  auto astro_setup = m.def_submodule("astro_setup");
+  astro_setup::expose_astro_setup(astro_setup);
+
 };
 
 }// namespace simulation

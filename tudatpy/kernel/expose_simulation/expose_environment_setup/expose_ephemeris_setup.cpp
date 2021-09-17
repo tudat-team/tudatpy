@@ -228,11 +228,22 @@ namespace ephemeris {
               get_docstring("interpolated_spice").c_str());
 
         m.def("tabulated",
-              &tss::tabulatedEphemerisSettings,
+              py::overload_cast< const std::map< double, Eigen::Vector6d >&, std::string, std::string >(
+                            &tss::tabulatedEphemerisSettings ),
               py::arg("body_state_history"),
               py::arg("frame_origin") = "SSB",
               py::arg("frame_orientation") = "ECLIPJ2000",
-              get_docstring("tabulated").c_str());
+              get_docstring("tabulated",0).c_str());
+
+        m.def("tabulated",
+              py::overload_cast< const std::shared_ptr< tss::EphemerisSettings >,
+              const double, const double, const double, const std::shared_ptr< ti::InterpolatorSettings > >(
+                  &tss::tabulatedEphemerisSettings ),
+              py::arg("ephemeris_settings"),
+              py::arg("start_time"),
+              py::arg("end_time"),
+              py::arg("time_step"),
+              py::arg("interpolator_settings") =  std::make_shared< ti::LagrangeInterpolatorSettings >( 8 ) );
 
         m.def("constant",
               &tss::constantEphemerisSettings,

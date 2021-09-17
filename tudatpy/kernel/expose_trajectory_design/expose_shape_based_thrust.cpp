@@ -13,7 +13,6 @@
 #include <tudat/astro/low_thrust/shape_based/hodographicShaping.h>
 #include <tudat/astro/low_thrust/shape_based/baseFunctionsHodographicShaping.h>
 #include <tudat/astro/low_thrust/shape_based/getRecommendedBaseFunctionsHodographicShaping.h>
-#include <tudat/simulation/propagation_setup/accelerationSettings.h>
 
 #include <pybind11/eigen.h>
 #include <pybind11/pybind11.h>
@@ -23,12 +22,10 @@
 namespace py = pybind11;
 namespace tsbm = tudat::shape_based_methods;
 namespace tltt = tudat::low_thrust_trajectories;
-namespace tni = tudat::numerical_integrators;
-namespace tss = tudat::simulation_setup;
 
 namespace tudatpy {
-namespace simulation {
-namespace shape_based_thrust {
+//namespace astro {
+//namespace shape_based_thrust {
 
 
 void expose_shape_based_thrust(py::module &m)
@@ -183,19 +180,9 @@ void expose_shape_based_thrust(py::module &m)
           py::arg("frequency"),
           py::arg("scale_factor") );
 
-
-    m.def("get_low_thrust_acceleration_settings",
-          &tss::getLowThrustLegAccelerationSettings,
-          py::arg("low_thrust_leg"),
-          py::arg("bodies"),
-          py::arg("body_to_propagate"),
-          py::arg("specific_impulse_function"),
-          py::arg("low_thrust_leg_initial_time") );
-
-
 }
 
 
-}// namespace shape_based_thrust
-}// namespace simulation
+//}// namespace shape_based_thrust
+//}// namespace astro
 }// namespace tudatpy

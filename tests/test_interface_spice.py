@@ -8,9 +8,9 @@ import tudatpy.kernel.interface.spice_interface as spice_interface
 
 def test_load_default_kernels():
     # load_standard_spice_kernels()
-    spice_interface.load_standard_kernels()
+    spice.load_standard_kernels()
 
 
 def test_clear_spice_kernels():
-    spice_interface.clear_kernels()
+    spice.clear_kernels()
 
