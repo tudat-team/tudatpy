@@ -180,9 +180,9 @@ void expose_estimation_setup(py::module &m) {
             .def( "set_constant_weight_per_observable",
                   &tss::PodInput<double, double>::setConstantPerObservableWeightsMatrix,
                   py::arg( "weight_per_observable" ) )
-            .def( "set_constant_weight_per_observable_and_link_end",
-                  &tss::PodInput<double, double>::setConstantPerObservableAndLinkEndsWeights,
-                  py::arg( "weight_per_observable_and_link" ) )
+//            .def( "set_constant_weight_per_observable_and_link_end",
+//                  &tss::PodInput<double, double>::setConstantPerObservableAndLinkEndsWeights,
+//                  py::arg( "weight_per_observable_and_link" ) )
             .def( "define_estimation_settings",
                   &tss::PodInput<double, double>::defineEstimationSettings,
                   py::arg( "reintegrate_equations_on_first_iteration" ) = true,
@@ -252,8 +252,8 @@ void expose_estimation_setup(py::module &m) {
           py::arg("propagator_settings") =
             std::shared_ptr< tp::PropagatorSettings< double > >( ) );
 
-    auto parameter_setup = m.def_submodule("parameter");
-    parameter::expose_estimated_parameter_setup(parameter_setup);
+//    auto parameter_setup = m.def_submodule("parameter");
+//    parameter::expose_estimated_parameter_setup(parameter_setup);
 
     auto observation_setup = m.def_submodule("observation");
     observation::expose_observation_setup(observation_setup);

@@ -10,7 +10,9 @@
 
 #include "expose_observation_setup.h"
 
+#include "tudat/simulation/estimation_setup/simulateObservations.h"
 #include "tudat/simulation/estimation_setup/createObservationModel.h"
+#include "tudat/simulation/estimation_setup/observationSimulationSettings.h"
 
 #include "tudatpy/docstrings.h"
 
@@ -22,7 +24,7 @@ namespace simulation {
 namespace estimation_setup {
 namespace observation {
 
-void expose_estimated_parameter_setup(py::module &m) {
+void expose_observation_setup(py::module &m) {
 
     py::enum_< tom::LinkEndType >(m, "LinkEndType")
             .value("unidentified_link_end", tom::LinkEndType::unidentified_link_end )

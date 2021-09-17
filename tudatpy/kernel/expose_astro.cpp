@@ -10,17 +10,11 @@
 
 #include "expose_astro.h"
 
-#include "expose_astro/expose_aerodynamics.h"
-#include "expose_astro/expose_conversion.h"
-#include "expose_astro/expose_ephemerides.h"
-#include "expose_astro/expose_fundamentals.h"
 #include "expose_astro/expose_gravitation.h"
-#include "expose_astro/expose_propagators.h"
-#include "expose_astro/expose_reference_frames.h"
+#include "expose_astro/expose_element_conversion.h"
+#include "expose_astro/expose_frame_conversion.h"
 #include "expose_astro/expose_two_body_dynamics.h"
 #include "expose_astro/expose_observations.h"
-#include "expose_astro/expose_shape.h"
-#include "expose_astro/expose_ground_stations.h"
 
 #include <pybind11/pybind11.h>
 
@@ -30,42 +24,21 @@ namespace tudatpy {
 
 void expose_astro(py::module &m) {
 
-  auto fundamentals = m.def_submodule("fundamentals");
-  expose_fundamentals(fundamentals);
+  auto element_conversion = m.def_submodule("element_conversion");
+  expose_element_conversion(element_conversion);
 
-  auto conversion = m.def_submodule("conversion");
-  expose_conversion(conversion);
-
-  auto frames = m.def_submodule("frames");
-  expose_frames(frames);
-
-  auto aerodynamics = m.def_submodule("aerodynamics");
-  expose_aerodynamics(aerodynamics);
+  auto frame_conversion = m.def_submodule("frame_conversion");
+  expose_frame_conversion(frame_conversion);
 
   auto two_body_dynamics = m.def_submodule("two_body_dynamics");
   expose_two_body_dynamics(two_body_dynamics);
 
-  auto ephemerides = m.def_submodule("ephemerides");
-  expose_ephemerides(ephemerides);
-
   auto gravitation = m.def_submodule("gravitation");
   expose_gravitation(gravitation);
-
-  auto propagators = m.def_submodule("propagators");
-  expose_propagators(propagators);
-
-  auto shape = m.def_submodule("shape");
-  expose_shape(shape);
 
   auto observations = m.def_submodule("observations");
   expose_observations(observations);
 
-  auto ground_stations = m.def_submodule("ground_stations");
-  expose_ground_stations(ground_stations);
+}
 
-
-//  auto shape_based_thrust = m.def_submodule("shape_based_thrust");
-//  expose_shape_based_thrust(shape_based_thrust);
-};
-
-};// namespace tudatpy
+}// namespace tudatpy

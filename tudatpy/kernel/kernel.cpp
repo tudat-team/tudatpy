@@ -9,6 +9,7 @@
 #include "expose_io.h"
 #include "expose_math.h"
 #include "expose_simulation.h"
+#include "expose_trajectory_design.h"
 
 namespace py = pybind11;
 

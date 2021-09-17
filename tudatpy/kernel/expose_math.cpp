@@ -8,7 +8,6 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "expose_math/expose_basic_math.h"
 #include "expose_math/expose_interpolators.h"
 #include "expose_math/expose_numerical_integrators.h"
 #include "expose_math/expose_root_finders.h"
@@ -38,8 +37,6 @@ void expose_math(py::module &m) {
   auto geometry = m.def_submodule("geometry");
   expose_geometry(geometry);
 
-  auto basic_functions = m.def_submodule("basic_functions");
-  expose_basic_functions(basic_functions);
 };
 
 };// namespace tudatpy
