@@ -50,7 +50,7 @@ YACMA_PYTHON_MODULE(kernel
         # kernel/astro
         kernel/expose_astro.cpp
         kernel/expose_astro/expose_gravitation.cpp
-        kernel/expose_astro/expose_element_conversion.cpp        
+        kernel/expose_astro/expose_element_conversion.cpp
         kernel/expose_astro/expose_frame_conversion.cpp
         kernel/expose_astro/expose_observations.cpp
         kernel/expose_astro/expose_two_body_dynamics.cpp

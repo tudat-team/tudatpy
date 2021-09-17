@@ -259,18 +259,11 @@ void expose_environment(py::module &m) {
         .def("update_constant_state", &te::ConstantEphemeris::updateConstantState,
              py::arg("new_state"));
 
-    //////////////////////////////////////////////////////////////////////////////
-    // keplerEphemeris.h
-    //////////////////////////////////////////////////////////////////////////////
-
     py::class_<te::KeplerEphemeris,
                std::shared_ptr<te::KeplerEphemeris>,
                te::Ephemeris>(
         m, "KeplerEphemeris");
 
-    //////////////////////////////////////////////////////////////////////////////
-    // tleEphemeris.h / tleEphemeris.cpp
-    //////////////////////////////////////////////////////////////////////////////
     py::class_<te::Tle, std::shared_ptr<te::Tle>>(m, "Tle")
         .def(py::init<//ctor 1
                  const std::string &>(),
@@ -302,10 +295,6 @@ void expose_environment(py::module &m) {
              py::arg("frame_orientation") = "J2000",
              py::arg("tle") = nullptr,
              py::arg("use_sdp") = false);
-
-    //////////////////////////////////////////////////////////////////////////////
-    // synchronousRotationalEphemeris.h
-    //////////////////////////////////////////////////////////////////////////////
 
     py::class_<te::LongitudeLibrationCalculator,
                std::shared_ptr<te::LongitudeLibrationCalculator>>(
@@ -372,6 +361,18 @@ void expose_environment(py::module &m) {
                std::shared_ptr<tba::BodyShapeModel>>(m, "ShapeModel")
                .def("get_average_radius", &tba::BodyShapeModel::getAverageRadius)
                .def_property_readonly("average_radius", &tba::BodyShapeModel::getAverageRadius);
+
+
+    /*
+     **************   SUPPORTING FUNCTIONS USED ENVIRONMENT MODELS  ******************
+     */
+
+    m.def("transform_to_inertial_orientation",
+          &te::transformStateToInertialOrientation<double, double>,
+          py::arg("state_in_body_fixed_frame"),
+          py::arg("current_time"),
+          py::arg("rotational_ephemeris"));
+
 
 }
 }// namespace propagation

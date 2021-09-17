@@ -33,7 +33,7 @@ namespace te = tudat::ephemerides;
 
 namespace tudatpy {
 
-void expose_conversion(py::module &m) {
+void expose_element_conversion(py::module &m) {
 
 
     m.def("transform_to_inertial_orientation",
