@@ -384,7 +384,6 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_5 )
     {
         spiceEphemeris = SpiceEphemeris( target, observer, 1, 0, 0, referenceFrame );
     }
-
     catch( std::runtime_error const& )
     {
         areExceptionsHandledCorrectly = true;
