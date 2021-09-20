@@ -167,6 +167,15 @@ Eigen::Quaterniond getRotatingPlanetocentricToInertialFrameTransformationQuatern
     return frameTransformationQuaternion;
 }
 
+Eigen::Matrix3d getRotatingPlanetocentricToInertialFrameTransformationMatrix(
+        const double declinationOfPole,
+        const double rightAscensionOfPole,
+        const double longitudeOfPrimeMeridian )
+{
+    return getRotatingPlanetocentricToInertialFrameTransformationQuaternion(
+                declinationOfPole, rightAscensionOfPole, longitudeOfPrimeMeridian ).toRotationMatrix( );
+}
+
 //! Get inertial (I) to rotating planetocentric (R) reference frame transformtion matrix.
 Eigen::Matrix3d getInertialToPlanetocentricFrameTransformationMatrix(
         const double angleFromXItoXR )
@@ -209,6 +218,21 @@ Eigen::Matrix3d getVelocityBasedLvlhToInertialRotation(
 
     return transformationMatrix;
 }
+
+Eigen::Matrix3d getTnwToInertialRotation(const Eigen::Vector6d& vehicleInertialState,
+                                         const bool doesNaxisPointAwayFromCentralBody )
+{
+    return getVelocityBasedLvlhToInertialRotation(
+                vehicleInertialState, Eigen::Vector6d::Zero( ), doesNaxisPointAwayFromCentralBody );
+}
+
+Eigen::Matrix3d getInertialToTnwRotation(const Eigen::Vector6d& vehicleInertialState,
+                                         const bool doesNaxisPointAwayFromCentralBody )
+{
+    return getVelocityBasedLvlhToInertialRotation(
+                vehicleInertialState, Eigen::Vector6d::Zero( ), doesNaxisPointAwayFromCentralBody ).transpose( );
+}
+
 
 //! Get rotation from velocity based LVLH frame to inertial frame (I) frame.
 Eigen::Matrix3d getVelocityBasedLvlhToInertialRotationFromFunctions(
@@ -253,7 +277,7 @@ Eigen::Quaterniond getVelocityBasedLvlhToPlanetocentricRotationKeplerian(
 
 //! Function to compute the rotation matrix to RSW frame, from the frame in which the input state is given.
 Eigen::Matrix3d getInertialToRswSatelliteCenteredFrameRotationMatrix(
-        const Eigen::Vector6d bodyState )
+        const Eigen::Vector6d& bodyState )
 {
     Eigen::Vector3d vehicleVelocity, vehicleRadius;
     vehicleRadius = bodyState.segment( 0, 3 );
@@ -275,6 +299,12 @@ Eigen::Matrix3d getInertialToRswSatelliteCenteredFrameRotationMatrix(
             unitS( 0 ), unitS( 1 ), unitS( 2 ),
             unitW( 0 ), unitW( 1 ), unitW( 2 );
     return transformationMatrix;
+}
+
+Eigen::Matrix3d getRswSatelliteCenteredToInertialFrameRotationMatrix(
+        const Eigen::Vector6d& bodyState )
+{
+    return getInertialToRswSatelliteCenteredFrameRotationMatrix( bodyState ).transpose( );
 }
 
 //! Get inertial (I) to rotating planetocentric (R) reference frame transformtion quaternion.
