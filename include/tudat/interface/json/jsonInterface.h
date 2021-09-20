@@ -553,10 +553,7 @@ protected:
             printOutputVariables = getValue< bool >( jsonObject_, "printVariableTypes", false );
         }
         catch( std::runtime_error const& ){ }
-<<<<<<< HEAD
 
-=======
->>>>>>> feature/api-develop-merge
 
         resetDependentVariableSaveSettings< StateScalarType >( propagatorSettings_, exportSettingsVector_, printOutputVariables );
 
