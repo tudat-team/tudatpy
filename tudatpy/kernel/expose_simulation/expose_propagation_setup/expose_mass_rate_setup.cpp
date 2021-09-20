@@ -33,7 +33,7 @@ namespace tmrf = tudat::root_finders;
 namespace tudatpy {
 namespace simulation {
 namespace propagation_setup {
-namespace mass {
+namespace mass_rate {
 
     void expose_mass_rate_setup(py::module &m) {
 
