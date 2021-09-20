@@ -23,6 +23,10 @@ if (TUDAT_BUILD_WITH_SOFA_INTERFACE)
     list(APPEND TUDAT_ITRS_LIBRARIES Tudat::tudat_earth_orientation)
 endif ()
 
+if (TUDAT_BUILD_WITH_NRLMSISE00)
+    list(APPEND TUDAT_EXTERNAL_INTERFACE_LIBRARIES ${NRLMSISE00_LIBRARIES})
+endif ()
+
 
 if (TUDAT_BUILD_WITH_JSON_INTERFACE)
     list(APPEND TUDAT_EXTERNAL_LIBRARIES ${nlohmann_json_LIBRARIES})
@@ -109,7 +113,6 @@ if (TUDAT_BUILD_WITH_ESTIMATION_TOOLS)
             Tudat::tudat_basic_mathematics
             Tudat::tudat_input_output
             Tudat::tudat_basics
-#            ${TUDAT_EXTERNAL_LIBRARIES}
             )
 
 else ()
