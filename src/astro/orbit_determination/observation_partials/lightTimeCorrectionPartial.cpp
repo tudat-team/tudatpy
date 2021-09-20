@@ -8,7 +8,9 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
+using namespace boost::placeholders;
+
 
 #include "tudat/astro/orbit_determination/observation_partials/lightTimeCorrectionPartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/firstOrderRelativisticPartial.h"
