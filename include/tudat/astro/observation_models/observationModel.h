@@ -13,7 +13,7 @@
 
 #include <vector>
 
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
 #include <memory>
 #include <functional>
 
@@ -26,6 +26,8 @@
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/astro/observation_models/observationBias.h"
+
+using namespace boost::placeholders;
 
 namespace tudat
 {

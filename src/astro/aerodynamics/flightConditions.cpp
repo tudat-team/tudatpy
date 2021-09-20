@@ -10,7 +10,9 @@
 
 #include <boost/make_shared.hpp>
 #include <memory>
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
+using namespace boost::placeholders;
+
 
 #include "tudat/astro/aerodynamics/aerodynamics.h"
 #include "tudat/astro/aerodynamics/flightConditions.h"
@@ -220,7 +222,7 @@ double AtmosphericFlightConditions::getAerodynamicCoefficientIndependentVariable
         {
             currentIndependentVariable = controlSurfaceDeflectionFunction_( secondaryIdentifier );
         }
-        catch( std::runtime_error& )
+        catch( std::runtime_error const& )
         {
             throw std::runtime_error( "Error, control surface " + secondaryIdentifier + "not recognized when updating coefficients" );
         }

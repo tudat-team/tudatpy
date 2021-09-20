@@ -31,8 +31,8 @@ namespace tudat
 namespace simulation_setup
 {
 
-//! List of ephemeris models available in simulations
-/*!
+// List of ephemeris models available in simulations
+/*
  *  List of ephemeris models available in simulations. Ephemeris models not defined by this
  *  given enum cannot be used for automatic model setup.
  */
@@ -50,19 +50,21 @@ enum EphemerisType
     scaled_ephemeris
 };
 
-//! Class for providing settings for ephemeris model.
-/*!
+// Class for providing settings for ephemeris model.
+/*
  *  Class for providing settings for automatic ephemeris model creation. This class is a
  *  functional (base) class for settings of ephemeris models that require no information in
  *  addition to their type (and frame origin and orientation). Ephemeris model classes defining
  *  requiring additional information must be created using an object derived from this class.
  */
+
+//! @get_docstring(EphemerisSettings.__docstring__)
 class EphemerisSettings
 {
 public:
 
-    //! Constructor, sets type of ephemeris model.
-    /*!
+    // Constructor, sets type of ephemeris model.
+    /*
      *  Constructor, sets type of ephemeris model and frame origin and orientation.
      *  Settings for ephemeris models requiring additional information should be defined in a
      *  derived class.
@@ -80,32 +82,32 @@ public:
         frameOrientation_( frameOrientation ),
         makeMultiArcEphemeris_( false ){ }
 
-    //! Destructor
+    // Destructor
     virtual ~EphemerisSettings( ){ }
 
-    //! Function to return type of gravity field model that is to be created.
-    /*!
-     *  Function to return type of gravity field model that is to be created.
-     *  \return Type of gravity field model that is to be created.
+    // Function to return type of ephemeris that is to be created.
+    /*
+     *  Function to return type of ephemeris that is to be created.
+     *  \return Type of ephemeris that is to be created.
      */
     EphemerisType getEphemerisType( ){ return ephemerisType_; }
 
-    //! Function to return the origin of frame in which ephemeris data is defined.
-    /*!
+    // Function to return the origin of frame in which ephemeris data is defined.
+    /*
      *  Function to return the origin of frame in which ephemeris data is defined.
      *  \return Origin of frame in which ephemeris data is defined.
      */
     std::string getFrameOrigin( ){ return frameOrigin_; }
 
-    //! Function to return the orientation of frame in which ephemeris data is defined.
-    /*!
+    // Function to return the orientation of frame in which ephemeris data is defined.
+    /*
      *  Function to return the orientation of frame in which ephemeris data is defined.
      *  \return Orientation of frame in which ephemeris data is defined.
      */
     std::string getFrameOrientation( ){ return frameOrientation_;}
 
-    //! Function to retrieve boolean denoting whether the ephemeris that is to be created is a multi-arc ephemeris
-    /*!
+    // Function to retrieve boolean denoting whether the ephemeris that is to be created is a multi-arc ephemeris
+    /*
      * Function to retrieve boolean denoting whether the ephemeris that is to be created is a multi-arc ephemeris
      * \return Boolean denoting whether the ephemeris that is to be created is a multi-arc ephemeris
      */
@@ -114,22 +116,22 @@ public:
         return makeMultiArcEphemeris_;
     }
 
-    //! Function to reset the origin of the frame.
-    /*!
+    // Function to reset the origin of the frame.
+    /*
      * Function to reset the origin of the frame.
      * \param frameOrigin New frame origin
      */
     void resetFrameOrigin( const std::string& frameOrigin ){ frameOrigin_ = frameOrigin; }
 
-    //! Function to rese the orientation of the frame.
-    /*!
+    // Function to rese the orientation of the frame.
+    /*
      * Function to reset the orientation of the frame.
      * \param frameOrientation New frame orientation
      */
     void resetFrameOrientation( const std::string& frameOrientation ){ frameOrientation_ = frameOrientation; }
 
-    //! Function to reset boolean denoting whether the ephemeris that is to be created is a multi-arc ephemeris
-    /*!
+    // Function to reset boolean denoting whether the ephemeris that is to be created is a multi-arc ephemeris
+    /*
      * Function to reset boolean denoting whether the ephemeris that is to be created is a multi-arc ephemeris
      * \param makeMultiArcEphemeris New boolean denoting whether the ephemeris that is to be created is a multi-arc ephemeris
      */
@@ -140,17 +142,17 @@ public:
 
 protected:
 
-    //! Type of ephemeris model that is to be created.
+    // Type of ephemeris model that is to be created.
     EphemerisType ephemerisType_;
 
-    //! Origin of frame in which ephemeris data is defined.
+    // Origin of frame in which ephemeris data is defined.
     std::string frameOrigin_;
 
-    //! Orientation of frame in which ephemeris data is defined.
+    // Orientation of frame in which ephemeris data is defined.
     std::string frameOrientation_;
 
-    //! Boolean denoting whether the ephemeris that is to be created is a multi-arc ephemeris
-    /*!
+    // Boolean denoting whether the ephemeris that is to be created is a multi-arc ephemeris
+    /*
      *  Boolean denoting whether the ephemeris that is to be created is a multi-arc ephemeris. If true, the createEphemeris
      *  function creates a multi-arc ephemeris with a single arc spanning all time, created according to the contents of the
      *  EphemerisSettings object.
@@ -159,6 +161,7 @@ protected:
 };
 
 
+    //! @get_docstring(ScaledEphemerisSettings.__docstring__)
 class ScaledEphemerisSettings: public EphemerisSettings
 {
 public:
@@ -209,13 +212,14 @@ protected:
     bool isScalingAbsolute_;
 };
 
-//! EphemerisSettings derived class for defining settings of an ephemeris linked directly to Spice.
+// EphemerisSettings derived class for defining settings of an ephemeris linked directly to Spice.
+//! @get_docstring(DirectSpiceEphemerisSettings.__docstring__)
 class DirectSpiceEphemerisSettings: public EphemerisSettings
 {
 public:
 
-    //! Constructor.
-    /*! Constructor, sets the properties from which the Spice ephemeris is to be retrieved.
+    // Constructor.
+    /* Constructor, sets the properties from which the Spice ephemeris is to be retrieved.
      * \param frameOrigin Name of body relative to which the ephemeris is to be calculated
      *        (optional "SSB" by default).
      * \param correctForStellarAberration Boolean whether to correct for stellar Aberration in
@@ -254,27 +258,27 @@ public:
         bodyNameOverride_( bodyNameOverride ){ }
 
 
-    //! Destructor
+    // Destructor
     virtual ~DirectSpiceEphemerisSettings( ){ }
 
-    //! Returns whether to correct for stellar aberration in retrieved values of (observed state).
-    /*!
+    // Returns whether to correct for stellar aberration in retrieved values of (observed state).
+    /*
      *  Returns whether to correct for stellar aberration in retrieved values of (observed state).
      *  \return Boolean defining whether to correct for stellar aberration in retrieved
      *  values of (observed state).
      */
     bool getCorrectForStellarAberration( ){ return correctForStellarAberration_; }
 
-    //! Returns whether to correct for light time in retrieved values of (observed state).
-    /*!
+    // Returns whether to correct for light time in retrieved values of (observed state).
+    /*
      *  Returns whether to correct for light time in retrieved values of (observed state).
      *  \return Boolean defining whether to correct for light time in retrieved values of
      *  (observed state).
      */
     bool getCorrectForLightTimeAberration( ){ return correctForLightTimeAberration_; }
 
-    //! Returns whether to use single iteration or max. 3 iterations for calculating light time.
-    /*!
+    // Returns whether to use single iteration or max. 3 iterations for calculating light time.
+    /*
      *  Returns whether to use single iteration or max. 3 iterations for calculating light time.
      *  \return Boolean defining whether to use single iteration or max. 3 iterations for
      *  calculating light time.
@@ -285,21 +289,21 @@ public:
 
 protected:
 
-    //! Boolean whether to correct for stellar aberration in retrieved values of (observed state).
+    // Boolean whether to correct for stellar aberration in retrieved values of (observed state).
     bool correctForStellarAberration_;
 
-    //! Boolean whether to correct for light time in retrieved values of (observed state).
+    // Boolean whether to correct for light time in retrieved values of (observed state).
     bool correctForLightTimeAberration_;
 
-    //! Boolean whether to use single iteration or max. 3 iterations for calculating light time.
+    // Boolean whether to use single iteration or max. 3 iterations for calculating light time.
     bool convergeLighTimeAberration_;
 
     std::string bodyNameOverride_;
 };
 
-//! EphemerisSettings derived class for defining settings of a ephemeris interpolated from Spice
-//! data.
-/*!
+// EphemerisSettings derived class for defining settings of a ephemeris interpolated from Spice
+// data.
+/*
  *  EphemerisSettings derived class for defining settings of a ephemeris interpolated from Spice
  *  data. Retrieving a state from Spice can be very computationally intensive. Using the
  *  settings of this class, ephemeris data for a body is pre-computed using a limited number
@@ -307,12 +311,14 @@ protected:
  *  many numerical integration scenarios, this approach may be faster than using
  *  DirectSpiceEphemerisSettings, with negligible influence on accuracy.
  */
+
+//! @get_docstring(InterpolatedSpiceEphemerisSettings.__docstring__)
 class InterpolatedSpiceEphemerisSettings: public DirectSpiceEphemerisSettings
 {
 public:
 
-    //! Constructor.
-    /*! Constructor, sets the properties from which the tabulated spice data is to be created
+    // Constructor.
+    /* Constructor, sets the properties from which the tabulated spice data is to be created
      *  from which an ephemeris is to be created.
      * \param initialTime Initial time from which interpolated data from Spice should be created.
      * \param finalTime Final time from which interpolated data from Spice should be created.
@@ -336,29 +342,29 @@ public:
         initialTime_( initialTime ), finalTime_( finalTime ), timeStep_( timeStep ),
         interpolatorSettings_( interpolatorSettings ), useLongDoubleStates_( 0 ){ }
 
-    //! Function to return initial time from which interpolated data from Spice should be created.
-    /*!
+    // Function to return initial time from which interpolated data from Spice should be created.
+    /*
      *  Function to return initial time from which interpolated data from Spice should be created.
      *  \return Initial time from which interpolated data from Spice should be created.
      */
     double getInitialTime( ){ return initialTime_; }
 
-    //! Function to return final time from which interpolated data from Spice should be created.
-    /*!
+    // Function to return final time from which interpolated data from Spice should be created.
+    /*
      *  Function to return final time from which interpolated data from Spice should be created.
      *  \return Final time from which interpolated data from Spice should be created.
      */
     double getFinalTime( ){ return finalTime_; }
 
-    //! Function to return time step with which interpolated data from Spice should be created.
-    /*!
+    // Function to return time step with which interpolated data from Spice should be created.
+    /*
      *  Function to return time step with which interpolated data from Spice should be created.
      *  \return Time step with which interpolated data from Spice should be created.
      */
     double getTimeStep( ){ return timeStep_; }
 
-    //! Function to return settings to be used for the state interpolation.
-    /*!
+    // Function to return settings to be used for the state interpolation.
+    /*
      *  Function to return settings to be used for the state interpolation.
      *  \return Settings to be used for the state interpolation.
      */
@@ -380,34 +386,36 @@ public:
 
 private:
 
-    //! Initial time from which interpolated data from Spice should be created.
+    // Initial time from which interpolated data from Spice should be created.
     double initialTime_;
 
-    //! Final time until which interpolated data from Spice should be created.
+    // Final time until which interpolated data from Spice should be created.
     double finalTime_;
 
-    //! Time step with which interpolated data from Spice should be created.
+    // Time step with which interpolated data from Spice should be created.
     double timeStep_;
 
-    //! Settings to be used for the state interpolation.
+    // Settings to be used for the state interpolation.
     std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings_;
 
     bool useLongDoubleStates_;
 };
 
-//! EphemerisSettings derived class for defining settings of an approximate ephemeris for major
-//! planets.
-/*!
+// EphemerisSettings derived class for defining settings of an approximate ephemeris for major
+// planets.
+/*
  *  EphemerisSettings derived class for defining settings of an approximate ephemeris for major
  *  planets, as inplemented in ApproximatePlanetPositions class and derived class,
  *  described on http://ssd.jpl.nasa.gov/txt/aprx_pos_planets.pdf.
  */
+
+//! @get_docstring(ApproximatePlanetPositionSettings.__docstring__)
 class ApproximatePlanetPositionSettings: public EphemerisSettings
 {
 public:
 
-    //! Constructor.
-    /*!
+    // Constructor.
+    /*
      *  Constructor.
      *  \param bodyIdentifier Parameter identifying for which body an ephemeris is to be created.
      *  \param useCircularCoplanarApproximation Boolean defining whether a circular, coplanar
@@ -422,8 +430,8 @@ public:
         bodyIdentifier_( bodyIdentifier ),
         useCircularCoplanarApproximation_( useCircularCoplanarApproximation ){ }
 
-    //! Function to return parameter identifying for which body an ephemeris is to be created.
-    /*!
+    // Function to return parameter identifying for which body an ephemeris is to be created.
+    /*
      *  Function to return parameter identifying for which body an ephemeris is to be created.
      *  \return Parameter identifying for which body an ephemeris is to be created.
      */
@@ -432,8 +440,8 @@ public:
         return bodyIdentifier_;
     }
 
-    //! Function to return whether a circular, coplanar orbit of the body is to be assumed.
-    /*!
+    // Function to return whether a circular, coplanar orbit of the body is to be assumed.
+    /*
      *  Function to return whether a circular, coplanar orbit of the body is to be assumed.
      *  \return Boolean defining whether a circular, coplanar orbit of the body is to be assumed.
      */
@@ -444,11 +452,11 @@ public:
 
 private:
 
-    //! Parameter identifying for which body an ephemeris is to be created.
+    // Parameter identifying for which body an ephemeris is to be created.
     ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData bodyIdentifier_;
 
-    //!  Boolean defining whether a circular, coplanar orbit of the body is to be assumed,
-    /*!
+    //  Boolean defining whether a circular, coplanar orbit of the body is to be assumed,
+    /*
      *  Boolean defining whether a circular, coplanar orbit of the body is to be assumed
      *  (creating an ApproximatePlanetPositionsCircularCoplanar object), or whether
      *  a non-zero inclination and long-period changes in the orbit are to be included
@@ -458,14 +466,16 @@ private:
 };
 
 
-//! EphemerisSettings derived class for defining settings of an ephemeris producing a constant
-//! (time-independent) state
+// EphemerisSettings derived class for defining settings of an ephemeris producing a constant
+// (time-independent) state
+
+//! @get_docstring(ConstantEphemerisSettings.__docstring__)
 class ConstantEphemerisSettings: public EphemerisSettings
 {
 public:
 
-    //! Constructor of settings for an ephemeris producing a constant (time-independent) state.
-    /*!
+    // Constructor of settings for an ephemeris producing a constant (time-independent) state.
+    /*
      * Constructor of settings for an ephemeris producing a constant (time-independent) state.
      * \param constantState Constant state that will be provided as output of the ephemeris at all times.
      * \param frameOrigin Origin of frame in which ephemeris data is defined.
@@ -478,28 +488,54 @@ public:
                            frameOrigin,
                            frameOrientation ), constantState_( constantState ){ }
 
-    //! Function to return the constant state for output of the ephemeris at all times.
-    /*!
+    // Function to return the constant state for output of the ephemeris at all times.
+    /*
      *  Function to return the constant state that will be provided as output of the ephemeris at
      *  all times.
-     *  \return Boolean defining whether a circular, coplanar orbit of the body is to be assumed.
+     *  \return Boo  - name: ConstantEphemerisSettings
+    short_summary: "`EphemerisSettings` derived class for defining settings of an ephemeris producing a constant (time-independent) state."
+#    extended_summary: |
+
+    methods:
+      - name: __init__
+        short_summary: "Constructor."
+        extended_summary: "Constructor of settings for an ephemeris producing a constant (time-independent) state."
+
+        parameters:
+          - name: constant_state # [py]
+            type: # [py]
+          - name: constantState # [cpp]
+            type: Eigen::Vector6d # [cpp]
+            description: "Constant state that will be provided as output of the ephemeris at all times."
+
+          - name: frame_origin # [py]
+            type: str, default='SSB' # [py]
+          - name: frameOrigin # [cpp]
+            type: std::string, default='SSB' # [cpp]
+            description: "Origin of frame in which ephemeris data is defined."
+
+          - name: frame_orientation # [py]
+            type: str, default='ECLIPJ2000' # [py]
+          - name: frameOrientation # [cpp]
+            type: std::string, default='ECLIPJ2000' # [cpp]
+            description: "Orientation of frame in which ephemeris data is defined."lean defining whether a circular, coplanar orbit of the body is to be assumed.
      */
     Eigen::Vector6d getConstantState( ){ return constantState_; }
 
 private:
 
-    //! Constant state that will be provided as output of the ephemeris at all times.
+    // Constant state that will be provided as output of the ephemeris at all times.
     Eigen::Vector6d constantState_;
 };
 
-//! EphemerisSettings derived class for defining settings of an ephemeris producing a custom
-//! state (e.g. arbitrary state as a function of time)
+// EphemerisSettings derived class for defining settings of an ephemeris producing a custom
+// state (e.g. arbitrary state as a function of time)
 class CustomEphemerisSettings: public EphemerisSettings
 {
 public:
 
-    //! Constructor of settings for an ephemeris producing a constant (time-independent) state.
-    /*!
+    // Constructor of settings for an ephemeris producing a constant (time-independent) state.
+    /*
      * Constructor of settings for an ephemeris producing a constant (time-independent) state.
      * \param customStateFunction Function returning the state as a function of time
      * \param frameOrigin Origin of frame in which ephemeris data is defined.
@@ -512,8 +548,8 @@ public:
                            frameOrigin,
                            frameOrientation ), customStateFunction_( customStateFunction ){ }
 
-    //! Function to return the function returning the state as a function of time
-    /*!
+    // Function to return the function returning the state as a function of time
+    /*
      *  Function to return the function returning the state as a function of time
      *  \return  Function returning the state as a function of time
      */
@@ -524,17 +560,19 @@ public:
 
 private:
 
-    //! Function returning the state as a function of time
+    // Function returning the state as a function of time
     std::function< Eigen::Vector6d( const double ) > customStateFunction_;
 };
 
-//! EphemerisSettings derived class for defining settings of an ephemeris representing an ideal
-//! Kepler orbit.
+// EphemerisSettings derived class for defining settings of an ephemeris representing an ideal
+// Kepler orbit.
+
+//! @get_docstring(KeplerEphemerisSettings.__docstring__)
 class KeplerEphemerisSettings: public EphemerisSettings
 {
 public:
-    //! Constructor
-    /*!
+    // Constructor
+    /*
     *  Constructor
     *  \param initialStateInKeplerianElements Kepler elements at time epochOfInitialState.
     *  \param epochOfInitialState Time at which initialStateInKeplerianElements represents
@@ -564,8 +602,8 @@ public:
         rootFinderMaximumNumberOfIterations_( rootFinderMaximumNumberOfIterations ){ }
 
 
-    //! Function to return the kepler elements at time epochOfInitialState.
-    /*!
+    // Function to return the kepler elements at time epochOfInitialState.
+    /*
      *  Function to return the kepler elements at time epochOfInitialState.
      *  \return Kepler elements at time epochOfInitialState.
      */
@@ -574,8 +612,8 @@ public:
         return initialStateInKeplerianElements_;
     }
 
-    //! Function to return the initial epoch from which propagation of Kepler orbit is performed.
-    /*!
+    // Function to return the initial epoch from which propagation of Kepler orbit is performed.
+    /*
      *  Function to return the initial epoch from which propagation of Kepler orbit is performed.
      *  \return  Initial epoch from which propagation of Kepler orbit is performed.
      */
@@ -584,9 +622,9 @@ public:
         return epochOfInitialState_;
     }
 
-    //! Function to return the gravitational parameter of central body about which the Kepler orbit
-    //! is defined.
-    /*!
+    // Function to return the gravitational parameter of central body about which the Kepler orbit
+    // is defined.
+    /*
      *  Function to return the gravitational parameter of central body about which the Kepler orbit
      *  is defined.
      *  \return Gravitational parameter of central body about which the Kepler orbit is defined.
@@ -596,9 +634,9 @@ public:
         return centralBodyGravitationalParameter_;
     }
 
-    //! Function to return the convergence tolerance for root finder used to convert mean to
-    //! eccentric anomaly
-    /*!
+    // Function to return the convergence tolerance for root finder used to convert mean to
+    // eccentric anomaly
+    /*
      *  Function to return the convergence tolerance for root finder used to convert mean to
      *  eccentric anomaly
      *  \return Convergence tolerance for root finder used to convert mean to eccentric anomaly
@@ -608,9 +646,9 @@ public:
         return rootFinderAbsoluteTolerance_;
     }
 
-    //! Function to return the maximum iteration for root finder used to convert mean to eccentric
-    //! anomaly
-    /*!
+    // Function to return the maximum iteration for root finder used to convert mean to eccentric
+    // anomaly
+    /*
      *  Function to return the maximum iteration for root finder used to convert mean to eccentric
      *  anomaly
      *  \return Maximum iteration for root finder used to convert mean to eccentric anomaly
@@ -622,36 +660,38 @@ public:
 
 private:
 
-    //! Kepler elements at time epochOfInitialState.
+    // Kepler elements at time epochOfInitialState.
     Eigen::Vector6d initialStateInKeplerianElements_;
 
-    //! Initial epoch from which propagation of Kepler orbit is performed.
+    // Initial epoch from which propagation of Kepler orbit is performed.
     double epochOfInitialState_;
 
-    //! Gravitational parameter of central body about which the Kepler orbit is defined.
+    // Gravitational parameter of central body about which the Kepler orbit is defined.
     double centralBodyGravitationalParameter_;
 
-    //! Convergence tolerance for root finder used to convert mean to eccentric anomaly.
+    // Convergence tolerance for root finder used to convert mean to eccentric anomaly.
     double rootFinderAbsoluteTolerance_;
 
-    //! Maximum iteration for root finder used to convert mean to eccentric anomaly
+    // Maximum iteration for root finder used to convert mean to eccentric anomaly
     double rootFinderMaximumNumberOfIterations_;
 };
 
-//! EphemerisSettings derived class for defining settings of an ephemeris created from tabulated
-//! data.
-/*!
+// EphemerisSettings derived class for defining settings of an ephemeris created from tabulated
+// data.
+/*
  *  EphemerisSettings derived class for defining settings of an ephemeris created from tabulated
  *  data. Currently the use of an 6th order Lagrange interpolator is hardcoded, which is created
  *  from the data that is provided. Note that at the edges of the interpolation interval, a
  *  Cubic spline interpolator is used to suppres the influence of Runge's phenomenon.
  */
+
+//! @get_docstring(TabulatedEphemerisSettings.__docstring__)
 class TabulatedEphemerisSettings: public EphemerisSettings
 {
 public:
 
-    //! Constructor.
-    /*!
+    // Constructor.
+    /*
      *  Constructor.
      *  \param bodyStateHistory Data map (time as key, Cartesian state as values) defining data
      *  from which an interpolated ephemeris is to be created.
@@ -667,8 +707,8 @@ public:
         EphemerisSettings( tabulated_ephemeris, frameOrigin, frameOrientation ),
         bodyStateHistory_( bodyStateHistory ), useLongDoubleStates_( ){ }
 
-    //! Function returning data map defining discrete data from which an ephemeris is to be created.
-    /*!
+    // Function returning data map defining discrete data from which an ephemeris is to be created.
+    /*
      *  Function returning data map defining discrete data from which an ephemeris is to be created.
      *  \return Data map defining discrete data from which an ephemeris is to be created.
      */
@@ -688,8 +728,8 @@ public:
 
 private:
 
-    //! Data map defining discrete data from which an ephemeris is to be created.
-    /*!
+    // Data map defining discrete data from which an ephemeris is to be created.
+    /*
      *  Data map (time as key, Cartesian state as values) defining data from which an interpolated
      *  ephemeris is to be created.
      */
@@ -765,16 +805,16 @@ public:
 
 private:
 
-	//! Initial time from which interpolated data from TLE should be created.
+	// Initial time from which interpolated data from TLE should be created.
 	double initialTime_;
 
-	//! Final time until which interpolated data from TLE should be created.
+	// Final time until which interpolated data from TLE should be created.
 	double finalTime_;
 
-	//! Time step with which interpolated data from TLE should be created.
+	// Time step with which interpolated data from TLE should be created.
 	double timeStep_;
 
-	//! Settings to be used for the state interpolation.
+	// Settings to be used for the state interpolation.
 	std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings_;
 
 	bool useLongDoubleStates_;
@@ -783,8 +823,8 @@ private:
 };
 
 
-//! Function to create a tabulated ephemeris using data from Spice.
-/*!
+// Function to create a tabulated ephemeris using data from Spice.
+/*
  *  Function to create a tabulated ephemeris using data from Spice.
  *  Retrieving a state from Spice can be very computationally intensive. Using this function,
  *  ephemeris data for a body is pre-computed using a limited number
@@ -869,6 +909,7 @@ std::shared_ptr< ephemerides::Ephemeris > createTabulatedEphemerisFromTLE(
 			interpolator, observerName, referenceFrameName );
 }
 
+//! @get_docstring(keplerEphemerisSettings)
 inline std::shared_ptr< EphemerisSettings > keplerEphemerisSettings(
         const Eigen::Vector6d& initialStateInKeplerianElements,
         const double epochOfInitialState,
@@ -885,6 +926,7 @@ inline std::shared_ptr< EphemerisSettings > keplerEphemerisSettings(
                 rootFinderMaximumNumberOfIterations );
 }
 
+//! @get_docstring(keplerEphemerisFromSpiceSettings)
 inline std::shared_ptr< EphemerisSettings > keplerEphemerisFromSpiceSettings(
         const std::string body,
         const double epochOfInitialState,
@@ -905,6 +947,7 @@ inline std::shared_ptr< EphemerisSettings > keplerEphemerisFromSpiceSettings(
                 rootFinderMaximumNumberOfIterations );
 }
 
+//! @get_docstring(approximatePlanetPositionsSettings)
 inline std::shared_ptr< EphemerisSettings > approximatePlanetPositionsSettings(
 		const ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData
         bodyIdentifier )
@@ -913,6 +956,7 @@ inline std::shared_ptr< EphemerisSettings > approximatePlanetPositionsSettings(
             bodyIdentifier, false );
 }
 
+//! @get_docstring(approximatePlanetPositionsSettings,1)
 inline std::shared_ptr< EphemerisSettings > approximatePlanetPositionsSettings(
         const std::string bodyName )
 {
@@ -921,7 +965,7 @@ inline std::shared_ptr< EphemerisSettings > approximatePlanetPositionsSettings(
     {
         bodyIdentifier = ephemerides::ApproximatePlanetPositionsBase::getBodiesWithEphemerisDataId( bodyName );
     }
-    catch( std::runtime_error& )
+    catch( std::runtime_error const& )
     {
         throw std::runtime_error( "Error, approximate ephemeris not available for " + bodyName );
     }
@@ -929,13 +973,14 @@ inline std::shared_ptr< EphemerisSettings > approximatePlanetPositionsSettings(
             bodyIdentifier, false );
 }
 
+//! @get_docstring(approximatePlanetPositionsSettings,2)
 inline std::shared_ptr< EphemerisSettings > approximatePlanetPositionsSettings( )
 {
     return std::make_shared< ApproximatePlanetPositionSettings >(
                 ephemerides::ApproximatePlanetPositionsBase::undefined, false );
 }
 
-
+//! @get_docstring(directSpiceEphemerisSettings)
 inline std::shared_ptr< EphemerisSettings > directSpiceEphemerisSettings(
 		const std::string frameOrigin = "SSB",
 		const std::string frameOrientation = "ECLIPJ2000",
@@ -948,6 +993,7 @@ inline std::shared_ptr< EphemerisSettings > directSpiceEphemerisSettings(
             correctForLightTimeAberration, convergeLightTimeAberration );
 }
 
+//! @get_docstring(directSpiceEphemerisSettings,1)
 inline std::shared_ptr< EphemerisSettings > directSpiceEphemerisSettings(
         const std::string frameOrigin = "SSB",
         const std::string frameOrientation = "ECLIPJ2000",
@@ -957,6 +1003,7 @@ inline std::shared_ptr< EphemerisSettings > directSpiceEphemerisSettings(
             frameOrigin, frameOrientation, bodyNameOverride);
 }
 
+//! @get_docstring(interpolatedSpiceEphemerisSettings)
 inline std::shared_ptr< EphemerisSettings > interpolatedSpiceEphemerisSettings(
 		double initialTime,
 		double finalTime,
@@ -971,6 +1018,7 @@ inline std::shared_ptr< EphemerisSettings > interpolatedSpiceEphemerisSettings(
             initialTime, finalTime, timeStep, frameOrigin, frameOrientation, interpolatorSettings, bodyNameOverride );
 }
 
+//! @get_docstring(tabulatedEphemerisSettings)
 inline std::shared_ptr< EphemerisSettings > tabulatedEphemerisSettings(
 		const std::map< double, Eigen::Vector6d >& bodyStateHistory,
 		std::string frameOrigin = "SSB",
@@ -980,6 +1028,7 @@ inline std::shared_ptr< EphemerisSettings > tabulatedEphemerisSettings(
 			bodyStateHistory, frameOrigin, frameOrientation	);
 }
 
+//! @get_docstring(constantEphemerisSettings)
 inline std::shared_ptr< EphemerisSettings > constantEphemerisSettings(
 		const Eigen::Vector6d& constantState,
 		const std::string& frameOrigin = "SSB",
@@ -989,6 +1038,7 @@ inline std::shared_ptr< EphemerisSettings > constantEphemerisSettings(
 			constantState, frameOrigin, frameOrientation );
 }
 
+//! @get_docstring(customEphemerisSettings)
 inline std::shared_ptr< EphemerisSettings > customEphemerisSettings(
 		const std::function< Eigen::Vector6d( const double ) > customStateFunction,
 		const std::string& frameOrigin = "SSB",
@@ -1019,6 +1069,7 @@ inline std::shared_ptr< EphemerisSettings > interpolatedTleEphemerisSettings(
 			frameOrigin, frameOrientation );
 }
 
+//! @get_docstring(scaledEphemerisSettings)
 inline std::shared_ptr< EphemerisSettings > scaledEphemerisSettings(
         const std::shared_ptr< EphemerisSettings > baseSettings,
         const double scaling,
@@ -1027,6 +1078,7 @@ inline std::shared_ptr< EphemerisSettings > scaledEphemerisSettings(
     return std::make_shared< ScaledEphemerisSettings >( baseSettings, scaling, isScalingAbsolute );
 }
 
+//! @get_docstring(scaledEphemerisSettings, 1)
 inline std::shared_ptr< EphemerisSettings > scaledEphemerisSettings(
         const std::shared_ptr< EphemerisSettings > baseSettings,
         const Eigen::Vector6d scaling,
@@ -1035,6 +1087,7 @@ inline std::shared_ptr< EphemerisSettings > scaledEphemerisSettings(
     return std::make_shared< ScaledEphemerisSettings >( baseSettings, scaling, isScalingAbsolute );
 }
 
+//! @get_docstring(scaledEphemerisSettings, 2)
 inline std::shared_ptr< EphemerisSettings > scaledEphemerisSettings(
         const std::shared_ptr< EphemerisSettings > baseSettings,
         const std::function< Eigen::Vector6d( const double ) > scaling,
@@ -1044,8 +1097,8 @@ inline std::shared_ptr< EphemerisSettings > scaledEphemerisSettings(
 }
 
 
-//! Function to create a ephemeris model.
-/*!
+// Function to create a ephemeris model.
+/*
  *  Function to create a ephemeris model based on model-specific settings for the ephemeris.
  *  \param ephemerisSettings Settings for the ephemeris model that is to be created, defined
  *  a pointer to an object of class (derived from) EphemerisSettings.
@@ -1056,8 +1109,8 @@ std::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
         const std::shared_ptr< EphemerisSettings > ephemerisSettings,
         const std::string& bodyName );
 
-//! Function that retrieves the time interval at which an ephemeris can be safely interrogated
-/*!
+// Function that retrieves the time interval at which an ephemeris can be safely interrogated
+/*
  * Function that retrieves the time interval at which an ephemeris can be safely interrogated. For most ephemeris types,
  * this function returns the full range of double values ( lowest( ) to max( ) ). For the tabulated ephemeris, the interval
  * on which the interpolator inside this object is valid is checked and returned

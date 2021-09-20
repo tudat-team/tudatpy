@@ -21,7 +21,9 @@
 #include <limits>
 #include <stdexcept>
 
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
+using namespace boost::placeholders;
+
 #include <memory>
 
 //#include "tudat/math/integrators/rungeKutta4Integrator.h"

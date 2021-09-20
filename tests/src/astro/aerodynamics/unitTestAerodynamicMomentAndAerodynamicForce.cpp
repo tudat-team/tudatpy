@@ -114,7 +114,8 @@ BOOST_AUTO_TEST_CASE( testAerodynamicForceAndAcceleration )
         {
             aerodynamicCoefficientInterface->getIndependentVariableName( 0 );
         }
-        catch ( std::runtime_error )
+        catch( std::runtime_error const& )
+
         {
             isVariableIndexTooHigh = 1;
         }
@@ -397,7 +398,7 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
             {
                 accelerationsOfVehicle[ "Vehicle" ].push_back(
                             std::make_shared< ThrustAccelerationSettings >(
-                                std::make_shared< ThrustDirectionGuidanceSettings >(
+                                std::make_shared< ThrustDirectionSettings >(
                                     thrust_direction_from_existing_body_orientation, "Earth" ),
                                 std::make_shared< ConstantThrustMagnitudeSettings >(
                                     thrustMagnitude, specificImpulse, bodyFixedThrustDirection ) ) );

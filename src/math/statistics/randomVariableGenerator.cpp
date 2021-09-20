@@ -9,7 +9,9 @@
  */
 
 #include <boost/make_shared.hpp>
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
+using namespace boost::placeholders;
+
 
 #include "tudat/math/statistics/randomVariableGenerator.h"
 #include "tudat/math/statistics/boostProbabilityDistributions.h"
