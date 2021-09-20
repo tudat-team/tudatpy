@@ -285,11 +285,19 @@ void from_json( const nlohmann::json& jsonObject,
                         getValue< std::string >( jsonObject, K::frameOrientation ) );
         }
 <<<<<<< HEAD
+<<<<<<< HEAD
         catch( std::runtime_error const& )
 
 =======
         catch( std::runtime_error& )
 >>>>>>> origin/feature/mga_estimation_refactor_merge
+=======
+        catch( std::runtime_error& )
+=======
+        catch( std::runtime_error const& )
+
+>>>>>>> origin/feature/api-docs
+>>>>>>> feature/api-develop-merge
         {
             parameterSettings =
                     std::make_shared< ArcWiseInitialTranslationalStateEstimatableParameterSettings< double > >(
