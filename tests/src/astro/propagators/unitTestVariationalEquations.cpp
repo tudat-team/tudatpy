@@ -1095,7 +1095,7 @@ BOOST_AUTO_TEST_CASE( testMassRateVariationalEquations )
         {
             std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
             massRateModels[ "Asterix" ] = createMassRateModel(
-                        "Asterix", std::make_shared< FromThrustMassModelSettings >( 1 ),
+                        "Asterix", std::make_shared< FromThrustMassRateSettings >( 1 ),
                         bodies, accelerationModelMap );
             std::shared_ptr< SingleArcPropagatorSettings< double > > massPropagatorSettings =
                     std::make_shared< MassPropagatorSettings< double > >(

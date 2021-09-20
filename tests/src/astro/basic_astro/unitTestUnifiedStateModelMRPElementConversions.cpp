@@ -168,7 +168,7 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelModifiedRodriguesPa
                     convertKeplerianToUnifiedStateModelModifiedRodriguesParameterElements( keplerianElements,
                                                                  centralBodyGravitationalParameter );
         }
-        catch( std::runtime_error const& )s
+        catch( std::runtime_error const& )
         {
             isExceptionFound = true;
         }
