@@ -75,7 +75,7 @@ option(TUDAT_BUILD_WITH_SOFA_INTERFACE "Build Tudat with sofa interface." ON)
 option(TUDAT_BUILD_WITH_JSON_INTERFACE "Build Tudat with json interface." OFF)
 
 # Build with nrlmsise-00 atmosphere model.
-option(TUDAT_BUILD_WITH_NRLMSISE00 "Build with nrlmsise-00 atmosphere model." ON)
+option(TUDAT_BUILD_WITH_NRLMSISE00 "Build with nrlmsise-00 atmosphere model." OFF)
 
 # Build pagmo-dependent code
 option(TUDAT_BUILD_WITH_PAGMO "Build Tudat with pagmo." OFF)

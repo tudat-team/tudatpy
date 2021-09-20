@@ -540,16 +540,16 @@ public:
      * (in vector form) and the body's angular velocity vector in body-fixed frame.
      */
   void setCurrentRotationalStateToLocalFrame(const Eigen::Vector7d currentRotationalStateFromLocalToGlobalFrame) {
-    Eigen::Quaterniond currentRotationToGlobalFrame =
+    currentRotationToGlobalFrame_ =
         Eigen::Quaterniond(currentRotationalStateFromLocalToGlobalFrame(0),
                            currentRotationalStateFromLocalToGlobalFrame(1),
                            currentRotationalStateFromLocalToGlobalFrame(2),
                            currentRotationalStateFromLocalToGlobalFrame(3));
-    currentRotationToGlobalFrame.normalize();
 
-    currentRotationToLocalFrame_ = currentRotationToGlobalFrame.inverse();
+    currentRotationToGlobalFrame_.normalize();
+    currentRotationToLocalFrame_ = currentRotationToGlobalFrame_.inverse();
     currentAngularVelocityVectorInGlobalFrame_ =
-        currentRotationToGlobalFrame * currentRotationalStateFromLocalToGlobalFrame.block< 3, 1 >(4, 0);
+        currentRotationToGlobalFrame_ * currentRotationalStateFromLocalToGlobalFrame.block< 3, 1 >(4, 0);
     currentAngularVelocityVectorInLocalFrame_ = currentRotationalStateFromLocalToGlobalFrame.block< 3, 1 >(4, 0);
 
     Eigen::Matrix3d currentRotationMatrixToLocalFrame = (currentRotationToLocalFrame_).toRotationMatrix();
