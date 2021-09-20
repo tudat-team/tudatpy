@@ -21,6 +21,7 @@
 namespace py = pybind11;
 
 namespace tudatpy {
+namespace astro {
 
 void expose_astro(py::module &m) {
 
@@ -28,7 +29,7 @@ void expose_astro(py::module &m) {
   expose_element_conversion(element_conversion);
 
   auto frame_conversion = m.def_submodule("frame_conversion");
-  expose_frame_conversion(frame_conversion);
+  astro::frame_conversion::expose_frame_conversion(frame_conversion);
 
   auto two_body_dynamics = m.def_submodule("two_body_dynamics");
   expose_two_body_dynamics(two_body_dynamics);
@@ -41,4 +42,5 @@ void expose_astro(py::module &m) {
 
 }
 
+}
 }// namespace tudatpy

@@ -26,6 +26,8 @@ namespace te = tudat::ephemerides;
 namespace py = pybind11;
 
 namespace tudatpy {
+namespace astro {
+namespace frame_conversion {
 
 void expose_frame_conversion(py::module &m) {
 
@@ -129,6 +131,8 @@ void expose_frame_conversion(py::module &m) {
           py::arg("rotation_derivative_to_body_fixed") );
 
 
+}
+}
 }
 
 }// namespace tudatpy
