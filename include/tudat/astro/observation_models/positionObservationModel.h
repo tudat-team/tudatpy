@@ -11,7 +11,7 @@
 #ifndef TUDAT_POSITIONOBSERVATIONMODEL_H
 #define TUDAT_POSITIONOBSERVATIONMODEL_H
 
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
 #include <functional>
 
 #include "tudat/astro/ephemerides/ephemeris.h"

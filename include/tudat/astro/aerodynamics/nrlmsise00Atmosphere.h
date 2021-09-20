@@ -26,7 +26,7 @@
 
 extern "C"
 {
-    #include <nrlmsise-00.h>
+    #include <nrlmsise00/nrlmsise-00.h>
 }
 
 

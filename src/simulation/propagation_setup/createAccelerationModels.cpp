@@ -13,7 +13,9 @@
 #include <memory>
 
 #include <boost/make_shared.hpp>
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
+using namespace boost::placeholders;
+
 #include "tudat/astro/aerodynamics/flightConditions.h"
 #include "tudat/astro/ephemerides/frameManager.h"
 #include "tudat/astro/gravitation/sphericalHarmonicsGravityField.h"
@@ -1090,7 +1092,7 @@ createThrustAcceleratioModel(
         {
             throw std::runtime_error( "Error when creating thrust acceleration, input frame is inconsistent with interface" );
         }
-        else if( thrustAccelerationSettings->thrustFrame_ != inertial_thurst_frame )
+        else if(thrustAccelerationSettings->thrustFrame_ != inertial_thrust_frame )
         {
             // Create rotation function from thrust-frame to propagation frame.
             if( thrustAccelerationSettings->thrustFrame_ == lvlh_thrust_frame )
@@ -1125,8 +1127,8 @@ createThrustAcceleratioModel(
 
     // Create thrust direction model.
     std::shared_ptr< propulsion::BodyFixedForceDirectionGuidance  > thrustDirectionGuidance = createThrustGuidanceModel(
-                thrustAccelerationSettings->thrustDirectionGuidanceSettings_, bodies, nameOfBodyUndergoingThrust,
-                getBodyFixedThrustDirection( thrustAccelerationSettings->thrustMagnitudeSettings_, bodies,
+            thrustAccelerationSettings->thrustDirectionSettings_, bodies, nameOfBodyUndergoingThrust,
+            getBodyFixedThrustDirection( thrustAccelerationSettings->thrustMagnitudeSettings_, bodies,
                                              nameOfBodyUndergoingThrust ), magnitudeUpdateSettings );
 
     // Create thrust magnitude model
@@ -1140,17 +1142,17 @@ createThrustAcceleratioModel(
     propagators::addEnvironmentUpdates( totalUpdateSettings, directionUpdateSettings );
 
     // Set DependentOrientationCalculator for body if required.
-    if( !( thrustAccelerationSettings->thrustDirectionGuidanceSettings_->thrustDirectionType_ ==
-           thrust_direction_from_existing_body_orientation ) )
+    if( !(thrustAccelerationSettings->thrustDirectionSettings_->thrustDirectionType_ ==
+          thrust_direction_from_existing_body_orientation ) )
     {
         bodies.at( nameOfBodyUndergoingThrust )->setDependentOrientationCalculator( thrustDirectionGuidance );
     }
 
     // Create and return thrust acceleration object.
     std::function< void( const double ) > updateFunction =
-            std::bind( &updateThrustMagnitudeAndDirection, thrustMagnitude, thrustDirectionGuidance, std::placeholders::_1 );
+            std::bind(&updateThrustSettings, thrustMagnitude, thrustDirectionGuidance, std::placeholders::_1 );
     std::function< void( const double ) > timeResetFunction =
-            std::bind( &resetThrustMagnitudeAndDirectionTime, thrustMagnitude, thrustDirectionGuidance, std::placeholders::_1 );
+            std::bind(&resetThrustSettingsTime, thrustMagnitude, thrustDirectionGuidance, std::placeholders::_1 );
     return std::make_shared< propulsion::ThrustAcceleration >(
                 std::bind( &propulsion::ThrustMagnitudeWrapper::getCurrentThrustMagnitude, thrustMagnitude ),
                 std::bind( &propulsion::BodyFixedForceDirectionGuidance ::getCurrentForceDirectionInPropagationFrame, thrustDirectionGuidance ),

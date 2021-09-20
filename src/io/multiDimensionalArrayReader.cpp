@@ -387,7 +387,7 @@ int getNumberOfIndependentVariablesInCoefficientFile( const std::string& fileNam
             {
                 numberOfIndependentVariables = std::stod( vectorOfIndividualStrings.at( 0 ) );
             }
-            catch( std::runtime_error& )
+            catch( std::runtime_error const& )
             {
                 throw std::runtime_error( "Error when reading coefficicent file size, input is inconsistent." );
             }
