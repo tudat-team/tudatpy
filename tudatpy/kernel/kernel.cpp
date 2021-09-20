@@ -34,7 +34,7 @@ PYBIND11_MODULE(kernel, m) {
 
   // astro module
   auto astro = m.def_submodule("astro");
-  tudatpy::expose_astro(astro);
+  tudatpy::astro::expose_astro(astro);
 
   // interface module
   auto interface = m.def_submodule("interface");
