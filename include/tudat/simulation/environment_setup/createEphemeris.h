@@ -950,22 +950,8 @@ inline std::shared_ptr< EphemerisSettings > keplerEphemerisFromSpiceSettings(
 inline std::shared_ptr< EphemerisSettings > approximateJplEphemerisSettings(
         const std::string bodyName )
 {
-<<<<<<< HEAD
-    ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData bodyIdentifier;
-    try
-    {
-        bodyIdentifier = ephemerides::ApproximatePlanetPositionsBase::getBodiesWithEphemerisDataId( bodyName );
-    }
-    catch( std::runtime_error const& )
-    {
-        throw std::runtime_error( "Error, approximate ephemeris not available for " + bodyName );
-    }
-    return std::make_shared< ApproximatePlanetPositionSettings >(
-            bodyIdentifier, false );
-=======
     return std::make_shared< ApproximateJplEphemerisSettings >(
             bodyName, false );
->>>>>>> feature/mga_estimation_refactor_merge
 }
 
 //inline std::shared_ptr< EphemerisSettings > approximatePlanetPositionsSettings( )

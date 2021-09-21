@@ -553,11 +553,6 @@ protected:
             printOutputVariables = getValue< bool >( jsonObject_, "printVariableTypes", false );
         }
         catch( std::runtime_error const& ){ }
-<<<<<<< HEAD
-=======
-
->>>>>>> feature/mga_estimation_refactor_merge
-
         resetDependentVariableSaveSettings< StateScalarType >( propagatorSettings_, exportSettingsVector_, printOutputVariables );
 
         if ( profiling )
