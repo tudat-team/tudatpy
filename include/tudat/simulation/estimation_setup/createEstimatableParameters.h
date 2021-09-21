@@ -322,7 +322,7 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
     std::vector< std::shared_ptr< TranslationalStatePropagatorSettings< InitialStateParameterType > > > singleArcTranslationalSettings;
 
     std::vector< std::string > propagatedBodies;
-    std::vector< std::string > centralBodies;
+    std::vector< std::vector< std::string > > centralBodiesPerArc;
     std::vector< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > initialStates;
 
     for( unsigned int i = 0; i < singleArcSettings.size( ); i++ )
@@ -338,10 +338,10 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
         {
 
             initialStates.push_back( singleArcTranslationalSettings.at( i )->getInitialStates( ) );
+            centralBodiesPerArc.push_back( singleArcTranslationalSettings.at( i )->centralBodies_ );
             if( i == 0 )
             {
                 propagatedBodies = singleArcTranslationalSettings.at( i )->bodiesToIntegrate_;
-                centralBodies = singleArcTranslationalSettings.at( i )->centralBodies_;
             }
             else
             {
@@ -349,12 +349,22 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
                 {
                     throw std::runtime_error( "Only equal bodies per arc supported when auto-creating multi-arc initial state settings" );
                 }
-
-                if( !( centralBodies == ( singleArcTranslationalSettings.at( i )->centralBodies_ ) ) )
-                {
-                    throw std::runtime_error( "Only equal central bodies per arc supported when auto-creating multi-arc initial state settings" );
-                }
             }
+        }
+    }
+
+    std::vector< std::vector< std::string > > centralBodiesPerBody;
+    centralBodiesPerBody.resize( centralBodiesPerArc.at( 0 ).size( ) );
+
+    for( unsigned int i = 0; i < centralBodiesPerArc.size( ); i++ )
+    {
+        for( unsigned int j = 0; j < centralBodiesPerArc.at( i ).size( ); j++ )
+        {
+            if( i == 0 )
+            {
+                centralBodiesPerBody.at( j ).resize( centralBodiesPerArc.size( ) );
+            }
+            centralBodiesPerBody.at( j ).at( i ) = centralBodiesPerArc.at( i ).at( j );
         }
     }
 
@@ -373,9 +383,10 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
                         propagatedBodies.at( i ),
                         multiArcInitialStateValue,
                         arcStartTimes,
-                        centralBodies.at( i ),
+                        centralBodiesPerBody.at( i ),
                         bodies.getFrameOrientation( ) ) );
     }
+
     return arcwiseInitialStates;
 }
 
@@ -496,6 +507,23 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
     }
 
     return initialStateParameterSettings;
+}
+
+
+template< typename InitialStateParameterType = double >
+std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > getInitialMultiArcParameterSettings(
+        const std::shared_ptr< propagators::HybridArcPropagatorSettings< InitialStateParameterType > > propagatorSettings,
+        const SystemOfBodies& bodies,
+        const std::vector< double > arcStartTimes )
+{
+    std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > multiArcParameters =
+            getInitialMultiArcParameterSettings( propagatorSettings->getMultiArcPropagatorSettings( ), bodies, arcStartTimes );
+    std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > singleArcParameters =
+            getInitialStateParameterSettings( propagatorSettings->getSingleArcPropagatorSettings( ), bodies );
+    std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > hybirdArcParameters = multiArcParameters;
+
+    hybirdArcParameters.insert( hybirdArcParameters.end( ), singleArcParameters.begin( ), singleArcParameters.end( ) );
+    return hybirdArcParameters;
 }
 
 //! Function to create interface object for estimating parameters representing an initial dynamical state.
