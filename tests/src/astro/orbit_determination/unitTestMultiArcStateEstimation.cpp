@@ -162,14 +162,14 @@ Eigen::VectorXd  executeParameterEstimation(
                       currentInitialState,
                       integrationArcEndTimes.at( i ) ) );
     }
-    std::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings =
+    std::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > propagatorSettings =
             std::make_shared< MultiArcPropagatorSettings< StateScalarType > >( propagatorSettingsList, linkArcs );
 
 
-    // Set parameters that are to be estimated.
-    std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
-    parameterNames.push_back( std::make_shared< ArcWiseInitialTranslationalStateEstimatableParameterSettings< StateScalarType > >(
-                                  "Earth", integrationArcStartTimes ) );
+    std::cout<<"************************************* RUNNING TEST *************************"<<std::endl;
+    std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames =
+            getInitialMultiArcParameterSettings< double >( propagatorSettings, bodies, integrationArcStartTimes );
+
 //    parameterNames = getInitialStateParameterSettings< double >( propagatorSettings, bodies );
     parameterNames.push_back( std::make_shared< EstimatableParameterSettings >
                               ( "Mars", constant_rotation_rate ) );
@@ -452,17 +452,14 @@ Eigen::VectorXd  executeMultiBodyMultiArcParameterEstimation( )
                       allBodiesPerArcInitialStates.at( i ),
                       integrationArcEndTimes.at( i ), cowell, std::shared_ptr< DependentVariableSaveSettings >( ), 60.0 ) );
     }
-    std::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings =
+    std::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > propagatorSettings =
             std::make_shared< MultiArcPropagatorSettings< StateScalarType > >( propagatorSettingsList );
 
 
     // Set parameters that are to be estimated.
-    std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
-    for( int i = 0; i < numberOfVehicles; i++ )
-    {
-        parameterNames.push_back( std::make_shared< ArcWiseInitialTranslationalStateEstimatableParameterSettings< double > >(
-                                      vehicleNames.at( i ), singleBodyForAllArcsInitialStates.at( i ), integrationArcStartTimes, "Earth" ) );
-    }
+    std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames =
+            getInitialMultiArcParameterSettings< >( propagatorSettings, bodies, integrationArcStartTimes );
+
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate =
             createParametersToEstimate< StateScalarType >( parameterNames, bodies );
 
