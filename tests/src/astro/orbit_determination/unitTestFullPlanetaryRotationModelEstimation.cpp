@@ -117,8 +117,8 @@ BOOST_AUTO_TEST_CASE( test_FullPlanetaryRotationalParameters )
     linkEnds[ 0 ][ receiver ] = mslStation;    
     
     // Define observation model settings
-    observation_models::ObservationSettingsMap observationSettingsMap;
-    observationSettingsMap.insert( std::make_pair( linkEnds[ 0 ], std::make_shared< ObservationSettings >( one_way_range ) ) );
+    std::vector< std::shared_ptr< ObservationModelSettings > > observationSettingsList;
+    observationSettingsList.push_back( std::make_shared< ObservationModelSettings >( one_way_range, linkEnds[ 0 ] ) );
     
     // Define observation times.
     double observationTime;
@@ -133,10 +133,10 @@ BOOST_AUTO_TEST_CASE( test_FullPlanetaryRotationalParameters )
     }
     
     // Create observation simulation settings
-    std::map< ObservableType, std::map< LinkEnds, std::pair< std::vector< double >, LinkEndType > > > measurementSimulationInput;
-    std::map< LinkEnds, std::pair< std::vector< double >, LinkEndType > > singleObservableSimulationInput;    
-    singleObservableSimulationInput[ linkEnds[ 0 ] ] = std::make_pair( observationTimes, receiver );
-    measurementSimulationInput[ one_way_range ] = singleObservableSimulationInput;
+    std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > measurementSimulationInput;
+    measurementSimulationInput.push_back(
+                std::make_shared< TabulatedObservationSimulationSettings< > >(
+                    one_way_range, linkEnds[ 0 ], observationTimes, receiver ) );
     
 
     // Set-up different cases with various parameters to estimate.
@@ -146,7 +146,7 @@ BOOST_AUTO_TEST_CASE( test_FullPlanetaryRotationalParameters )
         // Set parameters that are to be estimated.
         std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
         parameterNames.push_back( std::make_shared< InitialTranslationalStateEstimatableParameterSettings< double > >(
-                        "Earth", initialState, "SSB" ) );
+                                      "Earth", initialState, "SSB" ) );
 
         // Estimate core factor and free core nutation rate
         if ( testCase == 0 )
@@ -173,19 +173,15 @@ BOOST_AUTO_TEST_CASE( test_FullPlanetaryRotationalParameters )
 
         // Create orbit determination object.
         OrbitDeterminationManager< double, double > orbitDeterminationManager = OrbitDeterminationManager< double, double >(
-                    bodies, parametersToEstimate, observationSettingsMap, integratorSettings, propagatorSettings );
+                    bodies, parametersToEstimate, observationSettingsList, integratorSettings, propagatorSettings );
         
         // Define initial parameter estimate.
         Eigen::VectorXd initialParameterEstimate =
                 parametersToEstimate->template getFullParameterValues< double >( );
         
-        // Simulate observations
-        typedef Eigen::VectorXd ObservationVectorType;
-        typedef std::map< LinkEnds, std::pair< ObservationVectorType, std::pair< std::vector< double >, LinkEndType > > >
-                SingleObservablePodInputType;
-        typedef std::map< ObservableType, SingleObservablePodInputType > PodInputDataType;        
-        PodInputDataType observationsAndTimes = simulateObservations< double, double >(
-                    measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( )  );
+        // Simulate observations   
+        std::shared_ptr< ObservationCollection< > > observationsAndTimes = simulateObservations< double, double >(
+                    measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
         
         
         // Define perturbation of parameter estimate

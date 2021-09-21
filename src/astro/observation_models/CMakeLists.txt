@@ -16,7 +16,6 @@ set(observation_models_SOURCES
         "observationManager.cpp"
         "observationSimulator.cpp"
         "observationModel.cpp"
-        "simulateObservations.cpp"
         "corrections/firstOrderRelativisticCorrection.cpp"
         )
 
@@ -34,7 +33,6 @@ set(observation_models_HEADERS
         "oneWayRangeObservationModel.h"
         "oneWayDopplerObservationModel.h"
         "oneWayDifferencedRangeRateObservationModel.h"
-        "simulateObservations.h"
         "positionObservationModel.h"
         "velocityObservationModel.h"
         "twoWayDopplerObservationModel.h"

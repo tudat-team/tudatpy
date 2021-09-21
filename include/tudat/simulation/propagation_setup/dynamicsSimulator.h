@@ -253,7 +253,9 @@ public:
             const bool setIntegratedResult = true ):
         bodies_( bodies ),
         clearNumericalSolutions_( clearNumericalSolutions ),
-        setIntegratedResult_( setIntegratedResult ){ }
+        setIntegratedResult_( setIntegratedResult )
+    {
+    }
 
     //! Virtual destructor
     virtual ~DynamicsSimulator( ) { }
@@ -300,7 +302,7 @@ public:
      *  Function to get the map of named bodies involved in simulation.
      *  \return Map of named bodies involved in simulation.
      */
-    simulation_setup::SystemOfBodies getNamedBodyMap( )
+    simulation_setup::SystemOfBodies getSystemOfBodies( )
     {
         return bodies_;
     }
@@ -310,7 +312,7 @@ public:
      *  Function to reset the named system of bodies.
      *  \param bodies The new named system of bodies.
      */
-    void resetNamedBodyMap( const simulation_setup::SystemOfBodies& bodies )
+    void resetSystemOfBodies( const simulation_setup::SystemOfBodies& bodies )
     {
         bodies_ = bodies;
     }

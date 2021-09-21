@@ -62,27 +62,6 @@ public:
     //! Destructor
     ~NWayRangeObservationModel( ){ }
 
-    //! Function to compute ideal n-way range observation at given time.
-    /*!
-     *  This function compute ideal the n-way observation at a given time. The time argument can be at any of the link ends
-     *  involved in the onbservation (including the intermediate link ends) by the linkEndAssociatedWithTime input).
-     *  In the case where the reference link end is an intermediate link end, the inpit time denotes the reception time
-     *  of the signal at this station (which need not be the same as its retransmission time).
-     *  Note that this observable does include e.g. light-time corrections, which represent physically true corrections.
-     *  It does not include e.g. system-dependent measurement.
-     *  \param time Time at which observation is to be simulated
-     *  \param linkEndAssociatedWithTime Link end at which given time is valid, i.e. link end for which associated time
-     *  is kept constant (to input value)
-     *  \return Calculated observed one-way range value.
-     */
-    Eigen::Matrix< ObservationScalarType, 1, 1 > computeIdealObservations(
-            const TimeType time,
-            const LinkEndType linkEndAssociatedWithTime )
-
-    {
-        return computeIdealObservationsWithLinkEndData( time, linkEndAssociatedWithTime, linkEndTimes_, linkEndStates_ );
-    }
-
     //! Function to compute n-way range observable without any corrections.
     /*!
      *  Function to compute n-way range  observable without any corrections, i.e. the true physical range as computed
@@ -240,12 +219,6 @@ private:
 
     //! Number of link ends in n-way observation (=number of links + 1)
     int numberOfLinkEnds_;
-
-    //! Pre-declared vector of link end times, used for computeIdealObservations function
-    std::vector< double > linkEndTimes_;
-
-    //! Pre-declared vector of link end states, used for computeIdealObservations function
-    std::vector< Eigen::Matrix< double, 6, 1 > > linkEndStates_;
 
 };
 
