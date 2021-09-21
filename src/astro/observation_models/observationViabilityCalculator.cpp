@@ -60,17 +60,36 @@ bool MinimumElevationAngleCalculator::isObservationViable(
     // Iterate over all sets of entries of input vector for which elvation angle is to be checked.
     for( unsigned int i = 0; i < linkEndIndices_.size( ); i++ )
     {
+        double elevationAngle = ground_stations::calculateGroundStationElevationAngle(
+                    pointingAngleCalculator_, linkEndStates, linkEndTimes, linkEndIndices_.at( i ) );
+
         // Check if elevation angle criteria is met for current link.
-        if( ground_stations::isTargetInView(
-                    linkEndTimes.at( linkEndIndices_.at( i ).first ),
-                    ( linkEndStates.at( linkEndIndices_.at( i ).second ) - linkEndStates.at( linkEndIndices_.at( i ).first ) )
-                    .segment( 0, 3 ), pointingAngleCalculator_, minimumElevationAngle_ ) == 0 )
+        if( elevationAngle < minimumElevationAngle_ )
         {
-            isObservationPossible = 0;
+            isObservationPossible = false;
         }
     }
 
     return isObservationPossible;
+}
+
+double computeCosineBodyAvoidanceAngle( const Eigen::Vector3d& observingBody,
+                                        const Eigen::Vector3d& transmittingBody,
+                                        const Eigen::Vector3d& bodyToAvoid )
+{
+    return linear_algebra::computeCosineOfAngleBetweenVectors(
+                bodyToAvoid - observingBody,
+                transmittingBody - observingBody );
+}
+
+double computeCosineBodyAvoidanceAngle( const std::vector< Eigen::Vector6d >& linkEndStates,
+                                        const std::pair< int, int > observingAndTransmittingIndex,
+                                        const Eigen::Vector3d& bodyToAvoid )
+{
+    return computeCosineBodyAvoidanceAngle(
+                linkEndStates.at( observingAndTransmittingIndex.first ).segment< 3 >( 0 ),
+                linkEndStates.at( observingAndTransmittingIndex.second ).segment< 3 >( 0 ),
+                bodyToAvoid );
 }
 
 //! Function for determining whether the avoidance angle to a given body at station is sufficient to allow observation.
@@ -88,10 +107,12 @@ bool BodyAvoidanceAngleCalculator::isObservationViable( const std::vector< Eigen
         positionOfBodyToAvoid = stateFunctionOfBodyToAvoid_(
                     ( linkEndTimes.at( linkEndIndices_.at( i ).first ) + linkEndTimes.at( linkEndIndices_.at( i ).second ) ) / 2.0 )
                 .segment( 0, 3 );
-        currentCosineOfAngle = linear_algebra::computeCosineOfAngleBetweenVectors(
-                    positionOfBodyToAvoid - ( linkEndStates.at( linkEndIndices_.at( i ).first ) ).segment( 0, 3 ),
-                    linkEndStates.at( linkEndIndices_.at( i ).second ).segment( 0, 3 ) -
-                    linkEndStates.at( linkEndIndices_.at( i ).first ).segment( 0, 3 ) );
+        currentCosineOfAngle = computeCosineBodyAvoidanceAngle(
+                    linkEndStates, linkEndIndices_.at( i ), positionOfBodyToAvoid );
+//                linear_algebra::computeCosineOfAngleBetweenVectors(
+//                    positionOfBodyToAvoid - ( linkEndStates.at( linkEndIndices_.at( i ).first ) ).segment( 0, 3 ),
+//                    linkEndStates.at( linkEndIndices_.at( i ).second ).segment( 0, 3 ) -
+//                    linkEndStates.at( linkEndIndices_.at( i ).first ).segment( 0, 3 ) );
 
         // Check if avoidance angle is sufficiently large
         if( currentCosineOfAngle > std::cos( bodyAvoidanceAngle_ ) )
@@ -130,7 +151,7 @@ bool OccultationCalculator::isObservationViable( const std::vector< Eigen::Vecto
             isObservationPossible = 0;
             break;
         }
-    }//
+    }
 
     return isObservationPossible;
 }

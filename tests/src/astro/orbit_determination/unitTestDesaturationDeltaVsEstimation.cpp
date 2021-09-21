@@ -240,7 +240,7 @@ BOOST_AUTO_TEST_CASE( test_DesaturationDeltaVsEstimation )
 
         printEstimatableParameterEntries( parametersToEstimate );
 
-        observation_models::ObservationSettingsMap observationSettingsMap;
+        std::vector< std::shared_ptr< ObservationModelSettings > > observationSettingsList;
         for( std::map< ObservableType, std::vector< LinkEnds > >::iterator linkEndIterator = linkEndsPerObservable.begin( );
              linkEndIterator != linkEndsPerObservable.end( ); linkEndIterator++ )
         {
@@ -250,14 +250,15 @@ BOOST_AUTO_TEST_CASE( test_DesaturationDeltaVsEstimation )
             std::vector< LinkEnds > currentLinkEndsList = linkEndIterator->second;
             for( unsigned int i = 0; i < currentLinkEndsList.size( ); i++ )
             {
-                observationSettingsMap.insert( std::make_pair( currentLinkEndsList.at( i ), std::make_shared< ObservationSettings >
-                                                               ( currentObservable, std::shared_ptr< LightTimeCorrectionSettings >( ) ) ) );
+                observationSettingsList.push_back(
+                            std::make_shared< ObservationModelSettings >(
+                                currentObservable, currentLinkEndsList.at( i ), std::shared_ptr< LightTimeCorrectionSettings >( ) ) );
             }
         }
 
         // Create orbit determination object.
         OrbitDeterminationManager< double, double > orbitDeterminationManager = OrbitDeterminationManager< double, double >(
-                    bodies, parametersToEstimate, observationSettingsMap, integratorSettings, propagatorSettings );
+                    bodies, parametersToEstimate, observationSettingsList, integratorSettings, propagatorSettings );
 
         // Compute list of observation times.
         std::vector< double > baseTimeList;
@@ -272,7 +273,8 @@ BOOST_AUTO_TEST_CASE( test_DesaturationDeltaVsEstimation )
             }
         }
 
-        std::map< ObservableType, std::map< LinkEnds, std::pair< std::vector< double >, LinkEndType > > > measurementSimulationInput;
+
+        std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > measurementSimulationInput;
         for( std::map< ObservableType, std::vector< LinkEnds > >::iterator linkEndIterator = linkEndsPerObservable.begin( );
              linkEndIterator != linkEndsPerObservable.end( ); linkEndIterator++ )
         {
@@ -280,19 +282,15 @@ BOOST_AUTO_TEST_CASE( test_DesaturationDeltaVsEstimation )
             std::vector< LinkEnds > currentLinkEndsList = linkEndIterator->second;
             for( unsigned int i = 0; i < currentLinkEndsList.size( ); i++ )
             {
-                measurementSimulationInput[ currentObservable ][ currentLinkEndsList.at( i ) ] =
-                        std::make_pair( baseTimeList, receiver );
+                measurementSimulationInput.push_back(
+                            std::make_shared< TabulatedObservationSimulationSettings< > >(
+                                currentObservable, currentLinkEndsList[ i ], baseTimeList, receiver ) );
             }
         }
 
-
-        typedef Eigen::Matrix< double, Eigen::Dynamic, 1 > ObservationVectorType;
-        typedef std::map< LinkEnds, std::pair< ObservationVectorType, std::pair< std::vector< double >, LinkEndType > > > SingleObservablePodInputType;
-        typedef std::map< ObservableType, SingleObservablePodInputType > PodInputDataType;
-
         // Simulate observations.
-        PodInputDataType observationsAndTimes = simulateObservations< double, double >(
-                    measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ) );
+        std::shared_ptr< ObservationCollection< > > observationsAndTimes = simulateObservations< double, double >(
+                    measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
         // Perturb parameter estimate.
         Eigen::Matrix< double, Eigen::Dynamic, 1 > initialParameterEstimate =

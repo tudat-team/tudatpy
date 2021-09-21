@@ -21,6 +21,7 @@
 
 #include <Eigen/Core>
 
+#include "tudat/basics/basicTypedefs.h"
 #include "tudat/math/basic/mathematicalConstants.h"
 
 namespace tudat
@@ -111,6 +112,16 @@ public:
                     cartesianVelocityAtDeparture, cartesianVelocityAtArrival );
     }
 
+    Eigen::Vector6d getDepartureState( )  const
+    {
+        return ( Eigen::Vector6d( ) << cartesianPositionAtDeparture, cartesianVelocityAtDeparture ).finished( );
+    }
+
+    double getCentralBodyGravitationalParameter( ) const
+    {
+        return gravitationalParameter;
+    }
+
 protected:
 
     //! Execute Lambert targeting algorithm.
@@ -168,6 +179,17 @@ protected:
 
 private:
 };
+
+Eigen::Vector6d getLambertTargeterInitialKeplerianState(
+        const LambertTargeter& lambertTargeter );
+
+Eigen::Vector6d getLambertTargeterKeplerianStateDuringTransfer(
+        const LambertTargeter& lambertTargeter,
+        const double timeAfterDeparture );
+
+Eigen::Vector6d getLambertTargeterCartesianStateDuringTransfer(
+        const LambertTargeter& lambertTargeter,
+        const double timeAfterDeparture );
 
 //! Typedef for shared-pointer to LambertTargeter.
 typedef std::shared_ptr< LambertTargeter > LambertTargeterPointer;

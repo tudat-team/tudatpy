@@ -30,6 +30,20 @@ namespace tudat
 namespace observation_models
 {
 
+
+//! Enum defining possible checks which can be performed for observation viability,
+/*!
+ *  Enum defining possible checks which can be performed for observation viability, the string and double parameter shown in the
+ *  comments are used to define it when making an ObservationViabilitySettings object
+ */
+enum ObservationViabilityType
+{
+    minimum_elevation_angle,    //properties: no string, double = elevation angle
+    body_avoidance_angle,       //properties: string = body to avoid, double = avoidance angle
+    body_occultation            //properties: string = occulting body, no double
+};
+
+
 //! Base class for determining whether an observation is possible or not
 /*!
  *  Base class for determining whether an observation is possible or not. Derived classes implement specific checks, such as
@@ -151,6 +165,15 @@ private:
     //! Object to calculate pointing angles (elevation angle) at ground station
     std::shared_ptr< ground_stations::PointingAnglesCalculator > pointingAngleCalculator_;
 };
+
+
+double computeCosineBodyAvoidanceAngle( const Eigen::Vector3d& observingBody,
+                                        const Eigen::Vector3d& transmittingBody,
+                                        const Eigen::Vector3d& bodyToAvoid );
+
+double computeCosineBodyAvoidanceAngle( const std::vector< Eigen::Vector6d >& linkEndStates,
+                                        const std::pair< int, int > observingAndTransmittingIndex,
+                                        const Eigen::Vector3d& bodyToAvoid );
 
 //! Function to check whether an observation is possible, based on body avoidance angle, as vied from single link end
 /*!
@@ -276,121 +299,6 @@ private:
     //! Radius of body causing occultation.
     double radiusOfOccultingBody_;
 };
-
-//! Enum defining possible checks which can be performed for observation viability,
-/*!
- *  Enum defining possible checks which can be performed for observation viability, the string and double parameter shown in the
- *  comments are used to define it when making an ObservationViabilitySettings object
- */
-enum ObservationViabilityType
-{
-    minimum_elevation_angle,    //properties: no string, double = elevation angle
-    body_avoidance_angle,       //properties: string = body to avoid, double = avoidance angle
-    body_occultation            //properties: string = occulting body, no double
-};
-
-//! Class to define settings for observation viability calculator creation
-/*!
- *  Class to define settings for observation viability calculator creation. Settinsg are defined by type of viability check,
- *  link end at which the check is to be performed, as well as double and string specifiers, which provide any needed
- *  specific parameters of the vaibility check (meaning of both parameters is given in constructor doxygen, as well as
- *  in-code comments of ObservationViabilityType
- */
-class ObservationViabilitySettings
-{
-public:
-
-    //! Constructor
-    /*!
-     * Constructor
-     * \param observationViabilityType Type of viability that is to be checked
-     * \param associatedLinkEnd Link end at which viability is to be checked
-     * \param stringParameter String parameter providing additional specification for viability check, meaning is type-dependent:
-     * Elevation angle: none; Avoidance angle: body for which avoidance angle is to be calculated; Occultation: body for which
-     * occultation is to be calculated
-     * \param doubleParameter Double parameter providing additional specification for viability check, meaning is type-dependent:
-     * Elevation angle: minimum allowed elevation angle; Avoidance angle: minimum allowed avoidance angle; Occultation: none
-     */
-    ObservationViabilitySettings( const ObservationViabilityType observationViabilityType,
-                                  const std::pair< std::string, std::string > associatedLinkEnd,
-                                  const std::string stringParameter = "",
-                                  const double doubleParameter = TUDAT_NAN ):
-        observationViabilityType_( observationViabilityType ), associatedLinkEnd_( associatedLinkEnd ),
-        stringParameter_( stringParameter ), doubleParameter_( doubleParameter ){ }
-
-    //! Type of viability that is to be checked
-    ObservationViabilityType observationViabilityType_;
-
-    std::pair< std::string, std::string > getAssociatedLinkEnd( )
-    {
-        return associatedLinkEnd_;
-    }
-
-    std::string getStringParameter( )
-    {
-        return stringParameter_;
-    }
-
-    double getDoubleParameter( )
-    {
-        return doubleParameter_;
-    }
-
-protected:
-    //! Link end at which viability is to be checked
-    std::pair< std::string, std::string > associatedLinkEnd_;
-
-    //! String parameter providing additional specification for viability check.
-    /*!
-     * String parameter providing additional specification for viability check, meaning is type-dependent:
-     * Elevation angle: none; Avoidance angle: body for which avoidance angle is to be calculated; Occultation: body for which
-     * occultation is to be calculated
-     */
-    std::string stringParameter_;
-
-    //! Double parameter providing additional specification for viability check
-    /*!
-     *  Double parameter providing additional specification for viability check, meaning is type-dependent:
-     *  Elevation angle: minimum allowed elevation angle; Avoidance angle: minimum allowed avoidance angle; Occultation: none
-     */
-    double doubleParameter_;
-};
-
-inline std::shared_ptr< ObservationViabilitySettings > elevationAngleViabilitySettings(
-        const std::pair< std::string, std::string > associatedLinkEnd,
-        const double elevationAngle )
-{
-    return std::make_shared< ObservationViabilitySettings >(
-                minimum_elevation_angle, associatedLinkEnd, "", elevationAngle );
-}
-
-inline std::shared_ptr< ObservationViabilitySettings > bodyAvoidanceAngleViabilitySettings(
-        const std::pair< std::string, std::string > associatedLinkEnd,
-        const std::string bodyToAvoid,
-        const double avoidanceAngle )
-{
-    return std::make_shared< ObservationViabilitySettings >(
-                body_avoidance_angle, associatedLinkEnd, bodyToAvoid, avoidanceAngle );
-}
-
-inline std::shared_ptr< ObservationViabilitySettings > bodyOccultationViabilitySettings(
-        const std::pair< std::string, std::string > associatedLinkEnd,
-        const double occultingBody )
-{
-    return std::make_shared< ObservationViabilitySettings >(
-                body_occultation, associatedLinkEnd, "", occultingBody );
-}
-
-//! Typedef for a list of observation viability calculators, sorted by observable type and link ends.
-typedef std::map< ObservableType, std::map< LinkEnds, std::vector< std::shared_ptr< ObservationViabilityCalculator > > > >
-PerObservableObservationViabilityCalculatorList;
-
-//! Typedef for a list of observation viability calculators for a single observable type, sorted by and link ends.
-typedef std::map< LinkEnds, std::vector< std::shared_ptr< ObservationViabilityCalculator > > >
-PerLinkEndsObservationViabilityCalculatorList;
-
-//! Typedef for vector of ObservationViabilitySettings pointers
-typedef std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > > ObservationViabilitySettingsList;
 
 }
 

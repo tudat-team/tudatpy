@@ -268,8 +268,8 @@ std::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
         case approximate_planet_positions:
         {
             // Check consistency of type and class.
-            std::shared_ptr< ApproximatePlanetPositionSettings > approximateEphemerisSettings =
-                    std::dynamic_pointer_cast< ApproximatePlanetPositionSettings >(
+            std::shared_ptr< ApproximateJplEphemerisSettings > approximateEphemerisSettings =
+                    std::dynamic_pointer_cast< ApproximateJplEphemerisSettings >(
                         ephemerisSettings );
             if( approximateEphemerisSettings == nullptr )
             {
@@ -278,6 +278,7 @@ std::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
             }
             else
             {
+<<<<<<< HEAD
                 ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData bodyToUse;
                 if( approximateEphemerisSettings->getBodyIdentifier( ) ==
                         ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::undefined )
@@ -295,16 +296,39 @@ std::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
                 {
                     bodyToUse = approximateEphemerisSettings->getBodyIdentifier( );
                 }
+=======
+//<<<<<<< HEAD
+//                ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData bodyToUse;
+//                if( approximateEphemerisSettings->getBodyIdentifier( ) ==
+//                        ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::undefined )
+//                {
+//                    try
+//                    {
+//                        bodyToUse = ephemerides::ApproximatePlanetPositionsBase::getBodiesWithEphemerisDataId( bodyName );
+//                    }
+//                    catch( std::runtime_error const& )
+
+//                    {
+//                        throw std::runtime_error( "Error, approximate ephemeris not available for body: " + bodyName + " when creating ephemeris." );
+//                    }
+//                }
+//                else
+//                {
+//                    bodyToUse = approximateEphemerisSettings->getBodyIdentifier( );
+//                }
+//=======
+//>>>>>>> origin/feature/mga_estimation_refactor_merge
+>>>>>>> feature/mga_estimation_refactor_merge
                 // Create corresponding ephemeris object.
                 if( approximateEphemerisSettings->getUseCircularCoplanarApproximation( ) )
                 {
-                    ephemeris = std::make_shared< ApproximatePlanetPositionsCircularCoplanar >(
-                                bodyToUse );
+                    ephemeris = std::make_shared< ApproximateJplCircularCoplanarEphemeris >(
+                                approximateEphemerisSettings->getBodyName( ) );
                 }
                 else
                 {
-                    ephemeris = std::make_shared< ApproximatePlanetPositions >(
-                                bodyToUse );
+                    ephemeris = std::make_shared< ApproximateJplEphemeris >(
+                                approximateEphemerisSettings->getBodyName( ) );
                 }
             }
             break;

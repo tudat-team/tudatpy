@@ -27,6 +27,8 @@
 #include "tudat/astro/electromagnetism/radiationPressureInterface.h"
 #include "tudat/astro/ephemerides/ephemeris.h"
 #include "tudat/astro/ephemerides/rotationalEphemeris.h"
+#include "tudat/astro/ephemerides/tabulatedEphemeris.h"
+#include "tudat/astro/ephemerides/multiArcEphemeris.h"
 #include "tudat/astro/ephemerides/frameManager.h"
 #include "tudat/astro/gravitation/gravityFieldModel.h"
 #include "tudat/astro/gravitation/gravityFieldVariations.h"
@@ -1530,6 +1532,30 @@ void setGlobalFrameBodyEphemerides( const std::unordered_map< std::string, std::
 }
 
 
+template< typename StateScalarType = double, typename TimeType = double >
+void addEmptyEphemeris(
+        const std::shared_ptr< Body > body,
+        const std::string centralBody, const std::string frameOrientation,
+        const bool ephemerisIsMultiArc = false, const bool overrideExisting = false )
+{
+    if( body->getEphemeris( ) != nullptr && !overrideExisting )
+    {
+        throw std::runtime_error( "Errror when adding empty default ephemeris; body already posseses ephemeris!" );
+    }
+
+    if( !ephemerisIsMultiArc )
+    {
+        body->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< StateScalarType, TimeType > >(
+                                nullptr, centralBody, frameOrientation ) );
+    }
+    else
+    {
+        body->setEphemeris( std::make_shared< ephemerides::MultiArcEphemeris >(
+                                nullptr, centralBody, frameOrientation ) );
+    }
+}
+
+
 class SystemOfBodies
 {
 public:
@@ -1559,7 +1585,7 @@ public:
         bodyMap_[ bodyName ]->setBodyName( bodyName );
         if( processBody )
         {
-            processBodyFrameDefinitions( );
+            processBodyFrameDefinitions( );           
         }
     }
 
