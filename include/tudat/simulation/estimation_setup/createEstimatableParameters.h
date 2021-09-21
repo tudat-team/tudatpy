@@ -307,6 +307,11 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
     return accelerationModelList;
 }
 
+template< typename InitialStateParameterType = double >
+std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > getInitialStateParameterSettings(
+        const std::shared_ptr< propagators::PropagatorSettings< InitialStateParameterType > > propagatorSettings,
+        const SystemOfBodies& bodies,
+        const std::vector< double > arcStartTimes = std::vector< double >( ) );
 
 template< typename InitialStateParameterType = double >
 std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > getInitialMultiArcParameterSettings(
@@ -391,9 +396,29 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
 }
 
 template< typename InitialStateParameterType = double >
+std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > getInitialHybridArcParameterSettings(
+        const std::shared_ptr< propagators::HybridArcPropagatorSettings< InitialStateParameterType > > propagatorSettings,
+        const SystemOfBodies& bodies,
+        const std::vector< double > arcStartTimes )
+{
+    std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > multiArcParameters =
+            getInitialMultiArcParameterSettings< InitialStateParameterType >(
+                propagatorSettings->getMultiArcPropagatorSettings( ), bodies, arcStartTimes );
+    std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > singleArcParameters =
+            getInitialStateParameterSettings< InitialStateParameterType >(
+                propagatorSettings->getSingleArcPropagatorSettings( ), bodies );
+    std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > hybirdArcParameters = multiArcParameters;
+
+    hybirdArcParameters.insert( hybirdArcParameters.end( ), singleArcParameters.begin( ), singleArcParameters.end( ) );
+    return hybirdArcParameters;
+}
+
+
+template< typename InitialStateParameterType >
 std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > getInitialStateParameterSettings(
         const std::shared_ptr< propagators::PropagatorSettings< InitialStateParameterType > > propagatorSettings,
-        const SystemOfBodies& bodies )
+        const SystemOfBodies& bodies,
+        const std::vector< double > arcStartTimes )
 {
     std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > initialStateParameterSettings;
 
@@ -496,35 +521,28 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
     {
         std::shared_ptr< MultiArcPropagatorSettings< InitialStateParameterType > > multiArcSettings =
                 std::dynamic_pointer_cast< MultiArcPropagatorSettings< InitialStateParameterType > >( propagatorSettings ) ;
-        throw std::runtime_error( "Error when identifying propagator settings for estimatable parameter settings; multi-arc parsing not yet implemented" );
-
+        if( arcStartTimes.size( ) == 0 )
+        {
+            throw std::runtime_error( "Error when parsing propagator settings for estimatable parameter settings; multi-arc settings found, but no arc times" );
+        }
+        initialStateParameterSettings = getInitialMultiArcParameterSettings(
+                    multiArcSettings, bodies, arcStartTimes );
     }
     else if( std::dynamic_pointer_cast< HybridArcPropagatorSettings< InitialStateParameterType > >( propagatorSettings ) != nullptr )
     {
         std::shared_ptr< HybridArcPropagatorSettings< InitialStateParameterType > > hybridArcSettings =
                 std::dynamic_pointer_cast< HybridArcPropagatorSettings< InitialStateParameterType > >( propagatorSettings );
-        throw std::runtime_error( "Error when identifying propagator settings for estimatable parameter settings; hybrid-arc parsing not yet implemented" );
+        if( arcStartTimes.size( ) == 0 )
+        {
+            throw std::runtime_error( "Error when parsing propagator settings for estimatable parameter settings; hybric-arc settings found, but no arc times" );
+        }
+        initialStateParameterSettings = getInitialHybridArcParameterSettings(
+                    hybridArcSettings, bodies, arcStartTimes );
     }
 
     return initialStateParameterSettings;
 }
 
-
-template< typename InitialStateParameterType = double >
-std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > getInitialMultiArcParameterSettings(
-        const std::shared_ptr< propagators::HybridArcPropagatorSettings< InitialStateParameterType > > propagatorSettings,
-        const SystemOfBodies& bodies,
-        const std::vector< double > arcStartTimes )
-{
-    std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > multiArcParameters =
-            getInitialMultiArcParameterSettings( propagatorSettings->getMultiArcPropagatorSettings( ), bodies, arcStartTimes );
-    std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > singleArcParameters =
-            getInitialStateParameterSettings( propagatorSettings->getSingleArcPropagatorSettings( ), bodies );
-    std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > hybirdArcParameters = multiArcParameters;
-
-    hybirdArcParameters.insert( hybirdArcParameters.end( ), singleArcParameters.begin( ), singleArcParameters.end( ) );
-    return hybirdArcParameters;
-}
 
 //! Function to create interface object for estimating parameters representing an initial dynamical state.
 /*!

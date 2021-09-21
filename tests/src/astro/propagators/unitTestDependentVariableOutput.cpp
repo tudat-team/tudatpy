@@ -1109,10 +1109,8 @@ BOOST_AUTO_TEST_CASE( test_AccelerationPartialSaving )
 
 
         // Define list of parameters to estimate.
-        std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
-        parameterNames.push_back(
-                    std::make_shared< InitialTranslationalStateEstimatableParameterSettings< double > >(
-                        "Vehicle", systemInitialState, "Earth" ) );
+        std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames =
+                getInitialStateParameterSettings< double >( propagatorSettings, bodies );
 
         // Create parameters
         std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate =

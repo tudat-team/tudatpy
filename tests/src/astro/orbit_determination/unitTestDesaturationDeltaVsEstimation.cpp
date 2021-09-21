@@ -217,9 +217,8 @@ BOOST_AUTO_TEST_CASE( test_DesaturationDeltaVsEstimation )
 
 
         // Define parameters to be estimated.
-        std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
-        parameterNames.push_back( std::make_shared< InitialTranslationalStateEstimatableParameterSettings< double > >(
-                        "Vehicle", systemInitialState, "Earth" ) );
+        std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames =
+                getInitialStateParameterSettings< double >( propagatorSettings, bodies );
 
         parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Vehicle", desaturation_delta_v_values ) );
         parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Vehicle", radiation_pressure_coefficient ) );
