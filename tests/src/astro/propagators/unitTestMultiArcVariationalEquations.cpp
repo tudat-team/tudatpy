@@ -208,12 +208,8 @@ executeMultiArcEarthMoonSimulation(
     // Define parameters.
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
     {
-        parameterNames.push_back(
-                    std::make_shared< ArcWiseInitialTranslationalStateEstimatableParameterSettings< StateScalarType > >(
-                        "Moon", arcStartTimes, centralBodies[ 0 ] ) );
-        parameterNames.push_back(
-                    std::make_shared< ArcWiseInitialTranslationalStateEstimatableParameterSettings< StateScalarType > >(
-                        "Earth", arcStartTimes, centralBodies[ 1 ] ) );
+        parameterNames =
+                getInitialMultiArcParameterSettings< >( multiArcPropagatorSettings, bodies, arcStartTimes );
         parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Moon", gravitational_parameter ) );
         parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Earth", gravitational_parameter ) );
         parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Sun", gravitational_parameter ) );
