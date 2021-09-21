@@ -22,6 +22,41 @@ namespace tudat
 namespace statistics
 {
 
+std::function< Eigen::VectorXd( const double ) > getIndependentGaussianNoiseFunction(
+        const double standardDeviation,
+        const double mean,
+        const double seed,
+        const int outputSize )
+{
+    std::function< double( ) > inputFreeNoiseFunction = statistics::createBoostContinuousRandomVariableGeneratorFunction(
+                statistics::normal_boost_distribution, { mean, standardDeviation }, seed );
+    if( outputSize == 1 )
+    {
+        return [=](const double){ return ( Eigen::VectorXd( outputSize )<<
+                                           inputFreeNoiseFunction( ) ).finished( ); };
+    }
+    else if( outputSize == 2 )
+    {
+        return [=](const double){ return ( Eigen::VectorXd( outputSize )<<
+                                           inputFreeNoiseFunction( ), inputFreeNoiseFunction( ) ).finished( ); };
+    }
+    else if( outputSize == 3 )
+    {
+        return [=](const double){ return ( Eigen::VectorXd( outputSize )<<
+                                           inputFreeNoiseFunction( ), inputFreeNoiseFunction( ), inputFreeNoiseFunction( ) ).finished( ); };
+    }
+    else if( outputSize == 6 )
+    {
+        return [=](const double){ return ( Eigen::VectorXd( outputSize )<<
+                                           inputFreeNoiseFunction( ), inputFreeNoiseFunction( ), inputFreeNoiseFunction( ),
+                                           inputFreeNoiseFunction( ), inputFreeNoiseFunction( ), inputFreeNoiseFunction( ) ).finished( ); };
+    }
+    else
+    {
+        throw std::runtime_error( "Cannot simulate observation noise of size " + std::to_string( outputSize ) );
+    }
+}
+
 //! Function to create a random number generating function from a continuous univariate distribution implemented in boost
 std::function< double( ) > createBoostContinuousRandomVariableGeneratorFunction(
         const ContinuousBoostStatisticalDistributions boostDistribution,

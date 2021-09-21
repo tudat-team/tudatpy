@@ -204,7 +204,6 @@
                              " -Wno-unused-macros"
                              " -Wno-vla"
                              " -Wno-unreachable-code-break"
-                             " -Wno-implicit-fallthrough"
                              " -Wno-conditional-uninitialized"
                              " -Wno-exit-time-destructors"
                              " -Wno-undefined-func-template"
@@ -243,7 +242,7 @@
      set(CMAKE_CXX_FLAGS_RELEASE "-O2 -DNDEBUG")
      set(CMAKE_CXX_FLAGS_DEBUG "-Og -g")
 
-     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wextra -Wno-unused-parameter -Wno-unused-variable -Woverloaded-virtual -Wold-style-cast -Wnon-virtual-dtor -Wimplicit-fallthrough -Wunused-but-set-variable -Wsign-compare")
+     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wextra -Wno-unused-parameter -Wno-unused-variable -Woverloaded-virtual -Wold-style-cast -Wnon-virtual-dtor -Wunused-but-set-variable -Wsign-compare")
 
      # MinGW fixes
      if (MINGW AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.9)

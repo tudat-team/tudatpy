@@ -70,8 +70,8 @@ BOOST_AUTO_TEST_CASE( testEulerAnglePartials )
         // Generate one-way range model
         std::shared_ptr< ObservationModel< 3 > > eulerAngleModel =
                 observation_models::ObservationModelCreator< 3, double, double >::createObservationModel(
-                    linkEnds, std::make_shared< observation_models::ObservationSettings >(
-                        euler_angle_313_observable ), bodies  );
+                    std::make_shared< observation_models::ObservationModelSettings >(
+                        euler_angle_313_observable, linkEnds ), bodies  );
 
         // Create parameter objects.
         std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =

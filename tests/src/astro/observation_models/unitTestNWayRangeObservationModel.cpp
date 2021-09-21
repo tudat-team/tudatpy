@@ -129,11 +129,11 @@ BOOST_AUTO_TEST_CASE( testNWayRangeModel )
 
 
             // Create observation settings for 2-way model and constituent one-way models
-            std::shared_ptr< ObservationSettings > uplinkObservableSettings = std::make_shared< ObservationSettings >
-                    ( one_way_range, lightTimeCorrectionSettings );
-            std::shared_ptr< ObservationSettings > downlinkObservableSettings = std::make_shared< ObservationSettings >
-                    ( one_way_range, lightTimeCorrectionSettings );
-            std::vector< std::shared_ptr< ObservationSettings > > twoWayLinkSettings;
+            std::shared_ptr< ObservationModelSettings > uplinkObservableSettings = std::make_shared< ObservationModelSettings >
+                    ( one_way_range, uplinkLinkEnds, lightTimeCorrectionSettings );
+            std::shared_ptr< ObservationModelSettings > downlinkObservableSettings = std::make_shared< ObservationModelSettings >
+                    ( one_way_range, downlinkLinkEnds, lightTimeCorrectionSettings );
+            std::vector< std::shared_ptr< ObservationModelSettings > > twoWayLinkSettings;
             twoWayLinkSettings.push_back( uplinkObservableSettings );
             twoWayLinkSettings.push_back( downlinkObservableSettings );
             std::shared_ptr< NWayRangeObservationSettings > twoWayObservableSettings = std::make_shared< NWayRangeObservationSettings >
@@ -142,13 +142,13 @@ BOOST_AUTO_TEST_CASE( testNWayRangeModel )
             // Create observation models
             std::shared_ptr< ObservationModel< 1, double, double > > uplinkObservationModel =
                     ObservationModelCreator< 1, double, double >::createObservationModel(
-                        uplinkLinkEnds, uplinkObservableSettings, bodies );
+                        uplinkObservableSettings, bodies );
             std::shared_ptr< ObservationModel< 1, double, double > > downlinkObservationModel =
                     ObservationModelCreator< 1, double, double >::createObservationModel(
-                        downlinkLinkEnds, downlinkObservableSettings, bodies );
+                        downlinkObservableSettings, bodies );
             std::shared_ptr< ObservationModel< 1, double, double > > twoWayObservationModel =
                     ObservationModelCreator< 1, double, double >::createObservationModel(
-                        twoWayLinkEnds, twoWayObservableSettings, bodies );
+                        twoWayObservableSettings, bodies );
 
             // Define link ends time and state vectors for  2-way model and constituent one-way models
             std::vector< double > uplinkLinkEndTimes;
@@ -276,16 +276,16 @@ BOOST_AUTO_TEST_CASE( testNWayRangeModel )
 
 
             // Create observation settings for 4-way model and constituent one-way models
-            std::shared_ptr< ObservationSettings > firstlinkObservableSettings = std::make_shared< ObservationSettings >
-                    ( one_way_range, lightTimeCorrectionSettings );
-            std::shared_ptr< ObservationSettings > secondlinkObservableSettings = std::make_shared< ObservationSettings >
-                    ( one_way_range, lightTimeCorrectionSettings );
-            std::shared_ptr< ObservationSettings > thirdlinkObservableSettings = std::make_shared< ObservationSettings >
-                    ( one_way_range, lightTimeCorrectionSettings );
-            std::shared_ptr< ObservationSettings > fourthlinkObservableSettings = std::make_shared< ObservationSettings >
-                    ( one_way_range, lightTimeCorrectionSettings );
+            std::shared_ptr< ObservationModelSettings > firstlinkObservableSettings = std::make_shared< ObservationModelSettings >
+                    ( one_way_range, firstlinkLinkEnds, lightTimeCorrectionSettings );
+            std::shared_ptr< ObservationModelSettings > secondlinkObservableSettings = std::make_shared< ObservationModelSettings >
+                    ( one_way_range, secondlinkLinkEnds, lightTimeCorrectionSettings );
+            std::shared_ptr< ObservationModelSettings > thirdlinkObservableSettings = std::make_shared< ObservationModelSettings >
+                    ( one_way_range, thirdlinkLinkEnds, lightTimeCorrectionSettings );
+            std::shared_ptr< ObservationModelSettings > fourthlinkObservableSettings = std::make_shared< ObservationModelSettings >
+                    ( one_way_range, fourthlinkLinkEnds, lightTimeCorrectionSettings );
 
-            std::vector< std::shared_ptr< ObservationSettings > > fourWayLinkSettings;
+            std::vector< std::shared_ptr< ObservationModelSettings > > fourWayLinkSettings;
             fourWayLinkSettings.push_back( firstlinkObservableSettings );
             fourWayLinkSettings.push_back( secondlinkObservableSettings );
             fourWayLinkSettings.push_back( thirdlinkObservableSettings );
@@ -297,19 +297,19 @@ BOOST_AUTO_TEST_CASE( testNWayRangeModel )
             // Create observation models
             std::shared_ptr< ObservationModel< 1, double, double > > firstlinkObservationModel =
                     ObservationModelCreator< 1, double, double >::createObservationModel(
-                        firstlinkLinkEnds, firstlinkObservableSettings, bodies );
+                        firstlinkObservableSettings, bodies );
             std::shared_ptr< ObservationModel< 1, double, double > > secondlinkObservationModel =
                     ObservationModelCreator< 1, double, double >::createObservationModel(
-                        secondlinkLinkEnds, secondlinkObservableSettings, bodies );
+                        secondlinkObservableSettings, bodies );
             std::shared_ptr< ObservationModel< 1, double, double > > thirdlinkObservationModel =
                     ObservationModelCreator< 1, double, double >::createObservationModel(
-                        thirdlinkLinkEnds, thirdlinkObservableSettings, bodies );
+                        thirdlinkObservableSettings, bodies );
             std::shared_ptr< ObservationModel< 1, double, double > > fourthlinkObservationModel =
                     ObservationModelCreator< 1, double, double >::createObservationModel(
-                        fourthlinkLinkEnds, fourthlinkObservableSettings, bodies );
+                        fourthlinkObservableSettings, bodies );
             std::shared_ptr< ObservationModel< 1, double, double > > fourWayObservationModel =
                     ObservationModelCreator< 1, double, double >::createObservationModel(
-                        fourWayLinkEnds, fourWayObservableSettings, bodies );
+                        fourWayObservableSettings, bodies );
 
             // Define link ends time and state vectors for  2-way model and constituent one-way models
             std::vector< double > firstlinkLinkEndTimes;

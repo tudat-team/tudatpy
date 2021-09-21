@@ -30,7 +30,7 @@ namespace ephemerides
 /*!
  * Data container class for JPL "Approximate Positions of Major Planets" ephemeris data.
  */
-struct ApproximatePlanetPositionsDataContainer
+struct ApproximateSolarSystemEphemerisDataContainer
 {
 public:
 
@@ -38,7 +38,7 @@ public:
     /*!
      * Default constructor.
      */
-    ApproximatePlanetPositionsDataContainer( )
+    ApproximateSolarSystemEphemerisDataContainer( )
         : semiMajorAxis_( -0.0 ),
           eccentricity_( -0.0 ),
           inclination_( -0.0 ),
@@ -66,11 +66,11 @@ public:
      * \return Stream object.
      */
     friend std::ostream& operator << ( std::ostream& stream,
-                                     ApproximatePlanetPositionsDataContainer&
+                                     ApproximateSolarSystemEphemerisDataContainer&
                                      approximatePlanetPositionsDataContainer )
     {
 
-        stream << "This is an ApproximatePlanetPositionsDataContainer object. " << std::endl;
+        stream << "This is an ApproximateSolarSystemEphemerisDataContainer object. " << std::endl;
         stream << "The data corresponds to the table entry for "
                << approximatePlanetPositionsDataContainer.planetName_ << std::endl;
         stream << "The semi-major axis in AU is set to: "
@@ -229,9 +229,9 @@ protected:
 private:
 };
 
-//! Typedef for shared-pointer to ApproximatePlanetPositionsDataContainer object.
-typedef std::shared_ptr< ApproximatePlanetPositionsDataContainer >
-ApproximatePlanetPositionsDataContainerPointer;
+//! Typedef for shared-pointer to ApproximateSolarSystemEphemerisDataContainer object.
+typedef std::shared_ptr< ApproximateSolarSystemEphemerisDataContainer >
+ApproximateSolarSystemEphemerisDataContainerPointer;
 
 } // namespace ephemerides
 } // namespace tudat

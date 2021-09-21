@@ -62,7 +62,7 @@ BOOST_AUTO_TEST_CASE( testOrbitalElements )
     expectedKeplerianElements[ 5 ] = convertDegreesToRadians( 3.577219707986779e2 );
 
     // Create Mars ephemeris.
-    ApproximatePlanetPositions marsEphemeris( ApproximatePlanetPositions::mars );
+    ApproximateJplEphemeris marsEphemeris( "Mars" );
 
     // Convert the expected Keplerian elements to Cartesian elements.
     Eigen::Vector6d expectedEphemeris;
@@ -88,8 +88,8 @@ BOOST_AUTO_TEST_CASE( testCircularCoplannar )
 {
     using namespace ephemerides;
 
-    ApproximatePlanetPositionsCircularCoplanar marsEphemeris(
-                ApproximatePlanetPositionsBase::mars );
+    ApproximateJplCircularCoplanarEphemeris marsEphemeris(
+                "Mars" );
 
     Eigen::Vector6d marsStateCircularCoplanar
             = marsEphemeris.getCartesianState(
@@ -127,12 +127,12 @@ BOOST_AUTO_TEST_SUITE_END( )
 
 //    if ( errorSemiMajorAxis > errorTolerance_ )
 //    {
-//        isApproximatePlanetPositionsErroneous = true;
+//        isApproximateSolarSystemEphemerisErroneous = true;
 
 //        // Generate error statements.
 //        cerr << "The computed relative error in position of the  " << endl;
 //        cerr << "coplanar circular position of Mars ( " << errorSemiMajorAxis << " )" << endl;
-//        cerr << "using the ApproximatePlanetPositionsCircularCoplanar class, exceeds "
+//        cerr << "using the ApproximateJplCircularCoplanarEphemeris class, exceeds "
 //             << "the maximum expected error " << endl;
 //        cerr << "( " << errorTolerance_ << " )." << endl;
 //    }
@@ -148,13 +148,13 @@ BOOST_AUTO_TEST_SUITE_END( )
 //    if ( fabs( errorPositionVector( 0 ) ) > maximumErrorPosition
 //         || fabs( errorPositionVector( 1 ) ) > maximumErrorPosition )
 //    {
-//        isApproximatePlanetPositionsErroneous = true;
+//        isApproximateSolarSystemEphemerisErroneous = true;
 
 //        // Generate error statements.
 //        cerr << "The computed error in position vector of the  " << endl;
 //        cerr << "coplanar circular position of Mars ( "
 //             << errorPositionVector << " meters )" << endl;
-//        cerr << "using the ApproximatePlanetPositionsCircularCoplanar class, exceeds "
+//        cerr << "using the ApproximateJplCircularCoplanarEphemeris class, exceeds "
 //             << "the expected error (" << endl;
 //        cerr << "( " << maximumErrorPosition << " meters )." << endl;
 //    }
@@ -175,13 +175,13 @@ BOOST_AUTO_TEST_SUITE_END( )
 
     if ( errorVelocity.norm( ) > expectedErrorVelocity )
     {
-        isApproximatePlanetPositionsErroneous = true;
+        isApproximateSolarSystemEphemerisErroneous = true;
 
         // Generate error statements.
         cerr << "The computed error in velocity of the " << endl;
         cerr << "coplanar circular position of Mars "
              << "( " << errorVelocity.norm( ) << " meters per second )" << endl;
-        cerr << "using the ApproximatePlanetPositionsCircularCoplanar class, exceeds "
+        cerr << "using the ApproximateJplCircularCoplanarEphemeris class, exceeds "
              << "the expected error " << endl;
         cerr << "( " << expectedErrorVelocity << " meters per second )." << endl;
         cerr << "The computed error exceeds the expected error by: "
