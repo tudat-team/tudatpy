@@ -254,10 +254,8 @@ executeHybridArcMarsAndOrbiterSensitivitySimulation(
     {
 //        parameterNames = simulation_setup::getInitialStateParameterSettings< double >( hybridArcPropagatorSettings, bodies );
 
-        parameterNames.push_back(
-                    std::make_shared< ArcWiseInitialTranslationalStateEstimatableParameterSettings< StateScalarType > >(
-                        multiArcBodiesToIntegrate.at( 0 ), multiArcPropagatorSettings->getInitialStates( ),
-                        integrationArcStarts, multiArcCentralBodies.at( 0 ) ) );
+        parameterNames =
+                getInitialMultiArcParameterSettings< >( multiArcPropagatorSettings, bodies, integrationArcStarts );
         parameterNames.push_back(
                     std::make_shared< InitialTranslationalStateEstimatableParameterSettings< StateScalarType > >(
                         singleArcBodiesToIntegrate.at( 0 ), singleArcInitialStates, singleArcCentralBodies.at( 0 ) ) );
@@ -629,10 +627,8 @@ BOOST_AUTO_TEST_CASE( testVaryingCentralBodyHybridArcVariationalEquations )
             std::make_shared< HybridArcPropagatorSettings< > >( singleArcPropagatorSettings, multiArcPropagationSettings );
 
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
-    parameterNames.push_back(
-                std::make_shared< ArcWiseInitialTranslationalStateEstimatableParameterSettings< double > >(
-                    multiArcBodiesToPropagate.at( 0 ), multiArcPropagationSettings->getInitialStates( ),
-                    arcStartTimes, multiArcCentralBodies ) );
+    parameterNames = getInitialMultiArcParameterSettings< >( multiArcPropagationSettings, bodies, arcStartTimes );
+
     for( unsigned int i = 0; i < singleArcBodiesToPropagate.size( ); i++ )
     {
         parameterNames.push_back(
@@ -675,10 +671,9 @@ BOOST_AUTO_TEST_CASE( testVaryingCentralBodyHybridArcVariationalEquations )
                     singleArcPropagatorSettings, multiArcPerBodyPropagationSettings );
 
         std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNamesPerBody;
-        parameterNamesPerBody.push_back(
-                    std::make_shared< ArcWiseInitialTranslationalStateEstimatableParameterSettings< double > >(
-                        multiArcBodiesToPropagate.at( 0 ), multiArcPerBodyPropagationSettings->getInitialStates( ),
-                        arcStartTimesPerBody.at( singleArcBodiesToPropagate.at( i ) ), singleArcBodiesToPropagate.at( i ) ) );
+
+        parameterNamesPerBody = getInitialMultiArcParameterSettings< >(
+                    multiArcPerBodyPropagationSettings, bodies, arcStartTimesPerBody.at( singleArcBodiesToPropagate.at( i ) ) );
 
         for( unsigned int j = 0; j < singleArcBodiesToPropagate.size( ); j++ )
         {
