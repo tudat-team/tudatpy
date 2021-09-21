@@ -552,6 +552,7 @@ public:
     currentRotationToLocalFrame_ = currentRotationToGlobalFrame_.inverse();
     currentAngularVelocityVectorInGlobalFrame_ =
         currentRotationToGlobalFrame_ * currentRotationalStateFromLocalToGlobalFrame.block< 3, 1 >(4, 0);
+
     currentAngularVelocityVectorInLocalFrame_ = currentRotationalStateFromLocalToGlobalFrame.block< 3, 1 >(4, 0);
 
     Eigen::Matrix3d currentRotationMatrixToLocalFrame = (currentRotationToLocalFrame_).toRotationMatrix();

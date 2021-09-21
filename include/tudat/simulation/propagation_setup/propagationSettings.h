@@ -1114,6 +1114,23 @@ inline std::shared_ptr< RotationalStatePropagatorSettings< StateScalarType > > r
 
 template< typename StateScalarType = double >
 inline std::shared_ptr< RotationalStatePropagatorSettings< StateScalarType > > rotationalStatePropagatorSettings(
+        const basic_astrodynamics::TorqueModelMap& torqueModelMap,
+        const std::vector< std::string >& bodiesToIntegrate,
+        const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyStates,
+        const double finalTime,
+        const RotationalPropagatorType propagator = quaternions,
+        const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
+        std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
+        const double printInterval = TUDAT_NAN )
+{
+    return std::make_shared< RotationalStatePropagatorSettings< StateScalarType > >(
+                torqueModelMap, bodiesToIntegrate, initialBodyStates,
+                std::make_shared< PropagationTimeTerminationSettings >( finalTime ), propagator,
+                std::make_shared< DependentVariableSaveSettings >( dependentVariablesToSave ), printInterval );
+}
+
+template< typename StateScalarType = double >
+inline std::shared_ptr< RotationalStatePropagatorSettings< StateScalarType > > rotationalStatePropagatorSettings(
         const simulation_setup::SelectedTorqueMap& torqueSettingsMap,
         const std::vector< std::string >& bodiesToIntegrate,
         const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyStates,
@@ -1125,6 +1142,23 @@ inline std::shared_ptr< RotationalStatePropagatorSettings< StateScalarType > > r
 {
     return std::make_shared< RotationalStatePropagatorSettings< StateScalarType > >(
                 torqueSettingsMap, bodiesToIntegrate, initialBodyStates, terminationSettings, propagator,
+                std::make_shared< DependentVariableSaveSettings >( dependentVariablesToSave ), printInterval );
+}
+
+template< typename StateScalarType = double >
+inline std::shared_ptr< RotationalStatePropagatorSettings< StateScalarType > > rotationalStatePropagatorSettings(
+        const simulation_setup::SelectedTorqueMap& torqueSettingsMap,
+        const std::vector< std::string >& bodiesToIntegrate,
+        const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyStates,
+        const double finalTime,
+        const RotationalPropagatorType propagator = quaternions,
+        const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
+        std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
+        const double printInterval = TUDAT_NAN )
+{
+    return std::make_shared< RotationalStatePropagatorSettings< StateScalarType > >(
+                torqueSettingsMap, bodiesToIntegrate, initialBodyStates,
+                std::make_shared< PropagationTimeTerminationSettings >( finalTime ), propagator,
                 std::make_shared< DependentVariableSaveSettings >( dependentVariablesToSave ), printInterval );
 }
 
@@ -1916,6 +1950,21 @@ inline std::shared_ptr< MultiTypePropagatorSettings< StateScalarType > > multiTy
             propagatorSettingsVector, terminationSettings, std::make_shared< DependentVariableSaveSettings >( dependentVariablesToSave ),
                 printInterval );
 }
+
+template< typename StateScalarType = double >
+inline std::shared_ptr< MultiTypePropagatorSettings< StateScalarType > > multiTypePropagatorSettings(
+        const std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > propagatorSettingsVector,
+        const double finalTime,
+        const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
+                std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
+        const double printInterval = TUDAT_NAN )
+{
+    return std::make_shared< MultiTypePropagatorSettings< StateScalarType > >(
+            propagatorSettingsVector, std::make_shared< PropagationTimeTerminationSettings >( finalTime ),
+                std::make_shared< DependentVariableSaveSettings >( dependentVariablesToSave ),
+                printInterval );
+}
+
 
 
 extern template class PropagatorSettings< double >;

@@ -416,6 +416,9 @@ void getDegreeTwoSphericalHarmonicCoefficients(
         const bool useNormalizedCoefficients,
         Eigen::MatrixXd& cosineCoefficients, Eigen::MatrixXd& sineCoefficients, double& scaledMeanMomentOfInertia );
 
+std::tuple< Eigen::MatrixXd, Eigen::MatrixXd, double > getDegreeTwoSphericalHarmonicCoefficients(
+        const Eigen::Matrix3d inertiaTensor, const double bodyGravitationalParameter, const double referenceRadius,
+        const int maximumCoefficientDegree = 2, const bool useNormalizedCoefficients = true );
 
 } // namespace gravitation
 

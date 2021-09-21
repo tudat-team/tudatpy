@@ -55,13 +55,14 @@ public:
      *  current observation time.
      */
     OneWayDifferencedRangeObservationModel(
+            const LinkEnds& linkEnds,
             const std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > >
             arcStartLightTimeCalculator,
             const std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > >
             arcEndLightTimeCalculator,
             std::function< double( const double ) > integrationTimeFunction,
             const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr ):
-        ObservationModel< 1, ObservationScalarType, TimeType >( one_way_differenced_range, observationBiasCalculator ),
+        ObservationModel< 1, ObservationScalarType, TimeType >( one_way_differenced_range, linkEnds, observationBiasCalculator ),
         arcStartLightTimeCalculator_( arcStartLightTimeCalculator ), arcEndLightTimeCalculator_( arcEndLightTimeCalculator ),
         integrationTimeFunction_( integrationTimeFunction )
     {
