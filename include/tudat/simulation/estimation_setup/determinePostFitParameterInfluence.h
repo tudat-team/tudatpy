@@ -75,7 +75,6 @@ std::pair< std::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > de
     // Create list of ideal observation settings and initial states to estimate
     std::vector< LinkEnds > linkEndsList;
     std::vector< std::shared_ptr< ObservationModelSettings > >  observationSettingsList;
-    std::vector< std::shared_ptr< EstimatableParameterSettings > > initialStateParameterNames;
 
     for( unsigned int i = 0; i < observedBodies.size( ); i++ )
     {
@@ -86,12 +85,10 @@ std::pair< std::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > de
         observationSettingsList.push_back( std::make_shared< ObservationModelSettings >(
                                         position_observable, observationLinkEnds ) );
 
-        // Add current body to list of estimated bodies
-        initialStateParameterNames.push_back(
-                    std::make_shared< InitialTranslationalStateEstimatableParameterSettings< StateScalarType > >(
-                        observedBodies.at( i ), translationalPropagatorSettings->getInitialStates( ).segment( i * 6, 6 ),
-                        translationalPropagatorSettings->centralBodies_.at( i ) ) );
     }
+    std::vector< std::shared_ptr< EstimatableParameterSettings > > initialStateParameterNames =
+            getInitialStateParameterSettings< double >( propagatorSettings, bodies );
+
 
     // Create initial state estimation objects
     std::shared_ptr< EstimatableParameterSet< StateScalarType > > initialStateParametersToEstimate =

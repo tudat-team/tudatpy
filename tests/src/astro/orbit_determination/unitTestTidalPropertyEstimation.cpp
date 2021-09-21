@@ -135,15 +135,8 @@ BOOST_AUTO_TEST_CASE( test_DissipationParameterEstimation )
                   finalEphemerisTime );
 
         // Set parameters that are to be estimated.
-        std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
-        parameterNames.push_back(
-                    std::make_shared< InitialTranslationalStateEstimatableParameterSettings< > >(
-                        "Io", propagators::getInitialStateOfBody(
-                            "Io", "Jupiter", bodies, initialEphemerisTime ), "Jupiter" ) );
-        parameterNames.push_back(
-                    std::make_shared< InitialTranslationalStateEstimatableParameterSettings< > >(
-                        "Europa", propagators::getInitialStateOfBody(
-                            "Europa", "Jupiter", bodies, initialEphemerisTime ), "Jupiter" ) );
+        std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames =
+                getInitialStateParameterSettings< double >( propagatorSettings, bodies );
         parameterNames.push_back(
                     std::make_shared< tudat::estimatable_parameters::DirectTidalTimeLagEstimatableParameterSettings >(
                         "Io", "" ) );

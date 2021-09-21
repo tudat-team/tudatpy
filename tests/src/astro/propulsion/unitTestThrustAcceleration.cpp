@@ -2042,9 +2042,8 @@ BOOST_AUTO_TEST_CASE( testMomentumWheelDesaturationThrust )
 
 
     // Define list of parameters to estimate.
-    std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
-    parameterNames.push_back( std::make_shared< InitialTranslationalStateEstimatableParameterSettings< double > >(
-                                  "Asterix", systemInitialState, "SSB" ) );
+    std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames =
+            getInitialStateParameterSettings< double >( propagatorSettings, bodies );
     parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Asterix", desaturation_delta_v_values ) );
 
     // Create parameters

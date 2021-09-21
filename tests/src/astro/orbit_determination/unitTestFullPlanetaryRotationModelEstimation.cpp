@@ -144,9 +144,8 @@ BOOST_AUTO_TEST_CASE( test_FullPlanetaryRotationalParameters )
     {
         
         // Set parameters that are to be estimated.
-        std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
-        parameterNames.push_back( std::make_shared< InitialTranslationalStateEstimatableParameterSettings< double > >(
-                                      "Earth", initialState, "SSB" ) );
+        std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames =
+                getInitialStateParameterSettings< double >( propagatorSettings, bodies );
 
         // Estimate core factor and free core nutation rate
         if ( testCase == 0 )

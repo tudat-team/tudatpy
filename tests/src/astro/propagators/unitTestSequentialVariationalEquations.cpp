@@ -131,9 +131,8 @@ integrateEquations( const bool performIntegrationsSequentially )
             ( centralBodies, accelerationModelMap, bodiesToIntegrate, lageosState, finalEphemerisTime );
 
     // Set parameters that are to be included.
-    std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
-    parameterNames.push_back( std::make_shared< InitialTranslationalStateEstimatableParameterSettings< double > >(
-                                  "LAGEOS", lageosState, "Earth" ) );
+    std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames =
+            getInitialStateParameterSettings< double >( propagatorSettings, bodies );
     parameterNames.push_back( std::make_shared< EstimatableParameterSettings >
                               ( "Earth", gravitational_parameter ) );
     parameterNames.push_back( std::make_shared< EstimatableParameterSettings >
