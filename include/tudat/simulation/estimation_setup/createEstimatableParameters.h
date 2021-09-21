@@ -106,7 +106,7 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
         }
         break;
     }
-    // Arc-wise empirical acceleration coefficeints need to be linked to empirical acceleration object
+        // Arc-wise empirical acceleration coefficeints need to be linked to empirical acceleration object
     case arc_wise_empirical_acceleration_coefficients:
     {
         std::shared_ptr< ArcWiseEmpiricalAccelerationEstimatableParameterSettings > empiricalAccelerationSettings =
@@ -136,7 +136,7 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
         }
         break;
     }
-    // Direct tidal time lags need to be linked to direct tidal acceleration
+        // Direct tidal time lags need to be linked to direct tidal acceleration
     case direct_dissipation_tidal_time_lag:
     {
         std::shared_ptr< DirectTidalTimeLagEstimatableParameterSettings > dissipationTimeLagSettings =
@@ -159,7 +159,7 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
         }
         break;
     }
-    // Desaturation Delta V needs to be linked to destauration acceleration
+        // Desaturation Delta V needs to be linked to destauration acceleration
     case desaturation_delta_v_values:
     {
         // Check if acceleration model with required bodies undergoing/exerting accelerations exist
@@ -298,13 +298,85 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
                     parameterSettings );
     }
 
-            if( accelerationModelList.size( ) == 0 )
-            {
-                throw std::runtime_error( "Error when getting acceleration model for parameter " +
-                                          std::to_string( parameterSettings->parameterType_.first ) + ", no acceleration model found." );
-            }
+    if( accelerationModelList.size( ) == 0 )
+    {
+        throw std::runtime_error( "Error when getting acceleration model for parameter " +
+                                  std::to_string( parameterSettings->parameterType_.first ) + ", no acceleration model found." );
+    }
 
     return accelerationModelList;
+}
+
+
+template< typename InitialStateParameterType = double >
+std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > getInitialMultiArcParameterSettings(
+        const std::shared_ptr< propagators::MultiArcPropagatorSettings< InitialStateParameterType > > propagatorSettings,
+        const SystemOfBodies& bodies,
+        const std::vector< double > arcStartTimes )
+{
+    using namespace estimatable_parameters;
+    using namespace propagators;
+
+    std::vector< std::shared_ptr< SingleArcPropagatorSettings< InitialStateParameterType > > > singleArcSettings =
+            propagatorSettings->getSingleArcSettings( );
+    std::vector< std::shared_ptr< TranslationalStatePropagatorSettings< InitialStateParameterType > > > singleArcTranslationalSettings;
+
+    std::vector< std::string > propagatedBodies;
+    std::vector< std::string > centralBodies;
+    std::vector< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > initialStates;
+
+    for( unsigned int i = 0; i < singleArcSettings.size( ); i++ )
+    {
+        singleArcTranslationalSettings.push_back(
+                    std::dynamic_pointer_cast< TranslationalStatePropagatorSettings< InitialStateParameterType > >(
+                        singleArcSettings.at( i ) ) );
+        if( singleArcTranslationalSettings.at( i ) == nullptr )
+        {
+            throw std::runtime_error( "Only translational state supported when auto-creating multi-arc initial state settings" );
+        }
+        else
+        {
+
+            initialStates.push_back( singleArcTranslationalSettings.at( i )->getInitialStates( ) );
+            if( i == 0 )
+            {
+                propagatedBodies = singleArcTranslationalSettings.at( i )->bodiesToIntegrate_;
+                centralBodies = singleArcTranslationalSettings.at( i )->centralBodies_;
+            }
+            else
+            {
+                if( !( propagatedBodies == ( singleArcTranslationalSettings.at( i )->bodiesToIntegrate_ ) ) )
+                {
+                    throw std::runtime_error( "Only equal bodies per arc supported when auto-creating multi-arc initial state settings" );
+                }
+
+                if( !( centralBodies == ( singleArcTranslationalSettings.at( i )->centralBodies_ ) ) )
+                {
+                    throw std::runtime_error( "Only equal central bodies per arc supported when auto-creating multi-arc initial state settings" );
+                }
+            }
+        }
+    }
+
+    std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > arcwiseInitialStates;
+    for( unsigned int i = 0; i < propagatedBodies.size( ); i++ )
+    {
+        Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > multiArcInitialStateValue =
+                Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >::Zero( 6 * initialStates.size( ) );
+        for( unsigned int j = 0; j < initialStates.size( ); j++ )
+        {
+            multiArcInitialStateValue.segment( j * 6, 6 ) = initialStates.at( j ).segment( i * 6, 6 );
+        }
+        arcwiseInitialStates.push_back(
+                    std::make_shared<
+                    ArcWiseInitialTranslationalStateEstimatableParameterSettings< InitialStateParameterType > >(
+                        propagatedBodies.at( i ),
+                        multiArcInitialStateValue,
+                        arcStartTimes,
+                        centralBodies.at( i ),
+                        bodies.getFrameOrientation( ) ) );
+    }
+    return arcwiseInitialStates;
 }
 
 template< typename InitialStateParameterType = double >
@@ -315,6 +387,8 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
     std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > initialStateParameterSettings;
 
     using namespace propagators;
+
+    // Process single-arc settings
     if( std::dynamic_pointer_cast< SingleArcPropagatorSettings< InitialStateParameterType > >( propagatorSettings ) != nullptr )
     {
         std::shared_ptr< SingleArcPropagatorSettings< InitialStateParameterType > > singleArcSettings =
@@ -872,9 +946,9 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
                 else
                 {
 
-                doubleParameterToEstimate = std::make_shared< ScaledLongitudeLibrationAmplitude >
-                        ( std::dynamic_pointer_cast< DirectLongitudeLibrationCalculator >( longitudeLibrationCalculator ),
-                          currentBodyName );
+                    doubleParameterToEstimate = std::make_shared< ScaledLongitudeLibrationAmplitude >
+                            ( std::dynamic_pointer_cast< DirectLongitudeLibrationCalculator >( longitudeLibrationCalculator ),
+                              currentBodyName );
                 }
 
             }

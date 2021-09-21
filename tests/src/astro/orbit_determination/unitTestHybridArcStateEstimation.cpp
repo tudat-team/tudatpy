@@ -232,10 +232,8 @@ Eigen::VectorXd  executeParameterEstimation(
 
     // Set parameters that are to be estimated.
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
-    parameterNames.push_back(
-                std::make_shared< ArcWiseInitialTranslationalStateEstimatableParameterSettings< StateScalarType > >(
-                    multiArcBodiesToIntegrate.at( 0 ), multiArcPropagatorSettings->getInitialStates( ),
-                    integrationArcStarts, multiArcCentralBodies.at( 0 ) ) );
+    parameterNames =
+            getInitialMultiArcParameterSettings< >( multiArcPropagatorSettings, bodies, integrationArcStarts );
     parameterNames.push_back(
                 std::make_shared< InitialTranslationalStateEstimatableParameterSettings< StateScalarType > >(
                     singleArcBodiesToIntegrate.at( 0 ), singleArcInitialStates, singleArcCentralBodies.at( 0 ) ) );
