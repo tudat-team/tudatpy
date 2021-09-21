@@ -106,6 +106,9 @@ std::vector< std::pair< int, int > > getLinkStateAndTimeIndicesForLinkEnd(
         const ObservableType observableType,
         const LinkEndId linkEndToCheck );
 
+std::vector< LinkEndType > getLinkEndTypesForGivenLinkEndId(
+        const LinkEnds& linkEnds,
+        const LinkEndId linkEndToCheck );
 
 void checkObservationResidualDiscontinuities(
         Eigen::Block< Eigen::VectorXd > observationBlock,

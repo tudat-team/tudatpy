@@ -11,7 +11,7 @@
 #include <boost/make_shared.hpp>
 #include "tudat/astro/ephemerides/simpleRotationalEphemeris.h"
 #include "tudat/astro/ephemerides/fullPlanetaryRotationModel.h"
-
+#include "tudat/astro/ephemerides/tabulatedRotationalEphemeris.h"
 #include "tudat/interface/spice/spiceRotationalEphemeris.h"
 
 #include "tudat/simulation/environment_setup/createRotationModel.h"
@@ -274,6 +274,11 @@ std::shared_ptr< ephemerides::RotationalEphemeris > createRotationModel(
         }
         else
         {
+            if( bodies.count( synchronousRotationSettings->getCentralBodyName( ) ) == 0 )
+            {
+                throw std::runtime_error( "Error, when making synchronous rotation model for " + body + ", central body " +
+                                          synchronousRotationSettings->getCentralBodyName( ) + " not found." );
+            }
             if( bodies.at( body )->getEphemeris( )->getReferenceFrameOrigin( ) == synchronousRotationSettings->getCentralBodyName( ) )
             {
                 if( bodies.at( body )->getEphemeris( )->getReferenceFrameOrientation( ) !=
@@ -292,6 +297,28 @@ std::shared_ptr< ephemerides::RotationalEphemeris > createRotationModel(
                         synchronousRotationSettings->getTargetFrame( ) );
 
             rotationalEphemeris = synchronousRotationalEphemeris;
+        }
+        break;
+    }
+    case tabulated_rotation_model:
+    {
+        // Check whether settings for simple rotation model are consistent with its type.
+        std::shared_ptr< TabulatedRotationSettings > tabulatedRotationSettings =
+                std::dynamic_pointer_cast< TabulatedRotationSettings >( rotationModelSettings );
+        if( tabulatedRotationSettings == nullptr )
+        {
+            throw std::runtime_error(
+                        "Error, expected tabulated rotation model settings for " + body );
+        }
+        else
+        {
+            // Create and initialize simple rotation model.
+            rotationalEphemeris = std::make_shared< TabulatedRotationalEphemeris< double, double > >(
+                        interpolators::createOneDimensionalInterpolator(
+                            tabulatedRotationSettings->getBodyStateHistory( ),
+                            tabulatedRotationSettings->getInterpolatorSettings( ) ),
+                        tabulatedRotationSettings->getOriginalFrame( ),
+                        tabulatedRotationSettings->getTargetFrame( ) );
         }
         break;
     }

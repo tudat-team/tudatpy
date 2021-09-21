@@ -47,9 +47,10 @@ public:
      *  observable, i.e. deviations from the physically ideal observable between reference points (default none).
      */
     AngularPositionObservationModel(
+            const LinkEnds linkEnds,
             const std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > lightTimeCalculator,
             const std::shared_ptr< ObservationBias< 2 > > observationBiasCalculator = nullptr ):
-        ObservationModel< 2, ObservationScalarType, TimeType >( angular_position, observationBiasCalculator ),
+        ObservationModel< 2, ObservationScalarType, TimeType >( angular_position, linkEnds, observationBiasCalculator ),
         lightTimeCalculator_( lightTimeCalculator ) { }
 
     //! Destructor

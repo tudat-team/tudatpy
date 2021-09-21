@@ -170,7 +170,7 @@ template< typename TimeType = double, typename StateScalarType = double >
 Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialStateOfBody(
         const std::string& bodyToIntegrate,
         const std::string& centralBody,
-        const  simulation_setup::SystemOfBodies& bodies,
+        const simulation_setup::SystemOfBodies& bodies,
         const TimeType initialTime )
 {
     return getInitialStatesOfBodies< TimeType, StateScalarType >(

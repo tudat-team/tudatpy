@@ -52,10 +52,11 @@ public:
      *  observable, i.e. deviations from the physically ideal observable between reference points (default none).
      */
     OneWayRangeObservationModel(
+            const LinkEnds& linkEnds,
             const std::shared_ptr< observation_models::LightTimeCalculator
             < ObservationScalarType, TimeType > > lightTimeCalculator,
             const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr ):
-        ObservationModel< 1, ObservationScalarType, TimeType >( one_way_range, observationBiasCalculator ),
+        ObservationModel< 1, ObservationScalarType, TimeType >( one_way_range, linkEnds, observationBiasCalculator ),
       lightTimeCalculator_( lightTimeCalculator ){ }
 
     //! Destructor
