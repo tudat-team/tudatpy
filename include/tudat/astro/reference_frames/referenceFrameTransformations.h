@@ -151,6 +151,11 @@ Eigen::Quaterniond getRotatingPlanetocentricToInertialFrameTransformationQuatern
         const double rightAscensionOfPole,
         const double longitudeOfPrimeMeridian );
 
+Eigen::Matrix3d getRotatingPlanetocentricToInertialFrameTransformationMatrix(
+        const double declinationOfPole,
+        const double rightAscensionOfPole,
+        const double longitudeOfPrimeMeridian );
+
 //! Get inertial (I) to rotating planetocentric (R) reference frame transformtion matrix.
 /*!
  * Returns transformation matrix from inertial referenceframe (I) to the rotating planetocentric
@@ -180,6 +185,12 @@ Eigen::Matrix3d getInertialToPlanetocentricFrameTransformationMatrix(
 Eigen::Matrix3d getVelocityBasedLvlhToInertialRotation(const Eigen::Vector6d& vehicleState,
                                                        const Eigen::Vector6d& centralBodyState = Eigen::Vector6d::Zero( ),
                                                        const bool doesNaxisPointAwayFromCentralBody = true );
+
+Eigen::Matrix3d getTnwToInertialRotation(const Eigen::Vector6d& vehicleInertialState,
+                                         const bool doesNaxisPointAwayFromCentralBody = true );
+
+Eigen::Matrix3d getInertialToTnwRotation(const Eigen::Vector6d& vehicleInertialState,
+                                         const bool doesNaxisPointAwayFromCentralBody = true );
 
 //! Get rotation from velocity based LVLH frame to inertial (I) frame.
 /*!
@@ -228,7 +239,10 @@ Eigen::Quaterniond getVelocityBasedLvlhToPlanetocentricRotationKeplerian(
  * \return Rotation matrix to RSW frame
  */
 Eigen::Matrix3d getInertialToRswSatelliteCenteredFrameRotationMatrix(
-        const Eigen::Vector6d bodyState );
+        const Eigen::Vector6d& bodyState );
+
+Eigen::Matrix3d getRswSatelliteCenteredToInertialFrameRotationMatrix(
+        const Eigen::Vector6d& bodyState );
 
 //! Get inertial (I) to rotating planetocentric (R) reference frame transformation quaternion.
 /*!

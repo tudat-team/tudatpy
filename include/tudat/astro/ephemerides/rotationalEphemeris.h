@@ -86,6 +86,16 @@ Eigen::Matrix< StateScalarType, 6, 1 > transformStateToFrameFromRotations(
     return stateInTargetFrame;
 }
 
+template< typename StateScalarType >
+Eigen::Matrix< StateScalarType, 6, 1 > transformStateToFrameFromRotations(
+        const Eigen::Matrix< StateScalarType, 6, 1 >& stateInBaseFrame,
+        const Eigen::Matrix3d& rotationToFrame,
+        const Eigen::Matrix3d& rotationMatrixToFrameDerivative )
+{
+    return transformStateToFrameFromRotations< StateScalarType >(
+                stateInBaseFrame, Eigen::Quaterniond( rotationToFrame ), rotationMatrixToFrameDerivative );
+}
+
 //! Transform a state (Cartesian position and velocity) from one frame to another.
 /*!
  *  Transform a state (Cartesian position and velocity) from one frame to another, taking into

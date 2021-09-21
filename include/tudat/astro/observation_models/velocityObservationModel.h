@@ -44,10 +44,11 @@ public:
      *  observable, i.e. deviations from the physically ideal observable (default none).
      */
     VelocityObservationModel(
+            const LinkEnds& linkEnds,
             const std::function<  Eigen::Matrix< ObservationScalarType, 6, 1 >( const TimeType& ) > stateFunction,
             const std::shared_ptr< ObservationBias< 3 > > observationBiasCalculator = NULL ):
         ObservationModel< 3, ObservationScalarType, TimeType >(
-            velocity_observable, observationBiasCalculator ), stateFunction_( stateFunction ){ }
+            velocity_observable, linkEnds, observationBiasCalculator ), stateFunction_( stateFunction ){ }
 
     //! Destructor
     ~VelocityObservationModel( ) { }

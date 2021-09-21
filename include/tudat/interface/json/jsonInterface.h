@@ -371,7 +371,7 @@ public:
     }
 
     //! Get map of body settings.
-    std::map< std::string, std::shared_ptr< simulation_setup::BodySettings > > getBodySettingsMap( ) const
+    simulation_setup::BodyListSettings getBodySettingsMap( ) const
     {
         return bodySettingsMap_;
     }
@@ -385,7 +385,7 @@ public:
     //! Add a body named \p bodyName.
     void addBody( const std::string& bodyName )
     {
-        bodies.createEmptyBody( bodyName );
+        bodies_.createEmptyBody( bodyName );
     }
 
     //! Get body named \p bodyName.
@@ -613,7 +613,7 @@ protected:
     std::string globalFrameOrientation_;
 
     //! Map of body settings.
-    std::map< std::string, std::shared_ptr< simulation_setup::BodySettings > > bodySettingsMap_;
+    simulation_setup::BodyListSettings bodySettingsMap_;
 
     //! Body map.
     simulation_setup::SystemOfBodies bodies_;

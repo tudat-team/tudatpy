@@ -870,6 +870,11 @@ public:
         return dynamicsSimulator_;
     }
 
+    std::shared_ptr< VariationalEquations > getVariationalEquationsObject( )
+    {
+        return variationalEquationsObject_;
+    }
+
     //! Function to retrieve the dynamics simulator object (as base-class pointer)
     /*!
      * Function to retrieve the dynamics simulator object (as base-class pointer)

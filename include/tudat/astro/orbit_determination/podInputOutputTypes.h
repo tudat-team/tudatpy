@@ -22,7 +22,8 @@
 #include "tudat/basics/timeType.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/observableTypes.h"
-#include "tudat/astro/observation_models/observationModel.h"
+#include "tudat/simulation/estimation_setup/observations.h"
+
 namespace tudat
 {
 
@@ -125,6 +126,14 @@ public:
             }
 
         }
+    }
+
+    void setConstantPerObservableAndLinkEndsWeights(
+            const observation_models::ObservableType observableType,
+            const std::vector< observation_models::LinkEnds >& linkEnds,
+            const double weight )
+    {
+
     }
 
     //! Function to set a values for observation weights, constant per observable type and link ends type
