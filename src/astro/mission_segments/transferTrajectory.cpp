@@ -13,6 +13,7 @@ void TransferTrajectory::evaluateTrajectory(
         const std::vector< Eigen::VectorXd >& nodeFreeParameters )
 {
     totalDeltaV_ = 0.0;
+    totalTimeOfFlight_ = 0.0;
 
     Eigen::VectorXd legTotalParameters;
     Eigen::VectorXd nodeTotalParameters;
@@ -25,6 +26,7 @@ void TransferTrajectory::evaluateTrajectory(
                         nodeTimes, legFreeParameters.at( i ), i, legTotalParameters );
             legs_.at( i )->updateLegParameters( legTotalParameters );
             totalDeltaV_ += legs_.at( i )->getLegDeltaV( );
+            totalTimeOfFlight_ += legs_.at( i )->getLegTimeOfFlight( );
 
             getNodeTotalParameters(
                         nodeTimes, nodeFreeParameters.at( i ), i, nodeTotalParameters );
@@ -42,6 +44,7 @@ void TransferTrajectory::evaluateTrajectory(
                         nodeTimes, legFreeParameters.at( i ), i, legTotalParameters );
             legs_.at( i )->updateLegParameters( legTotalParameters );
             totalDeltaV_ += legs_.at( i )->getLegDeltaV( );
+            totalTimeOfFlight_ += legs_.at( i )->getLegTimeOfFlight( );
         }
     }
 
@@ -88,6 +91,18 @@ double TransferTrajectory::getLegDeltaV( const int legIndex )
     else
     {
         throw std::runtime_error( "Error when getting single leg Delta V for transfer trajectory; transfer parameters not set!" );
+    }
+}
+
+double TransferTrajectory::getTotalTimeOfFlight ( )
+{
+    if( isComputed_ )
+    {
+        return totalTimeOfFlight_;
+    }
+    else
+    {
+        throw std::runtime_error( "Error when getting Delta V for transfer trajectory; transfer parameters not set!" );
     }
 }
 
