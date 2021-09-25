@@ -115,7 +115,7 @@ public:
         throw std::runtime_error( "Error, no maneuvers present in current leg" );
     }
 
-    double getTimeOfFlight( )
+    double getLegTimeOfFlight( )
     {
         return arrivalTime_ - departureTime_;
     }
