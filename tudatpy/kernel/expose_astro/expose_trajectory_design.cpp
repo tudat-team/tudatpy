@@ -71,6 +71,7 @@ void expose_trajectory_design(py::module &m) {
             tms::TransferTrajectory,
             std::shared_ptr<tms::TransferTrajectory> >(m, "TransferTrajectory")
             .def_property_readonly("delta_v", &tms::TransferTrajectory::getTotalDeltaV )
+            .def_property_readonly("time_of_flight", &tms::TransferTrajectory::getTotalTimeOfFlight)
             .def("evaluate", &tms::TransferTrajectory::evaluateTrajectory,
                  py::arg( "times" ),
                  py::arg( "leg_parameters" ),
@@ -82,8 +83,8 @@ void expose_trajectory_design(py::module &m) {
             .def("states_along_trajectory",
                  py::overload_cast<const int> (&tms::TransferTrajectory::getStatesAlongTrajectory),
                  py::arg("number_of_data_points_per_leg") )
-            .def_property_readonly("per_node_delta_v", &tms::TransferTrajectory::getDeltaVPerNode )
-            .def_property_readonly("per_leg_delta_v", &tms::TransferTrajectory::getDeltaVPerLeg )
+            .def_property_readonly("delta_v_per_node", &tms::TransferTrajectory::getDeltaVPerNode )
+            .def_property_readonly("delta_v_per_leg", &tms::TransferTrajectory::getDeltaVPerLeg )
             .def_property_readonly( "number_of_nodes", &tms::TransferTrajectory::getNumberOfNodes )
             .def_property_readonly( "number_of_legs", &tms::TransferTrajectory::getNumberOfLegs );
 
