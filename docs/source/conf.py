@@ -22,6 +22,20 @@ import sys
 sys.path.insert(0, os.path.abspath('../..'))
 sys.path.insert(0, os.path.abspath('.'))
 
+# -- Multidoc configuration --------------------------------------------------
+from document import *
+multidoc_git_url = 'https://github.com/tudat-team/tudat-multidoc.git'
+multidoc_git_rev = '0811926d9f98331a5d0eca0108e44e7acb6a972c'
+
+# clone repository
+docstring_path = get_docstrings(multidoc_git_url, multidoc_git_rev)
+
+# parse api declaration
+api_declaration = parse_api_declaration(docstring_path, py=True)
+
+# source path
+source_path = generate_documentation(api_declaration, '.')
+
 
 # -- General configuration ------------------------------------------------
 
