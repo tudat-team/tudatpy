@@ -15,7 +15,7 @@ sphinx:
 python:
   version: 3.7
   install:
-    - requirements: docs/requirements.tx
+    - requirements: docs/requirements.txt
 
 conda:
-  environment: docs/environment.yml
+  environment: docs/environment.yaml
