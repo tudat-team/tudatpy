@@ -1078,6 +1078,7 @@ BOOST_AUTO_TEST_CASE( test_nrlmise_InputFunction_with_adjustment )
     // find space weather file
     std::string spaceWeatherFilePath = tudat::paths::getTudatTestDataPath( ) + "/swAtmosTestWithAdjust.txt";
 
+
     tudat::input_output::solar_activity::SolarActivityDataMap solarActivityData =
             tudat::input_output::solar_activity::readSolarActivityData(spaceWeatherFilePath) ;
 
