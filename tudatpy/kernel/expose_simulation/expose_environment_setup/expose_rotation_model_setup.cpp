@@ -35,7 +35,8 @@ namespace rotation_model {
         /////////////////////////////////////////////////////////////////////////////
         // createRotationalModel.h
         /////////////////////////////////////////////////////////////////////////////
-        py::enum_<tss::RotationModelType>(m, "RotationModelType", "<no_doc>")
+        py::enum_<tss::RotationModelType>(m, "RotationModelType",
+                                          get_docstring("RotationModelType").c_str())
                 .value("simple_rotational_model",
                        tss::RotationModelType::simple_rotation_model)
                 .value("spice_rotation_model",
@@ -48,7 +49,8 @@ namespace rotation_model {
                        tss::RotationModelType::planetary_rotation_model)
                 .export_values();
 
-        py::enum_<tba::IAUConventions>(m, "IAUConventions", "<no_doc>")
+        py::enum_<tba::IAUConventions>(m, "IAUConventions",
+                                       get_docstring("IAUConventions").c_str())
                 .value("iau_2000_a",
                        tba::IAUConventions::iau_2000_a)
                 .value("iau_2000_b",
