@@ -19,8 +19,22 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../..'))
+sys.path.insert(-1, os.path.abspath('../..'))
 sys.path.insert(0, os.path.abspath('.'))
+
+# -- Multidoc configuration --------------------------------------------------
+from document import *
+multidoc_git_url = 'https://github.com/tudat-team/tudat-multidoc.git'
+multidoc_git_rev = '0811926d9f98331a5d0eca0108e44e7acb6a972c'
+
+# clone repository
+docstring_path = get_docstrings(multidoc_git_url, multidoc_git_rev)
+
+# parse api declaration
+api_declaration = parse_api_declaration(docstring_path, py=True)
+
+# source path
+source_path = generate_documentation(api_declaration, '.')
 
 
 # -- General configuration ------------------------------------------------
@@ -100,6 +114,10 @@ todo_include_todos = True
 #
 # html_theme = 'sphinx_rtd_theme'
 html_theme = 'furo'
+html_theme_options = {
+    "navigation_with_keys": True,
+    "announcement": "<em>These docs are a work-in-progress!</em>",
+}
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -117,12 +135,12 @@ html_static_path = ['_static']
 #
 # This is required for the alabaster theme
 # refs: http://alabaster.readthedocs.io/en/latest/installation.html#sidebars
-html_sidebars = {
-    '**': [
-        'relations.html',  # needs 'show_related': True theme option to display
-        'searchbox.html',
-    ]
-}
+# html_sidebars = {
+#     '**': [
+#         'relations.html',  # needs 'show_related': True theme option to display
+#         'searchbox.html',
+#     ]
+# }
 
 # -- Options for HTMLHelp output ------------------------------------------
 
