@@ -233,10 +233,7 @@ Eigen::VectorXd  executeParameterEstimation(
     // Set parameters that are to be estimated.
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
     parameterNames =
-            getInitialMultiArcParameterSettings< >( multiArcPropagatorSettings, bodies, integrationArcStarts );
-    parameterNames.push_back(
-                std::make_shared< InitialTranslationalStateEstimatableParameterSettings< StateScalarType > >(
-                    singleArcBodiesToIntegrate.at( 0 ), singleArcInitialStates, singleArcCentralBodies.at( 0 ) ) );
+            getInitialHybridArcParameterSettings< >( hybridArcPropagatorSettings, bodies, integrationArcStarts );
     parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Sun", gravitational_parameter ) );
     parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Mars", gravitational_parameter ) );
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate =

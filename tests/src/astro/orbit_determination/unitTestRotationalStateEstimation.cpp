@@ -198,10 +198,9 @@ BOOST_AUTO_TEST_CASE( test_RotationalDynamicsEstimationFromLanderData )
     linkEndsPerObservable[ euler_angle_313_observable ].push_back( currentLinkEnds2 );
 
     // Create parameters to estimate
-    std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
-    parameterNames.push_back(
-                std::make_shared< InitialRotationalStateEstimatableParameterSettings< double > >(
-                    "Phobos", systemInitialState ) );
+    std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames =
+            getInitialStateParameterSettings< double >( propagatorSettings, bodies );
+
     std::vector< std::pair< int, int > > blockIndices;
     blockIndices.push_back( std::make_pair( 2, 2 ) );
     parameterNames.push_back( std::make_shared< SphericalHarmonicEstimatableParameterSettings >(
