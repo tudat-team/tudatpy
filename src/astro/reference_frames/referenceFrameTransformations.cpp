@@ -531,6 +531,24 @@ Eigen::Quaterniond getEnuLocalVerticalToRotatingPlanetocentricFrameTransformatio
     return frameTransformationQuaternion;
 }
 
+//! Get transformation matrix from J2000 to ECLIPJ2000
+Eigen::Matrix3d getJ2000toECLIPJ2000TransformationMatrix ()
+{
+    return (Eigen::Matrix3d() <<
+            1, 0, 0,
+            0, 0.9174820620691818, 0.3977771559319137,
+            0, -0.3977771559319137, 0.9174820620691818).finished() ;
+}
+
+//! Get transformation matrix from ECLIPJ2000 to J2000
+Eigen::Matrix3d getECLIPJ2000toJ2000TransformationMatrix ()
+    {
+        return (Eigen::Matrix3d() <<
+                1, 0, 0,
+                0, 0.9174820620691818, -0.3977771559319137,
+                0, 0.3977771559319137, 0.9174820620691818).finished() ;
+    }
+
 //! Function to compute the derivative of a rotation about the x-axis w.r.t. the rotation angle
 Eigen::Matrix3d getDerivativeOfXAxisRotationWrtAngle( const double angle )
 {
