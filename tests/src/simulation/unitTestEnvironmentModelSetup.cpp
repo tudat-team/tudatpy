@@ -21,8 +21,8 @@
 #include "tudat/astro/aerodynamics/exponentialAtmosphere.h"
 
 #if TUDAT_BUILD_WITH_NRLMSISE
-#include "Tudat/Astrodynamics/Aerodynamics/nrlmsise00Atmosphere.h"
-#include "Tudat/Astrodynamics/Aerodynamics/nrlmsise00InputFunctions.h"
+#include "tudat/astro/aerodynamics/nrlmsise00Atmosphere.h"
+#include "tudat/astro/aerodynamics/nrlmsise00InputFunctions.h"
 #endif
 #include "tudat/astro/aerodynamics/tabulatedAtmosphere.h"
 #include "tudat/astro/basic_astro/physicalConstants.h"
