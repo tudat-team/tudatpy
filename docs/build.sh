@@ -2,10 +2,10 @@
 
 cd ../..
 
-mkdir install
-cd install
-export TUDATPY_INSTALL_DIR=`pwd`
-cd ..
+#mkdir install
+#cd install
+#export TUDATPY_INSTALL_DIR=`pwd`
+#cd ..
 
 mkdir build
 cd build
@@ -22,5 +22,3 @@ cmake \
     ..
 
 make
-
-make install
