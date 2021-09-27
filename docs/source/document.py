@@ -1,10 +1,11 @@
 # insert current directory into path
 import sys
-import os 
-sys.path.insert(0, '..') 
+import os
+
+sys.path.insert(0, '..')
 
 import tempfile
-from multidoc.generate import generate_py_sphinx
+from multidoc.generate import generate_py_sphinx, generate_docstring_header
 from multidoc.parsing import parse_api_declaration
 
 
@@ -60,7 +61,6 @@ def generate_documentation(api_declaration, output_dir):
     return os.path.abspath(output_dir)
 
 
-
 if __name__ == '__main__':
     multidoc_git_url = 'https://github.com/tudat-team/tudat-multidoc.git'
     multidoc_git_rev = '0811926d9f98331a5d0eca0108e44e7acb6a972c'
@@ -73,4 +73,3 @@ if __name__ == '__main__':
 
     # source path
     source_path = generate_documentation(api_declaration, '.')
-
