@@ -66,6 +66,8 @@ public:
 
     std::vector< double > getDeltaVPerLeg( );
 
+    double getTotalTimeOfFlight ( );
+
     int getNumberOfNodes( )
     {
         return nodes_.size( );
@@ -156,6 +158,9 @@ private:
 
     //! Total Delta V over trajectory
     double totalDeltaV_;
+
+    //! Total time of flight over trajectory
+    double totalTimeOfFlight_;
 
     //! Boolean defining whether the object is in a valid state (trajectory parameters have been set)
     bool isComputed_;

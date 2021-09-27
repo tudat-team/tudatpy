@@ -163,7 +163,7 @@ std::vector< std::pair< std::string, std::shared_ptr< BodySettings > > > determi
 
 //! Function to create a map of bodies objects.
 /*!
- *  Function to create a msap of body objects based on model-specific settings for the bodies,
+ *  Function to create a map of body objects based on model-specific settings for the bodies,
  *  containing settings for each relevant environment model.
  *  \param bodySettings List of settings for the bodies that are to be created, defined as a map of
  *  pointers to an object of class BodySettings
@@ -172,8 +172,15 @@ std::vector< std::pair< std::string, std::shared_ptr< BodySettings > > > determi
 SystemOfBodies createSystemOfBodies(
         const BodyListSettings& bodySettings );
 
-
-simulation_setup::SystemOfBodies createSimplifiedSystemOfBodies( );
+//! Function to create a simplified system of bodies
+/*!
+ * Bodies created: Sun, all planets of solar system, Pluto
+ * All bodies with Gtop ephemerides and point mass gravity
+ * Earth with spherical shape model and simple rotation model
+ * @param secondsSinceJ2000 Initial time of the simulation, expressed in seconds since J2000
+ * @return List of bodies created
+ */
+simulation_setup::SystemOfBodies createSimplifiedSystemOfBodies(const double secondsSinceJ2000 = 0 );
 
 
 } // namespace simulation_setup

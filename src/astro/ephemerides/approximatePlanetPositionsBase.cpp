@@ -61,7 +61,7 @@ int getPlanetIndex( const std::string& bodyName )
     {
         bodyIndex = 7;
     }
-    else if( bodyName == "Saturn" )
+    else if( bodyName == "Neptune" )
     {
         bodyIndex = 8;
     }
