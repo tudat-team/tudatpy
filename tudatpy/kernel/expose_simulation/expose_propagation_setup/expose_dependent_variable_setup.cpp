@@ -41,7 +41,8 @@ namespace dependent_variable {
         /// ENUMS ////////////////////////////////////////////////////////////////////////////
         //////////////////////////////////////////////////////////////////////////////////////
 
-        py::enum_<tp::PropagationDependentVariables>(m, "PropagationDependentVariables")
+        py::enum_<tp::PropagationDependentVariables>(m, "PropagationDependentVariables",
+                                                     get_docstring("PropagationDependentVariables").c_str())
                 // C++ legacy variable names.
                 .value("mach_number_type",
                        tp::PropagationDependentVariables::mach_number_dependent_variable)

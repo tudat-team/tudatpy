@@ -37,7 +37,8 @@ namespace torque {
 
     void expose_torque_setup(py::module &m) {
 
-        py::enum_<tba::AvailableTorque>(m, "AvailableTorque")
+        py::enum_<tba::AvailableTorque>(m, "AvailableTorque",
+                                        get_docstring("AvailableTorque").c_str())
                 .value("torque_free_type", tba::AvailableTorque::torque_free)
                 .value("underfined_type", tba::AvailableTorque::underfined_torque)
                 .value("second_order_gravitational_type", tba::AvailableTorque::second_order_gravitational_torque)
