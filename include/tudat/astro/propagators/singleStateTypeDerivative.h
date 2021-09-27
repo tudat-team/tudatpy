@@ -24,7 +24,9 @@ namespace tudat
 namespace propagators
 {
 
-//! Enum listing types of dynamics that can be numerically integrated
+// Enum listing types of dynamics that can be numerically integrated
+// ! @get_docstring(IntegratedStateType.__docstring__)
+
 enum IntegratedStateType
 {
     hybrid = 0,
@@ -34,24 +36,24 @@ enum IntegratedStateType
     custom_state = 4
 };
 
-//! Get size of state for single propagated state of given type.
-/*!
+// Get size of state for single propagated state of given type.
+/*
  * Get size of state for single propagated state of given type (i.e. 6 for translational state).
  * \param stateType Type of state
  * \return Size of single state.
  */
 int getSingleIntegrationSize( const IntegratedStateType stateType );
 
-//! Get order of differential equation for governing equations of dynamics of given type.
-/*!
+// Get order of differential equation for governing equations of dynamics of given type.
+/*
  * Get order of differential equation for governing equations of dynamics of given type (i.e. 2 for translational state).
  * \param stateType Type of state
  * \return Order of differential equations.
  */
 int getSingleIntegrationDifferentialEquationOrder( const IntegratedStateType stateType );
 
-//! Function to get the size of the generalized acceleration for a given state type
-/*!
+// Function to get the size of the generalized acceleration for a given state type
+/*
  * Function to get the size of the generalized acceleration (e.g. acceleration for translational dynamics, torque for rotational
  * dynamics, mass rate for mass) for a given state type
  * \param stateType State type for which generalized acceleration size is to be determined
@@ -59,8 +61,8 @@ int getSingleIntegrationDifferentialEquationOrder( const IntegratedStateType sta
  */
 int getGeneralizedAccelerationSize( const IntegratedStateType stateType );
 
-//! Base class for calculating the state derivative model for a single type of dynamics.
-/*!
+// Base class for calculating the state derivative model for a single type of dynamics.
+/*
  *  Base class for calculating the state derivative model for a single
  *  type of dynamics (i.e. translational, rotational, etc.). Each type
  *  of dynamics requires its own derived class. Moreover, a specific
@@ -73,8 +75,8 @@ class SingleStateTypeDerivative
 {
 public:
 
-    //! Constructor.
-    /*!
+    // Constructor.
+    /*
      * Constructor.
      * \param integratedStateType Type of dynamics for whichh the state derivative is calculated.
      */
@@ -87,11 +89,11 @@ public:
         }
     }
 
-    //! Virtual destructor.
+    // Virtual destructor.
     virtual ~SingleStateTypeDerivative( ){ }
 
-    //! Calculates the state derivative of the system of equations for the given type of dynamics
-    /*!
+    // Calculates the state derivative of the system of equations for the given type of dynamics
+    /*
      * Calculates the state derivative of the system of equations for the given type of
      * dynamics. The environment and acceleration models (updateStateDerivativeModel) must be
      * updated before calling this function. It returns the state derivative in the form required
@@ -107,15 +109,15 @@ public:
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& stateOfSystemToBeIntegrated,
             Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > > stateDerivative ) = 0;
 
-    //! Function to clear reference/cached values of state derivative model
-    /*!
+    // Function to clear reference/cached values of state derivative model
+    /*
      * Function to clear reference/cached values of state derivative model, such as the current time and/or state.
      * This function is to be implemented in each derived class
      */
     virtual void clearStateDerivativeModel( ) = 0;
 
-    //! Function to update the state derivative model to the current time.
-    /*!
+    // Function to update the state derivative model to the current time.
+    /*
      * Function to update the state derivative model (i.e. acceleration, torque, etc. models) to the
      * current time. Note that this function only updates the state derivative model itself, the
      * environment models must be updated before calling this function
@@ -123,9 +125,9 @@ public:
      */
     virtual void updateStateDerivativeModel( const TimeType currentTime ) = 0;
 
-    //! Function to convert the propagator-specific form of the state to the conventional form in
-    //! the global frame.
-    /*!
+    // Function to convert the propagator-specific form of the state to the conventional form in
+    // the global frame.
+    /*
      * Function to convert the propagator-specific form of the state to the conventional form in the
      * global frame.  The conventional form is one that is typically used to represent the current
      * state in the environment (e.g. Body class). For translational dynamics this is the Cartesian
@@ -141,8 +143,8 @@ public:
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& internalSolution, const TimeType& time,
             Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > currentCartesianLocalSoluton ) = 0;
 
-    //! Function to convert the state in the conventional form to the propagator-specific form.
-    /*!
+    // Function to convert the state in the conventional form to the propagator-specific form.
+    /*
      * Function to convert the state in the conventional form to the propagator-specific form.  The
      * conventional form is one that is typically used to represent the current state in the
      * environment (e.g. Body class). For translational dynamics this is the Cartesian position and
@@ -154,8 +156,8 @@ public:
     virtual Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > convertFromOutputSolution(
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& outputSolution, const TimeType& time ) = 0;
 
-    //! Function to convert the propagator-specific form of the state to the conventional form.
-    /*!
+    // Function to convert the propagator-specific form of the state to the conventional form.
+    /*
      * Function to convert the propagator-specific form of the state to the conventional form. The
      * conventional form is one that is typically used to represent the current state in the
      * environment (e.g. Body class). For translational dynamics this is the Cartesian position and
@@ -172,16 +174,16 @@ public:
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& internalSolution, const TimeType& time,
             Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > currentCartesianLocalSoluton ) = 0;
 
-    //! Function to return the size of the conventional state handled by the object.
-    /*!
+    // Function to return the size of the conventional state handled by the object.
+    /*
      * Function to return the size of the conventional state handled by the object. This is the size of the conventional
      * propagation state, e.g., size of Cartesian state for translational propagation.
      * \return Size of the state under consideration.
      */
     virtual int getConventionalStateSize( ) = 0;
 
-    //! Function to return the size of the propagated state handled by the object.
-    /*!
+    // Function to return the size of the propagated state handled by the object.
+    /*
      * Function to return the size of the propagated state handled by the object. This is the size of the actual propagation
      * state, e.g., size of USM7 state for translational propagation.
      * \return Size of the propagated state under consideration.
@@ -191,8 +193,8 @@ public:
         return getConventionalStateSize( );
     }
 
-    //! Function to return the type of dynamics for which the state derivative is calculated.
-    /*!
+    // Function to return the type of dynamics for which the state derivative is calculated.
+    /*
      * Function to return the type of dynamics for which the state derivative is calculated
      * \return Type of dynamics for which the state derivative is calculated.
      */
@@ -201,8 +203,8 @@ public:
         return integratedStateType_;
     }
 
-    //! Function to process the state vector during propagation.
-    /*!
+    // Function to process the state vector during propagation.
+    /*
      * Function to process the state during propagation. Is especially useful for attitude states (e.g.,
      * normalization of quaternions and transformation to/from shadow attitude parameters).
      * \param unprocessedState State computed after propagation.
@@ -219,8 +221,8 @@ public:
         unprocessedState.block( 0, 0, getPropagatedStateSize( ), 1 ) = unprocessedState_;
     }
 
-    //! Function to return whether the state needs to be post-processed.
-    /*!
+    // Function to return whether the state needs to be post-processed.
+    /*
      * Function to return whether the state needs to be post-processed. Default value is false.
      * \return Boolean informing whether the state needs to be post-processed.
      */
@@ -231,10 +233,10 @@ public:
 
 protected:
 
-    //! Type of dynamics for which the state derivative is calculated.
+    // Type of dynamics for which the state derivative is calculated.
     IntegratedStateType integratedStateType_;
 
-    //! Vector used during post-processing of state.
+    // Vector used during post-processing of state.
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > unprocessedState_;
 };
 
@@ -254,7 +256,7 @@ extern template class SingleStateTypeDerivative< long double, Time >;
 namespace std
 {
 
-//! Hash for IntegratedStateType enum.
+// Hash for IntegratedStateType enum.
 template< >
 struct hash< tudat::propagators::IntegratedStateType >
 {
