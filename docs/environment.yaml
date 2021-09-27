@@ -15,6 +15,7 @@ dependencies:
   - cmake
   - pydantic
   - numpydoc
+  - boost-cpp=1.72.0
   - tudat
   - tudat-resources
   - cspice-cmake
