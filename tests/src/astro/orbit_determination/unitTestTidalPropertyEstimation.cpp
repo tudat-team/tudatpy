@@ -408,10 +408,8 @@ BOOST_AUTO_TEST_CASE( test_LoveNumberEstimationFromOrbiterData )
     linkEndsPerObservable[ position_observable ].push_back( linkEnds );
 
     // Define parameters to estimate (vehicle initial state and various Love number combinations)
-    std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
-    parameterNames.push_back(
-                std::make_shared< InitialTranslationalStateEstimatableParameterSettings< double > >(
-                    "Vehicle", systemInitialState, "Earth" ) );
+    std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames =
+            getInitialStateParameterSettings< double >( propagatorSettings, bodies );
     parameterNames.push_back( std::make_shared< SingleDegreeVariableTidalLoveNumberEstimatableParameterSettings >(
                                   "Earth", 2, std::vector< int >{ 2 }, "Moon", true ) );
     parameterNames.push_back( std::make_shared< SingleDegreeVariableTidalLoveNumberEstimatableParameterSettings >(
