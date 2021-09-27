@@ -40,6 +40,7 @@ namespace simulation_setup
 {
 
 // List of available types of thrust direction guidance
+//! @get_docstring(ThrustDirectionTypes.__docstring__)
 enum ThrustDirectionTypes
 {
     colinear_with_state_segment_thrust_direction,
@@ -51,7 +52,7 @@ enum ThrustDirectionTypes
 }; 
 
 // Function to create a list of functions that (compute and) return independent variables for thrust
-/*!
+/*
  * Function to create a list of functions that (compute and) return independent variables for thrust and/or specific impulse.
  * This parameterization is used in the thrust mangitude type is thrust_magnitude_from_dependent_variables. This function
  * retrieves all input functions from the environment and a list of user-defined functions.
@@ -69,7 +70,7 @@ std::vector< std::function< double( ) > > getPropulsionInputVariables(
         std::vector< std::function< double( ) > >( ) );
 
 // Class defining settings for the thrust direction
-/*!
+/*
  *  Class for providing settings the thrust direction of a single thrust model. This class is a functional (base) class for
  *  settings of thrust direction that require no information in addition to their type.
  *  Classes defining settings for thrust direction requiring additional information must be derived from this class.
@@ -80,7 +81,7 @@ class ThrustDirectionSettings
 public:
 
     // Constructor
-    /*!
+    /*
     * Constructor
     * \param thrustDirectionType Type of thrust direction that is to be used.
     * \param relativeBody Body relative to which thrust guidance algorithm is defined (empty if N/A).
@@ -108,7 +109,7 @@ class ThrustDirectionFromStateGuidanceSettings: public ThrustDirectionSettings
 public:
 
     // Constructor
-    /*!
+    /*
     * Constructor
     * \param centralBody Body w.r.t. which the state of the body undergoing thust is computed. This state is then
     * used to directly set the thrust direction.
@@ -143,7 +144,7 @@ class CustomThrustDirectionSettings: public ThrustDirectionSettings
 public:
 
     // Constructor
-    /*!
+    /*
      * Constructor
      * \param thrustDirectionFunction Function returning thrust direction unit vector as function fo time.
      */
@@ -161,7 +162,7 @@ public:
 };
 
 // Class for defining custom orientation of thrust (i.e. predefined body-fixed-to-propagation rotation as function of time)
-/*!
+/*
  *  Class for defining custom orientation of thrust (i.e. predefined body-fixed-to-propagation rotation as function of time).
  *  Thrust is then computed from body-fixed direction of thrust (defined in ThrustMagnitudeSettings).
  */
@@ -171,7 +172,7 @@ class CustomThrustOrientationSettings: public ThrustDirectionSettings
 public:
 
     // Constructor.
-    /*!
+    /*
      * Constructor
      * \param thrustOrientationFunction Custom orientation of thrust (i.e. predefined body-fixed-to-propagation rotation
      * as function of time)
@@ -196,7 +197,7 @@ public:
 };
 
 // Class for defining settings for MEE-costate based thrust direction guidance
-/*!
+/*
  *  Class for defining settings for MEE-costate based thrust direction guidance. Model details can be found in Kluever (2010) and
  *  Boudestijn (2014). The MEE-costates are provided for the five slow elements, as a function of time. Constructors for
  *  constant costates, and costates from an interpolator, are also provided.
@@ -207,7 +208,7 @@ class MeeCostateBasedThrustDirectionSettings: public ThrustDirectionSettings
 public:
 
     // Constructor with costate function
-    /*!
+    /*
      * Constructor with costate function
      * \param vehicleName Name of vehicle under thrust
      * \param centralBodyName Name of central body (w.r.t. which MEE are calculated)
@@ -221,7 +222,7 @@ public:
             vehicleName_( vehicleName ), costateFunction_( costateFunction ){ }
 
     // Constructor with costate function
-    /*!
+    /*
      * Constructor with costate function
      * \param vehicleName Name of vehicle under thrust
      * \param centralBodyName Name of central body (w.r.t. which MEE are calculated)
@@ -239,7 +240,7 @@ public:
                        costateInterpolator, std::placeholders::_1 ) ){ }
 
     // Constructor with costate function
-    /*!
+    /*
      * Constructor with costate function
      * \param vehicleName Name of vehicle under thrust
      * \param centralBodyName Name of central body (w.r.t. which MEE are calculated)
@@ -324,7 +325,7 @@ inline std::shared_ptr< ThrustDirectionSettings > meeCostateBasedThrustDirection
 
 
 // Function to create the object determining the direction of the thrust acceleration.
-/*!
+/*
  * Function to create the object determining the direction of the thrust acceleration.
  * \param thrustDirectionGuidanceSettings Settings for thrust direction gudiance.
  * \param bodies List of pointers to body objects defining the full simulation environment.
@@ -341,7 +342,8 @@ std::shared_ptr< propulsion::BodyFixedForceDirectionGuidance  > createThrustGuid
         const std::function< Eigen::Vector3d( ) > bodyFixedThrustOrientation,
         std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >& magnitudeUpdateSettings );
 
-// List of available types of thust magnitude types
+// List of available types of thrust magnitude types
+//! @get_docstring(ThrustMagnitudeTypes.__docstring__)
 enum ThrustMagnitudeTypes
 {
     constant_thrust_magnitude,
@@ -352,7 +354,7 @@ enum ThrustMagnitudeTypes
 };
 
 // Class defining settings for the thrust magnitude
-/*!
+/*
  *  Class for providing settings the thrust magnitude of a single thrust model. This class is a functional (base) class for
  *  settings of thrust magnitude that require no information in addition to their type.
  *  Classes defining settings for thrust magnitude requiring additional information must be derived from this class.
@@ -363,7 +365,7 @@ class ThrustMagnitudeSettings
 public:
 
     // Constructor
-    /*!
+    /*
      * Constructor
      * \param thrustMagnitudeType Type of thrust magnitude guidance that is to be used
      * \param thrustOriginId Reference id of thrust origin that is to be used (empty if N/A).
@@ -392,7 +394,7 @@ class ConstantThrustMagnitudeSettings: public ThrustMagnitudeSettings
 public:
 
     // Constructor
-    /*!
+    /*
      * Constructor
      * \param thrustMagnitude Constant thrust magnitude that is to be used.
      * \param specificImpulse Constant specific impulse that is to be used
@@ -427,7 +429,7 @@ class FromBodyThrustMagnitudeSettings: public ThrustMagnitudeSettings
 public:
 
     // Constructor
-    /*!
+    /*
      * Constructor
      * \param useAllEngines Boolean denoting whether all engines of the associated body are to be combined into a
      * single thrust magnitude.
@@ -446,7 +448,7 @@ public:
 };
 
 // Class to define custom settings for thrust magnitude/specific impulse.
-/*!
+/*
  * Class to define custom settings for thrust magnitude/specific impulse. Using this function, the thrust magnitude and
  * specific impulse are defined by arbitrary functions of time, the implementation for which is completely open to the user.
  * Also, a reset-function can be added, which is used to signal that a new time step is being computed (if applicable).
@@ -460,7 +462,7 @@ class FromFunctionThrustMagnitudeSettings: public ThrustMagnitudeSettings
 public:
 
     // Constructor
-    /*!
+    /*
      * Constructor
      * \param thrustMagnitudeFunction Function returning thrust magnitude as a function of time.
      * \param specificImpulseFunction Function returning specific impulse as a function of time.
@@ -504,7 +506,7 @@ public:
 
 
 // Class for defining settings for bang-bang MEE-costate based thrust magnitude.
-/*!
+/*
  *  Class for defining settings for bang-bang MEE-costate based thrust magnitude. Model details can be found in Kluever (2010) and
  *  Boudestijn (2014). The MEE-costates are provided for the five slow elements, as a function of time. Constructors for
  *  constant costates, and costates from an interpolator, are also provided.
@@ -514,7 +516,7 @@ class FromMeeCostatesBangBangThrustMagnitudeSettings: public ThrustMagnitudeSett
 public:
 
     // Constructor with costates function.
-    /*!
+    /*
      * Constructor with costates function.
      * \param thrustMagnitude Maximum thrust magnitude (if engine is on).
      * \param specificImpulseFunction Function returning specific impulse as a function of time.
@@ -540,7 +542,7 @@ public:
         bodyFixedThrustDirection_( bodyFixedThrustDirection ), customThrustResetFunction_( customThrustResetFunction ){ }
 
     // Constructor with costate function
-    /*!
+    /*
      * Constructor with costate function
      * \param thrustMagnitude Maximum thrust magnitude (if engine is on).
      * \param specificImpulseFunction Function returning specific impulse as a function of time.
@@ -568,7 +570,7 @@ public:
         customThrustResetFunction_( customThrustResetFunction ){ }
 
     // Constructor with costate function
-    /*!
+    /*
      * Constructor with costate function
      * \param thrustMagnitude Maximum thrust magnitude (if engine is on).
      * \param specificImpulseFunction Function returning specific impulse as a function of time.
@@ -653,7 +655,7 @@ inline std::shared_ptr< ThrustMagnitudeSettings > fromFunctionThrustMagnitudeSet
 }
 
 // Interface function to multiply a maximum thrust by a multiplier to obtain the actual thrust
-/*!
+/*
          * Interface function to multiply a maximum thrust by a multiplier to obtain the actual thrust
          * \param maximumThrustFunction Function returning the maxumum thrust as a function of a number of independent variables
          * \param maximumThrustMultiplier Function returning a value by which the output of maximumThrustFunction is to be multiplied
@@ -667,7 +669,7 @@ double multiplyMaximumThrustByScalingFactor(
         const std::vector< double >& maximumThrustIndependentVariables );
 
 // Interface base class that can be defined by user to make the use of the ParameterizedThrustMagnitudeSettings class easier
-/*!
+/*
  *  For a specific user-defined guidance approach, a derived class must be defined, that computes the guidance/throttle
  *  commands at each time step/vehicle state. Using the createParameterizedThrustMagnitudeSettings functions, a
  *  ParameterizedThrustMagnitudeSettings can then be made.
@@ -681,7 +683,7 @@ class ThrustInputParameterGuidance
 public:
 
     // Constructor
-    /*!
+    /*
      *  Constructor
      *  \param numberOfThrustInputParameters Number of guidance-input parameters that are computed for the thrust
      *  \param numberOfSpecificImpulseInputParameters Number of guidance-input parameters that are computed for the
@@ -716,7 +718,7 @@ public:
     virtual ~ThrustInputParameterGuidance( ){ }
 
     // Function to retrieve the number of guidance-input parameters that are computed for the thrust
-    /*!
+    /*
      * Function to retrieve the number of guidance-input parameters that are computed for the thrust
      * \return Number of guidance-input parameters that are computed for the thrust
      */
@@ -726,7 +728,7 @@ public:
     }
 
     // Function to retrieve the number of guidance-input parameters that are computed for the specific impulse
-    /*!
+    /*
      * Function to retrieve the number of guidance-input parameters that are computed for the specific impulse
      * \return Number of guidance-input parameters that are computed for the specific impulse
      */
@@ -736,7 +738,7 @@ public:
     }
 
     // Function to retrieve a guidance-input parameter that for the thrust
-    /*!
+    /*
      * Function to retrieve a guidance-input parameter that for the thrust
      * \param inputParameterIndex Entry of guidance-input vector for thrust that is to be retrieved.
      * \return Guidance-input parameters that for the thrust at given index
@@ -747,7 +749,7 @@ public:
     }
 
     // Function to retrieve a guidance-input parameter that for the specific impulse
-    /*!
+    /*
      * Function to retrieve a guidance-input parameter that for the specific impulse
      * \param inputParameterIndex Entry of guidance-input vector for specific impulse that is to be retrieved.
      * \return Guidance-input parameters that for the specific impulse at given index
@@ -758,7 +760,7 @@ public:
     }
 
     // Function to retrieve whether any of the guidance-input parameters for the thrust define a throttle setting
-    /*!
+    /*
      * Function to retrieve whether any of the guidance-input parameters for the thrust define a throttle setting
      * \return Boolean that denotes whether any of the guidance-input parameters for the thrust define a throttle setting.
      */
@@ -768,7 +770,7 @@ public:
     }
 
     // Function to retrieve the index in list of thrust guidance parameters that denotes the throttle setting
-    /*!
+    /*
      * Function to retrieve the index in list of thrust guidance parameters that denotes the throttle setting (-1 if none)
      * \return Index in list of thrust guidance parameters that denotes the throttle setting
      */
@@ -781,7 +783,7 @@ public:
     virtual void updateGuidanceParameters( ) = 0;
 
     // Update function for the guidance algorithm
-    /*!
+    /*
      * Update function for the guidance algorithm, calls the updateGuidanceParameters that is to be implemented in derived
      * class. Calling this function with NaN time signals that a new time step has commenced.
      * \param time Time to which guidance object is to be updated
@@ -829,7 +831,7 @@ protected:
 
 // Class to compute throttling law for the parameterized thrust magnitude, where the throttle is determined from a maximum
 // axial g-load.
-/*!
+/*
  *  Class to compute throttling law for the parameterized thrust magnitude, where the throttle is determined from a maximum,
  *  the user must provide the interpolator for the (maximum) thrust, as well as the associated physical meaning of the
  *  independent variables. Also, a maximum axial acceleration must be provided. If the current thrust results in an
@@ -841,7 +843,7 @@ class AccelerationLimitedThrottleGuidance: public ThrustInputParameterGuidance
 public:
 
     // Constructor.
-    /*!
+    /*
      * Constructor
      * \param bodies List of pointers to body objects defining the full simulation environment.
      * \param nameOfBodyWithGuidance Name of body for which thrust guidance is to be created.
@@ -903,7 +905,7 @@ public:
     }
 
     // Function that updates the guidance algorithm to the current time/state: sets the throttle value based on axia
-    /*!
+    /*
      *  Function that updates the guidance algorithm to the current time/state: sets the throttle value based on axial
      *  acceleration when using the maximum thrust.
      */
@@ -950,7 +952,7 @@ private:
 };
 
 // Class to define the thrust magnitude and specific impulse as an interpolated function of N independent variables
-/*!
+/*
  *  Class to define the thrust magnitude and specific impulse as an interpolated function of N independent variables.
  *  The physical meaning of the variables must be defined here, selecting from the options in the ThrustIndependentVariables
  *  enum, and they are automatically retrieved from the relevant environment models during the propagation.
@@ -964,7 +966,7 @@ class ParameterizedThrustMagnitudeSettings: public ThrustMagnitudeSettings
 public:
 
     // Constructor for parameterized thrust and specific impulse.
-    /*!
+    /*
      * Constructor, defines the interpolators for thrust and specific impulse, as well as the physical meaning of each of the
      * independent variables.
      * \param thrustMagnitudeInterpolator Interpolator returning the current thrust (or maximum thrust if
@@ -1015,7 +1017,7 @@ public:
     }
 
     // Constructor for parameterized thrust and constant specific impulse.
-    /*!
+    /*
      * Constructor, defines a constant thrust and an interpolator for thrust, as well as the physical meaning of each of the
      * independent variables.
      * \param thrustMagnitudeInterpolator Interpolator returning the current thrust (or maximum thrust if
@@ -1080,7 +1082,7 @@ public:
 private:
 
     // Function to check the validity of the input data, and process the maximum thrust multiplier if provided
-    /*!
+    /*
      *  Function to check the validity of the input data, and process the maximum thrust multiplier if provided.
      *  \param thrustMagnitudeInterpolator Interpolator for the (maximum) thrust provided to the constructor
      *  \param specificImpulseInterpolator Interpolator for the specific impulse provided to the constructor
@@ -1091,7 +1093,7 @@ private:
 };
 
 // Function to read a thrust or specific impulse interpolator from a file.
-/*!
+/*
  * Function to read a thrust or specific impulse interpolator from a file.
  * \param coefficientFile Filename containing data to be used as input for interpolator.
  * \return Interpolator set according to data in coefficientFile
@@ -1100,7 +1102,7 @@ std::shared_ptr< interpolators::Interpolator< double, double > > readCoefficient
         const std::string coefficientFile );
 
 // Function to create thrust magnitude settings from guidance input and tables
-/*!
+/*
  * Function to create thrust magnitude settings from guidance input and tables
  * \param thrustInputParameterGuidance Object that computes all guidance-input parameters as a function of time/state
  * Note that the number of implemented parameters must be consistent with the numbet of associated entries in
@@ -1123,7 +1125,7 @@ std::shared_ptr< ParameterizedThrustMagnitudeSettings > createParameterizedThrus
         const std::vector< propulsion::ThrustIndependentVariables > specificImpulseDependentVariables );
 
 // Function to create thrust magnitude settings from guidance input and tables
-/*!
+/*
  * Function to create thrust magnitude settings from guidance input and tables
  * \param thrustInputParameterGuidance Object that computes all guidance-input parameters as a function of time/state
  * Note that the number of implemented parameters must be consistent with the numbet of associated entries in
@@ -1145,7 +1147,7 @@ std::shared_ptr< ParameterizedThrustMagnitudeSettings > createParameterizedThrus
         const std::vector< propulsion::ThrustIndependentVariables > specificImpulseDependentVariables );
 
 // Function to create thrust magnitude settings from guidance input and tables, with constant specific impulse
-/*!
+/*
  * Function to create thrust magnitude settings from guidance input and tables, with constant specific impulse
  * \param thrustInputParameterGuidance Object that computes all guidance-input parameters as a function of time/state
  * Note that the number of implemented parameters must be consistent with the numbet of associated entries in
@@ -1164,7 +1166,7 @@ std::shared_ptr< ParameterizedThrustMagnitudeSettings > createParameterizedThrus
         const double constantSpecificImpulse );
 
 // Function to create thrust magnitude settings from guidance input and tables, with constant specific impulse
-/*!
+/*
  * Function to create thrust magnitude settings from guidance input and tables
  * \param thrustInputParameterGuidance Object that computes all guidance-input parameters as a function of time/state
  * Note that the number of implemented parameters must be consistent with the numbet of associated entries in
@@ -1184,7 +1186,7 @@ std::shared_ptr< ParameterizedThrustMagnitudeSettings > createParameterizedThrus
 
 // Function to create a thrust magnitude settings based on interpolated maximum thrust, with throttle determined by
 // maximum allowed axial acceleration (constant specific impulse).
-/*!
+/*
  * Function to create a thrust magnitude settings based on interpolated maximum thrust, with throttle determined by
  * maximum allowed axial acceleration.
  * \param bodies List of pointers to body objects defining the full simulation environment.
@@ -1210,7 +1212,7 @@ std::shared_ptr< ParameterizedThrustMagnitudeSettings > createAccelerationLimite
 
 // Function to create a thrust magnitude settings based on interpolated maximum thrust, with throttle determined by
 // maximum allowed axial acceleration (constant specific impulse).
-/*!
+/*
  * Function to create a thrust magnitude settings based on interpolated maximum thrust, with throttle determined by
  * maximum allowed axial acceleration.
  * \param bodies List of pointers to body objects defining the full simulation environment.
@@ -1235,7 +1237,7 @@ std::shared_ptr< ParameterizedThrustMagnitudeSettings > createAccelerationLimite
 
 // Function to create a thrust magnitude settings based on interpolated maximum thrust, with throttle determined by
 // maximum allowed axial acceleration.
-/*!
+/*
  * Function to create a thrust magnitude settings based on interpolated maximum thrust, with throttle determined by
  * maximum allowed axial acceleration.
  * \param bodies List of pointers to body objects defining the full simulation environment.
@@ -1265,7 +1267,7 @@ std::shared_ptr< ParameterizedThrustMagnitudeSettings > createAccelerationLimite
 
 // Function to create a thrust magnitude settings based on interpolated maximum thrust, with throttle determined by
 // maximum allowed axial acceleration.
-/*!
+/*
  * Function to create a thrust magnitude settings based on interpolated maximum thrust, with throttle determined by
  * maximum allowed axial acceleration.
  * \param bodies List of pointers to body objects defining the full simulation environment.

@@ -36,6 +36,7 @@ namespace simulation_setup
  *  List of ephemeris models available in simulations. Ephemeris models not defined by this
  *  given enum cannot be used for automatic model setup.
  */
+//! @get_docstring(EphemerisType.__docstring__)
 enum EphemerisType
 {
     approximate_planet_positions,
