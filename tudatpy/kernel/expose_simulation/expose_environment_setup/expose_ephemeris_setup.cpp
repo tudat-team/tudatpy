@@ -40,7 +40,7 @@ namespace ephemeris {
         /////////////////////////////////////////////////////////////////////////////
 
         py::enum_<te::ApproximatePlanetPositionsBase::BodiesWithEphemerisData>(
-                m, "BodiesWithEphemerisData", "<no_doc>")
+                m, "BodiesWithEphemerisData", get_docstring("BodiesWithEphemerisData").c_str())
                 .value("mercury", te::ApproximatePlanetPositionsBase::mercury)
                 .value("venus", te::ApproximatePlanetPositionsBase::venus)
                 .value("earth_moon_barycenter", te::ApproximatePlanetPositionsBase::earthMoonBarycenter)

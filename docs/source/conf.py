@@ -91,9 +91,9 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = 'tudat-api'
-copyright = '2021, John'
-author = 'John'
+project = 'tudatpy-api'
+copyright = '2021, Tudat Team'
+author = 'Tudat Team'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -160,7 +160,7 @@ html_static_path = ['_static']
 # -- Options for HTMLHelp output ------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'tudat-apidoc'
+htmlhelp_basename = 'tudatpy-apidoc'
 
 # -- Options for LaTeX output ---------------------------------------------
 
