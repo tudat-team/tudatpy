@@ -81,6 +81,7 @@ def parse_functions(structure, functions, **kwargs):
     # _return["__docstring__"] = parse_method(cls, local)
     # return _return
 
+
 def parse_classes(structure, classes, **kwargs):
     nl = '\n'
     logger.info(

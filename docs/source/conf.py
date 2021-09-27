@@ -19,22 +19,38 @@
 #
 import os
 import sys
-sys.path.insert(-1, os.path.abspath('../..'))
+
+os.environ['READTHEDOCS']=str(True)
+
 sys.path.insert(0, os.path.abspath('.'))
 
 # -- Multidoc configuration --------------------------------------------------
-from document import *
-multidoc_git_url = 'https://github.com/tudat-team/tudat-multidoc.git'
-multidoc_git_rev = '0811926d9f98331a5d0eca0108e44e7acb6a972c'
+# Alternative preparation required if building docs on readthedocs.
+if bool(os.getenv("READTHEDOCS")) is True:
+    import subprocess
 
-# clone repository
-docstring_path = get_docstrings(multidoc_git_url, multidoc_git_rev)
+    # clone repository
+    subprocess.call(['chmod +x ../build.sh'], shell=True)
+    subprocess.call(['../build.sh'], shell=True)
 
-# parse api declaration
-api_declaration = parse_api_declaration(docstring_path, py=True)
+    sys.path.insert(5, os.path.abspath('../../build'))
 
-# source path
-source_path = generate_documentation(api_declaration, '.')
+    from document import *
+
+    multidoc_git_url = 'https://github.com/tudat-team/tudat-multidoc.git'
+    multidoc_git_rev = '0811926d9f98331a5d0eca0108e44e7acb6a972c'
+
+    # clone repository
+    docstring_path = get_docstrings(multidoc_git_url, multidoc_git_rev)
+
+    # parse api declaration
+    api_declaration = parse_api_declaration(docstring_path, py=True)
+
+    # source path
+    source_path = generate_documentation(api_declaration, '.')
+
+else:
+    sys.path.insert(5, os.path.abspath('../..'))
 
 
 # -- General configuration ------------------------------------------------
@@ -59,7 +75,6 @@ extensions = ['sphinx.ext.autodoc',
               # 'breathe',
               # 'exhale'
               ]
-
 
 add_module_names = False
 
@@ -206,4 +221,3 @@ intersphinx_mapping = {
     'numpy': ('http://docs.scipy.org/doc/numpy/', None),
     'scipy': ('http://docs.scipy.org/doc/scipy/reference/', None),
     'matplotlib': ('http://matplotlib.sourceforge.net/', None)}
-
