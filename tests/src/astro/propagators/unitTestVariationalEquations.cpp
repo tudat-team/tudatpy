@@ -756,17 +756,17 @@ executePhobosRotationSimulation(
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
     {
         //        parameterNames = getInitialStateParameterSettings< double >( propagatorSettings, bodies );
-        parameterNames =
-                   getInitialStateParameterSettings< double >( propagatorSettings, bodies );
+//        parameterNames =
+//                   getInitialStateParameterSettings< double >( propagatorSettings, bodies );
 //        std::cout<<"********************************************* "<<std::endl<<
 //                   parameterNames.at( 0 )->parameterType_.first<<" "<<
 //                   parameterNames.at( 0 )->parameterType_.second.first<<" "<<
 //                   parameterNames.at( 1 )->parameterType_.first<<" "<<
 //                   parameterNames.at( 1 )->parameterType_.second.first<<" "<<std::endl;
-//        parameterNames.push_back( std::make_shared< InitialRotationalStateEstimatableParameterSettings< double > >(
-//                                      "Phobos", unitRotationState, "ECLIPJ2000" ) );
-//        parameterNames.push_back( std::make_shared< InitialTranslationalStateEstimatableParameterSettings< double > >(
-//                                      "Phobos", initialTranslationalState, "Mars" ) );
+        parameterNames.push_back( std::make_shared< InitialRotationalStateEstimatableParameterSettings< double > >(
+                                      "Phobos", unitRotationState, "ECLIPJ2000" ) );
+        parameterNames.push_back( std::make_shared< InitialTranslationalStateEstimatableParameterSettings< double > >(
+                                      "Phobos", initialTranslationalState, "Mars" ) );
 
 
         parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Phobos", mean_moment_of_inertia ) );
