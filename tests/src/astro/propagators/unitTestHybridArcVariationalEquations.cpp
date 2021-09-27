@@ -621,13 +621,10 @@ BOOST_AUTO_TEST_CASE( testVaryingCentralBodyHybridArcVariationalEquations )
             std::make_shared< HybridArcPropagatorSettings< > >( singleArcPropagatorSettings, multiArcPropagationSettings );
 
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
-    parameterNames = getInitialMultiArcParameterSettings< >( multiArcPropagationSettings, bodies, arcStartTimes );
+    parameterNames = getInitialHybridArcParameterSettings< >( hybridArcPropagatorSettings, bodies, arcStartTimes );
 
     for( unsigned int i = 0; i < singleArcBodiesToPropagate.size( ); i++ )
     {
-        parameterNames.push_back(
-                    std::make_shared< InitialTranslationalStateEstimatableParameterSettings< double > >(
-                        singleArcBodiesToPropagate.at( i ), singleArcInitialState.segment( 6 * i, 6 ), singleArcCentralBodies.at( i ) ) );
         parameterNames.push_back( std::make_shared< EstimatableParameterSettings >(
                                       singleArcBodiesToPropagate.at( i ), gravitational_parameter ) );
     }
@@ -666,14 +663,11 @@ BOOST_AUTO_TEST_CASE( testVaryingCentralBodyHybridArcVariationalEquations )
 
         std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNamesPerBody;
 
-        parameterNamesPerBody = getInitialMultiArcParameterSettings< >(
-                    multiArcPerBodyPropagationSettings, bodies, arcStartTimesPerBody.at( singleArcBodiesToPropagate.at( i ) ) );
+        parameterNamesPerBody = getInitialHybridArcParameterSettings< >(
+                    hybridArcPerBodyPropagatorSettings, bodies, arcStartTimesPerBody.at( singleArcBodiesToPropagate.at( i ) ) );
 
         for( unsigned int j = 0; j < singleArcBodiesToPropagate.size( ); j++ )
         {
-            parameterNamesPerBody.push_back(
-                        std::make_shared< InitialTranslationalStateEstimatableParameterSettings< double > >(
-                            singleArcBodiesToPropagate.at( j ), singleArcInitialState.segment( 6 * j, 6 ), singleArcCentralBodies.at( j ) ) );
             parameterNamesPerBody.push_back( std::make_shared< EstimatableParameterSettings >(
                                                  singleArcBodiesToPropagate.at( j ), gravitational_parameter ) );
         }
