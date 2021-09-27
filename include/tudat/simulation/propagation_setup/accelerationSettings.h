@@ -31,7 +31,7 @@ namespace simulation_setup
 
 
 // Class for providing settings for acceleration model.
-/*!
+/*
  *  Class for providing settings for acceleration model. This class is a functional (base) class for
  *  settings of acceleration models that  require no information in addition to their type.
  *  Classes defining settings for acceleration models requiring additional information must be
@@ -47,7 +47,7 @@ class AccelerationSettings
 public:
 
     // Constructor, sets type of acceleration.
-    /*!
+    /*
      *  Constructor, sets type of acceleration.
      *  \param accelerationType Type of acceleration from AvailableAcceleration enum.
      */
@@ -86,7 +86,7 @@ inline std::shared_ptr< AccelerationSettings > cannonBallRadiationPressureAccele
 }
 
 // Class for providing settings for spherical harmonics acceleration model.
-/*!
+/*
  *  Class for providing settings for spherical harmonics acceleration model,
  *  specifically the maximum degree and order up to which the field is to be expanded. Note that
  *  the minimum degree and order are currently always set to zero.
@@ -96,7 +96,7 @@ class SphericalHarmonicAccelerationSettings: public AccelerationSettings
 {
 public:
     // Constructor to set maximum degree and order that is to be taken into account.
-    /*!
+    /*
      *  Constructor to set maximum degree and order that is to be taken into account.
      *  \param maximumDegree Maximum degree
      *  \param maximumOrder Maximum order
@@ -122,7 +122,7 @@ inline std::shared_ptr< AccelerationSettings > sphericalHarmonicAcceleration(
 }
 
 // Class for providing acceleration settings for mutual spherical harmonics acceleration model.
-/*!
+/*
  *  Class for providing acceleration settings for mutual spherical harmonics acceleration model,
  *  specifically the maximum degree and order up to which the fields of the bodies are be expanded.
  *  Please note that the minimum degrees and orders are currently always set to zero.
@@ -133,7 +133,7 @@ class MutualSphericalHarmonicAccelerationSettings: public AccelerationSettings
 public:
 
     // Constructor to set maximum degrees and orders that are to be taken into account.
-    /*!
+    /*
      * Constructor to set maximum degrees and orders that are to be taken into account.
      * \param maximumDegreeOfBodyExertingAcceleration Maximum degree of body exerting acceleration.
      * \param maximumOrderOfBodyExertingAcceleration Maximum order of body exerting acceleration.
@@ -196,7 +196,7 @@ inline std::shared_ptr< AccelerationSettings > mutualSphericalHarmonicAccelerati
 }
 
 // Class to provide settings for typical relativistic corrections to the dynamics of an orbiter.
-/*!
+/*
  *  Class to provide settings for typical relativistic corrections to the dynamics of an orbiter: the
  *  Schwarzschild, Lense-Thirring and de Sitter terms. An excellent introduction to
  *  these models is given in 'General relativity and Space Geodesy' by L. Combrinck (2012).
@@ -207,7 +207,7 @@ class RelativisticAccelerationCorrectionSettings: public AccelerationSettings
 public:
 
     // Constructor
-    /*!
+    /*
      * Constructor
      * \param calculateSchwarzschildCorrection Boolean denoting whether the Schwarzschild term is used.
      * \param calculateLenseThirringCorrection Boolean denoting whether the Lense-Thirring term is used.
@@ -277,7 +277,7 @@ class EmpiricalAccelerationSettings: public AccelerationSettings
 public:
 
     // Constructor
-    /*!
+    /*
      * Constructor
      * \param constantAcceleration Acceleration (in RSW frame) that is constant
      * \param sineAcceleration Acceleration (in RSW frame) that scales with sine of true anomaly
@@ -321,7 +321,7 @@ class FullThrustInterpolationInterface
 public:
 
     // Constructor
-    /*!
+    /*
      * Constructor
      * \param thrustInterpolator Object that returns the total thrust vector, expressed in some reference frame B
      * \param rotationFunction Function that returns the rotation matrix from the frame B to the frame in which the
@@ -336,7 +336,7 @@ public:
         currentThrust_( Eigen::Vector3d::Constant( TUDAT_NAN ) ), currentTime_( TUDAT_NAN ){ }
 
     // Function to retrieve the current thrust magnitude
-    /*!
+    /*
      * Function to retrieve the current thrust magnitude, updates thrust to current time if needed.
      * \param time Time at which thrust must be evaluated.
      * \return  Current thrust magnitude.
@@ -349,7 +349,7 @@ public:
     }
 
     // Function to retrieve the current thrust direction (in the propagation frame).
-    /*!
+    /*
      * Function to retrieve the current thrust direction (in the propagation frame)., updates thrust to current time if
      * needed.
      * \param time Time at which thrust must be evaluated.
@@ -362,7 +362,7 @@ public:
     }
 
     // Function to reset the function to rotate to propation frame
-    /*!
+    /*
      *  Function to reset the function to rotate to propation frame
      *  \param rotationFunction New function that returns the rotation matrix from the frame B to the frame in which the
      *  propagation is performed.
@@ -378,7 +378,7 @@ public:
     }
 
     // Function to retrieve the thrust interpolator.
-    /*!
+    /*
      * Function to retrieve the thrust interpolator.
      */
     std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector3d > > getThrustInterpolator( )
@@ -389,7 +389,7 @@ public:
 private:
 
     // Function to update the thrust vector to the current time
-    /*!
+    /*
      * Function to update the thrust vector to the current time
      * \param time Time at which thrust must be evaluated.
      */
@@ -418,6 +418,7 @@ private:
 
 
 // Enum defining identifiers of frames in which a user-specified thrust is defined.
+//! @get_docstring(ThrustFrames.__docstring__)
 enum ThrustFrames
 {
     unspecified_thrust_frame = -1,
@@ -426,7 +427,7 @@ enum ThrustFrames
 };
 
 // Class for providing acceleration settings for a thrust acceleration model
-/*!
+/*
  *  Class for providing acceleration settings for a thrust acceleration model. Settings for the direction and magnitude
  *  guidance of the thrust are provided/
  */
@@ -436,7 +437,7 @@ class ThrustAccelerationSettings: public AccelerationSettings
 public:
 
     // Constructor from separate magnitude and diretion settings.
-    /*!
+    /*
      * Constructor from separate magnitude and diretion settings.
      * \param thrustDirectionSettings Settings for the direction of the thrust
      * \param thrustMagnitudeSettings Settings for the magnitude of the thrust
@@ -451,7 +452,7 @@ public:
 
     // Constructor used for defining total thrust vector (in local or inertial frame) from interpolator using
     // variable specific impulse
-    /*!
+    /*
      * Constructor used for defining total thrust vector (in local or inertial frame) from interpolator using
      * variable specific impulse
      * \param dataInterpolationSettings Settings to create the interpolator that returns the thrust as a function of
@@ -483,7 +484,7 @@ public:
 
     // Constructor used for defining total thrust vector (in local or inertial frame) from interpolator using constant
     // specific impulse
-    /*!
+    /*
      * Constructor used for defining total thrust vector (in local or inertial frame) from interpolator using constant
      * specific impulse
      * \param dataInterpolationSettings Settings to create the interpolator that returns the thrust as a function of
@@ -522,14 +523,14 @@ public:
     double constantSpecificImpulse_ = TUDAT_NAN;
 
     // Identifier of frame in which thrust returned by fullThrustInterpolator is expressed.
-    /*!
+    /*
      *  Identifier of frame in which thrust returned by fullThrustInterpolator is expressed. Unspecifief by default,
      *  only used if interpolatorInterface_ is set
      */
     ThrustFrames thrustFrame_;
 
     // Central body identifier for thrustFrame.
-    /*!
+    /*
      *  Central body identifier for thrustFrame. Empty by default,
      *  only used if interpolatorInterface_ is set
      */
@@ -675,7 +676,7 @@ inline std::shared_ptr< AccelerationSettings > customAccelerationSettings(
 }
 
 // Class for providing settings for a direct tidal acceleration model, with approach of Lainey et al. (2007, 2009, ..)
-/*!
+/*
  *  Class for providing settings for a direct tidal acceleration model, with approach of Lainey et al. (2007, 2009, ..).
  *  Using this approach does includes the effect of tides raised by/on a planetary satelltie on the orbit of the satellite by
  *  a dedicated acceleration model, instead of modifying the gravity field coefficients of the satellite/host planet/
@@ -686,7 +687,7 @@ class DirectTidalDissipationAccelerationSettings: public AccelerationSettings
 public:
 
     // Constructor
-    /*!
+    /*
      * Constructor
      * \param k2LoveNumber Static k2 Love number of the satellite
      * \param timeLag Time lag of tidal bulge on satellite
@@ -729,7 +730,7 @@ inline std::shared_ptr< AccelerationSettings > directTidalDissipationAcceleratio
 }
 
 // Class for providing acceleration settings for a momentum wheel desaturation acceleration model.
-/*!
+/*
  *  Class for providing acceleration settings for a momentum wheel desaturation acceleration model.
  *  The deltaV values for each of the desaturation maneuvers are provided by the user.
  */
@@ -739,7 +740,7 @@ class MomentumWheelDesaturationAccelerationSettings: public AccelerationSettings
 public:
 
     // Constructor.
-    /*!
+    /*
      * Constructor.
      * \param thrustMidTimes Vector containing the midtime of each desaturation maneuver.
      * \param deltaVValues Vector containing the deltaV values of the desaturation maneuvers.

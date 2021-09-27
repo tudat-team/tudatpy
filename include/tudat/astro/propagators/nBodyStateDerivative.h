@@ -30,7 +30,8 @@ namespace tudat
 namespace propagators
 {
 
-//! Enum listing propagator types for translational dynamics that can be used.
+// Enum listing propagator types for translational dynamics that can be used.
+//! @get_docstring(TranslationalPropagatorType.__docstring__)
 enum TranslationalPropagatorType
 {
     undefined_translational_propagator = -1,
@@ -43,8 +44,8 @@ enum TranslationalPropagatorType
     unified_state_model_exponential_map = 6
 };
 
-//! Function to remove the central gravity acceleration from an AccelerationMap
-/*!
+// Function to remove the central gravity acceleration from an AccelerationMap
+/*
  * Function to remove the central gravity acceleration from an AccelerationMap. This is crucial for propagation methods in
  * which the deviation from a reference Kepler orbit is propagated. If the central gravity is a spherical harmonic
  * acceleration, the point mass term is removed by setting the C(0,0) coefficnet to 0
@@ -63,8 +64,8 @@ std::vector< std::function< double( ) > > removeCentralGravityAccelerations(
         const std::vector< std::string >& centralBodies, const std::vector< std::string >& bodiesToIntegrate,
         basic_astrodynamics::AccelerationMap& accelerationModelsPerBody );
 
-//! Function to determine in which order the ephemerides are to be updated
-/*!
+// Function to determine in which order the ephemerides are to be updated
+/*
  * Function to determine in which order the ephemerides are to be updated. The order depends on the
  * dependencies between the ephemeris/integration origins.
  * \param integratedBodies List of bodies that are numerically integrated.
@@ -76,8 +77,8 @@ std::vector< std::string > determineEphemerisUpdateorder( std::vector< std::stri
                                                           std::vector< std::string > centralBodies,
                                                           std::vector< std::string > ephemerisOrigins );
 
-//! State derivative for the translational dynamics of N bodies
-/*!
+// State derivative for the translational dynamics of N bodies
+/*
  * This class calculates the trabnslational state derivative of any
  * number of bodies, each under the influence of any number of bodies,
  * both from the set being integrated and otherwise.
@@ -89,9 +90,9 @@ public:
 
     using propagators::SingleStateTypeDerivative< StateScalarType, TimeType >::calculateSystemStateDerivative;
 
-    //! Constructor from data for translational Cartesian state derivative creation.
-    //! It is assumed that all acceleration are exerted on bodies by bodies.
-    /*!
+    // Constructor from data for translational Cartesian state derivative creation.
+    // It is assumed that all acceleration are exerted on bodies by bodies.
+    /*
      *  From this constructor, the object for generating the state derivative is created. Required
      *  are the acceleration models, a map of all (named) bodies involved in the simulation and a
      *  list of body names, which must be a subset of the bodyList that are to be numerically
@@ -143,18 +144,18 @@ public:
         createAccelerationModelList( );
     }
 
-    //! Destructor
+    // Destructor
     virtual ~NBodyStateDerivative( ){ }
 
-    //! Function to clear any reference/cached values of state derivative model
-    /*!
+    // Function to clear any reference/cached values of state derivative model
+    /*
      * Function to clear any reference/cached values of state derivative model, in addition to those performed in the
      * clearTranslationalStateDerivativeModel function. Default implementation is empty.
      */
     virtual void clearDerivedTranslationalStateDerivativeModel( ){ }
 
-    //! Function to clear reference/cached values of acceleration models
-    /*!
+    // Function to clear reference/cached values of acceleration models
+    /*
      * Function to clear reference/cached values of acceleration models, to ensure that they are all recalculated.
      */
     void clearTranslationalStateDerivativeModel( )
@@ -165,8 +166,8 @@ public:
         }
     }
 
-    //! Function to clear reference/cached values of translational state derivative model
-    /*!
+    // Function to clear reference/cached values of translational state derivative model
+    /*
      * Function to clear reference/cached values of translational state derivative model. For each derived class, this
      * entails resetting the current time in the acceleration models to NaN (see clearTranslationalStateDerivativeModel).
      * Every derived class requiring additional values to be cleared should implement the
@@ -178,8 +179,8 @@ public:
         clearDerivedTranslationalStateDerivativeModel( );
     }
 
-    //! Function to update the state derivative model to the current time.
-    /*!
+    // Function to update the state derivative model to the current time.
+    /*
      * Function to update the state derivative model (i.e. acceleration models) to the
      * current time. Note that this function only updates the state derivative model itself, the
      * environment models must be updated before calling this function.
@@ -193,8 +194,8 @@ public:
         }
     }
 
-    //! Function to convert the propagator-specific form of the state to the conventional form in the global frame.
-    /*!
+    // Function to convert the propagator-specific form of the state to the conventional form in the global frame.
+    /*
      * Function to convert the propagator-specific form of the state to the conventional form in the
      * global frame.  The conventional form for translational dynamics this is the Cartesian
      * position and velocity).  The inertial frame is typically the barycenter with J2000/ECLIPJ2000
@@ -220,8 +221,8 @@ public:
         }
     }
 
-    //! Function to get list of names of bodies that are to be integrated numerically.
-    /*!
+    // Function to get list of names of bodies that are to be integrated numerically.
+    /*
      * Function to get list of names of bodies that are to be integrated numerically.
      * \return List of names of bodies that are to be integrated numerically.
      */
@@ -230,8 +231,8 @@ public:
         return bodiesToBeIntegratedNumerically_;
     }
 
-    //! Function to get map containing the list of accelerations acting on each body,
-    /*!
+    // Function to get map containing the list of accelerations acting on each body,
+    /*
      * Function to get map containing the list of accelerations acting on each body,
      * \return A map containing the list of accelerations acting on each body,
      */
@@ -240,8 +241,8 @@ public:
         return accelerationModelsPerBody_;
     }
 
-    //! Function to get object providing the current integration origins
-    /*!
+    // Function to get object providing the current integration origins
+    /*
      * Function to get object responsible for providing the current integration origins from the
      * global origins.
      * \return Object providing the current integration origins from the global origins.
@@ -251,8 +252,8 @@ public:
         return centralBodyData_;
     }
 
-    //! Function to get type of propagator that is to be used (i.e. Cowell, Encke, etc.)
-    /*!
+    // Function to get type of propagator that is to be used (i.e. Cowell, Encke, etc.)
+    /*
      * Function to type of propagator that is to be used (i.e. Cowell, Encke, etc.)
      * \return Type of propagator that is to be used (i.e. Cowell, Encke, etc.)
      */
@@ -261,8 +262,8 @@ public:
         return propagatorType_;
     }
 
-    //! Function to return the size of the state handled by the object
-    /*!
+    // Function to return the size of the state handled by the object
+    /*
      * Function to return the size of the state handled by the object
      * \return Size of the state under consideration (6 times the number if integrated bodies).
      */
@@ -271,8 +272,8 @@ public:
         return 6 * bodiesToBeIntegratedNumerically_.size( );
     }
 
-    //! Function to retrieve the total acceleration acting on a given body.
-    /*!
+    // Function to retrieve the total acceleration acting on a given body.
+    /*
      * Function to retrieve the total acceleration acting on a given body. The environment
      * and acceleration models must have been updated to the current state before calling this
      * function. NOTE: This function is typically used to retrieve the acceleration for output purposes, not to compute the
@@ -316,8 +317,8 @@ public:
         return totalAcceleration;
     }
 
-    //! Function to retrieve the map containing the list of accelerations acting on each body.
-    /*!
+    // Function to retrieve the map containing the list of accelerations acting on each body.
+    /*
      * Function to retrieve the map containing the list of accelerations acting on each body.
      * \return Map containing the list of accelerations acting on each body,
      */
@@ -328,8 +329,8 @@ public:
 
 protected:
 
-    //! Function to set the vector of acceleration models (accelerationModelList_) form the map of map of
-    //! acceleration models (accelerationModelsPerBody_).
+    // Function to set the vector of acceleration models (accelerationModelList_) form the map of map of
+    // acceleration models (accelerationModelsPerBody_).
     void createAccelerationModelList( )
     {
         // Iterate over all accelerations and update their internal state.
@@ -351,8 +352,8 @@ protected:
         }
     }
 
-    //! Function to get the state derivative of the system in Cartesian coordinates.
-    /*!
+    // Function to get the state derivative of the system in Cartesian coordinates.
+    /*
      * Function to get the state derivative of the system in Cartesian coordinates. The environment
      * and acceleration models must have been updated to the current state before calling this
      * function.
@@ -405,8 +406,8 @@ protected:
         }
     }
 
-    //! Function to get the state derivative of the system in Cartesian coordinates.
-    /*!
+    // Function to get the state derivative of the system in Cartesian coordinates.
+    /*
      * Function to get the state derivative of the system in Cartesian coordinates. The environment
      * and acceleration models must have been updated to the current state before calling this
      * function.
@@ -426,8 +427,8 @@ protected:
                     addPositionDerivatives );
     }
 
-    //! A map containing the list of accelerations acting on each body,
-    /*!
+    // A map containing the list of accelerations acting on each body,
+    /*
      * A map containing the list of accelerations acting on each body, identifying the body being
      * acted on and the body acted on by an acceleration. The map has as key a string denoting the
      * name of the body the list of accelerations, provided as the value corresponding to a key, is
@@ -436,29 +437,29 @@ protected:
      */
     basic_astrodynamics::AccelerationMap accelerationModelsPerBody_;
 
-    //! Vector of acceleration models, containing all entries of accelerationModelsPerBody_.
+    // Vector of acceleration models, containing all entries of accelerationModelsPerBody_.
     std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > > accelerationModelList_;
 
-    //! Object responsible for providing the current integration origins from the global origins.
+    // Object responsible for providing the current integration origins from the global origins.
     std::shared_ptr< CentralBodyData< StateScalarType, TimeType > > centralBodyData_;
 
-    //! Type of propagator that is to be used (i.e. Cowell, Encke, etc.)
+    // Type of propagator that is to be used (i.e. Cowell, Encke, etc.)
     TranslationalPropagatorType propagatorType_;
 
-    //! List of names of bodies that are to be integrated numerically.
+    // List of names of bodies that are to be integrated numerically.
     std::vector< std::string > bodiesToBeIntegratedNumerically_;
 
     std::vector< int > bodyOrder_;
 
-    //! Predefined iterator to save (de-)allocation time.
+    // Predefined iterator to save (de-)allocation time.
     std::unordered_map< std::string, std::vector<
     std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > > >::iterator innerAccelerationIterator;
 
-    //! Predefined iterator to save (de-)allocation time.
+    // Predefined iterator to save (de-)allocation time.
     std::unordered_map< std::string, std::unordered_map< std::string, std::vector<
     std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > > > >::iterator outerAccelerationIterator;
 
-    //! List of states of the central bodies of the propagated bodies.
+    // List of states of the central bodies of the propagated bodies.
     std::vector< Eigen::Matrix< StateScalarType, 6, 1 >  > centralBodyStatesWrtGlobalOrigin_;
 
     Eigen::Vector3d currentAccelerationComponent_;

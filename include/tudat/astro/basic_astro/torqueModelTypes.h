@@ -20,11 +20,12 @@ namespace tudat
 namespace basic_astrodynamics
 {
 
-//! List of torques available in simulations
-/*!
+// List of torques available in simulations
+/*
  *  List of torques available in simulations. Torque models not defined by this
  *  given enum cannot be used for automatic torque model setup.
  */
+// @get_docstring(AvailableTorque.__docstring__)
 enum AvailableTorque
 {
     torque_free = -2,
@@ -37,8 +38,8 @@ enum AvailableTorque
     custom_torque = 5
 };
 
-//! Function to identify the derived class type of a torque model.
-/*!
+// Function to identify the derived class type of a torque model.
+/*
  *  Function to identify the derived class type of a torque model. The type must be defined
  *  in the AvailableTorque enum to be recognized by this function.
  *  \param torqueModel Torque model of which the type is to be identified.
@@ -47,16 +48,16 @@ enum AvailableTorque
 AvailableTorque getTorqueModelType(
         std::shared_ptr< basic_astrodynamics::TorqueModel > torqueModel );
 
-//! Function to get a string representing a 'named identification' of an torque type
-/*!
+// Function to get a string representing a 'named identification' of an torque type
+/*
  * Function to get a string representing a 'named identification' of an torque type
  * \param torqueType Type of torque model.
  * \return String with torque id.
  */
 std::string getTorqueModelName( const AvailableTorque torqueType );
 
-//! Function to get all torque models of a given type from a list of models
-/*!
+// Function to get all torque models of a given type from a list of models
+/*
  * Function to get all torque models of a given type from a list of models
  * \param fullList List of torque models
  * \param modelType Type for which all models are to be retrieved
