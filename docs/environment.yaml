@@ -13,8 +13,11 @@ dependencies:
   # Other doc related
   - jinja2
   - yaml
+  - cmake
   - pydantic
   - numpydoc
+  - pybind11
+  - compilers
   - pip
   - pip:
      - nbsphinx
