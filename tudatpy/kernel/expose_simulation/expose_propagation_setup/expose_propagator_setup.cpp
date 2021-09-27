@@ -39,7 +39,8 @@ namespace propagator {
     void expose_propagator_setup(py::module &m) {
 
         // ENUMS
-        py::enum_<tp::TranslationalPropagatorType>(m, "TranslationalPropagatorType")
+        py::enum_<tp::TranslationalPropagatorType>(m, "TranslationalPropagatorType",
+                                                   get_docstring("TranslationalPropagatorType").c_str())
                 .value("undefined_translational_propagator",
                        tp::TranslationalPropagatorType::undefined_translational_propagator)
                 .value("cowell",
@@ -58,7 +59,8 @@ namespace propagator {
                        tp::unified_state_model_exponential_map)
                 .export_values();
 
-        py::enum_<tp::RotationalPropagatorType>(m, "RotationalPropagatorType")
+        py::enum_<tp::RotationalPropagatorType>(m, "RotationalPropagatorType",
+                                                get_docstring("RotationalPropagatorType").c_str())
                 .value("undefined_rotational_propagator",
                        tp::RotationalPropagatorType::undefined_rotational_propagator)
                 .value("quaternions",
@@ -70,19 +72,16 @@ namespace propagator {
                 .export_values();
 
         // TODO: why is this enum defined here and not in Tudat?
-          enum PropagationTerminationTypes
-          {
+        enum PropagationTerminationTypes{
             time_stopping_condition = 0,
             cpu_time_stopping_condition = 1,
             dependent_variable_stopping_condition = 2,
             hybrid_stopping_condition = 3,
             custom_stopping_condition = 4
-          };
-        // TODO: expose enum
-//         py::enum_<tss::PropagationTerminationTypes,
-//                std::shared_ptr<>>;
+        };
 
-        py::enum_<tp::IntegratedStateType>(m, "StateType")
+        py::enum_<tp::IntegratedStateType>(m, "StateType",
+                                           get_docstring("StateType").c_str())
                 .value("hybrid_type", tp::IntegratedStateType::hybrid)
                 .value("translational_type", tp::IntegratedStateType::translational_state)
                 .value("rotational_type", tp::IntegratedStateType::rotational_state)
@@ -104,8 +103,8 @@ namespace propagator {
         // NOTE: this class does not strictly belong to "propagator settings".
         py::class_<
                 tp::SingleArcDynamicsSimulator<double, double>,
-                std::shared_ptr<tp::SingleArcDynamicsSimulator<double, double>>>(m,
-                                                                                 "SingleArcDynamicsSimulator")
+                std::shared_ptr<tp::SingleArcDynamicsSimulator<double, double>>>(m, "SingleArcDynamicsSimulator",
+                                                                                 get_docstring("SingleArcDynamicsSimulator").c_str())
 //                .def(py::init<
 //                             const tudat::simulation_setup::SystemOfBodies &,
 //                             const std::shared_ptr<tudat::numerical_integrators::IntegratorSettings<double>>,
