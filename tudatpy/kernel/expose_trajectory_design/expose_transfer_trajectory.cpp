@@ -14,8 +14,12 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
+#include <tudat/astro/mission_segments/createTransferTrajectory.h>
+#include <tudat/simulation/propagation_setup/accelerationSettings.h>
+
 namespace py = pybind11;
 namespace tms = tudat::mission_segments;
+namespace tss = tudat::simulation_setup;
 
 namespace tudatpy {
 
@@ -111,6 +115,23 @@ void expose_transfer_trajectory(py::module &m) {
           &tms::printTransferParameterDefinition,
           py::arg( "leg_settings" ),
           py::arg( "node_settings" ) );
+
+    m.def("create_transfer_trajectory",
+          &tms::createTransferTrajectory,
+          py::arg( "bodies" ),
+          py::arg( "leg_settings" ),
+          py::arg( "node_settings" ),
+          py::arg( "node_names" ),
+          py::arg( "central_body" ) );
+
+
+    m.def("get_low_thrust_acceleration_settings",
+          &tss::getLowThrustLegAccelerationSettings,
+          py::arg("low_thrust_leg"),
+          py::arg("bodies"),
+          py::arg("body_to_propagate"),
+          py::arg("specific_impulse_function"),
+          py::arg("low_thrust_leg_initial_time") );
 };
 
 }// namespace tudatpy

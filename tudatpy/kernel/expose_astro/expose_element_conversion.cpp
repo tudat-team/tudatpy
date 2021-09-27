@@ -8,12 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#include "tudatpy/docstrings.h"
 
- // functions
- #define cartesian_to_keplerian
-
- // classes
-#include "tudat/math/basic.h"
 #include "expose_element_conversion.h"
 
 #include <tudat/math/basic.h>
@@ -32,15 +28,11 @@ namespace tla = tudat::linear_algebra;
 namespace te = tudat::ephemerides;
 
 namespace tudatpy {
+namespace astro {
+namespace element_conversion {
 
 void expose_element_conversion(py::module &m) {
 
-
-    m.def("transform_to_inertial_orientation",
-          &te::transformStateToInertialOrientation<double, double>,
-          py::arg("state_in_body_fixed_frame"),
-          py::arg("current_time"),
-          py::arg("rotational_ephemeris"));
 
     py::enum_<toec::KeplerianElementIndices>(m, "KeplerianElementIndices")
             .value("semi_major_axis_index", toec::KeplerianElementIndices::semiMajorAxisIndex)
@@ -67,6 +59,7 @@ void expose_element_conversion(py::module &m) {
             .value("geodetic_position_type", tcc::PositionElementTypes::geodetic_position)
             .export_values();
 
+
     m.def("cartesian_to_keplerian",
           &toec::convertCartesianToKeplerianElements< double >,
           py::arg("cartesian_elements"),
@@ -79,7 +72,7 @@ void expose_element_conversion(py::module &m) {
           py::arg("keplerian_elements"),
           py::arg("gravitational_parameter"));
 
-    m.def("keplerian_to_cartesian",
+    m.def("keplerian_to_cartesian_elementwise",
           py::overload_cast<
           double, double, double, double, double, double, double >(
               &toec::convertKeplerianToCartesianElements< double > ),
@@ -109,7 +102,7 @@ void expose_element_conversion(py::module &m) {
               &toec::convertSphericalOrbitalToCartesianState< double > ),
           py::arg("spherical_orbital_state"));
 
-    m.def("spherical_to_cartesian",
+    m.def("spherical_to_cartesian_elementwise",
           py::overload_cast<
           double, double, double, double, double, double >(
               &toec::convertSphericalOrbitalToCartesianState< double > ),
@@ -130,6 +123,8 @@ void expose_element_conversion(py::module &m) {
           &tla::convertMatrixToVectorQuaternionFormat,
           py::arg( "rotation_matrix" ) );
 
-};
+}
 
+}
+}
 }// namespace tudatpy

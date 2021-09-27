@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2019, Delft University of Technology
+/*    Copyright (c) 2010-2021, Delft University of Technology
  *    All rights reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef TUDATPY_EXPOSE_ENVIRONMENT_H
-#define TUDATPY_EXPOSE_ENVIRONMENT_H
+#ifndef TUDATBUNDLE_EXPOSE_OBSERVATIONS_SETUP_H
+#define TUDATBUNDLE_EXPOSE_OBSERVATIONS_SETUP_H
 
 #include <pybind11/eigen.h>
 #include <pybind11/functional.h>
@@ -17,19 +17,19 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
-
 namespace py = pybind11;
 
 namespace tudatpy {
 namespace simulation {
-namespace environment{
+namespace estimation_setup {
+namespace observation {
 
-void expose_environment(py::module &m);
+void expose_observations_setup(py::module &m);
 
-}// namespace propagation_setup
+}// namespace observation
+}// namespace estimation_setup
 }// namespace simulation
 }// namespace tudatpy
 
 
-
-#endif// TUDATPY_EXPOSE_ENVIRONMENT_H
+#endif //TUDATBUNDLE_EXPOSE_OBSERVATIONS_SETUP_H
