@@ -35,6 +35,7 @@ namespace simulation_setup
  *  List of rotation models available in simulations. Rotation models not defined by this
  *  given enum cannot be used for automatic model setup.
  */
+//! @get_docstring(RotationModelType.__docstring__)
 enum RotationModelType
 {
     simple_rotation_model,
