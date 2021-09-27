@@ -130,6 +130,12 @@ void expose_frame_conversion(py::module &m) {
           py::arg("rotation_to_body_fixed"),
           py::arg("rotation_derivative_to_body_fixed") );
 
+    m.def("transform_to_inertial_orientation",
+          &te::transformStateToInertialOrientation<double, double>,
+          py::arg("state_in_body_fixed_frame"),
+          py::arg("current_time"),
+          py::arg("rotational_ephemeris"));
+
 
 }
 }

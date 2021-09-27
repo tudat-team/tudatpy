@@ -8,6 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#include "tudatpy/docstrings.h"
 
 #include <tudat/astro/aerodynamics/aerodynamicGuidance.h>
 #include <tudat/astro/basic_astro.h>
@@ -29,6 +30,8 @@ namespace py = pybind11;
 namespace ta = tudat::aerodynamics;
 namespace tp = tudat::propagators;
 namespace tba = tudat::basic_astrodynamics;
+namespace tss = tudat::simulation_setup;
+namespace tni = tudat::numerical_integrators;
 
 namespace tudat
 {
@@ -70,9 +73,7 @@ void expose_propagation(py::module &m) {
             .def_readwrite("bank_angle", &ta::PyAerodynamicGuidance::currentBankAngle_)
             .def_readwrite("sideslip_angle", &ta::PyAerodynamicGuidance::currentAngleOfSideslip_);
 
-    py::class_<
-        tba::AccelerationModel<Eigen::Vector3d>,
-        std::shared_ptr<tba::AccelerationModel<Eigen::Vector3d>>>(m, "AccelerationModel");
+
 
     py::class_<
         tba::TorqueModel,
@@ -108,6 +109,98 @@ void expose_propagation(py::module &m) {
              py::arg("acceleration_models_per_body"),
              py::arg("central_body_data"),
              py::arg("bodies_to_integrate"));
+    // FREE FUNCTIONS
+
+    // NOTE: the following 5 functions do not strictly belong to the actual "propagator settings".
+
+    m.def("get_initial_state_of_bodies",
+          py::overload_cast<const std::vector<std::string> &,
+                  const std::vector<std::string> &,
+                  const tss::SystemOfBodies &,
+                  const double>(
+                  &tp::getInitialStatesOfBodies<>),
+          py::arg("bodies_to_propagate"),
+          py::arg("central_bodies"),
+          py::arg("body_system"),
+          py::arg("initial_time"),
+          get_docstring("get_initial_state_of_bodies").c_str());
+
+    m.def("get_initial_state_of_body",// overload [2/2]
+          py::overload_cast<const std::string&,
+          const std::string&,
+          const tss::SystemOfBodies&,
+          const double>(
+              &tp::getInitialStateOfBody<>),
+          py::arg("body_to_propagate"),
+          py::arg("central_body"),
+          py::arg("bodies"),
+          py::arg("initial_time"));
+
+    m.def("get_initial_rotational_state_of_body",
+          py::overload_cast<const std::string&,
+          const std::string&,
+          const tss::SystemOfBodies&,
+          const double>(
+              &tp::getInitialRotationalStateOfBody<>),
+          py::arg("body_to_propagate"),
+          py::arg("base_orientation"),
+          py::arg("bodies"),
+          py::arg("initial_time"));
+
+    m.def("get_zero_proper_mode_rotational_state",
+          py::overload_cast<
+          const tss::SystemOfBodies&,
+          const std::shared_ptr< tni::IntegratorSettings< double > >,
+          const std::shared_ptr< tp::SingleArcPropagatorSettings< double > >,
+          const double,
+          const std::vector< double >,
+          const bool >( &tp::getZeroProperModeRotationalState< > ),
+          py::arg("bodies"),
+          py::arg("integrator_settings"),
+          py::arg("propagator_settings"),
+          py::arg("body_mean_rotational_rate"),
+          py::arg("dissipation_times"),
+          py::arg("propagate_undamped") = true );
+
+    m.def("combine_initial_states",
+          &tp::createCombinedInitialState<double>,
+          py::arg("propagator_settings_per_type"),
+          get_docstring("combine_initial_states").c_str());
+
+    py::class_<
+        tba::AccelerationModel<Eigen::Vector3d>,
+        std::shared_ptr<tba::AccelerationModel<Eigen::Vector3d>>>(m, "AccelerationModel");
+
+    // First overload
+    m.def("create_acceleration_models",
+          py::overload_cast<const tss::SystemOfBodies &,
+                  const tss::SelectedAccelerationMap &,
+                  const std::map<std::string, std::string> &>(
+                  &tss::createAccelerationModelsMap),
+          py::arg("body_system"),
+          py::arg("selected_acceleration_per_body"),
+          py::arg("central_bodies"),
+          get_docstring("create_acceleration_models", 0).c_str());
+
+    // Second overload
+    m.def("create_acceleration_models",
+          py::overload_cast<const tss::SystemOfBodies &,
+                  const tss::SelectedAccelerationMap &,
+                  const std::vector<std::string> &,
+                  const std::vector<std::string> &>(
+                  &tss::createAccelerationModelsMap),
+          py::arg("body_system"),
+          py::arg("selected_acceleration_per_body"),
+          py::arg("bodies_to_propagate"),
+          py::arg("central_bodies"),
+          get_docstring("create_acceleration_models", 1).c_str());
+
+    m.def("create_torque_models",
+          &tss::createTorqueModelsMap,
+          py::arg("body_system"),
+          py::arg("selected_torque_per_body"),
+          py::arg("bodies_to_propagate"),
+          get_docstring("create_torque_models").c_str());
 
 
 }

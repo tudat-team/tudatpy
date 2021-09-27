@@ -16,9 +16,13 @@
 namespace py = pybind11;
 
 namespace tudatpy {
+namespace astro {
+namespace element_conversion {
 
 void expose_element_conversion(py::module &m);
 
+}
+}
 }
 
 #endif// TUDATPY_EXPOSE_ELEMENT_CONVERSIONS_H

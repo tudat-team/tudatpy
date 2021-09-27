@@ -8,21 +8,17 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef TUDATPY_EXPOSE_GRAVITATION_H
-#define TUDATPY_EXPOSE_GRAVITATION_H
+#ifndef TUDATPY_EXPOSE_OBSERVATIONS_H
+#define TUDATPY_EXPOSE_OBSERVATIONS_H
 
 #include <pybind11/pybind11.h>
 
 namespace py = pybind11;
 
 namespace tudatpy {
-namespace astro {
-namespace gravitation {
 
-void expose_gravitation(py::module &m);
+void expose_observations(py::module &m);
 
 }
-}
-}
 
-#endif//TUDATPY_EXPOSE_GRAVITATION_H
+#endif//TUDATPY_EXPOSE_OBSERVATIONS_H

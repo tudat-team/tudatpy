@@ -13,7 +13,10 @@
 #include "expose_simulation/expose_environment_setup.h"
 #include "expose_simulation/expose_estimation_setup.h"
 #include "expose_simulation/expose_propagation_setup.h"
-#include "expose_simulation/expose_astro_setup.h"
+
+#include "expose_simulation/expose_environment.h"
+#include "expose_simulation/expose_estimation.h"
+#include "expose_simulation/expose_propagation.h"
 
 #include <pybind11/pybind11.h>
 
@@ -33,9 +36,14 @@ void expose_simulation(py::module &m) {
   auto estimation_setup_submodule = m.def_submodule("estimation_setup");
   estimation_setup::expose_estimation_setup(estimation_setup_submodule);
 
-  auto astro_setup = m.def_submodule("astro_setup");
-  astro_setup::expose_astro_setup(astro_setup);
+  auto environment_submodule = m.def_submodule("environment");
+  environment::expose_environment(environment_submodule);
 
+  auto propagation_submodule = m.def_submodule("propagation");
+  propagation::expose_propagation(propagation_submodule);
+
+  auto estimation_submodule = m.def_submodule("estimation");
+  estimation::expose_estimation(estimation_submodule);
 };
 
 }// namespace simulation

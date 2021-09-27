@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef TUDATBUNDLE_EXPOSE_OBSERVATION_SETUP_H
-#define TUDATBUNDLE_EXPOSE_OBSERVATION_SETUP_H
+#ifndef TUDATBUNDLE_EXPOSE_ESTIMATED_PARAMETER_SETUP_H
+#define TUDATBUNDLE_EXPOSE_ESTIMATED_PARAMETER_SETUP_H
 
 #include <pybind11/eigen.h>
 #include <pybind11/functional.h>
@@ -22,14 +22,14 @@ namespace py = pybind11;
 namespace tudatpy {
 namespace simulation {
 namespace estimation_setup {
-namespace observation {
+namespace parameter {
 
-void expose_observation_setup(py::module &m);
+void expose_estimated_parameter_setup(py::module &m);
 
-}// namespace observation
-}// namespace estimation_setup
+}// namespace acceleration
+}// namespace propagation_setup
 }// namespace simulation
 }// namespace tudatpy
 
 
-#endif //TUDATBUNDLE_EXPOSE_OBSERVATION_SETUP_H
+#endif //TUDATBUNDLE_EXPOSE_ESTIMATED_PARAMETER_SETUP_H

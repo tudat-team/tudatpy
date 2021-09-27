@@ -8,7 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "expose_observation_setup.h"
+#include "expose_observations_setup.h"
 
 #include "tudat/simulation/estimation_setup/simulateObservations.h"
 #include "tudat/simulation/estimation_setup/createObservationModel.h"
@@ -24,7 +24,7 @@ namespace simulation {
 namespace estimation_setup {
 namespace observation {
 
-void expose_observation_setup(py::module &m) {
+void expose_observations_setup(py::module &m) {
 
     py::enum_< tom::LinkEndType >(m, "LinkEndType")
             .value("unidentified_link_end", tom::LinkEndType::unidentified_link_end )
