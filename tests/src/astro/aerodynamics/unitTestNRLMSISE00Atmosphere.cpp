@@ -1033,9 +1033,7 @@ BOOST_AUTO_TEST_CASE( test_nrlmise_InputFunction_no_adjustment )
     double latitude     = 60.0 * PI / 180.0  ;
 
     // find space weather file
-    std::string cppPath( __FILE__ );
-    std::string folder = cppPath.substr( 0, cppPath.find_last_of("/\\")+1);
-    std::string spaceWeatherFilePath = folder + "swAtmosTestNoAdjust.txt";
+    std::string spaceWeatherFilePath = tudat::paths::getTudatTestDataPath( ) + "/swAtmosTestWithAdjust.txt";
 
     tudat::input_output::solar_activity::SolarActivityDataMap solarActivityData =
             tudat::input_output::solar_activity::readSolarActivityData(spaceWeatherFilePath) ;
@@ -1078,9 +1076,8 @@ BOOST_AUTO_TEST_CASE( test_nrlmise_InputFunction_with_adjustment )
     double latitude     = 60.0 * PI / 180.0  ;
 
     // find space weather file
-    std::string cppPath( __FILE__ );
-    std::string folder = cppPath.substr( 0, cppPath.find_last_of("/\\")+1);
-    std::string spaceWeatherFilePath = folder + "swAtmosTestWithAdjust.txt";
+    std::string spaceWeatherFilePath = tudat::paths::getTudatTestDataPath( ) + "/swAtmosTestWithAdjust.txt";
+
 
     tudat::input_output::solar_activity::SolarActivityDataMap solarActivityData =
             tudat::input_output::solar_activity::readSolarActivityData(spaceWeatherFilePath) ;
