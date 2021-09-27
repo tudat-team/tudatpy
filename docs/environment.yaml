@@ -6,7 +6,6 @@ dependencies:
   # All standard tudat-bundle deps are needed for sphinx-documentation for tudatpy.
   - python=3.8
   - numpy
-  - tudatpy
   - pytest
   - matplotlib # for tudat.plotting
   - basemap # for tudat.plotting
@@ -16,6 +15,12 @@ dependencies:
   - cmake
   - pydantic
   - numpydoc
+  - tudat
+  - tudat-resources
+  - cspice-cmake
+  - sofa-cmake
+  - python
+  - eigen
   - pybind11
   - compilers
   - pip
