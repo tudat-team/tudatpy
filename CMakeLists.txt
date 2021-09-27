@@ -80,6 +80,7 @@ include_directories(SYSTEM AFTER "${EIGEN3_INCLUDE_DIR}")
 # TODO: Make Tudat export definitions to the config for inheritence to this project.
 add_definitions(-DTUDAT_BUILD_WITH_JSON_INTERFACE=1)
 add_definitions(-DTUDAT_BUILD_WITH_SPICE_INTERFACE=1)
+add_definitions(-DTUDAT_BUILD_WITH_NRLMSISE00=1)
 add_definitions(-DTUDAT_BUILD_WITH_SOFA_INTERFACE=1)
 add_definitions(-DTUDAT_BUILD_WITH_ESTIMATION_TOOLS=1)
 
@@ -116,6 +117,12 @@ else ()
     set(Sofa_INCLUDE_DIRS ${Sofa_BUILD_INCLUDE_DIRS})
 endif ()
 
+# nrlmsise-00 dependency.
+if (${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
+    find_package(NRLMSISE00 0.1 REQUIRED)
+else ()
+    set(NRLMSISE00_INCLUDE_DIRS ${NRLMSISE00_BUILD_INCLUDE_DIRS})
+endif ()
 
 # Sofa dependency if in build settings.
 if (${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
