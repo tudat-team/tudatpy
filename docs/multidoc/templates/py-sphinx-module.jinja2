@@ -42,6 +42,13 @@ Attributes
 {% if structure.functions %}
 Functions
 ---------
+.. currentmodule:: {{  namespace_list|join(".") }}
+
+.. autosummary::
+{% for  function in structure.functions %}
+   {{ function.name }}
+{% endfor %}
+
 {% for  function in structure.functions %}
 .. autofunction:: {{  namespace_list|join(".") }}.{{ function.name }}
 {% endfor %}
