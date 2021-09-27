@@ -106,22 +106,23 @@ std::vector< double >  getTargetElevationAngles(
                                   " not found on body " + observingBody->getBodyName( ) );
     }
 
+
     std::function< Eigen::Vector6d( const double& ) > groundStationStateFunction =
             getLinkEndCompleteEphemerisFunction(
                 observingBody, std::make_pair( observingBody->getBodyName( ), groundStationName ) );
 
     std::shared_ptr< ground_stations::PointingAnglesCalculator > pointingAnglesCalculator =
             observingBody->getGroundStationMap( ).at( groundStationName )->getPointingAnglesCalculator( );
-
     Eigen::Vector3d relativePosition;
     std::vector< double > elevationAngles;
     for( unsigned int i = 0; i < times.size( ); i++ )
     {
+        targetBody->getStateInBaseFrameFromEphemeris( times.at( i ) );
+        groundStationStateFunction( times.at( i ) );
         relativePosition = ( targetBody->getStateInBaseFrameFromEphemeris( times.at( i ) ) -
                 groundStationStateFunction( times.at( i ) ) ).segment( 0, 3 );
         elevationAngles.push_back( pointingAnglesCalculator->calculateElevationAngle( relativePosition, times.at( i ) ) );
     }
-
     return elevationAngles;
 }
 

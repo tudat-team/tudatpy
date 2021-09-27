@@ -214,7 +214,7 @@ void DsmPositionBasedTransferLeg::computeTransfer( )
     //Calculate the deltaV originating from the DSM.
     Eigen::Vector3d dsmManeuver = ( velocityAfterDsm_ - velocityBeforeDsm_ );
     legTotalDeltaV_ = dsmManeuver.norm( );
-    trajectoryManeuver_ = TrajectoryManeuver( dsmLocation, dsmManeuver.norm( ), dsmTime );
+    trajectoryManeuver_ = TrajectoryManeuver( dsmLocation, dsmManeuver.norm( ), dsmTime + departureTime_ );
 
     calculateKeplerianElements( );
 }
@@ -292,7 +292,7 @@ void DsmVelocityBasedTransferLeg::computeTransfer( )
     // Calculate the deltaV needed for the DSM.
     Eigen::Vector3d dsmManeuver = ( velocityAfterDsm_ - velocityBeforeDsm_ );
     legTotalDeltaV_ = dsmManeuver.norm( );
-    trajectoryManeuver_ = TrajectoryManeuver( dsmLocation, dsmManeuver.norm( ), dsmTime );
+    trajectoryManeuver_ = TrajectoryManeuver( dsmLocation, dsmManeuver.norm( ), dsmTime + departureTime_ );
 
     calculateKeplerianElements( );
 
