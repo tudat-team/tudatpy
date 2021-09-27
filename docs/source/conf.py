@@ -20,8 +20,6 @@
 import os
 import sys
 
-os.environ['READTHEDOCS']=str(True)
-
 sys.path.insert(0, os.path.abspath('.'))
 
 # -- Multidoc configuration --------------------------------------------------
