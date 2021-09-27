@@ -26,13 +26,6 @@ sys.path.insert(0, os.path.abspath('.'))
 # Alternative preparation required if building docs on readthedocs.
 if bool(os.getenv("READTHEDOCS")) is True:
     import subprocess
-
-    # clone repository
-    subprocess.call(['chmod +x ../build.sh'], shell=True)
-    subprocess.call(['../build.sh'], shell=True)
-
-    sys.path.insert(5, os.path.abspath('../../build'))
-
     from document import *
 
     multidoc_git_url = 'https://github.com/tudat-team/tudat-multidoc.git'
@@ -44,11 +37,20 @@ if bool(os.getenv("READTHEDOCS")) is True:
     # parse api declaration
     api_declaration = parse_api_declaration(docstring_path, py=True)
 
+    # generate docstring header
+    generate_docstring_header(api_declaration, "../../include/tudatpy/docstrings.h")
+
+    # build repository
+    subprocess.call(['chmod +x ../build.sh'], shell=True)
+    subprocess.call(['../build.sh'], shell=True)
+
+    sys.path.insert(0, os.path.abspath('../../build'))
+
     # source path
     source_path = generate_documentation(api_declaration, '.')
 
 else:
-    sys.path.insert(5, os.path.abspath('../..'))
+    sys.path.insert(0, os.path.abspath('../..'))
 
 
 # -- General configuration ------------------------------------------------
