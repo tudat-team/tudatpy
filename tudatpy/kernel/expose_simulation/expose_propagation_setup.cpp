@@ -40,49 +40,6 @@ namespace propagation_setup {
 
 void expose_propagation_setup(py::module &m) {
 
-    /*
-               * propagation_setup
-               *  ├── accelerationSettings.h
-               *  ├── createAccelerationModels.h
-               *  ├── createEnvironmentUpdater.h
-               *  ├── createMassRateModels.h
-               *  ├── createStateDerivativeModel.h
-               *  ├── createThrustModelGuidance.h
-               *  ├── createTorqueModel.h
-               *  ├── dynamicsSimulator.h
-               *  ├── environmentUpdater.h
-               *  ├── propagationCR3BPFullProblem.h
-               *  ├── propagationLambertTargeterFullProblem.h
-               *  ├── propagationOutput.h
-               *  ├── propagationOutputSettings.h
-               *  ├── propagationPatchedConicFullProblem.h
-               *  ├── propagationSettings.h
-               *  ├── propagationTermination.h
-               *  ├── propagationTerminationSettings.h
-               *  ├── setNumericallyIntegratedStates.h
-               *  ├── thrustSettings.h
-               *  └── torqueSettings.h
-               *
-               * propagation_setup/
-               *  ├── createAccelerationModels.cpp
-               *  ├── createEnvironmentUpdater.cpp
-               *  ├── createMassRateModels.cpp
-               *  ├── createStateDerivativeModel.cpp
-               *  ├── createThrustModelGuidance.cpp
-               *  ├── createTorqueModel.cpp
-               *  ├── dynamicsSimulator.cpp
-               *  ├── environmentUpdater.cpp
-               *  ├── propagationCR3BPFullProblem.cpp
-               *  ├── propagationLambertTargeterFullProblem.cpp
-               *  ├── propagationOutput.cpp
-               *  ├── propagationOutputSettings.cpp
-               *  ├── propagationPatchedConicFullProblem.cpp
-               *  ├── propagationSettings.cpp
-               *  ├── propagationTermination.cpp
-               *  ├── setNumericallyIntegratedStates.cpp
-               *  └── thrustSettings.cpp
-               *
-               */
 
     auto acceleration_setup = m.def_submodule("acceleration");
     acceleration::expose_acceleration_setup(acceleration_setup);

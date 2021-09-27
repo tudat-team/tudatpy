@@ -14,7 +14,6 @@
 #include "expose_astro/expose_element_conversion.h"
 #include "expose_astro/expose_frame_conversion.h"
 #include "expose_astro/expose_two_body_dynamics.h"
-#include "expose_astro/expose_observations.h"
 
 #include <pybind11/pybind11.h>
 
@@ -26,7 +25,7 @@ namespace astro {
 void expose_astro(py::module &m) {
 
   auto element_conversion = m.def_submodule("element_conversion");
-  expose_element_conversion(element_conversion);
+  astro::element_conversion::expose_element_conversion(element_conversion);
 
   auto frame_conversion = m.def_submodule("frame_conversion");
   astro::frame_conversion::expose_frame_conversion(frame_conversion);
@@ -35,10 +34,8 @@ void expose_astro(py::module &m) {
   expose_two_body_dynamics(two_body_dynamics);
 
   auto gravitation = m.def_submodule("gravitation");
-  expose_gravitation(gravitation);
+  astro::gravitation::expose_gravitation(gravitation);
 
-  auto observations = m.def_submodule("observations");
-  expose_observations(observations);
 
 }
 

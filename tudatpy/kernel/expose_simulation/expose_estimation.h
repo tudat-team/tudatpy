@@ -8,21 +8,27 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef TUDATPY_EXPOSE_ASTRO_SETUP_H
-#define TUDATPY_EXPOSE_ASTRO_SETUP_H
+#ifndef TUDATPY_EXPOSE_ESTIMATION_H
+#define TUDATPY_EXPOSE_ESTIMATION_H
 
 #include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
+#include <pybind11/eigen.h>
+#include <pybind11/numpy.h>
+#include <pybind11/functional.h>
+
+#include "tudat/simulation/estimation_setup.h"
 
 namespace py = pybind11;
 
 namespace tudatpy {
 namespace simulation {
-namespace astro_setup {
+namespace estimation {
 
-void expose_astro_setup(py::module &m);
+    void expose_estimation(py::module &m);
 
-}
-}
+}// namespace estimation_setup
+}// namespace simulation
 }// namespace tudatpy
 
-#endif// TUDATPY_EXPOSE_ASTRO_SETUP_H
+#endif // TUDATPY_EXPOSE_ESTIMATION_H

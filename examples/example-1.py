@@ -1,15 +1,19 @@
 ###############################################################################
 # IMPORT STATEMENTS ###########################################################
 ###############################################################################
+import sys
+sys.path.insert(0, '/home/dominic/Software/tudat-bundle/build-tudat-bundle-Desktop-Default/tudatpy')
+
 import numpy as np
 from tudatpy.kernel import constants
 from tudatpy.kernel.interface import spice_interface
 from tudatpy.kernel.simulation import environment_setup
 from tudatpy.kernel.simulation import propagation_setup
-from tudatpy.kernel.astro import conversion
+from tudatpy.kernel.astro import element_conversion
 from tudatpy.kernel import __version__
 
 import sys
+
 print(sys.path)
 print(__version__)
 
@@ -58,7 +62,7 @@ def main():
     acceleration_settings = {"Delfi-C3": acceleration_settings_delfi_c3}
 
     # Create acceleration models.
-    acceleration_models = propagation_setup.create_acceleration_models(
+    acceleration_models = propagation_setup.propagator.create_acceleration_models(
         bodies, acceleration_settings, bodies_to_propagate, central_bodies
     )
 
@@ -70,7 +74,7 @@ def main():
     # propagated in this simulation. The initial conditions are given in
     # Keplerian elements and later on converted to Cartesian elements.
     earth_gravitational_parameter = bodies.get_body("Earth").gravitational_parameter
-    initial_state = conversion.keplerian_to_cartesian(
+    initial_state = element_conversion.keplerian_to_cartesian(
         gravitational_parameter=earth_gravitational_parameter,
         semi_major_axis=7500.0e3,
         eccentricity=0.1,
@@ -99,7 +103,7 @@ def main():
     ###########################################################################
 
     # Create simulation object and propagate dynamics.
-    dynamics_simulator = propagation_setup.SingleArcDynamicsSimulator(
+    dynamics_simulator = propagation_setup.propagator.SingleArcDynamicsSimulator(
         bodies, integrator_settings, propagator_settings, True
     )
     states = dynamics_simulator.state_history

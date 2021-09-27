@@ -52,7 +52,6 @@ YACMA_PYTHON_MODULE(kernel
         kernel/expose_astro/expose_gravitation.cpp
         kernel/expose_astro/expose_element_conversion.cpp
         kernel/expose_astro/expose_frame_conversion.cpp
-        kernel/expose_astro/expose_observations.cpp
         kernel/expose_astro/expose_two_body_dynamics.cpp
 
         # kernel/trajectory_design
@@ -85,7 +84,7 @@ YACMA_PYTHON_MODULE(kernel
 
         kernel/expose_simulation/expose_propagation.cpp
         kernel/expose_simulation/expose_environment.cpp
-
+        kernel/expose_simulation/expose_estimation.cpp
 
         kernel/expose_simulation/expose_environment_setup.cpp
         kernel/expose_simulation/expose_environment_setup/expose_aerodynamic_coefficient_setup.cpp
@@ -107,14 +106,11 @@ YACMA_PYTHON_MODULE(kernel
         kernel/expose_simulation/expose_propagation_setup/expose_torque_setup.cpp
 
         kernel/expose_simulation/expose_estimation_setup.cpp
-        kernel/expose_simulation/expose_estimation_setup/expose_observation_setup.cpp
+        kernel/expose_simulation/expose_estimation_setup/expose_observations.cpp
+        kernel/expose_simulation/expose_estimation_setup/expose_observations_setup.cpp
         kernel/expose_simulation/expose_estimation_setup/expose_estimated_parameter_setup.cpp
 
-        kernel/expose_simulation/expose_astro_setup.cpp
-
-
         kernel/expose_unit_tests.cpp
-
 
         kernel/expose_example.cpp
         )
