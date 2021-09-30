@@ -19,22 +19,38 @@
 #
 import os
 import sys
-sys.path.insert(-1, os.path.abspath('../..'))
+
 sys.path.insert(0, os.path.abspath('.'))
 
 # -- Multidoc configuration --------------------------------------------------
-from document import *
-multidoc_git_url = 'https://github.com/tudat-team/tudat-multidoc.git'
-multidoc_git_rev = '0811926d9f98331a5d0eca0108e44e7acb6a972c'
+# Alternative preparation required if building docs on readthedocs.
+if bool(os.getenv("READTHEDOCS")) is True:
+    import subprocess
+    from document import *
 
-# clone repository
-docstring_path = get_docstrings(multidoc_git_url, multidoc_git_rev)
+    multidoc_git_url = 'https://github.com/tudat-team/tudat-multidoc.git'
+    multidoc_git_rev = '0811926d9f98331a5d0eca0108e44e7acb6a972c'
 
-# parse api declaration
-api_declaration = parse_api_declaration(docstring_path, py=True)
+    # clone repository
+    docstring_path = get_docstrings(multidoc_git_url, multidoc_git_rev)
 
-# source path
-source_path = generate_documentation(api_declaration, '.')
+    # parse api declaration
+    api_declaration = parse_api_declaration(docstring_path, py=True)
+
+    # generate docstring header
+    generate_docstring_header(api_declaration, "../../include/tudatpy/docstrings.h")
+
+    # build repository
+    subprocess.call(['chmod +x ../build.sh'], shell=True)
+    subprocess.call(['../build.sh'], shell=True)
+
+    sys.path.insert(0, os.path.abspath('../../build'))
+
+    # source path
+    source_path = generate_documentation(api_declaration, '.')
+
+else:
+    sys.path.insert(0, os.path.abspath('../..'))
 
 
 # -- General configuration ------------------------------------------------
@@ -60,7 +76,6 @@ extensions = ['sphinx.ext.autodoc',
               # 'exhale'
               ]
 
-
 add_module_names = False
 
 # Add any paths that contain templates here, relative to this directory.
@@ -76,9 +91,9 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = 'tudat-api'
-copyright = '2021, John'
-author = 'John'
+project = 'tudatpy-api'
+copyright = '2021, Tudat Team'
+author = 'Tudat Team'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -145,7 +160,7 @@ html_static_path = ['_static']
 # -- Options for HTMLHelp output ------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'tudat-apidoc'
+htmlhelp_basename = 'tudatpy-apidoc'
 
 # -- Options for LaTeX output ---------------------------------------------
 
@@ -206,4 +221,3 @@ intersphinx_mapping = {
     'numpy': ('http://docs.scipy.org/doc/numpy/', None),
     'scipy': ('http://docs.scipy.org/doc/scipy/reference/', None),
     'matplotlib': ('http://matplotlib.sourceforge.net/', None)}
-

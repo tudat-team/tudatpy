@@ -41,7 +41,8 @@ namespace propagator {
     void expose_propagator_setup(py::module &m) {
 
         // ENUMS
-        py::enum_<tp::TranslationalPropagatorType>(m, "TranslationalPropagatorType")
+        py::enum_<tp::TranslationalPropagatorType>(m, "TranslationalPropagatorType",
+                                                   get_docstring("TranslationalPropagatorType").c_str())
                 .value("undefined_translational_propagator",
                        tp::TranslationalPropagatorType::undefined_translational_propagator)
                 .value("cowell",
@@ -60,7 +61,8 @@ namespace propagator {
                        tp::unified_state_model_exponential_map)
                 .export_values();
 
-        py::enum_<tp::RotationalPropagatorType>(m, "RotationalPropagatorType")
+        py::enum_<tp::RotationalPropagatorType>(m, "RotationalPropagatorType",
+                                                get_docstring("RotationalPropagatorType").c_str())
                 .value("undefined_rotational_propagator",
                        tp::RotationalPropagatorType::undefined_rotational_propagator)
                 .value("quaternions",
@@ -79,7 +81,8 @@ namespace propagator {
                 .value("custom_stopping_condition_type", tp::PropagationTerminationTypes::custom_stopping_condition)
                 .export_values();
 
-        py::enum_<tp::IntegratedStateType>(m, "StateType")
+        py::enum_<tp::IntegratedStateType>(m, "StateType",
+                                           get_docstring("StateType").c_str())
                 .value("hybrid_type", tp::IntegratedStateType::hybrid)
                 .value("translational_type", tp::IntegratedStateType::translational_state)
                 .value("rotational_type", tp::IntegratedStateType::rotational_state)
