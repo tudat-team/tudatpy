@@ -39,7 +39,7 @@ enum VariableType
 };
 
 // Functional base class for defining settings for variables
-/*!
+/*
  *  Functional base class for defining settings for variables.
  *  Any variable that requires additional information in addition to what can be provided here, should be
  *  defined by a dedicated derived class.
@@ -50,7 +50,7 @@ class VariableSettings
 public:
 
     // Constructor.
-    /*!
+    /*
      *  Constructor.
      *  \param variableType Type of variable.
      */
@@ -67,6 +67,7 @@ public:
 
 
 // Enum listing the dependent variables that can be saved during the propagation.
+//! @get_docstring(PropagationDependentVariables.__docstring__)
 enum PropagationDependentVariables
 {
     mach_number_dependent_variable = 0,
@@ -119,7 +120,7 @@ enum PropagationDependentVariables
 };
 
 // Functional base class for defining settings for dependent variables that are to be saved during propagation
-/*!
+/*
  *  Functional base class for defining settings for dependent variables that are to be saved during propagation.
  *  Any dependent variable that requires additional information in addition to what can be provided here, should be
  *  defined by a dedicated derived class.
@@ -130,7 +131,7 @@ class SingleDependentVariableSaveSettings : public VariableSettings
 public:
 
     // Constructor.
-    /*!
+    /*
      *  Constructor.
      *  \param dependentVariableType Type of dependent variable that is to be saved.
      *  \param associatedBody Body associated with dependent variable.
@@ -168,7 +169,7 @@ public:
 };
 
 // Class to define settings for saving a single acceleration (norm or vector) during propagation
-/*!
+/*
  *  Class to define settings for saving a single acceleration (norm or vector) during propagation. NOTE: This acceleration
  *  is returned in the inertial frame!
  */
@@ -178,7 +179,7 @@ class SingleAccelerationDependentVariableSaveSettings: public SingleDependentVar
 public:
 
     // Constructor.
-    /*!
+    /*
      *  Constructor.
      *  \param accelerationModelType Type of acceleration that is to be saved.
      *  \param bodyUndergoingAcceleration Name of body undergoing the acceleration.
@@ -210,7 +211,7 @@ class SphericalHarmonicAccelerationTermsDependentVariableSaveSettings: public Si
 public:
 
     // Constructor.
-    /*!
+    /*
      *  Constructor.
      *  \param bodyUndergoingAcceleration Name of body undergoing the acceleration.
      *  \param bodyExertingAcceleration Name of body exerting the acceleration.
@@ -231,7 +232,7 @@ public:
             componentIndex ), componentIndices_( componentIndices ){ }
 
     // Constructor.
-    /*!
+    /*
      *  Constructor. for saving all terms up to a given degree/order.
      *  \param bodyUndergoingAcceleration Name of body undergoing the acceleration.
      *  \param bodyExertingAcceleration Name of body exerting the acceleration.
@@ -272,7 +273,7 @@ class SingleTorqueDependentVariableSaveSettings: public SingleDependentVariableS
 public:
 
     // Constructor.
-    /*!
+    /*
      *  Constructor.
      *  \param torqueModelType Type of torque that is to be saved.
      *  \param bodyUndergoingTorque Name of body undergoing the torque.
@@ -304,7 +305,7 @@ class IntermediateAerodynamicRotationVariableSaveSettings: public SingleDependen
 public:
 
     // Constructor.
-    /*!
+    /*
      *  Constructor.
      *  \param associatedBody Body for which the rotation matrix is to be saved.
      *  \param baseFrame Frame from which rotation is to take place.
@@ -335,7 +336,7 @@ class BodyAerodynamicAngleVariableSaveSettings: public SingleDependentVariableSa
 public:
 
     // Constructor.
-    /*!
+    /*
      *  Constructor.
      *  \param associatedBody Body for which the orientation angle is to be saved.
      *  \param angle Orientation angle that is to be saved.
@@ -360,7 +361,7 @@ class SingleVariationSphericalHarmonicAccelerationSaveSettings: public SingleDep
 public:
 
     // Constructor.
-    /*!
+    /*
      *  Constructor.
      *  \param bodyUndergoingAcceleration Body undergoing acceleration.
      *  \param bodyExertingAcceleration Body exerting acceleration.
@@ -390,7 +391,7 @@ class SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings: public
 public:
 
     // Constructor.
-    /*!
+    /*
      *  Constructor.
      *  \param bodyUndergoingAcceleration Body undergoing acceleration.
      *  \param bodyExertingAcceleration Body exerting acceleration.
@@ -409,7 +410,7 @@ public:
         componentIndices_( componentIndices ), deformationType_( deformationType ), identifier_( identifier ){ }
 
     // Constructor.
-    /*!
+    /*
      *  Constructor.
      *  \param bodyUndergoingAcceleration Body undergoing acceleration.
      *  \param bodyExertingAcceleration Body exerting acceleration.
@@ -455,7 +456,7 @@ class AccelerationPartialWrtStateSaveSettings: public SingleDependentVariableSav
 public:
 
     // Constructor.
-    /*!
+    /*
      *  Constructor.
      *  \param bodyUndergoingAcceleration Body undergoing acceleration.
      *  \param bodyExertingAcceleration Body exerting acceleration.
@@ -492,7 +493,7 @@ class DependentVariableSaveSettings
 public:
 
     // Constructor.
-    /*!
+    /*
      *  Constructor.
      *  \param dependentVariables List of settings for parameters that are to be saved.
      *  \param printDependentVariableTypes Variable denoting whether to print the list and vector entries of
@@ -526,7 +527,7 @@ inline std::shared_ptr< DependentVariableSaveSettings > createDependentVariableS
 }
 
 // Function to get a string representing a 'named identification' of a variable type.
-/*!
+/*
  *  Function to get a string representing a 'named identification' of a variable type.
  *  \param variableType Variable type.
  *  \return String with variable type id.
@@ -534,7 +535,7 @@ inline std::shared_ptr< DependentVariableSaveSettings > createDependentVariableS
 std::string getVariableName( const VariableType variableType );
 
 // Function to get a string representing a 'named identification' of a variable.
-/*!
+/*
  *  Function to get a string representing a 'named identification' of a variable.
  *  \param variableSettings Variable.
  *  \return String with variable id.
@@ -542,7 +543,7 @@ std::string getVariableName( const VariableType variableType );
 std::string getVariableId( const std::shared_ptr< VariableSettings > variableSettings );
 
 // Function to get a string representing a 'named identification' of a dependent variable type.
-/*!
+/*
  *  Function to get a string representing a 'named identification' of a dependent variable type.
  *  \param propagationDependentVariables Dependent variable type.
  *  \return String with dependent variable type id.
@@ -550,7 +551,7 @@ std::string getVariableId( const std::shared_ptr< VariableSettings > variableSet
 std::string getDependentVariableName( const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings );
 
 // Function to get a string representing a 'named identification' of a dependent variable.
-/*!
+/*
  *  Function to get a string representing a 'named identification' of a dependent variable.
  *  \param dependentVariableSettings Dependent variable.
  *  \return String with dependent variable id.

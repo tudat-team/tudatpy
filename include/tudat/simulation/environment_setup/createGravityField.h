@@ -35,6 +35,7 @@ namespace simulation_setup
  *  List of gravity field models available in simulations. Gravity field models not defined by this
  *  given enum cannot be used for automatic model setup.
  */
+//! @get_docstring(GravityFieldType.__docstring__)
 enum GravityFieldType
 {
     central,
@@ -284,6 +285,7 @@ protected:
 
 
 // Spherical harmonics models supported by Tudat.
+//! @get_docstring(SphericalHarmonicsModel.__docstring__)
 enum SphericalHarmonicsModel
 {
     customModel,
