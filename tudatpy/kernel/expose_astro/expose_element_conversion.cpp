@@ -28,8 +28,13 @@ namespace tla = tudat::linear_algebra;
 namespace te = tudat::ephemerides;
 
 namespace tudatpy {
+<<<<<<< HEAD
 namespace astro {
 namespace element_conversion {
+=======
+    namespace astro {
+        namespace element_conversion {
+>>>>>>> 430786d34e5d83dfba61cf73c209ba1eca6b921e
 
 void expose_element_conversion(py::module &m) {
 
@@ -123,8 +128,14 @@ void expose_element_conversion(py::module &m) {
           &tla::convertMatrixToVectorQuaternionFormat,
           py::arg( "rotation_matrix" ) );
 
+<<<<<<< HEAD
 }
 
 }
 }
+=======
+};
+} // namespace element_conversion
+} // namespace astro
+>>>>>>> 430786d34e5d83dfba61cf73c209ba1eca6b921e
 }// namespace tudatpy

@@ -21,8 +21,13 @@ namespace tg = tudat::gravitation;
 namespace tbm = tudat::basic_mathematics;
 
 namespace tudatpy {
+<<<<<<< HEAD
 namespace astro {
 namespace gravitation {
+=======
+    namespace astro {
+        namespace gravitation {
+>>>>>>> 430786d34e5d83dfba61cf73c209ba1eca6b921e
 
 void expose_gravitation(py::module &m) {
 
@@ -57,6 +62,11 @@ void expose_gravitation(py::module &m) {
           py::arg("output_normalized_coefficients") = true );
 }
 
+<<<<<<< HEAD
 }
 }
+=======
+        } // namespace gravitation
+    } // namespace astro
+>>>>>>> 430786d34e5d83dfba61cf73c209ba1eca6b921e
 }// namespace tudatpy
