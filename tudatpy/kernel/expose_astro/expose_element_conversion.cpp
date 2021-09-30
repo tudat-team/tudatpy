@@ -32,6 +32,8 @@ namespace tla = tudat::linear_algebra;
 namespace te = tudat::ephemerides;
 
 namespace tudatpy {
+    namespace astro {
+        namespace element_conversion {
 
 void expose_element_conversion(py::module &m) {
 
@@ -131,5 +133,6 @@ void expose_element_conversion(py::module &m) {
           py::arg( "rotation_matrix" ) );
 
 };
-
+} // namespace element_conversion
+} // namespace astro
 }// namespace tudatpy
