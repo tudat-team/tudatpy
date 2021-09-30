@@ -53,13 +53,8 @@ void expose_propagation_setup(py::module &m) {
     auto propagator_setup = m.def_submodule("propagator");
     propagator::expose_propagator_setup(propagator_setup);
 
-<<<<<<< HEAD
-    auto mass_setup = m.def_submodule("mass");
-    mass::expose_mass_rate_setup(mass_setup);
-=======
-                auto mass_setup = m.def_submodule("mass_rate");
-                mass_rate::expose_mass_rate_setup(mass_setup);
->>>>>>> origin/develop
+    auto mass_setup = m.def_submodule("mass_rate");
+    mass_rate::expose_mass_rate_setup(mass_setup);
 
     auto dependent_variable_setup = m.def_submodule("dependent_variable");
     dependent_variable::expose_dependent_variable_setup(dependent_variable_setup);
