@@ -296,11 +296,10 @@ endif ()
 if (TUDAT_BUILD_WITH_NRLMSISE00)
     find_package(nrlmsise00 REQUIRED 0.1)
     message(STATUS ${NRLMSISE00_LIBRARIES})
+    add_definitions(-DTUDAT_BUILD_WITH_NRLMSISE=1)
+else( )
+    add_definitions(-DTUDAT_BUILD_WITH_NRLMSISE=0)
 endif ()
-
-
-# TODO: add NRLMSISE back in
-add_definitions(-DTUDAT_BUILD_WITH_NRLMSISE=0)
 
 # JSON
 if (TUDAT_BUILD_WITH_JSON_INTERFACE)
