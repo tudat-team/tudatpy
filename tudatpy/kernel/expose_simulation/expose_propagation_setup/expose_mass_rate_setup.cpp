@@ -33,13 +33,14 @@ namespace tmrf = tudat::root_finders;
 namespace tudatpy {
 namespace simulation {
 namespace propagation_setup {
-namespace mass {
+namespace mass_rate {
 
     void expose_mass_rate_setup(py::module &m) {
 
         // Enums
 
-        py::enum_<tba::AvailableMassRateModels>(m, "AvailableMassRateModels")
+        py::enum_<tba::AvailableMassRateModels>(m, "AvailableMassRateModels",
+                                                get_docstring("AvailableMassRateModels").c_str())
                 .value("undefined_mass_rate_type", tba::AvailableMassRateModels::undefined_mass_rate_model)
                 .value("custom_mass_rate_type", tba::AvailableMassRateModels::custom_mass_rate_model)
                 .value("from_thrust_mass_rate_type", tba::AvailableMassRateModels::from_thrust_mass_rate_model)

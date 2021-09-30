@@ -39,22 +39,28 @@ namespace integrator {
     void expose_integrator_setup(py::module &m) {
 
 // ENUMS
-            py::enum_<tni::AvailableIntegrators>(m, "AvailableIntegrators")
-                    .value("euler_type", tni::AvailableIntegrators::euler)
-                    .value("runge_kutta_4_type", tni::AvailableIntegrators::rungeKutta4)
-                    .value("runge_kutta_variable_step_size_type", tni::AvailableIntegrators::rungeKuttaVariableStepSize)
-                    .value("bulirsch_stoer_type", tni::AvailableIntegrators::bulirschStoer)
-                    .value("adams_bashforth_moulton_type", tni::AvailableIntegrators::adamsBashforthMoulton)
-                    .export_values();
+            py::enum_<tni::AvailableIntegrators>(m, "AvailableIntegrators", get_docstring("AvailableIntegrators").c_str())
+                    .value("euler_type", tni::AvailableIntegrators::euler,
+                           get_docstring("AvailableIntegrators.euler").c_str())
+                    .value("runge_kutta_4_type", tni::AvailableIntegrators::rungeKutta4,
+                           get_docstring("AvailableIntegrators.runge_kutta_4").c_str())
+                    .value("runge_kutta_variable_step_size_type", tni::AvailableIntegrators::rungeKuttaVariableStepSize,
+                           get_docstring("AvailableIntegrators.runge_kutta_variable_step_size").c_str())
+                    .value("bulirsch_stoer_type", tni::AvailableIntegrators::bulirschStoer,
+                           get_docstring("AvailableIntegrators.bulirsch_stoer").c_str())
+                    .value("adams_bashforth_moulton_type", tni::AvailableIntegrators::adamsBashforthMoulton,
+                           get_docstring("AvailableIntegrators.adams_bashforth_moulton").c_str());
 
-            py::enum_<tni::RungeKuttaCoefficients::CoefficientSets>(m, "RKCoefficientSets")
+            py::enum_<tni::RungeKuttaCoefficients::CoefficientSets>(m, "RKCoefficientSets",
+                                                                    get_docstring("RKCoefficientSets").c_str())
                     .value("rkf_45", tni::RungeKuttaCoefficients::rungeKuttaFehlberg45)
                     .value("rkf_56", tni::RungeKuttaCoefficients::rungeKuttaFehlberg56)
                     .value("rkf_78", tni::RungeKuttaCoefficients::rungeKuttaFehlberg78)
                     .value("rkdp_87", tni::RungeKuttaCoefficients::rungeKutta87DormandPrince)
                     .export_values();
 
-            py::enum_<tni::ExtrapolationMethodStepSequences>(m, "ExtrapolationMethodStepSequences")
+            py::enum_<tni::ExtrapolationMethodStepSequences>(m, "ExtrapolationMethodStepSequences",
+                                                             get_docstring("ExtrapolationMethodStepSequences").c_str())
                     .value("bulirsch_stoer_sequence", tni::ExtrapolationMethodStepSequences::bulirsch_stoer_sequence)
                     .value("deufelhard_sequence", tni::ExtrapolationMethodStepSequences::deufelhard_sequence)
                     .export_values();

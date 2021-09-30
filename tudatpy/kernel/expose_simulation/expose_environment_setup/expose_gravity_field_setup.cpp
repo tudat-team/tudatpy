@@ -34,13 +34,15 @@ namespace gravity_field {
         /////////////////////////////////////////////////////////////////////////////
         // createGravityField.h
         /////////////////////////////////////////////////////////////////////////////
-        py::enum_<tss::GravityFieldType>(m, "GravityFieldType", "<no doc>")
+        py::enum_<tss::GravityFieldType>(m, "GravityFieldType",
+                                         get_docstring("GravityFieldType").c_str())
                 .value("central_gravity", tss::GravityFieldType::central)
                 .value("central_spice_gravity", tss::GravityFieldType::central_spice)
                 .value("spherical_harmonic_gravity", tss::GravityFieldType::spherical_harmonic)
                 .export_values();
 
-        py::enum_<tss::SphericalHarmonicsModel>(m, "SphericalHarmonicsModel", "<no doc>")
+        py::enum_<tss::SphericalHarmonicsModel>(m, "SphericalHarmonicsModel",
+                                                get_docstring("SphericalHarmonicsModel").c_str())
                 .value("custom_model", tss::SphericalHarmonicsModel::customModel)
                 .value("egm96", tss::SphericalHarmonicsModel::egm96)
                 .value("ggm02c", tss::SphericalHarmonicsModel::ggm02c)

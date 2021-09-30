@@ -42,7 +42,8 @@ void expose_acceleration_setup(py::module &m) {
      * and AvailableAccelerations which should be relocated in the tudat source.
      */
 
-    py::enum_<tba::AvailableAcceleration>(m, "AvailableAcceleration")
+    py::enum_<tba::AvailableAcceleration>(m, "AvailableAcceleration",
+                                          get_docstring("AvailableAcceleration").c_str())
             .value("undefined_acceleration_type", tba::AvailableAcceleration::undefined_acceleration)
             .value("point_mass_gravity_type", tba::AvailableAcceleration::point_mass_gravity)
             .value("central_gravity_type", tba::AvailableAcceleration::central_gravity)
@@ -64,7 +65,8 @@ void expose_acceleration_setup(py::module &m) {
             .value("solar_sail_acceleration_type", tba::AvailableAcceleration::solar_sail_acceleration)
             .export_values();
 
-    py::enum_<tss::ThrustFrames>(m, "ThrustFrames")
+    py::enum_<tss::ThrustFrames>(m, "ThrustFrames",
+                                 get_docstring("ThrustFrames").c_str())
             .value("unspecified_thrust_frame_type", tss::ThrustFrames::unspecified_thrust_frame)
             .value("inertial_thrust_frame_type", tss::ThrustFrames::inertial_thrust_frame)
             .value("lvlh_thrust_frame_type", tss::ThrustFrames::lvlh_thrust_frame)
@@ -278,7 +280,8 @@ void expose_acceleration_setup(py::module &m) {
     //////////////////////////////////////////////////////////////////////////////
     // thrustSettings.h / thrustSettings.cpp
     //////////////////////////////////////////////////////////////////////////////
-    py::enum_<tss::ThrustDirectionTypes>(m, "ThrustDirectionGuidanceTypes")
+    py::enum_<tss::ThrustDirectionTypes>(m, "ThrustDirectionGuidanceTypes",
+                                         get_docstring("ThrustDirectionGuidanceTypes").c_str())
             .value("colinear_with_state_segment_thrust_direction", tss::ThrustDirectionTypes::colinear_with_state_segment_thrust_direction)
             .value("thrust_direction_from_existing_body_orientation", tss::ThrustDirectionTypes::thrust_direction_from_existing_body_orientation)
             .value("custom_thrust_direction", tss::ThrustDirectionTypes::custom_thrust_direction)
@@ -374,7 +377,8 @@ void expose_acceleration_setup(py::module &m) {
             .def_readonly("vehicle_name", &tss::MeeCostateBasedThrustDirectionSettings::vehicleName_)
             .def_readonly("costate_function", &tss::MeeCostateBasedThrustDirectionSettings::costateFunction_);
 
-    py::enum_<tss::ThrustMagnitudeTypes>(m, "ThrustMagnitudeTypes")
+    py::enum_<tss::ThrustMagnitudeTypes>(m, "ThrustMagnitudeTypes",
+                                         get_docstring("ThrustMagnitudeTypes").c_str())
             .value("constant_thrust_magnitude", tss::ThrustMagnitudeTypes::constant_thrust_magnitude)
             .value("from_engine_properties_thrust_magnitude", tss::ThrustMagnitudeTypes::from_engine_properties_thrust_magnitude)
             .value("thrust_magnitude_from_time_function", tss::ThrustMagnitudeTypes::thrust_magnitude_from_time_function)
