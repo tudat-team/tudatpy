@@ -411,9 +411,9 @@ private:
         {
             // Ensure sufficient data points for spline.
             int cubicSplineInputSize = offsetEntries_;
-            if( cubicSplineInputSize < 4 )
+            if( cubicSplineInputSize < 3 )
             {
-                cubicSplineInputSize = 4;
+                cubicSplineInputSize = 3;
             }
 
             // Set input maps for interpolators
