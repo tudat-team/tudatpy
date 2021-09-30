@@ -72,6 +72,8 @@ class PyLambertTargeter : public tms::LambertTargeter {
 
 }// namespace trampoline
 
+    namespace astro {
+        namespace two_body_dynamics {
 void expose_two_body_dynamics(py::module &m) {
 
 
@@ -259,5 +261,6 @@ void expose_two_body_dynamics(py::module &m) {
 
 
 };
-
+        } // namespace two_body_dynamics
+    } // namespace astro
 }// namespace tudatpy

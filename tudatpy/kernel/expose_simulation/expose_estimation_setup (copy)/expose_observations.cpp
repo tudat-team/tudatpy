@@ -26,6 +26,8 @@ namespace tom = tudat::observation_models;
 
 
 namespace tudatpy {
+    namespace astro {
+        namespace observations {
 
 void expose_observations(py::module &m) {
 
@@ -59,5 +61,6 @@ void expose_observations(py::module &m) {
 
 
 }
-
+        } // namespace observations
+    } // namespace astro
 }// namespace tudatpy

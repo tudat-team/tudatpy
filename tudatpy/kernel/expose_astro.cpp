@@ -20,24 +20,46 @@
 namespace py = pybind11;
 
 namespace tudatpy {
+<<<<<<< HEAD
 namespace astro {
+=======
+    namespace astro {
+>>>>>>> 430786d34e5d83dfba61cf73c209ba1eca6b921e
 
-void expose_astro(py::module &m) {
+        void expose_astro(py::module &m) {
 
+<<<<<<< HEAD
   auto element_conversion = m.def_submodule("element_conversion");
   astro::element_conversion::expose_element_conversion(element_conversion);
 
   auto frame_conversion = m.def_submodule("frame_conversion");
   astro::frame_conversion::expose_frame_conversion(frame_conversion);
+=======
+            auto element_conversion = m.def_submodule("element_conversion");
+            element_conversion::expose_element_conversion(element_conversion);
 
-  auto two_body_dynamics = m.def_submodule("two_body_dynamics");
-  expose_two_body_dynamics(two_body_dynamics);
+            auto frame_conversion = m.def_submodule("frame_conversion");
+            frame_conversion::expose_frame_conversion(frame_conversion);
+>>>>>>> 430786d34e5d83dfba61cf73c209ba1eca6b921e
 
+            auto two_body_dynamics = m.def_submodule("two_body_dynamics");
+            two_body_dynamics::expose_two_body_dynamics(two_body_dynamics);
+
+<<<<<<< HEAD
   auto gravitation = m.def_submodule("gravitation");
   astro::gravitation::expose_gravitation(gravitation);
 
+=======
+            auto gravitation = m.def_submodule("gravitation");
+            gravitation::expose_gravitation(gravitation);
 
-}
+            auto observations = m.def_submodule("observations");
+            observations::expose_observations(observations);
+>>>>>>> 430786d34e5d83dfba61cf73c209ba1eca6b921e
+
+        }
+
+    } // namespace astro
 
 }
 }// namespace tudatpy
