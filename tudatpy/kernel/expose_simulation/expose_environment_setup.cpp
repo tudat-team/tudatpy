@@ -8,7 +8,6 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "kernel/expose_astro/expose_element_conversion.h"
 
 #include "expose_environment_setup.h"
 
