@@ -16,9 +16,13 @@
 namespace py = pybind11;
 
 namespace tudatpy {
+    namespace astro {
+        namespace observations {
 
-void expose_observations(py::module &m);
+            void expose_observations(py::module &m);
 
-}
+        } // namespace observations
+    } // namespace astro
+} // namespace tudatpy
 
 #endif//TUDATPY_EXPOSE_OBSERVATIONS_H
