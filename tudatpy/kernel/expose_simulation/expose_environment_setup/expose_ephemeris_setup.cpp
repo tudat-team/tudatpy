@@ -39,6 +39,21 @@ namespace ephemeris {
         // approximatePlanetPositionsBase.h
         /////////////////////////////////////////////////////////////////////////////
 
+<<<<<<< HEAD
+=======
+        py::enum_<te::ApproximatePlanetPositionsBase::BodiesWithEphemerisData>(
+                m, "BodiesWithEphemerisData", get_docstring("BodiesWithEphemerisData").c_str())
+                .value("mercury", te::ApproximatePlanetPositionsBase::mercury)
+                .value("venus", te::ApproximatePlanetPositionsBase::venus)
+                .value("earth_moon_barycenter", te::ApproximatePlanetPositionsBase::earthMoonBarycenter)
+                .value("mars", te::ApproximatePlanetPositionsBase::mars)
+                .value("jupiter", te::ApproximatePlanetPositionsBase::jupiter)
+                .value("saturn", te::ApproximatePlanetPositionsBase::saturn)
+                .value("uranus", te::ApproximatePlanetPositionsBase::uranus)
+                .value("neptune", te::ApproximatePlanetPositionsBase::neptune)
+                .value("pluto", te::ApproximatePlanetPositionsBase::pluto)
+                .export_values();
+>>>>>>> origin/develop
 
         /////////////////////////////////////////////////////////////////////////////
         // createEphemeris.h (complete, unverified)

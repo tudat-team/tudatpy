@@ -206,21 +206,17 @@ def generate_py_sphinx(
         f.write(s)
 
     def recurse(structure, namespace_list):
-
+        title = '``' + ".".join(namespace_list[-1:])+ '``'
         if "modules" in structure.keys():
             for module in structure['modules']:
                 recurse(structure[module], namespace_list + [module])
-            s = t.render(structure=structure, namespace_list=namespace_list,
-                         title='``' + ".".join(namespace_list) + '``')
-            with open(os.path.join(dest_dir, f"{structure['name']}.rst"),
-                      "w") as f:
+            s = t.render(structure=structure, namespace_list=namespace_list,title=title)
+            with open(os.path.join(dest_dir, f"{structure['name']}.rst"),"w") as f:
                 f.write(s)
 
         else:
-            s = t.render(structure=structure, namespace_list=namespace_list,
-                         title='``' + ".".join(namespace_list) + '``')
-            with open(os.path.join(dest_dir, f"{structure['name']}.rst"),
-                      "w") as f:
+            s = t.render(structure=structure, namespace_list=namespace_list,title=title)
+            with open(os.path.join(dest_dir, f"{structure['name']}.rst"),"w") as f:
                 f.write(s)
 
     for module in structure["modules"]:
