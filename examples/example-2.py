@@ -1,10 +1,6 @@
 ###############################################################################
 # IMPORT STATEMENTS ###########################################################
 ###############################################################################
-import sys
-sys.path.insert(0, '/home/dominic/Software/tudat-bundle/build-tudat-bundle-Desktop-Default/tudatpy')
-
-import numpy as np
 import numpy as np
 from tudatpy.kernel import constants
 from tudatpy.kernel import numerical_simulation

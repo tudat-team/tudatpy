@@ -146,13 +146,6 @@ void expose_estimation(py::module &m) {
                   &tep::EstimatableParameterSet<double>::getIndicesForParameterType,
                   py::arg("parameter_type") );
 
-    m.def("create_parameters_to_estimate",
-          &tss::createParametersToEstimate< double >,
-          py::arg("parameter_settings"),
-          py::arg("bodies"),
-          py::arg("propagator_settings") =
-            std::shared_ptr< tp::PropagatorSettings< double > >( ) );
-
     /*!
      *************** ESTIMATION ***************
      */

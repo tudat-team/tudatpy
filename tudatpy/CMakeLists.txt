@@ -78,7 +78,6 @@ YACMA_PYTHON_MODULE(kernel
         kernel/expose_math/expose_root_finders.cpp
         kernel/expose_math/expose_geometry.cpp
 
-        # kernel/simulation
         kernel/expose_numerical_simulation.cpp
 
         kernel/expose_numerical_simulation/expose_propagation.cpp
