@@ -1,5 +1,5 @@
 /*    Copyright (c) 2010-2018, Delft University of Technology
- *    All rigths reserved
+ *    All rights reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
  *    binary forms, with or without modification, are permitted exclusively
@@ -8,17 +8,26 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef TUDATPY_EXPOSE_TRAJECTORY_DESIGN_H
-#define TUDATPY_EXPOSE_TRAJECTORY_DESIGN_H
+#ifndef TUDATPY_EXPOSE_NUMERICAL_SIMULATION_H
+#define TUDATPY_EXPOSE_NUMERICAL_SIMULATION_H
 
 #include <pybind11/pybind11.h>
+#include <pybind11/chrono.h>
+#include <pybind11/eigen.h>
+#include <pybind11/functional.h>
+#include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
+#include <pybind11/numpy.h>
 
 namespace py = pybind11;
 
 namespace tudatpy {
-namespace trajectory_design{
-void expose_trajectory_design(py::module &m);
-}
-}// namespace tudatpy
 
-#endif// TUDATPY_EXPOSE_TRAJECTORY_DESIGN_H
+namespace numerical_simulation{
+
+void expose_numerical_simulation(py::module &m);
+
+}// namespace numerical_simulation
+
+}// namespace tudatpy
+#endif//TUDATPY_EXPOSE_NUMERICAL_SIMULATION_H
