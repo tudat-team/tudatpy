@@ -18,8 +18,6 @@ else()
 #    add_definitions(-DVERSION_INFO "${tudatpy_VERSION_LABEL}")
 endif()
 
-find_package(nrlmsise00 REQUIRED 0.1)
-
 include_directories(include)
 # Add cmake modules
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")

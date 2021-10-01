@@ -171,38 +171,6 @@ void expose_propagation(py::module &m) {
         tba::AccelerationModel<Eigen::Vector3d>,
         std::shared_ptr<tba::AccelerationModel<Eigen::Vector3d>>>(m, "AccelerationModel");
 
-    // First overload
-    m.def("create_acceleration_models",
-          py::overload_cast<const tss::SystemOfBodies &,
-                  const tss::SelectedAccelerationMap &,
-                  const std::map<std::string, std::string> &>(
-                  &tss::createAccelerationModelsMap),
-          py::arg("body_system"),
-          py::arg("selected_acceleration_per_body"),
-          py::arg("central_bodies"),
-          get_docstring("create_acceleration_models", 0).c_str());
-
-    // Second overload
-    m.def("create_acceleration_models",
-          py::overload_cast<const tss::SystemOfBodies &,
-                  const tss::SelectedAccelerationMap &,
-                  const std::vector<std::string> &,
-                  const std::vector<std::string> &>(
-                  &tss::createAccelerationModelsMap),
-          py::arg("body_system"),
-          py::arg("selected_acceleration_per_body"),
-          py::arg("bodies_to_propagate"),
-          py::arg("central_bodies"),
-          get_docstring("create_acceleration_models", 1).c_str());
-
-    m.def("create_torque_models",
-          &tss::createTorqueModelsMap,
-          py::arg("body_system"),
-          py::arg("selected_torque_per_body"),
-          py::arg("bodies_to_propagate"),
-          get_docstring("create_torque_models").c_str());
-
-
 
 }
 }// namespace propagation
