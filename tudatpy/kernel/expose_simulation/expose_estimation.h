@@ -25,7 +25,7 @@ namespace tudatpy {
 namespace simulation {
 namespace estimation {
 
-    void expose_estimation(py::module &m);
+void expose_estimation(py::module &m);
 
 }// namespace estimation_setup
 }// namespace simulation

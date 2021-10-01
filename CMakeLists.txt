@@ -57,6 +57,12 @@ message(STATUS "BUILD_STYLE ......................................... ${BUILD_ST
 set(Boost_USE_STATIC_LIBS OFF)
 set(Boost_USE_STATIC_RUNTIME OFF)
 
+if (NOT TUDAT_BUILD_WITH_ESTIMATION_TOOLS)
+    add_definitions(-DTUDAT_BUILD_WITH_ESTIMATION_TOOLS=0)
+else ()
+    add_definitions(-DTUDAT_BUILD_WITH_ESTIMATION_TOOLS=1)
+endif ()
+
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 # Find Boost libraries on local system.
