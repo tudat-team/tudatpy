@@ -1,15 +1,15 @@
 ###############################################################################
 # IMPORT STATEMENTS ###########################################################
 ###############################################################################
-import sys
-sys.path.insert(0, '/home/dominic/Software/tudat-bundle/build-tudat-bundle-Desktop-Default/tudatpy')
+#import sys
+#sys.path.insert(0, '/home/dominic/Software/tudat-bundle/build-tudat-bundle-Desktop-Default/tudatpy')
 
+import math
 import numpy as np
 from tudatpy.kernel import constants
 from tudatpy.kernel.interface import spice_interface
 from tudatpy.kernel.simulation import environment_setup
 from tudatpy.kernel.simulation import propagation_setup
-from tudatpy.kernel.astro import element_conversion
 from tudatpy.kernel import __version__
 
 import sys
@@ -17,10 +17,24 @@ import sys
 print(sys.path)
 print(__version__)
 
+def neptune_state_function( current_time ):
+    orbital_radius = 4.5E12
+    sun_gravitational_parameter = 1.32712440042E20
+    anomaly_at_j2000 = np.deg2rad( 304.88003 )
+
+    orbital_velocity = math.sqrt( sun_gravitational_parameter / orbital_radius )
+    orbital_period = 2.0 * np.pi * np.sqrt( orbital_radius ** 3 / sun_gravitational_parameter )
+
+    anomaly_at_epoch = anomaly_at_j2000 + 2.0 * np.pi * ( current_time / orbital_period )
+
+    return np.array([orbital_radius * math.cos(anomaly_at_epoch),orbital_radius * math.sin(anomaly_at_epoch),0.0,
+                     orbital_velocity * -math.sin(anomaly_at_epoch),orbital_velocity * math.cos(anomaly_at_epoch),0.0]).T
+
 def main():
     # Load spice kernels.
     spice_interface.load_standard_kernels()
 
+    print(neptune_state_function(0.0))
     # Set simulation start and end epochs.
     simulation_start_epoch = 0.0
     simulation_end_epoch = constants.JULIAN_DAY

@@ -80,35 +80,34 @@ YACMA_PYTHON_MODULE(kernel
         kernel/expose_math/expose_geometry.cpp
 
         # kernel/simulation
-        kernel/expose_simulation.cpp
+        kernel/expose_numerical_simulation.cpp
 
-        kernel/expose_simulation/expose_propagation.cpp
-        kernel/expose_simulation/expose_environment.cpp
-        kernel/expose_simulation/expose_estimation.cpp
+        kernel/expose_numerical_simulation/expose_propagation.cpp
+        kernel/expose_numerical_simulation/expose_environment.cpp
+        kernel/expose_numerical_simulation/expose_estimation.cpp
 
-        kernel/expose_simulation/expose_environment_setup.cpp
-        kernel/expose_simulation/expose_environment_setup/expose_aerodynamic_coefficient_setup.cpp
-        kernel/expose_simulation/expose_environment_setup/expose_atmosphere_setup.cpp
-        kernel/expose_simulation/expose_environment_setup/expose_ephemeris_setup.cpp
-        kernel/expose_simulation/expose_environment_setup/expose_gravity_field_setup.cpp
-        kernel/expose_simulation/expose_environment_setup/expose_gravity_field_variation_setup.cpp
-        kernel/expose_simulation/expose_environment_setup/expose_radiation_pressure_setup.cpp
-        kernel/expose_simulation/expose_environment_setup/expose_rotation_model_setup.cpp
-        kernel/expose_simulation/expose_environment_setup/expose_shape_setup.cpp
+        kernel/expose_numerical_simulation/expose_environment_setup.cpp
+        kernel/expose_numerical_simulation/expose_environment_setup/expose_aerodynamic_coefficient_setup.cpp
+        kernel/expose_numerical_simulation/expose_environment_setup/expose_atmosphere_setup.cpp
+        kernel/expose_numerical_simulation/expose_environment_setup/expose_ephemeris_setup.cpp
+        kernel/expose_numerical_simulation/expose_environment_setup/expose_gravity_field_setup.cpp
+        kernel/expose_numerical_simulation/expose_environment_setup/expose_gravity_field_variation_setup.cpp
+        kernel/expose_numerical_simulation/expose_environment_setup/expose_radiation_pressure_setup.cpp
+        kernel/expose_numerical_simulation/expose_environment_setup/expose_rotation_model_setup.cpp
+        kernel/expose_numerical_simulation/expose_environment_setup/expose_shape_setup.cpp
 
 
-        kernel/expose_simulation/expose_propagation_setup.cpp
-        kernel/expose_simulation/expose_propagation_setup/expose_acceleration_setup.cpp
-        kernel/expose_simulation/expose_propagation_setup/expose_dependent_variable_setup.cpp
-        kernel/expose_simulation/expose_propagation_setup/expose_integrator_setup.cpp
-        kernel/expose_simulation/expose_propagation_setup/expose_mass_rate_setup.cpp
-        kernel/expose_simulation/expose_propagation_setup/expose_propagator_setup.cpp
-        kernel/expose_simulation/expose_propagation_setup/expose_torque_setup.cpp
+        kernel/expose_numerical_simulation/expose_propagation_setup.cpp
+        kernel/expose_numerical_simulation/expose_propagation_setup/expose_acceleration_setup.cpp
+        kernel/expose_numerical_simulation/expose_propagation_setup/expose_dependent_variable_setup.cpp
+        kernel/expose_numerical_simulation/expose_propagation_setup/expose_integrator_setup.cpp
+        kernel/expose_numerical_simulation/expose_propagation_setup/expose_mass_rate_setup.cpp
+        kernel/expose_numerical_simulation/expose_propagation_setup/expose_propagator_setup.cpp
+        kernel/expose_numerical_simulation/expose_propagation_setup/expose_torque_setup.cpp
 
-        kernel/expose_simulation/expose_estimation_setup.cpp
-        kernel/expose_simulation/expose_estimation_setup/expose_observations.cpp
-        kernel/expose_simulation/expose_estimation_setup/expose_observations_setup.cpp
-        kernel/expose_simulation/expose_estimation_setup/expose_estimated_parameter_setup.cpp
+        kernel/expose_numerical_simulation/expose_estimation_setup.cpp
+        kernel/expose_numerical_simulation/expose_estimation_setup/expose_observations_setup.cpp
+        kernel/expose_numerical_simulation/expose_estimation_setup/expose_estimated_parameter_setup.cpp
 
         kernel/expose_unit_tests.cpp
 
