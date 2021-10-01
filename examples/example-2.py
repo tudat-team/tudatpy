@@ -5,11 +5,14 @@ import sys
 sys.path.insert(0, '/home/dominic/Software/tudat-bundle/build-tudat-bundle-Desktop-Default/tudatpy')
 
 import numpy as np
+import numpy as np
 from tudatpy.kernel import constants
-from tudatpy.kernel.interface import spice_interface
-from tudatpy.kernel.simulation import environment_setup
-from tudatpy.kernel.simulation import propagation_setup
+from tudatpy.kernel import numerical_simulation
 from tudatpy.kernel.astro import element_conversion
+from tudatpy.kernel.interface import spice_interface
+from tudatpy.kernel.numerical_simulation import environment_setup
+from tudatpy.kernel.numerical_simulation import propagation_setup
+from tudatpy.kernel.numerical_simulation import propagation
 
 def main():
     # Load spice kernels.
@@ -98,7 +101,7 @@ def main():
     acceleration_settings = {"Delfi-C3": accelerations_settings_delfi_c3}
 
     # Create acceleration models.
-    acceleration_models = propagation_setup.propagator.create_acceleration_models(
+    acceleration_models = propagation.create_acceleration_models(
         bodies,
         acceleration_settings,
         bodies_to_propagate,
@@ -112,7 +115,7 @@ def main():
     # propagated in this simulation. The initial conditions are given in
     # Keplerian elements and later on converted to Cartesian elements.
     earth_gravitational_parameter = bodies.get_body( "Earth" ).gravitational_parameter
-    initial_state = element_conversion.keplerian_to_cartesian(
+    initial_state = element_conversion.keplerian_to_cartesian_elementwise(
         gravitational_parameter=earth_gravitational_parameter,
         semi_major_axis=7500.0E3,
         eccentricity=0.1,
@@ -160,7 +163,7 @@ def main():
     ###########################################################################
 
     # Create simulation object and propagate dynamics.
-    dynamics_simulator = propagation_setup.propagator.SingleArcDynamicsSimulator(
+    dynamics_simulator = numerical_simulation.SingleArcSimulator(
         bodies, integrator_settings, propagator_settings)
     states = dynamics_simulator.state_history
     dependent_variables = dynamics_simulator.dependent_variable_history
