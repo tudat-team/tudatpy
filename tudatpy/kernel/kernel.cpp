@@ -8,7 +8,7 @@
 #include "expose_interface.h"
 #include "expose_io.h"
 #include "expose_math.h"
-#include "expose_simulation.h"
+#include "expose_numerical_simulation.h"
 #include "expose_trajectory_design.h"
 
 namespace py = pybind11;
@@ -44,13 +44,19 @@ PYBIND11_MODULE(kernel, m) {
   auto constants = m.def_submodule("constants");
   tudatpy::constants::expose_constants(constants);
 
+
   // io module
   auto io = m.def_submodule("io");
   tudatpy::expose_io(io);
 
   // simulation module
+  auto trajectory_design = m.def_submodule("trajectory_design");
+  tudatpy::trajectory_design::expose_trajectory_design(trajectory_design);
+
+
+  // simulation module
   auto simulation = m.def_submodule("simulation");
-  tudatpy::simulation::expose_simulation(simulation);
+  tudatpy::numerical_simulation::expose_numerical_simulation(simulation);
 
   // example module
   auto example = m.def_submodule("example");
