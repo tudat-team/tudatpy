@@ -2,14 +2,13 @@
 # IMPORT STATEMENTS ###########################################################
 ###############################################################################
 import numpy as np
-import time
-from tudatpy import elements
 from tudatpy.kernel import constants
+from tudatpy.kernel import numerical_simulation
+from tudatpy.kernel.astro import element_conversion
 from tudatpy.kernel.interface import spice_interface
-from tudatpy.kernel.simulation import environment_setup
-from tudatpy.kernel.simulation import propagation_setup
-from tudatpy.kernel.simulation import estimation_setup
-from tudatpy.kernel.astro import conversion
+from tudatpy.kernel.numerical_simulation import environment_setup
+from tudatpy.kernel.numerical_simulation import propagation_setup
+from tudatpy.kernel.numerical_simulation import estimation_setup
 
 def main():
 
@@ -115,7 +114,7 @@ def main():
     # propagated in this simulation. The initial conditions are given in
     # Keplerian elements and later on converted to Cartesian elements.
     earth_gravitational_parameter = bodies.get_body( "Earth" ).gravitational_parameter
-    initial_state = conversion.keplerian_to_cartesian(
+    initial_state = element_conversion.keplerian_to_cartesian_elementwise(
         gravitational_parameter=earth_gravitational_parameter,
         semi_major_axis=7500.0E3,
         eccentricity=0.1,
@@ -156,7 +155,7 @@ def main():
     ###########################################################################
 
     # Create simulation object and propagate dynamics.
-    variational_equations_solver = estimation_setup.SingleArcVariationalEquationsSolver(
+    variational_equations_solver = numerical_simulation.SingleArcVariationalSimulator(
         bodies, integrator_settings, propagator_settings, estimation_setup.create_parameters_to_estimate( parameter_settings, bodies ),
         integrate_on_creation=1 )
 

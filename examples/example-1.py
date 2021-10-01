@@ -1,9 +1,6 @@
 ###############################################################################
 # IMPORT STATEMENTS ###########################################################
 ###############################################################################
-import sys
-sys.path.insert(0, '/home/dominic/Software/tudat-bundle/build-tudat-bundle-Desktop-Default/tudatpy')
-
 import math
 import numpy as np
 from tudatpy.kernel import constants
@@ -12,7 +9,6 @@ from tudatpy.kernel.astro import element_conversion
 from tudatpy.kernel.interface import spice_interface
 from tudatpy.kernel.numerical_simulation import environment_setup
 from tudatpy.kernel.numerical_simulation import propagation_setup
-from tudatpy.kernel.numerical_simulation import propagation
 from tudatpy.kernel import __version__
 
 def main():
@@ -60,7 +56,7 @@ def main():
     acceleration_settings = {"Delfi-C3": acceleration_settings_delfi_c3}
 
     # Create acceleration models.
-    acceleration_models = propagation.create_acceleration_models(
+    acceleration_models = propagation_setup.create_acceleration_models(
         bodies, acceleration_settings, bodies_to_propagate, central_bodies
     )
 

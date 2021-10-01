@@ -21,6 +21,8 @@
 #include <pybind11/chrono.h>
 
 namespace py = pybind11;
+namespace tss = tudat::simulation_setup;
+namespace tp = tudat::propagators;
 
 namespace tudatpy {
 namespace numerical_simulation {
@@ -34,6 +36,14 @@ void expose_estimation_setup(py::module &m) {
 
     auto observations_setup = m.def_submodule("observations");
     observation::expose_observations_setup(observations_setup);
+
+    m.def("create_parameters_to_estimate",
+          &tss::createParametersToEstimate< double >,
+          py::arg("parameter_settings"),
+          py::arg("bodies"),
+          py::arg("propagator_settings") =
+            std::shared_ptr< tp::PropagatorSettings< double > >( ) );
+
 }
 
 }
