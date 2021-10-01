@@ -1,14 +1,10 @@
-#from ._layer_propagation_setup import modify_propagation_setup
-#from .kernel.simulation import propagation_setup
 from ._version import *
 from .kernel import constants
 from .kernel import astro
 from .kernel import interface
 from .kernel import math
-from .kernel import simulation
-
-#modify_propagation_setup(propagation_setup)
-
+from .kernel import numerical_simulation
+from .kernel import trajectory_design
 
 __all__ = [
     '__version__',
@@ -21,7 +17,7 @@ __all__ = [
     'interface',
     'kernel',
     'math',
-    'simulation'
+    'numerical_simulation'
 ]
 
 # Clean up namespace

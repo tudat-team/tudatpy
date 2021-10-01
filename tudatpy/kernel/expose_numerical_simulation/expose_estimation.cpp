@@ -35,6 +35,10 @@ namespace estimation {
 
 void expose_estimation(py::module &m) {
 
+   /*!
+    *************** OBSERVATIONS ***************
+    */
+
     py::class_< tom::ObservationCollection<>,
             std::shared_ptr<tom::ObservationCollection<>>>(m, "ObservationCollection");
 
@@ -63,6 +67,10 @@ void expose_estimation(py::module &m) {
                std::shared_ptr<tom::ObservationSimulator<6,double,double>>,
                tom::ObservationSimulatorBase<double,double>>(m, "ObservationSimulator_6");
 
+    /*!
+     *************** STATE TRANSITION INTERFACE ***************
+     */
+
     py::class_<
             tp::CombinedStateTransitionAndSensitivityMatrixInterface,
             std::shared_ptr<tp::CombinedStateTransitionAndSensitivityMatrixInterface>>(
@@ -85,6 +93,9 @@ void expose_estimation(py::module &m) {
                 "full_parameter_size",
                 &tp::CombinedStateTransitionAndSensitivityMatrixInterface::getFullParameterVectorSize);;
 
+    /*!
+     *************** COVARIANCE ***************
+     */
     m.def("propagate_covariance",
           py::overload_cast<
           const Eigen::MatrixXd,
@@ -111,6 +122,9 @@ void expose_estimation(py::module &m) {
           py::arg("state_transition_interface"),
           py::arg("output_times") );
 
+    /*!
+     *************** PARAMETERS ***************
+     */
     py::class_<tep::EstimatableParameterSet<double>,
             std::shared_ptr<tep::EstimatableParameterSet<double>>>(m, "EstimatableParameterSet")
             .def_property_readonly( "parameter_set_size",
@@ -132,6 +146,16 @@ void expose_estimation(py::module &m) {
                   &tep::EstimatableParameterSet<double>::getIndicesForParameterType,
                   py::arg("parameter_type") );
 
+    m.def("create_parameters_to_estimate",
+          &tss::createParametersToEstimate< double >,
+          py::arg("parameter_settings"),
+          py::arg("bodies"),
+          py::arg("propagator_settings") =
+            std::shared_ptr< tp::PropagatorSettings< double > >( ) );
+
+    /*!
+     *************** ESTIMATION ***************
+     */
     py::class_<
             tss::EstimationConvergenceChecker,
             std::shared_ptr<tss::EstimationConvergenceChecker>>(m, "EstimationConvergenceChecker")
@@ -199,15 +223,6 @@ void expose_estimation(py::module &m) {
                                    &tss::PodOutput<double, double>::getNormalizedWeightedInformationMatrix);
 
 
-
-
-
-    m.def("create_parameters_to_estimate",
-          &tss::createParametersToEstimate< double >,
-          py::arg("parameter_settings"),
-          py::arg("bodies"),
-          py::arg("propagator_settings") =
-            std::shared_ptr< tp::PropagatorSettings< double > >( ) );
 
 }
 
