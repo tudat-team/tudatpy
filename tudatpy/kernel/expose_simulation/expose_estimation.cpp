@@ -30,7 +30,7 @@ namespace tom = tudat::observation_models;
 
 namespace tudatpy {
 namespace simulation {
-namespace estimation_setup {
+namespace estimation {
 
 
 void expose_estimation(py::module &m) {
