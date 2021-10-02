@@ -26,9 +26,16 @@ set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--no-undefined")
 message(STATUS "System name: ${CMAKE_SYSTEM_NAME}")
 message(STATUS "tudatpy version: ${tudatpy_VERSION}")
 
+#set(CMAKE_CXX_STANDARD 17)
+#set(CMAKE_CXX_STANDARD_REQUIRED ON)
+#set(CMAKE_CXX_EXTENSIONS OFF)
+
 if (_ENABLE_EXTENDED_ALIGNED_STORAGE)
     add_definitions("-D_ENABLE_EXTENDED_ALIGNED_STORAGE")
 endif ()
+
+# `PyLong_Type' can not be used when making a shared object; recompile with -fPIC
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 
 if (MINGW)
     # https://github.com/tudat-team/tudatpy-feedstock/issues/3
@@ -45,12 +52,7 @@ if (MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj")
 endif ()
 
-message(STATUS "=============================================================")
-message(STATUS "******************** BUILD CONFIGURATION ********************")
-message(STATUS "=============================================================")
-message(STATUS "PROJECT_NAME ........................................ ${PROJECT_NAME}")
-message(STATUS "CMAKE_BUILD_TYPE .................................... ${CMAKE_BUILD_TYPE}")
-message(STATUS "BUILD_STYLE ......................................... ${BUILD_STYLE}")
+message(STATUS "<< ${PROJECT_NAME} (${CMAKE_BUILD_TYPE} - ${BUILD_STYLE}) >>")
 
 set(Boost_USE_STATIC_LIBS OFF)
 set(Boost_USE_STATIC_RUNTIME OFF)
@@ -64,11 +66,21 @@ endif ()
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 # Find Boost libraries on local system.
- find_package(Boost 1.72.0
-        COMPONENTS thread date_time system unit_test_framework filesystem regex serialization REQUIRED)
+find_package(Boost 1.72.0
+        COMPONENTS thread date_time system unit_test_framework filesystem regex REQUIRED)
 
 find_package(Eigen3 REQUIRED)
 include_directories(SYSTEM AFTER "${EIGEN3_INCLUDE_DIR}")
+
+# TODO: Make Tudat export definitions to the config for inheritence to this project.
+add_definitions(-DTUDAT_BUILD_WITH_SPICE_INTERFACE=1)
+add_definitions(-DTUDAT_BUILD_WITH_ESTIMATION_TOOLS=1)
+
+#if (DEFINED _GLIBCXX_USE_CXX11_ABI)
+#    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=${_GLIBCXX_USE_CXX11_ABI}")
+#endif ()
+#set(TUDAT_BUNDLE_BUILD ON)
+#find_package(Python3 COMPONENTS Interpreter Development)
 
 if (TUDAT_INSTALL)
     add_definitions(-DTUDAT_INSTALL=1)
@@ -78,38 +90,47 @@ if (TUDAT_CONDA_INSTALL)
     add_definitions(-DTUDAT_CONDA_INSTALL=1)
 endif ()
 
-# Core Tudat dependency.
-# Sofa dependency if in build settings.
-if (NOT ${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
-    set(Tudat_DIR ${CMAKE_BINARY_DIR}/tudat)
+if (TUDAT_TEST_INSTALL)
+    add_definitions(-DTUDAT_TEST_INSTALL=1)
 endif ()
-set (_TUDATPY_MIN_TUDAT_VERSION 2.9)
-find_package(Tudat REQUIRED)
-if(${Tudat_VERSION} VERSION_LESS ${_TUDATPY_MIN_TUDAT_VERSION})
-    message(FATAL_ERROR "The minimum tudat version required by tudatpy is ${_TUDATPY_MIN_TUDAT_VERSION}, but version ${Tudat_VERSION} was found instead.")
-endif()
 
-message(STATUS "=============================================================")
-message(STATUS "***************** TUDAT LINK LIBRARIES *********************")
-message(STATUS "=============================================================")
-message(STATUS Tudat_VERSION ........................................ "${Tudat_VERSION}")
-message(STATUS Tudat_INCLUDE_DIRS ................................... "${Tudat_INCLUDE_DIRS}")
-message(STATUS Tudat_LIBRARY_DIRS ................................... "${Tudat_LIBRARY_DIRS}")
-message(STATUS Tudat_DATA_DIRS ...................................... "${Tudat_DATA_DIRS}")
-message(STATUS "Tudat_PROPAGATION_LIBRARIES  ........................ [LISTED BELOW] ")
-foreach(line IN LISTS Tudat_PROPAGATION_LIBRARIES)
-    message(STATUS "                                                    - ${line}")
-endforeach()
-message(STATUS "Tudat_ESTIMATION_LIBRARIES  ......................... [LISTED BELOW] ")
-foreach(line IN LISTS Tudat_ESTIMATION_LIBRARIES)
-    message(STATUS "                                                    - ${line}")
-endforeach()
-message(STATUS "Tudat_INCLUDE_DIRS  ................................. [LISTED BELOW] ")
-foreach(line IN LISTS Tudat_INCLUDE_DIRS)
-    message(STATUS "                                                    - ${line}")
-endforeach()
+# CSpice dependency.
+if (${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
+    find_package(CSpice REQUIRED 1.0.0)
+else ()
+    set(CSpice_INCLUDE_DIRS ${CSpice_BUILD_INCLUDE_DIRS})
+endif ()
+
+
+# Sofa dependency.
+if (${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
+    find_package(Sofa 1.0.0 REQUIRED)
+else ()
+    set(Sofa_INCLUDE_DIRS ${Sofa_BUILD_INCLUDE_DIRS})
+endif ()
+
+# nrlmsise-00 dependency.
+if (${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
+    find_package(NRLMSISE00 0.1 REQUIRED)
+else ()
+    set(NRLMSISE00_INCLUDE_DIRS ${NRLMSISE00_BUILD_INCLUDE_DIRS})
+endif ()
+
+# Sofa dependency if in build settings.
+if (${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
+    find_package(Tudat 2.9 REQUIRED)
+    add_definitions(${Tudat_DEFINITIONS})
+else ()
+    set(Tudat_INCLUDE_DIRS ${Tudat_BUILD_INCLUDE_DIRS})
+endif ()
+
+#endif ()
+message(STATUS Tudat: [Tudat_PROPAGATION_LIBRARIES] ${Tudat_PROPAGATION_LIBRARIES})
+message(STATUS Tudat: [Tudat_INCLUDE_DIRS] ${Tudat_INCLUDE_DIRS})
 
 set(POSITION_INDEPENDENT_CODE True)
+
+enable_testing()
 
 # python.
 include(YACMAPythonSetup)
@@ -120,10 +141,17 @@ if (${PYTHON_VERSION_MAJOR} LESS 3 OR (${PYTHON_VERSION_MAJOR} EQUAL 3 AND ${PYT
 endif ()
 
 # pybind11.
-find_package(pybind11 REQUIRED)
+if (${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
+    find_package(pybind11 REQUIRED)
+else ()
+    set(pybind11_INCLUDE_DIRS ${pybind11_BUILD_INCLUDE_DIRS})
+    set(pybind11_INCLUDE_DIR ${pybind11_BUILD_INCLUDE_DIRS})
+endif ()
 
 # Configure the sphinx config file.
 #configure_file("${CMAKE_CURRENT_SOURCE_DIR}/doc/conf.py.in" "${CMAKE_CURRENT_SOURCE_DIR}/doc/conf.py" @ONLY)
+
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0")
 
 # Add the module directory.
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/docs DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
