@@ -101,7 +101,6 @@ void expose_acceleration_setup(py::module &m) {
           py::arg( "maximum_order_central_body" ) = 0,
           get_docstring("mutual_spherical_harmonic_gravity").c_str());
 
-    // TODO: I replaced zeros with false, is it okay?
     m.def("relativistic_correction", &tss::relativisticAccelerationCorrection,
           py::arg( "use_schwarzschild" ) = false,
           py::arg( "use_lense_thirring" ) = false,
@@ -135,13 +134,13 @@ void expose_acceleration_setup(py::module &m) {
           py::arg("maneuver_rise_time"),
           get_docstring("momentum_wheel_desaturation_acceleration").c_str());
 
-    m.def("thrust_acceleration", py::overload_cast<const std::shared_ptr<tss::ThrustDirectionSettings>,
+    m.def("thrust_from_direction_and_magnitude", py::overload_cast<const std::shared_ptr<tss::ThrustDirectionSettings>,
                   const std::shared_ptr<tss::ThrustMagnitudeSettings>>(&tss::thrustAcceleration),
           py::arg("thrust_direction_settings"),
           py::arg("thrust_magnitude_settings"),
           get_docstring("thrust_acceleration", 0).c_str());
 
-    m.def("thrust_acceleration", py::overload_cast<
+    m.def("thrust_from_interpolator", py::overload_cast<
                   const std::shared_ptr<tinterp::DataInterpolationSettings<double, Eigen::Vector3d>>&,
                   const std::function<double(const double)>,
                   const tss::ThrustFrames,
@@ -152,7 +151,7 @@ void expose_acceleration_setup(py::module &m) {
           py::arg("central_body") = "",
           get_docstring("thrust_acceleration", 1).c_str());
 
-    m.def("thrust_acceleration", py::overload_cast<
+    m.def("thrust_from_interpolator_variable_isp", py::overload_cast<
                   const std::shared_ptr<tinterp::DataInterpolationSettings<double, Eigen::Vector3d>>&,
                   const double,
                   const tss::ThrustFrames,
