@@ -100,7 +100,6 @@ namespace propagator {
 
         // CLASSES
 
-        // NOTE: this class does not strictly belong to "propagator settings".
         py::class_<
                 tp::SingleArcDynamicsSimulator<double, double>,
                 std::shared_ptr<tp::SingleArcDynamicsSimulator<double, double>>>(m,
@@ -129,73 +128,94 @@ namespace propagator {
                      py::arg("print_dependent_variable_data") = true)
                 .def("integrate_equations_of_motion",
                      &tp::SingleArcDynamicsSimulator<double, double>::integrateEquationsOfMotion,
-                     py::arg("initial_states"))
-                .def_property_readonly("equations_of_motion_numerical_solution",
-                     &tp::SingleArcDynamicsSimulator<double, double>::getEquationsOfMotionNumericalSolution)
+                     py::arg("initial_states"),
+                     get_docstring("integrate_equations_of_motion").c_str())
                 .def_property_readonly("state_history",
-                                       &tp::SingleArcDynamicsSimulator<double, double>::getEquationsOfMotionNumericalSolution)
-                .def_property_readonly("equations_of_motion_numerical_solution_raw",
-                     &tp::SingleArcDynamicsSimulator<double, double>::getEquationsOfMotionNumericalSolutionRaw)
+                                       &tp::SingleArcDynamicsSimulator<double, double>::getEquationsOfMotionNumericalSolution,
+                                       get_docstring("state_history").c_str())
                 .def_property_readonly("unprocessed_state_history",
-                                       &tp::SingleArcDynamicsSimulator<double, double>::getEquationsOfMotionNumericalSolutionRaw)
-                .def("get_dependent_variable_history",
-                     &tp::SingleArcDynamicsSimulator<double, double>::getDependentVariableHistory)
+                                       &tp::SingleArcDynamicsSimulator<double, double>::getEquationsOfMotionNumericalSolutionRaw,
+                                       get_docstring("unprocessed_state_history").c_str())
                 .def_property_readonly("dependent_variable_history",
-                                       &tp::SingleArcDynamicsSimulator<double, double>::getDependentVariableHistory)
-                .def("get_cumulative_computation_time_history",
-                     &tp::SingleArcDynamicsSimulator<double, double>::getCumulativeComputationTimeHistory)
-                .def("get_cumulative_number_of_function_evaluations",
-                     &tp::SingleArcDynamicsSimulator<double, double>::getCumulativeNumberOfFunctionEvaluations)
-                .def("get_equations_of_motion_numerical_solution_base",
-                     &tp::SingleArcDynamicsSimulator<double, double>::getEquationsOfMotionNumericalSolutionBase)
-                .def("get_dependent_variable_numerical_solution_base",
-                     &tp::SingleArcDynamicsSimulator<double, double>::getDependentVariableNumericalSolutionBase)
-                .def("get_cumulative_computation_time_history_base",
-                     &tp::SingleArcDynamicsSimulator<double, double>::getCumulativeComputationTimeHistoryBase)
+                                       &tp::SingleArcDynamicsSimulator<double, double>::getDependentVariableHistory,
+                                       get_docstring("dependent_variable_history").c_str())
+                .def_property_readonly("cumulative_computation_time_history",
+                                       &tp::SingleArcDynamicsSimulator<double, double>::getCumulativeComputationTimeHistory,
+                                       get_docstring("cumulative_computation_time_history").c_str())
+                .def_property_readonly("cumulative_number_of_function_evaluations",
+                                       &tp::SingleArcDynamicsSimulator<double, double>::getCumulativeNumberOfFunctionEvaluations,
+                                       get_docstring("cumulative_number_of_function_evaluations").c_str())
+                .def_property_readonly("state_history_base",
+                                       &tp::SingleArcDynamicsSimulator<double, double>::getEquationsOfMotionNumericalSolutionBase,
+                                       get_docstring("state_history_base").c_str())
+                .def_property_readonly("dependent_variable_history_base",
+                                       &tp::SingleArcDynamicsSimulator<double, double>::getDependentVariableNumericalSolutionBase,
+                                       get_docstring("dependent_variable_history_base").c_str())
+                .def_property_readonly("cumulative_computation_time_history_base",
+                                       &tp::SingleArcDynamicsSimulator<double, double>::getCumulativeComputationTimeHistoryBase,
+                                       get_docstring("dependent_variable_history_base").c_str())
                 .def("manually_set_and_process_raw_numerical_equations_of_motion_solution",
                      &tp::SingleArcDynamicsSimulator<double, double>::manuallySetAndProcessRawNumericalEquationsOfMotionSolution,
                      py::arg("equations_of_motion_numerical_solution"),
                      py::arg("dependent_variable_history"),
-                     py::arg("process_solution"))
-                .def("get_integrator_settings",
-                     &tp::SingleArcDynamicsSimulator<double, double>::getIntegratorSettings)
-                .def("get_state_derivative_function",
-                     &tp::SingleArcDynamicsSimulator<double, double>::getStateDerivativeFunction)
-                .def("get_double_state_derivative_function",
-                     &tp::SingleArcDynamicsSimulator<double, double>::getDoubleStateDerivativeFunction)
-                .def("get_environment_updater",
-                     &tp::SingleArcDynamicsSimulator<double, double>::getEnvironmentUpdater)
-                .def("get_dynamics_state_derivative",
-                     &tp::SingleArcDynamicsSimulator<double, double>::getDynamicsStateDerivative)
-                .def("get_propagation_termination_condition",
-                     &tp::SingleArcDynamicsSimulator<double, double>::getPropagationTerminationCondition)
-                .def("get_integrated_state_processors",
-                     &tp::SingleArcDynamicsSimulator<double, double>::getIntegratedStateProcessors)
-                .def("get_propagation_termination_reason",
-                     &tp::SingleArcDynamicsSimulator<double, double>::getPropagationTerminationReason)
-                .def("integration_completed_successfully",
-                     &tp::SingleArcDynamicsSimulator<double, double>::integrationCompletedSuccessfully)
-                .def("get_dependent_variable_ids",
-                     &tp::SingleArcDynamicsSimulator<double, double>::getDependentVariableIds)
-                .def("get_initial_propagation_time",
-                     &tp::SingleArcDynamicsSimulator<double, double>::getInitialPropagationTime)
+                     py::arg("process_solution"),
+                     get_docstring("manually_set_and_process_raw_numerical_equations_of_motion_solution").c_str())
+                .def_property_readonly("integrator_settings",
+                                       &tp::SingleArcDynamicsSimulator<double, double>::getIntegratorSettings,
+                                       get_docstring("integrator_settings").c_str())
+                .def_property_readonly("state_derivative_function",
+                                       &tp::SingleArcDynamicsSimulator<double, double>::getStateDerivativeFunction,
+                                       get_docstring("state_derivative_function").c_str())
+                .def_property_readonly("double_state_derivative_function",
+                                       &tp::SingleArcDynamicsSimulator<double, double>::getDoubleStateDerivativeFunction,
+                                       get_docstring("double_state_derivative_function").c_str())
+                .def_property_readonly("environment_updater",
+                                       &tp::SingleArcDynamicsSimulator<double, double>::getEnvironmentUpdater,
+                                       get_docstring("environment_updater").c_str())
+                .def_property_readonly("dynamics_state_derivative",
+                                       &tp::SingleArcDynamicsSimulator<double, double>::getDynamicsStateDerivative,
+                                       get_docstring("dynamics_state_derivative").c_str())
+                .def_property_readonly("propagation_termination_condition",
+                                       &tp::SingleArcDynamicsSimulator<double, double>::getPropagationTerminationCondition,
+                                       get_docstring("propagation_termination_condition").c_str())
+                .def_property_readonly("integrated_state_processors",
+                                       &tp::SingleArcDynamicsSimulator<double, double>::getIntegratedStateProcessors,
+                                       get_docstring("integrated_state_processors").c_str())
+                .def_property_readonly("propagation_termination_reason",
+                                       &tp::SingleArcDynamicsSimulator<double, double>::getPropagationTerminationReason,
+                                       get_docstring("propagation_termination_reason").c_str())
+                .def_property_readonly("integration_completed_successfully",
+                                       &tp::SingleArcDynamicsSimulator<double, double>::integrationCompletedSuccessfully,
+                                       get_docstring("integration_completed_successfully").c_str())
+                .def_property_readonly("dependent_variable_ids",
+                                       &tp::SingleArcDynamicsSimulator<double, double>::getDependentVariableIds,
+                                       get_docstring("dependent_variable_ids").c_str())
+                .def_property_readonly("initial_propagation_time",
+                                       &tp::SingleArcDynamicsSimulator<double, double>::getInitialPropagationTime,
+                                       get_docstring("initial_propagation_time").c_str())
                 .def("reset_initial_propagation_time",
-                     &tp::SingleArcDynamicsSimulator<double, double>::resetInitialPropagationTime)
-                .def("get_dependent_variables_functions",
-                     &tp::SingleArcDynamicsSimulator<double, double>::getDependentVariablesFunctions)
+                     &tp::SingleArcDynamicsSimulator<double, double>::resetInitialPropagationTime,
+                     py::arg("new_initial_propagation_time"),
+                     get_docstring("reset_initial_propagation_time").c_str())
+                .def_property_readonly("dependent_variables_functions",
+                                       &tp::SingleArcDynamicsSimulator<double, double>::getDependentVariablesFunctions,
+                                       get_docstring("dependent_variables_functions").c_str())
                 .def("reset_propagation_termination_conditions",
-                     &tp::SingleArcDynamicsSimulator<double, double>::resetPropagationTerminationConditions)
+                     &tp::SingleArcDynamicsSimulator<double, double>::resetPropagationTerminationConditions,
+                     get_docstring("reset_propagation_termination_conditions").c_str())
                 .def("process_numerical_equations_of_motion_solution",
-                     &tp::SingleArcDynamicsSimulator<double, double>::processNumericalEquationsOfMotionSolution)
+                     &tp::SingleArcDynamicsSimulator<double, double>::processNumericalEquationsOfMotionSolution,
+                     get_docstring("process_numerical_equations_of_motion_solution").c_str())
                 .def("suppress_dependent_variable_terminal_printing",
-                     &tp::SingleArcDynamicsSimulator<double, double>::suppressDependentVariableDataPrinting)
+                     &tp::SingleArcDynamicsSimulator<double, double>::suppressDependentVariableDataPrinting,
+                     get_docstring("suppress_dependent_variable_terminal_printing").c_str())
                 .def("enable_dependent_variable_terminal_printing",
-                     &tp::SingleArcDynamicsSimulator<double, double>::enableDependentVariableDataPrinting);
+                     &tp::SingleArcDynamicsSimulator<double, double>::enableDependentVariableDataPrinting,
+                     get_docstring("enable_dependent_variable_terminal_printing").c_str());
 
         py::class_<tp::DependentVariableSaveSettings,
                 std::shared_ptr<tp::DependentVariableSaveSettings>>(m, "DependentVariableSaveSettings",
-                                                                    get_docstring(
-                                                                            "DependentVariableSaveSettings").c_str());
+                                                                    get_docstring("DependentVariableSaveSettings").c_str());
 //                .def(py::init<
 //                             const std::vector<std::shared_ptr<tp::SingleDependentVariableSaveSettings>>,
 //                             const bool>(),
