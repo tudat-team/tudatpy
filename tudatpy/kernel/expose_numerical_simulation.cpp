@@ -30,6 +30,16 @@ namespace numerical_simulation {
 
 void expose_numerical_simulation(py::module &m) {
 
+
+    auto environment_submodule = m.def_submodule("environment");
+    environment::expose_environment(environment_submodule);
+
+    auto propagation_submodule = m.def_submodule("propagation");
+    propagation::expose_propagation(propagation_submodule);
+
+    auto estimation_submodule = m.def_submodule("estimation");
+    estimation::expose_estimation(estimation_submodule);
+
   auto environment_setup_submodule = m.def_submodule("environment_setup");
   environment_setup::expose_environment_setup(environment_setup_submodule);
 
@@ -39,14 +49,6 @@ void expose_numerical_simulation(py::module &m) {
   auto estimation_setup_submodule = m.def_submodule("estimation_setup");
   estimation_setup::expose_estimation_setup(estimation_setup_submodule);
 
-  auto environment_submodule = m.def_submodule("environment");
-  environment::expose_environment(environment_submodule);
-
-  auto propagation_submodule = m.def_submodule("propagation");
-  propagation::expose_propagation(propagation_submodule);
-
-  auto estimation_submodule = m.def_submodule("estimation");
-  estimation::expose_estimation(estimation_submodule);
 
   // NOTE: this class does not strictly belong to "propagator settings".
   py::class_<

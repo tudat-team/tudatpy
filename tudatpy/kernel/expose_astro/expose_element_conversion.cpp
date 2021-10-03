@@ -59,7 +59,9 @@ void expose_element_conversion(py::module &m) {
             .value("spherical_position_type", tcc::PositionElementTypes::spherical_position)
             .value("geodetic_position_type", tcc::PositionElementTypes::geodetic_position)
             .export_values();
-
+    /*!
+     **************   KEPLER ELEMENTS  ******************
+     */
 
     m.def("cartesian_to_keplerian",
           &toec::convertCartesianToKeplerianElements< double >,
@@ -98,10 +100,93 @@ void expose_element_conversion(py::module &m) {
           py::arg("eccentricity"),
           py::arg("true_anomaly") );
 
+    m.def("true_to_eccentric_anomaly",
+          &toec::convertTrueAnomalyToEccentricAnomaly< double >,
+          py::arg("true_anomaly"),
+          py::arg("eccentricity") );
+
+    m.def("eccentric_to_true_anomaly",
+          &toec::convertEccentricAnomalyToTrueAnomaly< double >,
+          py::arg("eccentric_anomaly"),
+          py::arg("eccentricity") );
+
+
+    m.def("eccentric_to_mean_anomaly",
+          &toec::convertEccentricAnomalyToMeanAnomaly< double >,
+          py::arg("eccentric_anomaly"),
+          py::arg("eccentricity") );
+
+    m.def("elapsed_time_to_delta_mean_anomaly",
+          &toec::convertElapsedTimeToMeanAnomalyChange< double >,
+          py::arg("elapsed_time"),
+          py::arg("gravitational_parameter"),
+          py::arg("semi_major_axis") );
+
+    m.def("delta_mean_anomaly_to_elapsed_time",
+          &toec::convertMeanAnomalyChangeToElapsedTime< double >,
+          py::arg("mean_anomaly_change"),
+          py::arg("gravitational_parameter"),
+          py::arg("semi_major_axis") );
+
+    m.def("mean_motion_to_semi_major_axis",
+          &toec::convertEllipticalMeanMotionToSemiMajorAxis< double >,
+          py::arg("mean_motion"),
+          py::arg("gravitational_parameter") );
+
+    m.def("semi_major_axis_to_mean_motion",
+          &toec::convertSemiMajorAxisToEllipticalMeanMotion< double >,
+          py::arg("semi_major_axis"),
+          py::arg("gravitational_parameter") );
+
+
     m.def("spherical_to_cartesian",
           py::overload_cast< const Eigen::Vector6d& >(
               &toec::convertSphericalOrbitalToCartesianState< double > ),
           py::arg("spherical_orbital_state"));
+
+    /*!
+     **************   MODIFIED EQUIONOCTIAL ELEMENTS  ******************
+     */
+
+    m.def("keplerian_to_mee_manual_singularity",
+          py::overload_cast< const Eigen::Vector6d&, const bool >(
+              &toec::convertKeplerianToModifiedEquinoctialElements< double > ),
+          py::arg("keplerian_elements"),
+          py::arg("singularity_at_zero_inclination") );
+
+    m.def("keplerian_to_mee",
+          py::overload_cast< const Eigen::Vector6d& >(
+              &toec::convertKeplerianToModifiedEquinoctialElements< double > ),
+          py::arg("keplerian_elements") );
+
+    m.def("keplerian_to_mee",
+          &toec::convertModifiedEquinoctialToKeplerianElements< double >,
+          py::arg("modified_equinoctial_elements"),
+          py::arg("singularity_at_zero_inclination") );
+
+    m.def("cartesian_to_mee",
+          py::overload_cast< const Eigen::Vector6d&, const double >(
+              &toec::convertCartesianToModifiedEquinoctialElements< double > ),
+          py::arg("cartesian_elements"),
+          py::arg("gravitational_parameter") );
+
+    m.def("cartesian_to_mee_manual_singularity",
+          py::overload_cast< const Eigen::Vector6d&, const double, const bool >(
+              &toec::convertCartesianToModifiedEquinoctialElements< double > ),
+          py::arg("cartesian_elements"),
+          py::arg("gravitational_parameter"),
+          py::arg("singularity_at_zero_inclination") );
+
+    m.def("mee_to_cartesian",
+          py::overload_cast< const Eigen::Vector6d&, const double, const bool >(
+              &toec::convertModifiedEquinoctialToCartesianElements< double > ),
+          py::arg("modified_equinoctial_elements"),
+          py::arg("gravitational_parameter"),
+          py::arg("singularity_at_zero_inclination") );
+
+    /*!
+     **************   SPHERICAL ELEMENTS  ******************
+     */
 
     m.def("spherical_to_cartesian_elementwise",
           py::overload_cast<
@@ -114,7 +199,20 @@ void expose_element_conversion(py::module &m) {
           py::arg("flight_path_angle"),
           py::arg("heading_angle"));
 
+    m.def("spherical_to_cartesian",
+          py::overload_cast<
+          const Eigen::Vector6d& >(
+              &toec::convertSphericalOrbitalToCartesianState< double > ),
+          py::arg("spherical_elements"));
 
+    m.def("cartesian_to_spherical",
+          &toec::convertCartesianToSphericalOrbitalState,
+          py::arg("cartesian_elements") );
+
+
+    /*!
+     **************   QUATERNIONS  ******************
+     */
 
     m.def("quaterion_entries_to_rotation_matrix",
           &tla::convertVectorQuaternionToMatrixFormat,

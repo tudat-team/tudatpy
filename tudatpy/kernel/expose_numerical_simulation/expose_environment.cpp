@@ -43,6 +43,7 @@ namespace te = tudat::ephemerides;
 namespace tgs = tudat::ground_stations;
 namespace tr = tudat::reference_frames;
 namespace tg = tudat::gravitation;
+namespace trf = tudat::reference_frames;
 
 
 
@@ -175,6 +176,61 @@ void expose_environment(py::module &m) {
     m.def("get_local_inclination_mesh", &ta::getVehicleMesh,
           py::arg( "local_inclination_analysis_object" ) );
 
+    py::enum_<trf::AerodynamicsReferenceFrameAngles>(m, "AerodynamicsReferenceFrameAngles")
+            .value("latitude_angle", trf::AerodynamicsReferenceFrameAngles::latitude_angle)
+            .value("longitude_angle", trf::AerodynamicsReferenceFrameAngles::longitude_angle)
+            .value("heading_angle", trf::AerodynamicsReferenceFrameAngles::heading_angle)
+            .value("flight_path_angle", trf::AerodynamicsReferenceFrameAngles::flight_path_angle)
+            .value("angle_of_attack", trf::AerodynamicsReferenceFrameAngles::angle_of_attack)
+            .value("angle_of_sideslip", trf::AerodynamicsReferenceFrameAngles::angle_of_sideslip)
+            .value("bank_angle", trf::AerodynamicsReferenceFrameAngles::bank_angle)
+            .export_values();
+
+    py::enum_<trf::AerodynamicsReferenceFrames>(m, "AerodynamicsReferenceFrames")
+            .value("inertial_frame", trf::AerodynamicsReferenceFrames::inertial_frame)
+            .value("corotating_frame", trf::AerodynamicsReferenceFrames::corotating_frame)
+            .value("vertical_frame", trf::AerodynamicsReferenceFrames::vertical_frame)
+            .value("trajectory_frame", trf::AerodynamicsReferenceFrames::trajectory_frame)
+            .value("aerodynamic_frame", trf::AerodynamicsReferenceFrames::aerodynamic_frame)
+            .value("body_frame", trf::AerodynamicsReferenceFrames::body_frame)
+            .export_values();
+
+    py::class_<trf::AerodynamicAngleCalculator,
+            std::shared_ptr<trf::AerodynamicAngleCalculator>>(m, "AerodynamicAngleCalculator")
+            .def("set_orientation_angle_functions",
+                 py::overload_cast<
+                 const std::function<double()>,
+                 const std::function<double()>,
+                 const std::function<double()>,
+                 const std::function<void(const double)>>(
+                     &trf::AerodynamicAngleCalculator::setOrientationAngleFunctions),
+                 py::arg("angle_of_attack_function") = std::function<double()>(),       // <pybind11/functional.h>
+                 py::arg("angle_of_sideslip_function") = std::function<double()>(),     // <pybind11/functional.h>
+                 py::arg("bank_angle_function") = std::function<double()>(),            // <pybind11/functional.h>
+                 py::arg("angle_update_function") = std::function<void(
+                const double)>(),// <pybind11/functional.h>
+                 "<no_doc>")
+            .def("set_orientation_angle_functions",
+                 py::overload_cast<
+                 const double,
+                 const double,
+                 const double>(&trf::AerodynamicAngleCalculator::setOrientationAngleFunctions),
+                 py::arg("angle_of_attack") = TUDAT_NAN,
+                 py::arg("angle_of_sideslip") = TUDAT_NAN,
+                 py::arg("bank_angle") = TUDAT_NAN,
+                 "<no_doc>")
+            .def("get_rotation_quaternion_between_frames",
+                 &trf::AerodynamicAngleCalculator::getRotationQuaternionBetweenFrames,
+                 py::arg("original_frame"),
+                 py::arg("target_frame"))
+            .def("get_rotation_matrix_between_frames",
+                 &trf::AerodynamicAngleCalculator::getRotationMatrixBetweenFrames,
+                 py::arg("original_frame"),
+                 py::arg("target_frame"))
+            .def("get_angle",
+                 &trf::AerodynamicAngleCalculator::getAerodynamicAngle,
+                 py::arg("angle_type"));
+
 
     py::class_<ta::FlightConditions,
             std::shared_ptr<ta::FlightConditions>>(m, "FlightConditions")
@@ -217,101 +273,108 @@ void expose_environment(py::module &m) {
     //
     //////////////////////////////////////////////////////////////////////////////
     py::class_<te::Ephemeris, std::shared_ptr<te::Ephemeris>>(m, "Ephemeris")
-        .def("get_cartesian_state", &te::Ephemeris::getCartesianState, py::arg("seconds_since_epoch") = 0.0)
-        .def("get_cartesian_position", &te::Ephemeris::getCartesianPosition, py::arg("seconds_since_epoch") = 0.0)
-        .def("get_cartesian_velocity", &te::Ephemeris::getCartesianVelocity, py::arg("seconds_since_epoch") = 0.0);
+            .def("get_cartesian_state", &te::Ephemeris::getCartesianState, py::arg("seconds_since_epoch") = 0.0)
+            .def("get_cartesian_position", &te::Ephemeris::getCartesianPosition, py::arg("seconds_since_epoch") = 0.0)
+            .def("get_cartesian_velocity", &te::Ephemeris::getCartesianVelocity, py::arg("seconds_since_epoch") = 0.0);
 
-//    py::enum_<tss::EphemerisType>(m.attr("Ephemeris"), "EphemerisType")
-//        .value("approximate_planet_positions", tss::approximate_planet_positions)
-//        .value("direct_spice_ephemeris", tss::direct_spice_ephemeris)
-//        .value("interpolated_spice", tss::interpolated_spice)
-//        .value("constant_ephemeris", tss::constant_ephemeris)
-//        .value("kepler_ephemeris", tss::kepler_ephemeris)
-//        .value("direct_tle_ephemeris", tss::direct_tle_ephemeris)
-//        .value("interpolated_tle_ephemeris", tss::interpolated_tle_ephemeris)
-//        .value("custom_ephemeris", tss::custom_ephemeris);
+    //    py::enum_<tss::EphemerisType>(m.attr("Ephemeris"), "EphemerisType")
+    //        .value("approximate_planet_positions", tss::approximate_planet_positions)
+    //        .value("direct_spice_ephemeris", tss::direct_spice_ephemeris)
+    //        .value("interpolated_spice", tss::interpolated_spice)
+    //        .value("constant_ephemeris", tss::constant_ephemeris)
+    //        .value("kepler_ephemeris", tss::kepler_ephemeris)
+    //        .value("direct_tle_ephemeris", tss::direct_tle_ephemeris)
+    //        .value("interpolated_tle_ephemeris", tss::interpolated_tle_ephemeris)
+    //        .value("custom_ephemeris", tss::custom_ephemeris);
 
     py::class_<te::RotationalEphemeris,
-               std::shared_ptr<te::RotationalEphemeris>>
-        RotationalEphemeris_(m, "RotationalEphemeris");
+            std::shared_ptr<te::RotationalEphemeris>>
+            RotationalEphemeris_(m, "RotationalEphemeris");
+
+    m.def("transform_to_inertial_orientation",
+          &te::transformStateToInertialOrientation<double, double>,
+          py::arg("state_in_body_fixed_frame"),
+          py::arg("current_time"),
+          py::arg("rotational_ephemeris"));
+
 
     //////////////////////////////////////////////////////////////////////////////
     // constantEphemeris.h
     //////////////////////////////////////////////////////////////////////////////
     py::class_<te::ConstantEphemeris,
-               std::shared_ptr<te::ConstantEphemeris>,
-               te::Ephemeris>(
-        m, "ConstantEphemeris")
-        .def(py::init<
+            std::shared_ptr<te::ConstantEphemeris>,
+            te::Ephemeris>(
+                m, "ConstantEphemeris")
+            .def(py::init<
                  const std::function<Eigen::Vector6d()>,//<pybind11/functional.h>,<pybind11/eigen.h>
                  const std::string &,
                  const std::string &>(),
-             py::arg("constant_state_function"),
-             py::arg("reference_frame_origin") = "SSB",
-             py::arg("reference_frame_orientation") = "ECLIPJ2000")
-        .def(py::init<
+                 py::arg("constant_state_function"),
+                 py::arg("reference_frame_origin") = "SSB",
+                 py::arg("reference_frame_orientation") = "ECLIPJ2000")
+            .def(py::init<
                  const Eigen::Vector6d,//<pybind11/eigen.h>
                  const std::string &,
                  const std::string &>(),
-             py::arg("constant_state"),
-             py::arg("reference_frame_origin") = "SSB",
-             py::arg("reference_frame_orientation") = "ECLIPJ2000")
-        .def("update_constant_state", &te::ConstantEphemeris::updateConstantState,
-             py::arg("new_state"));
+                 py::arg("constant_state"),
+                 py::arg("reference_frame_origin") = "SSB",
+                 py::arg("reference_frame_orientation") = "ECLIPJ2000")
+            .def("update_constant_state", &te::ConstantEphemeris::updateConstantState,
+                 py::arg("new_state"));
 
     py::class_<te::KeplerEphemeris,
-               std::shared_ptr<te::KeplerEphemeris>,
-               te::Ephemeris>(
-        m, "KeplerEphemeris");
+            std::shared_ptr<te::KeplerEphemeris>,
+            te::Ephemeris>(
+                m, "KeplerEphemeris");
 
     py::class_<te::Tle, std::shared_ptr<te::Tle>>(m, "Tle")
-        .def(py::init<//ctor 1
+            .def(py::init<//ctor 1
                  const std::string &>(),
-             py::arg("lines"))
-        .def(py::init<//ctor 2
+                 py::arg("lines"))
+            .def(py::init<//ctor 2
                  const std::string &,
                  const std::string &>(),
-             py::arg("line_1"),
-             py::arg("line_2"))
-        .def("get_epoch", &te::Tle::getEpoch)
-        .def("get_b_star", &te::Tle::getBStar)
-        .def("get_epoch", &te::Tle::getEpoch)
-        .def("get_inclination", &te::Tle::getInclination)
-        .def("get_right_ascension", &te::Tle::getRightAscension)
-        .def("get_eccentricity", &te::Tle::getEccentricity)
-        .def("get_arg_of_perigee", &te::Tle::getArgOfPerigee)
-        .def("get_mean_anomaly", &te::Tle::getMeanAnomaly)
-        .def("get_mean_motion", &te::Tle::getMeanMotion);
+                 py::arg("line_1"),
+                 py::arg("line_2"))
+            .def("get_epoch", &te::Tle::getEpoch)
+            .def("get_b_star", &te::Tle::getBStar)
+            .def("get_epoch", &te::Tle::getEpoch)
+            .def("get_inclination", &te::Tle::getInclination)
+            .def("get_right_ascension", &te::Tle::getRightAscension)
+            .def("get_eccentricity", &te::Tle::getEccentricity)
+            .def("get_arg_of_perigee", &te::Tle::getArgOfPerigee)
+            .def("get_mean_anomaly", &te::Tle::getMeanAnomaly)
+            .def("get_mean_motion", &te::Tle::getMeanMotion);
 
     py::class_<te::TleEphemeris,
-               std::shared_ptr<te::TleEphemeris>,
-               te::Ephemeris>(m, "TleEphemeris")
-        .def(py::init<
+            std::shared_ptr<te::TleEphemeris>,
+            te::Ephemeris>(m, "TleEphemeris")
+            .def(py::init<
                  const std::string &,
                  const std::string &,
                  const std::shared_ptr<te::Tle>,
                  const bool>(),
-             py::arg("frame_origin") = "Earth",
-             py::arg("frame_orientation") = "J2000",
-             py::arg("tle") = nullptr,
-             py::arg("use_sdp") = false);
+                 py::arg("frame_origin") = "Earth",
+                 py::arg("frame_orientation") = "J2000",
+                 py::arg("tle") = nullptr,
+                 py::arg("use_sdp") = false);
 
     py::class_<te::LongitudeLibrationCalculator,
-               std::shared_ptr<te::LongitudeLibrationCalculator>>(
-        m, "LongitudeLibrationCalculator");
+            std::shared_ptr<te::LongitudeLibrationCalculator>>(
+                m, "LongitudeLibrationCalculator");
 
     py::class_<te::DirectLongitudeLibrationCalculator,
-               std::shared_ptr<te::DirectLongitudeLibrationCalculator>,
-               te::LongitudeLibrationCalculator>(
-        m, "DirectLongitudeLibrationCalculator")
+            std::shared_ptr<te::DirectLongitudeLibrationCalculator>,
+            te::LongitudeLibrationCalculator>(
+                m, "DirectLongitudeLibrationCalculator")
             .def(py::init< const double >(),
                  py::arg("scaled_libration_amplitude"));
 
 
     py::class_<te::SynchronousRotationalEphemeris,
-               std::shared_ptr<te::SynchronousRotationalEphemeris>,
-               te::RotationalEphemeris>(
-        m, "SynchronousRotationalEphemeris")
+            std::shared_ptr<te::SynchronousRotationalEphemeris>,
+            te::RotationalEphemeris>(
+                m, "SynchronousRotationalEphemeris")
             .def_property("libration_calculator",
                           &te::SynchronousRotationalEphemeris::getLongitudeLibrationCalculator,
                           &te::SynchronousRotationalEphemeris::setLibrationCalculation);
@@ -340,11 +403,11 @@ void expose_environment(py::module &m) {
                           &tg::SphericalHarmonicsGravityField::setSineCoefficients);
 
     py::class_<tgs::GroundStation,
-               std::shared_ptr<tgs::GroundStation>>(m, "GroundStation")
+            std::shared_ptr<tgs::GroundStation>>(m, "GroundStation")
             .def_property_readonly("pointing_angles_calculator", &tgs::GroundStation::getPointingAnglesCalculator );
 
     py::class_<tgs::PointingAnglesCalculator,
-               std::shared_ptr<tgs::PointingAnglesCalculator>>(m, "PointingAnglesCalculator")
+            std::shared_ptr<tgs::PointingAnglesCalculator>>(m, "PointingAnglesCalculator")
             .def("calculate_elevation_angle", &tgs::PointingAnglesCalculator::calculateElevationAngle,
                  py::arg( "inertial_vector_to_target" ),
                  py::arg( "time" ) )
@@ -358,9 +421,9 @@ void expose_environment(py::module &m) {
 
 
     py::class_<tba::BodyShapeModel,
-               std::shared_ptr<tba::BodyShapeModel>>(m, "ShapeModel")
-               .def("get_average_radius", &tba::BodyShapeModel::getAverageRadius)
-               .def_property_readonly("average_radius", &tba::BodyShapeModel::getAverageRadius);
+            std::shared_ptr<tba::BodyShapeModel>>(m, "ShapeModel")
+            .def("get_average_radius", &tba::BodyShapeModel::getAverageRadius)
+            .def_property_readonly("average_radius", &tba::BodyShapeModel::getAverageRadius);
 
 
     /*
