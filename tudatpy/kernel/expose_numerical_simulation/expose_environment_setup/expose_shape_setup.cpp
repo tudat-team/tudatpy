@@ -47,7 +47,7 @@ namespace shape {
                 tss::BodyShapeSettings>(m, "OblateSphericalBodyShapeSettings")
                 .def_property("equatorial_radius", &tss::OblateSphericalBodyShapeSettings::getEquatorialRadius,
                               &tss::OblateSphericalBodyShapeSettings::resetEquatorialRadius)
-                .def_property("radius", &tss::OblateSphericalBodyShapeSettings::getFlattening,
+                .def_property("flattening", &tss::OblateSphericalBodyShapeSettings::getFlattening,
                               &tss::OblateSphericalBodyShapeSettings::resetFlattening);
 
 

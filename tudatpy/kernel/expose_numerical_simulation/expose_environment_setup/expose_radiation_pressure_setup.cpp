@@ -35,7 +35,8 @@ namespace radiation_pressure {
         /////////////////////////////////////////////////////////////////////////////
         // createRadiationPressureInterface.h
         /////////////////////////////////////////////////////////////////////////////
-        py::enum_<tss::RadiationPressureType>(m, "RadiationPressureType", "<no_doc>")
+        py::enum_<tss::RadiationPressureType>(m, "RadiationPressureType",
+                                              get_docstring("RadiationPressureType").c_str())
                 .value(
                         "cannonball_radiation_pressure_interface",
                         tss::RadiationPressureType::cannon_ball_radiation_pressure_interface)
@@ -49,7 +50,9 @@ namespace radiation_pressure {
 
         py::class_<tss::RadiationPressureInterfaceSettings,
                 std::shared_ptr<tss::RadiationPressureInterfaceSettings>>(
-                m, "RadiationPressureInterfaceSettings", "<no_doc>");
+                m, "RadiationPressureInterfaceSettings",
+                get_docstring("RadiationPressureInterfaceSettings").c_str())
+        );
 //            .def(py::init<const tss::RadiationPressureType, const std::string &,
 //                 const std::vector<std::string>>(),
 //                 py::arg("radiation_pressure_type"), py::arg("source_body"),
@@ -58,7 +61,9 @@ namespace radiation_pressure {
         py::class_<tss::CannonBallRadiationPressureInterfaceSettings,
                 std::shared_ptr<tss::CannonBallRadiationPressureInterfaceSettings>,
                 tss::RadiationPressureInterfaceSettings>(
-                m, "CannonBallRadiationPressureInterfaceSettings", "<no_doc>");
+                m, "CannonBallRadiationPressureInterfaceSettings",
+                get_docstring("CannonBallRadiationPressureInterfaceSettings").c_str())
+        );
 //            .def(py::init<const std::string &, const double, const double,
 //                 const std::vector<std::string> &>(),
 //                 py::arg("source_body"), py::arg("area"),
@@ -68,9 +73,12 @@ namespace radiation_pressure {
         m.def("cannonball",
               py::overload_cast<const std::string &, const double, const double, const std::vector<std::string> &>(
                       &tss::cannonBallRadiationPressureSettings),
-              py::arg("source_body"), py::arg("reference_area"),
+              py::arg("source_body"),
+              py::arg("reference_area"),
               py::arg("radiation_pressure_coefficient"),
-              py::arg("occulting_bodies") = std::vector<std::string>());
+              py::arg("occulting_bodies") = std::vector<std::string>(),
+              get_docstring("cannonball").c_str()
+              );
 
         m.def("panelled",
               &tss::panelledRadiationPressureInterfaceSettings,
@@ -79,7 +87,9 @@ namespace radiation_pressure {
               py::arg("areas"),
               py::arg("diffusion_coefficients"),
               py::arg("surface_normals_in_body_fixed_frame"),
-              py::arg("occulting_bodies") = std::vector<std::string>());
+              py::arg("occulting_bodies") = std::vector<std::string>(),
+              get_docstring("panelled").c_str()
+              );
 
     }
 

@@ -100,13 +100,9 @@ namespace propagator {
 
 
         // CLASSES
-
-
-
         py::class_<tp::DependentVariableSaveSettings,
                 std::shared_ptr<tp::DependentVariableSaveSettings>>(m, "DependentVariableSaveSettings",
-                                                                    get_docstring(
-                                                                            "DependentVariableSaveSettings").c_str());
+                                                                    get_docstring("DependentVariableSaveSettings").c_str());
 //                .def(py::init<
 //                             const std::vector<std::shared_ptr<tp::SingleDependentVariableSaveSettings>>,
 //                             const bool>(),
