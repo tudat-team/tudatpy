@@ -146,12 +146,12 @@ namespace integrator {
                   py::arg("safety_factor") = 0.8,
                   py::arg("maximum_factor_increase") = 4.0,
                   py::arg("minimum_factor_increase") = 0.1,
-                  get_docstring("runge_kutta_variable_step_size", 0).c_str());
+                  get_docstring("runge_kutta_variable_step_size").c_str());
 
-            m.def("runge_kutta_variable_step_size_vector_tolerance",
+            m.def("runge_kutta_variable_step_size_vector_tolerances",
                   &tni::rungeKuttaVariableStepSettingsVectorTolerances<double>,
                   py::arg("initial_time"),
-                  py::arg("initial_time_step"),
+                  py::arg("initial_time_step"),esa
                   py::arg("coefficient_set"),
                   py::arg("minimum_step_size"),
                   py::arg("maximum_step_size"),
@@ -162,7 +162,7 @@ namespace integrator {
                   py::arg("safety_factor") = 0.8,
                   py::arg("maximum_factor_increase") = 4.0,
                   py::arg("minimum_factor_increase") = 0.1,
-                  get_docstring("runge_kutta_variable_step_size", 1).c_str());
+                  get_docstring("runge_kutta_variable_step_size_vector_tolerances").c_str());
 
             m.def("bulirsch_stoer",
                   &tni::bulirschStoerIntegratorSettings<double>,
