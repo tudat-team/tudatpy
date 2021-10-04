@@ -27,19 +27,21 @@ namespace tudat
 namespace simulation_setup
 {
 
-//! Class for providing settings for aerodynamic coefficient model.
-/*!
+//  Class for providing settings for aerodynamic coefficient model.
+/*  
  *  Class for providing settings for automatic aerodynamic coefficient model creation. This class is
  *  a functional (base) class for settings of aerodynamic coefficient models that require no
  *  information in addition to their type. Aerodynamic coefficient model classes defining requiring
  *  additional information must be created using an object derived from this class.
  */
+
+//! @get_docstring(AerodynamicCoefficientSettings.__docstring__)
 class AerodynamicCoefficientSettings
 {
 public:
 
-    //! Constructor, sets type of aerodynamic coefficient model.
-    /*!
+    //  Constructor, sets type of aerodynamic coefficient model.
+    /*  
      *  Constructor, sets type of aerodynamic coefficient model. Settings for aerodynamic
      *  coefficient models requiring additional information should be defined in a derived class.
      *  \param aerodynamicCoefficientTypes Type of aerodynamic coefficient model that is to be
@@ -83,70 +85,70 @@ public:
         interpolatorSettings_( interpolatorSettings )
     { }
 
-    //! Destructor
+    //  Destructor
     virtual ~AerodynamicCoefficientSettings( ){ }
 
-    //! Function to return type of aerodynamic coefficient model that is to be created.
-    /*!
+    //  Function to return type of aerodynamic coefficient model that is to be created.
+    /*  
      *  Function to return type of aerodynamic coefficient model that is to be created.
      *  \return Type of aerodynamic coefficient model that is to be created.
      */
     AerodynamicCoefficientTypes getAerodynamicCoefficientType( ){
         return aerodynamicCoefficientTypes_; }
 
-    //! Get reference area.
-    /*!
+    //  Get reference area.
+    /*  
      * Returns reference area used to non-dimensionalize aerodynamic forces and moments.
      * \return Aerodynamic reference area.
      */
     double getReferenceArea( ) { return referenceArea_; }
 
-    //! Get reference length.
-    /*!
+    //  Get reference length.
+    /*  
      * Returns reference length used to non-dimensionalize aerodynamic moments.
      * \return Aerodynamic reference length.
      */
     double getReferenceLength( ) { return referenceLength_; }
 
-    //! Get lateral reference length.
-    /*!
+    //  Get lateral reference length.
+    /*  
      * Returns lateral reference length used to non-dimensionalize aerodynamic moments.
      * \return Aerodynamic lateral reference length.
      */
     double getLateralReferenceLength( ) { return lateralReferenceLength_; }
 
-    //! Get moment reference point.
-    /*!
+    //  Get moment reference point.
+    /*  
      * Returns the point w.r.t. which the arm of the aerodynamic moment on a vehicle panel is
      * determined.
      * \return Aerodynamic reference point.
      */
     Eigen::VectorXd getMomentReferencePoint( ) { return momentReferencePoint_; }
 
-    //! Function to return identifiers of physical meaning of independent variables.
-    /*!
+    //  Function to return identifiers of physical meaning of independent variables.
+    /*  
      *  Function to return identifiers of physical meaning of independent variables.
      *  \return Identifiers of physical meaning of independent variables.
      */
     std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables >
     getIndependentVariableNames( ) { return independentVariableNames_; }
 
-    //! Function to return whether coefficients are in aerodynamic frame.
-    /*!
+    //  Function to return whether coefficients are in aerodynamic frame.
+    /*  
      *  Function to return whether coefficients are in aerodynamic frame.
      *  \return Boolean defining whether coefficients are in aerodynamic frame.
      */
     bool getAreCoefficientsInAerodynamicFrame( ) { return areCoefficientsInAerodynamicFrame_; }
 
-    //! Function to return whether coefficients are positive along positive axes.
-    /*!
+    //  Function to return whether coefficients are positive along positive axes.
+    /*  
      *  Function to return whether coefficients are positive along positive axes.
      *  \return Boolean defining whether coefficients are positive along positive axes.
      */
     bool getAreCoefficientsInNegativeAxisDirection( ) { return areCoefficientsInNegativeAxisDirection_; }
 
-    //! Function to return settings to be used for creating the interpoaltor of data.
-    /*!
+    //  Function to return settings to be used for creating the interpoaltor of data.
+    /*  
      *  Function to return settings to be used for creating the interpoaltor of data.
      *  \return Settings to be used for creating the one-dimensional interpoaltor of data.
      */
@@ -161,8 +163,8 @@ public:
         return controlSurfaceSettings_;
     }
 
-    //! Function to define settings for the aerodynamic coefficients of a single control surface
-    /*!
+    //  Function to define settings for the aerodynamic coefficients of a single control surface
+    /*  
      * Function to define settings for the aerodynamic coefficients of a single control surface
      * \param controlSurfaceSetting Settings for the arodynamic coefficients of control surface.
      * \param controlSurfaceName Id of control surface.
@@ -176,47 +178,47 @@ public:
 
 private:
 
-    //! Type of atmosphere model that is to be created.
+    //  Type of atmosphere model that is to be created.
     AerodynamicCoefficientTypes aerodynamicCoefficientTypes_;
 
-    //! Aerodynamic reference length.
-    /*!
+    //  Aerodynamic reference length.
+    /*  
      * Reference length with which aerodynamic moments are non-dimensionalized.
      */
     double referenceLength_;
 
-    //! Aerodynamic reference area.
-    /*!
+    //  Aerodynamic reference area.
+    /*  
      * Reference area with which aerodynamic forces and moments are non-dimensionalized.
      */
     double referenceArea_;
 
-    //! Lateral aerodynamic reference length.
-    /*!
+    //  Lateral aerodynamic reference length.
+    /*  
      * Lateral reference length with which aerodynamic moments are non-dimensionalized.
      */
     double lateralReferenceLength_;
 
-    //! Aerodynamic moment reference point.
-    /*!
+    //  Aerodynamic moment reference point.
+    /*  
      * Point w.r.t. which the arm of the moment on a vehicle panel is determined.
      */
     Eigen::Vector3d momentReferencePoint_;
 
-    //! Vector with identifiers of the physical meaning of each independent variable of the
-    //! aerodynamic coefficients.
+    //  Vector with identifiers of the physical meaning of each independent variable of the
+    //  aerodynamic coefficients.
     std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables >
     independentVariableNames_;
 
-    //! Boolean to define whether the aerodynamic coefficients are defined in the aerodynamic frame.
-    /*!
+    //  Boolean to define whether the aerodynamic coefficients are defined in the aerodynamic frame.
+    /*  
      *  Boolean to define whether the aerodynamic coefficients are defined in the aerodynamic frame
      *  (drag, side, lift force) or in the body frame (typically denoted as Cx, Cy, Cz).
      */
     bool areCoefficientsInAerodynamicFrame_;
 
-    //! Boolean to define whether the coefficients are positive along the positive axes.
-    /*!
+    //  Boolean to define whether the coefficients are positive along the positive axes.
+    /*  
      *  Boolean to define whether the aerodynamic coefficients are positive along the positive
      *  axes of the body or aerodynamic frame (see areCoefficientsInAerodynamicFrame).
      *  Note that for (drag, side, lift force), the coefficients are typically defined in
@@ -224,14 +226,14 @@ private:
      */
     bool areCoefficientsInNegativeAxisDirection_;
 
-    //! Settings for interpolation.
-    /*!
+    //  Settings for interpolation.
+    /*  
      *  Settings for interpolation of aerodynamic coefficients, used to define an interpolator
      *  object, such that the coefficients are avaiable for a continuous set of independent variables.
      */
     std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings_;
 
-    //! Settings for the aerodynamic coefficients of control surfaces, with map key denoting surface ID.
+    //  Settings for the aerodynamic coefficients of control surfaces, with map key denoting surface ID.
     std::map< std::string, std::shared_ptr< ControlSurfaceIncrementAerodynamicCoefficientSettings > >
     controlSurfaceSettings_;
 };
@@ -299,13 +301,14 @@ protected:
     bool isScalingAbsolute_;
 };
 
-//! AerodynamicCoefficientSettings for defining a constant aerodynamic coefficients
+//  AerodynamicCoefficientSettings for defining a constant aerodynamic coefficients
+//! @get_docstring(ConstantAerodynamicCoefficientSettings.__docstring__)
 class ConstantAerodynamicCoefficientSettings: public AerodynamicCoefficientSettings
 {
 public:
 
-    //! Constructor.
-    /*!
+    //  Constructor.
+    /*  
      *  Constructor.
      *  \param constantForceCoefficient Constant force coefficients.
      *  \param constantMomentCoefficient Constant moment coefficients.
@@ -345,8 +348,8 @@ public:
         constantMomentCoefficient_( constantMomentCoefficient )
     { }
 
-    //! Constructor.
-    /*!
+    //  Constructor.
+    /*  
     *  Constructor, omitting all moment coefficient data.
     *  \param constantForceCoefficient Constant force coefficients.
     *  \param referenceArea Reference area with which aerodynamic forces and moments are
@@ -372,8 +375,8 @@ public:
         constantForceCoefficient_( constantForceCoefficient ),
         constantMomentCoefficient_( Eigen::Vector3d::Zero( ) ){ }
 
-    //! Function to return constant force coefficients.
-    /*!
+    //  Function to return constant force coefficients.
+    /*  
      *  Function to return constant force coefficients.
      *  \return Cnstant force coefficients.
      */
@@ -382,8 +385,8 @@ public:
         return  constantForceCoefficient_;
     }
 
-    //! Function to return constant moment coefficients.
-    /*!
+    //  Function to return constant moment coefficients.
+    /*  
      *  Function to return constant moment coefficients.
      *  \return Cnstant force coefficients.
      */
@@ -394,15 +397,15 @@ public:
 
 private:
 
-    //! Constant moment coefficients.
+    //  Constant moment coefficients.
     Eigen::Vector3d constantForceCoefficient_;
 
-    //! Constant force coefficients.
+    //  Constant force coefficients.
     Eigen::Vector3d constantMomentCoefficient_;
 
 };
 
-//! AerodynamicCoefficientSettings for defining a constant aerodynamic coefficients
+//  AerodynamicCoefficientSettings for defining a constant aerodynamic coefficients
 class CustomAerodynamicCoefficientSettings: public AerodynamicCoefficientSettings
 {
 public:
@@ -446,7 +449,7 @@ private:
 
 };
 
-
+//! @get_docstring(constantAerodynamicCoefficientSettings)
 inline std::shared_ptr< AerodynamicCoefficientSettings > constantAerodynamicCoefficientSettings(
         const double referenceArea,
         const Eigen::Vector3d& constantForceCoefficient,
@@ -458,6 +461,7 @@ inline std::shared_ptr< AerodynamicCoefficientSettings > constantAerodynamicCoef
                 areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection );
 }
 
+//! @get_docstring(scaledAerodynamicCoefficientSettings)
 inline std::shared_ptr< AerodynamicCoefficientSettings > scaledAerodynamicCoefficientSettings(
         const std::shared_ptr< AerodynamicCoefficientSettings > baseSettings,
         const double forceScaling,
@@ -472,6 +476,7 @@ inline std::shared_ptr< AerodynamicCoefficientSettings > scaledAerodynamicCoeffi
                 baseSettings, forceScalingFunction, momentScalingFunction, isScalingAbsolute );
 }
 
+//! @get_docstring(scaledAerodynamicCoefficientSettings, 1)
 inline std::shared_ptr< AerodynamicCoefficientSettings > scaledAerodynamicCoefficientSettings(
         const std::shared_ptr< AerodynamicCoefficientSettings > baseSettings,
         const Eigen::Vector3d forceScaling,
@@ -486,7 +491,7 @@ inline std::shared_ptr< AerodynamicCoefficientSettings > scaledAerodynamicCoeffi
                 baseSettings, forceScalingFunction, momentScalingFunction, isScalingAbsolute );
 }
 
-
+//! @get_docstring(scaledAerodynamicCoefficientSettings, 2)
 inline std::shared_ptr< AerodynamicCoefficientSettings > scaledAerodynamicCoefficientSettings(
         const std::shared_ptr< AerodynamicCoefficientSettings > baseSettings,
         const std::function< Eigen::Vector3d( const double ) > forceScaling,
@@ -514,6 +519,7 @@ inline std::shared_ptr< AerodynamicCoefficientSettings > customAerodynamicCoeffi
                 momentReferencePoint, independentVariableNames, areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection );
 }
 
+//! @get_docstring(customAerodynamicCoefficientSettings)
 inline std::shared_ptr< AerodynamicCoefficientSettings > customAerodynamicCoefficientSettings(
         const std::function< Eigen::Vector3d( const std::vector< double >& ) > forceCoefficientFunction,
         const double referenceArea,
@@ -529,8 +535,8 @@ inline std::shared_ptr< AerodynamicCoefficientSettings > customAerodynamicCoeffi
 }
 
 
-//! Base class (non-functional) for the different classes of TabulatedAerodynamicCoefficientSettings.
-/*!
+//  Base class (non-functional) for the different classes of TabulatedAerodynamicCoefficientSettings.
+/*  
  * Base class (non-functional) for the different classes of TabulatedAerodynamicCoefficientSettings.
  */
 class TabulatedAerodynamicCoefficientSettingsBase: public AerodynamicCoefficientSettings
@@ -540,8 +546,8 @@ public:
     // Inherit constructors
     using AerodynamicCoefficientSettings::AerodynamicCoefficientSettings;
 
-    //! Function to return files for force coefficients.
-    /*!
+    //  Function to return files for force coefficients.
+    /*  
      * Function to return files for force coefficients.
      * \return Files for force coefficients.
      */
@@ -550,8 +556,8 @@ public:
         return forceCoefficientsFiles_;
     }
 
-    //! Function to return files for moment coefficients.
-    /*!
+    //  Function to return files for moment coefficients.
+    /*  
      * Function to return files for moment coefficients.
      * \return Files for moment coefficients.
      */
@@ -560,8 +566,8 @@ public:
         return momentCoefficientsFiles_;
     }
 
-    //! Function to set the force coefficients files.
-    /*!
+    //  Function to set the force coefficients files.
+    /*  
      * Function to set the force coefficients files.
      * \param forceCoefficientsFiles The force coefficients files.
      */
@@ -570,8 +576,8 @@ public:
         forceCoefficientsFiles_ = forceCoefficientsFiles;
     }
 
-    //! Function to set the moment coefficients files.
-    /*!
+    //  Function to set the moment coefficients files.
+    /*  
      * Function to set the moment coefficients files.
      * \param momentCoefficientsFiles The moment coefficients files.
      */
@@ -582,16 +588,16 @@ public:
 
 private:
 
-    //! Files from which the force coefficients should be loaded.
+    //  Files from which the force coefficients should be loaded.
     std::map< int, std::string > forceCoefficientsFiles_;
 
-    //! Files from which the moment coefficients should be loaded.
+    //  Files from which the moment coefficients should be loaded.
     std::map< int, std::string > momentCoefficientsFiles_;
 
 };
 
-//! Object for setting aerodynamic coefficients from a user-defined N-dimensional table (with N>1).
-/*!
+//  Object for setting aerodynamic coefficients from a user-defined N-dimensional table (with N>1).
+/*  
  *  Object for setting aerodynamic coefficients from a user-defined N-dimensional table (with N>1). The N=1 case has its
  *  own template specialization.
  *  The user must provide the force (and moment) coefficients in boost multi_arrays, and
@@ -602,8 +608,8 @@ class TabulatedAerodynamicCoefficientSettings: public TabulatedAerodynamicCoeffi
 {
 public:
 
-    //! Constructor, sets properties of aerodynamic coefficients.
-    /*!
+    //  Constructor, sets properties of aerodynamic coefficients.
+    /*  
      *  Constructor, sets properties of aerodynamic coefficients.
      *  \param independentVariables Values of indepependent variables at which the coefficients
      *  in the input multi arrays are defined.
@@ -652,8 +658,8 @@ public:
         momentCoefficients_( momentCoefficients )
     { }
 
-    //! Constructor, sets properties of aerodynamic force coefficients, zero moment coefficients.
-    /*!
+    //  Constructor, sets properties of aerodynamic force coefficients, zero moment coefficients.
+    /*  
      *  Constructor, sets properties of aerodynamic force coefficients, zero moment coefficients
      *  \param independentVariables Values of indepependent variables at which the coefficients
      *  in the input multi arrays are defined.
@@ -699,11 +705,11 @@ public:
                    momentCoefficients_.data( ) + momentCoefficients_.num_elements( ), Eigen::Vector3d::Zero( ) );
     }
 
-    //! Destructor
+    //  Destructor
     ~TabulatedAerodynamicCoefficientSettings( ){ }
 
-    //! Function to return the values of the indepependent variables of tables of coefficients.
-    /*!
+    //  Function to return the values of the indepependent variables of tables of coefficients.
+    /*  
      *  Function to return the values of the indepependent variables of tables of coefficients.
      *  \return Values of the indepependent variables of tables of coefficients.
      */
@@ -712,8 +718,8 @@ public:
         return independentVariables_;
     }
 
-    //! Function to return values of force coefficients in table.
-    /*!
+    //  Function to return values of force coefficients in table.
+    /*  
      * Function to return values of force coefficients in table.
      * \return Values of force coefficients in table.
      */
@@ -722,8 +728,8 @@ public:
         return forceCoefficients_;
     }
 
-    //! Function to return values of moment coefficients in table.
-    /*!
+    //  Function to return values of moment coefficients in table.
+    /*  
      * Function to return values of moment coefficients in table.
      * \return Values of moment coefficients in table.
      */
@@ -734,22 +740,22 @@ public:
 
 private:
 
-    //! Values of indepependent variables at which the coefficients in the tables are defined.
-    /*!
+    //  Values of indepependent variables at which the coefficients in the tables are defined.
+    /*  
      *  Values of indepependent variables at which the coefficients in the forceCoefficients_ and
      *  momentCoefficients_ tables are defined.
      */
     std::vector< std::vector< double > > independentVariables_;
 
-    //! Values of force coefficients at independent variables defined  by independentVariables_.
+    //  Values of force coefficients at independent variables defined  by independentVariables_.
     boost::multi_array< Eigen::Vector3d, NumberOfDimensions > forceCoefficients_;
 
-    //! Values of moment coefficients at independent variables defined  by independentVariables_.
+    //  Values of moment coefficients at independent variables defined  by independentVariables_.
     boost::multi_array< Eigen::Vector3d, NumberOfDimensions > momentCoefficients_;
 };
 
-//! Object for setting aerodynamic coefficients from a user-defined 1-dimensional table.
-/*!
+//  Object for setting aerodynamic coefficients from a user-defined 1-dimensional table.
+/*  
  *  Object for setting aerodynamic coefficients from a user-defined 1-dimensional table.
  *  The user must provide the force (and moment) coefficients in std::vectors, and
  *  define the physical meaning of the independent variables.
@@ -759,8 +765,8 @@ class TabulatedAerodynamicCoefficientSettings< 1 >: public TabulatedAerodynamicC
 {
 public:
 
-    //! Constructor, sets properties of aerodynamic coefficients.
-    /*!
+    //  Constructor, sets properties of aerodynamic coefficients.
+    /*  
      *  Constructor, sets properties of aerodynamic coefficients.
      *  \param independentVariables Values of indepependent variables at which the coefficients
      *  in the input multi vector are defined.
@@ -821,8 +827,8 @@ public:
         }
     }
 
-    //! Constructor, sets properties of aerodynamic coefficients.
-    /*!
+    //  Constructor, sets properties of aerodynamic coefficients.
+    /*  
      *  Constructor, sets properties of aerodynamic coefficients.
      *  \param independentVariables Values of indepependent variables at which the coefficients
      *  in the input multi vector are defined.
@@ -884,8 +890,8 @@ public:
         }
     }
 
-    //! Constructor, sets properties of aerodynamic force coefficients, zero moment coefficients.
-    /*!
+    //  Constructor, sets properties of aerodynamic force coefficients, zero moment coefficients.
+    /*  
      *  Constructor, sets properties of aerodynamic force coefficients, zero moment coefficients.
      *  \param independentVariables Values of indepependent variables at which the coefficients
      *  in the input multi vector are defined.
@@ -930,8 +936,8 @@ public:
         }
     }
 
-    //! Constructor, sets properties of aerodynamic force coefficients, zero moment coefficients.
-    /*!
+    //  Constructor, sets properties of aerodynamic force coefficients, zero moment coefficients.
+    /*  
      *  Constructor, sets properties of aerodynamic force coefficients, zero moment coefficients.
      *  \param independentVariables Values of indepependent variables at which the coefficients
      *  in the input multi vector are defined (size 1).
@@ -977,11 +983,11 @@ public:
         }
     }
 
-    //! Destructor
+    //  Destructor
     ~TabulatedAerodynamicCoefficientSettings< 1 >( ){ }
 
-    //! Function to return values of force coefficients in table.
-    /*!
+    //  Function to return values of force coefficients in table.
+    /*  
      * Function to return values of force coefficients in table.
      * \return Values of force coefficients in table.
      */
@@ -990,8 +996,8 @@ public:
         return forceCoefficients_;
     }
 
-    //! Function to return values of moment coefficients in table.
-    /*!
+    //  Function to return values of moment coefficients in table.
+    /*  
      * Function to return values of moment coefficients in table.
      * \return Values of moment coefficients in table.
      */
@@ -1000,8 +1006,8 @@ public:
         return momentCoefficients_;
     }
 
-    //! Function to return settings to be used for creating the one-dimensional interpoaltor of data.
-    /*!
+    //  Function to return settings to be used for creating the one-dimensional interpoaltor of data.
+    /*  
      * Function to return settings to be used for creating the one-dimensional interpoaltor of data.
      * \return Settings to be used for creating the one-dimensional interpoaltor of data.
      */
@@ -1012,18 +1018,19 @@ public:
 
 private:
 
-    //! Values of force coefficients at independent variables defined  by independentVariables_.
+    //  Values of force coefficients at independent variables defined  by independentVariables_.
     std::map< double, Eigen::Vector3d > forceCoefficients_;
 
-    //! Values of moment coefficients at independent variables defined  by independentVariables_.
+    //  Values of moment coefficients at independent variables defined  by independentVariables_.
     std::map< double, Eigen::Vector3d > momentCoefficients_;
 
-    //! Settings to be used for creating the one-dimensional interpolator of data.
+    //  Settings to be used for creating the one-dimensional interpolator of data.
     std::shared_ptr< interpolators::InterpolatorSettings > interpolationSettings_;
 
 };
 
 // 1-dimensional case
+//! @get_docstring(oneDimensionalTabulatedAerodynamicCoefficientSettings)
 inline std::shared_ptr< AerodynamicCoefficientSettings > oneDimensionalTabulatedAerodynamicCoefficientSettings(
         const std::vector< double > independentVariables,
         const std::vector< Eigen::Vector3d > forceCoefficients,
@@ -1045,6 +1052,7 @@ inline std::shared_ptr< AerodynamicCoefficientSettings > oneDimensionalTabulated
                 interpolatorSettings );
 }
 
+//! @get_docstring(oneDimensionalTabulatedAerodynamicCoefficientSettings, 1)
 inline std::shared_ptr< AerodynamicCoefficientSettings > oneDimensionalTabulatedAerodynamicCoefficientSettings(
         const std::vector< double > independentVariables,
         const std::vector< Eigen::Vector3d > forceCoefficients,
@@ -1062,8 +1070,8 @@ inline std::shared_ptr< AerodynamicCoefficientSettings > oneDimensionalTabulated
 }
 
 
-//! Function to create aerodynamic coefficient settings from coefficients stored in data files
-/*!
+//  Function to create aerodynamic coefficient settings from coefficients stored in data files
+/*  
  *  Function to create aerodynamic coefficient settings from coefficients stored in data files. Separate files are defined for
  *  the three components of the force coefficients.  The file format is discussed in the Tudat wiki
  *  Note that this function requires the number of independent variables in the coefficient files to be known. If this is not
@@ -1136,8 +1144,8 @@ readGivenSizeTabulatedAerodynamicCoefficientsFromFiles(
     return tabulatedCoefficients;
 }
 
-//! Function to create aerodynamic coefficient settings from coefficients stored in data files
-/*!
+//  Function to create aerodynamic coefficient settings from coefficients stored in data files
+/*  
  *  Function to create aerodynamic coefficient settings from coefficients stored in data files. Separate files are defined for
  *  the three components of the force coefficients. From this function, no moment coefficients are read (set to zero for all
  *  cases). The file format is discussed in the Tudat wiki
@@ -1187,8 +1195,8 @@ readGivenSizeTabulatedAerodynamicCoefficientsFromFiles(
     return tabulatedCoefficients;
 }
 
-//! Function to create aerodynamic coefficient settings from coefficients stored in data files
-/*!
+//  Function to create aerodynamic coefficient settings from coefficients stored in data files
+/*  
  *  Function to create aerodynamic coefficient settings from coefficients stored in data files. Separate files are defined for
  *  the three components of the force coefficients.  The file format is discussed in the Tudat wiki
  *  \param forceCoefficientFiles List (size 3) of files containing the aerodynamic force coefficients
@@ -1225,8 +1233,8 @@ std::shared_ptr< AerodynamicCoefficientSettings > readTabulatedAerodynamicCoeffi
         const bool areCoefficientsInNegativeAxisDirection = true,
         const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = nullptr );
 
-//! Function to create aerodynamic coefficient settings from coefficients stored in data files
-/*!
+//  Function to create aerodynamic coefficient settings from coefficients stored in data files
+/*  
  * Function to create aerodynamic coefficient settings from coefficients stored in data files. Separate files are defined for
  * the three components of the force coefficients. From this function, no moment coefficients are read (set to zero for all
  * cases). The file format is discussed in the Tudat wiki
@@ -1254,8 +1262,8 @@ readTabulatedAerodynamicCoefficientsFromFiles(
         const bool areCoefficientsInNegativeAxisDirection = true,
         const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = nullptr );
 
-//! Function to create an aerodynamic coefficient interface containing constant coefficients.
-/*!
+//  Function to create an aerodynamic coefficient interface containing constant coefficients.
+/*  
  *  Function to create an aerodynamic coefficient interface containing constant coefficients,
  *  As a result, the generated coefficient interface depends on zero parameters.
  *  \param constantForceCoefficient Constant force coefficients.
@@ -1298,8 +1306,8 @@ createZeroParameterAerodynamicCoefficientInterface(
         const bool areCoefficientsInAerodynamicFrame = false,
         const bool areCoefficientsInNegativeAxisDirection = true );
 
-//! Factory function for tabulated (N-D independent variables) aerodynamic coefficient interface.
-/*!
+//  Factory function for tabulated (N-D independent variables) aerodynamic coefficient interface.
+/*  
  *  Factory function for tabulated (N-D independent variables) aerodynamic coefficient interface.
  *  \param independentVariables Values of indepependent variables at which the coefficients
  *  in the input multi arrays are defined.
@@ -1392,8 +1400,8 @@ createTabulatedCoefficientAerodynamicCoefficientInterface(
                 areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection );
 }
 
-//! Factory function for tabulated (1-D independent variables) aerodynamic coefficient interface from coefficient settings.
-/*!
+//  Factory function for tabulated (1-D independent variables) aerodynamic coefficient interface from coefficient settings.
+/*  
  *  Factory function for tabulated (1-D independent variables) aerodynamic coefficient interface from coefficient settings.
  *  \param coefficientSettings Settings for aerodynamic coefficient interface, must be of derived
  *  type TabulatedAerodynamicCoefficientSettings< 1 >
@@ -1405,8 +1413,8 @@ createUnivariateTabulatedCoefficientAerodynamicCoefficientInterface(
         const std::shared_ptr< AerodynamicCoefficientSettings > coefficientSettings,
         const std::string& body );
 
-//! Factory function for tabulated aerodynamic coefficient interface from coefficient settings.
-/*!
+//  Factory function for tabulated aerodynamic coefficient interface from coefficient settings.
+/*  
  *  Factory function for tabulated aerodynamic coefficient interface from coefficient settings.
  *  This function is included to allow easier interface between the non-templated general
  *  createAerodynamicCoefficientInterface and the templated
@@ -1449,8 +1457,8 @@ createTabulatedCoefficientAerodynamicCoefficientInterface(
     }
 }
 
-//! Function to create an aerodynamic coefficient interface.
-/*!
+//  Function to create an aerodynamic coefficient interface.
+/*  
  * Function to create an aerodynamic coefficient interface from interface settings.
  * \param coefficientSettings Settings for the aerodynamic coefficient interface.
  * \param body Name of body for which aerodynamic coefficients are to be made.
