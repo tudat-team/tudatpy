@@ -45,7 +45,8 @@ namespace aerodynamic_coefficients {
         py::class_<tss::ConstantAerodynamicCoefficientSettings,
                 std::shared_ptr<tss::ConstantAerodynamicCoefficientSettings>,
                 tss::AerodynamicCoefficientSettings>(
-                m, "ConstantAerodynamicCoefficientSettings", "<no doc>");
+                        m, "ConstantAerodynamicCoefficientSettings",
+                        get_docstring("ConstantAerodynamicCoefficientSettings").c_str());
 //            .def(py::init<const double, const double, const double,
 //                 const Eigen::Vector3d &, const Eigen::Vector3d &,
 //                 const Eigen::Vector3d &, const bool, const bool,
@@ -72,7 +73,8 @@ namespace aerodynamic_coefficients {
               py::arg("reference_area"),
               py::arg("constant_force_coefficient"),
               py::arg("are_coefficients_in_aerodynamic_frame") = true,
-              py::arg("are_coefficients_in_negative_axis_direction") = true);
+              py::arg("are_coefficients_in_negative_axis_direction") = true,
+              get_docstring("constant").c_str());
 
         m.def("custom",
               py::overload_cast<
@@ -81,9 +83,10 @@ namespace aerodynamic_coefficients {
                       const bool, const bool>(&tss::customAerodynamicCoefficientSettings),
               py::arg("force_coefficient_function"),
               py::arg("reference_area"),
-              py::arg("independent_variables"),
+              py::arg("independent_variable_names"),
               py::arg("are_coefficients_in_aerodynamic_frame") = true,
-              py::arg("are_coefficients_in_negative_axis_direction") = true);
+              py::arg("are_coefficients_in_negative_axis_direction") = true,
+              get_docstring("custom").c_str());
 
         m.def("tabulated",
               py::overload_cast<
@@ -109,7 +112,8 @@ namespace aerodynamic_coefficients {
               py::arg("independent_variable_name"),
               py::arg("are_coefficients_in_aerodynamic_frame"),
               py::arg("are_coefficients_in_negative_axis_direction"),
-              py::arg("interpolator_settings"));
+              py::arg("interpolator_settings"),
+              get_docstring("tabulated", 0).c_str());
 
         m.def("tabulated",
               py::overload_cast<
@@ -127,7 +131,8 @@ namespace aerodynamic_coefficients {
               py::arg("independent_variable_name"),
               py::arg("are_coefficients_in_aerodynamic_frame"),
               py::arg("are_coefficients_in_negative_axis_direction"),
-              py::arg("interpolator_settings"));
+              py::arg("interpolator_settings"),
+              get_docstring("tabulated", 1).c_str());
 
         m.def("scaled",
               py::overload_cast<
@@ -137,7 +142,8 @@ namespace aerodynamic_coefficients {
               py::arg("unscaled_coefficient_settings"),
               py::arg("force_scaling_constant"),
               py::arg("moment_scaling_constant"),
-              py::arg("is_scaling_absolute"));
+              py::arg("is_scaling_absolute"),
+              get_docstring("scaled", 0).c_str());
 
         m.def("scaled",
               py::overload_cast<
@@ -147,7 +153,8 @@ namespace aerodynamic_coefficients {
               py::arg("unscaled_coefficient_settings"),
               py::arg("force_scaling_vector"),
               py::arg("moment_scaling_vector"),
-              py::arg("is_scaling_absolute"));
+              py::arg("is_scaling_absolute"),
+              get_docstring("scaled", 1).c_str());
 
         m.def("scaled",
               py::overload_cast<
@@ -158,7 +165,8 @@ namespace aerodynamic_coefficients {
               py::arg("unscaled_coefficient_settings"),
               py::arg("force_scaling_vector_function"),
               py::arg("moment_scaling_vector_function"),
-              py::arg("is_scaling_absolute"));
+              py::arg("is_scaling_absolute"),
+              get_docstring("scaled", 2).c_str());
 
     }
 
