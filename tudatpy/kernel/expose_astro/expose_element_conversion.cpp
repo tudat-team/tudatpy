@@ -67,13 +67,15 @@ void expose_element_conversion(py::module &m) {
           &toec::convertCartesianToKeplerianElements< double >,
           py::arg("cartesian_elements"),
           py::arg("gravitational_parameter"),
-          "@docstrings::cartesian_to_keplerian");
+           get_docstring("cartesian_to_keplerian").c_str());
+
 
     m.def("keplerian_to_cartesian",
           py::overload_cast< const Eigen::Vector6d&, double >(
               &toec::convertKeplerianToCartesianElements< double > ),
           py::arg("keplerian_elements"),
-          py::arg("gravitational_parameter"));
+          py::arg("gravitational_parameter"),
+           get_docstring("keplerian_to_cartesian").c_str());
 
     m.def("keplerian_to_cartesian_elementwise",
           py::overload_cast<
@@ -85,7 +87,8 @@ void expose_element_conversion(py::module &m) {
           py::arg("argument_of_periapsis"),
           py::arg("longitude_of_ascending_node"),
           py::arg("true_anomaly"),
-          py::arg("gravitational_parameter"));
+          py::arg("gravitational_parameter"),
+           get_docstring("keplerian_to_cartesian_elementwise").c_str());
 
     m.def("mean_to_true_anomaly",
           &toec::convertMeanAnomalyToTrueAnomaly< double >,
@@ -93,56 +96,60 @@ void expose_element_conversion(py::module &m) {
           py::arg("mean_anomaly"),
           py::arg("use_default_initial_guess") = true,
           py::arg("non_default_initial_guess") = TUDAT_NAN,
-          py::arg("root_finder") = nullptr );
+          py::arg("root_finder") = nullptr ,
+           get_docstring("mean_to_true_anomaly").c_str());
 
     m.def("true_to_mean_anomaly",
           &toec::convertTrueAnomalyToMeanAnomaly< double >,
           py::arg("eccentricity"),
-          py::arg("true_anomaly") );
+          py::arg("true_anomaly") ,
+           get_docstring("true_to_mean_anomaly").c_str());
 
     m.def("true_to_eccentric_anomaly",
           &toec::convertTrueAnomalyToEccentricAnomaly< double >,
           py::arg("true_anomaly"),
-          py::arg("eccentricity") );
+          py::arg("eccentricity") ,
+           get_docstring("true_to_eccentric_anomaly").c_str());
 
     m.def("eccentric_to_true_anomaly",
           &toec::convertEccentricAnomalyToTrueAnomaly< double >,
           py::arg("eccentric_anomaly"),
-          py::arg("eccentricity") );
+          py::arg("eccentricity") ,
+           get_docstring("eccentric_to_true_anomaly").c_str());
 
 
     m.def("eccentric_to_mean_anomaly",
           &toec::convertEccentricAnomalyToMeanAnomaly< double >,
           py::arg("eccentric_anomaly"),
-          py::arg("eccentricity") );
+          py::arg("eccentricity") ,
+           get_docstring("eccentric_to_mean_anomaly").c_str());
 
     m.def("elapsed_time_to_delta_mean_anomaly",
           &toec::convertElapsedTimeToMeanAnomalyChange< double >,
           py::arg("elapsed_time"),
           py::arg("gravitational_parameter"),
-          py::arg("semi_major_axis") );
+          py::arg("semi_major_axis") ,
+           get_docstring("elapsed_time_to_delta_mean_anomaly").c_str());
 
     m.def("delta_mean_anomaly_to_elapsed_time",
           &toec::convertMeanAnomalyChangeToElapsedTime< double >,
           py::arg("mean_anomaly_change"),
           py::arg("gravitational_parameter"),
-          py::arg("semi_major_axis") );
+          py::arg("semi_major_axis") ,
+           get_docstring("delta_mean_anomaly_to_elapsed_time").c_str());
 
     m.def("mean_motion_to_semi_major_axis",
           &toec::convertEllipticalMeanMotionToSemiMajorAxis< double >,
           py::arg("mean_motion"),
-          py::arg("gravitational_parameter") );
+          py::arg("gravitational_parameter") ,
+           get_docstring("mean_motion_to_semi_major_axis").c_str());
 
     m.def("semi_major_axis_to_mean_motion",
           &toec::convertSemiMajorAxisToEllipticalMeanMotion< double >,
           py::arg("semi_major_axis"),
-          py::arg("gravitational_parameter") );
+          py::arg("gravitational_parameter") ,
+           get_docstring("semi_major_axis_to_mean_motion").c_str());
 
-
-    m.def("spherical_to_cartesian",
-          py::overload_cast< const Eigen::Vector6d& >(
-              &toec::convertSphericalOrbitalToCartesianState< double > ),
-          py::arg("spherical_orbital_state"));
 
     /*!
      **************   MODIFIED EQUIONOCTIAL ELEMENTS  ******************

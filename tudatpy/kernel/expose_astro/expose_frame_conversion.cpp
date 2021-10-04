@@ -62,7 +62,7 @@ void expose_frame_conversion(py::module &m) {
           py::arg("pole_declination"),
           py::arg("pole_right_ascension"),
           py::arg("prime_meridian_longitude"),
-          get_docstring("inertial_to_tnw_rotation_matrix").c_str());
+          get_docstring("inertial_to_body_fixed_rotation_matrix").c_str());
 
     m.def("body_fixed_to_inertial_rotation_matrix",
           py::overload_cast<const double, const double, const double>(
@@ -70,7 +70,7 @@ void expose_frame_conversion(py::module &m) {
           py::arg("pole_declination"),
           py::arg("pole_right_ascension"),
           py::arg("pole_meridian"),
-          get_docstring("inertial_to_tnw_rotation_matrix").c_str());
+          get_docstring("body_fixed_to_inertial_rotation_matrix").c_str());
 
 
     m.def("transform_cartesian_state_to_frame",
@@ -78,7 +78,7 @@ void expose_frame_conversion(py::module &m) {
               &te::transformStateToFrameFromRotations<double>),
           py::arg("original_state"),
           py::arg("rotation_matrix"),
-          py::arg("rotation_matrix_derivative"));
+          py::arg("transform_cartesian_state_to_frame"));
 
 }
 
