@@ -8,6 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#include "tudatpy/docstrings.h"
+
 #include "expose_numerical_simulation.h"
 
 #include "expose_numerical_simulation/expose_environment_setup.h"

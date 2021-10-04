@@ -195,14 +195,10 @@ namespace ephemeris {
               get_docstring("keplerian_from_spice").c_str());
 
 
-        m.def("approximate_planet_positions",
+        m.def("approximate_jpl_model",
               py::overload_cast<const std::string>(&tss::approximateJplEphemerisSettings),
-              py::arg("body_name_to_use"),
-              get_docstring("approximate_planet_positions", 0).c_str());
-
-//        m.def("approximate_planet_positions",
-//              py::overload_cast<>(&tss::approximateJplEphemerisSettings),
-//              get_docstring("approximate_planet_positions", 1).c_str());
+              py::arg("body_name"),
+              get_docstring("approximate_jpl_model", 0).c_str());
 
         m.def("direct_spice",
               py::overload_cast<const std::string, const std::string, const std::string>(
@@ -229,9 +225,10 @@ namespace ephemeris {
               py::arg("body_state_history"),
               py::arg("frame_origin") = "SSB",
               py::arg("frame_orientation") = "ECLIPJ2000",
-              get_docstring("tabulated",0).c_str());
+              get_docstring("tabulated").c_str());
 
-        m.def("tabulated",
+
+        m.def("tabulated_from_existing",
               py::overload_cast< const std::shared_ptr< tss::EphemerisSettings >,
               const double, const double, const double, const std::shared_ptr< ti::InterpolatorSettings > >(
                   &tss::tabulatedEphemerisSettings ),
@@ -239,7 +236,8 @@ namespace ephemeris {
               py::arg("start_time"),
               py::arg("end_time"),
               py::arg("time_step"),
-              py::arg("interpolator_settings") =  std::make_shared< ti::LagrangeInterpolatorSettings >( 8 ) );
+              py::arg("interpolator_settings") =  std::make_shared< ti::LagrangeInterpolatorSettings >( 8 ),
+              get_docstring("tabulated_from_existing").c_str());
 
         m.def("constant",
               &tss::constantEphemerisSettings,
@@ -248,29 +246,29 @@ namespace ephemeris {
               py::arg("frame_orientation") = "ECLIPJ2000",
               get_docstring("constant").c_str());
 
-        m.def("scaled",
+        m.def("scaled_by_constant",
               py::overload_cast<const std::shared_ptr<tss::EphemerisSettings>,
                       const double, const bool>(&tss::scaledEphemerisSettings),
               py::arg("unscaled_ephemeris_settings"),
               py::arg("scaling_constant"),
               py::arg("is_scaling_absolute") = false,
-              get_docstring("scaled", 0).c_str());
+              get_docstring("scaled_by_constant", 0).c_str());
 
-        m.def("scaled",
+        m.def("scaled_by_vector",
               py::overload_cast<const std::shared_ptr<tss::EphemerisSettings>,
                       const Eigen::Vector6d, const bool>(&tss::scaledEphemerisSettings),
               py::arg("unscaled_ephemeris_settings"),
               py::arg("scaling_vector"),
               py::arg("is_scaling_absolute") = false,
-              get_docstring("scaled", 1).c_str());
+              get_docstring("scaled_by_vector", 1).c_str());
 
-        m.def("scaled",
+        m.def("scaled_by_vector_function",
               py::overload_cast<const std::shared_ptr<tss::EphemerisSettings>,
                       const std::function<Eigen::Vector6d(const double)>, const bool>(&tss::scaledEphemerisSettings),
               py::arg("unscaled_ephemeris_settings"),
               py::arg("scaling_vector_function"),
               py::arg("is_scaling_absolute") = false,
-              get_docstring("scaled", 2).c_str());
+              get_docstring("scaled_by_vector_function", 2).c_str());
 
         m.def("custom",
               &tss::customEphemerisSettings,

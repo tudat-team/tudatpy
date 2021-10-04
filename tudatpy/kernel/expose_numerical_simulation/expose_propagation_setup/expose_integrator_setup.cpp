@@ -148,7 +148,7 @@ namespace integrator {
                   py::arg("minimum_factor_increase") = 0.1,
                   get_docstring("runge_kutta_variable_step_size", 0).c_str());
 
-            m.def("runge_kutta_variable_step_size",
+            m.def("runge_kutta_variable_step_size_vector_tolerance",
                   &tni::rungeKuttaVariableStepSettingsVectorTolerances<double>,
                   py::arg("initial_time"),
                   py::arg("initial_time_step"),
