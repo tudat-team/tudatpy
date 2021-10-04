@@ -151,7 +151,7 @@ namespace integrator {
             m.def("runge_kutta_variable_step_size_vector_tolerances",
                   &tni::rungeKuttaVariableStepSettingsVectorTolerances<double>,
                   py::arg("initial_time"),
-                  py::arg("initial_time_step"),esa
+                  py::arg("initial_time_step"),
                   py::arg("coefficient_set"),
                   py::arg("minimum_step_size"),
                   py::arg("maximum_step_size"),
