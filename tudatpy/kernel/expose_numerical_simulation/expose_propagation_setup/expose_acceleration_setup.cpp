@@ -281,11 +281,11 @@ void expose_acceleration_setup(py::module &m) {
     //////////////////////////////////////////////////////////////////////////////
     py::enum_<tss::ThrustDirectionTypes>(m, "ThrustDirectionGuidanceTypes",
                                          get_docstring("ThrustDirectionGuidanceTypes").c_str())
-            .value("colinear_with_state_segment_thrust_direction", tss::ThrustDirectionTypes::colinear_with_state_segment_thrust_direction)
-            .value("thrust_direction_from_existing_body_orientation", tss::ThrustDirectionTypes::thrust_direction_from_existing_body_orientation)
-            .value("custom_thrust_direction", tss::ThrustDirectionTypes::custom_thrust_direction)
-            .value("custom_thrust_orientation", tss::ThrustDirectionTypes::custom_thrust_orientation)
-            .value("mee_costate_based_thrust_direction", tss::ThrustDirectionTypes::mee_costate_based_thrust_direction);
+            .value("colinear_with_state_segment_thrust_direction_type", tss::ThrustDirectionTypes::colinear_with_state_segment_thrust_direction)
+            .value("thrust_direction_from_existing_body_orientation_type", tss::ThrustDirectionTypes::thrust_direction_from_existing_body_orientation)
+            .value("custom_thrust_direction_type", tss::ThrustDirectionTypes::custom_thrust_direction)
+            .value("custom_thrust_orientation_type", tss::ThrustDirectionTypes::custom_thrust_orientation)
+            .value("mee_costate_based_thrust_direction_type", tss::ThrustDirectionTypes::mee_costate_based_thrust_direction);
 
     m.def("get_propulsion_input_variables",
           &tss::getPropulsionInputVariables,
