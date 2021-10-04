@@ -59,44 +59,44 @@ namespace gravity_field_variation {
               py::arg("love_number"),
               py::arg("degree"));
 
-        m.def("solid_body_tide",
+        m.def("solid_body_tide_complex_k",
               py::overload_cast<const std::string, const std::complex<double>, const int>(
                       &tss::fixedSingleDegreeLoveNumberGravityFieldVariationSettings),
               py::arg("tide_raising_body"),
               py::arg("love_number"),
               py::arg("degree"));
 
-        m.def("solid_body_tide",
+        m.def("solid_body_tide_degree_varying_k",
               py::overload_cast<const std::string, std::map<int, double> >(
                       &tss::fixedSingleDegreeLoveNumberGravityFieldVariationSettings),
               py::arg("tide_raising_body"),
               py::arg("love_number_per_degree"));
 
-        m.def("solid_body_tide",
+        m.def("solid_body_tide_degree_varying_complex_k",
               py::overload_cast<const std::string, std::map<int, std::complex<double> > >(
                       &tss::fixedSingleDegreeLoveNumberGravityFieldVariationSettings),
               py::arg("tide_raising_body"),
               py::arg("love_number_per_degree"));
 
-        m.def("solid_body_tide",
-              py::overload_cast<const std::string, const std::vector<double>, const int,
-                      const std::shared_ptr<tss::ModelInterpolationSettings> >(
-                      &tss::orderVariableSingleDegreeLoveNumberGravityFieldVariationSettings),
-              py::arg("tide_raising_body"),
-              py::arg("love_number_per_order"),
-              py::arg("degree"),
-              py::arg("interpolation_settings") = nullptr);
+//        m.def("solid_body_tide",
+//              py::overload_cast<const std::string, const std::vector<double>, const int,
+//                      const std::shared_ptr<tss::ModelInterpolationSettings> >(
+//                      &tss::orderVariableSingleDegreeLoveNumberGravityFieldVariationSettings),
+//              py::arg("tide_raising_body"),
+//              py::arg("love_number_per_order"),
+//              py::arg("degree"),
+//              py::arg("interpolation_settings") = nullptr);
 
-        m.def("solid_body_tide",
-              py::overload_cast<const std::string, const std::vector<std::complex<double> >, const int,
-                      const std::shared_ptr<tss::ModelInterpolationSettings> >(
-                      &tss::orderVariableSingleDegreeLoveNumberGravityFieldVariationSettings),
-              py::arg("tide_raising_body"),
-              py::arg("love_number_per_order"),
-              py::arg("degree"),
-              py::arg("interpolation_settings") = nullptr);
+//        m.def("solid_body_tide",
+//              py::overload_cast<const std::string, const std::vector<std::complex<double> >, const int,
+//                      const std::shared_ptr<tss::ModelInterpolationSettings> >(
+//                      &tss::orderVariableSingleDegreeLoveNumberGravityFieldVariationSettings),
+//              py::arg("tide_raising_body"),
+//              py::arg("love_number_per_order"),
+//              py::arg("degree"),
+//              py::arg("interpolation_settings") = nullptr);
 
-        m.def("solid_body_tide",
+        m.def("solid_body_tide_degree_order_varying_k",
               py::overload_cast<const std::string, const std::map<int, std::vector<double> >,
                       const std::shared_ptr<tss::ModelInterpolationSettings> >(
                       &tss::degreeOrderVariableLoveNumberGravityFieldVariationSettings),
@@ -104,7 +104,7 @@ namespace gravity_field_variation {
               py::arg("love_number_per_degree_and_order"),
               py::arg("interpolation_settings") = nullptr);
 
-        m.def("solid_body_tide",
+        m.def("solid_body_tide_degree_order_varying_complex_k",
               py::overload_cast<const std::string, const std::map<int, std::vector<std::complex<double> > >,
                       const std::shared_ptr<tss::ModelInterpolationSettings> >(
                       &tss::degreeOrderVariableLoveNumberGravityFieldVariationSettings),

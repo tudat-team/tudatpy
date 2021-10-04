@@ -115,7 +115,7 @@ namespace aerodynamic_coefficients {
               py::arg("interpolator_settings"),
               get_docstring("tabulated", 0).c_str());
 
-        m.def("tabulated",
+        m.def("tabulated_force_only",
               py::overload_cast<
                       const std::vector<double>,
                       const std::vector<Eigen::Vector3d>,
@@ -132,9 +132,9 @@ namespace aerodynamic_coefficients {
               py::arg("are_coefficients_in_aerodynamic_frame"),
               py::arg("are_coefficients_in_negative_axis_direction"),
               py::arg("interpolator_settings"),
-              get_docstring("tabulated", 1).c_str());
+              get_docstring("tabulated_force_only", 1).c_str());
 
-        m.def("scaled",
+        m.def("scaled_by_constant",
               py::overload_cast<
                       const std::shared_ptr<tss::AerodynamicCoefficientSettings>,
                       const double, const double, const bool>
@@ -143,9 +143,9 @@ namespace aerodynamic_coefficients {
               py::arg("force_scaling_constant"),
               py::arg("moment_scaling_constant"),
               py::arg("is_scaling_absolute"),
-              get_docstring("scaled", 0).c_str());
+              get_docstring("scaled_by_constant", 0).c_str());
 
-        m.def("scaled",
+        m.def("scaled_by_vector",
               py::overload_cast<
                       const std::shared_ptr<tss::AerodynamicCoefficientSettings>,
                       const Eigen::Vector3d, const Eigen::Vector3d, const bool>
@@ -154,9 +154,9 @@ namespace aerodynamic_coefficients {
               py::arg("force_scaling_vector"),
               py::arg("moment_scaling_vector"),
               py::arg("is_scaling_absolute"),
-              get_docstring("scaled", 1).c_str());
+              get_docstring("scaled_by_vector", 1).c_str());
 
-        m.def("scaled",
+        m.def("scaled_by_vector_function",
               py::overload_cast<
                       const std::shared_ptr<tss::AerodynamicCoefficientSettings>,
                       const std::function<Eigen::Vector3d(const double)>,
@@ -166,7 +166,7 @@ namespace aerodynamic_coefficients {
               py::arg("force_scaling_vector_function"),
               py::arg("moment_scaling_vector_function"),
               py::arg("is_scaling_absolute"),
-              get_docstring("scaled", 2).c_str());
+              get_docstring("scaled_by_vector_function", 2).c_str());
 
     }
 

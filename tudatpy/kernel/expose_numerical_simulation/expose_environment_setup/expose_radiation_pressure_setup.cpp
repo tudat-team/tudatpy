@@ -51,8 +51,7 @@ namespace radiation_pressure {
         py::class_<tss::RadiationPressureInterfaceSettings,
                 std::shared_ptr<tss::RadiationPressureInterfaceSettings>>(
                 m, "RadiationPressureInterfaceSettings",
-                get_docstring("RadiationPressureInterfaceSettings").c_str())
-        );
+                get_docstring("RadiationPressureInterfaceSettings").c_str());
 //            .def(py::init<const tss::RadiationPressureType, const std::string &,
 //                 const std::vector<std::string>>(),
 //                 py::arg("radiation_pressure_type"), py::arg("source_body"),
@@ -62,8 +61,8 @@ namespace radiation_pressure {
                 std::shared_ptr<tss::CannonBallRadiationPressureInterfaceSettings>,
                 tss::RadiationPressureInterfaceSettings>(
                 m, "CannonBallRadiationPressureInterfaceSettings",
-                get_docstring("CannonBallRadiationPressureInterfaceSettings").c_str())
-        );
+                get_docstring("CannonBallRadiationPressureInterfaceSettings").c_str());
+
 //            .def(py::init<const std::string &, const double, const double,
 //                 const std::vector<std::string> &>(),
 //                 py::arg("source_body"), py::arg("area"),
