@@ -284,7 +284,8 @@ namespace environment_setup {
 
         m.def("get_global_frame_origin", &tss::getGlobalFrameOrigin);
 
-        m.def("create_simplified_system_of_bodies", &tss::createSimplifiedSystemOfBodies);
+        m.def("create_simplified_system_of_bodies", &tss::createSimplifiedSystemOfBodies,
+              py::arg("initial_time") = 0);
 
         m.def("create_system_of_bodies", &tss::createSystemOfBodies);
 

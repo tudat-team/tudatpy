@@ -122,13 +122,18 @@ void expose_interpolators(py::module &m) {
           py::arg("interpolator_settings"),
           py::arg("data_first_derivatives") = std::vector< Eigen::VectorXd >( ) );
 
-
     m.def("create_one_dimensional_interpolator",
           &ti::createOneDimensionalInterpolatorBasic< double, Eigen::MatrixXd >,
           py::arg("data_to_interpolate"),
           py::arg("interpolator_settings"),
           py::arg("data_first_derivatives") = std::vector< Eigen::MatrixXd >( ) );
 
+    // TODO: Replace the followind m.def -> see TODO list for more information
+    m.def("create_one_dimensional_interpolator_Vector6d",
+          &ti::createOneDimensionalInterpolatorBasic< double, Eigen::Vector6d >,
+          py::arg("data_to_interpolate"),
+          py::arg("interpolator_settings"),
+          py::arg("data_first_derivatives") = std::vector< Eigen::Vector6d >( ) );
 
     py::class_<
             ti::OneDimensionalInterpolator<double, double>,
@@ -158,6 +163,17 @@ void expose_interpolators(py::module &m) {
                  py::arg("independent_variable_value") )
             .def("interpolate", py::overload_cast< const std::vector< double >& >(
                      &ti::OneDimensionalInterpolator<double, Eigen::MatrixXd>::interpolate ),
+                 py::arg("independent_variable_values") );
+
+    // TODO: Replace the followind py::class_ -> see TODO list for more information
+    py::class_<
+            ti::OneDimensionalInterpolator<double, Eigen::Vector6d>,
+            std::shared_ptr<ti::OneDimensionalInterpolator<double, Eigen::Vector6d>>>(m, "OneDimensionalInterpolatorVector6d")
+            .def("interpolate", py::overload_cast< const double >(
+                    &ti::OneDimensionalInterpolator<double, Eigen::Vector6d>::interpolate ),
+                 py::arg("independent_variable_value") )
+            .def("interpolate", py::overload_cast< const std::vector< double >& >(
+                    &ti::OneDimensionalInterpolator<double, Eigen::Vector6d>::interpolate ),
                  py::arg("independent_variable_values") );
 
 };
