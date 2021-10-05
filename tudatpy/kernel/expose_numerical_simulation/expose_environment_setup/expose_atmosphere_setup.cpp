@@ -50,10 +50,11 @@ namespace atmosphere {
                 tss::AtmosphereSettings>(m, "ExponentialAtmosphereSettings",
                                          get_docstring("ExponentialAtmosphereSettings").c_str());
 
-        py::class_<tss::TabulatedAtmosphereSettings,
-                std::shared_ptr<tss::TabulatedAtmosphereSettings>,
-                tss::AtmosphereSettings>(m, "TabulatedAtmosphereSettings",
-                                         get_docstring("TabulatedAtmosphereSettings").c_str());
+        // unexposed this class, because there is no factory function interface yet
+        // py::class_<tss::TabulatedAtmosphereSettings,
+        //         std::shared_ptr<tss::TabulatedAtmosphereSettings>,
+        //         tss::AtmosphereSettings>(m, "TabulatedAtmosphereSettings",
+        //                                  get_docstring("TabulatedAtmosphereSettings").c_str());
 
 
         m.def("constant_wind_model",
