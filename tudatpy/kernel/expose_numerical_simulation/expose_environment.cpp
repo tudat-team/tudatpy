@@ -327,6 +327,12 @@ void expose_environment(py::module &m) {
             te::Ephemeris>(
                 m, "KeplerEphemeris");
 
+    py::class_<te::TabulatedCartesianEphemeris< double, double >,
+               std::shared_ptr<te::TabulatedCartesianEphemeris< double, double > >,
+               te::Ephemeris>(m, "TabulatedEphemeris")
+               .def("reset_interpolator", &te::TabulatedCartesianEphemeris< double, double >::resetInterpolator,
+                    py::arg("interpolator") );
+
     py::class_<te::Tle, std::shared_ptr<te::Tle>>(m, "Tle")
             .def(py::init<//ctor 1
                  const std::string &>(),
