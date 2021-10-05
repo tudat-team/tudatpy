@@ -35,33 +35,52 @@ namespace atmosphere {
     void expose_atmosphere_setup(py::module &m) {
 
         /////////////////////////////////////////////////////////////////////////////
+        py::class_<tss::WindModelSettings,
+                std::shared_ptr<tss::WindModelSettings>>(m, "WindModelSettings",
+                                                         get_docstring("WindModelSettings").c_str());
+
         py::class_<tss::AtmosphereSettings,
-                std::shared_ptr<tss::AtmosphereSettings>>(m, "AtmosphereSettings")
+                std::shared_ptr<tss::AtmosphereSettings>>(m, "AtmosphereSettings",
+                                                          get_docstring("AtmosphereSettings").c_str())
                 .def_property("wind_settings", &tss::AtmosphereSettings::getWindSettings,
                               &tss::AtmosphereSettings::setWindSettings);
 
         py::class_<tss::ExponentialAtmosphereSettings,
                 std::shared_ptr<tss::ExponentialAtmosphereSettings>,
-                tss::AtmosphereSettings>(m, "ExponentialAtmosphereSettings");
+                tss::AtmosphereSettings>(m, "ExponentialAtmosphereSettings",
+                                         get_docstring("ExponentialAtmosphereSettings").c_str());
 
         py::class_<tss::TabulatedAtmosphereSettings,
                 std::shared_ptr<tss::TabulatedAtmosphereSettings>,
-                tss::AtmosphereSettings>(m, "TabulatedAtmosphereSettings");
+                tss::AtmosphereSettings>(m, "TabulatedAtmosphereSettings",
+                                         get_docstring("TabulatedAtmosphereSettings").c_str());
 
 
-        py::class_<tss::WindModelSettings,
-                std::shared_ptr<tss::WindModelSettings>>(m, "WindModelSettings");
+        m.def("constant_wind_model",
+              &tss::constantWindModelSettings,
+              py::arg("wind_velocity"),
+              py::arg("associated_reference_frame") = trf::vertical_frame,
+              get_docstring("constant_wind_model", 0).c_str());
+
+        m.def("custom_wind_model",
+              &tss::customWindModelSettings,
+              py::arg("wind_function"),
+              py::arg("associated_reference_frame") = trf::vertical_frame,
+              get_docstring("constant_wind_model", 1).c_str());
+
 
         m.def("exponential",
               py::overload_cast<const std::string &>(
                       &tss::exponentialAtmosphereSettings),
-              py::arg("body_name"));
+              py::arg("body_name"),
+              get_docstring("exponential", 0).c_str());
 
         m.def("exponential",
               py::overload_cast<const double, const double>(
                       &tss::exponentialAtmosphereSettings),
               py::arg("scale_height"),
-              py::arg("surface_density"));
+              py::arg("surface_density"),
+              get_docstring("exponential", 1).c_str());
 
         m.def("exponential",
               py::overload_cast<const double, const double, const double,
@@ -70,10 +89,14 @@ namespace atmosphere {
               py::arg("surface_density"),
               py::arg("constant_temperature"),
               py::arg("specific_gas_constant") = tudat::physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
-              py::arg("ratio_specific_heats") = 1.4);
+              py::arg("ratio_specific_heats") = 1.4,
+              get_docstring("exponential", 2).c_str());
+
 
         m.def("nrlmsise00",
-              &tss::nrlmsise00AtmosphereSettings);
+              &tss::nrlmsise00AtmosphereSettings,
+              get_docstring("nrlmsise00").c_str());
+
 
         m.def("custom_constant_temperature",
               py::overload_cast<const std::function<double(const double)>,
@@ -81,7 +104,8 @@ namespace atmosphere {
               py::arg("density_function"),
               py::arg("constant_temperature"),
               py::arg("specific_gas_constant") = tudat::physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
-              py::arg("ratio_of_specific_heats") = 1.4);
+              py::arg("ratio_of_specific_heats") = 1.4,
+              get_docstring("custom_constant_temperature", 0).c_str());
 
         m.def("custom_constant_temperature",
               py::overload_cast<const std::function<double(const double, const double, const double, const double)>,
@@ -89,32 +113,26 @@ namespace atmosphere {
               py::arg("density_function"),
               py::arg("constant_temperature"),
               py::arg("specific_gas_constant") = tudat::physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
-              py::arg("ratio_of_specific_heats") = 1.4);
+              py::arg("ratio_of_specific_heats") = 1.4,
+              get_docstring("custom_constant_temperature", 1).c_str());
+
 
         m.def("scaled",
               py::overload_cast<const std::shared_ptr<tss::AtmosphereSettings>,
                       const std::function<double(const double)>, const bool>(&tss::scaledAtmosphereSettings),
               py::arg("unscaled_atmosphere_settings"),
               py::arg("density_scaling_function"),
-              py::arg("is_scaling_absolute") = false);
+              py::arg("is_scaling_absolute") = false,
+              get_docstring("scaled", 0).c_str());
 
         m.def("scaled",
               py::overload_cast<const std::shared_ptr<tss::AtmosphereSettings>,
                       const double, const bool>(&tss::scaledAtmosphereSettings),
               py::arg("unscaled_atmosphere_settings"),
               py::arg("density_scaling"),
-              py::arg("is_scaling_absolute") = false);
+              py::arg("is_scaling_absolute") = false,
+              get_docstring("scaled", 1).c_str());
 
-
-        m.def("constant_wind_model",
-              &tss::constantWindModelSettings,
-              py::arg("wind_velocity"),
-              py::arg("associated_reference_frame") = trf::vertical_frame);
-
-        m.def("custom_wind_model",
-              &tss::customWindModelSettings,
-              py::arg("wind_function"),
-              py::arg("associated_reference_frame") = trf::vertical_frame);
 
     }
 
