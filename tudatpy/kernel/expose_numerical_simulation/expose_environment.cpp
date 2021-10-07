@@ -14,6 +14,7 @@
 #include <tudat/astro/ephemerides.h>
 #include <tudat/astro/gravitation.h>
 #include "tudat/astro/ground_stations/groundStation.h"
+#include "tudat/simulation/environment_setup/body.h"
 
 
 #include <pybind11/chrono.h>
@@ -44,6 +45,7 @@ namespace tgs = tudat::ground_stations;
 namespace tr = tudat::reference_frames;
 namespace tg = tudat::gravitation;
 namespace trf = tudat::reference_frames;
+namespace tss = tudat::simulation_setup;
 
 
 
@@ -113,6 +115,7 @@ namespace numerical_simulation {
 namespace environment {
 
 void expose_environment(py::module &m) {
+
 
     py::enum_<ta::AerodynamicCoefficientsIndependentVariables>(m, "AerodynamicCoefficientsIndependentVariables", "<no_doc>")
             .value("mach_number_dependent", ta::AerodynamicCoefficientsIndependentVariables::mach_number_dependent)
@@ -328,10 +331,10 @@ void expose_environment(py::module &m) {
                 m, "KeplerEphemeris");
 
     py::class_<te::TabulatedCartesianEphemeris< double, double >,
-               std::shared_ptr<te::TabulatedCartesianEphemeris< double, double > >,
-               te::Ephemeris>(m, "TabulatedEphemeris")
-               .def("reset_interpolator", &te::TabulatedCartesianEphemeris< double, double >::resetInterpolator,
-                    py::arg("interpolator") );
+            std::shared_ptr<te::TabulatedCartesianEphemeris< double, double > >,
+            te::Ephemeris>(m, "TabulatedEphemeris")
+            .def("reset_interpolator", &te::TabulatedCartesianEphemeris< double, double >::resetInterpolator,
+                 py::arg("interpolator") );
 
     py::class_<te::Tle, std::shared_ptr<te::Tle>>(m, "Tle")
             .def(py::init<//ctor 1
@@ -431,6 +434,51 @@ void expose_environment(py::module &m) {
             .def("get_average_radius", &tba::BodyShapeModel::getAverageRadius)
             .def_property_readonly("average_radius", &tba::BodyShapeModel::getAverageRadius);
 
+    /////////////////////////////////////////////////////////////////////////////
+    // body.h ///////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////
+    py::class_<tss::Body, std::shared_ptr<tss::Body>>(m, "Body")
+            .def_property("ephemeris_frame_to_base_frame", &tss::Body::getEphemerisFrameToBaseFrame,
+                          &tss::Body::setEphemerisFrameToBaseFrame)
+            .def_property_readonly("state", &tss::Body::getState)
+            .def_property_readonly("position", &tss::Body::getPosition)
+            .def_property_readonly("velocity", &tss::Body::getVelocity)
+            .def_property_readonly("inertial_to_body_fixed_frame", &tss::Body::getCurrentRotationMatrixToLocalFrame)
+            .def_property_readonly("body_fixed_to_inertial_frame", &tss::Body::getCurrentRotationMatrixToGlobalFrame)
+            .def_property_readonly("inertial_to_body_fixed_frame_derivative", &tss::Body::getCurrentRotationMatrixDerivativeToLocalFrame)
+            .def_property_readonly("body_fixed_to_inertial_frame_derivative", &tss::Body::getCurrentRotationMatrixDerivativeToGlobalFrame)
+            .def_property_readonly("inertial_angular_velocity", &tss::Body::getCurrentAngularVelocityVectorInGlobalFrame)
+            .def_property_readonly("body_fixed_angular_velocity", &tss::Body::getCurrentAngularVelocityVectorInLocalFrame)
+            .def_property("mass", &tss::Body::getBodyMass, &tss::Body::setConstantBodyMass)
+            .def_property("inertia_tensor", &tss::Body::getBodyInertiaTensor,
+                          py::overload_cast<const Eigen::Matrix3d &>(
+                              &tss::Body::setBodyInertiaTensor))
+            .def_property_readonly("state_in_base_frame_from_ephemeris",
+                 &tss::Body::getStateInBaseFrameFromEphemeris<double, double>)
+            .def_property("ephemeris", &tss::Body::getEphemeris, &tss::Body::setEphemeris)
+            .def_property("atmosphere_model", &tss::Body::getAtmosphereModel, &tss::Body::setAtmosphereModel)
+            .def_property("shape_model", &tss::Body::getShapeModel, &tss::Body::setShapeModel)
+            .def_property("gravity_field_model", &tss::Body::getGravityFieldModel, &tss::Body::setGravityFieldModel)
+            .def_property("aerodynamic_coefficient_interface", &tss::Body::getAerodynamicCoefficientInterface,
+                          &tss::Body::setAerodynamicCoefficientInterface)
+            .def_property("flight_conditions", &tss::Body::getFlightConditions, &tss::Body::setFlightConditions)
+            .def_property("rotation_model", &tss::Body::getRotationalEphemeris, &tss::Body::setRotationalEphemeris)
+            .def_property_readonly("gravitational_parameter", &tss::Body::getGravitationalParameter);
+
+
+    py::class_<tss::SystemOfBodies,
+            std::shared_ptr<tss::SystemOfBodies> >(m, "SystemOfBodies")
+            .def("get", &tss::SystemOfBodies::getBody)
+            .def("create_empty_body", &tss::SystemOfBodies::createEmptyBody,
+                 py::arg("body_name"),
+                 py::arg("process_body") = 1)
+            .def("add_body", &tss::SystemOfBodies::addBody,
+                 py::arg("body_to_add"),
+                 py::arg("body_name"),
+                 py::arg("process_body") = 1)
+            .def("delete_body", &tss::SystemOfBodies::deleteBody,
+                 py::arg("body_name"))
+            .def_property_readonly("number_of_bodies", &tss::SystemOfBodies::count);
 
     /*
      **************   SUPPORTING FUNCTIONS USED ENVIRONMENT MODELS  ******************

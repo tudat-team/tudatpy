@@ -61,18 +61,6 @@ void expose_propagation_setup(py::module &m) {
     auto dependent_variable_setup = m.def_submodule("dependent_variable");
     dependent_variable::expose_dependent_variable_setup(dependent_variable_setup);
 
-    // First overload
-    m.def("create_acceleration_models",
-          py::overload_cast<const tss::SystemOfBodies &,
-                  const tss::SelectedAccelerationMap &,
-                  const std::map<std::string, std::string> &>(
-                  &tss::createAccelerationModelsMap),
-          py::arg("body_system"),
-          py::arg("selected_acceleration_per_body"),
-          py::arg("central_bodies"),
-          get_docstring("create_acceleration_models", 0).c_str());
-
-    // Second overload
     m.def("create_acceleration_models",
           py::overload_cast<const tss::SystemOfBodies &,
                   const tss::SelectedAccelerationMap &,
@@ -83,7 +71,7 @@ void expose_propagation_setup(py::module &m) {
           py::arg("selected_acceleration_per_body"),
           py::arg("bodies_to_propagate"),
           py::arg("central_bodies"),
-          get_docstring("create_acceleration_models", 1).c_str());
+          get_docstring("create_acceleration_models").c_str());
 
     m.def("create_torque_models",
           &tss::createTorqueModelsMap,

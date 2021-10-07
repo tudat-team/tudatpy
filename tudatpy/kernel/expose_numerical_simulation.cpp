@@ -55,7 +55,7 @@ void expose_numerical_simulation(py::module &m) {
   py::class_<
           tp::SingleArcDynamicsSimulator<double, double>,
           std::shared_ptr<tp::SingleArcDynamicsSimulator<double, double>>>(m,
-                                                                           "SingleArcDynamicsSimulator")
+                                                                           "SingleArcSimulator")
           .def(py::init<
                        const tudat::simulation_setup::SystemOfBodies &,
                        const std::shared_ptr<tudat::numerical_integrators::IntegratorSettings<double>>,
