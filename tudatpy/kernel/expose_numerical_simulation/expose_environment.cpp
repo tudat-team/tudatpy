@@ -10,6 +10,8 @@
 
 #include "expose_environment.h"
 
+#include "tudatpy/docstrings.h"
+
 #include <tudat/astro/aerodynamics.h>
 #include <tudat/astro/ephemerides.h>
 #include <tudat/astro/gravitation.h>
@@ -467,8 +469,10 @@ void expose_environment(py::module &m) {
 
 
     py::class_<tss::SystemOfBodies,
-            std::shared_ptr<tss::SystemOfBodies> >(m, "SystemOfBodies")
-            .def("get", &tss::SystemOfBodies::getBody)
+            std::shared_ptr<tss::SystemOfBodies> >(m, "SystemOfBodies", get_docstring("SystemOfBodies").c_str())
+            .def("get", &tss::SystemOfBodies::getBody,
+                 py::arg("body_name"),
+                 get_docstring("get").c_str())
             .def("create_empty_body", &tss::SystemOfBodies::createEmptyBody,
                  py::arg("body_name"),
                  py::arg("process_body") = 1)
@@ -478,7 +482,8 @@ void expose_environment(py::module &m) {
                  py::arg("process_body") = 1)
             .def("delete_body", &tss::SystemOfBodies::deleteBody,
                  py::arg("body_name"))
-            .def_property_readonly("number_of_bodies", &tss::SystemOfBodies::count);
+            .def_property_readonly("number_of_bodies", &tss::SystemOfBodies::getNumberOfBodies,
+                                   get_docstring("number_of_bodies").c_str();
 
     /*
      **************   SUPPORTING FUNCTIONS USED ENVIRONMENT MODELS  ******************
@@ -492,6 +497,6 @@ void expose_environment(py::module &m) {
 
 
 }
-}// namespace propagation
+}// namespace environment
 }// namespace numerical_simulation
 }// namespace tudatpy
