@@ -1580,6 +1580,11 @@ public:
         return bodyMap_.count( bodyName );
     }
 
+    int getNumberOfBodies( ) const
+    {
+        return bodyMap_.size( );
+    }
+
     void createEmptyBody( const std::string bodyName, const bool processBody = true )
     {
         bodyMap_[ bodyName ] = std::make_shared< Body >( );
