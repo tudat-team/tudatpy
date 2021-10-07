@@ -483,7 +483,7 @@ void expose_environment(py::module &m) {
             .def("delete_body", &tss::SystemOfBodies::deleteBody,
                  py::arg("body_name"))
             .def_property_readonly("number_of_bodies", &tss::SystemOfBodies::getNumberOfBodies,
-                                   get_docstring("number_of_bodies").c_str();
+                                   get_docstring("number_of_bodies").c_str() );
 
     /*
      **************   SUPPORTING FUNCTIONS USED ENVIRONMENT MODELS  ******************
