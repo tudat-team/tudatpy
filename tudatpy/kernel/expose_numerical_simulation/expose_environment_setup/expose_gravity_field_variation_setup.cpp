@@ -42,16 +42,6 @@ namespace gravity_field_variation {
                 std::shared_ptr<tss::GravityFieldVariationSettings>>(m, "GravityFieldVariationSettings");
 
 
-// fixedSingleDegreeLoveNumberGravityFieldVariationSettingsSimplified (originally exposed function) not declared
-// if followed next best declaration, it results in duplicate exposition (compare underneath)
-//        m.def("solid_body_tide_simplified",
-//              py::overload_cast<const std::string, const double, const int>(
-//                    &tss::fixedSingleDegreeLoveNumberGravityFieldVariationSettings),
-//              py::arg("tide_raising_body"),
-//              py::arg("love_number"),
-//              py::arg("degree"));
-
-
         m.def("solid_body_tide",
               py::overload_cast<const std::string, const double, const int>(
                       &tss::fixedSingleDegreeLoveNumberGravityFieldVariationSettings),
