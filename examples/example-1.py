@@ -1,3 +1,6 @@
+import sys
+sys.path.insert(0, '/home/dominic/Software/tudat-bundle/build-tudat-bundle-Desktop-Default/tudatpy')
+
 ###############################################################################
 # IMPORT STATEMENTS ###########################################################
 ###############################################################################
@@ -79,12 +82,13 @@ def main():
     )
 
     # Create propagation settings.
+    termination_condition = propagation_setup.propagator.time_termination( simulation_end_epoch )
     propagator_settings = propagation_setup.propagator.translational(
         central_bodies,
         acceleration_models,
         bodies_to_propagate,
         initial_state,
-        simulation_end_epoch,
+        termination_condition
     )
     # Create numerical integrator settings.
     fixed_step_size = 10.0
