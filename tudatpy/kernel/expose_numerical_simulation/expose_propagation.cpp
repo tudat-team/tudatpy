@@ -76,8 +76,8 @@ void expose_propagation(py::module &m) {
 
 
     py::class_<
-        tba::TorqueModel,
-        std::shared_ptr<tba::TorqueModel> >
+            tba::TorqueModel,
+            std::shared_ptr<tba::TorqueModel> >
             (m, "TorqueModel");
 
 
@@ -94,31 +94,12 @@ void expose_propagation(py::module &m) {
           py::arg("state_type"));
 
 
-    py::class_<
-        tp::NBodyStateDerivative<double, double>,
-        std::shared_ptr<tp::NBodyStateDerivative<double, double>>>
-        NBodyStateDerivative_(m, "NBodyStateDerivative");
-
-    py::class_<
-        tp::NBodyCowellStateDerivative<double, double>,
-        std::shared_ptr<tp::NBodyCowellStateDerivative<double, double>>>(m, "NBodyCowellStateDerivative")
-        .def(py::init<
-                 const tudat::basic_astrodynamics::AccelerationMap &,
-                 const std::shared_ptr<tp::CentralBodyData<double, double>>,
-                 const std::vector<std::string> &>(),
-             py::arg("acceleration_models_per_body"),
-             py::arg("central_body_data"),
-             py::arg("bodies_to_integrate"));
-    // FREE FUNCTIONS
-
-    // NOTE: the following 5 functions do not strictly belong to the actual "propagator settings".
-
     m.def("get_initial_state_of_bodies",
           py::overload_cast<const std::vector<std::string> &,
-                  const std::vector<std::string> &,
-                  const tss::SystemOfBodies &,
-                  const double>(
-                  &tp::getInitialStatesOfBodies<>),
+          const std::vector<std::string> &,
+          const tss::SystemOfBodies &,
+          const double>(
+              &tp::getInitialStatesOfBodies<>),
           py::arg("bodies_to_propagate"),
           py::arg("central_bodies"),
           py::arg("body_system"),
@@ -168,8 +149,38 @@ void expose_propagation(py::module &m) {
           get_docstring("combine_initial_states").c_str());
 
     py::class_<
-        tba::AccelerationModel<Eigen::Vector3d>,
-        std::shared_ptr<tba::AccelerationModel<Eigen::Vector3d>>>(m, "AccelerationModel");
+            tba::AccelerationModel<Eigen::Vector3d>,
+            std::shared_ptr<tba::AccelerationModel<Eigen::Vector3d>>>(m, "AccelerationModel");
+
+
+    py::enum_<tp::PropagationTerminationReason>(m, "PropagationTerminationReason",
+                                                get_docstring("PropagationTerminationReason").c_str())
+            .value("propagation_never_run",
+                   tp::PropagationTerminationReason::propagation_never_run)
+            .value("unknown_reason",
+                   tp::PropagationTerminationReason::unknown_propagation_termination_reason)
+            .value("termination_condition_reached",
+                   tp::PropagationTerminationReason::termination_condition_reached)
+            .value("runtime_error_caught_in_propagation",
+                   tp::PropagationTerminationReason::runtime_error_caught_in_propagation)
+            .value("nan_or_inf_detected_in_state",
+                   tp::PropagationTerminationReason::nan_or_inf_detected_in_state)
+            .export_values();
+
+    py::class_<
+            tp::PropagationTerminationDetails,
+            std::shared_ptr<tp::PropagationTerminationDetails>>(m,
+                                                                "PropagationTerminationDetails",
+                                                                get_docstring("PropagationTerminationDetails").c_str())
+            .def_property_readonly("termination_reason",
+                                   &tp::PropagationTerminationDetails::getPropagationTerminationReason,
+                                   get_docstring("termination_reason").c_str())
+            .def_property_readonly("terminated_on_exact_condition",
+                                   &tp::PropagationTerminationDetails::getTerminationOnExactCondition,
+                                   get_docstring("terminated_on_exact_condition").c_str());
+
+
+
 
 
 }
