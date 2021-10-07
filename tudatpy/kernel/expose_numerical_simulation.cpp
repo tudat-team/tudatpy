@@ -55,7 +55,8 @@ void expose_numerical_simulation(py::module &m) {
   py::class_<
           tp::SingleArcDynamicsSimulator<double, double>,
           std::shared_ptr<tp::SingleArcDynamicsSimulator<double, double>>>(m,
-                                                                           "SingleArcSimulator")
+                                                                           "SingleArcSimulator",
+                                                                           get_docstring("SingleArcSimulator").c_str())
           .def(py::init<
                        const tudat::simulation_setup::SystemOfBodies &,
                        const std::shared_ptr<tudat::numerical_integrators::IntegratorSettings<double>>,
@@ -97,15 +98,6 @@ void expose_numerical_simulation(py::module &m) {
           .def_property_readonly("cumulative_number_of_function_evaluations",
                                  &tp::SingleArcDynamicsSimulator<double, double>::getCumulativeNumberOfFunctionEvaluations,
                                  get_docstring("cumulative_number_of_function_evaluations").c_str())
-          .def_property_readonly("state_history_base",
-                                 &tp::SingleArcDynamicsSimulator<double, double>::getEquationsOfMotionNumericalSolutionBase,
-                                 get_docstring("state_history_base").c_str())
-          .def_property_readonly("dependent_variable_history_base",
-                                 &tp::SingleArcDynamicsSimulator<double, double>::getDependentVariableNumericalSolutionBase,
-                                 get_docstring("dependent_variable_history_base").c_str())
-          .def_property_readonly("cumulative_computation_time_history_base",
-                                 &tp::SingleArcDynamicsSimulator<double, double>::getCumulativeComputationTimeHistoryBase,
-                                 get_docstring("dependent_variable_history_base").c_str())
           .def("manually_set_and_process_raw_numerical_equations_of_motion_solution",
                &tp::SingleArcDynamicsSimulator<double, double>::manuallySetAndProcessRawNumericalEquationsOfMotionSolution,
                py::arg("equations_of_motion_numerical_solution"),
@@ -118,9 +110,6 @@ void expose_numerical_simulation(py::module &m) {
           .def_property_readonly("state_derivative_function",
                                  &tp::SingleArcDynamicsSimulator<double, double>::getStateDerivativeFunction,
                                  get_docstring("state_derivative_function").c_str())
-          .def_property_readonly("double_state_derivative_function",
-                                 &tp::SingleArcDynamicsSimulator<double, double>::getDoubleStateDerivativeFunction,
-                                 get_docstring("double_state_derivative_function").c_str())
           .def_property_readonly("environment_updater",
                                  &tp::SingleArcDynamicsSimulator<double, double>::getEnvironmentUpdater,
                                  get_docstring("environment_updater").c_str())
@@ -164,6 +153,7 @@ void expose_numerical_simulation(py::module &m) {
           .def("enable_dependent_variable_terminal_printing",
                &tp::SingleArcDynamicsSimulator<double, double>::enableDependentVariableDataPrinting,
                get_docstring("enable_dependent_variable_terminal_printing").c_str());
+
 
 
   //TODO: Remove variationalOnlyIntegratorSettings
