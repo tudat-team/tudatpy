@@ -439,10 +439,10 @@ void expose_environment(py::module &m) {
     /////////////////////////////////////////////////////////////////////////////
     // body.h ///////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////
-    py::class_<tss::Body, std::shared_ptr<tss::Body>>(m, "Body")
+    py::class_<tss::Body, std::shared_ptr<tss::Body>>(m, "Body", get_docstring("Body").c_str())
             .def_property("ephemeris_frame_to_base_frame", &tss::Body::getEphemerisFrameToBaseFrame,
                           &tss::Body::setEphemerisFrameToBaseFrame)
-            .def_property_readonly("state", &tss::Body::getState)
+            .def_property_readonly("state", &tss::Body::getState, get_docstring("Body.state").c_str())
             .def_property_readonly("position", &tss::Body::getPosition)
             .def_property_readonly("velocity", &tss::Body::getVelocity)
             .def_property_readonly("inertial_to_body_fixed_frame", &tss::Body::getCurrentRotationMatrixToLocalFrame)
@@ -472,7 +472,7 @@ void expose_environment(py::module &m) {
             std::shared_ptr<tss::SystemOfBodies> >(m, "SystemOfBodies", get_docstring("SystemOfBodies").c_str())
             .def("get", &tss::SystemOfBodies::getBody,
                  py::arg("body_name"),
-                 get_docstring("get").c_str())
+                 get_docstring("SystemOfBodies.get").c_str())
             .def("create_empty_body", &tss::SystemOfBodies::createEmptyBody,
                  py::arg("body_name"),
                  py::arg("process_body") = 1)

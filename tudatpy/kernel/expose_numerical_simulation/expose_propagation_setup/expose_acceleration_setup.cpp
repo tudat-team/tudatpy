@@ -138,7 +138,7 @@ void expose_acceleration_setup(py::module &m) {
                   const std::shared_ptr<tss::ThrustMagnitudeSettings>>(&tss::thrustAcceleration),
           py::arg("thrust_direction_settings"),
           py::arg("thrust_magnitude_settings"),
-          get_docstring("thrust_acceleration", 0).c_str());
+          get_docstring("thrust_acceleration").c_str());
 
     m.def("thrust_from_interpolator", py::overload_cast<
                   const std::shared_ptr<tinterp::DataInterpolationSettings<double, Eigen::Vector3d>>&,
@@ -149,7 +149,7 @@ void expose_acceleration_setup(py::module &m) {
           py::arg("specific_impulse_function"),
           py::arg("thrust_frame") = tss::ThrustFrames::unspecified_thrust_frame,
           py::arg("central_body") = "",
-          get_docstring("thrust_acceleration", 1).c_str());
+          get_docstring("thrust_acceleration").c_str());
 
     m.def("thrust_from_interpolator_variable_isp", py::overload_cast<
                   const std::shared_ptr<tinterp::DataInterpolationSettings<double, Eigen::Vector3d>>&,
@@ -350,31 +350,31 @@ void expose_acceleration_setup(py::module &m) {
 //                 py::arg("thrust_orientation_function"))
             .def_readonly("thrust_orientation_function", &tss::CustomThrustOrientationSettings::thrustOrientationFunction_);
 
-    py::class_<
-            tss::MeeCostateBasedThrustDirectionSettings,
-            std::shared_ptr<tss::MeeCostateBasedThrustDirectionSettings>,
-            tss::ThrustDirectionSettings>(m, "MeeCostateBasedThrustDirectionSettings",
-                                          get_docstring("MeeCostateBasedThrustDirectionSettings").c_str())
-//            .def(py::init<const std::string &,//ctor 1
-//                         const std::string &,
-//                         const std::function<Eigen::VectorXd(const double)>>(),
-//                 py::arg("vehicle_name"),
-//                 py::arg("central_body_name"),
-//                 py::arg("costate_function"))
-//            .def(py::init<const std::string &,//ctor 2
-//                         const std::string &,
-//                         std::shared_ptr<tinterp::OneDimensionalInterpolator<double, Eigen::VectorXd>>>(),
-//                 py::arg("vehicle_name"),
-//                 py::arg("central_body_name"),
-//                 py::arg("costate_interpolator"))
-//            .def(py::init<const std::string &,//ctor 3
-//                         const std::string &,
-//                         const Eigen::VectorXd>(),
-//                 py::arg("vehicle_name"),
-//                 py::arg("central_body_name"),
-//                 py::arg("constant_costates"))
-            .def_readonly("vehicle_name", &tss::MeeCostateBasedThrustDirectionSettings::vehicleName_)
-            .def_readonly("costate_function", &tss::MeeCostateBasedThrustDirectionSettings::costateFunction_);
+//    py::class_<
+//            tss::MeeCostateBasedThrustDirectionSettings,
+//            std::shared_ptr<tss::MeeCostateBasedThrustDirectionSettings>,
+//            tss::ThrustDirectionSettings>(m, "MeeCostateBasedThrustDirectionSettings",
+//                                          get_docstring("MeeCostateBasedThrustDirectionSettings").c_str())
+////            .def(py::init<const std::string &,//ctor 1
+////                         const std::string &,
+////                         const std::function<Eigen::VectorXd(const double)>>(),
+////                 py::arg("vehicle_name"),
+////                 py::arg("central_body_name"),
+////                 py::arg("costate_function"))
+////            .def(py::init<const std::string &,//ctor 2
+////                         const std::string &,
+////                         std::shared_ptr<tinterp::OneDimensionalInterpolator<double, Eigen::VectorXd>>>(),
+////                 py::arg("vehicle_name"),
+////                 py::arg("central_body_name"),
+////                 py::arg("costate_interpolator"))
+////            .def(py::init<const std::string &,//ctor 3
+////                         const std::string &,
+////                         const Eigen::VectorXd>(),
+////                 py::arg("vehicle_name"),
+////                 py::arg("central_body_name"),
+////                 py::arg("constant_costates"))
+//            .def_readonly("vehicle_name", &tss::MeeCostateBasedThrustDirectionSettings::vehicleName_)
+//            .def_readonly("costate_function", &tss::MeeCostateBasedThrustDirectionSettings::costateFunction_);
 
     py::enum_<tss::ThrustMagnitudeTypes>(m, "ThrustMagnitudeTypes",
                                          get_docstring("ThrustMagnitudeTypes").c_str())
@@ -451,23 +451,23 @@ void expose_acceleration_setup(py::module &m) {
           py::arg( "thrust_direction_function" ),
           get_docstring("custom_thrust_direction").c_str());
 
-    m.def("mee_costate_based_thrust_direction",
-          py::overload_cast<const std::string&, const std::string&,
-                  const std::shared_ptr< tinterp::OneDimensionalInterpolator< double, Eigen::VectorXd> > >(
-                  &tss::meeCostateBasedThrustDirectionSettings),
-          py::arg("vehicle_name"),
-          py::arg("central_body_name"),
-          py::arg("costate_interpolator"),
-          get_docstring("mee_costate_based_thrust_direction").c_str());
+//    m.def("mee_costate_based_thrust_direction",
+//          py::overload_cast<const std::string&, const std::string&,
+//                  const std::shared_ptr< tinterp::OneDimensionalInterpolator< double, Eigen::VectorXd> > >(
+//                  &tss::meeCostateBasedThrustDirectionSettings),
+//          py::arg("vehicle_name"),
+//          py::arg("central_body_name"),
+//          py::arg("costate_interpolator"),
+//          get_docstring("mee_costate_based_thrust_direction").c_str());
 
-    m.def("mee_costate_based_thrust_direction",
-          py::overload_cast<const std::string&, const std::string&,
-                  const Eigen::VectorXd >(
-                  &tss::meeCostateBasedThrustDirectionSettings),
-          py::arg("vehicle_name"),
-          py::arg("central_body_name"),
-          py::arg("constant_costates"),
-          get_docstring("mee_costate_based_thrust_direction").c_str());
+//    m.def("mee_costate_based_thrust_direction",
+//          py::overload_cast<const std::string&, const std::string&,
+//                  const Eigen::VectorXd >(
+//                  &tss::meeCostateBasedThrustDirectionSettings),
+//          py::arg("vehicle_name"),
+//          py::arg("central_body_name"),
+//          py::arg("constant_costates"),
+//          get_docstring("mee_costate_based_thrust_direction").c_str());
 
     // Thrust orientation factory functions
 

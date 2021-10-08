@@ -61,34 +61,28 @@ namespace atmosphere {
               &tss::constantWindModelSettings,
               py::arg("wind_velocity"),
               py::arg("associated_reference_frame") = trf::vertical_frame,
-              get_docstring("constant_wind_model", 0).c_str());
+              get_docstring("constant_wind_model").c_str());
 
         m.def("custom_wind_model",
               &tss::customWindModelSettings,
               py::arg("wind_function"),
               py::arg("associated_reference_frame") = trf::vertical_frame,
-              get_docstring("constant_wind_model", 1).c_str());
+              get_docstring("custom_wind_model").c_str());
 
 
-        m.def("exponential",
+        m.def("exponential_predefined",
               py::overload_cast<const std::string &>(
                       &tss::exponentialAtmosphereSettings),
               py::arg("body_name"),
-              get_docstring("exponential", 0).c_str());
+              get_docstring("exponential").c_str());
 
-        m.def("exponential",
-              py::overload_cast<const double, const double>(
-                      &tss::exponentialAtmosphereSettings),
-              py::arg("scale_height"),
-              py::arg("surface_density"),
-              get_docstring("exponential", 1).c_str());
 
         m.def("exponential",
               py::overload_cast<const double, const double, const double,
                       const double, const double>(&tss::exponentialAtmosphereSettings),
               py::arg("scale_height"),
               py::arg("surface_density"),
-              py::arg("constant_temperature"),
+              py::arg("constant_temperature") = 288.15,
               py::arg("specific_gas_constant") = tudat::physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
               py::arg("ratio_specific_heats") = 1.4,
               get_docstring("exponential", 2).c_str());
@@ -106,33 +100,33 @@ namespace atmosphere {
               py::arg("constant_temperature"),
               py::arg("specific_gas_constant") = tudat::physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
               py::arg("ratio_of_specific_heats") = 1.4,
-              get_docstring("custom_constant_temperature", 0).c_str());
+              get_docstring("custom_constant_temperature").c_str());
 
-        m.def("custom_constant_temperature",
+        m.def("custom_four_dimensional_constant_temperature",
               py::overload_cast<const std::function<double(const double, const double, const double, const double)>,
                       const double, const double, const double>(&tss::customConstantTemperatureAtmosphereSettings),
               py::arg("density_function"),
               py::arg("constant_temperature"),
               py::arg("specific_gas_constant") = tudat::physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
               py::arg("ratio_of_specific_heats") = 1.4,
-              get_docstring("custom_constant_temperature", 1).c_str());
+              get_docstring("custom_four_dimensional_constant_temperature").c_str());
 
 
-        m.def("scaled",
+        m.def("scaled_by_function",
               py::overload_cast<const std::shared_ptr<tss::AtmosphereSettings>,
                       const std::function<double(const double)>, const bool>(&tss::scaledAtmosphereSettings),
               py::arg("unscaled_atmosphere_settings"),
               py::arg("density_scaling_function"),
               py::arg("is_scaling_absolute") = false,
-              get_docstring("scaled", 0).c_str());
+              get_docstring("scaled_by_function").c_str());
 
-        m.def("scaled",
+        m.def("scaled_by_constant",
               py::overload_cast<const std::shared_ptr<tss::AtmosphereSettings>,
                       const double, const bool>(&tss::scaledAtmosphereSettings),
               py::arg("unscaled_atmosphere_settings"),
               py::arg("density_scaling"),
               py::arg("is_scaling_absolute") = false,
-              get_docstring("scaled", 1).c_str());
+              get_docstring("scaled_by_constant").c_str());
 
 
     }

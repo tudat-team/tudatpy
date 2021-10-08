@@ -98,9 +98,7 @@ namespace ephemeris {
                 std::shared_ptr<tss::ApproximateJplEphemerisSettings>,
                 tss::EphemerisSettings>(m, "ApproximateJplEphemerisSettings",
                                         get_docstring("ApproximateJplEphemerisSettings").c_str())
-                .def_property_readonly("body_name", &tss::ApproximateJplEphemerisSettings::getBodyName)
-                .def_property_readonly("use_circular_coplanar_approximation",
-                                       &tss::ApproximateJplEphemerisSettings::getUseCircularCoplanarApproximation);
+                .def_property_readonly("body_name", &tss::ApproximateJplEphemerisSettings::getBodyName);
 
 
         py::class_<tss::ConstantEphemerisSettings,
@@ -260,7 +258,7 @@ namespace ephemeris {
               py::arg("unscaled_ephemeris_settings"),
               py::arg("scaling_vector"),
               py::arg("is_scaling_absolute") = false,
-              get_docstring("scaled_by_vector", 1).c_str());
+              get_docstring("scaled_by_vector", 0).c_str());
 
         m.def("scaled_by_vector_function",
               py::overload_cast<const std::shared_ptr<tss::EphemerisSettings>,
@@ -268,7 +266,7 @@ namespace ephemeris {
               py::arg("unscaled_ephemeris_settings"),
               py::arg("scaling_vector_function"),
               py::arg("is_scaling_absolute") = false,
-              get_docstring("scaled_by_vector_function", 2).c_str());
+              get_docstring("scaled_by_vector_function", 0).c_str());
 
         m.def("custom",
               &tss::customEphemerisSettings,
