@@ -33,18 +33,21 @@ namespace shape {
     void expose_shape_setup(py::module &m) {
 
         py::class_<tss::BodyShapeSettings,
-                std::shared_ptr<tss::BodyShapeSettings>>(m, "BodyShapeSettings");
+                std::shared_ptr<tss::BodyShapeSettings>>(m, "BodyShapeSettings",
+                                                         get_docstring("BodyShapeSettings").c_str());
 
         py::class_<tss::SphericalBodyShapeSettings,
                 std::shared_ptr<tss::SphericalBodyShapeSettings>,
-                tss::BodyShapeSettings>(m, "SphericalBodyShapeSettings")
+                tss::BodyShapeSettings>(m, "SphericalBodyShapeSettings",
+                                        get_docstring("SphericalBodyShapeSettings").c_str())
                 .def_property("radius", &tss::SphericalBodyShapeSettings::getRadius,
                               &tss::SphericalBodyShapeSettings::resetRadius);
 
 
         py::class_<tss::OblateSphericalBodyShapeSettings,
                 std::shared_ptr<tss::OblateSphericalBodyShapeSettings>,
-                tss::BodyShapeSettings>(m, "OblateSphericalBodyShapeSettings")
+                tss::BodyShapeSettings>(m, "OblateSphericalBodyShapeSettings",
+                                        get_docstring("OblateSphericalBodyShapeSettings").c_str())
                 .def_property("equatorial_radius", &tss::OblateSphericalBodyShapeSettings::getEquatorialRadius,
                               &tss::OblateSphericalBodyShapeSettings::resetEquatorialRadius)
                 .def_property("flattening", &tss::OblateSphericalBodyShapeSettings::getFlattening,
@@ -53,15 +56,18 @@ namespace shape {
 
         m.def("spherical",
               &tss::sphericalBodyShapeSettings,
-              py::arg("radius"));
+              py::arg("radius"),
+              get_docstring("spherical").c_str());
 
         m.def("spherical_spice",
-              &tss::fromSpiceSphericalBodyShapeSettings);
+              &tss::fromSpiceSphericalBodyShapeSettings,
+              get_docstring("spherical_spice").c_str());
 
         m.def("oblate_spherical",
               &tss::oblateSphericalBodyShapeSettings,
               py::arg("equatorial_radius"),
-              py::arg("flattening"));
+              py::arg("flattening"),
+              get_docstring("oblate_spherical").c_str());
 
     }
 
