@@ -50,34 +50,32 @@ namespace environment_setup {
 
     void expose_environment_setup(py::module &m) {
 
-        m.def("get_body_gravitational_parameter",
-              &tss::getBodyGravitationalParameter,
-              py::arg("body_collection"), py::arg("body_name"));
+//        m.def("get_body_gravitational_parameter",
+//              &tss::getBodyGravitationalParameter,
+//              py::arg("body_collection"), py::arg("body_name"));
 
 
         py::class_<tss::BodySettings, std::shared_ptr<tss::BodySettings>>(
                 m, "BodySettings", get_docstring("BodySettings").c_str())
-                .def_readwrite("constant_mass", &tss::BodySettings::constantMass)
-                .def_readwrite("atmosphere_settings", &tss::BodySettings::atmosphereSettings)
-                .def_readwrite("ephemeris_settings", &tss::BodySettings::ephemerisSettings)
-                .def_readwrite("gravity_field_settings", &tss::BodySettings::gravityFieldSettings)
-                .def_readwrite("rotation_model_settings", &tss::BodySettings::rotationModelSettings)
-                .def_readwrite("shape_settings", &tss::BodySettings::shapeModelSettings)
-                .def_readwrite("radiation_pressure_settings", &tss::BodySettings::radiationPressureSettings)
-                .def_readwrite("aerodynamic_coefficient_settings", &tss::BodySettings::aerodynamicCoefficientSettings)
-                .def_readwrite("gravity_field_variation_settings", &tss::BodySettings::gravityFieldVariationSettings)
-                .def_readwrite("ground_station_settings", &tss::BodySettings::groundStationSettings);
+                .def_readwrite("constant_mass", &tss::BodySettings::constantMass, get_docstring("BodySettings.constant_mass").c_str())
+                .def_readwrite("atmosphere_settings", &tss::BodySettings::atmosphereSettings, get_docstring("BodySettings.atmosphere_settings").c_str())
+                .def_readwrite("ephemeris_settings", &tss::BodySettings::ephemerisSettings, get_docstring("BodySettings.ephemeris_settings").c_str())
+                .def_readwrite("gravity_field_settings", &tss::BodySettings::gravityFieldSettings, get_docstring("BodySettings.gravity_field_settings").c_str())
+                .def_readwrite("rotation_model_settings", &tss::BodySettings::rotationModelSettings, get_docstring("BodySettings.rotation_model_settings").c_str())
+                .def_readwrite("shape_settings", &tss::BodySettings::shapeModelSettings, get_docstring("BodySettings.shape_settings").c_str())
+                .def_readwrite("radiation_pressure_settings", &tss::BodySettings::radiationPressureSettings, get_docstring("BodySettings.radiation_pressure_settings").c_str())
+                .def_readwrite("aerodynamic_coefficient_settings", &tss::BodySettings::aerodynamicCoefficientSettings, get_docstring("BodySettings.aerodynamic_coefficient_settings").c_str())
+                .def_readwrite("gravity_field_variation_settings", &tss::BodySettings::gravityFieldVariationSettings, get_docstring("BodySettings.gravity_field_variation_settings").c_str());
 
         py::class_<tss::BodyListSettings,
-                std::shared_ptr<tss::BodyListSettings> >(m, "BodyListSettings")
-                .def("at", &tss::BodyListSettings::at)
-                .def("get", &tss::BodyListSettings::get)
+                std::shared_ptr<tss::BodyListSettings> >(m, "BodyListSettings", get_docstring("BodyListSettings").c_str())
+                .def("get", &tss::BodyListSettings::get, get_docstring("BodyListSettings.get").c_str())
                 .def("add_settings", py::overload_cast<std::shared_ptr<tss::BodySettings>, const std::string>
                         (&tss::BodyListSettings::addSettings), py::arg("settings_to_add"), py::arg("body_name"))
                 .def("add_empty_settings", py::overload_cast<const std::string>(&tss::BodyListSettings::addSettings),
                      py::arg("body_name"))
-                .def_property_readonly("frame_origin", &tss::BodyListSettings::getFrameOrigin)
-                .def_property_readonly("frame_orientation", &tss::BodyListSettings::getFrameOrientation);
+                .def_property_readonly("frame_origin", &tss::BodyListSettings::getFrameOrigin, get_docstring("BodyListSettings.frame_origin").c_str())
+                .def_property_readonly("frame_orientation", &tss::BodyListSettings::getFrameOrientation, get_docstring("BodyListSettings.frame_orientation").c_str());
 
         m.def("get_default_body_settings",
               py::overload_cast<const std::vector<std::string> &, const std::string,
@@ -85,7 +83,8 @@ namespace environment_setup {
                       &tss::getDefaultBodySettings),
               py::arg("bodies"),
               py::arg("base_frame_origin") = "SSB",
-              py::arg("base_frame_orientation") = "ECLIPJ2000");
+              py::arg("base_frame_orientation") = "ECLIPJ2000",
+              get_docstring("get_default_body_settings").c_str());
 
         m.def("get_default_body_settings_time_limited",
               py::overload_cast<const std::vector<std::string> &,
@@ -97,13 +96,15 @@ namespace environment_setup {
               py::arg("final_time"),
               py::arg("base_frame_origin") = "SSB",
               py::arg("base_frame_orientation") = "ECLIPJ2000",
-              py::arg("time_step") = 300.0);
+              py::arg("time_step") = 300.0,
+              get_docstring("get_default_body_settings_time_limited").c_str());
 
         m.def("get_default_single_body_settings",
               py::overload_cast<const std::string&, const std::string&>(
                       &tss::getDefaultSingleBodySettings),
               py::arg("body_name"),
-              py::arg("base_frame_orientation") = "ECLIPJ2000");
+              py::arg("base_frame_orientation") = "ECLIPJ2000",
+              get_docstring("get_default_single_body_settings").c_str());
 
         m.def("get_default_single_body_settings_time_limited",
               py::overload_cast< const std::string&, const double, const double, const std::string&, const double >(
@@ -112,18 +113,21 @@ namespace environment_setup {
               py::arg("initial_time"),
               py::arg("final_time"),
               py::arg("base_frame_orientation") = "ECLIPJ2000",
-              py::arg("time_step") );
+              py::arg("time_step") = 300.0,
+              get_docstring("get_default_single_body_settings_time_limited").c_str());
 
 
         m.def("create_simplified_system_of_bodies", &tss::createSimplifiedSystemOfBodies,
               py::arg("initial_time") = 0);
 
-        m.def("create_system_of_bodies", &tss::createSystemOfBodies);
+        m.def("create_system_of_bodies", &tss::createSystemOfBodies,
+              get_docstring("create_system_of_bodies").c_str());
 
         m.def("add_empty_tabulated_ephemeris", &tss::addEmptyTabulateEphemeris,
               py::arg("bodies"),
               py::arg("body_name"),
-              py::arg("ephemeris_origin") = "");
+              py::arg("ephemeris_origin") = "",
+              get_docstring("add_empty_tabulated_ephemeris").c_str());
 
         m.def("create_tabulated_ephemeris_from_spice",
                 &tss::createTabulatedEphemerisFromSpice<>, py::arg("body"),
@@ -142,15 +146,18 @@ namespace environment_setup {
 
         m.def("add_aerodynamic_coefficient_interface",
               &tss::addAerodynamicCoefficientInterface,
-              py::arg("bodies"), py::arg("body_name"), py::arg("coefficient_settings"));
+              py::arg("bodies"), py::arg("body_name"), py::arg("coefficient_settings"),
+              get_docstring("add_aerodynamic_coefficient_interface").c_str());
 
         m.def("create_aerodynamic_coefficient_interface",
               &tss::createAerodynamicCoefficientInterface,
-              py::arg("coefficient_settings"), py::arg("body"));
+              py::arg("coefficient_settings"), py::arg("body"),
+              get_docstring("create_aerodynamic_coefficient_interface").c_str());
 
         m.def("add_radiation_pressure_interface",
               &tss::addRadiationPressureInterface,
-              py::arg("bodies"), py::arg("body_name"), py::arg("radiation_pressure_settings"));
+              py::arg("bodies"), py::arg("body_name"), py::arg("radiation_pressure_settings"),
+              get_docstring("add_radiation_pressure_interface").c_str());
 
         m.def("add_ground_station",
               py::overload_cast<
@@ -161,7 +168,8 @@ namespace environment_setup {
               py::arg("body"),
               py::arg("ground_station_name"),
               py::arg("ground_station_position"),
-              py::arg("position_type") = tcc::cartesian_position);
+              py::arg("position_type") = tcc::cartesian_position,
+              get_docstring("add_ground_station").c_str());
 
         m.def("create_radiation_pressure_interface",
               &tss::createRadiationPressureInterface,
