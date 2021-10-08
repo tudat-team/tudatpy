@@ -124,20 +124,6 @@ namespace gravity_field {
               get_docstring("spherical_harmonic").c_str()
               );
 
-        m.def("spherical_harmonic_test",
-              py::overload_cast< const double,
-              const double,
-              const Eigen::Matrix3d&,
-              const Eigen::MatrixXd,
-              const Eigen::MatrixXd,
-              const std::string& >( &tss::sphericalHarmonicsGravitySettings ),
-              py::arg("gravitational_parameter"),
-              py::arg("reference_radius"),
-              py::arg("inertia_tensor"),
-              py::arg("normalized_cosine_coefficients"),
-              py::arg("normalized_sine_coefficients"),
-              py::arg("associated_reference_frame") );
-
         m.def("spherical_harmonic_triaxial_body",
               &tss::createHomogeneousTriAxialEllipsoidGravitySettings,
               py::arg("axis_a"),
