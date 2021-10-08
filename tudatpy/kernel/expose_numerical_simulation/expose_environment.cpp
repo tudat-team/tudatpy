@@ -452,8 +452,8 @@ void expose_environment(py::module &m) {
             .def_property("ephemeris_frame_to_base_frame", &tss::Body::getEphemerisFrameToBaseFrame,
                           &tss::Body::setEphemerisFrameToBaseFrame)
             .def_property_readonly("state", &tss::Body::getState, get_docstring("Body.state").c_str())
-            .def_property_readonly("position", &tss::Body::getPosition, get_docstring("Body.state").c_str())
-            .def_property_readonly("velocity", &tss::Body::getVelocity, get_docstring("Body.state").c_str())
+            .def_property_readonly("position", &tss::Body::getPosition, get_docstring("Body.position").c_str())
+            .def_property_readonly("velocity", &tss::Body::getVelocity, get_docstring("Body.velocity").c_str())
             .def_property_readonly("inertial_to_body_fixed_frame", &tss::Body::getCurrentRotationMatrixToLocalFrame, get_docstring("Body.inertial_to_body_fixed_frame").c_str())
             .def_property_readonly("body_fixed_to_inertial_frame", &tss::Body::getCurrentRotationMatrixToGlobalFrame, get_docstring("Body.body_fixed_to_inertial_frame").c_str())
             .def_property_readonly("inertial_to_body_fixed_frame_derivative", &tss::Body::getCurrentRotationMatrixDerivativeToLocalFrame, get_docstring("Body.inertial_to_body_fixed_frame_derivative").c_str())
@@ -493,7 +493,7 @@ void expose_environment(py::module &m) {
                  get_docstring("SystemOfBodies.add_body").c_str())
             .def("remove_body", &tss::SystemOfBodies::deleteBody,
                  py::arg("body_name"),
-                 get_docstring("SystemOfBodies.add_body").c_str());
+                 get_docstring("SystemOfBodies.remove_body").c_str());
 //            .def_property_readonly("number_of_bodies", &tss::SystemOfBodies::getNumberOfBodies,
 //                                   get_docstring("number_of_bodies").c_str() );
 
