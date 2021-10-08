@@ -29,8 +29,20 @@ Parameters
 {% endfilter %}
 {% endfor %}
 {% endif %}
-{% if returns %}
+{% if attributes %}
 
+Attributes
+----------
+{% for attribute in attributes %}
+{{ attribute.name }}{% if attribute.type %} : {{ attribute.type }}
+{% else %}
+
+{% endif %}    {% filter indent(4) %}
+{{ attribute.description }}
+{% endfilter %}
+{% endfor %}
+{% endif %}
+{% if returns %}
 Returns
 -------
 {% if returns.type and returns.name %}
