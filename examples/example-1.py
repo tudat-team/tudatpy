@@ -70,7 +70,7 @@ def main():
     # Set initial conditions for the Asterix satellite that will be
     # propagated in this simulation. The initial conditions are given in
     # Keplerian elements and later on converted to Cartesian elements.
-    earth_gravitational_parameter = bodies.get_body("Earth").gravitational_parameter
+    earth_gravitational_parameter = bodies.get("Earth").gravitational_parameter
     initial_state = element_conversion.keplerian_to_cartesian_elementwise(
         gravitational_parameter=earth_gravitational_parameter,
         semi_major_axis=7500.0e3,
