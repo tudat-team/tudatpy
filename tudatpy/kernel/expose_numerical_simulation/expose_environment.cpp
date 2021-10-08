@@ -181,6 +181,11 @@ void expose_environment(py::module &m) {
     m.def("get_local_inclination_mesh", &ta::getVehicleMesh,
           py::arg( "local_inclination_analysis_object" ) );
 
+
+    /*!
+     **************   FLIGHT CONDITIONS AND ASSOCIATED FUNCTIONALITY  ******************
+     */
+
     py::enum_<trf::AerodynamicsReferenceFrameAngles>(m, "AerodynamicsReferenceFrameAngles")
             .value("latitude_angle", trf::AerodynamicsReferenceFrameAngles::latitude_angle)
             .value("longitude_angle", trf::AerodynamicsReferenceFrameAngles::longitude_angle)
@@ -202,7 +207,7 @@ void expose_environment(py::module &m) {
 
     py::class_<trf::AerodynamicAngleCalculator,
             std::shared_ptr<trf::AerodynamicAngleCalculator>>(m, "AerodynamicAngleCalculator")
-            .def("set_orientation_angle_functions",
+            .def("set_body_orientation_angle_functions",
                  py::overload_cast<
                  const std::function<double()>,
                  const std::function<double()>,
@@ -215,7 +220,7 @@ void expose_environment(py::module &m) {
                  py::arg("angle_update_function") = std::function<void(
                 const double)>(),// <pybind11/functional.h>
                  "<no_doc>")
-            .def("set_orientation_angle_functions",
+            .def("set_body_orientation_angles",
                  py::overload_cast<
                  const double,
                  const double,
@@ -224,10 +229,6 @@ void expose_environment(py::module &m) {
                  py::arg("angle_of_sideslip") = TUDAT_NAN,
                  py::arg("bank_angle") = TUDAT_NAN,
                  "<no_doc>")
-            .def("get_rotation_quaternion_between_frames",
-                 &trf::AerodynamicAngleCalculator::getRotationQuaternionBetweenFrames,
-                 py::arg("original_frame"),
-                 py::arg("target_frame"))
             .def("get_rotation_matrix_between_frames",
                  &trf::AerodynamicAngleCalculator::getRotationMatrixBetweenFrames,
                  py::arg("original_frame"),
@@ -238,74 +239,49 @@ void expose_environment(py::module &m) {
 
 
     py::class_<ta::FlightConditions,
-            std::shared_ptr<ta::FlightConditions>>(m, "FlightConditions")
-            .def(py::init<
-                 const std::shared_ptr<tudat::basic_astrodynamics::BodyShapeModel>,
-                 const std::shared_ptr<tudat::reference_frames::AerodynamicAngleCalculator>>(),
-                 py::arg("shape_model"),
-                 py::arg("aerodynamic_angle_calculator") = std::shared_ptr< tr::AerodynamicAngleCalculator>())
-            .def("get_aerodynamic_angle_calculator", &ta::FlightConditions::getAerodynamicAngleCalculator)
-            .def("update_conditions", &ta::FlightConditions::updateConditions, py::arg("current_time") )
-            .def_property_readonly("aerodynamic_angle_calculator", &ta::FlightConditions::getAerodynamicAngleCalculator)
-            .def_property_readonly("current_altitude", &ta::FlightConditions::getCurrentAltitude)
-            .def_property_readonly("current_longitude", &ta::FlightConditions::getCurrentLongitude)
-            .def_property_readonly("current_geodetic_latitude", &ta::FlightConditions::getCurrentTime)
-            .def_property_readonly("current_time", &ta::FlightConditions::getCurrentGeodeticLatitude)
-            .def_property_readonly("current_body_centered_body_fixed_state", &ta::FlightConditions::getCurrentBodyCenteredBodyFixedState)
-            .def_property_readonly("current_altitude", &ta::FlightConditions::getCurrentAltitude);
+            std::shared_ptr<ta::FlightConditions>>(m, "FlightConditions", get_docstring("FlightConditions").c_str())
+//            .def(py::init<
+//                 const std::shared_ptr<tudat::basic_astrodynamics::BodyShapeModel>,
+//                 const std::shared_ptr<tudat::reference_frames::AerodynamicAngleCalculator>>(),
+//                 py::arg("shape_model"),
+//                 py::arg("aerodynamic_angle_calculator") = std::shared_ptr< tr::AerodynamicAngleCalculator>())
+//            .def("update_conditions", &ta::FlightConditions::updateConditions, py::arg("current_time") )
+            .def_property_readonly("aerodynamic_angle_calculator", &ta::FlightConditions::getAerodynamicAngleCalculator, get_docstring("FlightConditions.aerodynamic_angle_calculator").c_str())
+            .def_property_readonly("longitude", &ta::FlightConditions::getCurrentLongitude, get_docstring("FlightConditions.longitude").c_str())
+            .def_property_readonly("geodetic_latitude", &ta::FlightConditions::getCurrentGeodeticLatitude, get_docstring("FlightConditions.latitude").c_str())
+            .def_property_readonly("time", &ta::FlightConditions::getCurrentTime, get_docstring("FlightConditions.time").c_str())
+            .def_property_readonly("body_centered_body_fixed_state", &ta::FlightConditions::getCurrentBodyCenteredBodyFixedState, get_docstring("body_centered_body_fixed_state.time").c_str())
+            .def_property_readonly("altitude", &ta::FlightConditions::getCurrentAltitude, get_docstring("altitude.time").c_str());
 
     py::class_<ta::AtmosphericFlightConditions,
             std::shared_ptr<ta::AtmosphericFlightConditions>,
             ta::FlightConditions>(m, "AtmosphericFlightConditions")
-            .def_property_readonly("current_density", &ta::AtmosphericFlightConditions::getCurrentDensity)
-            .def_property_readonly("current_temperature", &ta::AtmosphericFlightConditions::getCurrentFreestreamTemperature)
-            .def_property_readonly("current_dynamic_pressure", &ta::AtmosphericFlightConditions::getCurrentDynamicPressure)
-            .def_property_readonly("current_pressure", &ta::AtmosphericFlightConditions::getCurrentPressure)
-            .def_property_readonly("current_airspeed", &ta::AtmosphericFlightConditions::getCurrentAirspeed)
-            .def_property_readonly("current_mach_number", &ta::AtmosphericFlightConditions::getCurrentMachNumber)
-            .def_property_readonly("current_airspeed_velocity", &ta::AtmosphericFlightConditions::getCurrentAirspeedBasedVelocity)
-            .def_property_readonly("current_speed_of_sound", &ta::AtmosphericFlightConditions::getCurrentSpeedOfSound)
-            .def_property_readonly("current_aerodynamic_coefficient_independent_variables",
-                                   &ta::AtmosphericFlightConditions::getAerodynamicCoefficientIndependentVariables)
-            .def_property_readonly("current_control_surface+aerodynamic_coefficient_independent_variables",
-                                   &ta::AtmosphericFlightConditions::getControlSurfaceAerodynamicCoefficientIndependentVariables)
-            .def_property_readonly("aerodynamic_coefficient_interface", &ta::AtmosphericFlightConditions::getAerodynamicCoefficientInterface);
+            .def_property_readonly("density", &ta::AtmosphericFlightConditions::getCurrentDensity, get_docstring("AtmosphericFlightConditions.density").c_str())
+            .def_property_readonly("temperature", &ta::AtmosphericFlightConditions::getCurrentFreestreamTemperature, get_docstring("AtmosphericFlightConditions.temperature").c_str())
+            .def_property_readonly("dynamic_pressure", &ta::AtmosphericFlightConditions::getCurrentDynamicPressure, get_docstring("AtmosphericFlightConditions.dynamic_pressure").c_str())
+            .def_property_readonly("pressure", &ta::AtmosphericFlightConditions::getCurrentPressure, get_docstring("AtmosphericFlightConditions.pressure").c_str())
+            .def_property_readonly("airspeed", &ta::AtmosphericFlightConditions::getCurrentAirspeed, get_docstring("AtmosphericFlightConditions.airspeed").c_str())
+            .def_property_readonly("mach_number", &ta::AtmosphericFlightConditions::getCurrentMachNumber, get_docstring("AtmosphericFlightConditions.mach_number").c_str())
+            .def_property_readonly("airspeed_velocity", &ta::AtmosphericFlightConditions::getCurrentAirspeedBasedVelocity, get_docstring("AtmosphericFlightConditions.airspeed_velocity").c_str())
+            .def_property_readonly("speed_of_sound", &ta::AtmosphericFlightConditions::getCurrentSpeedOfSound, get_docstring("AtmosphericFlightConditions.speed_of_sound").c_str())
+            .def_property_readonly("aero_coefficient_independent_variables",
+                                   &ta::AtmosphericFlightConditions::getAerodynamicCoefficientIndependentVariables, get_docstring("AtmosphericFlightConditions.aero_coefficient_independent_variables").c_str())
+            .def_property_readonly("control_surface_aero_coefficient_independent_variables",
+                                   &ta::AtmosphericFlightConditions::getControlSurfaceAerodynamicCoefficientIndependentVariables, get_docstring("AtmosphericFlightConditions.control_surface_aero_coefficient_independent_variables").c_str())
+            .def_property_readonly("aerodynamic_coefficient_interface", &ta::AtmosphericFlightConditions::getAerodynamicCoefficientInterface, get_docstring("AtmosphericFlightConditions.aerodynamic_coefficient_interface").c_str());
 
 
 
+    /*!
+     **************   EPHEMERIDES  ******************
+     */
 
-    //////////////////////////////////////////////////////////////////////////////
-    //
-    //////////////////////////////////////////////////////////////////////////////
     py::class_<te::Ephemeris, std::shared_ptr<te::Ephemeris>>(m, "Ephemeris")
-            .def("get_cartesian_state", &te::Ephemeris::getCartesianState, py::arg("seconds_since_epoch") = 0.0)
-            .def("get_cartesian_position", &te::Ephemeris::getCartesianPosition, py::arg("seconds_since_epoch") = 0.0)
-            .def("get_cartesian_velocity", &te::Ephemeris::getCartesianVelocity, py::arg("seconds_since_epoch") = 0.0);
-
-    //    py::enum_<tss::EphemerisType>(m.attr("Ephemeris"), "EphemerisType")
-    //        .value("approximate_planet_positions", tss::approximate_planet_positions)
-    //        .value("direct_spice_ephemeris", tss::direct_spice_ephemeris)
-    //        .value("interpolated_spice", tss::interpolated_spice)
-    //        .value("constant_ephemeris", tss::constant_ephemeris)
-    //        .value("kepler_ephemeris", tss::kepler_ephemeris)
-    //        .value("direct_tle_ephemeris", tss::direct_tle_ephemeris)
-    //        .value("interpolated_tle_ephemeris", tss::interpolated_tle_ephemeris)
-    //        .value("custom_ephemeris", tss::custom_ephemeris);
-
-    py::class_<te::RotationalEphemeris,
-            std::shared_ptr<te::RotationalEphemeris>>
-            RotationalEphemeris_(m, "RotationalEphemeris");
-
-    m.def("transform_to_inertial_orientation",
-          &te::transformStateToInertialOrientation<double, double>,
-          py::arg("state_in_body_fixed_frame"),
-          py::arg("current_time"),
-          py::arg("rotational_ephemeris"));
+            .def_property_readonly("cartesian_state", &te::Ephemeris::getCartesianState, py::arg("seconds_since_epoch") = 0.0)
+            .def_property_readonly("cartesian_position", &te::Ephemeris::getCartesianPosition, py::arg("seconds_since_epoch") = 0.0)
+            .def_property_readonly("cartesian_velocity", &te::Ephemeris::getCartesianVelocity, py::arg("seconds_since_epoch") = 0.0);
 
 
-    //////////////////////////////////////////////////////////////////////////////
-    // constantEphemeris.h
-    //////////////////////////////////////////////////////////////////////////////
     py::class_<te::ConstantEphemeris,
             std::shared_ptr<te::ConstantEphemeris>,
             te::Ephemeris>(
@@ -337,6 +313,7 @@ void expose_environment(py::module &m) {
             te::Ephemeris>(m, "TabulatedEphemeris")
             .def("reset_interpolator", &te::TabulatedCartesianEphemeris< double, double >::resetInterpolator,
                  py::arg("interpolator") );
+
 
     py::class_<te::Tle, std::shared_ptr<te::Tle>>(m, "Tle")
             .def(py::init<//ctor 1
@@ -370,6 +347,24 @@ void expose_environment(py::module &m) {
                  py::arg("tle") = nullptr,
                  py::arg("use_sdp") = false);
 
+    /*!
+     **************   ROTATION MODELS  ******************
+     */
+
+
+    py::class_<te::RotationalEphemeris,
+            std::shared_ptr<te::RotationalEphemeris>>
+            RotationalEphemeris_(m, "RotationalEphemeris");
+
+
+    m.def("transform_to_inertial_orientation",
+          &te::transformStateToInertialOrientation<double, double>,
+          py::arg("state_in_body_fixed_frame"),
+          py::arg("current_time"),
+          py::arg("rotational_ephemeris"));
+
+
+
     py::class_<te::LongitudeLibrationCalculator,
             std::shared_ptr<te::LongitudeLibrationCalculator>>(
                 m, "LongitudeLibrationCalculator");
@@ -389,6 +384,10 @@ void expose_environment(py::module &m) {
             .def_property("libration_calculator",
                           &te::SynchronousRotationalEphemeris::getLongitudeLibrationCalculator,
                           &te::SynchronousRotationalEphemeris::setLibrationCalculation);
+
+    /*!
+     **************   GRAVITY FIELD  ******************
+     */
 
     py::class_<tg::GravityFieldModel,
             std::shared_ptr<tg::GravityFieldModel>>(m, "GravityFieldModel")
@@ -413,6 +412,20 @@ void expose_environment(py::module &m) {
             .def_property("sine_coefficients", &tg::SphericalHarmonicsGravityField::getSineCoefficients,
                           &tg::SphericalHarmonicsGravityField::setSineCoefficients);
 
+    /*!
+     **************   SHAPE MODELS  ******************
+     */
+
+    py::class_<tba::BodyShapeModel,
+            std::shared_ptr<tba::BodyShapeModel>>(m, "ShapeModel")
+            .def("get_average_radius", &tba::BodyShapeModel::getAverageRadius)
+            .def_property_readonly("average_radius", &tba::BodyShapeModel::getAverageRadius);
+
+
+    /*!
+     **************   GROUND STATION FUNCTIONALITY  ******************
+     */
+
     py::class_<tgs::GroundStation,
             std::shared_ptr<tgs::GroundStation>>(m, "GroundStation")
             .def_property_readonly("pointing_angles_calculator", &tgs::GroundStation::getPointingAnglesCalculator );
@@ -431,26 +444,22 @@ void expose_environment(py::module &m) {
                  py::arg( "time" ) );
 
 
-    py::class_<tba::BodyShapeModel,
-            std::shared_ptr<tba::BodyShapeModel>>(m, "ShapeModel")
-            .def("get_average_radius", &tba::BodyShapeModel::getAverageRadius)
-            .def_property_readonly("average_radius", &tba::BodyShapeModel::getAverageRadius);
+    /*!
+     **************   BODY OBJECTS AND ASSOCIATED FUNCTIONALITY  ******************
+     */
 
-    /////////////////////////////////////////////////////////////////////////////
-    // body.h ///////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////////////////
     py::class_<tss::Body, std::shared_ptr<tss::Body>>(m, "Body", get_docstring("Body").c_str())
             .def_property("ephemeris_frame_to_base_frame", &tss::Body::getEphemerisFrameToBaseFrame,
                           &tss::Body::setEphemerisFrameToBaseFrame)
             .def_property_readonly("state", &tss::Body::getState, get_docstring("Body.state").c_str())
-            .def_property_readonly("position", &tss::Body::getPosition)
-            .def_property_readonly("velocity", &tss::Body::getVelocity)
-            .def_property_readonly("inertial_to_body_fixed_frame", &tss::Body::getCurrentRotationMatrixToLocalFrame)
-            .def_property_readonly("body_fixed_to_inertial_frame", &tss::Body::getCurrentRotationMatrixToGlobalFrame)
-            .def_property_readonly("inertial_to_body_fixed_frame_derivative", &tss::Body::getCurrentRotationMatrixDerivativeToLocalFrame)
-            .def_property_readonly("body_fixed_to_inertial_frame_derivative", &tss::Body::getCurrentRotationMatrixDerivativeToGlobalFrame)
-            .def_property_readonly("inertial_angular_velocity", &tss::Body::getCurrentAngularVelocityVectorInGlobalFrame)
-            .def_property_readonly("body_fixed_angular_velocity", &tss::Body::getCurrentAngularVelocityVectorInLocalFrame)
+            .def_property_readonly("position", &tss::Body::getPosition, get_docstring("Body.state").c_str())
+            .def_property_readonly("velocity", &tss::Body::getVelocity, get_docstring("Body.state").c_str())
+            .def_property_readonly("inertial_to_body_fixed_frame", &tss::Body::getCurrentRotationMatrixToLocalFrame, get_docstring("Body.inertial_to_body_fixed_frame").c_str())
+            .def_property_readonly("body_fixed_to_inertial_frame", &tss::Body::getCurrentRotationMatrixToGlobalFrame, get_docstring("Body.body_fixed_to_inertial_frame").c_str())
+            .def_property_readonly("inertial_to_body_fixed_frame_derivative", &tss::Body::getCurrentRotationMatrixDerivativeToLocalFrame, get_docstring("Body.inertial_to_body_fixed_frame_derivative").c_str())
+            .def_property_readonly("body_fixed_to_inertial_frame_derivative", &tss::Body::getCurrentRotationMatrixDerivativeToGlobalFrame, get_docstring("Body.body_fixed_to_inertial_frame_derivative").c_str())
+            .def_property_readonly("inertial_angular_velocity", &tss::Body::getCurrentAngularVelocityVectorInGlobalFrame, get_docstring("Body.inertial_angular_velocity").c_str())
+            .def_property_readonly("body_fixed_angular_velocity", &tss::Body::getCurrentAngularVelocityVectorInLocalFrame, get_docstring("Body.body_fixed_angular_velocity").c_str())
             .def_property("mass", &tss::Body::getBodyMass, &tss::Body::setConstantBodyMass)
             .def_property("inertia_tensor", &tss::Body::getBodyInertiaTensor,
                           py::overload_cast<const Eigen::Matrix3d &>(
@@ -475,25 +484,22 @@ void expose_environment(py::module &m) {
                  get_docstring("SystemOfBodies.get").c_str())
             .def("create_empty_body", &tss::SystemOfBodies::createEmptyBody,
                  py::arg("body_name"),
-                 py::arg("process_body") = 1)
+                 py::arg("process_body") = 1,
+                 get_docstring("SystemOfBodies.create_empty_body").c_str())
             .def("add_body", &tss::SystemOfBodies::addBody,
                  py::arg("body_to_add"),
                  py::arg("body_name"),
-                 py::arg("process_body") = 1)
-            .def("delete_body", &tss::SystemOfBodies::deleteBody,
-                 py::arg("body_name"));
+                 py::arg("process_body") = 1,
+                 get_docstring("SystemOfBodies.add_body").c_str())
+            .def("remove_body", &tss::SystemOfBodies::deleteBody,
+                 py::arg("body_name"),
+                 get_docstring("SystemOfBodies.add_body").c_str());
 //            .def_property_readonly("number_of_bodies", &tss::SystemOfBodies::getNumberOfBodies,
 //                                   get_docstring("number_of_bodies").c_str() );
 
-    /*
+    /*!
      **************   SUPPORTING FUNCTIONS USED ENVIRONMENT MODELS  ******************
      */
-
-    m.def("transform_to_inertial_orientation",
-          &te::transformStateToInertialOrientation<double, double>,
-          py::arg("state_in_body_fixed_frame"),
-          py::arg("current_time"),
-          py::arg("rotational_ephemeris"));
 
 
 }
