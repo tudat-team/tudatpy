@@ -41,8 +41,11 @@ if bool(os.getenv("READTHEDOCS")) is True:
     generate_docstring_header(api_declaration, "../../include/tudatpy/docstrings.h")
 
     # build repository
-    subprocess.call(['chmod +x ../build.sh'], shell=True)
-    subprocess.call(['../build.sh'], shell=True)
+    rc = subprocess.call(['chmod +x ../build.sh'], shell=True)
+    assert rc == 0 # returning non-zero means failure.
+
+    rc = subprocess.call(['../build.sh'], shell=True)
+    assert rc == 0 # returning non-zero means failure.
 
     sys.path.insert(0, os.path.abspath('../../build'))
 
