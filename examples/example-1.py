@@ -1,5 +1,3 @@
-import sys
-sys.path.insert(0, '/home/dominic/Software/tudat-bundle/build-tudat-bundle-Desktop-Default/tudatpy')
 
 ###############################################################################
 # IMPORT STATEMENTS ###########################################################
@@ -29,11 +27,12 @@ def main():
     # Create default body settings for "Earth"
     bodies_to_create = ["Earth"]
 
-    # Create default body settings for bodies_to_create, with "SSB"/"J2000" as
+    # Create default body settings for bodies_to_create, with "Earth"/"J2000" as
     # global frame origin and orientation
+    global_frame_origin = "Earth"
+    global_frame_orientation = "J2000"
     body_settings = environment_setup.get_default_body_settings(
-        bodies_to_create, "SSB", "J2000"
-    )
+        bodies_to_create, global_frame_origin, global_frame_orientation )
 
     # Create system of bodies (in this case only Earth)
     bodies = environment_setup.create_system_of_bodies(body_settings)
