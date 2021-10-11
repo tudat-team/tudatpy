@@ -1,3 +1,4 @@
+
 ###############################################################################
 # IMPORT STATEMENTS ###########################################################
 ###############################################################################
@@ -9,6 +10,7 @@ from tudatpy.kernel.interface import spice_interface
 from tudatpy.kernel.numerical_simulation import environment_setup
 from tudatpy.kernel.numerical_simulation import propagation_setup
 from tudatpy.kernel.numerical_simulation import estimation_setup
+from matplotlib import pyplot as plt
 
 def main():
 
@@ -28,11 +30,10 @@ def main():
     # Create body objects.
     bodies_to_create = ["Sun", "Earth", "Moon", "Mars", "Venus"]
 
+    global_frame_origin = "Earth"
+    global_frame_orientation = "J2000"
     body_settings = environment_setup.get_default_body_settings(
-        bodies_to_create,
-        simulation_start_epoch,
-        simulation_end_epoch,
-        "Earth","J2000")
+        bodies_to_create, global_frame_origin, global_frame_orientation )
 
     bodies = environment_setup.create_system_of_bodies(body_settings)
 
@@ -42,7 +43,7 @@ def main():
 
     # Create vehicle objects.
     bodies.create_empty_body( "Delfi-C3" )
-    bodies.get_body( "Delfi-C3").set_constant_mass(400.0)
+    bodies.get( "Delfi-C3").mass = 400.0
 
     ###########################################################################
     # CREATE VEHICLE - ENVIRONMENT INTERFACE ##################################
@@ -113,7 +114,7 @@ def main():
     # Set initial conditions for the Asterix satellite that will be
     # propagated in this simulation. The initial conditions are given in
     # Keplerian elements and later on converted to Cartesian elements.
-    earth_gravitational_parameter = bodies.get_body( "Earth" ).gravitational_parameter
+    earth_gravitational_parameter = bodies.get( "Earth" ).gravitational_parameter
     initial_state = element_conversion.keplerian_to_cartesian_elementwise(
         gravitational_parameter=earth_gravitational_parameter,
         semi_major_axis=7500.0E3,
@@ -124,24 +125,21 @@ def main():
         true_anomaly=np.deg2rad(139.87)
     )
     # Create propagation settings.
+    termination_condition = propagation_setup.propagator.time_termination( simulation_end_epoch )
     propagator_settings = propagation_setup.propagator.translational(
         central_bodies,
         acceleration_models,
         bodies_to_propagate,
         initial_state,
-        simulation_end_epoch
+        termination_condition
     )
 
     # Create list of parameters for which the variational equations are to be
     # propagated
     parameter_settings = estimation_setup.parameter.initial_states(
 	propagator_settings, bodies )
-    parameter_settings.append( 
-	estimation_setup.parameter.gravitational_parameter( "Earth" ) )
-    parameter_settings.append( 
-	estimation_setup.parameter.constant_drag_coefficient( "Delfi-C3" ) )
-    parameter_settings.append( 
-	estimation_setup.parameter.radiation_pressure_coefficient( "Delfi-C3" ) )
+    parameter_settings.append(estimation_setup.parameter.gravitational_parameter("Earth"))
+    parameter_settings.append(estimation_setup.parameter.constant_drag_coefficient("Delfi-C3"))
 
     # Create numerical integrator settings.
     fixed_step_size = 10.0
@@ -164,21 +162,73 @@ def main():
     sensitivity_matrices = variational_equations_solver.sensitivity_matrix_history
 
     ###########################################################################
-    # PRINT INITIAL AND FINAL STATES ##########################################
+    # PERFORM SENSITIVITY ANALYSIS    #########################################
     ###########################################################################
 
-    print(
-        f"""
+    initial_state_variation = [1, 0, 0, 1.0E-3, 0, 0]
+    earth_standard_param_variation = [-2.0E+5, 0.0]
+    drag_coeff_variation = [0.0, 0.05]
 
-Final Cartesian state: \n{
-        states[simulation_end_epoch]}
-Final State Transition Matrix: \n{
-        state_transition_matrices[simulation_end_epoch] }
-Final Sensitivity Matrix: \n{
-        sensitivity_matrices[simulation_end_epoch] }
-        """
-    )
+    delta_initial_state_dict = dict()
+    earth_standard_param_dict = dict()
+    delta_drag_coeff_dict = dict()
 
+    for epoch in state_transition_matrices:
+        delta_initial_state_dict[epoch] = np.dot(state_transition_matrices[epoch], initial_state_variation)
+        earth_standard_param_dict[epoch] = np.dot(sensitivity_matrices[epoch], earth_standard_param_variation)
+        delta_drag_coeff_dict[epoch] = np.dot(sensitivity_matrices[epoch], drag_coeff_variation)
+
+    ###########################################################################
+    # PLOT RESULTS   ##########################################################
+    ###########################################################################
+
+    font_size = 20
+    plt.rcParams.update({'font.size': font_size})
+
+    time = state_transition_matrices.keys()
+    time_hours = [t / 3600 for t in time]
+
+    delta_initial_state = np.vstack(list(delta_initial_state_dict.values()))
+    delta_earth_standard_param = np.vstack(list(earth_standard_param_dict.values()))
+    delta_drag_coefficient = np.vstack(list(delta_drag_coeff_dict.values()))
+
+    # 1 // due to initial state variation
+    delta_r1 = np.linalg.norm( delta_initial_state[:, 0:3], axis = 1 )
+    delta_v1 = np.linalg.norm( delta_initial_state[:, 3:7], axis = 1 )
+
+    # 2 // due to gravitational parameter variation
+    delta_r2 = np.linalg.norm( delta_earth_standard_param[:, 0:3], axis = 1 )
+    delta_v2 = np.linalg.norm( delta_earth_standard_param[:, 3:7], axis = 1 )
+
+    # 3 // due to drag coefficient variation
+    delta_r3 = np.linalg.norm( delta_drag_coefficient[:, 0:3], axis = 1 )
+    delta_v3 = np.linalg.norm( delta_drag_coefficient[:, 3:7], axis = 1 )
+
+    # Plot deviations of position
+    plt.figure(figsize=(17, 5))
+    plt.grid()
+    plt.plot(time_hours, delta_r1, color='tomato', label='variation initial state')
+    plt.plot(time_hours, delta_r2, color='orange', label='variation grav. parameter (Earth)')
+    plt.plot(time_hours, delta_r3, color='cyan', label='variation drag coefficient')
+    plt.yscale('log')
+    plt.xlabel('Time [hr]')
+    plt.ylabel('$\Delta r (t_1)$ [m]')
+    plt.xlim([min(time_hours), max(time_hours)])
+    plt.legend()
+
+    # Plot deviations of speed
+    plt.figure(figsize=(17, 5))
+    plt.grid()
+    plt.plot(time_hours, delta_v1, color='tomato', label='variation initial state')
+    plt.plot(time_hours, delta_v2, color='orange', label='variation grav. parameter (Earth)')
+    plt.plot(time_hours, delta_v3, color='cyan', label='variation drag coefficient')
+    plt.yscale('log')
+    plt.xlabel('Time [hr]')
+    plt.ylabel('$\Delta v (t_1)$ [m/s]')
+    plt.xlim([min(time_hours), max(time_hours)])
+    plt.legend()
+
+    plt.show()
     # Final statement (not required, though good practice in a __main__).
     return 0
 
