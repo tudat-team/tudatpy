@@ -21,4 +21,4 @@ cmake \
     -D_GLIBCXX_USE_CXX11_ABI=1 \
     ..
 
-make -j4
+make
