@@ -514,8 +514,8 @@ inline std::shared_ptr< GravityFieldSettings > centralGravityFromSpiceSettings(
 inline std::shared_ptr< GravityFieldSettings > sphericalHarmonicsGravitySettings(
 		const double gravitationalParameter,
 		const double referenceRadius,
-        const Eigen::MatrixXd& normalizedCosineCoefficients,  // NOTE: entry (i,j) denotes coefficient at degree i and order j
-        const Eigen::MatrixXd& normalizedSineCoefficients,  // NOTE: entry (i,j) denotes coefficient at degree i and order j
+        const Eigen::MatrixXd normalizedCosineCoefficients,  // NOTE: entry (i,j) denotes coefficient at degree i and order j
+        const Eigen::MatrixXd normalizedSineCoefficients,  // NOTE: entry (i,j) denotes coefficient at degree i and order j
         const std::string& associatedReferenceFrame
 		)
 {
@@ -535,13 +535,6 @@ inline std::shared_ptr< GravityFieldSettings > sphericalHarmonicsGravitySettings
         const std::string& associatedReferenceFrame
         )
 {
-    std::cout<<"TEST FUNCTION"<<std::endl;
-    std::cout<<gravitationalParameter<<std::endl<<std::endl;
-    std::cout<<referenceRadius<<std::endl<<std::endl;
-    std::cout<<inertiaTensor<<std::endl<<std::endl;
-    std::cout<<normalizedCosineCoefficients<<std::endl<<std::endl;
-    std::cout<<normalizedSineCoefficients<<std::endl<<std::endl;
-    std::cout<<associatedReferenceFrame<<std::endl<<std::endl;
 
     return std::make_shared< SphericalHarmonicsGravityFieldSettings >(
             gravitationalParameter, referenceRadius, inertiaTensor,
