@@ -255,7 +255,7 @@ void expose_environment(py::module &m) {
 
     py::class_<ta::AtmosphericFlightConditions,
             std::shared_ptr<ta::AtmosphericFlightConditions>,
-            ta::FlightConditions>(m, "AtmosphericFlightConditions")
+            ta::FlightConditions>(m, "AtmosphericFlightConditions", get_docstring("AtmosphericFlightConditions").c_str())
             .def_property_readonly("density", &ta::AtmosphericFlightConditions::getCurrentDensity, get_docstring("AtmosphericFlightConditions.density").c_str())
             .def_property_readonly("temperature", &ta::AtmosphericFlightConditions::getCurrentFreestreamTemperature, get_docstring("AtmosphericFlightConditions.temperature").c_str())
             .def_property_readonly("dynamic_pressure", &ta::AtmosphericFlightConditions::getCurrentDynamicPressure, get_docstring("AtmosphericFlightConditions.dynamic_pressure").c_str())
@@ -461,6 +461,7 @@ void expose_environment(py::module &m) {
             .def_property_readonly("inertial_angular_velocity", &tss::Body::getCurrentAngularVelocityVectorInGlobalFrame, get_docstring("Body.inertial_angular_velocity").c_str())
             .def_property_readonly("body_fixed_angular_velocity", &tss::Body::getCurrentAngularVelocityVectorInLocalFrame, get_docstring("Body.body_fixed_angular_velocity").c_str())
             .def_property("mass", &tss::Body::getBodyMass, &tss::Body::setConstantBodyMass)
+            .def("set_constant_mass", &tss::Body::setConstantBodyMass, py::arg( "mass" ) )
             .def_property("inertia_tensor", &tss::Body::getBodyInertiaTensor,
                           py::overload_cast<const Eigen::Matrix3d &>(
                               &tss::Body::setBodyInertiaTensor))
@@ -482,6 +483,8 @@ void expose_environment(py::module &m) {
             .def("get", &tss::SystemOfBodies::getBody,
                  py::arg("body_name"),
                  get_docstring("SystemOfBodies.get").c_str())
+            .def("get_body", &tss::SystemOfBodies::getBody,
+                 py::arg("body_name"))
             .def("create_empty_body", &tss::SystemOfBodies::createEmptyBody,
                  py::arg("body_name"),
                  py::arg("process_body") = 1,
