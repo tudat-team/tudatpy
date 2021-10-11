@@ -392,13 +392,12 @@ public:
             const simulation_setup::SystemOfBodies& bodies,
             const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
             const std::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
+            const std::vector< std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > >& stateDerivativeModels,
             const bool areEquationsOfMotionToBeIntegrated = true,
             const bool clearNumericalSolutions = false,
             const bool setIntegratedResult = false,
             const bool printNumberOfFunctionEvaluations = false,
             const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ),
-            const std::vector< std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > >& stateDerivativeModels =
-            std::vector< std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > >( ),
             const bool printDependentVariableData = true ):
         DynamicsSimulator< StateScalarType, TimeType >(
             bodies, clearNumericalSolutions, setIntegratedResult ),
@@ -496,6 +495,21 @@ public:
             integrateEquationsOfMotion( propagatorSettings_->getInitialStates( ) );
         }
     }
+
+    SingleArcDynamicsSimulator(
+            const simulation_setup::SystemOfBodies& bodies,
+            const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
+            const std::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
+            const bool areEquationsOfMotionToBeIntegrated = true,
+            const bool clearNumericalSolutions = false,
+            const bool setIntegratedResult = false,
+            const bool printDependentVariableData = true ):
+        SingleArcDynamicsSimulator(  bodies, integratorSettings,  propagatorSettings,
+                                     std::vector< std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > >( ),
+                                     areEquationsOfMotionToBeIntegrated,
+                                     clearNumericalSolutions,
+                                     setIntegratedResult,
+                                     printDependentVariableData ){ }
 
     //! Destructor
     ~SingleArcDynamicsSimulator( ) { }
