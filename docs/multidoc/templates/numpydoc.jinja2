@@ -7,7 +7,9 @@
 {% if deprecation_warning is string %}
 {{ deprecation_warning }}
 {% else %}
-.. deprecated:: {{ deprecation_warning.version.deprecated_in }}
+.. deprecated:: {{ deprecation_warnin
+
+.version.deprecated_in }}
              `{{ deprecation_warning.obj_old }}` will be removed in {{ package.name }} {{ deprecation_warning.version.removed_in }}, it is replaced by
              `{{ deprecation_warning.obj_new }}` because {{ deprecation_warning.reason }}
 

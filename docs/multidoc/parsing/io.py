@@ -13,7 +13,7 @@ def yaml2dict(path, include_name_error=False, **kwargs):
     ----------
     path : os.PathLike or str
         Path of the ``yaml`` file to be loaded.
-    _locals : Dict[str, Any]
+    _locals : dict[str, Any]
         List of definitions to parse in the yaml files. See examples for how
         they affect yaml loading.
     include_name_error : bool, default=True

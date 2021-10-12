@@ -8,7 +8,7 @@ def recurse_dict(dict, keys):
 
     Parameters
     ----------
-    dict : Dict[Dict[...]]
+    dict : dict[dict[...]]
         Recursively nested dictionary structure.
     keys : List[str]
 
