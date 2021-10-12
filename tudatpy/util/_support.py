@@ -4,9 +4,32 @@ import numpy as np
 def result2array(result):
     """Initial prototype function to convert dict result from DynamicsSimulator
 
+    The `state_history` and `dependent_history` retrieved from classes
+    deriving from the :class:`~tudatpy.numerical_simulation.SingleArcSimulator`
+    return these time series as a mapping illustrated by:
+
+    >>> state_history = {
+    ...  t[0]: np.array([pos_x[0], pos_y[0], pos_z[0], vel_x[0], vel_y[0], vel_z[0]]),
+    ...  t[1]: np.array([pos_x[1], pos_y[1], pos_z[1], vel_x[1], vel_y[1], vel_z[1]]),
+    ...  t[2]: np.array([pos_x[2], pos_y[2], pos_z[2], vel_x[2], vel_y[2], vel_z[2]]),
+    ...  # ... clipped
+    ...  t[-1]: np.array([pos_x[-1], pos_y[-1], pos_z[-1], vel_x[-1], vel_y[-1], vel_z[-1]]),
+    ...  }
+
+    `result2array` is a utility function to convert the above into the
+    more conventional :class:`numpy.ndarray` as illustrated by:
+
+    >>> states_array = np.array([
+    ...  [t[0], pos_x[0], pos_y[0], pos_z[0], vel_x[0], vel_y[0], vel_z[0]],
+    ...  [t[1], pos_x[1], pos_y[1], pos_z[1], vel_x[1], vel_y[1], vel_z[1]],
+    ...  [t[2], pos_x[2], pos_y[2], pos_z[2], vel_x[2], vel_y[2], vel_z[2]],
+    ...  # ... clipped
+    ...  [t[-1], pos_x[-1], pos_y[-1], pos_z[-1], vel_x[-1], vel_y[-1], vel_z[-1]],
+    ...  ])
+
     Parameters
     ----------
-    result : Dict[float, np.ndarray]
+    result : Dict[float, numpy.ndarray]
         Dictionary mapping the simulation time steps to the propagated
         state time series.
 
