@@ -42,10 +42,10 @@ if bool(os.getenv("READTHEDOCS")) is True:
 
     # build repository
     rc = subprocess.call(['chmod +x ../build.sh'], shell=True)
-    assert rc == 0 # returning non-zero means failure.
+    assert rc == 0  # returning non-zero means failure.
 
     rc = subprocess.call(['../build.sh'], shell=True)
-    assert rc == 0 # returning non-zero means failure.
+    assert rc == 0  # returning non-zero means failure.
 
     sys.path.insert(0, os.path.abspath('../../build'))
 
@@ -54,7 +54,6 @@ if bool(os.getenv("READTHEDOCS")) is True:
 
 else:
     sys.path.insert(0, os.path.abspath('../..'))
-
 
 # -- General configuration ------------------------------------------------
 
@@ -76,11 +75,32 @@ extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.githubpages',
               'sphinxcontrib.napoleon',
               'sphinx.ext.autosectionlabel',
+              'enum_tools.autoenum'
               # 'breathe',
               # 'exhale'
               ]
+autosummary_generate = True  # Turn on sphinx.ext.autosummary
 
 add_module_names = False
+autodoc_member_order = 'groupwise'
+
+# napoleon_type_aliases = {
+#     "Dict": ":class:`~typing.Dict`",
+#     "Callable": ":class:`~typing.Callable`",
+#     "List": ":class:`~typing.List`",
+# }
+
+
+# to not skip __init__
+def skip(app, what, name, obj, would_skip, options):
+    if name == "__init__":
+        return False
+    return would_skip
+
+
+def setup(app):
+    app.connect("autodoc-skip-member", skip)
+
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
