@@ -2,7 +2,7 @@ import re
 import os
 from multidoc.template import render_python_docstring
 from multidoc.template import render_cpp_docstring
-from multidoc.template import get_docstring_template
+from multidoc.template import get_docstring_template, get_property_template
 from multidoc.parsing.io import yaml2dict
 from multidoc.parsing import logger
 from multidoc.regex import p_package_file, p_module_file
@@ -51,6 +51,18 @@ def parse_function(function, local):
 from collections import defaultdict
 
 
+def parse_properties(structure, properties, **kwargs):
+    nl = '\n'
+    logger.info(
+        f"Parsing the following properties with {kwargs}: {nl}{nl.join([r'    - '+ property.name for property in properties] + [''])} "
+    )
+    t = get_property_template(**kwargs)
+    for i, property in enumerate(properties):
+        print(property)
+        structure[property.name] = t.render(**property.dict())
+    return structure
+
+
 def parse_functions(structure, functions, **kwargs):
     nl = '\n'
     logger.info(
@@ -92,6 +104,8 @@ def parse_classes(structure, classes, **kwargs):
         _result = {}
         if cls.methods:
             _result.update(parse_functions(cls.dict(), cls.methods, **kwargs))
+        if cls.properties:
+            _result.update(parse_properties(cls.dict(), cls.properties, **kwargs))
         _result.update({"__docstring__": t.render(**cls.dict())})
         structure[cls.name] = _result
 

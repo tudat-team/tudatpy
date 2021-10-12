@@ -31,6 +31,20 @@ static inline std::string get_docstring(std::string name, int variant=0) {
              {%- endfilter %}
      )";
 
+{% if structure[class.name].properties is not none %}
+{% for property in structure[class.name].properties %}
+
+    } else if(name == "{{ class.name }}.{{ property.name }}") {
+         return R"(
+             {% filter indent(8) -%}
+             {{ structure[class.name][property.name] | safe }}
+             {%- endfilter %}
+     )";
+
+{% endfor %}
+{% endif %}
+
+
 {% if structure[class.name].methods is not none %}
 {% for method in structure[class.name].methods %}
 

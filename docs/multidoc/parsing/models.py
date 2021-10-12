@@ -118,6 +118,21 @@ class Parameter(BaseModel):
     description: Optional[str]
 
 
+class Property(BaseModel):
+    """
+    Attributes
+    ----------
+    Property.name : str
+    Property.type : Optional[str]
+    Property.description : Optional[str]
+    Property.readonly : bool = False
+    """
+    name: str
+    type: Optional[str]
+    description: Optional[str]
+    readonly : bool = False
+
+
 class Returns(BaseModel):
     """Returns docstring ``pydantic.BaseModel`` data structure.
 
@@ -233,6 +248,7 @@ class Class(BaseModel):
     extended_summary: Optional[str]
     parameters: Optional[List[Parameter]]
     attributes: Optional[List[Parameter]]
+    properties: Optional[List[Property]]
     yields: Optional[List[Yields] or Yields]
     other_parameters: Optional[List[Parameter] or Parameter]
     raises: Optional[List[Raises] or Raises]
