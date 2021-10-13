@@ -169,15 +169,17 @@ void expose_propagation(py::module &m) {
 
     py::class_<
             tp::PropagationTerminationDetails,
-            std::shared_ptr<tp::PropagationTerminationDetails>>(m,
-                                                                "PropagationTerminationDetails",
-                                                                get_docstring("PropagationTerminationDetails").c_str())
-            .def_property_readonly("termination_reason",
-                                   &tp::PropagationTerminationDetails::getPropagationTerminationReason,
-                                   get_docstring("termination_reason").c_str())
+            std::shared_ptr<tp::PropagationTerminationDetails>>(
+                    m,
+                    "PropagationTerminationDetails",
+                    get_docstring("PropagationTerminationDetails").c_str())
+            .def_property_readonly(
+                    "termination_reason",
+                    &tp::PropagationTerminationDetails::getPropagationTerminationReason,
+                    get_docstring("PropagationTerminationDetails.termination_reason").c_str())
             .def_property_readonly("terminated_on_exact_condition",
-                                   &tp::PropagationTerminationDetails::getTerminationOnExactCondition,
-                                   get_docstring("terminated_on_exact_condition").c_str());
+                    &tp::PropagationTerminationDetails::getTerminationOnExactCondition,
+                    get_docstring("PropagationTerminationDetails.terminated_on_exact_condition").c_str());
 
 
 
