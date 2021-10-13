@@ -91,14 +91,14 @@ autodoc_member_order = 'groupwise'
 
 
 # to not skip __init__
-def skip(app, what, name, obj, would_skip, options):
-    if name == "__init__":
-        return False
-    return would_skip
-
-
-def setup(app):
-    app.connect("autodoc-skip-member", skip)
+# def skip(app, what, name, obj, would_skip, options):
+#     if name == "__init__":
+#         return False
+#     return would_skip
+#
+#
+# def setup(app):
+#     app.connect("autodoc-skip-member", skip)
 
 
 # Add any paths that contain templates here, relative to this directory.
@@ -114,7 +114,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = 'tudatpy-api'
+project = 'TudatPy API'
 copyright = '2021, Tudat Team'
 author = 'Tudat Team'
 
@@ -183,7 +183,8 @@ html_static_path = ['_static']
 # -- Options for HTMLHelp output ------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'tudatpy-apidoc'
+htmlhelp_basename = 'TudatPy API'
+html_title = 'TudatPy API Reference'
 
 # -- Options for LaTeX output ---------------------------------------------
 
@@ -209,7 +210,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'tudat-api.tex', 'tudat-api Documentation',
+    (master_doc, 'tudat-api.tex', 'TudatPy API',
      'John', 'manual'),
 ]
 
@@ -218,7 +219,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'tudat-api', 'tudat-api Documentation',
+    (master_doc, 'tudat-api', 'TudatPy API',
      [author], 1)
 ]
 
@@ -228,7 +229,7 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'tudat-api', 'tudat-api Documentation',
+    (master_doc, 'tudat-api', 'TudatPy API',
      author, 'tudat-api', 'One line description of project.',
      'Miscellaneous'),
 ]
