@@ -74,8 +74,7 @@ extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.viewcode',
               'sphinx.ext.githubpages',
               'sphinxcontrib.napoleon',
-              'sphinx.ext.autosectionlabel',
-              'enum_tools.autoenum'
+              'sphinx.ext.autosectionlabel'
               # 'breathe',
               # 'exhale'
               ]
