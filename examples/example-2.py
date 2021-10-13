@@ -1,4 +1,3 @@
-
 ###############################################################################
 # IMPORT STATEMENTS ###########################################################
 ###############################################################################
@@ -12,6 +11,7 @@ from tudatpy.kernel.numerical_simulation import propagation_setup
 from tudatpy.kernel.numerical_simulation import propagation
 from matplotlib import pyplot as plt
 
+
 def main():
     # Load spice kernels.
     spice_interface.load_standard_kernels()
@@ -24,35 +24,35 @@ def main():
     # CREATE ENVIRONMENT ######################################################
     ###########################################################################
 
-    # Create default body settings for selected celestial bodies
+    # Define string names for bodies to be created from default.
     bodies_to_create = ["Sun", "Earth", "Moon", "Mars", "Venus"]
 
-    # Create default body settings for bodies_to_create, with "Earth"/"J2000" as 
-    # global frame origin and orientation.
+    # Use "Earth"/"J2000" as global frame origin and orientation.
     global_frame_origin = "Earth"
     global_frame_orientation = "J2000"
+
+    # Create default body settings, usually from `spice`.
     body_settings = environment_setup.get_default_body_settings(
-        bodies_to_create, global_frame_origin, global_frame_orientation )
+        bodies_to_create,
+        global_frame_origin,
+        global_frame_orientation)
 
     # Create system of selected celestial bodies
     bodies = environment_setup.create_system_of_bodies(body_settings)
 
-    ###########################################################################
-    # CREATE VEHICLE ##########################################################
-    ###########################################################################
-
     # Create vehicle objects.
-    bodies.create_empty_body( "Delfi-C3" )
-    bodies.get( "Delfi-C3").mass = 400.0
+    bodies.create_empty_body("Delfi-C3")
+
+    bodies.get("Delfi-C3").mass = 400.0
 
     # Create aerodynamic coefficient interface settings, and add to vehicle
     reference_area = 4.0
     drag_coefficient = 1.2
     aero_coefficient_settings = environment_setup.aerodynamic_coefficients.constant(
-        reference_area,[drag_coefficient,0,0]
+        reference_area, [drag_coefficient, 0, 0]
     )
     environment_setup.add_aerodynamic_coefficient_interface(
-                bodies, "Delfi-C3", aero_coefficient_settings )
+        bodies, "Delfi-C3", aero_coefficient_settings)
 
     # Create radiation pressure settings, and add to vehicle
     reference_area_radiation = 4.0
@@ -62,7 +62,7 @@ def main():
         "Sun", reference_area_radiation, radiation_pressure_coefficient, occulting_bodies
     )
     environment_setup.add_radiation_pressure_interface(
-                bodies, "Delfi-C3", radiation_pressure_settings )
+        bodies, "Delfi-C3", radiation_pressure_settings)
 
     ###########################################################################
     # CREATE ACCELERATIONS ####################################################
@@ -117,7 +117,7 @@ def main():
     # Set initial conditions for the Asterix satellite that will be
     # propagated in this simulation. The initial conditions are given in
     # Keplerian elements and later on converted to Cartesian elements.
-    earth_gravitational_parameter = bodies.get( "Earth" ).gravitational_parameter
+    earth_gravitational_parameter = bodies.get("Earth").gravitational_parameter
     initial_state = element_conversion.keplerian_to_cartesian_elementwise(
         gravitational_parameter=earth_gravitational_parameter,
         semi_major_axis=7500.0E3,
@@ -157,16 +157,15 @@ def main():
         )
     ]
 
-
     # Create propagation settings.
-    termination_condition = propagation_setup.propagator.time_termination( simulation_end_epoch )
+    termination_condition = propagation_setup.propagator.time_termination(simulation_end_epoch)
     propagator_settings = propagation_setup.propagator.translational(
         central_bodies,
         acceleration_models,
         bodies_to_propagate,
         initial_state,
         termination_condition,
-        output_variables = dependent_variables_to_save
+        output_variables=dependent_variables_to_save
     )
     # Create numerical integrator settings.
     fixed_step_size = 10.0
@@ -189,14 +188,13 @@ def main():
     # PLOT RESULTS    #########################################################
     ###########################################################################
 
-
     time = dependent_variables.keys()
     time_hours = [t / 3600 for t in time]
 
     dependent_variable_list = np.vstack(list(dependent_variables.values()))
 
     # Plot total acceleration as function of time
-    total_acceleration_norm = np.linalg.norm( dependent_variable_list[:, 0:3], axis = 1 )
+    total_acceleration_norm = np.linalg.norm(dependent_variable_list[:, 0:3], axis=1)
     plt.figure(figsize=(17, 5))
     plt.plot(time_hours, total_acceleration_norm)
     plt.xlabel('Time [hr]')

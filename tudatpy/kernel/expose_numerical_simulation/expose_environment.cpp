@@ -250,8 +250,8 @@ void expose_environment(py::module &m) {
             .def_property_readonly("longitude", &ta::FlightConditions::getCurrentLongitude, get_docstring("FlightConditions.longitude").c_str())
             .def_property_readonly("geodetic_latitude", &ta::FlightConditions::getCurrentGeodeticLatitude, get_docstring("FlightConditions.latitude").c_str())
             .def_property_readonly("time", &ta::FlightConditions::getCurrentTime, get_docstring("FlightConditions.time").c_str())
-            .def_property_readonly("body_centered_body_fixed_state", &ta::FlightConditions::getCurrentBodyCenteredBodyFixedState, get_docstring("body_centered_body_fixed_state.time").c_str())
-            .def_property_readonly("altitude", &ta::FlightConditions::getCurrentAltitude, get_docstring("altitude.time").c_str());
+            .def_property_readonly("body_centered_body_fixed_state", &ta::FlightConditions::getCurrentBodyCenteredBodyFixedState, get_docstring("FlightConditions.body_centered_body_fixed_state").c_str())
+            .def_property_readonly("altitude", &ta::FlightConditions::getCurrentAltitude, get_docstring("FlightConditions.time").c_str());
 
     py::class_<ta::AtmosphericFlightConditions,
             std::shared_ptr<ta::AtmosphericFlightConditions>,
