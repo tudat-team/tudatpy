@@ -2,11 +2,12 @@ import re
 import os
 from multidoc.template import render_python_docstring
 from multidoc.template import render_cpp_docstring
-from multidoc.template import get_docstring_template, get_property_template
+from multidoc.template import get_docstring_template, get_property_template, get_enum_member_template
 from multidoc.parsing.io import yaml2dict
 from multidoc.parsing import logger
 from multidoc.regex import p_package_file, p_module_file
 import pathlib
+
 
 def guess_project_type(project_src):
     logger.warning(f"GUESSING project type, because `project_type` was not found for src {project_src}!")
@@ -54,11 +55,10 @@ from collections import defaultdict
 def parse_properties(structure, properties, **kwargs):
     nl = '\n'
     logger.info(
-        f"Parsing the following properties with {kwargs}: {nl}{nl.join([r'    - '+ property.name for property in properties] + [''])} "
+        f"Parsing the following properties with {kwargs}: {nl}{nl.join([r'    - ' + property.name for property in properties] + [''])} "
     )
     t = get_property_template(**kwargs)
     for i, property in enumerate(properties):
-        print(property)
         structure[property.name] = t.render(**property.dict())
     return structure
 
@@ -66,7 +66,7 @@ def parse_properties(structure, properties, **kwargs):
 def parse_functions(structure, functions, **kwargs):
     nl = '\n'
     logger.info(
-        f"Parsing the following functions with {kwargs}: {nl}{nl.join([r'    - '+ function.name for function in functions] + [''])} "
+        f"Parsing the following functions with {kwargs}: {nl}{nl.join([r'    - ' + function.name for function in functions] + [''])} "
     )
     t = get_docstring_template(**kwargs)
     result = defaultdict(list)
@@ -94,10 +94,29 @@ def parse_functions(structure, functions, **kwargs):
     # return _return
 
 
+def parse_enums(structure, enums, **kwargs):
+    nl = '\n'
+    logger.info(
+        f"Parsing the following enums with {kwargs}: {nl}{nl.join([r'    - ' + enum.name for enum in enums] + [''])} "
+    )
+    t = get_enum_member_template(**kwargs)
+    t_general = get_docstring_template(**kwargs)
+    for enum in enums:
+        _result = {}
+        if enum.members:
+            for member in enum.members:
+                _result.update({member.name: t.render(**member.dict())})
+        _result.update({"__docstring__": t_general.render(**enum.dict())})
+        _result.update(enum.dict())
+        structure[enum.name] = _result
+
+    return structure
+
+
 def parse_classes(structure, classes, **kwargs):
     nl = '\n'
     logger.info(
-        f"Parsing the following classes with {kwargs}: {nl}{nl.join([r'    - '+cls.name for cls in classes] + [''])} "
+        f"Parsing the following classes with {kwargs}: {nl}{nl.join([r'    - ' + cls.name for cls in classes] + [''])} "
     )
     t = get_docstring_template(**kwargs)
     for cls in classes:
@@ -107,6 +126,8 @@ def parse_classes(structure, classes, **kwargs):
         if cls.properties:
             _result.update(parse_properties(cls.dict(), cls.properties, **kwargs))
         _result.update({"__docstring__": t.render(**cls.dict())})
+        if cls.autoclass:
+            _result.update({"autoclass": cls.dict()["autoclass"]})
         structure[cls.name] = _result
 
     return structure
@@ -298,6 +319,10 @@ def parse_api_declaration(path: str, parent=None, **kwargs):
     # module level functions
     if module.classes:
         structure = parse_classes(structure, module.classes, **local)
+
+    # module level enumerations
+    if module.enums:
+        structure = parse_enums(structure, module.enums, **local)
 
     # module level functions
     if module.constants:
