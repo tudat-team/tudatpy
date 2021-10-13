@@ -1,3 +1,53 @@
 .wy-nav-content {
     max-width: 800px !important;
 }
+
+/* Centers any containers assigned the center class (e.g. svg's). */
+.center {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Changes the types in signatures */
+.sig-param span.n {
+    border-radius: .2em;
+    font-size: var(--font-size--normal);
+    padding: .1em .2em
+}
+
+/* Changes the returns in signatures */
+.sig-return-typehint span.pre {
+    background: var(--color-inline-code-background);
+    /*border: 1px solid var(--color-background-border);*/
+    border-radius: .2em;
+    font-size: var(--font-size--normal);
+    padding: .1em .2em
+}
+
+/* Adds linebreaks after parameters in function signatures. */
+.sig-param::before {
+    content: "\a";
+    white-space: pre;
+}
+
+/* Changes the font of `TudatPy API Reference` */
+.sidebar-brand-text {
+    font-family: 'Helvetica', 'Arial', sans-serif;
+}
+
+/* Manages any containers assigned the invertible class (e.g. svg's). */
+.invertible {
+    filter: invert(0%);
+}
+
+
+body[data-theme="dark"] .invertible {
+    filter: invert(100%);
+}
+
+@media (prefers-color-scheme: dark) {
+    body:not([data-theme="light"]) .invertible {
+        filter: invert(100%);
+    }
+}
