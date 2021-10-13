@@ -54,12 +54,55 @@ Functions
 {% endfor %}
 {% endif %}
 
+{% if structure.enums %}
+Enumerations
+------------
+.. currentmodule:: {{  namespace_list|join(".") }}
+
+.. autosummary::
+{% for  enum in structure.enums %}
+   {{ enum.name }}
+{% endfor %}
+
+{% for  enum in structure.enums %}
+.. autoclass:: {{  namespace_list|join(".") }}.{{ enum.name }}
+   :members:
+{% endfor %}
+{% endif %}
+
 {% if structure.classes %}
 Classes
 -------
+.. currentmodule:: {{  namespace_list|join(".") }}
+
+.. autosummary::
+{% for  class in structure.classes %}
+   {{ class.name }}
+{% endfor %}
+
 {% for  class in structure.classes %}
 .. autoclass:: {{  namespace_list|join(".") }}.{{ class.name }}
    :members:
+{%- if class.autoclass %}
+{%- if class.autoclass.members %}
+   :members: {{ class.members }}
+{% endif %}
+{%- if class.autoclass.undoc_members %}
+   :undoc-members: {{ class.autoclass.undoc_members }}
+{% endif %}
+{%- if class.autoclass.private_members %}
+   :private-members: {{ class.autoclass.private_members }}
+{% endif %}
+{%- if class.autoclass.special_members %}
+   :special-members: {{ class.autoclass.special_members }}
+{% endif %}
+{%- if class.autoclass.no_undoc_members %}
+   :no-undoc-members:
+{% endif %}
+{%- if class.autoclass.no_undoc_members %}
+   :inherited-members:
+{% endif %}
+{% endif %}
 {% endfor %}
 {% endif %}
 
