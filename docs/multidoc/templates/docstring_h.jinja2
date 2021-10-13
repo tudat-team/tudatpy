@@ -21,6 +21,32 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 {% endfor %}
 {% endif %}
 
+{% if structure.enums is not none %}
+{% for enum in structure.enums %}
+
+    } else if(name == "{{ enum.name }}") {
+         return R"(
+             {% filter indent(8) -%}
+             {{ structure[enum.name]['__docstring__'] | safe }}
+             {%- endfilter %}
+     )";
+
+{% if structure[enum.name].members is not none %}
+{% for member in structure[enum.name].members %}
+
+    } else if(name == "{{ enum.name }}.{{ member.name }}") {
+         return R"(
+             {% filter indent(8) -%}
+             {{ structure[enum.name][member.name] | safe }}
+             {%- endfilter %}
+     )";
+
+{% endfor %}
+{% endif %}
+
+{% endfor %}
+{% endif %}
+
 {% if structure.classes is not none %}
 {% for class in structure.classes %}
 
