@@ -148,6 +148,16 @@ class Returns(BaseModel):
     type: Optional[str]
     description: Optional[str]
 
+class AutoClassConfig(BaseModel):
+    """
+    See https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html#directive-autoclass
+    """
+    members: Optional[str]
+    undoc_members: Optional[str]
+    private_members: Optional[str]
+    special_members: Optional[str]
+    no_undoc_members: Optional[bool]
+    inherited_members: Optional[bool]
 
 class Yields(BaseModel):
     """Yields docstring ``pydantic.BaseModel`` data structure.
@@ -218,6 +228,12 @@ class Function(BaseModel):
     examples: Optional[str]
 
 
+class EnumMember(BaseModel):
+    name: str
+    description: Optional[str]
+    value: Optional[int]
+
+
 class Class(BaseModel):
     """Class docstring ``pydantic.BaseModel`` data structure.
 
@@ -259,6 +275,14 @@ class Class(BaseModel):
     references: Optional[str]
     examples: Optional[str]
     methods: Optional[List[Function]]
+    autoclass: Optional[AutoClassConfig]
+
+
+class Enum(BaseModel):
+    name: str
+    short_summary: Optional[str]
+    extended_summary: Optional[str]
+    members: Optional[List[EnumMember]]
 
 
 class Constant(BaseModel):
@@ -322,6 +346,7 @@ class Module(FileBased):
     examples: Optional[str]
 
     # MODULE structure
+    enums: Optional[List[Enum]]
     classes: Optional[List[Class]]
     functions: Optional[List[Function]]
     constants: Optional[List[Constant]]
