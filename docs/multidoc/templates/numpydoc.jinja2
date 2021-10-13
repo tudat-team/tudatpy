@@ -72,8 +72,26 @@ Yields
 {% endfor %}
 {% endif %}
 
+{% if see_also %}
+See Also
+--------
+{{ notes }}
+{% endif %}
+
+{% if notes %}
+Notes
+-----
+{{ notes }}
+{% endif %}
+
+{% if references %}
+References
+----------
+{{ references }}
+{% endif %}
+
 {% if examples %}
-Example
+Examples
 --------
 {{ examples }}
 {% endif %}
