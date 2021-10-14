@@ -66,9 +66,9 @@ void expose_acceleration_setup(py::module &m) {
 
     py::enum_<tss::ThrustFrames>(m, "ThrustFrames",
                                  get_docstring("ThrustFrames").c_str())
-            .value("unspecified_thrust_frame_type", tss::ThrustFrames::unspecified_thrust_frame)
-            .value("inertial_thrust_frame_type", tss::ThrustFrames::inertial_thrust_frame)
-            .value("lvlh_thrust_frame_type", tss::ThrustFrames::lvlh_thrust_frame)
+            .value("unspecified_thrust_frame_type", tss::ThrustFrames::unspecified_thrust_frame, get_docstring("ThrustFrames.unspecified_thrust_frame_type").c_str())
+            .value("inertial_thrust_frame_type", tss::ThrustFrames::inertial_thrust_frame, get_docstring("ThrustFrames.inertial_thrust_frame_type").c_str())
+            .value("lvlh_thrust_frame_type", tss::ThrustFrames::lvlh_thrust_frame, get_docstring("ThrustFrames.lvlh_thrust_frame_type").c_str())
             .export_values();
 
     //////////////////////////////////////////////////////////////////////////////
@@ -215,7 +215,7 @@ void expose_acceleration_setup(py::module &m) {
                   const std::shared_ptr<tss::ThrustMagnitudeSettings>>(&tss::thrustAcceleration),
           py::arg("thrust_direction_settings"),
           py::arg("thrust_magnitude_settings"),
-          get_docstring("thrust_acceleration").c_str());
+          get_docstring("thrust_from_direction_and_magnitude").c_str());
 
     m.def("thrust_from_interpolator", py::overload_cast<
                   const std::shared_ptr<tinterp::DataInterpolationSettings<double, Eigen::Vector3d>>&,
@@ -226,7 +226,7 @@ void expose_acceleration_setup(py::module &m) {
           py::arg("specific_impulse_function"),
           py::arg("thrust_frame") = tss::ThrustFrames::unspecified_thrust_frame,
           py::arg("central_body") = "",
-          get_docstring("thrust_acceleration").c_str());
+          get_docstring("thrust_from_interpolator").c_str());
 
     m.def("thrust_from_interpolator_variable_isp", py::overload_cast<
                   const std::shared_ptr<tinterp::DataInterpolationSettings<double, Eigen::Vector3d>>&,
@@ -237,7 +237,7 @@ void expose_acceleration_setup(py::module &m) {
           py::arg("constant_specific_impulse"),
           py::arg("thrust_frame") = tss::ThrustFrames::unspecified_thrust_frame,
           py::arg("central_body") = "",
-          get_docstring("thrust_acceleration", 2).c_str());
+          get_docstring("thrust_from_interpolator_variable_isp", 2).c_str());
 
 
 
@@ -281,11 +281,22 @@ void expose_acceleration_setup(py::module &m) {
     //////////////////////////////////////////////////////////////////////////////
     py::enum_<tss::ThrustDirectionTypes>(m, "ThrustDirectionGuidanceTypes",
                                          get_docstring("ThrustDirectionGuidanceTypes").c_str())
-            .value("colinear_with_state_segment_thrust_direction_type", tss::ThrustDirectionTypes::colinear_with_state_segment_thrust_direction)
-            .value("thrust_direction_from_existing_body_orientation_type", tss::ThrustDirectionTypes::thrust_direction_from_existing_body_orientation)
-            .value("custom_thrust_direction_type", tss::ThrustDirectionTypes::custom_thrust_direction)
-            .value("custom_thrust_orientation_type", tss::ThrustDirectionTypes::custom_thrust_orientation)
-            .value("mee_costate_based_thrust_direction_type", tss::ThrustDirectionTypes::mee_costate_based_thrust_direction);
+            .value("colinear_with_state_segment_thrust_direction_type",
+                   tss::ThrustDirectionTypes::colinear_with_state_segment_thrust_direction,
+                   get_docstring("ThrustDirectionGuidanceTypes.colinear_with_state_segment_thrust_direction_type").c_str())
+            .value("thrust_direction_from_existing_body_orientation_type",
+                   tss::ThrustDirectionTypes::thrust_direction_from_existing_body_orientation,
+                   get_docstring("ThrustDirectionGuidanceTypes.thrust_direction_from_existing_body_orientation_type").c_str())
+            .value("custom_thrust_direction_type",
+                   tss::ThrustDirectionTypes::custom_thrust_direction,
+                   get_docstring("ThrustDirectionGuidanceTypes.custom_thrust_direction_type").c_str())
+            .value("custom_thrust_orientation_type",
+                   tss::ThrustDirectionTypes::custom_thrust_orientation,
+                   get_docstring("ThrustDirectionGuidanceTypes.custom_thrust_orientation_type").c_str())
+            .value("mee_costate_based_thrust_direction_type",
+                   tss::ThrustDirectionTypes::mee_costate_based_thrust_direction,
+                   get_docstring("ThrustDirectionGuidanceTypes.mee_costate_based_thrust_direction_type").c_str())
+            .export_values();
 
 
     py::class_<
@@ -349,34 +360,45 @@ void expose_acceleration_setup(py::module &m) {
 //            std::shared_ptr<tss::MeeCostateBasedThrustDirectionSettings>,
 //            tss::ThrustDirectionSettings>(m, "MeeCostateBasedThrustDirectionSettings",
 //                                          get_docstring("MeeCostateBasedThrustDirectionSettings").c_str())
-////            .def(py::init<const std::string &,//ctor 1
-////                         const std::string &,
-////                         const std::function<Eigen::VectorXd(const double)>>(),
-////                 py::arg("vehicle_name"),
-////                 py::arg("central_body_name"),
-////                 py::arg("costate_function"))
-////            .def(py::init<const std::string &,//ctor 2
-////                         const std::string &,
-////                         std::shared_ptr<tinterp::OneDimensionalInterpolator<double, Eigen::VectorXd>>>(),
-////                 py::arg("vehicle_name"),
-////                 py::arg("central_body_name"),
-////                 py::arg("costate_interpolator"))
-////            .def(py::init<const std::string &,//ctor 3
-////                         const std::string &,
-////                         const Eigen::VectorXd>(),
-////                 py::arg("vehicle_name"),
-////                 py::arg("central_body_name"),
-////                 py::arg("constant_costates"))
+//            .def(py::init<const std::string &,//ctor 1
+//                         const std::string &,
+//                         const std::function<Eigen::VectorXd(const double)>>(),
+//                 py::arg("vehicle_name"),
+//                 py::arg("central_body_name"),
+//                 py::arg("costate_function"))
+//            .def(py::init<const std::string &,//ctor 2
+//                         const std::string &,
+//                         std::shared_ptr<tinterp::OneDimensionalInterpolator<double, Eigen::VectorXd>>>(),
+//                 py::arg("vehicle_name"),
+//                 py::arg("central_body_name"),
+//                 py::arg("costate_interpolator"))
+//            .def(py::init<const std::string &,//ctor 3
+//                         const std::string &,
+//                         const Eigen::VectorXd>(),
+//                 py::arg("vehicle_name"),
+//                 py::arg("central_body_name"),
+//                 py::arg("constant_costates"))
 //            .def_readonly("vehicle_name", &tss::MeeCostateBasedThrustDirectionSettings::vehicleName_)
 //            .def_readonly("costate_function", &tss::MeeCostateBasedThrustDirectionSettings::costateFunction_);
 
     py::enum_<tss::ThrustMagnitudeTypes>(m, "ThrustMagnitudeTypes",
                                          get_docstring("ThrustMagnitudeTypes").c_str())
-            .value("constant_thrust_magnitude", tss::ThrustMagnitudeTypes::constant_thrust_magnitude)
-            .value("from_engine_properties_thrust_magnitude", tss::ThrustMagnitudeTypes::from_engine_properties_thrust_magnitude)
-            .value("thrust_magnitude_from_time_function", tss::ThrustMagnitudeTypes::thrust_magnitude_from_time_function)
-            .value("thrust_magnitude_from_dependent_variables", tss::ThrustMagnitudeTypes::thrust_magnitude_from_dependent_variables)
-            .value("bang_bang_thrust_magnitude_from_mee_costates", tss::ThrustMagnitudeTypes::bang_bang_thrust_magnitude_from_mee_costates);
+            .value("constant_thrust_magnitude",
+                   tss::ThrustMagnitudeTypes::constant_thrust_magnitude,
+                   get_docstring("ThrustMagnitudeTypes.constant_thrust_magnitude").c_str())
+            .value("from_engine_properties_thrust_magnitude",
+                   tss::ThrustMagnitudeTypes::from_engine_properties_thrust_magnitude,
+                   get_docstring("ThrustMagnitudeTypes.from_engine_properties_thrust_magnitude").c_str())
+            .value("thrust_magnitude_from_time_function",
+                   tss::ThrustMagnitudeTypes::thrust_magnitude_from_time_function,
+                   get_docstring("ThrustMagnitudeTypes.thrust_magnitude_from_time_function").c_str())
+            .value("thrust_magnitude_from_dependent_variables",
+                   tss::ThrustMagnitudeTypes::thrust_magnitude_from_dependent_variables,
+                   get_docstring("ThrustMagnitudeTypes.thrust_magnitude_from_dependent_variables").c_str())
+            .value("bang_bang_thrust_magnitude_from_mee_costates",
+                   tss::ThrustMagnitudeTypes::bang_bang_thrust_magnitude_from_mee_costates,
+                   get_docstring("ThrustMagnitudeTypes.bang_bang_thrust_magnitude_from_mee_costates").c_str())
+            .export_values();
 
     py::class_<
             tss::ConstantThrustMagnitudeSettings,
