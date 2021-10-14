@@ -383,7 +383,7 @@ void expose_acceleration_setup(py::module &m) {
 
     py::enum_<tss::ThrustMagnitudeTypes>(m, "ThrustMagnitudeTypes",
                                          get_docstring("ThrustMagnitudeTypes").c_str())
-            .value("constant_thrust_magnitude",
+            .value("constant_thrust_magnitude_type",
                    tss::ThrustMagnitudeTypes::constant_thrust_magnitude,
                    get_docstring("ThrustMagnitudeTypes.constant_thrust_magnitude").c_str())
             .value("from_engine_properties_thrust_magnitude",
