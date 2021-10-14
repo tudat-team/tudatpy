@@ -49,7 +49,7 @@ namespace integrator {
                     .value("bulirsch_stoer_type", tni::AvailableIntegrators::bulirschStoer,
                            get_docstring("AvailableIntegrators.bulirsch_stoer").c_str())
                     .value("adams_bashforth_moulton_type", tni::AvailableIntegrators::adamsBashforthMoulton,
-                           get_docstring("AvailableIntegrators.adams_bashforth_moulton").c_str()
+                           get_docstring("AvailableIntegrators.adams_bashforth_moulton").c_str())
                     .export_values();
 
             py::enum_<tni::RungeKuttaCoefficients::CoefficientSets>(m, "RKCoefficientSets",
