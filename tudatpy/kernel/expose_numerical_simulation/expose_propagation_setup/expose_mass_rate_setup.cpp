@@ -41,9 +41,12 @@ namespace mass_rate {
 
         py::enum_<tba::AvailableMassRateModels>(m, "AvailableMassRateModels",
                                                 get_docstring("AvailableMassRateModels").c_str())
-                .value("undefined_mass_rate_type", tba::AvailableMassRateModels::undefined_mass_rate_model)
-                .value("custom_mass_rate_type", tba::AvailableMassRateModels::custom_mass_rate_model)
-                .value("from_thrust_mass_rate_type", tba::AvailableMassRateModels::from_thrust_mass_rate_model)
+                .value("undefined_mass_rate_type", tba::AvailableMassRateModels::undefined_mass_rate_model,
+                       get_docstring("AvailableMassRateModels.undefined_mass_rate_type").c_str())
+                .value("custom_mass_rate_type", tba::AvailableMassRateModels::custom_mass_rate_model,
+                       get_docstring("AvailableMassRateModels.custom_mass_rate_type").c_str())
+                .value("from_thrust_mass_rate_type", tba::AvailableMassRateModels::from_thrust_mass_rate_model,
+                       get_docstring("AvailableMassRateModels.from_thrust_mass_rate_type").c_str())
                 .export_values();
 
         // Classes
