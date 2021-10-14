@@ -44,50 +44,77 @@ void expose_propagator_setup(py::module &m) {
     py::enum_<tp::TranslationalPropagatorType>(m, "TranslationalPropagatorType",
                                                get_docstring("TranslationalPropagatorType").c_str())
             .value("undefined_translational_propagator",
-                   tp::TranslationalPropagatorType::undefined_translational_propagator)
+                   tp::TranslationalPropagatorType::undefined_translational_propagator,
+                   get_docstring("TranslationalPropagatorType.undefined_translational_propagator").c_str())
             .value("cowell",
-                   tp::TranslationalPropagatorType::cowell)
+                   tp::TranslationalPropagatorType::cowell,
+                   get_docstring("TranslationalPropagatorType.cowell").c_str())
             .value("encke",
-                   tp::TranslationalPropagatorType::encke)
+                   tp::TranslationalPropagatorType::encke,
+                   get_docstring("TranslationalPropagatorType.encke").c_str())
             .value("gauss_keplerian",
-                   tp::TranslationalPropagatorType::gauss_keplerian)
+                   tp::TranslationalPropagatorType::gauss_keplerian,
+                   get_docstring("TranslationalPropagatorType.gauss_keplerian").c_str())
             .value("gauss_modified_equinoctial",
-                   tp::TranslationalPropagatorType::gauss_modified_equinoctial)
+                   tp::TranslationalPropagatorType::gauss_modified_equinoctial,
+                   get_docstring("TranslationalPropagatorType.gauss_modified_equinoctial").c_str())
             .value("unified_state_model_quaternions",
-                   tp::TranslationalPropagatorType::unified_state_model_quaternions)
+                   tp::TranslationalPropagatorType::unified_state_model_quaternions,
+                   get_docstring("TranslationalPropagatorType.unified_state_model_quaternions").c_str())
             .value("unified_state_model_modified_rodrigues_parameters",
-                   tp::TranslationalPropagatorType::unified_state_model_modified_rodrigues_parameters)
+                   tp::TranslationalPropagatorType::unified_state_model_modified_rodrigues_parameters,
+                   get_docstring("TranslationalPropagatorType.unified_state_model_modified_rodrigues_parameters").c_str())
             .value("unified_state_model_exponential_map",
-                   tp::unified_state_model_exponential_map)
+                   tp::unified_state_model_exponential_map,
+                   get_docstring("TranslationalPropagatorType.unified_state_model_exponential_map").c_str())
             .export_values();
 
     py::enum_<tp::RotationalPropagatorType>(m, "RotationalPropagatorType",
                                             get_docstring("RotationalPropagatorType").c_str())
             .value("undefined_rotational_propagator",
-                   tp::RotationalPropagatorType::undefined_rotational_propagator)
+                   tp::RotationalPropagatorType::undefined_rotational_propagator,
+                   get_docstring("RotationalPropagatorType.undefined_rotational_propagator").c_str())
             .value("quaternions",
-                   tp::RotationalPropagatorType::quaternions)
+                   tp::RotationalPropagatorType::quaternions,
+                   get_docstring("RotationalPropagatorType.quaternions").c_str())
             .value("modified_rodrigues_parameters",
-                   tp::RotationalPropagatorType::modified_rodrigues_parameters)
+                   tp::RotationalPropagatorType::modified_rodrigues_parameters,
+                   get_docstring("RotationalPropagatorType.modified_rodrigues_parameters").c_str())
             .value("exponential_map",
-                   tp::RotationalPropagatorType::exponential_map)
+                   tp::RotationalPropagatorType::exponential_map,
+                   get_docstring("RotationalPropagatorType.exponential_map").c_str())
             .export_values();
 
     py::enum_<tp::PropagationTerminationTypes>(m, "PropagationTerminationTypes")
-            .value("time_stopping_condition_type", tp::PropagationTerminationTypes::time_stopping_condition)
-            .value("cpu_time_stopping_condition_type", tp::PropagationTerminationTypes::cpu_time_stopping_condition)
-            .value("dependent_variable_stopping_condition_type", tp::PropagationTerminationTypes::dependent_variable_stopping_condition)
-            .value("hybrid_stopping_condition_type", tp::PropagationTerminationTypes::hybrid_stopping_condition)
-            .value("custom_stopping_condition_type", tp::PropagationTerminationTypes::custom_stopping_condition)
+            .value("time_stopping_condition_type",
+                   tp::PropagationTerminationTypes::time_stopping_condition,
+                   get_docstring("PropagationTerminationTypes.time_stopping_condition_type").c_str())
+            .value("cpu_time_stopping_condition_type",
+                   tp::PropagationTerminationTypes::cpu_time_stopping_condition,
+                   get_docstring("PropagationTerminationTypes.cpu_time_stopping_condition_type").c_str())
+            .value("dependent_variable_stopping_condition_type",
+                   tp::PropagationTerminationTypes::dependent_variable_stopping_condition,
+                   get_docstring("PropagationTerminationTypes.dependent_variable_stopping_condition_type").c_str())
+            .value("hybrid_stopping_condition_type",
+                   tp::PropagationTerminationTypes::hybrid_stopping_condition,
+                   get_docstring("PropagationTerminationTypes.hybrid_stopping_condition_type").c_str())
+            .value("custom_stopping_condition_type",
+                   tp::PropagationTerminationTypes::custom_stopping_condition,
+                   get_docstring("PropagationTerminationTypes.custom_stopping_condition_type").c_str())
             .export_values();
 
     py::enum_<tp::IntegratedStateType>(m, "StateType",
                                        get_docstring("StateType").c_str())
-            .value("hybrid_type", tp::IntegratedStateType::hybrid)
-            .value("translational_type", tp::IntegratedStateType::translational_state)
-            .value("rotational_type", tp::IntegratedStateType::rotational_state)
-            .value("mass_type", tp::IntegratedStateType::body_mass_state)
-            .value("custom_type", tp::IntegratedStateType::custom_state)
+            .value("hybrid_type", tp::IntegratedStateType::hybrid,
+                   get_docstring("StateType.hybrid_type").c_str())
+            .value("translational_type", tp::IntegratedStateType::translational_state,
+                   get_docstring("StateType.translational_type").c_str())
+            .value("rotational_type", tp::IntegratedStateType::rotational_state,
+                   get_docstring("StateType.rotational_type").c_str())
+            .value("mass_type", tp::IntegratedStateType::body_mass_state,
+                   get_docstring("StateType.mass_type").c_str())
+            .value("custom_type", tp::IntegratedStateType::custom_state,
+                   get_docstring("StateType.custom_type").c_str())
             .export_values();
 
 
@@ -115,7 +142,8 @@ void expose_propagator_setup(py::module &m) {
                                                              get_docstring("PropagatorSettings").c_str())
             .def_property("initial_states",
                           &tp::PropagatorSettings<double>::getInitialStates,
-                          &tp::PropagatorSettings<double>::resetInitialStates);
+                          &tp::PropagatorSettings<double>::resetInitialStates,
+                          get_docstring("PropagatorSettings.initial_states").c_str());
 
     py::class_<
             tp::MultiArcPropagatorSettings<double>,
@@ -130,7 +158,8 @@ void expose_propagator_setup(py::module &m) {
                                             get_docstring("SingleArcPropagatorSettings").c_str())
             .def_property("termination_settings",
                           &tp::SingleArcPropagatorSettings<double>::getTerminationSettings,
-                          &tp::SingleArcPropagatorSettings<double>::resetTerminationSettings);
+                          &tp::SingleArcPropagatorSettings<double>::resetTerminationSettings,
+                          get_docstring("SingleArcPropagatorSettings.termination_settings").c_str());
 
     py::class_<
             tp::TranslationalStatePropagatorSettings<double>,
@@ -232,7 +261,8 @@ void expose_propagator_setup(py::module &m) {
             .def("single_type_settings", &tp::MultiTypePropagatorSettings<double>::getSingleTypePropagatorSettings,
                  py::arg("state_type"))
             .def_property_readonly("propagator_settings_per_type",
-                                   &tp::MultiTypePropagatorSettings<double>::getPropagatorSettingsMap);
+                                   &tp::MultiTypePropagatorSettings<double>::getPropagatorSettingsMap,
+                                   get_docstring("MultiTypePropagatorSettings.propagator_settings_per_type").c_str());
 
     py::class_<
             tp::RotationalStatePropagatorSettings<double>,
