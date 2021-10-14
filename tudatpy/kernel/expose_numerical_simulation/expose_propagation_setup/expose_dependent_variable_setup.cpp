@@ -45,99 +45,146 @@ namespace dependent_variable {
                                                      get_docstring("PropagationDependentVariables").c_str())
                 // C++ legacy variable names.
                 .value("mach_number_type",
-                       tp::PropagationDependentVariables::mach_number_dependent_variable)
+                       tp::PropagationDependentVariables::mach_number_dependent_variable,
+                       get_docstring("PropagationDependentVariables.mach_number_type").c_str())
                 .value("altitude_type",
-                       tp::PropagationDependentVariables::altitude_dependent_variable)
+                       tp::PropagationDependentVariables::altitude_dependent_variable,
+                       get_docstring("PropagationDependentVariables.altitude_type").c_str())
                 .value("airspeed_type",
-                       tp::PropagationDependentVariables::airspeed_dependent_variable)
+                       tp::PropagationDependentVariables::airspeed_dependent_variable,
+                       get_docstring("PropagationDependentVariables.airspeed_type").c_str())
                 .value("local_density_type",
-                       tp::PropagationDependentVariables::local_density_dependent_variable)
+                       tp::PropagationDependentVariables::local_density_dependent_variable,
+                       get_docstring("PropagationDependentVariables.local_density_type").c_str())
                 .value("relative_speed_type",
-                       tp::PropagationDependentVariables::relative_speed_dependent_variable)
+                       tp::PropagationDependentVariables::relative_speed_dependent_variable,
+                       get_docstring("PropagationDependentVariables.relative_speed_type").c_str())
                 .value("relative_position_type",
-                       tp::PropagationDependentVariables::relative_position_dependent_variable)
+                       tp::PropagationDependentVariables::relative_position_dependent_variable,
+                       get_docstring("PropagationDependentVariables.relative_position_type").c_str())
                 .value("relative_distance_type",
-                       tp::PropagationDependentVariables::relative_distance_dependent_variable)
+                       tp::PropagationDependentVariables::relative_distance_dependent_variable,
+                       get_docstring("PropagationDependentVariables.relative_distance_type").c_str())
                 .value("relative_velocity_type",
-                       tp::PropagationDependentVariables::relative_velocity_dependent_variable)
+                       tp::PropagationDependentVariables::relative_velocity_dependent_variable,
+                       get_docstring("PropagationDependentVariables.relative_velocity_type").c_str())
                 .value("radiation_pressure_type",
-                       tp::PropagationDependentVariables::radiation_pressure_dependent_variable)
+                       tp::PropagationDependentVariables::radiation_pressure_dependent_variable,
+                       get_docstring("PropagationDependentVariables.radiation_pressure_type").c_str())
                 .value("total_acceleration_norm_type",
-                       tp::PropagationDependentVariables::total_acceleration_norm_dependent_variable)
+                       tp::PropagationDependentVariables::total_acceleration_norm_dependent_variable,
+                       get_docstring("PropagationDependentVariables.total_acceleration_norm_type").c_str())
                 .value("single_acceleration_norm_type",
-                       tp::PropagationDependentVariables::single_acceleration_norm_dependent_variable)
+                       tp::PropagationDependentVariables::single_acceleration_norm_dependent_variable,
+                       get_docstring("PropagationDependentVariables.single_acceleration_norm_type").c_str())
                 .value("total_acceleration_type",
-                       tp::PropagationDependentVariables::total_acceleration_dependent_variable)
+                       tp::PropagationDependentVariables::total_acceleration_dependent_variable,
+                       get_docstring("PropagationDependentVariables.total_acceleration_type").c_str())
                 .value("single_acceleration_type",
-                       tp::PropagationDependentVariables::single_acceleration_dependent_variable)
+                       tp::PropagationDependentVariables::single_acceleration_dependent_variable,
+                       get_docstring("PropagationDependentVariables.single_acceleration_type").c_str())
                 .value("aerodynamic_force_coefficients_type",
-                       tp::PropagationDependentVariables::aerodynamic_force_coefficients_dependent_variable)
+                       tp::PropagationDependentVariables::aerodynamic_force_coefficients_dependent_variable,
+                       get_docstring("PropagationDependentVariables.aerodynamic_force_coefficients_type").c_str())
                 .value("aerodynamic_moment_coefficients_type",
-                       tp::PropagationDependentVariables::aerodynamic_moment_coefficients_dependent_variable)
+                       tp::PropagationDependentVariables::aerodynamic_moment_coefficients_dependent_variable,
+                       get_docstring("PropagationDependentVariables.aerodynamic_moment_coefficients_type").c_str())
                 .value("rotation_matrix_to_body_fixed_frame_type",
-                       tp::PropagationDependentVariables::inertial_to_body_fixed_rotation_matrix_variable)
+                       tp::PropagationDependentVariables::inertial_to_body_fixed_rotation_matrix_variable,
+                       get_docstring("PropagationDependentVariables.rotation_matrix_to_body_fixed_frame_type").c_str())
                 .value("intermediate_aerodynamic_rotation_matrix_type",
-                       tp::PropagationDependentVariables::intermediate_aerodynamic_rotation_matrix_variable)
+                       tp::PropagationDependentVariables::intermediate_aerodynamic_rotation_matrix_variable,
+                       get_docstring("PropagationDependentVariables.intermediate_aerodynamic_rotation_matrix_type").c_str())
                 .value("relative_body_aerodynamic_orientation_angle_type",
-                       tp::PropagationDependentVariables::relative_body_aerodynamic_orientation_angle_variable)
+                       tp::PropagationDependentVariables::relative_body_aerodynamic_orientation_angle_variable,
+                       get_docstring("PropagationDependentVariables.relative_body_aerodynamic_orientation_angle_type").c_str())
                 .value("body_fixed_airspeed_based_velocity_type",
-                       tp::PropagationDependentVariables::body_fixed_airspeed_based_velocity_variable)
+                       tp::PropagationDependentVariables::body_fixed_airspeed_based_velocity_variable,
+                       get_docstring("PropagationDependentVariables.body_fixed_airspeed_based_velocity_type").c_str())
                 .value("total_aerodynamic_g_load_type",
-                       tp::PropagationDependentVariables::total_aerodynamic_g_load_variable)
+                       tp::PropagationDependentVariables::total_aerodynamic_g_load_variable,
+                       get_docstring("PropagationDependentVariables.total_aerodynamic_g_load_type").c_str())
                 .value("stagnation_point_heat_flux_type",
-                       tp::PropagationDependentVariables::stagnation_point_heat_flux_dependent_variable)
+                       tp::PropagationDependentVariables::stagnation_point_heat_flux_dependent_variable,
+                       get_docstring("PropagationDependentVariables.stagnation_point_heat_flux_type").c_str())
                 .value("local_temperature_type",
-                       tp::PropagationDependentVariables::local_temperature_dependent_variable)
+                       tp::PropagationDependentVariables::local_temperature_dependent_variable,
+                       get_docstring("PropagationDependentVariables.local_temperature_type").c_str())
                 .value("geodetic_latitude_type",
-                       tp::PropagationDependentVariables::geodetic_latitude_dependent_variable)
+                       tp::PropagationDependentVariables::geodetic_latitude_dependent_variable,
+                       get_docstring("PropagationDependentVariables.geodetic_latitude_type").c_str())
                 .value("control_surface_deflection_type",
-                       tp::PropagationDependentVariables::control_surface_deflection_dependent_variable)
+                       tp::PropagationDependentVariables::control_surface_deflection_dependent_variable,
+                       get_docstring("PropagationDependentVariables.control_surface_deflection_type").c_str())
                 .value("total_mass_rate_type",
-                       tp::PropagationDependentVariables::total_mass_rate_dependent_variables)
+                       tp::PropagationDependentVariables::total_mass_rate_dependent_variables,
+                       get_docstring("PropagationDependentVariables.total_mass_rate_type").c_str())
                 .value("lvlh_to_inertial_frame_rotation_type",
-                       tp::PropagationDependentVariables::lvlh_to_inertial_frame_rotation_dependent_variable)
+                       tp::PropagationDependentVariables::lvlh_to_inertial_frame_rotation_dependent_variable,
+                       get_docstring("PropagationDependentVariables.lvlh_to_inertial_frame_rotation_type").c_str())
                 .value("periapsis_altitude_type",
-                       tp::PropagationDependentVariables::periapsis_altitude_dependent_variable)
+                       tp::PropagationDependentVariables::periapsis_altitude_dependent_variable,
+                       get_docstring("PropagationDependentVariables.periapsis_altitude_type").c_str())
                 .value("total_torque_norm_type",
-                       tp::PropagationDependentVariables::total_torque_norm_dependent_variable)
+                       tp::PropagationDependentVariables::total_torque_norm_dependent_variable,
+                       get_docstring("PropagationDependentVariables.total_torque_norm_type").c_str())
                 .value("single_torque_norm_type",
-                       tp::PropagationDependentVariables::single_torque_norm_dependent_variable)
+                       tp::PropagationDependentVariables::single_torque_norm_dependent_variable,
+                       get_docstring("PropagationDependentVariables.single_torque_norm_type").c_str())
                 .value("total_torque_type",
-                       tp::PropagationDependentVariables::total_torque_dependent_variable)
+                       tp::PropagationDependentVariables::total_torque_dependent_variable,
+                       get_docstring("PropagationDependentVariables.total_torque_type").c_str())
                 .value("single_torque_type",
-                       tp::PropagationDependentVariables::single_torque_dependent_variable)
+                       tp::PropagationDependentVariables::single_torque_dependent_variable,
+                       get_docstring("PropagationDependentVariables.single_torque_type").c_str())
                 .value("body_fixed_groundspeed_based_velocity_type",
-                       tp::PropagationDependentVariables::body_fixed_groundspeed_based_velocity_variable)
+                       tp::PropagationDependentVariables::body_fixed_groundspeed_based_velocity_variable,
+                       get_docstring("PropagationDependentVariables.body_fixed_groundspeed_based_velocity_type").c_str())
                 .value("keplerian_state_type",
-                       tp::PropagationDependentVariables::keplerian_state_dependent_variable)
+                       tp::PropagationDependentVariables::keplerian_state_dependent_variable,
+                       get_docstring("PropagationDependentVariables.keplerian_state_type").c_str())
                 .value("modified_equinoctial_state_type",
-                       tp::PropagationDependentVariables::modified_equinocial_state_dependent_variable)
+                       tp::PropagationDependentVariables::modified_equinocial_state_dependent_variable,
+                       get_docstring("PropagationDependentVariables.modified_equinoctial_state_type").c_str())
                 .value("spherical_harmonic_acceleration_terms_type",
-                       tp::PropagationDependentVariables::spherical_harmonic_acceleration_terms_dependent_variable)
+                       tp::PropagationDependentVariables::spherical_harmonic_acceleration_terms_dependent_variable,
+                       get_docstring("PropagationDependentVariables.spherical_harmonic_acceleration_terms_type").c_str())
                 .value("spherical_harmonic_acceleration_norm_terms_type",
-                       tp::PropagationDependentVariables::spherical_harmonic_acceleration_norm_terms_dependent_variable)
+                       tp::PropagationDependentVariables::spherical_harmonic_acceleration_norm_terms_dependent_variable,
+                       get_docstring("PropagationDependentVariables.spherical_harmonic_acceleration_norm_terms_type").c_str())
                 .value("body_fixed_relative_cartesian_position_type",
-                       tp::PropagationDependentVariables::body_fixed_relative_cartesian_position)
+                       tp::PropagationDependentVariables::body_fixed_relative_cartesian_position,
+                       get_docstring("PropagationDependentVariables.body_fixed_relative_cartesian_position_type").c_str())
                 .value("body_fixed_relative_spherical_position_type",
-                       tp::PropagationDependentVariables::body_fixed_relative_spherical_position)
+                       tp::PropagationDependentVariables::body_fixed_relative_spherical_position,
+                       get_docstring("PropagationDependentVariables.body_fixed_relative_spherical_position_type").c_str())
                 .value("total_gravity_field_variation_acceleration_type",
-                       tp::PropagationDependentVariables::total_gravity_field_variation_acceleration)
+                       tp::PropagationDependentVariables::total_gravity_field_variation_acceleration,
+                       get_docstring("PropagationDependentVariables.total_gravity_field_variation_acceleration_type").c_str())
                 .value("single_gravity_field_variation_acceleration_type",
-                       tp::PropagationDependentVariables::single_gravity_field_variation_acceleration)
+                       tp::PropagationDependentVariables::single_gravity_field_variation_acceleration,
+                       get_docstring("PropagationDependentVariables.single_gravity_field_variation_acceleration_type").c_str())
                 .value("single_gravity_field_variation_acceleration_terms_type",
-                       tp::PropagationDependentVariables::single_gravity_field_variation_acceleration_terms)
+                       tp::PropagationDependentVariables::single_gravity_field_variation_acceleration_terms,
+                       get_docstring("PropagationDependentVariables.single_gravity_field_variation_acceleration_terms_type").c_str())
                 .value("acceleration_partial_wrt_body_translational_state_type",
-                       tp::PropagationDependentVariables::acceleration_partial_wrt_body_translational_state)
+                       tp::PropagationDependentVariables::acceleration_partial_wrt_body_translational_state,
+                       get_docstring("PropagationDependentVariables.acceleration_partial_wrt_body_translational_state_type").c_str())
                 .value("local_dynamic_pressure_type",
-                       tp::PropagationDependentVariables::local_dynamic_pressure_dependent_variable)
+                       tp::PropagationDependentVariables::local_dynamic_pressure_dependent_variable,
+                       get_docstring("PropagationDependentVariables.local_dynamic_pressure_type").c_str())
                 .value("local_aerodynamic_heat_rate_type",
-                       tp::PropagationDependentVariables::local_aerodynamic_heat_rate_dependent_variable)
+                       tp::PropagationDependentVariables::local_aerodynamic_heat_rate_dependent_variable,
+                       get_docstring("PropagationDependentVariables.local_aerodynamic_heat_rate_type").c_str())
                 .value("euler_angles_to_body_fixed_type",
-                       tp::PropagationDependentVariables::euler_angles_to_body_fixed_313)
+                       tp::PropagationDependentVariables::euler_angles_to_body_fixed_313,
+                       get_docstring("PropagationDependentVariables.euler_angles_to_body_fixed_type").c_str())
                 .value("current_body_mass_type",
-                       tp::PropagationDependentVariables::current_body_mass_dependent_variable)
+                       tp::PropagationDependentVariables::current_body_mass_dependent_variable,
+                       get_docstring("PropagationDependentVariables.current_body_mass_type").c_str())
                 .value("radiation_pressure_coefficient_type",
-                       tp::PropagationDependentVariables::radiation_pressure_coefficient_dependent_variable)
+                       tp::PropagationDependentVariables::radiation_pressure_coefficient_dependent_variable,
+                       get_docstring("PropagationDependentVariables.radiation_pressure_coefficient_type").c_str())
                 .export_values();
 
 
