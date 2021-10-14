@@ -39,14 +39,21 @@ namespace torque {
 
         py::enum_<tba::AvailableTorque>(m, "AvailableTorque",
                                         get_docstring("AvailableTorque").c_str())
-                .value("torque_free_type", tba::AvailableTorque::torque_free)
-                .value("underfined_type", tba::AvailableTorque::underfined_torque)
-                .value("second_order_gravitational_type", tba::AvailableTorque::second_order_gravitational_torque)
-                .value("aerodynamic_type", tba::AvailableTorque::aerodynamic_torque)
+                .value("torque_free_type", tba::AvailableTorque::torque_free,
+                       get_docstring("AvailableTorque.torque_free_type").c_str())
+                .value("underfined_type", tba::AvailableTorque::underfined_torque,
+                       get_docstring("AvailableTorque.underfined_type").c_str())
+                .value("second_order_gravitational_type", tba::AvailableTorque::second_order_gravitational_torque,
+                       get_docstring("AvailableTorque.second_order_gravitational_type").c_str())
+                .value("aerodynamic_type", tba::AvailableTorque::aerodynamic_torque,
+                       get_docstring("AvailableTorque.aerodynamic_type").c_str())
                 .value("spherical_harmonic_gravitational_type",
-                       tba::AvailableTorque::spherical_harmonic_gravitational_torque)
-                .value("inertial_type", tba::AvailableTorque::inertial_torque)
-                .value("dissipative_type", tba::AvailableTorque::dissipative_torque)
+                       tba::AvailableTorque::spherical_harmonic_gravitational_torque,
+                       get_docstring("AvailableTorque.spherical_harmonic_gravitational_type").c_str())
+                .value("inertial_type", tba::AvailableTorque::inertial_torque,
+                       get_docstring("AvailableTorque.inertial_type").c_str())
+                .value("dissipative_type", tba::AvailableTorque::dissipative_torque,
+                       get_docstring("AvailableTorque.dissipative_type").c_str())
                 .export_values();
 
         py::class_<tss::TorqueSettings,
