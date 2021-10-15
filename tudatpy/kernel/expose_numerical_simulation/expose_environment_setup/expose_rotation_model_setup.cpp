@@ -38,25 +38,30 @@ namespace rotation_model {
         py::enum_<tss::RotationModelType>(m, "RotationModelType",
                                           get_docstring("RotationModelType").c_str())
                 .value("simple_rotational_model",
-                       tss::RotationModelType::simple_rotation_model)
+                       tss::RotationModelType::simple_rotation_model,
+                       get_docstring("RotationModelType.simple_rotational_model").c_str())
                 .value("spice_rotation_model",
-                       tss::RotationModelType::spice_rotation_model)
+                       tss::RotationModelType::spice_rotation_model,
+                       get_docstring("RotationModelType.spice_rotation_model").c_str())
                 .value("gcrs_to_itrs_rotation_model",
-                       tss::RotationModelType::gcrs_to_itrs_rotation_model)
+                       tss::RotationModelType::gcrs_to_itrs_rotation_model,
+                       get_docstring("RotationModelType.gcrs_to_itrs_rotation_model").c_str())
                 .value("synchronous_rotation_model",
-                       tss::RotationModelType::synchronous_rotation_model)
+                       tss::RotationModelType::synchronous_rotation_model,
+                       get_docstring("RotationModelType.synchronous_rotation_model").c_str())
                 .value("planetary_rotation_model",
-                       tss::RotationModelType::planetary_rotation_model)
+                       tss::RotationModelType::planetary_rotation_model,
+                       get_docstring("RotationModelType.planetary_rotation_model").c_str())
                 .export_values();
 
         py::enum_<tba::IAUConventions>(m, "IAUConventions",
                                        get_docstring("IAUConventions").c_str())
-                .value("iau_2000_a",
-                       tba::IAUConventions::iau_2000_a)
-                .value("iau_2000_b",
-                       tba::IAUConventions::iau_2000_b)
-                .value("iau_2006",
-                       tba::IAUConventions::iau_2006)
+                .value("iau_2000_a", tba::IAUConventions::iau_2000_a,
+                       get_docstring("IAUConventions.iau_2000_a").c_str())
+                .value("iau_2000_b", tba::IAUConventions::iau_2000_b,
+                       get_docstring("IAUConventions.iau_2000_b").c_str())
+                .value("iau_2006", tba::IAUConventions::iau_2006,
+                       get_docstring("IAUConventions.iau_2006").c_str())
                 .export_values();
 
         py::class_<tss::RotationModelSettings,
