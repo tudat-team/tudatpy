@@ -44,12 +44,12 @@ namespace gravity_field {
         py::enum_<tss::SphericalHarmonicsModel>(m, "SphericalHarmonicsModel",
                                                 get_docstring("SphericalHarmonicsModel").c_str())
                 .value("custom_model", tss::SphericalHarmonicsModel::customModel, get_docstring("SphericalHarmonicsModel.custom_model").c_str())
-                .value("egm96", tss::SphericalHarmonicsModel::egm96, , get_docstring("SphericalHarmonicsModel.egm96").c_str())
-                .value("ggm02c", tss::SphericalHarmonicsModel::ggm02c, , get_docstring("SphericalHarmonicsModel.ggm02c").c_str())
-                .value("ggm02s", tss::SphericalHarmonicsModel::ggm02s, , get_docstring("SphericalHarmonicsModel.ggm02s").c_str())
-                .value("glgm3150", tss::SphericalHarmonicsModel::glgm3150, , get_docstring("SphericalHarmonicsModel.glgm3150").c_str())
-                .value("lpe200", tss::SphericalHarmonicsModel::lpe200, , get_docstring("SphericalHarmonicsModel.lpe200").c_str())
-                .value("jgmro120d", tss::SphericalHarmonicsModel::jgmro120d, , get_docstring("SphericalHarmonicsModel.jgmro120d").c_str())
+                .value("egm96", tss::SphericalHarmonicsModel::egm96, get_docstring("SphericalHarmonicsModel.egm96").c_str())
+                .value("ggm02c", tss::SphericalHarmonicsModel::ggm02c, get_docstring("SphericalHarmonicsModel.ggm02c").c_str())
+                .value("ggm02s", tss::SphericalHarmonicsModel::ggm02s, get_docstring("SphericalHarmonicsModel.ggm02s").c_str())
+                .value("glgm3150", tss::SphericalHarmonicsModel::glgm3150, get_docstring("SphericalHarmonicsModel.glgm3150").c_str())
+                .value("lpe200", tss::SphericalHarmonicsModel::lpe200, get_docstring("SphericalHarmonicsModel.lpe200").c_str())
+                .value("jgmro120d", tss::SphericalHarmonicsModel::jgmro120d, get_docstring("SphericalHarmonicsModel.jgmro120d").c_str())
                 .export_values();
 
         py::class_<tss::GravityFieldSettings, std::shared_ptr<tss::GravityFieldSettings>>(
