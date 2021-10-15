@@ -49,20 +49,27 @@ namespace integrator {
                     .value("bulirsch_stoer_type", tni::AvailableIntegrators::bulirschStoer,
                            get_docstring("AvailableIntegrators.bulirsch_stoer").c_str())
                     .value("adams_bashforth_moulton_type", tni::AvailableIntegrators::adamsBashforthMoulton,
-                           get_docstring("AvailableIntegrators.adams_bashforth_moulton").c_str());
+                           get_docstring("AvailableIntegrators.adams_bashforth_moulton").c_str())
+                    .export_values();
 
             py::enum_<tni::RungeKuttaCoefficients::CoefficientSets>(m, "RKCoefficientSets",
                                                                     get_docstring("RKCoefficientSets").c_str())
-                    .value("rkf_45", tni::RungeKuttaCoefficients::rungeKuttaFehlberg45)
-                    .value("rkf_56", tni::RungeKuttaCoefficients::rungeKuttaFehlberg56)
-                    .value("rkf_78", tni::RungeKuttaCoefficients::rungeKuttaFehlberg78)
-                    .value("rkdp_87", tni::RungeKuttaCoefficients::rungeKutta87DormandPrince)
+                    .value("rkf_45", tni::RungeKuttaCoefficients::rungeKuttaFehlberg45,
+                           get_docstring("AvailableIntegrators.rkf_45").c_str())
+                    .value("rkf_56", tni::RungeKuttaCoefficients::rungeKuttaFehlberg56,
+                           get_docstring("AvailableIntegrators.rkf_56").c_str())
+                    .value("rkf_78", tni::RungeKuttaCoefficients::rungeKuttaFehlberg78,
+                           get_docstring("AvailableIntegrators.rkf_78").c_str())
+                    .value("rkdp_87", tni::RungeKuttaCoefficients::rungeKutta87DormandPrince,
+                           get_docstring("AvailableIntegrators.rkdp_87").c_str())
                     .export_values();
 
             py::enum_<tni::ExtrapolationMethodStepSequences>(m, "ExtrapolationMethodStepSequences",
                                                              get_docstring("ExtrapolationMethodStepSequences").c_str())
-                    .value("bulirsch_stoer_sequence", tni::ExtrapolationMethodStepSequences::bulirsch_stoer_sequence)
-                    .value("deufelhard_sequence", tni::ExtrapolationMethodStepSequences::deufelhard_sequence)
+                    .value("bulirsch_stoer_sequence", tni::ExtrapolationMethodStepSequences::bulirsch_stoer_sequence,
+                           get_docstring("ExtrapolationMethodStepSequences.bulirsch_stoer_sequence").c_str())
+                    .value("deufelhard_sequence", tni::ExtrapolationMethodStepSequences::deufelhard_sequence,
+                           get_docstring("ExtrapolationMethodStepSequences.deufelhard_sequence").c_str())
                     .export_values();
 
 // CLASSES
@@ -93,15 +100,13 @@ namespace integrator {
                     std::shared_ptr<tni::RungeKuttaVariableStepSizeSettingsVectorTolerances<double>>,
                     tni::RungeKuttaVariableStepSizeBaseSettings<double>>(m,
                                                                          "RungeKuttaVariableStepSizeSettingsVectorTolerances",
-                                                                         get_docstring(
-                                                                                 "RungeKuttaVariableStepSizeSettingsVectorTolerances").c_str());
+                                                                         get_docstring("RungeKuttaVariableStepSizeSettingsVectorTolerances").c_str());
 
             py::class_<tni::RungeKuttaVariableStepSizeSettingsScalarTolerances<double>,
                     std::shared_ptr<tni::RungeKuttaVariableStepSizeSettingsScalarTolerances<double>>,
                     tni::RungeKuttaVariableStepSizeBaseSettings<double>>(m,
                                                                          "RungeKuttaVariableStepSizeSettingsScalarTolerances",
-                                                                         get_docstring(
-                                                                                 "RungeKuttaVariableStepSizeSettingsScalarTolerances").c_str());
+                                                                         get_docstring("RungeKuttaVariableStepSizeSettingsScalarTolerances").c_str());
 
             py::class_<tni::BulirschStoerIntegratorSettings<double>,
                     std::shared_ptr<tni::BulirschStoerIntegratorSettings<double>>,
