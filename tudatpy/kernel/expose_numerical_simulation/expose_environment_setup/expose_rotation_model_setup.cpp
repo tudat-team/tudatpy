@@ -75,7 +75,7 @@ namespace rotation_model {
                                        get_docstring("RotationModelSettings.rotation_type").c_str())
                 .def_property("base_frame", &tss::RotationModelSettings::getOriginalFrame,
                               &tss::RotationModelSettings::resetOriginalFrame,
-                              get_docstring("RotationModelSettings.base_frame").c_str()))
+                              get_docstring("RotationModelSettings.base_frame").c_str())
                 .def_property_readonly("target_frame", &tss::RotationModelSettings::getTargetFrame,
                                        get_docstring("RotationModelSettings.target_frame").c_str());
 
