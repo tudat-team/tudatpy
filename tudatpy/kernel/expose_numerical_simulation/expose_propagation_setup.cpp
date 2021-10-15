@@ -15,6 +15,7 @@
 #include "expose_propagation_setup/expose_dependent_variable_setup.h"
 #include "expose_propagation_setup/expose_torque_setup.h"
 #include "expose_propagation_setup/expose_acceleration_setup.h"
+#include "expose_propagation_setup/expose_thrust_setup.h"
 #include "expose_propagation_setup/expose_integrator_setup.h"
 #include "expose_propagation_setup/expose_propagator_setup.h"
 #include "expose_propagation_setup/expose_mass_rate_setup.h"
@@ -42,6 +43,9 @@ namespace propagation_setup {
 
 void expose_propagation_setup(py::module &m) {
 
+
+    auto thrust_setup = m.def_submodule("thrust");
+    thrust::expose_thrust_setup(thrust_setup);
 
     auto acceleration_setup = m.def_submodule("acceleration");
     acceleration::expose_acceleration_setup(acceleration_setup);
