@@ -64,16 +64,6 @@ void expose_acceleration_setup(py::module &m) {
             .value("solar_sail_acceleration_type", tba::AvailableAcceleration::solar_sail_acceleration, get_docstring("AvailableAcceleration.solar_sail_acceleration_type").c_str())
             .export_values();
 
-<<<<<<< HEAD
-=======
-    py::enum_<tss::ThrustFrames>(m, "ThrustFrames",
-                                 get_docstring("ThrustFrames").c_str())
-            .value("unspecified_thrust_frame_type", tss::ThrustFrames::unspecified_thrust_frame, get_docstring("ThrustFrames.unspecified_thrust_frame_type").c_str())
-            .value("inertial_thrust_frame_type", tss::ThrustFrames::inertial_thrust_frame, get_docstring("ThrustFrames.inertial_thrust_frame_type").c_str())
-            .value("lvlh_thrust_frame_type", tss::ThrustFrames::lvlh_thrust_frame, get_docstring("ThrustFrames.lvlh_thrust_frame_type").c_str())
-            .export_values();
-
->>>>>>> origin/develop
     //////////////////////////////////////////////////////////////////////////////
     // accelerationSettings.h
     //////////////////////////////////////////////////////////////////////////////
