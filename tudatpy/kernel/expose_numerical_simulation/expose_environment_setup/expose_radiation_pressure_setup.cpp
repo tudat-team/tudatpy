@@ -37,14 +37,15 @@ namespace radiation_pressure {
         /////////////////////////////////////////////////////////////////////////////
         py::enum_<tss::RadiationPressureType>(m, "RadiationPressureType",
                                               get_docstring("RadiationPressureType").c_str())
-                .value(
-                        "cannonball_radiation_pressure_interface",
-                        tss::RadiationPressureType::cannon_ball_radiation_pressure_interface)
+                .value("cannonball_radiation_pressure_interface",
+                        tss::RadiationPressureType::cannon_ball_radiation_pressure_interface,
+                        get_docstring("RadiationPressureType.cannonball_radiation_pressure_interface").c_str())
                 .value("panelled_radiation_pressure_interface",
-                       tss::RadiationPressureType::panelled_radiation_pressure_interface)
+                       tss::RadiationPressureType::panelled_radiation_pressure_interface,
+                       get_docstring("RadiationPressureType.panelled_radiation_pressure_interface").c_str())
                 .value("solar_sailing_radiation_pressure_interface",
-                       tss::RadiationPressureType::
-                       solar_sailing_radiation_pressure_interface)
+                       tss::RadiationPressureType::solar_sailing_radiation_pressure_interface,
+                       get_docstring("RadiationPressureType.solar_sailing_radiation_pressure_interface").c_str())
                 .export_values();
 
 
