@@ -41,7 +41,8 @@ namespace shape {
                 tss::BodyShapeSettings>(m, "SphericalBodyShapeSettings",
                                         get_docstring("SphericalBodyShapeSettings").c_str())
                 .def_property("radius", &tss::SphericalBodyShapeSettings::getRadius,
-                              &tss::SphericalBodyShapeSettings::resetRadius);
+                              &tss::SphericalBodyShapeSettings::resetRadius,
+                              get_docstring("SphericalBodyShapeSettings.radius").c_str());
 
 
         py::class_<tss::OblateSphericalBodyShapeSettings,
@@ -49,9 +50,11 @@ namespace shape {
                 tss::BodyShapeSettings>(m, "OblateSphericalBodyShapeSettings",
                                         get_docstring("OblateSphericalBodyShapeSettings").c_str())
                 .def_property("equatorial_radius", &tss::OblateSphericalBodyShapeSettings::getEquatorialRadius,
-                              &tss::OblateSphericalBodyShapeSettings::resetEquatorialRadius)
+                              &tss::OblateSphericalBodyShapeSettings::resetEquatorialRadius,
+                              get_docstring("OblateSphericalBodyShapeSettings.equatorial_radius").c_str())
                 .def_property("flattening", &tss::OblateSphericalBodyShapeSettings::getFlattening,
-                              &tss::OblateSphericalBodyShapeSettings::resetFlattening);
+                              &tss::OblateSphericalBodyShapeSettings::resetFlattening,
+                              get_docstring("OblateSphericalBodyShapeSettings.flattening").c_str());
 
 
         m.def("spherical",
