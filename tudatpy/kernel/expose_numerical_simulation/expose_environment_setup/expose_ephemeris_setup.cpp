@@ -49,12 +49,16 @@ namespace ephemeris {
 //                 py::arg("frame_origin") = "SSB",
 //                 py::arg("frame_orientation") = "ECLIPJ2000")
                 .def_property("frame_origin", &tss::EphemerisSettings::getFrameOrigin,
-                              &tss::EphemerisSettings::resetFrameOrigin)
+                              &tss::EphemerisSettings::resetFrameOrigin,
+                              get_docstring("EphemerisSettings.frame_origin").c_str())
                 .def_property("frame_orientation", &tss::EphemerisSettings::getFrameOrientation,
-                              &tss::EphemerisSettings::resetFrameOrientation)
+                              &tss::EphemerisSettings::resetFrameOrientation,
+                              get_docstring("EphemerisSettings.frame_orientation").c_str())
                 .def_property("make_multi_arc_ephemeris", &tss::EphemerisSettings::getMakeMultiArcEphemeris,
-                              &tss::EphemerisSettings::resetMakeMultiArcEphemeris)
-                .def_property_readonly("ephemeris_type", &tss::EphemerisSettings::getEphemerisType);
+                              &tss::EphemerisSettings::resetMakeMultiArcEphemeris,
+                              get_docstring("EphemerisSettings.make_multi_arc_ephemeris").c_str())
+                .def_property_readonly("ephemeris_type", &tss::EphemerisSettings::getEphemerisType,
+                                       get_docstring("EphemerisSettings.ephemeris_type").c_str());
 
         py::class_<tss::DirectSpiceEphemerisSettings,
                 std::shared_ptr<tss::DirectSpiceEphemerisSettings>,
@@ -69,12 +73,15 @@ namespace ephemeris {
 //                py::arg("converge_light_time_aberration") = false,
 //                py::arg("ephemeris_type") = tss::direct_spice_ephemeris)
                 .def_property_readonly("correct_for_stellar_aberration",
-                                       &tss::DirectSpiceEphemerisSettings::getCorrectForStellarAberration)
+                                       &tss::DirectSpiceEphemerisSettings::getCorrectForStellarAberration,
+                                       get_docstring("DirectSpiceEphemerisSettings.correct_for_stellar_aberration").c_str())
                 .def_property_readonly("correct_for_light_time_aberration",
-                                       &tss::DirectSpiceEphemerisSettings::getCorrectForLightTimeAberration)
+                                       &tss::DirectSpiceEphemerisSettings::getCorrectForLightTimeAberration,
+                                       get_docstring("DirectSpiceEphemerisSettings.correct_for_light_time_aberration").c_str())
                 .def_property_readonly("converge_light_time_aberration",
                         // TODO : Fix getConvergeLighTimeAberration typo in Tudat.
-                                       &tss::DirectSpiceEphemerisSettings::getConvergeLighTimeAberration);
+                                       &tss::DirectSpiceEphemerisSettings::getConvergeLighTimeAberration,
+                                       get_docstring("DirectSpiceEphemerisSettings.converge_light_time_aberration").c_str());
 
 
         py::class_<tss::InterpolatedSpiceEphemerisSettings,
@@ -89,16 +96,20 @@ namespace ephemeris {
 //                 py::arg("frame_orientation") = "ECLIPJ2000",
 //                 py::arg("interpolator_settings") = std::make_shared<
 //            tudat::interpolators::LagrangeInterpolatorSettings>(6))
-                .def_property_readonly("initial_time", &tss::InterpolatedSpiceEphemerisSettings::getInitialTime)
-                .def_property_readonly("final_time", &tss::InterpolatedSpiceEphemerisSettings::getFinalTime)
-                .def_property_readonly("time_step", &tss::InterpolatedSpiceEphemerisSettings::getTimeStep);
+                .def_property_readonly("initial_time", &tss::InterpolatedSpiceEphemerisSettings::getInitialTime,
+                                       get_docstring("InterpolatedSpiceEphemerisSettings.initial_time").c_str())
+                .def_property_readonly("final_time", &tss::InterpolatedSpiceEphemerisSettings::getFinalTime,
+                                       get_docstring("InterpolatedSpiceEphemerisSettings.final_time").c_str())
+                .def_property_readonly("time_step", &tss::InterpolatedSpiceEphemerisSettings::getTimeStep,
+                                       get_docstring("InterpolatedSpiceEphemerisSettings.time_step").c_str());
 
 
         py::class_<tss::ApproximateJplEphemerisSettings,
                 std::shared_ptr<tss::ApproximateJplEphemerisSettings>,
                 tss::EphemerisSettings>(m, "ApproximateJplEphemerisSettings",
                                         get_docstring("ApproximateJplEphemerisSettings").c_str())
-                .def_property_readonly("body_name", &tss::ApproximateJplEphemerisSettings::getBodyName);
+                .def_property_readonly("body_name", &tss::ApproximateJplEphemerisSettings::getBodyName,
+                                       get_docstring("ApproximateJplEphemerisSettings.body_name").c_str());
 
 
         py::class_<tss::ConstantEphemerisSettings,
@@ -123,7 +134,8 @@ namespace ephemeris {
 //                py::arg("frame_origin") = "SSB",
 //                py::arg("frame_orientation") = "ECLIPJ2000")
                 .def_property_readonly("get_custom_state_function",
-                                       &tss::CustomEphemerisSettings::getCustomStateFunction);
+                                       &tss::CustomEphemerisSettings::getCustomStateFunction,
+                                       get_docstring("CustomEphemerisSettings.get_custom_state_function").c_str());
 
 
         py::class_<tss::KeplerEphemerisSettings,
@@ -142,15 +154,20 @@ namespace ephemeris {
 //            200.0 * std::numeric_limits<double>::epsilon(),
 //                 py::arg("root_finder_maximum_number_of_iterations") = 1000.0)
                 .def_property_readonly("initial_state_in_keplerian_elements",
-                                       &tss::KeplerEphemerisSettings::getInitialStateInKeplerianElements)
+                                       &tss::KeplerEphemerisSettings::getInitialStateInKeplerianElements,
+                                       get_docstring("KeplerEphemerisSettings.initial_state_in_keplerian_elements").c_str())
                 .def_property_readonly("epoch_of_initial_state",
-                                       &tss::KeplerEphemerisSettings::getEpochOfInitialState)
+                                       &tss::KeplerEphemerisSettings::getEpochOfInitialState,
+                                       get_docstring("KeplerEphemerisSettings.epoch_of_initial_state").c_str())
                 .def_property_readonly("central_body_gravitational_parameter",
-                                       &tss::KeplerEphemerisSettings::getCentralBodyGravitationalParameter)
+                                       &tss::KeplerEphemerisSettings::getCentralBodyGravitationalParameter,
+                                       get_docstring("KeplerEphemerisSettings.central_body_gravitational_parameter").c_str())
                 .def_property_readonly("root_finder_absolute_tolerance",
-                                       &tss::KeplerEphemerisSettings::getRootFinderAbsoluteTolerance)
+                                       &tss::KeplerEphemerisSettings::getRootFinderAbsoluteTolerance,
+                                       get_docstring("KeplerEphemerisSettings.root_finder_absolute_tolerance").c_str())
                 .def_property_readonly("root_finder_maximum_number_of_iterations",
-                                       &tss::KeplerEphemerisSettings::getRootFinderMaximumNumberOfIterations);
+                                       &tss::KeplerEphemerisSettings::getRootFinderMaximumNumberOfIterations,
+                                       get_docstring("KeplerEphemerisSettings.root_finder_maximum_number_of_iterations").c_str());
 
 
         py::class_<tss::TabulatedEphemerisSettings,
@@ -160,9 +177,11 @@ namespace ephemeris {
 //            .def(py::init<const std::map<double, Eigen::Vector6d> &, std::string,
 //                 std::string>())
                 .def_property_readonly("body_state_history",
-                                       &tss::TabulatedEphemerisSettings::getBodyStateHistory)
+                                       &tss::TabulatedEphemerisSettings::getBodyStateHistory,
+                                       get_docstring("TabulatedEphemerisSettings.body_state_history").c_str())
                 .def_property("use_long_double_states", &tss::TabulatedEphemerisSettings::getUseLongDoubleStates,
-                              &tss::TabulatedEphemerisSettings::setUseLongDoubleStates);
+                              &tss::TabulatedEphemerisSettings::setUseLongDoubleStates,
+                              get_docstring("TabulatedEphemerisSettings.use_long_double_states").c_str());
 
 
         m.def("create_ephemeris", &tss::createBodyEphemeris,

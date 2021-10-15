@@ -57,7 +57,8 @@ namespace gravity_field {
                 get_docstring("GravityFieldSettings").c_str())
 //            .def(py::init<const tss::GravityFieldType>(),
 //                 py::arg("gravity_field_type"))
-                .def_property_readonly("gravity_field_type", &tss::GravityFieldSettings::getGravityFieldType);
+                .def_property_readonly("gravity_field_type", &tss::GravityFieldSettings::getGravityFieldType,
+                                       get_docstring("GravityFieldSettings.gravity_field_type").c_str());
 
 
         py::class_<tss::CentralGravityFieldSettings, std::shared_ptr<tss::CentralGravityFieldSettings>,
@@ -65,7 +66,8 @@ namespace gravity_field {
                                            get_docstring("CentralGravityFieldSettings").c_str())
 //            .def(py::init<double>(), py::arg("gravitational_parameter") )
                 .def_property("gravitational_parameter", &tss::CentralGravityFieldSettings::getGravitationalParameter,
-                              &tss::CentralGravityFieldSettings::resetGravitationalParameter);
+                              &tss::CentralGravityFieldSettings::resetGravitationalParameter,
+                              get_docstring("CentralGravityFieldSettings.gravitational_parameter").c_str());
 
 
         py::class_<tss::SphericalHarmonicsGravityFieldSettings, std::shared_ptr<tss::SphericalHarmonicsGravityFieldSettings>,
@@ -76,27 +78,32 @@ namespace gravity_field {
 //                 py::arg("sine_coefficients"), py::arg("associated_reference_frame"))
                 .def_property("gravitational_parameter",
                               &tss::SphericalHarmonicsGravityFieldSettings::getGravitationalParameter,
-                              &tss::SphericalHarmonicsGravityFieldSettings::resetGravitationalParameter)
+                              &tss::SphericalHarmonicsGravityFieldSettings::resetGravitationalParameter,
+                              get_docstring("SphericalHarmonicsGravityFieldSettings.gravitational_parameter").c_str())
                 .def_property("normalized_cosine_coefficients",
                               &tss::SphericalHarmonicsGravityFieldSettings::getCosineCoefficients,
-                              &tss::SphericalHarmonicsGravityFieldSettings::resetCosineCoefficients)
+                              &tss::SphericalHarmonicsGravityFieldSettings::resetCosineCoefficients,
+                              get_docstring("SphericalHarmonicsGravityFieldSettings.normalized_cosine_coefficients").c_str())
                 .def_property("normalized_sine_coefficients",
                               &tss::SphericalHarmonicsGravityFieldSettings::getSineCoefficients,
-                              &tss::SphericalHarmonicsGravityFieldSettings::resetSineCoefficients)
+                              &tss::SphericalHarmonicsGravityFieldSettings::resetSineCoefficients,
+                              get_docstring("SphericalHarmonicsGravityFieldSettings.normalized_sine_coefficients").c_str())
                 .def_property("associated_reference_frame",
                               &tss::SphericalHarmonicsGravityFieldSettings::getAssociatedReferenceFrame,
-                              &tss::SphericalHarmonicsGravityFieldSettings::resetAssociatedReferenceFrame)
+                              &tss::SphericalHarmonicsGravityFieldSettings::resetAssociatedReferenceFrame,
+                              get_docstring("SphericalHarmonicsGravityFieldSettings.associated_reference_frame").c_str())
                 .def_property("create_time_dependent_field",
                               &tss::SphericalHarmonicsGravityFieldSettings::getCreateTimeDependentField,
-                              &tss::SphericalHarmonicsGravityFieldSettings::setCreateTimeDependentField)
+                              &tss::SphericalHarmonicsGravityFieldSettings::setCreateTimeDependentField,
+                              get_docstring("SphericalHarmonicsGravityFieldSettings.create_time_dependent_field").c_str())
                 .def_property_readonly("reference_radius",
-                                       &tss::SphericalHarmonicsGravityFieldSettings::getReferenceRadius);
+                                       &tss::SphericalHarmonicsGravityFieldSettings::getReferenceRadius,
+                                       get_docstring("SphericalHarmonicsGravityFieldSettings.reference_radius").c_str());
 
 
         py::class_<tss::FromFileSphericalHarmonicsGravityFieldSettings, std::shared_ptr<tss::FromFileSphericalHarmonicsGravityFieldSettings>,
                 tss::SphericalHarmonicsGravityFieldSettings>(m, "FromFileSphericalHarmonicsGravityFieldSettings",
-                                                             get_docstring(
-                                                                     "FromFileSphericalHarmonicsGravityFieldSettings").c_str());
+                                                             get_docstring("FromFileSphericalHarmonicsGravityFieldSettings").c_str());
 
 
         m.def("central",
