@@ -71,10 +71,13 @@ namespace rotation_model {
 //                 const std::string &>(),
 //                 py::arg("rotation_type"), py::arg("base_frame"),
 //                 py::arg("target_frame"))
-                .def_property_readonly("rotation_type", &tss::RotationModelSettings::getRotationType)
+                .def_property_readonly("rotation_type", &tss::RotationModelSettings::getRotationType,
+                                       get_docstring("RotationModelSettings.rotation_type").c_str())
                 .def_property("base_frame", &tss::RotationModelSettings::getOriginalFrame,
-                              &tss::RotationModelSettings::resetOriginalFrame)
-                .def_property_readonly("target_frame", &tss::RotationModelSettings::getTargetFrame);
+                              &tss::RotationModelSettings::resetOriginalFrame,
+                              get_docstring("RotationModelSettings.base_frame").c_str()))
+                .def_property_readonly("target_frame", &tss::RotationModelSettings::getTargetFrame,
+                                       get_docstring("RotationModelSettings.target_frame").c_str());
 
 
         m.def("simple",

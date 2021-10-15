@@ -43,7 +43,8 @@ namespace atmosphere {
                 std::shared_ptr<tss::AtmosphereSettings>>(m, "AtmosphereSettings",
                                                           get_docstring("AtmosphereSettings").c_str())
                 .def_property("wind_settings", &tss::AtmosphereSettings::getWindSettings,
-                              &tss::AtmosphereSettings::setWindSettings);
+                              &tss::AtmosphereSettings::setWindSettings,
+                              get_docstring("AtmosphereSettings.wind_settings").c_str());
 
         py::class_<tss::ExponentialAtmosphereSettings,
                 std::shared_ptr<tss::ExponentialAtmosphereSettings>,
