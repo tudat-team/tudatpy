@@ -17,6 +17,7 @@
 
 namespace py = pybind11;
 namespace tba = tudat::basic_astrodynamics;
+namespace tmg = tudat::mission_geometry;
 
 namespace tudatpy {
 
@@ -26,6 +27,15 @@ void expose_fundamentals(py::module &m) {
       tba::AccelerationModel<Eigen::Vector3d>,
       std::shared_ptr<tba::AccelerationModel<Eigen::Vector3d>>>
       acceleration_model(m, "AccelerationModel");
+
+  m.def("compute_shadow_function",
+        &tmg::computeShadowFunction,
+        py::arg("occulted_body_position"),
+        py::arg("occulted_body_radius"),
+        py::arg("occulting_body_position"),
+        py::arg("occulting_body_radius"),
+        py::arg("satellite_position") );
+
 
   // TODO: This should be moved in the tudat source to propagation_setup.
 //  py::enum_<tba::AvailableAcceleration>(m, "AvailableAcceleration")
