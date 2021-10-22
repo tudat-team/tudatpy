@@ -307,6 +307,77 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
 }
 
 template< typename InitialStateParameterType = double >
+std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > getInitialMultiArcParameterSettings(
+        const std::shared_ptr< propagators::MultiArcPropagatorSettings< InitialStateParameterType > > propagatorSettings,
+        const SystemOfBodies& bodies,
+        const std::vector< double > arcStartTimes )
+{
+    using namespace estimatable_parameters;
+    using namespace propagators;
+
+    std::vector< std::shared_ptr< SingleArcPropagatorSettings< InitialStateParameterType > > > singleArcSettings =
+            propagatorSettings->getSingleArcSettings( );
+    std::vector< std::shared_ptr< TranslationalStatePropagatorSettings< InitialStateParameterType > > > singleArcTranslationalSettings;
+
+    std::vector< std::string > propagatedBodies;
+    std::vector< std::string > centralBodies;
+    std::vector< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > initialStates;
+
+    for( unsigned int i = 0; i < singleArcSettings.size( ); i++ )
+    {
+        singleArcTranslationalSettings.push_back(
+                std::dynamic_pointer_cast< TranslationalStatePropagatorSettings< InitialStateParameterType > >(
+                        singleArcSettings.at( i ) ) );
+        if( singleArcTranslationalSettings.at( i ) == nullptr )
+        {
+            throw std::runtime_error( "Only translational state supported when auto-creating multi-arc initial state settings" );
+        }
+        else
+        {
+
+            initialStates.push_back( singleArcTranslationalSettings.at( i )->getInitialStates( ) );
+            if( i == 0 )
+            {
+                propagatedBodies = singleArcTranslationalSettings.at( i )->bodiesToIntegrate_;
+                centralBodies = singleArcTranslationalSettings.at( i )->centralBodies_;
+            }
+            else
+            {
+                if( !( propagatedBodies == ( singleArcTranslationalSettings.at( i )->bodiesToIntegrate_ ) ) )
+                {
+                    throw std::runtime_error( "Only equal bodies per arc supported when auto-creating multi-arc initial state settings" );
+                }
+
+                if( !( centralBodies == ( singleArcTranslationalSettings.at( i )->centralBodies_ ) ) )
+                {
+                    throw std::runtime_error( "Only equal central bodies per arc supported when auto-creating multi-arc initial state settings" );
+                }
+            }
+        }
+    }
+
+    std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > arcwiseInitialStates;
+    for( unsigned int i = 0; i < propagatedBodies.size( ); i++ )
+    {
+        Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > multiArcInitialStateValue =
+                Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >::Zero( 6 * initialStates.size( ) );
+        for( int j = 0; j < initialStates.size( ); j++ )
+        {
+            multiArcInitialStateValue.segment( j * 6, 6 ) = initialStates.at( j ).segment( i * 6, 6 );
+        }
+        arcwiseInitialStates.push_back(
+                std::make_shared<
+                        ArcWiseInitialTranslationalStateEstimatableParameterSettings< InitialStateParameterType > >(
+                        propagatedBodies.at( i ),
+                        multiArcInitialStateValue,
+                        arcStartTimes,
+                        centralBodies.at( i ),
+                        bodies.getFrameOrientation( ) ) );
+    }
+    return arcwiseInitialStates;
+}
+
+template< typename InitialStateParameterType = double >
 std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > getInitialStateParameterSettings(
         const std::shared_ptr< propagators::PropagatorSettings< InitialStateParameterType > > propagatorSettings,
         const SystemOfBodies& bodies )
