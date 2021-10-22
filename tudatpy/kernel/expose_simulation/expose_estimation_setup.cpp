@@ -74,6 +74,16 @@ namespace tudat
 
     }
 
+    namespace estimatable_parameters{
+
+
+        inline std::shared_ptr< tep::EstimatableParameterSettings > DesaturationDeltaV( const std::string bodyName )
+        {
+            return std::make_shared< tep::EstimatableParameterSettings >( bodyName, desaturation_delta_v_values );
+        }
+
+    }
+
 }
 
 namespace tudatpy {
@@ -470,6 +480,12 @@ void expose_estimated_parameter_setup(py::module &m) {
           &tss::getInitialStateParameterSettings< double >,
           py::arg("propagator_settings"), py::arg("bodies") );
 
+    m.def("multi_arc_initial_states",
+          &tss::getInitialMultiArcParameterSettings< double >,
+          py::arg("multi_arc_propagator_settings"),
+          py::arg("bodies"),
+          py::arg("arc_initial_times "));
+
     m.def("gravitational_parameter",
           &tep::gravitationalParameter,
           py::arg("body_name") );
@@ -512,10 +528,13 @@ void expose_estimated_parameter_setup(py::module &m) {
           py::arg("block_indices") );
 
 
+    m.def("desaturation_delta_v_values",
+          &tep::DesaturationDeltaV,
+          py::arg("body_name") );
+
     m.def("constant_drag_coefficient",
           &tep::constantDragCoefficient,
           py::arg("body_name") );
-
 
     m.def("radiation_pressure_coefficient",
           &tep::radiationPressureCoefficient,
@@ -659,6 +678,19 @@ void expose_estimated_parameter_setup(py::module &m) {
           &tep::constantEmpiricalAccelerationMagnitudes,
           py::arg("body"),
           py::arg("centralBody") );
+
+
+    // Michael
+
+    //    inline std::shared_ptr< SingleDependentVariableSaveSettings > singleTorqueNormVariable(
+    //            const basic_astrodynamics::AvailableTorque torqueModelType,
+    //            const std::string& bodyUndergoingTorque,
+    //            const std::string& bodyExertingTorque )
+    //    {
+    //        return std::make_shared< SingleTorqueDependentVariableSaveSettings >(
+    //                    torqueModelType, bodyUndergoingTorque, bodyExertingTorque, true );
+    //    }
+
 }
 
 void expose_estimation_setup(py::module &m) {
@@ -807,12 +839,28 @@ void expose_estimation_setup(py::module &m) {
             .def( "set_constant_weight",
                   &tss::PodInput<double, double>::setConstantWeightsMatrix,
                   py::arg( "weight" ) )
+            .def_property_readonly("weights_matrix",
+                                   &tss::PodInput<double, double>::getWeightsMatrixDiagonals)
             .def( "set_constant_weight_per_observable",
                   &tss::PodInput<double, double>::setConstantPerObservableWeightsMatrix,
                   py::arg( "weight_per_observable" ) )
             .def( "set_constant_weight_per_observable_and_link_end",
-                  &tss::PodInput<double, double>::setConstantPerObservableAndLinkEndsWeights,
+                  py::overload_cast<
+                          const std::map< tom::ObservableType, std::map< tom::LinkEnds, double > >
+                          >( &tss::PodInput<double, double>::setConstantPerObservableAndLinkEndsWeights),
                   py::arg( "weight_per_observable_and_link" ) )
+                    // Michael
+            .def_property_readonly("weights_matrix",
+                                   &tss::PodInput<double, double>::getWeightsMatrixDiagonals)
+            .def( "set_constant_weight_per_observable_and_link_end",
+                  py::overload_cast<
+                          const tom::ObservableType,
+                          const std::vector< tom::LinkEnds >&,
+                          const double>( &tss::PodInput<double, double>::setConstantPerObservableAndLinkEndsWeights),
+                  py::arg( "ObservableType" ),
+                  py::arg( "link_ends" ),
+                  py::arg( "weight" ))
+
             .def( "define_estimation_settings",
                   &tss::PodInput<double, double>::defineEstimationSettings,
                   py::arg( "reintegrate_equations_on_first_iteration" ) = true,
@@ -831,11 +879,7 @@ void expose_estimation_setup(py::module &m) {
                                         &tss::PodOutput<double, double>::getUnnormalizedCovarianceMatrix)
                 .def_property_readonly("formal_errors",
                                         &tss::PodOutput<double, double>::getFormalErrorVector)
-                // Michael
-                .def_property_readonly("weights_matrix",
-                                       &tss::PodInput<double, double>::getWeightsMatrixDiagonals)
-
-                .def_property_readonly("cogit purrelations",
+                .def_property_readonly("correlations",
                                         &tss::PodOutput<double, double>::getCorrelationMatrix)
                 .def_property_readonly("residual_history",
                                         &tss::PodOutput<double, double>::getResidualHistoryMatrix)
@@ -848,8 +892,11 @@ void expose_estimation_setup(py::module &m) {
                 .def_property_readonly("weighted_design_matrix",
                                         &tss::PodOutput<double, double>::getUnnormalizedWeightedInformationMatrix)
                 .def_property_readonly("weighted_normalized_design_matrix",
-                                        &tss::PodOutput<double, double>::getNormalizedWeightedInformationMatrix);
-
+                                        &tss::PodOutput<double, double>::getNormalizedWeightedInformationMatrix)
+                .def_property_readonly("dependent_variable_history",
+                                       &tss::PodOutput<double, double>::getDependentVariableHistory)
+                .def_property_readonly("dynamics_history",
+                                       &tss::PodOutput<double, double>::getDynamicsHistory);
 
     py::class_<
             tss::OrbitDeterminationManager<double, double>,
@@ -857,13 +904,13 @@ void expose_estimation_setup(py::module &m) {
             .def(py::init<const tss::SystemOfBodies&,
                  const std::shared_ptr< tep::EstimatableParameterSet< double > >,
                  const std::vector< std::shared_ptr< tom::ObservationModelSettings > >&,
-                 const std::shared_ptr< tni::IntegratorSettings< double > >,
+                 const std::vector< std::shared_ptr< tni::IntegratorSettings< double > > >,
                  const std::shared_ptr< tp::PropagatorSettings< double > >,
                  const bool >( ),
                  py::arg("bodies"),
                  py::arg("estimated_parameters"),
                  py::arg("observation_settings"),
-                 py::arg("integrator_settings"),
+                 py::arg("integrator_settings_list"),
                  py::arg("propagator_settings"),
                  py::arg("integrate_on_creation") = true  )
             .def_property_readonly("observation_simulators",
