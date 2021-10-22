@@ -439,13 +439,37 @@ public:
                     resetParameterEstimate( newParameterEstimate, podInput->getReintegrateVariationalEquations( ) );
                 }
 
+/*
                 if( podInput->getSaveStateHistoryForEachIteration( ) )
                 {
                     dynamicsHistoryPerIteration.push_back(
                                 variationalEquationsSolver_->getDynamicsSimulatorBase( )->getEquationsOfMotionNumericalSolutionBase( ) );
                     dependentVariableHistoryPerIteration.push_back(
                                 variationalEquationsSolver_->getDynamicsSimulatorBase( )->getDependentVariableNumericalSolutionBase( ) );
+                }*/
+
+                // Michael
+                if( podInput->getSaveStateHistoryForEachIteration( ) )
+                {
+                    if( std::dynamic_pointer_cast< propagators::HybridArcVariationalEquationsSolver< ObservationScalarType, TimeType > >(  variationalEquationsSolver_) != nullptr )
+                    {
+
+                        std::shared_ptr< propagators::HybridArcVariationalEquationsSolver< ObservationScalarType, TimeType > > hybridArcSolver =
+                                std::dynamic_pointer_cast< propagators::HybridArcVariationalEquationsSolver< ObservationScalarType, TimeType > >(  variationalEquationsSolver_);
+
+                    dynamicsHistoryPerIteration.push_back(
+                            hybridArcSolver->getMultiArcSolver( )->getDynamicsSimulatorBase( )->getEquationsOfMotionNumericalSolutionBase( ));
+                    dependentVariableHistoryPerIteration.push_back(
+                        hybridArcSolver->getMultiArcSolver( )->getDynamicsSimulatorBase( )->getDependentVariableNumericalSolutionBase( ));
+
+                       /* dynamicsHistoryPerIteration.push_back(
+                                hybridArcSolver->getSingleArcSolver( )->getDynamicsSimulatorBase( )->getEquationsOfMotionNumericalSolutionBase( ));
+                        dependentVariableHistoryPerIteration.push_back(
+                                hybridArcSolver->getSingleArcSolver( )->getDynamicsSimulatorBase( )->getDependentVariableNumericalSolutionBase( ));
+*/
+                    }
                 }
+
             }
 //            catch( std::runtime_error& error )
 //            {
