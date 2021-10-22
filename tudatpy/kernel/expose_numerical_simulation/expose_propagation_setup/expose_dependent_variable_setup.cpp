@@ -266,12 +266,12 @@ namespace dependent_variable {
         m.def("temperature",
               &tp::localTemperatureDependentVariable,
               py::arg("body"),
-              get_docstring("local_temperature").c_str());
+              get_docstring("temperature").c_str());
 
         m.def("dynamic_pressure",
               &tp::localDynamicPressureDependentVariable,
               py::arg("body"),
-              get_docstring("local_dynamic_pressure").c_str());
+              get_docstring("dynamic_pressure").c_str());
 
 //        m.def("local_aerodynamic_heat_rate",
 //              &tp::localAerodynamicHeatRateDependentVariable,
