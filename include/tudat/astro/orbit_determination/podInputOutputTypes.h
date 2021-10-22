@@ -128,6 +128,9 @@ public:
         }
     }
 
+
+
+
     //! Function to set a values for observation weights, constant per observable type and link ends type
     /*!
      * Function to set a values for observation weights, constant per observable type and link ends type
@@ -176,6 +179,18 @@ public:
             }
 
         }
+    }
+    void setConstantPerObservableAndLinkEndsWeights(
+            const observation_models::ObservableType observableType,
+            const std::vector< observation_models::LinkEnds >& linkEnds,
+            const double weight )
+    {
+        std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds, double > > weightPerObservableAndLinkEnds;
+        for( unsigned int i = 0; i < linkEnds.size( ); i++ )
+        {
+            weightPerObservableAndLinkEnds[ observableType ][ linkEnds.at( i ) ] =  weight;
+        }
+        setConstantPerObservableAndLinkEndsWeights( weightPerObservableAndLinkEnds );
     }
 
     //! Function to define specific settings for estimation process
@@ -531,7 +546,16 @@ struct PodOutput
     {
         return normalizedInformationMatrix_;
     }
-
+    // Michael
+    std::vector< std::vector< std::map< TimeType, Eigen::VectorXd > > > getDependentVariableHistory( )
+    {
+        return dependentVariableHistoryPerIteration_;
+    }
+    // Michael
+    std::vector< std::vector< std::map< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > > > getDynamicsHistory( )
+    {
+        return dynamicsHistoryPerIteration_;
+    }
     Eigen::MatrixXd getNormalizedWeightedInformationMatrix( )
     {
         Eigen::MatrixXd weightedNormalizedInformationMatrix = normalizedInformationMatrix_;
