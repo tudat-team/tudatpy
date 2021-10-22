@@ -465,6 +465,13 @@ void expose_acceleration_setup(py::module &m) {
           py::arg( "acceleration_function" ),
           py::arg( "scaling_function" ) = nullptr );
 
+    // Michael
+    m.def("momentum_wheel_desaturation_acceleration", &tss::momentumWheelDesaturationAcceleration,
+          py::arg( "thrust_mid_times" ),
+          py::arg( "delta_v_values" ),
+          py::arg( "total_maneuver_times" ),
+          py::arg( "maneuver_rise_time" ));
+
     // TODO: add overloaded methods
     m.def("thrust_acceleration", py::overload_cast<const std::shared_ptr<tss::ThrustDirectionGuidanceSettings>,
           const std::shared_ptr<tss::ThrustMagnitudeSettings>>(&tss::thrustAcceleration),
@@ -936,6 +943,20 @@ void expose_propagator_setup(py::module &m)
             .def_property("termination_settings",
                           &tp::SingleArcPropagatorSettings<double>::getTerminationSettings,
                           &tp::SingleArcPropagatorSettings<double>::resetTerminationSettings);
+
+    py::class_<
+            tp::MultiArcPropagatorSettings<double>,
+            std::shared_ptr<tp::MultiArcPropagatorSettings<double>>,
+            tp::PropagatorSettings<double>>(m, "MultiArcPropagatorSettings")
+            .def_property_readonly("single_arc_propagator_settings",
+                                   &tp::MultiArcPropagatorSettings<double>::getSingleArcSettings);
+
+        py::class_<
+            tp::HybridArcPropagatorSettings<double>,
+            std::shared_ptr<tp::HybridArcPropagatorSettings<double>>,
+            tp::PropagatorSettings<double>>(m, "HybridArcPropagatorSettings")
+            .def_property_readonly("single_arc_propagator_settings",
+                                   &tp::HybridArcPropagatorSettings<double>::getSingleArcPropagatorSettings);
     py::class_<
             tp::TranslationalStatePropagatorSettings<double>,
             std::shared_ptr<tp::TranslationalStatePropagatorSettings<double>>,
@@ -1616,6 +1637,64 @@ void expose_propagation_setup(py::module &m) {
             .def("enable_dependent_variable_terminal_printing",
                  &tp::SingleArcDynamicsSimulator<double, double>::enableDependentVariableDataPrinting);
 
+    py::class_<
+            tp::MultiArcDynamicsSimulator<double, double>,
+            std::shared_ptr<tp::MultiArcDynamicsSimulator<double, double>>>(m, "MultiArcDynamicsSimulator")
+            .def(py::init< //ctor1 for different integration settings between arcs
+                         const tss::SystemOfBodies &,
+                         const std::vector< std::shared_ptr< tni::IntegratorSettings< double >>>,
+                         const std::shared_ptr< tp::PropagatorSettings< double >>,
+                         const bool,
+                         const bool,
+                         const bool >(),
+                 py::arg("body_map"),
+                 py::arg("integrator_settings"),
+                 py::arg("propagator_settings"),
+                 py::arg("are_equations_of_motion_to_be_integrated") = true,
+                 py::arg("clear_numerical_solutions") = false,
+                 py::arg("set_integrated_result") = false )
+            .def(py::init< //ctor2 for same integration settings between arcs
+                         const tss::SystemOfBodies &,
+                         const std::shared_ptr< tni::IntegratorSettings< double >>,
+                         const std::shared_ptr< tp::PropagatorSettings< double >>,
+                         const std::vector< double >,
+                         const bool,
+                         const bool,
+                         const bool >(),
+                 py::arg("body_map"),
+                 py::arg("integrator_settings"),
+                 py::arg("propagator_settings"),
+                 py::arg("arc_start_times"),
+                 py::arg("are_equations_of_motion_to_be_integrated") = true,
+                 py::arg("clear_numerical_solutions") = false,
+                 py::arg("set_integrated_result") = false )
+            .def("get_equations_of_motion_numerical_solution", &tp::MultiArcDynamicsSimulator<double, double>::getEquationsOfMotionNumericalSolution)
+            .def_property_readonly("dependent_variable_history", &tp::MultiArcDynamicsSimulator<double, double>::getDependentVariableHistory);
+
+    py::class_<
+            tp::HybridArcDynamicsSimulator<double, double>,
+            std::shared_ptr<tp::HybridArcDynamicsSimulator<double, double>>>(m, "HybridArcDynamicsSimulator")
+            .def(py::init< //ctor1 for same integration settings between arcs
+                         const tss::SystemOfBodies &,
+                         const std::shared_ptr< tni::IntegratorSettings< double >>,
+                         const std::shared_ptr< tni::IntegratorSettings< double >>,
+                         const std::shared_ptr< tp::PropagatorSettings< double >>,
+                         const std::vector< double >,
+                         const bool,
+                         const bool,
+                         const bool,
+                         const bool >(),
+                 py::arg("body_map"),
+                 py::arg("single_arc_integrator_settings"),
+                 py::arg("multi_arc_integrator_settings"),
+                 py::arg("propagator_settings"),
+                 py::arg("arc_start_times"),
+                 py::arg("are_equations_of_motion_to_be_integrated") = true,
+                 py::arg("clear_numerical_solutions") = true,
+                 py::arg("set_integrated_result") = true,
+                 py::arg("add_single_arc_bodies_to_multi_arc_dynamics") = false )
+            .def("get_equations_of_motion_numerical_solution_base", &tp::HybridArcDynamicsSimulator<double, double>::getEquationsOfMotionNumericalSolutionBase)
+            .def("get_dependent_variables_numerical_solution_base", &tp::HybridArcDynamicsSimulator<double, double>::getDependentVariableNumericalSolutionBase);
 
     //        py::enum_<tp::VariableType>(m, "VariableType")
     //                .value("independent_variable", tp::VariableType::independentVariable)
