@@ -75,7 +75,7 @@ namespace atmosphere {
               py::overload_cast<const std::string &>(
                       &tss::exponentialAtmosphereSettings),
               py::arg("body_name"),
-              get_docstring("exponential").c_str());
+              get_docstring("exponential_predefined").c_str());
 
 
         m.def("exponential",
@@ -86,7 +86,7 @@ namespace atmosphere {
               py::arg("constant_temperature") = 288.15,
               py::arg("specific_gas_constant") = tudat::physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
               py::arg("ratio_specific_heats") = 1.4,
-              get_docstring("exponential", 2).c_str());
+              get_docstring("exponential").c_str());
 
 
         m.def("nrlmsise00",

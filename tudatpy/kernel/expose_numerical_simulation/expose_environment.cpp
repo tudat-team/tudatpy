@@ -196,13 +196,20 @@ void expose_environment(py::module &m) {
             .value("bank_angle", trf::AerodynamicsReferenceFrameAngles::bank_angle)
             .export_values();
 
-    py::enum_<trf::AerodynamicsReferenceFrames>(m, "AerodynamicsReferenceFrames")
-            .value("inertial_frame", trf::AerodynamicsReferenceFrames::inertial_frame)
-            .value("corotating_frame", trf::AerodynamicsReferenceFrames::corotating_frame)
-            .value("vertical_frame", trf::AerodynamicsReferenceFrames::vertical_frame)
-            .value("trajectory_frame", trf::AerodynamicsReferenceFrames::trajectory_frame)
-            .value("aerodynamic_frame", trf::AerodynamicsReferenceFrames::aerodynamic_frame)
-            .value("body_frame", trf::AerodynamicsReferenceFrames::body_frame)
+    py::enum_<trf::AerodynamicsReferenceFrames>(m, "AerodynamicsReferenceFrames",
+                                                get_docstring("AerodynamicsReferenceFrames").c_str())
+            .value("inertial_frame", trf::AerodynamicsReferenceFrames::inertial_frame,
+                   get_docstring("AerodynamicsReferenceFrames.inertial_frame").c_str())
+            .value("corotating_frame", trf::AerodynamicsReferenceFrames::corotating_frame,
+                   get_docstring("AerodynamicsReferenceFrames.corotating_frame").c_str())
+            .value("vertical_frame", trf::AerodynamicsReferenceFrames::vertical_frame,
+                   get_docstring("AerodynamicsReferenceFrames.vertical_frame").c_str())
+            .value("trajectory_frame", trf::AerodynamicsReferenceFrames::trajectory_frame,
+                   get_docstring("AerodynamicsReferenceFrames.trajectory_frame").c_str())
+            .value("aerodynamic_frame", trf::AerodynamicsReferenceFrames::aerodynamic_frame,
+                   get_docstring("AerodynamicsReferenceFrames.aerodynamic_frame").c_str())
+            .value("body_frame", trf::AerodynamicsReferenceFrames::body_frame,
+                   get_docstring("AerodynamicsReferenceFrames.body_frame").c_str())
             .export_values();
 
     py::class_<trf::AerodynamicAngleCalculator,
