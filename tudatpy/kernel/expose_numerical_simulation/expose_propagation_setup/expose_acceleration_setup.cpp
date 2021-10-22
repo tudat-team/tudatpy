@@ -103,7 +103,7 @@ void expose_acceleration_setup(py::module &m) {
             std::shared_ptr<tss::CustomAccelerationSettings>,
             tss::AccelerationSettings>(m, "CustomAccelerationSettings",
                                        get_docstring("CustomAccelerationSettings").c_str());
-    ;
+
 
     py::class_<tss::DirectTidalDissipationAccelerationSettings,
             std::shared_ptr<tss::DirectTidalDissipationAccelerationSettings>,
