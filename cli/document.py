@@ -23,7 +23,8 @@ def main(projects, config):
     projects = [projects] if type(projects) == str else projects
 
 
-    for project in [projects[1]]:# tudatpy only!
+    # for project in [projects[1]]: # tudatpy only!
+    for project in projects: # all projects
         # confirm project exists in .multidoc.cfg
         if project not in projects_found:
             raise KeyError(f"{project} key not found in config file.")
