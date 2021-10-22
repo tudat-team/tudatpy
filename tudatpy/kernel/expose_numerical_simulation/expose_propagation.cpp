@@ -93,6 +93,18 @@ void expose_propagation(py::module &m) {
           &tp::getGeneralizedAccelerationSize,
           py::arg("state_type"));
 
+    m.def("get_state_of_bodies",
+          py::overload_cast<const std::vector<std::string> &,
+          const std::vector<std::string> &,
+          const tss::SystemOfBodies &,
+          const double>(
+              &tp::getInitialStatesOfBodies<>),
+          py::arg("bodies_to_propagate"),
+          py::arg("central_bodies"),
+          py::arg("body_system"),
+          py::arg("initial_time"),
+          get_docstring("get_state_of_bodies").c_str());
+
 
     m.def("get_initial_state_of_bodies",
           py::overload_cast<const std::vector<std::string> &,
@@ -103,8 +115,7 @@ void expose_propagation(py::module &m) {
           py::arg("bodies_to_propagate"),
           py::arg("central_bodies"),
           py::arg("body_system"),
-          py::arg("initial_time"),
-          get_docstring("get_initial_state_of_bodies").c_str());
+          py::arg("initial_time"));
 
     m.def("get_initial_state_of_body",// overload [2/2]
           py::overload_cast<const std::string&,
