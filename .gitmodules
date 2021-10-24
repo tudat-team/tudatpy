@@ -1,0 +1,3 @@
+[submodule "tudatpy-examples"]
+	path = tudatpy-examples
+	url = https://github.com/tudat-team/tudatpy-examples.git
