@@ -1,4 +1,3 @@
-
 ###############################################################################
 # IMPORT STATEMENTS ###########################################################
 ###############################################################################
@@ -12,8 +11,8 @@ from tudatpy.kernel.numerical_simulation import environment_setup
 from tudatpy.kernel.numerical_simulation import propagation_setup
 from tudatpy.kernel import __version__
 
-def main():
 
+def main():
     # Load spice kernels.
     spice_interface.load_standard_kernels()
 
@@ -33,7 +32,7 @@ def main():
     global_frame_origin = "Earth"
     global_frame_orientation = "J2000"
     body_settings = environment_setup.get_default_body_settings(
-        bodies_to_create, global_frame_origin, global_frame_orientation )
+        bodies_to_create, global_frame_origin, global_frame_orientation)
 
     # Create system of bodies (in this case only Earth)
     bodies = environment_setup.create_system_of_bodies(body_settings)
@@ -101,17 +100,69 @@ def main():
     ###########################################################################
 
     # Create simulation object and propagate dynamics.
-    dynamics_simulator = numerical_simulation.SingleArcSimulator(
-        bodies, integrator_settings, propagator_settings, True, integrate_to_termination=False
+    simulator = numerical_simulation.SingleArcSimulator(
+        bodies,
+        integrator_settings,
+        propagator_settings,
+        True
     )
-    dynamics_simulator.integrate_to_termination()
 
     ###########################################################################
-    # PRINT INITIAL AND FINAL STATES ##########################################
+    # SIMULATION EVENT LOOP ###################################################
     ###########################################################################
+    while not simulator.is_terminal():
+        # Access to current body properties.
+        state_sat = bodies.get("Delfi-C3").position
+
+        # Access to instantaneous state history of simulation.
+        # NOTE: This comes with noticeable overhead.
+        # state_history = simulator.state_history
+
+        # Access to instantaneous dependent variable history of simulation.
+        # NOTE: This comes with noticeable overhead, IF dependent
+        # variables are present.
+        dependents_history = simulator.dependent_variable_history
+
+        # integrate_by_step propagates the simulation by desired steps
+        # which designs the simulation event loop.
+        simulator.integrate_by_step(1)
+
+        # For demonstrative purposes.
+        # NOTE: Comment out when profiling.
+        # print("Length of dependents history: ", len(dependents_history))
+        # print("Satellite position: ", state_sat)
+        # print("Length of state history: ", len(state_history))
 
 
-    states = dynamics_simulator.state_history
+    # TODO: Figure out how to modify thrust control during event-loop.
+
+    # Notes
+    # =====
+    #
+    # This design is useful for:
+    #   - Realtime animations (e.g. virtual reality simulation/demonstration).
+    #   - Better transparency of simulation results.
+    #   - Closed-loop analysis (e.g. reinforcement learning).
+    #
+    # In general some users may just opt for this over the opaque
+    # `integrate_to_termination` for better control. They may, for
+    # example, easily design termination conditions that are not
+    # readily available in the API.
+    #
+    # Using
+    # ````
+    # python -m cProfile script.py
+    # ````
+    # Will give detailed insight into the function evaluations and
+    # time spent executing a script. Please note that printing
+    # variables or retrieving the state_history during each
+    # iteration of the event-loop, does not allow for equal
+    # comparison between the event-loop design and the legacy
+    # `integrate_to_completion` feature. Initial results show that
+    # there is non-discernible (or none at all) overhead when calling
+    # the `integrate_by_step` function in Python.
+
+    states = simulator.state_history
     t0 = list(states.keys())[0]
     tf = list(states.keys())[-1]
 
@@ -129,21 +180,9 @@ And the velocity vector of Delfi-C3 is [km]: \n{
         """
     )
 
-
-    ###########################################################################
-    # SAVE RESULTS ############################################################
-    ###########################################################################
-    #
-    # io.save2txt(
-    #     solution=result,
-    #     filename="singleSatellitePropagationHistory.dat",
-    #     directory="./tutorial_1",
-    # )
-
     # Final statement (not required, though good practice in a __main__).
     return 0
 
 
 if __name__ == "__main__":
     main()
-

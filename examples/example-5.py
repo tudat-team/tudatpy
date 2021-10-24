@@ -139,7 +139,7 @@ integrator_settings = propagation_setup.integrator.runge_kutta_4(
 ################################################################################
 
 # Instantiate the dynamics simulator.
-dynamics_simulator = propagation_setup.SingleArcDynamicsSimulator(
+dynamics_simulator = propagation_setup.SingleArcSimulator(
     system_of_bodies, integrator_settings, propagator_settings, True
 )
 

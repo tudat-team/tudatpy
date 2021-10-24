@@ -19,6 +19,9 @@
 #include <pybind11/stl.h>
 #include <pybind11/numpy.h>
 
+#include <tudat/simulation/BaseSimulator.h>
+#include <tudat/simulation/SingleArcSimulator.h>
+
 namespace py = pybind11;
 
 namespace tudatpy {
