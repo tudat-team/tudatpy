@@ -83,6 +83,13 @@ void expose_propagation_setup(py::module &m) {
           py::arg("selected_torque_per_body"),
           py::arg("bodies_to_propagate"),
           get_docstring("create_torque_models").c_str());
+
+    m.def("create_mass_rate_models",
+          &tss::createMassRateModelsMap,
+          py::arg("body_system"),
+          py::arg("selected_mass_rates_per_body"),
+          py::arg("acceleration_models") = nullptr,
+          get_docstring("create_mass_rate_models").c_str());
 }
 }// namespace propagation_setup
 }// namespace numerical_simulation
