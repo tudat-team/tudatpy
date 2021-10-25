@@ -25,8 +25,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 {% for enum in structure.enums %}
 
     } else if(name == "{{ enum.name }}") {
-         return R"(
-             {% filter indent(8) -%}
+         return R"({%- filter indent(8) -%}
              {{ structure[enum.name]['__docstring__'] | safe }}
              {%- endfilter %}
      )";
@@ -35,8 +34,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 {% for member in structure[enum.name].members %}
 
     } else if(name == "{{ enum.name }}.{{ member.name }}") {
-         return R"(
-             {% filter indent(8) -%}
+         return R"({%- filter indent(8) -%}
              {{ structure[enum.name][member.name] | safe }}
              {%- endfilter %}
      )";
@@ -51,8 +49,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 {% for class in structure.classes %}
 
     } else if(name == "{{ class.name }}") {
-         return R"(
-             {% filter indent(8) -%}
+         return R"({%- filter indent(8) -%}
              {{ structure[class.name]['__docstring__'] | safe }}
              {%- endfilter %}
      )";
@@ -61,8 +58,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 {% for property in structure[class.name].properties %}
 
     } else if(name == "{{ class.name }}.{{ property.name }}") {
-         return R"(
-             {% filter indent(8) -%}
+         return R"({%- filter indent(8) -%}
              {{ structure[class.name][property.name] | safe }}
              {%- endfilter %}
      )";
@@ -78,8 +74,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 {%- for v in range(structure[class.name][method.name].overloads) %}
 
     } else if(name == "{{ class.name }}.{{ method.name }}" && variant=={{ v }}) {
-            return R"(
-            {% filter indent(8) -%}
+            return R"({% filter indent(8) -%}
             {{ structure[class.name][method.name][v] | safe }}
             {%- endfilter %}
     )";
@@ -88,8 +83,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 {%- else %}
 
     } else if(name == "{{ class.name }}.{{ method.name }}" && variant==0) {
-            return R"(
-            {% filter indent(8) -%}
+            return R"({% filter indent(8) -%}
             {{ structure[class.name][method.name] | safe }}
             {%- endfilter %}
     )";
@@ -109,8 +103,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 {%- for v in range(structure[function.name].overloads) %}
 
     } else if(name == "{{ function.name }}" && variant=={{ v }}) {
-            return R"(
-            {% filter indent(8) -%}
+            return R"({%- filter indent(8) -%}
             {{ structure[function.name][v] | safe }}
             {%- endfilter %}
     )";
@@ -119,8 +112,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 {%- else %}
 
     } else if(name == "{{ function.name }}" && variant==0) {
-            return R"(
-            {% filter indent(8) -%}
+            return R"({%- filter indent(8) -%}
             {{ structure[function.name] | safe }}
             {%- endfilter %}
     )";
