@@ -4,7 +4,7 @@ from . import logger
 import yaml
 from yaml.parser import ParserError, ScannerError
 from multidoc.regex import p_api_tag
-
+import re
 
 def yaml2dict(path, include_name_error=False, **kwargs):
     """Yaml file parser.
@@ -61,6 +61,7 @@ def yaml2dict(path, include_name_error=False, **kwargs):
     # update the local variable space for eval of tag
     locals().update(kwargs) if kwargs else None
     logger.info(f"Parsing yaml file: {path} with kwargs: {kwargs}")
+    p_api_tag = re.compile(r"(?P<parsed>.*)#\s*\[(?P<expr>.*)\]")
     # open the yaml file!
     with open(path) as file:
         # logger.info(f"Parsing yaml file :{file}")
@@ -73,16 +74,16 @@ def yaml2dict(path, include_name_error=False, **kwargs):
 
         # iterate through lines
         for line in raw_lines:
-            match = p_api_tag.match(line)
+            match = p_api_tag.match(line)  # ->  re.compile(r"(?P<parsed>.*)#\s*\[(?P<expr>.*)\]")
             if match:  # there's an expr on this line
                 try:
                     # if the expr is True, add to lines, else ignore
                     if eval(match.group("expr")):
-                        processed_lines += line
+                        processed_lines += match.group("parsed") + "\n"
                 except NameError:
                     # if the expr raises a NameError (e.g. undefined var in expr)
                     if include_name_error:
-                        processed_lines += line
+                        processed_lines += match.group("parsed") + "\n"
                     else:
                         pass
             else:
