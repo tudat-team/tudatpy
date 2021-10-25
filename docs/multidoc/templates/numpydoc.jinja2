@@ -1,4 +1,7 @@
-{{ start }}
+{%- if parameters -%}
+{{ make_signature(name, parameters, returns) }}
+{% endif %}
+
 {% if short_summary %}
 {{ short_summary }}
 
@@ -95,4 +98,3 @@ Examples
 --------
 {{ examples }}
 {% endif %}
-{{ end }}
