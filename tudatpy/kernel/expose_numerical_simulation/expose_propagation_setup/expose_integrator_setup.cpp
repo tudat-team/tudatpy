@@ -55,13 +55,13 @@ namespace integrator {
             py::enum_<tni::RungeKuttaCoefficients::CoefficientSets>(m, "RKCoefficientSets",
                                                                     get_docstring("RKCoefficientSets").c_str())
                     .value("rkf_45", tni::RungeKuttaCoefficients::rungeKuttaFehlberg45,
-                           get_docstring("AvailableIntegrators.rkf_45").c_str())
+                           get_docstring("RKCoefficientSets.rkf_45").c_str())
                     .value("rkf_56", tni::RungeKuttaCoefficients::rungeKuttaFehlberg56,
-                           get_docstring("AvailableIntegrators.rkf_56").c_str())
+                           get_docstring("RKCoefficientSets.rkf_56").c_str())
                     .value("rkf_78", tni::RungeKuttaCoefficients::rungeKuttaFehlberg78,
-                           get_docstring("AvailableIntegrators.rkf_78").c_str())
+                           get_docstring("RKCoefficientSets.rkf_78").c_str())
                     .value("rkdp_87", tni::RungeKuttaCoefficients::rungeKutta87DormandPrince,
-                           get_docstring("AvailableIntegrators.rkdp_87").c_str())
+                           get_docstring("RKCoefficientSets.rkdp_87").c_str())
                     .export_values();
 
             py::enum_<tni::ExtrapolationMethodStepSequences>(m, "ExtrapolationMethodStepSequences",

@@ -163,6 +163,11 @@ void expose_propagation(py::module &m) {
             tba::AccelerationModel<Eigen::Vector3d>,
             std::shared_ptr<tba::AccelerationModel<Eigen::Vector3d>>>(m, "AccelerationModel");
 
+    py::class_<
+            tba::MassRateModel,
+            std::shared_ptr<tba::MassRateModel>>(m, "MassRateModel");
+
+
 
     py::enum_<tp::PropagationTerminationReason>(m, "PropagationTerminationReason",
                                                 get_docstring("PropagationTerminationReason").c_str())
