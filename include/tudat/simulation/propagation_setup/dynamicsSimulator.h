@@ -503,12 +503,15 @@ public:
             const bool areEquationsOfMotionToBeIntegrated = true,
             const bool clearNumericalSolutions = false,
             const bool setIntegratedResult = false,
+            const bool printNumberOfFunctionEvaluations = false,
             const bool printDependentVariableData = true ):
         SingleArcDynamicsSimulator(  bodies, integratorSettings,  propagatorSettings,
                                      std::vector< std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > >( ),
                                      areEquationsOfMotionToBeIntegrated,
                                      clearNumericalSolutions,
                                      setIntegratedResult,
+                                     printNumberOfFunctionEvaluations,
+                                     std::chrono::steady_clock::now( ),
                                      printDependentVariableData ){ }
 
     //! Destructor
