@@ -134,6 +134,23 @@ namespace aerodynamic_coefficients {
               py::arg("interpolator_settings"),
               get_docstring("tabulated_force_only").c_str());
 
+        m.def("tabulated_force_only_from_files",
+              py::overload_cast<
+              const std::map< int, std::string >,
+              const double,
+              const std::vector< ta::AerodynamicCoefficientsIndependentVariables >,
+              const bool,
+              const bool,
+              const std::shared_ptr< ti::InterpolatorSettings > >
+                      (&tss::readTabulatedAerodynamicCoefficientsFromFiles),
+              py::arg("force_coefficient_files"),
+              py::arg("reference_area"),
+              py::arg("independent_variable_names"),
+              py::arg("are_coefficients_in_aerodynamic_frame"),
+              py::arg("are_coefficients_in_negative_axis_direction"),
+              py::arg("interpolator_settings") = nullptr ,
+              get_docstring("tabulated_force_only_from_files").c_str());
+
         m.def("scaled_by_constant",
               py::overload_cast<
                       const std::shared_ptr<tss::AerodynamicCoefficientSettings>,
