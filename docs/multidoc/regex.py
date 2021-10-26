@@ -136,7 +136,7 @@ p_python_tag = re.compile(
     flags=re.MULTILINE)
 
 
-p_api_tag = re.compile(r".*#\s*\[(?P<expr>.*)\]")
+p_api_tag = re.compile(r"(?P<parsed>.*)#\s*\[(?P<expr>.*)\]")
 p_package_file = re.compile(r".*__package__(.yml|.yaml)")
 p_module_file = re.compile(r".*(?P<module>\w+)(.yml|.yaml)")
 
