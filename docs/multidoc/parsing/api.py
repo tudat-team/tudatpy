@@ -63,12 +63,29 @@ def parse_properties(structure, properties, **kwargs):
     return structure
 
 
+def make_signature(name, parameters, returns):
+
+    returns = returns if returns is not None else {"type":"None"}
+    # print("n: ", name)
+    # print("p: ",parameters)
+    # print("r: ",returns)
+    if parameters:
+        ret = name + "(" + ", ".join([f"{p.get('name', None)}: {p.get('type', None)}" for p in parameters]) + ")"
+        if returns is not None:
+            return ret + " -> " + str(returns.get("type", None)) + ""
+        else:
+            return ret
+    else:
+        return " "
+
+
 def parse_functions(structure, functions, **kwargs):
     nl = '\n'
     logger.info(
         f"Parsing the following functions with {kwargs}: {nl}{nl.join([r'    - ' + function.name for function in functions] + [''])} "
     )
     t = get_docstring_template(**kwargs)
+    t.globals["make_signature"] = make_signature
     result = defaultdict(list)
     for i, f in enumerate(functions):
         result[f.name].append(i)
