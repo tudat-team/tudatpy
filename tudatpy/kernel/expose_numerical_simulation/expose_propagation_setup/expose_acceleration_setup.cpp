@@ -30,6 +30,27 @@ namespace tni = tudat::numerical_integrators;
 namespace trf = tudat::reference_frames;
 namespace tmrf = tudat::root_finders;
 
+namespace tudat {
+namespace simulation_setup {
+
+//! @get_docstring(cannonBallRadiationPressureAcceleration)
+inline std::shared_ptr< AccelerationSettings > panelledRadiationPressureAcceleration( )
+{
+    return std::make_shared< AccelerationSettings >( basic_astrodynamics::panelled_radiation_pressure_acceleration );
+}
+
+//! @get_docstring(customAccelerationSettings)
+inline std::shared_ptr< AccelerationSettings > customAccelerationSettings(
+        const std::function< Eigen::Vector3d( const double ) > accelerationFunction )
+{
+        return std::make_shared< CustomAccelerationSettings >(
+                    accelerationFunction );
+
+}
+
+}
+}
+
 namespace tudatpy {
 namespace numerical_simulation {
 namespace propagation_setup {
@@ -60,7 +81,7 @@ void expose_acceleration_setup(py::module &m) {
             .value("direct_tidal_dissipation_in_central_body_acceleration_type", tba::AvailableAcceleration::direct_tidal_dissipation_in_central_body_acceleration, get_docstring("AvailableAcceleration.direct_tidal_dissipation_in_central_body_acceleration_type").c_str())
             .value("direct_tidal_dissipation_in_orbiting_body_acceleration_type", tba::AvailableAcceleration::direct_tidal_dissipation_in_orbiting_body_acceleration, get_docstring("AvailableAcceleration.direct_tidal_dissipation_in_orbiting_body_acceleration_type").c_str())
             .value("panelled_radiation_pressure_acceleration_type", tba::AvailableAcceleration::panelled_radiation_pressure_acceleration, get_docstring("AvailableAcceleration.panelled_radiation_pressure_acceleration_type").c_str())
-            .value("momentum_wheel_desaturation_acceleration_type", tba::AvailableAcceleration::momentum_wheel_desaturation_acceleration, get_docstring("AvailableAcceleration.momentum_wheel_desaturation_acceleration_type").c_str())
+            .value("quasi_impulsive_shots_acceleration_type", tba::AvailableAcceleration::momentum_wheel_desaturation_acceleration, get_docstring("AvailableAcceleration.momentum_wheel_desaturation_acceleration_type").c_str())
             .value("solar_sail_acceleration_type", tba::AvailableAcceleration::solar_sail_acceleration, get_docstring("AvailableAcceleration.solar_sail_acceleration_type").c_str())
             .export_values();
 
@@ -157,6 +178,10 @@ void expose_acceleration_setup(py::module &m) {
     m.def("cannonball_radiation_pressure", &tss::cannonBallRadiationPressureAcceleration,
           get_docstring("cannonball_radiation_pressure").c_str());
 
+    m.def("panelled_radiation_pressure", &tss::panelledRadiationPressureAcceleration,
+          get_docstring("panelled_radiation_pressure").c_str());
+
+
     m.def("spherical_harmonic_gravity", &tss::sphericalHarmonicAcceleration,
           py::arg( "maximum_degree" ),
           py::arg( "maximum_order" ),
@@ -185,9 +210,10 @@ void expose_acceleration_setup(py::module &m) {
           py::arg( "cosine_acceleration" ) = Eigen::Vector3d::Zero( ),
           get_docstring("empirical").c_str());
 
-    m.def("custom", &tss::customAccelerationSettings,
+    m.def("custom",
+          py::overload_cast< std::function< Eigen::Vector3d( const double ) > >(
+              &tss::customAccelerationSettings ),
           py::arg( "acceleration_function" ),
-          py::arg( "scaling_function" ) = nullptr,
           get_docstring("custom").c_str());
 
     m.def("direct_tidal_dissipation_acceleration", &tss::directTidalDissipationAcceleration,
@@ -197,12 +223,12 @@ void expose_acceleration_setup(py::module &m) {
           py::arg("use_tide_raised_on_planet") = true,
           get_docstring("direct_tidal_dissipation_acceleration").c_str());
 
-    m.def("momentum_wheel_desaturation_acceleration", &tss::momentumWheelDesaturationAcceleration,
+    m.def("quasi_impulsive_shots_acceleration", &tss::momentumWheelDesaturationAcceleration,
           py::arg("thrust_mid_times"),
           py::arg("delta_v_values"),
           py::arg("total_maneuver_time"),
           py::arg("maneuver_rise_time"),
-          get_docstring("momentum_wheel_desaturation_acceleration").c_str());
+          get_docstring("quasi_impulsive_shots_acceleration").c_str());
 
     m.def("thrust_from_direction_and_magnitude", py::overload_cast<const std::shared_ptr<tss::ThrustDirectionSettings>,
                   const std::shared_ptr<tss::ThrustMagnitudeSettings>>(&tss::thrustAcceleration),
