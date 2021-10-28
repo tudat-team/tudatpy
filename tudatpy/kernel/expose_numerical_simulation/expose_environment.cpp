@@ -472,8 +472,8 @@ void expose_environment(py::module &m) {
             .def_property("inertia_tensor", &tss::Body::getBodyInertiaTensor,
                           py::overload_cast<const Eigen::Matrix3d &>(
                               &tss::Body::setBodyInertiaTensor))
-            .def_property_readonly("state_in_base_frame_from_ephemeris",
-                 &tss::Body::getStateInBaseFrameFromEphemeris<double, double>)
+            .def("state_in_base_frame_from_ephemeris",
+                 &tss::Body::getStateInBaseFrameFromEphemeris<double, double>,py::arg("time"))
             .def_property("ephemeris", &tss::Body::getEphemeris, &tss::Body::setEphemeris)
             .def_property("atmosphere_model", &tss::Body::getAtmosphereModel, &tss::Body::setAtmosphereModel)
             .def_property("shape_model", &tss::Body::getShapeModel, &tss::Body::setShapeModel)
