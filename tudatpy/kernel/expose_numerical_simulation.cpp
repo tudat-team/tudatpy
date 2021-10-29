@@ -118,7 +118,7 @@ void expose_numerical_simulation(py::module &m) {
 //          .def_property_readonly("integrated_state_processors",
 //                                 &tp::SingleArcDynamicsSimulator<double, double>::getIntegratedStateProcessors,
 //                                 get_docstring("integrated_state_processors").c_str())
-          .def_property_readonly("propagation_termination_reason",
+          .def_property_readonly("propagation_termination_details",
                                  &tp::SingleArcDynamicsSimulator<double, double>::getPropagationTerminationReason,
                                  get_docstring("SingleArcSimulator.propagation_termination_reason").c_str())
           .def_property_readonly("integration_completed_successfully",

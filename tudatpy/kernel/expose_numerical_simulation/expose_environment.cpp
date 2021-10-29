@@ -467,7 +467,7 @@ void expose_environment(py::module &m) {
             .def_property_readonly("body_fixed_to_inertial_frame_derivative", &tss::Body::getCurrentRotationMatrixDerivativeToGlobalFrame, get_docstring("Body.body_fixed_to_inertial_frame_derivative").c_str())
             .def_property_readonly("inertial_angular_velocity", &tss::Body::getCurrentAngularVelocityVectorInGlobalFrame, get_docstring("Body.inertial_angular_velocity").c_str())
             .def_property_readonly("body_fixed_angular_velocity", &tss::Body::getCurrentAngularVelocityVectorInLocalFrame, get_docstring("Body.body_fixed_angular_velocity").c_str())
-            .def_property("mass", &tss::Body::getBodyMass, &tss::Body::setConstantBodyMass)
+            .def_property("mass", &tss::Body::getBodyMass, &tss::Body::setConstantBodyMass, get_docstring("Body.mass").c_str())
             .def("set_constant_mass", &tss::Body::setConstantBodyMass, py::arg( "mass" ) )
             .def_property("inertia_tensor", &tss::Body::getBodyInertiaTensor,
                           py::overload_cast<const Eigen::Matrix3d &>(
@@ -491,7 +491,8 @@ void expose_environment(py::module &m) {
                  py::arg("body_name"),
                  get_docstring("SystemOfBodies.get").c_str())
             .def("get_body", &tss::SystemOfBodies::getBody,
-                 py::arg("body_name"))
+                 py::arg("body_name"),
+                 get_docstring("SystemOfBodies.get_body").c_str())
             .def("create_empty_body", &tss::SystemOfBodies::createEmptyBody,
                  py::arg("body_name"),
                  py::arg("process_body") = 1,
