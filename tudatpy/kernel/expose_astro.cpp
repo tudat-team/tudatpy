@@ -14,6 +14,7 @@
 #include "expose_astro/expose_element_conversion.h"
 #include "expose_astro/expose_frame_conversion.h"
 #include "expose_astro/expose_two_body_dynamics.h"
+#include "expose_astro/expose_fundamentals.h"
 
 #include <pybind11/pybind11.h>
 
@@ -36,6 +37,9 @@ void expose_astro(py::module &m) {
 
     auto gravitation = m.def_submodule("gravitation");
     gravitation::expose_gravitation(gravitation);
+
+    auto fundamentals = m.def_submodule("fundamentals");
+    fundamentals::expose_fundamentals(fundamentals);
 
 }
 
