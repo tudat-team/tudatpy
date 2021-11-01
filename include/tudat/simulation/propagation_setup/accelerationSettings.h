@@ -328,11 +328,10 @@ public:
      * propagation is performed.
      */
     FullThrustInterpolationInterface(
-            const std::shared_ptr< interpolators::OneDimensionalInterpolator<
-            double, Eigen::Vector3d > > thrustInterpolator,
+            const std::function< Eigen::Vector3d( const double ) > thrustForceFunction,
             const std::function< Eigen::Matrix3d( ) > rotationFunction =
             [ ]( ){ return Eigen::Matrix3d::Identity( ); } ):
-        thrustInterpolator_( thrustInterpolator ), rotationFunction_( rotationFunction ),
+        thrustForceFunction_( thrustForceFunction ), rotationFunction_( rotationFunction ),
         currentThrust_( Eigen::Vector3d::Constant( TUDAT_NAN ) ), currentTime_( TUDAT_NAN ){ }
 
     // Function to retrieve the current thrust magnitude
@@ -381,9 +380,9 @@ public:
     /*
      * Function to retrieve the thrust interpolator.
      */
-    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector3d > > getThrustInterpolator( )
+    std::function< Eigen::Vector3d( const double ) >  getThrustForceFunction( )
     {
-        return thrustInterpolator_;
+        return thrustForceFunction_;
     }
 
 private:
@@ -397,13 +396,13 @@ private:
     {
         if( !( time == currentTime_ ) )
         {
-            currentThrust_ = rotationFunction_( ) * thrustInterpolator_->interpolate( time );
+            currentThrust_ = rotationFunction_( ) * thrustForceFunction_( time );
             currentTime_ = time;
         }
     }
 
     // Object that returns the total thrust vector, expressed in some reference frame B
-    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector3d > > thrustInterpolator_;
+    std::function< Eigen::Vector3d( const double ) > thrustForceFunction_;
 
     // Function that returns the rotation matrix from the frame B to the frame in which the propagation is performed.
     std::function< Eigen::Matrix3d( ) > rotationFunction_;
@@ -455,24 +454,20 @@ public:
     /*
      * Constructor used for defining total thrust vector (in local or inertial frame) from interpolator using
      * variable specific impulse
-     * \param dataInterpolationSettings Settings to create the interpolator that returns the thrust as a function of
-     * time in frame defined by thrustFrame
      * \param specificImpulseFunction Function returning the specific impulse as a function of time
      * \param thrustFrame Identifier of frame in which thrust returned by fullThrustInterpolator is expressed
      * \param centralBody Central body identifier for thrustFrame (if needed; empty by default).
      */
     ThrustAccelerationSettings(
-            const std::shared_ptr< interpolators::DataInterpolationSettings< double, Eigen::Vector3d > >&
-            dataInterpolationSettings,
+            const std::function< Eigen::Vector3d( const double ) > thrustForceFunction,
             const std::function< double( const double ) > specificImpulseFunction,
-            const ThrustFrames thrustFrame = unspecified_thrust_frame,
+            const ThrustFrames thrustFrame = inertial_thrust_frame,
             const std::string centralBody = "" ):
         AccelerationSettings( basic_astrodynamics::thrust_acceleration ),
         constantSpecificImpulse_( TUDAT_NAN ), thrustFrame_( thrustFrame ),
-        centralBody_( centralBody ), dataInterpolationSettings_( dataInterpolationSettings )
+        centralBody_( centralBody )
     {
-        interpolatorInterface_ = std::make_shared< FullThrustInterpolationInterface >(
-                    interpolators::createOneDimensionalInterpolator( dataInterpolationSettings ) );
+        interpolatorInterface_ = std::make_shared< FullThrustInterpolationInterface >( thrustForceFunction);
         thrustDirectionSettings_ = std::make_shared< CustomThrustDirectionSettings >(
                     std::bind( &FullThrustInterpolationInterface::getThrustDirection, interpolatorInterface_, std::placeholders::_1 ) );
         thrustMagnitudeSettings_ =  std::make_shared< FromFunctionThrustMagnitudeSettings >(
@@ -487,25 +482,23 @@ public:
     /*
      * Constructor used for defining total thrust vector (in local or inertial frame) from interpolator using constant
      * specific impulse
-     * \param dataInterpolationSettings Settings to create the interpolator that returns the thrust as a function of
-     * time in frame defined by thrustFrame
      * \param constantSpecificImpulse Constant specific impulse
      * \param thrustFrame Identifier of frame in which thrust returned by fullThrustInterpolator is expressed
      * \param centralBody Central body identifier for thrustFrame (if needed; empty by default).
      */
     ThrustAccelerationSettings(
-            const std::shared_ptr< interpolators::DataInterpolationSettings< double, Eigen::Vector3d > >&
-            dataInterpolationSettings,
+            const std::function< Eigen::Vector3d( const double ) > thrustForceFunction,
             const double constantSpecificImpulse,
-            const ThrustFrames thrustFrame = unspecified_thrust_frame,
+            const ThrustFrames thrustFrame = inertial_thrust_frame,
             const std::string centralBody = "" ):
-        ThrustAccelerationSettings( dataInterpolationSettings,
+        ThrustAccelerationSettings( thrustForceFunction,
                                     [ = ]( const double ){ return constantSpecificImpulse; },
     thrustFrame,
     centralBody )
     {
         constantSpecificImpulse_ = constantSpecificImpulse;
     }
+
 
 
     // Destructor.
@@ -562,23 +555,23 @@ inline std::shared_ptr< AccelerationSettings > thrustAcceleration( const std::sh
 
 //! @get_docstring(thrustAcceleration, 2)
 inline std::shared_ptr< AccelerationSettings > thrustAcceleration(
-		const std::shared_ptr< interpolators::DataInterpolationSettings< double, Eigen::Vector3d > >& dataInterpolationSettings,
-		const std::function< double( const double ) > specificImpulseFunction,
+        const std::function< Eigen::Vector3d( const double ) > thrustForceFunction,
+        const std::function< double( const double ) > specificImpulseFunction,
         const ThrustFrames thrustFrame = unspecified_thrust_frame,
 		const std::string centralBody = "" )
 {
-	return std::make_shared< ThrustAccelerationSettings >( dataInterpolationSettings, specificImpulseFunction,
+    return std::make_shared< ThrustAccelerationSettings >( thrustForceFunction, specificImpulseFunction,
 														thrustFrame, centralBody );
 }
 
 //! @get_docstring(thrustAcceleration, 3)
 inline std::shared_ptr< AccelerationSettings > thrustAcceleration(
-		const std::shared_ptr< interpolators::DataInterpolationSettings< double, Eigen::Vector3d > >& dataInterpolationSettings,
-		const double constantSpecificImpulse,
+        const std::function< Eigen::Vector3d( const double ) > thrustForceFunction,
+        const double constantSpecificImpulse,
         const ThrustFrames thrustFrame = unspecified_thrust_frame,
 		const std::string centralBody = "" )
 {
-	return std::make_shared< ThrustAccelerationSettings >( dataInterpolationSettings, constantSpecificImpulse,
+    return std::make_shared< ThrustAccelerationSettings >( thrustForceFunction, constantSpecificImpulse,
 														   thrustFrame, centralBody );
 }
 
