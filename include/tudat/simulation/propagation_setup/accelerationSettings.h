@@ -422,7 +422,7 @@ enum ThrustFrames
 {
     unspecified_thrust_frame = -1,
     inertial_thrust_frame = 0,
-    lvlh_thrust_frame = 1
+    tnw_thrust_frame = 1
 };
 
 // Class for providing acceleration settings for a thrust acceleration model

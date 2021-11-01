@@ -25,7 +25,7 @@ namespace orbital_element_conversions
 
 //! Calculate current heading angle.
 /*!
- * Calculate heading angle from velocity in vertical (LVLH) frame.
+ * Calculate heading angle from velocity in vertical (TNW) frame.
  * NOTE: This function can be used for both ground- and airspeed-based variables, with both the input and output
  * always w.r.t. the same velocity vector.
  * \param velocityInVerticalFrame Current Cartesian velocity in vertical frame.
@@ -36,7 +36,7 @@ double calculateHeadingAngle(
 
 //! Calculate current flight path angle. Angle is defined positive upwards.
 /*!
- *  Calculate flight path angle from velocity in vertical (LVLH) frame.
+ *  Calculate flight path angle from velocity in vertical (TNW) frame.
  *  Angle is defined positive upwards.
  * NOTE: This function can be used for both ground- and airspeed-based variables, with both the input and output
  * always w.r.t. the same velocity vector.

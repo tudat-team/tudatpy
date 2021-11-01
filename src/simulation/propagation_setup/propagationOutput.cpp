@@ -295,7 +295,10 @@ int getDependentVariableSize(
     case total_mass_rate_dependent_variables:
         variableSize = 1;
         break;
-    case lvlh_to_inertial_frame_rotation_dependent_variable:
+    case tnw_to_inertial_frame_rotation_dependent_variable:
+        variableSize = 9;
+        break;
+    case rsw_to_inertial_frame_rotation_dependent_variable:
         variableSize = 9;
         break;
     case periapsis_altitude_dependent_variable:

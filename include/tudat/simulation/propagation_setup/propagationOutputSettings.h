@@ -95,7 +95,7 @@ enum PropagationDependentVariables
     geodetic_latitude_dependent_variable = 22,
     control_surface_deflection_dependent_variable = 23,
     total_mass_rate_dependent_variables = 24,
-    lvlh_to_inertial_frame_rotation_dependent_variable = 25,
+    tnw_to_inertial_frame_rotation_dependent_variable = 25,
     periapsis_altitude_dependent_variable = 26,
     total_torque_norm_dependent_variable = 27,
     single_torque_norm_dependent_variable = 28,
@@ -116,7 +116,8 @@ enum PropagationDependentVariables
     local_aerodynamic_heat_rate_dependent_variable = 43, // no interface function
     euler_angles_to_body_fixed_313 = 44,
     current_body_mass_dependent_variable = 45,
-    radiation_pressure_coefficient_dependent_variable = 46
+    radiation_pressure_coefficient_dependent_variable = 46,
+    rsw_to_inertial_frame_rotation_dependent_variable = 47
 };
 
 // Functional base class for defining settings for dependent variables that are to be saved during propagation
@@ -867,13 +868,22 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > bodyFixedGroundspe
                 body_fixed_groundspeed_based_velocity_variable, associatedBody );
 }
 
-//! @get_docstring(lvlhToInertialFrameRotationMatrixVariable)
-inline std::shared_ptr< SingleDependentVariableSaveSettings > lvlhToInertialFrameRotationMatrixVariable(
+//! @get_docstring(tnwToInertialFrameRotationMatrixVariable)
+inline std::shared_ptr< SingleDependentVariableSaveSettings > tnwToInertialFrameRotationMatrixVariable(
         const std::string& associatedBody,
         const std::string& centralBody )
 {
     return std::make_shared< SingleDependentVariableSaveSettings >(
-                lvlh_to_inertial_frame_rotation_dependent_variable, associatedBody, centralBody );
+                tnw_to_inertial_frame_rotation_dependent_variable, associatedBody, centralBody );
+}
+
+//! @get_docstring(rswToInertialFrameRotationMatrixVariable)
+inline std::shared_ptr< SingleDependentVariableSaveSettings > rswToInertialFrameRotationMatrixVariable(
+        const std::string& associatedBody,
+        const std::string& centralBody )
+{
+    return std::make_shared< SingleDependentVariableSaveSettings >(
+                rsw_to_inertial_frame_rotation_dependent_variable, associatedBody, centralBody );
 }
 
 //! @get_docstring(periapsisAltitudeVariable)

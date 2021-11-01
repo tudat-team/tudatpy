@@ -262,6 +262,10 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
         dependentVariables.push_back(
                     std::make_shared< SingleDependentVariableSaveSettings >(
                         body_fixed_relative_spherical_position,  "Apollo", "Earth" ) );
+        dependentVariables.push_back(
+                    std::make_shared< SingleDependentVariableSaveSettings >(
+                        rsw_to_inertial_frame_rotation_dependent_variable,  "Apollo", "Earth" ) );
+
 
         // Create acceleration models and propagation settings.
         basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
@@ -339,6 +343,8 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
             Eigen::Vector6d modifiedEquinoctialElements =  variableIterator->second.segment( 48, 6 );
             Eigen::Vector3d bodyFixedCartesianPosition = variableIterator->second.segment( 54, 3 );
             Eigen::Vector3d bodyFixedSphericalPosition = variableIterator->second.segment( 57, 3 );
+            Eigen::Matrix3d rswToInertialRotationMatrix =
+                    propagators::getMatrixFromVectorRotationRepresentation( variableIterator->second.segment( 60, 9 ) );
 
             currentStateDerivative = dynamicsSimulator.getDynamicsStateDerivative( )->computeStateDerivative(
                         variableIterator->first, numericalSolution.at( variableIterator->first ) );
@@ -523,6 +529,12 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
             BOOST_CHECK_SMALL(
                         std::fabs( computedSphericalBodyFixedPosition( 2 ) - bodyFixedSphericalPosition( 2 ) ),
                         10.0 * std::numeric_limits< double >::epsilon( ));
+            Eigen::Matrix3d computedRswRotationMatrix =
+                    tudat::reference_frames::getRswSatelliteCenteredToInertialFrameRotationMatrix( numericalSolution.at( variableIterator->first ) );
+
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION( rswToInertialRotationMatrix, computedRswRotationMatrix,
+                                               ( 10.0 * std::numeric_limits< double >::epsilon( ) ) );
+
         }
     }
 }

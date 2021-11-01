@@ -592,10 +592,10 @@ void testIsRotationMatrixRightHanded( const Eigen::Matrix3d matrixToTest )
     }
 }
 
-// Test velocity based LVLH frame transformation.
-BOOST_AUTO_TEST_CASE( testVelocityBasedLvlhFrameTransformations )
+// Test velocity based tnw frame transformation.
+BOOST_AUTO_TEST_CASE( testVelocityBasedtnwFrameTransformations )
 {
-    // Test 11: Test velocity=based LVLH frame to inertial (I) frame transformation: for arbitrary state vectors,
+    // Test 11: Test velocity=based tnw frame to inertial (I) frame transformation: for arbitrary state vectors,
     // test all expected properties of rotation matrices
     {
         // Position vectors to semi-random values
@@ -603,16 +603,16 @@ BOOST_AUTO_TEST_CASE( testVelocityBasedLvlhFrameTransformations )
         vehicleStateCartesian << 3.2, -1.7, 8.2, -1.4E-3, -5.6E-4, 9.2E-4;
         centralBodyStateCartesian << 7.4, 6.3, -3.6, 5.3E-4, 7.64E3, -4.4E-4;
 
-        Eigen::Matrix3d nAxisAwayFromBodyMatrix = reference_frames::getVelocityBasedLvlhToInertialRotation(
+        Eigen::Matrix3d nAxisAwayFromBodyMatrix = reference_frames::getTnwToInertialRotation(
                     vehicleStateCartesian, centralBodyStateCartesian, true );
-        Eigen::Matrix3d nAxisAwayTowardsBodyMatrix = reference_frames::getVelocityBasedLvlhToInertialRotation(
+        Eigen::Matrix3d nAxisAwayTowardsBodyMatrix = reference_frames::getTnwToInertialRotation(
                     vehicleStateCartesian, centralBodyStateCartesian, false );
 
         // Test if central body is properly processed.
         {
-            Eigen::Matrix3d nAxisAwayFromBodyMatrixCentral = reference_frames::getVelocityBasedLvlhToInertialRotation(
+            Eigen::Matrix3d nAxisAwayFromBodyMatrixCentral = reference_frames::getTnwToInertialRotation(
                         vehicleStateCartesian - centralBodyStateCartesian, Eigen::Vector6d::Zero( ), true );
-            Eigen::Matrix3d nAxisAwayTowardsBodyMatrixCentral = reference_frames::getVelocityBasedLvlhToInertialRotation(
+            Eigen::Matrix3d nAxisAwayTowardsBodyMatrixCentral = reference_frames::getTnwToInertialRotation(
                         vehicleStateCartesian - centralBodyStateCartesian, Eigen::Vector6d::Zero( ), false );
 
             for( unsigned int i = 0; i < 3; i++ )
@@ -678,45 +678,45 @@ BOOST_AUTO_TEST_CASE( testVelocityBasedLvlhFrameTransformations )
         testIsRotationMatrixRightHanded( nAxisAwayFromBodyMatrix );
         testIsRotationMatrixRightHanded( nAxisAwayTowardsBodyMatrix );
 
-        Eigen::Vector3d lvlhFrameThrust1, lvlhFrameThrust2;
+        Eigen::Vector3d tnwFrameThrust1, tnwFrameThrust2;
 
         // Define semi-random thrust vector along velocity vector
         double thrustScale = 25.2;
         Eigen::Vector3d inertialThrustVectorAlongVelocity = thrustScale * relativeState.segment( 3, 3 );
         {
             // Compute local thrust vectors
-            lvlhFrameThrust1 =
+            tnwFrameThrust1 =
                     nAxisAwayFromBodyMatrix.transpose( ) * inertialThrustVectorAlongVelocity;
-            lvlhFrameThrust2 =
+            tnwFrameThrust2 =
                     nAxisAwayTowardsBodyMatrix.transpose( ) * inertialThrustVectorAlongVelocity;
 
             // Compute thrust vector magnitudes
             double thrustMagnitudeAlongVelocityVector = inertialThrustVectorAlongVelocity.norm( );
 
             // Test if entry 0 of two vectors are the same
-            BOOST_CHECK_CLOSE_FRACTION( lvlhFrameThrust1( 0 ), lvlhFrameThrust2( 0 ),
+            BOOST_CHECK_CLOSE_FRACTION( tnwFrameThrust1( 0 ), tnwFrameThrust2( 0 ),
                                         std::numeric_limits< double >::epsilon( ) );
 
             // Test thrust vector norms.
-            BOOST_CHECK_CLOSE_FRACTION( thrustMagnitudeAlongVelocityVector, lvlhFrameThrust1.norm( ),
+            BOOST_CHECK_CLOSE_FRACTION( thrustMagnitudeAlongVelocityVector, tnwFrameThrust1.norm( ),
                                         5.0 * std::numeric_limits< double >::epsilon( ) );
-            BOOST_CHECK_CLOSE_FRACTION( thrustMagnitudeAlongVelocityVector, lvlhFrameThrust2.norm( ),
+            BOOST_CHECK_CLOSE_FRACTION( thrustMagnitudeAlongVelocityVector, tnwFrameThrust2.norm( ),
                                         5.0 * std::numeric_limits< double >::epsilon( ) );
 
             // Test if entry 0 magnitude is equal to norm
-            BOOST_CHECK_CLOSE_FRACTION( std::fabs( lvlhFrameThrust1( 0 ) ), thrustMagnitudeAlongVelocityVector,
+            BOOST_CHECK_CLOSE_FRACTION( std::fabs( tnwFrameThrust1( 0 ) ), thrustMagnitudeAlongVelocityVector,
                                         std::numeric_limits< double >::epsilon( ) );
-            BOOST_CHECK_CLOSE_FRACTION( std::fabs( lvlhFrameThrust2( 0 ) ), thrustMagnitudeAlongVelocityVector,
+            BOOST_CHECK_CLOSE_FRACTION( std::fabs( tnwFrameThrust2( 0 ) ), thrustMagnitudeAlongVelocityVector,
                                         std::numeric_limits< double >::epsilon( ) );
 
             // Test if other entries are 0 (to numerical precision).
-            BOOST_CHECK_SMALL( lvlhFrameThrust1( 1 ),
+            BOOST_CHECK_SMALL( tnwFrameThrust1( 1 ),
                                thrustMagnitudeAlongVelocityVector * std::numeric_limits< double >::epsilon( ) );
-            BOOST_CHECK_SMALL( lvlhFrameThrust2( 1 ),
+            BOOST_CHECK_SMALL( tnwFrameThrust2( 1 ),
                                thrustMagnitudeAlongVelocityVector * std::numeric_limits< double >::epsilon( ) );
-            BOOST_CHECK_SMALL( lvlhFrameThrust1( 2 ),
+            BOOST_CHECK_SMALL( tnwFrameThrust1( 2 ),
                                thrustMagnitudeAlongVelocityVector * std::numeric_limits< double >::epsilon( ) );
-            BOOST_CHECK_SMALL( lvlhFrameThrust2( 2 ),
+            BOOST_CHECK_SMALL( tnwFrameThrust2( 2 ),
                                thrustMagnitudeAlongVelocityVector * std::numeric_limits< double >::epsilon( ) );
         }
 
@@ -726,39 +726,39 @@ BOOST_AUTO_TEST_CASE( testVelocityBasedLvlhFrameTransformations )
                         Eigen::Vector3d( relativeState.segment( 3, 3 ) ) ) );
         {
             // Compute local thrust vectors
-            lvlhFrameThrust1 =
+            tnwFrameThrust1 =
                     nAxisAwayFromBodyMatrix.transpose( ) * inertialThrustPerpendicularToPlane;
-            lvlhFrameThrust2 =
+            tnwFrameThrust2 =
                     nAxisAwayTowardsBodyMatrix.transpose( ) * inertialThrustPerpendicularToPlane;
 
             // Compute thrust vector magnitudes
             double thrustMagnitudePerpendicularToPlane = inertialThrustPerpendicularToPlane.norm( );
 
             // Test if entry 2 of two vectors are the same but opposite
-            BOOST_CHECK_CLOSE_FRACTION( lvlhFrameThrust1( 2 ), -lvlhFrameThrust2( 2 ),
+            BOOST_CHECK_CLOSE_FRACTION( tnwFrameThrust1( 2 ), -tnwFrameThrust2( 2 ),
                                         std::numeric_limits< double >::epsilon( ) );
 
             // Test thrust vector norms.
-            BOOST_CHECK_CLOSE_FRACTION( thrustMagnitudePerpendicularToPlane, lvlhFrameThrust1.norm( ),
+            BOOST_CHECK_CLOSE_FRACTION( thrustMagnitudePerpendicularToPlane, tnwFrameThrust1.norm( ),
                                         5.0 * std::numeric_limits< double >::epsilon( ) );
-            BOOST_CHECK_CLOSE_FRACTION( thrustMagnitudePerpendicularToPlane, lvlhFrameThrust2.norm( ),
+            BOOST_CHECK_CLOSE_FRACTION( thrustMagnitudePerpendicularToPlane, tnwFrameThrust2.norm( ),
                                         5.0 * std::numeric_limits< double >::epsilon( ) );
 
 
             // Test if entry 2 magnitude is equal to norm
-            BOOST_CHECK_CLOSE_FRACTION( std::fabs( lvlhFrameThrust1( 2 ) ), thrustMagnitudePerpendicularToPlane,
+            BOOST_CHECK_CLOSE_FRACTION( std::fabs( tnwFrameThrust1( 2 ) ), thrustMagnitudePerpendicularToPlane,
                                         std::numeric_limits< double >::epsilon( ) );
-            BOOST_CHECK_CLOSE_FRACTION( std::fabs( lvlhFrameThrust2( 2 ) ), thrustMagnitudePerpendicularToPlane,
+            BOOST_CHECK_CLOSE_FRACTION( std::fabs( tnwFrameThrust2( 2 ) ), thrustMagnitudePerpendicularToPlane,
                                         std::numeric_limits< double >::epsilon( ) );
 
             // Test if other entries are 0 (to numerical precision).
-            BOOST_CHECK_SMALL( lvlhFrameThrust1( 0 ),
+            BOOST_CHECK_SMALL( tnwFrameThrust1( 0 ),
                                thrustMagnitudePerpendicularToPlane * std::numeric_limits< double >::epsilon( ) );
-            BOOST_CHECK_SMALL( lvlhFrameThrust2( 0 ),
+            BOOST_CHECK_SMALL( tnwFrameThrust2( 0 ),
                                thrustMagnitudePerpendicularToPlane * std::numeric_limits< double >::epsilon( ) );
-            BOOST_CHECK_SMALL( lvlhFrameThrust1( 1 ),
+            BOOST_CHECK_SMALL( tnwFrameThrust1( 1 ),
                                thrustMagnitudePerpendicularToPlane * std::numeric_limits< double >::epsilon( ) );
-            BOOST_CHECK_SMALL( lvlhFrameThrust2( 1 ),
+            BOOST_CHECK_SMALL( tnwFrameThrust2( 1 ),
                                thrustMagnitudePerpendicularToPlane * std::numeric_limits< double >::epsilon( ) );
         }
 
@@ -767,42 +767,42 @@ BOOST_AUTO_TEST_CASE( testVelocityBasedLvlhFrameTransformations )
                     inertialThrustVectorAlongVelocity );
         {
             // Compute local thrust vectors
-            lvlhFrameThrust1 =
+            tnwFrameThrust1 =
                     nAxisAwayFromBodyMatrix.transpose( ) * inertialThrustAlongLocalYAxis;
-            lvlhFrameThrust2 =
+            tnwFrameThrust2 =
                     nAxisAwayTowardsBodyMatrix.transpose( ) * inertialThrustAlongLocalYAxis;
 
             // Compute thrust vector magnitudes
             double thrustMagnitudeAlongYAxis = inertialThrustAlongLocalYAxis.norm( );
 
             // Test if entry 1 of two vectors are the same
-            BOOST_CHECK_CLOSE_FRACTION( lvlhFrameThrust1( 1 ), -lvlhFrameThrust2( 1 ),
+            BOOST_CHECK_CLOSE_FRACTION( tnwFrameThrust1( 1 ), -tnwFrameThrust2( 1 ),
                                         std::numeric_limits< double >::epsilon( ) );
 
             // Test thrust vector norms.
-            BOOST_CHECK_CLOSE_FRACTION( thrustMagnitudeAlongYAxis, lvlhFrameThrust1.norm( ),
+            BOOST_CHECK_CLOSE_FRACTION( thrustMagnitudeAlongYAxis, tnwFrameThrust1.norm( ),
                                         5.0 * std::numeric_limits< double >::epsilon( ) );
-            BOOST_CHECK_CLOSE_FRACTION( thrustMagnitudeAlongYAxis, lvlhFrameThrust2.norm( ),
+            BOOST_CHECK_CLOSE_FRACTION( thrustMagnitudeAlongYAxis, tnwFrameThrust2.norm( ),
                                         5.0 * std::numeric_limits< double >::epsilon( ) );
 
             // Test if entry 1 magnitude is equal to norm
-            BOOST_CHECK_CLOSE_FRACTION( std::fabs( lvlhFrameThrust1( 1 ) ), thrustMagnitudeAlongYAxis,
+            BOOST_CHECK_CLOSE_FRACTION( std::fabs( tnwFrameThrust1( 1 ) ), thrustMagnitudeAlongYAxis,
                                         std::numeric_limits< double >::epsilon( ) );
-            BOOST_CHECK_CLOSE_FRACTION( std::fabs( lvlhFrameThrust2( 1 ) ), thrustMagnitudeAlongYAxis,
+            BOOST_CHECK_CLOSE_FRACTION( std::fabs( tnwFrameThrust2( 1 ) ), thrustMagnitudeAlongYAxis,
                                         std::numeric_limits< double >::epsilon( ) );
 
             // Test if other entries are 0 (to numerical precision).
-            BOOST_CHECK_SMALL( lvlhFrameThrust1( 0 ), thrustMagnitudeAlongYAxis * std::numeric_limits< double >::epsilon( ));
-            BOOST_CHECK_SMALL( lvlhFrameThrust2( 0 ), thrustMagnitudeAlongYAxis * std::numeric_limits< double >::epsilon( ));
-            BOOST_CHECK_SMALL( lvlhFrameThrust1( 2 ), thrustMagnitudeAlongYAxis * std::numeric_limits< double >::epsilon( ));
-            BOOST_CHECK_SMALL( lvlhFrameThrust2( 2 ), thrustMagnitudeAlongYAxis * std::numeric_limits< double >::epsilon( ));
+            BOOST_CHECK_SMALL( tnwFrameThrust1( 0 ), thrustMagnitudeAlongYAxis * std::numeric_limits< double >::epsilon( ));
+            BOOST_CHECK_SMALL( tnwFrameThrust2( 0 ), thrustMagnitudeAlongYAxis * std::numeric_limits< double >::epsilon( ));
+            BOOST_CHECK_SMALL( tnwFrameThrust1( 2 ), thrustMagnitudeAlongYAxis * std::numeric_limits< double >::epsilon( ));
+            BOOST_CHECK_SMALL( tnwFrameThrust2( 2 ), thrustMagnitudeAlongYAxis * std::numeric_limits< double >::epsilon( ));
         }
 
     }
 
-    // Test 11: Test velocity based LVLH frame to inertial (I) frame transformation.
+    // Test 11: Test velocity based tnw frame to inertial (I) frame transformation.
     {
-        // Initialize initial thrust vector in velocity based LVLH frame.
+        // Initialize initial thrust vector in velocity based tnw frame.
         Eigen::Vector3d startThrustVector;
         startThrustVector( 0 ) = 2.0; // T direction
         startThrustVector( 1 ) = 4.0; // N direction
@@ -826,16 +826,16 @@ BOOST_AUTO_TEST_CASE( testVelocityBasedLvlhFrameTransformations )
         // Compute location of the point in the rotating frame subject to the transformation
         // matrix.
         Eigen::Vector3d transformedThrustVector;
-        transformedThrustVector = reference_frames::getVelocityBasedLvlhToInertialRotation(
+        transformedThrustVector = reference_frames::getTnwToInertialRotation(
                     vehicleStateCartesian, centralBodyStateCartesian, doesNaxisPointAwayFromCentralBody ) * startThrustVector;
 
         // Check whether both vectors are equal within tolerances.
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedThrustVector, transformedThrustVector, 1.0e-15 );
     }
 
-    // Test 12: Test velocity based LVLH frame to planetocentric frame transformation with Keplerian elements.
+    // Test 12: Test velocity based tnw frame to planetocentric frame transformation with Keplerian elements.
     {
-        // Initialize initial thrust vector in velocity based LVLH frame.
+        // Initialize initial thrust vector in velocity based tnw frame.
         Eigen::Vector3d startThrustVector;
         startThrustVector( 0 ) = 15.0; // T direction
         startThrustVector( 1 ) = -1.0; // N direction
@@ -854,7 +854,7 @@ BOOST_AUTO_TEST_CASE( testVelocityBasedLvlhFrameTransformations )
         // Compute location of the point in the rotating frame subject to the transformation
         // matrix.
         Eigen::Matrix3d rotationMatrixFromKeplerElements =
-                reference_frames::getVelocityBasedLvlhToPlanetocentricRotationKeplerian(
+                reference_frames::getTnwToPlanetocentricRotationKeplerian(
                     vehicleStateKeplerian ).toRotationMatrix( );
         Eigen::Vector3d transformedThrustVector;
         transformedThrustVector = rotationMatrixFromKeplerElements * startThrustVector;
@@ -868,7 +868,7 @@ BOOST_AUTO_TEST_CASE( testVelocityBasedLvlhFrameTransformations )
                     vehicleStateKeplerian, 3.986E14 );
 
         Eigen::Matrix3d rotationMatrixFromCartesianElements =
-                reference_frames::getVelocityBasedLvlhToInertialRotation(
+                reference_frames::getTnwToInertialRotation(
                     vehicleStateCartesian, Eigen::Vector6d::Zero( ), false );
 
         for( unsigned int i = 0; i < 3; i++ )
