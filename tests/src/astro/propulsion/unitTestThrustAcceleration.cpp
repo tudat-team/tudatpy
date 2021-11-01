@@ -1062,9 +1062,16 @@ BOOST_AUTO_TEST_CASE( testInterpolatedThrustVector )
         accelerationsOfAsterix[ "Earth" ].push_back( std::make_shared< AccelerationSettings >(
                                                          basic_astrodynamics::central_gravity ) );
 
+        std::shared_ptr< OneDimensionalInterpolator< double, Eigen::Vector3d > > thrustInterpolator =
+                interpolators::createOneDimensionalInterpolator( thrustDataInterpolation );
+        typedef interpolators::OneDimensionalInterpolator< double, Eigen::Vector3d > LocalInterpolator;
+        std::function< Eigen::Vector3d( const double ) > thrustFunction =
+                std::bind(
+                    static_cast< Eigen::Vector3d( LocalInterpolator::* )( const double ) >
+                    ( &LocalInterpolator::interpolate ), thrustInterpolator, std::placeholders::_1 );
         std::shared_ptr< ThrustAccelerationSettings > thrustSettings =
                 std::make_shared< ThrustAccelerationSettings >(
-                        thrustDataInterpolation, [ & ](  const double ){ return 300.0; },
+                        thrustFunction, [ & ](  const double ){ return 300.0; },
                     testCase == 0 ? inertial_thrust_frame : lvlh_thrust_frame, "Earth" );
 
         accelerationsOfAsterix[ "Asterix" ].push_back( thrustSettings );
@@ -1130,8 +1137,8 @@ BOOST_AUTO_TEST_CASE( testInterpolatedThrustVector )
         std::map< double, Eigen::VectorXd > dependentVariableResult = dynamicsSimulator.getDependentVariableHistory( );
 
 
-        std::shared_ptr< OneDimensionalInterpolator< double, Eigen::Vector3d > > thrustInterpolator =
-                thrustSettings->interpolatorInterface_->getThrustInterpolator( );
+        std::function< Eigen::Vector3d( const double ) > retrievedThrustFunction =
+                thrustSettings->interpolatorInterface_->getThrustForceFunction( );
 
         Eigen::Vector3d thrustDifference;
 
@@ -1142,7 +1149,7 @@ BOOST_AUTO_TEST_CASE( testInterpolatedThrustVector )
                  outputIterator != dependentVariableResult.end( ); outputIterator++ )
             {
                 thrustDifference =  outputIterator->second.segment( 0, 3 ) -
-                        thrustInterpolator->interpolate( outputIterator->first );
+                        retrievedThrustFunction( outputIterator->first );
                 for( unsigned int i = 0; i < 3; i++ )
                 {
                     BOOST_CHECK_SMALL( std::fabs( thrustDifference( i ) ), 1.0E-14 );
@@ -1161,8 +1168,8 @@ BOOST_AUTO_TEST_CASE( testInterpolatedThrustVector )
                 Eigen::Matrix3d currentRotationMatrix =
                         getMatrixFromVectorRotationRepresentation( outputIterator->second.segment( 9, 9 ) );
                 thrustDifference = manualRotationMatrix
-                        * thrustInterpolator->interpolate( outputIterator->first ) - outputIterator->second.segment( 0, 3 );
-                double currentThrustMagnitude = thrustInterpolator->interpolate( outputIterator->first ).norm( ) ;
+                        * retrievedThrustFunction( outputIterator->first ) - outputIterator->second.segment( 0, 3 );
+                double currentThrustMagnitude = retrievedThrustFunction( outputIterator->first ).norm( ) ;
 
                 for( unsigned int i = 0; i < 3; i++ )
                 {
