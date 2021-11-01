@@ -975,7 +975,7 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAcceleration )
 }
 
 //! Test whether the thrust is properly computed if the full vector (*magnitude and direction) is imposed in either the
-//! inertial or LVLH frame.
+//! inertial or TNW frame.
 BOOST_AUTO_TEST_CASE( testInterpolatedThrustVector )
 {
 
@@ -1072,7 +1072,7 @@ BOOST_AUTO_TEST_CASE( testInterpolatedThrustVector )
         std::shared_ptr< ThrustAccelerationSettings > thrustSettings =
                 std::make_shared< ThrustAccelerationSettings >(
                         thrustFunction, [ & ](  const double ){ return 300.0; },
-                    testCase == 0 ? inertial_thrust_frame : lvlh_thrust_frame, "Earth" );
+                    testCase == 0 ? inertial_thrust_frame : tnw_thrust_frame, "Earth" );
 
         accelerationsOfAsterix[ "Asterix" ].push_back( thrustSettings );
         accelerationMap[ "Asterix" ] = accelerationsOfAsterix;
@@ -1113,7 +1113,7 @@ BOOST_AUTO_TEST_CASE( testInterpolatedThrustVector )
                         relative_velocity_dependent_variable, "Asterix", "Earth" ) );
         dependentVariables.push_back(
                     std::make_shared< SingleDependentVariableSaveSettings >(
-                        lvlh_to_inertial_frame_rotation_dependent_variable, "Asterix", "Earth" ) );
+                        tnw_to_inertial_frame_rotation_dependent_variable, "Asterix", "Earth" ) );
 
 
         std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
@@ -1158,12 +1158,12 @@ BOOST_AUTO_TEST_CASE( testInterpolatedThrustVector )
         }
         else if( testCase == 1 )
         {
-            // Test whether thrust direction is indeed the imposed direction (in lvlh frame).
+            // Test whether thrust direction is indeed the imposed direction (in tnw frame).
             for( std::map< double, Eigen::VectorXd >::iterator outputIterator = dependentVariableResult.begin( );
                  outputIterator != dependentVariableResult.end( ); outputIterator++ )
             {
                 Eigen::Matrix3d manualRotationMatrix =
-                        reference_frames::getVelocityBasedLvlhToInertialRotation(
+                        reference_frames::getTnwToInertialRotation(
                             outputIterator->second.segment( 3, 6 ), Eigen::Vector6d::Zero( ) );
                 Eigen::Matrix3d currentRotationMatrix =
                         getMatrixFromVectorRotationRepresentation( outputIterator->second.segment( 9, 9 ) );

@@ -189,8 +189,8 @@ Eigen::Matrix3d getInertialToPlanetocentricFrameTransformationMatrix(
     return eigenRotationObject.toRotationMatrix( );
 }
 
-//! Get rotation from velocity based LVLH frame to inertial frame (I) frame.
-Eigen::Matrix3d getVelocityBasedLvlhToInertialRotation(
+//! Get rotation from velocity based TNW frame to inertial frame (I) frame.
+Eigen::Matrix3d getTnwToInertialRotation(
         const Eigen::Vector6d& vehicleState,
         const Eigen::Vector6d& centralBodyState,
         const bool doesNaxisPointAwayFromCentralBody )
@@ -222,30 +222,30 @@ Eigen::Matrix3d getVelocityBasedLvlhToInertialRotation(
 Eigen::Matrix3d getTnwToInertialRotation(const Eigen::Vector6d& vehicleInertialState,
                                          const bool doesNaxisPointAwayFromCentralBody )
 {
-    return getVelocityBasedLvlhToInertialRotation(
+    return getTnwToInertialRotation(
                 vehicleInertialState, Eigen::Vector6d::Zero( ), doesNaxisPointAwayFromCentralBody );
 }
 
 Eigen::Matrix3d getInertialToTnwRotation(const Eigen::Vector6d& vehicleInertialState,
                                          const bool doesNaxisPointAwayFromCentralBody )
 {
-    return getVelocityBasedLvlhToInertialRotation(
+    return getTnwToInertialRotation(
                 vehicleInertialState, Eigen::Vector6d::Zero( ), doesNaxisPointAwayFromCentralBody ).transpose( );
 }
 
 
-//! Get rotation from velocity based LVLH frame to inertial frame (I) frame.
-Eigen::Matrix3d getVelocityBasedLvlhToInertialRotationFromFunctions(
+//! Get rotation from velocity based TNW frame to inertial frame (I) frame.
+Eigen::Matrix3d getTnwToInertialRotationFromFunctions(
         const std::function< Eigen::Vector6d( ) >& vehicleStateFunction,
         const std::function< Eigen::Vector6d( ) >& centralBodyStateFunction,
         const bool doesNaxisPointAwayFromCentralBody )
 {
-    return getVelocityBasedLvlhToInertialRotation(
+    return getTnwToInertialRotation(
                 vehicleStateFunction( ), centralBodyStateFunction( ), doesNaxisPointAwayFromCentralBody );
 }
 
-//! Get rotation from velocity based LVLH frame to planetocentric frame.
-Eigen::Quaterniond getVelocityBasedLvlhToPlanetocentricRotationKeplerian(
+//! Get rotation from velocity based TNW frame to planetocentric frame.
+Eigen::Quaterniond getTnwToPlanetocentricRotationKeplerian(
         const Eigen::Matrix< double, 6, 1 > spacecraftKeplerianState )
 {
     double eccentricity = spacecraftKeplerianState( 1 );

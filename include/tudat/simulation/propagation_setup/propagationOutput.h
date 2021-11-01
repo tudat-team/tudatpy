@@ -835,7 +835,7 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
         parameterSize = 3;
         break;
     }
-    case lvlh_to_inertial_frame_rotation_dependent_variable:
+    case tnw_to_inertial_frame_rotation_dependent_variable:
     {
         std::function< Eigen::Vector6d( ) > vehicleStateFunction =
                 std::bind( &simulation_setup::Body::getState, bodies.at( dependentVariableSettings->associatedBody_ ) );
@@ -852,8 +852,34 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
         }
 
         std::function< Eigen::Matrix3d( ) > rotationFunction =
-                std::bind( &reference_frames::getVelocityBasedLvlhToInertialRotationFromFunctions,
+                std::bind( &reference_frames::getTnwToInertialRotationFromFunctions,
                            vehicleStateFunction, centralBodyStateFunction, true );
+        variableFunction = std::bind(
+                    &getVectorRepresentationForRotationMatrixFunction, rotationFunction );
+
+        parameterSize = 9;
+
+        break;
+    }
+    case rsw_to_inertial_frame_rotation_dependent_variable:
+    {
+        std::function< Eigen::Vector6d( ) > vehicleStateFunction =
+                std::bind( &simulation_setup::Body::getState, bodies.at( dependentVariableSettings->associatedBody_ ) );
+        std::function< Eigen::Vector6d( ) > centralBodyStateFunction;
+
+        if( ephemerides::isFrameInertial( dependentVariableSettings->secondaryBody_ ) )
+        {
+            centralBodyStateFunction =  [ ]( ){ return Eigen::Vector6d::Zero( ); };
+        }
+        else
+        {
+            centralBodyStateFunction =
+                    std::bind( &simulation_setup::Body::getState, bodies.at( dependentVariableSettings->secondaryBody_ ) );
+        }
+
+        std::function< Eigen::Matrix3d( ) > rotationFunction =
+                [=]( ){ return reference_frames::getRswSatelliteCenteredToInertialFrameRotationMatrix(
+                        vehicleStateFunction( ) - centralBodyStateFunction( ) ); };
         variableFunction = std::bind(
                     &getVectorRepresentationForRotationMatrixFunction, rotationFunction );
 
