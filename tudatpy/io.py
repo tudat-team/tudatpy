@@ -3,7 +3,6 @@ import numpy as np
 import os
 from .kernel.io import *
 
-
 def save2txt(solution, filename, directory="./"):
     """
 
@@ -12,7 +11,6 @@ def save2txt(solution, filename, directory="./"):
     solution
     filename
     directory
-    column_names
 
     Returns
     -------
@@ -30,3 +28,8 @@ def save2txt(solution, filename, directory="./"):
         _filename = filename + ".txt"
     df.index.name = "time"
     df.to_csv(os.path.join(directory, filename),header=False,sep='\t')
+
+
+def save_time_history_to_file(solution, filename, directory="./"):
+
+    save2txt(solution,filename,directory)
