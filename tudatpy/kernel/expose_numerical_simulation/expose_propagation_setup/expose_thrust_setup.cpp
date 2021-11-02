@@ -90,7 +90,7 @@ void expose_thrust_setup(py::module &m) {
                                  get_docstring("ThrustFrames").c_str())
             .value("unspecified_thrust_frame_type", tss::ThrustFrames::unspecified_thrust_frame)
             .value("inertial_thrust_frame_type", tss::ThrustFrames::inertial_thrust_frame)
-            .value("lvlh_thrust_frame_type", tss::ThrustFrames::lvlh_thrust_frame)
+            .value("tnw_thrust_frame_type", tss::ThrustFrames::tnw_thrust_frame)
             .export_values();
 
     py::class_<
