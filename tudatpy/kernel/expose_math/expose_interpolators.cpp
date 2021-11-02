@@ -68,7 +68,7 @@ void expose_interpolators(py::module &m) {
             .value("hunting_algorithm", ti::AvailableLookupScheme::huntingAlgorithm,
                    get_docstring("AvailableLookupScheme.hunting_algorithm").c_str() )
             .value("binary_search", ti::AvailableLookupScheme::binarySearch,
-                   get_docstring("AvailableLookupScheme.binarySearch").c_str() )
+                   get_docstring("AvailableLookupScheme.binary_search").c_str() )
             .export_values();
 
     py::enum_<ti::LagrangeInterpolatorBoundaryHandling>(m, "LagrangeInterpolatorBoundaryHandling", get_docstring("LagrangeInterpolatorBoundaryHandling").c_str())
@@ -145,14 +145,14 @@ void expose_interpolators(py::module &m) {
           py::arg("data_to_interpolate"),
           py::arg("interpolator_settings"),
           py::arg("data_first_derivatives") = std::vector< Eigen::VectorXd >( ),
-          get_docstring("create_one_dimensional_scalar_interpolator").c_str( ) );
+          get_docstring("create_one_dimensional_vector_interpolator").c_str( ) );
 
     m.def("create_one_dimensional_matrix_interpolator",
           &ti::createOneDimensionalInterpolatorBasic< double, Eigen::MatrixXd >,
           py::arg("data_to_interpolate"),
           py::arg("interpolator_settings"),
           py::arg("data_first_derivatives") = std::vector< Eigen::MatrixXd >( ),
-          get_docstring("create_one_dimensional_vector_interpolator").c_str( ) );
+          get_docstring("create_one_dimensional_matrix_interpolator").c_str( ) );
 
     py::class_<
             ti::OneDimensionalInterpolator<double, double>,
@@ -160,7 +160,8 @@ void expose_interpolators(py::module &m) {
                                                                              get_docstring("OneDimensionalInterpolatorScalar").c_str())
             .def("interpolate", py::overload_cast< const double >(
                      &ti::OneDimensionalInterpolator<double, double>::interpolate ),
-                 py::arg("independent_variable_value") );
+                 py::arg("independent_variable_value"),
+                 get_docstring("OneDimensionalInterpolatorScalar.interpolate").c_str()  );
 
     py::class_<
             ti::OneDimensionalInterpolator<double, Eigen::VectorXd>,
