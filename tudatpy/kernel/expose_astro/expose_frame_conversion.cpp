@@ -44,13 +44,17 @@ void expose_frame_conversion(py::module &m) {
           get_docstring("rsw_to_inertial_rotation_matrix").c_str());
 
     m.def("tnw_to_inertial_rotation_matrix",
-          &trf::getTnwToInertialRotation,
+          py::overload_cast<
+          const Eigen::Vector6d&,
+          const bool >( &trf::getTnwToInertialRotation ),
           py::arg("inertial_cartesian_state"),
           py::arg("n_axis_points_away_from_central_body") = true,
           get_docstring("tnw_to_inertial_rotation_matrix").c_str());
 
     m.def("inertial_to_tnw_rotation_matrix",
-          &trf::getInertialToTnwRotation,
+          py::overload_cast<
+          const Eigen::Vector6d&,
+          const bool >( &trf::getInertialToTnwRotation ),
           py::arg("inertial_cartesian_state"),
           py::arg("n_axis_points_away_from_central_body") = true,
           get_docstring("inertial_to_tnw_rotation_matrix").c_str());
