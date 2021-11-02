@@ -236,27 +236,27 @@ void expose_acceleration_setup(py::module &m) {
           py::arg("thrust_magnitude_settings"),
           get_docstring("thrust_from_direction_and_magnitude").c_str());
 
-    m.def("thrust_from_interpolator", py::overload_cast<
-                  const std::shared_ptr<tinterp::DataInterpolationSettings<double, Eigen::Vector3d>>&,
+    m.def("thrust_from_custom_function", py::overload_cast<
+                  const std::function< Eigen::Vector3d( const double ) >,
                   const std::function<double(const double)>,
                   const tss::ThrustFrames,
                   const std::string>(&tss::thrustAcceleration),
-          py::arg("data_interpolation_settings"),
+          py::arg("thrust_force_function"),
           py::arg("specific_impulse_function"),
-          py::arg("thrust_frame") = tss::ThrustFrames::unspecified_thrust_frame,
+          py::arg("thrust_frame") = tss::ThrustFrames::inertial_thrust_frame,
           py::arg("central_body") = "",
-          get_docstring("thrust_from_interpolator").c_str());
+          get_docstring("thrust_from_custom_function").c_str());
 
-    m.def("thrust_from_interpolator_variable_isp", py::overload_cast<
-                  const std::shared_ptr<tinterp::DataInterpolationSettings<double, Eigen::Vector3d>>&,
+    m.def("thrust_and_isp_from_custom_function", py::overload_cast<
+                  const std::function< Eigen::Vector3d( const double ) >,
                   const double,
                   const tss::ThrustFrames,
                   const std::string>(&tss::thrustAcceleration),
-          py::arg("data_interpolation_settings"),
+          py::arg("thrust_force_function"),
           py::arg("constant_specific_impulse"),
-          py::arg("thrust_frame") = tss::ThrustFrames::unspecified_thrust_frame,
+          py::arg("thrust_frame") = tss::ThrustFrames::inertial_thrust_frame,
           py::arg("central_body") = "",
-          get_docstring("thrust_from_interpolator_variable_isp").c_str());
+          get_docstring("thrust_and_isp_from_custom_function").c_str());
 
 
 }

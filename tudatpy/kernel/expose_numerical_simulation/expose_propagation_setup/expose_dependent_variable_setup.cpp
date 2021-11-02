@@ -119,9 +119,12 @@ namespace dependent_variable {
                 .value("total_mass_rate_type",
                        tp::PropagationDependentVariables::total_mass_rate_dependent_variables,
                        get_docstring("PropagationDependentVariables.total_mass_rate_type").c_str())
-                .value("lvlh_to_inertial_frame_rotation_type",
-                       tp::PropagationDependentVariables::lvlh_to_inertial_frame_rotation_dependent_variable,
-                       get_docstring("PropagationDependentVariables.lvlh_to_inertial_frame_rotation_type").c_str())
+                .value("tnw_to_inertial_frame_rotation_type",
+                       tp::PropagationDependentVariables::tnw_to_inertial_frame_rotation_dependent_variable,
+                       get_docstring("PropagationDependentVariables.tnw_to_inertial_frame_rotation_type").c_str())
+                .value("rsw_to_inertial_frame_rotation_type",
+                       tp::PropagationDependentVariables::rsw_to_inertial_frame_rotation_dependent_variable,
+                       get_docstring("PropagationDependentVariables.tnw_to_inertial_frame_rotation_type").c_str())
                 .value("periapsis_altitude_type",
                        tp::PropagationDependentVariables::periapsis_altitude_dependent_variable,
                        get_docstring("PropagationDependentVariables.periapsis_altitude_type").c_str())
@@ -485,11 +488,17 @@ namespace dependent_variable {
               py::arg("body"),
               get_docstring("inertial_to_body_fixed_rotation_frame").c_str());
 
-        m.def("lvlh_to_inertial_rotation_matrix",
-              &tp::lvlhToInertialFrameRotationMatrixVariable,
+        m.def("tnw_to_inertial_rotation_matrix",
+              &tp::tnwToInertialFrameRotationMatrixVariable,
               py::arg("body"),
               py::arg("central_body"),
-              get_docstring("lvlh_to_inertial_rotation_matrix").c_str());
+              get_docstring("tnw_to_inertial_rotation_matrix").c_str());
+
+        m.def("rsw_to_inertial_rotation_matrix",
+              &tp::tnwToInertialFrameRotationMatrixVariable,
+              py::arg("body"),
+              py::arg("central_body"),
+              get_docstring("rsw_to_inertial_rotation_matrix").c_str());
 
         m.def("inertial_to_body_fixed_313_euler_angles",
               &tp::eulerAnglesToBodyFixed313Variable,
