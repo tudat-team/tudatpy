@@ -30,7 +30,7 @@ PYBIND11_MODULE(kernel, m) {
 
   // math module
   auto math = m.def_submodule("math");
-  tudatpy::expose_math(math);
+  tudatpy::math::expose_math(math);
 
   // astro module
   auto astro = m.def_submodule("astro");
