@@ -22,11 +22,12 @@
 namespace py = pybind11;
 
 namespace tudatpy {
+namespace math {
 
 void expose_math(py::module &m) {
 
   auto interpolators = m.def_submodule("interpolators");
-  expose_interpolators(interpolators);
+  interpolators::expose_interpolators(interpolators);
 
   auto numerical_integrators = m.def_submodule("numerical_integrators");
   expose_numerical_integrators(numerical_integrators);
@@ -37,6 +38,7 @@ void expose_math(py::module &m) {
   auto geometry = m.def_submodule("geometry");
   expose_geometry(geometry);
 
+}
 };
 
 };// namespace tudatpy
