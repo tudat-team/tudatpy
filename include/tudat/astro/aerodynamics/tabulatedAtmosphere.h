@@ -54,7 +54,7 @@ void checkVariableUniqueness( std::vector< VariableType > variables );
  *  Tabulated atmospheres class, for example US1976. The default path from which the files are
  *  obtained is: /external/AtmosphereTables
  */
-class TabulatedAtmosphere : public StandardAtmosphere
+class TabulatedAtmosphere : public AtmosphereModel
 {
 public:
 

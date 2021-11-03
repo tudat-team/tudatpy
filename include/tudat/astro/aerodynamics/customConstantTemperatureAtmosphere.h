@@ -109,7 +109,7 @@ double threeTermAtmosphereModel( const double altitude, const double longitude, 
  *  latitude and time. The pressure is then determined with the ideal gas law, and the
  *  temperature is assumed to be constant throughtout the atmosphere domain.
  */
-class CustomConstantTemperatureAtmosphere : public StandardAtmosphere
+class CustomConstantTemperatureAtmosphere : public AtmosphereModel
 {
 public:
 
