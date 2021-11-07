@@ -17,6 +17,8 @@
 #include <tudat/astro/mission_segments/createTransferTrajectory.h>
 #include <tudat/simulation/propagation_setup/accelerationSettings.h>
 
+#include "tudatpy/docstrings.h"
+
 namespace py = pybind11;
 namespace tms = tudat::mission_segments;
 namespace tss = tudat::simulation_setup;
@@ -27,34 +29,46 @@ void expose_transfer_trajectory(py::module &m) {
 
     m.attr("DEFAULT_MINIMUM_PERICENTERS") = tms::DEFAULT_MINIMUM_PERICENTERS;
 
-    py::enum_<tms::TransferLegTypes>(m, "TransferLegTypes")
-            .value("unpowered_unperturbed_leg_type", tms::TransferLegTypes::unpowered_unperturbed_leg)
-            .value("dsm_position_based_leg_type", tms::TransferLegTypes::dsm_position_based_leg)
-            .value("dsm_velocity_based_leg_type", tms::TransferLegTypes::dsm_velocity_based_leg)
+    py::enum_<tms::TransferLegTypes>(m, "TransferLegTypes",
+                                     get_docstring("TransferLegTypes").c_str())
+            .value("unpowered_unperturbed_leg_type",
+                   tms::TransferLegTypes::unpowered_unperturbed_leg,
+                   get_docstring("TransferLegTypes.unpowered_unperturbed_leg_type").c_str())
+            .value("dsm_position_based_leg_type",
+                   tms::TransferLegTypes::dsm_position_based_leg,
+                   get_docstring("TransferLegTypes.dsm_position_based_leg_type").c_str())
+            .value("dsm_velocity_based_leg_type",
+                   tms::TransferLegTypes::dsm_velocity_based_leg,
+                   get_docstring("TransferLegTypes.dsm_velocity_based_leg_type").c_str())
             .export_values();
 
     py::class_<
             tms::TransferNodeSettings,
-            std::shared_ptr<tms::TransferNodeSettings> >(m, "TransferNodeSettings");
+            std::shared_ptr<tms::TransferNodeSettings> >(m, "TransferNodeSettings",
+                                                         get_docstring("TransferNodeSettings").c_str());
 
     py::class_<
             tms::SwingbyNodeSettings,
             std::shared_ptr<tms::SwingbyNodeSettings>,
-            tms::TransferNodeSettings >(m, "SwingbyNodeSettings");
+            tms::TransferNodeSettings >(m, "SwingbyNodeSettings",
+                                        get_docstring("SwingbyNodeSettings").c_str());
 
     py::class_<
             tms::EscapeAndDepartureNodeSettings,
             std::shared_ptr<tms::EscapeAndDepartureNodeSettings>,
-            tms::TransferNodeSettings >(m, "EscapeAndDepartureNodeSettings");
+            tms::TransferNodeSettings >(m, "EscapeAndDepartureNodeSettings",
+                                        get_docstring("EscapeAndDepartureNodeSettings").c_str());
 
     py::class_<
             tms::CaptureAndInsertionNodeSettings,
             std::shared_ptr<tms::CaptureAndInsertionNodeSettings>,
-            tms::TransferNodeSettings >(m, "CaptureAndInsertionNodeSettings");
+            tms::TransferNodeSettings >(m, "CaptureAndInsertionNodeSettings",
+                                        get_docstring("CaptureAndInsertionNodeSettings").c_str());
 
     py::class_<
             tms::TransferLegSettings,
-            std::shared_ptr<tms::TransferLegSettings> >(m, "TransferLegSettings");
+            std::shared_ptr<tms::TransferLegSettings> >(m, "TransferLegSettings",
+                                                        get_docstring("TransferLegSettings").c_str());
 
     m.def("mga_transfer_settings",
           py::overload_cast<
@@ -68,8 +82,9 @@ void expose_transfer_trajectory(py::module &m) {
           py::arg( "leg_type" ),
           py::arg( "departure_orbit" ) = std::make_pair( TUDAT_NAN, TUDAT_NAN ),
           py::arg( "arrival_orbit" ) = std::make_pair( TUDAT_NAN, TUDAT_NAN ),
-          py::arg( "minimum_pericenters" ) = tms::DEFAULT_MINIMUM_PERICENTERS
-            );
+          py::arg( "minimum_pericenters" ) = tms::DEFAULT_MINIMUM_PERICENTERS,
+          get_docstring("mga_transfer_settings").c_str()
+          );
 
     py::class_<
             tms::TransferTrajectory,
