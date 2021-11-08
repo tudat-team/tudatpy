@@ -85,7 +85,8 @@ void expose_propagator_setup(py::module &m) {
                    get_docstring("RotationalPropagatorType.exponential_map").c_str())
             .export_values();
 
-    py::enum_<tp::PropagationTerminationTypes>(m, "PropagationTerminationTypes")
+    py::enum_<tp::PropagationTerminationTypes>(m, "PropagationTerminationTypes",
+                                               get_docstring("PropagationTerminationTypes").c_str())
             .value("time_stopping_condition_type",
                    tp::PropagationTerminationTypes::time_stopping_condition,
                    get_docstring("PropagationTerminationTypes.time_stopping_condition_type").c_str())
