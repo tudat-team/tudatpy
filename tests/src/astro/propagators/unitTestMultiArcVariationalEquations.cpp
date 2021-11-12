@@ -247,7 +247,8 @@ executeMultiArcEarthMoonSimulation(
 
 
         // Retrieve test data
-        for( unsigned int arc = 0; arc < arcEndTimes.size( ); arc++ )
+        unsigned int numberOfArcs = arcEndTimes.size( );
+        for( unsigned int arc = 0; arc < numberOfArcs; arc++ )
         {
             double testEpoch = arcEndTimes.at( arc ) - 2.0E4;
             Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > testStates =
@@ -261,6 +262,22 @@ executeMultiArcEarthMoonSimulation(
                 results.first.push_back( variationalEquations.getStateTransitionMatrixInterface( )->
                                          getCombinedStateTransitionAndSensitivityMatrix( testEpoch ) );
                 results.second.push_back( multiArcPropagatorSettings->getInitialStateList( ).at( arc ) );
+                Eigen::MatrixXd testMatrixDirect =
+                        variationalEquations.getStateTransitionMatrixInterface( )->
+                          getCombinedStateTransitionAndSensitivityMatrix( testEpoch );
+                Eigen::MatrixXd testMatrixFull=
+                        variationalEquations.getStateTransitionMatrixInterface( )->
+                          getFullCombinedStateTransitionAndSensitivityMatrix( testEpoch );
+
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                            testMatrixDirect.block( 0, 0, 12, 12 ),
+                            testMatrixFull.block( 0, 12 * arc, 12, 12 ),
+                            std::numeric_limits< double >::epsilon( ) );
+
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                            testMatrixDirect.block( 0, 12, 12, 3 ),
+                            testMatrixFull.block( 0, 12 * numberOfArcs, 12, 3 ),
+                            std::numeric_limits< double >::epsilon( ) );
             }
             else
             {
