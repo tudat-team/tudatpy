@@ -682,6 +682,12 @@ std::shared_ptr< OneDimensionalInterpolator< TimeType, Eigen::Matrix< StateScala
 convertBetweenStaticDynamicEigenTypeInterpolators(
         const std::shared_ptr< OneDimensionalInterpolator< TimeType, Eigen::Matrix< StateScalarType, InputRows, InputColums > > > inputInterpolator )
 {
+    if( ( InputRows > 0 && OutputRows > 0 && InputRows != OutputRows ) ||
+            ( InputColums > 0 && OutputColums > 0 && InputColumns != OutputColumns ) )
+    {
+        throw std::runtime_error( "Error when converting interpolator Eigen type; sizes are inconsistent, input columns, "
+                                  "cannot convert between different fixed sizes" );
+    }
     typedef Eigen::Matrix< StateScalarType, InputRows, InputColums > InputState;
     typedef Eigen::Matrix< StateScalarType, OutputRows, OutputColums > OutputState;
 
