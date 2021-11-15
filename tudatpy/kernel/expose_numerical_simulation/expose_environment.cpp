@@ -48,6 +48,7 @@ namespace tr = tudat::reference_frames;
 namespace tg = tudat::gravitation;
 namespace trf = tudat::reference_frames;
 namespace tss = tudat::simulation_setup;
+namespace ti = tudat::interpolators;
 
 
 
@@ -318,8 +319,12 @@ void expose_environment(py::module &m) {
     py::class_<te::TabulatedCartesianEphemeris< double, double >,
             std::shared_ptr<te::TabulatedCartesianEphemeris< double, double > >,
             te::Ephemeris>(m, "TabulatedEphemeris")
-            .def("reset_interpolator", &te::TabulatedCartesianEphemeris< double, double >::resetInterpolator,
-                 py::arg("interpolator") );
+            .def_property("interpolator",
+                          &te::TabulatedCartesianEphemeris< double, double >::getDynamicVectorSizeInterpolator,
+                          py::overload_cast<
+                          const std::shared_ptr< ti::OneDimensionalInterpolator
+                          < double, Eigen::VectorXd > > >(
+                              &te::TabulatedCartesianEphemeris< double, double >::resetInterpolator ) );
 
 
     py::class_<te::Tle, std::shared_ptr<te::Tle>>(m, "Tle")
