@@ -30,6 +30,20 @@ namespace tudat
 namespace interpolators
 {
 
+//! Enumeration of available interpolator types.
+enum InterpolatorTypes
+{
+    linear_interpolator = 0,
+    multi_linear_interpolator = 1,
+    cubic_spline_interpolator = 2,
+    lagrange_interpolator = 3,
+    hermite_spline_interpolator = 4,
+    piecewise_constant_interpolator = 5,
+    discrete_jump_linear_interpolator = 6
+
+};
+
+
 //! Base class for interpolator with one independent variable.
 /*!
  * Base class for the interpolators in one independent variable included in Tudat.
@@ -165,6 +179,23 @@ public:
     {
         return dependentValues_;
     }
+
+    BoundaryInterpolationType getBoundaryHandling( )
+    {
+        return boundaryHandling_;
+    }
+
+    std::pair< DependentVariableType, DependentVariableType > getDefaultExtrapolationValue( )
+    {
+        return defaultExtrapolationValue_;
+    }
+
+    AvailableLookupScheme getSelectedLookupScheme( )
+    {
+        return selectedLookupScheme_;
+    }
+
+    virtual InterpolatorTypes getInterpolatorType( ) = 0;
 
 protected:
 
@@ -307,8 +338,10 @@ protected:
      */
     void makeLookupScheme( const AvailableLookupScheme selectedScheme )
     {
+        selectedLookupScheme_ = selectedScheme;
+
         // Find which type of scheme is used.
-        switch ( selectedScheme )
+        switch ( selectedLookupScheme_ )
         {
         case binarySearch:
         {
@@ -355,6 +388,8 @@ protected:
      * Behavior of interpolator when independent variable is outside range.
      */
     BoundaryInterpolationType boundaryHandling_;
+
+    AvailableLookupScheme selectedLookupScheme_ = undefinedScheme;
 
     //! Default value to be used for extrapolation.
     /*!
