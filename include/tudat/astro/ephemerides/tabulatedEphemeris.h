@@ -158,7 +158,8 @@ public:
 
     VariableStateInterpolatorPointer getDynamicVectorSizeInterpolator( )
     {
-        return interpolators::convertBetweenStaticDynamicEigenTypeInterpolators(
+        return interpolators::convertBetweenStaticDynamicEigenTypeInterpolators<
+                TimeType, StateScalarType, 6, 1, Eigen::Dynamic, 1 >(
                     interpolator_ );
     }
 
