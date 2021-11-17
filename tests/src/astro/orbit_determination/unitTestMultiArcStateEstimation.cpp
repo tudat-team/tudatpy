@@ -75,7 +75,7 @@ Eigen::VectorXd  executeParameterEstimation(
 
     BodyListSettings bodySettings =
             getDefaultBodySettings( bodyNames, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
-    bodySettings.at( "Earth" )->ephemerisSettings-> resetMakeMultiArcEphemeris( true );
+    bodySettings.at( "Earth" )->ephemerisSettings->resetMakeMultiArcEphemeris( true );
     bodySettings.at( "Moon" )->ephemerisSettings->resetFrameOrigin( "Sun" );
     bodySettings.at( "Mars" )->rotationModelSettings = std::make_shared< SimpleRotationModelSettings >(
                 "ECLIPJ2000", "IAU_Mars",
