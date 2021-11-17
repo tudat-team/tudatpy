@@ -427,9 +427,7 @@ public:
 
         if( setIntegratedResult_ )
         {
-            frameManager_ = simulation_setup::createFrameManager( bodies.getMap( ) );
-            integratedStateProcessors_ = createIntegratedStateProcessors< TimeType, StateScalarType >(
-                        propagatorSettings_, bodies_, frameManager_ );
+            createAndSetIntegratedStateProcessors( );
         }
 
         try
@@ -880,6 +878,13 @@ public:
         printDependentVariableData_ = true;
     }
 
+    void createAndSetIntegratedStateProcessors( )
+    {
+        frameManager_ = simulation_setup::createFrameManager( bodies_.getMap( ) );
+        integratedStateProcessors_ = createIntegratedStateProcessors< TimeType, StateScalarType >(
+                    propagatorSettings_, bodies_, frameManager_ );
+    }
+
 
 protected:
 
@@ -1123,8 +1128,8 @@ public:
 
                 singleArcDynamicsSimulators_.push_back(
                             std::make_shared< SingleArcDynamicsSimulator< StateScalarType, TimeType > >(
-                                bodies, integratorSettings, singleArcSettings.at( i ), false, false, true ) );
-                singleArcDynamicsSimulators_[ i ]->resetSetIntegratedResult( false );
+                                bodies, integratorSettings, singleArcSettings.at( i ), false, false, false ) );
+                singleArcDynamicsSimulators_[ i ]->createAndSetIntegratedStateProcessors( );
             }
 
             equationsOfMotionNumericalSolution_.resize( arcStartTimes.size( ) );
@@ -1186,8 +1191,8 @@ public:
             {
                 singleArcDynamicsSimulators_.push_back(
                             std::make_shared< SingleArcDynamicsSimulator< StateScalarType, TimeType > >(
-                                bodies, integratorSettings.at( i ), singleArcSettings.at( i ), false, false, true ) );
-                singleArcDynamicsSimulators_[ i ]->resetSetIntegratedResult( false );
+                                bodies, integratorSettings.at( i ), singleArcSettings.at( i ), false, false, false ) );
+                singleArcDynamicsSimulators_[ i ]->createAndSetIntegratedStateProcessors( );
             }
 
             equationsOfMotionNumericalSolution_.resize( singleArcSettings.size( ) );
