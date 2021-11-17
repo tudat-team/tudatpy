@@ -914,18 +914,21 @@ private:
 
 void checkRotationalStatesFeasibility(
         const std::vector< std::string >& bodiesToIntegrate,
-        const simulation_setup::SystemOfBodies& bodies );
+        const simulation_setup::SystemOfBodies& bodies,
+        const bool setIntegratedResult = false );
 
 
 void checkTranslationalStatesFeasibility(
         const std::vector< std::string >& bodiesToIntegrate,
         const std::vector< std::string >& centralBodies,
-        const simulation_setup::SystemOfBodies& bodies );
+        const simulation_setup::SystemOfBodies& bodies,
+        const bool setIntegratedResult = false );
 
 template< typename StateScalarType >
 void checkPropagatedStatesFeasibility(
         const std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > propagatorSettings,
-        const simulation_setup::SystemOfBodies& bodies )
+        const simulation_setup::SystemOfBodies& bodies,
+        const bool setIntegratedResult = false )
 {
     // Check dynamics type.
     switch( propagatorSettings->getStateType( ) )
@@ -959,7 +962,7 @@ void checkPropagatedStatesFeasibility(
                     }
 
                     //  Create state processor
-                    checkPropagatedStatesFeasibility( typeIterator->second.at( i ), bodies );
+                    checkPropagatedStatesFeasibility( typeIterator->second.at( i ), bodies, setIntegratedResult );
                 }
             }
             else
@@ -982,7 +985,7 @@ void checkPropagatedStatesFeasibility(
         }
         checkTranslationalStatesFeasibility(
                     translationalPropagatorSettings->bodiesToIntegrate_,
-                    translationalPropagatorSettings->centralBodies_, bodies );
+                    translationalPropagatorSettings->centralBodies_, bodies, setIntegratedResult );
         break;
     }
     case rotational_state:
@@ -995,7 +998,7 @@ void checkPropagatedStatesFeasibility(
         }
         checkRotationalStatesFeasibility(
                     rotationalPropagatorSettings->bodiesToIntegrate_,
-                    bodies );
+                    bodies, setIntegratedResult );
         break;
     }
     case body_mass_state:
