@@ -423,7 +423,7 @@ public:
             throw std::runtime_error( "Error in dynamics simulator, integrator settings not defined." );
         }
 
-        checkPropagatedStatesFeasibility( propagatorSettings_, bodies_ );
+        checkPropagatedStatesFeasibility( propagatorSettings_, bodies_, setIntegratedResult_ );
 
         if( setIntegratedResult_ )
         {
