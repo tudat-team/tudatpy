@@ -24,7 +24,8 @@ namespace propagators
 void checkTranslationalStatesFeasibility(
         const std::vector< std::string >& bodiesToIntegrate,
         const std::vector< std::string >& centralBodies,
-        const simulation_setup::SystemOfBodies& bodies )
+        const simulation_setup::SystemOfBodies& bodies,
+        const bool setIntegratedResult )
 {
     // Check feasibility of epheme                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  ris origins.
     for( auto bodyIterator : bodies.getMap( )  )
@@ -54,19 +55,22 @@ void checkTranslationalStatesFeasibility(
 
         if( bodies.count( bodyToIntegrate ) == 0 )
         {
-                throw std::runtime_error( "Error when checking translational dynamics feasibility of body " +
-                                          bodyToIntegrate + " no such body found" );
+            throw std::runtime_error( "Error when checking translational dynamics feasibility of body " +
+                                      bodyToIntegrate + " no such body found" );
         }
         else
         {
-            if( bodies.at( bodyToIntegrate )->getEphemeris( ) == nullptr )
+            if( setIntegratedResult )
             {
-                simulation_setup::addEmptyTabulatedEphemeris( bodies, bodyToIntegrate, centralBody );
-            }
-            else if( !ephemerides::isTabulatedEphemeris( bodies.at( bodyToIntegrate )->getEphemeris( )  ) )
-            {
-                throw std::runtime_error( "Error when checking translational dynamics feasibility of body " +
-                                          bodyToIntegrate + " ephemeris exists, but is not tabulated." );
+                if( bodies.at( bodyToIntegrate )->getEphemeris( ) == nullptr )
+                {
+                    simulation_setup::addEmptyTabulatedEphemeris( bodies, bodyToIntegrate, centralBody );
+                }
+                else if( !ephemerides::isTabulatedEphemeris( bodies.at( bodyToIntegrate )->getEphemeris( )  ) )
+                {
+                    throw std::runtime_error( "Error when checking translational dynamics feasibility of body " +
+                                              bodyToIntegrate + " ephemeris exists, but is not tabulated." );
+                }
             }
         }
     }
@@ -76,7 +80,8 @@ void checkTranslationalStatesFeasibility(
 //! Function checking feasibility of resetting the translational dynamics
 void checkRotationalStatesFeasibility(
         const std::vector< std::string >& bodiesToIntegrate,
-        const simulation_setup::SystemOfBodies& bodies )
+        const simulation_setup::SystemOfBodies& bodies,
+        const bool setIntegratedResult )
 {
     // Check whether each integrated body exists, and whether it has a TabulatedEphemeris
     for( unsigned int i = 0; i < bodiesToIntegrate.size( ); i++ )
@@ -85,19 +90,22 @@ void checkRotationalStatesFeasibility(
 
         if( bodies.count( bodyToIntegrate ) == 0 )
         {
-                throw std::runtime_error( "Error when checking rotational dynamics feasibility of body " +
-                                          bodyToIntegrate + " no such body found" );
+            throw std::runtime_error( "Error when checking rotational dynamics feasibility of body " +
+                                      bodyToIntegrate + " no such body found" );
         }
         else
         {
-            if( bodies.at( bodyToIntegrate )->getRotationalEphemeris( ) == nullptr )
+            if( setIntegratedResult )
             {
-                simulation_setup::addEmptyTabulatedRotationalEphemeris( bodies, bodyToIntegrate );
-            }
-            else if( !ephemerides::isTabulatedRotationalEphemeris( bodies.at( bodyToIntegrate )->getRotationalEphemeris( )  ) )
-            {
-                throw std::runtime_error( "Error when checking rotational dynamics feasibility of body " +
-                                          bodyToIntegrate + " rotational ephemeris exists, but is not tabulated." );
+                if( bodies.at( bodyToIntegrate )->getRotationalEphemeris( ) == nullptr )
+                {
+                    simulation_setup::addEmptyTabulatedRotationalEphemeris( bodies, bodyToIntegrate );
+                }
+                else if( !ephemerides::isTabulatedRotationalEphemeris( bodies.at( bodyToIntegrate )->getRotationalEphemeris( )  ) )
+                {
+                    throw std::runtime_error( "Error when checking rotational dynamics feasibility of body " +
+                                              bodyToIntegrate + " rotational ephemeris exists, but is not tabulated." );
+                }
             }
         }
     }
@@ -110,7 +118,7 @@ std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Matri
 createStateInterpolator( const std::map< double, Eigen::Matrix< double, 6, 1 > >& stateMap )
 {
     return std::make_shared<
-        interpolators::LagrangeInterpolator< double, Eigen::Matrix< double, 6, 1 > > >( stateMap, 6 );
+            interpolators::LagrangeInterpolator< double, Eigen::Matrix< double, 6, 1 > > >( stateMap, 6 );
 
 }
 
@@ -120,7 +128,7 @@ std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Matri
 createStateInterpolator( const std::map< double, Eigen::Matrix< long double, 6, 1 > >& stateMap )
 {
     return std::make_shared<
-        interpolators::LagrangeInterpolator< double, Eigen::Matrix< long double, 6, 1 > > >( stateMap, 6 );
+            interpolators::LagrangeInterpolator< double, Eigen::Matrix< long double, 6, 1 > > >( stateMap, 6 );
 }
 
 //! Function to create an interpolator for the new translational state of a body.
@@ -129,7 +137,7 @@ std::shared_ptr< interpolators::OneDimensionalInterpolator< Time, Eigen::Matrix<
 createStateInterpolator( const std::map< Time, Eigen::Matrix< long double, 6, 1 > >& stateMap )
 {
     return std::make_shared<
-        interpolators::LagrangeInterpolator< Time, Eigen::Matrix< long double, 6, 1 >, long double > >( stateMap, 6 );
+            interpolators::LagrangeInterpolator< Time, Eigen::Matrix< long double, 6, 1 >, long double > >( stateMap, 6 );
 }
 
 
@@ -139,7 +147,7 @@ std::shared_ptr< interpolators::OneDimensionalInterpolator< Time, Eigen::Matrix<
 createStateInterpolator( const std::map< Time, Eigen::Matrix< double, 6, 1 > >& stateMap )
 {
     return std::make_shared<
-        interpolators::LagrangeInterpolator< Time, Eigen::Matrix< double, 6, 1 >, long double > >( stateMap, 6 );
+            interpolators::LagrangeInterpolator< Time, Eigen::Matrix< double, 6, 1 >, long double > >( stateMap, 6 );
 }
 
 
