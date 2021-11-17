@@ -384,13 +384,6 @@ executeOrbiterSimulation(
                 "Sun", createRadiationPressureInterface(
                     asterixRadiationPressureSettings, "Vehicle", bodies ) );
 
-    bodies.at( "Vehicle" )->setEphemeris( std::make_shared< TabulatedCartesianEphemeris< > >(
-                                              std::shared_ptr< interpolators::OneDimensionalInterpolator
-                                              < double, Eigen::Vector6d > >( ), "Earth", "ECLIPJ2000" ) );
-
-
-
-
     // Set accelerations on Vehicle that are to be taken into account.
     SelectedAccelerationMap accelerationMap;
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
@@ -1049,9 +1042,6 @@ BOOST_AUTO_TEST_CASE( testMassRateVariationalEquations )
     bodies.createEmptyBody( "Asterix" );
     double initialBodyMass = 2000.0;
     bodies.getBody( "Asterix" )->setConstantBodyMass( initialBodyMass );
-    bodies.getBody( "Asterix" )->setEphemeris( std::make_shared< TabulatedCartesianEphemeris< > >(
-                                                   std::shared_ptr< interpolators::OneDimensionalInterpolator
-                                                   < double, Eigen::Vector6d > >( ), "Earth", "J2000" ) );
 
     Eigen::MatrixXd finalStateTransitionTranslationalOnly;
     Eigen::MatrixXd finalStateTransitionCoupled;

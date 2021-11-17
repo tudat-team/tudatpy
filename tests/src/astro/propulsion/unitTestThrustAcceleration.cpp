@@ -63,13 +63,6 @@ BOOST_AUTO_TEST_CASE( testConstantThrustAcceleration )
     double vehicleMass = 5.0E3;
     bodies.createEmptyBody( "Vehicle" );
     bodies.at( "Vehicle" )->setConstantBodyMass( vehicleMass );
-    bodies.at( "Vehicle" )->setEphemeris(
-                std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
-                    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector6d  > >( ),
-                    "SSB" ) );
-
-    
-    
 
     // Define propagator settings variables.
     SelectedAccelerationMap accelerationMap;
@@ -200,16 +193,11 @@ BOOST_AUTO_TEST_CASE( testFromEngineThrustAcceleration )
 
         bodies.createEmptyBody( "Vehicle" );
         bodies.at( "Vehicle" )->setConstantBodyMass( vehicleMass );
-        bodies.at( "Vehicle" )->setEphemeris(
-                    std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
-                        std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector6d  > >( ),
-                        "SSB" ) );
 
         double thrustMagnitude1 = 1.0E3;
         double specificImpulse1 = 250.0;
         double massFlow1 = propulsion::computePropellantMassRateFromSpecificImpulse(
                     thrustMagnitude1, specificImpulse1 );
-
 
         double thrustMagnitude2 = 2.0E3;
         double specificImpulse2 = 300.0;
@@ -423,12 +411,6 @@ BOOST_AUTO_TEST_CASE( testRadialAndVelocityThrustAcceleration )
 
         bodies.createEmptyBody( "Vehicle" );
         bodies.at( "Vehicle" )->setConstantBodyMass( vehicleMass );
-        bodies.at( "Vehicle" )->setEphemeris(
-                    std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
-                        std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector6d  > >( ),
-                        "Earth" ) );
-
-        
 
         // Define propagator settings variables.
         SelectedAccelerationMap accelerationMap;
@@ -597,10 +579,6 @@ BOOST_AUTO_TEST_CASE( testThrustAccelerationFromExistingRotation )
     double vehicleMass = 5.0E3;
     bodies.createEmptyBody( "Vehicle" );
     bodies.at( "Vehicle" )->setConstantBodyMass( vehicleMass );
-    bodies.at( "Vehicle" )->setEphemeris(
-                std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
-                    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector6d  > >( ),
-                    "Earth" ) );
     bodies.at( "Vehicle" )->setRotationalEphemeris(
                 std::make_shared< ephemerides::SpiceRotationalEphemeris >( "ECLIPJ2000", "IAU_MOON" ) );
     
@@ -750,13 +728,7 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAcceleration )
         // Create vehicle aerodynamic coefficients
         bodies.at( "Apollo" )->setAerodynamicCoefficientInterface(
                     unit_tests::getApolloCoefficientInterface( ) );
-        bodies.at( "Apollo" )->setEphemeris(
-                    std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
-                        std::shared_ptr< interpolators::OneDimensionalInterpolator<
-                        double, Eigen::Vector6d  > >( ), "Earth" ) );
 
-        
-        
 
         // Define propagator settings variables.
         SelectedAccelerationMap accelerationMap;
@@ -1291,13 +1263,6 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
 
     // Create vehicle aerodynamic coefficients
     bodies.at( "Apollo" )->setAerodynamicCoefficientInterface( unit_tests::getApolloCoefficientInterface( ) );
-    bodies.at( "Apollo" )->setEphemeris(
-                std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
-                    std::shared_ptr< interpolators::OneDimensionalInterpolator<
-                    double, Eigen::Vector6d  > >( ), "Earth" ) );
-
-    
-    
 
     int numberOfCasesPerSet = 4;
     for( int i = 0; i < numberOfCasesPerSet * 2; i++ )
@@ -1638,14 +1603,6 @@ BOOST_AUTO_TEST_CASE( testAccelerationLimitedGuidedThrust )
 
     // Create vehicle aerodynamic coefficients
     bodies.at( "Apollo" )->setAerodynamicCoefficientInterface( unit_tests::getApolloCoefficientInterface( ) );
-    bodies.at( "Apollo" )->setEphemeris(
-                std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
-                    std::shared_ptr< interpolators::OneDimensionalInterpolator<
-                    double, Eigen::Vector6d  > >( ), "Earth" ) );
-
-    
-    
-
 
     // Define propagator settings variables.
     SelectedAccelerationMap accelerationMap;

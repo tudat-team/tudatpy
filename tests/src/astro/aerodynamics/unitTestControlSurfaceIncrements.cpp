@@ -254,10 +254,6 @@ BOOST_AUTO_TEST_CASE( testControlSurfaceIncrementInterfaceInPropagation )
 
 
     bodies.at( "Apollo" )->setConstantBodyMass( 5.0E3 );
-    bodies.at( "Apollo" )->setEphemeris(
-                std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
-                    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector6d  > >( ),
-                    "Earth" ) );
     std::shared_ptr< system_models::VehicleSystems > apolloSystems = std::make_shared< system_models::VehicleSystems >( );
     bodies.at( "Apollo" )->setVehicleSystems( apolloSystems );
 

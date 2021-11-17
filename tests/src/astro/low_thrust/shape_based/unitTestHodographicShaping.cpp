@@ -1054,11 +1054,6 @@ SystemOfBodies getTestBodyMap( )
     SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
     bodies.createEmptyBody( "Vehicle" );
-    bodies.at( "Vehicle" )->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
-                                               std::shared_ptr< interpolators::OneDimensionalInterpolator
-                                               < double, Eigen::Vector6d > >( ), frameOrigin, frameOrientation ) );
-
-
     return bodies;
 }
 

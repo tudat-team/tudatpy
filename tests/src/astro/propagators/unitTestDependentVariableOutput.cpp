@@ -136,10 +136,7 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
         bodies.at( "Apollo" )->setAerodynamicCoefficientInterface(
                     unit_tests::getApolloCoefficientInterface( ) );
         bodies.at( "Apollo" )->setConstantBodyMass( 5.0E3 );
-        bodies.at( "Apollo" )->setEphemeris(
-                    std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
-                        std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector6d  > >( ),
-                        "Earth" ) );
+
         std::shared_ptr< system_models::VehicleSystems > vehicleSystems =
                 std::make_shared< system_models::VehicleSystems >( );
 
@@ -847,9 +844,6 @@ BOOST_AUTO_TEST_CASE( test_GravityFieldVariationAccelerationSaving )
     bodySettings.at( "Earth" )->gravityFieldVariationSettings = getEarthGravityFieldVariationSettings( );
     SystemOfBodies bodies = createSystemOfBodies( bodySettings );
     bodies.createEmptyBody( "Vehicle" );
-    bodies.at( "Vehicle" )->setEphemeris( std::make_shared< TabulatedCartesianEphemeris< > >(
-                                            std::shared_ptr< interpolators::OneDimensionalInterpolator
-                                            < double, Eigen::Vector6d > >( ), "Earth", "ECLIPJ2000" ) );
 
     // Set accelerations on Vehicle that are to be taken into account.
     SelectedAccelerationMap accelerationMap;
@@ -1020,9 +1014,6 @@ BOOST_AUTO_TEST_CASE( test_AccelerationPartialSaving )
             getDefaultBodySettings( bodyNames, "Earth", "ECLIPJ2000" );
     SystemOfBodies bodies = createSystemOfBodies( bodySettings );
     bodies.createEmptyBody( "Vehicle" );
-    bodies.at( "Vehicle" )->setEphemeris( std::make_shared< TabulatedCartesianEphemeris< > >(
-                                            std::shared_ptr< interpolators::OneDimensionalInterpolator
-                                            < double, Eigen::Vector6d > >( ), "Earth", "ECLIPJ2000" ) );
 
     // Set accelerations on Vehicle that are to be taken into account.
     for( int test = 0; test < 3; test++ )
