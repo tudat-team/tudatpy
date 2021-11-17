@@ -423,6 +423,8 @@ public:
             throw std::runtime_error( "Error in dynamics simulator, integrator settings not defined." );
         }
 
+        checkPropagatedStatesFeasibility( propagatorSettings_, bodies_ );
+
         if( setIntegratedResult_ )
         {
             frameManager_ = simulation_setup::createFrameManager( bodies.getMap( ) );

@@ -83,7 +83,7 @@ void setSimpleRotationSettingsFromSpice(
                 spiceEvaluationTime, rotationRateAtReferenceTime );
 }
 
-void addEmptyTabulateEphemeris(
+void addEmptyTabulatedEphemeris(
         const SystemOfBodies& bodies, const std::string& bodyName, const std::string& ephemerisOrigin )
 {
     if( bodies.count( bodyName ) ==  0 )
@@ -94,6 +94,20 @@ void addEmptyTabulateEphemeris(
     bodies.at( bodyName )->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
                                             std::shared_ptr< interpolators::OneDimensionalInterpolator
                                             < double, Eigen::Vector6d > >( ), ephemerisOriginToUse, bodies.getFrameOrientation( ) ) );
+}
+
+void addEmptyTabulatedRotationalEphemeris(
+        const SystemOfBodies& bodies, const std::string& bodyName, const std::string& bodyFixedFrameName )
+{
+    if( bodies.count( bodyName ) ==  0 )
+    {
+        throw std::runtime_error( "Error when setting empty tabulated rotational ephemeris for body " + bodyName + ", no such body found" );
+    }
+    std::string bodyFixedFrameNameToUse = ( bodyFixedFrameName == "" ) ? ( bodyName + "_fixed" ) : bodyFixedFrameName;
+
+    bodies.at( bodyName )->setRotationalEphemeris( std::make_shared< ephemerides::TabulatedRotationalEphemeris< > >(
+                                            std::shared_ptr< interpolators::OneDimensionalInterpolator
+                                            < double, Eigen::Vector7d > >( ), bodies.getFrameOrientation( ), bodyFixedFrameNameToUse ) );
 }
 
 
