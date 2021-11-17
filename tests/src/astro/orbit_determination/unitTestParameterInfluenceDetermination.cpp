@@ -272,9 +272,7 @@ BOOST_AUTO_TEST_CASE( test_ParameterPostFitResidualsApollo )
 
     // Create vehicle objects.
     bodies.createEmptyBody( "Apollo" );
-    bodies.at( "Apollo" )->setEphemeris( std::make_shared< TabulatedCartesianEphemeris< > >(
-                                           std::shared_ptr< interpolators::OneDimensionalInterpolator
-                                           < double, Eigen::Vector6d > >( ), "Earth", "J2000" ) );
+
     bodies.at( "Apollo" )->setAerodynamicCoefficientInterface(
                 unit_tests::getApolloCoefficientInterface( ) );
     bodies.at( "Apollo" )->setConstantBodyMass( 5.0E3 );

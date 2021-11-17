@@ -9,6 +9,7 @@
  */
 
 #include "tudat/basics/timeType.h"
+#include "tudat/simulation/environment_setup/createBodies.h"
 #include "tudat/simulation/propagation_setup/setNumericallyIntegratedStates.h"
 #include "tudat/math/interpolators/lagrangeInterpolator.h"
 
@@ -18,9 +19,11 @@ namespace tudat
 namespace propagators
 {
 
+
 //! Function checking feasibility of resetting the translational dynamics
 void checkTranslationalStatesFeasibility(
         const std::vector< std::string >& bodiesToIntegrate,
+        const std::vector< std::string >& centralBodies,
         const simulation_setup::SystemOfBodies& bodies )
 {
     // Check feasibility of epheme                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  ris origins.
@@ -47,6 +50,7 @@ void checkTranslationalStatesFeasibility(
     for( unsigned int i = 0; i < bodiesToIntegrate.size( ); i++ )
     {
         std::string bodyToIntegrate = bodiesToIntegrate.at( i );
+        std::string centralBody = centralBodies.at( i );
 
         if( bodies.count( bodyToIntegrate ) == 0 )
         {
@@ -57,13 +61,48 @@ void checkTranslationalStatesFeasibility(
         {
             if( bodies.at( bodyToIntegrate )->getEphemeris( ) == nullptr )
             {
+                simulation_setup::addEmptyTabulatedEphemeris( bodies, bodyToIntegrate, centralBody );
+            }
+            else if( !ephemerides::isTabulatedEphemeris( bodies.at( bodyToIntegrate )->getEphemeris( )  ) )
+            {
                 throw std::runtime_error( "Error when checking translational dynamics feasibility of body " +
-                                          bodyToIntegrate + " no ephemeris found" );
+                                          bodyToIntegrate + " ephemeris exists, but is not tabulated." );
             }
         }
     }
-
 }
+
+
+//! Function checking feasibility of resetting the translational dynamics
+void checkRotationalStatesFeasibility(
+        const std::vector< std::string >& bodiesToIntegrate,
+        const simulation_setup::SystemOfBodies& bodies )
+{
+    // Check whether each integrated body exists, and whether it has a TabulatedEphemeris
+    for( unsigned int i = 0; i < bodiesToIntegrate.size( ); i++ )
+    {
+        std::string bodyToIntegrate = bodiesToIntegrate.at( i );
+
+        if( bodies.count( bodyToIntegrate ) == 0 )
+        {
+                throw std::runtime_error( "Error when checking rotational dynamics feasibility of body " +
+                                          bodyToIntegrate + " no such body found" );
+        }
+        else
+        {
+            if( bodies.at( bodyToIntegrate )->getRotationalEphemeris( ) == nullptr )
+            {
+                simulation_setup::addEmptyTabulatedRotationalEphemeris( bodies, bodyToIntegrate );
+            }
+            else if( !ephemerides::isTabulatedRotationalEphemeris( bodies.at( bodyToIntegrate )->getRotationalEphemeris( )  ) )
+            {
+                throw std::runtime_error( "Error when checking rotational dynamics feasibility of body " +
+                                          bodyToIntegrate + " rotational ephemeris exists, but is not tabulated." );
+            }
+        }
+    }
+}
+
 
 //! Function to create an interpolator for the new translational state of a body.
 template< >

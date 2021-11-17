@@ -349,10 +349,6 @@ BOOST_AUTO_TEST_CASE( test_LoveNumberEstimationFromOrbiterData )
     bodySettings.at( "Earth" )->gravityFieldVariationSettings = getEarthGravityFieldVariationSettings( );
     SystemOfBodies bodies = createSystemOfBodies( bodySettings );
     bodies.createEmptyBody( "Vehicle" );
-    bodies.at( "Vehicle" )->setEphemeris( std::make_shared< TabulatedCartesianEphemeris< > >(
-                                            std::shared_ptr< interpolators::OneDimensionalInterpolator
-                                            < double, Eigen::Vector6d > >( ), "Earth", "ECLIPJ2000" ) );
-
 
     // Set accelerations on Vehicle that are to be taken into account.
     SelectedAccelerationMap accelerationMap;
