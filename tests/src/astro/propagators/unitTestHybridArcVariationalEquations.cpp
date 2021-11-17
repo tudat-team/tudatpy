@@ -307,6 +307,28 @@ executeHybridArcMarsAndOrbiterSensitivitySimulation(
                 results.first.push_back( variationalEquations.getStateTransitionMatrixInterface( )->
                                          getCombinedStateTransitionAndSensitivityMatrix( testEpoch ) );
                 results.second.push_back( hybridArcPropagatorSettings->getMultiArcPropagatorSettings( )->getInitialStateList( ).at( arc ) );
+
+                Eigen::MatrixXd testMatrixDirect =
+                        variationalEquations.getStateTransitionMatrixInterface( )->
+                          getCombinedStateTransitionAndSensitivityMatrix( testEpoch );
+                Eigen::MatrixXd testMatrixFull=
+                        variationalEquations.getStateTransitionMatrixInterface( )->
+                          getFullCombinedStateTransitionAndSensitivityMatrix( testEpoch );
+
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                            testMatrixDirect.block( 0, 0, 12, 6 ),
+                            testMatrixFull.block( 0, 0, 12, 6 ),
+                            std::numeric_limits< double >::epsilon( ) );
+
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                            testMatrixDirect.block( 0, 6, 12, 6 ),
+                            testMatrixFull.block( 0, 6 * ( arc + 1 ), 12, 6 ),
+                            std::numeric_limits< double >::epsilon( ) );
+
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                            testMatrixDirect.block( 0, 12, 12, 2 ),
+                            testMatrixFull.block( 0, 18, 12, 2 ),
+                            std::numeric_limits< double >::epsilon( ) );
             }
             else
             {

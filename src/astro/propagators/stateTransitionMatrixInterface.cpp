@@ -50,8 +50,10 @@ Eigen::MatrixXd SingleArcCombinedStateTransitionAndSensitivityMatrixInterface::g
 
     for( unsigned int i = 0; i < statePartialAdditionIndices_.size( ); i++ )
     {
-        combinedStateTransitionMatrix_.block( statePartialAdditionIndices_.at( i ).first, 0, 6, stateTransitionMatrixSize_ + sensitivityMatrixSize_ ) +=
-                combinedStateTransitionMatrix_.block( statePartialAdditionIndices_.at( i ).second, 0, 6, stateTransitionMatrixSize_ + sensitivityMatrixSize_ );
+        combinedStateTransitionMatrix_.block(
+                    statePartialAdditionIndices_.at( i ).first, 0, 6, stateTransitionMatrixSize_ + sensitivityMatrixSize_ ) +=
+                combinedStateTransitionMatrix_.block(
+                    statePartialAdditionIndices_.at( i ).second, 0, 6, stateTransitionMatrixSize_ + sensitivityMatrixSize_ );
     }
 
 
@@ -182,10 +184,10 @@ Eigen::MatrixXd MultiArcCombinedStateTransitionAndSensitivityMatrixInterface::ge
     {
         fullCombinedStateTransitionMatrix.block(
                     0, currentArc * stateTransitionMatrixSize_, stateTransitionMatrixSize_, stateTransitionMatrixSize_ ) =
-                stateTransitionMatrixInterpolators_.at( currentArc )->interpolate( evaluationTime );
+                combinedStateTransitionMatrix.block( 0, 0, stateTransitionMatrixSize_, stateTransitionMatrixSize_ );
         fullCombinedStateTransitionMatrix.block(
                     0, numberOfStateArcs_ * stateTransitionMatrixSize_, stateTransitionMatrixSize_, sensitivityMatrixSize_ ) =
-                combinedStateTransitionMatrix.block( 0, 0, stateTransitionMatrixSize_, sensitivityMatrixSize_ );
+                combinedStateTransitionMatrix.block( 0, stateTransitionMatrixSize_, stateTransitionMatrixSize_, sensitivityMatrixSize_ );
     }
     return fullCombinedStateTransitionMatrix;
 }
