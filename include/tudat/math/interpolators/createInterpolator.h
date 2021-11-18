@@ -677,19 +677,19 @@ createMultiDimensionalInterpolator(
     return createdInterpolator;
 }
 
-template< typename TimeType, typename StateScalarType, int InputRows, int InputColums, int OutputRows, int OutputColums >
-std::shared_ptr< OneDimensionalInterpolator< TimeType, Eigen::Matrix< StateScalarType, OutputRows, OutputColums > > >
+template< typename TimeType, typename StateScalarType, int InputRows, int InputColumns, int OutputRows, int OutputColumns >
+std::shared_ptr< OneDimensionalInterpolator< TimeType, Eigen::Matrix< StateScalarType, OutputRows, OutputColumns > > >
 convertBetweenStaticDynamicEigenTypeInterpolators(
-        const std::shared_ptr< OneDimensionalInterpolator< TimeType, Eigen::Matrix< StateScalarType, InputRows, InputColums > > > inputInterpolator )
+        const std::shared_ptr< OneDimensionalInterpolator< TimeType, Eigen::Matrix< StateScalarType, InputRows, InputColumns > > > inputInterpolator )
 {
     if( ( InputRows > 0 && OutputRows > 0 && InputRows != OutputRows ) ||
-            ( InputColums > 0 && OutputColums > 0 && InputColumns != OutputColumns ) )
+            ( InputColumns > 0 && OutputColumns > 0 && InputColumns != OutputColumns ) )
     {
         throw std::runtime_error( "Error when converting interpolator Eigen type; sizes are inconsistent, input columns, "
                                   "cannot convert between different fixed sizes" );
     }
-    typedef Eigen::Matrix< StateScalarType, InputRows, InputColums > InputState;
-    typedef Eigen::Matrix< StateScalarType, OutputRows, OutputColums > OutputState;
+    typedef Eigen::Matrix< StateScalarType, InputRows, InputColumns > InputState;
+    typedef Eigen::Matrix< StateScalarType, OutputRows, OutputColumns > OutputState;
 
     std::shared_ptr< OneDimensionalInterpolator< TimeType, OutputState > > outputInterpolator;
 
@@ -697,11 +697,11 @@ convertBetweenStaticDynamicEigenTypeInterpolators(
     std::vector< InputState > inputStates = inputInterpolator->getDependentValues( );
     std::vector< OutputState > outputStates;
 
-    if( OutputColums >= 0 && inputStates.at( 0 ).cols( ) != OutputColums  )
+    if( OutputColumns >= 0 && inputStates.at( 0 ).cols( ) != OutputColumns  )
     {
         throw std::runtime_error( "Error when converting interpolator Eigen type; sizes are inconsistent, input columns: " +
                                   std::to_string( inputStates.at( 0 ).cols( ) ) + "; output columns:" +
-                                  std::to_string( OutputColums ) );
+                                  std::to_string( OutputColumns ) );
     }
     else
     {
@@ -752,8 +752,8 @@ convertBetweenStaticDynamicEigenTypeInterpolators(
             break;
         case lagrange_interpolator:
         {
-            std::shared_ptr< LagrangeInterpolator< TimeType, Eigen::Matrix< StateScalarType, InputRows, InputColums > > > lagrangeInputInterpolator =
-                    std::dynamic_pointer_cast< LagrangeInterpolator< TimeType, Eigen::Matrix< StateScalarType, InputRows, InputColums > > >( inputInterpolator );
+            std::shared_ptr< LagrangeInterpolator< TimeType, Eigen::Matrix< StateScalarType, InputRows, InputColumns > > > lagrangeInputInterpolator =
+                    std::dynamic_pointer_cast< LagrangeInterpolator< TimeType, Eigen::Matrix< StateScalarType, InputRows, InputColumns > > >( inputInterpolator );
             if( lagrangeInputInterpolator == nullptr )
             {
                 throw std::runtime_error( "Error when changing vector size type of Lagrange interpolator; input type is inconsistent" );
@@ -772,8 +772,8 @@ convertBetweenStaticDynamicEigenTypeInterpolators(
         }
         case hermite_spline_interpolator:
         {
-            std::shared_ptr< HermiteCubicSplineInterpolator< TimeType, Eigen::Matrix< StateScalarType, InputRows, InputColums > > > hermiteInputInterpolator =
-                    std::dynamic_pointer_cast< HermiteCubicSplineInterpolator< TimeType, Eigen::Matrix< StateScalarType, InputRows, InputColums > > >( inputInterpolator );
+            std::shared_ptr< HermiteCubicSplineInterpolator< TimeType, Eigen::Matrix< StateScalarType, InputRows, InputColumns > > > hermiteInputInterpolator =
+                    std::dynamic_pointer_cast< HermiteCubicSplineInterpolator< TimeType, Eigen::Matrix< StateScalarType, InputRows, InputColumns > > >( inputInterpolator );
             if( hermiteInputInterpolator == nullptr )
             {
                 throw std::runtime_error( "Error when changing vector size type of Hermite interpolator; input type is inconsistent" );
