@@ -18,6 +18,7 @@
 
 #include <vector>
 
+#include "tudat/math/basic/numericalDerivative.h"
 #include "tudat/basics/testMacros.h"
 #include "tudat/basics/utilities.h"
 #include "tudat/io/matrixTextFileReader.h"
@@ -31,6 +32,58 @@ namespace tudat
 {
 namespace unit_tests
 {
+
+
+template< typename TimeType, typename StateScalarType >
+std::vector< Eigen::Matrix< StateScalarType, 6, 1 > > computeSecondOrderCentralDifferenceCartesianStateDerivative(
+        const std::map< TimeType, Eigen::Matrix< StateScalarType, 6, 1 > >& cartesianStateMap )
+{
+    std::vector< Eigen::Matrix< StateScalarType, 6, 1 > > cartesianStateDerivativeMap;
+
+    auto lowerIterator = cartesianStateMap.begin( );
+    auto centralIterator = cartesianStateMap.begin( );
+    std::advance( centralIterator, 1 );
+    auto upperIterator = cartesianStateMap.begin( );
+    std::advance( upperIterator, 2 );
+
+    Eigen::Matrix< StateScalarType, 6, 1 > currentStateDerivative;
+    while( upperIterator != cartesianStateMap.end( ) )
+    {
+        if( lowerIterator == cartesianStateMap.begin( ) )
+        {
+            currentStateDerivative.segment( 0, 3 ) = lowerIterator->second.segment( 3, 3 );
+            currentStateDerivative.segment( 3, 3 ) =
+                    ( upperIterator->second.segment( 3, 3 ) - centralIterator->second.segment( 3, 3 ) ) /
+                    ( upperIterator->first - centralIterator->first );
+            cartesianStateDerivativeMap.push_back( currentStateDerivative );
+
+        }
+
+        currentStateDerivative.segment( 0, 3 ) = centralIterator->second.segment( 3, 3 );
+        currentStateDerivative.segment( 3, 3 ) =
+                ( upperIterator->second.segment( 3, 3 ) - lowerIterator->second.segment( 3, 3 ) ) /
+                ( upperIterator->first - lowerIterator->first );
+        cartesianStateDerivativeMap.push_back( currentStateDerivative );
+
+
+        lowerIterator++;
+        centralIterator++;
+        upperIterator++;
+
+        if( upperIterator == cartesianStateMap.end( ) )
+        {
+            currentStateDerivative.segment( 0, 3 ) = upperIterator->second.segment( 3, 3 );
+            currentStateDerivative.segment( 3, 3 ) =
+                    ( centralIterator->second.segment( 3, 3 ) - lowerIterator->second.segment( 3, 3 ) ) /
+                    ( centralIterator->first - lowerIterator->first );
+            cartesianStateDerivativeMap.push_back( currentStateDerivative );
+
+        }
+
+    }
+
+    return cartesianStateDerivativeMap;
+}
 
 using namespace interpolators;
 
@@ -52,9 +105,23 @@ BOOST_AUTO_TEST_CASE( testInterpolatorVectorConversion )
         matrixXdInterpolatorInput[ time ] = vector6dInterpolatorInput[ time ];
     }
 
+    std::vector< Eigen::Vector6d > vector6dDerivativeInput =
+            computeSecondOrderCentralDifferenceCartesianStateDerivative(
+                vector6dInterpolatorInput );
+    std::vector< Eigen::VectorXd > vectorXdDerivativeInput;
+    std::vector< Eigen::MatrixXd > matrixXdDerivativeInput;
+
+    for( unsigned int i = 0; i < vector6dDerivativeInput.size( ); i++ )
+    {
+        vectorXdDerivativeInput.push_back( vector6dDerivativeInput.at( i ) );
+        matrixXdDerivativeInput.push_back( vector6dDerivativeInput.at( i ) );
+
+    }
+
+
     std::vector< double > interpolationTimes = { 1.0, 5.0 * 86400.0, 12.43 * 86400.0 };
 
-    for( int i = 0; i < 4; i++ )
+    for( int i = 0; i < 5; i++ )
     {
         std::shared_ptr< InterpolatorSettings > interpolatorSettings;
         switch( i )
@@ -71,21 +138,33 @@ BOOST_AUTO_TEST_CASE( testInterpolatorVectorConversion )
             interpolatorSettings =
                     std::make_shared< LagrangeInterpolatorSettings >( 8 );
             break;
-//        case 3:
-//            interpolatorSettings =
-//                    std::make_shared< InterpolatorSettings >( hermite_spline_interpolator );
-//            break;
         case 3:
+            interpolatorSettings =
+                    std::make_shared< InterpolatorSettings >( hermite_spline_interpolator );
+            break;
+        case 4:
             interpolatorSettings =
                     std::make_shared< InterpolatorSettings >( piecewise_constant_interpolator );
             break;
         }
         std::shared_ptr< OneDimensionalInterpolator< double, Eigen::Vector6d > > direct6dInterpolator =
-                createOneDimensionalInterpolator( vector6dInterpolatorInput, interpolatorSettings );
+                createOneDimensionalInterpolator(
+                    vector6dInterpolatorInput, interpolatorSettings,
+                    std::make_pair( IdentityElement::getAdditionIdentity< Eigen::Vector6d >( ),
+                                    IdentityElement::getAdditionIdentity< Eigen::Vector6d >( ) ),
+                    vector6dDerivativeInput );
         std::shared_ptr< OneDimensionalInterpolator< double, Eigen::VectorXd > > directXdInterpolator =
-                createOneDimensionalInterpolator( vectorXdInterpolatorInput, interpolatorSettings );
+                createOneDimensionalInterpolator(
+                    vectorXdInterpolatorInput, interpolatorSettings,
+                    std::make_pair( IdentityElement::getAdditionIdentity< Eigen::VectorXd >( ),
+                                    IdentityElement::getAdditionIdentity< Eigen::VectorXd >( ) ),
+                    vectorXdDerivativeInput );
         std::shared_ptr< OneDimensionalInterpolator< double, Eigen::MatrixXd > > directXdMatrixInterpolator =
-                createOneDimensionalInterpolator( matrixXdInterpolatorInput, interpolatorSettings );
+                createOneDimensionalInterpolator(
+                    matrixXdInterpolatorInput, interpolatorSettings,
+                    std::make_pair( IdentityElement::getAdditionIdentity< Eigen::MatrixXd >( ),
+                                    IdentityElement::getAdditionIdentity< Eigen::MatrixXd >( ) ),
+                    matrixXdDerivativeInput);
 
         std::shared_ptr< OneDimensionalInterpolator< double, Eigen::Vector6d > > converted6dInterpolator =
                 convertBetweenStaticDynamicEigenTypeInterpolators<  double, double, -1, 1, 6, 1 >( directXdInterpolator );
