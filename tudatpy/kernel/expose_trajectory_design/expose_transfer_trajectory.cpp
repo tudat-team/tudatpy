@@ -24,6 +24,8 @@ namespace tms = tudat::mission_segments;
 namespace tss = tudat::simulation_setup;
 
 namespace tudatpy {
+namespace trajectory_design {
+namespace transfer_trajectory {
 
 void expose_transfer_trajectory(py::module &m) {
 
@@ -88,53 +90,71 @@ void expose_transfer_trajectory(py::module &m) {
 
     py::class_<
             tms::TransferTrajectory,
-            std::shared_ptr<tms::TransferTrajectory> >(m, "TransferTrajectory")
-            .def_property_readonly("delta_v", &tms::TransferTrajectory::getTotalDeltaV )
-            .def_property_readonly("time_of_flight", &tms::TransferTrajectory::getTotalTimeOfFlight)
+            std::shared_ptr<tms::TransferTrajectory> >(m, "TransferTrajectory",
+                                                       get_docstring("TransferTrajectory").c_str() )
+            .def_property_readonly("delta_v", &tms::TransferTrajectory::getTotalDeltaV,
+                                   get_docstring("TransferTrajectory.delta_v").c_str() )
+            .def_property_readonly("time_of_flight", &tms::TransferTrajectory::getTotalTimeOfFlight,
+                                   get_docstring("TransferTrajectory.time_of_flight").c_str())
             .def("evaluate", &tms::TransferTrajectory::evaluateTrajectory,
-                 py::arg( "times" ),
+                 py::arg( "node_times" ),
                  py::arg( "leg_parameters" ),
-                 py::arg( "node_parameters" ) )
+                 py::arg( "node_parameters" ),
+                 get_docstring("TransferTrajectory.evaluate").c_str() )
             .def("single_node_delta_v", &tms::TransferTrajectory::getNodeDeltaV,
-                 py::arg( "node_index" ) )
+                 py::arg( "node_index" ),
+                 get_docstring("TransferTrajectory.single_node_delta_v").c_str() )
             .def("single_leg_delta_v", &tms::TransferTrajectory::getLegDeltaV,
-                 py::arg( "leg_index" ) )
+                 py::arg( "leg_index" ),
+                 get_docstring("TransferTrajectory.single_leg_delta_v").c_str() )
             .def("states_along_trajectory",
                  py::overload_cast<const int> (&tms::TransferTrajectory::getStatesAlongTrajectory),
-                 py::arg("number_of_data_points_per_leg") )
-            .def_property_readonly("delta_v_per_node", &tms::TransferTrajectory::getDeltaVPerNode )
-            .def_property_readonly("delta_v_per_leg", &tms::TransferTrajectory::getDeltaVPerLeg )
-            .def_property_readonly( "number_of_nodes", &tms::TransferTrajectory::getNumberOfNodes )
-            .def_property_readonly( "number_of_legs", &tms::TransferTrajectory::getNumberOfLegs );
+                 py::arg("number_of_data_points_per_leg"),
+                 get_docstring("TransferTrajectory.states_along_trajectory").c_str() )
+            .def_property_readonly("delta_v_per_node", &tms::TransferTrajectory::getDeltaVPerNode,
+                                   get_docstring("TransferTrajectory.delta_v_per_node").c_str() )
+            .def_property_readonly("delta_v_per_leg", &tms::TransferTrajectory::getDeltaVPerLeg,
+                                   get_docstring("TransferTrajectory.delta_v_per_leg").c_str() )
+            .def_property_readonly( "number_of_nodes", &tms::TransferTrajectory::getNumberOfNodes,
+                                    get_docstring("TransferTrajectory.number_of_nodes").c_str() )
+            .def_property_readonly( "number_of_legs", &tms::TransferTrajectory::getNumberOfLegs,
+                                    get_docstring("TransferTrajectory.number_of_legs").c_str() );
 
     m.def("unpowered_leg",
-          &tms::unpoweredLeg );
+          &tms::unpoweredLeg,
+          get_docstring("unpowered_leg").c_str() );
 
     m.def("dsm_position_based_leg",
-          &tms::dsmPositionBasedLeg );
+          &tms::dsmPositionBasedLeg,
+          get_docstring("dsm_position_based_leg").c_str() );
 
     m.def("dsm_velocity_based_leg",
-          &tms::dsmVelocityBasedLeg );
+          &tms::dsmVelocityBasedLeg,
+          get_docstring("dsm_velocity_based_leg").c_str() );
 
     m.def("swingby_node",
           &tms::swingbyNode,
-          py::arg( "minimum_periapsis" ) = TUDAT_NAN);
+          py::arg( "minimum_periapsis" ) = TUDAT_NAN,
+          get_docstring("swingby_node").c_str() );
 
     m.def("departure_node",
           &tms::escapeAndDepartureNode,
           py::arg( "departure_semi_major_axis" ),
-          py::arg( "departure_eccentricity" ) );
+          py::arg( "departure_eccentricity" ),
+          get_docstring("departure_node").c_str() );
 
     m.def("capture_node",
           &tms::captureAndInsertionNode,
           py::arg( "capture_semi_major_axis" ),
-          py::arg( "capture_eccentricity" ) );
+          py::arg( "capture_eccentricity" ),
+          get_docstring("capture_node").c_str() );
 
 
     m.def("print_parameter_definitions",
           &tms::printTransferParameterDefinition,
           py::arg( "leg_settings" ),
-          py::arg( "node_settings" ) );
+          py::arg( "node_settings" ),
+          get_docstring("print_parameter_definitions").c_str() );
 
     m.def("create_transfer_trajectory",
           &tms::createTransferTrajectory,
@@ -142,7 +162,8 @@ void expose_transfer_trajectory(py::module &m) {
           py::arg( "leg_settings" ),
           py::arg( "node_settings" ),
           py::arg( "node_names" ),
-          py::arg( "central_body" ) );
+          py::arg( "central_body" ),
+          get_docstring("create_transfer_trajectory").c_str());
 
 
     m.def("get_low_thrust_acceleration_settings",
@@ -154,4 +175,6 @@ void expose_transfer_trajectory(py::module &m) {
           py::arg("low_thrust_leg_initial_time") );
 };
 
-}// namespace tudatpy
+} // namespace transfer_trajectory
+} // namespace trajectory_design
+} // namespace tudatpy
