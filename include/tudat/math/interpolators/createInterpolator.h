@@ -745,7 +745,7 @@ convertBetweenStaticDynamicEigenTypeInterpolators(
 
             break;
         case piecewise_constant_interpolator:
-            outputInterpolator = std::make_shared< CubicSplineInterpolator< TimeType, OutputState > >(
+            outputInterpolator = std::make_shared< PiecewiseConstantInterpolator< TimeType, OutputState > >(
                         times, outputStates, inputInterpolator->getSelectedLookupScheme( ),
                         inputInterpolator->getBoundaryHandling( ),
                         outputDefaultExtrapolationValues );
