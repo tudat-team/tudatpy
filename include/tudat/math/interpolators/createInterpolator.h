@@ -32,16 +32,6 @@ namespace tudat
 namespace interpolators
 {
 
-//! Enumeration of available interpolator types.
-enum InterpolatorTypes
-{
-    linear_interpolator = 0,
-    multi_linear_interpolator = 1,
-    cubic_spline_interpolator = 2,
-    lagrange_interpolator = 3,
-    hermite_spline_interpolator = 4,
-    piecewise_constant_interpolator = 5
-};
 
 //! Base class for providing settings for creating an interpolator.
 /*!
@@ -687,6 +677,130 @@ createMultiDimensionalInterpolator(
     return createdInterpolator;
 }
 
+template< typename TimeType, typename StateScalarType, int InputRows, int InputColumns, int OutputRows, int OutputColumns >
+std::shared_ptr< OneDimensionalInterpolator< TimeType, Eigen::Matrix< StateScalarType, OutputRows, OutputColumns > > >
+convertBetweenStaticDynamicEigenTypeInterpolators(
+        const std::shared_ptr< OneDimensionalInterpolator< TimeType, Eigen::Matrix< StateScalarType, InputRows, InputColumns > > > inputInterpolator )
+{
+    if( ( InputRows > 0 && OutputRows > 0 && InputRows != OutputRows ) ||
+            ( InputColumns > 0 && OutputColumns > 0 && InputColumns != OutputColumns ) )
+    {
+        throw std::runtime_error( "Error when converting interpolator Eigen type; sizes are inconsistent, input columns, "
+                                  "cannot convert between different fixed sizes" );
+    }
+    typedef Eigen::Matrix< StateScalarType, InputRows, InputColumns > InputState;
+    typedef Eigen::Matrix< StateScalarType, OutputRows, OutputColumns > OutputState;
+
+    std::shared_ptr< OneDimensionalInterpolator< TimeType, OutputState > > outputInterpolator;
+
+    std::vector< TimeType > times = inputInterpolator->getIndependentValues( );
+    std::vector< InputState > inputStates = inputInterpolator->getDependentValues( );
+    std::vector< OutputState > outputStates;
+
+    if( OutputColumns >= 0 && inputStates.at( 0 ).cols( ) != OutputColumns  )
+    {
+        throw std::runtime_error( "Error when converting interpolator Eigen type; sizes are inconsistent, input columns: " +
+                                  std::to_string( inputStates.at( 0 ).cols( ) ) + "; output columns:" +
+                                  std::to_string( OutputColumns ) );
+    }
+    else
+    {
+        for( unsigned int i = 0; i < inputStates.size( ); i++ )
+        {
+            outputStates.push_back( inputStates.at( i ) );
+        }
+        std::pair< InputState, InputState > inputDefaultExtrapolationValues =
+                inputInterpolator->getDefaultExtrapolationValue( );
+
+        std::pair< OutputState, OutputState > outputDefaultExtrapolationValues;
+        if( inputDefaultExtrapolationValues.first.rows( ) > 0 &&
+                inputDefaultExtrapolationValues.first.cols( ) > 0 )
+        {
+            outputDefaultExtrapolationValues =
+                    std::make_pair( inputDefaultExtrapolationValues.first, inputDefaultExtrapolationValues.second );
+        }
+        else
+        {
+            outputDefaultExtrapolationValues = std::make_pair(
+                        IdentityElement::getAdditionIdentity< OutputState >( ),
+                        IdentityElement::getAdditionIdentity< OutputState >( ) );
+        }
+
+        switch ( inputInterpolator->getInterpolatorType( ) )
+        {
+        case linear_interpolator:
+            outputInterpolator = std::make_shared< LinearInterpolator< TimeType, OutputState > >(
+                        times, outputStates,
+                        inputInterpolator->getSelectedLookupScheme( ),
+                        inputInterpolator->getBoundaryHandling( ),
+                        outputDefaultExtrapolationValues );
+            break;
+        case cubic_spline_interpolator:
+
+            outputInterpolator = std::make_shared< CubicSplineInterpolator< TimeType, OutputState > >(
+                        times, outputStates,
+                        inputInterpolator->getSelectedLookupScheme( ),
+                        inputInterpolator->getBoundaryHandling( ),
+                        outputDefaultExtrapolationValues );
+
+            break;
+        case piecewise_constant_interpolator:
+            outputInterpolator = std::make_shared< PiecewiseConstantInterpolator< TimeType, OutputState > >(
+                        times, outputStates, inputInterpolator->getSelectedLookupScheme( ),
+                        inputInterpolator->getBoundaryHandling( ),
+                        outputDefaultExtrapolationValues );
+            break;
+        case lagrange_interpolator:
+        {
+            std::shared_ptr< LagrangeInterpolator< TimeType, Eigen::Matrix< StateScalarType, InputRows, InputColumns > > > lagrangeInputInterpolator =
+                    std::dynamic_pointer_cast< LagrangeInterpolator< TimeType, Eigen::Matrix< StateScalarType, InputRows, InputColumns > > >( inputInterpolator );
+            if( lagrangeInputInterpolator == nullptr )
+            {
+                throw std::runtime_error( "Error when changing vector size type of Lagrange interpolator; input type is inconsistent" );
+            }
+            else
+            {
+                outputInterpolator = std::make_shared< LagrangeInterpolator< TimeType, OutputState > >(
+                            times, outputStates,
+                            lagrangeInputInterpolator->getNumberOfStages( ),
+                            inputInterpolator->getSelectedLookupScheme( ),
+                            lagrangeInputInterpolator->getLagrangeBoundaryHandling( ),
+                            inputInterpolator->getBoundaryHandling( ),
+                            outputDefaultExtrapolationValues );
+            }
+            break;
+        }
+        case hermite_spline_interpolator:
+        {
+            std::shared_ptr< HermiteCubicSplineInterpolator< TimeType, Eigen::Matrix< StateScalarType, InputRows, InputColumns > > > hermiteInputInterpolator =
+                    std::dynamic_pointer_cast< HermiteCubicSplineInterpolator< TimeType, Eigen::Matrix< StateScalarType, InputRows, InputColumns > > >( inputInterpolator );
+            if( hermiteInputInterpolator == nullptr )
+            {
+                throw std::runtime_error( "Error when changing vector size type of Hermite interpolator; input type is inconsistent" );
+            }
+            else
+            {
+                std::vector< InputState > inputStateDerivatives = hermiteInputInterpolator->getDerivativeValues( );
+                std::vector< OutputState > outputStateDerivatives;
+                for( unsigned int i = 0; i < inputStateDerivatives.size( ); i++ )
+                {
+                    outputStateDerivatives.push_back( inputStateDerivatives.at( i ) );
+                }
+
+                outputInterpolator = std::make_shared< HermiteCubicSplineInterpolator< TimeType, OutputState > >(
+                            times, outputStates, outputStateDerivatives, inputInterpolator->getSelectedLookupScheme( ),
+                            inputInterpolator->getBoundaryHandling( ),
+                            outputDefaultExtrapolationValues );
+            }
+            break;
+        }
+        default:
+            throw std::runtime_error( "Error when changing vector size type of interpolator; input  interpolator type is not recognized" );
+            break;
+        }
+    }
+    return outputInterpolator;
+}
 } // namespace interpolators
 
 } // namespace tudat

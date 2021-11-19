@@ -336,6 +336,14 @@ public:
         return numberOfStages_;
     }
 
+    InterpolatorTypes getInterpolatorType( ){ return lagrange_interpolator; }
+
+    LagrangeInterpolatorBoundaryHandling getLagrangeBoundaryHandling( )
+    {
+        return lagrangeBoundaryHandling_;
+    }
+
+
 protected:
 
 private:
