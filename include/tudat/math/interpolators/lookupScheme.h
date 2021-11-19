@@ -29,6 +29,7 @@ namespace interpolators
  */
 enum AvailableLookupScheme
 {
+    undefinedScheme,
     huntingAlgorithm,
     binarySearch
 };
