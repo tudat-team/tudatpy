@@ -134,11 +134,11 @@ BOOST_AUTO_TEST_CASE( test_DesaturationDeltaVsEstimation )
         std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
         accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< SphericalHarmonicAccelerationSettings >( 8, 8 ) );
         accelerationsOfVehicle[ "Sun" ].push_back( std::make_shared< AccelerationSettings >(
-                                                       basic_astrodynamics::central_gravity ) );
+                                                       basic_astrodynamics::point_mass_gravity ) );
         accelerationsOfVehicle[ "Moon" ].push_back( std::make_shared< AccelerationSettings >(
-                                                        basic_astrodynamics::central_gravity ) );
+                                                        basic_astrodynamics::point_mass_gravity ) );
         accelerationsOfVehicle[ "Mars" ].push_back( std::make_shared< AccelerationSettings >(
-                                                        basic_astrodynamics::central_gravity ) );
+                                                        basic_astrodynamics::point_mass_gravity ) );
         accelerationsOfVehicle[ "Sun" ].push_back( std::make_shared< AccelerationSettings >(
                                                        basic_astrodynamics::cannon_ball_radiation_pressure ) );
         accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< AccelerationSettings >(
