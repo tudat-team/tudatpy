@@ -23,9 +23,9 @@ TUDAT_ADD_TEST_CASE(TabulatedEphemeris
         tudat_ephemerides
         tudat_gravitation
         tudat_basic_astrodynamics
-        tudat_basic_mathematics
         tudat_input_output
         tudat_interpolators
+        tudat_basic_mathematics
         )
 
 TUDAT_ADD_TEST_CASE(CartesianStateExtractor
