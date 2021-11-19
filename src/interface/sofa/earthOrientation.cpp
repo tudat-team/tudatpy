@@ -120,7 +120,7 @@ Eigen::Matrix3d getPrecessionNutationMatrix( const double terrestrialTime, const
 {
 	double pnm[3][3];
 
-	std::cout << "Ref JD: " << referenceJulianDay << "\nTT in Julian days: " << terrestrialTime / physical_constants::JULIAN_DAY << std::endl;
+//	std::cout << "Ref JD: " << referenceJulianDay << "\nTT in Julian days: " << terrestrialTime / physical_constants::JULIAN_DAY << std::endl;
 
 	iauPnm80( referenceJulianDay, terrestrialTime / physical_constants::JULIAN_DAY, pnm );
 
