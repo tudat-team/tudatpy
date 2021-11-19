@@ -63,6 +63,7 @@ void expose_acceleration_setup(py::module &m) {
      * and AvailableAccelerations which should be relocated in the tudat source.
      */
 
+
     py::enum_<tba::AvailableAcceleration>(m, "AvailableAcceleration", get_docstring("AvailableAcceleration").c_str())
             .value("undefined_acceleration_type", tba::AvailableAcceleration::undefined_acceleration, get_docstring("AvailableAcceleration.undefined_acceleration_type").c_str())
             .value("point_mass_gravity_type", tba::AvailableAcceleration::point_mass_gravity, get_docstring("AvailableAcceleration.point_mass_gravity_type").c_str())
