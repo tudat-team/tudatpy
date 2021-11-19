@@ -189,6 +189,10 @@ public:
         return interpolatedValue;
     }
 
+    InterpolatorTypes getInterpolatorType( )
+    {
+        return discrete_jump_linear_interpolator;
+    }
 private:
 
     //! Maximum allowable deviation between two dependent variable values, above which a jump is identified.
