@@ -65,7 +65,7 @@ std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > cre
     std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > accelerationModel;
     switch( accelerationSettings->accelerationType_ )
     {
-    case central_gravity:
+    case point_mass_gravity:
         accelerationModel = createCentralGravityAcceleratioModel(
                     bodyUndergoingAcceleration,
                     bodyExertingAcceleration,
@@ -115,7 +115,7 @@ std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > cre
     std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > accelerationModel;
     switch( accelerationSettings->accelerationType_ )
     {
-    case central_gravity:
+    case point_mass_gravity:
         accelerationModel = std::make_shared< ThirdBodyCentralGravityAcceleration >(
                     std::dynamic_pointer_cast< CentralGravitationalAccelerationModel3d >(
                         createDirectGravitationalAcceleration(
@@ -173,7 +173,7 @@ std::shared_ptr< AccelerationModel< Eigen::Vector3d > > createGravitationalAccel
 {
 
     std::shared_ptr< AccelerationModel< Eigen::Vector3d > > accelerationModelPointer;
-    if( accelerationSettings->accelerationType_ != central_gravity &&
+    if( accelerationSettings->accelerationType_ != point_mass_gravity &&
             accelerationSettings->accelerationType_ != spherical_harmonic_gravity &&
             accelerationSettings->accelerationType_ != mutual_spherical_harmonic_gravity )
     {
@@ -1327,7 +1327,7 @@ std::shared_ptr< AccelerationModel< Eigen::Vector3d > > createAccelerationModel(
     // Switch to call correct acceleration model type factory function.
     switch( accelerationSettings->accelerationType_ )
     {
-    case central_gravity:
+    case point_mass_gravity:
         accelerationModelPointer = createGravitationalAccelerationModel(
                     bodyUndergoingAcceleration, bodyExertingAcceleration, accelerationSettings,
                     nameOfBodyUndergoingAcceleration, nameOfBodyExertingAcceleration,

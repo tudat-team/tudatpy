@@ -157,9 +157,9 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
 
         // Define acceleration model settings.
         std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfApollo;
-        accelerationsOfApollo[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+        accelerationsOfApollo[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
         accelerationsOfApollo[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( aerodynamic ) );
-        accelerationsOfApollo[ "Moon" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+        accelerationsOfApollo[ "Moon" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
         accelerationMap[ "Apollo" ] = accelerationsOfApollo;
 
         bodiesToPropagate.push_back( "Apollo" );
@@ -183,7 +183,7 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
                                                                                "Apollo", "Earth" ) );
         dependentVariables.push_back(
                     std::make_shared< SingleAccelerationDependentVariableSaveSettings >(
-                        central_gravity, "Apollo", "Earth", 1 ) );
+                        point_mass_gravity, "Apollo", "Earth", 1 ) );
 
         dependentVariables.push_back(
                     std::make_shared< SingleDependentVariableSaveSettings >( total_aerodynamic_g_load_variable,
@@ -231,7 +231,7 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
                                                                                "Apollo", "Earth" ) );
         dependentVariables.push_back(
                     std::make_shared< SingleAccelerationDependentVariableSaveSettings >(
-                        central_gravity, "Apollo", "Earth", 0 ) );
+                        point_mass_gravity, "Apollo", "Earth", 0 ) );
         dependentVariables.push_back(
                     std::make_shared< SingleDependentVariableSaveSettings >(
                         total_acceleration_dependent_variable, "Apollo" ) );
@@ -246,7 +246,7 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
                         aerodynamic, "Apollo", "Earth", 0 ) );
         dependentVariables.push_back(
                     std::make_shared< SingleAccelerationDependentVariableSaveSettings >(
-                        central_gravity, "Apollo", "Moon", 0 ) );
+                        point_mass_gravity, "Apollo", "Moon", 0 ) );
         dependentVariables.push_back(
                     std::make_shared< SingleAccelerationDependentVariableSaveSettings >(
                         third_body_central_gravity, "Apollo", "Moon", 0 ) );
@@ -680,9 +680,9 @@ BOOST_AUTO_TEST_CASE( testDependentVariableEnvironmentUpdate )
 
     SelectedAccelerationMap accelerationMap;
     accelerationMap[ "Earth" ][ "Moon" ].push_back(
-                std::make_shared< AccelerationSettings >( central_gravity ) );
+                std::make_shared< AccelerationSettings >( point_mass_gravity ) );
     accelerationMap[ "Earth" ][ "Sun" ].push_back(
-                std::make_shared< AccelerationSettings >( central_gravity ) );
+                std::make_shared< AccelerationSettings >( point_mass_gravity ) );
 
     std::vector< std::string > bodiesToPropagate;
     bodiesToPropagate.push_back( "Earth" );
@@ -856,9 +856,9 @@ BOOST_AUTO_TEST_CASE( test_GravityFieldVariationAccelerationSaving )
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
     accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< SphericalHarmonicAccelerationSettings >( 3, 3 ) );
     accelerationsOfVehicle[ "Sun" ].push_back( std::make_shared< AccelerationSettings >(
-                                                   basic_astrodynamics::central_gravity ) );
+                                                   basic_astrodynamics::point_mass_gravity ) );
     accelerationsOfVehicle[ "Moon" ].push_back( std::make_shared< AccelerationSettings >(
-                                                    basic_astrodynamics::central_gravity ) );
+                                                    basic_astrodynamics::point_mass_gravity ) );
     accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
 
     // Set bodies for which initial state is to be estimated and integrated.
@@ -1038,13 +1038,13 @@ BOOST_AUTO_TEST_CASE( test_AccelerationPartialSaving )
         if( test == 1 || test == 2 )
         {
             accelerationsOfVehicle[ "Moon" ].push_back( std::make_shared< AccelerationSettings >(
-                                                            basic_astrodynamics::central_gravity ) );
+                                                            basic_astrodynamics::point_mass_gravity ) );
         }
 
         if( test == 2 )
         {
             accelerationsOfVehicle[ "Sun" ].push_back( std::make_shared< AccelerationSettings >(
-                                                           basic_astrodynamics::central_gravity ) );
+                                                           basic_astrodynamics::point_mass_gravity ) );
         }
 
         accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;

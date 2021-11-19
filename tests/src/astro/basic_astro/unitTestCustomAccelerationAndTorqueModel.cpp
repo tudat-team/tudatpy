@@ -81,9 +81,9 @@ BOOST_AUTO_TEST_CASE( test_customAccelerationModelCreation )
     // Define propagation settings.
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
     accelerationsOfVehicle[ "Earth" ].push_back(
-                std::make_shared< AccelerationSettings >( basic_astrodynamics::central_gravity ) );
+                std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity ) );
     accelerationsOfVehicle[ "Sun" ].push_back(
-                std::make_shared< AccelerationSettings >( basic_astrodynamics::central_gravity ) );
+                std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity ) );
 
 
     std::map< double, Eigen::Vector3d > customAccelerationMap;
@@ -249,9 +249,9 @@ BOOST_AUTO_TEST_CASE( test_customTorqueModelCreation )
     // Define propagation settings.
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
     accelerationsOfVehicle[ "Earth" ].push_back(
-                std::make_shared< AccelerationSettings >( basic_astrodynamics::central_gravity ) );
+                std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity ) );
     accelerationsOfVehicle[ "Sun" ].push_back(
-                std::make_shared< AccelerationSettings >( basic_astrodynamics::central_gravity ) );
+                std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity ) );
 
     accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
 

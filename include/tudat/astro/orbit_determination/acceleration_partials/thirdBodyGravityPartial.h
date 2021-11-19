@@ -44,7 +44,7 @@ basic_astrodynamics::AvailableAcceleration getAccelerationTypeOfThirdBodyGravity
     // Check type of direct partial derivative.
     if( std::dynamic_pointer_cast< CentralGravitationPartial >( directGravityPartial ) != nullptr )
     {
-        accelerationType = third_body_central_gravity;
+        accelerationType = third_body_point_mass_gravity;
     }
     else if( std::dynamic_pointer_cast< SphericalHarmonicsGravityPartial >( directGravityPartial ) != nullptr )
     {
