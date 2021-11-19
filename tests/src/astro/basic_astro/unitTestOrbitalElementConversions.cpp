@@ -1615,11 +1615,11 @@ BOOST_AUTO_TEST_CASE( test_LongitudeOfNodeBugfix )
             orbital_element_conversions::convertCartesianToKeplerianElements(
                 recomputedCartesianState, gravitationalParameterOfCentralBody );
 
-    std::cout << std::setprecision( 16 ) << cartesianState.transpose( ) << std::endl;
-    std::cout << std::setprecision( 16 ) << recomputedCartesianState.transpose( ) << std::endl << std::endl;
+//    std::cout << std::setprecision( 16 ) << cartesianState.transpose( ) << std::endl;
+//    std::cout << std::setprecision( 16 ) << recomputedCartesianState.transpose( ) << std::endl << std::endl;
 
-    std::cout << std::setprecision( 16 ) << keplerianState.transpose( ) << std::endl;
-    std::cout << std::setprecision( 16 ) << recomputedKeplerianState.transpose( ) << std::endl;
+//    std::cout << std::setprecision( 16 ) << keplerianState.transpose( ) << std::endl;
+//    std::cout << std::setprecision( 16 ) << recomputedKeplerianState.transpose( ) << std::endl;
 }
 
 

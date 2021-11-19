@@ -31,7 +31,6 @@ inline boost::filesystem::path currentDirectory( )
 
 inline boost::filesystem::path inputDirectory( )
 {
-    std::cout<<"Test input"<<std::endl;
     boost::filesystem::path matlabInputDirectory = currentDirectory( ) / "matlab_inputs";
     if ( boost::filesystem::exists( matlabInputDirectory ) )
     {

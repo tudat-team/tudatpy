@@ -324,8 +324,8 @@ BOOST_AUTO_TEST_CASE( testEarthMoonVariationalEquationCalculation )
                         ( upPerturbedState - downPerturbedState ) / ( 2.0 * parameterPerturbation( j ) );
             }
 
-            std::cout<<"Run "<<i<<std::endl<<stateTransitionAndSensitivityMatrixAtEpoch<<std::endl;
-            std::cout<<"Run "<<i<<std::endl<<manualPartial<<std::endl;
+//            std::cout<<"Run "<<i<<std::endl<<stateTransitionAndSensitivityMatrixAtEpoch<<std::endl;
+//            std::cout<<"Run "<<i<<std::endl<<manualPartial<<std::endl;
 
             // Check results
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
@@ -801,8 +801,8 @@ executePhobosRotationSimulation(
     Eigen::MatrixXd constraintStateMultiplier;
     Eigen::VectorXd constraintRightHandSide;
     parametersToEstimate->getConstraints( constraintStateMultiplier, constraintRightHandSide );
-    std::cout<<"Unit rotation: "<<std::endl<<unitRotationState.transpose( )<<std::endl;
-    std::cout<<"Constraints: "<<std::endl<<constraintStateMultiplier.transpose( )<<std::endl;
+//    std::cout<<"Unit rotation: "<<std::endl<<unitRotationState.transpose( )<<std::endl;
+//    std::cout<<"Constraints: "<<std::endl<<constraintStateMultiplier.transpose( )<<std::endl;
 
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                 ( constraintStateMultiplier.block( 0, 0, 1, 4 ) ), ( unitRotationState.segment( 0, 4 ) ).transpose( ),
@@ -905,8 +905,8 @@ BOOST_AUTO_TEST_CASE( testPhobosRotationVariationalEquationCalculation )
     Eigen::MatrixXd stateTransitionAndSensitivityMatrixAtEpoch = currentOutput.first.at( 0 );
     Eigen::VectorXd nominalState = currentOutput.second.at( 0 );
 
-    std::cout<<"Nominal "<<std::endl<<std::endl<<
-               stateTransitionAndSensitivityMatrixAtEpoch<<std::endl;
+//    std::cout<<"Nominal "<<std::endl<<std::endl<<
+//               stateTransitionAndSensitivityMatrixAtEpoch<<std::endl;
     // Define state perturbation
     statePerturbation = ( Eigen::Matrix< double, 13, 1>( ) <<
                           10.0, 10.0, 10.0, 0.1, 0.01, 0.01,
@@ -1020,7 +1020,7 @@ BOOST_AUTO_TEST_CASE( testPhobosRotationVariationalEquationCalculation )
         perturbedParameter.setZero( );
         perturbedParameter( j ) += parameterPerturbation( j );
 
-        std::cout<<"Test "<<j<<" "<<perturbedParameter.transpose( )<<std::endl;
+//        std::cout<<"Test "<<j<<" "<<perturbedParameter.transpose( )<<std::endl;
 
         upPerturbedState = executePhobosRotationSimulation< double, double >(
                     perturbedState, appliedStateDifference, perturbedParameter, 0 ).second.at( 0 );
@@ -1033,10 +1033,10 @@ BOOST_AUTO_TEST_CASE( testPhobosRotationVariationalEquationCalculation )
         manualPartial.block( 0, j + 13, 13, 1 ) =
                 ( upPerturbedState.segment( 0, 13 ) - downPerturbedState.segment( 0, 13 ) ) / ( 2.0 * parameterPerturbation( j ) );
     }
-    std::cout<<manualPartial<<std::endl<<std::endl
-            <<stateTransitionAndSensitivityMatrixAtEpoch<<std::endl<<std::endl<<
-              ( manualPartial - stateTransitionAndSensitivityMatrixAtEpoch ).cwiseQuotient(
-                  stateTransitionAndSensitivityMatrixAtEpoch )<<std::endl;
+//    std::cout<<manualPartial<<std::endl<<std::endl
+//            <<stateTransitionAndSensitivityMatrixAtEpoch<<std::endl<<std::endl<<
+//              ( manualPartial - stateTransitionAndSensitivityMatrixAtEpoch ).cwiseQuotient(
+//                  stateTransitionAndSensitivityMatrixAtEpoch )<<std::endl;
 
     // Check three values separately: could not find perturbations for which all partials are sufficiently within the linear regime
 
