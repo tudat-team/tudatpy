@@ -87,7 +87,7 @@ basic_astrodynamics::AccelerationMap retrieveLowThrustAccelerationMap(
     // Acceleration from the central body.
     std::map< std::string, std::vector< std::shared_ptr< simulation_setup::AccelerationSettings > > > accelerationSettingsMap;
     accelerationSettingsMap[ centralBody ].push_back( std::make_shared< simulation_setup::AccelerationSettings >(
-                                                          basic_astrodynamics::central_gravity ) );
+                                                          basic_astrodynamics::point_mass_gravity ) );
     accelerationSettingsMap[ bodyToPropagate ].push_back(
                 getLowThrustLegAccelerationSettings(
                     lowThrustLeg, bodies, bodyToPropagate, specificImpulseFunction, lowThrustLegInitialTime  ) );

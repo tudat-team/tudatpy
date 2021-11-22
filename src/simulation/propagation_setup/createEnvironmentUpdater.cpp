@@ -307,9 +307,9 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                 // Check acceleration model type and change environment update list accordingly.
                 switch( currentAccelerationModelType )
                 {
-                case central_gravity:
+                case point_mass_gravity:
                     break;
-                case third_body_central_gravity:
+                case third_body_point_mass_gravity:
                 {
                     std::shared_ptr< gravitation::ThirdBodyCentralGravityAcceleration >
                             thirdBodyAcceleration = std::dynamic_pointer_cast<

@@ -109,7 +109,7 @@ BOOST_AUTO_TEST_CASE( testWindModelInPropagation )
         std::vector< std::string > bodiesToPropagate;
         std::vector< std::string > centralBodies;
         std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
-        accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+        accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
         accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( aerodynamic ) );
         accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
         bodiesToPropagate.push_back( "Vehicle" );

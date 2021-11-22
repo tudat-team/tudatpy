@@ -102,10 +102,10 @@ integrateEquations( const bool performIntegrationsSequentially )
     SelectedAccelerationMap accelerationMap;
 
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfLageos;
-    //accelerationsOfLageos[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+    //accelerationsOfLageos[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
     //accelerationsOfLageos[ "Earth" ].push_back( std::make_shared< RelativisticCorrectionSettings >( ) );
     //accelerationsOfLageos[ "Earth" ].push_back( std::make_shared< SphericalHarmonicAccelerationSettings >( 8, 8 ) );
-    accelerationsOfLageos[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+    accelerationsOfLageos[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
     accelerationMap[ "LAGEOS" ] = accelerationsOfLageos;
 
     // Set bodies for which initial state is to be estimated and integrated.

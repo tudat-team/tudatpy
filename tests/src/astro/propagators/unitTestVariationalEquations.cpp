@@ -96,13 +96,13 @@ executeEarthMoonSimulation(
     // Set accelerations between bodies that are to be taken into account.
     SelectedAccelerationMap accelerationMap;
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfEarth;
-    accelerationsOfEarth[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
-    accelerationsOfEarth[ "Moon" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+    accelerationsOfEarth[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
+    accelerationsOfEarth[ "Moon" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
     accelerationMap[ "Earth" ] = accelerationsOfEarth;
 
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfMoon;
-    accelerationsOfMoon[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
-    accelerationsOfMoon[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+    accelerationsOfMoon[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
+    accelerationsOfMoon[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
     accelerationMap[ "Moon" ] = accelerationsOfMoon;
 
     // Set bodies for which initial state is to be estimated and integrated.
@@ -405,11 +405,11 @@ executeOrbiterSimulation(
     accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< SphericalHarmonicAccelerationSettings >( 8, 8 ) );
 
     accelerationsOfVehicle[ "Sun" ].push_back( std::make_shared< AccelerationSettings >(
-                                                   basic_astrodynamics::central_gravity ) );
+                                                   basic_astrodynamics::point_mass_gravity ) );
     accelerationsOfVehicle[ "Moon" ].push_back( std::make_shared< AccelerationSettings >(
-                                                    basic_astrodynamics::central_gravity ) );
+                                                    basic_astrodynamics::point_mass_gravity ) );
     accelerationsOfVehicle[ "Mars" ].push_back( std::make_shared< AccelerationSettings >(
-                                                    basic_astrodynamics::central_gravity ) );
+                                                    basic_astrodynamics::point_mass_gravity ) );
     accelerationsOfVehicle[ "Sun" ].push_back( std::make_shared< AccelerationSettings >(
                                                    basic_astrodynamics::cannon_ball_radiation_pressure ) );
     accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< AccelerationSettings >(
@@ -710,7 +710,7 @@ executePhobosRotationSimulation(
 
     SelectedAccelerationMap accelerationMap;
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfEarth;
-    //    accelerationMap[ "Phobos" ][ "Mars" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+    //    accelerationMap[ "Phobos" ][ "Mars" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
     accelerationMap[ "Phobos" ][ "Mars" ].push_back( std::make_shared< MutualSphericalHarmonicAccelerationSettings >( 2, 2, 2, 2 ) );
 
     std::vector< std::string > translationalBodiesToIntegrate;
@@ -1091,7 +1091,7 @@ BOOST_AUTO_TEST_CASE( testMassRateVariationalEquations )
         // Define propagation settings.
         std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfAsterix;
         accelerationsOfAsterix[ "Earth" ].push_back( std::make_shared< AccelerationSettings >(
-                                                         basic_astrodynamics::central_gravity ) );
+                                                         basic_astrodynamics::point_mass_gravity ) );
         accelerationsOfAsterix[ "Asterix" ].push_back( std::make_shared< ThrustAccelerationSettings >(
                                                            std::make_shared< ThrustDirectionFromStateGuidanceSettings >(
                                                                "Earth", true, false  ),
