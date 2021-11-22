@@ -11,6 +11,7 @@
 #include <map>
 #include <fstream>
 #include <string>
+#include <iostream>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/trim.hpp>
@@ -251,16 +252,24 @@ void readCoefficientsFile(
                 // Check line consistency
                 if ( vectorOfIndividualStrings.size( ) != static_cast< unsigned int >( coefficientBlock.cols( ) ) )
                 {
+                    for( unsigned int i = 0; i < vectorOfIndividualStrings.size( ); i++ )
+                    {
+                        std::cerr<<"Entry "<<i<<":"<<vectorOfIndividualStrings.at( i )<<std::endl;
+                    }
                     throw std::runtime_error(
                                 "Error on data line " + std::to_string( numberOfDataLinesParsed ) +
                                 " found " + std::to_string( vectorOfIndividualStrings.size( ) ) +
-                                " columns, but expected " + std::to_string( coefficientBlock.cols( ) ) );
+                                " columns, but expected " + std::to_string( coefficientBlock.cols( ) ) +
+                                ". Current line is:" + line +
+                                ". Current file name is:" + fileName );
                 }
                 else if ( numberOfDataLinesParsed > coefficientBlock.rows( ) )
                 {
                     throw std::runtime_error(
                                 "Error on data line " + std::to_string( numberOfDataLinesParsed ) +
-                                " expected " +  std::to_string( coefficientBlock.rows( ) ) + "rows." );
+                                " expected " +  std::to_string( coefficientBlock.rows( ) ) + "rows." +
+                                ". Current line is:" + line +
+                                ". Current file name is:" + fileName );
                 }
                 else
                 {

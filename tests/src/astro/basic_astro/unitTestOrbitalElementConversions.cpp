@@ -447,6 +447,9 @@ void convertParabolicOrbitBackAndForth(
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( keplerianElements,
                                        recomputedKeplerianElements, tolerance );
 
+    std::cout<<"Keplerian "<<std::setprecision( 16 )<<keplerianElements.transpose( )<<std::endl;
+    std::cout<<"Keplerian "<<recomputedKeplerianElements.transpose( )<<std::endl;
+
     // Convert recomputed Keplerian elements to Cartesian elements.
     Eigen::Matrix< ScalarType, 6, 1 > recomputedCartesianElements =
             convertKeplerianToCartesianElements(
@@ -455,6 +458,9 @@ void convertParabolicOrbitBackAndForth(
     // Check that computed Cartesian elements match.
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                 computedCartesianElements, recomputedCartesianElements, ( 10.0 * tolerance ) );
+
+    std::cout<<"Cartesian "<<std::setprecision( 16 )<<computedCartesianElements.transpose( )<<std::endl;
+    std::cout<<"Cartesian "<<recomputedCartesianElements.transpose( )<<std::endl;
 }
 
 //! Test back and forth Kepler <-> Cartesian conversion for circular equatorial orbit
