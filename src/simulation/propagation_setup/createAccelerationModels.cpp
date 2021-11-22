@@ -1088,14 +1088,15 @@ createThrustAcceleratioModel(
     if( thrustAccelerationSettings->interpolatorInterface_ != nullptr )
     {
         // Check input consisten
-        if( thrustAccelerationSettings->thrustFrame_ == unspecified_thrust_frame )
+        if( thrustAccelerationSettings->thrustFrame_ == reference_frames::unspecified_reference_frame )
         {
             throw std::runtime_error( "Error when creating thrust acceleration, input frame is inconsistent with interface" );
         }
-        else if(thrustAccelerationSettings->thrustFrame_ != inertial_thrust_frame )
+        else if(thrustAccelerationSettings->thrustFrame_ != reference_frames::global_reference_frame )
         {
             // Create rotation function from thrust-frame to propagation frame.
-            if( thrustAccelerationSettings->thrustFrame_ == tnw_thrust_frame )
+            if( thrustAccelerationSettings->thrustFrame_ == reference_frames::tnw_reference_frame ||
+                    thrustAccelerationSettings->thrustFrame_ == reference_frames::rsw_reference_frame  )
             {
                 std::function< Eigen::Vector6d( ) > vehicleStateFunction =
                         std::bind( &Body::getState, bodies.at( nameOfBodyUndergoingThrust ) );
@@ -1115,8 +1116,10 @@ createThrustAcceleratioModel(
                             std::bind( &Body::getState, bodies.at( thrustAccelerationSettings->centralBody_ ) );
                 }
                 thrustAccelerationSettings->interpolatorInterface_->resetRotationFunction(
-                            std::bind( &reference_frames::getTnwToInertialRotationFromFunctions,
-                                       vehicleStateFunction, centralBodyStateFunction, true ) );
+                            [ = ]( ){ return reference_frames::getRotationToFrame(
+                                vehicleStateFunction( ) - centralBodyStateFunction( ),
+                                reference_frames::global_reference_frame,
+                                thrustAccelerationSettings->thrustFrame_ ); } );
             }
             else
             {
