@@ -269,25 +269,25 @@ BOOST_AUTO_TEST_CASE( testArithmeticOperations )
         BOOST_CHECK_EQUAL( multipliedTime.getFullPeriods( ), 10 );
         BOOST_CHECK_CLOSE_FRACTION( multipliedTime.getSecondsIntoFullPeriod( ),
                                     2400.0 + LONG_PI * 2.0,
-                                    2.0 * std::numeric_limits< double >::epsilon( ) );
+                                    5.0 * std::numeric_limits< double >::epsilon( ) );
 
         multipliedTime = testTime * 3.0;
         BOOST_CHECK_EQUAL( multipliedTime.getFullPeriods( ), 16 );
         BOOST_CHECK_CLOSE_FRACTION( multipliedTime.getSecondsIntoFullPeriod( ),
                                     PI * 3.0,
-                                    2.0 * std::numeric_limits< double >::epsilon( ) );
+                                    5.0 * std::numeric_limits< double >::epsilon( ) );
 
         multipliedTime = 2.0 * testTime;
         BOOST_CHECK_EQUAL( multipliedTime.getFullPeriods( ), 10 );
         BOOST_CHECK_CLOSE_FRACTION( multipliedTime.getSecondsIntoFullPeriod( ),
                                     2400.0 + LONG_PI * 2.0,
-                                    2.0 * std::numeric_limits< double >::epsilon( ) );
+                                    5.0 * std::numeric_limits< double >::epsilon( ) );
 
         multipliedTime = 3.0 * testTime;
         BOOST_CHECK_EQUAL( multipliedTime.getFullPeriods( ), 16 );
         BOOST_CHECK_CLOSE_FRACTION( multipliedTime.getSecondsIntoFullPeriod( ),
                                     PI * 3.0,
-                                    2.0 * std::numeric_limits< double >::epsilon( ) );
+                                    5.0 * std::numeric_limits< double >::epsilon( ) );
 
 
     }
