@@ -20,6 +20,7 @@
 #include "tudat/astro/gravitation/thirdBodyPerturbation.h"
 #include "tudat/astro/aerodynamics/aerodynamicAcceleration.h"
 #include "tudat/astro/basic_astro/accelerationModelTypes.h"
+#include "tudat/astro/reference_frames/referenceFrameTransformations.h"
 #include "tudat/simulation/propagation_setup/createThrustModelGuidance.h"
 // #include "tudat/math/interpolators/createInterpolator.h"
 
@@ -416,15 +417,6 @@ private:
 };
 
 
-// Enum defining identifiers of frames in which a user-specified thrust is defined.
-//! @get_docstring(ThrustFrames.__docstring__)
-enum ThrustFrames
-{
-    unspecified_thrust_frame = -1,
-    inertial_thrust_frame = 0,
-    tnw_thrust_frame = 1
-};
-
 // Class for providing acceleration settings for a thrust acceleration model
 /*
  *  Class for providing acceleration settings for a thrust acceleration model. Settings for the direction and magnitude
@@ -447,7 +439,7 @@ public:
             AccelerationSettings( basic_astrodynamics::thrust_acceleration ),
             thrustDirectionSettings_(thrustDirectionSettings ),
             thrustMagnitudeSettings_( thrustMagnitudeSettings ),
-            thrustFrame_( unspecified_thrust_frame ){ }
+            thrustFrame_( reference_frames::unspecified_reference_frame ){ }
 
     // Constructor used for defining total thrust vector (in local or inertial frame) from interpolator using
     // variable specific impulse
@@ -461,7 +453,7 @@ public:
     ThrustAccelerationSettings(
             const std::function< Eigen::Vector3d( const double ) > thrustForceFunction,
             const std::function< double( const double ) > specificImpulseFunction,
-            const ThrustFrames thrustFrame = inertial_thrust_frame,
+            const reference_frames::SatelliteReferenceFrames thrustFrame = reference_frames::global_reference_frame,
             const std::string centralBody = "" ):
         AccelerationSettings( basic_astrodynamics::thrust_acceleration ),
         constantSpecificImpulse_( TUDAT_NAN ), thrustFrame_( thrustFrame ),
@@ -489,7 +481,7 @@ public:
     ThrustAccelerationSettings(
             const std::function< Eigen::Vector3d( const double ) > thrustForceFunction,
             const double constantSpecificImpulse,
-            const ThrustFrames thrustFrame = inertial_thrust_frame,
+            const reference_frames::SatelliteReferenceFrames thrustFrame = reference_frames::global_reference_frame,
             const std::string centralBody = "" ):
         ThrustAccelerationSettings( thrustForceFunction,
                                     [ = ]( const double ){ return constantSpecificImpulse; },
@@ -520,7 +512,7 @@ public:
      *  Identifier of frame in which thrust returned by fullThrustInterpolator is expressed. Unspecifief by default,
      *  only used if interpolatorInterface_ is set
      */
-    ThrustFrames thrustFrame_;
+    reference_frames::SatelliteReferenceFrames thrustFrame_;
 
     // Central body identifier for thrustFrame.
     /*
@@ -557,7 +549,7 @@ inline std::shared_ptr< AccelerationSettings > thrustAcceleration( const std::sh
 inline std::shared_ptr< AccelerationSettings > thrustAcceleration(
         const std::function< Eigen::Vector3d( const double ) > thrustForceFunction,
         const std::function< double( const double ) > specificImpulseFunction,
-        const ThrustFrames thrustFrame = unspecified_thrust_frame,
+        const reference_frames::SatelliteReferenceFrames thrustFrame = reference_frames::unspecified_reference_frame,
 		const std::string centralBody = "" )
 {
     return std::make_shared< ThrustAccelerationSettings >( thrustForceFunction, specificImpulseFunction,
@@ -568,7 +560,7 @@ inline std::shared_ptr< AccelerationSettings > thrustAcceleration(
 inline std::shared_ptr< AccelerationSettings > thrustAcceleration(
         const std::function< Eigen::Vector3d( const double ) > thrustForceFunction,
         const double constantSpecificImpulse,
-        const ThrustFrames thrustFrame = unspecified_thrust_frame,
+        const reference_frames::SatelliteReferenceFrames thrustFrame = reference_frames::unspecified_reference_frame,
 		const std::string centralBody = "" )
 {
     return std::make_shared< ThrustAccelerationSettings >( thrustForceFunction, constantSpecificImpulse,

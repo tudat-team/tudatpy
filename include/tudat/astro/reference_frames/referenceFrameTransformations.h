@@ -47,6 +47,16 @@ enum AerodynamicsReferenceFrames
     body_frame = 4
 };
 
+// Enum defining identifiers of frames in which a user-specified thrust is defined.
+//! @get_docstring(ThrustFrames.__docstring__)
+enum SatelliteReferenceFrames
+{
+    unspecified_reference_frame = -1,
+    global_reference_frame = 0,
+    tnw_reference_frame = 1,
+    rsw_reference_frame = 2
+};
+
 //! Function to get a string representing a 'named identification' of a reference frame.
 /*!
  * Function to get a string representing a 'named identification' of a reference frame.
@@ -661,6 +671,11 @@ Eigen::Vector3d getBodyFixedSphericalPosition(
         const std::function< Eigen::Vector3d( ) > positionFunctionOfCentralBody,
         const std::function< Eigen::Vector3d( ) > positionFunctionOfRelativeBody,
         const std::function< Eigen::Quaterniond( ) > orientationFunctionOfCentralBody );
+
+Eigen::Matrix3d getRotationToFrame(
+        const Eigen::Vector6d relativeInertialCartesianState,
+        const SatelliteReferenceFrames originalFrame,
+        const SatelliteReferenceFrames targetFrame );
 
 } // namespace reference_frames
 
