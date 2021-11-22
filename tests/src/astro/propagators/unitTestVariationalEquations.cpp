@@ -944,7 +944,7 @@ BOOST_AUTO_TEST_CASE( testPhobosRotationVariationalEquationCalculation )
                         ( stateTransitionAndSensitivityMatrixAtEpoch.block( 0, 0, 13, 13 ) * appliedStateDifferenceUp );
                 TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                             ( testMatrix.segment( 0, 6 ) ),
-                            ( stateDifferenceUp.segment( 0, 6 ) ), 1.0E-3 );
+                            ( stateDifferenceUp.segment( 0, 6 ) ), 1.5E-3 );
             }
             else
             {
