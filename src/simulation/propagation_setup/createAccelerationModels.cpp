@@ -1119,7 +1119,7 @@ createThrustAcceleratioModel(
                             [ = ]( ){ return reference_frames::getRotationToFrame(
                                 vehicleStateFunction( ) - centralBodyStateFunction( ),
                                 thrustAccelerationSettings->thrustFrame_,
-                                reference_frames::global_reference_frame ); };
+                                reference_frames::global_reference_frame ); } );
             }
             else
             {
