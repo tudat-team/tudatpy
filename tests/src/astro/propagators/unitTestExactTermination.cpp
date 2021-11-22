@@ -130,11 +130,11 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
 
                 {
                     accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< AccelerationSettings >(
-                                                                     basic_astrodynamics::central_gravity ) );
+                                                                     basic_astrodynamics::point_mass_gravity ) );
                     accelerationsOfVehicle[ "Sun" ].push_back( std::make_shared< AccelerationSettings >(
-                                                                   basic_astrodynamics::central_gravity ) );
+                                                                   basic_astrodynamics::point_mass_gravity ) );
                     accelerationsOfVehicle[ "Moon" ].push_back( std::make_shared< AccelerationSettings >(
-                                                                    basic_astrodynamics::central_gravity ) );
+                                                                    basic_astrodynamics::point_mass_gravity ) );
                 }
 
                 accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;

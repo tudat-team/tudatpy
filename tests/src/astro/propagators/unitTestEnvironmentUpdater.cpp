@@ -116,9 +116,9 @@ BOOST_AUTO_TEST_CASE( test_centralGravityEnvironmentUpdate )
         {
             // Define accelerations
             accelerationSettingsMap[ "Moon" ][ "Sun" ].push_back(
-                        std::make_shared< AccelerationSettings >( central_gravity ) );
+                        std::make_shared< AccelerationSettings >( point_mass_gravity ) );
             accelerationSettingsMap[ "Moon" ][ "Earth" ].push_back(
-                        std::make_shared< AccelerationSettings >( central_gravity ) );
+                        std::make_shared< AccelerationSettings >( point_mass_gravity ) );
 
             // Define origin of integration to be barycenter.
             centralBodies[ "Moon" ] = "SSB";
@@ -195,9 +195,9 @@ BOOST_AUTO_TEST_CASE( test_centralGravityEnvironmentUpdate )
 
             // Set acceleration models.
             accelerationSettingsMap[ "Moon" ][ "Sun" ].push_back(
-                        std::make_shared< AccelerationSettings >( central_gravity ) );
+                        std::make_shared< AccelerationSettings >( point_mass_gravity ) );
             accelerationSettingsMap[ "Moon" ][ "Mars" ].push_back(
-                        std::make_shared< AccelerationSettings >( central_gravity ) );
+                        std::make_shared< AccelerationSettings >( point_mass_gravity ) );
 
             // Define origin of integration
             centralBodies[ "Moon" ] = "Earth";
@@ -264,11 +264,11 @@ BOOST_AUTO_TEST_CASE( test_centralGravityEnvironmentUpdate )
 
             // Set acceleration models.
             accelerationSettingsMap[ "Moon" ][ "Sun" ].push_back(
-                        std::make_shared< AccelerationSettings >( central_gravity ) );
+                        std::make_shared< AccelerationSettings >( point_mass_gravity ) );
             accelerationSettingsMap[ "Moon" ][ "Earth" ].push_back(
                         std::make_shared< SphericalHarmonicAccelerationSettings >( 5, 5 ) );
             accelerationSettingsMap[ "Moon" ][ "Mars" ].push_back(
-                        std::make_shared< AccelerationSettings >( central_gravity ) );
+                        std::make_shared< AccelerationSettings >( point_mass_gravity ) );
 
             // Define origin of integration
             centralBodies[ "Moon" ] = "Earth";

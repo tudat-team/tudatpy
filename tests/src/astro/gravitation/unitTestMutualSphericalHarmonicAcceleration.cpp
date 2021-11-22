@@ -175,7 +175,7 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravity )
                 ( bodies.at( "Europa" ) )->getGravityFieldModel( ) );
 
     // Create central gravity acceleration (mu = Io + Jupiter)
-    std::shared_ptr< AccelerationSettings > centralGravitySettings = std::make_shared< AccelerationSettings >( central_gravity );
+    std::shared_ptr< AccelerationSettings > centralGravitySettings = std::make_shared< AccelerationSettings >( point_mass_gravity );
     std::shared_ptr< CentralGravitationalAccelerationModel3d > centralGravity =
             std::dynamic_pointer_cast< CentralGravitationalAccelerationModel3d >(
                 createAccelerationModel( bodies.at( "Io" ), bodies.at( "Jupiter" ), centralGravitySettings, "Io", "Jupiter",
