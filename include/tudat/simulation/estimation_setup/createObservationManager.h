@@ -274,6 +274,7 @@ void performObservationParameterEstimationClosure(
                             vectorBiasParameters.at( i ), biasIterator->second, biasIterator->first,
                             observationSimulator->getObservableType( ) );
             }
+            vectorBiasParameters.at( i )->throwExceptionIfNotFullyDefined( );
         }
     }
 }

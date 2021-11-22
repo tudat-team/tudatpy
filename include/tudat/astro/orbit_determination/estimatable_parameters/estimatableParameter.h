@@ -225,6 +225,9 @@ public:
         return Eigen::VectorXd::Zero( 0 );
     }
 
+    virtual void throwExceptionIfNotFullyDefined( ){ }
+
+
 
 protected:
 
