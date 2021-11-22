@@ -255,7 +255,7 @@ BOOST_AUTO_TEST_CASE( testLenseThirring )
         // Define propagation settings.
         std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfAsterix;
         accelerationsOfAsterix[ "Earth" ].push_back( std::make_shared< AccelerationSettings >(
-                                                         basic_astrodynamics::central_gravity ) );
+                                                         basic_astrodynamics::point_mass_gravity ) );
         if( testCase == 1 )
         {
             accelerationsOfAsterix[ "Earth" ].push_back( std::make_shared< RelativisticAccelerationCorrectionSettings >(
