@@ -449,6 +449,8 @@ void convertParabolicOrbitBackAndForth(
 
     std::cout<<"Keplerian "<<std::setprecision( 16 )<<keplerianElements.transpose( )<<std::endl;
     std::cout<<"Keplerian "<<recomputedKeplerianElements.transpose( )<<std::endl;
+    std::cout<<"Keplerian "<<( keplerianElements - recomputedKeplerianElements ).transpose( )<<std::endl;
+    recomputedKeplerianElements( eccentricityIndex ) = getFloatingInteger< ScalarType >( 1 );
 
     // Convert recomputed Keplerian elements to Cartesian elements.
     Eigen::Matrix< ScalarType, 6, 1 > recomputedCartesianElements =
