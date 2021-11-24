@@ -212,7 +212,6 @@ void readCoefficientsFile(
     int numberOfIndependentVariables = -1;
     while ( !stream.fail( ) && !stream.eof( ) )
     {
-        std::cout<<"Current line: "<<line<<std::endl;
         // Get line from stream
         std::getline( stream, line );
 
