@@ -235,22 +235,22 @@ void expose_acceleration_setup(py::module &m) {
     m.def("thrust_from_custom_function", py::overload_cast<
                   const std::function< Eigen::Vector3d( const double ) >,
                   const std::function<double(const double)>,
-                  const tss::ThrustFrames,
+                  const trf::SatelliteReferenceFrames,
                   const std::string>(&tss::thrustAcceleration),
           py::arg("thrust_force_function"),
           py::arg("specific_impulse_function"),
-          py::arg("thrust_frame") = tss::ThrustFrames::inertial_thrust_frame,
+          py::arg("thrust_frame") = trf::SatelliteReferenceFrames::global_reference_frame,
           py::arg("central_body") = "",
           get_docstring("thrust_from_custom_function").c_str());
 
     m.def("thrust_and_isp_from_custom_function", py::overload_cast<
                   const std::function< Eigen::Vector3d( const double ) >,
                   const double,
-                  const tss::ThrustFrames,
+                  const trf::SatelliteReferenceFrames,
                   const std::string>(&tss::thrustAcceleration),
           py::arg("thrust_force_function"),
           py::arg("constant_specific_impulse"),
-          py::arg("thrust_frame") = tss::ThrustFrames::inertial_thrust_frame,
+          py::arg("thrust_frame") = trf::SatelliteReferenceFrames::global_reference_frame,
           py::arg("central_body") = "",
           get_docstring("thrust_and_isp_from_custom_function").c_str());
 

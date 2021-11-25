@@ -151,7 +151,7 @@ void expose_observations_setup(py::module &m) {
             std::shared_ptr<tom::ObservationBiasSettings>>(
                 m, "ObservationBiasSettings");
 
-    m.def("bias",
+    m.def("absolute_bias",
           &tom::constantAbsoluteBias,
           py::arg("bias_value") );
 
@@ -221,26 +221,7 @@ void expose_observations_setup(py::module &m) {
           const double >(
           &tom::elevationAngleViabilitySettings ),
           py::arg("link_ends_list" ),
-          py::arg("elevationAngle" ) );
-
-    m.def("elevation_angle_viability",
-          py::overload_cast<
-          const std::pair< std::string, std::string >,
-          const double >(
-          &tom::elevationAngleViabilitySettings ),
-          py::arg("link_end" ),
-          py::arg("elevationAngle" ) );
-
-
-    m.def("body_avoidance_viability",
-          py::overload_cast<
-          const std::pair< std::string, std::string >,
-          const std::string,
-          const double >(
-          &tom::bodyAvoidanceAngleViabilitySettings ),
-          py::arg("link_end" ),
-          py::arg("body_to_avoid" ),
-          py::arg("avoidance_angle") );
+          py::arg("elevation_angle" ) );
 
     m.def("body_avoidance_viability",
           py::overload_cast<
@@ -259,15 +240,6 @@ void expose_observations_setup(py::module &m) {
           const std::string >(
           &tom::bodyOccultationViabilitySettings ),
           py::arg("link_ends_list" ),
-          py::arg("occulting_body" ) );
-
-
-    m.def("body_occultation_viability",
-          py::overload_cast<
-          const std::pair< std::string, std::string >,
-          const std::string >(
-          &tom::bodyOccultationViabilitySettings ),
-          py::arg("link_end" ),
           py::arg("occulting_body" ) );
 
     m.def("create_observation_simulators",
@@ -293,7 +265,7 @@ void expose_observations_setup(py::module &m) {
                  py::arg("viability_settings") = std::vector< std::shared_ptr< tom::ObservationViabilitySettings > >( ),
                  py::arg("noise_function") = nullptr );
 
-    m.def("create_tabulated_simulation_settings",
+    m.def("tabulated_observation_simulation_settings",
               &tss::createTabulatedObservationSimulationSettingsList< double >,
           py::arg("link_ends_per_observable"),
           py::arg("simulation_times" ) );

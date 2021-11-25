@@ -86,11 +86,11 @@ void expose_thrust_setup(py::module &m) {
 
 
 
-    py::enum_<tss::ThrustFrames>(m, "ThrustFrames",
+    py::enum_<trf::SatelliteReferenceFrames>(m, "ThrustFrames",
                                  get_docstring("ThrustFrames").c_str())
-            .value("unspecified_thrust_frame_type", tss::ThrustFrames::unspecified_thrust_frame)
-            .value("inertial_thrust_frame_type", tss::ThrustFrames::inertial_thrust_frame)
-            .value("tnw_thrust_frame_type", tss::ThrustFrames::tnw_thrust_frame)
+            .value("unspecified_thrust_frame_type", trf::SatelliteReferenceFrames::unspecified_reference_frame)
+            .value("inertial_thrust_frame_type", trf::SatelliteReferenceFrames::global_reference_frame)
+            .value("tnw_thrust_frame_type", trf::SatelliteReferenceFrames::tnw_reference_frame)
             .export_values();
 
     py::class_<
