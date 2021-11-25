@@ -384,7 +384,7 @@ BOOST_AUTO_TEST_CASE( testMarsAndOrbiterHybridArcVariationalEquationCalculation 
             // Numerically compute state transition matrix
             for( unsigned int j = 0; j < 12; j++ )
             {
-                std::cout<<"Propagating perturbation "<<j<<std::endl;
+//                std::cout<<"Propagating perturbation "<<j<<std::endl;
                 std::vector< Eigen::VectorXd > upPerturbedState, upPerturbedState2, downPerturbedState2, downPerturbedState;
                 perturbedState.setZero( );
                 perturbedState( j ) += statePerturbation( j );
@@ -501,10 +501,10 @@ BOOST_AUTO_TEST_CASE( testMarsAndOrbiterHybridArcVariationalEquationCalculation 
                 //                               manualPartial.at( arc ).block( 6, 0, 6, 6 )<<std::endl<<std::endl<<
                 //                               ( stateTransitionAndSensitivityMatrixAtEpoch.at( arc ) - manualPartial.at( arc ) ).block( 6, 0, 6, 6 ).cwiseQuotient(
                 //                                manualPartial.at( arc ).block( 6, 0, 6, 6 ) )<<std::endl<<std::endl;
-                std::cout<<"Arc: "<<arc<<std::endl<<stateTransitionAndSensitivityMatrixAtEpoch.at( arc ).block( 0, 12, 12, 2 )<<std::endl<<std::endl<<
-                           manualPartial.at( arc ).block( 0, 12, 12, 2 )<<std::endl<<std::endl<<
-                           ( stateTransitionAndSensitivityMatrixAtEpoch.at( arc ) - manualPartial.at( arc ) ).block( 0, 12, 12, 2 ).cwiseQuotient(
-                               manualPartial.at( arc ).block( 0, 12, 12, 2 ) )<<std::endl<<std::endl;
+//                std::cout<<"Arc: "<<arc<<std::endl<<stateTransitionAndSensitivityMatrixAtEpoch.at( arc ).block( 0, 12, 12, 2 )<<std::endl<<std::endl<<
+//                           manualPartial.at( arc ).block( 0, 12, 12, 2 )<<std::endl<<std::endl<<
+//                           ( stateTransitionAndSensitivityMatrixAtEpoch.at( arc ) - manualPartial.at( arc ) ).block( 0, 12, 12, 2 ).cwiseQuotient(
+//                               manualPartial.at( arc ).block( 0, 12, 12, 2 ) )<<std::endl<<std::endl;
 
             }
 

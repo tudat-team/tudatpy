@@ -447,6 +447,11 @@ void convertParabolicOrbitBackAndForth(
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( keplerianElements,
                                        recomputedKeplerianElements, tolerance );
 
+    std::cout<<"Keplerian "<<std::setprecision( 16 )<<keplerianElements.transpose( )<<std::endl;
+    std::cout<<"Keplerian "<<recomputedKeplerianElements.transpose( )<<std::endl;
+    std::cout<<"Keplerian "<<( keplerianElements - recomputedKeplerianElements ).transpose( )<<std::endl;
+    recomputedKeplerianElements( eccentricityIndex ) = getFloatingInteger< ScalarType >( 1 );
+
     // Convert recomputed Keplerian elements to Cartesian elements.
     Eigen::Matrix< ScalarType, 6, 1 > recomputedCartesianElements =
             convertKeplerianToCartesianElements(
@@ -455,6 +460,9 @@ void convertParabolicOrbitBackAndForth(
     // Check that computed Cartesian elements match.
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                 computedCartesianElements, recomputedCartesianElements, ( 10.0 * tolerance ) );
+
+    std::cout<<"Cartesian "<<std::setprecision( 16 )<<computedCartesianElements.transpose( )<<std::endl;
+    std::cout<<"Cartesian "<<recomputedCartesianElements.transpose( )<<std::endl;
 }
 
 //! Test back and forth Kepler <-> Cartesian conversion for circular equatorial orbit
@@ -1615,11 +1623,11 @@ BOOST_AUTO_TEST_CASE( test_LongitudeOfNodeBugfix )
             orbital_element_conversions::convertCartesianToKeplerianElements(
                 recomputedCartesianState, gravitationalParameterOfCentralBody );
 
-    std::cout << std::setprecision( 16 ) << cartesianState.transpose( ) << std::endl;
-    std::cout << std::setprecision( 16 ) << recomputedCartesianState.transpose( ) << std::endl << std::endl;
+//    std::cout << std::setprecision( 16 ) << cartesianState.transpose( ) << std::endl;
+//    std::cout << std::setprecision( 16 ) << recomputedCartesianState.transpose( ) << std::endl << std::endl;
 
-    std::cout << std::setprecision( 16 ) << keplerianState.transpose( ) << std::endl;
-    std::cout << std::setprecision( 16 ) << recomputedKeplerianState.transpose( ) << std::endl;
+//    std::cout << std::setprecision( 16 ) << keplerianState.transpose( ) << std::endl;
+//    std::cout << std::setprecision( 16 ) << recomputedKeplerianState.transpose( ) << std::endl;
 }
 
 
