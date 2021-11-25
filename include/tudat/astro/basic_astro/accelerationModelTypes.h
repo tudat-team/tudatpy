@@ -136,7 +136,7 @@ bool isAccelerationFromThirdBody( const AvailableAcceleration accelerationType )
 
 // Function to get the third-body counterpart of a direct gravitational acceleration type
 /*
- * Function to get the third-body counterpart of a direct gravitational acceleration type, e.g. a third_body_central_gravity
+ * Function to get the third-body counterpart of a direct gravitational acceleration type, e.g. a third_body_point_mass_gravity
  * for a point_mass_gravity input. Function throws an exception is input is not direct gravitational
  * \param accelerationType Acceleration type for which the third-body counterpart is to be determined.
  * \return Third-body counterpart of accelerationType.
