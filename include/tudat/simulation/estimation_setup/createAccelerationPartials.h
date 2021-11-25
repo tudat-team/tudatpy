@@ -153,7 +153,7 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
         // Check if identifier is consistent with type.
         if( std::dynamic_pointer_cast< ThirdBodyCentralGravityAcceleration >( accelerationModel ) == nullptr )
         {
-            throw std::runtime_error( "Acceleration class type does not match acceleration type (third_body_central_gravity) "
+            throw std::runtime_error( "Acceleration class type does not match acceleration type (third_body_point_mass_gravity) "
                                       "when making acceleration partial." );
         }
         else
