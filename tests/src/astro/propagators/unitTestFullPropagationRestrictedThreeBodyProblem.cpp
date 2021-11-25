@@ -91,8 +91,6 @@ BOOST_AUTO_TEST_CASE( testFullPropagationCircularRestrictedThreeBodyProblem )
         BOOST_CHECK_SMALL( std::fabs( stateDifference( i + 3 ) ), 1.0E-6 );
     }
 
-    std::cout << "stateDifference: " << stateDifference << std::endl;
-
 }
 
 }
