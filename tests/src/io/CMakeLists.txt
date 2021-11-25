@@ -14,7 +14,7 @@ TUDAT_ADD_TEST_CASE(MapTextFileReader
         tudat_basic_astrodynamics
         )
 
-TUDAT_ADD_TEST_CASE2(MatrixTextFileReader
+TUDAT_ADD_TEST_CASE(MatrixTextFileReader
         PRIVATE_LINKS
         tudat_input_output
         tudat_basic_astrodynamics
