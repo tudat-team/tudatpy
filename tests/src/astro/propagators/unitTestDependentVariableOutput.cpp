@@ -249,7 +249,7 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
                         point_mass_gravity, "Apollo", "Moon", 0 ) );
         dependentVariables.push_back(
                     std::make_shared< SingleAccelerationDependentVariableSaveSettings >(
-                        third_body_central_gravity, "Apollo", "Moon", 0 ) );
+                        third_body_point_mass_gravity, "Apollo", "Moon", 0 ) );
         dependentVariables.push_back(
                     std::make_shared< SingleDependentVariableSaveSettings >(
                         keplerian_state_dependent_variable,  "Apollo", "Earth" ) );
@@ -1096,14 +1096,14 @@ BOOST_AUTO_TEST_CASE( test_AccelerationPartialSaving )
         {
             dependentVariables.push_back(
                         std::make_shared< AccelerationPartialWrtStateSaveSettings >(
-                            "Vehicle", "Moon", third_body_central_gravity, "Vehicle", "Earth" ) );
+                            "Vehicle", "Moon", third_body_point_mass_gravity, "Vehicle", "Earth" ) );
         }
 
         if( test == 2 )
         {
             dependentVariables.push_back(
                         std::make_shared< AccelerationPartialWrtStateSaveSettings >(
-                            "Vehicle", "Sun", third_body_central_gravity, "Vehicle", "Earth" ) );
+                            "Vehicle", "Sun", third_body_point_mass_gravity, "Vehicle", "Earth" ) );
         }
 
         std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
