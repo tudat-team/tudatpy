@@ -43,7 +43,6 @@ public:
 
     void setParameterValue( const double parameterValue )
     {
-        std::cout<<"SETTING value: "<<parameterValue<<std::endl;
         librationCalculator_->setScaledLibrationAmplitude( parameterValue );
     }
 

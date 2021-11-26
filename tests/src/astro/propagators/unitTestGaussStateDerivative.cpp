@@ -75,21 +75,21 @@ BOOST_AUTO_TEST_CASE( testGaussPopagatorForPointMassCentralBodies )
         // Set accelerations between bodies that are to be taken into account.
         SelectedAccelerationMap accelerationMap;
         std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfEarth;
-        accelerationsOfEarth[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
-        accelerationsOfEarth[ "Moon" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
-        accelerationsOfEarth[ "Jupiter" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+        accelerationsOfEarth[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
+        accelerationsOfEarth[ "Moon" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
+        accelerationsOfEarth[ "Jupiter" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
         accelerationMap[ "Earth" ] = accelerationsOfEarth;
 
         std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfMars;
-        accelerationsOfMars[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
-        accelerationsOfMars[ "Venus" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
-        accelerationsOfMars[ "Jupiter" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+        accelerationsOfMars[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
+        accelerationsOfMars[ "Venus" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
+        accelerationsOfMars[ "Jupiter" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
         accelerationMap[ "Mars" ] = accelerationsOfMars;
 
         std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfVenus;
-        accelerationsOfVenus[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
-        accelerationsOfVenus[ "Mars" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
-        accelerationsOfVenus[ "Jupiter" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+        accelerationsOfVenus[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
+        accelerationsOfVenus[ "Mars" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
+        accelerationsOfVenus[ "Jupiter" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
         accelerationMap[ "Venus" ] = accelerationsOfVenus;
 
         // Propagate Earth, Mars and Moon
@@ -337,7 +337,7 @@ BOOST_AUTO_TEST_CASE( testGaussPopagatorForSphericalHarmonicCentralBodies )
             if( simulationCase < 2 )
             {
                 accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< AccelerationSettings >(
-                                                                 basic_astrodynamics::central_gravity ) );
+                                                                 basic_astrodynamics::point_mass_gravity ) );
             }
             // Use spherical harmonics for Earth
             else
@@ -351,13 +351,13 @@ BOOST_AUTO_TEST_CASE( testGaussPopagatorForSphericalHarmonicCentralBodies )
             if( simulationCase % 2 == 0 )
             {
                 accelerationsOfVehicle[ "Sun" ].push_back( std::make_shared< AccelerationSettings >(
-                                                               basic_astrodynamics::central_gravity ) );
+                                                               basic_astrodynamics::point_mass_gravity ) );
                 accelerationsOfVehicle[ "Moon" ].push_back( std::make_shared< AccelerationSettings >(
-                                                                basic_astrodynamics::central_gravity ) );
+                                                                basic_astrodynamics::point_mass_gravity ) );
                 accelerationsOfVehicle[ "Mars" ].push_back( std::make_shared< AccelerationSettings >(
-                                                                basic_astrodynamics::central_gravity ) );
+                                                                basic_astrodynamics::point_mass_gravity ) );
                 accelerationsOfVehicle[ "Venus" ].push_back( std::make_shared< AccelerationSettings >(
-                                                                 basic_astrodynamics::central_gravity ) );
+                                                                 basic_astrodynamics::point_mass_gravity ) );
                 accelerationsOfVehicle[ "Sun" ].push_back( std::make_shared< AccelerationSettings >(
                                                                basic_astrodynamics::cannon_ball_radiation_pressure ) );
             }
