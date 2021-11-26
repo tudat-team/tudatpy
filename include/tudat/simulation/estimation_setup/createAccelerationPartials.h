@@ -83,12 +83,12 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
     AvailableAcceleration accelerationType = getAccelerationModelType( accelerationModel );
     switch( accelerationType )
     {
-    case central_gravity:
+    case point_mass_gravity:
 
         // Check if identifier is consistent with type.
         if( std::dynamic_pointer_cast< CentralGravitationalAccelerationModel3d >( accelerationModel ) == nullptr )
         {
-            throw std::runtime_error( "Acceleration class type does not match acceleration type (central_gravity) "
+            throw std::runtime_error( "Acceleration class type does not match acceleration type (point_mass_gravity) "
                                       "when making acceleration partial." );
         }
         else
@@ -149,11 +149,11 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
         }
         break;
     }
-    case third_body_central_gravity:
+    case third_body_point_mass_gravity:
         // Check if identifier is consistent with type.
         if( std::dynamic_pointer_cast< ThirdBodyCentralGravityAcceleration >( accelerationModel ) == nullptr )
         {
-            throw std::runtime_error( "Acceleration class type does not match acceleration type (third_body_central_gravity) "
+            throw std::runtime_error( "Acceleration class type does not match acceleration type (third_body_point_mass_gravity) "
                                       "when making acceleration partial." );
         }
         else

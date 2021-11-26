@@ -477,6 +477,11 @@ struct PodOutput
         exceptionDuringPropagation_( exceptionDuringPropagation)
     { }
 
+    Eigen::MatrixXd getNormalizedInverseCovarianceMatrix( )
+    {
+        return inverseNormalizedCovarianceMatrix_;
+    }
+
     //! Function to retrieve the unnormalized inverse estimation covariance matrix
     /*!
      * Function to retrieve the unnormalized inverse estimation covariance matrix
@@ -485,7 +490,7 @@ struct PodOutput
     Eigen::MatrixXd getUnnormalizedInverseCovarianceMatrix( )
     {
 
-        Eigen::MatrixXd inverseUnnormalizedCovarianceMatrix = inverseNormalizedCovarianceMatrix_;
+        Eigen::MatrixXd inverseUnnormalizedCovarianceMatrix = getNormalizedInverseCovarianceMatrix( );
 
         for( int i = 0; i < informationMatrixTransformationDiagonal_.rows( ); i++ )
         {
@@ -499,6 +504,11 @@ struct PodOutput
         return inverseUnnormalizedCovarianceMatrix;
     }
 
+    Eigen::MatrixXd getNormalizedCovarianceMatrix( )
+    {
+        return inverseNormalizedCovarianceMatrix_.inverse( );
+    }
+
     //! Function to retrieve the unnormalized estimation covariance matrix
     /*!
      * Function to retrieve the unnormalized estimation covariance matrix
@@ -506,7 +516,7 @@ struct PodOutput
      */
     Eigen::MatrixXd getUnnormalizedCovarianceMatrix( )
     {
-        Eigen::MatrixXd unnormalizedCovarianceMatrix = inverseNormalizedCovarianceMatrix_.inverse( );
+        Eigen::MatrixXd unnormalizedCovarianceMatrix = getNormalizedCovarianceMatrix( );
 
         for( int i = 0; i < informationMatrixTransformationDiagonal_.rows( ); i++ )
         {

@@ -455,7 +455,7 @@ BOOST_AUTO_TEST_CASE( testRadialAndVelocityThrustAcceleration )
                                                                thrustMagnitude, specificImpulse ) ) );
         if( i == 1 )
         {
-            accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+            accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
         }
 
         accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
@@ -619,7 +619,7 @@ BOOST_AUTO_TEST_CASE( testThrustAccelerationFromExistingRotation )
                                                            thrust_direction_from_existing_body_orientation ),
                                                        std::make_shared< ConstantThrustMagnitudeSettings >(
                                                            thrustMagnitude, specificImpulse, bodyFixedThrustDirection ) ) );
-    accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+    accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
 
 
     accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
@@ -765,9 +765,9 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAcceleration )
 
         // Define acceleration model settings.
         std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfApollo;
-        accelerationsOfApollo[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+        accelerationsOfApollo[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
         accelerationsOfApollo[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( aerodynamic ) );
-        accelerationsOfApollo[ "Moon" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+        accelerationsOfApollo[ "Moon" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
 
         double thrustMagnitude = 1.0E-3;
         double specificImpulse = 250.0;
@@ -1060,7 +1060,7 @@ BOOST_AUTO_TEST_CASE( testInterpolatedThrustVector )
         // Define propagation settings.
         std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfAsterix;
         accelerationsOfAsterix[ "Earth" ].push_back( std::make_shared< AccelerationSettings >(
-                                                         basic_astrodynamics::central_gravity ) );
+                                                         basic_astrodynamics::point_mass_gravity ) );
 
         std::shared_ptr< OneDimensionalInterpolator< double, Eigen::Vector3d > > thrustInterpolator =
                 interpolators::createOneDimensionalInterpolator( thrustDataInterpolation );
@@ -1309,9 +1309,9 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
 
         // Define acceleration model settings.
         std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfApollo;
-        accelerationsOfApollo[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+        accelerationsOfApollo[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
         accelerationsOfApollo[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( aerodynamic ) );
-        accelerationsOfApollo[ "Moon" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+        accelerationsOfApollo[ "Moon" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
 
         // Define specific impulse dependencies.
         std::vector< propulsion::ThrustIndependentVariables > specificImpulseDependencies;
@@ -1654,9 +1654,9 @@ BOOST_AUTO_TEST_CASE( testAccelerationLimitedGuidedThrust )
 
     // Define acceleration model settings.
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfApollo;
-    accelerationsOfApollo[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+    accelerationsOfApollo[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
     accelerationsOfApollo[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( aerodynamic ) );
-    accelerationsOfApollo[ "Moon" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+    accelerationsOfApollo[ "Moon" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
 
     std::vector< propulsion::ThrustIndependentVariables > thrustDependencies;
     thrustDependencies.push_back( propulsion::mach_number_dependent_thrust );
@@ -1825,7 +1825,7 @@ BOOST_AUTO_TEST_CASE( testMeeCostateBasedThrust )
 
         // Define acceleration model settings.
         std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfAsterix;
-        accelerationsOfAsterix[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+        accelerationsOfAsterix[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
 
         Eigen::VectorXd costates = Eigen::VectorXd::Zero( 5 );
         costates( i ) = 100.0;
