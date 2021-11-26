@@ -617,7 +617,7 @@ Eigen::Vector3d getBodyFixedSphericalPosition(
     return sphericalPosition;
 }
 
-Eigen::Matrix3d getRotationToFrame(
+Eigen::Matrix3d getRotationBetweenSatelliteFrames(
         const Eigen::Vector6d relativeInertialCartesianState,
         const SatelliteReferenceFrames originalFrame,
         const SatelliteReferenceFrames targetFrame )
@@ -625,15 +625,15 @@ Eigen::Matrix3d getRotationToFrame(
     Eigen::Matrix3d rotationMatrix;
     if( !( originalFrame == global_reference_frame || targetFrame == global_reference_frame ) )
     {
-        rotationMatrix = getRotationToFrame(
+        rotationMatrix = getRotationBetweenSatelliteFrames(
                     relativeInertialCartesianState, originalFrame, global_reference_frame ) *
-                getRotationToFrame(
+                getRotationBetweenSatelliteFrames(
                     relativeInertialCartesianState, global_reference_frame, targetFrame );
 
     }
     else if( targetFrame == global_reference_frame )
     {
-        rotationMatrix = getRotationToFrame(
+        rotationMatrix = getRotationBetweenSatelliteFrames(
                     relativeInertialCartesianState, targetFrame, originalFrame ).transpose( );
     }
     else if( originalFrame == global_reference_frame )

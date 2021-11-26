@@ -127,7 +127,7 @@ Eigen::MatrixXd convertCovarianceToFrame(
                 Eigen::MatrixXd::Zero( 6 * numberOfBodes, 6 * numberOfBodes );
         for( int i = 0; i < numberOfBodes; i++ )
         {
-            Eigen::Matrix3d rotationMatrix = reference_frames::getRotationToFrame(
+            Eigen::Matrix3d rotationMatrix = reference_frames::getRotationBetweenSatelliteFrames(
                         inertialCartesianRelativeState.segment( i * 6, 6 ), inputFrame, outputFrame );
             covarianceTransformation.block( 6 * i, 6 * i, 3, 3 ) = rotationMatrix;
             covarianceTransformation.block( 6 * i + 3, 6 * i + 3, 3, 3 ) = rotationMatrix;

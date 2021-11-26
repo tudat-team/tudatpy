@@ -37,7 +37,8 @@ namespace tudat
 namespace unit_tests
 {
 
-using namespace unit_conversions;
+using namespace tudat::unit_conversions;
+using namespace tudat::reference_frames;
 
 BOOST_AUTO_TEST_SUITE( test_reference_frame_transformations )
 
@@ -815,7 +816,7 @@ BOOST_AUTO_TEST_CASE( testVelocityBasedtnwFrameTransformations )
 
         // Compute angle between positive T axis and negative y axis
         double angle = std::atan2( ( vehicleStateCartesian( 3 ) - centralBodyStateCartesian( 3 ) ),
-                              ( vehicleStateCartesian( 4 ) - centralBodyStateCartesian( 4 ) ) );
+                                   ( vehicleStateCartesian( 4 ) - centralBodyStateCartesian( 4 ) ) );
 
         // Declare the expected thrust vector in the inertial (I) reference frame.
         Eigen::Vector3d expectedThrustVector;
@@ -884,7 +885,44 @@ BOOST_AUTO_TEST_CASE( testVelocityBasedtnwFrameTransformations )
     }
 }
 
+BOOST_AUTO_TEST_CASE( testAutomaticConversionFunctions )
+{
+    Eigen::Vector6d inertialCartesianState;
+    inertialCartesianState << 4.0E6, 5.0E6, -300.0, -2.0E3, 6.0E3, 20.0;
 
+    Eigen::Matrix3d manualInertialToRsw = getInertialToRswSatelliteCenteredFrameRotationMatrix(
+                inertialCartesianState );
+    Eigen::Matrix3d automaticInertialToRsw  = getRotationBetweenSatelliteFrames(
+                inertialCartesianState, global_reference_frame, rsw_reference_frame );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( manualInertialToRsw, automaticInertialToRsw, std::numeric_limits< double >::epsilon( ) );
+
+    Eigen::Matrix3d manualRswToInertial = getRswSatelliteCenteredToInertialFrameRotationMatrix(
+                inertialCartesianState );
+    Eigen::Matrix3d automaticRswToInertial  = getRotationBetweenSatelliteFrames(
+                inertialCartesianState, rsw_reference_frame, global_reference_frame );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( manualRswToInertial, automaticRswToInertial, std::numeric_limits< double >::epsilon( ) );
+
+    Eigen::Matrix3d manualInertialToTnw = getInertialToTnwRotation(
+                inertialCartesianState );
+    Eigen::Matrix3d automaticInertialToTnw  = getRotationBetweenSatelliteFrames(
+                inertialCartesianState, global_reference_frame, tnw_reference_frame );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( manualInertialToTnw, automaticInertialToTnw, std::numeric_limits< double >::epsilon( ) );
+
+    Eigen::Matrix3d manualTnwToInertial = getTnwToInertialRotation(
+                inertialCartesianState );
+    Eigen::Matrix3d automaticTnwToInertial  = getRotationBetweenSatelliteFrames(
+                inertialCartesianState, tnw_reference_frame, global_reference_frame );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( manualTnwToInertial, automaticTnwToInertial, std::numeric_limits< double >::epsilon( ) );
+
+
+    Eigen::Matrix3d automaticTnwToRsw  = getRotationBetweenSatelliteFrames(
+                inertialCartesianState, tnw_reference_frame, rsw_reference_frame );
+    Eigen::Matrix3d automaticRswToTnw  = getRotationBetweenSatelliteFrames(
+                inertialCartesianState, rsw_reference_frame, tnw_reference_frame );
+
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( automaticTnwToRsw, ( automaticRswToTnw.transpose( ) ), ( 5.0 * std::numeric_limits< double >::epsilon( ) ) );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( automaticTnwToRsw, Eigen::Matrix3d( manualTnwToInertial * manualInertialToRsw ), std::numeric_limits< double >::epsilon( ) );
+}
 
 BOOST_AUTO_TEST_SUITE_END( )
 

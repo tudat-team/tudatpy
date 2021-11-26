@@ -672,7 +672,7 @@ Eigen::Vector3d getBodyFixedSphericalPosition(
         const std::function< Eigen::Vector3d( ) > positionFunctionOfRelativeBody,
         const std::function< Eigen::Quaterniond( ) > orientationFunctionOfCentralBody );
 
-Eigen::Matrix3d getRotationToFrame(
+Eigen::Matrix3d getRotationBetweenSatelliteFrames(
         const Eigen::Vector6d relativeInertialCartesianState,
         const SatelliteReferenceFrames originalFrame,
         const SatelliteReferenceFrames targetFrame );
