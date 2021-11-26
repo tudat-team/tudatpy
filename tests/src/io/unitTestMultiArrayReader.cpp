@@ -138,7 +138,7 @@ BOOST_AUTO_TEST_CASE( testMultiArrayReader )
 
     // Test functionality of 4-dimensional multi-array reader
     {
-        for ( unsigned int j = 0; j < 2; j++ )
+        for ( unsigned int j = 0; j < 1; j++ )
         {
             std::string fileName;
             if ( j == 0 )
