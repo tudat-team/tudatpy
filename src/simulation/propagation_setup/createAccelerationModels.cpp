@@ -1116,7 +1116,7 @@ createThrustAcceleratioModel(
                             std::bind( &Body::getState, bodies.at( thrustAccelerationSettings->centralBody_ ) );
                 }
                 thrustAccelerationSettings->interpolatorInterface_->resetRotationFunction(
-                            [ = ]( ){ return reference_frames::getRotationToFrame(
+                            [ = ]( ){ return reference_frames::getRotationBetweenSatelliteFrames(
                                 vehicleStateFunction( ) - centralBodyStateFunction( ),
                                 thrustAccelerationSettings->thrustFrame_,
                                 reference_frames::global_reference_frame ); } );
