@@ -213,7 +213,11 @@ void expose_estimation(py::module &m) {
             .def_property_readonly("weighted_design_matrix",
                                    &tss::PodOutput<double, double>::getUnnormalizedWeightedInformationMatrix)
             .def_property_readonly("weighted_normalized_design_matrix",
-                                   &tss::PodOutput<double, double>::getNormalizedWeightedInformationMatrix);
+                                   &tss::PodOutput<double, double>::getNormalizedWeightedInformationMatrix)
+            .def_property_readonly("final_state_history",
+                                   &tss::PodOutput<double, double>::getFinalDynamicsHistory)
+            .def_property_readonly("final_dependent_variable_history",
+                                   &tss::PodOutput<double, double>::getFinalDependentVariableHistory);
 
 
 
