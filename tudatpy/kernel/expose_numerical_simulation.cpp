@@ -220,7 +220,9 @@ void expose_numerical_simulation(py::module &m) {
           .def("perform_estimation",
                &tss::OrbitDeterminationManager<double, double>::estimateParameters,
                py::arg( "estimation_input" ),
-               py::arg( "convergence_checker" ) = std::make_shared< tss::EstimationConvergenceChecker >( ) );
+               py::arg( "convergence_checker" ) = std::make_shared< tss::EstimationConvergenceChecker >( ) )
+          .def_property_readonly("variational_solver",
+               &tss::OrbitDeterminationManager<double, double>::getVariationalEquationsSolver );
 };
 
 }// namespace numerical_simulation
