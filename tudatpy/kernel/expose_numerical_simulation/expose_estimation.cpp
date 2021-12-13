@@ -40,7 +40,9 @@ void expose_estimation(py::module &m) {
     */
 
     py::class_< tom::ObservationCollection<>,
-            std::shared_ptr<tom::ObservationCollection<>>>(m, "ObservationCollection");
+            std::shared_ptr<tom::ObservationCollection<>>>(m, "ObservationCollection")
+            .def_property_readonly("concatenated_times", &tom::ObservationCollection<>::getConcatenatedTimeVector )
+            .def_property_readonly("concatenated_observations", &tom::ObservationCollection<>::getObservationVector );
 
     py::class_<tom::ObservationViabilityCalculator,
                std::shared_ptr<tom::ObservationViabilityCalculator>>(m, "ObservationViabilityCalculator")
@@ -213,7 +215,9 @@ void expose_estimation(py::module &m) {
             .def_property_readonly("weighted_design_matrix",
                                    &tss::PodOutput<double, double>::getUnnormalizedWeightedInformationMatrix)
             .def_property_readonly("weighted_normalized_design_matrix",
-                                   &tss::PodOutput<double, double>::getNormalizedWeightedInformationMatrix);
+                                   &tss::PodOutput<double, double>::getNormalizedWeightedInformationMatrix)
+            .def_readonly("final_residuals",
+                                   &tss::PodOutput<double, double>::residuals_);
 
 
 
