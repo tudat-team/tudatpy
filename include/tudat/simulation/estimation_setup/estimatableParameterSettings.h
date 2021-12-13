@@ -1024,6 +1024,35 @@ inline std::shared_ptr< EstimatableParameterSettings > orderVaryingKLoveNumber(
 }
 
 
+inline std::shared_ptr< EstimatableParameterSettings > coreFactor(
+        const std::string& associatedBody )
+{
+    return std::make_shared< EstimatableParameterSettings >(
+                associatedBody, core_factor );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > freeCoreNutationRate(
+        const std::string& associatedBody )
+{
+    return std::make_shared< EstimatableParameterSettings >(
+                associatedBody, free_core_nutation_rate );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > periodicSpinVariations(
+        const std::string& associatedBody )
+{
+    return std::make_shared< EstimatableParameterSettings >(
+                associatedBody, periodic_spin_variation );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > polarMotionAmplitudes(
+        const std::string& associatedBody )
+{
+    return std::make_shared< EstimatableParameterSettings >(
+                associatedBody, polar_motion_amplitude );
+}
+
+
 } // namespace estimatable_parameters
 
 } // namespace tudat
