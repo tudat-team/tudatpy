@@ -264,6 +264,22 @@ void expose_estimated_parameter_setup(py::module &m) {
           py::arg("body"),
           py::arg("centralBody") );
 
+    m.def("core_factor",
+          &tep::coreFactor,
+          py::arg("body") );
+
+    m.def("free_core_nutation_rate",
+          &tep::freeCoreNutationRate,
+          py::arg("body") );
+
+    m.def("periodic_spin_variations",
+          &tep::periodicSpinVariations,
+          py::arg("body") );
+
+    m.def("polar_motion_amplitudes",
+          &tep::polarMotionAmplitudes,
+          py::arg("body") );
+
 }
 
 }// namespace
