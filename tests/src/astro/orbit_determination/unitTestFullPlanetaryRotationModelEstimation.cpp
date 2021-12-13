@@ -77,7 +77,7 @@ BOOST_AUTO_TEST_CASE( test_FullPlanetaryRotationalParameters )
         // Create body objects; Mars with high-accuracy rotation model
         BodyListSettings bodySettings =
                 getDefaultBodySettings( bodyNames, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
-        bodySettings.at( "Mars" )->rotationModelSettings = getHighAccuracyMarsRotationModel( initialEphemerisTime, finalEphemerisTime );
+        bodySettings.at( "Mars" )->rotationModelSettings = getHighAccuracyMarsRotationModel( );
         SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
 
