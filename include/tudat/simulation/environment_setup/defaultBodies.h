@@ -98,8 +98,7 @@ std::shared_ptr< RotationModelSettings > getDefaultRotationModelSettings(
 
 double marsTimeDependentPhaseAngleCorrectionFunction( const double secondsSinceJ2000 );
 
-std::shared_ptr< RotationModelSettings > getHighAccuracyMarsRotationModel(
-        const double initialTime, const double finalTime );
+std::shared_ptr< RotationModelSettings > getHighAccuracyMarsRotationModel(  );
 
 //! Function to create default settings for a body's shape model.
 /*!
