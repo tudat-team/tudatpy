@@ -19,6 +19,41 @@
 namespace tss = tudat::simulation_setup;
 namespace tom = tudat::observation_models;
 
+namespace tudat
+{
+
+namespace simulation_setup
+{
+
+void addGaussianNoiseFunctionToObservationSimulationSettingsPy(
+        const std::vector< std::shared_ptr< ObservationSimulationSettings< double > > >& observationSimulationSettings,
+        const double observationNoiseAmplitude,
+        const tom::ObservableType observableType )
+{
+    tss::addGaussianNoiseFunctionToObservationSimulationSettings< double, const tom::ObservableType >(
+               observationSimulationSettings, observationNoiseAmplitude, observableType );
+}
+
+void addViabilityToObservationSimulationSettingsPy(
+        const std::vector< std::shared_ptr< ObservationSimulationSettings< double > > >& observationSimulationSettings,
+        const std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >& viabilitySettingsList )
+{
+    tss::addViabilityToObservationSimulationSettings< double >( observationSimulationSettings, viabilitySettingsList );
+}
+
+void addViabilityToObservationSimulationSettingsPy(
+        const std::vector< std::shared_ptr< ObservationSimulationSettings< double > > >& observationSimulationSettings,
+        const std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >& viabilitySettingsList,
+        const tom::ObservableType observableType  )
+{
+    tss::addViabilityToObservationSimulationSettings< double, const tom::ObservableType >(
+                observationSimulationSettings, viabilitySettingsList, observableType );
+}
+
+}
+
+}
+
 namespace tudatpy {
 namespace numerical_simulation {
 namespace estimation_setup {
