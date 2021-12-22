@@ -359,7 +359,7 @@ void expose_observations_setup(py::module &m) {
           const std::vector< std::shared_ptr< tss::ObservationSimulationSettings< double > > >&,
           const double,
           const tom::ObservableType >(
-                &tss::addGaussianNoiseFunctionToObservationSimulationSettings< double, const tom::ObservableType > ),
+                &tss::addGaussianNoiseFunctionToObservationSimulationSettingsPy ),
             py::arg("observation_simulation_settings"),
             py::arg("noise_amplitude"),
             py::arg("observable_type") );
@@ -369,7 +369,7 @@ void expose_observations_setup(py::module &m) {
           py::overload_cast<
           const std::vector< std::shared_ptr< tss::ObservationSimulationSettings< double > > >&,
           const std::vector< std::shared_ptr< tom::ObservationViabilitySettings > >& >(
-                &tss::addViabilityToObservationSimulationSettings< double > ),
+                &tss::addViabilityToObservationSimulationSettingsPy ),
             py::arg("observation_simulation_settings"),
             py::arg("viability_settings") );
 
@@ -378,7 +378,7 @@ void expose_observations_setup(py::module &m) {
           const std::vector< std::shared_ptr< tss::ObservationSimulationSettings< double > > >&,
           const std::vector< std::shared_ptr< tom::ObservationViabilitySettings > >&,
           const tom::ObservableType >(
-                &tss::addViabilityToObservationSimulationSettings< double, const tom::ObservableType > ),
+                &tss::addViabilityToObservationSimulationSettingsPy ),
             py::arg("observation_simulation_settings"),
             py::arg("viability_settings"),
             py::arg("observable_type") );
