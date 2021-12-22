@@ -52,7 +52,7 @@ BOOST_AUTO_TEST_CASE( testPlanetaryRotationModelEphemerisPartials )
     bodies.createEmptyBody( "Mars" );
 
     std::shared_ptr< RotationModelSettings > defaultMarsRotationSettings =
-            getHighAccuracyMarsRotationModel( initialTime, finalTime );
+            getHighAccuracyMarsRotationModel( );
 
     std::shared_ptr< RotationalEphemeris > marsRotationModel =
             createRotationModel( defaultMarsRotationSettings, "Mars" );

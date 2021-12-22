@@ -64,7 +64,7 @@ bool isObservationDependentVariableVectorial(
     case target_range:
         isVariableVectorial = false;
         break;
-    case body_avoidance_angle:
+    case body_avoidance_angle_variable:
         isVariableVectorial = false;
         break;
     case integration_time:
@@ -100,7 +100,7 @@ bool isObservationDependentVariableGroundStationProperty(
     case target_range:
         isGroundStationProperty = false;
         break;
-    case body_avoidance_angle:
+    case body_avoidance_angle_variable:
         isGroundStationProperty = false;
         break;
     case integration_time:
