@@ -20,9 +20,10 @@ is not tracked by Git. If the API is also built, more untracked directories will
 
 ## Prerequisites
 
-- [**Windows Users**] Windows Subsystem for Linux ([WSL](https://docs.microsoft.com/en-us/windows/wsl/install-win10))
+- [**Windows Users**] Windows Subsystem for Linux ([WSL](https://docs.microsoft.com/en-us/windows/wsl/install))
   - All procedures, including the following prerequisite, assume the use of WSL. Power users who wish to do otherwise,
     must do so at their own risk, with reduced support from the team.
+  - Note that WSL is entirely separated from Windows. This means that even if Anaconda/Miniconda, Python, or any other software is already installed on Windows, it needs to be installed again in WSL, as a Linux install.
 - Anaconda/Miniconda installation ([Installing Anaconda](https://tudat-space.readthedocs.io/en/latest/_src_first_steps/tudat_py.html#installing-anaconda))
 
 ## Setup
@@ -63,6 +64,12 @@ conda env create -f environment.yaml
 There are two directions you can go from here. CLion or the command line.
 
 ### Build: CLion
+> **Note**
+> - [**Windows Users ∩ CLion Users**] In CLion, be sure to set WSL as your Toolchain
+>  in `File>Settings>Build, Execution, Deployment>Toolchains`.
+>
+> - [**CLion Users**] In CLion, the convention to set CMake arguments
+>  is to add them to `File>Settings>Build, Execution, Deployment>CMake Options`.
 
 5. Open CLion, create a new project from `File > New Project` and select the directory that has been cloned under bullet
    point 1 (named `tudat-bundle`).
@@ -151,12 +158,15 @@ Desired result:
 =========================================== 6 passed in 1.78s ============================================
 ````
 
-## Notes
-- [**Windows Users ∩ CLion Users**] In CLion, be sure to set WSL as your Toolchain
-  in `File>Settings>Build, Execution, Deployment>Toolchains`.
+## Use your build
+The path of the TudatPy kernel that has been manually compiled needs to be added before importing any `tudatpy.kernel` module.
+This can be done with the following two lines, with `<kernel_path>` being similar to `<tudat-bundle_path>/build/tudatpy`:
+```
+import sys
+sys.path.insert(0, <kernel_path>)
+```
 
-- [**CLion Users**] In CLion, the convention to set CMake arguments
-  is to add them to `File>Settings>Build, Execution, Deployment>CMake Options`.
+## Notes
 
 - [**All Users**] You can increase the number of cores used to compile `tudat` & `tudatpy` using the `-j<n>`
   build argument, but **be aware** that the current complexity of the libraries can often result in your PC freezing indefinitely.
