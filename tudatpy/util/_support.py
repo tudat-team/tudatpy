@@ -1,5 +1,6 @@
 import numpy as np
 from ..kernel.math import interpolators
+import os
 
 
 def result2array(result):
@@ -89,3 +90,54 @@ def compare_results(baseline_results, new_results, difference_epochs):
 
     # Return the difference between the results
     return results_comparison
+
+class redirect_std():
+    """Redirect any print that is sent by a noisy function by encapsulating it with this class.
+
+    The print will successfully be redirected even if they are sent by a C++ function (or from other language).
+
+    Exceptions that are raised will still show in the terminal as excepted.
+
+    The following will then not print anything to the console, even if 'noisy_function' makes prints:
+        with redirect_std():
+            x = noisy_function()
+
+    Parameters
+    ----------
+    redirect_file_path : None or string
+        If None (this is the default), the prints are redirected to Dev Null, and are thus suppressed.
+        Else, redirect_file specifies in what file the messages are saved to.
+    redirect_out : Boolean
+        Optional (default to True). If True, redirect anything that is sent to the terminal trough the STD OUT method.
+    redirect_err : Boolean
+        Optional (default to True). If True, redirect anything that is sent to the terminal trough the STD ERR method.
+    """
+    # Class adapted from https://stackoverflow.com/q/11130156/11356694
+    def __init__(self, redirect_file_path=None, redirect_out=True, redirect_err=True):
+        # Create the file in Dev Null to dispose of the unwanted prints
+        if redirect_file_path is None:
+            self.null_files = os.open(os.devnull,os.O_RDWR)
+        # Create the file at the specified path to redirect the print messages
+        elif redirect_out or redirect_err:
+            f = open(redirect_file_path, "w")
+            f.close()
+            self.null_files = os.open(redirect_file_path,os.O_RDWR)
+        # Save the streams of the real STD OUT and STD ERR
+        self.std_streams = [os.dup(1), os.dup(2)]
+        # Save what STD method should be muted
+        self.redirect_out, self.redirect_err = redirect_out, redirect_err
+
+    def __enter__(self):
+        # Link any print trough STD OUT to the Null pointer
+        if self.redirect_out:
+            os.dup2(self.null_files,1)
+        # Link any print trough STD ERR to the Null pointer
+        if self.redirect_err:
+            os.dup2(self.null_files,2)
+
+    def __exit__(self, *_):
+        # Link STD OUT and ERR back to their real stream
+        os.dup2(self.std_streams[0],1), os.dup2(self.std_streams[1],2)
+        # Close all links
+        for link in [self.null_files] + self.std_streams:
+            os.close(link)
