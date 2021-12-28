@@ -1,4 +1,5 @@
 import numpy as np
+from ..kernel.math import interpolators
 
 
 def result2array(result):
@@ -53,3 +54,38 @@ def result2array(result):
 
     # Stack horizontally and return.
     return np.hstack((time_array, independent_array))
+
+def compare_results(baseline_results, new_results, difference_epochs):
+    """Compare the results of a baseline simulation with the results of a new different simulation.
+
+    This uses a 8th-order Lagrange interpolator to compute the difference in state of the two simulations at specified epochs.
+    Alternatively, the dependent variables can be input instead of the states, to compute the difference in dependent variables at these epochs.
+
+    Parameters
+    ----------
+    baseline_results : Dict[float, numpy.ndarray]
+        Dictionary mapping the simulation time steps to the propagated state time series of the baseline simulation.
+    new_results : Dict[float, numpy.ndarray]
+        Dictionary mapping the simulation time steps to the propagated state time series of a new simulation different from the baseline.
+    difference_epochs : numpy.array or list
+        Array containing the epochs at which to compute the difference between the results from the distinct simulations.
+
+    Returns
+    -------
+    results_comparison :  Dict[float, numpy.ndarray]
+        Dictionary with difference_epochs as keys, and values corresponding to the difference between the baseline results and the new results.
+    """
+    # Setup an 8th-order Lagrange interpolator
+    interpolator_settings = interpolators.lagrange_interpolation(8, boundary_interpolation=interpolators.use_boundary_value)
+
+    # Setup the interpolator for the baseline and the new simulations
+    baseline_results_interpolator = interpolators.create_one_dimensional_vector_interpolator(baseline_results, interpolator_settings)
+    new_results_interpolator = interpolators.create_one_dimensional_vector_interpolator(new_results, interpolator_settings)
+
+    # Compute the different between the baseline and the new results
+    results_comparison = {
+        epoch: new_results_interpolator.interpolate(epoch) - baseline_results_interpolator.interpolate(epoch)
+        for epoch in difference_epochs }
+
+    # Return the difference between the results
+    return results_comparison
