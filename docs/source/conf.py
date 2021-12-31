@@ -29,7 +29,7 @@ if bool(os.getenv("READTHEDOCS")) is True:
     from document import *
 
     multidoc_git_url = 'https://github.com/tudat-team/tudat-multidoc.git'
-    multidoc_git_rev = '25bb9b780b2f3253649a89cdf2e068dbf99265cb'
+    multidoc_git_rev = 'ab0e7016a49fec9eae3075412c74480323b78ea0'
 
     # clone repository
     docstring_path = get_docstrings(multidoc_git_url, multidoc_git_rev)
@@ -74,7 +74,8 @@ extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.viewcode',
               'sphinx.ext.githubpages',
               'sphinxcontrib.napoleon',
-              'sphinx.ext.autosectionlabel'
+              'sphinx.ext.autosectionlabel',
+              'sphinx_copybutton'
               # 'breathe',
               # 'exhale'
               ]
