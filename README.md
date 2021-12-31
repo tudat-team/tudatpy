@@ -48,7 +48,7 @@ cd tudat-bundle
 git submodule update --init --recursive
 ````
 
-1. [Optional] Switch `tudat` & `tudatpy` to their desired branches using
+3. [Optional] Switch `tudat` & `tudatpy` to their desired branches using
 
 ````
 cd <tudat/tudatpy>
@@ -59,7 +59,7 @@ See [here](https://github.com/tudat-team/tudatpy/tree/develop) for tudatpy devel
 
 It is then recommended to switch to the `develop` branch using the commands above.
 
-1. Install the contained `environment.yaml` file to satisfy dependencies
+4. Install the contained `environment.yaml` file to satisfy dependencies
 
 ````
 conda env create -f environment.yaml
