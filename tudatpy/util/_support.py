@@ -10,24 +10,28 @@ def result2array(result):
     deriving from the :class:`~tudatpy.numerical_simulation.SingleArcSimulator`
     return these time series as a mapping illustrated by:
 
-    >>> state_history = {
-    ...  t[0]: np.array([pos_x[0], pos_y[0], pos_z[0], vel_x[0], vel_y[0], vel_z[0]]),
-    ...  t[1]: np.array([pos_x[1], pos_y[1], pos_z[1], vel_x[1], vel_y[1], vel_z[1]]),
-    ...  t[2]: np.array([pos_x[2], pos_y[2], pos_z[2], vel_x[2], vel_y[2], vel_z[2]]),
-    ...  # ... clipped
-    ...  t[-1]: np.array([pos_x[-1], pos_y[-1], pos_z[-1], vel_x[-1], vel_y[-1], vel_z[-1]]),
-    ...  }
+    .. code-block:: python
+
+        state_history = {
+            t[0]: np.array([pos_x[0], pos_y[0], pos_z[0], vel_x[0], vel_y[0], vel_z[0]]),
+            t[1]: np.array([pos_x[1], pos_y[1], pos_z[1], vel_x[1], vel_y[1], vel_z[1]]),
+            t[2]: np.array([pos_x[2], pos_y[2], pos_z[2], vel_x[2], vel_y[2], vel_z[2]]),
+            # ... clipped
+            t[-1]: np.array([pos_x[-1], pos_y[-1], pos_z[-1], vel_x[-1], vel_y[-1], vel_z[-1]]),
+        }
 
     `result2array` is a utility function to convert the above into the
     more conventional :class:`numpy.ndarray` as illustrated by:
 
-    >>> states_array = np.array([
-    ...  [t[0], pos_x[0], pos_y[0], pos_z[0], vel_x[0], vel_y[0], vel_z[0]],
-    ...  [t[1], pos_x[1], pos_y[1], pos_z[1], vel_x[1], vel_y[1], vel_z[1]],
-    ...  [t[2], pos_x[2], pos_y[2], pos_z[2], vel_x[2], vel_y[2], vel_z[2]],
-    ...  # ... clipped
-    ...  [t[-1], pos_x[-1], pos_y[-1], pos_z[-1], vel_x[-1], vel_y[-1], vel_z[-1]],
-    ...  ])
+    .. code-block:: python 
+
+        states_array = np.array([
+            [t[0], pos_x[0], pos_y[0], pos_z[0], vel_x[0], vel_y[0], vel_z[0]],
+            [t[1], pos_x[1], pos_y[1], pos_z[1], vel_x[1], vel_y[1], vel_z[1]],
+            [t[2], pos_x[2], pos_y[2], pos_z[2], vel_x[2], vel_y[2], vel_z[2]],
+            # ... clipped
+            [t[-1], pos_x[-1], pos_y[-1], pos_z[-1], vel_x[-1], vel_y[-1], vel_z[-1]],
+        ])
 
     Parameters
     ----------
@@ -75,6 +79,24 @@ def compare_results(baseline_results, new_results, difference_epochs):
     -------
     results_comparison :  Dict[float, numpy.ndarray]
         Dictionary with difference_epochs as keys, and values corresponding to the difference between the baseline results and the new results.
+
+    Examples
+    --------
+    .. code-block:: python
+
+        # Create a first orbital simulation around Earth
+        simulation_baseline = SingleArcSimulator(..., integrator_settings, ...)
+        # Extract the simulation epochs for the baseline
+        epochs_baseline = list(simulation_baseline.state_history.keys())
+
+        # Create the same orbital simulation with a lower tolerance for the integrator
+        simulation_faster = SingleArcSimulator(..., integrator_settings_lower_tolerance, ...)
+
+        # Setup a list of epochs starting at the beginning of the baseline simulation and spanning 3 hours, with a timestep of 30 seconds
+        compare_times = np.arange(epochs_baseline[0], epochs_baseline[0]+3*24*3600, 30)
+
+        # Compute the difference between the two simulations
+        simulations_difference = util.compare_results(simulation_baseline, simulation_faster, compare_times)
     """
     # Setup an 8th-order Lagrange interpolator
     interpolator_settings = interpolators.lagrange_interpolation(8, boundary_interpolation=interpolators.use_boundary_value)
@@ -98,19 +120,26 @@ class redirect_std():
 
     Exceptions that are raised will still show in the terminal as excepted.
 
-    The following will then not print anything to the console, even if 'noisy_function' makes prints:
-        with redirect_std():
-            x = noisy_function()
 
     Parameters
     ----------
-    redirect_file_path : None or string
-        If None (this is the default), the prints are redirected to Dev Null, and are thus suppressed.
+    redirect_file_path : None or string, default=None
+        If None, the prints are redirected to Dev Null, and are thus suppressed.
         Else, redirect_file specifies in what file the messages are saved to.
-    redirect_out : Boolean
-        Optional (default to True). If True, redirect anything that is sent to the terminal trough the STD OUT method.
-    redirect_err : Boolean
-        Optional (default to True). If True, redirect anything that is sent to the terminal trough the STD ERR method.
+    redirect_out : Boolean, optional, default=True
+        If True, redirect anything that is sent to the terminal trough the STD OUT method.
+    redirect_err : Boolean, optional, default=True
+        If True, redirect anything that is sent to the terminal trough the STD ERR method.
+
+    Examples
+    --------
+    The following code will for instance run a single arc simulation with no print to the console.
+    Any outputs that would normally be printed on the terminal are save in the file `C:/log/single_arc_log.txt`.
+
+    .. code-block:: python
+
+        with util.redirect_std(redirect_file_path="C:/log/single_arc_log.txt"):
+            simulation_baseline = SingleArcSimulator(...)
     """
     # Class adapted from https://stackoverflow.com/q/11130156/11356694
     def __init__(self, redirect_file_path=None, redirect_out=True, redirect_err=True):
