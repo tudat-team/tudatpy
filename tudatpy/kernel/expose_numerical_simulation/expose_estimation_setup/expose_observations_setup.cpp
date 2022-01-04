@@ -105,6 +105,10 @@ void expose_observations_setup(py::module &m) {
             std::shared_ptr<tom::ObservationModelSettings>>(
                 m, "ObservationSettings");
 
+    py::class_<tom::OneWayDopplerObservationSettings,
+            std::shared_ptr<tom::OneWayDopplerObservationSettings>>(
+            m, "OneWayDopplerObservationSettings");
+
     m.def("one_way_range",
           &tom::oneWayRangeSettings,
           py::arg("link_ends"),
@@ -186,7 +190,7 @@ void expose_observations_setup(py::module &m) {
             std::shared_ptr<tom::ObservationBiasSettings>>(
                 m, "ObservationBiasSettings");
 
-    m.def("bias",
+    m.def("absolute_bias",
           &tom::constantAbsoluteBias,
           py::arg("bias_value") );
 
@@ -241,14 +245,14 @@ void expose_observations_setup(py::module &m) {
     py::class_<tom::ObservationViabilitySettings,
             std::shared_ptr<tom::ObservationViabilitySettings>>(
                 m, "ObservationViabilitySettings")
-            .def(py::init< const tom::ObservationViabilityType,
-                 const std::pair< std::string, std::string >,
-                 const std::string,
-                 const double >(),
-                 py::arg("viability_type"),
-                 py::arg("associated_link_end"),
-                 py::arg("string_input"),
-                 py::arg("double_input") );
+            // .def(py::init< const tom::ObservationViabilityType,
+            //      const std::pair< std::string, std::string >,
+            //      const std::string,
+            //      const double >(),
+            //      py::arg("viability_type"),
+            //      py::arg("associated_link_end"),
+            //      py::arg("string_input"),
+            //      py::arg("double_input") );
 
     m.def("elevation_angle_viability_list",
           py::overload_cast<
@@ -317,16 +321,16 @@ void expose_observations_setup(py::module &m) {
     py::class_<tss::TabulatedObservationSimulationSettings<double>,
                std::shared_ptr<tss::TabulatedObservationSimulationSettings<double>>,
                tss::ObservationSimulationSettings<double> >(m, "TabulatedObservationSimulationSettings")
-            .def(py::init<
-                 const tom::ObservableType, const tom::LinkEnds, const std::vector< double >, const tom::LinkEndType,
-                 const std::vector< std::shared_ptr< tom::ObservationViabilitySettings > >&,
-                 const std::function< Eigen::VectorXd( const double ) > >(),
-                 py::arg("observable_type"),
-                 py::arg("link_ends"),
-                 py::arg("observation_times"),
-                 py::arg("reference_link_end") = tom::receiver,
-                 py::arg("viability_settings") = std::vector< std::shared_ptr< tom::ObservationViabilitySettings > >( ),
-                 py::arg("noise_function") = nullptr );
+    //        .def(py::init<
+    //             const tom::ObservableType, const tom::LinkEnds, const std::vector< double >, const tom::LinkEndType,
+    //             const std::vector< std::shared_ptr< tom::ObservationViabilitySettings > >&,
+    //             const std::function< Eigen::VectorXd( const double ) > >(),
+    //             py::arg("observable_type"),
+    //             py::arg("link_ends"),
+    //             py::arg("observation_times"),
+    //             py::arg("reference_link_end") = tom::receiver,
+    //             py::arg("viability_settings") = std::vector< std::shared_ptr< tom::ObservationViabilitySettings > >( ),
+    //             py::arg("noise_function") = nullptr );
 
 
     m.def("tabulated_simulation_settings",
@@ -387,15 +391,15 @@ void expose_observations_setup(py::module &m) {
             std::shared_ptr<tss::ObservationDependentVariableSettings>>(
                 m, "ObservationDependentVariableSettings");
 
-//    m.def("add_dependent_variables_to_settings",
-//          py::overload_cast<
-//          const std::vector< std::shared_ptr< tss::ObservationSimulationSettings< double > > >&,
-//          const std::vector< std::shared_ptr< tss::ObservationDependentVariableSettings > >&,
-//          const tss::SystemOfBodies& >(
-//                &tss::addDependentVariablesToObservationSimulationSettings< double > ),
-//            py::arg("observation_simulation_settings"),
-//            py::arg("dependent_variable_settings" ),
-//            py::arg("bodies" ) );
+    m.def("add_dependent_variables_to_settings",
+          py::overload_cast<
+          const std::vector< std::shared_ptr< tss::ObservationSimulationSettings< double > > >&,
+          const std::vector< std::shared_ptr< tss::ObservationDependentVariableSettings > >&,
+          const tss::SystemOfBodies& >(
+                &tss::addDependentVariablesToObservationSimulationSettings< double > ),
+            py::arg("observation_simulation_settings"),
+            py::arg("dependent_variable_settings" ),
+            py::arg("bodies" ) );
 
 
     m.def("simulate_observations",
