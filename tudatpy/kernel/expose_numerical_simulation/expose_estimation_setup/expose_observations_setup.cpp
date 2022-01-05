@@ -198,7 +198,7 @@ void expose_observations_setup(py::module &m) {
           &tom::constantRelativeBias,
           py::arg("bias_value") );
 
-    m.def("arcwise_bias",
+    m.def("arcwise_absolute_bias",
           py::overload_cast<
           const std::vector< double >&,
           const std::vector< Eigen::VectorXd >&,
@@ -207,7 +207,7 @@ void expose_observations_setup(py::module &m) {
           py::arg("bias_values"),
           py::arg("time_link_end" ) );
 
-    m.def("arcwise_bias",
+    m.def("arcwise_absolute_bias",
           py::overload_cast<
           const std::map< double, Eigen::VectorXd >&,
           const tom::LinkEndType >( &tom::arcWiseAbsoluteBias ),
@@ -244,7 +244,7 @@ void expose_observations_setup(py::module &m) {
 
     py::class_<tom::ObservationViabilitySettings,
             std::shared_ptr<tom::ObservationViabilitySettings>>(
-                m, "ObservationViabilitySettings")
+                m, "ObservationViabilitySettings");
             // .def(py::init< const tom::ObservationViabilityType,
             //      const std::pair< std::string, std::string >,
             //      const std::string,
@@ -254,6 +254,7 @@ void expose_observations_setup(py::module &m) {
             //      py::arg("string_input"),
             //      py::arg("double_input") );
 
+            ()
     m.def("elevation_angle_viability_list",
           py::overload_cast<
           const std::vector< std::pair< std::string, std::string > >,
@@ -320,7 +321,7 @@ void expose_observations_setup(py::module &m) {
 
     py::class_<tss::TabulatedObservationSimulationSettings<double>,
                std::shared_ptr<tss::TabulatedObservationSimulationSettings<double>>,
-               tss::ObservationSimulationSettings<double> >(m, "TabulatedObservationSimulationSettings")
+               tss::ObservationSimulationSettings<double> >(m, "TabulatedObservationSimulationSettings");
     //        .def(py::init<
     //             const tom::ObservableType, const tom::LinkEnds, const std::vector< double >, const tom::LinkEndType,
     //             const std::vector< std::shared_ptr< tom::ObservationViabilitySettings > >&,
