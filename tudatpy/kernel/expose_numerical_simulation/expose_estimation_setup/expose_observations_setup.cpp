@@ -254,7 +254,8 @@ void expose_observations_setup(py::module &m) {
             //      py::arg("string_input"),
             //      py::arg("double_input") );
 
-            ()
+
+    // (%!) why do we have the list overload? can we not just make this the default?
     m.def("elevation_angle_viability_list",
           py::overload_cast<
           const std::vector< std::pair< std::string, std::string > >,
@@ -282,6 +283,7 @@ void expose_observations_setup(py::module &m) {
           py::arg("body_to_avoid" ),
           py::arg("avoidance_angle") );
 
+    // (%!) why do we have the list overload? can we not just make this the default?
     m.def("body_avoidance_viability_list",
           py::overload_cast<
           const std::vector< std::pair< std::string, std::string > >,
@@ -301,8 +303,8 @@ void expose_observations_setup(py::module &m) {
           py::arg("link_ends_list" ),
           py::arg("occulting_body" ) );
 
-
-    m.def("body_occultation_viability",
+    // (%!) why do we have the list overload? can we not just make this the default?
+    m.def("body_occultation_viability_list",
           py::overload_cast<
           const std::pair< std::string, std::string >,
           const std::string >(
