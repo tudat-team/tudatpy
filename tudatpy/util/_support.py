@@ -1,9 +1,10 @@
 import numpy as np
 from ..kernel.math import interpolators
 import os
+from typing import List, Dict
 
 
-def result2array(result):
+def result2array(result: Dict[float, np.array]):
     """Initial prototype function to convert dict result from DynamicsSimulator
 
     The `state_history` and `dependent_history` retrieved from classes
@@ -60,7 +61,7 @@ def result2array(result):
     # Stack horizontally and return.
     return np.hstack((time_array, independent_array))
 
-def compare_results(baseline_results, new_results, difference_epochs):
+def compare_results(baseline_results: Dict[float, np.array], new_results: Dict[float, np.array], difference_epochs: List[float]):
     """Compare the results of a baseline simulation with the results of a new different simulation.
 
     This uses a 8th-order Lagrange interpolator to compute the difference in state of the two simulations at specified epochs.
