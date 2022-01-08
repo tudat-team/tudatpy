@@ -159,7 +159,7 @@ namespace aerodynamic_coefficients {
               py::arg("unscaled_coefficient_settings"),
               py::arg("force_scaling_constant"),
               py::arg("moment_scaling_constant"),
-              py::arg("is_scaling_absolute"),
+              py::arg("is_scaling_absolute") = false,
               get_docstring("scaled_by_constant").c_str());
 
         m.def("scaled_by_vector",
@@ -170,7 +170,7 @@ namespace aerodynamic_coefficients {
               py::arg("unscaled_coefficient_settings"),
               py::arg("force_scaling_vector"),
               py::arg("moment_scaling_vector"),
-              py::arg("is_scaling_absolute"),
+              py::arg("is_scaling_absolute") = false,
               get_docstring("scaled_by_vector").c_str());
 
         m.def("scaled_by_vector_function",
@@ -182,7 +182,7 @@ namespace aerodynamic_coefficients {
               py::arg("unscaled_coefficient_settings"),
               py::arg("force_scaling_vector_function"),
               py::arg("moment_scaling_vector_function"),
-              py::arg("is_scaling_absolute"),
+              py::arg("is_scaling_absolute") = false,
               get_docstring("scaled_by_vector_function").c_str());
 
     }
