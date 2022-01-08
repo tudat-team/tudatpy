@@ -110,9 +110,9 @@ namespace aerodynamic_coefficients {
               py::arg("lateral_reference_length"),
               py::arg("moment_reference_point"),
               py::arg("independent_variable_name"),
-              py::arg("are_coefficients_in_aerodynamic_frame"),
-              py::arg("are_coefficients_in_negative_axis_direction"),
-              py::arg("interpolator_settings"),
+              py::arg("are_coefficients_in_aerodynamic_frame") = true,
+              py::arg("are_coefficients_in_negative_axis_direction") = true,
+              py::arg("interpolator_settings") = nullptr,
               get_docstring("tabulated").c_str());
 
         m.def("tabulated_force_only",
@@ -129,9 +129,9 @@ namespace aerodynamic_coefficients {
               py::arg("force_coefficients"),
               py::arg("reference_area"),
               py::arg("independent_variable_name"),
-              py::arg("are_coefficients_in_aerodynamic_frame"),
-              py::arg("are_coefficients_in_negative_axis_direction"),
-              py::arg("interpolator_settings"),
+              py::arg("are_coefficients_in_aerodynamic_frame") = true,
+              py::arg("are_coefficients_in_negative_axis_direction") = true,
+              py::arg("interpolator_settings") = nullptr,
               get_docstring("tabulated_force_only").c_str());
 
         m.def("tabulated_force_only_from_files",
@@ -146,9 +146,9 @@ namespace aerodynamic_coefficients {
               py::arg("force_coefficient_files"),
               py::arg("reference_area"),
               py::arg("independent_variable_names"),
-              py::arg("are_coefficients_in_aerodynamic_frame"),
-              py::arg("are_coefficients_in_negative_axis_direction"),
-              py::arg("interpolator_settings") = nullptr ,
+              py::arg("are_coefficients_in_aerodynamic_frame") = true,
+              py::arg("are_coefficients_in_negative_axis_direction") = true,
+              py::arg("interpolator_settings") = nullptr,
               get_docstring("tabulated_force_only_from_files").c_str());
 
         m.def("scaled_by_constant",
