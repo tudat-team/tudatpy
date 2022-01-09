@@ -119,15 +119,22 @@ namespace environment {
 
 void expose_environment(py::module &m) {
 
-
-    py::enum_<ta::AerodynamicCoefficientsIndependentVariables>(m, "AerodynamicCoefficientsIndependentVariables", "<no_doc>")
-            .value("mach_number_dependent", ta::AerodynamicCoefficientsIndependentVariables::mach_number_dependent)
-            .value("angle_of_attack_dependent", ta::AerodynamicCoefficientsIndependentVariables::angle_of_attack_dependent)
-            .value("sideslip_angle_dependent", ta::AerodynamicCoefficientsIndependentVariables::angle_of_sideslip_dependent)
-            .value("altitude_dependent", ta::AerodynamicCoefficientsIndependentVariables::altitude_dependent)
-            .value("time_dependent", ta::AerodynamicCoefficientsIndependentVariables::time_dependent)
-            .value("control_surface_deflection_dependent", ta::AerodynamicCoefficientsIndependentVariables::control_surface_deflection_dependent)
-            .value("undefined_independent_variable", ta::AerodynamicCoefficientsIndependentVariables::undefined_independent_variable)
+    py::enum_<ta::AerodynamicCoefficientsIndependentVariables>(m, "AerodynamicCoefficientsIndependentVariables",
+                                                               get_docstring("AerodynamicCoefficientsIndependentVariables").c_str())
+            .value("mach_number_dependent", ta::AerodynamicCoefficientsIndependentVariables::mach_number_dependent,
+                        get_docstring("AerodynamicCoefficientsIndependentVariables.mach_number_dependent").c_str())
+            .value("angle_of_attack_dependent", ta::AerodynamicCoefficientsIndependentVariables::angle_of_attack_dependent,
+                        get_docstring("AerodynamicCoefficientsIndependentVariables.angle_of_attack_dependent").c_str())
+            .value("sideslip_angle_dependent", ta::AerodynamicCoefficientsIndependentVariables::angle_of_sideslip_dependent,
+                        get_docstring("AerodynamicCoefficientsIndependentVariables.sideslip_angle_dependent").c_str())
+            .value("altitude_dependent", ta::AerodynamicCoefficientsIndependentVariables::altitude_dependent,
+                        get_docstring("AerodynamicCoefficientsIndependentVariables.altitude_dependent").c_str())
+            .value("time_dependent", ta::AerodynamicCoefficientsIndependentVariables::time_dependent,
+                        get_docstring("AerodynamicCoefficientsIndependentVariables.time_dependent").c_str())
+            .value("control_surface_deflection_dependent", ta::AerodynamicCoefficientsIndependentVariables::control_surface_deflection_dependent,
+                        get_docstring("AerodynamicCoefficientsIndependentVariables.control_surface_deflection_dependent").c_str())
+            .value("undefined_independent_variable", ta::AerodynamicCoefficientsIndependentVariables::undefined_independent_variable,
+                        get_docstring("AerodynamicCoefficientsIndependentVariables.undefined_independent_variable").c_str())
             .export_values();
 
     py::class_<ta::AerodynamicCoefficientInterface,
