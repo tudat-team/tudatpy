@@ -13,6 +13,7 @@
 #include "expose_astro/expose_gravitation.h"
 #include "expose_astro/expose_element_conversion.h"
 #include "expose_astro/expose_frame_conversion.h"
+#include "expose_astro/expose_time_conversion.h"
 #include "expose_astro/expose_two_body_dynamics.h"
 #include "expose_astro/expose_fundamentals.h"
 
@@ -31,6 +32,9 @@ void expose_astro(py::module &m) {
 
     auto frame_conversion = m.def_submodule("frame_conversion");
     frame_conversion::expose_frame_conversion(frame_conversion);
+
+    auto time_conversion = m.def_submodule("time_conversion");
+    time_conversion::expose_time_conversion(time_conversion);
 
     auto two_body_dynamics = m.def_submodule("two_body_dynamics");
     two_body_dynamics::expose_two_body_dynamics(two_body_dynamics);
