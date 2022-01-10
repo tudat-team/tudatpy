@@ -8,6 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#include "tudatpy/docstrings.h"
+
 #include "expose_two_body_dynamics.h"
 
 #include <tudat/astro/mission_segments.h>
@@ -238,7 +240,8 @@ void expose_two_body_dynamics(py::module &m) {
           py::arg("initial_kepler_elements"),
           py::arg("propagation_time"),
           py::arg("gravitational_parameter"),
-          py::arg("root_finder") = trf::RootFinderPointer( ) );
+          py::arg("root_finder") = trf::RootFinderPointer( ),
+          get_docstring("propagate_kepler_orbit").c_str( ) );
 
 
 }

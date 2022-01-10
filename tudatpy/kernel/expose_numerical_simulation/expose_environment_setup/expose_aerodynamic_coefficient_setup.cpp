@@ -110,9 +110,9 @@ namespace aerodynamic_coefficients {
               py::arg("lateral_reference_length"),
               py::arg("moment_reference_point"),
               py::arg("independent_variable_name"),
-              py::arg("are_coefficients_in_aerodynamic_frame"),
-              py::arg("are_coefficients_in_negative_axis_direction"),
-              py::arg("interpolator_settings"),
+              py::arg("are_coefficients_in_aerodynamic_frame") = true,
+              py::arg("are_coefficients_in_negative_axis_direction") = true,
+              py::arg("interpolator_settings") = nullptr,
               get_docstring("tabulated").c_str());
 
         m.def("tabulated_force_only",
@@ -129,9 +129,9 @@ namespace aerodynamic_coefficients {
               py::arg("force_coefficients"),
               py::arg("reference_area"),
               py::arg("independent_variable_name"),
-              py::arg("are_coefficients_in_aerodynamic_frame"),
-              py::arg("are_coefficients_in_negative_axis_direction"),
-              py::arg("interpolator_settings"),
+              py::arg("are_coefficients_in_aerodynamic_frame") = true,
+              py::arg("are_coefficients_in_negative_axis_direction") = true,
+              py::arg("interpolator_settings") = nullptr,
               get_docstring("tabulated_force_only").c_str());
 
         m.def("tabulated_force_only_from_files",
@@ -146,9 +146,9 @@ namespace aerodynamic_coefficients {
               py::arg("force_coefficient_files"),
               py::arg("reference_area"),
               py::arg("independent_variable_names"),
-              py::arg("are_coefficients_in_aerodynamic_frame"),
-              py::arg("are_coefficients_in_negative_axis_direction"),
-              py::arg("interpolator_settings") = nullptr ,
+              py::arg("are_coefficients_in_aerodynamic_frame") = true,
+              py::arg("are_coefficients_in_negative_axis_direction") = true,
+              py::arg("interpolator_settings") = nullptr,
               get_docstring("tabulated_force_only_from_files").c_str());
 
         m.def("scaled_by_constant",
@@ -159,7 +159,7 @@ namespace aerodynamic_coefficients {
               py::arg("unscaled_coefficient_settings"),
               py::arg("force_scaling_constant"),
               py::arg("moment_scaling_constant"),
-              py::arg("is_scaling_absolute"),
+              py::arg("is_scaling_absolute") = false,
               get_docstring("scaled_by_constant").c_str());
 
         m.def("scaled_by_vector",
@@ -170,7 +170,7 @@ namespace aerodynamic_coefficients {
               py::arg("unscaled_coefficient_settings"),
               py::arg("force_scaling_vector"),
               py::arg("moment_scaling_vector"),
-              py::arg("is_scaling_absolute"),
+              py::arg("is_scaling_absolute") = false,
               get_docstring("scaled_by_vector").c_str());
 
         m.def("scaled_by_vector_function",
@@ -182,7 +182,7 @@ namespace aerodynamic_coefficients {
               py::arg("unscaled_coefficient_settings"),
               py::arg("force_scaling_vector_function"),
               py::arg("moment_scaling_vector_function"),
-              py::arg("is_scaling_absolute"),
+              py::arg("is_scaling_absolute") = false,
               get_docstring("scaled_by_vector_function").c_str());
 
     }

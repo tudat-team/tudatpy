@@ -22,8 +22,10 @@ def plot_blue_marble_ground_track(lon: np.ndarray, lat: np.ndarray, lat_0: float
 
     Examples
     --------
-    >>> from tudatpy.plotting import *
-    >>> plot_blue_marble_ground_track(lon, lat)
+    .. code-block:: python
+
+        from tudatpy.plotting import *
+        plot_blue_marble_ground_track(lon, lat)
 
     .. image:: _static/blue-marble-groundtrack.png
        :width: 400
@@ -55,8 +57,10 @@ def plot_miller_ground_track(lon, lat, lon_0=0):
 
     Examples
     --------
-    >>> from tudatpy.plotting import *
-    >>> plot_miller_ground_track(lon, lat)
+    .. code-block:: python
+    
+        from tudatpy.plotting import *
+        plot_miller_ground_track(lon, lat)
 
     .. image:: _static/miller-groundtrack.png
        :width: 400
