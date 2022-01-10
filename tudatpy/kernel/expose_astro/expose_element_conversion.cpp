@@ -221,10 +221,10 @@ void expose_element_conversion(py::module &m) {
      **************   QUATERNIONS  ******************
      */
 
-    m.def("quaterion_entries_to_rotation_matrix",
+    m.def("quaternion_entries_to_rotation_matrix",
           &tla::convertVectorQuaternionToMatrixFormat,
-          py::arg( "quaterion_entries" ) ,
-          get_docstring("quaterion_entries_to_rotation_matrix").c_str());
+          py::arg( "quaternion_entries" ) ,
+          get_docstring("quaternion_entries_to_rotation_matrix").c_str());
 
     m.def("rotation_matrix_to_quaternion_entries",
           &tla::convertMatrixToVectorQuaternionFormat,
