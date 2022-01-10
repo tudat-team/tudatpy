@@ -32,3 +32,4 @@ dependencies:
      - sphinxcontrib-fulltoc
      - sphinxcontrib-bibtex
      - furo
+     - sphinx_copybutton
