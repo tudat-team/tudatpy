@@ -23,7 +23,6 @@
 
 namespace py = pybind11;
 namespace tba = tudat::basic_astrodynamics;
-namespace tba = tudat::basic_astrodynamics;
 namespace pc  = tudat::physical_constants;
 
 // Convert a time_point (which is automatically converted from a Python datetime) to gregorian::date.
@@ -44,16 +43,9 @@ std::chrono::system_clock::time_point GregorianDateToTimePoint(const boost::greg
 // Convert Julian day to calendar date. This code ensures that the value returned is a time_point (Python datetime).
 std::chrono::system_clock::time_point convertJulianDayToCalendarDatePy(const double julianDay) {
   boost::gregorian::date gregorianDate = tba::convertJulianDayToCalendarDate(julianDay);
-  return GregorianDateToTimePoint(gregorianDate);
-}
-
-// Convert calendar date to Julian day. This code allows for the input to be a time_point (Python datetime).
-template< typename TimeScalarType = double >
-TimeScalarType convertCalendarDateToJulianDayPy(const std::chrono::system_clock::time_point calendarDate) {
-  std::time_t tt = std::chrono::system_clock::to_time_t(calendarDate);
-  std::tm local_tm = *localtime(&tt);
-  return tba::convertCalendarDateToJulianDay(local_tm.tm_year + 1900, local_tm.tm_mon + 1, local_tm.tm_mday,
-    local_tm.tm_hour, local_tm.tm_min, local_tm.tm_sec);
+  std::chrono::system_clock::time_point tp = GregorianDateToTimePoint(gregorianDate);
+  // Add the seconds in the current Julian day (to get back time that is lose in gregorian date)
+  return tp + std::chrono::seconds(int(tba::calculateSecondsInCurrentJulianDay(julianDay)));
 }
 
 // Convert calendar date to Julian day since a given epoch. This code allows for the calendar date to be a time_point (Python datetime).
@@ -65,6 +57,12 @@ TimeScalarType convertCalendarDateToJulianDaySinceEpochPy( const std::chrono::sy
   const boost::gregorian::date gregorianDate = boost::gregorian::date(local_tm.tm_year + 1900, local_tm.tm_mon + 1, local_tm.tm_mday);
   const TimeScalarType fractionOfDay = (local_tm.tm_hour*3600+local_tm.tm_min*60+local_tm.tm_sec)/pc::JULIAN_DAY;
   return tba::calculateJulianDaySinceEpoch(gregorianDate, fractionOfDay, epochSinceJulianDayZero);
+}
+
+// Convert calendar date to Julian day. This code allows for the input to be a time_point (Python datetime).
+template< typename TimeScalarType = double >
+TimeScalarType convertCalendarDateToJulianDayPy(const std::chrono::system_clock::time_point calendarDate) {
+  return convertCalendarDateToJulianDaySinceEpochPy(calendarDate, 0.0);
 }
 
 // Compute which day of the year a given calendar date is. This block allows for the calendar date to be a time_point (Python datetime).
