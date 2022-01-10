@@ -9475,6 +9475,20 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
+    } else if(name == "compare_results" && variant==0) {
+            return R"(
+
+    )";
+
+
+
+    } else if(name == "redirect_std" && variant==0) {
+            return R"(
+
+    )";
+
+
+
     } else {
         return "No documentation found.";
     }
