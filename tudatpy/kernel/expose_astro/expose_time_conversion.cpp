@@ -201,10 +201,10 @@ void expose_time_conversion(py::module &m) {
           get_docstring("TCB_to_TDB").c_str()
       );
 
-    m.def("TBD_to_TCB",
+    m.def("TDB_to_TCB",
           &tba::convertTdbToTcb< double >,
-          py::arg("TBD_time"),
-          get_docstring("TBD_to_TCB").c_str()
+          py::arg("TDB_time"),
+          get_docstring("TDB_to_TCB").c_str()
       );
 
     m.def("TCG_to_TT",
