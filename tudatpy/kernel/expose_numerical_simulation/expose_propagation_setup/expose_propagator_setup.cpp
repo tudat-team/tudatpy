@@ -153,6 +153,12 @@ void expose_propagator_setup(py::module &m) {
                                             get_docstring("MultiArcPropagatorSettings").c_str());
 
     py::class_<
+            tp::HybridArcPropagatorSettings<double>,
+            std::shared_ptr<tp::HybridArcPropagatorSettings<double>>,
+            tp::PropagatorSettings<double>>(m, "HybridArcPropagatorSettings",
+                                            get_docstring("HybridArcPropagatorSettings").c_str());
+
+    py::class_<
             tp::SingleArcPropagatorSettings<double>,
             std::shared_ptr<tp::SingleArcPropagatorSettings<double>>,
             tp::PropagatorSettings<double>>(m, "SingleArcPropagatorSettings",
@@ -372,6 +378,34 @@ void expose_propagator_setup(py::module &m) {
             tp::PropagationTerminationSettings>(m, "PropagationDependentVariableTerminationSettings",
                                                 get_docstring(
                                                     "PropagationDependentVariableTerminationSettings").c_str());
+
+    py::class_<
+            tp::PropagationTimeTerminationSettings,
+            std::shared_ptr<tp::PropagationTimeTerminationSettings>,
+            tp::PropagationTerminationSettings>(m, "PropagationTimeTerminationSettings",
+                                                get_docstring(
+                                                    "PropagationTimeTerminationSettings").c_str());
+
+    py::class_<
+            tp::PropagationCPUTimeTerminationSettings,
+            std::shared_ptr<tp::PropagationCPUTimeTerminationSettings>,
+            tp::PropagationTerminationSettings>(m, "PropagationCPUTimeTerminationSettings",
+                                                get_docstring(
+                                                    "PropagationCPUTimeTerminationSettings").c_str());
+
+    py::class_<
+            tp::PropagationCustomTerminationSettings,
+            std::shared_ptr<tp::PropagationCustomTerminationSettings>,
+            tp::PropagationTerminationSettings>(m, "PropagationCustomTerminationSettings",
+                                                get_docstring(
+                                                    "PropagationCustomTerminationSettings").c_str());
+
+    py::class_<
+            tp::PropagationHybridTerminationSettings,
+            std::shared_ptr<tp::PropagationHybridTerminationSettings>,
+            tp::PropagationTerminationSettings>(m, "PropagationHybridTerminationSettings",
+                                                get_docstring(
+                                                    "PropagationHybridTerminationSettings").c_str());
 
     //                .def(py::init<
     //                             const std::shared_ptr<tp::SingleDependentVariableSaveSettings>,
