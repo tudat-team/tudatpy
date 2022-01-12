@@ -1,9 +1,9 @@
 import os
 
-try:
-    os.environ['PROJ_LIB'] = os.environ['CONDA_PREFIX'] + '/share/proj'  # Required fix for Jupyter
-except KeyError:
-    print("Fix for Jupyter not working.")
+if bool(os.getenv("READTHEDOCS")):
+    os.environ['PROJ_LIB'] = "/home/docs/checkouts/readthedocs.org/user_builds/tudatpy/share/proj"
+else:
+    os.environ['PROJ_LIB'] = os.environ['CONDA_PREFIX'] + '/share/proj'
 
 import numpy as np
 import matplotlib.pyplot as plt
