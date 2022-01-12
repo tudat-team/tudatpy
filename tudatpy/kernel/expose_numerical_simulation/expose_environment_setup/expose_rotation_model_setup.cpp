@@ -79,6 +79,16 @@ namespace rotation_model {
                 .def_property_readonly("target_frame", &tss::RotationModelSettings::getTargetFrame,
                                        get_docstring("RotationModelSettings.target_frame").c_str());
 
+        py::class_<tss::SimpleRotationModelSettings,
+                std::shared_ptr<tss::SimpleRotationModelSettings>,
+                tss::RotationModelSettings>(m, "SimpleRotationModelSettings",
+                                        get_docstring("SimpleRotationModelSettings").c_str());
+
+        py::class_<tss::PlanetaryRotationModelSettings,
+                std::shared_ptr<tss::PlanetaryRotationModelSettings>,
+                tss::RotationModelSettings>(m, "PlanetaryRotationModelSettings",
+                                        get_docstring("PlanetaryRotationModelSettings").c_str());
+
 
         m.def("simple",
               py::overload_cast<const std::string &, const std::string &,
@@ -129,6 +139,11 @@ namespace rotation_model {
               py::arg("target_frame"),
               py::arg("initial_orientation"),
               get_docstring("constant").c_str()
+        );
+
+        m.def("mars_high_accuracy",
+              &tss::getHighAccuracyMarsRotationModel,
+              get_docstring("mars_high_accuracy").c_str()
         );
 
     }
