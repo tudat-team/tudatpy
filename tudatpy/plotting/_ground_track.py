@@ -1,6 +1,10 @@
 import os
 
-os.environ['PROJ_LIB'] = os.environ['CONDA_PREFIX'] + '/share/proj'  # Required fix for Jupyter
+try:
+    os.environ['PROJ_LIB'] = os.environ['CONDA_PREFIX'] + '/share/proj'  # Required fix for Jupyter
+except KeyError:
+    print("Fix for Jupyter not working.")
+
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.basemap import Basemap
