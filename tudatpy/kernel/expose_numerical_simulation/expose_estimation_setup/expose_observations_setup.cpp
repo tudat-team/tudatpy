@@ -61,7 +61,8 @@ namespace observation {
 
 void expose_observations_setup(py::module &m) {
 
-    py::enum_< tom::LinkEndType >(m, "LinkEndType")
+    py::enum_< tom::LinkEndType >(m, "LinkEndType",
+                                  get_docstring("LinkEndType").c_str())
             .value("unidentified_link_end", tom::LinkEndType::unidentified_link_end )
             .value("transmitter", tom::LinkEndType::transmitter )
             .value("reflector1", tom::LinkEndType::reflector1 )
@@ -77,14 +78,17 @@ void expose_observations_setup(py::module &m) {
     m.def("one_way_downlink_link_ends",
           &tom::getOneWayDownlinkLinkEndsList,
           py::arg("transmitter"),
-          py::arg("receivers") );
+          py::arg("receivers"),
+          get_docstring("one_way_downlink_link_ends").c_str());
 
     m.def("one_way_uplink_link_ends",
           &tom::getOneWayUplinkLinkEndsList,
           py::arg("transmitters"),
-          py::arg("receiver") );
+          py::arg("receiver"),
+          get_docstring("one_way_uplink_link_ends").c_str());
 
-    py::enum_< tom::ObservableType >(m, "ObservableType")
+    py::enum_< tom::ObservableType >(m, "ObservableType",
+                                     get_docstring("ObservableType").c_str())
             .value("one_way_range_type", tom::ObservableType::one_way_range )
             .value("angular_position_type", tom::ObservableType::angular_position )
             .value("position_observable_type", tom::ObservableType::position_observable )
@@ -99,42 +103,50 @@ void expose_observations_setup(py::module &m) {
 
     py::class_<tom::DopplerProperTimeRateSettings,
             std::shared_ptr<tom::DopplerProperTimeRateSettings>>(
-                m, "DopplerProperTimeRateSettings");
+                m, "DopplerProperTimeRateSettings",
+                get_docstring("DopplerProperTimeRateSettings").c_str());
 
     py::class_<tom::ObservationModelSettings,
             std::shared_ptr<tom::ObservationModelSettings>>(
-                m, "ObservationSettings");
+                m, "ObservationSettings",
+                get_docstring("ObservationSettings").c_str());
 
     py::class_<tom::OneWayDopplerObservationSettings,
             std::shared_ptr<tom::OneWayDopplerObservationSettings>>(
-            m, "OneWayDopplerObservationSettings");
+            m, "OneWayDopplerObservationSettings",
+            get_docstring("OneWayDopplerObservationSettings").c_str());
 
     m.def("one_way_range",
           &tom::oneWayRangeSettings,
           py::arg("link_ends"),
           py::arg("light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
-          py::arg("bias_settings") = nullptr );
+          py::arg("bias_settings") = nullptr,
+          get_docstring("one_way_range").c_str());
 
     m.def("angular_position",
           &tom::angularPositionSettings,
           py::arg("link_ends"),
           py::arg("light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
-          py::arg("bias_settings") = nullptr );
+          py::arg("bias_settings") = nullptr,
+          get_docstring("angular_position").c_str());
 
     m.def("cartesian_position",
           &tom::positionObservableSettings,
           py::arg("link_ends"),
-          py::arg("bias_settings") = nullptr );
+          py::arg("bias_settings") = nullptr,
+          get_docstring("cartesian_position").c_str());
 
     m.def("cartesian_velocity",
           &tom::velocityObservableSettings,
           py::arg("link_ends"),
-          py::arg("bias_settings") = nullptr );
+          py::arg("bias_settings") = nullptr,
+          get_docstring("cartesian_velocity").c_str());
 
     m.def("313_euler_angles",
           &tom::eulerAngle313ObservableSettings,
           py::arg("link_ends"),
-          py::arg("bias_settings") = nullptr );
+          py::arg("bias_settings") = nullptr,
+          get_docstring("313_euler_angles").c_str());
 
     m.def("one_way_open_loop_doppler",
           &tom::oneWayOpenLoopDoppler,
@@ -142,13 +154,15 @@ void expose_observations_setup(py::module &m) {
           py::arg("light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
           py::arg("bias_settings") = nullptr,
           py::arg("transmitter_proper_time_rate_settings") = nullptr,
-          py::arg("receiver_proper_time_rate_settings") = nullptr );
+          py::arg("receiver_proper_time_rate_settings") = nullptr,
+          get_docstring("313_euler_angles").c_str());
 
     m.def("two_way_open_loop_doppler",
           &tom::twoWayOpenLoopDoppler,
           py::arg("uplink_doppler_settings" ),
           py::arg("downlink_doppler_settings" ),
-          py::arg("bias_settings") = nullptr );
+          py::arg("bias_settings") = nullptr,
+          get_docstring("two_way_open_loop_doppler").c_str());
 
     m.def("one_way_closed_loop_doppler",
           py::overload_cast<
@@ -159,7 +173,8 @@ void expose_observations_setup(py::module &m) {
           py::arg("link_ends" ),
           py::arg("integration_time" ),
           py::arg("light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
-          py::arg("bias_settings") = nullptr );
+          py::arg("bias_settings") = nullptr,
+          get_docstring("one_way_closed_loop_doppler", 0).c_str());
 
     m.def("one_way_closed_loop_doppler",
           py::overload_cast<
@@ -170,33 +185,42 @@ void expose_observations_setup(py::module &m) {
           py::arg("link_ends" ),
           py::arg("integration_time_function" ),
           py::arg("light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
-          py::arg("bias_settings") = nullptr );
+          py::arg("bias_settings") = nullptr,
+          get_docstring("one_way_closed_loop_doppler", 1).c_str());
+
 
     m.def("n_way_range",
           &tom::nWayRange,
           py::arg("one_way_range_settings" ),
           py::arg("bias_settings" ) = nullptr,
-          py::arg("retransmission_times_function" ) = nullptr );
+          py::arg("retransmission_times_function" ) = nullptr,
+          get_docstring("one_way_closed_loop_doppler").c_str());
+
 
     py::class_<tom::LightTimeCorrectionSettings,
             std::shared_ptr<tom::LightTimeCorrectionSettings>>(
-                m, "LightTimeCorrectionSettings");
+                m, "LightTimeCorrectionSettings",
+                get_docstring("LightTimeCorrectionSettings").c_str());
 
     m.def("first_order_relativistic_light_time_correction",
           &tom::firstOrderRelativisticLightTimeCorrectionSettings,
-          py::arg("perturbing_bodies") );
+          py::arg("perturbing_bodies"),
+          get_docstring("first_order_relativistic_light_time_correction").c_str());
 
     py::class_<tom::ObservationBiasSettings,
             std::shared_ptr<tom::ObservationBiasSettings>>(
-                m, "ObservationBiasSettings");
+                m, "ObservationBiasSettings",
+                get_docstring("ObservationBiasSettings").c_str());
 
     m.def("absolute_bias",
           &tom::constantAbsoluteBias,
-          py::arg("bias_value") );
+          py::arg("bias_value"),
+          get_docstring("absolute_bias").c_str());
 
     m.def("relative_bias",
           &tom::constantRelativeBias,
-          py::arg("bias_value") );
+          py::arg("bias_value"),
+          get_docstring("relative_bias").c_str());
 
     m.def("arcwise_absolute_bias",
           py::overload_cast<
@@ -205,14 +229,16 @@ void expose_observations_setup(py::module &m) {
           const tom::LinkEndType >( &tom::arcWiseAbsoluteBias ),
           py::arg("arc_start_times" ),
           py::arg("bias_values"),
-          py::arg("time_link_end" ) );
+          py::arg("time_link_end" ),
+          get_docstring("arcwise_absolute_bias", 0).c_str());
 
     m.def("arcwise_absolute_bias",
           py::overload_cast<
           const std::map< double, Eigen::VectorXd >&,
           const tom::LinkEndType >( &tom::arcWiseAbsoluteBias ),
           py::arg("bias_values_per_start_time"),
-          py::arg("time_link_end" ) );
+          py::arg("time_link_end" ),
+          get_docstring("arcwise_absolute_bias", 1).c_str());
 
     m.def("arcwise_relative_bias",
           py::overload_cast<
@@ -221,21 +247,25 @@ void expose_observations_setup(py::module &m) {
           const tom::LinkEndType >( &tom::arcWiseRelativeBias ),
           py::arg("arc_start_times" ),
           py::arg("bias_values"),
-          py::arg("time_link_end" ) );
+          py::arg("time_link_end" ),
+          get_docstring("arcwise_relative_bias", 0).c_str());
 
     m.def("arcwise_relative_bias",
           py::overload_cast<
           const std::map< double, Eigen::VectorXd >&,
           const tom::LinkEndType >( &tom::arcWiseRelativeBias ),
           py::arg("bias_values_per_start_time"),
-          py::arg("time_link_end" ) );
+          py::arg("time_link_end" ),
+          get_docstring("arcwise_relative_bias", 1).c_str());
 
     m.def("combined_bias",
           &tom::multipleObservationBiasSettings,
-          py::arg("bias_list") );
+          py::arg("bias_list"),
+          get_docstring("combined_bias").c_str());
 
 
-    py::enum_< tom::ObservationViabilityType >(m, "ObservationViabilityType")
+    py::enum_< tom::ObservationViabilityType >(m, "ObservationViabilityType",
+                                               get_docstring("ObservationViabilityType").c_str()
             .value("minimum_elevation_angle", tom::ObservationViabilityType::minimum_elevation_angle )
             .value("body_avoidance_angle", tom::ObservationViabilityType::body_avoidance_angle )
             .value("body_occultation", tom::ObservationViabilityType::body_occultation )
@@ -244,7 +274,8 @@ void expose_observations_setup(py::module &m) {
 
     py::class_<tom::ObservationViabilitySettings,
             std::shared_ptr<tom::ObservationViabilitySettings>>(
-                m, "ObservationViabilitySettings");
+                m, "ObservationViabilitySettings",
+                get_docstring("ObservationViabilityType").c_str());
             // .def(py::init< const tom::ObservationViabilityType,
             //      const std::pair< std::string, std::string >,
             //      const std::string,
@@ -255,35 +286,44 @@ void expose_observations_setup(py::module &m) {
             //      py::arg("double_input") );
 
 
-    // (%!) why do we have the list overload? can we not just make this the default?
+    m.def("elevation_angle_viability",
+          py::overload_cast<
+                  const std::pair< std::string, std::string >,
+                  const double >(
+                  &tom::elevationAngleViabilitySettings ),
+          py::arg("link_end" ),
+          py::arg("elevation_angle" ),
+          get_docstring("elevation_angle_viability").c_str());
+
+    m.def("body_avoidance_viability",
+          py::overload_cast<
+                  const std::pair< std::string, std::string >,
+                  const std::string,
+                  const double >(
+                  &tom::bodyAvoidanceAngleViabilitySettings ),
+          py::arg("link_end" ),
+          py::arg("body_to_avoid" ),
+          py::arg("avoidance_angle"),
+          get_docstring("body_avoidance_viability").c_str());
+
+    m.def("body_occultation_viability",
+          py::overload_cast<
+                  const std::vector< std::pair< std::string, std::string > >,
+                  const std::string >(
+                  &tom::bodyOccultationViabilitySettings ),
+          py::arg("link_ends_list" ),
+          py::arg("occulting_body" ),
+          get_docstring("body_occultation_viability").c_str());
+
     m.def("elevation_angle_viability_list",
           py::overload_cast<
           const std::vector< std::pair< std::string, std::string > >,
           const double >(
           &tom::elevationAngleViabilitySettings ),
           py::arg("link_ends_list" ),
-          py::arg("elevation_angle" ) );
+          py::arg("elevation_angle" ),
+          get_docstring("elevation_angle_viability_list").c_str());
 
-    m.def("elevation_angle_viability",
-          py::overload_cast<
-          const std::pair< std::string, std::string >,
-          const double >(
-          &tom::elevationAngleViabilitySettings ),
-          py::arg("link_end" ),
-          py::arg("elevation_angle" ) );
-
-
-    m.def("body_avoidance_viability",
-          py::overload_cast<
-          const std::pair< std::string, std::string >,
-          const std::string,
-          const double >(
-          &tom::bodyAvoidanceAngleViabilitySettings ),
-          py::arg("link_end" ),
-          py::arg("body_to_avoid" ),
-          py::arg("avoidance_angle") );
-
-    // (%!) why do we have the list overload? can we not just make this the default?
     m.def("body_avoidance_viability_list",
           py::overload_cast<
           const std::vector< std::pair< std::string, std::string > >,
@@ -292,38 +332,35 @@ void expose_observations_setup(py::module &m) {
           &tom::bodyAvoidanceAngleViabilitySettings ),
           py::arg("link_ends_list" ),
           py::arg("body_to_avoid" ),
-          py::arg("avoidance_angle") );
+          py::arg("avoidance_angle"),
+          get_docstring("body_avoidance_viability_list").c_str());
 
-
-    m.def("body_occultation_viability",
-          py::overload_cast<
-          const std::vector< std::pair< std::string, std::string > >,
-          const std::string >(
-          &tom::bodyOccultationViabilitySettings ),
-          py::arg("link_ends_list" ),
-          py::arg("occulting_body" ) );
-
-    // (%!) why do we have the list overload? can we not just make this the default?
     m.def("body_occultation_viability_list",
           py::overload_cast<
           const std::pair< std::string, std::string >,
           const std::string >(
           &tom::bodyOccultationViabilitySettings ),
           py::arg("link_end" ),
-          py::arg("occulting_body" ) );
+          py::arg("occulting_body" ),
+          get_docstring("body_occultation_viability_list").c_str());
+
 
     m.def("create_observation_simulators",
           py::overload_cast< const std::vector< std::shared_ptr< tom::ObservationModelSettings > >&, const tss::SystemOfBodies& >(
               &tom::createObservationSimulators< double, double > ),
           py::arg( "observation_settings" ),
-          py::arg( "bodies" ) );
+          py::arg( "bodies" ),
+          get_docstring("create_observation_simulators").c_str());
 
     py::class_<tss::ObservationSimulationSettings<double>,
-               std::shared_ptr<tss::ObservationSimulationSettings<double>>>(m, "ObservationSimulationSettings");
+               std::shared_ptr<tss::ObservationSimulationSettings<double>>>(m, "ObservationSimulationSettings",
+                                                                            get_docstring("ObservationSimulationSettings").c_str());
 
     py::class_<tss::TabulatedObservationSimulationSettings<double>,
                std::shared_ptr<tss::TabulatedObservationSimulationSettings<double>>,
-               tss::ObservationSimulationSettings<double> >(m, "TabulatedObservationSimulationSettings");
+               tss::ObservationSimulationSettings<double> >(m, "TabulatedObservationSimulationSettings",
+                                                            get_docstring("TabulatedObservationSimulationSettings").c_str());
+
     //        .def(py::init<
     //             const tom::ObservableType, const tom::LinkEnds, const std::vector< double >, const tom::LinkEndType,
     //             const std::vector< std::shared_ptr< tom::ObservationViabilitySettings > >&,
@@ -343,13 +380,16 @@ void expose_observations_setup(py::module &m) {
           py::arg("simulation_times" ),
           py::arg("reference_link_end" ) = tom::receiver,
           py::arg("viability_settings" ) = std::vector< std::shared_ptr< tom::ObservationViabilitySettings > >( ),
-          py::arg("noise_function" ) = nullptr );
+          py::arg("noise_function" ) = nullptr,
+          get_docstring("tabulated_simulation_settings").c_str());
 
 
     m.def("create_tabulated_simulation_settings",
               &tss::createTabulatedObservationSimulationSettingsList< double >,
           py::arg("link_ends_per_observable"),
-          py::arg("simulation_times" ) );
+          py::arg("simulation_times" ),
+          get_docstring("create_tabulated_simulation_settings").c_str());
+
 
 //    m.def("add_noise_to_settings",
 //          py::overload_cast<
@@ -369,7 +409,8 @@ void expose_observations_setup(py::module &m) {
                 &tss::addGaussianNoiseFunctionToObservationSimulationSettingsPy ),
             py::arg("observation_simulation_settings"),
             py::arg("noise_amplitude"),
-            py::arg("observable_type") );
+            py::arg("observable_type"),
+            get_docstring("add_gaussian_noise_to_settings").c_str());
 
 
     m.def("add_viability_check_to_settings",
@@ -378,7 +419,9 @@ void expose_observations_setup(py::module &m) {
           const std::vector< std::shared_ptr< tom::ObservationViabilitySettings > >& >(
                 &tss::addViabilityToObservationSimulationSettingsPy ),
             py::arg("observation_simulation_settings"),
-            py::arg("viability_settings") );
+            py::arg("viability_settings"),
+            get_docstring("add_viability_check_to_settings", 0).c_str());
+
 
     m.def("add_viability_check_to_settings",
           py::overload_cast<
@@ -388,11 +431,14 @@ void expose_observations_setup(py::module &m) {
                 &tss::addViabilityToObservationSimulationSettingsPy ),
             py::arg("observation_simulation_settings"),
             py::arg("viability_settings"),
-            py::arg("observable_type") );
+            py::arg("observable_type"),
+            get_docstring("add_viability_check_to_settings", 1).c_str());
+
 
     py::class_<tss::ObservationDependentVariableSettings,
             std::shared_ptr<tss::ObservationDependentVariableSettings>>(
-                m, "ObservationDependentVariableSettings");
+                m, "ObservationDependentVariableSettings",
+                get_docstring("ObservationDependentVariableSettings").c_str());
 
     m.def("add_dependent_variables_to_settings",
           py::overload_cast<
@@ -402,14 +448,16 @@ void expose_observations_setup(py::module &m) {
                 &tss::addDependentVariablesToObservationSimulationSettings< double > ),
             py::arg("observation_simulation_settings"),
             py::arg("dependent_variable_settings" ),
-            py::arg("bodies" ) );
-
+            py::arg("bodies" ),
+            get_docstring("add_dependent_variables_to_settings").c_str());
 
     m.def("simulate_observations",
               &tss::simulateObservations< >,
           py::arg("observation_to_simulate"),
           py::arg("observation_simulators" ),
-          py::arg("bodies") );
+          py::arg("bodies"),
+          get_docstring("simulate_observations").c_str());
+
 
 //    m.def("gaussian_noise_function",
 //              &ts::getGaussianDistributionNoiseFunction,
