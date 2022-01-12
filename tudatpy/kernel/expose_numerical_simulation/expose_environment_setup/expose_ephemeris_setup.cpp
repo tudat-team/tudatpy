@@ -112,6 +112,12 @@ namespace ephemeris {
                                        get_docstring("ApproximateJplEphemerisSettings.body_name").c_str());
 
 
+        py::class_<tss::ScaledEphemerisSettings,
+                std::shared_ptr<tss::ScaledEphemerisSettings>,
+                tss::EphemerisSettings>(m, "ScaledEphemerisSettings",
+                                        get_docstring("ScaledEphemerisSettings").c_str());
+
+
         py::class_<tss::ConstantEphemerisSettings,
                 std::shared_ptr<tss::ConstantEphemerisSettings>,
                 tss::EphemerisSettings>(m, "ConstantEphemerisSettings",
