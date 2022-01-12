@@ -445,9 +445,25 @@ void expose_environment(py::module &m) {
      **************   GROUND STATION FUNCTIONALITY  ******************
      */
 
+
+    py::class_<tgs::GroundStationState,
+            std::shared_ptr<tgs::GroundStationState>>(m, "GroundStationState")
+            .def("get_cartesian_state", &tgs::GroundStationState::getCartesianStateInTime,
+                 py::arg( "seconds_since_epoch" ),
+                 py::arg( "reference_epoch") = tba::JULIAN_DAY_ON_J2000 )
+            .def("get_cartesian_position", &tgs::GroundStationState::getCartesianPositionInTime,
+                 py::arg( "seconds_since_epoch" ),
+                 py::arg( "reference_epoch") = tba::JULIAN_DAY_ON_J2000 )
+            .def_property_readonly("cartesian_positon_at_reference_epoch", &tgs::GroundStationState::getNominalCartesianPosition )
+            .def_property_readonly("spherical_positon_at_reference_epoch", &tgs::GroundStationState::getNominalSphericalPosition )
+            .def_property_readonly("geodetic_positon_at_reference_epoch", &tgs::GroundStationState::getNominalGeodeticPosition )
+            .def_property_readonly("rotation_matrix_body_fixed_to_topocentric", &tgs::GroundStationState::getRotationMatrixFromBodyFixedToTopocentricFrame );
+
     py::class_<tgs::GroundStation,
             std::shared_ptr<tgs::GroundStation>>(m, "GroundStation")
-            .def_property_readonly("pointing_angles_calculator", &tgs::GroundStation::getPointingAnglesCalculator );
+            .def_property_readonly("pointing_angles_calculator", &tgs::GroundStation::getPointingAnglesCalculator )
+            .def_property_readonly("station_state", &tgs::GroundStation::getNominalStationState );
+
 
     py::class_<tgs::PointingAnglesCalculator,
             std::shared_ptr<tgs::PointingAnglesCalculator>>(m, "PointingAnglesCalculator")
