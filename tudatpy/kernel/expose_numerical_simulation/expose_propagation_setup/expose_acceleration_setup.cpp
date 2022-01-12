@@ -124,13 +124,13 @@ void expose_acceleration_setup(py::module &m) {
 
     py::class_<tss::DirectTidalDissipationAccelerationSettings,
             std::shared_ptr<tss::DirectTidalDissipationAccelerationSettings>,
-            tss::AccelerationSettings>(m, "DirectTidalDissipationAcceleration",
-                                       get_docstring("DirectTidalDissipationAcceleration").c_str());
+            tss::AccelerationSettings>(m, "DirectTidalDissipationAccelerationSettings",
+                                       get_docstring("DirectTidalDissipationAccelerationSettings").c_str());
 
     py::class_<tss::MomentumWheelDesaturationAccelerationSettings,
             std::shared_ptr<tss::MomentumWheelDesaturationAccelerationSettings>,
-            tss::AccelerationSettings>(m, "MomentumWheelDesaturationAcceleration",
-                                       get_docstring("MomentumWheelDesaturationAcceleration").c_str());
+            tss::AccelerationSettings>(m, "MomentumWheelDesaturationAccelerationSettings",
+                                       get_docstring("MomentumWheelDesaturationAccelerationSettings").c_str());
 
     py::class_<tss::ThrustAccelerationSettings,
             std::shared_ptr<tss::ThrustAccelerationSettings>,
