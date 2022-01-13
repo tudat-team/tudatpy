@@ -852,8 +852,18 @@ public:
      */
     void processNumericalEquationsOfMotionSolution( )
     {
-        // Create and set interpolators for ephemerides
-        resetIntegratedStates( equationsOfMotionNumericalSolution_, integratedStateProcessors_ );
+        try
+        {
+            // Create and set interpolators for ephemerides
+            resetIntegratedStates( equationsOfMotionNumericalSolution_, integratedStateProcessors_ );
+        }
+        catch( const std::exception& caughtException )
+        {
+            std::cerr << "Error occured when post-processing single-arc integration results, and seting integrated states in environment, caught error is: " << std::endl << std::endl;
+            std::cerr << caughtException.what( ) << std::endl << std::endl;
+            std::cerr << "The problem may be that there is an insufficient number of data points (epochs) at which propagation results are produced. Integrated results are given at" +
+                         std::to_string( equationsOfMotionNumericalSolution_.size( ) ) + " epochs"<< std::endl;
+        }
 
         // Clear numerical solution if so required.
         if( clearNumericalSolutions_ )
@@ -1477,9 +1487,21 @@ public:
      */
     void processNumericalEquationsOfMotionSolution( )
     {
-        resetIntegratedMultiArcStatesWithEqualArcDynamics(
-                    equationsOfMotionNumericalSolution_,
-                    singleArcDynamicsSimulators_.at( 0 )->getIntegratedStateProcessors( ), arcStartTimes_ );
+        try
+        {
+            // Create and set interpolators for ephemerides
+            resetIntegratedMultiArcStatesWithEqualArcDynamics(
+                        equationsOfMotionNumericalSolution_,
+                        singleArcDynamicsSimulators_.at( 0 )->getIntegratedStateProcessors( ), arcStartTimes_ );
+        }
+        catch( const std::exception& caughtException )
+        {
+            std::cerr << "Error occured when post-processing mulyi-arc integration results, and seting integrated states in environment, caught error is: " << std::endl << std::endl;
+            std::cerr << caughtException.what( ) << std::endl << std::endl;
+            std::cerr << "The problem may be that there is an insufficient number of data points (epochs) at which propagation results are produced for one or more arcs"<< std::endl;
+        }
+
+
 
         if( clearNumericalSolutions_ )
         {

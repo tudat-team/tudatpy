@@ -42,3 +42,12 @@ TUDAT_ADD_TEST_CASE(LagrangeInterpolators
         tudat_interpolators
         tudat_basic_mathematics
         )
+
+TUDAT_ADD_TEST_CASE(InterpolatorVectorConversion
+        PRIVATE_LINKS
+        tudat_spice_interface
+        tudat_input_output
+        tudat_interpolators
+        tudat_basic_mathematics
+        )
+

@@ -96,13 +96,13 @@ executeEarthMoonSimulation(
     // Set accelerations between bodies that are to be taken into account.
     SelectedAccelerationMap accelerationMap;
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfEarth;
-    accelerationsOfEarth[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
-    accelerationsOfEarth[ "Moon" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+    accelerationsOfEarth[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
+    accelerationsOfEarth[ "Moon" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
     accelerationMap[ "Earth" ] = accelerationsOfEarth;
 
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfMoon;
-    accelerationsOfMoon[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
-    accelerationsOfMoon[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+    accelerationsOfMoon[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
+    accelerationsOfMoon[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
     accelerationMap[ "Moon" ] = accelerationsOfMoon;
 
     // Set bodies for which initial state is to be estimated and integrated.
@@ -205,128 +205,136 @@ executeEarthMoonSimulation(
         {
             results.first.push_back( dynamicsSimulator.getStateTransitionMatrixInterface( )->
                                      getCombinedStateTransitionAndSensitivityMatrix( testEpoch ) );
+            Eigen::MatrixXd testMatrixDirect =
+                    dynamicsSimulator.getStateTransitionMatrixInterface( )->
+                      getCombinedStateTransitionAndSensitivityMatrix( testEpoch );
+            Eigen::MatrixXd testMatrixFull=
+                    dynamicsSimulator.getStateTransitionMatrixInterface( )->
+                      getFullCombinedStateTransitionAndSensitivityMatrix( testEpoch );
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                        testMatrixDirect, testMatrixFull, std::numeric_limits< double >::epsilon( ) );
         }
         results.second.push_back( testStates );
     }
     return results;
 }
 
-////! Test the state transition and sensitivity matrix computation against their numerical propagation.
-///*!
-// *  Test the state transition and sensitivity matrix computation against their numerical propagation. This unit test
-// *  propagates the variational equations for the Earth and Moon, using both a barycentric origin and hierarchical origin.
-// *  For the hierarchical origin, both an Encke and Cowell propagator are used. The results are compared against
-// *  results obtained from numerical differentiation (first-order central difference). *
-// */
-//BOOST_AUTO_TEST_CASE( testEarthMoonVariationalEquationCalculation )
-//{
-//    std::pair< std::vector< Eigen::MatrixXd >, std::vector< Eigen::VectorXd > > currentOutput;
+//! Test the state transition and sensitivity matrix computation against their numerical propagation.
+/*!
+ *  Test the state transition and sensitivity matrix computation against their numerical propagation. This unit test
+ *  propagates the variational equations for the Earth and Moon, using both a barycentric origin and hierarchical origin.
+ *  For the hierarchical origin, both an Encke and Cowell propagator are used. The results are compared against
+ *  results obtained from numerical differentiation (first-order central difference). *
+ */
+BOOST_AUTO_TEST_CASE( testEarthMoonVariationalEquationCalculation )
+{
+    std::pair< std::vector< Eigen::MatrixXd >, std::vector< Eigen::VectorXd > > currentOutput;
 
-//    std::vector< std::vector< std::string > > centralBodiesSet;
-//    std::vector< std::string > centralBodies;
+    std::vector< std::vector< std::string > > centralBodiesSet;
+    std::vector< std::string > centralBodies;
 
-//    // Define central bodt settings
-//    centralBodies.resize( 2 );
+    // Define central bodt settings
+    centralBodies.resize( 2 );
 
-//    centralBodies[ 0 ] = "SSB";
-//    centralBodies[ 1 ] = "SSB";
-//    centralBodiesSet.push_back( centralBodies );
+    centralBodies[ 0 ] = "SSB";
+    centralBodies[ 1 ] = "SSB";
+    centralBodiesSet.push_back( centralBodies );
 
-//    centralBodies[ 0 ] = "Earth";
-//    centralBodies[ 1 ] = "Sun";
-//    centralBodiesSet.push_back( centralBodies );
-
-
-//    // Define variables for numerical differentiation
-//    Eigen::Matrix< double, 12, 1>  perturbedState;
-//    Eigen::Vector3d perturbedParameter;
-
-//    Eigen::Matrix< double, 12, 1> statePerturbation;
-//    Eigen::Vector3d parameterPerturbation;
+    centralBodies[ 0 ] = "Earth";
+    centralBodies[ 1 ] = "Sun";
+    centralBodiesSet.push_back( centralBodies );
 
 
-//    for( unsigned int i = 0; i < centralBodiesSet.size( ); i++ )
-//    {
-//        // Define parameter perturbation
-//        parameterPerturbation  = ( Eigen::Vector3d( ) << 1.0E10, 1.0E10, 1.0E14 ).finished( );
+    // Define variables for numerical differentiation
+    Eigen::Matrix< double, 12, 1>  perturbedState;
+    Eigen::Vector3d perturbedParameter;
 
-//        // Define state perturbation
-//        if( i == 0 )
-//        {
-//            statePerturbation = ( Eigen::Matrix< double, 12, 1>( ) <<
-//                                  100000.0, 100000.0, 100000.0, 0.1, 0.1, 0.1,
-//                                  100000.0, 100000.0, 100000.0, 0.1, 0.1, 0.1 ).finished( );
-//        }
-//        else if( i == 1 )
-//        {
-//            statePerturbation = ( Eigen::Matrix< double, 12, 1>( ) <<
-//                                  100000.0, 100000.0, 100000.0, 0.1, 0.1, 0.1,
-//                                  100000.0, 100000.0, 10000000.0, 0.1, 0.1, 10.0 ).finished( );
-//        }
+    Eigen::Matrix< double, 12, 1> statePerturbation;
+    Eigen::Vector3d parameterPerturbation;
 
-//        // Only perform Encke propagation is origin is not SSB
-//        unsigned int maximumPropagatorType = 1;
-//        if( i == 1 )
-//        {
-//            maximumPropagatorType = 2;
-//        }
 
-//        // Test for all requested propagator types.
-//        for( unsigned int k = 0; k < maximumPropagatorType; k++ )
-//        {
-//            // Compute state transition and sensitivity matrices
-//            currentOutput = executeEarthMoonSimulation< double, double >(
-//                        centralBodiesSet[ i ], Eigen::Matrix< double, 12, 1 >::Zero( ), k );
-//            Eigen::MatrixXd stateTransitionAndSensitivityMatrixAtEpoch = currentOutput.first.at( 0 );
-//            Eigen::MatrixXd manualPartial = Eigen::MatrixXd::Zero( 12, 15 );
+    for( unsigned int i = 0; i < centralBodiesSet.size( ); i++ )
+    {
+        // Define parameter perturbation
+        parameterPerturbation  = ( Eigen::Vector3d( ) << 1.0E10, 1.0E10, 1.0E14 ).finished( );
 
-//            // Numerically compute state transition matrix
-//            for( unsigned int j = 0; j < 12; j++ )
-//            {
-//                Eigen::VectorXd upPerturbedState, downPerturbedState;
-//                perturbedState.setZero( );
-//                perturbedState( j ) += statePerturbation( j );
-//                upPerturbedState = executeEarthMoonSimulation< double, double >(
-//                            centralBodiesSet[ i ], perturbedState, k, Eigen::Vector3d::Zero( ), 0 ).second.at( 0 );
+        // Define state perturbation
+        if( i == 0 )
+        {
+            statePerturbation = ( Eigen::Matrix< double, 12, 1>( ) <<
+                                  100000.0, 100000.0, 100000.0, 0.1, 0.1, 0.1,
+                                  100000.0, 100000.0, 100000.0, 0.1, 0.1, 0.1 ).finished( );
+        }
+        else if( i == 1 )
+        {
+            statePerturbation = ( Eigen::Matrix< double, 12, 1>( ) <<
+                                  100000.0, 100000.0, 100000.0, 0.1, 0.1, 0.1,
+                                  100000.0, 100000.0, 10000000.0, 0.1, 0.1, 10.0 ).finished( );
+        }
 
-//                perturbedState.setZero( );
-//                perturbedState( j ) -= statePerturbation( j );
-//                downPerturbedState = executeEarthMoonSimulation< double, double >(
-//                            centralBodiesSet[ i ], perturbedState, k, Eigen::Vector3d::Zero( ), 0 ).second.at( 0 );
-//                manualPartial.block( 0, j, 12, 1 ) =
-//                        ( upPerturbedState - downPerturbedState ) / ( 2.0 * statePerturbation( j ) );
-//            }
+        // Only perform Encke propagation is origin is not SSB
+        unsigned int maximumPropagatorType = 1;
+        if( i == 1 )
+        {
+            maximumPropagatorType = 2;
+        }
 
-//            // Numerically compute sensitivity matrix
-//            for( unsigned int j = 0; j < 3; j ++ )
-//            {
-//                Eigen::VectorXd upPerturbedState, downPerturbedState;
-//                perturbedState.setZero( );
-//                Eigen::Vector3d upPerturbedParameter, downPerturbedParameter;
-//                perturbedParameter.setZero( );
-//                perturbedParameter( j ) += parameterPerturbation( j );
-//                upPerturbedState = executeEarthMoonSimulation< double, double >(
-//                            centralBodiesSet[ i ], perturbedState, k, perturbedParameter, 0 ).second.at( 0 );
+        // Test for all requested propagator types.
+        for( unsigned int k = 0; k < maximumPropagatorType; k++ )
+        {
+            // Compute state transition and sensitivity matrices
+            currentOutput = executeEarthMoonSimulation< double, double >(
+                        centralBodiesSet[ i ], Eigen::Matrix< double, 12, 1 >::Zero( ), k );
+            Eigen::MatrixXd stateTransitionAndSensitivityMatrixAtEpoch = currentOutput.first.at( 0 );
+            Eigen::MatrixXd manualPartial = Eigen::MatrixXd::Zero( 12, 15 );
 
-//                perturbedParameter.setZero( );
-//                perturbedParameter( j ) -= parameterPerturbation( j );
-//                downPerturbedState = executeEarthMoonSimulation< double, double >(
-//                            centralBodiesSet[ i ], perturbedState, k, perturbedParameter, 0 ).second.at( 0 );
-//                manualPartial.block( 0, j + 12, 12, 1 ) =
-//                        ( upPerturbedState - downPerturbedState ) / ( 2.0 * parameterPerturbation( j ) );
-//            }
+            // Numerically compute state transition matrix
+            for( unsigned int j = 0; j < 12; j++ )
+            {
+                Eigen::VectorXd upPerturbedState, downPerturbedState;
+                perturbedState.setZero( );
+                perturbedState( j ) += statePerturbation( j );
+                upPerturbedState = executeEarthMoonSimulation< double, double >(
+                            centralBodiesSet[ i ], perturbedState, k, Eigen::Vector3d::Zero( ), 0 ).second.at( 0 );
+
+                perturbedState.setZero( );
+                perturbedState( j ) -= statePerturbation( j );
+                downPerturbedState = executeEarthMoonSimulation< double, double >(
+                            centralBodiesSet[ i ], perturbedState, k, Eigen::Vector3d::Zero( ), 0 ).second.at( 0 );
+                manualPartial.block( 0, j, 12, 1 ) =
+                        ( upPerturbedState - downPerturbedState ) / ( 2.0 * statePerturbation( j ) );
+            }
+
+            // Numerically compute sensitivity matrix
+            for( unsigned int j = 0; j < 3; j ++ )
+            {
+                Eigen::VectorXd upPerturbedState, downPerturbedState;
+                perturbedState.setZero( );
+                Eigen::Vector3d upPerturbedParameter, downPerturbedParameter;
+                perturbedParameter.setZero( );
+                perturbedParameter( j ) += parameterPerturbation( j );
+                upPerturbedState = executeEarthMoonSimulation< double, double >(
+                            centralBodiesSet[ i ], perturbedState, k, perturbedParameter, 0 ).second.at( 0 );
+
+                perturbedParameter.setZero( );
+                perturbedParameter( j ) -= parameterPerturbation( j );
+                downPerturbedState = executeEarthMoonSimulation< double, double >(
+                            centralBodiesSet[ i ], perturbedState, k, perturbedParameter, 0 ).second.at( 0 );
+                manualPartial.block( 0, j + 12, 12, 1 ) =
+                        ( upPerturbedState - downPerturbedState ) / ( 2.0 * parameterPerturbation( j ) );
+            }
 
 //            std::cout<<"Run "<<i<<std::endl<<stateTransitionAndSensitivityMatrixAtEpoch<<std::endl;
 //            std::cout<<"Run "<<i<<std::endl<<manualPartial<<std::endl;
 
-//            // Check results
-//            TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-//                        stateTransitionAndSensitivityMatrixAtEpoch.block( 0, 0, 12, 15 ), manualPartial, 2.0E-4 );
+            // Check results
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                        stateTransitionAndSensitivityMatrixAtEpoch.block( 0, 0, 12, 15 ), manualPartial, 2.0E-4 );
 
-//        }
+        }
 
-//    }
-//}
+    }
+}
 
 template< typename TimeType = double , typename StateScalarType  = double >
 std::pair< std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > >,
@@ -390,11 +398,11 @@ executeOrbiterSimulation(
     accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< SphericalHarmonicAccelerationSettings >( 8, 8 ) );
 
     accelerationsOfVehicle[ "Sun" ].push_back( std::make_shared< AccelerationSettings >(
-                                                   basic_astrodynamics::central_gravity ) );
+                                                   basic_astrodynamics::point_mass_gravity ) );
     accelerationsOfVehicle[ "Moon" ].push_back( std::make_shared< AccelerationSettings >(
-                                                    basic_astrodynamics::central_gravity ) );
+                                                    basic_astrodynamics::point_mass_gravity ) );
     accelerationsOfVehicle[ "Mars" ].push_back( std::make_shared< AccelerationSettings >(
-                                                    basic_astrodynamics::central_gravity ) );
+                                                    basic_astrodynamics::point_mass_gravity ) );
     accelerationsOfVehicle[ "Sun" ].push_back( std::make_shared< AccelerationSettings >(
                                                    basic_astrodynamics::cannon_ball_radiation_pressure ) );
     accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< AccelerationSettings >(
@@ -496,93 +504,101 @@ executeOrbiterSimulation(
         {
             results.first.push_back( dynamicsSimulator.getStateTransitionMatrixInterface( )->
                                      getCombinedStateTransitionAndSensitivityMatrix( testEpoch ) );
+            Eigen::MatrixXd testMatrixDirect =
+                    dynamicsSimulator.getStateTransitionMatrixInterface( )->
+                      getCombinedStateTransitionAndSensitivityMatrix( testEpoch );
+            Eigen::MatrixXd testMatrixFull=
+                    dynamicsSimulator.getStateTransitionMatrixInterface( )->
+                      getFullCombinedStateTransitionAndSensitivityMatrix( testEpoch );
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                        testMatrixDirect, testMatrixFull, std::numeric_limits< double >::epsilon( ) );
         }
         results.second.push_back( testStates );
     }
     return results;
 }
 
-////! Test the state transition and sensitivity matrix computation against their numerical propagation for Earth orbiter.
-///*!
-// *  Test the state transition and sensitivity matrix computation against their numerical propagation for Earth orbiter.
-// *  This unit test propagates the variational equations for a low Earth orbiter, using the Enckle propagator.
-// *  The results are compared against results obtained from numerical differentiation (first-order central difference).
-// *  The estimated parameters consist of a mass of a third-body, radiation pressure coefficient and drag coefficient of the
-// *  vehicle and spherical harmonic coefficients of the Earth
-// */
-//BOOST_AUTO_TEST_CASE( testEarthOrbiterVariationalEquationCalculation )
-//{
-//    std::pair< std::vector< Eigen::MatrixXd >, std::vector< Eigen::VectorXd > > currentOutput;
+//! Test the state transition and sensitivity matrix computation against their numerical propagation for Earth orbiter.
+/*!
+ *  Test the state transition and sensitivity matrix computation against their numerical propagation for Earth orbiter.
+ *  This unit test propagates the variational equations for a low Earth orbiter, using the Enckle propagator.
+ *  The results are compared against results obtained from numerical differentiation (first-order central difference).
+ *  The estimated parameters consist of a mass of a third-body, radiation pressure coefficient and drag coefficient of the
+ *  vehicle and spherical harmonic coefficients of the Earth
+ */
+BOOST_AUTO_TEST_CASE( testEarthOrbiterVariationalEquationCalculation )
+{
+    std::pair< std::vector< Eigen::MatrixXd >, std::vector< Eigen::VectorXd > > currentOutput;
 
-//    // Define variables for numerical differentiation
-//    Eigen::Matrix< double, 6, 1 > perturbedState;
-//    Eigen::Matrix< double, 6, 1 > statePerturbation;
+    // Define variables for numerical differentiation
+    Eigen::Matrix< double, 6, 1 > perturbedState;
+    Eigen::Matrix< double, 6, 1 > statePerturbation;
 
-//    // Define parameter perturbation
-//    int numberOfParametersToEstimate = 10;
-//    double sphericalHarmonicsPerturbation = 1.0E-6;
-//    Eigen::Matrix< double, 10, 1 > perturbedParameter;
-//    Eigen::Matrix< double, 10, 1 > parameterPerturbation  =
-//            ( Eigen::Matrix< double, 10, 1 >( ) << 10.0, 1.0, 1.0E12,
-//              sphericalHarmonicsPerturbation, sphericalHarmonicsPerturbation,
-//              sphericalHarmonicsPerturbation, sphericalHarmonicsPerturbation,
-//              sphericalHarmonicsPerturbation, sphericalHarmonicsPerturbation, sphericalHarmonicsPerturbation ).finished( );
+    // Define parameter perturbation
+    int numberOfParametersToEstimate = 10;
+    double sphericalHarmonicsPerturbation = 1.0E-6;
+    Eigen::Matrix< double, 10, 1 > perturbedParameter;
+    Eigen::Matrix< double, 10, 1 > parameterPerturbation  =
+            ( Eigen::Matrix< double, 10, 1 >( ) << 10.0, 1.0, 1.0E12,
+              sphericalHarmonicsPerturbation, sphericalHarmonicsPerturbation,
+              sphericalHarmonicsPerturbation, sphericalHarmonicsPerturbation,
+              sphericalHarmonicsPerturbation, sphericalHarmonicsPerturbation, sphericalHarmonicsPerturbation ).finished( );
 
-//    // Define state perturbation
-//    statePerturbation = ( Eigen::Matrix< double, 6, 1>( ) <<
-//                          10.0, 10.0, 10.0, 0.01, 0.01, 0.01 ).finished( );
+    // Define state perturbation
+    statePerturbation = ( Eigen::Matrix< double, 6, 1>( ) <<
+                          10.0, 10.0, 10.0, 0.01, 0.01, 0.01 ).finished( );
 
 
-//    // Compute state transition and sensitivity matrices
-//    currentOutput = executeOrbiterSimulation< double, double >(
-//                Eigen::Matrix< double, 6, 1 >::Zero( ) );
-//    Eigen::MatrixXd stateTransitionAndSensitivityMatrixAtEpoch = currentOutput.first.at( 0 );
-//    Eigen::MatrixXd manualPartial = Eigen::MatrixXd::Zero( 6, 6 + numberOfParametersToEstimate );
+    // Compute state transition and sensitivity matrices
+    currentOutput = executeOrbiterSimulation< double, double >(
+                Eigen::Matrix< double, 6, 1 >::Zero( ) );
+    Eigen::MatrixXd stateTransitionAndSensitivityMatrixAtEpoch = currentOutput.first.at( 0 );
+    Eigen::MatrixXd manualPartial = Eigen::MatrixXd::Zero( 6, 6 + numberOfParametersToEstimate );
 
-//    // Numerically compute state transition matrix
-//    for( unsigned int j = 0; j < 6; j++ )
-//    {
-//        Eigen::VectorXd upPerturbedState, downPerturbedState;
-//        perturbedState.setZero( );
-//        perturbedState( j ) += statePerturbation( j );
-//        upPerturbedState = executeOrbiterSimulation< double, double >(
-//                    perturbedState, Eigen::Matrix< double, 10, 1 >::Zero( ), 0 ).second.at( 0 );
+    // Numerically compute state transition matrix
+    for( unsigned int j = 0; j < 6; j++ )
+    {
+        Eigen::VectorXd upPerturbedState, downPerturbedState;
+        perturbedState.setZero( );
+        perturbedState( j ) += statePerturbation( j );
+        upPerturbedState = executeOrbiterSimulation< double, double >(
+                    perturbedState, Eigen::Matrix< double, 10, 1 >::Zero( ), 0 ).second.at( 0 );
 
-//        perturbedState.setZero( );
-//        perturbedState( j ) -= statePerturbation( j );
-//        downPerturbedState = executeOrbiterSimulation< double, double >(
-//                    perturbedState, Eigen::Matrix< double, 10, 1 >::Zero( ), 0 ).second.at( 0 );
+        perturbedState.setZero( );
+        perturbedState( j ) -= statePerturbation( j );
+        downPerturbedState = executeOrbiterSimulation< double, double >(
+                    perturbedState, Eigen::Matrix< double, 10, 1 >::Zero( ), 0 ).second.at( 0 );
 
-//        manualPartial.block( 0, j, 6, 1 ) =
-//                ( upPerturbedState.segment( 0, 6 ) - downPerturbedState.segment( 0, 6 ) ) / ( 2.0 * statePerturbation( j ) );
-//    }
+        manualPartial.block( 0, j, 6, 1 ) =
+                ( upPerturbedState.segment( 0, 6 ) - downPerturbedState.segment( 0, 6 ) ) / ( 2.0 * statePerturbation( j ) );
+    }
 
-//    // Numerically compute sensitivity matrix
-//    for( int j = 0; j < numberOfParametersToEstimate; j ++ )
-//    {
-//        Eigen::VectorXd upPerturbedState, downPerturbedState;
-//        perturbedState.setZero( );
-//        Eigen::Matrix< double, 10, 1 > upPerturbedParameter, downPerturbedParameter;
-//        perturbedParameter.setZero( );
-//        perturbedParameter( j ) += parameterPerturbation( j );
+    // Numerically compute sensitivity matrix
+    for( int j = 0; j < numberOfParametersToEstimate; j ++ )
+    {
+        Eigen::VectorXd upPerturbedState, downPerturbedState;
+        perturbedState.setZero( );
+        Eigen::Matrix< double, 10, 1 > upPerturbedParameter, downPerturbedParameter;
+        perturbedParameter.setZero( );
+        perturbedParameter( j ) += parameterPerturbation( j );
 
-//        upPerturbedState = executeOrbiterSimulation< double, double >(
-//                    perturbedState, perturbedParameter ).second.at( 0 );
+        upPerturbedState = executeOrbiterSimulation< double, double >(
+                    perturbedState, perturbedParameter ).second.at( 0 );
 
-//        perturbedParameter.setZero( );
-//        perturbedParameter( j ) -= parameterPerturbation( j );
-//        downPerturbedState = executeOrbiterSimulation< double, double >(
-//                    perturbedState, perturbedParameter ).second.at( 0 );
+        perturbedParameter.setZero( );
+        perturbedParameter( j ) -= parameterPerturbation( j );
+        downPerturbedState = executeOrbiterSimulation< double, double >(
+                    perturbedState, perturbedParameter ).second.at( 0 );
 
-//        manualPartial.block( 0, j + 6, 6, 1 ) =
-//                ( upPerturbedState.segment( 0, 6 ) - downPerturbedState.segment( 0, 6 ) ) / ( 2.0 * parameterPerturbation( j ) );
-//    }
+        manualPartial.block( 0, j + 6, 6, 1 ) =
+                ( upPerturbedState.segment( 0, 6 ) - downPerturbedState.segment( 0, 6 ) ) / ( 2.0 * parameterPerturbation( j ) );
+    }
 
-//    // Check results
-//    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-//                stateTransitionAndSensitivityMatrixAtEpoch, manualPartial, 5.0E-5 );
+    // Check results
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                stateTransitionAndSensitivityMatrixAtEpoch, manualPartial, 5.0E-5 );
 
-//}
+}
 
 template< typename TimeType = double , typename StateScalarType  = double >
 std::pair< std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > >,
@@ -687,7 +703,7 @@ executePhobosRotationSimulation(
 
     SelectedAccelerationMap accelerationMap;
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfEarth;
-    //    accelerationMap[ "Phobos" ][ "Mars" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+    //    accelerationMap[ "Phobos" ][ "Mars" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
     accelerationMap[ "Phobos" ][ "Mars" ].push_back( std::make_shared< MutualSphericalHarmonicAccelerationSettings >( 2, 2, 2, 2 ) );
 
     std::vector< std::string > translationalBodiesToIntegrate;
@@ -778,8 +794,8 @@ executePhobosRotationSimulation(
     Eigen::MatrixXd constraintStateMultiplier;
     Eigen::VectorXd constraintRightHandSide;
     parametersToEstimate->getConstraints( constraintStateMultiplier, constraintRightHandSide );
-    std::cout<<"Unit rotation: "<<std::endl<<unitRotationState.transpose( )<<std::endl;
-    std::cout<<"Constraints: "<<std::endl<<constraintStateMultiplier.transpose( )<<std::endl;
+//    std::cout<<"Unit rotation: "<<std::endl<<unitRotationState.transpose( )<<std::endl;
+//    std::cout<<"Constraints: "<<std::endl<<constraintStateMultiplier.transpose( )<<std::endl;
 
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                 ( constraintStateMultiplier.block( 0, 0, 1, 4 ) ), ( unitRotationState.segment( 0, 4 ) ).transpose( ),
@@ -840,6 +856,14 @@ executePhobosRotationSimulation(
         {
             results.first.push_back( dynamicsSimulator.getStateTransitionMatrixInterface( )->
                                      getCombinedStateTransitionAndSensitivityMatrix( testEpoch ) );
+            Eigen::MatrixXd testMatrixDirect =
+                    dynamicsSimulator.getStateTransitionMatrixInterface( )->
+                      getCombinedStateTransitionAndSensitivityMatrix( testEpoch );
+            Eigen::MatrixXd testMatrixFull=
+                    dynamicsSimulator.getStateTransitionMatrixInterface( )->
+                      getFullCombinedStateTransitionAndSensitivityMatrix( testEpoch );
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                        testMatrixDirect, testMatrixFull, std::numeric_limits< double >::epsilon( ) );
 
         }
         results.second.push_back( testStates );
@@ -874,8 +898,8 @@ BOOST_AUTO_TEST_CASE( testPhobosRotationVariationalEquationCalculation )
     Eigen::MatrixXd stateTransitionAndSensitivityMatrixAtEpoch = currentOutput.first.at( 0 );
     Eigen::VectorXd nominalState = currentOutput.second.at( 0 );
 
-    std::cout<<"Nominal "<<std::endl<<std::endl<<
-               stateTransitionAndSensitivityMatrixAtEpoch<<std::endl;
+//    std::cout<<"Nominal "<<std::endl<<std::endl<<
+//               stateTransitionAndSensitivityMatrixAtEpoch<<std::endl;
     // Define state perturbation
     statePerturbation = ( Eigen::Matrix< double, 13, 1>( ) <<
                           10.0, 10.0, 10.0, 0.1, 0.01, 0.01,
@@ -913,7 +937,7 @@ BOOST_AUTO_TEST_CASE( testPhobosRotationVariationalEquationCalculation )
                         ( stateTransitionAndSensitivityMatrixAtEpoch.block( 0, 0, 13, 13 ) * appliedStateDifferenceUp );
                 TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                             ( testMatrix.segment( 0, 6 ) ),
-                            ( stateDifferenceUp.segment( 0, 6 ) ), 1.0E-3 );
+                            ( stateDifferenceUp.segment( 0, 6 ) ), 1.5E-3 );
             }
             else
             {
@@ -989,7 +1013,7 @@ BOOST_AUTO_TEST_CASE( testPhobosRotationVariationalEquationCalculation )
         perturbedParameter.setZero( );
         perturbedParameter( j ) += parameterPerturbation( j );
 
-        std::cout<<"Test "<<j<<" "<<perturbedParameter.transpose( )<<std::endl;
+//        std::cout<<"Test "<<j<<" "<<perturbedParameter.transpose( )<<std::endl;
 
         upPerturbedState = executePhobosRotationSimulation< double, double >(
                     perturbedState, appliedStateDifference, perturbedParameter, 0 ).second.at( 0 );
@@ -1002,10 +1026,10 @@ BOOST_AUTO_TEST_CASE( testPhobosRotationVariationalEquationCalculation )
         manualPartial.block( 0, j + 13, 13, 1 ) =
                 ( upPerturbedState.segment( 0, 13 ) - downPerturbedState.segment( 0, 13 ) ) / ( 2.0 * parameterPerturbation( j ) );
     }
-    std::cout<<manualPartial<<std::endl<<std::endl
-            <<stateTransitionAndSensitivityMatrixAtEpoch<<std::endl<<std::endl<<
-              ( manualPartial - stateTransitionAndSensitivityMatrixAtEpoch ).cwiseQuotient(
-                  stateTransitionAndSensitivityMatrixAtEpoch )<<std::endl;
+//    std::cout<<manualPartial<<std::endl<<std::endl
+//            <<stateTransitionAndSensitivityMatrixAtEpoch<<std::endl<<std::endl<<
+//              ( manualPartial - stateTransitionAndSensitivityMatrixAtEpoch ).cwiseQuotient(
+//                  stateTransitionAndSensitivityMatrixAtEpoch )<<std::endl;
 
     // Check three values separately: could not find perturbations for which all partials are sufficiently within the linear regime
 
@@ -1057,7 +1081,7 @@ BOOST_AUTO_TEST_CASE( testMassRateVariationalEquations )
         // Define propagation settings.
         std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfAsterix;
         accelerationsOfAsterix[ "Earth" ].push_back( std::make_shared< AccelerationSettings >(
-                                                         basic_astrodynamics::central_gravity ) );
+                                                         basic_astrodynamics::point_mass_gravity ) );
         accelerationsOfAsterix[ "Asterix" ].push_back( std::make_shared< ThrustAccelerationSettings >(
                                                            std::make_shared< ThrustDirectionFromStateGuidanceSettings >(
                                                                "Earth", true, false  ),

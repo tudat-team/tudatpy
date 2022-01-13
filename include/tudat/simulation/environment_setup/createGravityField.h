@@ -160,10 +160,8 @@ public:
         associatedReferenceFrame_( associatedReferenceFrame ),
         createTimeDependentField_( 0 )
     {
-        std::cout<<"test A"<<std::endl;
         std::tuple< Eigen::MatrixXd, Eigen::MatrixXd, double > degreeTwoField = gravitation::getDegreeTwoSphericalHarmonicCoefficients(
                 inertiaTensor_, gravitationalParameter_, referenceRadius_ );
-        std::cout<<"test B"<<std::endl;
 
         cosineCoefficients_.block( 2, 0, 1, 3 ) = std::get< 0 >( degreeTwoField ).block( 2, 0, 1, 3 );
         sineCoefficients_.block( 2, 1, 1, 2 ) = std::get< 1 >( degreeTwoField ).block( 2, 1, 1, 2 );

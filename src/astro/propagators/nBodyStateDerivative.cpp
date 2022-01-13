@@ -56,7 +56,7 @@ std::vector< std::function< double( ) > > removeCentralGravityAccelerations(
                 AvailableAcceleration currentAccelerationType = getAccelerationModelType( listOfAccelerations[ j ] );
 
                 // If central gravity, set as central acceleration candidate.
-                if( currentAccelerationType == central_gravity )
+                if( currentAccelerationType == point_mass_gravity )
                 {
                     numberOfCandidates++;
                     lastCandidate = j;
@@ -67,7 +67,7 @@ std::vector< std::function< double( ) > > removeCentralGravityAccelerations(
                     numberOfCandidates++;
                     lastCandidate = j;
                 }
-                else if( ( currentAccelerationType == third_body_central_gravity ) ||
+                else if( ( currentAccelerationType == third_body_point_mass_gravity ) ||
                          ( currentAccelerationType == third_body_spherical_harmonic_gravity ) )
                 {
                     std::string errorMessage =
