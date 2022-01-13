@@ -142,7 +142,7 @@ BOOST_AUTO_TEST_CASE( test_ParameterPostFitResiduals )
                 if( bodiesToCreate.at( j )  != "Sun" )
                 {
                     accelerationMap[ currentTargetBodies.at( body ) ][ bodiesToCreate.at( j ) ].push_back(
-                                std::make_shared< AccelerationSettings >( basic_astrodynamics::central_gravity ) );
+                                std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity ) );
                 }
                 else
                 {

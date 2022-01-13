@@ -117,7 +117,8 @@ enum PropagationDependentVariables
     euler_angles_to_body_fixed_313 = 44,
     current_body_mass_dependent_variable = 45,
     radiation_pressure_coefficient_dependent_variable = 46,
-    rsw_to_inertial_frame_rotation_dependent_variable = 47
+    rsw_to_inertial_frame_rotation_dependent_variable = 47,
+    custom_dependent_variable = 48
 };
 
 // Functional base class for defining settings for dependent variables that are to be saved during propagation
@@ -487,6 +488,33 @@ public:
     std::string thirdBody_;
 
 };
+
+
+//class CustomDependentVariableSaveSettings: public SingleDependentVariableSaveSettings
+//{
+//public:
+
+//    CustomDependentVariableSaveSettings(
+//            const std::string& bodyWithProperty,
+//            const std::function< Eigen::VectorXd( const double ) > customDependentVariableFunction,
+//            const int dependentVariableSize ):
+//        SingleDependentVariableSaveSettings(
+//            custom_dependent_variable, bodyUndergoingAcceleration, bodyExertingAcceleration ),
+//        accelerationModelType_( accelerationModelType ), derivativeWrtBody_( derivativeWrtBody ),
+//        thirdBody_( thirdBody ){ }
+
+//    // Type of acceleration that is to be saved.
+//    basic_astrodynamics::AvailableAcceleration accelerationModelType_;
+
+//    // String denoting w.r.t. which body the derivative needs to be taken.
+//    std::string derivativeWrtBody_;
+
+//    // String denoting the third body w.r.t. which the partial needs to be taken (in case of third body acceleration).
+//    std::string thirdBody_;
+
+//};
+
+
 
 // Container class for settings of all dependent variables that are to be saved.
 class DependentVariableSaveSettings

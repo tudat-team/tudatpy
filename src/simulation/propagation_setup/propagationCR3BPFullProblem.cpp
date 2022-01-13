@@ -124,9 +124,9 @@ basic_astrodynamics::AccelerationMap setupAccelerationMapCR3BP(
 
     std::map< std::string, std::vector< std::shared_ptr< simulation_setup::AccelerationSettings > > > bodyToPropagateAccelerations;
     bodyToPropagateAccelerations[ namePrimaryBody ].push_back( std::make_shared< simulation_setup::AccelerationSettings >(
-                                                                   basic_astrodynamics::central_gravity ) );
+                                                                   basic_astrodynamics::point_mass_gravity ) );
     bodyToPropagateAccelerations[ nameSecondaryBody ].push_back( std::make_shared< simulation_setup::AccelerationSettings >(
-                                                                     basic_astrodynamics::central_gravity ) );
+                                                                     basic_astrodynamics::point_mass_gravity ) );
     simulation_setup::SelectedAccelerationMap accelerationMap;
     accelerationMap[ nameBodyToPropagate ] = bodyToPropagateAccelerations;
 
