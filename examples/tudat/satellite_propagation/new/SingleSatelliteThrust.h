@@ -85,7 +85,7 @@ class SingleSatelliteThrust {
     // Define point mass gravity accelerations of system bodies.
     for (auto body : spice_bodies) {
       this->_base_accelerations_vehicle[body].push_back(
-          std::make_shared<AccelerationSettings>(central_gravity));
+          std::make_shared<AccelerationSettings>(point_mass_gravity));
     }
 
 

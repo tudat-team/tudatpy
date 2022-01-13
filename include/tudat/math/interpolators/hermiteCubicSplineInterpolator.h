@@ -184,6 +184,13 @@ public:
         return targetValue;
     }
 
+    InterpolatorTypes getInterpolatorType( ){ return hermite_spline_interpolator; }
+
+
+    std::vector< DependentVariableType > getDerivativeValues( )
+    {
+        return derivativeValues_;
+    }
 protected:
 
     //! Compute coefficients of the splines
@@ -217,6 +224,8 @@ protected:
             coefficients_[ 3 ][ i ] = dependentValues_[ i ];
         }
     }
+
+
 
 private:
 
