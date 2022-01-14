@@ -94,6 +94,8 @@ void addEmptyTabulatedEphemeris(
     bodies.at( bodyName )->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
                                             std::shared_ptr< interpolators::OneDimensionalInterpolator
                                             < double, Eigen::Vector6d > >( ), ephemerisOriginToUse, bodies.getFrameOrientation( ) ) );
+
+    bodies.processBodyFrameDefinitions( );
 }
 
 void addEmptyTabulatedRotationalEphemeris(
