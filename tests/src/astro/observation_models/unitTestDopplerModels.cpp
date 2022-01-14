@@ -92,7 +92,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
     bodies.at( "Spacecraft" )->setEphemeris(
                 createBodyEphemeris( std::make_shared< KeplerEphemerisSettings >(
                                          spacecraftOrbitalElements, 0.0, earthGravitationalParameter, "Earth" ), "Spacecraft" ) );
-
+    bodies.processBodyFrameDefinitions( );
     
 
     // Define link ends for observations.
@@ -315,6 +315,7 @@ BOOST_AUTO_TEST_CASE( testTwoWayDoppplerModel )
     bodies.at( "Spacecraft" )->setEphemeris(
                 createBodyEphemeris( std::make_shared< KeplerEphemerisSettings >(
                                          spacecraftOrbitalElements, 0.0, earthGravitationalParameter, "Earth" ), "Spacecraft" ) );
+    bodies.processBodyFrameDefinitions( );
 
     
 
