@@ -60,7 +60,7 @@ void expose_estimated_parameter_setup(py::module &m) {
             .export_values();
 
     py::class_<tep::EstimatableParameterSettings,
-            std::shared_ptr<tep::EstimatableParameterSettings>>(m, "EstimatableParameterSettings"));
+            std::shared_ptr<tep::EstimatableParameterSettings>>(m, "EstimatableParameterSettings");
             // .def(py::init<
             //      const std::string,
             //      const tep::EstimatebleParametersEnum,
