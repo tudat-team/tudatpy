@@ -265,7 +265,7 @@ void expose_observations_setup(py::module &m) {
 
 
     py::enum_< tom::ObservationViabilityType >(m, "ObservationViabilityType",
-                                               get_docstring("ObservationViabilityType").c_str()
+                                               get_docstring("ObservationViabilityType").c_str() )
             .value("minimum_elevation_angle", tom::ObservationViabilityType::minimum_elevation_angle )
             .value("body_avoidance_angle", tom::ObservationViabilityType::body_avoidance_angle )
             .value("body_occultation", tom::ObservationViabilityType::body_occultation )
