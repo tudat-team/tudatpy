@@ -114,11 +114,6 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
                 // Create spacecraft object.
                 bodies.createEmptyBody( "Vehicle" );
                 bodies.at( "Vehicle" )->setConstantBodyMass( 400.0 );
-                bodies.at( "Vehicle" )->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
-                                                        std::shared_ptr< interpolators::OneDimensionalInterpolator
-                                                        < double, Eigen::Vector6d  > >( ), "Earth", "ECLIPJ2000" ) );
-
-
 
                 // Define propagator settings variables.
                 SelectedAccelerationMap accelerationMap;
