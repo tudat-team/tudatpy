@@ -60,7 +60,7 @@ void expose_estimated_parameter_setup(py::module &m) {
             .export_values();
 
     py::class_<tep::EstimatableParameterSettings,
-            std::shared_ptr<tep::EstimatableParameterSettings>>(m, "EstimatableParameterSettings"));
+            std::shared_ptr<tep::EstimatableParameterSettings>>(m, "EstimatableParameterSettings");
             // .def(py::init<
             //      const std::string,
             //      const tep::EstimatebleParametersEnum,
@@ -140,7 +140,7 @@ void expose_estimated_parameter_setup(py::module &m) {
           &tep::rotationPolePosition,
           py::arg("body_name") );
 
-    m.def("observation_bias",
+    m.def("absolute_observation_bias",
           &tep::observationBias,
           py::arg("link_ends"),
           py::arg("observable_type") );
@@ -150,7 +150,7 @@ void expose_estimated_parameter_setup(py::module &m) {
           py::arg("link_ends"),
           py::arg("observable_type") );
 
-    m.def("arcwise_observation_bias",
+    m.def("arcwise_absolute_observation_bias",
           &tep::arcwiseObservationBias,
           py::arg("link_ends"),
           py::arg("observable_type"),
@@ -219,8 +219,6 @@ void expose_estimated_parameter_setup(py::module &m) {
           py::arg("deformed_body"),
           py::arg("degree"),
           py::arg("use_complex_love_number") = 0 );
-
-
 
     m.def("order_varying_k_love_number",
           py::overload_cast< const std::string&,
