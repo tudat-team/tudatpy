@@ -10,7 +10,7 @@
 
 #include "expose_estimation_setup.h"
 #include "expose_estimation_setup/expose_estimated_parameter_setup.h"
-#include "expose_estimation_setup/expose_observations_setup.h"
+#include "expose_estimation_setup/expose_observation_setup.h"
 
 
 #include <pybind11/pybind11.h>
@@ -34,8 +34,8 @@ void expose_estimation_setup(py::module &m) {
     auto parameter_setup = m.def_submodule("parameter");
     parameter::expose_estimated_parameter_setup(parameter_setup);
 
-    auto observations_setup = m.def_submodule("observations");
-    observation::expose_observations_setup(observations_setup);
+    auto observation_setup = m.def_submodule("observation");
+    observation::expose_observation_setup(observation_setup);
 
     m.def("create_parameters_to_estimate",
           &tss::createParametersToEstimate< double >,

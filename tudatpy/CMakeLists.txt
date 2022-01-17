@@ -107,7 +107,7 @@ YACMA_PYTHON_MODULE(kernel
         kernel/expose_numerical_simulation/expose_propagation_setup/expose_thrust_setup.cpp
 
         kernel/expose_numerical_simulation/expose_estimation_setup.cpp
-        kernel/expose_numerical_simulation/expose_estimation_setup/expose_observations_setup.cpp
+        kernel/expose_numerical_simulation/expose_estimation_setup/expose_observation_setup.cpp
         kernel/expose_numerical_simulation/expose_estimation_setup/expose_estimated_parameter_setup.cpp
 
         kernel/expose_unit_tests.cpp

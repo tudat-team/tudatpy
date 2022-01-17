@@ -24,7 +24,7 @@ namespace numerical_simulation {
 namespace estimation_setup {
 namespace observation {
 
-void expose_observations_setup(py::module &m);
+void expose_observation_setup(py::module &m);
 
 }// namespace observation
 }// namespace estimation_setup
