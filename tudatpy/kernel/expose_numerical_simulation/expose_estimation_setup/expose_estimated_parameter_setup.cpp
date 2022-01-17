@@ -60,14 +60,14 @@ void expose_estimated_parameter_setup(py::module &m) {
             .export_values();
 
     py::class_<tep::EstimatableParameterSettings,
-            std::shared_ptr<tep::EstimatableParameterSettings>>(m, "EstimatableParameterSettings")
-            .def(py::init<
-                 const std::string,
-                 const tep::EstimatebleParametersEnum,
-                 const std::string>(),
-                 py::arg("associated_body"),
-                 py::arg("parameter_type"),
-                 py::arg("point_on_body_id") = "");
+            std::shared_ptr<tep::EstimatableParameterSettings>>(m, "EstimatableParameterSettings");
+            // .def(py::init<
+            //      const std::string,
+            //      const tep::EstimatebleParametersEnum,
+            //      const std::string>(),
+            //      py::arg("associated_body"),
+            //      py::arg("parameter_type"),
+            //      py::arg("point_on_body_id") = "");
 
     m.def("initial_states",
           &tss::getInitialStateParameterSettings< double >,
@@ -77,7 +77,6 @@ void expose_estimated_parameter_setup(py::module &m) {
     m.def("gravitational_parameter",
           &tep::gravitationalParameter,
           py::arg("body_name") );
-
 
     m.def("spherical_harmonics_c_coefficients",
           py::overload_cast< const std::string,
@@ -115,11 +114,9 @@ void expose_estimated_parameter_setup(py::module &m) {
           py::arg("body_name"),
           py::arg("block_indices") );
 
-
     m.def("constant_drag_coefficient",
           &tep::constantDragCoefficient,
           py::arg("body_name") );
-
 
     m.def("radiation_pressure_coefficient",
           &tep::radiationPressureCoefficient,
