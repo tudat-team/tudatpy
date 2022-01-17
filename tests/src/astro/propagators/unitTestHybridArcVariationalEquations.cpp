@@ -97,6 +97,7 @@ executeHybridArcMarsAndOrbiterSensitivitySimulation(
     bodies.at( "Orbiter" )->setEphemeris( std::make_shared< MultiArcEphemeris >(
                                             std::map< double, std::shared_ptr< Ephemeris > >( ),
                                             "Mars", "ECLIPJ2000" ) );
+    bodies.processBodyFrameDefinitions( );
 
     double referenceAreaRadiation = 4.0;
     double radiationPressureCoefficient = 1.2;
@@ -538,6 +539,7 @@ BOOST_AUTO_TEST_CASE( testVaryingCentralBodyHybridArcVariationalEquations )
     bodies.createEmptyBody( "Spacecraft" );
     bodies.at( "Spacecraft" )->setEphemeris( std::make_shared< MultiArcEphemeris >(
                                                std::map< double, std::shared_ptr< Ephemeris > >( ), "Jupiter", "ECLIPJ2000" ) );
+    bodies.processBodyFrameDefinitions( );
 
     SelectedAccelerationMap singleArcAccelerationMap;
     std::vector< std::string > singleArcBodiesToPropagate = { "Io", "Europa", "Ganymede" };
