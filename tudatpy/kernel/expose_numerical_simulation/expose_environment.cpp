@@ -494,7 +494,12 @@ void expose_environment(py::module &m) {
                           &tss::Body::setAerodynamicCoefficientInterface)
             .def_property("flight_conditions", &tss::Body::getFlightConditions, &tss::Body::setFlightConditions)
             .def_property("rotation_model", &tss::Body::getRotationalEphemeris, &tss::Body::setRotationalEphemeris)
-            .def_property_readonly("gravitational_parameter", &tss::Body::getGravitationalParameter);
+            .def_property_readonly("gravitational_parameter", &tss::Body::getGravitationalParameter)
+            .def("get_ground_station",
+                 &tss::Body::getGroundStation, py::arg("station_name"))
+            .def_property_readonly("ground_station_list", &tss::Body::getGroundStationMap )
+
+
 
 
     py::class_<tss::SystemOfBodies,
