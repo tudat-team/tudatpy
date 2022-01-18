@@ -372,8 +372,15 @@ void expose_environment(py::module &m) {
 
 
     py::class_<te::RotationalEphemeris,
-            std::shared_ptr<te::RotationalEphemeris>>
-            RotationalEphemeris_(m, "RotationalEphemeris");
+            std::shared_ptr<te::RotationalEphemeris>>(m, "RotationalEphemeris")
+            .def("body_fixed_to_inertial_rotation", &te::RotationalEphemeris::getRotationMatrixToBaseFrame,
+                 py::arg( "time" ) )
+            .def("time_derivative_body_fixed_to_inertial_rotation", &te::RotationalEphemeris::getDerivativeOfRotationToBaseFrame,
+                 py::arg( "time" ) )
+            .def("inertial_to_body_fixed_rotation", &te::RotationalEphemeris::getRotationMatrixToTargetFrame,
+                 py::arg( "time" ) )
+            .def("time_derivative_inertial_to_body_fixed_rotation", &te::RotationalEphemeris::getDerivativeOfRotationToTargetFrame,
+                 py::arg( "time" ) );
 
 
     m.def("transform_to_inertial_orientation",
