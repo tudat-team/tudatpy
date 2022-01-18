@@ -31,18 +31,33 @@ namespace estimation_setup {
 
 void expose_estimation_setup(py::module &m) {
 
+    // *************** PARAMETER ***************
+
     auto parameter_setup = m.def_submodule("parameter");
     parameter::expose_estimated_parameter_setup(parameter_setup);
 
-    auto observation_setup = m.def_submodule("observation");
-    observation::expose_observation_setup(observation_setup);
-
+    // # EstimatableParameterSettings --> EstimatableParameterSet #
     m.def("create_parameters_to_estimate",
           &tss::createParametersToEstimate< double >,
           py::arg("parameter_settings"),
           py::arg("bodies"),
           py::arg("propagator_settings") =
-            std::shared_ptr< tp::PropagatorSettings< double > >( ) );
+                  std::shared_ptr< tp::PropagatorSettings< double > >( ),
+          get_docstring("create_parameters_to_estimate").c_str() );
+
+
+    // ************** OBSERVATION ***************
+
+    auto observation_setup = m.def_submodule("observation");
+    observation::expose_observation_setup(observation_setup);
+
+    // #   Observation Model Settings --> Observation Simulator #
+    m.def("create_observation_simulators",
+          py::overload_cast< const std::vector< std::shared_ptr< tom::ObservationModelSettings > >&, const tss::SystemOfBodies& >(
+                  &tom::createObservationSimulators< double, double > ),
+          py::arg( "observation_settings" ),
+          py::arg( "bodies" ),
+          get_docstring("create_observation_simulators").c_str() );
 
 }
 
