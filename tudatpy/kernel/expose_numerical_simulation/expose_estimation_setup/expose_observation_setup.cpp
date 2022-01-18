@@ -157,10 +157,23 @@ void expose_observation_setup(py::module &m) {
           py::arg("receiver_proper_time_rate_settings") = nullptr,
           get_docstring("313_euler_angles").c_str());
 
-    m.def("two_way_open_loop_doppler",
-          &tom::twoWayOpenLoopDoppler,
+    m.def("two_way_open_loop_doppler_from_one_way_links",
+          py::overload_cast<
+          const std::shared_ptr< tom::OneWayDopplerObservationSettings >,
+          const std::shared_ptr< tom::OneWayDopplerObservationSettings >,
+          const std::shared_ptr< tom::ObservationBiasSettings > >( &tom::twoWayOpenLoopDoppler ),
           py::arg("uplink_doppler_settings" ),
           py::arg("downlink_doppler_settings" ),
+          py::arg("bias_settings") = nullptr,
+          get_docstring("two_way_open_loop_doppler").c_str());
+
+    m.def("two_way_open_loop_doppler",
+          py::overload_cast<
+          const tom::LinkEnds&,
+          const std::shared_ptr< tom::LightTimeCorrectionSettings >,
+          const std::shared_ptr< tom::ObservationBiasSettings > >( &tom::twoWayOpenLoopDoppler ),
+          py::arg("link_ends" ),
+          py::arg("light_time_correction_settings" ) = nullptr,
           py::arg("bias_settings") = nullptr,
           get_docstring("two_way_open_loop_doppler").c_str());
 
