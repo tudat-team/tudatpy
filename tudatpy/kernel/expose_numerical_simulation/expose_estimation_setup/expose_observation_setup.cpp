@@ -61,6 +61,9 @@ namespace observation {
 
 void expose_observation_setup(py::module &m) {
 
+
+    // ################      Link Definition         ################
+
     py::enum_< tom::LinkEndType >(m, "LinkEndType",
                                   get_docstring("LinkEndType").c_str() )
             .value("unidentified_link_end", tom::LinkEndType::unidentified_link_end )
@@ -74,7 +77,6 @@ void expose_observation_setup(py::module &m) {
             .value("observed_body", tom::LinkEndType::observed_body )
             .export_values();
 
-
     m.def("one_way_downlink_link_ends",
           &tom::getOneWayDownlinkLinkEndsList,
           py::arg("transmitter"),
@@ -86,6 +88,9 @@ void expose_observation_setup(py::module &m) {
           py::arg("transmitters"),
           py::arg("receiver"),
           get_docstring("one_way_uplink_link_ends").c_str() );
+
+
+    // ###########      Observation Model Settings        ################
 
     py::enum_< tom::ObservableType >(m, "ObservableType",
                                      get_docstring("ObservableType").c_str() )
@@ -229,7 +234,7 @@ void expose_observation_setup(py::module &m) {
           const tom::LinkEndType >( &tom::arcWiseAbsoluteBias ),
           py::arg("arc_start_times" ),
           py::arg("bias_values"),
-          py::arg("time_link_end" ),
+          py::arg("reference_link_end_type" ),
           get_docstring("arcwise_absolute_bias", 0).c_str() );
 
     m.def("arcwise_absolute_bias",
@@ -237,7 +242,7 @@ void expose_observation_setup(py::module &m) {
           const std::map< double, Eigen::VectorXd >&,
           const tom::LinkEndType >( &tom::arcWiseAbsoluteBias ),
           py::arg("bias_values_per_start_time"),
-          py::arg("time_link_end" ),
+          py::arg("reference_link_end_type" ),
           get_docstring("arcwise_absolute_bias", 1).c_str() );
 
     m.def("arcwise_relative_bias",
@@ -247,7 +252,7 @@ void expose_observation_setup(py::module &m) {
           const tom::LinkEndType >( &tom::arcWiseRelativeBias ),
           py::arg("arc_start_times" ),
           py::arg("bias_values"),
-          py::arg("time_link_end" ),
+          py::arg("reference_link_end_type" ),
           get_docstring("arcwise_relative_bias", 0).c_str() );
 
     m.def("arcwise_relative_bias",
@@ -255,7 +260,7 @@ void expose_observation_setup(py::module &m) {
           const std::map< double, Eigen::VectorXd >&,
           const tom::LinkEndType >( &tom::arcWiseRelativeBias ),
           py::arg("bias_values_per_start_time"),
-          py::arg("time_link_end" ),
+          py::arg("reference_link_end_type" ),
           get_docstring("arcwise_relative_bias", 1).c_str() );
 
     m.def("combined_bias",
@@ -263,6 +268,8 @@ void expose_observation_setup(py::module &m) {
           py::arg("bias_list"),
           get_docstring("combined_bias").c_str() );
 
+
+    // ###########    Observation Simulation Settings     #############
 
     py::enum_< tom::ObservationViabilityType >(m, "ObservationViabilityType",
                                                get_docstring("ObservationViabilityType").c_str() )
@@ -291,7 +298,7 @@ void expose_observation_setup(py::module &m) {
                   const std::pair< std::string, std::string >,
                   const double >(
                   &tom::elevationAngleViabilitySettings ),
-          py::arg("link_end" ),
+          py::arg("link_end_id" ),
           py::arg("elevation_angle" ),
           get_docstring("elevation_angle_viability").c_str() );
 
@@ -301,7 +308,7 @@ void expose_observation_setup(py::module &m) {
                   const std::string,
                   const double >(
                   &tom::bodyAvoidanceAngleViabilitySettings ),
-          py::arg("link_end" ),
+          py::arg("link_end_id" ),
           py::arg("body_to_avoid" ),
           py::arg("avoidance_angle"),
           get_docstring("body_avoidance_viability").c_str() );
@@ -311,7 +318,7 @@ void expose_observation_setup(py::module &m) {
                   const std::vector< std::pair< std::string, std::string > >,
                   const std::string >(
                   &tom::bodyOccultationViabilitySettings ),
-          py::arg("link_ends_list" ),
+          py::arg("link_end_ids" ),
           py::arg("occulting_body" ),
           get_docstring("body_occultation_viability").c_str() );
 
@@ -320,7 +327,7 @@ void expose_observation_setup(py::module &m) {
           const std::vector< std::pair< std::string, std::string > >,
           const double >(
           &tom::elevationAngleViabilitySettings ),
-          py::arg("link_ends_list" ),
+          py::arg("link_end_ids" ),
           py::arg("elevation_angle" ),
           get_docstring("elevation_angle_viability_list").c_str() );
 
@@ -330,7 +337,7 @@ void expose_observation_setup(py::module &m) {
           const std::string,
           const double >(
           &tom::bodyAvoidanceAngleViabilitySettings ),
-          py::arg("link_ends_list" ),
+          py::arg("link_end_ids" ),
           py::arg("body_to_avoid" ),
           py::arg("avoidance_angle"),
           get_docstring("body_avoidance_viability_list").c_str() );
@@ -340,17 +347,10 @@ void expose_observation_setup(py::module &m) {
           const std::pair< std::string, std::string >,
           const std::string >(
           &tom::bodyOccultationViabilitySettings ),
-          py::arg("link_end" ),
+          py::arg("link_end_id" ),
           py::arg("occulting_body" ),
           get_docstring("body_occultation_viability_list").c_str() );
 
-
-    m.def("create_observation_simulators",
-          py::overload_cast< const std::vector< std::shared_ptr< tom::ObservationModelSettings > >&, const tss::SystemOfBodies& >(
-              &tom::createObservationSimulators< double, double > ),
-          py::arg( "observation_settings" ),
-          py::arg( "bodies" ),
-          get_docstring("create_observation_simulators").c_str() );
 
     py::class_<tss::ObservationSimulationSettings<double>,
                std::shared_ptr<tss::ObservationSimulationSettings<double>>>(m, "ObservationSimulationSettings",
@@ -361,45 +361,25 @@ void expose_observation_setup(py::module &m) {
                tss::ObservationSimulationSettings<double> >(m, "TabulatedObservationSimulationSettings",
                                                             get_docstring("TabulatedObservationSimulationSettings").c_str() );
 
-    //        .def(py::init<
-    //             const tom::ObservableType, const tom::LinkEnds, const std::vector< double >, const tom::LinkEndType,
-    //             const std::vector< std::shared_ptr< tom::ObservationViabilitySettings > >&,
-    //             const std::function< Eigen::VectorXd( const double ) > >(),
-    //             py::arg("observable_type"),
-    //             py::arg("link_ends"),
-    //             py::arg("observation_times"),
-    //             py::arg("reference_link_end") = tom::receiver,
-    //             py::arg("viability_settings") = std::vector< std::shared_ptr< tom::ObservationViabilitySettings > >( ),
-    //             py::arg("noise_function") = nullptr );
-
 
     m.def("tabulated_simulation_settings",
               &tss::tabulatedObservationSimulationSettings< double >,
           py::arg("observable_type"),
           py::arg("link_ends" ),
           py::arg("simulation_times" ),
-          py::arg("reference_link_end" ) = tom::receiver,
+          py::arg("reference_link_end_type" ) = tom::receiver,
           py::arg("viability_settings" ) = std::vector< std::shared_ptr< tom::ObservationViabilitySettings > >( ),
           py::arg("noise_function" ) = nullptr,
           get_docstring("tabulated_simulation_settings").c_str() );
 
 
-    m.def("create_tabulated_simulation_settings",
+    m.def("tabulated_simulation_settings_list",
               &tss::createTabulatedObservationSimulationSettingsList< double >,
           py::arg("link_ends_per_observable"),
           py::arg("simulation_times" ),
           get_docstring("create_tabulated_simulation_settings").c_str() );
+            // (%!) Add the option for reference link end and viability settings (but not noise function)
 
-
-//    m.def("add_noise_to_settings",
-//          py::overload_cast<
-//          const std::vector< std::shared_ptr< tss::ObservationSimulationSettings< double > > >&,
-//          const std::function< Eigen::VectorXd( const double ) >,
-//          const tom::ObservableType >(
-//                &tss::addNoiseFunctionToObservationSimulationSettings< double, Eigen::VectorXd, const tom::ObservableType > ),
-//            py::arg("observation_simulation_settings"),
-//            py::arg("noise_functiton"),
-//            py::arg("observable_type") );
 
     m.def("add_gaussian_noise_to_settings",
           py::overload_cast<
@@ -451,12 +431,6 @@ void expose_observation_setup(py::module &m) {
             py::arg("bodies" ),
             get_docstring("add_dependent_variables_to_settings").c_str() );
 
-    m.def("simulate_observations",
-              &tss::simulateObservations< >,
-          py::arg("observation_to_simulate"),
-          py::arg("observation_simulators" ),
-          py::arg("bodies"),
-          get_docstring("simulate_observations").c_str() );
 
 
 //    m.def("gaussian_noise_function",

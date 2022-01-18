@@ -86,23 +86,23 @@ void expose_estimated_parameter_setup(py::module &m) {
 
     m.def("constant_drag_coefficient",
           &tep::constantDragCoefficient,
-          py::arg("body_name"),
+          py::arg("body"),
           get_docstring("constant_drag_coefficient").c_str() );
 
     m.def("arcwise_constant_drag_coefficient",
           &tep::arcwiseDragCoefficient,
-          py::arg("body_name"),
+          py::arg("body"),
           py::arg("arc_initial_times"),
           get_docstring("arcwise_drag_coefficient").c_str() );
 
     m.def("radiation_pressure_coefficient",
           &tep::radiationPressureCoefficient,
-          py::arg("body_name"),
+          py::arg("body"),
           get_docstring("radiation_pressure_coefficient").c_str() );
 
     m.def("arcwise_radiation_pressure_coefficient",
           &tep::arcwiseRadiationPressureCoefficient,
-          py::arg("body_name"),
+          py::arg("body"),
           py::arg("arc_initial_times"),
           get_docstring("arcwise_radiation_pressure_coefficient").c_str() );
 
@@ -118,7 +118,7 @@ void expose_estimated_parameter_setup(py::module &m) {
 
     m.def("gravitational_parameter",
           &tep::gravitationalParameter,
-          py::arg("body_name"),
+          py::arg("body"),
           get_docstring("gravitational_parameter").c_str() );
 
     m.def("spherical_harmonics_c_coefficients",
@@ -127,7 +127,7 @@ void expose_estimated_parameter_setup(py::module &m) {
           const int,
           const int,
           const int >(&tep::sphericalHarmonicsCosineBlock),
-          py::arg("body_name"),
+          py::arg("body"),
           py::arg("minimum_degree"),
           py::arg("minimum_order"),
           py::arg("maximum_degree"),
@@ -137,7 +137,7 @@ void expose_estimated_parameter_setup(py::module &m) {
     m.def("spherical_harmonics_c_coefficients",
           py::overload_cast< const std::string,
           std::vector< std::pair< int, int > > >( &tep::sphericalHarmonicsCosineBlock),
-          py::arg("body_name"),
+          py::arg("body"),
           py::arg("block_indices"),
           get_docstring("spherical_harmonics_c_coefficients", 1).c_str() );
 
@@ -147,7 +147,7 @@ void expose_estimated_parameter_setup(py::module &m) {
           const int,
           const int,
           const int  >(&tep::sphericalHarmonicsSineBlock),
-          py::arg("body_name"),
+          py::arg("body"),
           py::arg("minimum_degree"),
           py::arg("minimum_order"),
           py::arg("maximum_degree"),
@@ -157,7 +157,7 @@ void expose_estimated_parameter_setup(py::module &m) {
     m.def("spherical_harmonics_s_coefficients",
           py::overload_cast< const std::string,
           std::vector< std::pair< int, int > > >( &tep::sphericalHarmonicsSineBlock),
-          py::arg("body_name"),
+          py::arg("body"),
           py::arg("block_indices"),
           get_docstring("spherical_harmonics_s_coefficients", 1).c_str() );
 
@@ -167,16 +167,16 @@ void expose_estimated_parameter_setup(py::module &m) {
 
     m.def("mean_moment_of_inertia",
           &tep::meanMomentOfInertia,
-          py::arg("body_name") );
+          py::arg("body") );
 
     m.def("constant_rotation_rate",
           &tep::constantRotationRate,
-          py::arg("body_name"),
+          py::arg("body"),
           get_docstring("constant_rotation_rate").c_str() );
 
     m.def("rotation_pole_position",
           &tep::rotationPolePosition,
-          py::arg("body_name"),
+          py::arg("body"),
           get_docstring("rotation_pole_position").c_str() );
 
     m.def("core_factor",
@@ -233,7 +233,7 @@ void expose_estimated_parameter_setup(py::module &m) {
 
     m.def("ground_station_position",
           &tep::groundStationPosition,
-          py::arg("body_name"),
+          py::arg("body"),
           py::arg("ground_station_name"),
           get_docstring("ground_station_position").c_str() );
 
@@ -244,14 +244,14 @@ void expose_estimated_parameter_setup(py::module &m) {
     m.def("direct_tidal_dissipation_time_lag",
           py::overload_cast< const std::string&, const std::string& >(
               &tep::directTidalDissipationLagTime ),
-          py::arg("body_name"),
+          py::arg("body"),
           py::arg("deforming_body"),
           get_docstring("direct_tidal_dissipation_time_lag", 0).c_str() );
 
     m.def("direct_tidal_dissipation_time_lag",
           py::overload_cast< const std::string&, const std::vector< std::string >& >(
               &tep::directTidalDissipationLagTime ),
-          py::arg("body_name"),
+          py::arg("body"),
           py::arg("deforming_body"),
           get_docstring("direct_tidal_dissipation_time_lag", 1).c_str() );
 
