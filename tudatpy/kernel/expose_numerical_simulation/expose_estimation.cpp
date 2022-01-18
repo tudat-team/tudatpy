@@ -35,39 +35,71 @@ namespace estimation {
 
 void expose_estimation(py::module &m) {
 
-   /*!
-    *************** OBSERVATIONS ***************
-    */
+    /*!
+     *************** PARAMETERS ***************
+     */
 
-    py::class_< tom::ObservationCollection<>,
-            std::shared_ptr<tom::ObservationCollection<>>>(m, "ObservationCollection")
-            .def_property_readonly("concatenated_times", &tom::ObservationCollection<>::getConcatenatedTimeVector )
-            .def_property_readonly("concatenated_observations", &tom::ObservationCollection<>::getObservationVector );
+    py::class_<tep::EstimatableParameterSet<double>,
+            std::shared_ptr<tep::EstimatableParameterSet<double>>>(m, "EstimatableParameterSet")
+            .def_property_readonly( "parameter_set_size",
+                                    &tep::EstimatableParameterSet<double>::getEstimatedParameterSetSize )
+            .def_property_readonly( "initial_states_size",
+                                    &tep::EstimatableParameterSet<double>::getInitialDynamicalStateParameterSize )
+            .def_property_readonly( "initial_multi_arc_states_size",
+                                    &tep::EstimatableParameterSet<double>::getInitialDynamicalSingleArcStateParameterSize )
+            .def_property_readonly( "initial_multi_arc_states_size",
+                                    &tep::EstimatableParameterSet<double>::getInitialDynamicalMultiArcStateParameterSize )
+            .def_property_readonly( "constraints_size",
+                                    &tep::EstimatableParameterSet<double>::getConstraintSize )
+            .def_property_readonly( "values",
+                                    &tep::EstimatableParameterSet<double>::getFullParameterValues< double > )
+            .def_property( "parameter_vector",
+                           &tep::EstimatableParameterSet<double>::getFullParameterValues< double >,
+                           &tep::EstimatableParameterSet<double>::resetParameterValues< double > )
+            .def( "indices_for_parameter_type",
+                  &tep::EstimatableParameterSet<double>::getIndicesForParameterType,
+                  py::arg("parameter_type") );
+
+    /*!
+     *************** OBSERVATIONS ***************
+     */
 
     py::class_<tom::ObservationViabilityCalculator,
-               std::shared_ptr<tom::ObservationViabilityCalculator>>(m, "ObservationViabilityCalculator")
+            std::shared_ptr<tom::ObservationViabilityCalculator>>(m, "ObservationViabilityCalculator")
             .def("is_observation_viable", &tom::ObservationViabilityCalculator::isObservationViable,
                  py::arg( "link_end_states" ),
                  py::arg( "link_end_times" ) );
 
     py::class_<tom::ObservationSimulatorBase<double,double>,
-               std::shared_ptr<tom::ObservationSimulatorBase<double,double>>>(m, "ObservationSimulator");
+            std::shared_ptr<tom::ObservationSimulatorBase<double,double>>>(m, "ObservationSimulator");
 
     py::class_<tom::ObservationSimulator<1,double,double>,
-               std::shared_ptr<tom::ObservationSimulator<1,double,double>>,
-               tom::ObservationSimulatorBase<double,double>>(m, "ObservationSimulator_1");
+            std::shared_ptr<tom::ObservationSimulator<1,double,double>>,
+            tom::ObservationSimulatorBase<double,double>>(m, "ObservationSimulator_1");
 
     py::class_<tom::ObservationSimulator<2,double,double>,
-               std::shared_ptr<tom::ObservationSimulator<2,double,double>>,
-               tom::ObservationSimulatorBase<double,double>>(m, "ObservationSimulator_2");
+            std::shared_ptr<tom::ObservationSimulator<2,double,double>>,
+            tom::ObservationSimulatorBase<double,double>>(m, "ObservationSimulator_2");
 
     py::class_<tom::ObservationSimulator<3,double,double>,
-               std::shared_ptr<tom::ObservationSimulator<3,double,double>>,
-               tom::ObservationSimulatorBase<double,double>>(m, "ObservationSimulator_3");
+            std::shared_ptr<tom::ObservationSimulator<3,double,double>>,
+            tom::ObservationSimulatorBase<double,double>>(m, "ObservationSimulator_3");
 
     py::class_<tom::ObservationSimulator<6,double,double>,
-               std::shared_ptr<tom::ObservationSimulator<6,double,double>>,
-               tom::ObservationSimulatorBase<double,double>>(m, "ObservationSimulator_6");
+            std::shared_ptr<tom::ObservationSimulator<6,double,double>>,
+            tom::ObservationSimulatorBase<double,double>>(m, "ObservationSimulator_6");
+
+    m.def("simulate_observations",
+          &tss::simulateObservations< >,
+          py::arg("simulation_settings"),
+          py::arg("observation_simulators" ),
+          py::arg("bodies"),
+          get_docstring("simulate_observations").c_str() );
+
+    py::class_< tom::ObservationCollection<>,
+            std::shared_ptr<tom::ObservationCollection<>>>(m, "ObservationCollection")
+            .def_property_readonly("concatenated_times", &tom::ObservationCollection<>::getConcatenatedTimeVector )
+            .def_property_readonly("concatenated_observations", &tom::ObservationCollection<>::getObservationVector );
 
     /*!
      *************** STATE TRANSITION INTERFACE ***************
@@ -98,6 +130,7 @@ void expose_estimation(py::module &m) {
     /*!
      *************** COVARIANCE ***************
      */
+
     m.def("propagate_covariance",
           py::overload_cast<
           const Eigen::MatrixXd,
@@ -125,32 +158,9 @@ void expose_estimation(py::module &m) {
           py::arg("output_times") );
 
     /*!
-     *************** PARAMETERS ***************
-     */
-    py::class_<tep::EstimatableParameterSet<double>,
-            std::shared_ptr<tep::EstimatableParameterSet<double>>>(m, "EstimatableParameterSet")
-            .def_property_readonly( "parameter_set_size",
-                                    &tep::EstimatableParameterSet<double>::getEstimatedParameterSetSize )
-            .def_property_readonly( "initial_states_size",
-                                    &tep::EstimatableParameterSet<double>::getInitialDynamicalStateParameterSize )
-            .def_property_readonly( "initial_multi_arc_states_size",
-                                    &tep::EstimatableParameterSet<double>::getInitialDynamicalSingleArcStateParameterSize )
-            .def_property_readonly( "initial_multi_arc_states_size",
-                                    &tep::EstimatableParameterSet<double>::getInitialDynamicalMultiArcStateParameterSize )
-            .def_property_readonly( "constraints_size",
-                                    &tep::EstimatableParameterSet<double>::getConstraintSize )
-            .def_property_readonly( "values",
-                                    &tep::EstimatableParameterSet<double>::getFullParameterValues< double > )
-            .def_property( "parameter_vector",
-                           &tep::EstimatableParameterSet<double>::getFullParameterValues< double >,
-                           &tep::EstimatableParameterSet<double>::resetParameterValues< double > )
-            .def( "indices_for_parameter_type",
-                  &tep::EstimatableParameterSet<double>::getIndicesForParameterType,
-                  py::arg("parameter_type") );
-
-    /*!
      *************** ESTIMATION ***************
      */
+
     py::class_<
             tss::EstimationConvergenceChecker,
             std::shared_ptr<tss::EstimationConvergenceChecker>>(m, "EstimationConvergenceChecker")
