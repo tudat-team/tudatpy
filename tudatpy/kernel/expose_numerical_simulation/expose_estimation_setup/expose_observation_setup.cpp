@@ -377,6 +377,8 @@ void expose_observation_setup(py::module &m) {
               &tss::createTabulatedObservationSimulationSettingsList< double >,
           py::arg("link_ends_per_observable"),
           py::arg("simulation_times" ),
+          py::arg("reference_link_end_type" ) = tom::receiver,
+          py::arg("viability_settings" ) = std::vector< std::shared_ptr< tom::ObservationViabilitySettings > >( ),
           get_docstring("create_tabulated_simulation_settings").c_str() );
             // (%!) Add the option for reference link end and viability settings (but not noise function)
 
