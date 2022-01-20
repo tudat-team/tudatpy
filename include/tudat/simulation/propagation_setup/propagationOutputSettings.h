@@ -1094,7 +1094,7 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > atmosphericTempera
 }
 
 inline std::shared_ptr< SingleDependentVariableSaveSettings > customDependentVariable(
-        const std::function< Eien::VectorXd( ) > customDependentVariableFunction,
+        const std::function< Eigen::VectorXd( ) > customDependentVariableFunction,
         const int dependentVariableSize  )
 {
     return std::make_shared< CustomDependentVariableSaveSettings >(
