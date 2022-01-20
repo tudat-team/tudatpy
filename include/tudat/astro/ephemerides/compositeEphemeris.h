@@ -358,6 +358,16 @@ std::shared_ptr< Ephemeris > createReferencePointEphemeris(
         std::shared_ptr< RotationalEphemeris > bodyRotationModel,
         std::function< Eigen::Vector6d( const double& ) > referencePointRelativeStateFunction )
 {
+    if( bodyEphemeris == nullptr )
+    {
+        throw std::runtime_error( "Error when creating reference point composite ephemeris, no body ephemeris is provided" );
+    }
+
+    if( bodyRotationModel == nullptr )
+    {
+        throw std::runtime_error( "Error when creating reference point composite ephemeris, no body rotation model is provided" );
+    }
+
     typedef Eigen::Matrix< StateScalarType, 6, 1 > StateType;
 
     // Cast state fucntion of body (global) and reference point (local) into correct form.
