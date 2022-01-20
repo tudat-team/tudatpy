@@ -8,6 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <limits>
@@ -77,18 +78,18 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
     linkEnds[ receiver ] = std::make_pair( "Mars" , ""  );
 
     // Create range rate observation settings and model
-    std::shared_ptr< ObservationSettings > rangeRateObservableSettings = std::make_shared<
-            OneWayDifferencedRangeRateObservationSettings >( std::bind( &integrationTimeFunction, std::placeholders::_1 ) );
+    std::shared_ptr< ObservationModelSettings > rangeRateObservableSettings = std::make_shared<
+            OneWayDifferencedRangeRateObservationSettings >( linkEnds, std::bind( &integrationTimeFunction, std::placeholders::_1 ) );
     std::shared_ptr< ObservationModel< 1, double, double> > rangeRateObservationModel =
             ObservationModelCreator< 1, double, double>::createObservationModel(
-                linkEnds, rangeRateObservableSettings, bodies );
+                rangeRateObservableSettings, bodies );
 
     // Create range rate observation settings and model
-    std::shared_ptr< ObservationSettings > rangeObservableSettings = std::make_shared< ObservationSettings >
-            ( one_way_range );
+    std::shared_ptr< ObservationModelSettings > rangeObservableSettings = std::make_shared< ObservationModelSettings >
+            ( one_way_range, linkEnds );
     std::shared_ptr< ObservationModel< 1, double, double> > rangeObservationModel =
             ObservationModelCreator< 1, double, double>::createObservationModel(
-                linkEnds, rangeObservableSettings, bodies );
+                rangeObservableSettings, bodies );
 
     // Test observable for both fixed link ends
     for( unsigned testCase = 0; testCase < 2; testCase++ )

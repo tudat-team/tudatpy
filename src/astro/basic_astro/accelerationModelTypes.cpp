@@ -23,7 +23,7 @@ std::string getAccelerationModelName( const AvailableAcceleration accelerationTy
     std::string accelerationName;
     switch( accelerationType )
     {
-    case central_gravity:
+    case point_mass_gravity:
         accelerationName = "central gravity ";
         break;
     case aerodynamic:
@@ -38,7 +38,7 @@ std::string getAccelerationModelName( const AvailableAcceleration accelerationTy
     case mutual_spherical_harmonic_gravity:
         accelerationName = "mutual spherical harmonic gravity ";
         break;
-    case third_body_central_gravity:
+    case third_body_point_mass_gravity:
         accelerationName = "third-body central gravity ";
         break;
     case third_body_spherical_harmonic_gravity:
@@ -71,6 +71,9 @@ std::string getAccelerationModelName( const AvailableAcceleration accelerationTy
     case solar_sail_acceleration:
         accelerationName = "solar sail acceleration";
         break;
+    case custom_acceleration:
+        accelerationName = "custom acceleration";
+        break;
     default:
         std::string errorMessage = "Error, acceleration type " +
                 std::to_string( accelerationType ) +
@@ -96,7 +99,7 @@ AvailableAcceleration getAccelerationModelType(
     if( std::dynamic_pointer_cast< CentralGravitationalAccelerationModel3d >(
                 accelerationModel ) != nullptr )
     {
-        accelerationType = central_gravity;
+        accelerationType = point_mass_gravity;
     }
     else if( std::dynamic_pointer_cast< CannonBallRadiationPressureAcceleration >(
                  accelerationModel ) != nullptr )
@@ -106,7 +109,7 @@ AvailableAcceleration getAccelerationModelType(
     else if( std::dynamic_pointer_cast< ThirdBodyCentralGravityAcceleration >(
                  accelerationModel ) != nullptr )
     {
-        accelerationType = third_body_central_gravity;
+        accelerationType = third_body_point_mass_gravity;
     }
     else if( std::dynamic_pointer_cast< ThirdBodySphericalHarmonicsGravitationalAccelerationModel >(
                  accelerationModel ) != nullptr )
@@ -172,6 +175,10 @@ AvailableAcceleration getAccelerationModelType(
     {
         accelerationType = solar_sail_acceleration;
     }
+    else if( std::dynamic_pointer_cast< CustomAccelerationModel >( accelerationModel ) != nullptr )
+    {
+        accelerationType = custom_acceleration;
+    }
     else
     {
         throw std::runtime_error(
@@ -228,7 +235,7 @@ std::vector< std::shared_ptr< AccelerationModel3d > > getAccelerationModelsOfTyp
 bool isAccelerationDirectGravitational( const AvailableAcceleration accelerationType )
 {
     bool accelerationIsDirectGravity = 0;
-    if( ( accelerationType == central_gravity ) ||
+    if( ( accelerationType == point_mass_gravity ) ||
             ( accelerationType == spherical_harmonic_gravity ) ||
             ( accelerationType == mutual_spherical_harmonic_gravity ) )
     {
@@ -263,9 +270,9 @@ AvailableAcceleration getAssociatedThirdBodyAcceleration( const AvailableAcceler
                 std::to_string( accelerationType ) + " is not a direct gravity acceleration";
         throw std::runtime_error( errorMessage );
     }
-    else if( accelerationType == central_gravity )
+    else if( accelerationType == point_mass_gravity )
     {
-        thirdBodyAccelerationType = third_body_central_gravity;
+        thirdBodyAccelerationType = third_body_point_mass_gravity;
     }
     else if( accelerationType == spherical_harmonic_gravity )
     {

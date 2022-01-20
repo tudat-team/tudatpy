@@ -14,9 +14,10 @@
  *
  */
 
+#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
-#include <boost/test/floating_point_comparison.hpp>
+#include <boost/test/tools/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <Eigen/Core>
@@ -89,8 +90,6 @@ BOOST_AUTO_TEST_CASE( testFullPropagationCircularRestrictedThreeBodyProblem )
         BOOST_CHECK_SMALL( std::fabs( stateDifference( i ) ), 1.0 );
         BOOST_CHECK_SMALL( std::fabs( stateDifference( i + 3 ) ), 1.0E-6 );
     }
-
-    std::cout << "stateDifference: " << stateDifference << std::endl;
 
 }
 

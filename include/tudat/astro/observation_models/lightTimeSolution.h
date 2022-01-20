@@ -357,14 +357,14 @@ public:
                 if( counter == 50 )
                 {
                     isToleranceReached = true;
-                    std::string errorMessage  =
-                            "Warning, light time unconverged at level " +
-                            boost::lexical_cast< std::string >(
-                                std::fabs( newLightTimeCalculation - previousLightTimeCalculation ) ) +
-                            "; current light-time corrections are: "  +
-                            std::to_string( currentCorrection_ ) + " and input time was " +
-                            std::to_string( static_cast< double >( time ) );
-                   std::cerr << errorMessage << std::endl;
+//                    std::string errorMessage  =
+//                            "Warning, light time unconverged at level " +
+//                            boost::lexical_cast< std::string >(
+//                                std::fabs( newLightTimeCalculation - previousLightTimeCalculation ) ) +
+//                            "; current light-time corrections are: "  +
+//                            std::to_string( currentCorrection_ ) + " and input time was " +
+//                            std::to_string( static_cast< double >( time ) );
+//                   std::cerr << errorMessage << std::endl;
                 }
 
                 // Update light time for new iteration.

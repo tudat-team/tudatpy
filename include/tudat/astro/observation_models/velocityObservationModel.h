@@ -11,7 +11,9 @@
 #ifndef TUDAT_VELOCITYOBSERVATIONMODEL_H
 #define TUDAT_VELOCITYOBSERVATIONMODEL_H
 
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
+using namespace boost::placeholders;
+
 #include <boost/function.hpp>
 
 #include "tudat/astro/ephemerides/ephemeris.h"
@@ -42,35 +44,14 @@ public:
      *  observable, i.e. deviations from the physically ideal observable (default none).
      */
     VelocityObservationModel(
+            const LinkEnds& linkEnds,
             const std::function<  Eigen::Matrix< ObservationScalarType, 6, 1 >( const TimeType& ) > stateFunction,
             const std::shared_ptr< ObservationBias< 3 > > observationBiasCalculator = NULL ):
         ObservationModel< 3, ObservationScalarType, TimeType >(
-            velocity_observable, observationBiasCalculator ), stateFunction_( stateFunction ){ }
+            velocity_observable, linkEnds, observationBiasCalculator ), stateFunction_( stateFunction ){ }
 
     //! Destructor
     ~VelocityObservationModel( ) { }
-
-    //! Function to compute ideal velocity observation at given time.
-    /*!
-     *  This function computes the ideal velocity observation at a given time (without biases).
-     *  \param time Time at which observation is to be simulated
-     *  \param linkEndAssociatedWithTime Link end at which given time is valid (must be observed_body for this derived class)
-     *  \return Calculated observed velocity of body.
-     */
-    Eigen::Matrix< ObservationScalarType, 3, 1 > computeIdealObservations(
-            const TimeType time,
-            const LinkEndType linkEndAssociatedWithTime = observed_body )
-    {
-        // Check link end
-        if( linkEndAssociatedWithTime != observed_body )
-        {
-            throw std::runtime_error(
-                        "Error when computing velocity observable, associated link end must be observed_body " );
-        }
-
-        // Compute and return state.
-        return stateFunction_( time ).segment( 3, 3 );
-    }
 
     //! Function to compute ideal velocity observation at given time.
     /*!

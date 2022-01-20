@@ -21,7 +21,8 @@ endif ()
 cmake_policy(SET CMP0069 NEW)
 
 # Get version from file.
-file(READ "version" Tudat_VERSION)
+file(READ "version" Tudat_VERSION_LABEL)
+string(REGEX MATCH "^([0-9]+)\\.([0-9]+)\\.([0-9]+)" Tudat_VERSION "${Tudat_VERSION_LABEL}")
 
 # Specific project name.
 project(Tudat VERSION ${Tudat_VERSION} LANGUAGES C CXX)
@@ -71,7 +72,10 @@ option(TUDAT_BUILD_WITH_FILTERS "Build Tudat with preliminary Kalman Filter func
 option(TUDAT_BUILD_WITH_SOFA_INTERFACE "Build Tudat with sofa interface." ON)
 
 # Build json interface.
-option(TUDAT_BUILD_WITH_JSON_INTERFACE "Build Tudat with json interface." ON)
+option(TUDAT_BUILD_WITH_JSON_INTERFACE "Build Tudat with json interface." OFF)
+
+# Build with nrlmsise-00 atmosphere model.
+option(TUDAT_BUILD_WITH_NRLMSISE00 "Build with nrlmsise-00 atmosphere model." OFF)
 
 # Build pagmo-dependent code
 option(TUDAT_BUILD_WITH_PAGMO "Build Tudat with pagmo." OFF)
@@ -88,10 +92,12 @@ message(STATUS "TUDAT_BUILD_STATIC_LIBRARY                            ${TUDAT_BU
 message(STATUS "TUDAT_BUILD_WITH_FILTERS                              ${TUDAT_BUILD_WITH_FILTERS}")
 message(STATUS "TUDAT_BUILD_WITH_SOFA_INTERFACE                       ${TUDAT_BUILD_WITH_SOFA_INTERFACE}")
 message(STATUS "TUDAT_BUILD_WITH_JSON_INTERFACE                       ${TUDAT_BUILD_WITH_JSON_INTERFACE}")
+message(STATUS "TUDAT_BUILD_WITH_NRLMSISE00                           ${TUDAT_BUILD_WITH_NRLMSISE00}")
 message(STATUS "TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS ${TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS}")
 message(STATUS "TUDAT_DOWNLOAD_AND_BUILD_BOOST                        ${TUDAT_DOWNLOAD_AND_BUILD_BOOST}")
 
 set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -DTUDAT_BUILD_WITH_FILTERS=${TUDAT_BUILD_WITH_FILTERS}")
+set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -DTUDAT_BUILD_WITH_NRLMSISE00=${TUDAT_BUILD_WITH_NRLMSISE00}")
 set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -DTUDAT_BUILD_WITH_SOFA_INTERFACE=${TUDAT_BUILD_WITH_SOFA_INTERFACE}")
 set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -DTUDAT_BUILD_WITH_JSON_INTERFACE=${TUDAT_BUILD_WITH_JSON_INTERFACE}")
 set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -DTUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS=${TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS}")
@@ -141,7 +147,7 @@ endif ()
 
 # Set required boost components.
 set(_TUDAT_REQUIRED_BOOST_LIBS filesystem system regex date_time thread
-        serialization chrono atomic)
+        chrono atomic)
 
 if (TUDAT_BUILD_TESTS)
     # Add the unit test framework, if needed.
@@ -206,9 +212,9 @@ if (DEFINED _GLIBCXX_USE_CXX11_ABI)
             set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -D_GLIBCXX_USE_CXX11_ABI=0")
             message(STATUS "-D_GLIBCXX_USE_CXX11_ABI=0 added to CMAKE_CXX_FLAGS!")
         elseif ((${Boost_VERSION_MAJOR} GREATER_EQUAL "1") AND (${Boost_VERSION_MINOR} GREATER_EQUAL "70") AND ${TUDAT_BUILD_GNU})
-#            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0")
-#            set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -D_GLIBCXX_USE_CXX11_ABI=0")
-#            message(STATUS "-D_GLIBCXX_USE_CXX11_ABI=0 added to CMAKE_CXX_FLAGS!")
+            #            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0")
+            #            set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -D_GLIBCXX_USE_CXX11_ABI=0")
+            #            message(STATUS "-D_GLIBCXX_USE_CXX11_ABI=0 added to CMAKE_CXX_FLAGS!")
         elseif (${TUDAT_BUILD_MSVC})
             set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0")
             set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -D_GLIBCXX_USE_CXX11_ABI=0")
@@ -282,23 +288,18 @@ endif ()
 # CSpice dependency
 find_package(CSpice REQUIRED 1.0.0)
 
-# Sofa dependency if in build settings.
 if (TUDAT_BUILD_WITH_SOFA_INTERFACE)
-    #
+    find_package(Sofa REQUIRED 1.0.0)
     add_definitions(-DTUDAT_BUILD_WITH_SOFA_INTERFACE=1)
-    if (${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
-        find_package(Sofa REQUIRED 1.0.0)
-    elseif (NOT ${TUDAT_BUNDLE_BUILD})
-        find_package(Sofa REQUIRED 1.0.0)
-    else ()
-        set(Sofa_INCLUDE_DIRS ${Sofa_BUILD_INCLUDE_DIRS})
-    endif ()
-else ()
-    add_definitions(-DTUDAT_BUILD_WITH_SOFA_INTERFACE=0)
 endif ()
 
-# TODO: add NRLMSISE back in
-add_definitions(-DTUDAT_BUILD_WITH_NRLMSISE=0)
+if (TUDAT_BUILD_WITH_NRLMSISE00)
+    find_package(nrlmsise00 REQUIRED 0.1)
+    message(STATUS ${NRLMSISE00_LIBRARIES})
+    add_definitions(-DTUDAT_BUILD_WITH_NRLMSISE=1)
+else( )
+    add_definitions(-DTUDAT_BUILD_WITH_NRLMSISE=0)
+endif ()
 
 # JSON
 if (TUDAT_BUILD_WITH_JSON_INTERFACE)

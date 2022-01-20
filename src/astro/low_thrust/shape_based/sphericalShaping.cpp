@@ -12,7 +12,7 @@
 
 #include "tudat/astro/basic_astro/celestialBodyConstants.h"
 #include "tudat/basics/timeType.h"
-#include "tudat/astro/propulsion/thrustAccelerationModel.h"
+#include "tudat/math/basic/coordinateConversions.h"
 #include "tudat/astro/low_thrust/shape_based/sphericalShaping.h"
 
 namespace tudat
@@ -30,9 +30,8 @@ SphericalShaping::SphericalShaping( const Eigen::Vector6d& initialState,
                                     const double initialValueFreeCoefficient,
                                     const std::shared_ptr< root_finders::RootFinderSettings > rootFinderSettings,
                                     const double lowerBoundFreeCoefficient,
-                                    const double upperBoundFreeCoefficient,
-                                    const double initialBodyMass ):
-    ShapeBasedMethod( initialState, finalState, requiredTimeOfFlight, initialBodyMass ),
+                                    const double upperBoundFreeCoefficient ):
+    ShapeBasedMethod( initialState, finalState, requiredTimeOfFlight ),
     centralBodyGravitationalParameter_( centralBodyGravitationalParameter ),
     numberOfRevolutions_( numberOfRevolutions ),
     initialValueFreeCoefficient_( initialValueFreeCoefficient ),
@@ -467,10 +466,11 @@ void SphericalShaping::iterateToMatchRequiredTimeOfFlight( std::shared_ptr< root
             std::make_shared< SphericalShaping::TimeOfFlightFunction >( resetFreeCoefficientFunction, satisfyBoundaryConditionsFunction, computeTOFfunction, getRequiredTOFfunction );
 
     // Create root finder from root finder settings.
-    std::shared_ptr< root_finders::RootFinderCore< double > > rootFinder = root_finders::createRootFinder( rootFinderSettings, lowerBound, upperBound, initialGuess );
+    std::shared_ptr< root_finders::RootFinder< double > > rootFinder = root_finders::createRootFinder( rootFinderSettings, lowerBound, upperBound, initialGuess );
 
     // Iterate to find the free coefficient value that matches the required time of flight.
     double updatedFreeCoefficient = rootFinder->execute( timeOfFlightFunction, initialGuess );
+    resetValueFreeCoefficient( updatedFreeCoefficient );
 
 }
 
@@ -527,7 +527,9 @@ Eigen::Vector6d SphericalShaping::computeStateVectorInSphericalCoordinates( cons
 //! Compute current cartesian state.
 Eigen::Vector6d SphericalShaping::computeCurrentStateVector( const double currentAzimuthAngle )
 {
-    Eigen::Vector6d normalizedStateVector =  coordinate_conversions::convertSphericalToCartesianState( computeStateVectorInSphericalCoordinates( currentAzimuthAngle ) );
+    Eigen::Vector6d normalizedStateVector = 
+            coordinate_conversions::convertSphericalToCartesianState( 
+                computeStateVectorInSphericalCoordinates( currentAzimuthAngle ) );
 
     Eigen::Vector6d dimensionalStateVector;
     dimensionalStateVector.segment( 0, 3 ) = normalizedStateVector.segment( 0, 3 )
@@ -605,7 +607,7 @@ Eigen::Vector3d SphericalShaping::computeThrustAccelerationVectorInSphericalCoor
 }
 
 //! Compute current thrust acceleration in cartesian coordinates.
-Eigen::Vector3d SphericalShaping::computeThrustAccelerationVector( const double currentAzimuthAngle )
+Eigen::Vector3d SphericalShaping::computeCurrentThrustAcceleration( const double currentAzimuthAngle )
 {
     if( thrustAccelerationVectorCache_.count( currentAzimuthAngle ) == 0 )
     {
@@ -628,18 +630,16 @@ Eigen::Vector3d SphericalShaping::computeThrustAccelerationVector( const double 
 
 //! Compute magnitude cartesian acceleration.
 double  SphericalShaping::computeCurrentThrustAccelerationMagnitude(
-        double currentAzimuthAngle, std::function< double ( const double ) > specificImpulseFunction,
-        std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings )
+        double currentAzimuthAngle )
 {
-    return computeThrustAccelerationVector( currentAzimuthAngle ).norm( );
+    return computeCurrentThrustAcceleration( currentAzimuthAngle ).norm( );
 }
 
 //! Compute direction thrust acceleration in cartesian coordinates.
 Eigen::Vector3d SphericalShaping::computeCurrentThrustAccelerationDirection(
-        double currentAzimuthAngle, std::function< double ( const double ) > specificImpulseFunction,
-        std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings )
+        double currentAzimuthAngle )
 {
-    return computeThrustAccelerationVector( currentAzimuthAngle ).normalized( );
+    return computeCurrentThrustAcceleration( currentAzimuthAngle ).normalized( );
 }
 
 //! Compute final deltaV.

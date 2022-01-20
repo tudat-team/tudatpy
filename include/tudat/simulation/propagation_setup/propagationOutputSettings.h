@@ -27,7 +27,7 @@ namespace tudat
 namespace propagators
 {
 
-//! Enum listing the variables that can be exported or use in termination conditions during the propagation
+// Enum listing the variables that can be exported or use in termination conditions during the propagation
 enum VariableType
 {
     independentVariable,
@@ -38,34 +38,36 @@ enum VariableType
     sensitivityMatrix
 };
 
-//! Functional base class for defining settings for variables
-/*!
+// Functional base class for defining settings for variables
+/*
  *  Functional base class for defining settings for variables.
  *  Any variable that requires additional information in addition to what can be provided here, should be
  *  defined by a dedicated derived class.
  */
+//! @get_docstring(VariableSettings.__docstring__)
 class VariableSettings
 {
 public:
 
-    //! Constructor.
-    /*!
+    // Constructor.
+    /*
      *  Constructor.
      *  \param variableType Type of variable.
      */
     VariableSettings( const VariableType variableType ) :
         variableType_( variableType ) { }
 
-    //! Destructor.
+    // Destructor.
     virtual ~VariableSettings( ){ }
 
-    //! Type of dependent variable that is to be saved.
+    // Type of dependent variable that is to be saved.
     VariableType variableType_;
 
 };
 
 
-//! Enum listing the dependent variables that can be saved during the propagation.
+// Enum listing the dependent variables that can be saved during the propagation.
+//! @get_docstring(PropagationDependentVariables.__docstring__)
 enum PropagationDependentVariables
 {
     mach_number_dependent_variable = 0,
@@ -83,7 +85,7 @@ enum PropagationDependentVariables
     single_acceleration_dependent_variable = 12,
     aerodynamic_force_coefficients_dependent_variable = 13,
     aerodynamic_moment_coefficients_dependent_variable = 14,
-    rotation_matrix_to_body_fixed_frame_variable = 15,
+    inertial_to_body_fixed_rotation_matrix_variable = 15,
     intermediate_aerodynamic_rotation_matrix_variable = 16,
     relative_body_aerodynamic_orientation_angle_variable = 17,
     body_fixed_airspeed_based_velocity_variable = 18,
@@ -93,7 +95,7 @@ enum PropagationDependentVariables
     geodetic_latitude_dependent_variable = 22,
     control_surface_deflection_dependent_variable = 23,
     total_mass_rate_dependent_variables = 24,
-    lvlh_to_inertial_frame_rotation_dependent_variable = 25,
+    tnw_to_inertial_frame_rotation_dependent_variable = 25,
     periapsis_altitude_dependent_variable = 26,
     total_torque_norm_dependent_variable = 27,
     single_torque_norm_dependent_variable = 28,
@@ -114,21 +116,24 @@ enum PropagationDependentVariables
     local_aerodynamic_heat_rate_dependent_variable = 43, // no interface function
     euler_angles_to_body_fixed_313 = 44,
     current_body_mass_dependent_variable = 45,
-    radiation_pressure_coefficient_dependent_variable = 46
+    radiation_pressure_coefficient_dependent_variable = 46,
+    rsw_to_inertial_frame_rotation_dependent_variable = 47,
+    custom_dependent_variable = 48
 };
 
-//! Functional base class for defining settings for dependent variables that are to be saved during propagation
-/*!
+// Functional base class for defining settings for dependent variables that are to be saved during propagation
+/*
  *  Functional base class for defining settings for dependent variables that are to be saved during propagation.
  *  Any dependent variable that requires additional information in addition to what can be provided here, should be
  *  defined by a dedicated derived class.
  */
+//! @get_docstring(SingleDependentVariableSaveSettings.__docstring__)
 class SingleDependentVariableSaveSettings : public VariableSettings
 {
 public:
 
-    //! Constructor.
-    /*!
+    // Constructor.
+    /*
      *  Constructor.
      *  \param dependentVariableType Type of dependent variable that is to be saved.
      *  \param associatedBody Body associated with dependent variable.
@@ -148,34 +153,35 @@ public:
         secondaryBody_( secondaryBody ),
         componentIndex_( componentIndex ) { }
 
-    //! Type of dependent variable that is to be saved.
+    // Type of dependent variable that is to be saved.
     PropagationDependentVariables dependentVariableType_;
 
-    //! Body associated with variable.
+    // Body associated with variable.
     std::string associatedBody_;
 
-    //! Secondary body (not necessarilly required) w.r.t. which parameter is defined (e.g. relative  position,
-    //! velocity etc. is defined of associatedBody w.r.t. secondaryBody).
+    // Secondary body (not necessarilly required) w.r.t. which parameter is defined (e.g. relative  position,
+    // velocity etc. is defined of associatedBody w.r.t. secondaryBody).
     std::string secondaryBody_;
 
-    //! Index of the component to be saved.
-    //! Only applicable to vectorial dependent variables.
-    //! If negative, all the components of the vector are saved.
+    // Index of the component to be saved.
+    // Only applicable to vectorial dependent variables.
+    // If negative, all the components of the vector are saved.
     int componentIndex_;
 
 };
 
-//! Class to define settings for saving a single acceleration (norm or vector) during propagation
-/*!
+// Class to define settings for saving a single acceleration (norm or vector) during propagation
+/*
  *  Class to define settings for saving a single acceleration (norm or vector) during propagation. NOTE: This acceleration
  *  is returned in the inertial frame!
  */
+//! @get_docstring(SingleAccelerationDependentVariableSaveSettings.__docstring__)
 class SingleAccelerationDependentVariableSaveSettings: public SingleDependentVariableSaveSettings
 {
 public:
 
-    //! Constructor.
-    /*!
+    // Constructor.
+    /*
      *  Constructor.
      *  \param accelerationModelType Type of acceleration that is to be saved.
      *  \param bodyUndergoingAcceleration Name of body undergoing the acceleration.
@@ -196,18 +202,18 @@ public:
         accelerationModelType_( accelerationModelType )
     { }
 
-    //! Type of acceleration that is to be saved.
+    // Type of acceleration that is to be saved.
     basic_astrodynamics::AvailableAcceleration accelerationModelType_;
 
 };
 
-//! Class to define settings for saving contributions at separate degree/order to spherical harmonic acceleration.
+// Class to define settings for saving contributions at separate degree/order to spherical harmonic acceleration.
 class SphericalHarmonicAccelerationTermsDependentVariableSaveSettings: public SingleDependentVariableSaveSettings
 {
 public:
 
-    //! Constructor.
-    /*!
+    // Constructor.
+    /*
      *  Constructor.
      *  \param bodyUndergoingAcceleration Name of body undergoing the acceleration.
      *  \param bodyExertingAcceleration Name of body exerting the acceleration.
@@ -227,8 +233,8 @@ public:
             bodyUndergoingAcceleration, bodyExertingAcceleration,
             componentIndex ), componentIndices_( componentIndices ){ }
 
-    //! Constructor.
-    /*!
+    // Constructor.
+    /*
      *  Constructor. for saving all terms up to a given degree/order.
      *  \param bodyUndergoingAcceleration Name of body undergoing the acceleration.
      *  \param bodyExertingAcceleration Name of body exerting the acceleration.
@@ -259,17 +265,17 @@ public:
         }
     }
 
-    //! List of degree/order terms that are to be saved
+    // List of degree/order terms that are to be saved
     std::vector< std::pair< int, int > > componentIndices_;
 };
 
-//! Class to define settings for saving a single torque (norm or vector) during propagation.
+// Class to define settings for saving a single torque (norm or vector) during propagation.
 class SingleTorqueDependentVariableSaveSettings: public SingleDependentVariableSaveSettings
 {
 public:
 
-    //! Constructor.
-    /*!
+    // Constructor.
+    /*
      *  Constructor.
      *  \param torqueModelType Type of torque that is to be saved.
      *  \param bodyUndergoingTorque Name of body undergoing the torque.
@@ -290,18 +296,18 @@ public:
         torqueModelType_( torqueModelType )
     { }
 
-    //! Boolean denoting whether to use the norm (if true) or the vector (if false) of the torque.
+    // Boolean denoting whether to use the norm (if true) or the vector (if false) of the torque.
     basic_astrodynamics::AvailableTorque torqueModelType_;
 
 };
 
-//! Class to define settings for saving a rotation matrix between two AerodynamicsReferenceFrames.
+// Class to define settings for saving a rotation matrix between two AerodynamicsReferenceFrames.
 class IntermediateAerodynamicRotationVariableSaveSettings: public SingleDependentVariableSaveSettings
 {
 public:
 
-    //! Constructor.
-    /*!
+    // Constructor.
+    /*
      *  Constructor.
      *  \param associatedBody Body for which the rotation matrix is to be saved.
      *  \param baseFrame Frame from which rotation is to take place.
@@ -318,21 +324,21 @@ public:
                                              "", componentIndex ),
         baseFrame_( baseFrame ), targetFrame_( targetFrame ){ }
 
-    //! Frame from which rotation is to take place.
+    // Frame from which rotation is to take place.
     reference_frames::AerodynamicsReferenceFrames baseFrame_;
 
-    //! Frame to which the rotation is to take place.
+    // Frame to which the rotation is to take place.
     reference_frames::AerodynamicsReferenceFrames targetFrame_;
 
 };
 
-//! Class to define settings for saving an aerodynamics orientation angle from AerodynamicsReferenceFrameAngles list.
+// Class to define settings for saving an aerodynamics orientation angle from AerodynamicsReferenceFrameAngles list.
 class BodyAerodynamicAngleVariableSaveSettings: public SingleDependentVariableSaveSettings
 {
 public:
 
-    //! Constructor.
-    /*!
+    // Constructor.
+    /*
      *  Constructor.
      *  \param associatedBody Body for which the orientation angle is to be saved.
      *  \param angle Orientation angle that is to be saved.
@@ -346,18 +352,18 @@ public:
         SingleDependentVariableSaveSettings( relative_body_aerodynamic_orientation_angle_variable, associatedBody, centralBody ),
         angle_( angle ){ }
 
-    //! Orientation angle that is to be saved.
+    // Orientation angle that is to be saved.
     reference_frames::AerodynamicsReferenceFrameAngles angle_;
 
 };
 
-//! Class to define variations in spherical harmonic acceleration due to single gravity field variation.
+// Class to define variations in spherical harmonic acceleration due to single gravity field variation.
 class SingleVariationSphericalHarmonicAccelerationSaveSettings: public SingleDependentVariableSaveSettings
 {
 public:
 
-    //! Constructor.
-    /*!
+    // Constructor.
+    /*
      *  Constructor.
      *  \param bodyUndergoingAcceleration Body undergoing acceleration.
      *  \param bodyExertingAcceleration Body exerting acceleration.
@@ -373,21 +379,21 @@ public:
                                              bodyUndergoingAcceleration, bodyExertingAcceleration ),
         deformationType_( deformationType ), identifier_( identifier ){ }
 
-    //! Type of gravity field variation.
+    // Type of gravity field variation.
     gravitation::BodyDeformationTypes deformationType_;
 
-    //! Identifier for gravity field variation.
+    // Identifier for gravity field variation.
     std::string identifier_;
 
 };
 
-//! Class to define variations in spherical harmonic acceleration due to single gravity field variation at separate degrees/orders.
+// Class to define variations in spherical harmonic acceleration due to single gravity field variation at separate degrees/orders.
 class SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings: public SingleDependentVariableSaveSettings
 {
 public:
 
-    //! Constructor.
-    /*!
+    // Constructor.
+    /*
      *  Constructor.
      *  \param bodyUndergoingAcceleration Body undergoing acceleration.
      *  \param bodyExertingAcceleration Body exerting acceleration.
@@ -405,8 +411,8 @@ public:
                                              bodyUndergoingAcceleration, bodyExertingAcceleration ),
         componentIndices_( componentIndices ), deformationType_( deformationType ), identifier_( identifier ){ }
 
-    //! Constructor.
-    /*!
+    // Constructor.
+    /*
      *  Constructor.
      *  \param bodyUndergoingAcceleration Body undergoing acceleration.
      *  \param bodyExertingAcceleration Body exerting acceleration.
@@ -435,24 +441,24 @@ public:
         }
     }
 
-    //! Degrees and orders for which to computed contribution.
+    // Degrees and orders for which to computed contribution.
     std::vector< std::pair< int, int > > componentIndices_;
 
-    //! Type of gravity field variation.
+    // Type of gravity field variation.
     gravitation::BodyDeformationTypes deformationType_;
 
-    //! Identifier for gravity field variation.
+    // Identifier for gravity field variation.
     std::string identifier_;
 
 };
 
-//! Class to define .
+// Class to define .
 class AccelerationPartialWrtStateSaveSettings: public SingleDependentVariableSaveSettings
 {
 public:
 
-    //! Constructor.
-    /*!
+    // Constructor.
+    /*
      *  Constructor.
      *  \param bodyUndergoingAcceleration Body undergoing acceleration.
      *  \param bodyExertingAcceleration Body exerting acceleration.
@@ -472,24 +478,51 @@ public:
         accelerationModelType_( accelerationModelType ), derivativeWrtBody_( derivativeWrtBody ),
         thirdBody_( thirdBody ){ }
 
-    //! Type of acceleration that is to be saved.
+    // Type of acceleration that is to be saved.
     basic_astrodynamics::AvailableAcceleration accelerationModelType_;
 
-    //! String denoting w.r.t. which body the derivative needs to be taken.
+    // String denoting w.r.t. which body the derivative needs to be taken.
     std::string derivativeWrtBody_;
 
-    //! String denoting the third body w.r.t. which the partial needs to be taken (in case of third body acceleration).
+    // String denoting the third body w.r.t. which the partial needs to be taken (in case of third body acceleration).
     std::string thirdBody_;
 
 };
 
-//! Container class for settings of all dependent variables that are to be saved.
+
+//class CustomDependentVariableSaveSettings: public SingleDependentVariableSaveSettings
+//{
+//public:
+
+//    CustomDependentVariableSaveSettings(
+//            const std::string& bodyWithProperty,
+//            const std::function< Eigen::VectorXd( const double ) > customDependentVariableFunction,
+//            const int dependentVariableSize ):
+//        SingleDependentVariableSaveSettings(
+//            custom_dependent_variable, bodyUndergoingAcceleration, bodyExertingAcceleration ),
+//        accelerationModelType_( accelerationModelType ), derivativeWrtBody_( derivativeWrtBody ),
+//        thirdBody_( thirdBody ){ }
+
+//    // Type of acceleration that is to be saved.
+//    basic_astrodynamics::AvailableAcceleration accelerationModelType_;
+
+//    // String denoting w.r.t. which body the derivative needs to be taken.
+//    std::string derivativeWrtBody_;
+
+//    // String denoting the third body w.r.t. which the partial needs to be taken (in case of third body acceleration).
+//    std::string thirdBody_;
+
+//};
+
+
+
+// Container class for settings of all dependent variables that are to be saved.
 class DependentVariableSaveSettings
 {
 public:
 
-    //! Constructor.
-    /*!
+    // Constructor.
+    /*
      *  Constructor.
      *  \param dependentVariables List of settings for parameters that are to be saved.
      *  \param printDependentVariableTypes Variable denoting whether to print the list and vector entries of
@@ -500,19 +533,20 @@ public:
             const bool printDependentVariableTypes = true ):
         dependentVariables_( dependentVariables ), printDependentVariableTypes_( printDependentVariableTypes ){ }
 
-    //! List of settings for parameters that are to be saved.
+    // List of settings for parameters that are to be saved.
     std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables_;
 
-    //! Variable denoting whether to print the list and vector entries of dependent variables when propagating.
+    // Variable denoting whether to print the list and vector entries of dependent variables when propagating.
     bool printDependentVariableTypes_;
 
 #if(TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
-    //! Map of state derivative partials, to be used when saving state derivative partials as dependent variables
+    // Map of state derivative partials, to be used when saving state derivative partials as dependent variables
     std::map< propagators::IntegratedStateType, orbit_determination::StateDerivativePartialsMap > stateDerivativePartials_;
 #endif
 
 };
 
+//! @get_docstring(createDependentVariableSaveSettings.__docstring__)
 inline std::shared_ptr< DependentVariableSaveSettings > createDependentVariableSaveSettings(
         const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables,
         const bool printDependentVariableTypes = true )
@@ -521,32 +555,32 @@ inline std::shared_ptr< DependentVariableSaveSettings > createDependentVariableS
                 dependentVariables, printDependentVariableTypes );
 }
 
-//! Function to get a string representing a 'named identification' of a variable type.
-/*!
+// Function to get a string representing a 'named identification' of a variable type.
+/*
  *  Function to get a string representing a 'named identification' of a variable type.
  *  \param variableType Variable type.
  *  \return String with variable type id.
  */
 std::string getVariableName( const VariableType variableType );
 
-//! Function to get a string representing a 'named identification' of a variable.
-/*!
+// Function to get a string representing a 'named identification' of a variable.
+/*
  *  Function to get a string representing a 'named identification' of a variable.
  *  \param variableSettings Variable.
  *  \return String with variable id.
  */
 std::string getVariableId( const std::shared_ptr< VariableSettings > variableSettings );
 
-//! Function to get a string representing a 'named identification' of a dependent variable type.
-/*!
+// Function to get a string representing a 'named identification' of a dependent variable type.
+/*
  *  Function to get a string representing a 'named identification' of a dependent variable type.
  *  \param propagationDependentVariables Dependent variable type.
  *  \return String with dependent variable type id.
  */
-std::string getDependentVariableName( const PropagationDependentVariables propagationDependentVariables );
+std::string getDependentVariableName( const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings );
 
-//! Function to get a string representing a 'named identification' of a dependent variable.
-/*!
+// Function to get a string representing a 'named identification' of a dependent variable.
+/*
  *  Function to get a string representing a 'named identification' of a dependent variable.
  *  \param dependentVariableSettings Dependent variable.
  *  \return String with dependent variable id.
@@ -554,7 +588,7 @@ std::string getDependentVariableName( const PropagationDependentVariables propag
 std::string getDependentVariableId(
         const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings );
 
-
+//! @get_docstring(machNumberDependentVariable)
 inline std::shared_ptr< SingleDependentVariableSaveSettings > machNumberDependentVariable(
         const std::string& associatedBody,
         const std::string& bodyWithAtmosphere )
@@ -563,6 +597,7 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > machNumberDependen
                 mach_number_dependent_variable, associatedBody, bodyWithAtmosphere );
 }
 
+//! @get_docstring(altitudeDependentVariable)
 inline std::shared_ptr< SingleDependentVariableSaveSettings > altitudeDependentVariable(
         const std::string& associatedBody,
         const std::string& centralBody )
@@ -571,6 +606,7 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > altitudeDependentV
                 altitude_dependent_variable, associatedBody, centralBody );
 }
 
+//! @get_docstring(airspeedDependentVariable)
 inline std::shared_ptr< SingleDependentVariableSaveSettings > airspeedDependentVariable(
         const std::string& associatedBody,
         const std::string& bodyWithAtmosphere )
@@ -579,6 +615,7 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > airspeedDependentV
                 airspeed_dependent_variable, associatedBody, bodyWithAtmosphere );
 }
 
+//! @get_docstring(densityDependentVariable)
 inline std::shared_ptr< SingleDependentVariableSaveSettings > densityDependentVariable(
         const std::string& associatedBody,
         const std::string& bodyWithAtmosphere )
@@ -587,6 +624,7 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > densityDependentVa
                 local_density_dependent_variable, associatedBody, bodyWithAtmosphere );
 }
 
+//! @get_docstring(relativeSpeedDependentVariable)
 inline std::shared_ptr< SingleDependentVariableSaveSettings > relativeSpeedDependentVariable(
         const std::string& associatedBody,
         const std::string& relativeBody )
@@ -595,6 +633,7 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > relativeSpeedDepen
                 relative_speed_dependent_variable, associatedBody, relativeBody );
 }
 
+//! @get_docstring(relativePositionDependentVariable)
 inline std::shared_ptr< SingleDependentVariableSaveSettings > relativePositionDependentVariable(
         const std::string& associatedBody,
         const std::string& relativeBody )
@@ -603,6 +642,7 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > relativePositionDe
                 relative_position_dependent_variable, associatedBody, relativeBody );
 }
 
+//! @get_docstring(relativeDistanceDependentVariable)
 inline std::shared_ptr< SingleDependentVariableSaveSettings > relativeDistanceDependentVariable(
         const std::string& associatedBody,
         const std::string& relativeBody )
@@ -611,6 +651,7 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > relativeDistanceDe
                 relative_distance_dependent_variable, associatedBody, relativeBody );
 }
 
+//! @get_docstring(relativeVelocityDependentVariable)
 inline std::shared_ptr< SingleDependentVariableSaveSettings > relativeVelocityDependentVariable(
         const std::string& associatedBody,
         const std::string& bodyWithAtmosphere )
@@ -619,6 +660,7 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > relativeVelocityDe
                 relative_velocity_dependent_variable, associatedBody, bodyWithAtmosphere );
 }
 
+//! @get_docstring(keplerianStateDependentVariable)
 inline std::shared_ptr< SingleDependentVariableSaveSettings > keplerianStateDependentVariable(
         const std::string& associatedBody,
         const std::string& centralBody )
@@ -627,6 +669,7 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > keplerianStateDepe
                 keplerian_state_dependent_variable, associatedBody, centralBody );
 }
 
+//! @get_docstring(modifiedEquinoctialStateDependentVariable)
 inline std::shared_ptr< SingleDependentVariableSaveSettings > modifiedEquinoctialStateDependentVariable(
 		const std::string& associatedBody,
 		const std::string& centralBody
@@ -637,6 +680,7 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > modifiedEquinoctia
 			associatedBody, centralBody);
 }
 
+//! @get_docstring(singleAccelerationDependentVariable)
 inline std::shared_ptr< SingleDependentVariableSaveSettings > singleAccelerationDependentVariable(
         const basic_astrodynamics::AvailableAcceleration accelerationModelType,
         const std::string& bodyUndergoingAcceleration,
@@ -647,6 +691,7 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > singleAcceleration
                 false );
 }
 
+//! @get_docstring(singleAccelerationNormDependentVariable)
 inline std::shared_ptr< SingleDependentVariableSaveSettings > singleAccelerationNormDependentVariable(
         const basic_astrodynamics::AvailableAcceleration accelerationModelType,
         const std::string& bodyUndergoingAcceleration,
@@ -657,6 +702,7 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > singleAcceleration
                 true );
 }
 
+//! @get_docstring(sphericalHarmonicAccelerationTermsDependentVariable)
 inline std::shared_ptr< SingleDependentVariableSaveSettings > sphericalHarmonicAccelerationTermsDependentVariable(
         const std::string& bodyUndergoingAcceleration,
         const std::string& bodyExertingAcceleration,
@@ -667,6 +713,7 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > sphericalHarmonicA
                 -1, false );
 }
 
+//! @get_docstring(sphericalHarmonicAccelerationTermsNormDependentVariable)
 inline std::shared_ptr< SingleDependentVariableSaveSettings > sphericalHarmonicAccelerationTermsNormDependentVariable(
         const std::string& bodyUndergoingAcceleration,
         const std::string& bodyExertingAcceleration,
@@ -677,6 +724,7 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > sphericalHarmonicA
                 -1, true );
 }
 
+//! @get_docstring(totalGravityFieldVariationAccelerationContributionVariable)
 inline std::shared_ptr< SingleDependentVariableSaveSettings > totalGravityFieldVariationAccelerationContributionVariable(
         const std::string& bodyUndergoingAcceleration,
         const std::string& bodyExertingAcceleration )
@@ -685,6 +733,7 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > totalGravityFieldV
                 total_gravity_field_variation_acceleration, bodyUndergoingAcceleration, bodyExertingAcceleration );
 }
 
+//! @get_docstring(singleGravityFieldVariationAccelerationContributionVariable)
 inline std::shared_ptr< SingleDependentVariableSaveSettings > singleGravityFieldVariationAccelerationContributionVariable(
         const std::string& bodyUndergoingAcceleration,
         const std::string& bodyExertingAcceleration,
@@ -695,6 +744,7 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > singleGravityField
                 bodyUndergoingAcceleration, bodyExertingAcceleration, deformationType, identifier );
 }
 
+//! @get_docstring(singleGravityFieldVariationSeparateTermsAccelerationContributionVariable)
 inline std::shared_ptr< SingleDependentVariableSaveSettings > singleGravityFieldVariationSeparateTermsAccelerationContributionVariable(
         const std::string& bodyUndergoingAcceleration,
         const std::string& bodyExertingAcceleration,
@@ -706,21 +756,23 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > singleGravityField
                 bodyUndergoingAcceleration, bodyExertingAcceleration, componentIndices, deformationType,  identifier );
 }
 
-
+//! @get_docstring(totalAccelerationDependentVariable)
 inline std::shared_ptr< SingleDependentVariableSaveSettings > totalAccelerationDependentVariable(
-        const std::string& bodyUndergoingAcceleration )
+        const std::string& associatedBody )
 {
     return std::make_shared< SingleDependentVariableSaveSettings >(
-                total_acceleration_dependent_variable, bodyUndergoingAcceleration );
+                total_acceleration_dependent_variable, associatedBody );
 }
 
+//! @get_docstring(totalAccelerationNormDependentVariable)
 inline std::shared_ptr< SingleDependentVariableSaveSettings > totalAccelerationNormDependentVariable(
-        const std::string& bodyUndergoingAcceleration )
+        const std::string& associatedBody )
 {
     return std::make_shared< SingleDependentVariableSaveSettings >(
-                total_acceleration_norm_dependent_variable, bodyUndergoingAcceleration );
+                total_acceleration_norm_dependent_variable, associatedBody );
 }
 
+//! @get_docstring(aerodynamicForceCoefficientDependentVariable)
 inline std::shared_ptr< SingleDependentVariableSaveSettings > aerodynamicForceCoefficientDependentVariable(
         const std::string& associatedBody )
 {
@@ -728,6 +780,7 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > aerodynamicForceCo
                 aerodynamic_force_coefficients_dependent_variable, associatedBody );
 }
 
+//! @get_docstring(aerodynamicMomentCoefficientDependentVariable)
 inline std::shared_ptr< SingleDependentVariableSaveSettings > aerodynamicMomentCoefficientDependentVariable(
         const std::string& associatedBody )
 {
@@ -735,13 +788,15 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > aerodynamicMomentC
                 aerodynamic_moment_coefficients_dependent_variable, associatedBody );
 }
 
-inline std::shared_ptr< SingleDependentVariableSaveSettings > rotationMatrixToBodyFixedFrameVariable(
+//! @get_docstring(inertialToBodyFixedRotationMatrixVariable)
+inline std::shared_ptr< SingleDependentVariableSaveSettings > inertialToBodyFixedRotationMatrixVariable(
         const std::string& associatedBody )
 {
     return std::make_shared< SingleDependentVariableSaveSettings >(
-                rotation_matrix_to_body_fixed_frame_variable, associatedBody );
+            inertial_to_body_fixed_rotation_matrix_variable, associatedBody );
 }
 
+//! @get_docstring(intermediateAerodynamicRotationMatrixVariable)
 inline std::shared_ptr< SingleDependentVariableSaveSettings > intermediateAerodynamicRotationMatrixVariable(
         const std::string& associatedBody,
         const reference_frames::AerodynamicsReferenceFrames baseFrame,
@@ -751,6 +806,7 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > intermediateAerody
                 associatedBody, baseFrame, targetFrame );
 }
 
+//! @get_docstring(latitudeDependentVariable)
 inline std::shared_ptr< SingleDependentVariableSaveSettings > latitudeDependentVariable(
         const std::string& associatedBody,
         const std::string& centralBody )
@@ -759,6 +815,7 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > latitudeDependentV
                 associatedBody, reference_frames::latitude_angle, centralBody );
 }
 
+//! @get_docstring(geodeticLatitudeDependentVariable)
 inline std::shared_ptr< SingleDependentVariableSaveSettings > geodeticLatitudeDependentVariable(
 		const std::string& associatedBody,
 		const std::string& centralBody )
@@ -767,6 +824,7 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > geodeticLatitudeDe
 			geodetic_latitude_dependent_variable, associatedBody, centralBody );
 }
 
+//! @get_docstring(longitudeDependentVariable)
 inline std::shared_ptr< SingleDependentVariableSaveSettings > longitudeDependentVariable(
         const std::string& associatedBody,
         const std::string& centralBody )
@@ -775,7 +833,7 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > longitudeDependent
                 associatedBody, reference_frames::longitude_angle, centralBody );
 }
 
-
+//! @get_docstring(headingDependentVariable)
 inline std::shared_ptr< SingleDependentVariableSaveSettings > headingDependentVariable(
         const std::string& associatedBody,
         const std::string& centralBody )
@@ -784,6 +842,7 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > headingDependentVa
                 associatedBody, reference_frames::heading_angle, centralBody );
 }
 
+//! @get_docstring(flightPathAngleDependentVariable)
 inline std::shared_ptr< SingleDependentVariableSaveSettings > flightPathAngleDependentVariable(
         const std::string& associatedBody,
         const std::string& centralBody )
@@ -792,6 +851,7 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > flightPathAngleDep
                 associatedBody, reference_frames::flight_path_angle, centralBody );
 }
 
+//! @get_docstring(angleOfAttackDependentVariable)
 inline std::shared_ptr< SingleDependentVariableSaveSettings > angleOfAttackDependentVariable(
         const std::string& associatedBody,
         const std::string& centralBody )
@@ -800,6 +860,7 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > angleOfAttackDepen
                 associatedBody, reference_frames::angle_of_attack, centralBody );
 }
 
+//! @get_docstring(sideslipAngleDependentVariable)
 inline std::shared_ptr< SingleDependentVariableSaveSettings > sideslipAngleDependentVariable(
         const std::string& associatedBody,
         const std::string& centralBody )
@@ -808,6 +869,7 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > sideslipAngleDepen
                 associatedBody, reference_frames::angle_of_sideslip, centralBody );
 }
 
+//! @get_docstring(bankAngleDependentVariable)
 inline std::shared_ptr< SingleDependentVariableSaveSettings > bankAngleDependentVariable(
         const std::string& associatedBody,
         const std::string& centralBody )
@@ -816,6 +878,7 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > bankAngleDependent
                 associatedBody, reference_frames::bank_angle, centralBody );
 }
 
+//! @get_docstring(bodyFixedAirspeedBasedVelocityVariable)
 inline std::shared_ptr< SingleDependentVariableSaveSettings > bodyFixedAirspeedBasedVelocityVariable(
         const std::string& associatedBody,
         const std::string& centralBody )
@@ -824,6 +887,7 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > bodyFixedAirspeedB
                 body_fixed_airspeed_based_velocity_variable, associatedBody );
 }
 
+//! @get_docstring(bodyFixedGroundspeedBasedVelocityVariable)
 inline std::shared_ptr< SingleDependentVariableSaveSettings > bodyFixedGroundspeedBasedVelocityVariable(
         const std::string& associatedBody,
         const std::string& centralBody )
@@ -832,15 +896,25 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > bodyFixedGroundspe
                 body_fixed_groundspeed_based_velocity_variable, associatedBody );
 }
 
-
-inline std::shared_ptr< SingleDependentVariableSaveSettings > lvlhToInertialFrameRotationMatrixVariable(
+//! @get_docstring(tnwToInertialFrameRotationMatrixVariable)
+inline std::shared_ptr< SingleDependentVariableSaveSettings > tnwToInertialFrameRotationMatrixVariable(
         const std::string& associatedBody,
         const std::string& centralBody )
 {
     return std::make_shared< SingleDependentVariableSaveSettings >(
-                lvlh_to_inertial_frame_rotation_dependent_variable, associatedBody, centralBody );
+                tnw_to_inertial_frame_rotation_dependent_variable, associatedBody, centralBody );
 }
 
+//! @get_docstring(rswToInertialFrameRotationMatrixVariable)
+inline std::shared_ptr< SingleDependentVariableSaveSettings > rswToInertialFrameRotationMatrixVariable(
+        const std::string& associatedBody,
+        const std::string& centralBody )
+{
+    return std::make_shared< SingleDependentVariableSaveSettings >(
+                rsw_to_inertial_frame_rotation_dependent_variable, associatedBody, centralBody );
+}
+
+//! @get_docstring(periapsisAltitudeVariable)
 inline std::shared_ptr< SingleDependentVariableSaveSettings > periapsisAltitudeVariable(
         const std::string& associatedBody,
         const std::string& centralBody )
@@ -849,6 +923,7 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > periapsisAltitudeV
                 periapsis_altitude_dependent_variable, associatedBody, centralBody );
 }
 
+//! @get_docstring(singleTorqueNormVariable)
 inline std::shared_ptr< SingleDependentVariableSaveSettings > singleTorqueNormVariable(
         const basic_astrodynamics::AvailableTorque torqueModelType,
         const std::string& bodyUndergoingTorque,
@@ -858,6 +933,7 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > singleTorqueNormVa
                 torqueModelType, bodyUndergoingTorque, bodyExertingTorque, true );
 }
 
+//! @get_docstring(singleTorqueVariable)
 inline std::shared_ptr< SingleDependentVariableSaveSettings > singleTorqueVariable(
         const basic_astrodynamics::AvailableTorque torqueModelType,
         const std::string& bodyUndergoingTorque,
@@ -867,7 +943,7 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > singleTorqueVariab
                 torqueModelType, bodyUndergoingTorque, bodyExertingTorque, false );
 }
 
-
+//! @get_docstring(controlSurfaceDeflectionDependentVariable)
 inline std::shared_ptr< SingleDependentVariableSaveSettings > controlSurfaceDeflectionDependentVariable(
 		const std::string& associatedBody,
 		const std::string& controlSurface )
@@ -876,6 +952,7 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > controlSurfaceDefl
 			control_surface_deflection_dependent_variable, associatedBody, controlSurface );
 }
 
+//! @get_docstring(radiationPressureDependentVariable)
 inline std::shared_ptr< SingleDependentVariableSaveSettings > radiationPressureDependentVariable(
         const std::string& associatedBody,
         const std::string& radiatingBody )
@@ -884,6 +961,7 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > radiationPressureD
                radiation_pressure_dependent_variable, associatedBody, radiatingBody );
 }
 
+//! @get_docstring(localTemperatureDependentVariable)
 inline std::shared_ptr< SingleDependentVariableSaveSettings > localTemperatureDependentVariable(
         const std::string& associatedBody )
 {
@@ -891,6 +969,7 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > localTemperatureDe
 			local_temperature_dependent_variable, associatedBody );
 }
 
+//! @get_docstring(localDynamicPressureDependentVariable)
 inline std::shared_ptr< SingleDependentVariableSaveSettings > localDynamicPressureDependentVariable(
 		const std::string& associatedBody
 )
@@ -899,6 +978,7 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > localDynamicPressu
 			local_dynamic_pressure_dependent_variable, associatedBody );
 }
 
+//! @get_docstring(localAerodynamicHeatRateDependentVariable)
 inline std::shared_ptr< SingleDependentVariableSaveSettings > localAerodynamicHeatRateDependentVariable(
 		const std::string& associatedBody
 )
@@ -907,6 +987,7 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > localAerodynamicHe
 			local_aerodynamic_heat_rate_dependent_variable, associatedBody );
 }
 
+//! @get_docstring(totalAerodynamicGLoadDependentVariable)
 inline std::shared_ptr< SingleDependentVariableSaveSettings > totalAerodynamicGLoadDependentVariable(
 		const std::string& associatedBody
 )
@@ -915,6 +996,7 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > totalAerodynamicGL
 			total_aerodynamic_g_load_variable, associatedBody );
 }
 
+//! @get_docstring(stagnationPointHeatFluxDependentVariable)
 inline std::shared_ptr< SingleDependentVariableSaveSettings > stagnationPointHeatFluxDependentVariable(
 		const std::string& associatedBody
 )
@@ -923,6 +1005,7 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > stagnationPointHea
 			stagnation_point_heat_flux_dependent_variable, associatedBody );
 }
 
+//! @get_docstring(totalMassRateDependentVariable)
 inline std::shared_ptr< SingleDependentVariableSaveSettings > totalMassRateDependentVariable(
 		const std::string& associatedBody )
 {
@@ -930,6 +1013,7 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > totalMassRateDepen
 			total_mass_rate_dependent_variables, associatedBody );
 }
 
+//! @get_docstring(totalTorqueNormDependentVariable)
 inline std::shared_ptr< SingleDependentVariableSaveSettings > totalTorqueNormDependentVariable(
 		const std::string& associatedBody )
 {
@@ -937,6 +1021,7 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > totalTorqueNormDep
 			total_torque_norm_dependent_variable, associatedBody );
 }
 
+//! @get_docstring(totalTorqueDependentVariable)
 inline std::shared_ptr< SingleDependentVariableSaveSettings > totalTorqueDependentVariable(
 		const std::string& associatedBody )
 {
@@ -944,6 +1029,7 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > totalTorqueDepende
 			total_torque_dependent_variable, associatedBody );
 }
 
+//! @get_docstring(centralBodyFixedSphericalPositionVariable)
 inline std::shared_ptr< SingleDependentVariableSaveSettings > centralBodyFixedSphericalPositionVariable(
         const std::string& associatedBody,
         const std::string& centralBody )
@@ -952,6 +1038,7 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > centralBodyFixedSp
                 body_fixed_relative_spherical_position,  associatedBody, centralBody );
 }
 
+//! @get_docstring(centralBodyFixedCartesianPositionVariable)
 inline std::shared_ptr< SingleDependentVariableSaveSettings > centralBodyFixedCartesianPositionVariable(
         const std::string& associatedBody,
         const std::string& centralBody )
@@ -960,6 +1047,7 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > centralBodyFixedCa
                 body_fixed_relative_cartesian_position,  associatedBody, centralBody );
 }
 
+//! @get_docstring(eulerAnglesToBodyFixed313Variable)
 inline std::shared_ptr< SingleDependentVariableSaveSettings > eulerAnglesToBodyFixed313Variable(
         const std::string& associatedBody )
 {
@@ -967,6 +1055,7 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > eulerAnglesToBodyF
                 euler_angles_to_body_fixed_313,  associatedBody );
 }
 
+//! @get_docstring(bodyMassVariable)
 inline std::shared_ptr< SingleDependentVariableSaveSettings > bodyMassVariable(
         const std::string& associatedBody )
 {
@@ -974,6 +1063,7 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > bodyMassVariable(
                 current_body_mass_dependent_variable,  associatedBody );
 }
 
+//! @get_docstring(radiationPressureCoefficientVariable)
 inline std::shared_ptr< SingleDependentVariableSaveSettings > radiationPressureCoefficientVariable(
         const std::string& associatedBody,
         const std::string& emittingBody )
@@ -981,6 +1071,35 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > radiationPressureC
     return std::make_shared< SingleDependentVariableSaveSettings >(
                 radiation_pressure_coefficient_dependent_variable,  associatedBody, emittingBody );
 }
+
+//! @get_docstring(dynamicPressureVariable)
+inline std::shared_ptr< SingleDependentVariableSaveSettings > dynamicPressureVariable(
+        const std::string& associatedBody,
+        const std::string& centralBody )
+{
+    return std::make_shared< SingleDependentVariableSaveSettings >(
+                local_dynamic_pressure_dependent_variable,  associatedBody, centralBody );
+}
+
+//! @get_docstring(aerodynamicGLoadVariable)
+inline std::shared_ptr< SingleDependentVariableSaveSettings > aerodynamicGLoadVariable(
+        const std::string& associatedBody,
+        const std::string& centralBody )
+{
+    return std::make_shared< SingleDependentVariableSaveSettings >(
+                total_aerodynamic_g_load_variable,  associatedBody, centralBody );
+}
+
+//! @get_docstring(atmosphericTemperatureVariable)
+inline std::shared_ptr< SingleDependentVariableSaveSettings > atmosphericTemperatureVariable(
+        const std::string& associatedBody,
+        const std::string& centralBody )
+{
+    return std::make_shared< SingleDependentVariableSaveSettings >(
+                local_temperature_dependent_variable,  associatedBody, centralBody );
+}
+
+
 
 
 } // namespace propagators

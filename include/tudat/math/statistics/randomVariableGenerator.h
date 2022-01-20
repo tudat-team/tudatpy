@@ -108,6 +108,13 @@ private:
 
 };
 
+
+std::function< Eigen::VectorXd( const double ) > getIndependentGaussianNoiseFunction(
+        const double standardDeviation,
+        const double mean = 0.0,
+        const double seed = 0.0,
+        const int outputSize = 1 );
+
 //! Function to create a random number generating function from a continuous univariate distribution implemented in boost
 /*!
  *  Function to create a random number generating function from a continuous univariate distribution implemented in boost
@@ -121,6 +128,8 @@ std::function< double( ) > createBoostContinuousRandomVariableGeneratorFunction(
         const ContinuousBoostStatisticalDistributions boostDistribution,
         const std::vector< double >& parameters,
         const double seed );
+
+
 
 //! Function to create a random number generator from a continuous univariate distribution implemented in boost
 /*!

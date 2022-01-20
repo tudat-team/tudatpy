@@ -109,7 +109,7 @@ static std::map< ThrustFrames, std::string > thrustFrameTypes =
 {
     { unspecified_thrust_frame, "unspecified" },
     { inertial_thurst_frame, "intertial" },
-    { lvlh_thrust_frame, "lvlh" }
+    { tnw_thrust_frame, "tnw" }
 };
 
 //! `ThrustFrames` not supported by `json_interface`.

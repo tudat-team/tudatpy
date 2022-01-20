@@ -9,6 +9,7 @@
  *
  */
 
+#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <limits>
@@ -28,11 +29,11 @@
 #include "tudat/astro/observation_models/oneWayDopplerObservationModel.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/constantRotationRate.h"
 #include "tudat/simulation/estimation_setup/createObservationPartials.h"
-#include "tudat/astro/orbit_determination/observation_partials/numericalObservationPartial.h"
+#include "tudat/support/numericalObservationPartial.h"
 #include "tudat/simulation/environment_setup/createGroundStations.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
 #include "tudat/math/basic/numericalDerivative.h"
-#include "tudat/astro/orbit_determination/observation_partials/observationPartialTestFunctions.h"
+#include "tudat/support/observationPartialTestFunctions.h"
 
 namespace tudat
 {
@@ -225,8 +226,8 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
             {
                 oneWayDopplerModel =
                         observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
-                            linkEnds, std::make_shared< observation_models::ObservationSettings >(
-                                observation_models::one_way_doppler,
+                            std::make_shared< observation_models::ObservationModelSettings >(
+                                observation_models::one_way_doppler, linkEnds,
                                 std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
                                     perturbingBodies ) ), bodies  );
             }
@@ -234,8 +235,8 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
             {
                 oneWayDopplerModel =
                         observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
-                            linkEnds, std::make_shared< OneWayDopplerObservationSettings >
-                            (  std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
+                            std::make_shared< OneWayDopplerObservationSettings >
+                            (  linkEnds, std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
                                    perturbingBodies ),
                                std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Mars" ),
                                std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Earth" ) ), bodies  );
@@ -283,8 +284,8 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
             {
                 oneWayDopplerModel =
                         observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
-                            linkEnds, std::make_shared< observation_models::ObservationSettings >(
-                                observation_models::one_way_doppler,
+                            std::make_shared< observation_models::ObservationModelSettings >(
+                                observation_models::one_way_doppler, linkEnds,
                                 std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
                                     perturbingBodies ) ), bodies  );
             }
@@ -292,8 +293,8 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
             {
                 oneWayDopplerModel =
                         observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
-                            linkEnds, std::make_shared< OneWayDopplerObservationSettings >
-                            (  std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
+                            std::make_shared< OneWayDopplerObservationSettings >
+                            (  linkEnds, std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
                                    perturbingBodies ),
                                std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Mars" ),
                                std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Earth" ) ), bodies  );
@@ -333,8 +334,8 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
         std::shared_ptr< OneWayDopplerObservationModel< > > oneWayDopplerModel =
                 std::dynamic_pointer_cast< OneWayDopplerObservationModel< > >(
                     observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
-                        linkEnds, std::make_shared< OneWayDopplerObservationSettings >
-                        (  std::shared_ptr< LightTimeCorrectionSettings >( ),
+                        std::make_shared< OneWayDopplerObservationSettings >
+                        (  linkEnds, std::shared_ptr< LightTimeCorrectionSettings >( ),
                            std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Earth" ),
                            std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Mars" ) ), bodies ) );
 
@@ -455,8 +456,8 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
         std::shared_ptr< OneWayDopplerObservationModel< > > oneWayDopplerModelWithoutProperTime =
                 std::dynamic_pointer_cast< OneWayDopplerObservationModel< > >(
                     observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
-                        linkEnds, std::make_shared< ObservationSettings >
-                        (  one_way_doppler, std::shared_ptr< LightTimeCorrectionSettings >( ) ), bodies ) );
+                        std::make_shared< ObservationModelSettings >
+                        (  one_way_doppler, linkEnds, std::shared_ptr< LightTimeCorrectionSettings >( ) ), bodies ) );
 
         // Create partials for Doppler without proper time rates
         observationModelList.clear( );

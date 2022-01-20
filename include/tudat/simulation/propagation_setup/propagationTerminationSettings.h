@@ -49,12 +49,12 @@ public:
     /*!
      * Constructor
      * \param terminationType Type of stopping condition that is to be used.
-     * \param terminateExactlyOnFinalCondition Boolean to denote whether the propagation is to terminate exactly on the final
+     * \param checkTerminationToExactCondition Boolean to denote whether the propagation is to terminate exactly on the final
      * condition, or whether it is to terminate on the first step where it is violated.
      */
     PropagationTerminationSettings( const PropagationTerminationTypes terminationType,
-                                    const bool terminateExactlyOnFinalCondition = false ):
-        terminationType_( terminationType ), terminateExactlyOnFinalCondition_( terminateExactlyOnFinalCondition ){ }
+                                    const bool checkTerminationToExactCondition = false ):
+        terminationType_( terminationType ), checkTerminationToExactCondition_( checkTerminationToExactCondition ){ }
 
     //! Destructor
     virtual ~PropagationTerminationSettings( ){ }
@@ -64,7 +64,7 @@ public:
 
     //! Boolean to denote whether the propagation is to terminate exactly on the final condition, or whether it is to terminate
     //! on the first step where it is violated.
-    bool terminateExactlyOnFinalCondition_;
+    bool checkTerminationToExactCondition_;
 
 };
 
@@ -81,12 +81,12 @@ public:
     /*!
      * Constructor
      * \param terminationTime Maximum time for the propagation, upon which the propagation is to be stopped
-     * \param terminateExactlyOnFinalCondition Boolean to denote whether the propagation is to terminate exactly on the final
+     * \param checkTerminationToExactCondition Boolean to denote whether the propagation is to terminate exactly on the final
      * condition, or whether it is to terminate on the first step where it is violated.
      */
     PropagationTimeTerminationSettings( const double terminationTime,
-                                        const bool terminateExactlyOnFinalCondition = false ):
-        PropagationTerminationSettings( time_stopping_condition, terminateExactlyOnFinalCondition ),
+                                        const bool checkTerminationToExactCondition = false ):
+        PropagationTerminationSettings( time_stopping_condition, checkTerminationToExactCondition ),
         terminationTime_( terminationTime ){ }
 
     //! Destructor
@@ -143,7 +143,7 @@ public:
      * \param limitValue Value at which the propagation is to be stopped
      * \param useAsLowerLimit Boolean denoting whether the propagation should stop if the dependent variable goes below
      * (if true) or above (if false) limitingValue
-     * \param terminateExactlyOnFinalCondition Boolean to denote whether the propagation is to terminate exactly on the final
+     * \param checkTerminationToExactCondition Boolean to denote whether the propagation is to terminate exactly on the final
      * condition, or whether it is to terminate on the first step where it is violated.
      * \param terminationRootFinderSettings Settings to create root finder used to converge on exact final condition.
      */
@@ -151,15 +151,15 @@ public:
             const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings,
             const double limitValue,
             const bool useAsLowerLimit,
-            const bool terminateExactlyOnFinalCondition = false,
+            const bool checkTerminationToExactCondition = false,
             const std::shared_ptr< root_finders::RootFinderSettings > terminationRootFinderSettings = nullptr ):
         PropagationTerminationSettings(
-            dependent_variable_stopping_condition, terminateExactlyOnFinalCondition ),
+            dependent_variable_stopping_condition, checkTerminationToExactCondition ),
         dependentVariableSettings_( dependentVariableSettings ),
         limitValue_( limitValue ), useAsLowerLimit_( useAsLowerLimit ),
         terminationRootFinderSettings_( terminationRootFinderSettings )
     {
-        if( terminateExactlyOnFinalCondition_ && ( terminationRootFinderSettings_ == nullptr ) )
+        if( checkTerminationToExactCondition_ && ( terminationRootFinderSettings_ == nullptr ) )
         {
             throw std::runtime_error( "Error when defining exact dependent variable propagation termination settings. Root finder not defined." );
         }
@@ -233,15 +233,12 @@ public:
         terminationSettings_( terminationSettings ),
         fulfillSingleCondition_( fulfillSingleCondition )
     {
+        checkTerminationToExactCondition_ = false;
         for( unsigned int i = 0; i < terminationSettings_.size( ); i++ )
         {
-            if( i == 0 )
+            if( terminationSettings_.at( i )->checkTerminationToExactCondition_ )
             {
-                terminateExactlyOnFinalCondition_ = terminationSettings_.at( 0 )->terminateExactlyOnFinalCondition_;
-            }
-            else if( terminationSettings_.at( i )->terminateExactlyOnFinalCondition_ != terminateExactlyOnFinalCondition_ )
-            {
-                throw std::runtime_error( "Error in hybrid termination settings, terminateExactlyOnFinalCondition_ is inconsistent" );
+                checkTerminationToExactCondition_ = true;
             }
         }
     }
@@ -262,20 +259,27 @@ inline std::shared_ptr< PropagationTerminationSettings > propagationDependentVar
         const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings,
         const double limitValue,
         const bool useAsLowerLimit,
-        const bool terminateExactlyOnFinalCondition = false,
+        const bool checkTerminationToExactCondition = false,
         const std::shared_ptr< root_finders::RootFinderSettings > terminationRootFinderSettings = nullptr )
 {
     return std::make_shared< PropagationDependentVariableTerminationSettings >(
-                dependentVariableSettings, limitValue, useAsLowerLimit, terminateExactlyOnFinalCondition,
+                dependentVariableSettings, limitValue, useAsLowerLimit, checkTerminationToExactCondition,
                 terminationRootFinderSettings );
 }
 
 inline std::shared_ptr< PropagationTerminationSettings > propagationTimeTerminationSettings(
         const double terminationTime,
-        const bool terminateExactlyOnFinalCondition = false  )
+        const bool checkTerminationToExactCondition = false  )
 {
     return std::make_shared< PropagationTimeTerminationSettings >(
-                terminationTime, terminateExactlyOnFinalCondition );
+                terminationTime, checkTerminationToExactCondition );
+}
+
+inline std::shared_ptr< PropagationTerminationSettings > propagationCPUTimeTerminationSettings(
+        const double cpuTerminationTime )
+{
+    return std::make_shared< PropagationCPUTimeTerminationSettings >(
+                cpuTerminationTime );
 }
 
 inline std::shared_ptr< PropagationTerminationSettings > propagationHybridTerminationSettings(
@@ -285,6 +289,14 @@ inline std::shared_ptr< PropagationTerminationSettings > propagationHybridTermin
     return std::make_shared< PropagationHybridTerminationSettings >(
                 terminationSettings, fulfillSingleCondition );
 }
+
+inline std::shared_ptr< PropagationTerminationSettings > popagationCustomTerminationSettings(
+        const std::function< bool( const double ) > checkStopCondition )
+{
+    return std::make_shared< PropagationCustomTerminationSettings >(
+                checkStopCondition );
+}
+
 
 
 } // namespace propagators

@@ -8,6 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <boost/test/unit_test.hpp>
@@ -62,7 +63,7 @@ BOOST_AUTO_TEST_CASE( test_PointingAnglesCalculator )
         Eigen::Vector3d testCartesianPoint = coordinate_conversions::convertSphericalToCartesian( testSphericalPoint );
 
         // Compute azimuth/elevation angles from PointingAnglesCalculator
-        double testAzimuth = pointAnglesCalculator->calculationAzimuthAngle( testCartesianPoint, 0.0 );
+        double testAzimuth = pointAnglesCalculator->calculateAzimuthAngle( testCartesianPoint, 0.0 );
         double testElevation = pointAnglesCalculator->calculateElevationAngle( testCartesianPoint, 0.0 );
 
         double expectedAzimuth = 90.0 * degreesToRadians;
@@ -91,7 +92,7 @@ BOOST_AUTO_TEST_CASE( test_PointingAnglesCalculator )
             Eigen::Vector3d testCartesianPoint = coordinate_conversions::convertSphericalToCartesian( testSphericalPoint );
 
             // Compute azimuth/elevation angles from PointingAnglesCalculator
-            double testAzimuth = pointAnglesCalculator->calculationAzimuthAngle( testCartesianPoint, 0.0 );
+            double testAzimuth = pointAnglesCalculator->calculateAzimuthAngle( testCartesianPoint, 0.0 );
             double testElevation = pointAnglesCalculator->calculateElevationAngle( testCartesianPoint, 0.0 );
 
             // Set azimuth/elevation angles retrieved from website.
@@ -119,7 +120,7 @@ BOOST_AUTO_TEST_CASE( test_PointingAnglesCalculator )
             Eigen::Vector3d testCartesianPoint = coordinate_conversions::convertSphericalToCartesian( testSphericalPoint );
 
             // Compute azimuth/elevation angles from PointingAnglesCalculator
-            double testAzimuth = pointAnglesCalculator->calculationAzimuthAngle( testCartesianPoint, 0.0 );
+            double testAzimuth = pointAnglesCalculator->calculateAzimuthAngle( testCartesianPoint, 0.0 );
             double testElevation = pointAnglesCalculator->calculateElevationAngle( testCartesianPoint, 0.0 );
 
             // Set azimuth/elevation angles retrieved from website.

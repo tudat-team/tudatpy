@@ -20,7 +20,9 @@
 #ifndef TUDAT_HALLEY_ROOT_FINDER_H
 #define TUDAT_HALLEY_ROOT_FINDER_H
 
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
+using namespace boost::placeholders;
+
 #include <boost/make_shared.hpp>
 #include <memory>
 
@@ -56,15 +58,15 @@ namespace root_finders
  * \tparam DataType Data type used to represent floating-point values.
  */
 template< typename DataType = double >
-class HalleyRootFinderCore : public RootFinderCore< DataType >
+class HalleyRootFinder : public RootFinder< DataType >
 {
 public:
 
     //! Usefull type definition for the function pointer (from base class).
-    typedef typename RootFinderCore< DataType >::FunctionPointer FunctionPointer;
+    typedef typename RootFinder< DataType >::FunctionPointer FunctionPointer;
 
     //! Usefull type definition for the termination function (from base class).
-    typedef typename RootFinderCore< DataType >::TerminationFunction TerminationFunction;
+    typedef typename RootFinder< DataType >::TerminationFunction TerminationFunction;
 
     //! Constructor taking the general termination function.
     /*!
@@ -74,8 +76,8 @@ public:
      * \param terminationFunction The function specifying the termination conditions of the
      *          root-finding process. \sa RootFinderCore::terminationFunction
      */
-    HalleyRootFinderCore( TerminationFunction terminationFunction )
-        : RootFinderCore< DataType >( terminationFunction )
+    HalleyRootFinder( TerminationFunction terminationFunction )
+        : RootFinder< DataType >( terminationFunction )
     { }
 
     //! Constructor taking typical convergence criteria.
@@ -84,25 +86,25 @@ public:
      * relative tolerance for the independent variable. If desired, a custom convergence function
      * can provided to the alternative constructor.
 
-     *  \param relativeXTolerance Relative difference between the root solution of two subsequent
+     *  \param relativeIndependentVariableTolerance Relative difference between the root solution of two subsequent
      *          solutions below which convergence is reached.
      *  \param maxIterations Maximum number of iterations after which the root finder is
      *          terminated, i.e. convergence is assumed.
      */
-    HalleyRootFinderCore( const DataType relativeXTolerance, const unsigned int maxIterations )
-        : RootFinderCore< DataType >(
+    HalleyRootFinder( const DataType relativeIndependentVariableTolerance, const unsigned int maxIterations )
+        : RootFinder< DataType >(
               std::bind(
-                  &termination_conditions::RootRelativeToleranceTerminationCondition< DataType >::
+                  &RootRelativeToleranceTerminationCondition< DataType >::
                   checkTerminationCondition, std::make_shared<
-                  termination_conditions::RootRelativeToleranceTerminationCondition< DataType > >(
-                      relativeXTolerance, maxIterations ), std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5 ) )
+                  RootRelativeToleranceTerminationCondition< DataType > >(
+                      relativeIndependentVariableTolerance, maxIterations ), std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5 ) )
     { }
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    ~HalleyRootFinderCore( ){ }
+    ~HalleyRootFinder( ){ }
 
     //! Find a root of the function provided as input.
     /*!
@@ -156,7 +158,8 @@ public:
             // Update the counter.
             counter++;
         }
-        while( !this->terminationFunction( nextRootValue, currentRootValue, nextFunctionValue,
+        while( nextFunctionValue != mathematical_constants::getFloatingInteger< DataType >( 0 ) &&
+               !this->terminationFunction_( nextRootValue, currentRootValue, nextFunctionValue,
                                            currentFunctionValue, counter ) );
 
         return nextRootValue;
@@ -168,9 +171,6 @@ private:
 
 };
 
-// Some handy typedefs.
-typedef HalleyRootFinderCore< double > HalleyRootFinder;
-typedef std::shared_ptr< HalleyRootFinder > HalleyRootFinderPointer;
 
 } // namespace root_finders
 } // namespace tudat

@@ -29,13 +29,14 @@
  *
  */
 
+#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <cmath>
 #include <limits>
 #include <iostream>
 
-#include <boost/test/floating_point_comparison.hpp>
+#include <boost/test/tools/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <Eigen/Core>
@@ -446,6 +447,11 @@ void convertParabolicOrbitBackAndForth(
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( keplerianElements,
                                        recomputedKeplerianElements, tolerance );
 
+    std::cout<<"Keplerian "<<std::setprecision( 16 )<<keplerianElements.transpose( )<<std::endl;
+    std::cout<<"Keplerian "<<recomputedKeplerianElements.transpose( )<<std::endl;
+    std::cout<<"Keplerian "<<( keplerianElements - recomputedKeplerianElements ).transpose( )<<std::endl;
+    recomputedKeplerianElements( eccentricityIndex ) = getFloatingInteger< ScalarType >( 1 );
+
     // Convert recomputed Keplerian elements to Cartesian elements.
     Eigen::Matrix< ScalarType, 6, 1 > recomputedCartesianElements =
             convertKeplerianToCartesianElements(
@@ -454,6 +460,9 @@ void convertParabolicOrbitBackAndForth(
     // Check that computed Cartesian elements match.
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                 computedCartesianElements, recomputedCartesianElements, ( 10.0 * tolerance ) );
+
+    std::cout<<"Cartesian "<<std::setprecision( 16 )<<computedCartesianElements.transpose( )<<std::endl;
+    std::cout<<"Cartesian "<<recomputedCartesianElements.transpose( )<<std::endl;
 }
 
 //! Test back and forth Kepler <-> Cartesian conversion for circular equatorial orbit
@@ -1614,14 +1623,55 @@ BOOST_AUTO_TEST_CASE( test_LongitudeOfNodeBugfix )
             orbital_element_conversions::convertCartesianToKeplerianElements(
                 recomputedCartesianState, gravitationalParameterOfCentralBody );
 
-    std::cout << std::setprecision( 16 ) << cartesianState.transpose( ) << std::endl;
-    std::cout << std::setprecision( 16 ) << recomputedCartesianState.transpose( ) << std::endl << std::endl;
+//    std::cout << std::setprecision( 16 ) << cartesianState.transpose( ) << std::endl;
+//    std::cout << std::setprecision( 16 ) << recomputedCartesianState.transpose( ) << std::endl << std::endl;
 
-    std::cout << std::setprecision( 16 ) << keplerianState.transpose( ) << std::endl;
-    std::cout << std::setprecision( 16 ) << recomputedKeplerianState.transpose( ) << std::endl;
+//    std::cout << std::setprecision( 16 ) << keplerianState.transpose( ) << std::endl;
+//    std::cout << std::setprecision( 16 ) << recomputedKeplerianState.transpose( ) << std::endl;
 }
 
 
+//! Test if conversion from eccentric anomaly to mean anomaly is working correctly.
+BOOST_AUTO_TEST_CASE( testMeanToTrueAnomalyConversion )
+{
+    using namespace orbital_element_conversions;
+    using namespace basic_mathematics;
+
+    std::vector< double > meanAnomalies =
+    { 1.0E-12, 1.0, mathematical_constants::PI, 5.0, 2.0 * mathematical_constants::PI - 1.0E-12 };
+    std::vector< double > eccentricities =
+    { 0.0, 0.1, 0.5, 0.9, 0.99, 0.99999999, 1.00000001, 1.001, 2.0, 5.0, 10.0 };
+    for( unsigned int i = 0; i < meanAnomalies.size( ); i++ )
+    {
+        for( unsigned int j = 0; j < eccentricities.size( ); j++ )
+        {
+            double eccentricity = eccentricities.at( j );
+            double meanAnomaly = meanAnomalies.at( i );
+
+            double trueAnomaly = convertMeanAnomalyToTrueAnomaly( eccentricity, meanAnomaly );
+
+            double recomputedMeanAnomaly = convertTrueAnomalyToMeanAnomaly( eccentricity, trueAnomaly );
+
+            double anomalyDifference = meanAnomaly - recomputedMeanAnomaly;
+            if( anomalyDifference > 1.0 )
+            {
+                anomalyDifference -= 2.0 * mathematical_constants::PI;
+            }
+
+            double tolerance = 1.0E-13;
+            if( std::fabs( eccentricity - 1 ) < 0.1 )
+            {
+                tolerance *= 1.0E3;
+            }
+
+            if( std::fabs( eccentricity - 1 ) < 0.00001 )
+            {
+                tolerance *= 1.0E6;
+            }
+            BOOST_CHECK_SMALL( std::fabs( anomalyDifference ), tolerance );
+        }
+    }
+}
 
 BOOST_AUTO_TEST_SUITE_END( )
 

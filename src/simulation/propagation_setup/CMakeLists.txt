@@ -28,14 +28,16 @@ set(propagation_HEADERS
         setNumericallyIntegratedStates.h
         environmentUpdater.h
         createThrustModelGuidance.h
-        propagationLambertTargeterFullProblem.h
-        propagationPatchedConicFullProblem.h
+#        propagationLambertTargeterFullProblem.h
+#<<<<<<< HEAD
+#        propagationPatchedConicFullProblem.h
+        propagationLowThrustProblem.h
         )
 
 # Add header files.
 set(propagation_SOURCES
         createStateDerivativeModel.cpp
-        propagationLambertTargeterFullProblem.cpp
+#        propagationLambertTargeterFullProblem.cpp
         createThrustModelGuidance.cpp
         thrustSettings.cpp
         propagationSettings.cpp
@@ -50,7 +52,9 @@ set(propagation_SOURCES
         propagationTermination.cpp
         propagationOutput.cpp
         environmentUpdater.cpp
-        propagationPatchedConicFullProblem.cpp
+#<<<<<<< HEAD
+#        propagationPatchedConicFullProblem.cpp
+        propagationLowThrustProblem.cpp
         )
 
 # Add library.

@@ -8,10 +8,13 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <boost/test/unit_test.hpp>
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
+using namespace boost::placeholders;
+
 #include <boost/make_shared.hpp>
 #include <memory>
 
@@ -60,13 +63,6 @@ BOOST_AUTO_TEST_CASE( testConstantThrustAcceleration )
     double vehicleMass = 5.0E3;
     bodies.createEmptyBody( "Vehicle" );
     bodies.at( "Vehicle" )->setConstantBodyMass( vehicleMass );
-    bodies.at( "Vehicle" )->setEphemeris(
-                std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
-                    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector6d  > >( ),
-                    "SSB" ) );
-
-    
-    
 
     // Define propagator settings variables.
     SelectedAccelerationMap accelerationMap;
@@ -132,7 +128,7 @@ BOOST_AUTO_TEST_CASE( testConstantThrustAcceleration )
     {
         std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
         massRateModels[ "Vehicle" ] = (
-                    createMassRateModel( "Vehicle", std::make_shared< FromThrustMassModelSettings >( 1 ),
+                    createMassRateModel( "Vehicle", std::make_shared< FromThrustMassRateSettings >(1 ),
                                          bodies, accelerationModelMap ) );
 
         std::shared_ptr< SingleArcPropagatorSettings< double > > massPropagatorSettings =
@@ -197,16 +193,11 @@ BOOST_AUTO_TEST_CASE( testFromEngineThrustAcceleration )
 
         bodies.createEmptyBody( "Vehicle" );
         bodies.at( "Vehicle" )->setConstantBodyMass( vehicleMass );
-        bodies.at( "Vehicle" )->setEphemeris(
-                    std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
-                        std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector6d  > >( ),
-                        "SSB" ) );
 
         double thrustMagnitude1 = 1.0E3;
         double specificImpulse1 = 250.0;
         double massFlow1 = propulsion::computePropellantMassRateFromSpecificImpulse(
                     thrustMagnitude1, specificImpulse1 );
-
 
         double thrustMagnitude2 = 2.0E3;
         double specificImpulse2 = 300.0;
@@ -314,7 +305,7 @@ BOOST_AUTO_TEST_CASE( testFromEngineThrustAcceleration )
         case 0:
         {
             massRateModels[ "Vehicle" ] = (
-                        createMassRateModel( "Vehicle", std::make_shared< FromThrustMassModelSettings >( 1 ),
+                        createMassRateModel( "Vehicle", std::make_shared< FromThrustMassRateSettings >(1 ),
                                              bodies, accelerationModelMap ) );
             totalMassRate = massFlow1 + massFlow2;
             totalThrust = thrustMagnitude1 + thrustMagnitude2;
@@ -323,7 +314,7 @@ BOOST_AUTO_TEST_CASE( testFromEngineThrustAcceleration )
         case 1:
         {
             massRateModels[ "Vehicle" ] = (
-                        createMassRateModel( "Vehicle", std::make_shared< FromThrustMassModelSettings >( 0, "Engine1" ),
+                        createMassRateModel( "Vehicle", std::make_shared< FromThrustMassRateSettings >(0, "Engine1" ),
                                              bodies, accelerationModelMap ) );
             totalMassRate = massFlow1;
             totalThrust = thrustMagnitude1;
@@ -332,7 +323,7 @@ BOOST_AUTO_TEST_CASE( testFromEngineThrustAcceleration )
         case 2:
         {
             massRateModels[ "Vehicle" ] = (
-                        createMassRateModel( "Vehicle", std::make_shared< FromThrustMassModelSettings >( 0, "Engine2" ),
+                        createMassRateModel( "Vehicle", std::make_shared< FromThrustMassRateSettings >(0, "Engine2" ),
                                              bodies, accelerationModelMap ) );
             totalMassRate = massFlow2;
             totalThrust = thrustMagnitude2;
@@ -341,7 +332,7 @@ BOOST_AUTO_TEST_CASE( testFromEngineThrustAcceleration )
         case 3:
         {
             massRateModels[ "Vehicle" ] = (
-                        createMassRateModel( "Vehicle", std::make_shared< FromThrustMassModelSettings >( 0, "Engine1" ),
+                        createMassRateModel( "Vehicle", std::make_shared< FromThrustMassRateSettings >(0, "Engine1" ),
                                              bodies, accelerationModelMap ) );
             totalMassRate = massFlow1;
             totalThrust = thrustMagnitude1 + thrustMagnitude2;
@@ -420,12 +411,6 @@ BOOST_AUTO_TEST_CASE( testRadialAndVelocityThrustAcceleration )
 
         bodies.createEmptyBody( "Vehicle" );
         bodies.at( "Vehicle" )->setConstantBodyMass( vehicleMass );
-        bodies.at( "Vehicle" )->setEphemeris(
-                    std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
-                        std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector6d  > >( ),
-                        "Earth" ) );
-
-        
 
         // Define propagator settings variables.
         SelectedAccelerationMap accelerationMap;
@@ -452,7 +437,7 @@ BOOST_AUTO_TEST_CASE( testRadialAndVelocityThrustAcceleration )
                                                                thrustMagnitude, specificImpulse ) ) );
         if( i == 1 )
         {
-            accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+            accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
         }
 
         accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
@@ -594,10 +579,6 @@ BOOST_AUTO_TEST_CASE( testThrustAccelerationFromExistingRotation )
     double vehicleMass = 5.0E3;
     bodies.createEmptyBody( "Vehicle" );
     bodies.at( "Vehicle" )->setConstantBodyMass( vehicleMass );
-    bodies.at( "Vehicle" )->setEphemeris(
-                std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
-                    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector6d  > >( ),
-                    "Earth" ) );
     bodies.at( "Vehicle" )->setRotationalEphemeris(
                 std::make_shared< ephemerides::SpiceRotationalEphemeris >( "ECLIPJ2000", "IAU_MOON" ) );
     
@@ -612,11 +593,11 @@ BOOST_AUTO_TEST_CASE( testThrustAccelerationFromExistingRotation )
 
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
     accelerationsOfVehicle[ "Vehicle" ].push_back( std::make_shared< ThrustAccelerationSettings >(
-                                                       std::make_shared< ThrustDirectionGuidanceSettings >(
-                                                           thrust_direction_from_existing_body_orientation, "Earth" ),
+                                                       std::make_shared< ThrustDirectionSettings >(
+                                                           thrust_direction_from_existing_body_orientation ),
                                                        std::make_shared< ConstantThrustMagnitudeSettings >(
                                                            thrustMagnitude, specificImpulse, bodyFixedThrustDirection ) ) );
-    accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+    accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
 
 
     accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
@@ -747,13 +728,7 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAcceleration )
         // Create vehicle aerodynamic coefficients
         bodies.at( "Apollo" )->setAerodynamicCoefficientInterface(
                     unit_tests::getApolloCoefficientInterface( ) );
-        bodies.at( "Apollo" )->setEphemeris(
-                    std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
-                        std::shared_ptr< interpolators::OneDimensionalInterpolator<
-                        double, Eigen::Vector6d  > >( ), "Earth" ) );
 
-        
-        
 
         // Define propagator settings variables.
         SelectedAccelerationMap accelerationMap;
@@ -762,15 +737,15 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAcceleration )
 
         // Define acceleration model settings.
         std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfApollo;
-        accelerationsOfApollo[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+        accelerationsOfApollo[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
         accelerationsOfApollo[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( aerodynamic ) );
-        accelerationsOfApollo[ "Moon" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+        accelerationsOfApollo[ "Moon" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
 
         double thrustMagnitude = 1.0E-3;
         double specificImpulse = 250.0;
         accelerationsOfApollo[ "Apollo" ].push_back( std::make_shared< ThrustAccelerationSettings >(
-                                                         std::make_shared< ThrustDirectionGuidanceSettings >(
-                                                             thrust_direction_from_existing_body_orientation, "Earth" ),
+                                                         std::make_shared< ThrustDirectionSettings >(
+                                                             thrust_direction_from_existing_body_orientation ),
                                                          std::make_shared< ConstantThrustMagnitudeSettings >(
                                                              thrustMagnitude, specificImpulse ) ) );
 
@@ -814,7 +789,7 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAcceleration )
                         "Apollo", reference_frames::inertial_frame, reference_frames::body_frame ) );
         dependentVariables.push_back(
                     std::make_shared< SingleDependentVariableSaveSettings >(
-                        rotation_matrix_to_body_fixed_frame_variable, "Apollo" ) );
+                            inertial_to_body_fixed_rotation_matrix_variable, "Apollo" ) );
         dependentVariables.push_back(
                     std::make_shared< SingleAccelerationDependentVariableSaveSettings >(
                         aerodynamic, "Apollo", "Earth", 0 ) );
@@ -972,7 +947,7 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAcceleration )
 }
 
 //! Test whether the thrust is properly computed if the full vector (*magnitude and direction) is imposed in either the
-//! inertial or LVLH frame.
+//! inertial or TNW frame.
 BOOST_AUTO_TEST_CASE( testInterpolatedThrustVector )
 {
 
@@ -1057,12 +1032,19 @@ BOOST_AUTO_TEST_CASE( testInterpolatedThrustVector )
         // Define propagation settings.
         std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfAsterix;
         accelerationsOfAsterix[ "Earth" ].push_back( std::make_shared< AccelerationSettings >(
-                                                         basic_astrodynamics::central_gravity ) );
+                                                         basic_astrodynamics::point_mass_gravity ) );
 
+        std::shared_ptr< OneDimensionalInterpolator< double, Eigen::Vector3d > > thrustInterpolator =
+                interpolators::createOneDimensionalInterpolator( thrustDataInterpolation );
+        typedef interpolators::OneDimensionalInterpolator< double, Eigen::Vector3d > LocalInterpolator;
+        std::function< Eigen::Vector3d( const double ) > thrustFunction =
+                std::bind(
+                    static_cast< Eigen::Vector3d( LocalInterpolator::* )( const double ) >
+                    ( &LocalInterpolator::interpolate ), thrustInterpolator, std::placeholders::_1 );
         std::shared_ptr< ThrustAccelerationSettings > thrustSettings =
                 std::make_shared< ThrustAccelerationSettings >(
-                    thrustDataInterpolation, [ & ](  const double ){ return 300.0; },
-                    testCase == 0 ? inertial_thurst_frame : lvlh_thrust_frame, "Earth" );
+                        thrustFunction, [ & ](  const double ){ return 300.0; },
+                    testCase == 0 ? inertial_thrust_frame : tnw_thrust_frame, "Earth" );
 
         accelerationsOfAsterix[ "Asterix" ].push_back( thrustSettings );
         accelerationMap[ "Asterix" ] = accelerationsOfAsterix;
@@ -1103,7 +1085,7 @@ BOOST_AUTO_TEST_CASE( testInterpolatedThrustVector )
                         relative_velocity_dependent_variable, "Asterix", "Earth" ) );
         dependentVariables.push_back(
                     std::make_shared< SingleDependentVariableSaveSettings >(
-                        lvlh_to_inertial_frame_rotation_dependent_variable, "Asterix", "Earth" ) );
+                        tnw_to_inertial_frame_rotation_dependent_variable, "Asterix", "Earth" ) );
 
 
         std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
@@ -1127,8 +1109,8 @@ BOOST_AUTO_TEST_CASE( testInterpolatedThrustVector )
         std::map< double, Eigen::VectorXd > dependentVariableResult = dynamicsSimulator.getDependentVariableHistory( );
 
 
-        std::shared_ptr< OneDimensionalInterpolator< double, Eigen::Vector3d > > thrustInterpolator =
-                thrustSettings->interpolatorInterface_->getThrustInterpolator( );
+        std::function< Eigen::Vector3d( const double ) > retrievedThrustFunction =
+                thrustSettings->interpolatorInterface_->getThrustForceFunction( );
 
         Eigen::Vector3d thrustDifference;
 
@@ -1139,7 +1121,7 @@ BOOST_AUTO_TEST_CASE( testInterpolatedThrustVector )
                  outputIterator != dependentVariableResult.end( ); outputIterator++ )
             {
                 thrustDifference =  outputIterator->second.segment( 0, 3 ) -
-                        thrustInterpolator->interpolate( outputIterator->first );
+                        retrievedThrustFunction( outputIterator->first );
                 for( unsigned int i = 0; i < 3; i++ )
                 {
                     BOOST_CHECK_SMALL( std::fabs( thrustDifference( i ) ), 1.0E-14 );
@@ -1148,18 +1130,18 @@ BOOST_AUTO_TEST_CASE( testInterpolatedThrustVector )
         }
         else if( testCase == 1 )
         {
-            // Test whether thrust direction is indeed the imposed direction (in lvlh frame).
+            // Test whether thrust direction is indeed the imposed direction (in tnw frame).
             for( std::map< double, Eigen::VectorXd >::iterator outputIterator = dependentVariableResult.begin( );
                  outputIterator != dependentVariableResult.end( ); outputIterator++ )
             {
                 Eigen::Matrix3d manualRotationMatrix =
-                        reference_frames::getVelocityBasedLvlhToInertialRotation(
+                        reference_frames::getTnwToInertialRotation(
                             outputIterator->second.segment( 3, 6 ), Eigen::Vector6d::Zero( ) );
                 Eigen::Matrix3d currentRotationMatrix =
                         getMatrixFromVectorRotationRepresentation( outputIterator->second.segment( 9, 9 ) );
                 thrustDifference = manualRotationMatrix
-                        * thrustInterpolator->interpolate( outputIterator->first ) - outputIterator->second.segment( 0, 3 );
-                double currentThrustMagnitude = thrustInterpolator->interpolate( outputIterator->first ).norm( ) ;
+                        * retrievedThrustFunction( outputIterator->first ) - outputIterator->second.segment( 0, 3 );
+                double currentThrustMagnitude = retrievedThrustFunction( outputIterator->first ).norm( ) ;
 
                 for( unsigned int i = 0; i < 3; i++ )
                 {
@@ -1281,13 +1263,6 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
 
     // Create vehicle aerodynamic coefficients
     bodies.at( "Apollo" )->setAerodynamicCoefficientInterface( unit_tests::getApolloCoefficientInterface( ) );
-    bodies.at( "Apollo" )->setEphemeris(
-                std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
-                    std::shared_ptr< interpolators::OneDimensionalInterpolator<
-                    double, Eigen::Vector6d  > >( ), "Earth" ) );
-
-    
-    
 
     int numberOfCasesPerSet = 4;
     for( int i = 0; i < numberOfCasesPerSet * 2; i++ )
@@ -1299,9 +1274,9 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
 
         // Define acceleration model settings.
         std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfApollo;
-        accelerationsOfApollo[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+        accelerationsOfApollo[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
         accelerationsOfApollo[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( aerodynamic ) );
-        accelerationsOfApollo[ "Moon" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+        accelerationsOfApollo[ "Moon" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
 
         // Define specific impulse dependencies.
         std::vector< propulsion::ThrustIndependentVariables > specificImpulseDependencies;
@@ -1374,8 +1349,8 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
             {
                 accelerationsOfApollo[ "Apollo" ].push_back(
                             std::make_shared< ThrustAccelerationSettings >(
-                                std::make_shared< ThrustDirectionGuidanceSettings >(
-                                    thrust_direction_from_existing_body_orientation, "Earth" ),
+                                std::make_shared< ThrustDirectionSettings >(
+                                    thrust_direction_from_existing_body_orientation ),
                                 createParameterizedThrustMagnitudeSettings(
                                     thrustInputParameterGuidance, thrustMagnitudeInterpolator, thrustDependencies,
                                     specificImpulseInterpolator, specificImpulseDependencies ) ) );
@@ -1385,8 +1360,8 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
             {
                 accelerationsOfApollo[ "Apollo" ].push_back(
                             std::make_shared< ThrustAccelerationSettings >(
-                                std::make_shared< ThrustDirectionGuidanceSettings >(
-                                    thrust_direction_from_existing_body_orientation, "Earth" ),
+                                std::make_shared< ThrustDirectionSettings >(
+                                    thrust_direction_from_existing_body_orientation ),
                                 std::make_shared< ParameterizedThrustMagnitudeSettings >(
                                     thrustMagnitudeInterpolator, thrustDependencies,
                                     specificImpulseInterpolator, specificImpulseDependencies ) ) );
@@ -1403,8 +1378,8 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
             {
                 accelerationsOfApollo[ "Apollo" ].push_back(
                             std::make_shared< ThrustAccelerationSettings >(
-                                std::make_shared< ThrustDirectionGuidanceSettings >(
-                                    thrust_direction_from_existing_body_orientation, "Earth" ),
+                                std::make_shared< ThrustDirectionSettings >(
+                                    thrust_direction_from_existing_body_orientation ),
                                 createParameterizedThrustMagnitudeSettings(
                                     thrustInputParameterGuidance, thrustMagnitudeInterpolator, thrustDependencies,
                                     constantSpecificImpulse ) ) );
@@ -1414,8 +1389,8 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
             {
                 accelerationsOfApollo[ "Apollo" ].push_back(
                             std::make_shared< ThrustAccelerationSettings >(
-                                std::make_shared< ThrustDirectionGuidanceSettings >(
-                                    thrust_direction_from_existing_body_orientation, "Earth" ),
+                                std::make_shared< ThrustDirectionSettings >(
+                                    thrust_direction_from_existing_body_orientation ),
                                 std::make_shared< ParameterizedThrustMagnitudeSettings >(
                                     thrustMagnitudeInterpolator, thrustDependencies,
                                     constantSpecificImpulse ) ) );
@@ -1464,7 +1439,7 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
                   std::make_shared< DependentVariableSaveSettings >( dependentVariables ) );
 
         std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
-        massRateModels[ "Apollo" ] = createMassRateModel( "Apollo", std::make_shared< FromThrustMassModelSettings >( 1 ),
+        massRateModels[ "Apollo" ] = createMassRateModel( "Apollo", std::make_shared< FromThrustMassRateSettings >(1 ),
                                                           bodies, accelerationModelMap );
 
         std::shared_ptr< MassPropagatorSettings< double > > massPropagatorSettings =
@@ -1628,14 +1603,6 @@ BOOST_AUTO_TEST_CASE( testAccelerationLimitedGuidedThrust )
 
     // Create vehicle aerodynamic coefficients
     bodies.at( "Apollo" )->setAerodynamicCoefficientInterface( unit_tests::getApolloCoefficientInterface( ) );
-    bodies.at( "Apollo" )->setEphemeris(
-                std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
-                    std::shared_ptr< interpolators::OneDimensionalInterpolator<
-                    double, Eigen::Vector6d  > >( ), "Earth" ) );
-
-    
-    
-
 
     // Define propagator settings variables.
     SelectedAccelerationMap accelerationMap;
@@ -1644,9 +1611,9 @@ BOOST_AUTO_TEST_CASE( testAccelerationLimitedGuidedThrust )
 
     // Define acceleration model settings.
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfApollo;
-    accelerationsOfApollo[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+    accelerationsOfApollo[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
     accelerationsOfApollo[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( aerodynamic ) );
-    accelerationsOfApollo[ "Moon" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+    accelerationsOfApollo[ "Moon" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
 
     std::vector< propulsion::ThrustIndependentVariables > thrustDependencies;
     thrustDependencies.push_back( propulsion::mach_number_dependent_thrust );
@@ -1664,8 +1631,8 @@ BOOST_AUTO_TEST_CASE( testAccelerationLimitedGuidedThrust )
 
     accelerationsOfApollo[ "Apollo" ].push_back(
                 std::make_shared< ThrustAccelerationSettings >(
-                    std::make_shared< ThrustDirectionGuidanceSettings >(
-                        thrust_direction_from_existing_body_orientation, "Earth" ),
+                    std::make_shared< ThrustDirectionSettings >(
+                        thrust_direction_from_existing_body_orientation ),
                     createAccelerationLimitedParameterizedThrustMagnitudeSettings(
                         bodies, "Apollo", physical_constants::SEA_LEVEL_GRAVITATIONAL_ACCELERATION,
                         thrustFile, thrustDependencies,
@@ -1700,7 +1667,7 @@ BOOST_AUTO_TEST_CASE( testAccelerationLimitedGuidedThrust )
               std::make_shared< DependentVariableSaveSettings >( dependentVariables ) );
 
     std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
-    massRateModels[ "Apollo" ] = createMassRateModel( "Apollo", std::make_shared< FromThrustMassModelSettings >( 1 ),
+    massRateModels[ "Apollo" ] = createMassRateModel( "Apollo", std::make_shared< FromThrustMassRateSettings >(1 ),
                                                       bodies, accelerationModelMap );
 
     std::shared_ptr< MassPropagatorSettings< double > > massPropagatorSettings =
@@ -1815,12 +1782,12 @@ BOOST_AUTO_TEST_CASE( testMeeCostateBasedThrust )
 
         // Define acceleration model settings.
         std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfAsterix;
-        accelerationsOfAsterix[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+        accelerationsOfAsterix[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
 
         Eigen::VectorXd costates = Eigen::VectorXd::Zero( 5 );
         costates( i ) = 100.0;
 
-        std::shared_ptr< ThrustDirectionGuidanceSettings > thrustDirectionGuidanceSettings =
+        std::shared_ptr< ThrustDirectionSettings > thrustDirectionGuidanceSettings =
                 std::make_shared< MeeCostateBasedThrustDirectionSettings >(
                     "Asterix", "Earth", [ & ]( const double ){ return costates; } );
         std::shared_ptr< ThrustMagnitudeSettings > thrustMagnitudeSettings =
@@ -1860,7 +1827,7 @@ BOOST_AUTO_TEST_CASE( testMeeCostateBasedThrust )
                   std::make_shared< DependentVariableSaveSettings >( dependentVariables ) );
         std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
         massRateModels[ "Asterix" ] = createMassRateModel(
-                    "Asterix", std::make_shared< FromThrustMassModelSettings >( 1 ),
+                    "Asterix", std::make_shared< FromThrustMassRateSettings >(1 ),
                     bodies, accelerationModelMap );
         std::shared_ptr< MassPropagatorSettings< double > > massPropagatorSettings =
                 std::make_shared< MassPropagatorSettings< double > >(
@@ -2039,9 +2006,8 @@ BOOST_AUTO_TEST_CASE( testMomentumWheelDesaturationThrust )
 
 
     // Define list of parameters to estimate.
-    std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
-    parameterNames.push_back( std::make_shared< InitialTranslationalStateEstimatableParameterSettings< double > >(
-                                  "Asterix", systemInitialState, "SSB" ) );
+    std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames =
+            getInitialStateParameterSettings< double >( propagatorSettings, bodies );
     parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Asterix", desaturation_delta_v_values ) );
 
     // Create parameters

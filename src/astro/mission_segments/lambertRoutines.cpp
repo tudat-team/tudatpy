@@ -19,7 +19,9 @@
 #include <cmath>
 #include <stdexcept>
 
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
+using namespace boost::placeholders;
+
 #include <boost/make_shared.hpp>
 #include <boost/math/special_functions.hpp>
 
@@ -363,7 +365,7 @@ void solveLambertProblemGooding( const Eigen::Vector3d& cartesianPositionAtDepar
 {
     if ( !rootFinder.get( ) )
     {
-        rootFinder = std::make_shared< root_finders::NewtonRaphson >( 1.0e-12, 1000 );
+        rootFinder = std::make_shared< root_finders::NewtonRaphson< > >( 1.0e-12, 1000 );
     }
 
     // Normalize positions.

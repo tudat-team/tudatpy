@@ -8,6 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <limits>
@@ -22,7 +23,7 @@
 #include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
 #include "tudat/simulation/estimation_setup/createLightTimeCorrectionPartials.h"
 #include "tudat/astro/orbit_determination/observation_partials/firstOrderRelativisticPartial.h"
-#include "tudat/astro/orbit_determination/observation_partials/observationPartialTestFunctions.h"
+#include "tudat/support/observationPartialTestFunctions.h"
 
 namespace tudat
 {
@@ -74,12 +75,12 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartialsWrtLightTimeParameters )
         std::vector< std::string > relativisticPerturbingBodies = { "Sun" };
         lightTimeCorrections.push_back( std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
                                             relativisticPerturbingBodies ) );
-        std::shared_ptr< ObservationSettings > observationSettings = std::make_shared<
-                ObservationSettings >( one_way_range, lightTimeCorrections );
+        std::shared_ptr< ObservationModelSettings > observationSettings = std::make_shared<
+                ObservationModelSettings >( one_way_range, linkEnds, lightTimeCorrections );
         std::shared_ptr< OneWayRangeObservationModel< double, double > > oneWayRangeModel =
                 std::dynamic_pointer_cast< OneWayRangeObservationModel< double, double > >(
                     observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
-                        linkEnds, observationSettings, bodies ) );
+                        observationSettings, bodies ) );
 
 
         // Create parameters for which partials are to be computed
@@ -158,11 +159,11 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartialsWrtLightTimeParameters )
         std::vector< std::string > perturbingBodyList = { "Earth", "Sun" };
         lightTimeCorrections.push_back( std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
                                             perturbingBodyList ) );
-        std::shared_ptr< ObservationSettings > observationSettings = std::make_shared<
-                ObservationSettings >( one_way_range, lightTimeCorrections );
+        std::shared_ptr< ObservationModelSettings > observationSettings = std::make_shared<
+                ObservationModelSettings >( one_way_range, linkEnds, lightTimeCorrections );
         std::shared_ptr< ObservationModel< 1 > > oneWayRangeModel =
                 observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
-                    linkEnds, observationSettings, bodies  );
+                    observationSettings, bodies  );
 
         std::map< LinkEnds, std::shared_ptr< ObservationModel< 1 > > > oneWayRangeModelMap;
         oneWayRangeModelMap[ linkEnds ] = oneWayRangeModel;

@@ -9,6 +9,7 @@
  *
  */
 
+#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <boost/test/unit_test.hpp>
@@ -241,7 +242,7 @@ BOOST_AUTO_TEST_CASE( test2DimensionsBoundaryCase )
                 {
                     twoDimensionalInterpolator.interpolate( targetValue.at( j ) );
                 }
-                catch( std::runtime_error )
+                catch( std::runtime_error const& )
                 {
                     exceptionIsCaught = true;
                 }

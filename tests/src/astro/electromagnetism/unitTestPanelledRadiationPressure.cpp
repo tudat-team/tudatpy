@@ -1,3 +1,4 @@
+#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <boost/test/unit_test.hpp>
@@ -60,6 +61,7 @@ BOOST_AUTO_TEST_CASE( testSimpleGeometryPanelledRadiationPressure )
                 std::make_shared< KeplerEphemeris >(
                     initialStateInKeplerianElements, 0.0, spice_interface::getBodyGravitationalParameter( "Sun" ),
                     "Sun", "ECLIPJ2000", 1 ) );
+    bodies.processBodyFrameDefinitions( );
 
     // Define constant rotational ephemeris
     Eigen::Vector7d rotationalStateVehicle;
@@ -334,6 +336,7 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureMontenbruckModel )
             bodies.at( "Vehicle" )->setRotationalEphemeris( std::make_shared< tudat::ephemerides::SimpleRotationalEphemeris >(
                             0.2, 0.4, -0.2, 1.0E-5, 0.0, "ECLIPJ2000", "VehicleFixed" ) );
         }
+        bodies.processBodyFrameDefinitions( );
 
 
 

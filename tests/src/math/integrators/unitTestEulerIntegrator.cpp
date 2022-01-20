@@ -13,6 +13,7 @@
  *
  */
 
+#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <string>
@@ -28,7 +29,7 @@
 #include "tudat/math/integrators/euler.h"
 #include "tudat/math/integrators/numericalIntegrator.h"
 #include "tudat/math/integrators/reinitializableNumericalIntegrator.h"
-#include "tudat/math/integrators/numericalIntegratorTests.h"
+#include "tudat/support/numericalIntegratorTests.h"
 #include "tudat/math/integrators/numericalIntegratorTestFunctions.h"
 
 namespace tudat

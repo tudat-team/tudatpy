@@ -288,6 +288,13 @@ std::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
             {
                 inertiaTensorUpdateFunction =
                     std::bind( &Body::setBodyInertiaTensorFromGravityFieldAndExistingMeanMoment, bodies.at( body ), true );
+                if( sphericalHarmonicFieldSettings->getScaledMeanMomentOfInertia( ) == sphericalHarmonicFieldSettings->getScaledMeanMomentOfInertia( ) )
+                {
+                    bodies.at( body )->setBodyInertiaTensor(
+                                sphericalHarmonicFieldSettings->getInertiaTensor( ),
+                                sphericalHarmonicFieldSettings->getScaledMeanMomentOfInertia( )) ;
+
+                }
             }
 
             // Check consistency of cosine and sine coefficients.
@@ -358,7 +365,7 @@ std::shared_ptr< SphericalHarmonicsGravityFieldSettings > createHomogeneousTriAx
     // Compute reference quantities
     double ellipsoidGravitationalParameter = gravitation::calculateTriAxialEllipsoidVolume(
                 axisA, axisB, axisC ) * ellipsoidDensity * physical_constants::GRAVITATIONAL_CONSTANT;
-    double ellipsoidReferenceRadius = gravitation::calculateTriAxialEllipsoidVolume(
+    double ellipsoidReferenceRadius = gravitation::calculateTriAxialEllipsoidReferenceRadius(
                 axisA, axisB, axisC );
 
     // Compute coefficients

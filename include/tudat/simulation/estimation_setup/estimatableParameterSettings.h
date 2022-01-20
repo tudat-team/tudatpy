@@ -444,6 +444,21 @@ public:
 
 };
 
+//! Class to define settings for estimating an initial rotational state.
+template< typename InitialStateParameterType = double >
+class InitialMassEstimatableParameterSettings: public EstimatableParameterSettings
+{
+public:
+
+    InitialMassEstimatableParameterSettings(
+            const std::string& associatedBody,
+            const double initialStateValue ):
+        EstimatableParameterSettings( associatedBody, initial_mass_state ),
+        initialStateValue_( initialStateValue ){ }
+
+    double initialStateValue_;
+};
+
 
 //! Class to define settings for estimating time-independent empirical acceleration components
 class EmpiricalAccelerationEstimatableParameterSettings: public EstimatableParameterSettings
@@ -693,7 +708,7 @@ public:
      * \param deformingBody Body causing deformed
      */
     DirectTidalTimeLagEstimatableParameterSettings( const std::string& associatedBody,
-                                                    const std::string deformingBody ):
+                                                    const std::string& deformingBody ):
         EstimatableParameterSettings( associatedBody, direct_dissipation_tidal_time_lag )
     {
         if( deformingBody != "" )
@@ -804,15 +819,144 @@ inline std::shared_ptr< EstimatableParameterSettings > rotationPolePosition(
     return std::make_shared< EstimatableParameterSettings >( bodyName, rotation_pole_position );
 }
 
+inline std::shared_ptr< EstimatableParameterSettings > observationBias(
+        const observation_models::LinkEnds& linkEnds,
+        const observation_models::ObservableType observableType )
+{
+    return std::make_shared< ConstantObservationBiasEstimatableParameterSettings >(
+                linkEnds, observableType, true );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > relativeObservationBias(
+        const observation_models::LinkEnds& linkEnds,
+        const observation_models::ObservableType observableType )
+{
+    return std::make_shared< ConstantObservationBiasEstimatableParameterSettings >(
+                linkEnds, observableType, false );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > arcwiseObservationBias(
+        const observation_models::LinkEnds& linkEnds,
+        const observation_models::ObservableType observableType,
+        const std::vector< double > arcStartTimes,
+        const observation_models::LinkEndType linkEndForTime = observation_models::receiver )
+{
+    return std::make_shared< ArcWiseConstantObservationBiasEstimatableParameterSettings >(
+                linkEnds, observableType, arcStartTimes, linkEndForTime, true );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > arcwiseRelativeObservationBias(
+        const observation_models::LinkEnds& linkEnds,
+        const observation_models::ObservableType observableType,
+        const std::vector< double > arcStartTimes,
+        const observation_models::LinkEndType linkEndForTime = observation_models::receiver )
+{
+    return std::make_shared< ArcWiseConstantObservationBiasEstimatableParameterSettings >(
+                linkEnds, observableType, arcStartTimes, linkEndForTime, false );
+}
+
+
+inline std::shared_ptr< EstimatableParameterSettings > constantEmpiricalAccelerationMagnitudes(
+        const std::string associatedBody,
+        const std::string centralBody )
+{
+    std::map< basic_astrodynamics::EmpiricalAccelerationComponents,
+            std::vector< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes > > componentsToEstimate;
+    componentsToEstimate[ basic_astrodynamics::radial_empirical_acceleration_component ].push_back(
+            basic_astrodynamics::constant_empirical );
+    componentsToEstimate[ basic_astrodynamics::along_track_empirical_acceleration_component ].push_back(
+            basic_astrodynamics::constant_empirical );
+    componentsToEstimate[ basic_astrodynamics::across_track_empirical_acceleration_component ].push_back(
+            basic_astrodynamics::constant_empirical );
+
+    return std::make_shared< EmpiricalAccelerationEstimatableParameterSettings >(
+                associatedBody, centralBody, componentsToEstimate );
+}
+
+
+inline std::shared_ptr< EstimatableParameterSettings > empiricalAccelerationMagnitudes(
+        const std::string associatedBody,
+        const std::string centralBody,
+        const std::map< basic_astrodynamics::EmpiricalAccelerationComponents,
+        std::vector< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes > > componentsToEstimate  )
+{
+    return std::make_shared< EmpiricalAccelerationEstimatableParameterSettings >(
+                associatedBody, centralBody, componentsToEstimate );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > constantArcWiseEmpiricalAccelerationMagnitudes(
+        const std::string associatedBody,
+        const std::string centralBody,
+        const std::vector< double > arcStartTimes )
+{
+    std::map< basic_astrodynamics::EmpiricalAccelerationComponents,
+            std::vector< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes > > componentsToEstimate;
+    componentsToEstimate[ basic_astrodynamics::radial_empirical_acceleration_component ].push_back(
+            basic_astrodynamics::constant_empirical );
+    componentsToEstimate[ basic_astrodynamics::along_track_empirical_acceleration_component ].push_back(
+            basic_astrodynamics::constant_empirical );
+    componentsToEstimate[ basic_astrodynamics::across_track_empirical_acceleration_component ].push_back(
+            basic_astrodynamics::constant_empirical );
+
+    return std::make_shared< ArcWiseEmpiricalAccelerationEstimatableParameterSettings >(
+                associatedBody, centralBody, componentsToEstimate, arcStartTimes );
+}
+
+
+inline std::shared_ptr< EstimatableParameterSettings > arcWiseEmpiricalAccelerationMagnitudes(
+        const std::string associatedBody,
+        const std::string centralBody,
+        const std::map< basic_astrodynamics::EmpiricalAccelerationComponents,
+        std::vector< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes > > componentsToEstimate,
+        const std::vector< double > arcStartTimes )
+{
+    return std::make_shared< ArcWiseEmpiricalAccelerationEstimatableParameterSettings >(
+                associatedBody, centralBody, componentsToEstimate, arcStartTimes );
+}
+
+
 inline std::shared_ptr< EstimatableParameterSettings > ppnParameterGamma( )
 {
     return std::make_shared< EstimatableParameterSettings >( "", ppn_parameter_gamma );
 }
 
-inline std::shared_ptr< EstimatableParameterSettings > ppnParameterBeta( )
+inline std::shared_ptr< EstimatableParameterSettings > ppnParameterBeta(
+        const std::string& body,
+        const std::string& groundStationName )
 {
     return std::make_shared< EstimatableParameterSettings >( "", ppn_parameter_beta );
 }
+
+inline std::shared_ptr< EstimatableParameterSettings > groundStationPosition(
+        const std::string& body,
+        const std::string& groundStationName )
+{
+    return std::make_shared< EstimatableParameterSettings >( body, ground_station_position, groundStationName );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > directTidalDissipationLagTime(
+        const std::string& body,
+        const std::vector< std::string >& deformingBodies )
+{
+    return std::make_shared< DirectTidalTimeLagEstimatableParameterSettings >(
+                body, deformingBodies);
+}
+
+
+inline std::shared_ptr< EstimatableParameterSettings > directTidalDissipationLagTime(
+        const std::string& body,
+        const std::string& deformingBody)
+{
+    return directTidalDissipationLagTime( body, std::vector< std::string >( { deformingBody } ) );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > meanMomentOfInertia(
+        const std::string& body )
+{
+    return std::make_shared< EstimatableParameterSettings >( body, mean_moment_of_inertia );
+}
+
+
 
 inline std::shared_ptr< EstimatableParameterSettings > orderInvariantKLoveNumber(
         const std::string& associatedBody,
@@ -879,32 +1023,35 @@ inline std::shared_ptr< EstimatableParameterSettings > orderVaryingKLoveNumber(
                 associatedBody, degree, orders, std::vector< std::string >( ), useComplexValue );
 }
 
-inline std::shared_ptr< EstimatableParameterSettings > constantEmpiricalAccelerationMagnitudes(
-        const std::string associatedBody,
-        const std::string centralBody )
-{
-    std::map< basic_astrodynamics::EmpiricalAccelerationComponents,
-            std::vector< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes > > componentsToEstimate;
-    componentsToEstimate[ basic_astrodynamics::radial_empirical_acceleration_component ].push_back(
-            basic_astrodynamics::constant_empirical );
-    componentsToEstimate[ basic_astrodynamics::along_track_empirical_acceleration_component ].push_back(
-            basic_astrodynamics::constant_empirical );
-    componentsToEstimate[ basic_astrodynamics::across_track_empirical_acceleration_component ].push_back(
-            basic_astrodynamics::constant_empirical );
 
-    return std::make_shared< EmpiricalAccelerationEstimatableParameterSettings >(
-                associatedBody, centralBody, componentsToEstimate );
+inline std::shared_ptr< EstimatableParameterSettings > coreFactor(
+        const std::string& associatedBody )
+{
+    return std::make_shared< EstimatableParameterSettings >(
+                associatedBody, core_factor );
 }
 
-inline std::shared_ptr< EstimatableParameterSettings > empiricalAccelerationMagnitudes(
-        const std::string associatedBody,
-        const std::string centralBody,
-        const std::map< basic_astrodynamics::EmpiricalAccelerationComponents,
-        std::vector< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes > > componentsToEstimate  )
+inline std::shared_ptr< EstimatableParameterSettings > freeCoreNutationRate(
+        const std::string& associatedBody )
 {
-    return std::make_shared< EmpiricalAccelerationEstimatableParameterSettings >(
-                associatedBody, centralBody, componentsToEstimate );
+    return std::make_shared< EstimatableParameterSettings >(
+                associatedBody, free_core_nutation_rate );
 }
+
+inline std::shared_ptr< EstimatableParameterSettings > periodicSpinVariations(
+        const std::string& associatedBody )
+{
+    return std::make_shared< EstimatableParameterSettings >(
+                associatedBody, periodic_spin_variation );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > polarMotionAmplitudes(
+        const std::string& associatedBody )
+{
+    return std::make_shared< EstimatableParameterSettings >(
+                associatedBody, polar_motion_amplitude );
+}
+
 
 } // namespace estimatable_parameters
 

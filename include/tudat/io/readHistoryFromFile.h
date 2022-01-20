@@ -38,7 +38,6 @@ template< typename TimeType, typename StateScalarType >
 std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > > readMatrixHistoryFromFile(
         const int singleMatrixRows, const int singleMatrixColumns, const std::string& fileName )
 {
-    std::cout<<"Reading file"<<std::endl;
     std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > > matrixHistory;
 
     std::ifstream fileStream;

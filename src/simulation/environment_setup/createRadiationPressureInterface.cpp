@@ -8,7 +8,9 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
+using namespace boost::placeholders;
+
 
 #include "tudat/simulation/environment_setup/createRadiationPressureInterface.h"
 #include "tudat/astro/basic_astro/sphericalBodyShapeModel.h"
@@ -148,15 +150,31 @@ std::shared_ptr< electromagnetism::RadiationPressureInterface > createRadiationP
                             radiationPressureInterfaceSettings->getSourceBody( ) ); };
         }
 
+        if( cannonBallSettings->getRadiationPressureCoefficient( ) !=
+                cannonBallSettings->getRadiationPressureCoefficient( ) )
+        {
         // Create radiation pressure interface.
         radiationPressureInterface =
                 std::make_shared< electromagnetism::RadiationPressureInterface >(
                     radiatedPowerFunction,
                     std::bind( &Body::getPosition, sourceBody ),
                     std::bind( &Body::getPosition, bodies.at( bodyName ) ),
-                    cannonBallSettings->getRadiationPressureCoefficient( ),
+                    cannonBallSettings->getRadiationPressureCoefficientFunction( ),
                     cannonBallSettings->getArea( ), occultingBodyPositions, occultingBodyRadii,
                     sourceRadius );
+        }
+        else
+        {
+            // Create radiation pressure interface.
+            radiationPressureInterface =
+                    std::make_shared< electromagnetism::RadiationPressureInterface >(
+                        radiatedPowerFunction,
+                        std::bind( &Body::getPosition, sourceBody ),
+                        std::bind( &Body::getPosition, bodies.at( bodyName ) ),
+                        cannonBallSettings->getRadiationPressureCoefficient( ),
+                        cannonBallSettings->getArea( ), occultingBodyPositions, occultingBodyRadii,
+                        sourceRadius );
+        }
         break;
     }
     case panelled_radiation_pressure_interface:
@@ -338,6 +356,29 @@ std::shared_ptr< electromagnetism::RadiationPressureInterface > createRadiationP
 
     return radiationPressureInterface;
 }
+
+std::function< double( const double ) > getOccultationFunction(
+        const SystemOfBodies& bodyMap,
+        const std::string& sourceBody,
+        const std::string& occultingBody,
+        const std::string& shadowedBody )
+{
+    std::function< Eigen::Vector3d( ) > sourceBodyPositionFunction =
+            std::bind( &Body::getPosition, bodyMap.at( sourceBody ) );
+    std::function< Eigen::Vector3d( ) > occultingBodyPositionFunction =
+            std::bind( &Body::getPosition, bodyMap.at( occultingBody ) );
+    std::function< Eigen::Vector3d( ) > shadowedBodyPositionFunction =
+            std::bind( &Body::getPosition, bodyMap.at( shadowedBody ) );
+    double sourceBodyRadius = bodyMap.at( sourceBody )->getShapeModel( )->getAverageRadius( );
+    double occultingBodyRadius = bodyMap.at( occultingBody )->getShapeModel( )->getAverageRadius( );
+
+    return [=]( const double ){
+        return mission_geometry::computeShadowFunction(
+                    sourceBodyPositionFunction( ), sourceBodyRadius,
+                    occultingBodyPositionFunction( ), occultingBodyRadius,
+                    shadowedBodyPositionFunction( ) ); };
+}
+
 
 } // namespace simulation_setup
 

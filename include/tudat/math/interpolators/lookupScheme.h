@@ -29,6 +29,7 @@ namespace interpolators
  */
 enum AvailableLookupScheme
 {
+    undefinedScheme,
     huntingAlgorithm,
     binarySearch
 };
@@ -69,6 +70,10 @@ public:
      */
     virtual int findNearestLowerNeighbour( const IndependentVariableType valueToLookup ) = 0;
 
+    IndependentVariableType getMinimumValue( )
+    {
+        return independentVariableValues_.at( 0 );
+    }
 protected:
 
     //! Vector of independent variable values in which lookup is to be performed.

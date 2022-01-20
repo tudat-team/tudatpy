@@ -9,56 +9,56 @@
 
 TUDAT_ADD_TEST_CASE(OneWayRangePartials
         PRIVATE_LINKS
+        tudat_test_support
         ${Tudat_ESTIMATION_LIBRARIES}
-        SOURCES "observationPartialTestFunctions.cpp" "numericalObservationPartial.cpp"
         )
 
 TUDAT_ADD_TEST_CASE(NWayRangePartials
         PRIVATE_LINKS
+        tudat_test_support
         ${Tudat_ESTIMATION_LIBRARIES}
-        SOURCES "observationPartialTestFunctions.cpp" "numericalObservationPartial.cpp"
         )
 
 TUDAT_ADD_TEST_CASE(DifferencedOneWayRangePartials
         PRIVATE_LINKS
+        tudat_test_support
         ${Tudat_ESTIMATION_LIBRARIES}
-        SOURCES "observationPartialTestFunctions.cpp" "numericalObservationPartial.cpp"
         )
 
 TUDAT_ADD_TEST_CASE(OneWayDopplerPartials
         PRIVATE_LINKS
+        tudat_test_support
         ${Tudat_ESTIMATION_LIBRARIES}
-        SOURCES "observationPartialTestFunctions.cpp" "numericalObservationPartial.cpp"
         )
 
 TUDAT_ADD_TEST_CASE(TwoWayDopplerPartials
         PRIVATE_LINKS
+        tudat_test_support
         ${Tudat_ESTIMATION_LIBRARIES}
-        SOURCES "observationPartialTestFunctions.cpp" "numericalObservationPartial.cpp"
         )
 
 TUDAT_ADD_TEST_CASE(AngularPositionPartials
         PRIVATE_LINKS
+        tudat_test_support
         ${Tudat_ESTIMATION_LIBRARIES}
-        SOURCES "observationPartialTestFunctions.cpp" "numericalObservationPartial.cpp"
         )
 
 TUDAT_ADD_TEST_CASE(PositionPartials
         PRIVATE_LINKS
+        tudat_test_support
         ${Tudat_ESTIMATION_LIBRARIES}
-        SOURCES "observationPartialTestFunctions.cpp" "numericalObservationPartial.cpp"
         )
 
 TUDAT_ADD_TEST_CASE(EulerAngleObservationPartials
         PRIVATE_LINKS
+        tudat_test_support
         ${Tudat_ESTIMATION_LIBRARIES}
-        SOURCES "observationPartialTestFunctions.cpp" "numericalObservationPartial.cpp"
         )
 
 TUDAT_ADD_TEST_CASE(LightTimePartials
         PRIVATE_LINKS
+        tudat_test_support
         ${Tudat_ESTIMATION_LIBRARIES}
-        SOURCES "observationPartialTestFunctions.cpp" "numericalObservationPartial.cpp"
         )
 
 TUDAT_ADD_TEST_CASE(RotationMatrixPartials

@@ -52,52 +52,16 @@ public:
      *  observable, i.e. deviations from the physically ideal observable between reference points (default none).
      */
     OneWayRangeObservationModel(
+            const LinkEnds& linkEnds,
             const std::shared_ptr< observation_models::LightTimeCalculator
             < ObservationScalarType, TimeType > > lightTimeCalculator,
             const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr ):
-        ObservationModel< 1, ObservationScalarType, TimeType >( one_way_range, observationBiasCalculator ),
+        ObservationModel< 1, ObservationScalarType, TimeType >( one_way_range, linkEnds, observationBiasCalculator ),
       lightTimeCalculator_( lightTimeCalculator ){ }
 
     //! Destructor
     ~OneWayRangeObservationModel( ){ }
 
-    //! Function to compute ideal one-way range observation at given time.
-    /*!
-     *  This function compute ideal the one-way observation at a given time. The time argument can be either the reception
-     *  or transmission time (defined by linkEndAssociatedWithTime input) Note that this observable does include e.g.
-     *  light-time corrections, which represent physically true corrections.
-     *  It does not include e.g. system-dependent measurement.
-     *  \param time Time at which observation is to be simulated
-     *  \param linkEndAssociatedWithTime Link end at which given time is valid, i.e. link end for which associated time
-     *  is kept constant (to input value)
-     *  \return Calculated observed one-way range value.
-     */
-    Eigen::Matrix< ObservationScalarType, 1, 1 > computeIdealObservations(
-            const TimeType time,
-            const LinkEndType linkEndAssociatedWithTime )
-
-    {
-        // Check link end associated with input time.
-        bool isTimeAtReception = -1;
-        if( linkEndAssociatedWithTime == receiver )
-        {
-            isTimeAtReception = 1;
-        }
-        else if( linkEndAssociatedWithTime == transmitter )
-        {
-            isTimeAtReception = 0;
-        }
-        else
-        {
-            throw std::runtime_error(
-                        "Error when calculating one way range observation, link end is not transmitter or receiver" );
-        }
-
-        // Calculate light-time and multiply by speed of light in vacuum.
-        return ( Eigen::Matrix< ObservationScalarType, 1, 1 >( ) <<
-                 lightTimeCalculator_->calculateLightTime( time, isTimeAtReception ) *
-                 physical_constants::getSpeedOfLight< ObservationScalarType >( ) ).finished( );
-    }
 
     //! Function to compute one-way range observable without any corrections.
     /*!

@@ -8,6 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <boost/test/unit_test.hpp>
@@ -43,7 +44,7 @@ namespace tudat
             bodies.createEmptyBody( "Mars" );
             
             std::shared_ptr< RotationModelSettings > defaultMarsRotationSettings =
-                    getHighAccuracyMarsRotationModel( initialTime, finalTime );
+                    getHighAccuracyMarsRotationModel( );
             
             std::shared_ptr< RotationalEphemeris > marsRotationModel =
                     createRotationModel( defaultMarsRotationSettings, "Mars" );

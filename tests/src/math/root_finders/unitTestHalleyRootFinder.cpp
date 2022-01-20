@@ -14,11 +14,14 @@
  *
  */
 
+#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
+using namespace boost::placeholders;
+
 #include <boost/make_shared.hpp>
-#include <boost/test/floating_point_comparison.hpp>
+#include <boost/test/tools/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/math/root_finders/halleyRootFinder.h"
@@ -36,7 +39,7 @@ BOOST_AUTO_TEST_SUITE( testsuite_rootfinders )
 
 using namespace tudat;
 using namespace root_finders;
-using namespace root_finders::termination_conditions;
+
 
 //! Check if Halley method converges on test function #1 (TestFunction1).
 BOOST_AUTO_TEST_CASE( test_halleyRootFinder_testFunction1 )
@@ -45,13 +48,13 @@ BOOST_AUTO_TEST_CASE( test_halleyRootFinder_testFunction1 )
     std::shared_ptr< TestFunction1 > testFunction = std::make_shared< TestFunction1 >( 2 );
 
     // The termination condition.
-    HalleyRootFinder::TerminationFunction terminationConditionFunction =
+    HalleyRootFinder< double >::TerminationFunction terminationConditionFunction =
             std::bind( &RootAbsoluteToleranceTerminationCondition< double >::checkTerminationCondition,
                          std::make_shared< RootAbsoluteToleranceTerminationCondition< double > >(
                              testFunction->getTrueRootAccuracy( ) ), std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5 );
 
     // Test Halley object.
-    HalleyRootFinder halleyRootFinder( terminationConditionFunction );
+    HalleyRootFinder< double > halleyRootFinder( terminationConditionFunction );
 
     // Let the Halley method search for the root.
     const double root = halleyRootFinder.execute( testFunction, testFunction->getInitialGuess( ) );
@@ -68,13 +71,13 @@ BOOST_AUTO_TEST_CASE( test_halleyRootFinder_testFunction2 )
     std::shared_ptr< TestFunction2 > testFunction = std::make_shared< TestFunction2 >( 2 );
 
     // The termination condition.
-    HalleyRootFinder::TerminationFunction terminationConditionFunction =
+    HalleyRootFinder< >::TerminationFunction terminationConditionFunction =
             std::bind( &RootAbsoluteToleranceTerminationCondition< double >::checkTerminationCondition,
                          std::make_shared< RootAbsoluteToleranceTerminationCondition< double > >(
                              testFunction->getTrueRootAccuracy( ) ), std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5 );
 
     // Test Halley object.
-    HalleyRootFinder halleyRootFinder( terminationConditionFunction );
+    HalleyRootFinder< > halleyRootFinder( terminationConditionFunction );
 
     // Let the Halley method search for the root.
     const double root = halleyRootFinder.execute( testFunction, testFunction->getInitialGuess( ) );
@@ -91,13 +94,13 @@ BOOST_AUTO_TEST_CASE( test_halleyRootFinder_testFunction3 )
     std::shared_ptr< TestFunction3 > testFunction = std::make_shared< TestFunction3 >( 2 );
 
     // The termination condition.
-    HalleyRootFinder::TerminationFunction terminationConditionFunction =
+    HalleyRootFinder< >::TerminationFunction terminationConditionFunction =
             std::bind( &RootAbsoluteToleranceTerminationCondition< double >::checkTerminationCondition,
                          std::make_shared< RootAbsoluteToleranceTerminationCondition< double > >(
                              testFunction->getTrueRootAccuracy( ) ), std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5 );
 
     // Test Halley object.
-    HalleyRootFinder halleyRootFinder( terminationConditionFunction );
+    HalleyRootFinder< > halleyRootFinder( terminationConditionFunction );
 
     // Let the Halley method search for the root.
     const double root = halleyRootFinder.execute( testFunction, testFunction->getInitialGuess( ) );
@@ -118,14 +121,14 @@ BOOST_AUTO_TEST_CASE( test_halleyRootFinder_testFunctionWithZeroRoot )
             std::make_shared< TestFunctionWithZeroRoot >( 2 );
 
     // The termination condition.
-    HalleyRootFinder::TerminationFunction terminationConditionFunction
+    HalleyRootFinder< >::TerminationFunction terminationConditionFunction
             = std::bind( &RootAbsoluteToleranceTerminationCondition< double >::
                            checkTerminationCondition,
                            std::make_shared< RootAbsoluteToleranceTerminationCondition< double > >(
                                1.0e-150 ), std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5 );
 
     // Test Halley object.
-    HalleyRootFinder halleyRootFinder( terminationConditionFunction );
+    HalleyRootFinder< > halleyRootFinder( terminationConditionFunction );
 
     // Let the Halley method search for the root.
     const double root = halleyRootFinder.execute( testFunction, testFunction->getInitialGuess( ) );
