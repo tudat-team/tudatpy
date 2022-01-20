@@ -112,8 +112,8 @@ void expose_observation_setup(py::module &m) {
                 get_docstring("ObservationSettings").c_str());
 
     py::class_<tom::OneWayDopplerObservationSettings,
-            std::shared_ptr<tom::OneWayDopplerObservationSettings,
-            tom::ObservationModelSettings>>(
+            std::shared_ptr<tom::OneWayDopplerObservationSettings>,
+            tom::ObservationModelSettings >(
             m, "OneWayDopplerObservationSettings",
             get_docstring("OneWayDopplerObservationSettings").c_str());
 
