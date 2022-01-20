@@ -1148,6 +1148,31 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
         break;
     }
 #endif
+    case custom_dependent_variable:
+    {
+        std::shared_ptr< CustomDependentVariableSaveSettings > customVariableSettings =
+                std::dynamic_pointer_cast< CustomDependentVariableSaveSettings >( dependentVariableSettings );
+
+        if( customVariableSettings == nullptr )
+        {
+            std::string errorMessage= "Error, inconsistent inout when creating dependent variable function of type custom_dependent_variable";
+            throw std::runtime_error( errorMessage );
+        }
+        else
+        {
+            variableFunction = [=]( )
+            {
+                Eigen::VectorXd customVariables = customVariableSettings->customDependentVariableFunction_( );
+                if( customVariables.rows( ) != customVariableSettings->dependentVariableSize_ )
+                {
+                    throw std::runtime_error( "Error when retrieving custom dependent variable, actual size is different from pre-defined size" );
+                }
+                return customVariables;
+            };
+            parameterSize = customVariableSettings->dependentVariableSize_;
+        }
+        break;
+    }
     default:
         std::string errorMessage =
                 "Error, did not recognize vector dependent variable type when making variable function: " +
