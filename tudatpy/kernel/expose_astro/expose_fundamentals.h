@@ -16,9 +16,13 @@
 namespace py = pybind11;
 
 namespace tudatpy {
+namespace astro {
+namespace fundamentals {
 
-void expose_fundamentals(py::module &m);
+    void expose_fundamentals(py::module &m);
 
-}
+} // namespace fundamentals
+} // namespace astro
+} // namespace tudatpy
 
 #endif//TUDATPY_EXPOSE_FUNDAMENTALS_H

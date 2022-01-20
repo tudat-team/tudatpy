@@ -4,9 +4,19 @@ if (POLICY CMP0048)
     cmake_policy(SET CMP0048 NEW)
 endif (POLICY CMP0048)
 
-# Get version from file.
-file(STRINGS "version" tudatpy_VERSION)
+# Get version+label from file.
+file(STRINGS "version" tudatpy_VERSION_LABEL)
+
+# Get version from version_label argument using regex (x.y.z-rc -> x.y.z).
+string(REGEX MATCH "^([0-9]+)\\.([0-9]+)\\.([0-9]+)" tudatpy_VERSION "${tudatpy_VERSION_LABEL}")
+
+# Project declaration.
 project(tudatpy VERSION "${tudatpy_VERSION}" LANGUAGES CXX C)
+
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+else()
+#    add_definitions(-DVERSION_INFO "${tudatpy_VERSION_LABEL}")
+endif()
 
 include_directories(include)
 # Add cmake modules
@@ -44,35 +54,31 @@ endif ()
 
 message(STATUS "<< ${PROJECT_NAME} (${CMAKE_BUILD_TYPE} - ${BUILD_STYLE}) >>")
 
-# Configure Boost libraries.
-if (NOT Boost_USE_STATIC_LIBS)
-    set(Boost_USE_STATIC_LIBS ON)
-endif ()
-if (NOT Boost_USE_MULTITHREADED)
-    set(Boost_USE_MULTITHREADED ON)
-endif ()
-if (NOT Boost_USE_STATIC_RUNTIME)
-    set(Boost_USE_STATIC_RUNTIME ON)
+set(Boost_USE_STATIC_LIBS OFF)
+set(Boost_USE_STATIC_RUNTIME OFF)
+
+if (NOT TUDAT_BUILD_WITH_ESTIMATION_TOOLS)
+    add_definitions(-DTUDAT_BUILD_WITH_ESTIMATION_TOOLS=0)
+else ()
+    add_definitions(-DTUDAT_BUILD_WITH_ESTIMATION_TOOLS=1)
 endif ()
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 # Find Boost libraries on local system.
-find_package(Boost 1.64.0
+find_package(Boost 1.72.0
         COMPONENTS thread date_time system unit_test_framework filesystem regex REQUIRED)
 
 find_package(Eigen3 REQUIRED)
 include_directories(SYSTEM AFTER "${EIGEN3_INCLUDE_DIR}")
 
 # TODO: Make Tudat export definitions to the config for inheritence to this project.
-add_definitions(-DTUDAT_BUILD_WITH_JSON_INTERFACE=1)
 add_definitions(-DTUDAT_BUILD_WITH_SPICE_INTERFACE=1)
-add_definitions(-DTUDAT_BUILD_WITH_SOFA_INTERFACE=1)
 add_definitions(-DTUDAT_BUILD_WITH_ESTIMATION_TOOLS=1)
 
-if (DEFINED _GLIBCXX_USE_CXX11_ABI)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=${_GLIBCXX_USE_CXX11_ABI}")
-endif ()
+#if (DEFINED _GLIBCXX_USE_CXX11_ABI)
+#    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=${_GLIBCXX_USE_CXX11_ABI}")
+#endif ()
 #set(TUDAT_BUNDLE_BUILD ON)
 #find_package(Python3 COMPONENTS Interpreter Development)
 
@@ -103,6 +109,12 @@ else ()
     set(Sofa_INCLUDE_DIRS ${Sofa_BUILD_INCLUDE_DIRS})
 endif ()
 
+# nrlmsise-00 dependency.
+if (${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
+    find_package(NRLMSISE00 0.1 REQUIRED)
+else ()
+    set(NRLMSISE00_INCLUDE_DIRS ${NRLMSISE00_BUILD_INCLUDE_DIRS})
+endif ()
 
 # Sofa dependency if in build settings.
 if (${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
@@ -142,4 +154,5 @@ endif ()
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0")
 
 # Add the module directory.
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/docs DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 add_subdirectory(tudatpy)

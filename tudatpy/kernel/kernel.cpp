@@ -8,7 +8,8 @@
 #include "expose_interface.h"
 #include "expose_io.h"
 #include "expose_math.h"
-#include "expose_simulation.h"
+#include "expose_numerical_simulation.h"
+#include "expose_trajectory_design.h"
 
 namespace py = pybind11;
 
@@ -18,8 +19,8 @@ PYBIND11_MODULE(kernel, m) {
   // NOTE: the 'options' object needs to stay alive
   // throughout the whole definition of the module.
   py::options options;
-  options.disable_function_signatures();
-  options.enable_user_defined_docstrings();
+  options.enable_function_signatures( );
+  options.enable_user_defined_docstrings( );
 
   // Export the tudat version.
   m.attr("_tudat_version") = TUDAT_VERSION;
@@ -29,27 +30,33 @@ PYBIND11_MODULE(kernel, m) {
 
   // math module
   auto math = m.def_submodule("math");
-  tudatpy::expose_math(math);
+  tudatpy::math::expose_math(math);
 
   // astro module
   auto astro = m.def_submodule("astro");
-  tudatpy::expose_astro(astro);
+  tudatpy::astro::expose_astro(astro);
 
   // interface module
   auto interface = m.def_submodule("interface");
-  tudatpy::expose_interface(interface);
+  tudatpy::interface::expose_interface(interface);
 
   // constants module
   auto constants = m.def_submodule("constants");
-  tudatpy::expose_constants(constants);
+  tudatpy::constants::expose_constants(constants);
 
-  //   io module
+
+  // io module
   auto io = m.def_submodule("io");
   tudatpy::expose_io(io);
 
   // simulation module
-  auto simulation = m.def_submodule("simulation");
-  tudatpy::expose_simulation(simulation);
+  auto trajectory_design = m.def_submodule("trajectory_design");
+  tudatpy::trajectory_design::expose_trajectory_design(trajectory_design);
+
+
+  // simulation module
+  auto numerical_simulation = m.def_submodule("numerical_simulation");
+  tudatpy::numerical_simulation::expose_numerical_simulation(numerical_simulation);
 
   // example module
   auto example = m.def_submodule("example");

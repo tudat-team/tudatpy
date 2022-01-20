@@ -1,0 +1,34 @@
+- name: Geoffrey H. Garrett
+  email: g.h.garrett13@gmail.com
+  aliases:
+  - ggarrett13
+  - ggarrett
+  - Geoffrey Garrett
+  - Geoffrey Hyde Garrett
+  num_commits: 203
+  first_commit: 2018-12-10 19:25:41
+- name: Dominic Dirkx
+  email: d.dirkx@tudelft.nl
+  aliases:
+  - DominicDirkx
+  num_commits: 88
+  first_commit: 2019-05-21 14:45:18
+  github: DominicDirkx
+- name: Jonas Hener
+  email: jonas.hener@web.de
+  aliases:
+  - jhener
+  num_commits: 1
+  first_commit: 2021-04-13 15:58:49
+- name: The Gitter Badger
+  email: badger@gitter.im
+  num_commits: 1
+  first_commit: 2020-11-19 20:30:57
+- name: Elmar Puts
+  email: elmarputs@gmail.com
+  num_commits: 16
+  first_commit: 2020-09-29 15:46:32
+- name: jo11he
+  email: 36631475+jo11he@users.noreply.github.com
+  num_commits: 0
+  first_commit: 2021-04-13 16:03:09
