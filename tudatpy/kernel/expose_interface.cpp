@@ -8,7 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "expose_interface/expose_spice_interface.h"
+#include "expose_interface/expose_spice.h"
 //#include "interface/expose_json_interface.h"
 //#include "interface/expose_sofa_interface.h"
 
@@ -17,11 +17,14 @@
 namespace py = pybind11;
 
 namespace tudatpy {
+namespace interface {
+using namespace spice;
 
 void expose_interface(py::module &m) {
 
-  auto spice_interface = m.def_submodule("spice_interface");
-  expose_spice_interface(spice_interface);
+  auto spice = m.def_submodule("spice");
+  expose_spice(spice);
+  m.attr("spice_interface") = m.attr("spice");
 
   //  auto json_interface = m.def_submodule("json_interface");
   //  expose_json_interface(sofa_interface);
@@ -30,4 +33,5 @@ void expose_interface(py::module &m) {
   //  expose_sofa_interface(sofa_interface);
 }
 
+}// namespace interface
 }// namespace tudatpy
