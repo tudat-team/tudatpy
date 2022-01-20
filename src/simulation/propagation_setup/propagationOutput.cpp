@@ -395,6 +395,19 @@ int getDependentVariableSize(
     case radiation_pressure_coefficient_dependent_variable:
         variableSize = 1;
         break;
+    case custom_dependent_variable:
+        if( std::dynamic_pointer_cast< CustomDependentVariableSaveSettings >(
+                    dependentVariableSettings ) == nullptr )
+        {
+            std::string errorMessage = "Error, input for custom dependent variable parameter size ";
+            throw std::runtime_error( errorMessage );
+        }
+        else
+        {
+            variableSize = 3 * std::dynamic_pointer_cast< CustomDependentVariableSaveSettings >(
+                        dependentVariableSettings )->dependentVariableSize_;
+        }
+        break;
     default:
         std::string errorMessage = "Error, did not recognize dependent variable size of type: " +
                 std::to_string( dependentVariableSettings->dependentVariableType_ );
