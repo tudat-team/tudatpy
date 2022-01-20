@@ -16,9 +16,9 @@
 namespace py = pybind11;
 
 namespace tudatpy {
-
-void expose_interface(py::module &m);
-
+namespace interface {
+    void expose_interface(py::module &m);
+}// namespace interface
 }// namespace tudatpy
 
 #endif// TUDATPY_EXPOSE_INTERFACE_H

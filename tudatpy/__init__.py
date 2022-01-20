@@ -1,26 +1,23 @@
-from ._layer_propagation_setup import modify_propagation_setup
-from .kernel.simulation import propagation_setup
 from ._version import *
-
-modify_propagation_setup(propagation_setup)
-
+from .kernel import constants
+from .kernel import astro
+from .kernel import interface
+from .kernel import math
+from .kernel import numerical_simulation
+from .kernel import trajectory_design
 
 __all__ = [
     '__version__',
     'apps',
     'bodies',
     'io',
-    'elements',
     'prototype',
+    'constants',
+    'astro',
+    'interface',
     'kernel',
-    'kernel.io',
-    'kernel.constants',
-    'kernel.astro',
-    'kernel.interface',
-    'kernel.math',
-    'kernel.simulation',
-    'kernel.aerodynamics',
-    'kernel.unit_tests',
+    'math',
+    'numerical_simulation'
 ]
 
 # Clean up namespace

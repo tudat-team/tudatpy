@@ -14,9 +14,11 @@
 namespace py = pybind11;
 
 namespace tudatpy {
+namespace math {
 
 void expose_math(py::module &m);
 
+}
 };// namespace tudatpy
 
 #endif// TUDATPY_EXPOSE_MATH_H
