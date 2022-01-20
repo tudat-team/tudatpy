@@ -30,9 +30,9 @@
 #include "tudat/astro/observation_models/eulerAngleObservationModel.h"
 #include "tudat/astro/observation_models/velocityObservationModel.h"
 #include "tudat/astro/observation_models/observationSimulator.h"
-#include "tudat/astro/observation_models/observationViabilityCalculator.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/estimation_setup/createLightTimeCalculator.h"
+#include "tudat/simulation/estimation_setup/createObservationViability.h"
 
 
 namespace tudat
@@ -176,13 +176,69 @@ public:
     bool useAbsoluteBias_;
 };
 
+inline std::shared_ptr< ObservationBiasSettings > constantAbsoluteBias(
+        const Eigen::VectorXd& observationBias )
+{
+    return std::make_shared< ConstantObservationBiasSettings >(
+                observationBias, true );
+}
+
+inline std::shared_ptr< ObservationBiasSettings > constantRelativeBias(
+        const Eigen::VectorXd& observationBias )
+{
+    return std::make_shared< ConstantObservationBiasSettings >(
+                observationBias, false );
+}
+
+inline std::shared_ptr< ObservationBiasSettings > arcWiseAbsoluteBias(
+        const std::vector< double >& arcStartTimes,
+        const std::vector< Eigen::VectorXd >& observationBiases,
+        const LinkEndType linkEndForTime)
+{
+    return std::make_shared< ArcWiseConstantObservationBiasSettings >(
+                arcStartTimes, observationBiases, linkEndForTime, true );
+}
+
+
+inline std::shared_ptr< ObservationBiasSettings > arcWiseAbsoluteBias(
+        const std::map< double, Eigen::VectorXd >& observationBiases,
+        const LinkEndType linkEndForTime)
+{
+    return std::make_shared< ArcWiseConstantObservationBiasSettings >(
+                observationBiases, linkEndForTime, true );
+}
+
+inline std::shared_ptr< ObservationBiasSettings > arcWiseRelativeBias(
+        const std::vector< double >& arcStartTimes,
+        const std::vector< Eigen::VectorXd >& observationBiases,
+        const LinkEndType linkEndForTime )
+{
+    return std::make_shared< ArcWiseConstantObservationBiasSettings >(
+                arcStartTimes, observationBiases, linkEndForTime, false );
+}
+
+inline std::shared_ptr< ObservationBiasSettings > arcWiseRelativeBias(
+        const std::map< double, Eigen::VectorXd >& observationBiases,
+        const LinkEndType linkEndForTime )
+{
+    return std::make_shared< ArcWiseConstantObservationBiasSettings >(
+                observationBiases, linkEndForTime, false );
+}
+
+inline std::shared_ptr< ObservationBiasSettings > multipleObservationBiasSettings(
+        const std::vector< std::shared_ptr< ObservationBiasSettings > > biasSettingsList  )
+{
+    return std::make_shared< MultipleObservationBiasSettings >(
+                biasSettingsList );
+}
+
 //! Class used for defining the settings for an observation model that is to be created.
 /*!
  * Class used for defining the settings for an observation model that is to be created. This class allows the type, light-time
  * corrections and bias for the observation to be set. For observation models that require additional information (e.g.
  * integration time, retransmission time, etc.), a specific derived class must be implemented.
  */
-class ObservationSettings
+class ObservationModelSettings
 {
 public:
 
@@ -195,11 +251,13 @@ public:
      * (nullptr if none)
      * \param biasSettings Settings for the observation bias model that is to be used (default none: nullptr)
      */
-    ObservationSettings(
+    ObservationModelSettings(
             const observation_models::ObservableType observableType,
+            const LinkEnds linkEnds,
             const std::shared_ptr< LightTimeCorrectionSettings > lightTimeCorrections,
             const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr ):
         observableType_( observableType ),
+        linkEnds_( linkEnds ),
         biasSettings_( biasSettings )
     {
         if( lightTimeCorrections != nullptr )
@@ -216,19 +274,24 @@ public:
      * model
      * \param biasSettings Settings for the observation bias model that is to be used (default none: nullptr)
      */
-    ObservationSettings(
+    ObservationModelSettings(
             const observation_models::ObservableType observableType,
+            const LinkEnds linkEnds,
             const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =
             std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
             const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr ):
-        observableType_( observableType ),lightTimeCorrectionsList_( lightTimeCorrectionsList ),
+        observableType_( observableType ),
+        linkEnds_( linkEnds ),
+        lightTimeCorrectionsList_( lightTimeCorrectionsList ),
         biasSettings_( biasSettings ){ }
 
     //! Destructor
-    virtual ~ObservationSettings( ){ }
+    virtual ~ObservationModelSettings( ){ }
 
     //! Type of observation model that is to be created
     observation_models::ObservableType observableType_;
+
+    LinkEnds linkEnds_;
 
     //! List of settings for a single light-time correction that is to be used for the observation model
     std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList_;
@@ -236,6 +299,11 @@ public:
     //! Settings for the observation bias model that is to be used (default none: nullptr)
     std::shared_ptr< ObservationBiasSettings > biasSettings_;
 };
+
+std::vector< LinkEnds > getObservationModelListLinkEnds(
+        const std::vector< std::shared_ptr< ObservationModelSettings > >& observationModelList );
+
+
 
 //! Enum defining all possible types of proper time rate computations in one-way Doppler
 enum DopplerProperTimeRateType
@@ -284,7 +352,7 @@ public:
 };
 
 //! Class to define the settings for one-way Doppler observable
-class OneWayDopplerObservationSettings: public ObservationSettings
+class OneWayDopplerObservationSettings: public ObservationModelSettings
 {
 public:
 
@@ -298,11 +366,12 @@ public:
      * \param biasSettings Settings for the observation bias model that is to be used (default none: NUL
      */
     OneWayDopplerObservationSettings(
+            const LinkEnds& linkEnds,
             const std::shared_ptr< LightTimeCorrectionSettings > lightTimeCorrections,
             const std::shared_ptr< DopplerProperTimeRateSettings > transmitterProperTimeRateSettings = nullptr,
             const std::shared_ptr< DopplerProperTimeRateSettings > receiverProperTimeRateSettings = nullptr,
             const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr ):
-        ObservationSettings( one_way_doppler, lightTimeCorrections, biasSettings ),
+        ObservationModelSettings( one_way_doppler, linkEnds, lightTimeCorrections, biasSettings ),
         transmitterProperTimeRateSettings_( transmitterProperTimeRateSettings ),
         receiverProperTimeRateSettings_( receiverProperTimeRateSettings ){ }
 
@@ -316,12 +385,13 @@ public:
      * \param biasSettings Settings for the observation bias model that is to be used (default none: NUL
      */
     OneWayDopplerObservationSettings(
+            const LinkEnds& linkEnds,
             const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =
             std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
             const std::shared_ptr< DopplerProperTimeRateSettings > transmitterProperTimeRateSettings = nullptr,
             const std::shared_ptr< DopplerProperTimeRateSettings > receiverProperTimeRateSettings = nullptr,
             const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr ):
-        ObservationSettings( one_way_doppler, lightTimeCorrectionsList, biasSettings ),
+        ObservationModelSettings( one_way_doppler, linkEnds, lightTimeCorrectionsList, biasSettings ),
         transmitterProperTimeRateSettings_( transmitterProperTimeRateSettings ),
         receiverProperTimeRateSettings_( receiverProperTimeRateSettings ){ }
 
@@ -338,7 +408,7 @@ public:
 
 
 //! Class to define the settings for one-way Doppler observable
-class TwoWayDopplerObservationSettings: public ObservationSettings
+class TwoWayDopplerObservationSettings: public ObservationModelSettings
 {
 public:
 
@@ -353,9 +423,28 @@ public:
             const std::shared_ptr< OneWayDopplerObservationSettings > uplinkOneWayDopplerSettings,
             const std::shared_ptr< OneWayDopplerObservationSettings > downlinkOneWayDopplerSettings,
             const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr ):
-        ObservationSettings( two_way_doppler, std::shared_ptr< LightTimeCorrectionSettings >( ), biasSettings ),
+        ObservationModelSettings( two_way_doppler, mergeUpDownLink(
+                                      uplinkOneWayDopplerSettings->linkEnds_, downlinkOneWayDopplerSettings->linkEnds_ ),
+                                  std::shared_ptr< LightTimeCorrectionSettings >( ), biasSettings ),
         uplinkOneWayDopplerSettings_( uplinkOneWayDopplerSettings ),
-        downlinkOneWayDopplerSettings_( downlinkOneWayDopplerSettings ){ }
+        downlinkOneWayDopplerSettings_( downlinkOneWayDopplerSettings )
+    {
+
+    }
+
+    TwoWayDopplerObservationSettings(
+            const LinkEnds& linkEnds,
+            const std::shared_ptr< LightTimeCorrectionSettings > lightTimeCorrections = nullptr,
+            const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr ):
+        ObservationModelSettings( two_way_doppler, linkEnds,
+                                  lightTimeCorrections, biasSettings )
+    {
+        uplinkOneWayDopplerSettings_ = std::make_shared< OneWayDopplerObservationSettings >(
+                    getUplinkFromTwoWayLinkEnds( linkEnds ), lightTimeCorrections );
+        downlinkOneWayDopplerSettings_ = std::make_shared< OneWayDopplerObservationSettings >(
+                    getDownlinkFromTwoWayLinkEnds( linkEnds ), lightTimeCorrections );
+    }
+
 
     //! Destructor
     ~TwoWayDopplerObservationSettings( ){ }
@@ -371,7 +460,7 @@ public:
 
 
 //! Class to define the settings for one-way differenced range-rate (e.g. closed-loop Doppler) observable
-class OneWayDifferencedRangeRateObservationSettings: public ObservationSettings
+class OneWayDifferencedRangeRateObservationSettings: public ObservationModelSettings
 {
 public:
 
@@ -384,10 +473,11 @@ public:
      * \param biasSettings Settings for the observation bias model that is to be used (default none: nullptr)
      */
     OneWayDifferencedRangeRateObservationSettings(
+            const LinkEnds& linkEnds,
             const std::function< double( const double ) > integrationTimeFunction,
             const std::shared_ptr< LightTimeCorrectionSettings > lightTimeCorrections,
             const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr ):
-        ObservationSettings( one_way_differenced_range, lightTimeCorrections, biasSettings ),
+        ObservationModelSettings( one_way_differenced_range, linkEnds, lightTimeCorrections, biasSettings ),
         integrationTimeFunction_( integrationTimeFunction ){ }
 
     //! Constructor
@@ -399,11 +489,12 @@ public:
      * \param biasSettings Settings for the observation bias model that is to be used (default none: nullptr)
      */
     OneWayDifferencedRangeRateObservationSettings(
+            const LinkEnds& linkEnds,
             const std::function< double( const double ) > integrationTimeFunction,
             const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =
             std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
             const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr ):
-        ObservationSettings( one_way_differenced_range, lightTimeCorrectionsList, biasSettings ),
+        ObservationModelSettings( one_way_differenced_range, linkEnds, lightTimeCorrectionsList, biasSettings ),
         integrationTimeFunction_( integrationTimeFunction ){ }
 
     //! Destructor
@@ -416,7 +507,7 @@ public:
 
 
 //! Class to define the settings for one-way differenced range-rate (e.g. closed-loop Doppler) observable
-class NWayRangeObservationSettings: public ObservationSettings
+class NWayRangeObservationSettings: public ObservationModelSettings
 {
 public:
 
@@ -430,11 +521,12 @@ public:
      * \param biasSettings Settings for the observation bias model that is to be used (default none: nullptr)
      */
     NWayRangeObservationSettings(
-            const std::vector< std::shared_ptr< ObservationSettings > > oneWayRangeObsevationSettings,
+            const std::vector< std::shared_ptr< ObservationModelSettings > > oneWayRangeObsevationSettings,
             const std::function< std::vector< double >( const double ) > retransmissionTimesFunction =
             std::function< std::vector< double >( const double  ) >( ),
             const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr ):
-        ObservationSettings( n_way_range, std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ), biasSettings ),
+        ObservationModelSettings( n_way_range, mergeOneWayLinkEnds( getObservationModelListLinkEnds( oneWayRangeObsevationSettings ) ),
+                                  std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ), biasSettings ),
         oneWayRangeObsevationSettings_( oneWayRangeObsevationSettings ),
         retransmissionTimesFunction_( retransmissionTimesFunction ){ }
 
@@ -449,30 +541,141 @@ public:
      * \param biasSettings Settings for the observation bias model that is to be used (default none: nullptr)
      */
     NWayRangeObservationSettings(
+            const LinkEnds& linkEnds,
             const std::shared_ptr< LightTimeCorrectionSettings > lightTimeCorrections,
             const int numberOfLinkEnds,
             const std::function< std::vector< double >( const double ) > retransmissionTimesFunction =
             std::function< std::vector< double >( const double  ) >( ),
             const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr ):
-        ObservationSettings( n_way_range, std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ), biasSettings ),
+        ObservationModelSettings( n_way_range, linkEnds, std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ), biasSettings ),
         retransmissionTimesFunction_( retransmissionTimesFunction )
     {
         for( int i = 0; i < numberOfLinkEnds - 1; i++ )
         {
-            oneWayRangeObsevationSettings_.push_back( std::make_shared< ObservationSettings >(
-                                                          one_way_range, lightTimeCorrections ) );
+            oneWayRangeObsevationSettings_.push_back( std::make_shared< ObservationModelSettings >(
+                                                          one_way_range, linkEnds, lightTimeCorrections ) );
         }
     }
 
     //! Destructor
     ~NWayRangeObservationSettings( ){ }
 
-    std::vector< std::shared_ptr< ObservationSettings > > oneWayRangeObsevationSettings_;
+    std::vector< std::shared_ptr< ObservationModelSettings > > oneWayRangeObsevationSettings_;
 
     //! Function that returns the integration time of observable as a function of time
     std::function< std::vector< double >( const double ) > retransmissionTimesFunction_;
 
 };
+
+
+inline std::shared_ptr< ObservationModelSettings > oneWayRangeSettings(
+        const LinkEnds& linkEnds,
+        const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =
+        std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
+        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr)
+{
+    return std::make_shared< ObservationModelSettings >(
+                one_way_range, linkEnds, lightTimeCorrectionsList, biasSettings );
+}
+
+inline std::shared_ptr< ObservationModelSettings > angularPositionSettings(
+        const LinkEnds& linkEnds,
+        const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =
+        std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
+        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr)
+{
+    return std::make_shared< ObservationModelSettings >(
+                angular_position, linkEnds, lightTimeCorrectionsList, biasSettings );
+}
+
+inline std::shared_ptr< ObservationModelSettings > positionObservableSettings(
+        const LinkEnds& linkEnds,
+        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr)
+{
+    return std::make_shared< ObservationModelSettings >(
+                position_observable, linkEnds, nullptr, biasSettings );
+}
+
+inline std::shared_ptr< ObservationModelSettings > velocityObservableSettings(
+        const LinkEnds& linkEnds,
+        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr)
+{
+    return std::make_shared< ObservationModelSettings >(
+                velocity_observable, linkEnds, nullptr, biasSettings );
+}
+
+inline std::shared_ptr< ObservationModelSettings > eulerAngle313ObservableSettings(
+        const LinkEnds& linkEnds,
+        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr)
+{
+    return std::make_shared< ObservationModelSettings >(
+                euler_angle_313_observable, linkEnds, nullptr, biasSettings );
+}
+
+inline std::shared_ptr< ObservationModelSettings > oneWayOpenLoopDoppler(
+        const LinkEnds& linkEnds,
+        const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =
+        std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
+        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
+        const std::shared_ptr< DopplerProperTimeRateSettings > transmitterProperTimeRateSettings = nullptr,
+        const std::shared_ptr< DopplerProperTimeRateSettings > receiverProperTimeRateSettings = nullptr )
+{
+    return std::make_shared< OneWayDopplerObservationSettings >(
+                linkEnds, lightTimeCorrectionsList, transmitterProperTimeRateSettings, receiverProperTimeRateSettings,
+                biasSettings );
+}
+
+inline std::shared_ptr< ObservationModelSettings > twoWayOpenLoopDoppler(
+        const std::shared_ptr< OneWayDopplerObservationSettings > uplinkOneWayDopplerSettings,
+        const std::shared_ptr< OneWayDopplerObservationSettings > downlinkOneWayDopplerSettings,
+        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr )
+{
+    return std::make_shared< TwoWayDopplerObservationSettings >(
+                uplinkOneWayDopplerSettings, downlinkOneWayDopplerSettings, biasSettings );
+}
+
+
+inline std::shared_ptr< ObservationModelSettings > twoWayOpenLoopDoppler(
+        const LinkEnds& linkEnds,
+        const std::shared_ptr< LightTimeCorrectionSettings > lightTimeCorrections = nullptr,
+        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr )
+{
+    return std::make_shared< TwoWayDopplerObservationSettings >(
+                linkEnds, lightTimeCorrections, biasSettings );
+}
+
+
+inline std::shared_ptr< ObservationModelSettings > oneWayClosedLoopDoppler(
+        const LinkEnds& linkEnds,
+        const std::function< double( const double ) > integrationTimeFunction,
+        const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =
+        std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
+        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr )
+{
+    return std::make_shared< OneWayDifferencedRangeRateObservationSettings >(
+                linkEnds, integrationTimeFunction, lightTimeCorrectionsList, biasSettings );
+}
+
+inline std::shared_ptr< ObservationModelSettings > oneWayClosedLoopDoppler(
+        const LinkEnds& linkEnds,
+        const double integrationTime,
+        const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =
+        std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
+        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr )
+{
+    return std::make_shared< OneWayDifferencedRangeRateObservationSettings >(
+                linkEnds, [=](const double){ return integrationTime; }, lightTimeCorrectionsList, biasSettings );
+}
+
+inline std::shared_ptr< ObservationModelSettings > nWayRange(
+        const std::vector< std::shared_ptr< ObservationModelSettings > > oneWayRangeObsevationSettings,
+        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
+        const std::function< std::vector< double >( const double ) > retransmissionTimesFunction =
+        std::function< std::vector< double >( const double  ) >( ))
+{
+    return std::make_shared< NWayRangeObservationSettings >(
+                oneWayRangeObsevationSettings, retransmissionTimesFunction, biasSettings );
+}
 
 //! Function to create the proper time rate calculator for use in one-way Doppler
 /*!
@@ -534,7 +737,7 @@ std::shared_ptr< DopplerProperTimeRateInterface > createOneWayDopplerProperTimeC
                             DirectFirstOrderDopplerProperTimeRateInterface >(
                                 linkEndForCalculator, gravitationalParameterFunction,
                                 directFirstOrderDopplerProperTimeRateSettings->centralBodyName_, unidentified_link_end,
-                                getLinkEndCompleteEphemerisFunction< double, double >(
+                                simulation_setup::getLinkEndCompleteEphemerisFunction< double, double >(
                                     std::make_pair( directFirstOrderDopplerProperTimeRateSettings->centralBodyName_, ""), bodies ) );
                 }
                 else
@@ -554,35 +757,22 @@ std::shared_ptr< DopplerProperTimeRateInterface > createOneWayDopplerProperTimeC
     return properTimeRateInterface;
 }
 
-//! Typedef of list of observation models per obserable type and link ends: note that ObservableType key must be consistent
-//! with contents of ObservationSettings pointers. The ObservationSettingsMap may be used as well, which contains the same
-//! type of information. This typedef, however, has some advantages in terms of book-keeping when creating observation models.
-typedef std::map< ObservableType, std::map< LinkEnds, std::shared_ptr< ObservationSettings > > > SortedObservationSettingsMap;
+////! Typedef of list of observation models per obserable type and link ends: note that ObservableType key must be consistent
+////! with contents of ObservationModelSettings pointers. The ObservationSettingsMap may be used as well, which contains the same
+////! type of information. This typedef, however, has some advantages in terms of book-keeping when creating observation models.
+//typedef std::map< ObservableType, std::map< LinkEnds, std::shared_ptr< ObservationModelSettings > > > SortedObservationSettingsMap;
 
-//! Typedef of list of observation models per link ends. Multiple observation models for a single set of link ends are allowed,
-//! since this typedef represents a multimap.
-typedef std::multimap< LinkEnds, std::shared_ptr< ObservationSettings > > ObservationSettingsMap;
+////! Typedef of list of observation models per link ends. Multiple observation models for a single set of link ends are allowed,
+////! since this typedef represents a multimap.
+//typedef std::multimap< LinkEnds, std::shared_ptr< ObservationModelSettings > > ObservationSettingsMap;
 
-typedef std::map< LinkEnds, std::vector< std::shared_ptr< ObservationSettings > > > ObservationSettingsListPerLinkEnd;
+//typedef std::vector< std::pair< LinkEnds, std::shared_ptr< ObservationModelSettings > > > ObservationSettingsVector;
 
-//! Function to create list of observation models sorted by observable type and link ends from list only sorted in link ends (as multimap).
-/*!
- * Function to create list of observation models sorted by observable type and link ends from list only sorted in link ends (as multimap).
- * \param unsortedObservationSettingsMap List (multimap_) of observation models sorted link ends
- * \return List (map of maps) of observation models sorted by observable type and link ends
- */
-SortedObservationSettingsMap convertUnsortedToSortedObservationSettingsMap(
-        const ObservationSettingsMap& unsortedObservationSettingsMap );
+//typedef std::map< LinkEnds, std::vector< std::shared_ptr< ObservationModelSettings > > > ObservationSettingsListPerLinkEnd;
 
-//! Function to create list of observation models sorted by observable type and link ends from list only sorted in link ends (as map).
-/*!
- * Function to create list of observation models sorted by observable type and link ends from list only sorted in link ends (as map).
- * \param unsortedObservationSettingsMap List (map_) of observation models sorted link ends
- * \return List (map of maps) of observation models sorted by observable type and link ends
- */
-SortedObservationSettingsMap convertUnsortedToSortedObservationSettingsMap(
-        const ObservationSettingsListPerLinkEnd& unsortedObservationSettingsMap );
 
+std::map< ObservableType, std::vector< std::shared_ptr< ObservationModelSettings > > > sortObservationModelSettingsByType(
+        const std::vector< std::shared_ptr< ObservationModelSettings > >& observationModelSettings );
 
 //! Function to create an object that computes an observation bias
 /*!
@@ -773,8 +963,7 @@ public:
      */
     static std::shared_ptr< observation_models::ObservationModel<
     ObservationSize, ObservationScalarType, TimeType > > createObservationModel(
-            const LinkEnds linkEnds,
-            const std::shared_ptr< ObservationSettings > observationSettings,
+            const std::shared_ptr< ObservationModelSettings > observationSettings,
             const simulation_setup::SystemOfBodies &bodies );
 };
 
@@ -794,14 +983,14 @@ public:
      */
     static std::shared_ptr< observation_models::ObservationModel<
     1, ObservationScalarType, TimeType > > createObservationModel(
-            const LinkEnds linkEnds,
-            const std::shared_ptr< ObservationSettings > observationSettings,
+            const std::shared_ptr< ObservationModelSettings > observationSettings,
             const simulation_setup::SystemOfBodies &bodies )
     {
         using namespace observation_models;
 
         std::shared_ptr< observation_models::ObservationModel<
                 1, ObservationScalarType, TimeType > > observationModel;
+        LinkEnds linkEnds = observationSettings->linkEnds_;
 
         // Check type of observation model.
         switch( observationSettings->observableType_ )
@@ -836,7 +1025,7 @@ public:
             // Create observation model
             observationModel = std::make_shared< OneWayRangeObservationModel<
                     ObservationScalarType, TimeType > >(
-                        createLightTimeCalculator< ObservationScalarType, TimeType >(
+                        linkEnds, createLightTimeCalculator< ObservationScalarType, TimeType >(
                             linkEnds.at( transmitter ), linkEnds.at( receiver ),
                             bodies, observationSettings->lightTimeCorrectionsList_ ),
                         observationBias );
@@ -875,6 +1064,7 @@ public:
                 // Create observation model
                 observationModel = std::make_shared< OneWayDopplerObservationModel<
                         ObservationScalarType, TimeType > >(
+                            linkEnds,
                             createLightTimeCalculator< ObservationScalarType, TimeType >(
                                 linkEnds.at( transmitter ), linkEnds.at( receiver ),
                                 bodies, observationSettings->lightTimeCorrectionsList_ ),
@@ -884,16 +1074,31 @@ public:
             {
                 std::shared_ptr< OneWayDopplerObservationSettings > oneWayDopplerSettings =
                         std::dynamic_pointer_cast< OneWayDopplerObservationSettings >( observationSettings );
+                std::shared_ptr< DopplerProperTimeRateInterface > transmitterProperTimeRate = nullptr;
+                std::shared_ptr< DopplerProperTimeRateInterface > receiverProperTimeRate = nullptr;
+                if( oneWayDopplerSettings->transmitterProperTimeRateSettings_ != nullptr )
+                {
+                    transmitterProperTimeRate =
+                            createOneWayDopplerProperTimeCalculator< ObservationScalarType, TimeType >(
+                                oneWayDopplerSettings->transmitterProperTimeRateSettings_, linkEnds, bodies, transmitter );
+                }
+
+                if( oneWayDopplerSettings->transmitterProperTimeRateSettings_ != nullptr )
+                {
+                    receiverProperTimeRate =
+                            createOneWayDopplerProperTimeCalculator< ObservationScalarType, TimeType >(
+                                oneWayDopplerSettings->receiverProperTimeRateSettings_, linkEnds, bodies, receiver );
+                }
+
                 // Create observation model
                 observationModel = std::make_shared< OneWayDopplerObservationModel<
                         ObservationScalarType, TimeType > >(
+                            linkEnds,
                             createLightTimeCalculator< ObservationScalarType, TimeType >(
                                 linkEnds.at( transmitter ), linkEnds.at( receiver ),
                                 bodies, observationSettings->lightTimeCorrectionsList_ ),
-                            createOneWayDopplerProperTimeCalculator< ObservationScalarType, TimeType >(
-                                oneWayDopplerSettings->transmitterProperTimeRateSettings_, linkEnds, bodies, transmitter ),
-                            createOneWayDopplerProperTimeCalculator< ObservationScalarType, TimeType >(
-                                oneWayDopplerSettings->receiverProperTimeRateSettings_, linkEnds, bodies, receiver ),
+                                transmitterProperTimeRate,
+                                receiverProperTimeRate,
                             observationBias );
             }
 
@@ -950,26 +1155,28 @@ public:
             {
                 observationModel = std::make_shared< TwoWayDopplerObservationModel<
                         ObservationScalarType, TimeType > >(
+                            linkEnds,
                             std::dynamic_pointer_cast< OneWayDopplerObservationModel< ObservationScalarType, TimeType > >(
                                 ObservationModelCreator< 1, ObservationScalarType, TimeType >::createObservationModel(
-                                    uplinkLinkEnds, std::make_shared< ObservationSettings >(
-                                        one_way_doppler, observationSettings->lightTimeCorrectionsList_ ), bodies ) ),
+                                    std::make_shared< ObservationModelSettings >(
+                                        one_way_doppler, uplinkLinkEnds, observationSettings->lightTimeCorrectionsList_ ), bodies ) ),
                             std::dynamic_pointer_cast< OneWayDopplerObservationModel< ObservationScalarType, TimeType > >(
                                 ObservationModelCreator< 1, ObservationScalarType, TimeType >::createObservationModel(
-                                    downlinkLinkEnds, std::make_shared< ObservationSettings >(
-                                        one_way_doppler, observationSettings->lightTimeCorrectionsList_ ), bodies ) ),
+                                    std::make_shared< ObservationModelSettings >(
+                                        one_way_doppler, downlinkLinkEnds, observationSettings->lightTimeCorrectionsList_ ), bodies ) ),
                             observationBias );
             }
             else
             {
                 observationModel = std::make_shared< TwoWayDopplerObservationModel<
                         ObservationScalarType, TimeType > >(
+                            linkEnds,
                             std::dynamic_pointer_cast< OneWayDopplerObservationModel< ObservationScalarType, TimeType > >(
                                 ObservationModelCreator< 1, ObservationScalarType, TimeType >::createObservationModel(
-                                    uplinkLinkEnds, twoWayDopplerSettings->uplinkOneWayDopplerSettings_, bodies ) ),
+                                     twoWayDopplerSettings->uplinkOneWayDopplerSettings_, bodies ) ),
                             std::dynamic_pointer_cast< OneWayDopplerObservationModel< ObservationScalarType, TimeType > >(
                                 ObservationModelCreator< 1, ObservationScalarType, TimeType >::createObservationModel(
-                                    downlinkLinkEnds, twoWayDopplerSettings->downlinkOneWayDopplerSettings_, bodies ) ),
+                                    twoWayDopplerSettings->downlinkOneWayDopplerSettings_, bodies ) ),
                             observationBias );
             }
 
@@ -1012,6 +1219,7 @@ public:
             // Create observation model
             observationModel = std::make_shared< OneWayDifferencedRangeObservationModel<
                     ObservationScalarType, TimeType > >(
+                        linkEnds,
                         createLightTimeCalculator< ObservationScalarType, TimeType >(
                             linkEnds.at( transmitter ), linkEnds.at( receiver ),
                             bodies, observationSettings->lightTimeCorrectionsList_ ),
@@ -1125,6 +1333,7 @@ public:
             // Create observation model
             observationModel = std::make_shared< NWayRangeObservationModel<
                     ObservationScalarType, TimeType > >(
+                        linkEnds,
                         lightTimeCalculators, retransmissionTimesFunction_,
                         observationBias );
             break;
@@ -1157,13 +1366,13 @@ public:
      */
     static std::shared_ptr< observation_models::ObservationModel<
     2, ObservationScalarType, TimeType > > createObservationModel(
-            const LinkEnds linkEnds,
-            const std::shared_ptr< ObservationSettings > observationSettings,
+            const std::shared_ptr< ObservationModelSettings > observationSettings,
             const simulation_setup::SystemOfBodies &bodies )
     {
         using namespace observation_models;
         std::shared_ptr< observation_models::ObservationModel<
                 2, ObservationScalarType, TimeType > > observationModel;
+        LinkEnds linkEnds = observationSettings->linkEnds_;
 
         // Check type of observation model.
         switch( observationSettings->observableType_ )
@@ -1199,6 +1408,7 @@ public:
             // Create observation model
             observationModel = std::make_shared< AngularPositionObservationModel<
                     ObservationScalarType, TimeType > >(
+                        linkEnds,
                         createLightTimeCalculator< ObservationScalarType, TimeType >(
                             linkEnds.at( transmitter ), linkEnds.at( receiver ),
                             bodies, observationSettings->lightTimeCorrectionsList_ ),
@@ -1235,13 +1445,14 @@ public:
      */
     static std::shared_ptr< observation_models::ObservationModel<
     3, ObservationScalarType, TimeType > > createObservationModel(
-            const LinkEnds linkEnds,
-            const std::shared_ptr< ObservationSettings > observationSettings,
+            const std::shared_ptr< ObservationModelSettings > observationSettings,
             const simulation_setup::SystemOfBodies &bodies )
     {
         using namespace observation_models;
         std::shared_ptr< observation_models::ObservationModel<
                 3, ObservationScalarType, TimeType > > observationModel;
+
+        LinkEnds linkEnds = observationSettings->linkEnds_;
 
         // Check type of observation model.
         switch( observationSettings->observableType_ )
@@ -1283,6 +1494,7 @@ public:
             // Create observation model
             observationModel = std::make_shared< PositionObservationModel<
                     ObservationScalarType, TimeType > >(
+                        linkEnds,
                         std::bind( &simulation_setup::Body::getStateInBaseFrameFromEphemeris<
                                    ObservationScalarType, TimeType >,
                                    bodies.at( linkEnds.at( observed_body ).first ), std::placeholders::_1 ),
@@ -1340,6 +1552,7 @@ public:
             // Create observation model
             observationModel = std::make_shared< EulerAngle313ObservationModel<
                     ObservationScalarType, TimeType > >(
+                        linkEnds,
                         toBodyFixedFrameFunction, observationBias );
 
             break;
@@ -1381,9 +1594,10 @@ public:
             // Create observation model
             observationModel = std::make_shared< VelocityObservationModel<
                     ObservationScalarType, TimeType > >(
+                        linkEnds,
                         std::bind( &simulation_setup::Body::getStateInBaseFrameFromEphemeris<
-                                     ObservationScalarType, TimeType >,
-                                     bodies.at( linkEnds.at( observed_body ).first ), std::placeholders::_1 ),
+                                   ObservationScalarType, TimeType >,
+                                   bodies.at( linkEnds.at( observed_body ).first ), std::placeholders::_1 ),
                         observationBias );
 
             break;
@@ -1411,19 +1625,18 @@ public:
 template< int ObservationSize = 1, typename ObservationScalarType = double, typename TimeType = double >
 std::shared_ptr< ObservationSimulator< ObservationSize, ObservationScalarType, TimeType > > createObservationSimulator(
         const ObservableType observableType,
-        const std::map< LinkEnds, std::shared_ptr< ObservationSettings  > > settingsPerLinkEnds,
+        const std::vector< std::shared_ptr< ObservationModelSettings  > > settingsList,
         const simulation_setup::SystemOfBodies &bodies )
 {
     std::map< LinkEnds, std::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > >
             observationModels;
 
     // Iterate over all link ends
-    for( std::map< LinkEnds, std::shared_ptr< ObservationSettings  > >::const_iterator settingIterator =
-         settingsPerLinkEnds.begin( ); settingIterator != settingsPerLinkEnds.end( ); settingIterator++ )
+    for( unsigned int i = 0; i < settingsList.size( ); i++ )
     {
-        observationModels[ settingIterator->first ] = ObservationModelCreator<
+        observationModels[ settingsList.at( i )->linkEnds_ ] = ObservationModelCreator<
                 ObservationSize, ObservationScalarType, TimeType >::createObservationModel(
-                    settingIterator->first, settingIterator->second, bodies );
+                    settingsList.at( i ), bodies );
     }
 
     return std::make_shared< ObservationSimulator< ObservationSize, ObservationScalarType, TimeType > >(
@@ -1433,47 +1646,43 @@ std::shared_ptr< ObservationSimulator< ObservationSize, ObservationScalarType, T
 //! Function to create a map of object to simulate observations (one object for each type of observable).
 /*!
  *  Function to create a map of object to simulate observations (one object for each type of observable).
- *  \param observationSettingsMap Map of settings for the observation models that are to be created in the simulator object: first
- *  map key is observable type, second is link ends for observation. One observation settings object must be given
- *  for each required set of link ends/observable (each settings object must be consistent with observable type in first entry).
+ *  \param observationSettingsList List of settings for the observation models that are to be created in the simulator object
  *  \param bodies Map of Body objects that comprise the environment
  *  \return List of objects that simulate the observables according to the provided settings.
  */
 template< typename ObservationScalarType = double, typename TimeType = double >
-std::map< ObservableType,
-std::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > > createObservationSimulators(
-        observation_models::SortedObservationSettingsMap observationSettingsMap,
+std::vector< std::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > > createObservationSimulators(
+        const std::vector< std::shared_ptr< ObservationModelSettings > >& observationSettingsList,
         const simulation_setup::SystemOfBodies& bodies )
 {
-    std::map< ObservableType,
-            std::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > > observationSimulators;
+    std::vector< std::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > > observationSimulators;
+    std::map< ObservableType, std::vector< std::shared_ptr< ObservationModelSettings > > > sortedObservationSettingsList =
+            sortObservationModelSettingsByType( observationSettingsList );
 
     // Iterate over all observables
-    typedef std::map< ObservableType, std::map< LinkEnds, std::shared_ptr< ObservationSettings > > >
-            SortedObservationSettingsMap;
-    for( SortedObservationSettingsMap::const_iterator settingsIterator = observationSettingsMap.begin( );
-         settingsIterator != observationSettingsMap.end( ); settingsIterator++ )
+    for( auto it : sortedObservationSettingsList )
     {
         // Call createObservationSimulator of required observation size
-        int observableSize = getObservableSize( settingsIterator->first );
+        ObservableType observableType = it.first;
+        int observableSize = getObservableSize( observableType );
         switch( observableSize )
         {
         case 1:
         {
-            observationSimulators[ settingsIterator->first ] = createObservationSimulator< 1, ObservationScalarType, TimeType >(
-                        settingsIterator->first, settingsIterator->second, bodies );
+            observationSimulators.push_back( createObservationSimulator< 1, ObservationScalarType, TimeType >(
+                        observableType, it.second, bodies ) );
             break;
         }
         case 2:
         {
-            observationSimulators[ settingsIterator->first ] = createObservationSimulator< 2, ObservationScalarType, TimeType >(
-                        settingsIterator->first, settingsIterator->second, bodies );
+            observationSimulators.push_back( createObservationSimulator< 2, ObservationScalarType, TimeType >(
+                        observableType, it.second, bodies ) );
             break;
         }
         case 3:
         {
-            observationSimulators[ settingsIterator->first ] = createObservationSimulator< 3, ObservationScalarType, TimeType >(
-                        settingsIterator->first, settingsIterator->second, bodies );
+            observationSimulators.push_back( createObservationSimulator< 3, ObservationScalarType, TimeType >(
+                        observableType, it.second, bodies ) );
             break;
         }
         default:
@@ -1483,151 +1692,6 @@ std::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > >
     return observationSimulators;
 }
 
-
-//! Function to create a map of object to simulate observations (one object for each type of observable).
-/*!
- *  Function to create a map of object to simulate observations (one object for each type of observable), from a list of
- *  observation settings not sorted by observable type.
- *  \param observationSettingsMap Multi-map of settings for the observation models that are to be created in the simulator object
- *  map key is link ends for observation.
- *  \param bodies Map of Body objects that comprise the environment
- *  \return List of objects that simulate the observables according to the provided settings.
- */
-template< typename ObservationScalarType = double, typename TimeType = double >
-std::map< ObservableType,
-std::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > > createObservationSimulators(
-        observation_models::ObservationSettingsMap observationSettingsMap,
-        const simulation_setup::SystemOfBodies &bodies )
-{
-    return createObservationSimulators< ObservationScalarType, TimeType >(
-                convertUnsortedToSortedObservationSettingsMap( observationSettingsMap ), bodies );
-}
-
-//! Function to filter list of observationViabilitySettings, so that only those relevant for single set of link ends are retained
-/*!
- * Function to filter list of observationViabilitySettings, so that only those relevant for single set of link ends are retained
- * \param observationViabilitySettings Full, unfiltered, list of observation viability settings
- * \param linkEnds Link ends for which the relevant observation vaibilityies are to be retrieved
- * \return List of observationViabilitySettings that are relevant for linkEnds
- */
-ObservationViabilitySettingsList filterObservationViabilitySettings(
-        const ObservationViabilitySettingsList& observationViabilitySettings,
-        const LinkEnds& linkEnds );
-
-//! Function to retrieve the link end indices in link end states/times that are to be used in viability calculation
-/*!
- * Function to retrieve the link end indices in link end states/times that are to be used in viability calculation.
- * Return variable is a vector of pairs, where each the first entry denotes the index of the point at which the link is to be
- * checkd. The second entry denotes the index for the opposite end of the link.
- * \param linkEnds Complete set of link ends for which check is to be performed
- * \param observableType Observable type for which check is to be performed
- * \param linkEndToCheck Link end at which check is to be performed
- * \return Link end indices in link end states/times that are to be used in viability calculation
- */
-std::vector< std::pair< int, int > > getLinkEndIndicesForObservationViability(
-        const LinkEnds& linkEnds,
-        const ObservableType observableType,
-        const LinkEndId linkEndToCheck );
-
-//! Function to create an object to check if a minimum elevation angle condition is met for an observation
-/*!
- * Function to create an object to check if a minimum elevation angle condition is met for an observation
- * \param bodies Map of body objects that constitutes the environment
- * \param linkEnds Link ends for which viability check object is to be made
- * \param observationType Type of observable for which viability check object is to be made
- * \param observationViabilitySettings Object that defines the settings for the creation of the viability check creation
- * (settings must be compatible with minimum elevation angle check).  Ground station must ve specified by
- * associatedLinkEnd_.second in observationViabilitySettings.
- * \param stationName Name of the ground station for which calculator is to be computed (if no station is explicitly given in
- * observationViabilitySettings).
- * \return Object to check if a minimum elevation angle condition is met for an observation
- */
-std::shared_ptr< MinimumElevationAngleCalculator > createMinimumElevationAngleCalculator(
-        const simulation_setup::SystemOfBodies& bodies,
-        const LinkEnds linkEnds,
-        const ObservableType observationType,
-        const std::shared_ptr< ObservationViabilitySettings > observationViabilitySettings,
-        const std::string& stationName );
-
-//! Function to create an object to check if a body avoidance angle condition is met for an observation
-/*!
- * Function to create an object to check if a body avoidance angle condition is met for an observation
- * \param bodies Map of body objects that constitutes the environment
- * \param linkEnds Link ends for which viability check object is to be made
- * \param observationType Type of observable for which viability check object is to be made
- * \param observationViabilitySettings Object that defines the settings for the creation of the viability check creation
- * (settings must be compatible with body avoidance angle check). If ground station is not specified (by
- * associatedLinkEnd_.second in observationViabilitySettings), check is performed for all ground stations on (or c.o.m. of) body
- * (defined by associatedLinkEnd_.first) automatically.
- * \return Object to check if a body avoidance angle condition is met for an observation
- */
-std::shared_ptr< BodyAvoidanceAngleCalculator > createBodyAvoidanceAngleCalculator(
-        const simulation_setup::SystemOfBodies& bodies,
-        const LinkEnds linkEnds,
-        const ObservableType observationType,
-        const std::shared_ptr< ObservationViabilitySettings > observationViabilitySettings );
-
-//! Function to create an object to check if a body occultation condition is met for an observation
-/*!
- * Function to create an object to check if a body occultation condition is met for an observation
- * \param bodies Map of body objects that constitutes the environment
- * \param linkEnds Link ends for which viability check object is to be made
- * \param observationType Type of observable for which viability check object is to be made
- * \param observationViabilitySettings Object that defines the settings for the creation of the viability check creation
- * (settings must be compatible with body occultation check).  If ground station is not specified (by
- * associatedLinkEnd_.second in observationViabilitySettings), check is performed for all ground stations on (or c.o.m. of) body
- * (defined by associatedLinkEnd_.first) automatically, or fo
- * \return Object to check if a body occultation condition is met for an observation
- */
-std::shared_ptr< OccultationCalculator > createOccultationCalculator(
-        const simulation_setup::SystemOfBodies& bodies,
-        const LinkEnds linkEnds,
-        const ObservableType observationType,
-        const std::shared_ptr< ObservationViabilitySettings > observationViabilitySettings );
-
-//! Function to create an list of obervation viability conditions for a single set of link ends
-/*!
- * Function to create an list of obervation viability conditions for a single set of link ends
- * \param bodies Map of body objects that constitutes the environment
- * \param linkEnds Link ends for which viability check object is to be made
- * \param observationType Type of observable for which viability check object is to be made
- * \param observationViabilitySettings List of viability settings from which viability check objects are to be created
- * \return List of obervation viability conditions for a single set of link ends
- */
-std::vector< std::shared_ptr< ObservationViabilityCalculator > > createObservationViabilityCalculators(
-        const simulation_setup::SystemOfBodies& bodies,
-        const LinkEnds linkEnds,
-        const ObservableType observationType,
-        const std::vector< std::shared_ptr< ObservationViabilitySettings > >& observationViabilitySettings );
-
-//! Function to create an list of obervation viability conditions for a number of sets of link ends, for a single observable type
-/*!
- * Function to create an list of obervation viability conditions for a number of sets of link ends, for a single observable type
- * \param bodies Map of body objects that constitutes the environment
- * \param linkEnds List of link ends for which viability check object is to be made
- * \param observationType Type of observable for which viability check object is to be made
- * \param observationViabilitySettings List of viability settings from which viability check objects are to be created
- * \return List of obervation viability conditions for a number of sets of link ends, for a single observable type
- */
-std::map< LinkEnds, std::vector< std::shared_ptr< ObservationViabilityCalculator > > > createObservationViabilityCalculators(
-        const simulation_setup::SystemOfBodies& bodies,
-        const std::vector< LinkEnds > linkEnds,
-        const ObservableType observationType,
-        const std::vector< std::shared_ptr< ObservationViabilitySettings > >& observationViabilitySettings );
-
-//! Function to create a list of obervation viability conditions for any number of sets of link ends and observable types
-/*!
- * Function to create a list of obervation viability conditions for any number of sets of link ends and observable types
- * \param bodies Map of body objects that constitutes the environment
- * \param linkEndsPerObservable List of link ends, for each observable type, for which viability check object is to be made
- * \param observationViabilitySettings List of viability settings from which viability check objects are to be created
- * \return List of obervation viability conditions for any number of sets of link ends and observable types
- */
-PerObservableObservationViabilityCalculatorList
-createObservationViabilityCalculators(
-        const simulation_setup::SystemOfBodies& bodies,
-        const std::map< ObservableType, std::vector< LinkEnds > > linkEndsPerObservable,
-        const std::vector< std::shared_ptr< ObservationViabilitySettings > >& observationViabilitySettings );
 
 } // namespace observation_models
 

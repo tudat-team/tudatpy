@@ -12,7 +12,7 @@
 #ifndef TUDAT_ACCELERATIONMODELTYPES_H
 #define TUDAT_ACCELERATIONMODELTYPES_H
 
-
+#include "tudat/astro/basic_astro/customAccelerationModel.h"
 #include "tudat/astro/electromagnetism/cannonBallRadiationPressureAcceleration.h"
 #include "tudat/astro/electromagnetism/panelledRadiationPressure.h"
 #include "tudat/astro/gravitation/centralGravityModel.h"
@@ -35,23 +35,22 @@ namespace tudat
 namespace basic_astrodynamics
 {
 
-//! List of accelerations available in simulations
-/*!
+// List of accelerations available in simulations
+/*
  *  List of accelerations available in simulations. Acceleration models not defined by this
  *  given enum cannot be used for automatic acceleration model setup.
  *
  */
+//! @get_docstring(AvailableAcceleration.__docstring__)
 enum AvailableAcceleration
 {
     undefined_acceleration,
     point_mass_gravity,
-    central_gravity = point_mass_gravity,  // deprecated
     aerodynamic,
     cannon_ball_radiation_pressure,
     spherical_harmonic_gravity,
     mutual_spherical_harmonic_gravity,
     third_body_point_mass_gravity,
-    third_body_central_gravity = third_body_point_mass_gravity,  // deprecated
     third_body_spherical_harmonic_gravity,
     third_body_mutual_spherical_harmonic_gravity,
     thrust_acceleration,
@@ -61,22 +60,24 @@ enum AvailableAcceleration
     direct_tidal_dissipation_in_orbiting_body_acceleration,
     panelled_radiation_pressure_acceleration,
     momentum_wheel_desaturation_acceleration,
-    solar_sail_acceleration
+    solar_sail_acceleration,
+    custom_acceleration
 };
 
-//! Function to get a string representing a 'named identification' of an acceleration type
-/*!
+// Function to get a string representing a 'named identification' of an acceleration type
+/*
  * Function to get a string representing a 'named identification' of an acceleration type
  * \param accelerationType Type of acceleration model.
  * \return String with acceleration id.
  */
 std::string getAccelerationModelName( const AvailableAcceleration accelerationType );
 
-//! List of model types for body mass rates.
-/*!
+// List of model types for body mass rates.
+/*
 *  List of model types for body mass rates available in simulations. Mass rate models not defined by this
 *  given enum cannot be used for automatic mass rate model setup.
 */
+//! @get_docstring(AvailableMassRateModels.__docstring__)
 enum AvailableMassRateModels
 {
     undefined_mass_rate_model,
@@ -84,8 +85,8 @@ enum AvailableMassRateModels
     from_thrust_mass_rate_model
 };
 
-//! Function to identify the derived class type of an acceleration model.
-/*!
+// Function to identify the derived class type of an acceleration model.
+/*
  *  Function to identify the derived class type of an acceleration model. The type must be defined
  *  in the AvailableAcceleration enum to be recognized by this function.
  *  \param accelerationModel Acceleration model of which the type is to be identified.
@@ -95,8 +96,8 @@ AvailableAcceleration getAccelerationModelType(
         const std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > >
         accelerationModel );
 
-//! Function to identify the type of a mass rate model.
-/*!
+// Function to identify the type of a mass rate model.
+/*
  *  Function to identify the type of a mass rate model. The type must be defined
  *  in the AvailableMassRateModels enum to be recognized by this function.
  *  \param massRateModel Mass rate model of which the type is to be identified.
@@ -105,8 +106,8 @@ AvailableAcceleration getAccelerationModelType(
 AvailableMassRateModels getMassRateModelType(
         const std::shared_ptr< MassRateModel > massRateModel );
 
-//! Function to get all acceleration models of a given type from a list of models
-/*!
+// Function to get all acceleration models of a given type from a list of models
+/*
  * Function to get all acceleration models of a given type from a list of models
  * \param fullList List of acceleration models
  * \param modelType Type for which all models are to be retrieved
@@ -116,8 +117,8 @@ std::vector< std::shared_ptr< AccelerationModel3d > > getAccelerationModelsOfTyp
         const std::vector< std::shared_ptr< AccelerationModel3d > >& fullList,
         const AvailableAcceleration modelType );
 
-//! Function to check whether an acceleration type is a direct gravitational acceleration
-/*!
+// Function to check whether an acceleration type is a direct gravitational acceleration
+/*
  * Function to check whether an acceleration type is a direct gravitational acceleration, e.g. a gravitational
  * acceleration that is not from a third-body.
  * \param accelerationType Acceleration type for which it is to be checked whether it is direct gravitational.
@@ -125,18 +126,18 @@ std::vector< std::shared_ptr< AccelerationModel3d > > getAccelerationModelsOfTyp
  */
 bool isAccelerationDirectGravitational( const AvailableAcceleration accelerationType );
 
-//! Function to check whether an acceleration type is a third-body gravitational acceleration
-/*!
+// Function to check whether an acceleration type is a third-body gravitational acceleration
+/*
  * Function to check whether an acceleration type is a third-body gravitational acceleration
  * \param accelerationType Acceleration type for which it is to be checked whether it is third-body gravitational.
  * \return True if acceleration type is third-body gravitational, false otherwise.
  */
 bool isAccelerationFromThirdBody( const AvailableAcceleration accelerationType );
 
-//! Function to get the third-body counterpart of a direct gravitational acceleration type
-/*!
- * Function to get the third-body counterpart of a direct gravitational acceleration type, e.g. a third_body_central_gravity
- * for a central_gravity input. Function throws an exception is input is not direct gravitational
+// Function to get the third-body counterpart of a direct gravitational acceleration type
+/*
+ * Function to get the third-body counterpart of a direct gravitational acceleration type, e.g. a third_body_point_mass_gravity
+ * for a point_mass_gravity input. Function throws an exception is input is not direct gravitational
  * \param accelerationType Acceleration type for which the third-body counterpart is to be determined.
  * \return Third-body counterpart of accelerationType.
  */

@@ -22,7 +22,9 @@
 
 #include <cmath>
 
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
+using namespace boost::placeholders;
+
 #include <boost/make_shared.hpp>
 #include <memory>
 
@@ -56,15 +58,15 @@ namespace root_finders
  * \tparam DataType Data type used to represent floating-point values.
  */
 template< typename DataType = double >
-class SecantRootFinderCore : public RootFinderCore< DataType >
+class SecantRootFinder : public RootFinder< DataType >
 {
 public:
 
     //! Usefull type definition for the function pointer (from base class).
-    typedef typename RootFinderCore< DataType >::FunctionPointer FunctionPointer;
+    typedef typename RootFinder< DataType >::FunctionPointer FunctionPointer;
 
     //! Usefull type definition for the termination function (from base class).
-    typedef typename RootFinderCore< DataType >::TerminationFunction TerminationFunction;
+    typedef typename RootFinder< DataType >::TerminationFunction TerminationFunction;
 
     //! Constructor taking the general termination function and the least accurate initial guess.
     /*!
@@ -79,9 +81,9 @@ public:
      * \param initialGuessOfRootOne First point used to initiate the Secant root-finder algorithm.
      *          (Default is 0.5)
      */
-    SecantRootFinderCore( TerminationFunction terminationFunction,
+    SecantRootFinder( TerminationFunction terminationFunction,
                           const DataType initialGuessOfRootOne = 0.5 )
-        : RootFinderCore< DataType >( terminationFunction ),
+        : RootFinder< DataType >( terminationFunction ),
           initialGuessOfRootOne_( initialGuessOfRootOne )
     { }
 
@@ -94,26 +96,26 @@ public:
      * and switches the values if necessary.) If desired, a custom convergence function can be
      * provided to the alternative constructor.
      *
-     * \param relativeXTolerance Relative difference between the root solution of two subsequent
+     * \param relativeIndependentVariableTolerance Relative difference between the root solution of two subsequent
      *          solutions below which convergence is reached.
      * \param maxIterations Maximum number of iterations after which the root finder is
      *          terminated, i.e. convergence is assumed.
      * \param initialGuessOfRootOne First point used to initiate the Secant root-finder algorithm.
      *          (Default is 0.5)
      */
-    SecantRootFinderCore( const double relativeXTolerance, const unsigned int maxIterations,
+    SecantRootFinder( const double relativeIndependentVariableTolerance, const unsigned int maxIterations,
                           const DataType initialGuessOfRootOne = 0.5 )
-        : RootFinderCore< DataType >(
+        : RootFinder< DataType >(
               std::bind(
-                  &termination_conditions::RootRelativeToleranceTerminationCondition< DataType >::
+                  &RootRelativeToleranceTerminationCondition< DataType >::
                   checkTerminationCondition, std::make_shared<
-                  termination_conditions::RootRelativeToleranceTerminationCondition< DataType > >(
-                      relativeXTolerance, maxIterations ), std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5 ) ),
+                  RootRelativeToleranceTerminationCondition< DataType > >(
+                      relativeIndependentVariableTolerance, maxIterations ), std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5 ) ),
           initialGuessOfRootOne_( initialGuessOfRootOne )
     { }
 
     //! Default destructor.
-    ~SecantRootFinderCore( ) { }
+    ~SecantRootFinder( ) { }
 
     //! Find a root of the function provided as input.
     /*!
@@ -178,7 +180,8 @@ public:
             // Update the counter.
             counter++;
         }
-        while( !this->terminationFunction( nextRootValue, currentRootValue, nextFunctionValue,
+        while( nextFunctionValue != mathematical_constants::getFloatingInteger< DataType >( 0 ) &&
+               !this->terminationFunction_( nextRootValue, currentRootValue, nextFunctionValue,
                                            currentFunctionValue, counter ) );
 
         return nextRootValue;
@@ -208,10 +211,6 @@ private:
     double initialGuessOfRootOne_;
 
 };
-
-// Some handy typedefs.
-typedef SecantRootFinderCore< double > SecantRootFinder;
-typedef std::shared_ptr< SecantRootFinder > SecantRootFinderPointer;
 
 } // namespace root_finders
 } // namespace tudat

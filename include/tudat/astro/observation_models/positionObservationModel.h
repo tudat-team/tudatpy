@@ -11,7 +11,7 @@
 #ifndef TUDAT_POSITIONOBSERVATIONMODEL_H
 #define TUDAT_POSITIONOBSERVATIONMODEL_H
 
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
 #include <functional>
 
 #include "tudat/astro/ephemerides/ephemeris.h"
@@ -42,35 +42,14 @@ public:
      *  observable, i.e. deviations from the physically ideal observable (default none).
      */
     PositionObservationModel(
+            const LinkEnds& linkEnds,
             const std::function<  Eigen::Matrix< ObservationScalarType, 6, 1 >( const TimeType& ) > stateFunction,
             const std::shared_ptr< ObservationBias< 3 > > observationBiasCalculator = nullptr ):
         ObservationModel< 3, ObservationScalarType, TimeType >(
-            position_observable, observationBiasCalculator ), stateFunction_( stateFunction ){ }
+            position_observable, linkEnds, observationBiasCalculator ), stateFunction_( stateFunction ){ }
 
     //! Destructor
     ~PositionObservationModel( ) { }
-
-    //! Function to compute ideal position observation at given time.
-    /*!
-     *  This function computes the ideal position observation at a given time (without biases).
-     *  \param time Time at which observation is to be simulated
-     *  \param linkEndAssociatedWithTime Link end at which given time is valid (must be observed_body for this derived class)
-     *  \return Calculated observed position of body.
-     */
-    Eigen::Matrix< ObservationScalarType, 3, 1 > computeIdealObservations(
-            const TimeType time,
-            const LinkEndType linkEndAssociatedWithTime = observed_body )
-    {
-        // Check link end
-        if( linkEndAssociatedWithTime != observed_body )
-        {
-            throw std::runtime_error(
-                        "Error when computing position observable, associated link end must be observed_body " );
-        }
-
-        // Compute and return state.
-        return stateFunction_( time ).segment( 0, 3 );
-    }
 
     //! Function to compute ideal position observation at given time.
     /*!

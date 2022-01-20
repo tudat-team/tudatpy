@@ -20,7 +20,7 @@ namespace simulation_setup
 
 //! Function to create the object determining the direction of the thrust acceleration.
 std::shared_ptr< propulsion::BodyFixedForceDirectionGuidance  > createThrustGuidanceModel(
-        const std::shared_ptr< ThrustDirectionGuidanceSettings > thrustDirectionGuidanceSettings,
+        const std::shared_ptr< ThrustDirectionSettings > thrustDirectionGuidanceSettings,
         const SystemOfBodies& bodies,
         const std::string& nameOfBodyWithGuidance,
         const std::function< Eigen::Vector3d( ) > bodyFixedThrustOrientation,
@@ -103,10 +103,6 @@ std::shared_ptr< propulsion::BodyFixedForceDirectionGuidance  > createThrustGuid
 
             magnitudeUpdateSettings[ propagators::vehicle_flight_conditions_update ].push_back( nameOfBodyWithGuidance );
             magnitudeUpdateSettings[ propagators::body_rotational_state_update ].push_back( nameOfBodyWithGuidance );
-            magnitudeUpdateSettings[ propagators::body_rotational_state_update ].push_back(
-                        thrustDirectionGuidanceSettings->relativeBody_ );
-            magnitudeUpdateSettings[ propagators::body_translational_state_update ].push_back(
-                        thrustDirectionGuidanceSettings->relativeBody_);
         }
         else if( bodyWithGuidance->getRotationalEphemeris( ) != nullptr )
         {
@@ -245,7 +241,7 @@ std::function< Eigen::Vector3d( ) > getBodyFixedThrustDirection(
     std::function< Eigen::Vector3d( ) > thrustDirectionFunction;
 
     // Identify magnitude settings type
-    switch( thrustMagnitudeSettings->thrustMagnitudeGuidanceType_ )
+    switch( thrustMagnitudeSettings->thrustMagnitudeType_ )
     {
     case constant_thrust_magnitude:
     {
@@ -391,7 +387,7 @@ std::shared_ptr< propulsion::ThrustMagnitudeWrapper > createThrustMagnitudeWrapp
     std::shared_ptr< propulsion::ThrustMagnitudeWrapper > thrustMagnitudeWrapper;
 
     // Identify magnitude settings type
-    switch( thrustMagnitudeSettings->thrustMagnitudeGuidanceType_ )
+    switch( thrustMagnitudeSettings->thrustMagnitudeType_ )
     {
     case constant_thrust_magnitude:
     {
@@ -569,7 +565,7 @@ std::shared_ptr< propulsion::ThrustMagnitudeWrapper > createThrustMagnitudeWrapp
 }
 
 //! Function to update the thrust magnitude and direction to current time.
-void updateThrustMagnitudeAndDirection(
+void updateThrustSettings(
         const std::shared_ptr< propulsion::ThrustMagnitudeWrapper > thrustMagnitudeWrapper,
         const std::shared_ptr< propulsion::BodyFixedForceDirectionGuidance  > thrustDirectionGuidance,
         const double currentTime )
@@ -579,7 +575,7 @@ void updateThrustMagnitudeAndDirection(
 }
 
 //! Function to reset the current time variable of the thrust magnitude and direction wrappers
-void resetThrustMagnitudeAndDirectionTime(
+void resetThrustSettingsTime(
         const std::shared_ptr< propulsion::ThrustMagnitudeWrapper > thrustMagnitudeWrapper,
         const std::shared_ptr< propulsion::BodyFixedForceDirectionGuidance  > thrustDirectionGuidance,
         const double currentTime )

@@ -14,7 +14,9 @@
 
 #include <map>
 
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
+using namespace boost::placeholders;
+
 #include <functional>
 #include <boost/make_shared.hpp>
 #include <memory>

@@ -51,9 +51,10 @@ public:
      *  observable, i.e. deviations from the physically ideal observable between reference points (default none)
      */
     EulerAngle313ObservationModel(
+            const LinkEnds linkEnds,
             const std::function< Eigen::Quaterniond( const TimeType ) > toBodyFixedFrameFunction,
             const std::shared_ptr< ObservationBias< 3 > > observationBiasCalculator = nullptr ):
-        ObservationModel< 3, ObservationScalarType, TimeType >( euler_angle_313_observable, observationBiasCalculator ),
+        ObservationModel< 3, ObservationScalarType, TimeType >( euler_angle_313_observable, linkEnds, observationBiasCalculator ),
       toBodyFixedFrameFunction_( toBodyFixedFrameFunction ){ }
 
     //! Destructor

@@ -177,6 +177,9 @@ public:
         dependentValues_ = dependentValues;
     }
 
+    InterpolatorTypes getInterpolatorType( ){ return piecewise_constant_interpolator; }
+
+
 protected:
 
 private:

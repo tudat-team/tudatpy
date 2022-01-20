@@ -153,7 +153,20 @@ public:
      * \param exponentWidth Number of digits used to represent the exponent of the output
      *         floating-point numbers in scientific notation.
      */
-    void writeCoefficientsToFile(
+    void writeAllCoefficientsToFiles(
+            const std::string& fileNameBase,
+            const int basePrecision = std::numeric_limits< double >::digits10,
+            const int exponentWidth = 2 );
+
+    //! Write the force and moment coefficients to tudat aerodynamic coefficients input files.
+    /*!
+     * \param fileNameBase Base for the output filename.
+     * \param basePrecision Number of digits of precision of the base of the output floating-point
+     *         numbers in scientific notation.
+     * \param exponentWidth Number of digits used to represent the exponent of the output
+     *         floating-point numbers in scientific notation.
+     */
+    void writeForceAndMomentCoefficientsToFiles(
             const std::string& fileNameBase,
             const int basePrecision = std::numeric_limits< double >::digits10,
             const int exponentWidth = 2 );

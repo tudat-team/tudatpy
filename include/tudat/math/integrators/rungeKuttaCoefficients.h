@@ -24,35 +24,35 @@ namespace tudat
 namespace numerical_integrators
 {
 
-//! Struct that defines the coefficients of a Runge-Kutta integrator
-/*!
+// Struct that defines the coefficients of a Runge-Kutta integrator
+/*
  * Struct that defines coefficients of a Runge-Kutta integrators
  */
 struct RungeKuttaCoefficients
 {
-    //! Enum of order estimates that can be integrated.
+    // Enum of order estimates that can be integrated.
     enum OrderEstimateToIntegrate { lower, higher };
 
-    //! Main table of the Butcher tableau.
+    // Main table of the Butcher tableau.
     Eigen::MatrixXd aCoefficients;
 
-    //! Bottom rows of the Butcher tableau.
+    // Bottom rows of the Butcher tableau.
     Eigen::MatrixXd bCoefficients;
 
-    //! First column of the Butcher tableau.
+    // First column of the Butcher tableau.
     Eigen::VectorXd cCoefficients;
 
-    //! Order of the higher order estimate.
+    // Order of the higher order estimate.
     unsigned int higherOrder;
 
-    //! Order of the lower order estimate.
+    // Order of the lower order estimate.
     unsigned int lowerOrder;
 
-    //! Order estimate to integrate.
+    // Order estimate to integrate.
     OrderEstimateToIntegrate orderEstimateToIntegrate;
 
-    //! Default constructor.
-    /*!
+    // Default constructor.
+    /*
      * Default constructor that initializes coefficients to 0.
      */
     RungeKuttaCoefficients( ) :
@@ -64,8 +64,8 @@ struct RungeKuttaCoefficients
         orderEstimateToIntegrate( lower )
     { }
 
-    //! Constructor.
-    /*!
+    // Constructor.
+    /*
      * Constructor that sets the coefficients.
      * \param aCoefficients_ Main table of the Butcher tableau.
      * \param bCoefficients_ Bottom rows of the Butcher tableau.
@@ -89,7 +89,8 @@ struct RungeKuttaCoefficients
         orderEstimateToIntegrate( order )
     { }
 
-    //! Enum of predefined coefficient sets.
+    // Enum of predefined coefficient sets.
+    //! @get_docstring(CoefficientSets.__docstring__)
     enum CoefficientSets
     {
         undefinedCoefficientSet = -1,
@@ -99,8 +100,8 @@ struct RungeKuttaCoefficients
         rungeKutta87DormandPrince
     };
 
-    //! Get coefficients for a specified coefficient set.
-    /*!
+    // Get coefficients for a specified coefficient set.
+    /*
      * Returns coefficients for a specified coefficient set.
      * \param coefficientSet The set to get the coefficients for.
      * \return The requested coefficient set.
@@ -108,7 +109,7 @@ struct RungeKuttaCoefficients
     static const RungeKuttaCoefficients& get( CoefficientSets coefficientSet );
 };
 
-//! Typedef for shared-pointer to RungeKuttaCoefficients object.
+// Typedef for shared-pointer to RungeKuttaCoefficients object.
 typedef std::shared_ptr< RungeKuttaCoefficients > RungeKuttaCoefficientsPointer;
 
 } // namespace numerical_integrators

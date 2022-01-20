@@ -19,6 +19,7 @@
  *
  */
 
+#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <boost/test/unit_test.hpp>
@@ -235,10 +236,10 @@ BOOST_AUTO_TEST_CASE( test_convertMeanAnomalyToEccentricAnomaly_nearParabolic )
     // Test the values which are supposed to be 0.0.
     double eccentricAnomaly = convertMeanAnomalyToEccentricAnomaly(
                 testEccentricity, arrayOfTestMeanAnomalies[ 0 ] );
-    BOOST_CHECK_SMALL( eccentricAnomaly, 1.0E-9 );
+    BOOST_CHECK_SMALL( eccentricAnomaly, 10.0 * std::numeric_limits< double >::epsilon( ) );
     eccentricAnomaly = convertMeanAnomalyToEccentricAnomaly(
                 testEccentricity, arrayOfTestMeanAnomalies[ 16 ] );
-    BOOST_CHECK_SMALL( eccentricAnomaly, 1.0E-9 );
+    BOOST_CHECK_SMALL( eccentricAnomaly, 10.0 * std::numeric_limits< double >::epsilon( ) );
 
     // Test the values that are supposed to be equal to certain other values.
     for ( int counter = 1; counter < 16; counter++ )
@@ -340,7 +341,7 @@ void testMeanToEccentricAnomalyConversions(
             eccentricAnomaly = convertMeanAnomalyToEccentricAnomaly< ScalarType>(
                         testEccentricity, testMeanAnomaly );
         }
-        catch( std::runtime_error )
+        catch( std::runtime_error const& )
         {
             // Store the fact that a runtime error occurred, such that the values will be stored.
             aRuntimeErrorOccurred = true;

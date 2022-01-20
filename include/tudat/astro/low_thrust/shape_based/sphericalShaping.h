@@ -12,12 +12,14 @@
 #ifndef TUDAT_SPHERICAL_SHAPING_H
 #define TUDAT_SPHERICAL_SHAPING_H
 
+#include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/astro/low_thrust/shape_based/shapeBasedMethod.h"
 #include "tudat/astro/low_thrust/shape_based/baseFunctionsSphericalShaping.h"
 #include "tudat/astro/low_thrust/shape_based/compositeFunctionSphericalShaping.h"
-#include "tudat/math/integrators/createNumericalIntegrator.h"
+#include "tudat/math/basic/basicFunction.h"
+#include "tudat/math/root_finders/createRootFinder.h"
 #include "tudat/math/quadrature/createNumericalQuadrature.h"
-#include <tudat/simulation/simulation.h>
+#include "tudat/math/interpolators/createInterpolator.h"
 #include <cmath>
 #include <vector>
 #include <Eigen/Dense>
@@ -42,8 +44,7 @@ public:
                       const double initialValueFreeCoefficient,
                       const std::shared_ptr< root_finders::RootFinderSettings > rootFinderSettings,
                       const double lowerBoundFreeCoefficient = TUDAT_NAN,
-                      const double upperBoundFreeCoefficient = TUDAT_NAN,
-                      const double initialBodyMass = TUDAT_NAN );
+                      const double upperBoundFreeCoefficient = TUDAT_NAN );
 
     //! Default destructor.
     ~SphericalShaping( ) { }
@@ -78,8 +79,16 @@ public:
 
 
     //! Compute current thrust acceleration in cartesian coordinates.
-    Eigen::Vector3d computeThrustAccelerationVector( const double currentAzimuthAngle );
+    Eigen::Vector3d computeCurrentThrustAcceleration( const double currentAzimuthAngle );
 
+    Eigen::Vector3d computeCurrentThrustAcceleration( const double currentTime,
+                                                      const double timeOffset )
+    {
+        return computeCurrentThrustAcceleration(
+                    convertTimeToIndependentVariable( currentTime - timeOffset ) );
+    
+    }
+    
     //! Compute deltaV.
     double computeDeltaV( );
 
@@ -156,13 +165,11 @@ protected:
 
     //! Compute magnitude thrust acceleration.
     double computeCurrentThrustAccelerationMagnitude(
-            double currentTime, std::function< double ( const double ) > specificImpulseFunction,
-            std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings );
+            double currentAzimuthAngle );
 
     //! Compute direction thrust acceleration in cartesian coordinates.
     Eigen::Vector3d computeCurrentThrustAccelerationDirection(
-            double currentTime, std::function< double ( const double ) > specificImpulseFunction,
-            std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings );
+            double currentAzimuthAngle );
 
 
 

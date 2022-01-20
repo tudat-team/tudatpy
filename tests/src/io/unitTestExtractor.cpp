@@ -9,6 +9,7 @@
  *
  */
 
+#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <boost/test/unit_test.hpp>
@@ -194,7 +195,8 @@ BOOST_AUTO_TEST_CASE( extractor_CheckRequiredFieldTypes )
     }
 
     // Catch the expected runtime error, and set the boolean flag to false.
-    catch ( std::runtime_error )
+    catch( std::runtime_error const& )
+
     {
         areNameAndEpochFound = false;
     }
@@ -212,7 +214,8 @@ BOOST_AUTO_TEST_CASE( extractor_CheckRequiredFieldTypes )
     }
 
     // Catch the expected runtime error, and set the boolean flag to false.
-    catch ( std::runtime_error )
+    catch( std::runtime_error const& )
+
     {
         areIdAndInclinationFound = false;
     }
@@ -230,7 +233,8 @@ BOOST_AUTO_TEST_CASE( extractor_CheckRequiredFieldTypes )
     }
 
     // Catch the expected runtime error, and set the boolean flag to false.
-    catch ( std::runtime_error )
+    catch( std::runtime_error const& )
+
     {
         areNameAndIdFound = false;
     }

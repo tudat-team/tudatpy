@@ -293,9 +293,13 @@ void propagateMgaWithoutDsmAndFullProblem(
     propagators::propagateLambertTargeterAndFullProblem(
                 timeOfFlight, initialTime, bodies, centralBody,
                 propagatorSettings, integratorSettings,
+<<<<<<< HEAD
                 patchedConicsResult, fullProblemResult, dependentVariableResultCurrentLeg, departureAndArrivalBodies,
                 bodies.at( centralBody )->getGravityFieldModel( )->getGravitationalParameter( ) ,
                 cartesianPositionAtDeparture, cartesianPositionAtArrival );
+=======
+                patchedConicsResult, fullProblemResult, dependentVariableResultCurrentLeg, departureAndArrivalBodies );
+>>>>>>> dominic-origin/features/mission_segments_refactor
 }
 
 
@@ -408,7 +412,10 @@ void propagateMga1DsmVelocityAndFullProblem(
                                             propagatorSettingsAfterDsm, integratorSettings,
                                             patchedConicsResultFromDsmToArrival, fullProblemResultFromDsmToArrival,
                                             dependentVariablesFromDsmToArrival, legDepartureAndArrival,
+<<<<<<< HEAD
                                             bodies.at( centralBody )->getGravityFieldModel( )->getGravitationalParameter( ),
+=======
+>>>>>>> dominic-origin/features/mission_segments_refactor
                                             cartesianPositionDSM, cartesianPositionAtArrival );
 
 }
@@ -517,7 +524,10 @@ void propagateMga1DsmPositionAndFullProblem(
     propagateLambertTargeterAndFullProblem( timeDsm - initialTime, initialTime, bodies, centralBody,
                                             propagatorSettingsBeforeDsm, integratorSettings, patchedConicsResultFromDepartureToDsm,
                                             fullProblemResultFromDepartureToDsm, dependentVariablesFromDepartureToDsm, legDepartureAndArrival,
+<<<<<<< HEAD
                                             bodies.at( centralBody )->getGravityFieldModel( )->getGravitationalParameter( ),
+=======
+>>>>>>> dominic-origin/features/mission_segments_refactor
                                             cartesianPositionAtDeparture, cartesianPositionDSM );
 
 
@@ -532,7 +542,10 @@ void propagateMga1DsmPositionAndFullProblem(
     propagateLambertTargeterAndFullProblem( timeArrival - timeDsm, timeDsm, bodies, centralBody,
                                             propagatorSettingsAfterDsm, integratorSettings, patchedConicsResultFromDsmToArrival,
                                             fullProblemResultFromDsmToArrival, dependentVariablesFromDsmToArrival, legDepartureAndArrival,
+<<<<<<< HEAD
                                             bodies.at( centralBody )->getGravityFieldModel( )->getGravitationalParameter( ),
+=======
+>>>>>>> dominic-origin/features/mission_segments_refactor
                                             cartesianPositionDSM, cartesianPositionAtArrival );
 
 }

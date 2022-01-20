@@ -418,6 +418,7 @@ std::shared_ptr< ParameterizedThrustMagnitudeSettings > createAccelerationLimite
 }
 
 
+
 } // namespace simulation_setup
 
 } // namespace tudat

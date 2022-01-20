@@ -102,19 +102,6 @@ public:
         accelerationModelForCentralBody_( accelerationModelForCentralBody ),
         centralBodyName_( centralBodyName ){ }
 
-    //! Function to calculate the third body gravity acceleration.
-    /*!
-     *  Function to calculate the third body gravity acceleration.
-     *  \return Current third body acceleration
-     */
-    Eigen::Vector3d getAcceleration( )
-    {
-        // Calculate and subtract acceleration due to 3rd body on body undergoing
-        // acceleration and central body.
-        return accelerationModelForBodyUndergoingAcceleration_->getAcceleration( ) -
-                accelerationModelForCentralBody_->getAcceleration( );
-    }
-
     //! Update member variables to current state.
     /*!
      *  Update member variables to current state.
@@ -127,6 +114,8 @@ public:
             // Update two constituent acceleration models.
             accelerationModelForBodyUndergoingAcceleration_->updateMembers( currentTime );
             accelerationModelForCentralBody_->updateMembers( currentTime );
+            currentAcceleration_ = accelerationModelForBodyUndergoingAcceleration_->getAcceleration( ) -
+                    accelerationModelForCentralBody_->getAcceleration( );
         }
     }
 

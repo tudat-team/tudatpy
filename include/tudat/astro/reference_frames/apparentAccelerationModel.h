@@ -187,21 +187,6 @@ public:
         updateMembers( );
     }
 
-    //! Get apparent acceleration.
-    /*!
-     * Computes and returns the acceleration.
-     * \return Vector of the apparent acceleration in the non-inertial Cartesian frame in which the
-     *          object's state is defined.
-     */
-    Eigen::Vector3d getAcceleration( )
-    {
-        return computeApparentAcceleration( currentAccelerationOfNonInertialReferenceFrame_,
-                                            currentAngularVelocityOfNonInertialReferenceFrame_,
-                                            currentAngularAccelerationOfNonInertialReferenceFrame_,
-                                            currentPositionOfBodyInNonInertialReferenceFrame_,
-                                            currentVelocityOfBodyInNonInertialReferenceFrame_ );
-    }
-
     //! Update member variables used by apparent acceleration model.
     /*!
      * Function to update member variables used by this acceleration model. The variables

@@ -7,9 +7,10 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
-#include <boost/test/floating_point_comparison.hpp>
+#include <boost/test/tools/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/simulation/simulation.h"
@@ -77,7 +78,7 @@ std::pair< double, double > computeKeplerElementRatesDueToDissipation(
     {
         std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfIo;
         accelerationsOfIo[ "Jupiter" ].push_back( std::make_shared< AccelerationSettings >(
-                                                      basic_astrodynamics::central_gravity ) );
+                                                      basic_astrodynamics::point_mass_gravity ) );
         accelerationsOfIo[ "Jupiter" ].push_back( std::make_shared< DirectTidalDissipationAccelerationSettings >(
                                                       k2LoveNumber, tidalTimeLag, false, usePlanetDissipation ) );
         accelerationMap[ satelliteToPropagate ] = accelerationsOfIo;

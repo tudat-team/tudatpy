@@ -189,6 +189,21 @@ std::shared_ptr< gravitation::SphericalHarmonicGravitationalTorqueModel > create
                 std::bind( &Body::getBodyMass, bodyExertingTorque ) );
 }
 
+std::shared_ptr< basic_astrodynamics::CustomTorqueModel > createCustomTorqueModel(
+        const std::shared_ptr< TorqueSettings > torqueSettings,
+        const std::string& nameOfBodyUndergoingTorque )
+{
+    std::shared_ptr< CustomTorqueSettings > customTorqueSettings =
+            std::dynamic_pointer_cast< CustomTorqueSettings >(
+                torqueSettings );
+    if( customTorqueSettings == nullptr )
+    {
+        throw std::runtime_error( "Error, expected custom torque settings when making torque model on " +
+                                  nameOfBodyUndergoingTorque  );
+    }
+    return std::make_shared< basic_astrodynamics::CustomTorqueModel >( customTorqueSettings->torqueFunction_ );
+
+}
 
 //! Function to create torque model object.
 std::shared_ptr< basic_astrodynamics::TorqueModel > createTorqueModel(
@@ -224,6 +239,12 @@ std::shared_ptr< basic_astrodynamics::TorqueModel > createTorqueModel(
     {
         torqueModel = createSphericalHarmonicGravitationalTorqueModel(
                     bodyUndergoingTorque, bodyExertingTorque, torqueSettings, nameOfBodyUndergoingTorque, nameOfBodyExertingTorque );
+        break;
+    }
+    case basic_astrodynamics::custom_torque:
+    {
+        torqueModel = createCustomTorqueModel(
+                    torqueSettings, nameOfBodyUndergoingTorque );
         break;
     }
     default:

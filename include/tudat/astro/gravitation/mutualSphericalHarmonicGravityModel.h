@@ -15,7 +15,7 @@
 #include <functional>
 #include <boost/lambda/lambda.hpp>
 #include <memory>
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
 #include <boost/make_shared.hpp>
 
 #include <Eigen/Core>
@@ -26,6 +26,8 @@
 #include "tudat/astro/gravitation/sphericalHarmonicsGravityModel.h"
 #include "tudat/math/basic/legendrePolynomials.h"
 #include "tudat/basics/basicTypedefs.h"
+
+using namespace boost::placeholders;
 
 namespace tudat
 {
@@ -60,7 +62,7 @@ private:
     typedef std::function< Eigen::MatrixXd( ) > CoefficientMatrixReturningFunction;
 
     //! Typedef for function returning body position.
-    typedef std::function< Eigen::Vector3d( ) > StateFunction;
+    typedef std::function< void( Eigen::Vector3d& ) > StateFunction;
 
     //! Typedef for function returning gravitational parameter.
     typedef std::function< double( ) > DataReturningFunction;
@@ -165,6 +167,8 @@ public:
         accelerationModelFromShExpansionOfBodyUndergoingAcceleration_->updateMembers( currentTime );
 
         this->currentTime_ = currentTime;
+        this->currentAcceleration_ = accelerationModelFromShExpansionOfBodyExertingAcceleration_->getAcceleration( ) -
+                accelerationModelFromShExpansionOfBodyUndergoingAcceleration_->getAcceleration( );
     }
 
     //! Function to reset the current time
@@ -178,16 +182,6 @@ public:
 
         accelerationModelFromShExpansionOfBodyExertingAcceleration_->resetTime( currentTime );
         accelerationModelFromShExpansionOfBodyUndergoingAcceleration_->resetTime( currentTime );
-    }
-
-    //! Function to get the mutual sh acceleration value.
-    /*!
-     *  Function to get the mutual sh acceleration value, determined from the sum of the two constituent acceleration models.
-     */
-    Eigen::Vector3d getAcceleration( )
-    {
-        return accelerationModelFromShExpansionOfBodyExertingAcceleration_->getAcceleration( ) -
-                accelerationModelFromShExpansionOfBodyUndergoingAcceleration_->getAcceleration( );
     }
 
     //! Function returning whether the acceleration is expressed in a frame centered on the body exerting the acceleration.

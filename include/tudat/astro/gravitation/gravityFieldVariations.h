@@ -26,7 +26,8 @@ namespace gravitation
 enum BodyDeformationTypes
 {
     basic_solid_body,
-    tabulated_variation
+    tabulated_variation,
+    periodic_variation
 };
 
 

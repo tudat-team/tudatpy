@@ -57,8 +57,10 @@ std::string getVariableId( const std::shared_ptr< VariableSettings > variableSet
 
 
 //! Function to get a string representing a 'named identification' of a dependent variable type
-std::string getDependentVariableName( const PropagationDependentVariables propagationDependentVariables )
+std::string getDependentVariableName( const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings )
 {
+
+    PropagationDependentVariables propagationDependentVariables = dependentVariableSettings->dependentVariableType_;
     std::string variableName = "";
     switch( propagationDependentVariables )
     {
@@ -107,15 +109,42 @@ std::string getDependentVariableName( const PropagationDependentVariables propag
     case aerodynamic_moment_coefficients_dependent_variable:
         variableName = "Aerodynamic moment coefficients ";
         break;
-    case rotation_matrix_to_body_fixed_frame_variable:
+    case inertial_to_body_fixed_rotation_matrix_variable:
         variableName = "Rotation matrix to body-fixed frame ";
         break;
     case intermediate_aerodynamic_rotation_matrix_variable:
         variableName = "Rotation matrix from ";
         break;
     case relative_body_aerodynamic_orientation_angle_variable:
-        variableName = "Body orientation angle ";
+    {
+        std::shared_ptr< BodyAerodynamicAngleVariableSaveSettings > angleDependentVariableSettings =
+                std::dynamic_pointer_cast< BodyAerodynamicAngleVariableSaveSettings >( dependentVariableSettings );
+        if( angleDependentVariableSettings == nullptr )
+        {
+            throw std::runtime_error( "Error when getting dependent variable type string, expected body angle type" );
+        }
+        else
+        {
+            reference_frames::AerodynamicsReferenceFrameAngles angleToSave = angleDependentVariableSettings->angle_;
+            if( angleToSave == reference_frames::latitude_angle ||
+                    angleToSave == reference_frames::longitude_angle )
+            {
+                variableName = "Spherical position angle ";
+            }
+            else if( angleToSave == reference_frames::heading_angle ||
+                     angleToSave == reference_frames::flight_path_angle )
+            {
+                variableName = "Velocity orientation angle  ";
+            }
+            else if( angleToSave == reference_frames::angle_of_attack ||
+                     angleToSave == reference_frames::angle_of_sideslip ||
+                     angleToSave == reference_frames::bank_angle  )
+            {
+                variableName = "Aerodynamic body orientation angle ";
+            }
+        }
         break;
+    }
     case body_fixed_airspeed_based_velocity_variable:
         variableName = "Airspeed-based velocity ";
         break;
@@ -146,8 +175,11 @@ std::string getDependentVariableName( const PropagationDependentVariables propag
     case total_mass_rate_dependent_variables:
         variableName = "Body mass rate ";
         break;
-    case lvlh_to_inertial_frame_rotation_dependent_variable:
-        variableName = "LVLH to inertial frame rotation matrix ";
+    case tnw_to_inertial_frame_rotation_dependent_variable:
+        variableName = "TNW to inertial frame rotation matrix ";
+        break;
+    case rsw_to_inertial_frame_rotation_dependent_variable:
+        variableName = "RSW to inertial frame rotation matrix ";
         break;
     case periapsis_altitude_dependent_variable:
         variableName = "Periapsis altitude ";
@@ -217,7 +249,7 @@ std::string getDependentVariableName( const PropagationDependentVariables propag
 std::string getDependentVariableId(
         const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings )
 {
-    std::string variableId = getDependentVariableName( dependentVariableSettings->dependentVariableType_ );
+    std::string variableId = getDependentVariableName( dependentVariableSettings );
 
     if( ( dependentVariableSettings->dependentVariableType_ == single_acceleration_dependent_variable ) ||
             ( dependentVariableSettings->dependentVariableType_ == single_acceleration_norm_dependent_variable ) )

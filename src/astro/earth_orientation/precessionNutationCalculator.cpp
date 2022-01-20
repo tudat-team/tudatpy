@@ -9,7 +9,9 @@
  *
  */
 
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
+using namespace boost::placeholders;
+
 
 #include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/math/interpolators/cubicSplineInterpolator.h"

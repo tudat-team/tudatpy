@@ -80,7 +80,7 @@ static std::map< PropagationDependentVariables, std::string > dependentVariableT
     { geodetic_latitude_dependent_variable, "geodeticLatitude" },
     { control_surface_deflection_dependent_variable, "controlSurfaceDeflection" },
     { total_mass_rate_dependent_variables, "totalMassRates" },
-    { lvlh_to_inertial_frame_rotation_dependent_variable, "lvlhToInertialFrameRotation" },
+    { tnw_to_inertial_frame_rotation_dependent_variable, "tnwToInertialFrameRotation" },
     { periapsis_altitude_dependent_variable, "periapsisAltitude" },
     { total_torque_norm_dependent_variable, "totalTorqueNorm" },
     { single_torque_norm_dependent_variable, "torqueNorm" },

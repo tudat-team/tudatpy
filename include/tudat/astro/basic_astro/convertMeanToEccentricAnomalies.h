@@ -30,20 +30,19 @@
 #ifndef TUDAT_CONVERT_MEAN_ANOMALY_TO_ECCENTRIC_ANOMALY_H
 #define TUDAT_CONVERT_MEAN_ANOMALY_TO_ECCENTRIC_ANOMALY_H
 
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
 #include <memory>
 #include <boost/make_shared.hpp>
 #include <boost/math/special_functions/asinh.hpp>
 
 #include <cmath>
 
-#include "tudat/math/root_finders/newtonRaphson.h"
-#include "tudat/math/root_finders/rootFinder.h"
-#include "tudat/math/root_finders/bisection.h"
-#include "tudat/math/root_finders/terminationConditions.h"
+#include "tudat/math/root_finders/createRootFinder.h"
 #include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/math/basic/basicMathematicsFunctions.h"
 #include "tudat/math/basic/functionProxy.h"
+
+using namespace boost::placeholders;
 
 namespace tudat
 {
@@ -159,12 +158,12 @@ ScalarType convertMeanAnomalyToEccentricAnomaly(
         const ScalarType eccentricity, const ScalarType aMeanAnomaly,
         const bool useDefaultInitialGuess = true,
         const ScalarType userSpecifiedInitialGuess = TUDAT_NAN,
-        std::shared_ptr< root_finders::RootFinderCore< ScalarType > > rootFinder =
-        std::shared_ptr< root_finders::RootFinderCore< ScalarType > >( ) )
+        std::shared_ptr< root_finders::RootFinder< ScalarType > > rootFinder =
+        std::shared_ptr< root_finders::RootFinder< ScalarType > >( ) )
 {
     using namespace mathematical_constants;
     using namespace root_finders;
-    using namespace root_finders::termination_conditions;
+
 
     // Set mean anomaly to region between 0 and 2 PI.
     ScalarType meanAnomaly = basic_mathematics::computeModulo< ScalarType >(
@@ -174,7 +173,7 @@ ScalarType convertMeanAnomalyToEccentricAnomaly(
     // Required because the make_shared in the function definition gives problems for MSVC.
     if ( !rootFinder.get( ) )
     {
-        ScalarType tolerance = 200.0 * std::numeric_limits< ScalarType >::epsilon( );
+        ScalarType tolerance = 10.0 * std::numeric_limits< ScalarType >::epsilon( );
 
         // Loosen tolerance for near-parabolic orbits
         if( std::fabs( eccentricity - getFloatingInteger< ScalarType >( 1 ) ) <
@@ -183,12 +182,9 @@ ScalarType convertMeanAnomalyToEccentricAnomaly(
             tolerance *= 2.5;
         }
 
-        rootFinder = std::make_shared< NewtonRaphsonCore< ScalarType > >(
-                    std::bind(
-                        &RootAbsoluteToleranceTerminationCondition< ScalarType >::
-                        checkTerminationCondition,
-                        std::make_shared< RootAbsoluteToleranceTerminationCondition
-                        < ScalarType > >( tolerance, 1000 ), std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5 ) );
+        rootFinder = root_finders::createRootFinder< ScalarType >(
+                    root_finders::newtonRaphsonRootFinderSettings(
+                        TUDAT_NAN, tolerance, TUDAT_NAN, 20, root_finders::throw_exception ) );
     }
 
     // Declare eccentric anomaly.
@@ -242,10 +238,10 @@ ScalarType convertMeanAnomalyToEccentricAnomaly(
             eccentricAnomaly = rootFinder->execute( rootFunction, initialGuess );
         }
         // Use bisection algorithm if root finder fails
-        catch( std::runtime_error )
+        catch( std::runtime_error const& )
         {
             // Set tolerance
-            ScalarType tolerance = 100.0 * std::numeric_limits< ScalarType >::epsilon( );
+            ScalarType tolerance = 10.0 * std::numeric_limits< ScalarType >::epsilon( );
 
             // Set upper/lower bounds (loosely)
             ScalarType lowerBound, upperBound;
@@ -256,17 +252,17 @@ ScalarType convertMeanAnomalyToEccentricAnomaly(
             }
             else
             {
-                lowerBound = 0.0;
+                lowerBound = mathematical_constants::getFloatingInteger< ScalarType >( 0 );
                 upperBound = 1.5 * getPi< ScalarType >( );
             }
 
             // Create root finder
-            std::shared_ptr< RootFinderCore< ScalarType > > bisectionRootfinder =
-                    std::make_shared< BisectionCore< ScalarType > >(
-                        std::bind( &checkRootFunctionValueCondition< ScalarType >, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, tolerance ),
-                        lowerBound, upperBound );
+            std::shared_ptr< RootFinder< ScalarType > > bisectionRootfinder =
+                    rootFinder = root_finders::createRootFinder< ScalarType >(
+                                root_finders::bisectionRootFinderSettings(
+                                    TUDAT_NAN, TUDAT_NAN, tolerance, 100, root_finders::accept_result ),
+                         lowerBound, upperBound );
 
-            // Set eccentric anomaly based on result of Newton-Raphson root-finding algorithm.
             initialGuess = meanAnomaly;
             eccentricAnomaly = bisectionRootfinder->execute( rootFunction, initialGuess );
         }
@@ -305,27 +301,23 @@ ScalarType convertMeanAnomalyToHyperbolicEccentricAnomaly(
         const ScalarType eccentricity, const ScalarType hyperbolicMeanAnomaly,
         const bool useDefaultInitialGuess = true,
         const ScalarType userSpecifiedInitialGuess = TUDAT_NAN,
-        std::shared_ptr< root_finders::RootFinderCore< ScalarType > > aRootFinder =
-        std::shared_ptr< root_finders::RootFinderCore< ScalarType > >( ) )
+        std::shared_ptr< root_finders::RootFinder< ScalarType > > aRootFinder =
+        std::shared_ptr< root_finders::RootFinder< ScalarType > >( ) )
 {
     using namespace mathematical_constants;
     using namespace root_finders;
-    using namespace root_finders::termination_conditions;
 
-    std::shared_ptr< RootFinderCore< ScalarType > > rootFinder = aRootFinder;
+
+    std::shared_ptr< RootFinder< ScalarType > > rootFinder = aRootFinder;
 
     // Required because the make_shared in the function definition gives problems for MSVC.
     if ( !rootFinder.get( ) )
     {
         double toleranceMultiplier = ( eccentricity - 1.0 ) < 1.0E-3 ? 10.0 : 1.0;
-        rootFinder = std::make_shared< NewtonRaphsonCore< ScalarType > >(
-                    std::bind(
-                        &RootAbsoluteToleranceTerminationCondition< ScalarType >::
-                        checkTerminationCondition,
-                        std::make_shared<
-                        RootAbsoluteToleranceTerminationCondition< ScalarType > >(
-                            toleranceMultiplier * 25.0 * std::numeric_limits< ScalarType >::epsilon( ), 1000 ),
-                        std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5 ) );
+        rootFinder = createRootFinder< ScalarType >(
+                    newtonRaphsonRootFinderSettings(
+                        TUDAT_NAN, toleranceMultiplier * 25.0 * std::numeric_limits< ScalarType >::epsilon( ),
+                        TUDAT_NAN, 1000, root_finders::throw_exception ) );
     }
     // Declare hyperbolic eccentric anomaly.
     ScalarType hyperbolicEccentricAnomaly = TUDAT_NAN;
@@ -399,17 +391,13 @@ ScalarType convertMeanAnomalyToHyperbolicEccentricAnomaly(
             hyperbolicEccentricAnomaly = rootFinder->execute( rootFunction, initialGuess );
 
         }
-        catch( std::runtime_error )
+        catch( std::runtime_error const& )
         {
-            rootFinder = std::make_shared< BisectionCore< ScalarType > >(
-                        std::bind(
-                            &RootAbsoluteToleranceTerminationCondition< ScalarType >::
-                            checkTerminationCondition,
-                            std::make_shared<
-                            RootAbsoluteToleranceTerminationCondition< ScalarType > >(
-                                20.0 * std::numeric_limits< ScalarType >::epsilon( ), 1000 ),
-                            std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5 ), getFloatingInteger< ScalarType >( 0 ),
-                        getFloatingInteger< ScalarType >( 2 ) * getPi< ScalarType >( ) );
+            rootFinder = createRootFinder< ScalarType >(
+                        bisectionRootFinderSettings(
+                            TUDAT_NAN, 20.0 * std::numeric_limits< ScalarType >::epsilon( ),
+                            TUDAT_NAN, 100 ), getFloatingInteger< ScalarType >( 0 ),
+                        getFloatingInteger< ScalarType >( 2 ) * getPi< ScalarType >( ), root_finders::accept_result );
 
             hyperbolicEccentricAnomaly = rootFinder->execute( rootFunction, initialGuess );
         }

@@ -241,6 +241,8 @@ public:
         return interpolatedValue;
     }
 
+    InterpolatorTypes getInterpolatorType( ){ return linear_interpolator; }
+
 };
 
 

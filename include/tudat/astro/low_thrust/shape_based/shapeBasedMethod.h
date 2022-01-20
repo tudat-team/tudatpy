@@ -12,7 +12,6 @@
 #ifndef TUDAT_SHAPE_BASED_METHOD_H
 #define TUDAT_SHAPE_BASED_METHOD_H
 
-#include <tudat/simulation/simulation.h>
 #include <cmath>
 #include <vector>
 #include <Eigen/Dense>
@@ -36,9 +35,8 @@ public:
     //! Empty constructor.
     ShapeBasedMethod( const Eigen::Vector6d& stateAtDeparture,
                       const Eigen::Vector6d& stateAtArrival,
-                      const double timeOfFlight,
-                      const double initialBodyMass = TUDAT_NAN ) :
-    LowThrustLeg( stateAtDeparture, stateAtArrival, timeOfFlight, initialBodyMass, false ){ }
+                      const double timeOfFlight ) :
+    LowThrustLeg( stateAtDeparture, stateAtArrival, timeOfFlight, false ){ }
 
     //! Default destructor.
     virtual ~ShapeBasedMethod( ) { }
@@ -54,32 +52,6 @@ public:
             std::vector< double >& epochsVector,
             std::map< double, Eigen::Vector6d >& propagatedTrajectory );
 
-    Eigen::Vector3d computeCurrentThrustForce( double time,
-                                          std::function< double ( const double ) > specificImpulseFunction,
-                                          std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings );
-
-    //! Return thrust profile.
-    void getThrustForceProfile( std::vector< double >& epochsVector,
-                           std::map< double, Eigen::VectorXd >& thrustProfile,
-                           std::function< double ( const double ) > specificImpulseFunction,
-                           std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings );
-
-
-    //! Retrieve acceleration map (thrust and central gravity accelerations).
-    basic_astrodynamics::AccelerationMap retrieveLowThrustAccelerationMap(
-            const simulation_setup::SystemOfBodies& bodies,
-            const std::string& bodyToPropagate,
-            const std::string& centralBody,
-            const std::function< double ( const double ) > specificImpulseFunction,
-            const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings );
-
-    //! Define appropriate translational state propagator settings for the full propagation.
-    std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
-    std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > createLowThrustTranslationalStatePropagatorSettings(
-            const std::string& bodyToPropagate,
-            const std::string& centralBody,
-            const basic_astrodynamics::AccelerationMap& accelerationModelMap,
-            const std::shared_ptr< propagators::DependentVariableSaveSettings > dependentVariablesToSave );
 
 
 protected:

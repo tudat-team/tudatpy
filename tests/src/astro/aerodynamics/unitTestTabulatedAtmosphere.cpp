@@ -16,6 +16,7 @@
  *      Millour, E., et al. "The Mars Climate Database (MCD version 5.2)." European Planetary Science Congress 2015. Vol. 10. EPSC, 2015.
  */
 
+#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <limits>
@@ -309,7 +310,8 @@ BOOST_AUTO_TEST_CASE( testMultiDimensionalTabulatedAtmosphereDefaultExtrapolatio
                                             tabulatedAtmosphere.getDensity( altitude.at( i ), longitude.at( i ), latitude.at( i ) ),
                                             tolerance );
             }
-            catch ( std::runtime_error )
+            catch( std::runtime_error const& )
+
             {
                 exception = true;
             }

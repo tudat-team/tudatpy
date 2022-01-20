@@ -30,6 +30,9 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
     case initial_rotational_body_state:
         parameterDescription = "rotational state ";
         break;
+    case initial_mass_state:
+        parameterDescription = "rotational state ";
+        break;
     case gravitational_parameter:
         parameterDescription = "gravitational parameter ";
         break;
@@ -114,6 +117,9 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
     case desaturation_delta_v_values:
         parameterDescription = " momentum wheel desaturation Delta V ";
         break;
+    case scaled_longitude_libration_amplitude:
+        parameterDescription = " scaled longitude libration amplitude ";
+        break;
     default:
         std::string errorMessage = "Error when getting parameter string, did not recognize parameter " +
                 std::to_string( parameterType );
@@ -135,6 +141,9 @@ bool isParameterDynamicalPropertyInitialState( const EstimatebleParametersEnum p
         flag = true;
         break;
     case initial_rotational_body_state:
+        flag = true;
+        break;
+    case initial_mass_state:
         flag = true;
         break;
     default:
@@ -234,6 +243,9 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
     case free_core_nutation_rate:
         isDoubleParameter = true;
         break;
+    case scaled_longitude_libration_amplitude:
+        isDoubleParameter = true;
+        break;
     default:
         throw std::runtime_error( "Error, parameter type " + std::to_string( parameterType ) +
                                   " not found when getting parameter type" );
@@ -266,6 +278,9 @@ bool isParameterRotationMatrixProperty( const EstimatebleParametersEnum paramete
         flag = true;
         break;
     case free_core_nutation_rate:
+        flag = true;
+        break;
+    case scaled_longitude_libration_amplitude:
         flag = true;
         break;
     default:

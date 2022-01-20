@@ -20,7 +20,7 @@
 
 #include <Eigen/Geometry>
 
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
 #include <functional>
 
 #include "tudat/astro/low_thrust/simsFlanagan.h"
@@ -32,6 +32,7 @@
 #include "pagmo/io.hpp"
 #include "pagmo/problem.hpp"
 
+using namespace boost::placeholders;
 
 namespace tudat
 {

@@ -10,7 +10,9 @@
 
 #include <boost/make_shared.hpp>
 #include <memory>
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
+using namespace boost::placeholders;
+
 
 #include "tudat/astro/aerodynamics/aerodynamics.h"
 #include "tudat/astro/aerodynamics/flightConditions.h"
@@ -45,6 +47,8 @@ FlightConditions::FlightConditions( const std::shared_ptr< basic_astrodynamics::
                     std::dynamic_pointer_cast< basic_astrodynamics::OblateSpheroidBodyShapeModel >( shapeModel ),
                     std::placeholders::_1, 1.0E-4 );
     }
+    scalarFlightConditions_.resize( 12 );
+    isScalarFlightConditionComputed_ = allScalarFlightConditionsUncomputed;
 }
 
 //! Function to update all flight conditions.
@@ -66,6 +70,7 @@ void FlightConditions::updateConditions( const double currentTime )
     }
 }
 
+
 //! Constructor, sets objects and functions from which relevant environment and state variables are retrieved.
 AtmosphericFlightConditions::AtmosphericFlightConditions(
         const std::shared_ptr< aerodynamics::AtmosphereModel > atmosphereModel,
@@ -78,18 +83,8 @@ AtmosphericFlightConditions::AtmosphericFlightConditions(
     aerodynamicCoefficientInterface_( aerodynamicCoefficientInterface ),
     controlSurfaceDeflectionFunction_( controlSurfaceDeflectionFunction )
 {
-    // Check if atmosphere requires latitude and longitude update.
-    if( std::dynamic_pointer_cast< aerodynamics::StandardAtmosphere >( atmosphereModel_ ) == nullptr )
-    {
-        updateLatitudeAndLongitudeForAtmosphere_ = 1;
-    }
-    else
-    {
-        updateLatitudeAndLongitudeForAtmosphere_ = 0;
-    }
-    isLatitudeAndLongitudeSet_ = 0;
 
-    if( updateLatitudeAndLongitudeForAtmosphere_ && aerodynamicAngleCalculator_== nullptr )
+    if(  aerodynamicAngleCalculator_== nullptr )
     {
         throw std::runtime_error( "Error when making flight conditions, angles are to be updated, but no calculator is set" );
     }
@@ -103,7 +98,8 @@ void AtmosphericFlightConditions::setAerodynamicCoefficientsIndependentVariableF
     if( ( independentVariable == mach_number_dependent ) ||
             ( independentVariable == angle_of_attack_dependent ) ||
             ( independentVariable == angle_of_sideslip_dependent )||
-            ( independentVariable == altitude_dependent ) )
+            ( independentVariable == altitude_dependent ) ||
+            ( independentVariable == time_dependent ) )
     {
         throw std::runtime_error(
                     std::string( "Error when setting aerodynamic coefficient function dependency, value of parameter " ) +
@@ -148,6 +144,22 @@ void AtmosphericFlightConditions::updateConditions( const double currentTime )
     }
 }
 
+
+void AtmosphericFlightConditions::updateAtmosphereInput( )
+{
+    if( ( isScalarFlightConditionComputed_.at( latitude_flight_condition ) == 0 ||
+          isScalarFlightConditionComputed_.at( longitude_flight_condition ) == 0 ) )
+    {
+        computeLatitudeAndLongitude( );
+    }
+
+    if( isScalarFlightConditionComputed_.at( altitude_flight_condition ) == 0 )
+    {
+        computeAltitude( );
+    }
+}
+
+
 //! Function to (compute and) retrieve the value of an independent variable of aerodynamic coefficients
 double AtmosphericFlightConditions::getAerodynamicCoefficientIndependentVariable(
         const AerodynamicCoefficientsIndependentVariables independentVariableType,
@@ -181,13 +193,16 @@ double AtmosphericFlightConditions::getAerodynamicCoefficientIndependentVariable
     case altitude_dependent:
         currentIndependentVariable = getCurrentAltitude( );
         break;
+    case time_dependent:
+        currentIndependentVariable = currentTime_;
+        break;
     case control_surface_deflection_dependent:
     {
         try
         {
             currentIndependentVariable = controlSurfaceDeflectionFunction_( secondaryIdentifier );
         }
-        catch( std::runtime_error )
+        catch( std::runtime_error const& )
         {
             throw std::runtime_error( "Error, control surface " + secondaryIdentifier + "not recognized when updating coefficients" );
         }

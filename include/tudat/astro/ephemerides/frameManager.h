@@ -14,7 +14,7 @@
 #include <vector>
 
 #include <boost/make_shared.hpp>
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
 
 #include "tudat/math/basic/mathematicalConstants.h"
 
@@ -22,6 +22,8 @@
 
 #include "tudat/astro/ephemerides/compositeEphemeris.h"
 #include "tudat/astro/ephemerides/constantEphemeris.h"
+
+using namespace boost::placeholders;
 
 namespace tudat
 {

@@ -97,7 +97,8 @@ void getFinalStateForExactDependentVariableTerminationCondition(
         const StateType& secondToLastState,
         const StateType& lastState,
         TimeType& endTime,
-        StateType& endState )
+        StateType& endState,
+        const bool isOnlyTerminationCondition = true )
 {
     TUDAT_UNUSED_PARAMETER( secondToLastState );
 
@@ -108,7 +109,7 @@ void getFinalStateForExactDependentVariableTerminationCondition(
 
     // Create root finder.
     bool increasingTime = static_cast< double >( lastTime - secondToLastTime ) > 0.0;
-    std::shared_ptr< root_finders::RootFinderCore< TimeStepType > > finalConditionRootFinder;
+    std::shared_ptr< root_finders::RootFinder< TimeStepType > > finalConditionRootFinder;
     if( increasingTime )
     {
         finalConditionRootFinder = root_finders::createRootFinder< TimeStepType >(
@@ -141,9 +142,12 @@ void getFinalStateForExactDependentVariableTerminationCondition(
     // If dependent variable has no root in given interval, set end time and state at NaN
     catch( std::runtime_error& caughtException )
     {
-        std::cerr << "Warning in propagation to exact dependent variable value. Root finder could not find a "
-                     "root to the function. Returning time and state as NaNs. Caught exception: "
-                  << caughtException.what( ) << std::endl;
+        if( isOnlyTerminationCondition )
+        {
+            std::cerr << "Warning in propagation to exact dependent variable value. Root finder could not find a "
+                         "root to the function. Returning time and state as NaNs. Caught exception: "
+                      << caughtException.what( ) << std::endl;
+        }
         endTime = TUDAT_NAN;
         endState = StateType::Constant( lastState.rows( ), lastState.cols( ), TUDAT_NAN );
     }
@@ -165,7 +169,7 @@ void getFinalStateForExactDependentVariableTerminationCondition(
  * \param endState State at time where exact termination condition is met (returned by reference).
  */
 template< typename StateType = Eigen::MatrixXd, typename TimeType = double, typename TimeStepType = TimeType  >
-void getFinalStateForExactHybridVariableTerminationCondition(
+bool getFinalStateForExactHybridVariableTerminationCondition(
         const std::shared_ptr< numerical_integrators::NumericalIntegrator< TimeType, StateType, StateType, TimeStepType > >
         integrator,
         const std::shared_ptr< HybridPropagationTerminationCondition > hyrbidTerminationCondition,
@@ -192,64 +196,71 @@ void getFinalStateForExactHybridVariableTerminationCondition(
     bool timesAreSet = false;
     for( unsigned int i = 0; i < terminationConditionList.size( ); i++ )
     {
-        // Determine single termination condition
-        getFinalStateForExactTerminationCondition(
-                    integrator, terminationConditionList.at( i ),secondToLastTime, lastTime, secondToLastState, lastState,
-                    endTimes[ i ], endStates[ i ] );
-
-        // If converged time is found, check if it is smallest/highest converged time
-        if( endTimes[ i ] == endTimes[ i ] )
+        if( terminationConditionList.at( i )->getcheckTerminationToExactCondition( ) )
         {
-            TimeStepType currentFinalTimeStep = endTimes[ i ] - secondToLastTime;
+            // Determine single termination condition
+            getFinalStateForExactTerminationCondition(
+                        integrator, terminationConditionList.at( i ),secondToLastTime, lastTime, secondToLastState, lastState,
+                        endTimes[ i ], endStates[ i ], false );
 
-            if( !timesAreSet )
+            // If converged time is found, check if it is smallest/highest converged time
+            if( endTimes[ i ] == endTimes[ i ] )
             {
-                maximumTimeStep = currentFinalTimeStep;
-                maximumTimeIndex = i;
-                minimumTimeStep = currentFinalTimeStep;
-                minimumTimeIndex = i;
-                timesAreSet = true;
-            }
-            else
-            {
-                if( currentFinalTimeStep < minimumTimeStep )
-                {
-                    minimumTimeStep = currentFinalTimeStep;
-                    minimumTimeIndex = i;
-                }
+                TimeStepType currentFinalTimeStep = endTimes[ i ] - secondToLastTime;
 
-                if( currentFinalTimeStep > maximumTimeStep )
+                if( !timesAreSet )
                 {
                     maximumTimeStep = currentFinalTimeStep;
                     maximumTimeIndex = i;
+                    minimumTimeStep = currentFinalTimeStep;
+                    minimumTimeIndex = i;
+                    timesAreSet = true;
+                }
+                else
+                {
+                    if( currentFinalTimeStep < minimumTimeStep )
+                    {
+                        minimumTimeStep = currentFinalTimeStep;
+                        minimumTimeIndex = i;
+                    }
+
+                    if( currentFinalTimeStep > maximumTimeStep )
+                    {
+                        maximumTimeStep = currentFinalTimeStep;
+                        maximumTimeIndex = i;
+                    }
                 }
             }
         }
     }
 
     // Check if any of the conditions were valid
-    if( !timesAreSet )
+    if( timesAreSet )
     {
-        throw std::runtime_error( "Error when propagating exactly to hybrid condition, no conditions met" );
-    }
 
-    // Set converged end time/state
-    bool propagationIsForwards = ( ( lastTime - secondToLastTime ) > 0.0 ) ? true : false;
-    if( ( propagationIsForwards && !hyrbidTerminationCondition->getFulfillSingleCondition( ) ) ||
-            ( !propagationIsForwards && hyrbidTerminationCondition->getFulfillSingleCondition( ) ) )
-    {
-        endState = endStates[ maximumTimeIndex ];
-        endTime = endTimes[ maximumTimeIndex ];
-    }
-    else if( ( propagationIsForwards && hyrbidTerminationCondition->getFulfillSingleCondition( ) ) ||
-             ( !propagationIsForwards && !hyrbidTerminationCondition->getFulfillSingleCondition( ) ) )
-    {
-        endState = endStates[ minimumTimeIndex ];
-        endTime = endTimes[ minimumTimeIndex ];
+        // Set converged end time/state
+        bool propagationIsForwards = ( ( lastTime - secondToLastTime ) > 0.0 ) ? true : false;
+        if( ( propagationIsForwards && !hyrbidTerminationCondition->getFulfillSingleCondition( ) ) ||
+                ( !propagationIsForwards && hyrbidTerminationCondition->getFulfillSingleCondition( ) ) )
+        {
+            endState = endStates[ maximumTimeIndex ];
+            endTime = endTimes[ maximumTimeIndex ];
+        }
+        else if( ( propagationIsForwards && hyrbidTerminationCondition->getFulfillSingleCondition( ) ) ||
+                 ( !propagationIsForwards && !hyrbidTerminationCondition->getFulfillSingleCondition( ) ) )
+        {
+            endState = endStates[ minimumTimeIndex ];
+            endTime = endTimes[ minimumTimeIndex ];
+        }
+        else
+        {
+            throw std::runtime_error( "Error when propagating to exact final hybrid condition, case not recognized" );
+        }
+        return true;
     }
     else
     {
-        throw std::runtime_error( "Error when propagating to exact final hybrid condition, case not recognized" );
+        return false;
     }
 
 }
@@ -268,7 +279,7 @@ void getFinalStateForExactHybridVariableTerminationCondition(
  * \param endState State at time where exact termination condition is met (returned by reference).
  */
 template< typename StateType = Eigen::MatrixXd, typename TimeType = double, typename TimeStepType = TimeType  >
-void getFinalStateForExactTerminationCondition(
+bool getFinalStateForExactTerminationCondition(
         const std::shared_ptr< numerical_integrators::NumericalIntegrator< TimeType, StateType, StateType, TimeStepType > > integrator,
         const std::shared_ptr< PropagationTerminationCondition > terminationCondition,
         const TimeType secondToLastTime,
@@ -276,8 +287,10 @@ void getFinalStateForExactTerminationCondition(
         const StateType& secondToLastState,
         const StateType& lastState,
         TimeType& endTime,
-        StateType& endState )
+        StateType& endState,
+        const bool isOnlyTerminationCondition = true )
 {
+    bool useNewSolution = true;
     // Check type of termination condition
     switch( terminationCondition->getTerminationType( ) )
     {
@@ -313,7 +326,7 @@ void getFinalStateForExactTerminationCondition(
                 std::dynamic_pointer_cast< SingleVariableLimitPropagationTerminationCondition >( terminationCondition );
         getFinalStateForExactDependentVariableTerminationCondition(
                     integrator, dependentVariableTerminationCondition, secondToLastTime, lastTime,
-                    secondToLastState, lastState, endTime, endState );
+                    secondToLastState, lastState, endTime, endState, isOnlyTerminationCondition );
 
         break;
     }
@@ -331,7 +344,7 @@ void getFinalStateForExactTerminationCondition(
         std::shared_ptr< HybridPropagationTerminationCondition > hyrbidTerminationCondition =
                 std::dynamic_pointer_cast< HybridPropagationTerminationCondition >( terminationCondition );
 
-        getFinalStateForExactHybridVariableTerminationCondition(
+        useNewSolution = getFinalStateForExactHybridVariableTerminationCondition(
                     integrator, hyrbidTerminationCondition, secondToLastTime, lastTime,
                     secondToLastState, lastState, endTime, endState );
         break;
@@ -339,6 +352,7 @@ void getFinalStateForExactTerminationCondition(
     default:
         throw std::runtime_error( "Error when propagating to exact final condition, did not recognize termination time" );
     }
+    return useNewSolution;
 }
 
 //! Function that propagates to an exact final condition (within tolerance) for arbitrary termination condition
@@ -372,51 +386,59 @@ void propagateToExactTerminationCondition(
     // Determine exact final time/state
     TimeType endTime;
     StateType endState;
-    getFinalStateForExactTerminationCondition(
+    if( getFinalStateForExactTerminationCondition(
                 integrator, propagationTerminationCondition,
                 integrator->getPreviousIndependentVariable( ),
                 integrator->getCurrentIndependentVariable( ),
                 integrator->getPreviousState( ),
                 integrator->getCurrentState( ),
-                endTime, endState );
-
-    // Check if any dependent variables are saved. If so, remove last entry
-    bool recomputeDependentVariables = false;
-    if( dependentVariableHistory.size( ) > 0 )
+                endTime, endState ) )
     {
-        if( dependentVariableHistory.rbegin( )->first == solutionHistory.rbegin( )->first )
+
+        // Check if any dependent variables are saved. If so, remove last entry
+        bool recomputeDependentVariables = false;
+        if( dependentVariableHistory.size( ) > 0 )
         {
-            if( timeStep > 0 )
+            if( dependentVariableHistory.rbegin( )->first == solutionHistory.rbegin( )->first )
             {
-                dependentVariableHistory.erase( std::prev( dependentVariableHistory.end() ) );
+                if( timeStep > 0 )
+                {
+                    dependentVariableHistory.erase( std::prev( dependentVariableHistory.end() ) );
+                }
+                else
+                {
+                    dependentVariableHistory.erase(  dependentVariableHistory.begin( ) );
+                }
+                recomputeDependentVariables = true;
             }
-            else
-            {
-                dependentVariableHistory.erase(  dependentVariableHistory.begin( ) );
-            }
-            recomputeDependentVariables = true;
         }
-    }
 
-    // Remove state entry last added, and enter converged final state
-    if( timeStep > 0 )
-    {
-        solutionHistory.erase( std::prev( solutionHistory.end() ) );
-        solutionHistory[ endTime ] = endState;
+        // Remove state entry last added, and enter converged final state
+        if( timeStep > 0 )
+        {
+            solutionHistory.erase( std::prev( solutionHistory.end() ) );
+            solutionHistory[ endTime ] = endState;
+        }
+        else
+        {
+            solutionHistory.erase( solutionHistory.begin( ) );
+            solutionHistory[ endTime ] = endState;
+        }
+
+        // Recompute final dependent variables, if required
+        if( recomputeDependentVariables )
+        {
+            integrator->getStateDerivativeFunction( )( endTime, endState );
+            dependentVariableHistory[ endTime ] = dependentVariableFunction( );
+
+            // Check stopping conditions to be able to save details
+            propagationTerminationCondition->checkStopCondition( endTime, currentCpuTime );
+        }
     }
     else
     {
-        solutionHistory.erase( solutionHistory.begin( ) );
-        solutionHistory[ endTime ] = endState;
-    }
-
-    // Recompute final dependent variables, if required
-    if( recomputeDependentVariables )
-    {
-        integrator->getStateDerivativeFunction( )( endTime, endState );
-        dependentVariableHistory[ endTime ] = dependentVariableFunction( );
-
         // Check stopping conditions to be able to save details
+        integrator->getStateDerivativeFunction( )( endTime, endState );
         propagationTerminationCondition->checkStopCondition( endTime, currentCpuTime );
     }
 
@@ -571,7 +593,7 @@ std::shared_ptr< PropagationTerminationDetails > integrateEquationsFromIntegrato
 
             if( propagationTerminationCondition->checkStopCondition( static_cast< double >( currentTime ), currentCPUTime ) )
             {
-                if( propagationTerminationCondition->getTerminateExactlyOnFinalCondition( ) )
+                if( propagationTerminationCondition->getcheckTerminationToExactCondition( ) )
                 {
                     propagateToExactTerminationCondition(
                                 integrator, propagationTerminationCondition,
@@ -584,7 +606,7 @@ std::shared_ptr< PropagationTerminationDetails > integrateEquationsFromIntegrato
                 {
                     propagationTerminationReason = std::make_shared< PropagationTerminationDetails >(
                                 termination_condition_reached,
-                                propagationTerminationCondition->getTerminateExactlyOnFinalCondition( ) );
+                                propagationTerminationCondition->getcheckTerminationToExactCondition( ) );
                 }
                 else
                 {
@@ -594,7 +616,7 @@ std::shared_ptr< PropagationTerminationDetails > integrateEquationsFromIntegrato
                         throw std::runtime_error( "Error when saving termination reason, type is hybrid, but class is not." );
                     }
                     propagationTerminationReason = std::make_shared< PropagationTerminationDetailsFromHybridCondition >(
-                                propagationTerminationCondition->getTerminateExactlyOnFinalCondition( ),
+                                propagationTerminationCondition->getcheckTerminationToExactCondition( ),
                                 std::dynamic_pointer_cast< HybridPropagationTerminationCondition >(
                                     propagationTerminationCondition ) );
                 }

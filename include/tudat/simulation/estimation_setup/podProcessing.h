@@ -19,190 +19,190 @@ namespace tudat
 namespace simulation_setup
 {
 
-//! Function to create a single vector of times from all observation times.
-/*!
- *  Function to create a single vector of times from all observation times, created by concatenating all observation times,
- *  in the order of first observable type and the link ends, as they are stored in the input data type (PodInputType).
- *  \param measurementData Data structure containing all measurement data, first by observable type, then by link ends.
- *  \return Concatenated vector of times.
- */
-template< typename ObservationScalarType = double, typename TimeType = double >
-std::vector< TimeType > getConcatenatedTimeVector(
-        const typename OrbitDeterminationManager< ObservationScalarType, TimeType >::PodInputType& measurementData )
-{
-    // Iterate over all observations and concatenate the time vectors.
-    std::vector< TimeType > concatenatedTimes;
-    for( typename OrbitDeterminationManager< ObservationScalarType, TimeType >::PodInputType::const_iterator
-         observablesIterator = measurementData.begin( ); observablesIterator != measurementData.end( ); observablesIterator++ )
-    {
-        // Get data type size.
-        int currentObservableSize = getObservableSize( observablesIterator->first );
+////! Function to create a single vector of times from all observation times.
+///*!
+// *  Function to create a single vector of times from all observation times, created by concatenating all observation times,
+// *  in the order of first observable type and the link ends, as they are stored in the input data type (PodInputType).
+// *  \param measurementData Data structure containing all measurement data, first by observable type, then by link ends.
+// *  \return Concatenated vector of times.
+// */
+//template< typename ObservationScalarType = double, typename TimeType = double >
+//std::vector< TimeType > getConcatenatedTimeVector(
+//        const typename OrbitDeterminationManager< ObservationScalarType, TimeType >::PodInputType& measurementData )
+//{
+//    // Iterate over all observations and concatenate the time vectors.
+//    std::vector< TimeType > concatenatedTimes;
+//    for( typename OrbitDeterminationManager< ObservationScalarType, TimeType >::PodInputType::const_iterator
+//         observablesIterator = measurementData.begin( ); observablesIterator != measurementData.end( ); observablesIterator++ )
+//    {
+//        // Get data type size.
+//        int currentObservableSize = getObservableSize( observablesIterator->first );
 
-        // Iterate over all link ends
-        for( typename OrbitDeterminationManager< ObservationScalarType, TimeType >::SingleObservablePodInputType::const_iterator
-             dataIterator = observablesIterator->second.begin( ); dataIterator != observablesIterator->second.end( );
-             dataIterator++  )
-        {
-            // Copy data in the case that observable size is 1
-            if( currentObservableSize == 1 )
-            {
-                concatenatedTimes.insert( concatenatedTimes.end( ), dataIterator->second.second.first.begin( ),
-                                          dataIterator->second.second.first.end( ) );
-            }
-            // For observable size N>1, coopy time tag N times for each observation
-            else
-            {
-                std::vector< TimeType > originalTimesList = dataIterator->second.second.first;
-                std::vector< TimeType > currentTimesList;
-                for( unsigned int i = 0; i < originalTimesList.size( ); i++ )
-                {
-                    for( int j = 0; j < currentObservableSize; j++ )
-                    {
-                        currentTimesList.push_back( originalTimesList.at( i ) );
-                    }
-                }
+//        // Iterate over all link ends
+//        for( typename OrbitDeterminationManager< ObservationScalarType, TimeType >::SingleObservablePodInputType::const_iterator
+//             dataIterator = observablesIterator->second.begin( ); dataIterator != observablesIterator->second.end( );
+//             dataIterator++  )
+//        {
+//            // Copy data in the case that observable size is 1
+//            if( currentObservableSize == 1 )
+//            {
+//                concatenatedTimes.insert( concatenatedTimes.end( ), dataIterator->second.second.first.begin( ),
+//                                          dataIterator->second.second.first.end( ) );
+//            }
+//            // For observable size N>1, coopy time tag N times for each observation
+//            else
+//            {
+//                std::vector< TimeType > originalTimesList = dataIterator->second.second.first;
+//                std::vector< TimeType > currentTimesList;
+//                for( unsigned int i = 0; i < originalTimesList.size( ); i++ )
+//                {
+//                    for( int j = 0; j < currentObservableSize; j++ )
+//                    {
+//                        currentTimesList.push_back( originalTimesList.at( i ) );
+//                    }
+//                }
 
-                concatenatedTimes.insert( concatenatedTimes.end( ), currentTimesList.begin( ),
-                                          currentTimesList.end( ) );
+//                concatenatedTimes.insert( concatenatedTimes.end( ), currentTimesList.begin( ),
+//                                          currentTimesList.end( ) );
 
-            }
-        }
-    }
+//            }
+//        }
+//    }
 
-    return concatenatedTimes;
-}
+//    return concatenatedTimes;
+//}
 
-//! Function to create a single vector of link end indices for all observations
-/*!
- *  Function to create a single vector of link end indices for all observations, created by assigning an integer to each set of
- *  link ends, and these indices for all observations, in the order of first observable type and the link ends,
- *  as they are stored in the input data type (PodInputType). Output vector has same size as vector of observables, so
- *  for an observation of size N, N values are added to the output vector
- *  \param measurementData Data structure containing all measurement data, first by observable type, then by link ends.
- *  \return Concatenated vector of link end indices (first), mapping of LinkEnds to index (second)
- */
-template< typename ObservationScalarType = double, typename TimeType = double >
-std::pair< std::vector< int >, std::map< observation_models::LinkEnds, int > > getConcatenatedGroundStationIndex(
-        const typename OrbitDeterminationManager< ObservationScalarType, TimeType >::PodInputType& measurementData )
-{
-    std::vector< int > concatenatedIds;
-    std::map< observation_models::LinkEnds, int > stationIds;
+////! Function to create a single vector of link end indices for all observations
+///*!
+// *  Function to create a single vector of link end indices for all observations, created by assigning an integer to each set of
+// *  link ends, and these indices for all observations, in the order of first observable type and the link ends,
+// *  as they are stored in the input data type (PodInputType). Output vector has same size as vector of observables, so
+// *  for an observation of size N, N values are added to the output vector
+// *  \param measurementData Data structure containing all measurement data, first by observable type, then by link ends.
+// *  \return Concatenated vector of link end indices (first), mapping of LinkEnds to index (second)
+// */
+//template< typename ObservationScalarType = double, typename TimeType = double >
+//std::pair< std::vector< int >, std::map< observation_models::LinkEnds, int > > getConcatenatedGroundStationIndex(
+//        const typename OrbitDeterminationManager< ObservationScalarType, TimeType >::PodInputType& measurementData )
+//{
+//    std::vector< int > concatenatedIds;
+//    std::map< observation_models::LinkEnds, int > stationIds;
 
-    int maximumStationId = 0;
-    int currentStationId;
+//    int maximumStationId = 0;
+//    int currentStationId;
 
-    // Iterate over all observations and concatenate the link end indices.
-    for( typename OrbitDeterminationManager< ObservationScalarType, TimeType >::PodInputType::const_iterator observablesIterator =
-         measurementData.begin( ); observablesIterator != measurementData.end( ); observablesIterator++ )
-    {
-        // Get current observable size
-        int currentObservableSize = getObservableSize( observablesIterator->first );
+//    // Iterate over all observations and concatenate the link end indices.
+//    for( typename OrbitDeterminationManager< ObservationScalarType, TimeType >::PodInputType::const_iterator observablesIterator =
+//         measurementData.begin( ); observablesIterator != measurementData.end( ); observablesIterator++ )
+//    {
+//        // Get current observable size
+//        int currentObservableSize = getObservableSize( observablesIterator->first );
 
-        for( typename OrbitDeterminationManager< ObservationScalarType, TimeType >::SingleObservablePodInputType::const_iterator
-             dataIterator =
-             observablesIterator->second.begin( ); dataIterator != observablesIterator->second.end( ); dataIterator++  )
-        {
-            // Check if current LinkEnds have an index assign to them, and create it if not
-            if( stationIds.count( dataIterator->first ) == 0 )
-            {
-                stationIds[ dataIterator->first  ] = maximumStationId;
-                currentStationId = maximumStationId;
-                maximumStationId++;
-            }
-            else
-            {
-                currentStationId = stationIds[ dataIterator->first ];
-            }
+//        for( typename OrbitDeterminationManager< ObservationScalarType, TimeType >::SingleObservablePodInputType::const_iterator
+//             dataIterator =
+//             observablesIterator->second.begin( ); dataIterator != observablesIterator->second.end( ); dataIterator++  )
+//        {
+//            // Check if current LinkEnds have an index assign to them, and create it if not
+//            if( stationIds.count( dataIterator->first ) == 0 )
+//            {
+//                stationIds[ dataIterator->first  ] = maximumStationId;
+//                currentStationId = maximumStationId;
+//                maximumStationId++;
+//            }
+//            else
+//            {
+//                currentStationId = stationIds[ dataIterator->first ];
+//            }
 
-            // Add indices for current observables
-            for( unsigned int i = 0; i < dataIterator->second.second.first.size( ); i++ )
-            {
-                for( int j = 0; j < currentObservableSize; j++ )
-                {
-                    concatenatedIds.push_back( currentStationId );
-                }
-            }
-        }
-    }
+//            // Add indices for current observables
+//            for( unsigned int i = 0; i < dataIterator->second.second.first.size( ); i++ )
+//            {
+//                for( int j = 0; j < currentObservableSize; j++ )
+//                {
+//                    concatenatedIds.push_back( currentStationId );
+//                }
+//            }
+//        }
+//    }
 
-    return std::make_pair( concatenatedIds, stationIds );
-}
+//    return std::make_pair( concatenatedIds, stationIds );
+//}
 
-//! Function to create a single vector of observable types for all observations
-/*!
- *  Function to create a single vector of observable types for all observations, in the order of first observable type and the
- *  link ends, as they are stored in the input data type (PodInputType). Output vector has same size as vector of observables, so
- *  for an observation of size N, N values are added to the output vector
- *  \param measurementData Data structure containing all measurement data, first by observable type, then by link ends.
- *  \return Concatenated vector of observable types.
- */
-template< typename ObservationScalarType = double, typename TimeType = double >
-std::vector< int > getConcatenatedObservableTypes(
-        const typename OrbitDeterminationManager< ObservationScalarType, TimeType >::PodInputType& measurementData )
-{
-    std::vector< int > concatenatedIds;
+////! Function to create a single vector of observable types for all observations
+///*!
+// *  Function to create a single vector of observable types for all observations, in the order of first observable type and the
+// *  link ends, as they are stored in the input data type (PodInputType). Output vector has same size as vector of observables, so
+// *  for an observation of size N, N values are added to the output vector
+// *  \param measurementData Data structure containing all measurement data, first by observable type, then by link ends.
+// *  \return Concatenated vector of observable types.
+// */
+//template< typename ObservationScalarType = double, typename TimeType = double >
+//std::vector< int > getConcatenatedObservableTypes(
+//        const typename OrbitDeterminationManager< ObservationScalarType, TimeType >::PodInputType& measurementData )
+//{
+//    std::vector< int > concatenatedIds;
 
-    // Iterate over all observations and concatenate the time vectors.
-    for( typename OrbitDeterminationManager< ObservationScalarType, TimeType >::PodInputType::const_iterator observablesIterator =
-         measurementData.begin( ); observablesIterator != measurementData.end( ); observablesIterator++ )
-    {
-        int currentObservable = static_cast< int >( observablesIterator->first );
-        int currentObservableSize = getObservableSize( observablesIterator->first );
+//    // Iterate over all observations and concatenate the time vectors.
+//    for( typename OrbitDeterminationManager< ObservationScalarType, TimeType >::PodInputType::const_iterator observablesIterator =
+//         measurementData.begin( ); observablesIterator != measurementData.end( ); observablesIterator++ )
+//    {
+//        int currentObservable = static_cast< int >( observablesIterator->first );
+//        int currentObservableSize = getObservableSize( observablesIterator->first );
 
-        for( typename OrbitDeterminationManager< ObservationScalarType, TimeType >::SingleObservablePodInputType::const_iterator
-             dataIterator =
-             observablesIterator->second.begin( ); dataIterator != observablesIterator->second.end( ); dataIterator++  )
-        {
-            // Add indices for current observables
-            for( unsigned int i = 0; i < dataIterator->second.second.first.size( ); i++ )
-            {
-                for( int j = 0; j < currentObservableSize; j++ )
-                {
-                    concatenatedIds.push_back( currentObservable );
-                }
-            }
-        }
-    }
+//        for( typename OrbitDeterminationManager< ObservationScalarType, TimeType >::SingleObservablePodInputType::const_iterator
+//             dataIterator =
+//             observablesIterator->second.begin( ); dataIterator != observablesIterator->second.end( ); dataIterator++  )
+//        {
+//            // Add indices for current observables
+//            for( unsigned int i = 0; i < dataIterator->second.second.first.size( ); i++ )
+//            {
+//                for( int j = 0; j < currentObservableSize; j++ )
+//                {
+//                    concatenatedIds.push_back( currentObservable );
+//                }
+//            }
+//        }
+//    }
 
-    return concatenatedIds;
-}
+//    return concatenatedIds;
+//}
 
-//! Function to create a single vector of observations from full observation input data.
-/*!
- *  Function to create a single vector of observations from full observation input data, created by concatenating all observations
- *  in the order of first observable type and the link ends, as they are stored in the input data type (PodInputType).
- *  \param measurementData Data structure containing all measurement data, first by observable type, then by link ends.
- *  \return Concatenated vector of observations.
- */
-template< typename ObservationScalarType = double, typename TimeType = double >
-Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > getConcatenatedMeasurementVector(
-        const typename OrbitDeterminationManager< ObservationScalarType, TimeType >::PodInputType& measurementData )
-{
-    typedef Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > ObservationVectorType;
-    typedef OrbitDeterminationManager< ObservationScalarType, TimeType > OdManager;
+////! Function to create a single vector of observations from full observation input data.
+///*!
+// *  Function to create a single vector of observations from full observation input data, created by concatenating all observations
+// *  in the order of first observable type and the link ends, as they are stored in the input data type (PodInputType).
+// *  \param measurementData Data structure containing all measurement data, first by observable type, then by link ends.
+// *  \return Concatenated vector of observations.
+// */
+//template< typename ObservationScalarType = double, typename TimeType = double >
+//Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > getConcatenatedMeasurementVector(
+//        const typename OrbitDeterminationManager< ObservationScalarType, TimeType >::PodInputType& measurementData )
+//{
+//    typedef Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > ObservationVectorType;
+//    typedef OrbitDeterminationManager< ObservationScalarType, TimeType > OdManager;
 
-    // Get total number of observations
-    int totalNumberOfObservations = OdManager::getNumberOfObservationsPerObservable( measurementData ).second;
+//    // Get total number of observations
+//    int totalNumberOfObservations = OdManager::getNumberOfObservationsPerObservable( measurementData ).second;
 
-    // Iterate over all observations and concatenate the time vectors.
-    ObservationVectorType concatenatedObservations = ObservationVectorType::Zero( totalNumberOfObservations, 1 );
+//    // Iterate over all observations and concatenate the time vectors.
+//    ObservationVectorType concatenatedObservations = ObservationVectorType::Zero( totalNumberOfObservations, 1 );
 
-    // Iterate over all link ends
-    int currentIndex = 0;
-    for( typename OrbitDeterminationManager< ObservationScalarType, TimeType >::PodInputType::const_iterator observablesIterator =
-         measurementData.begin( ); observablesIterator != measurementData.end( ); observablesIterator++ )
-    {
-        for( typename std::map< observation_models::LinkEnds, std::pair< ObservationVectorType,
-             std::pair< std::vector< TimeType >, observation_models::LinkEndType > > >::const_iterator dataIterator =
-             observablesIterator->second.begin( ); dataIterator != observablesIterator->second.end( ); dataIterator++  )
-        {
-            concatenatedObservations.segment( currentIndex, dataIterator->second.first.rows( ) ) = dataIterator->second.first;
-            currentIndex += dataIterator->second.first.rows( );
-        }
-    }
+//    // Iterate over all link ends
+//    int currentIndex = 0;
+//    for( typename OrbitDeterminationManager< ObservationScalarType, TimeType >::PodInputType::const_iterator observablesIterator =
+//         measurementData.begin( ); observablesIterator != measurementData.end( ); observablesIterator++ )
+//    {
+//        for( typename std::map< observation_models::LinkEnds, std::pair< ObservationVectorType,
+//             std::pair< std::vector< TimeType >, observation_models::LinkEndType > > >::const_iterator dataIterator =
+//             observablesIterator->second.begin( ); dataIterator != observablesIterator->second.end( ); dataIterator++  )
+//        {
+//            concatenatedObservations.segment( currentIndex, dataIterator->second.first.rows( ) ) = dataIterator->second.first;
+//            currentIndex += dataIterator->second.first.rows( );
+//        }
+//    }
 
-    return concatenatedObservations;
-}
+//    return concatenatedObservations;
+//}
 
 
 //! Function to sort the information matrix by the time of the associated observations.
@@ -220,12 +220,12 @@ Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > getConcatenatedMeasure
  */
 template< typename ObservationScalarType = double, typename TimeType = double >
 std::pair< Eigen::MatrixXd, std::vector< TimeType > > getTimeOrderedInformationMatrix(
-        const typename OrbitDeterminationManager< ObservationScalarType, TimeType >::PodInputType& measurementData,
+        const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > measurementData,
         const Eigen::MatrixXd& typeAndLinkSortedInformationMatrix,
         std::vector< int >& timeOrder )
 {
     // Retrieve unordered vector of times
-    std::vector< TimeType > concatenatedTimes = getConcatenatedTimeVector< ObservationScalarType, TimeType >( measurementData ) ;
+    std::vector< TimeType > concatenatedTimes = measurementData->getConcatenatedTimeVector( );
 
     // Sort the concatesnated time vector, and get the order of the sorting.
     std::pair< std::vector< int >, std::vector< TimeType > > sortOutput = utilities::getSortOrderOfVectorAndSortedVector(
@@ -236,6 +236,7 @@ std::pair< Eigen::MatrixXd, std::vector< TimeType > > getTimeOrderedInformationM
     std::vector< int > timeVectorSortOrder = sortOutput.first;
     if( static_cast< int >( timeVectorSortOrder.size( ) ) != typeAndLinkSortedInformationMatrix.rows( ) )
     {
+        std::cout<<timeVectorSortOrder.size( )<<std::endl<<typeAndLinkSortedInformationMatrix.rows( )<<std::endl;
         throw std::runtime_error( "Error when sorting information matrix by time, sizes incompatible" );
     }
 
@@ -269,7 +270,7 @@ std::pair< Eigen::MatrixXd, std::vector< TimeType > > getTimeOrderedInformationM
  */
 template< typename ObservationScalarType = double, typename TimeType = double >
 std::map< TimeType, Eigen::MatrixXd > calculateCovarianceUsingDataUpToEpoch(
-        const typename OrbitDeterminationManager< ObservationScalarType, TimeType >::PodInputType& measurementData,
+        const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > measurementData,
         const Eigen::MatrixXd& typeAndLinkSortedNormalizedInformationMatrix,
         const Eigen::VectorXd& normalizationFactors,
         const std::vector< double >& outputTimes,
@@ -388,15 +389,15 @@ std::map< TimeType, Eigen::MatrixXd > calculateCovarianceUsingDataUpToEpoch(
 
 template< typename ObservationScalarType = double, typename TimeType = double >
 std::map< TimeType, Eigen::MatrixXd > calculateCovarianceUsingDataUpToEpoch(
-        const typename OrbitDeterminationManager< ObservationScalarType, TimeType >::PodInputType& measurementData,
+        const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > measurementData,
         const Eigen::MatrixXd& typeAndLinkSortedNormalizedInformationMatrix,
         const Eigen::VectorXd& normalizationFactors,
         const double outputTimeStep,
         const Eigen::VectorXd& diagonalOfWeightMatrix,
         const Eigen::MatrixXd& unnormalizedInverseAPrioriCovariance )
 {
-    Eigen::VectorXd timeVector = utilities::convertStlVectorToEigenVector(
-                getConcatenatedTimeVector( measurementData ) );
+    Eigen::VectorXd timeVector =
+            utilities::convertStlVectorToEigenVector( measurementData->getConcatenatedTimeVector( ) );
     double minimumTime = timeVector.minCoeff( );
     double maximumTime = timeVector.maxCoeff( );
     double currentTime = minimumTime;
@@ -444,7 +445,7 @@ std::map< TimeType, Eigen::MatrixXd >  calculateCovarianceUsingDataUpToEpoch(
         const double outputTimeStep )
 {
     return calculateCovarianceUsingDataUpToEpoch< ObservationScalarType, TimeType >(
-                podInputData->getObservationsAndTimes( ), podOutputData->normalizedInformationMatrix_,
+                podInputData->getObservationCollection( ), podOutputData->normalizedInformationMatrix_,
                 podOutputData->informationMatrixTransformationDiagonal_, outputTimeStep,
                 podOutputData->weightsMatrixDiagonal_, podInputData->getInverseOfAprioriCovariance( ) );
 }

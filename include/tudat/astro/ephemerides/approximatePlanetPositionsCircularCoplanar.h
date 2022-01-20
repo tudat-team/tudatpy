@@ -38,7 +38,7 @@ namespace ephemerides
  * Ephemeris class for circular, coplanar planetary orbits, using JPL
  * "Approximate Positions of Major Planets".
  */
-class ApproximatePlanetPositionsCircularCoplanar : public ApproximatePlanetPositionsBase
+class ApproximateJplCircularCoplanarEphemeris : public ApproximateJplSolarSystemEphemerisBase
 {
 public:
 
@@ -52,17 +52,16 @@ public:
      * approximated and the gravitational parameter of the Sun (default 1.32712440018e20). Other
      * members are initialized to default values.
      *
-     * \param bodyWithEphemerisData The body for which the position is approximated.
+     * \param bodyName The body for which the position is approximated.
      * \param sunGravitationalParameter The gravitational parameter of the Sun [m^3/s^2].
-     * \sa BodiesWithEphemerisData, ApproximatePlanetPositionsBase.
      */
-    ApproximatePlanetPositionsCircularCoplanar(
-            BodiesWithEphemerisData bodyWithEphemerisData,
+    ApproximateJplCircularCoplanarEphemeris(
+            const std::string bodyName,
             const double sunGravitationalParameter = 1.32712440018e20 )
-        : ApproximatePlanetPositionsBase( sunGravitationalParameter ),
+        : ApproximateJplSolarSystemEphemerisBase( sunGravitationalParameter ),
           constantOrbitalRadius_( -0.0 )
     {
-        setPlanet( bodyWithEphemerisData );
+        this->setPlanet( bodyName );
     }
 
     //! Get state from ephemeris; circular, coplanar case.
@@ -87,9 +86,9 @@ private:
     double referenceJulianDate_;
 };
 
-//! Typedef for shared-pointer to ApproximatePlanetPositionsCircularCoplanar object.
-typedef std::shared_ptr< ApproximatePlanetPositionsCircularCoplanar >
-ApproximatePlanetPositionsCircularCoplanarPointer;
+//! Typedef for shared-pointer to ApproximateJplCircularCoplanarEphemeris object.
+typedef std::shared_ptr< ApproximateJplCircularCoplanarEphemeris >
+ApproximateSolarSystemEphemerisCircularCoplanarPointer;
 
 } // namespace ephemerides
 } // namespace tudat

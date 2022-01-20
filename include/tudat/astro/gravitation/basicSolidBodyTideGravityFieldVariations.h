@@ -13,7 +13,7 @@
 
 #include <functional>
 #include <boost/multi_array.hpp>
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
 
 #include <Eigen/Core>
 #include <Eigen/Geometry>
@@ -27,36 +27,14 @@
 #include "tudat/math/basic/legendrePolynomials.h"
 #include "tudat/astro/gravitation/gravityFieldVariations.h"
 
+using namespace boost::placeholders;
+
 namespace tudat
 {
 
 namespace gravitation
 {
 
-
-//! Function to create constant complex Love number list for a range of degrees and orders.
-/*!
- * Function to create constant complex Love number list for a range of degrees and orders, maximum degree and order
- * are given as input, minimum degree and order are 2 and 0, respectively.
- * \param constantLoveNumber Love number to be set at each degree and order
- * \param maximumDegree Maximum degree for Love numbers.
- * \param maximumOrder Maximum order for Love numbers.
- * \return List of Love numbers with requested settings.
- */
-std::vector< std::vector< std::complex< double > > > getFullLoveNumbersVector(
-        const std::complex< double > constantLoveNumber, const int maximumDegree, const int maximumOrder );
-
-//! Function to create constant real Love number list for a range of degrees and orders
-/*!
-* Function to create constant real Love number list for a range of degrees and orders, maximum degree and order
-* are given as input, minimum degree and order are 2 and 0, respectively.
-* \param constantLoveNumber Love number to be set at each degree and order
-* \param maximumDegree Maximum degree for Love numbers.
-* \param maximumOrder Maximum order for Love numbers.
-* \return List of Love numbers with requested settings.
-*/
-std::vector< std::vector< std::complex< double > > > getFullLoveNumbersVector(
-        const double constantLoveNumber, const int maximumDegree, const int maximumOrder );
 
 //! Function to calculate solid body tide gravity field variations due to single body at single degree and order from
 //! precomputed quantaties.
@@ -122,7 +100,7 @@ std::complex< double > calculateSolidBodyTideSingleCoefficientSetCorrectionFromA
  *  pair, respectively. Both matrices start at degree and order 0.
  */
 std::pair< Eigen::MatrixXd, Eigen::MatrixXd > calculateSolidBodyTideSingleCoefficientSetCorrectionFromAmplitude(
-        const std::vector< std::vector< std::complex< double > > > loveNumbers, const double massRatio,
+        const std::map< int, std::vector< std::complex< double > > > loveNumbers, const double massRatio,
         const double referenceRadius, const Eigen::Vector3d& relativeBodyFixedPosition,
         const int maximumDegree, const int maximumOrder );
 
@@ -159,9 +137,10 @@ public:
             const double deformedBodyReferenceRadius,
             const std::function< double( ) > deformedBodyMass,
             const std::vector< std::function< double( ) > > deformingBodyMasses,
-            const std::vector< std::vector< std::complex< double > > > loveNumbers,
+            const std::map< int, std::vector< std::complex< double > > > loveNumbers,
             const std::vector< std::string > deformingBodies ):
-        GravityFieldVariations( 2, 0, 2 + loveNumbers.size( ) - 1, 2 + loveNumbers.size( ) - 1 ),
+        // LOVE NUMBERS TODO: FIX MIN/MAX STUFF
+        GravityFieldVariations( 2, 0, loveNumbers.rbegin( )->first, loveNumbers.rbegin( )->first ),
         deformedBodyStateFunction_( deformedBodyStateFunction ),
         deformedBodyOrientationFunction_( deformedBodyOrientationFunction ),
         deformingBodyStateFunctions_( deformingBodyStateFunctions ),
@@ -219,7 +198,7 @@ public:
      */
     std::vector< std::complex< double > > getLoveNumbersOfDegree( const int degree )
     {
-        return loveNumbers_[ degree - 2 ];
+        return loveNumbers_[ degree ];
     }
 
     //! Function to return all love numbers.
@@ -227,7 +206,7 @@ public:
      *  Function to return all love numbers, i.e. at all degrees and orders.
      *  \return Complete set of available love numbers.
      */
-    std::vector< std::vector< std::complex< double > > > getLoveNumbers( )
+    const std::map< int, std::vector< std::complex< double > > > getLoveNumbers( )
     {
         return loveNumbers_;
     }
@@ -243,26 +222,26 @@ public:
     void resetLoveNumbersOfDegree( const std::vector< std::complex< double > > loveNumbers,
                                    const int degree )
     {
-        if( loveNumbers_.size( ) > static_cast< unsigned int >( degree - 2 ) )
-        {
-            if( loveNumbers.size( ) <= static_cast< unsigned int >( degree + 1 ) )
-            {
-                loveNumbers_[ degree - 2 ] = loveNumbers;
-            }
-            else
-            {                               
-                std::string errorMessage = "Error, tried to set love numbers at degree " +
-                        std::to_string( degree ) + " in BasicSolidBodyTideGravityFieldVariations with" +
-                        std::to_string( loveNumbers.size( ) ) + " orders";
-                throw std::runtime_error( errorMessage );
-            }
-        }
-        else
+        if( loveNumbers_.count( degree ) == 0 )
         {
             std::string errorMessage = "Error, tried to set love numbers at degree " +
                     std::to_string( degree ) +
                     " in BasicSolidBodyTideGravityFieldVariations: not available";
             throw std::runtime_error( errorMessage );
+        }
+        else
+        {
+            if( loveNumbers.size( ) <= static_cast< unsigned int >( degree + 1 ) )
+            {
+                loveNumbers_[ degree ] = loveNumbers;
+            }
+            else
+            {
+                std::string errorMessage = "Error, tried to set love numbers at degree " +
+                        std::to_string( degree ) + " in BasicSolidBodyTideGravityFieldVariations with" +
+                        std::to_string( loveNumbers.size( ) ) + " orders";
+                throw std::runtime_error( errorMessage );
+            }
         }
     }
 
@@ -476,13 +455,14 @@ protected:
      */
     std::vector< std::function< double( ) > > deformingBodyMasses_;
 
+    // LOVE NUMBER TODO: FIX DOCS
     //! List of love numbers for each degree and order
     /*!
      *  List of love numbers for each degree and order. First vector level denotes degree
      *  (index 0 = degree 2), second vector level must be of size (loveNumbers.size( ) + 2, i.e.
      *  maximum degree == maximum order.
      */
-    std::vector< std::vector< std::complex< double > > > loveNumbers_;
+    std::map< int, std::vector< std::complex< double > > > loveNumbers_;
 
 
     //! List of names of bodies causing deformation.
