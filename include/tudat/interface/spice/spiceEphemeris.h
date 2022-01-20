@@ -26,34 +26,14 @@ namespace tudat
 namespace ephemerides
 {
 
-//! Ephemeris derived class which retrieves the state of a body directly from the SPICE library.
-/*!
- *  Ephemeris derived class which retrieves the state of a body directly from the SPICE library.
- *  The body of which the ephemeris is to be retrieved, as well as the origin and orientation
- *  of the reference frame in which the states are returned, and any corrections that are
- *  applied, are defined once during object construction.
- */
+//! @get_docstring(SpiceEphemeris.__docstring__)
 class SpiceEphemeris : public Ephemeris
 {
 public:
 
     using Ephemeris::getCartesianState;
 
-    //! Constructor.
-    /*!
-     * Constructor, sets the input variables for the calls to the spice function to retrieve state.
-     * \param targetBodyName Name of body of which the ephemeris is to be calculated.
-     * \param observerBodyName Name of body relative to which the ephemeris is to be calculated.
-     * \param correctForStellarAberration Boolean whether to correct for stellar Aberration in
-     *          retrieved values of (observed state).
-     * \param correctForLightTimeAberration Boolean whether to correct for light time in
-     *          retrieved values of (observed state).
-     * \param convergeLighTimeAberration Boolean whether to use single iteration or max. 3
-     *          iterations for calculating light time.
-     * \param referenceFrameName Name of the reference frame in which the epehemeris is to be
-     *          calculated.
-     * \param referenceJulianDay Reference julian day w.r.t. which ephemeris is evaluated.
-     */
+    //! @get_docstring(SpiceEphemeris.__init__)
     SpiceEphemeris( const std::string& targetBodyName, const std::string& observerBodyName,
                     const bool correctForStellarAberration = true,
                     const bool correctForLightTimeAberration = true,
@@ -61,14 +41,8 @@ public:
                     const std::string& referenceFrameName = "ECLIPJ2000",
                     const double referenceJulianDay = basic_astrodynamics::JULIAN_DAY_ON_J2000 );
 
-    //! Get Cartesian state from ephemeris.
-    /*!
-     * Returns Cartesian state from ephemeris at given Julian day.
-     * \param secondsSinceEpoch Seconds since epoch at which ephemeris is to be evaluated..
-     * \return State from ephemeris.
-     */
-    Eigen::Vector6d getCartesianState(
-            const double secondsSinceEpoch );
+    //! @get_docstring(SpiceEphemeris.get_cartesian_state)
+    Eigen::Vector6d getCartesianState(const double secondsSinceEpoch );
 
 private:
 

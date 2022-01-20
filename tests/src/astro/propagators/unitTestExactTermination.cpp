@@ -8,6 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <limits>
@@ -113,11 +114,6 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
                 // Create spacecraft object.
                 bodies.createEmptyBody( "Vehicle" );
                 bodies.at( "Vehicle" )->setConstantBodyMass( 400.0 );
-                bodies.at( "Vehicle" )->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
-                                                        std::shared_ptr< interpolators::OneDimensionalInterpolator
-                                                        < double, Eigen::Vector6d  > >( ), "Earth", "ECLIPJ2000" ) );
-
-
 
                 // Define propagator settings variables.
                 SelectedAccelerationMap accelerationMap;
@@ -129,11 +125,11 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
 
                 {
                     accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< AccelerationSettings >(
-                                                                     basic_astrodynamics::central_gravity ) );
+                                                                     basic_astrodynamics::point_mass_gravity ) );
                     accelerationsOfVehicle[ "Sun" ].push_back( std::make_shared< AccelerationSettings >(
-                                                                   basic_astrodynamics::central_gravity ) );
+                                                                   basic_astrodynamics::point_mass_gravity ) );
                     accelerationsOfVehicle[ "Moon" ].push_back( std::make_shared< AccelerationSettings >(
-                                                                    basic_astrodynamics::central_gravity ) );
+                                                                    basic_astrodynamics::point_mass_gravity ) );
                 }
 
                 accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
@@ -185,8 +181,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
                 {
                     terminationSettings = std::make_shared< PropagationDependentVariableTerminationSettings >(
                                 dependentVariables.at( 0 ), 8.7E6, false, true,
-                                std::make_shared< root_finders::RootFinderSettings >(
-                                    root_finders::bisection_root_finder, 1.0E-6, 100 ) );
+                                tudat::root_finders::bisectionRootFinderSettings( 1.0E-6, TUDAT_NAN, TUDAT_NAN, 100 ) );
                 }
                 else if( simulationCase == 2 )
                 {
@@ -196,8 +191,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
                     terminationSettingsList.push_back(
                                 std::make_shared< PropagationDependentVariableTerminationSettings >(
                                     dependentVariables.at( 0 ), 8.7E6, false, true,
-                                    std::make_shared< root_finders::RootFinderSettings >(
-                                        root_finders::bisection_root_finder, 1.0E-6, 100 ) ) );
+                                    tudat::root_finders::bisectionRootFinderSettings( 1.0E-6, TUDAT_NAN, TUDAT_NAN, 100 ) ) );
                     terminationSettings = std::make_shared< PropagationHybridTerminationSettings >(
                                 terminationSettingsList, true );
                 }
@@ -209,8 +203,8 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
                     terminationSettingsList.push_back(
                                 std::make_shared< PropagationDependentVariableTerminationSettings >(
                                     dependentVariables.at( 0 ), 8.7E6, false, true,
-                                    std::make_shared< root_finders::RootFinderSettings >(
-                                        root_finders::bisection_root_finder, 1.0E-6, 100 ) ) );
+                                        tudat::root_finders::bisectionRootFinderSettings( 1.0E-6, TUDAT_NAN, TUDAT_NAN, 100 ) ) );
+
                     terminationSettings = std::make_shared< PropagationHybridTerminationSettings >(
                                 terminationSettingsList, false );
                 }
@@ -222,8 +216,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
                     terminationSettingsList.push_back(
                                 std::make_shared< PropagationDependentVariableTerminationSettings >(
                                     dependentVariables.at( 0 ), 8.7E6, false, true,
-                                    std::make_shared< root_finders::RootFinderSettings >(
-                                        root_finders::bisection_root_finder, 1.0E-6, 100 ) ) );
+                                        tudat::root_finders::bisectionRootFinderSettings( 1.0E-6, TUDAT_NAN, TUDAT_NAN, 100 ) ) );
                     terminationSettings = std::make_shared< PropagationHybridTerminationSettings >(
                                 terminationSettingsList, false );
                 }

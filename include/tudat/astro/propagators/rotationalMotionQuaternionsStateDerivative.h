@@ -179,7 +179,7 @@ public:
                 quaternionsVector /= quaternionsMagnitude;
 
                 // Replace old quaternions with normalized quaternions
-                unprocessedState.segment( i * 7, 4 ) = quaternionsVector;
+                unprocessedState.block( i * 7, 0, 4, 1 ) = quaternionsVector;
             }
         }
     }

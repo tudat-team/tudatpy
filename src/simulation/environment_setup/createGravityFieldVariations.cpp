@@ -12,6 +12,7 @@
 
 #include "tudat/astro/gravitation/gravityFieldVariations.h"
 #include "tudat/astro/gravitation/basicSolidBodyTideGravityFieldVariations.h"
+#include "tudat/astro/gravitation/periodicGravityFieldVariations.h"
 #include "tudat/astro/gravitation/tabulatedGravityFieldVariations.h"
 #include "tudat/astro/gravitation/timeDependentSphericalHarmonicsGravityField.h"
 #include "tudat/simulation/environment_setup/createGravityFieldVariations.h"
@@ -42,6 +43,12 @@ std::shared_ptr< gravitation::GravityFieldVariationsSet > createGravityFieldMode
     std::map< int, double > finalTimes;
     std::map< int, double > timeSteps;
 
+
+    if( bodies.count( body ) == 0 )
+    {
+        throw std::runtime_error( "Error when making gravity field variations of body " + body +
+                                  ", body not found" );
+    }
     // Iterate over all variations to create.
     for( unsigned int i = 0; i < gravityFieldVariationSettings.size( ); i++ )
     {
@@ -83,6 +90,7 @@ std::shared_ptr< gravitation::GravityFieldVariationsSet > createGravityFieldMode
             timeSteps[ i ]
                     = gravityFieldVariationSettings.at( i )->getInterpolatorSettings( )->timeStep_;
         }
+
     }
 
     // Create object with settings for updating variations from new parameter values.
@@ -119,6 +127,15 @@ std::shared_ptr< gravitation::GravityFieldVariations > createGravityFieldVariati
     {
     case basic_solid_body:
     {
+        std::shared_ptr< TimeDependentSphericalHarmonicsGravityField > gravityField =
+                std::dynamic_pointer_cast< TimeDependentSphericalHarmonicsGravityField >(
+                            bodies.at( body )->getGravityFieldModel( ) );
+        if( gravityField == nullptr )
+        {
+            throw std::runtime_error( "Error when making basic solid-body gravity field variation of body " + body +
+                                      ", base type is not time dependent" );
+        }
+
         // Check consistency
         std::shared_ptr< BasicSolidBodyGravityFieldVariationSettings >
                 basicSolidBodyGravityVariationSettings =
@@ -208,7 +225,7 @@ std::shared_ptr< gravitation::GravityFieldVariations > createGravityFieldVariati
                         deformedBodyStateFunction,
                         deformedBodyOrientationFunction,
                         deformingBodyStateFunctions,
-                        basicSolidBodyGravityVariationSettings->getBodyReferenceRadius( ),
+                        gravityField->getReferenceRadius( ),
                         gravitionalParameterOfDeformedBody,
                         gravitionalParametersOfDeformingBodies,
                         basicSolidBodyGravityVariationSettings->getLoveNumbers( ),
@@ -238,6 +255,38 @@ std::shared_ptr< gravitation::GravityFieldVariations > createGravityFieldVariati
         }
         break;
     }
+    case periodic_variation:
+    {
+        // Check input consistency
+        std::shared_ptr< PeriodicGravityFieldVariationsSettings > periodicGravityFieldVariationSettings
+                = std::dynamic_pointer_cast< PeriodicGravityFieldVariationsSettings >(
+                    gravityFieldVariationSettings );
+        if( periodicGravityFieldVariationSettings == nullptr )
+        {
+            throw std::runtime_error( "Error, expected periodic gravity field variation settings for " + body );
+        }
+        else
+        {
+            if( periodicGravityFieldVariationSettings->getCosineAmplitudes( ).size( ) > 0 )
+            {
+            // Create variation.
+            gravityFieldVariationModel = std::make_shared< PeriodicGravityFieldVariations >
+                    (  periodicGravityFieldVariationSettings->getCosineAmplitudes( ),
+                       periodicGravityFieldVariationSettings->getSineAmplitudes( ),
+                       periodicGravityFieldVariationSettings->getFrequencies( ),
+                       periodicGravityFieldVariationSettings->getPhases( ),
+                       periodicGravityFieldVariationSettings->getReferenceEpoch( ),
+                       periodicGravityFieldVariationSettings->getMinimumDegree( ),
+                       periodicGravityFieldVariationSettings->getMinimumOrder( ) );
+            }
+            else
+            {
+                throw std::runtime_error( "Error when creating periodic gravity field variations; no cosine amplitudes found" );
+            }
+        }
+
+        break;
+    }
     default:
     {
         throw std::runtime_error( "Error, case " + std::to_string(
@@ -255,6 +304,62 @@ std::shared_ptr< gravitation::GravityFieldVariations > createGravityFieldVariati
     return gravityFieldVariationModel;
     
 }
+
+
+//! Function to create constant complex Love number list for a range of degrees and orders.
+std::map< int, std::vector< std::complex< double > > > getFullLoveNumbersVector(
+        const std::complex< double > constantLoveNumber, const int maximumDegree, const int maximumOrder )
+{
+    // Define list of Love numbers
+    std::map< int, std::vector< std::complex< double > > > fullLoveNumbersVector;
+
+    // Iterate over all degrees and orders.
+    for( unsigned int i = 2; i <= static_cast< unsigned int >( maximumDegree );i++ )
+    {
+        for( unsigned int j = 0; j <= ( i + 2 ); j++ )
+        {
+            // Set current Love numbers.
+            if( static_cast< int >( j ) <= maximumOrder  )
+            {
+                fullLoveNumbersVector[ i ].push_back( constantLoveNumber );
+            }
+            else
+            {
+                fullLoveNumbersVector[ i ].push_back( std::complex< double >( 0.0, 0.0 ) );
+            }
+        }
+    }
+
+    return fullLoveNumbersVector;
+}
+
+//! Function to create constant real Love number list for a range of degrees and orders.
+std::map< int, std::vector< std::complex< double > > > getFullLoveNumbersVector(
+        const double constantLoveNumber, const int maximumDegree, const int maximumOrder )
+{
+    return getFullLoveNumbersVector( std::complex< double >( constantLoveNumber, 0.0 ), maximumDegree, maximumOrder );
+}
+
+
+std::vector< std::complex< double > > getLoveNumberPerDegree(
+        const std::complex< double > loveNumber,
+        const int degree )
+{
+    std::vector< std::complex< double > > loveNumbers;
+    for( int i = 0; i <= degree; i++ )
+    {
+        loveNumbers.push_back( loveNumber );
+    }
+    return loveNumbers;
+}
+
+std::vector< std::complex< double > > getLoveNumberPerDegree(
+        const double loveNumber,
+        const int degree )
+{
+    return getLoveNumberPerDegree( std::complex< double >( loveNumber, 0.0 ), degree );
+}
+
 
 } // namespace simulation_setup
 

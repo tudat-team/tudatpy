@@ -21,41 +21,6 @@ namespace tudat
 namespace ephemerides
 {
 
-//! Map of `ApproximatePlanetPositionsBase::BodiesWithEphemerisData`s string representations.
-static std::map< ApproximatePlanetPositionsBase::BodiesWithEphemerisData, std::string >
-bodiesWithEphemerisData =
-{
-    { ApproximatePlanetPositionsBase::mercury, "mercury" },
-    { ApproximatePlanetPositionsBase::venus, "venus" },
-    { ApproximatePlanetPositionsBase::earthMoonBarycenter, "earthMoonBarycenter" },
-    { ApproximatePlanetPositionsBase::mars, "mars" },
-    { ApproximatePlanetPositionsBase::jupiter, "jupiter" },
-    { ApproximatePlanetPositionsBase::saturn, "saturn" },
-    { ApproximatePlanetPositionsBase::uranus, "uranus" },
-    { ApproximatePlanetPositionsBase::neptune, "neptune" },
-    { ApproximatePlanetPositionsBase::pluto, "pluto" }
-};
-
-//! `ApproximatePlanetPositionsBase::BodiesWithEphemerisData` not supported by `json_interface`.
-static std::vector< ApproximatePlanetPositionsBase::BodiesWithEphemerisData > unsupportedBodiesWithEphemerisData = { };
-
-//! Convert `ApproximatePlanetPositionsBase::BodiesWithEphemerisData` to `json`.
-inline void to_json( nlohmann::json& jsonObject,
-                     const ApproximatePlanetPositionsBase::BodiesWithEphemerisData& bodyWithEphemerisData )
-{
-    jsonObject = json_interface::stringFromEnum( bodyWithEphemerisData, bodiesWithEphemerisData );
-}
-
-//! Convert `json` to `ApproximatePlanetPositionsBase::BodiesWithEphemerisData`.
-inline void from_json( const nlohmann::json& jsonObject,
-                       ApproximatePlanetPositionsBase::BodiesWithEphemerisData& bodyWithEphemerisData )
-{
-    bodyWithEphemerisData = json_interface::enumFromString( jsonObject, bodiesWithEphemerisData );
-}
-
-} // namespace ephemerides
-
-
 namespace simulation_setup
 {
 

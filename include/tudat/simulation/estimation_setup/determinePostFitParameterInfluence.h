@@ -15,7 +15,7 @@
 
 #include <boost/make_shared.hpp>
 
-#include "tudat/astro/observation_models/simulateObservations.h"
+#include "tudat/simulation/estimation_setup/simulateObservations.h"
 #include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
 #include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
 
@@ -74,8 +74,7 @@ std::pair< std::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > de
 
     // Create list of ideal observation settings and initial states to estimate
     std::vector< LinkEnds > linkEndsList;
-    ObservationSettingsMap observationSettingsMap;
-    std::vector< std::shared_ptr< EstimatableParameterSettings > > initialStateParameterNames;
+    std::vector< std::shared_ptr< ObservationModelSettings > >  observationSettingsList;
 
     for( unsigned int i = 0; i < observedBodies.size( ); i++ )
     {
@@ -83,16 +82,13 @@ std::pair< std::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > de
         LinkEnds observationLinkEnds;
         observationLinkEnds[ observed_body ] = std::make_pair( observedBodies.at( i ), "" );
         linkEndsList.push_back( observationLinkEnds );
-        observationSettingsMap.insert(
-                    std::make_pair( observationLinkEnds, std::make_shared< ObservationSettings >(
-                                        position_observable ) ) );
+        observationSettingsList.push_back( std::make_shared< ObservationModelSettings >(
+                                        position_observable, observationLinkEnds ) );
 
-        // Add current body to list of estimated bodies
-        initialStateParameterNames.push_back(
-                    std::make_shared< InitialTranslationalStateEstimatableParameterSettings< StateScalarType > >(
-                        observedBodies.at( i ), translationalPropagatorSettings->getInitialStates( ).segment( i * 6, 6 ),
-                        translationalPropagatorSettings->centralBodies_.at( i ) ) );
     }
+    std::vector< std::shared_ptr< EstimatableParameterSettings > > initialStateParameterNames =
+            getInitialStateParameterSettings< double >( propagatorSettings, bodies );
+
 
     // Create initial state estimation objects
     std::shared_ptr< EstimatableParameterSet< StateScalarType > > initialStateParametersToEstimate =
@@ -101,7 +97,7 @@ std::pair< std::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > de
     // Create orbit determination object.
     OrbitDeterminationManager< StateScalarType, TimeType > orbitDeterminationManager =
             OrbitDeterminationManager< StateScalarType, TimeType >(
-                bodies, initialStateParametersToEstimate, observationSettingsMap,
+                bodies, initialStateParametersToEstimate, observationSettingsList,
                 integratorSettings, propagatorSettings );
 
     // Retrieve nominal (e.g. pre-fit) body states
@@ -121,19 +117,18 @@ std::pair< std::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > de
         baseTimeList.push_back( currentTime );
         currentTime += simulatedObservationInterval;
     }
-    std::map< ObservableType, std::map< LinkEnds, std::pair< std::vector< TimeType >, LinkEndType > > > measurementSimulationInput;
+    std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > measurementSimulationInput;
     for( unsigned int i = 0; i < linkEndsList.size( ); i++ )
     {
-        measurementSimulationInput[ position_observable ][ linkEndsList.at( i ) ] =
-                std::make_pair( baseTimeList, observed_body );
+
+        measurementSimulationInput.push_back(
+                    std::make_shared< TabulatedObservationSimulationSettings< > >(
+                        position_observable, linkEndsList.at( i ), baseTimeList, observed_body ) );
     }
 
     // Simulate ideal observations
-    typedef Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > ObservationVectorType;
-    typedef std::map< LinkEnds, std::pair< ObservationVectorType, std::pair< std::vector< TimeType >, LinkEndType > > > SingleObservablePodInputType;
-    typedef std::map< ObservableType, SingleObservablePodInputType > PodInputDataType;
-    PodInputDataType observationsAndTimes = simulateObservations< StateScalarType, TimeType >(
-                measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ) );
+    std::shared_ptr< ObservationCollection< > > observationsAndTimes = simulateObservations< StateScalarType, TimeType >(
+                measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
     //input_output::writeMatrixToFile( observationsAndTimes.begin( )->second.begin( )->second.first, "preFitObservations.dat" );
 
     // Define estimation input

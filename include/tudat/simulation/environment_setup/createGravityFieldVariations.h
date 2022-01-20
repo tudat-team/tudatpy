@@ -136,19 +136,16 @@ public:
      * \param loveNumbers List of Love number for the deformed body. First vector level denotes
      *  degree (index 0 = degree 2), second vector level denotes order and must be of maximum size
      *  (loveNumbers.size( ) + 2, i.e. maximum degree >= maximum order)
-     * \param bodyReferenceRadius Reference (typically equatorial) radius of body being deformed
      * \param interpolatorSettings Settings that are to be used to create an interpolator for the
      * gravity field variations immediately upon creation (to be used during propagation). Default
      * is nullptr, in which no interpolation is used, and the model is evaluated during propagation.
      */
     BasicSolidBodyGravityFieldVariationSettings(
             const std::vector< std::string > deformingBodies,
-            const std::vector< std::vector< std::complex< double > > > loveNumbers,
-            const double bodyReferenceRadius,
+            const std::map< int, std::vector< std::complex< double > > > loveNumbers,
             const std::shared_ptr< ModelInterpolationSettings > interpolatorSettings = nullptr ):
         GravityFieldVariationSettings( gravitation::basic_solid_body, interpolatorSettings ),
-        deformingBodies_( deformingBodies ), loveNumbers_( loveNumbers ),
-                bodyReferenceRadius_( bodyReferenceRadius ){ }
+        deformingBodies_( deformingBodies ), loveNumbers_( loveNumbers ){ }
 
     virtual ~BasicSolidBodyGravityFieldVariationSettings( ){ }
 
@@ -164,14 +161,8 @@ public:
      * \brief Function to retrieve list of Love number for the deformed body.
      * \return List of Love number for the deformed body.
      */
-    std::vector< std::vector< std::complex< double > > > getLoveNumbers( ){ return loveNumbers_; }
+    std::map< int, std::vector< std::complex< double > > > getLoveNumbers( ){ return loveNumbers_; }
 
-    //! Function to retrieve reference (typically equatorial) radius of body being deformed
-    /*!
-     * \brief Function to retrieve reference (typically equatorial) radius of body being deformed
-     * \return Reference (typically equatorial) radius of body being deformed
-     */
-    double getBodyReferenceRadius( ){ return bodyReferenceRadius_; }
 
     //! Function to reset list of bodies causing tidal deformation
     /*!
@@ -187,10 +178,7 @@ protected:
     std::vector< std::string > deformingBodies_;
 
     //! List of Love number for the deformed body.
-    std::vector< std::vector< std::complex< double > > > loveNumbers_;
-
-    //! Reference (typically equatorial) radius of body being deformed
-    double bodyReferenceRadius_;
+    std::map< int, std::vector< std::complex< double > > > loveNumbers_;
 
 };
 
@@ -277,6 +265,263 @@ private:
 
 };
 
+class PeriodicGravityFieldVariationsSettings: public GravityFieldVariationSettings
+{
+
+public:
+    PeriodicGravityFieldVariationsSettings(
+            const std::vector< Eigen::MatrixXd >& cosineAmplitudes,
+            const std::vector< Eigen::MatrixXd >& sineAmplitudes,
+            const std::vector< double >& frequencies,
+            const std::vector< double >& phases,
+            const double referenceEpoch,
+            const int minimumDegree = 2,
+            const int minimumOrder = 0 ):
+        GravityFieldVariationSettings( gravitation::periodic_variation ),
+    cosineAmplitudes_( cosineAmplitudes ),
+    sineAmplitudes_( sineAmplitudes ),
+    frequencies_( frequencies ),
+    phases_( phases ),
+    referenceEpoch_( referenceEpoch ),
+    minimumDegree_( minimumDegree ),
+    minimumOrder_( minimumOrder ){ }
+
+    std::vector< Eigen::MatrixXd > getCosineAmplitudes( )
+    {
+        return cosineAmplitudes_;
+    }
+
+    std::vector< Eigen::MatrixXd > getSineAmplitudes( )
+    {
+        return sineAmplitudes_;
+    }
+
+    std::vector< double > getFrequencies( )
+    {
+        return frequencies_;
+    }
+
+    std::vector< double > getPhases( )
+    {
+        return phases_;
+    }
+
+    double getReferenceEpoch( )
+    {
+        return referenceEpoch_;
+    }
+
+    int getMinimumDegree( )
+    {
+        return minimumDegree_;
+    }
+
+    int getMinimumOrder( )
+    {
+        return minimumOrder_;
+    }
+
+private:
+
+    std::vector< Eigen::MatrixXd > cosineAmplitudes_;
+
+    std::vector< Eigen::MatrixXd > sineAmplitudes_;
+
+    std::vector< double > frequencies_;
+
+    std::vector< double > phases_;
+
+    double referenceEpoch_;
+
+    int minimumDegree_;
+
+    int minimumOrder_;
+
+};
+
+//! Function to create constant complex Love number list for a range of degrees and orders.
+/*!
+ * Function to create constant complex Love number list for a range of degrees and orders, maximum degree and order
+ * are given as input, minimum degree and order are 2 and 0, respectively.
+ * \param constantLoveNumber Love number to be set at each degree and order
+ * \param maximumDegree Maximum degree for Love numbers.
+ * \param maximumOrder Maximum order for Love numbers.
+ * \return List of Love numbers with requested settings.
+ */
+std::map< int, std::vector< std::complex< double > > > getFullLoveNumbersVector(
+        const std::complex< double > constantLoveNumber, const int maximumDegree, const int maximumOrder );
+
+//! Function to create constant real Love number list for a range of degrees and orders
+/*!
+* Function to create constant real Love number list for a range of degrees and orders, maximum degree and order
+* are given as input, minimum degree and order are 2 and 0, respectively.
+* \param constantLoveNumber Love number to be set at each degree and order
+* \param maximumDegree Maximum degree for Love numbers.
+* \param maximumOrder Maximum order for Love numbers.
+* \return List of Love numbers with requested settings.
+*/
+std::map< int, std::vector< std::complex< double > > > getFullLoveNumbersVector(
+        const double constantLoveNumber, const int maximumDegree, const int maximumOrder );
+
+
+std::vector< std::complex< double > > getLoveNumberPerDegree(
+        const std::complex< double > loveNumber,
+        const int degree );
+
+std::vector< std::complex< double > > getLoveNumberPerDegree(
+        const double loveNumber,
+        const int degree );
+
+inline std::shared_ptr< GravityFieldVariationSettings > fixedSingleDegreeLoveNumberGravityFieldVariationSettings(
+        const std::string deformingBody,
+        const double loveNumber,
+        const int degree )
+{
+    std::map< int, std::vector< std::complex< double > > > loveNumbers;
+    loveNumbers[ degree ] = getLoveNumberPerDegree( loveNumber, degree );
+
+    return std::make_shared< BasicSolidBodyGravityFieldVariationSettings >(
+                std::vector< std::string >( { deformingBody } ), loveNumbers, nullptr );
+}
+
+inline std::shared_ptr< GravityFieldVariationSettings > fixedSingleDegreeLoveNumberGravityFieldVariationSettings(
+        const std::string deformingBody,
+        const std::complex< double > loveNumber,
+        const int degree   )
+{
+    std::map< int, std::vector< std::complex< double > > > loveNumbers;
+    loveNumbers[ degree ] = getLoveNumberPerDegree( loveNumber, degree );
+
+    return std::make_shared< BasicSolidBodyGravityFieldVariationSettings >(
+                std::vector< std::string >( { deformingBody } ), loveNumbers, nullptr );
+}
+
+inline std::shared_ptr< GravityFieldVariationSettings > fixedSingleDegreeLoveNumberGravityFieldVariationSettings(
+        const std::string deformingBody,
+        const std::map< int, double > loveNumberPerDegree )
+{
+    std::map< int, std::vector< std::complex< double > > > loveNumbers;
+    for( auto loveNumberIt : loveNumberPerDegree )
+    {
+        loveNumbers[ loveNumberIt.first ] = getLoveNumberPerDegree( loveNumberIt.second, loveNumberIt.first );
+    }
+
+    return std::make_shared< BasicSolidBodyGravityFieldVariationSettings >(
+                std::vector< std::string >( { deformingBody } ), loveNumbers, nullptr );
+}
+
+inline std::shared_ptr< GravityFieldVariationSettings > fixedSingleDegreeLoveNumberGravityFieldVariationSettings(
+        const std::string deformingBody,
+        const std::map< int, std::complex< double > > loveNumberPerDegree  )
+{
+    std::map< int, std::vector< std::complex< double > > > loveNumbers;
+    for( auto loveNumberIt : loveNumberPerDegree )
+    {
+        loveNumbers[ loveNumberIt.first ] = getLoveNumberPerDegree( loveNumberIt.second, loveNumberIt.first );
+    }
+
+    return std::make_shared< BasicSolidBodyGravityFieldVariationSettings >(
+                std::vector< std::string >( { deformingBody } ), loveNumbers, nullptr );
+}
+
+
+inline std::shared_ptr< GravityFieldVariationSettings > orderVariableSingleDegreeLoveNumberGravityFieldVariationSettings(
+        const std::string deformingBody,
+        const std::vector< double > loveNumber,
+        const int degree,
+        const std::shared_ptr< ModelInterpolationSettings > interpolatorSettings = nullptr )
+{
+    std::map< int, std::vector< std::complex< double > > > loveNumbers;
+    for( unsigned int i = 0; i < loveNumber.size( ); i++ )
+    {
+        loveNumbers[ degree ].push_back( std::complex< double >( loveNumber.at( i ), 0 ) );
+    }
+    return std::make_shared< BasicSolidBodyGravityFieldVariationSettings >(
+                std::vector< std::string >( { deformingBody } ), loveNumbers, interpolatorSettings );
+}
+
+inline std::shared_ptr< GravityFieldVariationSettings > orderVariableSingleDegreeLoveNumberGravityFieldVariationSettings(
+        const std::string deformingBody,
+        const std::vector< std::complex< double > > loveNumber,
+        const int degree,
+        const std::shared_ptr< ModelInterpolationSettings > interpolatorSettings = nullptr )
+{
+    std::map< int, std::vector< std::complex< double > > > loveNumbers;
+    loveNumbers[ degree ] = loveNumber;
+    return std::make_shared< BasicSolidBodyGravityFieldVariationSettings >(
+                std::vector< std::string >( { deformingBody } ), loveNumbers, interpolatorSettings );
+}
+
+inline std::shared_ptr< GravityFieldVariationSettings > degreeOrderVariableLoveNumberGravityFieldVariationSettings(
+        const std::string deformingBody,
+        const std::map< int, std::vector< double > > loveNumber,
+        const std::shared_ptr< ModelInterpolationSettings > interpolatorSettings = nullptr )
+{
+    std::map< int, std::vector< std::complex< double > > > loveNumbers;
+    for( auto loveNumberIt : loveNumber )
+    {
+        for( unsigned int i = 0; i < loveNumberIt.second.size( ); i++ )
+        {
+            loveNumbers[ loveNumberIt.first ].push_back( std::complex< double >( loveNumberIt.second.at( i ), 0 ) );
+        }
+    }
+    return std::make_shared< BasicSolidBodyGravityFieldVariationSettings >(
+                std::vector< std::string >( { deformingBody } ), loveNumbers, interpolatorSettings );
+}
+
+inline std::shared_ptr< GravityFieldVariationSettings > degreeOrderVariableLoveNumberGravityFieldVariationSettings(
+        const std::string deformingBody,
+        const std::map< int, std::vector< std::complex< double > > > loveNumber,
+        const std::shared_ptr< ModelInterpolationSettings > interpolatorSettings = nullptr )
+{
+    return std::make_shared< BasicSolidBodyGravityFieldVariationSettings >(
+                std::vector< std::string >( { deformingBody } ), loveNumber, interpolatorSettings );
+}
+
+inline std::shared_ptr< GravityFieldVariationSettings > tabulatedGravityFieldVariationSettings(
+        const std::map< double, Eigen::MatrixXd > cosineCoefficientCorrections,
+        const std::map< double, Eigen::MatrixXd > sineCoefficientCorrections,
+        const int minimumDegree, const int minimumOrder,
+        const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings )
+{
+    return std::make_shared< TabulatedGravityFieldVariationSettings >(
+                cosineCoefficientCorrections, sineCoefficientCorrections, minimumDegree, minimumOrder,
+                interpolatorSettings );
+}
+
+inline std::shared_ptr< GravityFieldVariationSettings > periodicGravityFieldVariationsSettings(
+        const std::vector< Eigen::MatrixXd >& cosineAmplitudes,
+        const std::vector< Eigen::MatrixXd >& sineAmplitudes,
+        const std::vector< double >& frequencies,
+        const std::vector< double >& phases,
+        const double referenceEpoch,
+        const int minimumDegree = 2,
+        const int minimumOrder = 0 )
+{
+    return std::make_shared< PeriodicGravityFieldVariationsSettings >(
+                cosineAmplitudes, sineAmplitudes, frequencies, phases, referenceEpoch, minimumDegree, minimumOrder );
+}
+
+inline std::shared_ptr< GravityFieldVariationSettings > periodicGravityFieldVariationsSettings(
+        const Eigen::MatrixXd& cosineAmplitudes,
+        const Eigen::MatrixXd& sineAmplitudes,
+        const double frequency,
+        const double phase,
+        const double referenceEpoch,
+        const int minimumDegree = 2,
+        const int minimumOrder = 0 )
+{
+    return std::make_shared< PeriodicGravityFieldVariationsSettings >(
+                std::vector< Eigen::MatrixXd >( { cosineAmplitudes } ),
+                std::vector< Eigen::MatrixXd >( { sineAmplitudes } ),
+                std::vector< double >( { frequency } ),
+                std::vector< double >( { phase } ),
+                referenceEpoch, minimumDegree, minimumOrder );
+
+}
+
+
+
 //! Function to create a set of gravity field variations, stored in the associated interface class
 /*!
  * Function to create a set of gravity field variations, stored in the associated interface class of
@@ -290,7 +535,7 @@ std::shared_ptr< gravitation::GravityFieldVariationsSet > createGravityFieldMode
         const std::string& body,
         const SystemOfBodies& bodies,
         const std::vector< std::shared_ptr< GravityFieldVariationSettings > >&
-            gravityFieldVariationSettings );
+        gravityFieldVariationSettings );
 
 //! Function to create a single gravity field variation object.
 /*!

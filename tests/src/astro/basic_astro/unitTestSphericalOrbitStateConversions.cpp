@@ -8,6 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <boost/test/unit_test.hpp>
@@ -119,7 +120,7 @@ BOOST_AUTO_TEST_CASE( testSphericalStateConversions )
                     2.0 * mathematical_constants::PI * std::numeric_limits< double >::epsilon( ) );
         BOOST_CHECK_SMALL(
                     std::fabs( speed - sphericalOrbitState( speedIndex ) ),
-                    speed * std::numeric_limits< double >::epsilon( ) );
+                    4.0 * speed * std::numeric_limits< double >::epsilon( ) );
         BOOST_CHECK_SMALL(
                     std::fabs( testFlightPathAngle - sphericalOrbitState( flightPathIndex ) ),
                     2.0 * mathematical_constants::PI * std::numeric_limits< double >::epsilon( ) );
@@ -135,7 +136,7 @@ BOOST_AUTO_TEST_CASE( testSphericalStateConversions )
                         radius * 2.0 * std::numeric_limits< double >::epsilon( ) );
             BOOST_CHECK_SMALL(
                         std::fabs( reconvertedCartesianState( i  + 3 ) - cartesianState( i + 3 ) ),
-                        speed * 2.0 * std::numeric_limits< double >::epsilon( ) );
+                        speed * 4.0 * std::numeric_limits< double >::epsilon( ) );
         }
     }
 

@@ -9,11 +9,12 @@
  *
  */
 
+#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <limits>
 
-#include <boost/test/floating_point_comparison.hpp>
+#include <boost/test/tools/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/math/basic/mathematicalConstants.h"
@@ -28,7 +29,7 @@ BOOST_AUTO_TEST_SUITE( test_physical_constants )
 
 //! Test if the physical constants have the correct relations (ratios/offsets).
 BOOST_AUTO_TEST_CASE( testRelationsBetweenPhysicalConstant )
-{    
+{
     using namespace physical_constants;
 
     // Test for the number of seconds in a year.

@@ -190,7 +190,7 @@ public:
         // Convert state to Cartesian for each body
         for( unsigned int i = 0; i < this->bodiesToBeIntegratedNumerically_.size( ); i++ )
         {
-            currentCartesianLocalSolution.segment( i * 6, 6 ) =
+            currentCartesianLocalSolution.block( i * 6, 0, 6, 1 ) =
                     orbital_element_conversions::convertModifiedEquinoctialToCartesianElements< StateScalarType >(
                         internalSolution.block( i * 6, 0, 6, 1 ), static_cast< StateScalarType >(
                             centralBodyGravitationalParameters_.at( i )( ) ), flipSingularities_.at( i ) );

@@ -46,6 +46,12 @@ public:
      */
     virtual Eigen::Quaterniond getRotationToLocalFrame( ) = 0;
 
+
+    Eigen::Matrix3d getRotationMatrixToLocalFrame( )
+    {
+        return Eigen::Matrix3d( getRotationToLocalFrame( ) );
+    }
+
     //! Function to get the current rotation from the local (body-fixed) to the global (propagation/inertial) frame.
     /*!
      * Function to get the current rotation from the local (body-fixed) to the global (propagation/inertial) frame.
@@ -53,6 +59,12 @@ public:
      * \return Current rotation from the local (body-fixed) to the global (propagation/inertial) frame.
      */
     virtual Eigen::Quaterniond getRotationToGlobalFrame( ) = 0;
+
+
+    Eigen::Matrix3d getRotationMatrixToGlobalFrame( )
+    {
+        return Eigen::Matrix3d( getRotationToGlobalFrame( ) );
+    }
 
     //! Pure virtual function to update the object to the current state.
     /*!

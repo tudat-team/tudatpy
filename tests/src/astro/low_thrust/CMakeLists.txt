@@ -12,7 +12,7 @@
 # # Add subdirectories.
 add_subdirectory(shape_based)
 
-### Add unit tests.
-if( TUDAT_WITH_PAGMO )
-    TUDAT_ADD_TEST_CASE(SimsFlanagan PRIVATE_LINKS tudat_low_thrust_trajectories tudat_shape_based_methods tudat_numerical_quadrature pagmo ${Tudat_PROPAGATION_LIBRARIES}  ${Boost_LIBRARIES})
-endif( )
+#### Add unit tests.
+#if( TUDAT_WITH_PAGMO )
+#    TUDAT_ADD_TEST_CASE(SimsFlanagan PRIVATE_LINKS tudat_low_thrust_trajectories tudat_shape_based_methods tudat_numerical_quadrature pagmo ${Tudat_PROPAGATION_LIBRARIES}  ${Boost_LIBRARIES})
+#endif( )

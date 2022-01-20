@@ -13,12 +13,13 @@
  *
  */
 
+#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <limits>
 #include <string>
 
-#include <boost/test/floating_point_comparison.hpp>
+#include <boost/test/tools/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
 #include "tudat/basics/testMacros.h"
 #include "tudat/io/matrixTextFileReader.h"
@@ -47,7 +48,7 @@ BOOST_AUTO_TEST_CASE( testMissileDatcomData )
     std::string outputFileName = getTudatTestDataPath( ) + "/bodyTailConfiguration";
 
     // Write files for coefficients at each angle of attack.
-    myMissileDatcomData.writeCoefficientsToFile( outputFileName, 9, 2 );
+    myMissileDatcomData.writeAllCoefficientsToFiles( outputFileName, 9, 2 );
 
     // Read benchmark files and check if all entries are equal to those written by DatcomData
     std::string totalPath;

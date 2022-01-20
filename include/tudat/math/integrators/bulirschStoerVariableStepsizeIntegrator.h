@@ -27,15 +27,16 @@ namespace tudat
 namespace numerical_integrators
 {
 
-//! Types of sequences available for extrapolation integration methods
+// Types of sequences available for extrapolation integration methods
+//! @get_docstring(ExtrapolationMethodStepSequences.__docstring__)
 enum ExtrapolationMethodStepSequences
 {
     bulirsch_stoer_sequence,
     deufelhard_sequence
 };
 
-//! Function to retrieve the sequence of number of steps to used for Bulirsch-Stoer integration
-/*!
+// Function to retrieve the sequence of number of steps to used for Bulirsch-Stoer integration
+/*
  * Function to retrieve the sequence of number of steps to used for Bulirsch-Stoer integration
  * \param extrapolationMethodStepSequenceType Type of sequence that is to be retrieved
  * \param lengthOfSequence Length of the sequence that is to be retrieved (default 12)
@@ -45,8 +46,8 @@ std::vector< unsigned int > getBulirschStoerStepSequence(
         const ExtrapolationMethodStepSequences& extrapolationMethodStepSequenceType = bulirsch_stoer_sequence,
         const unsigned int lengthOfSequence = 12 );
 
-//! Class that implements the Bulirsch-Stoer variable stepsize integrator.
-/*!
+// Class that implements the Bulirsch-Stoer variable stepsize integrator.
+/*
  * Class that implements the Bulirsch-Stoer variable step size integrator.
  * \tparam StateType The type of the state. This type should be an Eigen::Matrix derived type.
  * \tparam StateDerivativeType The type of the state derivative. This type should be an
@@ -62,21 +63,21 @@ class BulirschStoerVariableStepSizeIntegrator :
 {
 public:
 
-    //! Typedef of the base class.
-    /*!
+    // Typedef of the base class.
+    /*
      * Typedef of the base class with all template parameters filled in.
      */
     typedef NumericalIntegrator< IndependentVariableType, StateType, StateDerivativeType, TimeStepType > Base;
 
-    //! Typedef to the state derivative function.
-    /*!
+    // Typedef to the state derivative function.
+    /*
      * Typedef to the state derivative function inherited from the base class.
      * \sa NumericalIntegrator::StateDerivativeFunction.
      */
     typedef typename Base::StateDerivativeFunction StateDerivativeFunction;
 
-    //! Default constructor.
-    /*!
+    // Default constructor.
+    /*
      * Default constructor, taking sequence, a state derivative function, initial conditions,
      * minimum step size and relative error tolerance per item in the state vector as argument.
      * \param sequence Rational function sequence used by algorithm.
@@ -126,8 +127,8 @@ public:
         }
     }
 
-    //! Default constructor.
-    /*!
+    // Default constructor.
+    /*
      * Default constructor, taking coefficients, a state derivative function, initial conditions,
      * minimum step size and relative error tolerance for all items in the state vector as argument.
      * \param sequence Rational function sequence used by algorithm.
@@ -181,22 +182,22 @@ public:
 
     ~BulirschStoerVariableStepSizeIntegrator( ){ }
 
-    //! Get step size of the next step.
-    /*!
+    // Get step size of the next step.
+    /*
      * Returns the step size of the next step.
      * \return Step size to be used for the next step.
      */
     virtual TimeStepType getNextStepSize( ) const { return stepSize_; }
 
-    //! Get current state.
-    /*!
+    // Get current state.
+    /*
      * Returns the current state of the integrator.
      * \return Current integrated state.
      */
     virtual StateType getCurrentState( ) const { return currentState_; }
 
-    //! Returns the current independent variable.
-    /*!
+    // Returns the current independent variable.
+    /*
      * Returns the current value of the independent variable of the integrator.
      * \return Current independent variable.
      */
@@ -205,8 +206,8 @@ public:
         return currentIndependentVariable_;
     }
 
-    //! Perform a single integration step.
-    /*!
+    // Perform a single integration step.
+    /*
      * Perform a single integration step and compute a new step size.
      * \param stepSize The step size to take. If the time step is too large to satisfy the error
      *          constraints, the step is redone until the error constraint is satisfied.
@@ -214,6 +215,11 @@ public:
      */
     virtual StateType performIntegrationStep( const TimeStepType stepSize )
     {
+        if( !( stepSize == stepSize) )
+        {
+            throw std::runtime_error( "Error in BS integrator, step size is NaN" );
+        }
+
         StateType stateAtFirstPoint_;
         StateType stateAtCenterPoint_;
         StateType stateAtLastPoint_;
@@ -333,8 +339,8 @@ public:
         return currentState_;
     }
 
-    //! Rollback internal state to the last state.
-    /*!
+    // Rollback internal state to the last state.
+    /*
      * Performs rollback of the internal state to the last state. This function can only be called
      * once after calling integrateTo( ) or performIntegrationStep( ) unless specified otherwise by
      * implementations, and can not be called before any of these functions have been called. Will
@@ -353,8 +359,8 @@ public:
         return true;
     }
 
-    //! Check if minimum step size constraint was violated.
-    /*!
+    // Check if minimum step size constraint was violated.
+    /*
      * Returns true if the minimum step size constraint has been violated since this integrator
      * was constructed.
      * \return True if the minimum step size constraint was violated.
@@ -366,8 +372,8 @@ public:
         return lastIndependentVariable_;
     }
 
-    //! Get previous state value.
-    /*!
+    // Get previous state value.
+    /*
      * Returns the previous value of the state.
      * \return Previous state
      */
@@ -387,97 +393,97 @@ public:
 
 private:
 
-    //! Last used step size.
-    /*!
+    // Last used step size.
+    /*
      * Last used step size, passed to either integrateTo( ) or performIntegrationStep( ).
      */
     TimeStepType stepSize_;
 
-    //! Current independent variable.
-    /*!
+    // Current independent variable.
+    /*
      * Current independent variable as computed by performIntegrationStep().
      */
     IndependentVariableType currentIndependentVariable_;
 
-    //! Current state.
-    /*!
+    // Current state.
+    /*
      * Current state as computed by performIntegrationStep( ).
      */
     StateType currentState_;
 
-    //! Last independent variable.
-    /*!
+    // Last independent variable.
+    /*
      * Last independent variable value as computed by performIntegrationStep().
      */
     IndependentVariableType lastIndependentVariable_;
 
-    //! Last state.
-    /*!
+    // Last state.
+    /*
      * Last state as computed by performIntegrationStep( ).
      */
     StateType lastState_;
 
-    //! Sequence for the integrator.
-    /*!
+    // Sequence for the integrator.
+    /*
      * Rational function sequence for the integrator.
      */
     std::vector< unsigned int > sequence_;
 
-    //! Minimum step size.
-    /*!
+    // Minimum step size.
+    /*
      * Minimum step size.
      */
     TimeStepType minimumStepSize_;
 
-    //! Minimum step size.
-    /*!
+    // Minimum step size.
+    /*
      * Maximum step size.
      */
     TimeStepType maximumStepSize_;
 
-    //! Relative error tolerance.
-    /*!
+    // Relative error tolerance.
+    /*
      * Relative error tolerance per element in the state.
      */
     StateType relativeErrorTolerance_;
 
-    //! Absolute error tolerance.
-    /*!
+    // Absolute error tolerance.
+    /*
      *  Absolute error tolerance per element in the state.
      */
     StateType absoluteErrorTolerance_;
 
-    //! Safety factor for next step size.
-    /*!
+    // Safety factor for next step size.
+    /*
      * Safety factor used to scale prediction of next step size. This is usually picked between
      * 0.8 and 0.9 (Burden and Faires, 2001).
      */
     TimeStepType safetyFactorForNextStepSize_;
 
-    //! Maximum factor increase for next step size.
-    /*!
+    // Maximum factor increase for next step size.
+    /*
      * The maximum factor by which the next step size can increase compared to the current value.
      * The need for this maximum stems from a need to ensure that the step size changes do not
      * alias with the dynamics of the model being integrated.
      */
     TimeStepType maximumFactorIncreaseForNextStepSize_;
 
-    //! Minimum factor decrease for next step size.
-    /*!
+    // Minimum factor decrease for next step size.
+    /*
      * The minimum factor by which the next step size can decrease compared to the current value.
      * The need for this minimum stems from a need to ensure that the step size changes do not
      * alias with the dynamics of the model being integrated.
      */
     TimeStepType minimumFactorDecreaseForNextStepSize_;
 
-    //! Flag to indicate whether the minimum step size constraint has been violated.
-    /*!
+    // Flag to indicate whether the minimum step size constraint has been violated.
+    /*
      * Flag to indicate whether the minimum step size constraint has been violated.
      */
     bool isMinimumStepSizeViolated_;
 
-    //! Execute mid-point method.
-    /*!
+    // Execute mid-point method.
+    /*
      * Executes mid-point method, given a known state and state derivative.
      * \param stateAtFirstPoint State at first point.
      * \param stateAtCenterPoint State at center point.
@@ -507,9 +513,9 @@ extern template class BulirschStoerVariableStepSizeIntegrator < double, Eigen::V
 extern template class BulirschStoerVariableStepSizeIntegrator < double, Eigen::MatrixXd, Eigen::MatrixXd >;
 
 
-//! Typedef of variable-step size Bulirsch-Stoer integrator (state/state derivative = VectorXd,
-//! independent variable = double).
-/*!
+// Typedef of variable-step size Bulirsch-Stoer integrator (state/state derivative = VectorXd,
+// independent variable = double).
+/*
  * Typedef of a variable-step size Bulirsch-Stoer integrator with VectorXds as state and state
  * derivative and double as independent variable.
  */

@@ -13,9 +13,12 @@
  *
  */
 
+#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
+using namespace boost::placeholders;
+
 #include <boost/lambda/lambda.hpp>
 #include <boost/test/unit_test.hpp>
 
@@ -25,6 +28,8 @@
 
 #include "tudat/astro/mission_segments/improvedInversePolynomialWall.h"
 #include "tudat/astro/mission_segments/oscillatingFunctionNovak.h"
+
+using namespace boost::placeholders;
 
 namespace tudat
 {
@@ -332,7 +337,8 @@ BOOST_AUTO_TEST_CASE( wrongRequestMathematicalFunctions )
     }
 
     // Catch the expected runtime error, and set the boolean flag to false.
-    catch ( std::runtime_error )
+    catch( std::runtime_error const& )
+
     {
         isFourthDerivativeInversePolynomial = false;
     }
@@ -349,7 +355,8 @@ BOOST_AUTO_TEST_CASE( wrongRequestMathematicalFunctions )
     }
 
     // Catch the expected runtime error, and set the boolean flag to false.
-    catch ( std::runtime_error )
+    catch( std::runtime_error const& )
+
     {
         isDefiniteIntegralInversePolynomial = false;
     }
@@ -366,7 +373,8 @@ BOOST_AUTO_TEST_CASE( wrongRequestMathematicalFunctions )
     }
 
     // Catch the expected runtime error, and set the boolean flag to false.
-    catch ( std::runtime_error )
+    catch( std::runtime_error const& )
+
     {
         isFourthDerivativeOscillatingFunction = false;
     }
@@ -383,7 +391,8 @@ BOOST_AUTO_TEST_CASE( wrongRequestMathematicalFunctions )
     }
 
     // Catch the expected runtime error, and set the boolean flag to false.
-    catch ( std::runtime_error )
+    catch( std::runtime_error const& )
+
     {
         isDefiniteIntegralOscillatingFunction = false;
     }

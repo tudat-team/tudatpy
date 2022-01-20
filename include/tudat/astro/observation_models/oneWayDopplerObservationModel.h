@@ -456,6 +456,7 @@ public:
      *  at receiver w.r.t. coordinate time.
      */
     OneWayDopplerObservationModel(
+            const LinkEnds& linkEnds,
             const std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > >
             lightTimeCalculator,
             const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr,
@@ -463,7 +464,7 @@ public:
             = std::function< ObservationScalarType( const TimeType ) >( ),
             const std::function< ObservationScalarType( const TimeType ) > receiverProperTimeRateFunction
             = std::function< ObservationScalarType( const TimeType ) >( ) ):
-        ObservationModel< 1, ObservationScalarType, TimeType >( one_way_doppler, observationBiasCalculator ),
+        ObservationModel< 1, ObservationScalarType, TimeType >( one_way_doppler, linkEnds, observationBiasCalculator ),
         lightTimeCalculator_( lightTimeCalculator ),
         transmitterProperTimeRateCalculator_(
             ( transmitterProperTimeRateFunction == nullptr ) ?
@@ -490,21 +491,22 @@ public:
      *  observable, i.e. deviations from the physically ideal observable between reference points (default none).
      */
     OneWayDopplerObservationModel(
+            const LinkEnds& linkEnds,
             const std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > >
             lightTimeCalculator,
             const std::shared_ptr< DopplerProperTimeRateInterface > transmitterProperTimeRateCalculator,
             const std::shared_ptr< DopplerProperTimeRateInterface > receiverProperTimeRateFunction,
             const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr ):
-        ObservationModel< 1, ObservationScalarType, TimeType >( one_way_doppler, observationBiasCalculator ),
+        ObservationModel< 1, ObservationScalarType, TimeType >( one_way_doppler, linkEnds, observationBiasCalculator ),
         lightTimeCalculator_( lightTimeCalculator ),
         transmitterProperTimeRateCalculator_( transmitterProperTimeRateCalculator ),
         receiverProperTimeRateCalculator_( receiverProperTimeRateFunction )
     {
         if( ( transmitterProperTimeRateCalculator == nullptr ) || (
                     receiverProperTimeRateFunction == nullptr ) )
-        {
-            throw std::runtime_error( "Error when making one-way Doppler model, input proper time rates are zero" );
-        }
+//        {
+//            throw std::runtime_error( "Error when making one-way Doppler model, input proper time rates are zero" );
+//        }
         one_ = mathematical_constants::getFloatingInteger< ObservationScalarType >( 1 );
         taylorSeriesExpansionOrder_ = 3;
     }
@@ -512,24 +514,6 @@ public:
     //! Destructor
     ~OneWayDopplerObservationModel( ){ }
 
-    //! Function to compute ideal one-way Doppler observation  without any corrections at given time.
-    /*!
-     *  This function compute ideal the one-way observation  without any corrections at a given time.
-     *  The time argument can be either the reception or transmission time (defined by linkEndAssociatedWithTime input).
-     *  It does not include system-dependent measurement
-     *  errors, such as biases or clock errors.
-     *  \param time Time at which observation is to be simulated
-     *  \param linkEndAssociatedWithTime Link end at which given time is valid, i.e. link end for which associated time
-     *  is kept constant (to input value)
-     *  \return Calculated observed one-way Doppler value.
-     */
-    Eigen::Matrix< ObservationScalarType, 1, 1 > computeIdealObservations(
-            const TimeType time,
-            const LinkEndType linkEndAssociatedWithTime )
-
-    {
-        return computeIdealObservationsWithLinkEndData( time, linkEndAssociatedWithTime, linkEndTimes_, linkEndStates_ );
-    }
 
     //! Function to compute one-way Doppler observable without any corrections.
     /*!
@@ -683,12 +667,6 @@ private:
 
     //! Object to compute derivative of deviation between proper and coordinate time at receiver, w.r.t. coordinate time.
     std::shared_ptr< DopplerProperTimeRateInterface > receiverProperTimeRateCalculator_;
-
-    //! Pre-declared vector of link end times, used for computeIdealObservations function
-    std::vector< double > linkEndTimes_;
-
-    //! Pre-declared vector of link end states, used for computeIdealObservations function
-    std::vector< Eigen::Matrix< double, 6, 1 > > linkEndStates_;
 
     //! Pre-declared light-time partial w.r.t. receiver sensitivity (used fopr first-order Doppler)
     Eigen::Matrix< ObservationScalarType, 1, 3 > lightTimePartialWrtReceiverPosition_;

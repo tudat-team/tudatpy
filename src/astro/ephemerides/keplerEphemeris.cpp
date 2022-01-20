@@ -36,7 +36,7 @@ KeplerEphemeris::KeplerEphemeris(
 {
     using namespace tudat::orbital_element_conversions;
     using namespace tudat::root_finders;
-    using namespace root_finders::termination_conditions;
+    
 
     // Check whether orbit is elliptical or hyperbolic (parabola not supported).
     if( initialStateInKeplerianElements( eccentricityIndex ) < 1.0 )
@@ -90,11 +90,10 @@ KeplerEphemeris::KeplerEphemeris(
                     argumentOfPeriapsisIndex ), Eigen::Vector3d::UnitZ( ) ) ;
 
     // Create root finder to be used for converting mean to eccentric anomaly
-    rootFinder_ = std::make_shared< NewtonRaphsonCore< double > >(
-                std::bind( &RootAbsoluteToleranceTerminationCondition< >::checkTerminationCondition,
-                             std::make_shared< RootAbsoluteToleranceTerminationCondition< > >(
-                                 rootFinderAbsoluteTolerance, rootFinderMaximumNumberOfIterations ),
-                             std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5 ) );
+    rootFinder_ = root_finders::createRootFinder(
+                        root_finders::newtonRaphsonRootFinderSettings(
+                            TUDAT_NAN, rootFinderAbsoluteTolerance, TUDAT_NAN, rootFinderMaximumNumberOfIterations,
+                    root_finders::throw_exception ) );
 }
 
 //! Function to get state from ephemeris.

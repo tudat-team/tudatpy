@@ -54,7 +54,7 @@ void checkVariableUniqueness( std::vector< VariableType > variables );
  *  Tabulated atmospheres class, for example US1976. The default path from which the files are
  *  obtained is: /external/AtmosphereTables
  */
-class TabulatedAtmosphere : public StandardAtmosphere
+class TabulatedAtmosphere : public AtmosphereModel
 {
 public:
 
@@ -93,6 +93,7 @@ public:
 
         // Initialize atmosphere
         createAtmosphereInterpolators( );
+        independentVariableData_.resize( numberOfIndependentVariables_ );
     }
 
     //! Constructor with default gas constant and specific heat ratio.
@@ -193,6 +194,7 @@ public:
 
         // Initialize atmosphere
         createAtmosphereInterpolators( );
+        independentVariableData_.resize( numberOfIndependentVariables_ );
     }
 
     //! Destructor
@@ -218,28 +220,27 @@ public:
                        const double latitude = 0.0, const double time = 0.0 )
     {
         // Get list of independent variables
-        std::vector< double > independentVariableData;
         for ( unsigned int i = 0; i < numberOfIndependentVariables_; i++ )
         {
             switch ( independentVariables_.at( i ) )
             {
             case altitude_dependent_atmosphere:
-                independentVariableData.push_back( altitude );
+                independentVariableData_[ i ] = altitude;
                 break;
             case longitude_dependent_atmosphere:
-                independentVariableData.push_back( longitude );
+                independentVariableData_[ i ] = longitude;
                 break;
             case latitude_dependent_atmosphere:
-                independentVariableData.push_back( latitude );
+                independentVariableData_[ i ] = latitude;
                 break;
             case time_dependent_atmosphere:
-                independentVariableData.push_back( time );
+                independentVariableData_[ i ] = time;
                 break;
             }
         }
 
         // Give output
-        return interpolatorForDensity_->interpolate( independentVariableData );
+        return interpolatorForDensity_->interpolate( independentVariableData_ );
     }
 
     //! Get local pressure.
@@ -555,6 +556,9 @@ private:
      *          in case it is above the upper definition limit
      */
     std::vector< std::vector< std::pair< double, double > > > defaultExtrapolationValue_;
+
+    std::vector< double > independentVariableData_;
+
 };
 
 //! Typedef for shared-pointer to TabulatedAtmosphere object.

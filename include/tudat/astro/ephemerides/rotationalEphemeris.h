@@ -86,6 +86,16 @@ Eigen::Matrix< StateScalarType, 6, 1 > transformStateToFrameFromRotations(
     return stateInTargetFrame;
 }
 
+template< typename StateScalarType >
+Eigen::Matrix< StateScalarType, 6, 1 > transformStateToFrameFromRotations(
+        const Eigen::Matrix< StateScalarType, 6, 1 >& stateInBaseFrame,
+        const Eigen::Matrix3d& rotationToFrame,
+        const Eigen::Matrix3d& rotationMatrixToFrameDerivative )
+{
+    return transformStateToFrameFromRotations< StateScalarType >(
+                stateInBaseFrame, Eigen::Quaterniond( rotationToFrame ), rotationMatrixToFrameDerivative );
+}
+
 //! Transform a state (Cartesian position and velocity) from one frame to another.
 /*!
  *  Transform a state (Cartesian position and velocity) from one frame to another, taking into
@@ -199,6 +209,12 @@ public:
     virtual Eigen::Quaterniond getRotationToBaseFrame(
             const double secondsSinceEpoch ) = 0;
 
+
+    Eigen::Matrix3d getRotationMatrixToBaseFrame( const double secondsSinceEpoch )
+    {
+        return Eigen::Matrix3d( getRotationToBaseFrame( secondsSinceEpoch ) );
+    }
+
     //! Get rotation quaternion from target frame to base frame in Time precision.
     /*!
      * Pure virtual function to calculate and return the rotation quaternion from target frame to
@@ -232,6 +248,12 @@ public:
      */
     virtual Eigen::Quaterniond getRotationToTargetFrame(
             const double secondsSinceEpoch ) = 0;
+
+    Eigen::Matrix3d getRotationMatrixToTargetFrame( const double secondsSinceEpoch )
+    {
+        return Eigen::Matrix3d( getRotationToTargetFrame( secondsSinceEpoch ) );
+    }
+
 
     //! Get rotation quaternion to target frame from base frame in Time precision.
     /*!

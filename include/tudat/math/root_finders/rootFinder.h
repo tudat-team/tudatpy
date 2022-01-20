@@ -33,7 +33,7 @@ namespace root_finders
  * \tparam DataType Data type used to represent floating-point values.
  */
 template< typename DataType = double >
-class RootFinderCore
+class RootFinder
 {
 public:
 
@@ -47,18 +47,26 @@ public:
     //! Constructor taking custom termination function.
     /*!
      *  Constructor taking custom termination function.
-     *  \param terminationFunction_ The function specifying the termination conditions of the
-     *  root-finding process \sa RootFinderCore::terminationFunction
+     *  \param terminationFunction The function specifying the termination conditions of the
+     *  root-finding process \sa RootFinderCore::terminationFunction_
      */
-    RootFinderCore( TerminationFunction terminationFunction_ )
-        : terminationFunction( terminationFunction_ )
+    RootFinder( TerminationFunction terminationFunction )
+        : terminationFunction_( terminationFunction )
     { }
+
+    RootFinder( std::shared_ptr< TerminationCondition< DataType > > terminationCondition )
+        : terminationFunction_(
+              std::bind( &TerminationCondition< DataType >::checkTerminationCondition, terminationCondition,
+                         std::placeholders::_1, std::placeholders::_2, std::placeholders::_3,
+                         std::placeholders::_4, std::placeholders::_5 ) )
+    { }
+
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    virtual ~RootFinderCore( ) { }
+    virtual ~RootFinder( ) { }
 
     //! Get the function subject to the rootfinding algorithm.
     /*!
@@ -97,17 +105,15 @@ protected:
      * current root value; previous root value; current function value; previous function value;
      * number of iterations. Its output is true if the algorithm is to terminate, false otherwise.
      */
-    TerminationFunction terminationFunction;
+    TerminationFunction terminationFunction_;
 
 private:
 
 };
 
-//! Typedef for a root-finder with double data type.
-typedef RootFinderCore< > RootFinder;
 
 //! Typedef for a shared-pointer to a root-finder with double data type.
-typedef std::shared_ptr< RootFinder > RootFinderPointer;
+typedef std::shared_ptr< RootFinder< double > > RootFinderPointer;
 
 } // namespace root_finders
 

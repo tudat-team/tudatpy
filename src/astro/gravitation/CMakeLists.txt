@@ -16,9 +16,9 @@ set(gravitation_SOURCES
         "basicSolidBodyTideGravityFieldVariations.cpp"
         "gravityFieldVariations.cpp"
         "centralGravityModel.cpp"
-        "centralJ2GravityModel.cpp"
-        "centralJ2J3GravityModel.cpp"
-        "centralJ2J3J4GravityModel.cpp"
+#        "centralJ2GravityModel.cpp"
+#        "centralJ2J3GravityModel.cpp"
+#        "centralJ2J3J4GravityModel.cpp"
         "gravityFieldModel.cpp"
         "jacobiEnergy.cpp"
         "librationPoint.cpp"
@@ -33,6 +33,7 @@ set(gravitation_SOURCES
         "mutualSphericalHarmonicGravityModel.cpp"
         "secondDegreeGravitationalTorque.cpp"
         "directTidalDissipationAcceleration.cpp"
+        "periodicGravityFieldVariations.cpp"
         )
 
 # Set the header files.
@@ -40,9 +41,9 @@ set(gravitation_HEADERS
         "basicSolidBodyTideGravityFieldVariations.h"
         "gravityFieldVariations.h"
         "centralGravityModel.h"
-        "centralJ2GravityModel.h"
-        "centralJ2J3GravityModel.h"
-        "centralJ2J3J4GravityModel.h"
+#        "centralJ2GravityModel.h"
+#        "centralJ2J3GravityModel.h"
+#        "centralJ2J3J4GravityModel.h"
         "gravityFieldModel.h"
         "jacobiEnergy.h"
         "librationPoint.h"
@@ -58,6 +59,7 @@ set(gravitation_HEADERS
         "secondDegreeGravitationalTorque.h"
         "directTidalDissipationAcceleration.h"
         "sphericalHarmonicGravitationalTorque.h"
+        "periodicGravityFieldVariations.h"
         )
 
 TUDAT_ADD_LIBRARY("gravitation"

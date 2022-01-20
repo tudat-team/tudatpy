@@ -142,6 +142,63 @@ private:
 
 };
 
+
+class ScaledAtmosphereModel: public AtmosphereModel
+{
+public:
+    ScaledAtmosphereModel(
+            const std::shared_ptr< AtmosphereModel > baseAtmosphere,
+            const std::function< double( const double ) > densityScalingFunction,
+            const bool isScalingAbsolute = true ):
+        AtmosphereModel( ),
+        baseAtmosphere_( baseAtmosphere ),
+        densityScalingFunction_( densityScalingFunction ),
+        isScalingAbsolute_( isScalingAbsolute ){ }
+
+    double getDensity( const double altitude, const double longitude,
+                       const double latitude, const double time )
+    {
+        if( isScalingAbsolute_ )
+        {
+            return baseAtmosphere_->getDensity( altitude, longitude, latitude, time ) +
+                    densityScalingFunction_( time );
+        }
+        else
+        {
+            return baseAtmosphere_->getDensity( altitude, longitude, latitude, time ) *
+                    densityScalingFunction_( time );
+        }
+    }
+
+
+    double getPressure( const double altitude, const double longitude,
+                        const double latitude, const double time )
+    {
+        return baseAtmosphere_->getPressure( altitude, longitude, latitude, time );
+    }
+
+
+    double getTemperature( const double altitude, const double longitude,
+                           const double latitude, const double time )
+    {
+        return baseAtmosphere_->getTemperature( altitude, longitude, latitude, time );
+    }
+
+
+    double getSpeedOfSound( const double altitude, const double longitude,
+                            const double latitude, const double time )
+    {
+        return baseAtmosphere_->getSpeedOfSound( altitude, longitude, latitude, time );
+    }
+private:
+
+    std::shared_ptr< AtmosphereModel > baseAtmosphere_;
+
+    std::function< double( const double ) > densityScalingFunction_;
+
+    bool isScalingAbsolute_;
+};
+
 //! Typedef for shared-pointer to AtmosphereModel object.
 typedef std::shared_ptr< AtmosphereModel > AtmosphereModelPointer;
 

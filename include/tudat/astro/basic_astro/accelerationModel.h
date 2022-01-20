@@ -23,7 +23,7 @@
 #include "tudat/math/basic/mathematicalConstants.h"
 
 namespace tudat
-{  
+{
 namespace basic_astrodynamics
 {
 
@@ -42,7 +42,8 @@ public:
 
     //! Constructor.
     AccelerationModel( ):
-        currentTime_( TUDAT_NAN ){ }
+        currentTime_( TUDAT_NAN ),
+        currentAcceleration_( Eigen::Vector3d::Constant( TUDAT_NAN ) ){ }
 
     //! Virtual destructor.
     /*!
@@ -50,16 +51,16 @@ public:
      */
     virtual ~AccelerationModel( ) { }
 
-    //! Get acceleration.
-    /*!
-     * Returns the acceleration. No arguments are passed to this function for generality.
-     * Instead, all data required for computation is to be obtained from pointers to functions/
-     * classes/structs, etc which are to be set in a derived class and evaluated by the
-     * updateMembers() function below.
-     * \return Acceleration.
-     * \sa updateMembers().
-     */
-    virtual AccelerationDataType getAcceleration( ) = 0;
+//    //! Get acceleration.
+//    /*!
+//     * Returns the acceleration. No arguments are passed to this function for generality.
+//     * Instead, all data required for computation is to be obtained from pointers to functions/
+//     * classes/structs, etc which are to be set in a derived class and evaluated by the
+//     * updateMembers() function below.
+//     * \return Acceleration.
+//     * \sa updateMembers().
+//     */
+//    virtual AccelerationDataType getAcceleration( ) = 0;
 
     //! Update member variables used by the acceleration model.
     /*!
@@ -75,6 +76,26 @@ public:
      */
     virtual void updateMembers( const double currentTime = TUDAT_NAN ) = 0;
 
+    AccelerationDataType& getAccelerationReference( )
+    {
+        return currentAcceleration_;
+    }
+
+    AccelerationDataType getAcceleration( )
+    {
+        return currentAcceleration_;
+    }
+
+    void getAccelerationByReference( AccelerationDataType& acceleration ) const
+    {
+        acceleration = currentAcceleration_;
+    }
+
+    void addCurrentAcceleration( AccelerationDataType& acceleration ) const
+    {
+        acceleration += currentAcceleration_;
+    }
+
     //! Function to reset the current time
     /*!
      * Function to reset the current time of the acceleration model.
@@ -89,6 +110,8 @@ protected:
 
     //! Previous time to which acceleration model was updated.
     double currentTime_;
+
+    AccelerationDataType currentAcceleration_;
 
 protected:
 

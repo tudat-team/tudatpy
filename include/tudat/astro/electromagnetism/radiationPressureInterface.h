@@ -86,6 +86,28 @@ public:
         currentSolarVector_( Eigen::Vector3d::Zero( ) ),
         currentTime_( TUDAT_NAN ){ }
 
+    RadiationPressureInterface(
+            const std::function< double( ) > sourcePower,
+            const std::function< Eigen::Vector3d( ) > sourcePositionFunction,
+            const std::function< Eigen::Vector3d( ) > targetPositionFunction,
+            std::function< double( const double ) > radiationPressureCoefficientFunction,
+            const double area,
+            const std::vector< std::function< Eigen::Vector3d( ) > > occultingBodyPositions =
+            std::vector< std::function< Eigen::Vector3d( ) > >( ),
+            const std::vector< double > occultingBodyRadii = std::vector< double > ( ),
+            const double sourceRadius = 0.0 ):
+        sourcePower_( sourcePower ), sourcePositionFunction_( sourcePositionFunction ),
+        targetPositionFunction_( targetPositionFunction ),
+        radiationPressureCoefficient_( TUDAT_NAN ),
+        radiationPressureCoefficientFunction_( radiationPressureCoefficientFunction ),
+        area_( area ),
+        occultingBodyPositions_( occultingBodyPositions ),
+        occultingBodyRadii_( occultingBodyRadii ),
+        sourceRadius_( sourceRadius ),
+        currentRadiationPressure_( TUDAT_NAN ),
+        currentSolarVector_( Eigen::Vector3d::Zero( ) ),
+        currentTime_( TUDAT_NAN ){ }
+
     //! Destructor
     virtual ~RadiationPressureInterface( ){ }
 

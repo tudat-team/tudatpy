@@ -8,9 +8,12 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
+using namespace boost::placeholders;
+
 #include <boost/make_shared.hpp>
 #include <boost/test/unit_test.hpp>
 
@@ -43,7 +46,6 @@ BOOST_AUTO_TEST_SUITE( test_light_time )
 //! Test light-time calculator.
 BOOST_AUTO_TEST_CASE( testLightWithSpice )
 {
-    std::cout<<"Test"<<std::endl;
     // Load spice kernels.
     spice_interface::loadStandardSpiceKernels( );
 

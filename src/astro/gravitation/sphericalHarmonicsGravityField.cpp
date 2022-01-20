@@ -193,7 +193,23 @@ void getDegreeTwoSphericalHarmonicCoefficients(
                     cosineCoefficients, sineCoefficients );
     }
 
-    scaledMeanMomentOfInertia = ( inertiaTensor( 0, 0 ) + inertiaTensor( 1, 1 ) + inertiaTensor( 2, 2 ) ) / 3.0;
+    scaledMeanMomentOfInertia = ( inertiaTensor( 0, 0 ) + inertiaTensor( 1, 1 ) + inertiaTensor( 2, 2 ) ) /
+            ( 3.0 * scalingTerm );
+}
+
+std::tuple< Eigen::MatrixXd, Eigen::MatrixXd, double > getDegreeTwoSphericalHarmonicCoefficients(
+        const Eigen::Matrix3d inertiaTensor, const double bodyGravitationalParameter, const double referenceRadius,
+        const int maximumCoefficientDegree, const bool useNormalizedCoefficients )
+{
+     Eigen::MatrixXd cosineCoefficients = Eigen::MatrixXd::Zero( maximumCoefficientDegree + 1, maximumCoefficientDegree + 1 );
+     Eigen::MatrixXd sineCoefficients = Eigen::MatrixXd::Zero( maximumCoefficientDegree + 1, maximumCoefficientDegree + 1 );
+     double scaledMeanMomentOfInertia;
+
+     getDegreeTwoSphericalHarmonicCoefficients(
+             inertiaTensor, bodyGravitationalParameter, referenceRadius, useNormalizedCoefficients,
+             cosineCoefficients, sineCoefficients, scaledMeanMomentOfInertia );
+
+     return std::make_tuple( cosineCoefficients, sineCoefficients, scaledMeanMomentOfInertia );
 }
 
 } // namespace gravitation

@@ -17,7 +17,7 @@
 #include "tudat/simulation/environment_setup/createGroundStations.h"
 #include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
 #include "tudat/simulation/estimation_setup/podProcessing.h"
-#include "tudat/astro/observation_models/simulateObservations.h"
+#include "tudat/simulation/estimation_setup/simulateObservations.h"
 #include "tudat/astro/propagators/propagateCovariance.h"
 
 #include "tudat/math/statistics/basicStatistics.h"

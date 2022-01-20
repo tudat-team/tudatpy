@@ -77,6 +77,13 @@ void propagateCovariance(
         const std::shared_ptr< CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionInterface,
         const std::vector< double > evaluationTimes );
 
+//! Function to propagate full covariance at the initial time to state formal errors at later times
+std::map< double, Eigen::MatrixXd > propagateCovariance(
+        const Eigen::MatrixXd initialCovariance,
+        const std::shared_ptr< CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionInterface,
+        const std::vector< double > evaluationTimes );
+
+
 //! Function to propagate full covariance at the initial time to state covariance at later times
 /*!
  * Function to propagate full covariance at the initial time to state covariance at later times
@@ -106,6 +113,12 @@ void propagateCovariance(
 void propagateFormalErrors(
         std::map< double, Eigen::VectorXd >& propagatedFormalErrors,
         const Eigen::MatrixXd& initialCovariance,
+        const std::shared_ptr< CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionInterface,
+        const std::vector< double > evaluationTimes );
+
+//! Function to propagate full covariance at the initial time to state formal errors at later times
+std::map< double, Eigen::VectorXd > propagateFormalErrors(
+        const Eigen::MatrixXd initialCovariance,
         const std::shared_ptr< CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionInterface,
         const std::vector< double > evaluationTimes );
 

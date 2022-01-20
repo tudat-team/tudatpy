@@ -51,10 +51,14 @@ int main( )
     bodyNames[ 5 ] = "Sun";
 
     // Create bodies needed in simulation
+<<<<<<< HEAD
     std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
             getDefaultBodySettings( bodyNames );
     SystemOfBodies bodies = createBodies( bodySettings );
     setGlobalFrameBodyEphemerides( bodies, "SSB", "ECLIPJ2000" );
+=======
+    NamedBodyMap bodyMap = createBodies( getDefaultBodySettings( bodyNames ) );
+>>>>>>> dominic-origin/features/efficiency_improvements
 
     // Run simulation for 2 different central body settings (barycentric and hierarchical)
     for( int centralBodySettings = 0; centralBodySettings < 2; centralBodySettings++ )

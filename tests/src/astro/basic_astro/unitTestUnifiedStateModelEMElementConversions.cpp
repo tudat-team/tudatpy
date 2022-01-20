@@ -9,9 +9,10 @@
  *
  */
 
+#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
-#include <boost/test/floating_point_comparison.hpp>
+#include <boost/test/tools/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <Eigen/Core>
@@ -164,7 +165,7 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelExponentialMapEleme
                     convertKeplerianToUnifiedStateModelExponentialMapElements( keplerianElements,
                                                                  centralBodyGravitationalParameter );
         }
-        catch( std::runtime_error )
+        catch( std::runtime_error const& )
         {
             isExceptionFound = true;
         }
@@ -189,7 +190,7 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelExponentialMapEleme
                     convertKeplerianToUnifiedStateModelExponentialMapElements( keplerianElements,
                                                                  centralBodyGravitationalParameter );
         }
-        catch( std::runtime_error )
+        catch( std::runtime_error const& )
         {
             isExceptionFound = true;
         }
@@ -270,7 +271,8 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelExponentialMapEleme
                     ( keplerianElements, centralBodyGravitationalParameter );
         }
         // Catch the expected runtime error, and set the boolean flag to true.
-        catch ( std::runtime_error )
+        catch( std::runtime_error const& )
+
         {
             isExceptionFound = true;
         }
@@ -422,7 +424,7 @@ BOOST_AUTO_TEST_CASE( testconvertUnifiedStateModelExponentialMapToKeplerianEleme
                                                                  centralBodyGravitationalParameter ),
                         centralBodyGravitationalParameter );
         }
-        catch( std::runtime_error )
+        catch( std::runtime_error const& )
         {
             isExceptionFound = true;
         }

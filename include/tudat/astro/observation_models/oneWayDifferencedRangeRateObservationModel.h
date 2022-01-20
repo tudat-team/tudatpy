@@ -55,13 +55,14 @@ public:
      *  current observation time.
      */
     OneWayDifferencedRangeObservationModel(
+            const LinkEnds& linkEnds,
             const std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > >
             arcStartLightTimeCalculator,
             const std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > >
             arcEndLightTimeCalculator,
             std::function< double( const double ) > integrationTimeFunction,
             const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr ):
-        ObservationModel< 1, ObservationScalarType, TimeType >( one_way_differenced_range, observationBiasCalculator ),
+        ObservationModel< 1, ObservationScalarType, TimeType >( one_way_differenced_range, linkEnds, observationBiasCalculator ),
         arcStartLightTimeCalculator_( arcStartLightTimeCalculator ), arcEndLightTimeCalculator_( arcEndLightTimeCalculator ),
         integrationTimeFunction_( integrationTimeFunction )
     {
@@ -70,59 +71,6 @@ public:
 
     //! Destructor
     ~OneWayDifferencedRangeObservationModel( ){ }
-
-    //! Function to compute ideal one-way differenced range observation without any corrections at given time.
-    /*!
-     *  This function compute ideal one-way differenced range without any corrections at a given time.
-     *  The time argument can be either the reception or transmission time (defined by linkEndAssociatedWithTime input).
-     *  It does not include system-dependent measurement
-     *  errors, such as biases or clock errors.
-     *  \param time Time at which observation is to be simulated
-     *  \param linkEndAssociatedWithTime Link end at which given time is valid, i.e. link end for which associated time
-     *  is kept constant (to input value)
-     *  \return Calculated observed one-way differenced range
-     */
-    Eigen::Matrix< ObservationScalarType, 1, 1 > computeIdealObservations(
-            const TimeType time,
-            const LinkEndType linkEndAssociatedWithTime )
-
-    {
-        ObservationScalarType lightTimeAtStartInterval;
-        ObservationScalarType lightTimeAtEndInterval;
-        TimeType currentIntegrationTime = integrationTimeFunction_( time );
-
-        if ( linkEndAssociatedWithTime == receiver )
-        {
-            // Calculate light times at the start of the reception interval
-            lightTimeAtStartInterval = arcStartLightTimeCalculator_->calculateLightTime(
-                        static_cast< double >( time ) - currentIntegrationTime, 1 );
-
-            // Calculate light times at the end of the reception interval
-            lightTimeAtEndInterval = arcEndLightTimeCalculator_->calculateLightTime(
-                        static_cast< double >( time ) , 1 );
-
-        }
-        else if ( linkEndAssociatedWithTime == transmitter )
-        {
-
-            // Calculate light times at the start of the reception interval
-            lightTimeAtEndInterval = arcEndLightTimeCalculator_->calculateLightTime(
-                        static_cast< double >( time ) - currentIntegrationTime, 0 );
-
-            // Calculate light times at the end of the reception interval
-            lightTimeAtStartInterval = arcStartLightTimeCalculator_->calculateLightTime(
-                        static_cast< double >( time ), 0 );
-
-        }
-        else
-        {
-            throw std::runtime_error( "Error in differenced range rate observation model, reference link end not recognized" );
-        }
-
-        return ( Eigen::Matrix< ObservationScalarType, 1, 1 >( ) << ( lightTimeAtEndInterval - lightTimeAtStartInterval ) *
-                 physical_constants::getSpeedOfLight< ObservationScalarType >( ) /
-                 static_cast< ObservationScalarType >( currentIntegrationTime ) ).finished( );
-    }
 
     //! Function to compute one-way differenced range observable without any corrections.
     /*!

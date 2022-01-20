@@ -46,9 +46,14 @@ std::shared_ptr< EphemerisSettings > getDefaultEphemerisSettings(
         const std::string& bodyName,
         const std::string baseFrameOrientation )
 {
+    std::string bodyNameToUse = bodyName;
+    if( bodyName == "Uranus" || bodyName == "Neptune" || bodyName == "Pluto" )
+    {
+        bodyNameToUse += "_BARYCENTER";
+    }
     // Create settings for an interpolated Spice ephemeris.
     return std::make_shared< DirectSpiceEphemerisSettings >(
-                "SSB", baseFrameOrientation, false, false, false );
+                "SSB", baseFrameOrientation, bodyNameToUse );
 }
 
 //! Function to create default settings for a body's ephemeris.
@@ -59,9 +64,15 @@ std::shared_ptr< EphemerisSettings > getDefaultEphemerisSettings(
         const std::string baseFrameOrientation,
         const double timeStep )
 {
+    std::string bodyNameToUse = bodyName;
+    if( bodyName == "Uranus" || bodyName == "Neptune" || bodyName == "Pluto" )
+    {
+        bodyNameToUse += "_BARYCENTER";
+    }
     // Create settings for an interpolated Spice ephemeris.
     return std::make_shared< InterpolatedSpiceEphemerisSettings >(
-                initialTime, finalTime, timeStep, "SSB", baseFrameOrientation );
+                initialTime, finalTime, timeStep, "SSB", baseFrameOrientation,
+                std::make_shared< interpolators::LagrangeInterpolatorSettings >( 6 ), bodyNameToUse );
 
 }
 
@@ -188,8 +199,7 @@ double marsTimeDependentPhaseAngleCorrectionFunction( const double secondsSinceJ
 }
 
 // Mars orientation parameter solution from the MRO120D gravity field (A.S. Konopliv et al. 2016)
-std::shared_ptr< RotationModelSettings > getHighAccuracyMarsRotationModel(
-        const double initialTime, const double finalTime  )
+std::shared_ptr< RotationModelSettings > getHighAccuracyMarsRotationModel( )
 {
     std::shared_ptr< RotationModelSettings > rotationModelSettings;
 
@@ -252,7 +262,8 @@ std::shared_ptr< RotationModelSettings > getHighAccuracyMarsRotationModel(
                 convertDegreesToRadians( 350.891985307 ) / physical_constants::JULIAN_DAY,
                 0.07,
                 convertDegreesToRadians( -1.5 ) / physical_constants::JULIAN_DAY,
-                "ECLIPJ2000", "Mars_Fixed", "Sun", initialTime, finalTime, 150.0, nutationCorrectionSettings,
+                "ECLIPJ2000", "Mars_Fixed", "Sun",
+                nutationCorrectionSettings,
                 meanMotionTimeDependentPhaseNutationCorrections, timeDependentPhaseCorrectionFunctions, rotationRateCorrections,
                 xPolarMotionCoefficients, yPolarMotionCoefficients );
 
@@ -277,7 +288,7 @@ std::shared_ptr< BodySettings > getDefaultSingleBodySettings(
         const std::string& bodyName,
         const double initialTime,
         const double finalTime,
-        const std::string baseFrameOrientation,
+        const std::string& baseFrameOrientation,
         const double timeStep )
 {
     std::shared_ptr< BodySettings > singleBodySettings = std::make_shared< BodySettings >( );
@@ -311,6 +322,13 @@ std::shared_ptr< BodySettings > getDefaultSingleBodySettings(
     return singleBodySettings;
 }
 
+std::shared_ptr< BodySettings > getDefaultSingleBodySettings(
+        const std::string& bodyName,
+        const std::string& baseFrameOrientation )
+{
+    return getDefaultSingleBodySettings(
+                bodyName, TUDAT_NAN, TUDAT_NAN, baseFrameOrientation );
+}
 
 //! Function to create default settings from which to create a set of body objects.
 BodyListSettings getDefaultBodySettings(

@@ -138,23 +138,6 @@ public:
         this->updateMembers( );
     }
 
-    //! Get radiation pressure acceleration.
-    /*!
-     * Returns the radiation pressure acceleration. No arguments are passed to this function.
-     * Instead, all data required for computation is to be obtained from pointers to functions/
-     * classes/structs, etc., which are to be set in a derived class and evaluated by the
-     * updateMembers() function below. This function is essentially a wrapper for the free
-     * function that computes the radiation pressure acceleration.
-     * \return Radiation pressure acceleration.
-     * \sa computeCannonBallRadiationPressureAcceleration().
-     */
-    Eigen::Vector3d getAcceleration( )
-    {
-        return computeCannonBallRadiationPressureAcceleration(
-                    currentRadiationPressure_, currentVectorToSource_, currentArea_,
-                    currentRadiationPressureCoefficient_, currentMass_ );
-    }
-
     //! Update member variables used by the radiation pressure acceleration model.
     /*!
      * Updates member variables used by the acceleration model. This function evaluates all
@@ -172,6 +155,9 @@ public:
             currentRadiationPressureCoefficient_ = radiationPressureCoefficientFunction_( );
             currentArea_ = areaFunction_( );
             currentMass_ = massFunction_( );
+            currentAcceleration_ = computeCannonBallRadiationPressureAcceleration(
+                        currentRadiationPressure_, currentVectorToSource_, currentArea_,
+                        currentRadiationPressureCoefficient_, currentMass_ );
         }
     }
 

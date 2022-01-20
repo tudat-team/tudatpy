@@ -16,13 +16,15 @@
 
 #include <boost/function.hpp>
 #include <boost/lambda/lambda.hpp>
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
 #include <boost/function.hpp>
 
 #include <Eigen/Core>
 
 #include "tudat/astro/basic_astro/accelerationModel.h"
 #include "tudat/astro/electromagnetism/radiationPressureInterface.h"
+
+using namespace boost::placeholders;
 
 namespace tudat
 {
@@ -106,19 +108,6 @@ public:
     PanelledRadiationPressureAcceleration(
             const std::shared_ptr< PanelledRadiationPressureInterface > radiationPressureInterface,
             const std::function< double( ) > massFunction );
-
-    //! Get radiation pressure acceleration.
-    /*!
-     * Returns the panelled radiation pressure acceleration. No arguments are passed to this function.
-     * Instead, all data required for computation is to be obtained from pointers to functions/
-     * classes/structs, etc which are to be set in a derived class and evaluated by the
-     * updateMembers() function below.
-     * \return acceleration.
-     */
-    Eigen::Vector3d getAcceleration( )
-    {
-        return currentAcceleration_;
-    }
 
     //! Update member variables used by the radiation pressure acceleration model.
     /*!
@@ -311,12 +300,6 @@ private:
      */
     double currentMass_;
 
-    //! Current total acceleration due to radiation pressure on set of modelled panels
-    /*!
-     *  Current total acceleration due to radiation pressure on set of modelled panels, as calculated by the last call
-     *  to the updateMembers functio
-     */
-    Eigen::Vector3d currentAcceleration_;
 
 };
 

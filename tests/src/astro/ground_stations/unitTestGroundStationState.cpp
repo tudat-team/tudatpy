@@ -8,6 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <boost/test/unit_test.hpp>
@@ -195,7 +196,7 @@ BOOST_AUTO_TEST_CASE( test_GroundStationGlobalState )
 
     // Make state function of ground station w.r.t. SSB in inertial frame
     std::function< Eigen::Matrix< double, 6, 1 >( const double ) > stateFunction =
-            observation_models::getLinkEndCompleteEphemerisFunction(
+            simulation_setup::getLinkEndCompleteEphemerisFunction(
                 std::make_pair( "Earth", "Station1" ), bodies );
 
     // Compare state function with manual computation.

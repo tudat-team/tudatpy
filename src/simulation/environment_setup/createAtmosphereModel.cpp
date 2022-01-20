@@ -9,7 +9,7 @@
  */
 
 #include <boost/make_shared.hpp>
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
 
 #include "tudat/astro/aerodynamics/exponentialAtmosphere.h"
 #include "tudat/astro/aerodynamics/tabulatedAtmosphere.h"
@@ -20,6 +20,8 @@
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/io/solarActivityData.h"
 #include "tudat/simulation/environment_setup/createAtmosphereModel.h"
+
+using namespace boost::placeholders;
 
 namespace tudat
 {
@@ -37,6 +39,21 @@ std::shared_ptr< aerodynamics::WindModel > createWindModel(
     // Check wind model type and create requested model
     switch( windSettings->getWindModelType( ) )
     {
+    case constant_wind_model:
+    {
+        // Check input consistency
+        std::shared_ptr< ConstantWindModelSettings > customWindModelSettings =
+                std::dynamic_pointer_cast< ConstantWindModelSettings >( windSettings );
+
+        if( customWindModelSettings == nullptr )
+        {
+            throw std::runtime_error( "Error when making constant wind model for body " + body + ", input is incompatible" );
+        }
+        windModel = std::make_shared< aerodynamics::ConstantWindModel >(
+                    customWindModelSettings->getConstantWindVelocity( ),
+                    customWindModelSettings->getAssociatedFrame( ) );
+        break;
+    }
     case custom_wind_model:
     {
         // Check input consistency
@@ -48,7 +65,9 @@ std::shared_ptr< aerodynamics::WindModel > createWindModel(
             throw std::runtime_error( "Error when making custom wind model for body " + body + ", input is incompatible" );
         }
         windModel = std::make_shared< aerodynamics::CustomWindModel >(
-                    customWindModelSettings->getWindFunction( ) );
+                    customWindModelSettings->getWindFunction( ),
+                    customWindModelSettings->getAssociatedFrame( ) );
+
         break;
     }
     default:
@@ -191,6 +210,26 @@ std::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel(
         break;
     }
 #endif
+    case scaled_atmosphere:
+    {
+        // Check consistency of type and class.
+        std::shared_ptr< ScaledAtmosphereSettings > scaledAtmosphereSettings =
+                std::dynamic_pointer_cast< ScaledAtmosphereSettings >(
+                    atmosphereSettings );
+        if( scaledAtmosphereSettings == nullptr )
+        {
+            throw std::runtime_error(
+                        "Error, expected scaled atmosphere settings for body " + body );
+        }
+        else
+        {
+            std::shared_ptr< AtmosphereModel > baseAtmosphere = createAtmosphereModel(
+                        scaledAtmosphereSettings->getBaseSettings( ), body );
+            atmosphereModel = std::make_shared< ScaledAtmosphereModel >(
+                        baseAtmosphere, scaledAtmosphereSettings->getScaling( ), scaledAtmosphereSettings->getIsScalingAbsolute( ) );
+        }
+        break;
+    }
     default:
         throw std::runtime_error( "Error, did not recognize atmosphere model settings type " +
                                   std::to_string( atmosphereSettings->getAtmosphereType( ) ) );
