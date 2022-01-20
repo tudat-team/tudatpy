@@ -96,6 +96,11 @@ There are two directions you can go from here. CLion or the command line.
 -DBoost_NO_BOOST_CMAKE=ON
 ```
 
+[**Optional**] Also add the following line to the `File > Settings > Build, Execution, Deployment > CMake > CMake options` text box to to build tudatpy with the tests.
+````
+-DTUDAT_BUILD_TESTS="${build_tests:-1}"
+````
+
 > **Note** \
 > The `CONDA_PREFIX` may be determined with by activating the environment installed in step 4 and printing its value:
 > ````
@@ -106,9 +111,9 @@ There are two directions you can go from here. CLion or the command line.
 processors. It is likely that if you use all of your processors, your build will freeze your PC indefinitely. It is
 recommended to start at `-j2` and work your way up with further builds, ensuring **no unsaved work** in the background.
 
-7. In the source tree on the left, right click the top level `CMakeLists.txt` then `Load/Reload CMake Project`.
+8. In the source tree on the left, right click the top level `CMakeLists.txt` then `Load/Reload CMake Project`.
 
-8. `Build > Build Project`
+9. `Build > Build Project`
 
 ### Build: Command line
 
@@ -118,7 +123,12 @@ recommended to start at `-j2` and work your way up with further builds, ensuring
 conda activate tudat-bundle
 ````
 
-6. Run the `build.sh` script.
+[**Optional**] Edit the [build.sh](build.sh) script to build tudatpy with the tests by changing the `BUILD_TESTS` variable:
+````
+BUILD_TESTS="${build_tests:-1}"
+````
+
+6. Run the [build.sh](build.sh) script.
 
 ````
 bash build.sh
