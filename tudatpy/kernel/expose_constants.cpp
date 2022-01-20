@@ -10,8 +10,9 @@
 
 #include "expose_constants.h"
 
-#include "docstrings.h"
+#include "tudatpy/docstrings.h"
 #include "tudat/constants.h"
+#include "tudat/astro/basic_astro/timeConversions.h"
 
 #include <pybind11/complex.h>
 #include <pybind11/pybind11.h>
@@ -20,28 +21,13 @@ namespace py = pybind11;
 namespace tbc = tudat::celestial_body_constants;
 namespace tpc = tudat::physical_constants;
 namespace tmc = tudat::mathematical_constants;
+namespace tba = tudat::basic_astrodynamics;
 
 namespace tudatpy {
-
+namespace constants {
 void expose_constants(py::module &m) {
 
-  m.attr("__doc__") = tudatpy::constants_docstring().c_str();
-
-  // celestialBodyConstants.h
-  m.attr("EARTH_EQUATORIAL_RADIUS") = tbc::EARTH_EQUATORIAL_RADIUS;
-  m.attr("EARTH_FLATTENING_FACTOR") = tbc::EARTH_FLATTENING_FACTOR;
-  m.attr("EARTH_GEODESY_NORMALIZED_J2") = tbc::EARTH_GEODESY_NORMALIZED_J2;
-  m.attr("SUN_GRAVITATIONAL_PARAMETER") = tbc::SUN_GRAVITATIONAL_PARAMETER;
-  m.attr("MERCURY_GRAVITATIONAL_PARAMETER") = tbc::MERCURY_GRAVITATIONAL_PARAMETER;
-  m.attr("VENUS_GRAVITATIONAL_PARAMETER") = tbc::VENUS_GRAVITATIONAL_PARAMETER;
-  m.attr("EARTH_GRAVITATIONAL_PARAMETER") = tbc::EARTH_GRAVITATIONAL_PARAMETER;
-  m.attr("MOON_GRAVITATIONAL_PARAMETER") = tbc::MOON_GRAVITATIONAL_PARAMETER;
-  m.attr("MARS_GRAVITATIONAL_PARAMETER") = tbc::MARS_GRAVITATIONAL_PARAMETER;
-  m.attr("JUPITER_GRAVITATIONAL_PARAMETER") = tbc::JUPITER_GRAVITATIONAL_PARAMETER;
-  m.attr("SATURN_GRAVITATIONAL_PARAMETER") = tbc::SATURN_GRAVITATIONAL_PARAMETER;
-  m.attr("URANUS_GRAVITATIONAL_PARAMETER") = tbc::URANUS_GRAVITATIONAL_PARAMETER;
-  m.attr("NEPTUNE_GRAVITATIONAL_PARAMETER") = tbc::NEPTUNE_GRAVITATIONAL_PARAMETER;
-  m.attr("PLUTO_GRAVITATIONAL_PARAMETER") = tbc::PLUTO_GRAVITATIONAL_PARAMETER;
+  m.attr("__doc__") = get_docstring("constants").c_str();
 
   // physicalConstants.h
   m.attr("SEA_LEVEL_GRAVITATIONAL_ACCELERATION") = tpc::SEA_LEVEL_GRAVITATIONAL_ACCELERATION;
@@ -71,13 +57,16 @@ void expose_constants(py::module &m) {
   m.attr("LG_TIME_RATE_TERM") = tpc::LG_TIME_RATE_TERM;
   m.attr("LG_TIME_RATE_TERM_LONG") = tpc::LG_TIME_RATE_TERM_LONG;
 
+  // time constants
+  m.attr("JULIAN_DAY_ON_J2000") = tba::JULIAN_DAY_ON_J2000;
+  m.attr("JULIAN_DAY_AT_0_MJD") = tba::JULIAN_DAY_AT_0_MJD;
+
   // mathematicalConstants.h
   m.attr("E") = tmc::E;
   m.attr("GOLDEN_RATIO") = tmc::GOLDEN_RATIO;
   m.attr("COMPLEX_I") = tmc::COMPLEX_I;
   m.attr("PI") = tmc::PI;
-  m.attr("LONG_PI") = tmc::LONG_PI;
   m.attr("TUDAT_NAN") = TUDAT_NAN;
 };
-
+}// namespace constants
 }// namespace tudatpy

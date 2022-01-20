@@ -10,15 +10,12 @@
 
 #include "expose_astro.h"
 
-#include "expose_astro/expose_aerodynamics.h"
-#include "expose_astro/expose_conversion.h"
-#include "expose_astro/expose_ephemerides.h"
-#include "expose_astro/expose_fundamentals.h"
 #include "expose_astro/expose_gravitation.h"
-#include "expose_astro/expose_propagators.h"
-#include "expose_astro/expose_reference_frames.h"
+#include "expose_astro/expose_element_conversion.h"
+#include "expose_astro/expose_frame_conversion.h"
+#include "expose_astro/expose_time_conversion.h"
 #include "expose_astro/expose_two_body_dynamics.h"
-#include "expose_astro/expose_shape.h"
+#include "expose_astro/expose_fundamentals.h"
 
 #include <pybind11/pybind11.h>
 
@@ -26,34 +23,30 @@ namespace py = pybind11;
 
 namespace tudatpy {
 
+namespace astro {
+
 void expose_astro(py::module &m) {
 
-  auto fundamentals = m.def_submodule("fundamentals");
-  expose_fundamentals(fundamentals);
+    auto element_conversion = m.def_submodule("element_conversion");
+    element_conversion::expose_element_conversion(element_conversion);
 
-  auto conversion = m.def_submodule("conversion");
-  expose_conversion(conversion);
+    auto frame_conversion = m.def_submodule("frame_conversion");
+    frame_conversion::expose_frame_conversion(frame_conversion);
 
-  auto frames = m.def_submodule("frames");
-  expose_frames(frames);
+    auto time_conversion = m.def_submodule("time_conversion");
+    time_conversion::expose_time_conversion(time_conversion);
 
-  auto aerodynamics = m.def_submodule("aerodynamics");
-  expose_aerodynamics(aerodynamics);
+    auto two_body_dynamics = m.def_submodule("two_body_dynamics");
+    two_body_dynamics::expose_two_body_dynamics(two_body_dynamics);
 
-  auto two_body_dynamics = m.def_submodule("two_body_dynamics");
-  expose_two_body_dynamics(two_body_dynamics);
+    auto gravitation = m.def_submodule("gravitation");
+    gravitation::expose_gravitation(gravitation);
 
-  auto ephemerides = m.def_submodule("ephemerides");
-  expose_ephemerides(ephemerides);
+    auto fundamentals = m.def_submodule("fundamentals");
+    fundamentals::expose_fundamentals(fundamentals);
 
-  auto gravitation = m.def_submodule("gravitation");
-  expose_gravitation(gravitation);
+}
 
-  auto propagators = m.def_submodule("propagators");
-  expose_propagators(propagators);
+} // namespace astro
 
-  auto shape = m.def_submodule("shape");
-  expose_shape(shape);
-};
-
-};// namespace tudatpy
+}// namespace tudatpy
