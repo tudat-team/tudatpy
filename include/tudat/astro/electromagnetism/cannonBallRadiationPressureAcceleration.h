@@ -105,7 +105,6 @@ public:
           areaFunction_( areaFunction ),
           massFunction_( massFunction )
     {
-        this->updateMembers( );
     }
 
     //! Constructor taking functions pointers and constant values for parameters.
@@ -135,7 +134,6 @@ public:
           areaFunction_( [ = ]( ){ return area; } ),
           massFunction_( [ = ]( ){ return mass; } )
     {
-        this->updateMembers( );
     }
 
     //! Update member variables used by the radiation pressure acceleration model.

@@ -123,8 +123,23 @@ std::shared_ptr< ephemerides::Ephemeris > createReferencePointEphemeris(
 {
     typedef Eigen::Matrix< StateScalarType, 6, 1 > StateType;
 
+    if( bodyWithReferencePoint == nullptr )
+    {
+        throw std::runtime_error( "Error when creating reference point ephemeris, body is not provided" );
+    }
+
     std::shared_ptr< ephemerides::RotationalEphemeris > bodyRotationModel =
             bodyWithReferencePoint->getRotationalEphemeris( );
+
+    if( bodyRotationModel == nullptr )
+    {
+        throw std::runtime_error( "Error when creating reference point ephemeris, no body rotation model is provided" );
+    }
+
+    if( referencePointStateFunction == nullptr )
+    {
+        throw std::runtime_error( "Error when creating reference point ephemeris, no reference point state function is provided" );
+    }
 
     // Create list of state/rotation functions that are to be used
     std::map< int, std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType& ) > > stationEphemerisVector;
