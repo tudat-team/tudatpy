@@ -773,7 +773,6 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldVariationSetup )
         // Test for separate or joint deforming bodies
         for( int bodyTest = 0; bodyTest < 3; bodyTest++ )
         {
-            std::cout<<"Test: "<<functionTest<<" "<<bodyTest<<std::endl;
 
             // Clear for current test
             bodySettings.at( "Earth" )->gravityFieldVariationSettings.clear( );

@@ -25,8 +25,8 @@ namespace basic_astrodynamics
 /*!
  * Map of `AvailableAcceleration`s string representations.
  *
- * There is a naming inconsistency between "pointMassGravity" and `central_gravity`,
- * and between "thirdBodyPointMassGravity" and `third_body_central_gravity`.
+ * There is a naming inconsistency between "pointMassGravity" and `point_mass_gravity`,
+ * and between "thirdBodyPointMassGravity" and `third_body_point_mass_gravity`.
  *
  * The values "thirdBodyPointMassGravity", "thirdBodySphericalHarmonicGravity" and
  * "thirdBodyMutualSphericalHarmonicGravity" are supported by the JSON interface, and are equivalent to

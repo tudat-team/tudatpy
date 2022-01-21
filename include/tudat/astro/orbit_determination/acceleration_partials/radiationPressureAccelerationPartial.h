@@ -214,16 +214,19 @@ public:
         // Retrieve current arc
         std::shared_ptr< interpolators::LookUpScheme< double > > currentArcIndexLookUp =
                 parameter->getArcTimeLookupScheme( );
-        int currentArc = currentArcIndexLookUp->findNearestLowerNeighbour( currentTime_ );
-
-        if( currentArc >= partial.cols( ) )
-        {
-            throw std::runtime_error( "Error when getting arc-wise radiation pressure coefficient partials, data not consistent" );
-        }
-
-        // Set partial
         partial.setZero( );
-        partial.block( 0, currentArc, 3, 1 ) = partialWrtSingleParameter;
+        if( currentArcIndexLookUp->getMinimumValue( ) <= currentTime_ )
+        {
+            int currentArc = currentArcIndexLookUp->findNearestLowerNeighbour( currentTime_ );
+
+            if( currentArc >= partial.cols( ) )
+            {
+                throw std::runtime_error( "Error when getting arc-wise radiation pressure coefficient partials, data not consistent" );
+            }
+
+            // Set partial
+            partial.block( 0, currentArc, 3, 1 ) = partialWrtSingleParameter;
+        }
 
     }
 

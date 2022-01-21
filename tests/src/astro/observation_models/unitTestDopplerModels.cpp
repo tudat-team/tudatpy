@@ -92,7 +92,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
     bodies.at( "Spacecraft" )->setEphemeris(
                 createBodyEphemeris( std::make_shared< KeplerEphemerisSettings >(
                                          spacecraftOrbitalElements, 0.0, earthGravitationalParameter, "Earth" ), "Spacecraft" ) );
-
+    bodies.processBodyFrameDefinitions( );
     
 
     // Define link ends for observations.
@@ -315,6 +315,7 @@ BOOST_AUTO_TEST_CASE( testTwoWayDoppplerModel )
     bodies.at( "Spacecraft" )->setEphemeris(
                 createBodyEphemeris( std::make_shared< KeplerEphemerisSettings >(
                                          spacecraftOrbitalElements, 0.0, earthGravitationalParameter, "Earth" ), "Spacecraft" ) );
+    bodies.processBodyFrameDefinitions( );
 
     
 
@@ -497,20 +498,37 @@ BOOST_AUTO_TEST_CASE( testTwoWayDoppplerModel )
                    std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Earth" ),
                    std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Earth" ) );
 
+        std::shared_ptr< OneWayDopplerObservationSettings > oneWayObservableUplinkSettingsWithoutCorrections =
+                std::make_shared< OneWayDopplerObservationSettings >
+                (  uplinkLinkEndsStationSpacecraft, nullptr );
+        std::shared_ptr< OneWayDopplerObservationSettings > oneWayObservableDownlinkSettingsWithoutCorrections =
+                std::make_shared< OneWayDopplerObservationSettings >
+                (  downlinkLinkEndsStationSpacecraft, nullptr );
+
         std::shared_ptr< ObservationModelSettings > twoWayObservableSettingsWithCorrections =
                 std::make_shared< TwoWayDopplerObservationSettings >
                 ( oneWayObservableUplinkSettingsWithCorrections, oneWayObservableDownlinkSettingsWithCorrections );
+        std::shared_ptr< ObservationModelSettings > twoWayObservableSettingsWithoutCorrections =
+                std::make_shared< TwoWayDopplerObservationSettings >
+                ( oneWayObservableUplinkSettingsWithoutCorrections, oneWayObservableDownlinkSettingsWithoutCorrections );
 
         // Create observation model.
         std::shared_ptr< ObservationModel< 1, double, double> > observationModelWithCorrections =
                 ObservationModelCreator< 1, double, double>::createObservationModel(
                     twoWayObservableSettingsWithCorrections, bodies );
+        std::shared_ptr< ObservationModel< 1, double, double> > observationModelWithoutCorrectionsDirect =
+                ObservationModelCreator< 1, double, double>::createObservationModel(
+                    twoWayObservableSettingsWithoutCorrections, bodies );
+
 
         double observationTime = ( finalEphemerisTime + initialEphemerisTime ) / 2.0;
 
         double observationWithoutCorrections = observationModelWithoutCorrections->computeIdealObservations(
                     observationTime, receiver ).x( );
-
+        double observationWithoutCorrectionsDirect = observationModelWithoutCorrectionsDirect->computeIdealObservations(
+                    observationTime, receiver ).x( );
+        BOOST_CHECK_SMALL( std::fabs( observationWithoutCorrections - observationWithoutCorrectionsDirect ),
+                           static_cast< double >( std::numeric_limits< long double >::epsilon( ) ) );
         std::vector< double > linkEndTimes;
         std::vector< Eigen::Matrix< double, 6, 1 > > linkEndStates;
 
@@ -559,6 +577,8 @@ BOOST_AUTO_TEST_CASE( testTwoWayDoppplerModel )
             BOOST_CHECK_SMALL( std::fabs( static_cast< double >( observableDifference ) ),
                                static_cast< double >( std::numeric_limits< long double >::epsilon( ) ) );
         }
+
+
     }
 }
 

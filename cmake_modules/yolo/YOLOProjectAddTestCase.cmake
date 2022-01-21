@@ -27,16 +27,7 @@ endif ()
 
 if (TUDAT_SKIP_BROKEN_MSVC_CLANG_PRECISION_TESTS)
     # https://github.com/tudat-team/tudat/issues/7
-    set(TEST_TO_BE_SKIPPED ${TEST_TO_BE_SKIPPED}
-            test_basic_astro_OrbitalElementConversions
-            test_basic_astro_TimeConversions
-            test_basic_astro_SphericalOrbitStateConversions
-            test_shape_based_HodographicShaping
-            test_orbit_determination_EstimationInput
-            test_orbit_determination_HybridArcStateEstimation
-            test_propagators_VariationalEquations
-            test_basics_TimeTypes
-            test_io_MultiArrayReader)
+    set(TEST_TO_BE_SKIPPED ${TEST_TO_BE_SKIPPED})
 endif ()
 
 

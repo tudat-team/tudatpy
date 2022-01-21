@@ -232,9 +232,6 @@ BOOST_AUTO_TEST_CASE( testMultiTypeCustomStatePropagation )
 
     // Create spacecraft object.
     bodies.createEmptyBody( "Asterix" );
-    bodies.at( "Asterix" )->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
-                                            std::shared_ptr< interpolators::OneDimensionalInterpolator
-                                            < double, Eigen::Vector6d  > >( ), "Earth", "J2000" ) );
 
     // Define propagator settings variables.
     SelectedAccelerationMap accelerationMap;
@@ -244,7 +241,7 @@ BOOST_AUTO_TEST_CASE( testMultiTypeCustomStatePropagation )
     // Define propagation settings.
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfAsterix;
     accelerationsOfAsterix[ "Earth" ].push_back( std::make_shared< AccelerationSettings >(
-                                                     basic_astrodynamics::central_gravity ) );
+                                                     basic_astrodynamics::point_mass_gravity ) );
     accelerationMap[ "Asterix" ] = accelerationsOfAsterix;
     bodiesToPropagate.push_back( "Asterix" );
     centralBodies.push_back( "Earth" );

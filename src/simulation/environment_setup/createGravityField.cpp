@@ -365,7 +365,7 @@ std::shared_ptr< SphericalHarmonicsGravityFieldSettings > createHomogeneousTriAx
     // Compute reference quantities
     double ellipsoidGravitationalParameter = gravitation::calculateTriAxialEllipsoidVolume(
                 axisA, axisB, axisC ) * ellipsoidDensity * physical_constants::GRAVITATIONAL_CONSTANT;
-    double ellipsoidReferenceRadius = gravitation::calculateTriAxialEllipsoidVolume(
+    double ellipsoidReferenceRadius = gravitation::calculateTriAxialEllipsoidReferenceRadius(
                 axisA, axisB, axisC );
 
     // Compute coefficients
