@@ -4,67 +4,143 @@
   - Geoffrey Hyde Garrett
   - Geoffrey Garrett
   - ggarrett13
+  num_commits: 12
+  first_commit: 2020-05-20 10:41:20
 - name: Emil Heeren
-  email:
+  email: hidden@hidden.com
+  num_commits: 6
+  first_commit: &id001 2010-09-29 16:32:23
 - name: FlyOHolic
   email: m.a.griffioen@student.tudelft.nl
-- name: Reneh107
+  num_commits: 1
+  first_commit: 2018-04-09 22:05:13
+- name: Rene Hoogendoorn
   email: r.hoogendoorn@student.tudelft.nl
   aliases:
-    - Rene107
+  - Rene107
+  - Reneh107
   alternate_emails:
-    - renehoogendoorn107@hotmail.com
+  - renehoogendoorn107@hotmail.com
+  - R.Hoogendoorn@student.tudelft.nl
+  num_commits: 18
+  first_commit: 2016-03-21 16:07:21
+  github: Reneh107
 - name: Kartik Kumar
   email: me@kartikkumar.com
+  num_commits: 260
+  first_commit: 2011-02-07 16:34:50
 - name: Elmar Puts
   email: elmarputs@gmail.com
+  num_commits: 27
+  first_commit: 2020-03-03 23:36:34
 - name: Dominic Dirkx
   email: D.Dirkx@tudelft.nl
   aliases:
   - DominicDirkx
   alternate_emails:
-  - hidden@hidden.com
   - d.dirkx@tudelft.nl
-- name: mfacchinelli
+  num_commits: 45
+  first_commit: 2014-09-25 09:53:17
+  github: DominicDirkx
+- name: Michele Facchinelli
   email: michele.facchinelli@yahoo.it
+  alternate_emails:
+  - m.facchinelli@student.tudelft.nl
   aliases:
-    - mfacchinelli
+  - mfacchinelli
+  num_commits: 258
+  first_commit: 2018-04-05 19:03:56
+  github: mfacchinelli
 - name: Frank Hogervorst
   email: f.c.hogervorst@student.tudelft.nl
   aliases:
   - FrankHogervorst
+  num_commits: 2
+  first_commit: 2017-11-01 09:32:44
 - name: Aleix Pinardell
   email: J.A.PinardellPons@student.tudelft.nl
   alternate_emails:
-    - aleixpinardell@gmail.com
+  - aleixpinardell@gmail.com
+  num_commits: 175
+  first_commit: 2016-11-23 12:52:06
 - name: Jeroen Melman
   email: None
-  alternate_emails:
-  - hidden@hidden.com
-- name: Michele Facchinelli
-  email: m.facchinelli@student.tudelft.nl
+  num_commits: 0
+  first_commit: 2022-01-21 15:49:50.064118
 - name: mchambe
   email: m.s.chambe@student.tudelft.nl
+  num_commits: 102
+  first_commit: 2018-12-09 12:35:28
 - name: mvandenbroeck
   email: m.m.h.vandenbroeck@student.tudelft.nl
+  num_commits: 22
+  first_commit: 2016-04-06 16:31:18
 - name: Jacco Geul
   email: jacco@geul.net
+  aliases:
+  - Jacco
+  - magnific0
+  num_commits: 49
+  first_commit: 2016-01-20 10:20:01
+  github: magnific0
 - name: ifodde
   email: I.Fodde@student.tudelft.nl
   alternate_emails:
   - iostofodde@gmail.com
+  num_commits: 14
+  first_commit: 2018-03-21 19:25:22
 - name: Rody Oldenhuis
   email: rody@dawnaerospace.com
+  num_commits: 3
+  first_commit: 2020-04-03 00:07:14
 - name: Alejandro Gonzalez Puerta
   email: a.gonzalezpuerta@student.tudelft.nl
+  num_commits: 1
+  first_commit: 2016-11-16 16:46:40
 - name: Valerio Filice
   email: filicevalerio@gmail.com
+  num_commits: 1
+  first_commit: 2019-03-26 16:27:17
 - name: Miguel Pignatelly Avillez
   email: mpignatelli.avillez@gmail.com
   aliases:
-    - pipas
-    - MiguelAvillez
+  - pipas
+  - MiguelAvillez
+  num_commits: 5
+  first_commit: 2021-07-03 22:08:37
+  github: MiguelAvillez
 - name: Filippo Oggionni
   email: filippo.oggionni@gmail.com
   aliases:
-    - FilippoOggionni
+  - FilippoOggionni
+  - foggionni
+  num_commits: 14
+  first_commit: 2021-07-12 17:46:02
+- name: jhener
+  email: jonas.hener@web.de
+  num_commits: 8
+  first_commit: 2021-06-25 12:52:33
+- name: kimonito98
+  email: plumarismichael@gmail.com
+  num_commits: 1
+  first_commit: 2021-10-22 11:35:57
+- name: René
+  email: R.Hoogendoorn@student.tudelft.nl
+  num_commits: 1
+  first_commit: 2016-03-22 13:36:57
+  github: Reneh107
+- name: gaffarelj
+  email: jeremie@gaffarel.pro
+# The following is needed to avoid errors with rever
+  num_commits: 2
+  first_commit: 2022-01-04 17:50:11
+- name: Liban Abdulkadir
+  email: hidden@hidden.com
+  aliases:
+  - Guido Holtkamp
+  - Dominic Dirkx
+  - Jeroen Melman
+  - Emil Heeren
+
+  num_commits: 6
+  first_commit: *id001
