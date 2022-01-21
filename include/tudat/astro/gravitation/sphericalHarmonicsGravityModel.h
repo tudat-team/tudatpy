@@ -228,7 +228,6 @@ public:
                                      sphericalHarmonicsCache_->getMaximumDegree( ) ),
                     std::max< int >( maximumOrder_,
                                      sphericalHarmonicsCache_->getMaximumOrder( ) ) + 1 );
-        this->updateMembers( );
     }
 
     //! Constructor taking functions for position of bodies, and parameters of spherical harmonics
@@ -292,7 +291,6 @@ public:
                                      sphericalHarmonicsCache_->getMaximumOrder( ) ) + 1 );
 
 
-        this->updateMembers( );
     }
 
     //! Get gravitational acceleration in body-fixed frame of body undergoing acceleration.
