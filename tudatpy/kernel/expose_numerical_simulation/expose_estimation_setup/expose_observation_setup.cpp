@@ -163,7 +163,10 @@ void expose_observation_setup(py::module &m) {
           get_docstring("313_euler_angles").c_str() );
 
     m.def("two_way_open_loop_doppler",
-          &tom::twoWayOpenLoopDoppler,
+          py::overload_cast<
+                  const std::shared_ptr< tom::OneWayDopplerObservationSettings >,
+                  const std::shared_ptr< tom::OneWayDopplerObservationSettings >,
+                  const std::shared_ptr< tom::ObservationBiasSettings > > ( &tom::twoWayOpenLoopDoppler ),
           py::arg("uplink_doppler_settings" ),
           py::arg("downlink_doppler_settings" ),
           py::arg("bias_settings") = nullptr,
@@ -199,7 +202,7 @@ void expose_observation_setup(py::module &m) {
           py::arg("one_way_range_settings" ),
           py::arg("bias_settings" ) = nullptr,
           py::arg("retransmission_times_function" ) = nullptr,
-          get_docstring("one_way_closed_loop_doppler").c_str() );
+          get_docstring("n_way_range").c_str() );
 
 
     py::class_<tom::LightTimeCorrectionSettings,
@@ -315,10 +318,10 @@ void expose_observation_setup(py::module &m) {
 
     m.def("body_occultation_viability",
           py::overload_cast<
-                  const std::vector< std::pair< std::string, std::string > >,
+                  const std::pair< std::string, std::string >,
                   const std::string >(
                   &tom::bodyOccultationViabilitySettings ),
-          py::arg("link_end_ids" ),
+          py::arg("link_end_id" ),
           py::arg("occulting_body" ),
           get_docstring("body_occultation_viability").c_str() );
 
@@ -379,8 +382,7 @@ void expose_observation_setup(py::module &m) {
           py::arg("simulation_times" ),
           py::arg("reference_link_end_type" ) = tom::receiver,
           py::arg("viability_settings" ) = std::vector< std::shared_ptr< tom::ObservationViabilitySettings > >( ),
-          get_docstring("create_tabulated_simulation_settings").c_str() );
-            // (%!) Add the option for reference link end and viability settings (but not noise function)
+          get_docstring("tabulated_simulation_settings_list").c_str() );
 
 
     m.def("add_gaussian_noise_to_settings",
