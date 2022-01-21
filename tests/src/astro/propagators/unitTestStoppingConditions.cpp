@@ -173,7 +173,7 @@ void performSimulation( const int testType )
 
     // Define acceleration model settings.
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfApollo;
-    accelerationsOfApollo[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+    accelerationsOfApollo[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
     accelerationsOfApollo[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( aerodynamic ) );
     accelerationMap[ "Apollo" ] = accelerationsOfApollo;
 
@@ -377,7 +377,7 @@ BOOST_AUTO_TEST_CASE( testPropagationStoppingConditionsWithDependentVariableUpda
     // Define propagation settings.
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfAsterix;
     accelerationsOfAsterix[ "Earth" ].push_back( std::make_shared< AccelerationSettings >(
-                                                     basic_astrodynamics::central_gravity ) );
+                                                     basic_astrodynamics::point_mass_gravity ) );
     accelerationMap[ "Asterix" ] = accelerationsOfAsterix;
 
     // Create acceleration models and propagation settings.

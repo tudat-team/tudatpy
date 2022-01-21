@@ -24,7 +24,7 @@ enum ObservationDependentVariables
     station_elevation_angle,
     station_azimuth_angle,
     target_range,
-    body_avoidance_angle,
+    body_avoidance_angle_variable,
     integration_time,
     station_local_time,
     limb_separation_angle
@@ -120,7 +120,7 @@ public:
             const std::string& bodyAvoidance,
             const observation_models::LinkEndType startLinkEnd = observation_models::unidentified_link_end,
             const observation_models::LinkEndType endLinkEnd = observation_models::unidentified_link_end ):
-        ObservationDependentVariableSettings( body_avoidance_angle ),
+        ObservationDependentVariableSettings( body_avoidance_angle_variable ),
         startLinkEnd_( startLinkEnd ), endLinkEnd_( endLinkEnd ), bodyAvoidance_( bodyAvoidance ){ }
 
     observation_models::LinkEndType startLinkEnd_;

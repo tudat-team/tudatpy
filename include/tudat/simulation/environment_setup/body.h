@@ -664,10 +664,10 @@ public:
     void setEphemeris( const std::shared_ptr< ephemerides::Ephemeris > bodyEphemeris )
     {
         bodyEphemeris_ = bodyEphemeris;
-        if( resetBaseFrames_ != nullptr )
-        {
-            resetBaseFrames_( );
-        }
+//        if( resetBaseFrames_ != nullptr )
+//        {
+//            resetBaseFrames_( );
+//        }
     }
 
     //! Function to set the gravity field of the body.
@@ -1607,15 +1607,15 @@ public:
 
     const std::unordered_map< std::string, std::shared_ptr< Body > >& getMap( ) const { return bodyMap_; }
 
-    void processBodyFrameDefinitions( )
+    void processBodyFrameDefinitions( ) const
     {
         setGlobalFrameBodyEphemerides( bodyMap_, frameOrigin_, frameOrientation_);
 
-        for( auto bodyIterator : bodyMap_ )
-        {
-            bodyIterator.second->setBaseFrameFunction(
-                        std::bind( &SystemOfBodies::processBodyFrameDefinitions, this ) );
-        }
+//        for( auto bodyIterator : bodyMap_ )
+//        {
+//            bodyIterator.second->setBaseFrameFunction(
+//                        std::bind( &SystemOfBodies::processBodyFrameDefinitions, this ) );
+//        }
     }
 
 

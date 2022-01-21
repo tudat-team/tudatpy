@@ -56,7 +56,7 @@ BOOST_AUTO_TEST_CASE( test_EstimationFromPosition )
         }
 
         BOOST_CHECK_SMALL( totalError( 6 ), toleranceMultiplier * 1.0E3 );
-        std::cout << totalError.transpose( ) << std::endl;
+        std::cout <<"Total error: "<< totalError.transpose( ) << std::endl;
     }
 
     std::pair< std::shared_ptr< simulation_setup::PodOutput< double > >,

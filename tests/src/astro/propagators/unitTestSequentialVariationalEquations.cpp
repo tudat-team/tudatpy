@@ -93,19 +93,14 @@ integrateEquations( const bool performIntegrationsSequentially )
     Eigen::Vector6d lageosState = convertKeplerianToCartesianElements(
                 lageosKeplerianElements, getBodyGravitationalParameter("Earth" ) );
 
-    lageos->setEphemeris( std::make_shared< TabulatedCartesianEphemeris< double, double > >(
-                              std::shared_ptr< interpolators::OneDimensionalInterpolator<
-                              double, Eigen::Vector6d > >( ), "Earth" ) );
-    
-
     // Set accelerations between bodies that are to be taken into account.
     SelectedAccelerationMap accelerationMap;
 
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfLageos;
-    //accelerationsOfLageos[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+    //accelerationsOfLageos[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
     //accelerationsOfLageos[ "Earth" ].push_back( std::make_shared< RelativisticCorrectionSettings >( ) );
     //accelerationsOfLageos[ "Earth" ].push_back( std::make_shared< SphericalHarmonicAccelerationSettings >( 8, 8 ) );
-    accelerationsOfLageos[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+    accelerationsOfLageos[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
     accelerationMap[ "LAGEOS" ] = accelerationsOfLageos;
 
     // Set bodies for which initial state is to be estimated and integrated.

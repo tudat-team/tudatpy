@@ -138,7 +138,7 @@ BOOST_AUTO_TEST_CASE( testMultiArrayReader )
 
     // Test functionality of 4-dimensional multi-array reader
     {
-        for ( unsigned int j = 0; j < 2; j++ )
+        for ( unsigned int j = 0; j < 1; j++ )
         {
             std::string fileName;
             if ( j == 0 )
@@ -154,19 +154,27 @@ BOOST_AUTO_TEST_CASE( testMultiArrayReader )
 
             for ( unsigned int i = 0; i < 2; i++)
             {
+                std::cout<<"Test 1"<<std::endl;
                 boost::multi_array< double, 4 > multiArrayFromFile =
                         tudat::input_output::MultiArrayFileReader< 4 >::readMultiArray( fileName );
+                std::cout<<"Test 2"<<std::endl;
 
                 // Read only multi-array from file
                 if ( i == 0 )
                 {
+                    std::cout<<"Test 3"<<std::endl;
                     multiArrayFromFile = tudat::input_output::MultiArrayFileReader< 4 >::readMultiArray( fileName );
+                    std::cout<<"Test 4"<<std::endl;
+
                 }
                 // Read multi-array and independent variable values
                 else
                 {
+                    std::cout<<"Test 5"<<std::endl;
                     std::pair< boost::multi_array< double, 4 >, std::vector< std::vector< double > > > fileContents =
                             tudat::input_output::MultiArrayFileReader< 4 >::readMultiArrayAndIndependentVariables( fileName );
+                    std::cout<<"Test 6"<<std::endl;
+
                     multiArrayFromFile = fileContents.first;
                     std::vector< std::vector< double > > independentVariables = fileContents.second;
 

@@ -62,7 +62,7 @@ CentralGravitationPartial::CentralGravitationPartial(
         const std::shared_ptr< gravitation::CentralGravitationalAccelerationModel3d > gravitationalAcceleration,
         const std::string acceleratedBody,
         const std::string acceleratingBody ):
-    AccelerationPartial( acceleratedBody, acceleratingBody, basic_astrodynamics::central_gravity )
+    AccelerationPartial( acceleratedBody, acceleratingBody, basic_astrodynamics::point_mass_gravity )
 {
     accelerationUpdateFunction_ =
             std::bind( &basic_astrodynamics::AccelerationModel< Eigen::Vector3d>::updateMembers, gravitationalAcceleration, std::placeholders::_1 );
