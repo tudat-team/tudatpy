@@ -12,7 +12,7 @@
 #include "expose_estimation_setup/expose_estimated_parameter_setup.h"
 #include "expose_estimation_setup/expose_observation_setup.h"
 
-
+#include "tudatpy/docstrings.h"
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <pybind11/eigen.h>
@@ -23,6 +23,7 @@
 namespace py = pybind11;
 namespace tss = tudat::simulation_setup;
 namespace tp = tudat::propagators;
+namespace tom = tudat::observation_models;
 
 namespace tudatpy {
 namespace numerical_simulation {
@@ -37,13 +38,13 @@ void expose_estimation_setup(py::module &m) {
     parameter::expose_estimated_parameter_setup(parameter_setup);
 
     // # EstimatableParameterSettings --> EstimatableParameterSet #
-    m.def("create_parameters_to_estimate",
+    m.def("create_parameter_set",
           &tss::createParametersToEstimate< double >,
           py::arg("parameter_settings"),
           py::arg("bodies"),
           py::arg("propagator_settings") =
                   std::shared_ptr< tp::PropagatorSettings< double > >( ),
-          get_docstring("create_parameters_to_estimate").c_str() );
+          get_docstring("create_parameter_set").c_str() );
 
 
     // ************** OBSERVATION ***************
