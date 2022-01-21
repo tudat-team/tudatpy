@@ -335,11 +335,6 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
         bodies.createEmptyBody( "Vehicle" );
 
         bodies.at( "Vehicle" )->setConstantBodyMass( vehicleMass );
-        bodies.at( "Vehicle" )->setEphemeris(
-                    std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
-                        std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector6d  > >( ),
-                        "Earth" ) );
-
         if( i < 4 && !imposeThrustDirection )
         {
             bodies.at( "Vehicle" )->setRotationalEphemeris(
