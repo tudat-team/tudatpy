@@ -10,6 +10,10 @@
   email: m.a.griffioen@student.tudelft.nl
 - name: Reneh107
   email: r.hoogendoorn@student.tudelft.nl
+  aliases:
+    - Rene107
+  alternate_emails:
+    - renehoogendoorn107@hotmail.com
 - name: Kartik Kumar
   email: me@kartikkumar.com
 - name: Elmar Puts
@@ -20,14 +24,19 @@
   - DominicDirkx
   alternate_emails:
   - hidden@hidden.com
+  - d.dirkx@tudelft.nl
 - name: mfacchinelli
   email: michele.facchinelli@yahoo.it
+  aliases:
+    - mfacchinelli
 - name: Frank Hogervorst
   email: f.c.hogervorst@student.tudelft.nl
   aliases:
   - FrankHogervorst
 - name: Aleix Pinardell
   email: J.A.PinardellPons@student.tudelft.nl
+  alternate_emails:
+    - aleixpinardell@gmail.com
 - name: Jeroen Melman
   email: None
   alternate_emails:
@@ -44,15 +53,18 @@
   email: I.Fodde@student.tudelft.nl
   alternate_emails:
   - iostofodde@gmail.com
-- name: René
-  email: R.Hoogendoorn@student.tudelft.nl
-- name: DominicDirkx
-  email: d.dirkx@tudelft.nl
 - name: Rody Oldenhuis
   email: rody@dawnaerospace.com
-- name: Rene107
-  email: renehoogendoorn107@hotmail.com
 - name: Alejandro Gonzalez Puerta
   email: a.gonzalezpuerta@student.tudelft.nl
 - name: Valerio Filice
   email: filicevalerio@gmail.com
+- name: Miguel Pignatelly Avillez
+  email: mpignatelli.avillez@gmail.com
+  aliases:
+    - pipas
+    - MiguelAvillez
+- name: Filippo Oggionni
+  email: filippo.oggionni@gmail.com
+  aliases:
+    - FilippoOggionni
