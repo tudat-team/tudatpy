@@ -93,7 +93,7 @@ void expose_estimated_parameter_setup(py::module &m) {
           &tep::arcwiseDragCoefficient,
           py::arg("body"),
           py::arg("arc_initial_times"),
-          get_docstring("arcwise_drag_coefficient").c_str() );
+          get_docstring("arcwise_constant_drag_coefficient").c_str() );
 
     m.def("radiation_pressure_coefficient",
           &tep::radiationPressureCoefficient,
@@ -167,7 +167,8 @@ void expose_estimated_parameter_setup(py::module &m) {
 
     m.def("mean_moment_of_inertia",
           &tep::meanMomentOfInertia,
-          py::arg("body") );
+          py::arg("body"),
+          get_docstring("mean_moment_of_inertia").c_str() );
 
     m.def("constant_rotation_rate",
           &tep::constantRotationRate,
