@@ -194,10 +194,14 @@ BOOST_AUTO_TEST_CASE( test_shGravityModelSetup )
     Eigen::Vector6d dummyEarthState =
             ( Eigen::Vector6d ( ) << 1.1E11, 0.5E11, 0.01E11, 0.0, 0.0, 0.0
               ).finished( );
+    Eigen::Vector7d unitRotationalState = Eigen::Vector7d::Zero( );
+    unitRotationalState.segment( 0, 4 ) = linear_algebra::convertQuaternionToVectorFormat(
+                Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ) );
     bodies.at( "Earth" )->setState( dummyEarthState );
     bodies.at( "Vehicle" )->setState(
                 ( Eigen::Vector6d ( ) << 7.0e6, 8.0e6, 9.0e6, 0.0, 0.0, 0.0
                   ).finished( ) + dummyEarthState );
+    bodies.at( "Earth" )->setCurrentRotationalStateToLocalFrame( unitRotationalState );
 
     // Define Earth gravity field.
     double gravitationalParameter = 3.986004418e14;
