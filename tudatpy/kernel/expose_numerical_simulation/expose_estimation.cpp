@@ -219,7 +219,7 @@ void expose_estimation(py::module &m) {
                  py::arg( "parameter_size" ),
                  py::arg( "inverse_apriori_covariance" ) = Eigen::MatrixXd::Zero( 0, 0 ),
                  py::arg( "apriori_parameter_correction" ) = Eigen::VectorXd( 0 ),
-             get_docstring("PodInput.__init__").c_str() )
+             get_docstring("PodInput.ctor").c_str() )
             .def( "set_constant_weight",
                   &tss::PodInput<double, double>::setConstantWeightsMatrix,
                   py::arg( "weight" ),
