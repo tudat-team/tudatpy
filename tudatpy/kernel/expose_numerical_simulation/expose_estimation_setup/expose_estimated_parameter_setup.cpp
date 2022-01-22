@@ -25,7 +25,7 @@ namespace parameter {
 void expose_estimated_parameter_setup(py::module &m) {
 
 
-    py::enum_<tep::EstimatebleParametersEnum >(m, "EstimatebleParameterTypes")
+    py::enum_<tep::EstimatebleParametersEnum >(m, "EstimatebleParameterTypes", get_docstring("EstimatebleParameterTypes").c_str() )
             .value("arc_wise_initial_body_state_type", tep::EstimatebleParametersEnum::arc_wise_initial_body_state)
             .value("initial_body_state_type", tep::EstimatebleParametersEnum::initial_body_state)
             .value("initial_rotational_body_state_type", tep::EstimatebleParametersEnum::initial_rotational_body_state)
@@ -60,7 +60,8 @@ void expose_estimated_parameter_setup(py::module &m) {
             .export_values();
 
     py::class_<tep::EstimatableParameterSettings,
-            std::shared_ptr<tep::EstimatableParameterSettings>>(m, "EstimatableParameterSettings");
+            std::shared_ptr<tep::EstimatableParameterSettings>>(m, "EstimatableParameterSettings",
+                                                                get_docstring("EstimatableParameterSettings").c_str() );
             // .def(py::init<
             //      const std::string,
             //      const tep::EstimatebleParametersEnum,
@@ -69,14 +70,56 @@ void expose_estimated_parameter_setup(py::module &m) {
             //      py::arg("parameter_type"),
             //      py::arg("point_on_body_id") = "");
 
+
+
+    // ###############    Initial States             ################################
+
     m.def("initial_states",
           &tss::getInitialStateParameterSettings< double >,
           py::arg("propagator_settings"), py::arg("bodies"),
-          py::arg("arc_initial_times") = std::vector< double >( ) );
+          py::arg("arc_initial_times") = std::vector< double >( ),
+          get_docstring("initial_states").c_str() );
+
+
+
+    // ###############    Vehicle Model Parameters   ################################
+
+    m.def("constant_drag_coefficient",
+          &tep::constantDragCoefficient,
+          py::arg("body"),
+          get_docstring("constant_drag_coefficient").c_str() );
+
+    m.def("arcwise_constant_drag_coefficient",
+          &tep::arcwiseDragCoefficient,
+          py::arg("body"),
+          py::arg("arc_initial_times"),
+          get_docstring("arcwise_constant_drag_coefficient").c_str() );
+
+    m.def("radiation_pressure_coefficient",
+          &tep::radiationPressureCoefficient,
+          py::arg("body"),
+          get_docstring("radiation_pressure_coefficient").c_str() );
+
+    m.def("arcwise_radiation_pressure_coefficient",
+          &tep::arcwiseRadiationPressureCoefficient,
+          py::arg("body"),
+          py::arg("arc_initial_times"),
+          get_docstring("arcwise_radiation_pressure_coefficient").c_str() );
+
+    m.def("constant_empirical_acceleration_terms",
+          &tep::constantEmpiricalAccelerationMagnitudes,
+          py::arg("body"),
+          py::arg("centralBody"),
+          get_docstring("constant_empirical_acceleration_terms").c_str() );
+
+
+
+    // ###############    Gravity Model Parameters  ################################
 
     m.def("gravitational_parameter",
           &tep::gravitationalParameter,
-          py::arg("body_name") );
+          py::arg("body"),
+          get_docstring("gravitational_parameter").c_str() );
 
     m.def("spherical_harmonics_c_coefficients",
           py::overload_cast< const std::string,
@@ -84,17 +127,19 @@ void expose_estimated_parameter_setup(py::module &m) {
           const int,
           const int,
           const int >(&tep::sphericalHarmonicsCosineBlock),
-          py::arg("body_name"),
+          py::arg("body"),
           py::arg("minimum_degree"),
           py::arg("minimum_order"),
           py::arg("maximum_degree"),
-          py::arg("maximum_order") );
+          py::arg("maximum_order"),
+          get_docstring("spherical_harmonics_c_coefficients", 0).c_str() );
 
     m.def("spherical_harmonics_c_coefficients",
           py::overload_cast< const std::string,
           std::vector< std::pair< int, int > > >( &tep::sphericalHarmonicsCosineBlock),
-          py::arg("body_name"),
-          py::arg("block_indices") );
+          py::arg("body"),
+          py::arg("block_indices"),
+          get_docstring("spherical_harmonics_c_coefficients", 1).c_str() );
 
     m.def("spherical_harmonics_s_coefficients",
           py::overload_cast< const std::string,
@@ -102,180 +147,194 @@ void expose_estimated_parameter_setup(py::module &m) {
           const int,
           const int,
           const int  >(&tep::sphericalHarmonicsSineBlock),
-          py::arg("body_name"),
+          py::arg("body"),
           py::arg("minimum_degree"),
           py::arg("minimum_order"),
           py::arg("maximum_degree"),
-          py::arg("maximum_order") );
+          py::arg("maximum_order"),
+          get_docstring("spherical_harmonics_s_coefficients", 0).c_str() );
 
     m.def("spherical_harmonics_s_coefficients",
           py::overload_cast< const std::string,
           std::vector< std::pair< int, int > > >( &tep::sphericalHarmonicsSineBlock),
-          py::arg("body_name"),
-          py::arg("block_indices") );
+          py::arg("body"),
+          py::arg("block_indices"),
+          get_docstring("spherical_harmonics_s_coefficients", 1).c_str() );
 
-    m.def("constant_drag_coefficient",
-          &tep::constantDragCoefficient,
-          py::arg("body_name") );
 
-    m.def("radiation_pressure_coefficient",
-          &tep::radiationPressureCoefficient,
-          py::arg("body_name") );
 
-    m.def("arcwise_radiation_pressure_coefficient",
-          &tep::arcwiseRadiationPressureCoefficient,
-          py::arg("body_name"),
-          py::arg("arc_initial_times") );
+    // ###############    Rotation Model Parameters  ################################
 
-    m.def("arcwise_drag_coefficient",
-          &tep::arcwiseDragCoefficient,
-          py::arg("body_name"),
-          py::arg("arc_initial_times") );
+    m.def("mean_moment_of_inertia",
+          &tep::meanMomentOfInertia,
+          py::arg("body"),
+          get_docstring("mean_moment_of_inertia").c_str() );
 
     m.def("constant_rotation_rate",
           &tep::constantRotationRate,
-          py::arg("body_name") );
+          py::arg("body"),
+          get_docstring("constant_rotation_rate").c_str() );
 
     m.def("rotation_pole_position",
           &tep::rotationPolePosition,
-          py::arg("body_name") );
+          py::arg("body"),
+          get_docstring("rotation_pole_position").c_str() );
 
-    m.def("observation_bias",
+    m.def("core_factor",
+          &tep::coreFactor,
+          py::arg("body"),
+          get_docstring("core_factor").c_str() );
+
+    m.def("free_core_nutation_rate",
+          &tep::freeCoreNutationRate,
+          py::arg("body"),
+          get_docstring("free_core_nutation_rate").c_str() );
+
+    m.def("periodic_spin_variations",
+          &tep::periodicSpinVariations,
+          py::arg("body"),
+          get_docstring("periodic_spin_variations").c_str() );
+
+    m.def("polar_motion_amplitudes",
+          &tep::polarMotionAmplitudes,
+          py::arg("body"),
+          get_docstring("polar_motion_amplitudes").c_str() );
+
+
+
+    // ###############   Observation Model Parameters   ################################
+
+    m.def("absolute_observation_bias",
           &tep::observationBias,
           py::arg("link_ends"),
-          py::arg("observable_type") );
+          py::arg("observable_type"),
+          get_docstring("absolute_observation_bias").c_str() );
 
-    m.def("relative_observation_bias",
-          &tep::relativeObservationBias,
-          py::arg("link_ends"),
-          py::arg("observable_type") );
-
-    m.def("arcwise_observation_bias",
+    m.def("arcwise_absolute_observation_bias",
           &tep::arcwiseObservationBias,
           py::arg("link_ends"),
           py::arg("observable_type"),
           py::arg("arc_start_times" ),
-          py::arg("time_link_end" ) );
+          py::arg("time_link_end" ),
+          get_docstring("arcwise_absolute_observation_bias").c_str() );
+
+    m.def("relative_observation_bias",
+          &tep::relativeObservationBias,
+          py::arg("link_ends"),
+          py::arg("observable_type"),
+          get_docstring("relative_observation_bias").c_str() );
 
     m.def("arcwise_relative_observation_bias",
           &tep::arcwiseRelativeObservationBias,
           py::arg("link_ends"),
           py::arg("observable_type"),
           py::arg("arc_start_times" ),
-          py::arg("time_link_end" ) );
-
-
-    m.def("ppn_parameter_gamma",
-          &tep::ppnParameterGamma );
-
-    m.def("ppn_parameter_beta",
-          &tep::ppnParameterBeta );
+          py::arg("time_link_end" ),
+          get_docstring("arcwise_relative_observation_bias").c_str() );
 
     m.def("ground_station_position",
           &tep::groundStationPosition,
-          py::arg("body_name"),
-          py::arg("ground_station_name") );
+          py::arg("body"),
+          py::arg("ground_station_name"),
+          get_docstring("ground_station_position").c_str() );
+
+
+
+    // ###############  Tidal Model Parameters  ################################
 
     m.def("direct_tidal_dissipation_time_lag",
           py::overload_cast< const std::string&, const std::string& >(
               &tep::directTidalDissipationLagTime ),
-          py::arg("body_name"),
-          py::arg("deforming_body") );
+          py::arg("body"),
+          py::arg("deforming_body"),
+          get_docstring("direct_tidal_dissipation_time_lag", 0).c_str() );
 
     m.def("direct_tidal_dissipation_time_lag",
           py::overload_cast< const std::string&, const std::vector< std::string >& >(
               &tep::directTidalDissipationLagTime ),
-          py::arg("body_name"),
-          py::arg("deforming_body") );
-
-    m.def("mean_moment_of_inertia",
-          &tep::meanMomentOfInertia,
-          py::arg("body_name") );
-
-    m.def("order_invariant_k_love_number",
-          py::overload_cast< const std::string&,
-          const int,
-          const std::string,
-          const bool >(&tep::orderInvariantKLoveNumber),
-          py::arg("deformed_body"),
-          py::arg("degree"),
-          py::arg("deforming_body"),
-          py::arg("use_complex_love_number") = 0 );
-
-    m.def("order_invariant_k_love_number",
-          py::overload_cast< const std::string&,
-          const int,
-          const std::vector< std::string >&,
-          const bool >(&tep::orderInvariantKLoveNumber),
-          py::arg("deformed_body"),
-          py::arg("degree"),
-          py::arg("deforming_bodies"),
-          py::arg("use_complex_love_number") = 0 );
-
-    m.def("order_invariant_k_love_number",
-          py::overload_cast< const std::string&,
-          const int,
-          const bool >(&tep::orderInvariantKLoveNumber),
-          py::arg("deformed_body"),
-          py::arg("degree"),
-          py::arg("use_complex_love_number") = 0 );
-
-
-
-    m.def("order_varying_k_love_number",
-          py::overload_cast< const std::string&,
-          const int,
-          const std::vector< int >&,
-          const std::string,
-          const bool >(&tep::orderVaryingKLoveNumber),
-          py::arg("deformed_body"),
-          py::arg("degree"),
-          py::arg("orders"),
-          py::arg("deforming_body"),
-          py::arg("use_complex_love_number") = 0 );
-
-    m.def("order_varying_k_love_number",
-          py::overload_cast< const std::string&,
-          const int,
-          const std::vector< int >&,
-          const std::vector< std::string >&,
-          const bool >(&tep::orderVaryingKLoveNumber),
-          py::arg("deformed_body"),
-          py::arg("degree"),
-          py::arg("orders"),
-          py::arg("deforming_bodies"),
-          py::arg("use_complex_love_number") = 0 );
-
-    m.def("order_varying_k_love_number",
-          py::overload_cast< const std::string&,
-          const int,
-          const std::vector< int >&,
-          const bool >(&tep::orderVaryingKLoveNumber),
-          py::arg("deformed_body"),
-          py::arg("degree"),
-          py::arg("orders"),
-          py::arg("use_complex_love_number") = 0 );
-
-    m.def("constant_empirical_acceleration_terms",
-          &tep::constantEmpiricalAccelerationMagnitudes,
           py::arg("body"),
-          py::arg("centralBody") );
+          py::arg("deforming_body"),
+          get_docstring("direct_tidal_dissipation_time_lag", 1).c_str() );
 
-    m.def("core_factor",
-          &tep::coreFactor,
-          py::arg("body") );
+    m.def("order_invariant_k_love_number",
+          py::overload_cast< const std::string&,
+          const int,
+          const std::string,
+          const bool >(&tep::orderInvariantKLoveNumber),
+          py::arg("deformed_body"),
+          py::arg("degree"),
+          py::arg("deforming_body"),
+          py::arg("use_complex_love_number") = 0,
+          get_docstring("order_invariant_k_love_number", 0).c_str() );
 
-    m.def("free_core_nutation_rate",
-          &tep::freeCoreNutationRate,
-          py::arg("body") );
+    m.def("order_invariant_k_love_number",
+          py::overload_cast< const std::string&,
+          const int,
+          const std::vector< std::string >&,
+          const bool >(&tep::orderInvariantKLoveNumber),
+          py::arg("deformed_body"),
+          py::arg("degree"),
+          py::arg("deforming_bodies"),
+          py::arg("use_complex_love_number") = 0,
+          get_docstring("order_invariant_k_love_number", 1).c_str() );
 
-    m.def("periodic_spin_variations",
-          &tep::periodicSpinVariations,
-          py::arg("body") );
+    m.def("order_invariant_k_love_number",
+          py::overload_cast< const std::string&,
+          const int,
+          const bool >(&tep::orderInvariantKLoveNumber),
+          py::arg("deformed_body"),
+          py::arg("degree"),
+          py::arg("use_complex_love_number") = 0,
+          get_docstring("order_invariant_k_love_number", 2).c_str() );
 
-    m.def("polar_motion_amplitudes",
-          &tep::polarMotionAmplitudes,
-          py::arg("body") );
+    m.def("order_varying_k_love_number",
+          py::overload_cast< const std::string&,
+          const int,
+          const std::vector< int >&,
+          const std::string,
+          const bool >(&tep::orderVaryingKLoveNumber),
+          py::arg("deformed_body"),
+          py::arg("degree"),
+          py::arg("orders"),
+          py::arg("deforming_body"),
+          py::arg("use_complex_love_number") = 0,
+          get_docstring("order_varying_k_love_number", 0).c_str() );
+
+    m.def("order_varying_k_love_number",
+          py::overload_cast< const std::string&,
+          const int,
+          const std::vector< int >&,
+          const std::vector< std::string >&,
+          const bool >(&tep::orderVaryingKLoveNumber),
+          py::arg("deformed_body"),
+          py::arg("degree"),
+          py::arg("orders"),
+          py::arg("deforming_bodies"),
+          py::arg("use_complex_love_number") = 0,
+          get_docstring("order_varying_k_love_number", 1).c_str() );
+
+    m.def("order_varying_k_love_number",
+          py::overload_cast< const std::string&,
+          const int,
+          const std::vector< int >&,
+          const bool >(&tep::orderVaryingKLoveNumber),
+          py::arg("deformed_body"),
+          py::arg("degree"),
+          py::arg("orders"),
+          py::arg("use_complex_love_number") = 0,
+          get_docstring("order_varying_k_love_number", 2).c_str() );
+
+
+    // ###############  Global (GR) Model Parameters ################################
+
+    m.def("ppn_parameter_gamma",
+          &tep::ppnParameterGamma,
+          get_docstring("ppn_parameter_gamma").c_str() );
+
+    m.def("ppn_parameter_beta",
+          &tep::ppnParameterBeta,
+          get_docstring("ppn_parameter_beta").c_str() );
+
 
 }
 
