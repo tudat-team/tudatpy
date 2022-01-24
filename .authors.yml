@@ -5,20 +5,20 @@
   - ggarrett
   - Geoffrey Garrett
   - Geoffrey Hyde Garrett
-  num_commits: 203
+  num_commits: 262
   first_commit: 2018-12-10 19:25:41
 - name: Dominic Dirkx
   email: d.dirkx@tudelft.nl
   aliases:
   - DominicDirkx
-  num_commits: 88
+  num_commits: 179
   first_commit: 2019-05-21 14:45:18
   github: DominicDirkx
 - name: Jonas Hener
   email: jonas.hener@web.de
   aliases:
   - jhener
-  num_commits: 1
+  num_commits: 31
   first_commit: 2021-04-13 15:58:49
 - name: The Gitter Badger
   email: badger@gitter.im
@@ -32,3 +32,32 @@
   email: 36631475+jo11he@users.noreply.github.com
   num_commits: 0
   first_commit: 2021-04-13 16:03:09
+- name: transferorbit
+  email: transferorbit@users.noreply.github.com
+  num_commits: 1
+  first_commit: 2021-01-04 11:05:58
+- name: Filippo Oggionni
+  email: 57680167+FilippoOggionni@users.noreply.github.com
+  num_commits: 1
+  first_commit: 2021-10-25 17:15:07
+- name: gaffarelj
+  email: jeremie@gaffarel.pro
+  num_commits: 21
+  first_commit: 2021-12-28 17:31:54
+- name: MiguelAvillez
+  email: mpignatelli.avillez@gmail.com
+  num_commits: 4
+  first_commit: 2021-10-28 21:13:17
+  github: MiguelAvillez
+- name: jgaffarel
+  email: jgaffarel@tudelft.nl
+  num_commits: 1
+  first_commit: 2021-12-28 15:26:49
+- name: kimonito98
+  email: plumarismichael@gmail.com
+  num_commits: 2
+  first_commit: 2021-08-24 15:11:39
+- name: foggionni
+  email: filippo.oggionni@gmail.com
+  num_commits: 52
+  first_commit: 2021-07-12 23:11:10
