@@ -655,6 +655,15 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicDependentVariableOutput )
     }
 }
 
+Eigen::VectorXd getCustomDependentVariable(
+        const SystemOfBodies& bodies )
+{
+    Eigen::Vector6d sunState = bodies.at( "Sun" )->getState( );
+    Eigen::Vector6d moonState = bodies.at( "Moon" )->getState( );
+    return sunState.cwiseQuotient( moonState );
+
+}
+
 BOOST_AUTO_TEST_CASE( testDependentVariableEnvironmentUpdate )
 {
     std::string kernelsPath = paths::getSpiceKernelPath( );
@@ -716,6 +725,10 @@ BOOST_AUTO_TEST_CASE( testDependentVariableEnvironmentUpdate )
     dependentVariables.push_back(
                 std::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
                     "Moon", reference_frames::flight_path_angle, "Earth" ) );
+    dependentVariables.push_back(
+                std::make_shared< CustomDependentVariableSaveSettings >(
+                    [=]( ){ return getCustomDependentVariable( bodies ); }, 6 ) );
+
 
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
             std::make_shared< TranslationalStatePropagatorSettings< double > >
@@ -780,6 +793,11 @@ BOOST_AUTO_TEST_CASE( testDependentVariableEnvironmentUpdate )
         BOOST_CHECK_SMALL(
                     std::fabs( variableIterator->second( 6 ) - moonRelativeSphericalState(
                                    orbital_element_conversions::flightPathIndex ) ), 1.0E-14 );
+
+        Eigen::Vector6d sunState = bodies.at( "Sun" )->getStateInBaseFrameFromEphemeris( variableIterator->first );
+        Eigen::Vector6d moonState = bodies.at( "Moon" )->getStateInBaseFrameFromEphemeris(variableIterator->first  );
+        Eigen::Vector6d customDependentVariable = sunState.cwiseQuotient( moonState );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( customDependentVariable, ( variableIterator->second.segment( 7, 6 ) ), 1.0E-14 );
     }
 }
 
