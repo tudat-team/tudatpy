@@ -428,6 +428,18 @@ protected:
     unsigned int numberOfIterationsWithoutImprovement_;
 };
 
+
+inline std::shared_ptr< EstimationConvergenceChecker > estimationConvergenceChecker(
+        const unsigned int maximumNumberOfIterations = 5,
+        const double minimumResidualChange = 0.0,
+        const double minimumResidual = 1.0E-20,
+        const int numberOfIterationsWithoutImprovement = 2 )
+{
+    return std::make_shared< EstimationConvergenceChecker >(
+            maximumNumberOfIterations, minimumResidualChange, minimumResidual, numberOfIterationsWithoutImprovement );
+}
+
+
 void scaleInformationMatrixWithWeights(
         Eigen::MatrixXd& informationMatrix,
         const Eigen::VectorXd& weightsDiagonal );
