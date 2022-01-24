@@ -1605,6 +1605,8 @@ BOOST_AUTO_TEST_CASE( test_panelledRadiationPressureInterfaceSetup )
                 initialKeplerElements, 0.0, spice_interface::getBodyGravitationalParameter( "Earth" ), "Earth", "ECLIPJ2000" );
 
 
+
+
     // Create radiation pressure properties
     std::vector< double > areas;
     areas.push_back( 4.0 );
@@ -1658,6 +1660,11 @@ BOOST_AUTO_TEST_CASE( test_panelledRadiationPressureInterfaceSetup )
     // Create bodies
     SystemOfBodies bodies = createSystemOfBodies( bodySettings );
     
+
+    Eigen::Vector7d unitRotationalState = Eigen::Vector7d::Zero( );
+    unitRotationalState.segment( 0, 4 ) = linear_algebra::convertQuaternionToVectorFormat(
+                Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ) );
+    bodies.at( "Vehicle" )->setCurrentRotationalStateToLocalFrame( unitRotationalState );
 
     BOOST_CHECK_EQUAL( bodies.at( "Vehicle" )->getRadiationPressureInterfaces( ).size( ), 1 );
     BOOST_CHECK_EQUAL( bodies.at( "Vehicle" )->getRadiationPressureInterfaces( ).count( "Sun" ), 1 );

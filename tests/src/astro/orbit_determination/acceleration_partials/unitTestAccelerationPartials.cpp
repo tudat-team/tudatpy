@@ -568,10 +568,14 @@ BOOST_AUTO_TEST_CASE( testAerodynamicAccelerationPartials )
     vehicleSphericalEntryState( SphericalOrbitalStateElementIndices::headingAngleIndex ) = 0.6;
 
     // Convert vehicle state from spherical elements to Cartesian elements.
-    Eigen::Vector6d systemInitialState = convertSphericalOrbitalToCartesianState(
-                vehicleSphericalEntryState );
+    Eigen::Vector6d systemInitialState = tudat::ephemerides::transformStateToTargetFrame(
+                convertSphericalOrbitalToCartesianState(
+                vehicleSphericalEntryState ), 0.0, bodies.at( "Earth" )->getRotationalEphemeris( ) );
+
 
     bodies.at( "Earth" )->setStateFromEphemeris( 0.0 );
+    bodies.at( "Earth" )->setCurrentRotationToLocalFrameFromEphemeris( 0.0 );
+
     bodies.at( "Vehicle" )->setState( systemInitialState );
 
 
