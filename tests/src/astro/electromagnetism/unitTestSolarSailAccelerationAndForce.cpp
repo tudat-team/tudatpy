@@ -589,6 +589,7 @@ BOOST_AUTO_TEST_CASE( testSolarSailAccelerationModelClassConstructor )
             &getSourcePosition, &getAcceleratedBodyPosition, &getRadiationPressure,
             &getRadiationPressureCoefficient, &getAreaSubjectToRadiationPressure,
             &getMassOfAcceleratedBody );
+    radiationPressureModel->updateMembers( 0.0 );
 
     // Declare and initialize solar sail radiation acceleration model.
     electromagnetism::SolarSailAccelerationPointer solarSailModel
@@ -599,6 +600,7 @@ BOOST_AUTO_TEST_CASE( testSolarSailAccelerationModelClassConstructor )
             &getFrontLambertianCoefficient, &getBackLambertianCoefficient,
             &getReflectivityCoefficient, &getSpecularReflectionCoefficient,
             &getAreaSubjectToRadiationPressure, &getMassOfAcceleratedBody );
+    solarSailModel->updateMembers( 0.0 );
 
     // Compute solar sail acceleration [m/s^2].
     const Eigen::Vector3d computedSolarSailAcceleration = solarSailModel->getAcceleration( );
@@ -622,6 +624,7 @@ BOOST_AUTO_TEST_CASE( testSolarSailAccelerationModelClassUpdateMembers )
             &getSourcePosition, &getAcceleratedBodyPosition, &getRadiationPressure,
             &getRadiationPressureCoefficient, &getAreaSubjectToRadiationPressure,
             &getMassOfAcceleratedBody );
+    radiationPressureModel->updateMembers( 0.0 );
 
     // Declare and initialize solar sail radiation acceleration model.
     electromagnetism::SolarSailAccelerationPointer solarSailModel
@@ -632,6 +635,7 @@ BOOST_AUTO_TEST_CASE( testSolarSailAccelerationModelClassUpdateMembers )
             &getFrontLambertianCoefficient, &getBackLambertianCoefficient,
             &getReflectivityCoefficient, &getSpecularReflectionCoefficient,
             &getAreaSubjectToRadiationPressure, &getMassOfAcceleratedBody );
+    solarSailModel->updateMembers( 0.0 );
 
     // Set the distance from the Sun to Venus [m].
     const double distanceSunToVenus = 0.732 * astronomicalUnitInMeters;
@@ -658,8 +662,8 @@ BOOST_AUTO_TEST_CASE( testSolarSailAccelerationModelClassUpdateMembers )
     massOfAcceleratedBody = 0.0022;
 
     // Update class members.
-    radiationPressureModel->updateMembers( );
-    solarSailModel->updateMembers( );
+    radiationPressureModel->updateMembers( 0.0 );
+    solarSailModel->updateMembers( 0.0 );
 
     // Compute radiation pressure acceleration [m/s^2].
     const Eigen::Vector3d computedRadiationPressureAcceleration = radiationPressureModel->getAcceleration( );
@@ -874,6 +878,7 @@ BOOST_AUTO_TEST_CASE( testSolarSailAccelerationModelClassUpdateMembersIncludingC
             &getFrontLambertianCoefficient, &getBackLambertianCoefficient,
             &getReflectivityCoefficient, &getSpecularReflectionCoefficient,
             &getAreaSubjectToRadiationPressure, &getMassOfAcceleratedBody );
+    solarSailModel->updateMembers( 0.0 );
 
     // Set expected radiation pressure acceleration [m/s^2].
     const Eigen::Vector3d expectedSolarSailAcceleration = Eigen::Vector3d( 8.59654650354177e-06, 7.44856903789465e-06, 6.83437564207585e-06 );
@@ -921,7 +926,7 @@ BOOST_AUTO_TEST_CASE( testSolarSailAccelerationModelClassUpdateMembersIncludingC
     massOfAcceleratedBody = 0.0022;
 
     // Update class members.
-    solarSailModel->updateMembers( );
+    solarSailModel->updateMembers( 0.0 );
 
     // Compute radiation pressure acceleration [m/s^2].
     const Eigen::Vector3d computedSolarSailAcceleration = solarSailModel->getAcceleration( );
