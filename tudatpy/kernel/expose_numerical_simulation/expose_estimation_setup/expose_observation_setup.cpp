@@ -297,14 +297,6 @@ void expose_observation_setup(py::module &m) {
             std::shared_ptr<tom::ObservationViabilitySettings>>(
                 m, "ObservationViabilitySettings",
                 get_docstring("ObservationViabilityType").c_str() );
-            // .def(py::init< const tom::ObservationViabilityType,
-            //      const std::pair< std::string, std::string >,
-            //      const std::string,
-            //      const double >(),
-            //      py::arg("viability_type"),
-            //      py::arg("associated_link_end"),
-            //      py::arg("string_input"),
-            //      py::arg("double_input") );
 
 
     m.def("elevation_angle_viability",
