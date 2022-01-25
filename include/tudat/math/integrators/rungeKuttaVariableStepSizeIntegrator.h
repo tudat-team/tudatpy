@@ -644,6 +644,7 @@ RungeKuttaVariableStepSizeIntegrator< IndependentVariableType, StateType, StateD
             else
             {
                 this->stepSize_ = stepSize / std::fabs( stepSize ) * std::fabs( this->minimumStepSize_ );
+                return true;
             }
         }
         else if( std::fabs( this->stepSize_ ) > std::fabs( this->maximumStepSize_ ) )
