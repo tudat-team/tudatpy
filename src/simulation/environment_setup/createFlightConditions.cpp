@@ -268,6 +268,24 @@ void setAerodynamicOrientationFunctions(
                 angleOfAttackFunction, angleOfSideslipFunction, bankAngleFunction, angleUpdateFunction );
 }
 
+void setConstantAerodynamicOrientation(
+        const std::shared_ptr< simulation_setup::Body > body,
+        const double angleOfAttack,
+        const double sideslipAngle,
+        const double bankAngle,
+        const bool silenceWarnings )
+{
+    if( body->getFlightConditions( ) == nullptr )
+    {
+        throw std::runtime_error( "Error when setting constant aerodynamic angles, body " + body->getBodyName( ) + " has no FlightConditions" );
+    }
+
+    std::shared_ptr< aerodynamics::FlightConditions > vehicleFlightConditions =
+            body->getFlightConditions( );
+    vehicleFlightConditions->getAerodynamicAngleCalculator( )->setOrientationAngleFunctions(
+                angleOfAttack, sideslipAngle, bankAngle, silenceWarnings );
+}
+
 } // namespace simulation_setup
 
 } // namespace tudat
