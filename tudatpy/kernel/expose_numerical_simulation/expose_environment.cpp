@@ -227,23 +227,25 @@ void expose_environment(py::module &m) {
                  const std::function<double()>,
                  const std::function<double()>,
                  const std::function<double()>,
-                 const std::function<void(const double)>>(
+                 const std::function<void(const double)>,
+                 const bool>(
                      &trf::AerodynamicAngleCalculator::setOrientationAngleFunctions),
                  py::arg("angle_of_attack_function") = std::function<double()>(),       // <pybind11/functional.h>
                  py::arg("angle_of_sideslip_function") = std::function<double()>(),     // <pybind11/functional.h>
                  py::arg("bank_angle_function") = std::function<double()>(),            // <pybind11/functional.h>
                  py::arg("angle_update_function") = std::function<void(
-                const double)>(),// <pybind11/functional.h>
-                 "<no_doc>")
+                const double)>(),
+                 py::arg("silence_warnings")=false)
             .def("set_body_orientation_angles",
                  py::overload_cast<
                  const double,
                  const double,
-                 const double>(&trf::AerodynamicAngleCalculator::setOrientationAngleFunctions),
+                 const double,
+                 const bool>(&trf::AerodynamicAngleCalculator::setOrientationAngleFunctions),
                  py::arg("angle_of_attack") = TUDAT_NAN,
                  py::arg("angle_of_sideslip") = TUDAT_NAN,
                  py::arg("bank_angle") = TUDAT_NAN,
-                 "<no_doc>")
+                 py::arg("silence_warnings")=false)
             .def("get_rotation_matrix_between_frames",
                  &trf::AerodynamicAngleCalculator::getRotationMatrixBetweenFrames,
                  py::arg("original_frame"),
@@ -260,7 +262,7 @@ void expose_environment(py::module &m) {
 //                 const std::shared_ptr<tudat::reference_frames::AerodynamicAngleCalculator>>(),
 //                 py::arg("shape_model"),
 //                 py::arg("aerodynamic_angle_calculator") = std::shared_ptr< tr::AerodynamicAngleCalculator>())
-//            .def("update_conditions", &ta::FlightConditions::updateConditions, py::arg("current_time") )
+            .def("update_conditions", &ta::FlightConditions::updateConditions, py::arg("current_time") )
             .def_property_readonly("aerodynamic_angle_calculator", &ta::FlightConditions::getAerodynamicAngleCalculator, get_docstring("FlightConditions.aerodynamic_angle_calculator").c_str())
             .def_property_readonly("longitude", &ta::FlightConditions::getCurrentLongitude, get_docstring("FlightConditions.longitude").c_str())
             .def_property_readonly("geodetic_latitude", &ta::FlightConditions::getCurrentGeodeticLatitude, get_docstring("FlightConditions.latitude").c_str())
