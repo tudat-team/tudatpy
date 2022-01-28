@@ -32,7 +32,7 @@ namespace acceleration_partials
  *  Function to get the third body acceleration type from the direct acceleration partial object.
  *  \param directGravityPartial Partial derivative of direct acceleration.
  *  \return Type of acceleration for third body acceleration for which direct acceleration partial is given by
- *  directGravityPartial (i.e. third_body_central_gravity if input is of type CentralGravitationPartial).
+ *  directGravityPartial (i.e. third_body_point_mass_gravity if input is of type CentralGravitationPartial).
  */
 template< typename DirectGravityPartial >
 basic_astrodynamics::AvailableAcceleration getAccelerationTypeOfThirdBodyGravity(
@@ -44,7 +44,7 @@ basic_astrodynamics::AvailableAcceleration getAccelerationTypeOfThirdBodyGravity
     // Check type of direct partial derivative.
     if( std::dynamic_pointer_cast< CentralGravitationPartial >( directGravityPartial ) != nullptr )
     {
-        accelerationType = third_body_central_gravity;
+        accelerationType = third_body_point_mass_gravity;
     }
     else if( std::dynamic_pointer_cast< SphericalHarmonicsGravityPartial >( directGravityPartial ) != nullptr )
     {

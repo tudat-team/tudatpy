@@ -319,6 +319,8 @@ public:
                 coefficientD_ * secondDerivativeOfCurve_[ lowerEntry_ + 1 ];
     }
 
+    InterpolatorTypes getInterpolatorType( ){ return cubic_spline_interpolator; }
+
 protected:
 
 private:

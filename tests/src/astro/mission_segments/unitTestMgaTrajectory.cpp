@@ -162,7 +162,7 @@ BOOST_AUTO_TEST_CASE( testMGATrajectory_New )
 
         if( creationType < 2 )
         {
-            BOOST_CHECK_CLOSE_FRACTION( expectedDeltaV, transferTrajectory->getTotalDeltaV( ), 1.0E-6 );
+            BOOST_CHECK_CLOSE_FRACTION( expectedDeltaV, transferTrajectory->getTotalDeltaV( ), 1.0E-3 );
 
             if( creationType == 0 )
             {
@@ -294,7 +294,7 @@ BOOST_AUTO_TEST_CASE( testMGA1DSMVFTrajectory1 )
                 nodeTimes, transferLegFreeParameters, transferNodeFreeParameters );
     printTransferParameterDefinition( transferLegSettings, transferNodeSettings );
 
-    BOOST_CHECK_CLOSE_FRACTION( expectedDeltaV, transferTrajectory->getTotalDeltaV( ), 1.0E-6 );
+    BOOST_CHECK_CLOSE_FRACTION( expectedDeltaV, transferTrajectory->getTotalDeltaV( ), 1.0E-3 );
 }
 
 //! Test delta-V computation for another MGA-1DSM Velocity Formulation trajectory model.
@@ -370,7 +370,7 @@ BOOST_AUTO_TEST_CASE( testMGA1DSMVFTrajectory2 )
     // Test if the computed delta-V corresponds to the expected value within the specified
     // tolerance and if the computed velocity before target planet matches the expected velocity
     // within the specified tolerance.
-    BOOST_CHECK_CLOSE_FRACTION( expectedDeltaV, transferTrajectory->getTotalDeltaV( ), 1.0E-6 );
+    BOOST_CHECK_CLOSE_FRACTION( expectedDeltaV, transferTrajectory->getTotalDeltaV( ), 1.0E-3);
 }
 
 

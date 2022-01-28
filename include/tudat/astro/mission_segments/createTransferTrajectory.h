@@ -152,6 +152,14 @@ std::shared_ptr< TransferNode > createTransferNode(const simulation_setup::Syste
         const std::shared_ptr< TransferLeg > outgoingTransferLeg,
         const bool nodeComputesOutgoingVelocity );
 
+std::pair< std::vector< std::shared_ptr< TransferLegSettings > >,
+std::vector< std::shared_ptr< TransferNodeSettings > > > getMgaTransferTrajectorySettings(
+        const std::vector< std::string >& fullBodiesList,
+        const TransferLegTypes identicalTransferLegType,
+        const std::pair< double, double > departureOrbit = std::make_pair( TUDAT_NAN, TUDAT_NAN ),
+        const std::pair< double, double > arrivalOrbit = std::make_pair( TUDAT_NAN, TUDAT_NAN ),
+        const std::map< std::string, double > minimumPericenterRadii = DEFAULT_MINIMUM_PERICENTERS );
+
 void getMgaTransferTrajectorySettings(
         std::vector< std::shared_ptr< TransferLegSettings > >& transferLegSettings,
         std::vector< std::shared_ptr< TransferNodeSettings > >& transferNodeSettings,
@@ -197,7 +205,7 @@ void getMgaTransferTrajectorySettingsWithPositionBasedDsm(
         const std::map< std::string, double > minimumPericenterRadii = DEFAULT_MINIMUM_PERICENTERS );
 
 
-void getMgaTransferTrajectorySettingsWithVelocityasedDsm(
+void getMgaTransferTrajectorySettingsWithVelocityBasedDsm(
         std::vector< std::shared_ptr< TransferLegSettings > >& legSettings,
         std::vector< std::shared_ptr< TransferNodeSettings > >& nodeSettings,
         const std::string& departureBody, const std::string& arrivalBody,
@@ -206,7 +214,7 @@ void getMgaTransferTrajectorySettingsWithVelocityasedDsm(
         const std::pair< double, double > arrivalOrbit = std::make_pair( TUDAT_NAN, TUDAT_NAN ),
         const std::map< std::string, double > minimumPericenterRadii = DEFAULT_MINIMUM_PERICENTERS );
 
-void getMgaTransferTrajectorySettingsWithVelocityasedDsm(
+void getMgaTransferTrajectorySettingsWithVelocityBasedDsm(
         std::vector< std::shared_ptr< TransferLegSettings > >& legSettings,
         std::vector< std::shared_ptr< TransferNodeSettings > >& nodeSettings,
         const std::vector< std::string >& fullBodiesList,

@@ -109,7 +109,7 @@ std::string getDependentVariableName( const std::shared_ptr< SingleDependentVari
     case aerodynamic_moment_coefficients_dependent_variable:
         variableName = "Aerodynamic moment coefficients ";
         break;
-    case rotation_matrix_to_body_fixed_frame_variable:
+    case inertial_to_body_fixed_rotation_matrix_variable:
         variableName = "Rotation matrix to body-fixed frame ";
         break;
     case intermediate_aerodynamic_rotation_matrix_variable:
@@ -175,8 +175,11 @@ std::string getDependentVariableName( const std::shared_ptr< SingleDependentVari
     case total_mass_rate_dependent_variables:
         variableName = "Body mass rate ";
         break;
-    case lvlh_to_inertial_frame_rotation_dependent_variable:
-        variableName = "LVLH to inertial frame rotation matrix ";
+    case tnw_to_inertial_frame_rotation_dependent_variable:
+        variableName = "TNW to inertial frame rotation matrix ";
+        break;
+    case rsw_to_inertial_frame_rotation_dependent_variable:
+        variableName = "RSW to inertial frame rotation matrix ";
         break;
     case periapsis_altitude_dependent_variable:
         variableName = "Periapsis altitude ";
@@ -231,6 +234,9 @@ std::string getDependentVariableName( const std::shared_ptr< SingleDependentVari
         break;
     case radiation_pressure_coefficient_dependent_variable:
         variableName = "Radiation pressure coefficient ";
+        break;
+    case custom_dependent_variable:
+        variableName = "Custom dependent variable ";
         break;
     default:
         std::string errorMessage = "Error, dependent variable " +

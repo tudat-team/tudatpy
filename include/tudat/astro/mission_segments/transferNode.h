@@ -52,6 +52,8 @@ public:
             const std::shared_ptr< ephemerides::Ephemeris > nodeEphemeris,
             const TransferNodeTypes nodeType );
 
+    virtual ~TransferNode( ){ }
+
     void updateNodeParameters( const Eigen::VectorXd nodeParameters );
 
     double getNodeDeltaV( );
@@ -100,6 +102,8 @@ public:
             const double departureEccentricity,
             const std::function< Eigen::Vector3d( ) > outgoingVelocityFunction );
 
+    virtual ~DepartureWithFixedOutgoingVelocityNode( ){ }
+
     Eigen::Vector3d getIncomingVelocity( );
 
     bool nodeComputesOutgoingVelocity( );
@@ -124,6 +128,8 @@ public:
             const double centralBodyGravitationalParameter,
             const double departureSemiMajorAxis,
             const double departureEccentricity );
+
+    virtual ~DepartureWithFreeOutgoingVelocityNode( ){ }
 
     Eigen::Vector3d getIncomingVelocity( );
 
@@ -160,6 +166,8 @@ public:
             const double captureEccentricity,
             const std::function< Eigen::Vector3d( ) > incomingVelocityFunction );
 
+    virtual ~CaptureAndInsertionNode( ){ }
+
     Eigen::Vector3d getOutgoingVelocity( );
 
     bool nodeComputesOutgoingVelocity( );
@@ -187,6 +195,8 @@ public:
             const std::function< Eigen::Vector3d( ) > incomingVelocityFunction,
             const std::function< Eigen::Vector3d( ) > outgoingVelocityFunction );
 
+    virtual ~SwingbyWithFixedOutgoingVelocity( ){ }
+
     bool nodeComputesOutgoingVelocity( );
 
 protected:
@@ -209,6 +219,8 @@ public:
             const std::shared_ptr< ephemerides::Ephemeris > nodeEphemeris,
             const double centralBodyGravitationalParameter,
             const std::function< Eigen::Vector3d( ) > incomingVelocityFunction );
+
+    virtual ~SwingbyWithFreeOutgoingVelocity( ){ }
 
     bool nodeComputesOutgoingVelocity( );
 

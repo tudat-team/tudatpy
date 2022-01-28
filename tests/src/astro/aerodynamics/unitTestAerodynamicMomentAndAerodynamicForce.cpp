@@ -114,7 +114,8 @@ BOOST_AUTO_TEST_CASE( testAerodynamicForceAndAcceleration )
         {
             aerodynamicCoefficientInterface->getIndependentVariableName( 0 );
         }
-        catch ( std::runtime_error )
+        catch( std::runtime_error const& )
+
         {
             isVariableIndexTooHigh = 1;
         }
@@ -334,11 +335,6 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
         bodies.createEmptyBody( "Vehicle" );
 
         bodies.at( "Vehicle" )->setConstantBodyMass( vehicleMass );
-        bodies.at( "Vehicle" )->setEphemeris(
-                    std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
-                        std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector6d  > >( ),
-                        "Earth" ) );
-
         if( i < 4 && !imposeThrustDirection )
         {
             bodies.at( "Vehicle" )->setRotationalEphemeris(
@@ -382,7 +378,7 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
 
         // Define acceleration model settings.
         std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
-        accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+        accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
 
         if( swapCreationOrder )
         {
@@ -397,7 +393,7 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
             {
                 accelerationsOfVehicle[ "Vehicle" ].push_back(
                             std::make_shared< ThrustAccelerationSettings >(
-                                std::make_shared< ThrustDirectionGuidanceSettings >(
+                                std::make_shared< ThrustDirectionSettings >(
                                     thrust_direction_from_existing_body_orientation, "Earth" ),
                                 std::make_shared< ConstantThrustMagnitudeSettings >(
                                     thrustMagnitude, specificImpulse, bodyFixedThrustDirection ) ) );

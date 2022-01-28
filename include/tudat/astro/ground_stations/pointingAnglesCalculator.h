@@ -13,13 +13,15 @@
 #define TUDAT_POINTINGANGLESCALCULATOR_H
 
 #include <memory>
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
 
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
 #include "tudat/astro/ephemerides/rotationalEphemeris.h"
 #include "tudat/astro/ground_stations/groundStationState.h"
+
+using namespace boost::placeholders;
 
 namespace tudat
 {
@@ -71,7 +73,7 @@ public:
      *  \param time Time at which azimuth angle is to be calculated.
      *  \return Azimuth angle from reference point to input point (inertialVectorAwayFromStation)
      */
-    double calculationAzimuthAngle( const Eigen::Vector3d inertialVectorAwayFromStation, const double time );
+    double calculateAzimuthAngle( const Eigen::Vector3d inertialVectorAwayFromStation, const double time );
 
     //! Function to calculate the elevation and azimuth angles from body-fixed point to given point.
     /*!
@@ -103,6 +105,25 @@ private:
      */
     const std::function< Eigen::Quaterniond( const double ) > rotationFromBodyFixedToTopoCentricFrame_;
 };
+
+
+std::pair< double, double > calculateGroundStationPointingAngles(
+        const std::shared_ptr< PointingAnglesCalculator > angleCalculator,
+        const std::vector< Eigen::Vector6d > linkEndStates,
+        const std::vector< double > linkEndTimes,
+        const std::pair< int, int >& linkEndIndices );
+
+double calculateGroundStationElevationAngle(
+        const std::shared_ptr< PointingAnglesCalculator > angleCalculator,
+        const std::vector< Eigen::Vector6d > linkEndStates,
+        const std::vector< double > linkEndTimes,
+        const std::pair< int, int >& linkEndIndices );
+
+double calculateGroundStationAzimuthAngle(
+        const std::shared_ptr< PointingAnglesCalculator > angleCalculator,
+        const std::vector< Eigen::Vector6d > linkEndStates,
+        const std::vector< double > linkEndTimes,
+        const std::pair< int, int >& linkEndIndices );
 
 }
 

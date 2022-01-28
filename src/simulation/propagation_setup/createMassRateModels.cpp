@@ -33,8 +33,8 @@ createMassRateModel(
     case basic_astrodynamics::custom_mass_rate_model:
     {
         // Check input consistency
-        std::shared_ptr< CustomMassRateModelSettings > customMassRateModelSettings =
-                std::dynamic_pointer_cast< CustomMassRateModelSettings >( massRateModelSettings );
+        std::shared_ptr< CustomMassRateSettings > customMassRateModelSettings =
+                std::dynamic_pointer_cast< CustomMassRateSettings >(massRateModelSettings );
         if( customMassRateModelSettings == nullptr )
         {
             throw std::runtime_error( "Error when making cusom mass rate model, input is inconsistent" );
@@ -49,8 +49,8 @@ createMassRateModel(
     case basic_astrodynamics::from_thrust_mass_rate_model:
     {
         // Check input consistency
-        std::shared_ptr< FromThrustMassModelSettings > fromThrustMassModelSettings =
-                std::dynamic_pointer_cast< FromThrustMassModelSettings >( massRateModelSettings );
+        std::shared_ptr< FromThrustMassRateSettings > fromThrustMassModelSettings =
+                std::dynamic_pointer_cast< FromThrustMassRateSettings >(massRateModelSettings );
         if( fromThrustMassModelSettings == nullptr )
         {
             throw std::runtime_error( "Error when making from-engine mass rate model, input is inconsistent" );

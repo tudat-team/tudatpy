@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef TUDAT_AERODYNAMICS_H
-#define TUDAT_AERODYNAMICS_H
+#ifndef TUDAT_AERODYNAMICS__H
+#define TUDAT_AERODYNAMICS__H
 
 #include "aerodynamics/aerodynamicAcceleration.h"
 #include "aerodynamics/aerodynamicCoefficientGenerator.h"
@@ -33,4 +33,4 @@
 #include "aerodynamics/trimOrientation.h"
 #include "aerodynamics/windModel.h"
 
-#endif // TUDATPY_AERODYNAMICS_H
+#endif // TUDATPY_AERODYNAMICS__H

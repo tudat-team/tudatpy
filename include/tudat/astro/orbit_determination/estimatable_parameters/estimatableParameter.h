@@ -64,7 +64,8 @@ enum EstimatebleParametersEnum
     polar_motion_amplitude,
     core_factor,
     free_core_nutation_rate,
-    desaturation_delta_v_values
+    desaturation_delta_v_values,
+    scaled_longitude_libration_amplitude
 };
 
 std::string getParameterTypeString( const EstimatebleParametersEnum parameterType );
@@ -223,6 +224,9 @@ public:
     {
         return Eigen::VectorXd::Zero( 0 );
     }
+
+    virtual void throwExceptionIfNotFullyDefined( ){ }
+
 
 
 protected:

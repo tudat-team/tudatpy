@@ -28,13 +28,18 @@ namespace observation_models
 enum LinkEndType
 {
     unidentified_link_end = -1,
+    default_link_end = unidentified_link_end,
     transmitter = 0,
     reflector1 = 1,
     reflector = reflector1,
     retransmitter = reflector,
+    retransmitter1 = retransmitter,
     reflector2 = 2,
+    retransmitter2 = reflector2,
     reflector3 = 3,
+    retransmitter3 = reflector3,
     reflector4 = 4,
+    retransmitter4 = reflector4,
     receiver = 5,
     observed_body = 6
 };
@@ -106,6 +111,45 @@ std::vector< int > getNWayLinkEndIndicesFromLinkEndId( const std::vector< LinkEn
  * \return List of link end type at which linkEndid occurs in linkEnds.
  */
 std::vector< LinkEndType > getNWayLinkIndicesFromLinkEndId( const LinkEndId& linkEndid, const LinkEnds& linkEnds );
+
+LinkEnds mergeUpDownLink( const LinkEnds& uplink, const LinkEnds& downlink );
+
+LinkEnds mergeOneWayLinkEnds( const std::vector< LinkEnds >& linkEnds );
+
+LinkEnds getUplinkFromTwoWayLinkEnds(
+        const LinkEnds& twoWayLinkEnds );
+
+LinkEnds getDownlinkFromTwoWayLinkEnds(
+        const LinkEnds& twoWayLinkEnds );
+
+LinkEnds getSingleLegLinkEnds(
+        const LinkEnds& nWayLinkEnds, const unsigned int legIndex );
+
+LinkEnds mergeOneWayLinkEnds(
+        const std::vector< LinkEnds >& linkEnds );
+
+std::vector< LinkEnds > getOneWayDownlinkLinkEndsList(
+        const LinkEndId singleTransmitter,
+        const std::vector< LinkEndId >& listOfReceivers );
+
+std::vector< LinkEnds > getOneWayUplinkLinkEndsList(
+        const std::vector< LinkEndId > listOfTransmitters,
+        const LinkEndId singleReceivers );
+
+std::vector< LinkEnds > getSameStationTwoWayLinkEndsList(
+        const std::vector< LinkEndId > listOfStations,
+        const LinkEndId spacecraft );
+
+std::vector< LinkEnds > getTwoWayLinkEndsList(
+        const std::vector< LinkEndId > listOfStations,
+        const LinkEndId spacecraft );
+
+
+bool isLinkEndPresent(
+        const LinkEnds linkEnds,
+        const LinkEndId linkEndToSearch );
+
+
 
 } // namespace observation_models
 

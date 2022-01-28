@@ -161,12 +161,12 @@ std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialSca
 
     std::function< Eigen::Vector6d( const double )> transmitterNumericalStateDerivativeFunction =
             std::bind( &numerical_derivatives::computeCentralDifferenceFromFunction< Eigen::Vector6d, double >,
-                         observation_models::getLinkEndCompleteEphemerisFunction< double, double >(
+                         simulation_setup::getLinkEndCompleteEphemerisFunction< double, double >(
                              oneWayDopplerLinkEnds.at( observation_models::transmitter ), bodies ), std::placeholders::_1, 100.0,
                          numerical_derivatives::order8 );
     std::function< Eigen::Vector6d( const double )> receiverNumericalStateDerivativeFunction =
             std::bind( numerical_derivatives::computeCentralDifferenceFromFunction< Eigen::Vector6d, double >,
-                         observation_models::getLinkEndCompleteEphemerisFunction< double, double >(
+                         simulation_setup::getLinkEndCompleteEphemerisFunction< double, double >(
                              oneWayDopplerLinkEnds.at( observation_models::receiver ), bodies ), std::placeholders::_1, 100.0,
                          numerical_derivatives::order8 );
 

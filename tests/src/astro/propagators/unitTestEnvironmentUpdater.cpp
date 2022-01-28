@@ -116,9 +116,9 @@ BOOST_AUTO_TEST_CASE( test_centralGravityEnvironmentUpdate )
         {
             // Define accelerations
             accelerationSettingsMap[ "Moon" ][ "Sun" ].push_back(
-                        std::make_shared< AccelerationSettings >( central_gravity ) );
+                        std::make_shared< AccelerationSettings >( point_mass_gravity ) );
             accelerationSettingsMap[ "Moon" ][ "Earth" ].push_back(
-                        std::make_shared< AccelerationSettings >( central_gravity ) );
+                        std::make_shared< AccelerationSettings >( point_mass_gravity ) );
 
             // Define origin of integration to be barycenter.
             centralBodies[ "Moon" ] = "SSB";
@@ -162,9 +162,16 @@ BOOST_AUTO_TEST_CASE( test_centralGravityEnvironmentUpdate )
                         std::numeric_limits< double >::epsilon( ) );
 
             // Test if Mars is not updated
-            TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                        bodies.at( "Mars" )->getState( ), Eigen::Vector6d::Zero( ),
-                        std::numeric_limits< double >::epsilon( ) );
+            bool exceptionIsCaught = false;
+            try
+            {
+                bodies.at( "Mars" )->getState( );
+            }
+            catch( ... )
+            {
+                exceptionIsCaught = true;
+            }
+            BOOST_CHECK_EQUAL( exceptionIsCaught, true );
 
             // Update environment to new time, and state from environment.
             updater->updateEnvironment(
@@ -181,9 +188,6 @@ BOOST_AUTO_TEST_CASE( test_centralGravityEnvironmentUpdate )
                         bodies.at( "Moon" )->getState( ),
                         bodies.at( "Moon" )->getEphemeris( )->getCartesianState( 0.5 * testTime ),
                         std::numeric_limits< double >::epsilon( ) );
-            TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                        bodies.at( "Mars" )->getState( ), Eigen::Vector6d::Zero( ),
-                        std::numeric_limits< double >::epsilon( ) );
         }
 
         // Test third body acceleration updates.
@@ -195,9 +199,9 @@ BOOST_AUTO_TEST_CASE( test_centralGravityEnvironmentUpdate )
 
             // Set acceleration models.
             accelerationSettingsMap[ "Moon" ][ "Sun" ].push_back(
-                        std::make_shared< AccelerationSettings >( central_gravity ) );
+                        std::make_shared< AccelerationSettings >( point_mass_gravity ) );
             accelerationSettingsMap[ "Moon" ][ "Mars" ].push_back(
-                        std::make_shared< AccelerationSettings >( central_gravity ) );
+                        std::make_shared< AccelerationSettings >( point_mass_gravity ) );
 
             // Define origin of integration
             centralBodies[ "Moon" ] = "Earth";
@@ -244,10 +248,18 @@ BOOST_AUTO_TEST_CASE( test_centralGravityEnvironmentUpdate )
                         bodies.at( "Mars" )->getEphemeris( )->getCartesianState( testTime ),
                         std::numeric_limits< double >::epsilon( ) );
 
-            // Test if Venus is not updated
-            TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                        bodies.at( "Venus" )->getState( ), Eigen::Vector6d::Zero( ),
-                        std::numeric_limits< double >::epsilon( ) );
+            // Test if Mars is not updated
+            bool exceptionIsCaught = false;
+            try
+            {
+                bodies.at( "Venus" )->getState( );
+            }
+            catch( ... )
+            {
+                exceptionIsCaught = true;
+            }
+            BOOST_CHECK_EQUAL( exceptionIsCaught, true );
+
 
             // Update environment to new time, and state from environment.
             updater->updateEnvironment(
@@ -264,11 +276,11 @@ BOOST_AUTO_TEST_CASE( test_centralGravityEnvironmentUpdate )
 
             // Set acceleration models.
             accelerationSettingsMap[ "Moon" ][ "Sun" ].push_back(
-                        std::make_shared< AccelerationSettings >( central_gravity ) );
+                        std::make_shared< AccelerationSettings >( point_mass_gravity ) );
             accelerationSettingsMap[ "Moon" ][ "Earth" ].push_back(
                         std::make_shared< SphericalHarmonicAccelerationSettings >( 5, 5 ) );
             accelerationSettingsMap[ "Moon" ][ "Mars" ].push_back(
-                        std::make_shared< AccelerationSettings >( central_gravity ) );
+                        std::make_shared< AccelerationSettings >( point_mass_gravity ) );
 
             // Define origin of integration
             centralBodies[ "Moon" ] = "Earth";
@@ -318,10 +330,18 @@ BOOST_AUTO_TEST_CASE( test_centralGravityEnvironmentUpdate )
                         bodies.at( "Mars" )->getEphemeris( )->getCartesianState( testTime ),
                         std::numeric_limits< double >::epsilon( ) );
 
-            // Test if Venus is not updated
-            TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                        bodies.at( "Venus" )->getState( ), Eigen::Vector6d::Zero( ),
-                        std::numeric_limits< double >::epsilon( ) );
+
+            // Test if Mars is not updated
+            bool exceptionIsCaught = false;
+            try
+            {
+                bodies.at( "Venus" )->getState( );
+            }
+            catch( ... )
+            {
+                exceptionIsCaught = true;
+            }
+            BOOST_CHECK_EQUAL( exceptionIsCaught, true );
 
             // Test if Earth rotation is updated
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
@@ -341,19 +361,29 @@ BOOST_AUTO_TEST_CASE( test_centralGravityEnvironmentUpdate )
                         bodies.at( "Earth" )->getRotationalEphemeris( )->getDerivativeOfRotationToTargetFrame( testTime ),
                         std::numeric_limits< double >::epsilon( ) );
 
-            // Test if Mars rotation is not updated
-            TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                        bodies.at( "Mars" )->getCurrentRotationToLocalFrame( ).toRotationMatrix( ),
-                        Eigen::Matrix3d::Identity( ), std::numeric_limits< double >::epsilon( ) );
-            TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                        bodies.at( "Mars" )->getCurrentRotationToGlobalFrame( ).toRotationMatrix( ),
-                        Eigen::Matrix3d::Identity( ), std::numeric_limits< double >::epsilon( ) );
-            TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                        bodies.at( "Mars" )->getCurrentRotationMatrixDerivativeToGlobalFrame( ),
-                        Eigen::Matrix3d::Zero( ), std::numeric_limits< double >::epsilon( ) );
-            TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                        bodies.at( "Mars" )->getCurrentRotationMatrixDerivativeToLocalFrame( ),
-                        Eigen::Matrix3d::Zero( ), std::numeric_limits< double >::epsilon( ) );
+
+            // Test if Mars is not updated
+            exceptionIsCaught = false;
+            try
+            {
+                bodies.at( "Mars" )->getCurrentRotationToLocalFrame( ).toRotationMatrix( );
+            }
+            catch( ... )
+            {
+                exceptionIsCaught = true;
+            }
+            BOOST_CHECK_EQUAL( exceptionIsCaught, true );
+
+            exceptionIsCaught = false;
+            try
+            {
+                bodies.at( "Mars" )->getCurrentRotationMatrixDerivativeToGlobalFrame( );
+            }
+            catch( ... )
+            {
+                exceptionIsCaught = true;
+            }
+            BOOST_CHECK_EQUAL( exceptionIsCaught, true );
 
             // Update environment to new time, and state from environment.
             updater->updateEnvironment(

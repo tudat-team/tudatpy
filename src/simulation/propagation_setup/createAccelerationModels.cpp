@@ -13,7 +13,9 @@
 #include <memory>
 
 #include <boost/make_shared.hpp>
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
+using namespace boost::placeholders;
+
 #include "tudat/astro/aerodynamics/flightConditions.h"
 #include "tudat/astro/ephemerides/frameManager.h"
 #include "tudat/astro/gravitation/sphericalHarmonicsGravityField.h"
@@ -63,7 +65,7 @@ std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > cre
     std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > accelerationModel;
     switch( accelerationSettings->accelerationType_ )
     {
-    case central_gravity:
+    case point_mass_gravity:
         accelerationModel = createCentralGravityAcceleratioModel(
                     bodyUndergoingAcceleration,
                     bodyExertingAcceleration,
@@ -113,7 +115,7 @@ std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > cre
     std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > accelerationModel;
     switch( accelerationSettings->accelerationType_ )
     {
-    case central_gravity:
+    case point_mass_gravity:
         accelerationModel = std::make_shared< ThirdBodyCentralGravityAcceleration >(
                     std::dynamic_pointer_cast< CentralGravitationalAccelerationModel3d >(
                         createDirectGravitationalAcceleration(
@@ -171,7 +173,7 @@ std::shared_ptr< AccelerationModel< Eigen::Vector3d > > createGravitationalAccel
 {
 
     std::shared_ptr< AccelerationModel< Eigen::Vector3d > > accelerationModelPointer;
-    if( accelerationSettings->accelerationType_ != central_gravity &&
+    if( accelerationSettings->accelerationType_ != point_mass_gravity &&
             accelerationSettings->accelerationType_ != spherical_harmonic_gravity &&
             accelerationSettings->accelerationType_ != mutual_spherical_harmonic_gravity )
     {
@@ -1090,10 +1092,10 @@ createThrustAcceleratioModel(
         {
             throw std::runtime_error( "Error when creating thrust acceleration, input frame is inconsistent with interface" );
         }
-        else if( thrustAccelerationSettings->thrustFrame_ != inertial_thurst_frame )
+        else if(thrustAccelerationSettings->thrustFrame_ != inertial_thrust_frame )
         {
             // Create rotation function from thrust-frame to propagation frame.
-            if( thrustAccelerationSettings->thrustFrame_ == lvlh_thrust_frame )
+            if( thrustAccelerationSettings->thrustFrame_ == tnw_thrust_frame )
             {
                 std::function< Eigen::Vector6d( ) > vehicleStateFunction =
                         std::bind( &Body::getState, bodies.at( nameOfBodyUndergoingThrust ) );
@@ -1113,7 +1115,7 @@ createThrustAcceleratioModel(
                             std::bind( &Body::getState, bodies.at( thrustAccelerationSettings->centralBody_ ) );
                 }
                 thrustAccelerationSettings->interpolatorInterface_->resetRotationFunction(
-                            std::bind( &reference_frames::getVelocityBasedLvlhToInertialRotationFromFunctions,
+                            std::bind( &reference_frames::getTnwToInertialRotationFromFunctions,
                                        vehicleStateFunction, centralBodyStateFunction, true ) );
             }
             else
@@ -1125,8 +1127,8 @@ createThrustAcceleratioModel(
 
     // Create thrust direction model.
     std::shared_ptr< propulsion::BodyFixedForceDirectionGuidance  > thrustDirectionGuidance = createThrustGuidanceModel(
-                thrustAccelerationSettings->thrustDirectionGuidanceSettings_, bodies, nameOfBodyUndergoingThrust,
-                getBodyFixedThrustDirection( thrustAccelerationSettings->thrustMagnitudeSettings_, bodies,
+            thrustAccelerationSettings->thrustDirectionSettings_, bodies, nameOfBodyUndergoingThrust,
+            getBodyFixedThrustDirection( thrustAccelerationSettings->thrustMagnitudeSettings_, bodies,
                                              nameOfBodyUndergoingThrust ), magnitudeUpdateSettings );
 
     // Create thrust magnitude model
@@ -1140,17 +1142,17 @@ createThrustAcceleratioModel(
     propagators::addEnvironmentUpdates( totalUpdateSettings, directionUpdateSettings );
 
     // Set DependentOrientationCalculator for body if required.
-    if( !( thrustAccelerationSettings->thrustDirectionGuidanceSettings_->thrustDirectionType_ ==
-           thrust_direction_from_existing_body_orientation ) )
+    if( !(thrustAccelerationSettings->thrustDirectionSettings_->thrustDirectionType_ ==
+          thrust_direction_from_existing_body_orientation ) )
     {
         bodies.at( nameOfBodyUndergoingThrust )->setDependentOrientationCalculator( thrustDirectionGuidance );
     }
 
     // Create and return thrust acceleration object.
     std::function< void( const double ) > updateFunction =
-            std::bind( &updateThrustMagnitudeAndDirection, thrustMagnitude, thrustDirectionGuidance, std::placeholders::_1 );
+            std::bind(&updateThrustSettings, thrustMagnitude, thrustDirectionGuidance, std::placeholders::_1 );
     std::function< void( const double ) > timeResetFunction =
-            std::bind( &resetThrustMagnitudeAndDirectionTime, thrustMagnitude, thrustDirectionGuidance, std::placeholders::_1 );
+            std::bind(&resetThrustSettingsTime, thrustMagnitude, thrustDirectionGuidance, std::placeholders::_1 );
     return std::make_shared< propulsion::ThrustAcceleration >(
                 std::bind( &propulsion::ThrustMagnitudeWrapper::getCurrentThrustMagnitude, thrustMagnitude ),
                 std::bind( &propulsion::BodyFixedForceDirectionGuidance ::getCurrentForceDirectionInPropagationFrame, thrustDirectionGuidance ),
@@ -1325,7 +1327,7 @@ std::shared_ptr< AccelerationModel< Eigen::Vector3d > > createAccelerationModel(
     // Switch to call correct acceleration model type factory function.
     switch( accelerationSettings->accelerationType_ )
     {
-    case central_gravity:
+    case point_mass_gravity:
         accelerationModelPointer = createGravitationalAccelerationModel(
                     bodyUndergoingAcceleration, bodyExertingAcceleration, accelerationSettings,
                     nameOfBodyUndergoingAcceleration, nameOfBodyExertingAcceleration,

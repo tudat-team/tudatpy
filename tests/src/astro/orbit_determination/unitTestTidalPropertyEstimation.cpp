@@ -99,9 +99,9 @@ BOOST_AUTO_TEST_CASE( test_DissipationParameterEstimation )
         {
             std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfSatellite;
             accelerationsOfSatellite[ "Jupiter" ].push_back( std::make_shared< AccelerationSettings >(
-                                                                 central_gravity ) );
+                                                                 point_mass_gravity ) );
             accelerationsOfSatellite[ "Sun" ].push_back( std::make_shared< AccelerationSettings >(
-                                                             central_gravity ) );
+                                                             point_mass_gravity ) );
             accelerationsOfSatellite[ "Jupiter" ].push_back( std::make_shared< DirectTidalDissipationAccelerationSettings >(
                                                                  satelliteLoveNumber, satelliteTimeLag, false, false ) );
             accelerationsOfSatellite[ "Jupiter" ].push_back( std::make_shared< DirectTidalDissipationAccelerationSettings >(
@@ -111,7 +111,7 @@ BOOST_AUTO_TEST_CASE( test_DissipationParameterEstimation )
                 if( i != j )
                 {
                     accelerationsOfSatellite[ satelliteNames.at( j ) ].push_back(
-                                std::make_shared< AccelerationSettings >( central_gravity ) );
+                                std::make_shared< AccelerationSettings >( point_mass_gravity ) );
                 }
             }
             accelerationMap[ satelliteNames.at( i ) ] = accelerationsOfSatellite;
@@ -135,15 +135,8 @@ BOOST_AUTO_TEST_CASE( test_DissipationParameterEstimation )
                   finalEphemerisTime );
 
         // Set parameters that are to be estimated.
-        std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
-        parameterNames.push_back(
-                    std::make_shared< InitialTranslationalStateEstimatableParameterSettings< > >(
-                        "Io", propagators::getInitialStateOfBody(
-                            "Io", "Jupiter", bodies, initialEphemerisTime ), "Jupiter" ) );
-        parameterNames.push_back(
-                    std::make_shared< InitialTranslationalStateEstimatableParameterSettings< > >(
-                        "Europa", propagators::getInitialStateOfBody(
-                            "Europa", "Jupiter", bodies, initialEphemerisTime ), "Jupiter" ) );
+        std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames =
+                getInitialStateParameterSettings< double >( propagatorSettings, bodies );
         parameterNames.push_back(
                     std::make_shared< tudat::estimatable_parameters::DirectTidalTimeLagEstimatableParameterSettings >(
                         "Io", "" ) );
@@ -174,11 +167,11 @@ BOOST_AUTO_TEST_CASE( test_DissipationParameterEstimation )
         linkEnds.resize( 2 );
         linkEnds[ 0 ][ observed_body ] = std::make_pair( "Io", "" );
         linkEnds[ 1 ][ observed_body ] = std::make_pair( "Europa", "" );
-        observation_models::ObservationSettingsMap observationSettingsMap;
-        observationSettingsMap.insert( std::make_pair( linkEnds[ 0 ], std::make_shared< ObservationSettings >(
-                                           position_observable ) ) );
-        observationSettingsMap.insert( std::make_pair( linkEnds[ 1 ], std::make_shared< ObservationSettings >(
-                                           position_observable ) ) );
+        std::vector< std::shared_ptr< ObservationModelSettings > > observationSettingsList;
+        observationSettingsList.push_back( std::make_shared< ObservationModelSettings >(
+                                           position_observable, linkEnds[ 0 ] ) );
+        observationSettingsList.push_back( std::make_shared< ObservationModelSettings >(
+                                           position_observable, linkEnds[ 1 ] ) );
 
         // Define integrator and propagator settings.
         std::shared_ptr< IntegratorSettings< > > integratorSettings =
@@ -190,7 +183,7 @@ BOOST_AUTO_TEST_CASE( test_DissipationParameterEstimation )
         OrbitDeterminationManager< double, double > orbitDeterminationManager =
                 OrbitDeterminationManager< double, double >(
                     bodies, parametersToEstimate,
-                    observationSettingsMap, integratorSettings, propagatorSettings );
+                    observationSettingsList, integratorSettings, propagatorSettings );
 
         Eigen::VectorXd initialParameterEstimate =
                 parametersToEstimate->template getFullParameterValues< double >( );
@@ -233,18 +226,19 @@ BOOST_AUTO_TEST_CASE( test_DissipationParameterEstimation )
             observationTimes.push_back( observationTime );
             observationTime += 6.0 * 3600.0;;
         }
-        std::map< ObservableType, std::map< LinkEnds, std::pair< std::vector< double >, LinkEndType > > > measurementSimulationInput;
-        std::map< LinkEnds, std::pair< std::vector< double >, LinkEndType > > singleObservableSimulationInput;
-        singleObservableSimulationInput[ linkEnds[ 0 ] ] = std::make_pair( observationTimes, observed_body );
-        singleObservableSimulationInput[ linkEnds[ 1 ] ] = std::make_pair( observationTimes, observed_body );
-        measurementSimulationInput[ position_observable ] = singleObservableSimulationInput;
+
+
+        std::vector< std::shared_ptr< ObservationSimulationSettings< > > > measurementSimulationInput;
+        measurementSimulationInput.push_back(
+                    std::make_shared< TabulatedObservationSimulationSettings< > >(
+                        position_observable, linkEnds[ 0 ], observationTimes, observed_body ) );
+        measurementSimulationInput.push_back(
+                    std::make_shared< TabulatedObservationSimulationSettings< > >(
+                        position_observable, linkEnds[ 1 ], observationTimes, observed_body ) );
 
         // Simulate observations
-        typedef Eigen::VectorXd ObservationVectorType;
-        typedef std::map< LinkEnds, std::pair< ObservationVectorType, std::pair< std::vector< double >, LinkEndType > > > SingleObservablePodInputType;
-        typedef std::map< ObservableType, SingleObservablePodInputType > PodInputDataType;
-        PodInputDataType observationsAndTimes = simulateObservations< double, double >(
-                    measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( )  );
+        std::shared_ptr< ObservationCollection< > >  observationsAndTimes = simulateObservations< double, double >(
+                    measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
 
         // Perturb parameter values
@@ -355,19 +349,15 @@ BOOST_AUTO_TEST_CASE( test_LoveNumberEstimationFromOrbiterData )
     bodySettings.at( "Earth" )->gravityFieldVariationSettings = getEarthGravityFieldVariationSettings( );
     SystemOfBodies bodies = createSystemOfBodies( bodySettings );
     bodies.createEmptyBody( "Vehicle" );
-    bodies.at( "Vehicle" )->setEphemeris( std::make_shared< TabulatedCartesianEphemeris< > >(
-                                            std::shared_ptr< interpolators::OneDimensionalInterpolator
-                                            < double, Eigen::Vector6d > >( ), "Earth", "ECLIPJ2000" ) );
-
 
     // Set accelerations on Vehicle that are to be taken into account.
     SelectedAccelerationMap accelerationMap;
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
     accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< SphericalHarmonicAccelerationSettings >( 3, 3 ) );
     accelerationsOfVehicle[ "Sun" ].push_back( std::make_shared< AccelerationSettings >(
-                                                   basic_astrodynamics::central_gravity ) );
+                                                   basic_astrodynamics::point_mass_gravity ) );
     accelerationsOfVehicle[ "Moon" ].push_back( std::make_shared< AccelerationSettings >(
-                                                    basic_astrodynamics::central_gravity ) );
+                                                    basic_astrodynamics::point_mass_gravity ) );
     accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
 
     // Set bodies for which initial state is to be estimated and integrated.
@@ -414,10 +404,8 @@ BOOST_AUTO_TEST_CASE( test_LoveNumberEstimationFromOrbiterData )
     linkEndsPerObservable[ position_observable ].push_back( linkEnds );
 
     // Define parameters to estimate (vehicle initial state and various Love number combinations)
-    std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
-    parameterNames.push_back(
-                std::make_shared< InitialTranslationalStateEstimatableParameterSettings< double > >(
-                    "Vehicle", systemInitialState, "Earth" ) );
+    std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames =
+            getInitialStateParameterSettings< double >( propagatorSettings, bodies );
     parameterNames.push_back( std::make_shared< SingleDegreeVariableTidalLoveNumberEstimatableParameterSettings >(
                                   "Earth", 2, std::vector< int >{ 2 }, "Moon", true ) );
     parameterNames.push_back( std::make_shared< SingleDegreeVariableTidalLoveNumberEstimatableParameterSettings >(
@@ -432,13 +420,13 @@ BOOST_AUTO_TEST_CASE( test_LoveNumberEstimationFromOrbiterData )
             createParametersToEstimate( parameterNames, bodies );
 
     // Define observation settings
-    observation_models::ObservationSettingsMap observationSettingsMap;
-    observationSettingsMap.insert( std::make_pair( linkEnds, std::make_shared< ObservationSettings >(
-                                       position_observable ) ) );
+    std::vector< std::shared_ptr< ObservationModelSettings > > observationSettingsList;
+    observationSettingsList.push_back( std::make_shared< ObservationModelSettings >(
+                                       position_observable, linkEnds ) );
     // Create orbit determination object.
     OrbitDeterminationManager< double, double > orbitDeterminationManager =
             OrbitDeterminationManager< double, double >(
-                bodies, parametersToEstimate, observationSettingsMap,
+                bodies, parametersToEstimate, observationSettingsList,
                 integratorSettings, propagatorSettings );
 
     // define observation simulation times
@@ -451,19 +439,14 @@ BOOST_AUTO_TEST_CASE( test_LoveNumberEstimationFromOrbiterData )
         currentObservationTime += observationInterval;
     }
 
-    std::map< ObservableType, std::map< LinkEnds, std::pair< std::vector< double >, LinkEndType > > > measurementSimulationInput;
-
-    std::map< LinkEnds, std::pair< std::vector< double >, LinkEndType > > singleObservableSimulationInput;
-    singleObservableSimulationInput[ linkEnds ] = std::make_pair( baseTimeList, observed_body );
-    measurementSimulationInput[ position_observable ] = singleObservableSimulationInput;
-
+    std::vector< std::shared_ptr< ObservationSimulationSettings< > > > measurementSimulationInput;
+    measurementSimulationInput.push_back(
+                std::make_shared< TabulatedObservationSimulationSettings< > >(
+                    position_observable, linkEnds, baseTimeList, observed_body ) );
 
     // Simulate observations
-    typedef Eigen::VectorXd ObservationVectorType;
-    typedef std::map< LinkEnds, std::pair< ObservationVectorType, std::pair< std::vector< double >, LinkEndType > > > SingleObservablePodInputType;
-    typedef std::map< ObservableType, SingleObservablePodInputType > PodInputDataType;
-    PodInputDataType observationsAndTimes = simulateObservations< double, double >(
-                measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ) );
+    std::shared_ptr< ObservationCollection< > >  observationsAndTimes = simulateObservations< double, double >(
+                measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
     // Perturb parameter estimate
     Eigen::VectorXd initialParameterEstimate =

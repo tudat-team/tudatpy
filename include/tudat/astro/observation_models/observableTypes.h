@@ -39,10 +39,10 @@ enum ObservableType
 };
 
 
-std::map< ObservableType, std::map< LinkEnds, std::pair< Eigen::VectorXd,
-std::pair< std::vector< double >, LinkEndType > > > > getTudatCompatibleObservationsAndTimes(
-        const std::vector< std::tuple< ObservableType, LinkEnds, Eigen::VectorXd,
-        std::vector< double >, LinkEndType > >& tudatpyObservationsAndTimes );
+//std::map< ObservableType, std::map< LinkEnds, std::pair< Eigen::VectorXd,
+//std::pair< std::vector< double >, LinkEndType > > > > getTudatCompatibleObservationsAndTimes(
+//        const std::vector< std::tuple< ObservableType, LinkEnds, Eigen::VectorXd,
+//        std::vector< double >, LinkEndType > >& tudatpyObservationsAndTimes );
 
 //! Function to get the name (string) associated with a given observable type.
 /*!
@@ -51,7 +51,7 @@ std::pair< std::vector< double >, LinkEndType > > > > getTudatCompatibleObservat
  * \param numberOfLinkEnds Number of link ends in observable
  * \return Name of observable
  */
-std::string getObservableName( const ObservableType observableType, const int numberOfLinkEnds );
+std::string getObservableName( const ObservableType observableType, const int numberOfLinkEnds = 0 );
 
 //! Function to get the observable type.ssociated with the name (string) of observable.
 /*!
@@ -69,6 +69,16 @@ ObservableType getObservableType( const std::string& observableName );
  */
 int getObservableSize( const ObservableType observableType );
 
+bool isObservableOfIntegratedType( const ObservableType observableType );
+
+bool areObservableLinksContinuous( const ObservableType observableType );
+
+LinkEndType getDefaultReferenceLinkEndType(
+        const ObservableType observableType );
+
+int getNumberOfLinksInObservable(
+        const ObservableType observableType, const int numberOfLinkEnds = -1 );
+
 //! Function to get the indices in link end times/states for a given link end type and observable type
 /*!
  * Function to get the indices in link end times/states for a given link end type and observable type
@@ -80,9 +90,30 @@ int getObservableSize( const ObservableType observableType );
 std::vector< int > getLinkEndIndicesForLinkEndTypeAtObservable(
         const ObservableType observableType, const LinkEndType linkEndType, const int numberOfLinkEnds );
 
+
+//! Function to retrieve the link end indices in link end states/times that are to be used in viability calculation
+/*!
+ * Function to retrieve the link end indices in link end states/times that are to be used in viability calculation.
+ * Return variable is a vector of pairs, where each the first entry denotes the index of the point at which the link is to be
+ * checkd. The second entry denotes the index for the opposite end of the link.
+ * \param linkEnds Complete set of link ends for which check is to be performed
+ * \param observableType Observable type for which check is to be performed
+ * \param linkEndToCheck Link end at which check is to be performed
+ * \return Link end indices in link end states/times that are to be used in viability calculation
+ */
+std::vector< std::pair< int, int > > getLinkStateAndTimeIndicesForLinkEnd(
+        const LinkEnds& linkEnds,
+        const ObservableType observableType,
+        const LinkEndId linkEndToCheck );
+
+std::vector< LinkEndType > getLinkEndTypesForGivenLinkEndId(
+        const LinkEnds& linkEnds,
+        const LinkEndId linkEndToCheck );
+
 void checkObservationResidualDiscontinuities(
         Eigen::Block< Eigen::VectorXd > observationBlock,
         const ObservableType observableType );
+
 
 } // namespace observation_models
 

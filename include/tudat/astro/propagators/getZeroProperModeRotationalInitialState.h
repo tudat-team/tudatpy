@@ -30,7 +30,7 @@ namespace propagators
  * \param inertiaTensor Inertia Tensor
  * \return Dissipation Matrix
  */
-Eigen::Matrix3d getDissipationMatrix(
+inline Eigen::Matrix3d getDissipationMatrix(
         const double dampingTime,
         const Eigen::Matrix3d& inertiaTensor )
 {
@@ -297,6 +297,35 @@ Eigen::VectorXd getZeroProperModeRotationalState(
     return currentInitialState;
 }
 
+template< typename TimeType = double, typename StateScalarType = double >
+std::tuple<
+Eigen::VectorXd,
+std::vector< std::pair< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >,
+std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > >,
+std::vector< std::pair< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >,
+std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > >
+> getZeroProperModeRotationalState(
+        const simulation_setup::SystemOfBodies& bodies,
+        const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
+        const std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > propagatorSettings,
+        const double bodyMeanRotationRate,
+        const std::vector< double > dissipationTimes,
+        const bool propagateNominal = true )
+{
+    std::vector< std::pair< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >,
+    std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > > propagatedStates;
+    std::vector< std::pair< std::map< TimeType, Eigen::Matrix< double, Eigen::Dynamic, 1 > >,
+    std::map< TimeType, Eigen::Matrix< double, Eigen::Dynamic, 1 > > > > dependentVariables;
+
+    Eigen::VectorXd initialState =
+            getZeroProperModeRotationalState(
+                bodies, integratorSettings, propagatorSettings, bodyMeanRotationRate, dissipationTimes,
+                propagatedStates, dependentVariables,
+                propagateNominal, false);
+
+    return std::make_tuple( initialState, propagatedStates, dependentVariables );
+}
+
 //! Function to determine the initial rotational state for which the free mode is fully damped
 /*!
  *  Function to determine the initial rotational state for which the free mode is fully damped, using the approach of
@@ -311,7 +340,7 @@ Eigen::VectorXd getZeroProperModeRotationalState(
  *  \param dissipationTimes List of characteristic times for dissipation matrix (in order of which they will be used)
  *
  */
-template< typename TimeType, typename StateScalarType >
+template< typename TimeType = double, typename StateScalarType = double >
 Eigen::VectorXd getZeroProperModeRotationalState(
         const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,

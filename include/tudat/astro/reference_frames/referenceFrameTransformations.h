@@ -151,6 +151,11 @@ Eigen::Quaterniond getRotatingPlanetocentricToInertialFrameTransformationQuatern
         const double rightAscensionOfPole,
         const double longitudeOfPrimeMeridian );
 
+Eigen::Matrix3d getRotatingPlanetocentricToInertialFrameTransformationMatrix(
+        const double declinationOfPole,
+        const double rightAscensionOfPole,
+        const double longitudeOfPrimeMeridian );
+
 //! Get inertial (I) to rotating planetocentric (R) reference frame transformtion matrix.
 /*!
  * Returns transformation matrix from inertial referenceframe (I) to the rotating planetocentric
@@ -163,47 +168,53 @@ Eigen::Quaterniond getRotatingPlanetocentricToInertialFrameTransformationQuatern
 Eigen::Matrix3d getInertialToPlanetocentricFrameTransformationMatrix(
         const double angleFromXItoXR );
 
-//! Get rotation from velocity based LVLH frame to inertial (I) frame.
+//! Get rotation from velocity based TNW frame to inertial (I) frame.
 /*!
- * Returns rotation from inertial (i) to the velocity based LVLH frame. The velocity based LVLH frame is
+ * Returns rotation from inertial (i) to the velocity based TNW frame. The velocity based TNW frame is
  * a right-handed orthogonal frame defined as follows:
  * x-axis tangent to the velocity direction,
  * y-axis in the orbital plane and pointing inwards (if doesNaxisPointAwayFromCentralBody is false),
  * i.e. to the left when looking in velocity-direction,
  * z-axis normal to the orbital plane.
- * \param vehicleState State of the vehicle for which the LVLH frame is to be computed.
- * \param centralBodyState State of the central body w.r.t. which the LVLH frame is to be computed.
+ * \param vehicleState State of the vehicle for which the TNW frame is to be computed.
+ * \param centralBodyState State of the central body w.r.t. which the TNW frame is to be computed.
  * \param doesNaxisPointAwayFromCentralBody Boolean denoting whether the local y-axis points away from (if true) or
  * towards (if false) central body.
- * \return Velocity based LVLH to inertial (I) frame transformation matrix.
+ * \return Velocity based TNW to inertial (I) frame transformation matrix.
  */
-Eigen::Matrix3d getVelocityBasedLvlhToInertialRotation(const Eigen::Vector6d& vehicleState,
-                                                       const Eigen::Vector6d& centralBodyState = Eigen::Vector6d::Zero( ),
+Eigen::Matrix3d getTnwToInertialRotation(const Eigen::Vector6d& vehicleState,
+                                                       const Eigen::Vector6d& centralBodyState,
                                                        const bool doesNaxisPointAwayFromCentralBody = true );
 
-//! Get rotation from velocity based LVLH frame to inertial (I) frame.
+Eigen::Matrix3d getTnwToInertialRotation(const Eigen::Vector6d& vehicleInertialState,
+                                         const bool doesNaxisPointAwayFromCentralBody = true );
+
+Eigen::Matrix3d getInertialToTnwRotation(const Eigen::Vector6d& vehicleInertialState,
+                                         const bool doesNaxisPointAwayFromCentralBody = true );
+
+//! Get rotation from velocity based TNW frame to inertial (I) frame.
 /*!
- * Returns rotation from inertial (i) to the velocity based LVLH frame. The velocity based LVLH frame is
+ * Returns rotation from inertial (i) to the velocity based TNW frame. The velocity based TNW frame is
  * a right-handed orthogonal frame defined as follows:
  * x-axis tangent to the velocity direction,
  * y-axis in the orbital plane and pointing inwards (if doesNaxisPointAwayFromCentralBody is false),
  * i.e. to the left when looking in velocity-direction,
  * z-axis normal to the orbital plane.
- * \param vehicleStateFunction Function returning the state of the vehicle for which the LVLH frame is to be computed
- * \param centralBodyStateFunction Function returning the state of the central body w.r.t. which the LVLH frame is to be
+ * \param vehicleStateFunction Function returning the state of the vehicle for which the TNW frame is to be computed
+ * \param centralBodyStateFunction Function returning the state of the central body w.r.t. which the TNW frame is to be
  * computed
  * \param doesNaxisPointAwayFromCentralBody Boolean denoting whether the local y-axis points away from (if true) or
  * towards (if false) central body.
- * \return Velocity based LVLH to inertial (I) frame transformation matrix.
+ * \return Velocity based TNW to inertial (I) frame transformation matrix.
  */
-Eigen::Matrix3d getVelocityBasedLvlhToInertialRotationFromFunctions(
+Eigen::Matrix3d getTnwToInertialRotationFromFunctions(
         const std::function< Eigen::Vector6d( ) >& vehicleStateFunction,
         const std::function< Eigen::Vector6d( ) >& centralBodyStateFunction,
         bool doesNaxisPointAwayFromCentralBody = true );
 
-//! Get rotation from velocity based LVLH frame to planet-fixed frame.
+//! Get rotation from velocity based TNW frame to planet-fixed frame.
 /*!
- * Returns rotation from the velocity based LVLH frame to the planet-fixed frame. The velocity based LVLH frame is
+ * Returns rotation from the velocity based TNW frame to the planet-fixed frame. The velocity based TNW frame is
  * a right-handed orthogonal frame defined as follows:
  * x-axis tangent to the velocity direction,
  * y-axis in the orbital plane and pointing inwards, i.e. to the left when looking in velocity-direction,
@@ -217,8 +228,8 @@ Eigen::Matrix3d getVelocityBasedLvlhToInertialRotationFromFunctions(
  *          trueAnomaly
  * \return Computed rotation quaternion.
  */
-//! Get rotation from velocity based LVLH frame to planetocentric frame.
-Eigen::Quaterniond getVelocityBasedLvlhToPlanetocentricRotationKeplerian(
+//! Get rotation from velocity based TNW frame to planetocentric frame.
+Eigen::Quaterniond getTnwToPlanetocentricRotationKeplerian(
         const Eigen::Matrix< double, 6, 1 > spacecraftKeplerianState );
 
 //! Function to compute the rotation matrix to RSW frame, from the frame in which the input state is given.
@@ -228,7 +239,10 @@ Eigen::Quaterniond getVelocityBasedLvlhToPlanetocentricRotationKeplerian(
  * \return Rotation matrix to RSW frame
  */
 Eigen::Matrix3d getInertialToRswSatelliteCenteredFrameRotationMatrix(
-        const Eigen::Vector6d bodyState );
+        const Eigen::Vector6d& bodyState );
+
+Eigen::Matrix3d getRswSatelliteCenteredToInertialFrameRotationMatrix(
+        const Eigen::Vector6d& bodyState );
 
 //! Get inertial (I) to rotating planetocentric (R) reference frame transformation quaternion.
 /*!
@@ -505,7 +519,7 @@ Eigen::Quaterniond getAirspeedBasedAerodynamicToBodyFrameTransformationQuaternio
 
 //! Calculate current heading angle.
 /*!
- * Calculate heading angle from velocity in vertical (LVLH) frame.
+ * Calculate heading angle from velocity in vertical (TNW) frame.
  * \param velocityInVerticalFrame Current Cartesian velocity in vertical frame.
  * \return Current heading angle.
  */
@@ -513,7 +527,7 @@ double calculateHeadingAngle( const Eigen::Vector3d& velocityInVerticalFrame );
 
 //! Calculate current flight path angle. Angle is defined positive upwards.
 /*!
- *  Calculate flight path angle from velocity in vertical (LVLH) frame.
+ *  Calculate flight path angle from velocity in vertical (TNW) frame.
  *  Angle is defined positive upwards.
  *  \param velocityInVerticalFrame Current Cartesian velocity in vertical frame.
  *  \return Current flight path angle.
@@ -540,6 +554,18 @@ Eigen::Quaterniond getRotatingPlanetocentricToEnuLocalVerticalFrameTransformatio
  */
 Eigen::Quaterniond getEnuLocalVerticalToRotatingPlanetocentricFrameTransformationQuaternion(
         const double longitude, const double latitude );
+
+//! Get transformation matrix from J2000 to ECLIPJ2000. Transformation matrix with values from SPICE
+/*!
+ * @return Transformation matrix
+ */
+Eigen::Matrix3d getJ2000toECLIPJ2000TransformationMatrix ();
+
+//! Get transformation matrix from ECLIPJ2000 to J2000. Transformation matrix with values from SPICE
+/*!
+ * @return Transformation matrix
+ */
+Eigen::Matrix3d getECLIPJ2000toJ2000TransformationMatrix ();
 
 //! Pre-multiplier used to take derivative of rotation matrix about x-axis w.r.t. the rotation angle
 static const Eigen::Matrix3d X_AXIS_ROTATION_MATRIX_DERIVATIVE_PREMULTIPLIER =

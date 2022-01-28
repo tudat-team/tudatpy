@@ -93,19 +93,14 @@ integrateEquations( const bool performIntegrationsSequentially )
     Eigen::Vector6d lageosState = convertKeplerianToCartesianElements(
                 lageosKeplerianElements, getBodyGravitationalParameter("Earth" ) );
 
-    lageos->setEphemeris( std::make_shared< TabulatedCartesianEphemeris< double, double > >(
-                              std::shared_ptr< interpolators::OneDimensionalInterpolator<
-                              double, Eigen::Vector6d > >( ), "Earth" ) );
-    
-
     // Set accelerations between bodies that are to be taken into account.
     SelectedAccelerationMap accelerationMap;
 
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfLageos;
-    //accelerationsOfLageos[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+    //accelerationsOfLageos[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
     //accelerationsOfLageos[ "Earth" ].push_back( std::make_shared< RelativisticCorrectionSettings >( ) );
     //accelerationsOfLageos[ "Earth" ].push_back( std::make_shared< SphericalHarmonicAccelerationSettings >( 8, 8 ) );
-    accelerationsOfLageos[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+    accelerationsOfLageos[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
     accelerationMap[ "LAGEOS" ] = accelerationsOfLageos;
 
     // Set bodies for which initial state is to be estimated and integrated.
@@ -131,9 +126,8 @@ integrateEquations( const bool performIntegrationsSequentially )
             ( centralBodies, accelerationModelMap, bodiesToIntegrate, lageosState, finalEphemerisTime );
 
     // Set parameters that are to be included.
-    std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
-    parameterNames.push_back( std::make_shared< InitialTranslationalStateEstimatableParameterSettings< double > >(
-                                  "LAGEOS", lageosState, "Earth" ) );
+    std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames =
+            getInitialStateParameterSettings< double >( propagatorSettings, bodies );
     parameterNames.push_back( std::make_shared< EstimatableParameterSettings >
                               ( "Earth", gravitational_parameter ) );
     parameterNames.push_back( std::make_shared< EstimatableParameterSettings >
@@ -192,6 +186,10 @@ BOOST_AUTO_TEST_CASE( testSequentialVariationalEquationIntegration )
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                 concurrentResult.first->getCombinedStateTransitionAndSensitivityMatrix( 1.0E7 + 14.0 * 80000.0 ),
                 sequentialResult.first->getCombinedStateTransitionAndSensitivityMatrix( 1.0E7 + 14.0 * 80000.0 ), 2.0E-6 );
+
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                concurrentResult.first->getCombinedStateTransitionAndSensitivityMatrix( 1.0E7 + 14.0 * 80000.0 ),
+                sequentialResult.first->getFullCombinedStateTransitionAndSensitivityMatrix( 1.0E7 + 14.0 * 80000.0 ), 2.0E-6 );
 
     // Test dynamics solution.
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(

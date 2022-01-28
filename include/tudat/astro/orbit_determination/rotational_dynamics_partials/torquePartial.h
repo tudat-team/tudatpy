@@ -15,7 +15,9 @@
 #include <map>
 #include <Eigen/Core>
 
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
+using namespace boost::placeholders;
+
 #include <boost/assign/list_of.hpp>
 
 #include "tudat/astro/basic_astro/accelerationModel.h"

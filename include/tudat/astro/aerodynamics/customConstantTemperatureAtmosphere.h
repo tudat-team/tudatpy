@@ -20,7 +20,7 @@
 #ifndef TUDAT_CUSTOM_CONSTANT_TEMPERATURE_ATMOSPHERE_H
 #define TUDAT_CUSTOM_CONSTANT_TEMPERATURE_ATMOSPHERE_H
 
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
 
@@ -31,6 +31,8 @@
 #include "tudat/astro/aerodynamics/aerodynamics.h"
 #include "tudat/astro/aerodynamics/standardAtmosphere.h"
 #include "tudat/astro/basic_astro/physicalConstants.h"
+
+using namespace boost::placeholders;
 
 namespace tudat
 {
@@ -107,7 +109,7 @@ double threeTermAtmosphereModel( const double altitude, const double longitude, 
  *  latitude and time. The pressure is then determined with the ideal gas law, and the
  *  temperature is assumed to be constant throughtout the atmosphere domain.
  */
-class CustomConstantTemperatureAtmosphere : public StandardAtmosphere
+class CustomConstantTemperatureAtmosphere : public AtmosphereModel
 {
 public:
 

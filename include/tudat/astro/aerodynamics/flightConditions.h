@@ -14,7 +14,7 @@
 #include <vector>
 
 #include <functional>
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
 
 #include "tudat/astro/aerodynamics/trimOrientation.h"
 #include "tudat/astro/aerodynamics/aerodynamicCoefficientInterface.h"
@@ -22,6 +22,8 @@
 #include "tudat/astro/basic_astro/bodyShapeModel.h"
 #include "tudat/astro/reference_frames/aerodynamicAngleCalculator.h"
 #include "tudat/basics/basicTypedefs.h"
+
+using namespace boost::placeholders;
 
 namespace tudat
 {
@@ -170,10 +172,7 @@ public:
     virtual void resetCurrentTime( const double currentTime = TUDAT_NAN )
     {
         currentTime_ = currentTime;
-
         isScalarFlightConditionComputed_ = allScalarFlightConditionsUncomputed;
-        isLatitudeAndLongitudeSet_ = 0;
-
         aerodynamicAngleCalculator_->resetCurrentTime( currentTime_ );
     }
 
@@ -199,8 +198,6 @@ protected:
         scalarFlightConditions_[ longitude_flight_condition ] = aerodynamicAngleCalculator_->getAerodynamicAngle(
                     reference_frames::longitude_angle );
         isScalarFlightConditionComputed_[ longitude_flight_condition ] = true;
-
-        isLatitudeAndLongitudeSet_ = 1;
     }
 
     //! Function to compute and set the current altitude
@@ -222,7 +219,7 @@ protected:
         }
         else
         {
-            if( isScalarFlightConditionComputed_.at( latitude_flight_condition ) == 0 || !isLatitudeAndLongitudeSet_ )
+            if( isScalarFlightConditionComputed_.at( latitude_flight_condition ) == 0 )
             {
                 computeLatitudeAndLongitude( );
             }
@@ -251,9 +248,6 @@ protected:
 
     //! Current time of propagation.
     double currentTime_;
-
-    //! Boolean denoting whether the current latitude and longitude have been computed at current time step
-    bool isLatitudeAndLongitudeSet_;
 
     //! List of atmospheric/flight properties computed at current time step.
     std::vector< double > scalarFlightConditions_;
@@ -299,8 +293,7 @@ public:
                                  const std::shared_ptr< AerodynamicCoefficientInterface >
                                  aerodynamicCoefficientInterface,
                                  const std::shared_ptr< reference_frames::AerodynamicAngleCalculator >
-                                 aerodynamicAngleCalculator =
-            std::shared_ptr< reference_frames::AerodynamicAngleCalculator >( ),
+                                 aerodynamicAngleCalculator,
                                  const std::function< double( const std::string& )> controlSurfaceDeflectionFunction =
             std::function< double( const std::string& )>( ) );
 
@@ -510,8 +503,6 @@ public:
         currentTime_ = currentTime;
 
         isScalarFlightConditionComputed_ = allScalarFlightConditionsUncomputed;
-        isLatitudeAndLongitudeSet_ = 0;
-
         aerodynamicAngleCalculator_->resetCurrentTime( currentTime_ );
         aerodynamicCoefficientIndependentVariables_.clear( );
         controlSurfaceAerodynamicCoefficientIndependentVariables_.clear( );
@@ -631,9 +622,6 @@ private:
 
     //! List of custom functions for aerodynamic coefficient dependencies.
     std::map< AerodynamicCoefficientsIndependentVariables, std::function< double( ) > > customCoefficientDependencies_;
-
-    //! Boolean setting whether latitude and longitude are to be updated by updateConditions().
-    bool updateLatitudeAndLongitudeForAtmosphere_;
 
 
     //! Current list of independent variables of the aerodynamic coefficient interface
