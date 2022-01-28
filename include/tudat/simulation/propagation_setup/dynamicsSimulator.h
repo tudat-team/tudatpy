@@ -170,7 +170,7 @@ template< typename TimeType = double, typename StateScalarType = double >
 Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialStateOfBody(
         const std::string& bodyToIntegrate,
         const std::string& centralBody,
-        const  simulation_setup::SystemOfBodies& bodies,
+        const simulation_setup::SystemOfBodies& bodies,
         const TimeType initialTime )
 {
     return getInitialStatesOfBodies< TimeType, StateScalarType >(
@@ -253,7 +253,9 @@ public:
             const bool setIntegratedResult = true ):
         bodies_( bodies ),
         clearNumericalSolutions_( clearNumericalSolutions ),
-        setIntegratedResult_( setIntegratedResult ){ }
+        setIntegratedResult_( setIntegratedResult )
+    {
+    }
 
     //! Virtual destructor
     virtual ~DynamicsSimulator( ) { }
@@ -390,13 +392,12 @@ public:
             const simulation_setup::SystemOfBodies& bodies,
             const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
             const std::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
+            const std::vector< std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > >& stateDerivativeModels,
             const bool areEquationsOfMotionToBeIntegrated = true,
             const bool clearNumericalSolutions = false,
             const bool setIntegratedResult = false,
             const bool printNumberOfFunctionEvaluations = false,
             const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ),
-            const std::vector< std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > >& stateDerivativeModels =
-            std::vector< std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > >( ),
             const bool printDependentVariableData = true ):
         DynamicsSimulator< StateScalarType, TimeType >(
             bodies, clearNumericalSolutions, setIntegratedResult ),
@@ -422,11 +423,11 @@ public:
             throw std::runtime_error( "Error in dynamics simulator, integrator settings not defined." );
         }
 
+        checkPropagatedStatesFeasibility( propagatorSettings_, bodies_, setIntegratedResult_ );
+
         if( setIntegratedResult_ )
         {
-            frameManager_ = simulation_setup::createFrameManager( bodies.getMap( ) );
-            integratedStateProcessors_ = createIntegratedStateProcessors< TimeType, StateScalarType >(
-                        propagatorSettings_, bodies_, frameManager_ );
+            createAndSetIntegratedStateProcessors( );
         }
 
         try
@@ -494,6 +495,24 @@ public:
             integrateEquationsOfMotion( propagatorSettings_->getInitialStates( ) );
         }
     }
+
+    SingleArcDynamicsSimulator(
+            const simulation_setup::SystemOfBodies& bodies,
+            const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
+            const std::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
+            const bool areEquationsOfMotionToBeIntegrated = true,
+            const bool clearNumericalSolutions = false,
+            const bool setIntegratedResult = false,
+            const bool printNumberOfFunctionEvaluations = false,
+            const bool printDependentVariableData = true ):
+        SingleArcDynamicsSimulator(  bodies, integratorSettings,  propagatorSettings,
+                                     std::vector< std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > >( ),
+                                     areEquationsOfMotionToBeIntegrated,
+                                     clearNumericalSolutions,
+                                     setIntegratedResult,
+                                     printNumberOfFunctionEvaluations,
+                                     std::chrono::steady_clock::now( ),
+                                     printDependentVariableData ){ }
 
     //! Destructor
     ~SingleArcDynamicsSimulator( ) { }
@@ -833,8 +852,18 @@ public:
      */
     void processNumericalEquationsOfMotionSolution( )
     {
-        // Create and set interpolators for ephemerides
-        resetIntegratedStates( equationsOfMotionNumericalSolution_, integratedStateProcessors_ );
+        try
+        {
+            // Create and set interpolators for ephemerides
+            resetIntegratedStates( equationsOfMotionNumericalSolution_, integratedStateProcessors_ );
+        }
+        catch( const std::exception& caughtException )
+        {
+            std::cerr << "Error occured when post-processing single-arc integration results, and seting integrated states in environment, caught error is: " << std::endl << std::endl;
+            std::cerr << caughtException.what( ) << std::endl << std::endl;
+            std::cerr << "The problem may be that there is an insufficient number of data points (epochs) at which propagation results are produced. Integrated results are given at" +
+                         std::to_string( equationsOfMotionNumericalSolution_.size( ) ) + " epochs"<< std::endl;
+        }
 
         // Clear numerical solution if so required.
         if( clearNumericalSolutions_ )
@@ -857,6 +886,13 @@ public:
     void enableDependentVariableDataPrinting( )
     {
         printDependentVariableData_ = true;
+    }
+
+    void createAndSetIntegratedStateProcessors( )
+    {
+        frameManager_ = simulation_setup::createFrameManager( bodies_.getMap( ) );
+        integratedStateProcessors_ = createIntegratedStateProcessors< TimeType, StateScalarType >(
+                    propagatorSettings_, bodies_, frameManager_ );
     }
 
 
@@ -1102,8 +1138,8 @@ public:
 
                 singleArcDynamicsSimulators_.push_back(
                             std::make_shared< SingleArcDynamicsSimulator< StateScalarType, TimeType > >(
-                                bodies, integratorSettings, singleArcSettings.at( i ), false, false, true ) );
-                singleArcDynamicsSimulators_[ i ]->resetSetIntegratedResult( false );
+                                bodies, integratorSettings, singleArcSettings.at( i ), false, false, false ) );
+                singleArcDynamicsSimulators_[ i ]->createAndSetIntegratedStateProcessors( );
             }
 
             equationsOfMotionNumericalSolution_.resize( arcStartTimes.size( ) );
@@ -1165,8 +1201,8 @@ public:
             {
                 singleArcDynamicsSimulators_.push_back(
                             std::make_shared< SingleArcDynamicsSimulator< StateScalarType, TimeType > >(
-                                bodies, integratorSettings.at( i ), singleArcSettings.at( i ), false, false, true ) );
-                singleArcDynamicsSimulators_[ i ]->resetSetIntegratedResult( false );
+                                bodies, integratorSettings.at( i ), singleArcSettings.at( i ), false, false, false ) );
+                singleArcDynamicsSimulators_[ i ]->createAndSetIntegratedStateProcessors( );
             }
 
             equationsOfMotionNumericalSolution_.resize( singleArcSettings.size( ) );
@@ -1451,9 +1487,21 @@ public:
      */
     void processNumericalEquationsOfMotionSolution( )
     {
-        resetIntegratedMultiArcStatesWithEqualArcDynamics(
-                    equationsOfMotionNumericalSolution_,
-                    singleArcDynamicsSimulators_.at( 0 )->getIntegratedStateProcessors( ), arcStartTimes_ );
+        try
+        {
+            // Create and set interpolators for ephemerides
+            resetIntegratedMultiArcStatesWithEqualArcDynamics(
+                        equationsOfMotionNumericalSolution_,
+                        singleArcDynamicsSimulators_.at( 0 )->getIntegratedStateProcessors( ), arcStartTimes_ );
+        }
+        catch( const std::exception& caughtException )
+        {
+            std::cerr << "Error occured when post-processing mulyi-arc integration results, and seting integrated states in environment, caught error is: " << std::endl << std::endl;
+            std::cerr << caughtException.what( ) << std::endl << std::endl;
+            std::cerr << "The problem may be that there is an insufficient number of data points (epochs) at which propagation results are produced for one or more arcs"<< std::endl;
+        }
+
+
 
         if( clearNumericalSolutions_ )
         {

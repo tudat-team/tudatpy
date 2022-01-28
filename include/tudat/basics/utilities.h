@@ -670,6 +670,66 @@ std::vector<T> linspace(T start_in, T end_in, int num_in)
     return linspaced;
 }
 
+template< typename KeyType, typename ScalarType >
+std::map< KeyType, Eigen::Matrix< ScalarType, Eigen::Dynamic, 1 > > sliceMatrixHistory(
+        const std::map< KeyType, Eigen::Matrix< ScalarType, Eigen::Dynamic, 1 > >& fullHistory,
+        const std::pair< int, int > sliceStartIndexAndSize )
+{
+    std::map< KeyType, Eigen::Matrix< ScalarType, Eigen::Dynamic, 1 > > slicedHistory;
+
+    for( auto mapIterator : fullHistory )
+    {
+        slicedHistory[ mapIterator.first ] = mapIterator.second.segment(
+                    sliceStartIndexAndSize.first, sliceStartIndexAndSize.second );
+    }
+    return slicedHistory;
+}
+
+template< typename KeyType, typename ValueType >
+std::map< KeyType, ValueType > concatenateMaps(
+        const std::vector< std::map< KeyType, ValueType > >& mapList )
+{
+    std::map< KeyType, ValueType > concatenatedMaps;
+
+    for( unsigned int i = 0; i < mapList.size( ); i++ )
+    {
+        std::map< KeyType, ValueType > mapToInsert = mapList.at( i );
+        concatenatedMaps.insert( mapToInsert.begin( ), mapToInsert.end( ) );
+    }
+    return concatenatedMaps;
+}
+
+template< typename KeyType, typename ValueType >
+std::map< KeyType, ValueType > createMapFromVectors(
+        const std::vector< KeyType >& keyList,
+        const std::vector< ValueType >& valueList )
+{
+    if( keyList.size( ) != valueList.size( ) )
+    {
+        throw std::runtime_error( "Error when creating map for keys and values, sizes are incompatible" );
+    }
+    std::map< KeyType, ValueType > createdMap;
+    for( unsigned int i = 0; i < keyList.size( ); i++ )
+    {
+        createdMap[ keyList.at( i ) ] = valueList.at( i );
+    }
+    return createdMap;
+
+}
+
+template< typename KeyType, typename ScalarType, int SizeType >
+std::map< KeyType, ScalarType > getSingleVectorEntryHistory(
+        const std::map< KeyType, Eigen::Matrix< ScalarType, SizeType, 1 > > originalMap, int vectorEntry )
+{
+    std::map< KeyType, ScalarType > extractedMap;
+    for( auto mapIterator : originalMap )
+    {
+        extractedMap[ mapIterator.first ] = mapIterator.second( vectorEntry );
+    }
+    return extractedMap;
+}
+
+
 } // namespace utilities
 
 } // namespace tudat

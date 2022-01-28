@@ -46,11 +46,13 @@ public:
     using Ephemeris::getCartesianLongStateFromExtendedTime;
 
     typedef Eigen::Matrix< StateScalarType, 6, 1 > StateType;
+    typedef Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > VariableStateType;
 
     //! Typedef for state interpolator
     typedef std::shared_ptr< interpolators::OneDimensionalInterpolator
     < TimeType, StateType  > > StateInterpolatorPointer;
-
+    typedef std::shared_ptr< interpolators::OneDimensionalInterpolator
+    < TimeType, VariableStateType  > > VariableStateInterpolatorPointer;
 
     //! Constructor, sets data interpolator and frame data.
     /*!
@@ -65,6 +67,18 @@ public:
             const std::string referenceFrameOrientation = "ECLIPJ2000" ):
         Ephemeris( referenceFrameOrigin, referenceFrameOrientation ), interpolator_( interpolator )
     {  }
+
+    TabulatedCartesianEphemeris(
+            const VariableStateInterpolatorPointer interpolator,
+            const std::string referenceFrameOrigin = "SSB",
+            const std::string referenceFrameOrientation = "ECLIPJ2000" ):
+        Ephemeris( referenceFrameOrigin, referenceFrameOrientation )
+    {
+       interpolator_ = interpolators::convertBetweenStaticDynamicEigenTypeInterpolators<
+               TimeType, StateScalarType, Eigen::Dynamic, 1, 6, 1 >(
+                   interpolator );
+    }
+
 
     //! Destructor
     /*!
@@ -82,6 +96,13 @@ public:
     void resetInterpolator( const StateInterpolatorPointer interpolator )
     {
         interpolator_ = interpolator;
+    }
+
+    void resetInterpolator( const VariableStateInterpolatorPointer interpolator )
+    {
+        interpolator_ = interpolators::convertBetweenStaticDynamicEigenTypeInterpolators<
+                TimeType, StateScalarType, Eigen::Dynamic, 1, 6, 1 >(
+                    interpolator );
     }
 
     //! Get cartesian state from ephemeris.
@@ -133,6 +154,13 @@ public:
     StateInterpolatorPointer getInterpolator( )
     {
         return interpolator_;
+    }
+
+    VariableStateInterpolatorPointer getDynamicVectorSizeInterpolator( )
+    {
+        return interpolators::convertBetweenStaticDynamicEigenTypeInterpolators<
+                TimeType, StateScalarType, 6, 1, Eigen::Dynamic, 1 >(
+                    interpolator_ );
     }
 
     //! Function that retrieves the time interval at which this ephemeris can be safely interrogated
@@ -249,6 +277,7 @@ std::shared_ptr< Ephemeris > getTabulatedEphemeris(
         const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings =
         std::make_shared< interpolators::LagrangeInterpolatorSettings >( 8 ) )
 {
+
     typedef Eigen::Matrix< StateScalarType, 6, 1 > StateType;
 
     // Create state map that is to be interpolated
@@ -262,10 +291,12 @@ std::shared_ptr< Ephemeris > getTabulatedEphemeris(
     }
 
     // Create tabulated ephemeris model
-    return std::make_shared< TabulatedCartesianEphemeris< StateScalarType, TimeType > >(
+    auto ephemeris = std::make_shared< TabulatedCartesianEphemeris< StateScalarType, TimeType > >(
                 interpolators::createOneDimensionalInterpolator( stateMap, interpolatorSettings ),
                 ephemerisToInterrogate->getReferenceFrameOrigin( ),
                 ephemerisToInterrogate->getReferenceFrameOrientation( ) );
+
+    return ephemeris;
 
 }
 

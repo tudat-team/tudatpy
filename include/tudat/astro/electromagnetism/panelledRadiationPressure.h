@@ -16,13 +16,15 @@
 
 #include <boost/function.hpp>
 #include <boost/lambda/lambda.hpp>
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
 #include <boost/function.hpp>
 
 #include <Eigen/Core>
 
 #include "tudat/astro/basic_astro/accelerationModel.h"
 #include "tudat/astro/electromagnetism/radiationPressureInterface.h"
+
+using namespace boost::placeholders;
 
 namespace tudat
 {

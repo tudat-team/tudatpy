@@ -788,8 +788,8 @@ BOOST_AUTO_TEST_CASE( testRotationalAndTranslationalDynamicsPropagation )
             // Define test variables
             double currentLatitude, currentLongitude, currentFlightPathAngle, currentHeadingAngle,
                     currentAngleOfAttack, currentSideslipAngle, currentBankAngle, currentRotationAngle;
-            Eigen::Matrix3d currentInertialToBodyFixedFrameRotation, currentEarthFixedToLVLHFrameRotation,
-                    currentLVLHToTrajectoryFrameRotation,
+            Eigen::Matrix3d currentInertialToBodyFixedFrameRotation, currentEarthFixedToTnwFrameRotation,
+                    currentTnwToTrajectoryFrameRotation,
                     currentTrajectoryToAerodynamicFrameRotation, currentAerodynamicToBodyFixesFrameRotation,
                     currentInertialToBodyFixedFrame, expectedInertialToBodyFixedFrame;
             Eigen::Matrix3d expectedInertialToBodyFixedFrameRotation;
@@ -816,9 +816,9 @@ BOOST_AUTO_TEST_CASE( testRotationalAndTranslationalDynamicsPropagation )
 
                     // Compute matrices from angles
                     currentInertialToBodyFixedFrameRotation = earthRotationModel->getRotationToTargetFrame( variableIterator->first );
-                    currentEarthFixedToLVLHFrameRotation = getRotatingPlanetocentricToLocalVerticalFrameTransformationQuaternion(
+                    currentEarthFixedToTnwFrameRotation = getRotatingPlanetocentricToLocalVerticalFrameTransformationQuaternion(
                                 currentLongitude, currentLatitude );
-                    currentLVLHToTrajectoryFrameRotation = getLocalVerticalFrameToTrajectoryTransformationQuaternion(
+                    currentTnwToTrajectoryFrameRotation = getLocalVerticalFrameToTrajectoryTransformationQuaternion(
                                 currentFlightPathAngle, currentHeadingAngle );
                     currentTrajectoryToAerodynamicFrameRotation = getTrajectoryToAerodynamicFrameTransformationQuaternion(
                                 currentBankAngle );
@@ -826,7 +826,7 @@ BOOST_AUTO_TEST_CASE( testRotationalAndTranslationalDynamicsPropagation )
                                 currentAngleOfAttack, currentSideslipAngle );
                     currentInertialToBodyFixedFrame = currentAerodynamicToBodyFixesFrameRotation *
                             currentTrajectoryToAerodynamicFrameRotation *
-                            currentLVLHToTrajectoryFrameRotation * currentEarthFixedToLVLHFrameRotation *
+                            currentTnwToTrajectoryFrameRotation * currentEarthFixedToTnwFrameRotation *
                             currentInertialToBodyFixedFrameRotation;
 
                     // Compure expected rotation angle and rotation matrix

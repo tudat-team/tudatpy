@@ -198,7 +198,8 @@ BOOST_AUTO_TEST_CASE( cartesianStateExtractor_MissingX )
     }
 
     // Catch the expected runtime error, and set the boolean flag to false.
-    catch ( std::runtime_error )
+    catch( std::runtime_error const& )
+
     {
         isXCoordinateFound = false;
     }
@@ -276,7 +277,8 @@ BOOST_AUTO_TEST_CASE( cartesianStateExtractor_MissingY )
     }
 
     // Catch the expected runtime error, and set the boolean flag to false.
-    catch ( std::runtime_error )
+    catch( std::runtime_error const& )
+
     {
         isYCoordinateFound = false;
     }
@@ -354,7 +356,8 @@ BOOST_AUTO_TEST_CASE( cartesianStateExtractor_MissingZ )
     }
 
     // Catch the expected runtime error, and set the boolean flag to false.
-    catch ( std::runtime_error )
+    catch( std::runtime_error const& )
+
     {
         isZCoordinateFound = false;
     }
@@ -432,7 +435,8 @@ BOOST_AUTO_TEST_CASE( cartesianStateExtractor_MissingXDot )
     }
 
     // Catch the expected runtime error, and set the boolean flag to false.
-    catch ( std::runtime_error )
+    catch( std::runtime_error const& )
+
     {
         isXVelocityFound = false;
     }
@@ -510,7 +514,8 @@ BOOST_AUTO_TEST_CASE( cartesianStateExtractor_MissingYDot )
     }
 
     // Catch the expected runtime error, and set the boolean flag to false.
-    catch ( std::runtime_error )
+    catch( std::runtime_error const& )
+
     {
         isYVelocityFound = false;
     }
@@ -588,7 +593,8 @@ BOOST_AUTO_TEST_CASE( cartesianStateExtractor_MissingZDot )
     }
 
     // Catch the expected runtime error, and set the boolean flag to false.
-    catch ( std::runtime_error )
+    catch( std::runtime_error const& )
+
     {
         isZVelocityFound = false;
     }

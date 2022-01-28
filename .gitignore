@@ -5,7 +5,6 @@ CMakeCache.txt
 CMakeLists.txt.user
 CMakeFiles
 CMakeScripts
-Makefile
 cmake_install.cmake
 install_manifest.txt
 
@@ -46,8 +45,9 @@ install_manifest.txt
 # Build and doxygen related
 #
 Documentation/
-doc/doxygen/html/
-doc/doxygen/latex/
+docs/doxygen/html/
+docs/doxygen/latex/
+docs/doxygen/xml/
 build*/
 bin/
 lib/
@@ -72,3 +72,6 @@ Tudat/interface/spice/Kernels/
 /cmake-build-debug/*
 /cmake-build*
 
+
+# Rever
+rever/

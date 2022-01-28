@@ -15,7 +15,7 @@
 #include <functional>
 #include <boost/lambda/lambda.hpp>
 #include <memory>
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
 #include <boost/make_shared.hpp>
 
 #include <Eigen/Core>
@@ -26,6 +26,8 @@
 #include "tudat/astro/gravitation/sphericalHarmonicsGravityModel.h"
 #include "tudat/math/basic/legendrePolynomials.h"
 #include "tudat/basics/basicTypedefs.h"
+
+using namespace boost::placeholders;
 
 namespace tudat
 {

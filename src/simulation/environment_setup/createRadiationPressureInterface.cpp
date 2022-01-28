@@ -8,7 +8,9 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
+using namespace boost::placeholders;
+
 
 #include "tudat/simulation/environment_setup/createRadiationPressureInterface.h"
 #include "tudat/astro/basic_astro/sphericalBodyShapeModel.h"

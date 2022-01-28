@@ -13,7 +13,7 @@
 
 #include <vector>
 
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
 #include <memory>
 #include <functional>
 
@@ -22,10 +22,13 @@
 #include "tudat/basics/basicTypedefs.h"
 #include "tudat/basics/timeType.h"
 #include "tudat/basics/tudatTypeTraits.h"
+#include "tudat/basics/utilities.h"
 
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/astro/observation_models/observationBias.h"
+
+using namespace boost::placeholders;
 
 namespace tudat
 {
@@ -58,9 +61,11 @@ public:
      * observable, i.e. deviations from the physically ideal observable between reference points (default none).
      */
     ObservationModel(
-            const ObservableType observableType ,
+            const ObservableType observableType,
+            const LinkEnds linkEnds,
             const std::shared_ptr< ObservationBias< ObservationSize > > observationBiasCalculator = nullptr ):
         observableType_( observableType ),
+        linkEnds_( linkEnds ),
         observationBiasCalculator_( observationBiasCalculator )
     {
         // Check if bias is empty
@@ -91,6 +96,11 @@ public:
         return observableType_;
     }
 
+    LinkEnds getLinkEnds( )
+    {
+        return linkEnds_;
+    }
+
     //! Function to compute the observable without any corrections
     /*!
      * Function to compute the observable without any corrections, i.e. the ideal physical observable as computed
@@ -107,10 +117,10 @@ public:
      *  \return Ideal observable.
      */
     virtual Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > computeIdealObservationsWithLinkEndData(
-                const TimeType time,
-                const LinkEndType linkEndAssociatedWithTime,
-                std::vector< double >& linkEndTimes,
-                std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates ) = 0;
+            const TimeType time,
+            const LinkEndType linkEndAssociatedWithTime,
+            std::vector< double >& linkEndTimes,
+            std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates ) = 0;
 
     //! Function to compute full observation at given time.
     /*!
@@ -125,10 +135,10 @@ public:
      *  \return Calculated observable value.
      */
     Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > computeObservationsWithLinkEndData(
-                const TimeType time,
-                const LinkEndType linkEndAssociatedWithTime,
-                std::vector< double >& linkEndTimes ,
-                std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates )
+            const TimeType time,
+            const LinkEndType linkEndAssociatedWithTime,
+            std::vector< double >& linkEndTimes ,
+            std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates )
     {
         // Check if any non-ideal models are set.
         if( isBiasnullptr_ )
@@ -141,7 +151,7 @@ public:
             // Compute ideal observable
             Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > currentObservation =
                     computeIdealObservationsWithLinkEndData(
-                                            time, linkEndAssociatedWithTime, linkEndTimes, linkEndStates );
+                        time, linkEndAssociatedWithTime, linkEndTimes, linkEndStates );
 
             // Add correction
             return currentObservation +
@@ -194,7 +204,7 @@ public:
             // Compute ideal observable
             Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > currentObservation =
                     computeIdealObservationsWithLinkEndData(
-                                            time, linkEndAssociatedWithTime, linkEndTimes_, linkEndStates_ );
+                        time, linkEndAssociatedWithTime, linkEndTimes_, linkEndStates_ );
 
             // Add correction
             return currentObservation +
@@ -254,6 +264,8 @@ protected:
 
     //! Type of observable, used for derived class type identification without explicit casts.
     ObservableType observableType_;
+
+    LinkEnds linkEnds_;
 
     //! Object for calculating system-dependent errors in the observable.
     /*!

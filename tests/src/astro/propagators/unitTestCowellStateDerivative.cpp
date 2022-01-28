@@ -91,27 +91,27 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
     // Set accelerations between bodies that are to be taken into account (mutual point mass gravity between all bodies).
     SelectedAccelerationMap accelerationMap;
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfEarth;
-    accelerationsOfEarth[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
-    accelerationsOfEarth[ "Moon" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
-    accelerationsOfEarth[ "Mars" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+    accelerationsOfEarth[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
+    accelerationsOfEarth[ "Moon" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
+    accelerationsOfEarth[ "Mars" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
     accelerationMap[ "Earth" ] = accelerationsOfEarth;
 
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfSun;
-    accelerationsOfSun[ "Moon" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
-    accelerationsOfSun[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
-    accelerationsOfSun[ "Mars" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+    accelerationsOfSun[ "Moon" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
+    accelerationsOfSun[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
+    accelerationsOfSun[ "Mars" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
     accelerationMap[ "Sun" ] = accelerationsOfSun;
 
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfMoon;
-    accelerationsOfMoon[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
-    accelerationsOfMoon[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
-    accelerationsOfMoon[ "Mars" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+    accelerationsOfMoon[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
+    accelerationsOfMoon[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
+    accelerationsOfMoon[ "Mars" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
     accelerationMap[ "Moon" ] = accelerationsOfMoon;
 
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfMars;
-    accelerationsOfMars[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
-    accelerationsOfMars[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
-    accelerationsOfMars[ "Moon" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+    accelerationsOfMars[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
+    accelerationsOfMars[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
+    accelerationsOfMars[ "Moon" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
     accelerationMap[ "Mars" ] = accelerationsOfMars;
 
     // Define list of bodies to propagate
@@ -374,7 +374,7 @@ void testCowellPropagationOfKeplerOrbit( )
     // Set accelerations between bodies that are to be taken into account.
     SelectedAccelerationMap accelerationMap;
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfMoon;
-    accelerationsOfMoon[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+    accelerationsOfMoon[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
     accelerationMap[ "Moon" ] = accelerationsOfMoon;
 
     // Propagate the moon only

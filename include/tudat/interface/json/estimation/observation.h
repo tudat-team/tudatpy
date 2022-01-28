@@ -13,7 +13,7 @@
 
 #include <boost/lexical_cast.hpp>
 
-#include "tudat/astro/observation_models/simulateObservations.h"
+#include "tudat/simulation/estimation_setup/simulateObservations.h"
 #include "tudat/simulation/estimation_setup/createObservationModel.h"
 #include "tudat/interface/json/support/valueAccess.h"
 #include "tudat/interface/json/support/valueConversions.h"
@@ -161,49 +161,49 @@ inline void from_json( const nlohmann::json& jsonObject, LightTimeCorrectionType
 }
 
 
-//! Create a `json` object from a shared pointer to a `ObservationSettings` object.
-void to_json( nlohmann::json& jsonObject, const std::shared_ptr< ObservationSettings >& parameterSettings );
+//! Create a `json` object from a shared pointer to a `ObservationModelSettings` object.
+void to_json( nlohmann::json& jsonObject, const std::shared_ptr< ObservationModelSettings >& parameterSettings );
 
-//! Create a shared pointer to a `ObservationSettings` object from a `json` object.
-void from_json( const nlohmann::json& jsonObject, std::shared_ptr< ObservationSettings >& parameterSettings );
-
-
+//! Create a shared pointer to a `ObservationModelSettings` object from a `json` object.
+void from_json( const nlohmann::json& jsonObject, std::shared_ptr< ObservationModelSettings >& parameterSettings );
 
 
-//! Create a `json` object from a shared pointer to a `ObservationSettings` object.
+
+
+//! Create a `json` object from a shared pointer to a `ObservationModelSettings` object.
 void to_json( nlohmann::json& jsonObject, const std::shared_ptr< ObservationBiasSettings >& parameterSettings );
 
-//! Create a shared pointer to a `ObservationSettings` object from a `json` object.
+//! Create a shared pointer to a `ObservationModelSettings` object from a `json` object.
 void from_json( const nlohmann::json& jsonObject, std::shared_ptr< ObservationBiasSettings >& parameterSettings );
 
 
 
-//! Create a `json` object from a shared pointer to a `ObservationSettings` object.
+//! Create a `json` object from a shared pointer to a `ObservationModelSettings` object.
 void to_json( nlohmann::json& jsonObject, const std::shared_ptr< DopplerProperTimeRateSettings >& properTimeRateSettings );
 
-//! Create a shared pointer to a `ObservationSettings` object from a `json` object.
+//! Create a shared pointer to a `ObservationModelSettings` object from a `json` object.
 void from_json( const nlohmann::json& jsonObject, std::shared_ptr< DopplerProperTimeRateSettings >& properTimeRateSettings );
 
 
 
-//! Create a `json` object from a shared pointer to a `ObservationSettings` object.
+//! Create a `json` object from a shared pointer to a `ObservationModelSettings` object.
 void to_json( nlohmann::json& jsonObject, const std::shared_ptr< LightTimeCorrectionSettings >& lightTimeCorrectionSettings );
 
-//! Create a shared pointer to a `ObservationSettings` object from a `json` object.
+//! Create a shared pointer to a `ObservationModelSettings` object from a `json` object.
 void from_json( const nlohmann::json& jsonObject, std::shared_ptr< LightTimeCorrectionSettings >& lightTimeCorrectionSettings );
 
 
-//! Create a `json` object from a shared pointer to a `ObservationSettings` object.
-void to_json( nlohmann::json& jsonObject, const std::shared_ptr< ObservationSimulationTimeSettings< double > >& observationSimulationTimeSettings );
+//! Create a `json` object from a shared pointer to a `ObservationModelSettings` object.
+void to_json( nlohmann::json& jsonObject, const std::shared_ptr< ObservationSimulationSettings< double > >& ObservationSimulationSettings );
 
-//! Create a shared pointer to a `ObservationSettings` object from a `json` object.
-void from_json( const nlohmann::json& jsonObject, std::shared_ptr< ObservationSimulationTimeSettings< double > >& observationSimulationTimeSettings );
+//! Create a shared pointer to a `ObservationModelSettings` object from a `json` object.
+void from_json( const nlohmann::json& jsonObject, std::shared_ptr< ObservationSimulationSettings< double > >& ObservationSimulationSettings );
 
 
-//! Create a `json` object from a shared pointer to a `ObservationSettings` object.
+//! Create a `json` object from a shared pointer to a `ObservationModelSettings` object.
 void to_json( nlohmann::json& jsonObject, const std::shared_ptr< ObservationViabilitySettings >& observationViabilitySettings );
 
-//! Create a shared pointer to a `ObservationSettings` object from a `json` object.
+//! Create a shared pointer to a `ObservationModelSettings` object from a `json` object.
 void from_json( const nlohmann::json& jsonObject, std::shared_ptr< ObservationViabilitySettings >& observationViabilitySettings );
 
 

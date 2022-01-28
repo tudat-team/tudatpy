@@ -14,7 +14,9 @@
 
 #include <boost/test/unit_test.hpp>
 #include <boost/make_shared.hpp>
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
+using namespace boost::placeholders;
+
 
 #include "tudat/math/basic/leastSquaresEstimation.h"
 #include "tudat/interface/spice/spiceInterface.h"
@@ -253,7 +255,7 @@ BOOST_AUTO_TEST_CASE( testLenseThirring )
         // Define propagation settings.
         std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfAsterix;
         accelerationsOfAsterix[ "Earth" ].push_back( std::make_shared< AccelerationSettings >(
-                                                         basic_astrodynamics::central_gravity ) );
+                                                         basic_astrodynamics::point_mass_gravity ) );
         if( testCase == 1 )
         {
             accelerationsOfAsterix[ "Earth" ].push_back( std::make_shared< RelativisticAccelerationCorrectionSettings >(

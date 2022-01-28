@@ -62,6 +62,22 @@ public:
 
     double getLegDeltaV( const int legIndex );
 
+    std::vector< double > getDeltaVPerNode( );
+
+    std::vector< double > getDeltaVPerLeg( );
+
+    double getTotalTimeOfFlight ( );
+
+    int getNumberOfNodes( )
+    {
+        return nodes_.size( );
+    }
+
+    int getNumberOfLegs( )
+    {
+        return legs_.size( );
+    }
+
     //! Get Cartesian position and velocity along full trajectory
     void getStatesAlongTrajectoryPerLeg( std::vector< std::map< double, Eigen::Vector6d > >& statesAlongTrajectoryPerLeg,
                                         const int numberOfDataPointsPerLeg );
@@ -142,6 +158,9 @@ private:
 
     //! Total Delta V over trajectory
     double totalDeltaV_;
+
+    //! Total time of flight over trajectory
+    double totalTimeOfFlight_;
 
     //! Boolean defining whether the object is in a valid state (trajectory parameters have been set)
     bool isComputed_;

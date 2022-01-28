@@ -27,7 +27,9 @@
 
 #include <boost/test/unit_test.hpp>
 #include <boost/make_shared.hpp>
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
+using namespace boost::placeholders;
+
 #include <functional>
 #include <memory>
 
@@ -382,8 +384,7 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_5 )
     {
         spiceEphemeris = SpiceEphemeris( target, observer, 1, 0, 0, referenceFrame );
     }
-
-    catch( std::runtime_error& )
+    catch( std::runtime_error const& )
     {
         areExceptionsHandledCorrectly = true;
     }
@@ -398,7 +399,7 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_5 )
     {
         spiceEphemeris = SpiceEphemeris( target, observer, 1, 0, 1, referenceFrame );
     }
-    catch( std::runtime_error& )
+    catch( std::runtime_error const& )
     {
         areExceptionsHandledCorrectly = true;
     }
@@ -413,8 +414,7 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_5 )
     {
         spiceEphemeris = SpiceEphemeris( target, observer, 0, 0, 1, referenceFrame );
     }
-
-    catch( std::runtime_error& )
+    catch( std::runtime_error const& )
     {
         areExceptionsHandledCorrectly = true;
     }

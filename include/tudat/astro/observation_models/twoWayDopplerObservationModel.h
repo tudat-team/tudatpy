@@ -45,12 +45,13 @@ public:
      *  observable, i.e. deviations from the physically ideal observable between reference points (default none).
      */
     TwoWayDopplerObservationModel(
+            const LinkEnds& linkEnds,
             const std::shared_ptr< observation_models::OneWayDopplerObservationModel< ObservationScalarType, TimeType > >
             uplinkDopplerCalculator,
             const std::shared_ptr< observation_models::OneWayDopplerObservationModel< ObservationScalarType, TimeType > >
             downlinkDopplerCalculator,
             const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr ):
-        ObservationModel< 1, ObservationScalarType, TimeType >( two_way_doppler, observationBiasCalculator ),
+        ObservationModel< 1, ObservationScalarType, TimeType >( two_way_doppler, linkEnds, observationBiasCalculator ),
        uplinkDopplerCalculator_( uplinkDopplerCalculator ),
        downlinkDopplerCalculator_( downlinkDopplerCalculator )
     {
@@ -59,25 +60,6 @@ public:
 
     //! Destructor
     ~TwoWayDopplerObservationModel( ){ }
-
-    //! Function to compute ideal one-way Doppler observation  without any corrections at given time.
-    /*!
-     *  This function compute ideal the one-way observation  without any corrections at a given time.
-     *  The time argument can be either the reception or transmission time (defined by linkEndAssociatedWithTime input).
-     *  It does not include system-dependent measurement
-     *  errors, such as biases or clock errors.
-     *  \param time Time at which observation is to be simulated
-     *  \param linkEndAssociatedWithTime Link end at which given time is valid, i.e. link end for which associated time
-     *  is kept constant (to input value)
-     *  \return Calculated observed one-way Doppler value.
-     */
-    Eigen::Matrix< ObservationScalarType, 1, 1 > computeIdealObservations(
-            const TimeType time,
-            const LinkEndType linkEndAssociatedWithTime )
-
-    {
-        return computeIdealObservationsWithLinkEndData( time, linkEndAssociatedWithTime, linkEndTimes_, linkEndStates_ );
-    }
 
     //! Function to compute one-way Doppler observable without any corrections.
     /*!
@@ -187,12 +169,6 @@ private:
     //! Object that computes the one-way Doppler observable for the downlink
     std::shared_ptr< observation_models::OneWayDopplerObservationModel< ObservationScalarType, TimeType > >
     downlinkDopplerCalculator_;
-
-    //! Pre-declared vector of link end times, used for computeIdealObservations function
-    std::vector< double > linkEndTimes_;
-
-    //! Pre-declared vector of link end states, used for computeIdealObservations function
-    std::vector< Eigen::Matrix< double, 6, 1 > > linkEndStates_;
 
 };
 

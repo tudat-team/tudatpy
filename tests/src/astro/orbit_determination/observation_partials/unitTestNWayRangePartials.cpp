@@ -105,18 +105,20 @@ BOOST_AUTO_TEST_CASE( testnWayRangePartials )
             // Generate n-way range model
             std::vector< std::string > perturbingBodies;
             perturbingBodies.push_back( "Earth" );
-            std::vector< std::shared_ptr< observation_models::ObservationSettings > > legObservationModels;
+            std::vector< std::shared_ptr< observation_models::ObservationModelSettings > > legObservationModels;
             for( unsigned int i = 0; i < linkNumber + 2; i ++ )
             {
                 legObservationModels.push_back(
-                            std::make_shared< observation_models::ObservationSettings >(
-                                one_way_range, std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
+                            std::make_shared< observation_models::ObservationModelSettings >(
+                                one_way_range,
+                                getSingleLegLinkEnds( linkEnds, i ),
+                                std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
                                     perturbingBodies ) ) );
             }
 
             std::shared_ptr< ObservationModel< 1 > > nWayRangeModel =
                     observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
-                        linkEnds, std::make_shared< observation_models::NWayRangeObservationSettings >(
+                        std::make_shared< observation_models::NWayRangeObservationSettings >(
                             legObservationModels, std::bind( &getRetransmissionDelays, std::placeholders::_1, linkNumber + 1 ) ), bodies  );
 
             // Create parameter objects.
@@ -137,17 +139,19 @@ BOOST_AUTO_TEST_CASE( testnWayRangePartials )
             // Generate n-way range model
             std::vector< std::string > perturbingBodies;
             perturbingBodies.push_back( "Earth" );
-            std::vector< std::shared_ptr< observation_models::ObservationSettings > > legObservationModels;
+            std::vector< std::shared_ptr< observation_models::ObservationModelSettings > > legObservationModels;
             for( unsigned int i = 0; i < linkNumber + 2; i ++ )
             {
                 legObservationModels.push_back(
-                            std::make_shared< observation_models::ObservationSettings >(
-                                one_way_range, std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
+                            std::make_shared< observation_models::ObservationModelSettings >(
+                                one_way_range,
+                                getSingleLegLinkEnds( linkEnds, i ),
+                                std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
                                     perturbingBodies ) ) );
             }
             std::shared_ptr< ObservationModel< 1 > > nWayRangeModel =
                     observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
-                        linkEnds, std::make_shared< observation_models::NWayRangeObservationSettings >(
+                        std::make_shared< observation_models::NWayRangeObservationSettings >(
                             legObservationModels, std::bind( &getRetransmissionDelays, std::placeholders::_1, linkNumber + 1 ) ), bodies  );
 
             // Create parameter objects.

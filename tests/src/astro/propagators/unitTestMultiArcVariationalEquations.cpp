@@ -103,13 +103,13 @@ executeMultiArcEarthMoonSimulation(
     // Set accelerations between bodies that are to be taken into account.
     SelectedAccelerationMap accelerationMap;
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfEarth;
-    accelerationsOfEarth[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
-    accelerationsOfEarth[ "Moon" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+    accelerationsOfEarth[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
+    accelerationsOfEarth[ "Moon" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
     accelerationMap[ "Earth" ] = accelerationsOfEarth;
 
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfMoon;
-    accelerationsOfMoon[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
-    accelerationsOfMoon[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+    accelerationsOfMoon[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
+    accelerationsOfMoon[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
     accelerationMap[ "Moon" ] = accelerationsOfMoon;
 
     // Set bodies for which initial state is to be estimated and integrated.
@@ -208,12 +208,8 @@ executeMultiArcEarthMoonSimulation(
     // Define parameters.
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
     {
-        parameterNames.push_back(
-                    std::make_shared< ArcWiseInitialTranslationalStateEstimatableParameterSettings< StateScalarType > >(
-                        "Moon", arcStartTimes, centralBodies[ 0 ] ) );
-        parameterNames.push_back(
-                    std::make_shared< ArcWiseInitialTranslationalStateEstimatableParameterSettings< StateScalarType > >(
-                        "Earth", arcStartTimes, centralBodies[ 1 ] ) );
+        parameterNames =
+                getInitialMultiArcParameterSettings< >( multiArcPropagatorSettings, bodies, arcStartTimes );
         parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Moon", gravitational_parameter ) );
         parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Earth", gravitational_parameter ) );
         parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Sun", gravitational_parameter ) );
@@ -251,7 +247,8 @@ executeMultiArcEarthMoonSimulation(
 
 
         // Retrieve test data
-        for( unsigned int arc = 0; arc < arcEndTimes.size( ); arc++ )
+        unsigned int numberOfArcs = arcEndTimes.size( );
+        for( unsigned int arc = 0; arc < numberOfArcs; arc++ )
         {
             double testEpoch = arcEndTimes.at( arc ) - 2.0E4;
             Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > testStates =
@@ -265,6 +262,22 @@ executeMultiArcEarthMoonSimulation(
                 results.first.push_back( variationalEquations.getStateTransitionMatrixInterface( )->
                                          getCombinedStateTransitionAndSensitivityMatrix( testEpoch ) );
                 results.second.push_back( multiArcPropagatorSettings->getInitialStateList( ).at( arc ) );
+                Eigen::MatrixXd testMatrixDirect =
+                        variationalEquations.getStateTransitionMatrixInterface( )->
+                          getCombinedStateTransitionAndSensitivityMatrix( testEpoch );
+                Eigen::MatrixXd testMatrixFull=
+                        variationalEquations.getStateTransitionMatrixInterface( )->
+                          getFullCombinedStateTransitionAndSensitivityMatrix( testEpoch );
+
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                            testMatrixDirect.block( 0, 0, 12, 12 ),
+                            testMatrixFull.block( 0, 12 * arc, 12, 12 ),
+                            std::numeric_limits< double >::epsilon( ) );
+
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                            testMatrixDirect.block( 0, 12, 12, 3 ),
+                            testMatrixFull.block( 0, 12 * numberOfArcs, 12, 3 ),
+                            std::numeric_limits< double >::epsilon( ) );
             }
             else
             {

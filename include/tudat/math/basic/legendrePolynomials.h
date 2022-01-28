@@ -34,7 +34,9 @@
 
 #include <Eigen/Core>
 
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
+using namespace boost::placeholders;
+
 #include <boost/circular_buffer.hpp>
 #include <functional>
 #include <memory>

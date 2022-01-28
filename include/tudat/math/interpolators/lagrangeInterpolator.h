@@ -178,6 +178,14 @@ public:
             throw std::runtime_error( "Error: Lagrange interpolator currently only handles even orders." );
         }
 
+        if( dataMap.size( ) < static_cast< unsigned int >( numberOfStages_ ) )
+        {
+            throw std::runtime_error( "Error when creating Lagrange interpolator, input is of size " +
+                                      std::to_string( dataMap.size( ) ) +
+                                      ". This is smaller than the number of points needed for interpolator, which is " +
+                                      std::to_string( numberOfStages_ ) );
+        }
+
         numberOfIndependentValues_ = dataMap.size( );
 
         // Verify that the initialization variables are not empty.
@@ -336,6 +344,14 @@ public:
         return numberOfStages_;
     }
 
+    InterpolatorTypes getInterpolatorType( ){ return lagrange_interpolator; }
+
+    LagrangeInterpolatorBoundaryHandling getLagrangeBoundaryHandling( )
+    {
+        return lagrangeBoundaryHandling_;
+    }
+
+
 protected:
 
 private:
@@ -414,6 +430,12 @@ private:
             if( cubicSplineInputSize < 3 )
             {
                 cubicSplineInputSize = 3;
+            }
+
+            if( dependentValues_.size( ) < static_cast< unsigned int >( cubicSplineInputSize ) )
+            {
+                throw std::runtime_error( "Error when creating Lagrange interpolator, input is of size " +
+                                          std::to_string( dependentValues_.size( ) ) + ", which is too small co create cubic boundary interpolator" );
             }
 
             // Set input maps for interpolators

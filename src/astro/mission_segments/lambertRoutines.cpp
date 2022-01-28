@@ -19,7 +19,9 @@
 #include <cmath>
 #include <stdexcept>
 
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
+using namespace boost::placeholders;
+
 #include <boost/make_shared.hpp>
 #include <boost/math/special_functions.hpp>
 

@@ -167,6 +167,15 @@ Eigen::Quaterniond getRotatingPlanetocentricToInertialFrameTransformationQuatern
     return frameTransformationQuaternion;
 }
 
+Eigen::Matrix3d getRotatingPlanetocentricToInertialFrameTransformationMatrix(
+        const double declinationOfPole,
+        const double rightAscensionOfPole,
+        const double longitudeOfPrimeMeridian )
+{
+    return getRotatingPlanetocentricToInertialFrameTransformationQuaternion(
+                declinationOfPole, rightAscensionOfPole, longitudeOfPrimeMeridian ).toRotationMatrix( );
+}
+
 //! Get inertial (I) to rotating planetocentric (R) reference frame transformtion matrix.
 Eigen::Matrix3d getInertialToPlanetocentricFrameTransformationMatrix(
         const double angleFromXItoXR )
@@ -180,8 +189,8 @@ Eigen::Matrix3d getInertialToPlanetocentricFrameTransformationMatrix(
     return eigenRotationObject.toRotationMatrix( );
 }
 
-//! Get rotation from velocity based LVLH frame to inertial frame (I) frame.
-Eigen::Matrix3d getVelocityBasedLvlhToInertialRotation(
+//! Get rotation from velocity based TNW frame to inertial frame (I) frame.
+Eigen::Matrix3d getTnwToInertialRotation(
         const Eigen::Vector6d& vehicleState,
         const Eigen::Vector6d& centralBodyState,
         const bool doesNaxisPointAwayFromCentralBody )
@@ -210,18 +219,33 @@ Eigen::Matrix3d getVelocityBasedLvlhToInertialRotation(
     return transformationMatrix;
 }
 
-//! Get rotation from velocity based LVLH frame to inertial frame (I) frame.
-Eigen::Matrix3d getVelocityBasedLvlhToInertialRotationFromFunctions(
+Eigen::Matrix3d getTnwToInertialRotation(const Eigen::Vector6d& vehicleInertialState,
+                                         const bool doesNaxisPointAwayFromCentralBody )
+{
+    return getTnwToInertialRotation(
+                vehicleInertialState, Eigen::Vector6d::Zero( ), doesNaxisPointAwayFromCentralBody );
+}
+
+Eigen::Matrix3d getInertialToTnwRotation(const Eigen::Vector6d& vehicleInertialState,
+                                         const bool doesNaxisPointAwayFromCentralBody )
+{
+    return getTnwToInertialRotation(
+                vehicleInertialState, Eigen::Vector6d::Zero( ), doesNaxisPointAwayFromCentralBody ).transpose( );
+}
+
+
+//! Get rotation from velocity based TNW frame to inertial frame (I) frame.
+Eigen::Matrix3d getTnwToInertialRotationFromFunctions(
         const std::function< Eigen::Vector6d( ) >& vehicleStateFunction,
         const std::function< Eigen::Vector6d( ) >& centralBodyStateFunction,
         const bool doesNaxisPointAwayFromCentralBody )
 {
-    return getVelocityBasedLvlhToInertialRotation(
+    return getTnwToInertialRotation(
                 vehicleStateFunction( ), centralBodyStateFunction( ), doesNaxisPointAwayFromCentralBody );
 }
 
-//! Get rotation from velocity based LVLH frame to planetocentric frame.
-Eigen::Quaterniond getVelocityBasedLvlhToPlanetocentricRotationKeplerian(
+//! Get rotation from velocity based TNW frame to planetocentric frame.
+Eigen::Quaterniond getTnwToPlanetocentricRotationKeplerian(
         const Eigen::Matrix< double, 6, 1 > spacecraftKeplerianState )
 {
     double eccentricity = spacecraftKeplerianState( 1 );
@@ -253,7 +277,7 @@ Eigen::Quaterniond getVelocityBasedLvlhToPlanetocentricRotationKeplerian(
 
 //! Function to compute the rotation matrix to RSW frame, from the frame in which the input state is given.
 Eigen::Matrix3d getInertialToRswSatelliteCenteredFrameRotationMatrix(
-        const Eigen::Vector6d bodyState )
+        const Eigen::Vector6d& bodyState )
 {
     Eigen::Vector3d vehicleVelocity, vehicleRadius;
     vehicleRadius = bodyState.segment( 0, 3 );
@@ -275,6 +299,12 @@ Eigen::Matrix3d getInertialToRswSatelliteCenteredFrameRotationMatrix(
             unitS( 0 ), unitS( 1 ), unitS( 2 ),
             unitW( 0 ), unitW( 1 ), unitW( 2 );
     return transformationMatrix;
+}
+
+Eigen::Matrix3d getRswSatelliteCenteredToInertialFrameRotationMatrix(
+        const Eigen::Vector6d& bodyState )
+{
+    return getInertialToRswSatelliteCenteredFrameRotationMatrix( bodyState ).transpose( );
 }
 
 //! Get inertial (I) to rotating planetocentric (R) reference frame transformtion quaternion.
@@ -500,6 +530,24 @@ Eigen::Quaterniond getEnuLocalVerticalToRotatingPlanetocentricFrameTransformatio
     // Return transformation quaternion.
     return frameTransformationQuaternion;
 }
+
+//! Get transformation matrix from J2000 to ECLIPJ2000
+Eigen::Matrix3d getJ2000toECLIPJ2000TransformationMatrix ()
+{
+    return (Eigen::Matrix3d() <<
+            1, 0, 0,
+            0, 0.9174820620691818, 0.3977771559319137,
+            0, -0.3977771559319137, 0.9174820620691818).finished() ;
+}
+
+//! Get transformation matrix from ECLIPJ2000 to J2000
+Eigen::Matrix3d getECLIPJ2000toJ2000TransformationMatrix ()
+    {
+        return (Eigen::Matrix3d() <<
+                1, 0, 0,
+                0, 0.9174820620691818, -0.3977771559319137,
+                0, 0.3977771559319137, 0.9174820620691818).finished() ;
+    }
 
 //! Function to compute the derivative of a rotation about the x-axis w.r.t. the rotation angle
 Eigen::Matrix3d getDerivativeOfXAxisRotationWrtAngle( const double angle )

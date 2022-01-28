@@ -55,7 +55,7 @@ public:
 };
 
 //! Class defining the settings for a custom (i.e. predefined function of time) mass rate model.
-class CustomMassRateModelSettings: public MassRateModelSettings
+class CustomMassRateSettings: public MassRateModelSettings
 {
 public:
 
@@ -64,13 +64,13 @@ public:
      * Constructor
      * \param massRateFunction Function returning the mass rate as a function of time.
      */
-    CustomMassRateModelSettings(
+    CustomMassRateSettings(
             const std::function< double( const double ) > massRateFunction ):
         MassRateModelSettings( basic_astrodynamics::custom_mass_rate_model ),
     massRateFunction_( massRateFunction ){ }
 
     //! Destructor.
-    ~CustomMassRateModelSettings( ){ }
+    ~CustomMassRateSettings( ){ }
 
     //! Function returning the mass rate as a function of time.
     std::function< double( const double ) > massRateFunction_;
@@ -79,7 +79,7 @@ public:
 
 
 //! Class defining the settings of a thrust model where the thrust is directly retrieved from (a) model(s) of an engine.
-class FromThrustMassModelSettings: public MassRateModelSettings
+class FromThrustMassRateSettings: public MassRateModelSettings
 {
 public:
 
@@ -91,14 +91,14 @@ public:
      * \param associatedThrustSource Name of engine model from which thrust is to be derived (must be empty if
      * useAllThrustModels is set to true)
      */
-    FromThrustMassModelSettings(
+    FromThrustMassRateSettings(
             const bool useAllThrustModels = 1,
             const std::string& associatedThrustSource = "" ):
         MassRateModelSettings( basic_astrodynamics::from_thrust_mass_rate_model ),
     associatedThrustSource_( associatedThrustSource ), useAllThrustModels_( useAllThrustModels ){ }
 
     //! Destructor
-    ~FromThrustMassModelSettings( ){ }
+    ~FromThrustMassRateSettings( ){ }
 
     //! Name of engine model from which thrust is to be derived
     std::string associatedThrustSource_;
@@ -114,14 +114,14 @@ typedef std::map< std::string, std::vector< std::shared_ptr< MassRateModelSettin
 inline std::shared_ptr< MassRateModelSettings > customMassRate(
         const std::function< double( const double ) > massRateFunction )
 {
-    return std::make_shared< CustomMassRateModelSettings >( massRateFunction );
+    return std::make_shared< CustomMassRateSettings >(massRateFunction );
 }
 
 inline std::shared_ptr< MassRateModelSettings > fromThrustMassRate(
         const bool useAllThrustModels = 1,
         const std::string& associatedThrustSource = "" )
 {
-    return std::make_shared< FromThrustMassModelSettings >( useAllThrustModels, associatedThrustSource );
+    return std::make_shared< FromThrustMassRateSettings >(useAllThrustModels, associatedThrustSource );
 }
 
 //! Function to create a mass rate model

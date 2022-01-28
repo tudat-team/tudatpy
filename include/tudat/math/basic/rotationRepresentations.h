@@ -22,6 +22,9 @@ namespace tudat
 namespace basic_mathematics
 {
 
+Eigen::Matrix< double, 4, 3 > calculateQuaternionWrtEulerAngle313Partial(
+        const Eigen::Quaterniond& quaternion );
+
 //! Function to compute the partial derivative of 3-1-3 Euler angles w.r.t. entries of associated quaternion
 /*!
  * Function to compute the partial derivative of 3-1-3 Euler angles w.r.t. entries of associated quaternion, with quaternion

@@ -87,7 +87,7 @@ basic_astrodynamics::AccelerationMap retrieveLowThrustAccelerationMap(
     // Acceleration from the central body.
     std::map< std::string, std::vector< std::shared_ptr< simulation_setup::AccelerationSettings > > > accelerationSettingsMap;
     accelerationSettingsMap[ centralBody ].push_back( std::make_shared< simulation_setup::AccelerationSettings >(
-                                                          basic_astrodynamics::central_gravity ) );
+                                                          basic_astrodynamics::point_mass_gravity ) );
     accelerationSettingsMap[ bodyToPropagate ].push_back(
                 getLowThrustLegAccelerationSettings(
                     lowThrustLeg, bodies, bodyToPropagate, specificImpulseFunction, lowThrustLegInitialTime  ) );
@@ -202,7 +202,7 @@ std::shared_ptr< propagators::PropagatorSettings< double > > > createLowThrustPr
     // Create mass rate models
     std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
     massRateModels[ bodyToPropagate ] = simulation_setup::createMassRateModel(
-                bodyToPropagate, std::make_shared< simulation_setup::FromThrustMassModelSettings >( 1 ), bodies, accelerationModelMap );
+            bodyToPropagate, std::make_shared< simulation_setup::FromThrustMassRateSettings >(1 ), bodies, accelerationModelMap );
 
     // Define backward mass propagation settings.
     massPropagatorSettings.first = std::make_shared< propagators::MassPropagatorSettings< double > >(

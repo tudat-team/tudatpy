@@ -22,7 +22,7 @@ namespace tudat
 namespace simulation_setup
 {
 
-//! Class for providing settings for torque model.
+// Class for providing settings for torque model.
 /*!
  *  Class for providing settings for torque model. This class is a functional (base) class for
  *  settings of torque models that  require no information in addition to their type.
@@ -33,11 +33,13 @@ namespace simulation_setup
  *  (see createTorqueModels.h), but users may also chose to do so manually.
  *  (Derived) Class members are all public, for ease of access and modification.
  */
+
+//! @get_docstring(TorqueSettings.__docstring__)
 class TorqueSettings
 {
 public:
 
-    //! Constructor, sets type of torque.
+    // Constructor, sets type of torque.
     /*!
      *  Constructor, sets type of torque.
      *  \param torqueType Type of torque from AvailableTorque enum.
@@ -45,20 +47,21 @@ public:
     TorqueSettings( const basic_astrodynamics::AvailableTorque torqueType ) :
         torqueType_( torqueType ){ }
 
-    //! Destructor
+    // Destructor
     virtual ~TorqueSettings( ){ }
 
-    //! Type of torque that is to be created.
+    // Type of torque that is to be created.
     basic_astrodynamics::AvailableTorque torqueType_;
 
 };
 
-//! Class to define settings for a spherical harmonic gravitational torque exerted by a point mass.
+// Class to define settings for a spherical harmonic gravitational torque exerted by a point mass.
+//! @get_docstring(SphericalHarmonicTorqueSettings.__docstring__)
 class SphericalHarmonicTorqueSettings: public TorqueSettings
 {
 public:
 
-    //! Constructor
+    // Constructor
     /*!
      * Constructor
      * \param maximumDegree Maximum degree to which gravity field of body undergoing torque is to be exerted
@@ -69,10 +72,10 @@ public:
         TorqueSettings( basic_astrodynamics::spherical_harmonic_gravitational_torque ),
         maximumDegree_( maximumDegree ), maximumOrder_( maximumOrder ){ }
 
-    //! Maximum degree to which gravity field of body undergoing torque is to be exerted
+    // Maximum degree to which gravity field of body undergoing torque is to be exerted
     int maximumDegree_;
 
-    //! Maximum order to which gravity field of body undergoing torque is to be exerted
+    // Maximum order to which gravity field of body undergoing torque is to be exerted
     int maximumOrder_;
 };
 
@@ -84,6 +87,7 @@ inline Eigen::Vector3d applyTorqueScalingFunction(
     return torqueFunction( time ) * scalingFunction( time );
 }
 
+//! @get_docstring(CustomTorqueSettings.__docstring__)
 class CustomTorqueSettings: public TorqueSettings
 {
 public:
@@ -104,16 +108,19 @@ public:
     std::function< Eigen::Vector3d( const double ) > torqueFunction_;
 };
 
+//! @get_docstring(aerodynamicTorque)
 inline std::shared_ptr< TorqueSettings > aerodynamicTorque( )
 {
     return std::make_shared< TorqueSettings >( basic_astrodynamics::aerodynamic_torque );
 }
 
+//! @get_docstring(secondDegreeGravitationalTorque)
 inline std::shared_ptr< TorqueSettings > secondDegreeGravitationalTorque( )
 {
     return std::make_shared< TorqueSettings >( basic_astrodynamics::second_order_gravitational_torque );
 }
 
+//! @get_docstring(sphericalHarmonicGravitationalTorque)
 inline std::shared_ptr< TorqueSettings > sphericalHarmonicGravitationalTorque(
         const int maximumDegree, const int maximumOrder)
 {
@@ -126,6 +133,7 @@ inline std::shared_ptr< TorqueSettings > dissipativeTorque(
     return std::make_shared< TorqueSettings >( basic_astrodynamics::dissipative_torque );
 }
 
+//! @get_docstring(customTorqueSettings)
 inline std::shared_ptr< TorqueSettings > customTorqueSettings(
         const std::function< Eigen::Vector3d( const double ) > torqueFunction,
         const std::function< double( const double ) > scalingFunction = nullptr )

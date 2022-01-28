@@ -218,7 +218,7 @@ public:
         // Add Keplerian state to perturbation from Encke algorithm to get Cartesian state in local frames.
         for( unsigned int i = 0; i < this->bodiesToBeIntegratedNumerically_.size( ); i++ )
         {
-            currentCartesianLocalSoluton.segment( i * 6, 6 ) = currentKeplerianOrbitCartesianState_[ i ] +
+            currentCartesianLocalSoluton.block( i * 6, 0, 6, 1 ) = currentKeplerianOrbitCartesianState_[ i ] +
                     internalSolution.block( i * 6, 0, 6, 1 );
         }
     }

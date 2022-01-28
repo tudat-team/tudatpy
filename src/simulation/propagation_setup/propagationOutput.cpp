@@ -256,7 +256,7 @@ int getDependentVariableSize(
     case aerodynamic_moment_coefficients_dependent_variable:
         variableSize = 3;
         break;
-    case rotation_matrix_to_body_fixed_frame_variable:
+    case inertial_to_body_fixed_rotation_matrix_variable:
         variableSize = 9;
         break;
     case intermediate_aerodynamic_rotation_matrix_variable:
@@ -295,7 +295,10 @@ int getDependentVariableSize(
     case total_mass_rate_dependent_variables:
         variableSize = 1;
         break;
-    case lvlh_to_inertial_frame_rotation_dependent_variable:
+    case tnw_to_inertial_frame_rotation_dependent_variable:
+        variableSize = 9;
+        break;
+    case rsw_to_inertial_frame_rotation_dependent_variable:
         variableSize = 9;
         break;
     case periapsis_altitude_dependent_variable:
@@ -391,6 +394,19 @@ int getDependentVariableSize(
         break;
     case radiation_pressure_coefficient_dependent_variable:
         variableSize = 1;
+        break;
+    case custom_dependent_variable:
+        if( std::dynamic_pointer_cast< CustomDependentVariableSaveSettings >(
+                    dependentVariableSettings ) == nullptr )
+        {
+            std::string errorMessage = "Error, input for custom dependent variable parameter size ";
+            throw std::runtime_error( errorMessage );
+        }
+        else
+        {
+            variableSize = 3 * std::dynamic_pointer_cast< CustomDependentVariableSaveSettings >(
+                        dependentVariableSettings )->dependentVariableSize_;
+        }
         break;
     default:
         std::string errorMessage = "Error, did not recognize dependent variable size of type: " +

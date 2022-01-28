@@ -19,23 +19,102 @@ namespace tudat
 namespace observation_models
 {
 
-std::map< ObservableType, std::map< LinkEnds, std::pair< Eigen::VectorXd,
-std::pair< std::vector< double >, LinkEndType > > > > getTudatCompatibleObservationsAndTimes(
-        const std::vector< std::tuple< ObservableType, LinkEnds, Eigen::VectorXd,
-        std::vector< double >, LinkEndType > >& tudatpyObservationsAndTimes )
-{
-    std::map< ObservableType, std::map< LinkEnds, std::pair< Eigen::VectorXd,
-    std::pair< std::vector< double >, LinkEndType > > > > tudatCompatibleObservationsAndTimes ;
+//std::map< ObservableType, std::map< LinkEnds, std::pair< Eigen::VectorXd,
+//std::pair< std::vector< double >, LinkEndType > > > > getTudatCompatibleObservationsAndTimes(
+//        const std::vector< std::tuple< ObservableType, LinkEnds, Eigen::VectorXd,
+//        std::vector< double >, LinkEndType > >& tudatpyObservationsAndTimes )
+//{
+//    std::map< ObservableType, std::map< LinkEnds, std::pair< Eigen::VectorXd,
+//    std::pair< std::vector< double >, LinkEndType > > > > tudatCompatibleObservationsAndTimes ;
 
-    for( unsigned int i = 0; i < tudatpyObservationsAndTimes.size( ); i++ )
+//    for( unsigned int i = 0; i < tudatpyObservationsAndTimes.size( ); i++ )
+//    {
+//        auto currentTuple = tudatpyObservationsAndTimes.at( i );
+//        tudatCompatibleObservationsAndTimes[ std::get< 0 >( currentTuple ) ][ std::get< 1 >( currentTuple ) ] =
+//                std::make_pair(  std::get< 2 >( currentTuple ), std::make_pair(
+//                                     std::get< 3 >( currentTuple ), std::get< 4 >( currentTuple ) ) );
+//    }
+//    return tudatCompatibleObservationsAndTimes;
+//}
+
+bool isObservableOfIntegratedType( const ObservableType observableType )
+{
+    bool isIntegratedType = true;
+    switch( observableType )
     {
-        auto currentTuple = tudatpyObservationsAndTimes.at( i );
-        tudatCompatibleObservationsAndTimes[ std::get< 0 >( currentTuple ) ][ std::get< 1 >( currentTuple ) ] =
-                std::make_pair(  std::get< 2 >( currentTuple ), std::make_pair(
-                                     std::get< 3 >( currentTuple ), std::get< 4 >( currentTuple ) ) );
+    case one_way_range:
+        isIntegratedType = false;
+        break;
+    case angular_position:
+        isIntegratedType = false;
+        break;
+    case position_observable:
+        isIntegratedType = false;
+        break;
+    case one_way_doppler:
+        isIntegratedType = false;
+        break;
+    case one_way_differenced_range:
+        isIntegratedType = true;
+        break;
+    case n_way_range:
+        isIntegratedType = false;
+        break;
+    case two_way_doppler:
+        isIntegratedType = false;
+        break;
+    case euler_angle_313_observable:
+        isIntegratedType = false;
+        break;
+    case velocity_observable:
+        isIntegratedType = false;
+        break;
+    default:
+        throw std::runtime_error( "Error when determining if observable type is integrated; observable " +
+                                  getObservableName( observableType ) + " not found" );
     }
-    return tudatCompatibleObservationsAndTimes;
+    return isIntegratedType;
 }
+
+bool areObservableLinksContinuous( const ObservableType observableType )
+{
+    bool isTypeContinuous = true;
+    switch( observableType )
+    {
+    case one_way_range:
+        isTypeContinuous = true;
+        break;
+    case angular_position:
+        isTypeContinuous = true;
+        break;
+    case position_observable:
+        isTypeContinuous = true;
+        break;
+    case one_way_doppler:
+        isTypeContinuous = true;
+        break;
+    case one_way_differenced_range:
+        isTypeContinuous = true;
+        break;
+    case n_way_range:
+        isTypeContinuous = true;
+        break;
+    case two_way_doppler:
+        isTypeContinuous = true;
+        break;
+    case euler_angle_313_observable:
+        isTypeContinuous = true;
+        break;
+    case velocity_observable:
+        isTypeContinuous = true;
+        break;
+    default:
+        throw std::runtime_error( "Error when determining if observable type is continuous; observable " +
+                                  getObservableName( observableType ) + " not found" );
+    }
+    return isTypeContinuous;
+}
+
 
 
 //! Function to get the name (string) associated with a given observable type.
@@ -368,6 +447,106 @@ std::vector< int > getLinkEndIndicesForLinkEndTypeAtObservable(
     return linkEndIndices;
 }
 
+
+LinkEndType getDefaultReferenceLinkEndType(
+        const ObservableType observableType )
+{
+    LinkEndType referenceLinkEndType;
+    switch( observableType )
+    {
+    case one_way_range:
+        referenceLinkEndType = receiver;
+        break;
+    case angular_position:
+        referenceLinkEndType = receiver;
+        break;
+    case one_way_doppler:
+        referenceLinkEndType = receiver;
+        break;
+    case one_way_differenced_range:
+        referenceLinkEndType = receiver;
+        break;
+    case n_way_range:
+        referenceLinkEndType = receiver;
+        break;
+    case two_way_doppler:
+        referenceLinkEndType = receiver;
+        break;
+    case position_observable:
+        referenceLinkEndType = observed_body;
+        break;
+    case velocity_observable:
+        referenceLinkEndType = observed_body;
+        break;
+    case euler_angle_313_observable:
+        referenceLinkEndType = observed_body;
+        break;
+    default:
+        throw std::runtime_error( "Error, default reference link end not defined for observable " +
+                                  std::to_string( observableType ) );
+    }
+    return referenceLinkEndType;
+}
+
+int getNumberOfLinksInObservable(
+        const ObservableType observableType, const int numberOfLinkEnds )
+{
+    int numberOfLinks = -1;
+    switch( observableType )
+    {
+    case one_way_range:
+        numberOfLinks = 1;
+        break;
+    case angular_position:
+        numberOfLinks = 1;
+        break;
+    case one_way_doppler:
+        numberOfLinks = 1;
+        break;
+    case one_way_differenced_range:
+        numberOfLinks = 1;
+        break;
+    case n_way_range:
+        if( numberOfLinkEnds < 0 )
+        {
+            throw std::runtime_error( "Error when determining number of links for n-way range: number of link ends not provided" );
+        }
+        numberOfLinks = numberOfLinkEnds - 1;
+        break;
+    case two_way_doppler:
+        numberOfLinks = 2;
+        break;
+    case position_observable:
+        numberOfLinks = 0;
+        break;
+    case velocity_observable:
+        numberOfLinks = 0;
+        break;
+    case euler_angle_313_observable:
+        numberOfLinks = 0;
+        break;
+    default:
+        throw std::runtime_error( "Error, number of links not defined for observable " +
+                                  std::to_string( observableType ) );
+    }
+    return numberOfLinks;
+}
+
+std::vector< LinkEndType > getLinkEndTypesForGivenLinkEndId(
+        const LinkEnds& linkEnds,
+        const LinkEndId linkEndToCheck )
+{
+    std::vector< LinkEndType > linkEndTypeList;
+    for( auto linkEndIterator : linkEnds )
+    {
+        if( linkEndToCheck == linkEndIterator.second )
+        {
+            linkEndTypeList.push_back( linkEndIterator.first );
+        }
+    }
+    return linkEndTypeList;
+}
+
 void checkObservationResidualDiscontinuities(
         Eigen::Block< Eigen::VectorXd > observationResidualBlock,
         const ObservableType observableType )
@@ -395,6 +574,161 @@ void checkObservationResidualDiscontinuities(
         }
     }
 }
+
+
+//! Function to retrieve the link end indices in link end states/times that are to be used in viability calculation
+std::vector< std::pair< int, int > > getLinkStateAndTimeIndicesForLinkEnd(
+        const LinkEnds& linkEnds, const ObservableType observableType,  const LinkEndId linkEndToCheck )
+{
+    std::vector< std::pair< int, int > > linkEndIndices;
+
+    switch( observableType )
+    {
+    case one_way_range:
+        if( ( linkEnds.at( transmitter ) == linkEndToCheck ) ||
+                ( ( linkEnds.at( transmitter ).first == linkEndToCheck.first ) && ( linkEndToCheck.second == "" ) ) )
+        {
+            linkEndIndices.push_back( std::make_pair( 0, 1 ) );
+        }
+        else if( linkEnds.at( receiver ) == linkEndToCheck || ( ( linkEnds.at( receiver ).first == linkEndToCheck.first ) &&
+                                                                linkEndToCheck.second == "" ) )
+        {
+            linkEndIndices.push_back( std::make_pair( 1, 0 ) );
+        }
+        else
+        {
+            throw std::runtime_error( "Error, parsed irrelevant 1-way range link end types for link end indices" );
+        }
+        break;
+    case one_way_doppler:
+        if( ( linkEnds.at( transmitter ) == linkEndToCheck ) || ( ( linkEnds.at( transmitter ).first == linkEndToCheck.first ) &&
+                                                                  ( linkEndToCheck.second == "" ) ) )
+        {
+            linkEndIndices.push_back( std::make_pair( 0, 1 ) );
+        }
+        else if( linkEnds.at( receiver ) == linkEndToCheck || ( ( linkEnds.at( receiver ).first == linkEndToCheck.first ) &&
+                                                                linkEndToCheck.second == "" ) )
+        {
+            linkEndIndices.push_back( std::make_pair( 1, 0 ) );
+        }
+        else
+        {
+            throw std::runtime_error( "Error, parsed irrelevant 1-way doppler link end types for link end indices" );
+        }
+        break;
+    case two_way_doppler:
+        if( ( linkEnds.at( transmitter ) == linkEndToCheck ) || ( ( linkEnds.at( transmitter ).first == linkEndToCheck.first ) &&
+                                                                  ( linkEndToCheck.second == "" ) ) )
+        {
+            linkEndIndices.push_back( std::make_pair( 0, 1 ) );
+        }
+
+        if( linkEnds.at( reflector1 ) == linkEndToCheck || ( ( linkEnds.at( reflector1 ).first == linkEndToCheck.first ) &&
+                                                                linkEndToCheck.second == "" ) )
+        {
+            linkEndIndices.push_back( std::make_pair( 2, 3 ) );
+            linkEndIndices.push_back( std::make_pair( 1, 0 ) );
+        }
+
+        if( linkEnds.at( receiver ) == linkEndToCheck || ( ( linkEnds.at( receiver ).first == linkEndToCheck.first ) &&
+                                                                linkEndToCheck.second == "" ) )
+        {
+            linkEndIndices.push_back( std::make_pair( 3, 2 ) );
+        }
+
+        if( linkEndIndices.size( ) == 0 )
+        {
+            throw std::runtime_error( "Error, parsed irrelevant 1-way doppler link end types for link end indices" );
+        }
+        break;
+    case one_way_differenced_range:
+        if( linkEnds.at( transmitter ) == linkEndToCheck || ( ( linkEnds.at( transmitter ).first == linkEndToCheck.first ) &&
+                                                              linkEndToCheck.second == "" ) )
+        {
+            linkEndIndices.push_back( std::make_pair( 0, 1 ) );
+            linkEndIndices.push_back( std::make_pair( 2, 3 ) );
+        }
+        else if( linkEnds.at( receiver ) == linkEndToCheck || ( ( linkEnds.at( receiver ).first == linkEndToCheck.first ) &&
+                                                                linkEndToCheck.second == "" ) )
+        {
+            linkEndIndices.push_back( std::make_pair( 1, 0 ) );
+            linkEndIndices.push_back( std::make_pair( 3, 2 ) );
+        }
+        else
+        {
+            throw std::runtime_error( "Error, parsed irrelevant 1-way differenced link end types for link end indices" );
+        }
+        break;
+    case n_way_range:
+    {
+        std::vector< int > matchingLinkEndIndices = getNWayLinkEndIndicesFromLinkEndId( linkEndToCheck, linkEnds );
+        if( matchingLinkEndIndices.size( ) > 0 )
+        {
+            for( unsigned int i = 0; i < matchingLinkEndIndices.size( ); i++ )
+            {
+                if( matchingLinkEndIndices.at( i ) == 0 )
+                {
+                    linkEndIndices.push_back( std::make_pair( 0, 1 ) );
+                }
+                else if( matchingLinkEndIndices.at( i ) == static_cast< int >( linkEnds.size( ) )  - 1 )
+                {
+                    linkEndIndices.push_back( std::make_pair( 2 * ( linkEnds.size( ) - 1 ) - 1,
+                                                              2 * ( linkEnds.size( ) - 1 ) - 2 ) );
+                }
+                else
+                {
+                    linkEndIndices.push_back(
+                                std::make_pair( 2 * matchingLinkEndIndices.at( i ),
+                                                2 * matchingLinkEndIndices.at( i ) + 1 ) );
+                    linkEndIndices.push_back(
+                                std::make_pair( 2 * matchingLinkEndIndices.at( i ) - 1,
+                                                2 * matchingLinkEndIndices.at( i ) - 2 ) );
+                }
+            }
+        }
+        else
+        {
+            throw std::runtime_error( "Error, parsed irrelevant n-way range link end types for link end indices" );
+        }
+        break;
+    }
+    case angular_position:
+        if( ( linkEnds.at( transmitter ) == linkEndToCheck ) || ( ( linkEnds.at( transmitter ).first == linkEndToCheck.first ) &&
+                                                                  ( linkEndToCheck.second == "" ) ) )
+        {
+            linkEndIndices.push_back( std::make_pair( 0, 1 ) );
+        }
+        else if( linkEnds.at( receiver ) == linkEndToCheck || ( ( linkEnds.at( receiver ).first == linkEndToCheck.first ) &&
+                                                                linkEndToCheck.second == "" ) )
+        {
+            linkEndIndices.push_back( std::make_pair( 1, 0 ) );
+        }
+        else
+        {
+            throw std::runtime_error( "Error, parsed irrelevant angular position link end types for link end indices" );
+        }
+        break;
+    case position_observable:
+
+        throw std::runtime_error( "Error, parsed irrelevant position observable link end types for link end indices" );
+        break;
+    case euler_angle_313_observable:
+
+        throw std::runtime_error( "Error, parsed irrelevant euler angle observable link end types for link end indices" );
+        break;
+    case velocity_observable:
+
+        throw std::runtime_error( "Error, parsed irrelevant position observable link end types for link end indices" );
+        break;
+    default:
+        throw std::runtime_error( "Error, observable type " + std::to_string(
+                                      observableType ) + " not recognized when making viability link ends" );
+
+    }
+
+    return linkEndIndices;
+}
+
 
 }
 

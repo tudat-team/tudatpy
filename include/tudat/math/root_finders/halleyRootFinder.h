@@ -20,7 +20,9 @@
 #ifndef TUDAT_HALLEY_ROOT_FINDER_H
 #define TUDAT_HALLEY_ROOT_FINDER_H
 
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
+using namespace boost::placeholders;
+
 #include <boost/make_shared.hpp>
 #include <memory>
 

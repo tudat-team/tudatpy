@@ -75,8 +75,8 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartials )
         perturbingBodies.push_back( "Earth" );
         std::shared_ptr< ObservationModel< 1 > > oneWayRangeModel =
                 observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
-                    linkEnds, std::make_shared< observation_models::ObservationSettings >(
-                        observation_models::one_way_range,
+                    std::make_shared< observation_models::ObservationModelSettings >(
+                        observation_models::one_way_range, linkEnds,
                         std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
          perturbingBodies ) ), bodies  );
 
@@ -105,8 +105,8 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartials )
         perturbingBodies.push_back( "Earth" );
         std::shared_ptr< ObservationModel< 1 > > oneWayRangeModel =
                 observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
-                    linkEnds, std::make_shared< observation_models::ObservationSettings >(
-                        observation_models::one_way_range,
+                    std::make_shared< observation_models::ObservationModelSettings >(
+                        observation_models::one_way_range, linkEnds,
                         std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
          perturbingBodies ) ), bodies  );
 
@@ -136,8 +136,8 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartials )
         perturbingBodies.push_back( "Earth" );
         std::shared_ptr< ObservationModel< 1 > > oneWayRangeModel =
                 observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
-                    linkEnds, std::make_shared< observation_models::ObservationSettings >(
-                        observation_models::one_way_range,
+                    std::make_shared< observation_models::ObservationModelSettings >(
+                        observation_models::one_way_range, linkEnds,
                         std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
          perturbingBodies ) ), bodies  );
 

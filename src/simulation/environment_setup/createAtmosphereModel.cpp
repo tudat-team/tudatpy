@@ -9,7 +9,7 @@
  */
 
 #include <boost/make_shared.hpp>
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
 
 #include "tudat/astro/aerodynamics/exponentialAtmosphere.h"
 #include "tudat/astro/aerodynamics/tabulatedAtmosphere.h"
@@ -20,6 +20,8 @@
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/io/solarActivityData.h"
 #include "tudat/simulation/environment_setup/createAtmosphereModel.h"
+
+using namespace boost::placeholders;
 
 namespace tudat
 {

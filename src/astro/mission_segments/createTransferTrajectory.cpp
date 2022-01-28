@@ -166,8 +166,7 @@ std::shared_ptr< TransferNode > createTransferNode(
 
             if( swingbySettings->minimumPeriapsisRadius_ != swingbySettings->minimumPeriapsisRadius_ )
             {
-                throw std::runtime_error(
-                            "Error when making swingby node, no minimum periapsis radius is provided" );
+                throw std::runtime_error("Error when making swingby node, no minimum periapsis radius is provided" );
             }
 
             std::function< Eigen::Vector3d( ) > incomingVelocityFunction =
@@ -178,7 +177,6 @@ std::shared_ptr< TransferNode > createTransferNode(
                         centralBodyEphemeris,
                         centralBodyGravitationalParameter, swingbySettings->minimumPeriapsisRadius_,
                         incomingVelocityFunction, outgoingVelocityFunction );
-            std::cout<<nodeBodyName<<" "<<swingbySettings->minimumPeriapsisRadius_<<std::endl;
         }
         else
         {
@@ -256,6 +254,22 @@ std::shared_ptr< TransferNode > createTransferNode(
         throw std::runtime_error( "Error when making transfer node, node type not recognized" );
     }
     return transferNode;
+}
+
+std::pair< std::vector< std::shared_ptr< TransferLegSettings > >,
+std::vector< std::shared_ptr< TransferNodeSettings > > > getMgaTransferTrajectorySettings(
+        const std::vector< std::string >& fullBodiesList,
+        const TransferLegTypes identicalTransferLegType,
+        const std::pair< double, double > departureOrbit,
+        const std::pair< double, double > arrivalOrbit,
+        const std::map< std::string, double > minimumPericenterRadii )
+{
+    std::vector< std::shared_ptr< TransferLegSettings > > transferLegSettings;
+    std::vector< std::shared_ptr< TransferNodeSettings > > transferNodeSettings;
+    getMgaTransferTrajectorySettings(
+                transferLegSettings, transferNodeSettings, fullBodiesList, identicalTransferLegType,
+                departureOrbit, arrivalOrbit, minimumPericenterRadii );
+    return std::make_pair( transferLegSettings, transferNodeSettings );
 }
 
 void getMgaTransferTrajectorySettings(
@@ -380,7 +394,7 @@ void getMgaTransferTrajectorySettingsWithPositionBasedDsm(
                 departureOrbit, arrivalOrbit, minimumPericenterRadii );
 }
 
-void getMgaTransferTrajectorySettingsWithVelocityasedDsm(
+void getMgaTransferTrajectorySettingsWithVelocityBasedDsm(
         std::vector< std::shared_ptr< TransferLegSettings > >& legSettings,
         std::vector< std::shared_ptr< TransferNodeSettings > >& nodeSettings,
         const std::string& departureBody, const std::string& arrivalBody,
@@ -393,12 +407,12 @@ void getMgaTransferTrajectorySettingsWithVelocityasedDsm(
     fullBodiesList.insert(
                 fullBodiesList.end( ), flybyBodies.begin( ), flybyBodies.end( ) );
     fullBodiesList.push_back( arrivalBody );
-    return getMgaTransferTrajectorySettingsWithVelocityasedDsm(
+    return getMgaTransferTrajectorySettingsWithVelocityBasedDsm(
                 legSettings, nodeSettings, fullBodiesList, departureOrbit, arrivalOrbit, minimumPericenterRadii );
 
 }
 
-void getMgaTransferTrajectorySettingsWithVelocityasedDsm(
+void getMgaTransferTrajectorySettingsWithVelocityBasedDsm(
         std::vector< std::shared_ptr< TransferLegSettings > >& legSettings,
         std::vector< std::shared_ptr< TransferNodeSettings > >& nodeSettings,
         const std::vector< std::string >& fullBodiesList,

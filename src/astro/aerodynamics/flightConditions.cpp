@@ -10,7 +10,9 @@
 
 #include <boost/make_shared.hpp>
 #include <memory>
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
+using namespace boost::placeholders;
+
 
 #include "tudat/astro/aerodynamics/aerodynamics.h"
 #include "tudat/astro/aerodynamics/flightConditions.h"
@@ -81,18 +83,8 @@ AtmosphericFlightConditions::AtmosphericFlightConditions(
     aerodynamicCoefficientInterface_( aerodynamicCoefficientInterface ),
     controlSurfaceDeflectionFunction_( controlSurfaceDeflectionFunction )
 {
-    // Check if atmosphere requires latitude and longitude update.
-    if( std::dynamic_pointer_cast< aerodynamics::StandardAtmosphere >( atmosphereModel_ ) == nullptr )
-    {
-        updateLatitudeAndLongitudeForAtmosphere_ = 1;
-    }
-    else
-    {
-        updateLatitudeAndLongitudeForAtmosphere_ = 0;
-    }
-    isLatitudeAndLongitudeSet_ = 0;
 
-    if( updateLatitudeAndLongitudeForAtmosphere_ && aerodynamicAngleCalculator_== nullptr )
+    if(  aerodynamicAngleCalculator_== nullptr )
     {
         throw std::runtime_error( "Error when making flight conditions, angles are to be updated, but no calculator is set" );
     }
@@ -158,17 +150,7 @@ void AtmosphericFlightConditions::updateAtmosphereInput( )
     if( ( isScalarFlightConditionComputed_.at( latitude_flight_condition ) == 0 ||
           isScalarFlightConditionComputed_.at( longitude_flight_condition ) == 0 ) )
     {
-        if( updateLatitudeAndLongitudeForAtmosphere_ )
-        {
-            computeLatitudeAndLongitude( );
-        }
-        else
-        {
-            scalarFlightConditions_[ latitude_flight_condition ] = 0.0;
-            scalarFlightConditions_[ longitude_flight_condition ] = 0.0;
-            isScalarFlightConditionComputed_[ latitude_flight_condition ] = true;
-            isScalarFlightConditionComputed_[ longitude_flight_condition ] = true;
-        }
+        computeLatitudeAndLongitude( );
     }
 
     if( isScalarFlightConditionComputed_.at( altitude_flight_condition ) == 0 )
@@ -220,7 +202,7 @@ double AtmosphericFlightConditions::getAerodynamicCoefficientIndependentVariable
         {
             currentIndependentVariable = controlSurfaceDeflectionFunction_( secondaryIdentifier );
         }
-        catch( std::runtime_error& )
+        catch( std::runtime_error const& )
         {
             throw std::runtime_error( "Error, control surface " + secondaryIdentifier + "not recognized when updating coefficients" );
         }

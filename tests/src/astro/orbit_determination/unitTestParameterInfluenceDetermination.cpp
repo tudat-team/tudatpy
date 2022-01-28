@@ -16,7 +16,7 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include "tudat/astro/observation_models/simulateObservations.h"
+#include "tudat/simulation/estimation_setup/simulateObservations.h"
 #include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
 #include "tudat/simulation/estimation_setup/determinePostFitParameterInfluence.h"
 #include "tudat/simulation/simulation.h"
@@ -142,7 +142,7 @@ BOOST_AUTO_TEST_CASE( test_ParameterPostFitResiduals )
                 if( bodiesToCreate.at( j )  != "Sun" )
                 {
                     accelerationMap[ currentTargetBodies.at( body ) ][ bodiesToCreate.at( j ) ].push_back(
-                                std::make_shared< AccelerationSettings >( basic_astrodynamics::central_gravity ) );
+                                std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity ) );
                 }
                 else
                 {
@@ -272,9 +272,7 @@ BOOST_AUTO_TEST_CASE( test_ParameterPostFitResidualsApollo )
 
     // Create vehicle objects.
     bodies.createEmptyBody( "Apollo" );
-    bodies.at( "Apollo" )->setEphemeris( std::make_shared< TabulatedCartesianEphemeris< > >(
-                                           std::shared_ptr< interpolators::OneDimensionalInterpolator
-                                           < double, Eigen::Vector6d > >( ), "Earth", "J2000" ) );
+
     bodies.at( "Apollo" )->setAerodynamicCoefficientInterface(
                 unit_tests::getApolloCoefficientInterface( ) );
     bodies.at( "Apollo" )->setConstantBodyMass( 5.0E3 );

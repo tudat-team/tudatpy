@@ -249,6 +249,8 @@ createRotationalEquationsOfMotionEnvironmentUpdaterSettings(
                     break;
                 case inertial_torque:
                     break;
+                case dissipative_torque:
+                    break;
                 default:
                     std::cerr << "Error, update information not found for torque model " << currentTorqueModelType << std::endl;
                     break;
@@ -305,9 +307,9 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                 // Check acceleration model type and change environment update list accordingly.
                 switch( currentAccelerationModelType )
                 {
-                case central_gravity:
+                case point_mass_gravity:
                     break;
-                case third_body_central_gravity:
+                case third_body_point_mass_gravity:
                 {
                     std::shared_ptr< gravitation::ThirdBodyCentralGravityAcceleration >
                             thirdBodyAcceleration = std::dynamic_pointer_cast<
@@ -689,7 +691,7 @@ std::vector< std::string > > createEnvironmentUpdaterSettingsForDependentVariabl
         variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
         variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->secondaryBody_ );
         break;
-    case rotation_matrix_to_body_fixed_frame_variable:
+    case inertial_to_body_fixed_rotation_matrix_variable:
         variablesToUpdate[ body_rotational_state_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
         break;
     case intermediate_aerodynamic_rotation_matrix_variable:
@@ -787,7 +789,11 @@ std::vector< std::string > > createEnvironmentUpdaterSettingsForDependentVariabl
     case euler_angles_to_body_fixed_313:
         variablesToUpdate[ body_rotational_state_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
         break;
-    case lvlh_to_inertial_frame_rotation_dependent_variable:
+    case tnw_to_inertial_frame_rotation_dependent_variable:
+        variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
+        variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->secondaryBody_ );
+        break;
+    case rsw_to_inertial_frame_rotation_dependent_variable:
         variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
         variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->secondaryBody_ );
         break;
@@ -815,6 +821,8 @@ std::vector< std::string > > createEnvironmentUpdaterSettingsForDependentVariabl
         break;
     case radiation_pressure_coefficient_dependent_variable:
         variablesToUpdate[ radiation_pressure_interface_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
+        break;
+    case custom_dependent_variable:
         break;
     default:
         throw std::runtime_error( "Error when getting environment updates for dependent variables, parameter " +

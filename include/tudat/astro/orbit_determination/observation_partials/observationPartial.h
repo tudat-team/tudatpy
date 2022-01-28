@@ -244,10 +244,12 @@ public:
             const Eigen::Matrix< double, ObservationSize, 1 >& currentObservation =
             Eigen::Matrix< double, ObservationSize, 1 >::Zero( ) )
     {
-        int currentIndex = arcLookupScheme_->findNearestLowerNeighbour( times.at( linkEndIndex_ ) );
-
         totalPartial_.setZero( );
-        totalPartial_.block( 0, currentIndex * ObservationSize, ObservationSize, ObservationSize ) = constantPartial_;
+        if( arcLookupScheme_->getMinimumValue( ) <= times.at( linkEndIndex_ ) )
+        {
+            int currentIndex = arcLookupScheme_->findNearestLowerNeighbour( times.at( linkEndIndex_ ) );
+            totalPartial_.block( 0, currentIndex * ObservationSize, ObservationSize, ObservationSize ) = constantPartial_;
+        }
 
         return { std::make_pair( totalPartial_, times.at( linkEndIndex_ ) ) };
     }
@@ -387,11 +389,13 @@ public:
             const Eigen::Matrix< double, ObservationSize, 1 >& currentObservation =
             Eigen::Matrix< double, ObservationSize, 1 >::Zero( ) )
     {
-        int currentIndex = arcLookupScheme_->findNearestLowerNeighbour( times.at( linkEndIndex_ ) );
-
         totalPartial_.setZero( );
-        totalPartial_.segment( currentIndex * ObservationSize, ObservationSize ) = currentObservation;
 
+        if( arcLookupScheme_->getMinimumValue( ) <= times.at( linkEndIndex_ ) )
+        {
+            int currentIndex = arcLookupScheme_->findNearestLowerNeighbour( times.at( linkEndIndex_ ) );
+            totalPartial_.segment( currentIndex * ObservationSize, ObservationSize ) = currentObservation;
+        }
         return { std::make_pair( totalPartial_, times.at( linkEndIndex_ ) ) };
     }
 

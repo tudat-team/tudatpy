@@ -209,7 +209,7 @@ public:
         // Convert state to Cartesian for each body
         for( unsigned int i = 0; i < this->bodiesToBeIntegratedNumerically_.size( ); i++ )
         {
-            currentCartesianLocalSolution.segment( i * 6, 6 ) =
+            currentCartesianLocalSolution.block( i * 6, 0, 6, 1 ) =
                     orbital_element_conversions::convertUnifiedStateModelExponentialMapToCartesianElements(
                         internalSolution.block( i * 7, 0, 7, 1 ).template cast< double >( ), static_cast< double >(
                             centralBodyGravitationalParameters_.at( i )( ) ) ).template cast< StateScalarType >( );
@@ -258,14 +258,14 @@ public:
             if ( exponentialMapMagnitude >= mathematical_constants::PI )
             {
                 // Invert flag
-                unprocessedState.segment( i * 7 + 6, 1 ) = ( unprocessedState.block( i * 7 + 6, 0, 1, 1 ) -
+                unprocessedState.block( i * 7 + 6, 0, 1, 1 ) = ( unprocessedState.block( i * 7 + 6, 0, 1, 1 ) -
                                                              Eigen::Matrix< StateScalarType, 1, 1 >::Ones( ) ).cwiseAbs( );
 
                 // Convert to EM/SEM
                 exponentialMapVector *= ( 1.0 - ( 2.0 * mathematical_constants::PI / exponentialMapMagnitude ) );
 
                 // Replace EM with SEM, or vice-versa
-                unprocessedState.segment( i * 7 + 3, 3 ) = exponentialMapVector;
+                unprocessedState.block( i * 7 + 3, 0, 3, 1 ) = exponentialMapVector;
             }
         }
     }

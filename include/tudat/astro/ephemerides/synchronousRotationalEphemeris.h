@@ -23,6 +23,60 @@ namespace tudat
 namespace ephemerides
 {
 
+class LongitudeLibrationCalculator
+{
+public:
+    LongitudeLibrationCalculator( ){ }
+
+    virtual ~LongitudeLibrationCalculator( ){ }
+
+    virtual double getLibrationAngleWrtFullySynchronousRotation(
+            const Eigen::Vector6d& relativeState,
+            const double time ) = 0;
+protected:
+
+private:
+};
+
+class DirectLongitudeLibrationCalculator: public LongitudeLibrationCalculator
+{
+public:
+    DirectLongitudeLibrationCalculator(
+            const double scaledLibrationAmplitude ):
+        LongitudeLibrationCalculator( ),
+        scaledLibrationAmplitude_( scaledLibrationAmplitude )
+    { }
+
+    ~DirectLongitudeLibrationCalculator( ){ }
+
+    double getLibrationAngleWrtFullySynchronousRotationFromScaledLibration(
+            const Eigen::Vector6d& relativeState,
+            const double time,
+            const double scaledLibrationAmplitude );
+
+    double getLibrationAngleWrtFullySynchronousRotation(
+            const Eigen::Vector6d& relativeState,
+            const double time )
+    {
+        return getLibrationAngleWrtFullySynchronousRotationFromScaledLibration( relativeState, time, scaledLibrationAmplitude_ );
+    }
+
+    double getScaledLibrationAmplitude( )
+    {
+        return scaledLibrationAmplitude_;
+    }
+
+    void setScaledLibrationAmplitude( const double scaledLibrationAmplitude )
+    {
+        scaledLibrationAmplitude_ = scaledLibrationAmplitude;
+    }
+
+private:
+
+    double scaledLibrationAmplitude_;
+
+};
+
 //! Class to define a fully synchronous rotation model for a body
 /*!
  *  Class to define a fully synchronous rotation model for a body. The body-fixed x-axis always points directly to the
@@ -46,16 +100,36 @@ public:
             const std::function< Eigen::Vector6d( const double, bool ) > relativeStateFunction,
             const std::string& centralBodyName,
             const std::string& baseFrameOrientation,
-            const std::string& targetFrameOrientation ):
+            const std::string& targetFrameOrientation,
+            const std::shared_ptr< LongitudeLibrationCalculator > longitudeLibrationCalculator = nullptr  ):
         RotationalEphemeris( baseFrameOrientation, targetFrameOrientation ),
         relativeStateFunction_( relativeStateFunction ),
         isBodyInPropagation_( 0 ),
         centralBodyName_( centralBodyName ),
-        warningPrinted_( false )
-    { }
+        longitudeLibrationCalculator_( longitudeLibrationCalculator ),
+        warningPrinted_( false ),
+        isLibrationOn_( false )
+    {
+        if( longitudeLibrationCalculator != nullptr )
+        {
+            isLibrationOn_ = true;
+        }
+    }
 
     //! Destructor
     ~SynchronousRotationalEphemeris( ){ }
+
+   Eigen::Matrix3d getFullyLockedRotationToBaseFrame(
+           const Eigen::Vector6d& relativeState,
+           const double currentTime );
+
+   Eigen::Matrix3d getFullyLockedRotationToBaseFrame( const double currentTime );
+
+   Eigen::Matrix3d getLibrationRotation(
+           const Eigen::Vector6d& relativeState,
+           const double currentTime );
+
+   Eigen::Matrix3d getLibrationRotation( const double currentTime );
 
     //! Calculate rotation quaternion from target frame to base frame.
     /*!
@@ -121,6 +195,31 @@ public:
         return relativeStateFunction_( currentTime, isBodyInPropagation_ );
     }
 
+    void setLibrationCalculation(
+            const std::shared_ptr< LongitudeLibrationCalculator > longitudeLibrationCalculator )
+    {
+        longitudeLibrationCalculator_ = longitudeLibrationCalculator;
+
+        if( longitudeLibrationCalculator_ != nullptr )
+        {
+            isLibrationOn_ = true;
+        }
+        else
+        {
+            isLibrationOn_ = false;
+        }
+    }
+
+    std::shared_ptr< LongitudeLibrationCalculator > getLongitudeLibrationCalculator( )
+    {
+        return longitudeLibrationCalculator_;
+    }
+
+    Eigen::Vector6d getRelativeCartesianState( const double time )
+    {
+        return relativeStateFunction_( time, isBodyInPropagation_ );
+    }
+
 private:
 
     //! Function returning the current state of the body relative to the central body, in the base frame
@@ -132,8 +231,12 @@ private:
     //! Name of central body
     std::string centralBodyName_;
 
+    std::shared_ptr< LongitudeLibrationCalculator > longitudeLibrationCalculator_;
+
     //!  Boolean defining whether the warning for the time-derivative of rotation amtrix has been printed.
     bool warningPrinted_;
+
+    bool isLibrationOn_;
 };
 
 }
