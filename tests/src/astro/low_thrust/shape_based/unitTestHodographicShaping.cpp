@@ -168,17 +168,19 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer_1 )
     double expectedDeltaV = 7751.0;
     double expectedPeakAcceleration = 2.64e-4;
 
-    std::cout<<hodographicShapingLeg.computeDeltaV( )<<std::endl;
-    std::cout<<hodographicShaping.computeDeltaV( )<<std::endl;
+    std::cout<<"New Delta V "<<hodographicShapingLeg.computeDeltaV( )<<std::endl;
+    std::cout<<"Original Delta V "<<hodographicShaping.computeDeltaV( )<<std::endl;
     hodographicShapingLeg.updateLegParameters( ( Eigen::Vector2d( )<<
                                                      julianDate + 10.0 * 86400.0,
                                                      julianDate + timeOfFlight  * physical_constants::JULIAN_DAY ).finished( ) );
     std::cout<<hodographicShapingLeg.computeDeltaV( )<<std::endl;
+    std::cout<<"New Delta V "<<hodographicShapingLeg.computeDeltaV( )<<std::endl;
 
     hodographicShapingLeg.updateLegParameters( ( Eigen::Vector2d( )<<
                                                      julianDate,
                                                      julianDate + timeOfFlight  * physical_constants::JULIAN_DAY ).finished( ) );
     std::cout<<hodographicShapingLeg.computeDeltaV( )<<std::endl;
+    std::cout<<"New Delta V "<<hodographicShapingLeg.computeDeltaV( )<<std::endl;
 
     // DeltaV provided with a precision of 1 m/s
     BOOST_CHECK_SMALL( std::fabs(  hodographicShaping.computeDeltaV( ) - expectedDeltaV ), 1.0 );

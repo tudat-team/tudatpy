@@ -116,7 +116,6 @@ void SphericalShaping::updateBoundaryStates( const Eigen::Vector6d& initialState
             finalStateSphericalCoordinates_[ 4 ] / finalDerivativeAzimuthAngle,
             finalStateSphericalCoordinates_[ 5 ] / finalDerivativeAzimuthAngle ).finished();
 
-
     // Define settings for numerical quadrature, to be used to compute time of flight and final deltaV.
     quadratureSettings_ = std::make_shared< numerical_quadrature::GaussianQuadratureSettings < double > >( initialAzimuthAngle_, 16 );
     reinitializeBoundaryConstraints( );
@@ -650,9 +649,9 @@ double SphericalShaping::computeDeltaV( )
                 * std::sqrt( computeScalarFunctionTimeEquation( currentAzimuthAngle )
                              * std::pow( radialDistanceCompositeFunction_->evaluateCompositeFunction( currentAzimuthAngle ), 2.0 )
                              / normalizedCentralBodyGravitationalParameter_ );
-        std::cout<<computeCurrentThrustAcceleration( currentAzimuthAngle ).norm( )<<" "<<
-                   thrustAcceleration<<" "<<
-                   computeThrustAccelerationVectorInSphericalCoordinates( currentAzimuthAngle ).norm()<<std::endl;
+//        std::cout<<computeCurrentThrustAcceleration( currentAzimuthAngle ).norm( )<<" "<<
+//                   thrustAcceleration<<" "<<
+//                   computeThrustAccelerationVectorInSphericalCoordinates( currentAzimuthAngle ).norm()<<std::endl;
 
         return thrustAcceleration;
 
