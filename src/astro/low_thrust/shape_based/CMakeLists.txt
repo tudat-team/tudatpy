@@ -18,6 +18,7 @@ set(SHAPEBASEDMETHODS_SOURCES
   "baseFunctionsSphericalShaping.cpp"
   "compositeFunctionSphericalShaping.cpp"
   "sphericalShaping.cpp"
+  "sphericalShapingLeg.cpp"
   "getRecommendedBaseFunctionsHodographicShaping.cpp"
   "shapeBasedMethod.cpp"
   )
@@ -31,6 +32,7 @@ set(shape_based_methods_HEADERS
   "baseFunctionsSphericalShaping.h"
   "compositeFunctionSphericalShaping.h"
   "sphericalShaping.h"
+  "sphericalShapingLeg.h"
   "getRecommendedBaseFunctionsHodographicShaping.h"
   "shapeBasedMethod.h"
   )
