@@ -49,6 +49,14 @@ public:
     //! Default destructor.
     ~SphericalShapingLeg( ) { }
 
+    void computeTransfer( );
+
+    virtual void getStateAlongTrajectory( Eigen::Vector6d& stateAlongTrajectory,
+                                          const double time )
+    {
+        throw std::runtime_error( "Error, SphericalShapingLeg::getStateAlongTrajectory not yet implemented" );
+    }
+
     //! Convert time to independent variable.
     double convertTimeToIndependentVariable( const double time );
 
@@ -294,6 +302,9 @@ private:
     std::shared_ptr< interpolators::OneDimensionalInterpolator< double, double > > interpolator_;
 
     std::map< double, Eigen::Vector3d > thrustAccelerationVectorCache_;
+
+    std::shared_ptr< numerical_quadrature::QuadratureSettings< double > > quadratureSettings_;
+
 };
 
 

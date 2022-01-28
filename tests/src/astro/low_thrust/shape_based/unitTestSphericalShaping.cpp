@@ -33,13 +33,13 @@
 #include "tudat/astro/low_thrust/shape_based/baseFunctionsSphericalShaping.h"
 #include "tudat/astro/low_thrust/shape_based/compositeFunctionSphericalShaping.h"
 #include "tudat/astro/low_thrust/shape_based/sphericalShaping.h"
+#include "tudat/astro/low_thrust/shape_based/sphericalShapingLeg.h"
 
 namespace tudat
 {
 namespace unit_tests
 {
 
-using namespace tudat;
 using namespace tudat::simulation_setup;
 using namespace tudat::ephemerides;
 using namespace tudat::shape_based_methods;
@@ -72,12 +72,21 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_earth_mars_transfer )
     std::shared_ptr< RootFinderSettings > rootFinderSettings =
             tudat::root_finders::bisectionRootFinderSettings( 1.0E-6, TUDAT_NAN, TUDAT_NAN, 30 );
 
+    std::cout<<"************************ ORIGINAL CLASS **************************"<<std::endl;
     // Compute shaped trajectory.
     SphericalShaping sphericalShaping = SphericalShaping(
                 initialState, finalState, timeOfFlight,
                 spice_interface::getBodyGravitationalParameter( "Sun" ),
                 numberOfRevolutions, 0.000703, rootFinderSettings, 1.0e-6, 1.0e-1 );
 
+    std::cout<<"************************ NEW CLASS **************************"<<std::endl;
+    SphericalShapingLeg sphericalShapingLeg = SphericalShapingLeg(
+                pointerToDepartureBodyEphemeris, pointerToArrivalBodyEphemeris,
+                spice_interface::getBodyGravitationalParameter( "Sun" ),
+                numberOfRevolutions, 0.000703, rootFinderSettings, 1.0e-6, 1.0e-1 );
+    sphericalShapingLeg.updateLegParameters( ( Eigen::Vector2d( )<<
+                                                     julianDate,
+                                                     julianDate + timeOfFlight ).finished( ) );
     // Initialise peak acceleration.
     double peakThrustAcceleration = 0.0;
 
@@ -97,6 +106,7 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_earth_mars_transfer )
     double expectedDeltaV = 5700.0;
     double expectedPeakAcceleration = 2.4e-4;
 
+    std::cout<<sphericalShaping.computeDeltaV()<<" "<<sphericalShapingLeg.computeDeltaV()<<std::endl;
     // DeltaV provided with a precision of 5 m/s
     BOOST_CHECK_SMALL( std::fabs(  sphericalShaping.computeDeltaV() - expectedDeltaV ), 5.0 );
     // Peak acceleration provided with a precision 2.0e-6 m/s^2

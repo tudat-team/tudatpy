@@ -44,11 +44,14 @@ SphericalShapingLeg::SphericalShapingLeg(
             / std::pow( physical_constants::ASTRONOMICAL_UNIT, 3.0 );
 
     // Define coefficients for radial distance and elevation angle composite functions.
-    coefficientsRadialDistanceFunction_.setZero( );
-    coefficientsElevationAngleFunction_.setZero( );
 
-    radialDistanceCompositeFunction_ = std::make_shared< CompositeRadialFunctionSphericalShaping >( coefficientsRadialDistanceFunction_ );
-    elevationAngleCompositeFunction_ = std::make_shared< CompositeElevationFunctionSphericalShaping >( coefficientsElevationAngleFunction_ );
+    coefficientsRadialDistanceFunction_.setConstant( 1.0 );
+    coefficientsElevationAngleFunction_.setConstant( 1.0 );
+
+    radialDistanceCompositeFunction_ = std::make_shared< CompositeRadialFunctionSphericalShaping >(
+                Eigen::VectorXd( coefficientsRadialDistanceFunction_ ) );
+    elevationAngleCompositeFunction_ = std::make_shared< CompositeElevationFunctionSphericalShaping >(
+                Eigen::VectorXd( coefficientsElevationAngleFunction_ ) );
 
 }
 
@@ -60,7 +63,6 @@ void SphericalShapingLeg::computeTransfer( )
     {
         throw std::runtime_error( "Error when updating spherical shaping object, number of inputs is inconsistent" );
     }
-
 
     // Normalize the initial state.
     Eigen::Vector6d normalizedDepartureBodyState_;
@@ -113,13 +115,13 @@ void SphericalShapingLeg::computeTransfer( )
             finalStateSphericalCoordinates_[ 4 ] / finalDerivativeAzimuthAngle,
             finalStateSphericalCoordinates_[ 5 ] / finalDerivativeAzimuthAngle ).finished();
 
-
-    // Initialise coefficients for radial distance and elevation angle functions.
-    coefficientsRadialDistanceFunction_.setZero( );
-    coefficientsElevationAngleFunction_.setZero( );
+//    // Initialise coefficients for radial distance and elevation angle functions.
+//    coefficientsRadialDistanceFunction_.setZero( );
+//    coefficientsElevationAngleFunction_.setZero( );
 
     // Define settings for numerical quadrature, to be used to compute time of flight and final deltaV.
     quadratureSettings_ = std::make_shared< numerical_quadrature::GaussianQuadratureSettings < double > >( initialAzimuthAngle_, 16 );
+    satisfyBoundaryConditions( );
 
     // Iterate on the free coefficient value until the time of flight matches its required value.
     iterateToMatchRequiredTimeOfFlight( rootFinderSettings_, lowerBoundFreeCoefficient_, upperBoundFreeCoefficient_, initialValueFreeCoefficient_ );
@@ -473,6 +475,7 @@ void SphericalShapingLeg::iterateToMatchRequiredTimeOfFlight( std::shared_ptr< r
 
     // Iterate to find the free coefficient value that matches the required time of flight.
     double updatedFreeCoefficient = rootFinder->execute( timeOfFlightFunction, initialGuess );
+
     resetValueFreeCoefficient( updatedFreeCoefficient );
 
 }
