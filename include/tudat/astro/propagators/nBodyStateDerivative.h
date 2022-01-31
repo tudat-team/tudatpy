@@ -62,7 +62,8 @@ enum TranslationalPropagatorType
  */
 std::vector< std::function< double( ) > > removeCentralGravityAccelerations(
         const std::vector< std::string >& centralBodies, const std::vector< std::string >& bodiesToIntegrate,
-        basic_astrodynamics::AccelerationMap& accelerationModelsPerBody );
+        basic_astrodynamics::AccelerationMap& accelerationModelsPerBody,
+        std::shared_ptr< gravitation::CentralGravitationalAccelerationModel3d >& removedAcceleration  );
 
 // Function to determine in which order the ephemerides are to be updated
 /*
@@ -116,10 +117,14 @@ public:
         propagators::SingleStateTypeDerivative< StateScalarType, TimeType >(
             propagators::translational_state ),
         accelerationModelsPerBody_( accelerationModelsPerBody ),
+        removedCentralAcceleration_( nullptr ),
+        updateRemovedAcceleration_( false ),
         centralBodyData_( centralBodyData ),
         propagatorType_( propagatorType ),
         bodiesToBeIntegratedNumerically_( bodiesToIntegrate )
     {
+        originalAccelerationModelsPerBody_ = this->accelerationModelsPerBody_ ;
+
         // Add empty acceleration map if body is to be propagated with no accelerations.
         for( unsigned int i = 0; i < bodiesToBeIntegratedNumerically_.size( ); i++ )
         {
@@ -163,6 +168,11 @@ public:
         for( unsigned int i = 0; i < accelerationModelList_.size( ); i++ )
         {
             accelerationModelList_.at( i )->resetTime( TUDAT_NAN );
+        }        
+
+        if( updateRemovedAcceleration_ && removedCentralAcceleration_ != nullptr )
+        {
+            removedCentralAcceleration_->resetTime( TUDAT_NAN );
         }
     }
 
@@ -191,6 +201,11 @@ public:
         for( unsigned int i = 0; i < accelerationModelList_.size( ); i++ )
         {
             accelerationModelList_.at( i )->updateMembers( currentTime );
+        }
+
+        if( updateRemovedAcceleration_ && removedCentralAcceleration_ != nullptr )
+        {
+            removedCentralAcceleration_->updateMembers( );
         }
     }
 
@@ -229,16 +244,6 @@ public:
     std::vector< std::string > getBodiesToBeIntegratedNumerically( )
     {
         return bodiesToBeIntegratedNumerically_;
-    }
-
-    // Function to get map containing the list of accelerations acting on each body,
-    /*
-     * Function to get map containing the list of accelerations acting on each body,
-     * \return A map containing the list of accelerations acting on each body,
-     */
-    virtual basic_astrodynamics::AccelerationMap getFullAccelerationsMap( )
-    {
-        return accelerationModelsPerBody_;
     }
 
     // Function to get object providing the current integration origins
@@ -296,10 +301,16 @@ public:
         }
         else
         {
-            if( accelerationModelsPerBody_.count( bodyName ) != 0 )
+            if( removedCentralAcceleration_ != nullptr && updateRemovedAcceleration_ == false )
+            {
+                std::string errorMessage = "Error when getting total acceleration for body " + bodyName +
+                        ", central term is removed, but cannot be evaluated.";
+                throw std::runtime_error( errorMessage );
+            }
+            if( originalAccelerationModelsPerBody_.count( bodyName ) != 0 )
             {
                 basic_astrodynamics::SingleBodyAccelerationMap accelerationsOnBody =
-                        accelerationModelsPerBody_.at( bodyName );
+                        originalAccelerationModelsPerBody_.at( bodyName );
 
                 // Iterate over all accelerations acting on body
                 for( innerAccelerationIterator  = accelerationsOnBody.begin( );
@@ -326,6 +337,23 @@ public:
     {
         return accelerationModelsPerBody_;
     }
+
+    basic_astrodynamics::AccelerationMap getFullAccelerationsMap( )
+    {
+        return originalAccelerationModelsPerBody_;
+    }
+
+    std::shared_ptr< gravitation::CentralGravitationalAccelerationModel3d > getRemovedCentralAcceleration( )
+    {
+        return removedCentralAcceleration_;
+    }
+
+    void setUpdateRemovedAcceleration( )
+    {
+        updateRemovedAcceleration_ = true;
+    }
+
+
 
 protected:
 
@@ -436,6 +464,12 @@ protected:
      * acceleration, and as value a pointer to an acceleration model.
      */
     basic_astrodynamics::AccelerationMap accelerationModelsPerBody_;
+
+    basic_astrodynamics::AccelerationMap originalAccelerationModelsPerBody_;
+
+    std::shared_ptr< gravitation::CentralGravitationalAccelerationModel3d > removedCentralAcceleration_;
+
+    bool updateRemovedAcceleration_;
 
     // Vector of acceleration models, containing all entries of accelerationModelsPerBody_.
     std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > > accelerationModelList_;

@@ -270,11 +270,21 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
 
         setTrimmedConditions( bodies.at( "Apollo" ) );
 
-        std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
-                std::make_shared< TranslationalStatePropagatorSettings< double > >
+        std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings;
+        if( testCase != 2 )
+        {
+            propagatorSettings = std::make_shared< TranslationalStatePropagatorSettings< double > >
                 ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState,
                   std::make_shared< propagators::PropagationTimeTerminationSettings >( 3200.0 ), cowell,
                   std::make_shared< DependentVariableSaveSettings >( dependentVariables ) );
+        }
+        else
+        {
+            propagatorSettings = std::make_shared< TranslationalStatePropagatorSettings< double > >
+                ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState,
+                  std::make_shared< propagators::PropagationTimeTerminationSettings >( 3200.0 ), gauss_modified_equinoctial,
+                  std::make_shared< DependentVariableSaveSettings >( dependentVariables ) );
+        }
         std::shared_ptr< IntegratorSettings< > > integratorSettings =
                 std::make_shared< IntegratorSettings< > >
                 ( rungeKutta4, simulationStartEpoch, fixedStepSize );
@@ -286,6 +296,8 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
         // Retrieve numerical solutions for state and dependent variables
         std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > numericalSolution =
                 dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+        std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > rawNumericalSolution =
+                dynamicsSimulator.getEquationsOfMotionNumericalSolutionRaw( );
         std::map< double, Eigen::VectorXd > dependentVariableSolution =
                 dynamicsSimulator.getDependentVariableHistory( );
 
@@ -344,7 +356,7 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
                     propagators::getMatrixFromVectorRotationRepresentation( variableIterator->second.segment( 60, 9 ) );
 
             currentStateDerivative = dynamicsSimulator.getDynamicsStateDerivative( )->computeStateDerivative(
-                        variableIterator->first, numericalSolution.at( variableIterator->first ) );
+                        variableIterator->first, rawNumericalSolution.at( variableIterator->first ) );
 
             // Manually compute central gravity.
             manualCentralGravity =
