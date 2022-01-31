@@ -327,6 +327,7 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
         const std::map< propagators::IntegratedStateType, orbit_determination::StateDerivativePartialsMap >& stateDerivativePartials =
         std::map< propagators::IntegratedStateType, orbit_determination::StateDerivativePartialsMap >( ) )
 {
+    std::cout<<"Vec pre "<<dependentVariable<<std::endl;
     std::function< Eigen::VectorXd( ) > variableFunction;
     int parameterSize;
 
@@ -400,6 +401,7 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
         // Retrieve model responsible for computing accelerations of requested bodies.
         std::shared_ptr< NBodyStateDerivative< StateScalarType, TimeType > > nBodyModel =
                 getTranslationalStateDerivativeModelForBody( bodyWithProperty, stateDerivativeModels );
+        nBodyModel->setUpdateRemovedAcceleration( );
         variableFunction =
                 std::bind( &NBodyStateDerivative< StateScalarType, TimeType >::getTotalAccelerationForBody, nBodyModel,
                            bodyWithProperty );
@@ -450,7 +452,13 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
             }
             else
             {
-                //std::function< Eigen::Vector3d( ) > vectorFunction =
+                std::shared_ptr< NBodyStateDerivative< StateScalarType, TimeType > > nBodyModel =
+                        getTranslationalStateDerivativeModelForBody( bodyWithProperty, stateDerivativeModels );
+                std::cout<<"Removed: "<<listOfSuitableAccelerationModels.at( 0 )<<" "<<nBodyModel->getRemovedCentralAcceleration( )<<std::endl;
+                if( listOfSuitableAccelerationModels.at( 0 ) == nBodyModel->getRemovedCentralAcceleration( ) )
+                {
+                    nBodyModel->setUpdateRemovedAcceleration( );
+                }
                 variableFunction = std::bind( &basic_astrodynamics::AccelerationModel3d::getAcceleration,
                                               listOfSuitableAccelerationModels.at( 0 ) );
                 parameterSize = 3;
@@ -465,7 +473,7 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
                 std::dynamic_pointer_cast< SphericalHarmonicAccelerationTermsDependentVariableSaveSettings >( dependentVariableSettings );
         if( accelerationComponentVariableSettings == nullptr )
         {
-            std::string errorMessage= "Error, inconsistent inout when creating dependent variable function of type single_acceleration_dependent_variable";
+            std::string errorMessage= "Error, inconsistent inout when creating dependent variable function of type spherical_harmonic_acceleration_norm_terms_dependent_variable";
             throw std::runtime_error( errorMessage );
         }
         else
@@ -525,7 +533,7 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
                 std::dynamic_pointer_cast< SphericalHarmonicAccelerationTermsDependentVariableSaveSettings >( dependentVariableSettings );
         if( accelerationComponentVariableSettings == nullptr )
         {
-            std::string errorMessage= "Error, inconsistent inout when creating dependent variable function of type single_acceleration_dependent_variable";
+            std::string errorMessage= "Error, inconsistent inout when creating dependent variable function of type spherical_harmonic_acceleration_terms_dependent_variable";
             throw std::runtime_error( errorMessage );
         }
         else
@@ -1179,6 +1187,7 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
                 std::to_string( dependentVariableSettings->dependentVariableType_ );
         throw std::runtime_error( errorMessage );
     }
+    std::cout<<"Vec pre "<<dependentVariable<<std::endl;
     return std::make_pair( variableFunction, parameterSize );
 }
 
@@ -1238,6 +1247,8 @@ std::function< double( ) > getDoubleDependentVariableFunction(
         PropagationDependentVariables dependentVariable = dependentVariableSettings->dependentVariableType_;
         const std::string& bodyWithProperty = dependentVariableSettings->associatedBody_;
         const std::string& secondaryBody = dependentVariableSettings->secondaryBody_;
+
+        std::cout<<"Double pre "<<dependentVariable<<std::endl;
 
         // Check dependent variable type and create function accordingly.
         switch( dependentVariable )
@@ -1411,6 +1422,12 @@ std::function< double( ) > getDoubleDependentVariableFunction(
                 }
                 else
                 {
+                    std::shared_ptr< NBodyStateDerivative< StateScalarType, TimeType > > nBodyModel =
+                            getTranslationalStateDerivativeModelForBody( bodyWithProperty, stateDerivativeModels );
+                    if( listOfSuitableAccelerationModels.at( 0 ) == nBodyModel->getRemovedCentralAcceleration( ) )
+                    {
+                        nBodyModel->setUpdateRemovedAcceleration( );
+                    }
                     std::function< Eigen::Vector3d( ) > vectorFunction =
                             std::bind( &basic_astrodynamics::AccelerationModel3d::getAcceleration,
                                        listOfSuitableAccelerationModels.at( 0 ) );
@@ -1424,6 +1441,7 @@ std::function< double( ) > getDoubleDependentVariableFunction(
             // Retrieve model responsible for computing accelerations of requested bodies.
             std::shared_ptr< NBodyStateDerivative< StateScalarType, TimeType > > nBodyModel =
                     getTranslationalStateDerivativeModelForBody( bodyWithProperty, stateDerivativeModels );
+            nBodyModel->setUpdateRemovedAcceleration( );
             std::function< Eigen::Vector3d( ) > vectorFunction =
                     std::bind( &NBodyStateDerivative< StateScalarType, TimeType >::getTotalAccelerationForBody,
                                nBodyModel, bodyWithProperty );
@@ -1707,6 +1725,8 @@ std::function< double( ) > getDoubleDependentVariableFunction(
                     std::to_string( dependentVariableSettings->dependentVariableType_ );
             throw std::runtime_error( errorMessage );
         }
+        std::cout<<"Double post "<<dependentVariable<<std::endl;
+
         return variableFunction;
     }
 }

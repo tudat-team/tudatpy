@@ -80,15 +80,12 @@ public:
     {
         currentKeplerianOrbitCartesianState_.resize( bodiesToIntegrate.size( ) );
 
-
-        originalAccelerationModelsPerBody_ = this->accelerationModelsPerBody_ ;
-
         // Remove central gravitational acceleration from list of accelerations that is to be evaluated
         centralBodyGravitationalParameters_ =
                 removeCentralGravityAccelerations(
                     centralBodyData->getCentralBodies( ), this->bodiesToBeIntegratedNumerically_,
-                    this->accelerationModelsPerBody_ );
-
+                    this->accelerationModelsPerBody_, this->removedCentralAcceleration_ );
+        std::cout<<"Removed acceleration in class: "<<this->removedCentralAcceleration_ <<std::endl;
         // Create root-finder for Kepler orbit propagation
         rootFinder_ = root_finders::createRootFinder< StateScalarType >(
                     root_finders::newtonRaphsonRootFinderSettings(
@@ -223,10 +220,6 @@ public:
         }
     }
 
-    basic_astrodynamics::AccelerationMap getFullAccelerationsMap( )
-    {
-        return originalAccelerationModelsPerBody_;
-    }
 
 private:
 
@@ -293,8 +286,6 @@ private:
     //! Time at which the currentKeplerianOrbitCartesianState_ provide the Cartesian representation of the
     //! referfence Kepler state.
     TimeType currentKeplerOrbitTime_;
-
-    basic_astrodynamics::AccelerationMap originalAccelerationModelsPerBody_;
 
 
 };
