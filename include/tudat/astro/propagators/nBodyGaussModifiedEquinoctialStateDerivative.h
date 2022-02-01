@@ -67,15 +67,13 @@ public:
             const std::vector< std::string >& bodiesToIntegrate ,
             const std::vector< Eigen::Matrix< StateScalarType, 6, 1 > >& initialKeplerElements ):
         NBodyStateDerivative< StateScalarType, TimeType >(
-            accelerationModelsPerBody, centralBodyData, gauss_modified_equinoctial, bodiesToIntegrate )
+            accelerationModelsPerBody, centralBodyData, gauss_modified_equinoctial, bodiesToIntegrate, true )
     {
-        originalAccelerationModelsPerBody_ = this->accelerationModelsPerBody_ ;
-
         // Remove central gravitational acceleration from list of accelerations that is to be evaluated
         centralBodyGravitationalParameters_ =
                 removeCentralGravityAccelerations(
                     centralBodyData->getCentralBodies( ), this->bodiesToBeIntegratedNumerically_,
-                    this->accelerationModelsPerBody_ );
+                    this->accelerationModelsPerBody_, this->removedCentralAccelerations_ );
         this->createAccelerationModelList( );
 
         // Check if singularity in equations of motion should be palced at 0 or 180 degrees inclination
@@ -199,16 +197,6 @@ public:
         currentCartesianLocalSolution_ = currentCartesianLocalSolution;
     }
 
-    //! Function to get the acceleration models
-    /*!
-     * Function to get the acceleration models, including the central body accelerations that are removed for the Gauss
-     * propagation scheme
-     * \return List of acceleration models, including the central body accelerations that are removed in this propagation scheme.
-     */
-    basic_astrodynamics::AccelerationMap getFullAccelerationsMap( )
-    {
-        return originalAccelerationModelsPerBody_;
-    }
 
 private:
 
@@ -218,9 +206,6 @@ private:
     //! Central body accelerations for each propagated body, which has been removed from accelerationModelsPerBody_
     std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > >
     centralAccelerations_;
-
-    //! List of acceleration models, including the central body accelerations thta are removed in this propagation scheme.
-    basic_astrodynamics::AccelerationMap originalAccelerationModelsPerBody_;
 
     //! Current full Cartesian state of the propagated bodies, w.r.t. the central bodies
     /*!
