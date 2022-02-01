@@ -63,7 +63,7 @@ enum TranslationalPropagatorType
 std::vector< std::function< double( ) > > removeCentralGravityAccelerations(
         const std::vector< std::string >& centralBodies, const std::vector< std::string >& bodiesToIntegrate,
         basic_astrodynamics::AccelerationMap& accelerationModelsPerBody,
-        std::shared_ptr< gravitation::CentralGravitationalAccelerationModel3d >& removedAcceleration  );
+        std::map< std::string, std::shared_ptr< gravitation::CentralGravitationalAccelerationModel3d > >& removedAcceleration  );
 
 // Function to determine in which order the ephemerides are to be updated
 /*
@@ -118,8 +118,8 @@ public:
         propagators::SingleStateTypeDerivative< StateScalarType, TimeType >(
             propagators::translational_state ),
         accelerationModelsPerBody_( accelerationModelsPerBody ),
-        removedCentralAcceleration_( nullptr ),
-        updateRemovedAcceleration_( false ),
+        removedCentralAccelerations_( std::map< std::string, std::shared_ptr< gravitation::CentralGravitationalAccelerationModel3d > >( ) ),
+        updateRemovedAccelerations_( std::vector< std::string >( ) ),
         centralBodyData_( centralBodyData ),
         propagatorType_( propagatorType ),
         bodiesToBeIntegratedNumerically_( bodiesToIntegrate ),
@@ -172,9 +172,12 @@ public:
             accelerationModelList_.at( i )->resetTime( TUDAT_NAN );
         }        
 
-        if( updateRemovedAcceleration_ && removedCentralAcceleration_ != nullptr )
+        for( unsigned int i = 0; i < updateRemovedAccelerations_.size( ); i++ )
         {
-            removedCentralAcceleration_->resetTime( TUDAT_NAN );
+            if( removedCentralAccelerations_.count( updateRemovedAccelerations_.at( i  ) ) > 0 )
+            {
+                removedCentralAccelerations_[ updateRemovedAccelerations_.at( i ) ]->resetTime( TUDAT_NAN );
+            }
         }
     }
 
@@ -205,9 +208,12 @@ public:
             accelerationModelList_.at( i )->updateMembers( currentTime );
         }
 
-        if( updateRemovedAcceleration_ && removedCentralAcceleration_ != nullptr )
+        for( unsigned int i = 0; i < updateRemovedAccelerations_.size( ); i++ )
         {
-            removedCentralAcceleration_->updateMembers( );
+            if( removedCentralAccelerations_.count( updateRemovedAccelerations_.at( i  ) ) > 0 )
+            {
+                removedCentralAccelerations_[ updateRemovedAccelerations_.at( i ) ]->updateMembers( currentTime );
+            }
         }
     }
 
@@ -303,12 +309,12 @@ public:
         }
         else
         {
-            if( removedCentralAcceleration_ != nullptr && updateRemovedAcceleration_ == false )
-            {
-                std::string errorMessage = "Error when getting total acceleration for body " + bodyName +
-                        ", central term is removed, but cannot be evaluated.";
-                throw std::runtime_error( errorMessage );
-            }
+//            if( removedCentralAcceleration_ != nullptr && updateRemovedAcceleration_ == false )
+//            {
+//                std::string errorMessage = "Error when getting total acceleration for body " + bodyName +
+//                        ", central term is removed, but cannot be evaluated.";
+//                throw std::runtime_error( errorMessage );
+//            }
 
             if( originalAccelerationModelsPerBody_.count( bodyName ) != 0 )
             {
@@ -346,14 +352,17 @@ public:
         return originalAccelerationModelsPerBody_;
     }
 
-    std::shared_ptr< gravitation::CentralGravitationalAccelerationModel3d > getRemovedCentralAcceleration( )
+    std::map< std::string, std::shared_ptr< gravitation::CentralGravitationalAccelerationModel3d > > getRemovedCentralAcceleration( )
     {
-        return removedCentralAcceleration_;
+        return removedCentralAccelerations_;
     }
 
-    void setUpdateRemovedAcceleration( )
+    void setUpdateRemovedAcceleration( const std::string bodyName )
     {
-        updateRemovedAcceleration_ = true;
+        if( removedCentralAccelerations_.count( bodyName ) > 0 )
+        {
+            updateRemovedAccelerations_.push_back( bodyName );
+        }
     }
 
 
@@ -470,9 +479,9 @@ protected:
 
     basic_astrodynamics::AccelerationMap originalAccelerationModelsPerBody_;
 
-    std::shared_ptr< gravitation::CentralGravitationalAccelerationModel3d > removedCentralAcceleration_;
+    std::map< std::string, std::shared_ptr< gravitation::CentralGravitationalAccelerationModel3d > > removedCentralAccelerations_;
 
-    bool updateRemovedAcceleration_;
+    std::vector< std::string > updateRemovedAccelerations_;
 
     // Vector of acceleration models, containing all entries of accelerationModelsPerBody_.
     std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > > accelerationModelList_;

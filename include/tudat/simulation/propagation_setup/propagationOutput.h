@@ -400,7 +400,7 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
         // Retrieve model responsible for computing accelerations of requested bodies.
         std::shared_ptr< NBodyStateDerivative< StateScalarType, TimeType > > nBodyModel =
                 getTranslationalStateDerivativeModelForBody( bodyWithProperty, stateDerivativeModels );
-        nBodyModel->setUpdateRemovedAcceleration( );
+        nBodyModel->setUpdateRemovedAcceleration( dependentVariableSettings->associatedBody_ );
         variableFunction =
                 std::bind( &NBodyStateDerivative< StateScalarType, TimeType >::getTotalAccelerationForBody, nBodyModel,
                            bodyWithProperty );
@@ -453,10 +453,17 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
             {
                 std::shared_ptr< NBodyStateDerivative< StateScalarType, TimeType > > nBodyModel =
                         getTranslationalStateDerivativeModelForBody( bodyWithProperty, stateDerivativeModels );
-                if( listOfSuitableAccelerationModels.at( 0 ) == nBodyModel->getRemovedCentralAcceleration( ) )
+                std::map< std::string, std::shared_ptr< gravitation::CentralGravitationalAccelerationModel3d > > removedAcceleration =
+                        nBodyModel->getRemovedCentralAcceleration( );
+                if( removedAcceleration.count( accelerationDependentVariableSettings->associatedBody_ ) > 0 )
                 {
-                    nBodyModel->setUpdateRemovedAcceleration( );
+                    if( listOfSuitableAccelerationModels.at( 0 ) ==
+                            removedAcceleration.at( accelerationDependentVariableSettings->associatedBody_ ) )
+                    {
+                        nBodyModel->setUpdateRemovedAcceleration( accelerationDependentVariableSettings->associatedBody_ );
+                    }
                 }
+
                 variableFunction = std::bind( &basic_astrodynamics::AccelerationModel3d::getAcceleration,
                                               listOfSuitableAccelerationModels.at( 0 ) );
                 parameterSize = 3;
@@ -1419,10 +1426,17 @@ std::function< double( ) > getDoubleDependentVariableFunction(
                 {
                     std::shared_ptr< NBodyStateDerivative< StateScalarType, TimeType > > nBodyModel =
                             getTranslationalStateDerivativeModelForBody( bodyWithProperty, stateDerivativeModels );
-                    if( listOfSuitableAccelerationModels.at( 0 ) == nBodyModel->getRemovedCentralAcceleration( ) )
+                    std::map< std::string, std::shared_ptr< gravitation::CentralGravitationalAccelerationModel3d > > removedAcceleration =
+                            nBodyModel->getRemovedCentralAcceleration( );
+                    if( removedAcceleration.count( accelerationDependentVariableSettings->associatedBody_ ) > 0 )
                     {
-                        nBodyModel->setUpdateRemovedAcceleration( );
+                        if( listOfSuitableAccelerationModels.at( 0 ) ==
+                                removedAcceleration.at( accelerationDependentVariableSettings->associatedBody_ ) )
+                        {
+                            nBodyModel->setUpdateRemovedAcceleration( accelerationDependentVariableSettings->associatedBody_ );
+                        }
                     }
+
                     std::function< Eigen::Vector3d( ) > vectorFunction =
                             std::bind( &basic_astrodynamics::AccelerationModel3d::getAcceleration,
                                        listOfSuitableAccelerationModels.at( 0 ) );
@@ -1436,7 +1450,7 @@ std::function< double( ) > getDoubleDependentVariableFunction(
             // Retrieve model responsible for computing accelerations of requested bodies.
             std::shared_ptr< NBodyStateDerivative< StateScalarType, TimeType > > nBodyModel =
                     getTranslationalStateDerivativeModelForBody( bodyWithProperty, stateDerivativeModels );
-            nBodyModel->setUpdateRemovedAcceleration( );
+            nBodyModel->setUpdateRemovedAcceleration( dependentVariableSettings->associatedBody_ );
             std::function< Eigen::Vector3d( ) > vectorFunction =
                     std::bind( &NBodyStateDerivative< StateScalarType, TimeType >::getTotalAccelerationForBody,
                                nBodyModel, bodyWithProperty );
