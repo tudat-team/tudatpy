@@ -106,7 +106,6 @@ std::vector< std::function< double( ) > > removeCentralGravityAccelerations(
                                 listOfAccelerations.at( lastCandidate ) );
                     centralBodyGravitationalParameters.at( i ) =
                             removedAcceleration->getGravitationalParameterFunction( );
-                    std::cout<<"Removing acceleration: "<<removedAcceleration<<std::endl;
 
                     // Remove central acceleration from list of accelerations that are evaluated at each time step.
                     listOfAccelerations.erase( listOfAccelerations.begin( ) + lastCandidate,

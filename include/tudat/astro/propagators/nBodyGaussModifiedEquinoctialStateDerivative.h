@@ -67,7 +67,7 @@ public:
             const std::vector< std::string >& bodiesToIntegrate ,
             const std::vector< Eigen::Matrix< StateScalarType, 6, 1 > >& initialKeplerElements ):
         NBodyStateDerivative< StateScalarType, TimeType >(
-            accelerationModelsPerBody, centralBodyData, gauss_modified_equinoctial, bodiesToIntegrate )
+            accelerationModelsPerBody, centralBodyData, gauss_modified_equinoctial, bodiesToIntegrate, true )
     {
         // Remove central gravitational acceleration from list of accelerations that is to be evaluated
         centralBodyGravitationalParameters_ =

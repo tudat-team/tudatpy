@@ -113,7 +113,8 @@ public:
     NBodyStateDerivative( const basic_astrodynamics::AccelerationMap& accelerationModelsPerBody,
                           const std::shared_ptr< CentralBodyData< StateScalarType, TimeType > > centralBodyData,
                           const TranslationalPropagatorType propagatorType,
-                          const std::vector< std::string >& bodiesToIntegrate ):
+                          const std::vector< std::string >& bodiesToIntegrate,
+                          const bool removeCentralTerm = false ):
         propagators::SingleStateTypeDerivative< StateScalarType, TimeType >(
             propagators::translational_state ),
         accelerationModelsPerBody_( accelerationModelsPerBody ),
@@ -121,7 +122,8 @@ public:
         updateRemovedAcceleration_( false ),
         centralBodyData_( centralBodyData ),
         propagatorType_( propagatorType ),
-        bodiesToBeIntegratedNumerically_( bodiesToIntegrate )
+        bodiesToBeIntegratedNumerically_( bodiesToIntegrate ),
+        removeCentralTerm_( removeCentralTerm )
     {
         originalAccelerationModelsPerBody_ = this->accelerationModelsPerBody_ ;
 
@@ -307,6 +309,7 @@ public:
                         ", central term is removed, but cannot be evaluated.";
                 throw std::runtime_error( errorMessage );
             }
+
             if( originalAccelerationModelsPerBody_.count( bodyName ) != 0 )
             {
                 basic_astrodynamics::SingleBodyAccelerationMap accelerationsOnBody =
@@ -497,6 +500,8 @@ protected:
     std::vector< Eigen::Matrix< StateScalarType, 6, 1 >  > centralBodyStatesWrtGlobalOrigin_;
 
     Eigen::Vector3d currentAccelerationComponent_;
+
+    bool removeCentralTerm_;
 
 };
 
