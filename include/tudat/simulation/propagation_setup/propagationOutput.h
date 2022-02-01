@@ -327,7 +327,6 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
         const std::map< propagators::IntegratedStateType, orbit_determination::StateDerivativePartialsMap >& stateDerivativePartials =
         std::map< propagators::IntegratedStateType, orbit_determination::StateDerivativePartialsMap >( ) )
 {
-    std::cout<<"Vec pre "<<dependentVariable<<std::endl;
     std::function< Eigen::VectorXd( ) > variableFunction;
     int parameterSize;
 
@@ -454,7 +453,6 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
             {
                 std::shared_ptr< NBodyStateDerivative< StateScalarType, TimeType > > nBodyModel =
                         getTranslationalStateDerivativeModelForBody( bodyWithProperty, stateDerivativeModels );
-                std::cout<<"Removed: "<<listOfSuitableAccelerationModels.at( 0 )<<" "<<nBodyModel->getRemovedCentralAcceleration( )<<std::endl;
                 if( listOfSuitableAccelerationModels.at( 0 ) == nBodyModel->getRemovedCentralAcceleration( ) )
                 {
                     nBodyModel->setUpdateRemovedAcceleration( );
@@ -1187,7 +1185,6 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
                 std::to_string( dependentVariableSettings->dependentVariableType_ );
         throw std::runtime_error( errorMessage );
     }
-    std::cout<<"Vec pre "<<dependentVariable<<std::endl;
     return std::make_pair( variableFunction, parameterSize );
 }
 
@@ -1247,8 +1244,6 @@ std::function< double( ) > getDoubleDependentVariableFunction(
         PropagationDependentVariables dependentVariable = dependentVariableSettings->dependentVariableType_;
         const std::string& bodyWithProperty = dependentVariableSettings->associatedBody_;
         const std::string& secondaryBody = dependentVariableSettings->secondaryBody_;
-
-        std::cout<<"Double pre "<<dependentVariable<<std::endl;
 
         // Check dependent variable type and create function accordingly.
         switch( dependentVariable )
@@ -1725,7 +1720,6 @@ std::function< double( ) > getDoubleDependentVariableFunction(
                     std::to_string( dependentVariableSettings->dependentVariableType_ );
             throw std::runtime_error( errorMessage );
         }
-        std::cout<<"Double post "<<dependentVariable<<std::endl;
 
         return variableFunction;
     }
