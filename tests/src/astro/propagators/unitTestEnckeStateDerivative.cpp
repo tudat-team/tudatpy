@@ -232,8 +232,8 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForPointMassCentralBodies )
         std::map< double, Eigen::VectorXd >::iterator cowellDependentIterator = cowellDependentVariables.begin( );
         for( unsigned int i = 0; i < enckeIntegrationResults.size( ); i++ )
         {
-            std::cout<<( ( enckeDependentIterator->second - cowellDependentIterator->second ).cwiseQuotient(
-                           cowellDependentIterator->second ) ).transpose( )<<std::endl;
+//            std::cout<<( ( enckeDependentIterator->second - cowellDependentIterator->second ).cwiseQuotient(
+//                           cowellDependentIterator->second ) ).transpose( )<<std::endl;
             for( int j= 0; j< 3; j++ )
             {
                 BOOST_CHECK_SMALL( ( enckeIterator->second - cowellIterator->second ).segment( j, 1 )( 0 ), 0.01 );
@@ -264,6 +264,11 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForPointMassCentralBodies )
             {
                 BOOST_CHECK_SMALL( ( enckeIterator->second - cowellIterator->second ).segment( j, 1 )( 0 ), 1.0E-6 );
 
+            }
+
+            for( int j = 0; j < 12; j++ )
+            {
+                BOOST_CHECK_SMALL( ( enckeDependentIterator->second - cowellDependentIterator->second )( j ), 1.0E-11 );
             }
             enckeIterator++;
             cowellIterator++;
