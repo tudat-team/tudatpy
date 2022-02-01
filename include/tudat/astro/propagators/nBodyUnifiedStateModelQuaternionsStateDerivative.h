@@ -109,7 +109,7 @@ public:
             const std::shared_ptr< CentralBodyData< StateScalarType, TimeType > > centralBodyData,
             const std::vector< std::string >& bodiesToIntegrate ):
         NBodyStateDerivative< StateScalarType, TimeType >(
-            accelerationModelsPerBody, centralBodyData, unified_state_model_quaternions, bodiesToIntegrate )
+            accelerationModelsPerBody, centralBodyData, unified_state_model_quaternions, bodiesToIntegrate, true )
     {
         // Remove central gravitational acceleration from list of accelerations that is to be evaluated
         centralBodyGravitationalParameters_ =
