@@ -183,6 +183,12 @@ void expose_environment(py::module &m) {
                  py::arg("moment_reference_point"),
                  py::arg("save_pressure_coefficients") = false );
 
+
+    m.def("save_vehicle_mesh_to_file", &ta::saveVehicleMeshToFile,
+          py::arg( "local_inclination_analysis_object" ),
+          py::arg( "output_directory" ),
+          py::arg( "output_file_prefix" ) = "" );
+
     m.def("get_local_inclination_total_vehicle_area", &ta::getTotalSurfaceArea,
           py::arg( "local_inclination_analysis_object" ) );
 
