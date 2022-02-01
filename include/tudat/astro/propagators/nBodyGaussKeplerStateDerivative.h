@@ -104,7 +104,7 @@ public:
                                      const std::shared_ptr< CentralBodyData< StateScalarType, TimeType > > centralBodyData,
                                      const std::vector< std::string >& bodiesToIntegrate ):
         NBodyStateDerivative< StateScalarType, TimeType >(
-            accelerationModelsPerBody, centralBodyData, gauss_keplerian, bodiesToIntegrate )
+            accelerationModelsPerBody, centralBodyData, gauss_keplerian, bodiesToIntegrate, true )
     {
         currentTrueAnomalies_.resize( bodiesToIntegrate.size( ) );
 

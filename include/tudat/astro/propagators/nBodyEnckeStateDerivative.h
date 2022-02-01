@@ -73,7 +73,7 @@ public:
                                const std::vector< Eigen::Matrix< StateScalarType, 6, 1 > >& initialKeplerElements,
                                const TimeType& initialTime ):
         NBodyStateDerivative< StateScalarType, TimeType >(
-            accelerationModelsPerBody, centralBodyData, encke, bodiesToIntegrate ),
+            accelerationModelsPerBody, centralBodyData, encke, bodiesToIntegrate, true ),
         initialKeplerElements_( initialKeplerElements ),
         initialTime_( initialTime ),
         currentKeplerOrbitTime_( TUDAT_NAN )
@@ -85,7 +85,7 @@ public:
                 removeCentralGravityAccelerations(
                     centralBodyData->getCentralBodies( ), this->bodiesToBeIntegratedNumerically_,
                     this->accelerationModelsPerBody_, this->removedCentralAcceleration_ );
-        std::cout<<"Removed acceleration in class: "<<this->removedCentralAcceleration_ <<std::endl;
+
         // Create root-finder for Kepler orbit propagation
         rootFinder_ = root_finders::createRootFinder< StateScalarType >(
                     root_finders::newtonRaphsonRootFinderSettings(
