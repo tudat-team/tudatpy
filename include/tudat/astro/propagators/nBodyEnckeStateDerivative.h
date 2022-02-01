@@ -84,7 +84,7 @@ public:
         centralBodyGravitationalParameters_ =
                 removeCentralGravityAccelerations(
                     centralBodyData->getCentralBodies( ), this->bodiesToBeIntegratedNumerically_,
-                    this->accelerationModelsPerBody_, this->removedCentralAcceleration_ );
+                    this->accelerationModelsPerBody_, this->removedCentralAccelerations_ );
 
         // Create root-finder for Kepler orbit propagation
         rootFinder_ = root_finders::createRootFinder< StateScalarType >(

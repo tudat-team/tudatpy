@@ -117,7 +117,7 @@ public:
         centralBodyGravitationalParameters_ =
                 removeCentralGravityAccelerations(
                     centralBodyData->getCentralBodies( ), this->bodiesToBeIntegratedNumerically_,
-                    this->accelerationModelsPerBody_, this->removedCentralAcceleration_ );
+                    this->accelerationModelsPerBody_, this->removedCentralAccelerations_ );
         this->createAccelerationModelList( );
     }
 
