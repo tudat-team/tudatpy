@@ -275,6 +275,9 @@ void expose_estimation(py::module &m) {
             .def_property_readonly("weighted_normalized_design_matrix",
                                    &tss::PodOutput<double, double>::getNormalizedWeightedInformationMatrix,
                                    get_docstring("PodOutput.weighted_normalized_design_matrix").c_str() )
+            .def_readonly("normalization_terms",
+                                   &tss::PodOutput<double, double>::informationMatrixTransformationDiagonal_,
+                                   get_docstring("PodOutput.normalization_terms").c_str() )
             .def_readonly("final_residuals",
                                    &tss::PodOutput<double, double>::residuals_,
                                    get_docstring("PodOutput.final_residuals").c_str() );
