@@ -213,6 +213,13 @@ public:
         return observationSetList_;
     }
 
+    std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > getSingleLinkAndTypeObservationSets(
+            const ObservableType observableType,
+            const LinkEnds linkEnds )
+    {
+        return observationSetList_.at( observableType ).at( linkEnds );
+    }
+
     Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > getSingleLinkObservations(
             const ObservableType observableType,
             const LinkEnds& linkEnds )
