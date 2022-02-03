@@ -17,6 +17,7 @@
 #include <tudat/astro/gravitation.h>
 #include "tudat/astro/ground_stations/groundStation.h"
 #include "tudat/simulation/environment_setup/body.h"
+#include "tudat/simulation/estimation_setup/simulateObservations.h"
 
 
 #include <pybind11/chrono.h>
@@ -476,6 +477,14 @@ void expose_environment(py::module &m) {
                  &tgs::PointingAnglesCalculator::convertVectorFromInertialToTopocentricFrame,
                  py::arg( "inertial_vector" ),
                  py::arg( "time" ) );
+
+    m.def("ground_station_angles_and_range",
+          &tss::getTargetAnglesAndRange,
+          py::arg("bodies"),
+          py::arg("ground_station_id"),
+          py::arg("target_body"),
+          py::arg("times"),
+          py::arg("transmitting_to_target") = true );
 
 
     /*!

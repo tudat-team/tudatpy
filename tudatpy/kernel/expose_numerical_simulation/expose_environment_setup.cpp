@@ -205,13 +205,6 @@ namespace environment_setup {
               &tss::getGroundStationsLinkEndList,
               py::arg( "body" ) );
 
-        m.def("get_target_elevation_angles",
-              &tss::getTargetElevationAngles,
-              py::arg( "observing_body" ),
-              py::arg( "target_body" ),
-              py::arg( "station_name" ),
-              py::arg( "times" ) );
-
 
         auto aerodynamic_coefficient_setup = m.def_submodule("aerodynamic_coefficients");
         aerodynamic_coefficients::expose_aerodynamic_coefficient_setup(aerodynamic_coefficient_setup);
