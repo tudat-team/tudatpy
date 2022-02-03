@@ -193,6 +193,18 @@ public:
         return concatenatedTimes_;
     }
 
+    std::vector< int > getConcatenatedLinkEndIds( )
+    {
+        return concatenatedLinkEndIds_;
+    }
+
+    std::map< observation_models::LinkEnds, int > getLinkEndIdentifierMap( )
+    {
+        return linkEndIds_;
+    }
+
+
+
     std::map< ObservableType, std::map< LinkEnds, std::vector< std::pair< int, int > > > > getObservationSetStartAndSize( )
     {
         return observationSetStartAndSize_;
@@ -326,8 +338,12 @@ private:
     {
         concatenatedObservations_ = Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >::Zero( totalObservableSize_ );
         concatenatedTimes_.resize( totalObservableSize_ );
+        concatenatedLinkEndIds_.resize( totalObservableSize_ );
+
 
         int observationCounter = 0;
+        int maximumStationId = 0;
+        int currentStationId;
 
         for( auto observationIterator : observationSetList_ )
         {
@@ -337,6 +353,17 @@ private:
             for( auto linkEndIterator : observationIterator.second )
             {
                 LinkEnds currentLinkEnds = linkEndIterator.first;
+                if( linkEndIds_.count( currentLinkEnds ) == 0 )
+                {
+                    linkEndIds_[ currentLinkEnds ] = maximumStationId;
+                    currentStationId = maximumStationId;
+                    maximumStationId++;
+                }
+                else
+                {
+                    currentStationId = linkEndIds_[ currentLinkEnds ];
+                }
+
                 for( unsigned int i = 0; i < linkEndIterator.second.size( ); i++ )
                 {
                     std::pair< int, int > startAndSize =
@@ -353,6 +380,7 @@ private:
                         for( int k = 0; k < observableSize; k++ )
                         {
                             concatenatedTimes_[ observationCounter ] = currentObservationTimes.at( j );
+                            concatenatedLinkEndIds_[ observationCounter ] = currentStationId;
                             observationCounter++;
                         }
                     }
@@ -368,6 +396,9 @@ private:
 
     std::vector< TimeType > concatenatedTimes_;
 
+    std::vector< int > concatenatedLinkEndIds_;
+
+    std::map< observation_models::LinkEnds, int > linkEndIds_;
 
     std::map< ObservableType, std::map< LinkEnds, std::vector< std::pair< int, int > > > > observationSetStartAndSize_;
 
