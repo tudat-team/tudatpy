@@ -390,11 +390,12 @@ void AerodynamicAngleCalculator::setOrientationAngleFunctions(
         const std::function< double( ) > angleOfAttackFunction,
         const std::function< double( ) > angleOfSideslipFunction,
         const std::function< double( ) > bankAngleFunction,
-        const std::function< void( const double ) > angleUpdateFunction )
+        const std::function< void( const double ) > angleUpdateFunction,
+        const bool silenceWarnings )
 {
     if( !( angleOfAttackFunction == nullptr ) )
     {
-        if( !( angleOfAttackFunction_ == nullptr ) )
+        if( !( angleOfAttackFunction_ == nullptr ) && !silenceWarnings )
         {
             std::cerr << "Warning, overriding existing angle of attack function in AerodynamicAngleCalculator" << std::endl;
         }
@@ -403,7 +404,7 @@ void AerodynamicAngleCalculator::setOrientationAngleFunctions(
 
     if( !( angleOfSideslipFunction == nullptr ) )
     {
-        if( !( angleOfSideslipFunction_ == nullptr ) )
+        if( !( angleOfSideslipFunction_ == nullptr ) && !silenceWarnings  )
         {
             std::cerr << "Warning, overriding existing angle of sideslip function in AerodynamicAngleCalculator" << std::endl;
         }
@@ -412,7 +413,7 @@ void AerodynamicAngleCalculator::setOrientationAngleFunctions(
 
     if( !( bankAngleFunction == nullptr ) )
     {
-        if( !( bankAngleFunction_ == nullptr ) )
+        if( !( bankAngleFunction_ == nullptr ) && !silenceWarnings  )
         {
             std::cerr << "Warning, overriding existing bank angle function in AerodynamicAngleCalculator" << std::endl;
         }
@@ -421,7 +422,7 @@ void AerodynamicAngleCalculator::setOrientationAngleFunctions(
 
     if( !( angleUpdateFunction == nullptr ) )
     {
-        if( !( angleUpdateFunction_ == nullptr ) )
+        if( !( angleUpdateFunction_ == nullptr ) && !silenceWarnings  )
         {
             std::cerr << "Warning, overriding existing aerodynamic angle update function in AerodynamicAngleCalculator" << std::endl;
         }
@@ -433,7 +434,8 @@ void AerodynamicAngleCalculator::setOrientationAngleFunctions(
 void AerodynamicAngleCalculator::setOrientationAngleFunctions(
         const double angleOfAttack,
         const double angleOfSideslip,
-        const double bankAngle )
+        const double bankAngle,
+        const bool silenceWarnings )
 {
     std::function< double( ) > angleOfAttackFunction =
             ( ( angleOfAttack == angleOfAttack ) ? [ = ]( ){ return angleOfAttack; } : std::function< double( ) >( ) );
@@ -441,7 +443,7 @@ void AerodynamicAngleCalculator::setOrientationAngleFunctions(
             ( ( angleOfSideslip == angleOfSideslip ) ? [ = ]( ){ return angleOfSideslip; } : std::function< double( ) >( ) );
     std::function< double( ) > bankAngleFunction =
             ( ( bankAngle == bankAngle ) ? [ = ]( ){ return bankAngle; }: std::function< double( ) >( ) );
-    setOrientationAngleFunctions( angleOfAttackFunction, angleOfSideslipFunction, bankAngleFunction );
+    setOrientationAngleFunctions( angleOfAttackFunction, angleOfSideslipFunction, bankAngleFunction, nullptr, silenceWarnings );
 }
 
 //! Get a function to transform aerodynamic force from local to propagation frame.

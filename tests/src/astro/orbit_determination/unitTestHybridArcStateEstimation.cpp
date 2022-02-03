@@ -84,6 +84,7 @@ Eigen::VectorXd  executeParameterEstimation(
     bodies.at( "Orbiter" )->setEphemeris( std::make_shared< MultiArcEphemeris >(
                                             std::map< double, std::shared_ptr< Ephemeris > >( ),
                                             "Mars", "ECLIPJ2000" ) );
+    bodies.processBodyFrameDefinitions( );
 
     // Create and set radiation pressure settings
     double referenceAreaRadiation = 4.0;
@@ -113,9 +114,9 @@ Eigen::VectorXd  executeParameterEstimation(
     // Set accelerations to act on Mars
     SelectedAccelerationMap singleArcAccelerationMap;
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfMars;
-    accelerationsOfMars[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
-    accelerationsOfMars[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
-    accelerationsOfMars[ "Jupiter" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+    accelerationsOfMars[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
+    accelerationsOfMars[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
+    accelerationsOfMars[ "Jupiter" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
     singleArcAccelerationMap[ "Mars" ] = accelerationsOfMars;
 
     std::vector< std::string > singleArcBodiesToIntegrate, singleArcCentralBodies;
@@ -140,9 +141,9 @@ Eigen::VectorXd  executeParameterEstimation(
     SelectedAccelerationMap multiArcAccelerationMap;
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfOrbiter;
     accelerationsOfOrbiter[ "Mars" ].push_back( std::make_shared< SphericalHarmonicAccelerationSettings >( 2, 2 ) );
-    accelerationsOfOrbiter[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+    accelerationsOfOrbiter[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
     accelerationsOfOrbiter[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( cannon_ball_radiation_pressure ) );
-    accelerationsOfOrbiter[ "Jupiter" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+    accelerationsOfOrbiter[ "Jupiter" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
     multiArcAccelerationMap[ "Orbiter" ] = accelerationsOfOrbiter;
 
     std::vector< std::string > multiArcBodiesToIntegrate, multiArcCentralBodies;
