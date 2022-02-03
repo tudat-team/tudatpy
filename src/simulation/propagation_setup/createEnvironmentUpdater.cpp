@@ -307,9 +307,9 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                 // Check acceleration model type and change environment update list accordingly.
                 switch( currentAccelerationModelType )
                 {
-                case central_gravity:
+                case point_mass_gravity:
                     break;
-                case third_body_central_gravity:
+                case third_body_point_mass_gravity:
                 {
                     std::shared_ptr< gravitation::ThirdBodyCentralGravityAcceleration >
                             thirdBodyAcceleration = std::dynamic_pointer_cast<
@@ -821,6 +821,8 @@ std::vector< std::string > > createEnvironmentUpdaterSettingsForDependentVariabl
         break;
     case radiation_pressure_coefficient_dependent_variable:
         variablesToUpdate[ radiation_pressure_interface_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
+        break;
+    case custom_dependent_variable:
         break;
     default:
         throw std::runtime_error( "Error when getting environment updates for dependent variables, parameter " +

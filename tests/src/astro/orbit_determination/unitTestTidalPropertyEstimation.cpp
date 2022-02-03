@@ -99,9 +99,9 @@ BOOST_AUTO_TEST_CASE( test_DissipationParameterEstimation )
         {
             std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfSatellite;
             accelerationsOfSatellite[ "Jupiter" ].push_back( std::make_shared< AccelerationSettings >(
-                                                                 central_gravity ) );
+                                                                 point_mass_gravity ) );
             accelerationsOfSatellite[ "Sun" ].push_back( std::make_shared< AccelerationSettings >(
-                                                             central_gravity ) );
+                                                             point_mass_gravity ) );
             accelerationsOfSatellite[ "Jupiter" ].push_back( std::make_shared< DirectTidalDissipationAccelerationSettings >(
                                                                  satelliteLoveNumber, satelliteTimeLag, false, false ) );
             accelerationsOfSatellite[ "Jupiter" ].push_back( std::make_shared< DirectTidalDissipationAccelerationSettings >(
@@ -111,7 +111,7 @@ BOOST_AUTO_TEST_CASE( test_DissipationParameterEstimation )
                 if( i != j )
                 {
                     accelerationsOfSatellite[ satelliteNames.at( j ) ].push_back(
-                                std::make_shared< AccelerationSettings >( central_gravity ) );
+                                std::make_shared< AccelerationSettings >( point_mass_gravity ) );
                 }
             }
             accelerationMap[ satelliteNames.at( i ) ] = accelerationsOfSatellite;
@@ -349,19 +349,15 @@ BOOST_AUTO_TEST_CASE( test_LoveNumberEstimationFromOrbiterData )
     bodySettings.at( "Earth" )->gravityFieldVariationSettings = getEarthGravityFieldVariationSettings( );
     SystemOfBodies bodies = createSystemOfBodies( bodySettings );
     bodies.createEmptyBody( "Vehicle" );
-    bodies.at( "Vehicle" )->setEphemeris( std::make_shared< TabulatedCartesianEphemeris< > >(
-                                            std::shared_ptr< interpolators::OneDimensionalInterpolator
-                                            < double, Eigen::Vector6d > >( ), "Earth", "ECLIPJ2000" ) );
-
 
     // Set accelerations on Vehicle that are to be taken into account.
     SelectedAccelerationMap accelerationMap;
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
     accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< SphericalHarmonicAccelerationSettings >( 3, 3 ) );
     accelerationsOfVehicle[ "Sun" ].push_back( std::make_shared< AccelerationSettings >(
-                                                   basic_astrodynamics::central_gravity ) );
+                                                   basic_astrodynamics::point_mass_gravity ) );
     accelerationsOfVehicle[ "Moon" ].push_back( std::make_shared< AccelerationSettings >(
-                                                    basic_astrodynamics::central_gravity ) );
+                                                    basic_astrodynamics::point_mass_gravity ) );
     accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
 
     // Set bodies for which initial state is to be estimated and integrated.

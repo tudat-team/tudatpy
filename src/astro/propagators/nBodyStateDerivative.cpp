@@ -19,7 +19,8 @@ namespace propagators
 //! Function to remove the central gravity acceleration from an AccelerationMap
 std::vector< std::function< double( ) > > removeCentralGravityAccelerations(
         const std::vector< std::string >& centralBodies, const std::vector< std::string >& bodiesToIntegrate,
-        basic_astrodynamics::AccelerationMap& accelerationModelsPerBody )
+        basic_astrodynamics::AccelerationMap& accelerationModelsPerBody,
+        std::map< std::string, std::shared_ptr< gravitation::CentralGravitationalAccelerationModel3d > >& removedAcceleration )
 {
     using namespace basic_astrodynamics;
     using namespace gravitation;
@@ -56,7 +57,7 @@ std::vector< std::function< double( ) > > removeCentralGravityAccelerations(
                 AvailableAcceleration currentAccelerationType = getAccelerationModelType( listOfAccelerations[ j ] );
 
                 // If central gravity, set as central acceleration candidate.
-                if( currentAccelerationType == central_gravity )
+                if( currentAccelerationType == point_mass_gravity )
                 {
                     numberOfCandidates++;
                     lastCandidate = j;
@@ -67,7 +68,7 @@ std::vector< std::function< double( ) > > removeCentralGravityAccelerations(
                     numberOfCandidates++;
                     lastCandidate = j;
                 }
-                else if( ( currentAccelerationType == third_body_central_gravity ) ||
+                else if( ( currentAccelerationType == third_body_point_mass_gravity ) ||
                          ( currentAccelerationType == third_body_spherical_harmonic_gravity ) )
                 {
                     std::string errorMessage =
@@ -101,9 +102,10 @@ std::vector< std::function< double( ) > > removeCentralGravityAccelerations(
                 if( !isLastCandidateSphericalHarmonic )
                 {
                     // Set central body gravitational parameter (used for Kepler orbit propagation)
+                    removedAcceleration[ bodiesToIntegrate.at( i ) ] = std::dynamic_pointer_cast< CentralGravitationalAccelerationModel3d >(
+                                listOfAccelerations.at( lastCandidate ) );
                     centralBodyGravitationalParameters.at( i ) =
-                            std::dynamic_pointer_cast< CentralGravitationalAccelerationModel3d >(
-                                listOfAccelerations.at( lastCandidate ) )->getGravitationalParameterFunction( );
+                            removedAcceleration[ bodiesToIntegrate.at( i ) ]->getGravitationalParameterFunction( );
 
                     // Remove central acceleration from list of accelerations that are evaluated at each time step.
                     listOfAccelerations.erase( listOfAccelerations.begin( ) + lastCandidate,

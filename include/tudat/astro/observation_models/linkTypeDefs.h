@@ -28,6 +28,7 @@ namespace observation_models
 enum LinkEndType
 {
     unidentified_link_end = -1,
+    default_link_end = unidentified_link_end,
     transmitter = 0,
     reflector1 = 1,
     reflector = reflector1,

@@ -96,13 +96,13 @@ executeEarthMoonSimulation(
     // Set accelerations between bodies that are to be taken into account.
     SelectedAccelerationMap accelerationMap;
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfEarth;
-    accelerationsOfEarth[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
-    accelerationsOfEarth[ "Moon" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+    accelerationsOfEarth[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
+    accelerationsOfEarth[ "Moon" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
     accelerationMap[ "Earth" ] = accelerationsOfEarth;
 
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfMoon;
-    accelerationsOfMoon[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
-    accelerationsOfMoon[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+    accelerationsOfMoon[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
+    accelerationsOfMoon[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
     accelerationMap[ "Moon" ] = accelerationsOfMoon;
 
     // Set bodies for which initial state is to be estimated and integrated.
@@ -324,8 +324,8 @@ BOOST_AUTO_TEST_CASE( testEarthMoonVariationalEquationCalculation )
                         ( upPerturbedState - downPerturbedState ) / ( 2.0 * parameterPerturbation( j ) );
             }
 
-            std::cout<<"Run "<<i<<std::endl<<stateTransitionAndSensitivityMatrixAtEpoch<<std::endl;
-            std::cout<<"Run "<<i<<std::endl<<manualPartial<<std::endl;
+//            std::cout<<"Run "<<i<<std::endl<<stateTransitionAndSensitivityMatrixAtEpoch<<std::endl;
+//            std::cout<<"Run "<<i<<std::endl<<manualPartial<<std::endl;
 
             // Check results
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
@@ -392,24 +392,17 @@ executeOrbiterSimulation(
                 "Sun", createRadiationPressureInterface(
                     asterixRadiationPressureSettings, "Vehicle", bodies ) );
 
-    bodies.at( "Vehicle" )->setEphemeris( std::make_shared< TabulatedCartesianEphemeris< > >(
-                                              std::shared_ptr< interpolators::OneDimensionalInterpolator
-                                              < double, Eigen::Vector6d > >( ), "Earth", "ECLIPJ2000" ) );
-
-
-
-
     // Set accelerations on Vehicle that are to be taken into account.
     SelectedAccelerationMap accelerationMap;
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
     accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< SphericalHarmonicAccelerationSettings >( 8, 8 ) );
 
     accelerationsOfVehicle[ "Sun" ].push_back( std::make_shared< AccelerationSettings >(
-                                                   basic_astrodynamics::central_gravity ) );
+                                                   basic_astrodynamics::point_mass_gravity ) );
     accelerationsOfVehicle[ "Moon" ].push_back( std::make_shared< AccelerationSettings >(
-                                                    basic_astrodynamics::central_gravity ) );
+                                                    basic_astrodynamics::point_mass_gravity ) );
     accelerationsOfVehicle[ "Mars" ].push_back( std::make_shared< AccelerationSettings >(
-                                                    basic_astrodynamics::central_gravity ) );
+                                                    basic_astrodynamics::point_mass_gravity ) );
     accelerationsOfVehicle[ "Sun" ].push_back( std::make_shared< AccelerationSettings >(
                                                    basic_astrodynamics::cannon_ball_radiation_pressure ) );
     accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< AccelerationSettings >(
@@ -710,7 +703,7 @@ executePhobosRotationSimulation(
 
     SelectedAccelerationMap accelerationMap;
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfEarth;
-    //    accelerationMap[ "Phobos" ][ "Mars" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+    //    accelerationMap[ "Phobos" ][ "Mars" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
     accelerationMap[ "Phobos" ][ "Mars" ].push_back( std::make_shared< MutualSphericalHarmonicAccelerationSettings >( 2, 2, 2, 2 ) );
 
     std::vector< std::string > translationalBodiesToIntegrate;
@@ -801,8 +794,8 @@ executePhobosRotationSimulation(
     Eigen::MatrixXd constraintStateMultiplier;
     Eigen::VectorXd constraintRightHandSide;
     parametersToEstimate->getConstraints( constraintStateMultiplier, constraintRightHandSide );
-    std::cout<<"Unit rotation: "<<std::endl<<unitRotationState.transpose( )<<std::endl;
-    std::cout<<"Constraints: "<<std::endl<<constraintStateMultiplier.transpose( )<<std::endl;
+//    std::cout<<"Unit rotation: "<<std::endl<<unitRotationState.transpose( )<<std::endl;
+//    std::cout<<"Constraints: "<<std::endl<<constraintStateMultiplier.transpose( )<<std::endl;
 
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                 ( constraintStateMultiplier.block( 0, 0, 1, 4 ) ), ( unitRotationState.segment( 0, 4 ) ).transpose( ),
@@ -905,8 +898,8 @@ BOOST_AUTO_TEST_CASE( testPhobosRotationVariationalEquationCalculation )
     Eigen::MatrixXd stateTransitionAndSensitivityMatrixAtEpoch = currentOutput.first.at( 0 );
     Eigen::VectorXd nominalState = currentOutput.second.at( 0 );
 
-    std::cout<<"Nominal "<<std::endl<<std::endl<<
-               stateTransitionAndSensitivityMatrixAtEpoch<<std::endl;
+//    std::cout<<"Nominal "<<std::endl<<std::endl<<
+//               stateTransitionAndSensitivityMatrixAtEpoch<<std::endl;
     // Define state perturbation
     statePerturbation = ( Eigen::Matrix< double, 13, 1>( ) <<
                           10.0, 10.0, 10.0, 0.1, 0.01, 0.01,
@@ -944,7 +937,7 @@ BOOST_AUTO_TEST_CASE( testPhobosRotationVariationalEquationCalculation )
                         ( stateTransitionAndSensitivityMatrixAtEpoch.block( 0, 0, 13, 13 ) * appliedStateDifferenceUp );
                 TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                             ( testMatrix.segment( 0, 6 ) ),
-                            ( stateDifferenceUp.segment( 0, 6 ) ), 1.0E-3 );
+                            ( stateDifferenceUp.segment( 0, 6 ) ), 1.5E-3 );
             }
             else
             {
@@ -1020,7 +1013,7 @@ BOOST_AUTO_TEST_CASE( testPhobosRotationVariationalEquationCalculation )
         perturbedParameter.setZero( );
         perturbedParameter( j ) += parameterPerturbation( j );
 
-        std::cout<<"Test "<<j<<" "<<perturbedParameter.transpose( )<<std::endl;
+//        std::cout<<"Test "<<j<<" "<<perturbedParameter.transpose( )<<std::endl;
 
         upPerturbedState = executePhobosRotationSimulation< double, double >(
                     perturbedState, appliedStateDifference, perturbedParameter, 0 ).second.at( 0 );
@@ -1033,10 +1026,10 @@ BOOST_AUTO_TEST_CASE( testPhobosRotationVariationalEquationCalculation )
         manualPartial.block( 0, j + 13, 13, 1 ) =
                 ( upPerturbedState.segment( 0, 13 ) - downPerturbedState.segment( 0, 13 ) ) / ( 2.0 * parameterPerturbation( j ) );
     }
-    std::cout<<manualPartial<<std::endl<<std::endl
-            <<stateTransitionAndSensitivityMatrixAtEpoch<<std::endl<<std::endl<<
-              ( manualPartial - stateTransitionAndSensitivityMatrixAtEpoch ).cwiseQuotient(
-                  stateTransitionAndSensitivityMatrixAtEpoch )<<std::endl;
+//    std::cout<<manualPartial<<std::endl<<std::endl
+//            <<stateTransitionAndSensitivityMatrixAtEpoch<<std::endl<<std::endl<<
+//              ( manualPartial - stateTransitionAndSensitivityMatrixAtEpoch ).cwiseQuotient(
+//                  stateTransitionAndSensitivityMatrixAtEpoch )<<std::endl;
 
     // Check three values separately: could not find perturbations for which all partials are sufficiently within the linear regime
 
@@ -1073,9 +1066,6 @@ BOOST_AUTO_TEST_CASE( testMassRateVariationalEquations )
     bodies.createEmptyBody( "Asterix" );
     double initialBodyMass = 2000.0;
     bodies.getBody( "Asterix" )->setConstantBodyMass( initialBodyMass );
-    bodies.getBody( "Asterix" )->setEphemeris( std::make_shared< TabulatedCartesianEphemeris< > >(
-                                                   std::shared_ptr< interpolators::OneDimensionalInterpolator
-                                                   < double, Eigen::Vector6d > >( ), "Earth", "J2000" ) );
 
     Eigen::MatrixXd finalStateTransitionTranslationalOnly;
     Eigen::MatrixXd finalStateTransitionCoupled;
@@ -1091,7 +1081,7 @@ BOOST_AUTO_TEST_CASE( testMassRateVariationalEquations )
         // Define propagation settings.
         std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfAsterix;
         accelerationsOfAsterix[ "Earth" ].push_back( std::make_shared< AccelerationSettings >(
-                                                         basic_astrodynamics::central_gravity ) );
+                                                         basic_astrodynamics::point_mass_gravity ) );
         accelerationsOfAsterix[ "Asterix" ].push_back( std::make_shared< ThrustAccelerationSettings >(
                                                            std::make_shared< ThrustDirectionFromStateGuidanceSettings >(
                                                                "Earth", true, false  ),

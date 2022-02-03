@@ -199,8 +199,7 @@ double marsTimeDependentPhaseAngleCorrectionFunction( const double secondsSinceJ
 }
 
 // Mars orientation parameter solution from the MRO120D gravity field (A.S. Konopliv et al. 2016)
-std::shared_ptr< RotationModelSettings > getHighAccuracyMarsRotationModel(
-        const double initialTime, const double finalTime  )
+std::shared_ptr< RotationModelSettings > getHighAccuracyMarsRotationModel( )
 {
     std::shared_ptr< RotationModelSettings > rotationModelSettings;
 
@@ -263,7 +262,8 @@ std::shared_ptr< RotationModelSettings > getHighAccuracyMarsRotationModel(
                 convertDegreesToRadians( 350.891985307 ) / physical_constants::JULIAN_DAY,
                 0.07,
                 convertDegreesToRadians( -1.5 ) / physical_constants::JULIAN_DAY,
-                "ECLIPJ2000", "Mars_Fixed", "Sun", initialTime, finalTime, 150.0, nutationCorrectionSettings,
+                "ECLIPJ2000", "Mars_Fixed", "Sun",
+                nutationCorrectionSettings,
                 meanMotionTimeDependentPhaseNutationCorrections, timeDependentPhaseCorrectionFunctions, rotationRateCorrections,
                 xPolarMotionCoefficients, yPolarMotionCoefficients );
 

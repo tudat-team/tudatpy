@@ -83,7 +83,14 @@ public:
      */
     void setParameterValue( Eigen::VectorXd parameterValue )
     {
-        resetCurrentBias_( parameterValue );
+        if( resetCurrentBias_ != nullptr )
+        {
+            resetCurrentBias_( parameterValue );
+        }
+        else
+        {
+            throwExceptionIfNotFullyDefined( );
+        }
     }
 
     //! Function to retrieve the size of the parameter (equal to the size of the observable).
@@ -115,6 +122,20 @@ public:
 
         getCurrentBias_ = getCurrentBias;
         resetCurrentBias_ = resetCurrentBias;
+    }
+
+    void throwExceptionIfNotFullyDefined( )
+    {
+        if( getCurrentBias_ == nullptr || resetCurrentBias_ == nullptr )
+        {
+            throw std::runtime_error(
+                        "Error in " + getParameterTypeString( parameterName_.first ) +
+                        " of observable type " + observation_models::getObservableName(
+                            observableType_, linkEnds_.size( ) ) +
+                        " with link ends: " + observation_models::getLinkEndsString( linkEnds_ ) +
+                        " parameter not linked to bias object. Associated bias model been implemented in observation model. " +
+                        " This may be because you are resetting the parameter value before creating observation models, or because you have not defined the required bias model.");
+        }
     }
 
     //! Function to retrieve the observation link ends for which the bias is active.
@@ -242,12 +263,19 @@ public:
     {
         std::vector< Eigen::VectorXd > observationBiases;
 
-        for( int i = 0; i < numberOfArcs_; i++ )
+        if( resetBiasList_ != nullptr )
         {
-           observationBiases.push_back( parameterValue.segment( i * observableSize_, observableSize_ ) );
-        }
+            for( int i = 0; i < numberOfArcs_; i++ )
+            {
+                observationBiases.push_back( parameterValue.segment( i * observableSize_, observableSize_ ) );
+            }
 
-        resetBiasList_( observationBiases );
+            resetBiasList_( observationBiases );
+        }
+        else
+        {
+            throwExceptionIfNotFullyDefined( );
+        }
     }
 
     //! Function to retrieve the size of the parameter (equal to the size of the observable).
@@ -346,6 +374,19 @@ public:
     void setLookupScheme( const std::shared_ptr< interpolators::LookUpScheme< double > > lookupScheme )
     {
         lookupScheme_ = lookupScheme;
+    }
+
+    void throwExceptionIfNotFullyDefined( )
+    {
+        if( getBiasList_ == nullptr || resetBiasList_ == nullptr )
+        {
+            throw std::runtime_error(
+                        "Error in " + getParameterTypeString( parameterName_.first ) +
+                        " of observable type " + observation_models::getObservableName(
+                            observableType_, linkEnds_.size( ) ) +
+                        " with link ends: " + observation_models::getLinkEndsString( linkEnds_ ) +
+                        " parameter not linked to bias object. Has associated bias model been implemented in observation model?");
+        }
     }
 
 protected:

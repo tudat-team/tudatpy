@@ -124,7 +124,8 @@ public:
             const TimeStepType safetyFactorForNextStepSize = 0.8,
             const TimeStepType maximumFactorIncreaseForNextStepSize = 4.0,
             const TimeStepType minimumFactorDecreaseForNextStepSize = 0.1,
-            const NewStepSizeFunction& newStepSizeFunction = 0 ) :
+            const NewStepSizeFunction& newStepSizeFunction = 0,
+            const bool exceptionIfMinimumStepExceeded = true ) :
         ReinitializableNumericalIntegratorBase( stateDerivativeFunction ),
         currentIndependentVariable_( intervalStart ),
         currentState_( initialState ),
@@ -137,7 +138,8 @@ public:
         safetyFactorForNextStepSize_( std::fabs( static_cast< double >( safetyFactorForNextStepSize ) ) ),
         maximumFactorIncreaseForNextStepSize_( std::fabs( static_cast< double >( maximumFactorIncreaseForNextStepSize ) ) ),
         minimumFactorDecreaseForNextStepSize_( std::fabs( static_cast< double >( minimumFactorDecreaseForNextStepSize ) ) ),
-        newStepSizeFunction_( newStepSizeFunction ), useStepSizeControl_( true )
+        newStepSizeFunction_( newStepSizeFunction ), exceptionIfMinimumStepExceeded_( exceptionIfMinimumStepExceeded ),
+        useStepSizeControl_( true )
     {
         if( !( currentState_.rows( ) == relativeErrorTolerance_.rows( ) ) ||
                 !( currentState_.cols( ) == relativeErrorTolerance_.cols( ) ) )
@@ -197,7 +199,8 @@ public:
             const TimeStepType safetyFactorForNextStepSize = 0.8,
             const TimeStepType maximumFactorIncreaseForNextStepSize = 4.0,
             const TimeStepType minimumFactorDecreaseForNextStepSize = 0.1,
-            const NewStepSizeFunction& newStepSizeFunction = 0 ) :
+            const NewStepSizeFunction& newStepSizeFunction = 0,
+            const bool exceptionIfMinimumStepExceeded = true  ) :
         ReinitializableNumericalIntegratorBase( stateDerivativeFunction ),
         currentIndependentVariable_( intervalStart ),
         currentState_( initialState ),
@@ -212,7 +215,9 @@ public:
         safetyFactorForNextStepSize_( std::fabs( static_cast< double >( safetyFactorForNextStepSize ) ) ),
         maximumFactorIncreaseForNextStepSize_( std::fabs( static_cast< double >( maximumFactorIncreaseForNextStepSize ) ) ),
         minimumFactorDecreaseForNextStepSize_( std::fabs( static_cast< double >( minimumFactorDecreaseForNextStepSize ) ) ),
-        newStepSizeFunction_( newStepSizeFunction ), useStepSizeControl_( true )
+        newStepSizeFunction_( newStepSizeFunction ),
+        exceptionIfMinimumStepExceeded_( exceptionIfMinimumStepExceeded ),
+        useStepSizeControl_( true )
     {
         // Set default newStepSizeFunction_ to the class method.
         if ( newStepSizeFunction_ == 0 )
@@ -494,6 +499,8 @@ protected:
      */
     std::vector< StateDerivativeType > currentStateDerivatives_;
 
+    bool exceptionIfMinimumStepExceeded_;
+
     //! Boolean denoting whether step size control is to be used
     bool useStepSizeControl_;
 
@@ -629,8 +636,16 @@ RungeKuttaVariableStepSizeIntegrator< IndependentVariableType, StateType, StateD
         // Check if minimum step size is violated and throw exception if necessary.
         if ( std::fabs( this->stepSize_ ) < std::fabs( this->minimumStepSize_ ) )
         {
-            throw MinimumStepSizeExceededError( std::fabs( this->minimumStepSize_ ),
-                                                std::fabs( this->stepSize_ ) );
+            if( exceptionIfMinimumStepExceeded_ )
+            {
+                throw MinimumStepSizeExceededError( std::fabs( this->minimumStepSize_ ),
+                                                    std::fabs( this->stepSize_ ) );
+            }
+            else
+            {
+                this->stepSize_ = stepSize / std::fabs( stepSize ) * std::fabs( this->minimumStepSize_ );
+                return true;
+            }
         }
         else if( std::fabs( this->stepSize_ ) > std::fabs( this->maximumStepSize_ ) )
         {
