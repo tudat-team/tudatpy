@@ -69,6 +69,9 @@ namespace environment_setup {
 
         py::class_<tss::BodyListSettings,
                 std::shared_ptr<tss::BodyListSettings> >(m, "BodyListSettings", get_docstring("BodyListSettings").c_str())
+                .def(py::init<const std::string, const std::string>(),
+                        py::arg("frame_origin"),
+                        py::arg("frame_orientation"))
                 .def("get", &tss::BodyListSettings::get, get_docstring("BodyListSettings.get").c_str())
                 .def("add_settings", py::overload_cast<std::shared_ptr<tss::BodySettings>, const std::string>
                         (&tss::BodyListSettings::addSettings), py::arg("settings_to_add"), py::arg("body_name"))
