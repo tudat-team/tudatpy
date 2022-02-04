@@ -156,7 +156,7 @@ void expose_propagator_setup(py::module &m) {
             tp::HybridArcPropagatorSettings<double>,
             std::shared_ptr<tp::HybridArcPropagatorSettings<double>>,
             tp::PropagatorSettings<double>>(m, "HybridArcPropagatorSettings",
-                                            get_docstring("HybridArcPropagatorSettings").c_str());
+                    get_docstring("HybridArcPropagatorSettings").c_str());
 
     py::class_<
             tp::SingleArcPropagatorSettings<double>,
