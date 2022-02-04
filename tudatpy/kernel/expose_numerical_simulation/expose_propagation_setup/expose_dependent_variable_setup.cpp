@@ -188,7 +188,7 @@ namespace dependent_variable {
                 .value("radiation_pressure_coefficient_type",
                        tp::PropagationDependentVariables::radiation_pressure_coefficient_dependent_variable,
                        get_docstring("PropagationDependentVariables.radiation_pressure_coefficient_type").c_str())
-                .value("radiation_pressure_coefficient_type",
+                .value("custom_type",
                        tp::PropagationDependentVariables::custom_dependent_variable,
                        get_docstring("PropagationDependentVariables.custom_type").c_str())
                 .export_values();

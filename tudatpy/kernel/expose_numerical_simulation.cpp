@@ -151,7 +151,6 @@ void expose_numerical_simulation(py::module &m) {
 //               get_docstring("enable_dependent_variable_terminal_printing").c_str());
 
 
-
   //TODO: Remove variationalOnlyIntegratorSettings
   py::class_<
           tp::SingleArcVariationalEquationsSolver<double, double>,
@@ -165,7 +164,8 @@ void expose_numerical_simulation(py::module &m) {
                const std::shared_ptr< tudat::numerical_integrators::IntegratorSettings< double > >,
                const bool,
                const bool,
-               const bool >(),
+               const bool,
+               const bool>(),
                py::arg("bodies"),
                py::arg("integrator_settings"),
                py::arg("propagator_settings"),
@@ -174,7 +174,8 @@ void expose_numerical_simulation(py::module &m) {
                py::arg("variational_only_integrator_settings") = std::shared_ptr< tudat::numerical_integrators::IntegratorSettings< double > >( ),
                py::arg("clear_numerical_solutions") = false,
                py::arg("integrate_on_creation") = true,
-               py::arg("set_integrated_result") = false )
+               py::arg("set_integrated_result") = false,
+               py::arg("print_dependent_variable_data") = true)
           .def("integrate_equations_of_motion_only",
                &tp::SingleArcVariationalEquationsSolver<double, double>::integrateDynamicalEquationsOfMotionOnly,
                py::arg("initial_states"))
