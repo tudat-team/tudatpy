@@ -24,6 +24,7 @@ namespace py = pybind11;
 namespace tss = tudat::simulation_setup;
 namespace tp = tudat::propagators;
 namespace tom = tudat::observation_models;
+namespace tep = tudat::estimatable_parameters;
 
 namespace tudatpy {
 namespace numerical_simulation {
@@ -36,6 +37,11 @@ void expose_estimation_setup(py::module &m) {
 
     auto parameter_setup = m.def_submodule("parameter");
     parameter::expose_estimated_parameter_setup(parameter_setup);
+
+    m.def("print_parameter_names",
+          &tep::printEstimatableParameterEntries< double >,
+          py::arg("parameter_set") );
+
 
     // # EstimatableParameterSettings --> EstimatableParameterSet #
     m.def("create_parameter_set",
