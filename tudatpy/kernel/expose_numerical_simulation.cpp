@@ -198,7 +198,8 @@ void expose_numerical_simulation(py::module &m) {
 
   py::class_<
           tss::OrbitDeterminationManager<double, double>,
-          std::shared_ptr<tss::OrbitDeterminationManager<double, double>>>(m, "Estimator")
+          std::shared_ptr<tss::OrbitDeterminationManager<double, double>>>(m, "Estimator",
+                                                                           get_docstring("Estimator").c_str() )
           .def(py::init<const tss::SystemOfBodies&,
                const std::shared_ptr< tep::EstimatableParameterSet< double > >,
                const std::vector< std::shared_ptr< tom::ObservationModelSettings > >&,
@@ -210,19 +211,25 @@ void expose_numerical_simulation(py::module &m) {
                py::arg("observation_settings"),
                py::arg("integrator_settings"),
                py::arg("propagator_settings"),
-               py::arg("integrate_on_creation") = true  )
+               py::arg("integrate_on_creation") = true,
+               get_docstring("Estimator.ctor").c_str() )
           .def_property_readonly("observation_simulators",
-                                 &tss::OrbitDeterminationManager<double, double>::getObservationSimulators)
+                                 &tss::OrbitDeterminationManager<double, double>::getObservationSimulators,
+                                 get_docstring("Estimator.observation_simulators").c_str() )
           .def_property_readonly("observation_managers",
-                                 &tss::OrbitDeterminationManager<double, double>::getObservationManagers)
+                                 &tss::OrbitDeterminationManager<double, double>::getObservationManagers,
+                                 get_docstring("Estimator.observation_managers").c_str() )
           .def_property_readonly("state_transition_interface",
-                                 &tss::OrbitDeterminationManager<double, double>::getStateTransitionAndSensitivityMatrixInterface)
+                                 &tss::OrbitDeterminationManager<double, double>::getStateTransitionAndSensitivityMatrixInterface,
+                                 get_docstring("Estimator.state_transition_interface").c_str() )
           .def("perform_estimation",
                &tss::OrbitDeterminationManager<double, double>::estimateParameters,
                py::arg( "estimation_input" ),
-               py::arg( "convergence_checker" ) = std::make_shared< tss::EstimationConvergenceChecker >( ) )
+               py::arg( "convergence_checker" ) = std::make_shared< tss::EstimationConvergenceChecker >( ),
+               get_docstring("Estimator.perform_estimation").c_str() )
           .def_property_readonly("variational_solver",
-               &tss::OrbitDeterminationManager<double, double>::getVariationalEquationsSolver );
+               &tss::OrbitDeterminationManager<double, double>::getVariationalEquationsSolver,
+                                 get_docstring("Estimator.variational_solver").c_str() );
 };
 
 }// namespace numerical_simulation
