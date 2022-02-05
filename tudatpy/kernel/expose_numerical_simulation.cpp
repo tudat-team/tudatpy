@@ -155,7 +155,8 @@ void expose_numerical_simulation(py::module &m) {
   //TODO: Remove variationalOnlyIntegratorSettings
   py::class_<
           tp::SingleArcVariationalEquationsSolver<double, double>,
-          std::shared_ptr<tp::SingleArcVariationalEquationsSolver<double, double>>>(m, "SingleArcVariationalSimulator")
+          std::shared_ptr<tp::SingleArcVariationalEquationsSolver<double, double>>>(m, "SingleArcVariationalSimulator",
+                                                                                    get_docstring("SingleArcVariationalSimulator").c_str() )
           .def(py::init<
                const tudat::simulation_setup::SystemOfBodies&,
                const std::shared_ptr< tudat::numerical_integrators::IntegratorSettings<double>>,
@@ -174,27 +175,36 @@ void expose_numerical_simulation(py::module &m) {
                py::arg("variational_only_integrator_settings") = std::shared_ptr< tudat::numerical_integrators::IntegratorSettings< double > >( ),
                py::arg("clear_numerical_solutions") = false,
                py::arg("integrate_on_creation") = true,
-               py::arg("set_integrated_result") = false )
+               py::arg("set_integrated_result") = false,
+               get_docstring("SingleArcVariationalSimulator.ctor").c_str() )
           .def("integrate_equations_of_motion_only",
                &tp::SingleArcVariationalEquationsSolver<double, double>::integrateDynamicalEquationsOfMotionOnly,
-               py::arg("initial_states"))
+               py::arg("initial_states"),
+               get_docstring("SingleArcVariationalSimulator.integrate_equations_of_motion_only").c_str() )
           .def("integrate_full_equations",
                &tp::SingleArcVariationalEquationsSolver<double, double>::integrateVariationalAndDynamicalEquations,
                py::arg("initial_states"),
-               py::arg("integrate_equations_concurrently"))
+               py::arg("integrate_equations_concurrently"),
+               get_docstring("SingleArcVariationalSimulator.integrate_full_equations").c_str() )
           .def_property("parameter_vector",
                         &tp::SingleArcVariationalEquationsSolver<double, double>::getParametersToEstimate,
-                        &tp::SingleArcVariationalEquationsSolver<double, double>::resetParameterEstimate)
+                        &tp::SingleArcVariationalEquationsSolver<double, double>::resetParameterEstimate,
+                        get_docstring("SingleArcVariationalSimulator.parameter_vector").c_str() )
           .def_property_readonly("variational_equations_history",
-                                 &tp::SingleArcVariationalEquationsSolver<double, double>::getNumericalVariationalEquationsSolution)
+                                 &tp::SingleArcVariationalEquationsSolver<double, double>::getNumericalVariationalEquationsSolution,
+                                 get_docstring("SingleArcVariationalSimulator.variational_equations_history").c_str() )
           .def_property_readonly("state_transition_matrix_history",
-                                 &tp::SingleArcVariationalEquationsSolver<double, double>::getStateTransitionMatrixSolution)
+                                 &tp::SingleArcVariationalEquationsSolver<double, double>::getStateTransitionMatrixSolution,
+                                 get_docstring("SingleArcVariationalSimulator.state_transition_matrix_history").c_str() )
           .def_property_readonly("sensitivity_matrix_history",
-                                 &tp::SingleArcVariationalEquationsSolver<double, double>::getSensitivityMatrixSolution)
+                                 &tp::SingleArcVariationalEquationsSolver<double, double>::getSensitivityMatrixSolution,
+                                 get_docstring("SingleArcVariationalSimulator.sensitivity_matrix_history").c_str() )
           .def_property_readonly("state_history",
-                                 &tp::SingleArcVariationalEquationsSolver<double, double>::getEquationsOfMotionSolution)
+                                 &tp::SingleArcVariationalEquationsSolver<double, double>::getEquationsOfMotionSolution,
+                                 get_docstring("SingleArcVariationalSimulator.state_history").c_str() )
           .def_property_readonly("dynamics_simulator",
-                                 &tp::SingleArcVariationalEquationsSolver<double, double>::getDynamicsSimulator);
+                                 &tp::SingleArcVariationalEquationsSolver<double, double>::getDynamicsSimulator,
+                                 get_docstring("SingleArcVariationalSimulator.dynamics_simulator").c_str() );
 
   py::class_<
           tss::OrbitDeterminationManager<double, double>,
