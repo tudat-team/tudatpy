@@ -1701,6 +1701,43 @@ std::function< double( ) > getDoubleDependentVariableFunction(
                                           bodies.at( bodyWithProperty )->getRadiationPressureInterfaces( ).at( secondaryBody ) );
             break;
         }
+        case spherical_harmonic_potential_dependent_variable:
+        {
+            std::function< Eigen::Vector3d( ) > positionFunctionOfRelativeBody =
+                    std::bind( &simulation_setup::Body::getPosition, bodies.at( bodyWithProperty ) );
+            std::function< Eigen::Vector3d( ) > positionFunctionOfCentralBody =
+                    std::bind( &simulation_setup::Body::getPosition, bodies.at( secondaryBody ) );
+            std::function< Eigen::Quaterniond( ) > orientationFunctionOfCentralBody =
+                    std::bind( &simulation_setup::Body::getCurrentRotationToLocalFrame, bodies.at( secondaryBody ) );
+
+            // Retrieve function to get body fixed position of body
+            std::function< Eigen::Vector3d() > bodyFixedPositionOfBodyWithProperty =
+                    std::bind( &reference_frames::getBodyFixedCartesianPosition, positionFunctionOfCentralBody,
+                               positionFunctionOfRelativeBody, orientationFunctionOfCentralBody );
+
+            // Retrieve gravity field
+            std::shared_ptr< gravitation::SphericalHarmonicsGravityField > gravityField =
+                    std::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >(
+                            bodies.at( dependentVariableSettings->secondaryBody_ )->getGravityFieldModel( ) );
+
+            if( gravityField == nullptr )
+            {
+                throw std::runtime_error( "Error when requesting save of gravity field variation acceleration, central body " +
+                                          dependentVariableSettings->secondaryBody_ +
+                                          " has no TimeDependentSphericalHarmonicsGravityField." );
+            }
+            else
+            {
+                variableFunction = std::bind( static_cast< double (gravitation::SphericalHarmonicsGravityField::*)(const Eigen::Vector3d&)>
+                        (&gravitation::SphericalHarmonicsGravityField::getGravitationalPotential),
+                                              gravityField, bodyFixedPositionOfBodyWithProperty);
+
+                variableFunction = std::bind( &gravitation::SphericalHarmonicsGravityField::getGravitationalPotential,
+                                              gravityField, bodyFixedPositionOfBodyWithProperty);
+            }
+
+            break;
+        }
         default:
             std::string errorMessage =
                     "Error, did not recognize double dependent variable type when making variable function: " +

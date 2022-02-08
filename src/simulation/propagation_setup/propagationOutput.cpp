@@ -408,6 +408,9 @@ int getDependentVariableSize(
                         dependentVariableSettings )->dependentVariableSize_;
         }
         break;
+    case spherical_harmonic_potential_dependent_variable:
+        variableSize = 1;
+        break;
     default:
         std::string errorMessage = "Error, did not recognize dependent variable size of type: " +
                 std::to_string( dependentVariableSettings->dependentVariableType_ );

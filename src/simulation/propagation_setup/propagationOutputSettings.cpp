@@ -238,6 +238,9 @@ std::string getDependentVariableName( const std::shared_ptr< SingleDependentVari
     case custom_dependent_variable:
         variableName = "Custom dependent variable ";
         break;
+    case spherical_harmonic_potential_dependent_variable:
+        variableName = "Spherical harmonic potential ";
+        break;
     default:
         std::string errorMessage = "Error, dependent variable " +
                 std::to_string( propagationDependentVariables ) +

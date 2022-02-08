@@ -79,7 +79,7 @@ public:
      * \param bodyFixedPosition Position at which the gravitational potential is to be evaluated.
      * \return Gravitational potential.
      */
-    double getGravitationalPotential( const Eigen::Vector3d& bodyFixedPosition )
+    virtual double getGravitationalPotential( const Eigen::Vector3d& bodyFixedPosition )
     {
         return gravitationalParameter_ / bodyFixedPosition.norm( );
     }
