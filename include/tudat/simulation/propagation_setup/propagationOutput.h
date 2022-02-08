@@ -1728,11 +1728,11 @@ std::function< double( ) > getDoubleDependentVariableFunction(
             }
             else
             {
+                //variableFunction = std::bind( &gravitation::SphericalHarmonicsGravityField::getGravitationalPotential,
+                //                              gravityField, bodyFixedPositionOfBodyWithProperty);
+
                 variableFunction = std::bind( static_cast< double (gravitation::SphericalHarmonicsGravityField::*)(const Eigen::Vector3d&)>
                         (&gravitation::SphericalHarmonicsGravityField::getGravitationalPotential),
-                                              gravityField, bodyFixedPositionOfBodyWithProperty);
-
-                variableFunction = std::bind( &gravitation::SphericalHarmonicsGravityField::getGravitationalPotential,
                                               gravityField, bodyFixedPositionOfBodyWithProperty);
             }
 
