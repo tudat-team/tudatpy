@@ -217,7 +217,7 @@ public:
      *  frame.
      *  \return Gravitational potential at requested point.
      */
-    double getGravitationalPotential( const Eigen::Vector3d& bodyFixedPosition )
+    virtual double getGravitationalPotential( const Eigen::Vector3d& bodyFixedPosition )
     {
         return getGravitationalPotential( bodyFixedPosition, cosineCoefficients_.rows( ) - 1,
                                           sineCoefficients_.cols( ) - 1 );

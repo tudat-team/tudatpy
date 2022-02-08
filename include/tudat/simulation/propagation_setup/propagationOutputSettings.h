@@ -118,7 +118,8 @@ enum PropagationDependentVariables
     current_body_mass_dependent_variable = 45,
     radiation_pressure_coefficient_dependent_variable = 46,
     rsw_to_inertial_frame_rotation_dependent_variable = 47,
-    custom_dependent_variable = 48
+    custom_dependent_variable = 48,
+    spherical_harmonic_potential_dependent_variable = 49
 };
 
 // Functional base class for defining settings for dependent variables that are to be saved during propagation
