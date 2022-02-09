@@ -1197,6 +1197,10 @@ public:
                                                         dependentVariablesToSave, printInterval ),
         bodiesWithMassToPropagate_( bodiesWithMassToPropagate )
     {
+        if( initialBodyMasses.rows( ) != static_cast< int >( bodiesWithMassToPropagate.size( ) ) )
+        {
+            throw std::runtime_error( "Error when defining body mass propagator settings, provided initial state size is incompatible with list of bodies for which mass is to be propagated" );
+        }
         for( std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > >::const_iterator
              massRateIterator = massRateModels.begin( ); massRateIterator != massRateModels.end( ); massRateIterator++ )
         {
@@ -1227,7 +1231,13 @@ public:
             const double printInterval = TUDAT_NAN ):
         SingleArcPropagatorSettings< StateScalarType >( body_mass_state, initialBodyMasses, terminationSettings,
                                                         dependentVariablesToSave, printInterval ),
-        bodiesWithMassToPropagate_( bodiesWithMassToPropagate ), massRateModels_( massRateModels ) { }
+        bodiesWithMassToPropagate_( bodiesWithMassToPropagate ), massRateModels_( massRateModels )
+    {
+        if( initialBodyMasses.rows( ) != static_cast< int >( bodiesWithMassToPropagate.size( ) ) )
+        {
+            throw std::runtime_error( "Error when defining body mass propagator settings, provided initial state size is incompatible with list of bodies for which mass is to be propagated" );
+        }
+    }
 
     //! Constructor of mass state propagator settings, with settings for mass rate models.
     /*!
@@ -1251,7 +1261,13 @@ public:
             const double printInterval = TUDAT_NAN ):
         SingleArcPropagatorSettings< StateScalarType >( body_mass_state, initialBodyMasses, terminationSettings,
                                                         dependentVariablesToSave, printInterval ),
-        bodiesWithMassToPropagate_( bodiesWithMassToPropagate ), massRateSettingsMap_( massRateSettings ) { }
+        bodiesWithMassToPropagate_( bodiesWithMassToPropagate ), massRateSettingsMap_( massRateSettings )
+    {
+        if( initialBodyMasses.rows( ) != static_cast< int >( bodiesWithMassToPropagate.size( ) ) )
+        {
+            throw std::runtime_error( "Error when defining body mass propagator settings, provided initial state size is incompatible with list of bodies for which mass is to be propagated" );
+        }
+    }
 
     //! List of bodies for which the mass is to be propagated.
     std::vector< std::string > bodiesWithMassToPropagate_;
