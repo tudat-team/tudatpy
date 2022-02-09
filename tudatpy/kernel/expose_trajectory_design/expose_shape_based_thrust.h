@@ -16,15 +16,15 @@
 namespace py = pybind11;
 
 namespace tudatpy {
-//namespace astro {
-//namespace shape_based_thrust {
+namespace trajectory_design {
+namespace shape_based_thrust {
 
 
 void expose_shape_based_thrust(py::module &m);
 
 
-//}// namespace shape_based_thrust
-//}// namespace astro
+}
+}
 }// namespace tudatpy
 
 #endif//TUDATPY_EXPOSE_SHAPE_BASED_THRUST_H
