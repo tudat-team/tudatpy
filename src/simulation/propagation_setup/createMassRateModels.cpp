@@ -71,7 +71,8 @@ createMassRateModel(
 
             if( thrustAccelerations.size( ) == 0 )
             {
-                std::cerr << "Warning when making from-thrust mass-rate model, no thrust model is found; no thust is used" << std::endl;
+                throw std::runtime_error(
+                            "Error when making from-thrust mass-rate model for body " + bodyWithMassRate + ", no thrust model is found for this body" );
             }
 
             std::vector< std::shared_ptr< propulsion::ThrustAcceleration > >
