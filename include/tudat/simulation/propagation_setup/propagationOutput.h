@@ -1716,24 +1716,26 @@ std::function< double( ) > getDoubleDependentVariableFunction(
                                positionFunctionOfRelativeBody, orientationFunctionOfCentralBody );
 
             // Retrieve gravity field
-            std::shared_ptr< gravitation::SphericalHarmonicsGravityField > gravityField =
-                    std::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >(
+//            std::shared_ptr< gravitation::SphericalHarmonicsGravityField > gravityField =
+//                    std::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >(
+//                            bodies.at( dependentVariableSettings->secondaryBody_ )->getGravityFieldModel( ) );
+
+            std::shared_ptr< gravitation::GravityFieldModel > gravityField =
+                    std::dynamic_pointer_cast< gravitation::GravityFieldModel >(
                             bodies.at( dependentVariableSettings->secondaryBody_ )->getGravityFieldModel( ) );
 
             if( gravityField == nullptr )
             {
-                throw std::runtime_error( "Error when requesting save of gravity field variation acceleration, central body " +
+                throw std::runtime_error( "Error when requesting save of spherical harmonic potential, central body " +
                                           dependentVariableSettings->secondaryBody_ +
-                                          " has no TimeDependentSphericalHarmonicsGravityField." );
+                                          " has no SphericalHarmonicsGravityField." );
             }
             else
             {
-                //variableFunction = std::bind( &gravitation::SphericalHarmonicsGravityField::getGravitationalPotential,
-                //                              gravityField, bodyFixedPositionOfBodyWithProperty);
-
-                variableFunction = std::bind( static_cast< double (gravitation::SphericalHarmonicsGravityField::*)(const Eigen::Vector3d&)>
-                        (&gravitation::SphericalHarmonicsGravityField::getGravitationalPotential),
-                                              gravityField, bodyFixedPositionOfBodyWithProperty);
+//                auto variableFunction = std::bind( static_cast< double (gravitation::SphericalHarmonicsGravityField::*)(const Eigen::Vector3d&)>
+//                        (&gravitation::SphericalHarmonicsGravityField::getGravitationalPotential),
+//                                              gravityField, bodyFixedPositionOfBodyWithProperty);
+                variableFunction = [=]( ){ return gravityField->getGravitationalPotential( bodyFixedPositionOfBodyWithProperty( ) ); };
             }
 
             break;
