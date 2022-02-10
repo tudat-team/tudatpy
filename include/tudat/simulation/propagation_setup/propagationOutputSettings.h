@@ -119,7 +119,7 @@ enum PropagationDependentVariables
     radiation_pressure_coefficient_dependent_variable = 46,
     rsw_to_inertial_frame_rotation_dependent_variable = 47,
     custom_dependent_variable = 48,
-    spherical_harmonic_potential_dependent_variable = 49
+    gravity_field_potential_dependent_variable = 49
 };
 
 // Functional base class for defining settings for dependent variables that are to be saved during propagation
@@ -1103,12 +1103,12 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > customDependentVar
 }
 
 //! @get_docstring(machNumberDependentVariable)
-inline std::shared_ptr< SingleDependentVariableSaveSettings > sphericalHarmonicPotentialDependentVariable(
+inline std::shared_ptr< SingleDependentVariableSaveSettings > gravityFieldPotentialDependentVariable(
         const std::string& bodyUndergoingAcceleration,
         const std::string& bodyExertingAcceleration )
 {
     return std::make_shared< SingleDependentVariableSaveSettings >(
-            spherical_harmonic_potential_dependent_variable, bodyUndergoingAcceleration, bodyExertingAcceleration );
+            gravity_field_potential_dependent_variable, bodyUndergoingAcceleration, bodyExertingAcceleration );
 }
 
 

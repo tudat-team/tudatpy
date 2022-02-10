@@ -408,7 +408,7 @@ int getDependentVariableSize(
                         dependentVariableSettings )->dependentVariableSize_;
         }
         break;
-    case spherical_harmonic_potential_dependent_variable:
+    case gravity_field_potential_dependent_variable:
         variableSize = 1;
         break;
     default:

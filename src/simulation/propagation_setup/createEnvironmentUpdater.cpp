@@ -824,7 +824,7 @@ std::vector< std::string > > createEnvironmentUpdaterSettingsForDependentVariabl
         break;
     case custom_dependent_variable:
         break;
-    case spherical_harmonic_potential_dependent_variable:
+    case gravity_field_potential_dependent_variable:
         variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
         variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->secondaryBody_ );
         break;

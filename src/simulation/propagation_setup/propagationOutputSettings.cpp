@@ -238,8 +238,8 @@ std::string getDependentVariableName( const std::shared_ptr< SingleDependentVari
     case custom_dependent_variable:
         variableName = "Custom dependent variable ";
         break;
-    case spherical_harmonic_potential_dependent_variable:
-        variableName = "Spherical harmonic potential ";
+    case gravity_field_potential_dependent_variable:
+        variableName = "Gravity field potential ";
         break;
     default:
         std::string errorMessage = "Error, dependent variable " +
