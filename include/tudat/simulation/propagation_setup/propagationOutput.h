@@ -1701,42 +1701,82 @@ std::function< double( ) > getDoubleDependentVariableFunction(
                                           bodies.at( bodyWithProperty )->getRadiationPressureInterfaces( ).at( secondaryBody ) );
             break;
         }
-        case spherical_harmonic_potential_dependent_variable:
+        case gravity_field_potential_dependent_variable:
         {
-            std::function< Eigen::Vector3d( ) > positionFunctionOfRelativeBody =
-                    std::bind( &simulation_setup::Body::getPosition, bodies.at( bodyWithProperty ) );
-            std::function< Eigen::Vector3d( ) > positionFunctionOfCentralBody =
-                    std::bind( &simulation_setup::Body::getPosition, bodies.at( secondaryBody ) );
-            std::function< Eigen::Quaterniond( ) > orientationFunctionOfCentralBody =
-                    std::bind( &simulation_setup::Body::getCurrentRotationToLocalFrame, bodies.at( secondaryBody ) );
+//            std::function< Eigen::Vector3d( ) > positionFunctionOfRelativeBody =
+//                    std::bind( &simulation_setup::Body::getPosition, bodies.at( bodyWithProperty ) );
+//            std::function< Eigen::Vector3d( ) > positionFunctionOfCentralBody =
+//                    std::bind( &simulation_setup::Body::getPosition, bodies.at( secondaryBody ) );
+//            std::function< Eigen::Quaterniond( ) > orientationFunctionOfCentralBody =
+//                    std::bind( &simulation_setup::Body::getCurrentRotationToLocalFrame, bodies.at( secondaryBody ) );
+//
+//            // Retrieve function to get body fixed position of body
+//            std::function< Eigen::Vector3d() > bodyFixedPositionOfBodyWithProperty =
+//                    std::bind( &reference_frames::getBodyFixedCartesianPosition, positionFunctionOfCentralBody,
+//                               positionFunctionOfRelativeBody, orientationFunctionOfCentralBody );
+//
+//            // Retrieve gravity field
+////            std::shared_ptr< gravitation::SphericalHarmonicsGravityField > gravityField =
+////                    std::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >(
+////                            bodies.at( dependentVariableSettings->secondaryBody_ )->getGravityFieldModel( ) );
+//
+//            std::shared_ptr< gravitation::GravityFieldModel > gravityField =
+//                    std::dynamic_pointer_cast< gravitation::GravityFieldModel >(
+//                            bodies.at( dependentVariableSettings->secondaryBody_ )->getGravityFieldModel( ) );
+//
+//            if( gravityField == nullptr )
+//            {
+//                throw std::runtime_error( "Error when requesting save of spherical harmonic potential, central body " +
+//                                          dependentVariableSettings->secondaryBody_ +
+//                                          " has no SphericalHarmonicsGravityField." );
+//            }
+//            else
+//            {
+//                variableFunction = [=]( ){ return gravityField->getGravitationalPotential( bodyFixedPositionOfBodyWithProperty( ) ); };
+//            }
 
-            // Retrieve function to get body fixed position of body
-            std::function< Eigen::Vector3d() > bodyFixedPositionOfBodyWithProperty =
-                    std::bind( &reference_frames::getBodyFixedCartesianPosition, positionFunctionOfCentralBody,
-                               positionFunctionOfRelativeBody, orientationFunctionOfCentralBody );
+            /////////////////////////////////////////////////////////////////////////
+            // TODO: is there a better way to directly check if gravity field is PM instead of checking if it is SH?
+            // TODO: function is a bit messy... mix of std::bind and lambda functions
 
             // Retrieve gravity field
-//            std::shared_ptr< gravitation::SphericalHarmonicsGravityField > gravityField =
-//                    std::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >(
-//                            bodies.at( dependentVariableSettings->secondaryBody_ )->getGravityFieldModel( ) );
-
             std::shared_ptr< gravitation::GravityFieldModel > gravityField =
                     std::dynamic_pointer_cast< gravitation::GravityFieldModel >(
                             bodies.at( dependentVariableSettings->secondaryBody_ )->getGravityFieldModel( ) );
 
+            // Check if gravity field exists
             if( gravityField == nullptr )
             {
                 throw std::runtime_error( "Error when requesting save of spherical harmonic potential, central body " +
                                           dependentVariableSettings->secondaryBody_ +
                                           " has no SphericalHarmonicsGravityField." );
             }
+
+            std::function< Eigen::Vector3d( ) > positionFunctionOfRelativeBody =
+                    std::bind( &simulation_setup::Body::getPosition, bodies.at( bodyWithProperty ) );
+            std::function< Eigen::Vector3d( ) > positionFunctionOfCentralBody =
+                    std::bind( &simulation_setup::Body::getPosition, bodies.at( secondaryBody ) );
+
+            // Retrieve orientation function depending on type of gravity field
+            std::function< Eigen::Quaterniond( ) > orientationFunctionOfCentralBody;
+            // If gravity field is spherical harmonic
+            if (std::dynamic_pointer_cast<gravitation::SphericalHarmonicsGravityField>(
+                    bodies.at( dependentVariableSettings->secondaryBody_ )->getGravityFieldModel( )) != nullptr)
+            {
+                orientationFunctionOfCentralBody = std::bind( &simulation_setup::Body::getCurrentRotationToLocalFrame, bodies.at( secondaryBody ) );
+            }
+            // If gravity field is point mass
             else
             {
-//                auto variableFunction = std::bind( static_cast< double (gravitation::SphericalHarmonicsGravityField::*)(const Eigen::Vector3d&)>
-//                        (&gravitation::SphericalHarmonicsGravityField::getGravitationalPotential),
-//                                              gravityField, bodyFixedPositionOfBodyWithProperty);
-                variableFunction = [=]( ){ return gravityField->getGravitationalPotential( bodyFixedPositionOfBodyWithProperty( ) ); };
+                orientationFunctionOfCentralBody = [=]( ){ return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ); };
             }
+
+            // Retrieve function to get body fixed position of body
+            std::function< Eigen::Vector3d() > bodyFixedPositionOfBodyWithProperty =
+                    std::bind( &reference_frames::getBodyFixedCartesianPosition, positionFunctionOfCentralBody,
+                               positionFunctionOfRelativeBody, orientationFunctionOfCentralBody );
+
+            variableFunction = [=]( ){ return gravityField->getGravitationalPotential( bodyFixedPositionOfBodyWithProperty( ) ); };
 
             break;
         }
