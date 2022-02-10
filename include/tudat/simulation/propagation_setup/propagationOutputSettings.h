@@ -138,7 +138,7 @@ public:
      *  Constructor.
      *  \param dependentVariableType Type of dependent variable that is to be saved.
      *  \param associatedBody Body associated with dependent variable.
-     *  \param secondaryBody Secondary body (not necessarilly required) w.r.t. which parameter is defined (e.g. relative
+     *  \param secondaryBody Secondary body (not necessarily required) w.r.t. which parameter is defined (e.g. relative
      *  position, velocity etc. is defined of associatedBody w.r.t. secondaryBody).
      *  \param componentIndex Index of the component to be saved. Only applicable to vectorial dependent variables.
      *  By default -1, i.e. all the components are saved.
@@ -1102,8 +1102,14 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > customDependentVar
                 customDependentVariableFunction,  dependentVariableSize );
 }
 
-
-
+//! @get_docstring(machNumberDependentVariable)
+inline std::shared_ptr< SingleDependentVariableSaveSettings > sphericalHarmonicPotentialDependentVariable(
+        const std::string& bodyUndergoingAcceleration,
+        const std::string& bodyExertingAcceleration )
+{
+    return std::make_shared< SingleDependentVariableSaveSettings >(
+            spherical_harmonic_potential_dependent_variable, bodyUndergoingAcceleration, bodyExertingAcceleration );
+}
 
 
 } // namespace propagators
