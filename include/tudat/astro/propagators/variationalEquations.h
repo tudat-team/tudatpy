@@ -64,7 +64,8 @@ public:
             stateDerivativePartialList,
             const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
             const std::map< IntegratedStateType, int >& stateTypeStartIndices,
-            const int currentArcIndex = -1 ):
+            const int currentArcIndex = -1,
+            const std::map< std::string, int > arcIndicesPerBody = std::map< std::string, int >( ) ):
         stateDerivativePartialList_( stateDerivativePartialList ), stateTypeStartIndices_( stateTypeStartIndices ),
         couplingEntriesToSuppress_( -1 )
     {
@@ -105,7 +106,14 @@ public:
 
         // Set parameter partial functions.
         setStatePartialFunctionList( );
-        setTranslationalStatePartialFrameScalingFunctions( parametersToEstimate, currentArcIndex );
+        if ( arcIndicesPerBody.size( ) != 0 )
+        {
+            setTranslationalStatePartialFrameScalingFunctions( parametersToEstimate, currentArcIndex, arcIndicesPerBody );
+        }
+        else
+        {
+            setTranslationalStatePartialFrameScalingFunctions( parametersToEstimate, currentArcIndex );
+        }
         setRotationalStatePartialScalingFunctions( parametersToEstimate );
         setParameterPartialFunctionList( parametersToEstimate );
     }
@@ -434,7 +442,8 @@ private:
     void setTranslationalStatePartialFrameScalingFunctions(
             const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > >
             parametersToEstimate,
-            const int currentArcIndex = -1 )
+            const int currentArcIndex = -1,
+            const std::map< std::string, int > arcIndicesPerBody =  std::map< std::string, int >( ) )
     {
         std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameter<
                 Eigen::Matrix< ParameterType, Eigen::Dynamic, 1 > > > > initialDynamicalParameters =
@@ -458,12 +467,22 @@ private:
             {
                 if( currentArcIndex < 0 )
                 {
-                    throw std::runtime_error( "Error in setTranslationalStatePartialFrameScalingFunctions, cpuld not find xurrent arc index " );
+                    throw std::runtime_error( "Error in setTranslationalStatePartialFrameScalingFunctions, could not find current arc index " );
                 }
                 propagatedBodies.push_back(
                             initialDynamicalParameters.at( i )->getParameterName( ).second.first );
-                centralBodies.push_back( std::dynamic_pointer_cast< estimatable_parameters::ArcWiseInitialTranslationalStateParameter< ParameterType > >(
-                                             initialDynamicalParameters.at( i ) )->getCentralBodies( ).at( currentArcIndex ) );
+
+                if ( arcIndicesPerBody.size( ) != 0 )
+                {
+                    int currentIndexPerBody = arcIndicesPerBody.at( initialDynamicalParameters.at( i )->getParameterName( ).second.first );
+                    centralBodies.push_back( std::dynamic_pointer_cast< estimatable_parameters::ArcWiseInitialTranslationalStateParameter< ParameterType > >(
+                            initialDynamicalParameters.at( i ) )->getCentralBodies( ).at( currentIndexPerBody ) );
+                }
+                else
+                {
+                    centralBodies.push_back( std::dynamic_pointer_cast< estimatable_parameters::ArcWiseInitialTranslationalStateParameter< ParameterType > >(
+                            initialDynamicalParameters.at( i ) )->getCentralBodies( ).at( currentArcIndex ) );
+                }
             }
         }
 
