@@ -111,6 +111,14 @@ bool isParameterObservationLinkProperty( const EstimatebleParametersEnum paramet
  */
 bool isParameterTidalProperty( const EstimatebleParametersEnum parameterType );
 
+//! Function to determine whether the given parameter represents an arc-wise initial dynamical state.
+/*!
+ * Function to determine whether the given parameter represents an arc-wise initial dynamical state.
+ * \param parameterType Parameter identifier.
+ * \return True if parameter is an arc-wise initial dynamical state.
+ */
+bool isParameterArcWiseInitialStateProperty( const EstimatebleParametersEnum parameterType );
+
 //! Typedef for full parameter identifier.
 typedef std::pair< EstimatebleParametersEnum, std::pair< std::string, std::string > > EstimatebleParameterIdentifier;
 

@@ -334,6 +334,22 @@ bool isParameterTidalProperty( const EstimatebleParametersEnum parameterType )
     return flag;
 }
 
+//! Function to determine whether the given parameter represents an arc-wise initial dynamical state.
+bool isParameterArcWiseInitialStateProperty( const EstimatebleParametersEnum parameterType )
+{
+    bool flag;
+    switch( parameterType )
+    {
+        case arc_wise_initial_body_state:
+            flag = true;
+            break;
+        default:
+            flag = false;
+            break;
+    }
+    return flag;
+}
+
 //#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 //template class EstimatableParameter< Eigen::VectorXd >;
 //template class EstimatableParameter< Eigen::Matrix< long double, Eigen::Dynamic, 1 > >;
