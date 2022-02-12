@@ -149,6 +149,7 @@ public:
         }
 
         createAccelerationModelList( );
+        verifyInput( );
     }
 
     // Destructor
@@ -368,6 +369,32 @@ public:
 
 
 protected:
+
+    void verifyInput( )
+    {
+        for( unsigned int i = 0; i < bodiesToBeIntegratedNumerically_.size( ); i++ )
+        {
+            if( accelerationModelsPerBody_.count( bodiesToBeIntegratedNumerically_.at( i ) ) == 0 )
+            {
+                throw std::runtime_error( "Error, requested propagation of translational dynamics of body " +
+                                          bodiesToBeIntegratedNumerically_.at( i ) +
+                                          ", but no acceleration models provided" );
+            }
+        }
+
+        for( auto it : accelerationModelsPerBody_ )
+        {
+            if( std::find( bodiesToBeIntegratedNumerically_.begin( ),
+                           bodiesToBeIntegratedNumerically_.end( ),
+                           it.first ) == bodiesToBeIntegratedNumerically_.end( ) )
+            {
+                throw std::runtime_error( "Error, provided acceleration models for body " +
+                                          it.first +
+                                          ", but this body is not included in list of bodies for which translational dynamics is to be propagated." );
+            }
+        }
+    }
+
 
     // Function to set the vector of acceleration models (accelerationModelList_) form the map of map of
     // acceleration models (accelerationModelsPerBody_).
