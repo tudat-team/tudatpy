@@ -638,7 +638,7 @@ public:
         centralBodies_( centralBodies ),
         bodiesToIntegrate_( bodiesToIntegrate ),
         propagator_( propagator ),
-        accelerationsMap_( accelerationsMap ) { }
+        accelerationsMap_( accelerationsMap ) { verifyInput( ); }
 
     //! Constructor for generic stopping conditions, providing settings to create accelerations map.
     /*!
@@ -672,7 +672,7 @@ public:
         centralBodies_( centralBodies ),
         bodiesToIntegrate_( bodiesToIntegrate ),
         propagator_( propagator ),
-        accelerationSettingsMap_( accelerationSettingsMap ) { }
+        accelerationSettingsMap_( accelerationSettingsMap ) { verifyInput( ); }
 
     //! Constructor for fixed propagation time stopping conditions, providing an alreay-created accelerations map.
     /*!
@@ -707,7 +707,7 @@ public:
         centralBodies_( centralBodies ),
         bodiesToIntegrate_( bodiesToIntegrate ),
         propagator_( propagator ),
-        accelerationsMap_( accelerationsMap ) { }
+        accelerationsMap_( accelerationsMap ) { verifyInput( ); }
 
     //! Constructor for fixed propagation time stopping conditions, providing settings to create accelerations map.
     /*!
@@ -742,7 +742,7 @@ public:
         centralBodies_( centralBodies ),
         bodiesToIntegrate_( bodiesToIntegrate ),
         propagator_( propagator ),
-        accelerationSettingsMap_( accelerationSettingsMap ) { }
+        accelerationSettingsMap_( accelerationSettingsMap ) { verifyInput( ); }
 
     //! Destructor
     ~TranslationalStatePropagatorSettings( ){ }
@@ -809,6 +809,18 @@ public:
     }
 
 private:
+
+    void verifyInput( )
+    {
+        if( this->initialStates_.rows( ) != static_cast< int >( 6 * bodiesToIntegrate_.size( ) ) )
+        {
+            throw std::runtime_error( "Error when defining body translational propagator settings, provided initial state size (" +
+                                      std::to_string( this->initialStates_.rows( ) ) +
+                                      ") is incompatible with list of bodies for which translational state is to be propagated (size " +
+                                      std::to_string( bodiesToIntegrate_.size( ) ) +
+                                      ")");
+        }
+    }
 
     //! A map containing the list of settings for the accelerations acting on each body
     /*!
@@ -1007,7 +1019,8 @@ public:
                                        const double printInterval = TUDAT_NAN ):
         SingleArcPropagatorSettings< StateScalarType >( rotational_state, initialBodyStates, terminationSettings,
                                                         dependentVariablesToSave, printInterval ),
-        bodiesToIntegrate_( bodiesToIntegrate ), propagator_( propagator ), torqueModelMap_( torqueModelMap ) { }
+        bodiesToIntegrate_( bodiesToIntegrate ), propagator_( propagator ), torqueModelMap_( torqueModelMap )
+    { verifyInput( ); }
 
     //! Constructor with settings for torque models.
     /*!
@@ -1033,7 +1046,8 @@ public:
                                        const double printInterval = TUDAT_NAN ):
         SingleArcPropagatorSettings< StateScalarType >( rotational_state, initialBodyStates, terminationSettings,
                                                         dependentVariablesToSave, printInterval ),
-        bodiesToIntegrate_( bodiesToIntegrate ), propagator_( propagator ), torqueSettingsMap_( torqueSettingsMap ) { }
+        bodiesToIntegrate_( bodiesToIntegrate ), propagator_( propagator ), torqueSettingsMap_( torqueSettingsMap )
+    { verifyInput( ); }
 
     //! Destructor
     ~RotationalStatePropagatorSettings( ){ }
@@ -1086,6 +1100,18 @@ public:
     }
 
 private:
+
+    void verifyInput( )
+    {
+        if( this->initialStates_.rows( ) != static_cast< int >( 7 * bodiesToIntegrate_.size( ) ) )
+        {
+            throw std::runtime_error( "Error when defining body rotational propagator settings, provided initial state size (" +
+                                      std::to_string( this->initialStates_.rows( ) ) +
+                                      ") is incompatible with list of bodies for which rotational state is to be propagated (size " +
+                                      std::to_string( bodiesToIntegrate_.size( ) ) +
+                                      ")");
+        }
+    }
 
     //! List of torque settings that are to be used to create the torque models
     simulation_setup::SelectedTorqueMap torqueSettingsMap_;
@@ -1227,7 +1253,8 @@ public:
             const double printInterval = TUDAT_NAN ):
         SingleArcPropagatorSettings< StateScalarType >( body_mass_state, initialBodyMasses, terminationSettings,
                                                         dependentVariablesToSave, printInterval ),
-        bodiesWithMassToPropagate_( bodiesWithMassToPropagate ), massRateModels_( massRateModels ) { }
+        bodiesWithMassToPropagate_( bodiesWithMassToPropagate ), massRateModels_( massRateModels )
+    { verifyInput( ); }
 
     //! Constructor of mass state propagator settings, with settings for mass rate models.
     /*!
@@ -1251,7 +1278,8 @@ public:
             const double printInterval = TUDAT_NAN ):
         SingleArcPropagatorSettings< StateScalarType >( body_mass_state, initialBodyMasses, terminationSettings,
                                                         dependentVariablesToSave, printInterval ),
-        bodiesWithMassToPropagate_( bodiesWithMassToPropagate ), massRateSettingsMap_( massRateSettings ) { }
+        bodiesWithMassToPropagate_( bodiesWithMassToPropagate ), massRateSettingsMap_( massRateSettings )
+    { verifyInput( ); }
 
     //! List of bodies for which the mass is to be propagated.
     std::vector< std::string > bodiesWithMassToPropagate_;
@@ -1307,6 +1335,18 @@ public:
 
 
 private:
+
+    void verifyInput( )
+    {
+        if( this->initialStates_.rows( ) != static_cast< int >( bodiesWithMassToPropagate_.size( ) ) )
+        {
+            throw std::runtime_error( "Error when defining body mass propagator settings, provided initial state size (" +
+                                      std::to_string( this->initialStates_.rows( ) ) +
+                                      ") is incompatible with list of bodies for which mass is to be propagated (size " +
+                                      std::to_string( bodiesWithMassToPropagate_.size( ) ) +
+                                      ")");
+        }
+    }
 
     //! List of mass rate settings per propagated body.
     simulation_setup::SelectedMassRateModelMap massRateSettingsMap_;
