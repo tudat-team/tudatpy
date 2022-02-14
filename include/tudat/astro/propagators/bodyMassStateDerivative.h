@@ -58,6 +58,17 @@ public:
         {
            massRateModels_[ modelIterator->first ].push_back( modelIterator->second );
         }
+
+        for( unsigned int i = 0; i < bodiesToIntegrate_.size( ); i++ )
+        {
+            if( massRateModels_.count( bodiesToIntegrate_.at( i ) ) == 0 )
+            {
+                massRateModels_[ bodiesToIntegrate_.at( i ) ] =
+                        std::vector< std::shared_ptr< basic_astrodynamics::MassRateModel > >( );
+            }
+        }
+
+        verifyInput( );
     }
 
     //! Constructor
@@ -74,7 +85,19 @@ public:
             const std::vector< std::string >& bodiesToIntegrate ):
         propagators::SingleStateTypeDerivative< StateScalarType, TimeType >(
             propagators::body_mass_state ),
-        massRateModels_( massRateModels ), bodiesToIntegrate_( bodiesToIntegrate ){ }
+        massRateModels_( massRateModels ), bodiesToIntegrate_( bodiesToIntegrate )
+    {
+        for( unsigned int i = 0; i < bodiesToIntegrate_.size( ); i++ )
+        {
+            if( massRateModels_.count( bodiesToIntegrate_.at( i ) ) == 0 )
+            {
+                massRateModels_[ bodiesToIntegrate_.at( i ) ] =
+                        std::vector< std::shared_ptr< basic_astrodynamics::MassRateModel > >( );
+            }
+        }
+
+        verifyInput( );
+    }
 
 
     //! Destructor
@@ -238,6 +261,31 @@ public:
     }
 
 private:
+
+    void verifyInput( )
+    {
+        for( unsigned int i = 0; i < bodiesToIntegrate_.size( ); i++ )
+        {
+            if( massRateModels_.count( bodiesToIntegrate_.at( i ) ) == 0 )
+            {
+                throw std::runtime_error( "Error, requested propagation of mass of body " +
+                                          bodiesToIntegrate_.at( i ) +
+                                          ", but no mass rate models provided" );
+            }
+        }
+
+        for( auto it : massRateModels_ )
+        {
+            if( std::find( bodiesToIntegrate_.begin( ),
+                           bodiesToIntegrate_.end( ),
+                           it.first ) == bodiesToIntegrate_.end( ) )
+            {
+                throw std::runtime_error( "Error, provided mass rate models for body " +
+                                          it.first +
+                                          ", but this body is not included in list of bodies for which mass is to be propagated." );
+            }
+        }
+    }
 
     //! Map of models per body that are to be used for the mass rate computation.
     std::map< std::string, std::vector< std::shared_ptr< basic_astrodynamics::MassRateModel > > > massRateModels_;
