@@ -49,13 +49,22 @@ NRLMSISE00Input nrlmsiseInputFunction( const double altitude, const double longi
     double julianDay = std::floor( julianDate - 0.5 ) + 0.5;
 
     // Check if solar activity is found for current day.
+    SolarActivityDataPtr solarActivity;
+
     if( solarActivityMap.count( julianDay ) == 0 )
     {
-        std::string errorMessage = "Solar activity data could not be found for this julian date: "
-                + std::to_string( julianDay ) + " in nrlmsiseInputFunction";
-        throw std::runtime_error( errorMessage );
+        auto activityIterator = solarActivityMap.lower_bound( julianDay );
+        if( ( julianDay - activityIterator->first > 30 ) )
+        {
+            throw std::runtime_error( "Error when retrieving solar activity data at JD" + std::to_string( julianDate ) +
+                                      ", most recent data is more than 30 days old" );
+        }
+        solarActivity = activityIterator->second;
     }
-    SolarActivityDataPtr solarActivity = solarActivityMap.at( julianDay );
+    else
+    {
+        solarActivity = solarActivityMap.at( julianDay );
+    }
 
 
     // Compute julian date at the first of januari
