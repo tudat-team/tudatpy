@@ -4,19 +4,6 @@ TudatPy Change Log
 
 .. current developments
 
-vstatus
-====================
-
-**Authors:**
-
-* Geoffrey H. Garrett
-* Dominic Dirkx
-* foggionni
-* Jonas Hener
-* gaffarelj
-
-
-
 v0.6.2
 ====================
 
