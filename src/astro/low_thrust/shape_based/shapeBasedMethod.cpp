@@ -61,12 +61,12 @@ void ShapeBasedMethod::getTrajectory(
 //                                      "epochs are not provided in increasing order." );
 //        }
 
-//        double independentVariable = convertTimeToIndependentVariable( epochsVector[ i ] );
+//        double independentVariable = convertTimeToAzimuth( epochsVector[ i ] );
 
 //        double currentMass = massProfile[ epochsVector[ i ] ][ 0 ];
-//        thrustProfile[ epochsVector[ i ] ] = currentMass * computeCurrentThrustAccelerationMagnitude(
+//        thrustProfile[ epochsVector[ i ] ] = currentMass * computeCurrentThrustAccelerationMagnitudeFromAzimuth(
 //                    independentVariable )
-//                * computeCurrentThrustAccelerationDirection( independentVariable );
+//                * computeCurrentThrustAccelerationDirectionFromAzimuth( independentVariable );
 //    }
 //}
 

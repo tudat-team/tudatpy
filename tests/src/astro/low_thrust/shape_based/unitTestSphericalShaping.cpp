@@ -59,10 +59,8 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_earth_mars_transfer )
     double timeOfFlight = 580.0 * physical_constants::JULIAN_DAY;
 
     // Ephemeris departure body.
-    EphemerisPointer pointerToDepartureBodyEphemeris = std::make_shared< ApproximateJplEphemeris>(
-                "Earth"  );
-    EphemerisPointer pointerToArrivalBodyEphemeris = std::make_shared< ApproximateJplEphemeris >(
-                "Mars"  );
+    EphemerisPointer pointerToDepartureBodyEphemeris = std::make_shared< ApproximateJplEphemeris>( "Earth" );
+    EphemerisPointer pointerToArrivalBodyEphemeris = std::make_shared< ApproximateJplEphemeris >( "Mars" );
     Eigen::Vector6d initialState = pointerToDepartureBodyEphemeris->getCartesianState( julianDate );
     Eigen::Vector6d finalState = pointerToArrivalBodyEphemeris->getCartesianState(
                 julianDate + timeOfFlight );
@@ -81,39 +79,57 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_earth_mars_transfer )
 
     std::cout<<"************************ NEW CLASS **************************"<<std::endl;
     SphericalShapingLeg sphericalShapingLeg = SphericalShapingLeg(
-                pointerToDepartureBodyEphemeris, pointerToArrivalBodyEphemeris,
-                spice_interface::getBodyGravitationalParameter( "Sun" ),
-                numberOfRevolutions, 0.000703, rootFinderSettings, 1.0e-6, 1.0e-1 );
-    sphericalShapingLeg.updateLegParameters( ( Eigen::Vector2d( )<<
-                                                     julianDate,
-                                                     julianDate + timeOfFlight ).finished( ) );
-    // Initialise peak acceleration.
-    double peakThrustAcceleration = 0.0;
+            pointerToDepartureBodyEphemeris, pointerToArrivalBodyEphemeris,
+            spice_interface::getBodyGravitationalParameter("Sun"),
+            numberOfRevolutions, rootFinderSettings, 0.000703, 1.0e-6, 1.0e-1);
+    sphericalShapingLeg.updateLegParameters( (
+            Eigen::Vector2d( )<< julianDate, julianDate + timeOfFlight ).finished( ) );
 
-    double stepSize = ( sphericalShaping.getFinalValueInpendentVariable( ) -
-                        sphericalShaping.getInitialValueInpendentVariable( ) ) / 5000.0;
+    // Initialise peak acceleration.
+    double peakThrustAcceleration_old = 0.0;
+
+    double stepSize_old = (sphericalShaping.getFinalValueInpendentVariable( ) -
+                           sphericalShaping.getInitialValueInpendentVariable( ) ) / 5000.0;
     for ( int i = 0 ; i <= 5000 ; i++ )
     {
-        double currentThetaAngle = sphericalShaping.getInitialValueInpendentVariable() + i * stepSize;
-        if ( sphericalShaping.computeCurrentThrustAcceleration( currentThetaAngle ).norm() >  peakThrustAcceleration )
+        double currentThetaAngle = sphericalShaping.getInitialValueInpendentVariable() + i * stepSize_old;
+        if (sphericalShaping.computeCurrentThrustAcceleration( currentThetaAngle ).norm() > peakThrustAcceleration_old )
         {
-            peakThrustAcceleration = sphericalShaping.computeCurrentThrustAcceleration( currentThetaAngle ).norm();
+            peakThrustAcceleration_old = sphericalShaping.computeCurrentThrustAcceleration(currentThetaAngle ).norm();
+        }
+    }
+
+    // Initialise peak acceleration
+    double peakThrustAcceleration = 0.0;
+
+    // Loop over independent variable values and check peak acceleration
+    double stepSize = (sphericalShapingLeg.getFinalValueAzimuth() -
+                       sphericalShapingLeg.getInitialValueAzimuth() ) / 5000.0;
+    for ( int i = 0 ; i <= 5000 ; i++ )
+    {
+        double currentThetaAngle = sphericalShapingLeg.getInitialValueAzimuth() + i * stepSize;
+        if (sphericalShapingLeg.computeCurrentThrustAccelerationFromAzimuth(currentThetaAngle).norm() > peakThrustAcceleration )
+        {
+            peakThrustAcceleration = sphericalShapingLeg.computeCurrentThrustAccelerationFromAzimuth(currentThetaAngle).norm();
         }
     }
 
 
-    // Check results consistency w.r.t. thesis from T. Roegiers (ADD PROPER REFERENCE)
+    // Check results consistency w.r.t. Roegiers, T., Application of the Spherical Shaping Method to a Low-Thrust
+    // Multiple Asteroid Rendezvous Mission, TU Delft (MSc thesis), 2014
     double expectedDeltaV = 5700.0;
     double expectedPeakAcceleration = 2.4e-4;
 
-    std::cout<<sphericalShaping.computeDeltaV()<<" "<<sphericalShapingLeg.computeDeltaV()<<std::endl;
+    std::cout<<sphericalShaping.computeDeltaV()<<" "<<sphericalShapingLeg.getLegDeltaV()<<std::endl;
+    std::cout<<peakThrustAcceleration_old<<" "<<peakThrustAcceleration<<std::endl;
     // DeltaV provided with a precision of 5 m/s
     BOOST_CHECK_SMALL( std::fabs(  sphericalShaping.computeDeltaV() - expectedDeltaV ), 5.0 );
+    BOOST_CHECK_SMALL( std::fabs(  sphericalShapingLeg.getLegDeltaV() - expectedDeltaV ), 5.0 );
     // Peak acceleration provided with a precision 2.0e-6 m/s^2
-    BOOST_CHECK_SMALL( std::fabs(  peakThrustAcceleration - expectedPeakAcceleration ), 2.0e-6 );
+    BOOST_CHECK_SMALL(std::fabs(peakThrustAcceleration_old - expectedPeakAcceleration ), 2.0e-6 );
+    BOOST_CHECK_SMALL(std::fabs(peakThrustAcceleration - expectedPeakAcceleration ), 2.0e-6 );
 
 }
-
 
 
 //! Test.
@@ -126,8 +142,7 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_earth_1989ML_transfer )
     double timeOfFlight = 600.0 * physical_constants::JULIAN_DAY;
 
     // Ephemeris departure body.
-    EphemerisPointer pointerToDepartureBodyEphemeris = std::make_shared< ApproximateJplEphemeris>(
-                "Earth"  );
+    EphemerisPointer pointerToDepartureBodyEphemeris = std::make_shared< ApproximateJplEphemeris>( "Earth" );
     Eigen::Vector6d initialState = pointerToDepartureBodyEphemeris->getCartesianState( julianDate );
 
     // Final state derived from ML1989 ephemeris (from Spice).
@@ -139,7 +154,6 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_earth_1989ML_transfer )
                 - 4.891080912584867E-05 * physical_constants::ASTRONOMICAL_UNIT / physical_constants::JULIAN_DAY,
                 1.588950249593135E-02 * physical_constants::ASTRONOMICAL_UNIT / physical_constants::JULIAN_DAY,
                 - 2.980245580772588E-04 * physical_constants::ASTRONOMICAL_UNIT / physical_constants::JULIAN_DAY ).finished();
-
 
     // Define root finder settings (used to update the updated value of the free coefficient, so that it matches the required time of flight).
     std::shared_ptr< RootFinderSettings > rootFinderSettings =
@@ -172,7 +186,8 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_earth_1989ML_transfer )
     }
 
 
-    // Check results consistency w.r.t. thesis from T. Roegiers (ADD PROPER REFERENCE)
+    // Check results consistency w.r.t. Roegiers, T., Application of the Spherical Shaping Method to a Low-Thrust
+    // Multiple Asteroid Rendezvous Mission, TU Delft (MSc thesis), 2014
     // The expected differences are a bit larger than for Earth-Mars transfer due to the higher uncertainty in 1989ML's ephemeris.
     double expectedDeltaV = 4530.0;
     double expectedPeakAcceleration = 1.8e-4;
@@ -226,9 +241,20 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_earth_mars_transfer_multi_revolutio
                     0.000703, rootFinderSettings, freeParameterLowerBoundVector.at( currentTestCase ),
                     freeParameterUpperBoundVector.at( currentTestCase ) );
 
+        SphericalShapingLeg sphericalShapingLeg = SphericalShapingLeg(
+                pointerToDepartureBodyEphemeris, pointerToArrivalBodyEphemeris,
+                spice_interface::getBodyGravitationalParameter("Sun"),
+                numberOfRevolutionsVector.at(currentTestCase), rootFinderSettings, 0.000703,
+                freeParameterLowerBoundVector.at(currentTestCase), freeParameterUpperBoundVector.at(currentTestCase));
+        sphericalShapingLeg.updateLegParameters( (
+                Eigen::Vector2d( )<< julianDate, julianDate + timeOfFlightVector.at( currentTestCase ) * physical_constants::JULIAN_DAY ).finished( ) );
+
         // Check consistency of final azimuth angle value with required number of revolutions.
-        double initialAzimuthAngle = sphericalShaping.getInitialValueInpendentVariable( );
-        double finalAzimuthAngle = sphericalShaping.getFinalValueInpendentVariable( );
+        double initialAzimuthAngle_old = sphericalShaping.getInitialValueInpendentVariable( );
+        double finalAzimuthAngle_old = sphericalShaping.getFinalValueInpendentVariable( );
+
+        double initialAzimuthAngle = sphericalShapingLeg.getInitialValueAzimuth();
+        double finalAzimuthAngle = sphericalShapingLeg.getFinalValueAzimuth();
 
         double expectedInitialAzimuthAngle = coordinate_conversions::convertCartesianToSphericalState( initialState )[ 1 ];
         if ( expectedInitialAzimuthAngle < 0.0 )
@@ -250,15 +276,25 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_earth_mars_transfer_multi_revolutio
             expectedFinalAzimuthAngle += 2.0 * mathematical_constants::PI * numberOfRevolutionsVector.at( currentTestCase );
         }
 
-        BOOST_CHECK_SMALL( std::fabs(  initialAzimuthAngle - expectedInitialAzimuthAngle ), 1.0e-15 );
-        BOOST_CHECK_SMALL( std::fabs(  finalAzimuthAngle - expectedFinalAzimuthAngle ), 1.0e-15 );
+        BOOST_CHECK_SMALL(std::fabs(initialAzimuthAngle_old - expectedInitialAzimuthAngle ), 1.0e-15 );
+        BOOST_CHECK_SMALL(std::fabs(finalAzimuthAngle_old - expectedFinalAzimuthAngle ), 1.0e-15 );
+
+        BOOST_CHECK_SMALL(std::fabs(initialAzimuthAngle - expectedInitialAzimuthAngle ), 1.0e-15 );
+        BOOST_CHECK_SMALL(std::fabs(finalAzimuthAngle - expectedFinalAzimuthAngle ), 1.0e-15 );
 
         // Check consistency of expected and calculated states (both at departure and arrival).
         for ( int i = 0 ; i < 6 ; i++ )
         {
-            BOOST_CHECK_SMALL( std::fabs( ( initialState[ i ] - sphericalShaping.computeCurrentStateVector( initialAzimuthAngle )[ i ] )
+            BOOST_CHECK_SMALL( std::fabs( ( initialState[ i ] - sphericalShaping.computeCurrentStateVector(initialAzimuthAngle_old )[ i ] )
                                           / initialState[ i ] ), 1.0e-12 );
-            BOOST_CHECK_SMALL( std::fabs( ( finalState[ i ] - sphericalShaping.computeCurrentStateVector( finalAzimuthAngle )[ i ] )
+            BOOST_CHECK_SMALL( std::fabs( ( finalState[ i ] - sphericalShaping.computeCurrentStateVector(finalAzimuthAngle_old )[ i ] )
+                                          / finalState[ i ] ), 1.0e-12 );
+
+            BOOST_CHECK_SMALL( std::fabs( ( initialState[ i ] -
+                    sphericalShapingLeg.computeCurrentStateVectorFromAzimuth(initialAzimuthAngle)[ i ] )
+                                          / initialState[ i ] ), 1.0e-12 );
+            BOOST_CHECK_SMALL( std::fabs( ( finalState[ i ] -
+                    sphericalShapingLeg.computeCurrentStateVectorFromAzimuth(finalAzimuthAngle)[ i ] )
                                           / finalState[ i ] ), 1.0e-12 );
         }
     }
@@ -546,9 +582,9 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_full_propagation )
 
 //    for ( std::map< double, Eigen::Vector6d >::iterator itr = trajectory.begin( ) ; itr != trajectory.end( ) ; itr++ )
 //    {
-//        double independentVariable = sphericalShaping.convertTimeToIndependentVariable( itr->first );
-//        Eigen::Vector6d stateVector = sphericalShaping.computeCurrentStateVector( independentVariable );
-//        Eigen::Vector3d thrustAccelerationVector = sphericalShaping.computeCurrentThrustAcceleration( itr->first, specificImpulseFunction, integratorSettings );
+//        double independentVariable = sphericalShaping.convertTimeToAzimuth( itr->first );
+//        Eigen::Vector6d stateVector = sphericalShaping.computeCurrentStateVectorFromAzimuth( independentVariable );
+//        Eigen::Vector3d thrustAccelerationVector = sphericalShaping.computeCurrentThrustAccelerationFromAzimuth( itr->first, specificImpulseFunction, integratorSettings );
 //        Eigen::Vector3d thrustVector = sphericalShaping.computeCurrentThrustForce( itr->first, specificImpulseFunction, integratorSettings );
 //        double mass = sphericalShaping.computeCurrentMass( itr->first, specificImpulseFunction, integratorSettings );
 

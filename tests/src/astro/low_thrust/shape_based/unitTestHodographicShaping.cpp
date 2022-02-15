@@ -1511,8 +1511,8 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_full_propagation )
 
 ////    for ( std::map< double, Eigen::Vector6d >::iterator itr = trajectory.begin( ) ; itr != trajectory.end( ) ; itr++ )
 ////    {
-////        Eigen::Vector6d stateVector = hodographicShaping.computeCurrentStateVector( itr->first );
-////        Eigen::Vector3d thrustAccelerationVector = hodographicShaping.computeCurrentThrustAcceleration(
+////        Eigen::Vector6d stateVector = hodographicShaping.computeCurrentStateVectorFromAzimuth( itr->first );
+////        Eigen::Vector3d thrustAccelerationVector = hodographicShaping.computeCurrentThrustAccelerationFromAzimuth(
 ////                    itr->first, specificImpulseFunction, integratorSettings );
 ////        Eigen::Vector3d thrustVector = hodographicShaping.computeCurrentThrustForce(
 ////                    itr->first, specificImpulseFunction, integratorSettings );

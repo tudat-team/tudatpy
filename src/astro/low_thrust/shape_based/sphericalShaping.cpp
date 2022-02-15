@@ -649,9 +649,9 @@ double SphericalShaping::computeDeltaV( )
                 * std::sqrt( computeScalarFunctionTimeEquation( currentAzimuthAngle )
                              * std::pow( radialDistanceCompositeFunction_->evaluateCompositeFunction( currentAzimuthAngle ), 2.0 )
                              / normalizedCentralBodyGravitationalParameter_ );
-//        std::cout<<computeCurrentThrustAcceleration( currentAzimuthAngle ).norm( )<<" "<<
+//        std::cout<<computeCurrentThrustAccelerationFromAzimuth( currentAzimuthAngle ).norm( )<<" "<<
 //                   thrustAcceleration<<" "<<
-//                   computeThrustAccelerationVectorInSphericalCoordinates( currentAzimuthAngle ).norm()<<std::endl;
+//                   computeNormalizedThrustAccelerationInSphericalCoordinates( currentAzimuthAngle ).norm()<<std::endl;
 
         return thrustAcceleration;
 
