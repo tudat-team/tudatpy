@@ -111,6 +111,15 @@ void expose_estimation(py::module &m) {
           py::arg("bodies"),
           get_docstring("simulate_observations").c_str() );
 
+    m.def("compute_target_angles_and_range",
+          &tss::getTargetAnglesAndRange,
+          py::arg("bodies"),
+          py::arg("station_id" ),
+          py::arg("target_body" ),
+          py::arg("observation_times"),
+          py::arg("is_station_transmitting"),
+          get_docstring("compute_target_angles_and_range").c_str() );
+
 
     py::class_< tom::ObservationCollection<>,
             std::shared_ptr<tom::ObservationCollection<>>>(m, "ObservationCollection",
