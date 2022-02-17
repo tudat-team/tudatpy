@@ -181,13 +181,15 @@ void expose_environment(py::module &m) {
                  py::arg("reference_area"),
                  py::arg("reference_length"),
                  py::arg("moment_reference_point"),
-                 py::arg("save_pressure_coefficients") = false );
+                 py::arg("save_pressure_coefficients") = false,
+                 get_docstring("HypersonicLocalInclinationAnalysis.ctor").c_str());
 
 
     m.def("save_vehicle_mesh_to_file", &ta::saveVehicleMeshToFile,
           py::arg( "local_inclination_analysis_object" ),
           py::arg( "output_directory" ),
-          py::arg( "output_file_prefix" ) = "" );
+          py::arg( "output_file_prefix" ) = "",
+          get_docstring("save_vehicle_mesh_to_file").c_str() );
 
     m.def("get_local_inclination_total_vehicle_area", &ta::getTotalSurfaceArea,
           py::arg( "local_inclination_analysis_object" ) );
