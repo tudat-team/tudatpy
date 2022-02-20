@@ -225,6 +225,46 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialArcWiseStateOfBody
     return initialStates;
 }
 
+
+//! Function to print what is inside the propagated state vector
+template< typename StateScalarType = double >
+void printPropagatedStateVectorContent (const std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string > > > integratedTypeAndBodyList)
+{
+    std::cout << "State vector contains: " << std::endl
+              << "Vector entries, Vector contents" << std::endl;
+
+    unsigned int stateVectorIndex = 0;
+    std::vector<std::string> stateTypeStrings {"hybrid", "translational", "rotational", "body mass", "custom"};
+    
+    // Loop trough propagated state types and body names
+    for (std::pair<IntegratedStateType, std::vector< std::pair< std::string, std::string > >> integratedTypeAndBody : integratedTypeAndBodyList)
+    {
+        // Extract state type and list of body names
+        IntegratedStateType stateType = integratedTypeAndBody.first;
+        std::vector< std::pair< std::string, std::string > > bodyList = integratedTypeAndBody.second;
+
+        int stateSize = getSingleIntegrationSize(stateType);
+
+        // Loop trough list of body names
+        for(unsigned int i = 0; i < bodyList.size (); i++)
+        {
+            // Print index at which given state type of body can be accessed
+            if (stateSize == 1) {
+                std::cout << "[" << stateVectorIndex << "], ";
+            }
+            else {
+                std::cout << "[" << stateVectorIndex << ":" << stateVectorIndex+stateSize << "], ";
+            }
+
+            // Print state type and body name (note: hybrid state type should never be printed, taken care of by `getIntegratedTypeAndBodyList()` function)
+            std::cout << stateTypeStrings[stateType] << " state of body " << bodyList[i].first << std::endl; 
+            
+            // Remember where we are at trough the state vector
+            stateVectorIndex += stateSize;
+        }
+    }
+}
+
 //! Base class for performing full numerical integration of a dynamical system.
 /*!
  *  Base class for performing full numerical integration of a dynamical system. Governing equations are set once,
@@ -465,40 +505,7 @@ public:
 
         if( printStateData_ )
         {
-            std::cout << "State vector contains: " << std::endl
-                      << "Vector entries, Vector contents" << std::endl;
-
-            unsigned int stateVectorIndex = 0;
-            std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string > > > integratedTypeAndBodyList = getIntegratedTypeAndBodyList(propagatorSettings_);
-            std::vector<std::string> stateTypeStrings {"hybrid", "translational", "rotational", "body mass", "custom"};
-            
-            // Loop trough propagated state types and body names
-            for (std::pair<IntegratedStateType, std::vector< std::pair< std::string, std::string > >> integratedTypeAndBody : integratedTypeAndBodyList)
-            {
-                // Extract state type and list of body names
-                IntegratedStateType stateType = integratedTypeAndBody.first;
-                std::vector< std::pair< std::string, std::string > > bodyList = integratedTypeAndBody.second;
-
-                int stateSize = getSingleIntegrationSize(stateType);
-
-                // Loop trough list of body names
-                for(unsigned int i = 0; i < bodyList.size (); i++)
-                {
-                    // Print index at which given state type of body can be accessed
-                    if (stateSize == 1) {
-                        std::cout << "[" << stateVectorIndex << "], ";
-                    }
-                    else {
-                        std::cout << "[" << stateVectorIndex << ":" << stateVectorIndex+stateSize << "], ";
-                    }
-
-                    // Print state type and body name (note: hybrid state type should never be printed, taken care of by `getIntegratedTypeAndBodyList()` function)
-                    std::cout << stateTypeStrings[stateType] << " state of body " << bodyList[i].first << std::endl; 
-                    
-                    // Remember where we are at trough the state vector
-                    stateVectorIndex += stateSize;
-                }
-            }
+            printPropagatedStateVectorContent(getIntegratedTypeAndBodyList(propagatorSettings_));
         }
 
         if( propagatorSettings_->getDependentVariablesToSave( ) != nullptr )
