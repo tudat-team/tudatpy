@@ -157,7 +157,7 @@ namespace spice {
         m.def("load_kernel",
               &tudat::spice_interface::loadSpiceKernelInTudat,
               py::arg("kernel_file"),
-              get_docstring("clear_kernels").c_str());
+              get_docstring("load_kernel").c_str());
 
         m.def("clear_kernels",
               &tudat::spice_interface::clearSpiceKernels,
