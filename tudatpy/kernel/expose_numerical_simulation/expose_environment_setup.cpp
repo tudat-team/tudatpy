@@ -180,10 +180,12 @@ namespace environment_setup {
         m.def("set_aerodynamic_guidance",
               py::overload_cast<
                       const std::shared_ptr<ta::AerodynamicGuidance>,
-                      const std::shared_ptr<tss::Body> >
+                      const std::shared_ptr<tss::Body >,
+                      const bool >
                       (&tss::setGuidanceAnglesFunctions),
               py::arg("aerodynamic_guidance"),
-              py::arg("body"));
+              py::arg("body"),
+              py::arg("silence_warnings") = false );
 
         m.def("set_aerodynamic_orientation_functions", &tss::setAerodynamicOrientationFunctions,
               py::arg("body"),
@@ -191,6 +193,13 @@ namespace environment_setup {
               py::arg("sideslip_angle_function") = std::function<double()>(),
               py::arg("bank_angle_function") = std::function<double()>(),
               py::arg("update_function") = std::function<void(const double)>());
+
+        m.def("set_constant_aerodynamic_orientation", &tss::setConstantAerodynamicOrientation,
+              py::arg("body"),
+              py::arg("angle_of_attack"),
+              py::arg("sideslip_angle"),
+              py::arg("bank_angle"),
+              py::arg("silence_warnings") = false );
 
         m.def("get_ground_station_list",
               &tss::getGroundStationsLinkEndList,

@@ -151,6 +151,7 @@ namespace integrator {
                   py::arg("safety_factor") = 0.8,
                   py::arg("maximum_factor_increase") = 4.0,
                   py::arg("minimum_factor_increase") = 0.1,
+                  py::arg("throw_exception_if_minimum_step_exceeded") = true,
                   get_docstring("runge_kutta_variable_step_size").c_str());
 
             m.def("runge_kutta_variable_step_size_vector_tolerances",
@@ -167,6 +168,7 @@ namespace integrator {
                   py::arg("safety_factor") = 0.8,
                   py::arg("maximum_factor_increase") = 4.0,
                   py::arg("minimum_factor_increase") = 0.1,
+                  py::arg("throw_exception_if_minimum_step_exceeded") = true,
                   get_docstring("runge_kutta_variable_step_size_vector_tolerances").c_str());
 
             m.def("bulirsch_stoer",
