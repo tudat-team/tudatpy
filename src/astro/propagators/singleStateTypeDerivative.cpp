@@ -7,6 +7,7 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+#include <iostream>
 #include "tudat/astro/propagators/singleStateTypeDerivative.h"
 
 namespace tudat
@@ -29,6 +30,10 @@ int getSingleIntegrationSize( const IntegratedStateType stateType )
         break;
     case body_mass_state:
         singleStateSize = 1;
+        break;
+    case custom_state:
+        singleStateSize = 0;
+        std::cerr<<"Warning when requesting state size of custom state, size is unknown. Returning value of 0"<<std::endl;
         break;
     default:
         std::string errorMessage =
