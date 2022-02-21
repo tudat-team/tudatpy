@@ -65,6 +65,7 @@ void expose_numerical_simulation(py::module &m) {
                        const bool,
                        const bool,
                        const bool,
+                       const bool,
                        const bool>(),
                py::arg("bodies"),
                py::arg("integrator_settings"),
@@ -74,6 +75,7 @@ void expose_numerical_simulation(py::module &m) {
                py::arg("set_integrated_result") = false,
                py::arg("print_number_of_function_evaluations") = false,
                py::arg("print_dependent_variable_data") = true,
+               py::arg("print_state_data") = true,
           get_docstring("SingleArcSimulator.ctor").c_str())
           .def("integrate_equations_of_motion",
                &tp::SingleArcDynamicsSimulator<double, double>::integrateEquationsOfMotion,
