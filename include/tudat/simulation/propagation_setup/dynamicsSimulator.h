@@ -439,7 +439,7 @@ public:
             const bool printNumberOfFunctionEvaluations = false,
             const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ),
             const bool printDependentVariableData = true,
-            const bool printStateData = true ):
+            const bool printStateData = false ):
         DynamicsSimulator< StateScalarType, TimeType >(
             bodies, clearNumericalSolutions, setIntegratedResult ),
         integratorSettings_( integratorSettings ),
@@ -552,7 +552,7 @@ public:
             const bool setIntegratedResult = false,
             const bool printNumberOfFunctionEvaluations = false,
             const bool printDependentVariableData = true,
-            const bool printStateData = true ):
+            const bool printStateData = false ):
         SingleArcDynamicsSimulator(  bodies, integratorSettings,  propagatorSettings,
                                      std::vector< std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > >( ),
                                      areEquationsOfMotionToBeIntegrated,
