@@ -181,7 +181,15 @@ void expose_environment(py::module &m) {
                  py::arg("reference_area"),
                  py::arg("reference_length"),
                  py::arg("moment_reference_point"),
-                 py::arg("save_pressure_coefficients") = false );
+                 py::arg("save_pressure_coefficients") = false,
+                 get_docstring("HypersonicLocalInclinationAnalysis.ctor").c_str());
+
+
+    m.def("save_vehicle_mesh_to_file", &ta::saveVehicleMeshToFile,
+          py::arg( "local_inclination_analysis_object" ),
+          py::arg( "output_directory" ),
+          py::arg( "output_file_prefix" ) = "",
+          get_docstring("save_vehicle_mesh_to_file").c_str() );
 
     m.def("get_local_inclination_total_vehicle_area", &ta::getTotalSurfaceArea,
           py::arg( "local_inclination_analysis_object" ) );
@@ -227,23 +235,25 @@ void expose_environment(py::module &m) {
                  const std::function<double()>,
                  const std::function<double()>,
                  const std::function<double()>,
-                 const std::function<void(const double)>>(
+                 const std::function<void(const double)>,
+                 const bool>(
                      &trf::AerodynamicAngleCalculator::setOrientationAngleFunctions),
                  py::arg("angle_of_attack_function") = std::function<double()>(),       // <pybind11/functional.h>
                  py::arg("angle_of_sideslip_function") = std::function<double()>(),     // <pybind11/functional.h>
                  py::arg("bank_angle_function") = std::function<double()>(),            // <pybind11/functional.h>
                  py::arg("angle_update_function") = std::function<void(
-                const double)>(),// <pybind11/functional.h>
-                 "<no_doc>")
+                const double)>(),
+                 py::arg("silence_warnings")=false)
             .def("set_body_orientation_angles",
                  py::overload_cast<
                  const double,
                  const double,
-                 const double>(&trf::AerodynamicAngleCalculator::setOrientationAngleFunctions),
+                 const double,
+                 const bool>(&trf::AerodynamicAngleCalculator::setOrientationAngleFunctions),
                  py::arg("angle_of_attack") = TUDAT_NAN,
                  py::arg("angle_of_sideslip") = TUDAT_NAN,
                  py::arg("bank_angle") = TUDAT_NAN,
-                 "<no_doc>")
+                 py::arg("silence_warnings")=false)
             .def("get_rotation_matrix_between_frames",
                  &trf::AerodynamicAngleCalculator::getRotationMatrixBetweenFrames,
                  py::arg("original_frame"),
@@ -260,7 +270,7 @@ void expose_environment(py::module &m) {
 //                 const std::shared_ptr<tudat::reference_frames::AerodynamicAngleCalculator>>(),
 //                 py::arg("shape_model"),
 //                 py::arg("aerodynamic_angle_calculator") = std::shared_ptr< tr::AerodynamicAngleCalculator>())
-//            .def("update_conditions", &ta::FlightConditions::updateConditions, py::arg("current_time") )
+            .def("update_conditions", &ta::FlightConditions::updateConditions, py::arg("current_time") )
             .def_property_readonly("aerodynamic_angle_calculator", &ta::FlightConditions::getAerodynamicAngleCalculator, get_docstring("FlightConditions.aerodynamic_angle_calculator").c_str())
             .def_property_readonly("longitude", &ta::FlightConditions::getCurrentLongitude, get_docstring("FlightConditions.longitude").c_str())
             .def_property_readonly("geodetic_latitude", &ta::FlightConditions::getCurrentGeodeticLatitude, get_docstring("FlightConditions.latitude").c_str())
@@ -493,15 +503,15 @@ void expose_environment(py::module &m) {
                               &tss::Body::setBodyInertiaTensor))
             .def("state_in_base_frame_from_ephemeris",
                  &tss::Body::getStateInBaseFrameFromEphemeris<double, double>, py::arg("time"))
-            .def_property_readonly("ephemeris", &tss::Body::getEphemeris)
-            .def_property("atmosphere_model", &tss::Body::getAtmosphereModel, &tss::Body::setAtmosphereModel)
-            .def_property("shape_model", &tss::Body::getShapeModel, &tss::Body::setShapeModel)
-            .def_property("gravity_field_model", &tss::Body::getGravityFieldModel, &tss::Body::setGravityFieldModel)
+            .def_property_readonly("ephemeris", &tss::Body::getEphemeris, get_docstring("Body.ephemeris").c_str())
+            .def_property("atmosphere_model", &tss::Body::getAtmosphereModel, &tss::Body::setAtmosphereModel, get_docstring("Body.atmosphere_model").c_str())
+            .def_property("shape_model", &tss::Body::getShapeModel, &tss::Body::setShapeModel, get_docstring("Body.shape_model").c_str())
+            .def_property("gravity_field_model", &tss::Body::getGravityFieldModel, &tss::Body::setGravityFieldModel, get_docstring("Body.gravity_field_model").c_str())
             .def_property("aerodynamic_coefficient_interface", &tss::Body::getAerodynamicCoefficientInterface,
-                          &tss::Body::setAerodynamicCoefficientInterface)
+                          &tss::Body::setAerodynamicCoefficientInterface, get_docstring("Body.aerodynamic_coefficient_interface").c_str())
             .def_property("flight_conditions", &tss::Body::getFlightConditions, &tss::Body::setFlightConditions)
-            .def_property("rotation_model", &tss::Body::getRotationalEphemeris, &tss::Body::setRotationalEphemeris)
-            .def_property_readonly("gravitational_parameter", &tss::Body::getGravitationalParameter)
+            .def_property("rotation_model", &tss::Body::getRotationalEphemeris, &tss::Body::setRotationalEphemeris, get_docstring("Body.rotation_model").c_str())
+            .def_property_readonly("gravitational_parameter", &tss::Body::getGravitationalParameter, get_docstring("Body.gravitational_parameter").c_str())
             .def("get_ground_station", &tss::Body::getGroundStation, py::arg("station_name"))
             .def_property_readonly("ground_station_list", &tss::Body::getGroundStationMap );
 

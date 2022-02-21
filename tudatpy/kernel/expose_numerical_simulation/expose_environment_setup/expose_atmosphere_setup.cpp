@@ -91,7 +91,9 @@ namespace atmosphere {
 
         m.def("nrlmsise00",
               &tss::nrlmsise00AtmosphereSettings,
+              py::arg("space_weather_file" ) = tudat::paths::getSpaceWeatherDataPath( ) + "/sw19571001.txt",
               get_docstring("nrlmsise00").c_str());
+
 
 
         m.def("custom_constant_temperature",
