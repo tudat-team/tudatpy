@@ -111,6 +111,15 @@ void expose_estimation(py::module &m) {
           py::arg("bodies"),
           get_docstring("simulate_observations").c_str() );
 
+    m.def("compute_target_angles_and_range",
+          &tss::getTargetAnglesAndRange,
+          py::arg("bodies"),
+          py::arg("station_id" ),
+          py::arg("target_body" ),
+          py::arg("observation_times"),
+          py::arg("is_station_transmitting"),
+          get_docstring("compute_target_angles_and_range").c_str() );
+
 
     py::class_< tom::ObservationCollection<>,
             std::shared_ptr<tom::ObservationCollection<>>>(m, "ObservationCollection",
@@ -275,6 +284,9 @@ void expose_estimation(py::module &m) {
             .def_property_readonly("weighted_normalized_design_matrix",
                                    &tss::PodOutput<double, double>::getNormalizedWeightedInformationMatrix,
                                    get_docstring("PodOutput.weighted_normalized_design_matrix").c_str() )
+            .def_readonly("normalization_terms",
+                                   &tss::PodOutput<double, double>::informationMatrixTransformationDiagonal_,
+                                   get_docstring("PodOutput.normalization_terms").c_str() )
             .def_readonly("final_residuals",
                                    &tss::PodOutput<double, double>::residuals_,
                                    get_docstring("PodOutput.final_residuals").c_str() );
