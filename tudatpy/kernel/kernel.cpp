@@ -44,15 +44,13 @@ PYBIND11_MODULE(kernel, m) {
   auto constants = m.def_submodule("constants");
   tudatpy::constants::expose_constants(constants);
 
-
   // io module
   auto io = m.def_submodule("io");
-  tudatpy::expose_io(io);
+  tudatpy::io::expose_io(io);
 
   // simulation module
   auto trajectory_design = m.def_submodule("trajectory_design");
   tudatpy::trajectory_design::expose_trajectory_design(trajectory_design);
-
 
   // simulation module
   auto numerical_simulation = m.def_submodule("numerical_simulation");

@@ -13,8 +13,11 @@ namespace py = pybind11;
 
 namespace tudatpy {
 
+namespace io {
+
     void expose_io(py::module &m);
 
+}
 }
 
 
