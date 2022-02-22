@@ -10,6 +10,8 @@
 
 #include "expose_io.h"
 
+#include "tudatpy/docstrings.h"
+
 #include "tudat/io/readHistoryFromFile.h"
 #include "tudat/io/missileDatcomData.h"
 
@@ -19,29 +21,52 @@ namespace py = pybind11;
 
 namespace tudatpy {
 
+namespace io {
+
 void expose_io(py::module &m) {
 
-      m.def("get_resource_path", &tudat::paths::get_resource_path);
-      m.def("get_ephemeris_path", &tudat::paths::getEphemerisDataFilesPath);
-      m.def("get_earth_orientation_path", &tudat::paths::getEarthOrientationDataFilesPath);
-      m.def("get_quadrature_path", &tudat::paths::getQuadratureDataPath);
-      m.def("get_spice_kernel_path", &tudat::paths::getSpiceKernelPath);
-      m.def("get_atmosphere_tables_path", &tudat::paths::getAtmosphereTablesPath);
-      m.def("get_gravity_models_path", &tudat::paths::getGravityModelsPath);
-      m.def("get_space_weather_path", &tudat::paths::getSpaceWeatherDataPath);
+      m.def("get_resource_path",
+            &tudat::paths::get_resource_path,
+            get_docstring("get_resource_path").c_str() );
+      m.def("get_ephemeris_path",
+            &tudat::paths::getEphemerisDataFilesPath,
+            get_docstring("get_ephemeris_path").c_str() );
+      m.def("get_earth_orientation_path",
+            &tudat::paths::getEarthOrientationDataFilesPath,
+            get_docstring("get_earth_orientation_path").c_str() );
+      m.def("get_quadrature_path",
+            &tudat::paths::getQuadratureDataPath,
+            get_docstring("get_quadrature_path").c_str() );
+      m.def("get_spice_kernel_path",
+            &tudat::paths::getSpiceKernelPath,
+            get_docstring("get_spice_kernel_path").c_str() );
+      m.def("get_atmosphere_tables_path",
+            &tudat::paths::getAtmosphereTablesPath,
+            get_docstring("get_atmosphere_tables_path").c_str() );
+      m.def("get_gravity_models_path",
+            &tudat::paths::getGravityModelsPath,
+            get_docstring("get_gravity_models_path").c_str() );
+      m.def("get_space_weather_path",
+            &tudat::paths::getSpaceWeatherDataPath,
+            get_docstring("get_space_weather_path").c_str()  );
 
-      m.def("read_vector_history_from_file", &tudat::input_output::readVectorHistoryFromFile< double, double >,
+      m.def("read_vector_history_from_file",
+            &tudat::input_output::readVectorHistoryFromFile< double, double >,
             py::arg("vector_size"),
-            py::arg("file_name") );
+            py::arg("file_name"),
+            get_docstring("read_vector_history_from_file").c_str()
+      );
 
-      m.def("read_matrix_history_from_file", &tudat::input_output::readMatrixHistoryFromFile< double, double >,
+      m.def("read_matrix_history_from_file",
+            &tudat::input_output::readMatrixHistoryFromFile< double, double >,
             py::arg("matrix_rows"),
             py::arg("matrix_columns"),
-            py::arg("file_name") );
+            py::arg("file_name"),
+            get_docstring("read_matrix_history_from_file").c_str()
+      );
 
       py::class_<tudat::input_output::MissileDatcomData,
-            std::shared_ptr<tudat::input_output::MissileDatcomData>>(
-            m, "missile_DATCOM_data")
+            std::shared_ptr<tudat::input_output::MissileDatcomData>>(m, "missile_DATCOM_data")
             .def(py::init<
                   const std::string &>(),
                   py::arg("file_name_and_path"))
@@ -82,17 +107,17 @@ void expose_io(py::module &m) {
             .value("cnr", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cnr)
             .value("cmr", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cmr)
             .value("car", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::car)
-            .value("cyr", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::car)
-            .value("clnr", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::car)
-            .value("cllr", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::car)
-            .value("cnp", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::car)
-            .value("cmp", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::car)
-            .value("cap", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::car)
-            .value("cyp", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::car)
-            .value("clnp", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::car)
-            .value("cllp", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::car)
-            .value("cnad", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::car)
-            .value("cmad", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::car)
+            .value("cyr", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cyr)
+            .value("clnr", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::clnr)
+            .value("cllr", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cllr)
+            .value("cnp", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cnp)
+            .value("cmp", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cmp)
+            .value("cap", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cap)
+            .value("cyp", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cyp)
+            .value("clnp", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::clnp)
+            .value("cllp", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cllp)
+            .value("cnad", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cnad)
+            .value("cmad", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cmad)
             .export_values();
 
       py::enum_<tudat::input_output::MissileDatcomData::StaticCoefficientNames>(m, "StaticCoefficientNames")
@@ -111,4 +136,5 @@ void expose_io(py::module &m) {
 
 };
 
+}// namespace io
 }// namespace tudatpy
