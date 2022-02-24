@@ -29,7 +29,7 @@ if bool(os.getenv("READTHEDOCS")) is True:
     from document import *
 
     multidoc_git_url = 'https://github.com/tudat-team/tudat-multidoc.git'
-    multidoc_git_rev = '5acd73edd7de58541d78b5b56aa52c8a0070bd98'
+    multidoc_git_rev = 'd77d44a6f60f4e162dfb2ca6198c03194dbf6a37'
 
     # clone repository
     docstring_path = get_docstrings(multidoc_git_url, multidoc_git_rev)
@@ -247,4 +247,4 @@ intersphinx_mapping = {
     'pagmo': ('https://esa.github.io/pagmo2/', None),
     'numpy': ('http://docs.scipy.org/doc/numpy/', None),
     'scipy': ('http://docs.scipy.org/doc/scipy/reference/', None),
-    'matplotlib': ('http://matplotlib.sourceforge.net/', None)}
+    'matplotlib': ('https://matplotlib.org/stable/api/', None)}

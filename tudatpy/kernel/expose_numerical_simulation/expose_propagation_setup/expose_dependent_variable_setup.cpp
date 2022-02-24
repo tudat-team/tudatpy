@@ -188,6 +188,9 @@ namespace dependent_variable {
                 .value("radiation_pressure_coefficient_type",
                        tp::PropagationDependentVariables::radiation_pressure_coefficient_dependent_variable,
                        get_docstring("PropagationDependentVariables.radiation_pressure_coefficient_type").c_str())
+                .value("custom_type",
+                       tp::PropagationDependentVariables::custom_dependent_variable,
+                       get_docstring("PropagationDependentVariables.custom_type").c_str())
                 .export_values();
 
 
@@ -557,6 +560,11 @@ namespace dependent_variable {
               py::arg("body"),
               get_docstring("total_mass_rate").c_str());
 
+        m.def("custom",
+              &tp::customDependentVariable,
+              py::arg("custom_function"),
+              py::arg("variable_size"),
+              get_docstring("custom").c_str());
 
     }
 
