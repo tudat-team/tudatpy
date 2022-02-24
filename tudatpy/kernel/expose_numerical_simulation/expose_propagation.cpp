@@ -43,6 +43,7 @@ class PyAerodynamicGuidance : public ta::AerodynamicGuidance {
 public:
     /* Inherit the constructors */
     using AerodynamicGuidance::AerodynamicGuidance;
+
     using AerodynamicGuidance::currentAngleOfAttack_;
     using AerodynamicGuidance::currentAngleOfSideslip_;
     using AerodynamicGuidance::currentBankAngle_;

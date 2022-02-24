@@ -22,11 +22,13 @@ namespace trajectory_design{
 
 void expose_trajectory_design(py::module &m) {
 
+
+  auto shape_based_thrust_submodule = m.def_submodule("shape_based_thrust");
+  shape_based_thrust::expose_shape_based_thrust(shape_based_thrust_submodule);
+
   auto transfer_trajectory = m.def_submodule("transfer_trajectory");
   transfer_trajectory::expose_transfer_trajectory(transfer_trajectory);
 
-  auto shape_based_thrust_submodule = m.def_submodule("shape_based_thrust");
-  expose_shape_based_thrust(shape_based_thrust_submodule);
 
 }
 }

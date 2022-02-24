@@ -9,6 +9,7 @@
  */
 
 #include "expose_spice.h"
+#include <tudat/astro/basic_astro.h>
 
 #include "tudatpy/docstrings.h"
 #include "tudat/interface/spice.h"
@@ -20,6 +21,7 @@
 
 namespace py = pybind11;
 namespace tsi = tudat::spice_interface;
+namespace tba = tudat::basic_astrodynamics;
 
 namespace tudatpy {
 namespace interface {
@@ -82,6 +84,13 @@ namespace spice {
               py::arg("ephemeris_time"),
               get_docstring("compute_rotation_matrix_between_frames").c_str());
 
+      //   m.def("compute_rotation_quaternion_between_frames",
+      //         &tudat::spice_interface::computeRotationQuaternionBetweenFrames,
+      //         py::arg("original_frame"),
+      //         py::arg("new_frame"),
+      //         py::arg("ephemeris_time"),
+      //         get_docstring("compute_rotation_quaternion_between_frames").c_str());
+
         m.def("compute_rotation_matrix_derivative_between_frames",
               &tudat::spice_interface::computeRotationMatrixDerivativeBetweenFrames,
               py::arg("original_frame"),
@@ -139,14 +148,45 @@ namespace spice {
               &tudat::spice_interface::getTotalCountOfKernelsLoaded,
               get_docstring("get_total_count_of_kernels_loaded").c_str());
 
+        m.def("check_body_property_in_kernel_pool",
+              &tudat::spice_interface::checkBodyPropertyInKernelPool,
+              py::arg("body_name"),
+              py::arg("body_property"),
+              get_docstring("check_body_property_in_kernel_pool").c_str());
+
         m.def("load_kernel",
               &tudat::spice_interface::loadSpiceKernelInTudat,
               py::arg("kernel_file"),
-              get_docstring("clear_kernels").c_str());
+              get_docstring("load_kernel").c_str());
 
         m.def("clear_kernels",
               &tudat::spice_interface::clearSpiceKernels,
               get_docstring("clear_kernels").c_str());
+
+      py::class_<tudat::ephemerides::SpiceEphemeris,
+            std::shared_ptr<tudat::ephemerides::SpiceEphemeris>>(m, "SpiceEphemeris",
+                                    get_docstring("SpiceEphemeris").c_str())
+            .def(py::init<
+                  const std::string &,
+                  const std::string &,
+                  const bool,
+                  const bool,
+                  const bool,
+                  const std::string &,
+                  const double>(),
+                  py::arg("target_body_name"),
+                  py::arg("observer_body_name"),
+                  py::arg("correct_for_stellar_aberration") = true,
+                  py::arg("correct_for_light_time_aberration") = true,
+                  py::arg("converge_light_time_aberration") = false,
+                  py::arg("reference_frame_name") = "ECLIPJ2000",
+                  py::arg("reference_julian_day") = tba::JULIAN_DAY_ON_J2000,
+                  get_docstring("SpiceEphemeris.ctor").c_str())
+            .def("get_cartesian_state",
+                  &tudat::ephemerides::SpiceEphemeris::getCartesianState,
+                  py::arg("seconds_since_epoch"),
+                  get_docstring("SpiceEphemeris.get_cartesian_state").c_str());
+
     };
 
 }// namespace spice

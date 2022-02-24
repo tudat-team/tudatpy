@@ -10,9 +10,9 @@
 
 #include "expose_estimation_setup.h"
 #include "expose_estimation_setup/expose_estimated_parameter_setup.h"
-#include "expose_estimation_setup/expose_observations_setup.h"
+#include "expose_estimation_setup/expose_observation_setup.h"
 
-
+#include "tudatpy/docstrings.h"
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <pybind11/eigen.h>
@@ -23,6 +23,8 @@
 namespace py = pybind11;
 namespace tss = tudat::simulation_setup;
 namespace tp = tudat::propagators;
+namespace tom = tudat::observation_models;
+namespace tep = tudat::estimatable_parameters;
 
 namespace tudatpy {
 namespace numerical_simulation {
@@ -31,18 +33,38 @@ namespace estimation_setup {
 
 void expose_estimation_setup(py::module &m) {
 
+    // *************** PARAMETER ***************
+
     auto parameter_setup = m.def_submodule("parameter");
     parameter::expose_estimated_parameter_setup(parameter_setup);
 
-    auto observations_setup = m.def_submodule("observations");
-    observation::expose_observations_setup(observations_setup);
+    m.def("print_parameter_names",
+          &tep::printEstimatableParameterEntries< double >,
+          py::arg("parameter_set") );
 
-    m.def("create_parameters_to_estimate",
+
+    // # EstimatableParameterSettings --> EstimatableParameterSet #
+    m.def("create_parameter_set",
           &tss::createParametersToEstimate< double >,
           py::arg("parameter_settings"),
           py::arg("bodies"),
           py::arg("propagator_settings") =
-            std::shared_ptr< tp::PropagatorSettings< double > >( ) );
+                  std::shared_ptr< tp::PropagatorSettings< double > >( ),
+          get_docstring("create_parameter_set").c_str() );
+
+
+    // ************** OBSERVATION ***************
+
+    auto observation_setup = m.def_submodule("observation");
+    observation::expose_observation_setup(observation_setup);
+
+    // #   Observation Model Settings --> Observation Simulator #
+    m.def("create_observation_simulators",
+          py::overload_cast< const std::vector< std::shared_ptr< tom::ObservationModelSettings > >&, const tss::SystemOfBodies& >(
+                  &tom::createObservationSimulators< double, double > ),
+          py::arg( "observation_settings" ),
+          py::arg( "bodies" ),
+          get_docstring("create_observation_simulators").c_str() );
 
 }
 
