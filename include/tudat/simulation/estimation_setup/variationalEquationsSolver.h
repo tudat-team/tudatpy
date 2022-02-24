@@ -940,9 +940,22 @@ private:
                 stateTransitionMatrixInterpolator;
         std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >
                 sensitivityMatrixInterpolator;
-        createStateTransitionAndSensitivityMatrixInterpolator(
-                    stateTransitionMatrixInterpolator, sensitivityMatrixInterpolator, variationalEquationsSolution_,
-                    this->clearNumericalSolution_ );
+
+        try
+        {
+            createStateTransitionAndSensitivityMatrixInterpolator(
+                        stateTransitionMatrixInterpolator, sensitivityMatrixInterpolator, variationalEquationsSolution_,
+                        this->clearNumericalSolution_ );
+
+        }
+        catch( const std::exception& caughtException )
+        {
+            std::cerr << "Error occured when post-processing single-arc variational equation integration results, and creating interpolators, caught error is: " << std::endl << std::endl;
+            std::cerr << caughtException.what( ) << std::endl << std::endl;
+            std::cerr << "The problem may be that there is an insufficient number of data points (epochs) at which propagation results are produced for one or more arcs. Integrated results are given at" +
+                         std::to_string( variationalEquationsSolution_.at( 0 ).size( ) ) + " epochs"<< std::endl;
+        }
+
 
         // Create (if non-existent) or reset state transition matrix interface
         if( stateTransitionInterface_ == nullptr )
@@ -1586,11 +1599,23 @@ private:
                 arcEndTimes_[ i ] = variationalEquationsSolution_[ i ][ 0 ].begin( )->first;
             }
 
-            createStateTransitionAndSensitivityMatrixInterpolator(
-                        stateTransitionMatrixInterpolators[ i ],
-                        sensitivityMatrixInterpolators[ i ],
-                        variationalEquationsSolution_[ i ],
-                        this->clearNumericalSolution_ );
+            try
+            {
+                createStateTransitionAndSensitivityMatrixInterpolator(
+                            stateTransitionMatrixInterpolators[ i ],
+                            sensitivityMatrixInterpolators[ i ],
+                            variationalEquationsSolution_[ i ],
+                            this->clearNumericalSolution_ );
+            }
+            catch( const std::exception& caughtException )
+            {
+                std::cerr << "Error occured when post-processing multi-arc variational equation integration results, and creating interpolators in arc" + std::to_string( i ) + ", caught error is: " << std::endl << std::endl;
+                std::cerr << caughtException.what( ) << std::endl << std::endl;
+                std::cerr << "The problem may be that there is an insufficient number of data points (epochs) at which propagation results are produced for one or more arcs. Integrated results are given at" +
+                             std::to_string( variationalEquationsSolution_[ i ].at( 0 ).size( ) ) + " epochs"<< std::endl;
+            }
+
+
         }
 
         // Create stare transition matrix interface if needed, reset otherwise.

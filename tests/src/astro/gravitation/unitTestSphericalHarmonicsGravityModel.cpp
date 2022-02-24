@@ -286,6 +286,7 @@ BOOST_AUTO_TEST_CASE( test_SphericalHarmonicsGravitationalAccelerationWrapperCla
             = std::make_shared< SphericalHarmonicsGravitationalAccelerationModel >(
                 [ & ]( Eigen::Vector3d& input ){ input = position; }, gravitationalParameter, planetaryRadius,
                 cosineCoefficients, sineCoefficients );
+    earthGravity->updateMembers( );
 
     // Compute resultant acceleration [m s^-2].
     const Eigen::Vector3d acceleration = earthGravity->getAcceleration( );

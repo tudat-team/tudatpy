@@ -1,58 +1,155 @@
-- name: Geoffrey H. Garrett
+- name: Geoffrey Garrett
   email: g.h.garrett13@gmail.com
   aliases:
   - Geoffrey Hyde Garrett
   - Geoffrey Garrett
   - ggarrett13
-- name: Emil Heeren
-  email:
+  - Geoffrey
+  - Geoffrey H. Garrett
+  num_commits: 12
+  first_commit: 2020-05-20 10:41:20
 - name: FlyOHolic
   email: m.a.griffioen@student.tudelft.nl
-- name: Reneh107
-  email: r.hoogendoorn@student.tudelft.nl
+  num_commits: 1
+  first_commit: 2018-04-09 22:05:13
 - name: Kartik Kumar
   email: me@kartikkumar.com
+  num_commits: 260
+  first_commit: 2011-02-07 17:34:50
 - name: Elmar Puts
   email: elmarputs@gmail.com
+  num_commits: 27
+  first_commit: 2020-03-04 00:36:34
 - name: Dominic Dirkx
   email: D.Dirkx@tudelft.nl
   aliases:
   - DominicDirkx
   alternate_emails:
-  - hidden@hidden.com
+  - d.dirkx@tudelft.nl
+  num_commits: 74
+  first_commit: 2013-03-25 11:04:23
+  github: DominicDirkx
 - name: mfacchinelli
   email: michele.facchinelli@yahoo.it
+  num_commits: 201
+  first_commit: 2018-04-05 19:03:56
 - name: Frank Hogervorst
   email: f.c.hogervorst@student.tudelft.nl
   aliases:
   - FrankHogervorst
+  num_commits: 2
+  first_commit: 2017-11-01 10:32:44
 - name: Aleix Pinardell
   email: J.A.PinardellPons@student.tudelft.nl
-- name: Jeroen Melman
-  email: None
   alternate_emails:
-  - hidden@hidden.com
+  - aleixpinardell@gmail.com
+  num_commits: 175
+  first_commit: 2016-11-23 13:52:06
+- name: Emil Heeren & Jeroen Melman
+  email: hidden@hidden.com
+  aliases:
+  - Jeroen Melman
+  - Emil Heeren
+  num_commits: 33
+  first_commit: 2010-09-29 16:32:23
 - name: Michele Facchinelli
   email: m.facchinelli@student.tudelft.nl
+  aliases:
+  - mfacchinelli
+  num_commits: 57
+  first_commit: 2018-04-17 23:50:45
+  github: mfacchinelli
 - name: mchambe
   email: m.s.chambe@student.tudelft.nl
+  num_commits: 102
+  first_commit: 2018-12-09 13:35:28
 - name: mvandenbroeck
   email: m.m.h.vandenbroeck@student.tudelft.nl
+  num_commits: 22
+  first_commit: 2016-04-06 15:31:18
 - name: Jacco Geul
   email: jacco@geul.net
+  aliases:
+  - Jacco
+  num_commits: 49
+  first_commit: 2016-01-20 11:20:01
+  github: magnific0
 - name: ifodde
   email: I.Fodde@student.tudelft.nl
   alternate_emails:
   - iostofodde@gmail.com
+  num_commits: 14
+  first_commit: 2018-03-21 20:25:22
 - name: René
   email: R.Hoogendoorn@student.tudelft.nl
-- name: DominicDirkx
-  email: d.dirkx@tudelft.nl
+  num_commits: 1
+  first_commit: 2016-03-22 14:36:57
+  github: Reneh107
 - name: Rody Oldenhuis
   email: rody@dawnaerospace.com
+  num_commits: 3
+  first_commit: 2020-04-03 00:07:14
 - name: Rene107
   email: renehoogendoorn107@hotmail.com
+  aliases:
+  - Reneh107
+  num_commits: 17
+  first_commit: 2016-03-21 17:07:21
+  github: Reneh107
+  alternate_emails:
+  - r.hoogendoorn@student.tudelft.nl
 - name: Alejandro Gonzalez Puerta
   email: a.gonzalezpuerta@student.tudelft.nl
+  num_commits: 1
+  first_commit: 2016-11-16 17:46:40
 - name: Valerio Filice
   email: filicevalerio@gmail.com
+  num_commits: 1
+  first_commit: 2019-03-26 17:27:17
+- name: pipas
+  email: mpignatelli.avillez@gmail.com
+  num_commits: 5
+  first_commit: &id001 2021-07-03 22:08:37
+- name: Jérémie Gaffarel
+  email: jeremie@gaffarel.pro
+  aliases:
+  - gaffarelj
+  num_commits: 2
+  first_commit: 2022-01-04 18:50:11
+- name: MiguelAvillez
+  email: mpignatelli.avillez@gmail.com
+  aliases:
+  - pipas
+  num_commits: 5
+  first_commit: *id001
+  github: MiguelAvillez
+- name: jhener
+  email: jonas.hener@web.de
+  num_commits: 10
+  first_commit: 2021-06-25 12:52:33
+- name: Filippo Oggionni
+  email: filippo.oggionni@gmail.com
+  num_commits: 13
+  aliases:
+    - foggionni
+  first_commit: 2021-07-12 17:46:02
+- name: jo11he
+  email: 36631475+jo11he@users.noreply.github.com
+  num_commits: 0
+  first_commit: 2022-01-22 14:56:34
+- name: Guido Holtkamp
+  email: guido.email@unknown.com
+  num_commits: 2
+  first_commit: 2013-01-17 21:10:00
+- name: DeepSource Bot
+  email: bot@deepsource.io
+  num_commits: 1
+  first_commit: 2022-02-16 22:51:40
+- name: Liban Abdulkadir
+  email: liban.email@unknown.com
+  num_commits: 6
+  first_commit: 2010-09-30 09:59:59
+- name: kimonito98
+  email: plumarismichael@gmail.com
+  num_commits: 1
+  first_commit: 2021-10-22 11:35:57

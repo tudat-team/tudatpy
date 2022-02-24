@@ -156,7 +156,8 @@ public:
             const bool assessTerminationOnMinorSteps = false,
             const IndependentVariableType safetyFactorForNextStepSize = 0.8,
             const IndependentVariableType maximumFactorIncreaseForNextStepSize = 4.0,
-            const IndependentVariableType minimumFactorDecreaseForNextStepSize = 0.1 ) :
+            const IndependentVariableType minimumFactorDecreaseForNextStepSize = 0.1,
+            const bool exceptionIfMinimumStepExceeded = true  ) :
         IntegratorSettings< IndependentVariableType >(
             rungeKuttaVariableStepSize, initialTime, initialTimeStep, saveFrequency,
             assessTerminationOnMinorSteps ),
@@ -164,7 +165,8 @@ public:
         minimumStepSize_( minimumStepSize ), maximumStepSize_( maximumStepSize ),
         safetyFactorForNextStepSize_( safetyFactorForNextStepSize ),
         maximumFactorIncreaseForNextStepSize_( maximumFactorIncreaseForNextStepSize ),
-        minimumFactorDecreaseForNextStepSize_( minimumFactorDecreaseForNextStepSize )
+        minimumFactorDecreaseForNextStepSize_( minimumFactorDecreaseForNextStepSize ),
+        exceptionIfMinimumStepExceeded_( exceptionIfMinimumStepExceeded )
     { }
 
     // Virtual destructor.
@@ -196,6 +198,8 @@ public:
 
     // Minimum decrease factor in time step in subsequent iterations.
     IndependentVariableType minimumFactorDecreaseForNextStepSize_;
+
+    bool exceptionIfMinimumStepExceeded_;
 
 };
 
@@ -239,11 +243,12 @@ public:
             const bool assessTerminationOnMinorSteps = false,
             const IndependentVariableType safetyFactorForNextStepSize = 0.8,
             const IndependentVariableType maximumFactorIncreaseForNextStepSize = 4.0,
-            const IndependentVariableType minimumFactorDecreaseForNextStepSize = 0.1 ) :
+            const IndependentVariableType minimumFactorDecreaseForNextStepSize = 0.1,
+            const bool exceptionIfMinimumStepExceeded = true ) :
         RungeKuttaVariableStepSizeBaseSettings< IndependentVariableType >(
             true, initialTime, initialTimeStep, coefficientSet, minimumStepSize, maximumStepSize, saveFrequency,
             assessTerminationOnMinorSteps, safetyFactorForNextStepSize,
-            maximumFactorIncreaseForNextStepSize, minimumFactorDecreaseForNextStepSize ),
+            maximumFactorIncreaseForNextStepSize, minimumFactorDecreaseForNextStepSize, exceptionIfMinimumStepExceeded ),
         relativeErrorTolerance_( relativeErrorTolerance ), absoluteErrorTolerance_( absoluteErrorTolerance )
     { }
 
@@ -281,12 +286,14 @@ public:
             const bool assessTerminationOnMinorSteps = false,
             const IndependentVariableType safetyFactorForNextStepSize = 0.8,
             const IndependentVariableType maximumFactorIncreaseForNextStepSize = 4.0,
-            const IndependentVariableType minimumFactorDecreaseForNextStepSize = 0.1 ) :
+            const IndependentVariableType minimumFactorDecreaseForNextStepSize = 0.1,
+            const bool exceptionIfMinimumStepExceeded = true ) :
         RungeKuttaVariableStepSizeSettingsScalarTolerances(
             initialTime, initialTimeStep, coefficientSet, minimumStepSize, maximumStepSize,
             relativeErrorTolerance, absoluteErrorTolerance, saveFrequency,
             assessTerminationOnMinorSteps, safetyFactorForNextStepSize,
-            maximumFactorIncreaseForNextStepSize, minimumFactorDecreaseForNextStepSize )
+            maximumFactorIncreaseForNextStepSize, minimumFactorDecreaseForNextStepSize,
+            exceptionIfMinimumStepExceeded )
     {
         // Give error if integrator type is wrong
         if ( integratorType != rungeKuttaVariableStepSize )
@@ -362,11 +369,12 @@ public:
             const bool assessTerminationOnMinorSteps = false,
             const IndependentVariableType safetyFactorForNextStepSize = 0.8,
             const IndependentVariableType maximumFactorIncreaseForNextStepSize = 4.0,
-            const IndependentVariableType minimumFactorDecreaseForNextStepSize = 0.1 ) :
+            const IndependentVariableType minimumFactorDecreaseForNextStepSize = 0.1,
+            const bool exceptionIfMinimumStepExceeded = true ) :
         RungeKuttaVariableStepSizeBaseSettings< IndependentVariableType >(
             false, initialTime, initialTimeStep, coefficientSet, minimumStepSize, maximumStepSize, saveFrequency,
             assessTerminationOnMinorSteps, safetyFactorForNextStepSize,
-            maximumFactorIncreaseForNextStepSize, minimumFactorDecreaseForNextStepSize ),
+            maximumFactorIncreaseForNextStepSize, minimumFactorDecreaseForNextStepSize, exceptionIfMinimumStepExceeded ),
         relativeErrorTolerance_( relativeErrorTolerance ), absoluteErrorTolerance_( absoluteErrorTolerance )
     { }
 
@@ -589,7 +597,8 @@ inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > rungeKut
         const bool assessTerminationOnMinorSteps = false,
         const IndependentVariableType safetyFactorForNextStepSize = 0.8,
         const IndependentVariableType maximumFactorIncreaseForNextStepSize = 4.0,
-        const IndependentVariableType minimumFactorDecreaseForNextStepSize = 0.1 )
+        const IndependentVariableType minimumFactorDecreaseForNextStepSize = 0.1,
+        const bool exceptionIfMinimumStepExceeded = true )
 {
     return std::make_shared< RungeKuttaVariableStepSizeSettingsScalarTolerances<
             IndependentVariableType > >(
@@ -597,7 +606,8 @@ inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > rungeKut
                 coefficientSet, minimumStepSize, maximumStepSize,
                 relativeErrorTolerance, absoluteErrorTolerance,
                 saveFrequency, assessTerminationOnMinorSteps, safetyFactorForNextStepSize,
-                maximumFactorIncreaseForNextStepSize, minimumFactorDecreaseForNextStepSize );
+                maximumFactorIncreaseForNextStepSize, minimumFactorDecreaseForNextStepSize,
+                exceptionIfMinimumStepExceeded );
 }
 
 template< typename IndependentVariableType = double >
@@ -613,7 +623,8 @@ inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > rungeKut
         const bool assessTerminationOnMinorSteps = false,
         const IndependentVariableType safetyFactorForNextStepSize = 0.8,
         const IndependentVariableType maximumFactorIncreaseForNextStepSize = 4.0,
-        const IndependentVariableType minimumFactorDecreaseForNextStepSize = 0.1 )
+        const IndependentVariableType minimumFactorDecreaseForNextStepSize = 0.1,
+        const bool exceptionIfMinimumStepExceeded = true )
 {
     auto settings = std::make_shared< RungeKuttaVariableStepSizeSettingsVectorTolerances<
             IndependentVariableType > >(
@@ -621,7 +632,8 @@ inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > rungeKut
                 coefficientSet, minimumStepSize, maximumStepSize,
                 relativeErrorTolerance, absoluteErrorTolerance,
                 saveFrequency, assessTerminationOnMinorSteps, safetyFactorForNextStepSize,
-                maximumFactorIncreaseForNextStepSize, minimumFactorDecreaseForNextStepSize );
+                maximumFactorIncreaseForNextStepSize, minimumFactorDecreaseForNextStepSize,
+                exceptionIfMinimumStepExceeded );
 
     return settings;
 }
@@ -770,7 +782,8 @@ DependentVariableType, IndependentVariableStepType > > createIntegrator(
                       static_cast< typename DependentVariableType::Scalar >( scalarTolerancesIntegratorSettings->absoluteErrorTolerance_ ),
                       static_cast< IndependentVariableStepType >( scalarTolerancesIntegratorSettings->safetyFactorForNextStepSize_ ),
                       static_cast< IndependentVariableStepType >( scalarTolerancesIntegratorSettings->maximumFactorIncreaseForNextStepSize_ ),
-                      static_cast< IndependentVariableStepType >( scalarTolerancesIntegratorSettings->minimumFactorDecreaseForNextStepSize_ ) );
+                      static_cast< IndependentVariableStepType >( scalarTolerancesIntegratorSettings->minimumFactorDecreaseForNextStepSize_ ),
+                      nullptr, scalarTolerancesIntegratorSettings->exceptionIfMinimumStepExceeded_ );
         }
         else
         {
@@ -812,7 +825,8 @@ DependentVariableType, IndependentVariableStepType > > createIntegrator(
                       relativeErrorTolerance, absoluteErrorTolerance,
                       static_cast< IndependentVariableStepType >( vectorTolerancesIntegratorSettings->safetyFactorForNextStepSize_ ),
                       static_cast< IndependentVariableStepType >( vectorTolerancesIntegratorSettings->maximumFactorIncreaseForNextStepSize_ ),
-                      static_cast< IndependentVariableStepType >( vectorTolerancesIntegratorSettings->minimumFactorDecreaseForNextStepSize_ ) );
+                      static_cast< IndependentVariableStepType >( vectorTolerancesIntegratorSettings->minimumFactorDecreaseForNextStepSize_ ),
+                      nullptr, vectorTolerancesIntegratorSettings->exceptionIfMinimumStepExceeded_  );
         }
         break;
     }
