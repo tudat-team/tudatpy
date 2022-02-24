@@ -749,7 +749,7 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
     {
         basic_astrodynamics::AccelerationMap accelerationModelList =
                 std::dynamic_pointer_cast< NBodyStateDerivative< StateScalarType, TimeType > >(
-                    stateDerivativeModels.at( propagators::translational_state ).at( 0 ) )->getAccelerationsMap( );
+                    stateDerivativeModels.at( propagators::translational_state ).at( 0 ) )->getFullAccelerationsMap( );
 
         if( accelerationModelList.count( bodyUndergoingAcceleration ) == 0 )
         {

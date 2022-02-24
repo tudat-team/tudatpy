@@ -78,11 +78,7 @@ std::map< double, Eigen::VectorXd > propagateKeplerOrbitAndMassState(
 
     // Create spacecraft object.
     bodies.createEmptyBody( "Asterix" );
-    bodies.at( "Asterix" )->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
-                                            std::shared_ptr< interpolators::OneDimensionalInterpolator
-                                                < double, Eigen::Vector6d > >( ), "Earth", "J2000" ) );
 
-    
     // Define propagator settings variables.
     SelectedAccelerationMap accelerationMap;
     std::vector< std::string > bodiesToPropagate;
@@ -126,7 +122,7 @@ std::map< double, Eigen::VectorXd > propagateKeplerOrbitAndMassState(
 
     // Create mass rate model and mass propagation settings
     std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
-    massRateModels[ "Vehicle" ] = std::make_shared< basic_astrodynamics::CustomMassRateModel >(
+    massRateModels[ "Asterix" ] = std::make_shared< basic_astrodynamics::CustomMassRateModel >(
                 [ ]( const double ){ return -0.01; } );
     Eigen::VectorXd initialMass = Eigen::VectorXd( 1 );
     initialMass( 0 ) = 500.0;

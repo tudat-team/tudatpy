@@ -62,7 +62,8 @@ enum TranslationalPropagatorType
  */
 std::vector< std::function< double( ) > > removeCentralGravityAccelerations(
         const std::vector< std::string >& centralBodies, const std::vector< std::string >& bodiesToIntegrate,
-        basic_astrodynamics::AccelerationMap& accelerationModelsPerBody );
+        basic_astrodynamics::AccelerationMap& accelerationModelsPerBody,
+        std::map< std::string, std::shared_ptr< gravitation::CentralGravitationalAccelerationModel3d > >& removedAcceleration  );
 
 // Function to determine in which order the ephemerides are to be updated
 /*
@@ -112,14 +113,20 @@ public:
     NBodyStateDerivative( const basic_astrodynamics::AccelerationMap& accelerationModelsPerBody,
                           const std::shared_ptr< CentralBodyData< StateScalarType, TimeType > > centralBodyData,
                           const TranslationalPropagatorType propagatorType,
-                          const std::vector< std::string >& bodiesToIntegrate ):
+                          const std::vector< std::string >& bodiesToIntegrate,
+                          const bool removeCentralTerm = false ):
         propagators::SingleStateTypeDerivative< StateScalarType, TimeType >(
             propagators::translational_state ),
         accelerationModelsPerBody_( accelerationModelsPerBody ),
+        removedCentralAccelerations_( std::map< std::string, std::shared_ptr< gravitation::CentralGravitationalAccelerationModel3d > >( ) ),
+        updateRemovedAccelerations_( std::vector< std::string >( ) ),
         centralBodyData_( centralBodyData ),
         propagatorType_( propagatorType ),
-        bodiesToBeIntegratedNumerically_( bodiesToIntegrate )
+        bodiesToBeIntegratedNumerically_( bodiesToIntegrate ),
+        removeCentralTerm_( removeCentralTerm )
     {
+        originalAccelerationModelsPerBody_ = this->accelerationModelsPerBody_ ;
+
         // Add empty acceleration map if body is to be propagated with no accelerations.
         for( unsigned int i = 0; i < bodiesToBeIntegratedNumerically_.size( ); i++ )
         {
@@ -142,6 +149,7 @@ public:
         }
 
         createAccelerationModelList( );
+        verifyInput( );
     }
 
     // Destructor
@@ -163,6 +171,14 @@ public:
         for( unsigned int i = 0; i < accelerationModelList_.size( ); i++ )
         {
             accelerationModelList_.at( i )->resetTime( TUDAT_NAN );
+        }        
+
+        for( unsigned int i = 0; i < updateRemovedAccelerations_.size( ); i++ )
+        {
+            if( removedCentralAccelerations_.count( updateRemovedAccelerations_.at( i  ) ) > 0 )
+            {
+                removedCentralAccelerations_[ updateRemovedAccelerations_.at( i ) ]->resetTime( TUDAT_NAN );
+            }
         }
     }
 
@@ -191,6 +207,14 @@ public:
         for( unsigned int i = 0; i < accelerationModelList_.size( ); i++ )
         {
             accelerationModelList_.at( i )->updateMembers( currentTime );
+        }
+
+        for( unsigned int i = 0; i < updateRemovedAccelerations_.size( ); i++ )
+        {
+            if( removedCentralAccelerations_.count( updateRemovedAccelerations_.at( i  ) ) > 0 )
+            {
+                removedCentralAccelerations_[ updateRemovedAccelerations_.at( i ) ]->updateMembers( currentTime );
+            }
         }
     }
 
@@ -229,16 +253,6 @@ public:
     std::vector< std::string > getBodiesToBeIntegratedNumerically( )
     {
         return bodiesToBeIntegratedNumerically_;
-    }
-
-    // Function to get map containing the list of accelerations acting on each body,
-    /*
-     * Function to get map containing the list of accelerations acting on each body,
-     * \return A map containing the list of accelerations acting on each body,
-     */
-    virtual basic_astrodynamics::AccelerationMap getFullAccelerationsMap( )
-    {
-        return accelerationModelsPerBody_;
     }
 
     // Function to get object providing the current integration origins
@@ -296,10 +310,17 @@ public:
         }
         else
         {
-            if( accelerationModelsPerBody_.count( bodyName ) != 0 )
+//            if( removedCentralAcceleration_ != nullptr && updateRemovedAcceleration_ == false )
+//            {
+//                std::string errorMessage = "Error when getting total acceleration for body " + bodyName +
+//                        ", central term is removed, but cannot be evaluated.";
+//                throw std::runtime_error( errorMessage );
+//            }
+
+            if( originalAccelerationModelsPerBody_.count( bodyName ) != 0 )
             {
                 basic_astrodynamics::SingleBodyAccelerationMap accelerationsOnBody =
-                        accelerationModelsPerBody_.at( bodyName );
+                        originalAccelerationModelsPerBody_.at( bodyName );
 
                 // Iterate over all accelerations acting on body
                 for( innerAccelerationIterator  = accelerationsOnBody.begin( );
@@ -327,7 +348,53 @@ public:
         return accelerationModelsPerBody_;
     }
 
+    basic_astrodynamics::AccelerationMap getFullAccelerationsMap( )
+    {
+        return originalAccelerationModelsPerBody_;
+    }
+
+    std::map< std::string, std::shared_ptr< gravitation::CentralGravitationalAccelerationModel3d > > getRemovedCentralAcceleration( )
+    {
+        return removedCentralAccelerations_;
+    }
+
+    void setUpdateRemovedAcceleration( const std::string bodyName )
+    {
+        if( removedCentralAccelerations_.count( bodyName ) > 0 )
+        {
+            updateRemovedAccelerations_.push_back( bodyName );
+        }
+    }
+
+
+
 protected:
+
+    void verifyInput( )
+    {
+        for( unsigned int i = 0; i < bodiesToBeIntegratedNumerically_.size( ); i++ )
+        {
+            if( accelerationModelsPerBody_.count( bodiesToBeIntegratedNumerically_.at( i ) ) == 0 )
+            {
+                throw std::runtime_error( "Error, requested propagation of translational dynamics of body " +
+                                          bodiesToBeIntegratedNumerically_.at( i ) +
+                                          ", but no acceleration models provided" );
+            }
+        }
+
+        for( auto it : accelerationModelsPerBody_ )
+        {
+            if( std::find( bodiesToBeIntegratedNumerically_.begin( ),
+                           bodiesToBeIntegratedNumerically_.end( ),
+                           it.first ) == bodiesToBeIntegratedNumerically_.end( ) )
+            {
+                throw std::runtime_error( "Error, provided acceleration models for body " +
+                                          it.first +
+                                          ", but this body is not included in list of bodies for which translational dynamics is to be propagated." );
+            }
+        }
+    }
+
 
     // Function to set the vector of acceleration models (accelerationModelList_) form the map of map of
     // acceleration models (accelerationModelsPerBody_).
@@ -437,6 +504,12 @@ protected:
      */
     basic_astrodynamics::AccelerationMap accelerationModelsPerBody_;
 
+    basic_astrodynamics::AccelerationMap originalAccelerationModelsPerBody_;
+
+    std::map< std::string, std::shared_ptr< gravitation::CentralGravitationalAccelerationModel3d > > removedCentralAccelerations_;
+
+    std::vector< std::string > updateRemovedAccelerations_;
+
     // Vector of acceleration models, containing all entries of accelerationModelsPerBody_.
     std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > > accelerationModelList_;
 
@@ -463,6 +536,8 @@ protected:
     std::vector< Eigen::Matrix< StateScalarType, 6, 1 >  > centralBodyStatesWrtGlobalOrigin_;
 
     Eigen::Vector3d currentAccelerationComponent_;
+
+    bool removeCentralTerm_;
 
 };
 

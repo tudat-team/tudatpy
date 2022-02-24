@@ -84,6 +84,7 @@ Eigen::VectorXd  executeParameterEstimation(
     bodies.at( "Orbiter" )->setEphemeris( std::make_shared< MultiArcEphemeris >(
                                             std::map< double, std::shared_ptr< Ephemeris > >( ),
                                             "Mars", "ECLIPJ2000" ) );
+    bodies.processBodyFrameDefinitions( );
 
     // Create and set radiation pressure settings
     double referenceAreaRadiation = 4.0;

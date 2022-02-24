@@ -432,6 +432,20 @@ public:
 
     }
 
+    TwoWayDopplerObservationSettings(
+            const LinkEnds& linkEnds,
+            const std::shared_ptr< LightTimeCorrectionSettings > lightTimeCorrections = nullptr,
+            const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr ):
+        ObservationModelSettings( two_way_doppler, linkEnds,
+                                  lightTimeCorrections, biasSettings )
+    {
+        uplinkOneWayDopplerSettings_ = std::make_shared< OneWayDopplerObservationSettings >(
+                    getUplinkFromTwoWayLinkEnds( linkEnds ), lightTimeCorrections );
+        downlinkOneWayDopplerSettings_ = std::make_shared< OneWayDopplerObservationSettings >(
+                    getDownlinkFromTwoWayLinkEnds( linkEnds ), lightTimeCorrections );
+    }
+
+
     //! Destructor
     ~TwoWayDopplerObservationSettings( ){ }
 
@@ -619,6 +633,17 @@ inline std::shared_ptr< ObservationModelSettings > twoWayOpenLoopDoppler(
     return std::make_shared< TwoWayDopplerObservationSettings >(
                 uplinkOneWayDopplerSettings, downlinkOneWayDopplerSettings, biasSettings );
 }
+
+
+inline std::shared_ptr< ObservationModelSettings > twoWayOpenLoopDoppler(
+        const LinkEnds& linkEnds,
+        const std::shared_ptr< LightTimeCorrectionSettings > lightTimeCorrections = nullptr,
+        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr )
+{
+    return std::make_shared< TwoWayDopplerObservationSettings >(
+                linkEnds, lightTimeCorrections, biasSettings );
+}
+
 
 inline std::shared_ptr< ObservationModelSettings > oneWayClosedLoopDoppler(
         const LinkEnds& linkEnds,
@@ -1666,6 +1691,8 @@ std::vector< std::shared_ptr< ObservationSimulatorBase< ObservationScalarType, T
     }
     return observationSimulators;
 }
+
+
 
 
 } // namespace observation_models
