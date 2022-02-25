@@ -161,7 +161,7 @@ CaptureAndInsertionNode::CaptureAndInsertionNode(
 
 Eigen::Vector3d CaptureAndInsertionNode::getOutgoingVelocity( )
 {
-    throw std::runtime_error( "Error, no outgoing velocity can be given for capture_and_insertion leg" );
+    throw std::runtime_error( "Error, no outgoing velocity can be given for capture_and_insertion node" );
 }
 
 bool CaptureAndInsertionNode::nodeComputesOutgoingVelocity( )

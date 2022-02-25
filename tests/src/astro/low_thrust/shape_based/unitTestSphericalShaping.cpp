@@ -81,7 +81,7 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_earth_mars_transfer )
     SphericalShapingLeg sphericalShapingLeg = SphericalShapingLeg(
             pointerToDepartureBodyEphemeris, pointerToArrivalBodyEphemeris,
             spice_interface::getBodyGravitationalParameter("Sun"),
-            numberOfRevolutions, rootFinderSettings, 0.000703, 1.0e-6, 1.0e-1);
+            numberOfRevolutions, rootFinderSettings, 1.0e-6, 1.0e-1);
     sphericalShapingLeg.updateLegParameters( (
             Eigen::Vector2d( )<< julianDate, julianDate + timeOfFlight ).finished( ) );
 
@@ -108,9 +108,9 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_earth_mars_transfer )
     for ( int i = 0 ; i <= 5000 ; i++ )
     {
         double currentThetaAngle = sphericalShapingLeg.getInitialValueAzimuth() + i * stepSize;
-        if (sphericalShapingLeg.computeCurrentThrustAccelerationFromAzimuth(currentThetaAngle).norm() > peakThrustAcceleration )
+        if (sphericalShapingLeg.computeThrustAccelerationFromAzimuth(currentThetaAngle).norm() > peakThrustAcceleration )
         {
-            peakThrustAcceleration = sphericalShapingLeg.computeCurrentThrustAccelerationFromAzimuth(currentThetaAngle).norm();
+            peakThrustAcceleration = sphericalShapingLeg.computeThrustAccelerationFromAzimuth(currentThetaAngle).norm();
         }
     }
 
@@ -142,11 +142,11 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_earth_1989ML_transfer )
     double timeOfFlight = 600.0 * physical_constants::JULIAN_DAY;
 
     // Ephemeris departure body.
-    EphemerisPointer pointerToDepartureBodyEphemeris = std::make_shared< ApproximateJplEphemeris>( "Earth" );
+    EphemerisPointer pointerToDepartureBodyEphemeris = std::make_shared< ApproximateJplEphemeris >( "Earth" );
     Eigen::Vector6d initialState = pointerToDepartureBodyEphemeris->getCartesianState( julianDate );
 
     // Final state derived from ML1989 ephemeris (from Spice).
-    Eigen::Vector6d finalState = (
+    Eigen::Vector6d arrivalBodyfinalState = (
                 Eigen::Vector6d() <<
                 1.197701029846094E+00 * physical_constants::ASTRONOMICAL_UNIT,
                 1.653518856610793E-01 * physical_constants::ASTRONOMICAL_UNIT,
@@ -154,6 +154,7 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_earth_1989ML_transfer )
                 - 4.891080912584867E-05 * physical_constants::ASTRONOMICAL_UNIT / physical_constants::JULIAN_DAY,
                 1.588950249593135E-02 * physical_constants::ASTRONOMICAL_UNIT / physical_constants::JULIAN_DAY,
                 - 2.980245580772588E-04 * physical_constants::ASTRONOMICAL_UNIT / physical_constants::JULIAN_DAY ).finished();
+    EphemerisPointer pointerToArrivalBodyEphemeris = std::make_shared< ConstantEphemeris >( arrivalBodyfinalState );
 
     // Define root finder settings (used to update the updated value of the free coefficient, so that it matches the required time of flight).
     std::shared_ptr< RootFinderSettings > rootFinderSettings =
@@ -161,27 +162,47 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_earth_1989ML_transfer )
 
     // Compute shaped trajectory.
     SphericalShaping sphericalShaping = SphericalShaping(
-                initialState, finalState, timeOfFlight,
-                spice_interface::getBodyGravitationalParameter( "Sun" ),
-                numberOfRevolutions, -0.0000703, rootFinderSettings, -1.0e-2, 1.0e-2 );
+            initialState, arrivalBodyfinalState, timeOfFlight,
+            spice_interface::getBodyGravitationalParameter( "Sun" ),
+            numberOfRevolutions, -0.0000703, rootFinderSettings, -1.0e-2, 1.0e-2 );
 
+    SphericalShapingLeg sphericalShapingLeg = SphericalShapingLeg(
+            pointerToDepartureBodyEphemeris, pointerToArrivalBodyEphemeris,
+            spice_interface::getBodyGravitationalParameter("Sun"),
+            numberOfRevolutions, rootFinderSettings, -1.0e-2, 1.0e-2);
+    sphericalShapingLeg.updateLegParameters( (Eigen::Vector2d( )<< julianDate, julianDate + timeOfFlight ).finished( ) );
 
     // Compute step size.
     double numberOfSteps = 5000.0;
-    double stepSize = ( sphericalShaping.getFinalValueInpendentVariable( ) -
-                        sphericalShaping.getInitialValueInpendentVariable( ) ) / numberOfSteps;
+    double stepSize_old = (sphericalShaping.getFinalValueInpendentVariable( ) -
+                           sphericalShaping.getInitialValueInpendentVariable( ) ) / numberOfSteps;
 
     // Initialise peak acceleration.
-    double peakThrustAcceleration = 0.0;
+    double peakThrustAcceleration_old = 0.0;
 
     // Compute peak acceleration.
     for ( int i = 0 ; i <= numberOfSteps ; i++ )
     {
-        double currentThetaAngle = sphericalShaping.getInitialValueInpendentVariable() + i * stepSize;
+        double currentThetaAngle = sphericalShaping.getInitialValueInpendentVariable() + i * stepSize_old;
 
-        if ( sphericalShaping.computeCurrentThrustAcceleration( currentThetaAngle ).norm() >  peakThrustAcceleration )
+        if (sphericalShaping.computeCurrentThrustAcceleration( currentThetaAngle ).norm() > peakThrustAcceleration_old )
         {
-            peakThrustAcceleration = sphericalShaping.computeCurrentThrustAcceleration( currentThetaAngle ).norm();
+            peakThrustAcceleration_old = sphericalShaping.computeCurrentThrustAcceleration(currentThetaAngle ).norm();
+        }
+    }
+
+    // Initialise peak acceleration
+    double peakThrustAcceleration = 0.0;
+
+    // Loop over independent variable values and check peak acceleration
+    double stepSize = (sphericalShapingLeg.getFinalValueAzimuth() -  sphericalShapingLeg.getInitialValueAzimuth() ) / 5000.0;
+
+    for ( int i = 0 ; i <= 5000 ; i++ )
+    {
+        double currentThetaAngle = sphericalShapingLeg.getInitialValueAzimuth() + i * stepSize;
+        if (sphericalShapingLeg.computeThrustAccelerationFromAzimuth(currentThetaAngle).norm() > peakThrustAcceleration )
+        {
+            peakThrustAcceleration = sphericalShapingLeg.computeThrustAccelerationFromAzimuth(currentThetaAngle).norm();
         }
     }
 
@@ -194,8 +215,10 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_earth_1989ML_transfer )
 
     // DeltaV provided with a precision of 0.1 km/s
     BOOST_CHECK_SMALL( std::fabs(  sphericalShaping.computeDeltaV() - expectedDeltaV ), 100.0 );
+    BOOST_CHECK_SMALL( std::fabs(  sphericalShapingLeg.getLegDeltaV() - expectedDeltaV ), 100.0 );
     // Peak acceleration provided with a precision 1.0e-5 m/s^2
-    BOOST_CHECK_SMALL( std::fabs(  peakThrustAcceleration - expectedPeakAcceleration ), 1e-5 );
+    BOOST_CHECK_SMALL(std::fabs(peakThrustAcceleration_old - expectedPeakAcceleration ), 1e-5 );
+    BOOST_CHECK_SMALL(std::fabs(peakThrustAcceleration - expectedPeakAcceleration ), 1e-5 );
 
 }
 
@@ -244,8 +267,8 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_earth_mars_transfer_multi_revolutio
         SphericalShapingLeg sphericalShapingLeg = SphericalShapingLeg(
                 pointerToDepartureBodyEphemeris, pointerToArrivalBodyEphemeris,
                 spice_interface::getBodyGravitationalParameter("Sun"),
-                numberOfRevolutionsVector.at(currentTestCase), rootFinderSettings, 0.000703,
-                freeParameterLowerBoundVector.at(currentTestCase), freeParameterUpperBoundVector.at(currentTestCase));
+                numberOfRevolutionsVector.at(currentTestCase), rootFinderSettings,
+                freeParameterLowerBoundVector.at(currentTestCase), freeParameterUpperBoundVector.at(currentTestCase) );
         sphericalShapingLeg.updateLegParameters( (
                 Eigen::Vector2d( )<< julianDate, julianDate + timeOfFlightVector.at( currentTestCase ) * physical_constants::JULIAN_DAY ).finished( ) );
 
@@ -291,10 +314,10 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_earth_mars_transfer_multi_revolutio
                                           / finalState[ i ] ), 1.0e-12 );
 
             BOOST_CHECK_SMALL( std::fabs( ( initialState[ i ] -
-                    sphericalShapingLeg.computeCurrentStateVectorFromAzimuth(initialAzimuthAngle)[ i ] )
+                    sphericalShapingLeg.computeStateVectorFromAzimuth( initialAzimuthAngle )[ i ] )
                                           / initialState[ i ] ), 1.0e-12 );
             BOOST_CHECK_SMALL( std::fabs( ( finalState[ i ] -
-                    sphericalShapingLeg.computeCurrentStateVectorFromAzimuth(finalAzimuthAngle)[ i ] )
+                    sphericalShapingLeg.computeStateVectorFromAzimuth( finalAzimuthAngle )[ i ] )
                                           / finalState[ i ] ), 1.0e-12 );
         }
     }
@@ -356,6 +379,13 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_full_propagation )
                 spice_interface::getBodyGravitationalParameter( "Sun" ),
                 numberOfRevolutions, 0.000703,
                 rootFinderSettings, 1.0e-6, 1.0e-1 );
+
+    SphericalShapingLeg sphericalShapingLeg = SphericalShapingLeg(
+            pointerToDepartureBodyEphemeris, pointerToArrivalBodyEphemeris,
+            spice_interface::getBodyGravitationalParameter("Sun"),
+            numberOfRevolutions, rootFinderSettings, 1.0e-6, 1.0e-1 );
+    sphericalShapingLeg.updateLegParameters( (
+            Eigen::Vector2d( )<< julianDate, julianDate + timeOfFlight * physical_constants::JULIAN_DAY ).finished( ) );
 
     std::map< double, Eigen::VectorXd > fullPropagationResults;
     std::map< double, Eigen::Vector6d > shapingMethodResults;

@@ -38,14 +38,27 @@ namespace shape_based_methods
 class SphericalShapingLeg : public mission_segments::TransferLeg {
 public:
 
-    //! Constructor for spherical shaping.
+    //! Constructor for spherical shaping, with initial and final velocity given by departure and arrival bodies' ephemeris.
     SphericalShapingLeg(const std::shared_ptr<ephemerides::Ephemeris> departureBodyEphemeris,
                         const std::shared_ptr<ephemerides::Ephemeris> arrivalBodyEphemeris,
                         const double centralBodyGravitationalParameter, const int numberOfRevolutions,
                         const std::shared_ptr<root_finders::RootFinderSettings> rootFinderSettings,
-                        const double initialValueFreeCoefficient = TUDAT_NAN,
                         const double lowerBoundFreeCoefficient = TUDAT_NAN,
-                        const double upperBoundFreeCoefficient = TUDAT_NAN);
+                        const double upperBoundFreeCoefficient = TUDAT_NAN,
+                        const double initialValueFreeCoefficient = TUDAT_NAN,
+                        const double timeToAzimuthInterpolatorStepSize = physical_constants::JULIAN_DAY);
+
+    //! Constructor for spherical shaping, with initial and final velocity given as arguments.
+    SphericalShapingLeg(const std::shared_ptr<ephemerides::Ephemeris> departureBodyEphemeris,
+                        const std::shared_ptr<ephemerides::Ephemeris> arrivalBodyEphemeris,
+                        const double centralBodyGravitationalParameter, const int numberOfRevolutions,
+                        const std::function< Eigen::Vector3d( ) > departureVelocityFunction,
+                        const std::function< Eigen::Vector3d( ) > arrivalVelocityFunction,
+                        const std::shared_ptr<root_finders::RootFinderSettings> rootFinderSettings,
+                        const double lowerBoundFreeCoefficient = TUDAT_NAN,
+                        const double upperBoundFreeCoefficient = TUDAT_NAN,
+                        const double initialValueFreeCoefficient = TUDAT_NAN,
+                        const double timeToAzimuthInterpolatorStepSize = physical_constants::JULIAN_DAY);
 
     //! Default destructor.
     ~SphericalShapingLeg() {}
@@ -53,32 +66,63 @@ public:
     void computeTransfer();
 
     //! Compute dimensional current cartesian state.
-    Eigen::Vector6d computeCurrentStateVectorFromAzimuth(const double currentAzimuthAngle);
+    Eigen::Vector6d computeStateVectorFromAzimuth(const double currentAzimuthAngle);
 
-    Eigen::Vector6d computeCurrentStateVectorFromTime(const double timeSinceDeparture)
-    {
-        return computeCurrentStateVectorFromAzimuth(convertTimeToAzimuth(timeSinceDeparture));
-    }
+    Eigen::Vector6d computeStateVector (const double timeSinceDeparture);
 
     virtual void getStateAlongTrajectory( Eigen::Vector6d& stateAlongTrajectory,
                                           const double time )
     {
-        stateAlongTrajectory = computeCurrentStateVectorFromTime( time - departureTime_ );
+        stateAlongTrajectory = computeStateVector(time - departureTime_);
     }
 
-    //! Compute current thrust acceleration in cartesian coordinates.
-    Eigen::Vector3d computeCurrentThrustAccelerationFromAzimuth (const double currentAzimuthAngle );
+    //! Compute thrust acceleration in cartesian coordinates at the current azimuth.
+    Eigen::Vector3d computeThrustAccelerationFromAzimuth (const double currentAzimuthAngle );
 
-    Eigen::Vector3d computeCurrentThrustAccelerationFromTime ( const double timeSinceDeparture )
+    //! Compute thrust acceleration in cartesian coordinates at the current time.
+    Eigen::Vector3d computeThrustAcceleration (const double timeSinceDeparture );
+
+    //! Compute magnitude of thrust acceleration at the current azimuth.
+    double computeThrustAccelerationMagnitudeFromAzimuth (double currentAzimuthAngle );
+
+    //! Compute magnitude of thrust acceleration at the current time.
+    double computeThrustAccelerationMagnitude (const double timeSinceDeparture);
+
+    //! Compute direction of thrust acceleration in cartesian coordinates at the current azimuth.
+    Eigen::Vector3d computeThrustAccelerationDirectionFromAzimuth (double currentAzimuthAngle );
+
+    //! Compute direction of thrust acceleration in cartesian coordinates at the current time.
+    Eigen::Vector3d computeThrustAccelerationDirection (const double timeSinceDeparture);
+
+    // TODO: To be moved to a new base class (3 functions)
+
+    //! Get single value of thrust acceleration.
+    virtual void getThrustAccelerationAlongTrajectory(Eigen::Vector3d& thrustAccelerationAlongTrajectory,
+                                                      const double time )
     {
-        return computeCurrentThrustAccelerationFromAzimuth(convertTimeToAzimuth(timeSinceDeparture));
+        thrustAccelerationAlongTrajectory = computeThrustAcceleration(time - departureTime_);
     }
 
-    //! Compute magnitude thrust acceleration.
-    double computeCurrentThrustAccelerationMagnitudeFromAzimuth ( double currentAzimuthAngle );
+    //! Get thrust acceleration history throughout the transfer.
+    void getThrustAccelerationsAlongTrajectory(std::map< double, Eigen::Vector3d >& thrustAccelerationsAlongTrajectory,
+                                               const std::vector< double >& times )
+    {
+        thrustAccelerationsAlongTrajectory.clear( );
+        Eigen::Vector3d currentThrustAccelerationAlongTrajectory;
+        for( unsigned int i = 0; i < times.size( ); i++ )
+        {
+            getThrustAccelerationAlongTrajectory(currentThrustAccelerationAlongTrajectory, times.at(i));
+            thrustAccelerationsAlongTrajectory[ times.at(i ) ] = currentThrustAccelerationAlongTrajectory;
+        }
+    }
 
-    //! Compute direction thrust acceleration in cartesian coordinates.
-    Eigen::Vector3d computeCurrentThrustAccelerationDirectionFromAzimuth ( double currentAzimuthAngle );
+    void getThrustAccelerationsAlongTrajectory(std::map< double, Eigen::Vector3d >& thrustAccelerationsAlongTrajectory,
+                                               const int numberOfDataPoints )
+    {
+        thrustAccelerationsAlongTrajectory.clear( );
+        std::vector< double > times = utilities::linspace( departureTime_, arrivalTime_, numberOfDataPoints );
+        getThrustAccelerationsAlongTrajectory(thrustAccelerationsAlongTrajectory, times);
+    }
 
     //! Convert time to azimuth (azimuth is the independent variable used in the spherical shaping method).
     double convertTimeToAzimuth ( const double timeSinceDeparture );
@@ -117,7 +161,7 @@ protected:
     void satisfyBoundaryConditions( double freeCoefficient );
 
     //! Compute the Free coefficient boundaries.
-    void computeFreeCoefficientBoundaries( );
+    // void computeFreeCoefficientBoundaries( );
 
     //! Iterate to match the required time of flight, by updating the value of the free coefficient.
     void iterateToMatchRequiredTimeOfFlight( std::shared_ptr< root_finders::RootFinderSettings > rootFinderSettings,
@@ -225,6 +269,14 @@ private:
     //! Number of revolutions.
     int numberOfRevolutions_;
 
+    // TODO: To be moved to new base class (2 variables)
+
+    //! Function that outputs the departure velocity
+    std::function< Eigen::Vector3d( ) > departureVelocityFunction_;
+
+    //! Function that outputs the arrival velocity
+    std::function< Eigen::Vector3d( ) > arrivalVelocityFunction_;
+
     //! Initial state in spherical coordinates.
     Eigen::Vector6d initialStateSphericalCoordinates_;
 
@@ -267,9 +319,12 @@ private:
     //! Upper bound for the free coefficient, to be used when trying to match the required time of flight.
     const double upperBoundFreeCoefficient_;
 
+    //! Step size used when creating the interpolator to convert time to azimuth
+    const double timeToAzimuthInterpolatorStepSize_;
 
     std::shared_ptr< interpolators::OneDimensionalInterpolator< double, double > > interpolator_;
 
+    //! TODO: To be moved to new base class?
     std::map< double, Eigen::Vector3d > thrustAccelerationVectorCache_;
 
     std::shared_ptr< numerical_quadrature::QuadratureSettings< double > > quadratureSettings_;

@@ -72,10 +72,10 @@ public:
         return velocityChange_;
     }
 
-    double getManeuverMagnitude( )
-    {
-        return velocityChange_;
-    }
+//    double getManeuverMagnitude( )
+//    {
+//        return velocityChange_;
+//    }
 
     double getManeuverTime( )
     {
@@ -284,7 +284,7 @@ protected:
 
     void computeTransfer( );
 
-    void calculateDsmLocation( );
+//    void calculateDsmLocation( );
 
     double dsmTimeOfFlightFraction_;
     double dimensionlessRadiusDsm_;
@@ -312,9 +312,9 @@ protected:
     std::function< Eigen::Vector3d( ) > departureVelocityFunction_;
 
     double dsmTimeOfFlightFraction_;
-    double excessVelocityMagnitude_;
-    double excessVelocityInPlaneAngle_;
-    double excessVelocityOutOfPlaneAngle_;
+//    double excessVelocityMagnitude_;
+//    double excessVelocityInPlaneAngle_;
+//    double excessVelocityOutOfPlaneAngle_;
 
 };
 
