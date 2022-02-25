@@ -235,6 +235,9 @@ std::string getDependentVariableName( const std::shared_ptr< SingleDependentVari
     case radiation_pressure_coefficient_dependent_variable:
         variableName = "Radiation pressure coefficient ";
         break;
+    case custom_dependent_variable:
+        variableName = "Custom dependent variable ";
+        break;
     default:
         std::string errorMessage = "Error, dependent variable " +
                 std::to_string( propagationDependentVariables ) +

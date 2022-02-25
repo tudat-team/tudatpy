@@ -489,30 +489,24 @@ public:
 
 };
 
+class CustomDependentVariableSaveSettings: public SingleDependentVariableSaveSettings
+{
+public:
 
-//class CustomDependentVariableSaveSettings: public SingleDependentVariableSaveSettings
-//{
-//public:
 
-//    CustomDependentVariableSaveSettings(
-//            const std::string& bodyWithProperty,
-//            const std::function< Eigen::VectorXd( const double ) > customDependentVariableFunction,
-//            const int dependentVariableSize ):
-//        SingleDependentVariableSaveSettings(
-//            custom_dependent_variable, bodyUndergoingAcceleration, bodyExertingAcceleration ),
-//        accelerationModelType_( accelerationModelType ), derivativeWrtBody_( derivativeWrtBody ),
-//        thirdBody_( thirdBody ){ }
+    CustomDependentVariableSaveSettings(
+            const std::function< Eigen::VectorXd( ) > customDependentVariableFunction,
+            const int dependentVariableSize ):
+        SingleDependentVariableSaveSettings(
+            custom_dependent_variable, "", "" ),
+        customDependentVariableFunction_( customDependentVariableFunction ), dependentVariableSize_( dependentVariableSize ){ }
 
-//    // Type of acceleration that is to be saved.
-//    basic_astrodynamics::AvailableAcceleration accelerationModelType_;
+    const std::function< Eigen::VectorXd( ) > customDependentVariableFunction_;
 
-//    // String denoting w.r.t. which body the derivative needs to be taken.
-//    std::string derivativeWrtBody_;
+    const int dependentVariableSize_;
 
-//    // String denoting the third body w.r.t. which the partial needs to be taken (in case of third body acceleration).
-//    std::string thirdBody_;
+};
 
-//};
 
 
 
@@ -1098,6 +1092,15 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > atmosphericTempera
     return std::make_shared< SingleDependentVariableSaveSettings >(
                 local_temperature_dependent_variable,  associatedBody, centralBody );
 }
+
+inline std::shared_ptr< SingleDependentVariableSaveSettings > customDependentVariable(
+        const std::function< Eigen::VectorXd( ) > customDependentVariableFunction,
+        const int dependentVariableSize  )
+{
+    return std::make_shared< CustomDependentVariableSaveSettings >(
+                customDependentVariableFunction,  dependentVariableSize );
+}
+
 
 
 

@@ -122,6 +122,8 @@ public:
                         std::vector< std::shared_ptr< basic_astrodynamics::TorqueModel > >( );
             }
         }
+
+        verifyInput( );
     }
 
     // Destructor
@@ -290,6 +292,31 @@ public:
     }
 
 protected:
+
+    void verifyInput( )
+    {
+        for( unsigned int i = 0; i < bodiesToPropagate_.size( ); i++ )
+        {
+            if( torqueModelsPerBody_.count( bodiesToPropagate_.at( i ) ) == 0 )
+            {
+                throw std::runtime_error( "Error, requested propagation of rotational dynamics of body " +
+                                          bodiesToPropagate_.at( i ) +
+                                          ", but no torque models provided" );
+            }
+        }
+
+        for( auto it : torqueModelsPerBody_ )
+        {
+            if( std::find( bodiesToPropagate_.begin( ),
+                           bodiesToPropagate_.end( ),
+                           it.first ) == bodiesToPropagate_.end( ) )
+            {
+                throw std::runtime_error( "Error, provided torque models for body " +
+                                          it.first +
+                                          ", but this body is not included in list of bodies for which rotation is to be propagated." );
+            }
+        }
+    }
 
     // Function to get the total torques acting on each body, expressed in the body-fixed frames
     /*
