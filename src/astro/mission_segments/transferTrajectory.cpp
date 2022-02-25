@@ -22,26 +22,22 @@ void TransferTrajectory::evaluateTrajectory(
     {
         if( !nodes_.at( i )->nodeComputesOutgoingVelocity( ) )
         {
-            getLegTotalParameters(
-                        nodeTimes, legFreeParameters.at( i ), i, legTotalParameters );
+            getLegTotalParameters( nodeTimes, legFreeParameters.at( i ), i, legTotalParameters );
             legs_.at( i )->updateLegParameters( legTotalParameters );
             totalDeltaV_ += legs_.at( i )->getLegDeltaV( );
             totalTimeOfFlight_ += legs_.at( i )->getLegTimeOfFlight( );
 
-            getNodeTotalParameters(
-                        nodeTimes, nodeFreeParameters.at( i ), i, nodeTotalParameters );
+            getNodeTotalParameters( nodeTimes, nodeFreeParameters.at( i ), i, nodeTotalParameters );
             nodes_.at( i )->updateNodeParameters( nodeTotalParameters );
             totalDeltaV_ += nodes_.at( i )->getNodeDeltaV( );
         }
         else
         {
-            getNodeTotalParameters(
-                        nodeTimes, nodeFreeParameters.at( i ), i, nodeTotalParameters );
+            getNodeTotalParameters( nodeTimes, nodeFreeParameters.at( i ), i, nodeTotalParameters );
             nodes_.at( i )->updateNodeParameters( nodeTotalParameters );
             totalDeltaV_ += nodes_.at( i )->getNodeDeltaV( );
 
-            getLegTotalParameters(
-                        nodeTimes, legFreeParameters.at( i ), i, legTotalParameters );
+            getLegTotalParameters( nodeTimes, legFreeParameters.at( i ), i, legTotalParameters );
             legs_.at( i )->updateLegParameters( legTotalParameters );
             totalDeltaV_ += legs_.at( i )->getLegDeltaV( );
             totalTimeOfFlight_ += legs_.at( i )->getLegTimeOfFlight( );
@@ -102,7 +98,7 @@ double TransferTrajectory::getTotalTimeOfFlight ( )
     }
     else
     {
-        throw std::runtime_error( "Error when getting Delta V for transfer trajectory; transfer parameters not set!" );
+        throw std::runtime_error( "Error when getting time of flight for transfer trajectory; transfer parameters not set!" );
     }
 }
 

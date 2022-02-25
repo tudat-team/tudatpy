@@ -97,10 +97,10 @@ public:
 
 
 //    //! Compute direction thrust acceleration in cartesian coordinates.
-//    virtual Eigen::Vector3d computeCurrentThrustAccelerationDirectionFromAzimuth( double currentIndependentVariable ) = 0;
+//    virtual Eigen::Vector3d computeCurrentThrustAccelerationDirection( double currentIndependentVariable ) = 0;
 
 //    //! Compute magnitude thrust acceleration.
-//    virtual double computeCurrentThrustAccelerationMagnitudeFromAzimuth( double currentIndependentVariable ) = 0;
+//    virtual double computeCurrentThrustAccelerationMagnitude( double currentIndependentVariable ) = 0;
 
 
 
