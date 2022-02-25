@@ -244,11 +244,7 @@ void addViabilityToSingleObservationSimulationSettings(
     std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > > viabilitySettingsToAdd;
     for( unsigned int j = 0; j < viabilitySettingsList.size( ); j++ )
     {
-        if( observation_models::isLinkEndPresent( observationSimulationSettings->getLinkEnds( ),
-                                                  viabilitySettingsList.at( j )->getAssociatedLinkEnd( ) ) )
-        {
-            viabilitySettingsToAdd.push_back( viabilitySettingsList.at( j ) );
-        }
+        viabilitySettingsToAdd.push_back( viabilitySettingsList.at( j ) );
     }
 
     if( viabilitySettingsToAdd.size( ) > 0 )

@@ -218,19 +218,22 @@ std::shared_ptr< aerodynamics::TrimOrientationCalculator > setTrimmedConditions(
 //! Function that must be called to link the AerodynamicGuidance object to the simulation
 void setGuidanceAnglesFunctions(
         const std::shared_ptr< aerodynamics::AerodynamicGuidance > aerodynamicGuidance,
-        const std::shared_ptr< reference_frames::AerodynamicAngleCalculator > angleCalculator )
+        const std::shared_ptr< reference_frames::AerodynamicAngleCalculator > angleCalculator,
+        const bool silenceWarnings  )
 {
     angleCalculator->setOrientationAngleFunctions(
                 std::bind( &aerodynamics::AerodynamicGuidance::getCurrentAngleOfAttack, aerodynamicGuidance ),
                 std::bind( &aerodynamics::AerodynamicGuidance::getCurrentAngleOfSideslip, aerodynamicGuidance ),
                 std::bind( &aerodynamics::AerodynamicGuidance::getCurrentBankAngle, aerodynamicGuidance ),
-                std::bind( &aerodynamics::AerodynamicGuidance::updateGuidance, aerodynamicGuidance, std::placeholders::_1 ) );
+                std::bind( &aerodynamics::AerodynamicGuidance::updateGuidance, aerodynamicGuidance, std::placeholders::_1 ),
+                silenceWarnings );
 }
 
 //! Function that must be called to link the AerodynamicGuidance object to the simulation
 void setGuidanceAnglesFunctions(
         const std::shared_ptr< aerodynamics::AerodynamicGuidance > aerodynamicGuidance,
-        const std::shared_ptr< simulation_setup::Body > bodyWithAngles )
+        const std::shared_ptr< simulation_setup::Body > bodyWithAngles,
+        const bool silenceWarnings )
 {
     std::shared_ptr< reference_frames::DependentOrientationCalculator >  orientationCalculator =
             bodyWithAngles->getDependentOrientationCalculator( );
@@ -243,7 +246,7 @@ void setGuidanceAnglesFunctions(
     }
     else
     {
-        setGuidanceAnglesFunctions( aerodynamicGuidance, angleCalculator );
+        setGuidanceAnglesFunctions( aerodynamicGuidance, angleCalculator, silenceWarnings );
     }
 }
 
@@ -263,6 +266,24 @@ void setAerodynamicOrientationFunctions(
             body->getFlightConditions( );
     vehicleFlightConditions->getAerodynamicAngleCalculator( )->setOrientationAngleFunctions(
                 angleOfAttackFunction, angleOfSideslipFunction, bankAngleFunction, angleUpdateFunction );
+}
+
+void setConstantAerodynamicOrientation(
+        const std::shared_ptr< simulation_setup::Body > body,
+        const double angleOfAttack,
+        const double sideslipAngle,
+        const double bankAngle,
+        const bool silenceWarnings )
+{
+    if( body->getFlightConditions( ) == nullptr )
+    {
+        throw std::runtime_error( "Error when setting constant aerodynamic angles, body " + body->getBodyName( ) + " has no FlightConditions" );
+    }
+
+    std::shared_ptr< aerodynamics::FlightConditions > vehicleFlightConditions =
+            body->getFlightConditions( );
+    vehicleFlightConditions->getAerodynamicAngleCalculator( )->setOrientationAngleFunctions(
+                angleOfAttack, sideslipAngle, bankAngle, silenceWarnings );
 }
 
 } // namespace simulation_setup
