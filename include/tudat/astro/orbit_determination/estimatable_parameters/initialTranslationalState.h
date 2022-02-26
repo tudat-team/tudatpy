@@ -250,6 +250,16 @@ public:
         return arcStartTimes;
     }
 
+    //! Function to get the orientation of the frame in which the state is defined.
+    /*!
+     * Function to get the orientation of the frame in which the state is defined.
+     * \return Orientation of the frame in which the state is defined.
+     */
+    std::string getFrameOrientation( )
+    {
+        return frameOrientation_;
+    }
+
 private:
 
     //! The current values of initial states w.r.t. centralBody for each arc, concatenated in arc order
@@ -266,127 +276,127 @@ private:
 
 };
 
-//! Function to retrieve the size of the estimatable parameter set.
-/*!
- *  Function to retrieve the size of the estimatable parameter set.
- *  \param estimatableParameterSet Set of estimatable parameters.
- *  \return Size of parameter set.
- */
-template< typename InitialStateParameterType = double >
-int getSingleArcParameterSetSize(
-        std::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > estimatableParameterSet )
-{
-    int totalParameterSetSize = estimatableParameterSet->getEstimatedParameterSetSize( );
-    std::vector< std::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > >
-            initialStateParameters = estimatableParameterSet->getEstimatedInitialStateParameters( );
-
-    for( unsigned int i = 0; i < initialStateParameters.size( ); i++ )
-    {
-        if( initialStateParameters.at( i )->getParameterName( ).first == arc_wise_initial_body_state )
-        {
-            totalParameterSetSize -=
-                    ( std::dynamic_pointer_cast< ArcWiseInitialTranslationalStateParameter< InitialStateParameterType > >(
-                          initialStateParameters.at( i ) )->getNumberOfStateArcs( ) - 1 ) * 6;
-        }
-        else if( ( initialStateParameters.at( i )->getParameterName( ).first != initial_body_state ) &&
-                 ( initialStateParameters.at( i )->getParameterName( ).first != initial_rotational_body_state ) &&
-                 ( initialStateParameters.at( i )->getParameterName( ).first != initial_mass_state ))
-        {
-            throw std::runtime_error(
-                        "Error when getting single arc paramater vector, did not recognize initial state parameter " +
-                        std::to_string( initialStateParameters.at( i )->getParameterName( ).first ) );
-        }
-    }
-    return totalParameterSetSize;
-}
-
-//! Function to retrieve the size of the dynamical state.
-/*!
- *  Function to retrieve the size of the dynamical state.
- *  \param estimatableParameterSet Set of estimatable parameters.
- *  \return Size of the initial dynamical state.
- */
-template< typename InitialStateParameterType = double >
-int getSingleArcInitialDynamicalStateParameterSetSize(
-        std::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > estimatableParameterSet )
-{
-    return getSingleArcParameterSetSize( estimatableParameterSet ) -
-            ( estimatableParameterSet->getEstimatedParameterSetSize( ) -
-              estimatableParameterSet->getInitialDynamicalStateParameterSize( ) );
-}
-
-//! Function to get arc start times from list of estimated parameters
-/*!
- *  Function to get arc start times from list of estimated parameters. Function throws an error if multiple arc-wise
- *  estimations are found, but arc times are not compatible
- *  \param estimatableParameters List of estimated parameters
- *  \param throwErrorOnSingleArcDynamics Boolean denoting whether to throw an exception if single arc dynamics are used (default true)
- *  \return Start times for estimation arcs
- */
-template< typename InitialStateParameterType >
-std::vector< double > getMultiArcStateEstimationArcStartTimes(
-        const std::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > estimatableParameters,
-        const bool throwErrorOnSingleArcDynamics = true )
-
-{
-    // Retrieve initial dynamical parameters.
-    std::vector< std::shared_ptr< EstimatableParameter<
-            Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > initialDynamicalParameters =
-            estimatableParameters->getEstimatedInitialStateParameters( );
-
-    std::vector< double > arcStartTimes;
-
-    // Iterate over list of bodies of which the partials of the accelerations acting on them are required.
-    for( unsigned int i = 0; i < initialDynamicalParameters.size( ); i++ )
-    {
-        if( initialDynamicalParameters.at( i )->getParameterName( ).first == arc_wise_initial_body_state )
-        {
-            std::shared_ptr< ArcWiseInitialTranslationalStateParameter< InitialStateParameterType > > arcWiseStateParameter =
-                    std::dynamic_pointer_cast< ArcWiseInitialTranslationalStateParameter< InitialStateParameterType > >(
-                        initialDynamicalParameters.at( i ) );
-            if( arcWiseStateParameter == nullptr )
-            {
-                throw std::runtime_error( "Error when getting arc times from estimated parameters, parameter is inconsistent" );
-            }
-
-            if( arcStartTimes.size( ) == 0 )
-            {
-                arcStartTimes = arcWiseStateParameter->getArcStartTimes( );
-            }
-            else
-            {
-                // Check arc consistency
-                std::vector< double > currentArcStartTimes = arcWiseStateParameter->getArcStartTimes( );
-                if( currentArcStartTimes.size( ) != arcStartTimes.size( ) )
-                {
-                    throw std::runtime_error(
-                                "Error when getting arc start times for parameters, number of arcs is inconsistent" );
-                }
-                else
-                {
-                    for( unsigned int j = 0; j < arcStartTimes.size( ); j++ )
-                    {
-                        if( arcStartTimes.at( j ) != currentArcStartTimes.at( j ) )
-                        {
-                            throw std::runtime_error(
-                                        "Error when getting arc start times for parameters, arc times are inconsistent" );
-                        }
-                    }
-                }
-            }
-
-        }
-        else
-        {
-            if( throwErrorOnSingleArcDynamics )
-            {
-                throw std::runtime_error( "Error when getting arc times from estimated parameters, soingle arc dynamics found" );
-            }
-        }
-    }
-
-    return arcStartTimes;
-}
+////! Function to retrieve the size of the estimatable parameter set.
+///*!
+// *  Function to retrieve the size of the estimatable parameter set.
+// *  \param estimatableParameterSet Set of estimatable parameters.
+// *  \return Size of parameter set.
+// */
+//template< typename InitialStateParameterType = double >
+//int getSingleArcParameterSetSize(
+//        std::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > estimatableParameterSet )
+//{
+//    int totalParameterSetSize = estimatableParameterSet->getEstimatedParameterSetSize( );
+//    std::vector< std::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > >
+//            initialStateParameters = estimatableParameterSet->getEstimatedInitialStateParameters( );
+//
+//    for( unsigned int i = 0; i < initialStateParameters.size( ); i++ )
+//    {
+//        if( initialStateParameters.at( i )->getParameterName( ).first == arc_wise_initial_body_state )
+//        {
+//            totalParameterSetSize -=
+//                    ( std::dynamic_pointer_cast< ArcWiseInitialTranslationalStateParameter< InitialStateParameterType > >(
+//                          initialStateParameters.at( i ) )->getNumberOfStateArcs( ) - 1 ) * 6;
+//        }
+//        else if( ( initialStateParameters.at( i )->getParameterName( ).first != initial_body_state ) &&
+//                 ( initialStateParameters.at( i )->getParameterName( ).first != initial_rotational_body_state ) &&
+//                 ( initialStateParameters.at( i )->getParameterName( ).first != initial_mass_state ))
+//        {
+//            throw std::runtime_error(
+//                        "Error when getting single arc parameter vector, did not recognize initial state parameter " +
+//                        std::to_string( initialStateParameters.at( i )->getParameterName( ).first ) );
+//        }
+//    }
+//    return totalParameterSetSize;
+//}
+//
+////! Function to retrieve the size of the dynamical state.
+///*!
+// *  Function to retrieve the size of the dynamical state.
+// *  \param estimatableParameterSet Set of estimatable parameters.
+// *  \return Size of the initial dynamical state.
+// */
+//template< typename InitialStateParameterType = double >
+//int getSingleArcInitialDynamicalStateParameterSetSize(
+//        std::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > estimatableParameterSet )
+//{
+//    return getSingleArcParameterSetSize( estimatableParameterSet ) -
+//            ( estimatableParameterSet->getEstimatedParameterSetSize( ) -
+//              estimatableParameterSet->getInitialDynamicalStateParameterSize( ) );
+//}
+//
+////! Function to get arc start times from list of estimated parameters
+///*!
+// *  Function to get arc start times from list of estimated parameters. Function throws an error if multiple arc-wise
+// *  estimations are found, but arc times are not compatible
+// *  \param estimatableParameters List of estimated parameters
+// *  \param throwErrorOnSingleArcDynamics Boolean denoting whether to throw an exception if single arc dynamics are used (default true)
+// *  \return Start times for estimation arcs
+// */
+//template< typename InitialStateParameterType >
+//std::vector< double > getMultiArcStateEstimationArcStartTimes(
+//        const std::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > estimatableParameters,
+//        const bool throwErrorOnSingleArcDynamics = true )
+//
+//{
+//    // Retrieve initial dynamical parameters.
+//    std::vector< std::shared_ptr< EstimatableParameter<
+//            Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > initialDynamicalParameters =
+//            estimatableParameters->getEstimatedInitialStateParameters( );
+//
+//    std::vector< double > arcStartTimes;
+//
+//    // Iterate over list of bodies of which the partials of the accelerations acting on them are required.
+//    for( unsigned int i = 0; i < initialDynamicalParameters.size( ); i++ )
+//    {
+//        if( initialDynamicalParameters.at( i )->getParameterName( ).first == arc_wise_initial_body_state )
+//        {
+//            std::shared_ptr< ArcWiseInitialTranslationalStateParameter< InitialStateParameterType > > arcWiseStateParameter =
+//                    std::dynamic_pointer_cast< ArcWiseInitialTranslationalStateParameter< InitialStateParameterType > >(
+//                        initialDynamicalParameters.at( i ) );
+//            if( arcWiseStateParameter == nullptr )
+//            {
+//                throw std::runtime_error( "Error when getting arc times from estimated parameters, parameter is inconsistent" );
+//            }
+//
+//            if( arcStartTimes.size( ) == 0 )
+//            {
+//                arcStartTimes = arcWiseStateParameter->getArcStartTimes( );
+//            }
+//            else
+//            {
+//                // Check arc consistency
+//                std::vector< double > currentArcStartTimes = arcWiseStateParameter->getArcStartTimes( );
+//                if( currentArcStartTimes.size( ) != arcStartTimes.size( ) )
+//                {
+//                    throw std::runtime_error(
+//                                "Error when getting arc start times for parameters, number of arcs is inconsistent" );
+//                }
+//                else
+//                {
+//                    for( unsigned int j = 0; j < arcStartTimes.size( ); j++ )
+//                    {
+//                        if( arcStartTimes.at( j ) != currentArcStartTimes.at( j ) )
+//                        {
+//                            throw std::runtime_error(
+//                                        "Error when getting arc start times for parameters, arc times are inconsistent" );
+//                        }
+//                    }
+//                }
+//            }
+//
+//        }
+//        else
+//        {
+//            if( throwErrorOnSingleArcDynamics )
+//            {
+//                throw std::runtime_error( "Error when getting arc times from estimated parameters, soingle arc dynamics found" );
+//            }
+//        }
+//    }
+//
+//    return arcStartTimes;
+//}
 
 
 } // namespace estimatable_parameters

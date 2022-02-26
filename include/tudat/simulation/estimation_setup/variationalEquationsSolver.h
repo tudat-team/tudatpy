@@ -1215,7 +1215,7 @@ public:
     {
         if(  std::dynamic_pointer_cast< MultiArcPropagatorSettings< StateScalarType > >( propagatorSettings ) == nullptr )
         {
-            throw std::runtime_error( "Error when making multi-arc variational equartions solver, input is single-arc" );
+            throw std::runtime_error( "Error when making multi-arc variational equations solver, input is single-arc" );
         }
         checkMultiArcPropagatorSettingsAndParameterEstimationConsistency(
                     propagatorSettings_, parametersToEstimate, arcStartTimes, estimatedBodiesPerArc_, arcIndicesPerBody_,
@@ -1231,16 +1231,19 @@ public:
         getParametersToEstimatePerArc( parametersToEstimate, arcWiseParametersToEstimate_, estimatedBodiesPerArc_ );
 
 
-        parameterVectorSize_ = estimatable_parameters::getSingleArcParameterSetSize( parametersToEstimate );
+        parameterVectorSize_ = 0.0; // estimatable_parameters::getSingleArcParameterSetSize( parametersToEstimate );
 
-        stateTransitionMatrixSize_ -= ( parametersToEstimate->getParameterSetSize( ) -
-                                        estimatable_parameters::getSingleArcParameterSetSize( parametersToEstimate ) );
+        stateTransitionMatrixSize_  = 0.0; //-= ( parametersToEstimate->getParameterSetSize( ) -
+                                        // estimatable_parameters::getSingleArcParameterSetSize( parametersToEstimate ) );
 
         for ( unsigned int arc = 0 ; arc < estimatedBodiesPerArc_.size( ) ; arc++ )
         {
-            arcWiseStateTransitionMatrixSize_.push_back( 6 * estimatedBodiesPerArc_[ arc ].size( ) );
+//            arcWiseStateTransitionMatrixSize_.push_back( 6 * estimatedBodiesPerArc_[ arc ].size( ) );
+            arcWiseStateTransitionMatrixSize_.push_back( estimatable_parameters::getSingleArcInitialDynamicalStateParameterSetSize( parametersToEstimate, arc ) );
             std::cout << "arcWiseStateTransitionMatrixSize_: " << arcWiseStateTransitionMatrixSize_[ arc ] << "\n\n";
-            arcWiseParameterVectorSize_.push_back( estimatable_parameters::getSingleArcParameterSetSize( arcWiseParametersToEstimate_[ arc ] ) );
+            std::cout << "test STM size: " << estimatable_parameters::getSingleArcInitialDynamicalStateParameterSetSize( arcWiseParametersToEstimate_[ arc ] ) << "\n\n";
+//            arcWiseParameterVectorSize_.push_back( estimatable_parameters::getSingleArcParameterSetSize( arcWiseParametersToEstimate_[ arc ] ) );
+            arcWiseParameterVectorSize_.push_back( estimatable_parameters::getSingleArcParameterSetSize( parametersToEstimate, arc ) );
             std::cout << "arcWiseParameterVectorSize_: " << arcWiseParameterVectorSize_[ arc ] << "\n\n";
         }
 
