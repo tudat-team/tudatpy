@@ -16,6 +16,7 @@
 
 #include <memory>
 
+#include "tudat/io/basicInputOutput.h"
 #include "tudat/astro/aerodynamics/atmosphereModel.h"
 #include "tudat/astro/aerodynamics/exponentialAtmosphere.h"
 #include "tudat/astro/aerodynamics/customConstantTemperatureAtmosphere.h"
@@ -929,9 +930,10 @@ inline std::shared_ptr< AtmosphereSettings > exponentialAtmosphereSettings(
 }
 
 //! @get_docstring(nrlmsise00AtmosphereSettings)
-inline std::shared_ptr< AtmosphereSettings > nrlmsise00AtmosphereSettings( )
+inline std::shared_ptr< AtmosphereSettings > nrlmsise00AtmosphereSettings(
+        const std::string dataFile = paths::getSpaceWeatherDataPath( ) + "/sw19571001.txt" )
 {
-    return std::make_shared< AtmosphereSettings >( nrlmsise00 );
+    return std::make_shared< NRLMSISE00AtmosphereSettings >( dataFile );
 }
 
 typedef std::function< double( const double, const double, const double, const double ) > DensityFunction;
