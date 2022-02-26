@@ -34,6 +34,8 @@
 #include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
 #include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
 
+#include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameterSet.h"
+
 namespace tudat
 {
 
@@ -596,7 +598,7 @@ BOOST_AUTO_TEST_CASE( testMultiArcMultiBodyVariationalEquationCalculation1 )
     // Different test cases
     // testCase = 0 : same bodies for each arc
     // testCase = 1 : different bodies / nb of bodies for each arc
-    for ( unsigned int testCase = 0 ; testCase < 2 ; testCase++ ) {
+    for ( unsigned int testCase = 1 ; testCase < 2 ; testCase++ ) {
 
         // Define bodies to propagate & associated central bodies
         std::map<int, std::vector<std::string> > bodiesToPropagatePerArc, centralBodiesPerArc;
@@ -765,6 +767,59 @@ BOOST_AUTO_TEST_CASE( testMultiArcMultiBodyVariationalEquationCalculation1 )
             // Comparison - variational equations solutions
             std::vector<std::vector<std::map<double, Eigen::MatrixXd> > > perArcVariationalEquationsSolution =
                     perArcVariationalEquations.getNumericalVariationalEquationsSolution();
+
+            std::map< double, std::vector< std::string > > bodiesToEstimatePerArc;
+            std::vector< int > multiArcStateParametersSizePerArc;
+            std::map< double, std::vector< std::shared_ptr< EstimatableParameter< Eigen::Matrix< double, Eigen::Dynamic, 1 > > > > >
+            perArcMultiArcParametersToEstimate = getMultiArcDynamicalStateToEstimatePerArc(
+                            parametersToEstimate->getEstimatedMultiArcInitialStateParameters( ),
+                            bodiesToEstimatePerArc, multiArcStateParametersSizePerArc );
+
+            std::vector< double > arcStartingTimes = parametersToEstimate->getArcStartingTimes( );
+            for ( unsigned int i = 0 ; i < numberArcs ; i++ )
+            {
+                std::cout << "size parameters arc " << i << " = " << getSingleArcParameterSetSize( parametersToEstimate, i ) << "\n\n";
+                std::cout << "size dynamical parameters arc " << i << " = " << getSingleArcInitialDynamicalStateParameterSetSize( parametersToEstimate, i ) << "\n\n";
+            }
+
+            for ( unsigned int i = 0 ; i < multiArcStateParametersSizePerArc.size( ) ; i++ )
+            {
+                std::cout << "arc " << i+1 << " - size multi-arc states: " << multiArcStateParametersSizePerArc.at( i ) << "\n\n";
+            }
+            for ( auto itr : bodiesToEstimatePerArc )
+            {
+                std::cout << "arc:" << itr.first+1 <<  "\n\n";
+                for ( unsigned int i = 0 ; i < itr.second.size( ); i++ )
+                {
+                    std::cout << itr.second.at( i ) << " & " ;
+                }
+                std::cout << "\n\n";
+            }
+
+            std::map< double, int > mapTest;
+            std::vector< double > vectorTest = utilities::createVectorFromMapKeys( mapTest );
+            std::cout << "size vector test: " << vectorTest.size( ) << "\n\n";
+
+
+//            std::shared_ptr< ArcWiseInitialTranslationalStateParameter< double > > arcWiseTranslationalStateParameter =
+//                    std::dynamic_pointer_cast< ArcWiseInitialTranslationalStateParameter< double > >(
+//                            parametersToEstimate->getEstimatedMultiArcInitialStateParameters( ).at( 0 ) );
+//            std::vector< double > currentArcTimes = arcWiseTranslationalStateParameter->getArcStartTimes( );
+//
+//            for ( unsigned int i = 0 ; i < currentArcTimes.size( ) ; i++ ) {
+//                // Multi-arc state parameter limited to current arc.
+//                std::cout << "arc: " << i+1 << "\n\n";
+//                std::cout << "test: " << arcWiseTranslationalStateParameter->getParameterName().second.first << "\n\n";
+//                std::cout << "state: " << arcWiseTranslationalStateParameter->getParameterValue( ).segment( i * 6, 6).transpose( ) << "\n\n";
+//                std::vector< double > bla1 = { currentArcTimes.at(i) };
+//                std::vector< std::string > bla2 = {arcWiseTranslationalStateParameter->getCentralBodies().at(i)};
+//                 std::shared_ptr<ArcWiseInitialTranslationalStateParameter<> > currentArcTranslationalStateParameter =
+//                        std::make_shared<ArcWiseInitialTranslationalStateParameter< double > >(
+//                                arcWiseTranslationalStateParameter->getParameterName().second.first,
+//                                bla1, arcWiseTranslationalStateParameter->getParameterValue().segment( i * 6, 6),
+//                                bla2, arcWiseTranslationalStateParameter->getFrameOrientation());
+//            }
+
 
             for (auto itr: multiArcStateHistory.at(arc)) {
                 TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
