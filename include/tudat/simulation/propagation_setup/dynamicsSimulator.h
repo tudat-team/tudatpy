@@ -225,6 +225,46 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialArcWiseStateOfBody
     return initialStates;
 }
 
+
+//! Function to print what is inside the propagated state vector
+template< typename StateScalarType = double >
+void printPropagatedStateVectorContent (const std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string > > > integratedTypeAndBodyList)
+{
+    std::cout << "State vector contains: " << std::endl
+              << "Vector entries, Vector contents" << std::endl;
+
+    unsigned int stateVectorIndex = 0;
+    std::vector<std::string> stateTypeStrings {"hybrid", "translational", "rotational", "body mass", "custom"};
+    
+    // Loop trough propagated state types and body names
+    for (std::pair<IntegratedStateType, std::vector< std::pair< std::string, std::string > >> integratedTypeAndBody : integratedTypeAndBodyList)
+    {
+        // Extract state type and list of body names
+        IntegratedStateType stateType = integratedTypeAndBody.first;
+        std::vector< std::pair< std::string, std::string > > bodyList = integratedTypeAndBody.second;
+
+        int stateSize = getSingleIntegrationSize(stateType);
+
+        // Loop trough list of body names
+        for(unsigned int i = 0; i < bodyList.size (); i++)
+        {
+            // Print index at which given state type of body can be accessed
+            if (stateSize == 1) {
+                std::cout << "[" << stateVectorIndex << "], ";
+            }
+            else {
+                std::cout << "[" << stateVectorIndex << ":" << stateVectorIndex+stateSize << "], ";
+            }
+
+            // Print state type and body name (note: hybrid state type should never be printed, taken care of by `getIntegratedTypeAndBodyList()` function)
+            std::cout << stateTypeStrings[stateType] << " state of body " << bodyList[i].first << std::endl; 
+            
+            // Remember where we are at trough the state vector
+            stateVectorIndex += stateSize;
+        }
+    }
+}
+
 //! Base class for performing full numerical integration of a dynamical system.
 /*!
  *  Base class for performing full numerical integration of a dynamical system. Governing equations are set once,
@@ -398,7 +438,8 @@ public:
             const bool setIntegratedResult = false,
             const bool printNumberOfFunctionEvaluations = false,
             const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ),
-            const bool printDependentVariableData = true ):
+            const bool printDependentVariableData = true,
+            const bool printStateData = false ):
         DynamicsSimulator< StateScalarType, TimeType >(
             bodies, clearNumericalSolutions, setIntegratedResult ),
         integratorSettings_( integratorSettings ),
@@ -407,6 +448,7 @@ public:
         initialPropagationTime_( integratorSettings_->initialTime_ ),
         printNumberOfFunctionEvaluations_( printNumberOfFunctionEvaluations ), initialClockTime_( initialClockTime ),
         propagationTerminationReason_( std::make_shared< PropagationTerminationDetails >( propagation_never_run ) ),
+        printStateData_( printStateData ),
         printDependentVariableData_( printDependentVariableData )
     {
         if( propagatorSettings == nullptr )
@@ -459,7 +501,12 @@ public:
 
         propagationTerminationCondition_ = createPropagationTerminationConditions(
                     propagatorSettings_->getTerminationSettings( ), bodies_,
-                    integratorSettings->initialTimeStep_, dynamicsStateDerivative_->getStateDerivativeModels( ) );
+                    integratorSettings->initialTimeStep_, dynamicsStateDerivative_->getStateDerivativeModels( ) );  
+
+        if( printStateData_ )
+        {
+            printPropagatedStateVectorContent(getIntegratedTypeAndBodyList(propagatorSettings_));
+        }
 
         if( propagatorSettings_->getDependentVariablesToSave( ) != nullptr )
         {
@@ -472,7 +519,7 @@ public:
 
             if( propagatorSettings_->getDependentVariablesToSave( )->printDependentVariableTypes_ && printDependentVariableData_ )
             {
-                std::cout << "Dependent variables being saved, output vectors contain: " << std::endl
+                std::cout << "Dependent variables being saved, output vector contains: " << std::endl
                           << "Vector entry, Vector contents" << std::endl;
                 utilities::printMapContents( dependentVariableIds_ );
             }
@@ -504,7 +551,8 @@ public:
             const bool clearNumericalSolutions = false,
             const bool setIntegratedResult = false,
             const bool printNumberOfFunctionEvaluations = false,
-            const bool printDependentVariableData = true ):
+            const bool printDependentVariableData = true,
+            const bool printStateData = false ):
         SingleArcDynamicsSimulator(  bodies, integratorSettings,  propagatorSettings,
                                      std::vector< std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > >( ),
                                      areEquationsOfMotionToBeIntegrated,
@@ -512,7 +560,8 @@ public:
                                      setIntegratedResult,
                                      printNumberOfFunctionEvaluations,
                                      std::chrono::steady_clock::now( ),
-                                     printDependentVariableData ){ }
+                                     printDependentVariableData,
+                                     printStateData ){ }
 
     //! Destructor
     ~SingleArcDynamicsSimulator( ) { }
@@ -990,6 +1039,8 @@ protected:
 
     //! Event that triggered the termination of the propagation
     std::shared_ptr< PropagationTerminationDetails > propagationTerminationReason_;
+
+    bool printStateData_;
 
     bool printDependentVariableData_;
 
