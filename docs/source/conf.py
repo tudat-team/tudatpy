@@ -29,7 +29,7 @@ if bool(os.getenv("READTHEDOCS")) is True:
     from document import *
 
     multidoc_git_url = 'https://github.com/tudat-team/tudat-multidoc.git'
-    multidoc_git_rev = 'ff67adc61835f59f55c5542c210014867ea1af7f'
+    multidoc_git_rev = '4227d0089baf7849df85aa37e1a1699acde1372f'
 
     # clone repository
     docstring_path = get_docstrings(multidoc_git_url, multidoc_git_rev)
