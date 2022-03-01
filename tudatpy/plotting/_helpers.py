@@ -1,7 +1,8 @@
+import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
-from typing import List, Dict
-from ..util import result2array
+from typing import List, Dict, Union
+from ..util import result2array, pareto_optimums
 
 def dual_y_axis(
     x_data: list,
@@ -72,11 +73,11 @@ def dual_y_axis(
 
     Returns
     -------
-    fig : matplotlib.pyplot.figure
+    fig : matplotlib.figure.Figure
         Figure containing the dual y-axis plot.
-    ax1 : matplotlib.pyplot.axis
+    ax1 : matplotlib.axes.Axes
         First axis, corresponding to the left y-axis (and containing the shared x-axis).
-    ax2 : matplotlib.pyplot.axis
+    ax2 : matplotlib.axes.Axes
         Second axis, corresponding to the right y-axis (and containing the shared x-axis).
 
     """
@@ -176,9 +177,9 @@ def trajectory_3d(
 
     Returns
     -------
-    fig : matplotlib.pyplot.figure
+    fig : matplotlib.figure.Figure
         Figure containing the 3D plot.
-    ax : matplotlib.pyplot.axis
+    ax : matplotlib.axes.Axes
         3D axis system used to plot the trajectory.
 
     """
@@ -267,4 +268,122 @@ def trajectory_3d(
     fig.tight_layout()
 
     # Return the figure and the axis system
+    return fig, ax
+
+def pareto_front(
+    x_objective: list,
+    y_objective: list,
+    x_label: str,
+    y_label: str,
+    title:str = "",
+    c_objective:Union[list,None] = None,
+    c_label:str = "",
+    cmap:Union[matplotlib.colors.Colormap,str] = "viridis",
+    operator:List[Union[min,max]] = [min, min],
+    alpha:float = 0.85):
+    """Plot optimisation solutions with their associated Pareto front.
+
+    This function allows to plot the cloud of points that results from an optimisation, with the x and y axis both representing one of the optimisation objectives.
+    A Pareto front is also automatically added to the plot, to represent the suite of optimum solutions.
+    Optionnally, information on a third objective, or a design parameter, can also be incorporated to the plot in the form of a colormap.
+
+    Parameters
+    ----------
+    x_objective : List[float]
+        List of values representing the score of each solution according to a first optimisation objective.
+    y_objective : List[float]
+        List of values representing the score of each solution according to a second optimisation objective.
+    x_label : str
+        Label of the x-axis.
+    y_label : str
+        Label of the y-axis.
+    title : str, optional
+        Title of the plot.
+    c_objective : List[float], optional
+        List of values representing the score of each solution according to a third optimisation objective, coloring the cloud of points.
+    c_label : str, optional
+        Label of the colorbar that is used to represent the optional third objective.
+    cmap : str or matplotlib.colors.Colormap, optional, default="viridis"
+        Colormap to use to represent the optional third objective.
+    operator : List[min,max], optional, default=[min,min]
+        List used to indicated if each of the two main objectives should be minimised or maximised.
+    alpha : float, optional, default=0.85
+
+    Examples
+    -------
+    The following example is based on the optimisation of the orbit of a CubeSat flying at very low altitude.
+    The two main optmisation objectives were to minimise the mean orbital altitude, and minimise the loss in periapsis over a few years.
+    The `pareto_front` function is then used to plot the optimisation results related to both of these objectives.
+    In addition, a colormap is used to represent the mean power that the CubeSat was receiving in each of the computed orbits.
+
+    .. code-block:: python
+
+        # Generate fake result from an optimisation 
+        mean_altitudes = np.random.gamma(100, 2, 1000)
+        periapsis_decays = np.random.gamma(10, 5, 1000)
+        mean_powers = np.random.normal(8, 3, 1000)
+
+        # Plot the two main objectives, using colors to represent the mean power
+        fig, ax = plotting.pareto_front(
+            x_objective=mean_altitudes,
+            y_objective=periapsis_decays,
+            x_label="Mean altitude [km]",
+            y_label="Periapsis decay [km]",
+            title="CubeSat altitude vs periapsis decay objectives, as a function of power",
+            c_objective=mean_powers,
+            c_label="Mean power [W]",
+            cmap="plasma",
+            alpha=0.65
+        )
+
+        # Show the plot
+        plt.show()
+
+    Running this code snippet results in a figure similar to the one below.
+    Do note that the code snippet uses randomly generated data, while the figure shown below is the real optimisation result.
+
+    .. image:: _static/pareto_front.png
+       :width: 700
+       :align: center
+
+    Returns
+    -------
+    fig : matplotlib.figure.Figure
+        Figure containing the plot.
+    ax : matplotlib.axes.Axes
+        Axis used to make the plot.
+
+    """
+    if c_objective is None:
+        # Create the figure and its axis
+        fig, ax = plt.subplots(figsize=(10,6))
+    else:
+        # Create the figure and its axis, with a 2.5% space reserved on its right for the colormap
+        fig, (ax, cax) = plt.subplots(
+            figsize=(10,6), 
+            ncols=2,
+            gridspec_kw={"width_ratios":[1, 0.025]}
+        )
+    # Plot the two main objectives, with the appropriate color if the color-associated objective is specified
+    objectives_scatter = ax.scatter(x_objective, y_objective, alpha=alpha, c=c_objective, cmap=cmap)
+    # If a color-associated objective was specified, add a colormap on the side of the figure
+    if c_objective is not None:
+        plt.colorbar(objectives_scatter, cax=cax, label=c_label)
+        # Print a warning if the colorbar is left with no label (but accept this)
+        if c_label == "":
+            print("Warning: a colorbar has been added to the Pareto front plot, but no label was specified for it.")
+    # Compute which of the points from the two main objectives are the Pareto optimums
+    optimum_mask = pareto_optimums(np.array([x_objective, y_objective]).T, operator=operator)
+    # Plot the pareto front (use the step function to not falsely indicate that a region is feasible without proof of it)
+    ax.step(sorted(x_objective[optimum_mask], reverse=operator[0]==min), sorted(y_objective[optimum_mask], reverse=operator[1]==max), color="#418F3E", linewidth=2)
+    # Add a label to both axis (this is not optional because a plot without axis label does not mean anything)
+    ax.set_xlabel(x_label), ax.set_ylabel(y_label)
+    # Add a grid
+    ax.grid()
+    # If a title is specified, add it
+    if title != "":
+        ax.set_title(title)
+    # Use a tight layout to save space
+    plt.tight_layout()
+    # Return the figure and axis
     return fig, ax
