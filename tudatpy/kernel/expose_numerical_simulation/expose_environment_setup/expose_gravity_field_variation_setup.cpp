@@ -115,16 +115,14 @@ void expose_gravity_field_variation_setup(py::module &m) {
           get_docstring("solid_body_tide_degree_variable_complex_k").c_str() );
 
     m.def("solid_body_tide_degree_order_variable_k",
-          py::overload_cast<const std::string, const std::map<int, std::vector<double> >,
-          const std::shared_ptr<tss::ModelInterpolationSettings> >(
+          py::overload_cast<const std::string, const std::map<int, std::vector<double> > >(
               &tss::degreeOrderVariableLoveNumberGravityFieldVariationSettingsPy),
           py::arg("tide_raising_body"),
           py::arg("love_number_per_degree_and_order"),
           get_docstring("solid_body_tide_degree_order_variable_k").c_str() );
 
     m.def("solid_body_tide_degree_order_variable_complex_k",
-          py::overload_cast<const std::string, const std::map<int, std::vector<std::complex<double> > >,
-          const std::shared_ptr<tss::ModelInterpolationSettings> >(
+          py::overload_cast<const std::string, const std::map<int, std::vector<std::complex<double> > > >(
               &tss::degreeOrderVariableLoveNumberGravityFieldVariationSettingsPy),
           py::arg("tide_raising_body"),
           py::arg("love_number_per_degree_and_order"),

@@ -26,7 +26,6 @@ def save2txt(solution, filename, directory="./"):
         _filename = filename
     else:
         _filename = filename + ".txt"
-    df.index.name = "time"
     df.to_csv(os.path.join(directory, filename),header=False,sep='\t')
 
 
