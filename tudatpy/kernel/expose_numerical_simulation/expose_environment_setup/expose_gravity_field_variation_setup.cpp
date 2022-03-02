@@ -26,77 +26,118 @@ namespace py = pybind11;
 namespace tss = tudat::simulation_setup;
 namespace tg = tudat::gravitation;
 
+namespace tudat
+{
+
+namespace simulation_setup
+{
+
+inline std::shared_ptr< GravityFieldVariationSettings > degreeOrderVariableLoveNumberGravityFieldVariationSettingsPy(
+        const std::string deformingBody,
+        const std::map< int, std::vector< double > > loveNumber )
+{
+    std::map< int, std::vector< std::complex< double > > > loveNumbers;
+    for( auto loveNumberIt : loveNumber )
+    {
+        for( unsigned int i = 0; i < loveNumberIt.second.size( ); i++ )
+        {
+            loveNumbers[ loveNumberIt.first ].push_back( std::complex< double >( loveNumberIt.second.at( i ), 0 ) );
+        }
+    }
+    return std::make_shared< BasicSolidBodyGravityFieldVariationSettings >(
+                std::vector< std::string >( { deformingBody } ), loveNumbers, nullptr );
+}
+
+inline std::shared_ptr< GravityFieldVariationSettings > degreeOrderVariableLoveNumberGravityFieldVariationSettingsPy(
+        const std::string deformingBody,
+        const std::map< int, std::vector< std::complex< double > > > loveNumber )
+{
+    return std::make_shared< BasicSolidBodyGravityFieldVariationSettings >(
+                std::vector< std::string >( { deformingBody } ), loveNumber, nullptr );
+}
+
+}
+
+}
 namespace tudatpy {
 namespace numerical_simulation {
 namespace environment_setup {
 namespace gravity_field_variation {
 
-    void expose_gravity_field_variation_setup(py::module &m) {
-        py::enum_<tg::BodyDeformationTypes>(
+void expose_gravity_field_variation_setup(py::module &m) {
+    py::enum_<tg::BodyDeformationTypes>(
                 m, "BodyDeformationTypes", "<no_doc>")
-                .value("basic_solid_body", tg::basic_solid_body)
-                .value("tabulated_deformation", tg::tabulated_variation)
-                .export_values();
+            .value("basic_solid_body", tg::basic_solid_body)
+            .value("tabulated_deformation", tg::tabulated_variation)
+            .export_values();
 
-        py::class_<tss::GravityFieldVariationSettings,
-                std::shared_ptr<tss::GravityFieldVariationSettings>>(m, "GravityFieldVariationSettings");
+    py::class_<tss::GravityFieldVariationSettings,
+            std::shared_ptr<tss::GravityFieldVariationSettings>>(
+                m, "GravityFieldVariationSettings",
+                get_docstring("GravityFieldVariationSettings").c_str( );
 
 
-        m.def("solid_body_tide",
-              py::overload_cast<const std::string, const double, const int>(
+            py::class_<tss::BasicSolidBodyGravityFieldVariationSettings,
+            std::shared_ptr<tss::BasicSolidBodyGravityFieldVariationSettings>,
+            tss::GravityFieldVariationSettings>(
+                m, "BasicSolidBodyGravityFieldVariationSettings",
+                get_docstring("BasicSolidBodyGravityFieldVariationSettings").c_str( );
+
+            m.def("solid_body_tide",
+                  py::overload_cast<const std::string, const double, const int>(
                       &tss::fixedSingleDegreeLoveNumberGravityFieldVariationSettings),
-              py::arg("tide_raising_body"),
-              py::arg("love_number"),
-              py::arg("degree"),
-              get_docstring("solid_body_tide").c_str() );
+                  py::arg("tide_raising_body"),
+                  py::arg("love_number"),
+                  py::arg("degree"),
+                  get_docstring("solid_body_tide").c_str() );
 
-        m.def("solid_body_tide_complex_k",
-              py::overload_cast<const std::string, const std::complex<double>, const int>(
-                      &tss::fixedSingleDegreeLoveNumberGravityFieldVariationSettings),
-              py::arg("tide_raising_body"),
-              py::arg("love_number"),
-              py::arg("degree"),
-              get_docstring("solid_body_tide_complex_k").c_str() );
+    m.def("solid_body_tide_complex_k",
+          py::overload_cast<const std::string, const std::complex<double>, const int>(
+              &tss::fixedSingleDegreeLoveNumberGravityFieldVariationSettings),
+          py::arg("tide_raising_body"),
+          py::arg("love_number"),
+          py::arg("degree"),
+          get_docstring("solid_body_tide_complex_k").c_str() );
 
-        m.def("solid_body_tide_degree_variable_k",
-              py::overload_cast<const std::string, std::map<int, double> >(
-                      &tss::fixedSingleDegreeLoveNumberGravityFieldVariationSettings),
-              py::arg("tide_raising_body"),
-              py::arg("love_number_per_degree"),
-              get_docstring("solid_body_tide_degree_variable_k").c_str() );
+    m.def("solid_body_tide_degree_variable_k",
+          py::overload_cast<const std::string, std::map<int, double> >(
+              &tss::fixedSingleDegreeLoveNumberGravityFieldVariationSettings),
+          py::arg("tide_raising_body"),
+          py::arg("love_number_per_degree"),
+          get_docstring("solid_body_tide_degree_variable_k").c_str() );
 
 
-        m.def("solid_body_tide_degree_variable_complex_k",
-              py::overload_cast<const std::string, std::map<int, std::complex<double> > >(
-                      &tss::fixedSingleDegreeLoveNumberGravityFieldVariationSettings),
-              py::arg("tide_raising_body"),
-              py::arg("love_number_per_degree"),
-              get_docstring("solid_body_tide_degree_variable_complex_k").c_str() );
+    m.def("solid_body_tide_degree_variable_complex_k",
+          py::overload_cast<const std::string, std::map<int, std::complex<double> > >(
+              &tss::fixedSingleDegreeLoveNumberGravityFieldVariationSettings),
+          py::arg("tide_raising_body"),
+          py::arg("love_number_per_degree"),
+          get_docstring("solid_body_tide_degree_variable_complex_k").c_str() );
 
-        m.def("solid_body_tide_degree_order_variable_k",
-              py::overload_cast<const std::string, const std::map<int, std::vector<double> >,
-                      const std::shared_ptr<tss::ModelInterpolationSettings> >(
-                      &tss::degreeOrderVariableLoveNumberGravityFieldVariationSettings),
-              py::arg("tide_raising_body"),
-              py::arg("love_number_per_degree_and_order"),
-              py::arg("interpolation_settings") = nullptr );
+    m.def("solid_body_tide_degree_order_variable_k",
+          py::overload_cast<const std::string, const std::map<int, std::vector<double> >,
+          const std::shared_ptr<tss::ModelInterpolationSettings> >(
+              &tss::degreeOrderVariableLoveNumberGravityFieldVariationSettingsPy),
+          py::arg("tide_raising_body"),
+          py::arg("love_number_per_degree_and_order"),
+          get_docstring("solid_body_tide_degree_order_variable_k").c_str() );
 
-        m.def("solid_body_tide_degree_order_variable_complex_k",
-              py::overload_cast<const std::string, const std::map<int, std::vector<std::complex<double> > >,
-                      const std::shared_ptr<tss::ModelInterpolationSettings> >(
-                      &tss::degreeOrderVariableLoveNumberGravityFieldVariationSettings),
-              py::arg("tide_raising_body"),
-              py::arg("love_number_per_degree_and_order"),
-              py::arg("interpolation_settings") = nullptr );
+    m.def("solid_body_tide_degree_order_variable_complex_k",
+          py::overload_cast<const std::string, const std::map<int, std::vector<std::complex<double> > >,
+          const std::shared_ptr<tss::ModelInterpolationSettings> >(
+              &tss::degreeOrderVariableLoveNumberGravityFieldVariationSettingsPy),
+          py::arg("tide_raising_body"),
+          py::arg("love_number_per_degree_and_order"),
+          get_docstring("solid_body_tide_degree_order_variable_complex_k").c_str() );
 
-        m.def("tabulated",
-              &tss::tabulatedGravityFieldVariationSettings,
-              py::arg("cosine_variations_table"),
-              py::arg("sine_variations_table"),
-              py::arg("minimum_degree"),
-              py::arg("minimum_order"),
-              py::arg("interpolation_settings"));
-    }
+    m.def("tabulated",
+          &tss::tabulatedGravityFieldVariationSettings,
+          py::arg("cosine_variations_table"),
+          py::arg("sine_variations_table"),
+          py::arg("minimum_degree"),
+          py::arg("minimum_order"),
+          py::arg("interpolation_settings"));
+}
 
 }// namespace gravity_field_variation
 }// namespace environment_setup
