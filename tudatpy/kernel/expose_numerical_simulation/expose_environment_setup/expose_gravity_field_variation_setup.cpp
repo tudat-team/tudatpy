@@ -74,14 +74,14 @@ void expose_gravity_field_variation_setup(py::module &m) {
     py::class_<tss::GravityFieldVariationSettings,
             std::shared_ptr<tss::GravityFieldVariationSettings>>(
                 m, "GravityFieldVariationSettings",
-                get_docstring("GravityFieldVariationSettings").c_str( );
+                get_docstring("GravityFieldVariationSettings").c_str( ) );
 
 
             py::class_<tss::BasicSolidBodyGravityFieldVariationSettings,
             std::shared_ptr<tss::BasicSolidBodyGravityFieldVariationSettings>,
             tss::GravityFieldVariationSettings>(
                 m, "BasicSolidBodyGravityFieldVariationSettings",
-                get_docstring("BasicSolidBodyGravityFieldVariationSettings").c_str( );
+                get_docstring("BasicSolidBodyGravityFieldVariationSettings").c_str( ) );
 
             m.def("solid_body_tide",
                   py::overload_cast<const std::string, const double, const int>(
