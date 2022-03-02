@@ -1223,8 +1223,8 @@ public:
 
         if ( areEstimatedBodiesDifferentPerArc_ && resetMultiArcDynamicsAfterPropagation_ )
         {
-            throw std::runtime_error( "Error in multi-arc variational equations solver, boolean resetMultiArcDynamicsAfterPropagation should be "
-                                      "set to false when the bodies to be estimated differ from one arc to another." );
+//            throw std::runtime_error( "Error in multi-arc variational equations solver, boolean resetMultiArcDynamicsAfterPropagation should be "
+//                                      "set to false when the bodies to be estimated differ from one arc to another." );
         }
 
         arcWiseParametersToEstimate_.clear( );
@@ -1301,6 +1301,7 @@ public:
                 integrateVariationalAndDynamicalEquations( propagatorSettings_->getInitialStateList( ), 0 );
             }
         }
+
     }
 
     //! Destructor
@@ -1504,6 +1505,7 @@ public:
                         equationsOfMotionNumericalSolutions, dependentVariableHistorySolutions,
                         resetMultiArcDynamicsAfterPropagation_ );
             equationsOfMotionNumericalSolutions.clear( );
+
 
             if( updateInitialStates )
             {

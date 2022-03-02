@@ -427,7 +427,7 @@ public:
         {
             frameManager_ = simulation_setup::createFrameManager( bodies.getMap( ) );
             integratedStateProcessors_ = createIntegratedStateProcessors< TimeType, StateScalarType >(
-                        propagatorSettings_, bodies_, frameManager_ );
+                    propagatorSettings_, bodies_, frameManager_ );
         }
 
         try
@@ -764,8 +764,8 @@ public:
      * updating the environment
      * \return List of object (per dynamics type) that process the integrated numerical solution by updating the environment
      */
-    std::map< IntegratedStateType, std::vector< std::shared_ptr<
-    IntegratedStateProcessor< TimeType, StateScalarType > > > > getIntegratedStateProcessors( )
+    std::map< IntegratedStateType,
+    std::shared_ptr< SingleArcIntegratedStateProcessor< TimeType, StateScalarType > > > getIntegratedStateProcessors( )
     {
         return integratedStateProcessors_;
     }
@@ -882,8 +882,8 @@ public:
 protected:
 
     //! List of object (per dynamics type) that process the integrated numerical solution by updating the environment
-    std::map< IntegratedStateType, std::vector< std::shared_ptr<
-    IntegratedStateProcessor< TimeType, StateScalarType > > > > integratedStateProcessors_;
+    std::map< IntegratedStateType,
+            std::shared_ptr< SingleArcIntegratedStateProcessor< TimeType, StateScalarType > > > integratedStateProcessors_;
 
     //! Object responsible for updating the environment based on the current state and time.
     /*!
@@ -1470,9 +1470,28 @@ public:
      */
     void processNumericalEquationsOfMotionSolution( )
     {
-        resetIntegratedMultiArcStatesWithEqualArcDynamics(
-                    equationsOfMotionNumericalSolution_,
-                    singleArcDynamicsSimulators_.at( 0 )->getIntegratedStateProcessors( ), arcStartTimes_ );
+        std::map< IntegratedStateType, std::vector< std::shared_ptr<
+                SingleArcIntegratedStateProcessor< TimeType, StateScalarType > > > > singleArcIntegratedStatesProcessors;
+
+        for ( unsigned int i = 0 ; i < arcStartTimes_.size( ) ; i++ )
+        {
+            std::map< IntegratedStateType, std::shared_ptr<
+                    SingleArcIntegratedStateProcessor< TimeType, StateScalarType > > > currentArcStateProcessors =
+                    singleArcDynamicsSimulators_.at( i )->getIntegratedStateProcessors( );
+
+            for ( auto itr : currentArcStateProcessors )
+            {
+                singleArcIntegratedStatesProcessors[ itr.first ].push_back( itr.second );
+            }
+        }
+
+        std::map< IntegratedStateType,
+                std::shared_ptr< MultiArcIntegratedStateProcessor< TimeType, StateScalarType > > > multiArcStateProcessors
+                = createMultiArcIntegratedStateProcessors( bodies_, arcStartTimes_, singleArcIntegratedStatesProcessors );
+        for ( auto itr : multiArcStateProcessors )
+        {
+            itr.second->processIntegratedMultiArcStates( equationsOfMotionNumericalSolution_, arcStartTimes_ );
+        }
 
         if( clearNumericalSolutions_ )
         {
@@ -1482,6 +1501,7 @@ public:
             }
             equationsOfMotionNumericalSolution_.clear( );
         }
+
     }
 
 protected:
