@@ -79,7 +79,7 @@ SystemOfBodies createBodies( const double initialEpoch,
     bodiesToCreate.push_back( "Sun" );
 
     // Create body objects.
-    BodyListSettings bodySettings = getDefaultBodySettings( bodiesToCreate, initialEpoch, finalEpoch );
+    BodyListSettings bodySettings = getDefaultBodySettings( bodiesToCreate, initialEpoch, finalEpoch/*, "Jupiter"*/ );
 
     bodySettings.at( "Io" )->rotationModelSettings = std::make_shared< SynchronousRotationModelSettings >(
             "Jupiter", globalFrameOrientation, "IAU_Io" );
@@ -101,6 +101,11 @@ SystemOfBodies createBodies( const double initialEpoch,
     bodySettings.at( "Europa" )->ephemerisSettings->resetMakeMultiArcEphemeris( true );
     bodySettings.at( "Ganymede" )->ephemerisSettings->resetMakeMultiArcEphemeris( true );
     bodySettings.at( "Callisto" )->ephemerisSettings->resetMakeMultiArcEphemeris( true );
+
+    bodySettings.at( "Io" )->ephemerisSettings->resetFrameOrigin( "Jupiter" );
+    bodySettings.at( "Europa" )->ephemerisSettings->resetFrameOrigin( "Jupiter" );
+    bodySettings.at( "Ganymede" )->ephemerisSettings->resetFrameOrigin( "Jupiter" );
+    bodySettings.at( "Callisto" )->ephemerisSettings->resetFrameOrigin( "Jupiter" );
 
     // Create body map
     SystemOfBodies bodies = createSystemOfBodies( bodySettings );
@@ -585,6 +590,7 @@ BOOST_AUTO_TEST_CASE( testMultiArcMultiBodyVariationalEquationCalculation1 )
     std::shared_ptr< IntegratorSettings< double > > integratorSettings =
             std::make_shared< IntegratorSettings< double > >( rungeKutta4, initialEpoch, propagationTimeStep );
 
+
     // Compute flybys times and associated central bodies
     std::vector< std::string > multiArcCentralBodies;
     std::vector< double > flybyTimes;
@@ -732,12 +738,36 @@ BOOST_AUTO_TEST_CASE( testMultiArcMultiBodyVariationalEquationCalculation1 )
         MultiArcVariationalEquationsSolver<double, double> multiArcVariationalEquations =
                 MultiArcVariationalEquationsSolver<double, double>(
                         bodies, integratorSettings, multiArcPropagatorSettings, parametersToEstimate, arcStartTimes, true,
-                        std::shared_ptr<numerical_integrators::IntegratorSettings<double> >(), false, true, false);
+                        std::shared_ptr<numerical_integrators::IntegratorSettings<double> >(), false, true, true);
 
         std::vector<std::map<double, Eigen::VectorXd> > multiArcStateHistory =
                 multiArcVariationalEquations.getDynamicsSimulator()->getEquationsOfMotionNumericalSolution();
         std::vector<std::vector<std::map<double, Eigen::MatrixXd> > > variationalEquationsSolution =
                 multiArcVariationalEquations.getNumericalVariationalEquationsSolution();
+
+        for ( unsigned int arc = 0 ; arc < numberArcs ; arc++ )
+        {
+            std::cout << "ARC " << arc << "\n\n";
+            double finalArcEpoch = multiArcStateHistory.at( arc ).rbegin( )->first;
+            Eigen::VectorXd finalStates = multiArcStateHistory.at( arc ).rbegin( )->second;
+            for ( unsigned int i = 0 ; i < bodiesToPropagatePerArc.at( arc ).size( ) ; i++ )
+            {
+                std::cout << "BODY: " << bodiesToPropagatePerArc.at( arc ).at( i ) << " - CENTRAL BODY: " << centralBodiesPerArc.at( arc ).at( i ) << "\n\n";
+                Eigen::Vector6d currentSolutionFromEphemeris = bodies.at( bodiesToPropagatePerArc.at( arc ).at( i ) )->getEphemeris( )->getCartesianState( finalArcEpoch );
+                Eigen::Vector6d stateCentralBody = bodies.at( centralBodiesPerArc.at( arc ).at( i ) )->getEphemeris( )->getCartesianState( finalArcEpoch );
+                Eigen::Vector6d differenceStateHistoryWrtEphemeris = currentSolutionFromEphemeris - finalStates.segment( i * 6, 6 );
+                if ( centralBodiesPerArc.at( arc ).at( i )  == bodies.at( bodiesToPropagatePerArc.at( arc ).at( i ) )->getEphemeris( )->getReferenceFrameOrigin( ) )
+                {
+                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                            differenceStateHistoryWrtEphemeris, Eigen::Vector6d::Zero( ), 1.0E-16);
+                }
+                else
+                {
+                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                            differenceStateHistoryWrtEphemeris, stateCentralBody, 1.0E-12);
+                }
+            }
+        }
 
 
         // Test arc per arc
@@ -745,23 +775,23 @@ BOOST_AUTO_TEST_CASE( testMultiArcMultiBodyVariationalEquationCalculation1 )
 
             std::cout << "TEST - ARC : " << arc << "\n\n";
             std::vector<std::shared_ptr<SingleArcPropagatorSettings<> > > perArcPropagatorSettingsList;
-            perArcPropagatorSettingsList.push_back(propagatorSettingsList.at(arc));
+            perArcPropagatorSettingsList.push_back( propagatorSettingsList.at( arc ) );
             std::shared_ptr<MultiArcPropagatorSettings<> > perArcPropagatorSettings =
-                    std::make_shared<MultiArcPropagatorSettings<> >(perArcPropagatorSettingsList);
+                    std::make_shared<MultiArcPropagatorSettings<> >( perArcPropagatorSettingsList );
 
             // Create single-arc parameters to estimate
             std::shared_ptr<estimatable_parameters::EstimatableParameterSet<double> > singleArcParametersToEstimate = getSingleArcParametersToEstimate(
-                    std::dynamic_pointer_cast<TranslationalStatePropagatorSettings<> >(propagatorSettingsList.at(arc)), bodies, bodiesToPropagatePerArc.at(arc),
-                    multiArcInitialStates.at(arc), {arcStartTimes.at(arc)}, centralBodiesPerArc.at(arc), multiArcCentralBodies.at(arc));
+                    std::dynamic_pointer_cast<TranslationalStatePropagatorSettings<> >( propagatorSettingsList.at( arc ) ), bodies, bodiesToPropagatePerArc.at( arc ),
+                    multiArcInitialStates.at(arc), { arcStartTimes.at( arc ) }, centralBodiesPerArc.at( arc ), multiArcCentralBodies.at( arc ) );
 
             MultiArcVariationalEquationsSolver<double, double> perArcVariationalEquations =
                     MultiArcVariationalEquationsSolver<double, double>(
                             bodies, integratorSettings, perArcPropagatorSettings,
                             singleArcParametersToEstimate, {arcStartTimes.at(arc)}, true,
-                            std::shared_ptr<numerical_integrators::IntegratorSettings<double> >(), false, true, false);
+                            std::shared_ptr<numerical_integrators::IntegratorSettings<double> >(), false, true, true);
 
             // Comparison - state histories
-            std::vector<std::map<double, Eigen::VectorXd> > perArcStateHistory =
+            std::vector< std::map< double, Eigen::VectorXd > > perArcStateHistory =
                     perArcVariationalEquations.getDynamicsSimulator()->getEquationsOfMotionNumericalSolution();
 
             // Comparison - variational equations solutions
@@ -796,9 +826,30 @@ BOOST_AUTO_TEST_CASE( testMultiArcMultiBodyVariationalEquationCalculation1 )
                 std::cout << "\n\n";
             }
 
-            std::map< double, int > mapTest;
-            std::vector< double > vectorTest = utilities::createVectorFromMapKeys( mapTest );
-            std::cout << "size vector test: " << vectorTest.size( ) << "\n\n";
+
+            std::cout << "TEST CENTRAL BODY DEPENDENCIES IN INTEGRATED MULTI-ARC STATES PER ARC - arc " << arc << "\n\n";
+            double finalArcEpoch = perArcStateHistory.at( 0 ).rbegin( )->first;
+            Eigen::VectorXd finalStates = perArcStateHistory.at( 0 ).rbegin( )->second;
+            for ( unsigned int i = 0 ; i < bodiesToPropagatePerArc.at( arc ).size( ) ; i++ )
+            {
+                std::cout << "BODY: " << bodiesToPropagatePerArc.at( arc ).at( i ) << " - CENTRAL BODY: " << centralBodiesPerArc.at( arc ).at( i ) << "\n\n";
+                Eigen::Vector6d currentSolutionFromEphemeris = bodies.at( bodiesToPropagatePerArc.at( arc ).at( i ) )->getEphemeris( )->getCartesianState( finalArcEpoch );
+                Eigen::Vector6d stateCentralBody = bodies.at( centralBodiesPerArc.at( arc ).at( i ) )->getEphemeris( )->getCartesianState( finalArcEpoch );
+                Eigen::Vector6d differenceStateHistoryWrtEphemeris = currentSolutionFromEphemeris - finalStates.segment( i * 6, 6 );
+                if ( centralBodiesPerArc.at( arc ).at( i )  == bodies.at( bodiesToPropagatePerArc.at( arc ).at( i ) )->getEphemeris( )->getReferenceFrameOrigin( ) )
+                {
+                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                            differenceStateHistoryWrtEphemeris, Eigen::Vector6d::Zero( ), 1.0E-16);
+                }
+                else
+                {
+                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                            differenceStateHistoryWrtEphemeris, stateCentralBody, 1.0E-12);
+                }
+            }
+
+
+
 
 
 //            std::shared_ptr< ArcWiseInitialTranslationalStateParameter< double > > arcWiseTranslationalStateParameter =
@@ -821,18 +872,18 @@ BOOST_AUTO_TEST_CASE( testMultiArcMultiBodyVariationalEquationCalculation1 )
 //            }
 
 
-            for (auto itr: multiArcStateHistory.at(arc)) {
-                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                        itr.second, perArcStateHistory.at(0).at(itr.first), 1.0E-16);
-            }
-
-            for (auto itr: variationalEquationsSolution.at(arc).at(0)) {
-                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                        itr.second, perArcVariationalEquationsSolution.at(0).at(0).at(itr.first), 1.0E-16);
-                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                        variationalEquationsSolution.at(arc).at(1).at(itr.first).block(0, 0, 6 * bodiesToPropagatePerArc.at( arc ).size( ), 24),
-                        perArcVariationalEquationsSolution.at(0).at(1).at(itr.first).block(0, 0, 6 * bodiesToPropagatePerArc.at( arc ).size( ), 24), 1.0E-16);
-            }
+//            for (auto itr: multiArcStateHistory.at(arc)) {
+//                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+//                        itr.second, perArcStateHistory.at(0).at(itr.first), 1.0E-16);
+//            }
+//
+//            for (auto itr: variationalEquationsSolution.at(arc).at(0)) {
+//                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+//                        itr.second, perArcVariationalEquationsSolution.at(0).at(0).at(itr.first), 1.0E-16);
+//                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+//                        variationalEquationsSolution.at(arc).at(1).at(itr.first).block(0, 0, 6 * bodiesToPropagatePerArc.at( arc ).size( ), 24),
+//                        perArcVariationalEquationsSolution.at(0).at(1).at(itr.first).block(0, 0, 6 * bodiesToPropagatePerArc.at( arc ).size( ), 24), 1.0E-16);
+//            }
         }
 
     }
