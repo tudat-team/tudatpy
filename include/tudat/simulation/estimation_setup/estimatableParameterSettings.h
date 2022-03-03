@@ -1052,6 +1052,12 @@ inline std::shared_ptr< EstimatableParameterSettings > polarMotionAmplitudes(
                 associatedBody, polar_motion_amplitude );
 }
 
+inline std::shared_ptr< EstimatableParameterSettings > quasiImpulsiveShots(
+        const std::string& associatedBody )
+{
+    return std::make_shared< EstimatableParameterSettings >(
+                associatedBody, desaturation_delta_v_values );
+}
 
 } // namespace estimatable_parameters
 
