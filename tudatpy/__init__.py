@@ -5,12 +5,13 @@ from .kernel import interface
 from .kernel import math
 from .kernel import numerical_simulation
 from .kernel import trajectory_design
+#from .kernel import io
 
 __all__ = [
     '__version__',
     'apps',
     'bodies',
-    'io',
+    #'io',
     'prototype',
     'constants',
     'astro',
