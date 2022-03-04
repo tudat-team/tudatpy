@@ -28,7 +28,7 @@ set(TUDATPY_PYTHON_FILES
         __init__.py
 #        elements.py
         prototype.py
-        io.py
+#        io.py
         )
 
 # Copy the python files in the current binary dir,
@@ -161,6 +161,7 @@ INSTALL_PURE_PYTHON_MODULE_DIR(apps)
 INSTALL_PURE_PYTHON_MODULE_DIR(bodies)
 INSTALL_PURE_PYTHON_MODULE_DIR(plotting)
 INSTALL_PURE_PYTHON_MODULE_DIR(util)
+INSTALL_PURE_PYTHON_MODULE_DIR(io)
 
 #install(FILES test.py "${CMAKE_CURRENT_BINARY_DIR}/_version.py")
 file(COPY ../tests DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/../)
