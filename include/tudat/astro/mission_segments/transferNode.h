@@ -62,6 +62,8 @@ public:
 
     virtual bool nodeComputesOutgoingVelocity( ) = 0;
 
+    virtual bool nodeComputesIncomingVelocity ( ) = 0;
+
     virtual Eigen::Vector3d getIncomingVelocity( );
 
     virtual Eigen::Vector3d getOutgoingVelocity( );

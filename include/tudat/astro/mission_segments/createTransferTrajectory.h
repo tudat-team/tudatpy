@@ -84,6 +84,8 @@ std::shared_ptr< TransferLegSettings > dsmPositionBasedLeg( );
 
 std::shared_ptr< TransferLegSettings > unpoweredLeg( );
 
+std::shared_ptr< TransferLegSettings > sphericalShapingLeg( );
+
 class TransferNodeSettings
 {
 public:
