@@ -120,7 +120,7 @@ void expose_estimated_parameter_setup(py::module &m) {
           get_docstring("empirical_accelerations").c_str() );
 
     m.def("arcwise_empirical_accelerations",
-          &tep::empiricalAccelerationMagnitudes,
+          &tep::arcWiseEmpiricalAccelerationMagnitudes,
           py::arg("body"),
           py::arg("centralBody"),
           py::arg("acceleration_components"),
