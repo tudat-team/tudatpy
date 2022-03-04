@@ -157,8 +157,12 @@ BOOST_AUTO_TEST_CASE( testMGATrajectory_New )
 
         printTransferParameterDefinition( transferLegSettings, transferNodeSettings );
 
+        std::cerr << "After printing parameters " << creationType << std::endl;
+
         transferTrajectory->evaluateTrajectory(
                     nodeTimes, transferLegFreeParameters, transferNodeFreeParameters );
+
+        std::cerr << "After evaluating trajectory " << creationType << std::endl;
 
         if( creationType < 2 )
         {
@@ -180,9 +184,13 @@ BOOST_AUTO_TEST_CASE( testMGATrajectory_New )
             BOOST_CHECK_CLOSE_FRACTION( nominalCaptureDeltaV, nominalDeltaV - transferTrajectory->getTotalDeltaV( ), 1.0E-12 );
         }
 
+        std::cerr << "After creationType " << creationType << std::endl;
+
         std::vector< std::map< double, Eigen::Vector6d > > statesAlongTrajectoryPerLeg;
         transferTrajectory-> getStatesAlongTrajectoryPerLeg(
                     statesAlongTrajectoryPerLeg, 10 );
+
+        std::cerr << "After getting states " << creationType << std::endl;
 
         double sunGravitationalParameter = bodies.at( "Sun" )->getGravitationalParameter( );
         for( unsigned int i = 0; i < statesAlongTrajectoryPerLeg.size( ); i++ )
@@ -228,6 +236,8 @@ BOOST_AUTO_TEST_CASE( testMGATrajectory_New )
             }
         }
     }
+
+    std::cerr << "At the end" << std::endl;
 }
 
 

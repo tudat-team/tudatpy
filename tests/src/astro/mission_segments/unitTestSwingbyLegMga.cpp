@@ -95,7 +95,7 @@ BOOST_AUTO_TEST_CASE( testVelocities )
     //set the minimum pericenter radius
     const double minimumRadiusPlanet1 = 6351800;
 
-    SwingbyWithFixedOutgoingVelocity transferNode(
+    SwingbyWithFixedIncomingFixedOutgoingVelocity transferNode(
                 constantEphemeris1,
                 planet1GravitationalParameter, minimumRadiusPlanet1,
                 [=]( ){ return velocityBeforePlanet1; },

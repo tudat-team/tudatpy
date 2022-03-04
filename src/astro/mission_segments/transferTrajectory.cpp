@@ -26,30 +26,37 @@ void TransferTrajectory::evaluateTrajectory(
             legs_.at( i )->updateLegParameters( legTotalParameters );
             totalDeltaV_ += legs_.at( i )->getLegDeltaV( );
             totalTimeOfFlight_ += legs_.at( i )->getLegTimeOfFlight( );
+            std::cerr << "After leg " << i << "a" << std::endl;
 
             getNodeTotalParameters( nodeTimes, nodeFreeParameters.at( i ), i, nodeTotalParameters );
             nodes_.at( i )->updateNodeParameters( nodeTotalParameters );
             totalDeltaV_ += nodes_.at( i )->getNodeDeltaV( );
+            std::cerr << "After node " << i << "a" << std::endl;
         }
         else
         {
             getNodeTotalParameters( nodeTimes, nodeFreeParameters.at( i ), i, nodeTotalParameters );
             nodes_.at( i )->updateNodeParameters( nodeTotalParameters );
             totalDeltaV_ += nodes_.at( i )->getNodeDeltaV( );
+            std::cerr << "After node " << i << "b" << std::endl;
 
             getLegTotalParameters( nodeTimes, legFreeParameters.at( i ), i, legTotalParameters );
             legs_.at( i )->updateLegParameters( legTotalParameters );
             totalDeltaV_ += legs_.at( i )->getLegDeltaV( );
             totalTimeOfFlight_ += legs_.at( i )->getLegTimeOfFlight( );
+            std::cerr << "After leg " << i << "b" << std::endl;
         }
     }
 
-    getNodeTotalParameters(
-                nodeTimes, nodeFreeParameters.at( legs_.size( ) ), legs_.size( ), nodeTotalParameters );
-
+    std::cerr << "Before node " << legs_.size( ) << std::endl;
+    getNodeTotalParameters(nodeTimes, nodeFreeParameters.at( legs_.size( ) ),
+                           legs_.size( ), nodeTotalParameters );
+    std::cerr << "After getting parameters of node " << legs_.size( ) << std::endl;
     nodes_.at( legs_.size( ) )->updateNodeParameters( nodeTotalParameters );
-
+    std::cerr << "After updating parameters of node " << legs_.size( ) << std::endl;
     totalDeltaV_ += nodes_.at( legs_.size( ) )->getNodeDeltaV( );
+    std::cerr << "After node " << legs_.size( ) << std::endl;
+
     isComputed_ = true;
 }
 
