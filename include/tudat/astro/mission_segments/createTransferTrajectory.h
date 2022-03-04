@@ -50,11 +50,20 @@ const static std::map< std::string, double > DEFAULT_MINIMUM_PERICENTERS =
 };
 
 
-static std::map< TransferLegTypes, bool > legRequiresInputFromNode =
+static std::map< TransferLegTypes, bool > legRequiresInputFromPreviousNode =
 {
     { unpowered_unperturbed_leg, false },
     { dsm_position_based_leg, false },
-    { dsm_velocity_based_leg, true }
+    { dsm_velocity_based_leg, true },
+    {spherical_shaping_low_thrust_leg, true}
+};
+
+static std::map< TransferLegTypes, bool > legRequiresInputFromFollowingNode =
+{
+    { unpowered_unperturbed_leg, false },
+    { dsm_position_based_leg, false },
+    { dsm_velocity_based_leg, false },
+    {spherical_shaping_low_thrust_leg, true}
 };
 
 
@@ -138,19 +147,21 @@ std::shared_ptr< TransferNodeSettings > captureAndInsertionNode(
         const double captureSemiMajorAxis,
         const double captureEccentricity );
 
-std::shared_ptr< TransferLeg > createTransferLeg(const simulation_setup::SystemOfBodies& bodyMap,
-        const std::shared_ptr< TransferLegSettings > legSettings,
-        const std::string& departureBodyName,
-        const std::string& arrivalBodyName,
-        const std::string& centralBodyName,
-        const std::shared_ptr< TransferNode > departureNode = nullptr );
+std::shared_ptr< TransferLeg > createTransferLeg (const simulation_setup::SystemOfBodies& bodyMap,
+                                                  const std::shared_ptr< TransferLegSettings > legSettings,
+                                                  const std::string& departureBodyName,
+                                                  const std::string& arrivalBodyName,
+                                                  const std::string& centralBodyName,
+                                                  const std::shared_ptr< TransferNode > departureNode,
+                                                  const std::shared_ptr< TransferNode > arrivalNode);
 
-std::shared_ptr< TransferNode > createTransferNode(const simulation_setup::SystemOfBodies& bodyMap,
-        const std::shared_ptr< TransferNodeSettings > nodeSettings,
-        const std::string& nodeBodyName,
-        const std::shared_ptr< TransferLeg > incomingTransferLeg,
-        const std::shared_ptr< TransferLeg > outgoingTransferLeg,
-        const bool nodeComputesOutgoingVelocity );
+std::shared_ptr<TransferNode> createTransferNode(const simulation_setup::SystemOfBodies &bodyMap,
+                                                 const std::shared_ptr<TransferNodeSettings> nodeSettings,
+                                                 const std::string &nodeBodyName,
+                                                 const std::shared_ptr<TransferLeg> incomingTransferLeg,
+                                                 const std::shared_ptr<TransferLeg> outgoingTransferLeg,
+                                                 const bool nodeComputesIncomingVelocity,
+                                                 const bool nodeComputesOutgoingVelocity);
 
 std::pair< std::vector< std::shared_ptr< TransferLegSettings > >,
 std::vector< std::shared_ptr< TransferNodeSettings > > > getMgaTransferTrajectorySettings(

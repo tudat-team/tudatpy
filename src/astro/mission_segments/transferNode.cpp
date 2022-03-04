@@ -66,6 +66,11 @@ bool DepartureWithFixedOutgoingVelocityNode::nodeComputesOutgoingVelocity( )
     return false;
 }
 
+bool DepartureWithFixedOutgoingVelocityNode::nodeComputesIncomingVelocity( )
+{
+    return false;
+}
+
 void DepartureWithFixedOutgoingVelocityNode::computeNode( )
 {
     if( nodeParameters_.rows( ) != 1 )
@@ -109,6 +114,11 @@ bool DepartureWithFreeOutgoingVelocityNode::nodeComputesOutgoingVelocity( )
     return true;
 }
 
+bool DepartureWithFreeOutgoingVelocityNode::nodeComputesIncomingVelocity( )
+{
+    return false;
+}
+
 void DepartureWithFreeOutgoingVelocityNode::computeNode( )
 {
     if( nodeParameters_.rows( ) != 4 )
@@ -146,7 +156,7 @@ void DepartureWithFreeOutgoingVelocityNode::computeNode( )
 }
 
 
-CaptureAndInsertionNode::CaptureAndInsertionNode(
+CaptureWithFixedIncomingVelocityNode::CaptureWithFixedIncomingVelocityNode(
         const std::shared_ptr< ephemerides::Ephemeris > nodeEphemeris,
         const double centralBodyGravitationalParameter,
         const double captureSemiMajorAxis,
@@ -159,17 +169,22 @@ CaptureAndInsertionNode::CaptureAndInsertionNode(
     incomingVelocityFunction_( incomingVelocityFunction )
 { }
 
-Eigen::Vector3d CaptureAndInsertionNode::getOutgoingVelocity( )
+Eigen::Vector3d CaptureWithFixedIncomingVelocityNode::getOutgoingVelocity( )
 {
     throw std::runtime_error( "Error, no outgoing velocity can be given for capture_and_insertion node" );
 }
 
-bool CaptureAndInsertionNode::nodeComputesOutgoingVelocity( )
+bool CaptureWithFixedIncomingVelocityNode::nodeComputesOutgoingVelocity( )
 {
     return false;
 }
 
-void CaptureAndInsertionNode::computeNode( )
+bool CaptureWithFixedIncomingVelocityNode::nodeComputesIncomingVelocity( )
+{
+    return false;
+}
+
+void CaptureWithFixedIncomingVelocityNode::computeNode( )
 {
     if( nodeParameters_.rows( ) != 1 )
     {
@@ -189,7 +204,7 @@ void CaptureAndInsertionNode::computeNode( )
 }
 
 
-SwingbyWithFixedOutgoingVelocity::SwingbyWithFixedOutgoingVelocity(
+SwingbyWithFixedIncomingFixedOutgoingVelocity::SwingbyWithFixedIncomingFixedOutgoingVelocity(
         const std::shared_ptr< ephemerides::Ephemeris > nodeEphemeris,
         const double centralBodyGravitationalParameter,
         const double minimumPeriapsisRadius,
@@ -202,13 +217,18 @@ SwingbyWithFixedOutgoingVelocity::SwingbyWithFixedOutgoingVelocity(
     outgoingVelocityFunction_( outgoingVelocityFunction )
 { }
 
-bool SwingbyWithFixedOutgoingVelocity::nodeComputesOutgoingVelocity( )
+bool SwingbyWithFixedIncomingFixedOutgoingVelocity::nodeComputesOutgoingVelocity( )
+{
+    return false;
+}
+
+bool SwingbyWithFixedIncomingFixedOutgoingVelocity::nodeComputesIncomingVelocity( )
 {
     return false;
 }
 
 
-void SwingbyWithFixedOutgoingVelocity::computeNode( )
+void SwingbyWithFixedIncomingFixedOutgoingVelocity::computeNode( )
 {
     if( nodeParameters_.rows( ) != 1 )
     {
@@ -231,7 +251,7 @@ void SwingbyWithFixedOutgoingVelocity::computeNode( )
 
 
 
-SwingbyWithFreeOutgoingVelocity::SwingbyWithFreeOutgoingVelocity(
+SwingbyWithFixedIncomingFreeOutgoingVelocity::SwingbyWithFixedIncomingFreeOutgoingVelocity(
         const std::shared_ptr< ephemerides::Ephemeris > nodeEphemeris,
         const double centralBodyGravitationalParameter,
         const std::function< Eigen::Vector3d( ) > incomingVelocityFunction ):
@@ -240,13 +260,18 @@ SwingbyWithFreeOutgoingVelocity::SwingbyWithFreeOutgoingVelocity(
     incomingVelocityFunction_( incomingVelocityFunction )
 { }
 
-bool SwingbyWithFreeOutgoingVelocity::nodeComputesOutgoingVelocity( )
+bool SwingbyWithFixedIncomingFreeOutgoingVelocity::nodeComputesOutgoingVelocity( )
 {
     return true;
 }
 
+bool SwingbyWithFixedIncomingFreeOutgoingVelocity::nodeComputesIncomingVelocity( )
+{
+    return false;
+}
 
-void SwingbyWithFreeOutgoingVelocity::computeNode( )
+
+void SwingbyWithFixedIncomingFreeOutgoingVelocity::computeNode( )
 {
     if( nodeParameters_.rows( ) != 4 )
     {

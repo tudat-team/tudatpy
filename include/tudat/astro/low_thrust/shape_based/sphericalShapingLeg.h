@@ -63,8 +63,6 @@ public:
     //! Default destructor.
     ~SphericalShapingLeg() {}
 
-    void computeTransfer();
-
     //! Compute dimensional current cartesian state.
     Eigen::Vector6d computeStateVectorFromAzimuth(const double currentAzimuthAngle);
 
@@ -145,6 +143,8 @@ public:
 
 protected:
 
+    void computeTransfer( );
+
     //! Compute deltaV.
     double computeDeltaV( );
 
@@ -159,9 +159,6 @@ protected:
 
     //! Ensure that the boundary conditions are respected.
     void satisfyBoundaryConditions( double freeCoefficient );
-
-    //! Compute the Free coefficient boundaries.
-    // void computeFreeCoefficientBoundaries( );
 
     //! Iterate to match the required time of flight, by updating the value of the free coefficient.
     void iterateToMatchRequiredTimeOfFlight( std::shared_ptr< root_finders::RootFinderSettings > rootFinderSettings,
@@ -269,8 +266,6 @@ private:
     //! Number of revolutions.
     int numberOfRevolutions_;
 
-    // TODO: To be moved to new base class (2 variables)
-
     //! Function that outputs the departure velocity
     std::function< Eigen::Vector3d( ) > departureVelocityFunction_;
 
@@ -324,7 +319,6 @@ private:
 
     std::shared_ptr< interpolators::OneDimensionalInterpolator< double, double > > interpolator_;
 
-    //! TODO: To be moved to new base class?
     std::map< double, Eigen::Vector3d > thrustAccelerationVectorCache_;
 
     std::shared_ptr< numerical_quadrature::QuadratureSettings< double > > quadratureSettings_;

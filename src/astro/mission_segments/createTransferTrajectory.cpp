@@ -43,13 +43,14 @@ std::shared_ptr< TransferNodeSettings > captureAndInsertionNode(
                 captureSemiMajorAxis, captureEccentricity );
 }
 
-std::shared_ptr< TransferLeg > createTransferLeg(
+std::shared_ptr< TransferLeg > createTransferLeg (
         const simulation_setup::SystemOfBodies& bodyMap,
         const std::shared_ptr< TransferLegSettings > legSettings,
         const std::string& departureBodyName,
         const std::string& arrivalBodyName,
         const std::string& centralBodyName,
-        const std::shared_ptr< TransferNode > departureNode )
+        const std::shared_ptr< TransferNode > departureNode,
+        const std::shared_ptr< TransferNode > arrivalNode)
 {
     if( bodyMap.count( centralBodyName ) == 0 )
     {
@@ -123,13 +124,14 @@ std::shared_ptr< TransferLeg > createTransferLeg(
     return transferLeg;
 }
 
-std::shared_ptr< TransferNode > createTransferNode(
+std::shared_ptr<TransferNode> createTransferNode(
         const simulation_setup::SystemOfBodies& bodyMap,
         const std::shared_ptr< TransferNodeSettings > nodeSettings,
         const std::string &nodeBodyName,
         const std::shared_ptr< TransferLeg > incomingTransferLeg,
         const std::shared_ptr< TransferLeg > outgoingTransferLeg,
-        const bool nodeComputesOutgoingVelocity )
+        const bool nodeComputesIncomingVelocity,
+        const bool nodeComputesOutgoingVelocity)
 {
 
     if( bodyMap.count( nodeBodyName ) == 0 )
@@ -155,7 +157,7 @@ std::shared_ptr< TransferNode > createTransferNode(
     {
     case swingby:
     {
-        if( nodeComputesOutgoingVelocity == 0 )
+        if( !nodeComputesIncomingVelocity && !nodeComputesOutgoingVelocity )
         {
             std::shared_ptr< SwingbyNodeSettings > swingbySettings =
                     std::dynamic_pointer_cast< SwingbyNodeSettings >( nodeSettings );
@@ -173,18 +175,22 @@ std::shared_ptr< TransferNode > createTransferNode(
                     std::bind( &TransferLeg::getArrivalVelocity, incomingTransferLeg );
             std::function< Eigen::Vector3d( ) > outgoingVelocityFunction =
                     std::bind( &TransferLeg::getDepartureVelocity, outgoingTransferLeg );
-            transferNode = std::make_shared< SwingbyWithFixedOutgoingVelocity >(
+            transferNode = std::make_shared< SwingbyWithFixedIncomingFixedOutgoingVelocity >(
                         centralBodyEphemeris,
                         centralBodyGravitationalParameter, swingbySettings->minimumPeriapsisRadius_,
                         incomingVelocityFunction, outgoingVelocityFunction );
         }
-        else
+        else if ( !nodeComputesIncomingVelocity && nodeComputesOutgoingVelocity )
         {
             std::function< Eigen::Vector3d( ) > incomingVelocityFunction =
                     std::bind( &TransferLeg::getArrivalVelocity, incomingTransferLeg );
-            transferNode = std::make_shared< SwingbyWithFreeOutgoingVelocity >(
+            transferNode = std::make_shared< SwingbyWithFixedIncomingFreeOutgoingVelocity >(
                         centralBodyEphemeris,
                         centralBodyGravitationalParameter, incomingVelocityFunction );
+        }
+        else
+        {
+            throw std::runtime_error("Invalid swingby node." );
         }
 
 
@@ -192,7 +198,7 @@ std::shared_ptr< TransferNode > createTransferNode(
     }
     case escape_and_departure:
     {
-        if( nodeComputesOutgoingVelocity == 0 )
+        if( !nodeComputesOutgoingVelocity )
         {
             std::shared_ptr< EscapeAndDepartureNodeSettings > escapeAndDepartureSettings =
                     std::dynamic_pointer_cast< EscapeAndDepartureNodeSettings >( nodeSettings );
@@ -227,27 +233,33 @@ std::shared_ptr< TransferNode > createTransferNode(
                         escapeAndDepartureSettings->departureSemiMajorAxis_,
                         escapeAndDepartureSettings->departureEccentricity_ );
         }
-    }
+
         break;
+    }
     case capture_and_insertion:
     {
-
-        std::shared_ptr< CaptureAndInsertionNodeSettings > captureAndInsertionSettings =
-                std::dynamic_pointer_cast< CaptureAndInsertionNodeSettings >( nodeSettings );
-        if( captureAndInsertionSettings == nullptr )
+        if ( !nodeComputesIncomingVelocity )
         {
-            throw std::runtime_error( "Error when making capture_and_insertion node, type is inconsistent" );
-        }
+            std::shared_ptr< CaptureAndInsertionNodeSettings > captureAndInsertionSettings =
+                    std::dynamic_pointer_cast< CaptureAndInsertionNodeSettings >( nodeSettings );
+            if( captureAndInsertionSettings == nullptr )
+            {
+                throw std::runtime_error( "Error when making capture_and_insertion node, type is inconsistent" );
+            }
 
-
-        std::function< Eigen::Vector3d( ) > incomingVelocityFunction =
-                std::bind( &TransferLeg::getArrivalVelocity, incomingTransferLeg );
-        transferNode = std::make_shared< CaptureAndInsertionNode >(
+            std::function< Eigen::Vector3d( ) > incomingVelocityFunction =
+                    std::bind( &TransferLeg::getArrivalVelocity, incomingTransferLeg );
+            transferNode = std::make_shared< CaptureWithFixedIncomingVelocityNode >(
                     centralBodyEphemeris,
                     centralBodyGravitationalParameter,
                     captureAndInsertionSettings->captureSemiMajorAxis_,
                     captureAndInsertionSettings->captureEccentricity_,
                     incomingVelocityFunction );
+        }
+        else
+        {
+            throw std::runtime_error("Invalid capture node." );
+        }
         break;
     }
     default:
@@ -452,35 +464,185 @@ std::shared_ptr< TransferTrajectory > createTransferTrajectory(
                                   " ) are incompatible" );
     }
 
+
+    std::vector< std::shared_ptr< TransferLeg > > legs ( legSettings.size( ), nullptr );
+    std::vector< std::shared_ptr< TransferNode > > nodes ( nodeSettings.size( ), nullptr );
+
+    std::cout << "Legs to be created ";
+    for( unsigned int i = 0; i < legSettings.size( ); i++ )
+    {
+        if (legs.at(i) == nullptr)
+            std::cout << i << " ";
+    }
+    std::cout << std::endl << "Nodes to be created";
+    for( unsigned int i = 0; i < nodeSettings.size( ); i++ )
+    {
+        if (nodes.at(i) == nullptr)
+            std::cout << i << " ";
+    }
+    std::cout << std::endl;
+
+    int iteration = 0;
+
+    // Loop over nodes and legs until all are defined
+    while ( ( std::find(legs.begin(), legs.end(), nullptr) != legs.end() ) || ( std::find(nodes.begin(), nodes.end(), nullptr) != nodes.end() ) )
+    {
+        std::cout << "Iteration " << iteration << std::endl;
+        ++iteration;
+
+        // First node
+        if ( nodes.at(0) == nullptr )
+        {
+            // If node doesn't require input from the following leg, then create node
+            if ( legRequiresInputFromPreviousNode.at( legSettings.at(0)->legType_ ) )
+            {
+                std::cout << "Creating node " << 0 << "a " << std::endl;
+                nodes.at(0) = createTransferNode(
+                        bodyMap, nodeSettings.at(0), nodeIds.at(0),
+                        nullptr, nullptr, false, true);
+            }
+            // If node requires input from following leg but following leg is already created, then create node
+            else if ( legs.at(0) != nullptr )
+            {
+                std::cout << "Creating node " << 0 << "b" << std::endl;
+                nodes.at(0) = createTransferNode(
+                        bodyMap, nodeSettings.at(0), nodeIds.at(0),
+                        nullptr, legs.at(0), false, false);
+            }
+        }
+
+
+        // Legs and intermediate nodes
+        for( unsigned int i = 0; i < legSettings.size( ); i++ )
+        {
+            // Creation of leg
+            // Don't create leg if it requires input from previous node which is not defined or if it requires input from
+            // following node which is not defined
+            if ( (legs.at(i) == nullptr) && !(legRequiresInputFromPreviousNode.at( legSettings.at(i)->legType_ ) && nodes.at(i) == nullptr) &&
+                 !(legRequiresInputFromFollowingNode.at( legSettings.at(i)->legType_ ) && nodes.at(i+1) == nullptr))
+            {
+                std::cout << "Creating leg " << i << std::endl;
+                legs.at(i) = createTransferLeg(
+                        bodyMap, legSettings.at(i), nodeIds.at(i), nodeIds.at(i + 1),
+                        centralBody, nodes.at(i), nodes.at(i+1) );
+            }
+
+            // Creation of node (all nodes except first and last)
+            // Don't create node if it requires input from previous leg which is not defined or if it requires input from
+            // following leg which is not defined
+            if ( i < legSettings.size( ) - 1 )
+            {
+                bool nodeRequiresInputFromPreviousLeg = !legRequiresInputFromFollowingNode.at( legSettings.at(i)->legType_);
+                bool nodeRequiresInputFromFollowingLeg = !legRequiresInputFromPreviousNode.at( legSettings.at(i+1)->legType_);
+                if ( (nodes.at(i+1) == nullptr) && !(nodeRequiresInputFromPreviousLeg && legs.at(i) == nullptr ) &&
+                     !(nodeRequiresInputFromFollowingLeg && legs.at(i+1) == nullptr ) )
+                {
+                    std::cout << "Creating node " << i+1 << ": "<< !nodeRequiresInputFromPreviousLeg << " " << !nodeRequiresInputFromFollowingLeg << std::endl;
+                    nodes.at(i+1) = createTransferNode(
+                            bodyMap, nodeSettings.at(i+1), nodeIds.at(i+1), legs.at(i),
+                            legs.at(i+1), !nodeRequiresInputFromPreviousLeg, !nodeRequiresInputFromFollowingLeg);
+                }
+            }
+        }
+
+        //  Last node
+        // nodeComputesOutgoingVelocity is set to true for swingby nodes; for capture nodes the value doesn't matter
+        if ( nodes.at(legSettings.size( )) == nullptr)
+        {
+            // If node doesn't require input from the previous leg, then create node
+            if ( legRequiresInputFromFollowingNode.at( legSettings.at(legSettings.size( ) - 1)->legType_ ) )
+            {
+                std::cout << "Creating node " << legSettings.size( ) << "a" << std::endl;
+                nodes.at(legSettings.size( )) = createTransferNode(
+                        bodyMap, nodeSettings.at(legSettings.size( ) ), nodeIds.at(legSettings.size( )),
+                        nullptr, nullptr, true, true);
+            }
+            // If node requires input from previous leg but previous leg is already created, then create node
+            else if ( legs.at(legSettings.size( ) - 1) != nullptr )
+            {
+                std::cout << "Creating node " << legSettings.size( ) << "b" << std::endl;
+                nodes.at(legSettings.size( )) = createTransferNode(
+                        bodyMap, nodeSettings.at(legSettings.size( )), nodeIds.at(legSettings.size( )),
+                        legs.at(legSettings.size( ) - 1), nullptr, false, true);
+            }
+        }
+
+
+        std::cout << "Legs ";
+        for( unsigned int i = 0; i < legSettings.size( ); i++ )
+        {
+            if (legs.at(i) == nullptr)
+                std::cout << i << " ";
+        }
+        std::cout << std::endl << "Nodes ";
+        for( unsigned int i = 0; i < nodeSettings.size( ); i++ )
+        {
+            if (nodes.at(i) == nullptr)
+                std::cout << i << " ";
+        }
+        std::cout << std::endl;
+
+
+        std::cout << (std::find(legs.begin(), legs.end(), nullptr) != legs.end()) << " " <<
+            (std::find(nodes.begin(), nodes.end(), nullptr) != nodes.end()) << std::endl << std::endl;
+
+        if (iteration > 5)
+            throw std::runtime_error( "Something wrong!" );
+    }
+
+    for( unsigned int i = 0; i < legSettings.size( ); i++ )
+    {
+        if (legs.at(i) == nullptr)
+            throw std::runtime_error( "Something is wrong with the legs!" );
+    }
+    for( unsigned int i = 0; i < nodeSettings.size( ); i++ )
+    {
+        if (nodes.at(i) == nullptr)
+            throw std::runtime_error( "Something is wrong with the nodes!" );
+    }
+
+    std::cout << "Created Legs ";
+    for( unsigned int i = 0; i < legSettings.size( ); i++ )
+        std::cout << legSettings.at(i)->legType_ << " ";
+    std::cout << std::endl << "Created Nodes ";
+    for( unsigned int i = 0; i < nodeSettings.size( ); i++ )
+        std::cout << nodeSettings.at(i)->nodeType_ << " ";
+    std::cout << std::endl;
+
+    ///////////////////////////////////////////////////////////////////////////////////
+    /*
     std::vector< std::shared_ptr< TransferLeg > > legs;
     std::vector< std::shared_ptr< TransferNode > > nodes;
 
 
     for( unsigned int i = 0; i < legSettings.size( ); i++ )
     {
-        if( legRequiresInputFromNode.at( legSettings.at( i )->legType_ ) )
+        if( legRequiresInputFromPreviousNode.at(legSettings.at(i)->legType_ ) )
         {
             nodes.push_back(
-                        createTransferNode(
-                            bodyMap, nodeSettings.at( i ), nodeIds.at( i ), ( i == 0 ? nullptr : legs.at( i -  1 ) ), nullptr, true ) );
+                    createTransferNode(
+                            bodyMap, nodeSettings.at(i), nodeIds.at(i), (i == 0 ? nullptr : legs.at(i - 1)),
+                            nullptr, false, true));
             legs.push_back(
-                        createTransferLeg(
-                            bodyMap, legSettings.at( i ),
-                            nodeIds.at( i ), nodeIds.at( i + 1 ), centralBody,
-                            nodes.at( i ) ) );
+                    createTransferLeg(
+                            bodyMap, legSettings.at(i),
+                            nodeIds.at(i), nodeIds.at(i + 1), centralBody,
+                            nodes.at(i), std::shared_ptr< TransferNode >( )));
         }
         else
         {
             legs.push_back(
-                        createTransferLeg(
-                            bodyMap, legSettings.at( i ),
-                            nodeIds.at( i ), nodeIds.at( i + 1 ), centralBody ) );
+                    createTransferLeg(
+                            bodyMap, legSettings.at(i),
+                            nodeIds.at(i), nodeIds.at(i + 1), centralBody,
+                            std::shared_ptr< TransferNode >( ), std::shared_ptr< TransferNode >( )));
 
 
             nodes.push_back(
-                        createTransferNode(
-                            bodyMap, nodeSettings.at( i ), nodeIds.at( i ),
-                            ( i == 0 ? nullptr : legs.at( i -  1 ) ), legs.at( i ), false ) );
+                    createTransferNode(
+                            bodyMap, nodeSettings.at(i), nodeIds.at(i),
+                            (i == 0 ? nullptr : legs.at(i - 1)), legs.at(i),
+                            false, false));
 
 
         }
@@ -489,20 +651,20 @@ std::shared_ptr< TransferTrajectory > createTransferTrajectory(
     if( nodeSettings.at( legSettings.size( ) )->nodeType_ == capture_and_insertion )
     {
         nodes.push_back(
-                    createTransferNode(
-                        bodyMap, nodeSettings.at( legSettings.size( ) ),
-                        nodeIds.at( legSettings.size( ) ),
-                        legs.at( legSettings.size( ) -  1 ), nullptr, false ) );
+                createTransferNode(
+                        bodyMap, nodeSettings.at(legSettings.size()),
+                        nodeIds.at(legSettings.size()),
+                        legs.at(legSettings.size() - 1), nullptr, false, false));
     }
     else
     {
         nodes.push_back(
-                    createTransferNode(
-                        bodyMap, nodeSettings.at( legSettings.size( ) ),
-                        nodeIds.at( legSettings.size( ) ),
-                        legs.at( legSettings.size( ) -  1 ), nullptr, true ) );
+                createTransferNode(
+                        bodyMap, nodeSettings.at(legSettings.size()),
+                        nodeIds.at(legSettings.size()),
+                        legs.at(legSettings.size() - 1), nullptr, false, true));
     }
-
+    */
     return std::make_shared< TransferTrajectory >( legs, nodes );
 
 }
@@ -522,7 +684,7 @@ void getParameterVectorDecompositionIndices(
         switch( nodeSettings.at( i )->nodeType_  )
         {
         case swingby:
-            if( legRequiresInputFromNode.at( legSettings.at( i )->legType_ ) )
+            if( legRequiresInputFromPreviousNode.at(legSettings.at(i )->legType_ ) )
             {
                 nodeParameterIndices.push_back( std::make_pair( currentParameterIndex, 3 ) );
                 currentParameterIndex += 3;
@@ -533,7 +695,7 @@ void getParameterVectorDecompositionIndices(
             }
             break;
         case escape_and_departure:
-            if( legRequiresInputFromNode.at( legSettings.at( i )->legType_ ) )
+            if( legRequiresInputFromPreviousNode.at(legSettings.at(i )->legType_ ) )
             {
                 nodeParameterIndices.push_back( std::make_pair( currentParameterIndex, 3 ) );
                 currentParameterIndex += 3;
@@ -607,7 +769,7 @@ void printTransferParameterDefinition(
             {
                 useSwingbyParameters = true;
             }
-            else if( legRequiresInputFromNode.at( legSettings.at( i )->legType_ ) )
+            else if( legRequiresInputFromPreviousNode.at(legSettings.at(i )->legType_ ) )
             {
                 useSwingbyParameters = true;
             }
@@ -620,7 +782,7 @@ void printTransferParameterDefinition(
             break;
         }
         case escape_and_departure:
-            if( legRequiresInputFromNode.at( legSettings.at( i )->legType_ ) )
+            if( legRequiresInputFromPreviousNode.at(legSettings.at(i )->legType_ ) )
             {
                 currentNodeIds.push_back( "Excess velocity magnitude" );
                 currentNodeIds.push_back( "Excess velocity in-plane angle" );
