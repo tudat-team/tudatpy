@@ -15,39 +15,72 @@ void TransferTrajectory::evaluateTrajectory(
     totalDeltaV_ = 0.0;
     totalTimeOfFlight_ = 0.0;
 
+    std::vector< bool > legEvaluated ( legs_.size( ), false );
+    std::vector< bool > nodeEvaluated ( nodes_.size( ), false );
+
     Eigen::VectorXd legTotalParameters;
     Eigen::VectorXd nodeTotalParameters;
 
-    for( unsigned int i = 0; i < legs_.size( ); i++ )
+    // Loop over nodes and legs until all are defined
+    unsigned int iteration = 0;
+    while ( ( std::find(legEvaluated.begin(), legEvaluated.end(), false) != legEvaluated.end() ) ||
+        ( std::find(nodeEvaluated.begin(), nodeEvaluated.end(), false) != nodeEvaluated.end() ) )
     {
-        if( !nodes_.at( i )->nodeComputesOutgoingVelocity( ) )
-        {
-            getLegTotalParameters( nodeTimes, legFreeParameters.at( i ), i, legTotalParameters );
-            legs_.at( i )->updateLegParameters( legTotalParameters );
-            totalDeltaV_ += legs_.at( i )->getLegDeltaV( );
-            totalTimeOfFlight_ += legs_.at( i )->getLegTimeOfFlight( );
+        ++iteration;
 
-            getNodeTotalParameters( nodeTimes, nodeFreeParameters.at( i ), i, nodeTotalParameters );
-            nodes_.at( i )->updateNodeParameters( nodeTotalParameters );
-            totalDeltaV_ += nodes_.at( i )->getNodeDeltaV( );
-        }
-        else
+        // First node
+        if ( !nodeEvaluated.at( 0 ) && ( nodes_.at( 0 )->nodeComputesOutgoingVelocity( ) || legEvaluated.at( 0 ) ) )
         {
-            getNodeTotalParameters( nodeTimes, nodeFreeParameters.at( i ), i, nodeTotalParameters );
-            nodes_.at( i )->updateNodeParameters( nodeTotalParameters );
-            totalDeltaV_ += nodes_.at( i )->getNodeDeltaV( );
-
-            getLegTotalParameters( nodeTimes, legFreeParameters.at( i ), i, legTotalParameters );
-            legs_.at( i )->updateLegParameters( legTotalParameters );
-            totalDeltaV_ += legs_.at( i )->getLegDeltaV( );
-            totalTimeOfFlight_ += legs_.at( i )->getLegTimeOfFlight( );
+            getNodeTotalParameters( nodeTimes, nodeFreeParameters.at( 0 ), 0, nodeTotalParameters );
+            nodes_.at( 0 )->updateNodeParameters( nodeTotalParameters );
+            nodeEvaluated.at( 0 ) = true;
+            totalDeltaV_ += nodes_.at( 0 )->getNodeDeltaV( );
         }
+
+        // Legs and intermediate nodes
+        for( unsigned int i = 0; i < legs_.size( ); i++ )
+        {
+            // Evaluate leg i
+            if ( !legEvaluated.at( i ) && (!nodes_.at( i )->nodeComputesOutgoingVelocity( ) || nodeEvaluated.at( i ) ) &&
+                 (!nodes_.at( i+1 )->nodeComputesIncomingVelocity( ) || nodeEvaluated.at( i+1 ) ) )
+            {
+                getLegTotalParameters( nodeTimes, legFreeParameters.at( i ), i, legTotalParameters );
+                legs_.at( i )->updateLegParameters( legTotalParameters );
+                legEvaluated.at( i ) = true;
+                totalDeltaV_ += legs_.at( i )->getLegDeltaV( );
+                totalTimeOfFlight_ += legs_.at( i )->getLegTimeOfFlight( );
+            }
+
+            // Evaluate node i+1 (as long as it isn't the last node)
+            if ( i < legs_.size( ) - 1 )
+            {
+                if ( !nodeEvaluated.at( i+1 ) && (nodes_.at( i+1 )->nodeComputesIncomingVelocity( ) || legEvaluated.at(i) ) &&
+                     (nodes_.at( i+1 )->nodeComputesOutgoingVelocity( ) || legEvaluated.at(i+1) ) )
+                {
+                    getNodeTotalParameters( nodeTimes, nodeFreeParameters.at( i+1 ), i+1, nodeTotalParameters );
+                    nodes_.at( i+1 )->updateNodeParameters( nodeTotalParameters );
+                    nodeEvaluated.at( i+1 ) = true;
+                    totalDeltaV_ += nodes_.at( i+1 )->getNodeDeltaV( );
+                }
+            }
+        }
+
+        // Last node
+        if ( !nodeEvaluated.at( legs_.size( ) ) && ( nodes_.at( legs_.size( ) )->nodeComputesIncomingVelocity( ) ||
+            legEvaluated.at( legs_.size( )-1 ) ) )
+        {
+            getNodeTotalParameters(nodeTimes, nodeFreeParameters.at( legs_.size( ) ), legs_.size( ), nodeTotalParameters );
+            nodes_.at( legs_.size( ) )->updateNodeParameters( nodeTotalParameters );
+            nodeEvaluated.at( legs_.size( ) ) = true;
+            totalDeltaV_ += nodes_.at( legs_.size( ) )->getNodeDeltaV( );
+        }
+
+        if (iteration > legs_.size( ) + nodes_.size() )
+        {
+            throw std::runtime_error( "evaluateTrajectory used more than maximum possible number of iterations." );
+        }
+
     }
-
-    getNodeTotalParameters(nodeTimes, nodeFreeParameters.at( legs_.size( ) ),
-                           legs_.size( ), nodeTotalParameters );
-    nodes_.at( legs_.size( ) )->updateNodeParameters( nodeTotalParameters );
-    totalDeltaV_ += nodes_.at( legs_.size( ) )->getNodeDeltaV( );
 
     isComputed_ = true;
 }
