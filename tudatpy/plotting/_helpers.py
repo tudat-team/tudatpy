@@ -276,16 +276,16 @@ def pareto_front(
     x_label: str,
     y_label: str,
     title:str = "",
-    c_objective:Union[list,None] = None,
+    c_parameter:Union[list,None] = None,
     c_label:str = "",
     cmap:Union[matplotlib.colors.Colormap,str] = "viridis",
     operator:List[Union[min,max]] = [min, min],
     alpha:float = 0.85):
-    """Plot optimisation solutions with their associated Pareto front.
+    """Plot dual-objective optimisation solutions with their associated Pareto front.
 
-    This function allows to plot the cloud of points that results from an optimisation, with the x and y axis both representing one of the optimisation objectives.
+    This function allows to plot the cloud of points that results from an optimisation that contains two objectives, with the x and y axis both representing one of the optimisation objectives.
     A Pareto front is also automatically added to the plot, to represent the suite of optimum solutions.
-    Optionnally, information on a third objective, or a design parameter, can also be incorporated to the plot in the form of a colormap.
+    Optionally, information on a third design or optimisation parameter can also be incorporated to the plot in the form of a colormap.
 
     Parameters
     ----------
@@ -299,8 +299,8 @@ def pareto_front(
         Label of the y-axis.
     title : str, optional
         Title of the plot.
-    c_objective : List[float], optional
-        List of values representing the score of each solution according to a third optimisation objective, coloring the cloud of points.
+    c_parameter : List[float], optional
+        List of values representing an extra design or optimisation parameter, coloring the cloud of points.
     c_label : str, optional
         Label of the colorbar that is used to represent the optional third objective.
     cmap : str or matplotlib.colors.Colormap, optional, default="viridis"
@@ -330,7 +330,7 @@ def pareto_front(
             x_label="Mean altitude [km]",
             y_label="Periapsis decay [km]",
             title="CubeSat altitude vs periapsis decay objectives, as a function of power",
-            c_objective=mean_powers,
+            c_parameter=mean_powers,
             c_label="Mean power [W]",
             cmap="plasma",
             alpha=0.65
@@ -354,7 +354,7 @@ def pareto_front(
         Axis used to make the plot.
 
     """
-    if c_objective is None:
+    if c_parameter is None:
         # Create the figure and its axis
         fig, ax = plt.subplots(figsize=(10,6))
     else:
@@ -365,9 +365,9 @@ def pareto_front(
             gridspec_kw={"width_ratios":[1, 0.025]}
         )
     # Plot the two main objectives, with the appropriate color if the color-associated objective is specified
-    objectives_scatter = ax.scatter(x_objective, y_objective, alpha=alpha, c=c_objective, cmap=cmap)
+    objectives_scatter = ax.scatter(x_objective, y_objective, alpha=alpha, c=c_parameter, cmap=cmap)
     # If a color-associated objective was specified, add a colormap on the side of the figure
-    if c_objective is not None:
+    if c_parameter is not None:
         plt.colorbar(objectives_scatter, cax=cax, label=c_label)
         # Print a warning if the colorbar is left with no label (but accept this)
         if c_label == "":
