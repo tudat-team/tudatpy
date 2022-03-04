@@ -66,6 +66,15 @@ void expose_estimation_setup(py::module &m) {
           py::arg( "bodies" ),
           get_docstring("create_observation_simulators").c_str() );
 
+
+    m.def("single_type_observation_collection",
+          &tom::createManualObservationCollection< >,
+          py::arg("observable_type"),
+          py::arg("link_ends"),
+          py::arg("observations_list"),
+          py::arg("times_list"),
+          py::arg("reference_link_end" ),
+          get_docstring("single_type_observaion_collection").c_str() );
 }
 
 }

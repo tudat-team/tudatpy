@@ -129,6 +129,11 @@ void expose_estimation(py::module &m) {
             .def_property_readonly("concatenated_observations", &tom::ObservationCollection<>::getObservationVector,
                                    get_docstring("ObservationCollection.concatenated_observations").c_str() );
 
+    py::class_< tom::SingleObservationSet<>,
+            std::shared_ptr<tom::SingleObservationSet<>>>(m, "SingleObservationSet",
+                                                           get_docstring("SingleObservationSet").c_str() );
+
+
     /*!
      *************** STATE TRANSITION INTERFACE ***************
      */
