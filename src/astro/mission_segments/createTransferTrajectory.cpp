@@ -590,17 +590,6 @@ std::shared_ptr< TransferTrajectory > createTransferTrajectory(
             throw std::runtime_error( "Something wrong!" );
     }
 
-    for( unsigned int i = 0; i < legSettings.size( ); i++ )
-    {
-        if (legs.at(i) == nullptr)
-            throw std::runtime_error( "Something is wrong with the legs!" );
-    }
-    for( unsigned int i = 0; i < nodeSettings.size( ); i++ )
-    {
-        if (nodes.at(i) == nullptr)
-            throw std::runtime_error( "Something is wrong with the nodes!" );
-    }
-
     std::cout << "Created Legs ";
     for( unsigned int i = 0; i < legSettings.size( ); i++ )
         std::cout << legSettings.at(i)->legType_ << " ";
