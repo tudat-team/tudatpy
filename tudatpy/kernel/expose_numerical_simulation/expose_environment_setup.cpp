@@ -118,7 +118,8 @@ namespace environment_setup {
 
 
         m.def("create_simplified_system_of_bodies", &tss::createSimplifiedSystemOfBodies,
-              py::arg("initial_time") = 0);
+              py::arg("initial_time") = 0,
+              get_docstring("create_simplified_system_of_bodies").c_str());
 
         m.def("create_system_of_bodies", &tss::createSystemOfBodies,
               py::arg("body_settings"),
