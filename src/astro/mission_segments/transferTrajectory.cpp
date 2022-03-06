@@ -201,6 +201,16 @@ void TransferTrajectory::getLegTotalParameters(
         legTotalParameters( 1 ) = nodeTimes.at( legIndex + 1 );
         legTotalParameters( 2 ) = legFreeParameters( 0 );
     }
+    else if( legs_.at( legIndex )->getTransferLegType( ) == spherical_shaping_low_thrust_leg )
+    {
+        legTotalParameters.resize( 2, 1 );
+        legTotalParameters( 0 ) = nodeTimes.at( legIndex );
+        legTotalParameters( 1 ) = nodeTimes.at( legIndex + 1 );
+    }
+    else
+    {
+        throw std::runtime_error( "Error when getting leg parameters, leg type not recognized" );
+    }
 
 }
 
@@ -250,6 +260,10 @@ void TransferTrajectory::getNodeTotalParameters(
         {
             throw std::runtime_error( "Error when getting input parameters for capture_and_insertion, node cannot compute output velocity" );
         }
+    }
+    else
+    {
+        throw std::runtime_error( "Error when getting node parameters, node type not recognized" );
     }
 }
 
