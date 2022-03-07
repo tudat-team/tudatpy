@@ -25,7 +25,7 @@ namespace parameter {
 void expose_estimated_parameter_setup(py::module &m) {
 
 
-    py::enum_<tep::EstimatebleParametersEnum >(m, "EstimatebleParameterTypes", get_docstring("EstimatebleParameterTypes").c_str() )
+    py::enum_<tep::EstimatebleParametersEnum >(m, "EstimatableParameterTypes", get_docstring("EstimatableParameterTypes").c_str() )
             .value("arc_wise_initial_body_state_type", tep::EstimatebleParametersEnum::arc_wise_initial_body_state)
             .value("initial_body_state_type", tep::EstimatebleParametersEnum::initial_body_state)
             .value("initial_rotational_body_state_type", tep::EstimatebleParametersEnum::initial_rotational_body_state)
