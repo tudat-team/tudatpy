@@ -68,6 +68,11 @@ std::shared_ptr< aerodynamics::FlightConditions >  createFlightConditions(
         const std::string& nameOfBodyUndergoingAcceleration,
         const std::string& nameOfBodyExertingAcceleration );
 
+void addFlightConditions(
+        const SystemOfBodies& bodies,
+        const std::string bodyName,
+        const std::string centralBodyName );
+
 //! Function to set the angle of attack to trimmed conditions.
 /*!
  * Function to set the angle of attack to trimmed conditions. Using this function requires the aerodynamic coefficient
