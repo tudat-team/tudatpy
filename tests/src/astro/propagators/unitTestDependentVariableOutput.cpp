@@ -259,12 +259,7 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
             dependentVariables.push_back(
                         std::make_shared< SingleDependentVariableSaveSettings >(
                             body_fixed_relative_cartesian_position,  "Apollo", "Earth" ) );
-            dependentVariables.push_back(
-                        std::make_shared< SingleDependentVariableSaveSettings >(
-                            body_fixed_relative_spherical_position,  "Apollo", "Earth" ) );
-            dependentVariables.push_back(
-                        std::make_shared< SingleDependentVariableSaveSettings >(
-                            rsw_to_inertial_frame_rotation_dependent_variable,  "Apollo", "Earth" ) );
+
 
 
             // Create acceleration models and propagation settings.
@@ -288,6 +283,17 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
                           std::make_shared< propagators::PropagationTimeTerminationSettings >( 3200.0 ), gauss_modified_equinoctial,
                           std::make_shared< DependentVariableSaveSettings >( dependentVariables ) );
             }
+
+            std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToAdd;
+            dependentVariablesToAdd.push_back(
+                        std::make_shared< SingleDependentVariableSaveSettings >(
+                            body_fixed_relative_spherical_position,  "Apollo", "Earth" ) );
+            dependentVariablesToAdd.push_back(
+                        std::make_shared< SingleDependentVariableSaveSettings >(
+                            rsw_to_inertial_frame_rotation_dependent_variable,  "Apollo", "Earth" ) );
+
+            addDepedentVariableSettings< double >( dependentVariablesToAdd, propagatorSettings );
+
             std::shared_ptr< IntegratorSettings< > > integratorSettings =
                     std::make_shared< IntegratorSettings< > >
                     ( rungeKutta4, simulationStartEpoch, fixedStepSize );
@@ -614,6 +620,11 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicDependentVariableOutput )
                 asterixInitialStateInKeplerianElements,
                 earthGravitationalParameter );
 
+    double simulationEndEpoch = 10.0;
+    std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
+            std::make_shared< TranslationalStatePropagatorSettings< double > >
+            ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, simulationEndEpoch, cowell );
+
     std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
 
     dependentVariables.push_back(
@@ -633,12 +644,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicDependentVariableOutput )
                 std::make_shared< SphericalHarmonicAccelerationTermsDependentVariableSaveSettings >(
                     "Asterix", "Earth", 6, 6 ) );
 
-
-    double simulationEndEpoch = 10.0;
-    std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
-            std::make_shared< TranslationalStatePropagatorSettings< double > >
-            ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, simulationEndEpoch, cowell,
-              std::make_shared< DependentVariableSaveSettings >( dependentVariables ) );
+    addDepedentVariableSettings< double >( dependentVariables, propagatorSettings );
 
     // Create numerical integrator.
     double simulationStartEpoch = 0.0;
