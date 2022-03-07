@@ -161,6 +161,11 @@ namespace environment_setup {
               py::arg("bodies"), py::arg("body_name"), py::arg("radiation_pressure_settings"),
               get_docstring("add_radiation_pressure_interface").c_str());
 
+        m.def("add_flight_conditions",
+              &tss::addFlightConditions,
+              py::arg("bodies"), py::arg("body_name"), py::arg("central_body_name"),
+              get_docstring("add_flight_conditions").c_str());
+
         m.def("add_ground_station",
               py::overload_cast<
                       const std::shared_ptr<tss::Body>,
