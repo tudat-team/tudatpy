@@ -328,10 +328,22 @@ void expose_environment(py::module &m) {
             .def("update_constant_state", &te::ConstantEphemeris::updateConstantState,
                  py::arg("new_state"));
 
+
     py::class_<te::KeplerEphemeris,
             std::shared_ptr<te::KeplerEphemeris>,
             te::Ephemeris>(
                 m, "KeplerEphemeris");
+
+
+    py::class_<te::MultiArcEphemeris, std::shared_ptr<te::MultiArcEphemeris>, te::Ephemeris>(m, "MultiArcEphemeris")
+            .def(py::init<
+                         const std::map<double, std::shared_ptr<te::Ephemeris> > &,
+                         const std::string &,
+                         const std::string &>(),
+                 py::arg("single_arc_ephemerides"),
+                 py::arg("reference_frame_origin") = "SSB",
+                 py::arg("reference_frame_orientation") = "ECLIPJ2000");
+
 
     py::class_<te::TabulatedCartesianEphemeris< double, double >,
             std::shared_ptr<te::TabulatedCartesianEphemeris< double, double > >,
