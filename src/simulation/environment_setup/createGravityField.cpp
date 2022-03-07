@@ -309,6 +309,21 @@ std::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
             }
             else
             {
+                std::string associatedReferenceFrame = sphericalHarmonicFieldSettings->getAssociatedReferenceFrame( );
+                if( associatedReferenceFrame == "" )
+                {
+                    std::shared_ptr< ephemerides::RotationalEphemeris> rotationalEphemeris =
+                            bodies.at( body )->getRotationalEphemeris( );
+                    if( rotationalEphemeris == nullptr )
+                    {
+                        throw std::runtime_error( "Error when creating spherical harmonic gravity field for body " + body +
+                                                  ", neither a frame ID nor a rotational model for the body have been defined" );
+                    }
+                    else
+                    {
+                        associatedReferenceFrame = rotationalEphemeris->getTargetFrameOrientation( );
+                    }
+                }
 
                 if( gravityFieldVariationSettings.size( ) == 0 &&
                         sphericalHarmonicFieldSettings->getCreateTimeDependentField( ) == 0 )
@@ -319,7 +334,7 @@ std::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
                                 sphericalHarmonicFieldSettings->getReferenceRadius( ),
                                 sphericalHarmonicFieldSettings->getCosineCoefficients( ),
                                 sphericalHarmonicFieldSettings->getSineCoefficients( ),
-                                sphericalHarmonicFieldSettings->getAssociatedReferenceFrame( ),
+                                associatedReferenceFrame,
                                 inertiaTensorUpdateFunction );
                 }
                 else
@@ -337,7 +352,7 @@ std::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
                                 sphericalHarmonicFieldSettings->getReferenceRadius( ),
                                 sphericalHarmonicFieldSettings->getCosineCoefficients( ),
                                 sphericalHarmonicFieldSettings->getSineCoefficients( ),
-                                sphericalHarmonicFieldSettings->getAssociatedReferenceFrame( ),
+                                associatedReferenceFrame,
                                 inertiaTensorUpdateFunction );
                 }
 
