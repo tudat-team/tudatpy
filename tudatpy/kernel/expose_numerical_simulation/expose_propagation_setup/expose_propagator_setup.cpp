@@ -452,8 +452,9 @@ void expose_propagator_setup(py::module &m) {
 
     m.def("add_dependent_variable_settings",
           &tp::addDepedentVariableSettings< double >,
-          py::arg("dependent_variable_settings_list"),
-          py::arg("propagator_settings") );
+          py::arg("dependent_variable_settings"),
+          py::arg("propagator_settings"),
+          get_docstring("add_dependent_variable_settings").c_str());
 
 
 }
