@@ -63,6 +63,8 @@ public:
         {
             if( massRateModels_.count( bodiesToIntegrate_.at( i ) ) == 0 )
             {
+                std::cerr<<"Warning, propagating mass of body " + bodiesToIntegrate_.at( i )  +
+                           " without any mass rate models."<<std::endl;
                 massRateModels_[ bodiesToIntegrate_.at( i ) ] =
                         std::vector< std::shared_ptr< basic_astrodynamics::MassRateModel > >( );
             }
