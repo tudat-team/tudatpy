@@ -41,6 +41,7 @@ void expose_estimation(py::module &m) {
      *************** PARAMETERS ***************
      */
 
+
     py::class_<tep::EstimatableParameterSet<double>,
             std::shared_ptr<tep::EstimatableParameterSet<double>>>(m, "EstimatableParameterSet",
                                                                    get_docstring("EstimatableParameterSet").c_str() )
@@ -253,7 +254,10 @@ void expose_estimation(py::module &m) {
                   py::arg( "print_output_to_terminal" ) = true,
                   py::arg( "save_residuals_and_parameters_per_iteration" ) = true,
                   py::arg( "save_state_history_per_iteration" ) = false,
-                  get_docstring("PodInput.define_estimation_settings").c_str() );
+                  get_docstring("PodInput.define_estimation_settings").c_str() )
+            .def_property_readonly("weight_matrix_diagonal",
+                                   &tss::PodInput<double, double>::getWeightsMatrixDiagonals);
+
 
     py::class_<
             tss::PodOutput<double, double>,
