@@ -93,7 +93,6 @@ protected:
 };
 
 
-
 class DepartureWithFixedOutgoingVelocityNode: public TransferNode
 {
 public:
@@ -122,7 +121,6 @@ protected:
     double departureEccentricity_;
     std::function< Eigen::Vector3d( ) > outgoingVelocityFunction_;
 };
-
 
 
 class DepartureWithFreeOutgoingVelocityNode: public TransferNode

@@ -75,6 +75,8 @@ public:
             const TransferLegTypes legType ):
         legType_( legType ){ }
 
+    virtual ~TransferLegSettings( ) { }
+
     TransferLegTypes legType_;
 };
 
@@ -285,7 +287,8 @@ void getMgaTransferTrajectorySettingsWithSphericalShapingThrust(
         const std::pair< double, double > arrivalOrbit = std::make_pair( TUDAT_NAN, TUDAT_NAN ),
         const std::map< std::string, double > minimumPericenterRadii = DEFAULT_MINIMUM_PERICENTERS );
 
-std::shared_ptr< TransferTrajectory > createTransferTrajectory(const simulation_setup::SystemOfBodies& bodyMap,
+std::shared_ptr< TransferTrajectory > createTransferTrajectory(
+        const simulation_setup::SystemOfBodies& bodyMap,
         const std::vector< std::shared_ptr< TransferLegSettings > >& legSettings,
         const std::vector< std::shared_ptr< TransferNodeSettings > >& nodeSettings,
         const std::vector< std::string >& nodeIds,
