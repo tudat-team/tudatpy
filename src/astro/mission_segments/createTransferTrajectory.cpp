@@ -22,9 +22,17 @@ std::shared_ptr< TransferLegSettings > unpoweredLeg( )
     return std::make_shared< TransferLegSettings >( unpowered_unperturbed_leg );
 }
 
-std::shared_ptr< TransferLegSettings > sphericalShapingLeg( )
+std::shared_ptr< TransferLegSettings > sphericalShapingLeg(
+        const int numberOfRevolutions,
+        const std::shared_ptr<root_finders::RootFinderSettings> rootFinderSettings,
+        const double lowerBoundFreeCoefficient,
+        const double upperBoundFreeCoefficient,
+        const double initialValueFreeCoefficient,
+        const double timeToAzimuthInterpolatorStepSize)
 {
-    return std::make_shared< TransferLegSettings >( spherical_shaping_low_thrust_leg );
+    return std::make_shared< SphericalShapingLegSetting >(
+            numberOfRevolutions, rootFinderSettings, lowerBoundFreeCoefficient, upperBoundFreeCoefficient,
+            initialValueFreeCoefficient, timeToAzimuthInterpolatorStepSize );
 }
 
 std::shared_ptr< TransferNodeSettings > escapeAndDepartureNode(
@@ -113,7 +121,7 @@ std::shared_ptr< TransferLeg > createTransferLeg (
     {
         if( departureNode == nullptr )
         {
-            throw std::runtime_error( "Error when making dsm_velocity_based_leg, no previous departure node" );
+            throw std::runtime_error( "Error when making dsm_velocity_based_leg, no departure node" );
         }
         std::function< Eigen::Vector3d( ) > departureVelocityFunction =
                 std::bind( &TransferNode::getOutgoingVelocity, departureNode );
@@ -121,6 +129,30 @@ std::shared_ptr< TransferLeg > createTransferLeg (
         transferLeg = std::make_shared< DsmVelocityBasedTransferLeg >(
                     departureBodyEphemeris, arrivalBodyEphemeris,
                     centralBodyGravitationalParameter, departureVelocityFunction );
+        break;
+    }
+    case spherical_shaping_low_thrust_leg:
+    {
+        if( departureNode == nullptr )
+        {
+            throw std::runtime_error( "Error when making spherical_shaping_low_thrust_leg, no departure node." );
+        }
+        else if (arrivalNode == nullptr)
+        {
+            throw std::runtime_error( "Error when making spherical_shaping_low_thrust_leg, no arrival node." );
+        }
+
+        std::function< Eigen::Vector3d( ) > departureVelocityFunction =
+                std::bind( &TransferNode::getOutgoingVelocity, departureNode );
+        std::function< Eigen::Vector3d( ) > arrivalVelocityFunction =
+                        std::bind( &TransferNode::getIncomingVelocity, arrivalNode );
+
+//        transferLeg = std::make_shared< shape_based_methods::SphericalShapingLeg >(
+//                departureBodyEphemeris, arrivalBodyEphemeris, centralBodyGravitationalParameter,
+//                )
+
+        throw std::runtime_error( "createTransferLeg not implemented for spherical shaping leg." );
+
         break;
     }
     default:
