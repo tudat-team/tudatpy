@@ -32,6 +32,7 @@
 #include "tudat/astro/mission_segments/transferLeg.h"
 #include "tudat/astro/mission_segments/transferNode.h"
 #include "tudat/astro/mission_segments/transferTrajectory.h"
+#include "tudat/astro/low_thrust/shape_based/sphericalShapingLeg.h"
 #include "tudat/simulation/environment_setup/body.h"
 
 namespace tudat
@@ -77,6 +78,31 @@ public:
     TransferLegTypes legType_;
 };
 
+class SphericalShapingLegSetting: public TransferLegSettings
+{
+public:
+    SphericalShapingLegSetting(
+                const int numberOfRevolutions,
+                const std::shared_ptr<root_finders::RootFinderSettings> rootFinderSettings,
+                const double lowerBoundFreeCoefficient,
+                const double upperBoundFreeCoefficient,
+                const double initialValueFreeCoefficient,
+                const double timeToAzimuthInterpolatorStepSize):
+            TransferLegSettings( spherical_shaping_low_thrust_leg ),
+            numberOfRevolutions_(numberOfRevolutions),
+            rootFinderSettings_(rootFinderSettings),
+            lowerBoundFreeCoefficient_(lowerBoundFreeCoefficient),
+            upperBoundFreeCoefficient_(upperBoundFreeCoefficient),
+            initialValueFreeCoefficient_(initialValueFreeCoefficient),
+            timeToAzimuthInterpolatorStepSize_(timeToAzimuthInterpolatorStepSize) { }
+
+    const int numberOfRevolutions_;
+    const std::shared_ptr<root_finders::RootFinderSettings> rootFinderSettings_;
+    const double lowerBoundFreeCoefficient_;
+    const double upperBoundFreeCoefficient_;
+    const double initialValueFreeCoefficient_;
+    const double timeToAzimuthInterpolatorStepSize_;
+};
 
 std::shared_ptr< TransferLegSettings > dsmVelocityBasedLeg( );
 
@@ -84,7 +110,13 @@ std::shared_ptr< TransferLegSettings > dsmPositionBasedLeg( );
 
 std::shared_ptr< TransferLegSettings > unpoweredLeg( );
 
-std::shared_ptr< TransferLegSettings > sphericalShapingLeg( );
+std::shared_ptr< TransferLegSettings > sphericalShapingLeg(
+        const int numberOfRevolutions,
+        const std::shared_ptr<root_finders::RootFinderSettings> rootFinderSettings,
+        const double lowerBoundFreeCoefficient = TUDAT_NAN,
+        const double upperBoundFreeCoefficient = TUDAT_NAN,
+        const double initialValueFreeCoefficient = TUDAT_NAN,
+        const double timeToAzimuthInterpolatorStepSize = physical_constants::JULIAN_DAY);
 
 class TransferNodeSettings
 {

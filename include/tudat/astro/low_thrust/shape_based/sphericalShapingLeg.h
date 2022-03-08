@@ -41,7 +41,8 @@ public:
     //! Constructor for spherical shaping, with initial and final velocity given by departure and arrival bodies' ephemeris.
     SphericalShapingLeg(const std::shared_ptr<ephemerides::Ephemeris> departureBodyEphemeris,
                         const std::shared_ptr<ephemerides::Ephemeris> arrivalBodyEphemeris,
-                        const double centralBodyGravitationalParameter, const int numberOfRevolutions,
+                        const double centralBodyGravitationalParameter,
+                        const int numberOfRevolutions,
                         const std::shared_ptr<root_finders::RootFinderSettings> rootFinderSettings,
                         const double lowerBoundFreeCoefficient = TUDAT_NAN,
                         const double upperBoundFreeCoefficient = TUDAT_NAN,
@@ -51,7 +52,8 @@ public:
     //! Constructor for spherical shaping, with initial and final velocity given as arguments.
     SphericalShapingLeg(const std::shared_ptr<ephemerides::Ephemeris> departureBodyEphemeris,
                         const std::shared_ptr<ephemerides::Ephemeris> arrivalBodyEphemeris,
-                        const double centralBodyGravitationalParameter, const int numberOfRevolutions,
+                        const double centralBodyGravitationalParameter,
+                        const int numberOfRevolutions,
                         const std::function< Eigen::Vector3d( ) > departureVelocityFunction,
                         const std::function< Eigen::Vector3d( ) > arrivalVelocityFunction,
                         const std::shared_ptr<root_finders::RootFinderSettings> rootFinderSettings,
