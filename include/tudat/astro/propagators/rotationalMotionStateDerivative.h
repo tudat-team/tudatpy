@@ -118,6 +118,8 @@ public:
         {
             if( torqueModelsPerBody_.count( bodiesToPropagate.at( i ) ) == 0 )
             {
+                std::cerr<<"Warning, propagating rotational dynamics of body " + bodiesToPropagate.at( i )  +
+                           " without any torque models."<<std::endl;
                 torqueModelsPerBody_[ bodiesToPropagate.at( i ) ][ bodiesToPropagate.at( i ) ] =
                         std::vector< std::shared_ptr< basic_astrodynamics::TorqueModel > >( );
             }
