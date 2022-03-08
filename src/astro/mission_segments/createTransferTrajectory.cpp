@@ -133,6 +133,13 @@ std::shared_ptr< TransferLeg > createTransferLeg (
     }
     case spherical_shaping_low_thrust_leg:
     {
+        std::shared_ptr< SphericalShapingLegSetting > sphericalShapingLegSettings =
+                std::dynamic_pointer_cast< SphericalShapingLegSetting >( legSettings );
+        if( sphericalShapingLegSettings == nullptr )
+        {
+            throw std::runtime_error( "Error when making spherical_shaping_low_thrust_leg, type is inconsistent" );
+        }
+
         if( departureNode == nullptr )
         {
             throw std::runtime_error( "Error when making spherical_shaping_low_thrust_leg, no departure node." );
@@ -145,13 +152,16 @@ std::shared_ptr< TransferLeg > createTransferLeg (
         std::function< Eigen::Vector3d( ) > departureVelocityFunction =
                 std::bind( &TransferNode::getOutgoingVelocity, departureNode );
         std::function< Eigen::Vector3d( ) > arrivalVelocityFunction =
-                        std::bind( &TransferNode::getIncomingVelocity, arrivalNode );
+                std::bind( &TransferNode::getIncomingVelocity, arrivalNode );
 
-//        transferLeg = std::make_shared< shape_based_methods::SphericalShapingLeg >(
-//                departureBodyEphemeris, arrivalBodyEphemeris, centralBodyGravitationalParameter,
-//                )
-
-        throw std::runtime_error( "createTransferLeg not implemented for spherical shaping leg." );
+        transferLeg = std::make_shared< shape_based_methods::SphericalShapingLeg >(
+                departureBodyEphemeris, arrivalBodyEphemeris, centralBodyGravitationalParameter,
+                sphericalShapingLegSettings->numberOfRevolutions_,
+                sphericalShapingLegSettings->rootFinderSettings_,
+                sphericalShapingLegSettings->lowerBoundFreeCoefficient_,
+                sphericalShapingLegSettings->upperBoundFreeCoefficient_,
+                sphericalShapingLegSettings->initialValueFreeCoefficient_,
+                sphericalShapingLegSettings->timeToAzimuthInterpolatorStepSize_);
 
         break;
     }
@@ -212,6 +222,7 @@ std::shared_ptr<TransferNode> createTransferNode(
                     std::bind( &TransferLeg::getArrivalVelocity, incomingTransferLeg );
             std::function< Eigen::Vector3d( ) > outgoingVelocityFunction =
                     std::bind( &TransferLeg::getDepartureVelocity, outgoingTransferLeg );
+
             transferNode = std::make_shared< SwingbyWithFixedIncomingFixedOutgoingVelocity >(
                         centralBodyEphemeris,
                         centralBodyGravitationalParameter, swingbySettings->minimumPeriapsisRadius_,
@@ -221,13 +232,20 @@ std::shared_ptr<TransferNode> createTransferNode(
         {
             std::function< Eigen::Vector3d( ) > incomingVelocityFunction =
                     std::bind( &TransferLeg::getArrivalVelocity, incomingTransferLeg );
+
             transferNode = std::make_shared< SwingbyWithFixedIncomingFreeOutgoingVelocity >(
                         centralBodyEphemeris,
                         centralBodyGravitationalParameter, incomingVelocityFunction );
         }
+        else if ( nodeComputesIncomingVelocity && nodeComputesOutgoingVelocity )
+        {
+            transferNode = std::make_shared< SwingbyWithFreeIncomingFreeOutgoingVelocity >(
+                    centralBodyEphemeris,
+                    centralBodyGravitationalParameter);
+        }
         else
         {
-            throw std::runtime_error("Invalid swingby node." );
+            throw std::runtime_error("Creation of SwingbyWithFreeIncomingFixedOutgoingVelocity not yet implemented." );
         }
 
 
@@ -263,7 +281,6 @@ std::shared_ptr<TransferNode> createTransferNode(
                 throw std::runtime_error( "Error when making escape_and_departure node, type is inconsistent" );
             }
 
-
             transferNode = std::make_shared< DepartureWithFreeOutgoingVelocityNode >(
                         centralBodyEphemeris,
                         centralBodyGravitationalParameter,
@@ -275,17 +292,18 @@ std::shared_ptr<TransferNode> createTransferNode(
     }
     case capture_and_insertion:
     {
+        std::shared_ptr< CaptureAndInsertionNodeSettings > captureAndInsertionSettings =
+                std::dynamic_pointer_cast< CaptureAndInsertionNodeSettings >( nodeSettings );
+        if( captureAndInsertionSettings == nullptr )
+        {
+            throw std::runtime_error( "Error when making capture_and_insertion node, type is inconsistent" );
+        }
+
         if ( !nodeComputesIncomingVelocity )
         {
-            std::shared_ptr< CaptureAndInsertionNodeSettings > captureAndInsertionSettings =
-                    std::dynamic_pointer_cast< CaptureAndInsertionNodeSettings >( nodeSettings );
-            if( captureAndInsertionSettings == nullptr )
-            {
-                throw std::runtime_error( "Error when making capture_and_insertion node, type is inconsistent" );
-            }
-
             std::function< Eigen::Vector3d( ) > incomingVelocityFunction =
                     std::bind( &TransferLeg::getArrivalVelocity, incomingTransferLeg );
+
             transferNode = std::make_shared< CaptureWithFixedIncomingVelocityNode >(
                     centralBodyEphemeris,
                     centralBodyGravitationalParameter,
@@ -295,7 +313,11 @@ std::shared_ptr<TransferNode> createTransferNode(
         }
         else
         {
-            throw std::runtime_error("Invalid capture node." );
+            transferNode = std::make_shared< CaptureWithFreeIncomingVelocityNode >(
+                    centralBodyEphemeris,
+                    centralBodyGravitationalParameter,
+                    captureAndInsertionSettings->captureSemiMajorAxis_,
+                    captureAndInsertionSettings->captureEccentricity_);
         }
         break;
     }

@@ -223,10 +223,22 @@ void TransferTrajectory::getNodeTotalParameters(
 
     if( nodes_.at( nodeIndex )->getTransferNodeType( ) == swingby )
     {
-        if( !nodes_.at( nodeIndex )->nodeComputesOutgoingVelocity( ) )
+        if( !nodes_.at( nodeIndex )->nodeComputesOutgoingVelocity( ) && !nodes_.at( nodeIndex )->nodeComputesIncomingVelocity( ) )
         {
             nodeTotalParameters.resize( 1, 1 );
             nodeTotalParameters( 0 ) = nodeTimes.at( nodeIndex );
+        }
+        else if ( nodes_.at( nodeIndex )->nodeComputesOutgoingVelocity( ) && !nodes_.at( nodeIndex )->nodeComputesIncomingVelocity( ) )
+        {
+            nodeTotalParameters.resize( 4, 1 );
+            nodeTotalParameters( 0 ) = nodeTimes.at( nodeIndex );
+            nodeTotalParameters.segment( 1, 3 ) = nodeFreeParameters;
+        }
+        else if ( nodes_.at( nodeIndex )->nodeComputesOutgoingVelocity( ) && nodes_.at( nodeIndex )->nodeComputesIncomingVelocity( ) )
+        {
+            nodeTotalParameters.resize( 7, 1 );
+            nodeTotalParameters( 0 ) = nodeTimes.at( nodeIndex );
+            nodeTotalParameters.segment( 1, 6 ) = nodeFreeParameters;
         }
         else
         {
@@ -258,7 +270,9 @@ void TransferTrajectory::getNodeTotalParameters(
         }
         else
         {
-            throw std::runtime_error( "Error when getting input parameters for capture_and_insertion, node cannot compute output velocity" );
+            nodeTotalParameters.resize( 4, 1 );
+            nodeTotalParameters( 0 ) = nodeTimes.at( nodeIndex );
+            nodeTotalParameters.segment( 1, 3 ) = nodeFreeParameters;
         }
     }
     else
