@@ -1,16 +1,29 @@
 name: Linter 🔎
 
-on: [push, pull_request]
+# Workflow syntax:
+# https://help.github.com/en/articles/workflow-syntax-for-github-actions
+
+on:
+  push:
+    paths-ignore: "docs/**"
+  pull_request:
+    paths-ignore: "docs/**"
 
 jobs:
-  c-lint:
-    name: c-linter
+  cpp-linter:
     runs-on: ubuntu-latest
     steps:
-      - name: checkout source repo
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v2
+      - uses: shenxianpeng/cpp-linter-action@master
+        id: linter
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          style: file
 
-      - name: c-linter
-        uses: ArtificialAmateur/cpp-linter-action@master
-    env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Fail fast?!
+        if: steps.linter.outputs.checks-failed > 0
+        run: |
+          echo "Some files failed the linting checks!"
+        # for actual deployment
+        # run: exit 1
