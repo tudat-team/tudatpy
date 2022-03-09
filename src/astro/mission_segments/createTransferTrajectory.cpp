@@ -704,18 +704,23 @@ void getParameterVectorDecompositionIndices(
         switch( nodeSettings.at( i )->nodeType_  )
         {
         case swingby:
-            if( legRequiresInputFromPreviousNode.at(legSettings.at(i )->legType_ ) )
+            if( legRequiresInputFromFollowingNode.at(legSettings.at(i-1)->legType_ ) && legRequiresInputFromPreviousNode.at(legSettings.at(i)->legType_ ) )
+            {
+                nodeParameterIndices.push_back( std::make_pair( currentParameterIndex, 6 ) );
+                currentParameterIndex += 6;
+            }
+            else if ( !legRequiresInputFromFollowingNode.at(legSettings.at(i-1)->legType_ ) && !legRequiresInputFromPreviousNode.at(legSettings.at(i)->legType_ ) )
+            {
+                nodeParameterIndices.push_back( std::make_pair( currentParameterIndex, 0 ) );
+            }
+            else
             {
                 nodeParameterIndices.push_back( std::make_pair( currentParameterIndex, 3 ) );
                 currentParameterIndex += 3;
             }
-            else
-            {
-                nodeParameterIndices.push_back( std::make_pair( currentParameterIndex, 0 ) );
-            }
             break;
         case escape_and_departure:
-            if( legRequiresInputFromPreviousNode.at(legSettings.at(i )->legType_ ) )
+            if( legRequiresInputFromPreviousNode.at(legSettings.at(i)->legType_ ) )
             {
                 nodeParameterIndices.push_back( std::make_pair( currentParameterIndex, 3 ) );
                 currentParameterIndex += 3;
@@ -726,7 +731,15 @@ void getParameterVectorDecompositionIndices(
             }
             break;
         case capture_and_insertion:
-            nodeParameterIndices.push_back( std::make_pair( currentParameterIndex, 0 ) );
+            if ( legRequiresInputFromFollowingNode.at(legSettings.at(i-1)->legType_ ) )
+            {
+                nodeParameterIndices.push_back( std::make_pair( currentParameterIndex, 3 ) );
+                currentParameterIndex += 3;
+            }
+            else
+            {
+                nodeParameterIndices.push_back( std::make_pair( currentParameterIndex, 0 ) );
+            }
             break;
         }
 
@@ -744,6 +757,9 @@ void getParameterVectorDecompositionIndices(
             case dsm_velocity_based_leg:
                 legParameterIndices.push_back( std::make_pair( currentParameterIndex, 1 ) );
                 currentParameterIndex += 1;
+                break;
+            case spherical_shaping_low_thrust_leg:
+                legParameterIndices.push_back( std::make_pair( currentParameterIndex, 0 ) );
                 break;
             }
         }
@@ -773,6 +789,10 @@ void printTransferParameterDefinition(
         case dsm_velocity_based_leg:
             currentLegIds.push_back( "DSM (velocity-based) Time-of-flight fraction" );
             break;
+        case spherical_shaping_low_thrust_leg:
+            break;
+        default:
+            throw std::runtime_error( "Error when printing transfer parameter definition, leg type not recognized" );
         }
         legParameterDefinitions.push_back( currentLegIds );
     }
@@ -789,9 +809,21 @@ void printTransferParameterDefinition(
             {
                 useSwingbyParameters = true;
             }
-            else if( legRequiresInputFromPreviousNode.at(legSettings.at(i )->legType_ ) )
+            else if( legRequiresInputFromFollowingNode.at(legSettings.at( i-1 )->legType_) || legRequiresInputFromPreviousNode.at(legSettings.at( i )->legType_) )
             {
                 useSwingbyParameters = true;
+
+                if ( legRequiresInputFromFollowingNode.at(legSettings.at( i-1 )->legType_) && !legRequiresInputFromPreviousNode.at(legSettings.at( i )->legType_) )
+                {
+                    throw std::runtime_error( "SwingbyWithFixedIncomingFreeOutgoingVelocity node not implemented, can't print parameters." );
+                }
+            }
+
+            if ( legRequiresInputFromFollowingNode.at(legSettings.at( i-1 )->legType_) && legRequiresInputFromPreviousNode.at(legSettings.at( i )->legType_) )
+            {
+                currentNodeIds.push_back( "Incoming excess velocity magnitude" );
+                currentNodeIds.push_back( "Incoming excess velocity in-plane angle" );
+                currentNodeIds.push_back( "Incoming excess velocity out-of-plane angle" );
             }
 
             if( useSwingbyParameters )
@@ -803,19 +835,23 @@ void printTransferParameterDefinition(
             break;
         }
         case escape_and_departure:
-            if( legRequiresInputFromPreviousNode.at(legSettings.at(i )->legType_ ) )
+            if( legRequiresInputFromPreviousNode.at(legSettings.at( i )->legType_ ) )
             {
-                currentNodeIds.push_back( "Excess velocity magnitude" );
-                currentNodeIds.push_back( "Excess velocity in-plane angle" );
-                currentNodeIds.push_back( "Excess velocity out-of-plane angle" );
+                currentNodeIds.push_back( "Outgoing excess velocity magnitude" );
+                currentNodeIds.push_back( "Outgoing excess velocity in-plane angle" );
+                currentNodeIds.push_back( "Outgoing excess velocity out-of-plane angle" );
             }
             break;
         case capture_and_insertion:
-            if ( legRequiresInputFromFollowingNode.at(legSettings.at(i-1)->legType_ ) )
+            if ( legRequiresInputFromFollowingNode.at(legSettings.at( i-1 )->legType_ ) )
             {
-                throw std::runtime_error( "Parameters for capture node not yet defined." );
+                currentNodeIds.push_back( "Incoming excess velocity magnitude" );
+                currentNodeIds.push_back( "Incoming excess velocity in-plane angle" );
+                currentNodeIds.push_back( "Incoming excess velocity out-of-plane angle" );
             }
             break;
+        default:
+            throw std::runtime_error( "Error when printing transfer parameter definition, node type not recognized" );
         }
         nodeParameterDefinitions.push_back( currentNodeIds );
     }
