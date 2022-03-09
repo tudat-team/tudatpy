@@ -1,9 +1,11 @@
+name: Linter 🔎
+
 on: [push, pull_request]
 
 jobs:
   python-lint:
+    name: pylinter
     runs-on: ubuntu-latest
-    name: CI workflow
     steps:
     - name: checkout source repo
       uses: actions/checkout@v2
