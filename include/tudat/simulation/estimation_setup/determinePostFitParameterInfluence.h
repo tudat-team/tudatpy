@@ -47,7 +47,7 @@ namespace simulation_setup
  *  \return Pair of estimation output (first) and adjustment to initial state vectors (second)
  */
 template< typename TimeType = double, typename StateScalarType = double >
-std::pair< std::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > determinePostfitParameterInfluence(
+std::pair< std::shared_ptr< EstimationOutput< StateScalarType > >, Eigen::VectorXd > determinePostfitParameterInfluence(
         const SystemOfBodies& bodies,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
         const std::shared_ptr< propagators::PropagatorSettings< StateScalarType > > propagatorSettings,
@@ -132,8 +132,8 @@ std::pair< std::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > de
     //input_output::writeMatrixToFile( observationsAndTimes.begin( )->second.begin( )->second.first, "preFitObservations.dat" );
 
     // Define estimation input
-    std::shared_ptr< PodInput< StateScalarType, TimeType > > podInput =
-            std::make_shared< PodInput< StateScalarType, TimeType > >(
+    std::shared_ptr< EstimationInput< StateScalarType, TimeType > > podInput =
+            std::make_shared< EstimationInput< StateScalarType, TimeType > >(
                 observationsAndTimes, initialStateParametersToEstimate->getParameterSetSize( ) );
     podInput->defineEstimationSettings( true, true, false, true, true );
 
@@ -160,7 +160,7 @@ std::pair< std::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > de
     perturbedParameters->resetParameterValues( parameterVectorToPerturb );
 
     // Fit nominal dynamics to pertrubed dynamical model
-    std::shared_ptr< PodOutput< StateScalarType > > podOutput = orbitDeterminationManager.estimateParameters(
+    std::shared_ptr< EstimationOutput< StateScalarType > > podOutput = orbitDeterminationManager.estimateParameters(
                 podInput, std::make_shared< EstimationConvergenceChecker >( numberOfIterations ) );
 
     // Reset parameter to nominal value

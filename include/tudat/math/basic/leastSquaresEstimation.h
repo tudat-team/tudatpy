@@ -31,10 +31,10 @@ namespace linear_algebra
 //! Function to get condition number of matrix (using SVD decomposition)
 /*!
  *  Function to get condition number of matrix (using SVD decomposition)
- * \param informationMatrix Matrix for which condition number is to be computed
+ * \param designMatrix Matrix for which condition number is to be computed
  * \return Condition number of matrix
  */
-double getConditionNumberOfInformationMatrix( const Eigen::MatrixXd informationMatrix );
+double getConditionNumberOfDesignMatrix( const Eigen::MatrixXd designMatrix );
 
 //! Function to get condition number of matrix from SVD decomposition
 /*!
@@ -64,40 +64,45 @@ Eigen::VectorXd solveSystemOfEquationsWithSvd( const Eigen::MatrixXd matrixToInv
 //! Function to multiply information matrix by diagonal weights matrix
 /*!
  * Function to multiply information matrix by diagonal weights matrix
- * \param informationMatrix Matrix containing partial derivatives of observations (rows) w.r.t. estimated parameters
+ * \param designMatrix Matrix containing partial derivatives of observations (rows) w.r.t. estimated parameters
  * (columns)
  * \param diagonalOfWeightMatrix Diagonal of observation weights matrix (assumes all weights to be uncorrelated)
- * \return informationMatrix, premultiplied by square matrix with diagonalOfWeightMatrix as diagonal elements
+ * \return designMatrix, premultiplied by square matrix with diagonalOfWeightMatrix as diagonal elements
  */
-Eigen::MatrixXd multiplyInformationMatrixByDiagonalWeightMatrix(
-        const Eigen::MatrixXd& informationMatrix,
+Eigen::MatrixXd multiplyDesignMatrixByDiagonalWeightMatrix(
+        const Eigen::MatrixXd& designMatrix,
         const Eigen::VectorXd& diagonalOfWeightMatrix );
+
 
 //! Function to compute inverse of covariance matrix at current iteration, including influence of a priori information
 /*!
  * Function to compute inverse of covariance matrix at current iteration, including influence of a priori information
- * \param informationMatrix Matrix containing partial derivatives of observations (rows) w.r.t. estimated parameters
+ * \param designMatrix Matrix containing partial derivatives of observations (rows) w.r.t. estimated parameters
  * (columns)
  * \param diagonalOfWeightMatrix Diagonal of observation weights matrix (assumes all weights to be uncorrelated)
  * \param inverseOfAPrioriCovarianceMatrix Inverse of a priori covariance matrix
  * (warning printed when exceeded)
  * \return Inverse of covariance matrix at current iteration
  */
+
 Eigen::MatrixXd calculateInverseOfUpdatedCovarianceMatrix(
-        const Eigen::MatrixXd& informationMatrix,
+        const Eigen::MatrixXd& designMatrix,
         const Eigen::VectorXd& diagonalOfWeightMatrix,
-        const Eigen::MatrixXd& inverseOfAPrioriCovarianceMatrix );
+        const Eigen::MatrixXd& inverseOfAPrioriCovarianceMatrix,
+        const Eigen::MatrixXd& constraintMultiplier = Eigen::MatrixXd( 0, 0 ),
+        const Eigen::VectorXd& constraintRightHandside = Eigen::VectorXd( 0 ) );
+
 
 //! Function to compute inverse of covariance matrix at current iteration
 /*!
  * Function to compute inverse of covariance matrix at current iteration
- * \param informationMatrix Matrix containing partial derivatives of observations (rows) w.r.t. estimated parameters
+ * \param designMatrix Matrix containing partial derivatives of observations (rows) w.r.t. estimated parameters
  * (columns)
  * \param diagonalOfWeightMatrix Diagonal of observation weights matrix (assumes all weights to be uncorrelated)
  * \return Inverse of covariance matrix at current iteration
  */
 Eigen::MatrixXd calculateInverseOfUpdatedCovarianceMatrix(
-        const Eigen::MatrixXd& informationMatrix,
+        const Eigen::MatrixXd& designMatrix,
         const Eigen::VectorXd& diagonalOfWeightMatrix );
 
 //! Function to perform an iteration least squares estimation from information matrix, weights and residuals and a priori
@@ -106,7 +111,7 @@ Eigen::MatrixXd calculateInverseOfUpdatedCovarianceMatrix(
  * Function to perform an iteration least squares estimation from information matrix, weights and residuals and a priori
  * information, as is typically done in orbit determination. This function also takes an inverse if the a priori covariance
  * matrix to constrain/stabilize the inversion.
- * \param informationMatrix Matrix containing partial derivatives of observations (rows) w.r.t. estimated parameters
+ * \param designMatrix Matrix containing partial derivatives of observations (rows) w.r.t. estimated parameters
  * (columns)
  * \param observationResiduals Difference between measured and simulated observations
  * \param diagonalOfWeightMatrix Diagonal of observation weights matrix (assumes all weights to be uncorrelated)
@@ -119,8 +124,8 @@ Eigen::MatrixXd calculateInverseOfUpdatedCovarianceMatrix(
  * \param constraintRightHandside Right-hand side estimation linear constraint
  * \return Pair containing: (first: parameter adjustment, second: inverse covariance)
  */
-std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromInformationMatrix(
-        const Eigen::MatrixXd& informationMatrix,
+std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromDesignMatrix(
+        const Eigen::MatrixXd& designMatrix,
         const Eigen::VectorXd& observationResiduals,
         const Eigen::VectorXd& diagonalOfWeightMatrix,
         const Eigen::MatrixXd& inverseOfAPrioriCovarianceMatrix,
@@ -133,7 +138,7 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromI
 /*!
  * Function to perform an iteration of least squares estimation from information matrix, weights and residuals, as is
  * typically done in orbit determination
- * \param informationMatrix Matrix containing partial derivatives of observations (rows) w.r.t. estimated parameters
+ * \param designMatrix Matrix containing partial derivatives of observations (rows) w.r.t. estimated parameters
  * (columns)
  * \param observationResiduals Difference between measured and simulated observations
  * \param diagonalOfWeightMatrix Diagonal of observation weights matrix (assumes all weights to be uncorrelated)
@@ -143,8 +148,8 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromI
  * (warning printed when exceeded)
  * \return Pair containing: (first: parameter adjustment, second: inverse covariance)
  */
-std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromInformationMatrix(
-        const Eigen::MatrixXd& informationMatrix,
+std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromDesignMatrix(
+        const Eigen::MatrixXd& designMatrix,
         const Eigen::VectorXd& observationResiduals,
         const Eigen::VectorXd& diagonalOfWeightMatrix,
         const bool checkConditionNumber = 1,
@@ -154,7 +159,7 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromI
 /*!
  * Function to perform an iteration of least squares estimation from information matrix and residuals, with all weights
  * fixed to 1.0.
- * \param informationMatrix Matrix containing partial derivatives of observations (rows) w.r.t. estimated parameters
+ * \param designMatrix Matrix containing partial derivatives of observations (rows) w.r.t. estimated parameters
  * (columns)
  * \param observationResiduals Difference between measured and simulated observations
  * \param checkConditionNumber Boolean to denote whether the condition number is checked when estimating (warning is printed
@@ -163,8 +168,8 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromI
  * (warning printed when exceeded)
  * \return Pair containing: (first: parameter adjustment, second: inverse covariance)
  */
-std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromInformationMatrix(
-        const Eigen::MatrixXd& informationMatrix,
+std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromDesignMatrix(
+        const Eigen::MatrixXd& designMatrix,
         const Eigen::VectorXd& observationResiduals,
         const bool checkConditionNumber = 1,
         const double maximumAllowedConditionNumber = 1.0E8 );

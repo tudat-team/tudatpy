@@ -273,13 +273,13 @@ BOOST_AUTO_TEST_CASE( test_RotationalDynamicsEstimationFromLanderData )
     initialParameterEstimate( 7 ) += 1.0E-12;
 
     // Define estimation input
-    std::shared_ptr< PodInput< double, double  > > podInput =
-            std::make_shared< PodInput< double, double > >(
+    std::shared_ptr< EstimationInput< double, double  > > podInput =
+            std::make_shared< EstimationInput< double, double > >(
                 observationsAndTimes, numberOfParameters,
                 Eigen::MatrixXd::Zero( numberOfParameters, numberOfParameters ), initialParameterEstimate - truthParameters );
 
     // Perform estimation
-    std::shared_ptr< PodOutput< double > > podOutput = orbitDeterminationManager.estimateParameters(
+    std::shared_ptr< EstimationOutput< double > > podOutput = orbitDeterminationManager.estimateParameters(
                 podInput, std::make_shared< EstimationConvergenceChecker >( 6 ) );
 
     // Check residual size (sub-mm over >1 AU)
@@ -304,11 +304,11 @@ BOOST_AUTO_TEST_CASE( test_RotationalDynamicsEstimationFromLanderData )
     std::cout<<"Error ratio: "<<( ( 1.0E-3 * podOutput->getFormalErrorVector( ).segment( 0, numberOfParameters ) ).cwiseQuotient(
                                       podOutput->parameterEstimate_ - truthParameters ) ).transpose( )<<std::endl;
 
-//    input_output::writeMatrixToFile( podOutput->normalizedInformationMatrix_,
-//                                     "rotationTestEstimationInformationMatrix.dat", 16,
+//    input_output::writeMatrixToFile( podOutput->normalizedDesignMatrix_,
+//                                     "rotationTestEstimationDesignMatrix.dat", 16,
 //                                     input_output::getTudatRootPath( ) );
-//    input_output::writeMatrixToFile( podOutput->informationMatrixTransformationDiagonal_,
-//                                     "rotationTestEstimationInformationMatrixNormalization.dat", 16,
+//    input_output::writeMatrixToFile( podOutput->designMatrixTransformationDiagonal_,
+//                                     "rotationTestEstimationDesignMatrixNormalization.dat", 16,
 //                                     input_output::getTudatRootPath( ) );
 //    input_output::writeMatrixToFile( podOutput->weightsMatrixDiagonal_,
 //                                     "rotationTestEstimationWeightsDiagonal.dat", 16,
@@ -523,14 +523,14 @@ BOOST_AUTO_TEST_CASE( test_RotationalTranslationalDynamicsEstimationFromLanderDa
     int parameterSize = initialParameterEstimate.rows( );
 
     // Define estimation input
-    std::shared_ptr< PodInput< double, double  > > podInput =
-            std::make_shared< PodInput< double, double > >(
+    std::shared_ptr< EstimationInput< double, double  > > podInput =
+            std::make_shared< EstimationInput< double, double > >(
                 observationsAndTimes, parameterSize,
                 Eigen::MatrixXd::Zero( parameterSize, parameterSize ), initialParameterEstimate - truthParameters );
     podInput->defineEstimationSettings( true, false, true, true, true, true );
 
     // Perform estimation
-    std::shared_ptr< PodOutput< double > > podOutput = orbitDeterminationManager.estimateParameters(
+    std::shared_ptr< EstimationOutput< double > > podOutput = orbitDeterminationManager.estimateParameters(
                 podInput, std::make_shared< EstimationConvergenceChecker >( 6 ) );
 
     // Check residual size (sub-mm over >1 AU)

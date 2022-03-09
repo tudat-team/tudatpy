@@ -156,6 +156,8 @@ public:
      */
     Eigen::Quaterniond getInitialOrientation( ){ return initialOrientation_; }
 
+    Eigen::Matrix3d getInitialOrientationMatrix( ){ return initialOrientation_.toRotationMatrix( ); }
+
     //Function to return time at which initialOrientation represents the instantaneous rotation.
     /*
      *  Function to return time at which initialOrientation represents the instantaneous rotation.
