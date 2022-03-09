@@ -14,5 +14,5 @@ jobs:
           use-pycodestyle: false
           use-mypy: true
           use-vulture: true
-          extra-pylint-options: "--output-format="colorized"
+          extra-pylint-options: --output-format="colorized"
           python-version: "3.7"
