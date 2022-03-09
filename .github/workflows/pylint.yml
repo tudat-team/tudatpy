@@ -9,13 +9,13 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          fetch-depth: 2
+          submodules: 'true'
+          fetch-depth: 3
       - uses: marian-code/python-lint-annotate@v3
         with:
           python-root-list: "tudatpy/*.py examples/*.py"  # accepts wildcards
           use-pycodestyle: false
           use-mypy: true
           use-vulture: true
-          extra-pylint-options: >-
-            "--output-format="colorized"
+          extra-pylint-options: --output-format=colorized
           python-version: "3.7"
