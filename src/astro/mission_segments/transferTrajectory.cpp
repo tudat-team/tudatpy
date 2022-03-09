@@ -263,7 +263,7 @@ void TransferTrajectory::getNodeTotalParameters(
     }
     else if( nodes_.at( nodeIndex )->getTransferNodeType( ) == capture_and_insertion )
     {
-        if( !nodes_.at( nodeIndex )->nodeComputesOutgoingVelocity( ) )
+        if( !nodes_.at( nodeIndex )->nodeComputesIncomingVelocity( ) )
         {
             nodeTotalParameters.resize( 1, 1 );
             nodeTotalParameters( 0 ) = nodeTimes.at( nodeIndex );

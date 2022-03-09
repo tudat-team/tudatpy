@@ -42,6 +42,8 @@
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/environment_setup/createBodies.h"
 
+#include "tudat/math/root_finders/createRootFinder.h"
+
 namespace tudat
 {
 namespace unit_tests
@@ -55,6 +57,61 @@ using namespace mission_segments;
 
 //! Test implementation of trajectory class
 BOOST_AUTO_TEST_SUITE( test_trajectory )
+
+BOOST_AUTO_TEST_CASE( testMgaSphericalShapingTrajectory )
+{
+    int numberOfRevolutions = 1;
+    double departureDate = 8174.5 * physical_constants::JULIAN_DAY ;
+    double timeOfFlight = 580.0 * physical_constants::JULIAN_DAY;
+
+    // Create environment
+    tudat::simulation_setup::SystemOfBodies bodies = createSimplifiedSystemOfBodies( );
+
+    // Set transfer order
+    std::vector< std::string > bodyOrder = { "Earth", "Mars" };
+
+    // Define root finder settings
+    std::shared_ptr< root_finders::RootFinderSettings > rootFinderSettings =
+            tudat::root_finders::bisectionRootFinderSettings( 1.0E-6, TUDAT_NAN, TUDAT_NAN, 30 );
+
+    // Create leg and nodes settings
+    std::vector< std::shared_ptr< TransferLegSettings > > transferLegSettings;
+    std::vector< std::shared_ptr< TransferNodeSettings > > transferNodeSettings;
+
+    transferLegSettings.resize( bodyOrder.size( ) - 1 );
+    transferLegSettings[ 0 ] = sphericalShapingLeg(
+            numberOfRevolutions, rootFinderSettings, 1.0e-6, 1.0e-1);
+
+    transferNodeSettings.resize( bodyOrder.size( ) );
+    transferNodeSettings[ 0 ] = escapeAndDepartureNode( std::numeric_limits< double >::infinity( ), 0.0 );
+    transferNodeSettings[ 1 ] = captureAndInsertionNode( std::numeric_limits< double >::infinity( ), 0.0 );
+
+    // Print parameter definition
+    printTransferParameterDefinition( transferLegSettings, transferNodeSettings );
+
+    std::shared_ptr<TransferTrajectory> transferTrajectory = createTransferTrajectory(
+            bodies, transferLegSettings, transferNodeSettings, bodyOrder, "Sun" );
+
+    // Create list of node times
+    std::vector< double > nodeTimes;
+    nodeTimes.push_back( departureDate );
+    nodeTimes.push_back( nodeTimes.at( 0 ) + timeOfFlight );
+
+    std::vector< Eigen::VectorXd > transferLegFreeParameters ( bodyOrder.size( ) - 1);
+    transferLegFreeParameters.at(0) = Eigen::VectorXd( 0 );
+
+    std::vector< Eigen::VectorXd > transferNodeFreeParameters ( bodyOrder.size( ) );
+    // Initial and final excess velocity is 0.0, meaning the spacecraft starts/ends with the velocity of the planet
+    transferNodeFreeParameters.at(0) = ( Eigen::Vector3d( ) << 0.0, 0.0, 0.0 ).finished( ) ;
+    transferNodeFreeParameters.at(1) = ( Eigen::Vector3d( ) << 0.0, 0.0, 0.0 ).finished( ) ;
+
+    transferTrajectory->evaluateTrajectory(nodeTimes, transferLegFreeParameters, transferNodeFreeParameters );
+
+    // Check results consistency w.r.t. Roegiers, T., Application of the Spherical Shaping Method to a Low-Thrust
+    // Multiple Asteroid Rendezvous Mission, TU Delft (MSc thesis), 2014
+    double expectedDeltaV = 5700.0;
+    BOOST_CHECK_SMALL( std::fabs(  transferTrajectory->getTotalDeltaV() - expectedDeltaV ), 5.0 );
+}
 
 BOOST_AUTO_TEST_CASE( testMGATrajectory_New )
 {
@@ -95,8 +152,6 @@ BOOST_AUTO_TEST_CASE( testMGATrajectory_New )
             transferLegSettings[ 2 ] = unpoweredLeg( );
             transferLegSettings[ 3 ] = unpoweredLeg( );
             transferLegSettings[ 4 ] = unpoweredLeg( );
-
-
 
             transferNodeSettings.resize( numberOfNodes );
             transferNodeSettings[ 0 ] = escapeAndDepartureNode( std::numeric_limits< double >::infinity( ), 0.0 );

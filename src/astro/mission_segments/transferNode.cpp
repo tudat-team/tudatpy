@@ -90,9 +90,6 @@ void DepartureWithFixedOutgoingVelocityNode::computeNode( )
 }
 
 
-
-
-
 DepartureWithFreeOutgoingVelocityNode::DepartureWithFreeOutgoingVelocityNode(
         const std::shared_ptr< ephemerides::Ephemeris > nodeEphemeris,
         const double centralBodyGravitationalParameter,
@@ -233,7 +230,7 @@ void CaptureWithFreeIncomingVelocityNode::computeNode( )
 {
     if( nodeParameters_.rows( ) != 4 )
     {
-        throw std::runtime_error( "Error when computing CaptureAndInsertionNode, incorrect input size" );
+        throw std::runtime_error( "Error when computing CaptureWithFreeIncomingVelocityNode, incorrect input size" );
     }
 
     nodeTime_ = nodeParameters_( 0 );
@@ -305,8 +302,6 @@ void SwingbyWithFixedIncomingFixedOutgoingVelocity::computeNode( )
                 incomingVelocity_, outgoingVelocity_, minimumPeriapsisRadius_ );
 
 }
-
-
 
 
 SwingbyWithFixedIncomingFreeOutgoingVelocity::SwingbyWithFixedIncomingFreeOutgoingVelocity(
