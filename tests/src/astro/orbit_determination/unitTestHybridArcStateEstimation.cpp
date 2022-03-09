@@ -338,8 +338,8 @@ Eigen::VectorXd  executeParameterEstimation(
     parametersToEstimate->resetParameterValues( initialParameterEstimate );
 
     // Define estimation settings
-    std::shared_ptr< PodInput< ObservationScalarType, TimeType > > podInput =
-            std::make_shared< PodInput< ObservationScalarType, TimeType > >(
+    std::shared_ptr< EstimationInput< ObservationScalarType, TimeType > > podInput =
+            std::make_shared< EstimationInput< ObservationScalarType, TimeType > >(
                 observationsAndTimes, ( initialParameterEstimate ).rows( ) );
     std::map< observation_models::ObservableType, double > weightPerObservable;
     weightPerObservable[ one_way_range ] = 1.0E-4;
@@ -347,11 +347,11 @@ Eigen::VectorXd  executeParameterEstimation(
     podInput->setConstantPerObservableWeightsMatrix( weightPerObservable );
 
     // Estimate parameters and return postfit error
-    std::shared_ptr< PodOutput< StateScalarType > > podOutput = orbitDeterminationManager.estimateParameters(
+    std::shared_ptr< EstimationOutput< StateScalarType > > podOutput = orbitDeterminationManager.estimateParameters(
                 podInput, std::make_shared< EstimationConvergenceChecker >( 6 ) );
 
-//    input_output::writeMatrixToFile( podOutput->normalizedInformationMatrix_, "hybridArcPartials.dat" );
-//    input_output::writeMatrixToFile( podOutput->informationMatrixTransformationDiagonal_, "hybridArcNormalization.dat" );
+//    input_output::writeMatrixToFile( podOutput->normalizedDesignMatrix_, "hybridArcPartials.dat" );
+//    input_output::writeMatrixToFile( podOutput->designMatrixTransformationDiagonal_, "hybridArcNormalization.dat" );
 //    input_output::writeMatrixToFile( podOutput->inverseNormalizedCovarianceMatrix_, "hybridArcNormalizedInverseCovariance.dat" );
 //    input_output::writeMatrixToFile( podOutput->getResidualHistoryMatrix( ), "hybridArcResidualHistory.dat" );
 

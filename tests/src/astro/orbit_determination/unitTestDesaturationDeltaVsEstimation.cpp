@@ -309,7 +309,7 @@ BOOST_AUTO_TEST_CASE( test_DesaturationDeltaVsEstimation )
 
 
         // Define estimation input
-        std::shared_ptr< PodInput< double, double  > > podInput = std::make_shared< PodInput< double, double > >(
+        std::shared_ptr< EstimationInput< double, double  > > podInput = std::make_shared< EstimationInput< double, double > >(
                     observationsAndTimes, initialParameterEstimate.rows( ),
                     Eigen::MatrixXd::Zero( truthParameters.rows( ), truthParameters.rows( ) ),
                     initialParameterEstimate - truthParameters );
@@ -323,7 +323,7 @@ BOOST_AUTO_TEST_CASE( test_DesaturationDeltaVsEstimation )
         podInput->defineEstimationSettings( true, true, true, true, false );
 
         // Perform estimation
-        std::shared_ptr< PodOutput< double > > podOutput = orbitDeterminationManager.estimateParameters(
+        std::shared_ptr< EstimationOutput< double > > podOutput = orbitDeterminationManager.estimateParameters(
                     podInput, std::make_shared< EstimationConvergenceChecker >( 4 ) );
 
         Eigen::VectorXd estimationError = podOutput->parameterEstimate_ - truthParameters;
