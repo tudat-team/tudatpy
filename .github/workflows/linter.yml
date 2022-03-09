@@ -7,6 +7,9 @@ jobs:
     name: c-linter
     runs-on: ubuntu-latest
     steps:
+      - name: checkout source repo
+        uses: actions/checkout@v2
+
       - name: c-linter
         uses: ArtificialAmateur/cpp-linter-action@master
     env:
