@@ -18,8 +18,12 @@ jobs:
         id: linter
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#        with:
-#          style: file
+        with:
+          tidy-checks: '-*'
+          version: 12
+          files-changed-only: false
+          # lines-changed-only: true
+          thread-comments: true
 
       - name: Fail fast?!
         if: steps.linter.outputs.checks-failed > 0
