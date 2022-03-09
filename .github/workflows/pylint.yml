@@ -7,8 +7,5 @@ jobs:
     name: pylinter
     runs-on: ubuntu-latest
     steps:
-    - name: checkout source repo
-      uses: actions/checkout@v2
-
-    - name: linting
-      uses: alexanderdamiani/pylinter@v1.4.2
+      - uses: actions/checkout@v2
+      - uses: marian-code/python-lint-annotate@v3
