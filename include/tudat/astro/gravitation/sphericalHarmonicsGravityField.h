@@ -88,11 +88,20 @@ public:
             const std::function< void( ) > updateInertiaTensor = std::function< void( ) > ( ) )
         : GravityFieldModel( gravitationalParameter, updateInertiaTensor ), referenceRadius_( referenceRadius ),
           cosineCoefficients_( cosineCoefficients ), sineCoefficients_( sineCoefficients ),
-          fixedReferenceFrame_( fixedReferenceFrame )
+          fixedReferenceFrame_( fixedReferenceFrame ),
+          maximumDegree_( cosineCoefficients_.rows( ) - 1 ),
+          maximumOrder_( cosineCoefficients_.cols( ) - 1 )
     {
+
+        if( ( cosineCoefficients.rows( ) != sineCoefficients.rows( ) ) ||
+              ( cosineCoefficients.cols( ) != sineCoefficients.cols( ) ) )
+        {
+            throw std::runtime_error( "Error when creating spherical harmonics gravity field; sine and cosine sizes are incompatible" );
+        }
+
         sphericalHarmonicsCache_ = std::make_shared< basic_mathematics::SphericalHarmonicsCache >( );
-        sphericalHarmonicsCache_->resetMaximumDegreeAndOrder( cosineCoefficients_.rows( ) + 1,
-                                                              cosineCoefficients_.cols( ) + 1 );
+        sphericalHarmonicsCache_->resetMaximumDegreeAndOrder( maximumDegree_ + 2,
+                                                              maximumOrder_ + 2 );
     }
 
     //! Virtual destructor.
@@ -138,8 +147,13 @@ public:
      */
     void setCosineCoefficients( const Eigen::MatrixXd& cosineCoefficients )
     {
-        cosineCoefficients_ = cosineCoefficients;
+        if( ( cosineCoefficients.rows( ) != cosineCoefficients_.rows( ) ) ||
+              ( cosineCoefficients.cols( ) != cosineCoefficients_.cols( ) ) )
+        {
+            throw std::runtime_error( "Error when resettings spherical harmonics gravity field cosine coefficients; sizes are incompatible" );
+        }
 
+        cosineCoefficients_ = cosineCoefficients;
         if( !( updateInertiaTensor_ == nullptr ) )
         {
             updateInertiaTensor_( );
@@ -153,7 +167,14 @@ public:
      */
     void setSineCoefficients( const Eigen::MatrixXd& sineCoefficients )
     {
+        if( ( sineCoefficients.rows( ) != sineCoefficients_.rows( ) ) ||
+              ( sineCoefficients.cols( ) != sineCoefficients_.cols( ) ) )
+        {
+            throw std::runtime_error( "Error when resettings spherical harmonics gravity field cosine coefficients; sizes are incompatible" );
+        }
+
         sineCoefficients_ = sineCoefficients;
+
         if( !( updateInertiaTensor_ == nullptr ) )
         {
             updateInertiaTensor_( );
@@ -171,6 +192,14 @@ public:
      */
     Eigen::MatrixXd getCosineCoefficientsBlock( const int maximumDegree, const int maximumOrder )
     {
+        if( maximumDegree > maximumDegree_ || maximumOrder > maximumOrder_ )
+        {
+            throw std::runtime_error( "Error when retrieving cosine spherical harmonic coefficients up to D/O " +
+                                      std::to_string( maximumDegree ) + "/" + std::to_string( maximumOrder ) +
+                                      " maximum D/O is " +
+                                      std::to_string( maximumDegree_ ) + "/" + std::to_string( maximumOrder_ ) );
+        }
+
         return cosineCoefficients_.block( 0, 0, maximumDegree + 1, maximumOrder + 1 );
     }
 
@@ -185,6 +214,14 @@ public:
      */
     Eigen::MatrixXd getSineCoefficientsBlock( const int maximumDegree, const int maximumOrder )
     {
+        if( maximumDegree > maximumDegree_ || maximumOrder > maximumOrder_ )
+        {
+            throw std::runtime_error( "Error when retrieving sine spherical harmonic coefficients up to D/O " +
+                                      std::to_string( maximumDegree ) + "/" + std::to_string( maximumOrder ) +
+                                      " maximum D/O is " +
+                                      std::to_string( maximumDegree_ ) + "/" + std::to_string( maximumOrder_ ) );
+        }
+
         return sineCoefficients_.block( 0, 0, maximumDegree + 1, maximumOrder + 1 );
     }
 
@@ -195,7 +232,7 @@ public:
      */
     double getDegreeOfExpansion( )
     {
-        return cosineCoefficients_.rows( ) + 1;
+        return maximumDegree_;
     }
 
     //! Get maximum order of spherical harmonics gravity field expansion.
@@ -205,7 +242,7 @@ public:
      */
     double getOrderOfExpansion( )
     {
-        return cosineCoefficients_.cols( ) + 1;
+        return maximumOrder_;
     }
 
     //! Function to calculate the gravitational potential at a given point
@@ -340,6 +377,10 @@ protected:
      *  Identifier for body-fixed reference frame
      */
     std::string fixedReferenceFrame_;
+
+    const int maximumDegree_;
+
+    const int maximumOrder_;
 
     //! Cache object for potential calculations.
     std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache_;
