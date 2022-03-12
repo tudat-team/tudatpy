@@ -770,7 +770,8 @@ public:
             std::map< TimeType, double > cumulativeComputationTimeHistory;
 
             simulation_setup::setAreBodiesInPropagation( bodies_, true );
-            EquationIntegrationInterface< MatrixType, TimeType >::integrateEquations(
+            std::shared_ptr< PropagationTerminationDetails > propagationTerminationReason =
+                    EquationIntegrationInterface< MatrixType, TimeType >::integrateEquations(
                         dynamicsSimulator_->getStateDerivativeFunction( ), rawNumericalSolution,
                         initialVariationalState, integratorSettings_,
                         dynamicsSimulator_->getPropagationTerminationCondition( ),
@@ -779,6 +780,7 @@ public:
                         dynamicsSimulator_->getDependentVariablesFunctions( ),
                         statePostProcessingFunction_,
                         propagatorSettings_->getPrintInterval( ) );
+            dynamicsSimulator_->setPropagationTerminationReason( propagationTerminationReason );
             simulation_setup::setAreBodiesInPropagation( bodies_, false );
 
             std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > equationsOfMotionNumericalSolutionRaw;
@@ -814,11 +816,13 @@ public:
             std::map< double, double > cumulativeComputationTimeHistory;
 
             simulation_setup::setAreBodiesInPropagation( bodies_, true );
+            std::shared_ptr< PropagationTerminationDetails > propagationTerminationReason =
             EquationIntegrationInterface< Eigen::MatrixXd, double >::integrateEquations(
                         dynamicsSimulator_->getDoubleStateDerivativeFunction( ), rawNumericalSolution, initialVariationalState,
                         variationalOnlyIntegratorSettings_,
                         dynamicsSimulator_->getPropagationTerminationCondition( ),
                         dependentVariableHistory, cumulativeComputationTimeHistory );
+            dynamicsSimulator_->setPropagationTerminationReason( propagationTerminationReason );
             simulation_setup::setAreBodiesInPropagation( bodies_, false );
 
             setVariationalEquationsSolution< double, double >(
@@ -1357,6 +1361,7 @@ public:
                 dynamicsSimulator_->getDynamicsStateDerivative( ).at( i )->resetFunctionEvaluationCounter( );
                 simulation_setup::setAreBodiesInPropagation( bodies_, true );
                 std::map< TimeType, MatrixType > rawNumericalSolution;
+                std::shared_ptr< PropagationTerminationDetails > propagationTerminationReason =
                 EquationIntegrationInterface< MatrixType, TimeType >::integrateEquations(
                             singleArcDynamicsSimulators.at( i )->getStateDerivativeFunction( ),
                             rawNumericalSolution,
@@ -1368,6 +1373,7 @@ public:
                             std::bind(
                                 &DynamicsStateDerivativeModel< TimeType, StateScalarType >::postProcessStateAndVariationalEquations,
                                 singleArcDynamicsSimulators.at( i )->getDynamicsStateDerivative( ), std::placeholders::_1 ) );
+                dynamicsSimulator_->setPropagationTerminationReason( propagationTerminationReason, i );
                 simulation_setup::setAreBodiesInPropagation( bodies_, false );
 
                 // Extract solution of equations of motion.
@@ -1450,6 +1456,7 @@ public:
 
                 dynamicsSimulator_->getDynamicsStateDerivative( ).at( i )->resetFunctionEvaluationCounter( );
                 simulation_setup::setAreBodiesInPropagation( bodies_, true );
+                std::shared_ptr< PropagationTerminationDetails > propagationTerminationReason =
                 EquationIntegrationInterface< MatrixType, TimeType >::integrateEquations(
                             singleArcDynamicsSimulators.at( i )->getStateDerivativeFunction( ),
                             rawNumericalSolutions, initialVariationalState,
