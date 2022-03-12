@@ -449,8 +449,8 @@ public:
         }
     }
 
-    std::shared_ptr< CovarianceAnalysisOuput< ObservationScalarType, TimeType > > computeCovariance(
-            const std::shared_ptr< EstimationInput< ObservationScalarType, TimeType > > podInput )
+    std::shared_ptr< CovarianceAnalysisOutput< ObservationScalarType, TimeType > > computeCovariance(
+            const std::shared_ptr< CovarianceAnalysisInput< ObservationScalarType, TimeType > > podInput )
     {
         // Get size of parameter vector and number of observations (total and per type)
         int numberOfEstimatedParameters = parametersToEstimate_->getParameterSetSize( );
@@ -507,8 +507,8 @@ public:
                                podInput->getWeightsMatrixDiagonals( ),
                                normalizedInverseAprioriCovarianceMatrix, constraintStateMultiplier, constraintRightHandSide );
 
-        std::shared_ptr< CovarianceAnalysisOuput< ObservationScalarType, TimeType > > podOutput =
-                std::make_shared< CovarianceAnalysisOuput< ObservationScalarType, TimeType > >(
+        std::shared_ptr< CovarianceAnalysisOutput< ObservationScalarType, TimeType > > podOutput =
+                std::make_shared< CovarianceAnalysisOutput< ObservationScalarType, TimeType > >(
                      designMatrix, podInput->getWeightsMatrixDiagonals( ), normalizationTerms,
                     inverseNormalizedCovariance, exceptionDuringPropagation );
 
@@ -571,6 +571,7 @@ public:
 
         bool exceptionDuringPropagation = false, exceptionDuringInversion = false;
         // Iterate until convergence (at least once)
+        int bestIteration = -1;
         int numberOfIterations = 0;
         do
         {
@@ -691,6 +692,7 @@ public:
                 bestWeightsMatrixDiagonal = std::move( podInput->getWeightsMatrixDiagonals( ) );
                 bestTransformationData = std::move( normalizationTerms );
                 bestInverseNormalizedCovarianceMatrix = std::move( leastSquaresOutput.second );
+                bestIteration = numberOfIterations;
             }
 
 
@@ -709,7 +711,8 @@ public:
         std::shared_ptr< EstimationOutput< ObservationScalarType, TimeType > > podOutput =
                 std::make_shared< EstimationOutput< ObservationScalarType, TimeType > >(
                     bestParameterEstimate, bestResiduals, bestDesignMatrix, bestWeightsMatrixDiagonal, bestTransformationData,
-                    bestInverseNormalizedCovarianceMatrix, bestResidual, residualHistory, parameterHistory, exceptionDuringInversion,
+                    bestInverseNormalizedCovarianceMatrix, bestResidual, bestIteration,
+                    residualHistory, parameterHistory, exceptionDuringInversion,
                     exceptionDuringPropagation );
 
         if( podInput->getSaveStateHistoryForEachIteration( ) )

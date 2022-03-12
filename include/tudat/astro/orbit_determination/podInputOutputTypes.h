@@ -248,6 +248,20 @@ public:
         return saveStateHistoryForEachIteration_;
     }
 
+    void defineCovarianceSettings( const bool reintegrateEquationsOnFirstIteration = 1,
+                                   const bool reintegrateVariationalEquations = 1,
+                                   const bool saveDesignMatrix = 1,
+                                   const bool printOutput = 1,
+                                   const bool saveStateHistoryForEachIteration = 0 )
+    {
+        this->reintegrateEquationsOnFirstIteration_ = reintegrateEquationsOnFirstIteration;
+        this->reintegrateVariationalEquations_ = reintegrateVariationalEquations;
+        this->saveDesignMatrix_ = saveDesignMatrix;
+        this->printOutput_ = printOutput;
+        this->saveStateHistoryForEachIteration_ = saveStateHistoryForEachIteration;
+    }
+
+
 
 protected:
     //! Total data structure of observations and associated times/link ends/type
@@ -471,10 +485,10 @@ void scaleDesignMatrixWithWeights(
 
 
 template< typename ObservationScalarType = double, typename TimeType = double  >
-struct CovarianceAnalysisOuput
+struct CovarianceAnalysisOutput
 {
 
-    CovarianceAnalysisOuput( const Eigen::MatrixXd& normalizedDesignMatrix,
+    CovarianceAnalysisOutput( const Eigen::MatrixXd& normalizedDesignMatrix,
                              const Eigen::VectorXd& weightsMatrixDiagonal,
                              const Eigen::VectorXd& designMatrixTransformationDiagonal,
                              const Eigen::MatrixXd& inverseNormalizedCovarianceMatrix,
@@ -485,6 +499,12 @@ struct CovarianceAnalysisOuput
         inverseNormalizedCovarianceMatrix_( inverseNormalizedCovarianceMatrix ),
         exceptionDuringPropagation_( exceptionDuringPropagation )
     { }
+
+
+    Eigen::VectorXd getNormalizationTerms( )
+    {
+        return designMatrixTransformationDiagonal_;
+    }
 
     Eigen::MatrixXd getNormalizedInverseCovarianceMatrix( )
     {
@@ -651,7 +671,7 @@ struct CovarianceAnalysisOuput
 
 //! Data structure through which the output of the orbit determination is communicated
 template< typename ObservationScalarType = double, typename TimeType = double  >
-struct EstimationOutput: public CovarianceAnalysisOuput< ObservationScalarType, TimeType >
+struct EstimationOutput: public CovarianceAnalysisOutput< ObservationScalarType, TimeType >
 {
 
     //! Constructor
@@ -679,15 +699,17 @@ struct EstimationOutput: public CovarianceAnalysisOuput< ObservationScalarType, 
                const Eigen::VectorXd& designMatrixTransformationDiagonal,
                const Eigen::MatrixXd& inverseNormalizedCovarianceMatrix,
                const double residualStandardDeviation,
+               const int bestIteration,
                const std::vector< Eigen::VectorXd >& residualHistory = std::vector< Eigen::VectorXd >( ),
                const std::vector< Eigen::VectorXd >& parameterHistory = std::vector< Eigen::VectorXd >( ),
                const bool exceptionDuringInversion = false,
                const bool exceptionDuringPropagation = false ):
-        CovarianceAnalysisOuput< ObservationScalarType, TimeType >( normalizedDesignMatrix, weightsMatrixDiagonal,
+        CovarianceAnalysisOutput< ObservationScalarType, TimeType >( normalizedDesignMatrix, weightsMatrixDiagonal,
                                  designMatrixTransformationDiagonal, inverseNormalizedCovarianceMatrix,
                                  exceptionDuringPropagation ),
         parameterEstimate_( parameterEstimate ),
         residuals_( residuals ),
+        bestIteration_( bestIteration ),
         residualStandardDeviation_( residualStandardDeviation ),
         residualHistory_( residualHistory ),
         parameterHistory_( parameterHistory ),
@@ -747,6 +769,8 @@ struct EstimationOutput: public CovarianceAnalysisOuput< ObservationScalarType, 
 
     //! Vector of postfit observation residuals
     Eigen::VectorXd residuals_;
+
+    int bestIteration_;
 
     //! Standard deviation of postfit residuals vector
     double residualStandardDeviation_;
