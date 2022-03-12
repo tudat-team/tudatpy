@@ -78,6 +78,16 @@ public:
         return legs_.size( );
     }
 
+    std::vector< std::shared_ptr< TransferLeg > > getLegs( )
+    {
+        return legs_;
+    }
+
+    std::vector< std::shared_ptr< TransferNode > > getNodes( )
+    {
+        return nodes_;
+    }
+
     //! Get Cartesian position and velocity along full trajectory
     void getStatesAlongTrajectoryPerLeg( std::vector< std::map< double, Eigen::Vector6d > >& statesAlongTrajectoryPerLeg,
                                         const int numberOfDataPointsPerLeg );
