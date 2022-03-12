@@ -58,7 +58,7 @@ using namespace mission_segments;
 //! Test implementation of trajectory class
 BOOST_AUTO_TEST_SUITE( test_trajectory )
 
-BOOST_AUTO_TEST_CASE( testMgaSphericalShapingTrajectory )
+BOOST_AUTO_TEST_CASE( testMgaSphericalShapingSingleLeg )
 {
     int numberOfRevolutions = 1;
     double departureDate = 8174.5 * physical_constants::JULIAN_DAY ;
@@ -74,43 +74,140 @@ BOOST_AUTO_TEST_CASE( testMgaSphericalShapingTrajectory )
     std::shared_ptr< root_finders::RootFinderSettings > rootFinderSettings =
             tudat::root_finders::bisectionRootFinderSettings( 1.0E-6, TUDAT_NAN, TUDAT_NAN, 30 );
 
-    // Create leg and nodes settings
-    std::vector< std::shared_ptr< TransferLegSettings > > transferLegSettings;
-    std::vector< std::shared_ptr< TransferNodeSettings > > transferNodeSettings;
+    for( unsigned int creationType = 0; creationType < 1; creationType++ ) {
+        // Create leg and nodes settings
+        std::vector< std::shared_ptr< TransferLegSettings > > transferLegSettings;
+        std::vector< std::shared_ptr< TransferNodeSettings > > transferNodeSettings;
 
-    transferLegSettings.resize( bodyOrder.size( ) - 1 );
-    transferLegSettings[ 0 ] = sphericalShapingLeg(
-            numberOfRevolutions, rootFinderSettings, 1.0e-6, 1.0e-1);
+        if ( creationType == 0 )
+        {
+            transferLegSettings.resize(bodyOrder.size( ) - 1);
+            transferLegSettings[0] = sphericalShapingLeg(numberOfRevolutions, rootFinderSettings, 1.0e-6, 1.0e-1);
 
-    transferNodeSettings.resize( bodyOrder.size( ) );
-    transferNodeSettings[ 0 ] = escapeAndDepartureNode( std::numeric_limits< double >::infinity( ), 0.0 );
-    transferNodeSettings[ 1 ] = captureAndInsertionNode( std::numeric_limits< double >::infinity( ), 0.0 );
+            transferNodeSettings.resize(bodyOrder.size( ));
+            transferNodeSettings[0] = escapeAndDepartureNode(std::numeric_limits< double >::infinity( ), 0.0);
+            transferNodeSettings[1] = captureAndInsertionNode(std::numeric_limits< double >::infinity( ), 0.0);
+        }
+        else if ( creationType == 1 )
+        {
+            getMgaTransferTrajectorySettingsWithSphericalShapingThrust(
+                    transferLegSettings, transferNodeSettings, bodyOrder,
+                    std::make_pair( std::numeric_limits< double >::infinity( ), 0.0 ),
+                    std::make_pair( std::numeric_limits< double >::infinity( ), 0.0 ) );
+        }
 
-    // Print parameter definition
-    printTransferParameterDefinition( transferLegSettings, transferNodeSettings );
+        // Print parameter definition
+        printTransferParameterDefinition(transferLegSettings, transferNodeSettings);
 
-    std::shared_ptr<TransferTrajectory> transferTrajectory = createTransferTrajectory(
-            bodies, transferLegSettings, transferNodeSettings, bodyOrder, "Sun" );
+        std::shared_ptr< TransferTrajectory > transferTrajectory = createTransferTrajectory(
+                bodies, transferLegSettings, transferNodeSettings, bodyOrder, "Sun");
 
-    // Create list of node times
-    std::vector< double > nodeTimes;
-    nodeTimes.push_back( departureDate );
-    nodeTimes.push_back( nodeTimes.at( 0 ) + timeOfFlight );
+        // Create list of node times
+        std::vector< double > nodeTimes;
+        nodeTimes.push_back(departureDate);
+        nodeTimes.push_back(nodeTimes.at(0) + timeOfFlight);
 
-    std::vector< Eigen::VectorXd > transferLegFreeParameters ( bodyOrder.size( ) - 1);
-    transferLegFreeParameters.at(0) = Eigen::VectorXd( 0 );
+        std::vector< Eigen::VectorXd > transferLegFreeParameters(bodyOrder.size( ) - 1);
+        transferLegFreeParameters.at(0) = Eigen::VectorXd(0);
 
-    std::vector< Eigen::VectorXd > transferNodeFreeParameters ( bodyOrder.size( ) );
-    // Initial and final excess velocity is 0.0, meaning the spacecraft starts/ends with the velocity of the planet
-    transferNodeFreeParameters.at(0) = ( Eigen::Vector3d( ) << 0.0, 0.0, 0.0 ).finished( ) ;
-    transferNodeFreeParameters.at(1) = ( Eigen::Vector3d( ) << 0.0, 0.0, 0.0 ).finished( ) ;
+        std::vector< Eigen::VectorXd > transferNodeFreeParameters(bodyOrder.size( ));
+        // Initial and final excess velocity is 0.0, meaning the spacecraft starts/ends with the velocity of the planet
+        transferNodeFreeParameters.at(0) = ( Eigen::Vector3d( ) << 0.0, 0.0, 0.0 ).finished( );
+        transferNodeFreeParameters.at(1) = ( Eigen::Vector3d( ) << 0.0, 0.0, 0.0 ).finished( );
 
-    transferTrajectory->evaluateTrajectory(nodeTimes, transferLegFreeParameters, transferNodeFreeParameters );
+        transferTrajectory->evaluateTrajectory(nodeTimes, transferLegFreeParameters, transferNodeFreeParameters);
 
-    // Check results consistency w.r.t. Roegiers, T., Application of the Spherical Shaping Method to a Low-Thrust
-    // Multiple Asteroid Rendezvous Mission, TU Delft (MSc thesis), 2014
-    double expectedDeltaV = 5700.0;
-    BOOST_CHECK_SMALL( std::fabs(  transferTrajectory->getTotalDeltaV() - expectedDeltaV ), 5.0 );
+        // Check results consistency w.r.t. Roegiers, T., Application of the Spherical Shaping Method to a Low-Thrust
+        // Multiple Asteroid Rendezvous Mission, TU Delft (MSc thesis), 2014
+        double expectedDeltaV = 5700.0;
+        BOOST_CHECK_SMALL(std::fabs(transferTrajectory->getTotalDeltaV( ) - expectedDeltaV), 5.0);
+    }
+}
+
+BOOST_AUTO_TEST_CASE( testMgaSphericalShaping )
+{
+    // Set transfer properties
+    std::vector< std::string > bodyOrder = { "Earth", "Mars", "Earth" };
+    int numberOfRevolutions = 1;
+    double JD = physical_constants::JULIAN_DAY;
+    double departureDate = 8174.5 * JD;
+    std::vector< double > timesOfFlight = { 580.0*JD, 580.0*JD };
+
+    // Create environment
+    tudat::simulation_setup::SystemOfBodies bodies = createSimplifiedSystemOfBodies( );
+
+    // Define root finder settings
+    std::shared_ptr< root_finders::RootFinderSettings > rootFinderSettings =
+            tudat::root_finders::bisectionRootFinderSettings( 1.0E-6, TUDAT_NAN, TUDAT_NAN, 30 );
+
+    for( unsigned int creationType = 0; creationType < 1; creationType++ ) {
+        // Create leg and nodes settings
+        std::vector< std::shared_ptr< TransferLegSettings > > transferLegSettings;
+        std::vector< std::shared_ptr< TransferNodeSettings > > transferNodeSettings;
+
+        if ( creationType == 0 )
+        {
+            transferLegSettings.resize(bodyOrder.size( ) - 1);
+            transferLegSettings[0] = sphericalShapingLeg(numberOfRevolutions, rootFinderSettings, 1.0e-6, 1.0e-1);
+            transferLegSettings[1] = sphericalShapingLeg(numberOfRevolutions, rootFinderSettings, 1.0e-6, 1.0e-1);
+
+            transferNodeSettings.resize(bodyOrder.size( ));
+            transferNodeSettings[0] = escapeAndDepartureNode(std::numeric_limits< double >::infinity( ), 0.0);
+            transferNodeSettings[1] = swingbyNode();
+            transferNodeSettings[2] = captureAndInsertionNode(std::numeric_limits< double >::infinity( ), 0.0);
+        }
+        else if ( creationType == 1 )
+        {
+            getMgaTransferTrajectorySettingsWithSphericalShapingThrust(
+                    transferLegSettings, transferNodeSettings, bodyOrder,
+                    std::make_pair( std::numeric_limits< double >::infinity( ), 0.0 ),
+                    std::make_pair( std::numeric_limits< double >::infinity( ), 0.0 ) );
+        }
+
+        // Print parameter definition
+        printTransferParameterDefinition(transferLegSettings, transferNodeSettings);
+
+        std::shared_ptr< TransferTrajectory > transferTrajectory = createTransferTrajectory(
+                bodies, transferLegSettings, transferNodeSettings, bodyOrder, "Sun");
+
+        // Create list of node times
+        std::vector< double > nodeTimes;
+        nodeTimes.push_back(departureDate);
+        nodeTimes.push_back(nodeTimes.at(0) + timesOfFlight.at(0));
+        nodeTimes.push_back(nodeTimes.at(1) + timesOfFlight.at(1));
+
+        std::vector< Eigen::VectorXd > transferLegFreeParameters(bodyOrder.size( ) - 1);
+        transferLegFreeParameters.at(0) = Eigen::VectorXd(0);
+        transferLegFreeParameters.at(1) = Eigen::VectorXd(0);
+
+        std::vector< Eigen::VectorXd > transferNodeFreeParameters(bodyOrder.size( ));
+        // Initial and final excess velocity is 0.0, meaning the spacecraft starts/ends with the velocity of the planet
+        transferNodeFreeParameters.at(0) = ( Eigen::Vector3d( ) << 0.0, 0.0, 0.0 ).finished( );
+        transferNodeFreeParameters.at(1) = ( Eigen::Vector6d( ) << 0.0, 0.0, 0.0, 65000.0e3, 0.5, 0.0 ).finished( );
+        transferNodeFreeParameters.at(2) = ( Eigen::Vector3d( ) << 0.0, 0.0, 0.0 ).finished( );
+
+        transferTrajectory->evaluateTrajectory(nodeTimes, transferLegFreeParameters, transferNodeFreeParameters);
+
+        // Check continuity of velocity between legs and nodes
+        for( int i = 0; i < transferTrajectory->getNumberOfLegs(); i++ )
+        {
+            std::shared_ptr< TransferLeg > leg = transferTrajectory->getLegs().at(i);
+            std::shared_ptr< TransferNode > previous_node = transferTrajectory->getNodes().at(i);
+            std::shared_ptr< TransferNode > following_node = transferTrajectory->getNodes().at(i+1);
+
+            for ( int j = 0; j < 3; j++)
+            {
+                std::cout << "Departure velocity: " << leg->getDepartureVelocity()[j] << " " << previous_node->getOutgoingVelocity()[j] << std::endl;
+                std::cout << "Arrival velocity: " << leg->getArrivalVelocity()[j] << " " << following_node->getIncomingVelocity()[j] << std::endl;
+                BOOST_CHECK_SMALL(std::fabs( leg->getDepartureVelocity()[j] - previous_node->getOutgoingVelocity()[j] ), 1e-12);
+                BOOST_CHECK_SMALL(std::fabs( leg->getArrivalVelocity()[j] - following_node->getIncomingVelocity()[j] ), 1e-12);
+            }
+        }
+
+        std::cout << "########################" << std::endl;
+        std::cout << "Delta V: " << transferTrajectory->getTotalDeltaV( ) << std::endl;
+        std::cout << "########################" << std::endl << std::endl;
+    }
 }
 
 BOOST_AUTO_TEST_CASE( testMGATrajectory_New )

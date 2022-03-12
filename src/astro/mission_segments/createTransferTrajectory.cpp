@@ -357,7 +357,7 @@ void getMgaTransferTrajectorySettings(
     transferLegSettings.clear( );
     for( int i = 0; i < numberOfNodes - 1; i++ )
     {
-        transferLegSettings.push_back( std::make_shared< TransferLegSettings >( identicalTransferLegType  ) );
+        transferLegSettings.push_back( std::make_shared< TransferLegSettings >( identicalTransferLegType ) );
     }
 
     double currentMinimumPericenterRadius = TUDAT_NAN;

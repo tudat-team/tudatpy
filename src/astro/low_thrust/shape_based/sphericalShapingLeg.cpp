@@ -96,6 +96,9 @@ void SphericalShapingLeg::computeTransfer( )
 {
     updateDepartureAndArrivalBodies( legParameters_( 0 ), legParameters_( 1 ) );
 
+    arrivalVelocity_ = arrivalVelocityFunction_( );
+    departureVelocity_ = departureVelocityFunction_( );
+
     if( legParameters_.rows( ) != 2 )
     {
         throw std::runtime_error( "Error when updating spherical shaping object, number of inputs is inconsistent" );
@@ -106,14 +109,14 @@ void SphericalShapingLeg::computeTransfer( )
     normalizedDepartureBodyState.segment(0, 3 ) =
             departureBodyState_.segment( 0, 3 ) / physical_constants::ASTRONOMICAL_UNIT;
     normalizedDepartureBodyState.segment(3, 3 ) =
-            departureVelocityFunction_() * physical_constants::JULIAN_YEAR / physical_constants::ASTRONOMICAL_UNIT;
+            departureVelocity_ * physical_constants::JULIAN_YEAR / physical_constants::ASTRONOMICAL_UNIT;
 
     // Normalize the final state.
     Eigen::Vector6d normalizedArrivalBodyState;
     normalizedArrivalBodyState.segment(0, 3 ) =
             arrivalBodyState_.segment( 0, 3 ) / physical_constants::ASTRONOMICAL_UNIT;
     normalizedArrivalBodyState.segment(3, 3 ) =
-            arrivalVelocityFunction_() * physical_constants::JULIAN_YEAR / physical_constants::ASTRONOMICAL_UNIT;
+            arrivalVelocity_ * physical_constants::JULIAN_YEAR / physical_constants::ASTRONOMICAL_UNIT;
 
     // Compute initial and final state in spherical coordinates.
     initialStateSphericalCoordinates_ = coordinate_conversions::convertCartesianToSphericalState(normalizedDepartureBodyState );
