@@ -27,6 +27,7 @@
 #include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
 #include "tudat/simulation/environment_setup/createGroundStations.h"
 #include "tudat/simulation/estimation_setup/podProcessing.h"
+#include "tudat/simulation/estimation_setup/orbitDeterminationTestCases.h"
 
 
 namespace tudat
@@ -261,9 +262,18 @@ Eigen::VectorXd  executeParameterEstimation(
     std::shared_ptr< EstimationInput< ObservationScalarType, TimeType > > podInput =
             std::make_shared< EstimationInput< ObservationScalarType, TimeType > >(
                 observationsAndTimes, ( initialParameterEstimate ).rows( ) );
+    std::shared_ptr< CovarianceAnalysisInput< ObservationScalarType, TimeType > > covarianceInput =
+            std::make_shared< CovarianceAnalysisInput< ObservationScalarType, TimeType > >(
+                observationsAndTimes, ( initialParameterEstimate ).rows( ) );
 
     std::shared_ptr< EstimationOutput< StateScalarType, TimeType > > podOutput = orbitDeterminationManager.estimateParameters(
                 podInput );
+
+    parametersToEstimate->resetParameterValues( podOutput->parameterHistory_.at( podOutput->bestIteration_ ) );
+    std::shared_ptr< CovarianceAnalysisOutput< StateScalarType, TimeType > > covarianceOutput = orbitDeterminationManager.computeCovariance(
+                covarianceInput );
+
+    compareEstimationAndCovarianceResults( podOutput, covarianceOutput );
 
     return ( podOutput->parameterEstimate_ - truthParameters ).template cast< double >( );
 }
