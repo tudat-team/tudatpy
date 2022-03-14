@@ -23,6 +23,7 @@
 namespace py = pybind11;
 namespace tms = tudat::mission_segments;
 namespace tss = tudat::simulation_setup;
+namespace pc = tudat::physical_constants;
 
 namespace tudatpy {
 namespace trajectory_design {
@@ -43,6 +44,9 @@ void expose_transfer_trajectory(py::module &m) {
             .value("dsm_velocity_based_leg_type",
                    tms::TransferLegTypes::dsm_velocity_based_leg,
                    get_docstring("TransferLegTypes.dsm_velocity_based_leg_type").c_str())
+            .value("spherical_shaping_low_thrust_leg",
+                   tms::TransferLegTypes::spherical_shaping_low_thrust_leg,
+                   get_docstring("TransferLegTypes.spherical_shaping_low_thrust_leg").c_str())
             .export_values();
 
     py::class_<
@@ -133,6 +137,16 @@ void expose_transfer_trajectory(py::module &m) {
           &tms::dsmVelocityBasedLeg,
           get_docstring("dsm_velocity_based_leg").c_str() );
 
+    m.def("spherical_shaping_leg",
+          &tms::sphericalShapingLeg,
+          py::arg( "number_of_revolutions" ),
+          py::arg( "root_finder_settings" ),
+          py::arg( "lower_bound_free_coefficient" ) = TUDAT_NAN,
+          py::arg( "upper_bound_free_coefficient" ) = TUDAT_NAN,
+          py::arg( "initial_value_free_coefficient" ) = TUDAT_NAN,
+          py::arg( "time_to_azimuth_interpolator_step_size" ) = pc::JULIAN_DAY,
+          get_docstring("spherical_shaping_leg").c_str() );
+
     m.def("swingby_node",
           &tms::swingbyNode,
           py::arg( "minimum_periapsis" ) = TUDAT_NAN,
@@ -150,7 +164,6 @@ void expose_transfer_trajectory(py::module &m) {
           py::arg( "capture_eccentricity" ),
           get_docstring("capture_node").c_str() );
 
-
     m.def("print_parameter_definitions",
           &tms::printTransferParameterDefinition,
           py::arg( "leg_settings" ),
@@ -167,13 +180,13 @@ void expose_transfer_trajectory(py::module &m) {
           get_docstring("create_transfer_trajectory").c_str());
 
 
-    m.def("get_low_thrust_acceleration_settings",
-          &tss::getLowThrustLegAccelerationSettings,
-          py::arg("low_thrust_leg"),
-          py::arg("bodies"),
-          py::arg("body_to_propagate"),
-          py::arg("specific_impulse_function"),
-          py::arg("low_thrust_leg_initial_time") );
+//    m.def("get_low_thrust_acceleration_settings",
+//          &tss::getLowThrustLegAccelerationSettings,
+//          py::arg("low_thrust_leg"),
+//          py::arg("bodies"),
+//          py::arg("body_to_propagate"),
+//          py::arg("specific_impulse_function"),
+//          py::arg("low_thrust_leg_initial_time") );
 };
 
 } // namespace transfer_trajectory
