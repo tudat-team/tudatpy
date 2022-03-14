@@ -23,7 +23,7 @@
 namespace py = pybind11;
 namespace tms = tudat::mission_segments;
 namespace tss = tudat::simulation_setup;
-namespace pc = tudat::physical_constants;
+namespace tpc = tudat::physical_constants;
 
 namespace tudatpy {
 namespace trajectory_design {
@@ -144,7 +144,7 @@ void expose_transfer_trajectory(py::module &m) {
           py::arg( "lower_bound_free_coefficient" ) = TUDAT_NAN,
           py::arg( "upper_bound_free_coefficient" ) = TUDAT_NAN,
           py::arg( "initial_value_free_coefficient" ) = TUDAT_NAN,
-          py::arg( "time_to_azimuth_interpolator_step_size" ) = pc::JULIAN_DAY,
+          py::arg( "time_to_azimuth_interpolator_step_size" ) = tpc::JULIAN_DAY,
           get_docstring("spherical_shaping_leg").c_str() );
 
     m.def("swingby_node",
