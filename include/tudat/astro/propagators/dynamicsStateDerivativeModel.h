@@ -147,17 +147,17 @@ public:
     {
         if( !( time == time ) )
         {
-            throw std::runtime_error( "Error when computing system state derivative. Input time is NaN" );
+            throw std::invalid_argument( "Error when computing system state derivative. Input time is NaN" );
         }
 
         if( state.hasNaN( ) )
         {
-            throw std::runtime_error( "Error when computing system state derivative. State vector contains NaN" );
+            throw std::invalid_argument( "Error when computing system state derivative. State vector contains NaN" );
         }
 
         if( !state.allFinite( ) )
         {
-            throw std::runtime_error( "Error when computing system state derivative. State vector contains Inf" );
+            throw std::invalid_argument( "Error when computing system state derivative. State vector contains Inf" );
         }
 //        std::cout << "Computing state derivative: " <<time<<" "<<state.transpose( ) << std::endl;
 
