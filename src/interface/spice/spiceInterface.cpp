@@ -14,6 +14,8 @@
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/paths.hpp"
 
+#include <math.h>
+
 namespace tudat {
 namespace spice_interface {
 using Eigen::Vector6d;
@@ -42,9 +44,9 @@ Vector6d getBodyCartesianStateAtEpoch(
         const double ephemerisTime) {
 
 
-    if( !( ephemerisTime == ephemerisTime ) )
+    if( !( ephemerisTime == ephemerisTime ) || (ephemerisTime < 0) || (isinf(ephemerisTime)))
     {
-        throw std::runtime_error( "Error when retrieving Cartesian state from Spice, input time is NaN" );
+        throw std::invalid_argument( "Error when retrieving Cartesian state from Spice, input time is " + std::to_string(ephemerisTime) );
     }
     // Declare variables for cartesian state and light-time to be determined by Spice.
     double stateAtEpoch[6];
@@ -73,9 +75,9 @@ Eigen::Vector3d getBodyCartesianPositionAtEpoch(const std::string &targetBodyNam
                                                 const std::string &aberrationCorrections,
                                                 const double ephemerisTime) {
 
-    if( !( ephemerisTime == ephemerisTime ) )
+    if( !( ephemerisTime == ephemerisTime ) || (ephemerisTime < 0) || (isinf(ephemerisTime)))
     {
-        throw std::runtime_error( "Error when retrieving Cartesian position from Spice, input time is NaN" );
+        throw std::invalid_argument( "Error when retrieving Cartesian position from Spice, input time is " + std::to_string(ephemerisTime) );
     }
     // Declare variables for cartesian position and light-time to be determined by Spice.
     double positionAtEpoch[3];
@@ -99,10 +101,9 @@ Eigen::Vector3d getBodyCartesianPositionAtEpoch(const std::string &targetBodyNam
 
 //! Get Cartesian state of a satellite from its two-line element set at a specified epoch.
 Vector6d getCartesianStateFromTleAtEpoch(double epoch, std::shared_ptr<ephemerides::Tle> tle) {
-
-    if( !( epoch == epoch ) )
+    if( !( epoch == epoch ) || (epoch < 0) || (isinf(epoch)))
     {
-        throw std::runtime_error( "Error when retrieving TLE from Spice, input time is NaN" );
+        throw std::invalid_argument( "Error when retrieving TLE from Spice, input time is " + std::to_string(epoch) );
     }
 
     // Physical constants used by CSpice's implementation of SGP4.
@@ -141,10 +142,9 @@ Vector6d getCartesianStateFromTleAtEpoch(double epoch, std::shared_ptr<ephemerid
 Eigen::Quaterniond computeRotationQuaternionBetweenFrames(const std::string &originalFrame,
                                                           const std::string &newFrame,
                                                           const double ephemerisTime) {
-
-    if( !( ephemerisTime == ephemerisTime ) )
+    if( !( ephemerisTime == ephemerisTime ) || (ephemerisTime < 0) || (isinf(ephemerisTime)))
     {
-        throw std::runtime_error( "Error when retrieving rotation quanternion from Spice, input time is NaN" );
+        throw std::invalid_argument( "Error when retrieving rotation quaternion from Spice, input time is " + std::to_string(ephemerisTime) );
     }
 
     // Declare rotation matrix.
@@ -178,9 +178,9 @@ Eigen::Matrix3d computeRotationMatrixDerivativeBetweenFrames(const std::string &
                                                              const std::string &newFrame,
                                                              const double ephemerisTime) {
 
-    if( !( ephemerisTime == ephemerisTime ) )
+    if( !( ephemerisTime == ephemerisTime ) || (ephemerisTime < 0) || (isinf(ephemerisTime)))
     {
-        throw std::runtime_error( "Error when retrieving rotation matrix derivative from Spice, input time is NaN" );
+        throw std::invalid_argument( "Error when retrieving rotation matrix derivative from Spice, input time is " + std::to_string(ephemerisTime) );
     }
 
     double stateTransition[6][6];
@@ -204,9 +204,9 @@ Eigen::Vector3d getAngularVelocityVectorOfFrameInOriginalFrame(const std::string
                                                                const std::string &newFrame,
                                                                const double ephemerisTime) {
 
-    if( !( ephemerisTime == ephemerisTime ) )
+    if( !( ephemerisTime == ephemerisTime ) || (ephemerisTime < 0) || (isinf(ephemerisTime)))
     {
-        throw std::runtime_error( "Error when retrieving angular velocity from Spice, input time is NaN" );
+        throw std::invalid_argument( "Error when retrieving angular velocity from Spice, input time is " + std::to_string(ephemerisTime) );
     }
 
     double stateTransition[6][6];
@@ -227,9 +227,9 @@ std::pair<Eigen::Quaterniond, Eigen::Matrix3d> computeRotationQuaternionAndRotat
         const std::string &originalFrame, const std::string &newFrame, const double ephemerisTime) {
     double stateTransition[6][6];
 
-    if( !( ephemerisTime == ephemerisTime ) )
+    if( !( ephemerisTime == ephemerisTime ) || (ephemerisTime < 0) || (isinf(ephemerisTime)))
     {
-        throw std::runtime_error( "Error when retrieving rotational state from Spice, input time is NaN" );
+        throw std::invalid_argument( "Error when retrieving rotational state from Spice, input time is " + std::to_string(ephemerisTime) );
     }
 
     sxform_c(originalFrame.c_str(), newFrame.c_str(), ephemerisTime, stateTransition);
