@@ -816,13 +816,11 @@ public:
             std::map< double, double > cumulativeComputationTimeHistory;
 
             simulation_setup::setAreBodiesInPropagation( bodies_, true );
-            std::shared_ptr< PropagationTerminationDetails > propagationTerminationReason =
             EquationIntegrationInterface< Eigen::MatrixXd, double >::integrateEquations(
                         dynamicsSimulator_->getDoubleStateDerivativeFunction( ), rawNumericalSolution, initialVariationalState,
                         variationalOnlyIntegratorSettings_,
                         dynamicsSimulator_->getPropagationTerminationCondition( ),
                         dependentVariableHistory, cumulativeComputationTimeHistory );
-            dynamicsSimulator_->setPropagationTerminationReason( propagationTerminationReason );
             simulation_setup::setAreBodiesInPropagation( bodies_, false );
 
             setVariationalEquationsSolution< double, double >(
@@ -1456,7 +1454,6 @@ public:
 
                 dynamicsSimulator_->getDynamicsStateDerivative( ).at( i )->resetFunctionEvaluationCounter( );
                 simulation_setup::setAreBodiesInPropagation( bodies_, true );
-                std::shared_ptr< PropagationTerminationDetails > propagationTerminationReason =
                 EquationIntegrationInterface< MatrixType, TimeType >::integrateEquations(
                             singleArcDynamicsSimulators.at( i )->getStateDerivativeFunction( ),
                             rawNumericalSolutions, initialVariationalState,
