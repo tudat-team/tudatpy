@@ -11,7 +11,7 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
-#include "tudat/simulation/simulation.h"
+#include "tudat/simulation/estimation.h"
 #include <boost/test/unit_test.hpp>
 
 //! Test suite for astro functions.
@@ -33,6 +33,7 @@ BOOST_AUTO_TEST_CASE( testReasonAfterSuccessfulPropagationWithTimeLimit )
     using namespace tudat::basic_mathematics;
     using namespace tudat::gravitation;
     using namespace tudat::numerical_integrators;
+    using namespace tudat::estimatable_parameters;
 
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -171,6 +172,31 @@ BOOST_AUTO_TEST_CASE( testReasonAfterSuccessfulPropagationWithTimeLimit )
 
     // Check that the propagation termination reason after propagation.
     BOOST_CHECK( dynamicsSimulator.getPropagationTerminationReason( )->getPropagationTerminationReason( ) == termination_condition_reached );
+
+
+    // Define parameters to be estimated.
+    std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames =
+            getInitialStateParameterSettings< double >( propagatorSettings, bodies );
+    std::shared_ptr< EstimatableParameterSet< double > > parametersToEstimate =
+            createParametersToEstimate< double >( parameterNames, bodies, propagatorSettings );
+
+    // Create variaional equations simulator
+    SingleArcVariationalEquationsSolver< > variationalEquationsSimulator =
+            SingleArcVariationalEquationsSolver< >(
+                bodies, integratorSettings, propagatorSettings, parametersToEstimate,
+                1, std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ), 0, 0 );
+
+    // Check that the propagation termination reason is unknown before propagation.
+    BOOST_CHECK( variationalEquationsSimulator.getDynamicsSimulator( )->
+                 getPropagationTerminationReason( )->getPropagationTerminationReason( ) == propagation_never_run );
+
+    // Propagate dynamics.
+    variationalEquationsSimulator.integrateVariationalAndDynamicalEquations( propagatorSettings->getInitialStates( ), true );
+
+    // Check that the propagation termination reason after propagation.
+    BOOST_CHECK( variationalEquationsSimulator.getDynamicsSimulator( )->
+                getPropagationTerminationReason( )->getPropagationTerminationReason( ) == termination_condition_reached );
+
 
 }
 
@@ -371,6 +397,7 @@ BOOST_AUTO_TEST_CASE( testReasonAfterPropagationErrorCaught )
     using namespace tudat::basic_mathematics;
     using namespace tudat::gravitation;
     using namespace tudat::numerical_integrators;
+    using namespace tudat::estimatable_parameters;
 
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -518,6 +545,31 @@ BOOST_AUTO_TEST_CASE( testReasonAfterPropagationErrorCaught )
     // Check that the propagation termination reason after propagation.
     BOOST_CHECK( dynamicsSimulator.getPropagationTerminationReason( )->getPropagationTerminationReason( ) ==
                  nan_or_inf_detected_in_state );
+
+    // Define parameters to be estimated.
+    std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames =
+            getInitialStateParameterSettings< double >( propagatorSettings, bodies );
+    std::shared_ptr< EstimatableParameterSet< double > > parametersToEstimate =
+            createParametersToEstimate< double >( parameterNames, bodies, propagatorSettings );
+
+    // Create variaional equations simulator
+    SingleArcVariationalEquationsSolver< > variationalEquationsSimulator =
+            SingleArcVariationalEquationsSolver< >(
+                bodies, integratorSettings, propagatorSettings, parametersToEstimate,
+                1, std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ), 0, 0 );
+
+    // Check that the propagation termination reason is unknown before propagation.
+    BOOST_CHECK( variationalEquationsSimulator.getDynamicsSimulator( )->
+                 getPropagationTerminationReason( )->getPropagationTerminationReason( ) == propagation_never_run );
+
+    // Propagate dynamics.
+    variationalEquationsSimulator.integrateVariationalAndDynamicalEquations( propagatorSettings->getInitialStates( ), true );
+
+    // Check that the propagation termination reason after propagation.
+    BOOST_CHECK( variationalEquationsSimulator.getDynamicsSimulator( )->
+                getPropagationTerminationReason( )->getPropagationTerminationReason( ) == nan_or_inf_detected_in_state );
+
+
 
 }
 
