@@ -476,6 +476,11 @@ Eigen::Vector3d calculatePoweredGravityAssistOutgoingVelocity(
     // Calculate the incoming velocity.
     const Eigen::Vector3d relativeIncomingVelocity = incomingVelocity - centralBodyVelocity;
     const double absoluteRelativeIncomingVelocity = relativeIncomingVelocity.norm( );
+
+    if ( absoluteRelativeIncomingVelocity == 0 )
+    {
+        throw std::runtime_error( "Incoming excess velocity at swingby must be different from 0. " );
+    }
     
     // Calculate the incoming eccentricity and bending angle.
     const double incomingEccentricity = 1.0 + pericenterRadius /

@@ -157,6 +157,7 @@ std::shared_ptr< TransferLeg > createTransferLeg (
         transferLeg = std::make_shared< shape_based_methods::SphericalShapingLeg >(
                 departureBodyEphemeris, arrivalBodyEphemeris, centralBodyGravitationalParameter,
                 sphericalShapingLegSettings->numberOfRevolutions_,
+                departureVelocityFunction, arrivalVelocityFunction,
                 sphericalShapingLegSettings->rootFinderSettings_,
                 sphericalShapingLegSettings->lowerBoundFreeCoefficient_,
                 sphericalShapingLegSettings->upperBoundFreeCoefficient_,
@@ -556,25 +557,10 @@ std::shared_ptr< TransferTrajectory > createTransferTrajectory(
     std::vector< std::shared_ptr< TransferLeg > > legs ( legSettings.size( ), nullptr );
     std::vector< std::shared_ptr< TransferNode > > nodes ( nodeSettings.size( ), nullptr );
 
-//    std::cout << "Legs to be created ";
-//    for( unsigned int i = 0; i < legSettings.size( ); i++ )
-//    {
-//        if (legs.at(i) == nullptr)
-//            std::cout << i << " ";
-//    }
-//    std::cout << std::endl << "Nodes to be created";
-//    for( unsigned int i = 0; i < nodeSettings.size( ); i++ )
-//    {
-//        if (nodes.at(i) == nullptr)
-//            std::cout << i << " ";
-//    }
-//    std::cout << std::endl;
-
     unsigned int iteration = 0;
     // Loop over nodes and legs until all are defined
     while ( ( std::find(legs.begin(), legs.end(), nullptr) != legs.end() ) || ( std::find(nodes.begin(), nodes.end(), nullptr) != nodes.end() ) )
     {
-//        std::cout << "Iteration " << iteration << std::endl;
         ++iteration;
 
         // First node
@@ -583,7 +569,6 @@ std::shared_ptr< TransferTrajectory > createTransferTrajectory(
             // If node doesn't require input from the following leg, then create node
             if ( legRequiresInputFromPreviousNode.at( legSettings.at(0)->legType_ ) )
             {
-//                std::cout << "Creating node " << 0 << "a " << std::endl;
                 nodes.at(0) = createTransferNode(
                         bodyMap, nodeSettings.at(0), nodeIds.at(0),
                         nullptr, nullptr, false, true);
@@ -591,7 +576,6 @@ std::shared_ptr< TransferTrajectory > createTransferTrajectory(
             // If node requires input from following leg but following leg is already created, then create node
             else if ( legs.at(0) != nullptr )
             {
-//                std::cout << "Creating node " << 0 << "b" << std::endl;
                 nodes.at(0) = createTransferNode(
                         bodyMap, nodeSettings.at(0), nodeIds.at(0),
                         nullptr, legs.at(0), false, false);
@@ -608,7 +592,6 @@ std::shared_ptr< TransferTrajectory > createTransferTrajectory(
             if ( (legs.at(i) == nullptr) && !(legRequiresInputFromPreviousNode.at( legSettings.at(i)->legType_ ) && nodes.at(i) == nullptr) &&
                  !(legRequiresInputFromFollowingNode.at( legSettings.at(i)->legType_ ) && nodes.at(i+1) == nullptr))
             {
-//                std::cout << "Creating leg " << i << std::endl;
                 legs.at(i) = createTransferLeg(
                         bodyMap, legSettings.at(i), nodeIds.at(i), nodeIds.at(i + 1),
                         centralBody, nodes.at(i), nodes.at(i+1) );
@@ -624,7 +607,6 @@ std::shared_ptr< TransferTrajectory > createTransferTrajectory(
                 if ( (nodes.at(i+1) == nullptr) && !(nodeRequiresInputFromPreviousLeg && legs.at(i) == nullptr ) &&
                      !(nodeRequiresInputFromFollowingLeg && legs.at(i+1) == nullptr ) )
                 {
-//                    std::cout << "Creating node " << i+1 << ": "<< !nodeRequiresInputFromPreviousLeg << " " << !nodeRequiresInputFromFollowingLeg << std::endl;
                     nodes.at(i+1) = createTransferNode(
                             bodyMap, nodeSettings.at(i+1), nodeIds.at(i+1), legs.at(i),
                             legs.at(i+1), !nodeRequiresInputFromPreviousLeg, !nodeRequiresInputFromFollowingLeg);
@@ -639,7 +621,6 @@ std::shared_ptr< TransferTrajectory > createTransferTrajectory(
             // If node doesn't require input from the previous leg, then create node
             if ( legRequiresInputFromFollowingNode.at( legSettings.at(legSettings.size( ) - 1)->legType_ ) )
             {
-//                std::cout << "Creating node " << legSettings.size( ) << "a" << std::endl;
                 nodes.at(legSettings.size( )) = createTransferNode(
                         bodyMap, nodeSettings.at(legSettings.size( ) ), nodeIds.at(legSettings.size( )),
                         nullptr, nullptr, true, true);
@@ -647,44 +628,17 @@ std::shared_ptr< TransferTrajectory > createTransferTrajectory(
             // If node requires input from previous leg but previous leg is already created, then create node
             else if ( legs.at(legSettings.size( ) - 1) != nullptr )
             {
-//                std::cout << "Creating node " << legSettings.size( ) << "b" << std::endl;
                 nodes.at(legSettings.size( )) = createTransferNode(
                         bodyMap, nodeSettings.at(legSettings.size( )), nodeIds.at(legSettings.size( )),
                         legs.at(legSettings.size( ) - 1), nullptr, false, true);
             }
         }
 
-
-//        std::cout << "Legs ";
-//        for( unsigned int i = 0; i < legSettings.size( ); i++ )
-//        {
-//            if (legs.at(i) == nullptr)
-//                std::cout << i << " ";
-//        }
-//        std::cout << std::endl << "Nodes ";
-//        for( unsigned int i = 0; i < nodeSettings.size( ); i++ )
-//        {
-//            if (nodes.at(i) == nullptr)
-//                std::cout << i << " ";
-//        }
-//        std::cout << std::endl;
-//
-//        std::cout << (std::find(legs.begin(), legs.end(), nullptr) != legs.end()) << " " <<
-//            (std::find(nodes.begin(), nodes.end(), nullptr) != nodes.end()) << std::endl << std::endl;
-
         if (iteration > legSettings.size( ) + nodeSettings.size() )
         {
             throw std::runtime_error( "createTransferTrajectory used more than maximum possible number of iterations." );
         }
     }
-
-//    std::cout << "Created Legs ";
-//    for( unsigned int i = 0; i < legSettings.size( ); i++ )
-//        std::cout << legSettings.at(i)->legType_ << " ";
-//    std::cout << std::endl << "Created Nodes ";
-//    for( unsigned int i = 0; i < nodeSettings.size( ); i++ )
-//        std::cout << nodeSettings.at(i)->nodeType_ << " ";
-//    std::cout << std::endl;
 
     return std::make_shared< TransferTrajectory >( legs, nodes );
 }

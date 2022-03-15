@@ -44,6 +44,8 @@
 
 #include "tudat/math/root_finders/createRootFinder.h"
 
+#include "tudat/astro/low_thrust/shape_based/sphericalShapingLeg.h"
+
 namespace tudat
 {
 namespace unit_tests
@@ -58,6 +60,8 @@ using namespace mission_segments;
 //! Test implementation of trajectory class
 BOOST_AUTO_TEST_SUITE( test_trajectory )
 
+// Test checks delta V of a single spherical shaping leg, inserted in the MGA framework, comparing it to the results
+// given by Roegiers.
 BOOST_AUTO_TEST_CASE( testMgaSphericalShapingSingleLeg )
 {
     int numberOfRevolutions = 1;
@@ -121,9 +125,30 @@ BOOST_AUTO_TEST_CASE( testMgaSphericalShapingSingleLeg )
         // Multiple Asteroid Rendezvous Mission, TU Delft (MSc thesis), 2014
         double expectedDeltaV = 5700.0;
         BOOST_CHECK_SMALL(std::fabs(transferTrajectory->getTotalDeltaV( ) - expectedDeltaV), 5.0);
+
+        // Check continuity of velocity between legs and nodes
+        for( int i = 0; i < transferTrajectory->getNumberOfLegs(); i++ )
+        {
+            std::shared_ptr< TransferLeg > leg = transferTrajectory->getLegs().at(i);
+            std::shared_ptr< TransferNode > previous_node = transferTrajectory->getNodes().at(i);
+            std::shared_ptr< TransferNode > following_node = transferTrajectory->getNodes().at(i+1);
+
+            for ( int j = 0; j < 3; j++)
+            {
+                BOOST_CHECK_SMALL(std::fabs( leg->getDepartureVelocity()[j] - previous_node->getOutgoingVelocity()[j] ), 1e-12);
+                BOOST_CHECK_SMALL(std::fabs( leg->getArrivalVelocity()[j] - following_node->getIncomingVelocity()[j] ), 1e-12);
+            }
+        }
     }
 }
 
+// Test checks:
+// - Continuity of velocity between consecutive nodes and legs
+// - Whether deltaV at swingby node is correct (i.e. according to specified as free parameter)
+// - Whether outgoing velocity at swingby node is consistent with swinby node incoming velocity and DeltaV
+// - Whether the DeltaV computed by manually created spherical shaping legs is consistent with what is calculated by the transfer trajectory
+// Tests assume that the incoming velocity at the swingby node is correct, since it is calculated in the same way as for
+// MGA-DSM tests
 BOOST_AUTO_TEST_CASE( testMgaSphericalShaping )
 {
     // Set transfer properties
@@ -131,7 +156,7 @@ BOOST_AUTO_TEST_CASE( testMgaSphericalShaping )
     int numberOfRevolutions = 1;
     double JD = physical_constants::JULIAN_DAY;
     double departureDate = 8174.5 * JD;
-    std::vector< double > timesOfFlight = { 580.0*JD, 580.0*JD };
+    std::vector< double > timesOfFlight = { 580.0*JD, 560.0*JD };
 
     // Create environment
     tudat::simulation_setup::SystemOfBodies bodies = createSimplifiedSystemOfBodies( );
@@ -139,6 +164,8 @@ BOOST_AUTO_TEST_CASE( testMgaSphericalShaping )
     // Define root finder settings
     std::shared_ptr< root_finders::RootFinderSettings > rootFinderSettings =
             tudat::root_finders::bisectionRootFinderSettings( 1.0E-6, TUDAT_NAN, TUDAT_NAN, 30 );
+    double lowerBoundFreeCoefficient = 1.0e-6;
+    double upperBoundFreeCoefficient = 1.0e-1;
 
     for( unsigned int creationType = 0; creationType < 1; creationType++ ) {
         // Create leg and nodes settings
@@ -148,8 +175,10 @@ BOOST_AUTO_TEST_CASE( testMgaSphericalShaping )
         if ( creationType == 0 )
         {
             transferLegSettings.resize(bodyOrder.size( ) - 1);
-            transferLegSettings[0] = sphericalShapingLeg(numberOfRevolutions, rootFinderSettings, 1.0e-6, 1.0e-1);
-            transferLegSettings[1] = sphericalShapingLeg(numberOfRevolutions, rootFinderSettings, 1.0e-6, 1.0e-1);
+            transferLegSettings[0] = sphericalShapingLeg(numberOfRevolutions, rootFinderSettings,
+                                                         lowerBoundFreeCoefficient, upperBoundFreeCoefficient);
+            transferLegSettings[1] = sphericalShapingLeg(numberOfRevolutions, rootFinderSettings,
+                                                         lowerBoundFreeCoefficient, upperBoundFreeCoefficient);
 
             transferNodeSettings.resize(bodyOrder.size( ));
             transferNodeSettings[0] = escapeAndDepartureNode(std::numeric_limits< double >::infinity( ), 0.0);
@@ -182,8 +211,11 @@ BOOST_AUTO_TEST_CASE( testMgaSphericalShaping )
 
         std::vector< Eigen::VectorXd > transferNodeFreeParameters(bodyOrder.size( ));
         // Initial and final excess velocity is 0.0, meaning the spacecraft starts/ends with the velocity of the planet
+        double swingbyNodeDeltaV = 10.0;
+        double swingbyRotationAngle = 1.3;
+        double swingbyPeriapsis = 65000.0e3;
         transferNodeFreeParameters.at(0) = ( Eigen::Vector3d( ) << 0.0, 0.0, 0.0 ).finished( );
-        transferNodeFreeParameters.at(1) = ( Eigen::Vector6d( ) << 0.0, 0.0, 0.0, 65000.0e3, 0.5, 0.0 ).finished( );
+        transferNodeFreeParameters.at(1) = ( Eigen::Vector6d( ) << 10, 0.0, 0.0, swingbyPeriapsis, swingbyRotationAngle, swingbyNodeDeltaV ).finished( );
         transferNodeFreeParameters.at(2) = ( Eigen::Vector3d( ) << 0.0, 0.0, 0.0 ).finished( );
 
         transferTrajectory->evaluateTrajectory(nodeTimes, transferLegFreeParameters, transferNodeFreeParameters);
@@ -192,21 +224,75 @@ BOOST_AUTO_TEST_CASE( testMgaSphericalShaping )
         for( int i = 0; i < transferTrajectory->getNumberOfLegs(); i++ )
         {
             std::shared_ptr< TransferLeg > leg = transferTrajectory->getLegs().at(i);
-            std::shared_ptr< TransferNode > previous_node = transferTrajectory->getNodes().at(i);
-            std::shared_ptr< TransferNode > following_node = transferTrajectory->getNodes().at(i+1);
+            std::shared_ptr< TransferNode > previousNode = transferTrajectory->getNodes().at(i);
+            std::shared_ptr< TransferNode > followingNode = transferTrajectory->getNodes().at(i + 1);
 
             for ( int j = 0; j < 3; j++)
             {
-                std::cout << "Departure velocity: " << leg->getDepartureVelocity()[j] << " " << previous_node->getOutgoingVelocity()[j] << std::endl;
-                std::cout << "Arrival velocity: " << leg->getArrivalVelocity()[j] << " " << following_node->getIncomingVelocity()[j] << std::endl;
-                BOOST_CHECK_SMALL(std::fabs( leg->getDepartureVelocity()[j] - previous_node->getOutgoingVelocity()[j] ), 1e-12);
-                BOOST_CHECK_SMALL(std::fabs( leg->getArrivalVelocity()[j] - following_node->getIncomingVelocity()[j] ), 1e-12);
+                BOOST_CHECK_SMALL(std::fabs(leg->getDepartureVelocity()[j] - previousNode->getOutgoingVelocity()[j] ), 1e-12);
+                BOOST_CHECK_SMALL(std::fabs(leg->getArrivalVelocity()[j] - followingNode->getIncomingVelocity()[j] ), 1e-12);
             }
         }
 
-        std::cout << "########################" << std::endl;
-        std::cout << "Delta V: " << transferTrajectory->getTotalDeltaV( ) << std::endl;
-        std::cout << "########################" << std::endl << std::endl;
+
+        // Check whether Delta V at swingby is consistent with node parameters
+        BOOST_CHECK_SMALL(std::fabs( transferTrajectory->getNodeDeltaV(1) - swingbyNodeDeltaV ), 1e-12);
+
+        // Manually compute outgoing velocity at swingby node and check whether consistent with values in node
+        Eigen::Vector3d swingbyNodeVelocity = bodies.at("Mars" )->getEphemeris( )->getCartesianState(
+                nodeTimes.at(0) + timesOfFlight.at(0) ).segment< 3 >( 3 );
+        Eigen::Vector3d swingbyNodeOutgoingVelocity = mission_segments::calculatePoweredGravityAssistOutgoingVelocity(
+                bodies.at( "Mars" )->getGravityFieldModel( )->getGravitationalParameter( ),
+                swingbyNodeVelocity, transferTrajectory->getNodes().at(1)->getIncomingVelocity(),
+                swingbyRotationAngle, swingbyPeriapsis, swingbyNodeDeltaV );
+        for ( int j=0; j < 3; j++ )
+        {
+            BOOST_CHECK_SMALL(std::fabs(swingbyNodeOutgoingVelocity[j] - transferTrajectory->getNodes().at(1)->getOutgoingVelocity()[j] ), 1e-12);
+        }
+
+
+        // Check if total value of delta V is correct
+        double totalDeltaV = swingbyNodeDeltaV;
+
+        for (int i = 0; i < transferTrajectory->getNumberOfLegs(); i++ )
+        {
+            Eigen::Vector3d departureVelocity;
+            Eigen::Vector3d arrivalVelocity;
+            if (i == 0)
+            {
+                departureVelocity = bodies.at(bodyOrder.at(i) )->getEphemeris( )->getCartesianState(
+                        nodeTimes.at(i) ).segment< 3 >( 3 );
+                arrivalVelocity = transferTrajectory->getNodes().at(i+1)->getIncomingVelocity();
+            }
+            else if (i == 1)
+            {
+                departureVelocity = transferTrajectory->getNodes().at(i)->getOutgoingVelocity();
+                arrivalVelocity = bodies.at(bodyOrder.at(i+1) )->getEphemeris( )->getCartesianState(
+                        nodeTimes.at(i+1) ).segment< 3 >( 3 );
+            }
+            else
+            {
+                throw std::runtime_error( "Unit test with just 2 legs." );
+            }
+
+            const std::function< Eigen::Vector3d( ) > departureVelocityFunction = [=]( ){ return departureVelocity; };
+            const std::function< Eigen::Vector3d( ) > arrivalVelocityFunction = [=]( ){ return arrivalVelocity; };
+
+            shape_based_methods::SphericalShapingLeg sphericalShapingLeg = shape_based_methods::SphericalShapingLeg (
+                    bodies.at( bodyOrder.at(i) )->getEphemeris( ),
+                    bodies.at( bodyOrder.at(i+1) )->getEphemeris( ),
+                    bodies.at( "Sun" )->getGravityFieldModel( )->getGravitationalParameter( ),
+                    numberOfRevolutions,
+                    departureVelocityFunction, arrivalVelocityFunction,
+                    rootFinderSettings, lowerBoundFreeCoefficient, upperBoundFreeCoefficient);
+
+            sphericalShapingLeg.updateLegParameters(
+                    ( Eigen::Vector2d( )<< nodeTimes.at(i), nodeTimes.at(i+1) ).finished( ) );
+
+            totalDeltaV += sphericalShapingLeg.getLegDeltaV();
+        }
+        BOOST_CHECK_SMALL(std::fabs(transferTrajectory->getTotalDeltaV( ) - totalDeltaV ), 1e-12);
+
     }
 }
 

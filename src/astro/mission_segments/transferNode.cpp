@@ -238,6 +238,8 @@ void CaptureWithFreeIncomingVelocityNode::computeNode( )
     incomingExcessVelocityInPlaneAngle_ = nodeParameters_( 2 );
     incomingExcessVelocityOutOfPlaneAngle_ = nodeParameters_( 3 );
 
+    updateNodeState( nodeTime_ );
+
     // Calculate unit vectors as described in [Vinko and Izzo, 2008].
     Eigen::Vector3d nodeVelocity = nodeState_.segment< 3 >( 3 );
     const Eigen::Vector3d unitVector1 = nodeVelocity.normalized( );
@@ -402,8 +404,6 @@ void SwingbyWithFreeIncomingFreeOutgoingVelocity::computeNode( )
                 centralBodyGravitationalParameter_,
                 nodeState_.segment< 3 >( 3 ), incomingVelocity_,
                 outgoingRotationAngle_, periapsisRadius_, swingbyDeltaV_ );
-    std::cout << "Swingby node in: " << incomingVelocity_[0] << " " << incomingVelocity_[1] << " " << incomingVelocity_[2] <<std::endl;
-    std::cout << "Swingby node out: " << outgoingVelocity_[0] << " " << outgoingVelocity_[1] << " " << outgoingVelocity_[2] <<std::endl;
 
     totalNodeDeltaV_ = swingbyDeltaV_;
 
