@@ -509,7 +509,7 @@ public:
      * \param terminationOnExactCondition True if exact termination condition is used, false if not, -1 if neither is relevant
      */
     PropagationTerminationDetails( const PropagationTerminationReason propagationTerminationReason,
-                                   const bool terminationOnExactCondition = -1 ):
+                                   const bool terminationOnExactCondition = 0 ):
         propagationTerminationReason_( propagationTerminationReason ),
         terminationOnExactCondition_( terminationOnExactCondition ){ }
 
