@@ -307,6 +307,10 @@ public:
     {
         if (!(static_cast<Time>(time) == timeOfCurrentState_))
         {
+            if( bodyEphemeris_ == nullptr )
+            {
+                throw std::runtime_error( "Error when requesting state from ephemeris of body " + bodyName_ + ", body has no ephemeris" );
+            }
             // If body is not global frame origin, set state.
             if (bodyIsGlobalFrameOrigin_ == 0)
             {

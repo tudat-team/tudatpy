@@ -132,6 +132,9 @@ public:
         {
             if( accelerationModelsPerBody_.count( bodiesToBeIntegratedNumerically_.at( i ) ) == 0 )
             {
+                std::cerr<<"Warning, propagating translational dynamics of body " + bodiesToBeIntegratedNumerically_.at( i )  +
+                           " without any acceleration models."<<std::endl;
+
                 accelerationModelsPerBody_[ bodiesToBeIntegratedNumerically_.at( i ) ] =
                         basic_astrodynamics::SingleBodyAccelerationMap( );
             }

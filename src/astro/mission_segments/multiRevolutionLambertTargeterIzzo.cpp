@@ -90,7 +90,7 @@ void MultiRevolutionLambertTargeterIzzo::sanityCheckNumberOfRevolutions( )
                 // Compute root (no further information is required)
                 computeRootTimeOfFlight();
             }
-            catch( basic_mathematics::ConvergenceException )
+            catch( basic_mathematics::ConvergenceException& )
             {
                 // If the rootfinder did not converge, then the current guess is wrong and needs to
                 // be decreased

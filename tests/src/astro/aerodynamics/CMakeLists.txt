@@ -40,14 +40,14 @@ TUDAT_ADD_TEST_CASE(CustomConstantTemperatureAtmosphere
         Tudat::tudat_basic_mathematics
         )
 
-TUDAT_ADD_TEST_CASE(TabulatedAtmosphere
-        PRIVATE_LINKS
-        Tudat::tudat_aerodynamics
-        Tudat::tudat_input_output
-        Tudat::tudat_interpolators
-        Tudat::tudat_basic_mathematics
-        Tudat::tudat_basic_astrodynamics
-        )
+# TUDAT_ADD_TEST_CASE(TabulatedAtmosphere
+#         PRIVATE_LINKS
+#         Tudat::tudat_aerodynamics
+#         Tudat::tudat_input_output
+#         Tudat::tudat_interpolators
+#         Tudat::tudat_basic_mathematics
+#         Tudat::tudat_basic_astrodynamics
+#         )
 
 TUDAT_ADD_TEST_CASE(HeatTransfer
         PRIVATE_LINKS

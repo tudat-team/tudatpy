@@ -198,6 +198,7 @@ std::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel(
             spaceWeatherFilePath = nrlmsise00AtmosphereSettings->getSpaceWeatherFile( );
         }
 
+        std::cout<<"Reading space weather file "<<spaceWeatherFilePath<<std::endl;
         tudat::input_output::solar_activity::SolarActivityDataMap solarActivityData =
                 tudat::input_output::solar_activity::readSolarActivityData( spaceWeatherFilePath ) ;
 
