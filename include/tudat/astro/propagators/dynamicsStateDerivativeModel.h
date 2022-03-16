@@ -145,6 +145,20 @@ public:
      */
     StateType computeStateDerivative( const TimeType time, const StateType& state )
     {
+        if( !( time == time ) )
+        {
+            throw std::invalid_argument( "Error when computing system state derivative. Input time is NaN" );
+        }
+
+        if( state.hasNaN( ) )
+        {
+            throw std::invalid_argument( "Error when computing system state derivative. State vector contains NaN" );
+        }
+
+        if( !state.allFinite( ) )
+        {
+            throw std::invalid_argument( "Error when computing system state derivative. State vector contains Inf" );
+        }
 //        std::cout << "Computing state derivative: " <<time<<" "<<state.transpose( ) << std::endl;
 
         // Initialize state derivative

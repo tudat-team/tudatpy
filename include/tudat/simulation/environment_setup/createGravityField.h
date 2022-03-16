@@ -290,8 +290,10 @@ enum SphericalHarmonicsModel
     egm96,
     ggm02c,
     ggm02s,
+    goco05c,
     glgm3150,
     lpe200,
+    gggrx1200,
     jgmro120d
 };
 
@@ -302,6 +304,8 @@ enum SphericalHarmonicsModel
  * \return The path of the SH file for a SH model.
  */
 std::string getPathForSphericalHarmonicsModel( const SphericalHarmonicsModel sphericalHarmonicsModel );
+
+int getMaximumGravityFieldDegreeOrder( const SphericalHarmonicsModel sphericalHarmonicsModel );
 
 // Get the associated reference frame for a SH model.
 /*
