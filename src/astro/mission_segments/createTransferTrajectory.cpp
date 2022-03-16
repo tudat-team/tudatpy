@@ -353,6 +353,11 @@ void getMgaTransferTrajectorySettings(
         const std::pair< double, double > arrivalOrbit,
         const std::map< std::string, double > minimumPericenterRadii )
 {
+    if ( identicalTransferLegType == spherical_shaping_low_thrust_leg )
+    {
+        throw std::runtime_error( "Spherical shaping leg not yet supported by getMgaTransferTrajectorySettings!" );
+    }
+
     int numberOfNodes = fullBodiesList.size( );
 
     transferLegSettings.clear( );
