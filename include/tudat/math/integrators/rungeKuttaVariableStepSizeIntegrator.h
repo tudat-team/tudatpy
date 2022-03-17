@@ -519,7 +519,7 @@ RungeKuttaVariableStepSizeIntegrator< IndependentVariableType, StateType, StateD
 {
     if( !( stepSize == stepSize ) )
     {
-        throw std::runtime_error( "Error in RKF integrator, step size is NaN" );
+        throw std::invalid_argument( "Error in RKF integrator, step size is NaN" );
     }
 
     // Define and allocated vector for the number of stages.
