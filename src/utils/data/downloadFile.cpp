@@ -8,7 +8,6 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include <cstdlib>
 #include <cstring>
 #include <iostream>
 #include <string>
@@ -19,17 +18,16 @@ namespace utils {
 namespace data {
 
 // verbose level argument
-std::string download_file(const char *remote_url, const int verbosity,
-                          bool try_unzip, const char *prefix) {
+std::string download_file(const char *remote_url,
+                          const char *cache,
+                          const int verbosity,
+                          bool try_unzip,
+                          const char *prefix) {
 
     // prefix_str variable of size MAX_LEN
     char prefix_str[MAX_PATH];
     char filename[MAX_PATH];
     char ret_path[MAX_PATH];
-    char curl_cmd[1200];
-    char unzip_cmd[1200];
-    int uzip_ret;
-    int curl_ret;
 
     // if prefix is not specified, use the default, which is homedir/.tudat
     if (prefix == nullptr) {
@@ -51,62 +49,58 @@ std::string download_file(const char *remote_url, const int verbosity,
                   << std::endl;
     }
 
-    // create curl command
-    strcpy(curl_cmd, "curl -o "); // output to filename
-    strcat(curl_cmd, filename);
-    strcat(curl_cmd, " -L ");           // allow follow redirect
-    strcat(curl_cmd, remote_url);       // remote url
-    strcat(curl_cmd, " --create-dirs"); // create directory if not exists
-    curl_ret = system(curl_cmd);
-
-    // post download checks
-    if (0 != curl_ret) {
-        // throw download error
-        throw std::runtime_error("Error downloading file from: " +
-                                 std::string(remote_url));
+    // if the file is a zip file, then the return path is to the extracted
+    // directory
+    if (details::is_zip_file(filename) && try_unzip) {
+        // return path without .zip
+        strcpy(ret_path, details::remove_extension(filename).c_str());
+    } else {
+        // return path is the determined filename
+        strcpy(ret_path, filename);
     }
 
-    // define ret_path
-    if (details::is_zip_file(filename)) {
-
+    // check if cache string == "true"
+    if (cache != nullptr && strcmp(cache, "true") == 0) {
+        // check if file exists
+        if (details::file_exists(filename)) {
+            // file exists
+            if (verbosity > 0) {
+                std::cout << "File cached, skipping download." << std::endl;
+            }
+            return ret_path;
+        }
+    } else if (cache != nullptr && strcmp(cache, "update") == 0) {
+        // check if file exists
+        if (details::file_exists(filename)) {
+            // file exists
+            if (verbosity > 0) {
+                std::cout << "File cached, forcing update." << std::endl;
+            }
+        } else {
+            // file does not exist
+            if (verbosity > 0) {
+                std::cout << "File not cached, downloading." << std::endl;
+            }
+        }
+        details::download_file_from_source(remote_url, filename);
+    } else if (cache != nullptr && strcmp(cache, "false") == 0) {
+        // check if file exists
+        if (verbosity > 0) {
+            std::cout << "Downloading file" << std::endl;
+        }
+        details::download_file_from_source(remote_url, filename);
     } else {
+        throw std::runtime_error("Invalid cache argument. Valid arguments are "
+                                 "'true', 'update', and 'false'.");
     }
 
     // if file is zipped, unzip it to the same directory
     if (details::is_zip_file(filename) && try_unzip) {
-        // return path without .zip
-        strcpy(ret_path, details::remove_extension(filename).c_str());
-
-        strcpy(unzip_cmd, "unzip ");
-        if (verbosity > 1) {
-            strcat(unzip_cmd, "-v ");
-        } else {
-            strcat(unzip_cmd, "-q ");
-        }
-        strcat(unzip_cmd, "-o ");
-        strcat(unzip_cmd, filename);
-        strcat(unzip_cmd, " -d ");
-        strcat(unzip_cmd, ret_path);
-        uzip_ret = system(unzip_cmd);
-        if (0 != uzip_ret) {
-            throw std::runtime_error("Error unzipping file: " +
-                                     std::string(filename));
-        }
+        details::unzip(filename, ret_path, verbosity);
     }
 
-    else {
-        // return path without .gz
-        strcpy(ret_path, filename);
-    }
-
-    // assert that file exists
-    if (!details::file_exists(filename)) {
-        throw std::runtime_error("Downloaded file does not exist: " +
-                                 std::string(filename));
-    } else {
-        // return success
-        return ret_path;
-    }
+    // return success
+    return ret_path;
 }
 } // namespace data
 } // namespace utils

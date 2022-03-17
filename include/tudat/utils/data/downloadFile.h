@@ -12,8 +12,11 @@ namespace tudat {
 namespace utils {
 namespace data {
 
-std::string download_file(const char *remote_url, int verbosity = 1,
-                          bool try_unzip = true, const char *prefix = nullptr);
+std::string download_file(const char *remote_url,
+                          const char *cache = "true",
+                          int verbosity = 1,
+                          bool try_unzip = true,
+                          const char *prefix = nullptr);
 
 } // namespace data
 } // namespace utils
