@@ -1,6 +1,7 @@
 **Added:**
 
 * `rever` setup.
+* `tudat::utils::data::download_file` function.
 
 **Changed:**
 
