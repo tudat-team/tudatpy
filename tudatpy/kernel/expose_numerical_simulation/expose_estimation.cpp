@@ -132,7 +132,7 @@ void expose_estimation(py::module &m) {
 
     py::class_< tom::SingleObservationSet<>,
             std::shared_ptr<tom::SingleObservationSet<>>>(m, "SingleObservationSet",
-                                                           get_docstring("SingleObservationSet").c_str() );
+                                                          get_docstring("SingleObservationSet").c_str() );
 
 
     /*!
@@ -202,29 +202,61 @@ void expose_estimation(py::module &m) {
             tss::EstimationConvergenceChecker,
             std::shared_ptr<tss::EstimationConvergenceChecker>>(m, "EstimationConvergenceChecker",
                                                                 get_docstring("EstimationConvergenceChecker").c_str() );
-     //       .def(py::init< const unsigned int,
-     //            const double,
-     //            const double,
-     //            const int >( ),
-     //            py::arg( "maximum_iterations" ) = 5,
-     //            py::arg( "minimum_residual_change" ) = 0.0,
-     //            py::arg( "minimum_residual" ) = 0.0,
-     //            py::arg( "number_of_iterations_without_improvement" ) = 2 );
+    //       .def(py::init< const unsigned int,
+    //            const double,
+    //            const double,
+    //            const int >( ),
+    //            py::arg( "maximum_iterations" ) = 5,
+    //            py::arg( "minimum_residual_change" ) = 0.0,
+    //            py::arg( "minimum_residual" ) = 0.0,
+    //            py::arg( "number_of_iterations_without_improvement" ) = 2 );
 
 
-     m.def("estimation_convergence_checker",
-           &tss::estimationConvergenceChecker,
-             py::arg("maximum_iterations") = 5,
-             py::arg("minimum_residual_change") = 0.0,
-             py::arg("minimum_residual") = 0.0,
-             py::arg("number_of_iterations_without_improvement") = 2,
-             get_docstring("estimation_convergence_checker").c_str() );
+    m.def("estimation_convergence_checker",
+          &tss::estimationConvergenceChecker,
+          py::arg("maximum_iterations") = 5,
+          py::arg("minimum_residual_change") = 0.0,
+          py::arg("minimum_residual") = 0.0,
+          py::arg("number_of_iterations_without_improvement") = 2,
+          get_docstring("estimation_convergence_checker").c_str() );
 
 
     py::class_<
-            tss::PodInput<double, double>,
-            std::shared_ptr<tss::PodInput<double, double>>>(m, "PodInput",
-                                                            get_docstring("PodInput").c_str() )
+            tss::CovarianceAnalysisInput<double, double>,
+            std::shared_ptr<tss::CovarianceAnalysisInput<double, double>>>(m, "CovarianceAnalysisInput",
+                                                                           get_docstring("CovarianceAnalysisInput").c_str() )
+            .def(py::init<
+                 const std::shared_ptr< tom::ObservationCollection< > >&,
+                 const int,
+                 const Eigen::MatrixXd >( ),
+                 py::arg( "observations_and_times" ),
+                 py::arg( "parameter_size" ),
+                 py::arg( "inverse_apriori_covariance" ) = Eigen::MatrixXd::Zero( 0, 0 ),
+                 get_docstring("CovarianceAnalysisInput.ctor").c_str() )
+            .def( "set_constant_weight",
+                  &tss::CovarianceAnalysisInput<double, double>::setConstantWeightsMatrix,
+                  py::arg( "weight" ),
+                  get_docstring("CovarianceAnalysisInput.set_constant_weight").c_str() )
+            .def( "set_constant_weight_per_observable",
+                  &tss::CovarianceAnalysisInput<double, double>::setConstantPerObservableWeightsMatrix,
+                  py::arg( "weight_per_observable" ),
+                  get_docstring("CovarianceAnalysisInput.set_constant_weight_per_observable").c_str() )
+            .def( "define_covariance_settings",
+                  &tss::CovarianceAnalysisInput<double, double>::defineCovarianceSettings,
+                  py::arg( "reintegrate_equations_on_first_iteration" ) = true,
+                  py::arg( "reintegrate_variational_equations" ) = true,
+                  py::arg( "save_design_matrix" ) = true,
+                  py::arg( "print_output_to_terminal" ) = true,
+                  py::arg( "save_state_history_per_iteration" ) = false,
+                  get_docstring("CovarianceAnalysisInput.define_covariance_settings").c_str() )
+            .def_property_readonly("weight_matrix_diagonal",
+                                   &tss::CovarianceAnalysisInput<double, double>::getWeightsMatrixDiagonals);
+
+    py::class_<
+            tss::EstimationInput<double, double>,
+            std::shared_ptr<tss::EstimationInput<double, double>>,
+            tss::CovarianceAnalysisInput<double, double>>(m, "EstimationInput",
+                                                           get_docstring("EstimationInput").c_str() )
             .def(py::init<
                  const std::shared_ptr< tom::ObservationCollection< > >&,
                  const int,
@@ -233,72 +265,70 @@ void expose_estimation(py::module &m) {
                  py::arg( "observations_and_times" ),
                  py::arg( "parameter_size" ),
                  py::arg( "inverse_apriori_covariance" ) = Eigen::MatrixXd::Zero( 0, 0 ),
-                 py::arg( "apriori_parameter_correction" ) = Eigen::VectorXd( 0 ),
-             get_docstring("PodInput.ctor").c_str() )
-            .def( "set_constant_weight",
-                  &tss::PodInput<double, double>::setConstantWeightsMatrix,
-                  py::arg( "weight" ),
-                  get_docstring("PodInput.set_constant_weight").c_str() )
-            .def( "set_constant_weight_per_observable",
-                  &tss::PodInput<double, double>::setConstantPerObservableWeightsMatrix,
-                  py::arg( "weight_per_observable" ),
-                  get_docstring("PodInput.set_constant_weight_per_observable").c_str() )
-//            .def( "set_constant_weight_per_observable_and_link_end",
-//                  &tss::PodInput<double, double>::setConstantPerObservableAndLinkEndsWeights,
-//                  py::arg( "weight_per_observable_and_link" ) )
+                 py::arg( "apriori_parameter_deviation" ) = Eigen::VectorXd::Zero( 0 ),
+                 get_docstring("EstimationInput.ctor").c_str() )
             .def( "define_estimation_settings",
-                  &tss::PodInput<double, double>::defineEstimationSettings,
+                  &tss::EstimationInput<double, double>::defineEstimationSettings,
                   py::arg( "reintegrate_equations_on_first_iteration" ) = true,
                   py::arg( "reintegrate_variational_equations" ) = true,
                   py::arg( "save_design_matrix" ) = true,
                   py::arg( "print_output_to_terminal" ) = true,
                   py::arg( "save_residuals_and_parameters_per_iteration" ) = true,
                   py::arg( "save_state_history_per_iteration" ) = false,
-                  get_docstring("PodInput.define_estimation_settings").c_str() )
-            .def_property_readonly("weight_matrix_diagonal",
-                                   &tss::PodInput<double, double>::getWeightsMatrixDiagonals);
+                  get_docstring("EstimationInput.define_estimation_settings").c_str() );
+
+    m.attr("PodInput") = m.attr("EstimationInput");
 
 
     py::class_<
-            tss::PodOutput<double, double>,
-            std::shared_ptr<tss::PodOutput<double, double>>>(m, "PodOutput",
-                                                             get_docstring("PodOutput").c_str() )
+            tss::CovarianceAnalysisOutput<double, double>,
+            std::shared_ptr<tss::CovarianceAnalysisOutput<double, double>>>(m, "CovarianceAnalysisOutput",
+                                                                            get_docstring("CovarianceAnalysisOutput").c_str() )
             .def_property_readonly("inverse_covariance",
-                                   &tss::PodOutput<double, double>::getUnnormalizedInverseCovarianceMatrix,
-                                   get_docstring("PodOutput.inverse_covariance").c_str() )
+                                   &tss::CovarianceAnalysisOutput<double, double>::getUnnormalizedInverseCovarianceMatrix,
+                                   get_docstring("CovarianceAnalysisOutput.inverse_covariance").c_str() )
             .def_property_readonly("covariance",
-                                   &tss::PodOutput<double, double>::getUnnormalizedCovarianceMatrix,
-                                   get_docstring("PodOutput.covariance").c_str() )
+                                   &tss::CovarianceAnalysisOutput<double, double>::getUnnormalizedCovarianceMatrix,
+                                   get_docstring("CovarianceAnalysisOutput.covariance").c_str() )
             .def_property_readonly("formal_errors",
-                                   &tss::PodOutput<double, double>::getFormalErrorVector,
-                                   get_docstring("PodOutput.formal_errors").c_str() )
+                                   &tss::CovarianceAnalysisOutput<double, double>::getFormalErrorVector,
+                                   get_docstring("CovarianceAnalysisOutput.formal_errors").c_str() )
             .def_property_readonly("correlations",
-                                   &tss::PodOutput<double, double>::getCorrelationMatrix,
-                                   get_docstring("PodOutput.correlations").c_str() )
-            .def_property_readonly("residual_history",
-                                   &tss::PodOutput<double, double>::getResidualHistoryMatrix,
-                                   get_docstring("PodOutput.residual_history").c_str() )
-            .def_property_readonly("parameter_history",
-                                   &tss::PodOutput<double, double>::getParameterHistoryMatrix,
-                                   get_docstring("PodOutput.parameter_history").c_str() )
+                                   &tss::CovarianceAnalysisOutput<double, double>::getCorrelationMatrix,
+                                   get_docstring("CovarianceAnalysisOutput.correlations").c_str() )
             .def_property_readonly("design_matrix",
-                                   &tss::PodOutput<double, double>::getUnnormalizedInformationMatrix,
-                                   get_docstring("PodOutput.design_matrix").c_str() )
+                                   &tss::CovarianceAnalysisOutput<double, double>::getUnnormalizedDesignMatrix,
+                                   get_docstring("CovarianceAnalysisOutput.design_matrix").c_str() )
             .def_property_readonly("normalized_design_matrix",
-                                   &tss::PodOutput<double, double>::getNormalizedInformationMatrix,
-                                   get_docstring("PodOutput.normalized_design_matrix").c_str() )
+                                   &tss::CovarianceAnalysisOutput<double, double>::getNormalizedDesignMatrix,
+                                   get_docstring("CovarianceAnalysisOutput.normalized_design_matrix").c_str() )
             .def_property_readonly("weighted_design_matrix",
-                                   &tss::PodOutput<double, double>::getUnnormalizedWeightedInformationMatrix,
-                                   get_docstring("PodOutput.weighted_design_matrix").c_str() )
+                                   &tss::CovarianceAnalysisOutput<double, double>::getUnnormalizedWeightedDesignMatrix,
+                                   get_docstring("CovarianceAnalysisOutput.weighted_design_matrix").c_str() )
             .def_property_readonly("weighted_normalized_design_matrix",
-                                   &tss::PodOutput<double, double>::getNormalizedWeightedInformationMatrix,
-                                   get_docstring("PodOutput.weighted_normalized_design_matrix").c_str() )
+                                   &tss::CovarianceAnalysisOutput<double, double>::getNormalizedWeightedDesignMatrix,
+                                   get_docstring("CovarianceAnalysisOutput.weighted_normalized_design_matrix").c_str() )
             .def_readonly("normalization_terms",
-                                   &tss::PodOutput<double, double>::informationMatrixTransformationDiagonal_,
-                                   get_docstring("PodOutput.normalization_terms").c_str() )
+                          &tss::CovarianceAnalysisOutput<double, double>::designMatrixTransformationDiagonal_,
+                          get_docstring("CovarianceAnalysisOutput.normalization_terms").c_str() );
+
+
+    py::class_<
+            tss::EstimationOutput<double, double>,
+            std::shared_ptr<tss::EstimationOutput<double, double>>,
+            tss::CovarianceAnalysisOutput<double, double>>(m, "EstimationOutput",
+                                            get_docstring("EstimationOutput").c_str() )
+            .def_property_readonly("residual_history",
+                                   &tss::EstimationOutput<double, double>::getResidualHistoryMatrix,
+                                   get_docstring("EstimationOutput.residual_history").c_str() )
+            .def_property_readonly("parameter_history",
+                                   &tss::EstimationOutput<double, double>::getParameterHistoryMatrix,
+                                   get_docstring("EstimationOutput.parameter_history").c_str() )
             .def_readonly("final_residuals",
-                                   &tss::PodOutput<double, double>::residuals_,
-                                   get_docstring("PodOutput.final_residuals").c_str() );
+                          &tss::EstimationOutput<double, double>::residuals_,
+                          get_docstring("EstimationOutput.final_residuals").c_str() );
+
+    m.attr("PodOutput") = m.attr("EstimationOutput");
 
 
 
