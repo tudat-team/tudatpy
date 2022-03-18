@@ -259,23 +259,23 @@ Eigen::VectorXd  executeParameterEstimation(
 
     parametersToEstimate->resetParameterValues( initialParameterEstimate );
 
-    std::shared_ptr< EstimationInput< ObservationScalarType, TimeType > > podInput =
+    std::shared_ptr< EstimationInput< ObservationScalarType, TimeType > > estimationInput =
             std::make_shared< EstimationInput< ObservationScalarType, TimeType > >(
                 observationsAndTimes, ( initialParameterEstimate ).rows( ) );
     std::shared_ptr< CovarianceAnalysisInput< ObservationScalarType, TimeType > > covarianceInput =
             std::make_shared< CovarianceAnalysisInput< ObservationScalarType, TimeType > >(
                 observationsAndTimes, ( initialParameterEstimate ).rows( ) );
 
-    std::shared_ptr< EstimationOutput< StateScalarType, TimeType > > podOutput = orbitDeterminationManager.estimateParameters(
-                podInput );
+    std::shared_ptr< EstimationOutput< StateScalarType, TimeType > > estimationOutput = orbitDeterminationManager.estimateParameters(
+                estimationInput );
 
-    parametersToEstimate->resetParameterValues( podOutput->parameterHistory_.at( podOutput->bestIteration_ ) );
+    parametersToEstimate->resetParameterValues( estimationOutput->parameterHistory_.at( estimationOutput->bestIteration_ ) );
     std::shared_ptr< CovarianceAnalysisOutput< StateScalarType, TimeType > > covarianceOutput = orbitDeterminationManager.computeCovariance(
                 covarianceInput );
 
-    compareEstimationAndCovarianceResults( podOutput, covarianceOutput );
+    compareEstimationAndCovarianceResults( estimationOutput, covarianceOutput );
 
-    return ( podOutput->parameterEstimate_ - truthParameters ).template cast< double >( );
+    return ( estimationOutput->parameterEstimate_ - truthParameters ).template cast< double >( );
 }
 
 
@@ -542,17 +542,17 @@ Eigen::VectorXd  executeMultiBodyMultiArcParameterEstimation( )
     parametersToEstimate->resetParameterValues( initialParameterEstimate );
 
     // Define POD input
-    std::shared_ptr< EstimationInput< ObservationScalarType, TimeType > > podInput =
+    std::shared_ptr< EstimationInput< ObservationScalarType, TimeType > > estimationInput =
             std::make_shared< EstimationInput< ObservationScalarType, TimeType > >(
                 observationsAndTimes, ( initialParameterEstimate ).rows( ) );
 
     // Estimate parameters
-    std::shared_ptr< EstimationOutput< StateScalarType, TimeType > > podOutput = orbitDeterminationManager.estimateParameters(
-                podInput, std::make_shared< EstimationConvergenceChecker >( 3 ) );
+    std::shared_ptr< EstimationOutput< StateScalarType, TimeType > > estimationOutput = orbitDeterminationManager.estimateParameters(
+                estimationInput, std::make_shared< EstimationConvergenceChecker >( 3 ) );
 
     std::string outputFolder = "/home/dominic/Software/tudatBundleTest/tudatBundle/tudatApplications/master_thesis/Output/";
 
-    return ( podOutput->parameterEstimate_ - truthParameters ).template cast< double >( );
+    return ( estimationOutput->parameterEstimate_ - truthParameters ).template cast< double >( );
 }
 
 BOOST_AUTO_TEST_CASE( test_MultiArcMultiBodyStateEstimation )

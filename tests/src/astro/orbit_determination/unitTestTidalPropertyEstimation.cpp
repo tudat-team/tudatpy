@@ -260,30 +260,30 @@ BOOST_AUTO_TEST_CASE( test_DissipationParameterEstimation )
         parametersToEstimate->resetParameterValues( initialParameterEstimate );
 
         // Estimate initial states and tidal parameters
-        std::shared_ptr< EstimationInput< double, double > > podInput =
+        std::shared_ptr< EstimationInput< double, double > > estimationInput =
                 std::make_shared< EstimationInput< double, double > >(
                     observationsAndTimes, ( initialParameterEstimate ).rows( ) );
-        std::shared_ptr< EstimationOutput< double > > podOutput = orbitDeterminationManager.estimateParameters(
-                    podInput, std::make_shared< EstimationConvergenceChecker >( 3 ) );
+        std::shared_ptr< EstimationOutput< double > > estimationOutput = orbitDeterminationManager.estimateParameters(
+                    estimationInput, std::make_shared< EstimationConvergenceChecker >( 3 ) );
 
         // Check if parameters are correctly estimated
-        Eigen::VectorXd estimatedParametervalues = podOutput->parameterEstimate_;
+        Eigen::VectorXd estimatedParametervalues = estimationOutput->parameterEstimate_;
         for( unsigned int i = 0; i < 3; i++ )
         {
-            BOOST_CHECK_SMALL( std::fabs( truthParameters( i ) - podOutput->parameterEstimate_( i ) ), 0.1 );
-            BOOST_CHECK_SMALL( std::fabs( truthParameters( i + 6 ) - podOutput->parameterEstimate_( i + 6 ) ), 0.1 );
-            BOOST_CHECK_SMALL( std::fabs( truthParameters( i + 3 ) - podOutput->parameterEstimate_( i + 3 ) ), 1.0E-6 );
-            BOOST_CHECK_SMALL( std::fabs( truthParameters( i + 9 ) - podOutput->parameterEstimate_( i + 9 ) ), 1.0E-6 );
+            BOOST_CHECK_SMALL( std::fabs( truthParameters( i ) - estimationOutput->parameterEstimate_( i ) ), 0.1 );
+            BOOST_CHECK_SMALL( std::fabs( truthParameters( i + 6 ) - estimationOutput->parameterEstimate_( i + 6 ) ), 0.1 );
+            BOOST_CHECK_SMALL( std::fabs( truthParameters( i + 3 ) - estimationOutput->parameterEstimate_( i + 3 ) ), 1.0E-6 );
+            BOOST_CHECK_SMALL( std::fabs( truthParameters( i + 9 ) - estimationOutput->parameterEstimate_( i + 9 ) ), 1.0E-6 );
         }
-        BOOST_CHECK_SMALL( std::fabs( truthParameters( 12 ) - podOutput->parameterEstimate_( 12 ) ), 0.1 );
-        BOOST_CHECK_SMALL( std::fabs( truthParameters( 13 ) - podOutput->parameterEstimate_( 13 ) ), 10.0 );
-        BOOST_CHECK_SMALL( std::fabs( truthParameters( 14 ) - podOutput->parameterEstimate_( 14 ) ), 1.0E-3 );
+        BOOST_CHECK_SMALL( std::fabs( truthParameters( 12 ) - estimationOutput->parameterEstimate_( 12 ) ), 0.1 );
+        BOOST_CHECK_SMALL( std::fabs( truthParameters( 13 ) - estimationOutput->parameterEstimate_( 13 ) ), 10.0 );
+        BOOST_CHECK_SMALL( std::fabs( truthParameters( 14 ) - estimationOutput->parameterEstimate_( 14 ) ), 1.0E-3 );
         if( test == 1 )
         {
-            BOOST_CHECK_SMALL( std::fabs( truthParameters( 15 ) - podOutput->parameterEstimate_( 15 ) ), 1.0E-2 );
+            BOOST_CHECK_SMALL( std::fabs( truthParameters( 15 ) - estimationOutput->parameterEstimate_( 15 ) ), 1.0E-2 );
         }
 
-        std::cout << "Parameter error: " << ( truthParameters -  podOutput->parameterEstimate_ ).transpose( ) << std::endl;
+        std::cout << "Parameter error: " << ( truthParameters -  estimationOutput->parameterEstimate_ ).transpose( ) << std::endl;
     }
 }
 
@@ -465,18 +465,18 @@ BOOST_AUTO_TEST_CASE( test_LoveNumberEstimationFromOrbiterData )
 
 
     // Define estimation input
-    std::shared_ptr< EstimationInput< double, double  > > podInput =
+    std::shared_ptr< EstimationInput< double, double  > > estimationInput =
             std::make_shared< EstimationInput< double, double > >(
                 observationsAndTimes, initialParameterEstimate.rows( ),
                 Eigen::MatrixXd::Zero( truthParameters.rows( ), truthParameters.rows( ) ),
                 initialParameterEstimate - truthParameters );
 
     // Perform estimation
-    std::shared_ptr< EstimationOutput< double > > podOutput = orbitDeterminationManager.estimateParameters(
-                podInput, std::make_shared< EstimationConvergenceChecker >( 4 ) );
+    std::shared_ptr< EstimationOutput< double > > estimationOutput = orbitDeterminationManager.estimateParameters(
+                estimationInput, std::make_shared< EstimationConvergenceChecker >( 4 ) );
 
     // Check estimation results
-    Eigen::VectorXd estimationError = podOutput->parameterEstimate_ - truthParameters;
+    Eigen::VectorXd estimationError = estimationOutput->parameterEstimate_ - truthParameters;
     for( int i = 0; i < 3; i++ )
     {
         BOOST_CHECK_SMALL( std::fabs( estimationError( i ) ), 1.0E-4 );

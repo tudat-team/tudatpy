@@ -132,10 +132,10 @@ std::pair< std::shared_ptr< EstimationOutput< StateScalarType > >, Eigen::Vector
     //input_output::writeMatrixToFile( observationsAndTimes.begin( )->second.begin( )->second.first, "preFitObservations.dat" );
 
     // Define estimation input
-    std::shared_ptr< EstimationInput< StateScalarType, TimeType > > podInput =
+    std::shared_ptr< EstimationInput< StateScalarType, TimeType > > estimationInput =
             std::make_shared< EstimationInput< StateScalarType, TimeType > >(
                 observationsAndTimes, initialStateParametersToEstimate->getParameterSetSize( ) );
-    podInput->defineEstimationSettings( true, true, false, true, true );
+    estimationInput->defineEstimationSettings( true, true, false, true, true );
 
     // Create parameters that are to be perturbed
     std::vector< std::shared_ptr< EstimatableParameterSettings > > perturbedParameterSettingsList;
@@ -160,14 +160,14 @@ std::pair< std::shared_ptr< EstimationOutput< StateScalarType > >, Eigen::Vector
     perturbedParameters->resetParameterValues( parameterVectorToPerturb );
 
     // Fit nominal dynamics to pertrubed dynamical model
-    std::shared_ptr< EstimationOutput< StateScalarType > > podOutput = orbitDeterminationManager.estimateParameters(
-                podInput, std::make_shared< EstimationConvergenceChecker >( numberOfIterations ) );
+    std::shared_ptr< EstimationOutput< StateScalarType > > estimationOutput = orbitDeterminationManager.estimateParameters(
+                estimationInput, std::make_shared< EstimationConvergenceChecker >( numberOfIterations ) );
 
     // Reset parameter to nominal value
     perturbedParameters->resetParameterValues( unperturbedParameterVector );
 
     return std::make_pair(
-                podOutput, initialStateParametersToEstimate->template getFullParameterValues< double >( ) - nominalBodyStates );
+                estimationOutput, initialStateParametersToEstimate->template getFullParameterValues< double >( ) - nominalBodyStates );
 
 
 

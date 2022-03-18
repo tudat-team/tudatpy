@@ -450,11 +450,11 @@ public:
     }
 
     std::shared_ptr< CovarianceAnalysisOutput< ObservationScalarType, TimeType > > computeCovariance(
-            const std::shared_ptr< CovarianceAnalysisInput< ObservationScalarType, TimeType > > podInput )
+            const std::shared_ptr< CovarianceAnalysisInput< ObservationScalarType, TimeType > > estimationInput )
     {
         // Get size of parameter vector and number of observations (total and per type)
         int numberOfEstimatedParameters = parametersToEstimate_->getParameterSetSize( );
-        int totalNumberOfObservations = podInput->getObservationCollection( )->getTotalObservableSize( );
+        int totalNumberOfObservations = estimationInput->getObservationCollection( )->getTotalObservableSize( );
 
         std::vector< std::vector< std::map< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > > > dynamicsHistoryPerIteration;
         std::vector< std::vector< std::map< TimeType, Eigen::VectorXd > > > dependentVariableHistoryPerIteration;
@@ -464,14 +464,14 @@ public:
 
         try
         {
-            if( podInput->getReintegrateEquationsOnFirstIteration( ) )
+            if( estimationInput->getReintegrateEquationsOnFirstIteration( ) )
             {
                 resetParameterEstimate(
                             parametersToEstimate_->template getFullParameterValues< ObservationScalarType >( ),
-                            podInput->getReintegrateVariationalEquations( ) );
+                            estimationInput->getReintegrateVariationalEquations( ) );
             }
 
-            if( podInput->getSaveStateHistoryForEachIteration( ) )
+            if( estimationInput->getSaveStateHistoryForEachIteration( ) )
             {
                 saveResultsFromCurrentIteration( dynamicsHistoryPerIteration, dependentVariableHistoryPerIteration );
             }
@@ -483,7 +483,7 @@ public:
             exceptionDuringPropagation = true;
         }
 
-        if( podInput->getPrintOutput( ) )
+        if( estimationInput->getPrintOutput( ) )
         {
             std::cout << "Calculating residuals and partials " << totalNumberOfObservations << std::endl;
         }
@@ -492,11 +492,11 @@ public:
         Eigen::VectorXd residuals;
         Eigen::MatrixXd designMatrix;
         calculateDesignMatrix(
-                    podInput->getObservationCollection( ), numberOfEstimatedParameters, totalNumberOfObservations, designMatrix );
+                    estimationInput->getObservationCollection( ), numberOfEstimatedParameters, totalNumberOfObservations, designMatrix );
 
         Eigen::VectorXd normalizationTerms = normalizeDesignMatrix( designMatrix );
         Eigen::MatrixXd normalizedInverseAprioriCovarianceMatrix = normalizeAprioriCovariance(
-                podInput->getInverseOfAprioriCovariance( ), normalizationTerms );
+                estimationInput->getInverseOfAprioriCovariance( ), normalizationTerms );
 
         Eigen::MatrixXd constraintStateMultiplier;
         Eigen::VectorXd constraintRightHandSide;
@@ -504,20 +504,20 @@ public:
 
         Eigen::MatrixXd inverseNormalizedCovariance = linear_algebra::calculateInverseOfUpdatedCovarianceMatrix(
                                designMatrix.block( 0, 0, designMatrix.rows( ), numberOfEstimatedParameters ),
-                               podInput->getWeightsMatrixDiagonals( ),
+                               estimationInput->getWeightsMatrixDiagonals( ),
                                normalizedInverseAprioriCovarianceMatrix, constraintStateMultiplier, constraintRightHandSide );
 
-        std::shared_ptr< CovarianceAnalysisOutput< ObservationScalarType, TimeType > > podOutput =
+        std::shared_ptr< CovarianceAnalysisOutput< ObservationScalarType, TimeType > > estimationOutput =
                 std::make_shared< CovarianceAnalysisOutput< ObservationScalarType, TimeType > >(
-                     designMatrix, podInput->getWeightsMatrixDiagonals( ), normalizationTerms,
+                     designMatrix, estimationInput->getWeightsMatrixDiagonals( ), normalizationTerms,
                     inverseNormalizedCovariance, exceptionDuringPropagation );
 
-        if( podInput->getSaveStateHistoryForEachIteration( ) )
+        if( estimationInput->getSaveStateHistoryForEachIteration( ) )
         {
-            podOutput->setStateHistories(
+            estimationOutput->setStateHistories(
                         dynamicsHistoryPerIteration, dependentVariableHistoryPerIteration );
         }
-        return podOutput;
+        return estimationOutput;
     }
 
     //! Function to perform parameter estimation from measurement data.
@@ -525,13 +525,13 @@ public:
      *  Function to perform parameter estimation, including orbit determination, i.e. body initial states, from measurement data.
      *  All observable types and link ends per obsevable types that are included in the measurement data input must have been
      *  provided to the constructor by the observationSettingsMap parameter.
-     *  \param podInput Object containing all measurement data, associated metadata, including measurement weight, and a priori
+     *  \param estimationInput Object containing all measurement data, associated metadata, including measurement weight, and a priori
      *  estimate for covariance matrix and parameter adjustment.
      *  \param convergenceChecker Object used to check convergence/termination of algorithm
      *  \return Object containing estimated parameter value and associateed data, such as residuals and observation partials.
      */
     std::shared_ptr< EstimationOutput< ObservationScalarType, TimeType > > estimateParameters(
-            const std::shared_ptr< EstimationInput< ObservationScalarType, TimeType > > podInput,
+            const std::shared_ptr< EstimationInput< ObservationScalarType, TimeType > > estimationInput,
             std::shared_ptr< EstimationConvergenceChecker > convergenceChecker =
             std::make_shared< EstimationConvergenceChecker >( ) )
 
@@ -540,7 +540,7 @@ public:
 
         // Get size of parameter vector and number of observations (total and per type)
         int parameterVectorSize = currentParameterEstimate_.size( );
-        int totalNumberOfObservations = podInput->getObservationCollection( )->getTotalObservableSize( );
+        int totalNumberOfObservations = estimationInput->getObservationCollection( )->getTotalObservableSize( );
 
         // Declare variables to be returned (i.e. results from best iteration)
         double bestResidual = TUDAT_NAN;
@@ -564,7 +564,7 @@ public:
 
         // Set current parameter estimate as both previous and current estimate
         ParameterVectorType newParameterEstimate = currentParameterEstimate_ +
-                podInput->getInitialParameterDeviationEstimate( );
+                estimationInput->getInitialParameterDeviationEstimate( );
         ParameterVectorType oldParameterEstimate = currentParameterEstimate_;
 
         int numberOfEstimatedParameters = parameterVectorSize;
@@ -578,9 +578,9 @@ public:
             // Re-integrate equations of motion and variational equations with new parameter estimate.
             try
             {
-                if( ( numberOfIterations > 0 ) ||( podInput->getReintegrateEquationsOnFirstIteration( ) ) )
+                if( ( numberOfIterations > 0 ) ||( estimationInput->getReintegrateEquationsOnFirstIteration( ) ) )
                 {
-                    resetParameterEstimate( newParameterEstimate, podInput->getReintegrateVariationalEquations( ) );
+                    resetParameterEstimate( newParameterEstimate, estimationInput->getReintegrateVariationalEquations( ) );
                 }
             }
             catch( std::runtime_error& error )
@@ -591,13 +591,13 @@ public:
                 break;
             }
 
-            if( podInput->getSaveStateHistoryForEachIteration( ) )
+            if( estimationInput->getSaveStateHistoryForEachIteration( ) )
             {
                 saveResultsFromCurrentIteration( dynamicsHistoryPerIteration, dependentVariableHistoryPerIteration );
             }
             oldParameterEstimate = newParameterEstimate;
 
-            if( podInput->getPrintOutput( ) )
+            if( estimationInput->getPrintOutput( ) )
             {
                 std::cout << "Calculating residuals and partials " << totalNumberOfObservations << std::endl;
             }
@@ -606,12 +606,12 @@ public:
             Eigen::VectorXd residuals;
             Eigen::MatrixXd designMatrix;
             calculateDesignMatrixAndResiduals(
-                        podInput->getObservationCollection( ), parameterVectorSize, totalNumberOfObservations, designMatrix,
+                        estimationInput->getObservationCollection( ), parameterVectorSize, totalNumberOfObservations, designMatrix,
                         residuals, true );
 
             Eigen::VectorXd normalizationTerms = normalizeDesignMatrix( designMatrix );
             Eigen::MatrixXd normalizedInverseAprioriCovarianceMatrix = normalizeAprioriCovariance(
-                    podInput->getInverseOfAprioriCovariance( ), normalizationTerms );
+                    estimationInput->getInverseOfAprioriCovariance( ), normalizationTerms );
 
             // Perform least squares calculation for correction to parameter vector.
             std::pair< Eigen::VectorXd, Eigen::MatrixXd > leastSquaresOutput;
@@ -623,7 +623,7 @@ public:
                 leastSquaresOutput =
                         std::move( linear_algebra::performLeastSquaresAdjustmentFromDesignMatrix(
                                        designMatrix.block( 0, 0, designMatrix.rows( ), numberOfEstimatedParameters ),
-                                       residuals, podInput->getWeightsMatrixDiagonals( ),
+                                       residuals, estimationInput->getWeightsMatrixDiagonals( ),
                                        normalizedInverseAprioriCovarianceMatrix, 1, 1.0E8, constraintStateMultiplier, constraintRightHandSide ) );
 
                 if( constraintStateMultiplier.rows( ) > 0 )
@@ -653,7 +653,7 @@ public:
             parametersToEstimate_->template resetParameterValues< ObservationScalarType >( newParameterEstimate );
             newParameterEstimate = parametersToEstimate_->template getFullParameterValues< ObservationScalarType >( );
 
-            if( podInput->getSaveResidualsAndParametersFromEachIteration( ) )
+            if( estimationInput->getSaveResidualsAndParametersFromEachIteration( ) )
             {
                 residualHistory.push_back( residuals );
                 if( numberOfIterations == 0 )
@@ -665,7 +665,7 @@ public:
 
             oldParameterEstimate = newParameterEstimate;
 
-            if( podInput->getPrintOutput( ) )
+            if( estimationInput->getPrintOutput( ) )
             {
                 std::cout << "Parameter update" << parameterAddition.transpose( ) << std::endl;
             }
@@ -674,7 +674,7 @@ public:
             residualRms = linear_algebra::getVectorEntryRootMeanSquare( residuals );
 
             rmsResidualHistory.push_back( residualRms );
-            if( podInput->getPrintOutput( ) )
+            if( estimationInput->getPrintOutput( ) )
             {
                 std::cout << "Current residual: " << residualRms << std::endl;
             }
@@ -685,11 +685,11 @@ public:
                 bestResidual = residualRms;
                 bestParameterEstimate = std::move( oldParameterEstimate );
                 bestResiduals = std::move( residuals );
-                if( podInput->getSaveDesignMatrix( ) )
+                if( estimationInput->getSaveDesignMatrix( ) )
                 {
                     bestDesignMatrix = std::move( designMatrix );
                 }
-                bestWeightsMatrixDiagonal = std::move( podInput->getWeightsMatrixDiagonals( ) );
+                bestWeightsMatrixDiagonal = std::move( estimationInput->getWeightsMatrixDiagonals( ) );
                 bestTransformationData = std::move( normalizationTerms );
                 bestInverseNormalizedCovarianceMatrix = std::move( leastSquaresOutput.second );
                 bestIteration = numberOfIterations;
@@ -702,26 +702,26 @@ public:
             // Check for convergence
         } while( convergenceChecker->isEstimationConverged( numberOfIterations, rmsResidualHistory ) == false );
 
-        if( podInput->getPrintOutput( ) )
+        if( estimationInput->getPrintOutput( ) )
         {
             std::cout << "Final residual: " << bestResidual << std::endl;
         }
 
 
-        std::shared_ptr< EstimationOutput< ObservationScalarType, TimeType > > podOutput =
+        std::shared_ptr< EstimationOutput< ObservationScalarType, TimeType > > estimationOutput =
                 std::make_shared< EstimationOutput< ObservationScalarType, TimeType > >(
                     bestParameterEstimate, bestResiduals, bestDesignMatrix, bestWeightsMatrixDiagonal, bestTransformationData,
                     bestInverseNormalizedCovarianceMatrix, bestResidual, bestIteration,
                     residualHistory, parameterHistory, exceptionDuringInversion,
                     exceptionDuringPropagation );
 
-        if( podInput->getSaveStateHistoryForEachIteration( ) )
+        if( estimationInput->getSaveStateHistoryForEachIteration( ) )
         {
-            podOutput->setStateHistories(
+            estimationOutput->setStateHistories(
                         dynamicsHistoryPerIteration, dependentVariableHistoryPerIteration );
         }
 
-        return podOutput;
+        return estimationOutput;
     }
 
     //! Function to reset the current parameter estimate.
