@@ -297,7 +297,7 @@ std::pair< std::shared_ptr< EstimationOutput< StateScalarType, TimeType > >, Eig
     }
 
     // Define estimation input
-    std::shared_ptr< EstimationInput< StateScalarType, TimeType > > podInput =
+    std::shared_ptr< EstimationInput< StateScalarType, TimeType > > estimationInput =
             std::make_shared< EstimationInput< StateScalarType, TimeType > >(
                 simulatedObservations, initialParameterEstimate.rows( ), inverseAPrioriCovariance,
                 initialParameterEstimate - truthParameters );
@@ -311,31 +311,31 @@ std::pair< std::shared_ptr< EstimationOutput< StateScalarType, TimeType > >, Eig
         weightPerObservable[ angular_position ] = 1.0 / ( 1.0E-9 * 1.0E-9 );
         weightPerObservable[ one_way_doppler ] = 1.0 / ( 1.0E-12 * 1.0E-12 );
 
-        podInput->setConstantPerObservableWeightsMatrix( weightPerObservable );
+        estimationInput->setConstantPerObservableWeightsMatrix( weightPerObservable );
         covarianceInput->setConstantPerObservableWeightsMatrix( weightPerObservable );
     }
     else
     {
-        podInput->setConstantWeightsMatrix( weight );
+        estimationInput->setConstantWeightsMatrix( weight );
         covarianceInput->setConstantWeightsMatrix( weight );
 
     }
-    podInput->defineEstimationSettings( true, true, false, true, true );
+    estimationInput->defineEstimationSettings( true, true, false, true, true );
     covarianceInput->defineCovarianceSettings( true, true, true, false );
 
     // Perform estimation
-    std::shared_ptr< EstimationOutput< StateScalarType, TimeType > > podOutput = orbitDeterminationManager.estimateParameters(
-                podInput, std::make_shared< EstimationConvergenceChecker >( ) );
+    std::shared_ptr< EstimationOutput< StateScalarType, TimeType > > estimationOutput = orbitDeterminationManager.estimateParameters(
+                estimationInput, std::make_shared< EstimationConvergenceChecker >( ) );
 
-    parametersToEstimate->resetParameterValues( podOutput->parameterHistory_.at( podOutput->bestIteration_ ) );
+    parametersToEstimate->resetParameterValues( estimationOutput->parameterHistory_.at( estimationOutput->bestIteration_ ) );
     std::shared_ptr< CovarianceAnalysisOutput< StateScalarType, TimeType > > covarianceOutput = orbitDeterminationManager.computeCovariance(
                 covarianceInput );
 
-    compareEstimationAndCovarianceResults( podOutput, covarianceOutput );
+    compareEstimationAndCovarianceResults( estimationOutput, covarianceOutput );
 
 
-    return std::make_pair( podOutput,
-                           ( podOutput->parameterEstimate_.template cast< double >( ) -
+    return std::make_pair( estimationOutput,
+                           ( estimationOutput->parameterEstimate_.template cast< double >( ) -
                              truthParameters .template cast< double >( ) ) );
 }
 
@@ -646,7 +646,7 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation(
 
 
     // Define estimation input
-    std::shared_ptr< EstimationInput< StateScalarType, TimeType  > > podInput =
+    std::shared_ptr< EstimationInput< StateScalarType, TimeType  > > estimationInput =
             std::make_shared< EstimationInput< StateScalarType, TimeType > >(
                 simulatedObservations, initialParameterEstimate.rows( ),
                 Eigen::MatrixXd::Zero( truthParameters.rows( ), truthParameters.rows( ) ),
@@ -657,17 +657,17 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation(
     weightPerObservable[ angular_position ] = 1.0 / ( 1.0E-5 * 1.0E-5 );
     weightPerObservable[ one_way_doppler ] = 1.0 / ( 1.0E-11 * 1.0E-11 );
 
-    podInput->setConstantPerObservableWeightsMatrix( weightPerObservable );
-    podInput->defineEstimationSettings( true, true, true, true, false );
+    estimationInput->setConstantPerObservableWeightsMatrix( weightPerObservable );
+    estimationInput->defineEstimationSettings( true, true, true, true, false );
 
     // Perform estimation
-    std::shared_ptr< EstimationOutput< StateScalarType > > podOutput = orbitDeterminationManager.estimateParameters(
-                podInput, std::make_shared< EstimationConvergenceChecker >( numberOfIterations ) );
+    std::shared_ptr< EstimationOutput< StateScalarType > > estimationOutput = orbitDeterminationManager.estimateParameters(
+                estimationInput, std::make_shared< EstimationConvergenceChecker >( numberOfIterations ) );
 
-    Eigen::VectorXd estimationError = podOutput->parameterEstimate_ - truthParameters;
+    Eigen::VectorXd estimationError = estimationOutput->parameterEstimate_ - truthParameters;
     std::cout <<"estimation error: "<< ( estimationError ).transpose( ) << std::endl;
 
-    podData = std::make_pair( podOutput, podInput );
+    podData = std::make_pair( estimationOutput, estimationInput );
 
     return estimationError;
 }
@@ -1092,7 +1092,7 @@ std::pair< Eigen::VectorXd, bool > executeEarthOrbiterBiasEstimation(
 
 
     // Define estimation input
-    std::shared_ptr< EstimationInput< StateScalarType, TimeType  > > podInput =
+    std::shared_ptr< EstimationInput< StateScalarType, TimeType  > > estimationInput =
             std::make_shared< EstimationInput< StateScalarType, TimeType > >(
                 simulatedObservations, initialParameterEstimate.rows( ),
                 Eigen::MatrixXd::Zero( truthParameters.rows( ), truthParameters.rows( ) ),
@@ -1105,19 +1105,19 @@ std::pair< Eigen::VectorXd, bool > executeEarthOrbiterBiasEstimation(
     weightPerObservable[ one_way_doppler ] = 1.0 / ( 1.0E-12 * 1.0E-12 );
     weightPerObservable[ two_way_doppler ] = 1.0 / ( 1.0E-12 * 1.0E-12 );
 
-    podInput->setConstantPerObservableWeightsMatrix( weightPerObservable );
-    podInput->defineEstimationSettings( true, false, false, true, false );
+    estimationInput->setConstantPerObservableWeightsMatrix( weightPerObservable );
+    estimationInput->defineEstimationSettings( true, false, false, true, false );
 
     // Perform estimation
-    std::shared_ptr< EstimationOutput< StateScalarType > > podOutput = orbitDeterminationManager.estimateParameters(
-                podInput, std::make_shared< EstimationConvergenceChecker >( numberOfIterations ) );
+    std::shared_ptr< EstimationOutput< StateScalarType > > estimationOutput = orbitDeterminationManager.estimateParameters(
+                estimationInput, std::make_shared< EstimationConvergenceChecker >( numberOfIterations ) );
 
-    Eigen::VectorXd estimationError = podOutput->parameterEstimate_ - truthParameters;
+    Eigen::VectorXd estimationError = estimationOutput->parameterEstimate_ - truthParameters;
     std::cout <<"estimation error: "<< ( estimationError ).transpose( ) << std::endl<< std::endl;
 
     return std::make_pair( estimationError,
-                           ( podOutput->exceptionDuringInversion_ ||
-                             !( podOutput->getUnnormalizedCovarianceMatrix( ) == podOutput->getUnnormalizedCovarianceMatrix( ) ) ) );
+                           ( estimationOutput->exceptionDuringInversion_ ||
+                             !( estimationOutput->getUnnormalizedCovarianceMatrix( ) == estimationOutput->getUnnormalizedCovarianceMatrix( ) ) ) );
 }
 
 //extern template std::pair< Eigen::VectorXd, bool > executeEarthOrbiterBiasEstimation< double, double >(

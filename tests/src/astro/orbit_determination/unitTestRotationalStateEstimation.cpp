@@ -273,74 +273,74 @@ BOOST_AUTO_TEST_CASE( test_RotationalDynamicsEstimationFromLanderData )
     initialParameterEstimate( 7 ) += 1.0E-12;
 
     // Define estimation input
-    std::shared_ptr< EstimationInput< double, double  > > podInput =
+    std::shared_ptr< EstimationInput< double, double  > > estimationInput =
             std::make_shared< EstimationInput< double, double > >(
                 observationsAndTimes, numberOfParameters,
                 Eigen::MatrixXd::Zero( numberOfParameters, numberOfParameters ), initialParameterEstimate - truthParameters );
 
     // Perform estimation
-    std::shared_ptr< EstimationOutput< double > > podOutput = orbitDeterminationManager.estimateParameters(
-                podInput, std::make_shared< EstimationConvergenceChecker >( 6 ) );
+    std::shared_ptr< EstimationOutput< double > > estimationOutput = orbitDeterminationManager.estimateParameters(
+                estimationInput, std::make_shared< EstimationConvergenceChecker >( 6 ) );
 
     // Check residual size (sub-mm over >1 AU)
-    BOOST_CHECK_SMALL( std::fabs( podOutput->residualStandardDeviation_ ), 1.0E-3 );
+    BOOST_CHECK_SMALL( std::fabs( estimationOutput->residualStandardDeviation_ ), 1.0E-3 );
 
     // Check parameter errors
     for( unsigned int i = 0; i < 4; i++ )
     {
-        BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( i ) - truthParameters( i ) ), 1.0E-13 );
+        BOOST_CHECK_SMALL( std::fabs( estimationOutput->parameterEstimate_( i ) - truthParameters( i ) ), 1.0E-13 );
     }
     for( unsigned int i = 0; i < 3; i++ )
     {
-        BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( i + 4 ) - truthParameters( i + 4 ) ), 1.0E-17 );
+        BOOST_CHECK_SMALL( std::fabs( estimationOutput->parameterEstimate_( i + 4 ) - truthParameters( i + 4 ) ), 1.0E-17 );
     }
     for( unsigned int i = 0; i < 1; i++ )
     {
-        BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( i + 7 ) - truthParameters( i + 7 ) ), 1.0E-16 );
+        BOOST_CHECK_SMALL( std::fabs( estimationOutput->parameterEstimate_( i + 7 ) - truthParameters( i + 7 ) ), 1.0E-16 );
 
     }
-    std::cout<<"True error: "<<( podOutput->parameterEstimate_ - truthParameters ).transpose( )<<std::endl;
-    std::cout<<"Formal error: "<<podOutput->getFormalErrorVector( ).transpose( )<<std::endl;
-    std::cout<<"Error ratio: "<<( ( 1.0E-3 * podOutput->getFormalErrorVector( ).segment( 0, numberOfParameters ) ).cwiseQuotient(
-                                      podOutput->parameterEstimate_ - truthParameters ) ).transpose( )<<std::endl;
+    std::cout<<"True error: "<<( estimationOutput->parameterEstimate_ - truthParameters ).transpose( )<<std::endl;
+    std::cout<<"Formal error: "<<estimationOutput->getFormalErrorVector( ).transpose( )<<std::endl;
+    std::cout<<"Error ratio: "<<( ( 1.0E-3 * estimationOutput->getFormalErrorVector( ).segment( 0, numberOfParameters ) ).cwiseQuotient(
+                                      estimationOutput->parameterEstimate_ - truthParameters ) ).transpose( )<<std::endl;
 
-//    input_output::writeMatrixToFile( podOutput->normalizedDesignMatrix_,
+//    input_output::writeMatrixToFile( estimationOutput->normalizedDesignMatrix_,
 //                                     "rotationTestEstimationDesignMatrix.dat", 16,
 //                                     input_output::getTudatRootPath( ) );
-//    input_output::writeMatrixToFile( podOutput->designMatrixTransformationDiagonal_,
+//    input_output::writeMatrixToFile( estimationOutput->designMatrixTransformationDiagonal_,
 //                                     "rotationTestEstimationDesignMatrixNormalization.dat", 16,
 //                                     input_output::getTudatRootPath( ) );
-//    input_output::writeMatrixToFile( podOutput->weightsMatrixDiagonal_,
+//    input_output::writeMatrixToFile( estimationOutput->weightsMatrixDiagonal_,
 //                                     "rotationTestEstimationWeightsDiagonal.dat", 16,
 //                                     input_output::getTudatRootPath( ) );
-//    input_output::writeMatrixToFile( podOutput->residuals_,
+//    input_output::writeMatrixToFile( estimationOutput->residuals_,
 //                                     "rotationTestEstimationResiduals.dat", 16,
 //                                     input_output::getTudatRootPath( ) );
-//    input_output::writeMatrixToFile( podOutput->getCorrelationMatrix( ),
+//    input_output::writeMatrixToFile( estimationOutput->getCorrelationMatrix( ),
 //                                     "rotationTestEstimationCorrelations.dat", 16,
 //                                     input_output::getTudatRootPath( ) );
-//    input_output::writeMatrixToFile( podOutput->getResidualHistoryMatrix( ),
+//    input_output::writeMatrixToFile( estimationOutput->getResidualHistoryMatrix( ),
 //                                     "rotationTestResidualHistory.dat", 16,
 //                                     input_output::getTudatRootPath( ) );
-//    input_output::writeMatrixToFile( podOutput->getParameterHistoryMatrix( ),
+//    input_output::writeMatrixToFile( estimationOutput->getParameterHistoryMatrix( ),
 //                                     "rotationTestParameterHistory.dat", 16,
 //                                     input_output::getTudatRootPath( ) );
-//    input_output::writeMatrixToFile( getConcatenatedMeasurementVector( podInput->getObservationsAndTimes( ) ),
+//    input_output::writeMatrixToFile( getConcatenatedMeasurementVector( estimationInput->getObservationsAndTimes( ) ),
 //                                     "rotationTestObservationMeasurements.dat", 16,
 //                                     input_output::getTudatRootPath( ) );
 //    input_output::writeMatrixToFile( utilities::convertStlVectorToEigenVector(
-//                                         getConcatenatedTimeVector( podInput->getObservationsAndTimes( ) ) ),
+//                                         getConcatenatedTimeVector( estimationInput->getObservationsAndTimes( ) ) ),
 //                                     "rotationTestObservationTimes.dat", 16,
 //                                     input_output::getTudatRootPath( ) );
 //    input_output::writeMatrixToFile( utilities::convertStlVectorToEigenVector(
-//                                         getConcatenatedGroundStationIndex( podInput->getObservationsAndTimes( ) ).first ),
+//                                         getConcatenatedGroundStationIndex( estimationInput->getObservationsAndTimes( ) ).first ),
 //                                     "rotationTestObservationLinkEnds.dat", 16,
 //                                     input_output::getTudatRootPath( ) );
-//    input_output::writeMatrixToFile( getConcatenatedMeasurementVector( podInput->getObservationsAndTimes( ) ),
+//    input_output::writeMatrixToFile( getConcatenatedMeasurementVector( estimationInput->getObservationsAndTimes( ) ),
 //                                     "rotationTestObservationMeasurements.dat", 16,
 //                                     input_output::getTudatRootPath( ) );
 
-//    input_output::writeMatrixToFile( podOutput->getFormalErrorVector( ),
+//    input_output::writeMatrixToFile( estimationOutput->getFormalErrorVector( ),
 //                                     "rotationTestObservationFormalEstimationError.dat", 16,
 //                                     input_output::getTudatRootPath( ) );
 }
@@ -523,39 +523,39 @@ BOOST_AUTO_TEST_CASE( test_RotationalTranslationalDynamicsEstimationFromLanderDa
     int parameterSize = initialParameterEstimate.rows( );
 
     // Define estimation input
-    std::shared_ptr< EstimationInput< double, double  > > podInput =
+    std::shared_ptr< EstimationInput< double, double  > > estimationInput =
             std::make_shared< EstimationInput< double, double > >(
                 observationsAndTimes, parameterSize,
                 Eigen::MatrixXd::Zero( parameterSize, parameterSize ), initialParameterEstimate - truthParameters );
-    podInput->defineEstimationSettings( true, false, true, true, true, true );
+    estimationInput->defineEstimationSettings( true, false, true, true, true, true );
 
     // Perform estimation
-    std::shared_ptr< EstimationOutput< double > > podOutput = orbitDeterminationManager.estimateParameters(
-                podInput, std::make_shared< EstimationConvergenceChecker >( 6 ) );
+    std::shared_ptr< EstimationOutput< double > > estimationOutput = orbitDeterminationManager.estimateParameters(
+                estimationInput, std::make_shared< EstimationConvergenceChecker >( 6 ) );
 
     // Check residual size (sub-mm over >1 AU)
-    BOOST_CHECK_SMALL( std::fabs( podOutput->residualStandardDeviation_ ), 1.0E-3 );
+    BOOST_CHECK_SMALL( std::fabs( estimationOutput->residualStandardDeviation_ ), 1.0E-3 );
 
     // Check parameter errors
-    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 0 ) - truthParameters( 0 ) ), 1.0E-4 );
-    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 1 ) - truthParameters( 1 ) ), 1.0E-4 );
-    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 2 ) - truthParameters( 2 ) ), 1.0E-2 );
+    BOOST_CHECK_SMALL( std::fabs( estimationOutput->parameterEstimate_( 0 ) - truthParameters( 0 ) ), 1.0E-4 );
+    BOOST_CHECK_SMALL( std::fabs( estimationOutput->parameterEstimate_( 1 ) - truthParameters( 1 ) ), 1.0E-4 );
+    BOOST_CHECK_SMALL( std::fabs( estimationOutput->parameterEstimate_( 2 ) - truthParameters( 2 ) ), 1.0E-2 );
 
-    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 3 ) - truthParameters( 3 ) ), 2.0E-8 );
-    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 4 ) - truthParameters( 4 ) ), 2.0E-8 );
-    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 5 ) - truthParameters( 5 ) ), 2.0E-6 );
+    BOOST_CHECK_SMALL( std::fabs( estimationOutput->parameterEstimate_( 3 ) - truthParameters( 3 ) ), 2.0E-8 );
+    BOOST_CHECK_SMALL( std::fabs( estimationOutput->parameterEstimate_( 4 ) - truthParameters( 4 ) ), 2.0E-8 );
+    BOOST_CHECK_SMALL( std::fabs( estimationOutput->parameterEstimate_( 5 ) - truthParameters( 5 ) ), 2.0E-6 );
 
-    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 6 ) - truthParameters( 6 ) ), 1.0E-12 );
-    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 7 ) - truthParameters( 7 ) ), 1.0E-9 );
-    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 8 ) - truthParameters( 8 ) ), 1.0E-9 );
-    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 9 ) - truthParameters( 9 ) ), 1.0E-9 );
+    BOOST_CHECK_SMALL( std::fabs( estimationOutput->parameterEstimate_( 6 ) - truthParameters( 6 ) ), 1.0E-12 );
+    BOOST_CHECK_SMALL( std::fabs( estimationOutput->parameterEstimate_( 7 ) - truthParameters( 7 ) ), 1.0E-9 );
+    BOOST_CHECK_SMALL( std::fabs( estimationOutput->parameterEstimate_( 8 ) - truthParameters( 8 ) ), 1.0E-9 );
+    BOOST_CHECK_SMALL( std::fabs( estimationOutput->parameterEstimate_( 9 ) - truthParameters( 9 ) ), 1.0E-9 );
 
-    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 10 ) - truthParameters( 10 ) ), 5.0E-13 );
-    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 11 ) - truthParameters( 11 ) ), 5.0E-13 );
-    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 12 ) - truthParameters( 12 ) ), 5.0E-13 );
+    BOOST_CHECK_SMALL( std::fabs( estimationOutput->parameterEstimate_( 10 ) - truthParameters( 10 ) ), 5.0E-13 );
+    BOOST_CHECK_SMALL( std::fabs( estimationOutput->parameterEstimate_( 11 ) - truthParameters( 11 ) ), 5.0E-13 );
+    BOOST_CHECK_SMALL( std::fabs( estimationOutput->parameterEstimate_( 12 ) - truthParameters( 12 ) ), 5.0E-13 );
 
-    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 13 ) - truthParameters( 13 ) ), 1.0E-10 );
-    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 14 ) - truthParameters( 14 ) ), 1.0E-11 );
+    BOOST_CHECK_SMALL( std::fabs( estimationOutput->parameterEstimate_( 13 ) - truthParameters( 13 ) ), 1.0E-10 );
+    BOOST_CHECK_SMALL( std::fabs( estimationOutput->parameterEstimate_( 14 ) - truthParameters( 14 ) ), 1.0E-11 );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

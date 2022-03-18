@@ -338,24 +338,24 @@ Eigen::VectorXd  executeParameterEstimation(
     parametersToEstimate->resetParameterValues( initialParameterEstimate );
 
     // Define estimation settings
-    std::shared_ptr< EstimationInput< ObservationScalarType, TimeType > > podInput =
+    std::shared_ptr< EstimationInput< ObservationScalarType, TimeType > > estimationInput =
             std::make_shared< EstimationInput< ObservationScalarType, TimeType > >(
                 observationsAndTimes, ( initialParameterEstimate ).rows( ) );
     std::map< observation_models::ObservableType, double > weightPerObservable;
     weightPerObservable[ one_way_range ] = 1.0E-4;
     weightPerObservable[ angular_position ] = 1.0E-20;
-    podInput->setConstantPerObservableWeightsMatrix( weightPerObservable );
+    estimationInput->setConstantPerObservableWeightsMatrix( weightPerObservable );
 
     // Estimate parameters and return postfit error
-    std::shared_ptr< EstimationOutput< StateScalarType > > podOutput = orbitDeterminationManager.estimateParameters(
-                podInput, std::make_shared< EstimationConvergenceChecker >( 6 ) );
+    std::shared_ptr< EstimationOutput< StateScalarType > > estimationOutput = orbitDeterminationManager.estimateParameters(
+                estimationInput, std::make_shared< EstimationConvergenceChecker >( 6 ) );
 
-//    input_output::writeMatrixToFile( podOutput->normalizedDesignMatrix_, "hybridArcPartials.dat" );
-//    input_output::writeMatrixToFile( podOutput->designMatrixTransformationDiagonal_, "hybridArcNormalization.dat" );
-//    input_output::writeMatrixToFile( podOutput->inverseNormalizedCovarianceMatrix_, "hybridArcNormalizedInverseCovariance.dat" );
-//    input_output::writeMatrixToFile( podOutput->getResidualHistoryMatrix( ), "hybridArcResidualHistory.dat" );
+//    input_output::writeMatrixToFile( estimationOutput->normalizedDesignMatrix_, "hybridArcPartials.dat" );
+//    input_output::writeMatrixToFile( estimationOutput->designMatrixTransformationDiagonal_, "hybridArcNormalization.dat" );
+//    input_output::writeMatrixToFile( estimationOutput->inverseNormalizedCovarianceMatrix_, "hybridArcNormalizedInverseCovariance.dat" );
+//    input_output::writeMatrixToFile( estimationOutput->getResidualHistoryMatrix( ), "hybridArcResidualHistory.dat" );
 
-    return ( podOutput->parameterEstimate_ - truthParameters ).template cast< double >( );
+    return ( estimationOutput->parameterEstimate_ - truthParameters ).template cast< double >( );
 }
 
 
