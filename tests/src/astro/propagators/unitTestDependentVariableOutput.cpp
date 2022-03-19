@@ -643,6 +643,10 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicDependentVariableOutput )
     dependentVariables.push_back(
                 std::make_shared< SphericalHarmonicAccelerationTermsDependentVariableSaveSettings >(
                     "Asterix", "Earth", 6, 6 ) );
+    std::vector< std::pair< int, int > > singleTermToSave;
+    singleTermToSave.push_back( std::make_pair( 6, 6 ) );
+    dependentVariables.push_back( sphericalHarmonicAccelerationTermsNormDependentVariable(
+                                      "Asterix", "Earth", singleTermToSave ) );
 
     addDepedentVariableSettings< double >( dependentVariables, propagatorSettings );
 
@@ -656,6 +660,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicDependentVariableOutput )
     // Create simulation object and propagate dynamics.
     SingleArcDynamicsSimulator< > dynamicsSimulator(
                 bodies, integratorSettings, propagatorSettings );
+
     std::map< double, Eigen::VectorXd > integrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
     std::map< double, Eigen::VectorXd > depdendentVariableResult = dynamicsSimulator.getDependentVariableHistory( );
 
@@ -668,6 +673,9 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicDependentVariableOutput )
             manualAccelerationSum += variableIterator->second.segment( i * 3, 3 );
         }
 
+        BOOST_CHECK_SMALL(
+                    std::fabs( ( variableIterator->second.segment( 96, 3 ) ).norm( ) - variableIterator->second( 99 ) ),
+                    10.0 * ( variableIterator->second.segment( 96, 3 ) ).norm( ) * std::numeric_limits< double >::epsilon( ) );
         for( unsigned int i = 0; i < 3; i ++ )
         {
             BOOST_CHECK_SMALL(
@@ -685,6 +693,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicDependentVariableOutput )
             BOOST_CHECK_SMALL(
                         std::fabs( variableIterator->second( 12 + i ) - variableIterator->second( 15 + 3 * 7 + i ) ),
                         10.0 * ( variableIterator->second.segment( 12, 3 ) ).norm( ) * std::numeric_limits< double >::epsilon( ) );
+
         }
     }
 }
