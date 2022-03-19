@@ -68,13 +68,19 @@ std::string download_file(const char *remote_url,
                 std::cout << "File cached, skipping download." << std::endl;
             }
             return ret_path;
+        } else {
+            // file does not exist
+            if (verbosity > 0) {
+                std::cout << "File not cached, downloading." << std::endl;
+            }
+            details::download_file_from_source(remote_url, filename);
         }
     } else if (cache != nullptr && strcmp(cache, "update") == 0) {
         // check if file exists
         if (details::file_exists(filename)) {
             // file exists
             if (verbosity > 0) {
-                std::cout << "File cached, forcing update." << std::endl;
+                std::cout << "File cached, but forcing update." << std::endl;
             }
         } else {
             // file does not exist
@@ -90,8 +96,8 @@ std::string download_file(const char *remote_url,
         }
         details::download_file_from_source(remote_url, filename);
     } else {
-        throw std::runtime_error("Invalid cache argument. Valid arguments are "
-                                 "'true', 'update', and 'false'.");
+        throw std::invalid_argument("Invalid cache argument. Valid arguments are "
+                                    "'true', 'update', and 'false'.");
     }
 
     // if file is zipped, unzip it to the same directory
