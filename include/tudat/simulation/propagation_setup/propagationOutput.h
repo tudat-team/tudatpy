@@ -120,6 +120,9 @@ int getDependentVariableSaveSize(
 int getDependentVariableSize(
         const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings );
 
+bool isScalarDependentVariable(
+        const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings );
+
 //! Get the vector representation of a rotation matrix.
 /*!
  *  Get the vector representation of a rotation matrix.
@@ -1792,7 +1795,7 @@ std::pair< std::function< Eigen::VectorXd( ) >, std::map< int, std::string > > c
     {
         std::pair< std::function< Eigen::VectorXd( ) >, int > vectorFunction;
         // Create double parameter
-        if( getDependentVariableSaveSize( variable ) == 1 )
+        if( isScalarDependentVariable( variable ) )
         {
 #if(TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
             std::function< double( ) > doubleFunction =
