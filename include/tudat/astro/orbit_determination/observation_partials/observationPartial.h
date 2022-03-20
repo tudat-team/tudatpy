@@ -144,7 +144,7 @@ public:
     ObservationPartialWrtConstantAbsoluteBias( const observation_models::ObservableType observableType,
                                                const observation_models::LinkEnds& linkEnds ):
         ObservationPartial< ObservationSize >(
-            std::make_pair( estimatable_parameters::constant_additive_observation_bias, linkEnds.begin( )->second ) ),
+            std::make_pair( estimatable_parameters::constant_additive_observation_bias, linkEnds.begin( )->second.getDualStringLinkEnd( ) ) ),
         observableType_( observableType ), linkEnds_( linkEnds )
     {
         // Compute partial (vector of ObservationSize with 1.0 entries).
@@ -215,7 +215,7 @@ public:
                                                const int linkEndIndex,
                                                const int numberOfArcs ):
         ObservationPartial< ObservationSize >(
-            std::make_pair( estimatable_parameters::arcwise_constant_additive_observation_bias, linkEnds.begin( )->second ) ),
+            std::make_pair( estimatable_parameters::arcwise_constant_additive_observation_bias, linkEnds.begin( )->second.getDualStringLinkEnd( ) ) ),
         observableType_( observableType ), linkEnds_( linkEnds ), arcLookupScheme_( arcLookupScheme ),
         linkEndIndex_( linkEndIndex ), numberOfArcs_( numberOfArcs )
     {
@@ -299,7 +299,7 @@ public:
     ObservationPartialWrtConstantRelativeBias( const observation_models::ObservableType observableType,
                                                const observation_models::LinkEnds& linkEnds ):
         ObservationPartial< ObservationSize >(
-            std::make_pair( estimatable_parameters::constant_additive_observation_bias, linkEnds.begin( )->second ) ),
+            std::make_pair( estimatable_parameters::constant_additive_observation_bias, linkEnds.begin( )->second.getDualStringLinkEnd( ) ) ),
         observableType_( observableType ), linkEnds_( linkEnds )
     {  }
 
@@ -362,7 +362,7 @@ public:
                                                const int linkEndIndex,
                                                const int numberOfArcs ):
         ObservationPartial< ObservationSize >(
-            std::make_pair( estimatable_parameters::arcwise_constant_relative_observation_bias, linkEnds.begin( )->second ) ),
+            std::make_pair( estimatable_parameters::arcwise_constant_relative_observation_bias, linkEnds.begin( )->second.getDualStringLinkEnd( ) ) ),
         observableType_( observableType ), linkEnds_( linkEnds ), arcLookupScheme_( arcLookupScheme ),
         linkEndIndex_( linkEndIndex ), numberOfArcs_( numberOfArcs )
     {
@@ -422,25 +422,25 @@ private:
 };
 
 
-extern template class ObservationPartial< 1 >;
-extern template class ObservationPartial< 2 >;
-extern template class ObservationPartial< 3 >;
+//extern template class ObservationPartial< 1 >;
+//extern template class ObservationPartial< 2 >;
+//extern template class ObservationPartial< 3 >;
 
-extern template class ObservationPartialWrtConstantAbsoluteBias< 1 >;
-extern template class ObservationPartialWrtConstantAbsoluteBias< 2 >;
-extern template class ObservationPartialWrtConstantAbsoluteBias< 3 >;
+//extern template class ObservationPartialWrtConstantAbsoluteBias< 1 >;
+//extern template class ObservationPartialWrtConstantAbsoluteBias< 2 >;
+//extern template class ObservationPartialWrtConstantAbsoluteBias< 3 >;
 
-extern template class ObservationPartialWrtArcWiseAbsoluteBias< 1 >;
-extern template class ObservationPartialWrtArcWiseAbsoluteBias< 2 >;
-extern template class ObservationPartialWrtArcWiseAbsoluteBias< 3 >;
+//extern template class ObservationPartialWrtArcWiseAbsoluteBias< 1 >;
+//extern template class ObservationPartialWrtArcWiseAbsoluteBias< 2 >;
+//extern template class ObservationPartialWrtArcWiseAbsoluteBias< 3 >;
 
-extern template class ObservationPartialWrtConstantRelativeBias< 1 >;
-extern template class ObservationPartialWrtConstantRelativeBias< 2 >;
-extern template class ObservationPartialWrtConstantRelativeBias< 3 >;
+//extern template class ObservationPartialWrtConstantRelativeBias< 1 >;
+//extern template class ObservationPartialWrtConstantRelativeBias< 2 >;
+//extern template class ObservationPartialWrtConstantRelativeBias< 3 >;
 
-extern template class ObservationPartialWrtArcWiseRelativeBias< 1 >;
-extern template class ObservationPartialWrtArcWiseRelativeBias< 2 >;
-extern template class ObservationPartialWrtArcWiseRelativeBias< 3 >;
+//extern template class ObservationPartialWrtArcWiseRelativeBias< 1 >;
+//extern template class ObservationPartialWrtArcWiseRelativeBias< 2 >;
+//extern template class ObservationPartialWrtArcWiseRelativeBias< 3 >;
 
 
 

@@ -46,7 +46,7 @@ using namespace tudat::observation_partials;
 using namespace tudat::estimatable_parameters;
 
 //! Function to create environment for general observation partial tests.
-SystemOfBodies setupEnvironment( const std::vector< LinkEndId > groundStations,
+SystemOfBodies setupEnvironment( const std::vector< std::pair< std::string, std::string > > groundStations,
                                const double initialEphemerisTime = 1.0E7,
                                const double finalEphemerisTime = 1.2E7,
                                const double stateEvaluationTime = 0.0,

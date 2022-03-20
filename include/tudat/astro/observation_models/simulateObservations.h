@@ -304,7 +304,7 @@ createObservationSimulationTimeSettingsMap(
             // Create ObservationSimulationTimeSettings from vector of times.
             newMap[ it->first ][ linkEndIterator->first ] = std::make_shared<
                     TabulatedObservationSimulationTimeSettings< TimeType > >(
-                        linkEndIterator->second.second, linkEndIterator->second.first );
+                        linkEndIterator->second.stationName_, linkEndIterator->second.bodyName_ );
         }
     }
     return newMap;

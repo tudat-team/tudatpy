@@ -179,9 +179,9 @@ public:
             const observation_models::ObservableType observableType,
             const bool isBiasAdditive ):
         EstimatableParameterSettings(
-            linkEnds.begin( )->second.first,
+            linkEnds.begin( )->second.bodyName_,
             isBiasAdditive ? constant_additive_observation_bias : constant_relative_observation_bias,
-            linkEnds.begin( )->second.second ), linkEnds_( linkEnds ), observableType_( observableType ){ }
+            linkEnds.begin( )->second.stationName_ ), linkEnds_( linkEnds ), observableType_( observableType ){ }
 
     //! Destructor
     ~ConstantObservationBiasEstimatableParameterSettings( ){ }
@@ -214,9 +214,9 @@ public:
             const observation_models::LinkEndType linkEndForTime,
             const bool isBiasAdditive ):
         EstimatableParameterSettings(
-            linkEnds.begin( )->second.first,
+            linkEnds.begin( )->second.bodyName_,
             isBiasAdditive ? arcwise_constant_additive_observation_bias : arcwise_constant_relative_observation_bias,
-            linkEnds.begin( )->second.second ), linkEnds_( linkEnds ), observableType_( observableType ),
+            linkEnds.begin( )->second.stationName_ ), linkEnds_( linkEnds ), observableType_( observableType ),
         arcStartTimes_( arcStartTimes ), linkEndForTime_( linkEndForTime ){ }
 
     //! Destructor

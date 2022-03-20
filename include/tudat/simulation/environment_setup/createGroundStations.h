@@ -13,6 +13,8 @@
 
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/astro/ground_stations/groundStation.h"
+#include "tudat/astro/observation_models/linkTypeDefs.h"
+
 
 namespace tudat
 {
@@ -167,19 +169,19 @@ std::shared_ptr< ephemerides::Ephemeris > createReferencePointEphemeris(
 template< typename TimeType = double, typename StateScalarType = double >
 std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType& ) > getLinkEndCompleteEphemerisFunction(
         const std::shared_ptr< simulation_setup::Body > bodyWithLinkEnd,
-        const std::pair< std::string, std::string >& linkEndId )
+        const observation_models::LinkEndId& linkEndId )
 {
     typedef Eigen::Matrix< StateScalarType, 6, 1 > StateType;
 
     std::function< StateType( const TimeType& ) > linkEndCompleteEphemerisFunction;
 
     // Checking transmitter if a reference point is to be used
-    if( linkEndId.second != "" )
+    if( linkEndId.stationName_ != "" )
     {
-        if( bodyWithLinkEnd->getGroundStationMap( ).count( linkEndId.second ) == 0 )
+        if( bodyWithLinkEnd->getGroundStationMap( ).count( linkEndId.stationName_ ) == 0 )
         {
-            std::string errorMessage = "Error when making ephemeris function for " + linkEndId.first + ", " +
-                    linkEndId.second + ", station not found.";
+            std::string errorMessage = "Error when making ephemeris function for " + linkEndId.bodyName_ + ", " +
+                    linkEndId.stationName_ + ", station not found.";
             throw std::runtime_error( errorMessage );
         }
 
@@ -190,7 +192,7 @@ std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType& ) > getLi
                                  bodyWithLinkEnd,
                                  std::bind( &ground_stations::GroundStation::getStateInPlanetFixedFrame
                                               < StateScalarType, TimeType >,
-                                              bodyWithLinkEnd->getGroundStation( linkEndId.second ), std::placeholders::_1 ) ), std::placeholders::_1 );
+                                              bodyWithLinkEnd->getGroundStation( linkEndId.stationName_ ), std::placeholders::_1 ) ), std::placeholders::_1 );
 
     }
     // Else, create state function for center of mass
@@ -213,15 +215,15 @@ std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType& ) > getLi
  */
 template< typename TimeType = double, typename StateScalarType = double >
 std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > getLinkEndCompleteEphemerisFunction(
-        const std::pair< std::string, std::string > linkEndId, const simulation_setup::SystemOfBodies& bodies )
+        const observation_models::LinkEndId linkEndId, const simulation_setup::SystemOfBodies& bodies )
 {
-    if( bodies.count( linkEndId.first ) == 0  )
+    if( bodies.count( linkEndId.bodyName_ ) == 0  )
     {
-        std::string errorMessage = "Error when making ephemeris function for " + linkEndId.first + ", " +
-                linkEndId.second + ", body not found.";
+        std::string errorMessage = "Error when making ephemeris function for " + linkEndId.bodyName_ + ", " +
+                linkEndId.stationName_ + ", body not found.";
         throw std::runtime_error( errorMessage );
     }
-    return getLinkEndCompleteEphemerisFunction< TimeType, StateScalarType >( bodies.at( linkEndId.first ), linkEndId );
+    return getLinkEndCompleteEphemerisFunction< TimeType, StateScalarType >( bodies.at( linkEndId.bodyName_ ), linkEndId );
 }
 
 std::vector< double >  getTargetElevationAngles(

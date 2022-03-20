@@ -470,7 +470,7 @@ Eigen::VectorXd  executeMultiBodyMultiArcParameterEstimation( )
     linkEndsList.resize( numberOfVehicles );
     for( int i = 0; i < numberOfVehicles; i++ )
     {
-        linkEndsList[ i ][ observed_body ] = std::make_pair( vehicleNames.at( i ), "" );
+        linkEndsList[ i ][ observed_body ] = std::pair< std::string, std::string >( std::make_pair( vehicleNames.at( i ), "" ) );
         observationSettingsList.push_back( std::make_shared< ObservationModelSettings >(
                                                            position_observable, linkEndsList[ i ] ) );
     }

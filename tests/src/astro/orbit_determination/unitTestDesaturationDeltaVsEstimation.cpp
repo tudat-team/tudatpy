@@ -190,13 +190,13 @@ BOOST_AUTO_TEST_CASE( test_DesaturationDeltaVsEstimation )
         for( unsigned int i = 0; i < groundStationNames.size( ); i++ )
         {
             LinkEnds linkEnds;
-            linkEnds[ transmitter ] = std::make_pair( "Earth", groundStationNames.at( i ) );
-            linkEnds[ receiver ] = std::make_pair( "Vehicle", "" );
+            linkEnds[ transmitter ] = std::pair< std::string, std::string >( std::make_pair( "Earth", groundStationNames.at( i ) ) );
+            linkEnds[ receiver ] = std::make_pair< std::string, std::string >( "Vehicle", "" );
             stationTransmitterLinkEnds.push_back( linkEnds );
 
             linkEnds.clear( );
-            linkEnds[ receiver ] = std::make_pair( "Earth", groundStationNames.at( i ) );
-            linkEnds[ transmitter ] = std::make_pair( "Vehicle", "" );
+            linkEnds[ receiver ] = std::pair< std::string, std::string >( std::make_pair( "Earth", groundStationNames.at( i ) ) );
+            linkEnds[ transmitter ] = std::make_pair< std::string, std::string >( "Vehicle", "" );
             stationReceiverLinkEnds.push_back( linkEnds );
         }
 

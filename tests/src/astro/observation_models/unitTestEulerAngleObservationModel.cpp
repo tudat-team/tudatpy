@@ -67,7 +67,7 @@ BOOST_AUTO_TEST_CASE( testPositionObsevableModel )
 
     // Define link ends for observations.
     LinkEnds linkEnds;
-    linkEnds[ observed_body ] = std::make_pair( "Earth" , ""  );
+    linkEnds[ observed_body ] = std::make_pair< std::string, std::string >( "Earth" , ""  );
 
 
     // Create observation settings

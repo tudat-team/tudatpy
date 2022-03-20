@@ -69,8 +69,8 @@ BOOST_AUTO_TEST_CASE( testOneWayRangeModel )
 
     // Define link ends for observations.
     LinkEnds linkEnds;
-    linkEnds[ transmitter ] = std::make_pair( "Earth" , ""  );
-    linkEnds[ receiver ] = std::make_pair( "Mars" , ""  );
+    linkEnds[ transmitter ] = std::make_pair< std::string, std::string >( "Earth" , ""  );
+    linkEnds[ receiver ] = std::make_pair< std::string, std::string >( "Mars" , ""  );
 
     // Create light-time correction settings.
     std::vector< std::string > lightTimePerturbingBodies = { "Sun" };

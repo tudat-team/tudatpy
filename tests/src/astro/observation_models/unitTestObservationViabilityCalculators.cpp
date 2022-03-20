@@ -59,7 +59,7 @@ BOOST_AUTO_TEST_CASE( testSeparateObservationViabilityCalculators )
 
     // Get inertial ground station state function
     std::function< Eigen::Vector6d( const double ) > groundStationStateFunction =
-            getLinkEndCompleteEphemerisFunction( std::make_pair( "Earth", "Station" ), bodies );
+            getLinkEndCompleteEphemerisFunction( std::make_pair< std::string, std::string >( "Earth", "Station" ), bodies );
 
     // Get Earth-fixed ground station position
     Eigen::Vector3d earthFixedGroundStationState =
@@ -222,7 +222,7 @@ BOOST_AUTO_TEST_CASE( testStationAngleCalculations )
 
     // Get inertial ground station state function
     std::function< Eigen::Vector6d( const double ) > groundStationStateFunction =
-            getLinkEndCompleteEphemerisFunction( std::make_pair( "Earth", "Station" ), bodies );
+            getLinkEndCompleteEphemerisFunction( std::make_pair< std::string, std::string >( "Earth", "Station" ), bodies );
 
     // Get Earth-fixed ground station position
     Eigen::Vector3d earthFixedGroundStationState =
@@ -242,10 +242,10 @@ BOOST_AUTO_TEST_CASE( testStationAngleCalculations )
     }
 
     std::map< double, Eigen::VectorXd > targetAnglesAndRange = getTargetAnglesAndRange(
-            bodies, std::make_pair( "Earth", "Station" ),
+            bodies, std::make_pair< std::string, std::string >( "Earth", "Station" ),
             "Moon", times, true );
     std::map< double, Eigen::VectorXd > targetAnglesAndRange2 = getTargetAnglesAndRange(
-            bodies, std::make_pair( "Earth", "Station" ),
+            bodies, std::make_pair< std::string, std::string >( "Earth", "Station" ),
             "Moon", times, false );
     for( auto it : targetAnglesAndRange )
     {
@@ -363,10 +363,10 @@ BOOST_AUTO_TEST_CASE( testStationAngleCalculations )
 //        for( LinkEnds::const_iterator linkEndIterator = linkEnds.begin( ); linkEndIterator != linkEnds.end( );
 //             linkEndIterator++ )
 //        {
-//            if( linkEndIterator->second.first == referenceBody )
+//            if( linkEndIterator->second.bodyName_ == referenceBody )
 //            {
 //                currentPointingAnglesCalculator = bodies.at( referenceBody )->getGroundStation(
-//                            linkEndIterator->second.second )->getPointingAnglesCalculator( );
+//                            linkEndIterator->second.stationName_ )->getPointingAnglesCalculator( );
 //                if( linkEndIndex != 0 )
 //                {
 //                    elevationAngles.push_back(
@@ -517,7 +517,7 @@ BOOST_AUTO_TEST_CASE( testStationAngleCalculations )
 //        for( LinkEnds::const_iterator linkEndIterator = linkEnds.begin( ); linkEndIterator != linkEnds.end( );
 //             linkEndIterator++ )
 //        {
-//            if( linkEndIterator->second.first == referenceBody )
+//            if( linkEndIterator->second.bodyName_ == referenceBody )
 //            {
 //                if( linkEndIndex != 0 )
 //                {
@@ -637,16 +637,16 @@ BOOST_AUTO_TEST_CASE( testStationAngleCalculations )
 
 //    // Define one-way range/one-way Doppler/angular position/one-way differenced range link ends
 //    LinkEnds oneWayLinkEnds1;
-//    oneWayLinkEnds1[ transmitter ] = std::make_pair( "Mars", "MarsStation1" );
-//    oneWayLinkEnds1[ receiver ] = std::make_pair( "Earth", "EarthStation1" );
+//    oneWayLinkEnds1[ transmitter ] = std::make_pair< std::string, std::string >( "Mars", "MarsStation1" );
+//    oneWayLinkEnds1[ receiver ] = std::make_pair< std::string, std::string >( "Earth", "EarthStation1" );
 
 //    LinkEnds oneWayLinkEnds2;
-//    oneWayLinkEnds2[ transmitter ] = std::make_pair( "Earth", "EarthStation2" );
-//    oneWayLinkEnds2[ receiver ] = std::make_pair( "Mars", "MarsStation2" );
+//    oneWayLinkEnds2[ transmitter ] = std::make_pair< std::string, std::string >( "Earth", "EarthStation2" );
+//    oneWayLinkEnds2[ receiver ] = std::make_pair< std::string, std::string >( "Mars", "MarsStation2" );
 
 //    LinkEnds oneWayLinkEnds3;
-//    oneWayLinkEnds3[ transmitter ] = std::make_pair( "Mars", "MarsStation1" );
-//    oneWayLinkEnds3[ receiver ] = std::make_pair( "Earth", "EarthStation2" );
+//    oneWayLinkEnds3[ transmitter ] = std::make_pair< std::string, std::string >( "Mars", "MarsStation1" );
+//    oneWayLinkEnds3[ receiver ] = std::make_pair< std::string, std::string >( "Earth", "EarthStation2" );
 
 //    std::vector< LinkEnds > oneWayRangeLinkEnds;
 //    oneWayRangeLinkEnds.push_back( oneWayLinkEnds1 );
@@ -655,19 +655,19 @@ BOOST_AUTO_TEST_CASE( testStationAngleCalculations )
 
 //    // Define two-way range link ends
 //    LinkEnds twoWayLinkEnds1;
-//    twoWayLinkEnds1[ transmitter ] = std::make_pair( "Mars", "MarsStation1" );
-//    twoWayLinkEnds1[ reflector1 ] = std::make_pair( "Earth", "EarthStation1" );
-//    twoWayLinkEnds1[ receiver ] = std::make_pair( "Mars", "MarsStation1" );
+//    twoWayLinkEnds1[ transmitter ] = std::make_pair< std::string, std::string >( "Mars", "MarsStation1" );
+//    twoWayLinkEnds1[ reflector1 ] = std::make_pair< std::string, std::string >( "Earth", "EarthStation1" );
+//    twoWayLinkEnds1[ receiver ] = std::make_pair< std::string, std::string >( "Mars", "MarsStation1" );
 
 //    LinkEnds twoWayLinkEnds2;
-//    twoWayLinkEnds2[ transmitter ] = std::make_pair( "Earth", "EarthStation2" );
-//    twoWayLinkEnds2[ reflector1 ] = std::make_pair( "Mars", "MarsStation2" );
-//    twoWayLinkEnds2[ receiver ] = std::make_pair( "Earth", "EarthStation1" );
+//    twoWayLinkEnds2[ transmitter ] = std::make_pair< std::string, std::string >( "Earth", "EarthStation2" );
+//    twoWayLinkEnds2[ reflector1 ] = std::make_pair< std::string, std::string >( "Mars", "MarsStation2" );
+//    twoWayLinkEnds2[ receiver ] = std::make_pair< std::string, std::string >( "Earth", "EarthStation1" );
 
 //    LinkEnds twoWayLinkEnds3;
-//    twoWayLinkEnds3[ transmitter ] = std::make_pair( "Mars", "MarsStation2" );
-//    twoWayLinkEnds3[ reflector1 ] = std::make_pair( "Earth", "EarthStation2" );
-//    twoWayLinkEnds3[ receiver ] = std::make_pair( "Mars", "MarsStation1" );
+//    twoWayLinkEnds3[ transmitter ] = std::make_pair< std::string, std::string >( "Mars", "MarsStation2" );
+//    twoWayLinkEnds3[ reflector1 ] = std::make_pair< std::string, std::string >( "Earth", "EarthStation2" );
+//    twoWayLinkEnds3[ receiver ] = std::make_pair< std::string, std::string >( "Mars", "MarsStation1" );
 //    std::vector< LinkEnds > twoWayRangeLinkEnds;
 //    twoWayRangeLinkEnds.push_back( twoWayLinkEnds1 );
 //    twoWayRangeLinkEnds.push_back( twoWayLinkEnds2 );
@@ -705,19 +705,19 @@ BOOST_AUTO_TEST_CASE( testStationAngleCalculations )
 //    // Create observation viability settings
 //    std::vector< std::shared_ptr< ObservationViabilitySettings > > observationViabilitySettings;
 //    observationViabilitySettings.push_back( std::make_shared< ObservationViabilitySettings >(
-//                                                minimum_elevation_angle, std::make_pair( "Earth", "" ), "",
+//                                                minimum_elevation_angle, std::make_pair< std::string, std::string >( "Earth", "" ), "",
 //                                                earthtestAngle ) );
 //    observationViabilitySettings.push_back( std::make_shared< ObservationViabilitySettings >(
-//                                                minimum_elevation_angle, std::make_pair( "Mars", "" ), "",
+//                                                minimum_elevation_angle, std::make_pair< std::string, std::string >( "Mars", "" ), "",
 //                                                marstestAngle ) );
 //    observationViabilitySettings.push_back( std::make_shared< ObservationViabilitySettings >(
-//                                                body_avoidance_angle, std::make_pair( "Earth", "" ), "Sun",
+//                                                body_avoidance_angle, std::make_pair< std::string, std::string >( "Earth", "" ), "Sun",
 //                                                earthSunAvoidanceAngle ) );
 //    observationViabilitySettings.push_back( std::make_shared< ObservationViabilitySettings >(
-//                                                body_avoidance_angle, std::make_pair( "Mars", "" ), "Sun",
+//                                                body_avoidance_angle, std::make_pair< std::string, std::string >( "Mars", "" ), "Sun",
 //                                                marsSunAvoidanceAngle ) );
 //    observationViabilitySettings.push_back( std::make_shared< ObservationViabilitySettings >(
-//                                                body_occultation, std::make_pair( "Earth", "" ), "Moon" ) );
+//                                                body_occultation, std::make_pair< std::string, std::string >( "Earth", "" ), "Moon" ) );
 
 //    // Create observation model and observation time settings for all observables
 //    std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > observationTimeSettings;

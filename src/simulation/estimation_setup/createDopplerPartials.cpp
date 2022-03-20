@@ -71,7 +71,7 @@ std::shared_ptr< OneWayDopplerProperTimeComponentScaling > createDopplerProperTi
     else if( std::dynamic_pointer_cast< observation_models::DirectFirstOrderDopplerProperTimeRateInterface >(
                  dopplerProperTimeInterface ) != nullptr )
     {
-        bool computeStatePartials = ( oneWayDopplerLinkEnds.at( linkEndAtWhichPartialIsComputed ).first !=
+        bool computeStatePartials = ( oneWayDopplerLinkEnds.at( linkEndAtWhichPartialIsComputed ).bodyName_ !=
                 std::dynamic_pointer_cast< observation_models::DirectFirstOrderDopplerProperTimeRateInterface >(
                     dopplerProperTimeInterface )->getCentralBody( ) );
         properTimeRateDopplerPartial = std::make_shared< OneWayDopplerDirectFirstOrderProperTimeComponentScaling >(
