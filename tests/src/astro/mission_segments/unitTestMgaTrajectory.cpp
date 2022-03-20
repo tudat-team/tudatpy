@@ -77,8 +77,10 @@ BOOST_AUTO_TEST_CASE( testMgaSphericalShapingSingleLeg )
     // Define root finder settings
     std::shared_ptr< root_finders::RootFinderSettings > rootFinderSettings =
             tudat::root_finders::bisectionRootFinderSettings( 1.0E-6, TUDAT_NAN, TUDAT_NAN, 30 );
+    double lowerBoundFreeCoefficient = 1.0e-6;
+    double upperBoundFreeCoefficient = 1.0e-1;
 
-    for( unsigned int creationType = 0; creationType < 1; creationType++ ) {
+    for( unsigned int creationType = 0; creationType < 2; creationType++ ) {
         // Create leg and nodes settings
         std::vector< std::shared_ptr< TransferLegSettings > > transferLegSettings;
         std::vector< std::shared_ptr< TransferNodeSettings > > transferNodeSettings;
@@ -86,7 +88,8 @@ BOOST_AUTO_TEST_CASE( testMgaSphericalShapingSingleLeg )
         if ( creationType == 0 )
         {
             transferLegSettings.resize(bodyOrder.size( ) - 1);
-            transferLegSettings[0] = sphericalShapingLeg(numberOfRevolutions, rootFinderSettings, 1.0e-6, 1.0e-1);
+            transferLegSettings[0] = sphericalShapingLeg(numberOfRevolutions, rootFinderSettings,
+                                                         lowerBoundFreeCoefficient, upperBoundFreeCoefficient);
 
             transferNodeSettings.resize(bodyOrder.size( ));
             transferNodeSettings[0] = escapeAndDepartureNode(std::numeric_limits< double >::infinity( ), 0.0);
@@ -96,8 +99,10 @@ BOOST_AUTO_TEST_CASE( testMgaSphericalShapingSingleLeg )
         {
             getMgaTransferTrajectorySettingsWithSphericalShapingThrust(
                     transferLegSettings, transferNodeSettings, bodyOrder,
-                    std::make_pair( std::numeric_limits< double >::infinity( ), 0.0 ),
-                    std::make_pair( std::numeric_limits< double >::infinity( ), 0.0 ) );
+                    numberOfRevolutions, rootFinderSettings,
+                    std::make_pair(std::numeric_limits< double >::infinity( ), 0.0),
+                    std::make_pair(std::numeric_limits< double >::infinity( ), 0.0),
+                    lowerBoundFreeCoefficient, upperBoundFreeCoefficient);
         }
 
         // Print parameter definition
@@ -171,7 +176,7 @@ BOOST_AUTO_TEST_CASE( testMgaSphericalShaping )
     double lowerBoundFreeCoefficient = 1.0e-6;
     double upperBoundFreeCoefficient = 1.0e-1;
 
-    for( unsigned int creationType = 0; creationType < 1; creationType++ ) {
+    for( unsigned int creationType = 0; creationType < 2; creationType++ ) {
         // Create leg and nodes settings
         std::vector< std::shared_ptr< TransferLegSettings > > transferLegSettings;
         std::vector< std::shared_ptr< TransferNodeSettings > > transferNodeSettings;
@@ -192,9 +197,10 @@ BOOST_AUTO_TEST_CASE( testMgaSphericalShaping )
         else if ( creationType == 1 )
         {
             getMgaTransferTrajectorySettingsWithSphericalShapingThrust(
-                    transferLegSettings, transferNodeSettings, bodyOrder,
-                    std::make_pair( std::numeric_limits< double >::infinity( ), 0.0 ),
-                    std::make_pair( std::numeric_limits< double >::infinity( ), 0.0 ) );
+                    transferLegSettings, transferNodeSettings, bodyOrder, numberOfRevolutions, rootFinderSettings,
+                    std::make_pair(std::numeric_limits< double >::infinity( ), 0.0),
+                    std::make_pair(std::numeric_limits< double >::infinity( ), 0.0),
+                    lowerBoundFreeCoefficient, upperBoundFreeCoefficient);
         }
 
         // Print parameter definition
