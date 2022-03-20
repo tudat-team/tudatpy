@@ -79,73 +79,100 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_earth_mars_transfer )
                 spice_interface::getBodyGravitationalParameter( "Sun" ),
                 numberOfRevolutions, 0.000703, rootFinderSettings, 1.0e-6, 1.0e-1 );
 
-    std::cout<<"************************ NEW CLASS **************************"<<std::endl;
-    SphericalShapingLeg sphericalShapingLeg = SphericalShapingLeg(
-            pointerToDepartureBodyEphemeris, pointerToArrivalBodyEphemeris,
-            spice_interface::getBodyGravitationalParameter("Sun"),
-            numberOfRevolutions, rootFinderSettings, 1.0e-6, 1.0e-1);
-    sphericalShapingLeg.updateLegParameters( (
-            Eigen::Vector2d( )<< julianDate, julianDate + timeOfFlight ).finished( ) );
+    //    SphericalShapingLeg sphericalShapingLeg = SphericalShapingLeg(
+    //            pointerToDepartureBodyEphemeris, pointerToArrivalBodyEphemeris,
+    //            spice_interface::getBodyGravitationalParameter("Sun"),
+    //            numberOfRevolutions, rootFinderSettings, 1.0e-6, 1.0e-1);
 
-    // Initialise peak acceleration.
-    double peakThrustAcceleration_old = 0.0;
-
-    double stepSize_old = (sphericalShaping.getFinalValueInpendentVariable( ) -
-                           sphericalShaping.getInitialValueInpendentVariable( ) ) / 5000.0;
-    for ( int i = 0 ; i <= 5000 ; i++ )
+    SphericalShapingLeg *sphericalShapingLegPointer;
+    for ( unsigned int creationType = 0; creationType < 2; creationType++ )
     {
-        double currentThetaAngle = sphericalShaping.getInitialValueInpendentVariable() + i * stepSize_old;
-        if (sphericalShaping.computeCurrentThrustAcceleration( currentThetaAngle ).norm() > peakThrustAcceleration_old )
+        if ( creationType == 0)
         {
-            peakThrustAcceleration_old = sphericalShaping.computeCurrentThrustAcceleration(currentThetaAngle ).norm();
+            sphericalShapingLegPointer = new SphericalShapingLeg(
+                    pointerToDepartureBodyEphemeris, pointerToArrivalBodyEphemeris,
+                    spice_interface::getBodyGravitationalParameter("Sun"),
+                    numberOfRevolutions, rootFinderSettings, 1.0e-6, 1.0e-1);
         }
+        else if ( creationType == 1)
+        {
+            std::function< Eigen::Vector3d( ) > departureVelocityFunction = [=]( ){ return initialState.segment( 3, 3 ); };
+            std::function< Eigen::Vector3d( ) > arrivalVelocityFunction = [=]( ){ return finalState.segment( 3, 3 ); };
+
+            sphericalShapingLegPointer = new SphericalShapingLeg(
+                    pointerToDepartureBodyEphemeris, pointerToArrivalBodyEphemeris,
+                    spice_interface::getBodyGravitationalParameter("Sun"),
+                    numberOfRevolutions,
+                    departureVelocityFunction, arrivalVelocityFunction,
+                    rootFinderSettings, 1.0e-6, 1.0e-1);
+        }
+
+
+        std::cout<<"************************ NEW CLASS **************************"<<std::endl;
+        sphericalShapingLegPointer->updateLegParameters((
+                Eigen::Vector2d( )<< julianDate, julianDate + timeOfFlight ).finished( ) );
+
+        // Initialise peak acceleration.
+        double peakThrustAcceleration_old = 0.0;
+
+        double stepSize_old = (sphericalShaping.getFinalValueInpendentVariable( ) -
+                               sphericalShaping.getInitialValueInpendentVariable( ) ) / 5000.0;
+        for ( int i = 0 ; i <= 5000 ; i++ )
+        {
+            double currentThetaAngle = sphericalShaping.getInitialValueInpendentVariable() + i * stepSize_old;
+            if (sphericalShaping.computeCurrentThrustAcceleration( currentThetaAngle ).norm() > peakThrustAcceleration_old )
+            {
+                peakThrustAcceleration_old = sphericalShaping.computeCurrentThrustAcceleration(currentThetaAngle ).norm();
+            }
+        }
+
+        // Initialise peak acceleration
+        double peakThrustAcceleration = 0.0;
+
+        std::map< double, Eigen::Vector3d > thrustAccelerationsAlongTrajectory;
+        sphericalShapingLegPointer->getThrustAccelerationsAlongTrajectory(thrustAccelerationsAlongTrajectory, 5000 );
+
+        // Check initial and final time on output list
+        BOOST_CHECK_CLOSE_FRACTION( thrustAccelerationsAlongTrajectory.begin( )->first, julianDate, 1.0E-14 );
+        BOOST_CHECK_CLOSE_FRACTION( thrustAccelerationsAlongTrajectory.rbegin( )->first, julianDate + timeOfFlight, 1.0E-14 );
+
+        // Loop over computed acceleration values and check peak acceleration
+        for( auto it : thrustAccelerationsAlongTrajectory )
+        {
+            Eigen::Vector3d currentCartesianThrustAcceleration = it.second;
+            if ( currentCartesianThrustAcceleration.norm() > peakThrustAcceleration )
+            {
+                peakThrustAcceleration = currentCartesianThrustAcceleration.norm();
+            }
+        }
+
+
+        // Check results consistency w.r.t. Roegiers, T., Application of the Spherical Shaping Method to a Low-Thrust
+        // Multiple Asteroid Rendezvous Mission, TU Delft (MSc thesis), 2014
+        double expectedDeltaV = 5700.0;
+        double expectedPeakAcceleration = 2.4e-4;
+
+        // DeltaV provided with a precision of 5 m/s
+        BOOST_CHECK_SMALL( std::fabs(  sphericalShaping.computeDeltaV() - expectedDeltaV ), 5.0 );
+        BOOST_CHECK_SMALL(std::fabs(sphericalShapingLegPointer->getLegDeltaV() - expectedDeltaV ), 5.0 );
+        // Peak acceleration provided with a precision 2.0e-6 m/s^2
+        BOOST_CHECK_SMALL(std::fabs(peakThrustAcceleration_old - expectedPeakAcceleration ), 2.0e-6 );
+        BOOST_CHECK_SMALL(std::fabs(peakThrustAcceleration - expectedPeakAcceleration ), 2.0e-6 );
+
+
+        // Retrieve state history
+        std::map< double, Eigen::Vector6d > statesAlongTrajectory;
+        sphericalShapingLegPointer->getStatesAlongTrajectory(statesAlongTrajectory, 10 );
+
+        // Check initial and final time on output list
+        BOOST_CHECK_CLOSE_FRACTION( statesAlongTrajectory.begin( )->first, julianDate, 1.0E-14 );
+        BOOST_CHECK_CLOSE_FRACTION( statesAlongTrajectory.rbegin( )->first, julianDate + timeOfFlight, 1.0E-14 );
+
+        // Check initial and final state on output list
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( initialState, statesAlongTrajectory.begin( )->second, 1.0E-5 );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( finalState, statesAlongTrajectory.rbegin( )->second, 1.0E-5 );
     }
 
-    // Initialise peak acceleration
-    double peakThrustAcceleration = 0.0;
-
-    std::map< double, Eigen::Vector3d > thrustAccelerationsAlongTrajectory;
-    sphericalShapingLeg.getThrustAccelerationsAlongTrajectory( thrustAccelerationsAlongTrajectory, 5000 );
-
-    // Check initial and final time on output list
-    BOOST_CHECK_CLOSE_FRACTION( thrustAccelerationsAlongTrajectory.begin( )->first, julianDate, 1.0E-14 );
-    BOOST_CHECK_CLOSE_FRACTION( thrustAccelerationsAlongTrajectory.rbegin( )->first, julianDate + timeOfFlight, 1.0E-14 );
-
-    // Loop over computed acceleration values and check peak acceleration
-    for( auto it : thrustAccelerationsAlongTrajectory )
-    {
-        Eigen::Vector3d currentCartesianThrustAcceleration = it.second;
-        if ( currentCartesianThrustAcceleration.norm() > peakThrustAcceleration )
-        {
-            peakThrustAcceleration = currentCartesianThrustAcceleration.norm();
-        }
-    }
-
-
-    // Check results consistency w.r.t. Roegiers, T., Application of the Spherical Shaping Method to a Low-Thrust
-    // Multiple Asteroid Rendezvous Mission, TU Delft (MSc thesis), 2014
-    double expectedDeltaV = 5700.0;
-    double expectedPeakAcceleration = 2.4e-4;
-
-    // DeltaV provided with a precision of 5 m/s
-    BOOST_CHECK_SMALL( std::fabs(  sphericalShaping.computeDeltaV() - expectedDeltaV ), 5.0 );
-    BOOST_CHECK_SMALL( std::fabs(  sphericalShapingLeg.getLegDeltaV() - expectedDeltaV ), 5.0 );
-    // Peak acceleration provided with a precision 2.0e-6 m/s^2
-    BOOST_CHECK_SMALL(std::fabs(peakThrustAcceleration_old - expectedPeakAcceleration ), 2.0e-6 );
-    BOOST_CHECK_SMALL(std::fabs(peakThrustAcceleration - expectedPeakAcceleration ), 2.0e-6 );
-
-
-    // Retrieve state history
-    std::map< double, Eigen::Vector6d > statesAlongTrajectory;
-    sphericalShapingLeg.getStatesAlongTrajectory( statesAlongTrajectory, 10 );
-
-    // Check initial and final time on output list
-    BOOST_CHECK_CLOSE_FRACTION( statesAlongTrajectory.begin( )->first, julianDate, 1.0E-14 );
-    BOOST_CHECK_CLOSE_FRACTION( statesAlongTrajectory.rbegin( )->first, julianDate + timeOfFlight, 1.0E-14 );
-
-    // Check initial and final state on output list
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( initialState, statesAlongTrajectory.begin( )->second, 1.0E-5 );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( finalState, statesAlongTrajectory.rbegin( )->second, 1.0E-5 );
 }
 
 
@@ -183,78 +210,102 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_earth_1989ML_transfer )
             spice_interface::getBodyGravitationalParameter( "Sun" ),
             numberOfRevolutions, -0.0000703, rootFinderSettings, -1.0e-2, 1.0e-2 );
 
-    SphericalShapingLeg sphericalShapingLeg = SphericalShapingLeg(
-            pointerToDepartureBodyEphemeris, pointerToArrivalBodyEphemeris,
-            spice_interface::getBodyGravitationalParameter("Sun"),
-            numberOfRevolutions, rootFinderSettings, -1.0e-2, 1.0e-2);
-    sphericalShapingLeg.updateLegParameters( (Eigen::Vector2d( )<< julianDate, julianDate + timeOfFlight ).finished( ) );
+//    SphericalShapingLeg sphericalShapingLeg = SphericalShapingLeg(
+//            pointerToDepartureBodyEphemeris, pointerToArrivalBodyEphemeris,
+//            spice_interface::getBodyGravitationalParameter("Sun"),
+//            numberOfRevolutions, rootFinderSettings, -1.0e-2, 1.0e-2);
 
-    // Compute step size.
-    double numberOfSteps = 5000.0;
-    double stepSize_old = (sphericalShaping.getFinalValueInpendentVariable( ) -
-                           sphericalShaping.getInitialValueInpendentVariable( ) ) / numberOfSteps;
-
-    // Initialise peak acceleration.
-    double peakThrustAcceleration_old = 0.0;
-
-    // Compute peak acceleration.
-    for ( int i = 0 ; i <= numberOfSteps ; i++ )
+    SphericalShapingLeg *sphericalShapingLegPointer;
+    for ( unsigned int creationType = 0; creationType < 2; creationType++ )
     {
-        double currentThetaAngle = sphericalShaping.getInitialValueInpendentVariable() + i * stepSize_old;
-
-        if (sphericalShaping.computeCurrentThrustAcceleration( currentThetaAngle ).norm() > peakThrustAcceleration_old )
-        {
-            peakThrustAcceleration_old = sphericalShaping.computeCurrentThrustAcceleration(currentThetaAngle ).norm();
+        if (creationType == 0) {
+            sphericalShapingLegPointer = new SphericalShapingLeg(
+                    pointerToDepartureBodyEphemeris, pointerToArrivalBodyEphemeris,
+                    spice_interface::getBodyGravitationalParameter("Sun"),
+                    numberOfRevolutions, rootFinderSettings, -1.0e-2, 1.0e-2);
         }
-    }
-
-    // Initialise peak acceleration
-    double peakThrustAcceleration = 0.0;
-
-    std::map< double, Eigen::Vector3d > thrustAccelerationsAlongTrajectory;
-    sphericalShapingLeg.getThrustAccelerationsAlongTrajectory( thrustAccelerationsAlongTrajectory, 5000 );
-
-    // Check initial and final time on output list
-    BOOST_CHECK_CLOSE_FRACTION( thrustAccelerationsAlongTrajectory.begin( )->first, julianDate, 1.0E-14 );
-    BOOST_CHECK_CLOSE_FRACTION( thrustAccelerationsAlongTrajectory.rbegin( )->first, julianDate + timeOfFlight, 1.0E-14 );
-
-    // Loop over computed acceleration values and check peak acceleration
-    for( auto it : thrustAccelerationsAlongTrajectory )
-    {
-        Eigen::Vector3d currentCartesianThrustAcceleration = it.second;
-        if ( currentCartesianThrustAcceleration.norm() > peakThrustAcceleration )
+        else if (creationType == 1)
         {
-            peakThrustAcceleration = currentCartesianThrustAcceleration.norm();
+            std::function< Eigen::Vector3d () > departureVelocityFunction = [=] () {return initialState.segment(3, 3);};
+            std::function< Eigen::Vector3d () > arrivalVelocityFunction = [=] () {return finalState.segment(3, 3);};
+
+            sphericalShapingLegPointer = new SphericalShapingLeg(
+                    pointerToDepartureBodyEphemeris, pointerToArrivalBodyEphemeris,
+                    spice_interface::getBodyGravitationalParameter("Sun"),
+                    numberOfRevolutions,
+                    departureVelocityFunction, arrivalVelocityFunction,
+                    rootFinderSettings, -1.0e-2, 1.0e-2);
         }
+
+        sphericalShapingLegPointer->updateLegParameters(
+                ( Eigen::Vector2d( ) << julianDate, julianDate + timeOfFlight ).finished( ));
+
+        // Compute step size.
+        double numberOfSteps = 5000.0;
+        double stepSize_old = ( sphericalShaping.getFinalValueInpendentVariable( ) -
+                                sphericalShaping.getInitialValueInpendentVariable( ) ) / numberOfSteps;
+
+        // Initialise peak acceleration.
+        double peakThrustAcceleration_old = 0.0;
+
+        // Compute peak acceleration.
+        for (int i = 0; i <= numberOfSteps; i++) {
+            double currentThetaAngle = sphericalShaping.getInitialValueInpendentVariable( ) + i * stepSize_old;
+
+            if (sphericalShaping.computeCurrentThrustAcceleration(currentThetaAngle).norm( ) >
+                peakThrustAcceleration_old) {
+                peakThrustAcceleration_old = sphericalShaping.computeCurrentThrustAcceleration(
+                        currentThetaAngle).norm( );
+            }
+        }
+
+        // Initialise peak acceleration
+        double peakThrustAcceleration = 0.0;
+
+        std::map< double, Eigen::Vector3d > thrustAccelerationsAlongTrajectory;
+        sphericalShapingLegPointer->getThrustAccelerationsAlongTrajectory(thrustAccelerationsAlongTrajectory, 5000);
+
+        // Check initial and final time on output list
+        BOOST_CHECK_CLOSE_FRACTION(thrustAccelerationsAlongTrajectory.begin( )->first, julianDate, 1.0E-14);
+        BOOST_CHECK_CLOSE_FRACTION(thrustAccelerationsAlongTrajectory.rbegin( )->first, julianDate + timeOfFlight,
+                                   1.0E-14);
+
+        // Loop over computed acceleration values and check peak acceleration
+        for (auto it: thrustAccelerationsAlongTrajectory) {
+            Eigen::Vector3d currentCartesianThrustAcceleration = it.second;
+            if (currentCartesianThrustAcceleration.norm( ) > peakThrustAcceleration) {
+                peakThrustAcceleration = currentCartesianThrustAcceleration.norm( );
+            }
+        }
+
+
+        // Check results consistency w.r.t. Roegiers, T., Application of the Spherical Shaping Method to a Low-Thrust
+        // Multiple Asteroid Rendezvous Mission, TU Delft (MSc thesis), 2014
+        // The expected differences are a bit larger than for Earth-Mars transfer due to the higher uncertainty in 1989ML's ephemeris.
+        double expectedDeltaV = 4530.0;
+        double expectedPeakAcceleration = 1.8e-4;
+
+        // DeltaV provided with a precision of 0.1 km/s
+        BOOST_CHECK_SMALL(std::fabs(sphericalShaping.computeDeltaV( ) - expectedDeltaV), 100.0);
+        BOOST_CHECK_SMALL(std::fabs(sphericalShapingLegPointer->getLegDeltaV( ) - expectedDeltaV), 100.0);
+        // Peak acceleration provided with a precision 1.0e-5 m/s^2
+        BOOST_CHECK_SMALL(std::fabs(peakThrustAcceleration_old - expectedPeakAcceleration), 1e-5);
+        BOOST_CHECK_SMALL(std::fabs(peakThrustAcceleration - expectedPeakAcceleration), 1e-5);
+
+
+
+        // Retrieve state history
+        std::map< double, Eigen::Vector6d > statesAlongTrajectory;
+        sphericalShapingLegPointer->getStatesAlongTrajectory(statesAlongTrajectory, 10);
+
+        // Check initial and final time on output list
+        BOOST_CHECK_CLOSE_FRACTION(statesAlongTrajectory.begin( )->first, julianDate, 1.0E-14);
+        BOOST_CHECK_CLOSE_FRACTION(statesAlongTrajectory.rbegin( )->first, julianDate + timeOfFlight, 1.0E-14);
+
+        // Check initial and final state on output list
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION(initialState, statesAlongTrajectory.begin( )->second, 1.0E-5);
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION(finalState, statesAlongTrajectory.rbegin( )->second, 1.0E-5);
     }
-
-
-    // Check results consistency w.r.t. Roegiers, T., Application of the Spherical Shaping Method to a Low-Thrust
-    // Multiple Asteroid Rendezvous Mission, TU Delft (MSc thesis), 2014
-    // The expected differences are a bit larger than for Earth-Mars transfer due to the higher uncertainty in 1989ML's ephemeris.
-    double expectedDeltaV = 4530.0;
-    double expectedPeakAcceleration = 1.8e-4;
-
-    // DeltaV provided with a precision of 0.1 km/s
-    BOOST_CHECK_SMALL( std::fabs(  sphericalShaping.computeDeltaV() - expectedDeltaV ), 100.0 );
-    BOOST_CHECK_SMALL( std::fabs(  sphericalShapingLeg.getLegDeltaV() - expectedDeltaV ), 100.0 );
-    // Peak acceleration provided with a precision 1.0e-5 m/s^2
-    BOOST_CHECK_SMALL(std::fabs(peakThrustAcceleration_old - expectedPeakAcceleration ), 1e-5 );
-    BOOST_CHECK_SMALL(std::fabs(peakThrustAcceleration - expectedPeakAcceleration ), 1e-5 );
-
-
-
-    // Retrieve state history
-    std::map< double, Eigen::Vector6d > statesAlongTrajectory;
-    sphericalShapingLeg.getStatesAlongTrajectory( statesAlongTrajectory, 10 );
-
-    // Check initial and final time on output list
-    BOOST_CHECK_CLOSE_FRACTION( statesAlongTrajectory.begin( )->first, julianDate, 1.0E-14 );
-    BOOST_CHECK_CLOSE_FRACTION( statesAlongTrajectory.rbegin( )->first, julianDate + timeOfFlight, 1.0E-14 );
-
-    // Check initial and final state on output list
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( initialState, statesAlongTrajectory.begin( )->second, 1.0E-5 );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( finalState, statesAlongTrajectory.rbegin( )->second, 1.0E-5 );
 }
 
 
