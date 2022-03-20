@@ -423,6 +423,20 @@ void getMgaTransferTrajectorySettingsWithoutDsm(
 
 }
 
+std::pair< std::vector< std::shared_ptr< TransferLegSettings > >,
+std::vector< std::shared_ptr< TransferNodeSettings > > > getMgaTransferTrajectorySettingsWithoutDsm(
+        const std::vector< std::string >& fullBodiesList,
+        const std::pair< double, double > departureOrbit,
+        const std::pair< double, double > arrivalOrbit,
+        const std::map< std::string, double > minimumPericenterRadii)
+{
+    std::vector< std::shared_ptr< TransferLegSettings > > transferLegSettings;
+    std::vector< std::shared_ptr< TransferNodeSettings > > transferNodeSettings;
+    getMgaTransferTrajectorySettingsWithoutDsm(transferLegSettings, transferNodeSettings, fullBodiesList,
+                                               departureOrbit, arrivalOrbit, minimumPericenterRadii);
+    return std::make_pair( transferLegSettings, transferNodeSettings );
+}
+
 void getMgaTransferTrajectorySettingsWithoutDsm(
         std::vector< std::shared_ptr< TransferLegSettings > >& legSettings,
         std::vector< std::shared_ptr< TransferNodeSettings > >& nodeSettings,
@@ -457,6 +471,20 @@ void getMgaTransferTrajectorySettingsWithPositionBasedDsm(
 
 }
 
+std::pair< std::vector< std::shared_ptr< TransferLegSettings > >,
+std::vector< std::shared_ptr< TransferNodeSettings > > > getMgaTransferTrajectorySettingsWithPositionBasedDsm(
+        const std::vector< std::string >& fullBodiesList,
+        const std::pair< double, double > departureOrbit,
+        const std::pair< double, double > arrivalOrbit,
+        const std::map< std::string, double > minimumPericenterRadii)
+{
+    std::vector< std::shared_ptr< TransferLegSettings > > transferLegSettings;
+    std::vector< std::shared_ptr< TransferNodeSettings > > transferNodeSettings;
+    getMgaTransferTrajectorySettingsWithPositionBasedDsm(transferLegSettings, transferNodeSettings, fullBodiesList,
+                                                         departureOrbit, arrivalOrbit, minimumPericenterRadii);
+    return std::make_pair( transferLegSettings, transferNodeSettings );
+}
+
 void getMgaTransferTrajectorySettingsWithPositionBasedDsm(
         std::vector< std::shared_ptr< TransferLegSettings > >& legSettings,
         std::vector< std::shared_ptr< TransferNodeSettings > >& nodeSettings,
@@ -489,6 +517,20 @@ void getMgaTransferTrajectorySettingsWithVelocityBasedDsm(
     return getMgaTransferTrajectorySettingsWithVelocityBasedDsm(
                 legSettings, nodeSettings, fullBodiesList, departureOrbit, arrivalOrbit, minimumPericenterRadii );
 
+}
+
+std::pair< std::vector< std::shared_ptr< TransferLegSettings > >,
+std::vector< std::shared_ptr< TransferNodeSettings > > > getMgaTransferTrajectorySettingsWithVelocityBasedDsm(
+        const std::vector< std::string >& fullBodiesList,
+        const std::pair< double, double > departureOrbit,
+        const std::pair< double, double > arrivalOrbit,
+        const std::map< std::string, double > minimumPericenterRadii)
+{
+    std::vector< std::shared_ptr< TransferLegSettings > > transferLegSettings;
+    std::vector< std::shared_ptr< TransferNodeSettings > > transferNodeSettings;
+    getMgaTransferTrajectorySettingsWithVelocityBasedDsm(transferLegSettings, transferNodeSettings, fullBodiesList,
+                                                         departureOrbit, arrivalOrbit, minimumPericenterRadii);
+    return std::make_pair( transferLegSettings, transferNodeSettings );
 }
 
 void getMgaTransferTrajectorySettingsWithVelocityBasedDsm(
@@ -530,6 +572,27 @@ void getMgaTransferTrajectorySettingsWithSphericalShapingThrust (
             arrivalOrbit, lowerBoundFreeCoefficient, upperBoundFreeCoefficient,
             initialValueFreeCoefficient, minimumPericenterRadii);
 
+}
+
+std::pair< std::vector< std::shared_ptr< TransferLegSettings > >,
+std::vector< std::shared_ptr< TransferNodeSettings > > > getMgaTransferTrajectorySettingsWithSphericalShapingThrust (
+        const std::vector< std::string >& fullBodiesList,
+        const int numberOfRevolutions,
+        const std::shared_ptr< root_finders::RootFinderSettings > rootFinderSettings,
+        const std::pair< double, double > departureOrbit,
+        const std::pair< double, double > arrivalOrbit,
+        const double lowerBoundFreeCoefficient,
+        const double upperBoundFreeCoefficient,
+        const double initialValueFreeCoefficient,
+        const std::map< std::string, double > minimumPericenterRadii)
+{
+    std::vector< std::shared_ptr< TransferLegSettings > > transferLegSettings;
+    std::vector< std::shared_ptr< TransferNodeSettings > > transferNodeSettings;
+    getMgaTransferTrajectorySettingsWithSphericalShapingThrust(
+            transferLegSettings, transferNodeSettings, fullBodiesList, numberOfRevolutions, rootFinderSettings,
+            departureOrbit, arrivalOrbit, lowerBoundFreeCoefficient, upperBoundFreeCoefficient,
+            initialValueFreeCoefficient, minimumPericenterRadii);
+    return std::make_pair( transferLegSettings, transferNodeSettings );
 }
 
 void getMgaTransferTrajectorySettingsWithSphericalShapingThrust (
