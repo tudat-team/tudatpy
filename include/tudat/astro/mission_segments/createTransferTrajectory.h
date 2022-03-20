@@ -219,8 +219,16 @@ void getMgaTransferTrajectorySettings(
 void getMgaTransferTrajectorySettingsWithoutDsm(
         std::vector< std::shared_ptr< TransferLegSettings > >& legSettings,
         std::vector< std::shared_ptr< TransferNodeSettings > >& nodeSettings,
-        const std::string& departureBody, const std::string& arrivalBody,
+        const std::string& departureBody,
+        const std::string& arrivalBody,
         const std::vector< std::string >& flybyBodies,
+        const std::pair< double, double > departureOrbit = std::make_pair( TUDAT_NAN, TUDAT_NAN ),
+        const std::pair< double, double > arrivalOrbit = std::make_pair( TUDAT_NAN, TUDAT_NAN ),
+        const std::map< std::string, double > minimumPericenterRadii = DEFAULT_MINIMUM_PERICENTERS );
+
+std::pair< std::vector< std::shared_ptr< TransferLegSettings > >,
+std::vector< std::shared_ptr< TransferNodeSettings > > > getMgaTransferTrajectorySettingsWithoutDsm(
+        const std::vector< std::string >& fullBodiesList,
         const std::pair< double, double > departureOrbit = std::make_pair( TUDAT_NAN, TUDAT_NAN ),
         const std::pair< double, double > arrivalOrbit = std::make_pair( TUDAT_NAN, TUDAT_NAN ),
         const std::map< std::string, double > minimumPericenterRadii = DEFAULT_MINIMUM_PERICENTERS );
@@ -237,8 +245,16 @@ void getMgaTransferTrajectorySettingsWithoutDsm(
 void getMgaTransferTrajectorySettingsWithPositionBasedDsm(
         std::vector< std::shared_ptr< TransferLegSettings > >& legSettings,
         std::vector< std::shared_ptr< TransferNodeSettings > >& nodeSettings,
-        const std::string& departureBody, const std::string& arrivalBody,
+        const std::string& departureBody,
+        const std::string& arrivalBody,
         const std::vector< std::string >& flybyBodies,
+        const std::pair< double, double > departureOrbit = std::make_pair( TUDAT_NAN, TUDAT_NAN ),
+        const std::pair< double, double > arrivalOrbit = std::make_pair( TUDAT_NAN, TUDAT_NAN ),
+        const std::map< std::string, double > minimumPericenterRadii = DEFAULT_MINIMUM_PERICENTERS );
+
+std::pair< std::vector< std::shared_ptr< TransferLegSettings > >,
+std::vector< std::shared_ptr< TransferNodeSettings > > > getMgaTransferTrajectorySettingsWithPositionBasedDsm(
+        const std::vector< std::string >& fullBodiesList,
         const std::pair< double, double > departureOrbit = std::make_pair( TUDAT_NAN, TUDAT_NAN ),
         const std::pair< double, double > arrivalOrbit = std::make_pair( TUDAT_NAN, TUDAT_NAN ),
         const std::map< std::string, double > minimumPericenterRadii = DEFAULT_MINIMUM_PERICENTERS );
@@ -251,12 +267,19 @@ void getMgaTransferTrajectorySettingsWithPositionBasedDsm(
         const std::pair< double, double > arrivalOrbit = std::make_pair( TUDAT_NAN, TUDAT_NAN ),
         const std::map< std::string, double > minimumPericenterRadii = DEFAULT_MINIMUM_PERICENTERS );
 
-
 void getMgaTransferTrajectorySettingsWithVelocityBasedDsm(
         std::vector< std::shared_ptr< TransferLegSettings > >& legSettings,
         std::vector< std::shared_ptr< TransferNodeSettings > >& nodeSettings,
-        const std::string& departureBody, const std::string& arrivalBody,
+        const std::string& departureBody,
+        const std::string& arrivalBody,
         const std::vector< std::string >& flybyBodies,
+        const std::pair< double, double > departureOrbit = std::make_pair( TUDAT_NAN, TUDAT_NAN ),
+        const std::pair< double, double > arrivalOrbit = std::make_pair( TUDAT_NAN, TUDAT_NAN ),
+        const std::map< std::string, double > minimumPericenterRadii = DEFAULT_MINIMUM_PERICENTERS );
+
+std::pair< std::vector< std::shared_ptr< TransferLegSettings > >,
+std::vector< std::shared_ptr< TransferNodeSettings > > > getMgaTransferTrajectorySettingsWithVelocityBasedDsm(
+        const std::vector< std::string >& fullBodiesList,
         const std::pair< double, double > departureOrbit = std::make_pair( TUDAT_NAN, TUDAT_NAN ),
         const std::pair< double, double > arrivalOrbit = std::make_pair( TUDAT_NAN, TUDAT_NAN ),
         const std::map< std::string, double > minimumPericenterRadii = DEFAULT_MINIMUM_PERICENTERS );
@@ -275,6 +298,18 @@ void getMgaTransferTrajectorySettingsWithSphericalShapingThrust (
         const std::string& departureBody,
         const std::string& arrivalBody,
         const std::vector< std::string >& flybyBodies,
+        const int numberOfRevolutions,
+        const std::shared_ptr< root_finders::RootFinderSettings > rootFinderSettings,
+        const std::pair< double, double > departureOrbit = std::make_pair(TUDAT_NAN, TUDAT_NAN),
+        const std::pair< double, double > arrivalOrbit = std::make_pair(TUDAT_NAN, TUDAT_NAN),
+        const double lowerBoundFreeCoefficient = TUDAT_NAN,
+        const double upperBoundFreeCoefficient = TUDAT_NAN,
+        const double initialValueFreeCoefficient = TUDAT_NAN,
+        const std::map< std::string, double > minimumPericenterRadii = DEFAULT_MINIMUM_PERICENTERS);
+
+std::pair< std::vector< std::shared_ptr< TransferLegSettings > >,
+std::vector< std::shared_ptr< TransferNodeSettings > > > getMgaTransferTrajectorySettingsWithSphericalShapingThrust (
+        const std::vector< std::string >& fullBodiesList,
         const int numberOfRevolutions,
         const std::shared_ptr< root_finders::RootFinderSettings > rootFinderSettings,
         const std::pair< double, double > departureOrbit = std::make_pair(TUDAT_NAN, TUDAT_NAN),
