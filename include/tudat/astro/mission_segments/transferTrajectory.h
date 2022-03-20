@@ -143,6 +143,63 @@ public:
         }
     }
 
+    //! Get Cartesian thrust acceleration along full trajectory
+    void getThrustAccelerationsAlongTrajectoryPerLeg(
+            std::vector< std::map< double, Eigen::Vector3d > >& thrustAccelerationsAlongTrajectoryPerLeg,
+            const int numberOfDataPointsPerLeg );
+
+    //! Get Cartesian thrust acceleration along full trajectory
+    std::vector< std::map< double, Eigen::Vector3d > > getThrustAccelerationAlongTrajectoryPerLeg( const int numberOfDataPointsPerLeg )
+    {
+        if( isComputed_ )
+        {
+            std::vector< std::map< double, Eigen::Vector3d > > thrustAccelerationsAlongTrajectoryPerLeg;
+            getThrustAccelerationsAlongTrajectoryPerLeg( thrustAccelerationsAlongTrajectoryPerLeg, numberOfDataPointsPerLeg );
+            return thrustAccelerationsAlongTrajectoryPerLeg;
+        }
+        else
+        {
+            throw std::runtime_error( "Error when getting thrust accelerations on transfer trajectory; transfer parameters not set!" );
+        }
+    }
+
+    //! Get Cartesian thrust acceleration along full trajectory
+    void getThrustAccelerationsAlongTrajectory( std::map< double, Eigen::Vector3d >& thrustAccelerationsAlongTrajectory,
+                                   const int numberOfDataPointsPerLeg )
+    {
+        if( isComputed_ )
+        {
+            std::vector< std::map< double, Eigen::Vector3d > > thrustAccelerationsAlongTrajectoryPerLeg;
+            getThrustAccelerationsAlongTrajectoryPerLeg( thrustAccelerationsAlongTrajectoryPerLeg, numberOfDataPointsPerLeg );
+            thrustAccelerationsAlongTrajectory = thrustAccelerationsAlongTrajectoryPerLeg.at( 0 );
+            for( unsigned int i = 0; i < thrustAccelerationsAlongTrajectoryPerLeg.size( ); i++ )
+            {
+                thrustAccelerationsAlongTrajectory.insert( thrustAccelerationsAlongTrajectoryPerLeg.at( i ).begin( ),
+                                                           thrustAccelerationsAlongTrajectoryPerLeg.at( i ).end( ) );
+            }
+        }
+        else
+        {
+            throw std::runtime_error( "Error when getting thrust accelerations on transfer trajectory; transfer parameters not set!" );
+        }
+    }
+
+    //! Get Cartesian thrust acceleration along full trajectory
+    std::map< double, Eigen::Vector3d > getThrustAccelerationsAlongTrajectory( const int numberOfDataPointsPerLeg )
+    {
+        if( isComputed_ )
+        {
+            std::map< double, Eigen::Vector3d > thrustAccelerationsAlongTrajectory;
+            getThrustAccelerationsAlongTrajectory( thrustAccelerationsAlongTrajectory, numberOfDataPointsPerLeg );
+            return thrustAccelerationsAlongTrajectory;
+        }
+        else
+        {
+            throw std::runtime_error( "Error when getting thrust accelerations on transfer trajectory; transfer parameters not set!" );
+        }
+    }
+
+
 
 private:
 

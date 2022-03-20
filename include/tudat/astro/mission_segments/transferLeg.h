@@ -129,7 +129,6 @@ public:
         return stateAlongTrajectory;
     }
 
-
     void getStatesAlongTrajectory( std::map< double, Eigen::Vector6d >& statesAlongTrajectory,
                                    const std::vector< double >& times )
     {
@@ -148,6 +147,43 @@ public:
         statesAlongTrajectory.clear( );
         std::vector< double > times = utilities::linspace( departureTime_, arrivalTime_, numberOfDataPoints );
         getStatesAlongTrajectory( statesAlongTrajectory, times );
+    }
+
+    //! Get single value of cartesian thrust acceleration.
+    virtual void getThrustAccelerationAlongTrajectory ( Eigen::Vector3d& thrustAccelerationAlongTrajectory,
+                                                        const double time )
+    {
+        thrustAccelerationAlongTrajectory = ( Eigen::Vector3d() << 0.0, 0.0, 0.0 ).finished();
+    }
+
+    //! Get single value of cartesian thrust acceleration.
+    Eigen::Vector3d getThrustAccelerationAlongTrajectory ( const double time )
+    {
+        Eigen::Vector3d thrustAccelerationAlongTrajectory;
+        getThrustAccelerationAlongTrajectory( thrustAccelerationAlongTrajectory, time );
+        return thrustAccelerationAlongTrajectory;
+    }
+
+    //! Get cartesian thrust acceleration along transfer leg.
+    void getThrustAccelerationsAlongTrajectory(std::map< double, Eigen::Vector3d >& thrustAccelerationsAlongTrajectory,
+                                               const std::vector< double >& times )
+    {
+        thrustAccelerationsAlongTrajectory.clear( );
+        Eigen::Vector3d currentThrustAccelerationAlongTrajectory;
+        for( unsigned int i = 0; i < times.size( ); i++ )
+        {
+            getThrustAccelerationAlongTrajectory(currentThrustAccelerationAlongTrajectory, times.at(i));
+            thrustAccelerationsAlongTrajectory[ times.at(i ) ] = currentThrustAccelerationAlongTrajectory;
+        }
+    }
+
+    //! Get cartesian thrust acceleration along transfer leg.
+    void getThrustAccelerationsAlongTrajectory(std::map< double, Eigen::Vector3d >& thrustAccelerationsAlongTrajectory,
+                                               const int numberOfDataPoints )
+    {
+        thrustAccelerationsAlongTrajectory.clear( );
+        std::vector< double > times = utilities::linspace( departureTime_, arrivalTime_, numberOfDataPoints );
+        getThrustAccelerationsAlongTrajectory(thrustAccelerationsAlongTrajectory, times);
     }
 
 protected:

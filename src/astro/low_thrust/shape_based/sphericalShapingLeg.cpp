@@ -195,7 +195,7 @@ double SphericalShapingLeg::convertTimeToAzimuth(const double timeSinceDeparture
         throw std::runtime_error( "Error when converting time to azimuth, requested time is outside bounds" );
     }
 
-    return  interpolator_->interpolate(timeSinceDeparture );
+    return  interpolator_->interpolate( timeSinceDeparture );
 }
 
 
@@ -491,7 +491,7 @@ Eigen::Vector6d SphericalShapingLeg::computeNormalizedStateInSphericalCoordinate
 }
 
 
-Eigen::Vector6d SphericalShapingLeg::computeStateVectorFromAzimuth(const double currentAzimuthAngle )
+Eigen::Vector6d SphericalShapingLeg::computeStateFromAzimuth(const double currentAzimuthAngle )
 {
     if ( currentAzimuthAngle < initialAzimuthAngle_ || currentAzimuthAngle > finalAzimuthAngle_ )
     {
@@ -511,14 +511,23 @@ Eigen::Vector6d SphericalShapingLeg::computeStateVectorFromAzimuth(const double 
 }
 
 
-Eigen::Vector6d SphericalShapingLeg::computeStateVector (const double timeSinceDeparture)
+Eigen::Vector6d SphericalShapingLeg::computeState (const double timeSinceDeparture)
 {
     if ( timeSinceDeparture < 0.0 || timeSinceDeparture > timeOfFlight_ )
     {
         throw std::runtime_error( "Error when computing state vector, requested time is outside bounds" );
     }
 
-    return computeStateVectorFromAzimuth(convertTimeToAzimuth(timeSinceDeparture));
+    // For the final time, manually select the azimuth, in order to prevent the numerical errors associated with the computation
+    // of the final azimuth with the interpolator of triggering a runtime_error when computing the state vector.
+    if ( timeSinceDeparture == timeOfFlight_ )
+    {
+        return computeStateFromAzimuth(finalAzimuthAngle_);
+    }
+    else
+    {
+        return computeStateFromAzimuth(convertTimeToAzimuth(timeSinceDeparture));
+    }
 }
 
 
@@ -623,7 +632,17 @@ Eigen::Vector3d SphericalShapingLeg::computeThrustAcceleration (const double tim
         throw std::runtime_error( "Error when computing acceleration vector, requested time is outside bounds" );
     }
 
-    return computeThrustAccelerationFromAzimuth(convertTimeToAzimuth(timeSinceDeparture));
+    // For the final time, manually select the azimuth, in order to prevent the numerical errors associated with the computation
+    // of the final azimuth with the interpolator of triggering a runtime_error when computing the state vector.
+    if ( timeSinceDeparture == timeOfFlight_ )
+    {
+        return computeThrustAccelerationFromAzimuth( finalAzimuthAngle_ );
+    }
+    else
+    {
+        return computeThrustAccelerationFromAzimuth( convertTimeToAzimuth( timeSinceDeparture ) );
+    }
+
 }
 
 

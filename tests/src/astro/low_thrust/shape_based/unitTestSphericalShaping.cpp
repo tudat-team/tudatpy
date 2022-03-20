@@ -22,6 +22,8 @@
 #include <cmath>
 #include <iostream>
 
+#include <tudat/basics/testMacros.h>
+
 #include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/math/basic/basicMathematicsFunctions.h"
@@ -102,15 +104,20 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_earth_mars_transfer )
     // Initialise peak acceleration
     double peakThrustAcceleration = 0.0;
 
-    // Loop over independent variable values and check peak acceleration
-    double stepSize = (sphericalShapingLeg.getFinalValueAzimuth() -
-                       sphericalShapingLeg.getInitialValueAzimuth() ) / 5000.0;
-    for ( int i = 0 ; i <= 5000 ; i++ )
+    std::map< double, Eigen::Vector3d > thrustAccelerationsAlongTrajectory;
+    sphericalShapingLeg.getThrustAccelerationsAlongTrajectory( thrustAccelerationsAlongTrajectory, 5000 );
+
+    // Check initial and final time on output list
+    BOOST_CHECK_CLOSE_FRACTION( thrustAccelerationsAlongTrajectory.begin( )->first, julianDate, 1.0E-14 );
+    BOOST_CHECK_CLOSE_FRACTION( thrustAccelerationsAlongTrajectory.rbegin( )->first, julianDate + timeOfFlight, 1.0E-14 );
+
+    // Loop over computed acceleration values and check peak acceleration
+    for( auto it : thrustAccelerationsAlongTrajectory )
     {
-        double currentThetaAngle = sphericalShapingLeg.getInitialValueAzimuth() + i * stepSize;
-        if (sphericalShapingLeg.computeThrustAccelerationFromAzimuth(currentThetaAngle).norm() > peakThrustAcceleration )
+        Eigen::Vector3d currentCartesianThrustAcceleration = it.second;
+        if ( currentCartesianThrustAcceleration.norm() > peakThrustAcceleration )
         {
-            peakThrustAcceleration = sphericalShapingLeg.computeThrustAccelerationFromAzimuth(currentThetaAngle).norm();
+            peakThrustAcceleration = currentCartesianThrustAcceleration.norm();
         }
     }
 
@@ -120,8 +127,6 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_earth_mars_transfer )
     double expectedDeltaV = 5700.0;
     double expectedPeakAcceleration = 2.4e-4;
 
-    std::cout<<sphericalShaping.computeDeltaV()<<" "<<sphericalShapingLeg.getLegDeltaV()<<std::endl;
-    std::cout<<peakThrustAcceleration_old<<" "<<peakThrustAcceleration<<std::endl;
     // DeltaV provided with a precision of 5 m/s
     BOOST_CHECK_SMALL( std::fabs(  sphericalShaping.computeDeltaV() - expectedDeltaV ), 5.0 );
     BOOST_CHECK_SMALL( std::fabs(  sphericalShapingLeg.getLegDeltaV() - expectedDeltaV ), 5.0 );
@@ -129,6 +134,18 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_earth_mars_transfer )
     BOOST_CHECK_SMALL(std::fabs(peakThrustAcceleration_old - expectedPeakAcceleration ), 2.0e-6 );
     BOOST_CHECK_SMALL(std::fabs(peakThrustAcceleration - expectedPeakAcceleration ), 2.0e-6 );
 
+
+    // Retrieve state history
+    std::map< double, Eigen::Vector6d > statesAlongTrajectory;
+    sphericalShapingLeg.getStatesAlongTrajectory( statesAlongTrajectory, 10 );
+
+    // Check initial and final time on output list
+    BOOST_CHECK_CLOSE_FRACTION( statesAlongTrajectory.begin( )->first, julianDate, 1.0E-14 );
+    BOOST_CHECK_CLOSE_FRACTION( statesAlongTrajectory.rbegin( )->first, julianDate + timeOfFlight, 1.0E-14 );
+
+    // Check initial and final state on output list
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( initialState, statesAlongTrajectory.begin( )->second, 1.0E-5 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( finalState, statesAlongTrajectory.rbegin( )->second, 1.0E-5 );
 }
 
 
@@ -146,7 +163,7 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_earth_1989ML_transfer )
     Eigen::Vector6d initialState = pointerToDepartureBodyEphemeris->getCartesianState( julianDate );
 
     // Final state derived from ML1989 ephemeris (from Spice).
-    Eigen::Vector6d arrivalBodyfinalState = (
+    Eigen::Vector6d finalState = (
                 Eigen::Vector6d() <<
                 1.197701029846094E+00 * physical_constants::ASTRONOMICAL_UNIT,
                 1.653518856610793E-01 * physical_constants::ASTRONOMICAL_UNIT,
@@ -154,7 +171,7 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_earth_1989ML_transfer )
                 - 4.891080912584867E-05 * physical_constants::ASTRONOMICAL_UNIT / physical_constants::JULIAN_DAY,
                 1.588950249593135E-02 * physical_constants::ASTRONOMICAL_UNIT / physical_constants::JULIAN_DAY,
                 - 2.980245580772588E-04 * physical_constants::ASTRONOMICAL_UNIT / physical_constants::JULIAN_DAY ).finished();
-    EphemerisPointer pointerToArrivalBodyEphemeris = std::make_shared< ConstantEphemeris >( arrivalBodyfinalState );
+    EphemerisPointer pointerToArrivalBodyEphemeris = std::make_shared< ConstantEphemeris >(finalState );
 
     // Define root finder settings (used to update the updated value of the free coefficient, so that it matches the required time of flight).
     std::shared_ptr< RootFinderSettings > rootFinderSettings =
@@ -162,7 +179,7 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_earth_1989ML_transfer )
 
     // Compute shaped trajectory.
     SphericalShaping sphericalShaping = SphericalShaping(
-            initialState, arrivalBodyfinalState, timeOfFlight,
+            initialState, finalState, timeOfFlight,
             spice_interface::getBodyGravitationalParameter( "Sun" ),
             numberOfRevolutions, -0.0000703, rootFinderSettings, -1.0e-2, 1.0e-2 );
 
@@ -194,15 +211,20 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_earth_1989ML_transfer )
     // Initialise peak acceleration
     double peakThrustAcceleration = 0.0;
 
-    // Loop over independent variable values and check peak acceleration
-    double stepSize = (sphericalShapingLeg.getFinalValueAzimuth() -  sphericalShapingLeg.getInitialValueAzimuth() ) / 5000.0;
+    std::map< double, Eigen::Vector3d > thrustAccelerationsAlongTrajectory;
+    sphericalShapingLeg.getThrustAccelerationsAlongTrajectory( thrustAccelerationsAlongTrajectory, 5000 );
 
-    for ( int i = 0 ; i <= 5000 ; i++ )
+    // Check initial and final time on output list
+    BOOST_CHECK_CLOSE_FRACTION( thrustAccelerationsAlongTrajectory.begin( )->first, julianDate, 1.0E-14 );
+    BOOST_CHECK_CLOSE_FRACTION( thrustAccelerationsAlongTrajectory.rbegin( )->first, julianDate + timeOfFlight, 1.0E-14 );
+
+    // Loop over computed acceleration values and check peak acceleration
+    for( auto it : thrustAccelerationsAlongTrajectory )
     {
-        double currentThetaAngle = sphericalShapingLeg.getInitialValueAzimuth() + i * stepSize;
-        if (sphericalShapingLeg.computeThrustAccelerationFromAzimuth(currentThetaAngle).norm() > peakThrustAcceleration )
+        Eigen::Vector3d currentCartesianThrustAcceleration = it.second;
+        if ( currentCartesianThrustAcceleration.norm() > peakThrustAcceleration )
         {
-            peakThrustAcceleration = sphericalShapingLeg.computeThrustAccelerationFromAzimuth(currentThetaAngle).norm();
+            peakThrustAcceleration = currentCartesianThrustAcceleration.norm();
         }
     }
 
@@ -220,6 +242,19 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_earth_1989ML_transfer )
     BOOST_CHECK_SMALL(std::fabs(peakThrustAcceleration_old - expectedPeakAcceleration ), 1e-5 );
     BOOST_CHECK_SMALL(std::fabs(peakThrustAcceleration - expectedPeakAcceleration ), 1e-5 );
 
+
+
+    // Retrieve state history
+    std::map< double, Eigen::Vector6d > statesAlongTrajectory;
+    sphericalShapingLeg.getStatesAlongTrajectory( statesAlongTrajectory, 10 );
+
+    // Check initial and final time on output list
+    BOOST_CHECK_CLOSE_FRACTION( statesAlongTrajectory.begin( )->first, julianDate, 1.0E-14 );
+    BOOST_CHECK_CLOSE_FRACTION( statesAlongTrajectory.rbegin( )->first, julianDate + timeOfFlight, 1.0E-14 );
+
+    // Check initial and final state on output list
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( initialState, statesAlongTrajectory.begin( )->second, 1.0E-5 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( finalState, statesAlongTrajectory.rbegin( )->second, 1.0E-5 );
 }
 
 
@@ -228,16 +263,15 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_earth_mars_transfer_multi_revolutio
 {
     spice_interface::loadStandardSpiceKernels( );
 
-    double julianDate = 8174.5 * physical_constants::JULIAN_DAY;
+    double JD = physical_constants::JULIAN_DAY;
+    double julianDate = 8174.5 * JD;
 
     std::vector< int > numberOfRevolutionsVector = { 0, 1, 2 };
-    std::vector< double > timeOfFlightVector = { 300.0, 580.0, 750.0 };
+    std::vector< double > timeOfFlightVector = { 300.0*JD, 580.0*JD, 750.0*JD };
 
     // Ephemeris departure body.
-    EphemerisPointer pointerToDepartureBodyEphemeris = std::make_shared< ApproximateJplEphemeris>(
-                "Earth"  );
-    EphemerisPointer pointerToArrivalBodyEphemeris = std::make_shared< ApproximateJplEphemeris >(
-                "Mars"  );
+    EphemerisPointer pointerToDepartureBodyEphemeris = std::make_shared< ApproximateJplEphemeris>( "Earth" );
+    EphemerisPointer pointerToArrivalBodyEphemeris = std::make_shared< ApproximateJplEphemeris >( "Mars" );
 
     // Define root finder settings (used to update the updated value of the free coefficient, so that it matches the required time of flight).
     std::shared_ptr< RootFinderSettings > rootFinderSettings =
@@ -254,11 +288,11 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_earth_mars_transfer_multi_revolutio
     {
         // Define final state.
         Eigen::Vector6d finalState = pointerToArrivalBodyEphemeris->getCartesianState(
-                    julianDate + timeOfFlightVector.at( currentTestCase )* physical_constants::JULIAN_DAY );
+                    julianDate + timeOfFlightVector.at( currentTestCase ) );
 
         // Compute shaped trajectory.
         SphericalShaping sphericalShaping = SphericalShaping(
-                    initialState, finalState, timeOfFlightVector.at( currentTestCase )* physical_constants::JULIAN_DAY,
+                    initialState, finalState, timeOfFlightVector.at( currentTestCase ),
                     spice_interface::getBodyGravitationalParameter( "Sun" ),
                     numberOfRevolutionsVector.at( currentTestCase ),
                     0.000703, rootFinderSettings, freeParameterLowerBoundVector.at( currentTestCase ),
@@ -270,7 +304,7 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_earth_mars_transfer_multi_revolutio
                 numberOfRevolutionsVector.at(currentTestCase), rootFinderSettings,
                 freeParameterLowerBoundVector.at(currentTestCase), freeParameterUpperBoundVector.at(currentTestCase) );
         sphericalShapingLeg.updateLegParameters( (
-                Eigen::Vector2d( )<< julianDate, julianDate + timeOfFlightVector.at( currentTestCase ) * physical_constants::JULIAN_DAY ).finished( ) );
+                Eigen::Vector2d( )<< julianDate, julianDate + timeOfFlightVector.at( currentTestCase ) ).finished( ) );
 
         // Check consistency of final azimuth angle value with required number of revolutions.
         double initialAzimuthAngle_old = sphericalShaping.getInitialValueInpendentVariable( );
@@ -312,14 +346,19 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_earth_mars_transfer_multi_revolutio
                                           / initialState[ i ] ), 1.0e-12 );
             BOOST_CHECK_SMALL( std::fabs( ( finalState[ i ] - sphericalShaping.computeCurrentStateVector(finalAzimuthAngle_old )[ i ] )
                                           / finalState[ i ] ), 1.0e-12 );
-
-            BOOST_CHECK_SMALL( std::fabs( ( initialState[ i ] -
-                    sphericalShapingLeg.computeStateVectorFromAzimuth( initialAzimuthAngle )[ i ] )
-                                          / initialState[ i ] ), 1.0e-12 );
-            BOOST_CHECK_SMALL( std::fabs( ( finalState[ i ] -
-                    sphericalShapingLeg.computeStateVectorFromAzimuth( finalAzimuthAngle )[ i ] )
-                                          / finalState[ i ] ), 1.0e-12 );
         }
+
+        // Retrieve state history
+        std::map< double, Eigen::Vector6d > statesAlongTrajectory;
+        sphericalShapingLeg.getStatesAlongTrajectory( statesAlongTrajectory, 10 );
+
+        // Check initial and final time on output list
+        BOOST_CHECK_CLOSE_FRACTION( statesAlongTrajectory.begin( )->first, julianDate, 1.0E-14 );
+        BOOST_CHECK_CLOSE_FRACTION( statesAlongTrajectory.rbegin( )->first, julianDate + timeOfFlightVector.at( currentTestCase ), 1.0E-14 );
+
+        // Check initial and final state on output list
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( initialState, statesAlongTrajectory.begin( )->second, 1.0E-12 );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( finalState, statesAlongTrajectory.rbegin( )->second, 1.0E-12 );
     }
 }
 

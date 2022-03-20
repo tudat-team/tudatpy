@@ -139,6 +139,10 @@ BOOST_AUTO_TEST_CASE( testMgaSphericalShapingSingleLeg )
                 BOOST_CHECK_SMALL(std::fabs( leg->getArrivalVelocity()[j] - following_node->getIncomingVelocity()[j] ), 1e-12);
             }
         }
+
+        // Retrieve state history and thrust acceleration history.
+        transferTrajectory->getStatesAlongTrajectory(10);
+        transferTrajectory->getThrustAccelerationsAlongTrajectory(10);
     }
 }
 
@@ -293,6 +297,10 @@ BOOST_AUTO_TEST_CASE( testMgaSphericalShaping )
         }
         BOOST_CHECK_SMALL(std::fabs(transferTrajectory->getTotalDeltaV( ) - totalDeltaV ), 1e-12);
 
+        // Retrieve state history and thrust acceleration history.
+        transferTrajectory->getStatesAlongTrajectory(10);
+        transferTrajectory->getThrustAccelerationsAlongTrajectory(10);
+
     }
 }
 
@@ -419,8 +427,11 @@ BOOST_AUTO_TEST_CASE( testMGATrajectory_New )
         }
 
         std::vector< std::map< double, Eigen::Vector6d > > statesAlongTrajectoryPerLeg;
-        transferTrajectory-> getStatesAlongTrajectoryPerLeg(
+        transferTrajectory->getStatesAlongTrajectoryPerLeg(
                     statesAlongTrajectoryPerLeg, 10 );
+        std::vector< std::map< double, Eigen::Vector3d > > thrustAccelerationsAlongTrajectoryPerLeg;
+        transferTrajectory->getThrustAccelerationsAlongTrajectoryPerLeg(
+                thrustAccelerationsAlongTrajectoryPerLeg, 10);
 
         double sunGravitationalParameter = bodies.at( "Sun" )->getGravitationalParameter( );
         for( unsigned int i = 0; i < statesAlongTrajectoryPerLeg.size( ); i++ )

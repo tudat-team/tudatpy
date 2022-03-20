@@ -66,14 +66,14 @@ public:
     ~SphericalShapingLeg() {}
 
     //! Compute dimensional current cartesian state.
-    Eigen::Vector6d computeStateVectorFromAzimuth(const double currentAzimuthAngle);
+    Eigen::Vector6d computeStateFromAzimuth(const double currentAzimuthAngle);
 
-    Eigen::Vector6d computeStateVector (const double timeSinceDeparture);
+    Eigen::Vector6d computeState (const double timeSinceDeparture);
 
     virtual void getStateAlongTrajectory( Eigen::Vector6d& stateAlongTrajectory,
                                           const double time )
     {
-        stateAlongTrajectory = computeStateVector(time - departureTime_);
+        stateAlongTrajectory = computeState(time - departureTime_);
     }
 
     //! Compute thrust acceleration in cartesian coordinates at the current azimuth.
@@ -94,34 +94,11 @@ public:
     //! Compute direction of thrust acceleration in cartesian coordinates at the current time.
     Eigen::Vector3d computeThrustAccelerationDirection (const double timeSinceDeparture);
 
-    // TODO: To be moved to a new base class (3 functions)
-
     //! Get single value of thrust acceleration.
     virtual void getThrustAccelerationAlongTrajectory(Eigen::Vector3d& thrustAccelerationAlongTrajectory,
                                                       const double time )
     {
         thrustAccelerationAlongTrajectory = computeThrustAcceleration(time - departureTime_);
-    }
-
-    //! Get thrust acceleration history throughout the transfer.
-    void getThrustAccelerationsAlongTrajectory(std::map< double, Eigen::Vector3d >& thrustAccelerationsAlongTrajectory,
-                                               const std::vector< double >& times )
-    {
-        thrustAccelerationsAlongTrajectory.clear( );
-        Eigen::Vector3d currentThrustAccelerationAlongTrajectory;
-        for( unsigned int i = 0; i < times.size( ); i++ )
-        {
-            getThrustAccelerationAlongTrajectory(currentThrustAccelerationAlongTrajectory, times.at(i));
-            thrustAccelerationsAlongTrajectory[ times.at(i ) ] = currentThrustAccelerationAlongTrajectory;
-        }
-    }
-
-    void getThrustAccelerationsAlongTrajectory(std::map< double, Eigen::Vector3d >& thrustAccelerationsAlongTrajectory,
-                                               const int numberOfDataPoints )
-    {
-        thrustAccelerationsAlongTrajectory.clear( );
-        std::vector< double > times = utilities::linspace( departureTime_, arrivalTime_, numberOfDataPoints );
-        getThrustAccelerationsAlongTrajectory(thrustAccelerationsAlongTrajectory, times);
     }
 
     //! Convert time to azimuth (azimuth is the independent variable used in the spherical shaping method).
