@@ -175,6 +175,27 @@ void TransferTrajectory::getStatesAlongTrajectoryPerLeg(
     }
 }
 
+void TransferTrajectory::getThrustAccelerationsAlongTrajectoryPerLeg(
+        std::vector< std::map< double, Eigen::Vector3d > >& thrustAccelerationsAlongTrajectoryPerLeg,
+        const int numberOfDataPointsPerLeg )
+{
+    if( isComputed_ )
+    {
+        thrustAccelerationsAlongTrajectoryPerLeg.clear( );
+        thrustAccelerationsAlongTrajectoryPerLeg.resize( legs_.size( ) );
+
+        for( unsigned int i = 0; i < legs_.size( ); i++ )
+        {
+            legs_.at( i )->getThrustAccelerationsAlongTrajectory( thrustAccelerationsAlongTrajectoryPerLeg[ i ],
+                                                                  numberOfDataPointsPerLeg );
+        }
+    }
+    else
+    {
+        throw std::runtime_error( "Error when getting thrust accelerations on transfer trajectory; transfer parameters not set!" );
+    }
+}
+
 void TransferTrajectory::getLegTotalParameters(
         const std::vector< double >& nodeTimes,
         const Eigen::VectorXd& legFreeParameters,
