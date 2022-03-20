@@ -746,7 +746,7 @@ std::shared_ptr< DopplerProperTimeRateInterface > createOneWayDopplerProperTimeC
 
                 // Create calculation object.
                 LinkEndId referencePointId =
-                        std::make_pair( directFirstOrderDopplerProperTimeRateSettings->centralBodyName_, "" );
+                        LinkEndId( directFirstOrderDopplerProperTimeRateSettings->centralBodyName_, "" );
                 if( ( linkEnds.at( receiver ) != referencePointId ) && ( linkEnds.at( transmitter ) != referencePointId ) )
                 {
                     properTimeRateInterface = std::make_shared<
@@ -754,7 +754,7 @@ std::shared_ptr< DopplerProperTimeRateInterface > createOneWayDopplerProperTimeC
                                 linkEndForCalculator, gravitationalParameterFunction,
                                 directFirstOrderDopplerProperTimeRateSettings->centralBodyName_, unidentified_link_end,
                                 simulation_setup::getLinkEndCompleteEphemerisFunction< double, double >(
-                                    std::make_pair( directFirstOrderDopplerProperTimeRateSettings->centralBodyName_, ""), bodies ) );
+                                    LinkEndId( directFirstOrderDopplerProperTimeRateSettings->centralBodyName_, ""), bodies ) );
                 }
                 else
                 {
@@ -1493,7 +1493,7 @@ public:
             {
                 throw std::runtime_error( "Error when making position observable model, found light time corrections" );
             }
-            if( linkEnds.at( observed_body ).second != "" )
+            if( linkEnds.at( observed_body ).stationName_ != "" )
             {
                 throw std::runtime_error( "Error, cannot yet create position function for reference point" );
             }
@@ -1513,7 +1513,7 @@ public:
                         linkEnds,
                         std::bind( &simulation_setup::Body::getStateInBaseFrameFromEphemeris<
                                    ObservationScalarType, TimeType >,
-                                   bodies.at( linkEnds.at( observed_body ).first ), std::placeholders::_1 ),
+                                   bodies.at( linkEnds.at( observed_body ).bodyName_ ), std::placeholders::_1 ),
                         observationBias );
 
             break;
@@ -1538,7 +1538,7 @@ public:
             {
                 throw std::runtime_error( "Error when making euler angle observable model, found light time corrections" );
             }
-            if( linkEnds.at( observed_body ).second != "" )
+            if( linkEnds.at( observed_body ).stationName_ != "" )
             {
                 throw std::runtime_error( "Error, cannot yet create euler angle function for reference point" );
             }
@@ -1552,7 +1552,7 @@ public:
             }
 
             std::function< Eigen::Quaterniond( const TimeType ) > toBodyFixedFrameFunction;
-            if( bodies.at( linkEnds.at( observed_body ).first )->getRotationalEphemeris( ) == nullptr )
+            if( bodies.at( linkEnds.at( observed_body ).bodyName_ )->getRotationalEphemeris( ) == nullptr )
             {
                 throw std::runtime_error( "Error, cannot euler angle observable; no rotation model found" );
             }
@@ -1560,7 +1560,7 @@ public:
             {
                 toBodyFixedFrameFunction = std::bind(
                             &ephemerides::RotationalEphemeris::getRotationToTargetFrameTemplated< TimeType >,
-                            bodies.at( linkEnds.at( observed_body ).first )->getRotationalEphemeris( ),
+                            bodies.at( linkEnds.at( observed_body ).bodyName_ )->getRotationalEphemeris( ),
                             std::placeholders::_1 );
             }
 
@@ -1593,7 +1593,7 @@ public:
 
                 throw std::runtime_error( "Error when making velocity observable model, found light time corrections" );
             }
-            if( linkEnds.at( observed_body ).second != "" )
+            if( linkEnds.at( observed_body ).stationName_ != "" )
             {
                 throw std::runtime_error( "Error, cannot yet create velocity function for reference point" );
             }
@@ -1613,7 +1613,7 @@ public:
                         linkEnds,
                         std::bind( &simulation_setup::Body::getStateInBaseFrameFromEphemeris<
                                    ObservationScalarType, TimeType >,
-                                   bodies.at( linkEnds.at( observed_body ).first ), std::placeholders::_1 ),
+                                   bodies.at( linkEnds.at( observed_body ).bodyName_ ), std::placeholders::_1 ),
                         observationBias );
 
             break;

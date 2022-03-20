@@ -245,16 +245,16 @@ Eigen::VectorXd  executeParameterEstimation(
     std::vector< LinkEnds > linkEnds2;
     linkEnds2.resize( 2 );
     linkEnds2[ 0 ][ transmitter ] = grazStation;
-    linkEnds2[ 0 ][ receiver ] = std::make_pair( "Orbiter", "" );
+    linkEnds2[ 0 ][ receiver ] = std::make_pair< std::string, std::string >( "Orbiter", "" );
 
     linkEnds2[ 1 ][ receiver ] = grazStation;
-    linkEnds2[ 1 ][ transmitter ] = std::make_pair( "Orbiter", "" );
+    linkEnds2[ 1 ][ transmitter ] = std::make_pair< std::string, std::string >( "Orbiter", "" );
 
 //    linkEnds2[ 2 ][ transmitter ] = grazStation;
-//    linkEnds2[ 2 ][ receiver ] = std::make_pair( "Mars", "" );
+//    linkEnds2[ 2 ][ receiver ] = std::make_pair< std::string, std::string >( "Mars", "" );
 
 //    linkEnds2[ 3 ][ receiver ] = grazStation;
-//    linkEnds2[ 3 ][ transmitter ] = std::make_pair( "Mars", "" );
+//    linkEnds2[ 3 ][ transmitter ] = std::make_pair< std::string, std::string >( "Mars", "" );
 
     std::vector< std::shared_ptr< ObservationModelSettings > > observationSettingsList;
     for( unsigned int i = 0; i  < linkEnds2.size( ); i++ )

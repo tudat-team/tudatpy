@@ -93,13 +93,13 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
     for( unsigned int i = 0; i < groundStationNames.size( ); i++ )
     {
         LinkEnds linkEnds;
-        linkEnds[ transmitter ] = std::make_pair( "Earth", groundStationNames.at( i ) );
-        linkEnds[ receiver ] = std::make_pair( "Moon", "" );
+        linkEnds[ transmitter ] = std::pair< std::string, std::string >( std::make_pair( "Earth", groundStationNames.at( i ) ) );
+        linkEnds[ receiver ] = std::make_pair< std::string, std::string >( "Moon", "" );
         stationTransmitterLinkEnds.push_back( linkEnds );
 
         linkEnds.clear( );
-        linkEnds[ receiver ] = std::make_pair( "Earth", groundStationNames.at( i ) );
-        linkEnds[ transmitter ] = std::make_pair( "Moon", "" );
+        linkEnds[ receiver ] = std::pair< std::string, std::string >( std::make_pair( "Earth", groundStationNames.at( i ) ) );
+        linkEnds[ transmitter ] = std::make_pair< std::string, std::string >( "Moon", "" );
         stationReceiverLinkEnds.push_back( linkEnds );
     }
 
@@ -168,7 +168,7 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
     }
 
     std::map< double, Eigen::VectorXd > targetAngles = getTargetAnglesAndRange(
-            bodies, std::make_pair( "Earth", "Station1" ), "Moon", baseTimeList, true );
+            bodies, std::make_pair< std::string, std::string >( "Earth", "Station1" ), "Moon", baseTimeList, true );
     for( auto it : targetAngles )
     {
         std::cout<<it.first<<"("<<it.second.transpose( )<<")"<<std::endl;

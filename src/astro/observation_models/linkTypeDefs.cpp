@@ -60,14 +60,14 @@ std::string getLinkEndsString( const LinkEnds linkEnds )
     for( LinkEnds::const_iterator linkEndIterator = linkEnds.begin( ); linkEndIterator != linkEnds.end( );
          linkEndIterator++ )
     {
-        linkEndsString += getLinkEndTypeString( linkEndIterator->first ) + ": (" + linkEndIterator->second.first;
-        if( linkEndIterator->second.second == "" )
+        linkEndsString += getLinkEndTypeString( linkEndIterator->first ) + ": (" + linkEndIterator->second.bodyName_;
+        if( linkEndIterator->second.stationName_ == "" )
         {
             linkEndsString +=  ")";
         }
         else
         {
-            linkEndsString += ", " + linkEndIterator->second.second +  ")";
+            linkEndsString += ", " + linkEndIterator->second.stationName_ +  ")";
         }
 
         if( linkEndIterator != (--linkEnds.end( ) ) )
@@ -133,10 +133,10 @@ LinkEndType getNWayLinkEnumFromIndex( const int linkEndIndex, const int numberOf
 }
 
 //! Function to get the list of indices in link-end list for n-way observables that matches a given link end id.
-std::vector< int > getNWayLinkEndIndicesFromLinkEndId( const LinkEndId& linkEndid, const LinkEnds& linkEnds )
+std::vector< int > getNWayLinkEndIndicesFromLinkEndId( const LinkEndId& linkEndId, const LinkEnds& linkEnds )
 {
     std::vector< LinkEndType >  matchingLinkEndTypes = getNWayLinkIndicesFromLinkEndId(
-                linkEndid, linkEnds );
+                linkEndId, linkEnds );
     return getNWayLinkEndIndicesFromLinkEndId( matchingLinkEndTypes, linkEnds );
 }
 
@@ -152,14 +152,14 @@ std::vector< int > getNWayLinkEndIndicesFromLinkEndId( const std::vector< LinkEn
 }
 
 //! Function to get the list of link end types in link-end list for n-way observables that match a given link end id.
-std::vector< LinkEndType > getNWayLinkIndicesFromLinkEndId( const LinkEndId& linkEndid, const LinkEnds& linkEnds )
+std::vector< LinkEndType > getNWayLinkIndicesFromLinkEndId( const LinkEndId& linkEndId, const LinkEnds& linkEnds )
 {
     std::vector< LinkEndType > matchingLinkEndTypes;
 
     for( LinkEnds::const_iterator linkEndIterator = linkEnds.begin( ); linkEndIterator != linkEnds.end( ); linkEndIterator++ )
     {
-        if( linkEndIterator->second == linkEndid || ( ( linkEndIterator->second.first == linkEndid.first ) &&
-                                                                        linkEndid.second == "" ) )
+        if( linkEndIterator->second == linkEndId || ( ( linkEndIterator->second.bodyName_ == linkEndId.bodyName_ ) &&
+                                                                        linkEndId.stationName_ == "" ) )
         {
             matchingLinkEndTypes.push_back( linkEndIterator->first );
         }

@@ -142,20 +142,20 @@ std::pair< std::shared_ptr< PodOutput< StateScalarType, TimeType > >, Eigen::Vec
 
     if( observableType == 0 )
     {
-        linkEnds[ observed_body ] = std::make_pair( "Earth", "" );
+        linkEnds[ observed_body ] = LinkEndId( "Earth", "" );
         observationSettingsList.push_back( std::make_shared< ObservationModelSettings >(
                                                            position_observable, linkEnds ) );
     }
     else if( observableType == 5 )
     {
-        linkEnds[ observed_body ] = std::make_pair( "Earth", "" );
+        linkEnds[ observed_body ] = LinkEndId( "Earth", "" );
         observationSettingsList.push_back( std::make_shared< ObservationModelSettings >(
                                                           velocity_observable, linkEnds ) );
     }
     else
     {
-        linkEnds[ transmitter ] = std::make_pair( "Earth", "" );
-        linkEnds[ receiver ] = std::make_pair( "Mars", "" );
+        linkEnds[ transmitter ] = LinkEndId( "Earth", "" );
+        linkEnds[ receiver ] = LinkEndId( "Mars", "" );
 
         if( observableType == 1 )
         {
@@ -469,13 +469,13 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation(
     for( unsigned int i = 0; i < groundStationNames.size( ); i++ )
     {
         LinkEnds linkEnds;
-        linkEnds[ transmitter ] = std::make_pair( "Earth", groundStationNames.at( i ) );
-        linkEnds[ receiver ] = std::make_pair( "Vehicle", "" );
+        linkEnds[ transmitter ] = LinkEndId( "Earth", groundStationNames.at( i ) );
+        linkEnds[ receiver ] = LinkEndId( "Vehicle", "" );
         stationTransmitterLinkEnds.push_back( linkEnds );
 
         linkEnds.clear( );
-        linkEnds[ receiver ] = std::make_pair( "Earth", groundStationNames.at( i ) );
-        linkEnds[ transmitter ] = std::make_pair( "Vehicle", "" );
+        linkEnds[ receiver ] = LinkEndId( "Earth", groundStationNames.at( i ) );
+        linkEnds[ transmitter ] = LinkEndId( "Vehicle", "" );
         stationReceiverLinkEnds.push_back( linkEnds );
     }
 
@@ -754,25 +754,25 @@ std::pair< Eigen::VectorXd, bool > executeEarthOrbiterBiasEstimation(
     for( unsigned int i = 0; i < groundStationNames.size( ); i++ )
     {
         LinkEnds linkEnds;
-        linkEnds[ transmitter ] = std::make_pair( "Earth", groundStationNames.at( i ) );
-        linkEnds[ receiver ] = std::make_pair( "Vehicle", "" );
+        linkEnds[ transmitter ] = LinkEndId( "Earth", groundStationNames.at( i ) );
+        linkEnds[ receiver ] = LinkEndId( "Vehicle", "" );
         stationTransmitterLinkEnds.push_back( linkEnds );
 
         linkEnds.clear( );
-        linkEnds[ receiver ] = std::make_pair( "Earth", groundStationNames.at( i ) );
-        linkEnds[ transmitter ] = std::make_pair( "Vehicle", "" );
+        linkEnds[ receiver ] = LinkEndId( "Earth", groundStationNames.at( i ) );
+        linkEnds[ transmitter ] = LinkEndId( "Vehicle", "" );
         stationReceiverLinkEnds.push_back( linkEnds );
 
         linkEnds.clear( );
-        linkEnds[ receiver ] = std::make_pair( "Earth", groundStationNames.at( i ) );
-        linkEnds[ reflector1 ] = std::make_pair( "Vehicle", "" );
-        linkEnds[ transmitter ] = std::make_pair( "Earth", groundStationNames.at( i ) );
+        linkEnds[ receiver ] = LinkEndId( "Earth", groundStationNames.at( i ) );
+        linkEnds[ reflector1 ] = LinkEndId( "Vehicle", "" );
+        linkEnds[ transmitter ] = LinkEndId( "Earth", groundStationNames.at( i ) );
         stationTwoWayLinkEnds.push_back( linkEnds );
 
         linkEnds.clear( );
-        linkEnds[ receiver ] = std::make_pair( "Vehicle", "" );
-        linkEnds[ reflector1 ] = std::make_pair( "Earth", groundStationNames.at( i ) );
-        linkEnds[ transmitter ] = std::make_pair( "Vehicle", "" );
+        linkEnds[ receiver ] = LinkEndId( "Vehicle", "" );
+        linkEnds[ reflector1 ] = LinkEndId( "Earth", groundStationNames.at( i ) );
+        linkEnds[ transmitter ] = LinkEndId( "Vehicle", "" );
         stationTwoWayInverseLinkEnds.push_back( linkEnds );
     }
 

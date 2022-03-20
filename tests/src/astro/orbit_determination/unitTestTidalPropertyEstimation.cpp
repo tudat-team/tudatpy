@@ -165,8 +165,8 @@ BOOST_AUTO_TEST_CASE( test_DissipationParameterEstimation )
         // Define links in simulation.
         std::vector< LinkEnds > linkEnds;
         linkEnds.resize( 2 );
-        linkEnds[ 0 ][ observed_body ] = std::make_pair( "Io", "" );
-        linkEnds[ 1 ][ observed_body ] = std::make_pair( "Europa", "" );
+        linkEnds[ 0 ][ observed_body ] = std::make_pair< std::string, std::string >( "Io", "" );
+        linkEnds[ 1 ][ observed_body ] = std::make_pair< std::string, std::string >( "Europa", "" );
         std::vector< std::shared_ptr< ObservationModelSettings > > observationSettingsList;
         observationSettingsList.push_back( std::make_shared< ObservationModelSettings >(
                                            position_observable, linkEnds[ 0 ] ) );
@@ -399,7 +399,7 @@ BOOST_AUTO_TEST_CASE( test_LoveNumberEstimationFromOrbiterData )
 
     // Define link ends to use
     LinkEnds linkEnds;
-    linkEnds[ observed_body ] = std::make_pair( "Vehicle", "" );
+    linkEnds[ observed_body ] = std::make_pair< std::string, std::string >( "Vehicle", "" );
     std::map< ObservableType, std::vector< LinkEnds > > linkEndsPerObservable;
     linkEndsPerObservable[ position_observable ].push_back( linkEnds );
 

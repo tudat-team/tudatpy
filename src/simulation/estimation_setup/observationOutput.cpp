@@ -30,8 +30,8 @@ void checkObservationDependentVariableEnvironment(
         //                                      ", only one input link end can be processed" );
         //        }
 
-        std::string bodyName = variableSettings->relevantLinkEnd_.first;
-        std::string stationName = variableSettings->relevantLinkEnd_.second;
+        std::string bodyName = variableSettings->relevantLinkEnd_.bodyName_;
+        std::string stationName = variableSettings->relevantLinkEnd_.stationName_;
 
         if( bodies.count( bodyName ) == 0 )
         {
@@ -136,8 +136,8 @@ DoubleObservationDependentVariableFunction getStationObservationAngleFunction(
     checkObservationDependentVariableEnvironment( bodies, variableSettings );
 
     // Retrieve link-end ID for station
-    std::string bodyName = variableSettings->relevantLinkEnd_.first;
-    std::string stationName = variableSettings->relevantLinkEnd_.second;
+    std::string bodyName = variableSettings->relevantLinkEnd_.bodyName_;
+    std::string stationName = variableSettings->relevantLinkEnd_.stationName_;
 
     // Check if observation is integrated
     bool isObservableIntegrated = observation_models::isObservableOfIntegratedType( observableType );
@@ -156,8 +156,8 @@ DoubleObservationDependentVariableFunction getStationObservationAngleFunction(
     {
         throw std::runtime_error( "Error in station-angle observation dependent variables for " +
                                   getObservationDependentVariableId( variableSettings ) +
-                                  " Could not find link end: (" + variableSettings->relevantLinkEnd_.first + ", " +
-                                  variableSettings->relevantLinkEnd_.second + ")" );
+                                  " Could not find link end: (" + variableSettings->relevantLinkEnd_.bodyName_ + ", " +
+                                  variableSettings->relevantLinkEnd_.stationName_ + ")" );
     }
 
     std::pair< int, int > linkEndIndicesToUse;

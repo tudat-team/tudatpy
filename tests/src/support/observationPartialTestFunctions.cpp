@@ -31,7 +31,7 @@ using namespace tudat::orbit_determination;
 using namespace tudat::estimatable_parameters;
 
 //! Function to create environment for general observation partial tests.
-SystemOfBodies setupEnvironment( const std::vector< LinkEndId > groundStations,
+SystemOfBodies setupEnvironment( const std::vector< std::pair< std::string, std::string > > groundStations,
                                const double initialEphemerisTime,
                                const double finalEphemerisTime,
                                const double stateEvaluationTime,
@@ -421,7 +421,7 @@ std::vector< std::vector< double > > getAnalyticalPartialEvaluationTimes(
         for( LinkEnds::const_iterator linkEndIterator = linkEnds.begin( );
              linkEndIterator != linkEnds.end( ); linkEndIterator++ )
         {
-            if( linkEndIterator->second.first == bodiesWithTranslationalState.at( i ) )
+            if( linkEndIterator->second.bodyName_ == bodiesWithTranslationalState.at( i ) )
             {
                 currentPartialTimeIndices =
                         getLinkEndIndicesForLinkEndTypeAtObservable( observableType, linkEndIterator->first, linkEnds.size( ) );
@@ -448,7 +448,7 @@ std::vector< std::vector< double > > getAnalyticalPartialEvaluationTimes(
         for( LinkEnds::const_iterator linkEndIterator = linkEnds.begin( );
              linkEndIterator != linkEnds.end( ); linkEndIterator++ )
         {
-            if( linkEndIterator->second.first == bodiesWithRotationalState.at( i ) )
+            if( linkEndIterator->second.bodyName_ == bodiesWithRotationalState.at( i ) )
             {
                 currentPartialTimeIndices =
                         getLinkEndIndicesForLinkEndTypeAtObservable( observableType, linkEndIterator->first, linkEnds.size( ) );
@@ -468,9 +468,9 @@ std::vector< std::vector< double > > getAnalyticalPartialEvaluationTimes(
     for( unsigned int i = 0; i < estimatedParameters->getEstimatedDoubleParameters( ).size( ); i++ )
     {
         checkStationId = 0;
-        std::pair< std::string, std::string > currentAssociatedLinkEndId =
+        LinkEndId currentAssociatedLinkEndid =
                 estimatedParameters->getEstimatedDoubleParameters( ).at( i )->getParameterName( ).second;
-        if( currentAssociatedLinkEndId.second != "" )
+        if( currentAssociatedLinkEndid.stationName_ != "" )
         {
             checkStationId = 1;
         }
@@ -478,12 +478,12 @@ std::vector< std::vector< double > > getAnalyticalPartialEvaluationTimes(
         for( LinkEnds::const_iterator linkEndIterator = linkEnds.begin( );
              linkEndIterator != linkEnds.end( ); linkEndIterator++ )
         {
-            if( linkEndIterator->second.first == currentAssociatedLinkEndId.first )
+            if( linkEndIterator->second.bodyName_ == currentAssociatedLinkEndid.bodyName_ )
             {
                 addContribution = 0;
                 if( checkStationId )
                 {
-                    if( linkEndIterator->second.second == currentAssociatedLinkEndId.second )
+                    if( linkEndIterator->second.stationName_ == currentAssociatedLinkEndid.stationName_ )
                     {
                         currentPartialTimeIndices =
                                 getLinkEndIndicesForLinkEndTypeAtObservable( observableType, linkEndIterator->first, linkEnds.size( ) );
@@ -511,9 +511,9 @@ std::vector< std::vector< double > > getAnalyticalPartialEvaluationTimes(
     for( unsigned int i = 0; i < estimatedParameters->getEstimatedVectorParameters( ).size( ); i++ )
     {
         checkStationId = 0;
-        std::pair< std::string, std::string > currentAssociatedLinkEndId =
+        LinkEndId currentAssociatedLinkEndid =
                 estimatedParameters->getEstimatedVectorParameters( ).at( i )->getParameterName( ).second;
-        if( currentAssociatedLinkEndId.second != "" )
+        if( currentAssociatedLinkEndid.stationName_ != "" )
         {
             checkStationId = 1;
         }
@@ -521,12 +521,12 @@ std::vector< std::vector< double > > getAnalyticalPartialEvaluationTimes(
         for( LinkEnds::const_iterator linkEndIterator = linkEnds.begin( );
              linkEndIterator != linkEnds.end( ); linkEndIterator++ )
         {
-            if( linkEndIterator->second.first == currentAssociatedLinkEndId.first )
+            if( linkEndIterator->second.bodyName_ == currentAssociatedLinkEndid.bodyName_ )
             {
                 addContribution = 0;
                 if( checkStationId )
                 {
-                    if( linkEndIterator->second.second == currentAssociatedLinkEndId.second )
+                    if( linkEndIterator->second.stationName_ == currentAssociatedLinkEndid.stationName_ )
                     {
                         currentPartialTimeIndices =
                                 getLinkEndIndicesForLinkEndTypeAtObservable( observableType, linkEndIterator->first, linkEnds.size( ) );

@@ -167,7 +167,7 @@ BOOST_AUTO_TEST_CASE( test_ArcwiseEnvironmentParameters )
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     LinkEnds linkEnds;
-    linkEnds[ observed_body ] = std::make_pair( "Vehicle", "" );
+    linkEnds[ observed_body ] = std::make_pair< std::string, std::string >( "Vehicle", "" );
     std::vector< std::shared_ptr< ObservationModelSettings > >  observationSettingsList;
     observationSettingsList.push_back( std::make_shared< ObservationModelSettings >( position_observable, linkEnds ) );
 

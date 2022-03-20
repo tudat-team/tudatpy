@@ -26,13 +26,13 @@ std::map< double, Eigen::VectorXd > getTargetAnglesAndRange(
     if( transmittingToTarget )
     {
         linkEnds[ transmitter ] = groundStationId;
-        linkEnds[ receiver ] = std::make_pair( targetBody, "" );
+        linkEnds[ receiver ] = std::pair< std::string, std::string >( std::make_pair( targetBody, "" ) );
         groundStationRole = transmitter;
     }
     else
     {
         linkEnds[ receiver ] = groundStationId;
-        linkEnds[ transmitter ] = std::make_pair( targetBody, "" );
+        linkEnds[ transmitter ] = std::pair< std::string, std::string >( std::make_pair( targetBody, "" ) );
         groundStationRole = receiver;
     }
 

@@ -586,12 +586,12 @@ std::vector< std::pair< int, int > > getLinkStateAndTimeIndicesForLinkEnd(
     {
     case one_way_range:
         if( ( linkEnds.at( transmitter ) == linkEndToCheck ) ||
-                ( ( linkEnds.at( transmitter ).first == linkEndToCheck.first ) && ( linkEndToCheck.second == "" ) ) )
+                ( ( linkEnds.at( transmitter ).stationName_ == linkEndToCheck.bodyName_ ) && ( linkEndToCheck.stationName_ == "" ) ) )
         {
             linkEndIndices.push_back( std::make_pair( 0, 1 ) );
         }
-        else if( linkEnds.at( receiver ) == linkEndToCheck || ( ( linkEnds.at( receiver ).first == linkEndToCheck.first ) &&
-                                                                linkEndToCheck.second == "" ) )
+        else if( linkEnds.at( receiver ) == linkEndToCheck || ( ( linkEnds.at( receiver ).stationName_ == linkEndToCheck.bodyName_ ) &&
+                                                                linkEndToCheck.stationName_ == "" ) )
         {
             linkEndIndices.push_back( std::make_pair( 1, 0 ) );
         }
@@ -601,13 +601,13 @@ std::vector< std::pair< int, int > > getLinkStateAndTimeIndicesForLinkEnd(
         }
         break;
     case one_way_doppler:
-        if( ( linkEnds.at( transmitter ) == linkEndToCheck ) || ( ( linkEnds.at( transmitter ).first == linkEndToCheck.first ) &&
-                                                                  ( linkEndToCheck.second == "" ) ) )
+        if( ( linkEnds.at( transmitter ) == linkEndToCheck ) || ( ( linkEnds.at( transmitter ).stationName_ == linkEndToCheck.bodyName_ ) &&
+                                                                  ( linkEndToCheck.stationName_ == "" ) ) )
         {
             linkEndIndices.push_back( std::make_pair( 0, 1 ) );
         }
-        else if( linkEnds.at( receiver ) == linkEndToCheck || ( ( linkEnds.at( receiver ).first == linkEndToCheck.first ) &&
-                                                                linkEndToCheck.second == "" ) )
+        else if( linkEnds.at( receiver ) == linkEndToCheck || ( ( linkEnds.at( receiver ).stationName_ == linkEndToCheck.bodyName_ ) &&
+                                                                linkEndToCheck.stationName_ == "" ) )
         {
             linkEndIndices.push_back( std::make_pair( 1, 0 ) );
         }
@@ -617,21 +617,21 @@ std::vector< std::pair< int, int > > getLinkStateAndTimeIndicesForLinkEnd(
         }
         break;
     case two_way_doppler:
-        if( ( linkEnds.at( transmitter ) == linkEndToCheck ) || ( ( linkEnds.at( transmitter ).first == linkEndToCheck.first ) &&
-                                                                  ( linkEndToCheck.second == "" ) ) )
+        if( ( linkEnds.at( transmitter ) == linkEndToCheck ) || ( ( linkEnds.at( transmitter ).stationName_ == linkEndToCheck.bodyName_ ) &&
+                                                                  ( linkEndToCheck.stationName_ == "" ) ) )
         {
             linkEndIndices.push_back( std::make_pair( 0, 1 ) );
         }
 
-        if( linkEnds.at( reflector1 ) == linkEndToCheck || ( ( linkEnds.at( reflector1 ).first == linkEndToCheck.first ) &&
-                                                                linkEndToCheck.second == "" ) )
+        if( linkEnds.at( reflector1 ) == linkEndToCheck || ( ( linkEnds.at( reflector1 ).stationName_ == linkEndToCheck.bodyName_ ) &&
+                                                                linkEndToCheck.stationName_ == "" ) )
         {
             linkEndIndices.push_back( std::make_pair( 2, 3 ) );
             linkEndIndices.push_back( std::make_pair( 1, 0 ) );
         }
 
-        if( linkEnds.at( receiver ) == linkEndToCheck || ( ( linkEnds.at( receiver ).first == linkEndToCheck.first ) &&
-                                                                linkEndToCheck.second == "" ) )
+        if( linkEnds.at( receiver ) == linkEndToCheck || ( ( linkEnds.at( receiver ).stationName_ == linkEndToCheck.bodyName_ ) &&
+                                                                linkEndToCheck.stationName_ == "" ) )
         {
             linkEndIndices.push_back( std::make_pair( 3, 2 ) );
         }
@@ -642,14 +642,14 @@ std::vector< std::pair< int, int > > getLinkStateAndTimeIndicesForLinkEnd(
         }
         break;
     case one_way_differenced_range:
-        if( linkEnds.at( transmitter ) == linkEndToCheck || ( ( linkEnds.at( transmitter ).first == linkEndToCheck.first ) &&
-                                                              linkEndToCheck.second == "" ) )
+        if( linkEnds.at( transmitter ) == linkEndToCheck || ( ( linkEnds.at( transmitter ).stationName_ == linkEndToCheck.bodyName_ ) &&
+                                                              linkEndToCheck.stationName_ == "" ) )
         {
             linkEndIndices.push_back( std::make_pair( 0, 1 ) );
             linkEndIndices.push_back( std::make_pair( 2, 3 ) );
         }
-        else if( linkEnds.at( receiver ) == linkEndToCheck || ( ( linkEnds.at( receiver ).first == linkEndToCheck.first ) &&
-                                                                linkEndToCheck.second == "" ) )
+        else if( linkEnds.at( receiver ) == linkEndToCheck || ( ( linkEnds.at( receiver ).stationName_ == linkEndToCheck.bodyName_ ) &&
+                                                                linkEndToCheck.stationName_ == "" ) )
         {
             linkEndIndices.push_back( std::make_pair( 1, 0 ) );
             linkEndIndices.push_back( std::make_pair( 3, 2 ) );
@@ -693,13 +693,13 @@ std::vector< std::pair< int, int > > getLinkStateAndTimeIndicesForLinkEnd(
         break;
     }
     case angular_position:
-        if( ( linkEnds.at( transmitter ) == linkEndToCheck ) || ( ( linkEnds.at( transmitter ).first == linkEndToCheck.first ) &&
-                                                                  ( linkEndToCheck.second == "" ) ) )
+        if( ( linkEnds.at( transmitter ) == linkEndToCheck ) || ( ( linkEnds.at( transmitter ).stationName_ == linkEndToCheck.bodyName_ ) &&
+                                                                  ( linkEndToCheck.stationName_ == "" ) ) )
         {
             linkEndIndices.push_back( std::make_pair( 0, 1 ) );
         }
-        else if( linkEnds.at( receiver ) == linkEndToCheck || ( ( linkEnds.at( receiver ).first == linkEndToCheck.first ) &&
-                                                                linkEndToCheck.second == "" ) )
+        else if( linkEnds.at( receiver ) == linkEndToCheck || ( ( linkEnds.at( receiver ).stationName_ == linkEndToCheck.bodyName_ ) &&
+                                                                linkEndToCheck.stationName_ == "" ) )
         {
             linkEndIndices.push_back( std::make_pair( 1, 0 ) );
         }

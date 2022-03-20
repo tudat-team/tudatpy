@@ -80,7 +80,7 @@ std::pair< std::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > de
     {
         // Add current body to list of observed bodies
         LinkEnds observationLinkEnds;
-        observationLinkEnds[ observed_body ] = std::make_pair( observedBodies.at( i ), "" );
+        observationLinkEnds[ observed_body ] = std::pair< std::string, std::string >( std::make_pair( observedBodies.at( i ), "" ) );
         linkEndsList.push_back( observationLinkEnds );
         observationSettingsList.push_back( std::make_shared< ObservationModelSettings >(
                                         position_observable, observationLinkEnds ) );

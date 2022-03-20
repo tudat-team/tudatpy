@@ -97,8 +97,8 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
 
     // Define link ends for observations.
     LinkEnds linkEnds;
-    linkEnds[ transmitter ] = std::make_pair( "Earth" , ""  );
-    linkEnds[ receiver ] = std::make_pair( "Mars" , ""  );
+    linkEnds[ transmitter ] = std::make_pair< std::string, std::string >( "Earth" , ""  );
+    linkEnds[ receiver ] = std::make_pair< std::string, std::string >( "Mars" , ""  );
 
     // Create observation settings
     std::shared_ptr< ObservationModelSettings > observableSettings = std::make_shared< ObservationModelSettings >
@@ -202,8 +202,8 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
     {
         // Define link ends for observations.
         LinkEnds linkEndsStationSpacecraft;
-        linkEndsStationSpacecraft[ transmitter ] = std::make_pair( "Earth" , "Station1"  );
-        linkEndsStationSpacecraft[ receiver ] = std::make_pair( "Spacecraft" , ""  );
+        linkEndsStationSpacecraft[ transmitter ] = std::make_pair< std::string, std::string >( "Earth" , "Station1"  );
+        linkEndsStationSpacecraft[ receiver ] = std::make_pair< std::string, std::string >( "Spacecraft" , ""  );
 
         // Create observation settings
         std::shared_ptr< ObservationModelSettings > observableSettingsWithoutCorrections = std::make_shared< ObservationModelSettings >
@@ -322,18 +322,18 @@ BOOST_AUTO_TEST_CASE( testTwoWayDoppplerModel )
     {
         // Define link ends for observations.
         LinkEnds linkEnds;
-        linkEnds[ transmitter ] = std::make_pair( "Earth" , ""  );
-        linkEnds[ reflector1 ] = std::make_pair( "Mars" , ""  );
-        linkEnds[ receiver ] = std::make_pair( "Earth" , ""  );
+        linkEnds[ transmitter ] = std::make_pair< std::string, std::string >( "Earth" , ""  );
+        linkEnds[ reflector1 ] = std::make_pair< std::string, std::string >( "Mars" , ""  );
+        linkEnds[ receiver ] = std::make_pair< std::string, std::string >( "Earth" , ""  );
 
 
         LinkEnds uplinkLinkEnds;
-        uplinkLinkEnds[ transmitter ] = std::make_pair( "Earth" , ""  );
-        uplinkLinkEnds[ receiver ] = std::make_pair( "Mars" , ""  );
+        uplinkLinkEnds[ transmitter ] = std::make_pair< std::string, std::string >( "Earth" , ""  );
+        uplinkLinkEnds[ receiver ] = std::make_pair< std::string, std::string >( "Mars" , ""  );
 
         LinkEnds downlinkLinkEnds;
-        downlinkLinkEnds[ transmitter ] = std::make_pair( "Mars" , ""  );
-        downlinkLinkEnds[ receiver ] = std::make_pair( "Earth" , ""  );
+        downlinkLinkEnds[ transmitter ] = std::make_pair< std::string, std::string >( "Mars" , ""  );
+        downlinkLinkEnds[ receiver ] = std::make_pair< std::string, std::string >( "Earth" , ""  );
 
         // Create observation settings
         std::shared_ptr< TwoWayDopplerObservationModel< double, double> > twoWayDopplerObservationModel =
@@ -465,17 +465,17 @@ BOOST_AUTO_TEST_CASE( testTwoWayDoppplerModel )
 
         // Define link ends for observations.
         LinkEnds linkEndsStationSpacecraft;
-        linkEndsStationSpacecraft[ transmitter ] = std::make_pair( "Earth" , "Station1"  );
-        linkEndsStationSpacecraft[ reflector1 ] = std::make_pair( "Spacecraft" , ""  );
-        linkEndsStationSpacecraft[ receiver ] = std::make_pair( "Earth" , receivingStation  );
+        linkEndsStationSpacecraft[ transmitter ] = std::make_pair< std::string, std::string >( "Earth" , "Station1"  );
+        linkEndsStationSpacecraft[ reflector1 ] = std::make_pair< std::string, std::string >( "Spacecraft" , ""  );
+        linkEndsStationSpacecraft[ receiver ] = std::pair< std::string, std::string >( std::make_pair( "Earth" , receivingStation  ) );
 
         LinkEnds uplinkLinkEndsStationSpacecraft;
-        uplinkLinkEndsStationSpacecraft[ transmitter ] = std::make_pair( "Earth" , "Station1"  );
-        uplinkLinkEndsStationSpacecraft[ receiver ] = std::make_pair( "Spacecraft" , ""  );
+        uplinkLinkEndsStationSpacecraft[ transmitter ] = std::make_pair< std::string, std::string >( "Earth" , "Station1"  );
+        uplinkLinkEndsStationSpacecraft[ receiver ] = std::make_pair< std::string, std::string >( "Spacecraft" , ""  );
 
         LinkEnds downlinkLinkEndsStationSpacecraft;
-        downlinkLinkEndsStationSpacecraft[ receiver ] = std::make_pair( "Earth" , receivingStation  );
-        downlinkLinkEndsStationSpacecraft[ transmitter ] = std::make_pair( "Spacecraft" , ""  );
+        downlinkLinkEndsStationSpacecraft[ receiver ] = std::pair< std::string, std::string >( std::make_pair(  "Earth" , receivingStation ) );
+        downlinkLinkEndsStationSpacecraft[ transmitter ] = std::make_pair< std::string, std::string >( "Spacecraft" , ""  );
 
         // Create observation settings
         std::shared_ptr< ObservationModelSettings > observableSettingsWithoutCorrections = std::make_shared< ObservationModelSettings >

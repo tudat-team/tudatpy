@@ -187,14 +187,14 @@ BOOST_AUTO_TEST_CASE( test_RotationalDynamicsEstimationFromLanderData )
     // Define link ends and observables
     std::vector< LinkEnds > linkEndsList;
     LinkEnds currentLinkEnds;
-    currentLinkEnds[ transmitter ] = std::make_pair( "Earth", "" );
-    currentLinkEnds[ receiver ] = std::make_pair( "Phobos", "Lander" );
+    currentLinkEnds[ transmitter ] = std::make_pair< std::string, std::string >( "Earth", "" );
+    currentLinkEnds[ receiver ] = std::make_pair< std::string, std::string >( "Phobos", "Lander" );
     linkEndsList.push_back( currentLinkEnds );
     std::map< ObservableType, std::vector< LinkEnds > > linkEndsPerObservable;
     //linkEndsPerObservable[ one_way_range ].push_back( linkEndsList[ 0 ] );
 
     LinkEnds currentLinkEnds2;
-    currentLinkEnds2[ observed_body ] = std::make_pair( "Phobos", "" );
+    currentLinkEnds2[ observed_body ] = std::make_pair< std::string, std::string >( "Phobos", "" );
     linkEndsPerObservable[ euler_angle_313_observable ].push_back( currentLinkEnds2 );
 
     // Create parameters to estimate
@@ -433,8 +433,8 @@ BOOST_AUTO_TEST_CASE( test_RotationalTranslationalDynamicsEstimationFromLanderDa
     // Define link ends and observables
     std::vector< LinkEnds > linkEndsList;
     LinkEnds currentLinkEnds;
-    currentLinkEnds[ transmitter ] = std::make_pair( "Earth", "" );
-    currentLinkEnds[ receiver ] = std::make_pair( "Phobos", "Lander" );
+    currentLinkEnds[ transmitter ] = std::make_pair< std::string, std::string >( "Earth", "" );
+    currentLinkEnds[ receiver ] = std::make_pair< std::string, std::string >( "Phobos", "Lander" );
     linkEndsList.push_back( currentLinkEnds );
 
     std::map< ObservableType, std::vector< LinkEnds > > linkEndsPerObservable;
