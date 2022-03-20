@@ -116,6 +116,10 @@ void expose_transfer_trajectory(py::module &m) {
                  py::overload_cast<const int> (&tms::TransferTrajectory::getStatesAlongTrajectory),
                  py::arg("number_of_data_points_per_leg"),
                  get_docstring("TransferTrajectory.states_along_trajectory").c_str() )
+            .def("thrust_accelerations_along_trajectory",
+                 py::overload_cast<const int> (&tms::TransferTrajectory::getThrustAccelerationsAlongTrajectory),
+                 py::arg("number_of_data_points_per_leg"),
+                 get_docstring("TransferTrajectory.thrust_acceleration_along_trajectory").c_str())
             .def_property_readonly("delta_v_per_node", &tms::TransferTrajectory::getDeltaVPerNode,
                                    get_docstring("TransferTrajectory.delta_v_per_node").c_str() )
             .def_property_readonly("delta_v_per_leg", &tms::TransferTrajectory::getDeltaVPerLeg,
