@@ -23,10 +23,10 @@ namespace observation_models
 {
 
 
-std::vector< LinkEnds > getObservationModelListLinkEnds(
+std::vector< LinkDefinition > getObservationModelListLinkEnds(
         const std::vector< std::shared_ptr< ObservationModelSettings > >& observationModelList )
 {
-    std::vector< LinkEnds > linkEndsList;
+    std::vector< LinkDefinition > linkEndsList;
     for( unsigned int i = 0; i < observationModelList.size( ); i++ )
     {
         linkEndsList.push_back( observationModelList.at( i )->linkEnds_ );
