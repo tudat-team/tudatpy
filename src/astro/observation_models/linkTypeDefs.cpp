@@ -167,6 +167,7 @@ std::vector< LinkEndType > getNWayLinkIndicesFromLinkEndId( const LinkEndId& lin
     return matchingLinkEndTypes;
 }
 
+
 LinkEnds mergeUpDownLink( const LinkEnds& uplink, const LinkEnds& downlink )
 {
     if( uplink.at( receiver ) != downlink.at( transmitter ) )
@@ -178,6 +179,12 @@ LinkEnds mergeUpDownLink( const LinkEnds& uplink, const LinkEnds& downlink )
     twoWayLinkEnds[ retransmitter ] = downlink.at( transmitter );
     twoWayLinkEnds[ receiver ] = downlink.at( receiver );
     return twoWayLinkEnds;
+}
+
+
+LinkDefinition mergeUpDownLink( const LinkDefinition& uplink, const LinkDefinition& downlink )
+{
+    return LinkDefinition( mergeUpDownLink( uplink.linkEnds_, downlink.linkEnds_ ) );
 }
 
 LinkEnds mergeOneWayLinkEnds( const std::vector< LinkEnds >& linkEnds )
@@ -196,6 +203,17 @@ LinkEnds mergeOneWayLinkEnds( const std::vector< LinkEnds >& linkEnds )
     return nWayLinkEnds;
 }
 
+LinkDefinition mergeOneWayLinkEnds( const std::vector< LinkDefinition >& linkEndsDefinitions )
+{
+    std::vector< LinkEnds > linkEnds;
+    for( unsigned int i = 0; i < linkEndsDefinitions.size( ); i++ )
+    {
+        linkEnds.push_back( linkEndsDefinitions.at( i ).linkEnds_ );
+    }
+    return LinkDefinition( mergeOneWayLinkEnds( linkEnds ) );
+
+}
+
 LinkEnds getUplinkFromTwoWayLinkEnds(
         const LinkEnds& twoWayLinkEnds )
 {
@@ -203,6 +221,12 @@ LinkEnds getUplinkFromTwoWayLinkEnds(
     uplink[ transmitter ] = twoWayLinkEnds.at( transmitter );
     uplink[ receiver ] = twoWayLinkEnds.at( retransmitter );
     return uplink;
+}
+
+LinkDefinition getUplinkFromTwoWayLinkEnds(
+        const LinkDefinition& twoWayLinkEnds )
+{
+    return LinkDefinition( getUplinkFromTwoWayLinkEnds( twoWayLinkEnds.linkEnds_ ) );
 }
 
 LinkEnds getDownlinkFromTwoWayLinkEnds(
@@ -214,6 +238,11 @@ LinkEnds getDownlinkFromTwoWayLinkEnds(
     return downlink;
 }
 
+LinkDefinition getDownlinkFromTwoWayLinkEnds(
+        const LinkDefinition& twoWayLinkEnds )
+{
+    return LinkDefinition( getDownlinkFromTwoWayLinkEnds( twoWayLinkEnds.linkEnds_ ) );
+}
 
 LinkEnds getSingleLegLinkEnds(
         const LinkEnds& nWayLinkEnds, const unsigned int legIndex )

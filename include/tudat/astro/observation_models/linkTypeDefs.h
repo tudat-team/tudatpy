@@ -246,13 +246,23 @@ std::vector< LinkEndType > getNWayLinkIndicesFromLinkEndId( const LinkEndId& lin
 
 LinkEnds mergeUpDownLink( const LinkEnds& uplink, const LinkEnds& downlink );
 
+LinkDefinition mergeUpDownLink( const LinkDefinition& uplink, const LinkDefinition& downlink );
+
 LinkEnds mergeOneWayLinkEnds( const std::vector< LinkEnds >& linkEnds );
+
+LinkDefinition mergeOneWayLinkEnds( const std::vector< LinkDefinition >& linkEnds );
 
 LinkEnds getUplinkFromTwoWayLinkEnds(
         const LinkEnds& twoWayLinkEnds );
 
+LinkDefinition getUplinkFromTwoWayLinkEnds(
+        const LinkDefinition& twoWayLinkEnds );
+
 LinkEnds getDownlinkFromTwoWayLinkEnds(
         const LinkEnds& twoWayLinkEnds );
+
+LinkDefinition getDownlinkFromTwoWayLinkEnds(
+        const LinkDefinition& twoWayLinkEnds );
 
 LinkEnds getSingleLegLinkEnds(
         const LinkEnds& nWayLinkEnds, const unsigned int legIndex );
