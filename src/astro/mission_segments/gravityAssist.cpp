@@ -436,7 +436,7 @@ Eigen::Vector3d calculateUnpoweredGravityAssistOutgoingVelocity(
         const double centralBodyGravitationalParameter,
         const Eigen::Vector3d& centralBodyVelocity,
         const Eigen::Vector3d& incomingVelocity,
-        const double rotationAngle,
+        const double outgoingVelocityRotationAngle,
         const double pericenterRadius )
 {
     // Calculate the incoming velocity.
@@ -457,8 +457,8 @@ Eigen::Vector3d calculateUnpoweredGravityAssistOutgoingVelocity(
     // Calculate the relative outgoing velocity.
     const Eigen::Vector3d relativeOutgoingVelocity = absoluteRelativeIncomingVelocity *
             ( std::cos( bendingAngle ) * unitVector1 + std::sin( bendingAngle ) *
-              std::cos( rotationAngle ) * unitVector2 + std::sin( bendingAngle ) *
-              std::sin( rotationAngle ) * unitVector3 );
+                                                       std::cos(outgoingVelocityRotationAngle ) * unitVector2 + std::sin(bendingAngle ) *
+                                                                                                                std::sin(outgoingVelocityRotationAngle ) * unitVector3 );
     
     // Add the relative outgoing velocity to the swing-by body velocity and return it.
     return centralBodyVelocity + relativeOutgoingVelocity;
@@ -469,7 +469,7 @@ Eigen::Vector3d calculatePoweredGravityAssistOutgoingVelocity(
         const double centralBodyGravitationalParameter,
         const Eigen::Vector3d& centralBodyVelocity,
         const Eigen::Vector3d& incomingVelocity,
-        const double rotationAngle,
+        const double outgoingVelocityRotationAngle,
         const double pericenterRadius,
         const double deltaV )
 {
@@ -518,9 +518,9 @@ Eigen::Vector3d calculatePoweredGravityAssistOutgoingVelocity(
     const Eigen::Vector3d relativeOutgoingVelocity = absoluteRelativeOutgoingVelocity *
             ( std::cos( bendingAngle ) * unitVector1 +
               std::sin( bendingAngle ) *
-              std::cos( rotationAngle ) * unitVector2 +
+              std::cos(outgoingVelocityRotationAngle ) * unitVector2 +
               std::sin( bendingAngle ) *
-              std::sin( rotationAngle ) * unitVector3 );
+              std::sin(outgoingVelocityRotationAngle ) * unitVector3 );
     
     // Add the relative outgoing velocity to the swing-by body velocity and return it.
     return centralBodyVelocity + relativeOutgoingVelocity;
@@ -531,7 +531,7 @@ Eigen::Vector3d calculatePoweredGravityAssistIncomingVelocity(
         const double centralBodyGravitationalParameter,
         const Eigen::Vector3d& centralBodyVelocity,
         const Eigen::Vector3d& outgoingVelocity,
-        const double rotationAngle,
+        const double incomingVelocityRotationAngle,
         const double pericenterRadius,
         const double deltaV )
 {
@@ -541,7 +541,7 @@ Eigen::Vector3d calculatePoweredGravityAssistIncomingVelocity(
     // outgoing velocity, since the two are defined with respect to two different frames.
     Eigen::Vector3d incomingVelocity;
     incomingVelocity = calculatePoweredGravityAssistOutgoingVelocity(
-            centralBodyGravitationalParameter, centralBodyVelocity, outgoingVelocity, rotationAngle,
+            centralBodyGravitationalParameter, centralBodyVelocity, outgoingVelocity, incomingVelocityRotationAngle,
             pericenterRadius, -deltaV);
     return incomingVelocity;
 }

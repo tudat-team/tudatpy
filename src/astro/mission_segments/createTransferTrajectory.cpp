@@ -246,7 +246,12 @@ std::shared_ptr<TransferNode> createTransferNode(
         }
         else
         {
-            throw std::runtime_error("Creation of SwingbyWithFreeIncomingFixedOutgoingVelocity not yet implemented." );
+            std::function< Eigen::Vector3d( ) > outgoingVelocityFunction =
+                    std::bind( &TransferLeg::getDepartureVelocity, outgoingTransferLeg );
+
+            transferNode = std::make_shared< SwingbyWithFreeIncomingFixedOutgoingVelocity >(
+                    centralBodyEphemeris, centralBodyGravitationalParameter,
+                    outgoingVelocityFunction);
         }
 
 
@@ -849,18 +854,18 @@ void printTransferParameterDefinition(
         case swingby:
         {
             bool useSwingbyParameters = false;
+            bool useAlternativeSwingbyParameters = false;
             if( i == legSettings.size( ) )
             {
                 useSwingbyParameters = true;
             }
-            else if( legRequiresInputFromFollowingNode.at(legSettings.at( i-1 )->legType_) || legRequiresInputFromPreviousNode.at(legSettings.at( i )->legType_) )
+            else if( legRequiresInputFromPreviousNode.at(legSettings.at( i )->legType_) )
             {
                 useSwingbyParameters = true;
-
-                if ( legRequiresInputFromFollowingNode.at(legSettings.at( i-1 )->legType_) && !legRequiresInputFromPreviousNode.at(legSettings.at( i )->legType_) )
-                {
-                    throw std::runtime_error( "SwingbyWithFixedIncomingFreeOutgoingVelocity node not implemented, can't print parameters." );
-                }
+            }
+            else if ( legRequiresInputFromFollowingNode.at(legSettings.at( i-1 )->legType_) && !legRequiresInputFromPreviousNode.at(legSettings.at( i )->legType_) )
+            {
+                useAlternativeSwingbyParameters = true;
             }
 
             if ( legRequiresInputFromFollowingNode.at(legSettings.at( i-1 )->legType_) && legRequiresInputFromPreviousNode.at(legSettings.at( i )->legType_) )
@@ -870,12 +875,19 @@ void printTransferParameterDefinition(
                 currentNodeIds.push_back( "Incoming excess velocity out-of-plane angle" );
             }
 
-            if( useSwingbyParameters )
+            if ( useSwingbyParameters )
             {
                 currentNodeIds.push_back( "Swingby periapsis" );
-                currentNodeIds.push_back( "Swingby orbit-orientation rotation" );
+                currentNodeIds.push_back( "Swingby orbit-orientation rotation (with respect to swingby incoming velocity)" );
                 currentNodeIds.push_back( "Swingby Delta V" );
             }
+            else if ( useAlternativeSwingbyParameters )
+            {
+                currentNodeIds.push_back( "Swingby periapsis" );
+                currentNodeIds.push_back( "Swingby orbit-orientation rotation (with respect to swingby outgoing velocity)" );
+                currentNodeIds.push_back( "Swingby Delta V" );
+            }
+
             break;
         }
         case escape_and_departure:

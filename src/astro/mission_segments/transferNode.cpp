@@ -341,7 +341,7 @@ void SwingbyWithFixedIncomingFreeOutgoingVelocity::computeNode( )
 
     incomingVelocity_ = incomingVelocityFunction_( );
 
-    // Prepare the gravity assist propagator module.
+    // Forward propagate the gravity assist
     outgoingVelocity_ = mission_segments::calculatePoweredGravityAssistOutgoingVelocity(
                 centralBodyGravitationalParameter_,
                 nodeState_.segment< 3 >( 3 ), incomingVelocity_,
@@ -399,7 +399,7 @@ void SwingbyWithFreeIncomingFreeOutgoingVelocity::computeNode( )
                         std::cos(incomingExcessVelocityOutOfPlaneAngle_ ) * unitVector2 +
                         incomingExcessVelocityMagnitude_ * std::sin(incomingExcessVelocityOutOfPlaneAngle_ ) * unitVector3;
 
-    // Prepare the gravity assist propagator module.
+    // Forward propagate the gravity assist
     outgoingVelocity_ = mission_segments::calculatePoweredGravityAssistOutgoingVelocity(
                 centralBodyGravitationalParameter_,
                 nodeState_.segment< 3 >( 3 ), incomingVelocity_,
@@ -431,9 +431,27 @@ bool SwingbyWithFreeIncomingFixedOutgoingVelocity::nodeComputesIncomingVelocity(
 
 void SwingbyWithFreeIncomingFixedOutgoingVelocity::computeNode( )
 {
-    throw std::runtime_error( "computeNode function not yet implemented for SwingbyWithFixedIncomingFreeOutgoingVelocity node." );
-}
+    if( nodeParameters_.rows( ) != 4 )
+    {
+        throw std::runtime_error( "Error when computing SwingbyWithFreeIncomingFixedOutgoingVelocity, incorrect input size" );
+    }
 
+    nodeTime_ = nodeParameters_( 0 );
+    periapsisRadius_ = nodeParameters_( 1 );
+    incomingRotationAngle_ = nodeParameters_( 2 );
+    swingbyDeltaV_ = nodeParameters_( 3 );
+
+    updateNodeState( nodeTime_ );
+
+    outgoingVelocity_ = outgoingVelocityFunction_( );
+
+    // Backward propagate the gravity assist
+    incomingVelocity_ = mission_segments::calculatePoweredGravityAssistIncomingVelocity(
+            centralBodyGravitationalParameter_, nodeState_.segment<3>(3), outgoingVelocity_,
+            incomingRotationAngle_, periapsisRadius_, swingbyDeltaV_);
+
+    totalNodeDeltaV_ = swingbyDeltaV_;
+}
 
 } // namespace mission_segments
 

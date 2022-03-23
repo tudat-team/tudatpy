@@ -94,6 +94,9 @@ BOOST_AUTO_TEST_CASE( testMgaSphericalShapingSingleLeg )
             transferNodeSettings.resize(bodyOrder.size( ));
             transferNodeSettings[0] = escapeAndDepartureNode(std::numeric_limits< double >::infinity( ), 0.0);
             transferNodeSettings[1] = captureAndInsertionNode(std::numeric_limits< double >::infinity( ), 0.0);
+
+            // Print parameter definition
+            printTransferParameterDefinition(transferLegSettings, transferNodeSettings);
         }
         else if ( creationType == 1 )
         {
@@ -104,9 +107,6 @@ BOOST_AUTO_TEST_CASE( testMgaSphericalShapingSingleLeg )
                     std::make_pair(std::numeric_limits< double >::infinity( ), 0.0),
                     lowerBoundFreeCoefficient, upperBoundFreeCoefficient);
         }
-
-        // Print parameter definition
-        printTransferParameterDefinition(transferLegSettings, transferNodeSettings);
 
         std::shared_ptr< TransferTrajectory > transferTrajectory = createTransferTrajectory(
                 bodies, transferLegSettings, transferNodeSettings, bodyOrder, "Sun");
@@ -193,6 +193,9 @@ BOOST_AUTO_TEST_CASE( testMgaSphericalShaping )
             transferNodeSettings[0] = escapeAndDepartureNode(std::numeric_limits< double >::infinity( ), 0.0);
             transferNodeSettings[1] = swingbyNode();
             transferNodeSettings[2] = captureAndInsertionNode(std::numeric_limits< double >::infinity( ), 0.0);
+
+            // Print parameter definition
+            printTransferParameterDefinition(transferLegSettings, transferNodeSettings);
         }
         else if ( creationType == 1 )
         {
@@ -202,9 +205,6 @@ BOOST_AUTO_TEST_CASE( testMgaSphericalShaping )
                     std::make_pair(std::numeric_limits< double >::infinity( ), 0.0),
                     lowerBoundFreeCoefficient, upperBoundFreeCoefficient);
         }
-
-        // Print parameter definition
-        printTransferParameterDefinition(transferLegSettings, transferNodeSettings);
 
         std::shared_ptr< TransferTrajectory > transferTrajectory = createTransferTrajectory(
                 bodies, transferLegSettings, transferNodeSettings, bodyOrder, "Sun");
