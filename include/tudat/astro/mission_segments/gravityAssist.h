@@ -142,6 +142,25 @@ Eigen::Vector3d calculatePoweredGravityAssistOutgoingVelocity(
         const double pericenterRadius,
         const double deltaV );
 
+//! Backward propagate a powered gravity assist.
+/*!
+ * Calculates the incoming velocity of a powered gravity assist.
+ * @param centralBodyGravitationalParameter Gravitational parameter of the swing-by body.[m^3 s^-2]
+ * @param centralBodyVelocity Heliocentric velocity of the swing-by body.                  [m s^-1]
+ * @param outgoingVelocity Heliocentric velocity of the spacecraft after the swing-by.    [m s^-1]
+ * @param rotationAngle Angle defining the rotation due to the swing-by in the 3D plane.      [rad]
+ * @param pericenterRadius Pericenter radius of the swing-by maneuver.                          [m]
+ * @param deltaV DeltaV magnitude of the gravity assist that is applied at pericenter      [m s^-1]
+ * @return incomingVelocity Heliocentric velocity of the spacecraft before the swing-by.    [m s^-1]
+ */
+Eigen::Vector3d calculatePoweredGravityAssistIncomingVelocity(
+        const double centralBodyGravitationalParameter,
+        const Eigen::Vector3d& centralBodyVelocity,
+        const Eigen::Vector3d& outgoingVelocity,
+        const double rotationAngle,
+        const double pericenterRadius,
+        const double deltaV );
+
 //! Pericenter finding functions class.
 /*!
  * This class contains the functions required by the root-finders to find the pericenter radius in
