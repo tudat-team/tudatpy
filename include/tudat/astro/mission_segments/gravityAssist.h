@@ -110,7 +110,7 @@ double calculateGravityAssistDeltaV(
  * \param centralBodyGravitationalParameter Gravitational parameter of the swing-by body.[m^3 s^-2]
  * \param centralBodyVelocity Heliocentric velocity of the swing-by body.                  [m s^-1]
  * \param incomingVelocity Heliocentric velocity of the spacecraft before the swing-by.    [m s^-1]
- * \param rotationAngle Angle defining the rotation due to the swing-by in the 3D plane.      [rad]
+ * \param outgoingVelocityRotationAngle Angle defining the rotation due to the swing-by in the 3D plane.      [rad]
  * \param pericenterRadius Pericenter radius of the swing-by maneuver.                          [m]
  * \return outgoingVelocity Heliocentric velocity of the spacecraft after the swing-by.    [m s^-1]
  */
@@ -118,7 +118,7 @@ Eigen::Vector3d calculateUnpoweredGravityAssistOutgoingVelocity(
         const double centralBodyGravitationalParameter,
         const Eigen::Vector3d& centralBodyVelocity,
         const Eigen::Vector3d& incomingVelocity,
-        const double rotationAngle,
+        const double outgoingVelocityRotationAngle,
         const double pericenterRadius );
 
 //! Propagate a powered gravity assist.
@@ -129,7 +129,7 @@ Eigen::Vector3d calculateUnpoweredGravityAssistOutgoingVelocity(
  * \param centralBodyGravitationalParameter Gravitational parameter of the swing-by body.[m^3 s^-2]
  * \param centralBodyVelocity Heliocentric velocity of the swing-by body.                  [m s^-1]
  * \param incomingVelocity Heliocentric velocity of the spacecraft before the swing-by.    [m s^-1]
- * \param rotationAngle Angle defining the rotation due to the swing-by in the 3D plane.      [rad]
+ * \param outgoingVelocityRotationAngle Angle defining the rotation due to the swing-by in the 3D plane.      [rad]
  * \param pericenterRadius Pericenter radius of the swing-by maneuver.                          [m]
  * \param deltaV DeltaV magnitude of the gravity assist that is applied at pericenter      [m s^-1]
  * \return outgoingVelocity Heliocentric velocity of the spacecraft after the swing-by.    [m s^-1]
@@ -138,7 +138,7 @@ Eigen::Vector3d calculatePoweredGravityAssistOutgoingVelocity(
         const double centralBodyGravitationalParameter,
         const Eigen::Vector3d& centralBodyVelocity,
         const Eigen::Vector3d& incomingVelocity,
-        const double rotationAngle,
+        const double outgoingVelocityRotationAngle,
         const double pericenterRadius,
         const double deltaV );
 
@@ -148,7 +148,7 @@ Eigen::Vector3d calculatePoweredGravityAssistOutgoingVelocity(
  * @param centralBodyGravitationalParameter Gravitational parameter of the swing-by body.[m^3 s^-2]
  * @param centralBodyVelocity Heliocentric velocity of the swing-by body.                  [m s^-1]
  * @param outgoingVelocity Heliocentric velocity of the spacecraft after the swing-by.    [m s^-1]
- * @param rotationAngle Angle defining the rotation due to the swing-by in the 3D plane.      [rad]
+ * @param incomingVelocityRotationAngle Angle defining the rotation due to the swing-by in the 3D plane.      [rad]
  * @param pericenterRadius Pericenter radius of the swing-by maneuver.                          [m]
  * @param deltaV DeltaV magnitude of the gravity assist that is applied at pericenter      [m s^-1]
  * @return incomingVelocity Heliocentric velocity of the spacecraft before the swing-by.    [m s^-1]
@@ -157,7 +157,7 @@ Eigen::Vector3d calculatePoweredGravityAssistIncomingVelocity(
         const double centralBodyGravitationalParameter,
         const Eigen::Vector3d& centralBodyVelocity,
         const Eigen::Vector3d& outgoingVelocity,
-        const double rotationAngle,
+        const double incomingVelocityRotationAngle,
         const double pericenterRadius,
         const double deltaV );
 

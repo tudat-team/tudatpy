@@ -337,7 +337,7 @@ protected:
    // Input modified per iteration (extracted from nodeParameters_)
    double periapsisRadius_;
    double swingbyDeltaV_;
-   double outgoingRotationAngle_;
+   double incomingRotationAngle_;
 };
 
 
