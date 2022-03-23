@@ -526,6 +526,26 @@ Eigen::Vector3d calculatePoweredGravityAssistOutgoingVelocity(
     return centralBodyVelocity + relativeOutgoingVelocity;
 }
 
+//! Backward propagate a powered gravity assist.
+Eigen::Vector3d calculatePoweredGravityAssistIncomingVelocity(
+        const double centralBodyGravitationalParameter,
+        const Eigen::Vector3d& centralBodyVelocity,
+        const Eigen::Vector3d& outgoingVelocity,
+        const double rotationAngle,
+        const double pericenterRadius,
+        const double deltaV )
+{
+    // To compute the incoming velocity one uses the same equations as for computing the outgoing velocity, the only
+    // difference being that the deltaV is negative.
+    // Evidently, the rotationAngle has a different physical meaning with respect to the one used when computing the
+    // outgoing velocity, since the two are defined with respect to two different frames.
+    Eigen::Vector3d incomingVelocity;
+    incomingVelocity = calculatePoweredGravityAssistOutgoingVelocity(
+            centralBodyGravitationalParameter, centralBodyVelocity, outgoingVelocity, rotationAngle,
+            pericenterRadius, -deltaV);
+    return incomingVelocity;
+}
+
 //! Compute pericenter radius function.
 double PericenterFindingFunctions::computePericenterRadiusFunction( const double pericenterRadius )
 {
