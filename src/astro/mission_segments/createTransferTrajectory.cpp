@@ -853,35 +853,37 @@ void printTransferParameterDefinition(
         {
         case swingby:
         {
-            bool useSwingbyParameters = false;
-            bool useAlternativeSwingbyParameters = false;
+            bool useForwardGravityAssistParameters = false;
+            bool useBackwardGravityAssistParameters = false;
+            // If the last node is a swinby node, then it is one of the swingby node types that calculates the ougoing velocity, meaning
+            // it does the forward gravity assist propagation
             if( i == legSettings.size( ) )
             {
-                useSwingbyParameters = true;
+                useForwardGravityAssistParameters = true;
             }
-            else if( legRequiresInputFromPreviousNode.at(legSettings.at( i )->legType_) )
+            else if( !legRequiresInputFromFollowingNode.at(legSettings.at( i-1 )->legType_) && legRequiresInputFromPreviousNode.at(legSettings.at( i )->legType_) )
             {
-                useSwingbyParameters = true;
+                useForwardGravityAssistParameters = true;
             }
-            else if ( legRequiresInputFromFollowingNode.at(legSettings.at( i-1 )->legType_) && !legRequiresInputFromPreviousNode.at(legSettings.at( i )->legType_) )
+            else if ( legRequiresInputFromFollowingNode.at(legSettings.at( i-1 )->legType_) && legRequiresInputFromPreviousNode.at(legSettings.at( i )->legType_) )
             {
-                useAlternativeSwingbyParameters = true;
-            }
-
-            if ( legRequiresInputFromFollowingNode.at(legSettings.at( i-1 )->legType_) && legRequiresInputFromPreviousNode.at(legSettings.at( i )->legType_) )
-            {
+                useForwardGravityAssistParameters = true;
                 currentNodeIds.push_back( "Incoming excess velocity magnitude" );
                 currentNodeIds.push_back( "Incoming excess velocity in-plane angle" );
                 currentNodeIds.push_back( "Incoming excess velocity out-of-plane angle" );
             }
+            else if ( legRequiresInputFromFollowingNode.at(legSettings.at( i-1 )->legType_) && !legRequiresInputFromPreviousNode.at(legSettings.at( i )->legType_) )
+            {
+                useBackwardGravityAssistParameters = true;
+            }
 
-            if ( useSwingbyParameters )
+            if ( useForwardGravityAssistParameters )
             {
                 currentNodeIds.push_back( "Swingby periapsis" );
                 currentNodeIds.push_back( "Swingby orbit-orientation rotation (with respect to swingby incoming velocity)" );
                 currentNodeIds.push_back( "Swingby Delta V" );
             }
-            else if ( useAlternativeSwingbyParameters )
+            else if ( useBackwardGravityAssistParameters )
             {
                 currentNodeIds.push_back( "Swingby periapsis" );
                 currentNodeIds.push_back( "Swingby orbit-orientation rotation (with respect to swingby outgoing velocity)" );
