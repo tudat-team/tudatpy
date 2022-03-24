@@ -8,12 +8,17 @@
 #    http://tudat.tudelft.nl/LICENSE.
 #
 
-TUDAT_ADD_TEST_CASE(EnvironmentModelSetup
-        PRIVATE_LINKS
-        ${Tudat_PROPAGATION_LIBRARIES}
-        )
+#TUDAT_ADD_TEST_CASE(EnvironmentModelSetup
+#        PRIVATE_LINKS
+#        ${Tudat_PROPAGATION_LIBRARIES}
+#        )
+#
+#TUDAT_ADD_TEST_CASE(AccelerationModelSetup
+#        PRIVATE_LINKS
+#        ${Tudat_PROPAGATION_LIBRARIES}
+#        )
 
-TUDAT_ADD_TEST_CASE(AccelerationModelSetup
+TUDAT_ADD_TEST_CASE(Polyhedron
         PRIVATE_LINKS
         ${Tudat_PROPAGATION_LIBRARIES}
         )

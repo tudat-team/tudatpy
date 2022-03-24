@@ -40,7 +40,8 @@ enum GravityFieldType
 {
     central,
     central_spice,
-    spherical_harmonic
+    spherical_harmonic,
+    polyhedron
 };
 
 // Class for providing settings for gravity field model.
@@ -282,6 +283,114 @@ protected:
 };
 
 
+// Derived class of GravityFieldSettings defining settings of polyhedron gravity
+// field representation.
+//! @get_docstring(SphericalHarmonicsGravityFieldSettings.__docstring__)
+class PolyhedronGravityFieldSettings: public GravityFieldSettings
+{
+public:
+    // Constructor.
+    /*
+     *  Constructor.
+     *  \param gravitationalConstant Gravitational constant of gravity field.
+     *  \param density Density of polyhedron.
+     *  \param verticesCoordinates Cartesian coordinates of each vertex.
+     *  \param verticesDefiningEachFacet Index (0-based indexing!) of the vertices constituting each facet.
+     *  \param associatedReferenceFrame Identifier for body-fixed reference frame to which the polyhedron is referred.
+     */
+    PolyhedronGravityFieldSettings( const double gravitationalConstant,
+                                    const double density,
+                                    const Eigen::MatrixXd& verticesCoordinates,
+                                    const Eigen::MatrixXi& verticesDefiningEachFacet,
+                                    const std::string& associatedReferenceFrame );
+
+    virtual ~PolyhedronGravityFieldSettings( ){ }
+
+    // Function to return gravitational constant for gravity field.
+    /*
+     *  Function to return gravitational constant for gravity field.
+     *  \return Gravitational constant for gravity field.
+     */
+    double getGravitationalConstant( ) { return gravitationalConstant_; }
+
+    // Function to reset gravitational constant for gravity field.
+    /*
+     *  Function to reset gravitational constant for gravity field.
+     *  \param gravitationalConstant New gravitational constant for gravity field.
+     */
+    void resetGravitationalConstant( const double gravitationalConstant )
+    { gravitationalConstant_ = gravitationalConstant; }
+
+    // Function to return the density of the polyhedron
+    /*
+     *  Function to return the density of the polyhedron
+     *  \return Density of the polyhedron
+     */
+    double getDensity( ) { return density_; }
+
+    void resetDensity ( const double density )
+    { density_ = density; }
+
+    // Function to return identifier for body-fixed reference frame.
+    /*
+     *  Function to return identifier for body-fixed reference frame to which the polyhedron is referred.
+     *  \return Identifier for body-fixed reference frame to which the polyhedron is referred.
+     */
+    std::string getAssociatedReferenceFrame( ){ return associatedReferenceFrame_; }
+
+    // Function to reset identifier for body-fixed reference frame to which the polyhedron is referred.
+    /*
+     *  Function to reset identifier for body-fixed reference frame to which the polyhedron is referred.
+     *  \param associatedReferenceFrame Identifier for body-fixed reference frame to which the polyhedron is referred.
+     */
+    void resetAssociatedReferenceFrame( const std::string& associatedReferenceFrame )
+    {
+        associatedReferenceFrame_ = associatedReferenceFrame;
+    }
+
+
+
+protected:
+
+    void computeVerticesAndFacetsDefiningEachEdge ( );
+
+    void computeFacetNormalsAndDyads ( );
+
+    void computeEdgeDyads ( );
+
+    // Gravitational constant for gravity field that is to be created.
+    double gravitationalConstant_;
+
+    // Density of polyhedron.
+    double density_;
+
+    // Cartesian coordinates of each vertex.
+    Eigen::MatrixXd verticesCoordinates_;
+
+    // Indices of the 3 vertices describing each facet.
+    Eigen::MatrixXi verticesDefiningEachFacet_;
+
+    // Indices of the 2 vertices describing each edge.
+    Eigen::MatrixXi verticesDefiningEachEdge_;
+
+    // Indices of the 2 facets describing each edge.
+    Eigen::MatrixXi facetsDefiningEachEdge_;
+
+    // Outward-pointing normal vector of each facet.
+    std::vector< Eigen::Vector3d > facetNormalVectors_;
+
+    // Facet dyad of each facet.
+    std::vector< Eigen::MatrixXd > facetDyads_;
+
+    // Edge dyad of each edge.
+    std::vector< Eigen::MatrixXd > edgeDyads_;
+
+    // Identifier for body-fixed reference frame to which the polyhedron is referred.
+    std::string associatedReferenceFrame_;
+
+};
+
+
 // Spherical harmonics models supported by Tudat.
 //! @get_docstring(SphericalHarmonicsModel.__docstring__)
 enum SphericalHarmonicsModel
@@ -447,7 +556,8 @@ protected:
 std::shared_ptr< SphericalHarmonicsGravityFieldSettings > createHomogeneousTriAxialEllipsoidGravitySettings(
         const double axisA, const double axisB, const double axisC, const double ellipsoidDensity,
         const int maximumDegree, const int maximumOrder,
-        const std::string& associatedReferenceFrame  );
+        const std::string& associatedReferenceFrame,
+        const double gravitationalConstant = physical_constants::GRAVITATIONAL_CONSTANT );
 
 // Function to read a spherical harmonic gravity field file
 /*
