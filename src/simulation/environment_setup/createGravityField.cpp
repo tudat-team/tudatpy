@@ -360,11 +360,12 @@ std::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
 std::shared_ptr< SphericalHarmonicsGravityFieldSettings > createHomogeneousTriAxialEllipsoidGravitySettings(
         const double axisA, const double axisB, const double axisC, const double ellipsoidDensity,
         const int maximumDegree, const int maximumOrder,
-        const std::string& associatedReferenceFrame  )
+        const std::string& associatedReferenceFrame,
+        const double gravitationalConstant)
 {
     // Compute reference quantities
     double ellipsoidGravitationalParameter = gravitation::calculateTriAxialEllipsoidVolume(
-                axisA, axisB, axisC ) * ellipsoidDensity * physical_constants::GRAVITATIONAL_CONSTANT;
+                axisA, axisB, axisC ) * ellipsoidDensity * gravitationalConstant;
     double ellipsoidReferenceRadius = gravitation::calculateTriAxialEllipsoidReferenceRadius(
                 axisA, axisB, axisC );
 
@@ -377,6 +378,178 @@ std::shared_ptr< SphericalHarmonicsGravityFieldSettings > createHomogeneousTriAx
                 ellipsoidGravitationalParameter, ellipsoidReferenceRadius, coefficients.first,
                 coefficients.second, associatedReferenceFrame );
 }
+
+PolyhedronGravityFieldSettings::PolyhedronGravityFieldSettings (
+        const double gravitationalConstant,
+        const double density,
+        const Eigen::MatrixXd& verticesCoordinates,
+        const Eigen::MatrixXi& verticesDefiningEachFacet,
+        const std::string& associatedReferenceFrame):
+    GravityFieldSettings( polyhedron ),
+    gravitationalConstant_( gravitationalConstant ),
+    density_( density ),
+    verticesCoordinates_( verticesCoordinates ),
+    verticesDefiningEachFacet_( verticesDefiningEachFacet ),
+    associatedReferenceFrame_( associatedReferenceFrame )
+{
+    const unsigned int numberOfVertices = verticesCoordinates_.rows();
+    const unsigned int numberOfFacets = verticesDefiningEachFacet_.rows();
+
+    if ( numberOfFacets != 2 * ( numberOfVertices - 2) )
+    {
+        throw std::runtime_error( "Number of polyhedron facets and vertices not consistent." );
+    }
+
+    // Compute edges in polyhedron
+    computeVerticesAndFacetsDefiningEachEdge();
+
+    // Compute facet dyads
+    computeFacetNormalsAndDyads();
+
+    // Compute edge dyads
+    computeEdgeDyads();
+}
+
+void PolyhedronGravityFieldSettings::computeVerticesAndFacetsDefiningEachEdge ( )
+{
+    const unsigned int numberOfVertices = verticesCoordinates_.rows();
+    const unsigned int numberOfFacets = verticesDefiningEachFacet_.rows();
+    const unsigned int numberOfEdges = 3 * ( numberOfVertices - 2 );
+
+    verticesDefiningEachEdge_ = Eigen::MatrixXi::Constant( numberOfEdges, 2, TUDAT_NAN );
+    facetsDefiningEachEdge_ = Eigen::MatrixXi::Constant( numberOfEdges, 2, TUDAT_NAN );
+
+    unsigned int numberOfInsertedEdges = 0;
+    for ( unsigned int facet = 0; facet < numberOfFacets; ++facet )
+    {
+        // Extract edges from face
+        std::vector< std::vector< int > > edgesToInsert;
+        const int vertex0 = verticesDefiningEachFacet_(facet,0);
+        const int vertex1 = verticesDefiningEachFacet_(facet,1);
+        const int vertex2 = verticesDefiningEachFacet_(facet,2);
+        edgesToInsert.push_back( { vertex0, vertex1 } );
+        edgesToInsert.push_back( { vertex1, vertex2 } );
+        edgesToInsert.push_back( { vertex2, vertex0 } );
+
+        // Check if all edges of the facet have been included in verticesDefiningEachEdge. If so, remove the edge from
+        // the edgesToInsert vector and add the facet to facetsDefiningEachEdge
+        for ( unsigned int edge = 0; edge < numberOfInsertedEdges and !edgesToInsert.empty(); ++edge )
+        {
+            // Loop over edges of current facet still to be inserted
+            for ( unsigned int i = 0; i < edgesToInsert.size(); ++i)
+            {
+                if ( ( edgesToInsert.at(i).at(0) == verticesDefiningEachEdge_(edge, 0) && edgesToInsert.at(i).at(1) == verticesDefiningEachEdge_(edge, 1) ) ||
+                        ( edgesToInsert.at(i).at(0) == verticesDefiningEachEdge_(edge, 1) && edgesToInsert.at(i).at(1) == verticesDefiningEachEdge_(edge, 0) ) )
+                {
+                    edgesToInsert.erase(edgesToInsert.begin() + i);
+                    facetsDefiningEachEdge_(edge, 1) = facet;
+                }
+            }
+        }
+
+        // Check if any of the facet's edges still needs to be added to verticesDefiningEachEdge, and add it/them if so
+        for ( unsigned int i = 0; i < edgesToInsert.size(); ++i)
+        {
+            verticesDefiningEachEdge_(numberOfInsertedEdges,0) = edgesToInsert.at(i).at(0);
+            verticesDefiningEachEdge_(numberOfInsertedEdges,1) = edgesToInsert.at(i).at(1);
+            facetsDefiningEachEdge_(numberOfInsertedEdges, 0) = facet;
+            ++numberOfInsertedEdges;
+        }
+    }
+
+    // Sanity checks
+    if ( numberOfInsertedEdges != numberOfEdges )
+    {
+        throw std::runtime_error( "Extracted number of polyhedron edges not correct." );
+    }
+    for ( unsigned int i = 0; i < numberOfEdges; ++i )
+    {
+        for (unsigned int j : {0,1} )
+        {
+            if ( verticesDefiningEachEdge_(i,j) != verticesDefiningEachEdge_(i,j) )
+            {
+                throw std::runtime_error( "The vertices defining some edge were not selected." );
+            }
+            else if ( facetsDefiningEachEdge_(i,j) != facetsDefiningEachEdge_(i,j) )
+            {
+                throw std::runtime_error( "The facets defining some edge were not selected." );
+            }
+        }
+    }
+}
+
+void PolyhedronGravityFieldSettings::computeFacetNormalsAndDyads ( )
+{
+    const unsigned int numberOfFacets = verticesDefiningEachFacet_.rows();
+
+    facetNormalVectors_.resize(numberOfFacets);
+    facetDyads_.resize(numberOfFacets);
+
+    // Loop over facets, and for each facet compute the facet normal and the facet dyad
+    for (unsigned int facet = 0; facet < numberOfFacets; ++facet)
+    {
+        Eigen::Vector3d vertex0 = verticesCoordinates_.block<1,3>(verticesDefiningEachFacet_(facet,0),0);
+        Eigen::Vector3d vertex1 = verticesCoordinates_.block<1,3>(verticesDefiningEachFacet_(facet,1),0);
+        Eigen::Vector3d vertex2 = verticesCoordinates_.block<1,3>(verticesDefiningEachFacet_(facet,2),0);
+
+        // Compute outward-pointing vector normal to facet
+        facetNormalVectors_.at(facet) = (vertex1 - vertex0).cross(vertex2 - vertex1);
+        facetNormalVectors_.at(facet).normalize();
+
+        // Compute facet dyad (outer product)
+        facetDyads_.at(facet) = facetNormalVectors_.at(facet) * facetNormalVectors_.at(facet).transpose();
+    }
+
+}
+
+void PolyhedronGravityFieldSettings::computeEdgeDyads ( )
+{
+    const unsigned int numberOfEdges = verticesDefiningEachEdge_.rows();
+
+    edgeDyads_.resize(numberOfEdges);
+
+    // Loop over edges, and for each edge compute the edge dyad
+    for (unsigned int edge = 0; edge < numberOfEdges; ++edge)
+    {
+        Eigen::Vector3d vertex0 = verticesCoordinates_.block<1,3>(verticesDefiningEachEdge_(edge,0),0);
+        Eigen::Vector3d vertex1 = verticesCoordinates_.block<1,3>(verticesDefiningEachEdge_(edge,1),0);
+
+        // Compute edge normals, with arbitrary direction
+        Eigen::Vector3d edgeNormalFacetA = ( vertex0 - vertex1).cross(facetNormalVectors_.at(facetsDefiningEachEdge_(edge, 0) ) );
+        edgeNormalFacetA.normalize();
+        Eigen::Vector3d edgeNormalFacetB = ( vertex0 - vertex1).cross(facetNormalVectors_.at(facetsDefiningEachEdge_(edge, 1) ) );
+        edgeNormalFacetB.normalize();
+
+        // Check order of vertices for the facet associated with edgeNormalA, and correct the edge normal directions based on that
+        unsigned int vertex0FacetAIndex = TUDAT_NAN, vertex1FacetAIndex = TUDAT_NAN;
+        for (unsigned int facetVertex = 0; facetVertex < 3; ++facetVertex )
+        {
+            if ( verticesDefiningEachFacet_(facetsDefiningEachEdge_(edge,0), facetVertex) == verticesDefiningEachEdge_(edge, 0) )
+            {
+                vertex0FacetAIndex = facetVertex;
+            }
+            else if ( verticesDefiningEachFacet_(facetsDefiningEachEdge_(edge,0), facetVertex) == verticesDefiningEachEdge_(edge, 1) )
+            {
+                vertex1FacetAIndex = facetVertex;
+            }
+        }
+
+        if (( vertex0FacetAIndex == vertex1FacetAIndex + 1) || ( vertex0FacetAIndex == 0 && vertex1FacetAIndex == 2 ) )
+        {
+            edgeNormalFacetB = - edgeNormalFacetB;
+        }
+        else
+        {
+            edgeNormalFacetA = - edgeNormalFacetA;
+        }
+
+        // Compute edge dyads: outer product
+        edgeDyads_.at(edge) = edgeNormalFacetA * edgeNormalFacetA.transpose() + edgeNormalFacetB * edgeNormalFacetB.transpose();
+        std::cout << edge << " ###########" << std::endl << edgeDyads_.at(edge) << std::endl;
+
+    }
+}
+
 
 } // namespace simulation_setup
 
