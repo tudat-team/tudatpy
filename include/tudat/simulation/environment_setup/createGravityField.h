@@ -311,7 +311,8 @@ public:
      *  Function to return gravitational constant for gravity field.
      *  \return Gravitational constant for gravity field.
      */
-    double getGravitationalConstant( ) { return gravitationalConstant_; }
+    double getGravitationalConstant( )
+    { return gravitationalConstant_; }
 
     // Function to reset gravitational constant for gravity field.
     /*
@@ -336,7 +337,8 @@ public:
      *  Function to return identifier for body-fixed reference frame to which the polyhedron is referred.
      *  \return Identifier for body-fixed reference frame to which the polyhedron is referred.
      */
-    std::string getAssociatedReferenceFrame( ){ return associatedReferenceFrame_; }
+    std::string getAssociatedReferenceFrame( )
+    { return associatedReferenceFrame_; }
 
     // Function to reset identifier for body-fixed reference frame to which the polyhedron is referred.
     /*
@@ -344,11 +346,25 @@ public:
      *  \param associatedReferenceFrame Identifier for body-fixed reference frame to which the polyhedron is referred.
      */
     void resetAssociatedReferenceFrame( const std::string& associatedReferenceFrame )
-    {
-        associatedReferenceFrame_ = associatedReferenceFrame;
-    }
+    { associatedReferenceFrame_ = associatedReferenceFrame; }
 
+    Eigen::MatrixXd getVerticesCoordinates( )
+    { return verticesCoordinates_; }
 
+    Eigen::MatrixXi getVerticesDefiningEachFacet( )
+    { return verticesDefiningEachFacet_; }
+
+    Eigen::MatrixXi getVerticesDefiningEachEdge( )
+    { return verticesDefiningEachEdge_; }
+
+    std::vector< Eigen::Vector3d > getFacetNormalVectors( )
+    { return facetNormalVectors_; }
+
+    std::vector< Eigen::MatrixXd > getFacetDyads( )
+    { return facetDyads_; }
+
+    std::vector< Eigen::MatrixXd > getEdgeDyads( )
+    { return edgeDyads_; }
 
 protected:
 

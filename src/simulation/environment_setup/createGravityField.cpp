@@ -515,9 +515,11 @@ void PolyhedronGravityFieldSettings::computeEdgeDyads ( )
         Eigen::Vector3d vertex1 = verticesCoordinates_.block<1,3>(verticesDefiningEachEdge_(edge,1),0);
 
         // Compute edge normals, with arbitrary direction
-        Eigen::Vector3d edgeNormalFacetA = ( vertex0 - vertex1).cross(facetNormalVectors_.at(facetsDefiningEachEdge_(edge, 0) ) );
+        Eigen::Vector3d facetNormalFacetA = facetNormalVectors_.at(facetsDefiningEachEdge_(edge, 0) );
+        Eigen::Vector3d edgeNormalFacetA = ( vertex0 - vertex1).cross(facetNormalFacetA );
         edgeNormalFacetA.normalize();
-        Eigen::Vector3d edgeNormalFacetB = ( vertex0 - vertex1).cross(facetNormalVectors_.at(facetsDefiningEachEdge_(edge, 1) ) );
+        Eigen::Vector3d facetNormalFacetB = facetNormalVectors_.at(facetsDefiningEachEdge_(edge, 1) );
+        Eigen::Vector3d edgeNormalFacetB = ( vertex0 - vertex1).cross(facetNormalFacetB );
         edgeNormalFacetB.normalize();
 
         // Check order of vertices for the facet associated with edgeNormalA, and correct the edge normal directions based on that
@@ -544,8 +546,7 @@ void PolyhedronGravityFieldSettings::computeEdgeDyads ( )
         }
 
         // Compute edge dyads: outer product
-        edgeDyads_.at(edge) = edgeNormalFacetA * edgeNormalFacetA.transpose() + edgeNormalFacetB * edgeNormalFacetB.transpose();
-        std::cout << edge << " ###########" << std::endl << edgeDyads_.at(edge) << std::endl;
+        edgeDyads_.at(edge) = facetNormalFacetA * edgeNormalFacetA.transpose() + facetNormalFacetB * edgeNormalFacetB.transpose();
 
     }
 }
