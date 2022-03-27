@@ -837,7 +837,7 @@ void printTransferParameterDefinition(
             currentLegIds.push_back( "DSM (velocity-based) Time-of-flight fraction" );
             break;
         case spherical_shaping_low_thrust_leg:
-            currentLegIds.push_back( "Number of revolutions (an integer number)" );
+            currentLegIds.push_back( "Number of revolutions (integer number >= 0)" );
             break;
         default:
             throw std::runtime_error( "Error when printing transfer parameter definition, leg type not recognized" );
