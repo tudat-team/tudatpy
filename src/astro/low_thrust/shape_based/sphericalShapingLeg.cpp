@@ -22,7 +22,6 @@ namespace shape_based_methods
 SphericalShapingLeg::SphericalShapingLeg(const std::shared_ptr<ephemerides::Ephemeris> departureBodyEphemeris,
                                          const std::shared_ptr<ephemerides::Ephemeris> arrivalBodyEphemeris,
                                          const double centralBodyGravitationalParameter,
-                                         const int numberOfRevolutions,
                                          const std::shared_ptr<root_finders::RootFinderSettings> rootFinderSettings,
                                          const double lowerBoundFreeCoefficient,
                                          const double upperBoundFreeCoefficient,
@@ -30,7 +29,6 @@ SphericalShapingLeg::SphericalShapingLeg(const std::shared_ptr<ephemerides::Ephe
                                          const double timeToAzimuthInterpolatorStepSize):
     mission_segments::TransferLeg( departureBodyEphemeris, arrivalBodyEphemeris, mission_segments::spherical_shaping_low_thrust_leg ),
     centralBodyGravitationalParameter_( centralBodyGravitationalParameter ),
-    numberOfRevolutions_( numberOfRevolutions ),
     rootFinderSettings_( rootFinderSettings ),
     initialValueFreeCoefficient_( initialValueFreeCoefficient ),
     lowerBoundFreeCoefficient_( lowerBoundFreeCoefficient ),
@@ -58,7 +56,6 @@ SphericalShapingLeg::SphericalShapingLeg(const std::shared_ptr<ephemerides::Ephe
 SphericalShapingLeg::SphericalShapingLeg(const std::shared_ptr<ephemerides::Ephemeris> departureBodyEphemeris,
                                          const std::shared_ptr<ephemerides::Ephemeris> arrivalBodyEphemeris,
                                          const double centralBodyGravitationalParameter,
-                                         const int numberOfRevolutions,
                                          const std::function< Eigen::Vector3d( ) > departureVelocityFunction,
                                          const std::function< Eigen::Vector3d( ) > arrivalVelocityFunction,
                                          const std::shared_ptr<root_finders::RootFinderSettings> rootFinderSettings,
@@ -68,7 +65,6 @@ SphericalShapingLeg::SphericalShapingLeg(const std::shared_ptr<ephemerides::Ephe
                                          const double timeToAzimuthInterpolatorStepSize):
         mission_segments::TransferLeg( departureBodyEphemeris, arrivalBodyEphemeris, mission_segments::spherical_shaping_low_thrust_leg ),
         centralBodyGravitationalParameter_( centralBodyGravitationalParameter ),
-        numberOfRevolutions_( numberOfRevolutions ),
         departureVelocityFunction_( departureVelocityFunction ),
         arrivalVelocityFunction_( arrivalVelocityFunction ),
         rootFinderSettings_( rootFinderSettings ),
@@ -94,15 +90,29 @@ SphericalShapingLeg::SphericalShapingLeg(const std::shared_ptr<ephemerides::Ephe
 
 void SphericalShapingLeg::computeTransfer( )
 {
-    updateDepartureAndArrivalBodies( legParameters_( 0 ), legParameters_( 1 ) );
-
-    arrivalVelocity_ = arrivalVelocityFunction_( );
-    departureVelocity_ = departureVelocityFunction_( );
-
-    if( legParameters_.rows( ) != 2 )
+    if( legParameters_.rows( ) != 3 )
     {
         throw std::runtime_error( "Error when updating spherical shaping object, number of inputs is inconsistent" );
     }
+
+    updateDepartureAndArrivalBodies( legParameters_( 0 ), legParameters_( 1 ) );
+
+    // Update number of revolutions, after testing if value is valid
+    if ( legParameters_(2) < 0 )
+    {
+        throw std::runtime_error( "Error when updating spherical shaping object, number of revolutions should be equal to or larger than 0" );
+    }
+    else if ( std::floor( legParameters_(2) ) != legParameters_(2) )
+    {
+        throw std::runtime_error( "Error when updating spherical shaping object, number of revolutions should be an integer" );
+    }
+    else
+    {
+        numberOfRevolutions_ = int(legParameters_(2));
+    }
+
+    arrivalVelocity_ = arrivalVelocityFunction_( );
+    departureVelocity_ = departureVelocityFunction_( );
 
     // Normalize the initial state.
     Eigen::Vector6d normalizedDepartureBodyState;

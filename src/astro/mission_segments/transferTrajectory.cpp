@@ -224,9 +224,10 @@ void TransferTrajectory::getLegTotalParameters(
     }
     else if( legs_.at( legIndex )->getTransferLegType( ) == spherical_shaping_low_thrust_leg )
     {
-        legTotalParameters.resize( 2, 1 );
+        legTotalParameters.resize( 3, 1 );
         legTotalParameters( 0 ) = nodeTimes.at( legIndex );
         legTotalParameters( 1 ) = nodeTimes.at( legIndex + 1 );
+        legTotalParameters( 2 ) = legFreeParameters( 0 );
     }
     else
     {

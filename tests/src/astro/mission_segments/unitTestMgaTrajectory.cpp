@@ -64,11 +64,11 @@ BOOST_AUTO_TEST_SUITE( test_trajectory )
 //BOOST_AUTO_TEST_CASE( testMgaMixedLegs )
 //{
 //    // Set transfer properties
-//    std::vector< std::string > bodyOrder = { "Earth", "Mars", "Earth" }; // , "Venus"
+//    std::vector< std::string > bodyOrder = { "Earth", "Mars", "Earth", "Venus"};
 //    int numberOfRevolutions = 1;
 //    double JD = physical_constants::JULIAN_DAY;
-//    double departureDate = 8374.5 * JD;
-//    std::vector< double > timesOfFlight = { 380.0*JD, 560.0*JD, 350.0*JD };
+//    double departureSphericalShapingLeg = (8174.5 + 580.0) * JD;
+//    std::vector< double > timesOfFlight = { 250.0*JD, 450.0*JD, 150.0*JD };
 //
 //    // Create environment
 //    tudat::simulation_setup::SystemOfBodies bodies = createSimplifiedSystemOfBodies( );
@@ -76,8 +76,8 @@ BOOST_AUTO_TEST_SUITE( test_trajectory )
 //    // Define root finder settings
 //    std::shared_ptr< root_finders::RootFinderSettings > rootFinderSettings =
 //            tudat::root_finders::bisectionRootFinderSettings( 1.0E-6, TUDAT_NAN, TUDAT_NAN, 30 );
-//    double lowerBoundFreeCoefficient = 1.0e-6;
-//    double upperBoundFreeCoefficient = 1.0e-1;
+//    double lowerBoundFreeCoefficient = -1.0e2;
+//    double upperBoundFreeCoefficient = 1.0e2;
 //
 //    // Create leg and nodes settings
 //    std::vector< std::shared_ptr< TransferLegSettings > > transferLegSettings;
@@ -87,56 +87,48 @@ BOOST_AUTO_TEST_SUITE( test_trajectory )
 //    transferLegSettings[0] = unpoweredLeg( );
 //    transferLegSettings[1] = sphericalShapingLeg(numberOfRevolutions, rootFinderSettings,
 //                                                 lowerBoundFreeCoefficient, upperBoundFreeCoefficient);
-//    //transferLegSettings[2] = unpoweredLeg( );
+//    transferLegSettings[2] = unpoweredLeg( );
 //
 //    transferNodeSettings.resize(bodyOrder.size( ));
 //    transferNodeSettings[0] = escapeAndDepartureNode(std::numeric_limits< double >::infinity( ), 0.0);
 //    transferNodeSettings[1] = swingbyNode();
-//    //transferNodeSettings[2] = swingbyNode();
+//    transferNodeSettings[2] = swingbyNode();
 //    transferNodeSettings[3] = captureAndInsertionNode(std::numeric_limits< double >::infinity( ), 0.0);
-//
-//    std::cerr << "Before printing parameters" << std::endl;
 //
 //    // Print parameter definition
 //    printTransferParameterDefinition(transferLegSettings, transferNodeSettings);
 //
-//    std::cerr << "After printing parameters" << std::endl;
-//
 //    std::shared_ptr< TransferTrajectory > transferTrajectory = createTransferTrajectory(
 //            bodies, transferLegSettings, transferNodeSettings, bodyOrder, "Sun");
 //
-//    std::cerr << "After creating trajectory" << std::endl;
-//
 //    // Create list of node times
 //    std::vector< double > nodeTimes;
-//    nodeTimes.push_back(departureDate);
+//    nodeTimes.push_back(departureSphericalShapingLeg - timesOfFlight.at(0));
 //    nodeTimes.push_back(nodeTimes.at(0) + timesOfFlight.at(0));
 //    nodeTimes.push_back(nodeTimes.at(1) + timesOfFlight.at(1));
-//    //nodeTimes.push_back(nodeTimes.at(2) + timesOfFlight.at(2));
+//    nodeTimes.push_back(nodeTimes.at(2) + timesOfFlight.at(2));
 //
 //    std::vector< Eigen::VectorXd > transferLegFreeParameters(bodyOrder.size( ) - 1);
 //    transferLegFreeParameters.at(0) = Eigen::VectorXd(0);
 //    transferLegFreeParameters.at(1) = Eigen::VectorXd(0);
-//    //transferLegFreeParameters.at(2) = Eigen::VectorXd(0);
+//    transferLegFreeParameters.at(2) = Eigen::VectorXd(0);
 //
 //    std::vector< Eigen::VectorXd > transferNodeFreeParameters(bodyOrder.size( ));
 //    // Initial and final excess velocity is 0.0, meaning the spacecraft starts/ends with the velocity of the planet
 //    double swingbyPeriapsis1 = 65000.0e3;
 //    double swingbyNodeDeltaV1 = 100.0;
-//    double swingbyRotationAngle1 = 1.3;
-//    double swingbyPeriapsis2 = 6678000;
+//    double swingbyRotationAngle1 = 1.2;
+//    double swingbyPeriapsis2 = 42.0e6;
 //    double swingbyNodeDeltaV2 = 50.0;
 //    double swingbyRotationAngle2 = 1.5;
 //
 //    transferNodeFreeParameters.at(0) = ( Eigen::Vector3d( ) << 0.0, 0.0, 0.0 ).finished( );
 //    transferNodeFreeParameters.at(1) = ( Eigen::Vector3d( ) << swingbyPeriapsis1, swingbyRotationAngle1, swingbyNodeDeltaV1 ).finished( );
-//    //transferNodeFreeParameters.at(1) = ( Eigen::Vector3d( ) << swingbyPeriapsis2, swingbyRotationAngle2, swingbyNodeDeltaV2 ).finished( );
-//    transferNodeFreeParameters.at(2) = ( Eigen::Vector3d( ) << 0.0, 0.0, 0.0 ).finished( );
+//    transferNodeFreeParameters.at(2) = ( Eigen::Vector3d( ) << swingbyPeriapsis2, swingbyRotationAngle2, swingbyNodeDeltaV2 ).finished( );
+//    transferNodeFreeParameters.at(3) = ( Eigen::Vector3d( ) << 0.0, 0.0, 0.0 ).finished( );
 //
-//    std::cerr << "Before start of evaluation" << std::endl;
-
 //    transferTrajectory->evaluateTrajectory(nodeTimes, transferLegFreeParameters, transferNodeFreeParameters);
-
+//
 //    // Check continuity of velocity between legs and nodes
 //    for( int i = 0; i < transferTrajectory->getNumberOfLegs(); i++ )
 //    {
@@ -150,7 +142,7 @@ BOOST_AUTO_TEST_SUITE( test_trajectory )
 //            BOOST_CHECK_SMALL(std::fabs(leg->getArrivalVelocity()[j] - followingNode->getIncomingVelocity()[j] ), 1e-12);
 //        }
 //    }
-//
+
 //
 //    // Check whether Delta V at swingby is consistent with node parameters
 //    BOOST_CHECK_SMALL(std::fabs( transferTrajectory->getNodeDeltaV(1) - swingbyNodeDeltaV ), 1e-12);
@@ -244,7 +236,7 @@ BOOST_AUTO_TEST_CASE( testMgaSphericalShapingSingleLeg )
         if ( creationType == 0 )
         {
             transferLegSettings.resize(bodyOrder.size( ) - 1);
-            transferLegSettings[0] = sphericalShapingLeg(numberOfRevolutions, rootFinderSettings,
+            transferLegSettings[0] = sphericalShapingLeg(rootFinderSettings,
                                                          lowerBoundFreeCoefficient, upperBoundFreeCoefficient);
 
             transferNodeSettings.resize(bodyOrder.size( ));
@@ -257,8 +249,7 @@ BOOST_AUTO_TEST_CASE( testMgaSphericalShapingSingleLeg )
         else if ( creationType == 1 )
         {
             getMgaTransferTrajectorySettingsWithSphericalShapingThrust(
-                    transferLegSettings, transferNodeSettings, bodyOrder,
-                    numberOfRevolutions, rootFinderSettings,
+                    transferLegSettings, transferNodeSettings, bodyOrder, rootFinderSettings,
                     std::make_pair(std::numeric_limits< double >::infinity( ), 0.0),
                     std::make_pair(std::numeric_limits< double >::infinity( ), 0.0),
                     lowerBoundFreeCoefficient, upperBoundFreeCoefficient);
@@ -273,7 +264,7 @@ BOOST_AUTO_TEST_CASE( testMgaSphericalShapingSingleLeg )
         nodeTimes.push_back(nodeTimes.at(0) + timeOfFlight);
 
         std::vector< Eigen::VectorXd > transferLegFreeParameters(bodyOrder.size( ) - 1);
-        transferLegFreeParameters.at(0) = Eigen::VectorXd(0);
+        transferLegFreeParameters.at(0) = (Eigen::Vector1d( ) << numberOfRevolutions).finished( );
 
         std::vector< Eigen::VectorXd > transferNodeFreeParameters(bodyOrder.size( ));
         // Initial and final excess velocity is 0.0, meaning the spacecraft starts/ends with the velocity of the planet
@@ -340,9 +331,9 @@ BOOST_AUTO_TEST_CASE( testMgaSphericalShaping )
         if ( creationType == 0 )
         {
             transferLegSettings.resize(bodyOrder.size( ) - 1);
-            transferLegSettings[0] = sphericalShapingLeg(numberOfRevolutions, rootFinderSettings,
+            transferLegSettings[0] = sphericalShapingLeg(rootFinderSettings,
                                                          lowerBoundFreeCoefficient, upperBoundFreeCoefficient);
-            transferLegSettings[1] = sphericalShapingLeg(numberOfRevolutions, rootFinderSettings,
+            transferLegSettings[1] = sphericalShapingLeg(rootFinderSettings,
                                                          lowerBoundFreeCoefficient, upperBoundFreeCoefficient);
 
             transferNodeSettings.resize(bodyOrder.size( ));
@@ -356,7 +347,7 @@ BOOST_AUTO_TEST_CASE( testMgaSphericalShaping )
         else if ( creationType == 1 )
         {
             getMgaTransferTrajectorySettingsWithSphericalShapingThrust(
-                    transferLegSettings, transferNodeSettings, bodyOrder, numberOfRevolutions, rootFinderSettings,
+                    transferLegSettings, transferNodeSettings, bodyOrder, rootFinderSettings,
                     std::make_pair(std::numeric_limits< double >::infinity( ), 0.0),
                     std::make_pair(std::numeric_limits< double >::infinity( ), 0.0),
                     lowerBoundFreeCoefficient, upperBoundFreeCoefficient);
@@ -372,8 +363,8 @@ BOOST_AUTO_TEST_CASE( testMgaSphericalShaping )
         nodeTimes.push_back(nodeTimes.at(1) + timesOfFlight.at(1));
 
         std::vector< Eigen::VectorXd > transferLegFreeParameters(bodyOrder.size( ) - 1);
-        transferLegFreeParameters.at(0) = Eigen::VectorXd(0);
-        transferLegFreeParameters.at(1) = Eigen::VectorXd(0);
+        transferLegFreeParameters.at(0) = (Eigen::Vector1d( ) << numberOfRevolutions).finished( );
+        transferLegFreeParameters.at(1) = (Eigen::Vector1d( ) << numberOfRevolutions).finished( );
 
         std::vector< Eigen::VectorXd > transferNodeFreeParameters(bodyOrder.size( ));
         // Initial and final excess velocity is 0.0, meaning the spacecraft starts/ends with the velocity of the planet
@@ -448,12 +439,11 @@ BOOST_AUTO_TEST_CASE( testMgaSphericalShaping )
                     bodies.at( bodyOrder.at(i) )->getEphemeris( ),
                     bodies.at( bodyOrder.at(i+1) )->getEphemeris( ),
                     bodies.at( "Sun" )->getGravityFieldModel( )->getGravitationalParameter( ),
-                    numberOfRevolutions,
                     departureVelocityFunction, arrivalVelocityFunction,
                     rootFinderSettings, lowerBoundFreeCoefficient, upperBoundFreeCoefficient);
 
             sphericalShapingLeg.updateLegParameters(
-                    ( Eigen::Vector2d( )<< nodeTimes.at(i), nodeTimes.at(i+1) ).finished( ) );
+                    ( Eigen::Vector3d( )<< nodeTimes.at(i), nodeTimes.at(i+1), numberOfRevolutions ).finished( ) );
 
             totalDeltaV += sphericalShapingLeg.getLegDeltaV();
         }

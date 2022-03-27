@@ -83,22 +83,19 @@ public:
 class SphericalShapingLegSetting: public TransferLegSettings
 {
 public:
-    SphericalShapingLegSetting(
-                const int numberOfRevolutions,
-                const std::shared_ptr<root_finders::RootFinderSettings> rootFinderSettings,
-                const double lowerBoundFreeCoefficient,
-                const double upperBoundFreeCoefficient,
-                const double initialValueFreeCoefficient,
-                const double timeToAzimuthInterpolatorStepSize):
-            TransferLegSettings( spherical_shaping_low_thrust_leg ),
-            numberOfRevolutions_(numberOfRevolutions),
-            rootFinderSettings_(rootFinderSettings),
-            lowerBoundFreeCoefficient_(lowerBoundFreeCoefficient),
-            upperBoundFreeCoefficient_(upperBoundFreeCoefficient),
-            initialValueFreeCoefficient_(initialValueFreeCoefficient),
-            timeToAzimuthInterpolatorStepSize_(timeToAzimuthInterpolatorStepSize) { }
+    SphericalShapingLegSetting (
+            const std::shared_ptr<root_finders::RootFinderSettings>& rootFinderSettings,
+            const double lowerBoundFreeCoefficient,
+            const double upperBoundFreeCoefficient,
+            const double initialValueFreeCoefficient,
+            const double timeToAzimuthInterpolatorStepSize):
+        TransferLegSettings( spherical_shaping_low_thrust_leg ),
+        rootFinderSettings_(rootFinderSettings),
+        lowerBoundFreeCoefficient_(lowerBoundFreeCoefficient),
+        upperBoundFreeCoefficient_(upperBoundFreeCoefficient),
+        initialValueFreeCoefficient_(initialValueFreeCoefficient),
+        timeToAzimuthInterpolatorStepSize_(timeToAzimuthInterpolatorStepSize) { }
 
-    const int numberOfRevolutions_;
     const std::shared_ptr<root_finders::RootFinderSettings> rootFinderSettings_;
     const double lowerBoundFreeCoefficient_;
     const double upperBoundFreeCoefficient_;
@@ -113,8 +110,7 @@ std::shared_ptr< TransferLegSettings > dsmPositionBasedLeg( );
 std::shared_ptr< TransferLegSettings > unpoweredLeg( );
 
 std::shared_ptr< TransferLegSettings > sphericalShapingLeg(
-        const int numberOfRevolutions,
-        const std::shared_ptr<root_finders::RootFinderSettings> rootFinderSettings,
+        const std::shared_ptr<root_finders::RootFinderSettings>& rootFinderSettings,
         const double lowerBoundFreeCoefficient = TUDAT_NAN,
         const double upperBoundFreeCoefficient = TUDAT_NAN,
         const double initialValueFreeCoefficient = TUDAT_NAN,
@@ -323,7 +319,6 @@ void getMgaTransferTrajectorySettingsWithSphericalShapingThrust (
         std::vector< std::shared_ptr< TransferLegSettings > >& legSettings,
         std::vector< std::shared_ptr< TransferNodeSettings > >& nodeSettings,
         const std::vector< std::string >& fullBodiesList,
-        const int numberOfRevolutions,
         const std::shared_ptr< root_finders::RootFinderSettings > rootFinderSettings,
         const std::pair< double, double > departureOrbit = std::make_pair(TUDAT_NAN, TUDAT_NAN),
         const std::pair< double, double > arrivalOrbit = std::make_pair(TUDAT_NAN, TUDAT_NAN),
