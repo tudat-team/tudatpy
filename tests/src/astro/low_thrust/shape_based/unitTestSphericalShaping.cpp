@@ -84,6 +84,7 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_earth_mars_transfer )
     //            spice_interface::getBodyGravitationalParameter("Sun"),
     //            numberOfRevolutions, rootFinderSettings, 1.0e-6, 1.0e-1);
 
+    std::cout<<"************************ NEW CLASS **************************"<<std::endl;
     SphericalShapingLeg *sphericalShapingLegPointer;
     for ( unsigned int creationType = 0; creationType < 2; creationType++ )
     {
@@ -92,7 +93,7 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_earth_mars_transfer )
             sphericalShapingLegPointer = new SphericalShapingLeg(
                     pointerToDepartureBodyEphemeris, pointerToArrivalBodyEphemeris,
                     spice_interface::getBodyGravitationalParameter("Sun"),
-                    numberOfRevolutions, rootFinderSettings, 1.0e-6, 1.0e-1);
+                    rootFinderSettings, 1.0e-6, 1.0e-1);
         }
         else if ( creationType == 1)
         {
@@ -102,15 +103,12 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_earth_mars_transfer )
             sphericalShapingLegPointer = new SphericalShapingLeg(
                     pointerToDepartureBodyEphemeris, pointerToArrivalBodyEphemeris,
                     spice_interface::getBodyGravitationalParameter("Sun"),
-                    numberOfRevolutions,
                     departureVelocityFunction, arrivalVelocityFunction,
                     rootFinderSettings, 1.0e-6, 1.0e-1);
         }
 
-
-        std::cout<<"************************ NEW CLASS **************************"<<std::endl;
         sphericalShapingLegPointer->updateLegParameters((
-                Eigen::Vector2d( )<< julianDate, julianDate + timeOfFlight ).finished( ) );
+                Eigen::Vector3d( )<< julianDate, julianDate + timeOfFlight, numberOfRevolutions ).finished( ) );
 
         // Initialise peak acceleration.
         double peakThrustAcceleration_old = 0.0;
@@ -222,7 +220,7 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_earth_1989ML_transfer )
             sphericalShapingLegPointer = new SphericalShapingLeg(
                     pointerToDepartureBodyEphemeris, pointerToArrivalBodyEphemeris,
                     spice_interface::getBodyGravitationalParameter("Sun"),
-                    numberOfRevolutions, rootFinderSettings, -1.0e-2, 1.0e-2);
+                    rootFinderSettings, -1.0e-2, 1.0e-2);
         }
         else if (creationType == 1)
         {
@@ -232,13 +230,12 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_earth_1989ML_transfer )
             sphericalShapingLegPointer = new SphericalShapingLeg(
                     pointerToDepartureBodyEphemeris, pointerToArrivalBodyEphemeris,
                     spice_interface::getBodyGravitationalParameter("Sun"),
-                    numberOfRevolutions,
                     departureVelocityFunction, arrivalVelocityFunction,
                     rootFinderSettings, -1.0e-2, 1.0e-2);
         }
 
         sphericalShapingLegPointer->updateLegParameters(
-                ( Eigen::Vector2d( ) << julianDate, julianDate + timeOfFlight ).finished( ));
+                ( Eigen::Vector3d( ) << julianDate, julianDate + timeOfFlight, numberOfRevolutions ).finished( ));
 
         // Compute step size.
         double numberOfSteps = 5000.0;
@@ -351,11 +348,11 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_earth_mars_transfer_multi_revolutio
 
         SphericalShapingLeg sphericalShapingLeg = SphericalShapingLeg(
                 pointerToDepartureBodyEphemeris, pointerToArrivalBodyEphemeris,
-                spice_interface::getBodyGravitationalParameter("Sun"),
-                numberOfRevolutionsVector.at(currentTestCase), rootFinderSettings,
+                spice_interface::getBodyGravitationalParameter("Sun"), rootFinderSettings,
                 freeParameterLowerBoundVector.at(currentTestCase), freeParameterUpperBoundVector.at(currentTestCase) );
         sphericalShapingLeg.updateLegParameters( (
-                Eigen::Vector2d( )<< julianDate, julianDate + timeOfFlightVector.at( currentTestCase ) ).finished( ) );
+                Eigen::Vector3d( )<< julianDate, julianDate + timeOfFlightVector.at( currentTestCase ),
+                numberOfRevolutionsVector.at(currentTestCase) ).finished( ) );
 
         // Check consistency of final azimuth angle value with required number of revolutions.
         double initialAzimuthAngle_old = sphericalShaping.getInitialValueInpendentVariable( );
@@ -469,13 +466,6 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_full_propagation )
                 spice_interface::getBodyGravitationalParameter( "Sun" ),
                 numberOfRevolutions, 0.000703,
                 rootFinderSettings, 1.0e-6, 1.0e-1 );
-
-    SphericalShapingLeg sphericalShapingLeg = SphericalShapingLeg(
-            pointerToDepartureBodyEphemeris, pointerToArrivalBodyEphemeris,
-            spice_interface::getBodyGravitationalParameter("Sun"),
-            numberOfRevolutions, rootFinderSettings, 1.0e-6, 1.0e-1 );
-    sphericalShapingLeg.updateLegParameters( (
-            Eigen::Vector2d( )<< julianDate, julianDate + timeOfFlight * physical_constants::JULIAN_DAY ).finished( ) );
 
     std::map< double, Eigen::VectorXd > fullPropagationResults;
     std::map< double, Eigen::Vector6d > shapingMethodResults;
