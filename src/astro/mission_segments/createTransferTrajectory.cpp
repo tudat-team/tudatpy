@@ -559,7 +559,6 @@ void getMgaTransferTrajectorySettingsWithSphericalShapingThrust (
         const std::string& departureBody,
         const std::string& arrivalBody,
         const std::vector< std::string >& flybyBodies,
-        const int numberOfRevolutions,
         const std::shared_ptr< root_finders::RootFinderSettings > rootFinderSettings,
         const std::pair< double, double > departureOrbit,
         const std::pair< double, double > arrivalOrbit,
@@ -581,7 +580,6 @@ void getMgaTransferTrajectorySettingsWithSphericalShapingThrust (
 std::pair< std::vector< std::shared_ptr< TransferLegSettings > >,
 std::vector< std::shared_ptr< TransferNodeSettings > > > getMgaTransferTrajectorySettingsWithSphericalShapingThrust (
         const std::vector< std::string >& fullBodiesList,
-        const int numberOfRevolutions,
         const std::shared_ptr< root_finders::RootFinderSettings > rootFinderSettings,
         const std::pair< double, double > departureOrbit,
         const std::pair< double, double > arrivalOrbit,
