@@ -17,6 +17,7 @@
 
 #include <tudat/astro/mission_segments/createTransferTrajectory.h>
 #include <tudat/simulation/propagation_setup/accelerationSettings.h>
+#include "tudat/math/root_finders.h"
 
 #include "tudatpy/docstrings.h"
 
@@ -24,6 +25,7 @@ namespace py = pybind11;
 namespace tms = tudat::mission_segments;
 namespace tss = tudat::simulation_setup;
 namespace tpc = tudat::physical_constants;
+namespace trf = tudat::root_finders;
 
 namespace tudatpy {
 namespace trajectory_design {
@@ -44,6 +46,7 @@ void expose_transfer_trajectory(py::module &m) {
             .value("dsm_velocity_based_leg_type",
                    tms::TransferLegTypes::dsm_velocity_based_leg,
                    get_docstring("TransferLegTypes.dsm_velocity_based_leg_type").c_str())
+            // TODO: add to API
             .value("spherical_shaping_low_thrust_leg",
                    tms::TransferLegTypes::spherical_shaping_low_thrust_leg,
                    get_docstring("TransferLegTypes.spherical_shaping_low_thrust_leg").c_str())
@@ -77,21 +80,86 @@ void expose_transfer_trajectory(py::module &m) {
             std::shared_ptr<tms::TransferLegSettings> >(m, "TransferLegSettings",
                                                         get_docstring("TransferLegSettings").c_str());
 
-    m.def("mga_transfer_settings",
+// TODO: remove from API
+//    m.def("mga_transfer_settings",
+//          py::overload_cast<
+//          const std::vector< std::string >&,
+//          const tms::TransferLegTypes,
+//          const std::pair< double, double >,
+//          const std::pair< double, double >,
+//          const std::map< std::string, double >
+//          >( &tms::getMgaTransferTrajectorySettings ),
+//          py::arg( "body_order" ),
+//          py::arg( "leg_type" ),
+//          py::arg( "departure_orbit" ) = std::make_pair( TUDAT_NAN, TUDAT_NAN ),
+//          py::arg( "arrival_orbit" ) = std::make_pair( TUDAT_NAN, TUDAT_NAN ),
+//          py::arg( "minimum_pericenters" ) = tms::DEFAULT_MINIMUM_PERICENTERS,
+//          get_docstring("mga_transfer_settings").c_str()
+//          );
+
+    // TODO: add to API
+    m.def("mga_settings_unpowered_unperturbed_legs",
           py::overload_cast<
           const std::vector< std::string >&,
-          const tms::TransferLegTypes,
           const std::pair< double, double >,
           const std::pair< double, double >,
           const std::map< std::string, double >
-          >( &tms::getMgaTransferTrajectorySettings ),
+          >( &tms::getMgaTransferTrajectorySettingsWithoutDsm ),
           py::arg( "body_order" ),
-          py::arg( "leg_type" ),
           py::arg( "departure_orbit" ) = std::make_pair( TUDAT_NAN, TUDAT_NAN ),
           py::arg( "arrival_orbit" ) = std::make_pair( TUDAT_NAN, TUDAT_NAN ),
           py::arg( "minimum_pericenters" ) = tms::DEFAULT_MINIMUM_PERICENTERS,
-          get_docstring("mga_transfer_settings").c_str()
-          );
+          get_docstring("mga_settings_unpowered_unperturbed_legs").c_str() );
+
+    // TODO: add to API
+    m.def("mga_settings_dsm_position_based_legs",
+          py::overload_cast<
+          const std::vector< std::string >&,
+          const std::pair< double, double >,
+          const std::pair< double, double >,
+          const std::map< std::string, double >
+          >( &tms::getMgaTransferTrajectorySettingsWithPositionBasedDsm ),
+          py::arg( "body_order" ),
+          py::arg( "departure_orbit" ) = std::make_pair( TUDAT_NAN, TUDAT_NAN ),
+          py::arg( "arrival_orbit" ) = std::make_pair( TUDAT_NAN, TUDAT_NAN ),
+          py::arg( "minimum_pericenters" ) = tms::DEFAULT_MINIMUM_PERICENTERS,
+          get_docstring("mga_settings_dsm_position_based_legs").c_str() );
+
+    // TODO: add to API
+    m.def("mga_settings_dsm_velocity_based_legs",
+          py::overload_cast<
+          const std::vector< std::string >&,
+          const std::pair< double, double >,
+          const std::pair< double, double >,
+          const std::map< std::string, double >
+          >( &tms::getMgaTransferTrajectorySettingsWithVelocityBasedDsm ),
+          py::arg( "body_order" ),
+          py::arg( "departure_orbit" ) = std::make_pair( TUDAT_NAN, TUDAT_NAN ),
+          py::arg( "arrival_orbit" ) = std::make_pair( TUDAT_NAN, TUDAT_NAN ),
+          py::arg( "minimum_pericenters" ) = tms::DEFAULT_MINIMUM_PERICENTERS,
+          get_docstring("mga_settings_dsm_velocity_based_legs").c_str() );
+
+    // TODO: add to API
+    m.def("mga_settings_spherical_shaping_legs",
+          py::overload_cast<
+          const std::vector< std::string >&,
+          const std::shared_ptr< trf::RootFinderSettings >,
+          const std::pair< double, double >,
+          const std::pair< double, double >,
+          const double,
+          const double,
+          const double,
+          const std::map< std::string, double >
+          >( &tms::getMgaTransferTrajectorySettingsWithSphericalShapingThrust ),
+          py::arg( "body_order" ),
+          py::arg( "root_finder_settings" ),
+          py::arg( "departure_orbit" ) = std::make_pair( TUDAT_NAN, TUDAT_NAN ),
+          py::arg( "arrival_orbit" ) = std::make_pair( TUDAT_NAN, TUDAT_NAN ),
+          py::arg("lower_bound_free_coefficient") = TUDAT_NAN,
+          py::arg("upper_bound_free_coefficient") = TUDAT_NAN,
+          py::arg("initial_value_free_coefficient") = TUDAT_NAN,
+          py::arg( "minimum_pericenters" ) = tms::DEFAULT_MINIMUM_PERICENTERS,
+          get_docstring("mga_settings_spherical_shaping_legs").c_str() );
 
     py::class_<
             tms::TransferTrajectory,
@@ -141,9 +209,9 @@ void expose_transfer_trajectory(py::module &m) {
           &tms::dsmVelocityBasedLeg,
           get_docstring("dsm_velocity_based_leg").c_str() );
 
+    // TODO: add to API
     m.def("spherical_shaping_leg",
           &tms::sphericalShapingLeg,
-          py::arg( "number_of_revolutions" ),
           py::arg( "root_finder_settings" ),
           py::arg( "lower_bound_free_coefficient" ) = TUDAT_NAN,
           py::arg( "upper_bound_free_coefficient" ) = TUDAT_NAN,
