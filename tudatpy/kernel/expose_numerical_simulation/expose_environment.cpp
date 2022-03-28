@@ -182,7 +182,9 @@ void expose_environment(py::module &m) {
                  py::arg("reference_length"),
                  py::arg("moment_reference_point"),
                  py::arg("save_pressure_coefficients") = false,
-                 get_docstring("HypersonicLocalInclinationAnalysis.ctor").c_str());
+                 get_docstring("HypersonicLocalInclinationAnalysis.ctor").c_str())
+            .def("clear_data",
+                 &ta::HypersonicLocalInclinationAnalysis::clearData );
 
 
     m.def("save_vehicle_mesh_to_file", &ta::saveVehicleMeshToFile,
