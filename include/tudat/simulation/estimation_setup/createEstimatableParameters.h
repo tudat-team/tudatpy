@@ -1072,7 +1072,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                 vectorParameterToEstimate = std::make_shared< ConstantObservationBiasParameter >(
                             std::function< Eigen::VectorXd( ) >( ),
                             std::function< void( const Eigen::VectorXd& ) >( ),
-                            biasSettings->linkEnds_, biasSettings->observableType_, true );
+                            biasSettings->linkEnds_.linkEnds_, biasSettings->observableType_, true );
             }
             break;
         }
@@ -1089,7 +1089,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                 vectorParameterToEstimate = std::make_shared< ConstantObservationBiasParameter >(
                             std::function< Eigen::VectorXd( ) >( ),
                             std::function< void( const Eigen::VectorXd& ) >( ),
-                            biasSettings->linkEnds_, biasSettings->observableType_, false );
+                            biasSettings->linkEnds_.linkEnds_, biasSettings->observableType_, false );
             }
             break;
         }
@@ -1109,7 +1109,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                             std::function< void( const std::vector< Eigen::VectorXd >& ) >( ),
                             observation_models::getLinkEndIndicesForLinkEndTypeAtObservable(
                                 biasSettings->observableType_, biasSettings->linkEndForTime_, biasSettings->linkEnds_.size( ) ).at( 0 ),
-                            biasSettings->linkEnds_, biasSettings->observableType_, true );
+                            biasSettings->linkEnds_.linkEnds_, biasSettings->observableType_, true );
             }
             break;
         }
@@ -1129,7 +1129,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                             std::function< void( const std::vector< Eigen::VectorXd >& ) >( ),
                             observation_models::getLinkEndIndicesForLinkEndTypeAtObservable(
                                 biasSettings->observableType_, biasSettings->linkEndForTime_, biasSettings->linkEnds_.size( ) ).at( 0 ),
-                            biasSettings->linkEnds_, biasSettings->observableType_, false );
+                            biasSettings->linkEnds_.linkEnds_, biasSettings->observableType_, false );
             }
             break;
         }
