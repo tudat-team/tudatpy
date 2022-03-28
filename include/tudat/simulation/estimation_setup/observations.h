@@ -41,7 +41,7 @@ class SingleObservationSet
 public:
     SingleObservationSet(
             const ObservableType observableType,
-            const LinkEnds& linkEnds,
+            const LinkDefinition& linkEnds,
             const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations,
             const std::vector< TimeType > observationTimes,
             const LinkEndType referenceLinkEnd,
@@ -76,7 +76,7 @@ public:
         return observableType_;
     }
 
-    LinkEnds getLinkEnds( )
+    LinkDefinition getLinkEnds( )
     {
         return linkEnds_;
     }
@@ -150,7 +150,7 @@ private:
 
     const ObservableType observableType_;
 
-    const LinkEnds linkEnds_;
+    const LinkDefinition linkEnds_;
 
     const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observations_;
 
@@ -222,7 +222,7 @@ public:
 
     Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > getSingleLinkObservations(
             const ObservableType observableType,
-            const LinkEnds& linkEnds )
+            const LinkDefinition& linkEnds )
     {
         if( observationSetStartAndSize_.count( observableType ) == 0 )
         {
@@ -231,7 +231,7 @@ public:
         }
         else
         {
-            if( observationSetStartAndSize_.at( observableType ).count( linkEnds ) == 0 )
+            if( observationSetStartAndSize_.at( observableType ).count( linkEnds.linkEnds_ ) == 0 )
             {
                 throw std::runtime_error( " Error when getting single link observations, not observations of type "
                                           + std::to_string( observableType ) + " for given link ends." );
@@ -239,7 +239,7 @@ public:
             else
             {
                 std::vector< std::pair< int, int > > combinedIndices =
-                        observationSetStartAndSize_.at( observableType ).at( linkEnds );
+                        observationSetStartAndSize_.at( observableType ).at( linkEnds.linkEnds_ );
                 int startIndex = combinedIndices.at( 0 ).first;
                 int finalEntry = combinedIndices.size( ) - 1;
 
@@ -252,7 +252,7 @@ public:
 
     std::vector< TimeType > getSingleLinkTimes(
             const ObservableType observableType,
-            const LinkEnds& linkEnds )
+            const LinkDefinition& linkEnds )
     {
         if( observationSetStartAndSize_.count( observableType ) == 0 )
         {
@@ -261,7 +261,7 @@ public:
         }
         else
         {
-            if( observationSetStartAndSize_.at( observableType ).count( linkEnds ) == 0 )
+            if( observationSetStartAndSize_.at( observableType ).count( linkEnds.linkEnds_ ) == 0 )
             {
                 throw std::runtime_error( " Error when getting single link observations, not observations of type "
                                           + std::to_string( observableType ) + " for given link ends." );
@@ -269,7 +269,7 @@ public:
             else
             {
                 std::vector< std::pair< int, int > > combinedIndices =
-                        observationSetStartAndSize_.at( observableType ).at( linkEnds );
+                        observationSetStartAndSize_.at( observableType ).at( linkEnds.linkEnds_ );
                 int startIndex = combinedIndices.at( 0 ).first;
                 int finalEntry = combinedIndices.size( ) - 1;
 
@@ -283,7 +283,7 @@ public:
 
     std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, std::vector< TimeType > > getSingleLinkObservationsAndTimes(
             const ObservableType observableType,
-            const LinkEnds& linkEnds )
+            const LinkDefinition& linkEnds )
     {
         return std::make_pair( getSingleLinkObservations( observableType, linkEnds ),
                                getSingleLinkTimes( observableType, linkEnds ) );

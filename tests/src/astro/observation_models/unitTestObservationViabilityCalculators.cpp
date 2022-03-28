@@ -704,12 +704,12 @@ BOOST_AUTO_TEST_CASE( testStationAngleCalculations )
 
 //    // Create observation viability settings
 //    std::vector< std::shared_ptr< ObservationViabilitySettings > > observationViabilitySettings;
-    observationViabilitySettings.push_back( std::make_shared< ObservationViabilitySettings >(
-                                                minimum_elevation_angle, std::make_pair< std::string, std::string >( "Earth", "" ), "",
-                                                earthtestAngle ) );
-    observationViabilitySettings.push_back( std::make_shared< ObservationViabilitySettings >(
-                                                minimum_elevation_angle, std::make_pair< std::string, std::string >( "Mars", "" ), "",
-                                                marstestAngle ) );
+//    observationViabilitySettings.push_back( std::make_shared< ObservationViabilitySettings >(
+//                                                minimum_elevation_angle, std::make_pair< std::string, std::string >( "Earth", "" ), "",
+//                                                earthtestAngle ) );
+//    observationViabilitySettings.push_back( std::make_shared< ObservationViabilitySettings >(
+//                                                minimum_elevation_angle, std::make_pair< std::string, std::string >( "Mars", "" ), "",
+//                                                marstestAngle ) );
 //    observationViabilitySettings.push_back( std::make_shared< ObservationViabilitySettings >(
 //                                                body_avoidance_angle, std::make_pair< std::string, std::string >( "Earth", "" ), "Sun",
 //                                                earthSunAvoidanceAngle ) );

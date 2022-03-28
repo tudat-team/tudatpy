@@ -195,7 +195,7 @@ simulateSingleObservationSet(
     std::vector< std::shared_ptr< observation_models::ObservationViabilityCalculator > > currentObservationViabilityCalculators =
             observation_models::createObservationViabilityCalculators(
                 bodies,
-                observationsToSimulate->getLinkEnds( ),
+                observationsToSimulate->getLinkEnds( ).linkEnds_,
                 observationsToSimulate->getObservableType( ),
                 observationsToSimulate->getViabilitySettingsList( ) );
 
@@ -308,7 +308,8 @@ simulateSingleObservationSet(
     }
 
     return simulateSingleObservationSet< ObservationScalarType, TimeType, ObservationSize >(
-                observationsToSimulate, observationSimulator->getObservationModel( observationsToSimulate->getLinkEnds( ) ),
+                observationsToSimulate, observationSimulator->getObservationModel(
+                    observationsToSimulate->getLinkEnds( ).linkEnds_ ),
                 bodies );
 }
 
@@ -336,7 +337,7 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
     for( unsigned int i = 0; i < observationsToSimulate.size( ); i++ )
     {
         observation_models::ObservableType observableType = observationsToSimulate.at( i )->getObservableType( );
-        observation_models::LinkEnds linkEnds = observationsToSimulate.at( i )->getLinkEnds( );
+        observation_models::LinkEnds linkEnds = observationsToSimulate.at( i )->getLinkEnds( ).linkEnds_;
 
         int observationSize = observation_models::getObservableSize( observableType );
 
