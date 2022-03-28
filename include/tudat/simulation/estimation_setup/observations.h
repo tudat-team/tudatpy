@@ -537,16 +537,16 @@ inline std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > 
 template< typename ObservationScalarType = double, typename TimeType = double >
 inline std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > >  createManualObservationCollection(
         const ObservableType observableType,
-        const LinkEnds& linkEnds,
+        const LinkDefinition& linkEnds,
         const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations,
         const std::vector< TimeType > observationTimes,
         const LinkEndType referenceLinkEnd )
 {
     std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > singleObservationSet =
-            createSingleObservationSet( observableType, linkEnds, observations, observationTimes, referenceLinkEnd );
+            createSingleObservationSet( observableType, linkEnds.linkEnds_, observations, observationTimes, referenceLinkEnd );
 
     std::map< ObservableType, std::map< LinkEnds, std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > > > observationSetList;
-    observationSetList[ observableType ][ linkEnds ].push_back( singleObservationSet );
+    observationSetList[ observableType ][ linkEnds.linkEnds_ ].push_back( singleObservationSet );
     return std::make_shared< ObservationCollection< ObservationScalarType, TimeType > >( observationSetList );
 }
 

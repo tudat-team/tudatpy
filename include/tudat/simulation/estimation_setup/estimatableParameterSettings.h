@@ -175,19 +175,19 @@ public:
      * \param isBiasAdditive True if bias is absolute, false if it is relative
      */
     ConstantObservationBiasEstimatableParameterSettings(
-            const observation_models::LinkEnds& linkEnds,
+            const observation_models::LinkDefinition& linkEnds,
             const observation_models::ObservableType observableType,
             const bool isBiasAdditive ):
         EstimatableParameterSettings(
-            linkEnds.begin( )->second.bodyName_,
+            linkEnds.linkEnds_.begin( )->second.bodyName_,
             isBiasAdditive ? constant_additive_observation_bias : constant_relative_observation_bias,
-            linkEnds.begin( )->second.stationName_ ), linkEnds_( linkEnds ), observableType_( observableType ){ }
+            linkEnds.linkEnds_.begin( )->second.stationName_ ), linkEnds_( linkEnds ), observableType_( observableType ){ }
 
     //! Destructor
     ~ConstantObservationBiasEstimatableParameterSettings( ){ }
 
     //! Observation link ends for which the bias is to be estimated.
-    observation_models::LinkEnds linkEnds_;
+    observation_models::LinkDefinition linkEnds_;
 
     //! Observable type for which the bias is to be estimated.
     observation_models::ObservableType observableType_;
@@ -208,22 +208,22 @@ public:
      * \param isBiasAdditive True if bias is absolute, false if it is relative
      */
     ArcWiseConstantObservationBiasEstimatableParameterSettings(
-            const observation_models::LinkEnds& linkEnds,
+            const observation_models::LinkDefinition& linkEnds,
             const observation_models::ObservableType observableType,
             const std::vector< double > arcStartTimes,
             const observation_models::LinkEndType linkEndForTime,
             const bool isBiasAdditive ):
         EstimatableParameterSettings(
-            linkEnds.begin( )->second.bodyName_,
+            linkEnds.linkEnds_.begin( )->second.bodyName_,
             isBiasAdditive ? arcwise_constant_additive_observation_bias : arcwise_constant_relative_observation_bias,
-            linkEnds.begin( )->second.stationName_ ), linkEnds_( linkEnds ), observableType_( observableType ),
+            linkEnds.linkEnds_.begin( )->second.stationName_ ), linkEnds_( linkEnds ), observableType_( observableType ),
         arcStartTimes_( arcStartTimes ), linkEndForTime_( linkEndForTime ){ }
 
     //! Destructor
     ~ArcWiseConstantObservationBiasEstimatableParameterSettings( ){ }
 
     //! Observation link ends for which the bias is to be estimated.
-    observation_models::LinkEnds linkEnds_;
+    observation_models::LinkDefinition linkEnds_;
 
     //! Observable type for which the bias is to be estimated.
     observation_models::ObservableType observableType_;
@@ -820,7 +820,7 @@ inline std::shared_ptr< EstimatableParameterSettings > rotationPolePosition(
 }
 
 inline std::shared_ptr< EstimatableParameterSettings > observationBias(
-        const observation_models::LinkEnds& linkEnds,
+        const observation_models::LinkDefinition& linkEnds,
         const observation_models::ObservableType observableType )
 {
     return std::make_shared< ConstantObservationBiasEstimatableParameterSettings >(
@@ -828,7 +828,7 @@ inline std::shared_ptr< EstimatableParameterSettings > observationBias(
 }
 
 inline std::shared_ptr< EstimatableParameterSettings > relativeObservationBias(
-        const observation_models::LinkEnds& linkEnds,
+        const observation_models::LinkDefinition& linkEnds,
         const observation_models::ObservableType observableType )
 {
     return std::make_shared< ConstantObservationBiasEstimatableParameterSettings >(
@@ -836,7 +836,7 @@ inline std::shared_ptr< EstimatableParameterSettings > relativeObservationBias(
 }
 
 inline std::shared_ptr< EstimatableParameterSettings > arcwiseObservationBias(
-        const observation_models::LinkEnds& linkEnds,
+        const observation_models::LinkDefinition& linkEnds,
         const observation_models::ObservableType observableType,
         const std::vector< double > arcStartTimes,
         const observation_models::LinkEndType linkEndForTime = observation_models::receiver )
@@ -846,7 +846,7 @@ inline std::shared_ptr< EstimatableParameterSettings > arcwiseObservationBias(
 }
 
 inline std::shared_ptr< EstimatableParameterSettings > arcwiseRelativeObservationBias(
-        const observation_models::LinkEnds& linkEnds,
+        const observation_models::LinkDefinition& linkEnds,
         const observation_models::ObservableType observableType,
         const std::vector< double > arcStartTimes,
         const observation_models::LinkEndType linkEndForTime = observation_models::receiver )
