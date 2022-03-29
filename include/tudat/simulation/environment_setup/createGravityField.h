@@ -285,7 +285,8 @@ protected:
 
 // Derived class of GravityFieldSettings defining settings of polyhedron gravity
 // field representation.
-//! @get_docstring(SphericalHarmonicsGravityFieldSettings.__docstring__)
+// References: "EXTERIOR GRAVITATION OF A POLYHEDRON DERIVED AND COMPARED WITH HARMONIC AND MASCON GRAVITATION REPRESENTATIONS
+//              OF ASTEROID 4769 CASTALIA", Werner and Scheeres (1997), Celestial Mechanics and Dynamical Astronomy
 class PolyhedronGravityFieldSettings: public GravityFieldSettings
 {
 public:
@@ -372,6 +373,7 @@ protected:
 
     void computeEdgeDyads ( );
 
+    // Compute the volume of a polyhedron, according to "Inertia of Any Polyhedron", DOBROVOLSKIS (1996), Icarus
     void computeVolume ( );
 
     // Product of gravitational constant and density
