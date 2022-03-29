@@ -205,6 +205,27 @@ double calculatePolyhedronLaplacianOfGravitationalPotential(
     return - gravitationalConstantTimesDensity * perEdgeFactorSum;
 }
 
+void PolyhedronGravityCache::update (const Eigen::Vector3d& currentBodyFixedPosition)
+{
+    if ( currentBodyFixedPosition != currentBodyFixedPosition_ )
+    {
+        currentBodyFixedPosition_ = currentBodyFixedPosition;
+
+        // Compute coordinates of vertices with respect to field point
+        calculatePolyhedronVerticesCoordinatesRelativeToFieldPoint(
+                verticesCoordinatesRelativeToFieldPoint_, currentBodyFixedPosition_, verticesCoordinates_);
+
+        // Compute per-facet factor
+        calculatePolyhedronPerFacetFactor(
+                perFacetFactor_, verticesCoordinatesRelativeToFieldPoint_, verticesDefiningEachFacet_);
+
+        // Compute per-edge factor
+        calculatePolyhedronPerEdgeFactor(
+                perEdgeFactor_, verticesCoordinatesRelativeToFieldPoint_, verticesDefiningEachEdge_);
+    }
+}
+
+
 } // namespace gravitation
 
 } // namespace tudat
