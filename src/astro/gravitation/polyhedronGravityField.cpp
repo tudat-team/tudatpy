@@ -99,8 +99,7 @@ void calculatePolyhedronPerEdgeFactor (
 }
 
 double calculatePolyhedronGravitationalPotential(
-        const double gravitationalConstant,
-        const double density,
+        const double gravitationalConstantTimesDensity,
         const Eigen::MatrixXd& verticesCoordinatesRelativeToFieldPoint,
         const Eigen::MatrixXi& verticesDefiningEachFacet,
         const Eigen::MatrixXi& verticesDefiningEachEdge,
@@ -131,12 +130,11 @@ double calculatePolyhedronGravitationalPotential(
         perFacetSum += ( toFacetVector.transpose() * facetDyads.at(facet) * toFacetVector * perFacetFactor(facet) )(0,0);
     }
 
-    return 0.5 * gravitationalConstant * density * (perEdgeSum - perFacetSum);
+    return 0.5 * gravitationalConstantTimesDensity * ( perEdgeSum - perFacetSum);
 }
 
 Eigen::Vector3d calculatePolyhedronGradientOfGravitationalPotential(
-        const double gravitationalConstant,
-        const double density,
+        const double gravitationalConstantTimesDensity,
         const Eigen::MatrixXd& verticesCoordinatesRelativeToFieldPoint,
         const Eigen::MatrixXi& verticesDefiningEachFacet,
         const Eigen::MatrixXi& verticesDefiningEachEdge,
@@ -173,12 +171,11 @@ Eigen::Vector3d calculatePolyhedronGradientOfGravitationalPotential(
         perFacetSum += facetDyads.at(facet) * toFacetVector * perFacetFactor(facet);
     }
 
-    return - gravitationalConstant * density * (perEdgeSum - perFacetSum);
+    return - gravitationalConstantTimesDensity * (perEdgeSum - perFacetSum);
 }
 
 Eigen::Matrix3d calculatePolyhedronHessianOfGravitationalPotential(
-        const double gravitationalConstant,
-        const double density,
+        const double gravitationalConstantTimesDensity,
         const Eigen::MatrixXd& verticesCoordinatesRelativeToFieldPoint,
         const Eigen::MatrixXi& verticesDefiningEachFacet,
         const Eigen::MatrixXi& verticesDefiningEachEdge,
@@ -194,8 +191,7 @@ Eigen::Matrix3d calculatePolyhedronHessianOfGravitationalPotential(
 }
 
 double calculatePolyhedronLaplacianOfGravitationalPotential(
-        const double gravitationalConstant,
-        const double density,
+        const double gravitationalConstantTimesDensity,
         const Eigen::VectorXd& perFacetFactor)
 {
     const unsigned int numberOfFacets = perFacetFactor.size();
@@ -206,7 +202,7 @@ double calculatePolyhedronLaplacianOfGravitationalPotential(
         perEdgeFactorSum += perFacetFactor(facet);
     }
 
-    return - gravitationalConstant * density * perEdgeFactorSum;
+    return - gravitationalConstantTimesDensity * perEdgeFactorSum;
 }
 
 } // namespace gravitation
