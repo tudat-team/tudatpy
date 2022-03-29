@@ -304,6 +304,11 @@ public:
                                     const Eigen::MatrixXi& verticesDefiningEachFacet,
                                     const std::string& associatedReferenceFrame );
 
+    PolyhedronGravityFieldSettings( const double gravitationalParameter,
+                                    const Eigen::MatrixXd& verticesCoordinates,
+                                    const Eigen::MatrixXi& verticesDefiningEachFacet,
+                                    const std::string& associatedReferenceFrame );
+
     virtual ~PolyhedronGravityFieldSettings( ){ }
 
     // Function to return gravitational constant for gravity field.
@@ -311,26 +316,16 @@ public:
      *  Function to return gravitational constant for gravity field.
      *  \return Gravitational constant for gravity field.
      */
-    double getGravitationalConstant( )
-    { return gravitationalConstant_; }
+    double getGravitationalConstantTimesDensity( )
+    { return gravitationalConstantTimesDensity_; }
 
     // Function to reset gravitational constant for gravity field.
     /*
      *  Function to reset gravitational constant for gravity field.
      *  \param gravitationalConstant New gravitational constant for gravity field.
      */
-    void resetGravitationalConstant( const double gravitationalConstant )
-    { gravitationalConstant_ = gravitationalConstant; }
-
-    // Function to return the density of the polyhedron
-    /*
-     *  Function to return the density of the polyhedron
-     *  \return Density of the polyhedron
-     */
-    double getDensity( ) { return density_; }
-
-    void resetDensity ( const double density )
-    { density_ = density; }
+    void resetGravitationalConstantTimesDensity ( const double gravitationalConstantTimesDensity )
+    { gravitationalConstantTimesDensity_ = gravitationalConstantTimesDensity; }
 
     // Function to return identifier for body-fixed reference frame.
     /*
@@ -379,11 +374,11 @@ protected:
 
     void computeVolume ( );
 
-    // Gravitational constant for gravity field that is to be created.
-    double gravitationalConstant_;
+    // Product of gravitational constant and density
+    double gravitationalConstantTimesDensity_;
 
-    // Density of polyhedron.
-    double density_;
+    // Gravitational parameter
+    double gravitationalParameter_;
 
     // Volume of polyhedron
     double volume_;

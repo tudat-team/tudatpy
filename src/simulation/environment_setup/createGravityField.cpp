@@ -386,8 +386,9 @@ PolyhedronGravityFieldSettings::PolyhedronGravityFieldSettings (
         const Eigen::MatrixXi& verticesDefiningEachFacet,
         const std::string& associatedReferenceFrame):
     GravityFieldSettings( polyhedron ),
-    gravitationalConstant_( gravitationalConstant ),
-    density_( density ),
+    gravitationalConstantTimesDensity_( gravitationalConstant * density ),
+    gravitationalParameter_( TUDAT_NAN ),
+    volume_( TUDAT_NAN ),
     verticesCoordinates_( verticesCoordinates ),
     verticesDefiningEachFacet_( verticesDefiningEachFacet ),
     associatedReferenceFrame_( associatedReferenceFrame )
@@ -408,10 +409,41 @@ PolyhedronGravityFieldSettings::PolyhedronGravityFieldSettings (
 
     // Compute edge dyads
     computeEdgeDyads();
+}
+
+PolyhedronGravityFieldSettings::PolyhedronGravityFieldSettings (
+        const double gravitationalParameter,
+        const Eigen::MatrixXd& verticesCoordinates,
+        const Eigen::MatrixXi& verticesDefiningEachFacet,
+        const std::string& associatedReferenceFrame):
+        GravityFieldSettings( polyhedron ),
+        gravitationalParameter_( gravitationalParameter ),
+        verticesCoordinates_( verticesCoordinates ),
+        verticesDefiningEachFacet_( verticesDefiningEachFacet ),
+        associatedReferenceFrame_( associatedReferenceFrame )
+{
+    const unsigned int numberOfVertices = verticesCoordinates_.rows();
+    const unsigned int numberOfFacets = verticesDefiningEachFacet_.rows();
+
+    if ( numberOfFacets != 2 * ( numberOfVertices - 2) )
+    {
+        throw std::runtime_error( "Number of polyhedron facets and vertices not consistent." );
+    }
+
+    // Compute edges in polyhedron
+    computeVerticesAndFacetsDefiningEachEdge();
+
+    // Compute facet dyads
+    computeFacetNormalsAndDyads();
+
+    // Compute edge dyads
+    computeEdgeDyads();
 
     // Compute volume
     computeVolume();
-    std::cout << "Volume: " << volume_ << std::endl;
+
+    // Define value of gravitational constant times the density
+    gravitationalConstantTimesDensity_ = gravitationalParameter_ / volume_;
 }
 
 void PolyhedronGravityFieldSettings::computeVerticesAndFacetsDefiningEachEdge ( )

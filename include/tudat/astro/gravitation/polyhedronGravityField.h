@@ -41,8 +41,7 @@ void calculatePolyhedronPerEdgeFactor (
         const Eigen::MatrixXi& verticesDefiningEachEdge);
 
 double calculatePolyhedronGravitationalPotential(
-        const double gravitationalConstant,
-        const double density,
+        const double gravitationalConstantTimesDensity,
         const Eigen::MatrixXd& verticesCoordinatesRelativeToFieldPoint,
         const Eigen::MatrixXi& verticesDefiningEachFacet,
         const Eigen::MatrixXi& verticesDefiningEachEdge,
@@ -52,8 +51,7 @@ double calculatePolyhedronGravitationalPotential(
         const Eigen::VectorXd& perEdgeFactor );
 
 Eigen::Vector3d calculatePolyhedronGradientOfGravitationalPotential(
-        const double gravitationalConstant,
-        const double density,
+        const double gravitationalConstantTimesDensity,
         const Eigen::MatrixXd& verticesCoordinatesRelativeToFieldPoint,
         const Eigen::MatrixXi& verticesDefiningEachFacet,
         const Eigen::MatrixXi& verticesDefiningEachEdge,
@@ -63,8 +61,7 @@ Eigen::Vector3d calculatePolyhedronGradientOfGravitationalPotential(
         const Eigen::VectorXd& perEdgeFactor);
 
 Eigen::Matrix3d calculatePolyhedronHessianOfGravitationalPotential(
-        const double gravitationalConstant,
-        const double density,
+        const double gravitationalConstantTimesDensity,
         const Eigen::MatrixXd& verticesCoordinatesRelativeToFieldPoint,
         const Eigen::MatrixXi& verticesDefiningEachFacet,
         const Eigen::MatrixXi& verticesDefiningEachEdge,
@@ -74,9 +71,10 @@ Eigen::Matrix3d calculatePolyhedronHessianOfGravitationalPotential(
         const Eigen::VectorXd& perEdgeFactor);
 
 double calculatePolyhedronLaplacianOfGravitationalPotential(
-        const double gravitationalConstant,
-        const double density,
+        const double gravitationalConstantTimesDensity,
         const Eigen::VectorXd& perFacetFactor);
+
+
 
 } // namespace gravitation
 
