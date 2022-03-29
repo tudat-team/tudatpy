@@ -366,6 +366,9 @@ public:
     std::vector< Eigen::MatrixXd > getEdgeDyads( )
     { return edgeDyads_; }
 
+    double getVolume ( )
+    { return volume_; }
+
 protected:
 
     void computeVerticesAndFacetsDefiningEachEdge ( );
@@ -374,11 +377,16 @@ protected:
 
     void computeEdgeDyads ( );
 
+    void computeVolume ( );
+
     // Gravitational constant for gravity field that is to be created.
     double gravitationalConstant_;
 
     // Density of polyhedron.
     double density_;
+
+    // Volume of polyhedron
+    double volume_;
 
     // Cartesian coordinates of each vertex.
     Eigen::MatrixXd verticesCoordinates_;
