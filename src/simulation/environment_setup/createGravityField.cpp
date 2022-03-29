@@ -408,6 +408,10 @@ PolyhedronGravityFieldSettings::PolyhedronGravityFieldSettings (
 
     // Compute edge dyads
     computeEdgeDyads();
+
+    // Compute volume
+    computeVolume();
+    std::cout << "Volume: " << volume_ << std::endl;
 }
 
 void PolyhedronGravityFieldSettings::computeVerticesAndFacetsDefiningEachEdge ( )
@@ -549,6 +553,24 @@ void PolyhedronGravityFieldSettings::computeEdgeDyads ( )
         edgeDyads_.at(edge) = facetNormalFacetA * edgeNormalFacetA.transpose() + facetNormalFacetB * edgeNormalFacetB.transpose();
 
     }
+}
+
+void PolyhedronGravityFieldSettings::computeVolume ( )
+{
+    const unsigned int numberOfFacets = verticesDefiningEachFacet_.rows();
+
+    // Initialize volume
+    volume_ = 0;
+
+    for (unsigned int facet = 0; facet < numberOfFacets; ++facet)
+    {
+        Eigen::Vector3d vertex0 = verticesCoordinates_.block<1,3>(verticesDefiningEachFacet_(facet,0),0);
+        Eigen::Vector3d vertex1 = verticesCoordinates_.block<1,3>(verticesDefiningEachFacet_(facet,1),0);
+        Eigen::Vector3d vertex2 = verticesCoordinates_.block<1,3>(verticesDefiningEachFacet_(facet,2),0);
+
+        volume_ += 1.0/6.0 * vertex0.dot( vertex1.cross( vertex2 ) );
+    }
+
 }
 
 
