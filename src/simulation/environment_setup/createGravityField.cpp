@@ -346,6 +346,35 @@ std::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
         }
         break;
     }
+    case polyhedron:
+    {
+        // Check whether settings for polyhedron gravity field model are consistent with its type.
+        std::shared_ptr< PolyhedronGravityFieldSettings > polyhedronFieldSettings =
+                std::dynamic_pointer_cast< PolyhedronGravityFieldSettings >( gravityFieldSettings );
+        if( polyhedronFieldSettings == nullptr )
+        {
+            throw std::runtime_error(
+                "Error, expected polyhedron settings when making gravity field model for body " + body);
+        }
+        else if( gravityFieldVariationSettings.size( ) != 0 )
+        {
+            throw std::runtime_error( "Error, requested polyhedron gravity field, but field variations settings are not empty." );
+        }
+        else
+        {
+            // Create and initialize polyhedron gravity field model.
+            gravityFieldModel = std::make_shared< PolyhedronGravityField >(
+                    polyhedronFieldSettings->getGravitationalParameter(),
+                    polyhedronFieldSettings->getVolume(),
+                    polyhedronFieldSettings->getVerticesCoordinates(),
+                    polyhedronFieldSettings->getVerticesDefiningEachFacet(),
+                    polyhedronFieldSettings->getVerticesDefiningEachEdge(),
+                    polyhedronFieldSettings->getFacetDyads(),
+                    polyhedronFieldSettings->getEdgeDyads(),
+                    polyhedronFieldSettings->getAssociatedReferenceFrame() );
+        }
+        break;
+    }
     default:
         throw std::runtime_error(
                     "Error, did not recognize gravity field model settings type " +
@@ -386,9 +415,6 @@ PolyhedronGravityFieldSettings::PolyhedronGravityFieldSettings (
         const Eigen::MatrixXi& verticesDefiningEachFacet,
         const std::string& associatedReferenceFrame):
     GravityFieldSettings( polyhedron ),
-    gravitationalConstantTimesDensity_( gravitationalConstant * density ),
-    gravitationalParameter_( TUDAT_NAN ),
-    volume_( TUDAT_NAN ),
     verticesCoordinates_( verticesCoordinates ),
     verticesDefiningEachFacet_( verticesDefiningEachFacet ),
     associatedReferenceFrame_( associatedReferenceFrame )
@@ -409,6 +435,10 @@ PolyhedronGravityFieldSettings::PolyhedronGravityFieldSettings (
 
     // Compute edge dyads
     computeEdgeDyads();
+
+    // Compute gravitational parameter
+    computeVolume();
+    gravitationalParameter_ = gravitationalConstant * density * volume_;
 }
 
 PolyhedronGravityFieldSettings::PolyhedronGravityFieldSettings (
@@ -441,9 +471,6 @@ PolyhedronGravityFieldSettings::PolyhedronGravityFieldSettings (
 
     // Compute volume
     computeVolume();
-
-    // Define value of gravitational constant times the density
-    gravitationalConstantTimesDensity_ = gravitationalParameter_ / volume_;
 }
 
 void PolyhedronGravityFieldSettings::computeVerticesAndFacetsDefiningEachEdge ( )

@@ -23,6 +23,7 @@
 #include "tudat/astro/gravitation/gravityFieldModel.h"
 #include "tudat/astro/gravitation/sphericalHarmonicsGravityField.h"
 #include "tudat/astro/gravitation/gravityFieldVariations.h"
+#include "tudat/astro/gravitation/polyhedronGravityField.h"
 
 namespace tudat
 {
@@ -317,16 +318,19 @@ public:
      *  Function to return gravitational constant for gravity field.
      *  \return Gravitational constant for gravity field.
      */
-    double getGravitationalConstantTimesDensity( )
-    { return gravitationalConstantTimesDensity_; }
+    double getGravitationalParameter( )
+    { return gravitationalParameter_; }
 
     // Function to reset gravitational constant for gravity field.
     /*
      *  Function to reset gravitational constant for gravity field.
      *  \param gravitationalConstant New gravitational constant for gravity field.
      */
-    void resetGravitationalConstantTimesDensity ( const double gravitationalConstantTimesDensity )
-    { gravitationalConstantTimesDensity_ = gravitationalConstantTimesDensity; }
+    void resetGravitationalParameter ( const double gravitationalParameter )
+    { gravitationalParameter_ = gravitationalParameter; }
+
+    double getVolume ( )
+    { return volume_; }
 
     // Function to return identifier for body-fixed reference frame.
     /*
@@ -344,26 +348,23 @@ public:
     void resetAssociatedReferenceFrame( const std::string& associatedReferenceFrame )
     { associatedReferenceFrame_ = associatedReferenceFrame; }
 
-    Eigen::MatrixXd getVerticesCoordinates( )
+    Eigen::MatrixXd& getVerticesCoordinates( )
     { return verticesCoordinates_; }
 
-    Eigen::MatrixXi getVerticesDefiningEachFacet( )
+    Eigen::MatrixXi& getVerticesDefiningEachFacet( )
     { return verticesDefiningEachFacet_; }
 
-    Eigen::MatrixXi getVerticesDefiningEachEdge( )
+    Eigen::MatrixXi& getVerticesDefiningEachEdge( )
     { return verticesDefiningEachEdge_; }
 
-    std::vector< Eigen::Vector3d > getFacetNormalVectors( )
+    std::vector< Eigen::Vector3d >& getFacetNormalVectors( )
     { return facetNormalVectors_; }
 
-    std::vector< Eigen::MatrixXd > getFacetDyads( )
+    std::vector< Eigen::MatrixXd >& getFacetDyads( )
     { return facetDyads_; }
 
-    std::vector< Eigen::MatrixXd > getEdgeDyads( )
+    std::vector< Eigen::MatrixXd >& getEdgeDyads( )
     { return edgeDyads_; }
-
-    double getVolume ( )
-    { return volume_; }
 
 protected:
 
@@ -375,9 +376,6 @@ protected:
 
     // Compute the volume of a polyhedron, according to "Inertia of Any Polyhedron", DOBROVOLSKIS (1996), Icarus
     void computeVolume ( );
-
-    // Product of gravitational constant and density
-    double gravitationalConstantTimesDensity_;
 
     // Gravitational parameter
     double gravitationalParameter_;
@@ -670,6 +668,29 @@ inline std::shared_ptr< GravityFieldSettings > sphericalHarmonicsGravitySettings
             normalizedCosineCoefficients, normalizedSineCoefficients,
             associatedReferenceFrame
             );
+}
+
+inline std::shared_ptr< GravityFieldSettings > polyhedronGravitySettings(
+        const double gravitationalConstant,
+        const double density,
+        const Eigen::MatrixXd& verticesCoordinates,
+        const Eigen::MatrixXi& verticesDefiningEachFacet,
+        const std::string& associatedReferenceFrame)
+{
+    return std::make_shared< PolyhedronGravityFieldSettings >(
+            gravitationalConstant, density, verticesCoordinates,
+            verticesDefiningEachFacet, associatedReferenceFrame);
+}
+
+inline std::shared_ptr< GravityFieldSettings > polyhedronGravitySettings(
+        const double gravitationalParameter,
+        const Eigen::MatrixXd& verticesCoordinates,
+        const Eigen::MatrixXi& verticesDefiningEachFacet,
+        const std::string& associatedReferenceFrame)
+{
+    return std::make_shared< PolyhedronGravityFieldSettings >(
+            gravitationalParameter, verticesCoordinates,
+            verticesDefiningEachFacet, associatedReferenceFrame);
 }
 
 } // namespace simulation_setup

@@ -113,16 +113,16 @@ BOOST_AUTO_TEST_CASE( test_polyhedron_set_up )
                 perEdgeFactor, verticesCoordinatesRelativeToFieldPoint, verticesDefiningEachEdge);
 
         double laplacian = gravitation::calculatePolyhedronLaplacianOfGravitationalPotential(
-                gravitySettings.getGravitationalConstantTimesDensity(), perFacetFactor);
+                gravitySettings.getGravitationalParameter() / gravitySettings.getVolume(), perFacetFactor);
         std::cout << "Laplace equation: " << - laplacian / gravitationalConstant / density / M_PI << " pi" << std::endl;
 
         double potential = gravitation::calculatePolyhedronGravitationalPotential(
-                gravitySettings.getGravitationalConstantTimesDensity(), verticesCoordinatesRelativeToFieldPoint, verticesDefiningEachFacet,
+                gravitySettings.getGravitationalParameter() / gravitySettings.getVolume(), verticesCoordinatesRelativeToFieldPoint, verticesDefiningEachFacet,
                 verticesDefiningEachEdge, facetDyads, edgeDyads, perFacetFactor, perEdgeFactor);
         std::cout << "Potential: " << potential << std::endl;
 
         Eigen::Vector3d acceleration = gravitation::calculatePolyhedronGradientOfGravitationalPotential(
-                gravitySettings.getGravitationalConstantTimesDensity(), verticesCoordinatesRelativeToFieldPoint, verticesDefiningEachFacet,
+                gravitySettings.getGravitationalParameter() / gravitySettings.getVolume(), verticesCoordinatesRelativeToFieldPoint, verticesDefiningEachFacet,
                 verticesDefiningEachEdge, facetDyads, edgeDyads, perFacetFactor, perEdgeFactor);
         std::cout << "Acceleration: " << acceleration.transpose() << std::endl;
     }
