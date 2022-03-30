@@ -26,6 +26,7 @@ namespace tms = tudat::mission_segments;
 namespace tss = tudat::simulation_setup;
 namespace tpc = tudat::physical_constants;
 namespace trf = tudat::root_finders;
+namespace tsbm = tudat::shape_based_methods;
 
 namespace tudatpy {
 namespace trajectory_design {
@@ -51,6 +52,19 @@ void expose_transfer_trajectory(py::module &m) {
                    tms::TransferLegTypes::spherical_shaping_low_thrust_leg,
                    get_docstring("TransferLegTypes.spherical_shaping_low_thrust_leg").c_str())
             .export_values();
+
+    // TODO: add to API
+    py::class_<
+            tms::TransferLeg,
+            std::shared_ptr<tms::TransferLeg> >(m, "TransferLeg",
+                                                get_docstring("TransferLeg").c_str());
+
+    // TODO: add to API
+    py::class_<
+            tsbm::SphericalShapingLeg,
+            std::shared_ptr<tsbm::SphericalShapingLeg>,
+            tms::TransferLeg >(m, "SphericalShapingLeg",
+                               get_docstring("SphericalShapingLeg").c_str());
 
     py::class_<
             tms::TransferNodeSettings,
