@@ -790,6 +790,56 @@ BOOST_AUTO_TEST_CASE( testPoweredGravityAssistBackwardPropagation )
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( calculatedIncomingVelocity, incomingVelocity, tolerance );
 }
 
+//! Test forward and backward powered gravity assist when the periapsis is infinity
+BOOST_AUTO_TEST_CASE( testGravityInfinitePeriapsis )
+{
+
+    // Benchmark obtained by reverse engineering the GTOP code, based on the first
+    // swing-by for the ideal Cassini-1 trajectory. Values were obtained with a 15-digit accuracy
+    // from GTOP, resulting in an accuracy of 1e-14 in the final results.
+    const double tolerance = 1.0e-14;
+
+    // Define swingby body gravitational parameter.
+    const double venusGravitationalParameter = 3.24860e14;
+    // Define heliocentric planet velocity vector.
+    const Eigen::Vector3d venusVelocity( 32851.224953746, -11618.7310059974, -2055.04615890989 );
+    // Define heliocentric satellite incoming vector.
+    const Eigen::Vector3d incomingVelocity( 34216.4827530912, -15170.1440677825,
+                                            395.792122152361 );
+    // Define ougoing velocity rotation angle.
+    const double outgoingVelocityRotationAngle = -2.0291949514117;
+    // Define pericenter radius.
+    const double pericenterRadius = std::numeric_limits< double >::infinity();
+
+    for ( unsigned int deltaVCase : {0,1})
+    {
+        double deltaV;
+        Eigen::Vector3d expectedOutgoingVelocity;
+        
+        if ( deltaVCase == 0 )
+        {
+            // Define deltaV.
+            deltaV = 0.0;
+            expectedOutgoingVelocity = incomingVelocity;
+        }
+        else
+        {
+            deltaV = 1090.64622870007;
+            const Eigen::Vector3d relativeIncomingVelocity = incomingVelocity - venusVelocity;
+            expectedOutgoingVelocity = incomingVelocity + deltaV * relativeIncomingVelocity / relativeIncomingVelocity.norm();
+        }
+
+        // Perform the gravity assist.
+        const Eigen::Vector3d computedOutgoingVelocity = mission_segments::calculatePoweredGravityAssistOutgoingVelocity(
+                venusGravitationalParameter, venusVelocity,
+                incomingVelocity, outgoingVelocityRotationAngle,
+                pericenterRadius, deltaV );
+
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedOutgoingVelocity, computedOutgoingVelocity, tolerance );
+    }
+
+}
+
 BOOST_AUTO_TEST_SUITE_END( )
 
 } // namespace unit_tests
