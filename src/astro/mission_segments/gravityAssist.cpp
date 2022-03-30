@@ -490,10 +490,20 @@ Eigen::Vector3d calculatePoweredGravityAssistOutgoingVelocity(
     const double incomingBendingAngle = std::asin ( 1.0 / incomingEccentricity );
     
     // Calculate the pericenter velocities.
-    const double incomingPericenterVelocity = std::sqrt( absoluteRelativeIncomingVelocity *
-                                                         absoluteRelativeIncomingVelocity *
-                                                         ( incomingEccentricity + 1.0 ) /
-                                                         ( incomingEccentricity - 1.0 ) );
+    // Deal with limit case where eccentricity is infinity by setting the velocity to absoluteRelativeIncomingVelocity
+    double incomingPericenterVelocity;
+    if ( incomingEccentricity < std::numeric_limits< double >::infinity() )
+    {
+        incomingPericenterVelocity = std::sqrt( absoluteRelativeIncomingVelocity *
+                                                 absoluteRelativeIncomingVelocity *
+                                                 ( incomingEccentricity + 1.0 ) /
+                                                 ( incomingEccentricity - 1.0 ) );
+    }
+    else
+    {
+        incomingPericenterVelocity = absoluteRelativeIncomingVelocity;
+    }
+
     const double outgoingPericenterVelocity = incomingPericenterVelocity + deltaV;
     
     // Calculate magnitude of the absolute relative outgoing velocity.
