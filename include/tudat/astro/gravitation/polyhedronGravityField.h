@@ -54,8 +54,8 @@ double calculatePolyhedronGravitationalPotential(
         const Eigen::MatrixXd& verticesCoordinatesRelativeToFieldPoint,
         const Eigen::MatrixXi& verticesDefiningEachFacet,
         const Eigen::MatrixXi& verticesDefiningEachEdge,
-        std::vector< Eigen::MatrixXd >& facetDyads,
-        std::vector< Eigen::MatrixXd >& edgeDyads,
+        const std::vector< Eigen::MatrixXd >& facetDyads,
+        const std::vector< Eigen::MatrixXd >& edgeDyads,
         const Eigen::VectorXd& perFacetFactor,
         const Eigen::VectorXd& perEdgeFactor );
 
@@ -65,8 +65,8 @@ Eigen::Vector3d calculatePolyhedronGradientOfGravitationalPotential(
         const Eigen::MatrixXd& verticesCoordinatesRelativeToFieldPoint,
         const Eigen::MatrixXi& verticesDefiningEachFacet,
         const Eigen::MatrixXi& verticesDefiningEachEdge,
-        std::vector< Eigen::MatrixXd >& facetDyads,
-        std::vector< Eigen::MatrixXd >& edgeDyads,
+        const std::vector< Eigen::MatrixXd >& facetDyads,
+        const std::vector< Eigen::MatrixXd >& edgeDyads,
         const Eigen::VectorXd& perFacetFactor,
         const Eigen::VectorXd& perEdgeFactor);
 
@@ -76,8 +76,8 @@ Eigen::Matrix3d calculatePolyhedronHessianOfGravitationalPotential(
         const Eigen::MatrixXd& verticesCoordinatesRelativeToFieldPoint,
         const Eigen::MatrixXi& verticesDefiningEachFacet,
         const Eigen::MatrixXi& verticesDefiningEachEdge,
-        std::vector< Eigen::MatrixXd >& facetDyads,
-        std::vector< Eigen::MatrixXd >& edgeDyads,
+        const std::vector< Eigen::MatrixXd >& facetDyads,
+        const std::vector< Eigen::MatrixXd >& edgeDyads,
         const Eigen::VectorXd& perFacetFactor,
         const Eigen::VectorXd& perEdgeFactor);
 
@@ -112,6 +112,9 @@ public:
 
     Eigen::VectorXd& getPerEdgeFactor ( )
     { return perEdgeFactor_; }
+
+
+protected:
 
 private:
 
