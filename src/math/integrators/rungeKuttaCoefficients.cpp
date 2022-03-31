@@ -27,6 +27,62 @@ namespace tudat
 namespace numerical_integrators
 {
 
+//! Initialize forward Euler coefficients.
+void initializeForwardEulerCoefficients( RungeKuttaCoefficients& forwardEulerCoefficients )
+{
+    // Define characteristics of coefficient set.
+    forwardEulerCoefficients.lowerOrder = 1;
+    forwardEulerCoefficients.higherOrder = 1;
+
+    // Define a-coefficients for the forward Euler method of order 1 and with 1 stage.
+    forwardEulerCoefficients.aCoefficients = Eigen::MatrixXd::Zero( 1, 1 );
+    
+    // Define c-coefficients for the forward Euler method of order 1 and with 1 stage.
+    forwardEulerCoefficients.cCoefficients = Eigen::VectorXd::Zero( 1 );
+    
+    // Define b-coefficients for the forward Euler method of order 1 and with 1 stage.
+    forwardEulerCoefficients.bCoefficients = Eigen::MatrixXd::Zero( 1, 1 );
+    forwardEulerCoefficients.bCoefficients( 0, 0 ) = 1.0;
+
+    // Set the name of these coefficients.
+    forwardEulerCoefficients.name = "Forward Euler";
+}
+
+//! Initialize RK4 coefficients.
+void initializeRungeKutta4Coefficients( RungeKuttaCoefficients&
+                                        rungeKutta4Coefficients )
+{
+    // Define characteristics of coefficient set.
+    rungeKutta4Coefficients.lowerOrder = 4;
+    rungeKutta4Coefficients.higherOrder = 4;
+
+    // Define a-coefficients for the Runge-Kutta method of order 4 and with 4 stages.
+    rungeKutta4Coefficients.aCoefficients = Eigen::MatrixXd::Zero( 4, 4 );
+    rungeKutta4Coefficients.aCoefficients( 1, 0 ) = 1.0 / 2.0;
+
+    rungeKutta4Coefficients.aCoefficients( 2, 1 ) = 1.0 / 2.0;
+
+    rungeKutta4Coefficients.aCoefficients( 3, 2 ) = 1.0;
+
+
+    // Define c-coefficients for the Runge-Kutta method of order 4 and with 4 stages.
+    rungeKutta4Coefficients.cCoefficients = Eigen::VectorXd::Zero( 4 );
+    rungeKutta4Coefficients.cCoefficients( 1 ) = 1.0 / 2.0;
+    rungeKutta4Coefficients.cCoefficients( 2 ) = 1.0 / 2.0;
+    rungeKutta4Coefficients.cCoefficients( 3 ) = 1.0;
+
+
+    // Define b-coefficients for the Runge-Kutta method of order 4 and with 4 stages.
+    rungeKutta4Coefficients.bCoefficients = Eigen::MatrixXd::Zero( 1, 4 );
+    rungeKutta4Coefficients.bCoefficients( 0, 0 ) = 1.0 / 6.0;
+    rungeKutta4Coefficients.bCoefficients( 0, 1 ) = 1.0 / 3.0;
+    rungeKutta4Coefficients.bCoefficients( 0, 2 ) = 1.0 / 3.0;
+    rungeKutta4Coefficients.bCoefficients( 0, 3 ) = 1.0 / 6.0;
+
+    // Set the name of these coefficients.
+    rungeKutta4Coefficients.name = "Runge-Kutta 4";
+}
+
 //! Initialize RKF45 coefficients.
 void initializeRungeKuttaFehlberg45Coefficients( RungeKuttaCoefficients&
                                                  rungeKuttaFehlberg45Coefficients )
@@ -85,6 +141,9 @@ void initializeRungeKuttaFehlberg45Coefficients( RungeKuttaCoefficients&
     rungeKuttaFehlberg45Coefficients.bCoefficients( 1, 3 ) = 28561.0 / 56430.0;
     rungeKuttaFehlberg45Coefficients.bCoefficients( 1, 4 ) = -9.0 / 50.0;
     rungeKuttaFehlberg45Coefficients.bCoefficients( 1, 5 ) = 2.0 / 55.0;
+
+    // Set the name of these coefficients.
+    rungeKuttaFehlberg45Coefficients.name = "Runge-Kutta-Fehlberg 4/5";
 }
 
 //! Initialize RKF56 coefficients.
@@ -158,6 +217,9 @@ void initializeRungeKuttaFehlberg56Coefficients( RungeKuttaCoefficients&
     rungeKuttaFehlberg56Coefficients.bCoefficients( 1, 4 ) = 125.0 / 768.0;
     rungeKuttaFehlberg56Coefficients.bCoefficients( 1, 6 ) = 5.0 / 66.0;
     rungeKuttaFehlberg56Coefficients.bCoefficients( 1, 7 ) = 5.0 / 66.0;
+
+    // Set the name of these coefficients.
+    rungeKuttaFehlberg56Coefficients.name = "Runge-Kutta-Fehlberg 5/6";
 }
 
 //! Initialize RKF78 coefficients.
@@ -281,6 +343,9 @@ void initializeRungeKuttaFehlberg78Coefficients( RungeKuttaCoefficients&
     rungeKuttaFehlberg78Coefficients.bCoefficients( 1, 11 ) = 41.0 / 840.0;
     rungeKuttaFehlberg78Coefficients.bCoefficients( 1, 12 ) =
             rungeKuttaFehlberg78Coefficients.bCoefficients( 1, 11 );
+
+    // Set the name of these coefficients.
+    rungeKuttaFehlberg78Coefficients.name = "Runge-Kutta-Fehlberg 7/8";
 }
 
 //! Initialize RK87 (Dormand and Prince) coefficients.
@@ -409,19 +474,39 @@ void initializerungeKutta87DormandPrinceCoefficients(
     rungeKutta87DormandPrinceCoefficients.bCoefficients( 1, 10 ) = 118820643.0 / 751138087.0;
     rungeKutta87DormandPrinceCoefficients.bCoefficients( 1, 11 ) = -528747749.0 / 2220607170.0;
     rungeKutta87DormandPrinceCoefficients.bCoefficients( 1, 12 ) = 1.0 / 4.0;
+
+    // Set the name of these coefficients.
+    rungeKutta87DormandPrinceCoefficients.name = "Runge-Kutta 8/7 Dormand-Prince";
+
 }
 
 //! Get coefficients for a specified coefficient set
 const RungeKuttaCoefficients& RungeKuttaCoefficients::get(
         RungeKuttaCoefficients::CoefficientSets coefficientSet )
 {
-    static RungeKuttaCoefficients rungeKuttaFehlberg45Coefficients,
+    static RungeKuttaCoefficients forwardEulerCoefficients,
+                                  rungeKutta4Coefficients,
+                                  rungeKuttaFehlberg45Coefficients,
                                   rungeKuttaFehlberg56Coefficients,
                                   rungeKuttaFehlberg78Coefficients,
                                   rungeKutta87DormandPrinceCoefficients;
 
     switch ( coefficientSet )
     {
+    case forwardEuler:
+        if ( forwardEulerCoefficients.higherOrder != 1 )
+        {
+            initializeForwardEulerCoefficients( forwardEulerCoefficients );
+        }
+        return forwardEulerCoefficients;
+
+    case rungeKutta4:
+        if ( rungeKutta4Coefficients.higherOrder != 4 )
+        {
+            initializeRungeKutta4Coefficients( rungeKutta4Coefficients );
+        }
+        return rungeKutta4Coefficients;
+
     case rungeKuttaFehlberg45:
         if ( rungeKuttaFehlberg45Coefficients.higherOrder != 5 )
         {
