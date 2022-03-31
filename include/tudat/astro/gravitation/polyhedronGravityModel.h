@@ -27,13 +27,12 @@ namespace tudat
 namespace gravitation
 {
 
-template< typename StateMatrix >
 class PolyhedronGravitationalAccelerationModel: public basic_astrodynamics::AccelerationModel< Eigen::Vector3d >
 {
 
 protected:
     //! Typedef for a position-returning function.
-    typedef std::function< void( StateMatrix& ) > StateFunction;
+    typedef std::function< void( Eigen::Vector3d& ) > StateFunction;
 
 public:
 

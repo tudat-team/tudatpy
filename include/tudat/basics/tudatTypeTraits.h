@@ -158,7 +158,15 @@ struct is_direct_gravity_acceleration< gravitation::MutualSphericalHarmonicsGrav
     static const bool value = true;
 };
 
+namespace gravitation
+{
+class PolyhedronGravitationalAccelerationModel;
+}
 
+template< >
+struct is_direct_gravity_acceleration< gravitation::PolyhedronGravitationalAccelerationModel > {
+    static const bool value = true;
+};
 
 } // namespace tudat
 

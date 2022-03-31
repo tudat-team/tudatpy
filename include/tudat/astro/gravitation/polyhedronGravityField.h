@@ -148,7 +148,7 @@ public:
             std::vector< Eigen::MatrixXd >& facetDyads,
             std::vector< Eigen::MatrixXd >& edgeDyads,
             const std::string& fixedReferenceFrame = "",
-            const std::function< void( ) > updateInertiaTensor = std::function< void( ) > ( ))
+            const std::function< void( ) > updateInertiaTensor = std::function< void( ) > ( ) )
         : GravityFieldModel(gravitationalParameter, updateInertiaTensor),
         gravitationalParameter_( gravitationalParameter ),
         volume_( volume ),
