@@ -482,14 +482,10 @@ void initializerungeKutta87DormandPrinceCoefficients(
 
 //! Get coefficients for a specified coefficient set
 const RungeKuttaCoefficients& RungeKuttaCoefficients::get(
-        RungeKuttaCoefficients::CoefficientSets coefficientSet )
+        RungeKuttaCoefficients::FixedStepCoefficientSets coefficientSet )
 {
     static RungeKuttaCoefficients forwardEulerCoefficients,
-                                  rungeKutta4Coefficients,
-                                  rungeKuttaFehlberg45Coefficients,
-                                  rungeKuttaFehlberg56Coefficients,
-                                  rungeKuttaFehlberg78Coefficients,
-                                  rungeKutta87DormandPrinceCoefficients;
+                                  rungeKutta4Coefficients;
 
     switch ( coefficientSet )
     {
@@ -506,6 +502,22 @@ const RungeKuttaCoefficients& RungeKuttaCoefficients::get(
             initializeRungeKutta4Coefficients( rungeKutta4Coefficients );
         }
         return rungeKutta4Coefficients;
+
+    default: // The default case will never occur because CoefficientsSet is an enum.
+        throw RungeKuttaCoefficients( );
+    }
+}
+
+const RungeKuttaCoefficients& RungeKuttaCoefficients::get(
+        RungeKuttaCoefficients::CoefficientSets coefficientSet )
+{
+    static RungeKuttaCoefficients rungeKuttaFehlberg45Coefficients,
+                                  rungeKuttaFehlberg56Coefficients,
+                                  rungeKuttaFehlberg78Coefficients,
+                                  rungeKutta87DormandPrinceCoefficients;
+
+    switch ( coefficientSet )
+    {
 
     case rungeKuttaFehlberg45:
         if ( rungeKuttaFehlberg45Coefficients.higherOrder != 5 )

@@ -102,12 +102,18 @@ struct RungeKuttaCoefficients
     enum CoefficientSets
     {
         undefinedCoefficientSet = -1,
-        forwardEuler,
-        rungeKutta4,
         rungeKuttaFehlberg45,
         rungeKuttaFehlberg56,
         rungeKuttaFehlberg78,
         rungeKutta87DormandPrince
+    };
+
+    // Enum of predefined fixed-step coefficient sets.
+    enum FixedStepCoefficientSets
+    {
+        undefinedFixedStepCoefficientSet = -1,
+        forwardEuler,
+        rungeKutta4
     };
 
     // Get coefficients for a specified coefficient set.
@@ -117,6 +123,14 @@ struct RungeKuttaCoefficients
      * \return The requested coefficient set.
      */
     static const RungeKuttaCoefficients& get( CoefficientSets coefficientSet );
+
+    // Get coefficients for a specified coefficient set for fixed-step integration.
+    /*
+     * Returns coefficients for a specified coefficient set for fixed-step integration.
+     * \param coefficientSet The set to get the coefficients for.
+     * \return The requested coefficient set.
+     */
+    static const RungeKuttaCoefficients& get( FixedStepCoefficientSets coefficientSet );
 
 
     void printButcherTableau( )
