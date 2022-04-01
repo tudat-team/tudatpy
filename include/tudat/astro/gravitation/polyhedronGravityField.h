@@ -217,6 +217,43 @@ public:
                 polyhedronGravityCache_->getPerFacetFactor() );
     }
 
+    //! Function to retrieve the identifier for body-fixed reference frame
+    std::string getFixedReferenceFrame( )
+    {
+        return fixedReferenceFrame_;
+    }
+
+    //! Function to retrieve the volume
+    double getVolume( )
+    {
+        return volume_;
+    }
+
+    const Eigen::MatrixXd& getVerticesCoordinates( )
+    {
+        return verticesCoordinates_;
+    }
+
+    const Eigen::MatrixXi& getVerticesDefiningEachFacet( )
+    {
+        return verticesDefiningEachFacet_;
+    }
+
+    const Eigen::MatrixXi& getVerticesDefiningEachEdge( )
+    {
+        return verticesDefiningEachEdge_;
+    }
+
+    const std::vector< Eigen::MatrixXd >& getFacetDyads( )
+    {
+        return facetDyads_;
+    }
+
+    const std::vector< Eigen::MatrixXd >& getEdgeDyads( )
+    {
+        return edgeDyads_;
+    }
+
 protected:
 
 private:

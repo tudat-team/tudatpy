@@ -195,6 +195,11 @@ inline std::shared_ptr< AccelerationSettings > mutualSphericalHarmonicAccelerati
 			);
 }
 
+inline std::shared_ptr< AccelerationSettings > polyhedronAcceleration( )
+{
+    return std::make_shared< AccelerationSettings >( basic_astrodynamics::polyhedron_gravity );
+}
+
 // Class to provide settings for typical relativistic corrections to the dynamics of an orbiter.
 /*
  *  Class to provide settings for typical relativistic corrections to the dynamics of an orbiter: the
