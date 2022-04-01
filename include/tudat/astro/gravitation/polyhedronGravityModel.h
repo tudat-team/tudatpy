@@ -40,16 +40,20 @@ public:
     /*!
      * Constructor taking a pointer to a function returning the position of the body subject to
      * gravitational acceleration, constant gravitational parameter and volume of the
-     * body exerting the acceleration, and a pointer to a function returning the position of the body exerting the
+     * body exerting the acceleration, polyhedron parameters, and a pointer to a function returning the position of the body exerting the
      * gravitational acceleration (typically the central body). This constructor uses the
      * Boost::lambda library to create a function on-the-fly that returns the constant
-     * gravitational parameter and volume. The
-     * constructor also updates all the internal members. The position of the body exerting the
+     * gravitational parameter and volume. The position of the body exerting the
      * gravitational acceleration is an optional parameter; the default position is the origin.
      * \param positionOfBodySubjectToAccelerationFunction Pointer to function returning position of
      *          body subject to gravitational acceleration.
      * \param aGravitationalParameter A (constant) gravitational parameter [m^2 s^-3].
      * \param aVolume A (constant) volume [m^3].
+     * \param aVerticesCoordinatesMatrix A (constant) vertices coordinates matrix [m].
+     * \param aVerticesDefiningEachFacetMatrix A (constant) vertices defining each facet matrix.
+     * \param aVerticesDefiningEachEdgeMatrix A (constant) vertices defining each edge matrix.
+     * \param aFacetDyadsVector A (constant) facet dyads vector.
+     * \param aEdgeDyadsVector A (constant) edge dyads vector.
      * \param positionOfBodyExertingAccelerationFunction Pointer to function returning position of
      *          body exerting gravitational acceleration (default = (0,0,0)).
      * \param rotationFromBodyFixedToIntegrationFrameFunction Function providing the rotation from
@@ -68,15 +72,15 @@ public:
             const Eigen::MatrixXd& aVerticesCoordinatesMatrix,
             const Eigen::MatrixXi& aVerticesDefiningEachFacetMatrix,
             const Eigen::MatrixXi& aVerticesDefiningEachEdgeMatrix,
-            std::vector< Eigen::MatrixXd >& aFacetDyadsVector,
-            std::vector< Eigen::MatrixXd >& aEdgeDyadsVector,
+            const std::vector< Eigen::MatrixXd >& aFacetDyadsVector,
+            const std::vector< Eigen::MatrixXd >& aEdgeDyadsVector,
             const StateFunction positionOfBodyExertingAccelerationFunction =
                 [ ]( Eigen::Vector3d& input ){ input = Eigen::Vector3d::Zero( ); },
             const std::function< Eigen::Quaterniond( ) > rotationFromBodyFixedToIntegrationFrameFunction =
                 [ ]( ){ return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ); },
-            const bool isMutualAttractionUsed = 0,
-            std::shared_ptr< PolyhedronGravityCache > polyhedronCache =
-                std::make_shared< PolyhedronGravityCache >( ) )
+            const bool isMutualAttractionUsed = 0 )
+//            std::shared_ptr< PolyhedronGravityCache > polyhedronCache =
+//                std::make_shared< PolyhedronGravityCache >( ) )
         : subjectPositionFunction_( positionOfBodySubjectToAccelerationFunction ),
         gravitationalParameterFunction_( [ = ]( ){ return aGravitationalParameter; } ),
         volumeFunction_( [ = ]( ){ return aVolume; } ),
@@ -88,7 +92,61 @@ public:
         sourcePositionFunction_( positionOfBodyExertingAccelerationFunction ),
         rotationFromBodyFixedToIntegrationFrameFunction_( rotationFromBodyFixedToIntegrationFrameFunction ),
         isMutualAttractionUsed_( isMutualAttractionUsed ),
-        polyhedronCache_( polyhedronCache )
+        polyhedronCache_( std::make_shared< PolyhedronGravityCache >(
+                aVerticesCoordinatesMatrix, aVerticesDefiningEachFacetMatrix, aVerticesDefiningEachEdgeMatrix) )
+    { }
+
+    //! Constructor taking functions for position of bodies, and parameters of polyhedron.
+    /*!
+     * Constructor taking pointer to functions returning the position of the body subject to
+     * gravitational acceleration, the gravitational parameter and volume of the body exerting the
+     * acceleration (central body), polyhedron parameters, and the position of the central body.
+     * The position of the body exerting the
+     * gravitational acceleration is an optional parameter; the default position is the origin.
+     * \param positionOfBodySubjectToAccelerationFunction Pointer to function returning position of
+     *          body subject to gravitational acceleration.
+     *
+     * \param positionOfBodyExertingAccelerationFunction Pointer to function returning position of
+     *          body exerting gravitational acceleration (default = (0,0,0)).
+     * \param rotationFromBodyFixedToIntegrationFrameFunction Function providing the rotation from
+     * body-fixes from to the frame in which the numerical integration is performed.
+     * \param isMutualAttractionUsed Variable denoting whether attraction from body undergoing acceleration on
+     * body exerting acceleration is included (i.e. whether aGravitationalParameter refers to the property
+     * of the body exerting the acceleration, if variable is false, or the sum of the gravitational parameters,
+     * if the variable is true.
+     * \param polyhedronCache Cache object for computing/retrieving repeated terms in polyhedron potential
+     *          gradient calculation.
+     */
+    PolyhedronGravitationalAccelerationModel(
+            const StateFunction positionOfBodySubjectToAccelerationFunction,
+            const std::function< double() > gravitationalParameterFunction,
+            const std::function< double() > volumeFunction,
+            const std::function< Eigen::MatrixXd() > verticesCoordinatesFunction,
+            const std::function< Eigen::MatrixXi() > verticesDefiningEachFacetFunction,
+            const std::function< Eigen::MatrixXi() > verticesDefiningEachEdgeFunction,
+            const std::function< std::vector< Eigen::MatrixXd >() > facetDyadsFunction,
+            const std::function< std::vector< Eigen::MatrixXd >() > edgeDyadsFunction,
+            const StateFunction positionOfBodyExertingAccelerationFunction =
+                [ ]( Eigen::Vector3d& input ){ input = Eigen::Vector3d::Zero( ); },
+            const std::function< Eigen::Quaterniond( ) > rotationFromBodyFixedToIntegrationFrameFunction =
+                [ ]( ){ return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ); },
+            const bool isMutualAttractionUsed = 0 )
+//            std::shared_ptr< PolyhedronGravityCache > polyhedronCache =
+//                std::make_shared< PolyhedronGravityCache >( ) )
+        : subjectPositionFunction_( positionOfBodySubjectToAccelerationFunction ),
+        gravitationalParameterFunction_( gravitationalParameterFunction ),
+        volumeFunction_( volumeFunction ),
+        getVerticesCoordinates_( verticesCoordinatesFunction ),
+        getVerticesDefiningEachFacet_( verticesDefiningEachFacetFunction ),
+        getVerticesDefiningEachEdge_( verticesDefiningEachEdgeFunction ),
+        getFacetDyads_( facetDyadsFunction ),
+        getEdgeDyads_( edgeDyadsFunction ),
+        sourcePositionFunction_( positionOfBodyExertingAccelerationFunction ),
+        rotationFromBodyFixedToIntegrationFrameFunction_( rotationFromBodyFixedToIntegrationFrameFunction ),
+        isMutualAttractionUsed_( isMutualAttractionUsed ),
+        polyhedronCache_( std::make_shared< PolyhedronGravityCache >(
+                verticesCoordinatesFunction(), verticesDefiningEachFacetFunction(),
+                verticesDefiningEachEdgeFunction() ) )
     { }
 
     //! Update class members.
@@ -104,8 +162,10 @@ public:
 
             rotationToIntegrationFrame_ = rotationFromBodyFixedToIntegrationFrameFunction_( );
 
+            subjectPositionFunction_( positionOfBodySubjectToAcceleration_ );
+            sourcePositionFunction_( positionOfBodyExertingAcceleration_ );
             currentInertialRelativePosition_ =
-                    this->positionOfBodySubjectToAcceleration - this->positionOfBodyExertingAcceleration ;
+                    positionOfBodySubjectToAcceleration_ - positionOfBodyExertingAcceleration_ ;
 
             currentRelativePosition_ = rotationToIntegrationFrame_.inverse( ) * currentInertialRelativePosition_;
 
@@ -202,6 +262,11 @@ private:
     //! Current acceleration in frame fixed to body undergoing acceleration, as computed by last call to updateMembers function
     Eigen::Vector3d currentAccelerationInBodyFixedFrame_;
 
+    //! Position of body subject to acceleration.
+    Eigen::Vector3d positionOfBodySubjectToAcceleration_;
+
+    //! Position of body exerting acceleration.
+    Eigen::Vector3d positionOfBodyExertingAcceleration_;
 };
 
 
