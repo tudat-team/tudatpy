@@ -458,6 +458,7 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                                     + std::string( "AccelerationModel) to createTranslationalEquationsOfMotion ")
                                     + std::string( "EnvironmentUpdaterSettings" ) );
                     }
+                    break;
                 }
                 case thrust_acceleration:
                 {
@@ -853,6 +854,10 @@ std::vector< std::string > > createEnvironmentUpdaterSettingsForDependentVariabl
     case custom_dependent_variable:
         break;
     case gravity_field_potential_dependent_variable:
+        variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
+        variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->secondaryBody_ );
+        break;
+    case gravity_field_laplacian_of_potential_dependent_variable:
         variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
         variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->secondaryBody_ );
         break;

@@ -673,8 +673,8 @@ inline std::shared_ptr< GravityFieldSettings > sphericalHarmonicsGravitySettings
 inline std::shared_ptr< GravityFieldSettings > polyhedronGravitySettings(
         const double gravitationalConstant,
         const double density,
-        const Eigen::MatrixXd& verticesCoordinates,
-        const Eigen::MatrixXi& verticesDefiningEachFacet,
+        const Eigen::MatrixXd verticesCoordinates,
+        const Eigen::MatrixXi verticesDefiningEachFacet,
         const std::string& associatedReferenceFrame)
 {
     return std::make_shared< PolyhedronGravityFieldSettings >(
@@ -684,8 +684,8 @@ inline std::shared_ptr< GravityFieldSettings > polyhedronGravitySettings(
 
 inline std::shared_ptr< GravityFieldSettings > polyhedronGravitySettings(
         const double gravitationalParameter,
-        const Eigen::MatrixXd& verticesCoordinates,
-        const Eigen::MatrixXi& verticesDefiningEachFacet,
+        const Eigen::MatrixXd verticesCoordinates,
+        const Eigen::MatrixXi verticesDefiningEachFacet,
         const std::string& associatedReferenceFrame)
 {
     return std::make_shared< PolyhedronGravityFieldSettings >(

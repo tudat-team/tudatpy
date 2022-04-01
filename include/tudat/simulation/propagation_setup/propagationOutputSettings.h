@@ -119,7 +119,8 @@ enum PropagationDependentVariables
     radiation_pressure_coefficient_dependent_variable = 46,
     rsw_to_inertial_frame_rotation_dependent_variable = 47,
     custom_dependent_variable = 48,
-    gravity_field_potential_dependent_variable = 49
+    gravity_field_potential_dependent_variable = 49,
+    gravity_field_laplacian_of_potential_dependent_variable = 50
 };
 
 // Functional base class for defining settings for dependent variables that are to be saved during propagation
@@ -1109,6 +1110,14 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > gravityFieldPotent
 {
     return std::make_shared< SingleDependentVariableSaveSettings >(
             gravity_field_potential_dependent_variable, bodyUndergoingAcceleration, bodyExertingAcceleration );
+}
+
+inline std::shared_ptr< SingleDependentVariableSaveSettings > gravityFieldLaplacianOfPotentialDependentVariable(
+        const std::string& bodyUndergoingAcceleration,
+        const std::string& bodyExertingAcceleration )
+{
+    return std::make_shared< SingleDependentVariableSaveSettings >(
+            gravity_field_laplacian_of_potential_dependent_variable, bodyUndergoingAcceleration, bodyExertingAcceleration );
 }
 
 
