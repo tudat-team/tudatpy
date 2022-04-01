@@ -105,7 +105,7 @@ namespace gravity_field {
         py::class_<tss::FromFileSphericalHarmonicsGravityFieldSettings, std::shared_ptr<tss::FromFileSphericalHarmonicsGravityFieldSettings>,
                 tss::SphericalHarmonicsGravityFieldSettings>(m, "FromFileSphericalHarmonicsGravityFieldSettings",
                                                              get_docstring("FromFileSphericalHarmonicsGravityFieldSettings").c_str());
-        
+
 
         py::class_<tss::PolyhedronGravityFieldSettings, std::shared_ptr<tss::PolyhedronGravityFieldSettings>,
             tss::GravityFieldSettings>(m, "PolyhedronGravityFieldSettings",
