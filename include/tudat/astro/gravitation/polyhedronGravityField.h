@@ -208,7 +208,7 @@ public:
                 polyhedronGravityCache_->getPerEdgeFactor() );
     }
 
-    double getLaplacianOfPotential( const Eigen::Vector3d& bodyFixedPosition )
+    virtual double getLaplacianOfPotential( const Eigen::Vector3d& bodyFixedPosition )
     {
         polyhedronGravityCache_->update(bodyFixedPosition);
 

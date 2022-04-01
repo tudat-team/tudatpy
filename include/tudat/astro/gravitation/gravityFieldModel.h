@@ -95,6 +95,11 @@ public:
         return computeGravitationalAcceleration( bodyFixedPosition, gravitationalParameter_ );
     }
 
+    virtual double getLaplacianOfPotential ( const Eigen::Vector3d& bodyFixedPosition )
+    {
+        throw std::runtime_error( "Computation of Laplacian of gravity potential not implemented for selected gravity field model." );
+    }
+
 protected:
 
     //! Gravitational parameter.
