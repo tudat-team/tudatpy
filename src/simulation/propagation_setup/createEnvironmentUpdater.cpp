@@ -370,6 +370,10 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                     singleAccelerationUpdateNeeds[ spherical_harmonic_gravity_field_update ].push_back(
                                 acceleratedBodyIterator->first );
                     break;
+                case polyhedron_gravity:
+                    singleAccelerationUpdateNeeds[ body_rotational_state_update ].push_back(
+                            accelerationModelIterator->first );
+                    break;
                 case third_body_spherical_harmonic_gravity:
                 {
                     singleAccelerationUpdateNeeds[ body_rotational_state_update ].push_back(
@@ -430,6 +434,30 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                                     std::string( "EnvironmentUpdaterSettings" ) );
                     }
                     break;
+                }
+                case third_body_polyhedron_gravity:
+                {
+                    singleAccelerationUpdateNeeds[ body_rotational_state_update ].push_back(
+                        accelerationModelIterator->first );
+
+                    std::shared_ptr< gravitation::ThirdBodyPolyhedronGravitationalAccelerationModel >
+                        thirdBodyAcceleration = std::dynamic_pointer_cast<
+                            gravitation::ThirdBodyPolyhedronGravitationalAccelerationModel >(
+                                accelerationModelIterator->second.at( i ) );
+
+                    if( thirdBodyAcceleration != nullptr && translationalAccelerationModels.count(
+                                thirdBodyAcceleration->getCentralBodyName( ) ) == 0  )
+                    {
+                        singleAccelerationUpdateNeeds[ body_translational_state_update ].push_back(
+                                    thirdBodyAcceleration->getCentralBodyName( ) );
+                    }
+                    else if( thirdBodyAcceleration == nullptr )
+                    {
+                        throw std::runtime_error(
+                                    std::string( "Error, incompatible input (ThirdBodyPolyhedronGravitational" )
+                                    + std::string( "AccelerationModel) to createTranslationalEquationsOfMotion ")
+                                    + std::string( "EnvironmentUpdaterSettings" ) );
+                    }
                 }
                 case thrust_acceleration:
                 {
