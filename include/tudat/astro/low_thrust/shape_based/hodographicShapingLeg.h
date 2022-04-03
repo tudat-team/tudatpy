@@ -7,6 +7,9 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  *
+ *  References:
+ *      "Hodographic-shaping method for low-thrust interplanetary trajectory design.", Gondelach, D. and Noomen, R.,
+ *      Journal of Spacecraft and Rockets 52.3 (2015): 728-738
  */
 
 #ifndef TUDAT_HODOGRAPHIC_SHAPING_LEG_H
@@ -27,7 +30,8 @@ class HodographicShapingLeg : public mission_segments::TransferLeg
 {
 public:
 
-    //! Constructor which sets radial, normal and axial velocity functions and boundary conditions.
+    //! Constructor which sets radial, normal and axial velocity functions and boundary conditions. Also sets quadrature
+    //! settings.
     HodographicShapingLeg(
             const std::shared_ptr< ephemerides::Ephemeris > departureBodyEphemeris,
             const std::shared_ptr< ephemerides::Ephemeris > arrivalBodyEphemeris,
@@ -58,9 +62,6 @@ public:
         stateAlongTrajectory = computeCurrentStateVector( time - departureTime_ );
     }
 
-    //! Compute DeltaV.
-    double computeDeltaV( );
-
 //    //! Return thrust acceleration profile.
 //    void getCylindricalThrustAccelerationProfile(
 //            std::vector< double >& epochsVector,
@@ -76,33 +77,36 @@ public:
 //    }
 
     //! Compute magnitude thrust acceleration.
-    double computeCurrentThrustAccelerationMagnitude(
-            const double timeSinceDeparture );
+    double computeCurrentThrustAccelerationMagnitude( const double timeSinceDeparture );
 
     //! Compute direction thrust acceleration in cartesian coordinates.
-    Eigen::Vector3d computeCurrentThrustAccelerationDirection(
-            double timeSinceDeparture );
+    Eigen::Vector3d computeCurrentThrustAccelerationDirection( double timeSinceDeparture );
 
     Eigen::Vector3d computeCurrentThrustAcceleration( double timeSinceDeparture );
 
     Eigen::Vector3d computeCurrentThrustAcceleration(
                 const double currentTime,
-                const double timeOffset  );
+                const double timeOffset );
 
-
+    //! Compute DeltaV.
+    double computeDeltaV( );
 
 protected:
 
-    void computeTransfer(  );
+    void computeTransfer( );
 
 private:
 
+    //! Update the value of the coefficients being used in the velocity functions, according to the provided leg parameters
     void updateFreeCoefficients( );
 
-    void satisfyConstraints( );
+    //! Select value of first three coefficient, in order to meet the boundary conditions
+    void satisfyBoundaryConditions( );
 
+    //! Compute inverse of matrix used to satisfy normal boundary conditions
     Eigen::Matrix2d computeInverseMatrixNormalBoundaries( std::shared_ptr< CompositeFunctionHodographicShaping > velocityFunction );
 
+    //! Compute inverse of matrix used to satisfy radial or axial boundary conditions
     Eigen::Matrix3d computeInverseMatrixRadialOrAxialBoundaries( std::shared_ptr< CompositeFunctionHodographicShaping > velocityFunction );
 
     //! Satisfy boundary conditions in radial direction.
@@ -124,7 +128,7 @@ private:
 
     //! Compute third fixed coefficient of the normal velocity composite function, so that the condition on the final polar angle
     //! is fulfilled.
-    double computeThirdFixedCoefficientAxialVelocityFromFinalPolarAngle( Eigen::VectorXd freeCoefficients );
+    double computeThirdFixedCoefficientAxialVelocity ( Eigen::VectorXd freeCoefficients );
 
     //! Compute velocity vector in cylindrical coordinates.
     Eigen::Vector3d computeVelocityVectorInCylindricalCoordinates( double timeSinceDeparture );
@@ -139,7 +143,7 @@ private:
     Eigen::Vector3d computeThrustAccelerationInCylindricalCoordinates( double timeSinceDeparture );
 
     //! Central body gravitational parameter.
-    double centralBodyGravitationalParameter_;
+    const double centralBodyGravitationalParameter_;
 
     //! Number of revolutions.
     int numberOfRevolutions_;
@@ -156,9 +160,9 @@ private:
     Eigen::VectorXd fullCoefficientsAxialVelocityFunction_;
 
     //! Number of free coefficients
-    int numberOfFreeRadialCoefficients;
-    int numberOfFreeNormalCoefficients;
-    int numberOfFreeAxialCoefficients;
+    int numberOfFreeRadialCoefficients_;
+    int numberOfFreeNormalCoefficients_;
+    int numberOfFreeAxialCoefficients_;
 
     //! Boundary conditions.
     std::vector< double > radialBoundaryConditions_;
@@ -178,8 +182,9 @@ private:
     /*! Inverse of matrix containing the boundary values of the terms in the axial velocity
      *  function which are used to satisfy the normal boundary conditions.
      */
-    Eigen::MatrixXd inverseAxialMatrixBoundaryValues_;
+    Eigen::MatrixXd inverseMatrixAxialBoundaryValues_;
 
+    //! Previously computed thrust acceleration values
     std::map< double, Eigen::Vector3d > thrustAccelerationVectorCache_;
 };
 

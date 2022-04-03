@@ -283,7 +283,7 @@ private:
     std::shared_ptr< root_finders::RootFinderSettings > rootFinderSettings_;
 
     //! Initial guess for the free coefficient (i.e. coefficient of the second order component of the radial inverse polynomial).
-    double initialValueFreeCoefficient_;
+    const double initialValueFreeCoefficient_;
 
     //! Lower bound for the free coefficient, to be used when trying to match the required time of flight.
     const double lowerBoundFreeCoefficient_;

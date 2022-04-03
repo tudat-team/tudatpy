@@ -33,13 +33,13 @@ HodographicShapingLeg::HodographicShapingLeg(
     numberOfRevolutions_( numberOfRevolutions )
 {
     // Compute number of free coefficients for each velocity function.
-    numberOfFreeRadialCoefficients = radialVelocityFunctionComponents.size( ) - 3;
-    numberOfFreeNormalCoefficients = normalVelocityFunctionComponents.size( ) - 3;
-    numberOfFreeAxialCoefficients = axialVelocityFunctionComponents.size( ) - 3;
+    numberOfFreeRadialCoefficients_ = radialVelocityFunctionComponents.size( ) - 3;
+    numberOfFreeNormalCoefficients_ = normalVelocityFunctionComponents.size( ) - 3;
+    numberOfFreeAxialCoefficients_ = axialVelocityFunctionComponents.size( ) - 3;
 
-    fullCoefficientsRadialVelocityFunction_ = Eigen::VectorXd::Zero( numberOfFreeRadialCoefficients + 3 );
-    fullCoefficientsNormalVelocityFunction_ = Eigen::VectorXd::Zero( numberOfFreeNormalCoefficients + 3 );
-    fullCoefficientsAxialVelocityFunction_ = Eigen::VectorXd::Zero( numberOfFreeAxialCoefficients + 3 );
+    fullCoefficientsRadialVelocityFunction_ = Eigen::VectorXd::Zero(numberOfFreeRadialCoefficients_ + 3 );
+    fullCoefficientsNormalVelocityFunction_ = Eigen::VectorXd::Zero(numberOfFreeNormalCoefficients_ + 3 );
+    fullCoefficientsAxialVelocityFunction_ = Eigen::VectorXd::Zero(numberOfFreeAxialCoefficients_ + 3 );
 
     radialVelocityFunction_ = std::make_shared< shape_based_methods::CompositeFunctionHodographicShaping >(
                 radialVelocityFunctionComponents, fullCoefficientsRadialVelocityFunction_ );
@@ -57,41 +57,38 @@ void HodographicShapingLeg::computeTransfer( )
 {
     updateDepartureAndArrivalBodies( legParameters_( 0 ), legParameters_( 1 ) );
 
-    if( legParameters_.rows( ) - 2 !=
-            numberOfFreeRadialCoefficients +
-            numberOfFreeNormalCoefficients +
-            numberOfFreeAxialCoefficients )
+    if( legParameters_.rows( ) - 2 != numberOfFreeRadialCoefficients_ + numberOfFreeNormalCoefficients_ + numberOfFreeAxialCoefficients_ )
     {
         throw std::runtime_error( "Error when updating hodographic shaping object, number of inputs is inconsistent" );
     }
 
     updateFreeCoefficients( );
-    satisfyConstraints( );
+    satisfyBoundaryConditions( );
     legTotalDeltaV_ = computeDeltaV( );
 }
 
 void HodographicShapingLeg::updateFreeCoefficients( )
 {
     fullCoefficientsRadialVelocityFunction_.segment( 0, 3 ).setZero( );
-    fullCoefficientsRadialVelocityFunction_.segment( 3, numberOfFreeRadialCoefficients ) = legParameters_.segment(
-                2, numberOfFreeRadialCoefficients );
+    fullCoefficientsRadialVelocityFunction_.segment(3, numberOfFreeRadialCoefficients_ ) = legParameters_.segment(
+            2, numberOfFreeRadialCoefficients_ );
     radialVelocityFunction_->resetCompositeFunctionCoefficients( fullCoefficientsRadialVelocityFunction_ );
 
     fullCoefficientsNormalVelocityFunction_.segment( 0, 3 ).setZero( );
-    fullCoefficientsNormalVelocityFunction_.segment( 3, numberOfFreeNormalCoefficients ) = legParameters_.segment(
-                2 + numberOfFreeRadialCoefficients, numberOfFreeNormalCoefficients );
+    fullCoefficientsNormalVelocityFunction_.segment(3, numberOfFreeNormalCoefficients_ ) = legParameters_.segment(
+            2 + numberOfFreeRadialCoefficients_, numberOfFreeNormalCoefficients_ );
     normalVelocityFunction_->resetCompositeFunctionCoefficients( fullCoefficientsNormalVelocityFunction_ );
 
     fullCoefficientsAxialVelocityFunction_.segment( 0, 3 ).setZero( );
-    fullCoefficientsAxialVelocityFunction_.segment( 3, numberOfFreeAxialCoefficients ) = legParameters_.segment(
-                2 + numberOfFreeRadialCoefficients + numberOfFreeNormalCoefficients, numberOfFreeAxialCoefficients );
+    fullCoefficientsAxialVelocityFunction_.segment(3, numberOfFreeAxialCoefficients_ ) = legParameters_.segment(
+            2 + numberOfFreeRadialCoefficients_ + numberOfFreeNormalCoefficients_, numberOfFreeAxialCoefficients_ );
     axialVelocityFunction_->resetCompositeFunctionCoefficients( fullCoefficientsAxialVelocityFunction_ );
 
 }
 
-void HodographicShapingLeg::satisfyConstraints( )
+void HodographicShapingLeg::satisfyBoundaryConditions( )
 {
-    // Compute initial and final cylindrical state with unmet constraints
+    // Compute initial and final cylindrical state which is to be met by the hodographic shaping transfer
     Eigen::Vector6d initialCylindricalState = coordinate_conversions::convertCartesianToCylindricalState( departureBodyState_ );
     Eigen::Vector6d finalCylindricalState = coordinate_conversions::convertCartesianToCylindricalState( arrivalBodyState_ );
 
@@ -106,7 +103,6 @@ void HodographicShapingLeg::satisfyConstraints( )
     normalBoundaryConditions_.clear( );
     normalBoundaryConditions_.push_back( initialCylindricalState[ 4 ] );
     normalBoundaryConditions_.push_back( finalCylindricalState[ 4 ] );
-
     // Final value polar angle
     normalBoundaryConditions_.push_back(
                 numberOfRevolutions_ * 2.0 * mathematical_constants::PI
@@ -123,12 +119,12 @@ void HodographicShapingLeg::satisfyConstraints( )
     // Compute inverse of matrices containing boundary values.
     inverseMatrixRadialBoundaryValues_ = computeInverseMatrixRadialOrAxialBoundaries( radialVelocityFunction_ );
     inverseMatrixNormalBoundaryValues_ = computeInverseMatrixNormalBoundaries( normalVelocityFunction_ );
-    inverseAxialMatrixBoundaryValues_ = computeInverseMatrixRadialOrAxialBoundaries( axialVelocityFunction_ );
+    inverseMatrixAxialBoundaryValues_ = computeInverseMatrixRadialOrAxialBoundaries(axialVelocityFunction_ );
 
     // Satisfy boundary conditions.
-    satisfyRadialBoundaryConditions( fullCoefficientsRadialVelocityFunction_.segment( 3, numberOfFreeRadialCoefficients ) );
-    satisfyNormalBoundaryConditions( fullCoefficientsNormalVelocityFunction_.segment( 3, numberOfFreeNormalCoefficients ) );
-    satisfyAxialBoundaryConditions( fullCoefficientsAxialVelocityFunction_.segment( 3, numberOfFreeAxialCoefficients ) );
+    satisfyRadialBoundaryConditions( fullCoefficientsRadialVelocityFunction_.segment(3, numberOfFreeRadialCoefficients_ ) );
+    satisfyNormalBoundaryConditions( fullCoefficientsNormalVelocityFunction_.segment(3, numberOfFreeNormalCoefficients_ ) );
+    satisfyAxialBoundaryConditions( fullCoefficientsAxialVelocityFunction_.segment(3, numberOfFreeAxialCoefficients_ ) );
 }
 
 
@@ -137,12 +133,13 @@ Eigen::Matrix3d HodographicShapingLeg::computeInverseMatrixRadialOrAxialBoundari
         std::shared_ptr< CompositeFunctionHodographicShaping > velocityFunction )
 {
     Eigen::Matrix3d matrixBoundaryValues, inverseMatrixBoundaryValues;
-    matrixBoundaryValues << velocityFunction->getComponentFunctionIntegralCurrentTime( 0, timeOfFlight_ )
-                            - velocityFunction->getComponentFunctionIntegralCurrentTime( 0, 0.0 ),
-            velocityFunction->getComponentFunctionIntegralCurrentTime( 1, timeOfFlight_ )
-            - velocityFunction->getComponentFunctionIntegralCurrentTime( 1, 0.0 ),
-            velocityFunction->getComponentFunctionIntegralCurrentTime( 2, timeOfFlight_ )
-            - velocityFunction->getComponentFunctionIntegralCurrentTime( 2, 0.0 ),
+    matrixBoundaryValues <<
+                         velocityFunction->getComponentFunctionIntegralCurrentValue(0, timeOfFlight_)
+                - velocityFunction->getComponentFunctionIntegralCurrentValue(0, 0.0),
+            velocityFunction->getComponentFunctionIntegralCurrentValue(1, timeOfFlight_)
+                - velocityFunction->getComponentFunctionIntegralCurrentValue(1, 0.0),
+            velocityFunction->getComponentFunctionIntegralCurrentValue(2, timeOfFlight_)
+                - velocityFunction->getComponentFunctionIntegralCurrentValue(2, 0.0),
             velocityFunction->getComponentFunctionCurrentValue( 0, 0.0 ),
             velocityFunction->getComponentFunctionCurrentValue( 1, 0.0 ),
             velocityFunction->getComponentFunctionCurrentValue( 2, 0.0 ),
@@ -185,11 +182,11 @@ void HodographicShapingLeg::satisfyRadialBoundaryConditions( Eigen::VectorXd fre
     vectorBoundaryConditionsRadial[ 2 ] = radialBoundaryConditions_[ 3 ];
 
     // Subtract boundary values of free components of velocity function from corresponding boundary conditions.
-    for ( int i = 0 ; i < numberOfFreeRadialCoefficients ; i++ )
+    for (int i = 0 ; i < numberOfFreeRadialCoefficients_ ; i++ )
     {
         vectorBoundaryConditionsRadial[ 0 ] -=
-                freeCoefficients( i ) * ( radialVelocityFunction_->getComponentFunctionIntegralCurrentTime( i + 3, timeOfFlight_ )
-                                          - radialVelocityFunction_->getComponentFunctionIntegralCurrentTime( i + 3, 0.0 ) );
+                freeCoefficients( i ) * ( radialVelocityFunction_->getComponentFunctionIntegralCurrentValue(i + 3, timeOfFlight_)
+                - radialVelocityFunction_->getComponentFunctionIntegralCurrentValue(i + 3, 0.0) );
         vectorBoundaryConditionsRadial[ 1 ] -= freeCoefficients( i ) *
                 radialVelocityFunction_->getComponentFunctionCurrentValue( i + 3, 0.0 );
         vectorBoundaryConditionsRadial[ 2 ] -= freeCoefficients( i ) *
@@ -201,17 +198,16 @@ void HodographicShapingLeg::satisfyRadialBoundaryConditions( Eigen::VectorXd fre
 
     // Create vector containing all radial velocity function coefficients.
     Eigen::VectorXd radialVelocityFunctionCoefficients =
-            Eigen::VectorXd::Zero( fixedCoefficientsRadial.size() + numberOfFreeRadialCoefficients );
+            Eigen::VectorXd::Zero(fixedCoefficientsRadial.size() + numberOfFreeRadialCoefficients_ );
 
     // Check whether the radial velocity function has free coefficients.
-    if ( numberOfFreeRadialCoefficients == 0 )
+    if (numberOfFreeRadialCoefficients_ == 0 )
     {
         radialVelocityFunctionCoefficients << fixedCoefficientsRadial;
     }
     else
     {
-        radialVelocityFunctionCoefficients << fixedCoefficientsRadial,
-                freeCoefficients.segment( 0, numberOfFreeRadialCoefficients);
+        radialVelocityFunctionCoefficients << fixedCoefficientsRadial, freeCoefficients;
     }
 
     // Set the coefficients of the radial velocity function.
@@ -228,11 +224,11 @@ void HodographicShapingLeg::satisfyAxialBoundaryConditions( Eigen::VectorXd free
     vectorBoundaryConditionsAxial[ 2 ] = axialBoundaryConditions_[ 3 ];
 
     // Subtract boundary values of free components of velocity function from corresponding boundary conditions.
-    for ( int i = 0 ; i < numberOfFreeAxialCoefficients ; i++ )
+    for (int i = 0 ; i < numberOfFreeAxialCoefficients_ ; i++ )
     {
         vectorBoundaryConditionsAxial[ 0 ] -= freeCoefficients( i )
-                * ( axialVelocityFunction_->getComponentFunctionIntegralCurrentTime( i + 3 , timeOfFlight_ )
-                    - axialVelocityFunction_->getComponentFunctionIntegralCurrentTime( i + 3, 0.0 ) );
+                * ( axialVelocityFunction_->getComponentFunctionIntegralCurrentValue(i + 3, timeOfFlight_)
+                    - axialVelocityFunction_->getComponentFunctionIntegralCurrentValue(i + 3, 0.0) );
         vectorBoundaryConditionsAxial[ 1 ] -= freeCoefficients( i )
                 * axialVelocityFunction_->getComponentFunctionCurrentValue( i + 3, 0.0 );
         vectorBoundaryConditionsAxial[ 2 ] -= freeCoefficients( i )
@@ -240,21 +236,20 @@ void HodographicShapingLeg::satisfyAxialBoundaryConditions( Eigen::VectorXd free
     }
 
     // Compute fixed coefficients.
-    Eigen::Vector3d fixedCoefficientsAxial = inverseAxialMatrixBoundaryValues_ * vectorBoundaryConditionsAxial;
+    Eigen::Vector3d fixedCoefficientsAxial = inverseMatrixAxialBoundaryValues_ * vectorBoundaryConditionsAxial;
 
     // Create vector containing all axial velocity function coefficients.
     Eigen::VectorXd axialVelocityFunctionCoefficients =
-            Eigen::VectorXd::Zero( fixedCoefficientsAxial.size() + numberOfFreeAxialCoefficients );
+            Eigen::VectorXd::Zero(fixedCoefficientsAxial.size() + numberOfFreeAxialCoefficients_ );
 
     // Check whether the axial velocity function has free coefficients.
-    if ( numberOfFreeAxialCoefficients == 0 )
+    if (numberOfFreeAxialCoefficients_ == 0 )
     {
         axialVelocityFunctionCoefficients << fixedCoefficientsAxial;
     }
     else
     {
-        axialVelocityFunctionCoefficients << fixedCoefficientsAxial,
-                freeCoefficients.segment( 0, numberOfFreeAxialCoefficients);
+        axialVelocityFunctionCoefficients << fixedCoefficientsAxial, freeCoefficients;
     }
     // Set the coefficients of the axial velocity function.
     axialVelocityFunction_->resetCompositeFunctionCoefficients( axialVelocityFunctionCoefficients );
@@ -264,7 +259,7 @@ void HodographicShapingLeg::satisfyAxialBoundaryConditions( Eigen::VectorXd free
 void HodographicShapingLeg::satisfyNormalBoundaryConditions( Eigen::VectorXd freeCoefficients ){
 
     // Compute coefficient of the third component of the composite function, from the required value of the final polar angle.
-    double C3 = computeThirdFixedCoefficientAxialVelocityFromFinalPolarAngle( freeCoefficients );
+    double C3 = computeThirdFixedCoefficientAxialVelocity(freeCoefficients);
 
     // Vector containing boundary conditions on initial and final normal velocity.
     Eigen::Vector2d vectorBoundaryConditionsNormal;
@@ -276,7 +271,7 @@ void HodographicShapingLeg::satisfyNormalBoundaryConditions( Eigen::VectorXd fre
     vectorBoundaryConditionsNormal[ 1 ] -= C3 * normalVelocityFunction_->getComponentFunctionCurrentValue( 2, timeOfFlight_ );
 
     // Subtract boundary values of free velocity function components from corresponding boundary conditions.
-    for ( int i = 0 ; i < numberOfFreeNormalCoefficients ; i++ )
+    for (int i = 0 ; i < numberOfFreeNormalCoefficients_ ; i++ )
     {
         vectorBoundaryConditionsNormal[ 0 ] -= freeCoefficients[ i ]
                 * normalVelocityFunction_->getComponentFunctionCurrentValue( i + 3, 0.0 );
@@ -289,17 +284,16 @@ void HodographicShapingLeg::satisfyNormalBoundaryConditions( Eigen::VectorXd fre
 
     // Create vector containing all normal velocity function coefficients.
     Eigen::VectorXd normalVelocityFunctionCoefficients =
-            Eigen::VectorXd::Zero( fixedCoefficientsNormal.size() + 1 + numberOfFreeNormalCoefficients );
+            Eigen::VectorXd::Zero(fixedCoefficientsNormal.size() + 1 + numberOfFreeNormalCoefficients_ );
 
     // Check whether the normal velocity function has free coefficients.
-    if ( numberOfFreeNormalCoefficients == 0 )
+    if (numberOfFreeNormalCoefficients_ == 0 )
     {
         normalVelocityFunctionCoefficients << fixedCoefficientsNormal, C3;
     }
     else
     {
-        normalVelocityFunctionCoefficients << fixedCoefficientsNormal, C3,
-                freeCoefficients.segment( 0, numberOfFreeNormalCoefficients);
+        normalVelocityFunctionCoefficients << fixedCoefficientsNormal, C3, freeCoefficients;
     }
 
     // Set the coefficients of the normal velocity function.
@@ -328,23 +322,26 @@ double HodographicShapingLeg::computeDerivativePolarAngleDueToOtherComponents(
         const double timeSinceDeparture, const Eigen::Vector2d& matrixL, const Eigen::VectorXd& freeCoefficients )
 {
 
+    // Compute angular velocity associated with free coefficients
     double angularVelocityDueToFreeCoefficients = 0.0;
-    for( int j = 0 ; j < numberOfFreeNormalCoefficients ; j++ )
+    for(int j = 0 ; j < numberOfFreeNormalCoefficients_ ; j++ )
     {
         angularVelocityDueToFreeCoefficients += freeCoefficients( j )
                 * normalVelocityFunction_->getComponentFunctionCurrentValue( j + 3 , timeSinceDeparture );
     }
+    angularVelocityDueToFreeCoefficients = angularVelocityDueToFreeCoefficients / computeCurrentRadialDistance( timeSinceDeparture );
 
-    double angularVelocityDueToOtherComponents =
+    // Compute angular velocity associated with fixed coefficients (first and second coefficient)
+    double angularVelocityDueToFirstAndSecondCoefficients =
             ( matrixL( 0 ) * normalVelocityFunction_->getComponentFunctionCurrentValue( 0 , timeSinceDeparture )
-              + matrixL( 1 ) * normalVelocityFunction_->getComponentFunctionCurrentValue( 1 , timeSinceDeparture )
-              + angularVelocityDueToFreeCoefficients ) / computeCurrentRadialDistance( timeSinceDeparture );
+            + matrixL( 1 ) * normalVelocityFunction_->getComponentFunctionCurrentValue( 1 , timeSinceDeparture ) ) /
+            computeCurrentRadialDistance( timeSinceDeparture );
 
-    return angularVelocityDueToOtherComponents;
+    return angularVelocityDueToFreeCoefficients + angularVelocityDueToFirstAndSecondCoefficients;
 
 }
 
-double HodographicShapingLeg::computeThirdFixedCoefficientAxialVelocityFromFinalPolarAngle( Eigen::VectorXd freeCoefficients ){
+double HodographicShapingLeg::computeThirdFixedCoefficientAxialVelocity ( Eigen::VectorXd freeCoefficients ){
 
     // Compute the third fixed coefficient of the normal velocity composite function, so that the condition on the final
     // polar angle is fulfilled.
@@ -357,7 +354,7 @@ double HodographicShapingLeg::computeThirdFixedCoefficientAxialVelocityFromFinal
     vectorBoundaryConditionsNormal[ 1 ] = normalBoundaryConditions_[ 1 ];
 
     // Subtract boundary values of free velocity function components from corresponding boundary conditions.
-    for ( int i = 0 ; i < numberOfFreeNormalCoefficients; i++ )
+    for (int i = 0 ; i < numberOfFreeNormalCoefficients_; i++ )
     {
         vectorBoundaryConditionsNormal[ 0 ] -= freeCoefficients[ i ]
                 * normalVelocityFunction_->getComponentFunctionCurrentValue( i + 3, 0.0 );
@@ -365,7 +362,7 @@ double HodographicShapingLeg::computeThirdFixedCoefficientAxialVelocityFromFinal
                 * normalVelocityFunction_->getComponentFunctionCurrentValue( i + 3, timeOfFlight_ );
     }
 
-    // Define matrix L, as proposed in ... (ADD PROPER REFERENCE AND EQUATION NUMBER)
+    // Define matrix L, according to equation (15) of Gondelach and Noomen
     Eigen::Vector2d matrixL;
     matrixL = inverseMatrixNormalBoundaryValues_ * vectorBoundaryConditionsNormal;
 
@@ -373,7 +370,7 @@ double HodographicShapingLeg::computeThirdFixedCoefficientAxialVelocityFromFinal
                 - normalVelocityFunction_->getComponentFunctionCurrentValue( 2, 0.0 ),
                 - normalVelocityFunction_->getComponentFunctionCurrentValue( 2, timeOfFlight_ ) );
 
-    // Define matrix K, as proposed in ... (ADD PROPER REFERENCE AND EQUATION NUMBER)
+    // Define matrix K, according to equation (15) of Gondelach and Noomen
     Eigen::Vector2d matrixK;
     matrixK = inverseMatrixNormalBoundaryValues_ * initialAndFinalValuesThirdComponentFunction;
 
@@ -387,14 +384,14 @@ double HodographicShapingLeg::computeThirdFixedCoefficientAxialVelocityFromFinal
             std::bind( &HodographicShapingLeg::computeDerivativePolarAngleDueToOtherComponents, this, std::placeholders::_1, matrixL, freeCoefficients );
 
     // Define numerical quadratures.
-    std::shared_ptr< numerical_quadrature::NumericalQuadrature< double, double > > integratorPolarAngleDueToThirdComponentTest =
+    std::shared_ptr< numerical_quadrature::NumericalQuadrature< double, double > > integratorPolarAngleDueToThirdComponent =
             numerical_quadrature::createQuadrature( derivativePolarAngleDueToThirdComponent, quadratureSettings_, timeOfFlight_ );
 
-    std::shared_ptr< numerical_quadrature::NumericalQuadrature< double, double > > integratorPolarAngleDueToOtherComponentsTest =
+    std::shared_ptr< numerical_quadrature::NumericalQuadrature< double, double > > integratorPolarAngleDueToOtherComponents =
             numerical_quadrature::createQuadrature( derivativePolarAngleDueToOtherComponents, quadratureSettings_, timeOfFlight_ );
 
-    return ( normalBoundaryConditions_[ 2 ] - integratorPolarAngleDueToOtherComponentsTest->getQuadrature() )
-            / integratorPolarAngleDueToThirdComponentTest->getQuadrature();
+    return ( normalBoundaryConditions_[ 2 ] - integratorPolarAngleDueToOtherComponents->getQuadrature() )
+           / integratorPolarAngleDueToThirdComponent->getQuadrature();
 
 }
 
@@ -405,13 +402,13 @@ Eigen::Vector3d HodographicShapingLeg::computeVelocityVectorInCylindricalCoordin
     Eigen::Vector3d velocityComponents;
 
     // Compute radial velocity.
-    velocityComponents[ 0 ] =  radialVelocityFunction_->evaluateCompositeFunctionCurrentTime( timeSinceDeparture );
+    velocityComponents[ 0 ] = radialVelocityFunction_->evaluateCompositeFunctionCurrentValue(timeSinceDeparture);
 
     // Compute normal velocity.
-    velocityComponents[ 1 ] = normalVelocityFunction_->evaluateCompositeFunctionCurrentTime( timeSinceDeparture );
+    velocityComponents[ 1 ] = normalVelocityFunction_->evaluateCompositeFunctionCurrentValue(timeSinceDeparture);
 
     // Compute axial velocity.
-    velocityComponents[ 2 ] = axialVelocityFunction_->evaluateCompositeFunctionCurrentTime( timeSinceDeparture );
+    velocityComponents[ 2 ] = axialVelocityFunction_->evaluateCompositeFunctionCurrentValue(timeSinceDeparture);
 
     return velocityComponents;
 }
@@ -421,9 +418,8 @@ Eigen::Vector3d HodographicShapingLeg::computeVelocityVectorInCylindricalCoordin
 double HodographicShapingLeg::evaluateDerivativePolarAngleWrtTime( const double timeSinceDeparture )
 {
     // Return derivative of the polar angle w.r.t. time, i.e. angular velocity.
-    return normalVelocityFunction_->evaluateCompositeFunctionCurrentTime( timeSinceDeparture )
-            / ( radialVelocityFunction_->evaluateCompositeFunctionIntegralCurrentTime( timeSinceDeparture )
-                - radialVelocityFunction_->evaluateCompositeFunctionIntegralCurrentTime( 0.0 ) + radialBoundaryConditions_[0] );
+    return normalVelocityFunction_->evaluateCompositeFunctionCurrentValue(timeSinceDeparture)
+            / computeCurrentRadialDistance( timeSinceDeparture );
 }
 
 
@@ -431,8 +427,8 @@ double HodographicShapingLeg::evaluateDerivativePolarAngleWrtTime( const double 
 double HodographicShapingLeg::computeCurrentRadialDistance( const double timeSinceDeparture )
 {
     // Compute radial distance from the central body.
-    return radialVelocityFunction_->evaluateCompositeFunctionIntegralCurrentTime( timeSinceDeparture )
-            - radialVelocityFunction_->evaluateCompositeFunctionIntegralCurrentTime( 0.0 ) + radialBoundaryConditions_[0];
+    return radialVelocityFunction_->evaluateCompositeFunctionIntegralCurrentValue(timeSinceDeparture)
+           - radialVelocityFunction_->evaluateCompositeFunctionIntegralCurrentValue(0.0) + radialBoundaryConditions_[0];
 }
 
 //! Compute current polar angle.
@@ -446,7 +442,7 @@ double HodographicShapingLeg::computeCurrentPolarAngle( double timeSinceDepartur
     std::shared_ptr< numerical_quadrature::NumericalQuadrature< double, double > > quadrature =
             numerical_quadrature::createQuadrature( derivativeFunctionPolarAngle, quadratureSettings_, timeSinceDeparture );
 
-    double currentPolarAngle = quadrature->getQuadrature( ) + coordinate_conversions::convertCartesianToCylindricalState( departureBodyState_ )[ 1 ];
+    double currentPolarAngle = quadrature->getQuadrature( ) + radialBoundaryConditions_[ 1 ];
 
     return currentPolarAngle;
 
@@ -455,8 +451,8 @@ double HodographicShapingLeg::computeCurrentPolarAngle( double timeSinceDepartur
 double HodographicShapingLeg::computeCurrentAxialDistance( const double timeSinceDeparture )
 {
     // Compute axial distance from the central body.
-    return axialVelocityFunction_->evaluateCompositeFunctionIntegralCurrentTime( timeSinceDeparture )
-            - axialVelocityFunction_->evaluateCompositeFunctionIntegralCurrentTime( 0.0 ) + axialBoundaryConditions_[0];
+    return axialVelocityFunction_->evaluateCompositeFunctionIntegralCurrentValue(timeSinceDeparture)
+           - axialVelocityFunction_->evaluateCompositeFunctionIntegralCurrentValue(0.0) + axialBoundaryConditions_[0];
 }
 
 //! Compute current cylindrical state.
@@ -469,18 +465,17 @@ Eigen::Vector6d HodographicShapingLeg::computeStateVectorInCylindricalCoordinate
                                          computeCurrentPolarAngle( timeSinceDeparture ),
                                          computeCurrentAxialDistance( timeSinceDeparture ),
                                          velocityCylindricalCoordinates[ 0 ],
-            velocityCylindricalCoordinates[ 1 ],
-            velocityCylindricalCoordinates[ 2 ] ).finished();
+                                         velocityCylindricalCoordinates[ 1 ],
+                                         velocityCylindricalCoordinates[ 2 ] ).finished();
 
     return cylindricalState;
 }
 
 
 //! Compute current cartesian state.
-Eigen::Vector6d HodographicShapingLeg::computeCurrentStateVector( const double timeSinceDeparture ){
-
+Eigen::Vector6d HodographicShapingLeg::computeCurrentStateVector( const double timeSinceDeparture )
+{
     return coordinate_conversions::convertCylindricalToCartesianState( computeStateVectorInCylindricalCoordinates( timeSinceDeparture ) );
-
 }
 
 
@@ -491,32 +486,33 @@ Eigen::Vector3d HodographicShapingLeg::computeThrustAccelerationInCylindricalCoo
     Eigen::Vector3d thrustAccelerationComponents;
 
     // Compute radial distance from the central body.
-    double radialDistance = radialVelocityFunction_->evaluateCompositeFunctionIntegralCurrentTime( timeSinceDeparture )
-            - radialVelocityFunction_->evaluateCompositeFunctionIntegralCurrentTime( 0.0 ) + radialBoundaryConditions_[0];
+    double radialDistance = computeCurrentRadialDistance( timeSinceDeparture );
 
     // Compute axial distance from the central body.
-    double axialDistance = axialVelocityFunction_->evaluateCompositeFunctionIntegralCurrentTime( timeSinceDeparture )
-            - axialVelocityFunction_->evaluateCompositeFunctionIntegralCurrentTime( 0.0 ) + axialBoundaryConditions_[0];
+    double axialDistance = computeCurrentAxialDistance( timeSinceDeparture );
 
     // Compute distance from the central body.
     double distanceFromCentralBody = sqrt( pow( radialDistance, 2.0 ) + pow( axialDistance, 2.0 ) );
 
     // Computation of normal velocity.
-    double normalVelocity = normalVelocityFunction_->evaluateCompositeFunctionCurrentTime( timeSinceDeparture );
+    double normalVelocity = normalVelocityFunction_->evaluateCompositeFunctionCurrentValue(timeSinceDeparture);
 
     // Compute angular velocity.
     double angularVelocity = normalVelocity / radialDistance;
 
     // Compute radial thrust acceleration.
-    thrustAccelerationComponents[ 0 ] = radialVelocityFunction_->evaluateCompositeFunctionDerivativeCurrentTime( timeSinceDeparture )
+    thrustAccelerationComponents[ 0 ] =
+            radialVelocityFunction_->evaluateCompositeFunctionDerivativeCurrentValue(timeSinceDeparture)
             - angularVelocity * normalVelocity + centralBodyGravitationalParameter_ / std::pow( distanceFromCentralBody, 3.0 ) * radialDistance;
 
     // Compute normal thrust acceleration.
-    thrustAccelerationComponents[ 1 ] = normalVelocityFunction_->evaluateCompositeFunctionDerivativeCurrentTime( timeSinceDeparture )
-            + angularVelocity * radialVelocityFunction_->evaluateCompositeFunctionCurrentTime( timeSinceDeparture );
+    thrustAccelerationComponents[ 1 ] =
+            normalVelocityFunction_->evaluateCompositeFunctionDerivativeCurrentValue(timeSinceDeparture)
+            + angularVelocity * radialVelocityFunction_->evaluateCompositeFunctionCurrentValue(timeSinceDeparture);
 
     // Compute axial thrust acceleration.
-    thrustAccelerationComponents[ 2 ] = axialVelocityFunction_->evaluateCompositeFunctionDerivativeCurrentTime( timeSinceDeparture )
+    thrustAccelerationComponents[ 2 ] =
+            axialVelocityFunction_->evaluateCompositeFunctionDerivativeCurrentValue(timeSinceDeparture)
             + centralBodyGravitationalParameter_ / std::pow( distanceFromCentralBody, 3.0 ) * axialDistance;
 
     // Return total thrust acceleration.
@@ -546,17 +542,17 @@ Eigen::Vector3d HodographicShapingLeg::computeCurrentThrustAcceleration( double 
     if( thrustAccelerationVectorCache_.count( timeSinceDeparture ) == 0 )
     {
         Eigen::Vector3d cylindricalAcceleration = computeThrustAccelerationInCylindricalCoordinates( timeSinceDeparture );
-        Eigen::Vector3d cylindricalState = computeStateVectorInCylindricalCoordinates( timeSinceDeparture ).segment(0,3);
-        Eigen::Vector3d cartesianState = computeCurrentStateVector( timeSinceDeparture ).segment(0,3);
+        Eigen::Vector3d cylindricalPosition = computeStateVectorInCylindricalCoordinates(timeSinceDeparture ).segment(0, 3);
+        Eigen::Vector3d cartesianPosition = computeCurrentStateVector(timeSinceDeparture ).segment(0, 3);
 
         Eigen::Vector3d cartesianAcceleration;
 
-        cartesianAcceleration[ 0 ] = ( 1.0 / ( cartesianState[ 0 ] + ( std::pow( cartesianState[ 1 ], 2 ) / cartesianState[ 0 ] ) ) )
-                * ( cylindricalState[ 0 ] * cylindricalAcceleration[ 0 ]
-                - ( cartesianState[ 1 ] / cartesianState[ 0 ] ) * std::pow( cylindricalState[ 0 ], 1 ) * cylindricalAcceleration[ 1 ] );
+        cartesianAcceleration[ 0 ] = ( 1.0 / ( cartesianPosition[ 0 ] + ( std::pow(cartesianPosition[ 1 ], 2 ) / cartesianPosition[ 0 ] ) ) )
+                * ( cylindricalPosition[ 0 ] * cylindricalAcceleration[ 0 ]
+                    - ( cartesianPosition[ 1 ] / cartesianPosition[ 0 ] ) * std::pow(cylindricalPosition[ 0 ], 1 ) * cylindricalAcceleration[ 1 ] );
 
-        cartesianAcceleration[ 1 ] = ( std::pow( cylindricalState[ 0 ], 1 ) * cylindricalAcceleration[ 1 ]
-                + cartesianState[ 1 ] * cartesianAcceleration[ 0 ] ) / cartesianState[ 0 ];
+        cartesianAcceleration[ 1 ] = ( std::pow(cylindricalPosition[ 0 ], 1 ) * cylindricalAcceleration[ 1 ]
+                                       + cartesianPosition[ 1 ] * cartesianAcceleration[ 0 ] ) / cartesianPosition[ 0 ];
 
         cartesianAcceleration[ 2 ] = cylindricalAcceleration[ 2 ];
         thrustAccelerationVectorCache_[ timeSinceDeparture ] = cartesianAcceleration;
@@ -584,13 +580,13 @@ Eigen::Vector3d HodographicShapingLeg::computeCurrentThrustAccelerationDirection
 double HodographicShapingLeg::computeDeltaV( )
 {
     // Define the derivative of the deltaV, ie thrust acceleration function, as a function of time.
-    std::function< double( const double ) > derivativeFunctionDeltaVtest =
+    std::function< double( const double ) > derivativeFunctionDeltaV =
             std::bind( &HodographicShapingLeg::computeCurrentThrustAccelerationMagnitude, this,
                        std::placeholders::_1 );
 
     // Define numerical quadrature.
     std::shared_ptr< numerical_quadrature::NumericalQuadrature< double, double > > quadrature =
-            numerical_quadrature::createQuadrature( derivativeFunctionDeltaVtest, quadratureSettings_, timeOfFlight_ );
+            numerical_quadrature::createQuadrature(derivativeFunctionDeltaV, quadratureSettings_, timeOfFlight_ );
 
     return quadrature->getQuadrature( );
 }
