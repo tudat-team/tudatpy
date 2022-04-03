@@ -151,11 +151,12 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer_1 )
     // Create hodographic-shaping object with defined velocity functions and boundary conditions.
     HodographicShapingLeg hodographicShapingLeg = HodographicShapingLeg(
                 pointerToDepartureBodyEphemeris, pointerToArrivalBodyEphemeris,
-                spice_interface::getBodyGravitationalParameter( "Sun" ),  numberOfRevolutions,
+                spice_interface::getBodyGravitationalParameter( "Sun" ),
                 radialVelocityFunctionComponents, normalVelocityFunctionComponents, axialVelocityFunctionComponents );
-    hodographicShapingLeg.updateLegParameters( ( Eigen::Vector2d( )<<
-                                                     julianDate,
-                                                     julianDate + timeOfFlight  * physical_constants::JULIAN_DAY ).finished( ) );
+    hodographicShapingLeg.updateLegParameters(
+            ( Eigen::Vector3d( )<< julianDate, julianDate + timeOfFlight * physical_constants::JULIAN_DAY,
+            numberOfRevolutions).finished( ) );
+
     HodographicShaping hodographicShaping = HodographicShaping(
                 cartesianStateDepartureBody, cartesianStateArrivalBody,
                 timeOfFlight * physical_constants::JULIAN_DAY,
@@ -164,28 +165,31 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer_1 )
                 freeCoefficientsRadialVelocityFunction, freeCoefficientsNormalVelocityFunction,
                 freeCoefficientsAxialVelocityFunction );
 
-    // Check results consistency w.r.t. thesis from D. Gondelach (ADD PROPER REFERENCE)
+    // Compute peak thrust acceleration
+    double peakThrustAcceleration = 0.0;
+    std::map< double, Eigen::Vector3d > thrustAccelerationsAlongTrajectory;
+        hodographicShapingLeg.getThrustAccelerationsAlongTrajectory(thrustAccelerationsAlongTrajectory, 5000 );
+
+    for( auto it : thrustAccelerationsAlongTrajectory )
+    {
+        Eigen::Vector3d currentCartesianThrustAcceleration = it.second;
+        if ( currentCartesianThrustAcceleration.norm() > peakThrustAcceleration )
+        {
+            peakThrustAcceleration = currentCartesianThrustAcceleration.norm();
+        }
+    }
+
+    // Check results consistency w.r.t. Gondelach, D., "A hodographic-shaping method for low-thrust trajectory design",
+    // 2012, TU Delft (MSc thesis)
     double expectedDeltaV = 7751.0;
     double expectedPeakAcceleration = 2.64e-4;
 
-    std::cout<<"New Delta V "<<hodographicShapingLeg.computeDeltaV( )<<std::endl;
-    std::cout<<"Original Delta V "<<hodographicShaping.computeDeltaV( )<<std::endl;
-    hodographicShapingLeg.updateLegParameters( ( Eigen::Vector2d( )<<
-                                                     julianDate + 10.0 * 86400.0,
-                                                     julianDate + timeOfFlight  * physical_constants::JULIAN_DAY ).finished( ) );
-    std::cout<<hodographicShapingLeg.computeDeltaV( )<<std::endl;
-    std::cout<<"New Delta V "<<hodographicShapingLeg.computeDeltaV( )<<std::endl;
-
-    hodographicShapingLeg.updateLegParameters( ( Eigen::Vector2d( )<<
-                                                     julianDate,
-                                                     julianDate + timeOfFlight  * physical_constants::JULIAN_DAY ).finished( ) );
-    std::cout<<hodographicShapingLeg.computeDeltaV( )<<std::endl;
-    std::cout<<"New Delta V "<<hodographicShapingLeg.computeDeltaV( )<<std::endl;
-
     // DeltaV provided with a precision of 1 m/s
     BOOST_CHECK_SMALL( std::fabs(  hodographicShaping.computeDeltaV( ) - expectedDeltaV ), 1.0 );
+    BOOST_CHECK_SMALL( std::fabs(  hodographicShapingLeg.getLegDeltaV( ) - expectedDeltaV ), 1.0 );
     // Peak acceleration provided with a precision 1.0e-6 m/s^2
     BOOST_CHECK_SMALL( std::fabs(  getPeakAcceleration( timeOfFlight, hodographicShaping ) - expectedPeakAcceleration ), 1e-6 );
+    BOOST_CHECK_SMALL( std::fabs(  peakThrustAcceleration - expectedPeakAcceleration ), 1e-6 );
 
 }
 
@@ -1204,16 +1208,14 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_full_propagation )
 
     HodographicShapingLeg hodographicShapingLeg = HodographicShapingLeg(
                 pointerToDepartureBodyEphemeris, pointerToArrivalBodyEphemeris,
-                spice_interface::getBodyGravitationalParameter( "Sun" ),  numberOfRevolutions,
+                spice_interface::getBodyGravitationalParameter( "Sun" ),
                 radialVelocityFunctionComponents, normalVelocityFunctionComponents, axialVelocityFunctionComponents );
-    hodographicShapingLeg.updateLegParameters( ( Eigen::VectorXd( 8 )<<
-                                                     julianDate,
-                                                     julianDate + timeOfFlight  * physical_constants::JULIAN_DAY,
-                                                 freeCoefficientsRadialVelocityFunction,
-                                                 freeCoefficientsNormalVelocityFunction,
-                                                 freeCoefficientsAxialVelocityFunction ).finished( ) );
+    hodographicShapingLeg.updateLegParameters(
+            ( Eigen::VectorXd( 9 ) << julianDate, julianDate + timeOfFlight  * physical_constants::JULIAN_DAY,
+            numberOfRevolutions,  freeCoefficientsRadialVelocityFunction, freeCoefficientsNormalVelocityFunction,
+            freeCoefficientsAxialVelocityFunction ).finished( ) );
 
-    std::cout<<"DV1 "<<hodographicShapingLeg.computeDeltaV( )<<std::endl;
+    std::cout<<"DV1 "<<hodographicShapingLeg.getLegDeltaV( )<<std::endl;
     std::cout<<"DV2 "<<hodographicShaping->computeDeltaV( )<<std::endl;
 
     // Create environment
@@ -1511,8 +1513,8 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_full_propagation )
 
 ////    for ( std::map< double, Eigen::Vector6d >::iterator itr = trajectory.begin( ) ; itr != trajectory.end( ) ; itr++ )
 ////    {
-////        Eigen::Vector6d stateVector = hodographicShaping.computeCurrentStateVector( itr->first );
-////        Eigen::Vector3d thrustAccelerationVector = hodographicShaping.computeCurrentThrustAcceleration(
+////        Eigen::Vector6d stateVector = hodographicShaping.computeCurrentCartesianState( itr->first );
+////        Eigen::Vector3d thrustAccelerationVector = hodographicShaping.computeThrustAcceleration(
 ////                    itr->first, specificImpulseFunction, integratorSettings );
 ////        Eigen::Vector3d thrustVector = hodographicShaping.computeCurrentThrustForce(
 ////                    itr->first, specificImpulseFunction, integratorSettings );
