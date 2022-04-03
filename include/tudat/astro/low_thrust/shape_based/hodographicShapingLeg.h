@@ -36,13 +36,54 @@ public:
             const std::shared_ptr< ephemerides::Ephemeris > departureBodyEphemeris,
             const std::shared_ptr< ephemerides::Ephemeris > arrivalBodyEphemeris,
             const double centralBodyGravitationalParameter,
-            const int numberOfRevolutions,
             const HodographicBasisFunctionList& radialVelocityFunctionComponents,
             const HodographicBasisFunctionList& normalVelocityFunctionComponents,
             const HodographicBasisFunctionList& axialVelocityFunctionComponents );
 
     //! Default destructor.
     ~HodographicShapingLeg( ) { }
+
+    //! Compute current cartesian state.
+    Eigen::Vector6d computeCurrentCartesianState(const double timeSinceDeparture );
+
+    //! Get single value of thrust acceleration
+    virtual void getStateAlongTrajectory( Eigen::Vector6d& stateAlongTrajectory,
+                                          const double time )
+    {
+        stateAlongTrajectory = computeCurrentCartesianState(time - departureTime_);
+    }
+
+    //! Compute magnitude thrust acceleration.
+    double computeThrustAccelerationMagnitude(const double timeSinceDeparture );
+
+    //! Compute direction thrust acceleration in cartesian coordinates.
+    Eigen::Vector3d computeThrustAccelerationDirection(double timeSinceDeparture );
+
+    //! Compute the thrust acceleration in cartesian coordinates at the specified time.
+    Eigen::Vector3d computeThrustAcceleration( double timeSinceDeparture );
+
+    //! Get single value of thrust acceleration.
+    virtual void getThrustAccelerationAlongTrajectory(Eigen::Vector3d& thrustAccelerationAlongTrajectory,
+                                                      const double time )
+    {
+        thrustAccelerationAlongTrajectory = computeThrustAcceleration(time - departureTime_);
+    }
+
+protected:
+
+    //! Evaluate the transfer trajectory (i.e. do all the operations necessary to compute the DeltaV and compute it)
+    void computeTransfer( );
+
+private:
+
+    //! Compute DeltaV.
+    double computeDeltaV( );
+
+    //! Update the value of the coefficients being used in the velocity functions, according to the provided leg parameters
+    void updateFreeCoefficients( );
+
+    //! Select value of first three coefficient, in order to meet the boundary conditions
+    void satisfyBoundaryConditions( );
 
     //! Compute radial distance from the central body.
     double computeCurrentRadialDistance( const double timeSinceDeparture );
@@ -52,56 +93,6 @@ public:
 
     //! Compute axial distance from central body.
     double computeCurrentAxialDistance( const double timeSinceDeparture );
-
-    //! Compute current cartesian state.
-    Eigen::Vector6d computeCurrentStateVector( const double timeSinceDeparture );
-
-    virtual void getStateAlongTrajectory( Eigen::Vector6d& stateAlongTrajectory,
-                                          const double time )
-    {
-        stateAlongTrajectory = computeCurrentStateVector( time - departureTime_ );
-    }
-
-//    //! Return thrust acceleration profile.
-//    void getCylindricalThrustAccelerationProfile(
-//            std::vector< double >& epochsVector,
-//            std::map< double, Eigen::VectorXd >& thrustAccelerationProfile )
-//    {
-//        thrustAccelerationProfile.clear();
-
-//        for ( unsigned int i = 0 ; i < epochsVector.size() ; i++ )
-//        {
-//            thrustAccelerationProfile[ epochsVector.at( i ) ] = computeThrustAccelerationInCylindricalCoordinates( epochsVector.at( i ) );
-//        }
-
-//    }
-
-    //! Compute magnitude thrust acceleration.
-    double computeCurrentThrustAccelerationMagnitude( const double timeSinceDeparture );
-
-    //! Compute direction thrust acceleration in cartesian coordinates.
-    Eigen::Vector3d computeCurrentThrustAccelerationDirection( double timeSinceDeparture );
-
-    Eigen::Vector3d computeCurrentThrustAcceleration( double timeSinceDeparture );
-
-    Eigen::Vector3d computeCurrentThrustAcceleration(
-                const double currentTime,
-                const double timeOffset );
-
-    //! Compute DeltaV.
-    double computeDeltaV( );
-
-protected:
-
-    void computeTransfer( );
-
-private:
-
-    //! Update the value of the coefficients being used in the velocity functions, according to the provided leg parameters
-    void updateFreeCoefficients( );
-
-    //! Select value of first three coefficient, in order to meet the boundary conditions
-    void satisfyBoundaryConditions( );
 
     //! Compute inverse of matrix used to satisfy normal boundary conditions
     Eigen::Matrix2d computeInverseMatrixNormalBoundaries( std::shared_ptr< CompositeFunctionHodographicShaping > velocityFunction );
@@ -142,12 +133,14 @@ private:
     //! Compute thrust acceleration vector in cylindrical coordinates.
     Eigen::Vector3d computeThrustAccelerationInCylindricalCoordinates( double timeSinceDeparture );
 
+
     //! Central body gravitational parameter.
     const double centralBodyGravitationalParameter_;
 
     //! Number of revolutions.
     int numberOfRevolutions_;
 
+    //! Quadrature settings (used when computing multiple things)
     std::shared_ptr< numerical_quadrature::QuadratureSettings< double > > quadratureSettings_;
 
     //! Velocity functions.
@@ -155,14 +148,16 @@ private:
     std::shared_ptr< CompositeFunctionHodographicShaping > normalVelocityFunction_;
     std::shared_ptr< CompositeFunctionHodographicShaping > axialVelocityFunction_;
 
+    //! Coefficients of velocity functions (including
+    //! fixed coefficients and free coefficients)
     Eigen::VectorXd fullCoefficientsRadialVelocityFunction_;
     Eigen::VectorXd fullCoefficientsNormalVelocityFunction_;
     Eigen::VectorXd fullCoefficientsAxialVelocityFunction_;
 
     //! Number of free coefficients
-    int numberOfFreeRadialCoefficients_;
-    int numberOfFreeNormalCoefficients_;
-    int numberOfFreeAxialCoefficients_;
+    const int numberOfFreeRadialCoefficients_;
+    const int numberOfFreeNormalCoefficients_;
+    const int numberOfFreeAxialCoefficients_;
 
     //! Boundary conditions.
     std::vector< double > radialBoundaryConditions_;

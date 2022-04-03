@@ -24,19 +24,15 @@ HodographicShapingLeg::HodographicShapingLeg(
         const std::shared_ptr< ephemerides::Ephemeris > departureBodyEphemeris,
         const std::shared_ptr< ephemerides::Ephemeris > arrivalBodyEphemeris,
         const double centralBodyGravitationalParameter,
-        const int numberOfRevolutions,
         const HodographicBasisFunctionList& radialVelocityFunctionComponents,
         const HodographicBasisFunctionList& normalVelocityFunctionComponents,
         const HodographicBasisFunctionList& axialVelocityFunctionComponents ) :
     mission_segments::TransferLeg( departureBodyEphemeris, arrivalBodyEphemeris, mission_segments::hodographic_low_thrust_leg ),
     centralBodyGravitationalParameter_( centralBodyGravitationalParameter ),
-    numberOfRevolutions_( numberOfRevolutions )
+    numberOfFreeRadialCoefficients_( radialVelocityFunctionComponents.size( ) - 3 ),
+    numberOfFreeNormalCoefficients_( normalVelocityFunctionComponents.size( ) - 3 ),
+    numberOfFreeAxialCoefficients_( axialVelocityFunctionComponents.size( ) - 3 )
 {
-    // Compute number of free coefficients for each velocity function.
-    numberOfFreeRadialCoefficients_ = radialVelocityFunctionComponents.size( ) - 3;
-    numberOfFreeNormalCoefficients_ = normalVelocityFunctionComponents.size( ) - 3;
-    numberOfFreeAxialCoefficients_ = axialVelocityFunctionComponents.size( ) - 3;
-
     fullCoefficientsRadialVelocityFunction_ = Eigen::VectorXd::Zero(numberOfFreeRadialCoefficients_ + 3 );
     fullCoefficientsNormalVelocityFunction_ = Eigen::VectorXd::Zero(numberOfFreeNormalCoefficients_ + 3 );
     fullCoefficientsAxialVelocityFunction_ = Eigen::VectorXd::Zero(numberOfFreeAxialCoefficients_ + 3 );
@@ -57,7 +53,22 @@ void HodographicShapingLeg::computeTransfer( )
 {
     updateDepartureAndArrivalBodies( legParameters_( 0 ), legParameters_( 1 ) );
 
-    if( legParameters_.rows( ) - 2 != numberOfFreeRadialCoefficients_ + numberOfFreeNormalCoefficients_ + numberOfFreeAxialCoefficients_ )
+    // Update number of revolutions, after testing if value is valid
+    if ( legParameters_(2) < 0 )
+    {
+        throw std::runtime_error( "Error when updating hodographic shaping object, number of revolutions should be equal to or larger than 0" );
+    }
+    else if ( std::floor( legParameters_(2) ) != legParameters_(2) )
+    {
+        throw std::runtime_error( "Error when updating hodographic shaping object, number of revolutions should be an integer" );
+    }
+    else
+    {
+        numberOfRevolutions_ = int(legParameters_(2));
+    }
+
+    // Check whether number of remaining parameters is valid
+    if( legParameters_.rows( ) - 3 != numberOfFreeRadialCoefficients_ + numberOfFreeNormalCoefficients_ + numberOfFreeAxialCoefficients_ )
     {
         throw std::runtime_error( "Error when updating hodographic shaping object, number of inputs is inconsistent" );
     }
@@ -71,17 +82,17 @@ void HodographicShapingLeg::updateFreeCoefficients( )
 {
     fullCoefficientsRadialVelocityFunction_.segment( 0, 3 ).setZero( );
     fullCoefficientsRadialVelocityFunction_.segment(3, numberOfFreeRadialCoefficients_ ) = legParameters_.segment(
-            2, numberOfFreeRadialCoefficients_ );
+            3, numberOfFreeRadialCoefficients_ );
     radialVelocityFunction_->resetCompositeFunctionCoefficients( fullCoefficientsRadialVelocityFunction_ );
 
     fullCoefficientsNormalVelocityFunction_.segment( 0, 3 ).setZero( );
     fullCoefficientsNormalVelocityFunction_.segment(3, numberOfFreeNormalCoefficients_ ) = legParameters_.segment(
-            2 + numberOfFreeRadialCoefficients_, numberOfFreeNormalCoefficients_ );
+            3 + numberOfFreeRadialCoefficients_, numberOfFreeNormalCoefficients_ );
     normalVelocityFunction_->resetCompositeFunctionCoefficients( fullCoefficientsNormalVelocityFunction_ );
 
     fullCoefficientsAxialVelocityFunction_.segment( 0, 3 ).setZero( );
     fullCoefficientsAxialVelocityFunction_.segment(3, numberOfFreeAxialCoefficients_ ) = legParameters_.segment(
-            2 + numberOfFreeRadialCoefficients_ + numberOfFreeNormalCoefficients_, numberOfFreeAxialCoefficients_ );
+            3 + numberOfFreeRadialCoefficients_ + numberOfFreeNormalCoefficients_, numberOfFreeAxialCoefficients_ );
     axialVelocityFunction_->resetCompositeFunctionCoefficients( fullCoefficientsAxialVelocityFunction_ );
 
 }
@@ -473,8 +484,13 @@ Eigen::Vector6d HodographicShapingLeg::computeStateVectorInCylindricalCoordinate
 
 
 //! Compute current cartesian state.
-Eigen::Vector6d HodographicShapingLeg::computeCurrentStateVector( const double timeSinceDeparture )
+Eigen::Vector6d HodographicShapingLeg::computeCurrentCartesianState(const double timeSinceDeparture )
 {
+    if ( timeSinceDeparture < 0.0 || timeSinceDeparture > timeOfFlight_ )
+    {
+        throw std::runtime_error( "Error when computing state vector, requested time is outside bounds" );
+    }
+
     return coordinate_conversions::convertCylindricalToCartesianState( computeStateVectorInCylindricalCoordinates( timeSinceDeparture ) );
 }
 
@@ -520,30 +536,25 @@ Eigen::Vector3d HodographicShapingLeg::computeThrustAccelerationInCylindricalCoo
 }
 
 
-double HodographicShapingLeg::computeCurrentThrustAccelerationMagnitude(
+double HodographicShapingLeg::computeThrustAccelerationMagnitude(
         const double timeSinceDeparture )
 {
     // Return total thrust acceleration.
-    return computeCurrentThrustAcceleration( timeSinceDeparture ).norm();
+    return computeThrustAcceleration(timeSinceDeparture).norm();
 }
 
-Eigen::Vector3d HodographicShapingLeg::computeCurrentThrustAcceleration( double timeSinceDeparture )
+Eigen::Vector3d HodographicShapingLeg::computeThrustAcceleration(double timeSinceDeparture )
 {
-    // Prevent out-of-range errors in quadrature
-    if( timeSinceDeparture < 0.0 )
+    if ( timeSinceDeparture < 0.0 || timeSinceDeparture > timeOfFlight_ )
     {
-        timeSinceDeparture = 0.0;
-    }
-    else if( timeSinceDeparture > timeOfFlight_ )
-    {
-        timeSinceDeparture = timeOfFlight_;
+        throw std::runtime_error( "Error when computing acceleration vector, requested time is outside bounds" );
     }
 
     if( thrustAccelerationVectorCache_.count( timeSinceDeparture ) == 0 )
     {
         Eigen::Vector3d cylindricalAcceleration = computeThrustAccelerationInCylindricalCoordinates( timeSinceDeparture );
         Eigen::Vector3d cylindricalPosition = computeStateVectorInCylindricalCoordinates(timeSinceDeparture ).segment(0, 3);
-        Eigen::Vector3d cartesianPosition = computeCurrentStateVector(timeSinceDeparture ).segment(0, 3);
+        Eigen::Vector3d cartesianPosition = computeCurrentCartesianState(timeSinceDeparture).segment(0, 3);
 
         Eigen::Vector3d cartesianAcceleration;
 
@@ -561,18 +572,11 @@ Eigen::Vector3d HodographicShapingLeg::computeCurrentThrustAcceleration( double 
 
 }
 
-Eigen::Vector3d HodographicShapingLeg::computeCurrentThrustAcceleration( const double currentTime,
-                                                                         const double timeOffset )
-{
-    return computeCurrentThrustAcceleration( currentTime - timeOffset );
-
-}
-
 //! Compute direction cartesian acceleration.
-Eigen::Vector3d HodographicShapingLeg::computeCurrentThrustAccelerationDirection(
+Eigen::Vector3d HodographicShapingLeg::computeThrustAccelerationDirection(
         double timeSinceDeparture )
 {
-    return computeCurrentThrustAcceleration( timeSinceDeparture ).normalized();
+    return computeThrustAcceleration(timeSinceDeparture).normalized();
 }
 
 
@@ -581,8 +585,8 @@ double HodographicShapingLeg::computeDeltaV( )
 {
     // Define the derivative of the deltaV, ie thrust acceleration function, as a function of time.
     std::function< double( const double ) > derivativeFunctionDeltaV =
-            std::bind( &HodographicShapingLeg::computeCurrentThrustAccelerationMagnitude, this,
-                       std::placeholders::_1 );
+            std::bind(&HodographicShapingLeg::computeThrustAccelerationMagnitude, this,
+                      std::placeholders::_1 );
 
     // Define numerical quadrature.
     std::shared_ptr< numerical_quadrature::NumericalQuadrature< double, double > > quadrature =

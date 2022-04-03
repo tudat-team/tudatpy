@@ -82,7 +82,7 @@ HodographicShaping::HodographicShaping(
     numberOfFreeCoefficientsRadialVelocityFunction_ = radialVelocityFunction_->getNumberOfCompositeFunctionComponents() - 3;
     numberOfFreeCoefficientsNormalVelocityFunction_ = normalVelocityFunction_->getNumberOfCompositeFunctionComponents() - 3;
     numberOfFreeCoefficientsAxialVelocityFunction = axialVelocityFunction_->getNumberOfCompositeFunctionComponents() - 3;
-    std::cout<<"Radial: "<<numberOfFreeCoefficientsRadialVelocityFunction_<<" "<<radialVelocityFunctionComponents.size( ) - 3<<std::endl;
+//    std::cout<<"Radial: "<<numberOfFreeCoefficientsRadialVelocityFunction_<<" "<<radialVelocityFunctionComponents.size( ) - 3<<std::endl;
     if ( numberOfFreeCoefficientsRadialVelocityFunction_ < 0 || numberOfFreeCoefficientsNormalVelocityFunction_ < 0 ||
          numberOfFreeCoefficientsAxialVelocityFunction < 0 )
     {
