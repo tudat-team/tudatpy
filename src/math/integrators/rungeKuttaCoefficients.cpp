@@ -480,15 +480,19 @@ void initializerungeKutta87DormandPrinceCoefficients(
 
 }
 
-//! Get coefficients for a specified coefficient set
 const RungeKuttaCoefficients& RungeKuttaCoefficients::get(
-        RungeKuttaCoefficients::FixedStepCoefficientSets coefficientSet )
+        RungeKuttaCoefficients::CoefficientSets coefficientSet )
 {
     static RungeKuttaCoefficients forwardEulerCoefficients,
-                                  rungeKutta4Coefficients;
+                                  rungeKutta4Coefficients,
+                                  rungeKuttaFehlberg45Coefficients,
+                                  rungeKuttaFehlberg56Coefficients,
+                                  rungeKuttaFehlberg78Coefficients,
+                                  rungeKutta87DormandPrinceCoefficients;
 
     switch ( coefficientSet )
     {
+        
     case forwardEuler:
         if ( forwardEulerCoefficients.higherOrder != 1 )
         {
@@ -502,22 +506,6 @@ const RungeKuttaCoefficients& RungeKuttaCoefficients::get(
             initializeRungeKutta4Coefficients( rungeKutta4Coefficients );
         }
         return rungeKutta4Coefficients;
-
-    default: // The default case will never occur because CoefficientsSet is an enum.
-        throw RungeKuttaCoefficients( );
-    }
-}
-
-const RungeKuttaCoefficients& RungeKuttaCoefficients::get(
-        RungeKuttaCoefficients::CoefficientSets coefficientSet )
-{
-    static RungeKuttaCoefficients rungeKuttaFehlberg45Coefficients,
-                                  rungeKuttaFehlberg56Coefficients,
-                                  rungeKuttaFehlberg78Coefficients,
-                                  rungeKutta87DormandPrinceCoefficients;
-
-    switch ( coefficientSet )
-    {
 
     case rungeKuttaFehlberg45:
         if ( rungeKuttaFehlberg45Coefficients.higherOrder != 5 )
@@ -550,6 +538,96 @@ const RungeKuttaCoefficients& RungeKuttaCoefficients::get(
 
     default: // The default case will never occur because CoefficientsSet is an enum.
         throw RungeKuttaCoefficients( );
+    }
+}
+
+// Function to print the Butcher tableau of a given coefficient set.
+void printButcherTableau( RungeKuttaCoefficients::CoefficientSets coefficientSet )
+{
+    RungeKuttaCoefficients coefficients;
+    coefficients = coefficients.get( coefficientSet );
+
+    std::cout << "Butcher tableau of the " << coefficients.name << " coefficients: " << std::endl;
+
+    // Create a zero matrix of the same size as aCoefficients plus 1.
+    Eigen::MatrixXd ButcherTable = Eigen::MatrixXd::Zero(
+        coefficients.aCoefficients.rows( ) + coefficients.bCoefficients.rows( ),
+        coefficients.bCoefficients.cols( ) + 1 );
+    
+    // Set the table first column to the values of cCoefficients.
+    ButcherTable.block( 0, 0, coefficients.cCoefficients.rows( ), 1 ) = coefficients.cCoefficients;
+
+    // Set the table last row(s) to the values of bCoefficients.
+    ButcherTable.block(
+        coefficients.aCoefficients.rows( ), 
+        1,
+        coefficients.bCoefficients.rows( ),
+        coefficients.bCoefficients.cols( )
+    ) = coefficients.bCoefficients;
+
+    // Set the rest of the table to the values of aCoefficients.
+    ButcherTable.block(
+        0,
+        1,
+        coefficients.aCoefficients.rows( ),
+        coefficients.aCoefficients.cols( )
+    ) = coefficients.aCoefficients;
+    
+    // Feed the full Butcher tableau into a stringstream (to make use of the precision/formatting from IOFormat implemented in Eigen).
+    std::stringstream tableStream;
+    tableStream << ButcherTable;
+    int line_i = 0;
+    int first_column_end = -1;
+    std::string line;
+    // Go trough each of the table lines.
+    while(std::getline(tableStream,line,'\n'))
+    {
+        // If the index at which the first column ends is not known yet, find it.
+        if (first_column_end == -1)
+        {
+            bool has_encountered_non_space = false;
+            // Go trough each of the line characters.
+            for (unsigned int i = 0; i < line.length( ); i++)
+            {
+                // If the character is not a space, remember it.
+                if (line[i] != ' ')
+                {
+                    has_encountered_non_space = true;
+                }
+                // If the character is a space and we have encountered a non-space character before...
+                if (line[i] == ' ' && has_encountered_non_space)
+                {
+                    // Remember the index at which the first column ends.
+                    first_column_end = i;
+                    break;
+                }
+            }
+        }
+
+        // Add a vertical bar after the end of the first column.
+        line.insert(first_column_end + 1, "| ");
+
+        // If we are in the last row(s)...
+        if (line_i >= ButcherTable.rows( ) - coefficients.bCoefficients.rows( ))
+        {
+            // Replace every character in the line before the first column end by a space (do not print 0 in bottom left tableau section).
+            for (int i = 0; i < first_column_end; i++)
+            {
+                line[i] = ' ';
+            }                
+        }
+
+        // Print the line.
+        std::cout << line << std::endl;
+
+        // Print a dash line to show the separation between a and b coefficients.
+        if(line_i == ButcherTable.rows( ) - coefficients.bCoefficients.rows( ) - 1)
+        {
+            std::string dash_line(line.length( ) - 1, '-');
+            dash_line.insert(first_column_end + 1, "|");
+            std::cout << dash_line << std::endl;
+        }
+        line_i++;
     }
 }
 

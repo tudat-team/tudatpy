@@ -102,18 +102,12 @@ struct RungeKuttaCoefficients
     enum CoefficientSets
     {
         undefinedCoefficientSet = -1,
+        forwardEuler,
+        rungeKutta4,
         rungeKuttaFehlberg45,
         rungeKuttaFehlberg56,
         rungeKuttaFehlberg78,
         rungeKutta87DormandPrince
-    };
-
-    // Enum of predefined fixed-step coefficient sets.
-    enum FixedStepCoefficientSets
-    {
-        undefinedFixedStepCoefficientSet = -1,
-        forwardEuler,
-        rungeKutta4
     };
 
     // Get coefficients for a specified coefficient set.
@@ -124,94 +118,13 @@ struct RungeKuttaCoefficients
      */
     static const RungeKuttaCoefficients& get( CoefficientSets coefficientSet );
 
-    // Get coefficients for a specified coefficient set for fixed-step integration.
-    /*
-     * Returns coefficients for a specified coefficient set for fixed-step integration.
-     * \param coefficientSet The set to get the coefficients for.
-     * \return The requested coefficient set.
-     */
-    static const RungeKuttaCoefficients& get( FixedStepCoefficientSets coefficientSet );
-
-
-    void printButcherTableau( )
-    {
-        std::cout << "Butcher tableau of the " << name << " coefficients: " << std::endl;
-
-        // Create a zero matrix of the same size as aCoefficients plus 1.
-        Eigen::MatrixXd ButcherTable = Eigen::MatrixXd::Zero( aCoefficients.rows( ) + bCoefficients.rows( ), bCoefficients.cols( ) + 1 );
-        
-        // Set the table first column to the values of cCoefficients.
-        ButcherTable.block( 0, 0, cCoefficients.rows( ), 1 ) = cCoefficients;
-
-        // Set the table last row(s) to the values of bCoefficients.
-        ButcherTable.block( aCoefficients.rows( ), 1, bCoefficients.rows( ), bCoefficients.cols( ) ) = bCoefficients;
-        // ButcherTable.block( bCoefficients.cols( ), 1, cCoefficients.cols( ), cCoefficients.rows( ) ) = bCoefficients;
-
-        // Set the rest of the table to the values of aCoefficients.
-        ButcherTable.block( 0, 1, aCoefficients.rows( ), aCoefficients.cols( ) ) = aCoefficients;
-        
-        // Feed the full Butcher tableau into a stringstream (to make use of the precision/formatting from IOFormat implemented in Eigen).
-        std::stringstream tableStream;
-        tableStream << ButcherTable;
-        int line_i = 0;
-        int first_column_end = -1;
-        std::string line;
-        // Go trough each of the table lines.
-        while(std::getline(tableStream,line,'\n'))
-        {
-            // If the index at which the first column ends is not known yet, find it.
-            if (first_column_end == -1)
-            {
-                bool has_encountered_non_space = false;
-                // Go trough each of the line characters.
-                for (unsigned int i = 0; i < line.length( ); i++)
-                {
-                    // If the character is not a space, remember it.
-                    if (line[i] != ' ')
-                    {
-                        has_encountered_non_space = true;
-                    }
-                    // If the character is a space and we have encountered a non-space character before...
-                    if (line[i] == ' ' && has_encountered_non_space)
-                    {
-                        // Remember the index at which the first column ends.
-                        first_column_end = i;
-                        break;
-                    }
-                }
-            }
-
-            // Add a vertical bar after the end of the first column.
-            line.insert(first_column_end + 1, "| ");
-
-            // If we are in the last row(s)...
-            if (line_i >= ButcherTable.rows( ) - bCoefficients.rows( ))
-            {
-                // Replace every character in the line before the first column end by a space (do not print 0 in bottom left tableau section).
-                for (int i = 0; i < first_column_end; i++)
-                {
-                    line[i] = ' ';
-                }                
-            }
-
-            // Print the line.
-            std::cout << line << std::endl;
-
-            // Print a dash line to show the separation between a and b coefficients.
-            if(line_i == ButcherTable.rows( ) - bCoefficients.rows( ) - 1)
-            {
-                std::string dash_line(line.length( ) - 1, '-');
-                dash_line.insert(first_column_end + 1, "|");
-                std::cout << dash_line << std::endl;
-            }
-            line_i++;
-        }
-    }
-
 };
 
 // Typedef for shared-pointer to RungeKuttaCoefficients object.
 typedef std::shared_ptr< RungeKuttaCoefficients > RungeKuttaCoefficientsPointer;
+
+// Function to print the coefficients of a Runge-Kutta integrator.
+void printButcherTableau( RungeKuttaCoefficients::CoefficientSets coefficientSet );
 
 } // namespace numerical_integrators
 } // namespace tudat
