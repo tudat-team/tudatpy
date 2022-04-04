@@ -54,6 +54,8 @@ namespace integrator {
 
             py::enum_<tni::RungeKuttaCoefficients::CoefficientSets>(m, "RKCoefficientSets",
                                                                     get_docstring("RKCoefficientSets").c_str())
+                    .value("euler_forward", tni::RungeKuttaCoefficients::forwardEuler)
+                    .value("rk_4", tni::RungeKuttaCoefficients::rungeKutta4)
                     .value("rkf_45", tni::RungeKuttaCoefficients::rungeKuttaFehlberg45,
                            get_docstring("RKCoefficientSets.rkf_45").c_str())
                     .value("rkf_56", tni::RungeKuttaCoefficients::rungeKuttaFehlberg56,
@@ -91,6 +93,10 @@ namespace integrator {
 //                     py::arg("assess_propagation_termination_condition_during_integration_substeps") = false)
                     .def_readwrite("initial_time", &tni::IntegratorSettings<double>::initialTime_);
 
+       //      py::class_<tni::RungeKuttaFixedStepSizeBaseSettings<double>,
+       //              std::shared_ptr<tni::RungeKuttaFixedStepSizeBaseSettings<double>>,
+       //              tni::IntegratorSettings<double>>(m, "RungeKuttaFixedStepSizeBaseSettings");
+
             py::class_<tni::RungeKuttaVariableStepSizeBaseSettings<double>,
                     std::shared_ptr<tni::RungeKuttaVariableStepSizeBaseSettings<double>>,
                     tni::IntegratorSettings<double>>(m, "RungeKuttaVariableStepSizeBaseSettings",
@@ -121,6 +127,10 @@ namespace integrator {
 
 
 // FACTORY FUNCTIONS
+            m.def("print_butcher_tableau",
+                  &tni::printButcherTableau,
+                  py::arg("coefficient_set"));
+
             m.def("euler",
                   &tni::eulerSettings<double>,
                   py::arg("initial_time"),
@@ -136,6 +146,23 @@ namespace integrator {
                   py::arg("save_frequency") = 1,
                   py::arg("assess_termination_on_minor_steps") = false,
                   get_docstring("runge_kutta_4").c_str());
+
+       //      m.def("runge_kutta_fixed_step_size",
+       //            &tni::rungeKuttaVariableStepSettingsScalarTolerances<double>,
+       //            py::arg("initial_time"),
+       //            py::arg("initial_time_step"),
+       //            py::arg("coefficient_set"),
+       //            py::arg("minimum_step_size"),
+       //            py::arg("maximum_step_size"),
+       //            py::arg("relative_error_tolerance"),
+       //            py::arg("absolute_error_tolerance"),
+       //            py::arg("save_frequency") = 1,
+       //            py::arg("assess_termination_on_minor_steps") = false,
+       //            py::arg("safety_factor") = 0.8,
+       //            py::arg("maximum_factor_increase") = 4.0,
+       //            py::arg("minimum_factor_increase") = 0.1,
+       //            py::arg("throw_exception_if_minimum_step_exceeded") = true,
+       //            get_docstring("runge_kutta_variable_step_size").c_str());
 
             m.def("runge_kutta_variable_step_size",
                   &tni::rungeKuttaVariableStepSettingsScalarTolerances<double>,
