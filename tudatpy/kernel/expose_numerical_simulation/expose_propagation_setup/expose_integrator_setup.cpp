@@ -62,6 +62,7 @@ namespace integrator {
                            get_docstring("RKCoefficientSets.rkf_56").c_str())
                     .value("rkf_78", tni::RungeKuttaCoefficients::rungeKuttaFehlberg78,
                            get_docstring("RKCoefficientSets.rkf_78").c_str())
+                    .value("rkf_8", tni::RungeKuttaCoefficients::rungeKuttaFehlberg8)
                     .value("rkdp_87", tni::RungeKuttaCoefficients::rungeKutta87DormandPrince,
                            get_docstring("RKCoefficientSets.rkdp_87").c_str())
                     .export_values();
