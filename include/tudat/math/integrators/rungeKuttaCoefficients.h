@@ -107,6 +107,7 @@ struct RungeKuttaCoefficients
         rungeKuttaFehlberg45,
         rungeKuttaFehlberg56,
         rungeKuttaFehlberg78,
+        rungeKuttaFehlberg8,
         rungeKutta87DormandPrince
     };
 
