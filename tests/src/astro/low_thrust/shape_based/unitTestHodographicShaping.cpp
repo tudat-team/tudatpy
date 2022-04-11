@@ -67,7 +67,8 @@ double getPeakAcceleration( const double timeOfFlight, HodographicShaping& hodog
 
     return peakAcceleration;
 }
-//! Test Earth-Mars transfers, based on the thesis by Gondelach (ADD PROPER REFERENCE).
+//! Test Earth-Mars transfers, based on Gondelach, D. J., A Hodographic-Shaping Method for Low-Thrust Trajectory Design,
+//! TU Delft (MSc thesis), 2012
 BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer_1 )
 {
     spice_interface::loadStandardSpiceKernels( );
@@ -277,6 +278,20 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer_2 )
     Eigen::Vector6d cartesianStateArrivalBody =
             pointerToArrivalBodyEphemeris->getCartesianState( julianDate + timeOfFlight  * physical_constants::JULIAN_DAY );
 
+    // Define departure and arrival velocity functions
+    std::function< Eigen::Vector3d( ) > departureVelocityFunction = [=]( ){ return cartesianStateDepartureBody.segment( 3, 3 ); };
+    std::function< Eigen::Vector3d( ) > arrivalVelocityFunction = [=]( ){ return cartesianStateArrivalBody.segment( 3, 3 ); };
+
+    // Create hodographic-shaping object with defined velocity functions and boundary conditions.
+    HodographicShapingLeg hodographicShapingLeg = HodographicShapingLeg(
+                pointerToDepartureBodyEphemeris, pointerToArrivalBodyEphemeris,
+                spice_interface::getBodyGravitationalParameter( "Sun" ),
+                departureVelocityFunction, arrivalVelocityFunction,
+                radialVelocityFunctionComponents, normalVelocityFunctionComponents, axialVelocityFunctionComponents );
+    hodographicShapingLeg.updateLegParameters(
+            ( Eigen::Vector3d( )<< julianDate, julianDate + timeOfFlight * physical_constants::JULIAN_DAY,
+            numberOfRevolutions).finished( ) );
+
     // Create hodographic-shaping object with defined velocity functions and boundary conditions.
     HodographicShaping hodographicShaping = HodographicShaping(
                 cartesianStateDepartureBody,
@@ -287,15 +302,31 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer_2 )
                 freeCoefficientsRadialVelocityFunction, freeCoefficientsNormalVelocityFunction,
                 freeCoefficientsAxialVelocityFunction );
 
-    // Check results consistency w.r.t. thesis from D. Gondelach (ADD PROPER REFERENCE)
+    // Compute peak thrust acceleration
+    double peakThrustAcceleration = 0.0;
+    std::map< double, Eigen::Vector3d > thrustAccelerationsAlongTrajectory;
+        hodographicShapingLeg.getThrustAccelerationsAlongTrajectory(thrustAccelerationsAlongTrajectory, 5000 );
+
+    for( auto it : thrustAccelerationsAlongTrajectory )
+    {
+        Eigen::Vector3d currentCartesianThrustAcceleration = it.second;
+        if ( currentCartesianThrustAcceleration.norm() > peakThrustAcceleration )
+        {
+            peakThrustAcceleration = currentCartesianThrustAcceleration.norm();
+        }
+    }
+
+    // Check results consistency w.r.t. Gondelach, D. J., A Hodographic-Shaping Method for Low-Thrust Trajectory Design,
+    //! TU Delft (MSc thesis), 2012
     double expectedDeltaV = 6742.0;
     double expectedPeakAcceleration = 1.46e-4;
 
     // DeltaV provided with a precision of 1 m/s
     BOOST_CHECK_SMALL( std::fabs(  hodographicShaping.computeDeltaV( ) - expectedDeltaV ), 1.0 );
+    BOOST_CHECK_SMALL( std::fabs(  hodographicShapingLeg.getLegDeltaV( ) - expectedDeltaV ), 1.0 );
     // Peak acceleration provided with a precision 1.0e-6 m/s^2
     BOOST_CHECK_SMALL( std::fabs(  getPeakAcceleration( timeOfFlight, hodographicShaping ) - expectedPeakAcceleration ), 1e-6 );
-
+    BOOST_CHECK_SMALL( std::fabs(  peakThrustAcceleration - expectedPeakAcceleration ), 1e-6 );
 }
 
 BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer_3 )
@@ -376,6 +407,20 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer_3 )
     Eigen::Vector6d cartesianStateArrivalBody =
             pointerToArrivalBodyEphemeris->getCartesianState( julianDate + timeOfFlight  * physical_constants::JULIAN_DAY );
 
+    // Define departure and arrival velocity functions
+    std::function< Eigen::Vector3d( ) > departureVelocityFunction = [=]( ){ return cartesianStateDepartureBody.segment( 3, 3 ); };
+    std::function< Eigen::Vector3d( ) > arrivalVelocityFunction = [=]( ){ return cartesianStateArrivalBody.segment( 3, 3 ); };
+
+    // Create hodographic-shaping object with defined velocity functions and boundary conditions.
+    HodographicShapingLeg hodographicShapingLeg = HodographicShapingLeg(
+                pointerToDepartureBodyEphemeris, pointerToArrivalBodyEphemeris,
+                spice_interface::getBodyGravitationalParameter( "Sun" ),
+                departureVelocityFunction, arrivalVelocityFunction,
+                radialVelocityFunctionComponents, normalVelocityFunctionComponents, axialVelocityFunctionComponents );
+    hodographicShapingLeg.updateLegParameters(
+            ( Eigen::Vector3d( )<< julianDate, julianDate + timeOfFlight * physical_constants::JULIAN_DAY,
+            numberOfRevolutions).finished( ) );
+
     // Create hodographic-shaping object with defined velocity functions and boundary conditions.
     HodographicShaping hodographicShaping = HodographicShaping(
                 cartesianStateDepartureBody, cartesianStateArrivalBody,
@@ -385,14 +430,31 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer_3 )
                 freeCoefficientsRadialVelocityFunction, freeCoefficientsNormalVelocityFunction,
                 freeCoefficientsAxialVelocityFunction );
 
-    // Check results consistency w.r.t. thesis from D. Gondelach (ADD PROPER REFERENCE)
+    // Compute peak thrust acceleration
+    double peakThrustAcceleration = 0.0;
+    std::map< double, Eigen::Vector3d > thrustAccelerationsAlongTrajectory;
+        hodographicShapingLeg.getThrustAccelerationsAlongTrajectory(thrustAccelerationsAlongTrajectory, 5000 );
+
+    for( auto it : thrustAccelerationsAlongTrajectory )
+    {
+        Eigen::Vector3d currentCartesianThrustAcceleration = it.second;
+        if ( currentCartesianThrustAcceleration.norm() > peakThrustAcceleration )
+        {
+            peakThrustAcceleration = currentCartesianThrustAcceleration.norm();
+        }
+    }
+
+    // Check results consistency w.r.t. Gondelach, D. J., A Hodographic-Shaping Method for Low-Thrust Trajectory Design,
+    //! TU Delft (MSc thesis), 2012
     double expectedDeltaV = 6686.0;
     double expectedPeakAcceleration = 2.46e-4;
 
     // DeltaV provided with a precision of 1 m/s
     BOOST_CHECK_SMALL( std::fabs(  hodographicShaping.computeDeltaV( ) - expectedDeltaV ), 1.0 );
+    BOOST_CHECK_SMALL( std::fabs(  hodographicShapingLeg.getLegDeltaV( ) - expectedDeltaV ), 1.0 );
     // Peak acceleration provided with a precision 1.0e-6 m/s^2
     BOOST_CHECK_SMALL( std::fabs(  getPeakAcceleration( timeOfFlight, hodographicShaping ) - expectedPeakAcceleration ), 1e-6 );
+    BOOST_CHECK_SMALL( std::fabs(  peakThrustAcceleration - expectedPeakAcceleration ), 1e-6 );
 }
 
 BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer_4 )
@@ -473,6 +535,20 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer_4 )
     Eigen::Vector6d cartesianStateArrivalBody =
             pointerToArrivalBodyEphemeris->getCartesianState( julianDate + timeOfFlight  * physical_constants::JULIAN_DAY );
 
+    // Define departure and arrival velocity functions
+    std::function< Eigen::Vector3d( ) > departureVelocityFunction = [=]( ){ return cartesianStateDepartureBody.segment( 3, 3 ); };
+    std::function< Eigen::Vector3d( ) > arrivalVelocityFunction = [=]( ){ return cartesianStateArrivalBody.segment( 3, 3 ); };
+
+    // Create hodographic-shaping object with defined velocity functions and boundary conditions.
+    HodographicShapingLeg hodographicShapingLeg = HodographicShapingLeg(
+                pointerToDepartureBodyEphemeris, pointerToArrivalBodyEphemeris,
+                spice_interface::getBodyGravitationalParameter( "Sun" ),
+                departureVelocityFunction, arrivalVelocityFunction,
+                radialVelocityFunctionComponents, normalVelocityFunctionComponents, axialVelocityFunctionComponents );
+    hodographicShapingLeg.updateLegParameters(
+            ( Eigen::Vector3d( )<< julianDate, julianDate + timeOfFlight * physical_constants::JULIAN_DAY,
+            numberOfRevolutions).finished( ) );
+
     // Create hodographic-shaping object with defined velocity functions and boundary conditions.
     HodographicShaping hodographicShaping = HodographicShaping(
                 cartesianStateDepartureBody, cartesianStateArrivalBody,
@@ -481,16 +557,31 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer_4 )
                 radialVelocityFunctionComponents, normalVelocityFunctionComponents, axialVelocityFunctionComponents,
                 freeCoefficientsRadialVelocityFunction, freeCoefficientsNormalVelocityFunction, freeCoefficientsAxialVelocityFunction );
 
-    // Check results consistency w.r.t. thesis from D. Gondelach (ADD PROPER REFERENCE)
+    // Compute peak thrust acceleration
+    double peakThrustAcceleration = 0.0;
+    std::map< double, Eigen::Vector3d > thrustAccelerationsAlongTrajectory;
+        hodographicShapingLeg.getThrustAccelerationsAlongTrajectory(thrustAccelerationsAlongTrajectory, 5000 );
+
+    for( auto it : thrustAccelerationsAlongTrajectory )
+    {
+        Eigen::Vector3d currentCartesianThrustAcceleration = it.second;
+        if ( currentCartesianThrustAcceleration.norm() > peakThrustAcceleration )
+        {
+            peakThrustAcceleration = currentCartesianThrustAcceleration.norm();
+        }
+    }
+
+    // Check results consistency w.r.t. Gondelach, D. J., A Hodographic-Shaping Method for Low-Thrust Trajectory Design,
+    //! TU Delft (MSc thesis), 2012
     double expectedDeltaV = 6500.0;
     double expectedPeakAcceleration = 1.58e-4;
 
     // DeltaV provided with a precision of 1 m/s
     BOOST_CHECK_SMALL( std::fabs(  hodographicShaping.computeDeltaV( ) - expectedDeltaV ), 1.0 );
-
+    BOOST_CHECK_SMALL( std::fabs(  hodographicShapingLeg.getLegDeltaV( ) - expectedDeltaV ), 1.0 );
     // Peak acceleration provided with a precision 1.0e-6 m/s^2
     BOOST_CHECK_SMALL( std::fabs(  getPeakAcceleration( timeOfFlight, hodographicShaping ) - expectedPeakAcceleration ), 1e-6 );
-
+    BOOST_CHECK_SMALL( std::fabs(  peakThrustAcceleration - expectedPeakAcceleration ), 1e-6 );
 }
 
 BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer_5 )
@@ -570,6 +661,20 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer_5 )
     Eigen::Vector6d cartesianStateArrivalBody =
             pointerToArrivalBodyEphemeris->getCartesianState( julianDate + timeOfFlight  * physical_constants::JULIAN_DAY );
 
+    // Define departure and arrival velocity functions
+    std::function< Eigen::Vector3d( ) > departureVelocityFunction = [=]( ){ return cartesianStateDepartureBody.segment( 3, 3 ); };
+    std::function< Eigen::Vector3d( ) > arrivalVelocityFunction = [=]( ){ return cartesianStateArrivalBody.segment( 3, 3 ); };
+
+    // Create hodographic-shaping object with defined velocity functions and boundary conditions.
+    HodographicShapingLeg hodographicShapingLeg = HodographicShapingLeg(
+                pointerToDepartureBodyEphemeris, pointerToArrivalBodyEphemeris,
+                spice_interface::getBodyGravitationalParameter( "Sun" ),
+                departureVelocityFunction, arrivalVelocityFunction,
+                radialVelocityFunctionComponents, normalVelocityFunctionComponents, axialVelocityFunctionComponents );
+    hodographicShapingLeg.updateLegParameters(
+            ( Eigen::Vector3d( )<< julianDate, julianDate + timeOfFlight * physical_constants::JULIAN_DAY,
+            numberOfRevolutions).finished( ) );
+
     // Create hodographic-shaping object with defined velocity functions and boundary conditions.
     HodographicShaping hodographicShaping = HodographicShaping(
                 cartesianStateDepartureBody, cartesianStateArrivalBody,
@@ -578,15 +683,31 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer_5 )
                 radialVelocityFunctionComponents, normalVelocityFunctionComponents, axialVelocityFunctionComponents,
                 freeCoefficientsRadialVelocityFunction, freeCoefficientsNormalVelocityFunction, freeCoefficientsAxialVelocityFunction );
 
-    // Check results consistency w.r.t. thesis from D. Gondelach (ADD PROPER REFERENCE)
+    // Compute peak thrust acceleration
+    double peakThrustAcceleration = 0.0;
+    std::map< double, Eigen::Vector3d > thrustAccelerationsAlongTrajectory;
+        hodographicShapingLeg.getThrustAccelerationsAlongTrajectory(thrustAccelerationsAlongTrajectory, 5000 );
+
+    for( auto it : thrustAccelerationsAlongTrajectory )
+    {
+        Eigen::Vector3d currentCartesianThrustAcceleration = it.second;
+        if ( currentCartesianThrustAcceleration.norm() > peakThrustAcceleration )
+        {
+            peakThrustAcceleration = currentCartesianThrustAcceleration.norm();
+        }
+    }
+
+    // Check results consistency w.r.t. Gondelach, D. J., A Hodographic-Shaping Method for Low-Thrust Trajectory Design,
+    //! TU Delft (MSc thesis), 2012
     double expectedDeltaV = 6342.0;
     double expectedPeakAcceleration = 1.51e-4;
 
     // DeltaV provided with a precision of 1 m/s
     BOOST_CHECK_SMALL( std::fabs(  hodographicShaping.computeDeltaV( ) - expectedDeltaV ), 1.0 );
+    BOOST_CHECK_SMALL( std::fabs(  hodographicShapingLeg.getLegDeltaV( ) - expectedDeltaV ), 1.0 );
     // Peak acceleration provided with a precision 1.0e-6 m/s^2
     BOOST_CHECK_SMALL( std::fabs(  getPeakAcceleration( timeOfFlight, hodographicShaping ) - expectedPeakAcceleration ), 1e-6 );
-
+    BOOST_CHECK_SMALL( std::fabs(  peakThrustAcceleration - expectedPeakAcceleration ), 1e-6 );
 
 }
 
@@ -673,6 +794,20 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mercury_transfer )
     Eigen::Vector6d cartesianStateArrivalBody =
             pointerToArrivalBodyEphemeris->getCartesianState( julianDate + timeOfFlight  * physical_constants::JULIAN_DAY );
 
+    // Define departure and arrival velocity functions
+    std::function< Eigen::Vector3d( ) > departureVelocityFunction = [=]( ){ return cartesianStateDepartureBody.segment( 3, 3 ); };
+    std::function< Eigen::Vector3d( ) > arrivalVelocityFunction = [=]( ){ return cartesianStateArrivalBody.segment( 3, 3 ); };
+
+    // Create hodographic-shaping object with defined velocity functions and boundary conditions.
+    HodographicShapingLeg hodographicShapingLeg = HodographicShapingLeg(
+                pointerToDepartureBodyEphemeris, pointerToArrivalBodyEphemeris,
+                spice_interface::getBodyGravitationalParameter( "Sun" ),
+                departureVelocityFunction, arrivalVelocityFunction,
+                radialVelocityFunctionComponents, normalVelocityFunctionComponents, axialVelocityFunctionComponents );
+    hodographicShapingLeg.updateLegParameters(
+            ( Eigen::Vector3d( )<< julianDate, julianDate + timeOfFlight * physical_constants::JULIAN_DAY,
+            numberOfRevolutions).finished( ) );
+
     // Create hodographic-shaping object with defined velocity functions and boundary conditions.
     HodographicShaping hodographicShaping(
                 cartesianStateDepartureBody, cartesianStateArrivalBody,
@@ -681,18 +816,32 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mercury_transfer )
                 radialVelocityFunctionComponents, normalVelocityFunctionComponents, axialVelocityFunctionComponents,
                 freeCoefficientsRadialVelocityFunction, freeCoefficientsNormalVelocityFunction, freeCoefficientsAxialVelocityFunction );
 
+    // Compute peak thrust acceleration
+    double peakThrustAcceleration = 0.0;
+    std::map< double, Eigen::Vector3d > thrustAccelerationsAlongTrajectory;
+        hodographicShapingLeg.getThrustAccelerationsAlongTrajectory(thrustAccelerationsAlongTrajectory, 5000 );
 
-    // Check results consistency w.r.t. thesis from D. Gondelach (ADD PROPER REFERENCE)
+    for( auto it : thrustAccelerationsAlongTrajectory )
+    {
+        Eigen::Vector3d currentCartesianThrustAcceleration = it.second;
+        if ( currentCartesianThrustAcceleration.norm() > peakThrustAcceleration )
+        {
+            peakThrustAcceleration = currentCartesianThrustAcceleration.norm();
+        }
+    }
+
+    // Check results consistency w.r.t. Gondelach, D. J., A Hodographic-Shaping Method for Low-Thrust Trajectory Design,
+    //! TU Delft (MSc thesis), 2012
     // The expected differences are a bit larger than for Earth-Mars transfer due to the higher uncertainty in the used Mercury ephemeris.
     double expectedDeltaV = 28082.0;
     double expectedPeakAcceleration = 64.1e-4;
 
     // DeltaV provided with a precision of 1 m/s
     BOOST_CHECK_SMALL( std::fabs(  hodographicShaping.computeDeltaV( ) - expectedDeltaV ), 100.0 );
-
+    BOOST_CHECK_SMALL( std::fabs(  hodographicShapingLeg.getLegDeltaV( ) - expectedDeltaV ), 1.0 );
     // Peak acceleration provided with a precision 1.0e-6 m/s^2
     BOOST_CHECK_SMALL( std::fabs(  getPeakAcceleration( timeOfFlight, hodographicShaping ) - expectedPeakAcceleration ), 1e-5 );
-
+    BOOST_CHECK_SMALL( std::fabs(  peakThrustAcceleration - expectedPeakAcceleration ), 1e-6 );
 }
 
 //    /// Second Earth-Mercury transfer.
