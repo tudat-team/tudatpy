@@ -51,6 +51,13 @@ void expose_numerical_simulation(py::module &m) {
   auto estimation_setup_submodule = m.def_submodule("estimation_setup");
   estimation_setup::expose_estimation_setup(estimation_setup_submodule);
 
+  m.def("get_integrated_type_and_body_list",
+        &tp::getIntegratedTypeAndBodyList<double>,
+        py::arg("propagator_settings") );
+
+  m.def("get_single_integration_size",
+        &tp::getSingleIntegrationSize,
+        py::arg("state_type") );
 
   py::class_<
           tp::SingleArcDynamicsSimulator<double, double>,
