@@ -656,7 +656,7 @@ Eigen::Vector3d SphericalShapingLeg::computeThrustAcceleration (const double tim
 }
 
 
-double  SphericalShapingLeg::computeThrustAccelerationMagnitudeFromAzimuth(double currentAzimuthAngle )
+double  SphericalShapingLeg::computeThrustAccelerationMagnitudeFromAzimuth(const double currentAzimuthAngle )
 {
     return computeThrustAccelerationFromAzimuth(currentAzimuthAngle).norm( );
 }
@@ -668,7 +668,7 @@ double SphericalShapingLeg::computeThrustAccelerationMagnitude (const double tim
 }
 
 
-Eigen::Vector3d SphericalShapingLeg::computeThrustAccelerationDirectionFromAzimuth(double currentAzimuthAngle )
+Eigen::Vector3d SphericalShapingLeg::computeThrustAccelerationDirectionFromAzimuth(const double currentAzimuthAngle )
 {
     return computeThrustAccelerationFromAzimuth(currentAzimuthAngle).normalized( );
 }

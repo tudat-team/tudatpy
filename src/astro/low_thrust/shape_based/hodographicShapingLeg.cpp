@@ -184,7 +184,7 @@ Eigen::Matrix2d HodographicShapingLeg::computeInverseMatrixNormalBoundaries(
 }
 
 
-void HodographicShapingLeg::satisfyRadialBoundaryConditions( Eigen::VectorXd freeCoefficients ){
+void HodographicShapingLeg::satisfyRadialBoundaryConditions( const Eigen::VectorXd& freeCoefficients){
 
     // Vector containing boundary conditions on radial distance and initial and final radial velocity.
     Eigen::Vector3d vectorBoundaryConditionsRadial;
@@ -226,7 +226,7 @@ void HodographicShapingLeg::satisfyRadialBoundaryConditions( Eigen::VectorXd fre
 
 }
 
-void HodographicShapingLeg::satisfyAxialBoundaryConditions( Eigen::VectorXd freeCoefficients ){
+void HodographicShapingLeg::satisfyAxialBoundaryConditions( const Eigen::VectorXd& freeCoefficients ){
 
     // Vector containing boundary conditions on axial distance and initial and final axial velocity.
     Eigen::Vector3d vectorBoundaryConditionsAxial;
@@ -267,7 +267,7 @@ void HodographicShapingLeg::satisfyAxialBoundaryConditions( Eigen::VectorXd free
 
 }
 
-void HodographicShapingLeg::satisfyNormalBoundaryConditions( Eigen::VectorXd freeCoefficients ){
+void HodographicShapingLeg::satisfyNormalBoundaryConditions( const Eigen::VectorXd& freeCoefficients ){
 
     // Compute coefficient of the third component of the composite function, from the required value of the final polar angle.
     double C3 = computeThirdFixedCoefficientAxialVelocity(freeCoefficients);
@@ -352,7 +352,7 @@ double HodographicShapingLeg::computeDerivativePolarAngleDueToOtherComponents(
 
 }
 
-double HodographicShapingLeg::computeThirdFixedCoefficientAxialVelocity ( Eigen::VectorXd freeCoefficients ){
+double HodographicShapingLeg::computeThirdFixedCoefficientAxialVelocity ( const Eigen::VectorXd& freeCoefficients ){
 
     // Compute the third fixed coefficient of the normal velocity composite function, so that the condition on the final
     // polar angle is fulfilled.
@@ -408,7 +408,7 @@ double HodographicShapingLeg::computeThirdFixedCoefficientAxialVelocity ( Eigen:
 
 
 //! Compute velocity components.
-Eigen::Vector3d HodographicShapingLeg::computeVelocityVectorInCylindricalCoordinates( double timeSinceDeparture )
+Eigen::Vector3d HodographicShapingLeg::computeVelocityVectorInCylindricalCoordinates( const double timeSinceDeparture )
 {
     Eigen::Vector3d velocityComponents;
 
@@ -443,7 +443,7 @@ double HodographicShapingLeg::computeCurrentRadialDistance( const double timeSin
 }
 
 //! Compute current polar angle.
-double HodographicShapingLeg::computeCurrentPolarAngle( double timeSinceDeparture )
+double HodographicShapingLeg::computeCurrentPolarAngle( const double timeSinceDeparture )
 {
     // Define the derivative of the polar angle, ie angular velocity function, as a function of time.
     std::function< double( const double ) > derivativeFunctionPolarAngle =
@@ -496,7 +496,7 @@ Eigen::Vector6d HodographicShapingLeg::computeCurrentCartesianState(const double
 
 
 //! Compute thrust acceleration components.
-Eigen::Vector3d HodographicShapingLeg::computeThrustAccelerationInCylindricalCoordinates( double timeSinceDeparture )
+Eigen::Vector3d HodographicShapingLeg::computeThrustAccelerationInCylindricalCoordinates( const double timeSinceDeparture )
 {
 
     Eigen::Vector3d thrustAccelerationComponents;
@@ -543,7 +543,7 @@ double HodographicShapingLeg::computeThrustAccelerationMagnitude(
     return computeThrustAcceleration(timeSinceDeparture).norm();
 }
 
-Eigen::Vector3d HodographicShapingLeg::computeThrustAcceleration(double timeSinceDeparture )
+Eigen::Vector3d HodographicShapingLeg::computeThrustAcceleration(const double timeSinceDeparture )
 {
     if ( timeSinceDeparture < 0.0 || timeSinceDeparture > timeOfFlight_ )
     {
@@ -574,7 +574,7 @@ Eigen::Vector3d HodographicShapingLeg::computeThrustAcceleration(double timeSinc
 
 //! Compute direction cartesian acceleration.
 Eigen::Vector3d HodographicShapingLeg::computeThrustAccelerationDirection(
-        double timeSinceDeparture )
+        const double timeSinceDeparture )
 {
     return computeThrustAcceleration(timeSinceDeparture).normalized();
 }

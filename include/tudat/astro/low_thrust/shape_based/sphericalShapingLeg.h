@@ -81,13 +81,13 @@ public:
     Eigen::Vector3d computeThrustAcceleration (const double timeSinceDeparture );
 
     //! Compute magnitude of thrust acceleration at the current azimuth.
-    double computeThrustAccelerationMagnitudeFromAzimuth (double currentAzimuthAngle );
+    double computeThrustAccelerationMagnitudeFromAzimuth (const double currentAzimuthAngle );
 
     //! Compute magnitude of thrust acceleration at the current time.
     double computeThrustAccelerationMagnitude (const double timeSinceDeparture);
 
     //! Compute direction of thrust acceleration in cartesian coordinates at the current azimuth.
-    Eigen::Vector3d computeThrustAccelerationDirectionFromAzimuth (double currentAzimuthAngle );
+    Eigen::Vector3d computeThrustAccelerationDirectionFromAzimuth (const double currentAzimuthAngle );
 
     //! Compute direction of thrust acceleration in cartesian coordinates at the current time.
     Eigen::Vector3d computeThrustAccelerationDirection (const double timeSinceDeparture);

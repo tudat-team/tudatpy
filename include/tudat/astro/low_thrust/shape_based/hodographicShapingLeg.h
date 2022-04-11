@@ -46,7 +46,7 @@ public:
     //! Compute current cartesian state.
     Eigen::Vector6d computeCurrentCartesianState(const double timeSinceDeparture );
 
-    //! Get single value of thrust acceleration
+    //! Get single value of state
     virtual void getStateAlongTrajectory( Eigen::Vector6d& stateAlongTrajectory,
                                           const double time )
     {
@@ -57,10 +57,10 @@ public:
     double computeThrustAccelerationMagnitude(const double timeSinceDeparture );
 
     //! Compute direction thrust acceleration in cartesian coordinates.
-    Eigen::Vector3d computeThrustAccelerationDirection(double timeSinceDeparture );
+    Eigen::Vector3d computeThrustAccelerationDirection(const double timeSinceDeparture );
 
     //! Compute the thrust acceleration in cartesian coordinates at the specified time.
-    Eigen::Vector3d computeThrustAcceleration( double timeSinceDeparture );
+    Eigen::Vector3d computeThrustAcceleration( const double timeSinceDeparture );
 
     //! Get single value of thrust acceleration.
     virtual void getThrustAccelerationAlongTrajectory(Eigen::Vector3d& thrustAccelerationAlongTrajectory,
@@ -89,7 +89,7 @@ private:
     double computeCurrentRadialDistance( const double timeSinceDeparture );
 
     //! Compute polar angle.
-    double computeCurrentPolarAngle( double timeSinceDeparture );
+    double computeCurrentPolarAngle( const double timeSinceDeparture );
 
     //! Compute axial distance from central body.
     double computeCurrentAxialDistance( const double timeSinceDeparture );
@@ -101,13 +101,13 @@ private:
     Eigen::Matrix3d computeInverseMatrixRadialOrAxialBoundaries( std::shared_ptr< CompositeFunctionHodographicShaping > velocityFunction );
 
     //! Satisfy boundary conditions in radial direction.
-    void satisfyRadialBoundaryConditions( Eigen::VectorXd freeCoefficients );
+    void satisfyRadialBoundaryConditions( const Eigen::VectorXd& freeCoefficients );
 
     //! Satisfy boundary conditions in axial direction.
-    void satisfyAxialBoundaryConditions( Eigen::VectorXd freeCoefficients );
+    void satisfyAxialBoundaryConditions( const Eigen::VectorXd& freeCoefficients );
 
     //! Satisfy boundary conditions in normal direction.
-    void satisfyNormalBoundaryConditions( Eigen::VectorXd freeCoefficients );
+    void satisfyNormalBoundaryConditions( const Eigen::VectorXd& freeCoefficients );
 
     //! Define angular velocity due to the third component of the composite function only.
     double computeDerivativePolarAngleDueToThirdComponent(
@@ -119,10 +119,10 @@ private:
 
     //! Compute third fixed coefficient of the normal velocity composite function, so that the condition on the final polar angle
     //! is fulfilled.
-    double computeThirdFixedCoefficientAxialVelocity ( Eigen::VectorXd freeCoefficients );
+    double computeThirdFixedCoefficientAxialVelocity ( const Eigen::VectorXd& freeCoefficients );
 
     //! Compute velocity vector in cylindrical coordinates.
-    Eigen::Vector3d computeVelocityVectorInCylindricalCoordinates( double timeSinceDeparture );
+    Eigen::Vector3d computeVelocityVectorInCylindricalCoordinates( const double timeSinceDeparture );
 
     //! Compute angular velocity.
     double evaluateDerivativePolarAngleWrtTime( const double timeSinceDeparture );
@@ -131,7 +131,7 @@ private:
     Eigen::Vector6d computeStateVectorInCylindricalCoordinates( const double timeSinceDeparture );
 
     //! Compute thrust acceleration vector in cylindrical coordinates.
-    Eigen::Vector3d computeThrustAccelerationInCylindricalCoordinates( double timeSinceDeparture );
+    Eigen::Vector3d computeThrustAccelerationInCylindricalCoordinates( const double timeSinceDeparture );
 
 
     //! Central body gravitational parameter.
