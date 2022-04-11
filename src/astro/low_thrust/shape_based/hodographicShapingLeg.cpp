@@ -24,11 +24,15 @@ HodographicShapingLeg::HodographicShapingLeg(
         const std::shared_ptr< ephemerides::Ephemeris > departureBodyEphemeris,
         const std::shared_ptr< ephemerides::Ephemeris > arrivalBodyEphemeris,
         const double centralBodyGravitationalParameter,
+        const std::function< Eigen::Vector3d( ) > departureVelocityFunction,
+        const std::function< Eigen::Vector3d( ) > arrivalVelocityFunction,
         const HodographicBasisFunctionList& radialVelocityFunctionComponents,
         const HodographicBasisFunctionList& normalVelocityFunctionComponents,
         const HodographicBasisFunctionList& axialVelocityFunctionComponents ) :
     mission_segments::TransferLeg( departureBodyEphemeris, arrivalBodyEphemeris, mission_segments::hodographic_low_thrust_leg ),
     centralBodyGravitationalParameter_( centralBodyGravitationalParameter ),
+    departureVelocityFunction_( departureVelocityFunction ),
+    arrivalVelocityFunction_( arrivalVelocityFunction ),
     numberOfFreeRadialCoefficients_( radialVelocityFunctionComponents.size( ) - 3 ),
     numberOfFreeNormalCoefficients_( normalVelocityFunctionComponents.size( ) - 3 ),
     numberOfFreeAxialCoefficients_( axialVelocityFunctionComponents.size( ) - 3 )
@@ -99,9 +103,22 @@ void HodographicShapingLeg::updateFreeCoefficients( )
 
 void HodographicShapingLeg::satisfyBoundaryConditions( )
 {
+    departureVelocity_ = departureVelocityFunction_( );
+    arrivalVelocity_ = arrivalVelocityFunction_( );
+
+    // Select initial and final cartesian state
+    Eigen::Vector6d initialCartesianState;
+    initialCartesianState.segment(0, 3) = departureBodyState_.segment(0, 3);
+    initialCartesianState.segment(3, 3 ) = departureVelocity_;
+
+    // Normalize the final state.
+    Eigen::Vector6d finalCartesianState;
+    finalCartesianState.segment(0, 3 ) = arrivalBodyState_.segment( 0, 3 );
+    finalCartesianState.segment(3, 3 ) = arrivalVelocity_;
+
     // Compute initial and final cylindrical state which is to be met by the hodographic shaping transfer
-    Eigen::Vector6d initialCylindricalState = coordinate_conversions::convertCartesianToCylindricalState( departureBodyState_ );
-    Eigen::Vector6d finalCylindricalState = coordinate_conversions::convertCartesianToCylindricalState( arrivalBodyState_ );
+    Eigen::Vector6d initialCylindricalState = coordinate_conversions::convertCartesianToCylindricalState( initialCartesianState );
+    Eigen::Vector6d finalCylindricalState = coordinate_conversions::convertCartesianToCylindricalState( finalCartesianState );
 
     // Set boundary conditions in the radial direction.
     radialBoundaryConditions_.clear( );
