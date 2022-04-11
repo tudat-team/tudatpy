@@ -577,14 +577,15 @@ Eigen::Vector3d HodographicShapingLeg::computeThrustAcceleration(const double ti
 
         cartesianAcceleration[ 0 ] = ( 1.0 / ( cartesianPosition[ 0 ] + ( std::pow(cartesianPosition[ 1 ], 2 ) / cartesianPosition[ 0 ] ) ) )
                 * ( cylindricalPosition[ 0 ] * cylindricalAcceleration[ 0 ]
-                    - ( cartesianPosition[ 1 ] / cartesianPosition[ 0 ] ) * std::pow(cylindricalPosition[ 0 ], 1 ) * cylindricalAcceleration[ 1 ] );
+                    - ( cartesianPosition[ 1 ] / cartesianPosition[ 0 ] ) * cylindricalPosition[ 0 ] * cylindricalAcceleration[ 1 ] );
 
-        cartesianAcceleration[ 1 ] = ( std::pow(cylindricalPosition[ 0 ], 1 ) * cylindricalAcceleration[ 1 ]
+        cartesianAcceleration[ 1 ] = ( cylindricalPosition[ 0 ] * cylindricalAcceleration[ 1 ]
                                        + cartesianPosition[ 1 ] * cartesianAcceleration[ 0 ] ) / cartesianPosition[ 0 ];
 
         cartesianAcceleration[ 2 ] = cylindricalAcceleration[ 2 ];
         thrustAccelerationVectorCache_[ timeSinceDeparture ] = cartesianAcceleration;
     }
+
     return thrustAccelerationVectorCache_[ timeSinceDeparture ];
 
 }
