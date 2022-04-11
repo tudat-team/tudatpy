@@ -243,9 +243,14 @@ void expose_estimation(py::module &m) {
                   &tss::PodInput<double, double>::setConstantPerObservableWeightsMatrix,
                   py::arg( "weight_per_observable" ),
                   get_docstring("PodInput.set_constant_weight_per_observable").c_str() )
-//            .def( "set_constant_weight_per_observable_and_link_end",
-//                  &tss::PodInput<double, double>::setConstantPerObservableAndLinkEndsWeights,
-//                  py::arg( "weight_per_observable_and_link" ) )
+            .def( "set_constant_weight_for_observable_and_link_ends",
+                  py::overload_cast<
+                  const tom::ObservableType,
+                  const tom::LinkEnds&,
+                  const double>( &tss::PodInput<double, double>::setConstantPerObservableAndLinkEndsWeights ),
+                  py::arg( "observable_type" ),
+                  py::arg( "link_ends" ),
+                  py::arg( "weight" ) )
             .def( "define_estimation_settings",
                   &tss::PodInput<double, double>::defineEstimationSettings,
                   py::arg( "reintegrate_equations_on_first_iteration" ) = true,
