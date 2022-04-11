@@ -259,10 +259,7 @@ def split_history(state_history: Dict[float, np.array], propagator_settings: pro
     -----------
     state_history_book : Dict[str,[Dict[float, numpy.ndarray]]]
         Dictionnary containing the name of the propagated body as key, and the state history as value.
-    """
-    # Define the state size of the implemented state types.
-    state_type_infos = {1: 6, 2: 7, 3: 1} # Translational (6), Rotational (7), Mass (1)
-    
+    """    
     # Get the propagated state types and names of the propagated bodies from the integrator settings.
     integrated_type_and_body_list = numerical_simulation.get_integrated_type_and_body_list(propagator_settings)
 
@@ -274,14 +271,12 @@ def split_history(state_history: Dict[float, np.array], propagator_settings: pro
     n_bodies, body_names = None, None
     propagated_states_sizes = []
     for state_type, body_list in integrated_type_and_body_list.items():
-        try:
-            if n_bodies is None:
-                n_bodies = len(body_list)
-                body_names = [body_list[i][0] for i in range(n_bodies)]
-            propagated_states_sizes.append(state_type_infos[state_type])
-        # Raise an error if the state type is not recognised (most likely custom).
-        except KeyError:
-            raise NotImplementedError("The split history algorithm does not know the state size of the following type:", state_type)
+        if n_bodies is None:
+            n_bodies = len(body_list)
+            body_names = [body_list[i][0] for i in range(n_bodies)]
+        # Get the state size for the current state type.
+        state_size = numerical_simulation.get_single_integration_size(state_type)
+        propagated_states_sizes.append(state_size)
 
     # Create the empty state history book.
     state_history_book = {body_name: {epoch: [] for epoch in epochs} for body_name in body_names}
