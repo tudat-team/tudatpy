@@ -36,6 +36,8 @@ public:
             const std::shared_ptr< ephemerides::Ephemeris > departureBodyEphemeris,
             const std::shared_ptr< ephemerides::Ephemeris > arrivalBodyEphemeris,
             const double centralBodyGravitationalParameter,
+            const std::function< Eigen::Vector3d( ) > departureVelocityFunction,
+            const std::function< Eigen::Vector3d( ) > arrivalVelocityFunction,
             const HodographicBasisFunctionList& radialVelocityFunctionComponents,
             const HodographicBasisFunctionList& normalVelocityFunctionComponents,
             const HodographicBasisFunctionList& axialVelocityFunctionComponents );
@@ -136,6 +138,12 @@ private:
 
     //! Central body gravitational parameter.
     const double centralBodyGravitationalParameter_;
+
+    //! Function that outputs the departure velocity
+    std::function< Eigen::Vector3d( ) > departureVelocityFunction_;
+
+    //! Function that outputs the arrival velocity
+    std::function< Eigen::Vector3d( ) > arrivalVelocityFunction_;
 
     //! Number of revolutions.
     int numberOfRevolutions_;

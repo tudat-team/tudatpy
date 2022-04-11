@@ -148,10 +148,15 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer_1 )
     Eigen::Vector6d cartesianStateArrivalBody =
             pointerToArrivalBodyEphemeris->getCartesianState( julianDate + timeOfFlight  * physical_constants::JULIAN_DAY );
 
+    // Define departure and arrival velocity functions
+    std::function< Eigen::Vector3d( ) > departureVelocityFunction = [=]( ){ return cartesianStateDepartureBody.segment( 3, 3 ); };
+    std::function< Eigen::Vector3d( ) > arrivalVelocityFunction = [=]( ){ return cartesianStateArrivalBody.segment( 3, 3 ); };
+
     // Create hodographic-shaping object with defined velocity functions and boundary conditions.
     HodographicShapingLeg hodographicShapingLeg = HodographicShapingLeg(
                 pointerToDepartureBodyEphemeris, pointerToArrivalBodyEphemeris,
                 spice_interface::getBodyGravitationalParameter( "Sun" ),
+                departureVelocityFunction, arrivalVelocityFunction,
                 radialVelocityFunctionComponents, normalVelocityFunctionComponents, axialVelocityFunctionComponents );
     hodographicShapingLeg.updateLegParameters(
             ( Eigen::Vector3d( )<< julianDate, julianDate + timeOfFlight * physical_constants::JULIAN_DAY,
@@ -1205,10 +1210,14 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_full_propagation )
                 radialVelocityFunctionComponents, normalVelocityFunctionComponents, axialVelocityFunctionComponents,
                 freeCoefficientsRadialVelocityFunction, freeCoefficientsNormalVelocityFunction, freeCoefficientsAxialVelocityFunction );
 
+    std::function< Eigen::Vector3d( ) > departureVelocityFunction = [=]( ){ return cartesianStateDepartureBody.segment( 3, 3 ); };
+    std::function< Eigen::Vector3d( ) > arrivalVelocityFunction = [=]( ){ return cartesianStateArrivalBody.segment( 3, 3 ); };
 
+    // Define departure and arrival velocity functions
     HodographicShapingLeg hodographicShapingLeg = HodographicShapingLeg(
                 pointerToDepartureBodyEphemeris, pointerToArrivalBodyEphemeris,
                 spice_interface::getBodyGravitationalParameter( "Sun" ),
+                departureVelocityFunction, arrivalVelocityFunction,
                 radialVelocityFunctionComponents, normalVelocityFunctionComponents, axialVelocityFunctionComponents );
     hodographicShapingLeg.updateLegParameters(
             ( Eigen::VectorXd( 9 ) << julianDate, julianDate + timeOfFlight  * physical_constants::JULIAN_DAY,
