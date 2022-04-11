@@ -55,6 +55,10 @@ void expose_numerical_simulation(py::module &m) {
         &tp::getIntegratedTypeAndBodyList<double>,
         py::arg("propagator_settings") );
 
+  m.def("get_single_integration_size",
+        &tp::getSingleIntegrationSize,
+        py::arg("state_type") );
+
   py::class_<
           tp::SingleArcDynamicsSimulator<double, double>,
           std::shared_ptr<tp::SingleArcDynamicsSimulator<double, double>>>(m,
