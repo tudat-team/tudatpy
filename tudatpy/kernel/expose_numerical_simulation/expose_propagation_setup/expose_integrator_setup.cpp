@@ -44,6 +44,7 @@ namespace integrator {
                            get_docstring("AvailableIntegrators.euler").c_str())
                     .value("runge_kutta_4_type", tni::AvailableIntegrators::rungeKutta4,
                            get_docstring("AvailableIntegrators.runge_kutta_4").c_str())
+                    .value("runge_kutta_fixed_step_size_type", tni::AvailableIntegrators::rungeKuttaFixedStepSize)
                     .value("runge_kutta_variable_step_size_type", tni::AvailableIntegrators::rungeKuttaVariableStepSize,
                            get_docstring("AvailableIntegrators.runge_kutta_variable_step_size").c_str())
                     .value("bulirsch_stoer_type", tni::AvailableIntegrators::bulirschStoer,
@@ -62,7 +63,6 @@ namespace integrator {
                            get_docstring("RKCoefficientSets.rkf_56").c_str())
                     .value("rkf_78", tni::RungeKuttaCoefficients::rungeKuttaFehlberg78,
                            get_docstring("RKCoefficientSets.rkf_78").c_str())
-                    .value("rkf_8", tni::RungeKuttaCoefficients::rungeKuttaFehlberg8)
                     .value("rkdp_87", tni::RungeKuttaCoefficients::rungeKutta87DormandPrince,
                            get_docstring("RKCoefficientSets.rkdp_87").c_str())
                     .export_values();
@@ -94,9 +94,9 @@ namespace integrator {
 //                     py::arg("assess_propagation_termination_condition_during_integration_substeps") = false)
                     .def_readwrite("initial_time", &tni::IntegratorSettings<double>::initialTime_);
 
-       //      py::class_<tni::RungeKuttaFixedStepSizeBaseSettings<double>,
-       //              std::shared_ptr<tni::RungeKuttaFixedStepSizeBaseSettings<double>>,
-       //              tni::IntegratorSettings<double>>(m, "RungeKuttaFixedStepSizeBaseSettings");
+            py::class_<tni::RungeKuttaFixedStepSizeSettings<double>,
+                    std::shared_ptr<tni::RungeKuttaFixedStepSizeSettings<double>>,
+                    tni::IntegratorSettings<double>>(m, "RungeKuttaFixedStepSizeSettings");
 
             py::class_<tni::RungeKuttaVariableStepSizeBaseSettings<double>,
                     std::shared_ptr<tni::RungeKuttaVariableStepSizeBaseSettings<double>>,
@@ -148,22 +148,14 @@ namespace integrator {
                   py::arg("assess_termination_on_minor_steps") = false,
                   get_docstring("runge_kutta_4").c_str());
 
-       //      m.def("runge_kutta_fixed_step_size",
-       //            &tni::rungeKuttaVariableStepSettingsScalarTolerances<double>,
-       //            py::arg("initial_time"),
-       //            py::arg("initial_time_step"),
-       //            py::arg("coefficient_set"),
-       //            py::arg("minimum_step_size"),
-       //            py::arg("maximum_step_size"),
-       //            py::arg("relative_error_tolerance"),
-       //            py::arg("absolute_error_tolerance"),
-       //            py::arg("save_frequency") = 1,
-       //            py::arg("assess_termination_on_minor_steps") = false,
-       //            py::arg("safety_factor") = 0.8,
-       //            py::arg("maximum_factor_increase") = 4.0,
-       //            py::arg("minimum_factor_increase") = 0.1,
-       //            py::arg("throw_exception_if_minimum_step_exceeded") = true,
-       //            get_docstring("runge_kutta_variable_step_size").c_str());
+            m.def("runge_kutta_fixed_step_size",
+                  &tni::rungeKuttaFixedStepSettings<double>,
+                  py::arg("initial_time"),
+                  py::arg("initial_time_step"),
+                  py::arg("coefficient_set"),
+                  py::arg("order_to_use") = 0,
+                  py::arg("save_frequency") = 1,
+                  py::arg("assess_termination_on_minor_steps") = false);
 
             m.def("runge_kutta_variable_step_size",
                   &tni::rungeKuttaVariableStepSettingsScalarTolerances<double>,
