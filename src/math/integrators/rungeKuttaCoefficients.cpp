@@ -31,8 +31,7 @@ namespace numerical_integrators
 void initializeForwardEulerCoefficients( RungeKuttaCoefficients& forwardEulerCoefficients )
 {
     // Define characteristics of coefficient set.
-    forwardEulerCoefficients.lowerOrder = 1;
-    forwardEulerCoefficients.higherOrder = 1;
+    forwardEulerCoefficients.isFixedStepSize = true;
 
     // Define a-coefficients for the forward Euler method of order 1 and with 1 stage.
     forwardEulerCoefficients.aCoefficients = Eigen::MatrixXd::Zero( 1, 1 );
@@ -53,8 +52,7 @@ void initializeRungeKutta4Coefficients( RungeKuttaCoefficients&
                                         rungeKutta4Coefficients )
 {
     // Define characteristics of coefficient set.
-    rungeKutta4Coefficients.lowerOrder = 4;
-    rungeKutta4Coefficients.higherOrder = 4;
+    rungeKutta4Coefficients.isFixedStepSize = true;
 
     // Define a-coefficients for the Runge-Kutta method of order 4 and with 4 stages.
     rungeKutta4Coefficients.aCoefficients = Eigen::MatrixXd::Zero( 4, 4 );
@@ -347,26 +345,6 @@ void initializeRungeKuttaFehlberg78Coefficients( RungeKuttaCoefficients&
     // Set the name of these coefficients.
     rungeKuttaFehlberg78Coefficients.name = "Runge-Kutta-Fehlberg 7/8";
 }
-//! Initialize RKF8 coefficients.
-void initializeRungeKuttaFehlberg8Coefficients( RungeKuttaCoefficients&
-                                                rungeKuttaFehlberg8Coefficients )
-{
-    // Initialise as RKF78 coefficients first.
-    initializeRungeKuttaFehlberg78Coefficients( rungeKuttaFehlberg8Coefficients );
-
-    
-    rungeKuttaFehlberg8Coefficients.lowerOrder = 8;
-    rungeKuttaFehlberg8Coefficients.higherOrder = 8;
-    rungeKuttaFehlberg8Coefficients.orderEstimateToIntegrate = RungeKuttaCoefficients::lower;
-
-    // Remove the first row of the bCoefficients.
-    Eigen::MatrixXd oldBCoefficients = rungeKuttaFehlberg8Coefficients.bCoefficients;
-    rungeKuttaFehlberg8Coefficients.bCoefficients = Eigen::MatrixXd::Zero( 1, 13 );
-    rungeKuttaFehlberg8Coefficients.bCoefficients.row( 0 ) = oldBCoefficients.row( 1 );
-
-    // Set the name of these coefficients.
-    rungeKuttaFehlberg8Coefficients.name = "Runge-Kutta-Fehlberg 8";
-}
 
 //! Initialize RK87 (Dormand and Prince) coefficients.
 void initializerungeKutta87DormandPrinceCoefficients(
@@ -508,7 +486,6 @@ const RungeKuttaCoefficients& RungeKuttaCoefficients::get(
                                   rungeKuttaFehlberg45Coefficients,
                                   rungeKuttaFehlberg56Coefficients,
                                   rungeKuttaFehlberg78Coefficients,
-                                  rungeKuttaFehlberg8Coefficients,
                                   rungeKutta87DormandPrinceCoefficients;
 
     switch ( coefficientSet )
@@ -548,13 +525,6 @@ const RungeKuttaCoefficients& RungeKuttaCoefficients::get(
             initializeRungeKuttaFehlberg78Coefficients( rungeKuttaFehlberg78Coefficients );
         }
         return rungeKuttaFehlberg78Coefficients;
-
-    case rungeKuttaFehlberg8:
-        if ( rungeKuttaFehlberg8Coefficients.higherOrder != 8 )
-        {
-            initializeRungeKuttaFehlberg8Coefficients( rungeKuttaFehlberg8Coefficients );
-        }
-        return rungeKuttaFehlberg8Coefficients;
 
     case rungeKutta87DormandPrince:
         if ( rungeKutta87DormandPrinceCoefficients.higherOrder != 7 )
