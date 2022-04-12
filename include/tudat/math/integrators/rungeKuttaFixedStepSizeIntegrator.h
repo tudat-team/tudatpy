@@ -78,12 +78,14 @@ public:
     RungeKuttaFixedStepSizeIntegrator( const StateDerivativeFunction& stateDerivativeFunction,
                                        const IndependentVariableType intervalStart,
                                        const StateType& initialState,
-                                       const RungeKuttaCoefficients::CoefficientSets& coefficientsSet ) :
+                                       const RungeKuttaCoefficients::CoefficientSets& coefficientsSet,
+                                       const unsigned int orderToUse = 0 ) :
         ReinitializableNumericalIntegratorBase( stateDerivativeFunction ),
         currentIndependentVariable_( intervalStart ),
         currentState_( initialState ),
         lastIndependentVariable_( intervalStart ),
-        coefficientsSet_( coefficientsSet )
+        coefficientsSet_( coefficientsSet ),
+        orderToUse_( orderToUse )
     {
         // Load the Butcher tableau coefficients.
         setCoefficients( coefficientsSet );
@@ -98,10 +100,41 @@ public:
     {
         // Load the Butcher tableau coefficients.
         butcherTableau_ = butcherTableau_.get( coefficientsSet );
-        // Raise an exception if the Butcher tableau corresponds to a variable step integrator.
-        if (butcherTableau_.bCoefficients.rows( ) != 1)
+
+        // Print a warning if the coefficient set is a fixed step integrator but the user specified an order.
+        if ( (butcherTableau_.isFixedStepSize) && (orderToUse_ != 0))
         {
-            throw std::runtime_error( "Error, the fixed step size Runge Kutta integrator cannot take a coefficient set corresponding to a variable step size integrator." );
+            std::cout << "Warning, the order specified for the integrator (" << orderToUse_ << ") is ignored since the " << butcherTableau_.name << " fixed step integrator is used, which only has one order." << std::endl;
+        }
+        // Raise an error if the integrator is variable step but no order to use was specified.
+        else if ( !butcherTableau_.isFixedStepSize && (orderToUse_ == 0) )
+        {
+            throw std::runtime_error( "Error, using the fixed step RK integrator with a variable step coefficient set (" + butcherTableau_.name + ") requires to specify the order to use." +
+                                      " Available orders: " + std::to_string( butcherTableau_.lowerOrder ) + " / " + std::to_string( butcherTableau_.higherOrder ) + "." );
+        }
+        // Raise an error if the specified order is not available.
+        else if ( (orderToUse_ != butcherTableau_.lowerOrder) && (orderToUse_ != butcherTableau_.higherOrder) )
+        {
+            throw std::runtime_error( "Error, the specified order (" + std::to_string( orderToUse_ ) + ") is not available for the " + butcherTableau_.name + " Runge Kutta integrator." +
+                                      " Available orders: " + std::to_string( butcherTableau_.lowerOrder ) + " / " + std::to_string( butcherTableau_.higherOrder ) + "." );
+        }
+        // If all went well, remove the b column according to the order to use.
+        else if ( !(butcherTableau_.isFixedStepSize) && (orderToUse_ != 0))
+        {
+            if (orderToUse_ == butcherTableau_.lowerOrder)
+            {
+                // Keep the first row of bCoefficients.
+                Eigen::MatrixXd oldBCoefficients = butcherTableau_.bCoefficients;
+                butcherTableau_.bCoefficients = Eigen::MatrixXd::Zero( 1, oldBCoefficients.cols() );
+                butcherTableau_.bCoefficients.row( 0 ) = oldBCoefficients.row( 0 );
+            }
+            else
+            {
+                // Keep the second row of bCoefficients.
+                Eigen::MatrixXd oldBCoefficients = butcherTableau_.bCoefficients;
+                butcherTableau_.bCoefficients = Eigen::MatrixXd::Zero( 1, oldBCoefficients.cols() );
+                butcherTableau_.bCoefficients.row( 0 ) = oldBCoefficients.row( 1 );
+            }
         }
     }
 
@@ -180,6 +213,8 @@ public:
                     currentStateDerivatives_[ stage ];
         }
 
+        // Keep step size unchanged.
+        stepSize_ = stepSize;
         // Update the current state and independent variable.
         this->currentIndependentVariable_ += stepSize;
         this->currentState_ = stateEstimate;
@@ -319,6 +354,8 @@ protected:
      */
     std::vector< StateDerivativeType > currentStateDerivatives_;
 
+    // Order of Runge-Kutta method to be used.
+    unsigned int orderToUse_;
 };
 
 extern template class RungeKuttaFixedStepSizeIntegrator < double, Eigen::VectorXd, Eigen::VectorXd >;
