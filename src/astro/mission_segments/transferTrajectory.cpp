@@ -229,6 +229,13 @@ void TransferTrajectory::getLegTotalParameters(
         legTotalParameters( 1 ) = nodeTimes.at( legIndex + 1 );
         legTotalParameters( 2 ) = legFreeParameters( 0 );
     }
+    else if ( legs_.at( legIndex )->getTransferLegType( ) == hodographic_low_thrust_leg )
+    {
+        legTotalParameters.resize( 3, 1 );
+        legTotalParameters( 0 ) = nodeTimes.at( legIndex );
+        legTotalParameters( 1 ) = nodeTimes.at( legIndex + 1 );
+        legTotalParameters( 2 ) = legFreeParameters( 0 );
+    }
     else
     {
         throw std::runtime_error( "Error when getting leg parameters, leg type not recognized" );

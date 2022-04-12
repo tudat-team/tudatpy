@@ -41,10 +41,14 @@
 #include "tudat/astro/mission_segments/createTransferTrajectory.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/environment_setup/createBodies.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
 
 #include "tudat/math/root_finders/createRootFinder.h"
 
 #include "tudat/astro/low_thrust/shape_based/sphericalShapingLeg.h"
+#include "tudat/astro/low_thrust/shape_based/hodographicShapingLeg.h"
+#include "tudat/astro/low_thrust/shape_based/baseFunctionsHodographicShaping.h"
+#include "tudat/astro/low_thrust/shape_based/createBaseFunctionHodographicShaping.h"
 
 namespace tudat
 {
@@ -55,6 +59,7 @@ namespace unit_tests
 using namespace tudat::input_output;
 using namespace tudat::simulation_setup;
 using namespace mission_segments;
+using namespace tudat::shape_based_methods;
 
 
 //! Test implementation of trajectory class
@@ -210,12 +215,179 @@ BOOST_AUTO_TEST_CASE( testMgaMixedLegs )
 
 }
 
+// Test checks delta V of a single hodographic shaping leg, inserted in the MGA framework, comparing it to the results
+// given by Gondelach.
+BOOST_AUTO_TEST_CASE( testMgaHodographicShapingSingleLeg )
+{
+
+    int numberOfRevolutions = 2;
+    double departureDate = 9264.5 * physical_constants::JULIAN_DAY ;
+    double timeOfFlight = 1070.0 * physical_constants::JULIAN_DAY;
+    double frequency = 2.0 * mathematical_constants::PI / timeOfFlight;
+    double scaleFactor = 1.0 / timeOfFlight;
+
+    // Set transfer order
+    std::vector< std::string > bodyOrder = { "Earth", "Mars" };
+
+    // Create environment
+    // spice_interface::loadStandardSpiceKernels( );
+    // BodyListSettings bodySettings = getDefaultBodySettings(bodyOrder);
+    // SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+    SystemOfBodies bodies = createSimplifiedSystemOfBodies( );
+    // Select correct ephemeris
+    bodies.getBody("Earth")->setEphemeris( std::make_shared< ephemerides::ApproximateJplEphemeris >("Earth") );
+    bodies.getBody("Mars")->setEphemeris( std::make_shared< ephemerides::ApproximateJplEphemeris >("Mars") );
+
+    // Initialize free coefficients vector for radial, normal and axial velocity function.
+    Eigen::VectorXd freeCoefficientsRadialVelocityFunction = Eigen::VectorXd::Zero( 0 );
+    Eigen::VectorXd freeCoefficientsNormalVelocityFunction = Eigen::VectorXd::Zero( 0 );
+    Eigen::VectorXd freeCoefficientsAxialVelocityFunction = Eigen::VectorXd::Zero( 0 );
+
+    // Create base function settings for the components of the radial velocity composite function.
+    std::shared_ptr< BaseFunctionHodographicShapingSettings > firstRadialVelocityBaseFunctionSettings =
+            std::make_shared< BaseFunctionHodographicShapingSettings >( );
+    std::shared_ptr< BaseFunctionHodographicShapingSettings > secondRadialVelocityBaseFunctionSettings =
+            std::make_shared< PowerFunctionHodographicShapingSettings >( 1.0, scaleFactor );
+    std::shared_ptr< BaseFunctionHodographicShapingSettings > thirdRadialVelocityBaseFunctionSettings =
+            std::make_shared< TrigonometricFunctionHodographicShapingSettings >( frequency );
+
+    // Create components of the radial velocity composite function.
+    std::vector< std::shared_ptr< BaseFunctionHodographicShaping > > radialVelocityFunctionComponents;
+    radialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( constant, firstRadialVelocityBaseFunctionSettings ) );
+    radialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPower, secondRadialVelocityBaseFunctionSettings ) );
+    radialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( cosine, thirdRadialVelocityBaseFunctionSettings ) );
+
+    // Create base function settings for the components of the normal velocity composite function.
+    std::shared_ptr< BaseFunctionHodographicShapingSettings > firstNormalVelocityBaseFunctionSettings =
+            std::make_shared< BaseFunctionHodographicShapingSettings >( );
+    std::shared_ptr< BaseFunctionHodographicShapingSettings > secondNormalVelocityBaseFunctionSettings =
+            std::make_shared< PowerFunctionHodographicShapingSettings >( 1.0, scaleFactor );
+    std::shared_ptr< BaseFunctionHodographicShapingSettings > thirdNormalVelocityBaseFunctionSettings =
+            std::make_shared< TrigonometricFunctionHodographicShapingSettings >( frequency );
+
+    // Create components of the normal velocity composite function.
+    std::vector< std::shared_ptr< BaseFunctionHodographicShaping > > normalVelocityFunctionComponents;
+    normalVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( constant, firstNormalVelocityBaseFunctionSettings ) );
+    normalVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPower, secondNormalVelocityBaseFunctionSettings ) );
+    normalVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( cosine, thirdNormalVelocityBaseFunctionSettings ) );
+
+    // Create base function settings for the components of the axial velocity composite function.
+    std::shared_ptr< BaseFunctionHodographicShapingSettings > firstAxialVelocityBaseFunctionSettings =
+            std::make_shared< TrigonometricFunctionHodographicShapingSettings >( ( numberOfRevolutions + 0.5 ) * frequency );
+    std::shared_ptr< BaseFunctionHodographicShapingSettings > secondAxialVelocityBaseFunctionSettings =
+            std::make_shared< PowerTimesTrigonometricFunctionHodographicShapingSettings >
+            ( 3.0, ( numberOfRevolutions + 0.5 ) * frequency, scaleFactor );
+    std::shared_ptr< BaseFunctionHodographicShapingSettings > thirdAxialVelocityBaseFunctionSettings =
+            std::make_shared< PowerTimesTrigonometricFunctionHodographicShapingSettings >(
+                3.0, ( numberOfRevolutions + 0.5 ) * frequency, scaleFactor );
+
+    // Set components for the axial velocity function.
+    std::vector< std::shared_ptr< BaseFunctionHodographicShaping > > axialVelocityFunctionComponents;
+    axialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( cosine, firstAxialVelocityBaseFunctionSettings ) );
+    axialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPowerCosine, secondAxialVelocityBaseFunctionSettings ) );
+    axialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPowerSine, thirdAxialVelocityBaseFunctionSettings ) );
+
+
+    for( unsigned int creationType = 0; creationType < 1; creationType++ ) {
+        // Create leg and nodes settings
+        std::vector< std::shared_ptr< TransferLegSettings > > transferLegSettings;
+        std::vector< std::shared_ptr< TransferNodeSettings > > transferNodeSettings;
+
+        if ( creationType == 0 )
+        {
+            transferLegSettings.resize(bodyOrder.size( ) - 1);
+            transferLegSettings[0] = hodographicShapingLeg(
+                    radialVelocityFunctionComponents, normalVelocityFunctionComponents, axialVelocityFunctionComponents);
+
+            transferNodeSettings.resize(bodyOrder.size( ));
+            transferNodeSettings[0] = escapeAndDepartureNode(std::numeric_limits< double >::infinity( ), 0.0);
+            transferNodeSettings[1] = captureAndInsertionNode(std::numeric_limits< double >::infinity( ), 0.0);
+
+            // Print parameter definition
+            printTransferParameterDefinition(transferLegSettings, transferNodeSettings);
+        }
+        else if ( creationType == 1 )
+        {
+
+        }
+
+        std::shared_ptr< TransferTrajectory > transferTrajectory = createTransferTrajectory(
+                bodies, transferLegSettings, transferNodeSettings, bodyOrder, "Sun");
+
+        // Create list of node times
+        std::vector< double > nodeTimes;
+        nodeTimes.push_back(departureDate);
+        nodeTimes.push_back(nodeTimes.at(0) + timeOfFlight);
+
+        std::vector< Eigen::VectorXd > transferLegFreeParameters(bodyOrder.size( ) - 1);
+        transferLegFreeParameters.at(0) = (Eigen::Vector1d( ) << numberOfRevolutions).finished( );
+
+        std::vector< Eigen::VectorXd > transferNodeFreeParameters(bodyOrder.size( ));
+        // Initial and final excess velocity is 0.0, meaning the spacecraft starts/ends with the velocity of the planet
+        transferNodeFreeParameters.at(0) = ( Eigen::Vector3d( ) << 0.0, 0.0, 0.0 ).finished( );
+        transferNodeFreeParameters.at(1) = ( Eigen::Vector3d( ) << 0.0, 0.0, 0.0 ).finished( );
+
+        transferTrajectory->evaluateTrajectory(nodeTimes, transferLegFreeParameters, transferNodeFreeParameters);
+
+        // Check results consistency w.r.t. Gondelach, D., "A hodographic-shaping method for low-thrust trajectory design",
+        // 2012, TU Delft (MSc thesis)
+        double expectedDeltaV = 7751.0;
+        BOOST_CHECK_SMALL(std::fabs(transferTrajectory->getTotalDeltaV( ) - expectedDeltaV), 1.0);
+
+        // Check continuity of velocity between legs and nodes
+        for( int i = 0; i < transferTrajectory->getNumberOfLegs(); i++ )
+        {
+            std::shared_ptr< TransferLeg > leg = transferTrajectory->getLegs().at(i);
+            std::shared_ptr< TransferNode > previous_node = transferTrajectory->getNodes().at(i);
+            std::shared_ptr< TransferNode > following_node = transferTrajectory->getNodes().at(i+1);
+
+            for ( int j = 0; j < 3; j++)
+            {
+                BOOST_CHECK_SMALL(std::fabs( leg->getDepartureVelocity()[j] - previous_node->getOutgoingVelocity()[j] ), 1e-12);
+                BOOST_CHECK_SMALL(std::fabs( leg->getArrivalVelocity()[j] - following_node->getIncomingVelocity()[j] ), 1e-12);
+            }
+        }
+
+        // Compute peak thrust acceleration
+        double peakThrustAcceleration = 0.0;
+        std::map< double, Eigen::Vector3d > thrustAccelerationsAlongTrajectory;
+        transferTrajectory->getLegs().at(0)->getThrustAccelerationsAlongTrajectory(thrustAccelerationsAlongTrajectory, 5000 );
+
+        for( auto it : thrustAccelerationsAlongTrajectory )
+        {
+            Eigen::Vector3d currentCartesianThrustAcceleration = it.second;
+            if ( currentCartesianThrustAcceleration.norm() > peakThrustAcceleration )
+            {
+                peakThrustAcceleration = currentCartesianThrustAcceleration.norm();
+            }
+        }
+
+        // Check results consistency w.r.t. Gondelach, D., "A hodographic-shaping method for low-thrust trajectory design",
+        // 2012, TU Delft (MSc thesis)
+        double expectedPeakAcceleration = 2.64e-4;
+        BOOST_CHECK_SMALL( std::fabs(  peakThrustAcceleration - expectedPeakAcceleration ), 1e-6 );
+
+        // Retrieve state history and thrust acceleration history.
+        transferTrajectory->getStatesAlongTrajectory(10);
+        transferTrajectory->getThrustAccelerationsAlongTrajectory(10);
+    }
+}
+
 // Test checks delta V of a single spherical shaping leg, inserted in the MGA framework, comparing it to the results
 // given by Roegiers.
 BOOST_AUTO_TEST_CASE( testMgaSphericalShapingSingleLeg )
 {
     int numberOfRevolutions = 1;
-    double departureDate = 8174.5 * physical_constants::JULIAN_DAY ;
+    double departureDate = 8174.5 * physical_constants::JULIAN_DAY;
     double timeOfFlight = 580.0 * physical_constants::JULIAN_DAY;
 
     // Create environment
