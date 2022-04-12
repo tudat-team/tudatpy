@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2019, Delft University of Technology
+/*    Copyright (c) 2010-2022, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -53,6 +53,9 @@ struct RungeKuttaCoefficients
     // Order estimate to integrate.
     OrderEstimateToIntegrate orderEstimateToIntegrate;
 
+    // Save if the coefficient set corresponds to a fixed step size.
+    bool isFixedStepSize;
+
     // Name of the coefficients.
     std::string name;
 
@@ -67,6 +70,7 @@ struct RungeKuttaCoefficients
         higherOrder( 0 ),
         lowerOrder( 0 ),
         orderEstimateToIntegrate( lower ),
+        isFixedStepSize( false ),
         name( "Undefined" )        
     { }
 
@@ -80,6 +84,8 @@ struct RungeKuttaCoefficients
      * \param lowerOrder_ Order of the embedded low-order integrator.
      * \param order Enum denoting whether to use the lower or higher order scheme for numerical
      * integration.
+     * \param isFixedStepSize_ Boolean denoting whether the coefficient set is made for a fixed step size.
+     * \param name_ Name of the coefficient set.
      */
     RungeKuttaCoefficients( const Eigen::MatrixXd& aCoefficients_,
                             const Eigen::MatrixXd& bCoefficients_,
@@ -87,6 +93,7 @@ struct RungeKuttaCoefficients
                             const unsigned int higherOrder_,
                             const unsigned int lowerOrder_,
                             OrderEstimateToIntegrate order,
+                            const bool isFixedStepSize_ = false,
                             std::string name_ = "Undefined" ) :
         aCoefficients( aCoefficients_ ),
         bCoefficients( bCoefficients_ ),
@@ -94,6 +101,7 @@ struct RungeKuttaCoefficients
         higherOrder( higherOrder_ ),
         lowerOrder( lowerOrder_ ),
         orderEstimateToIntegrate( order ),
+        isFixedStepSize( isFixedStepSize_ ),
         name( name_ )
     { }
 
@@ -107,7 +115,6 @@ struct RungeKuttaCoefficients
         rungeKuttaFehlberg45,
         rungeKuttaFehlberg56,
         rungeKuttaFehlberg78,
-        rungeKuttaFehlberg8,
         rungeKutta87DormandPrince
     };
 
