@@ -35,6 +35,15 @@ sphericalShapingLeg (
             initialValueFreeCoefficient, timeToAzimuthInterpolatorStepSize );
 }
 
+std::shared_ptr< TransferLegSettings > hodographicShapingLeg (
+        const shape_based_methods::HodographicBasisFunctionList& radialVelocityFunctionComponents,
+        const shape_based_methods::HodographicBasisFunctionList& normalVelocityFunctionComponents,
+        const shape_based_methods::HodographicBasisFunctionList& axialVelocityFunctionComponents)
+{
+    return std::make_shared< HodographicShapingLegSettings >(
+            radialVelocityFunctionComponents, normalVelocityFunctionComponents, axialVelocityFunctionComponents);
+}
+
 std::shared_ptr< TransferNodeSettings > escapeAndDepartureNode(
         const double departureSemiMajorAxis,
         const double departureEccentricity )
@@ -162,6 +171,38 @@ std::shared_ptr< TransferLeg > createTransferLeg (
                 sphericalShapingLegSettings->upperBoundFreeCoefficient_,
                 sphericalShapingLegSettings->initialValueFreeCoefficient_,
                 sphericalShapingLegSettings->timeToAzimuthInterpolatorStepSize_);
+
+        break;
+    }
+    case hodographic_low_thrust_leg:
+    {
+        std::shared_ptr< HodographicShapingLegSettings > hodographicShapingLegSettings =
+                std::dynamic_pointer_cast< HodographicShapingLegSettings >( legSettings );
+        if( hodographicShapingLegSettings == nullptr )
+        {
+            throw std::runtime_error( "Error when making hodographic_shaping_low_thrust_leg, type is inconsistent" );
+        }
+
+        if( departureNode == nullptr )
+        {
+            throw std::runtime_error( "Error when making hodographic_shaping_low_thrust_leg, no departure node." );
+        }
+        else if (arrivalNode == nullptr)
+        {
+            throw std::runtime_error( "Error when making hodographic_shaping_low_thrust_leg, no arrival node." );
+        }
+
+        std::function< Eigen::Vector3d( ) > departureVelocityFunction =
+                std::bind( &TransferNode::getOutgoingVelocity, departureNode );
+        std::function< Eigen::Vector3d( ) > arrivalVelocityFunction =
+                std::bind( &TransferNode::getIncomingVelocity, arrivalNode );
+
+        transferLeg = std::make_shared< shape_based_methods::HodographicShapingLeg >(
+                departureBodyEphemeris, arrivalBodyEphemeris, centralBodyGravitationalParameter,
+                departureVelocityFunction, arrivalVelocityFunction,
+                hodographicShapingLegSettings->radialVelocityFunctionComponents_,
+                hodographicShapingLegSettings->normalVelocityFunctionComponents_,
+                hodographicShapingLegSettings->axialVelocityFunctionComponents_);
 
         break;
     }
@@ -619,6 +660,28 @@ void getMgaTransferTrajectorySettingsWithSphericalShapingThrust (
 
 }
 
+//void getMgaTransferTrajectorySettingsWithHodographicShapingThrust (
+//        std::vector< std::shared_ptr< TransferLegSettings > >& legSettings,
+//        std::vector< std::shared_ptr< TransferNodeSettings > >& nodeSettings,
+//        const std::vector< std::string >& fullBodiesList,
+//        const std::vector< shape_based_methods::HodographicBasisFunctionList >& radialVelocityFunctionComponentsList,
+//        const std::vector< shape_based_methods::HodographicBasisFunctionList >& normalVelocityFunctionComponentsList,
+//        const std::vector< shape_based_methods::HodographicBasisFunctionList >& axialVelocityFunctionComponentsList,
+//        const std::pair< double, double > departureOrbit,
+//        const std::pair< double, double > arrivalOrbit,
+//        const std::map< std::string, double > minimumPericenterRadii)
+//{
+//    std::function< std::shared_ptr<TransferLegSettings>( ) > hodographicShapingLegSettingsConstructor = [=]( int i ){
+//        return hodographicShapingLeg(
+//                radialVelocityFunctionComponentsList.at(i),
+//                normalVelocityFunctionComponentsList.at(i),
+//                axialVelocityFunctionComponentsList.at(i) ); };
+//
+//    return getMgaTransferTrajectorySettings(
+//                legSettings, nodeSettings, fullBodiesList, hodographicShapingLegSettingsConstructor,
+//                departureOrbit, arrivalOrbit, minimumPericenterRadii );
+//}
+
 std::shared_ptr< TransferTrajectory > createTransferTrajectory(
         const simulation_setup::SystemOfBodies& bodyMap,
         const std::vector< std::shared_ptr< TransferLegSettings > >& legSettings,
@@ -805,6 +868,11 @@ void getParameterVectorDecompositionIndices(
                 break;
             case spherical_shaping_low_thrust_leg:
                 legParameterIndices.push_back( std::make_pair( currentParameterIndex, 1 ) );
+                currentParameterIndex += 1;
+                break;
+            case hodographic_low_thrust_leg:
+                legParameterIndices.push_back( std::make_pair( currentParameterIndex, 1 ) );
+                currentParameterIndex += 1;
                 break;
             }
         }
@@ -835,6 +903,9 @@ void printTransferParameterDefinition(
             currentLegIds.push_back( "DSM (velocity-based) Time-of-flight fraction" );
             break;
         case spherical_shaping_low_thrust_leg:
+            currentLegIds.push_back( "Number of revolutions (integer number >= 0)" );
+            break;
+        case hodographic_low_thrust_leg:
             currentLegIds.push_back( "Number of revolutions (integer number >= 0)" );
             break;
         default:

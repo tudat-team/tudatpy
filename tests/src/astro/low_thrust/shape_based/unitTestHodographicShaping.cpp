@@ -174,7 +174,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer_1 )
     // Compute peak thrust acceleration
     double peakThrustAcceleration = 0.0;
     std::map< double, Eigen::Vector3d > thrustAccelerationsAlongTrajectory;
-        hodographicShapingLeg.getThrustAccelerationsAlongTrajectory(thrustAccelerationsAlongTrajectory, 5000 );
+    hodographicShapingLeg.getThrustAccelerationsAlongTrajectory(thrustAccelerationsAlongTrajectory, 5000 );
 
     for( auto it : thrustAccelerationsAlongTrajectory )
     {
@@ -305,7 +305,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer_2 )
     // Compute peak thrust acceleration
     double peakThrustAcceleration = 0.0;
     std::map< double, Eigen::Vector3d > thrustAccelerationsAlongTrajectory;
-        hodographicShapingLeg.getThrustAccelerationsAlongTrajectory(thrustAccelerationsAlongTrajectory, 5000 );
+    hodographicShapingLeg.getThrustAccelerationsAlongTrajectory(thrustAccelerationsAlongTrajectory, 5000 );
 
     for( auto it : thrustAccelerationsAlongTrajectory )
     {
@@ -433,7 +433,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer_3 )
     // Compute peak thrust acceleration
     double peakThrustAcceleration = 0.0;
     std::map< double, Eigen::Vector3d > thrustAccelerationsAlongTrajectory;
-        hodographicShapingLeg.getThrustAccelerationsAlongTrajectory(thrustAccelerationsAlongTrajectory, 5000 );
+    hodographicShapingLeg.getThrustAccelerationsAlongTrajectory(thrustAccelerationsAlongTrajectory, 5000 );
 
     for( auto it : thrustAccelerationsAlongTrajectory )
     {
@@ -560,7 +560,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer_4 )
     // Compute peak thrust acceleration
     double peakThrustAcceleration = 0.0;
     std::map< double, Eigen::Vector3d > thrustAccelerationsAlongTrajectory;
-        hodographicShapingLeg.getThrustAccelerationsAlongTrajectory(thrustAccelerationsAlongTrajectory, 5000 );
+    hodographicShapingLeg.getThrustAccelerationsAlongTrajectory(thrustAccelerationsAlongTrajectory, 5000 );
 
     for( auto it : thrustAccelerationsAlongTrajectory )
     {
@@ -686,7 +686,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer_5 )
     // Compute peak thrust acceleration
     double peakThrustAcceleration = 0.0;
     std::map< double, Eigen::Vector3d > thrustAccelerationsAlongTrajectory;
-        hodographicShapingLeg.getThrustAccelerationsAlongTrajectory(thrustAccelerationsAlongTrajectory, 5000 );
+    hodographicShapingLeg.getThrustAccelerationsAlongTrajectory(thrustAccelerationsAlongTrajectory, 5000 );
 
     for( auto it : thrustAccelerationsAlongTrajectory )
     {
@@ -819,7 +819,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mercury_transfer )
     // Compute peak thrust acceleration
     double peakThrustAcceleration = 0.0;
     std::map< double, Eigen::Vector3d > thrustAccelerationsAlongTrajectory;
-        hodographicShapingLeg.getThrustAccelerationsAlongTrajectory(thrustAccelerationsAlongTrajectory, 5000 );
+    hodographicShapingLeg.getThrustAccelerationsAlongTrajectory(thrustAccelerationsAlongTrajectory, 5000 );
 
     for( auto it : thrustAccelerationsAlongTrajectory )
     {
