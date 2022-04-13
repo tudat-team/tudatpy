@@ -81,6 +81,229 @@ void initializeRungeKutta4Coefficients( RungeKuttaCoefficients&
     rungeKutta4Coefficients.name = "Runge-Kutta 4";
 }
 
+//! Initialize explicit midpoint coefficients.
+void initializeExplicitMidpointCoefficients( RungeKuttaCoefficients&
+                                             explicitMidpointCoefficients )
+{
+    // Define characteristics of coefficient set.
+    explicitMidpointCoefficients.isFixedStepSize = true;
+
+    // Define a-coefficients for the explicit midpoint method of order 2 and with 2 stages.
+    explicitMidpointCoefficients.aCoefficients = Eigen::MatrixXd::Zero( 2, 2 );
+    explicitMidpointCoefficients.aCoefficients( 1, 0 ) = 1.0 / 2.0;
+
+    // Define c-coefficients for the explicit midpoint method of order 2 and with 2 stages.
+    explicitMidpointCoefficients.cCoefficients = Eigen::VectorXd::Zero( 2 );
+    explicitMidpointCoefficients.cCoefficients( 1 ) = 1.0 / 2.0;
+
+    // Define b-coefficients for the explicit midpoint method of order 2 and with 2 stages.
+    explicitMidpointCoefficients.bCoefficients = Eigen::MatrixXd::Zero( 1, 2 );
+    explicitMidpointCoefficients.bCoefficients( 0, 1 ) = 1.0;
+
+    // Set the name of these coefficients.
+    explicitMidpointCoefficients.name = "Explicit Midpoint";
+}
+
+//! Initialize explicit trapezoid coefficients.
+void initializeExplicitTrapezoidRuleCoefficients( RungeKuttaCoefficients&
+                                              explicitTrapezoidRuleCoefficients )
+{
+    // Define characteristics of coefficient set.
+    explicitTrapezoidRuleCoefficients.isFixedStepSize = true;
+
+    // Define a-coefficients for the explicit trapezoidal method of order 2 and with 2 stages.
+    explicitTrapezoidRuleCoefficients.aCoefficients = Eigen::MatrixXd::Zero( 2, 2 );
+    explicitTrapezoidRuleCoefficients.aCoefficients( 1, 0 ) = 1.0;
+
+    // Define c-coefficients for the explicit trapezoidal method of order 2 and with 2 stages.
+    explicitTrapezoidRuleCoefficients.cCoefficients = Eigen::VectorXd::Zero( 2 );
+    explicitTrapezoidRuleCoefficients.cCoefficients( 1 ) = 1.0;
+
+    // Define b-coefficients for the explicit trapezoidal method of order 2 and with 2 stages.
+    explicitTrapezoidRuleCoefficients.bCoefficients = Eigen::MatrixXd::Zero( 1, 2 );
+    explicitTrapezoidRuleCoefficients.bCoefficients( 0, 0 ) = 1.0 / 2.0;
+    explicitTrapezoidRuleCoefficients.bCoefficients( 0, 1 ) = 1.0 / 2.0;
+
+    // Set the name of these coefficients.
+    explicitTrapezoidRuleCoefficients.name = "Explicit Trapezoid Rule";
+}
+
+//! Initialize Ralston coefficients.
+void initializeRalstonCoefficients( RungeKuttaCoefficients&
+                                    ralstonCoefficients )
+{
+    // Define characteristics of coefficient set.
+    ralstonCoefficients.isFixedStepSize = true;
+
+    // Define a-coefficients for the Ralston method of order 2 and with 2 stages.
+    ralstonCoefficients.aCoefficients = Eigen::MatrixXd::Zero( 2, 2 );
+    ralstonCoefficients.aCoefficients( 1, 0 ) = 2.0 / 3.0;
+
+    // Define c-coefficients for the Ralston method of order 2 and with 2 stages.
+    ralstonCoefficients.cCoefficients = Eigen::VectorXd::Zero( 2 );
+    ralstonCoefficients.cCoefficients( 1 ) = 2.0 / 3.0;
+
+    // Define b-coefficients for the Ralston method of order 2 and with 2 stages.
+    ralstonCoefficients.bCoefficients = Eigen::MatrixXd::Zero( 1, 2 );
+    ralstonCoefficients.bCoefficients( 0, 0 ) = 1.0 / 4.0;
+    ralstonCoefficients.bCoefficients( 0, 1 ) = 3.0 / 4.0;
+
+    // Set the name of these coefficients.
+    ralstonCoefficients.name = "Ralston";
+}
+
+//! Initialize RK3 coefficients.
+void initializeRungeKutta3Coefficients( RungeKuttaCoefficients&
+                                rk3Coefficients )
+{
+    // Define characteristics of coefficient set.
+    rk3Coefficients.isFixedStepSize = true;
+
+    // Define a-coefficients for the RK3 method of order 3 and with 3 stages.
+    rk3Coefficients.aCoefficients = Eigen::MatrixXd::Zero( 3, 3 );
+    rk3Coefficients.aCoefficients( 1, 0 ) = 1.0 / 2.0;
+    rk3Coefficients.aCoefficients( 2, 0 ) = -1.0;
+    rk3Coefficients.aCoefficients( 2, 1 ) = 2.0;
+
+    // Define c-coefficients for the RK3 method of order 3 and with 3 stages.
+    rk3Coefficients.cCoefficients = Eigen::VectorXd::Zero( 3 );
+    rk3Coefficients.cCoefficients( 1 ) = 1.0 / 2.0;
+    rk3Coefficients.cCoefficients( 2 ) = 1.0;
+
+    // Define b-coefficients for the RK3 method of order 3 and with 3 stages.
+    rk3Coefficients.bCoefficients = Eigen::MatrixXd::Zero( 1, 3 );
+    rk3Coefficients.bCoefficients( 0, 0 ) = 1.0 / 6.0;
+    rk3Coefficients.bCoefficients( 0, 1 ) = 2.0 / 3.0;
+    rk3Coefficients.bCoefficients( 0, 2 ) = 1.0 / 6.0;
+
+    // Set the name of these coefficients.
+    rk3Coefficients.name = "Runge-Kutta 3";
+}
+
+//! Initialize Ralston3 coefficients.
+void initializeRalston3Coefficients( RungeKuttaCoefficients&
+                                     ralston3Coefficients )
+{
+    // Define characteristics of coefficient set.
+    ralston3Coefficients.isFixedStepSize = true;
+
+    // Define a-coefficients for the Ralston3 method of order 3 and with 3 stages.
+    ralston3Coefficients.aCoefficients = Eigen::MatrixXd::Zero( 3, 3 );
+    ralston3Coefficients.aCoefficients( 1, 0 ) = 1.0 / 2.0;
+    ralston3Coefficients.aCoefficients( 2, 1 ) = 3.0 / 4.0;
+
+    // Define c-coefficients for the Ralston3 method of order 3 and with 3 stages.
+    ralston3Coefficients.cCoefficients = Eigen::VectorXd::Zero( 3 );
+    ralston3Coefficients.cCoefficients( 1 ) = 1.0 / 2.0;
+    ralston3Coefficients.cCoefficients( 2 ) = 3.0 / 4.0;
+
+    // Define b-coefficients for the Ralston3 method of order 3 and with 3 stages.
+    ralston3Coefficients.bCoefficients = Eigen::MatrixXd::Zero( 1, 3 );
+    ralston3Coefficients.bCoefficients( 0, 0 ) = 2.0 / 9.0;
+    ralston3Coefficients.bCoefficients( 0, 1 ) = 1.0 / 3.0;
+    ralston3Coefficients.bCoefficients( 0, 2 ) = 4.0 / 9.0;
+
+    // Set the name of these coefficients.
+    ralston3Coefficients.name = "Ralston 3";
+}
+
+//! Initialize SSPRK3 coefficients.
+void initializeSSPRK3Coefficients( RungeKuttaCoefficients&
+                                   ssprk3Coefficients )
+{
+    // Define characteristics of coefficient set.
+    ssprk3Coefficients.isFixedStepSize = true;
+
+    // Define a-coefficients for the SSPRK3 method of order 3 and with 3 stages.
+    ssprk3Coefficients.aCoefficients = Eigen::MatrixXd::Zero( 3, 3 );
+    ssprk3Coefficients.aCoefficients( 1, 0 ) = 1.0;
+    ssprk3Coefficients.aCoefficients( 2, 0 ) = 1.0 / 4.0;
+    ssprk3Coefficients.aCoefficients( 2, 1 ) = 1.0 / 4.0;
+
+    // Define c-coefficients for the SSPRK3 method of order 3 and with 3 stages.
+    ssprk3Coefficients.cCoefficients = Eigen::VectorXd::Zero( 3 );
+    ssprk3Coefficients.cCoefficients( 1 ) = 1.0 ;
+    ssprk3Coefficients.cCoefficients( 2 ) = 1.0 / 2.0;
+
+    // Define b-coefficients for the SSPRK3 method of order 3 and with 3 stages.
+    ssprk3Coefficients.bCoefficients = Eigen::MatrixXd::Zero( 1, 3 );
+    ssprk3Coefficients.bCoefficients( 0, 0 ) = 1.0 / 6.0;
+    ssprk3Coefficients.bCoefficients( 0, 1 ) = 1.0 / 6.0;
+    ssprk3Coefficients.bCoefficients( 0, 2 ) = 2.0 / 3.0;
+
+    // Set the name of these coefficients.
+    ssprk3Coefficients.name = "Strong Stability Preserving Runge-Kutta 3";
+}
+
+//! Initialize Ralston 4 coefficients.
+void initializeRalston4Coefficients( RungeKuttaCoefficients&
+                                     ralston4Coefficients )
+{
+    // Define characteristics of coefficient set.
+    ralston4Coefficients.isFixedStepSize = true;
+
+    // Compute the square root of 5 to re-use later on.
+    double SQRT5 = std::sqrt( 5.0 );
+
+    // Define a-coefficients for the Ralston4 method of order 4 and with 4 stages.
+    ralston4Coefficients.aCoefficients = Eigen::MatrixXd::Zero( 4, 4 );
+    ralston4Coefficients.aCoefficients( 1, 0 ) = 2.0 / 5.0;
+    ralston4Coefficients.aCoefficients( 2, 0 ) = (-2889.0 + 1428.0 * SQRT5) / 1024.0;
+    ralston4Coefficients.aCoefficients( 2, 1 ) = (3785.0 - 1620.0 * SQRT5) / 1024.0;
+    ralston4Coefficients.aCoefficients( 3, 0 ) = (-3365.0 + 2094.0 * SQRT5) / 6040.0;
+    ralston4Coefficients.aCoefficients( 3, 1 ) = (-975.0 - 3046.0 * SQRT5) / 2552.0;
+    ralston4Coefficients.aCoefficients( 3, 2 ) = (467040.0 + 203968.0 * SQRT5) / 240845.0;
+
+    // Define c-coefficients for the Ralston4 method of order 4 and with 4 stages.
+    ralston4Coefficients.cCoefficients = Eigen::VectorXd::Zero( 4 );
+    ralston4Coefficients.cCoefficients( 1 ) = 2.0 / 5.0;
+    ralston4Coefficients.cCoefficients( 2 ) = (14.0 - 3.0 * SQRT5) / 16.0;
+    ralston4Coefficients.cCoefficients( 3 ) = 1.0;
+
+    // Define b-coefficients for the Ralston4 method of order 4 and with 4 stages.
+    ralston4Coefficients.bCoefficients = Eigen::MatrixXd::Zero( 1, 4 );
+    ralston4Coefficients.bCoefficients( 0, 0 ) = (263.0 + 24.0 * SQRT5) / 1812.0;
+    ralston4Coefficients.bCoefficients( 0, 1 ) = (125.0 - 1000.0 * SQRT5) / 3828.0;
+    ralston4Coefficients.bCoefficients( 0, 2 ) = 1024.0 * (3346.0 + 1623.0 * SQRT5) / 5924787.0;
+    ralston4Coefficients.bCoefficients( 0, 3 ) = (30.0 - 4.0 * SQRT5) / 123.0;
+
+    // Set the name of these coefficients.
+    ralston4Coefficients.name = "Ralston 4";
+}
+
+//! Initialize 3/8-rule RK4 coefficients.
+void initializeThreeEighthRuleRK4Coefficients( RungeKuttaCoefficients&
+                                               threeEighthRuleRK4Coefficients )
+{
+    // Define characteristics of coefficient set.
+    threeEighthRuleRK4Coefficients.isFixedStepSize = true;
+
+    // Define a-coefficients for the 3/8-rule RK4 method of order 4 and with 4 stages.
+    threeEighthRuleRK4Coefficients.aCoefficients = Eigen::MatrixXd::Zero( 4, 4 );
+    threeEighthRuleRK4Coefficients.aCoefficients( 1, 0 ) = 1.0 / 3.0;
+    threeEighthRuleRK4Coefficients.aCoefficients( 2, 0 ) = -1.0 / 3.0;
+    threeEighthRuleRK4Coefficients.aCoefficients( 2, 1 ) = 1.0;
+    threeEighthRuleRK4Coefficients.aCoefficients( 3, 0 ) = 1.0;
+    threeEighthRuleRK4Coefficients.aCoefficients( 3, 1 ) = -1.0;
+    threeEighthRuleRK4Coefficients.aCoefficients( 3, 2 ) = 1.0;
+
+    // Define c-coefficients for the 3/8-rule RK4 method of order 4 and with 4 stages.
+    threeEighthRuleRK4Coefficients.cCoefficients = Eigen::VectorXd::Zero( 4 );
+    threeEighthRuleRK4Coefficients.cCoefficients( 1 ) = 1.0 / 3.0;
+    threeEighthRuleRK4Coefficients.cCoefficients( 2 ) = 2.0 / 3.0;
+    threeEighthRuleRK4Coefficients.cCoefficients( 3 ) = 1.0;
+
+    // Define b-coefficients for the 3/8-rule RK4 method of order 4 and with 4 stages.
+    threeEighthRuleRK4Coefficients.bCoefficients = Eigen::MatrixXd::Zero( 1, 4 );
+    threeEighthRuleRK4Coefficients.bCoefficients( 0, 0 ) = 1.0 / 8.0;
+    threeEighthRuleRK4Coefficients.bCoefficients( 0, 1 ) = 3.0 / 8.0;
+    threeEighthRuleRK4Coefficients.bCoefficients( 0, 2 ) = 3.0 / 8.0;
+    threeEighthRuleRK4Coefficients.bCoefficients( 0, 3 ) = 1.0 / 8.0;
+
+    // Set the name of these coefficients.
+    threeEighthRuleRK4Coefficients.name = "3/8-rule RK4";
+}
+
 //! Initialize RKF45 coefficients.
 void initializeRungeKuttaFehlberg45Coefficients( RungeKuttaCoefficients&
                                                  rungeKuttaFehlberg45Coefficients )
@@ -483,6 +706,14 @@ const RungeKuttaCoefficients& RungeKuttaCoefficients::get(
 {
     static RungeKuttaCoefficients forwardEulerCoefficients,
                                   rungeKutta4Coefficients,
+                                  explicitMidPointCoefficients,
+                                  explicitTrapezoidRuleCoefficients,
+                                  ralstonCoefficients,
+                                  rungeKutta3Coefficients,
+                                  ralston3Coefficients,
+                                  SSPRK3Coefficients,
+                                  ralston4Coefficients,
+                                  threeEighthRuleRK4Coefficients,
                                   rungeKuttaFehlberg45Coefficients,
                                   rungeKuttaFehlberg56Coefficients,
                                   rungeKuttaFehlberg78Coefficients,
@@ -492,18 +723,74 @@ const RungeKuttaCoefficients& RungeKuttaCoefficients::get(
     {
         
     case forwardEuler:
-        if ( forwardEulerCoefficients.higherOrder != 1 )
+        if ( !(forwardEulerCoefficients.isFixedStepSize) )
         {
             initializeForwardEulerCoefficients( forwardEulerCoefficients );
         }
         return forwardEulerCoefficients;
 
     case rungeKutta4Classic:
-        if ( rungeKutta4Coefficients.higherOrder != 4 )
+        if ( !(rungeKutta4Coefficients.isFixedStepSize) )
         {
             initializeRungeKutta4Coefficients( rungeKutta4Coefficients );
         }
         return rungeKutta4Coefficients;
+
+    case explicitMidPoint:
+        if ( !(explicitMidPointCoefficients.isFixedStepSize) )
+        {
+            initializeExplicitMidpointCoefficients( explicitMidPointCoefficients );
+        }
+        return explicitMidPointCoefficients;
+
+    case explicitTrapezoidRule:
+        if ( !(explicitTrapezoidRuleCoefficients.isFixedStepSize) )
+        {
+            initializeExplicitTrapezoidRuleCoefficients( explicitTrapezoidRuleCoefficients );
+        }
+        return explicitTrapezoidRuleCoefficients;
+
+    case ralston:
+        if ( !(ralstonCoefficients.isFixedStepSize) )
+        {
+            initializeRalstonCoefficients( ralstonCoefficients );
+        }
+        return ralstonCoefficients;
+
+    case rungeKutta3:
+        if ( !(rungeKutta3Coefficients.isFixedStepSize) )
+        {
+            initializeRungeKutta3Coefficients( rungeKutta3Coefficients );
+        }
+        return rungeKutta3Coefficients;
+
+    case ralston3:
+        if ( !(ralston3Coefficients.isFixedStepSize) )
+        {
+            initializeRalston3Coefficients( ralston3Coefficients );
+        }
+        return ralston3Coefficients;
+
+    case SSPRK3:
+        if ( !(SSPRK3Coefficients.isFixedStepSize) )
+        {
+            initializeSSPRK3Coefficients( SSPRK3Coefficients );
+        }
+        return SSPRK3Coefficients;
+
+    case ralston4:
+        if ( !(ralston4Coefficients.isFixedStepSize) )
+        {
+            initializeRalston4Coefficients( ralston4Coefficients );
+        }
+        return ralston4Coefficients;
+
+    case threeEighthRuleRK4:
+        if ( !(threeEighthRuleRK4Coefficients.isFixedStepSize) )
+        {
+            initializeThreeEighthRuleRK4Coefficients( threeEighthRuleRK4Coefficients );
+        }
+        return threeEighthRuleRK4Coefficients;
 
     case rungeKuttaFehlberg45:
         if ( rungeKuttaFehlberg45Coefficients.higherOrder != 5 )
