@@ -26,6 +26,19 @@ namespace tudat
 namespace numerical_integrators
 {
 
+// Enum of predefined coefficient sets.
+//! @get_docstring(CoefficientSets.__docstring__)
+enum CoefficientSets
+{
+    undefinedCoefficientSet = -1,
+    forwardEuler,
+    rungeKutta4Classic,
+    rungeKuttaFehlberg45,
+    rungeKuttaFehlberg56,
+    rungeKuttaFehlberg78,
+    rungeKutta87DormandPrince
+};
+
 // Struct that defines the coefficients of a Runge-Kutta integrator
 /*
  * Struct that defines coefficients of a Runge-Kutta integrators
@@ -105,19 +118,6 @@ struct RungeKuttaCoefficients
         name( name_ )
     { }
 
-    // Enum of predefined coefficient sets.
-    //! @get_docstring(CoefficientSets.__docstring__)
-    enum CoefficientSets
-    {
-        undefinedCoefficientSet = -1,
-        forwardEuler,
-        rungeKutta4,
-        rungeKuttaFehlberg45,
-        rungeKuttaFehlberg56,
-        rungeKuttaFehlberg78,
-        rungeKutta87DormandPrince
-    };
-
     // Get coefficients for a specified coefficient set.
     /*
      * Returns coefficients for a specified coefficient set.
@@ -132,7 +132,7 @@ struct RungeKuttaCoefficients
 typedef std::shared_ptr< RungeKuttaCoefficients > RungeKuttaCoefficientsPointer;
 
 // Function to print the coefficients of a Runge-Kutta integrator.
-void printButcherTableau( RungeKuttaCoefficients::CoefficientSets coefficientSet );
+void printButcherTableau( CoefficientSets coefficientSet );
 
 } // namespace numerical_integrators
 } // namespace tudat

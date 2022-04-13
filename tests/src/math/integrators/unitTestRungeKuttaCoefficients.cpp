@@ -40,7 +40,7 @@ BOOST_AUTO_TEST_SUITE( test_runge_kutta_coefficients )
 
 using numerical_integrators::RungeKuttaCoefficients;
 
-void checkValidityOfCoefficientSet( const RungeKuttaCoefficients::CoefficientSets& coefficientSet,
+void checkValidityOfCoefficientSet( const CoefficientSets& coefficientSet,
                                     const double tolerance )
 {
     // Declare coefficient set.

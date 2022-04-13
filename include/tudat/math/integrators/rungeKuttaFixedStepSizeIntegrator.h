@@ -78,7 +78,7 @@ public:
     RungeKuttaFixedStepSizeIntegrator( const StateDerivativeFunction& stateDerivativeFunction,
                                        const IndependentVariableType intervalStart,
                                        const StateType& initialState,
-                                       const RungeKuttaCoefficients::CoefficientSets& coefficientsSet,
+                                       const CoefficientSets& coefficientsSet,
                                        const unsigned int orderToUse = 0 ) :
         ReinitializableNumericalIntegratorBase( stateDerivativeFunction ),
         currentIndependentVariable_( intervalStart ),
@@ -96,7 +96,7 @@ public:
      * Function to load the Butcher tableau coefficients.
      * \param coefficientsSet The fixed step coefficient type to use for integration.
      */
-    void setCoefficients( const RungeKuttaCoefficients::CoefficientSets& coefficientsSet )
+    void setCoefficients( const CoefficientSets& coefficientsSet )
     {
         // Load the Butcher tableau coefficients.
         butcherTableau_ = butcherTableau_.get( coefficientsSet );
@@ -343,7 +343,7 @@ protected:
     StateType lastState_;
 
     //! Type of the coefficient set used for integration.
-    RungeKuttaCoefficients::CoefficientSets coefficientsSet_;
+    CoefficientSets coefficientsSet_;
 
     //! Butcher tableau used for the integration.
     RungeKuttaCoefficients butcherTableau_;

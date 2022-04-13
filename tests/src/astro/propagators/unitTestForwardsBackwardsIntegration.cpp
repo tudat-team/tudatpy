@@ -69,7 +69,7 @@ std::shared_ptr< IntegratorSettings< TimeType > > getIntegrationSettings(
     }
     else if( integratorCase < 5 )
     {
-        RungeKuttaCoefficients::CoefficientSets coefficientSet = RungeKuttaCoefficients::undefinedCoefficientSet;
+        CoefficientSets coefficientSet = RungeKuttaCoefficients::undefinedCoefficientSet;
         if( integratorCase == 1 )
         {
             coefficientSet = RungeKuttaCoefficients::rungeKuttaFehlberg45;
