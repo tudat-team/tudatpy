@@ -57,6 +57,14 @@ namespace integrator {
                                                                     get_docstring("RKCoefficientSets").c_str())
                     .value("euler_forward", tni::forwardEuler)
                     .value("rk_4", tni::rungeKutta4Classic)
+                    .value("explicit_mid_point", tni::explicitMidPoint)
+                    .value("explicit_trapezoid_rule", tni::explicitTrapezoidRule)
+                    .value("ralston", tni::ralston)
+                    .value("rk_3", tni::rungeKutta3)
+                    .value("ralston_3", tni::ralston3)
+                    .value("SSPRK3", tni::SSPRK3)
+                    .value("ralston_4", tni::ralston4)
+                    .value("three_eight_rule_rk_4", tni::threeEighthRuleRK4)
                     .value("rkf_45", tni::rungeKuttaFehlberg45,
                            get_docstring("RKCoefficientSets.rkf_45").c_str())
                     .value("rkf_56", tni::rungeKuttaFehlberg56,
