@@ -53,17 +53,17 @@ namespace integrator {
                            get_docstring("AvailableIntegrators.adams_bashforth_moulton").c_str())
                     .export_values();
 
-            py::enum_<tni::RungeKuttaCoefficients::CoefficientSets>(m, "RKCoefficientSets",
+            py::enum_<tni::CoefficientSets>(m, "RKCoefficientSets",
                                                                     get_docstring("RKCoefficientSets").c_str())
-                    .value("euler_forward", tni::RungeKuttaCoefficients::forwardEuler)
-                    .value("rk_4", tni::RungeKuttaCoefficients::rungeKutta4)
-                    .value("rkf_45", tni::RungeKuttaCoefficients::rungeKuttaFehlberg45,
+                    .value("euler_forward", tni::forwardEuler)
+                    .value("rk_4", tni::rungeKutta4Classic)
+                    .value("rkf_45", tni::rungeKuttaFehlberg45,
                            get_docstring("RKCoefficientSets.rkf_45").c_str())
-                    .value("rkf_56", tni::RungeKuttaCoefficients::rungeKuttaFehlberg56,
+                    .value("rkf_56", tni::rungeKuttaFehlberg56,
                            get_docstring("RKCoefficientSets.rkf_56").c_str())
-                    .value("rkf_78", tni::RungeKuttaCoefficients::rungeKuttaFehlberg78,
+                    .value("rkf_78", tni::rungeKuttaFehlberg78,
                            get_docstring("RKCoefficientSets.rkf_78").c_str())
-                    .value("rkdp_87", tni::RungeKuttaCoefficients::rungeKutta87DormandPrince,
+                    .value("rkdp_87", tni::rungeKutta87DormandPrince,
                            get_docstring("RKCoefficientSets.rkdp_87").c_str())
                     .export_values();
 
