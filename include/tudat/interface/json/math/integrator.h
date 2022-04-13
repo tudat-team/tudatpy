@@ -26,6 +26,7 @@ static std::map< AvailableIntegrators, std::string > integratorTypes =
 {
     { rungeKutta4, "rungeKutta4" },
     { euler, "euler" },
+    { rungeKuttaFixedStepSize, "rungeKuttaFixedStepSize" },
     { rungeKuttaVariableStepSize, "rungeKuttaVariableStepSize" },
     { adamsBashforthMoulton, "adamsBashforthMoulton" },
     { bulirschStoer, "bulirschStoer" },
@@ -50,11 +51,13 @@ inline void from_json( const nlohmann::json& jsonObject, AvailableIntegrators& a
 //! Map of `CoefficientSets` string representations.
 static std::map< CoefficientSets, std::string > rungeKuttaCoefficientSets =
 {
-    { rungeKuttaFehlberg45, "rungeKuttaFehlberg45" }, //
-    { rungeKuttaFehlberg56, "rungeKuttaFehlberg56" }, //
-    { rungeKuttaFehlberg78, "rungeKuttaFehlberg78" }, //
-    { rungeKutta87DormandPrince, "rungeKutta87DormandPrince" } //
-}; //
+    { forwardEuler, "forwardEuler" },
+    { rungeKutta4Classic, "rungeKutta4" },
+    { rungeKuttaFehlberg45, "rungeKuttaFehlberg45" },
+    { rungeKuttaFehlberg56, "rungeKuttaFehlberg56" },
+    { rungeKuttaFehlberg78, "rungeKuttaFehlberg78" },
+    { rungeKutta87DormandPrince, "rungeKutta87DormandPrince" }
+};
 
 //! `CoefficientSets` not supported by `json_interface`.
 static std::vector< CoefficientSets > unsupportedRungeKuttaCoefficientSets = { };
