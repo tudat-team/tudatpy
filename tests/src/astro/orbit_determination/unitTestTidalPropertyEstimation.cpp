@@ -394,7 +394,7 @@ BOOST_AUTO_TEST_CASE( test_LoveNumberEstimationFromOrbiterData )
     std::shared_ptr< IntegratorSettings< double > > integratorSettings =
             std::make_shared< RungeKuttaVariableStepSizeSettings< double > >
             ( initialEphemerisTime, 60.0,
-              RungeKuttaCoefficients::CoefficientSets::rungeKuttaFehlberg78,
+              CoefficientSets::rungeKuttaFehlberg78,
               60.0, 60.0, 1.0, 1.0 );
 
     // Define link ends to use

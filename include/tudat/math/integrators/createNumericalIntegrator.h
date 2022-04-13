@@ -145,7 +145,7 @@ public:
     RungeKuttaFixedStepSizeSettings(
             const IndependentVariableType initialTime,
             const IndependentVariableType initialTimeStep,
-            const numerical_integrators::RungeKuttaCoefficients::CoefficientSets coefficientSet,
+            const numerical_integrators::CoefficientSets coefficientSet,
             const unsigned int orderToUse = 0,
             const int saveFrequency = 1,
             const bool assessTerminationOnMinorSteps = false ):
@@ -163,7 +163,7 @@ public:
     virtual ~RungeKuttaFixedStepSizeSettings( ) { }
 
     // Type of numerical integrator (must be an RK fixed step type).
-    numerical_integrators::RungeKuttaCoefficients::CoefficientSets coefficientSet_;
+    numerical_integrators::CoefficientSets coefficientSet_;
 
     // Order of Runge-Kutta method to be used.
     unsigned int orderToUse_;
@@ -203,7 +203,7 @@ public:
             const bool areTolerancesDefinedAsScalar,
             const IndependentVariableType initialTime,
             const IndependentVariableType initialTimeStep,
-            const numerical_integrators::RungeKuttaCoefficients::CoefficientSets coefficientSet,
+            const numerical_integrators::CoefficientSets coefficientSet,
             const IndependentVariableType minimumStepSize, const IndependentVariableType maximumStepSize,
             const int saveFrequency = 1,
             const bool assessTerminationOnMinorSteps = false,
@@ -232,7 +232,7 @@ public:
     bool areTolerancesDefinedAsScalar_;
 
     // Type of numerical integrator (must be an RK variable step type).
-    numerical_integrators::RungeKuttaCoefficients::CoefficientSets coefficientSet_;
+    numerical_integrators::CoefficientSets coefficientSet_;
 
     // Minimum step size for integration.
     /*
@@ -288,7 +288,7 @@ public:
     RungeKuttaVariableStepSizeSettingsScalarTolerances(
             const IndependentVariableType initialTime,
             const IndependentVariableType initialTimeStep,
-            const numerical_integrators::RungeKuttaCoefficients::CoefficientSets coefficientSet,
+            const numerical_integrators::CoefficientSets coefficientSet,
             const IndependentVariableType minimumStepSize, const IndependentVariableType maximumStepSize,
             const IndependentVariableType relativeErrorTolerance = 1.0E-12,
             const IndependentVariableType absoluteErrorTolerance = 1.0E-12,
@@ -331,7 +331,7 @@ public:
             const AvailableIntegrators integratorType,
             const IndependentVariableType initialTime,
             const IndependentVariableType initialTimeStep,
-            const numerical_integrators::RungeKuttaCoefficients::CoefficientSets coefficientSet,
+            const numerical_integrators::CoefficientSets coefficientSet,
             const IndependentVariableType minimumStepSize, const IndependentVariableType maximumStepSize,
             const IndependentVariableType relativeErrorTolerance = 1.0E-12,
             const IndependentVariableType absoluteErrorTolerance = 1.0E-12,
@@ -414,7 +414,7 @@ public:
     RungeKuttaVariableStepSizeSettingsVectorTolerances(
             const IndependentVariableType initialTime,
             const IndependentVariableType initialTimeStep,
-            const numerical_integrators::RungeKuttaCoefficients::CoefficientSets coefficientSet,
+            const numerical_integrators::CoefficientSets coefficientSet,
             const IndependentVariableType minimumStepSize, const IndependentVariableType maximumStepSize,
             const DependentVariableType relativeErrorTolerance,
             const DependentVariableType absoluteErrorTolerance,
@@ -641,7 +641,7 @@ template< typename IndependentVariableType = double >
 inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > rungeKuttaFixedStepSettings(
         const IndependentVariableType initialTime,
         const IndependentVariableType initialTimeStep,
-        const numerical_integrators::RungeKuttaCoefficients::CoefficientSets coefficientSet,
+        const numerical_integrators::CoefficientSets coefficientSet,
         const unsigned int orderToUse = 0,
         const int saveFrequency = 1,
         const bool assessTerminationOnMinorSteps = false )
@@ -654,7 +654,7 @@ template< typename IndependentVariableType = double >
 inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > rungeKuttaVariableStepSettingsScalarTolerances(
         const IndependentVariableType initialTime,
         const IndependentVariableType initialTimeStep,
-        const numerical_integrators::RungeKuttaCoefficients::CoefficientSets coefficientSet,
+        const numerical_integrators::CoefficientSets coefficientSet,
         const IndependentVariableType minimumStepSize,
         const IndependentVariableType maximumStepSize,
         const IndependentVariableType& relativeErrorTolerance,
@@ -680,7 +680,7 @@ template< typename IndependentVariableType = double >
 inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > rungeKuttaVariableStepSettingsVectorTolerances(
         const IndependentVariableType initialTime,
         const IndependentVariableType initialTimeStep,
-        const numerical_integrators::RungeKuttaCoefficients::CoefficientSets coefficientSet,
+        const numerical_integrators::CoefficientSets coefficientSet,
         const IndependentVariableType minimumStepSize,
         const IndependentVariableType maximumStepSize,
         const Eigen::Matrix< IndependentVariableType, Eigen::Dynamic, Eigen::Dynamic > relativeErrorTolerance,

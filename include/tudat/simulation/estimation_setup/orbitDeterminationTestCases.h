@@ -459,7 +459,7 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation(
     std::shared_ptr< IntegratorSettings< TimeType > > integratorSettings =
             std::make_shared< RungeKuttaVariableStepSizeSettings< TimeType > >
             ( TimeType( initialEphemerisTime ), 40.0,
-              RungeKuttaCoefficients::CoefficientSets::rungeKuttaFehlberg78,
+              CoefficientSets::rungeKuttaFehlberg78,
               40.0, 40.0, 1.0, 1.0 );
 
     // Define parameters.
@@ -741,7 +741,7 @@ std::pair< Eigen::VectorXd, bool > executeEarthOrbiterBiasEstimation(
     std::shared_ptr< IntegratorSettings< TimeType > > integratorSettings =
             std::make_shared< RungeKuttaVariableStepSizeSettings< TimeType > >
             ( TimeType( initialEphemerisTime ), 120.0,
-              RungeKuttaCoefficients::CoefficientSets::rungeKuttaFehlberg78,
+              CoefficientSets::rungeKuttaFehlberg78,
               120.0, 120.0, 1.0, 1.0 );
 
 

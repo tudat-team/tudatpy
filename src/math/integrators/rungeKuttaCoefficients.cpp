@@ -347,7 +347,7 @@ void initializeRungeKuttaFehlberg78Coefficients( RungeKuttaCoefficients&
 }
 
 //! Initialize RK87 (Dormand and Prince) coefficients.
-void initializerungeKutta87DormandPrinceCoefficients(
+void initializeRungeKutta87DormandPrinceCoefficients(
         RungeKuttaCoefficients& rungeKutta87DormandPrinceCoefficients )
 {
     // Define characteristics of coefficient set.
@@ -479,7 +479,7 @@ void initializerungeKutta87DormandPrinceCoefficients(
 }
 
 const RungeKuttaCoefficients& RungeKuttaCoefficients::get(
-        RungeKuttaCoefficients::CoefficientSets coefficientSet )
+        CoefficientSets coefficientSet )
 {
     static RungeKuttaCoefficients forwardEulerCoefficients,
                                   rungeKutta4Coefficients,
@@ -498,7 +498,7 @@ const RungeKuttaCoefficients& RungeKuttaCoefficients::get(
         }
         return forwardEulerCoefficients;
 
-    case rungeKutta4:
+    case rungeKutta4Classic:
         if ( rungeKutta4Coefficients.higherOrder != 4 )
         {
             initializeRungeKutta4Coefficients( rungeKutta4Coefficients );
@@ -529,7 +529,7 @@ const RungeKuttaCoefficients& RungeKuttaCoefficients::get(
     case rungeKutta87DormandPrince:
         if ( rungeKutta87DormandPrinceCoefficients.higherOrder != 7 )
         {
-            initializerungeKutta87DormandPrinceCoefficients(
+            initializeRungeKutta87DormandPrinceCoefficients(
                         rungeKutta87DormandPrinceCoefficients );
         }
         return rungeKutta87DormandPrinceCoefficients;
@@ -540,7 +540,7 @@ const RungeKuttaCoefficients& RungeKuttaCoefficients::get(
 }
 
 // Function to print the Butcher tableau of a given coefficient set.
-void printButcherTableau( RungeKuttaCoefficients::CoefficientSets coefficientSet )
+void printButcherTableau( CoefficientSets coefficientSet )
 {
     RungeKuttaCoefficients coefficients;
     coefficients = coefficients.get( coefficientSet );
