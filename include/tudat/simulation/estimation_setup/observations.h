@@ -294,6 +294,12 @@ public:
                                getSingleLinkTimes( observableType, linkEnds ) );
     }
 
+    std::vector< LinkEnds > getConcatenatedLinkEndIdNames( )
+    {
+        return concatenatedLinkEndIdNames_;
+    }
+
+
 private:
 
     void setObservationSetIndices( )
@@ -362,6 +368,7 @@ private:
                 else
                 {
                     currentStationId = linkEndIds_[ currentLinkEnds ];
+                    concatenatedLinkEndIdNames_ = currentLinkEnds;
                 }
 
                 for( unsigned int i = 0; i < linkEndIterator.second.size( ); i++ )
@@ -397,6 +404,8 @@ private:
     std::vector< TimeType > concatenatedTimes_;
 
     std::vector< int > concatenatedLinkEndIds_;
+
+    std::vector< LinkEnds > concatenatedLinkEndIdNames_;
 
     std::map< observation_models::LinkEnds, int > linkEndIds_;
 
