@@ -1558,9 +1558,19 @@ std::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > getExtendedMult
             std::vector< std::string > fullBodiesToIntegrate = singleArcTranslationalSettings->bodiesToIntegrate_;
             fullBodiesToIntegrate.insert( fullBodiesToIntegrate.end( ), multiArcBodiesToIntegrate.begin( ), multiArcBodiesToIntegrate.end( ) );
 
+            std::cout << "arc " << i << " - full bodies to propagate: " << "\n\n";
+            for ( unsigned int k = 0 ; k < fullBodiesToIntegrate.size( ) ; k++ )
+            {
+                std::cout << fullBodiesToIntegrate[ k ] << " ";
+            }
+            std::cout << "\n\n";
+
             // Create full initial state list
             int fullSingleArcSize = 6 * fullCentralBodies.size( );
             int singleArcSize = 6 * singleArcTranslationalSettings->centralBodies_.size( );
+
+            std::cout << "fullSingleArcSize: " << fullSingleArcSize << "\n\n";
+            std::cout << "singleArcSize: " << singleArcSize << "\n\n";
 
             Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1  > currentArcInitialStates =
                     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1  >::Zero( fullSingleArcSize );
@@ -1579,6 +1589,8 @@ std::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > getExtendedMult
             // Get existing multi-arc initial states
             currentArcInitialStates.segment( singleArcSize, fullSingleArcSize - singleArcSize ) =
                     multiArcSettings->getSingleArcSettings( ).at( i )->getInitialStates( );
+
+            std::cout << "currentArcInitialStates: " << currentArcInitialStates.transpose( ) << "\n\n";
 
 
             TranslationalPropagatorType propagatorToUse = currentArcTranslationalSettings->propagator_;

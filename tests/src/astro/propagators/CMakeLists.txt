@@ -73,6 +73,8 @@ TUDAT_ADD_TEST_CASE(MultiArcMultiBodyVariationalEquations PRIVATE_LINKS ${Tudat_
 
 TUDAT_ADD_TEST_CASE(HybridArcVariationalEquations PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
 
+TUDAT_ADD_TEST_CASE(HybridArcMultiBodyVariationalEquations PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
+
 TUDAT_ADD_TEST_CASE(DependentVariableOutput PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
 
 endif( )
