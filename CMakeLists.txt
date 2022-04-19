@@ -343,6 +343,7 @@ add_subdirectory(src/math)
 add_subdirectory(src/simulation)
 add_subdirectory(src/io)
 add_subdirectory(examples)
+add_subdirectory(applications)
 
 
 if (TUDAT_BUILD_TESTS)
