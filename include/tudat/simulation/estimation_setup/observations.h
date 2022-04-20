@@ -345,6 +345,7 @@ private:
         concatenatedObservations_ = Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >::Zero( totalObservableSize_ );
         concatenatedTimes_.resize( totalObservableSize_ );
         concatenatedLinkEndIds_.resize( totalObservableSize_ );
+        concatenatedLinkEndIdNames_.resize( totalObservableSize_ );
 
 
         int observationCounter = 0;
@@ -368,7 +369,6 @@ private:
                 else
                 {
                     currentStationId = linkEndIds_[ currentLinkEnds ];
-                    concatenatedLinkEndIdNames_ = currentLinkEnds;
                 }
 
                 for( unsigned int i = 0; i < linkEndIterator.second.size( ); i++ )
@@ -388,6 +388,7 @@ private:
                         {
                             concatenatedTimes_[ observationCounter ] = currentObservationTimes.at( j );
                             concatenatedLinkEndIds_[ observationCounter ] = currentStationId;
+                            concatenatedLinkEndIdNames_[ observationCounter ] = currentLinkEnds;
                             observationCounter++;
                         }
                     }
