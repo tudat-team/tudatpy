@@ -71,6 +71,30 @@ public:
         thrustAccelerationAlongTrajectory = computeThrustAcceleration(time - departureTime_);
     }
 
+    // Return number of free radial coefficients
+    int getNumberOfFreeRadialCoefficients( )
+    {
+        return numberOfFreeRadialCoefficients_;
+    }
+
+    // Return number of free normal coefficients
+    int getNumberOfFreeNormalCoefficients( )
+    {
+        return numberOfFreeNormalCoefficients_;
+    }
+
+    // Return number of free axial coefficients
+    int getNumberOfFreeAxialCoefficients( )
+    {
+        return numberOfFreeAxialCoefficients_;
+    }
+
+    // Return total number of free coefficients
+    int getNumberOfFreeCoefficients( )
+    {
+        return numberOfFreeRadialCoefficients_ + numberOfFreeNormalCoefficients_ + numberOfFreeAxialCoefficients_;
+    }
+
 protected:
 
     //! Evaluate the transfer trajectory (i.e. do all the operations necessary to compute the DeltaV and compute it)

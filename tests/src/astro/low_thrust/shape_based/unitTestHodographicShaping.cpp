@@ -1242,8 +1242,8 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_full_propagation )
 {
 
     double numberOfRevolutions = 1.0;
-    double julianDate = 2458849.5;
-    double timeOfFlight = 500.0;
+    double julianDate = 2458849.5; // julian date specified in SECONDS
+    double timeOfFlight = 500.0; // time of flight specified in DAYS
     double frequency = 2.0 * mathematical_constants::PI / ( timeOfFlight * physical_constants::JULIAN_DAY );
     double scaleFactor = 1.0 / ( timeOfFlight * physical_constants::JULIAN_DAY );
 
@@ -1327,20 +1327,11 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_full_propagation )
                 createBaseFunctionHodographicShaping( scaledPowerSine, fifthAxialVelocityBaseFunctionSettings ) );
 
     // Initialize free coefficients vector for radial velocity function.
-    Eigen::VectorXd freeCoefficientsRadialVelocityFunction = Eigen::VectorXd::Zero( 2 );
-    freeCoefficientsRadialVelocityFunction[ 0 ] = 500.0;
-    freeCoefficientsRadialVelocityFunction[ 1 ] = 500.0;
-
+    Eigen::VectorXd freeCoefficientsRadialVelocityFunction = ( Eigen::Vector2d( ) << 500.0, 500.0 ).finished( );
     // Initialize free coefficients vector for normal velocity function.
-    Eigen::VectorXd freeCoefficientsNormalVelocityFunction = Eigen::VectorXd::Zero( 2 );
-    freeCoefficientsNormalVelocityFunction[ 0 ] = 500.0;
-    freeCoefficientsNormalVelocityFunction[ 1 ] = -200.0;
-
+    Eigen::VectorXd freeCoefficientsNormalVelocityFunction = ( Eigen::Vector2d( ) << 500.0, -200.0 ).finished( );
     // Initialize free coefficients vector for axial velocity function.
-    Eigen::VectorXd freeCoefficientsAxialVelocityFunction = Eigen::VectorXd::Zero( 2 );
-    freeCoefficientsAxialVelocityFunction[ 0 ] = 500.0;
-    freeCoefficientsAxialVelocityFunction[ 1 ] = 2000.0;
-
+    Eigen::VectorXd freeCoefficientsAxialVelocityFunction = ( Eigen::Vector2d( ) << 500.0, 2000.0 ).finished( );
 
     // Retrieve cartesian state at departure and arrival.
     ephemerides::EphemerisPointer pointerToDepartureBodyEphemeris = std::make_shared< ephemerides::ApproximateJplEphemeris>(

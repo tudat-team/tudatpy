@@ -116,12 +116,19 @@ public:
         : TransferLegSettings( hodographic_low_thrust_leg ),
         radialVelocityFunctionComponents_( radialVelocityFunctionComponents ),
         normalVelocityFunctionComponents_( normalVelocityFunctionComponents ),
-        axialVelocityFunctionComponents_( axialVelocityFunctionComponents )
+        axialVelocityFunctionComponents_( axialVelocityFunctionComponents ),
+        numberOfFreeRadialCoefficients_( radialVelocityFunctionComponents.size( ) - 3 ),
+        numberOfFreeNormalCoefficients_( normalVelocityFunctionComponents.size( ) - 3 ),
+        numberOfFreeAxialCoefficients_( axialVelocityFunctionComponents.size( ) - 3 )
         { }
 
     const shape_based_methods::HodographicBasisFunctionList& radialVelocityFunctionComponents_;
     const shape_based_methods::HodographicBasisFunctionList& normalVelocityFunctionComponents_;
     const shape_based_methods::HodographicBasisFunctionList& axialVelocityFunctionComponents_;
+
+    const int numberOfFreeRadialCoefficients_;
+    const int numberOfFreeNormalCoefficients_;
+    const int numberOfFreeAxialCoefficients_;
 };
 
 std::shared_ptr< TransferLegSettings > dsmVelocityBasedLeg( );
