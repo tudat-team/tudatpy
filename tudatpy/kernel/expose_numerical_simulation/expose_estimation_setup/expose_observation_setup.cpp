@@ -288,6 +288,7 @@ void expose_observation_setup(py::module &m) {
     py::enum_< tom::ObservationViabilityType >(m, "ObservationViabilityType",
                                                get_docstring("ObservationViabilityType").c_str() )
             .value("minimum_elevation_angle", tom::ObservationViabilityType::minimum_elevation_angle )
+            .value("maximum_elevation_angle", tom::ObservationViabilityType::maximum_elevation_angle )
             .value("body_avoidance_angle", tom::ObservationViabilityType::body_avoidance_angle )
             .value("body_occultation", tom::ObservationViabilityType::body_occultation )
             .export_values();
@@ -299,11 +300,20 @@ void expose_observation_setup(py::module &m) {
                 get_docstring("ObservationViabilityType").c_str() );
 
 
-    m.def("elevation_angle_viability",
+    m.def("minimum_elevation_angle_viability",
           py::overload_cast<
                   const std::pair< std::string, std::string >,
-                  const double >(
-                  &tom::elevationAngleViabilitySettings ),
+                  const double>(
+                  &tom::minimumElevationAngleViabilitySettings ),
+          py::arg("link_end_id" ),
+          py::arg("elevation_angle" ),
+          get_docstring("elevation_angle_viability").c_str() );
+
+    m.def("maximum_elevation_angle_viability",
+          py::overload_cast<
+                  const std::pair< std::string, std::string >,
+                  const double>(
+                  &tom::maximumElevationAngleViabilitySettings ),
           py::arg("link_end_id" ),
           py::arg("elevation_angle" ),
           get_docstring("elevation_angle_viability").c_str() );
@@ -328,11 +338,20 @@ void expose_observation_setup(py::module &m) {
           py::arg("occulting_body" ),
           get_docstring("body_occultation_viability").c_str() );
 
-    m.def("elevation_angle_viability_list",
+    m.def("minimum_elevation_angle_viability_list",
           py::overload_cast<
-          const std::vector< std::pair< std::string, std::string > >,
-          const double >(
-          &tom::elevationAngleViabilitySettings ),
+                  const std::vector< std::pair< std::string, std::string > >,
+                  const double >(
+                  &tom::minimumElevationAngleViabilitySettings ),
+          py::arg("link_end_ids" ),
+          py::arg("elevation_angle" ),
+          get_docstring("elevation_angle_viability_list").c_str() );
+
+    m.def("maximum_elevation_angle_viability_list",
+          py::overload_cast<
+                  const std::vector< std::pair< std::string, std::string > >,
+                  const double >(
+                  &tom::maximumElevationAngleViabilitySettings ),
           py::arg("link_end_ids" ),
           py::arg("elevation_angle" ),
           get_docstring("elevation_angle_viability_list").c_str() );
