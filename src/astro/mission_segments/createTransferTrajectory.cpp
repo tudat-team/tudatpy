@@ -871,8 +871,21 @@ void getParameterVectorDecompositionIndices(
                 currentParameterIndex += 1;
                 break;
             case hodographic_low_thrust_leg:
-                legParameterIndices.push_back( std::make_pair( currentParameterIndex, 1 ) );
-                currentParameterIndex += 1;
+                {
+                    std::shared_ptr< HodographicShapingLegSettings > hodographicShapingLegSettings =
+                        std::dynamic_pointer_cast< HodographicShapingLegSettings >(legSettings.at(i));
+                    if (hodographicShapingLegSettings == nullptr)
+                    {
+                        throw std::runtime_error("Error when decomposing parameter indices, hodographic shaping settings type is invalid ");
+                    }
+
+                    const int numberOfParameters = 1 +  hodographicShapingLegSettings->numberOfFreeNormalCoefficients_ +
+                            hodographicShapingLegSettings->numberOfFreeRadialCoefficients_ +
+                            hodographicShapingLegSettings->numberOfFreeAxialCoefficients_;
+
+                    legParameterIndices.push_back(std::make_pair(currentParameterIndex, numberOfParameters));
+                    currentParameterIndex += numberOfParameters;
+                }
                 break;
             }
         }
@@ -906,7 +919,26 @@ void printTransferParameterDefinition(
             currentLegIds.push_back( "Number of revolutions (integer number >= 0)" );
             break;
         case hodographic_low_thrust_leg:
-            currentLegIds.push_back( "Number of revolutions (integer number >= 0)" );
+            {
+                currentLegIds.push_back("Number of revolutions (integer number >= 0)");
+
+                std::shared_ptr< HodographicShapingLegSettings > hodographicShapingLegSettings =
+                        std::dynamic_pointer_cast< HodographicShapingLegSettings >(legSettings.at(i));
+                if (hodographicShapingLegSettings == nullptr)
+                {
+                    throw std::runtime_error("Error when printing parameter definitions, hodographic shaping settings type is invalid ");
+                }
+
+                for (int j = 0; j < hodographicShapingLegSettings->numberOfFreeRadialCoefficients_; ++j) {
+                    currentLegIds.push_back( "Radial velocity function free coefficient " + std::to_string(j) );
+                }
+                for (int j = 0; j < hodographicShapingLegSettings->numberOfFreeNormalCoefficients_; ++j) {
+                    currentLegIds.push_back( "Normal velocity function free coefficient " + std::to_string(j) );
+                }
+                for (int j = 0; j < hodographicShapingLegSettings->numberOfFreeAxialCoefficients_; ++j) {
+                    currentLegIds.push_back( "Axial velocity function free coefficient " + std::to_string(j) );
+                }
+            }
             break;
         default:
             throw std::runtime_error( "Error when printing transfer parameter definition, leg type not recognized" );

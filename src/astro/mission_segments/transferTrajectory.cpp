@@ -1,4 +1,5 @@
 #include "tudat/astro/mission_segments/transferTrajectory.h"
+#include "tudat/astro/low_thrust/shape_based/hodographicShapingLeg.h"
 
 namespace tudat
 {
@@ -231,10 +232,18 @@ void TransferTrajectory::getLegTotalParameters(
     }
     else if ( legs_.at( legIndex )->getTransferLegType( ) == hodographic_low_thrust_leg )
     {
-        legTotalParameters.resize( 3, 1 );
+        std::shared_ptr< shape_based_methods::HodographicShapingLeg > hodographicShapingLeg =
+                std::dynamic_pointer_cast< shape_based_methods::HodographicShapingLeg >( legs_.at( legIndex ) );
+        if (hodographicShapingLeg == nullptr)
+        {
+            throw std::runtime_error("Error getting leg parameters, hodographic leg shaping type is invalid");
+        }
+        const int legFreeVelocityShapingParameters = hodographicShapingLeg->getNumberOfFreeCoefficients();
+
+        legTotalParameters.resize( 3 + legFreeVelocityShapingParameters, 1 );
         legTotalParameters( 0 ) = nodeTimes.at( legIndex );
         legTotalParameters( 1 ) = nodeTimes.at( legIndex + 1 );
-        legTotalParameters( 2 ) = legFreeParameters( 0 );
+        legTotalParameters.segment( 2, 1 + legFreeVelocityShapingParameters) = legFreeParameters;
     }
     else
     {
