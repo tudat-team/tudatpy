@@ -94,7 +94,9 @@ public:
         isMutualAttractionUsed_( isMutualAttractionUsed ),
         polyhedronCache_( std::make_shared< PolyhedronGravityCache >(
                 aVerticesCoordinatesMatrix, aVerticesDefiningEachFacetMatrix, aVerticesDefiningEachEdgeMatrix) )
-    { }
+    {
+        std::cerr << "Created PolyhedronGravitationalAccelerationModel" << std::endl;
+    }
 
     //! Constructor taking functions for position of bodies, and parameters of polyhedron.
     /*!
