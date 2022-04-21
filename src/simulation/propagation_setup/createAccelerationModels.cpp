@@ -93,12 +93,14 @@ std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > cre
                     isCentralBody );
         break;
     case polyhedron_gravity:
+        std::cerr << "Before creating direct polyhedron acceleration" << std::endl;
         accelerationModel = createPolyhedronGravityAcceleration(
                 bodyUndergoingAcceleration,
                 bodyExertingAcceleration,
                 nameOfBodyUndergoingAcceleration,
                 nameOfBodyExertingAcceleration,
                 sumGravitationalParameters);
+        std::cerr << "After creating direct polyhedron acceleration" << std::endl;
         break;
     default:
 
@@ -161,6 +163,7 @@ std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > cre
                             accelerationSettings, "", 1 ) ), nameOfCentralBody );
         break;
     case polyhedron_gravity:
+        std::cerr << "Before creating 3rd body polyhedron gravity" << std::endl;
         accelerationModel = std::make_shared< ThirdBodyPolyhedronGravitationalAccelerationModel >(
                 std::dynamic_pointer_cast< PolyhedronGravitationalAccelerationModel >(
                     createDirectGravitationalAcceleration(
@@ -172,6 +175,7 @@ std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > cre
                         centralBody, bodyExertingAcceleration, nameOfCentralBody, nameOfBodyExertingAcceleration,
                         accelerationSettings, "", 1 ) ),
                 nameOfCentralBody );
+        std::cerr << "After creating 3rd body polyhedron gravity" << std::endl;
         break;
     default:
 
@@ -547,12 +551,18 @@ createPolyhedronGravityAcceleration(
     // Declare pointer to return object
     std::shared_ptr< PolyhedronGravitationalAccelerationModel > accelerationModel;
 
+    std::cerr << "Before creating polyhedron gravity field in createPolyhedronGravityAcceleration" << std::endl;
+
     // Get pointer to gravity field of central body and cast to required type.
     std::shared_ptr< PolyhedronGravityField > polyhedronGravityField =
             std::dynamic_pointer_cast< PolyhedronGravityField >(
                 bodyExertingAcceleration->getGravityFieldModel( ) );
 
+    std::cerr << "After creating polyhedron gravity field in createPolyhedronGravityAcceleration" << std::endl;
+
     std::shared_ptr< RotationalEphemeris> rotationalEphemeris = bodyExertingAcceleration->getRotationalEphemeris( );
+
+    std::cerr << "After creating rotational ephemeris in createPolyhedronGravityAcceleration" << std::endl;
 
     if( polyhedronGravityField == nullptr )
     {
@@ -617,6 +627,8 @@ createPolyhedronGravityAcceleration(
         std::function< std::vector< Eigen::MatrixXd >( ) > edgeDyadsFunction =
                 std::bind( &PolyhedronGravityField::getEdgeDyads, polyhedronGravityField );
 
+        std::cerr << "Before creating acceleration model in createPolyhedronGravityAcceleration" << std::endl;
+
         // Create acceleration object.
         accelerationModel =
                 std::make_shared< PolyhedronGravitationalAccelerationModel >(
@@ -631,6 +643,8 @@ createPolyhedronGravityAcceleration(
                         std::bind( &Body::getPositionByReference, bodyExertingAcceleration, std::placeholders::_1 ),
                         std::bind( &Body::getCurrentRotationToGlobalFrame, bodyExertingAcceleration ),
                         useCentralBodyFixedFrame );
+
+        std::cerr << "After creating acceleration model in createPolyhedronGravityAcceleration" << std::endl;
 
     }
     return accelerationModel;
