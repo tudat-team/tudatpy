@@ -510,7 +510,18 @@ public:
         Eigen::VectorXd returnVector = Eigen::VectorXd( 3 * coefficientIndices.size( ) );
         for( unsigned int i = 0; i < coefficientIndices.size( ); i++ )
         {
-            returnVector.segment( i * 3, 3 ) = accelerationPerTerm_.at( coefficientIndices.at( i ) );
+            if( accelerationPerTerm_.count( coefficientIndices.at( i ) ) != 0 )
+            {
+                returnVector.segment( i * 3, 3 ) = accelerationPerTerm_.at( coefficientIndices.at( i ) );
+            }
+            else
+            {
+                throw std::runtime_error( "Error when retrieving spherical harmonic acceleration at degree/order: " +
+                                          std::to_string( coefficientIndices.at( i ).first ) + "/" +
+                                          std::to_string( coefficientIndices.at( i ).second ) +
+                                          ". This degree/order combination is not within the selected range of the current acceleration model." );
+            }
+
         }
         return returnVector;
     }
@@ -525,7 +536,17 @@ public:
         Eigen::VectorXd returnVector = Eigen::VectorXd( coefficientIndices.size( ) );
         for( unsigned int i = 0; i < coefficientIndices.size( ); i++ )
         {
-            returnVector( i ) = accelerationPerTerm_.at( coefficientIndices.at( i ) ).norm( );
+            if( accelerationPerTerm_.count( coefficientIndices.at( i ) ) != 0 )
+            {
+                returnVector( i ) = accelerationPerTerm_.at( coefficientIndices.at( i ) ).norm( );
+            }
+            else
+            {
+                throw std::runtime_error( "Error when retrieving spherical harmonic acceleration at degree/order: " +
+                                          std::to_string( coefficientIndices.at( i ).first ) + "/" +
+                                          std::to_string( coefficientIndices.at( i ).second ) +
+                                          ". This degree/order combination is not within the selected range of the current acceleration model." );
+            }
         }
         return returnVector;
     }

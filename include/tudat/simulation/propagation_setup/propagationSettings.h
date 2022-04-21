@@ -2214,6 +2214,30 @@ std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string 
     return integratedStateList;
 }
 
+
+// addition for thesis work (Jonas Hener), considered generally useful
+template< typename StateScalarType >
+void addDepedentVariableSettings(
+        const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToAdd,
+        const std::shared_ptr< propagators::SingleArcPropagatorSettings< StateScalarType > > propagatorSettings )
+{
+    std::shared_ptr< DependentVariableSaveSettings > dependentVariablesToSave = propagatorSettings->getDependentVariablesToSave( );
+    if( dependentVariablesToSave != nullptr )
+    {
+        dependentVariablesToSave->dependentVariables_.insert(
+                dependentVariablesToSave->dependentVariables_.end( ), dependentVariablesToAdd.begin( ), dependentVariablesToAdd.end( ) );
+    }
+    else
+    {
+        dependentVariablesToSave = std::make_shared< DependentVariableSaveSettings >(
+                dependentVariablesToAdd, false );
+        propagatorSettings->resetDependentVariablesToSave( dependentVariablesToSave );
+    }
+}
+
+
+
+
 template< typename StateScalarType >
 void resetSingleArcInitialStates(
         const std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > propagatorSettings,
