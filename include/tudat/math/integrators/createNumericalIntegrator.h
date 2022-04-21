@@ -146,7 +146,7 @@ public:
             const IndependentVariableType initialTime,
             const IndependentVariableType initialTimeStep,
             const numerical_integrators::CoefficientSets coefficientSet,
-            const unsigned int orderToUse = 0,
+            const RungeKuttaCoefficients::OrderEstimateToIntegrate orderToUse = RungeKuttaCoefficients::OrderEstimateToIntegrate::lower,
             const int saveFrequency = 1,
             const bool assessTerminationOnMinorSteps = false ):
         IntegratorSettings< IndependentVariableType >(
@@ -166,7 +166,7 @@ public:
     numerical_integrators::CoefficientSets coefficientSet_;
 
     // Order of Runge-Kutta method to be used.
-    unsigned int orderToUse_;
+    RungeKuttaCoefficients::OrderEstimateToIntegrate orderToUse_;
 };
 
 // Base class to define settings of variable step RK numerical integrator.
@@ -642,7 +642,7 @@ inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > rungeKut
         const IndependentVariableType initialTime,
         const IndependentVariableType initialTimeStep,
         const numerical_integrators::CoefficientSets coefficientSet,
-        const unsigned int orderToUse = 0,
+        const RungeKuttaCoefficients::OrderEstimateToIntegrate orderToUse = RungeKuttaCoefficients::OrderEstimateToIntegrate::lower,
         const int saveFrequency = 1,
         const bool assessTerminationOnMinorSteps = false )
 {
