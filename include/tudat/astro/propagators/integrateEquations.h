@@ -543,7 +543,7 @@ std::shared_ptr< PropagationTerminationDetails > integrateEquationsFromIntegrato
                 if( integrator->getPropagationTerminationConditionReached( ) )
                 {
                     propagationTerminationReason = std::make_shared< PropagationTerminationDetails >(
-                                termination_condition_reached );
+                                termination_condition_reached, 0 );
                     break;
                 }
 

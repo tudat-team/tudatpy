@@ -190,6 +190,17 @@ public:
         setConstantPerObservableAndLinkEndsWeights( weightPerObservableAndLinkEnds );
     }
 
+    void setConstantPerObservableAndLinkEndsWeights(
+            const observation_models::ObservableType observableType,
+            const observation_models::LinkEnds& linkEnds,
+            const double weight )
+    {
+        std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds, double > > weightPerObservableAndLinkEnds;
+        weightPerObservableAndLinkEnds[ observableType ][ linkEnds ] =  weight;
+        setConstantPerObservableAndLinkEndsWeights( weightPerObservableAndLinkEnds );
+    }
+
+
     //! Function to define specific settings for estimation process
     /*!
      *  Function to define specific settings for estimation process

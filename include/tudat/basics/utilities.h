@@ -14,6 +14,7 @@
 #include <map>
 #include <vector>
 #include <iostream>
+#include <stdexcept>
 
 #include <functional>
 #include <boost/multi_array.hpp>
