@@ -79,7 +79,7 @@ public:
                                        const IndependentVariableType intervalStart,
                                        const StateType& initialState,
                                        const CoefficientSets& coefficientsSet,
-                                       const unsigned int orderToUse = 0 ) :
+                                       const RungeKuttaCoefficients::OrderEstimateToIntegrate orderToUse = RungeKuttaCoefficients::OrderEstimateToIntegrate::lower ) :
         ReinitializableNumericalIntegratorBase( stateDerivativeFunction ),
         currentIndependentVariable_( intervalStart ),
         currentState_( initialState ),
@@ -101,27 +101,10 @@ public:
         // Load the Butcher tableau coefficients.
         butcherTableau_ = butcherTableau_.get( coefficientsSet );
 
-        // Print a warning if the coefficient set is a fixed step integrator but the user specified an order.
-        if ( (butcherTableau_.isFixedStepSize) && (orderToUse_ != 0))
+        // If the coefficient set is not already fixed step size, remove the b column according to the order to use.
+        if ( !(butcherTableau_.isFixedStepSize) )
         {
-            std::cout << "Warning, the order specified for the integrator (" << orderToUse_ << ") is ignored since the " << butcherTableau_.name << " fixed step integrator is used, which only has one order." << std::endl;
-        }
-        // Raise an error if the integrator is variable step but no order to use was specified.
-        else if ( !butcherTableau_.isFixedStepSize && (orderToUse_ == 0) )
-        {
-            throw std::runtime_error( "Error, using the fixed step RK integrator with a variable step coefficient set (" + butcherTableau_.name + ") requires to specify the order to use." +
-                                      " Available orders: " + std::to_string( butcherTableau_.lowerOrder ) + " / " + std::to_string( butcherTableau_.higherOrder ) + "." );
-        }
-        // Raise an error if the specified order is not available.
-        else if ( (orderToUse_ != butcherTableau_.lowerOrder) && (orderToUse_ != butcherTableau_.higherOrder) )
-        {
-            throw std::runtime_error( "Error, the specified order (" + std::to_string( orderToUse_ ) + ") is not available for the " + butcherTableau_.name + " Runge Kutta integrator." +
-                                      " Available orders: " + std::to_string( butcherTableau_.lowerOrder ) + " / " + std::to_string( butcherTableau_.higherOrder ) + "." );
-        }
-        // If all went well, remove the b column according to the order to use.
-        else if ( !(butcherTableau_.isFixedStepSize) && (orderToUse_ != 0))
-        {
-            if (orderToUse_ == butcherTableau_.lowerOrder)
+            if (orderToUse_ == RungeKuttaCoefficients::OrderEstimateToIntegrate::lower)
             {
                 // Keep the first row of bCoefficients.
                 Eigen::MatrixXd oldBCoefficients = butcherTableau_.bCoefficients;
@@ -355,7 +338,7 @@ protected:
     std::vector< StateDerivativeType > currentStateDerivatives_;
 
     // Order of Runge-Kutta method to be used.
-    unsigned int orderToUse_;
+    RungeKuttaCoefficients::OrderEstimateToIntegrate orderToUse_;
 };
 
 extern template class RungeKuttaFixedStepSizeIntegrator < double, Eigen::VectorXd, Eigen::VectorXd >;
