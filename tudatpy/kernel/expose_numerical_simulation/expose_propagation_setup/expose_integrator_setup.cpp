@@ -73,7 +73,11 @@ namespace integrator {
                            get_docstring("RKCoefficientSets.rkf_78").c_str())
                     .value("rkdp_87", tni::rungeKutta87DormandPrince,
                            get_docstring("RKCoefficientSets.rkdp_87").c_str())
-                    .export_values();
+
+            py::enum_<tni::RungeKuttaCoefficients::OrderEstimateToIntegrate>(m, "OrderToIntegrate")
+                     .value("lower", tni::RungeKuttaCoefficients::OrderEstimateToIntegrate::lower)
+                     .value("higher", tni::RungeKuttaCoefficients::OrderEstimateToIntegrate::higher)
+                     .export_values();
 
             py::enum_<tni::ExtrapolationMethodStepSequences>(m, "ExtrapolationMethodStepSequences",
                                                              get_docstring("ExtrapolationMethodStepSequences").c_str())
@@ -161,7 +165,7 @@ namespace integrator {
                   py::arg("initial_time"),
                   py::arg("initial_time_step"),
                   py::arg("coefficient_set"),
-                  py::arg("order_to_use") = 0,
+                  py::arg("order_to_use") = tni::RungeKuttaCoefficients::OrderEstimateToIntegrate::lower,
                   py::arg("save_frequency") = 1,
                   py::arg("assess_termination_on_minor_steps") = false);
 
