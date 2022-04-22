@@ -304,12 +304,16 @@ public:
                                     const double density,
                                     const Eigen::MatrixXd& verticesCoordinates,
                                     const Eigen::MatrixXi& verticesDefiningEachFacet,
-                                    const std::string& associatedReferenceFrame );
+                                    const std::string& associatedReferenceFrame,
+                                    const Eigen::Vector3d desiredCenterOfMassPosition =
+                                        (Eigen::Vector3d() << TUDAT_NAN, TUDAT_NAN, TUDAT_NAN).finished());
 
     PolyhedronGravityFieldSettings( const double gravitationalParameter,
                                     const Eigen::MatrixXd& verticesCoordinates,
                                     const Eigen::MatrixXi& verticesDefiningEachFacet,
-                                    const std::string& associatedReferenceFrame );
+                                    const std::string& associatedReferenceFrame,
+                                    const Eigen::Vector3d desiredCenterOfMassPosition =
+                                        (Eigen::Vector3d() << TUDAT_NAN, TUDAT_NAN, TUDAT_NAN).finished() );
 
     virtual ~PolyhedronGravityFieldSettings( ){ }
 
@@ -331,6 +335,12 @@ public:
 
     double getVolume ( )
     { return volume_; }
+
+    Eigen::Vector3d getCenterOfMassPosition ( )
+    {
+        computeCenterOfMassPosition();
+        return centerOfMassPosition_;
+    }
 
     // Function to return identifier for body-fixed reference frame.
     /*
@@ -377,11 +387,20 @@ protected:
     // Compute the volume of a polyhedron, according to "Inertia of Any Polyhedron", DOBROVOLSKIS (1996), Icarus
     void computeVolume ( );
 
+    // Compute the center of mass of a polyhedron, according to "Inertia of Any Polyhedron", DOBROVOLSKIS (1996), Icarus
+    void computeCenterOfMassPosition( );
+
+    // Corrects the position of the polyhedron such that the center of mass coincides with the specified point
+    void correctCenterOfMassPosition( const Eigen::Vector3d desiredCenterOfMassPosition );
+
     // Gravitational parameter
     double gravitationalParameter_;
 
     // Volume of polyhedron
     double volume_;
+
+    // Center of mass of the polyhedron
+    Eigen::Vector3d centerOfMassPosition_;
 
     // Cartesian coordinates of each vertex.
     Eigen::MatrixXd verticesCoordinates_;

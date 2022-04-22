@@ -470,7 +470,8 @@ PolyhedronGravityFieldSettings::PolyhedronGravityFieldSettings (
         const double density,
         const Eigen::MatrixXd& verticesCoordinates,
         const Eigen::MatrixXi& verticesDefiningEachFacet,
-        const std::string& associatedReferenceFrame):
+        const std::string& associatedReferenceFrame,
+        const Eigen::Vector3d desiredCenterOfMassPosition):
     GravityFieldSettings( polyhedron ),
     verticesCoordinates_( verticesCoordinates ),
     verticesDefiningEachFacet_( verticesDefiningEachFacet ),
@@ -482,6 +483,12 @@ PolyhedronGravityFieldSettings::PolyhedronGravityFieldSettings (
     if ( numberOfFacets != 2 * ( numberOfVertices - 2) )
     {
         throw std::runtime_error( "Number of polyhedron facets and vertices not consistent." );
+    }
+
+    // Adjust position of vertices if necessary
+    if (desiredCenterOfMassPosition == desiredCenterOfMassPosition )
+    {
+        correctCenterOfMassPosition(desiredCenterOfMassPosition);
     }
 
     // Compute edges in polyhedron
@@ -502,7 +509,8 @@ PolyhedronGravityFieldSettings::PolyhedronGravityFieldSettings (
         const double gravitationalParameter,
         const Eigen::MatrixXd& verticesCoordinates,
         const Eigen::MatrixXi& verticesDefiningEachFacet,
-        const std::string& associatedReferenceFrame):
+        const std::string& associatedReferenceFrame,
+        const Eigen::Vector3d desiredCenterOfMassPosition):
         GravityFieldSettings( polyhedron ),
         gravitationalParameter_( gravitationalParameter ),
         verticesCoordinates_( verticesCoordinates ),
@@ -515,6 +523,12 @@ PolyhedronGravityFieldSettings::PolyhedronGravityFieldSettings (
     if ( numberOfFacets != 2 * ( numberOfVertices - 2) )
     {
         throw std::runtime_error( "Number of polyhedron facets and vertices not consistent." );
+    }
+
+    // Adjust position of vertices if necessary
+    if (desiredCenterOfMassPosition == desiredCenterOfMassPosition )
+    {
+        correctCenterOfMassPosition( desiredCenterOfMassPosition );
     }
 
     // Compute edges in polyhedron
@@ -686,9 +700,42 @@ void PolyhedronGravityFieldSettings::computeVolume ( )
 
         volume_ += 1.0/6.0 * vertex0.dot( vertex1.cross( vertex2 ) );
     }
-
 }
 
+void PolyhedronGravityFieldSettings::computeCenterOfMassPosition( )
+{
+    const unsigned int numberOfFacets = verticesDefiningEachFacet_.rows();
+
+    // Initialize center of mass
+    centerOfMassPosition_ << 0.0, 0.0, 0.0;
+
+    for (unsigned int facet = 0; facet < numberOfFacets; ++facet)
+    {
+        Eigen::Vector3d vertex0 = verticesCoordinates_.block<1,3>(verticesDefiningEachFacet_(facet,0),0);
+        Eigen::Vector3d vertex1 = verticesCoordinates_.block<1,3>(verticesDefiningEachFacet_(facet,1),0);
+        Eigen::Vector3d vertex2 = verticesCoordinates_.block<1,3>(verticesDefiningEachFacet_(facet,2),0);
+
+        double volumeOfTetrahedron = 1.0/6.0 * vertex0.dot( vertex1.cross( vertex2 ) );
+        Eigen::Vector3d centerOfMassOfTetrahedron = (vertex0 + vertex1 + vertex2) / 4.0;
+        centerOfMassPosition_ += volumeOfTetrahedron * centerOfMassOfTetrahedron;
+    }
+
+    centerOfMassPosition_ = centerOfMassPosition_ / volume_;
+}
+
+void PolyhedronGravityFieldSettings::correctCenterOfMassPosition( const Eigen::Vector3d desiredCenterOfMassPosition )
+{
+    computeVolume();
+    computeCenterOfMassPosition();
+    Eigen::Vector3d centerOfMassCorrection = desiredCenterOfMassPosition - centerOfMassPosition_;
+
+    const unsigned int numberOfVertices = verticesCoordinates_.rows();
+
+    for (unsigned int vertex = 0; vertex < numberOfVertices; ++vertex)
+    {
+        verticesCoordinates_.block<1,3>(vertex,0) += centerOfMassCorrection;
+    }
+}
 
 } // namespace simulation_setup
 

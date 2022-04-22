@@ -191,6 +191,9 @@ BOOST_AUTO_TEST_CASE( test_polyhedron_set_up )
     PolyhedronGravityFieldSettings gravitySettings = simulation_setup::PolyhedronGravityFieldSettings(
             gravitationalParameter, verticesCoordinates, verticesDefiningEachFacet, associatedReferenceFrame);
 
+    std::cout << "Center of mass: " << gravitySettings.getCenterOfMassPosition().transpose() << std::endl;
+    std::cout << "Volume: " << gravitySettings.getVolume() << std::endl;
+
     Eigen::MatrixXi verticesDefiningEachEdge = gravitySettings.getVerticesDefiningEachEdge();
     std::vector< Eigen::Vector3d > facetNormalVectors = gravitySettings.getFacetNormalVectors( );
     std::vector< Eigen::MatrixXd > facetDyads = gravitySettings.getFacetDyads( );

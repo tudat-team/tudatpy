@@ -100,7 +100,6 @@ public:
               verticesDefiningEachEdge_( verticesDefiningEachEdge )
     {
         currentBodyFixedPosition_ = (Eigen::Vector3d() << TUDAT_NAN, TUDAT_NAN, TUDAT_NAN).finished();
-        std::cerr << "Created PolyhedronGravityCache" << std::endl;
     }
 
     void update( const Eigen::Vector3d& currentBodyFixedPosition );
