@@ -102,9 +102,7 @@ public:
             accelerationModelForBodyUndergoingAcceleration ),
         accelerationModelForCentralBody_( accelerationModelForCentralBody ),
         centralBodyName_( centralBodyName )
-    {
-        std::cerr << "Created 3rd body acceleration" << std::endl;
-    }
+    { }
 
     //! Update member variables to current state.
     /*!
