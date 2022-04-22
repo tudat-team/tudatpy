@@ -117,6 +117,9 @@ namespace gravity_field {
             .def_property_readonly ("volume",
                 &tss::PolyhedronGravityFieldSettings::getVolume,
                 get_docstring("PolyhedronGravityFieldSettings.volume").c_str())
+            .def_property_readonly("center_of_mass",
+                &tss::PolyhedronGravityFieldSettings::getCenterOfMassPosition,
+                get_docstring("PolyhedronGravityFieldSettings.center_of_mass").c_str())
             .def_property("associated_reference_frame",
                 &tss::PolyhedronGravityFieldSettings::getAssociatedReferenceFrame,
                 &tss::PolyhedronGravityFieldSettings::resetAssociatedReferenceFrame,
@@ -170,11 +173,13 @@ namespace gravity_field {
               py::overload_cast< const double,
               const Eigen::MatrixXd,
               const Eigen::MatrixXi,
-              const std::string& >( &tss::polyhedronGravitySettings ),
+              const std::string&,
+              const Eigen::Vector3d& >( &tss::polyhedronGravitySettings ),
               py::arg("gravitational_parameter"),
               py::arg("vertices_coordinates"),
               py::arg("vertices_defining_each_facet"),
               py::arg("associated_reference_frame"),
+              py::arg("desired_center_of_mass_position") = (Eigen::Vector3d() << TUDAT_NAN, TUDAT_NAN, TUDAT_NAN).finished(),
               get_docstring("spherical_harmonic").c_str()
               );
 
