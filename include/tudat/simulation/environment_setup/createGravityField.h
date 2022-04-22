@@ -306,7 +306,7 @@ public:
                                     const Eigen::MatrixXi& verticesDefiningEachFacet,
                                     const std::string& associatedReferenceFrame,
                                     const Eigen::Vector3d desiredCenterOfMassPosition =
-                                        (Eigen::Vector3d() << TUDAT_NAN, TUDAT_NAN, TUDAT_NAN).finished());
+                                        (Eigen::Vector3d() << TUDAT_NAN, TUDAT_NAN, TUDAT_NAN).finished() );
 
     PolyhedronGravityFieldSettings( const double gravitationalParameter,
                                     const Eigen::MatrixXd& verticesCoordinates,
@@ -709,11 +709,13 @@ inline std::shared_ptr< GravityFieldSettings > polyhedronGravitySettings(
         const double gravitationalParameter,
         const Eigen::MatrixXd verticesCoordinates,
         const Eigen::MatrixXi verticesDefiningEachFacet,
-        const std::string& associatedReferenceFrame)
+        const std::string& associatedReferenceFrame,
+        const Eigen::Vector3d& desiredCenterOfMassPosition =
+                (Eigen::Vector3d() << TUDAT_NAN, TUDAT_NAN, TUDAT_NAN).finished() )
 {
     return std::make_shared< PolyhedronGravityFieldSettings >(
             gravitationalParameter, verticesCoordinates,
-            verticesDefiningEachFacet, associatedReferenceFrame);
+            verticesDefiningEachFacet, associatedReferenceFrame, desiredCenterOfMassPosition);
 }
 
 } // namespace simulation_setup
