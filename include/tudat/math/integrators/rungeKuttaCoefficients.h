@@ -41,10 +41,17 @@ enum CoefficientSets
     SSPRK3,
     ralston4,
     threeEighthRuleRK4,
+    heunEuler,
+    rungeKuttaFehlberg12,
     rungeKuttaFehlberg45,
     rungeKuttaFehlberg56,
     rungeKuttaFehlberg78,
-    rungeKutta87DormandPrince
+    rungeKutta87DormandPrince,
+    rungeKuttaFehlberg89,
+    rungeKuttaVerner89,
+    rungeKuttaFeagin108,
+    rungeKuttaFeagin1210,
+    rungeKuttaFeagin1412
 };
 
 // Struct that defines the coefficients of a Runge-Kutta integrator
