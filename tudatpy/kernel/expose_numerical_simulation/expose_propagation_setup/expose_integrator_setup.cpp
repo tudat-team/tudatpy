@@ -53,8 +53,8 @@ namespace integrator {
                            get_docstring("AvailableIntegrators.adams_bashforth_moulton").c_str())
                     .export_values();
 
-            py::enum_<tni::CoefficientSets>(m, "RKCoefficientSets",
-                                                                    get_docstring("RKCoefficientSets").c_str())
+            py::enum_<tni::CoefficientSets>(m, "CoefficientSets",
+                                                                    get_docstring("CoefficientSets").c_str())
                     .value("euler_forward", tni::forwardEuler)
                     .value("rk_4", tni::rungeKutta4Classic)
                     .value("explicit_mid_point", tni::explicitMidPoint)
@@ -65,14 +65,22 @@ namespace integrator {
                     .value("SSPRK3", tni::SSPRK3)
                     .value("ralston_4", tni::ralston4)
                     .value("three_eight_rule_rk_4", tni::threeEighthRuleRK4)
+                    .value("heun_euler", tni::heunEuler)
+                    .value("rkf_12", tni::rungeKuttaFehlberg12)
                     .value("rkf_45", tni::rungeKuttaFehlberg45,
-                           get_docstring("RKCoefficientSets.rkf_45").c_str())
+                           get_docstring("CoefficientSets.rkf_45").c_str())
                     .value("rkf_56", tni::rungeKuttaFehlberg56,
-                           get_docstring("RKCoefficientSets.rkf_56").c_str())
+                           get_docstring("CoefficientSets.rkf_56").c_str())
                     .value("rkf_78", tni::rungeKuttaFehlberg78,
-                           get_docstring("RKCoefficientSets.rkf_78").c_str())
+                           get_docstring("CoefficientSets.rkf_78").c_str())
                     .value("rkdp_87", tni::rungeKutta87DormandPrince,
-                           get_docstring("RKCoefficientSets.rkdp_87").c_str())
+                           get_docstring("CoefficientSets.rkdp_87").c_str())
+                    .value("rkf_89", tni::rungeKuttaFehlberg89)
+                    .value("rkv_89", tni::rungeKuttaVerner89)
+                    .value("rkf_108", tni::rungeKuttaFeagin108)
+                    .value("rkf_1210", tni::rungeKuttaFeagin1210)
+                    .value("rkf_1412", tni::rungeKuttaFeagin1412)
+                    .export_values();
 
             py::enum_<tni::RungeKuttaCoefficients::OrderEstimateToIntegrate>(m, "OrderToIntegrate")
                      .value("lower", tni::RungeKuttaCoefficients::OrderEstimateToIntegrate::lower)
