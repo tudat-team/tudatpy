@@ -40,33 +40,40 @@ namespace integrator {
 
 // ENUMS
             py::enum_<tni::AvailableIntegrators>(m, "AvailableIntegrators", get_docstring("AvailableIntegrators").c_str())
-                    .value("euler_type", tni::AvailableIntegrators::euler,
-                           get_docstring("AvailableIntegrators.euler").c_str())
-                    .value("runge_kutta_4_type", tni::AvailableIntegrators::rungeKutta4,
-                           get_docstring("AvailableIntegrators.runge_kutta_4").c_str())
+              //       .value("euler_type", tni::AvailableIntegrators::euler)
+              //       .value("runge_kutta_4_type", tni::AvailableIntegrators::rungeKutta4)
                     .value("runge_kutta_fixed_step_size_type", tni::AvailableIntegrators::rungeKuttaFixedStepSize)
-                    .value("runge_kutta_variable_step_size_type", tni::AvailableIntegrators::rungeKuttaVariableStepSize,
-                           get_docstring("AvailableIntegrators.runge_kutta_variable_step_size").c_str())
-                    .value("bulirsch_stoer_type", tni::AvailableIntegrators::bulirschStoer,
-                           get_docstring("AvailableIntegrators.bulirsch_stoer").c_str())
-                    .value("adams_bashforth_moulton_type", tni::AvailableIntegrators::adamsBashforthMoulton,
-                           get_docstring("AvailableIntegrators.adams_bashforth_moulton").c_str())
+                    .value("runge_kutta_variable_step_size_type", tni::AvailableIntegrators::rungeKuttaVariableStepSize)
+                    .value("bulirsch_stoer_type", tni::AvailableIntegrators::bulirschStoer)
+                    .value("adams_bashforth_moulton_type", tni::AvailableIntegrators::adamsBashforthMoulton)
                     .export_values();
 
             py::enum_<tni::CoefficientSets>(m, "CoefficientSets",
-                                                                    get_docstring("CoefficientSets").c_str())
-                    .value("euler_forward", tni::forwardEuler)
-                    .value("rk_4", tni::rungeKutta4Classic)
-                    .value("explicit_mid_point", tni::explicitMidPoint)
-                    .value("explicit_trapezoid_rule", tni::explicitTrapezoidRule)
-                    .value("ralston", tni::ralston)
-                    .value("rk_3", tni::rungeKutta3)
-                    .value("ralston_3", tni::ralston3)
-                    .value("SSPRK3", tni::SSPRK3)
-                    .value("ralston_4", tni::ralston4)
-                    .value("three_eight_rule_rk_4", tni::threeEighthRuleRK4)
-                    .value("heun_euler", tni::heunEuler)
-                    .value("rkf_12", tni::rungeKuttaFehlberg12)
+                                            get_docstring("CoefficientSets").c_str())
+                    .value("euler_forward", tni::forwardEuler,
+                           get_docstring("CoefficientSets.euler_forward").c_str())
+                    .value("rk_4", tni::rungeKutta4Classic,
+                           get_docstring("CoefficientSets.rk_4").c_str())
+                    .value("explicit_mid_point", tni::explicitMidPoint,
+                           get_docstring("CoefficientSets.explicit_mid_point").c_str())
+                    .value("explicit_trapezoid_rule", tni::explicitTrapezoidRule,
+                           get_docstring("CoefficientSets.explicit_trapezoid_rule").c_str())
+                    .value("ralston", tni::ralston,
+                           get_docstring("CoefficientSets.ralston").c_str())
+                    .value("rk_3", tni::rungeKutta3,
+                           get_docstring("CoefficientSets.rk_3").c_str())
+                    .value("ralston_3", tni::ralston3,
+                           get_docstring("CoefficientSets.ralston_3").c_str())
+                    .value("SSPRK3", tni::SSPRK3,
+                           get_docstring("CoefficientSets.SSPRK3").c_str())
+                    .value("ralston_4", tni::ralston4,
+                           get_docstring("CoefficientSets.ralston_4").c_str())
+                    .value("three_eight_rule_rk_4", tni::threeEighthRuleRK4,
+                           get_docstring("CoefficientSets.three_eight_rule_rk_4").c_str())
+                    .value("heun_euler", tni::heunEuler,
+                           get_docstring("CoefficientSets.heun_euler").c_str())
+                    .value("rkf_12", tni::rungeKuttaFehlberg12,
+                           get_docstring("CoefficientSets.rkf_12").c_str())
                     .value("rkf_45", tni::rungeKuttaFehlberg45,
                            get_docstring("CoefficientSets.rkf_45").c_str())
                     .value("rkf_56", tni::rungeKuttaFehlberg56,
@@ -75,16 +82,24 @@ namespace integrator {
                            get_docstring("CoefficientSets.rkf_78").c_str())
                     .value("rkdp_87", tni::rungeKutta87DormandPrince,
                            get_docstring("CoefficientSets.rkdp_87").c_str())
-                    .value("rkf_89", tni::rungeKuttaFehlberg89)
-                    .value("rkv_89", tni::rungeKuttaVerner89)
-                    .value("rkf_108", tni::rungeKuttaFeagin108)
-                    .value("rkf_1210", tni::rungeKuttaFeagin1210)
-                    .value("rkf_1412", tni::rungeKuttaFeagin1412)
+                    .value("rkf_89", tni::rungeKuttaFehlberg89,
+                           get_docstring("CoefficientSets.rkf_89").c_str())
+                    .value("rkv_89", tni::rungeKuttaVerner89,
+                           get_docstring("CoefficientSets.rkv_89").c_str())
+                    .value("rkf_108", tni::rungeKuttaFeagin108,
+                           get_docstring("CoefficientSets.rkf_108").c_str())
+                    .value("rkf_1210", tni::rungeKuttaFeagin1210,
+                           get_docstring("CoefficientSets.rkf_1210").c_str())
+                    .value("rkf_1412", tni::rungeKuttaFeagin1412,
+                           get_docstring("CoefficientSets.rkf_1412").c_str())
                     .export_values();
 
-            py::enum_<tni::RungeKuttaCoefficients::OrderEstimateToIntegrate>(m, "OrderToIntegrate")
-                     .value("lower", tni::RungeKuttaCoefficients::OrderEstimateToIntegrate::lower)
-                     .value("higher", tni::RungeKuttaCoefficients::OrderEstimateToIntegrate::higher)
+            py::enum_<tni::RungeKuttaCoefficients::OrderEstimateToIntegrate>(m, "OrderToIntegrate",
+                      get_docstring("OrderToIntegrate").c_str())
+                     .value("lower", tni::RungeKuttaCoefficients::OrderEstimateToIntegrate::lower,
+                           get_docstring("OrderToIntegrate.lower").c_str())
+                     .value("higher", tni::RungeKuttaCoefficients::OrderEstimateToIntegrate::higher,
+                           get_docstring("OrderToIntegrate.higher").c_str())
                      .export_values();
 
             py::enum_<tni::ExtrapolationMethodStepSequences>(m, "ExtrapolationMethodStepSequences",
@@ -116,7 +131,8 @@ namespace integrator {
 
             py::class_<tni::RungeKuttaFixedStepSizeSettings<double>,
                     std::shared_ptr<tni::RungeKuttaFixedStepSizeSettings<double>>,
-                    tni::IntegratorSettings<double>>(m, "RungeKuttaFixedStepSizeSettings");
+                    tni::IntegratorSettings<double>>(m, "RungeKuttaFixedStepSizeSettings",
+                                                     get_docstring("RungeKuttaFixedStepSizeSettings").c_str());
 
             py::class_<tni::RungeKuttaVariableStepSizeBaseSettings<double>,
                     std::shared_ptr<tni::RungeKuttaVariableStepSizeBaseSettings<double>>,
@@ -150,7 +166,7 @@ namespace integrator {
 // FACTORY FUNCTIONS
             m.def("print_butcher_tableau",
                   &tni::printButcherTableau,
-                  py::arg("coefficient_set"));
+                  get_docstring("print_butcher_tableau").c_str());
 
             m.def("euler",
                   &tni::eulerSettings<double>,
@@ -175,7 +191,8 @@ namespace integrator {
                   py::arg("coefficient_set"),
                   py::arg("order_to_use") = tni::RungeKuttaCoefficients::OrderEstimateToIntegrate::lower,
                   py::arg("save_frequency") = 1,
-                  py::arg("assess_termination_on_minor_steps") = false);
+                  py::arg("assess_termination_on_minor_steps") = false,
+                  get_docstring("runge_kutta_fixed_step_size").c_str());
 
             m.def("runge_kutta_variable_step_size",
                   &tni::rungeKuttaVariableStepSettingsScalarTolerances<double>,
