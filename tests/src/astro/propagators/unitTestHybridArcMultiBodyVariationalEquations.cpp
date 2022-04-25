@@ -768,10 +768,70 @@ BOOST_AUTO_TEST_CASE( testHybridArcMultiBodyVariationalEquationCalculation1 )
 //                        bodies, integratorSettings, multiArcPropagatorSettings, parametersToEstimate, arcStartTimes, true,
 //                        std::shared_ptr<numerical_integrators::IntegratorSettings<double> >(), false, true, true);
 
+//        SystemOfBodies bodies2 = createBodies( initialEpoch, finalEpoch, globalFrameOrientation );
+
+        std::vector< std::shared_ptr< EstimatableParameterSettings > > singleArcParameterNames;
+        singleArcParameterNames.push_back(
+                std::make_shared< InitialTranslationalStateEstimatableParameterSettings< double > >(
+                        "Jupiter", singleArcInitialStates.segment( 0, 6 ), "Sun" ) );
+        std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > singleArcParametersToEstimate =
+                createParametersToEstimate< double >( singleArcParameterNames, bodies, singleArcPropagatorSettings );
+        printEstimatableParameterEntries( singleArcParametersToEstimate );
+        SingleArcVariationalEquationsSolver< double, double > singleArcVariationalEquationsSolverTest =
+                SingleArcVariationalEquationsSolver< double, double >( bodies, integratorSettings, singleArcPropagatorSettings, singleArcParametersToEstimate,
+                                                                       true, std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ), false, true, false );
+
+        std::vector< std::shared_ptr< EstimatableParameterSettings > > multiArcParameterNames;
+        for ( unsigned int i = 0 ; i < listBodiesToPropagate.size( ) ; i++ ) {
+            multiArcParameterNames.push_back(
+                    std::make_shared< ArcWiseInitialTranslationalStateEstimatableParameterSettings< double > >(
+                            listBodiesToPropagate[ i ], multiArcInitialStatesPerBody.at( listBodiesToPropagate[ i ] ),
+                            arcStartTimesPerBody.at( listBodiesToPropagate[ i ] ), multiArcCentralBodiesPerBody.at( listBodiesToPropagate[ i ] ) ) );
+        }
+        std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > multiArcParametersToEstimate =
+                createParametersToEstimate< double >( multiArcParameterNames, bodies, multiArcPropagatorSettings );
+        printEstimatableParameterEntries( multiArcParametersToEstimate );
 
         HybridArcVariationalEquationsSolver< double, double > hybridArcVariationalEquationsSolver =
                 HybridArcVariationalEquationsSolver< double, double >( bodies, integratorSettings, hybridArcPropagatorSettings, parametersToEstimate,
                                                                        arcStartTimes, true, false, true );
+
+        std::shared_ptr< SingleArcVariationalEquationsSolver< double, double > > singleArcVariationalEquationsSolver =
+                hybridArcVariationalEquationsSolver.getSingleArcSolver( );
+
+        std::map< double, Eigen::MatrixXd > singleArcSTM = singleArcVariationalEquationsSolver->getNumericalVariationalEquationsSolution( )[ 0 ];
+        std::cout << "first element single-arc STM history: " << "\n\n";
+        std::cout << singleArcSTM.begin( )->second << "\n\n";
+        std::cout << "last element single-arc STM history: " << "\n\n";
+        std::cout << singleArcSTM.rbegin( )->second << "\n\n";
+
+        std::shared_ptr< MultiArcVariationalEquationsSolver< double, double > > multiArcVariationalEquationsSolver =
+                hybridArcVariationalEquationsSolver.getMultiArcSolver( );
+
+        std::map< double, Eigen::MatrixXd > multiArcStmArc1 = multiArcVariationalEquationsSolver->getNumericalVariationalEquationsSolution( )[ 0 ][ 0 ];
+        std::cout << "first element multi-arc (arc 1) STM history: " << "\n\n";
+        std::cout << multiArcStmArc1.begin( )->second << "\n\n";
+        std::cout << "last element multi-arc (arc 1) STM history: " << "\n\n";
+        std::cout << multiArcStmArc1.rbegin( )->second << "\n\n";
+
+        std::map< double, Eigen::MatrixXd > singleArcStmTest = singleArcVariationalEquationsSolverTest.getNumericalVariationalEquationsSolution( )[ 0 ];
+        std::cout << "first element single-arc STM history TEST: " << "\n\n";
+        std::cout << singleArcStmTest.begin( )->second << "\n\n";
+        std::cout << "last element single-arc STM history TEST: " << "\n\n";
+        std::cout << singleArcStmTest.rbegin( )->second << "\n\n";
+
+        MultiArcVariationalEquationsSolver< double, double > multiArcVariationalEquationsSolverTest =
+                MultiArcVariationalEquationsSolver< double, double >( bodies, integratorSettings, multiArcPropagatorSettings, multiArcParametersToEstimate, arcStartTimes,
+                                                                      true, std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ), false, true, false );
+
+        std::map< double, Eigen::MatrixXd > multiArcStmArc1Test = multiArcVariationalEquationsSolverTest.getNumericalVariationalEquationsSolution( )[ 0 ][ 0 ];
+        std::cout << "first element multi-arc (arc 1) STM history: " << "\n\n";
+        std::cout << multiArcStmArc1Test.begin( )->second << "\n\n";
+        std::cout << "last element multi-arc (arc 1) STM history: " << "\n\n";
+        std::cout << multiArcStmArc1Test.rbegin( )->second << "\n\n";
+
+
+
 //
 //        std::vector<std::map<double, Eigen::VectorXd> > multiArcStateHistory =
 //                multiArcVariationalEquations.getDynamicsSimulator()->getEquationsOfMotionNumericalSolution();
