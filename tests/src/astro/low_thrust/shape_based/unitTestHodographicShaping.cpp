@@ -844,6 +844,139 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mercury_transfer )
     BOOST_CHECK_SMALL( std::fabs(  peakThrustAcceleration - expectedPeakAcceleration ), 1e-6 );
 }
 
+//! Test Earth-Mars transfer with shaping functions with free coefficients. Compare with the DeltaV calculated using the
+//! original version of the hodographic shaping code.
+BOOST_AUTO_TEST_CASE( test_hodographic_shaping_with_free_parameters )
+{
+
+    double numberOfRevolutions = 1.0;
+    double julianDate = 2458849.5; // julian date specified in SECONDS
+    double timeOfFlight = 500.0; // time of flight specified in DAYS
+    double frequency = 2.0 * mathematical_constants::PI / ( timeOfFlight * physical_constants::JULIAN_DAY );
+    double scaleFactor = 1.0 / ( timeOfFlight * physical_constants::JULIAN_DAY );
+
+    // Create base function settings for the components of the radial velocity composite function.
+    std::shared_ptr< BaseFunctionHodographicShapingSettings > firstRadialVelocityBaseFunctionSettings =
+            std::make_shared< BaseFunctionHodographicShapingSettings >( );
+    std::shared_ptr< BaseFunctionHodographicShapingSettings > secondRadialVelocityBaseFunctionSettings =
+            std::make_shared< PowerFunctionHodographicShapingSettings >( 1.0, scaleFactor );
+    std::shared_ptr< BaseFunctionHodographicShapingSettings > thirdRadialVelocityBaseFunctionSettings =
+            std::make_shared< PowerFunctionHodographicShapingSettings >( 2.0, scaleFactor );
+    std::shared_ptr< BaseFunctionHodographicShapingSettings > fourthRadialVelocityBaseFunctionSettings =
+            std::make_shared< PowerTimesTrigonometricFunctionHodographicShapingSettings >( 1.0, 0.5 * frequency, scaleFactor );
+    std::shared_ptr< BaseFunctionHodographicShapingSettings > fifthRadialVelocityBaseFunctionSettings =
+            std::make_shared< PowerTimesTrigonometricFunctionHodographicShapingSettings >( 1.0, 0.5 * frequency, scaleFactor );
+
+    // Create components of the radial velocity composite function.
+    std::vector< std::shared_ptr< BaseFunctionHodographicShaping > > radialVelocityFunctionComponents;
+    radialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( constant, firstRadialVelocityBaseFunctionSettings ) );
+    radialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPower, secondRadialVelocityBaseFunctionSettings ) );
+    radialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPower, thirdRadialVelocityBaseFunctionSettings ) );
+    radialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPowerSine, fourthRadialVelocityBaseFunctionSettings ) );
+    radialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPowerCosine, fifthRadialVelocityBaseFunctionSettings ) );
+
+    // Create base function settings for the components of the normal velocity composite function.
+    std::shared_ptr< BaseFunctionHodographicShapingSettings > firstNormalVelocityBaseFunctionSettings =
+            std::make_shared< BaseFunctionHodographicShapingSettings >( );
+    std::shared_ptr< BaseFunctionHodographicShapingSettings > secondNormalVelocityBaseFunctionSettings =
+            std::make_shared< PowerFunctionHodographicShapingSettings >( 1.0, scaleFactor );
+    std::shared_ptr< BaseFunctionHodographicShapingSettings > thirdNormalVelocityBaseFunctionSettings =
+            std::make_shared< PowerFunctionHodographicShapingSettings >( 2.0, scaleFactor );
+    std::shared_ptr< BaseFunctionHodographicShapingSettings > fourthNormalVelocityBaseFunctionSettings =
+            std::make_shared< PowerTimesTrigonometricFunctionHodographicShapingSettings >( 1.0, 0.5 * frequency, scaleFactor );
+    std::shared_ptr< BaseFunctionHodographicShapingSettings > fifthNormalVelocityBaseFunctionSettings =
+            std::make_shared< PowerTimesTrigonometricFunctionHodographicShapingSettings >( 1.0, 0.5 * frequency, scaleFactor );
+
+    // Create components of the normal velocity composite function.
+    std::vector< std::shared_ptr< BaseFunctionHodographicShaping > > normalVelocityFunctionComponents;
+    normalVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( constant, firstNormalVelocityBaseFunctionSettings ) );
+    normalVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPower, secondNormalVelocityBaseFunctionSettings ) );
+    normalVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPower, thirdNormalVelocityBaseFunctionSettings ) );
+    normalVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPowerSine, fourthNormalVelocityBaseFunctionSettings ) );
+    normalVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPowerCosine, fifthNormalVelocityBaseFunctionSettings ) );
+
+    // Create base function settings for the components of the axial velocity composite function.
+    std::shared_ptr< BaseFunctionHodographicShapingSettings > firstAxialVelocityBaseFunctionSettings =
+            std::make_shared< TrigonometricFunctionHodographicShapingSettings >( ( numberOfRevolutions + 0.5 ) * frequency );
+    std::shared_ptr< BaseFunctionHodographicShapingSettings > secondAxialVelocityBaseFunctionSettings =
+            std::make_shared< PowerTimesTrigonometricFunctionHodographicShapingSettings >
+            ( 3.0, ( numberOfRevolutions + 0.5 ) * frequency, scaleFactor );
+    std::shared_ptr< BaseFunctionHodographicShapingSettings > thirdAxialVelocityBaseFunctionSettings =
+            std::make_shared< PowerTimesTrigonometricFunctionHodographicShapingSettings >(
+                3.0, ( numberOfRevolutions + 0.5 ) * frequency, scaleFactor );
+    std::shared_ptr< BaseFunctionHodographicShapingSettings > fourthAxialVelocityBaseFunctionSettings =
+            std::make_shared< PowerTimesTrigonometricFunctionHodographicShapingSettings >(
+                4.0, ( numberOfRevolutions + 0.5 ) * frequency, scaleFactor );
+    std::shared_ptr< BaseFunctionHodographicShapingSettings > fifthAxialVelocityBaseFunctionSettings =
+            std::make_shared< PowerTimesTrigonometricFunctionHodographicShapingSettings >(
+                4.0, ( numberOfRevolutions + 0.5 ) * frequency, scaleFactor );
+
+    // Set components for the axial velocity function.
+    std::vector< std::shared_ptr< BaseFunctionHodographicShaping > > axialVelocityFunctionComponents;
+    axialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( cosine, firstAxialVelocityBaseFunctionSettings ) );
+    axialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPowerCosine, secondAxialVelocityBaseFunctionSettings ) );
+    axialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPowerSine, thirdAxialVelocityBaseFunctionSettings ) );
+    axialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPowerCosine, fourthAxialVelocityBaseFunctionSettings ) );
+    axialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPowerSine, fifthAxialVelocityBaseFunctionSettings ) );
+
+    // Initialize free coefficients vector for radial velocity function.
+    Eigen::VectorXd freeCoefficientsRadialVelocityFunction = ( Eigen::Vector2d( ) << 500.0, 500.0 ).finished( );
+    // Initialize free coefficients vector for normal velocity function.
+    Eigen::VectorXd freeCoefficientsNormalVelocityFunction = ( Eigen::Vector2d( ) << 500.0, -200.0 ).finished( );
+    // Initialize free coefficients vector for axial velocity function.
+    Eigen::VectorXd freeCoefficientsAxialVelocityFunction = ( Eigen::Vector2d( ) << 500.0, 2000.0 ).finished( );
+
+    // Retrieve cartesian state at departure and arrival.
+    ephemerides::EphemerisPointer pointerToDepartureBodyEphemeris = std::make_shared< ephemerides::ApproximateJplEphemeris>(
+                "Earth"  );
+    ephemerides::EphemerisPointer pointerToArrivalBodyEphemeris = std::make_shared< ephemerides::ApproximateJplEphemeris >(
+                "Mars"  );
+    Eigen::Vector6d cartesianStateDepartureBody = pointerToDepartureBodyEphemeris->getCartesianState( julianDate );
+    Eigen::Vector6d cartesianStateArrivalBody =
+            pointerToArrivalBodyEphemeris->getCartesianState( julianDate + timeOfFlight * physical_constants::JULIAN_DAY );
+
+    // Create hodographic-shaping object with defined velocity functions and boundary conditions.
+    std::shared_ptr< HodographicShaping > hodographicShaping = std::make_shared< HodographicShaping >(
+                cartesianStateDepartureBody, cartesianStateArrivalBody,
+                timeOfFlight * physical_constants::JULIAN_DAY,
+                spice_interface::getBodyGravitationalParameter( "Sun" ), numberOfRevolutions,
+                radialVelocityFunctionComponents, normalVelocityFunctionComponents, axialVelocityFunctionComponents,
+                freeCoefficientsRadialVelocityFunction, freeCoefficientsNormalVelocityFunction, freeCoefficientsAxialVelocityFunction );
+
+    std::function< Eigen::Vector3d( ) > departureVelocityFunction = [=]( ){ return cartesianStateDepartureBody.segment( 3, 3 ); };
+    std::function< Eigen::Vector3d( ) > arrivalVelocityFunction = [=]( ){ return cartesianStateArrivalBody.segment( 3, 3 ); };
+
+    // Define departure and arrival velocity functions
+    HodographicShapingLeg hodographicShapingLeg = HodographicShapingLeg(
+                pointerToDepartureBodyEphemeris, pointerToArrivalBodyEphemeris,
+                spice_interface::getBodyGravitationalParameter( "Sun" ),
+                departureVelocityFunction, arrivalVelocityFunction,
+                radialVelocityFunctionComponents, normalVelocityFunctionComponents, axialVelocityFunctionComponents );
+    hodographicShapingLeg.updateLegParameters(
+            ( Eigen::VectorXd( 9 ) << julianDate, julianDate + timeOfFlight  * physical_constants::JULIAN_DAY,
+            numberOfRevolutions,  freeCoefficientsRadialVelocityFunction, freeCoefficientsNormalVelocityFunction,
+            freeCoefficientsAxialVelocityFunction ).finished( ) );
+
+    // Compare computed deltaV with deltaV predicted by original version of Gondelach's code.
+    double expectedDeltaV = 172313.0;
+    BOOST_CHECK_SMALL(std::fabs(hodographicShapingLeg.getLegDeltaV( ) - expectedDeltaV), 1.0);
+}
+
 //    /// Second Earth-Mercury transfer.
 
 //    numberOfRevolutions = 1;
@@ -1363,9 +1496,6 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_full_propagation )
             ( Eigen::VectorXd( 9 ) << julianDate, julianDate + timeOfFlight  * physical_constants::JULIAN_DAY,
             numberOfRevolutions,  freeCoefficientsRadialVelocityFunction, freeCoefficientsNormalVelocityFunction,
             freeCoefficientsAxialVelocityFunction ).finished( ) );
-
-    std::cout<<"DV1 "<<hodographicShapingLeg.getLegDeltaV( )<<std::endl;
-    std::cout<<"DV2 "<<hodographicShaping->computeDeltaV( )<<std::endl;
 
     // Create environment
     SystemOfBodies bodies = getTestBodyMap( );
