@@ -51,6 +51,10 @@ void expose_transfer_trajectory(py::module &m) {
             .value("spherical_shaping_low_thrust_leg",
                    tms::TransferLegTypes::spherical_shaping_low_thrust_leg,
                    get_docstring("TransferLegTypes.spherical_shaping_low_thrust_leg").c_str())
+            // TODO: add to API
+            .value("hodographic_low_thrust_leg",
+                   tms::TransferLegTypes::hodographic_low_thrust_leg,
+                   get_docstring("TransferLegTypes.hodographic_low_thrust_leg").c_str())
             .export_values();
 
     // TODO: add to API
@@ -65,6 +69,13 @@ void expose_transfer_trajectory(py::module &m) {
             std::shared_ptr<tsbm::SphericalShapingLeg>,
             tms::TransferLeg >(m, "SphericalShapingLeg",
                                get_docstring("SphericalShapingLeg").c_str());
+
+    // TODO: add to API
+    py::class_<
+            tsbm::HodographicShapingLeg,
+            std::shared_ptr<tsbm::HodographicShapingLeg>,
+            tms::TransferLeg >(m, "HodographicShapingLeg",
+                               get_docstring("HodographicShapingLeg").c_str());
 
     py::class_<
             tms::TransferNodeSettings,
