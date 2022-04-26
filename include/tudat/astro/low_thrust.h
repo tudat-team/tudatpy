@@ -20,7 +20,6 @@
 #include "low_thrust/shape_based/hodographicShaping.h"
 #include "low_thrust/shape_based/hodographicShapingOptimisationSetup.h"
 #include "low_thrust/shape_based/shapeBasedMethod.h"
-#include "low_thrust/shape_based/sphericalShaping.h"
 //#include "low_thrust/hybridMethod.h"
 //#include "low_thrust/hybridMethodModel.h"
 //#include "low_thrust/hybridOptimisationSetup.h"

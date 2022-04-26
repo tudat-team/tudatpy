@@ -44,20 +44,6 @@ std::shared_ptr< low_thrust_trajectories::LowThrustLeg  > createLowThrustLeg(
                     hodographicShapingSettings->freeCoefficientsAxialVelocityFunction_ );
         break;
     }
-    case spherical_shaping_leg:
-    {
-        std::shared_ptr< SphericalShapingLegSettings > sphericalShapingSettings =
-                std::dynamic_pointer_cast< SphericalShapingLegSettings >( lowThrustLegSettings );
-
-        lowThrustLeg = std::make_shared< shape_based_methods::SphericalShaping >(
-                    stateAtDeparture, stateAtArrival, timeOfFlight,
-                    sphericalShapingSettings->centralBodyGravitationalParameter_,
-                    sphericalShapingSettings->numberOfRevolutions_,
-                    sphericalShapingSettings->initialValueFreeCoefficient_,
-                    sphericalShapingSettings->rootFinderSettings_, sphericalShapingSettings->boundsFreeCoefficient_.first,
-                    sphericalShapingSettings->boundsFreeCoefficient_.second );
-        break;
-    }
 //#if( TUDAT_BUILD_WITH_PAGMO )
 //    case sims_flanagan_leg:
 //    {
