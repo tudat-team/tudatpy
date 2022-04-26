@@ -476,12 +476,12 @@ private:
                 {
                     int currentIndexPerBody = arcIndicesPerBody.at( initialDynamicalParameters.at( i )->getParameterName( ).second.first );
                     centralBodies.push_back( std::dynamic_pointer_cast< estimatable_parameters::ArcWiseInitialTranslationalStateParameter< ParameterType > >(
-                            initialDynamicalParameters.at( i ) )->getCentralBodies( ).at( currentIndexPerBody ) );
+                            initialDynamicalParameters.at( i ) )->getCentralBodies( ).at( 0 /*currentIndexPerBody*/ ) );
                 }
                 else
                 {
                     centralBodies.push_back( std::dynamic_pointer_cast< estimatable_parameters::ArcWiseInitialTranslationalStateParameter< ParameterType > >(
-                            initialDynamicalParameters.at( i ) )->getCentralBodies( ).at( currentArcIndex ) );
+                            initialDynamicalParameters.at( i ) )->getCentralBodies( ).at( 0 /*currentArcIndex*/ ) );
                 }
             }
         }

@@ -360,6 +360,8 @@ protected:
         {
             // Get Observation partial start and size indices in parameter veector.
             std::pair< int, int > currentIndexInfo = partialIterator->first;
+            std::cout << "current index info: " << currentIndexInfo.first << " & " << currentIndexInfo.second << "\n\n";
+            std::cout << "block STM: " << currentIndexInfo.first << " - " << 0 << " & " << currentIndexInfo.second << " - " <<  fullParameterVector << "\n\n";
 
             // Calculate partials of observation w.r.t. parameters, with associated observation times (single partial
             // can consist of multiple partial matrices, associated at different times)
@@ -375,6 +377,8 @@ protected:
             {
                 for( unsigned int i = 0; i < singlePartialSet.size( ); i++ )
                 {
+                    std::cout << "size singlePartialSet: " << singlePartialSet[ i ].first.rows( ) << " & " << singlePartialSet[ i ].first.cols( ) << "\n\n";
+
                     // Evaluate [Phi;S] matrix at each time instant associated with partial, if not yet evaluated.
                     if( combinedStateTransitionMatrices.count( singlePartialSet[ i ].second ) == 0 )
                     {

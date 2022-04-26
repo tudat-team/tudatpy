@@ -1228,7 +1228,8 @@ public:
         }
 
         arcWiseParametersToEstimate_.clear( );
-        getParametersToEstimatePerArc( parametersToEstimate, arcWiseParametersToEstimate_, estimatedBodiesPerArc_ );
+//        getParametersToEstimatePerArc( parametersToEstimate, arcWiseParametersToEstimate_, estimatedBodiesPerArc_ );
+        getParametersToEstimatePerArcTest( parametersToEstimate, arcWiseParametersToEstimate_, arcStartTimes, estimatedBodiesPerArc_, arcIndicesPerBody_ );
 
 
         parameterVectorSize_ = 0.0; // estimatable_parameters::getSingleArcParameterSetSize( parametersToEstimate );
@@ -1805,6 +1806,7 @@ private:
                         stateTransitionMatrixInterpolators, sensitivityMatrixInterpolators,
                         arcStartTimes_,
                         arcEndTimes_,
+                        parametersToEstimate_,
                         propagatorSettings_->getSingleArcSettings( ).at( 0 )->getConventionalStateSize( ),
                         parametersToEstimate_->getParameterSetSize( ), getArcWiseStatePartialAdditionIndices( ) );
         }

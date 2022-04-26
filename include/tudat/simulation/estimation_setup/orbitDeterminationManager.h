@@ -792,7 +792,7 @@ protected:
         else if( propagatorSettings == nullptr )
         {
             stateTransitionAndSensitivityMatrixInterface_ = createStateTransitionAndSensitivityMatrixInterface(
-                        propagatorSettings, 0, parametersToEstimate_->getParameterSetSize( ) );
+                        propagatorSettings, parametersToEstimate_, 0, parametersToEstimate_->getParameterSetSize( ) );
         }
         else
         {

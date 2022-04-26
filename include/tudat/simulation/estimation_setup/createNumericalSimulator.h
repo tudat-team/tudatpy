@@ -249,6 +249,7 @@ createVariationalEquationsSolver(
 template< typename StateScalarType = double >
 std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > createStateTransitionAndSensitivityMatrixInterface(
         const std::shared_ptr< propagators::PropagatorSettings< StateScalarType > > propagatorSettings,
+        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< > > parametersToEstimate,
         const int dynamicalStateSize,
         const int totalParameterSize )
 {
@@ -268,6 +269,7 @@ std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterfa
                     std::vector< std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > >( ),
                     std::vector< double >( ),
                     std::vector< double >( ),
+                    parametersToEstimate,
                     dynamicalStateSize, totalParameterSize,
                     std::vector< std::vector< std::pair< int, int > > >( ));
     }
