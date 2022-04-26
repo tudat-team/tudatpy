@@ -1681,6 +1681,9 @@ std::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialStatePa
     std::vector< std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > > vectorParametersToEstimate;
 
     // Iterate over all parameters.
+    bool vectorParameterIsFound = 0;
+    bool parameterOrderWarningPrinted = 0;
+
     for( unsigned int i = 0; i < parameterNames.size( ); i++ )
     {
         // Create initial dynamical parameters.
@@ -1695,12 +1698,21 @@ std::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialStatePa
         {
             doubleParametersToEstimate.push_back( createDoubleParameterToEstimate(
                                                       parameterNames[ i ], bodies, propagatorSettings ) );
+            if( vectorParameterIsFound == true && parameterOrderWarningPrinted == false )
+            {
+                std::cerr<<"Warning when creating estimated parameters. The parameters will be ordered such that all parameters (excluding initial states) "<<
+                           "defined by a single variable will be stored before those represented by a list of variables. "<<
+                           "The parameter order will be different than those in your parameter settings. It is recommended that you "<<
+                           "check the parameter order by calling the print_parameter_names(Python)/printEstimatableParameterEntries(C++) function"<<std::endl;
+                parameterOrderWarningPrinted = true;
+            }
         }
         // Create parameters defined by list of double values
         else if( isDoubleParameter( parameterNames[ i ]->parameterType_.first ) == false )
         {
             vectorParametersToEstimate.push_back( createVectorParameterToEstimate(
                                                       parameterNames[ i ], bodies, propagatorSettings ) );
+            vectorParameterIsFound = true;
         }
         else
         {

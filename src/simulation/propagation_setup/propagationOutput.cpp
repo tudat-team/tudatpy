@@ -200,7 +200,7 @@ int getDependentVariableSaveSize(
     }
     else
     {
-        return getDependentVariableSize(  singleDependentVariableSaveSettings );
+        return getDependentVariableSize( singleDependentVariableSaveSettings );
     }
 }
 
@@ -414,6 +414,27 @@ int getDependentVariableSize(
         throw std::runtime_error( errorMessage );
     }
     return variableSize;
+}
+
+bool isScalarDependentVariable(
+        const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings )
+{
+    int dependentVariableSize = getDependentVariableSaveSize( dependentVariableSettings );
+    if( dependentVariableSize > 1 ||
+            dependentVariableSettings->dependentVariableType_ == spherical_harmonic_acceleration_norm_terms_dependent_variable )
+    {
+        return false;
+    }
+    else if( dependentVariableSize == 1 )
+    {
+        return true;
+    }
+    else
+    {
+        throw std::runtime_error( "Error, found dependent variable with size " + std::to_string( dependentVariableSize ) +
+                                  ", cannot be parsed" );
+    }
+
 }
 
 template std::pair< std::function< Eigen::VectorXd( ) >, std::map< int, std::string > > createDependentVariableListFunction< double, double >(

@@ -677,6 +677,22 @@ inline std::shared_ptr< ObservationModelSettings > nWayRange(
                 oneWayRangeObsevationSettings, retransmissionTimesFunction, biasSettings );
 }
 
+
+inline std::shared_ptr< ObservationModelSettings > nWayRangeSimple(
+        const LinkEnds& linkEnds,
+        const int numberOfLinkEnds,
+        const std::shared_ptr< LightTimeCorrectionSettings > lightTimeCorrections = std::shared_ptr< LightTimeCorrectionSettings > ( ),
+        const std::function< std::vector< double >( const double ) > retransmissionTimesFunction =
+        std::function< std::vector< double >( const double  ) >( ),
+        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr )
+{
+    // change order of input args from FF to accomodate default (empty) lightTimeCorrections
+    return std::make_shared< NWayRangeObservationSettings >(
+            linkEnds, lightTimeCorrections, numberOfLinkEnds, retransmissionTimesFunction, biasSettings );
+}
+
+
+
 //! Function to create the proper time rate calculator for use in one-way Doppler
 /*!
  *  Function to create the proper time rate calculator for use in one-way Doppler

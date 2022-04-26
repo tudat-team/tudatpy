@@ -770,7 +770,8 @@ public:
             std::map< TimeType, double > cumulativeComputationTimeHistory;
 
             simulation_setup::setAreBodiesInPropagation( bodies_, true );
-            EquationIntegrationInterface< MatrixType, TimeType >::integrateEquations(
+            std::shared_ptr< PropagationTerminationDetails > propagationTerminationReason =
+                    EquationIntegrationInterface< MatrixType, TimeType >::integrateEquations(
                         dynamicsSimulator_->getStateDerivativeFunction( ), rawNumericalSolution,
                         initialVariationalState, integratorSettings_,
                         dynamicsSimulator_->getPropagationTerminationCondition( ),
@@ -779,6 +780,7 @@ public:
                         dynamicsSimulator_->getDependentVariablesFunctions( ),
                         statePostProcessingFunction_,
                         propagatorSettings_->getPrintInterval( ) );
+            dynamicsSimulator_->setPropagationTerminationReason( propagationTerminationReason );
             simulation_setup::setAreBodiesInPropagation( bodies_, false );
 
             std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > equationsOfMotionNumericalSolutionRaw;
@@ -1357,6 +1359,7 @@ public:
                 dynamicsSimulator_->getDynamicsStateDerivative( ).at( i )->resetFunctionEvaluationCounter( );
                 simulation_setup::setAreBodiesInPropagation( bodies_, true );
                 std::map< TimeType, MatrixType > rawNumericalSolution;
+                std::shared_ptr< PropagationTerminationDetails > propagationTerminationReason =
                 EquationIntegrationInterface< MatrixType, TimeType >::integrateEquations(
                             singleArcDynamicsSimulators.at( i )->getStateDerivativeFunction( ),
                             rawNumericalSolution,
@@ -1368,6 +1371,7 @@ public:
                             std::bind(
                                 &DynamicsStateDerivativeModel< TimeType, StateScalarType >::postProcessStateAndVariationalEquations,
                                 singleArcDynamicsSimulators.at( i )->getDynamicsStateDerivative( ), std::placeholders::_1 ) );
+                dynamicsSimulator_->setPropagationTerminationReason( propagationTerminationReason, i );
                 simulation_setup::setAreBodiesInPropagation( bodies_, false );
 
                 // Extract solution of equations of motion.

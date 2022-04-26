@@ -503,6 +503,53 @@ std::map< double, Eigen::VectorXd > getDependentVariableResultList(
 
 }
 
+template< typename ObservationScalarType = double, typename TimeType = double,
+          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
+inline std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > createSingleObservationSet(
+        const ObservableType observableType,
+        const LinkEnds& linkEnds,
+        const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations,
+        const std::vector< TimeType > observationTimes,
+        const LinkEndType referenceLinkEnd )
+{
+    return std::make_shared< SingleObservationSet< ObservationScalarType, TimeType > >(
+                observableType, linkEnds, observations, observationTimes, referenceLinkEnd );
+}
+
+//template< typename ObservationScalarType = double, typename TimeType = double,
+//          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
+//inline std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > >  createManualObservationCollection(
+//        const std::map< ObservableType, std::map< LinkEnds, std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > > >& observationSetList )
+//{
+//    return std::make_shared< ObservationCollection< ObservationScalarType, TimeType > >( observationSetList );
+//}
+
+//template< typename ObservationScalarType = double, typename TimeType = double,
+//          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
+//inline std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > >  createManualObservationCollection(
+//        const ObservableType observableType,
+//        const LinkEnds& linkEnds,
+//        const std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > >& observationSetList )
+//{
+//    return std::make_shared< ObservationCollection< ObservationScalarType, TimeType > >( observationSetList );
+//}
+
+template< typename ObservationScalarType = double, typename TimeType = double >
+inline std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > >  createManualObservationCollection(
+        const ObservableType observableType,
+        const LinkEnds& linkEnds,
+        const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations,
+        const std::vector< TimeType > observationTimes,
+        const LinkEndType referenceLinkEnd )
+{
+    std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > singleObservationSet =
+            createSingleObservationSet( observableType, linkEnds, observations, observationTimes, referenceLinkEnd );
+
+    std::map< ObservableType, std::map< LinkEnds, std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > > > observationSetList;
+    observationSetList[ observableType ][ linkEnds ].push_back( singleObservationSet );
+    return std::make_shared< ObservationCollection< ObservationScalarType, TimeType > >( observationSetList );
+}
+
 
 
 } // namespace observation_models

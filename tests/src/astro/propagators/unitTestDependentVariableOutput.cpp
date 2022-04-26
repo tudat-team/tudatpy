@@ -259,12 +259,7 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
             dependentVariables.push_back(
                         std::make_shared< SingleDependentVariableSaveSettings >(
                             body_fixed_relative_cartesian_position,  "Apollo", "Earth" ) );
-            dependentVariables.push_back(
-                        std::make_shared< SingleDependentVariableSaveSettings >(
-                            body_fixed_relative_spherical_position,  "Apollo", "Earth" ) );
-            dependentVariables.push_back(
-                        std::make_shared< SingleDependentVariableSaveSettings >(
-                            rsw_to_inertial_frame_rotation_dependent_variable,  "Apollo", "Earth" ) );
+
 
 
             // Create acceleration models and propagation settings.
@@ -288,6 +283,17 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
                           std::make_shared< propagators::PropagationTimeTerminationSettings >( 3200.0 ), gauss_modified_equinoctial,
                           std::make_shared< DependentVariableSaveSettings >( dependentVariables ) );
             }
+
+            std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToAdd;
+            dependentVariablesToAdd.push_back(
+                        std::make_shared< SingleDependentVariableSaveSettings >(
+                            body_fixed_relative_spherical_position,  "Apollo", "Earth" ) );
+            dependentVariablesToAdd.push_back(
+                        std::make_shared< SingleDependentVariableSaveSettings >(
+                            rsw_to_inertial_frame_rotation_dependent_variable,  "Apollo", "Earth" ) );
+
+            addDepedentVariableSettings< double >( dependentVariablesToAdd, propagatorSettings );
+
             std::shared_ptr< IntegratorSettings< > > integratorSettings =
                     std::make_shared< IntegratorSettings< > >
                     ( rungeKutta4, simulationStartEpoch, fixedStepSize );
@@ -614,6 +620,11 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicDependentVariableOutput )
                 asterixInitialStateInKeplerianElements,
                 earthGravitationalParameter );
 
+    double simulationEndEpoch = 10.0;
+    std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
+            std::make_shared< TranslationalStatePropagatorSettings< double > >
+            ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, simulationEndEpoch, cowell );
+
     std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
 
     dependentVariables.push_back(
@@ -632,13 +643,12 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicDependentVariableOutput )
     dependentVariables.push_back(
                 std::make_shared< SphericalHarmonicAccelerationTermsDependentVariableSaveSettings >(
                     "Asterix", "Earth", 6, 6 ) );
+    std::vector< std::pair< int, int > > singleTermToSave;
+    singleTermToSave.push_back( std::make_pair( 6, 6 ) );
+    dependentVariables.push_back( sphericalHarmonicAccelerationTermsNormDependentVariable(
+                                      "Asterix", "Earth", singleTermToSave ) );
 
-
-    double simulationEndEpoch = 10.0;
-    std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
-            std::make_shared< TranslationalStatePropagatorSettings< double > >
-            ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, simulationEndEpoch, cowell,
-              std::make_shared< DependentVariableSaveSettings >( dependentVariables ) );
+    addDepedentVariableSettings< double >( dependentVariables, propagatorSettings );
 
     // Create numerical integrator.
     double simulationStartEpoch = 0.0;
@@ -650,6 +660,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicDependentVariableOutput )
     // Create simulation object and propagate dynamics.
     SingleArcDynamicsSimulator< > dynamicsSimulator(
                 bodies, integratorSettings, propagatorSettings );
+
     std::map< double, Eigen::VectorXd > integrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
     std::map< double, Eigen::VectorXd > depdendentVariableResult = dynamicsSimulator.getDependentVariableHistory( );
 
@@ -662,6 +673,9 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicDependentVariableOutput )
             manualAccelerationSum += variableIterator->second.segment( i * 3, 3 );
         }
 
+        BOOST_CHECK_SMALL(
+                    std::fabs( ( variableIterator->second.segment( 96, 3 ) ).norm( ) - variableIterator->second( 99 ) ),
+                    10.0 * ( variableIterator->second.segment( 96, 3 ) ).norm( ) * std::numeric_limits< double >::epsilon( ) );
         for( unsigned int i = 0; i < 3; i ++ )
         {
             BOOST_CHECK_SMALL(
@@ -679,6 +693,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicDependentVariableOutput )
             BOOST_CHECK_SMALL(
                         std::fabs( variableIterator->second( 12 + i ) - variableIterator->second( 15 + 3 * 7 + i ) ),
                         10.0 * ( variableIterator->second.segment( 12, 3 ) ).norm( ) * std::numeric_limits< double >::epsilon( ) );
+
         }
     }
 }

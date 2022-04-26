@@ -434,13 +434,13 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldSetup )
     BOOST_CHECK_EQUAL(
                 ( defaultEarthField->getReferenceRadius( ) ), ( 6378137.0 ) );
     BOOST_CHECK_EQUAL(
-                ( defaultEarthField->getCosineCoefficients( ).rows( ) ), 51 );
+                ( defaultEarthField->getCosineCoefficients( ).rows( ) ), 361 );
     BOOST_CHECK_EQUAL(
-                ( defaultEarthField->getCosineCoefficients( ).cols( ) ), 51 );
+                ( defaultEarthField->getCosineCoefficients( ).cols( ) ), 361 );
     BOOST_CHECK_EQUAL(
-                ( defaultEarthField->getSineCoefficients( ).rows( ) ), 51 );
+                ( defaultEarthField->getSineCoefficients( ).rows( ) ), 361 );
     BOOST_CHECK_EQUAL(
-                ( defaultEarthField->getSineCoefficients( ).cols( ) ), 51 );
+                ( defaultEarthField->getSineCoefficients( ).cols( ) ), 361 );
     BOOST_CHECK_EQUAL(
                 ( defaultEarthField->getCosineCoefficients( )( 2, 0 ) ), -0.484165371736E-03 );
     BOOST_CHECK_EQUAL(
@@ -457,13 +457,13 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldSetup )
     BOOST_CHECK_EQUAL(
                 ( defaultMoonField->getReferenceRadius( ) ), ( 0.17380E+07 ) );
     BOOST_CHECK_EQUAL(
-                ( defaultMoonField->getCosineCoefficients( ).rows( ) ), 51 );
+                ( defaultMoonField->getCosineCoefficients( ).rows( ) ), 201 );
     BOOST_CHECK_EQUAL(
-                ( defaultMoonField->getCosineCoefficients( ).cols( ) ), 51 );
+                ( defaultMoonField->getCosineCoefficients( ).cols( ) ), 201 );
     BOOST_CHECK_EQUAL(
-                ( defaultMoonField->getSineCoefficients( ).rows( ) ), 51 );
+                ( defaultMoonField->getSineCoefficients( ).rows( ) ), 201 );
     BOOST_CHECK_EQUAL(
-                ( defaultMoonField->getSineCoefficients( ).cols( ) ), 51 );
+                ( defaultMoonField->getSineCoefficients( ).cols( ) ), 201 );
     BOOST_CHECK_EQUAL(
                 ( defaultMoonField->getCosineCoefficients( )( 5, 3 ) ), 0.5493176535439800E-06 );
     BOOST_CHECK_EQUAL(

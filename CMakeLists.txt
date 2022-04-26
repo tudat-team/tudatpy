@@ -1,4 +1,4 @@
-#    Copyright (c) 2010-2019, Delft University of Technology
+#    Copyright (c) 2010-2022, Delft University of Technology
 #    All rigths reserved
 #
 #    This file is part of the Tudat. Redistribution and use in source and
@@ -342,6 +342,7 @@ add_subdirectory(src/interface)
 add_subdirectory(src/math)
 add_subdirectory(src/simulation)
 add_subdirectory(src/io)
+add_subdirectory(src/utils)
 add_subdirectory(examples)
 
 

@@ -439,7 +439,7 @@ public:
             const bool printNumberOfFunctionEvaluations = false,
             const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ),
             const bool printDependentVariableData = true,
-            const bool printStateData = true ):
+            const bool printStateData = false ):
         DynamicsSimulator< StateScalarType, TimeType >(
             bodies, clearNumericalSolutions, setIntegratedResult ),
         integratorSettings_( integratorSettings ),
@@ -552,7 +552,7 @@ public:
             const bool setIntegratedResult = false,
             const bool printNumberOfFunctionEvaluations = false,
             const bool printDependentVariableData = true,
-            const bool printStateData = true ):
+            const bool printStateData = false ):
         SingleArcDynamicsSimulator(  bodies, integratorSettings,  propagatorSettings,
                                      std::vector< std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > >( ),
                                      areEquationsOfMotionToBeIntegrated,
@@ -827,6 +827,11 @@ public:
     std::shared_ptr< PropagationTerminationDetails > getPropagationTerminationReason( )
     {
         return propagationTerminationReason_;
+    }
+
+    void setPropagationTerminationReason( const std::shared_ptr< PropagationTerminationDetails > propagationTerminationReason )
+    {
+        propagationTerminationReason_ = propagationTerminationReason;
     }
 
     //! Get whether the integration was completed successfully.
@@ -1562,6 +1567,21 @@ public:
             }
             equationsOfMotionNumericalSolution_.clear( );
         }
+    }
+
+    std::vector< std::shared_ptr< PropagationTerminationDetails > > getPropagationTerminationReasons( )
+    {
+        return propagationTerminationReasons_;
+    }
+
+    void setPropagationTerminationReason( const std::shared_ptr< PropagationTerminationDetails > propagationTerminationReason,
+                                          const unsigned int arcIndex )
+    {
+        if( arcIndex >= propagationTerminationReasons_.size( ) )
+        {
+            throw std::runtime_error( "Error when setting multi-arc termination reason; arc index is incompatible" );
+        }
+        propagationTerminationReasons_[ arcIndex ] = propagationTerminationReason;
     }
 
 protected:
