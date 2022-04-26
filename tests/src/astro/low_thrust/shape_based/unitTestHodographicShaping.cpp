@@ -55,11 +55,6 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer_1 )
     double frequency = 2.0 * mathematical_constants::PI / ( timeOfFlight * physical_constants::JULIAN_DAY );
     double scaleFactor = 1.0 / ( timeOfFlight * physical_constants::JULIAN_DAY );
 
-    // Initialize free coefficients vector for radial, normal and axial velocity function.
-    Eigen::VectorXd freeCoefficientsRadialVelocityFunction = Eigen::VectorXd::Zero( 0 );
-    Eigen::VectorXd freeCoefficientsNormalVelocityFunction = Eigen::VectorXd::Zero( 0 );
-    Eigen::VectorXd freeCoefficientsAxialVelocityFunction = Eigen::VectorXd::Zero( 0 );
-
     // Create base function settings for the components of the radial velocity composite function.
     std::shared_ptr< BaseFunctionHodographicShapingSettings > firstRadialVelocityBaseFunctionSettings =
             std::make_shared< BaseFunctionHodographicShapingSettings >( );
@@ -172,11 +167,6 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer_2 )
     double timeOfFlight = 1070.0;
     double frequency = 2.0 * mathematical_constants::PI / ( timeOfFlight * physical_constants::JULIAN_DAY );
     double scaleFactor = 1.0 / ( timeOfFlight * physical_constants::JULIAN_DAY );
-
-    // Initialize free coefficients vector for radial, normal and axial velocity function.
-    Eigen::VectorXd freeCoefficientsRadialVelocityFunction = Eigen::VectorXd::Zero( 0 );
-    Eigen::VectorXd freeCoefficientsNormalVelocityFunction = Eigen::VectorXd::Zero( 0 );
-    Eigen::VectorXd freeCoefficientsAxialVelocityFunction = Eigen::VectorXd::Zero( 0 );
 
     // Create base function settings for the components of the radial velocity composite function.
     std::shared_ptr< BaseFunctionHodographicShapingSettings > firstRadialVelocityBaseFunctionSettings =
@@ -291,11 +281,6 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer_3 )
     double frequency = 2.0 * mathematical_constants::PI / ( timeOfFlight * physical_constants::JULIAN_DAY );
     double scaleFactor = 1.0 / ( timeOfFlight * physical_constants::JULIAN_DAY );
 
-    // Initialize free coefficients vector for radial, normal and axial velocity function.
-    Eigen::VectorXd freeCoefficientsRadialVelocityFunction = Eigen::VectorXd::Zero( 0 );
-    Eigen::VectorXd freeCoefficientsNormalVelocityFunction = Eigen::VectorXd::Zero( 0 );
-    Eigen::VectorXd freeCoefficientsAxialVelocityFunction = Eigen::VectorXd::Zero( 0 );
-
     // Create base function settings for the components of the radial velocity composite function.
     std::shared_ptr< BaseFunctionHodographicShapingSettings > firstRadialVelocityBaseFunctionSettings =
             std::make_shared< BaseFunctionHodographicShapingSettings >( );
@@ -408,11 +393,6 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer_4 )
     double frequency = 2.0 * mathematical_constants::PI / ( timeOfFlight * physical_constants::JULIAN_DAY );
     double scaleFactor = 1.0 / ( timeOfFlight * physical_constants::JULIAN_DAY );
 
-    // Initialize free coefficients vector for radial, normal and axial velocity function.
-    Eigen::VectorXd freeCoefficientsRadialVelocityFunction = Eigen::VectorXd::Zero( 0 );
-    Eigen::VectorXd freeCoefficientsNormalVelocityFunction = Eigen::VectorXd::Zero( 0 );
-    Eigen::VectorXd freeCoefficientsAxialVelocityFunction = Eigen::VectorXd::Zero( 0 );
-
     // Create base function settings for the components of the radial velocity composite function.
     std::shared_ptr< BaseFunctionHodographicShapingSettings > firstRadialVelocityBaseFunctionSettings =
             std::make_shared< BaseFunctionHodographicShapingSettings >( );
@@ -523,11 +503,6 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer_5 )
     double timeOfFlight = 1050.0;
     double frequency = 2.0 * mathematical_constants::PI / ( timeOfFlight * physical_constants::JULIAN_DAY );
     double scaleFactor = 1.0 / ( timeOfFlight * physical_constants::JULIAN_DAY );
-
-    // Initialize free coefficients vector for radial, normal and axial velocity function.
-    Eigen::VectorXd freeCoefficientsRadialVelocityFunction = Eigen::VectorXd::Zero( 0 );
-    Eigen::VectorXd freeCoefficientsNormalVelocityFunction = Eigen::VectorXd::Zero( 0 );
-    Eigen::VectorXd freeCoefficientsAxialVelocityFunction = Eigen::VectorXd::Zero( 0 );
 
     // Create base function settings for the components of the radial velocity composite function.
     std::shared_ptr< BaseFunctionHodographicShapingSettings > firstRadialVelocityBaseFunctionSettings =
@@ -698,12 +673,6 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mercury_transfer )
                 createBaseFunctionHodographicShaping( scaledPowerCosine, secondAxialVelocityBaseFunctionSettings ) );
     axialVelocityFunctionComponents.push_back(
                 createBaseFunctionHodographicShaping( scaledPowerSine, thirdAxialVelocityBaseFunctionSettings ) );
-
-    // Initialize free coefficients vectors
-    Eigen::VectorXd freeCoefficientsRadialVelocityFunction = Eigen::VectorXd::Zero( 0 );
-    Eigen::VectorXd freeCoefficientsNormalVelocityFunction = Eigen::VectorXd::Zero( 0 );
-    Eigen::VectorXd freeCoefficientsAxialVelocityFunction = Eigen::VectorXd::Zero( 0 );
-
 
     // Retrieve cartesian state at departure and arrival.
     ephemerides::EphemerisPointer pointerToDepartureBodyEphemeris = std::make_shared< ephemerides::ApproximateJplEphemeris>(
