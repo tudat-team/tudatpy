@@ -462,6 +462,7 @@ Eigen::VectorXd  executeMultiBodyMultiArcParameterEstimation( )
 
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate =
             createParametersToEstimate< StateScalarType >( parameterNames, bodies );
+    printEstimatableParameterEntries( parametersToEstimate );
 
 
     // Define links and observations in simulation.

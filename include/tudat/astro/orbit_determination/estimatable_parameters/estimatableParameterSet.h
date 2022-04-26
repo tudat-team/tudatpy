@@ -1197,6 +1197,156 @@ std::vector< double > getMultiArcStateEstimationArcStartTimes(
     return estimatableParameters->getArcStartingTimes( );
 }
 
+///! Retrieve parameters to be estimated for each arc (arc-wise parameters might differ from one arc to another).
+/*!
+ * Retrieve parameters to be estimated for each arc (arc-wise parameters might differ from one arc to another).
+ * \param parametersToEstimate Pointer for estimated parameters, provided as input of the whole multi-arc variational equations solver.
+ * \param arcWiseParametersToEstimate Vector containing the estimated parameters for each arc (returned by reference).
+ * \param estimatedBodiesPerArc list of bodies to be estimated, for each arc.
+ */
+template< typename StateScalarType = double >
+void getParametersToEstimatePerArcTest(
+        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate,
+        std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > >& arcWiseParametersToEstimate,
+        const std::vector< double >& arcStartTimes,
+        std::map< int, std::vector< std::string > >& estimatedBodiesPerArc,
+        std::map< int, std::map< std::string, int > >& arcIndicesPerBody )
+{
+
+    arcWiseParametersToEstimate.clear( );
+
+    // Get list of objets and associated bodies to estimate initial arc-wise translational states
+    typedef std::map< std::string, std::shared_ptr< estimatable_parameters::EstimatableParameter<
+            Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > > ArcWiseParameterList;
+    ArcWiseParameterList estimatedBodies = estimatable_parameters::getListOfBodiesWithTranslationalMultiArcStateToEstimate(
+            parametersToEstimate );
+
+    int numberEstimatedBodies = estimatedBodies.size( );
+
+    // Check that the arc starting times are provided in correct order.
+    for ( unsigned int i = 0 ; i < arcStartTimes.size( ) - 1 ; i++ )
+    {
+        if ( ( arcStartTimes[ i + 1 ] - arcStartTimes[ i ] ) < 0.0 )
+        {
+            throw std::runtime_error( "Error, arc start times not provided in increasing order." );
+        }
+    }
+
+    // Initialising vector keeping track of whether each arc is associated with at least one body whose multi-arc state is to be estimated.
+    std::vector< bool > detectedEstimatedStatesPerArc;
+    for ( unsigned int i = 0 ; i < arcStartTimes.size( ) ; i++ )
+    {
+        detectedEstimatedStatesPerArc.push_back( false );
+    }
+
+    estimatedBodiesPerArc.clear( );
+    arcIndicesPerBody.clear( );
+    std::vector< int > counterStateIndicesPerBody;
+    for ( int i = 0 ; i < numberEstimatedBodies ; i++ )
+    {
+        counterStateIndicesPerBody.push_back( 0 );
+    }
+
+    // Iterate over all parameters and check consistency
+    unsigned int counterEstimatedBody = 0;
+    for( typename ArcWiseParameterList::const_iterator parameterIterator = estimatedBodies.begin( ); parameterIterator !=
+                                                                                                     estimatedBodies.end( ); parameterIterator++ )
+    {
+        // Get arc start times of current parameter
+        std::vector< double > parameterArcStartTimes =
+                std::dynamic_pointer_cast< estimatable_parameters::
+                ArcWiseInitialTranslationalStateParameter< StateScalarType > >(
+                        parameterIterator->second )->getArcStartTimes( );
+
+        // Check that each arc has at least one body whose state is to be estimated.
+        for ( int i = 0 ; i < parameterArcStartTimes.size( ) ; i++ )
+        {
+            bool detectedArc = false;
+            int indexDetectedArc = 0;
+            for ( int j = indexDetectedArc ; j < arcStartTimes.size( ) ; j++ )
+            {
+                if( std::fabs( arcStartTimes.at( j ) - parameterArcStartTimes.at( i ) ) <
+                    std::max( 4.0 * parameterArcStartTimes.at( i ) * std::numeric_limits< double >::epsilon( ), 1.0E-12 ) )
+                {
+                    detectedArc = true;
+                    indexDetectedArc = j;
+                    detectedEstimatedStatesPerArc[ j ] = true;
+
+                    estimatedBodiesPerArc[ indexDetectedArc ].push_back( parameterIterator->first );
+                    arcIndicesPerBody[ indexDetectedArc ][ parameterIterator->first ] = counterStateIndicesPerBody[ counterEstimatedBody ];
+                    counterStateIndicesPerBody[ counterEstimatedBody ] += 1;
+                }
+            }
+        }
+
+        counterEstimatedBody += 1;
+    }
+
+    std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > >
+            initialStatesParameters = parametersToEstimate->getEstimatedInitialStateParameters( );
+
+    std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > > doubleParameters =
+            parametersToEstimate->getEstimatedDoubleParameters( );
+
+    std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > > vectorParameters =
+            parametersToEstimate->getEstimatedVectorParameters( );
+
+    for ( int arc = 0 ; arc < estimatedBodiesPerArc.size( ) ; arc++ )
+    {
+        std::vector< std::string > arcWiseBodiesToEstimate = estimatedBodiesPerArc.at( arc );
+
+        std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > >
+                arcWiseStatesParameters;
+
+        for ( unsigned int j = 0 ; j < initialStatesParameters.size( ) ; j++ )
+        {
+            for ( unsigned int body = 0 ; body < arcWiseBodiesToEstimate.size( ) ; body++ )
+            {
+                if ( arcWiseBodiesToEstimate[ body ] == initialStatesParameters[ j ]->getParameterName( ).second.first )
+                {
+                    //arcWiseStatesParameters.push_back( initialStatesParameters[ j ] );
+
+                    std::shared_ptr< estimatable_parameters::ArcWiseInitialTranslationalStateParameter< StateScalarType > > currentArcInitialStateParameter =
+                            std::dynamic_pointer_cast< estimatable_parameters::ArcWiseInitialTranslationalStateParameter< StateScalarType > >
+                                    ( initialStatesParameters[ j ] );
+
+                    if ( currentArcInitialStateParameter == nullptr )
+                    {
+                        throw std::runtime_error( "Error, initial state parameter type for multi-arc is not ArcWiseInitialTranslationalStateParameter." );
+                    }
+                    else
+                    {
+                        int arcIndexForBody = arcIndicesPerBody.at( arc ).at( arcWiseBodiesToEstimate[ body ] );
+                        std::vector< double > currentArcStartTime = { currentArcInitialStateParameter->getArcStartTimes( )[ arcIndexForBody ] };
+                        std::vector< std::string > currentArcCentralBody = { currentArcInitialStateParameter->getCentralBodies( )[ arcIndexForBody ] };
+
+                        Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > currentArcInitialState =
+                                currentArcInitialStateParameter->getParameterValue( ).block( 6 * arcIndexForBody, 0, 6, 1 );
+
+                        std::shared_ptr< estimatable_parameters::ArcWiseInitialTranslationalStateParameter< StateScalarType > > arcWiseInitialStateParameter
+                                = std::make_shared< estimatable_parameters::ArcWiseInitialTranslationalStateParameter< StateScalarType > >
+                                        ( arcWiseBodiesToEstimate[ body ], currentArcStartTime,
+                                         currentArcInitialState, currentArcCentralBody,
+                                         currentArcInitialStateParameter->getFrameOrientation( ) );
+
+                        arcWiseStatesParameters.push_back( arcWiseInitialStateParameter );
+
+//                        arcWiseStatesParameters.push_back( initialStatesParameters[ j ] );
+
+                    }
+                }
+            }
+        }
+
+        std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > arcWiseEstimatableParamatersSet =
+                std::make_shared< estimatable_parameters::EstimatableParameterSet< StateScalarType > >
+                        ( doubleParameters, vectorParameters, arcWiseStatesParameters );
+
+        arcWiseParametersToEstimate.push_back( arcWiseEstimatableParamatersSet );
+
+    }
+}
+
 
 } // namespace estimatable_parameters
 
