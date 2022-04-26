@@ -18,20 +18,17 @@ set(SHAPEBASEDMETHODS_SOURCES
   "compositeFunctionSphericalShaping.cpp"
   "sphericalShapingLeg.cpp"
   "getRecommendedBaseFunctionsHodographicShaping.cpp"
-  "shapeBasedMethod.cpp"
   )
 
 set(shape_based_methods_HEADERS
   "baseFunctionsHodographicShaping.h"
   "createBaseFunctionHodographicShaping.h"
   "compositeFunctionHodographicShaping.h"
-  "hodographicShaping.h"
   "hodographicShapingLeg.h"
   "baseFunctionsSphericalShaping.h"
   "compositeFunctionSphericalShaping.h"
   "sphericalShapingLeg.h"
   "getRecommendedBaseFunctionsHodographicShaping.h"
-  "shapeBasedMethod.h"
   )
 
 if( TUDAT_BUILD_WITH_PAGMO )
