@@ -193,7 +193,7 @@ double calculateGravityAssistDeltaVThroughEccentricity(
         {
             incomingEccentricity = rootFinder->execute( rootFunction, 1.0 + 1.0e-2 );
         }
-        catch(std::runtime_error)
+        catch(std::runtime_error&)
         {
             root_finders::RootFinderPointer rootFinder_temp
                     = std::make_shared< root_finders::Bisection< > >( 1.0e-12, 1000 ) ;
@@ -211,7 +211,7 @@ double calculateGravityAssistDeltaVThroughEccentricity(
         {
             incomingEccentricity = rootFinder->execute( rootFunction, 1.0 + 1.0e-10 );
         }
-        catch(std::runtime_error)
+        catch(std::runtime_error&)
         {
             root_finders::RootFinderPointer rootFinder_temp
                     = std::make_shared< root_finders::Bisection< > >( 1.0e-12, 1000 ) ;
@@ -367,7 +367,7 @@ double calculateGravityAssistDeltaV( const double centralBodyGravitationalParame
             {
                 incomingEccentricity = rootFinder->execute( rootFunction, 1.0 + 1.0e-2 );
             }
-            catch(std::runtime_error)
+            catch(std::runtime_error&)
             {
                 root_finders::RootFinderPointer rootFinder_temp = root_finders::createRootFinder(
                                         root_finders::bisectionRootFinderSettings(
@@ -388,7 +388,7 @@ double calculateGravityAssistDeltaV( const double centralBodyGravitationalParame
             {
                 incomingEccentricity = rootFinder->execute( rootFunction, 1.0 + 1.0e-10 );
             }
-            catch(std::runtime_error)
+            catch(std::runtime_error&)
             {
                 root_finders::RootFinderPointer rootFinder_temp
                   = std::make_shared< root_finders::Bisection< > >( 1.0e-12, 1000 ) ;
