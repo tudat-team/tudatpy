@@ -28,7 +28,6 @@
     #include "tudat/astro/low_thrust/simsFlanagan.h"
 #endif
 #include "tudat/astro/low_thrust/shape_based/hodographicShaping.h"
-#include "tudat/astro/low_thrust/shape_based/sphericalShaping.h"
 
 #include "tudat/astro/low_thrust/lowThrustLeg.h"
 
@@ -43,8 +42,7 @@ namespace low_thrust_trajectories
 //! List of available types of low thrust leg
 enum LowThrustLegTypes
 {
-    hodographic_shaping_leg,
-    spherical_shaping_leg
+    hodographic_shaping_leg
 #if( TUDAT_BUILD_WITH_PAGMO )
     ,sims_flanagan_leg,
     hybrid_method_leg
@@ -141,54 +139,6 @@ public:
 
     //! Vector containing the coefficients of the axial function.
     Eigen::VectorXd freeCoefficientsAxialVelocityFunction_;
-
-};
-
-
-//! Low-thrust leg settings for spherical shaping method.
-class SphericalShapingLegSettings: public LowThrustLegSettings
-{
-public:
-
-    //! Constructor
-    /*!
-    * Constructor
-    * \param numberOfRevolutions Number of revolutions of the shape-based trajectory.
-    * \param centralBodyGravitationalParameter Gravitational parameter of the central body.
-    * \param initialValueFreeCoefficient Initial guess for the free coefficient.
-    * \param rootFinderSettings Root finder settings to match the required time of flight.
-    * \param boundsFreeCoefficient Boundary values for the free coefficient.
-    */
-    SphericalShapingLegSettings(
-            const int numberOfRevolutions,
-            const double centralBodyGravitationalParameter,
-            const double initialValueFreeCoefficient,
-            const std::shared_ptr< root_finders::RootFinderSettings > rootFinderSettings,
-            const std::pair< double, double > boundsFreeCoefficient = std::make_pair( TUDAT_NAN, TUDAT_NAN ) ):
-        LowThrustLegSettings( spherical_shaping_leg ),
-        numberOfRevolutions_( numberOfRevolutions ),
-        centralBodyGravitationalParameter_( centralBodyGravitationalParameter ),
-        initialValueFreeCoefficient_( initialValueFreeCoefficient ),
-        rootFinderSettings_( rootFinderSettings ),
-        boundsFreeCoefficient_( boundsFreeCoefficient ){ }
-
-    //! Destructor
-    ~SphericalShapingLegSettings( ){ }
-
-    //! Number of revolutions for the shape-based trajectory.
-    int numberOfRevolutions_;
-
-    //! Gravitational parameter of the central body.
-    double centralBodyGravitationalParameter_;
-
-    //! Initial guess for the free coefficient (i.e. coefficient of the second order component of the radial inverse polynomial).
-    double initialValueFreeCoefficient_;
-
-    //! Root finder settings, to be used to find the free coefficient value that ensures the time of flight is correct.
-    std::shared_ptr< root_finders::RootFinderSettings > rootFinderSettings_;
-
-    //! Bounds for the free coefficient, to be used when trying to match the required time of flight.
-    std::pair< double, double > boundsFreeCoefficient_;
 
 };
 
