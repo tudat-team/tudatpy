@@ -25,7 +25,6 @@
 #include "tudat/math/basic/coordinateConversions.h"
 #include "tudat/astro/ephemerides/approximatePlanetPositions.h"
 #include "tudat/simulation/simulation.h"
-#include "tudat/simulation/propagation_setup/propagationLowThrustProblem.h"
 #include "tudat/astro/basic_astro/celestialBodyConstants.h"
 #include "tudat/astro/low_thrust/shape_based/sphericalShapingLeg.h"
 
