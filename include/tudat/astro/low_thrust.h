@@ -17,7 +17,6 @@
 #include "low_thrust/shape_based/compositeFunctionSphericalShaping.h"
 #include "low_thrust/shape_based/createBaseFunctionHodographicShaping.h"
 #include "low_thrust/shape_based/getRecommendedBaseFunctionsHodographicShaping.h"
-#include "low_thrust/shape_based/hodographicShaping.h"
 #include "low_thrust/shape_based/hodographicShapingOptimisationSetup.h"
 #include "low_thrust/shape_based/shapeBasedMethod.h"
 //#include "low_thrust/hybridMethod.h"

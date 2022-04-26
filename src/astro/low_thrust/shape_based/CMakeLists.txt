@@ -13,7 +13,6 @@ set(SHAPEBASEDMETHODS_SOURCES
   "baseFunctionsHodographicShaping.cpp"
   "createBaseFunctionHodographicShaping.cpp"
   "compositeFunctionHodographicShaping.cpp"
-  "hodographicShaping.cpp"
   "hodographicShapingLeg.cpp"
   "baseFunctionsSphericalShaping.cpp"
   "compositeFunctionSphericalShaping.cpp"
