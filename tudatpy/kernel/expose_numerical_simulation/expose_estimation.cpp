@@ -11,6 +11,7 @@
 #include "expose_estimation.h"
 
 #include "tudat/astro/propagators/propagateCovariance.h"
+#include "tudat/basics/utilities.h"
 
 #include "tudatpy/docstrings.h"
 
@@ -29,10 +30,35 @@ namespace tss = tudat::simulation_setup;
 namespace tni = tudat::numerical_integrators;
 namespace tom = tudat::observation_models;
 
+namespace tudat
+{
+
+namespace simulation_setup
+{
+
+std::pair< std::vector< double >, std::vector< Eigen::VectorXd > > getTargetAnglesAndRangeVector(
+        const simulation_setup::SystemOfBodies& bodies,
+        const std::pair< std::string, std::string > groundStationId,
+        const std::string& targetBody,
+        const std::vector< double > times,
+        const bool transmittingToTarget )
+{
+    std::map< double, Eigen::VectorXd > targetAnglesAndRange = getTargetAnglesAndRange(
+                bodies, groundStationId, targetBody, times, transmittingToTarget );
+    return std::make_pair( utilities::createVectorFromMapKeys(
+                               targetAnglesAndRange ),
+                           utilities::createVectorFromMapValues(
+                               targetAnglesAndRange ) );
+}
+
+}
+
+}
 
 namespace tudatpy {
 namespace numerical_simulation {
 namespace estimation {
+
 
 
 void expose_estimation(py::module &m) {
@@ -121,6 +147,14 @@ void expose_estimation(py::module &m) {
           py::arg("is_station_transmitting"),
           get_docstring("compute_target_angles_and_range").c_str() );
 
+    m.def("compute_target_angles_and_range_vectors",
+          &tss::getTargetAnglesAndRangeVector,
+          py::arg("bodies"),
+          py::arg("station_id" ),
+          py::arg("target_body" ),
+          py::arg("observation_times"),
+          py::arg("is_station_transmitting"),
+          get_docstring("compute_target_angles_and_range").c_str() );
 
     py::class_< tom::ObservationCollection<>,
             std::shared_ptr<tom::ObservationCollection<>>>(m, "ObservationCollection",
