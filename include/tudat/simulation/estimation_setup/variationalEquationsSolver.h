@@ -1665,6 +1665,16 @@ public:
         //                    estimatable_parameters::getInitialStateVectorOfBodiesToEstimate( parametersToEstimate_ ) );
         simulation_setup::setInitialStateVectorFromParameterSet< StateScalarType >( parametersToEstimate_, propagatorSettings_ );
 
+        for ( unsigned int i = 0 ; i < numberOfArcs_ ; i++ )
+        {
+            Eigen::VectorXd newParametersValues = propagatorSettings_->getSingleArcSettings( ).at( i )->getInitialStates( );
+            Eigen::VectorXd arcWiseParametersValues = arcWiseParametersToEstimate_.at( i )->template getFullParameterValues< double >( );
+            Eigen::VectorXd newArcWiseParametersValues = arcWiseParametersValues;
+            newArcWiseParametersValues.segment( 0, newParametersValues.size( ) ) = newParametersValues;
+            arcWiseParametersToEstimate_.at( i )->template resetParameterValues( newArcWiseParametersValues );
+        }
+
+
 
         // Check if re-integration of variational equations is requested
         if( areVariationalEquationsToBeIntegrated )

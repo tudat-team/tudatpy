@@ -33,6 +33,7 @@
 #include "tudat/simulation/environment_setup/createBodies.h"
 #include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
 #include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
+#include "tudat/simulation/estimation.h"
 
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameterSet.h"
 
@@ -54,6 +55,7 @@ using namespace tudat::basic_astrodynamics;
 using namespace tudat::orbital_element_conversions;
 using namespace tudat::ephemerides;
 using namespace tudat::propagators;
+using namespace tudat::observation_models;
 
 BOOST_AUTO_TEST_SUITE( test_multi_arc_multi_body_variational_equations_calculation )
 
@@ -77,6 +79,7 @@ SystemOfBodies createBodies( const double initialEpoch,
     bodiesToCreate.push_back( "Callisto" );
     bodiesToCreate.push_back( "Jupiter" );
     bodiesToCreate.push_back( "Sun" );
+    bodiesToCreate.push_back( "Earth" );
 
     // Create body objects.
     BodyListSettings bodySettings = getDefaultBodySettings( bodiesToCreate, initialEpoch, finalEpoch/*, "Jupiter"*/ );
@@ -437,7 +440,8 @@ std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > get
         const SystemOfBodies& bodies,
         const std::vector< std::string >& multiArcBodiesToPropagate, const std::map< std::string, Eigen::VectorXd > multiArcInitialStates,
         const std::vector< double >& arcStartTimes, const std::map< std::string, std::vector< double > >& arcStartTimesPerBody,
-        const std::map< std::string, std::vector< std::string > >& multiArcCentralBodies )
+        const std::map< std::string, std::vector< std::string > >& multiArcCentralBodies,
+        const LinkEnds linkEnds )
 {
     using namespace tudat::propagators;
     using namespace tudat::estimatable_parameters;
@@ -476,18 +480,25 @@ std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > get
         }
     }
 
+//    parameterNames.push_back( std::make_shared< ArcWiseConstantObservationBiasEstimatableParameterSettings >(
+//            linkEnds, position_observable, arcStartTimes, observed_body, true ) );
+
     std::map< basic_astrodynamics::EmpiricalAccelerationComponents,
             std::vector< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes > > empiricalComponentsToEstimate;
     empiricalComponentsToEstimate[ radial_empirical_acceleration_component ].push_back( constant_empirical );
     empiricalComponentsToEstimate[ along_track_empirical_acceleration_component ].push_back( constant_empirical );
     empiricalComponentsToEstimate[ across_track_empirical_acceleration_component ].push_back( constant_empirical );
 
-    parameterNames.push_back( std::make_shared< ArcWiseEmpiricalAccelerationEstimatableParameterSettings >(
+    parameterNames.push_back( std::make_shared< ArcWiseEmpiricalAccelerationEstimatableParameterSettings >(//    parameterNames.push_back( std::make_shared< ArcWiseConstantObservationBiasEstimatableParameterSettings >(
+//            linkEnds, position_observable, arcStartTimes, observed_body, true ) );
             "JUICE", "Europa", empiricalComponentsToEstimate, arcStartTimes ) );
     parameterNames.push_back( std::make_shared< ArcWiseEmpiricalAccelerationEstimatableParameterSettings >(
             "JUICE", "Ganymede", empiricalComponentsToEstimate, arcStartTimes ) );
 //    parameterNames.push_back( std::make_shared< ArcWiseEmpiricalAccelerationEstimatableParameterSettings >(
 //            "JUICE", "Callisto", empiricalComponentsToEstimate, arcStartTimes ) );
+
+//    parameterNames.push_back( std::make_shared< estimatable_parameters::EstimatableParameterSettings >(
+//            "global_metric", ppn_parameter_gamma ) );
 
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate =
             createParametersToEstimate< double >( parameterNames, bodies, multiArcPropagatorSettings );
@@ -723,10 +734,19 @@ BOOST_AUTO_TEST_CASE( testMultiArcMultiBodyVariationalEquationCalculation1 )
 
 //    SingleArcDynamicsSimulator::SingleArcDynamicsSimulator< double, double >(  )
 
+        // Define links in simulation.
+        LinkEnds linkEndsJuice;
+        linkEndsJuice[ observed_body ] = std::make_pair( "JUICE", "" );
+        LinkEnds linkEndsGanymede;
+        linkEndsGanymede[ transmitter ] = std::make_pair( "Ganymede", "" );
+        linkEndsGanymede[ receiver ] = std::make_pair( "Earth", "" );
+
         // Create parameters to estimate
         std::shared_ptr<estimatable_parameters::EstimatableParameterSet<double> > parametersToEstimate = getParametersToEstimate(
                 multiArcPropagatorSettings, bodies, listBodiesToPropagate, multiArcInitialStatesPerBody,
-                arcStartTimes, arcStartTimesPerBody, multiArcCentralBodiesPerBody);
+                arcStartTimes, arcStartTimesPerBody, multiArcCentralBodiesPerBody, linkEndsJuice );
+
+        std::cout << "parameters values: " << parametersToEstimate->getFullParameterValues< double >( ).transpose( ) << "\n\n";
 
 
 
@@ -761,21 +781,21 @@ BOOST_AUTO_TEST_CASE( testMultiArcMultiBodyVariationalEquationCalculation1 )
                 Eigen::Vector6d currentSolutionFromEphemeris = bodies.at( bodiesToPropagatePerArc.at( arc ).at( i ) )->getEphemeris( )->getCartesianState( finalArcEpoch );
                 Eigen::Vector6d stateCentralBody = bodies.at( centralBodiesPerArc.at( arc ).at( i ) )->getEphemeris( )->getCartesianState( finalArcEpoch );
                 Eigen::Vector6d differenceStateHistoryWrtEphemeris = currentSolutionFromEphemeris - finalStates.segment( i * 6, 6 );
-//                if ( centralBodiesPerArc.at( arc ).at( i )  == bodies.at( bodiesToPropagatePerArc.at( arc ).at( i ) )->getEphemeris( )->getReferenceFrameOrigin( ) )
-//                {
-//                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-//                            differenceStateHistoryWrtEphemeris, Eigen::Vector6d::Zero( ), 1.0E-16);
-//                }
-//                else
-//                {
-//                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-//                            differenceStateHistoryWrtEphemeris, stateCentralBody, 1.0E-12);
-//                }
+                if ( centralBodiesPerArc.at( arc ).at( i )  == bodies.at( bodiesToPropagatePerArc.at( arc ).at( i ) )->getEphemeris( )->getReferenceFrameOrigin( ) )
+                {
+                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                            differenceStateHistoryWrtEphemeris, Eigen::Vector6d::Zero( ), 1.0E-16);
+                }
+                else
+                {
+                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                            differenceStateHistoryWrtEphemeris, stateCentralBody, 1.0E-12);
+                }
 
 
             }
 
-            if ( arc == 0 ) {
+//            if ( arc == 0 ) {
                 Eigen::MatrixXd combinedStateTransitionMatrix = multiArcStateTransitionInterface->getCombinedStateTransitionAndSensitivityMatrix(
                         (arcStartTimes[arc] + multiArcEndTimes[arc]) / 2.0, true);
                 Eigen::MatrixXd fullCombinedStateTransitionMatrix = multiArcStateTransitionInterface->getFullCombinedStateTransitionAndSensitivityMatrix(
@@ -785,15 +805,124 @@ BOOST_AUTO_TEST_CASE( testMultiArcMultiBodyVariationalEquationCalculation1 )
                 std::cout << "arc: " << arc << " - size fullCombinedStateTransitionMatrix: " << fullCombinedStateTransitionMatrix.rows() <<
                           " & " << fullCombinedStateTransitionMatrix.cols() << "\n\n";
 
-                std::cout << "combined state transition matrix: " << "\n\n";
-                std::cout << combinedStateTransitionMatrix << "\n\n";
-                std::cout << "full combined state transition matrix: " << "\n\n";
-                std::cout << fullCombinedStateTransitionMatrix << "\n\n";
-            }
+//                std::cout << "combined state transition matrix: " << "\n\n";
+//                std::cout << combinedStateTransitionMatrix << "\n\n";
+//                std::cout << "full combined state transition matrix: " << "\n\n";
+//                std::cout << fullCombinedStateTransitionMatrix << "\n\n";
+//            }
 
 
 
         }
+
+        std::vector< Eigen::VectorXd > arcBiases;
+        for ( unsigned int k = 0 ; k < arcStartTimes.size( ) ; k++ )
+        {
+            arcBiases.push_back( ( Eigen::Vector3d( ) <<  0.0, 0.0, 0.0 ).finished( ) );
+        }
+        std::shared_ptr< ArcWiseConstantObservationBiasSettings > biasSettings =
+                std::make_shared< ArcWiseConstantObservationBiasSettings >( arcStartTimes, arcBiases, observed_body, true );
+
+        std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrections;
+        std::vector< std::string > relativisticPerturbingBodies = { "Sun" };
+        lightTimeCorrections.push_back( std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
+                relativisticPerturbingBodies ) );
+
+        std::vector< std::shared_ptr< ObservationModelSettings > > observationSettingsList;
+        observationSettingsList.push_back( std::make_shared< ObservationModelSettings >(
+                position_observable, linkEndsJuice, std::shared_ptr< LightTimeCorrectionSettings >( ), biasSettings ) );
+        observationSettingsList.push_back( std::make_shared< ObservationModelSettings >(
+                one_way_range, linkEndsGanymede, lightTimeCorrections /*std::shared_ptr< LightTimeCorrectionSettings >( )*/ ) );
+
+//        OrbitDeterminationManager< double, double > orbitDeterminationManager =
+//                OrbitDeterminationManager< double, double >(
+//                        bodies, parametersToEstimate,
+//                        observationSettingsList, integratorSettings, multiArcPropagatorSettings );
+
+        // Compute observation times
+        std::vector< double > observationTimes;
+        double vlbiObservationCadence = 600.0;
+        for ( unsigned int i = 0; i < arcStartTimes.size( ); i++ )
+        {
+            double currentTime = arcStartTimes[ i ] + 1000.0;
+            while ( currentTime < multiArcEndTimes[ i ] - 1000.0 ) {
+                observationTimes.push_back( currentTime );
+                currentTime += vlbiObservationCadence;
+            }
+        }
+
+        // Simulate JUICE observations
+        std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > measurementSimulationInput;
+        measurementSimulationInput.push_back(
+                std::make_shared< TabulatedObservationSimulationSettings< > >(
+                        position_observable, linkEndsJuice, observationTimes, observed_body ) );
+        measurementSimulationInput.push_back(
+                std::make_shared< TabulatedObservationSimulationSettings< > >(
+                        one_way_range, linkEndsGanymede, observationTimes, receiver ) );
+
+//        std::shared_ptr< ObservationCollection< > > observationsAndTimes = simulateObservations< double, double >(
+//                measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
+
+//        // Define POD input
+//        std::shared_ptr< PodInput< double, double > > podInput =
+//                std::make_shared< PodInput< double, double > >(
+//                        observationsAndTimes, parametersToEstimate->getParameterSetSize( ) );
+
+//        // Set observations weights.
+//        std::map< observation_models::ObservableType, double > weightPerObservable;
+//        weightPerObservable[ position_observable ] = 1.0 / ( 1.0 * 1.0 );
+//        weightPerObservable[ one_way_range ] = 1.0 / ( 1.0 * 1.0 );
+//        podInput->setConstantPerObservableWeightsMatrix( weightPerObservable );
+
+//        podInput->defineEstimationSettings( false, false, true, true, true, false );
+//        std::shared_ptr< PodOutput< double > > podOutput = orbitDeterminationManager.estimateParameters( podInput );
+
+//        ///////////////////////////////////////////
+//        /// Test resetting parameters
+//        ///////////////////////////////////////////
+//        Eigen::VectorXd fullParametersValues = parametersToEstimate->getFullParameterValues< double >( );
+//        std::cout << "parameters values: " << fullParametersValues.transpose( ) << "\n\n";
+//
+//        unsigned int numberStates = 0;
+//        for ( unsigned int i = 0 ; i < numberArcs ; i++ )
+//        {
+//            numberStates += bodiesToPropagatePerArc.at( i ).size( );
+//        }
+//        Eigen::VectorXd concatenatedMultiArcStates( numberStates * 6 );
+//        concatenatedMultiArcStates << multiArcInitialStatesPerBody.at( "Io" ), multiArcInitialStatesPerBody.at( "Europa" ),
+//                multiArcInitialStatesPerBody.at( "Ganymede" ), multiArcInitialStatesPerBody.at( "Callisto" ), multiArcInitialStatesPerBody.at( "JUICE" );
+//        std::cout << "multi-arc initial states: " << concatenatedMultiArcStates.transpose( ) << "\n\n";
+//
+//        TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+//                fullParametersValues.segment( 0, 6 * numberStates ), concatenatedMultiArcStates, 1.0E-16);
+//
+//        Eigen::VectorXd dummyNewParametersValues( fullParametersValues.size( ) );
+//        for ( unsigned int i = 0 ; i < numberStates ; i++ )
+//        {
+//            dummyNewParametersValues.segment( 6 * i, 6 ) = ( i + 1 ) * ( Eigen::Vector6d( ) << 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 ).finished( );
+//        }
+//        for ( unsigned int i = 6 * numberStates ; i < fullParametersValues.size( ) ; i++ )
+//        {
+//            dummyNewParametersValues[ i ] = - 1.0;
+//        }
+////        std::cout << "dummyNewParametersValues: " << dummyNewParametersValues.transpose( ) << "\n\n";
+//        parametersToEstimate->resetParameterValues( dummyNewParametersValues );
+////        std::cout << "new parameters values after reset: " << parametersToEstimate->getFullParameterValues< double >( ).transpose( ) << "\n\n";
+//        TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+//                parametersToEstimate->getFullParameterValues< double >( ), dummyNewParametersValues, 1.0E-16);
+//
+//        std::cout << "orbit determination manager parameter estimate before reset: " << "\n\n";
+//        std::cout << orbitDeterminationManager.getCurrentParameterEstimate( ).transpose( ) << "\n\n";
+//        orbitDeterminationManager.resetParameterEstimate( fullParametersValues /*dummyNewParametersValues*/, false );
+//        std::cout << "orbit determination manager parameter estimated after reset: " << "\n\n";
+//        std::cout << orbitDeterminationManager.getCurrentParameterEstimate( ).transpose( ) << "\n\n";
+//
+//
+//        parametersToEstimate->resetParameterValues( dummyNewParametersValues );
+
+
+
+
 
 
         // Test arc per arc
@@ -862,16 +991,16 @@ BOOST_AUTO_TEST_CASE( testMultiArcMultiBodyVariationalEquationCalculation1 )
                 Eigen::Vector6d currentSolutionFromEphemeris = bodies.at( bodiesToPropagatePerArc.at( arc ).at( i ) )->getEphemeris( )->getCartesianState( finalArcEpoch );
                 Eigen::Vector6d stateCentralBody = bodies.at( centralBodiesPerArc.at( arc ).at( i ) )->getEphemeris( )->getCartesianState( finalArcEpoch );
                 Eigen::Vector6d differenceStateHistoryWrtEphemeris = currentSolutionFromEphemeris - finalStates.segment( i * 6, 6 );
-//                if ( centralBodiesPerArc.at( arc ).at( i )  == bodies.at( bodiesToPropagatePerArc.at( arc ).at( i ) )->getEphemeris( )->getReferenceFrameOrigin( ) )
-//                {
-//                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-//                            differenceStateHistoryWrtEphemeris, Eigen::Vector6d::Zero( ), 1.0E-16);
-//                }
-//                else
-//                {
-//                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-//                            differenceStateHistoryWrtEphemeris, stateCentralBody, 1.0E-12);
-//                }
+                if ( centralBodiesPerArc.at( arc ).at( i )  == bodies.at( bodiesToPropagatePerArc.at( arc ).at( i ) )->getEphemeris( )->getReferenceFrameOrigin( ) )
+                {
+                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                            differenceStateHistoryWrtEphemeris, Eigen::Vector6d::Zero( ), 1.0E-16);
+                }
+                else
+                {
+                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                            differenceStateHistoryWrtEphemeris, stateCentralBody, 1.0E-12);
+                }
             }
 
 
@@ -898,18 +1027,18 @@ BOOST_AUTO_TEST_CASE( testMultiArcMultiBodyVariationalEquationCalculation1 )
             }
 
 
-//            for (auto itr: multiArcStateHistory.at(arc)) {
-//                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-//                        itr.second, perArcStateHistory.at(0).at(itr.first), 1.0E-16);
-//            }
-//
-//            for (auto itr: variationalEquationsSolution.at(arc).at(0)) {
-//                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-//                        itr.second, perArcVariationalEquationsSolution.at(0).at(0).at(itr.first), 1.0E-16);
-//                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-//                        variationalEquationsSolution.at(arc).at(1).at(itr.first).block(0, 0, 6 * bodiesToPropagatePerArc.at( arc ).size( ), 24),
-//                        perArcVariationalEquationsSolution.at(0).at(1).at(itr.first).block(0, 0, 6 * bodiesToPropagatePerArc.at( arc ).size( ), 24), 1.0E-16);
-//            }
+            for (auto itr: multiArcStateHistory.at(arc)) {
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                        itr.second, perArcStateHistory.at(0).at(itr.first), 1.0E-16);
+            }
+
+            for (auto itr: variationalEquationsSolution.at(arc).at(0)) {
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                        itr.second, perArcVariationalEquationsSolution.at(0).at(0).at(itr.first), 1.0E-16);
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                        variationalEquationsSolution.at(arc).at(1).at(itr.first).block(0, 0, 6 * bodiesToPropagatePerArc.at( arc ).size( ), 24),
+                        perArcVariationalEquationsSolution.at(0).at(1).at(itr.first).block(0, 0, 6 * bodiesToPropagatePerArc.at( arc ).size( ), 24), 1.0E-16);
+            }
         }
 
     }

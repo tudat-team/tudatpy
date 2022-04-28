@@ -459,6 +459,7 @@ public:
                     singleArcSettings_.at( i )->getInitialStates( );
             currentIndex += singleArcSettings_.at( i )->getConventionalStateSize( );
         }
+        std::cout << "in update initial state from constituent settings: " << this->initialStates_.transpose( ) << "\n\n";
     }
 
 protected:
@@ -2224,6 +2225,7 @@ void resetSingleArcInitialStates(
             totalInitialState.segment( i * 6, 6 ) =
                     currentArcInitialStates.at( translational_state ).at( std::make_pair( propagatedBodies.at( i ), "" ) );
         }
+        std::cout << "in resetSingleInitialStates: " << totalInitialState.transpose( ) << "\n\n";
         translationalStateSettings->resetInitialStates( totalInitialState );
 
         break;
