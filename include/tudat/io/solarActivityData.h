@@ -27,6 +27,10 @@
 #include <memory>
 
 #include "tudat/astro/basic_astro/timeConversions.h"
+#include "tudat/basics/utilities.h"
+#include "tudat/math/interpolators/lookupScheme.h"
+#include "tudat/astro/basic_astro/timeConversions.h"
+
 namespace tudat
 {
 namespace input_output
@@ -165,6 +169,39 @@ typedef std::shared_ptr< SolarActivityData > SolarActivityDataPtr;
 
 //! Data map of SolarActivityData structure Pointers
 typedef std::map< double , SolarActivityDataPtr >  SolarActivityDataMap ;
+
+struct SolarActivityContainer
+{
+    SolarActivityContainer(
+            const std::map< double, SolarActivityDataPtr >& solarActivityDataMap ):
+        solarActivityDataMap_( solarActivityDataMap )
+    {
+
+        lookUpScheme_ = std::make_shared< interpolators::BinarySearchLookupScheme< double > >(
+                    utilities::createVectorFromMapKeys( solarActivityDataMap ) );
+    }
+
+    std::shared_ptr< SolarActivityData > getSolarActivityData( const double time )
+    {
+        double julianDay = basic_astrodynamics::convertSecondsSinceEpochToJulianDay( time );
+        return getSolarActivityDataAtJulianDay( julianDay );
+    }
+
+    std::shared_ptr< SolarActivityData > getSolarActivityDataAtJulianDay( const double julianDay )
+    {
+        int nearestJulianDay = lookUpScheme_->getIndependentVariableValue(
+                    lookUpScheme_->findNearestLowerNeighbour( julianDay ) );
+        return solarActivityDataMap_.at( nearestJulianDay );
+    }
+
+
+private:
+
+     std::map< double, SolarActivityDataPtr > solarActivityDataMap_;
+
+     std::shared_ptr< interpolators::LookUpScheme< double > > lookUpScheme_;
+
+};
 
 //! Function that reads a SpaceWeather data file
 /*!
