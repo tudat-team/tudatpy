@@ -257,11 +257,15 @@ public:
 
             // Compute observation partial
             currentObservationSize = currentObservation.rows( );
+            std::cout << "before call to determineObservationPartialMatrix" << "\n\n";
             observationMatrices[ times[ i ] ] = determineObservationPartialMatrix(
                         currentObservationSize, vectorOfStates, vectorOfTimes, linkEnds, currentObservation,
                         linkEndAssociatedWithTime );
+            std::cout << "after call to determineObservationPartialMatrix" << "\n\n";
 
         }
+
+        std::cout << "end computeObservationsWithPartials" << "\n\n";
 
         return std::make_pair( utilities::createConcatenatedEigenMatrixFromMapValues( observations ),
                                utilities::createConcatenatedEigenMatrixFromMapValues( observationMatrices ) );
@@ -347,6 +351,7 @@ protected:
         // Initialize list of [Phi;S] matrices at times required by calculation (key)
         std::map< double, Eigen::MatrixXd > combinedStateTransitionMatrices;
 
+        std::cout << "before update partials" << "\n\n";
         // Perform updates of dependent variables used by (subset of) observation partials.
         updatePartials( states, times, linkEnds, linkEndAssociatedWithTime, currentObservation );
 
@@ -362,6 +367,7 @@ protected:
             std::pair< int, int > currentIndexInfo = partialIterator->first;
             std::cout << "current index info: " << currentIndexInfo.first << " & " << currentIndexInfo.second << "\n\n";
             std::cout << "block STM: " << currentIndexInfo.first << " - " << 0 << " & " << currentIndexInfo.second << " - " <<  fullParameterVector << "\n\n";
+            std::cout << "stateTransitionMatrixSize_: " << stateTransitionMatrixSize_ << "\n\n";
 
             // Calculate partials of observation w.r.t. parameters, with associated observation times (single partial
             // can consist of multiple partial matrices, associated at different times)
@@ -390,16 +396,21 @@ protected:
                     partialMatrix += ( singlePartialSet[ i ].first ) *
                             combinedStateTransitionMatrices[ singlePartialSet[ i ].second ].block
                             ( currentIndexInfo.first, 0, currentIndexInfo.second, fullParameterVector );
+
+                    std::cout << "end single partial set" << "\n\n";
                 }
             }
             else
             {
+                std::cout << "index larger than size STM detected" << "\n\n";
                 for( unsigned int i = 0; i < singlePartialSet.size( ); i++ )
                 {
                     // Add direct partial of observation w.r.t. parameter.
                     partialMatrix.block( 0, currentIndexInfo.first, observationSize, currentIndexInfo.second ) +=
                             singlePartialSet[ i ].first;
+                    std::cout << "partials block: " << 0 << " - " << currentIndexInfo.first << " & " << observationSize << " - " << currentIndexInfo.second << "\n\n";
                 }
+                std::cout << "end code for index larger than size STM" << "\n\n";
             }
         }
         return partialMatrix;

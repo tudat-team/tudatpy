@@ -800,36 +800,35 @@ BOOST_AUTO_TEST_CASE( testHybridArcMultiBodyVariationalEquationCalculation1 )
                 hybridArcVariationalEquationsSolver.getSingleArcSolver( );
 
         std::map< double, Eigen::MatrixXd > singleArcSTM = singleArcVariationalEquationsSolver->getNumericalVariationalEquationsSolution( )[ 0 ];
-        std::cout << "first element single-arc STM history: " << "\n\n";
-        std::cout << singleArcSTM.begin( )->second << "\n\n";
-        std::cout << "last element single-arc STM history: " << "\n\n";
-        std::cout << singleArcSTM.rbegin( )->second << "\n\n";
+
 
         std::shared_ptr< MultiArcVariationalEquationsSolver< double, double > > multiArcVariationalEquationsSolver =
                 hybridArcVariationalEquationsSolver.getMultiArcSolver( );
-
-        std::map< double, Eigen::MatrixXd > multiArcStmArc1 = multiArcVariationalEquationsSolver->getNumericalVariationalEquationsSolution( )[ 0 ][ 0 ];
-        std::cout << "first element multi-arc (arc 1) STM history: " << "\n\n";
-        std::cout << multiArcStmArc1.begin( )->second << "\n\n";
-        std::cout << "last element multi-arc (arc 1) STM history: " << "\n\n";
-        std::cout << multiArcStmArc1.rbegin( )->second << "\n\n";
-
-        std::map< double, Eigen::MatrixXd > singleArcStmTest = singleArcVariationalEquationsSolverTest.getNumericalVariationalEquationsSolution( )[ 0 ];
-        std::cout << "first element single-arc STM history TEST: " << "\n\n";
-        std::cout << singleArcStmTest.begin( )->second << "\n\n";
-        std::cout << "last element single-arc STM history TEST: " << "\n\n";
-        std::cout << singleArcStmTest.rbegin( )->second << "\n\n";
 
         MultiArcVariationalEquationsSolver< double, double > multiArcVariationalEquationsSolverTest =
                 MultiArcVariationalEquationsSolver< double, double >( bodies, integratorSettings, multiArcPropagatorSettings, multiArcParametersToEstimate, arcStartTimes,
                                                                       true, std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ), false, true, false );
 
+        std::map< double, Eigen::MatrixXd > singleArcStmTest = singleArcVariationalEquationsSolverTest.getNumericalVariationalEquationsSolution( )[ 0 ];
+        std::cout << "last element single-arc STM history: " << "\n\n";
+        std::cout << singleArcSTM.rbegin( )->second << "\n\n";
+        std::cout << "last element single-arc STM history TEST: " << "\n\n";
+        std::cout << singleArcStmTest.rbegin( )->second << "\n\n";
+
+        std::map< double, Eigen::MatrixXd > multiArcStmArc1 = multiArcVariationalEquationsSolver->getNumericalVariationalEquationsSolution( )[ 0 ][ 0 ];
+        std::map< double, Eigen::MatrixXd > multiArcStmArc3 = multiArcVariationalEquationsSolver->getNumericalVariationalEquationsSolution( )[ 2 ][ 0 ];
+        std::cout << "last element multi-arc (arc 1) STM history: " << "\n\n";
+        std::cout << multiArcStmArc1.rbegin( )->second << "\n\n";
+
         std::map< double, Eigen::MatrixXd > multiArcStmArc1Test = multiArcVariationalEquationsSolverTest.getNumericalVariationalEquationsSolution( )[ 0 ][ 0 ];
-        std::cout << "first element multi-arc (arc 1) STM history: " << "\n\n";
-        std::cout << multiArcStmArc1Test.begin( )->second << "\n\n";
+        std::map< double, Eigen::MatrixXd > multiArcStmArc3Test = multiArcVariationalEquationsSolverTest.getNumericalVariationalEquationsSolution( )[ 2 ][ 0 ];
         std::cout << "last element multi-arc (arc 1) STM history: " << "\n\n";
         std::cout << multiArcStmArc1Test.rbegin( )->second << "\n\n";
 
+        std::cout << "last element multi-arc (arc 3) STM history: " << "\n\n";
+        std::cout << multiArcStmArc3.rbegin( )->second << "\n\n";
+        std::cout << "last element multi-arc (arc 3) STM history: " << "\n\n";
+        std::cout << multiArcStmArc3Test.rbegin( )->second << "\n\n";
 
 
 //

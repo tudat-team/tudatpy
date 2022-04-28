@@ -267,6 +267,7 @@ public:
         {
             int currentStartIndex = 0;
 
+            std::cout << "before reset initial state parameters" << "\n\n";
             for( unsigned int i = 0; i < estimateInitialStateParameters_.size( ); i++ )
             {
                 estimateInitialStateParameters_[ i ]->setParameterValue(
@@ -274,24 +275,33 @@ public:
                             template cast< InitialStateParameterType >( ) );
                 currentStartIndex += estimateInitialStateParameters_[ i ]->getParameterSize( );
             }
+            std::cout << "after reset initial state parameters" << "\n\n";
 
             // Set double parameter values.
+            std::cout << "before reset double parameters" << "\n\n";
             for( unsigned int i = 0; i < estimatedDoubleParameters_.size( ); i++ )
             {
                 estimatedDoubleParameters_[ i ]->setParameterValue( static_cast< double >( newParameterValues( currentStartIndex ) ) );
                 currentStartIndex++;
             }
+            std::cout << "after reset double parameters" << "\n\n";
 
             // Set vector parameter values.
-
+            std::cout << "before reset vector parameters" << "\n\n";
+            std::cout << "new parameters values: " << newParameterValues.transpose( ) << "\n\n";
             for( unsigned int i = 0; i < estimatedVectorParameters_.size( ); i++ )
             {
+                std::cout << "current start index: " << currentStartIndex << "\n\n";
+                std::cout << "current parameter size: " << estimatedVectorParameters_[ i ]->getParameterSize( ) << "\n\n";
+                std::cout << "newParameterValues current parameter: "
+                          << newParameterValues.segment( currentStartIndex, estimatedVectorParameters_[ i ]->getParameterSize( ) ).transpose( ) << "\n\n";
                 estimatedVectorParameters_[ i ]->setParameterValue(
                             newParameterValues.segment( currentStartIndex, estimatedVectorParameters_[ i ]->getParameterSize( ) ).
                             template cast< double >( ) );
 
                 currentStartIndex += estimatedVectorParameters_[ i ]->getParameterSize( );
             }
+            std::cout << "after reset vector parameters" << "\n\n";
         }
     }
 

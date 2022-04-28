@@ -88,7 +88,10 @@ MultiArcCombinedStateTransitionAndSensitivityMatrixInterface::MultiArcCombinedSt
     getParametersToEstimatePerArcTest( parametersToEstimate, arcWiseParametersToEstimate_, arcStartTimes_, estimatedBodiesPerArc_, arcIndicesPerBody_ );
     processArcWiseParametersIndices( parametersToEstimate, arcStartTimes_ );
 
-    sensitivityMatrixSize_ = numberOfParameters - numberOfStateArcs_ * stateTransitionMatrixSize_;
+    sensitivityMatrixSize_ = fullSensitivityMatrixSize_; // numberOfParameters - numberOfStateArcs_ * stateTransitionMatrixSize_;
+    stateTransitionMatrixSize_ = fullStateSize_;
+    std::cout << "TEST sensitivityMatrixSize_: " << sensitivityMatrixSize_ << "\n\n";
+    std::cout << "TEST stateTransitionMatrixSize_: " << stateTransitionMatrixSize_ << "\n\n";
 
     if( stateTransitionMatrixInterpolators_.size( ) != sensitivityMatrixInterpolators_.size( ) ||
             stateTransitionMatrixInterpolators_.size( ) != static_cast< unsigned int >( numberOfStateArcs_ ) )
