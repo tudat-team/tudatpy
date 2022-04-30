@@ -777,9 +777,7 @@ BOOST_AUTO_TEST_CASE( testHybridArcMultiBodyVariationalEquationCalculation1 )
         std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > singleArcParametersToEstimate =
                 createParametersToEstimate< double >( singleArcParameterNames, bodies, singleArcPropagatorSettings );
         printEstimatableParameterEntries( singleArcParametersToEstimate );
-        SingleArcVariationalEquationsSolver< double, double > singleArcVariationalEquationsSolverTest =
-                SingleArcVariationalEquationsSolver< double, double >( bodies, integratorSettings, singleArcPropagatorSettings, singleArcParametersToEstimate,
-                                                                       true, std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ), false, true, false );
+
 
         std::vector< std::shared_ptr< EstimatableParameterSettings > > multiArcParameterNames;
         for ( unsigned int i = 0 ; i < listBodiesToPropagate.size( ) ; i++ ) {
@@ -792,9 +790,19 @@ BOOST_AUTO_TEST_CASE( testHybridArcMultiBodyVariationalEquationCalculation1 )
                 createParametersToEstimate< double >( multiArcParameterNames, bodies, multiArcPropagatorSettings );
         printEstimatableParameterEntries( multiArcParametersToEstimate );
 
+
+        integratorSettings->initialTime_ = initialEpoch;
         HybridArcVariationalEquationsSolver< double, double > hybridArcVariationalEquationsSolver =
                 HybridArcVariationalEquationsSolver< double, double >( bodies, integratorSettings, hybridArcPropagatorSettings, parametersToEstimate,
                                                                        arcStartTimes, true, false, true );
+        integratorSettings->initialTime_ = initialEpoch;
+        SingleArcVariationalEquationsSolver< double, double > singleArcVariationalEquationsSolverTest =
+                SingleArcVariationalEquationsSolver< double, double >( bodies, integratorSettings, singleArcPropagatorSettings, singleArcParametersToEstimate,
+                                                                       true, std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ), false, true, true );
+
+        MultiArcVariationalEquationsSolver< double, double > multiArcVariationalEquationsSolverTest =
+                MultiArcVariationalEquationsSolver< double, double >( bodies, integratorSettings, multiArcPropagatorSettings, multiArcParametersToEstimate, arcStartTimes,
+                                                                      true, std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ), false, true, false );
 
         std::shared_ptr< SingleArcVariationalEquationsSolver< double, double > > singleArcVariationalEquationsSolver =
                 hybridArcVariationalEquationsSolver.getSingleArcSolver( );
@@ -805,9 +813,7 @@ BOOST_AUTO_TEST_CASE( testHybridArcMultiBodyVariationalEquationCalculation1 )
         std::shared_ptr< MultiArcVariationalEquationsSolver< double, double > > multiArcVariationalEquationsSolver =
                 hybridArcVariationalEquationsSolver.getMultiArcSolver( );
 
-        MultiArcVariationalEquationsSolver< double, double > multiArcVariationalEquationsSolverTest =
-                MultiArcVariationalEquationsSolver< double, double >( bodies, integratorSettings, multiArcPropagatorSettings, multiArcParametersToEstimate, arcStartTimes,
-                                                                      true, std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ), false, true, false );
+
 
         std::map< double, Eigen::MatrixXd > singleArcStmTest = singleArcVariationalEquationsSolverTest.getNumericalVariationalEquationsSolution( )[ 0 ];
         std::cout << "last element single-arc STM history: " << "\n\n";
@@ -829,6 +835,35 @@ BOOST_AUTO_TEST_CASE( testHybridArcMultiBodyVariationalEquationCalculation1 )
         std::cout << multiArcStmArc3.rbegin( )->second << "\n\n";
         std::cout << "last element multi-arc (arc 3) STM history: " << "\n\n";
         std::cout << multiArcStmArc3Test.rbegin( )->second << "\n\n";
+
+        // Test consistency of single-arc variational equations solutions.
+        for ( auto itr : singleArcVariationalEquationsSolver->getNumericalVariationalEquationsSolution( )[ 0 ] )
+        {
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                    itr.second, singleArcVariationalEquationsSolverTest.getNumericalVariationalEquationsSolution( )[ 0 ].at( itr.first ), 1.0E-12 );
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                    singleArcVariationalEquationsSolver->getNumericalVariationalEquationsSolution( )[ 1 ].at( itr.first ),
+                    singleArcVariationalEquationsSolverTest.getNumericalVariationalEquationsSolution( )[ 1 ].at( itr.first ), 1.0E-12 );
+        }
+
+        // Test consistency of multi-arc variational equations solutions.
+        for ( unsigned int k = 0 ; k < numberArcs ; k++ )
+        {
+            for ( auto itr : multiArcVariationalEquationsSolver->getNumericalVariationalEquationsSolution( )[ k ][ 0 ] )
+            {
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                        itr.second.block( 6, 6, itr.second.rows( ) - 6, itr.second.cols( ) - 6 ),
+                        multiArcVariationalEquationsSolverTest.getNumericalVariationalEquationsSolution( )[ k ][ 0 ].at( itr.first ), 1.0E-12 );
+
+                Eigen::MatrixXd sensitivityMatrixFromHybridSolution =
+                        multiArcVariationalEquationsSolverTest.getNumericalVariationalEquationsSolution( )[ k ][ 1 ].at( itr.first );
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                        sensitivityMatrixFromHybridSolution.block( 6, 6, sensitivityMatrixFromHybridSolution.rows( ) - 6, sensitivityMatrixFromHybridSolution.cols( ) - 6 ),
+                        multiArcVariationalEquationsSolverTest.getNumericalVariationalEquationsSolution( )[ k ][ 1 ].at( itr.first ), 1.0E-12 );
+
+
+            }
+        }
 
 
 //
