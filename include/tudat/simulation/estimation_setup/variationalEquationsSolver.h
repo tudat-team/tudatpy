@@ -1492,6 +1492,8 @@ public:
                                 singleArcDynamicsSimulators.at( i )->getDynamicsStateDerivative( ), std::placeholders::_1 ) );
                 simulation_setup::setAreBodiesInPropagation( bodies_, false );
 
+                std::cout << "test RAW SOLUTION: " << rawNumericalSolution.rbegin( )->second << "\n\n";
+
                 // Extract solution of equations of motion.
                 utilities::createVectorBlockMatrixHistory(
                             rawNumericalSolution, currentEquationsOfMotionNumericalSolutionsRaw,
@@ -2117,6 +2119,7 @@ public:
         multiArcSolver_->integrateVariationalAndDynamicalEquations(
                     propagatorSettings_->getMultiArcPropagatorSettings( )->getInitialStates( ),
                     integrateEquationsConcurrently );
+        std::cout << "TEST: " << multiArcSolver_->getNumericalVariationalEquationsSolution( ).at( 0 ).at( 0 ).rbegin( )->second << "\n\n";
 
         copyExtendedMultiArcInitialStatesToOriginalSettins( );
 
@@ -2147,11 +2150,11 @@ public:
                 throw std::runtime_error( "Error when making hybrid state transition/sensitivity interface, multi-arc input is nullptr" );
             }
 
-//            stateTransitionInterface_ = std::make_shared< HybridArcCombinedStateTransitionAndSensitivityMatrixInterface >(
-//                        std::dynamic_pointer_cast< SingleArcCombinedStateTransitionAndSensitivityMatrixInterface >(
-//                            singleArcSolver_->getStateTransitionMatrixInterface( ) ),
-//                        std::dynamic_pointer_cast< MultiArcCombinedStateTransitionAndSensitivityMatrixInterface >(
-//                            multiArcSolver_->getStateTransitionMatrixInterface( ) ) );
+            stateTransitionInterface_ = std::make_shared< HybridArcCombinedStateTransitionAndSensitivityMatrixInterface >(
+                        std::dynamic_pointer_cast< SingleArcCombinedStateTransitionAndSensitivityMatrixInterface >(
+                            singleArcSolver_->getStateTransitionMatrixInterface( ) ),
+                        std::dynamic_pointer_cast< MultiArcCombinedStateTransitionAndSensitivityMatrixInterface >(
+                            multiArcSolver_->getStateTransitionMatrixInterface( ) ) );
         }
     }
 
