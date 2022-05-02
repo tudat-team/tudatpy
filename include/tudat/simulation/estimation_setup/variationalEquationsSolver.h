@@ -1492,8 +1492,6 @@ public:
                                 singleArcDynamicsSimulators.at( i )->getDynamicsStateDerivative( ), std::placeholders::_1 ) );
                 simulation_setup::setAreBodiesInPropagation( bodies_, false );
 
-                std::cout << "test RAW SOLUTION: " << rawNumericalSolution.rbegin( )->second << "\n\n";
-
                 // Extract solution of equations of motion.
                 utilities::createVectorBlockMatrixHistory(
                             rawNumericalSolution, currentEquationsOfMotionNumericalSolutionsRaw,
@@ -2049,6 +2047,7 @@ public:
             multiArcSolver_->getDynamicsStateDerivatives( ).at( i )->getVariationalEquationsCalculator( )->suppressParameterCoupling(
                         propagatorSettings_->getSingleArcPropagatorSettings( )->getPropagatedStateSize( ) );
         }
+        std::cout << "suppress parameter coupling: " << propagatorSettings_->getSingleArcPropagatorSettings( )->getPropagatedStateSize( ) << "\n\n";
 
         // Create function to retrieve single-arc initial states for extended multi-arc
         std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > singleArcPropagationSettings =
@@ -2119,7 +2118,6 @@ public:
         multiArcSolver_->integrateVariationalAndDynamicalEquations(
                     propagatorSettings_->getMultiArcPropagatorSettings( )->getInitialStates( ),
                     integrateEquationsConcurrently );
-        std::cout << "TEST: " << multiArcSolver_->getNumericalVariationalEquationsSolution( ).at( 0 ).at( 0 ).rbegin( )->second << "\n\n";
 
         copyExtendedMultiArcInitialStatesToOriginalSettins( );
 
@@ -2320,6 +2318,8 @@ protected:
                     parametersToEstimate_->getEstimatedDoubleParameters( ),
                     parametersToEstimate_->getEstimatedVectorParameters( ),
                     extendedMultiArcParameters );
+        std::cout << "TEST: " << "\n\n";
+        estimatable_parameters::printEstimatableParameterEntries( multiArcParametersToEstimate_ );
     }
 
     //! Function to reset the initial multi-arc states
