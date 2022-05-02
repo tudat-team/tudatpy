@@ -378,6 +378,27 @@ public:
         return arcWiseSensitivityMatrixSize_[ currentArc ];
     }
 
+    int getFullStateSize( ) const
+    {
+        return fullStateSize_;
+    }
+
+    int getFullStateTransitionMatrixSize( ) const
+    {
+        return fullStateTransitionMatrixSize_;
+    }
+
+    int getFullSensitivityMatrixSize( ) const
+    {
+        return fullSensitivityMatrixSize_;
+    }
+
+    std::map< int, std::map< std::string, std::pair< std::pair< int, int >, std::pair< std::pair< int, int >, int > > > > getArcWiseAndFullSolutionInitialStateIndices( ) const
+    {
+        return arcWiseAndFullSolutionInitialStateIndices_;
+    }
+
+
 protected:
 
     template< typename StateScalarType = double, typename TimeType = double >

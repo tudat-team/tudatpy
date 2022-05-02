@@ -1566,6 +1566,14 @@ std::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > getExtendedMult
             }
             std::cout << "\n\n";
 
+            std::cout << "arc " << i << " - central bodies: " << "\n\n";
+            for ( unsigned int k = 0 ; k < fullCentralBodies.size( ) ; k++ )
+            {
+                std::cout << fullCentralBodies[ k ] << " ";
+            }
+            std::cout << "\n\n";
+
+
             // Create full initial state list
             int fullSingleArcSize = 6 * fullCentralBodies.size( );
             int singleArcSize = 6 * singleArcTranslationalSettings->centralBodies_.size( );
