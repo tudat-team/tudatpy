@@ -303,14 +303,14 @@ namespace tudat
                 accelerationSettingsJuice[ "JUICE" ][ multiArcCentralBody ].push_back(
                         std::make_shared< SphericalHarmonicAccelerationSettings >( maximumEstimatedDegree, maximumEstimatedOrder ) );
 
-//    for( unsigned int j = 0; j < galileanSatelliteNames.size( ); j++ )
-//    {
-//        if( galileanSatelliteNames.at( j ) != multiArcCentralBody )
-//        {
-//            accelerationSettingsJuice[ "JUICE" ][ galileanSatelliteNames.at( j ) ].push_back(
-//                    std::make_shared< AccelerationSettings >( central_gravity ) );
-//        }
-//    }
+    for( unsigned int j = 0; j < galileanSatelliteNames.size( ); j++ )
+    {
+        if( galileanSatelliteNames.at( j ) != multiArcCentralBody )
+        {
+            accelerationSettingsJuice[ "JUICE" ][ galileanSatelliteNames.at( j ) ].push_back(
+                    std::make_shared< AccelerationSettings >( central_gravity ) );
+        }
+    }
 
                 accelerationSettingsJuice[ "JUICE" ][ "Sun" ].push_back(
                         std::make_shared< AccelerationSettings >( central_gravity ) );
@@ -349,6 +349,14 @@ namespace tudat
                             std::make_shared< MutualSphericalHarmonicAccelerationSettings >(
                                     maximumJupiterDegree, maximumJupiterOrder,
                                     maximumSatelliteDegree, maximumSatelliteOrder ) );
+                    for ( unsigned int j = 0 ; j < bodiesToPropagate.size( ) ; j++ )
+                    {
+                        if ( i != j )
+                        {
+                            accelerationSettingsMoons[ bodiesToPropagate.at( i ) ][ bodiesToPropagate.at( j ) ].push_back(
+                                    std::make_shared< AccelerationSettings >( central_gravity ) );
+                        }
+                    }
                 }
 
                 basic_astrodynamics::AccelerationMap accelerationMap = createAccelerationModelsMap(
@@ -799,7 +807,7 @@ namespace tudat
                     std::cout << "full parameter vector size from hybrid arc state transition matrix interface: " << "\n\n";
                     std::cout << hybridArcVariationalEquationsSolver.getStateTransitionMatrixInterface( )->getFullParameterVectorSize( ) << "\n\n";
                     Eigen::MatrixXd combinedMatrix = hybridArcVariationalEquationsSolver.getStateTransitionMatrixInterface( )->getCombinedStateTransitionAndSensitivityMatrix(
-                            ( arcStartTimes[ 1 ] + multiArcEndTimes[ 1 ] ) / 2.0 );
+                            ( arcStartTimes[ 0 ] + multiArcEndTimes[ 0 ] ) / 2.0 );
                     std::cout << "combinedMatrix: " << "\n\n";
                     std::cout << combinedMatrix << "\n\n";
 //                    std::cout << "test combined matrix arc 0: " << "\n\n";
@@ -840,12 +848,13 @@ namespace tudat
 //                    std::cout << "size STM arc 1: " << fullMultiArcVariationalSolution[ 1 ][ 0 ].begin( )->second.rows( ) << " & " <<
 //                              fullMultiArcVariationalSolution[ 1 ][ 0 ].begin( )->second.cols( ) << "\n\n";
 
-                    double interpolationTime = ( arcStartTimes[ 0 ] + multiArcEndTimes[ 0 ] ) / 2.0;
+                    double interpolationTime = ( arcStartTimes[ 1 ] + multiArcEndTimes[ 1 ] ) / 2.0;
                     Eigen::MatrixXd singleArcStateTransitionMatrix = singleArcStateTransitionMatrixInterpolator->interpolate( interpolationTime );
                     Eigen::MatrixXd singleArcSensitivityMatrix = singleArcSensitivityMatrixInterpolator->interpolate( interpolationTime );
 
                     Eigen::MatrixXd multiArcStateTransitionMatrix = multiArc0StateTransitionMatrixInterpolator->interpolate( interpolationTime );
                     Eigen::MatrixXd multiArcSensitivityMatrix = multiArc0SensitivityMatrixInterpolator->interpolate( interpolationTime );
+                    std::cout << "multiArcStateTransitionMatrix: " << multiArcStateTransitionMatrix << "\n\n";
 
                     Eigen::MatrixXd reconstructedHybridSolution =
                             Eigen::MatrixXd::Zero( fullMultiArcVariationalSolution[ 0 ][ 0 ].begin( )->second.rows( ),
@@ -855,7 +864,7 @@ namespace tudat
 
 
                     Eigen::MatrixXd fullCombinedMatrix = hybridArcVariationalEquationsSolver.getStateTransitionMatrixInterface( )->getFullCombinedStateTransitionAndSensitivityMatrix(
-                            ( arcStartTimes[ 1 ] + multiArcEndTimes[ 1 ] ) / 2.0 );
+                            ( arcStartTimes[ 0 ] + multiArcEndTimes[ 0 ] ) / 2.0 );
                     std::cout << "full combined matrix: " << "\n\n";
                     std::cout << fullCombinedMatrix << "\n\n";
 
