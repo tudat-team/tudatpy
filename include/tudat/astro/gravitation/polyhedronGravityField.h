@@ -262,15 +262,15 @@ private:
 
     const double volume_;
 
-    const Eigen::MatrixXd& verticesCoordinates_;
+    const Eigen::MatrixXd verticesCoordinates_;
 
-    const Eigen::MatrixXi& verticesDefiningEachFacet_;
+    const Eigen::MatrixXi verticesDefiningEachFacet_;
 
-    const Eigen::MatrixXi& verticesDefiningEachEdge_;
+    const Eigen::MatrixXi verticesDefiningEachEdge_;
 
-    std::vector< Eigen::MatrixXd >& facetDyads_;
+    std::vector< Eigen::MatrixXd > facetDyads_;
 
-    std::vector< Eigen::MatrixXd >& edgeDyads_;
+    std::vector< Eigen::MatrixXd > edgeDyads_;
 
     std::shared_ptr< PolyhedronGravityCache > polyhedronGravityCache_;
 

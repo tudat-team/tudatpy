@@ -419,6 +419,22 @@ std::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
         }
         else
         {
+            std::string associatedReferenceFrame = polyhedronFieldSettings->getAssociatedReferenceFrame( );
+            if( associatedReferenceFrame == "" )
+            {
+                std::shared_ptr< ephemerides::RotationalEphemeris> rotationalEphemeris =
+                        bodies.at( body )->getRotationalEphemeris( );
+                if( rotationalEphemeris == nullptr )
+                {
+                    throw std::runtime_error( "Error when creating polyhedron gravity field for body " + body +
+                                              ", neither a frame ID nor a rotational model for the body have been defined" );
+                }
+                else
+                {
+                    associatedReferenceFrame = rotationalEphemeris->getTargetFrameOrientation( );
+                }
+            }
+
             // Create and initialize polyhedron gravity field model.
             gravityFieldModel = std::make_shared< PolyhedronGravityField >(
                     polyhedronFieldSettings->getGravitationalParameter(),
@@ -428,7 +444,7 @@ std::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
                     polyhedronFieldSettings->getVerticesDefiningEachEdge(),
                     polyhedronFieldSettings->getFacetDyads(),
                     polyhedronFieldSettings->getEdgeDyads(),
-                    polyhedronFieldSettings->getAssociatedReferenceFrame() );
+                    associatedReferenceFrame );
         }
         break;
     }
