@@ -18,11 +18,13 @@
 #include <pybind11/stl.h>
 #include <pybind11/functional.h>
 
+#include "tudatpy/docstrings.h"
+
 namespace py = pybind11;
 namespace tsbm = tudat::shape_based_methods;
 
 namespace tudatpy {
-namespace astro {
+namespace trajectory_design {
 namespace shape_based_thrust {
 
 
@@ -42,7 +44,6 @@ void expose_shape_based_thrust(py::module &m)
           py::overload_cast< const double >(
               &tsbm::getRecommendedNormalBaseFunctions ),
           py::arg("time_of_flight") );
-
 
     m.def("recommended_axial_hodograph_functions",
           py::overload_cast< const double, const int >(
@@ -129,5 +130,5 @@ void expose_shape_based_thrust(py::module &m)
 
 
 }// namespace shape_based_thrust
-}// namespace astro
+}// namespace trajectory_design
 }// namespace tudatpy
