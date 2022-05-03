@@ -357,16 +357,41 @@ void getMgaTransferTrajectorySettingsWithSphericalShapingThrust (
         const double initialValueFreeCoefficient = TUDAT_NAN,
         const std::map< std::string, double > minimumPericenterRadii = DEFAULT_MINIMUM_PERICENTERS);
 
-//void getMgaTransferTrajectorySettingsWithHodographicShapingThrust (
-//        std::vector< std::shared_ptr< TransferLegSettings > >& legSettings,
-//        std::vector< std::shared_ptr< TransferNodeSettings > >& nodeSettings,
-//        const std::vector< std::string >& fullBodiesList,
-//        const std::vector< shape_based_methods::HodographicBasisFunctionList >& radialVelocityFunctionComponentsList,
-//        const std::vector< shape_based_methods::HodographicBasisFunctionList >& normalVelocityFunctionComponents,
-//        const std::vector< shape_based_methods::HodographicBasisFunctionList >& axialVelocityFunctionComponents,
-//        const std::pair< double, double > departureOrbit = std::make_pair(TUDAT_NAN, TUDAT_NAN),
-//        const std::pair< double, double > arrivalOrbit = std::make_pair(TUDAT_NAN, TUDAT_NAN),
-//        const std::map< std::string, double > minimumPericenterRadii = DEFAULT_MINIMUM_PERICENTERS);
+// Create leg and node settings for transfer consisting of hodographic shaping legs, assuming all legs use the same
+// velocity shaping functions (i.e. constituted by the same mathematical functions, but with different coefficients)
+void getMgaTransferTrajectorySettingsWithHodographicShapingThrust (
+        std::vector< std::shared_ptr< TransferLegSettings > >& legSettings,
+        std::vector< std::shared_ptr< TransferNodeSettings > >& nodeSettings,
+        const std::vector< std::string >& fullBodiesList,
+        const shape_based_methods::HodographicBasisFunctionList& radialVelocityFunctionComponents,
+        const shape_based_methods::HodographicBasisFunctionList& normalVelocityFunctionComponents,
+        const shape_based_methods::HodographicBasisFunctionList& axialVelocityFunctionComponents,
+        const std::pair< double, double > departureOrbit = std::make_pair(TUDAT_NAN, TUDAT_NAN),
+        const std::pair< double, double > arrivalOrbit = std::make_pair(TUDAT_NAN, TUDAT_NAN),
+        const std::map< std::string, double > minimumPericenterRadii = DEFAULT_MINIMUM_PERICENTERS);
+
+void getMgaTransferTrajectorySettingsWithHodographicShapingThrust (
+        std::vector< std::shared_ptr< TransferLegSettings > >& legSettings,
+        std::vector< std::shared_ptr< TransferNodeSettings > >& nodeSettings,
+        const std::string& departureBody,
+        const std::string& arrivalBody,
+        const std::vector< std::string >& flybyBodies,
+        const shape_based_methods::HodographicBasisFunctionList& radialVelocityFunctionComponents,
+        const shape_based_methods::HodographicBasisFunctionList& normalVelocityFunctionComponents,
+        const shape_based_methods::HodographicBasisFunctionList& axialVelocityFunctionComponents,
+        const std::pair< double, double > departureOrbit = std::make_pair(TUDAT_NAN, TUDAT_NAN),
+        const std::pair< double, double > arrivalOrbit = std::make_pair(TUDAT_NAN, TUDAT_NAN),
+        const std::map< std::string, double > minimumPericenterRadii = DEFAULT_MINIMUM_PERICENTERS);
+
+std::pair< std::vector< std::shared_ptr< TransferLegSettings > >,
+std::vector< std::shared_ptr< TransferNodeSettings > > > getMgaTransferTrajectorySettingsWithHodographicShapingThrust (
+        const std::vector< std::string >& fullBodiesList,
+        const shape_based_methods::HodographicBasisFunctionList& radialVelocityFunctionComponents,
+        const shape_based_methods::HodographicBasisFunctionList& normalVelocityFunctionComponents,
+        const shape_based_methods::HodographicBasisFunctionList& axialVelocityFunctionComponents,
+        const std::pair< double, double > departureOrbit = std::make_pair(TUDAT_NAN, TUDAT_NAN),
+        const std::pair< double, double > arrivalOrbit = std::make_pair(TUDAT_NAN, TUDAT_NAN),
+        const std::map< std::string, double > minimumPericenterRadii = DEFAULT_MINIMUM_PERICENTERS);
 
 std::shared_ptr< TransferTrajectory > createTransferTrajectory(
         const simulation_setup::SystemOfBodies& bodyMap,
