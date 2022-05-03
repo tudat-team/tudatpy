@@ -573,8 +573,10 @@ public:
                       << dynamicsStateDerivative_->getNumberOfFunctionEvaluations( ) << std::endl;
         }
 
+        std::cout << "INTEGRATE EOMs FOR SINGLE-ARC" << "\n\n";
         if( this->setIntegratedResult_ )
         {
+            std::cout << "results integrated for single-arc" << "\n\n";
             processNumericalEquationsOfMotionSolution( );
         }
     }
@@ -852,6 +854,7 @@ public:
      */
     void processNumericalEquationsOfMotionSolution( )
     {
+        std::cout << "RESET SOLUTION" << "\n\n";
         // Create and set interpolators for ephemerides
         resetIntegratedStates( equationsOfMotionNumericalSolution_, integratedStateProcessors_ );
 
@@ -1482,6 +1485,7 @@ public:
             for ( auto itr : currentArcStateProcessors )
             {
                 singleArcIntegratedStatesProcessors[ itr.first ].push_back( itr.second );
+                std::cout << "in processNumericalEquationsOfMotionSolution for multi-arc - arc " << i << "\n\n";
             }
         }
 
