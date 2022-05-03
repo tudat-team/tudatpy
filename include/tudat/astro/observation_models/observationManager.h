@@ -57,6 +57,7 @@ public:
         if( stateTransitionMatrixInterface_ != nullptr )
         {
             stateTransitionMatrixSize_ = stateTransitionMatrixInterface_->getStateTransitionMatrixSize( );
+            std::cout << "in observation manager, STM size: " << stateTransitionMatrixSize_ << "\n\n";
         }
         else
         {
@@ -373,6 +374,8 @@ protected:
             // can consist of multiple partial matrices, associated at different times)
             std::vector< std::pair< Eigen::Matrix< double, ObservationSize, Eigen::Dynamic >, double > > singlePartialSet =
                     partialIterator->second->calculatePartial( states, times, linkEndAssociatedWithTime, currentObservation.template cast< double >( ) );
+            std::cout << "size time entry: " << times.size( ) << "\n\n";
+            std::cout << "first time entry: " << times.at( 0 ) << "\n\n";
 
             //            std::cout<<"Obs. "<<currentObservation.transpose( )<<std::endl;
             //            std::cout<<"Partial "<<singlePartialSet.at( 0 ).first<<std::endl<<std::endl;

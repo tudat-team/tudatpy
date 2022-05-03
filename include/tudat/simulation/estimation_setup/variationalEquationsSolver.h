@@ -2035,7 +2035,7 @@ public:
                     bodies, singleArcIntegratorSettings_, propagatorSettings_->getSingleArcPropagatorSettings( ),
                     singleArcParametersToEstimate_, integrateDynamicalAndVariationalEquationsConcurrently,
                     std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ),
-                    false, false );
+                    false, false, true );
         multiArcSolver_ = std::make_shared< MultiArcVariationalEquationsSolver< StateScalarType, TimeType > >(
                     bodies, multiArcIntegratorSettings_, extendedMultiArcSettings,
                     multiArcParametersToEstimate_, arcStartTimes_, integrateDynamicalAndVariationalEquationsConcurrently,

@@ -1,12 +1,12 @@
 /* git    Copyright (c) 2010-2019, Delft University of Technology
- *    All rigths reserved
- *
- *    This file is part of the Tudat. Redistribution and use in source and
- *    binary forms, with or without modification, are permitted exclusively
- *    under the terms of the Modified BSD license. You should have received
- *    a copy of the license with this file. If not, please or visit:
- *    http://tudat.tudelft.nl/LICENSE.
- */
+*    All rigths reserved
+*
+*    This file is part of the Tudat. Redistribution and use in source and
+*    binary forms, with or without modification, are permitted exclusively
+*    under the terms of the Modified BSD license. You should have received
+*    a copy of the license with this file. If not, please or visit:
+*    http://tudat.tudelft.nl/LICENSE.
+*/
 
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
@@ -57,7 +57,7 @@ using namespace tudat::ephemerides;
 using namespace tudat::propagators;
 using namespace tudat::observation_models;
 
-BOOST_AUTO_TEST_SUITE( test_multi_arc_multi_body_variational_equations_calculation )
+BOOST_AUTO_TEST_SUITE( test_hybrid_arc_multi_body_state_transition_matrix_interface )
 
 static const std::vector< std::string > galileanSatelliteNames = { "Io", "Europa", "Ganymede", "Callisto" };
 static const std::map< std::string, double > satelliteOrbitalPeriods =
@@ -126,9 +126,9 @@ static const std::vector< std::string > flybysBodies = { "Ganymede", "Ganymede",
                                                          "Callisto", "Callisto", "Callisto", "Callisto", "Callisto", "Callisto", "Callisto", "Callisto", "Ganymede",
                                                          "Ganymede", "Ganymede", "Callisto", "Callisto", "Ganymede" };
 static const std::vector< double > flybysTimes = { 957842194.921875, 962785494.140625, 966094442.578125, 967948681.640625, 969142826.953125, 970373478.515625,
-                                                  971388256.640625, 973245765.234375, 976662144.140625, 978104000.390625, 979545181.640625, 980986391.015625,
-                                                  988195320.703125, 989636516.015625, 991077999.609375, 992519462.109375, 993959258.203125, 995547638.671875,
-                                                  998637697.265625, 1000051238.671875, 1001522351.953125, 1006640363.671875, 1018340314.453125 };
+                                                   971388256.640625, 973245765.234375, 976662144.140625, 978104000.390625, 979545181.640625, 980986391.015625,
+                                                   988195320.703125, 989636516.015625, 991077999.609375, 992519462.109375, 993959258.203125, 995547638.671875,
+                                                   998637697.265625, 1000051238.671875, 1001522351.953125, 1006640363.671875, 1018340314.453125 };
 
 // for the first 10 flybys only
 static const std::vector< Eigen::Vector6d > juiceArcWiseInitialStates = {
@@ -306,14 +306,14 @@ basic_astrodynamics::AccelerationMap getMultiArcAccelerationModelMap(
     accelerationSettingsJuice[ "JUICE" ][ multiArcCentralBody ].push_back(
             std::make_shared< SphericalHarmonicAccelerationSettings >( maximumEstimatedDegree, maximumEstimatedOrder ) );
 
-//    for( unsigned int j = 0; j < galileanSatelliteNames.size( ); j++ )
-//    {
-//        if( galileanSatelliteNames.at( j ) != multiArcCentralBody )
-//        {
-//            accelerationSettingsJuice[ "JUICE" ][ galileanSatelliteNames.at( j ) ].push_back(
-//                    std::make_shared< AccelerationSettings >( central_gravity ) );
-//        }
-//    }
+for( unsigned int j = 0; j < galileanSatelliteNames.size( ); j++ )
+{
+if( galileanSatelliteNames.at( j ) != multiArcCentralBody )
+{
+accelerationSettingsJuice[ "JUICE" ][ galileanSatelliteNames.at( j ) ].push_back(
+        std::make_shared< AccelerationSettings >( central_gravity ) );
+}
+}
 
     accelerationSettingsJuice[ "JUICE" ][ "Sun" ].push_back(
             std::make_shared< AccelerationSettings >( central_gravity ) );
@@ -352,6 +352,14 @@ basic_astrodynamics::AccelerationMap getMoonsAccelerationMap(
                 std::make_shared< MutualSphericalHarmonicAccelerationSettings >(
                         maximumJupiterDegree, maximumJupiterOrder,
                         maximumSatelliteDegree, maximumSatelliteOrder ) );
+        for ( unsigned int j = 0 ; j < bodiesToPropagate.size( ) ; j++ )
+        {
+            if ( i != j )
+            {
+                accelerationSettingsMoons[ bodiesToPropagate.at( i ) ][ bodiesToPropagate.at( j ) ].push_back(
+                        std::make_shared< AccelerationSettings >( central_gravity ) );
+            }
+        }
     }
 
     basic_astrodynamics::AccelerationMap accelerationMap = createAccelerationModelsMap(
@@ -414,6 +422,7 @@ void getMultiArcInitialAndFinalConditions(
                          multiArcSystemInitialStates.at(i), juiceArcEndTimes.at(i)));
     }
 
+
     std::shared_ptr< propagators::MultiArcPropagatorSettings< > > multiArcPropagatorSettings =
             std::make_shared< MultiArcPropagatorSettings< > >( arcPropagationSettingsList );
 
@@ -436,11 +445,13 @@ void getMultiArcInitialAndFinalConditions(
 
 
 std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > getParametersToEstimate(
-        const std::shared_ptr< propagators::MultiArcPropagatorSettings< > > multiArcPropagatorSettings,
+        const std::shared_ptr< propagators::HybridArcPropagatorSettings< > > hybridArcPropagatorSettings,
         const SystemOfBodies& bodies,
         const std::vector< std::string >& multiArcBodiesToPropagate, const std::map< std::string, Eigen::VectorXd > multiArcInitialStates,
         const std::vector< double >& arcStartTimes, const std::map< std::string, std::vector< double > >& arcStartTimesPerBody,
         const std::map< std::string, std::vector< std::string > >& multiArcCentralBodies,
+        const std::vector< std::string >& singleArcBodiesToPropagate, const std::vector< std::string >& singleArcCentralBodies,
+        const Eigen::VectorXd& singleArcInitialStates,
         const LinkEnds linkEnds )
 {
     using namespace tudat::propagators;
@@ -449,6 +460,13 @@ std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > get
     using namespace tudat::observation_models;
 
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
+
+    for ( unsigned int i = 0 ; i < singleArcBodiesToPropagate.size( ) ; i++ )
+    {
+        parameterNames.push_back(
+                std::make_shared< InitialTranslationalStateEstimatableParameterSettings< double > >(
+                        singleArcBodiesToPropagate.at( i ), singleArcInitialStates.segment( i * 6, 6 ), singleArcCentralBodies.at( i ) ) );
+    }
 
     for ( unsigned int i = 0 ; i < multiArcBodiesToPropagate.size( ) ; i++ ) {
         parameterNames.push_back(
@@ -459,8 +477,8 @@ std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > get
 
     for( unsigned int i = 0; i < galileanSatelliteNames.size( ); i++ )
     {
-            parameterNames.push_back( std::make_shared< EstimatableParameterSettings >(
-                    galileanSatelliteNames.at( i ), gravitational_parameter ) );
+        parameterNames.push_back( std::make_shared< EstimatableParameterSettings >(
+                galileanSatelliteNames.at( i ), gravitational_parameter ) );
 
         {
             std::pair< int, int > maximumDegreeAndOrder = std::make_pair< int, int >( 2, 2 );
@@ -480,8 +498,8 @@ std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > get
         }
     }
 
-//    parameterNames.push_back( std::make_shared< ArcWiseConstantObservationBiasEstimatableParameterSettings >(
-//            linkEnds, position_observable, arcStartTimes, observed_body, true ) );
+    parameterNames.push_back( std::make_shared< ArcWiseConstantObservationBiasEstimatableParameterSettings >(
+        linkEnds, position_observable, arcStartTimes, observed_body, true ) );
 
     std::map< basic_astrodynamics::EmpiricalAccelerationComponents,
             std::vector< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes > > empiricalComponentsToEstimate;
@@ -489,19 +507,18 @@ std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > get
     empiricalComponentsToEstimate[ along_track_empirical_acceleration_component ].push_back( constant_empirical );
     empiricalComponentsToEstimate[ across_track_empirical_acceleration_component ].push_back( constant_empirical );
 
-    parameterNames.push_back( std::make_shared< ArcWiseEmpiricalAccelerationEstimatableParameterSettings >(//    parameterNames.push_back( std::make_shared< ArcWiseConstantObservationBiasEstimatableParameterSettings >(
-//            linkEnds, position_observable, arcStartTimes, observed_body, true ) );
+    parameterNames.push_back( std::make_shared< ArcWiseEmpiricalAccelerationEstimatableParameterSettings >(
             "JUICE", "Europa", empiricalComponentsToEstimate, arcStartTimes ) );
     parameterNames.push_back( std::make_shared< ArcWiseEmpiricalAccelerationEstimatableParameterSettings >(
             "JUICE", "Ganymede", empiricalComponentsToEstimate, arcStartTimes ) );
 //    parameterNames.push_back( std::make_shared< ArcWiseEmpiricalAccelerationEstimatableParameterSettings >(
 //            "JUICE", "Callisto", empiricalComponentsToEstimate, arcStartTimes ) );
 
-//    parameterNames.push_back( std::make_shared< estimatable_parameters::EstimatableParameterSettings >(
-//            "global_metric", ppn_parameter_gamma ) );
+    parameterNames.push_back( std::make_shared< estimatable_parameters::EstimatableParameterSettings >(
+            "global_metric", ppn_parameter_gamma ) );
 
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate =
-            createParametersToEstimate< double >( parameterNames, bodies, multiArcPropagatorSettings );
+            createParametersToEstimate< double >( parameterNames, bodies, hybridArcPropagatorSettings );
     printEstimatableParameterEntries( parametersToEstimate );
 
     return parametersToEstimate;
@@ -575,9 +592,10 @@ std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > get
 
 }
 
-BOOST_AUTO_TEST_CASE( testMultiArcMultiBodyVariationalEquationCalculation1 )
+BOOST_AUTO_TEST_CASE( testHybridArcMultiBodyStateEstimation )
 {
-//    std::string outputFolder = "/home/mfayolle/Documents/PHD/MultiArcMultiBody/";
+
+    std::cout.precision( 16 );
 
     //Load spice kernels
     spice_interface::loadStandardSpiceKernels( );
@@ -588,7 +606,7 @@ BOOST_AUTO_TEST_CASE( testMultiArcMultiBodyVariationalEquationCalculation1 )
 
     int numberArcs = 5;
 
-    double propagationTimeStep = 1800.0;
+    double propagationTimeStep = 500.0;
     double flybyDuration = 8.0 * 3600.0;
 
     std::string globalFrameOrientation = "ECLIPJ2000";
@@ -718,8 +736,28 @@ BOOST_AUTO_TEST_CASE( testMultiArcMultiBodyVariationalEquationCalculation1 )
                                                      (centralBodiesPerArc.at(arc), multiArcCompleteAccelerationMaps.at(arc), bodiesToPropagatePerArc.at(arc),
                                                       arcWiseConcatenatedStates, multiArcEndTimes.at(arc)));
         }
+        std::cout << "create multi-arc propagator settings" << "\n\n";
         std::shared_ptr<MultiArcPropagatorSettings<> > multiArcPropagatorSettings =
                 std::make_shared<MultiArcPropagatorSettings<> >(propagatorSettingsList);
+
+        // Define single-arc propagator settings for Jupiter
+        std::vector< std::string > singleArcCentralBody = { "Sun" };
+        std::vector< std::string > singleArcPropagatedBody = { "Jupiter" };
+        SelectedAccelerationMap accelerationSettingsJupiter;
+        accelerationSettingsJupiter[ "Jupiter" ][ "Sun" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+        basic_astrodynamics::AccelerationMap jupiterAccelerationModelMap = createAccelerationModelsMap(
+                bodies, accelerationSettingsJupiter, singleArcPropagatedBody, singleArcCentralBody );
+
+        Eigen::VectorXd singleArcInitialStates = propagators::getInitialStatesOfBodies(
+                singleArcPropagatedBody, singleArcCentralBody, bodies, initialEpoch );
+
+        std::shared_ptr< TranslationalStatePropagatorSettings< > > singleArcPropagatorSettings =
+                std::make_shared< TranslationalStatePropagatorSettings< > >(
+                        singleArcCentralBody, jupiterAccelerationModelMap, singleArcPropagatedBody, singleArcInitialStates, finalEpoch );
+
+        std::shared_ptr< HybridArcPropagatorSettings< > > hybridArcPropagatorSettings =
+                std::make_shared< HybridArcPropagatorSettings< > >( singleArcPropagatorSettings, multiArcPropagatorSettings );
+
 
         for (auto itr: multiArcCentralBodiesPerBody) {
             Eigen::VectorXd arcWiseStatesCurrentBody;
@@ -732,8 +770,6 @@ BOOST_AUTO_TEST_CASE( testMultiArcMultiBodyVariationalEquationCalculation1 )
             multiArcInitialStatesPerBody[itr.first] = arcWiseStatesCurrentBody;
         }
 
-//    SingleArcDynamicsSimulator::SingleArcDynamicsSimulator< double, double >(  )
-
         // Define links in simulation.
         LinkEnds linkEndsJuice;
         linkEndsJuice[ observed_body ] = std::make_pair( "JUICE", "" );
@@ -743,10 +779,8 @@ BOOST_AUTO_TEST_CASE( testMultiArcMultiBodyVariationalEquationCalculation1 )
 
         // Create parameters to estimate
         std::shared_ptr<estimatable_parameters::EstimatableParameterSet<double> > parametersToEstimate = getParametersToEstimate(
-                multiArcPropagatorSettings, bodies, listBodiesToPropagate, multiArcInitialStatesPerBody,
-                arcStartTimes, arcStartTimesPerBody, multiArcCentralBodiesPerBody, linkEndsJuice );
-
-        std::cout << "parameters values: " << parametersToEstimate->getFullParameterValues< double >( ).transpose( ) << "\n\n";
+                hybridArcPropagatorSettings, bodies, listBodiesToPropagate, multiArcInitialStatesPerBody,
+                arcStartTimes, arcStartTimesPerBody, multiArcCentralBodiesPerBody, singleArcPropagatedBody, singleArcCentralBody, singleArcInitialStates, linkEndsJuice );
 
 
 
@@ -755,65 +789,41 @@ BOOST_AUTO_TEST_CASE( testMultiArcMultiBodyVariationalEquationCalculation1 )
 //                    bodies, integratorSettings, std::dynamic_pointer_cast< TranslationalStatePropagatorSettings< > >( propagatorSettingsList.at( 0 ) ),
 //                    singleArcParametersToEstimate/*, true, nullptr, false, true, false*/ );
 
-        MultiArcVariationalEquationsSolver<double, double> multiArcVariationalEquations =
-                MultiArcVariationalEquationsSolver<double, double>(
-                        bodies, integratorSettings, multiArcPropagatorSettings, parametersToEstimate, arcStartTimes, true,
-                        std::shared_ptr<numerical_integrators::IntegratorSettings<double> >(), false, true, true);
+//        MultiArcVariationalEquationsSolver<double, double> multiArcVariationalEquations =
+//                MultiArcVariationalEquationsSolver<double, double>(
+//                        bodies, integratorSettings, multiArcPropagatorSettings, parametersToEstimate, arcStartTimes, true,
+//                        std::shared_ptr<numerical_integrators::IntegratorSettings<double> >(), false, true, true);
 
-        std::vector<std::map<double, Eigen::VectorXd> > multiArcStateHistory =
-                multiArcVariationalEquations.getDynamicsSimulator()->getEquationsOfMotionNumericalSolution();
-        std::vector<std::vector<std::map<double, Eigen::MatrixXd> > > variationalEquationsSolution =
-                multiArcVariationalEquations.getNumericalVariationalEquationsSolution();
+//        SystemOfBodies bodies2 = createBodies( initialEpoch, finalEpoch, globalFrameOrientation );
 
-        std::shared_ptr< CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface =
-                multiArcVariationalEquations.getStateTransitionMatrixInterface( );
-        std::shared_ptr< MultiArcCombinedStateTransitionAndSensitivityMatrixInterface > multiArcStateTransitionInterface =
-                std::dynamic_pointer_cast< MultiArcCombinedStateTransitionAndSensitivityMatrixInterface >( stateTransitionMatrixInterface );
-
-        for ( unsigned int arc = 0 ; arc < numberArcs ; arc++ )
-        {
-            std::cout << "ARC " << arc << "\n\n";
-            double finalArcEpoch = multiArcStateHistory.at( arc ).rbegin( )->first;
-            Eigen::VectorXd finalStates = multiArcStateHistory.at( arc ).rbegin( )->second;
-            for ( unsigned int i = 0 ; i < bodiesToPropagatePerArc.at( arc ).size( ) ; i++ )
-            {
-                std::cout << "BODY: " << bodiesToPropagatePerArc.at( arc ).at( i ) << " - CENTRAL BODY: " << centralBodiesPerArc.at( arc ).at( i ) << "\n\n";
-                Eigen::Vector6d currentSolutionFromEphemeris = bodies.at( bodiesToPropagatePerArc.at( arc ).at( i ) )->getEphemeris( )->getCartesianState( finalArcEpoch );
-                Eigen::Vector6d stateCentralBody = bodies.at( centralBodiesPerArc.at( arc ).at( i ) )->getEphemeris( )->getCartesianState( finalArcEpoch );
-                Eigen::Vector6d differenceStateHistoryWrtEphemeris = currentSolutionFromEphemeris - finalStates.segment( i * 6, 6 );
-//                if ( centralBodiesPerArc.at( arc ).at( i )  == bodies.at( bodiesToPropagatePerArc.at( arc ).at( i ) )->getEphemeris( )->getReferenceFrameOrigin( ) )
-//                {
-//                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-//                            differenceStateHistoryWrtEphemeris, Eigen::Vector6d::Zero( ), 1.0E-16);
-//                }
-//                else
-//                {
-//                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-//                            differenceStateHistoryWrtEphemeris, stateCentralBody, 1.0E-12);
-//                }
+//        std::vector< std::shared_ptr< EstimatableParameterSettings > > singleArcParameterNames;
+//        singleArcParameterNames.push_back(
+//                std::make_shared< InitialTranslationalStateEstimatableParameterSettings< double > >(
+//                        "Jupiter", singleArcInitialStates.segment( 0, 6 ), "Sun" ) );
+//        std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > singleArcParametersToEstimate =
+//                createParametersToEstimate< double >( singleArcParameterNames, bodies, singleArcPropagatorSettings );
+//        printEstimatableParameterEntries( singleArcParametersToEstimate );
 
 
-            }
-
-//            if ( arc == 0 ) {
-                Eigen::MatrixXd combinedStateTransitionMatrix = multiArcStateTransitionInterface->getCombinedStateTransitionAndSensitivityMatrix(
-                        (arcStartTimes[arc] + multiArcEndTimes[arc]) / 2.0, true);
-                Eigen::MatrixXd fullCombinedStateTransitionMatrix = multiArcStateTransitionInterface->getFullCombinedStateTransitionAndSensitivityMatrix(
-                        (arcStartTimes[arc] + multiArcEndTimes[arc]) / 2.0, true);
-                std::cout << "arc: " << arc << " - size combinedStateTransitionMatrix: " << combinedStateTransitionMatrix.rows() <<
-                          " & " << combinedStateTransitionMatrix.cols() << "\n\n";
-                std::cout << "arc: " << arc << " - size fullCombinedStateTransitionMatrix: " << fullCombinedStateTransitionMatrix.rows() <<
-                          " & " << fullCombinedStateTransitionMatrix.cols() << "\n\n";
-
-//                std::cout << "combined state transition matrix: " << "\n\n";
-//                std::cout << combinedStateTransitionMatrix << "\n\n";
-//                std::cout << "full combined state transition matrix: " << "\n\n";
-//                std::cout << fullCombinedStateTransitionMatrix << "\n\n";
-//            }
+//        std::vector< std::shared_ptr< EstimatableParameterSettings > > multiArcParameterNames;
+//        for ( unsigned int i = 0 ; i < listBodiesToPropagate.size( ) ; i++ ) {
+//            multiArcParameterNames.push_back(
+//                    std::make_shared< ArcWiseInitialTranslationalStateEstimatableParameterSettings< double > >(
+//                            listBodiesToPropagate[ i ], multiArcInitialStatesPerBody.at( listBodiesToPropagate[ i ] ),
+//                            arcStartTimesPerBody.at( listBodiesToPropagate[ i ] ), multiArcCentralBodiesPerBody.at( listBodiesToPropagate[ i ] ) ) );
+//        }
+//        std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > multiArcParametersToEstimate =
+//                createParametersToEstimate< double >( multiArcParameterNames, bodies, multiArcPropagatorSettings );
+//        printEstimatableParameterEntries( multiArcParametersToEstimate );
 
 
-
-        }
+//        integratorSettings->initialTime_ = initialEpoch;
+//        HybridArcVariationalEquationsSolver< double, double > hybridArcVariationalEquationsSolver =
+//                HybridArcVariationalEquationsSolver< double, double >( bodies, integratorSettings, hybridArcPropagatorSettings, parametersToEstimate,
+//                                                                       arcStartTimes, true, false, true );
+//
+//        std::cout << "size state transition matrix: " << hybridArcVariationalEquationsSolver.getStateTransitionMatrixInterface( )->getStateTransitionMatrixSize( ) << "\n\n";
+//        std::cout << "size sensitivity matrix: " << hybridArcVariationalEquationsSolver.getStateTransitionMatrixInterface( )->getSensitivityMatrixSize( ) << "\n\n";
 
         std::vector< Eigen::VectorXd > arcBiases;
         for ( unsigned int k = 0 ; k < arcStartTimes.size( ) ; k++ )
@@ -834,20 +844,26 @@ BOOST_AUTO_TEST_CASE( testMultiArcMultiBodyVariationalEquationCalculation1 )
         observationSettingsList.push_back( std::make_shared< ObservationModelSettings >(
                 one_way_range, linkEndsGanymede, lightTimeCorrections /*std::shared_ptr< LightTimeCorrectionSettings >( )*/ ) );
 
+        integratorSettings->initialTime_ = initialEpoch;
         OrbitDeterminationManager< double, double > orbitDeterminationManager =
                 OrbitDeterminationManager< double, double >(
                         bodies, parametersToEstimate,
-                        observationSettingsList, integratorSettings, multiArcPropagatorSettings );
+                        observationSettingsList, integratorSettings, hybridArcPropagatorSettings );
 
         // Compute observation times
         std::vector< double > observationTimes;
-        double vlbiObservationCadence = 600.0;
+        std::vector< double > observationTimesGanymede;
+        double observationCadence = 600.0;
         for ( unsigned int i = 0; i < arcStartTimes.size( ); i++ )
         {
-            double currentTime = arcStartTimes[ i ] + 1000.0;
-            while ( currentTime < multiArcEndTimes[ i ] - 1000.0 ) {
+            double currentTime = arcStartTimes[ i ] + 3.5 * 3600.0;
+            while ( currentTime < multiArcEndTimes[ i ] - 3.5 * 3600.0 ) {
                 observationTimes.push_back( currentTime );
-                currentTime += vlbiObservationCadence;
+                if ( i <= 3 )
+                {
+                    observationTimesGanymede.push_back( currentTime );
+                }
+                currentTime += observationCadence;
             }
         }
 
@@ -858,192 +874,96 @@ BOOST_AUTO_TEST_CASE( testMultiArcMultiBodyVariationalEquationCalculation1 )
                         position_observable, linkEndsJuice, observationTimes, observed_body ) );
         measurementSimulationInput.push_back(
                 std::make_shared< TabulatedObservationSimulationSettings< > >(
-                        one_way_range, linkEndsGanymede, observationTimes, receiver ) );
+                        one_way_range, linkEndsGanymede, observationTimesGanymede, receiver ) );
 
-        std::shared_ptr< ObservationCollection< > > observationsAndTimes = simulateObservations< double, double >(
-                measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
+//        std::shared_ptr< ObservationCollection< > > observationsAndTimes = simulateObservations< double, double >(
+//                measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
-        // Define POD input
-        std::shared_ptr< PodInput< double, double > > podInput =
-                std::make_shared< PodInput< double, double > >(
-                        observationsAndTimes, parametersToEstimate->getParameterSetSize( ) );
+//        std::vector< double > timeVector = observationsAndTimes->getSingleLinkTimes( one_way_range, linkEndsGanymede );
+//        for ( unsigned int i = 0 ; i < timeVector.size( ) ; i++ )
+//        {
+//            std::cout << "obs time: " << timeVector.at( i ) << "\n\n";
+//        }
+
+
+//        // Define POD input
+//        std::shared_ptr< PodInput< double, double > > podInput =
+//                std::make_shared< PodInput< double, double > >(
+//                        observationsAndTimes, parametersToEstimate->getParameterSetSize( ) );
 
         // Set observations weights.
         std::map< observation_models::ObservableType, double > weightPerObservable;
         weightPerObservable[ position_observable ] = 1.0 / ( 1.0 * 1.0 );
         weightPerObservable[ one_way_range ] = 1.0 / ( 1.0 * 1.0 );
-        podInput->setConstantPerObservableWeightsMatrix( weightPerObservable );
+//        podInput->setConstantPerObservableWeightsMatrix( weightPerObservable );
 
-        podInput->defineEstimationSettings( false, false, true, true, true, false );
-        std::shared_ptr< PodOutput< double > > podOutput = orbitDeterminationManager.estimateParameters( podInput );
 
-        std::cout << "from OD manager, state transition matrix size: " << orbitDeterminationManager.
-        getStateTransitionAndSensitivityMatrixInterface()->getStateTransitionMatrixSize( ) << "\n\n";
-        std::cout << "from OD manager, sensitivity matrix size: " << orbitDeterminationManager.
-                getStateTransitionAndSensitivityMatrixInterface()->getSensitivityMatrixSize( ) << "\n\n";
-
-//        ///////////////////////////////////////////
-//        /// Test resetting parameters
-//        ///////////////////////////////////////////
-//        Eigen::VectorXd fullParametersValues = parametersToEstimate->getFullParameterValues< double >( );
-//        std::cout << "parameters values: " << fullParametersValues.transpose( ) << "\n\n";
-//
-//        unsigned int numberStates = 0;
-//        for ( unsigned int i = 0 ; i < numberArcs ; i++ )
-//        {
-//            numberStates += bodiesToPropagatePerArc.at( i ).size( );
-//        }
-//        Eigen::VectorXd concatenatedMultiArcStates( numberStates * 6 );
-//        concatenatedMultiArcStates << multiArcInitialStatesPerBody.at( "Io" ), multiArcInitialStatesPerBody.at( "Europa" ),
-//                multiArcInitialStatesPerBody.at( "Ganymede" ), multiArcInitialStatesPerBody.at( "Callisto" ), multiArcInitialStatesPerBody.at( "JUICE" );
-//        std::cout << "multi-arc initial states: " << concatenatedMultiArcStates.transpose( ) << "\n\n";
-//
-//        TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-//                fullParametersValues.segment( 0, 6 * numberStates ), concatenatedMultiArcStates, 1.0E-16);
-//
-//        Eigen::VectorXd dummyNewParametersValues( fullParametersValues.size( ) );
-//        for ( unsigned int i = 0 ; i < numberStates ; i++ )
-//        {
-//            dummyNewParametersValues.segment( 6 * i, 6 ) = ( i + 1 ) * ( Eigen::Vector6d( ) << 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 ).finished( );
-//        }
-//        for ( unsigned int i = 6 * numberStates ; i < fullParametersValues.size( ) ; i++ )
-//        {
-//            dummyNewParametersValues[ i ] = - 1.0;
-//        }
-////        std::cout << "dummyNewParametersValues: " << dummyNewParametersValues.transpose( ) << "\n\n";
-//        parametersToEstimate->resetParameterValues( dummyNewParametersValues );
-////        std::cout << "new parameters values after reset: " << parametersToEstimate->getFullParameterValues< double >( ).transpose( ) << "\n\n";
-//        TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-//                parametersToEstimate->getFullParameterValues< double >( ), dummyNewParametersValues, 1.0E-16);
-//
-//        std::cout << "orbit determination manager parameter estimate before reset: " << "\n\n";
-//        std::cout << orbitDeterminationManager.getCurrentParameterEstimate( ).transpose( ) << "\n\n";
-//        orbitDeterminationManager.resetParameterEstimate( fullParametersValues /*dummyNewParametersValues*/, false );
-//        std::cout << "orbit determination manager parameter estimated after reset: " << "\n\n";
-//        std::cout << orbitDeterminationManager.getCurrentParameterEstimate( ).transpose( ) << "\n\n";
-//
-//
-//        parametersToEstimate->resetParameterValues( dummyNewParametersValues );
+        for ( unsigned int k = 0; k < numberArcs; k++ )
+        {
+            std::cout << "arc " << k << " - start: " << arcStartTimes.at( k ) << " - end: " << multiArcEndTimes.at( k ) << "\n\n";
+        }
 
 
 
+//        integratorSettings->initialTime_ = initialEpoch;
+//        HybridArcVariationalEquationsSolver< double, double > hybridArcVariationalEquationsSolver =
+//                HybridArcVariationalEquationsSolver< double, double >( bodies, integratorSettings, hybridArcPropagatorSettings, parametersToEstimate,
+//                                                                       arcStartTimes, true, false, true );
+
+//        podInput->defineEstimationSettings( false, false, true, true, true, false );
+//        std::shared_ptr< PodOutput< double > > podOutput = orbitDeterminationManager.estimateParameters( podInput );
+
+//        std::cout << "from OD manager, state transition matrix size: " << orbitDeterminationManager.
+//                getStateTransitionAndSensitivityMatrixInterface()->getStateTransitionMatrixSize( ) << "\n\n";
+//        std::cout << "from OD manager, sensitivity matrix size: " << orbitDeterminationManager.
+//                getStateTransitionAndSensitivityMatrixInterface()->getSensitivityMatrixSize( ) << "\n\n";
 
 
+        std::shared_ptr< HybridArcVariationalEquationsSolver< double, double > > hybridArcSolver =
+                std::dynamic_pointer_cast< HybridArcVariationalEquationsSolver< double, double > >( orbitDeterminationManager.getVariationalEquationsSolver() );
+        std::map< double, Eigen::VectorXd > singleArcSolution = hybridArcSolver->getSingleArcSolver( )->getEquationsOfMotionSolution( );
+        std::shared_ptr< interpolators::LagrangeInterpolator< double, Eigen::VectorXd > > singleArcSolutionInterpolator =
+                std::make_shared< interpolators::LagrangeInterpolator< double, Eigen::VectorXd > >(
+                        utilities::createVectorFromMapKeys< Eigen::VectorXd, double >( singleArcSolution ),
+                        utilities::createVectorFromMapValues< Eigen::VectorXd, double >( singleArcSolution ), 6 );
 
-        // Test arc per arc
-        for (unsigned int arc = 0; arc < numberArcs; arc++) {
+        std::vector< std::map< double, Eigen::VectorXd > > multiArcSolution = hybridArcSolver->getMultiArcSolver( )->getDynamicsSimulator( )
+                ->getEquationsOfMotionNumericalSolution( );
 
-            std::cout << "TEST - ARC : " << arc << "\n\n";
-            std::vector<std::shared_ptr<SingleArcPropagatorSettings<> > > perArcPropagatorSettingsList;
-            perArcPropagatorSettingsList.push_back( propagatorSettingsList.at( arc ) );
-            std::shared_ptr<MultiArcPropagatorSettings<> > perArcPropagatorSettings =
-                    std::make_shared<MultiArcPropagatorSettings<> >( perArcPropagatorSettingsList );
+        std::vector< double > testEpochs;
+        for ( unsigned int k = 0 ; k < numberArcs ; k++ ) {
 
-            // Create single-arc parameters to estimate
-            std::shared_ptr<estimatable_parameters::EstimatableParameterSet<double> > singleArcParametersToEstimate = getSingleArcParametersToEstimate(
-                    std::dynamic_pointer_cast<TranslationalStatePropagatorSettings<> >( propagatorSettingsList.at( arc ) ), bodies, bodiesToPropagatePerArc.at( arc ),
-                    multiArcInitialStates.at(arc), { arcStartTimes.at( arc ) }, centralBodiesPerArc.at( arc ), multiArcCentralBodies.at( arc ) );
+            std::cout << " ----------------- " << "\n\n";
+            std::cout << "ARC " << k << " - test resetting ephemerides" << "\n\n";
 
-            MultiArcVariationalEquationsSolver<double, double> perArcVariationalEquations =
-                    MultiArcVariationalEquationsSolver<double, double>(
-                            bodies, integratorSettings, perArcPropagatorSettings,
-                            singleArcParametersToEstimate, {arcStartTimes.at(arc)}, true,
-                            std::shared_ptr<numerical_integrators::IntegratorSettings<double> >(), false, true, true);
+            testEpochs.push_back( ( arcStartTimes[ k ] + multiArcEndTimes[ k ] ) / 2.0);
 
-            // Comparison - state histories
-            std::vector< std::map< double, Eigen::VectorXd > > perArcStateHistory =
-                    perArcVariationalEquations.getDynamicsSimulator()->getEquationsOfMotionNumericalSolution();
+            std::shared_ptr<interpolators::LagrangeInterpolator<double, Eigen::VectorXd> > multiArcSolutionInterpolator =
+                    std::make_shared<interpolators::LagrangeInterpolator<double, Eigen::VectorXd> >(
+                            utilities::createVectorFromMapKeys<Eigen::VectorXd, double>(multiArcSolution[k]),
+                            utilities::createVectorFromMapValues<Eigen::VectorXd, double>(multiArcSolution[k]), 6);
 
-            // Comparison - variational equations solutions
-            std::vector<std::vector<std::map<double, Eigen::MatrixXd> > > perArcVariationalEquationsSolution =
-                    perArcVariationalEquations.getNumericalVariationalEquationsSolution();
 
-            std::map< double, std::vector< std::string > > bodiesToEstimatePerArc;
-            std::vector< int > multiArcStateParametersSizePerArc;
-            std::map< double, std::vector< std::shared_ptr< EstimatableParameter< Eigen::Matrix< double, Eigen::Dynamic, 1 > > > > >
-            perArcMultiArcParametersToEstimate = getMultiArcDynamicalStateToEstimatePerArc(
-                            parametersToEstimate->getEstimatedMultiArcInitialStateParameters( ),
-                            bodiesToEstimatePerArc, multiArcStateParametersSizePerArc );
+            Eigen::VectorXd jupiterStateSolution = singleArcSolutionInterpolator->interpolate( testEpochs[ k ] );
+            Eigen::VectorXd jupiterStateEphemeris = bodies.at( "Jupiter" )->getEphemeris()->getCartesianState( testEpochs[ k ] )
+                                                    - bodies.at( "Sun" )->getEphemeris()->getCartesianState( testEpochs[ k ] );
+            std::cout << "diff Jupiter: " << ( jupiterStateSolution - jupiterStateEphemeris ).transpose() << "\n\n";
 
-            std::vector< double > arcStartingTimes = parametersToEstimate->getArcStartingTimes( );
-            for ( unsigned int i = 0 ; i < numberArcs ; i++ )
+            int counterStates = 6;
+            for ( unsigned int l = 0 ; l < bodiesToPropagatePerArc.at( k ).size( ) - 1 ; l++ )
             {
-                std::cout << "size parameters arc " << i << " = " << getSingleArcParameterSetSize( parametersToEstimate, i ) << "\n\n";
-                std::cout << "size dynamical parameters arc " << i << " = " << getSingleArcInitialDynamicalStateParameterSetSize( parametersToEstimate, i ) << "\n\n";
+                Eigen::VectorXd moonStateSolution = multiArcSolutionInterpolator->interpolate( testEpochs[ k ] ).segment( counterStates, 6);
+                Eigen::VectorXd arcWiseStateEphemeris = bodies.at( bodiesToPropagatePerArc.at( k ).at( l ) )->getEphemeris()->getCartesianState(testEpochs[k]);
+                std::cout << "diff moon state: " << ( moonStateSolution - arcWiseStateEphemeris ).transpose() << "\n\n";
+                counterStates += 6;
             }
 
-            for ( unsigned int i = 0 ; i < multiArcStateParametersSizePerArc.size( ) ; i++ )
-            {
-                std::cout << "arc " << i+1 << " - size multi-arc states: " << multiArcStateParametersSizePerArc.at( i ) << "\n\n";
-            }
-            for ( auto itr : bodiesToEstimatePerArc )
-            {
-                std::cout << "arc:" << itr.first+1 <<  "\n\n";
-                for ( unsigned int i = 0 ; i < itr.second.size( ); i++ )
-                {
-                    std::cout << itr.second.at( i ) << " & " ;
-                }
-                std::cout << "\n\n";
-            }
+            Eigen::VectorXd juiceStateSolution = multiArcSolutionInterpolator->interpolate( testEpochs[ k ] ).segment( counterStates, 6 );
+            Eigen::VectorXd juiceStateEphemeris = bodies.at( "JUICE" )->getEphemeris()->getCartesianState( testEpochs[ k ] )
+                                                  - bodies.at( centralBodiesPerArc.at( k ).at( centralBodiesPerArc.at( k ).size( ) - 1 ) )
+                                                  ->getEphemeris()->getCartesianState( testEpochs[ k ] );
+            std::cout << "diff JUICE state: " << ( juiceStateSolution - juiceStateEphemeris ).transpose() << "\n\n";
 
-
-            std::cout << "TEST CENTRAL BODY DEPENDENCIES IN INTEGRATED MULTI-ARC STATES PER ARC - arc " << arc << "\n\n";
-            double finalArcEpoch = perArcStateHistory.at( 0 ).rbegin( )->first;
-            Eigen::VectorXd finalStates = perArcStateHistory.at( 0 ).rbegin( )->second;
-            for ( unsigned int i = 0 ; i < bodiesToPropagatePerArc.at( arc ).size( ) ; i++ )
-            {
-                std::cout << "BODY: " << bodiesToPropagatePerArc.at( arc ).at( i ) << " - CENTRAL BODY: " << centralBodiesPerArc.at( arc ).at( i ) << "\n\n";
-                Eigen::Vector6d currentSolutionFromEphemeris = bodies.at( bodiesToPropagatePerArc.at( arc ).at( i ) )->getEphemeris( )->getCartesianState( finalArcEpoch );
-                Eigen::Vector6d stateCentralBody = bodies.at( centralBodiesPerArc.at( arc ).at( i ) )->getEphemeris( )->getCartesianState( finalArcEpoch );
-                Eigen::Vector6d differenceStateHistoryWrtEphemeris = currentSolutionFromEphemeris - finalStates.segment( i * 6, 6 );
-//                if ( centralBodiesPerArc.at( arc ).at( i )  == bodies.at( bodiesToPropagatePerArc.at( arc ).at( i ) )->getEphemeris( )->getReferenceFrameOrigin( ) )
-//                {
-//                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-//                            differenceStateHistoryWrtEphemeris, Eigen::Vector6d::Zero( ), 1.0E-16);
-//                }
-//                else
-//                {
-//                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-//                            differenceStateHistoryWrtEphemeris, stateCentralBody, 1.0E-12);
-//                }
-            }
-
-
-
-
-
-            std::shared_ptr< ArcWiseInitialTranslationalStateParameter< double > > arcWiseTranslationalStateParameter =
-                    std::dynamic_pointer_cast< ArcWiseInitialTranslationalStateParameter< double > >(
-                            parametersToEstimate->getEstimatedMultiArcInitialStateParameters( ).at( 0 ) );
-            std::vector< double > currentArcTimes = arcWiseTranslationalStateParameter->getArcStartTimes( );
-
-            for ( unsigned int i = 0 ; i < currentArcTimes.size( ) ; i++ ) {
-                // Multi-arc state parameter limited to current arc.
-                std::cout << "arc: " << i+1 << "\n\n";
-                std::cout << "test: " << arcWiseTranslationalStateParameter->getParameterName().second.first << "\n\n";
-                std::cout << "state: " << arcWiseTranslationalStateParameter->getParameterValue( ).segment( i * 6, 6).transpose( ) << "\n\n";
-                std::vector< double > bla1 = { currentArcTimes.at(i) };
-                std::vector< std::string > bla2 = {arcWiseTranslationalStateParameter->getCentralBodies().at(i)};
-                 std::shared_ptr<ArcWiseInitialTranslationalStateParameter<> > currentArcTranslationalStateParameter =
-                        std::make_shared<ArcWiseInitialTranslationalStateParameter< double > >(
-                                arcWiseTranslationalStateParameter->getParameterName().second.first,
-                                bla1, arcWiseTranslationalStateParameter->getParameterValue().segment( i * 6, 6),
-                                bla2, arcWiseTranslationalStateParameter->getFrameOrientation());
-            }
-
-
-//            for (auto itr: multiArcStateHistory.at(arc)) {
-//                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-//                        itr.second, perArcStateHistory.at(0).at(itr.first), 1.0E-16);
-//            }
-//
-//            for (auto itr: variationalEquationsSolution.at(arc).at(0)) {
-//                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-//                        itr.second, perArcVariationalEquationsSolution.at(0).at(0).at(itr.first), 1.0E-16);
-//                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-//                        variationalEquationsSolution.at(arc).at(1).at(itr.first).block(0, 0, 6 * bodiesToPropagatePerArc.at( arc ).size( ), 24),
-//                        perArcVariationalEquationsSolution.at(0).at(1).at(itr.first).block(0, 0, 6 * bodiesToPropagatePerArc.at( arc ).size( ), 24), 1.0E-16);
-//            }
         }
 
     }
@@ -1056,4 +976,3 @@ BOOST_AUTO_TEST_SUITE_END( )
 }
 
 }
-

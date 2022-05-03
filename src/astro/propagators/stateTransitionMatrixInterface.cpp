@@ -371,6 +371,7 @@ Eigen::MatrixXd HybridArcCombinedStateTransitionAndSensitivityMatrixInterface::g
         const double evaluationTime )
 {
     std::pair< int, double > currentArc = multiArcInterface_->getCurrentArc( evaluationTime );
+    std::cout << "current arc: " << currentArc.first << " & " << currentArc.second << "\n\n";
     int stateTransitionMatrixSize = multiArcInterface_->getArcWiseStateTransitionMatrixSize( currentArc.first );
     int sensitivityMatrixSize = multiArcInterface_->getArcWiseSensitivityMatrixSize( currentArc.first );
     int multiArcStateSize = stateTransitionMatrixSize;
