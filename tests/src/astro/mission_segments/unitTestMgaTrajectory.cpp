@@ -408,7 +408,7 @@ BOOST_AUTO_TEST_CASE( testMgaHodographicShapingSingleLegWithShapingCoefficients 
                 createBaseFunctionHodographicShaping( scaledPowerSine, fifthAxialVelocityBaseFunctionSettings ) );
 
 
-    for( unsigned int creationType = 0; creationType < 1; creationType++ ) {
+    for( unsigned int creationType = 0; creationType < 2; creationType++ ) {
         // Create leg and nodes settings
         std::vector< std::shared_ptr< TransferLegSettings > > transferLegSettings;
         std::vector< std::shared_ptr< TransferNodeSettings > > transferNodeSettings;
@@ -429,7 +429,11 @@ BOOST_AUTO_TEST_CASE( testMgaHodographicShapingSingleLegWithShapingCoefficients 
         }
         else if ( creationType == 1 )
         {
-
+            getMgaTransferTrajectorySettingsWithHodographicShapingThrust(
+                     transferLegSettings, transferNodeSettings, bodyOrder, radialVelocityFunctionComponents,
+                     normalVelocityFunctionComponents, axialVelocityFunctionComponents,
+                     std::make_pair(std::numeric_limits< double >::infinity( ), 0.0),
+                     std::make_pair(std::numeric_limits< double >::infinity( ), 0.0) );
         }
 
         std::shared_ptr< TransferTrajectory > transferTrajectory = createTransferTrajectory(
@@ -459,7 +463,6 @@ BOOST_AUTO_TEST_CASE( testMgaHodographicShapingSingleLegWithShapingCoefficients 
         transferTrajectory->evaluateTrajectory(nodeTimes, transferLegFreeParameters, transferNodeFreeParameters);
 
         // Check results consistency w.r.t. results obtained using unit test with original version of Gondelach's code
-        // TODO: Check if Gondelach's thesis has some transfer that uses free shaping parameters
         double expectedDeltaV = 172313.0;
         BOOST_CHECK_SMALL(std::fabs(transferTrajectory->getTotalDeltaV( ) - expectedDeltaV), 1.0);
 
@@ -511,7 +514,7 @@ BOOST_AUTO_TEST_CASE( testMgaHodographicShapingSingleLegWithoutFreeShapingCoeffi
     std::vector< std::shared_ptr< BaseFunctionHodographicShaping > > normalVelocityFunctionComponents =
             createHodographicShapingDefaultNormalFunction ( scaleFactor, frequency );
 
-    for( unsigned int creationType = 0; creationType < 1; creationType++ ) {
+    for( unsigned int creationType = 0; creationType < 2; creationType++ ) {
         // Create leg and nodes settings
         std::vector< std::shared_ptr< TransferLegSettings > > transferLegSettings;
         std::vector< std::shared_ptr< TransferNodeSettings > > transferNodeSettings;
@@ -532,7 +535,11 @@ BOOST_AUTO_TEST_CASE( testMgaHodographicShapingSingleLegWithoutFreeShapingCoeffi
         }
         else if ( creationType == 1 )
         {
-
+            getMgaTransferTrajectorySettingsWithHodographicShapingThrust(
+                     transferLegSettings, transferNodeSettings, bodyOrder, radialVelocityFunctionComponents,
+                     normalVelocityFunctionComponents, axialVelocityFunctionComponents,
+                     std::make_pair(std::numeric_limits< double >::infinity( ), 0.0),
+                     std::make_pair(std::numeric_limits< double >::infinity( ), 0.0) );
         }
 
         std::shared_ptr< TransferTrajectory > transferTrajectory = createTransferTrajectory(
@@ -625,7 +632,7 @@ BOOST_AUTO_TEST_CASE( testMgaMultipleHodographicShapingLegs )
     std::vector< std::shared_ptr< BaseFunctionHodographicShaping > > normalVelocityFunctionComponents =
             createHodographicShapingDefaultNormalFunction ( scaleFactor, frequency );
 
-    for( unsigned int creationType = 0; creationType < 1; creationType++ ) {
+    for( unsigned int creationType = 0; creationType < 2; creationType++ ) {
         // Create leg and nodes settings
         std::vector< std::shared_ptr< TransferLegSettings > > transferLegSettings;
         std::vector< std::shared_ptr< TransferNodeSettings > > transferNodeSettings;
@@ -649,7 +656,11 @@ BOOST_AUTO_TEST_CASE( testMgaMultipleHodographicShapingLegs )
         }
         else if ( creationType == 1 )
         {
-
+            getMgaTransferTrajectorySettingsWithHodographicShapingThrust(
+                     transferLegSettings, transferNodeSettings, bodyOrder, radialVelocityFunctionComponents,
+                     normalVelocityFunctionComponents, axialVelocityFunctionComponents,
+                     std::make_pair(std::numeric_limits< double >::infinity( ), 0.0),
+                     std::make_pair(std::numeric_limits< double >::infinity( ), 0.0) );
         }
 
         std::shared_ptr< TransferTrajectory > transferTrajectory = createTransferTrajectory(
