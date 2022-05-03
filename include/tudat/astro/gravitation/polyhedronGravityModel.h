@@ -171,7 +171,7 @@ public:
 
             polyhedronCache_->update( currentRelativePosition_ );
 
-            currentAcceleration_ = calculatePolyhedronGradientOfGravitationalPotential(
+            currentAccelerationInBodyFixedFrame_ = calculatePolyhedronGradientOfGravitationalPotential(
                     gravitationalParameterFunction_() / volumeFunction_(),
                     polyhedronCache_->getVerticesCoordinatesRelativeToFieldPoint(),
                     getVerticesDefiningEachFacet_(),
@@ -181,7 +181,7 @@ public:
                     polyhedronCache_->getPerFacetFactor(),
                     polyhedronCache_->getPerEdgeFactor() );
 
-            currentAccelerationInBodyFixedFrame_ = rotationToIntegrationFrame_.inverse( ) * currentAcceleration_;
+            currentAcceleration_ = rotationToIntegrationFrame_ * currentAccelerationInBodyFixedFrame_;
         }
     }
 
