@@ -37,6 +37,16 @@ HodographicShapingLeg::HodographicShapingLeg(
     numberOfFreeNormalCoefficients_( normalVelocityFunctionComponents.size( ) - 3 ),
     numberOfFreeAxialCoefficients_( axialVelocityFunctionComponents.size( ) - 3 )
 {
+    if( numberOfFreeRadialCoefficients_ < 0 || numberOfFreeNormalCoefficients_ < 0 || numberOfFreeAxialCoefficients_ < 0 )
+    {
+        throw std::runtime_error(
+                    "Error, input of number of free coefficients for hodographic shaping is smaller than 0. Each direction must have at least three components. Total number of coefficients is: " +
+                    std::to_string( radialVelocityFunctionComponents.size( ) ) + " for radial direction, " +
+                    std::to_string( normalVelocityFunctionComponents.size( ) ) + " for normal direction, " +
+                    std::to_string( axialVelocityFunctionComponents.size( ) ) + " for axial direction, " );
+
+    }
+
     fullCoefficientsRadialVelocityFunction_ = Eigen::VectorXd::Zero(numberOfFreeRadialCoefficients_ + 3 );
     fullCoefficientsNormalVelocityFunction_ = Eigen::VectorXd::Zero(numberOfFreeNormalCoefficients_ + 3 );
     fullCoefficientsAxialVelocityFunction_ = Eigen::VectorXd::Zero(numberOfFreeAxialCoefficients_ + 3 );
