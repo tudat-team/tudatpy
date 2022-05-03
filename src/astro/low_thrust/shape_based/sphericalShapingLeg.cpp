@@ -237,8 +237,13 @@ double SphericalShapingLeg::convertAzimuthToTime( const double currentAzimuthAng
     // Create numerical quadrature from quadrature settings.
     std::shared_ptr< numerical_quadrature::NumericalQuadrature< double, double > > quadrature =
             numerical_quadrature::createQuadrature(derivativeTimeFunction, quadratureSettings_, currentAzimuthAngle );
+    double currentTime = quadrature->getQuadrature( );
+    if( currentTime != currentTime )
+    {
+        throw std::runtime_error( "Error in spherical shaping, convering azimuth to time resulted in NaN value, this could be a result of poorly defined ephemerides or gravitattional parameter." );
+    }
 
-    return quadrature->getQuadrature( );
+    return currentTime;
 }
 
 Eigen::MatrixXd SphericalShapingLeg::computeInverseMatrixBoundaryConditions( )
