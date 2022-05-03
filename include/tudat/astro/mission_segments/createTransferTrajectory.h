@@ -122,9 +122,9 @@ public:
         numberOfFreeAxialCoefficients_( axialVelocityFunctionComponents.size( ) - 3 )
         { }
 
-    const shape_based_methods::HodographicBasisFunctionList& radialVelocityFunctionComponents_;
-    const shape_based_methods::HodographicBasisFunctionList& normalVelocityFunctionComponents_;
-    const shape_based_methods::HodographicBasisFunctionList& axialVelocityFunctionComponents_;
+    const shape_based_methods::HodographicBasisFunctionList radialVelocityFunctionComponents_;
+    const shape_based_methods::HodographicBasisFunctionList normalVelocityFunctionComponents_;
+    const shape_based_methods::HodographicBasisFunctionList axialVelocityFunctionComponents_;
 
     const int numberOfFreeRadialCoefficients_;
     const int numberOfFreeNormalCoefficients_;
