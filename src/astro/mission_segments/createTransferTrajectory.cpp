@@ -1,4 +1,5 @@
 #include "tudat/astro/mission_segments/createTransferTrajectory.h"
+#include "tudat/astro/low_thrust/shape_based/getRecommendedBaseFunctionsHodographicShaping.h"
 
 namespace tudat
 {
@@ -376,7 +377,7 @@ std::shared_ptr<TransferNode> createTransferNode(
 std::pair< std::vector< std::shared_ptr< TransferLegSettings > >,
 std::vector< std::shared_ptr< TransferNodeSettings > > > getMgaTransferTrajectorySettings(
         const std::vector< std::string >& fullBodiesList,
-        std::function< std::shared_ptr<TransferLegSettings>( ) > identicalTransferLegSettingsConstructor,
+        std::function< std::shared_ptr<TransferLegSettings>( int ) > identicalTransferLegSettingsConstructor,
         const std::pair< double, double > departureOrbit,
         const std::pair< double, double > arrivalOrbit,
         const std::map< std::string, double > minimumPericenterRadii )
@@ -393,7 +394,7 @@ void getMgaTransferTrajectorySettings(
         std::vector< std::shared_ptr< TransferLegSettings > >& transferLegSettings,
         std::vector< std::shared_ptr< TransferNodeSettings > >& transferNodeSettings,
         const std::vector< std::string >& fullBodiesList,
-        std::function< std::shared_ptr<TransferLegSettings>( ) > identicalTransferLegSettingsConstructor,
+        std::function< std::shared_ptr<TransferLegSettings>( int ) > identicalTransferLegSettingsConstructor,
         const std::pair< double, double > departureOrbit,
         const std::pair< double, double > arrivalOrbit,
         const std::map< std::string, double > minimumPericenterRadii )
@@ -404,7 +405,7 @@ void getMgaTransferTrajectorySettings(
     transferLegSettings.clear( );
     for( int i = 0; i < numberOfNodes - 1; i++ )
     {
-        transferLegSettings.push_back( identicalTransferLegSettingsConstructor( ) );
+        transferLegSettings.push_back( identicalTransferLegSettingsConstructor( i ) );
     }
 
     double currentMinimumPericenterRadius = TUDAT_NAN;
@@ -490,7 +491,7 @@ void getMgaTransferTrajectorySettingsWithoutDsm(
         const std::pair< double, double > arrivalOrbit,
         const std::map< std::string, double > minimumPericenterRadii )
 {
-    std::function< std::shared_ptr<TransferLegSettings>( ) > unpoweredLegSettingsConstructor = [=]( ){
+    std::function< std::shared_ptr<TransferLegSettings>( int ) > unpoweredLegSettingsConstructor = [=]( int i ){
         return unpoweredLeg( ); };
 
     getMgaTransferTrajectorySettings(
@@ -538,7 +539,7 @@ void getMgaTransferTrajectorySettingsWithPositionBasedDsm(
         const std::pair< double, double > arrivalOrbit,
         const std::map< std::string, double > minimumPericenterRadii )
 {
-    std::function< std::shared_ptr<TransferLegSettings>( ) > dsmPositionBasedLegSettingsConstructor = [=]( ){
+    std::function< std::shared_ptr<TransferLegSettings>( int ) > dsmPositionBasedLegSettingsConstructor = [=]( int i ){
         return dsmPositionBasedLeg( ); };
 
     getMgaTransferTrajectorySettings(
@@ -586,7 +587,7 @@ void getMgaTransferTrajectorySettingsWithVelocityBasedDsm(
         const std::pair< double, double > arrivalOrbit,
         const std::map< std::string, double > minimumPericenterRadii )
 {
-    std::function< std::shared_ptr<TransferLegSettings>( ) > dsmVelocityBasedLegSettingsConstructor = [=]( ){
+    std::function< std::shared_ptr<TransferLegSettings>( int ) > dsmVelocityBasedLegSettingsConstructor = [=]( int i ){
         return dsmVelocityBasedLeg( ); };
 
     getMgaTransferTrajectorySettings(
@@ -651,7 +652,7 @@ void getMgaTransferTrajectorySettingsWithSphericalShapingThrust (
         const double initialValueFreeCoefficient,
         const std::map< std::string, double > minimumPericenterRadii)
 {
-    std::function< std::shared_ptr<TransferLegSettings>( ) > sphericalShapingLegSettingsConstructor = [=]( ){
+    std::function< std::shared_ptr<TransferLegSettings>( int ) > sphericalShapingLegSettingsConstructor = [=]( int i ){
         return sphericalShapingLeg(rootFinderSettings, lowerBoundFreeCoefficient,
                                    upperBoundFreeCoefficient, initialValueFreeCoefficient); };
 
@@ -665,16 +666,16 @@ void getMgaTransferTrajectorySettingsWithHodographicShapingThrust (
         std::vector< std::shared_ptr< TransferLegSettings > >& legSettings,
         std::vector< std::shared_ptr< TransferNodeSettings > >& nodeSettings,
         const std::vector< std::string >& fullBodiesList,
-        const shape_based_methods::HodographicBasisFunctionList& radialVelocityFunctionComponents,
-        const shape_based_methods::HodographicBasisFunctionList& normalVelocityFunctionComponents,
-        const shape_based_methods::HodographicBasisFunctionList& axialVelocityFunctionComponents,
+        const std::vector< shape_based_methods::HodographicBasisFunctionList >& radialVelocityFunctionComponentsPerLeg,
+        const std::vector< shape_based_methods::HodographicBasisFunctionList >& normalVelocityFunctionComponentsPerLeg,
+        const std::vector< shape_based_methods::HodographicBasisFunctionList >& axialVelocityFunctionComponentsPerLeg,
         const std::pair< double, double > departureOrbit,
         const std::pair< double, double > arrivalOrbit,
         const std::map< std::string, double > minimumPericenterRadii)
 {
-    std::function< std::shared_ptr<TransferLegSettings>( ) > hodographicShapingLegSettingsConstructor = [=]( ){
-        return hodographicShapingLeg( radialVelocityFunctionComponents, normalVelocityFunctionComponents,
-                                      axialVelocityFunctionComponents ); };
+    std::function< std::shared_ptr<TransferLegSettings>( int ) > hodographicShapingLegSettingsConstructor = [=](int i){
+        return hodographicShapingLeg(radialVelocityFunctionComponentsPerLeg.at(i), normalVelocityFunctionComponentsPerLeg.at(i),
+                                     axialVelocityFunctionComponentsPerLeg.at(i) ); };
 
     getMgaTransferTrajectorySettings(
             legSettings, nodeSettings, fullBodiesList, hodographicShapingLegSettingsConstructor,
@@ -687,9 +688,9 @@ void getMgaTransferTrajectorySettingsWithHodographicShapingThrust (
         const std::string& departureBody,
         const std::string& arrivalBody,
         const std::vector< std::string >& flybyBodies,
-        const shape_based_methods::HodographicBasisFunctionList& radialVelocityFunctionComponents,
-        const shape_based_methods::HodographicBasisFunctionList& normalVelocityFunctionComponents,
-        const shape_based_methods::HodographicBasisFunctionList& axialVelocityFunctionComponents,
+        const std::vector< shape_based_methods::HodographicBasisFunctionList >& radialVelocityFunctionComponentsPerLeg,
+        const std::vector< shape_based_methods::HodographicBasisFunctionList >& normalVelocityFunctionComponentsPerLeg,
+        const std::vector< shape_based_methods::HodographicBasisFunctionList >& axialVelocityFunctionComponentsPerLeg,
         const std::pair< double, double > departureOrbit,
         const std::pair< double, double > arrivalOrbit,
         const std::map< std::string, double > minimumPericenterRadii)
@@ -698,17 +699,17 @@ void getMgaTransferTrajectorySettingsWithHodographicShapingThrust (
     fullBodiesList.insert(fullBodiesList.end( ), flybyBodies.begin( ), flybyBodies.end( ) );
     fullBodiesList.push_back( arrivalBody );
     getMgaTransferTrajectorySettingsWithHodographicShapingThrust(
-            legSettings, nodeSettings, fullBodiesList, radialVelocityFunctionComponents,
-            normalVelocityFunctionComponents, axialVelocityFunctionComponents, departureOrbit, arrivalOrbit,
+            legSettings, nodeSettings, fullBodiesList, radialVelocityFunctionComponentsPerLeg,
+            normalVelocityFunctionComponentsPerLeg, axialVelocityFunctionComponentsPerLeg, departureOrbit, arrivalOrbit,
             minimumPericenterRadii);
 }
 
 std::pair< std::vector< std::shared_ptr< TransferLegSettings > >,
 std::vector< std::shared_ptr< TransferNodeSettings > > > getMgaTransferTrajectorySettingsWithHodographicShapingThrust (
         const std::vector< std::string >& fullBodiesList,
-        const shape_based_methods::HodographicBasisFunctionList& radialVelocityFunctionComponents,
-        const shape_based_methods::HodographicBasisFunctionList& normalVelocityFunctionComponents,
-        const shape_based_methods::HodographicBasisFunctionList& axialVelocityFunctionComponents,
+        const std::vector< shape_based_methods::HodographicBasisFunctionList >& radialVelocityFunctionComponentsPerLeg,
+        const std::vector< shape_based_methods::HodographicBasisFunctionList >& normalVelocityFunctionComponentsPerLeg,
+        const std::vector< shape_based_methods::HodographicBasisFunctionList >& axialVelocityFunctionComponentsPerLeg,
         const std::pair< double, double > departureOrbit,
         const std::pair< double, double > arrivalOrbit,
         const std::map< std::string, double > minimumPericenterRadii)
@@ -716,10 +717,40 @@ std::vector< std::shared_ptr< TransferNodeSettings > > > getMgaTransferTrajector
     std::vector< std::shared_ptr< TransferLegSettings > > transferLegSettings;
     std::vector< std::shared_ptr< TransferNodeSettings > > transferNodeSettings;
     getMgaTransferTrajectorySettingsWithHodographicShapingThrust(
-            transferLegSettings, transferNodeSettings, fullBodiesList, radialVelocityFunctionComponents,
-            normalVelocityFunctionComponents, axialVelocityFunctionComponents, departureOrbit, arrivalOrbit,
+            transferLegSettings, transferNodeSettings, fullBodiesList, radialVelocityFunctionComponentsPerLeg,
+            normalVelocityFunctionComponentsPerLeg, axialVelocityFunctionComponentsPerLeg, departureOrbit, arrivalOrbit,
             minimumPericenterRadii);
     return std::make_pair( transferLegSettings, transferNodeSettings );
+}
+
+std::pair< std::vector< std::shared_ptr< TransferLegSettings > >,
+std::vector< std::shared_ptr< TransferNodeSettings > > > getMgaTransferTrajectorySettingsWithHodographicShapingThrust (
+        const std::vector< std::string >& fullBodiesList,
+        const std::vector< double >& timeOfFlightPerLeg,
+        const std::vector< double >& numberOfRevolutionsPerLeg,
+        const std::pair< double, double > departureOrbit,
+        const std::pair< double, double > arrivalOrbit,
+        const std::map< std::string, double > minimumPericenterRadii)
+{
+
+    std::vector < shape_based_methods::HodographicBasisFunctionList > radialVelocityFunctionComponentsPerLeg;
+    std::vector < shape_based_methods::HodographicBasisFunctionList > normalVelocityFunctionComponentsPerLeg;
+    std::vector < shape_based_methods::HodographicBasisFunctionList > axialVelocityFunctionComponentsPerLeg;
+
+    for ( unsigned int i = 0; i < fullBodiesList.size() - 1; ++i )
+    {
+        radialVelocityFunctionComponentsPerLeg.push_back(
+                shape_based_methods::getRecommendedRadialVelocityBaseFunctions( timeOfFlightPerLeg.at(i) ) );
+        normalVelocityFunctionComponentsPerLeg.push_back(
+                shape_based_methods::getRecommendedNormalBaseFunctions( timeOfFlightPerLeg.at(i) ) );
+        axialVelocityFunctionComponentsPerLeg.push_back(
+                shape_based_methods::getRecommendedAxialVelocityBaseFunctions( timeOfFlightPerLeg.at(i), numberOfRevolutionsPerLeg.at(i) ) );
+    }
+
+    return getMgaTransferTrajectorySettingsWithHodographicShapingThrust(
+            fullBodiesList, radialVelocityFunctionComponentsPerLeg,
+            normalVelocityFunctionComponentsPerLeg, axialVelocityFunctionComponentsPerLeg, departureOrbit, arrivalOrbit,
+            minimumPericenterRadii);
 }
 
 std::shared_ptr< TransferTrajectory > createTransferTrajectory(
