@@ -160,6 +160,42 @@ void expose_transfer_trajectory(py::module &m) {
           py::arg( "minimum_pericenters" ) = tms::DEFAULT_MINIMUM_PERICENTERS,
           get_docstring("mga_settings_spherical_shaping_legs").c_str() );
 
+    m.def("mga_settings_hodographic_shaping_legs",
+          py::overload_cast<
+          const std::vector< std::string >&,
+          const std::vector< tsbm::HodographicBasisFunctionList >&,
+          const std::vector< tsbm::HodographicBasisFunctionList >&,
+          const std::vector< tsbm::HodographicBasisFunctionList >&,
+          const std::pair< double, double >,
+          const std::pair< double, double >,
+          const std::map< std::string, double >
+          >( &tms::getMgaTransferTrajectorySettingsWithHodographicShapingThrust ),
+          py::arg( "body_order" ),
+          py::arg( "radial_velocity_function_components_per_leg" ),
+          py::arg( "normal_velocity_function_components_per_leg" ),
+          py::arg( "axial_velocity_function_components_per_leg" ),
+          py::arg( "departure_orbit" ) = std::make_pair( TUDAT_NAN, TUDAT_NAN ),
+          py::arg( "arrival_orbit" ) = std::make_pair( TUDAT_NAN, TUDAT_NAN ),
+          py::arg( "minimum_pericenters" ) = tms::DEFAULT_MINIMUM_PERICENTERS,
+          get_docstring("mga_settings_hodographic_shaping_legs").c_str() );
+
+    m.def("mga_settings_hodographic_shaping_legs_with_recommended_functions",
+          py::overload_cast<
+          const std::vector< std::string >&,
+          const std::vector< double >&,
+          const std::vector< double >&,
+          const std::pair< double, double >,
+          const std::pair< double, double >,
+          const std::map< std::string, double >
+          >( &tms::getMgaTransferTrajectorySettingsWithHodographicShapingThrust ),
+          py::arg( "body_order" ),
+          py::arg( "time_of_flight_per_leg" ),
+          py::arg( "number_of_revolutions_per_leg" ),
+          py::arg( "departure_orbit" ) = std::make_pair( TUDAT_NAN, TUDAT_NAN ),
+          py::arg( "arrival_orbit" ) = std::make_pair( TUDAT_NAN, TUDAT_NAN ),
+          py::arg( "minimum_pericenters" ) = tms::DEFAULT_MINIMUM_PERICENTERS,
+          get_docstring("mga_settings_hodographic_shaping_legs").c_str() );
+
     py::class_<
             tms::TransferTrajectory,
             std::shared_ptr<tms::TransferTrajectory> >(m, "TransferTrajectory",
