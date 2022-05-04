@@ -33,98 +33,116 @@ void expose_shape_based_thrust(py::module &m)
     py::class_<
             tsbm::BaseFunctionHodographicShaping,
             std::shared_ptr<tsbm::BaseFunctionHodographicShaping>
-            >(m, "BaseFunctionHodographicShaping");
+            >(m, "BaseFunctionHodographicShaping",
+              get_docstring("BaseFunctionHodographicShaping").c_str() );
 
     m.def("recommended_radial_hodograph_functions",
           py::overload_cast< const double >(
               &tsbm::getRecommendedRadialVelocityBaseFunctions ),
-          py::arg("time_of_flight") );
+          py::arg("time_of_flight"),
+          get_docstring("recommended_radial_hodograph_functions").c_str() );
 
     m.def("recommended_normal_hodograph_functions",
           py::overload_cast< const double >(
               &tsbm::getRecommendedNormalBaseFunctions ),
-          py::arg("time_of_flight") );
+          py::arg("time_of_flight"),
+          get_docstring("recommended_normal_hodograph_functions").c_str() );
 
     m.def("recommended_axial_hodograph_functions",
           py::overload_cast< const double, const int >(
               &tsbm::getRecommendedAxialVelocityBaseFunctions ),
           py::arg("time_of_flight"),
-          py::arg("number_of_revolutions") );
+          py::arg("number_of_revolutions"),
+          get_docstring("recommended_axial_hodograph_functions").c_str() );
 
 
     m.def("hodograph_constant",
-          &tsbm::hodographConstant );
+          &tsbm::hodographConstant,
+          get_docstring("hodograph_constant").c_str() );
 
     m.def("hodograph_sine",
           &tsbm::hodographSine,
-          py::arg("frequency") );
+          py::arg("frequency"),
+          get_docstring("hodograph_sine").c_str() );
 
     m.def("hodograph_cosine",
           &tsbm::hodographCosine,
-          py::arg("frequency") );
+          py::arg("frequency"),
+          get_docstring("hodograph_cosine").c_str() );
 
     m.def("hodograph_exponential",
           &tsbm::hodographExponential,
-          py::arg("exponent") );
+          py::arg("exponent"),
+          get_docstring("hodograph_exponential").c_str() );
 
     m.def("hodograph_scaled_exponential",
           &tsbm::hodographScaledExponential,
           py::arg("exponent"),
-          py::arg("scale_factor"));
+          py::arg("scale_factor"),
+          get_docstring("hodograph_scaled_exponential").c_str() );
 
     m.def("hodograph_exponential_sine",
           &tsbm::hodographExponentialSine,
           py::arg("exponent"),
-          py::arg("frequency") );
+          py::arg("frequency"),
+          get_docstring("hodograph_exponential_sine").c_str() );
 
     m.def("hodograph_scaled_exponential_sine",
           &tsbm::hodographScaledExponentialSine,
           py::arg("exponent"),
           py::arg("frequency"),
-          py::arg("scale_factor") );
+          py::arg("scale_factor"),
+          get_docstring("hodograph_scaled_exponential_sine").c_str() );
 
     m.def("hodograph_exponential_cosine",
           &tsbm::hodographExponentialCosine,
           py::arg("exponent"),
-          py::arg("frequency"));
+          py::arg("frequency"),
+          get_docstring("hodograph_exponential_cosine").c_str() );
 
     m.def("hodograph_scaled_exponential_cosine",
           &tsbm::hodographScaledExponentialCosine,
           py::arg("exponent"),
           py::arg("frequency"),
-          py::arg("scale_factor") );
+          py::arg("scale_factor"),
+          get_docstring("").c_str() );
 
     m.def("hodograph_power",
           &tsbm::hodographPower,
-          py::arg("exponent") );
+          py::arg("exponent"),
+          get_docstring("hodograph_power").c_str() );
 
     m.def("hodograph_scaled_power",
           &tsbm::hodographScaledPower,
           py::arg("exponent"),
-          py::arg("scale_factor") );
-
+          py::arg("scale_factor"),
+          get_docstring("hodograph_scaled_power").c_str() );
 
     m.def("hodograph_power_sine",
           &tsbm::hodographPowerSine,
           py::arg("exponent"),
-          py::arg("frequency") );
+          py::arg("frequency"),
+          get_docstring("hodograph_power_sine").c_str() );
 
     m.def("hodograph_scaled_power_sine",
           &tsbm::hodographScaledPowerSine,
           py::arg("exponent"),
           py::arg("frequency"),
-          py::arg("scale_factor") );
+          py::arg("scale_factor"),
+          get_docstring("hodograph_scaled_power_sine").c_str() );
 
     m.def("hodograph_power_cosine",
           &tsbm::hodographPowerCosine,
           py::arg("exponent"),
-          py::arg("frequency") );
+          py::arg("frequency"),
+          get_docstring("hodograph_power_cosine").c_str() );
 
     m.def("hodograph_scaled_power_cosine",
           &tsbm::hodographScaledPowerCosine,
           py::arg("exponent"),
           py::arg("frequency"),
-          py::arg("scale_factor") );
+          py::arg("scale_factor"),
+          get_docstring("hodograph_scaled_power_cosine").c_str() );
 
 }
 
