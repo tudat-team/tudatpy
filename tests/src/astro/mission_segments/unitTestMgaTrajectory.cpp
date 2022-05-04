@@ -429,9 +429,18 @@ BOOST_AUTO_TEST_CASE( testMgaHodographicShapingSingleLegWithShapingCoefficients 
         }
         else if ( creationType == 1 )
         {
+            std::vector < shape_based_methods::HodographicBasisFunctionList > radialVelocityFunctionComponentsList;
+            radialVelocityFunctionComponentsList.push_back(radialVelocityFunctionComponents);
+
+            std::vector < shape_based_methods::HodographicBasisFunctionList > normalVelocityFunctionComponentsList;
+            normalVelocityFunctionComponentsList.push_back(normalVelocityFunctionComponents);
+
+            std::vector < shape_based_methods::HodographicBasisFunctionList > axialVelocityFunctionComponentsList;
+            axialVelocityFunctionComponentsList.push_back(axialVelocityFunctionComponents);
+
             getMgaTransferTrajectorySettingsWithHodographicShapingThrust(
-                     transferLegSettings, transferNodeSettings, bodyOrder, radialVelocityFunctionComponents,
-                     normalVelocityFunctionComponents, axialVelocityFunctionComponents,
+                     transferLegSettings, transferNodeSettings, bodyOrder, radialVelocityFunctionComponentsList,
+                     normalVelocityFunctionComponentsList, axialVelocityFunctionComponentsList,
                      std::make_pair(std::numeric_limits< double >::infinity( ), 0.0),
                      std::make_pair(std::numeric_limits< double >::infinity( ), 0.0) );
         }
@@ -535,9 +544,18 @@ BOOST_AUTO_TEST_CASE( testMgaHodographicShapingSingleLegWithoutFreeShapingCoeffi
         }
         else if ( creationType == 1 )
         {
+            std::vector < shape_based_methods::HodographicBasisFunctionList > radialVelocityFunctionComponentsList;
+            radialVelocityFunctionComponentsList.push_back(radialVelocityFunctionComponents);
+
+            std::vector < shape_based_methods::HodographicBasisFunctionList > normalVelocityFunctionComponentsList;
+            normalVelocityFunctionComponentsList.push_back(normalVelocityFunctionComponents);
+
+            std::vector < shape_based_methods::HodographicBasisFunctionList > axialVelocityFunctionComponentsList;
+            axialVelocityFunctionComponentsList.push_back(axialVelocityFunctionComponents);
+
             getMgaTransferTrajectorySettingsWithHodographicShapingThrust(
-                     transferLegSettings, transferNodeSettings, bodyOrder, radialVelocityFunctionComponents,
-                     normalVelocityFunctionComponents, axialVelocityFunctionComponents,
+                     transferLegSettings, transferNodeSettings, bodyOrder, radialVelocityFunctionComponentsList,
+                     normalVelocityFunctionComponentsList, axialVelocityFunctionComponentsList,
                      std::make_pair(std::numeric_limits< double >::infinity( ), 0.0),
                      std::make_pair(std::numeric_limits< double >::infinity( ), 0.0) );
         }
@@ -616,21 +634,27 @@ BOOST_AUTO_TEST_CASE( testMgaMultipleHodographicShapingLegs )
     double JD = physical_constants::JULIAN_DAY;
     double departureDate = 8174.5 * JD;
     std::vector< double > timesOfFlight = { 580.0*JD, 560.0*JD };
-    double frequency = 2.0 * mathematical_constants::PI / timesOfFlight.at(0);
-    double scaleFactor = 1.0 / timesOfFlight.at(0);
+    std::vector< double > frequencies = { 2.0 * mathematical_constants::PI / timesOfFlight.at(0), 2.0 * mathematical_constants::PI / timesOfFlight.at(1) };
+    std::vector< double > scaleFactors = { 1.0 / timesOfFlight.at(0), 1.0 / timesOfFlight.at(1) };
 
     // Create environment
     tudat::simulation_setup::SystemOfBodies bodies = createSimplifiedSystemOfBodies( );
 
     // Create components of the radial velocity composite function.
-    std::vector< std::shared_ptr< BaseFunctionHodographicShaping > > radialVelocityFunctionComponents =
-            createHodographicShapingDefaultRadialFunction ( scaleFactor, frequency );
+    shape_based_methods::HodographicBasisFunctionList radialVelocityFunctionComponents0 =
+            createHodographicShapingDefaultRadialFunction ( scaleFactors.at(0), frequencies.at(0) );
+    shape_based_methods::HodographicBasisFunctionList radialVelocityFunctionComponents1 =
+            createHodographicShapingDefaultRadialFunction ( scaleFactors.at(1), frequencies.at(1) );
     // Create components of the axial velocity composite function.
-    std::vector< std::shared_ptr< BaseFunctionHodographicShaping > > axialVelocityFunctionComponents =
-            createHodographicShapingDefaultAxialFunction ( scaleFactor, frequency, numberOfRevolutions );
+    shape_based_methods::HodographicBasisFunctionList axialVelocityFunctionComponents0 =
+            createHodographicShapingDefaultAxialFunction ( scaleFactors.at(0), frequencies.at(0), numberOfRevolutions );
+    shape_based_methods::HodographicBasisFunctionList axialVelocityFunctionComponents1 =
+            createHodographicShapingDefaultAxialFunction ( scaleFactors.at(1), frequencies.at(1), numberOfRevolutions );
     // Create components of the normal velocity composite function.
-    std::vector< std::shared_ptr< BaseFunctionHodographicShaping > > normalVelocityFunctionComponents =
-            createHodographicShapingDefaultNormalFunction ( scaleFactor, frequency );
+    shape_based_methods::HodographicBasisFunctionList normalVelocityFunctionComponents0 =
+            createHodographicShapingDefaultNormalFunction ( scaleFactors.at(0), frequencies.at(0) );
+    shape_based_methods::HodographicBasisFunctionList normalVelocityFunctionComponents1 =
+            createHodographicShapingDefaultNormalFunction ( scaleFactors.at(1), frequencies.at(1) );
 
     for( unsigned int creationType = 0; creationType < 2; creationType++ ) {
         // Create leg and nodes settings
@@ -641,9 +665,9 @@ BOOST_AUTO_TEST_CASE( testMgaMultipleHodographicShapingLegs )
         {
             transferLegSettings.resize(bodyOrder.size( ) - 1);
             transferLegSettings[0] = hodographicShapingLeg(
-                    radialVelocityFunctionComponents, normalVelocityFunctionComponents, axialVelocityFunctionComponents);
+                    radialVelocityFunctionComponents0, normalVelocityFunctionComponents0, axialVelocityFunctionComponents0);
             transferLegSettings[1] = hodographicShapingLeg(
-                    radialVelocityFunctionComponents, normalVelocityFunctionComponents, axialVelocityFunctionComponents);
+                    radialVelocityFunctionComponents1, normalVelocityFunctionComponents1, axialVelocityFunctionComponents1);
 
             transferNodeSettings.resize(bodyOrder.size( ));
             transferNodeSettings[0] = escapeAndDepartureNode(std::numeric_limits< double >::infinity( ), 0.0);
@@ -656,9 +680,21 @@ BOOST_AUTO_TEST_CASE( testMgaMultipleHodographicShapingLegs )
         }
         else if ( creationType == 1 )
         {
+            std::vector < shape_based_methods::HodographicBasisFunctionList > radialVelocityFunctionComponentsList;
+            radialVelocityFunctionComponentsList.push_back(radialVelocityFunctionComponents0);
+            radialVelocityFunctionComponentsList.push_back(radialVelocityFunctionComponents1);
+
+            std::vector < shape_based_methods::HodographicBasisFunctionList > normalVelocityFunctionComponentsList;
+            normalVelocityFunctionComponentsList.push_back(normalVelocityFunctionComponents0);
+            normalVelocityFunctionComponentsList.push_back(normalVelocityFunctionComponents1);
+
+            std::vector < shape_based_methods::HodographicBasisFunctionList > axialVelocityFunctionComponentsList;
+            axialVelocityFunctionComponentsList.push_back(axialVelocityFunctionComponents0);
+            axialVelocityFunctionComponentsList.push_back(axialVelocityFunctionComponents1);
+
             getMgaTransferTrajectorySettingsWithHodographicShapingThrust(
-                     transferLegSettings, transferNodeSettings, bodyOrder, radialVelocityFunctionComponents,
-                     normalVelocityFunctionComponents, axialVelocityFunctionComponents,
+                     transferLegSettings, transferNodeSettings, bodyOrder, radialVelocityFunctionComponentsList,
+                     normalVelocityFunctionComponentsList, axialVelocityFunctionComponentsList,
                      std::make_pair(std::numeric_limits< double >::infinity( ), 0.0),
                      std::make_pair(std::numeric_limits< double >::infinity( ), 0.0) );
         }
@@ -739,13 +775,31 @@ BOOST_AUTO_TEST_CASE( testMgaMultipleHodographicShapingLegs )
             const std::function< Eigen::Vector3d( ) > departureVelocityFunction = [=]( ){ return departureVelocity; };
             const std::function< Eigen::Vector3d( ) > arrivalVelocityFunction = [=]( ){ return arrivalVelocity; };
 
+            shape_based_methods::HodographicBasisFunctionList legRadialVelocityFunctionComponents;
+            shape_based_methods::HodographicBasisFunctionList legNormalVelocityFunctionComponents;
+            shape_based_methods::HodographicBasisFunctionList legAxialVelocityFunctionComponents;
+
+            if ( i == 0 )
+            {
+                legRadialVelocityFunctionComponents = radialVelocityFunctionComponents0;
+                legNormalVelocityFunctionComponents = normalVelocityFunctionComponents0;
+                legAxialVelocityFunctionComponents = axialVelocityFunctionComponents0;
+            }
+            else if ( i == 1 )
+            {
+                legRadialVelocityFunctionComponents = radialVelocityFunctionComponents1;
+                legNormalVelocityFunctionComponents = normalVelocityFunctionComponents1;
+                legAxialVelocityFunctionComponents = axialVelocityFunctionComponents1;
+            }
+
             shape_based_methods::HodographicShapingLeg hodographicShapingLeg = shape_based_methods::HodographicShapingLeg(
                     bodies.at( bodyOrder.at(i) )->getEphemeris( ),
                     bodies.at( bodyOrder.at(i+1) )->getEphemeris( ),
                     bodies.at( "Sun" )->getGravityFieldModel( )->getGravitationalParameter( ),
                     departureVelocityFunction, arrivalVelocityFunction,
-                    radialVelocityFunctionComponents, normalVelocityFunctionComponents,
-                    axialVelocityFunctionComponents);
+                    legRadialVelocityFunctionComponents, legNormalVelocityFunctionComponents,
+                    legAxialVelocityFunctionComponents);
+
 
             hodographicShapingLeg.updateLegParameters(
                     ( Eigen::Vector3d( )<< nodeTimes.at(i), nodeTimes.at(i+1), numberOfRevolutions ).finished( ) );
