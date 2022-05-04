@@ -732,6 +732,20 @@ std::vector< std::shared_ptr< TransferNodeSettings > > > getMgaTransferTrajector
         const std::pair< double, double > arrivalOrbit,
         const std::map< std::string, double > minimumPericenterRadii)
 {
+    if ( timeOfFlightPerLeg.size() < fullBodiesList.size() - 1 )
+    {
+        throw std::runtime_error(
+             "Error when creating settings for transfer with hodographic shaping legs: number of legs (" +
+             std::to_string( fullBodiesList.size() - 1 ) + ") and number of times of flight (" +
+             std::to_string( timeOfFlightPerLeg.size() ) + ") is inconsistent" );
+    }
+    if ( numberOfRevolutionsPerLeg.size() < fullBodiesList.size() - 1 )
+    {
+        throw std::runtime_error(
+             "Error, when creating settings for transfer with hodographic shaping legs: number of legs (" +
+             std::to_string( fullBodiesList.size() - 1 ) + ") and number of numbers of revolutions (" +
+             std::to_string( numberOfRevolutionsPerLeg.size() ) + ") is inconsistent" );
+    }
 
     std::vector < shape_based_methods::HodographicBasisFunctionList > radialVelocityFunctionComponentsPerLeg;
     std::vector < shape_based_methods::HodographicBasisFunctionList > normalVelocityFunctionComponentsPerLeg;
