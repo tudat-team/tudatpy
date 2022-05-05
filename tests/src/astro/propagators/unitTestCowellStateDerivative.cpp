@@ -261,9 +261,9 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
             {
                 if( j != 2 )
                 {
-                    BOOST_CHECK_SMALL( std::fabs( stateDifference( 0 + 6 * j ) ), 1.0E-2 );
-                    BOOST_CHECK_SMALL( std::fabs( stateDifference( 1 + 6 * j ) ), 1.0E-2 );
-                    BOOST_CHECK_SMALL( std::fabs( stateDifference( 2 + 6 * j ) ), 1.0E-2 );
+                    BOOST_CHECK_SMALL( std::fabs( stateDifference( 0 + 6 * j ) ), 5.0E-2 );
+                    BOOST_CHECK_SMALL( std::fabs( stateDifference( 1 + 6 * j ) ), 5.0E-2 );
+                    BOOST_CHECK_SMALL( std::fabs( stateDifference( 2 + 6 * j ) ), 5.0E-2 );
 
                     BOOST_CHECK_SMALL( std::fabs( stateDifference( 3 + 6 * j ) ), 5.0E-9 );
                     BOOST_CHECK_SMALL( std::fabs( stateDifference( 4 + 6 * j ) ), 5.0E-9 );
@@ -308,9 +308,9 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
         {
             if( j != 2 )
             {
-                BOOST_CHECK_SMALL( std::fabs( stateDifference( 0 + 6 * j ) ), 1.0E-2 );
-                BOOST_CHECK_SMALL( std::fabs( stateDifference( 1 + 6 * j ) ), 1.0E-2 );
-                BOOST_CHECK_SMALL( std::fabs( stateDifference( 2 + 6 * j ) ), 1.0E-2 );
+                BOOST_CHECK_SMALL( std::fabs( stateDifference( 0 + 6 * j ) ), 5.0E-2 );
+                BOOST_CHECK_SMALL( std::fabs( stateDifference( 1 + 6 * j ) ), 5.0E-2 );
+                BOOST_CHECK_SMALL( std::fabs( stateDifference( 2 + 6 * j ) ), 5.0E-2 );
 
                 BOOST_CHECK_SMALL( std::fabs( stateDifference( 3 + 6 * j ) ), 5.0E-9 );
                 BOOST_CHECK_SMALL( std::fabs( stateDifference( 4 + 6 * j ) ), 5.0E-9 );
