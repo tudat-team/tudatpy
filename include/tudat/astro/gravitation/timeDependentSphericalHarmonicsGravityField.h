@@ -177,6 +177,15 @@ public:
     Eigen::MatrixXd getTotalCosineCoefficientCorrection(
             const int maximumDegree, const int maximumOrder )
     {
+        if( maximumDegree > maximumDegree_ || maximumOrder > maximumOrder_ )
+        {
+            throw std::runtime_error( "Error when retrieving cosine spherical harmonic coefficient time variation up to D/O " +
+                                      std::to_string( maximumDegree ) + "/" + std::to_string( maximumOrder ) +
+                                      " maximum D/O is " +
+                                      std::to_string( maximumDegree_ ) + "/" + std::to_string( maximumOrder_ ) );
+        }
+
+
         return cosineCoefficients_.block( 0, 0, maximumDegree + 1, maximumOrder + 1 ) -
                 nominalCosineCoefficients_.block( 0, 0, maximumDegree + 1, maximumOrder + 1 );
     }
@@ -192,6 +201,15 @@ public:
             const int maximumDegree, const int maximumOrder )
 
     {
+        if( maximumDegree > maximumDegree_ || maximumOrder > maximumOrder_ )
+        {
+            throw std::runtime_error( "Error when retrieving sine spherical harmonic coefficient time variation up to D/O " +
+                                      std::to_string( maximumDegree ) + "/" + std::to_string( maximumOrder ) +
+                                      " maximum D/O is " +
+                                      std::to_string( maximumDegree_ ) + "/" + std::to_string( maximumOrder_ ) );
+        }
+
+
         return sineCoefficients_.block( 0, 0, maximumDegree + 1, maximumOrder + 1 ) -
                 nominalSineCoefficients_.block( 0, 0, maximumDegree + 1, maximumOrder + 1 );
     }
@@ -201,7 +219,7 @@ public:
      *  Function to set nominal (i.e. with zero variations) cosine coefficients.
      *  \param nominalCosineCoefficients New nominal cosine coefficients.
      */
-    void setNominalCosineCoefficients( Eigen::MatrixXd nominalCosineCoefficients )
+    void setNominalCosineCoefficients( const Eigen::MatrixXd& nominalCosineCoefficients )
     {
         nominalCosineCoefficients_ = nominalCosineCoefficients;
     }

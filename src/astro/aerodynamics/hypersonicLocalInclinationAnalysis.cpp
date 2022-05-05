@@ -320,6 +320,7 @@ void HypersonicLocalInclinationAnalysis::generateCoefficients( )
 
                 determineVehicleCoefficients( independentVariableIndices );
             }
+
         }
     }
 }
