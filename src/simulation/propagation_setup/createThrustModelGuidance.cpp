@@ -160,56 +160,56 @@ std::shared_ptr< propulsion::BodyFixedForceDirectionGuidance  > createThrustGuid
         }
         break;
     }
-    case mee_costate_based_thrust_direction:
-    {
-        // Check input consistency
-        std::shared_ptr< MeeCostateBasedThrustDirectionSettings > meeCostateBasedThrustSettings =
-                std::dynamic_pointer_cast< MeeCostateBasedThrustDirectionSettings >( thrustDirectionGuidanceSettings );
+//    case mee_costate_based_thrust_direction:
+//    {
+//        // Check input consistency
+//        std::shared_ptr< MeeCostateBasedThrustDirectionSettings > meeCostateBasedThrustSettings =
+//                std::dynamic_pointer_cast< MeeCostateBasedThrustDirectionSettings >( thrustDirectionGuidanceSettings );
 
-        if( meeCostateBasedThrustSettings == nullptr )
-        {
-            throw std::runtime_error( "Error when getting thrust guidance with mee_costate_based_thrust_direction, input is inconsistent" );
-        }
-        else
-        {
-            // Check whether all required environment properties exist
-            if( bodies.count( meeCostateBasedThrustSettings->relativeBody_ ) == 0 )
-            {
-                throw std::runtime_error( "Error when getting thrust guidance with mee_costate_based_thrust_direction, central body " +
-                                          meeCostateBasedThrustSettings->relativeBody_ + " not found." );
-            }
-            else if( bodies.count( meeCostateBasedThrustSettings->vehicleName_ ) == 0 )
-            {
-                throw std::runtime_error( "Error when getting thrust guidance with mee_costate_based_thrust_direction, thrusting body " +
-                                          meeCostateBasedThrustSettings->vehicleName_ + " not found." );
-            }
-            else if( bodies.at( meeCostateBasedThrustSettings->relativeBody_ )->getGravityFieldModel( ) == nullptr )
-            {
-                throw std::runtime_error( "Error when getting thrust guidance with mee_costate_based_thrust_direction, central body " +
-                                          meeCostateBasedThrustSettings->relativeBody_ + " has no gravity field." );
-            }
-            else
-            {
-                // Retrieve required functions and create guidance object
-                std::function< Eigen::Vector6d( ) > thrustingBodyStateFunction =
-                        std::bind( &simulation_setup::Body::getState,
-                                     bodies.at( meeCostateBasedThrustSettings->vehicleName_ ) );
-                std::function< Eigen::Vector6d( ) > centralBodyStateFunction =
-                        std::bind( &simulation_setup::Body::getState,
-                                     bodies.at( meeCostateBasedThrustSettings->relativeBody_ ) );
-                std::function< double( ) > centralBodyGravitationalParameterFunction =
-                        std::bind( &gravitation::GravityFieldModel::getGravitationalParameter,
-                                     bodies.at( meeCostateBasedThrustSettings->relativeBody_ )->getGravityFieldModel( ) );
+//        if( meeCostateBasedThrustSettings == nullptr )
+//        {
+//            throw std::runtime_error( "Error when getting thrust guidance with mee_costate_based_thrust_direction, input is inconsistent" );
+//        }
+//        else
+//        {
+//            // Check whether all required environment properties exist
+//            if( bodies.count( meeCostateBasedThrustSettings->relativeBody_ ) == 0 )
+//            {
+//                throw std::runtime_error( "Error when getting thrust guidance with mee_costate_based_thrust_direction, central body " +
+//                                          meeCostateBasedThrustSettings->relativeBody_ + " not found." );
+//            }
+//            else if( bodies.count( meeCostateBasedThrustSettings->vehicleName_ ) == 0 )
+//            {
+//                throw std::runtime_error( "Error when getting thrust guidance with mee_costate_based_thrust_direction, thrusting body " +
+//                                          meeCostateBasedThrustSettings->vehicleName_ + " not found." );
+//            }
+//            else if( bodies.at( meeCostateBasedThrustSettings->relativeBody_ )->getGravityFieldModel( ) == nullptr )
+//            {
+//                throw std::runtime_error( "Error when getting thrust guidance with mee_costate_based_thrust_direction, central body " +
+//                                          meeCostateBasedThrustSettings->relativeBody_ + " has no gravity field." );
+//            }
+//            else
+//            {
+//                // Retrieve required functions and create guidance object
+//                std::function< Eigen::Vector6d( ) > thrustingBodyStateFunction =
+//                        std::bind( &simulation_setup::Body::getState,
+//                                     bodies.at( meeCostateBasedThrustSettings->vehicleName_ ) );
+//                std::function< Eigen::Vector6d( ) > centralBodyStateFunction =
+//                        std::bind( &simulation_setup::Body::getState,
+//                                     bodies.at( meeCostateBasedThrustSettings->relativeBody_ ) );
+//                std::function< double( ) > centralBodyGravitationalParameterFunction =
+//                        std::bind( &gravitation::GravityFieldModel::getGravitationalParameter,
+//                                     bodies.at( meeCostateBasedThrustSettings->relativeBody_ )->getGravityFieldModel( ) );
 
-                thrustGuidance =  std::make_shared< propulsion::MeeCostateBasedThrustGuidance >(
-                            thrustingBodyStateFunction, centralBodyStateFunction,
-                            centralBodyGravitationalParameterFunction,
-                            meeCostateBasedThrustSettings->costateFunction_,
-                            bodyFixedThrustOrientation );
-            }
-        }
-        break;
-    }
+//                thrustGuidance =  std::make_shared< propulsion::MeeCostateBasedThrustGuidance >(
+//                            thrustingBodyStateFunction, centralBodyStateFunction,
+//                            centralBodyGravitationalParameterFunction,
+//                            meeCostateBasedThrustSettings->costateFunction_,
+//                            bodyFixedThrustOrientation );
+//            }
+//        }
+//        break;
+//    }
     default:
         throw std::runtime_error( "Error, could not find thrust guidance type when creating thrust guidance." );
     }
