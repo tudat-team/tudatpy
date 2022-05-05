@@ -19,6 +19,7 @@
 
 #include "tudat/basics/basicTypedefs.h"
 #include "tudat/math/basic/linearAlgebra.h"
+#include "tudat/astro/ephemerides/rotationalEphemeris.h"
 
 namespace tudat
 {
@@ -33,7 +34,7 @@ namespace propulsion
  *  A derived class for using the current orientation of the vehicle (as computed by some other method and
  *  retrieved from the body class) may be set using the OrientationBasedForceGuidance class.
  */
-class BodyFixedForceDirectionGuidance : public reference_frames::DependentOrientationCalculator
+class BodyFixedForceDirectionGuidance : public ephemerides::RotationalEphemeris
 {
 public:
 
@@ -43,8 +44,11 @@ public:
      * \param bodyFixedForceDirection Function returning the direction of the force in the body-fixed frame.
      */
     BodyFixedForceDirectionGuidance (
-            const std::function< Eigen::Vector3d( ) > bodyFixedForceDirection ):
-    DependentOrientationCalculator( ), bodyFixedForceDirection_( bodyFixedForceDirection ){ }
+            const std::function< Eigen::Vector3d( ) > bodyFixedForceDirection,
+            const std::string& baseFrameOrientation,
+            const std::string& targetFrameOrientation ):
+    RotationalEphemeris( baseFrameOrientation, targetFrameOrientation ),
+      bodyFixedForceDirection_( bodyFixedForceDirection ){ }
 
     //! Destructor
     virtual ~BodyFixedForceDirectionGuidance ( ){ }
@@ -57,17 +61,17 @@ public:
      */
     virtual Eigen::Vector3d getCurrentForceDirectionInPropagationFrame( ) = 0;
 
-    //! Function to compute the rotation from the propagation frame to the body-fixed frame
-    /*!
-     *  Function to compute the rotation from the propagation frame to the body-fixed frame using the algorithm implemented
-     *  in the derived class. The derived class must implement the function for the inverse rotation
-     *  (getRotationToGlobalFrame).
-     *  \return Quaternion that provides the rotation from the propagation frame to the body-fixed frame.
-     */
-    Eigen::Quaterniond getRotationToLocalFrame( )
-    {
-       return getRotationToGlobalFrame( ).inverse( );
-    }
+//    //! Function to compute the rotation from the propagation frame to the body-fixed frame
+//    /*!
+//     *  Function to compute the rotation from the propagation frame to the body-fixed frame using the algorithm implemented
+//     *  in the derived class. The derived class must implement the function for the inverse rotation
+//     *  (getRotationToGlobalFrame).
+//     *  \return Quaternion that provides the rotation from the propagation frame to the body-fixed frame.
+//     */
+//    Eigen::Quaterniond getRotationToTargetFrame()
+//    {
+//       return getRotationToGlobalFrame( ).inverse( );
+//    }
 
     //! Function to update the object to the current time.
     /*!

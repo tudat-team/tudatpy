@@ -340,6 +340,11 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
             bodies.at( "Vehicle" )->setRotationalEphemeris(
                         std::make_shared< ephemerides::SpiceRotationalEphemeris >( "ECLIPJ2000", "IAU_MOON" ) );
         }
+        else
+        {
+            bodies.at( "Vehicle" )->setRotationalEphemeris(
+                        std::make_shared< ephemerides::SpiceRotationalEphemeris >( "ECLIPJ2000", "IAU_MOON" ) );
+        }
 
         bool areCoefficientsInAerodynamicFrame;
         if( ( i % 2 ) == 0 )
