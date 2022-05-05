@@ -177,7 +177,7 @@ BOOST_AUTO_TEST_CASE( test_DissipationParameterEstimation )
         std::shared_ptr< IntegratorSettings< > > integratorSettings =
                 std::make_shared< RungeKuttaVariableStepSizeSettings< > >
                 ( 0.0, fixedStepSize,
-                  RungeKuttaCoefficients::rungeKuttaFehlberg78, fixedStepSize, fixedStepSize, 1.0, 1.0 );
+                  rungeKuttaFehlberg78, fixedStepSize, fixedStepSize, 1.0, 1.0 );
 
         // Create orbit determination object.
         OrbitDeterminationManager< double, double > orbitDeterminationManager =

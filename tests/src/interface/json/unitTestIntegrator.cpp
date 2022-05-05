@@ -107,7 +107,7 @@ BOOST_AUTO_TEST_CASE( test_json_integrator_rungeKuttaVariableStepSize )
     const double initialTime = -0.3;
     const double initialStepSize = 1.4;
     const CoefficientSets rungeKuttaCoefficientSet =
-            RungeKuttaCoefficients::rungeKuttaFehlberg78;
+            rungeKuttaFehlberg78;
     const double minimumStepSize = 0.4;
     const double maximumStepSize = 2.4;
     const double relativeErrorTolerance = 1.0E-4;
