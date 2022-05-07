@@ -35,7 +35,7 @@
 #include "tudat/astro/gravitation/timeDependentSphericalHarmonicsGravityField.h"
 #include "tudat/astro/ground_stations/groundStation.h"
 #include "tudat/astro/propulsion/thrustGuidance.h"
-#include "tudat/astro/reference_frames/dependentOrientationCalculator.h"
+//#include "tudat/astro/reference_frames/dependentOrientationCalculator.h"
 #include "tudat/astro/system_models/vehicleSystems.h"
 #include "tudat/basics/basicTypedefs.h"
 #include "tudat/math/basic/numericalDerivative.h"
@@ -942,13 +942,13 @@ public:
             const std::shared_ptr<aerodynamics::FlightConditions> aerodynamicFlightConditions) {
         aerodynamicFlightConditions_ = aerodynamicFlightConditions;
 
-        // If dependentOrientationCalculator_ object already exists, provide a warning and create closure between the two
-        if (dependentOrientationCalculator_ != nullptr) {
-            reference_frames::setAerodynamicDependentOrientationCalculatorClosure(
-                        dependentOrientationCalculator_, aerodynamicFlightConditions_->getAerodynamicAngleCalculator());
-        } else {
-            dependentOrientationCalculator_ = aerodynamicFlightConditions->getAerodynamicAngleCalculator();
-        }
+//        // If dependentOrientationCalculator_ object already exists, provide a warning and create closure between the two
+//        if (dependentOrientationCalculator_ != nullptr) {
+//            reference_frames::setAerodynamicDependentOrientationCalculatorClosure(
+//                        dependentOrientationCalculator_, aerodynamicFlightConditions_->getAerodynamicAngleCalculator());
+//        } else {
+//            dependentOrientationCalculator_ = aerodynamicFlightConditions->getAerodynamicAngleCalculator();
+//        }
 
         // Create closure between rotational ephemeris and aerodynamic angle calculator.
         if (rotationalEphemeris_ != nullptr) {

@@ -81,18 +81,18 @@ void updateThrustSettings(
         const double currentTime );
 
 //! Function to reset the current time variable of the thrust magnitude and direction wrappers
-/*!
-* Function to reset the current time variable of the thrust magnitude and direction wrappers. This function does not
-* update the actual thrust direction and guidance; it is typically used to reset the current time to NaN, thereby signalling
-* the need to recompute the magnitude/direction upon next call to update functions
-* \param thrustMagnitudeWrapper Object used during propagation to compute the thrust magnitude
-* \param thrustDirectionGuidance Object used during propagation to compute the body-fixed thrust direction
-* \param currentTime New current time variable that is to be set.
-*/
-void resetThrustSettingsTime(
-        const std::shared_ptr< propulsion::ThrustMagnitudeWrapper > thrustMagnitudeWrapper,
-        const std::shared_ptr< propulsion::BodyFixedForceDirectionGuidance  > thrustDirectionGuidance,
-        const double currentTime = TUDAT_NAN);
+///*!
+//* Function to reset the current time variable of the thrust magnitude and direction wrappers. This function does not
+//* update the actual thrust direction and guidance; it is typically used to reset the current time to NaN, thereby signalling
+//* the need to recompute the magnitude/direction upon next call to update functions
+//* \param thrustMagnitudeWrapper Object used during propagation to compute the thrust magnitude
+//* \param thrustDirectionGuidance Object used during propagation to compute the body-fixed thrust direction
+//* \param currentTime New current time variable that is to be set.
+//*/
+//void resetThrustSettingsTime(
+//        const std::shared_ptr< propulsion::ThrustMagnitudeWrapper > thrustMagnitudeWrapper,
+//        const std::shared_ptr< propulsion::BodyFixedForceDirectionGuidance  > thrustDirectionGuidance,
+//        const double currentTime = TUDAT_NAN);
 
 } // namespace simulation_setup
 

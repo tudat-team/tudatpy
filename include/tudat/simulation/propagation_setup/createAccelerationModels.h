@@ -546,6 +546,7 @@ inline basic_astrodynamics::AccelerationMap createAccelerationModelsMap(
         std::vector< std::pair< std::string, std::shared_ptr< AccelerationSettings > > > thrustAccelerationSettings;
 
         std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > currentAcceleration;
+
         // Iterate over all bodies exerting an acceleration
         for( unsigned int i = 0; i < accelerationsForBody.size( ); i++ )
         {
@@ -585,6 +586,7 @@ inline basic_astrodynamics::AccelerationMap createAccelerationModelsMap(
 
         }
 
+        // Create thrust accelerations last
         for( unsigned int i = 0; i < thrustAccelerationSettings.size( ); i++ )
         {
             currentAcceleration = createAccelerationModel( bodies.at( bodyUndergoingAcceleration ),

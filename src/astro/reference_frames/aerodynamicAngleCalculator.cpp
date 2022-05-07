@@ -564,17 +564,17 @@ void setAerodynamicDependentOrientationCalculatorClosure(
                 std::bind( &AerodynamicAnglesClosure::updateAngles, aerodynamicAnglesClosure, std::placeholders::_1 ) );
 }
 
-//! Function to make aerodynamic angle computation consistent with existing DependentOrientationCalculator
-void setAerodynamicDependentOrientationCalculatorClosure(
-        std::shared_ptr< DependentOrientationCalculator > dependentOrientationCalculator,
-        std::shared_ptr< AerodynamicAngleCalculator > aerodynamicAngleCalculator )
-{
-    std::function< Eigen::Quaterniond( const double ) > imposedRotationFromInertialToBodyFixedFrame =
-            std::bind( &DependentOrientationCalculator::computeAndGetRotationToLocalFrame, dependentOrientationCalculator, std::placeholders::_1 );
-    setAerodynamicDependentOrientationCalculatorClosure(
-                imposedRotationFromInertialToBodyFixedFrame,
-                aerodynamicAngleCalculator );
-}
+////! Function to make aerodynamic angle computation consistent with existing DependentOrientationCalculator
+//void setAerodynamicDependentOrientationCalculatorClosure(
+//        std::shared_ptr< DependentOrientationCalculator > dependentOrientationCalculator,
+//        std::shared_ptr< AerodynamicAngleCalculator > aerodynamicAngleCalculator )
+//{
+//    std::function< Eigen::Quaterniond( const double ) > imposedRotationFromInertialToBodyFixedFrame =
+//            std::bind( &DependentOrientationCalculator::computeAndGetRotationToLocalFrame, dependentOrientationCalculator, std::placeholders::_1 );
+//    setAerodynamicDependentOrientationCalculatorClosure(
+//                imposedRotationFromInertialToBodyFixedFrame,
+//                aerodynamicAngleCalculator );
+//}
 
 //! Function to make aerodynamic angle computation consistent with existing rotational ephemeris
 void setAerodynamicDependentOrientationCalculatorClosure(

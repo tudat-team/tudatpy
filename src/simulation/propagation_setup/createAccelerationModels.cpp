@@ -1084,82 +1084,91 @@ createThrustAcceleratioModel(
 
 
 
-    // Check if user-supplied interpolator for full thrust ius present.
-    if( thrustAccelerationSettings->interpolatorInterface_ != nullptr )
-    {
-        // Check input consisten
-        if( thrustAccelerationSettings->thrustFrame_ == unspecified_thrust_frame )
-        {
-            throw std::runtime_error( "Error when creating thrust acceleration, input frame is inconsistent with interface" );
-        }
-        else if(thrustAccelerationSettings->thrustFrame_ != inertial_thrust_frame )
-        {
-            // Create rotation function from thrust-frame to propagation frame.
-            if( thrustAccelerationSettings->thrustFrame_ == tnw_thrust_frame )
-            {
-                std::function< Eigen::Vector6d( ) > vehicleStateFunction =
-                        std::bind( &Body::getState, bodies.at( nameOfBodyUndergoingThrust ) );
-                std::function< Eigen::Vector6d( ) > centralBodyStateFunction;
+//    // Check if user-supplied interpolator for full thrust ius present.
+//    if( thrustAccelerationSettings->interpolatorInterface_ != nullptr )
+//    {
+//        // Check input consisten
+//        if( thrustAccelerationSettings->thrustFrame_ == unspecified_thrust_frame )
+//        {
+//            throw std::runtime_error( "Error when creating thrust acceleration, input frame is inconsistent with interface" );
+//        }
+//        else if(thrustAccelerationSettings->thrustFrame_ != inertial_thrust_frame )
+//        {
+//            // Create rotation function from thrust-frame to propagation frame.
+//            if( thrustAccelerationSettings->thrustFrame_ == tnw_thrust_frame )
+//            {
+//                std::function< Eigen::Vector6d( ) > vehicleStateFunction =
+//                        std::bind( &Body::getState, bodies.at( nameOfBodyUndergoingThrust ) );
+//                std::function< Eigen::Vector6d( ) > centralBodyStateFunction;
 
-                if( ephemerides::isFrameInertial( thrustAccelerationSettings->centralBody_ ) )
-                {
-                    centralBodyStateFunction =  [ ]( ){ return Eigen::Vector6d::Zero( ); };
-                }
-                else
-                {
-                    if( bodies.count( thrustAccelerationSettings->centralBody_ ) == 0 )
-                    {
-                        throw std::runtime_error( "Error when creating thrust acceleration, input central body not found" );
-                    }
-                    centralBodyStateFunction =
-                            std::bind( &Body::getState, bodies.at( thrustAccelerationSettings->centralBody_ ) );
-                }
-                thrustAccelerationSettings->interpolatorInterface_->resetRotationFunction(
-                            std::bind( &reference_frames::getTnwToInertialRotationFromFunctions,
-                                       vehicleStateFunction, centralBodyStateFunction, true ) );
-            }
-            else
-            {
-                throw std::runtime_error( "Error when creating thrust acceleration, input frame not recognized" );
-            }
-        }
-    }
+//                if( ephemerides::isFrameInertial( thrustAccelerationSettings->centralBody_ ) )
+//                {
+//                    centralBodyStateFunction =  [ ]( ){ return Eigen::Vector6d::Zero( ); };
+//                }
+//                else
+//                {
+//                    if( bodies.count( thrustAccelerationSettings->centralBody_ ) == 0 )
+//                    {
+//                        throw std::runtime_error( "Error when creating thrust acceleration, input central body not found" );
+//                    }
+//                    centralBodyStateFunction =
+//                            std::bind( &Body::getState, bodies.at( thrustAccelerationSettings->centralBody_ ) );
+//                }
+//                thrustAccelerationSettings->interpolatorInterface_->resetRotationFunction(
+//                            std::bind( &reference_frames::getTnwToInertialRotationFromFunctions,
+//                                       vehicleStateFunction, centralBodyStateFunction, true ) );
+//            }
+//            else
+//            {
+//                throw std::runtime_error( "Error when creating thrust acceleration, input frame not recognized" );
+//            }
+    //        }
+    //    }
 
-    // Create thrust direction model.
-    std::shared_ptr< propulsion::BodyFixedForceDirectionGuidance  > thrustDirectionGuidance = createThrustGuidanceModel(
-            thrustAccelerationSettings->thrustDirectionSettings_, bodies, nameOfBodyUndergoingThrust,
+
+    std::function< Eigen::Vector3d( ) > bodyFixedThrustDirectionFunction =
             getBodyFixedThrustDirection( thrustAccelerationSettings->thrustMagnitudeSettings_, bodies,
-                                             nameOfBodyUndergoingThrust ), magnitudeUpdateSettings );
+                                         nameOfBodyUndergoingThrust );
+    std::function< Eigen::Vector3d( ) > inertialThrustDirectionFunction = [=]( ){
+        return bodies.at( nameOfBodyUndergoingThrust )->getCurrentRotationMatrixToGlobalFrame( ) *
+                bodyFixedThrustDirectionFunction( ); };
+
+    //    // Create thrust direction model.
+    //    std::shared_ptr< propulsion::BodyFixedForceDirectionGuidance  > thrustDirectionGuidance = createThrustGuidanceModel(
+    //            thrustAccelerationSettings->thrustDirectionSettings_, bodies, nameOfBodyUndergoingThrust,
+    //            getBodyFixedThrustDirection( thrustAccelerationSettings->thrustMagnitudeSettings_, bodies,
+    //                                             nameOfBodyUndergoingThrust ), directionUpdateSettings );
+
+    directionUpdateSettings[ propagators::body_rotational_state_update ].push_back( nameOfBodyUndergoingThrust );
 
     // Create thrust magnitude model
     std::shared_ptr< propulsion::ThrustMagnitudeWrapper > thrustMagnitude = createThrustMagnitudeWrapper(
                 thrustAccelerationSettings->thrustMagnitudeSettings_, bodies, nameOfBodyUndergoingThrust,
-                directionUpdateSettings );
+                magnitudeUpdateSettings );
+
 
     // Add required updates of environemt models.
     std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > totalUpdateSettings;
     propagators::addEnvironmentUpdates( totalUpdateSettings, magnitudeUpdateSettings );
     propagators::addEnvironmentUpdates( totalUpdateSettings, directionUpdateSettings );
 
-    // Set DependentOrientationCalculator for body if required.
-    if( !(thrustAccelerationSettings->thrustDirectionSettings_->thrustDirectionType_ ==
-          thrust_direction_from_existing_body_orientation ) )
-    {
-        bodies.at( nameOfBodyUndergoingThrust )->setDependentOrientationCalculator( thrustDirectionGuidance );
-    }
+//    // Set DependentOrientationCalculator for body if required.
+//    if( !(thrustAccelerationSettings->thrustDirectionSettings_->thrustDirectionType_ ==
+//          thrust_direction_from_existing_body_orientation ) )
+//    {
+//        bodies.at( nameOfBodyUndergoingThrust )->setDependentOrientationCalculator( thrustDirectionGuidance );
+//    }
 
     // Create and return thrust acceleration object.
-    std::function< void( const double ) > updateFunction =
-            std::bind(&updateThrustSettings, thrustMagnitude, thrustDirectionGuidance, std::placeholders::_1 );
-    std::function< void( const double ) > timeResetFunction =
-            std::bind(&resetThrustSettingsTime, thrustMagnitude, thrustDirectionGuidance, std::placeholders::_1 );
+//    std::function< void( const double ) > updateFunction =
+//            std::bind(&updateThrustSettings, thrustMagnitude, thrustDirectionGuidance, std::placeholders::_1 );
+//    std::function< void( const double ) > timeResetFunction =
+//            std::bind(&resetThrustSettingsTime, thrustMagnitude, thrustDirectionGuidance, std::placeholders::_1 );
     return std::make_shared< propulsion::ThrustAcceleration >(
-                std::bind( &propulsion::ThrustMagnitudeWrapper::getCurrentThrustMagnitude, thrustMagnitude ),
-                std::bind( &propulsion::BodyFixedForceDirectionGuidance ::getCurrentForceDirectionInPropagationFrame, thrustDirectionGuidance ),
+                thrustMagnitude,
+                inertialThrustDirectionFunction,
                 std::bind( &Body::getBodyMass, bodies.at( nameOfBodyUndergoingThrust ) ),
-                std::bind( &propulsion::ThrustMagnitudeWrapper::getCurrentMassRate, thrustMagnitude ),
-                thrustAccelerationSettings->thrustMagnitudeSettings_->thrustOriginId_,
-                updateFunction, timeResetFunction, totalUpdateSettings );
+                totalUpdateSettings );
 }
 
 //! Function to create a direct tical acceleration model, according to approach of Lainey et al. (2007, 2009, ...)
