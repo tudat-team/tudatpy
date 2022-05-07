@@ -110,10 +110,10 @@ void setGuidanceAnglesFunctions(
  * \param aerodynamicGuidance Object computing the current aerodynamic angles.
  * \param bodyWithAngles Body for which the orientation is to be controlled.
  */
-void setGuidanceAnglesFunctions(
-        const std::shared_ptr< aerodynamics::AerodynamicGuidance > aerodynamicGuidance,
-        const std::shared_ptr< simulation_setup::Body > bodyWithAngles,
-        const bool silenceWarnings = false );
+//void setGuidanceAnglesFunctions(
+//        const std::shared_ptr< aerodynamics::AerodynamicGuidance > aerodynamicGuidance,
+//        const std::shared_ptr< simulation_setup::Body > bodyWithAngles,
+//        const bool silenceWarnings = false );
 
 void setAerodynamicOrientationFunctions(
         const std::shared_ptr< simulation_setup::Body > body,

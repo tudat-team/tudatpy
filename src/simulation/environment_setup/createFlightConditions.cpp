@@ -260,26 +260,26 @@ void setGuidanceAnglesFunctions(
                 silenceWarnings );
 }
 
-//! Function that must be called to link the AerodynamicGuidance object to the simulation
-void setGuidanceAnglesFunctions(
-        const std::shared_ptr< aerodynamics::AerodynamicGuidance > aerodynamicGuidance,
-        const std::shared_ptr< simulation_setup::Body > bodyWithAngles,
-        const bool silenceWarnings )
-{
-    std::shared_ptr< reference_frames::DependentOrientationCalculator >  orientationCalculator =
-            bodyWithAngles->getDependentOrientationCalculator( );
-    std::shared_ptr< reference_frames::AerodynamicAngleCalculator > angleCalculator =
-            std::dynamic_pointer_cast< reference_frames::AerodynamicAngleCalculator >( orientationCalculator );
+////! Function that must be called to link the AerodynamicGuidance object to the simulation
+//void setGuidanceAnglesFunctions(
+//        const std::shared_ptr< aerodynamics::AerodynamicGuidance > aerodynamicGuidance,
+//        const std::shared_ptr< simulation_setup::Body > bodyWithAngles,
+//        const bool silenceWarnings )
+//{
+//    std::shared_ptr< reference_frames::DependentOrientationCalculator >  orientationCalculator =
+//            bodyWithAngles->getDependentOrientationCalculator( );
+//    std::shared_ptr< reference_frames::AerodynamicAngleCalculator > angleCalculator =
+//            std::dynamic_pointer_cast< reference_frames::AerodynamicAngleCalculator >( orientationCalculator );
 
-    if( angleCalculator == nullptr )
-    {
-        throw std::runtime_error( "Error, body does not have AerodynamicAngleCalculator when setting aerodynamic guidance" );
-    }
-    else
-    {
-        setGuidanceAnglesFunctions( aerodynamicGuidance, angleCalculator, silenceWarnings );
-    }
-}
+//    if( angleCalculator == nullptr )
+//    {
+//        throw std::runtime_error( "Error, body does not have AerodynamicAngleCalculator when setting aerodynamic guidance" );
+//    }
+//    else
+//    {
+//        setGuidanceAnglesFunctions( aerodynamicGuidance, angleCalculator, silenceWarnings );
+//    }
+//}
 
 void setAerodynamicOrientationFunctions(
         const std::shared_ptr< simulation_setup::Body > body,

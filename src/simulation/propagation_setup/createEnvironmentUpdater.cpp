@@ -62,8 +62,10 @@ void checkValidityOfRequiredEnvironmentUpdates(
                 case body_rotational_state_update:
                 {
                     if( ( bodies.at( updateIterator->second.at( i ) )->
-                          getRotationalEphemeris( ) == nullptr ) &&
-                            ( bodies.at( updateIterator->second.at( i ) )->getDependentOrientationCalculator( ) == nullptr ) )
+                          getRotationalEphemeris( ) == nullptr )
+//                            &&
+//                            ( bodies.at( updateIterator->second.at( i ) )->getDependentOrientationCalculator( ) == nullptr )
+                            )
                     {
                         throw std::runtime_error(
                                     "Error when making environment model update settings, could not find rotational ephemeris or dependent orientation calculator of body "
@@ -949,8 +951,10 @@ std::vector< std::string > > createFullEnvironmentUpdaterSettings(
         }
 
         // If body has rotation model, update rotational state in each time step.;
-        if( ( bodyIterator.second->getRotationalEphemeris( ) != nullptr ) ||
-                ( bodyIterator.second->getDependentOrientationCalculator( ) != nullptr ) )
+        if( ( bodyIterator.second->getRotationalEphemeris( ) != nullptr )
+//                ||
+//                ( bodyIterator.second->getDependentOrientationCalculator( ) != nullptr )
+                )
         {
             singleAccelerationUpdateNeeds[ body_rotational_state_update ].
                     push_back( bodyIterator.first );

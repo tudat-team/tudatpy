@@ -18,203 +18,203 @@ namespace tudat
 namespace simulation_setup
 {
 
-//! Function to create the object determining the direction of the thrust acceleration.
-std::shared_ptr< propulsion::BodyFixedForceDirectionGuidance  > createThrustGuidanceModel(
-        const std::shared_ptr< ThrustDirectionSettings > thrustDirectionGuidanceSettings,
-        const SystemOfBodies& bodies,
-        const std::string& nameOfBodyWithGuidance,
-        const std::function< Eigen::Vector3d( ) > bodyFixedThrustOrientation,
-        std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >& magnitudeUpdateSettings )
-{
-    std::shared_ptr< propulsion::BodyFixedForceDirectionGuidance  > thrustGuidance;
+////! Function to create the object determining the direction of the thrust acceleration.
+//std::shared_ptr< propulsion::BodyFixedForceDirectionGuidance  > createThrustGuidanceModel(
+//        const std::shared_ptr< ThrustDirectionSettings > thrustDirectionGuidanceSettings,
+//        const SystemOfBodies& bodies,
+//        const std::string& nameOfBodyWithGuidance,
+//        const std::function< Eigen::Vector3d( ) > bodyFixedThrustOrientation,
+//        std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >& magnitudeUpdateSettings )
+//{
+//    std::shared_ptr< propulsion::BodyFixedForceDirectionGuidance  > thrustGuidance;
 
-    // Determine thrust direction type
-    switch( thrustDirectionGuidanceSettings->thrustDirectionType_ )
-    {
-    case colinear_with_state_segment_thrust_direction:
-    {
-        // Check input consistency
-        std::shared_ptr< ThrustDirectionFromStateGuidanceSettings > thrustDirectionFromStateGuidanceSettings =
-                std::dynamic_pointer_cast< ThrustDirectionFromStateGuidanceSettings >( thrustDirectionGuidanceSettings );
-        if( thrustDirectionFromStateGuidanceSettings == nullptr )
-        {
-            throw std::runtime_error( "Error when thrust colinear with state, input is inconsistent" );
-        }
-        else
-        {
-            // Retrieve state function of body for which thrust is to be computed.
-            std::function< Eigen::Vector6d( ) > bodyStateFunction =
-                    std::bind( &Body::getState, bodies.at( nameOfBodyWithGuidance ) );
-            std::function< Eigen::Vector6d( ) > centralBodyStateFunction;
-
-            // Retrieve state function of central body (or set to zero if inertial)
-            if( thrustDirectionFromStateGuidanceSettings->relativeBody_ != "SSB" &&
-                    thrustDirectionFromStateGuidanceSettings->relativeBody_ != "" )
-            {
-                centralBodyStateFunction = std::bind( &Body::getState, bodies.at(
-                                                            thrustDirectionFromStateGuidanceSettings->relativeBody_ ) );
-                magnitudeUpdateSettings[ propagators::body_translational_state_update ].push_back(
-                            thrustDirectionFromStateGuidanceSettings->relativeBody_ );
-            }
-            else
-            {
-                centralBodyStateFunction = [ ]( ){ return Eigen::Vector6d::Zero( ); };
-            }
-
-            // Define relative state function
-            std::function< void( Eigen::Vector6d& ) > stateFunction =
-                    std::bind(
-                        &ephemerides::getRelativeState, std::placeholders::_1, bodyStateFunction, centralBodyStateFunction );
-            std::function< Eigen::Vector3d( const double ) > thrustDirectionFunction;
-
-            // Create force direction function.
-            if( thrustDirectionFromStateGuidanceSettings->isColinearWithVelocity_ )
-            {
-                thrustDirectionFunction =
-                        std::bind( &propulsion::getForceDirectionColinearWithVelocity, stateFunction, std::placeholders::_1,
-                                     thrustDirectionFromStateGuidanceSettings->directionIsOppositeToVector_ );
-            }
-            else
-            {
-                thrustDirectionFunction =
-                        std::bind( &propulsion::getForceDirectionColinearWithPosition, stateFunction, std::placeholders::_1,
-                                     thrustDirectionFromStateGuidanceSettings->directionIsOppositeToVector_ );
-            }
-
-            // Create direction guidance
-            thrustGuidance =  std::make_shared< propulsion::DirectionBasedForceGuidance >(
-                        thrustDirectionFunction, thrustDirectionFromStateGuidanceSettings->relativeBody_,
-                        bodyFixedThrustOrientation );
-        }
-        break;
-    }
-    case thrust_direction_from_existing_body_orientation:
-    {
-        std::shared_ptr< Body > bodyWithGuidance = bodies.at( nameOfBodyWithGuidance );
-
-        std::function< Eigen::Quaterniond( const double ) > rotationFunction;
-
-        // Retrieve existing body rotation model and set associated update settings.
-        if( bodyWithGuidance->getFlightConditions( ) != nullptr )
-        {
-            rotationFunction = std::bind(
-                        &simulation_setup::Body::getCurrentRotationToGlobalFrame,
-                        bodyWithGuidance );
-
-            magnitudeUpdateSettings[ propagators::vehicle_flight_conditions_update ].push_back( nameOfBodyWithGuidance );
-            magnitudeUpdateSettings[ propagators::body_rotational_state_update ].push_back( nameOfBodyWithGuidance );
-        }
-        else if( bodyWithGuidance->getRotationalEphemeris( ) != nullptr )
-        {
-            rotationFunction = std::bind(
-                        &simulation_setup::Body::getCurrentRotationToGlobalFrame,
-                        bodyWithGuidance );
-            magnitudeUpdateSettings[ propagators::body_rotational_state_update ].push_back( nameOfBodyWithGuidance );
-        }
-        else
-        {
-            throw std::runtime_error( "Error, requested thrust orientation from existing model, but no such model found" );
-        }
-
-        thrustGuidance =  std::make_shared< propulsion::OrientationBasedForceGuidance >(
-                    rotationFunction, bodyFixedThrustOrientation );
-
-        break;
-    }
-    case custom_thrust_direction:
-    {
-        // Check input consistency
-        std::shared_ptr< CustomThrustDirectionSettings > customThrustGuidanceSettings =
-                std::dynamic_pointer_cast< CustomThrustDirectionSettings >( thrustDirectionGuidanceSettings );
-        if( customThrustGuidanceSettings == nullptr )
-        {
-            throw std::runtime_error( "Error when getting thrust guidance with custom_thrust_direction, input is inconsistent" );
-        }
-        else
-        {
-            // Create direction guidance
-            std::function< Eigen::Vector3d( const double ) > thrustDirectionFunction =
-                    customThrustGuidanceSettings->thrustDirectionFunction_;
-            thrustGuidance =  std::make_shared< propulsion::DirectionBasedForceGuidance >(
-                        thrustDirectionFunction, "", bodyFixedThrustOrientation );
-        }
-
-        break;
-    }
-    case custom_thrust_orientation:
-    {
-        // Check input consistency
-        std::shared_ptr< CustomThrustOrientationSettings > customThrustOrientationSettings =
-                std::dynamic_pointer_cast< CustomThrustOrientationSettings >( thrustDirectionGuidanceSettings );
-        if( customThrustOrientationSettings == nullptr )
-        {
-            throw std::runtime_error( "Error when getting thrust guidance with custom_thrust_orientation, input is inconsistent" );
-        }
-        else
-        {
-            // Create direction guidance
-            thrustGuidance =  std::make_shared< propulsion::OrientationBasedForceGuidance >(
-                        customThrustOrientationSettings->thrustOrientationFunction_,
-                        bodyFixedThrustOrientation );
-            magnitudeUpdateSettings[ propagators::body_rotational_state_update ].push_back( nameOfBodyWithGuidance );
-        }
-        break;
-    }
-//    case mee_costate_based_thrust_direction:
+//    // Determine thrust direction type
+//    switch( thrustDirectionGuidanceSettings->thrustDirectionType_ )
 //    {
-//        // Check input consistency
-//        std::shared_ptr< MeeCostateBasedThrustDirectionSettings > meeCostateBasedThrustSettings =
-//                std::dynamic_pointer_cast< MeeCostateBasedThrustDirectionSettings >( thrustDirectionGuidanceSettings );
+////    case colinear_with_state_segment_thrust_direction:
+////    {
+////        // Check input consistency
+////        std::shared_ptr< ThrustDirectionFromStateGuidanceSettings > thrustDirectionFromStateGuidanceSettings =
+////                std::dynamic_pointer_cast< ThrustDirectionFromStateGuidanceSettings >( thrustDirectionGuidanceSettings );
+////        if( thrustDirectionFromStateGuidanceSettings == nullptr )
+////        {
+////            throw std::runtime_error( "Error when thrust colinear with state, input is inconsistent" );
+////        }
+////        else
+////        {
+////            // Retrieve state function of body for which thrust is to be computed.
+////            std::function< Eigen::Vector6d( ) > bodyStateFunction =
+////                    std::bind( &Body::getState, bodies.at( nameOfBodyWithGuidance ) );
+////            std::function< Eigen::Vector6d( ) > centralBodyStateFunction;
 
-//        if( meeCostateBasedThrustSettings == nullptr )
+////            // Retrieve state function of central body (or set to zero if inertial)
+////            if( thrustDirectionFromStateGuidanceSettings->relativeBody_ != "SSB" &&
+////                    thrustDirectionFromStateGuidanceSettings->relativeBody_ != "" )
+////            {
+////                centralBodyStateFunction = std::bind( &Body::getState, bodies.at(
+////                                                            thrustDirectionFromStateGuidanceSettings->relativeBody_ ) );
+////                magnitudeUpdateSettings[ propagators::body_translational_state_update ].push_back(
+////                            thrustDirectionFromStateGuidanceSettings->relativeBody_ );
+////            }
+////            else
+////            {
+////                centralBodyStateFunction = [ ]( ){ return Eigen::Vector6d::Zero( ); };
+////            }
+
+////            // Define relative state function
+////            std::function< void( Eigen::Vector6d& ) > stateFunction =
+////                    std::bind(
+////                        &ephemerides::getRelativeState, std::placeholders::_1, bodyStateFunction, centralBodyStateFunction );
+////            std::function< Eigen::Vector3d( const double ) > thrustDirectionFunction;
+
+////            // Create force direction function.
+////            if( thrustDirectionFromStateGuidanceSettings->isColinearWithVelocity_ )
+////            {
+////                thrustDirectionFunction =
+////                        std::bind( &propulsion::getForceDirectionColinearWithVelocity, stateFunction, std::placeholders::_1,
+////                                     thrustDirectionFromStateGuidanceSettings->directionIsOppositeToVector_ );
+////            }
+////            else
+////            {
+////                thrustDirectionFunction =
+////                        std::bind( &propulsion::getForceDirectionColinearWithPosition, stateFunction, std::placeholders::_1,
+////                                     thrustDirectionFromStateGuidanceSettings->directionIsOppositeToVector_ );
+////            }
+
+////            // Create direction guidance
+////            thrustGuidance =  std::make_shared< propulsion::DirectionBasedForceGuidance >(
+////                        thrustDirectionFunction, thrustDirectionFromStateGuidanceSettings->relativeBody_,
+////                        bodyFixedThrustOrientation );
+////        }
+////        break;
+////    }
+//    case thrust_direction_from_existing_body_orientation:
+//    {
+//        std::shared_ptr< Body > bodyWithGuidance = bodies.at( nameOfBodyWithGuidance );
+
+//        std::function< Eigen::Quaterniond( const double ) > rotationFunction;
+
+//        // Retrieve existing body rotation model and set associated update settings.
+//        if( bodyWithGuidance->getFlightConditions( ) != nullptr )
 //        {
-//            throw std::runtime_error( "Error when getting thrust guidance with mee_costate_based_thrust_direction, input is inconsistent" );
+//            rotationFunction = std::bind(
+//                        &simulation_setup::Body::getCurrentRotationToGlobalFrame,
+//                        bodyWithGuidance );
+
+//            magnitudeUpdateSettings[ propagators::vehicle_flight_conditions_update ].push_back( nameOfBodyWithGuidance );
+//            magnitudeUpdateSettings[ propagators::body_rotational_state_update ].push_back( nameOfBodyWithGuidance );
+//        }
+//        else if( bodyWithGuidance->getRotationalEphemeris( ) != nullptr )
+//        {
+//            rotationFunction = std::bind(
+//                        &simulation_setup::Body::getCurrentRotationToGlobalFrame,
+//                        bodyWithGuidance );
+//            magnitudeUpdateSettings[ propagators::body_rotational_state_update ].push_back( nameOfBodyWithGuidance );
 //        }
 //        else
 //        {
-//            // Check whether all required environment properties exist
-//            if( bodies.count( meeCostateBasedThrustSettings->relativeBody_ ) == 0 )
-//            {
-//                throw std::runtime_error( "Error when getting thrust guidance with mee_costate_based_thrust_direction, central body " +
-//                                          meeCostateBasedThrustSettings->relativeBody_ + " not found." );
-//            }
-//            else if( bodies.count( meeCostateBasedThrustSettings->vehicleName_ ) == 0 )
-//            {
-//                throw std::runtime_error( "Error when getting thrust guidance with mee_costate_based_thrust_direction, thrusting body " +
-//                                          meeCostateBasedThrustSettings->vehicleName_ + " not found." );
-//            }
-//            else if( bodies.at( meeCostateBasedThrustSettings->relativeBody_ )->getGravityFieldModel( ) == nullptr )
-//            {
-//                throw std::runtime_error( "Error when getting thrust guidance with mee_costate_based_thrust_direction, central body " +
-//                                          meeCostateBasedThrustSettings->relativeBody_ + " has no gravity field." );
-//            }
-//            else
-//            {
-//                // Retrieve required functions and create guidance object
-//                std::function< Eigen::Vector6d( ) > thrustingBodyStateFunction =
-//                        std::bind( &simulation_setup::Body::getState,
-//                                     bodies.at( meeCostateBasedThrustSettings->vehicleName_ ) );
-//                std::function< Eigen::Vector6d( ) > centralBodyStateFunction =
-//                        std::bind( &simulation_setup::Body::getState,
-//                                     bodies.at( meeCostateBasedThrustSettings->relativeBody_ ) );
-//                std::function< double( ) > centralBodyGravitationalParameterFunction =
-//                        std::bind( &gravitation::GravityFieldModel::getGravitationalParameter,
-//                                     bodies.at( meeCostateBasedThrustSettings->relativeBody_ )->getGravityFieldModel( ) );
+//            throw std::runtime_error( "Error, requested thrust orientation from existing model, but no such model found" );
+//        }
 
-//                thrustGuidance =  std::make_shared< propulsion::MeeCostateBasedThrustGuidance >(
-//                            thrustingBodyStateFunction, centralBodyStateFunction,
-//                            centralBodyGravitationalParameterFunction,
-//                            meeCostateBasedThrustSettings->costateFunction_,
-//                            bodyFixedThrustOrientation );
-//            }
+//        thrustGuidance =  std::make_shared< propulsion::OrientationBasedForceGuidance >(
+//                    rotationFunction, bodyFixedThrustOrientation );
+
+//        break;
+//    }
+//    case custom_thrust_direction:
+//    {
+//        // Check input consistency
+//        std::shared_ptr< CustomThrustDirectionSettings > customThrustGuidanceSettings =
+//                std::dynamic_pointer_cast< CustomThrustDirectionSettings >( thrustDirectionGuidanceSettings );
+//        if( customThrustGuidanceSettings == nullptr )
+//        {
+//            throw std::runtime_error( "Error when getting thrust guidance with custom_thrust_direction, input is inconsistent" );
+//        }
+//        else
+//        {
+//            // Create direction guidance
+//            std::function< Eigen::Vector3d( const double ) > thrustDirectionFunction =
+//                    customThrustGuidanceSettings->thrustDirectionFunction_;
+//            thrustGuidance =  std::make_shared< propulsion::DirectionBasedForceGuidance >(
+//                        thrustDirectionFunction, "", bodyFixedThrustOrientation );
+//        }
+
+//        break;
+//    }
+//    case custom_thrust_orientation:
+//    {
+//        // Check input consistency
+//        std::shared_ptr< CustomThrustOrientationSettings > customThrustOrientationSettings =
+//                std::dynamic_pointer_cast< CustomThrustOrientationSettings >( thrustDirectionGuidanceSettings );
+//        if( customThrustOrientationSettings == nullptr )
+//        {
+//            throw std::runtime_error( "Error when getting thrust guidance with custom_thrust_orientation, input is inconsistent" );
+//        }
+//        else
+//        {
+//            // Create direction guidance
+//            thrustGuidance =  std::make_shared< propulsion::OrientationBasedForceGuidance >(
+//                        customThrustOrientationSettings->thrustOrientationFunction_,
+//                        bodyFixedThrustOrientation );
+//            magnitudeUpdateSettings[ propagators::body_rotational_state_update ].push_back( nameOfBodyWithGuidance );
 //        }
 //        break;
 //    }
-    default:
-        throw std::runtime_error( "Error, could not find thrust guidance type when creating thrust guidance." );
-    }
-    return thrustGuidance;
-}
+////    case mee_costate_based_thrust_direction:
+////    {
+////        // Check input consistency
+////        std::shared_ptr< MeeCostateBasedThrustDirectionSettings > meeCostateBasedThrustSettings =
+////                std::dynamic_pointer_cast< MeeCostateBasedThrustDirectionSettings >( thrustDirectionGuidanceSettings );
+
+////        if( meeCostateBasedThrustSettings == nullptr )
+////        {
+////            throw std::runtime_error( "Error when getting thrust guidance with mee_costate_based_thrust_direction, input is inconsistent" );
+////        }
+////        else
+////        {
+////            // Check whether all required environment properties exist
+////            if( bodies.count( meeCostateBasedThrustSettings->relativeBody_ ) == 0 )
+////            {
+////                throw std::runtime_error( "Error when getting thrust guidance with mee_costate_based_thrust_direction, central body " +
+////                                          meeCostateBasedThrustSettings->relativeBody_ + " not found." );
+////            }
+////            else if( bodies.count( meeCostateBasedThrustSettings->vehicleName_ ) == 0 )
+////            {
+////                throw std::runtime_error( "Error when getting thrust guidance with mee_costate_based_thrust_direction, thrusting body " +
+////                                          meeCostateBasedThrustSettings->vehicleName_ + " not found." );
+////            }
+////            else if( bodies.at( meeCostateBasedThrustSettings->relativeBody_ )->getGravityFieldModel( ) == nullptr )
+////            {
+////                throw std::runtime_error( "Error when getting thrust guidance with mee_costate_based_thrust_direction, central body " +
+////                                          meeCostateBasedThrustSettings->relativeBody_ + " has no gravity field." );
+////            }
+////            else
+////            {
+////                // Retrieve required functions and create guidance object
+////                std::function< Eigen::Vector6d( ) > thrustingBodyStateFunction =
+////                        std::bind( &simulation_setup::Body::getState,
+////                                     bodies.at( meeCostateBasedThrustSettings->vehicleName_ ) );
+////                std::function< Eigen::Vector6d( ) > centralBodyStateFunction =
+////                        std::bind( &simulation_setup::Body::getState,
+////                                     bodies.at( meeCostateBasedThrustSettings->relativeBody_ ) );
+////                std::function< double( ) > centralBodyGravitationalParameterFunction =
+////                        std::bind( &gravitation::GravityFieldModel::getGravitationalParameter,
+////                                     bodies.at( meeCostateBasedThrustSettings->relativeBody_ )->getGravityFieldModel( ) );
+
+////                thrustGuidance =  std::make_shared< propulsion::MeeCostateBasedThrustGuidance >(
+////                            thrustingBodyStateFunction, centralBodyStateFunction,
+////                            centralBodyGravitationalParameterFunction,
+////                            meeCostateBasedThrustSettings->costateFunction_,
+////                            bodyFixedThrustOrientation );
+////            }
+////        }
+////        break;
+////    }
+//    default:
+//        throw std::runtime_error( "Error, could not find thrust guidance type when creating thrust guidance." );
+//    }
+//    return thrustGuidance;
+//}
 
 //! Function to retrieve the effective thrust direction from a set of thrust sources.
 Eigen::Vector3d getCombinedThrustDirection(
@@ -574,15 +574,15 @@ void updateThrustSettings(
     thrustDirectionGuidance->updateCalculator( currentTime );
 }
 
-//! Function to reset the current time variable of the thrust magnitude and direction wrappers
-void resetThrustSettingsTime(
-        const std::shared_ptr< propulsion::ThrustMagnitudeWrapper > thrustMagnitudeWrapper,
-        const std::shared_ptr< propulsion::BodyFixedForceDirectionGuidance  > thrustDirectionGuidance,
-        const double currentTime )
-{
-    thrustMagnitudeWrapper->resetCurrentTime( currentTime );
-    thrustDirectionGuidance->resetCurrentTime( currentTime );
-}
+////! Function to reset the current time variable of the thrust magnitude and direction wrappers
+//void resetThrustSettingsTime(
+//        const std::shared_ptr< propulsion::ThrustMagnitudeWrapper > thrustMagnitudeWrapper,
+//        const std::shared_ptr< propulsion::BodyFixedForceDirectionGuidance  > thrustDirectionGuidance,
+//        const double currentTime )
+//{
+//    thrustMagnitudeWrapper->resetCurrentTime( currentTime );
+//    thrustDirectionGuidance->resetCurrentTime( currentTime );
+//}
 
 
 }

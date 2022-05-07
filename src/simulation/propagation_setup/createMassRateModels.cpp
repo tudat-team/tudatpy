@@ -80,22 +80,23 @@ createMassRateModel(
 
             if( fromThrustMassModelSettings->useAllThrustModels_ == 0 )
             {
-                // Retrieve thrust models with the correct id (should be 1)
-                for( unsigned int i = 0; i < thrustAccelerations.size( ); i++ )
-                {
-                    if( std::dynamic_pointer_cast< propulsion::ThrustAcceleration >(
-                                thrustAccelerations.at( i ) )->getAssociatedThrustSource( ) ==
-                            fromThrustMassModelSettings->associatedThrustSource_ )
-                    {
-                        explicitThrustAccelerations.push_back( std::dynamic_pointer_cast< propulsion::ThrustAcceleration >(
-                                                                   thrustAccelerations.at( i ) ) );
-                    }
-                }
+                throw std::runtime_error( "Error, thrust from specific thrust source not yet implemented" );
+//                // Retrieve thrust models with the correct id (should be 1)
+//                for( unsigned int i = 0; i < thrustAccelerations.size( ); i++ )
+//                {
+//                    if( std::dynamic_pointer_cast< propulsion::ThrustAcceleration >(
+//                                thrustAccelerations.at( i ) )->getAssociatedThrustSource( ) ==
+//                            fromThrustMassModelSettings->associatedThrustSource_ )
+//                    {
+//                        explicitThrustAccelerations.push_back( std::dynamic_pointer_cast< propulsion::ThrustAcceleration >(
+//                                                                   thrustAccelerations.at( i ) ) );
+//                    }
+//                }
 
-                if( explicitThrustAccelerations.size( ) != 1 )
-                {
-                    std::cerr << "Warning when making from-thrust mass-rate model, did not find exactly 1 thrust model with correct identifier" << std::endl;
-                }
+//                if( explicitThrustAccelerations.size( ) != 1 )
+//                {
+//                    std::cerr << "Warning when making from-thrust mass-rate model, did not find exactly 1 thrust model with correct identifier" << std::endl;
+//                }
             }
             else
             {

@@ -24,7 +24,7 @@
 #include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/astro/reference_frames/referenceFrameTransformations.h"
 #include "tudat/astro/ephemerides/rotationalEphemeris.h"
-#include "tudat/astro/reference_frames/dependentOrientationCalculator.h"
+//#include "tudat/astro/reference_frames/dependentOrientationCalculator.h"
 #include "tudat/astro/aerodynamics/windModel.h"
 #include "tudat/astro/basic_astro/bodyShapeModel.h"
 
@@ -59,7 +59,7 @@ std::string getAerodynamicAngleName( const AerodynamicsReferenceFrameAngles angl
 /*!
  *  Object to calculate aerodynamic orientation angles from current vehicle state.
  */
-class AerodynamicAngleCalculator: public DependentOrientationCalculator
+class AerodynamicAngleCalculator/*: public DependentOrientationCalculator*/
 {
 public:
 
@@ -87,7 +87,7 @@ public:
             const std::function< double( ) > angleOfSideslipFunction = std::function< double( ) >( ),
             const std::function< double( ) > bankAngleFunction = std::function< double( ) >( ),
             const std::function< void( const double ) > angleUpdateFunction = std::function< void( const double ) >( ) ):
-        DependentOrientationCalculator( ),
+//        DependentOrientationCalculator( ),
         bodyFixedStateFunction_( bodyFixedStateFunction ),
         rotationFromCorotatingToInertialFrame_( rotationFromCorotatingToInertialFrame ),
         centralBodyName_( centralBodyName ),
@@ -282,6 +282,12 @@ public:
         currentBodyAngleTime_ = currentTime;
     }
 
+    void resetCurrentTime( const double currentTime = TUDAT_NAN )
+    {
+        currentTime_ = currentTime;
+        resetDerivedClassTime( currentTime );
+    }
+
 private:
 
     //! Model that computes the atmospheric wind as a function of position and time
@@ -337,6 +343,11 @@ private:
 
     //! Current time to which the bank, attack and sideslip angles have been updated.
     double currentBodyAngleTime_;
+
+
+    //! Current simulation time.
+    double currentTime_;
+
 
 };
 
@@ -452,7 +463,6 @@ private:
 
     //! Current rotation matrix from body-fixed to trajectory, as computed by last call to updateAngles function.
      Eigen::Matrix3d currentRotationFromBodyToTrajectoryFrame_;
-
 };
 
 //! Function to make aerodynamic angle computation consistent with imposed body-fixed to inertial rotation.
@@ -466,16 +476,16 @@ void setAerodynamicDependentOrientationCalculatorClosure(
         const std::function< Eigen::Quaterniond( const double ) > imposedRotationFromInertialToBodyFixedFrame,
         std::shared_ptr< AerodynamicAngleCalculator > aerodynamicAngleCalculator );
 
-//! Function to make aerodynamic angle computation consistent with existing DependentOrientationCalculator
-/*!
- * Function to make aerodynamic angle computation consistent with existing DependentOrientationCalculator
- * \param dependentOrientationCalculator Object computing the current orientation based on the current state of the
- * environment. Aerodynamic angles are to be computed from output given by this class.
- * \param aerodynamicAngleCalculator Object from which the aerodynamic angles are computed.
- */
-void setAerodynamicDependentOrientationCalculatorClosure(
-            std::shared_ptr< DependentOrientationCalculator > dependentOrientationCalculator,
-            std::shared_ptr< AerodynamicAngleCalculator > aerodynamicAngleCalculator );
+////! Function to make aerodynamic angle computation consistent with existing DependentOrientationCalculator
+///*!
+// * Function to make aerodynamic angle computation consistent with existing DependentOrientationCalculator
+// * \param dependentOrientationCalculator Object computing the current orientation based on the current state of the
+// * environment. Aerodynamic angles are to be computed from output given by this class.
+// * \param aerodynamicAngleCalculator Object from which the aerodynamic angles are computed.
+// */
+//void setAerodynamicDependentOrientationCalculatorClosure(
+//            std::shared_ptr< DependentOrientationCalculator > dependentOrientationCalculator,
+//            std::shared_ptr< AerodynamicAngleCalculator > aerodynamicAngleCalculator );
 
 //! Function to make aerodynamic angle computation consistent with existing rotational ephemeris
 /*!

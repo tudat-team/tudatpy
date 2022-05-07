@@ -335,12 +335,12 @@ inline std::shared_ptr< ThrustDirectionSettings > meeCostateBasedThrustDirection
  * extended by this function as needed.
  * \return Function determining the thrust direction in the propagation frame according to given requirements.
  */
-std::shared_ptr< propulsion::BodyFixedForceDirectionGuidance  > createThrustGuidanceModel(
-        const std::shared_ptr< ThrustDirectionSettings > thrustDirectionGuidanceSettings,
-        const SystemOfBodies& bodies,
-        const std::string& nameOfBodyWithGuidance,
-        const std::function< Eigen::Vector3d( ) > bodyFixedThrustOrientation,
-        std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >& magnitudeUpdateSettings );
+//std::shared_ptr< propulsion::BodyFixedForceDirectionGuidance  > createThrustGuidanceModel(
+//        const std::shared_ptr< ThrustDirectionSettings > thrustDirectionGuidanceSettings,
+//        const SystemOfBodies& bodies,
+//        const std::string& nameOfBodyWithGuidance,
+//        const std::function< Eigen::Vector3d( ) > bodyFixedThrustOrientation,
+//        std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >& magnitudeUpdateSettings );
 
 // List of available types of thrust magnitude types
 //! @get_docstring(ThrustMagnitudeTypes.__docstring__)

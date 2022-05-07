@@ -15,7 +15,7 @@
 #include <functional>
 
 #include "tudat/astro/reference_frames/referenceFrameTransformations.h"
-#include "tudat/astro/reference_frames/dependentOrientationCalculator.h"
+//#include "tudat/astro/reference_frames/dependentOrientationCalculator.h"
 
 #include "tudat/basics/basicTypedefs.h"
 #include "tudat/math/basic/linearAlgebra.h"
@@ -142,155 +142,155 @@ Eigen::Vector3d getForceDirectionFromTimeOnlyFunction(
         const double currentTime,
         const std::function< Eigen::Vector3d( const double ) > timeOnlyFunction );
 
-//! Class for computing the force direction directly from a function returning the associated unit vector of direction.
-class DirectionBasedForceGuidance: public BodyFixedForceDirectionGuidance
-{
-public:
+////! Class for computing the force direction directly from a function returning the associated unit vector of direction.
+//class DirectionBasedForceGuidance: public BodyFixedForceDirectionGuidance
+//{
+//public:
 
-    //! Constructor.
-    /*!
-     *  Constructor.
-     *  \param forceDirectionFunction Function returning thrust-direction (represented in the relevant propagation frame)
-     *      as a function of time.
-     *  \param centralBody Name of central body
-     *  \param bodyFixedForceDirection Function returning the unit-vector of the force direction in a body-fixed frame (e.g.
-     *      engine thrust pointing in body-fixed frame).
-     */
-    DirectionBasedForceGuidance(
-            const std::function< Eigen::Vector3d( const double ) > forceDirectionFunction,
-            const std::string& centralBody,
-            const std::function< Eigen::Vector3d( ) > bodyFixedForceDirection =
-            [ ]( ){ return Eigen::Vector3d::UnitX( ); } ):
-        BodyFixedForceDirectionGuidance ( bodyFixedForceDirection ),
-        forceDirectionFunction_( forceDirectionFunction ),
-        centralBody_( centralBody ),
-        hasWarningBeenGiven_( false ){ }
+//    //! Constructor.
+//    /*!
+//     *  Constructor.
+//     *  \param forceDirectionFunction Function returning thrust-direction (represented in the relevant propagation frame)
+//     *      as a function of time.
+//     *  \param centralBody Name of central body
+//     *  \param bodyFixedForceDirection Function returning the unit-vector of the force direction in a body-fixed frame (e.g.
+//     *      engine thrust pointing in body-fixed frame).
+//     */
+//    DirectionBasedForceGuidance(
+//            const std::function< Eigen::Vector3d( const double ) > forceDirectionFunction,
+//            const std::string& centralBody,
+//            const std::function< Eigen::Vector3d( ) > bodyFixedForceDirection =
+//            [ ]( ){ return Eigen::Vector3d::UnitX( ); } ):
+//        BodyFixedForceDirectionGuidance ( bodyFixedForceDirection ),
+//        forceDirectionFunction_( forceDirectionFunction ),
+//        centralBody_( centralBody ),
+//        hasWarningBeenGiven_( false ){ }
 
-    //! Function returning the current force direction, as computed by last call to updateCalculator/updateForceDirection.
-    /*!
-     *  Function returning the current force direction, as computed by last call to updateCalculator/updateForceDirection.
-     *  \return Current force direction, expressed in propagation frame.
-     */
-    Eigen::Vector3d getCurrentForceDirectionInPropagationFrame( )
-    {
-        return currentForceDirection_;
-    }
+//    //! Function returning the current force direction, as computed by last call to updateCalculator/updateForceDirection.
+//    /*!
+//     *  Function returning the current force direction, as computed by last call to updateCalculator/updateForceDirection.
+//     *  \return Current force direction, expressed in propagation frame.
+//     */
+//    Eigen::Vector3d getCurrentForceDirectionInPropagationFrame( )
+//    {
+//        return currentForceDirection_;
+//    }
 
-    //! Function to get the rotation from body-fixed to inertial frame.
-    /*!
-     *  Function to get the rotation from body-fixed to inertial frame.
-     *  \return Current quaternion representing rotation from body-fixed to inertial frame.
-     */
-    Eigen::Quaterniond getRotationToGlobalFrame( )
-    {
-        if ( !hasWarningBeenGiven_ )
-        {
-            hasWarningBeenGiven_ = true;
-            std::cerr << "Warning, body-fixed frame to propagation frame not yet implemented for "
-                         "DirectionBasedForceGuidance. The function will return a unit rotation to represent the "
-                         "rotation from body-fixed to inertial frame." << std::endl;
-        }
-        return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) );
-    }
+//    //! Function to get the rotation from body-fixed to inertial frame.
+//    /*!
+//     *  Function to get the rotation from body-fixed to inertial frame.
+//     *  \return Current quaternion representing rotation from body-fixed to inertial frame.
+//     */
+//    Eigen::Quaterniond getRotationToGlobalFrame( )
+//    {
+//        if ( !hasWarningBeenGiven_ )
+//        {
+//            hasWarningBeenGiven_ = true;
+//            std::cerr << "Warning, body-fixed frame to propagation frame not yet implemented for "
+//                         "DirectionBasedForceGuidance. The function will return a unit rotation to represent the "
+//                         "rotation from body-fixed to inertial frame." << std::endl;
+//        }
+//        return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) );
+//    }
 
-    //! Function to return the name of the central body.
-    /*!
-     * Function to return the name of the central body.
-     * \return Name of the central body.
-     */
-    std::string getCentralBody( )
-    {
-        return centralBody_;
-    }
+//    //! Function to return the name of the central body.
+//    /*!
+//     * Function to return the name of the central body.
+//     * \return Name of the central body.
+//     */
+//    std::string getCentralBody( )
+//    {
+//        return centralBody_;
+//    }
 
-protected:
+//protected:
 
-    //! Function to update the force direction to the current time.
-    /*!
-     *  Function to update the force direction to the current time.
-     *  \param time Time to which object is to be updated.
-     */
-    void updateForceDirection( const double time )
-    {
-        currentForceDirection_ = forceDirectionFunction_( time ).normalized( );
-    }
+//    //! Function to update the force direction to the current time.
+//    /*!
+//     *  Function to update the force direction to the current time.
+//     *  \param time Time to which object is to be updated.
+//     */
+//    void updateForceDirection( const double time )
+//    {
+//        currentForceDirection_ = forceDirectionFunction_( time ).normalized( );
+//    }
 
-    //! Function returning thrust-direction (represented in the relevant propagation frame) as a function of time.
-    std::function< Eigen::Vector3d( const double ) > forceDirectionFunction_;
+//    //! Function returning thrust-direction (represented in the relevant propagation frame) as a function of time.
+//    std::function< Eigen::Vector3d( const double ) > forceDirectionFunction_;
 
-    //! Current force direction, as computed by last call to updateCalculator/updateForceDirection.
-    Eigen::Vector3d currentForceDirection_;
+//    //! Current force direction, as computed by last call to updateCalculator/updateForceDirection.
+//    Eigen::Vector3d currentForceDirection_;
 
-    //! Name of central body
-    std::string centralBody_;
+//    //! Name of central body
+//    std::string centralBody_;
 
-private:
+//private:
 
-    //! Boolean denoting whether user has been warned of incomplete function.
-    bool hasWarningBeenGiven_;
+//    //! Boolean denoting whether user has been warned of incomplete function.
+//    bool hasWarningBeenGiven_;
 
-};
+//};
 
-//! Class for computing the force direction using the rotation matrix from the propagation to the body-fixed frame.
-class OrientationBasedForceGuidance: public BodyFixedForceDirectionGuidance
-{
-public:
+////! Class for computing the force direction using the rotation matrix from the propagation to the body-fixed frame.
+//class OrientationBasedForceGuidance: public BodyFixedForceDirectionGuidance
+//{
+//public:
 
-    //! Constructor
-    /*!
-     * Constructor
-     * \param bodyFixedFrameToBaseFrameFunction Function returning rotation from the body-fixed frame to the relevant
-     * propagation frame as a function of time.
-     * \param bodyFixedForceDirection Function returning the unit-vector of the force direction in a body-fixed frame (e.g.
-     * engine thrust pointing in body-fixed frame).
-     */
-    OrientationBasedForceGuidance(
-            const std::function< Eigen::Quaterniond( const double ) > bodyFixedFrameToBaseFrameFunction,
-            const std::function< Eigen::Vector3d( ) > bodyFixedForceDirection =
-            [ ]( ){ return  Eigen::Vector3d::UnitX( ); } ):
-        BodyFixedForceDirectionGuidance ( bodyFixedForceDirection ),
-        bodyFixedFrameToBaseFrameFunction_( bodyFixedFrameToBaseFrameFunction ){  }
+//    //! Constructor
+//    /*!
+//     * Constructor
+//     * \param bodyFixedFrameToBaseFrameFunction Function returning rotation from the body-fixed frame to the relevant
+//     * propagation frame as a function of time.
+//     * \param bodyFixedForceDirection Function returning the unit-vector of the force direction in a body-fixed frame (e.g.
+//     * engine thrust pointing in body-fixed frame).
+//     */
+//    OrientationBasedForceGuidance(
+//            const std::function< Eigen::Quaterniond( const double ) > bodyFixedFrameToBaseFrameFunction,
+//            const std::function< Eigen::Vector3d( ) > bodyFixedForceDirection =
+//            [ ]( ){ return  Eigen::Vector3d::UnitX( ); } ):
+//        BodyFixedForceDirectionGuidance ( bodyFixedForceDirection ),
+//        bodyFixedFrameToBaseFrameFunction_( bodyFixedFrameToBaseFrameFunction ){  }
 
-    //! Function returning the current force direction, as computed by last call to updateCalculator/updateForceDirection.
-    /*!
-     *  Function returning the current force direction, as computed by last call to updateCalculator/updateForceDirection.
-     *  \return Current force direction, expressed in propagation frame.
-     */
-    Eigen::Vector3d getCurrentForceDirectionInPropagationFrame( )
-    {
-       return ( getRotationToGlobalFrame( ) * currentBodyFixedForceDirection_ ).normalized( );
-    }
+//    //! Function returning the current force direction, as computed by last call to updateCalculator/updateForceDirection.
+//    /*!
+//     *  Function returning the current force direction, as computed by last call to updateCalculator/updateForceDirection.
+//     *  \return Current force direction, expressed in propagation frame.
+//     */
+//    Eigen::Vector3d getCurrentForceDirectionInPropagationFrame( )
+//    {
+//       return ( getRotationToGlobalFrame( ) * currentBodyFixedForceDirection_ ).normalized( );
+//    }
 
-    //! Function to get the rotation from body-fixed to inertial frame.
-    /*!
-     *  Function to get the rotation from body-fixed to inertial frame. For thsi derived class, this simply means returning
-     *  the currentBodyFixedFrameToBaseFrame_ rotation.
-     *  \return The rotation from body-fixed to inertial frame.
-     */
-    Eigen::Quaterniond getRotationToGlobalFrame( )
-    {
-        return currentBodyFixedFrameToBaseFrame_ ;
-    }
+//    //! Function to get the rotation from body-fixed to inertial frame.
+//    /*!
+//     *  Function to get the rotation from body-fixed to inertial frame. For thsi derived class, this simply means returning
+//     *  the currentBodyFixedFrameToBaseFrame_ rotation.
+//     *  \return The rotation from body-fixed to inertial frame.
+//     */
+//    Eigen::Quaterniond getRotationToGlobalFrame( )
+//    {
+//        return currentBodyFixedFrameToBaseFrame_ ;
+//    }
 
-protected:
+//protected:
 
-    //! Function to update the force direction to the current time.
-    /*!
-     *  Function to update the force direction to the current time.
-     *  \param time Time to which object is to be updated.
-     */
-    void updateForceDirection( const double time )
-    {
-        currentBodyFixedFrameToBaseFrame_ = bodyFixedFrameToBaseFrameFunction_( time );
-    }
+//    //! Function to update the force direction to the current time.
+//    /*!
+//     *  Function to update the force direction to the current time.
+//     *  \param time Time to which object is to be updated.
+//     */
+//    void updateForceDirection( const double time )
+//    {
+//        currentBodyFixedFrameToBaseFrame_ = bodyFixedFrameToBaseFrameFunction_( time );
+//    }
 
-    //! Function returning rotation from the body-fixed frame to the relevant propagation frame as a function of time.
-    std::function< Eigen::Quaterniond( const double ) > bodyFixedFrameToBaseFrameFunction_;
+//    //! Function returning rotation from the body-fixed frame to the relevant propagation frame as a function of time.
+//    std::function< Eigen::Quaterniond( const double ) > bodyFixedFrameToBaseFrameFunction_;
 
-    //! The rotation from body-fixed to inertial frame.
-    Eigen::Quaterniond currentBodyFixedFrameToBaseFrame_;
+//    //! The rotation from body-fixed to inertial frame.
+//    Eigen::Quaterniond currentBodyFixedFrameToBaseFrame_;
 
-};
+//};
 
 
 
