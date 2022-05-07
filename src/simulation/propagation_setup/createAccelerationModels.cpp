@@ -18,6 +18,7 @@ using namespace boost::placeholders;
 
 #include "tudat/astro/aerodynamics/flightConditions.h"
 #include "tudat/astro/ephemerides/frameManager.h"
+#include "tudat/astro/ephemerides/directionBasedRotationalEphemeris.h"
 #include "tudat/astro/gravitation/sphericalHarmonicsGravityField.h"
 #include "tudat/astro/propulsion/thrustMagnitudeWrapper.h"
 #include "tudat/astro/reference_frames/aerodynamicAngleCalculator.h"
@@ -1129,9 +1130,38 @@ createThrustAcceleratioModel(
     std::function< Eigen::Vector3d( ) > bodyFixedThrustDirectionFunction =
             getBodyFixedThrustDirection( thrustAccelerationSettings->thrustMagnitudeSettings_, bodies,
                                          nameOfBodyUndergoingThrust );
-    std::function< Eigen::Vector3d( ) > inertialThrustDirectionFunction = [=]( ){
+
+
+    std::function< Eigen::Vector3d( ) > inertialThrustDirectionFunction = nullptr;
+    std::shared_ptr< ephemerides::RotationalEphemeris > bodyRotationModel =
+            bodies.at( nameOfBodyUndergoingThrust )->getRotationalEphemeris( );
+    std::shared_ptr< ephemerides::DirectionBasedRotationalEphemeris > directionBasedRotation =
+                std::dynamic_pointer_cast< ephemerides::DirectionBasedRotationalEphemeris >( bodyRotationModel );
+
+    if( directionBasedRotation != nullptr )
+    {
+        Eigen::Vector3d inertialThrustDirection = directionBasedRotation->getAssociatedBodyFixedDirection( );
+        Eigen::Vector3d definingOrientationDirecion =
+                directionBasedRotation->getAssociatedBodyFixedDirection( );
+
+        if( thrustAccelerationSettings->thrustMagnitudeSettings_->bodyFixedThrustDirectionIsFixed( ) &&
+                ( ( inertialThrustDirection == definingOrientationDirecion ) ||
+                  ( inertialThrustDirection == -directionBasedRotation ) ) )
+        {
+            double thrustDirectionSign =
+                    ( ( inertialThrustDirection == definingOrientationDirecion ) ? 1.0 : -1.0 );
+            inertialThrustDirectionFunction = [=]( ){
+                return thrustDirectionSign * directionBasedRotation
+            };
+        }
+    }
+
+    if( inertialThrustDirectionFunction == nullptr )
+    {
+        inertialThrustDirectionFunction = [=]( ){
         return bodies.at( nameOfBodyUndergoingThrust )->getCurrentRotationMatrixToGlobalFrame( ) *
                 bodyFixedThrustDirectionFunction( ); };
+    }
 
     //    // Create thrust direction model.
     //    std::shared_ptr< propulsion::BodyFixedForceDirectionGuidance  > thrustDirectionGuidance = createThrustGuidanceModel(

@@ -748,6 +748,10 @@ public:
         {
             throw std::runtime_error( "Error when retrieving derivative of rotation to global frame from body " + bodyName_ + ", state of body is not yet defined" );
         }
+        else if( currentRotationToLocalFrameDerivative_.hasNaN( ) )
+        {
+            throw std::runtime_error( "Error when retrieving derivative of rotation to global frame from body " + bodyName_ + ", matrix is undefined" );
+        }
         else
         {
             return currentRotationToLocalFrameDerivative_.transpose();
@@ -767,6 +771,10 @@ public:
         if( !isRotationSet_ )
         {
             throw std::runtime_error( "Error when retrieving derivative of rotation to local frame from body " + bodyName_ + ", state of body is not yet defined" );
+        }
+        else if( currentRotationToLocalFrameDerivative_.hasNaN( ) )
+        {
+            throw std::runtime_error( "Error when retrieving derivative of rotation to local frame from body " + bodyName_ + ", matrix is undefined" );
         }
         else
         {

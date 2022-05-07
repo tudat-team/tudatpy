@@ -478,6 +478,8 @@ public:
      */
     std::string getTargetFrameOrientation( ) { return targetFrameOrientation_; }
 
+    virtual void resetCurrentTime( const double currentTime = TUDAT_NAN ){ }
+
 protected:
 
     //! Base reference frame orientation.

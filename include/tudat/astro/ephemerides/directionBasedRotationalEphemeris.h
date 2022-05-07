@@ -21,9 +21,13 @@ public:
      */
     DirectionBasedRotationalEphemeris(
             const std::function< Eigen::Vector3d( const double ) > inertialBodyAxisDirectionFunction,
+            const Eigen::Vector3d associatedBodyFixedDirection,
             const std::string& baseFrameOrientation,
-            const std::string& targetFrameOrientation, )
-        : RotationalEphemeris( baseFrameOrientation, targetFrameOrientation )
+            const std::string& targetFrameOrientation )
+        : RotationalEphemeris( baseFrameOrientation, targetFrameOrientation ),
+          inertialBodyAxisDirectionFunction_( inertialBodyAxisDirectionFunction ),
+          associatedBodyFixedDirection_( associatedBodyFixedDirection ),
+          currentTime_( TUDAT_NAN )
     { }
 
     //! Virtual destructor.
@@ -33,21 +37,68 @@ public:
     virtual ~DirectionBasedRotationalEphemeris( ) { }
 
     virtual Eigen::Quaterniond getRotationToBaseFrame(
-            const double secondsSinceEpoch ) = 0;
+            const double currentTime )
+    {
+        resetCurrentTime( currentTime );
+    }
 
     virtual Eigen::Quaterniond getRotationToTargetFrame(
-            const double secondsSinceEpoch ) = 0;
+            const double currentTime )
+    {
+        resetCurrentTime( currentTime );
+    }
 
     virtual Eigen::Matrix3d getDerivativeOfRotationToBaseFrame(
-            const double secondsSinceEpoch ) = 0;
+            const double currentTime )
+    {
+        return Eigen::Matrix3d::Constant( TUDAT_NAN );
+    }
 
     virtual Eigen::Matrix3d getDerivativeOfRotationToTargetFrame(
-            const double secondsSinceEpoch ) = 0;
+            const double currentTime )
+
+    {
+        return Eigen::Matrix3d::Constant( TUDAT_NAN );
+    }
+
+
+    virtual void resetCurrentTime( const double currentTime = TUDAT_NAN )
+    {
+        if( !( currentTime == currentTime_ ) )
+        {
+            currentTime_ = currentTime;
+            if( currentTime_ == currentTime_ )
+            {
+                currentInertialDirection_ = inertialBodyAxisDirectionFunction_( currentTime_ );
+            }
+            else
+            {
+                currentInertialDirection_.setConstant( TUDAT_NAN );
+            }
+        }
+    }
+
+    Eigen::Vector3d getAssociatedBodyFixedDirection( )
+    {
+        return associatedBodyFixedDirection_;
+    }
+
+    Eigen::Vector3d getCurrentInertialDirection( )
+    {
+        return currentInertialDirection_;
+    }
+
 
 protected:
 
-    //! Function returning thrust-direction (represented in the relevant propagation frame) as a function of time.
-    std::function< Eigen::Vector3d( const double ) > forceDirectionFunction_;
+    std::function< Eigen::Vector3d( const double ) > inertialBodyAxisDirectionFunction_;
+
+    Eigen::Vector3d associatedBodyFixedDirection_;
+
+    Eigen::Vector3d currentInertialDirection_;
+
+    double currentTime_;
+
 };
 
 
