@@ -72,7 +72,7 @@ public:
     ThrustAcceleration(
            const std::shared_ptr< ThrustMagnitudeWrapper > thrustMagnitudeWrapper,
 //            const std::function< double( ) > thrustMagnitudeFunction,
-            const std::function< Eigen::Vector3d( ) > inertialThrustDirectionFunction,
+            const std::function< Eigen::Vector3d( const double ) > inertialThrustDirectionFunction,
             const std::function< double( ) > bodyMassFunction,
 //            const std::function< double( ) > massRateFunction,
 //            const std::string associatedThrustSource = "",
@@ -102,7 +102,6 @@ public:
     virtual void resetTime( const double currentTime = TUDAT_NAN )
     {
         currentTime_ = currentTime;
-        thrustMagnitudeWrapper_->resetCurrentTime( currentTime_ );
 
 //        if( !( timeResetFunction_ == nullptr ) )
 //        {
@@ -130,7 +129,7 @@ public:
 //            }
 
             // Retrieve thrust direction.
-            currentAccelerationDirection_ = inertialThrustDirectionFunction_( );
+            currentAccelerationDirection_ = inertialThrustDirectionFunction_( currentTime );
 
             if( ( std::fabs( currentAccelerationDirection_.norm( ) ) - 1.0 ) >
                     10.0 * std::numeric_limits< double >::epsilon( ) )
@@ -139,15 +138,15 @@ public:
             }
 
             // Retrieve magnitude of thrust and mass rate.
-            thrustMagnitudeWrapper_->update( currentTime_ );
+            thrustMagnitudeWrapper_->update( currentTime );
             currentThrustMagnitude_ = thrustMagnitudeWrapper_->getCurrentThrustMagnitude( );
             currentMassRate_ = -thrustMagnitudeWrapper_->getCurrentMassRate( );
 
-            std::cout<<currentAcceleration_<<" "<<currentAccelerationDirection_<<" "<<
-                       currentThrustMagnitude_ <<" "<<bodyMassFunction_( )<<std::endl;
-
             // Compute acceleration due to thrust
             currentAcceleration_ = currentAccelerationDirection_ * currentThrustMagnitude_ / bodyMassFunction_( );
+
+//            std::cout<<currentAcceleration_<<" "<<currentAccelerationDirection_<<" "<<
+//                       currentThrustMagnitude_ <<" "<<bodyMassFunction_( )<<std::endl;
 
             // Reset current time.
             currentTime_ = currentTime;
@@ -219,7 +218,7 @@ protected:
      * Function returning the direction of the thrust (as a unit vector). Any dependencies of the
      * thrust on (in)dependent variables is to be handled by the thrustUpdateFunction.
      */
-    std::function< Eigen::Vector3d( ) > inertialThrustDirectionFunction_;
+    std::function< Eigen::Vector3d( const double ) > inertialThrustDirectionFunction_;
 
     //! Function returning the current mass of the body being propagated.
     std::function< double( ) > bodyMassFunction_;

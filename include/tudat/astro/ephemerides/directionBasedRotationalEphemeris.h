@@ -45,7 +45,7 @@ public:
     virtual Eigen::Quaterniond getRotationToTargetFrame(
             const double currentTime )
     {
-        resetCurrentTime( currentTime );
+        return getRotationToBaseFrame( currentTime ).inverse( );
     }
 
     virtual Eigen::Matrix3d getDerivativeOfRotationToBaseFrame(
@@ -83,8 +83,13 @@ public:
         return associatedBodyFixedDirection_;
     }
 
-    Eigen::Vector3d getCurrentInertialDirection( )
+    Eigen::Vector3d getCurrentInertialDirection( const double currentTime )
     {
+        if( currentTime != currentTime_ )
+        {
+            resetCurrentTime( currentTime );
+        }
+        std::cout<<"Thrust: "<<currentTime<<" "<<currentInertialDirection_.transpose( )<<std::endl;
         return currentInertialDirection_;
     }
 

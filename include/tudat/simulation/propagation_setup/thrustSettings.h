@@ -414,7 +414,7 @@ public:
 
     bool bodyFixedThrustDirectionIsFixed( )
     {
-        true;
+        return true;
     }
 
     // Constant thrust magnitude that is to be used.
@@ -450,7 +450,7 @@ public:
 
     bool bodyFixedThrustDirectionIsFixed( )
     {
-        false;
+        return false;
     }
 
     // Boolean denoting whether all engines of the associated body are to be combined into a single thrust magnitude
@@ -501,7 +501,7 @@ public:
 
     bool bodyFixedThrustDirectionIsFixed( )
     {
-        false;
+        return false;
     }
 
     // Function returning thrust magnitude as a function of time.
@@ -1069,6 +1069,11 @@ public:
     {
         parseInputDataAndCheckConsistency(
                     thrustMagnitudeInterpolator, std::shared_ptr< interpolators::Interpolator< double, double > >( ) );
+    }
+
+    virtual bool bodyFixedThrustDirectionIsFixed( )
+    {
+        return false;
     }
 
     // Function returning the thrust as a function of the independent variables.
