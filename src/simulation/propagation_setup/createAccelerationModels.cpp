@@ -1132,36 +1132,44 @@ createThrustAcceleratioModel(
                                          nameOfBodyUndergoingThrust );
 
 
-    std::function< Eigen::Vector3d( ) > inertialThrustDirectionFunction = nullptr;
+    std::function< Eigen::Vector3d( const double ) > inertialThrustDirectionFunction = nullptr;
     std::shared_ptr< ephemerides::RotationalEphemeris > bodyRotationModel =
             bodies.at( nameOfBodyUndergoingThrust )->getRotationalEphemeris( );
     std::shared_ptr< ephemerides::DirectionBasedRotationalEphemeris > directionBasedRotation =
                 std::dynamic_pointer_cast< ephemerides::DirectionBasedRotationalEphemeris >( bodyRotationModel );
 
+    std::cout<<"Direction based rotatiton: "<<directionBasedRotation<<std::endl;
     if( directionBasedRotation != nullptr )
     {
         Eigen::Vector3d inertialThrustDirection = directionBasedRotation->getAssociatedBodyFixedDirection( );
         Eigen::Vector3d definingOrientationDirecion =
                 directionBasedRotation->getAssociatedBodyFixedDirection( );
 
+        std::cout<<"Directions: "<<inertialThrustDirection.transpose( )<<std::endl;
+        std::cout<<"Directions: "<<definingOrientationDirecion.transpose( )<<std::endl;
+
         if( thrustAccelerationSettings->thrustMagnitudeSettings_->bodyFixedThrustDirectionIsFixed( ) &&
                 ( ( inertialThrustDirection == definingOrientationDirecion ) ||
-                  ( inertialThrustDirection == -directionBasedRotation ) ) )
+                  ( inertialThrustDirection == -definingOrientationDirecion ) ) )
         {
             double thrustDirectionSign =
                     ( ( inertialThrustDirection == definingOrientationDirecion ) ? 1.0 : -1.0 );
-            inertialThrustDirectionFunction = [=]( ){
-                return thrustDirectionSign * directionBasedRotation
+            inertialThrustDirectionFunction = [=]( const double currentTime ){
+                return thrustDirectionSign * directionBasedRotation->getCurrentInertialDirection( currentTime  );
             };
         }
     }
 
+    std::cout<<"Direction function: "<<( inertialThrustDirectionFunction == nullptr )<<std::endl;
+
     if( inertialThrustDirectionFunction == nullptr )
     {
-        inertialThrustDirectionFunction = [=]( ){
+        inertialThrustDirectionFunction = [=]( const double ){
         return bodies.at( nameOfBodyUndergoingThrust )->getCurrentRotationMatrixToGlobalFrame( ) *
                 bodyFixedThrustDirectionFunction( ); };
+        directionUpdateSettings[ propagators::body_rotational_state_update ].push_back( nameOfBodyUndergoingThrust );
     }
+    std::cout<<"Direction function: "<<( inertialThrustDirectionFunction == nullptr )<<std::endl;
 
     //    // Create thrust direction model.
     //    std::shared_ptr< propulsion::BodyFixedForceDirectionGuidance  > thrustDirectionGuidance = createThrustGuidanceModel(
@@ -1169,7 +1177,6 @@ createThrustAcceleratioModel(
     //            getBodyFixedThrustDirection( thrustAccelerationSettings->thrustMagnitudeSettings_, bodies,
     //                                             nameOfBodyUndergoingThrust ), directionUpdateSettings );
 
-    directionUpdateSettings[ propagators::body_rotational_state_update ].push_back( nameOfBodyUndergoingThrust );
 
     // Create thrust magnitude model
     std::shared_ptr< propulsion::ThrustMagnitudeWrapper > thrustMagnitude = createThrustMagnitudeWrapper(
