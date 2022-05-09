@@ -183,15 +183,15 @@ namespace environment_setup {
               py::arg("radiationPressureInterfaceSettings"), py::arg("body_name"),
               py::arg("body_dict"));
 
-        m.def("set_aerodynamic_guidance",
-              py::overload_cast<
-                      const std::shared_ptr<ta::AerodynamicGuidance>,
-                      const std::shared_ptr<tss::Body >,
-                      const bool >
-                      (&tss::setGuidanceAnglesFunctions),
-              py::arg("aerodynamic_guidance"),
-              py::arg("body"),
-              py::arg("silence_warnings") = false );
+//          m.def("set_aerodynamic_guidance",
+//              py::overload_cast<
+//                      const std::shared_ptr<ta::AerodynamicGuidance>,
+//                      const std::shared_ptr<tss::Body >,
+//                      const bool >
+//                      (&tss::setGuidanceAnglesFunctions),
+//              py::arg("aerodynamic_guidance"),
+//              py::arg("body"),
+//              py::arg("silence_warnings") = false );
 
         m.def("set_aerodynamic_orientation_functions", &tss::setAerodynamicOrientationFunctions,
               py::arg("body"),

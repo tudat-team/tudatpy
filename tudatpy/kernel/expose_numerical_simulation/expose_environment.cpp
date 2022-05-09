@@ -49,6 +49,7 @@ namespace tg = tudat::gravitation;
 namespace trf = tudat::reference_frames;
 namespace tss = tudat::simulation_setup;
 namespace ti = tudat::interpolators;
+namespace tsm = tudat::system_models;
 
 
 
@@ -143,13 +144,30 @@ void expose_environment(py::module &m) {
             .def_property_readonly("current_force_coefficients", &ta::AerodynamicCoefficientInterface::getCurrentForceCoefficients )
             .def_property_readonly("current_moment_coefficients", &ta::AerodynamicCoefficientInterface::getCurrentMomentCoefficients )
             .def_property_readonly("current_coefficients", &ta::AerodynamicCoefficientInterface::getCurrentAerodynamicCoefficients )
+            .def("set_control_surface_increments", &ta::AerodynamicCoefficientInterface::setControlSurfaceIncrements,
+                 py::arg( "control_surface_list" ) )
             .def("update_coefficients", &ta::AerodynamicCoefficientInterface::updateCurrentCoefficients,
                  py::arg( "independent_variables" ),
                  py::arg( "time") );
 
+    py::class_<ta::ControlSurfaceIncrementAerodynamicInterface,
+            std::shared_ptr<ta::ControlSurfaceIncrementAerodynamicInterface>>(
+                m, "ControlSurfaceIncrementAerodynamicInterface", "<no_doc, only_dec>");
+
+    py::class_<ta::CustomControlSurfaceIncrementAerodynamicInterface,
+            std::shared_ptr<ta::CustomControlSurfaceIncrementAerodynamicInterface>,
+            ta::ControlSurfaceIncrementAerodynamicInterface>(
+                m, "CustomControlSurfaceIncrementAerodynamicInterface", "<no_doc, only_dec>")
+            .def(py::init<
+                 const std::function< Eigen::Vector6d( const std::vector< double >& ) >,
+                 const std::vector< ta::AerodynamicCoefficientsIndependentVariables > >(),
+                 py::arg("coefficient_function"),
+                 py::arg("independent_variable_names") );
+
     py::class_<ta::AerodynamicCoefficientGenerator<3, 6>,
             std::shared_ptr<ta::AerodynamicCoefficientGenerator<3, 6>>,
             ta::AerodynamicCoefficientInterface>(m, "AerodynamicCoefficientGenerator36", "<no_doc, only_dec>");
+
 
     m.def("get_default_local_inclination_mach_points", &ta::getDefaultHypersonicLocalInclinationMachPoints,
           py::arg( "mach_regime" ) = "Full" );
@@ -199,6 +217,16 @@ void expose_environment(py::module &m) {
     m.def("get_local_inclination_mesh", &ta::getVehicleMesh,
           py::arg( "local_inclination_analysis_object" ) );
 
+
+
+
+    py::class_<tsm::VehicleSystems,
+            std::shared_ptr<tsm::VehicleSystems>>(m, "VehicleSystems" )
+            .def(py::init< >() )
+            .def("set_control_surface_deflection",
+                 &tsm::VehicleSystems::setCurrentControlSurfaceDeflection,
+                 py::arg("control_surface_id"),
+                 py::arg("deflection_angle"));
 
     /*!
      **************   FLIGHT CONDITIONS AND ASSOCIATED FUNCTIONALITY  ******************
