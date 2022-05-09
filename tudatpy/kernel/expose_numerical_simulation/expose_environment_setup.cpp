@@ -43,6 +43,35 @@ namespace tg = tudat::gravitation;
 namespace tcc = tudat::coordinate_conversions;
 
 
+namespace tudat
+{
+namespace simulation_setup
+{
+
+void setGuidanceAnglesFunctionsPy(
+        const std::shared_ptr< ta::AerodynamicGuidance > aerodynamicGuidance,
+        const std::shared_ptr< tss::Body > bodyWithAngles,
+        const bool silenceWarnings )
+{
+    std::shared_ptr< reference_frames::DependentOrientationCalculator >  orientationCalculator =
+            bodyWithAngles->getDependentOrientationCalculator( );
+    std::shared_ptr< reference_frames::AerodynamicAngleCalculator > angleCalculator =
+            std::dynamic_pointer_cast< reference_frames::AerodynamicAngleCalculator >( orientationCalculator );
+
+    if( angleCalculator == nullptr )
+    {
+        throw std::runtime_error( "Error, body does not have AerodynamicAngleCalculator when setting aerodynamic guidance" );
+    }
+    else
+    {
+        setGuidanceAnglesFunctions( aerodynamicGuidance, angleCalculator, silenceWarnings );
+    }
+}
+
+}
+
+}
+
 
 namespace tudatpy {
 namespace numerical_simulation {
@@ -183,15 +212,11 @@ namespace environment_setup {
               py::arg("radiationPressureInterfaceSettings"), py::arg("body_name"),
               py::arg("body_dict"));
 
-//          m.def("set_aerodynamic_guidance",
-//              py::overload_cast<
-//                      const std::shared_ptr<ta::AerodynamicGuidance>,
-//                      const std::shared_ptr<tss::Body >,
-//                      const bool >
-//                      (&tss::setGuidanceAnglesFunctions),
-//              py::arg("aerodynamic_guidance"),
-//              py::arg("body"),
-//              py::arg("silence_warnings") = false );
+          m.def("set_aerodynamic_guidance",
+              &tss::setGuidanceAnglesFunctionsPy,
+              py::arg("aerodynamic_guidance"),
+              py::arg("body"),
+              py::arg("silence_warnings") = false );
 
         m.def("set_aerodynamic_orientation_functions", &tss::setAerodynamicOrientationFunctions,
               py::arg("body"),
