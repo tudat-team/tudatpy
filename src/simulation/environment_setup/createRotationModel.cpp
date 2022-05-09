@@ -13,7 +13,7 @@
 #include "tudat/astro/ephemerides/fullPlanetaryRotationModel.h"
 #include "tudat/astro/ephemerides/tabulatedRotationalEphemeris.h"
 #include "tudat/interface/spice/spiceRotationalEphemeris.h"
-
+#include "tudat/simulation/environment_setup/createFlightConditions.h"
 #include "tudat/simulation/environment_setup/createRotationModel.h"
 
 #if TUDAT_BUILD_WITH_SOFA_INTERFACE
@@ -85,6 +85,39 @@ std::function< Eigen::Vector6d( const double, bool ) > createRelativeStateFuncti
 
     return std::bind( &getStateFromSelectedStateFunction, std::placeholders::_1, std::placeholders::_2,
                       fromBodyStateFunction, fromEphemerisStateFunction );
+}
+
+std::shared_ptr< ephemerides::RotationalEphemeris > createAerodynamicAngleBasedRotationModel(
+        const std::string& body,
+        const std::string& centralBody,
+        const SystemOfBodies& bodies,
+        const std::string& originalFrame,
+        const std::string& targetFrame )
+{
+    if( bodies.count( body ) == 0 )
+    {
+        throw std::runtime_error( "Error when creating aerodynamic angle based rotation model, body " + body + " not found" );
+    }
+
+    std::shared_ptr< reference_frames::AerodynamicAngleCalculator > angleCalculator;
+
+    if( bodies.at( body )->getFlightConditions( ) != nullptr )
+    {
+        angleCalculator = bodies.at( body )->getFlightConditions( )->getAerodynamicAngleCalculator( );
+    }
+    else
+    {
+        if( bodies.count( centralBody ) == 0 )
+        {
+            throw std::runtime_error( "Error when creating aerodynamic angle based rotation model, central body " + centralBody + " not found" );
+        }
+
+        angleCalculator = simulation_setup::createAerodynamicAngleCalculator(
+                    bodies.at( body ), bodies.at( centralBody ), body, centralBody );
+    }
+
+    return std::make_shared< ephemerides::AerodynamicAngleRotationalEphemeris >(
+                angleCalculator, originalFrame, targetFrame );
 }
 
 //! Function to create a rotation model.

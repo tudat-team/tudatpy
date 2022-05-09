@@ -28,6 +28,12 @@ namespace tudat
 namespace simulation_setup
 {
 
+std::shared_ptr< reference_frames::AerodynamicAngleCalculator > createAerodynamicAngleCalculator(
+        const std::shared_ptr< Body > bodyWithFlightConditions,
+        const std::shared_ptr< Body > centralBody,
+        const std::string& nameOfBodyUndergoingAcceleration,
+        const std::string& nameOfBodyExertingAcceleration );
+
 //! Function to create an atmospheric flight conditions object
 /*!
  * Function to create an atmospheric flight conditions object, which is responsible for calculating the various
