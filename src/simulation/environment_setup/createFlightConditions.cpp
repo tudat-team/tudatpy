@@ -29,6 +29,44 @@ namespace tudat
 namespace simulation_setup
 {
 
+std::shared_ptr< reference_frames::AerodynamicAngleCalculator >  createAerodynamicAngleCalculator(
+        const std::shared_ptr< Body > bodyWithFlightConditions,
+        const std::shared_ptr< Body > centralBody,
+        const std::string& nameOfBodyUndergoingAcceleration,
+        const std::string& nameOfBodyExertingAcceleration )
+{
+    if( std::dynamic_pointer_cast< ephemerides::AerodynamicAngleRotationalEphemeris >(
+                bodyWithFlightConditions->getRotationalEphemeris( ) ) != nullptr )
+    {
+        return std::dynamic_pointer_cast< ephemerides::AerodynamicAngleRotationalEphemeris >(
+                    bodyWithFlightConditions->getRotationalEphemeris( ) )->getAerodynamicAngleCalculator( );
+    }
+    else
+    {
+        // Create function to rotate state from intertial to body-fixed frame.
+        std::function< Eigen::Quaterniond( ) > rotationToFrameFunction =
+                std::bind( &Body::getCurrentRotationToLocalFrame, centralBody );
+        std::function< Eigen::Matrix3d( ) > rotationMatrixToFrameDerivativeFunction =
+                std::bind( &Body::getCurrentRotationMatrixDerivativeToLocalFrame, centralBody );
+
+        std::function< Eigen::Matrix< double, 6, 1 >( ) > bodyStateFunction = std::bind( &Body::getState, bodyWithFlightConditions );
+        std::function< Eigen::Matrix< double, 6, 1 >( ) > centralBodyStateFunction = std::bind( &Body::getState, centralBody );
+
+        std::function< Eigen::Matrix< double, 6, 1 >( ) > relativeBodyFixedStateFunction =
+                std::bind( &ephemerides::transformRelativeStateToFrame< double >,
+                           bodyStateFunction, centralBodyStateFunction,
+                           rotationToFrameFunction,
+                           rotationMatrixToFrameDerivativeFunction );
+
+        // Create aerodynamic angles calculator and set in flight conditions.
+        return std::make_shared< reference_frames::AerodynamicAngleCalculator >(
+                    relativeBodyFixedStateFunction,
+                    std::bind( &simulation_setup::Body::getCurrentRotationToGlobalFrame, centralBody ),
+                    nameOfBodyExertingAcceleration, 1 );
+    }
+
+}
+
 //! Function to create an atmospheric flight conditions object
 std::shared_ptr< aerodynamics::AtmosphericFlightConditions > createAtmosphericFlightConditions(
         const std::shared_ptr< Body > bodyWithFlightConditions,
@@ -69,28 +107,12 @@ std::shared_ptr< aerodynamics::AtmosphericFlightConditions > createAtmosphericFl
                     " has no aerodynamic coefficients." );
     }
 
-
-    // Create function to rotate state from intertial to body-fixed frame.
-    std::function< Eigen::Quaterniond( ) > rotationToFrameFunction =
-            std::bind( &Body::getCurrentRotationToLocalFrame, centralBody );
-    std::function< Eigen::Matrix3d( ) > rotationMatrixToFrameDerivativeFunction =
-            std::bind( &Body::getCurrentRotationMatrixDerivativeToLocalFrame, centralBody );
-
-    std::function< Eigen::Matrix< double, 6, 1 >( ) > bodyStateFunction = std::bind( &Body::getState, bodyWithFlightConditions );
-    std::function< Eigen::Matrix< double, 6, 1 >( ) > centralBodyStateFunction = std::bind( &Body::getState, centralBody );
-
-    std::function< Eigen::Matrix< double, 6, 1 >( ) > relativeBodyFixedStateFunction =
-            std::bind( &ephemerides::transformRelativeStateToFrame< double >,
-                         bodyStateFunction, centralBodyStateFunction,
-                         rotationToFrameFunction,
-                         rotationMatrixToFrameDerivativeFunction );
-
     // Create aerodynamic angles calculator and set in flight conditions.
     std::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator =
-            std::make_shared< reference_frames::AerodynamicAngleCalculator >(
-                relativeBodyFixedStateFunction,
-                std::bind( &simulation_setup::Body::getCurrentRotationToGlobalFrame, centralBody ),
-                nameOfBodyExertingAcceleration, 1,
+            createAerodynamicAngleCalculator(
+                bodyWithFlightConditions, centralBody, nameOfBodyUndergoingAcceleration,
+                nameOfBodyExertingAcceleration );
+    aerodynamicAngleCalculator->setOrientationAngleFunctions(
                 angleOfAttackFunction, angleOfSideslipFunction, bankAngleFunction, angleUpdateFunction );
 
     // Add wind model if present
@@ -149,27 +171,11 @@ std::shared_ptr< aerodynamics::FlightConditions >  createFlightConditions(
                     " has no rotation model." );
     }
 
-    // Create function to rotate state from intertial to body-fixed frame.
-    std::function< Eigen::Quaterniond( ) > rotationToFrameFunction =
-            std::bind( &Body::getCurrentRotationToLocalFrame, centralBody );
-    std::function< Eigen::Matrix3d( ) > rotationMatrixToFrameDerivativeFunction =
-            std::bind( &Body::getCurrentRotationMatrixDerivativeToLocalFrame, centralBody );
-
-    std::function< Eigen::Matrix< double, 6, 1 >( ) > bodyStateFunction = std::bind( &Body::getState, bodyWithFlightConditions );
-    std::function< Eigen::Matrix< double, 6, 1 >( ) > centralBodyStateFunction = std::bind( &Body::getState, centralBody );
-
-    std::function< Eigen::Matrix< double, 6, 1 >( ) > relativeBodyFixedStateFunction =
-            std::bind( &ephemerides::transformRelativeStateToFrame< double >,
-                         bodyStateFunction, centralBodyStateFunction,
-                         rotationToFrameFunction,
-                         rotationMatrixToFrameDerivativeFunction );
-
     // Create aerodynamic angles calculator and set in flight conditions.
     std::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator =
-            std::make_shared< reference_frames::AerodynamicAngleCalculator >(
-                relativeBodyFixedStateFunction,
-                std::bind( &simulation_setup::Body::getCurrentRotationToGlobalFrame, centralBody ),
-                nameOfBodyExertingAcceleration, 1 );
+            createAerodynamicAngleCalculator(
+                bodyWithFlightConditions, centralBody, nameOfBodyUndergoingAcceleration,
+                nameOfBodyExertingAcceleration );
 
     return std::make_shared< aerodynamics::FlightConditions >(
                 centralBody->getShapeModel( ), aerodynamicAngleCalculator );

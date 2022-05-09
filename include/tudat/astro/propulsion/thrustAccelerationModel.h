@@ -134,7 +134,9 @@ public:
             if( ( std::fabs( currentAccelerationDirection_.norm( ) ) - 1.0 ) >
                     10.0 * std::numeric_limits< double >::epsilon( ) )
             {
-                throw std::runtime_error( "Error in thrust acceleration, direction is not a unit vector"  );
+                std::cout<<std::setprecision( 16 )<<std::fabs( currentAccelerationDirection_.norm( ) ) - 1.0<<std::endl;
+                throw std::runtime_error( "Error in thrust acceleration, direction is not a unit vector" + std::to_string(
+                                              ( std::fabs( currentAccelerationDirection_.norm( ) ) - 1.0 ) ) );
             }
 
             // Retrieve magnitude of thrust and mass rate.

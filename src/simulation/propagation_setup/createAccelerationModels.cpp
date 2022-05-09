@@ -1145,9 +1145,6 @@ createThrustAcceleratioModel(
         Eigen::Vector3d definingOrientationDirecion =
                 directionBasedRotation->getAssociatedBodyFixedDirection( );
 
-        std::cout<<"Directions: "<<inertialThrustDirection.transpose( )<<std::endl;
-        std::cout<<"Directions: "<<definingOrientationDirecion.transpose( )<<std::endl;
-
         if( thrustAccelerationSettings->thrustMagnitudeSettings_->bodyFixedThrustDirectionIsFixed( ) &&
                 ( ( inertialThrustDirection == definingOrientationDirecion ) ||
                   ( inertialThrustDirection == -definingOrientationDirecion ) ) )
@@ -1155,22 +1152,18 @@ createThrustAcceleratioModel(
             double thrustDirectionSign =
                     ( ( inertialThrustDirection == definingOrientationDirecion ) ? 1.0 : -1.0 );
             inertialThrustDirectionFunction = [=]( const double currentTime ){
-                return thrustDirectionSign * directionBasedRotation->getCurrentInertialDirection( currentTime  );
+                return ( thrustDirectionSign * directionBasedRotation->getCurrentInertialDirection( currentTime ) ).normalized( );
             };
         }
     }
 
-    std::cout<<"Direction function: "<<( inertialThrustDirectionFunction == nullptr )<<std::endl;
-
     if( inertialThrustDirectionFunction == nullptr )
     {
         inertialThrustDirectionFunction = [=]( const double ){
-        return bodies.at( nameOfBodyUndergoingThrust )->getCurrentRotationMatrixToGlobalFrame( ) *
-                bodyFixedThrustDirectionFunction( ); };
+        return ( bodies.at( nameOfBodyUndergoingThrust )->getCurrentRotationMatrixToGlobalFrame( ) *
+                bodyFixedThrustDirectionFunction( ) ).normalized( ); };
         directionUpdateSettings[ propagators::body_rotational_state_update ].push_back( nameOfBodyUndergoingThrust );
     }
-    std::cout<<"Direction function: "<<( inertialThrustDirectionFunction == nullptr )<<std::endl;
-
     //    // Create thrust direction model.
     //    std::shared_ptr< propulsion::BodyFixedForceDirectionGuidance  > thrustDirectionGuidance = createThrustGuidanceModel(
     //            thrustAccelerationSettings->thrustDirectionSettings_, bodies, nameOfBodyUndergoingThrust,

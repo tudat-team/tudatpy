@@ -646,6 +646,12 @@ std::function< Eigen::Vector6d( const double, bool ) > createRelativeStateFuncti
  *  \return Rotation model created according to settings in rotationModelSettings.
  */
 
+std::shared_ptr< ephemerides::RotationalEphemeris > createAerodynamicAngleBasedRotationModel(
+        const std::string& body,
+        const std::string& centralBody,
+        const SystemOfBodies& bodies ,
+        const std::string& originalFrame,
+        const std::string& targetFrame );
 
 std::shared_ptr< ephemerides::RotationalEphemeris > createRotationModel(
         const std::shared_ptr< RotationModelSettings > rotationModelSettings,

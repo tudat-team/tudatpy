@@ -29,6 +29,7 @@
 #include "tudat/astro/ephemerides/rotationalEphemeris.h"
 #include "tudat/astro/ephemerides/tabulatedEphemeris.h"
 #include "tudat/astro/ephemerides/multiArcEphemeris.h"
+#include "tudat/astro/ephemerides/aeordynamicAngleRotationalEphemeris.h"
 #include "tudat/astro/ephemerides/frameManager.h"
 #include "tudat/astro/gravitation/gravityFieldModel.h"
 #include "tudat/astro/gravitation/gravityFieldVariations.h"
@@ -960,7 +961,7 @@ public:
 
         // Create closure between rotational ephemeris and aerodynamic angle calculator.
         if (rotationalEphemeris_ != nullptr) {
-            reference_frames::setAerodynamicDependentOrientationCalculatorClosure(
+            ephemerides::setAerodynamicDependentOrientationCalculatorClosure(
                         rotationalEphemeris_, aerodynamicFlightConditions_->getAerodynamicAngleCalculator());
         }
     }

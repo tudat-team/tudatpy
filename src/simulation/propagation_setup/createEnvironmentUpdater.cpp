@@ -68,7 +68,7 @@ void checkValidityOfRequiredEnvironmentUpdates(
                             )
                     {
                         throw std::runtime_error(
-                                    "Error when making environment model update settings, could not find rotational ephemeris or dependent orientation calculator of body "
+                                    "Error when making environment model update settings, could not find rotational ephemeris of body "
                                     + updateIterator->second.at( i ) );
                     }
                     break;

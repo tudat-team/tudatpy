@@ -516,7 +516,7 @@ void setMultiTypePropagationClosure(
             {
                 std::shared_ptr< aerodynamics::FlightConditions > currentFlightConditions =
                         bodies.at( bodiesWithAerodynamicRotationalClosure.at( i ) )->getFlightConditions( );
-                reference_frames::setAerodynamicDependentOrientationCalculatorClosure(
+                ephemerides::setAerodynamicDependentOrientationCalculatorClosure(
                             std::bind( &simulation_setup::Body::getCurrentRotationToLocalFrame,
                                        bodies.at( bodiesWithAerodynamicRotationalClosure.at( i ) ) ),
                             currentFlightConditions->getAerodynamicAngleCalculator( ) );
