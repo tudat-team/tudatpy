@@ -85,6 +85,7 @@ public:
     Eigen::Vector3d getAngles( const double time,
                                const Eigen::Matrix3d& trajectoryToInertialFrame )
     {
+        ephemeris_->resetCurrentTime( time );
         return ephemeris_->getBodyAngles( time );
     }
 

@@ -599,6 +599,15 @@ private:
                                                    bodyList_.at( currentBodies.at( i ) ), std::placeholders::_1 );
                                 updateTimeFunctionList[ body_rotational_state_update ].push_back(
                                             std::make_pair( currentBodies.at( i ), rotationalStateSetFunction ) );
+                                if( bodyList_.at( currentBodies.at( i ) )->getRotationalEphemeris( ) != nullptr )
+                                {
+                                    resetFunctionVector_.push_back(
+                                                boost::make_tuple(
+                                                    body_rotational_state_update, currentBodies.at( i ),
+                                                    std::bind( &ephemerides::RotationalEphemeris::
+                                                               resetCurrentTime, bodyList_.at( currentBodies.at( i ) )->
+                                                               getRotationalEphemeris( ), TUDAT_NAN ) ) );
+                                }
                                 
                                 //                                if( bodyList_.at( currentBodies.at( i ) )->getRotationalEphemeris( ) == nullptr )
                                 //                                {
