@@ -168,18 +168,18 @@ void addFlightConditions(
 //        const std::shared_ptr< simulation_setup::Body > bodyWithAngles,
 //        const bool silenceWarnings = false );
 
-void setAerodynamicOrientationFunctions(
-        const std::shared_ptr< simulation_setup::Body > body,
-        const std::function< double( ) > angleOfAttackFunction = std::function< double( ) >( ),
-        const std::function< double( ) > angleOfSideslipFunction = std::function< double( ) >( ),
-        const std::function< double( ) > bankAngleFunction =  std::function< double( ) >( ) );
+//void setAerodynamicOrientationFunctions(
+//        const std::shared_ptr< simulation_setup::Body > body,
+//        const std::function< double( ) > angleOfAttackFunction = std::function< double( ) >( ),
+//        const std::function< double( ) > angleOfSideslipFunction = std::function< double( ) >( ),
+//        const std::function< double( ) > bankAngleFunction =  std::function< double( ) >( ) );
 
-void setConstantAerodynamicOrientation(
-        const std::shared_ptr< simulation_setup::Body > body,
-        const double angleOfAttack,
-        const double sideslipAngle,
-        const double bankAngle,
-        const bool silenceWarnings = false );
+//void setConstantAerodynamicOrientation(
+//        const std::shared_ptr< simulation_setup::Body > body,
+//        const double angleOfAttack,
+//        const double sideslipAngle,
+//        const double bankAngle,
+//        const bool silenceWarnings = false );
 
 } // namespace simulation_setup
 
