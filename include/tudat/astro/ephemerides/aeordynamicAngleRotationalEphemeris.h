@@ -74,7 +74,6 @@ public:
         if( aerodynamicAngleFunction_ != nullptr )
         {
             currentBodyAngles_ = aerodynamicAngleFunction_( currentTime_ );
-//            std::cout<<currentBodyAngles_<<std::endl;
         }
         else
         {

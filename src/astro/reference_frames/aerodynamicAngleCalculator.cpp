@@ -175,12 +175,12 @@ void AerodynamicAngleCalculator::update( const double currentTime, const bool up
         }
         currentBodyAngleTime_ = currentTime;
     }
-//    else if( !( currentBodyAngleTime_ == currentTime ) )
-//    {
-//        currentAerodynamicAngles_[ angle_of_attack ] = TUDAT_NAN;
-//        currentAerodynamicAngles_[ angle_of_sideslip ] = TUDAT_NAN;
-//        currentAerodynamicAngles_[ bank_angle ] = TUDAT_NAN;
-//    }
+    else if( !( currentBodyAngleTime_ == currentTime ) )
+    {
+        currentAerodynamicAngles_[ angle_of_attack ] = 0.0;
+        currentAerodynamicAngles_[ angle_of_sideslip ] = 0.0;
+        currentAerodynamicAngles_[ bank_angle ] = 0.0;
+    }
 }
 
 
