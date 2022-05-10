@@ -25,6 +25,76 @@
 namespace tudat
 {
 
+namespace reference_frames
+{
+
+Eigen::Vector3d computeBodyFixedAeroAngles(
+        const Eigen::Matrix3d& inertialToBodyFixedFrame,
+        const Eigen::Matrix3d& trajectoryToInertialFrame );
+
+class FromBodyAerodynamicAngleInterface: public BodyFixedAerodynamicAngleInterface
+{
+public:
+    FromBodyAerodynamicAngleInterface(
+            const std::shared_ptr< simulation_setup::Body > body ):
+    BodyFixedAerodynamicAngleInterface( body_fixed_angles_from_body ),
+    body_( body ){ }
+
+    Eigen::Vector3d getAngles( const double time,
+                               const Eigen::Matrix3d& trajectoryToInertialFrame )
+    {
+        return computeBodyFixedAeroAngles(
+                    body_->getCurrentRotationMatrixToLocalFrame( ), trajectoryToInertialFrame );
+    }
+
+private:
+
+    std::shared_ptr< simulation_setup::Body > body_;
+
+};
+
+class FromGenericEphemerisAerodynamicAngleInterface: public BodyFixedAerodynamicAngleInterface
+{
+public:
+    FromGenericEphemerisAerodynamicAngleInterface(
+            const std::shared_ptr< ephemerides::RotationalEphemeris > ephemeris ):
+        BodyFixedAerodynamicAngleInterface( body_fixed_angles_from_generic_ephemeris ),
+        ephemeris_( ephemeris ){ }
+
+    Eigen::Vector3d getAngles( const double time,
+                               const Eigen::Matrix3d& trajectoryToInertialFrame )
+    {
+        return computeBodyFixedAeroAngles(
+                    ephemeris_->getRotationMatrixToTargetFrame( time ), trajectoryToInertialFrame );
+    }
+
+private:
+
+    std::shared_ptr< ephemerides::RotationalEphemeris > ephemeris_;
+
+};
+
+class FromAeroEphemerisAerodynamicAngleInterface: public BodyFixedAerodynamicAngleInterface
+{
+public:
+    FromAeroEphemerisAerodynamicAngleInterface(
+            const std::shared_ptr< ephemerides::AerodynamicAngleRotationalEphemeris > ephemeris ):
+        BodyFixedAerodynamicAngleInterface( body_fixed_angles_from_aero_based_ephemeris ),
+        ephemeris_( ephemeris ){ }
+
+    Eigen::Vector3d getAngles( const double time,
+                               const Eigen::Matrix3d& trajectoryToInertialFrame )
+    {
+        return ephemeris_->getBodyAngles( time );
+    }
+
+private:
+
+    std::shared_ptr< ephemerides::AerodynamicAngleRotationalEphemeris > ephemeris_;
+
+};
+
+}
 namespace simulation_setup
 {
 
@@ -52,11 +122,7 @@ std::shared_ptr< aerodynamics::AtmosphericFlightConditions >  createAtmosphericF
         const std::shared_ptr< Body > bodyWithFlightConditions,
         const std::shared_ptr< Body > centralBody,
         const std::string& nameOfBodyUndergoingAcceleration,
-        const std::string& nameOfBodyExertingAcceleration,
-        const std::function< double( ) > angleOfAttackFunction = std::function< double( ) >( ),
-        const std::function< double( ) > angleOfSideslipFunction = std::function< double( ) >( ),
-        const std::function< double( ) > bankAngleFunction = std::function< double( ) >( ),
-        const std::function< void( const double ) > angleUpdateFunction = std::function< void( const double ) >( ) );
+        const std::string& nameOfBodyExertingAcceleration );
 
 //! Function to create a flight conditions object
 /*!
@@ -80,16 +146,16 @@ void addFlightConditions(
         const std::string centralBodyName );
 
 
-//! Function that must be called to link the AerodynamicGuidance object to the simulation
-/*!
- * Function that must be called to link the AerodynamicGuidance object to the simulation
- * \param aerodynamicGuidance Object computing the current aerodynamic angles.
- * \param angleCalculator Object that handles all aerodynamic angles in the numerical propagation
- */
-void setGuidanceAnglesFunctions(
-        const std::shared_ptr< aerodynamics::AerodynamicGuidance > aerodynamicGuidance,
-        const std::shared_ptr< reference_frames::AerodynamicAngleCalculator > angleCalculator,
-        const bool silenceWarnings = false );
+////! Function that must be called to link the AerodynamicGuidance object to the simulation
+///*!
+// * Function that must be called to link the AerodynamicGuidance object to the simulation
+// * \param aerodynamicGuidance Object computing the current aerodynamic angles.
+// * \param angleCalculator Object that handles all aerodynamic angles in the numerical propagation
+// */
+//void setGuidanceAnglesFunctions(
+//        const std::shared_ptr< aerodynamics::AerodynamicGuidance > aerodynamicGuidance,
+//        const std::shared_ptr< reference_frames::AerodynamicAngleCalculator > angleCalculator,
+//        const bool silenceWarnings = false );
 
 //! Function that must be called to link the AerodynamicGuidance object to the simulation
 /*!
@@ -106,8 +172,7 @@ void setAerodynamicOrientationFunctions(
         const std::shared_ptr< simulation_setup::Body > body,
         const std::function< double( ) > angleOfAttackFunction = std::function< double( ) >( ),
         const std::function< double( ) > angleOfSideslipFunction = std::function< double( ) >( ),
-        const std::function< double( ) > bankAngleFunction =  std::function< double( ) >( ),
-        const std::function< void( const double ) > angleUpdateFunction = std::function< void( const double ) >( ) );
+        const std::function< double( ) > bankAngleFunction =  std::function< double( ) >( ) );
 
 void setConstantAerodynamicOrientation(
         const std::shared_ptr< simulation_setup::Body > body,

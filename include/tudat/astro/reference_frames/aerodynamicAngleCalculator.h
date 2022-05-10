@@ -53,6 +53,28 @@ enum AerodynamicsReferenceFrameAngles
  */
 std::string getAerodynamicAngleName( const AerodynamicsReferenceFrameAngles angle );
 
+enum BodyFixedAngleSource
+{
+    body_fixed_angles_from_body,
+    body_fixed_angles_from_aero_based_ephemeris,
+    body_fixed_angles_from_generic_ephemeris
+};
+
+class BodyFixedAerodynamicAngleInterface
+{
+public:
+    BodyFixedAerodynamicAngleInterface(
+            const BodyFixedAngleSource angleSource ):angleSource_( angleSource ){ }
+
+    virtual Eigen::Vector3d getAngles( const double time,
+                                       const Eigen::Matrix3d& trajectoryToInertialFrame ) = 0;
+
+protected:
+
+    BodyFixedAngleSource angleSource_;
+};
+
+
 //! Object to calculate aerodynamic orientation angles from current vehicle state.
 /*!
  *  Object to calculate aerodynamic orientation angles from current vehicle state.
@@ -93,7 +115,6 @@ public:
         angleOfAttackFunction_( angleOfAttackFunction ),
         angleOfSideslipFunction_( angleOfSideslipFunction ),
         bankAngleFunction_( bankAngleFunction ),
-        angleUpdateFunction_( angleUpdateFunction ),
         currentBodyAngleTime_( TUDAT_NAN )
     {
         currentAerodynamicAngles_.resize( 7 );
@@ -203,7 +224,6 @@ public:
             const std::function< double( ) > angleOfAttackFunction = std::function< double( ) >( ),
             const std::function< double( ) > angleOfSideslipFunction = std::function< double( ) >( ),
             const std::function< double( ) > bankAngleFunction =  std::function< double( ) >( ),
-            const std::function< void( const double ) > angleUpdateFunction = std::function< void( const double ) >( ),
             const bool silenceWarnings = false );
 
     //! Function to set constant trajectory<->body-fixed orientation angles.
@@ -335,9 +355,6 @@ private:
 
     //! Function to determine the bank angle of the vehicle.
     std::function< double( ) > bankAngleFunction_;
-
-    //! Function to update the bank, attack and sideslip angles to current time.
-    std::function< void( const double ) > angleUpdateFunction_;
 
     //! Current time to which the bank, attack and sideslip angles have been updated.
     double currentBodyAngleTime_;

@@ -26,11 +26,11 @@ void setAerodynamicDependentOrientationCalculatorClosure(
     std::shared_ptr< AerodynamicAnglesClosure > aerodynamicAnglesClosure =
             std::make_shared< AerodynamicAnglesClosure >(
                 imposedRotationFromInertialToBodyFixedFrame, aerodynamicAngleCalculator );
-    aerodynamicAngleCalculator->setOrientationAngleFunctions(
-                std::bind( &AerodynamicAnglesClosure::getCurrentAngleOfAttack, aerodynamicAnglesClosure ),
-                std::bind( &AerodynamicAnglesClosure::getCurrentAngleOfSideslip, aerodynamicAnglesClosure ),
-                std::bind( &AerodynamicAnglesClosure::getCurrentBankAngle, aerodynamicAnglesClosure ),
-                std::bind( &AerodynamicAnglesClosure::updateAngles, aerodynamicAnglesClosure, std::placeholders::_1 ) );
+//    aerodynamicAngleCalculator->setOrientationAngleFunctions(
+//                std::bind( &AerodynamicAnglesClosure::getCurrentAngleOfAttack, aerodynamicAnglesClosure ),
+//                std::bind( &AerodynamicAnglesClosure::getCurrentAngleOfSideslip, aerodynamicAnglesClosure ),
+//                std::bind( &AerodynamicAnglesClosure::getCurrentBankAngle, aerodynamicAnglesClosure ),
+//                std::bind( &AerodynamicAnglesClosure::updateAngles, aerodynamicAnglesClosure, std::placeholders::_1 ) );
 }
 
 ////! Function to make aerodynamic angle computation consistent with existing DependentOrientationCalculator
