@@ -960,10 +960,15 @@ public:
 //        }
 
         // Create closure between rotational ephemeris and aerodynamic angle calculator.
-        if (rotationalEphemeris_ != nullptr)
+        if( rotationalEphemeris_ != nullptr && std::dynamic_pointer_cast< ephemerides::AerodynamicAngleRotationalEphemeris >(
+                    rotationalEphemeris_ ) == nullptr )
         {
+            aerodynamicFlightConditions_->getAerodynamicAngleCalculator( )->setBodyFixedAngleInterface(
+                        std::make_shared< reference_frames::FromGenericEphemerisAerodynamicAngleInterface >(
+                            rotationalEphemeris_ ) );
             ephemerides::verifyAerodynamicDependentOrientationCalculatorClosure(
-                        rotationalEphemeris_, aerodynamicFlightConditions_->getAerodynamicAngleCalculator());
+                        rotationalEphemeris_,
+                        aerodynamicFlightConditions_->getAerodynamicAngleCalculator());
         }
     }
 

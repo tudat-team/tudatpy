@@ -28,9 +28,6 @@ namespace tudat
 namespace reference_frames
 {
 
-Eigen::Vector3d computeBodyFixedAeroAngles(
-        const Eigen::Matrix3d& inertialToBodyFixedFrame,
-        const Eigen::Matrix3d& trajectoryToInertialFrame );
 
 class FromBodyAerodynamicAngleInterface: public BodyFixedAerodynamicAngleInterface
 {
@@ -39,6 +36,8 @@ public:
             const std::shared_ptr< simulation_setup::Body > body ):
     BodyFixedAerodynamicAngleInterface( body_fixed_angles_from_body ),
     body_( body ){ }
+
+    virtual ~FromBodyAerodynamicAngleInterface( ){ }
 
     Eigen::Vector3d getAngles( const double time,
                                const Eigen::Matrix3d& trajectoryToInertialFrame )
@@ -50,48 +49,6 @@ public:
 private:
 
     std::shared_ptr< simulation_setup::Body > body_;
-
-};
-
-class FromGenericEphemerisAerodynamicAngleInterface: public BodyFixedAerodynamicAngleInterface
-{
-public:
-    FromGenericEphemerisAerodynamicAngleInterface(
-            const std::shared_ptr< ephemerides::RotationalEphemeris > ephemeris ):
-        BodyFixedAerodynamicAngleInterface( body_fixed_angles_from_generic_ephemeris ),
-        ephemeris_( ephemeris ){ }
-
-    Eigen::Vector3d getAngles( const double time,
-                               const Eigen::Matrix3d& trajectoryToInertialFrame )
-    {
-        return computeBodyFixedAeroAngles(
-                    ephemeris_->getRotationMatrixToTargetFrame( time ), trajectoryToInertialFrame );
-    }
-
-private:
-
-    std::shared_ptr< ephemerides::RotationalEphemeris > ephemeris_;
-
-};
-
-class FromAeroEphemerisAerodynamicAngleInterface: public BodyFixedAerodynamicAngleInterface
-{
-public:
-    FromAeroEphemerisAerodynamicAngleInterface(
-            const std::shared_ptr< ephemerides::AerodynamicAngleRotationalEphemeris > ephemeris ):
-        BodyFixedAerodynamicAngleInterface( body_fixed_angles_from_aero_based_ephemeris ),
-        ephemeris_( ephemeris ){ }
-
-    Eigen::Vector3d getAngles( const double time,
-                               const Eigen::Matrix3d& trajectoryToInertialFrame )
-    {
-        ephemeris_->resetCurrentTime( time );
-        return ephemeris_->getBodyAngles( time );
-    }
-
-private:
-
-    std::shared_ptr< ephemerides::AerodynamicAngleRotationalEphemeris > ephemeris_;
 
 };
 

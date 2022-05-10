@@ -142,12 +142,6 @@ public:
     virtual void updateCurrentCoefficients( const std::vector< double >& independentVariables,
                                             const double currentTime = TUDAT_NAN )
     {
-        std::cout<<"Updating coefficients in interface ";
-        for( int i = 0; i < independentVariables.size( ); i++ )
-        {
-            std::cout<<independentVariables.at( i )<<" ";
-        }
-        std::cout<<std::endl;
         // Check if the correct number of aerodynamic coefficients is provided.
         if( independentVariables.size( ) != numberOfIndependentVariables_ )
         {
@@ -167,8 +161,6 @@ public:
                     independentVariables );
         currentForceCoefficients_ = currentCoefficients.segment( 0, 3 );
         currentMomentCoefficients_ = currentCoefficients.segment( 3, 3 );
-        std::cout<<"Computed moment coefficients in interface "<<currentMomentCoefficients_.transpose( )<<std::endl;
-
     }
 
     //! Function to reset the constant aerodynamic coefficients, only valid if coefficients are already constant

@@ -53,13 +53,13 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientsFromFile )
     // Load Spice kernels.
     spice_interface::loadStandardSpiceKernels( std::vector<std::string>() );
 
-    for( unsigned int i = 0; i < 1; i++ )
+    for( unsigned int i = 0; i < 3; i++ )
     {
         // Set simulation start epoch.
         const double simulationStartEpoch = 0.0;
 
         // Set simulation end epoch.
-        const double simulationEndEpoch = 1.0;
+        const double simulationEndEpoch = 300.0;
 
         // Set numerical integration fixed step size.
         const double fixedStepSize = 1.0;
