@@ -82,7 +82,6 @@ public:
     }
     virtual void resetCurrentTime( const double currentTime = TUDAT_NAN )
     {
-//        std::cout<<"Reset rotation "<<currentTime<<std::endl;
         if( !( currentTime == currentTime_ ) )
         {
             currentTime_ = currentTime;

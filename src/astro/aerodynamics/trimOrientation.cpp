@@ -74,6 +74,12 @@ double TrimOrientationCalculator::findTrimAngleOfAttack(
         const std::vector< double > untrimmedIndependentVariables,
         const std::map< std::string, std::vector< double > > untrimmedControlSurfaceIndependentVariables )
 {
+    std::cout<<"Computing trim from ";
+    for( int i = 0; i < untrimmedIndependentVariables.size( ); i++ )
+    {
+        std::cout<<untrimmedIndependentVariables.at( i )<<" ";
+    }
+    std::cout<<std::endl;
     // Determine function for which the root is to be determined.
     std::function< double( const double ) > coefficientFunction =
             std::bind( &TrimOrientationCalculator::getPerturbedMomentCoefficient,
@@ -95,6 +101,8 @@ double TrimOrientationCalculator::findTrimAngleOfAttack(
         throw std::runtime_error( "Error when getting trim angle of attack, root finder did not converge." );
 
     }
+
+    std::cout<<"Trim AoA "<<trimmedAngleOfAttack<<std::endl;
 
     return trimmedAngleOfAttack;
 }

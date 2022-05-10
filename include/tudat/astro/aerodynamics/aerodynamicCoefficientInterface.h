@@ -208,6 +208,7 @@ public:
      */
     Eigen::Vector3d getCurrentMomentCoefficients( )
     {
+        std::cout<<"Getting moment coefficient "<<currentMomentCoefficients_.transpose( )<<std::endl;
         return currentMomentCoefficients_;
     }
 
