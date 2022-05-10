@@ -119,11 +119,13 @@ void linkTrimmedConditions(
             std::bind( &aerodynamics::AtmosphericFlightConditions::getControlSurfaceAerodynamicCoefficientIndependentVariables,
                        flightConditions );
 
-    rotationModel->getAerodynamicAngleCalculator( )->
-            setOrientationAngleFunctions(
-                std::bind( &aerodynamics::TrimOrientationCalculator::findTrimAngleOfAttackFromFunction, trimCalculator,
-                           untrimmedIndependentVariablesFunction, untrimmedControlSurfaceIndependentVariableFunction ) );
-
+    std::function< Eigen::Vector3d( const double ) > aerodynamicAngleFunction = [=]( const double )
+    {
+        double angleOfAttack = trimCalculator->findTrimAngleOfAttackFromFunction(
+                    untrimmedIndependentVariablesFunction, untrimmedControlSurfaceIndependentVariableFunction );
+        return ( Eigen::Vector3d( ) << angleOfAttack, 0.0, 0.0 ).finished( );
+    };
+    rotationModel->setAerodynamicAngleFunction( aerodynamicAngleFunction );
 }
 
 
@@ -156,8 +158,13 @@ std::shared_ptr< ephemerides::AerodynamicAngleRotationalEphemeris > createAerody
                     bodies.at( body ), bodies.at( centralBody ), body, centralBody );
     }
 
-    return std::make_shared< ephemerides::AerodynamicAngleRotationalEphemeris >(
+    std::shared_ptr< ephemerides::AerodynamicAngleRotationalEphemeris > rotationModel =
+            std::make_shared< ephemerides::AerodynamicAngleRotationalEphemeris >(
                 angleCalculator, originalFrame, targetFrame );
+    angleCalculator->setBodyFixedAngleInterface(
+                std::make_shared< reference_frames::FromAeroEphemerisAerodynamicAngleInterface >( rotationModel ) );
+
+    return rotationModel;
 }
 
 std::shared_ptr< ephemerides::RotationalEphemeris > createTrimmedAerodynamicAngleBasedRotationModel(

@@ -960,8 +960,9 @@ public:
 //        }
 
         // Create closure between rotational ephemeris and aerodynamic angle calculator.
-        if (rotationalEphemeris_ != nullptr) {
-            ephemerides::setAerodynamicDependentOrientationCalculatorClosure(
+        if (rotationalEphemeris_ != nullptr)
+        {
+            ephemerides::verifyAerodynamicDependentOrientationCalculatorClosure(
                         rotationalEphemeris_, aerodynamicFlightConditions_->getAerodynamicAngleCalculator());
         }
     }

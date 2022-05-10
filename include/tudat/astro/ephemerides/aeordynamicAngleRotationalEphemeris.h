@@ -25,21 +25,15 @@ public:
             const std::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator,
             const std::string& baseFrameOrientation,
             const std::string& targetFrameOrientation,
-            const std::function< double( ) > angleOfAttackFunction = std::function< double( ) >( ),
-            const std::function< double( ) > angleOfSideslipFunction = std::function< double( ) >( ),
-            const std::function< double( ) > bankAngleFunction = std::function< double( ) >( ),
-            const std::function< void( const double ) > angleUpdateFunction = std::function< void( const double ) >( ) )
+            const std::function< Eigen::Vector3d( const double ) > aerodynamicAngleFunction = nullptr )
         : RotationalEphemeris( baseFrameOrientation, targetFrameOrientation ),
           aerodynamicAngleCalculator_( aerodynamicAngleCalculator ),
-          angleOfAttackFunction_( angleOfAttackFunction ),
-          angleOfSideslipFunction_( angleOfSideslipFunction ),
-          bankAngleFunction_( bankAngleFunction ),
-          angleUpdateFunction_( angleUpdateFunction ),
+          aerodynamicAngleFunction_( aerodynamicAngleFunction ),
           currentTime_( TUDAT_NAN )
     {
-
-        aerodynamicAngleCalculator->setOrientationAngleFunctions(
-                    angleOfAttackFunction_, angleOfSideslipFunction_, bankAngleFunction_ );
+        aerodynamicAngleCalculator->setAerodynamicAngleClosureIsIncomplete( );
+//        aerodynamicAngleCalculator->setBodyFixedAngleInterface(
+//                    std::make_shared< reference_frames::FromAeroEphemerisAerodynamicAngleInterface >( this ) );
     }
 
     //! Virtual destructor.
@@ -75,20 +69,28 @@ public:
         return Eigen::Matrix3d::Constant( TUDAT_NAN );
     }
 
-
+    void updateBodyAngles( const double currentTime )
+    {
+        if( aerodynamicAngleFunction_ != nullptr )
+        {
+            currentBodyAngles_ = aerodynamicAngleFunction_( currentTime_ );
+            std::cout<<currentBodyAngles_<<std::endl;
+        }
+        else
+        {
+            currentBodyAngles_.setZero( );
+        }
+    }
     virtual void resetCurrentTime( const double currentTime = TUDAT_NAN )
     {
+        std::cout<<"Reset rotation "<<currentTime<<std::endl;
         if( !( currentTime == currentTime_ ) )
         {
             currentTime_ = currentTime;
             if( currentTime_ == currentTime_ )
             {
                 aerodynamicAngleCalculator_->update( currentTime, false );
-                if( angleUpdateFunction_ != nullptr )
-                {
-                    angleUpdateFunction_( currentTime_ );
-                    currentBodyAngles_ << angleOfAttackFunction_( ), angleOfSideslipFunction_( ), bankAngleFunction_( );
-                }
+                updateBodyAngles( currentTime );
                 aerodynamicAngleCalculator_->update( currentTime, true );
             }
             else
@@ -100,9 +102,11 @@ public:
 
     Eigen::Vector3d getBodyAngles( const double currentTime )
     {
-        if( currentTime != currentTime_ )
+        if( ( currentTime != currentTime_ ) )
         {
-            throw std::runtime_error( "Error when getting body angles from AerodynamicAngleRotationalEphemeris, times are inconsistent" );
+            updateBodyAngles( currentTime );
+//            std::cout<<currentTime<<" "<<currentTime_<<std::endl;
+//            throw std::runtime_error( "Error when getting body angles from AerodynamicAngleRotationalEphemeris, times are inconsistent" );
         }
         return currentBodyAngles_;
     }
@@ -112,21 +116,17 @@ public:
         return aerodynamicAngleCalculator_;
     }
 
+    void setAerodynamicAngleFunction( const std::function< Eigen::Vector3d( const double ) > aerodynamicAngleFunction )
+    {
+        aerodynamicAngleFunction_ = aerodynamicAngleFunction;
+    }
+
+
 protected:
 
     std::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator_;
 
-    //! Function to determine the angle of attack of the vehicle.
-    std::function< double( ) > angleOfAttackFunction_;
-
-    //! Function to determine the angle of sideslip of the vehicle.
-    std::function< double( ) > angleOfSideslipFunction_;
-
-    //! Function to determine the bank angle of the vehicle.
-    std::function< double( ) > bankAngleFunction_;
-
-    //! Function to update the bank, attack and sideslip angles to current time.
-    std::function< void( const double ) > angleUpdateFunction_;
+    std::function< Eigen::Vector3d( const double ) > aerodynamicAngleFunction_;
 
     Eigen::Vector3d currentBodyAngles_;
 
@@ -135,25 +135,29 @@ protected:
 };
 
 
-//! Function to make aerodynamic angle computation consistent with imposed body-fixed to inertial rotation.
-/*!
- * Function to make aerodynamic angle computation consistent with imposed body-fixed to inertial rotation.
- * \param imposedRotationFromInertialToBodyFixedFrame Inertial to body-fixed frame rotation to which the
- * aerodynamicAngleCalculator object is to be made consistent
- * \param aerodynamicAngleCalculator Object from which the aerodynamic angles are computed.
- */
-void setAerodynamicDependentOrientationCalculatorClosure(
-        const std::function< Eigen::Quaterniond( const double ) > imposedRotationFromInertialToBodyFixedFrame,
-        std::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator );
+////! Function to make aerodynamic angle computation consistent with imposed body-fixed to inertial rotation.
+///*!
+// * Function to make aerodynamic angle computation consistent with imposed body-fixed to inertial rotation.
+// * \param imposedRotationFromInertialToBodyFixedFrame Inertial to body-fixed frame rotation to which the
+// * aerodynamicAngleCalculator object is to be made consistent
+// * \param aerodynamicAngleCalculator Object from which the aerodynamic angles are computed.
+// */
+//void setAerodynamicDependentOrientationCalculatorClosure(
+//        const std::function< Eigen::Quaterniond( const double ) > imposedRotationFromInertialToBodyFixedFrame,
+//        std::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator );
 
-//! Function to make aerodynamic angle computation consistent with existing rotational ephemeris
-/*!
- * Function to make aerodynamic angle computation consistent with existing  rotational ephemeris
- * \param rotationalEphemeris Object computing the current orientation of the body. Aerodynamic angles are to be computed
- * from output given by this class.
- * \param aerodynamicAngleCalculator Object from which the aerodynamic angles are computed.
- */
-void setAerodynamicDependentOrientationCalculatorClosure(
+////! Function to make aerodynamic angle computation consistent with existing rotational ephemeris
+///*!
+// * Function to make aerodynamic angle computation consistent with existing  rotational ephemeris
+// * \param rotationalEphemeris Object computing the current orientation of the body. Aerodynamic angles are to be computed
+// * from output given by this class.
+// * \param aerodynamicAngleCalculator Object from which the aerodynamic angles are computed.
+// */
+//void setAerodynamicDependentOrientationCalculatorClosure(
+//        std::shared_ptr< ephemerides::RotationalEphemeris > rotationalEphemeris,
+//        std::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator );
+
+void verifyAerodynamicDependentOrientationCalculatorClosure(
         std::shared_ptr< ephemerides::RotationalEphemeris > rotationalEphemeris,
         std::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator );
 

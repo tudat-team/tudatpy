@@ -262,42 +262,42 @@ void addFlightConditions(
 //    }
 //}
 
-void setAerodynamicOrientationFunctions(
-        const std::shared_ptr< simulation_setup::Body > body,
-        const std::function< double( ) > angleOfAttackFunction,
-        const std::function< double( ) > angleOfSideslipFunction,
-        const std::function< double( ) > bankAngleFunction )
-{
-    if( body->getFlightConditions( ) == nullptr )
-    {
-        throw std::runtime_error( "Error when setting aerodynamic angle functions, body " + body->getBodyName( ) + " has no FlightConditions." +
-                                  " You can use the addFlightConditions (C++) or add_flight_conditions (Python) function to endow your body with one. " );
-    }
+//void setAerodynamicOrientationFunctions(
+//        const std::shared_ptr< simulation_setup::Body > body,
+//        const std::function< double( ) > angleOfAttackFunction,
+//        const std::function< double( ) > angleOfSideslipFunction,
+//        const std::function< double( ) > bankAngleFunction )
+//{
+//    if( body->getFlightConditions( ) == nullptr )
+//    {
+//        throw std::runtime_error( "Error when setting aerodynamic angle functions, body " + body->getBodyName( ) + " has no FlightConditions." +
+//                                  " You can use the addFlightConditions (C++) or add_flight_conditions (Python) function to endow your body with one. " );
+//    }
 
-    std::shared_ptr< aerodynamics::FlightConditions > vehicleFlightConditions =
-            body->getFlightConditions( );
-    vehicleFlightConditions->getAerodynamicAngleCalculator( )->setOrientationAngleFunctions(
-                angleOfAttackFunction, angleOfSideslipFunction, bankAngleFunction );
-}
+//    std::shared_ptr< aerodynamics::FlightConditions > vehicleFlightConditions =
+//            body->getFlightConditions( );
+//    vehicleFlightConditions->getAerodynamicAngleCalculator( )->setOrientationAngleFunctions(
+//                angleOfAttackFunction, angleOfSideslipFunction, bankAngleFunction );
+//}
 
-void setConstantAerodynamicOrientation(
-        const std::shared_ptr< simulation_setup::Body > body,
-        const double angleOfAttack,
-        const double sideslipAngle,
-        const double bankAngle,
-        const bool silenceWarnings )
-{
-    if( body->getFlightConditions( ) == nullptr )
-    {
-        throw std::runtime_error( "Error when setting constant aerodynamic angles, body " + body->getBodyName( ) + " has no FlightConditions" +
-                                  " You can use the addFlightConditions (C++) or add_flight_conditions (Python) function to endow your body with one. " );
-    }
+//void setConstantAerodynamicOrientation(
+//        const std::shared_ptr< simulation_setup::Body > body,
+//        const double angleOfAttack,
+//        const double sideslipAngle,
+//        const double bankAngle,
+//        const bool silenceWarnings )
+//{
+//    if( body->getFlightConditions( ) == nullptr )
+//    {
+//        throw std::runtime_error( "Error when setting constant aerodynamic angles, body " + body->getBodyName( ) + " has no FlightConditions" +
+//                                  " You can use the addFlightConditions (C++) or add_flight_conditions (Python) function to endow your body with one. " );
+//    }
 
-    std::shared_ptr< aerodynamics::FlightConditions > vehicleFlightConditions =
-            body->getFlightConditions( );
-    vehicleFlightConditions->getAerodynamicAngleCalculator( )->setOrientationAngleFunctions(
-                angleOfAttack, sideslipAngle, bankAngle, silenceWarnings );
-}
+//    std::shared_ptr< aerodynamics::FlightConditions > vehicleFlightConditions =
+//            body->getFlightConditions( );
+//    vehicleFlightConditions->getAerodynamicAngleCalculator( )->setOrientationAngleFunctions(
+//                angleOfAttack, sideslipAngle, bankAngle, silenceWarnings );
+//}
 
 } // namespace simulation_setup
 

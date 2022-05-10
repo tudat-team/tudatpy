@@ -69,6 +69,11 @@ public:
     virtual Eigen::Vector3d getAngles( const double time,
                                        const Eigen::Matrix3d& trajectoryToInertialFrame ) = 0;
 
+    BodyFixedAngleSource getAngleSource( )
+    {
+        return angleSource_;
+    }
+
 protected:
 
     BodyFixedAngleSource angleSource_;
@@ -102,20 +107,14 @@ public:
             const std::function< Eigen::Vector6d( ) > bodyFixedStateFunction,
             const std::function< Eigen::Quaterniond( ) > rotationFromCorotatingToInertialFrame,
             const std::string centralBodyName,
-            const bool calculateVerticalToAerodynamicFrame = false,
-            const std::function< double( ) > angleOfAttackFunction = std::function< double( ) >( ),
-            const std::function< double( ) > angleOfSideslipFunction = std::function< double( ) >( ),
-            const std::function< double( ) > bankAngleFunction = std::function< double( ) >( ),
-            const std::function< void( const double ) > angleUpdateFunction = std::function< void( const double ) >( ) ):
+            const bool calculateVerticalToAerodynamicFrame = false ):
 //        DependentOrientationCalculator( ),
         bodyFixedStateFunction_( bodyFixedStateFunction ),
         rotationFromCorotatingToInertialFrame_( rotationFromCorotatingToInertialFrame ),
         centralBodyName_( centralBodyName ),
         calculateVerticalToAerodynamicFrame_( calculateVerticalToAerodynamicFrame ),
-        angleOfAttackFunction_( angleOfAttackFunction ),
-        angleOfSideslipFunction_( angleOfSideslipFunction ),
-        bankAngleFunction_( bankAngleFunction ),
-        currentBodyAngleTime_( TUDAT_NAN )
+        currentBodyAngleTime_( TUDAT_NAN ),
+        aerodynamicAngleClosureIsIncomplete_( false )
     {
         currentAerodynamicAngles_.resize( 7 );
     }
@@ -212,32 +211,32 @@ public:
      */
     double getAerodynamicAngle( const AerodynamicsReferenceFrameAngles angleId );
 
-    //! Function to set the trajectory<->body-fixed orientation angles.
-    /*!
-     * Function to set the trajectory<->body-fixed orientation angles.
-     * \param angleOfAttackFunction Function to return the angle of attack.
-     * \param angleOfSideslipFunction Function to return the angle of sideslip.
-     * \param bankAngleFunction Function to return the bank angle.
-     * \param angleUpdateFunction Function to update the angles to the current time.
-     */
-    void setOrientationAngleFunctions(
-            const std::function< double( ) > angleOfAttackFunction = std::function< double( ) >( ),
-            const std::function< double( ) > angleOfSideslipFunction = std::function< double( ) >( ),
-            const std::function< double( ) > bankAngleFunction =  std::function< double( ) >( ),
-            const bool silenceWarnings = false );
+//    //! Function to set the trajectory<->body-fixed orientation angles.
+//    /*!
+//     * Function to set the trajectory<->body-fixed orientation angles.
+//     * \param angleOfAttackFunction Function to return the angle of attack.
+//     * \param angleOfSideslipFunction Function to return the angle of sideslip.
+//     * \param bankAngleFunction Function to return the bank angle.
+//     * \param angleUpdateFunction Function to update the angles to the current time.
+//     */
+//    void setOrientationAngleFunctions(
+//            const std::function< double( ) > angleOfAttackFunction = std::function< double( ) >( ),
+//            const std::function< double( ) > angleOfSideslipFunction = std::function< double( ) >( ),
+//            const std::function< double( ) > bankAngleFunction =  std::function< double( ) >( ),
+//            const bool silenceWarnings = false );
 
-    //! Function to set constant trajectory<->body-fixed orientation angles.
-    /*!
-     * Function to set constant trajectory<->body-fixed orientation angles.
-     * \param angleOfAttack Constant angle of attack (default NaN, used if no angle is to be defined).
-     * \param angleOfSideslip Constant angle of sideslip (default NaN, used if no angle is to be defined).
-     * \param bankAngle Constant bank angle (default NaN, used if no angle is to be defined).
-     */
-    void setOrientationAngleFunctions(
-            const double angleOfAttack = TUDAT_NAN,
-            const double angleOfSideslip = TUDAT_NAN,
-            const double bankAngle = TUDAT_NAN,
-            const bool silenceWarnings = false );
+//    //! Function to set constant trajectory<->body-fixed orientation angles.
+//    /*!
+//     * Function to set constant trajectory<->body-fixed orientation angles.
+//     * \param angleOfAttack Constant angle of attack (default NaN, used if no angle is to be defined).
+//     * \param angleOfSideslip Constant angle of sideslip (default NaN, used if no angle is to be defined).
+//     * \param bankAngle Constant bank angle (default NaN, used if no angle is to be defined).
+//     */
+//    void setOrientationAngleFunctions(
+//            const double angleOfAttack = TUDAT_NAN,
+//            const double angleOfSideslip = TUDAT_NAN,
+//            const double bankAngle = TUDAT_NAN,
+//            const bool silenceWarnings = false );
 
     //! Function to get the function returning the quaternion that rotates from the corotating to the inertial frame.
     /*!
@@ -306,6 +305,34 @@ public:
         resetDerivedClassTime( currentTime );
     }
 
+    std::shared_ptr< BodyFixedAerodynamicAngleInterface > getBodyFixedAngleInterface( )
+    {
+        return bodyFixedAngleInterface_;
+    }
+
+    void setBodyFixedAngleInterface( const std::shared_ptr< BodyFixedAerodynamicAngleInterface > bodyFixedAngleInterface )
+    {
+        if( bodyFixedAngleInterface_ != nullptr )
+        {
+            if( bodyFixedAngleInterface_->getAngleSource( ) != body_fixed_angles_from_body )
+            {
+                throw std::runtime_error( "Error when setting BodyFixedAerodynamicAngleInterface, resetting is now allowed" );
+            }
+        }
+
+        bodyFixedAngleInterface_ = bodyFixedAngleInterface;
+
+        if( bodyFixedAngleInterface_->getAngleSource( ) == body_fixed_angles_from_aero_based_ephemeris &&
+                aerodynamicAngleClosureIsIncomplete_ == true )
+        {
+            aerodynamicAngleClosureIsIncomplete_ = false;
+        }
+    }
+
+    void setAerodynamicAngleClosureIsIncomplete( )
+    {
+        aerodynamicAngleClosureIsIncomplete_ = true;
+    }
 private:
 
     //! Model that computes the atmospheric wind as a function of position and time
@@ -347,14 +374,7 @@ private:
     //! when calling update function.
     bool calculateVerticalToAerodynamicFrame_;
 
-    //! Function to determine the angle of attack of the vehicle.
-    std::function< double( ) > angleOfAttackFunction_;
-
-    //! Function to determine the angle of sideslip of the vehicle.
-    std::function< double( ) > angleOfSideslipFunction_;
-
-    //! Function to determine the bank angle of the vehicle.
-    std::function< double( ) > bankAngleFunction_;
+    std::shared_ptr< BodyFixedAerodynamicAngleInterface > bodyFixedAngleInterface_;
 
     //! Current time to which the bank, attack and sideslip angles have been updated.
     double currentBodyAngleTime_;
@@ -362,6 +382,9 @@ private:
 
     //! Current simulation time.
     double currentTime_;
+
+    bool aerodynamicAngleClosureIsIncomplete_;
+
 
 
 };
@@ -396,89 +419,89 @@ getAerodynamicForceTransformationReferenceFunction(
         const AerodynamicsReferenceFrames propagationFrame = inertial_frame );
 
 
-//! Wrapper class to set closure between an imposed orientation of a body and its bank, sideslip and attack angles.
-/*!
- * Wrapper class to set closure between an imposed orientation of a body and its bank, sideslip and attack angles.
- * Based on a given rotation matrix function and AerodynamicAngleCalculator, this class computes the required values
- * for the ank, sideslip and attack angles so that the output from AerodynamicAngleCalculator is consistent with the
- * given rotation matrix.
- */
-class AerodynamicAnglesClosure
-{
-public:
+////! Wrapper class to set closure between an imposed orientation of a body and its bank, sideslip and attack angles.
+///*!
+// * Wrapper class to set closure between an imposed orientation of a body and its bank, sideslip and attack angles.
+// * Based on a given rotation matrix function and AerodynamicAngleCalculator, this class computes the required values
+// * for the ank, sideslip and attack angles so that the output from AerodynamicAngleCalculator is consistent with the
+// * given rotation matrix.
+// */
+//class AerodynamicAnglesClosure
+//{
+//public:
 
-    //! Constructor
-    /*!
-     * Constructor
-     * \param imposedRotationFromInertialToBodyFixedFrame Inertial to body-fixed frame rotation to which the
-     * aerodynamicAngleCalculator object is to be made consistent
-     * \param aerodynamicAngleCalculator Object from which the aerodynamic angles are computed.
-     */
-    AerodynamicAnglesClosure(
-            const std::function< Eigen::Quaterniond( const double ) > imposedRotationFromInertialToBodyFixedFrame,
-            const std::shared_ptr< AerodynamicAngleCalculator > aerodynamicAngleCalculator ):
-        imposedRotationFromInertialToBodyFixedFrame_( imposedRotationFromInertialToBodyFixedFrame ),
-        aerodynamicAngleCalculator_( aerodynamicAngleCalculator )
-    { }
+//    //! Constructor
+//    /*!
+//     * Constructor
+//     * \param imposedRotationFromInertialToBodyFixedFrame Inertial to body-fixed frame rotation to which the
+//     * aerodynamicAngleCalculator object is to be made consistent
+//     * \param aerodynamicAngleCalculator Object from which the aerodynamic angles are computed.
+//     */
+//    AerodynamicAnglesClosure(
+//            const std::function< Eigen::Quaterniond( const double ) > imposedRotationFromInertialToBodyFixedFrame,
+//            const std::shared_ptr< AerodynamicAngleCalculator > aerodynamicAngleCalculator ):
+//        imposedRotationFromInertialToBodyFixedFrame_( imposedRotationFromInertialToBodyFixedFrame ),
+//        aerodynamicAngleCalculator_( aerodynamicAngleCalculator )
+//    { }
 
-    //! Function to update the aerodynamic angles to current time.
-    /*!
-     * Function to update the aerodynamic angles to current time, using closure between
-     * imposedRotationFromInertialToBodyFixedFrame_ and aerodynamicAngleCalculator_.
-     * \param currentTime Time to which angles are to be updated.
-     */
-    void updateAngles( const double currentTime );
+//    //! Function to update the aerodynamic angles to current time.
+//    /*!
+//     * Function to update the aerodynamic angles to current time, using closure between
+//     * imposedRotationFromInertialToBodyFixedFrame_ and aerodynamicAngleCalculator_.
+//     * \param currentTime Time to which angles are to be updated.
+//     */
+//    void updateAngles( const double currentTime );
 
-    //! Function returning the current angle of attack, as computed by last call to updateAngles function.
-    /*!
-     *  Function returning the current angle of attack, as computed by last call to updateAngles function.
-     * \return Current angle of attack, as computed by last call to updateAngles function.
-     */
-    double getCurrentAngleOfAttack( )
-    {
-        return currentAngleOfAttack_;
-    }
+//    //! Function returning the current angle of attack, as computed by last call to updateAngles function.
+//    /*!
+//     *  Function returning the current angle of attack, as computed by last call to updateAngles function.
+//     * \return Current angle of attack, as computed by last call to updateAngles function.
+//     */
+//    double getCurrentAngleOfAttack( )
+//    {
+//        return currentAngleOfAttack_;
+//    }
 
-    //! Function returning the current angle of sideslip, as computed by last call to updateAngles function.
-    /*!
-     *  Function returning the current angle of sideslip, as computed by last call to updateAngles function.
-     * \return Current angle of sideslip, as computed by last call to updateAngles function.
-     */
-    double getCurrentAngleOfSideslip( )
-    {
-        return currentAngleOfSideslip_;
-    }
+//    //! Function returning the current angle of sideslip, as computed by last call to updateAngles function.
+//    /*!
+//     *  Function returning the current angle of sideslip, as computed by last call to updateAngles function.
+//     * \return Current angle of sideslip, as computed by last call to updateAngles function.
+//     */
+//    double getCurrentAngleOfSideslip( )
+//    {
+//        return currentAngleOfSideslip_;
+//    }
 
-    //! Function returning the current bank angle, as computed by last call to updateAngles function.
-    /*!
-     *  Function returning the current bank angle, as computed by last call to updateAngles function.
-     * \return Current bank angle, as computed by last call to updateAngles function.
-     */
-    double getCurrentBankAngle( )
-    {
-        return currentBankAngle_;
-    }
+//    //! Function returning the current bank angle, as computed by last call to updateAngles function.
+//    /*!
+//     *  Function returning the current bank angle, as computed by last call to updateAngles function.
+//     * \return Current bank angle, as computed by last call to updateAngles function.
+//     */
+//    double getCurrentBankAngle( )
+//    {
+//        return currentBankAngle_;
+//    }
 
-private:
+//private:
 
-    //! Inertial to body-fixed frame rotation to which the aerodynamicAngleCalculator_ object is to be made consistent.
-    std::function< Eigen::Quaterniond( const double ) > imposedRotationFromInertialToBodyFixedFrame_;
+//    //! Inertial to body-fixed frame rotation to which the aerodynamicAngleCalculator_ object is to be made consistent.
+//    std::function< Eigen::Quaterniond( const double ) > imposedRotationFromInertialToBodyFixedFrame_;
 
-    //! Object from which the aerodynamic angles are computed.
-    std::shared_ptr< AerodynamicAngleCalculator > aerodynamicAngleCalculator_;
+//    //! Object from which the aerodynamic angles are computed.
+//    std::shared_ptr< AerodynamicAngleCalculator > aerodynamicAngleCalculator_;
 
-    //! Current angle of attack, as computed by last call to updateAngles function.
-    double currentAngleOfAttack_;
+//    //! Current angle of attack, as computed by last call to updateAngles function.
+//    double currentAngleOfAttack_;
 
-    //! Current angle of sideslip, as computed by last call to updateAngles function.
-    double currentAngleOfSideslip_;
+//    //! Current angle of sideslip, as computed by last call to updateAngles function.
+//    double currentAngleOfSideslip_;
 
-    //! Current bank angle, as computed by last call to updateAngles function.
-    double currentBankAngle_;
+//    //! Current bank angle, as computed by last call to updateAngles function.
+//    double currentBankAngle_;
 
-    //! Current rotation matrix from body-fixed to trajectory, as computed by last call to updateAngles function.
-     Eigen::Matrix3d currentRotationFromBodyToTrajectoryFrame_;
-};
+//    //! Current rotation matrix from body-fixed to trajectory, as computed by last call to updateAngles function.
+//     Eigen::Matrix3d currentRotationFromBodyToTrajectoryFrame_;
+//};
 
 
 } // namespace reference_frames

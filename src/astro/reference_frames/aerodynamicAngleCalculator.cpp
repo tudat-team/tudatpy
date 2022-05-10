@@ -102,6 +102,13 @@ std::string getAerodynamicAngleName( const AerodynamicsReferenceFrameAngles angl
 //! Function to update the orientation angles to the current state.
 void AerodynamicAngleCalculator::update( const double currentTime, const bool updateBodyOrientation )
 {
+    std::cout<<"Reset aero "<<currentTime<<" "<<updateBodyOrientation<<std::endl;
+
+    if( aerodynamicAngleClosureIsIncomplete_ )
+    {
+        throw std::runtime_error( "Error when calculating aerodynamic angles; closure is not set correctly" );
+    }
+
     // Clear all current rotation matrices.
     currentRotationMatrices_.clear( );
 
@@ -153,28 +160,29 @@ void AerodynamicAngleCalculator::update( const double currentTime, const bool up
 
     if( updateBodyOrientation  && !( currentBodyAngleTime_ == currentTime ) )
     {
-        if( !( angleOfAttackFunction_ == nullptr ) )
+        if( bodyFixedAngleInterface_ != nullptr )
         {
-            currentAerodynamicAngles_[ angle_of_attack ] = angleOfAttackFunction_( );        }
-
-        if( !( angleOfSideslipFunction_ == nullptr ) )
-        {
-            currentAerodynamicAngles_[ angle_of_sideslip ] = angleOfSideslipFunction_( );
+            Eigen::Vector3d currentBodyAngles =
+                    bodyFixedAngleInterface_->getAngles(
+                        currentTime, getRotationMatrixBetweenFrames( trajectory_frame, inertial_frame ) );
+            currentAerodynamicAngles_[ angle_of_attack ] = currentBodyAngles( 0 );
+            currentAerodynamicAngles_[ angle_of_sideslip ] = currentBodyAngles( 1 );
+            currentAerodynamicAngles_[ bank_angle ] = currentBodyAngles( 2 );
         }
-
-        if( !( bankAngleFunction_ == nullptr ) )
+        else
         {
-            currentAerodynamicAngles_[ bank_angle ] = bankAngleFunction_( );
+            currentAerodynamicAngles_[ angle_of_attack ] = 0.0;
+            currentAerodynamicAngles_[ angle_of_sideslip ] = 0.0;
+            currentAerodynamicAngles_[ bank_angle ] = 0.0;
         }
-
         currentBodyAngleTime_ = currentTime;
     }
-    else if( !( currentBodyAngleTime_ == currentTime ) )
-    {
-        currentAerodynamicAngles_[ angle_of_attack ] = 0.0;
-        currentAerodynamicAngles_[ angle_of_sideslip ] = 0.0;
-        currentAerodynamicAngles_[ bank_angle ] = 0.0;
-    }
+//    else if( !( currentBodyAngleTime_ == currentTime ) )
+//    {
+//        currentAerodynamicAngles_[ angle_of_attack ] = TUDAT_NAN;
+//        currentAerodynamicAngles_[ angle_of_sideslip ] = TUDAT_NAN;
+//        currentAerodynamicAngles_[ bank_angle ] = TUDAT_NAN;
+//    }
 }
 
 
@@ -379,56 +387,56 @@ double AerodynamicAngleCalculator::getAerodynamicAngle(
     return currentAerodynamicAngles_.at( angleId );
 }
 
-//! Function to set the trajectory<->body-fixed orientation angles.
-void AerodynamicAngleCalculator::setOrientationAngleFunctions(
-        const std::function< double( ) > angleOfAttackFunction,
-        const std::function< double( ) > angleOfSideslipFunction,
-        const std::function< double( ) > bankAngleFunction,
-        const bool silenceWarnings )
-{
-    if( !( angleOfAttackFunction == nullptr ) )
-    {
-        if( !( angleOfAttackFunction_ == nullptr ) && !silenceWarnings )
-        {
-            std::cerr << "Warning, overriding existing angle of attack function in AerodynamicAngleCalculator" << std::endl;
-        }
-        angleOfAttackFunction_ = angleOfAttackFunction;
-    }
+////! Function to set the trajectory<->body-fixed orientation angles.
+//void AerodynamicAngleCalculator::setOrientationAngleFunctions(
+//        const std::function< double( ) > angleOfAttackFunction,
+//        const std::function< double( ) > angleOfSideslipFunction,
+//        const std::function< double( ) > bankAngleFunction,
+//        const bool silenceWarnings )
+//{
+//    if( !( angleOfAttackFunction == nullptr ) )
+//    {
+//        if( !( angleOfAttackFunction_ == nullptr ) && !silenceWarnings )
+//        {
+//            std::cerr << "Warning, overriding existing angle of attack function in AerodynamicAngleCalculator" << std::endl;
+//        }
+//        angleOfAttackFunction_ = angleOfAttackFunction;
+//    }
 
-    if( !( angleOfSideslipFunction == nullptr ) )
-    {
-        if( !( angleOfSideslipFunction_ == nullptr ) && !silenceWarnings  )
-        {
-            std::cerr << "Warning, overriding existing angle of sideslip function in AerodynamicAngleCalculator" << std::endl;
-        }
-        angleOfSideslipFunction_ = angleOfSideslipFunction;
-    }
+//    if( !( angleOfSideslipFunction == nullptr ) )
+//    {
+//        if( !( angleOfSideslipFunction_ == nullptr ) && !silenceWarnings  )
+//        {
+//            std::cerr << "Warning, overriding existing angle of sideslip function in AerodynamicAngleCalculator" << std::endl;
+//        }
+//        angleOfSideslipFunction_ = angleOfSideslipFunction;
+//    }
 
-    if( !( bankAngleFunction == nullptr ) )
-    {
-        if( !( bankAngleFunction_ == nullptr ) && !silenceWarnings  )
-        {
-            std::cerr << "Warning, overriding existing bank angle function in AerodynamicAngleCalculator" << std::endl;
-        }
-        bankAngleFunction_ = bankAngleFunction;
-    }
-}
+//    if( !( bankAngleFunction == nullptr ) )
+//    {
+//        if( !( bankAngleFunction_ == nullptr ) && !silenceWarnings  )
+//        {
+//            std::cerr << "Warning, overriding existing bank angle function in AerodynamicAngleCalculator" << std::endl;
+//        }
+//        bankAngleFunction_ = bankAngleFunction;
+//    }
+//}
 
-//! Function to set constant trajectory<->body-fixed orientation angles.
-void AerodynamicAngleCalculator::setOrientationAngleFunctions(
-        const double angleOfAttack,
-        const double angleOfSideslip,
-        const double bankAngle,
-        const bool silenceWarnings )
-{
-    std::function< double( ) > angleOfAttackFunction =
-            ( ( angleOfAttack == angleOfAttack ) ? [ = ]( ){ return angleOfAttack; } : std::function< double( ) >( ) );
-    std::function< double( ) > angleOfSideslipFunction =
-            ( ( angleOfSideslip == angleOfSideslip ) ? [ = ]( ){ return angleOfSideslip; } : std::function< double( ) >( ) );
-    std::function< double( ) > bankAngleFunction =
-            ( ( bankAngle == bankAngle ) ? [ = ]( ){ return bankAngle; }: std::function< double( ) >( ) );
-    setOrientationAngleFunctions( angleOfAttackFunction, angleOfSideslipFunction, bankAngleFunction, silenceWarnings );
-}
+////! Function to set constant trajectory<->body-fixed orientation angles.
+//void AerodynamicAngleCalculator::setOrientationAngleFunctions(
+//        const double angleOfAttack,
+//        const double angleOfSideslip,
+//        const double bankAngle,
+//        const bool silenceWarnings )
+//{
+//    std::function< double( ) > angleOfAttackFunction =
+//            ( ( angleOfAttack == angleOfAttack ) ? [ = ]( ){ return angleOfAttack; } : std::function< double( ) >( ) );
+//    std::function< double( ) > angleOfSideslipFunction =
+//            ( ( angleOfSideslip == angleOfSideslip ) ? [ = ]( ){ return angleOfSideslip; } : std::function< double( ) >( ) );
+//    std::function< double( ) > bankAngleFunction =
+//            ( ( bankAngle == bankAngle ) ? [ = ]( ){ return bankAngle; }: std::function< double( ) >( ) );
+//    setOrientationAngleFunctions( angleOfAttackFunction, angleOfSideslipFunction, bankAngleFunction, silenceWarnings );
+//}
 
 //! Get a function to transform aerodynamic force from local to propagation frame.
 std::function< Eigen::Vector3d( const Eigen::Vector3d& ) >
@@ -516,22 +524,22 @@ getAerodynamicForceTransformationReferenceFunction(
     return transformationFunction;
 }
 
-//! Function to update the aerodynamic angles to current time.
-void AerodynamicAnglesClosure::updateAngles( const double currentTime )
-{
-    // Retrieve rotation matrix that is to be converted to orientation angles.
-    currentRotationFromBodyToTrajectoryFrame_ =
-            ( ( imposedRotationFromInertialToBodyFixedFrame_( currentTime ).toRotationMatrix( ) *
-                aerodynamicAngleCalculator_->getRotationQuaternionBetweenFrames(
-                    trajectory_frame, inertial_frame ).toRotationMatrix( ) ) ).transpose( );
+////! Function to update the aerodynamic angles to current time.
+//void AerodynamicAnglesClosure::updateAngles( const double currentTime )
+//{
+//    // Retrieve rotation matrix that is to be converted to orientation angles.
+//    currentRotationFromBodyToTrajectoryFrame_ =
+//            ( ( imposedRotationFromInertialToBodyFixedFrame_( currentTime ).toRotationMatrix( ) *
+//                aerodynamicAngleCalculator_->getRotationQuaternionBetweenFrames(
+//                    trajectory_frame, inertial_frame ).toRotationMatrix( ) ) ).transpose( );
 
-    // Compute associated Euler angles and set as orientation angles.
-    Eigen::Vector3d eulerAngles = basic_mathematics::get132EulerAnglesFromRotationMatrix(
-                currentRotationFromBodyToTrajectoryFrame_ );
-    currentBankAngle_ = eulerAngles( 0 );
-    currentAngleOfSideslip_ = eulerAngles( 1 );
-    currentAngleOfAttack_ = -eulerAngles( 2 );
-}
+//    // Compute associated Euler angles and set as orientation angles.
+//    Eigen::Vector3d eulerAngles = basic_mathematics::get132EulerAnglesFromRotationMatrix(
+//                currentRotationFromBodyToTrajectoryFrame_ );
+//    currentBankAngle_ = eulerAngles( 0 );
+//    currentAngleOfSideslip_ = eulerAngles( 1 );
+//    currentAngleOfAttack_ = -eulerAngles( 2 );
+//}
 
 } // namespace reference_frames
 

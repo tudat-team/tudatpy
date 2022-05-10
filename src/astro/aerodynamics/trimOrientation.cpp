@@ -74,6 +74,13 @@ double TrimOrientationCalculator::findTrimAngleOfAttack(
         const std::vector< double > untrimmedIndependentVariables,
         const std::map< std::string, std::vector< double > > untrimmedControlSurfaceIndependentVariables )
 {
+    std::cout<<"Find trim input: ";
+    for( int i = 0; i < untrimmedIndependentVariables.size( ); i++ )
+    {
+        std::cout<<untrimmedIndependentVariables.at( i )<<"  ";
+    }
+    std::cout<<std::endl;
+
     // Determine function for which the root is to be determined.
     std::function< double( const double ) > coefficientFunction =
             std::bind( &TrimOrientationCalculator::getPerturbedMomentCoefficient,
@@ -89,8 +96,9 @@ double TrimOrientationCalculator::findTrimAngleOfAttack(
                     untrimmedIndependentVariables.at( variableIndex_ ) );
     }
     // Throw error if not converged
-    catch( std::runtime_error const& )
+    catch( std::runtime_error const& caughtException )
     {
+        std::cerr<<caughtException.what( )<<std::endl;
         throw std::runtime_error( "Error when getting trim angle of attack, root finder did not converge." );
 
     }
@@ -125,6 +133,7 @@ double TrimOrientationCalculator::getPerturbedMomentCoefficient(
     coefficientInterface_->updateFullCurrentCoefficients( perturbedConditions, perturbedControlSurfaceConditions );
 
     // Get pitch moment coefficient
+    std::cout<<"Cm "<<coefficientInterface_->getCurrentMomentCoefficients( )( 1 )<<" "<<perturbedAngleOfAttack<<std::endl;
     return coefficientInterface_->getCurrentMomentCoefficients( )( 1 );
 }
 
