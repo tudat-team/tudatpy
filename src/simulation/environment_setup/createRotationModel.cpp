@@ -87,7 +87,47 @@ std::function< Eigen::Vector6d( const double, bool ) > createRelativeStateFuncti
                       fromBodyStateFunction, fromEphemerisStateFunction );
 }
 
-std::shared_ptr< ephemerides::RotationalEphemeris > createAerodynamicAngleBasedRotationModel(
+
+//! Function to set the angle of attack to trimmed conditions.
+std::shared_ptr< aerodynamics::TrimOrientationCalculator > createTrimCalculator(
+        const std::shared_ptr< Body > bodyWithFlightConditions )
+{
+    if( bodyWithFlightConditions->getAerodynamicCoefficientInterface( ) == nullptr )
+    {
+        throw std::runtime_error( "Error, body does not have AerodynamicCoefficientInterface when creating trim conditions." );
+    }
+
+
+    // Create trim object.
+    return std::make_shared< aerodynamics::TrimOrientationCalculator >(
+                bodyWithFlightConditions->getAerodynamicCoefficientInterface( ) );
+}
+
+//! Function to set the angle of attack to trimmed conditions.
+void linkTrimmedConditions(
+        const std::shared_ptr< aerodynamics::TrimOrientationCalculator > trimCalculator,
+        const std::shared_ptr< aerodynamics::AtmosphericFlightConditions > flightConditions,
+        const std::shared_ptr< ephemerides::AerodynamicAngleRotationalEphemeris > rotationModel )
+{
+
+
+    // Create angle-of-attack function from trim object.
+    std::function< std::vector< double >( ) > untrimmedIndependentVariablesFunction =
+            std::bind( &aerodynamics::AtmosphericFlightConditions::getAerodynamicCoefficientIndependentVariables,
+                       flightConditions );
+    std::function< std::map< std::string, std::vector< double > >( ) > untrimmedControlSurfaceIndependentVariableFunction =
+            std::bind( &aerodynamics::AtmosphericFlightConditions::getControlSurfaceAerodynamicCoefficientIndependentVariables,
+                       flightConditions );
+
+    rotationModel->getAerodynamicAngleCalculator( )->
+            setOrientationAngleFunctions(
+                std::bind( &aerodynamics::TrimOrientationCalculator::findTrimAngleOfAttackFromFunction, trimCalculator,
+                           untrimmedIndependentVariablesFunction, untrimmedControlSurfaceIndependentVariableFunction ) );
+
+}
+
+
+std::shared_ptr< ephemerides::AerodynamicAngleRotationalEphemeris > createAerodynamicAngleBasedRotationModel(
         const std::string& body,
         const std::string& centralBody,
         const SystemOfBodies& bodies,
@@ -118,6 +158,43 @@ std::shared_ptr< ephemerides::RotationalEphemeris > createAerodynamicAngleBasedR
 
     return std::make_shared< ephemerides::AerodynamicAngleRotationalEphemeris >(
                 angleCalculator, originalFrame, targetFrame );
+}
+
+std::shared_ptr< ephemerides::RotationalEphemeris > createTrimmedAerodynamicAngleBasedRotationModel(
+        const std::string& body,
+        const std::string& centralBody,
+        const SystemOfBodies& bodies ,
+        const std::string& originalFrame,
+        const std::string& targetFrame )
+{
+    std::shared_ptr< ephemerides::AerodynamicAngleRotationalEphemeris > rotationModel =
+            createAerodynamicAngleBasedRotationModel(
+                body, centralBody, bodies, originalFrame, targetFrame );
+
+    std::shared_ptr< Body > trimmedBody = bodies.at( body );
+    trimmedBody->setRotationalEphemeris( rotationModel );
+
+    //! Function to set the angle of attack to trimmed conditions.
+    std::shared_ptr< aerodynamics::TrimOrientationCalculator > trimCalculator =
+            createTrimCalculator( trimmedBody );
+
+    if( trimmedBody->getFlightConditions( ) == nullptr )
+    {
+        addFlightConditions( bodies, body, centralBody );
+    }
+
+    std::shared_ptr< aerodynamics::AtmosphericFlightConditions > flightConditions =
+            std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
+                trimmedBody->getFlightConditions( ) );
+
+    if( std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >( flightConditions ) == nullptr )
+    {
+        throw std::runtime_error( "Error, body does not have FlightConditions when setting trim conditions." );
+    }
+
+    linkTrimmedConditions( trimCalculator, flightConditions, rotationModel );
+
+    return rotationModel;
 }
 
 //! Function to create a rotation model.

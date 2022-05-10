@@ -153,6 +153,7 @@ void AerodynamicAngleCalculator::update( const double currentTime, const bool up
 
     if( updateBodyOrientation  && !( currentBodyAngleTime_ == currentTime ) )
     {
+        std::cout<<"Is pointer null "<<( angleUpdateFunction_ == nullptr )<<" "<<( angleOfAttackFunction_ == nullptr )<<this<<std::endl;
         if( !( angleUpdateFunction_ == nullptr ) )
         {
             angleUpdateFunction_( currentTime );
@@ -161,6 +162,7 @@ void AerodynamicAngleCalculator::update( const double currentTime, const bool up
         if( !( angleOfAttackFunction_ == nullptr ) )
         {
             currentAerodynamicAngles_[ angle_of_attack ] = angleOfAttackFunction_( );
+            std::cout<<"Current angle: "<<currentAerodynamicAngles_[ angle_of_attack ]<<std::endl;
         }
 
         if( !( angleOfSideslipFunction_ == nullptr ) )

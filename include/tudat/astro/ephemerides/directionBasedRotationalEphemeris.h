@@ -89,7 +89,6 @@ public:
         {
             resetCurrentTime( currentTime );
         }
-        std::cout<<"Thrust: "<<currentTime<<" "<<currentInertialDirection_.transpose( )<<std::endl;
         return currentInertialDirection_;
     }
 

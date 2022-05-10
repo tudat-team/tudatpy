@@ -79,25 +79,6 @@ void addFlightConditions(
         const std::string bodyName,
         const std::string centralBodyName );
 
-//! Function to set the angle of attack to trimmed conditions.
-/*!
- * Function to set the angle of attack to trimmed conditions. Using this function requires the aerodynamic coefficient
- * interface to be dependent on the angle of attack.
- * \param flightConditions Flight conditions for body that is to have trimmed conditions.
- */
-std::shared_ptr< aerodynamics::TrimOrientationCalculator > setTrimmedConditions(
-        const std::shared_ptr< aerodynamics::AtmosphericFlightConditions > flightConditions );
-
-
-//! Function to set the angle of attack to trimmed conditions.
-/*!
- * Function to set the angle of attack to trimmed conditions. Using this function requires the aerodynamic coefficient
- * interface to be dependent on the angle of attack.
- * \param bodyWithFlightConditions Body for which trimmed conditions are to be imposed.
- */
-std::shared_ptr< aerodynamics::TrimOrientationCalculator > setTrimmedConditions(
-        const std::shared_ptr< Body > bodyWithFlightConditions );
-
 
 //! Function that must be called to link the AerodynamicGuidance object to the simulation
 /*!

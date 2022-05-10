@@ -1,6 +1,7 @@
 #ifndef TUDAT_AERODYNAMIC_ANGLE_ROTATIONAL_EPHEMERIS_H
 #define TUDAT_AERODYNAMIC_ANGLE_ROTATIONAL_EPHEMERIS_H
 
+#include "tudat/astro/aerodynamics/trimOrientation.h"
 #include "tudat/astro/ephemerides/rotationalEphemeris.h"
 #include "tudat/astro/reference_frames/aerodynamicAngleCalculator.h"
 
@@ -51,7 +52,7 @@ public:
     {
         resetCurrentTime( currentTime );
         return Eigen::Quaterniond( aerodynamicAngleCalculator_->getRotationMatrixBetweenFrames(
-                    reference_frames::body_frame, reference_frames::inertial_frame ) );
+                                       reference_frames::body_frame, reference_frames::inertial_frame ) );
     }
 
     virtual Eigen::Quaterniond getRotationToTargetFrame(
@@ -102,7 +103,7 @@ public:
 
 protected:
 
-     std::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator_;
+    std::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator_;
 
     //! Function to determine the angle of attack of the vehicle.
     std::function< double( ) > angleOfAttackFunction_;
@@ -132,17 +133,6 @@ void setAerodynamicDependentOrientationCalculatorClosure(
         const std::function< Eigen::Quaterniond( const double ) > imposedRotationFromInertialToBodyFixedFrame,
         std::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator );
 
-////! Function to make aerodynamic angle computation consistent with existing DependentOrientationCalculator
-///*!
-// * Function to make aerodynamic angle computation consistent with existing DependentOrientationCalculator
-// * \param dependentOrientationCalculator Object computing the current orientation based on the current state of the
-// * environment. Aerodynamic angles are to be computed from output given by this class.
-// * \param aerodynamicAngleCalculator Object from which the aerodynamic angles are computed.
-// */
-//void setAerodynamicDependentOrientationCalculatorClosure(
-//            std::shared_ptr< DependentOrientationCalculator > dependentOrientationCalculator,
-//            std::shared_ptr< AerodynamicAngleCalculator > aerodynamicAngleCalculator );
-
 //! Function to make aerodynamic angle computation consistent with existing rotational ephemeris
 /*!
  * Function to make aerodynamic angle computation consistent with existing  rotational ephemeris
@@ -151,8 +141,9 @@ void setAerodynamicDependentOrientationCalculatorClosure(
  * \param aerodynamicAngleCalculator Object from which the aerodynamic angles are computed.
  */
 void setAerodynamicDependentOrientationCalculatorClosure(
-            std::shared_ptr< ephemerides::RotationalEphemeris > rotationalEphemeris,
-            std::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator );
+        std::shared_ptr< ephemerides::RotationalEphemeris > rotationalEphemeris,
+        std::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator );
+
 
 } // namespace ephemerides
 

@@ -94,6 +94,7 @@ double TrimOrientationCalculator::findTrimAngleOfAttack(
         throw std::runtime_error( "Error when getting trim angle of attack, root finder did not converge." );
 
     }
+    std::cout<<"Find trim "<<trimmedAngleOfAttack<<std::endl;
 
     return trimmedAngleOfAttack;
 }

@@ -130,7 +130,10 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientsFromFile )
                     createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "SpacePlane" ) );
 
         bodies.at( "SpacePlane" )->setConstantBodyMass( 50.0E3 );
-
+        bodies.at( "SpacePlane" )->setRotationalEphemeris(
+                    createTrimmedAerodynamicAngleBasedRotationModel(
+                        "SpacePlane", "Earth", bodies,
+                        "J2000", "VehicleFixed" ) );
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ///////////////////////             CREATE ACCELERATIONS            ///////////////////////////////////////////////////
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -171,8 +174,8 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientsFromFile )
         accelerationsOfSpacePlane[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( aerodynamic ) );
 
         accelerationsOfSpacePlane[ "SpacePlane" ].push_back( std::make_shared< ThrustAccelerationSettings >(
-                                                                 std::make_shared< ThrustDirectionSettings >(
-                                                                     thrust_direction_from_existing_body_orientation, "Earth" ),
+//                                                                 std::make_shared< ThrustDirectionSettings >(
+//                                                                     thrust_direction_from_existing_body_orientation, "Earth" ),
                                                                  std::make_shared< ParameterizedThrustMagnitudeSettings >(
                                                                      thrustMagnitudeInterpolator, thrustDependencies,
                                                                      specificImpulseInterpolator, thrustDependencies ) ) );
@@ -185,8 +188,6 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientsFromFile )
         // Create acceleration models
         basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
                     bodies, accelerationMap, bodiesToPropagate, centralBodies );
-        setTrimmedConditions( bodies.at( "SpacePlane" ) );
-
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ///////////////////////             CREATE PROPAGATION SETTINGS            ////////////////////////////////////////////
@@ -322,11 +323,14 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientsFromFile )
             double angleOfAttack = variableIterator->second( 1 );
             double sideslipAngle = variableIterator->second( 2 );
             double bankAngle = variableIterator->second( 3 );
+            std::cout<<"AoA "<<angleOfAttack<<std::endl;
 
             double controlSurfaceDeflection  = 0.0;
             if( i > 0 )
             {
                 controlSurfaceDeflection = variableIterator->second( 4 );
+                std::cout<<"CSD "<<controlSurfaceDeflection<<std::endl;
+
             }
 
             Eigen::Vector3d momentCoefficients = variableIterator->second.segment( 4 + parameterAddition, 3 );

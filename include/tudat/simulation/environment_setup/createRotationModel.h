@@ -646,7 +646,25 @@ std::function< Eigen::Vector6d( const double, bool ) > createRelativeStateFuncti
  *  \return Rotation model created according to settings in rotationModelSettings.
  */
 
-std::shared_ptr< ephemerides::RotationalEphemeris > createAerodynamicAngleBasedRotationModel(
+
+//! Function to set the angle of attack to trimmed conditions.
+/*!
+ * Function to set the angle of attack to trimmed conditions. Using this function requires the aerodynamic coefficient
+ * interface to be dependent on the angle of attack.
+ * \param bodyWithFlightConditions Body for which trimmed conditions are to be imposed.
+ */
+std::shared_ptr< aerodynamics::TrimOrientationCalculator > setTrimmedConditions(
+        const std::shared_ptr< Body > bodyWithFlightConditions );
+
+
+std::shared_ptr< ephemerides::AerodynamicAngleRotationalEphemeris > createAerodynamicAngleBasedRotationModel(
+        const std::string& body,
+        const std::string& centralBody,
+        const SystemOfBodies& bodies ,
+        const std::string& originalFrame,
+        const std::string& targetFrame );
+
+std::shared_ptr< ephemerides::RotationalEphemeris > createTrimmedAerodynamicAngleBasedRotationModel(
         const std::string& body,
         const std::string& centralBody,
         const SystemOfBodies& bodies ,
