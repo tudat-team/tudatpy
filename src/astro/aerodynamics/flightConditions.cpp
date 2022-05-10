@@ -249,28 +249,6 @@ void AtmosphericFlightConditions::updateAerodynamicCoefficientInput( )
     }
 }
 
-//! Function to set the angle of attack to trimmed conditions.
-std::shared_ptr< TrimOrientationCalculator > setTrimmedConditions(
-        const std::shared_ptr< AtmosphericFlightConditions > flightConditions )
-{
-    // Create trim object.
-    std::shared_ptr< TrimOrientationCalculator > trimOrientation =
-            std::make_shared< TrimOrientationCalculator >(
-                flightConditions->getAerodynamicCoefficientInterface( ) );
-
-    // Create angle-of-attack function from trim object.
-    std::function< std::vector< double >( ) > untrimmedIndependentVariablesFunction =
-            std::bind( &AtmosphericFlightConditions::getAerodynamicCoefficientIndependentVariables,
-                         flightConditions );
-    std::function< std::map< std::string, std::vector< double > >( ) > untrimmedControlSurfaceIndependentVariablesFunction =
-            std::bind( &AtmosphericFlightConditions::getControlSurfaceAerodynamicCoefficientIndependentVariables,
-                         flightConditions );
-    flightConditions->getAerodynamicAngleCalculator( )->setOrientationAngleFunctions(
-                std::bind( &TrimOrientationCalculator::findTrimAngleOfAttackFromFunction, trimOrientation,
-                             untrimmedIndependentVariablesFunction, untrimmedControlSurfaceIndependentVariablesFunction ) );
-
-    return trimOrientation;
-}
 
 } // namespace aerodynamics
 

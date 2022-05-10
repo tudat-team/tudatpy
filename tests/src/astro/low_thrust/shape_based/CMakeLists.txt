@@ -8,6 +8,6 @@
 #    http://tudat.tudelft.nl/LICENSE.
 #
 
-TUDAT_ADD_TEST_CASE(HodographicShaping PRIVATE_LINKS tudat_shape_based_methods tudat_low_thrust_trajectories tudat_numerical_quadrature ${Tudat_PROPAGATION_LIBRARIES})
+#TUDAT_ADD_TEST_CASE(HodographicShaping PRIVATE_LINKS tudat_shape_based_methods tudat_low_thrust_trajectories tudat_numerical_quadrature ${Tudat_PROPAGATION_LIBRARIES})
 
-TUDAT_ADD_TEST_CASE(SphericalShaping PRIVATE_LINKS tudat_shape_based_methods tudat_low_thrust_trajectories tudat_numerical_quadrature ${Tudat_PROPAGATION_LIBRARIES})
+#TUDAT_ADD_TEST_CASE(SphericalShaping PRIVATE_LINKS tudat_shape_based_methods tudat_low_thrust_trajectories tudat_numerical_quadrature ${Tudat_PROPAGATION_LIBRARIES})

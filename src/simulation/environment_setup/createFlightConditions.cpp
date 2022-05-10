@@ -213,45 +213,6 @@ void addFlightConditions(
 }
 
 
-
-//! Function to set the angle of attack to trimmed conditions.
-std::shared_ptr< aerodynamics::TrimOrientationCalculator > setTrimmedConditions(
-        const std::shared_ptr< aerodynamics::AtmosphericFlightConditions > flightConditions )
-{
-    // Create trim object.
-    std::shared_ptr< aerodynamics::TrimOrientationCalculator > trimOrientation =
-            std::make_shared< aerodynamics::TrimOrientationCalculator >(
-                flightConditions->getAerodynamicCoefficientInterface( ) );
-
-    // Create angle-of-attack function from trim object.
-    std::function< std::vector< double >( ) > untrimmedIndependentVariablesFunction =
-            std::bind( &aerodynamics::AtmosphericFlightConditions::getAerodynamicCoefficientIndependentVariables,
-                         flightConditions );
-    std::function< std::map< std::string, std::vector< double > >( ) > untrimmedControlSurfaceIndependentVariableFunction =
-            std::bind( &aerodynamics::AtmosphericFlightConditions::getControlSurfaceAerodynamicCoefficientIndependentVariables,
-                         flightConditions );
-
-    flightConditions->getAerodynamicAngleCalculator( )->setOrientationAngleFunctions(
-                std::bind( &aerodynamics::TrimOrientationCalculator::findTrimAngleOfAttackFromFunction, trimOrientation,
-                             untrimmedIndependentVariablesFunction, untrimmedControlSurfaceIndependentVariableFunction ) );
-
-    return trimOrientation;
-}
-
-//! Function to set the angle of attack to trimmed conditions.
-std::shared_ptr< aerodynamics::TrimOrientationCalculator > setTrimmedConditions(
-        const std::shared_ptr< Body > bodyWithFlightConditions )
-{
-    if( std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
-                bodyWithFlightConditions->getFlightConditions( ) ) == nullptr )
-    {
-        throw std::runtime_error( "Error, body does not have FlightConditions when setting trim conditions." );
-    }
-
-    return setTrimmedConditions( std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
-                                     bodyWithFlightConditions->getFlightConditions( ) ));
-}
-
 //! Function that must be called to link the AerodynamicGuidance object to the simulation
 void setGuidanceAnglesFunctions(
         const std::shared_ptr< aerodynamics::AerodynamicGuidance > aerodynamicGuidance,
