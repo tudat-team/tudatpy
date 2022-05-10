@@ -153,17 +153,9 @@ void AerodynamicAngleCalculator::update( const double currentTime, const bool up
 
     if( updateBodyOrientation  && !( currentBodyAngleTime_ == currentTime ) )
     {
-        std::cout<<"Is pointer null "<<( angleUpdateFunction_ == nullptr )<<" "<<( angleOfAttackFunction_ == nullptr )<<this<<std::endl;
-        if( !( angleUpdateFunction_ == nullptr ) )
-        {
-            angleUpdateFunction_( currentTime );
-        }
-
         if( !( angleOfAttackFunction_ == nullptr ) )
         {
-            currentAerodynamicAngles_[ angle_of_attack ] = angleOfAttackFunction_( );
-            std::cout<<"Current angle: "<<currentAerodynamicAngles_[ angle_of_attack ]<<std::endl;
-        }
+            currentAerodynamicAngles_[ angle_of_attack ] = angleOfAttackFunction_( );        }
 
         if( !( angleOfSideslipFunction_ == nullptr ) )
         {
@@ -392,7 +384,6 @@ void AerodynamicAngleCalculator::setOrientationAngleFunctions(
         const std::function< double( ) > angleOfAttackFunction,
         const std::function< double( ) > angleOfSideslipFunction,
         const std::function< double( ) > bankAngleFunction,
-        const std::function< void( const double ) > angleUpdateFunction,
         const bool silenceWarnings )
 {
     if( !( angleOfAttackFunction == nullptr ) )
@@ -421,15 +412,6 @@ void AerodynamicAngleCalculator::setOrientationAngleFunctions(
         }
         bankAngleFunction_ = bankAngleFunction;
     }
-
-    if( !( angleUpdateFunction == nullptr ) )
-    {
-        if( !( angleUpdateFunction_ == nullptr ) && !silenceWarnings  )
-        {
-            std::cerr << "Warning, overriding existing aerodynamic angle update function in AerodynamicAngleCalculator" << std::endl;
-        }
-        angleUpdateFunction_ = angleUpdateFunction;
-    }
 }
 
 //! Function to set constant trajectory<->body-fixed orientation angles.
@@ -445,7 +427,7 @@ void AerodynamicAngleCalculator::setOrientationAngleFunctions(
             ( ( angleOfSideslip == angleOfSideslip ) ? [ = ]( ){ return angleOfSideslip; } : std::function< double( ) >( ) );
     std::function< double( ) > bankAngleFunction =
             ( ( bankAngle == bankAngle ) ? [ = ]( ){ return bankAngle; }: std::function< double( ) >( ) );
-    setOrientationAngleFunctions( angleOfAttackFunction, angleOfSideslipFunction, bankAngleFunction, nullptr, silenceWarnings );
+    setOrientationAngleFunctions( angleOfAttackFunction, angleOfSideslipFunction, bankAngleFunction, silenceWarnings );
 }
 
 //! Get a function to transform aerodynamic force from local to propagation frame.

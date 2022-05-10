@@ -37,8 +37,9 @@ public:
           angleUpdateFunction_( angleUpdateFunction ),
           currentTime_( TUDAT_NAN )
     {
+
         aerodynamicAngleCalculator->setOrientationAngleFunctions(
-                    angleOfAttackFunction_, angleOfSideslipFunction_, bankAngleFunction_, angleUpdateFunction_ );
+                    angleOfAttackFunction_, angleOfSideslipFunction_, bankAngleFunction_ );
     }
 
     //! Virtual destructor.
@@ -86,6 +87,7 @@ public:
                 if( angleUpdateFunction_ != nullptr )
                 {
                     angleUpdateFunction_( currentTime_ );
+                    currentBodyAngles_ << angleOfAttackFunction_( ), angleOfSideslipFunction_( ), bankAngleFunction_( );
                 }
                 aerodynamicAngleCalculator_->update( currentTime, true );
             }
@@ -94,6 +96,15 @@ public:
                 aerodynamicAngleCalculator_->resetCurrentTime( TUDAT_NAN );
             }
         }
+    }
+
+    Eigen::Vector3d getBodyAngles( const double currentTime )
+    {
+        if( currentTime != currentTime_ )
+        {
+            throw std::runtime_error( "Error when getting body angles from AerodynamicAngleRotationalEphemeris, times are inconsistent" );
+        }
+        return currentBodyAngles_;
     }
 
     std::shared_ptr< reference_frames::AerodynamicAngleCalculator > getAerodynamicAngleCalculator( )
@@ -116,6 +127,8 @@ protected:
 
     //! Function to update the bank, attack and sideslip angles to current time.
     std::function< void( const double ) > angleUpdateFunction_;
+
+    Eigen::Vector3d currentBodyAngles_;
 
     double currentTime_;
 
