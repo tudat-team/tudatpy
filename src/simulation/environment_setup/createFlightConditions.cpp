@@ -23,29 +23,10 @@ using namespace boost::placeholders;
 #include "tudat/astro/aerodynamics/aerodynamicCoefficientInterface.h"
 #include "tudat/astro/aerodynamics/customAerodynamicCoefficientInterface.h"
 #include "tudat/simulation/environment_setup/createFlightConditions.h"
-#include "tudat/math/basic/rotationRepresentations.h"
 
 namespace tudat
 {
 
-namespace reference_frames
-{
-
-Eigen::Vector3d computeBodyFixedAeroAngles(
-        const Eigen::Matrix3d& inertialToBodyFixedFrame,
-        const Eigen::Matrix3d& trajectoryToInertialFrame )
-{
-    // Retrieve rotation matrix that is to be converted to orientation angles.
-    Eigen::Matrix3d currentRotationFromBodyToTrajectoryFrame_ =
-            ( inertialToBodyFixedFrame * trajectoryToInertialFrame ).transpose( );
-
-    // Compute associated Euler angles and set as orientation angles.
-    Eigen::Vector3d eulerAngles = basic_mathematics::get132EulerAnglesFromRotationMatrix(
-                currentRotationFromBodyToTrajectoryFrame_ );
-    return ( Eigen::Vector3d( ) << eulerAngles( 0 ), eulerAngles( 1 ), -eulerAngles( 2 ) ).finished( );
-}
-
-}
 namespace simulation_setup
 {
 

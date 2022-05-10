@@ -66,6 +66,8 @@ public:
     BodyFixedAerodynamicAngleInterface(
             const BodyFixedAngleSource angleSource ):angleSource_( angleSource ){ }
 
+    virtual ~BodyFixedAerodynamicAngleInterface( ){ }
+
     virtual Eigen::Vector3d getAngles( const double time,
                                        const Eigen::Matrix3d& trajectoryToInertialFrame ) = 0;
 

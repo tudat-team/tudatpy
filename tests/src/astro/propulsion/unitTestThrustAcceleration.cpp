@@ -731,8 +731,12 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAcceleration )
         // Create vehicle aerodynamic coefficients
         bodies.at( "Apollo" )->setAerodynamicCoefficientInterface(
                     unit_tests::getApolloCoefficientInterface( ) );
+//        bodies.at( "Apollo" )->setRotationalEphemeris(
+//                    createAerodynamicAngleBasedRotationModel(
+//                        "Apollo", "Earth", bodies,
+//                        "ECLIPJ2000", "VehicleFixed" ) );
         bodies.at( "Apollo" )->setRotationalEphemeris(
-                    createAerodynamicAngleBasedRotationModel(
+                    createTrimmedAerodynamicAngleBasedRotationModel(
                         "Apollo", "Earth", bodies,
                         "ECLIPJ2000", "VehicleFixed" ) );
 
@@ -767,8 +771,6 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAcceleration )
         basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
                     bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
-        // Set trim conditions for the vehicle.
-        setTrimmedConditions( bodies.at( "Apollo" ) );
 
         // Define list of dependent variables to save.
         std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
@@ -1268,10 +1270,15 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
 
     // Create vehicle aerodynamic coefficients
     bodies.at( "Apollo" )->setAerodynamicCoefficientInterface( unit_tests::getApolloCoefficientInterface( ) );
+//    bodies.at( "Apollo" )->setRotationalEphemeris(
+//                createAerodynamicAngleBasedRotationModel(
+//                    "Apollo", "Earth", bodies,
+//                    "ECLIPJ2000", "VehicleFixed" ) );
     bodies.at( "Apollo" )->setRotationalEphemeris(
-                createAerodynamicAngleBasedRotationModel(
+                createTrimmedAerodynamicAngleBasedRotationModel(
                     "Apollo", "Earth", bodies,
                     "ECLIPJ2000", "VehicleFixed" ) );
+
     int numberOfCasesPerSet = 4;
     for( int i = 0; i < numberOfCasesPerSet * 2; i++ )
     {
@@ -1410,8 +1417,8 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
         basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
                     bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
-        // Set trimmed conditions for body orientation.
-        setTrimmedConditions( bodies.at( "Apollo" ) );
+//        // Set trimmed conditions for body orientation.
+//        setTrimmedConditions( bodies.at( "Apollo" ) );
 
         // Define list of dependent variables to save.
         std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
