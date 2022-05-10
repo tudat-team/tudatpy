@@ -165,7 +165,6 @@ double AtmosphericFlightConditions::getAerodynamicCoefficientIndependentVariable
         const AerodynamicCoefficientsIndependentVariables independentVariableType,
         const std::string& secondaryIdentifier )
 {
-    std::cout<<"Getting independent variable "<<independentVariableType<<" "<<secondaryIdentifier<<std::endl;
     double currentIndependentVariable;
     switch( independentVariableType )
     {
@@ -220,8 +219,6 @@ double AtmosphericFlightConditions::getAerodynamicCoefficientIndependentVariable
             currentIndependentVariable = customCoefficientDependencies_.at( independentVariableType )( );
         }
     }
-
-    std::cout<<"Current value : "<<currentIndependentVariable<<std::endl;
 
     return currentIndependentVariable;
 }

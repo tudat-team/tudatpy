@@ -142,11 +142,8 @@ public:
         DataType currentRootValue       = initialGuessOfRootOne_;
         DataType nextRootValue          = initialGuess;
         DataType lastFunctionValue      = TUDAT_NAN;
-        std::cout<<"Secant A "<<currentRootValue<<std::endl;
         DataType currentFunctionValue   = this->rootFunction->evaluate( currentRootValue );
-        std::cout<<"Secant B "<<nextRootValue<<std::endl;
         DataType nextFunctionValue      = this->rootFunction->evaluate( nextRootValue );
-        std::cout<<"Secant C "<<nextFunctionValue<<std::endl;
 
         // Check if the next root value is the most accurate guess. If not, switch the values.
         if( std::fabs( currentFunctionValue ) < std::fabs( nextFunctionValue ) )
@@ -161,7 +158,6 @@ public:
             currentFunctionValue    = nextFunctionValue;
             nextFunctionValue       = temporaryValue;
         }
-        std::cout<<"Secant D"<<std::endl;
 
         // Loop counter.
         unsigned int counter = 1;

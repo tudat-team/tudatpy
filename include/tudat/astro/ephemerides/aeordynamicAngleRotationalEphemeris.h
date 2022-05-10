@@ -74,7 +74,7 @@ public:
         if( aerodynamicAngleFunction_ != nullptr )
         {
             currentBodyAngles_ = aerodynamicAngleFunction_( currentTime_ );
-            std::cout<<currentBodyAngles_<<std::endl;
+//            std::cout<<currentBodyAngles_<<std::endl;
         }
         else
         {
@@ -83,7 +83,7 @@ public:
     }
     virtual void resetCurrentTime( const double currentTime = TUDAT_NAN )
     {
-        std::cout<<"Reset rotation "<<currentTime<<std::endl;
+//        std::cout<<"Reset rotation "<<currentTime<<std::endl;
         if( !( currentTime == currentTime_ ) )
         {
             currentTime_ = currentTime;
