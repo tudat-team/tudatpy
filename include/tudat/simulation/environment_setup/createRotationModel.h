@@ -20,6 +20,7 @@
 #include "tudat/interface/spice/spiceInterface.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/astro/ephemerides/rotationalEphemeris.h"
+#include "tudat/astro/ephemerides/directionBasedRotationalEphemeris.h"
 #include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/astro/basic_astro/unitConversions.h"
 #include "tudat/interface/sofa/earthOrientation.h"
@@ -656,6 +657,15 @@ std::function< Eigen::Vector6d( const double, bool ) > createRelativeStateFuncti
 std::shared_ptr< aerodynamics::TrimOrientationCalculator > setTrimmedConditions(
         const std::shared_ptr< Body > bodyWithFlightConditions );
 
+std::shared_ptr< ephemerides::DirectionBasedRotationalEphemeris > createStateDirectionBasedRotationModel(
+        const std::string& body,
+        const std::string& centralBody,
+        const SystemOfBodies& bodies,
+        const Eigen::Vector3d& associatedBodyFixedDirection,
+        const std::string& originalFrame,
+        const std::string& targetFrame,
+        const bool isColinearWithVelocity,
+        const bool directionIsOppositeToVector );
 
 std::shared_ptr< ephemerides::AerodynamicAngleRotationalEphemeris > createAerodynamicAngleBasedRotationModel(
         const std::string& body,

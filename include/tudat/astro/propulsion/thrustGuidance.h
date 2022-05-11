@@ -113,9 +113,9 @@ protected:
  * direction (if false) as velocity segment of currentState
  * \return Unit vector colinear with velocity segment of currentState.
  */
-Eigen::Vector3d getForceDirectionColinearWithVelocity(
+Eigen::Vector3d getDirectionColinearWithVelocity(
         const std::function< void( Eigen::Vector6d& ) > currentStateFunction,
-        const double currentTime, const bool putForceInOppositeDirection );
+        const double currentTime, const bool putVectorInOppositeDirection );
 
 //! Function to get the unit vector colinear with position segment of a translational state.
 /*!
@@ -127,9 +127,9 @@ Eigen::Vector3d getForceDirectionColinearWithVelocity(
  * direction (if false) as position segment of current state
  * \return Unit vector colinear with position segment of current state.
  */
-Eigen::Vector3d getForceDirectionColinearWithPosition(
+Eigen::Vector3d getDirectionColinearWithPosition(
         const std::function< void( Eigen::Vector6d& ) > currentStateFunction,
-        const double currentTime, const bool putForceInOppositeDirection );
+        const double currentTime, const bool putVectorInOppositeDirection );
 
 //! Function to get the force direction from a time-only function.
 /*!

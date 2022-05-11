@@ -383,134 +383,138 @@ BOOST_AUTO_TEST_CASE( testConstantThrustAcceleration )
 
 //}
 
-////! In this unit test, the thrust force set to be colinear with the position and velocity vectors is checked.
-//BOOST_AUTO_TEST_CASE( testRadialAndVelocityThrustAcceleration )
-//{
-//    using namespace tudat;
-//    using namespace numerical_integrators;
-//    using namespace simulation_setup;
-//    using namespace basic_astrodynamics;
-//    using namespace propagators;
-//    using namespace basic_mathematics;
-//    using namespace basic_astrodynamics;
+//! In this unit test, the thrust force set to be colinear with the position and velocity vectors is checked.
+BOOST_AUTO_TEST_CASE( testRadialAndVelocityThrustAcceleration )
+{
+    using namespace tudat;
+    using namespace numerical_integrators;
+    using namespace simulation_setup;
+    using namespace basic_astrodynamics;
+    using namespace propagators;
+    using namespace basic_mathematics;
+    using namespace basic_astrodynamics;
 
-//    //Load spice kernels.
-//    spice_interface::loadStandardSpiceKernels( );
+    //Load spice kernels.
+    spice_interface::loadStandardSpiceKernels( );
 
-//    double thrustMagnitude = 1.0E3;
-//    double specificImpulse = 250.0;
+    double thrustMagnitude = 1.0E3;
+    double specificImpulse = 250.0;
 
-//    for( unsigned int i = 0; i < 2; i++ )
-//    {
-//        // Create Earth object
-//        simulation_setup::SystemOfBodies bodies;
+    for( unsigned int i = 0; i < 2; i++ )
+    {
+        // Create Earth object
+        simulation_setup::SystemOfBodies bodies;
 
-//        // Create vehicle objects.
-//        double vehicleMass = 5.0E3;
-//        bodies.createEmptyBody( "Earth" );
+        // Create vehicle objects.
+        double vehicleMass = 5.0E3;
+        bodies.createEmptyBody( "Earth" );
 
-//        bodies.at( "Earth" )->setEphemeris(
+        bodies.at( "Earth" )->setEphemeris(
+                    std::make_shared< ephemerides::ConstantEphemeris >( Eigen::Vector6d::Zero( ), "SSB", "ECLIPJ2000" ) );
+
 //                    std::make_shared< ephemerides::SpiceEphemeris >( "Sun", "SSB", false, false ) );
-//        bodies.at( "Earth" )->setGravityFieldModel( std::make_shared< gravitation::GravityFieldModel >(
-//                                                      spice_interface::getBodyGravitationalParameter( "Earth" ) ) );
+        bodies.at( "Earth" )->setGravityFieldModel( std::make_shared< gravitation::GravityFieldModel >(
+                                                      spice_interface::getBodyGravitationalParameter( "Earth" ) ) );
 
-//        bodies.createEmptyBody( "Vehicle" );
-//        bodies.at( "Vehicle" )->setConstantBodyMass( vehicleMass );
+        bodies.createEmptyBody( "Vehicle" );
+        bodies.at( "Vehicle" )->setConstantBodyMass( vehicleMass );
 
-//        // Define propagator settings variables.
-//        SelectedAccelerationMap accelerationMap;
-//        std::vector< std::string > bodiesToPropagate;
-//        std::vector< std::string > centralBodies;
+        // Define propagator settings variables.
+        SelectedAccelerationMap accelerationMap;
+        std::vector< std::string > bodiesToPropagate;
+        std::vector< std::string > centralBodies;
 
-//        bool isThurstInVelocityDirection;
+        bool isThurstInVelocityDirection;
 
-//        if( i == 0 )
-//        {
-//            isThurstInVelocityDirection = 0;
-//        }
-//        else
-//        {
-//            isThurstInVelocityDirection = 1;
-//        }
+        if( i == 0 )
+        {
+            isThurstInVelocityDirection = 0;
+        }
+        else
+        {
+            isThurstInVelocityDirection = 1;
+        }
+        bodies.at( "Vehicle" )->setRotationalEphemeris( createStateDirectionBasedRotationModel(
+                                                            "Vehicle", "Earth", bodies,
+                                                            Eigen::Vector3d::UnitX( ),
+                                                            "BodyFixed", "ECLIPJ2000", isThurstInVelocityDirection, true ) );
 
-//        // Define acceleration model settings.
-//        std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
-//        accelerationsOfVehicle[ "Vehicle" ].push_back( std::make_shared< ThrustAccelerationSettings >(
-//                                                           std::make_shared< ThrustDirectionFromStateGuidanceSettings >(
-//                                                               "Earth", isThurstInVelocityDirection, 1  ),
-//                                                           std::make_shared< ConstantThrustMagnitudeSettings >(
-//                                                               thrustMagnitude, specificImpulse ) ) );
-//        if( i == 1 )
-//        {
-//            accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
-//        }
+        // Define acceleration model settings.
+        std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
+        accelerationsOfVehicle[ "Vehicle" ].push_back( std::make_shared< ThrustAccelerationSettings >(
+                                                           std::make_shared< ConstantThrustMagnitudeSettings >(
+                                                               thrustMagnitude, specificImpulse ) ) );
+        if( i == 1 )
+        {
+            accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
+        }
 
-//        accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
+        accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
 
-//        bodiesToPropagate.push_back( "Vehicle" );
-//        centralBodies.push_back( "Earth" );
+        bodiesToPropagate.push_back( "Vehicle" );
+        centralBodies.push_back( "Earth" );
 
-//        // Set initial state
-//        double radius = 1.0E3;
-//        double circularVelocity = std::sqrt( radius * thrustMagnitude / vehicleMass );
-//        Eigen::Vector6d systemInitialState = Eigen::Vector6d::Zero( );
+        // Set initial state
+        double radius = 1.0E3;
+        double circularVelocity = std::sqrt( radius * thrustMagnitude / vehicleMass );
+        Eigen::Vector6d systemInitialState = Eigen::Vector6d::Zero( );
 
-//        if( i == 0 )
-//        {
-//            systemInitialState( 0 ) = radius;
-//            systemInitialState( 4 ) = circularVelocity;
-//        }
-//        else
-//        {
-//            systemInitialState( 0 ) = 8.0E6;
-//            systemInitialState( 4 ) = 7.5E3;
+        if( i == 0 )
+        {
+            systemInitialState( 0 ) = radius;
+            systemInitialState( 4 ) = circularVelocity;
+        }
+        else
+        {
+            systemInitialState( 0 ) = 8.0E6;
+            systemInitialState( 4 ) = 7.5E3;
 
-//        }
+        }
 
-//        // Create acceleration models and propagation settings.
-//        basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-//                    bodies, accelerationMap, bodiesToPropagate, centralBodies );
+        // Create acceleration models and propagation settings.
+        basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
+                    bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
-//        std::shared_ptr< DependentVariableSaveSettings > dependentVariableSaveSettings;
-//        if( i == 1 )
-//        {
-//            std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
-//            dependentVariables.push_back(
-//                        std::make_shared< SingleAccelerationDependentVariableSaveSettings >(
-//                            thrust_acceleration, "Vehicle", "Vehicle", 0 ) );
-//            dependentVariableSaveSettings = std::make_shared< DependentVariableSaveSettings >( dependentVariables );
+        std::shared_ptr< DependentVariableSaveSettings > dependentVariableSaveSettings;
+        if( i == 1 )
+        {
+            std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
+            dependentVariables.push_back(
+                        std::make_shared< SingleAccelerationDependentVariableSaveSettings >(
+                            thrust_acceleration, "Vehicle", "Vehicle", 0 ) );
+            dependentVariableSaveSettings = std::make_shared< DependentVariableSaveSettings >( dependentVariables );
 
-//        }
-//        std::shared_ptr< PropagationTimeTerminationSettings > terminationSettings =
-//                std::make_shared< propagators::PropagationTimeTerminationSettings >( 1000.0 );
-//        std::shared_ptr< TranslationalStatePropagatorSettings< double > > translationalPropagatorSettings =
-//                std::make_shared< TranslationalStatePropagatorSettings< double > >
-//                ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, terminationSettings,
-//                  cowell, dependentVariableSaveSettings );
-//        std::shared_ptr< IntegratorSettings< > > integratorSettings =
-//                std::make_shared< IntegratorSettings< > >
-//                ( rungeKutta4, 0.0, 0.1 );
+        }
+        std::shared_ptr< PropagationTimeTerminationSettings > terminationSettings =
+                std::make_shared< propagators::PropagationTimeTerminationSettings >( 0.2 );
+        std::shared_ptr< TranslationalStatePropagatorSettings< double > > translationalPropagatorSettings =
+                std::make_shared< TranslationalStatePropagatorSettings< double > >
+                ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, terminationSettings,
+                  cowell, dependentVariableSaveSettings );
+        std::shared_ptr< IntegratorSettings< > > integratorSettings =
+                std::make_shared< IntegratorSettings< > >
+                ( euler, 0.0, 0.1 );
 
-//        // Create simulation object and propagate dynamics.
-//        SingleArcDynamicsSimulator< > dynamicsSimulator(
-//                    bodies, integratorSettings, translationalPropagatorSettings, true, false, false );
+        // Create simulation object and propagate dynamics.
+        SingleArcDynamicsSimulator< > dynamicsSimulator(
+                    bodies, integratorSettings, translationalPropagatorSettings, true, false, false );
 
-//        // Retrieve numerical solutions for state and dependent variables
-//        std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > numericalSolution =
-//                dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+        // Retrieve numerical solutions for state and dependent variables
+        std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > numericalSolution =
+                dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
 
-//        std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > dependentVariableSolution =
-//                dynamicsSimulator.getDependentVariableHistory( );
+        std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > dependentVariableSolution =
+                dynamicsSimulator.getDependentVariableHistory( );
 
-//        if( i == 0 )
-//        {
-//            double angularVelocity = circularVelocity / radius;
+        if( i == 0 )
+        {
+            double angularVelocity = circularVelocity / radius;
 
-//            // Check if the spacecraft is in a circular orbit, with the orbit being maintained exactly by the radial thrust.
-//            for( std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > >::const_iterator outputIterator =
-//                 numericalSolution.begin( ); outputIterator != numericalSolution.end( ); outputIterator++ )
-//            {
-//                double currentAngle = angularVelocity * outputIterator->first;
+            // Check if the spacecraft is in a circular orbit, with the orbit being maintained exactly by the radial thrust.
+            for( std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > >::const_iterator outputIterator =
+                 numericalSolution.begin( ); outputIterator != numericalSolution.end( ); outputIterator++ )
+            {
+                double currentAngle = angularVelocity * outputIterator->first;
 
 //                // Check constancy of position and velocoty scalars.
 //                BOOST_CHECK_CLOSE_FRACTION(
@@ -521,36 +525,49 @@ BOOST_AUTO_TEST_CASE( testConstantThrustAcceleration )
 
 //                // Check whether orbit is planar (in xy-plane) with a constant angular motion at the prescribed mean motion.
 //                BOOST_CHECK_SMALL(
-//                            std::fabs( outputIterator->second( 0 ) - radius * std::cos( currentAngle ) ), 1.0E-10 * radius );
+//                            std::fabs( outputIterator->second( 0 ) - radius * std::cos( currentAngle ) ), 1.0E-9 * radius );
 //                BOOST_CHECK_SMALL(
-//                            std::fabs( outputIterator->second( 1 ) - radius * std::sin( currentAngle ) ), 1.0E-10 * radius );
+//                            std::fabs( outputIterator->second( 1 ) - radius * std::sin( currentAngle ) ), 1.0E-9 * radius );
 //                BOOST_CHECK_SMALL(
 //                            std::fabs( outputIterator->second( 2 ) ), 1.0E-15 );
 //                BOOST_CHECK_SMALL(
 //                            std::fabs( outputIterator->second( 3 ) + circularVelocity * std::sin( currentAngle ) ),
-//                            1.0E-10 * circularVelocity  );
+//                            1.0E-9 * circularVelocity  );
 //                BOOST_CHECK_SMALL(
 //                            std::fabs( outputIterator->second( 4 ) - circularVelocity * std::cos( currentAngle ) ),
-//                            1.0E-10 * circularVelocity  );
+//                            1.0E-9 * circularVelocity  );
 //                BOOST_CHECK_SMALL(
 //                            std::fabs( outputIterator->second( 5 ) ), 1.0E-15 );
-//            }
-//        }
-//        else if( i == 1 )
-//        {
-//            for( std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > >::const_iterator outputIterator =
-//                 numericalSolution.begin( ); outputIterator != numericalSolution.end( ); outputIterator++ )
-//            {
+            }
+        }
+        else if( i == 1 )
+        {
+            for( std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > >::const_iterator outputIterator =
+                 numericalSolution.begin( ); outputIterator != numericalSolution.end( ); outputIterator++ )
+            {
+                Eigen::Vector3d vectorDifference =
+                        ( -1.0 * thrustMagnitude / vehicleMass * outputIterator->second.segment( 3, 3 ).normalized( ) ) -
+                        ( dependentVariableSolution.at( outputIterator->first ).normalized( ) );
+
+                std::cout<<std::setprecision( 16 )<<dependentVariableSolution.at( outputIterator->first ).normalized( ).transpose( )<<std::endl;
+                std::cout<<outputIterator->second.segment( 3, 3 ).normalized( ).transpose( )<<std::endl;
+                for( int j = 0; j < 3; j++ )
+                {
+                    BOOST_CHECK_SMALL(
+                                std::fabs( vectorDifference( j ) ) / dependentVariableSolution.at( outputIterator->first ).norm( ), 1.0E-14 );
+                }
+
 //                // Check if the thrust acceleration is of the correct magnitude, and in the same direction as the velocity.
 //                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
 //                            ( -1.0 * thrustMagnitude / vehicleMass * outputIterator->second.segment( 3, 3 ).normalized( ) ),
-//                            ( dependentVariableSolution.at( outputIterator->first ) ), 1.0E-14 );
+//                            ( dependentVariableSolution.at( outputIterator->first ) ), 1.0E-12 );
+//                }
 
-//            }
-//        }
-//    }
+            }
+        }
+    }
 
-//}
+}
 
 //! Test the thrust force direction when it is taken from a predetermined vehicle rotation (RotationalEphemeris)
 BOOST_AUTO_TEST_CASE( testThrustAccelerationFromExistingRotation )

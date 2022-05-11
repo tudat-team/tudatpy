@@ -1731,6 +1731,10 @@ public:
 
     std::shared_ptr< Body > at( const std::string& bodyName ) const
     {
+        if( bodyMap_.count( bodyName ) == 0 )
+        {
+            throw std::runtime_error( "Error when retrieving body " + bodyName + " from SystemOfBodies, no such body exists" );
+        }
         return bodyMap_.at( bodyName );
     }
 

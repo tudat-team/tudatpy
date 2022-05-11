@@ -69,7 +69,7 @@ public:
             currentTime_ = currentTime;
             if( currentTime_ == currentTime_ )
             {
-                currentInertialDirection_ = inertialBodyAxisDirectionFunction_( currentTime_ );
+                currentInertialDirection_ = inertialBodyAxisDirectionFunction_( currentTime_ ).normalized( );
             }
             else
             {
