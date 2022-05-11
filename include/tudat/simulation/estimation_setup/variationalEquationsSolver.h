@@ -1717,6 +1717,10 @@ public:
         return dynamicsStateDerivatives_;
     }
 
+    std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > > getArcWiseParametersToEstimate( ) const
+    {
+        return arcWiseParametersToEstimate_;
+    }
 
 protected:
 
@@ -2096,6 +2100,8 @@ public:
             const VectorType& initialStateEstimate, const bool integrateEquationsConcurrently )
     {
 
+        std::cout << "initial state estimate: " << initialStateEstimate.transpose( ) << "\n\n";
+
         // Reset initial time and propagate multi-arc equations
         singleArcIntegratorSettings_->initialTime_ = singleArcInitialTime_;
 
@@ -2210,28 +2216,74 @@ public:
                                  const bool areVariationalEquationsToBeIntegrated = true )
     {
         std::cout << "CALL TO FUNCTION resetParameterEstimate" << "\n\n";
+        std::cout << "BEFORE RESET - original propagator settings states: " << originalPopagatorSettings_->getInitialStates( ).transpose( ) << "\n\n";
+        std::cout << "BEFORE RESET - propagator settings states: " << propagatorSettings_->getInitialStates( ).transpose( ) << "\n\n";
         // Reset values of parameters.
         parametersToEstimate_->template resetParameterValues< StateScalarType >( newParameterEstimate );
-        originalPopagatorSettings_->resetInitialStates(
-                    estimatable_parameters::getInitialStateVectorOfBodiesToEstimate( parametersToEstimate_ ) );
+//        std::cout << "getInitialStateVectorOfBodiesToEstimate: " << estimatable_parameters::getInitialStateVectorOfBodiesToEstimate( parametersToEstimate_ ).transpose( ) << "\n\n";
+//        originalPopagatorSettings_->resetInitialStates(
+//                    estimatable_parameters::getInitialStateVectorOfBodiesToEstimate( parametersToEstimate_ ) );
+
+//        std::cout << "test original hybrid propagator: " << originalPopagatorSettings_->getInitialStates( ).transpose( ) << "\n\n";
+        simulation_setup::setInitialStateVectorFromParameterSet< StateScalarType >( parametersToEstimate_, originalPopagatorSettings_ );
+        std::cout << "test set initial state vector hybrid propagator: " << originalPopagatorSettings_->getInitialStates( ).transpose( ) << "\n\n";
 
         propagatorSettings_->getSingleArcPropagatorSettings( )->resetInitialStates(
                     newParameterEstimate.segment( 0, singleArcDynamicsSize_ ) );
+        std::cout << "single-arc initial state: " << newParameterEstimate.segment( 0, singleArcDynamicsSize_ ).transpose( ) << "\n\n";
         Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > totalMultiArcInitialState =
                 propagatorSettings_->getMultiArcPropagatorSettings( )->getInitialStates( );
+        std::cout << "totalMultiArcInitialState size: " << totalMultiArcInitialState.size( ) << "\n\n";
 
+        Eigen::VectorXd newInitialStatesOriginalPropagatorSettings = originalPopagatorSettings_->getInitialStates( );
+
+        unsigned int counterFullArcWiseIndex = 0;
+        unsigned int counterOriginalArcWiseIndex = 0;
         for( unsigned int i = 0; i < arcStartTimes_.size( ); i++ )
         {
+            std::cout << "counter arc-wise index: " << counterFullArcWiseIndex << "\n\n";
+            std::cout << "counter total arc-wise index: " << counterOriginalArcWiseIndex << "\n\n";
+            std::cout << "multi-arc dynamic size: " << originalMultiArcDynamicsSingleArcSize_.at( i ) << "\n\n";
+            totalMultiArcInitialState.segment( counterFullArcWiseIndex, singleArcDynamicsSize_ ) = TUDAT_NAN * Eigen::VectorXd::Ones( singleArcDynamicsSize_ );
             totalMultiArcInitialState.segment(
-                        i * multiArcDynamicsSingleArcSize_.at( i ) + singleArcDynamicsSize_,
-                        originalMultiArcDynamicsSingleArcSize_.at( i ) ) =
-                    newParameterEstimate.segment(
-                        singleArcDynamicsSize_ + i * originalMultiArcDynamicsSingleArcSize_.at( i ), originalMultiArcDynamicsSingleArcSize_.at( i )  );
+                    counterFullArcWiseIndex /*i * multiArcDynamicsSingleArcSize_.at( i )*/ + singleArcDynamicsSize_,
+                    originalMultiArcDynamicsSingleArcSize_.at( i ) ) =
+                    newInitialStatesOriginalPropagatorSettings.segment(
+                        singleArcDynamicsSize_ + counterOriginalArcWiseIndex /*i * originalMultiArcDynamicsSingleArcSize_.at( i )*/, originalMultiArcDynamicsSingleArcSize_.at( i )  );
+
+            counterFullArcWiseIndex += multiArcDynamicsSingleArcSize_.at( i );
+            counterOriginalArcWiseIndex += originalMultiArcDynamicsSingleArcSize_.at( i );
 
         }
+        std::cout << "multi-arc initial state: " << totalMultiArcInitialState.transpose( ) << "\n\n";
         propagatorSettings_->getMultiArcPropagatorSettings( )->resetInitialStates( totalMultiArcInitialState );
         propagatorSettings_->setInitialStatesFromConstituents( );
 
+        std::cout << "AFTER RESET - original propagator settings states: " << originalPopagatorSettings_->getInitialStates( ).transpose( ) << "\n\n";
+        std::cout << "AFTER RESET - propagator settings states: " << propagatorSettings_->getInitialStates( ).transpose( ) << "\n\n";
+
+        // Reset parameters for arc-wise parameters in both originalMultiArcSolver_ and multiArcSolver_
+        for ( unsigned int i = 0 ; i < arcStartTimes_.size( ) ; i++ )
+        {
+            std::cout << "arc " << i << "\n\n";
+            std::cout << "test original multi-arc solver parameters before reset: " << originalMultiArcSolver_->getArcWiseParametersToEstimate( ).at( i )
+            ->template getFullParameterValues< double >( ).transpose( ) << "\n\n";
+            Eigen::VectorXd newParametersValues = originalPopagatorSettings_->getMultiArcPropagatorSettings( )->getSingleArcSettings( ).at( i )->getInitialStates( );
+            Eigen::VectorXd newArcWiseParametersValues = originalMultiArcSolver_->getArcWiseParametersToEstimate( ).at( i )->template getFullParameterValues< double >( );
+            newArcWiseParametersValues.segment( 0, newParametersValues.size( ) ) = newParametersValues;
+            originalMultiArcSolver_->getArcWiseParametersToEstimate( ).at( i )->template resetParameterValues( newArcWiseParametersValues );
+            std::cout << "test original multi-arc solver parameters after reset: " << originalMultiArcSolver_->getArcWiseParametersToEstimate( ).at( i )
+            ->template getFullParameterValues< double >( ).transpose( ) << "\n\n";
+
+            std::cout << "test multi-arc solver parameters before reset: " << multiArcSolver_->getArcWiseParametersToEstimate( ).at( i )
+                    ->template getFullParameterValues< double >( ).transpose( ) << "\n\n";
+            Eigen::VectorXd newFullParametersValues = propagatorSettings_->getMultiArcPropagatorSettings( )->getSingleArcSettings( ).at( i )->getInitialStates( );
+            Eigen::VectorXd newFullArcWiseParametersValues = multiArcSolver_->getArcWiseParametersToEstimate( ).at( i )->template getFullParameterValues< double >( );
+            newFullArcWiseParametersValues.segment( 0, newFullParametersValues.size( ) ) = newFullParametersValues;
+            multiArcSolver_->getArcWiseParametersToEstimate( ).at( i )->template resetParameterValues( newFullArcWiseParametersValues );
+            std::cout << "test multi-arc solver parameters after reset: " << multiArcSolver_->getArcWiseParametersToEstimate( ).at( i )
+                    ->template getFullParameterValues< double >( ).transpose( ) << "\n\n";
+        }
 
         // Check if re-integration of variational equations is requested
         if( areVariationalEquationsToBeIntegrated )

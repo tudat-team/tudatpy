@@ -558,6 +558,7 @@ public:
         this->initialStates_.segment(
                     singleArcPropagatorSettings_->getPropagatedStateSize( ), multiArcPropagatorSettings_->getPropagatedStateSize( ) ) =
                 multiArcPropagatorSettings_->getInitialStates( );
+        std::cout << "in setInitialStatesFromConstituents: " << this->initialStates_.transpose( ) << "\n\n";
     }
 
     //! Function to create the integrated state models (e.g. acceleration/torque/mass-rate models).
