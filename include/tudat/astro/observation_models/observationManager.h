@@ -343,6 +343,8 @@ protected:
             const Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > currentObservation,
             const LinkEndType linkEndAssociatedWithTime )
     {
+        std::cout << "link end associated with time: " << linkEndAssociatedWithTime << "\n\n";
+
         // Initialize partial vector of observation w.r.t. all parameter.
         int fullParameterVector = stateTransitionMatrixInterface_->getFullParameterVectorSize( );
 

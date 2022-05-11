@@ -143,8 +143,14 @@ Eigen::MatrixXd MultiArcCombinedStateTransitionAndSensitivityMatrixInterface::ge
 {
     int currentArc = getCurrentArc( evaluationTime ).first;
 
-    int stateTransitionMatrixSize = arcWiseStateTransitionMatrixSize_[ currentArc ];
-    int sensitivityMatrixSize = arcWiseSensitivityMatrixSize_[ currentArc ];
+    int stateTransitionMatrixSize = 0;
+    int sensitivityMatrixSize = 0;
+
+    if ( currentArc >= 0 )
+    {
+        stateTransitionMatrixSize = arcWiseStateTransitionMatrixSize_[ currentArc ];
+        sensitivityMatrixSize = arcWiseSensitivityMatrixSize_[ currentArc ];
+    }
 
     Eigen::MatrixXd combinedStateTransitionMatrix = Eigen::MatrixXd::Zero(
                 stateTransitionMatrixSize, stateTransitionMatrixSize + sensitivityMatrixSize );
@@ -372,8 +378,14 @@ Eigen::MatrixXd HybridArcCombinedStateTransitionAndSensitivityMatrixInterface::g
 {
     std::pair< int, double > currentArc = multiArcInterface_->getCurrentArc( evaluationTime );
     std::cout << "current arc: " << currentArc.first << " & " << currentArc.second << "\n\n";
-    int stateTransitionMatrixSize = multiArcInterface_->getArcWiseStateTransitionMatrixSize( currentArc.first );
-    int sensitivityMatrixSize = multiArcInterface_->getArcWiseSensitivityMatrixSize( currentArc.first );
+
+    int stateTransitionMatrixSize = singleArcInterface_->getStateTransitionMatrixSize( );
+    int sensitivityMatrixSize = singleArcInterface_->getSensitivityMatrixSize( );
+    if ( currentArc.first >= 0 )
+    {
+        stateTransitionMatrixSize = multiArcInterface_->getArcWiseStateTransitionMatrixSize( currentArc.first );
+        sensitivityMatrixSize = multiArcInterface_->getArcWiseSensitivityMatrixSize( currentArc.first );
+    }
     int multiArcStateSize = stateTransitionMatrixSize;
     int originalMultiArcStateSize = stateTransitionMatrixSize - singleArcStateSize_;
     std::cout << "multi-arc arc-wise state transition matrix size: " << stateTransitionMatrixSize << "\n\n";
@@ -388,10 +400,6 @@ Eigen::MatrixXd HybridArcCombinedStateTransitionAndSensitivityMatrixInterface::g
     Eigen::MatrixXd singleArcStateTransition = singleArcInterface_->getCombinedStateTransitionAndSensitivityMatrix(
                 evaluationTime );
 
-    // Get multi-arc matrices
-    Eigen::MatrixXd multiArcStateTransition = multiArcInterface_->getCombinedStateTransitionAndSensitivityMatrix(
-                evaluationTime, false );
-
     // Set single-arc block
     combinedStateTransitionMatrix.block( 0, 0, singleArcStateSize_, singleArcStateSize_ ) =
             singleArcStateTransition.block( 0, 0, singleArcStateSize_, singleArcStateSize_ );
@@ -402,6 +410,10 @@ Eigen::MatrixXd HybridArcCombinedStateTransitionAndSensitivityMatrixInterface::g
 
     if( !( currentArc.first < 0 ) )
     {
+        // Get multi-arc matrices
+        Eigen::MatrixXd multiArcStateTransition = multiArcInterface_->getCombinedStateTransitionAndSensitivityMatrix(
+                evaluationTime, false );
+
         // Set multi-arc block
         combinedStateTransitionMatrix.block(
                     singleArcStateSize_, singleArcStateSize_, originalMultiArcStateSize, originalMultiArcStateSize ) =
@@ -462,7 +474,12 @@ Eigen::MatrixXd HybridArcCombinedStateTransitionAndSensitivityMatrixInterface::g
     std::cout << "multiArcInterface_->getFullSensitivityMatrixSize( ): " << multiArcInterface_->getFullSensitivityMatrixSize( ) << "\n\n";
 
     std::pair< int, double > currentArc = multiArcInterface_->getCurrentArc( evaluationTime );
-    int stateTransitionMatrixSize = multiArcInterface_->getArcWiseStateTransitionMatrixSize( currentArc.first );
+
+    int stateTransitionMatrixSize = singleArcInterface_->getStateTransitionMatrixSize( );
+    if ( currentArc.first >= 0 )
+    {
+        stateTransitionMatrixSize = multiArcInterface_->getArcWiseStateTransitionMatrixSize( currentArc.first );
+    }
     int multiArcStateSize = stateTransitionMatrixSize;
 
     // Set single-arc block

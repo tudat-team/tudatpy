@@ -1046,6 +1046,19 @@ BOOST_AUTO_TEST_CASE( testMultiArcMultiBodyVariationalEquationCalculation1 )
 //            }
         }
 
+
+        ///////////////////////////////////////////////////////////////////////////////////////////
+        //// Test retrieved state transition and sensitivity matrices outside arc bounds
+        ///////////////////////////////////////////////////////////////////////////////////////////
+
+        Eigen::MatrixXd undefinedCombinedStateTransitionMatrix = multiArcStateTransitionInterface->getCombinedStateTransitionAndSensitivityMatrix(
+                ( arcStartTimes[ 1 ] + multiArcEndTimes[ 0 ] ) / 2.0, true );
+        Eigen::MatrixXd undefinedFullCombinedStateTransitionMatrix = multiArcStateTransitionInterface->getFullCombinedStateTransitionAndSensitivityMatrix(
+                ( arcStartTimes[ 1 ] + multiArcEndTimes[ 0 ] ) / 2.0, true );
+        std::cout << "undefined combined STM & SEM: " << undefinedCombinedStateTransitionMatrix << "\n\n";
+        std::cout << "undefined full combined STM & SEM: " << undefinedFullCombinedStateTransitionMatrix << "\n\n";
+
+
     }
 
 }
