@@ -170,6 +170,7 @@ namespace reference_frames
 Eigen::Vector3d computeBodyFixedAeroAngles(
         const Eigen::Matrix3d& inertialToBodyFixedFrame,
         const Eigen::Matrix3d& trajectoryToInertialFrame );
+
 class FromGenericEphemerisAerodynamicAngleInterface: public BodyFixedAerodynamicAngleInterface
 {
 public:
@@ -181,12 +182,7 @@ public:
     virtual ~FromGenericEphemerisAerodynamicAngleInterface( ){ }
 
     Eigen::Vector3d getAngles( const double time,
-                               const Eigen::Matrix3d& trajectoryToInertialFrame )
-    {
-        return computeBodyFixedAeroAngles(
-                    ephemeris_->getRotationMatrixToTargetFrame( time ), trajectoryToInertialFrame );
-    }
-
+                               const Eigen::Matrix3d& trajectoryToInertialFrame );
 private:
 
     std::shared_ptr< ephemerides::RotationalEphemeris > ephemeris_;

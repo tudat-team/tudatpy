@@ -29,8 +29,17 @@ Eigen::Vector3d computeBodyFixedAeroAngles(
     // Compute associated Euler angles and set as orientation angles.
     Eigen::Vector3d eulerAngles = basic_mathematics::get132EulerAnglesFromRotationMatrix(
                 currentRotationFromBodyToTrajectoryFrame_ );
-    return ( Eigen::Vector3d( ) << eulerAngles( 0 ), eulerAngles( 1 ), -eulerAngles( 2 ) ).finished( );
+    return ( Eigen::Vector3d( ) << -eulerAngles( 2 ), eulerAngles( 1 ), eulerAngles( 0 ) ).finished( );
+
 }
+Eigen::Vector3d FromGenericEphemerisAerodynamicAngleInterface::getAngles( const double time,
+                                                                          const Eigen::Matrix3d& trajectoryToInertialFrame )
+{
+    return computeBodyFixedAeroAngles(
+                ephemeris_->getRotationMatrixToTargetFrame( time ), trajectoryToInertialFrame );
+}
+
+
 
 }
 
