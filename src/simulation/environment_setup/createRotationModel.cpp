@@ -16,6 +16,7 @@
 #include "tudat/simulation/environment_setup/createFlightConditions.h"
 #include "tudat/simulation/environment_setup/createRotationModel.h"
 
+#include "tudat/astro/ephemerides/directionBasedRotationalEphemeris.h"
 #if TUDAT_BUILD_WITH_SOFA_INTERFACE
 #include "tudat/astro/ephemerides/itrsToGcrsRotationModel.h"
 #include "tudat/astro/earth_orientation/earthOrientationCalculator.h"
@@ -165,6 +166,62 @@ std::shared_ptr< ephemerides::AerodynamicAngleRotationalEphemeris > createAerody
                 std::make_shared< reference_frames::FromAeroEphemerisAerodynamicAngleInterface >( rotationModel ) );
 
     return rotationModel;
+}
+
+std::shared_ptr< ephemerides::DirectionBasedRotationalEphemeris > createStateDirectionBasedRotationModel(
+        const std::string& body,
+        const std::string& centralBody,
+        const SystemOfBodies& bodies,
+        const Eigen::Vector3d& associatedBodyFixedDirection,
+        const std::string& originalFrame,
+        const std::string& targetFrame,
+        const bool isColinearWithVelocity,
+        const bool directionIsOppositeToVector )
+{
+    // Retrieve state function of body for which thrust is to be computed.
+    std::function< Eigen::Vector6d( ) > bodyStateFunction =
+            std::bind( &Body::getState, bodies.at( body ) );
+    std::function< Eigen::Vector6d( ) > centralBodyStateFunction;
+
+    // Retrieve state function of central body (or set to zero if inertial)
+    if( centralBody != "SSB" )
+    {
+        centralBodyStateFunction = std::bind( &Body::getState, bodies.at( centralBody ) );
+//        magnitudeUpdateSettings[ propagators::body_translational_state_update ].push_back(
+//                    thrustDirectionFromStateGuidanceSettings->relativeBody_ );
+    }
+    else if( bodies.getFrameOrigin( ) == "SSB" )
+    {
+        centralBodyStateFunction = [ ]( ){ return Eigen::Vector6d::Zero( ); };
+    }
+    else
+    {
+        throw std::runtime_error( "Error when getting state-direction-based rotation model, requested state w.r.t. SSB, but SSB is not the global origin" );
+    }
+
+    // Define relative state function
+    std::function< void( Eigen::Vector6d& ) > stateFunction =
+            std::bind( &ephemerides::getRelativeState, std::placeholders::_1, bodyStateFunction, centralBodyStateFunction );
+    std::function< Eigen::Vector3d( const double ) > thrustDirectionFunction;
+
+    // Create force direction function.
+    if( isColinearWithVelocity )
+    {
+        thrustDirectionFunction =
+                std::bind( &propulsion::getDirectionColinearWithVelocity, stateFunction, std::placeholders::_1,
+                           directionIsOppositeToVector );
+    }
+    else
+    {
+        thrustDirectionFunction =
+                std::bind( &propulsion::getDirectionColinearWithPosition, stateFunction, std::placeholders::_1,
+                           directionIsOppositeToVector );
+    }
+
+    return std::make_shared< ephemerides::DirectionBasedRotationalEphemeris >(
+                thrustDirectionFunction, associatedBodyFixedDirection, originalFrame, targetFrame );
+
+
 }
 
 std::shared_ptr< ephemerides::RotationalEphemeris > createTrimmedAerodynamicAngleBasedRotationModel(

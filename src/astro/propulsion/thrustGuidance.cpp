@@ -17,23 +17,23 @@ namespace propulsion
 {
 
 //! Function to get the unit vector colinear with velocity segment of a translational state.
-Eigen::Vector3d getForceDirectionColinearWithVelocity(
+Eigen::Vector3d getDirectionColinearWithVelocity(
         const std::function< void( Eigen::Vector6d& ) > currentStateFunction,
-        const double currentTime, const bool putForceInOppositeDirection )
+        const double currentTime, const bool putVectorInOppositeDirection )
 {
     static Eigen::Vector6d currentState;
     currentStateFunction( currentState );
-    return ( ( putForceInOppositeDirection == 1 ) ? -1.0 : 1.0 ) * ( currentState.segment( 3, 3 ) ).normalized( );
+    return ( ( putVectorInOppositeDirection == 1 ) ? -1.0 : 1.0 ) * ( currentState.segment( 3, 3 ) ).normalized( );
 }
 
 //! Function to get the unit vector colinear with position segment of a translational state.
-Eigen::Vector3d getForceDirectionColinearWithPosition(
+Eigen::Vector3d getDirectionColinearWithPosition(
         const std::function< void( Eigen::Vector6d& ) > currentStateFunction,
-        const double currentTime, const bool putForceInOppositeDirection )
+        const double currentTime, const bool putVectorInOppositeDirection )
 {
     static Eigen::Vector6d currentState;
     currentStateFunction( currentState );
-    return ( ( putForceInOppositeDirection == 1 ) ? -1.0 : 1.0 ) * ( currentState.segment( 0, 3 ) ).normalized( );
+    return ( ( putVectorInOppositeDirection == 1 ) ? -1.0 : 1.0 ) * ( currentState.segment( 0, 3 ) ).normalized( );
 }
 
 //! Function to get the force direction from a time-only function.
