@@ -265,17 +265,19 @@ BOOST_AUTO_TEST_CASE( testAerodynamicMomentAndRotationalAcceleration )
     }
 }
 
-class DummyAngleCalculator: public AerodynamicGuidance
+class DummyAngleCalculator
 {
 public:
 
-    void updateGuidance( const double time )
+    Eigen::Vector3d getAerodynamicAngles( const double time )
     {
         time_ = time;
 
-        currentAngleOfAttack_ = getDummyAngleOfAttack( );
-        currentAngleOfSideslip_ = getDummyAngleOfSideslip( );
-        currentBankAngle_ = getDummyBankAngle( );
+        double currentAngleOfAttack = getDummyAngleOfAttack( );
+        double currentAngleOfSideslip = getDummyAngleOfSideslip( );
+        double currentBankAngle = getDummyBankAngle( );
+
+        return ( Eigen::Vector3d( ) << currentAngleOfAttack, currentAngleOfSideslip, currentBankAngle ).finished( );
 
     }
 
@@ -302,6 +304,7 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
                                     const bool swapCreationOrder,
                                     const bool setAngleGuidanceManually )
 {
+    std::cout<<includeThrustForce<<" "<<imposeThrustDirection<<" "<<swapCreationOrder<<std::endl;
     using namespace tudat;
     using namespace numerical_integrators;
     using namespace simulation_setup;
@@ -321,7 +324,7 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
     {
         maximumIndex = 4;
     }
-    for( unsigned int i = 0; i < maximumIndex; i++ )
+    for( unsigned int i = 0; i < 4; i++ )
     {
         // Create Earth object
         BodyListSettings defaultBodySettings =
@@ -440,23 +443,23 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
         std::shared_ptr< DummyAngleCalculator > testAngles =
                 std::make_shared< DummyAngleCalculator >( );
 
-        if( !( i < 4 ) )
-        {
-            if( !setAngleGuidanceManually )
-            {
-                setGuidanceAnglesFunctions( testAngles, bodies.at( "Vehicle" ) );
-            }
-            else
-            {
-                std::shared_ptr< reference_frames::AerodynamicAngleCalculator > angleCalculator =
-                        bodies.at( "Vehicle" )->getFlightConditions( )->getAerodynamicAngleCalculator( );
-                angleCalculator->setOrientationAngleFunctions(
-                            std::bind( &DummyAngleCalculator::getDummyAngleOfAttack, testAngles ),
-                            std::bind( &DummyAngleCalculator::getDummyAngleOfSideslip, testAngles ),
-                            std::bind( &DummyAngleCalculator::getDummyBankAngle, testAngles ),
-                            std::bind( &DummyAngleCalculator::updateGuidance, testAngles, std::placeholders::_1 ) );
-            }
-        }
+//        if( !( i < 4 ) )
+//        {
+//            if( !setAngleGuidanceManually )
+//            {
+//                setGuidanceAnglesFunctions( testAngles, bodies.at( "Vehicle" ) );
+//            }
+//            else
+//            {
+//                std::shared_ptr< reference_frames::AerodynamicAngleCalculator > angleCalculator =
+//                        bodies.at( "Vehicle" )->getFlightConditions( )->getAerodynamicAngleCalculator( );
+//                angleCalculator->setOrientationAngleFunctions(
+//                            std::bind( &DummyAngleCalculator::getDummyAngleOfAttack, testAngles ),
+//                            std::bind( &DummyAngleCalculator::getDummyAngleOfSideslip, testAngles ),
+//                            std::bind( &DummyAngleCalculator::getDummyBankAngle, testAngles ),
+//                            std::bind( &DummyAngleCalculator::updateGuidance, testAngles, std::placeholders::_1 ) );
+//            }
+//        }
 
 
         std::shared_ptr< DependentVariableSaveSettings > dependentVariableSaveSettings;
@@ -492,7 +495,7 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
 
 
         std::shared_ptr< PropagationTimeTerminationSettings > terminationSettings =
-                std::make_shared< propagators::PropagationTimeTerminationSettings >( 1000.0 );
+                std::make_shared< propagators::PropagationTimeTerminationSettings >( 5.0 );
         std::shared_ptr< TranslationalStatePropagatorSettings< double > > translationalPropagatorSettings =
                 std::make_shared< TranslationalStatePropagatorSettings< double > >
                 ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, terminationSettings,
@@ -607,7 +610,7 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
                 Eigen::Vector3d thrustForceInPropagationFrame = ( outputIterator->second.segment( 42, 3 ) );
 
                 Eigen::Matrix3d rotationToBodyFrameFromEphemeris = spice_interface::computeRotationQuaternionBetweenFrames(
-                            "IAU_Earth", "IAU_Mars", outputIterator->first ).toRotationMatrix( );
+                            "ECLIPJ2000", "IAU_MOON", outputIterator->first ).toRotationMatrix( );
                 Eigen::Vector3d imposedThrustForceInPropagationFrame =
                         thrustAcceleration * ( rotationToBodyFrameFromEphemeris.transpose( ) * bodyFixedThrustDirection );
 
@@ -619,6 +622,7 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
                                 std::fabs( thrustForceInPropagationFrame( j ) - imposedThrustForceInPropagationFrame( j ) ),
                                 1.0E-15 );
                 }
+
                 matrixDifference = rotationToBodyFrameFromEphemeris - rotationToBodyFrame;
 
                 for( unsigned int j = 0; j < 3; j++ )
@@ -647,7 +651,7 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
             }
             else if( !( i < 4 ) )
             {
-                testAngles->updateGuidance( outputIterator->first );
+                testAngles->getAerodynamicAngles( outputIterator->first );
 
                 Eigen::Matrix3d aerodynamicToBodyFrame = rotationToBodyFrame * rotationToAerodynamicFrame.inverse( );
                 Eigen::Matrix3d aerodynamicToTrajectoryFrame = rotationToTrajectoryFrame * rotationToAerodynamicFrame.inverse( );
