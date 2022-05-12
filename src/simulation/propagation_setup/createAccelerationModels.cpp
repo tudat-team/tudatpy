@@ -1151,7 +1151,8 @@ createThrustAcceleratioModel(
         {
             double thrustDirectionSign =
                     ( ( inertialThrustDirection == definingOrientationDirecion ) ? 1.0 : -1.0 );
-            inertialThrustDirectionFunction = [=]( const double currentTime ){
+            inertialThrustDirectionFunction = [=]( const double currentTime )
+            {
                 return ( thrustDirectionSign * directionBasedRotation->getCurrentInertialDirection( currentTime ) ).normalized( );
             };
         }
@@ -1159,9 +1160,14 @@ createThrustAcceleratioModel(
 
     if( inertialThrustDirectionFunction == nullptr )
     {
-        inertialThrustDirectionFunction = [=]( const double ){
-        return ( bodies.at( nameOfBodyUndergoingThrust )->getCurrentRotationMatrixToGlobalFrame( ) *
-                bodyFixedThrustDirectionFunction( ) ).normalized( ); };
+        inertialThrustDirectionFunction = [=]( const double time )
+        {
+            if( time == time )
+            {
+                return ( bodies.at( nameOfBodyUndergoingThrust )->getCurrentRotationMatrixToGlobalFrame( ) *
+                         bodyFixedThrustDirectionFunction( ) ).normalized( );
+            }
+        };
         directionUpdateSettings[ propagators::body_rotational_state_update ].push_back( nameOfBodyUndergoingThrust );
     }
     //    // Create thrust direction model.

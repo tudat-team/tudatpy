@@ -68,17 +68,17 @@ std::shared_ptr< propulsion::ThrustMagnitudeWrapper > createThrustMagnitudeWrapp
         const std::string& nameOfBodyWithGuidance,
         std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >& magnitudeUpdateSettings );
 
-//! Function to update the thrust magnitude and direction to current time.
-/*!
- * Function to update the thrust magnitude and direction to current time.
- * \param thrustMagnitudeWrapper Object used during propagation to compute the thrust magnitude
- * \param thrustDirectionGuidance Object used during propagation to compute the body-fixed thrust direction
- * \param currentTime Time to which objects are to be updated.
- */
-void updateThrustSettings(
-        const std::shared_ptr< propulsion::ThrustMagnitudeWrapper > thrustMagnitudeWrapper,
-        const std::shared_ptr< propulsion::BodyFixedForceDirectionGuidance  > thrustDirectionGuidance,
-        const double currentTime );
+////! Function to update the thrust magnitude and direction to current time.
+///*!
+// * Function to update the thrust magnitude and direction to current time.
+// * \param thrustMagnitudeWrapper Object used during propagation to compute the thrust magnitude
+// * \param thrustDirectionGuidance Object used during propagation to compute the body-fixed thrust direction
+// * \param currentTime Time to which objects are to be updated.
+// */
+//void updateThrustSettings(
+//        const std::shared_ptr< propulsion::ThrustMagnitudeWrapper > thrustMagnitudeWrapper,
+//        const std::shared_ptr< propulsion::BodyFixedForceDirectionGuidance  > thrustDirectionGuidance,
+//        const double currentTime );
 
 //! Function to reset the current time variable of the thrust magnitude and direction wrappers
 ///*!

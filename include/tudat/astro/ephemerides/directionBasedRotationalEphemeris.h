@@ -28,7 +28,12 @@ public:
           inertialBodyAxisDirectionFunction_( inertialBodyAxisDirectionFunction ),
           associatedBodyFixedDirection_( associatedBodyFixedDirection ),
           currentTime_( TUDAT_NAN )
-    { }
+    {
+        if( associatedBodyFixedDirection != Eigen::Vector3d::UnitX( ) )
+        {
+            throw std::runtime_error( "Error in DirectionBasedRotationalEphemeris, only x-axis body-fixed direction is currenly supported" );
+        }
+    }
 
     //! Virtual destructor.
     /*!
@@ -40,6 +45,7 @@ public:
             const double currentTime )
     {
         resetCurrentTime( currentTime );
+        return Eigen::Quaterniond( );
     }
 
     virtual Eigen::Quaterniond getRotationToTargetFrame(
@@ -70,6 +76,7 @@ public:
             if( currentTime_ == currentTime_ )
             {
                 currentInertialDirection_ = inertialBodyAxisDirectionFunction_( currentTime_ ).normalized( );
+                std::cout<<"New direction: "<<currentTime<<" "<<currentInertialDirection_.transpose( )<<std::endl;
             }
             else
             {
