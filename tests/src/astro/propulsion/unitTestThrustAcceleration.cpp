@@ -493,7 +493,7 @@ BOOST_AUTO_TEST_CASE( testRadialAndVelocityThrustAcceleration )
                   cowell, dependentVariableSaveSettings );
         std::shared_ptr< IntegratorSettings< > > integratorSettings =
                 std::make_shared< IntegratorSettings< > >
-                ( euler, 0.0, 0.1 );
+                ( rungeKutta4, 0.0, 0.1 );
 
         // Create simulation object and propagate dynamics.
         SingleArcDynamicsSimulator< > dynamicsSimulator(

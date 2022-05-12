@@ -101,8 +101,10 @@ public:
      */
     virtual void resetTime( const double currentTime = TUDAT_NAN )
     {
+        std::cout<<"current time: "<<currentTime<<std::endl;
         currentTime_ = currentTime;
-
+        thrustMagnitudeWrapper_->update( currentTime );
+//        inertialThrustDirectionFunction_( currentTime );
 //        if( !( timeResetFunction_ == nullptr ) )
 //        {
 //            timeResetFunction_( currentTime_ );

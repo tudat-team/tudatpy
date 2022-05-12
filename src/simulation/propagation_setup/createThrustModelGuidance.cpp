@@ -564,15 +564,15 @@ std::shared_ptr< propulsion::ThrustMagnitudeWrapper > createThrustMagnitudeWrapp
     return thrustMagnitudeWrapper;
 }
 
-//! Function to update the thrust magnitude and direction to current time.
-void updateThrustSettings(
-        const std::shared_ptr< propulsion::ThrustMagnitudeWrapper > thrustMagnitudeWrapper,
-        const std::shared_ptr< propulsion::BodyFixedForceDirectionGuidance  > thrustDirectionGuidance,
-        const double currentTime )
-{
-    thrustMagnitudeWrapper->update( currentTime );
-    thrustDirectionGuidance->updateCalculator( currentTime );
-}
+////! Function to update the thrust magnitude and direction to current time.
+//void updateThrustSettings(
+//        const std::shared_ptr< propulsion::ThrustMagnitudeWrapper > thrustMagnitudeWrapper,
+//        const std::shared_ptr< propulsion::BodyFixedForceDirectionGuidance  > thrustDirectionGuidance,
+//        const double currentTime )
+//{
+//    thrustMagnitudeWrapper->update( currentTime );
+//    thrustDirectionGuidance->updateCalculator( currentTime );
+//}
 
 ////! Function to reset the current time variable of the thrust magnitude and direction wrappers
 //void resetThrustSettingsTime(
