@@ -87,16 +87,16 @@ public:
 
     virtual void update( const double time ) = 0;
 
-    virtual Eigen::Vector3d getCurrentThrustMagnitude( )
+    virtual Eigen::Vector3d getCurrentThrustDirection( )
     {
-        return currentThrustMagnitude_;
+        return currentThrustDirection_;
     }
 
 protected:
 
     double currentTime_;
 
-    Eigen::Vector3d currentThrustMagnitude_;
+    Eigen::Vector3d currentThrustDirection_;
 
 };
 
@@ -104,8 +104,10 @@ class DirectThrustDirectionWrapper: public ThrustDirectionWrapper
 {
 public:
     DirectThrustDirectionWrapper(
-            const std::shared_ptr< ephemerides::DirectionBasedRotationalEphemeris > directionBasedRotationModel ):
-    directionBasedRotationModel_( directionBasedRotationModel ){ }
+            const std::shared_ptr< ephemerides::DirectionBasedRotationalEphemeris > directionBasedRotationModel,
+            const bool inPositiveDirection ):
+    directionBasedRotationModel_( directionBasedRotationModel ),
+    thrustMultiplier_( inPositiveDirection ? 1.0 : -1.0 ){ }
 
     virtual ~DirectThrustDirectionWrapper( ){ }
 
@@ -117,9 +119,10 @@ public:
 
     virtual void update( const double time )
     {
-        if( time != currentTime_ )
+        if( time != currentTime_  && time == time )
         {
-            currentThrustMagnitude_ = directionBasedRotationModel_->getCurrentInertialDirection( time );
+            currentThrustDirection_ = (
+                        thrustMultiplier_ * directionBasedRotationModel_->getCurrentInertialDirection( time ) ).normalized( );
         }
         currentTime_ = time;
     }
@@ -127,9 +130,9 @@ public:
 
 protected:
 
-    Eigen::Vector3d currentThrustMagnitude_;
-
     std::shared_ptr< ephemerides::DirectionBasedRotationalEphemeris > directionBasedRotationModel_;
+
+    double thrustMultiplier_;
 };
 
 class OrientationBasedThrustDirectionWrapper: public ThrustDirectionWrapper
@@ -138,15 +141,16 @@ public:
     OrientationBasedThrustDirectionWrapper(
             const std::function< Eigen::Quaterniond( ) > rotationFunction,
             const std::function< Eigen::Vector3d( ) > bodyFixedThrustDirection ):
+        ThrustDirectionWrapper( ),
     rotationFunction_( rotationFunction ), bodyFixedThrustDirection_( bodyFixedThrustDirection ){ }
 
     virtual ~OrientationBasedThrustDirectionWrapper( ){ }
 
     virtual void update( const double time )
     {
-        if( time != currentTime_ )
+        if( time != currentTime_ && time == time )
         {
-            currentThrustMagnitude_ = rotationFunction_( ) * bodyFixedThrustDirection_( );
+            currentThrustDirection_ = ( rotationFunction_( ) * bodyFixedThrustDirection_( ) ).normalized( );
         }
         currentTime_ = time;
 
