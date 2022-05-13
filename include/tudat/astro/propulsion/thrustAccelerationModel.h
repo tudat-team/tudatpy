@@ -72,7 +72,7 @@ public:
     ThrustAcceleration(
            const std::shared_ptr< ThrustMagnitudeWrapper > thrustMagnitudeWrapper,
 //            const std::function< double( ) > thrustMagnitudeFunction,
-            const std::function< Eigen::Vector3d( const double ) > inertialThrustDirectionFunction,
+            const std::shared_ptr< ThrustDirectionWrapper > thrustDirectionWrapper,
             const std::function< double( ) > bodyMassFunction,
 //            const std::function< double( ) > massRateFunction,
 //            const std::string associatedThrustSource = "",
@@ -83,7 +83,7 @@ public:
         AccelerationModel< Eigen::Vector3d >( ),
         thrustMagnitudeWrapper_( thrustMagnitudeWrapper ),
 //        thrustMagnitudeFunction_( thrustMagnitudeFunction ),
-        inertialThrustDirectionFunction_( inertialThrustDirectionFunction ),
+        thrustDirectionWrapper_( thrustDirectionWrapper ),
         bodyMassFunction_( bodyMassFunction ),
 //        massRateFunction_( massRateFunction ),
 //        associatedThrustSource_( associatedThrustSource ),
@@ -101,10 +101,9 @@ public:
      */
     virtual void resetTime( const double currentTime = TUDAT_NAN )
     {
-        std::cout<<"current time: "<<currentTime<<std::endl;
         currentTime_ = currentTime;
         thrustMagnitudeWrapper_->update( currentTime );
-//        inertialThrustDirectionFunction_( currentTime );
+        thrustDirectionWrapper_->resetCurrentTime( currentTime );
 //        if( !( timeResetFunction_ == nullptr ) )
 //        {
 //            timeResetFunction_( currentTime_ );
@@ -131,12 +130,14 @@ public:
 //            }
 
             // Retrieve thrust direction.
-            currentAccelerationDirection_ = inertialThrustDirectionFunction_( currentTime );
+            thrustDirectionWrapper_->update( currentTime );
+            currentAccelerationDirection_ = thrustDirectionWrapper_->getCurrentThrustDirection( );
 
             if( ( std::fabs( currentAccelerationDirection_.norm( ) ) - 1.0 ) >
                     10.0 * std::numeric_limits< double >::epsilon( ) )
             {
-                std::cout<<std::setprecision( 16 )<<std::fabs( currentAccelerationDirection_.norm( ) ) - 1.0<<std::endl;
+                std::cout<<"Thrust direction: "<<currentAccelerationDirection_.transpose( )<<std::endl;
+                std::cout<<std::setprecision( 16 )<<currentAccelerationDirection_.norm( )<<std::endl;
                 throw std::runtime_error( "Error in thrust acceleration, direction is not a unit vector" + std::to_string(
                                               ( std::fabs( currentAccelerationDirection_.norm( ) ) - 1.0 ) ) );
             }
@@ -216,6 +217,8 @@ protected:
 //    std::function< double( ) > thrustMagnitudeFunction_;
 
     std::shared_ptr< ThrustMagnitudeWrapper > thrustMagnitudeWrapper_;
+
+    const std::shared_ptr< ThrustDirectionWrapper > thrustDirectionWrapper_;
 
     //! Function returning the direction of the thrust (as a unit vector).
     /*!

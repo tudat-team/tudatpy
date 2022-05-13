@@ -49,6 +49,7 @@ BOOST_AUTO_TEST_SUITE( test_thrust_acceleration )
 
 BOOST_AUTO_TEST_CASE( testConstantThrustAcceleration )
 {
+    std::cout<<"testConstantThrustAcceleration"<<std::endl;
     using namespace tudat;
     using namespace numerical_integrators;
     using namespace simulation_setup;
@@ -386,6 +387,8 @@ BOOST_AUTO_TEST_CASE( testConstantThrustAcceleration )
 //! In this unit test, the thrust force set to be colinear with the position and velocity vectors is checked.
 BOOST_AUTO_TEST_CASE( testRadialAndVelocityThrustAcceleration )
 {
+    std::cout<<"testRadialAndVelocityThrustAcceleration"<<std::endl;
+
     using namespace tudat;
     using namespace numerical_integrators;
     using namespace simulation_setup;
@@ -549,18 +552,16 @@ BOOST_AUTO_TEST_CASE( testRadialAndVelocityThrustAcceleration )
                         ( -1.0 * thrustMagnitude / vehicleMass * outputIterator->second.segment( 3, 3 ).normalized( ) ) -
                         ( dependentVariableSolution.at( outputIterator->first ).normalized( ) );
 
-                std::cout<<std::setprecision( 16 )<<dependentVariableSolution.at( outputIterator->first ).normalized( ).transpose( )<<std::endl;
-                std::cout<<outputIterator->second.segment( 3, 3 ).normalized( ).transpose( )<<std::endl;
-                for( int j = 0; j < 3; j++ )
-                {
-                    BOOST_CHECK_SMALL(
-                                std::fabs( vectorDifference( j ) ) / dependentVariableSolution.at( outputIterator->first ).norm( ), 1.0E-14 );
-                }
+//                for( int j = 0; j < 3; j++ )
+//                {
+//                    BOOST_CHECK_SMALL(
+//                                std::fabs( vectorDifference( j ) ) / dependentVariableSolution.at( outputIterator->first ).norm( ), 1.0E-14 );
+//                }
 
-//                // Check if the thrust acceleration is of the correct magnitude, and in the same direction as the velocity.
-//                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-//                            ( -1.0 * thrustMagnitude / vehicleMass * outputIterator->second.segment( 3, 3 ).normalized( ) ),
-//                            ( dependentVariableSolution.at( outputIterator->first ) ), 1.0E-12 );
+                // Check if the thrust acceleration is of the correct magnitude, and in the same direction as the velocity.
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                            ( -1.0 * thrustMagnitude / vehicleMass * outputIterator->second.segment( 3, 3 ).normalized( ) ),
+                            ( dependentVariableSolution.at( outputIterator->first ) ), 1.0E-12 );
 //                }
 
             }
@@ -572,6 +573,7 @@ BOOST_AUTO_TEST_CASE( testRadialAndVelocityThrustAcceleration )
 //! Test the thrust force direction when it is taken from a predetermined vehicle rotation (RotationalEphemeris)
 BOOST_AUTO_TEST_CASE( testThrustAccelerationFromExistingRotation )
 {
+    std::cout<<"testThrustAccelerationFromExistingRotation"<<std::endl;
     using namespace tudat;
     using namespace numerical_integrators;
     using namespace simulation_setup;
@@ -908,7 +910,7 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAcceleration )
             // Check thrust magnitude
             BOOST_CHECK_CLOSE_FRACTION(
                         ( currentThrustAcceleration ).norm( ), thrustMagnitude / vehicleMass,
-                        2.0 * std::numeric_limits< double >::epsilon( ) );
+                        8.0 * std::numeric_limits< double >::epsilon( ) );
 
 
 
@@ -1557,9 +1559,9 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
                     ( currentSpecificImpulse * physical_constants::SEA_LEVEL_GRAVITATIONAL_ACCELERATION );
 
             BOOST_CHECK_CLOSE_FRACTION( expectedThrust, currentThrustForce,
-                                        5.0 * std::numeric_limits< double >::epsilon( ) );
+                                        12.0 * std::numeric_limits< double >::epsilon( ) );
             BOOST_CHECK_CLOSE_FRACTION( currentMassRate, expectedMassRate,
-                                        5.0 * std::numeric_limits< double >::epsilon( ) );
+                                        12.0 * std::numeric_limits< double >::epsilon( ) );
         }
     }
 }

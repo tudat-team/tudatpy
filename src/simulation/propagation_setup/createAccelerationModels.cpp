@@ -1127,18 +1127,23 @@ createThrustAcceleratioModel(
     //    }
 
 
+    // Create thrust magnitude model
+    std::shared_ptr< propulsion::ThrustMagnitudeWrapper > thrustMagnitude = createThrustMagnitudeWrapper(
+                thrustAccelerationSettings->thrustMagnitudeSettings_, bodies, nameOfBodyUndergoingThrust,
+                magnitudeUpdateSettings );
+
+
     std::function< Eigen::Vector3d( ) > bodyFixedThrustDirectionFunction =
             getBodyFixedThrustDirection( thrustAccelerationSettings->thrustMagnitudeSettings_, bodies,
                                          nameOfBodyUndergoingThrust );
 
 
-    std::function< Eigen::Vector3d( const double ) > inertialThrustDirectionFunction = nullptr;
+    std::shared_ptr< propulsion::ThrustDirectionWrapper > thrustDirectionWrapper;
     std::shared_ptr< ephemerides::RotationalEphemeris > bodyRotationModel =
             bodies.at( nameOfBodyUndergoingThrust )->getRotationalEphemeris( );
     std::shared_ptr< ephemerides::DirectionBasedRotationalEphemeris > directionBasedRotation =
                 std::dynamic_pointer_cast< ephemerides::DirectionBasedRotationalEphemeris >( bodyRotationModel );
 
-    std::cout<<"Direction based rotatiton: "<<directionBasedRotation<<std::endl;
     if( directionBasedRotation != nullptr )
     {
         Eigen::Vector3d inertialThrustDirection = directionBasedRotation->getAssociatedBodyFixedDirection( );
@@ -1149,39 +1154,17 @@ createThrustAcceleratioModel(
                 ( ( inertialThrustDirection == definingOrientationDirecion ) ||
                   ( inertialThrustDirection == -definingOrientationDirecion ) ) )
         {
-            double thrustDirectionSign =
-                    ( ( inertialThrustDirection == definingOrientationDirecion ) ? 1.0 : -1.0 );
-            inertialThrustDirectionFunction = [=]( const double currentTime )
-            {
-                return ( thrustDirectionSign * directionBasedRotation->getCurrentInertialDirection( currentTime ) ).normalized( );
-            };
+            thrustDirectionWrapper = std::make_shared< propulsion::DirectThrustDirectionWrapper >(
+                        directionBasedRotation, ( inertialThrustDirection == definingOrientationDirecion ) );
         }
     }
-
-    if( inertialThrustDirectionFunction == nullptr )
+    else
     {
-        inertialThrustDirectionFunction = [=]( const double time )
-        {
-            if( time == time )
-            {
-                return ( bodies.at( nameOfBodyUndergoingThrust )->getCurrentRotationMatrixToGlobalFrame( ) *
-                         bodyFixedThrustDirectionFunction( ) ).normalized( );
-            }
-        };
+        thrustDirectionWrapper = std::make_shared< propulsion::OrientationBasedThrustDirectionWrapper >(
+                    std::bind( &Body::getCurrentRotationToGlobalFrame, bodies.at( nameOfBodyUndergoingThrust ) ),
+                    bodyFixedThrustDirectionFunction );
         directionUpdateSettings[ propagators::body_rotational_state_update ].push_back( nameOfBodyUndergoingThrust );
     }
-    //    // Create thrust direction model.
-    //    std::shared_ptr< propulsion::BodyFixedForceDirectionGuidance  > thrustDirectionGuidance = createThrustGuidanceModel(
-    //            thrustAccelerationSettings->thrustDirectionSettings_, bodies, nameOfBodyUndergoingThrust,
-    //            getBodyFixedThrustDirection( thrustAccelerationSettings->thrustMagnitudeSettings_, bodies,
-    //                                             nameOfBodyUndergoingThrust ), directionUpdateSettings );
-
-
-    // Create thrust magnitude model
-    std::shared_ptr< propulsion::ThrustMagnitudeWrapper > thrustMagnitude = createThrustMagnitudeWrapper(
-                thrustAccelerationSettings->thrustMagnitudeSettings_, bodies, nameOfBodyUndergoingThrust,
-                magnitudeUpdateSettings );
-
 
     // Add required updates of environemt models.
     std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > totalUpdateSettings;
@@ -1202,7 +1185,7 @@ createThrustAcceleratioModel(
 //            std::bind(&resetThrustSettingsTime, thrustMagnitude, thrustDirectionGuidance, std::placeholders::_1 );
     return std::make_shared< propulsion::ThrustAcceleration >(
                 thrustMagnitude,
-                inertialThrustDirectionFunction,
+                thrustDirectionWrapper,
                 std::bind( &Body::getBodyMass, bodies.at( nameOfBodyUndergoingThrust ) ),
                 totalUpdateSettings );
 }
