@@ -57,7 +57,8 @@ enum BodyFixedAngleSource
 {
     body_fixed_angles_from_body,
     body_fixed_angles_from_aero_based_ephemeris,
-    body_fixed_angles_from_generic_ephemeris
+    body_fixed_angles_from_generic_ephemeris,
+    custom_body_fixed_angles
 };
 
 class BodyFixedAerodynamicAngleInterface

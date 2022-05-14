@@ -139,6 +139,10 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
             bodies.at( "Apollo" )->setAerodynamicCoefficientInterface(
                         unit_tests::getApolloCoefficientInterface( ) );
             bodies.at( "Apollo" )->setConstantBodyMass( 5.0E3 );
+            bodies.at( "Apollo" )->setRotationalEphemeris(
+                        createTrimmedAerodynamicAngleBasedRotationModel(
+                            "Apollo", "Earth", bodies,
+                            "ECLIPJ2000", "VehicleFixed" ) );
 
             std::shared_ptr< system_models::VehicleSystems > vehicleSystems =
                     std::make_shared< system_models::VehicleSystems >( );
@@ -265,8 +269,6 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
             // Create acceleration models and propagation settings.
             basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
                         bodies, accelerationMap, bodiesToPropagate, centralBodies );
-
-            setTrimmedConditions( bodies.at( "Apollo" ) );
 
             std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings;
             if( propagatorType == 0 )
