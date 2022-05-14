@@ -1066,7 +1066,10 @@ BOOST_AUTO_TEST_CASE( testMassRateVariationalEquations )
     bodies.createEmptyBody( "Asterix" );
     double initialBodyMass = 2000.0;
     bodies.getBody( "Asterix" )->setConstantBodyMass( initialBodyMass );
-
+    bodies.getBody( "Asterix" )->setRotationalEphemeris( createStateDirectionBasedRotationModel(
+                                                        "Asterix", "Earth", bodies,
+                                                        Eigen::Vector3d::UnitX( ),
+                                                        "BodyFixed", "ECLIPJ2000", true, false ) );
     Eigen::MatrixXd finalStateTransitionTranslationalOnly;
     Eigen::MatrixXd finalStateTransitionCoupled;
 
@@ -1083,8 +1086,8 @@ BOOST_AUTO_TEST_CASE( testMassRateVariationalEquations )
         accelerationsOfAsterix[ "Earth" ].push_back( std::make_shared< AccelerationSettings >(
                                                          basic_astrodynamics::point_mass_gravity ) );
         accelerationsOfAsterix[ "Asterix" ].push_back( std::make_shared< ThrustAccelerationSettings >(
-                                                           std::make_shared< ThrustDirectionFromStateGuidanceSettings >(
-                                                               "Earth", true, false  ),
+//                                                           std::make_shared< ThrustDirectionFromStateGuidanceSettings >(
+//                                                               "Earth", true, false  ),
                                                            std::make_shared< ConstantThrustMagnitudeSettings >(
                                                                1.0E-4, 300.0 ) ) );
 

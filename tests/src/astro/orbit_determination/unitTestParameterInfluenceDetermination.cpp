@@ -277,6 +277,19 @@ BOOST_AUTO_TEST_CASE( test_ParameterPostFitResidualsApollo )
                 unit_tests::getApolloCoefficientInterface( ) );
     bodies.at( "Apollo" )->setConstantBodyMass( 5.0E3 );
 
+    std::shared_ptr< ephemerides::AerodynamicAngleRotationalEphemeris > vehicleRotationModel =
+            createAerodynamicAngleBasedRotationModel(
+                            "Apollo", "Earth", bodies,
+                            "J2000", "VehicleFixed" );
+
+    // Define constant 25 degree angle of attack
+    double constantAngleOfAttack = 25.0 * mathematical_constants::PI / 180.0;
+    vehicleRotationModel->setAerodynamicAngleFunction( [=](const double)
+    {
+        return ( Eigen::Vector3d( ) << constantAngleOfAttack, 0.0, 0.0 ).finished( );
+    } );
+
+    bodies.at( "Apollo" )->setRotationalEphemeris( vehicleRotationModel );
     
     // Define propagator settings variables.
     SelectedAccelerationMap accelerationMap;
@@ -296,10 +309,6 @@ BOOST_AUTO_TEST_CASE( test_ParameterPostFitResidualsApollo )
     basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
                 bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
-    // Define constant 25 degree angle of attack
-    double constantAngleOfAttack = 25.0 * mathematical_constants::PI / 180.0;
-    bodies.at( "Apollo" )->getFlightConditions( )->getAerodynamicAngleCalculator( )->setOrientationAngleFunctions(
-                [ & ]( ){ return constantAngleOfAttack; } );
 
     // Set initial spherical elements for Apollo.
     Eigen::Vector6d apolloSphericalEntryState;
