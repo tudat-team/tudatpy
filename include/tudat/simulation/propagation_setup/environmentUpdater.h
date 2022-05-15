@@ -104,18 +104,18 @@ public:
                                       std::to_string( setIntegratedStatesFromEnvironment.size( ) ) + " " +
                                       std::to_string( integratedStates_.size( ) ) );
         }
-        
+
         for( unsigned int i = 0; i < resetFunctionVector_.size( ); i++ )
         {
             resetFunctionVector_.at( i ).template get< 2 >( )( );
         }
-        
+
         // Set integrated state variables in environment.
         setIntegratedStatesInEnvironment( integratedStatesToSet );
-        
+
         // Set current state from environment for override settings setIntegratedStatesFromEnvironment
         setStatesFromEnvironment( setIntegratedStatesFromEnvironment, currentTime );
-        
+
         // Evaluate time-dependent update functions (dependent variables of state and time)
         // determined by setUpdateFunctions
         for( unsigned int i = 0; i < updateFunctionVector_.size( ); i++ )

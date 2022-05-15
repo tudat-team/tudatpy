@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2019, Delft University of Technology
+﻿/*    Copyright (c) 2010-2019, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -71,6 +71,8 @@ public:
 
     virtual Eigen::Vector3d getAngles( const double time,
                                        const Eigen::Matrix3d& trajectoryToInertialFrame ) = 0;
+
+    virtual void resetTime( ){ }
 
     BodyFixedAngleSource getAngleSource( )
     {
@@ -291,21 +293,14 @@ public:
         return currentBodyFixedGroundSpeedBasedState_.segment( 3, 3 );
     }
 
-    //! Function to reset the value of the currentBodyAngleTime_ variable
-    /*!
-     * Function to reset the value of the currentBodyAngleTime_ variable. Typically used to reset the time to NaN,
-     * signalling the need to recompute all quantities upon the next relevant function call.
-     * \param currentTime New current time.
-     */
-    void resetDerivedClassTime( const double currentTime = TUDAT_NAN )
-    {
-        currentBodyAngleTime_ = currentTime;
-    }
-
     void resetCurrentTime( const double currentTime = TUDAT_NAN )
     {
         currentTime_ = currentTime;
-        resetDerivedClassTime( currentTime );
+        currentBodyAngleTime_ = currentTime;
+        if( bodyFixedAngleInterface_ != nullptr )
+        {
+            bodyFixedAngleInterface_->resetTime( );
+        }
     }
 
     std::shared_ptr< BodyFixedAerodynamicAngleInterface > getBodyFixedAngleInterface( )

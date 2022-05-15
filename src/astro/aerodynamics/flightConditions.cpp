@@ -226,6 +226,7 @@ double AtmosphericFlightConditions::getAerodynamicCoefficientIndependentVariable
 //! Function to update the independent variables of the aerodynamic coefficient interface
 void AtmosphericFlightConditions::updateAerodynamicCoefficientInput( )
 {
+
     aerodynamicCoefficientIndependentVariables_.clear( );
     // Calculate independent variables for aerodynamic coefficients.
     for( unsigned int i = 0; i < aerodynamicCoefficientInterface_->getNumberOfIndependentVariables( ); i++ )

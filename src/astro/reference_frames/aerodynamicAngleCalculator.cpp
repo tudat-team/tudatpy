@@ -101,7 +101,7 @@ std::string getAerodynamicAngleName( const AerodynamicsReferenceFrameAngles angl
 
 //! Function to update the orientation angles to the current state.
 void AerodynamicAngleCalculator::update( const double currentTime, const bool updateBodyOrientation )
-{
+{    
     if( aerodynamicAngleClosureIsIncomplete_ )
     {
         throw std::runtime_error( "Error when calculating aerodynamic angles; closure is not set correctly" );

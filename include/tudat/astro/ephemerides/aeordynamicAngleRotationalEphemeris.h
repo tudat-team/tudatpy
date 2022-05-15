@@ -80,32 +80,33 @@ public:
             currentBodyAngles_.setZero( );
         }
     }
+
     virtual void resetCurrentTime( const double currentTime = TUDAT_NAN )
     {
         if( !( currentTime == currentTime_ ) )
         {
-            currentTime_ = currentTime;
-            if( currentTime_ == currentTime_ )
+            if( currentTime == currentTime )
             {
+                currentTime_ = currentTime;
                 aerodynamicAngleCalculator_->update( currentTime, false );
                 updateBodyAngles( currentTime );
                 aerodynamicAngleCalculator_->update( currentTime, true );
             }
             else
             {
-                aerodynamicAngleCalculator_->resetCurrentTime( TUDAT_NAN );
+                if( currentTime == currentTime )
+                {
+                    aerodynamicAngleCalculator_->resetCurrentTime( TUDAT_NAN );
+                }
+                currentTime_ = currentTime;
             }
+
         }
     }
 
     Eigen::Vector3d getBodyAngles( const double currentTime )
     {
-        if( ( currentTime != currentTime_ ) )
-        {
-            updateBodyAngles( currentTime );
-//            std::cout<<currentTime<<" "<<currentTime_<<std::endl;
-//            throw std::runtime_error( "Error when getting body angles from AerodynamicAngleRotationalEphemeris, times are inconsistent" );
-        }
+        resetCurrentTime( currentTime );
         return currentBodyAngles_;
     }
 
@@ -183,6 +184,8 @@ public:
 
     Eigen::Vector3d getAngles( const double time,
                                const Eigen::Matrix3d& trajectoryToInertialFrame );
+
+    void resetTime( );
 private:
 
     std::shared_ptr< ephemerides::RotationalEphemeris > ephemeris_;
@@ -204,6 +207,11 @@ public:
     {
         ephemeris_->resetCurrentTime( time );
         return ephemeris_->getBodyAngles( time );
+    }
+
+    void resetTime( )
+    {
+        ephemeris_->resetCurrentTime( TUDAT_NAN );
     }
 
 private:

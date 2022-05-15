@@ -39,6 +39,12 @@ Eigen::Vector3d FromGenericEphemerisAerodynamicAngleInterface::getAngles( const 
                 ephemeris_->getRotationMatrixToTargetFrame( time ), trajectoryToInertialFrame );
 }
 
+void FromGenericEphemerisAerodynamicAngleInterface::resetTime( )
+{
+    ephemeris_->resetCurrentTime( TUDAT_NAN );
+}
+
+
 
 
 }
