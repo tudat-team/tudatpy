@@ -1339,6 +1339,7 @@ BOOST_AUTO_TEST_CASE( test_flightConditionsSetup )
     SystemOfBodies bodies = createSystemOfBodies( bodySettings );
     
 
+
     // Define expected aerodynamic angles (see testAerodynamicAngleCalculator)
     double testHeadingAngle = 1.229357188236127;
     double testFlightPathAngle = -0.024894033070522;
@@ -1352,10 +1353,18 @@ BOOST_AUTO_TEST_CASE( test_flightConditionsSetup )
     // Create flight conditions object.
     std::shared_ptr< aerodynamics::FlightConditions > vehicleFlightConditions =
             createAtmosphericFlightConditions( bodies.at( "Vehicle" ), bodies.at( "Earth" ),
-                                               "Vehicle", "Earth",
-                                               [ & ]( ){ return angleOfAttack; },
-    [ & ]( ){ return angleOfSideslip; },
-    [ & ]( ){ return bankAngle; } );
+                                               "Vehicle", "Earth" );
+    bodies.at( "Vehicle" )->setFlightConditions( vehicleFlightConditions );
+
+    std::shared_ptr< ephemerides::AerodynamicAngleRotationalEphemeris > vehicleRotationModel =
+            createAerodynamicAngleBasedRotationModel(
+                            "Vehicle", "Earth", bodies,
+                            "ECLIPJ2000", "VehicleFixed" );
+
+    vehicleRotationModel->setAerodynamicAngleFunction(
+                [=]( const double ){ return ( Eigen::Vector3d( ) << angleOfAttack, angleOfSideslip, bankAngle ).finished( ); } );
+    bodies.at( "Vehicle" )->setRotationalEphemeris( vehicleRotationModel );
+
 
     // Set vehicle body-fixed state (see testAerodynamicAngleCalculator)
     Eigen::Vector6d vehicleBodyFixedState =

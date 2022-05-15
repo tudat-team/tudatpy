@@ -420,6 +420,19 @@ BOOST_AUTO_TEST_CASE( test_aerodynamicAccelerationModelSetup )
         // Create body objects.
         SystemOfBodies bodies = createSystemOfBodies( bodySettings );
         
+        double angleOfAttack = 1.232;
+        double angleOfSideslip = -0.00322;
+        double bankAngle = 2.323432;
+
+        std::shared_ptr< ephemerides::AerodynamicAngleRotationalEphemeris > vehicleRotationModel =
+                createAerodynamicAngleBasedRotationModel(
+                                "Vehicle", "Earth", bodies,
+                                "ECLIPJ2000", "VehicleFixed" );
+        vehicleRotationModel->setAerodynamicAngleFunction(
+                    [=]( const double ){ return ( Eigen::Vector3d( ) << angleOfAttack, angleOfSideslip, bankAngle ).finished( ); } );
+        bodies.at( "Vehicle" )->setRotationalEphemeris( vehicleRotationModel );
+
+
 
         // Define settings for accelerations
         SelectedAccelerationMap accelerationSettingsMap;
@@ -441,16 +454,6 @@ BOOST_AUTO_TEST_CASE( test_aerodynamicAccelerationModelSetup )
         double testLatitude = -0.385027359562548;
         double testLongitude = -1.849449608688977;
 
-        double angleOfAttack = 1.232;
-        double angleOfSideslip = -0.00322;
-        double bankAngle = 2.323432;
-
-        // Retrieve flight conditions and define orientation angles.
-        setAerodynamicOrientationFunctions(
-                    bodies.at( "Vehicle" ),
-                    [ & ]( ){ return angleOfAttack; },
-        [ & ]( ){ return angleOfSideslip; },
-        [ & ]( ){ return bankAngle; } );
 
         // Set vehicle body-fixed state (see testAerodynamicAngleCalculator)
         Eigen::Vector6d vehicleBodyFixedState =
@@ -603,10 +606,16 @@ BOOST_AUTO_TEST_CASE( test_aerodynamicAccelerationModelSetupWithCoefficientIndep
     double angleOfAttack = 1.232;
     double angleOfSideslip = -0.00322;
     double bankAngle = 2.323432;
-    vehicleFlightConditions->getAerodynamicAngleCalculator( )->setOrientationAngleFunctions(
-                [ & ]( ){ return angleOfAttack; },
-    [ & ]( ){ return angleOfSideslip; },
-    [ & ]( ){ return bankAngle; } );
+
+
+    std::shared_ptr< ephemerides::AerodynamicAngleRotationalEphemeris > vehicleRotationModel =
+            createAerodynamicAngleBasedRotationModel(
+                            "Vehicle", "Earth", bodies,
+                            "ECLIPJ2000", "VehicleFixed" );
+    vehicleRotationModel->setAerodynamicAngleFunction(
+                [=]( const double ){ return ( Eigen::Vector3d( ) << angleOfAttack, angleOfSideslip, bankAngle ).finished( ); } );
+    bodies.at( "Vehicle" )->setRotationalEphemeris( vehicleRotationModel );
+
 
     // Update environment to current time.
     double testTime = 0.5E7;
@@ -647,10 +656,10 @@ BOOST_AUTO_TEST_CASE( test_aerodynamicAccelerationModelSetupWithCoefficientIndep
         {
             angleOfSideslip += 0.00123;
         }
-        vehicleFlightConditions->getAerodynamicAngleCalculator( )->setOrientationAngleFunctions(
-                    [ & ]( ){ return angleOfAttack; },
-        [ & ]( ){ return angleOfSideslip; },
-        [ & ]( ){ return bankAngle; } );
+
+        vehicleRotationModel->resetCurrentTime( TUDAT_NAN );
+        vehicleRotationModel->setAerodynamicAngleFunction(
+                    [=]( const double ){ return ( Eigen::Vector3d( ) << angleOfAttack, angleOfSideslip, bankAngle ).finished( ); } );
 
         // Update flight conditions
         vehicleFlightConditions->resetCurrentTime( TUDAT_NAN );

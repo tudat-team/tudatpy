@@ -166,6 +166,7 @@ void AerodynamicAngleCalculator::update( const double currentTime, const bool up
             currentAerodynamicAngles_[ angle_of_attack ] = currentBodyAngles( 0 );
             currentAerodynamicAngles_[ angle_of_sideslip ] = currentBodyAngles( 1 );
             currentAerodynamicAngles_[ bank_angle ] = currentBodyAngles( 2 );
+//            std::cout<<"Reconstructed: "<<getRotationMatrixBetweenFrames( body_frame, inertial_frame )<<std::endl;
         }
         else
         {

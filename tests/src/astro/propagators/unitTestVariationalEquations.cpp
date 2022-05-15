@@ -1069,7 +1069,7 @@ BOOST_AUTO_TEST_CASE( testMassRateVariationalEquations )
     bodies.getBody( "Asterix" )->setRotationalEphemeris( createStateDirectionBasedRotationModel(
                                                         "Asterix", "Earth", bodies,
                                                         Eigen::Vector3d::UnitX( ),
-                                                        "BodyFixed", "ECLIPJ2000", true, false ) );
+                                                        "J2000", "BodyFixed", true, false ) );
     Eigen::MatrixXd finalStateTransitionTranslationalOnly;
     Eigen::MatrixXd finalStateTransitionCoupled;
 
