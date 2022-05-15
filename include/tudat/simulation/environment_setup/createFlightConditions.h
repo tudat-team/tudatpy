@@ -25,34 +25,6 @@
 namespace tudat
 {
 
-namespace reference_frames
-{
-
-
-class FromBodyAerodynamicAngleInterface: public BodyFixedAerodynamicAngleInterface
-{
-public:
-    FromBodyAerodynamicAngleInterface(
-            const std::shared_ptr< simulation_setup::Body > body ):
-    BodyFixedAerodynamicAngleInterface( body_fixed_angles_from_body ),
-    body_( body ){ }
-
-    virtual ~FromBodyAerodynamicAngleInterface( ){ }
-
-    Eigen::Vector3d getAngles( const double time,
-                               const Eigen::Matrix3d& trajectoryToInertialFrame )
-    {
-        return computeBodyFixedAeroAngles(
-                    body_->getCurrentRotationMatrixToLocalFrame( ), trajectoryToInertialFrame );
-    }
-
-private:
-
-    std::shared_ptr< simulation_setup::Body > body_;
-
-};
-
-}
 namespace simulation_setup
 {
 

@@ -317,7 +317,7 @@ public:
     {
         if( bodyFixedAngleInterface_ != nullptr )
         {
-            if( bodyFixedAngleInterface_->getAngleSource( ) != body_fixed_angles_from_body )
+            if( bodyFixedAngleInterface->getAngleSource( ) != body_fixed_angles_from_body )
             {
                 throw std::runtime_error( "Error when setting BodyFixedAerodynamicAngleInterface, resetting is now allowed" );
             }

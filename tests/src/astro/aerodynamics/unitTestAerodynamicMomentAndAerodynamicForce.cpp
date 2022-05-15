@@ -323,6 +323,7 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
     {
         maximumIndex = 8;
     }
+    maximumIndex = 1;
     for( unsigned int i = 0; i < 4; i++ )
     {
         // Create Earth object
@@ -493,7 +494,7 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
                   cowell, dependentVariableSaveSettings );
         std::shared_ptr< IntegratorSettings< > > integratorSettings =
                 std::make_shared< IntegratorSettings< > >
-                ( rungeKutta4, 0.0, 5.0 );
+                ( euler, 0.0, 5.0 );
 
         // Create simulation object and propagate dynamics.
         SingleArcDynamicsSimulator< > dynamicsSimulator(
@@ -614,6 +615,10 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
                                 1.0E-15 );
                 }
 
+
+                std::cout<<"Matrix: "<<i<<" "<<includeThrustForce<<" "<<imposeThrustDirection<<" "<<swapCreationOrder<<std::endl<<
+                           rotationToBodyFrameFromEphemeris<<std::endl<<std::endl<<
+                           rotationToBodyFrame<<std::endl<<std::endl<<std::endl;
                 matrixDifference = rotationToBodyFrameFromEphemeris - rotationToBodyFrame;
 
                 for( unsigned int j = 0; j < 3; j++ )
@@ -679,11 +684,11 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
 
 BOOST_AUTO_TEST_CASE( testAerodynamicForceDirectionInPropagation )
 {
-    testAerodynamicForceDirection( 0, 0, 0 );
-    testAerodynamicForceDirection( 1, 0, 0 );
+//    testAerodynamicForceDirection( 0, 0, 0 );
+//    testAerodynamicForceDirection( 1, 0, 0 );
     testAerodynamicForceDirection( 1, 1, 0 );
-    testAerodynamicForceDirection( 1, 0, 1 );
-    testAerodynamicForceDirection( 1, 1, 1 );
+//    testAerodynamicForceDirection( 1, 0, 1 );
+//    testAerodynamicForceDirection( 1, 1, 1 );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
