@@ -210,14 +210,10 @@ public:
      * Function to reset the  object to the current time, recomputing partials to current state.
      *  \param currentTime Time to which partials are to be updated.
      */
-    void resetTime( const double currentTime = TUDAT_NAN )
+    void resetTime( )
     {
-        // Check if update is needed.
-        if( !( currentTime_ == currentTime  ) )
-        {
-            resetCurrentParameterValues( );
-            currentTime_ = currentTime;
-        }        
+        resetCurrentParameterValues( );
+        currentTime_ = TUDAT_NAN;
 
         // Perform updates of member objects if needed.
         resetTimeOfMemberObjects( );

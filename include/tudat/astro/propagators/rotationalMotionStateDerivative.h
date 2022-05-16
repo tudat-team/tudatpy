@@ -166,7 +166,7 @@ public:
             {
                 for( unsigned int j = 0; j < innerTorqueIterator->second.size( ); j++ )
                 {
-                    innerTorqueIterator->second[ j ]->resetTime( TUDAT_NAN );
+                    innerTorqueIterator->second[ j ]->resetTime( );
                 }
             }
         }

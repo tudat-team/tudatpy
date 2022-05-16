@@ -319,7 +319,7 @@ protected:
     {
         for( unsigned int i = 0; i < tidalLoveNumberPartialInterfaces_.size( ); i++ )
         {
-            tidalLoveNumberPartialInterfaces_.at( i )->resetTime( currentTime_ );
+            tidalLoveNumberPartialInterfaces_.at( i )->resetTime( );
         }
     }
 
