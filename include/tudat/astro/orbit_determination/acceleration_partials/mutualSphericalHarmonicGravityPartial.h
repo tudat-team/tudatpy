@@ -231,8 +231,8 @@ protected:
     //! Function to reset the constituent SphericalHarmonicsGravityPartial objects to the current time.
     void resetTimeOfMemberObjects( )
     {
-        accelerationPartialOfShExpansionOfBodyExertingAcceleration_->resetTime( currentTime_ );
-        accelerationPartialOfShExpansionOfBodyUndergoingAcceleration_->resetTime( currentTime_ );
+        accelerationPartialOfShExpansionOfBodyExertingAcceleration_->resetTime( );
+        accelerationPartialOfShExpansionOfBodyUndergoingAcceleration_->resetTime( );
     }
 
     //! Function to update the parameter partials of the constituent SphericalHarmonicsGravityPartial objects.
