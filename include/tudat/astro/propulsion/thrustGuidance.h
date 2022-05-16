@@ -114,7 +114,7 @@ public:
 
     virtual void resetDerivedClassCurrentTime( const double currentTime = TUDAT_NAN )
     {
-        directionBasedRotationModel_->resetCurrentTime( currentTime );
+        directionBasedRotationModel_->update( currentTime );
     }
 
     virtual void update( const double time )

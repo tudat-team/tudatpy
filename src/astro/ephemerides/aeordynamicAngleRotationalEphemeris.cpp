@@ -41,7 +41,7 @@ Eigen::Vector3d FromGenericEphemerisAerodynamicAngleInterface::getAngles( const 
 
 void FromGenericEphemerisAerodynamicAngleInterface::resetTime( )
 {
-    ephemeris_->resetCurrentTime( TUDAT_NAN );
+    ephemeris_->resetCurrentTime( );
 }
 
 

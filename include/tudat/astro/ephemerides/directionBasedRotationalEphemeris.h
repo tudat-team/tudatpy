@@ -47,7 +47,7 @@ public:
     virtual Eigen::Quaterniond getRotationToBaseFrame(
             const double currentTime )
     {
-        resetCurrentTime( currentTime );
+        update( currentTime );
         return Eigen::Quaterniond( );
     }
 
@@ -70,8 +70,7 @@ public:
         return Eigen::Matrix3d::Constant( TUDAT_NAN );
     }
 
-
-    virtual void resetCurrentTime( const double currentTime = TUDAT_NAN )
+    virtual void update( const double currentTime )
     {
         if( !( currentTime == currentTime_ ) )
         {
@@ -89,6 +88,12 @@ public:
         }
     }
 
+
+    virtual void resetCurrentTime(  )
+    {
+        update( TUDAT_NAN );
+    }
+
     Eigen::Vector3d getAssociatedBodyFixedDirection( )
     {
         return associatedBodyFixedDirection_;
@@ -98,7 +103,7 @@ public:
     {
         if( currentTime != currentTime_ )
         {
-            resetCurrentTime( currentTime );
+            update( currentTime );
         }
         return currentInertialDirection_;
     }

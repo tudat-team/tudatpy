@@ -606,7 +606,7 @@ private:
                                                     body_rotational_state_update, currentBodies.at( i ),
                                                     std::bind( &ephemerides::RotationalEphemeris::
                                                                resetCurrentTime, bodyList_.at( currentBodies.at( i ) )->
-                                                               getRotationalEphemeris( ), TUDAT_NAN ) ) );
+                                                               getRotationalEphemeris( ) ) ) );
                                 }
                                 
                                 //                                if( bodyList_.at( currentBodies.at( i ) )->getRotationalEphemeris( ) == nullptr )
