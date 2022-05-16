@@ -706,7 +706,7 @@ private:
                                             vehicle_flight_conditions_update, currentBodies.at( i ),
                                             std::bind( &aerodynamics::FlightConditions::
                                                        resetCurrentTime, bodyList_.at( currentBodies.at( i ) )->
-                                                       getFlightConditions( ), TUDAT_NAN ) ) );
+                                                       getFlightConditions( ) ) ) );
                         }
                         else
                         {
