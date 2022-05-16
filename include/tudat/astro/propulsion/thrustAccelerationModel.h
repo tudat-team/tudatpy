@@ -102,8 +102,8 @@ public:
     virtual void resetTime( )
     {
         currentTime_ = TUDAT_NAN;
-        thrustMagnitudeWrapper_->update( TUDAT_NAN );
-        thrustDirectionWrapper_->resetCurrentTime( TUDAT_NAN );
+        thrustMagnitudeWrapper_->resetCurrentTime( );
+        thrustDirectionWrapper_->resetCurrentTime( );
 //        if( !( timeResetFunction_ == nullptr ) )
 //        {
 //            timeResetFunction_( currentTime_ );

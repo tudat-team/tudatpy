@@ -76,13 +76,13 @@ public:
 
     virtual ~ThrustDirectionWrapper( ){ }
 
-    void resetCurrentTime( const double currentTime = TUDAT_NAN )
+    void resetCurrentTime( )
     {
-        currentTime_ = currentTime;
-        resetDerivedClassCurrentTime( currentTime );
+        currentTime_ = TUDAT_NAN;
+        resetDerivedClassCurrentTime( );
     }
 
-    virtual void resetDerivedClassCurrentTime( const double currentTime = TUDAT_NAN )
+    virtual void resetDerivedClassCurrentTime( )
     { }
 
     virtual void update( const double time ) = 0;
@@ -112,9 +112,9 @@ public:
     virtual ~DirectThrustDirectionWrapper( ){ }
 
 
-    virtual void resetDerivedClassCurrentTime( const double currentTime = TUDAT_NAN )
+    virtual void resetDerivedClassCurrentTime( )
     {
-        directionBasedRotationModel_->update( currentTime );
+        directionBasedRotationModel_->resetCurrentTime( );
     }
 
     virtual void update( const double time )
