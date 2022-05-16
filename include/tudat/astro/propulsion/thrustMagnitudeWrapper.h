@@ -66,10 +66,10 @@ public:
      *  signalling the need for a recomputation of all required quantities.
      *  \param currentTime New current time to be set in model.
      */
-    void resetCurrentTime( const double currentTime = TUDAT_NAN )
+    void resetCurrentTime( )
     {
-        currentTime_ = currentTime;
-        resetDerivedClassCurrentTime( currentTime );
+        currentTime_ = TUDAT_NAN;
+        resetDerivedClassCurrentTime( );
     }
 
     //! Function to reset the current time of the thrust model derived class.
@@ -79,7 +79,7 @@ public:
      *  derived class
      *  \param currentTime New current time to be set in model.
      */
-    virtual void resetDerivedClassCurrentTime( const double currentTime = TUDAT_NAN )
+    virtual void resetDerivedClassCurrentTime( )
     {
 
     }
@@ -185,11 +185,11 @@ public:
      *  to NaN, signalling the need for a recomputation of all required quantities.
      *  \param currentTime New current time to be set in model.
      */
-    virtual void resetDerivedClassCurrentTime( const double currentTime = TUDAT_NAN )
+    virtual void resetDerivedClassCurrentTime( )
     {
         if( !( customThrustResetFunction_ == nullptr ) )
         {
-            customThrustResetFunction_( currentTime );\
+            customThrustResetFunction_( TUDAT_NAN );
         }
     }
 
@@ -391,11 +391,11 @@ public:
      *  to NaN, signalling the need for a recomputation of all required quantities.
      *  \param currentTime New current time to be set in model.
      */
-    virtual void resetDerivedClassCurrentTime( const double currentTime = TUDAT_NAN )
+    virtual void resetDerivedClassCurrentTime( )
     {
         if( !( customThrustResetFunction_ == nullptr ) )
         {
-            customThrustResetFunction_( currentTime );\
+            customThrustResetFunction_( TUDAT_NAN );
         }
     }
 
@@ -647,11 +647,11 @@ public:
      *  to NaN, signalling the need for a recomputation of all required quantities.
      *  \param currentTime New current time to be set in model.
      */
-    virtual void resetDerivedClassCurrentTime( const double currentTime = TUDAT_NAN )
+    virtual void resetDerivedClassCurrentTime(  )
     {
         if( !( inputUpdateFunction_ == nullptr ) )
         {
-            inputUpdateFunction_( currentTime );
+            inputUpdateFunction_( TUDAT_NAN );
         }
     }
 
