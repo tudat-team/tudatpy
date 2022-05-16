@@ -300,10 +300,10 @@ public:
 };
 
 void testAerodynamicForceDirection( const bool includeThrustForce,
-                                    const bool imposeThrustDirection,
+                                    const bool useSpiceRotationModel,
                                     const bool swapCreationOrder )
 {
-    std::cout<<includeThrustForce<<" "<<imposeThrustDirection<<" "<<swapCreationOrder<<std::endl;
+    std::cout<<includeThrustForce<<" "<<useSpiceRotationModel<<" "<<swapCreationOrder<<std::endl;
     using namespace tudat;
     using namespace numerical_integrators;
     using namespace simulation_setup;
@@ -318,12 +318,6 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
     double thrustMagnitude = 1.0E3;
     double specificImpulse = 250.0;
 
-    unsigned int maximumIndex = 8;
-    if( imposeThrustDirection )
-    {
-        maximumIndex = 8;
-    }
-    maximumIndex = 1;
     for( unsigned int i = 0; i < 4; i++ )
     {
         // Create Earth object
@@ -342,16 +336,13 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
         std::shared_ptr< DummyAngleCalculator > testAngles =
                 std::make_shared< DummyAngleCalculator >( );
 
-        if( i < 4 && !imposeThrustDirection )
+        if( useSpiceRotationModel )
         {
             bodies.at( "Vehicle" )->setRotationalEphemeris(
                         std::make_shared< ephemerides::SpiceRotationalEphemeris >( "ECLIPJ2000", "IAU_MOON" ) );
         }
         else
         {
-
-
-
             std::shared_ptr< ephemerides::AerodynamicAngleRotationalEphemeris > vehicleRotationModel =
                     createAerodynamicAngleBasedRotationModel(
                                     "Vehicle", "Earth", bodies,
@@ -411,25 +402,10 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
 
         if( includeThrustForce )
         {
-            if( !imposeThrustDirection )
-            {
-                accelerationsOfVehicle[ "Vehicle" ].push_back(
-                            std::make_shared< ThrustAccelerationSettings >(
-//                                std::make_shared< ThrustDirectionSettings >(
-//                                    thrust_direction_from_existing_body_orientation, "Earth" ),
-                                std::make_shared< ConstantThrustMagnitudeSettings >(
-                                    thrustMagnitude, specificImpulse, bodyFixedThrustDirection ) ) );
-            }
-            else
-            {
-                accelerationsOfVehicle[ "Vehicle" ].push_back(
-                            std::make_shared< ThrustAccelerationSettings >(
-//                                std::make_shared< CustomThrustOrientationSettings >(
-//                                    std::bind( spice_interface::computeRotationQuaternionBetweenFrames,
-//                                                     "IAU_Mars", "IAU_Earth", std::placeholders::_1 ) ),
-                                std::make_shared< ConstantThrustMagnitudeSettings >(
-                                    thrustMagnitude, specificImpulse, bodyFixedThrustDirection ) ) );
-            }
+            accelerationsOfVehicle[ "Vehicle" ].push_back(
+                        std::make_shared< ThrustAccelerationSettings >(
+                            std::make_shared< ConstantThrustMagnitudeSettings >(
+                                thrustMagnitude, specificImpulse, bodyFixedThrustDirection ) ) );
         }
 
         if( !swapCreationOrder )
@@ -487,14 +463,14 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
 
 
         std::shared_ptr< PropagationTimeTerminationSettings > terminationSettings =
-                std::make_shared< propagators::PropagationTimeTerminationSettings >( 5.0 );
+                std::make_shared< propagators::PropagationTimeTerminationSettings >( 1000.0 );
         std::shared_ptr< TranslationalStatePropagatorSettings< double > > translationalPropagatorSettings =
                 std::make_shared< TranslationalStatePropagatorSettings< double > >
                 ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, terminationSettings,
                   cowell, dependentVariableSaveSettings );
         std::shared_ptr< IntegratorSettings< > > integratorSettings =
                 std::make_shared< IntegratorSettings< > >
-                ( euler, 0.0, 5.0 );
+                ( rungeKutta4, 0.0, 5.0 );
 
         // Create simulation object and propagate dynamics.
         SingleArcDynamicsSimulator< > dynamicsSimulator(
@@ -586,7 +562,7 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
             }
 
             // Check if thrust force is in correct direction.
-            if( includeThrustForce && !imposeThrustDirection )
+            if( includeThrustForce && !useSpiceRotationModel )
             {
                 Eigen::Vector3d thrustForceInBodyFrame = rotationToBodyFrame * outputIterator->second.segment( 42, 3 );
 
@@ -597,7 +573,7 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
                                            thrustAcceleration ), 1.0E-14 );
                 }
             }
-            else if( includeThrustForce && imposeThrustDirection )
+            else if( includeThrustForce && useSpiceRotationModel )
             {
                 Eigen::Vector3d thrustForceInPropagationFrame = ( outputIterator->second.segment( 42, 3 ) );
 
@@ -615,23 +591,19 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
                                 1.0E-15 );
                 }
 
-
-                std::cout<<"Matrix: "<<i<<" "<<includeThrustForce<<" "<<imposeThrustDirection<<" "<<swapCreationOrder<<std::endl<<
-                           rotationToBodyFrameFromEphemeris<<std::endl<<std::endl<<
-                           rotationToBodyFrame<<std::endl<<std::endl<<std::endl;
                 matrixDifference = rotationToBodyFrameFromEphemeris - rotationToBodyFrame;
 
                 for( unsigned int j = 0; j < 3; j++ )
                 {
                     for( unsigned int k = 0; k < 3; k++ )
                     {
-                        BOOST_CHECK_SMALL( std::fabs( matrixDifference( j, k ) ), 5.0E-14 );
+                        BOOST_CHECK_SMALL( std::fabs( matrixDifference( j, k ) ), 1.0E-13 );
                     }
                 }
 
             }
 
-            if( i < 4 && !imposeThrustDirection )
+            if( useSpiceRotationModel )
             {
                 // Check if imposed and indirectly obtained rotation matrices are equal.
                 Eigen::Matrix3d rotationToBodyFrameFromEphemeris = rotationalEphemeris->getRotationToTargetFrame(
@@ -645,7 +617,7 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
                     }
                 }
             }
-            else if( !( i < 4 ) )
+            else
             {
                 testAngles->getAerodynamicAngles( outputIterator->first );
 
@@ -684,11 +656,11 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
 
 BOOST_AUTO_TEST_CASE( testAerodynamicForceDirectionInPropagation )
 {
-//    testAerodynamicForceDirection( 0, 0, 0 );
-//    testAerodynamicForceDirection( 1, 0, 0 );
+    testAerodynamicForceDirection( 0, 0, 0 );
+    testAerodynamicForceDirection( 1, 0, 0 );
     testAerodynamicForceDirection( 1, 1, 0 );
-//    testAerodynamicForceDirection( 1, 0, 1 );
-//    testAerodynamicForceDirection( 1, 1, 1 );
+    testAerodynamicForceDirection( 1, 0, 1 );
+    testAerodynamicForceDirection( 1, 1, 1 );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
