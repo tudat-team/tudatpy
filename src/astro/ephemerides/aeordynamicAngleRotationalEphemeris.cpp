@@ -46,6 +46,19 @@ void FromGenericEphemerisAerodynamicAngleInterface::resetTime( )
 
 
 
+Eigen::Vector3d FromAeroEphemerisAerodynamicAngleInterface::getAngles( const double time,
+                           const Eigen::Matrix3d& trajectoryToInertialFrame )
+{
+    ephemeris_->update( time );
+    return ephemeris_->getBodyAngles( time );
+}
+
+void FromAeroEphemerisAerodynamicAngleInterface::resetTime( )
+{
+    ephemeris_->resetCurrentTime( );
+}
+
+
 
 }
 
@@ -77,15 +90,25 @@ void AerodynamicAngleRotationalEphemeris::update( const double currentTime )
         }
         else
         {
-            if( currentTime == currentTime )
-            {
-                aerodynamicAngleCalculator_->resetCurrentTime( );
-            }
-            currentTime_ = currentTime;
+            resetCurrentTime( );
         }
 
     }
 }
+
+void AerodynamicAngleRotationalEphemeris::resetCurrentTime(  )
+{
+    if( currentTime_ == currentTime_ )
+    {
+        currentTime_ = TUDAT_NAN;
+        aerodynamicAngleCalculator_->resetCurrentTime( );
+    }
+    else
+    {
+        currentTime_ = TUDAT_NAN;
+    }
+}
+
 void verifyAerodynamicDependentOrientationCalculatorClosure(
         std::shared_ptr< ephemerides::RotationalEphemeris > rotationalEphemeris,
         std::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator )
