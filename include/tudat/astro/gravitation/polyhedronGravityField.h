@@ -73,9 +73,6 @@ Eigen::Vector3d calculatePolyhedronGradientOfGravitationalPotential(
 // Function to calculate the Hessian matrix of the potential of a constant-density polyhedron
 Eigen::Matrix3d calculatePolyhedronHessianOfGravitationalPotential(
         const double gravitationalConstantTimesDensity,
-        const Eigen::MatrixXd& verticesCoordinatesRelativeToFieldPoint,
-        const Eigen::MatrixXi& verticesDefiningEachFacet,
-        const Eigen::MatrixXi& verticesDefiningEachEdge,
         const std::vector< Eigen::MatrixXd >& facetDyads,
         const std::vector< Eigen::MatrixXd >& edgeDyads,
         const Eigen::VectorXd& perFacetFactor,
@@ -199,9 +196,6 @@ public:
 
         return calculatePolyhedronHessianOfGravitationalPotential(
                 gravitationalParameter_ / volume_,
-                polyhedronGravityCache_->getVerticesCoordinatesRelativeToFieldPoint(),
-                verticesDefiningEachFacet_,
-                verticesDefiningEachEdge_,
                 facetDyads_,
                 edgeDyads_,
                 polyhedronGravityCache_->getPerFacetFactor(),

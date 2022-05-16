@@ -242,6 +242,13 @@ BOOST_AUTO_TEST_CASE( test_polyhedron_set_up )
                 gravitySettings.getGravitationalParameter() / gravitySettings.getVolume(), verticesCoordinatesRelativeToFieldPoint, verticesDefiningEachFacet,
                 verticesDefiningEachEdge, facetDyads, edgeDyads, perFacetFactor, perEdgeFactor);
         std::cout << "Acceleration: " << acceleration.transpose() << std::endl;
+
+        if ( positionId == 2 )
+        {
+            Eigen::Matrix3d hessian = gravitation::calculatePolyhedronHessianOfGravitationalPotential(
+                gravitySettings.getGravitationalParameter() / gravitySettings.getVolume(), facetDyads, edgeDyads, perFacetFactor, perEdgeFactor);
+            std::cout << "Hessian\n: " << hessian.transpose() << std::endl;
+        }
     }
 
 }

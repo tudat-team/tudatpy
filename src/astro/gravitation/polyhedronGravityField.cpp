@@ -176,18 +176,36 @@ Eigen::Vector3d calculatePolyhedronGradientOfGravitationalPotential(
 
 Eigen::Matrix3d calculatePolyhedronHessianOfGravitationalPotential(
         const double gravitationalConstantTimesDensity,
-        const Eigen::MatrixXd& verticesCoordinatesRelativeToFieldPoint,
-        const Eigen::MatrixXi& verticesDefiningEachFacet,
-        const Eigen::MatrixXi& verticesDefiningEachEdge,
         const std::vector< Eigen::MatrixXd >& facetDyads,
         const std::vector< Eigen::MatrixXd >& edgeDyads,
         const Eigen::VectorXd& perFacetFactor,
         const Eigen::VectorXd& perEdgeFactor)
 {
-    throw std::runtime_error( "Computation of hessian matrix of polyhedron potential is not implemented." );
-    // Note before implementing:
-    // When computing the per edge factor, it is taken to be 0 at edges singularities (see function
-    // calculatePolyhedronPerEdgeFactor, and reference within). This is not valid when computing the hessian matrix!
+    const unsigned int numberOfFacets = facetDyads.size();
+    const unsigned int numberOfEdges = edgeDyads.size();
+    Eigen::Matrix3d perEdgeSum, perFacetSum;
+    perEdgeSum.setZero();
+    perFacetSum.setZero();
+
+    // Loop over edges
+    for ( unsigned int edge = 0; edge < numberOfEdges; ++edge )
+    {
+        if ( perEdgeFactor(edge) == 0 )
+        {
+            // When computing the per edge factor, it is taken to be 0 at edges singularities (see function
+            // calculatePolyhedronPerEdgeFactor, and reference within). This is not valid when computing the hessian matrix!
+            throw std::runtime_error( "Computation of hessian matrix of singular for points at edges." );
+        }
+        perEdgeSum += edgeDyads.at(edge) * perEdgeFactor(edge);
+    }
+
+    // Loop over facets
+    for ( unsigned int facet = 0; facet < numberOfFacets; ++facet )
+    {
+        perFacetSum += facetDyads.at(facet) * perFacetFactor(facet);
+    }
+
+    return gravitationalConstantTimesDensity * (perEdgeSum - perFacetSum);
 }
 
 double calculatePolyhedronLaplacianOfGravitationalPotential(
