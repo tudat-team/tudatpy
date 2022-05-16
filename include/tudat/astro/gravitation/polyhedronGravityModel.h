@@ -131,8 +131,6 @@ public:
             const std::function< Eigen::Quaterniond( ) > rotationFromBodyFixedToIntegrationFrameFunction =
                 [ ]( ){ return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ); },
             const bool isMutualAttractionUsed = 0 )
-//            std::shared_ptr< PolyhedronGravityCache > polyhedronCache =
-//                std::make_shared< PolyhedronGravityCache >( ) )
         : subjectPositionFunction_( positionOfBodySubjectToAccelerationFunction ),
         gravitationalParameterFunction_( gravitationalParameterFunction ),
         volumeFunction_( volumeFunction ),
@@ -211,6 +209,48 @@ public:
         return rotationToIntegrationFrame_.toRotationMatrix( );
     }
 
+    //! Function to return the function returning the relevant gravitational parameter.
+    std::function< double( ) > getGravitationalParameterFunction( )
+    {
+        return gravitationalParameterFunction_;
+    }
+
+    //! Function to return the function returning the relevant volume.
+    std::function< double( ) > getVolumeFunction( )
+    {
+        return volumeFunction_;
+    }
+
+    //! Function to return the function returning the facet dyads.
+    std::function< std::vector< Eigen::MatrixXd >( ) > getFacetDyadsFunction( )
+    {
+        return getFacetDyads_;
+    }
+
+    //! Function to return the function returning the facet dyads.
+    std::function< std::vector< Eigen::MatrixXd >( ) > getEdgeDyadsFunction( )
+    {
+        return getEdgeDyads_;
+    }
+
+    //! Function to return current position vector of body exerting gravitational acceleration in inertial frame.
+    Eigen::Vector3d getCurrentPositionOfBodySubjectToAcceleration( )
+    {
+        return positionOfBodySubjectToAcceleration_;
+    }
+
+    //! Function to return current position vector of body undergoing gravitational acceleration in inertial frame.
+    Eigen::Vector3d getCurrentPositionOfBodyExertingAcceleration( )
+    {
+        return positionOfBodyExertingAcceleration_;
+    }
+
+    //! Function to retrieve the spherical harmonics cache for this acceleration.
+    std::shared_ptr< PolyhedronGravityCache > getPolyhedronCache( )
+    {
+        return polyhedronCache_;
+    }
+
 private:
 
     //! Pointer to function returning position of body subject to acceleration.
@@ -246,7 +286,7 @@ private:
     //! Variable denoting whether mutual acceleration between bodies is included.
     bool isMutualAttractionUsed_;
 
-    //!  Polyhedron for this acceleration
+    //!  Polyhedron cache for this acceleration
     std::shared_ptr< PolyhedronGravityCache > polyhedronCache_;
 
     //! Current rotation from body-fixed frame to integration frame.
