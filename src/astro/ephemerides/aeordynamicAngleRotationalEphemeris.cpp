@@ -52,60 +52,40 @@ void FromGenericEphemerisAerodynamicAngleInterface::resetTime( )
 namespace ephemerides
 {
 
+void AerodynamicAngleRotationalEphemeris::updateBodyAngles( )
+{
+    if( aerodynamicAngleFunction_ != nullptr )
+    {
+        currentBodyAngles_ = aerodynamicAngleFunction_( currentTime_ );
+    }
+    else
+    {
+        currentBodyAngles_.setZero( );
+    }
+}
 
-////! Function to make aerodynamic angle computation consistent with imposed body-fixed to inertial rotation.
-//void setAerodynamicDependentOrientationCalculatorClosure(
-//        const std::function< Eigen::Quaterniond( const double ) > imposedRotationFromInertialToBodyFixedFrame,
-//        std::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator )
-//{
-//    using namespace reference_frames;
-//    std::shared_ptr< AerodynamicAnglesClosure > aerodynamicAnglesClosure =
-//            std::make_shared< AerodynamicAnglesClosure >(
-//                imposedRotationFromInertialToBodyFixedFrame, aerodynamicAngleCalculator );
-////    aerodynamicAngleCalculator->setOrientationAngleFunctions(
-////                std::bind( &AerodynamicAnglesClosure::getCurrentAngleOfAttack, aerodynamicAnglesClosure ),
-////                std::bind( &AerodynamicAnglesClosure::getCurrentAngleOfSideslip, aerodynamicAnglesClosure ),
-////                std::bind( &AerodynamicAnglesClosure::getCurrentBankAngle, aerodynamicAnglesClosure ),
-////                std::bind( &AerodynamicAnglesClosure::updateAngles, aerodynamicAnglesClosure, std::placeholders::_1 ) );
-//}
+void AerodynamicAngleRotationalEphemeris::update( const double currentTime )
+{
+    if( !( currentTime == currentTime_ ) )
+    {
+        if( currentTime == currentTime )
+        {
+            currentTime_ = currentTime;
+            aerodynamicAngleCalculator_->update( currentTime, false );
+            updateBodyAngles( );
+            aerodynamicAngleCalculator_->update( currentTime, true );
+        }
+        else
+        {
+            if( currentTime == currentTime )
+            {
+                aerodynamicAngleCalculator_->resetCurrentTime( );
+            }
+            currentTime_ = currentTime;
+        }
 
-////! Function to make aerodynamic angle computation consistent with existing DependentOrientationCalculator
-//void setAerodynamicDependentOrientationCalculatorClosure(
-//        std::shared_ptr< DependentOrientationCalculator > dependentOrientationCalculator,
-//        std::shared_ptr< AerodynamicAngleCalculator > aerodynamicAngleCalculator )
-//{
-//    std::function< Eigen::Quaterniond( const double ) > imposedRotationFromInertialToBodyFixedFrame =
-//            std::bind( &DependentOrientationCalculator::computeAndGetRotationToLocalFrame, dependentOrientationCalculator, std::placeholders::_1 );
-//    setAerodynamicDependentOrientationCalculatorClosure(
-//                imposedRotationFromInertialToBodyFixedFrame,
-//                aerodynamicAngleCalculator );
-//}
-
-////! Function to make aerodynamic angle computation consistent with existing rotational ephemeris
-//void setAerodynamicDependentOrientationCalculatorClosure(
-//        std::shared_ptr< ephemerides::RotationalEphemeris > rotationalEphemeris,
-//        std::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator )
-//{
-//    using namespace reference_frames;
-//    std::shared_ptr< ephemerides::AerodynamicAngleRotationalEphemeris > angleBasedRotationModel =
-//            std::dynamic_pointer_cast< ephemerides::AerodynamicAngleRotationalEphemeris >( rotationalEphemeris );
-
-//    if( angleBasedRotationModel == nullptr )
-//    {
-//        setAerodynamicDependentOrientationCalculatorClosure(
-//                    std::bind( &ephemerides::RotationalEphemeris::getRotationToTargetFrame,
-//                               rotationalEphemeris, std::placeholders::_1 ),
-//                    aerodynamicAngleCalculator );
-//    }
-//    else if( aerodynamicAngleCalculator != angleBasedRotationModel->getAerodynamicAngleCalculator( ) )
-//    {
-//        std::cout<<aerodynamicAngleCalculator<<" "<<angleBasedRotationModel->getAerodynamicAngleCalculator( )<<std::endl;
-//        std::cout<<aerodynamicAngleCalculator.get( )<<" "<<angleBasedRotationModel->getAerodynamicAngleCalculator( ).get( )<<std::endl;
-
-//        throw std::runtime_error( "Error, body has AerodynamicAngleRotationalEphemeris and FlightConditions, but angle calculators are not compatible" );
-//    }
-//}
-
+    }
+}
 void verifyAerodynamicDependentOrientationCalculatorClosure(
         std::shared_ptr< ephemerides::RotationalEphemeris > rotationalEphemeris,
         std::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator )
