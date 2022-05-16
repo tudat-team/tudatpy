@@ -662,7 +662,7 @@ BOOST_AUTO_TEST_CASE( test_aerodynamicAccelerationModelSetupWithCoefficientIndep
                     [=]( const double ){ return ( Eigen::Vector3d( ) << angleOfAttack, angleOfSideslip, bankAngle ).finished( ); } );
 
         // Update flight conditions
-        vehicleFlightConditions->resetCurrentTime( TUDAT_NAN );
+        vehicleFlightConditions->resetCurrentTime( );
         vehicleFlightConditions->updateConditions( testTime );
 
         // Calculate Mach number

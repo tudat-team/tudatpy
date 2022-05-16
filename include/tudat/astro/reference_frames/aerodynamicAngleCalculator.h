@@ -293,10 +293,10 @@ public:
         return currentBodyFixedGroundSpeedBasedState_.segment( 3, 3 );
     }
 
-    void resetCurrentTime( const double currentTime = TUDAT_NAN )
+    void resetCurrentTime( )
     {
-        currentTime_ = currentTime;
-        currentBodyAngleTime_ = currentTime;
+        currentTime_ = TUDAT_NAN;
+        currentBodyAngleTime_ = TUDAT_NAN;
         if( bodyFixedAngleInterface_ != nullptr )
         {
             bodyFixedAngleInterface_->resetTime( );

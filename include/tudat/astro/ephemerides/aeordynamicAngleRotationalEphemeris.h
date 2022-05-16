@@ -96,7 +96,7 @@ public:
             {
                 if( currentTime == currentTime )
                 {
-                    aerodynamicAngleCalculator_->resetCurrentTime( TUDAT_NAN );
+                    aerodynamicAngleCalculator_->resetCurrentTime( );
                 }
                 currentTime_ = currentTime;
             }

@@ -517,7 +517,7 @@ void updateFlightConditionsWithPerturbedState(
         const std::shared_ptr< aerodynamics::FlightConditions > flightConditions,
         const double timeToUpdate )
 {
-    flightConditions->resetCurrentTime( TUDAT_NAN );
+    flightConditions->resetCurrentTime( );
     flightConditions->updateConditions( timeToUpdate );
 }
 
