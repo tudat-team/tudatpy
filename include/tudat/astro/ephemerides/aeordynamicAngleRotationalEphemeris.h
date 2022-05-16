@@ -45,7 +45,7 @@ public:
     virtual Eigen::Quaterniond getRotationToBaseFrame(
             const double currentTime )
     {
-        resetCurrentTime( currentTime );
+        update( currentTime );
         return Eigen::Quaterniond( aerodynamicAngleCalculator_->getRotationMatrixBetweenFrames(
                                        reference_frames::body_frame, reference_frames::inertial_frame ) );
     }
@@ -81,7 +81,7 @@ public:
         }
     }
 
-    virtual void resetCurrentTime( const double currentTime = TUDAT_NAN )
+    virtual void update( const double currentTime )
     {
         if( !( currentTime == currentTime_ ) )
         {
@@ -104,9 +104,14 @@ public:
         }
     }
 
+    virtual void resetCurrentTime(  )
+    {
+        update( TUDAT_NAN );
+    }
+
     Eigen::Vector3d getBodyAngles( const double currentTime )
     {
-        resetCurrentTime( currentTime );
+        update( currentTime );
         return currentBodyAngles_;
     }
 
@@ -205,13 +210,13 @@ public:
     Eigen::Vector3d getAngles( const double time,
                                const Eigen::Matrix3d& trajectoryToInertialFrame )
     {
-        ephemeris_->resetCurrentTime( time );
+        ephemeris_->update( time );
         return ephemeris_->getBodyAngles( time );
     }
 
     void resetTime( )
     {
-        ephemeris_->resetCurrentTime( TUDAT_NAN );
+        ephemeris_->resetCurrentTime( );
     }
 
 private:

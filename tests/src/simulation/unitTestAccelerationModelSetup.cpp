@@ -657,7 +657,7 @@ BOOST_AUTO_TEST_CASE( test_aerodynamicAccelerationModelSetupWithCoefficientIndep
             angleOfSideslip += 0.00123;
         }
 
-        vehicleRotationModel->resetCurrentTime( TUDAT_NAN );
+        vehicleRotationModel->resetCurrentTime( );
         vehicleRotationModel->setAerodynamicAngleFunction(
                     [=]( const double ){ return ( Eigen::Vector3d( ) << angleOfAttack, angleOfSideslip, bankAngle ).finished( ); } );
 
