@@ -71,12 +71,9 @@ public:
 
     void updateBodyAngles( );
 
-    virtual void update( const double currentTime );
+    void update( const double currentTime );
 
-    virtual void resetCurrentTime(  )
-    {
-        update( TUDAT_NAN );
-    }
+    void resetCurrentTime(  );
 
     Eigen::Vector3d getBodyAngles( const double currentTime )
     {
@@ -177,16 +174,9 @@ public:
     virtual ~FromAeroEphemerisAerodynamicAngleInterface( ){ }
 
     Eigen::Vector3d getAngles( const double time,
-                               const Eigen::Matrix3d& trajectoryToInertialFrame )
-    {
-        ephemeris_->update( time );
-        return ephemeris_->getBodyAngles( time );
-    }
+                               const Eigen::Matrix3d& trajectoryToInertialFrame );
 
-    void resetTime( )
-    {
-        ephemeris_->resetCurrentTime( );
-    }
+    void resetTime( );
 
 private:
 
