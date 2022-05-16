@@ -99,11 +99,11 @@ public:
      * Function to reset the current time of the acceleration model.
      * \param currentTime Current time (default NaN).
      */
-    virtual void resetTime( const double currentTime = TUDAT_NAN )
+    virtual void resetTime( )
     {
-        currentTime_ = currentTime;
-        thrustMagnitudeWrapper_->update( currentTime );
-        thrustDirectionWrapper_->resetCurrentTime( currentTime );
+        currentTime_ = TUDAT_NAN;
+        thrustMagnitudeWrapper_->update( TUDAT_NAN );
+        thrustDirectionWrapper_->resetCurrentTime( TUDAT_NAN );
 //        if( !( timeResetFunction_ == nullptr ) )
 //        {
 //            timeResetFunction_( currentTime_ );
