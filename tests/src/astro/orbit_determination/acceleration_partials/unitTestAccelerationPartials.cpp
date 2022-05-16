@@ -963,7 +963,7 @@ BOOST_AUTO_TEST_CASE( testEmpiricalAccelerationPartial )
     for( unsigned int i = 0; i < evaluationTimes.size( ); i++ )
     {
         // Update models to current time
-        accelerationModel->resetTime( TUDAT_NAN );
+        accelerationModel->resetTime( );
         accelerationModel->updateMembers( evaluationTimes.at( i ) );
         accelerationPartial->update( evaluationTimes.at( i ) );
 
