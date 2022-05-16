@@ -70,29 +70,9 @@ public:
         return Eigen::Matrix3d::Constant( TUDAT_NAN );
     }
 
-    virtual void update( const double currentTime )
-    {
-        if( !( currentTime == currentTime_ ) )
-        {
-            currentTime_ = currentTime;
-            if( currentTime_ == currentTime_ )
-            {
-                currentInertialDirection_ = inertialBodyAxisDirectionFunction_( currentTime_ ).normalized( );
-//                calculateEulerAngles( );
-            }
-            else
-            {
-                currentInertialDirection_.setConstant( TUDAT_NAN );
-                eulerAngles_.setConstant( TUDAT_NAN );
-            }
-        }
-    }
+    virtual void update( const double currentTime );
 
-
-    virtual void resetCurrentTime(  )
-    {
-        update( TUDAT_NAN );
-    }
+    virtual void resetCurrentTime( );
 
     Eigen::Vector3d getAssociatedBodyFixedDirection( )
     {

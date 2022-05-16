@@ -28,6 +28,7 @@ set(ephemerides_SOURCES
         "fullPlanetaryRotationModel.cpp"
         "tleEphemeris.cpp"
         "aeordynamicAngleRotationalEphemeris.cpp"
+        "directionBasedRotationalEphemeris.cpp"
         )
 
 # Set the header files.

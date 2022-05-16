@@ -69,40 +69,9 @@ public:
         return Eigen::Matrix3d::Constant( TUDAT_NAN );
     }
 
-    void updateBodyAngles( const double currentTime )
-    {
-        if( aerodynamicAngleFunction_ != nullptr )
-        {
-            currentBodyAngles_ = aerodynamicAngleFunction_( currentTime_ );
-        }
-        else
-        {
-            currentBodyAngles_.setZero( );
-        }
-    }
+    void updateBodyAngles( );
 
-    virtual void update( const double currentTime )
-    {
-        if( !( currentTime == currentTime_ ) )
-        {
-            if( currentTime == currentTime )
-            {
-                currentTime_ = currentTime;
-                aerodynamicAngleCalculator_->update( currentTime, false );
-                updateBodyAngles( currentTime );
-                aerodynamicAngleCalculator_->update( currentTime, true );
-            }
-            else
-            {
-                if( currentTime == currentTime )
-                {
-                    aerodynamicAngleCalculator_->resetCurrentTime( );
-                }
-                currentTime_ = currentTime;
-            }
-
-        }
-    }
+    virtual void update( const double currentTime );
 
     virtual void resetCurrentTime(  )
     {
