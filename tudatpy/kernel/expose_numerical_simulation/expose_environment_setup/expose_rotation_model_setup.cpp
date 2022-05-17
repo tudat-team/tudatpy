@@ -132,6 +132,46 @@ namespace rotation_model {
               get_docstring("gcrs_to_itrs").c_str()
         );
 
+        m.def("aerodynamic_angle_based",
+              &tss::aerodynamicAngleRotationSettings,
+              py::arg("central_body"),
+              py::arg("base_frame"),
+              py::arg("target_frame"),
+              py::arg("angle_funcion"),
+              get_docstring("aerodynamic_angle_based").c_str()
+        );
+
+
+        m.def("pitch_trim_based ",
+              &tss::pitchTrimRotationSettings,
+              py::arg("central_body"),
+              py::arg("base_frame"),
+              py::arg("target_frame"),
+              py::arg("angle_funcion"),
+              get_docstring("pitch_trim_based").c_str()
+        );
+
+        m.def("body_fixed_direction_based ",
+              &tss::bodyFixedDirectionBasedRotationSettings,
+              py::arg("inertial_body_axis_direction"),
+              py::arg("base_frame"),
+              py::arg("target_frame"),
+              py::arg("free_rotation_angle_function"),
+              get_docstring("body_fixed_direction_based").c_str()
+        );
+
+        m.def("orbital_state_based ",
+              &tss::orbitalStateBasedRotationSettings,
+              py::arg("central_body"),
+              py::arg("is_colinear_with_velocity"),
+              py::arg("direction_is_opposite_to_vector"),
+              py::arg("base_frame"),
+              py::arg("target_frame"),
+              py::arg("free_rotation_angle_function"),
+              get_docstring("orbital_state_based").c_str()
+              );
+
+
         m.def("constant",
               py::overload_cast<const std::string &, const std::string &, const Eigen::Matrix3d &>(
                       &tss::constantRotationModelSettings),
