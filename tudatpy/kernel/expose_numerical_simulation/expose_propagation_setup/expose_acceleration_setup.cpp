@@ -159,8 +159,8 @@ void expose_acceleration_setup(py::module &m) {
 //                 py::arg("constant_specific_impulse"),
 //                 py::arg("thrust_frame"),
 //                 py::arg("central_body") = "")
-            .def_readwrite("direction_settings", &tss::ThrustAccelerationSettings::thrustMagnitudeSettings_ )
-            .def_readwrite("magnitude_settings", &tss::ThrustAccelerationSettings::thrustDirectionSettings_ );
+//            .def_readwrite("direction_settings", &tss::ThrustAccelerationSettings::thrustMagnitudeSettings_ )
+            .def_readwrite("magnitude_settings", &tss::ThrustAccelerationSettings::thrustMagnitudeSettings_ );
 
 
     // Unified interface functions for acceleration settings
@@ -226,33 +226,31 @@ void expose_acceleration_setup(py::module &m) {
           py::arg("maneuver_rise_time"),
           get_docstring("quasi_impulsive_shots_acceleration").c_str());
 
-    m.def("thrust_from_direction_and_magnitude", py::overload_cast<const std::shared_ptr<tss::ThrustDirectionSettings>,
-                  const std::shared_ptr<tss::ThrustMagnitudeSettings>>(&tss::thrustAcceleration),
-          py::arg("thrust_direction_settings"),
+    m.def("thrust", py::overload_cast< const std::shared_ptr<tss::ThrustMagnitudeSettings>>(&tss::thrustAcceleration),
           py::arg("thrust_magnitude_settings"),
-          get_docstring("thrust_from_direction_and_magnitude").c_str());
+          get_docstring("thrust").c_str());
 
-    m.def("thrust_from_custom_function", py::overload_cast<
-                  const std::function< Eigen::Vector3d( const double ) >,
-                  const std::function<double(const double)>,
-                  const tss::ThrustFrames,
-                  const std::string>(&tss::thrustAcceleration),
-          py::arg("thrust_force_function"),
-          py::arg("specific_impulse_function"),
-          py::arg("thrust_frame") = tss::ThrustFrames::inertial_thrust_frame,
-          py::arg("central_body") = "",
-          get_docstring("thrust_from_custom_function").c_str());
+//    m.def("thrust_from_custom_function", py::overload_cast<
+//                  const std::function< Eigen::Vector3d( const double ) >,
+//                  const std::function<double(const double)>,
+//                  const tss::ThrustFrames,
+//                  const std::string>(&tss::thrustAcceleration),
+//          py::arg("thrust_force_function"),
+//          py::arg("specific_impulse_function"),
+//          py::arg("thrust_frame") = tss::ThrustFrames::inertial_thrust_frame,
+//          py::arg("central_body") = "",
+//          get_docstring("thrust_from_custom_function").c_str());
 
-    m.def("thrust_and_isp_from_custom_function", py::overload_cast<
-                  const std::function< Eigen::Vector3d( const double ) >,
-                  const double,
-                  const tss::ThrustFrames,
-                  const std::string>(&tss::thrustAcceleration),
-          py::arg("thrust_force_function"),
-          py::arg("constant_specific_impulse"),
-          py::arg("thrust_frame") = tss::ThrustFrames::inertial_thrust_frame,
-          py::arg("central_body") = "",
-          get_docstring("thrust_and_isp_from_custom_function").c_str());
+//    m.def("thrust_and_isp_from_custom_function", py::overload_cast<
+//                  const std::function< Eigen::Vector3d( const double ) >,
+//                  const double,
+//                  const tss::ThrustFrames,
+//                  const std::string>(&tss::thrustAcceleration),
+//          py::arg("thrust_force_function"),
+//          py::arg("constant_specific_impulse"),
+//          py::arg("thrust_frame") = tss::ThrustFrames::inertial_thrust_frame,
+//          py::arg("central_body") = "",
+//          get_docstring("thrust_and_isp_from_custom_function").c_str());
 
 
 }
