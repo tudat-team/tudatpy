@@ -1,0 +1,21 @@
+name: Linter 🔎
+
+on: [push, pull_request]
+
+jobs:
+  python-lint:
+    name: pylinter
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: 'true'
+          fetch-depth: 3
+      - uses: marian-code/python-lint-annotate@v3
+        with:
+          python-root-list: "tudatpy/*.py examples/*.py"  # accepts wildcards
+          use-pycodestyle: false
+          use-mypy: true
+          use-vulture: true
+          extra-pylint-options: --output-format=colorized
+          python-version: "3.7"

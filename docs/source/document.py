@@ -2,7 +2,7 @@
 import sys
 import os
 
-sys.path.insert(0, '..')
+# sys.path.insert(0, '..')
 
 import tempfile
 from multidoc.generate import generate_py_sphinx, generate_docstring_header
