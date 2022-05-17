@@ -884,9 +884,9 @@ inline std::shared_ptr< RotationModelSettings > pitchTrimRotationSettings(
         const std::string& centralBody,
         const std::string& baseFrameOrientation,
         const std::string& targetFrameOrientation,
-        const std::function< Eigen::Vector3d( const double ) > aerodynamicAngleFunction = nullptr )
+        const std::function< Eigen::Vector2d( const double ) > aerodynamicAngleFunction = nullptr )
 {
-    return std::make_shared< AerodynamicAngleRotationSettings >(
+    return std::make_shared< PitchTrimRotationSettings >(
                 centralBody, baseFrameOrientation, targetFrameOrientation, aerodynamicAngleFunction );
 }
 
