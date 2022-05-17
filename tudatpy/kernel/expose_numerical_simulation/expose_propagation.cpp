@@ -33,28 +33,28 @@ namespace tba = tudat::basic_astrodynamics;
 namespace tss = tudat::simulation_setup;
 namespace tni = tudat::numerical_integrators;
 
-namespace tudat
-{
+//namespace tudat
+//{
 
-namespace aerodynamics
-{
+//namespace aerodynamics
+//{
 
-class PyAerodynamicGuidance : public ta::AerodynamicGuidance {
-public:
-    /* Inherit the constructors */
-    using AerodynamicGuidance::AerodynamicGuidance;
+//class PyAerodynamicGuidance : public ta::AerodynamicGuidance {
+//public:
+//    /* Inherit the constructors */
+//    using AerodynamicGuidance::AerodynamicGuidance;
 
-    using AerodynamicGuidance::currentAngleOfAttack_;
-    using AerodynamicGuidance::currentAngleOfSideslip_;
-    using AerodynamicGuidance::currentBankAngle_;
+//    using AerodynamicGuidance::currentAngleOfAttack_;
+//    using AerodynamicGuidance::currentAngleOfSideslip_;
+//    using AerodynamicGuidance::currentBankAngle_;
 
-    void updateGuidance( const double currentTime ) override {
-        PYBIND11_OVERLOAD_PURE(void, AerodynamicGuidance, updateGuidance, currentTime ); }
-};
+//    void updateGuidance( const double currentTime ) override {
+//        PYBIND11_OVERLOAD_PURE(void, AerodynamicGuidance, updateGuidance, currentTime ); }
+//};
 
-}
+//}
 
-}
+//}
 
 
 namespace tudatpy {
@@ -66,13 +66,13 @@ void expose_propagation(py::module &m) {
 
 
 
-    py::class_<ta::AerodynamicGuidance, ta::PyAerodynamicGuidance,
-            std::shared_ptr< ta::AerodynamicGuidance > >(m, "AerodynamicGuidance")
-            .def(py::init<>())
-            .def("updateGuidance", &ta::AerodynamicGuidance::updateGuidance, py::arg("current_time") )
-            .def_readwrite("angle_of_attack", &ta::PyAerodynamicGuidance::currentAngleOfAttack_)
-            .def_readwrite("bank_angle", &ta::PyAerodynamicGuidance::currentBankAngle_)
-            .def_readwrite("sideslip_angle", &ta::PyAerodynamicGuidance::currentAngleOfSideslip_);
+//    py::class_<ta::AerodynamicGuidance, ta::PyAerodynamicGuidance,
+//            std::shared_ptr< ta::AerodynamicGuidance > >(m, "AerodynamicGuidance")
+//            .def(py::init<>())
+//            .def("updateGuidance", &ta::AerodynamicGuidance::updateGuidance, py::arg("current_time") )
+//            .def_readwrite("angle_of_attack", &ta::PyAerodynamicGuidance::currentAngleOfAttack_)
+//            .def_readwrite("bank_angle", &ta::PyAerodynamicGuidance::currentBankAngle_)
+//            .def_readwrite("sideslip_angle", &ta::PyAerodynamicGuidance::currentAngleOfSideslip_);
 
 
 
