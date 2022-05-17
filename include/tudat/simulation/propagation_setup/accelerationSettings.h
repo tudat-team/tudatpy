@@ -371,7 +371,7 @@ public:
         rotationFunction_ = rotationFunction;
     }
 
-    void resetTime( const double currentTime = TUDAT_NAN )
+    void resetCurrentTime( const double currentTime = TUDAT_NAN )
     {
         currentTime_ = currentTime;
     }
@@ -471,7 +471,7 @@ public:
 //                    std::bind( &FullThrustInterpolationInterface::getThrustMagnitude, interpolatorInterface_, std::placeholders::_1 ),
 //                    specificImpulseFunction, [ ]( const double ){ return true; },
 //        [ ]( ){ return  Eigen::Vector3d::UnitX( ); },
-//        std::bind( &FullThrustInterpolationInterface::resetTime, interpolatorInterface_, std::placeholders::_1 ) );
+//        std::bind( &FullThrustInterpolationInterface::resetCurrentTime, interpolatorInterface_, std::placeholders::_1 ) );
 //    }
 
 //    // Constructor used for defining total thrust vector (in local or inertial frame) from interpolator using constant
@@ -539,13 +539,12 @@ inline Eigen::Vector3d applyAccelerationScalingFunction(
     return accelerationFunction( time ) * scalingFunction( time );
 }
 
-////! @get_docstring(thrustAcceleration, 1)
-//inline std::shared_ptr< AccelerationSettings > thrustAcceleration( const std::shared_ptr< ThrustDirectionSettings >
-//        thrustDirectionGuidanceSettings,
-//		const std::shared_ptr< ThrustMagnitudeSettings > thrustMagnitudeSettings )
-//{
-//	return std::make_shared< ThrustAccelerationSettings >( thrustDirectionGuidanceSettings, thrustMagnitudeSettings );
-//}
+//! @get_docstring(thrustAcceleration, 1)
+inline std::shared_ptr< AccelerationSettings > thrustAcceleration(
+        const std::shared_ptr< ThrustMagnitudeSettings > thrustMagnitudeSettings )
+{
+    return std::make_shared< ThrustAccelerationSettings >( thrustMagnitudeSettings );
+}
 
 ////! @get_docstring(thrustAcceleration, 2)
 //inline std::shared_ptr< AccelerationSettings > thrustAcceleration(

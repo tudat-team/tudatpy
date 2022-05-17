@@ -173,14 +173,14 @@ public:
     {
         for( unsigned int i = 0; i < accelerationModelList_.size( ); i++ )
         {
-            accelerationModelList_.at( i )->resetTime( );
+            accelerationModelList_.at( i )->resetCurrentTime( );
         }        
 
         for( unsigned int i = 0; i < updateRemovedAccelerations_.size( ); i++ )
         {
             if( removedCentralAccelerations_.count( updateRemovedAccelerations_.at( i  ) ) > 0 )
             {
-                removedCentralAccelerations_[ updateRemovedAccelerations_.at( i ) ]->resetTime( );
+                removedCentralAccelerations_[ updateRemovedAccelerations_.at( i ) ]->resetCurrentTime( );
             }
         }
     }

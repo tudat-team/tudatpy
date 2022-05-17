@@ -75,7 +75,7 @@ public:
      * Function to reset the current time of the torque model.
      * \param currentTime Current time (default NaN).
      */
-    virtual void resetTime( )
+    virtual void resetCurrentTime( )
     {
         currentTime_ = TUDAT_NAN;
     }

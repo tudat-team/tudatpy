@@ -28,9 +28,9 @@ public:
         : RotationalEphemeris( baseFrameOrientation, targetFrameOrientation ),
           inertialBodyAxisDirectionFunction_( inertialBodyAxisDirectionFunction ),
           associatedBodyFixedDirection_( associatedBodyFixedDirection ),
+          freeRotationAngleFunction_( freeRotationAngleFunction ),
           currentTime_( TUDAT_NAN ),
-          freeRotationAngleFunction_( freeRotationAngleFunction )
-
+          currentEulerAnglesTime_( TUDAT_NAN )
     {
         if( associatedBodyFixedDirection != Eigen::Vector3d::UnitX( ) )
         {
@@ -47,8 +47,11 @@ public:
     virtual Eigen::Quaterniond getRotationToBaseFrame(
             const double currentTime )
     {
-        update( currentTime );
-        return Eigen::Quaterniond( );
+        Eigen::Vector3d eulerAngles = getEulerAngles( currentTime );
+        return Eigen::Quaterniond(
+                      Eigen::AngleAxisd( eulerAngles( 0 ), Eigen::Vector3d::UnitZ( ) )  *
+                      Eigen::AngleAxisd( eulerAngles( 1 ), Eigen::Vector3d::UnitY( ) )  *
+                      Eigen::AngleAxisd( eulerAngles( 2 ), Eigen::Vector3d::UnitX( ) ) );
     }
 
     virtual Eigen::Quaterniond getRotationToTargetFrame(
@@ -91,11 +94,25 @@ public:
 
 protected:
 
+    Eigen::Vector3d getEulerAngles( const double currentTime )
+    {
+        if( currentTime_ != currentTime )
+        {
+            update( currentTime );
+            calculateEulerAngles( );
+        }
+        else if( currentEulerAnglesTime_ != currentTime )
+        {
+            calculateEulerAngles( );
+        }
+        return eulerAngles_;
+    }
+
     void calculateEulerAngles( )
     {
         eulerAngles_( 0 ) = std::atan2( currentInertialDirection_.y( ), currentInertialDirection_.x( ) );
         eulerAngles_( 1 ) = std::atan2( currentInertialDirection_.z( ), currentInertialDirection_.segment( 0, 2 ).norm( ) );
-        if( freeRotationAngleFunction_ != nullptr )
+        if( freeRotationAngleFunction_ == nullptr )
         {
             eulerAngles_( 2 ) = 0.0;
         }
@@ -103,6 +120,7 @@ protected:
         {
             eulerAngles_( 2 ) = freeRotationAngleFunction_( currentTime_ );
         }
+        currentEulerAnglesTime_ = currentTime_;
     }
 
     std::function< Eigen::Vector3d( const double ) > inertialBodyAxisDirectionFunction_;
@@ -111,9 +129,11 @@ protected:
 
     Eigen::Vector3d currentInertialDirection_;
 
+    std::function< double( const double ) > freeRotationAngleFunction_;
+
     double currentTime_;
 
-    std::function< double( const double ) > freeRotationAngleFunction_;
+    double currentEulerAnglesTime_;
 
     Eigen::Vector3d eulerAngles_;
 

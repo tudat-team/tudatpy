@@ -154,7 +154,7 @@ public:
         {
             for( unsigned int i = 0; i < massRateModelIterator_->second.size( ); i++ )
             {
-                massRateModelIterator_->second.at ( i )->resetTime( );
+                massRateModelIterator_->second.at ( i )->resetCurrentTime( );
             }
         }
     }

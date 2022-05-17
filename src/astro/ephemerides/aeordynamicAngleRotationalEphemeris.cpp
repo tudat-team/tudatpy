@@ -39,7 +39,7 @@ Eigen::Vector3d FromGenericEphemerisAerodynamicAngleInterface::getAngles( const 
                 ephemeris_->getRotationMatrixToTargetFrame( time ), trajectoryToInertialFrame );
 }
 
-void FromGenericEphemerisAerodynamicAngleInterface::resetTime( )
+void FromGenericEphemerisAerodynamicAngleInterface::resetCurrentTime( )
 {
     ephemeris_->resetCurrentTime( );
 }
@@ -53,7 +53,7 @@ Eigen::Vector3d FromAeroEphemerisAerodynamicAngleInterface::getAngles( const dou
     return ephemeris_->getBodyAngles( time );
 }
 
-void FromAeroEphemerisAerodynamicAngleInterface::resetTime( )
+void FromAeroEphemerisAerodynamicAngleInterface::resetCurrentTime( )
 {
     ephemeris_->resetCurrentTime( );
 }

@@ -108,7 +108,8 @@ std::shared_ptr< aerodynamics::TrimOrientationCalculator > createTrimCalculator(
 void linkTrimmedConditions(
         const std::shared_ptr< aerodynamics::TrimOrientationCalculator > trimCalculator,
         const std::shared_ptr< aerodynamics::AtmosphericFlightConditions > flightConditions,
-        const std::shared_ptr< ephemerides::AerodynamicAngleRotationalEphemeris > rotationModel )
+        const std::shared_ptr< ephemerides::AerodynamicAngleRotationalEphemeris > rotationModel,
+        const std::function< Eigen::Vector2d( const double ) > sideslipAndBankAngleFunction = nullptr )
 {
 
 
@@ -122,6 +123,10 @@ void linkTrimmedConditions(
 
     std::function< Eigen::Vector3d( const double ) > aerodynamicAngleFunction = [=]( const double )
     {
+        if( sideslipAndBankAngleFunction != nullptr )
+        {
+            throw std::runtime_error( "Error, linking bank angle and sideslip angle to pitch trim model not yet finished" );
+        }
         double angleOfAttack = trimCalculator->findTrimAngleOfAttackFromFunction(
                     untrimmedIndependentVariablesFunction, untrimmedControlSurfaceIndependentVariableFunction );
         return ( Eigen::Vector3d( ) << angleOfAttack, 0.0, 0.0 ).finished( );
@@ -176,7 +181,8 @@ std::shared_ptr< ephemerides::DirectionBasedRotationalEphemeris > createStateDir
         const std::string& originalFrame,
         const std::string& targetFrame,
         const bool isColinearWithVelocity,
-        const bool directionIsOppositeToVector )
+        const bool directionIsOppositeToVector,
+        const std::function< double( const double ) > freeRotationAngleFunction )
 {
     // Retrieve state function of body for which thrust is to be computed.
     std::function< Eigen::Vector6d( ) > bodyStateFunction =
@@ -219,7 +225,7 @@ std::shared_ptr< ephemerides::DirectionBasedRotationalEphemeris > createStateDir
     }
 
     return std::make_shared< ephemerides::DirectionBasedRotationalEphemeris >(
-                thrustDirectionFunction, associatedBodyFixedDirection, originalFrame, targetFrame );
+                thrustDirectionFunction, associatedBodyFixedDirection, originalFrame, targetFrame, freeRotationAngleFunction );
 
 
 }
@@ -229,7 +235,8 @@ std::shared_ptr< ephemerides::RotationalEphemeris > createTrimmedAerodynamicAngl
         const std::string& centralBody,
         const SystemOfBodies& bodies ,
         const std::string& originalFrame,
-        const std::string& targetFrame )
+        const std::string& targetFrame,
+        const std::function< Eigen::Vector2d( const double ) > sideslipAndBankAngleFunction  )
 {
     std::shared_ptr< ephemerides::AerodynamicAngleRotationalEphemeris > rotationModel =
             createAerodynamicAngleBasedRotationModel(
@@ -256,7 +263,7 @@ std::shared_ptr< ephemerides::RotationalEphemeris > createTrimmedAerodynamicAngl
         throw std::runtime_error( "Error, body does not have FlightConditions when setting trim conditions." );
     }
 
-    linkTrimmedConditions( trimCalculator, flightConditions, rotationModel );
+    linkTrimmedConditions( trimCalculator, flightConditions, rotationModel, sideslipAndBankAngleFunction );
 
     return rotationModel;
 }
@@ -496,6 +503,108 @@ std::shared_ptr< ephemerides::RotationalEphemeris > createRotationModel(
         }
         break;
     }
+    case aerodynamic_angle_based_rotation_model:
+    {
+        // Check whether settings for simple rotation model are consistent with its type.
+        std::shared_ptr< AerodynamicAngleRotationSettings > aerodynamicAngleRotationSettings =
+                std::dynamic_pointer_cast< AerodynamicAngleRotationSettings >( rotationModelSettings );
+        if( aerodynamicAngleRotationSettings == nullptr )
+        {
+            throw std::runtime_error(
+                        "Error, expected aerdynamic angle based rotation model settings for " + body );
+        }
+        else
+        {
+            // Create and initialize simple rotation model.
+            std::shared_ptr< AerodynamicAngleRotationalEphemeris > angleBasedRotationalEphemeris =
+                    createAerodynamicAngleBasedRotationModel(
+                        body, aerodynamicAngleRotationSettings->centralBody_,
+                        bodies,
+                        aerodynamicAngleRotationSettings->getOriginalFrame( ),
+                        aerodynamicAngleRotationSettings->getTargetFrame( ) );
+
+            if( aerodynamicAngleRotationSettings->aerodynamicAngleFunction_ != nullptr )
+            {
+                angleBasedRotationalEphemeris->setAerodynamicAngleFunction(
+                            aerodynamicAngleRotationSettings->aerodynamicAngleFunction_ );
+            }
+            rotationalEphemeris = angleBasedRotationalEphemeris;
+        }
+        break;
+    }
+    case pitch_trim_rotation_model:
+    {
+        // Check whether settings for simple rotation model are consistent with its type.
+        std::shared_ptr< PitchTrimRotationSettings > trimRotationSettings =
+                std::dynamic_pointer_cast< PitchTrimRotationSettings >( rotationModelSettings );
+        if( trimRotationSettings == nullptr )
+        {
+            throw std::runtime_error(
+                        "Error, expected pitch trim rotation model settings for " + body );
+        }
+        else
+        {
+            // Create and initialize simple rotation model.
+            rotationalEphemeris = createTrimmedAerodynamicAngleBasedRotationModel(
+                        body, trimRotationSettings->centralBody_,
+                        bodies,
+                        trimRotationSettings->getOriginalFrame( ),
+                        trimRotationSettings->getTargetFrame( ),
+                        trimRotationSettings->sideslipAndBankAngleFunction_ );
+        }
+        break;
+    }
+    case body_fixed_direction_based_rotation_model:
+    {
+        // Check whether settings for simple rotation model are consistent with its type.
+        std::shared_ptr< BodyFixedDirectionBasedRotationSettings > bodyFixedDirectionBasedRotationSettings =
+                std::dynamic_pointer_cast< BodyFixedDirectionBasedRotationSettings >( rotationModelSettings );
+        if( bodyFixedDirectionBasedRotationSettings == nullptr )
+        {
+            throw std::runtime_error(
+                        "Error, expected pitch trim rotation model settings for " + body );
+        }
+        else
+        {
+            // Create and initialize simple rotation model.
+            rotationalEphemeris =
+                    std::make_shared< DirectionBasedRotationalEphemeris >(
+                        bodyFixedDirectionBasedRotationSettings->inertialBodyAxisDirectionFunction_, Eigen::Vector3d::UnitX( ),
+                        bodyFixedDirectionBasedRotationSettings->getOriginalFrame( ),
+                        bodyFixedDirectionBasedRotationSettings->getTargetFrame( ),
+                        bodyFixedDirectionBasedRotationSettings->freeRotationAngleFunction_ );
+
+        }
+        break;
+    }
+    case orbital_state_based_rotation_model:
+    {
+        // Check whether settings for simple rotation model are consistent with its type.
+        std::shared_ptr< OrbitalStateBasedRotationSettings > orbitalStateBasedRotationSettings =
+                std::dynamic_pointer_cast< OrbitalStateBasedRotationSettings >( rotationModelSettings );
+        if( orbitalStateBasedRotationSettings == nullptr )
+        {
+            throw std::runtime_error(
+                        "Error, orbital state based rotation model settings for " + body );
+        }
+        else
+        {
+            // Create and initialize simple rotation model.
+            rotationalEphemeris =
+                    createStateDirectionBasedRotationModel(
+                        body, orbitalStateBasedRotationSettings->centralBody_,
+                        bodies, Eigen::Vector3d::UnitX( ),
+                        orbitalStateBasedRotationSettings->getOriginalFrame( ),
+                        orbitalStateBasedRotationSettings->getTargetFrame( ),
+                        orbitalStateBasedRotationSettings->isColinearWithVelocity_,
+                        orbitalStateBasedRotationSettings->directionIsOppositeToVector_,
+                        orbitalStateBasedRotationSettings->freeRotationAngleFunction_ );
+
+
+        }
+        break;
+    }
+
     default:
         throw std::runtime_error(
                     "Error, did not recognize rotation model settings type " +

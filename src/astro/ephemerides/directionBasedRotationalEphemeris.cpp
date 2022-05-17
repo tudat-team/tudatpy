@@ -26,7 +26,6 @@ void DirectionBasedRotationalEphemeris::update( const double currentTime )
         {
             currentTime_ = currentTime;
             currentInertialDirection_ = inertialBodyAxisDirectionFunction_( currentTime_ ).normalized( );
-//                calculateEulerAngles( );
         }
         else
         {
@@ -40,6 +39,8 @@ void DirectionBasedRotationalEphemeris::resetCurrentTime(  )
 {
     currentTime_ = TUDAT_NAN;
     currentInertialDirection_.setConstant( TUDAT_NAN );
+
+    currentEulerAnglesTime_ = TUDAT_NAN;
     eulerAngles_.setConstant( TUDAT_NAN );
 }
 

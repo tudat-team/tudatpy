@@ -91,6 +91,26 @@ public:
         aerodynamicAngleFunction_ = aerodynamicAngleFunction;
     }
 
+    void addSideslipBankAngleFunctions( std::function< Eigen::Vector2d( const double ) > sideslipAndBankAngleFunction )
+    {
+        if( aerodynamicAngleFunction_ == nullptr )
+        {
+            aerodynamicAngleFunction_ = [=](const double time)
+            {
+                return ( Eigen::Vector3d( ) <<0.0, sideslipAndBankAngleFunction( time ) ).finished( );
+            };
+        }
+        else
+        {
+            std::function< Eigen::Vector3d( const double ) > oldAerodynamicAngleFunction_ = aerodynamicAngleFunction_;
+
+            aerodynamicAngleFunction_ = [=](const double time)
+            {
+                return ( Eigen::Vector3d( ) <<oldAerodynamicAngleFunction_( time )( 0 ), sideslipAndBankAngleFunction( time ) ).finished( );
+            };
+        }
+    }
+
 
 protected:
 
@@ -156,7 +176,7 @@ public:
     Eigen::Vector3d getAngles( const double time,
                                const Eigen::Matrix3d& trajectoryToInertialFrame );
 
-    void resetTime( );
+    void resetCurrentTime( );
 private:
 
     std::shared_ptr< ephemerides::RotationalEphemeris > ephemeris_;
@@ -176,7 +196,7 @@ public:
     Eigen::Vector3d getAngles( const double time,
                                const Eigen::Matrix3d& trajectoryToInertialFrame );
 
-    void resetTime( );
+    void resetCurrentTime( );
 
 private:
 
