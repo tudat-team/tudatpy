@@ -29,23 +29,14 @@ if bool(os.getenv("READTHEDOCS")) is True:
     from document import *
 
     multidoc_git_url = 'https://github.com/tudat-team/tudat-multidoc.git'
-    multidoc_git_rev = 'a3b7d316751cf7233f58eb0e427fd5865d0f8e56' 
+    multidoc_git_rev = None # If left at None, latest version is used
+    # multidoc_git_rev = '96d2748ea2a203c797552f56155f1703524f53f6'
 
     # clone repository
     docstring_path = get_docstrings(multidoc_git_url, multidoc_git_rev)
 
     # parse api declaration
     api_declaration = parse_api_declaration(docstring_path, py=True)
-
-    # generate docstring header
-    generate_docstring_header(api_declaration, "../../include/tudatpy/docstrings.h")
-
-    # build repository
-    rc = subprocess.call(['chmod +x ../build.sh'], shell=True)
-    assert rc == 0  # returning non-zero means failure.
-
-    rc = subprocess.call(['../build.sh'], shell=True)
-    assert rc == 0  # returning non-zero means failure.
 
     sys.path.insert(0, os.path.abspath('../../build'))
 
