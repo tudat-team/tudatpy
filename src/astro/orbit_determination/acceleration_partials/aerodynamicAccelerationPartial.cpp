@@ -32,7 +32,7 @@ void AerodynamicAccelerationPartial::update( const double currentTime )
 
         // Update environment/acceleration to perturbed state.
         flightConditions_->resetCurrentTime( );
-        aerodynamicAcceleration_->resetTime( );
+        aerodynamicAcceleration_->resetCurrentTime( );
         vehicleStateSetFunction_( perturbedState );
         flightConditions_->updateConditions( currentTime );
         aerodynamicAcceleration_->updateMembers( currentTime );
@@ -46,7 +46,7 @@ void AerodynamicAccelerationPartial::update( const double currentTime )
 
         // Update environment/acceleration to perturbed state.
         flightConditions_->resetCurrentTime( );
-        aerodynamicAcceleration_->resetTime( );
+        aerodynamicAcceleration_->resetCurrentTime( );
         vehicleStateSetFunction_( perturbedState );
         flightConditions_->updateConditions( currentTime );
         aerodynamicAcceleration_->updateMembers( currentTime );
@@ -61,7 +61,7 @@ void AerodynamicAccelerationPartial::update( const double currentTime )
 
     // Reset environment/acceleration mode to nominal conditions
     flightConditions_->resetCurrentTime( );
-    aerodynamicAcceleration_->resetTime( );
+    aerodynamicAcceleration_->resetCurrentTime( );
 
     vehicleStateSetFunction_( nominalState );
     flightConditions_->updateConditions( currentTime );

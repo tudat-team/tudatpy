@@ -44,7 +44,11 @@ enum RotationModelType
     gcrs_to_itrs_rotation_model,
     synchronous_rotation_model,
     planetary_rotation_model,
-    tabulated_rotation_model
+    tabulated_rotation_model,
+    aerodynamic_angle_based_rotation_model,
+    pitch_trim_rotation_model,
+    body_fixed_direction_based_rotation_model,
+    orbital_state_based_rotation_model
 };
 
 //Class for providing settings for rotation model.
@@ -413,6 +417,85 @@ private:
     const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings_;
 };
 
+
+class AerodynamicAngleRotationSettings: public RotationModelSettings
+{
+public:
+
+    AerodynamicAngleRotationSettings(
+            const std::string& centralBody,
+            const std::string& baseFrameOrientation,
+            const std::string& targetFrameOrientation,
+            const std::function< Eigen::Vector3d( const double ) > aerodynamicAngleFunction = nullptr  ):
+        RotationModelSettings( aerodynamic_angle_based_rotation_model, baseFrameOrientation, targetFrameOrientation ),
+        centralBody_( centralBody ), aerodynamicAngleFunction_( aerodynamicAngleFunction ){ }
+
+    std::string centralBody_;
+
+    std::function< Eigen::Vector3d( const double ) > aerodynamicAngleFunction_;
+};
+
+class PitchTrimRotationSettings: public RotationModelSettings
+{
+public:
+
+    PitchTrimRotationSettings(
+            const std::string& centralBody,
+            const std::string& baseFrameOrientation,
+            const std::string& targetFrameOrientation,
+            const std::function< Eigen::Vector2d( const double ) > sideslipAndBankAngleFunction = nullptr  ):
+        RotationModelSettings( pitch_trim_rotation_model, baseFrameOrientation, targetFrameOrientation ),
+        centralBody_( centralBody ), sideslipAndBankAngleFunction_( sideslipAndBankAngleFunction ){ }
+
+    std::string centralBody_;
+
+    std::function< Eigen::Vector2d( const double ) > sideslipAndBankAngleFunction_;
+};
+
+class BodyFixedDirectionBasedRotationSettings: public RotationModelSettings
+{
+public:
+
+    BodyFixedDirectionBasedRotationSettings(
+            const std::function< Eigen::Vector3d( const double ) > inertialBodyAxisDirectionFunction,
+            const std::string& baseFrameOrientation,
+            const std::string& targetFrameOrientation,
+            const std::function< double( const double ) > freeRotationAngleFunction = nullptr  ):
+        RotationModelSettings( body_fixed_direction_based_rotation_model, baseFrameOrientation, targetFrameOrientation ),
+        inertialBodyAxisDirectionFunction_( inertialBodyAxisDirectionFunction ),
+        freeRotationAngleFunction_( freeRotationAngleFunction ){ }
+
+    std::function< Eigen::Vector3d( const double ) > inertialBodyAxisDirectionFunction_;
+
+    std::function< double( const double ) > freeRotationAngleFunction_;
+};
+
+class OrbitalStateBasedRotationSettings: public RotationModelSettings
+{
+public:
+
+    OrbitalStateBasedRotationSettings(
+            const std::string& centralBody,
+            const bool isColinearWithVelocity,
+            const bool directionIsOppositeToVector,
+            const std::string& baseFrameOrientation,
+            const std::string& targetFrameOrientation,
+            const std::function< double( const double ) > freeRotationAngleFunction = nullptr ):
+        RotationModelSettings( orbital_state_based_rotation_model, baseFrameOrientation, targetFrameOrientation ),
+        centralBody_( centralBody ),
+        isColinearWithVelocity_( isColinearWithVelocity ),
+        directionIsOppositeToVector_( directionIsOppositeToVector ),
+        freeRotationAngleFunction_( freeRotationAngleFunction ){ }
+
+    std::string centralBody_;
+
+    bool isColinearWithVelocity_;
+
+    bool directionIsOppositeToVector_;
+
+    std::function< double( const double ) > freeRotationAngleFunction_;
+};
+
 //Function to retrieve a state from one of two functions
 /*
  *  Function to retrieve a state from one of two functions, typically from an Ephemeris or a Body object.
@@ -665,7 +748,8 @@ std::shared_ptr< ephemerides::DirectionBasedRotationalEphemeris > createStateDir
         const std::string& originalFrame,
         const std::string& targetFrame,
         const bool isColinearWithVelocity,
-        const bool directionIsOppositeToVector );
+        const bool directionIsOppositeToVector,
+        const std::function< double( const double ) > freeRotationAngleFunction = nullptr );
 
 std::shared_ptr< ephemerides::AerodynamicAngleRotationalEphemeris > createAerodynamicAngleBasedRotationModel(
         const std::string& body,
@@ -679,7 +763,8 @@ std::shared_ptr< ephemerides::RotationalEphemeris > createTrimmedAerodynamicAngl
         const std::string& centralBody,
         const SystemOfBodies& bodies ,
         const std::string& originalFrame,
-        const std::string& targetFrame );
+        const std::string& targetFrame,
+        const std::function< Eigen::Vector2d( const double ) > sideslipAndBankAngleFunction = nullptr );
 
 std::shared_ptr< ephemerides::RotationalEphemeris > createRotationModel(
         const std::shared_ptr< RotationModelSettings > rotationModelSettings,
@@ -688,14 +773,14 @@ std::shared_ptr< ephemerides::RotationalEphemeris > createRotationModel(
 
 //! @get_docstring(simpleRotationModelSettings)
 inline std::shared_ptr< RotationModelSettings > simpleRotationModelSettings(
-		const std::string& originalFrame,
-		const std::string& targetFrame,
-		const Eigen::Quaterniond& initialOrientation,
-		const double initialTime,
+        const std::string& originalFrame,
+        const std::string& targetFrame,
+        const Eigen::Quaterniond& initialOrientation,
+        const double initialTime,
         const double rotationRate )
 {
-	return std::make_shared< SimpleRotationModelSettings >(
-            originalFrame, targetFrame, initialOrientation, initialTime, rotationRate );
+    return std::make_shared< SimpleRotationModelSettings >(
+                originalFrame, targetFrame, initialOrientation, initialTime, rotationRate );
 }
 
 //! @get_docstring(simpleRotationModelSettings, 1)
@@ -707,7 +792,7 @@ inline std::shared_ptr< RotationModelSettings > simpleRotationModelSettings(
         const double rotationRate )
 {
     return std::make_shared< SimpleRotationModelSettings >(
-            originalFrame, targetFrame, Eigen::Quaterniond( initialOrientation ), initialTime, rotationRate );
+                originalFrame, targetFrame, Eigen::Quaterniond( initialOrientation ), initialTime, rotationRate );
 }
 
 //! @get_docstring(simpleRotationModelFromSpiceSettings)
@@ -718,7 +803,7 @@ inline std::shared_ptr< RotationModelSettings > simpleRotationModelFromSpiceSett
         const double initialTime )
 {
     return std::make_shared< SimpleRotationModelSettings >(
-            originalFrame, targetFrame, spice_interface::computeRotationQuaternionBetweenFrames(
+                originalFrame, targetFrame, spice_interface::computeRotationQuaternionBetweenFrames(
                     originalFrame, targetFrameSpice, initialTime ), initialTime,
                 spice_interface::getAngularVelocityVectorOfFrameInOriginalFrame(
                     originalFrame, targetFrameSpice, initialTime ).norm( ) );
@@ -726,12 +811,12 @@ inline std::shared_ptr< RotationModelSettings > simpleRotationModelFromSpiceSett
 
 //! @get_docstring(constantRotationModelSettings)
 inline std::shared_ptr< RotationModelSettings > constantRotationModelSettings(
-		const std::string& originalFrame,
-		const std::string& targetFrame,
+        const std::string& originalFrame,
+        const std::string& targetFrame,
         const Eigen::Quaterniond& initialOrientation )
 {
-	return std::make_shared< SimpleRotationModelSettings >( originalFrame, targetFrame, initialOrientation,
-                                                         0.0, 0.0 );
+    return std::make_shared< SimpleRotationModelSettings >( originalFrame, targetFrame, initialOrientation,
+                                                            0.0, 0.0 );
 }
 
 //! @get_docstring(constantRotationModelSettings, 1)
@@ -746,22 +831,22 @@ inline std::shared_ptr< RotationModelSettings > constantRotationModelSettings(
 
 //! @get_docstring(spiceRotationModelSettings)
 inline std::shared_ptr< RotationModelSettings > spiceRotationModelSettings(
-		const std::string& originalFrame,
-		const std::string& targetFrame
-		)
+        const std::string& originalFrame,
+        const std::string& targetFrame
+        )
 {
-	return std::make_shared< RotationModelSettings >(
-			spice_rotation_model, originalFrame, targetFrame );
+    return std::make_shared< RotationModelSettings >(
+                spice_rotation_model, originalFrame, targetFrame );
 }
 
 //! @get_docstring(gcrsToItrsRotationModelSettings)
 inline std::shared_ptr< RotationModelSettings > gcrsToItrsRotationModelSettings(
-		const basic_astrodynamics::IAUConventions nutationTheory = basic_astrodynamics::iau_2006,
-		const std::string baseFrameName = "GCRS" )
+        const basic_astrodynamics::IAUConventions nutationTheory = basic_astrodynamics::iau_2006,
+        const std::string baseFrameName = "GCRS" )
 {
-	return std::make_shared< GcrsToItrsRotationModelSettings >(
-			nutationTheory, baseFrameName
-	);
+    return std::make_shared< GcrsToItrsRotationModelSettings >(
+                nutationTheory, baseFrameName
+                );
 }
 
 //! @get_docstring(synchronousRotationModelSettings)
@@ -771,7 +856,7 @@ inline std::shared_ptr< RotationModelSettings > synchronousRotationModelSettings
         const std::string& targetFrameOrientation )
 {
     return std::make_shared< SynchronousRotationModelSettings >(
-            centralBodyName, baseFrameOrientation, targetFrameOrientation );
+                centralBodyName, baseFrameOrientation, targetFrameOrientation );
 }
 
 inline std::shared_ptr< RotationModelSettings > tabulatedRotationSettings(
@@ -782,8 +867,52 @@ inline std::shared_ptr< RotationModelSettings > tabulatedRotationSettings(
         std::make_shared< interpolators::LagrangeInterpolatorSettings >( 8 ) )
 {
     return std::make_shared< TabulatedRotationSettings >(
-            rotationalStateHistory, baseFrameOrientation, targetFrameOrientation, interpolatorSettings );
+                rotationalStateHistory, baseFrameOrientation, targetFrameOrientation, interpolatorSettings );
 }
+
+inline std::shared_ptr< RotationModelSettings > aerodynamicAngleRotationSettings(
+        const std::string& centralBody,
+        const std::string& baseFrameOrientation,
+        const std::string& targetFrameOrientation,
+        const std::function< Eigen::Vector3d( const double ) > aerodynamicAngleFunction = nullptr )
+{
+    return std::make_shared< AerodynamicAngleRotationSettings >(
+                centralBody, baseFrameOrientation, targetFrameOrientation, aerodynamicAngleFunction );
+}
+
+inline std::shared_ptr< RotationModelSettings > pitchTrimRotationSettings(
+        const std::string& centralBody,
+        const std::string& baseFrameOrientation,
+        const std::string& targetFrameOrientation,
+        const std::function< Eigen::Vector3d( const double ) > aerodynamicAngleFunction = nullptr )
+{
+    return std::make_shared< AerodynamicAngleRotationSettings >(
+                centralBody, baseFrameOrientation, targetFrameOrientation, aerodynamicAngleFunction );
+}
+
+
+inline std::shared_ptr< RotationModelSettings > bodyFixedDirectionBasedRotationSettings(
+        const std::function< Eigen::Vector3d( const double ) > inertialBodyAxisDirectionFunction,
+        const std::string& baseFrameOrientation,
+        const std::string& targetFrameOrientation,
+        const std::function< double( const double ) > freeRotationAngleFunction = nullptr )
+{
+    return std::make_shared< BodyFixedDirectionBasedRotationSettings >(
+                inertialBodyAxisDirectionFunction, baseFrameOrientation, targetFrameOrientation, freeRotationAngleFunction );
+}
+
+inline std::shared_ptr< RotationModelSettings > orbitalStateBasedRotationSettings(
+        const std::string& centralBody,
+        const bool isColinearWithVelocity,
+        const bool directionIsOppositeToVector,
+        const std::string& baseFrameOrientation,
+        const std::string& targetFrameOrientation,
+        const std::function< double( const double ) > freeRotationAngleFunction = nullptr )
+{
+    return std::make_shared< OrbitalStateBasedRotationSettings >(
+                centralBody, isColinearWithVelocity, directionIsOppositeToVector, baseFrameOrientation, targetFrameOrientation, freeRotationAngleFunction );
+}
+
 
 } // namespace simulation_setup
 

@@ -206,7 +206,7 @@ public:
      *  is required
      *  \param currentTime Current time to which interface is to be set.
      */
-    void resetTime( )
+    void resetCurrentTime( )
     {
         currentDoubleParameterPartials_.clear( );
         currentVectorParameterPartials_.clear( );

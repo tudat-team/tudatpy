@@ -72,7 +72,7 @@ public:
     virtual Eigen::Vector3d getAngles( const double time,
                                        const Eigen::Matrix3d& trajectoryToInertialFrame ) = 0;
 
-    virtual void resetTime( ){ }
+    virtual void resetCurrentTime( ){ }
 
     BodyFixedAngleSource getAngleSource( )
     {
@@ -299,7 +299,7 @@ public:
         currentBodyAngleTime_ = TUDAT_NAN;
         if( bodyFixedAngleInterface_ != nullptr )
         {
-            bodyFixedAngleInterface_->resetTime( );
+            bodyFixedAngleInterface_->resetCurrentTime( );
         }
     }
 

@@ -124,10 +124,10 @@ public:
      * Function to reset the current time of the acceleration model.
      * \param currentTime Current time (default NaN).
      */
-    void resetTime( )
+    void resetCurrentTime( )
     {
-        accelerationModelForBodyUndergoingAcceleration_->resetTime( );
-        accelerationModelForCentralBody_->resetTime( );
+        accelerationModelForBodyUndergoingAcceleration_->resetCurrentTime( );
+        accelerationModelForCentralBody_->resetCurrentTime( );
     }
 
     //! Function to return the direct acceleration model on body undergoing acceleration.

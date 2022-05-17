@@ -101,7 +101,7 @@ public:
      * Function to reset the current time of the acceleration model.
      * \param currentTime Current time (default NaN).
      */
-    virtual void resetTime( )
+    virtual void resetCurrentTime( )
     {
         currentTime_ = TUDAT_NAN;
     }
