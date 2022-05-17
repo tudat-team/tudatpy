@@ -110,15 +110,16 @@ else ()
 endif ()
 
 # nrlmsise-00 dependency.
-if (${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
-    find_package(NRLMSISE00 0.1 REQUIRED)
-else ()
-    set(NRLMSISE00_INCLUDE_DIRS ${NRLMSISE00_BUILD_INCLUDE_DIRS})
-endif ()
+#if (${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
+find_package(NRLMSISE00 0.1 REQUIRED)
+#else ()
+#    set(NRLMSISE00_INCLUDE_DIRS ${NRLMSISE00_BUILD_INCLUDE_DIRS})
+#endif ()
 
 # Sofa dependency if in build settings.
 if (${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
-    find_package(Tudat 2.9 REQUIRED)
+    find_package(Tudat REQUIRED)
+    # TODO: Fi   gure out when and how to increment minimum Tudat version
     add_definitions(${Tudat_DEFINITIONS})
 else ()
     set(Tudat_INCLUDE_DIRS ${Tudat_BUILD_INCLUDE_DIRS})

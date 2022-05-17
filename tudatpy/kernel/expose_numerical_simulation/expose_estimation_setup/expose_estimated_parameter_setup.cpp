@@ -25,7 +25,7 @@ namespace parameter {
 void expose_estimated_parameter_setup(py::module &m) {
 
 
-    py::enum_<tep::EstimatebleParametersEnum >(m, "EstimatebleParameterTypes", get_docstring("EstimatebleParameterTypes").c_str() )
+    py::enum_<tep::EstimatebleParametersEnum >(m, "EstimatableParameterTypes", get_docstring("EstimatableParameterTypes").c_str() )
             .value("arc_wise_initial_body_state_type", tep::EstimatebleParametersEnum::arc_wise_initial_body_state)
             .value("initial_body_state_type", tep::EstimatebleParametersEnum::initial_body_state)
             .value("initial_rotational_body_state_type", tep::EstimatebleParametersEnum::initial_rotational_body_state)
@@ -112,6 +112,32 @@ void expose_estimated_parameter_setup(py::module &m) {
           py::arg("centralBody"),
           get_docstring("constant_empirical_acceleration_terms").c_str() );
 
+    m.def("empirical_accelerations",
+          &tep::empiricalAccelerationMagnitudes,
+          py::arg("body"),
+          py::arg("centralBody"),
+          py::arg("acceleration_components"),
+          get_docstring("empirical_accelerations").c_str() );
+
+    m.def("arcwise_empirical_accelerations",
+          &tep::arcWiseEmpiricalAccelerationMagnitudes,
+          py::arg("body"),
+          py::arg("centralBody"),
+          py::arg("acceleration_components"),
+          py::arg("arc_start_times"),
+          get_docstring("arcwise_empirical_accelerations").c_str() );
+
+    m.def("arcwise_constant_empirical_acceleration_terms",
+          &tep::constantArcWiseEmpiricalAccelerationMagnitudes,
+          py::arg("body"),
+          py::arg("centralBody"),
+          py::arg("arc_start_times"),
+          get_docstring("arcwise_constant_empirical_acceleration_terms").c_str() );
+
+    m.def("quasi_impulsive_shots",
+          &tep::quasiImpulsiveShots,
+          py::arg("body"),
+          get_docstring("quasi_impulsive_shots").c_str() );
 
 
     // ###############    Gravity Model Parameters  ################################
@@ -132,14 +158,14 @@ void expose_estimated_parameter_setup(py::module &m) {
           py::arg("minimum_order"),
           py::arg("maximum_degree"),
           py::arg("maximum_order"),
-          get_docstring("spherical_harmonics_c_coefficients", 0).c_str() );
+          get_docstring("spherical_harmonics_c_coefficients").c_str() );
 
-    m.def("spherical_harmonics_c_coefficients",
+    m.def("spherical_harmonics_c_coefficients_block",
           py::overload_cast< const std::string,
           std::vector< std::pair< int, int > > >( &tep::sphericalHarmonicsCosineBlock),
           py::arg("body"),
           py::arg("block_indices"),
-          get_docstring("spherical_harmonics_c_coefficients", 1).c_str() );
+          get_docstring("spherical_harmonics_c_coefficients_block" ).c_str() );
 
     m.def("spherical_harmonics_s_coefficients",
           py::overload_cast< const std::string,
@@ -152,14 +178,14 @@ void expose_estimated_parameter_setup(py::module &m) {
           py::arg("minimum_order"),
           py::arg("maximum_degree"),
           py::arg("maximum_order"),
-          get_docstring("spherical_harmonics_s_coefficients", 0).c_str() );
+          get_docstring("spherical_harmonics_s_coefficients" ).c_str() );
 
-    m.def("spherical_harmonics_s_coefficients",
+    m.def("spherical_harmonics_s_coefficients_block",
           py::overload_cast< const std::string,
           std::vector< std::pair< int, int > > >( &tep::sphericalHarmonicsSineBlock),
           py::arg("body"),
           py::arg("block_indices"),
-          get_docstring("spherical_harmonics_s_coefficients", 1).c_str() );
+          get_docstring("spherical_harmonics_s_coefficients_block" ).c_str() );
 
 
 

@@ -182,7 +182,9 @@ void expose_environment(py::module &m) {
                  py::arg("reference_length"),
                  py::arg("moment_reference_point"),
                  py::arg("save_pressure_coefficients") = false,
-                 get_docstring("HypersonicLocalInclinationAnalysis.ctor").c_str());
+                 get_docstring("HypersonicLocalInclinationAnalysis.ctor").c_str())
+            .def("clear_data",
+                 &ta::HypersonicLocalInclinationAnalysis::clearData );
 
 
     m.def("save_vehicle_mesh_to_file", &ta::saveVehicleMeshToFile,
@@ -328,10 +330,22 @@ void expose_environment(py::module &m) {
             .def("update_constant_state", &te::ConstantEphemeris::updateConstantState,
                  py::arg("new_state"));
 
+
     py::class_<te::KeplerEphemeris,
             std::shared_ptr<te::KeplerEphemeris>,
             te::Ephemeris>(
                 m, "KeplerEphemeris");
+
+
+    py::class_<te::MultiArcEphemeris, std::shared_ptr<te::MultiArcEphemeris>, te::Ephemeris>(m, "MultiArcEphemeris")
+            .def(py::init<
+                         const std::map<double, std::shared_ptr<te::Ephemeris> > &,
+                         const std::string &,
+                         const std::string &>(),
+                 py::arg("single_arc_ephemerides"),
+                 py::arg("reference_frame_origin") = "SSB",
+                 py::arg("reference_frame_orientation") = "ECLIPJ2000");
+
 
     py::class_<te::TabulatedCartesianEphemeris< double, double >,
             std::shared_ptr<te::TabulatedCartesianEphemeris< double, double > >,
@@ -462,9 +476,25 @@ void expose_environment(py::module &m) {
      **************   GROUND STATION FUNCTIONALITY  ******************
      */
 
+
+    py::class_<tgs::GroundStationState,
+            std::shared_ptr<tgs::GroundStationState>>(m, "GroundStationState")
+            .def("get_cartesian_state", &tgs::GroundStationState::getCartesianStateInTime,
+                 py::arg( "seconds_since_epoch" ),
+                 py::arg( "reference_epoch") = tba::JULIAN_DAY_ON_J2000 )
+            .def("get_cartesian_position", &tgs::GroundStationState::getCartesianPositionInTime,
+                 py::arg( "seconds_since_epoch" ),
+                 py::arg( "reference_epoch") = tba::JULIAN_DAY_ON_J2000 )
+            .def_property_readonly("cartesian_positon_at_reference_epoch", &tgs::GroundStationState::getNominalCartesianPosition )
+            .def_property_readonly("spherical_positon_at_reference_epoch", &tgs::GroundStationState::getNominalSphericalPosition )
+            .def_property_readonly("geodetic_positon_at_reference_epoch", &tgs::GroundStationState::getNominalGeodeticPosition )
+            .def_property_readonly("rotation_matrix_body_fixed_to_topocentric", &tgs::GroundStationState::getRotationMatrixFromBodyFixedToTopocentricFrame );
+
     py::class_<tgs::GroundStation,
             std::shared_ptr<tgs::GroundStation>>(m, "GroundStation")
-            .def_property_readonly("pointing_angles_calculator", &tgs::GroundStation::getPointingAnglesCalculator );
+            .def_property_readonly("pointing_angles_calculator", &tgs::GroundStation::getPointingAnglesCalculator )
+            .def_property_readonly("station_state", &tgs::GroundStation::getNominalStationState );
+
 
     py::class_<tgs::PointingAnglesCalculator,
             std::shared_ptr<tgs::PointingAnglesCalculator>>(m, "PointingAnglesCalculator")
