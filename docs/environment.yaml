@@ -2,10 +2,12 @@ name: tudatpy-docs
 channels:
   - conda-forge
   - tudat-team
+  - ggarrett13
 dependencies:
   # All standard tudat-bundle deps are needed for sphinx-documentation for tudatpy.
   - python=3.8
   - numpy
+  - pandas # for tudat.io
   - pytest
   - matplotlib # for tudat.plotting
   - basemap # for tudat.plotting
@@ -13,6 +15,7 @@ dependencies:
   # Other doc related
   - jinja2
   - yaml
+  - multidoc
   - cmake
   - pydantic
   - numpydoc

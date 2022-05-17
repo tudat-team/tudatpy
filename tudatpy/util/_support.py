@@ -1,5 +1,7 @@
 import numpy as np
 from ..kernel.math import interpolators
+from ..kernel import numerical_simulation
+from ..kernel.numerical_simulation import propagation_setup
 import os
 from typing import List, Dict, Union
 
@@ -236,3 +238,79 @@ def pareto_optimums(points: list, operator:Union[None,List[Union[min,max]]]=None
         if pareto_optimal[i]:
             pareto_optimal[pareto_optimal] = np.any(points[pareto_optimal]<=c, axis=1)
     return pareto_optimal
+
+def split_history(state_history: Dict[float, np.array], propagator_settings: propagation_setup.propagator.PropagatorSettings):
+    """Split the state history into a distinct state histories for each body.
+
+    Creates a dictionnary of state histories based on the unified `state_history`
+    from the propagation of multiple bodies. Each dictionnary key contains the name of a propagated body,
+    and the value is the state history for the given propagated body.
+
+    Parameters
+    -----------
+    state_history : Dict[float, numpy.ndarray]
+        Dictionary mapping the simulation time steps to the propagated
+        state time series.
+
+    propagator_settings : tudatpy.kernel.numerical_simulation.propagation_setup.propagator.PropagatorSettings
+        Settings used for the propagation.
+
+    Returns
+    -----------
+    state_history_book : Dict[str,[Dict[float, numpy.ndarray]]]
+        Dictionnary containing the name of the propagated body as key, and the state history as value.
+    """    
+    # Get the propagated state types and names of the propagated bodies from the integrator settings.
+    integrated_type_and_body_list = numerical_simulation.get_integrated_type_and_body_list(propagator_settings)
+
+    # Extract the states and epochs from the state history.
+    states_list = np.asarray(list(state_history.values()))
+    epochs = list(state_history.keys())
+    
+    # Loop trough the state types and bodies name to save them beforehand.
+    n_bodies, body_names = None, None
+    propagated_states_sizes = []
+    for state_type, body_list in integrated_type_and_body_list.items():
+        if n_bodies is None:
+            n_bodies = len(body_list)
+            body_names = [body_list[i][0] for i in range(n_bodies)]
+        # Get the state size for the current state type.
+        state_size = numerical_simulation.get_single_integration_size(state_type)
+        propagated_states_sizes.append(state_size)
+
+    # Create the empty state history book.
+    state_history_book = {body_name: {epoch: [] for epoch in epochs} for body_name in body_names}
+
+    # Loop through the epochs and states to fill the state history book.
+    for epoch, state in zip(epochs, states_list):
+        state_idx = 0
+        # Loop trough the state types by their propagated vector size.
+        for propagated_state_size in propagated_states_sizes:
+            # Loop trough the propagated bodies names.
+            for body_name in body_names:
+                # Add the section of the state related to the current state type and body to the state history book.
+                state_history_book[body_name][epoch].extend(state[state_idx:state_idx+propagated_state_size])
+                # Update the state index cursor.
+                state_idx += propagated_state_size
+
+    # Return the state history book.
+    return state_history_book
+
+def vector2matrix(flat_matrix: np.ndarray) :
+    """Convert a flattened matrix into a matrix.
+
+    Following Tudat standards, a rotation matrix is returned as a nine-entry vector in the dependent variable output,
+    where entry (i,j) of the matrix is stored in entry (3i+j) of the vector with i,j = 0,1,2.
+    This is detailled in the :func:`~tudatpy.numerical_simulation.propagation_setup.dependent_variable.inertial_to_body_fixed_rotation_frame` docs.
+
+    Parameters
+    -----------
+    flat_matrix : numpy.ndarray
+        Vector containing a flattened rotation matrix.
+
+    Returns
+    -----------
+    rotation_matrix: numpy.ndarray
+        Rotation matrix (3x3 orthogonal matrix).
+    """
+    return flat_matrix.reshape(3,3)

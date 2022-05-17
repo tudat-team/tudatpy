@@ -118,7 +118,8 @@ namespace environment_setup {
 
 
         m.def("create_simplified_system_of_bodies", &tss::createSimplifiedSystemOfBodies,
-              py::arg("initial_time") = 0);
+              py::arg("initial_time") = 0,
+              get_docstring("create_simplified_system_of_bodies").c_str());
 
         m.def("create_system_of_bodies", &tss::createSystemOfBodies,
               py::arg("body_settings"),
@@ -159,6 +160,11 @@ namespace environment_setup {
               &tss::addRadiationPressureInterface,
               py::arg("bodies"), py::arg("body_name"), py::arg("radiation_pressure_settings"),
               get_docstring("add_radiation_pressure_interface").c_str());
+
+        m.def("add_flight_conditions",
+              &tss::addFlightConditions,
+              py::arg("bodies"), py::arg("body_name"), py::arg("central_body_name"),
+              get_docstring("add_flight_conditions").c_str());
 
         m.def("add_ground_station",
               py::overload_cast<
