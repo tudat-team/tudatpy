@@ -1,0 +1,31 @@
+name: Inform .github repository ℹ️
+
+on:
+  push:
+    branches:
+      - 'main'
+      - 'master'
+      - 'develop'
+      - 'feature/**'
+
+jobs:
+  dispacher:
+    runs-on: ubuntu-latest
+    name: webservices
+    steps:
+      - name: repository-dispatch
+        uses: peter-evans/repository-dispatch@v1
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+          repository: tudat-team/.github
+          event-type: push to ${{ github.repository }}
+          client-payload: >-
+            {
+            "event": "${{ github.event_name }}",
+            "actor": "${{ github.actor }}",
+            "repository": "${{ github.repository }}",
+            "ref": "${{ github.ref }}",
+            "ref_name": "${{ github.ref_name }}",
+            "ref_type": "${{ github.ref_type }}",
+            "sha": "${{ github.sha }}"
+            }
