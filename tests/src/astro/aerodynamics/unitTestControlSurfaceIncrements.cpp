@@ -265,12 +265,12 @@ BOOST_AUTO_TEST_CASE( testControlSurfaceIncrementInterfaceInPropagation )
                            std::placeholders::_1, std::placeholders::_2 ) );
 
 
-    std::shared_ptr< ephemerides::AerodynamicAngleRotationalEphemeris > vehicleRotationModel =
-            createAerodynamicAngleBasedRotationModel(
-                            "Apollo", "Earth", bodies,
-                            "ECLIPJ2000", "VehicleFixed" );
-    vehicleRotationModel->setAerodynamicAngleFunction(
-                std::bind( &unit_tests::DummyGuidanceSystem::computeAndGetAerodynamicAngles, dummyGuidanceSystem, std::placeholders::_1 ) );
+    std::shared_ptr< ephemerides::RotationalEphemeris > vehicleRotationModel =
+            createRotationModel(
+                std::make_shared< AerodynamicAngleRotationSettings >(
+                    "Earth", "ECLIPJ2000", "VehicleFixed",
+                    std::bind( &unit_tests::DummyGuidanceSystem::computeAndGetAerodynamicAngles, dummyGuidanceSystem, std::placeholders::_1 ) ),
+                "Apollo", bodies );
 
     bodies.at( "Apollo" )->setRotationalEphemeris( vehicleRotationModel );
 

@@ -1066,10 +1066,12 @@ BOOST_AUTO_TEST_CASE( testMassRateVariationalEquations )
     bodies.createEmptyBody( "Asterix" );
     double initialBodyMass = 2000.0;
     bodies.getBody( "Asterix" )->setConstantBodyMass( initialBodyMass );
-    bodies.getBody( "Asterix" )->setRotationalEphemeris( createStateDirectionBasedRotationModel(
-                                                        "Asterix", "Earth", bodies,
-                                                        Eigen::Vector3d::UnitX( ),
-                                                        "J2000", "BodyFixed", true, false ) );
+    bodies.getBody( "Asterix" )->setRotationalEphemeris(
+                createRotationModel(
+                    std::make_shared< OrbitalStateBasedRotationSettings >(
+                        "Earth", true, false, "J2000", "BodyFixed" ),
+                    "Asterix", bodies ) );
+
     Eigen::MatrixXd finalStateTransitionTranslationalOnly;
     Eigen::MatrixXd finalStateTransitionCoupled;
 

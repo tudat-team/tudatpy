@@ -140,9 +140,9 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
                         unit_tests::getApolloCoefficientInterface( ) );
             bodies.at( "Apollo" )->setConstantBodyMass( 5.0E3 );
             bodies.at( "Apollo" )->setRotationalEphemeris(
-                        createTrimmedAerodynamicAngleBasedRotationModel(
-                            "Apollo", "Earth", bodies,
-                            "ECLIPJ2000", "VehicleFixed" ) );
+                        createRotationModel(
+                            std::make_shared< PitchTrimRotationSettings >( "Earth", "ECLIPJ2000", "VehicleFixed" ),
+                            "Apollo", bodies ) );
 
             std::shared_ptr< system_models::VehicleSystems > vehicleSystems =
                     std::make_shared< system_models::VehicleSystems >( );

@@ -130,10 +130,14 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientsFromFile )
                     createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "SpacePlane" ) );
 
         bodies.at( "SpacePlane" )->setConstantBodyMass( 50.0E3 );
-        bodies.at( "SpacePlane" )->setRotationalEphemeris(
-                    createTrimmedAerodynamicAngleBasedRotationModel(
-                        "SpacePlane", "Earth", bodies,
-                        "J2000", "VehicleFixed" ) );
+
+        std::shared_ptr< ephemerides::RotationalEphemeris > vehicleRotationModel =
+                createRotationModel(
+                    std::make_shared< PitchTrimRotationSettings >( "Earth", "J2000", "VehicleFixed" ),
+                    "SpacePlane", bodies );
+
+        bodies.at( "SpacePlane" )->setRotationalEphemeris( vehicleRotationModel  );
+
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ///////////////////////             CREATE ACCELERATIONS            ///////////////////////////////////////////////////
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
