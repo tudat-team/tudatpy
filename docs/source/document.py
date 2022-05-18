@@ -1,8 +1,6 @@
 # insert current directory into path
-import sys
-import os
-
-sys.path.insert(0, '..')
+import sys, os
+sys.path.insert(0, "/".join(os.path.abspath(__file__).split("/")[:-2]))
 
 import tempfile
 from multidoc.generate import generate_py_sphinx, generate_docstring_header
