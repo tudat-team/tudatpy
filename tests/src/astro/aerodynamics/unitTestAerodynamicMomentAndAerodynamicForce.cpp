@@ -343,12 +343,12 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
         }
         else
         {
-            std::shared_ptr< ephemerides::AerodynamicAngleRotationalEphemeris > vehicleRotationModel =
-                    createAerodynamicAngleBasedRotationModel(
-                                    "Vehicle", "Earth", bodies,
-                                    "ECLIPJ2000", "VehicleFixed" );
-            vehicleRotationModel->setAerodynamicAngleFunction(
-                        std::bind( &DummyAngleCalculator::getAerodynamicAngles, testAngles, std::placeholders::_1 ) );
+            std::shared_ptr< ephemerides::RotationalEphemeris > vehicleRotationModel =
+                    createRotationModel(
+                        std::make_shared< AerodynamicAngleRotationSettings >(
+                            "Earth", "ECLIPJ2000", "VehicleFixed",
+                            std::bind( &DummyAngleCalculator::getAerodynamicAngles, testAngles, std::placeholders::_1 ) ),
+                        "Vehicle", bodies );
 
             bodies.at( "Vehicle" )->setRotationalEphemeris( vehicleRotationModel );
         }

@@ -71,8 +71,10 @@ BOOST_AUTO_TEST_CASE( testConstantThrustAcceleration )
     std::function< Eigen::Vector3d( const double ) > thrustDirectionFunction =
             [=](const double){ return thrustDirection; };
     bodies.at( "Vehicle" )->setRotationalEphemeris(
-                std::make_shared< DirectionBasedRotationalEphemeris >(
-                    thrustDirectionFunction, Eigen::Vector3d::UnitX( ), "ECLIPJ2000", "Vehicle_fixed" ) );
+                createRotationModel(
+                    std::make_shared< BodyFixedDirectionBasedRotationSettings >(
+                        thrustDirectionFunction, "ECLIPJ2000", "VehicleFixed" ),
+                    "Vehicle", bodies ) );
 
     // Define propagator settings variables.
     SelectedAccelerationMap accelerationMap;
@@ -437,10 +439,12 @@ BOOST_AUTO_TEST_CASE( testRadialAndVelocityThrustAcceleration )
         {
             isThurstInVelocityDirection = 1;
         }
-        bodies.at( "Vehicle" )->setRotationalEphemeris( createStateDirectionBasedRotationModel(
-                                                            "Vehicle", "Earth", bodies,
-                                                            Eigen::Vector3d::UnitX( ),
-                                                            "BodyFixed", "ECLIPJ2000", isThurstInVelocityDirection, true ) );
+
+        bodies.at( "Vehicle" )->setRotationalEphemeris(
+                    createRotationModel(
+                        std::make_shared< OrbitalStateBasedRotationSettings >(
+                            "Earth", isThurstInVelocityDirection, true, "ECLIPJ2000", "BodyFixed" ),
+                        "Vehicle", bodies ) );
 
         // Define acceleration model settings.
         std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
@@ -750,14 +754,11 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAcceleration )
         // Create vehicle aerodynamic coefficients
         bodies.at( "Apollo" )->setAerodynamicCoefficientInterface(
                     unit_tests::getApolloCoefficientInterface( ) );
-//        bodies.at( "Apollo" )->setRotationalEphemeris(
-//                    createAerodynamicAngleBasedRotationModel(
-//                        "Apollo", "Earth", bodies,
-//                        "ECLIPJ2000", "VehicleFixed" ) );
         bodies.at( "Apollo" )->setRotationalEphemeris(
-                    createTrimmedAerodynamicAngleBasedRotationModel(
-                        "Apollo", "Earth", bodies,
-                        "ECLIPJ2000", "VehicleFixed" ) );
+                    createRotationModel(
+                        std::make_shared< PitchTrimRotationSettings >( "Earth", "ECLIPJ2000", "VehicleFixed" ),
+                        "Apollo", bodies ) );
+
 
 
         // Define propagator settings variables.
@@ -1289,14 +1290,10 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
 
     // Create vehicle aerodynamic coefficients
     bodies.at( "Apollo" )->setAerodynamicCoefficientInterface( unit_tests::getApolloCoefficientInterface( ) );
-//    bodies.at( "Apollo" )->setRotationalEphemeris(
-//                createAerodynamicAngleBasedRotationModel(
-//                    "Apollo", "Earth", bodies,
-//                    "ECLIPJ2000", "VehicleFixed" ) );
     bodies.at( "Apollo" )->setRotationalEphemeris(
-                createTrimmedAerodynamicAngleBasedRotationModel(
-                    "Apollo", "Earth", bodies,
-                    "ECLIPJ2000", "VehicleFixed" ) );
+                createRotationModel(
+                    std::make_shared< PitchTrimRotationSettings >( "Earth", "ECLIPJ2000", "VehicleFixed" ),
+                    "Apollo", bodies ) );
 
     int numberOfCasesPerSet = 4;
     for( int i = 0; i < numberOfCasesPerSet * 2; i++ )
@@ -1630,9 +1627,9 @@ BOOST_AUTO_TEST_CASE( testAccelerationLimitedGuidedThrust )
     // Create vehicle aerodynamic coefficients
     bodies.at( "Apollo" )->setAerodynamicCoefficientInterface( unit_tests::getApolloCoefficientInterface( ) );
     bodies.at( "Apollo" )->setRotationalEphemeris(
-                createTrimmedAerodynamicAngleBasedRotationModel(
-                    "Apollo", "Earth", bodies,
-                    "ECLIPJ2000", "VehicleFixed" ) );
+                createRotationModel(
+                    std::make_shared< PitchTrimRotationSettings >( "Earth", "ECLIPJ2000", "VehicleFixed" ),
+                    "Apollo", bodies ) );
 
     // Define propagator settings variables.
     SelectedAccelerationMap accelerationMap;
