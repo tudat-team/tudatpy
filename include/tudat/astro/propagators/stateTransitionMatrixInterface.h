@@ -62,7 +62,8 @@ public:
      *  \param evaluationTime Time at which to evaluate matrix interpolators
      *  \return Concatenated state transition and sensitivity matrices.
      */
-    virtual Eigen::MatrixXd getCombinedStateTransitionAndSensitivityMatrix( const double evaluationTime ) = 0;
+    virtual Eigen::MatrixXd getCombinedStateTransitionAndSensitivityMatrix( const double evaluationTime,
+                                                                            const std::vector< std::string >& arcDefiningBodies = std::vector< std::string >( ) ) = 0;
 
     //! Function to get the concatenated state transition and sensitivity matrix at a given time, which includes
     //! zero values for parameters not active in current arc.
@@ -73,7 +74,8 @@ public:
      *  \return Concatenated state transition and sensitivity matrices, including inactive parameters at
      *  evaluationTime.
      */
-    virtual Eigen::MatrixXd getFullCombinedStateTransitionAndSensitivityMatrix( const double evaluationTime ) = 0;
+    virtual Eigen::MatrixXd getFullCombinedStateTransitionAndSensitivityMatrix( const double evaluationTime,
+                                                                                const std::vector< std::string >& arcDefiningBodies = std::vector< std::string >( ) ) = 0;
 
     //! Function to get the size of state transition matrix
     /*!
@@ -190,7 +192,8 @@ public:
      *  \param evaluationTime Time at which to evaluate matrix interpolators
      *  \return Concatenated state transition and sensitivity matrices.
      */
-    Eigen::MatrixXd getCombinedStateTransitionAndSensitivityMatrix( const double evaluationTime );
+    Eigen::MatrixXd getCombinedStateTransitionAndSensitivityMatrix( const double evaluationTime,
+                                                                    const std::vector< std::string >& arcDefiningBodies = std::vector< std::string >( ) );
 
     //! Function to get the concatenated state transition and sensitivity matrix at a given time.
     /*!
@@ -199,9 +202,10 @@ public:
      *  \param evaluationTime Time at which to evaluate matrix interpolators
      *  \return Concatenated state transition and sensitivity matrices.
      */
-    Eigen::MatrixXd getFullCombinedStateTransitionAndSensitivityMatrix( const double evaluationTime )
+    Eigen::MatrixXd getFullCombinedStateTransitionAndSensitivityMatrix( const double evaluationTime,
+                                                                        const std::vector< std::string >& arcDefiningBodies = std::vector< std::string >( ) )
     {
-        return getCombinedStateTransitionAndSensitivityMatrix( evaluationTime );
+        return getCombinedStateTransitionAndSensitivityMatrix( evaluationTime, arcDefiningBodies );
     }
 
     //! Function to get the size of the total parameter vector.
@@ -320,7 +324,8 @@ public:
     }
 
     Eigen::MatrixXd getCombinedStateTransitionAndSensitivityMatrix(
-            const double evaluationTime, const bool addCentralBodySensitivity = true );
+            const double evaluationTime, const std::vector< std::string >& arcDefiningBodies = std::vector< std::string >( ),
+            const bool addCentralBodySensitivity = true );
 
     //! Function to get the concatenated single-arc state transition and sensitivity matrix at a given time.
     /*!
@@ -329,10 +334,12 @@ public:
      *  \param evaluationTime Time at which to evaluate matrix interpolators
      *  \return Concatenated state transition and sensitivity matrices.
      */
-    Eigen::MatrixXd getCombinedStateTransitionAndSensitivityMatrix( const double evaluationTime );
+    Eigen::MatrixXd getCombinedStateTransitionAndSensitivityMatrix(
+            const double evaluationTime, const std::vector< std::string >& arcDefiningBodies = std::vector< std::string >( ) );
 
     Eigen::MatrixXd getFullCombinedStateTransitionAndSensitivityMatrix(
-            const double evaluationTime, const bool addCentralBodySensitivity = true );
+            const double evaluationTime, const std::vector< std::string >& arcDefiningBodies = std::vector< std::string >( ),
+            const bool addCentralBodySensitivity = true );
 
     //! Function to get the concatenated state transition matrices for each arc and sensitivity matrix at a given time.
     /*!
@@ -342,7 +349,8 @@ public:
      *  \param evaluationTime Time at which to evaluate matrix interpolators
      *  \return Concatenated state transition and sensitivity matrices.
      */
-    Eigen::MatrixXd getFullCombinedStateTransitionAndSensitivityMatrix( const double evaluationTime );
+    Eigen::MatrixXd getFullCombinedStateTransitionAndSensitivityMatrix( const double evaluationTime,
+                                                                        const std::vector< std::string >& arcDefiningBodies = std::vector< std::string >( ) );
 
     //! Function to retrieve the current arc for a given time
     /*!
@@ -351,6 +359,15 @@ public:
      * \return Pair with current arc index and associated arc initial time.
      */
     std::pair< int, double >  getCurrentArc( const double evaluationTime );
+
+    //! Function to retrieve the current arc for a given time and a given body
+    /*!
+     * Function to retrieve the current arc for a given time and a given body
+     * \param evaluationTime Time at which current arc is to be determined
+     * \param body Name of the body for which current arc is to be determined
+     * \return Pair with current arc index and associated arc initial time.
+     */
+    std::pair< int, double >  getCurrentArc( const double evaluationTime, const std::string body );
 
     //! Function to retrieve the number of arcs in dynamics
     /*!
@@ -405,6 +422,8 @@ protected:
     void processArcWiseParametersIndices( const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate,
                                           const std::vector< double > arcStartTimes );
 
+    void getArcStartTimesPerBody( );
+
 private:
 
     //! List of interpolators returning the state transition matrix as a function of time.
@@ -437,6 +456,15 @@ private:
 
     //! Map containing, for each arc, a vector with the names of the bodies whose initial states are to be estimated.
     std::map< int, std::vector< std::string > > estimatedBodiesPerArc_;
+
+    //! Vector containing the times at which each arc starts, per body.
+    std::map< std::string, std::pair< std::vector< double >, std::vector< int > > > arcStartTimesPerBody_;
+
+    //! Vector containing the times at which each arc ends, per body.
+    std::map< std::string, std::pair< std::vector< double >, std::vector< int > > > arcEndTimesPerBody_;
+
+    //! Look-up algorithm to determine the arc of a given time, per body
+    std::map< std::string, std::shared_ptr< interpolators::HuntingAlgorithmLookupScheme< double > > > lookUpschemePerBody_;
 
     //! map containing for each arc, the names of the bodies to be propagated/estimated and their arc-wise index for the given body.
     std::map< int, std::map< std::string, int > > arcIndicesPerBody_;
@@ -536,7 +564,8 @@ public:
      *  \param evaluationTime Time at which to evaluate matrix interpolators
      *  \return Concatenated state transition and sensitivity matrices.
      */
-    Eigen::MatrixXd getCombinedStateTransitionAndSensitivityMatrix( const double evaluationTime );
+    Eigen::MatrixXd getCombinedStateTransitionAndSensitivityMatrix( const double evaluationTime,
+                                                                    const std::vector< std::string >& arcDefiningBodies = std::vector< std::string >( ) );
 
     //! Function to get the full concatenated state transition and sensitivity matrix at a given time.
     /*!
@@ -546,7 +575,8 @@ public:
      *  \param evaluationTime Time at which to evaluate matrix interpolators
      *  \return Full concatenated state transition and sensitivity matrices.
      */
-    Eigen::MatrixXd getFullCombinedStateTransitionAndSensitivityMatrix( const double evaluationTime );
+    Eigen::MatrixXd getFullCombinedStateTransitionAndSensitivityMatrix( const double evaluationTime,
+                                                                        const std::vector< std::string >& arcDefiningBodies = std::vector< std::string >( ) );
 
 private:
 

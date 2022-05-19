@@ -835,7 +835,7 @@ BOOST_AUTO_TEST_CASE( testHybridArcMultiBodyStateEstimation )
         lightTimeCorrections.push_back(std::make_shared<FirstOrderRelativisticLightTimeCorrectionSettings>(
                 relativisticPerturbingBodies));
 
-        std::vector<std::shared_ptr<ObservationModelSettings> > observationSettingsList;
+        std::vector< std::shared_ptr<ObservationModelSettings > > observationSettingsList;
         observationSettingsList.push_back(std::make_shared<ObservationModelSettings>(
                 position_observable, linkEndsJuice, std::shared_ptr<LightTimeCorrectionSettings>()/*, biasSettingsPosition*/ ));
         observationSettingsList.push_back(std::make_shared<ObservationModelSettings>(
