@@ -108,9 +108,10 @@ protected:
      *  \param evaluationTime Time at which matrices are to be evaluated
      *  \return Concatenated state transition and sensitivity matrices at given time.
      */
-    Eigen::MatrixXd getCombinedStateTransitionAndSensitivityMatrix( const double evaluationTime )
+    Eigen::MatrixXd getCombinedStateTransitionAndSensitivityMatrix( const double evaluationTime,
+                                                                    const std::vector< std::string >& arcDefiningBodies = std::vector< std::string >( ) )
     {
-        return stateTransitionMatrixInterface_->getFullCombinedStateTransitionAndSensitivityMatrix( evaluationTime );
+        return stateTransitionMatrixInterface_->getFullCombinedStateTransitionAndSensitivityMatrix( evaluationTime, arcDefiningBodies );
     }
 
 
@@ -360,6 +361,17 @@ protected:
 
         currentLinkEndPartials = observationPartials_[ linkEnds ];
 
+        // Get list of bodies involved in linkEnds
+        std::vector< std::string > bodiesInLinkEnds;
+        for ( auto itr : linkEnds )
+        {
+            if ( std::count( bodiesInLinkEnds.begin( ), bodiesInLinkEnds.end( ), itr.second.first  ) == 0 )
+            {
+                std::cout << "BODY INCLUDED IN LINK END: " << itr.second.first << "\n\n";
+                bodiesInLinkEnds.push_back( itr.second.first );
+            }
+        }
+
         // Iterate over all observation partials associated with given link ends.
         for( typename std::map< std::pair< int, int >, std::shared_ptr<
              observation_partials::ObservationPartial< ObservationSize > > >::iterator
@@ -394,7 +406,7 @@ protected:
                     if( combinedStateTransitionMatrices.count( singlePartialSet[ i ].second ) == 0 )
                     {
                         combinedStateTransitionMatrices[ singlePartialSet[ i ].second ] =
-                                this->getCombinedStateTransitionAndSensitivityMatrix( singlePartialSet[ i ].second );
+                                this->getCombinedStateTransitionAndSensitivityMatrix( singlePartialSet[ i ].second, bodiesInLinkEnds );
                     }
 
                     // Add partial of observation h w.r.t. initial state x_{0} (dh/dx_{0}=dh/dx*dx/dx_{0})

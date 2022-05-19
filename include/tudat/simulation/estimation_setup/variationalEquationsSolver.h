@@ -1443,6 +1443,9 @@ public:
                 std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings =
                         singleArcDynamicsSimulators.at( i )->getIntegratorSettings( );
                 integratorSettings->initialTime_ = arcStartTimes_.at( i );
+                std::cout << "arc start times: " << arcStartTimes_.at( i ) << "\n\n";
+                std::cout << "arc end times: " << std::dynamic_pointer_cast< FixedTimePropagationTerminationCondition >(
+                        singleArcDynamicsSimulators.at( i )->getPropagationTerminationCondition( ) )->getStopTime( ) << "\n\n";
 
                 // Set state derivative model to propagate both variational equations and equations of motion
                 singleArcDynamicsSimulators.at( i )->getDynamicsStateDerivative( )->setPropagationSettings(
@@ -1464,16 +1467,20 @@ public:
                                 equationsOfMotionNumericalSolutions.at( i - 1 ), arcStartTimes_.at( i ) );
                     updateInitialStates = true;
                 }
+                std::cout << "currentArcInitialState: " << currentArcInitialState.transpose( ) << "\n\n";
                 arcInitialStates.push_back( currentArcInitialState );
 
                 // Update state derivative model to (possible) update in state.
                 singleArcDynamicsSimulators.at( i )->getDynamicsStateDerivative( )->
                         updateStateDerivativeModelSettings( currentArcInitialState );
 
+                std::cout << "test before create initial conditions" << "\n\n";
+
                 // Create initial state for combined variational equations of motion.
                 MatrixType initialVariationalState = this->createInitialConditions(
                             currentArcInitialState, i );
 
+                std::cout << "test before create variational equations" << "\n\n";
 
                 // Integrate variational and state equations.
                 dynamicsSimulator_->getDynamicsStateDerivative( ).at( i )->resetFunctionEvaluationCounter( );
@@ -1503,6 +1510,8 @@ public:
                             equationsOfMotionNumericalSolutions[ i ], currentEquationsOfMotionNumericalSolutionsRaw,
                             dynamicsStateDerivatives_.at( i ) );
                 arcStartTimes_[ i ] = equationsOfMotionNumericalSolutions[ i ].begin( )->first;
+
+                std::cout << "arc start times: " << arcStartTimes_.at( i ) << "\n\n";
 
                 // Save state transition and sensitivity matrix solutions for current arc.
                 setVariationalEquationsSolution(
