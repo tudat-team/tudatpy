@@ -380,6 +380,7 @@ public:
     virtual ~ThrustMagnitudeSettings( ){ }
 
     virtual bool bodyFixedThrustDirectionIsFixed( ) = 0;
+
     // Type of thrust magnitude guidance that is to be used
     ThrustMagnitudeTypes thrustMagnitudeType_;
 

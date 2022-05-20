@@ -192,6 +192,7 @@ std::shared_ptr< ephemerides::DirectionBasedRotationalEphemeris > createStateDir
     // Retrieve state function of central body (or set to zero if inertial)
     if( centralBody != "SSB" )
     {
+        // FIXME: add update function.
         centralBodyStateFunction = std::bind( &Body::getState, bodies.at( centralBody ) );
 //        magnitudeUpdateSettings[ propagators::body_translational_state_update ].push_back(
 //                    thrustDirectionFromStateGuidanceSettings->relativeBody_ );
