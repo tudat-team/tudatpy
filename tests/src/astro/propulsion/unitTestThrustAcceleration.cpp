@@ -49,7 +49,6 @@ BOOST_AUTO_TEST_SUITE( test_thrust_acceleration )
 
 BOOST_AUTO_TEST_CASE( testConstantThrustAcceleration )
 {
-    std::cout<<"testConstantThrustAcceleration"<<std::endl;
     using namespace tudat;
     using namespace numerical_integrators;
     using namespace simulation_setup;
@@ -174,6 +173,247 @@ BOOST_AUTO_TEST_CASE( testConstantThrustAcceleration )
     }
 }
 
+Eigen::Vector3d getEarthJupiterVector( const double time )
+{
+    return spice_interface::getBodyCartesianPositionAtEpoch(
+                "Jupiter", "Earth", "J2000", "None", time );
+}
+
+Eigen::Vector3d getEarthJupiterVectorFromEnvironment(
+        const double time, const simulation_setup::SystemOfBodies& bodies )
+{
+    return bodies.at( "Jupiter" )->getPosition( ) - bodies.at( "Earth" )->getPosition( );
+}
+
+double getFreeRotationAngle( const double time )
+{
+    return 2.0 * std::sin( 2.0 * mathematical_constants::PI * time / 3600.0 );
+}
+
+
+BOOST_AUTO_TEST_CASE( testDirectionBasedRotationWithThrustAcceleration )
+{
+    using namespace tudat;
+    using namespace numerical_integrators;
+    using namespace simulation_setup;
+    using namespace basic_astrodynamics;
+    using namespace propagators;
+    using namespace basic_mathematics;
+    using namespace ephemerides;
+    using namespace orbital_element_conversions;
+
+    spice_interface::loadStandardSpiceKernels( );
+
+    // Create Earth object
+    simulation_setup::SystemOfBodies bodies;
+
+    // Set simulation time settings.
+    const double simulationEndEpoch = 4.0 * 3600.0;
+
+    double thrustMagnitude = 1.0E3;
+    double bodyMass = 400.0;
+    double specificImpulse = 250.0;
+
+    std::vector< std::map< double, Eigen::Matrix3d > > rotationMatrixHistoriesWithoutFreeRotationAngle;
+    for( int test = 0; test < 8; test++ )
+    {
+        // Define body settings for simulation.
+        std::vector< std::string > bodiesToCreate;
+        bodiesToCreate.push_back( "Sun" );
+        bodiesToCreate.push_back( "Earth" );
+        bodiesToCreate.push_back( "Jupiter" );
+
+        // Create body objects.
+        BodyListSettings bodySettings =
+                getDefaultBodySettings( bodiesToCreate, "Earth", "J2000" );
+        SystemOfBodies bodies;
+
+        std::function< double( const double ) > freeRotationAngleFunction = nullptr;
+        if( test > 3 )
+        {
+            freeRotationAngleFunction = &getFreeRotationAngle;
+        }
+
+        if( ( test % 4 ) == 3 )
+        {
+            bodySettings.addSettings( "Vehicle" );
+            bodySettings.at( "Vehicle" )->rotationModelSettings =
+                    std::make_shared< BodyFixedDirectionBasedRotationSettings >(
+                        nullptr, "J2000", "VehicleFixed" );
+            bodies = createSystemOfBodies( bodySettings );
+            std::dynamic_pointer_cast< tudat::ephemerides::DirectionBasedRotationalEphemeris >(
+                        bodies.at( "Vehicle")->getRotationalEphemeris( ) )->setInertialBodyAxisDirectionFunction(
+                        std::bind( &getEarthJupiterVectorFromEnvironment, std::placeholders::_1, bodies ) );
+            std::dynamic_pointer_cast< tudat::ephemerides::DirectionBasedRotationalEphemeris >(
+                        bodies.at( "Vehicle")->getRotationalEphemeris( ) )->setFreeRotationAngleFunction(
+                        freeRotationAngleFunction );
+        }
+        else if( ( test % 4 ) == 2 )
+        {
+            bodies = createSystemOfBodies( bodySettings );
+
+            // Create spacecraft object.
+            bodies.createEmptyBody( "Vehicle" );
+            bodies.at( "Vehicle" )->setRotationalEphemeris(
+                        createRotationModel(
+                            std::make_shared< BodyFixedDirectionBasedRotationSettings >(
+                                &getEarthJupiterVector, "J2000", "VehicleFixed", freeRotationAngleFunction ),
+                            "Vehicle", bodies ) );
+        }
+        else
+        {
+            bodySettings.addSettings( "Vehicle" );
+            bodySettings.at( "Vehicle" )->rotationModelSettings =
+                    std::make_shared< BodyFixedDirectionBasedRotationSettings >(
+                        &getEarthJupiterVector, "J2000", "VehicleFixed", freeRotationAngleFunction );
+            bodies = createSystemOfBodies( bodySettings );
+
+        }
+        bodies.at( "Vehicle" )->setConstantBodyMass( bodyMass );
+
+
+        // Define propagator settings variables.
+        SelectedAccelerationMap accelerationMap;
+        std::vector< std::string > bodiesToPropagate;
+        std::vector< std::string > centralBodies;
+
+        // Define propagation settings.
+        Eigen::Vector3d bodyFixedThrustDirection;
+        if( ( test % 4 ) == 1 )
+        {
+            bodyFixedThrustDirection = Eigen::Vector3d::UnitY( );
+        }
+        else
+        {
+            bodyFixedThrustDirection = Eigen::Vector3d::UnitX( );
+        }
+        std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
+        accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< AccelerationSettings >(
+                                                         basic_astrodynamics::point_mass_gravity ) );
+        accelerationsOfVehicle[ "Jupiter" ].push_back( std::make_shared< AccelerationSettings >(
+                                                         basic_astrodynamics::point_mass_gravity ) );
+        accelerationsOfVehicle[ "Vehicle" ].push_back( std::make_shared< ThrustAccelerationSettings >(
+                                                           std::make_shared< ConstantThrustMagnitudeSettings >(
+                                                               thrustMagnitude, specificImpulse, bodyFixedThrustDirection ) ) );
+
+        accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
+        bodiesToPropagate.push_back( "Vehicle" );
+        centralBodies.push_back( "Earth" );
+        basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
+                    bodies, accelerationMap, bodiesToPropagate, centralBodies );
+
+
+        // Set Keplerian elements for Vehicle.
+        Eigen::Vector6d vehicleInitialStateInKeplerianElements;
+        vehicleInitialStateInKeplerianElements( semiMajorAxisIndex ) = 8000.0E3;
+        vehicleInitialStateInKeplerianElements( eccentricityIndex ) = 0.1;
+        vehicleInitialStateInKeplerianElements( inclinationIndex ) = unit_conversions::convertDegreesToRadians( 85.3 );
+        vehicleInitialStateInKeplerianElements( argumentOfPeriapsisIndex )
+                = unit_conversions::convertDegreesToRadians( 235.7 );
+        vehicleInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex )
+                = unit_conversions::convertDegreesToRadians( 23.4 );
+        vehicleInitialStateInKeplerianElements( trueAnomalyIndex ) = unit_conversions::convertDegreesToRadians( 139.87 );
+
+        double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
+        const Eigen::Vector6d vehicleInitialState = convertKeplerianToCartesianElements(
+                    vehicleInitialStateInKeplerianElements, earthGravitationalParameter );
+
+
+        std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
+
+        dependentVariables.push_back(
+                    std::make_shared< SingleDependentVariableSaveSettings >(
+                        inertial_to_body_fixed_rotation_matrix_variable, "Vehicle" ) );
+        dependentVariables.push_back(
+                    std::make_shared< SingleAccelerationDependentVariableSaveSettings >(
+                        thrust_acceleration, "Vehicle", "Vehicle", 0 ) );
+//        dependentVariables.push_back(
+//                    std::make_shared< IntermediateAerodynamicRotationVariableSaveSettings >(
+//                        "Vehicle", reference_frames::inertial_frame, reference_frames::body_frame ) );
+
+        // Define propagator settings (Cowell)
+        std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
+                std::make_shared< TranslationalStatePropagatorSettings< double > >
+                ( centralBodies, accelerationModelMap, bodiesToPropagate, vehicleInitialState, simulationEndEpoch,
+                  cowell, std::make_shared< DependentVariableSaveSettings >( dependentVariables ) );
+
+        // Define integrator settings.
+        const double fixedStepSize = 5.0;
+        std::shared_ptr< IntegratorSettings< > > integratorSettings =
+                std::make_shared< IntegratorSettings< > >
+                ( rungeKutta4, 0.0, fixedStepSize );
+
+        // Propagate orbit with Cowell method
+        SingleArcDynamicsSimulator< double > dynamicsSimulator(
+                    bodies, integratorSettings, propagatorSettings );
+
+        std::map< double, Eigen::Matrix3d > currentRotationMatrixHistory;
+        for( auto it : dynamicsSimulator.getDependentVariableHistory( ) )
+        {
+            double currentTime = it.first;
+            Eigen::Matrix3d currentRotationMatrixToBodyFixedFrame =
+                    propagators::getMatrixFromVectorRotationRepresentation( it.second.segment( 0, 9 ) );
+            if( test < 4 )
+            {
+                currentRotationMatrixHistory[ currentTime ] = currentRotationMatrixToBodyFixedFrame;
+            }
+            else
+            {
+                Eigen::Matrix3d remainingRotationMatrix =
+                        rotationMatrixHistoriesWithoutFreeRotationAngle[ test - 4 ][ currentTime ] *
+                        currentRotationMatrixToBodyFixedFrame.inverse( );
+                double freeRotationAngle = getFreeRotationAngle( currentTime );
+                Eigen::Matrix3d testRemainingRotationMatrix = Eigen::AngleAxisd(
+                            freeRotationAngle, Eigen::Vector3d::UnitX( ) ).toRotationMatrix( );
+                for( int i = 0; i < 3; i++ )
+                {
+                    for( int j = 0; j < 3; j++ )
+                    {
+                        BOOST_CHECK_SMALL( std::fabs( remainingRotationMatrix( i, j ) - testRemainingRotationMatrix( i, j ) ),
+                                           8.0 * std::numeric_limits< double >::epsilon( ) );
+                    }
+                }
+//                std::cout<<test<<" "<<freeRotationAngle<<std::endl<<remainingRotationMatrix - testRemainingRotationMatrix<<std::endl<<std::endl;
+//                std::cout<<testRemainingRotationMatrix<<std::endl<<std::endl<<std::endl;
+
+            }
+
+            Eigen::Vector3d inertialThrustVector = it.second.segment( 9, 3 );
+            if( test % 4 != 1 )
+            {
+                Eigen::Vector3d inertialThrustDirection = inertialThrustVector.normalized( );
+                Eigen::Vector3d testInertialThrustDirection = getEarthJupiterVector( currentTime ).normalized( );
+
+                for( int i = 0; i < 3; i++ )
+                {
+                    BOOST_CHECK_SMALL( std::fabs( inertialThrustDirection( i ) - testInertialThrustDirection( i ) ),
+                                       5.0 * std::numeric_limits< double >::epsilon( ) );
+                }
+            }
+
+            Eigen::Vector3d bodyFixedThrustVector = currentRotationMatrixToBodyFixedFrame * inertialThrustVector;
+
+            int zeroIndex = 1;
+            int nonZeroIndex = 0;
+            if( ( test % 4 ) == 1 )
+            {
+                zeroIndex = 0;
+                nonZeroIndex = 1;
+            }
+            BOOST_CHECK_CLOSE_FRACTION( bodyFixedThrustVector( nonZeroIndex ), thrustMagnitude / bodyMass,
+                                        5.0 * std::numeric_limits< double >::epsilon( ) );
+            BOOST_CHECK_SMALL( bodyFixedThrustVector( zeroIndex ), thrustMagnitude / bodyMass *
+                               5.0 * std::numeric_limits< double >::epsilon( ) );
+            BOOST_CHECK_SMALL( bodyFixedThrustVector( 2 ), thrustMagnitude / bodyMass *
+                               10.0 * std::numeric_limits< double >::epsilon( ) );
+        }
+        if( test < 4 )
+        {
+            rotationMatrixHistoriesWithoutFreeRotationAngle.push_back( currentRotationMatrixHistory );
+        }
+    }
+}
+
 
 ////! In this unit test, the thrust acceleration is tested for the case where the thrust force is taken from a (set of)
 ////! engine objects stored in the VehicleSystems object. This is tested for a single engine (out of two), two engines, as
@@ -224,7 +464,16 @@ BOOST_AUTO_TEST_CASE( testConstantThrustAcceleration )
 //        vehicleSystems->setEngineModel( vehicleEngineModel2, "Engine2" );
 //        bodies.at( "Vehicle" )->setVehicleSystems( vehicleSystems );
 
+//        Eigen::Vector3d thrustDirection;
+//        thrustDirection << -1.4, 2.4, 5.6;
 
+//        std::function< Eigen::Vector3d( const double ) > thrustDirectionFunction =
+//                [=](const double){ return thrustDirection; };
+//        bodies.at( "Vehicle" )->setRotationalEphemeris(
+//                    createRotationModel(
+//                        std::make_shared< BodyFixedDirectionBasedRotationSettings >(
+//                            thrustDirectionFunction, "ECLIPJ2000", "VehicleFixed" ),
+//                        "Vehicle", bodies ) );
 
 
 //        // Define propagator settings variables.
@@ -232,8 +481,7 @@ BOOST_AUTO_TEST_CASE( testConstantThrustAcceleration )
 //        std::vector< std::string > bodiesToPropagate;
 //        std::vector< std::string > centralBodies;
 
-//        Eigen::Vector3d thrustDirection;
-//        thrustDirection << -1.4, 2.4, 5.6;
+
 
 //        std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
 //        // Define acceleration model settings.
@@ -242,8 +490,6 @@ BOOST_AUTO_TEST_CASE( testConstantThrustAcceleration )
 //        case 0:
 //        {
 //            accelerationsOfVehicle[ "Vehicle" ].push_back( std::make_shared< ThrustAccelerationSettings >(
-//                                                               std::make_shared< CustomThrustDirectionSettings >(
-//                                                                   [ & ]( const double ){ return thrustDirection; } ),
 //                                                               std::make_shared< FromBodyThrustMagnitudeSettings >(
 //                                                                   1, "" ) ) );
 //            accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
@@ -252,8 +498,6 @@ BOOST_AUTO_TEST_CASE( testConstantThrustAcceleration )
 //        case 1:
 //        {
 //            accelerationsOfVehicle[ "Vehicle" ].push_back( std::make_shared< ThrustAccelerationSettings >(
-//                                                               std::make_shared< CustomThrustDirectionSettings >(
-//                                                                   [ & ]( const double ){ return thrustDirection; } ),
 //                                                               std::make_shared< FromBodyThrustMagnitudeSettings >(
 //                                                                   0, "Engine1" ) ) );
 //            accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
@@ -262,8 +506,6 @@ BOOST_AUTO_TEST_CASE( testConstantThrustAcceleration )
 //        case 2:
 //        {
 //            accelerationsOfVehicle[ "Vehicle" ].push_back( std::make_shared< ThrustAccelerationSettings >(
-//                                                               std::make_shared< CustomThrustDirectionSettings >(
-//                                                                   [ & ]( const double ){ return thrustDirection; } ),
 //                                                               std::make_shared< FromBodyThrustMagnitudeSettings >(
 //                                                                   0, "Engine2" ) ) );
 //            accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
@@ -272,13 +514,9 @@ BOOST_AUTO_TEST_CASE( testConstantThrustAcceleration )
 //        case 3:
 //        {
 //            accelerationsOfVehicle[ "Vehicle" ].push_back( std::make_shared< ThrustAccelerationSettings >(
-//                                                               std::make_shared< CustomThrustDirectionSettings >(
-//                                                                   [ & ](  const double  ){ return thrustDirection; } ),
-//                                                               std::make_shared< FromBodyThrustMagnitudeSettings >(
+//                                                                             std::make_shared< FromBodyThrustMagnitudeSettings >(
 //                                                                   0, "Engine1" ) ) );
 //            accelerationsOfVehicle[ "Vehicle" ].push_back( std::make_shared< ThrustAccelerationSettings >(
-//                                                               std::make_shared< CustomThrustDirectionSettings >(
-//                                                                   [ & ](  const double  ){ return thrustDirection; } ),
 //                                                               std::make_shared< FromBodyThrustMagnitudeSettings >(
 //                                                                   0, "Engine2" ) ) );
 //            accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;

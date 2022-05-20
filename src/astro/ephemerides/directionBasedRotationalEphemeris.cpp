@@ -18,6 +18,16 @@ namespace tudat
 namespace ephemerides
 {
 
+Eigen::Quaterniond DirectionBasedRotationalEphemeris::getRotationToBaseFrame(
+        const double currentTime )
+{
+    Eigen::Vector3d eulerAngles = getEulerAngles( currentTime );
+    return Eigen::Quaterniond(
+                  Eigen::AngleAxisd( eulerAngles( 0 ), Eigen::Vector3d::UnitZ( ) )  *
+                  Eigen::AngleAxisd( eulerAngles( 1 ), Eigen::Vector3d::UnitY( ) )  *
+                  Eigen::AngleAxisd( eulerAngles( 2 ), Eigen::Vector3d::UnitX( ) ) );
+}
+
 void DirectionBasedRotationalEphemeris::update( const double currentTime )
 {
     if( !( currentTime == currentTime_ ) )
@@ -25,7 +35,14 @@ void DirectionBasedRotationalEphemeris::update( const double currentTime )
         if( currentTime == currentTime )
         {
             currentTime_ = currentTime;
-            currentInertialDirection_ = inertialBodyAxisDirectionFunction_( currentTime_ ).normalized( );
+            if( inertialBodyAxisDirectionFunction_ != nullptr )
+            {
+                currentInertialDirection_ = inertialBodyAxisDirectionFunction_( currentTime_ ).normalized( );
+            }
+            else
+            {
+                throw std::runtime_error( "Error when using DirectionBasedRotationalEphemeris, inerial body axis direction function no set" );
+            }
         }
         else
         {
@@ -42,6 +59,22 @@ void DirectionBasedRotationalEphemeris::resetCurrentTime(  )
 
     currentEulerAnglesTime_ = TUDAT_NAN;
     eulerAngles_.setConstant( TUDAT_NAN );
+}
+
+void DirectionBasedRotationalEphemeris::calculateEulerAngles( )
+{
+    eulerAngles_( 0 ) = std::atan2( currentInertialDirection_.y( ), currentInertialDirection_.x( ) );
+    eulerAngles_( 1 ) = -std::atan2( currentInertialDirection_.z( ), currentInertialDirection_.segment( 0, 2 ).norm( ) );
+    if( freeRotationAngleFunction_ == nullptr )
+    {
+        eulerAngles_( 2 ) = 0.0;
+    }
+    else
+    {
+        eulerAngles_( 2 ) = freeRotationAngleFunction_( currentTime_ );
+    }
+
+    currentEulerAnglesTime_ = currentTime_;
 }
 
 } // namespace tudat

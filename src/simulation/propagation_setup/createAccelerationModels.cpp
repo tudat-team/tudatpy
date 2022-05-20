@@ -1138,7 +1138,7 @@ createThrustAcceleratioModel(
                                          nameOfBodyUndergoingThrust );
 
 
-    std::shared_ptr< propulsion::ThrustDirectionWrapper > thrustDirectionWrapper;
+    std::shared_ptr< propulsion::ThrustDirectionWrapper > thrustDirectionWrapper = nullptr;
     std::shared_ptr< ephemerides::RotationalEphemeris > bodyRotationModel =
             bodies.at( nameOfBodyUndergoingThrust )->getRotationalEphemeris( );
     std::shared_ptr< ephemerides::DirectionBasedRotationalEphemeris > directionBasedRotation =
@@ -1146,19 +1146,28 @@ createThrustAcceleratioModel(
 
     if( directionBasedRotation != nullptr )
     {
-        Eigen::Vector3d inertialThrustDirection = directionBasedRotation->getAssociatedBodyFixedDirection( );
-        Eigen::Vector3d definingOrientationDirecion =
-                directionBasedRotation->getAssociatedBodyFixedDirection( );
+        Eigen::Vector3d definingBodyAxis = directionBasedRotation->getAssociatedBodyFixedDirection( );
 
-        if( thrustAccelerationSettings->thrustMagnitudeSettings_->bodyFixedThrustDirectionIsFixed( ) &&
-                ( ( inertialThrustDirection == definingOrientationDirecion ) ||
-                  ( inertialThrustDirection == -definingOrientationDirecion ) ) )
+        if( thrustAccelerationSettings->thrustMagnitudeSettings_->bodyFixedThrustDirectionIsFixed( ) )
         {
-            thrustDirectionWrapper = std::make_shared< propulsion::DirectThrustDirectionWrapper >(
-                        directionBasedRotation, ( inertialThrustDirection == definingOrientationDirecion ) );
+            std::shared_ptr< ConstantThrustMagnitudeSettings > constantThrustSettings =
+                    std::dynamic_pointer_cast< ConstantThrustMagnitudeSettings >(
+                        thrustAccelerationSettings->thrustMagnitudeSettings_ );
+            if( constantThrustSettings != nullptr )
+            {
+                if( constantThrustSettings->bodyFixedThrustDirection_ == definingBodyAxis ||
+                        constantThrustSettings->bodyFixedThrustDirection_ == -definingBodyAxis )
+                {
+                    thrustDirectionWrapper = std::make_shared< propulsion::DirectThrustDirectionWrapper >(
+                                directionBasedRotation,
+                                ( constantThrustSettings->bodyFixedThrustDirection_ == definingBodyAxis ) );
+                }
+            }
         }
     }
-    else
+
+    // FIXME: messy way of solving the direction
+    if( thrustDirectionWrapper == nullptr )
     {
         thrustDirectionWrapper = std::make_shared< propulsion::OrientationBasedThrustDirectionWrapper >(
                     std::bind( &Body::getCurrentRotationToGlobalFrame, bodies.at( nameOfBodyUndergoingThrust ) ),
