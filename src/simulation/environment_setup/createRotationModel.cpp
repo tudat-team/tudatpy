@@ -121,15 +121,19 @@ void linkTrimmedConditions(
             std::bind( &aerodynamics::AtmosphericFlightConditions::getControlSurfaceAerodynamicCoefficientIndependentVariables,
                        flightConditions );
 
-    std::function< Eigen::Vector3d( const double ) > aerodynamicAngleFunction = [=]( const double )
+    std::function< Eigen::Vector3d( const double ) > aerodynamicAngleFunction = [=]( const double currentTime )
     {
+        Eigen::Vector2d sideslipBankAngles = Eigen::Vector2d::Zero( );
         if( sideslipAndBankAngleFunction != nullptr )
         {
-            throw std::runtime_error( "Error, linking bank angle and sideslip angle to pitch trim model not yet finished" );
+             sideslipBankAngles = sideslipAndBankAngleFunction( currentTime );
+             flightConditions->getAerodynamicAngleCalculator( )->setSideslipAndBankAngles(
+                         sideslipBankAngles( 0 ), sideslipBankAngles( 1 ) );
         }
+
         double angleOfAttack = trimCalculator->findTrimAngleOfAttackFromFunction(
                     untrimmedIndependentVariablesFunction, untrimmedControlSurfaceIndependentVariableFunction );
-        return ( Eigen::Vector3d( ) << angleOfAttack, 0.0, 0.0 ).finished( );
+        return ( Eigen::Vector3d( ) << angleOfAttack, sideslipBankAngles( 0 ), sideslipBankAngles( 1 ) ).finished( );
     };
     rotationModel->setAerodynamicAngleFunction( aerodynamicAngleFunction );
 }

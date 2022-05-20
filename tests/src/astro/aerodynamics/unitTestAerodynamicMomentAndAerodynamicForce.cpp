@@ -47,6 +47,7 @@
 #include "tudat/simulation/environment_setup/body.h"
 //#include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/astro/aerodynamics/testApolloCapsuleCoefficients.h"
 
 namespace tudat
 {
@@ -57,7 +58,13 @@ namespace unit_tests
 BOOST_AUTO_TEST_SUITE( test_aerodynamic_acceleration_force_moment_models )
 
 using namespace aerodynamics;
+using namespace numerical_integrators;
 using namespace simulation_setup;
+using namespace propagators;
+using namespace basic_mathematics;
+using namespace basic_astrodynamics;
+using namespace orbital_element_conversions;
+using namespace spice_interface;
 
 //! Test implementation of aerodynamic force and acceleration models.
 BOOST_AUTO_TEST_CASE( testAerodynamicForceAndAcceleration )
@@ -159,9 +166,9 @@ BOOST_AUTO_TEST_CASE( testAerodynamicForceAndAcceleration )
         AerodynamicAccelerationPointer accelerationClass
                 = std::make_shared< AerodynamicAcceleration >(
                     [ & ]( Eigen::Vector3d& input ){ input = forceCoefficients; },
-                    [ & ]( ){ return density; },
-                    [ & ]( ){ return airSpeed; },
-                    mass, referenceArea, false );
+                [ & ]( ){ return density; },
+        [ & ]( ){ return airSpeed; },
+        mass, referenceArea, false );
         accelerationClass->updateMembers( );
         Eigen::Vector3d force = accelerationClass->getAcceleration( ) * mass;
 
@@ -173,11 +180,11 @@ BOOST_AUTO_TEST_CASE( testAerodynamicForceAndAcceleration )
         AerodynamicAccelerationPointer accelerationClass2 =
                 std::make_shared< AerodynamicAcceleration >(
                     [ & ]( Eigen::Vector3d& input ){ input = forceCoefficients; },
-                    [ & ]( ){ return density; },
-                    [ & ]( ){ return airSpeed; },
-                    [ & ]( ){ return mass; },
-                    [ & ]( ){ return referenceArea; },
-                    false );
+                [ & ]( ){ return density; },
+        [ & ]( ){ return airSpeed; },
+        [ & ]( ){ return mass; },
+        [ & ]( ){ return referenceArea; },
+        false );
         accelerationClass2->updateMembers( );
         force = accelerationClass2->getAcceleration( ) * mass;
 
@@ -192,9 +199,9 @@ BOOST_AUTO_TEST_CASE( testAerodynamicForceAndAcceleration )
         AerodynamicAccelerationPointer accelerationClass =
                 std::make_shared< AerodynamicAcceleration >(
                     [ & ]( Eigen::Vector3d& input ){ input = -forceCoefficients; },
-                    [ & ]( ){ return density; },
-                    [ & ]( ){ return airSpeed; },
-                    mass, referenceArea, true );
+                [ & ]( ){ return density; },
+        [ & ]( ){ return airSpeed; },
+        mass, referenceArea, true );
         accelerationClass->updateMembers( );
         Eigen::Vector3d force = accelerationClass->getAcceleration( ) * mass;
 
@@ -206,11 +213,11 @@ BOOST_AUTO_TEST_CASE( testAerodynamicForceAndAcceleration )
         AerodynamicAccelerationPointer accelerationClass2 =
                 std::make_shared< AerodynamicAcceleration >(
                     [ & ]( Eigen::Vector3d& input ){ input = -forceCoefficients; },
-                    [ & ]( ){ return density; },
-                    [ & ]( ){ return airSpeed; },
-                    [ & ]( ){ return mass; },
-                    [ & ]( ){ return referenceArea; },
-                    true );
+                [ & ]( ){ return density; },
+        [ & ]( ){ return airSpeed; },
+        [ & ]( ){ return mass; },
+        [ & ]( ){ return referenceArea; },
+        true );
         accelerationClass2->updateMembers( );
         force = accelerationClass2->getAcceleration( ) * mass;
 
@@ -252,9 +259,9 @@ BOOST_AUTO_TEST_CASE( testAerodynamicMomentAndRotationalAcceleration )
     {
         // Set coefficients and model parameters in aerodynamics coefficient interface object.
         AerodynamicCoefficientInterfacePointer aerodynamicCoefficientInterface =
-        createConstantCoefficientAerodynamicCoefficientInterface(
-            Eigen::Vector3d::Zero( ), momentCoefficients,
-            referenceLength, referenceArea, referenceLength, Eigen::Vector3d::Zero( ) );
+                createConstantCoefficientAerodynamicCoefficientInterface(
+                    Eigen::Vector3d::Zero( ), momentCoefficients,
+                    referenceLength, referenceArea, referenceLength, Eigen::Vector3d::Zero( ) );
 
         // Compute aerodynamic moment using free function with coefficient interface argument.
         Eigen::Vector3d moment = computeAerodynamicMoment( dynamicPressure,
@@ -661,6 +668,157 @@ BOOST_AUTO_TEST_CASE( testAerodynamicForceDirectionInPropagation )
     testAerodynamicForceDirection( 1, 1, 0 );
     testAerodynamicForceDirection( 1, 0, 1 );
     testAerodynamicForceDirection( 1, 1, 1 );
+}
+
+Eigen::Vector2d sideslipBankAngleFunction( const double time )
+{
+    double bankAngle = 2.0 * tudat::mathematical_constants::PI * time / 1000.0;
+    double sideslipAngle = 0.01 * std::sin( 2.0 * tudat::mathematical_constants::PI * time / 60.0 );
+    return ( Eigen::Vector2d( ) << sideslipAngle, bankAngle ).finished( );
+}
+
+BOOST_AUTO_TEST_CASE( testAerodynamicTrimWithFreeAngles )
+{
+    // Load Spice kernels.
+    spice_interface::loadStandardSpiceKernels( );
+
+    // Set simulation start epoch.
+    const double simulationStartEpoch = 0.0;
+
+    // Set simulation end epoch.
+    const double simulationEndEpoch = 3300.0;
+
+    // Set numerical integration fixed step size.
+    const double fixedStepSize = 1.0;
+
+
+    // Set Keplerian elements for Capsule.
+    Eigen::Vector6d apolloInitialStateInKeplerianElements;
+    apolloInitialStateInKeplerianElements( semiMajorAxisIndex ) = spice_interface::getAverageRadius( "Earth" ) + 120.0E3;
+    apolloInitialStateInKeplerianElements( eccentricityIndex ) = 0.005;
+    apolloInitialStateInKeplerianElements( inclinationIndex ) = unit_conversions::convertDegreesToRadians( 85.3 );
+    apolloInitialStateInKeplerianElements( argumentOfPeriapsisIndex )
+            = unit_conversions::convertDegreesToRadians( 235.7 );
+    apolloInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex )
+            = unit_conversions::convertDegreesToRadians( 23.4 );
+    apolloInitialStateInKeplerianElements( trueAnomalyIndex ) = unit_conversions::convertDegreesToRadians( 139.87 );
+
+    // Convert apollo state from Keplerian elements to Cartesian elements.
+    const double earthGravitationalParameter = getBodyGravitationalParameter( "Earth" );
+    const Eigen::Vector6d apolloInitialState = convertKeplerianToCartesianElements(
+                apolloInitialStateInKeplerianElements,
+                getBodyGravitationalParameter( "Earth" ) );
+
+
+    // Define simulation body settings.
+    BodyListSettings bodySettings =
+            getDefaultBodySettings( { "Earth", "Moon" }, simulationStartEpoch - 10.0 * fixedStepSize,
+                                    simulationEndEpoch + 10.0 * fixedStepSize, "Earth", "ECLIPJ2000" );
+    bodySettings.at( "Earth" )->gravityFieldSettings =
+            std::make_shared< simulation_setup::GravityFieldSettings >( central_spice );
+
+
+    // Create Earth object
+    simulation_setup::SystemOfBodies bodies = simulation_setup::createSystemOfBodies( bodySettings );
+
+    // Create vehicle objects.
+    bodies.createEmptyBody( "Apollo" );
+
+    // Create vehicle aerodynamic coefficients
+    bodies.at( "Apollo" )->setAerodynamicCoefficientInterface(
+                unit_tests::getApolloCoefficientInterface( ) );
+    bodies.at( "Apollo" )->setConstantBodyMass( 5.0E3 );
+    bodies.at( "Apollo" )->setRotationalEphemeris(
+                createRotationModel(
+                    std::make_shared< PitchTrimRotationSettings >(
+                        "Earth", "ECLIPJ2000", "VehicleFixed", &sideslipBankAngleFunction ),
+                    "Apollo", bodies ) );
+
+    // Define propagator settings variables.
+    SelectedAccelerationMap accelerationMap;
+    std::vector< std::string > bodiesToPropagate;
+    std::vector< std::string > centralBodies;
+
+    // Define acceleration model settings.
+    std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfApollo;
+    accelerationsOfApollo[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
+    accelerationsOfApollo[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( aerodynamic ) );
+    accelerationsOfApollo[ "Moon" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
+    accelerationMap[ "Apollo" ] = accelerationsOfApollo;
+
+    bodiesToPropagate.push_back( "Apollo" );
+    centralBodies.push_back( "Earth" );
+
+    // Set initial state
+    Eigen::Vector6d systemInitialState = apolloInitialState;
+
+    // Define list of dependent variables to save.
+    std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
+    dependentVariables.push_back(
+                std::make_shared< SingleDependentVariableSaveSettings >( mach_number_dependent_variable, "Apollo" ) );
+    dependentVariables.push_back(
+                std::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
+                    "Apollo", reference_frames::angle_of_attack ) );
+    dependentVariables.push_back(
+                std::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
+                    "Apollo", reference_frames::angle_of_sideslip ) );
+    dependentVariables.push_back(
+                std::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
+                    "Apollo", reference_frames::bank_angle ) );
+    dependentVariables.push_back(
+                std::make_shared< SingleDependentVariableSaveSettings >(
+                    aerodynamic_moment_coefficients_dependent_variable, "Apollo" ) );
+    dependentVariables.push_back(
+                std::make_shared< SingleDependentVariableSaveSettings >(
+                    aerodynamic_force_coefficients_dependent_variable, "Apollo" ) );
+
+
+    // Create acceleration models and propagation settings.
+    basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
+                bodies, accelerationMap, bodiesToPropagate, centralBodies );
+
+
+    std::shared_ptr< TranslationalStatePropagatorSettings < double > > propagatorSettings =
+            std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState,
+              std::make_shared< propagators::PropagationTimeTerminationSettings >( 3200.0 ), cowell,
+              std::make_shared< DependentVariableSaveSettings >( dependentVariables ) );
+
+    std::shared_ptr< IntegratorSettings< > > integratorSettings =
+            std::make_shared< IntegratorSettings< > >
+            ( rungeKutta4, simulationStartEpoch, fixedStepSize );
+
+    // Create simulation object and propagate dynamics.
+    SingleArcDynamicsSimulator< > dynamicsSimulator(
+                bodies, integratorSettings, propagatorSettings, true, false, false );
+
+    std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > dependentVariableOutput =
+            dynamicsSimulator.getDependentVariableHistory( );
+
+    std::shared_ptr< tudat::aerodynamics::AerodynamicCoefficientInterface > aerodynamicCoefficientInterface =
+            bodies.at( "Apollo" )->getAerodynamicCoefficientInterface( );
+
+    for( auto it : dependentVariableOutput )
+    {
+        double machNumber = it.second( 0 );
+        double angleOfAttack = it.second( 1 );
+        double sideslipAngle = it.second( 2 );
+        double bankAngle = it.second( 3 );
+        aerodynamicCoefficientInterface->updateFullCurrentCoefficients(
+        { machNumber, angleOfAttack,sideslipAngle } );
+
+        Eigen::Vector3d testMomentCoefficients = aerodynamicCoefficientInterface->getCurrentMomentCoefficients( );
+        Eigen::Vector3d testForceCoefficients = aerodynamicCoefficientInterface->getCurrentForceCoefficients( );
+        Eigen::Vector2d testAngles = sideslipBankAngleFunction( it.first );
+        Eigen::Vector3d momentCoefficients = it.second.segment( 4, 3 );
+        Eigen::Vector3d forceCoefficients = it.second.segment( 7, 3 );
+
+        BOOST_CHECK_EQUAL( testAngles( 0 ), sideslipAngle );
+        BOOST_CHECK_EQUAL( testAngles( 1 ), bankAngle );
+
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( momentCoefficients, testMomentCoefficients, std::numeric_limits< double >::epsilon( ) );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( forceCoefficients, testForceCoefficients, std::numeric_limits< double >::epsilon( ) );
+    }
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
