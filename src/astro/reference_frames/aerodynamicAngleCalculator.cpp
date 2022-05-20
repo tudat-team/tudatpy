@@ -523,23 +523,6 @@ getAerodynamicForceTransformationReferenceFunction(
     return transformationFunction;
 }
 
-////! Function to update the aerodynamic angles to current time.
-//void AerodynamicAnglesClosure::updateAngles( const double currentTime )
-//{
-//    // Retrieve rotation matrix that is to be converted to orientation angles.
-//    currentRotationFromBodyToTrajectoryFrame_ =
-//            ( ( imposedRotationFromInertialToBodyFixedFrame_( currentTime ).toRotationMatrix( ) *
-//                aerodynamicAngleCalculator_->getRotationQuaternionBetweenFrames(
-//                    trajectory_frame, inertial_frame ).toRotationMatrix( ) ) ).transpose( );
-
-//    // Compute associated Euler angles and set as orientation angles.
-//    Eigen::Vector3d eulerAngles = basic_mathematics::get132EulerAnglesFromRotationMatrix(
-//                currentRotationFromBodyToTrajectoryFrame_ );
-//    currentBankAngle_ = eulerAngles( 0 );
-//    currentAngleOfSideslip_ = eulerAngles( 1 );
-//    currentAngleOfAttack_ = -eulerAngles( 2 );
-//}
-
 } // namespace reference_frames
 
 } // namespace tudat

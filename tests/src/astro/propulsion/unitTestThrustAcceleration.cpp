@@ -627,8 +627,6 @@ BOOST_AUTO_TEST_CASE( testDirectionBasedRotationWithThrustAcceleration )
 //! In this unit test, the thrust force set to be colinear with the position and velocity vectors is checked.
 BOOST_AUTO_TEST_CASE( testRadialAndVelocityThrustAcceleration )
 {
-    std::cout<<"testRadialAndVelocityThrustAcceleration"<<std::endl;
-
     using namespace tudat;
     using namespace numerical_integrators;
     using namespace simulation_setup;
