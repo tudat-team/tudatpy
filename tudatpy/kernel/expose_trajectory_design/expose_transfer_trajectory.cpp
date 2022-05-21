@@ -219,10 +219,18 @@ void expose_transfer_trajectory(py::module &m) {
                  py::overload_cast<const int> (&tms::TransferTrajectory::getStatesAlongTrajectory),
                  py::arg("number_of_data_points_per_leg"),
                  get_docstring("TransferTrajectory.states_along_trajectory").c_str() )
-            .def("thrust_accelerations_along_trajectory",
-                 py::overload_cast<const int> (&tms::TransferTrajectory::getThrustAccelerationsAlongTrajectory),
+            .def("inertial_thrust_accelerations_along_trajectory",
+                 py::overload_cast<const int> (&tms::TransferTrajectory::getInertialThrustAccelerationsAlongTrajectory),
                  py::arg("number_of_data_points_per_leg"),
                  get_docstring("TransferTrajectory.thrust_acceleration_along_trajectory").c_str())
+            .def("rsw_thrust_accelerations_along_trajectory",
+                 py::overload_cast<const int> (&tms::TransferTrajectory::getRswThrustAccelerationsAlongTrajectory),
+                 py::arg("number_of_data_points_per_leg"),
+                 get_docstring("TransferTrajectory.rsw_thrust_accelerations_along_trajectory").c_str())
+            .def("tnw_thrust_accelerations_along_trajectory",
+                 py::overload_cast<const int> (&tms::TransferTrajectory::getTnwThrustAccelerationsAlongTrajectory),
+                 py::arg("number_of_data_points_per_leg"),
+                 get_docstring("TransferTrajectory.tnw_thrust_accelerations_along_trajectory").c_str())
             .def_property_readonly("delta_v_per_node", &tms::TransferTrajectory::getDeltaVPerNode,
                                    get_docstring("TransferTrajectory.delta_v_per_node").c_str() )
             .def_property_readonly("delta_v_per_leg", &tms::TransferTrajectory::getDeltaVPerLeg,
