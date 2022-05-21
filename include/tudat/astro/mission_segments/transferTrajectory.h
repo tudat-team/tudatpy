@@ -30,6 +30,8 @@
 #include "tudat/astro/mission_segments/transferLeg.h"
 #include "tudat/astro/mission_segments/transferNode.h"
 
+#include "tudat/astro/reference_frames/referenceFrameTransformations.h"
+
 namespace tudat
 {
 
@@ -88,117 +90,33 @@ public:
         return nodes_;
     }
 
-    //! Get Cartesian position and velocity along full trajectory
+    //! Get inertial cartesian position and velocity along full trajectory.
     void getStatesAlongTrajectoryPerLeg( std::vector< std::map< double, Eigen::Vector6d > >& statesAlongTrajectoryPerLeg,
                                         const int numberOfDataPointsPerLeg );
 
-    //! Get Cartesian position and velocity along full trajectory
-    std::vector< std::map< double, Eigen::Vector6d > > getStatesAlongTrajectoryPerLeg( const int numberOfDataPointsPerLeg )
-    {
-        if( isComputed_ )
-        {
-            std::vector< std::map< double, Eigen::Vector6d > > statesAlongTrajectoryPerLeg;
-            getStatesAlongTrajectoryPerLeg( statesAlongTrajectoryPerLeg, numberOfDataPointsPerLeg );
-            return statesAlongTrajectoryPerLeg;
-        }
-        else
-        {
-            throw std::runtime_error( "Error when getting states on transfer trajectory; transfer parameters not set!" );
-        }
-    }
+    std::vector< std::map< double, Eigen::Vector6d > > getStatesAlongTrajectoryPerLeg( const int numberOfDataPointsPerLeg );
 
-    //! Get Cartesian position and velocity along full trajectory
-    void getStatesAlongTrajectory( std::map< double, Eigen::Vector6d >& statesAlongTrajectory,
-                                  const int numberOfDataPointsPerLeg )
-    {
-        if( isComputed_ )
-        {
-            std::vector< std::map< double, Eigen::Vector6d > > statesAlongTrajectoryPerLeg;
-            getStatesAlongTrajectoryPerLeg( statesAlongTrajectoryPerLeg, numberOfDataPointsPerLeg );
-            statesAlongTrajectory = statesAlongTrajectoryPerLeg.at( 0 );
-            for( unsigned int i = 0; i < statesAlongTrajectoryPerLeg.size( ); i++ )
-            {
-                statesAlongTrajectory.insert( statesAlongTrajectoryPerLeg.at( i ).begin( ),
-                                              statesAlongTrajectoryPerLeg.at( i ).end( ) );
-            }
-        }
-        else
-        {
-            throw std::runtime_error( "Error when getting states on transfer trajectory; transfer parameters not set!" );
-        }
-    }
+    void getStatesAlongTrajectory( std::map< double, Eigen::Vector6d >& statesAlongTrajectory, const int numberOfDataPointsPerLeg );
 
-    //! Get Cartesian position and velocity along full trajectory
-    std::map< double, Eigen::Vector6d > getStatesAlongTrajectory( const int numberOfDataPointsPerLeg )
-    {
-        if( isComputed_ )
-        {
-            std::map< double, Eigen::Vector6d > statesAlongTrajectory;
-            getStatesAlongTrajectory( statesAlongTrajectory, numberOfDataPointsPerLeg );
-            return statesAlongTrajectory;
-        }
-        else
-        {
-            throw std::runtime_error( "Error when getting states on transfer trajectory; transfer parameters not set!" );
-        }
-    }
+    std::map< double, Eigen::Vector6d > getStatesAlongTrajectory( const int numberOfDataPointsPerLeg );
 
-    //! Get Cartesian thrust acceleration along full trajectory
-    void getThrustAccelerationsAlongTrajectoryPerLeg(
+    //! Get inertial cartesian thrust acceleration along full trajectory
+    void getInertialThrustAccelerationsAlongTrajectoryPerLeg(
             std::vector< std::map< double, Eigen::Vector3d > >& thrustAccelerationsAlongTrajectoryPerLeg,
             const int numberOfDataPointsPerLeg );
 
-    //! Get Cartesian thrust acceleration along full trajectory
-    std::vector< std::map< double, Eigen::Vector3d > > getThrustAccelerationAlongTrajectoryPerLeg( const int numberOfDataPointsPerLeg )
-    {
-        if( isComputed_ )
-        {
-            std::vector< std::map< double, Eigen::Vector3d > > thrustAccelerationsAlongTrajectoryPerLeg;
-            getThrustAccelerationsAlongTrajectoryPerLeg( thrustAccelerationsAlongTrajectoryPerLeg, numberOfDataPointsPerLeg );
-            return thrustAccelerationsAlongTrajectoryPerLeg;
-        }
-        else
-        {
-            throw std::runtime_error( "Error when getting thrust accelerations on transfer trajectory; transfer parameters not set!" );
-        }
-    }
+    std::vector< std::map< double, Eigen::Vector3d > > getInertialThrustAccelerationAlongTrajectoryPerLeg(const int numberOfDataPointsPerLeg );
 
-    //! Get Cartesian thrust acceleration along full trajectory
-    void getThrustAccelerationsAlongTrajectory( std::map< double, Eigen::Vector3d >& thrustAccelerationsAlongTrajectory,
-                                   const int numberOfDataPointsPerLeg )
-    {
-        if( isComputed_ )
-        {
-            std::vector< std::map< double, Eigen::Vector3d > > thrustAccelerationsAlongTrajectoryPerLeg;
-            getThrustAccelerationsAlongTrajectoryPerLeg( thrustAccelerationsAlongTrajectoryPerLeg, numberOfDataPointsPerLeg );
-            thrustAccelerationsAlongTrajectory = thrustAccelerationsAlongTrajectoryPerLeg.at( 0 );
-            for( unsigned int i = 0; i < thrustAccelerationsAlongTrajectoryPerLeg.size( ); i++ )
-            {
-                thrustAccelerationsAlongTrajectory.insert( thrustAccelerationsAlongTrajectoryPerLeg.at( i ).begin( ),
-                                                           thrustAccelerationsAlongTrajectoryPerLeg.at( i ).end( ) );
-            }
-        }
-        else
-        {
-            throw std::runtime_error( "Error when getting thrust accelerations on transfer trajectory; transfer parameters not set!" );
-        }
-    }
+    void getInertialThrustAccelerationsAlongTrajectory(std::map< double, Eigen::Vector3d >& thrustAccelerationsAlongTrajectory,
+                                                       const int numberOfDataPointsPerLeg );
 
-    //! Get Cartesian thrust acceleration along full trajectory
-    std::map< double, Eigen::Vector3d > getThrustAccelerationsAlongTrajectory( const int numberOfDataPointsPerLeg )
-    {
-        if( isComputed_ )
-        {
-            std::map< double, Eigen::Vector3d > thrustAccelerationsAlongTrajectory;
-            getThrustAccelerationsAlongTrajectory( thrustAccelerationsAlongTrajectory, numberOfDataPointsPerLeg );
-            return thrustAccelerationsAlongTrajectory;
-        }
-        else
-        {
-            throw std::runtime_error( "Error when getting thrust accelerations on transfer trajectory; transfer parameters not set!" );
-        }
-    }
+    std::map< double, Eigen::Vector3d > getInertialThrustAccelerationsAlongTrajectory(const int numberOfDataPointsPerLeg );
 
+    //! Get RSW thrust acceleration along full trajectory
+    std::map< double, Eigen::Vector3d > getRswThrustAccelerationsAlongTrajectory( const int numberOfDataPointsPerLeg );
+
+    //! Get TNW thrust acceleration along full trajectory
+    std::map< double, Eigen::Vector3d > getTnwThrustAccelerationsAlongTrajectory( const int numberOfDataPointsPerLeg );
 
 
 private:

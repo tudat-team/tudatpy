@@ -149,7 +149,7 @@ public:
         getStatesAlongTrajectory( statesAlongTrajectory, times );
     }
 
-    //! Get single value of cartesian thrust acceleration.
+    //! Get single value of inertial cartesian thrust acceleration.
     virtual void getThrustAccelerationAlongTrajectory ( Eigen::Vector3d& thrustAccelerationAlongTrajectory,
                                                         const double time )
     {
@@ -164,7 +164,7 @@ public:
         return thrustAccelerationAlongTrajectory;
     }
 
-    //! Get cartesian thrust acceleration along transfer leg.
+    //! Get inertial cartesian thrust acceleration along transfer leg.
     void getThrustAccelerationsAlongTrajectory(std::map< double, Eigen::Vector3d >& thrustAccelerationsAlongTrajectory,
                                                const std::vector< double >& times )
     {
@@ -177,7 +177,7 @@ public:
         }
     }
 
-    //! Get cartesian thrust acceleration along transfer leg.
+    //! Get inertial cartesian thrust acceleration along transfer leg.
     void getThrustAccelerationsAlongTrajectory(std::map< double, Eigen::Vector3d >& thrustAccelerationsAlongTrajectory,
                                                const int numberOfDataPoints )
     {

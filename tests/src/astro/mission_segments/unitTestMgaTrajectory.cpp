@@ -304,7 +304,7 @@ BOOST_AUTO_TEST_CASE( testMgaMixedHighLowThrustLegs )
 
     // Retrieve state history and thrust acceleration history.
     transferTrajectory->getStatesAlongTrajectory(50);
-    transferTrajectory->getThrustAccelerationsAlongTrajectory(50);
+    transferTrajectory->getInertialThrustAccelerationsAlongTrajectory(50);
 }
 
 // Test checks delta V of a single hodographic shaping leg, with free parameters for the shaping functions, inserted
@@ -488,7 +488,7 @@ BOOST_AUTO_TEST_CASE( testMgaHodographicShapingSingleLegWithShapingCoefficients 
 
         // Retrieve state history and thrust acceleration history.
         transferTrajectory->getStatesAlongTrajectory(10);
-        transferTrajectory->getThrustAccelerationsAlongTrajectory(10);
+        transferTrajectory->getInertialThrustAccelerationsAlongTrajectory(10);
     }
 }
 
@@ -615,7 +615,7 @@ BOOST_AUTO_TEST_CASE( testMgaHodographicShapingSingleLegWithoutFreeShapingCoeffi
 
         // Retrieve state history and thrust acceleration history.
         transferTrajectory->getStatesAlongTrajectory(10);
-        transferTrajectory->getThrustAccelerationsAlongTrajectory(10);
+        transferTrajectory->getInertialThrustAccelerationsAlongTrajectory(10);
     }
 }
 
@@ -810,7 +810,7 @@ BOOST_AUTO_TEST_CASE( testMgaMultipleHodographicShapingLegs )
 
         // Retrieve state history and thrust acceleration history.
         transferTrajectory->getStatesAlongTrajectory(10);
-        transferTrajectory->getThrustAccelerationsAlongTrajectory(10);
+        transferTrajectory->getInertialThrustAccelerationsAlongTrajectory(10);
 
     }
 }
@@ -900,7 +900,15 @@ BOOST_AUTO_TEST_CASE( testMgaSphericalShapingSingleLeg )
 
         // Retrieve state history and thrust acceleration history.
         transferTrajectory->getStatesAlongTrajectory(10);
-        transferTrajectory->getThrustAccelerationsAlongTrajectory(10);
+        transferTrajectory->getInertialThrustAccelerationsAlongTrajectory(10);
+        transferTrajectory->getRswThrustAccelerationsAlongTrajectory(10);
+        std::map< double, Eigen::Vector3d > tnwAcceleration = transferTrajectory->getTnwThrustAccelerationsAlongTrajectory(50);
+
+        for( std::map< double, Eigen::Vector3d >::iterator it = tnwAcceleration.begin(); it != tnwAcceleration.end(); ++it )
+        {
+            // Check if thrust in N direction is zero (it should be, see Roegiers, section 6.5)
+            BOOST_CHECK_SMALL(std::fabs(it->second.transpose()[1]), 1e-16);
+        }
     }
 }
 
@@ -1051,7 +1059,15 @@ BOOST_AUTO_TEST_CASE( testMgaMultipleSphericalShapingLegs )
 
         // Retrieve state history and thrust acceleration history.
         transferTrajectory->getStatesAlongTrajectory(10);
-        transferTrajectory->getThrustAccelerationsAlongTrajectory(10);
+        transferTrajectory->getInertialThrustAccelerationsAlongTrajectory(10);
+        transferTrajectory->getRswThrustAccelerationsAlongTrajectory(10);
+        std::map< double, Eigen::Vector3d > tnwAcceleration = transferTrajectory->getTnwThrustAccelerationsAlongTrajectory(50);
+
+        for( std::map< double, Eigen::Vector3d >::iterator it = tnwAcceleration.begin(); it != tnwAcceleration.end(); ++it )
+        {
+            // Check if thrust in N direction is zero (it should be, see Roegiers, section 6.5)
+            BOOST_CHECK_SMALL(std::fabs(it->second.transpose()[1]), 1e-16);
+        }
 
     }
 }
@@ -1183,7 +1199,7 @@ BOOST_AUTO_TEST_CASE( testMGATrajectory_New )
         transferTrajectory->getStatesAlongTrajectoryPerLeg(
                     statesAlongTrajectoryPerLeg, 10 );
         std::vector< std::map< double, Eigen::Vector3d > > thrustAccelerationsAlongTrajectoryPerLeg;
-        transferTrajectory->getThrustAccelerationsAlongTrajectoryPerLeg(
+        transferTrajectory->getInertialThrustAccelerationsAlongTrajectoryPerLeg(
                 thrustAccelerationsAlongTrajectoryPerLeg, 10);
 
         double sunGravitationalParameter = bodies.at( "Sun" )->getGravitationalParameter( );
