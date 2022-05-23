@@ -161,21 +161,25 @@ public:
         currentStateDerivatives_.clear( );
         currentStateDerivatives_.reserve( this->butcherTableau_.cCoefficients.rows( ) );
 
-        // Define lower and higher order estimates.
-        StateType stateEstimate( this->currentState_ );
+        StateType stateUpdate = StateType::Zero( currentState_.rows( ), currentState_.cols( ) );
 
         // Compute the k_i state derivatives per stage.
         for ( int stage = 0; stage < this->butcherTableau_.cCoefficients.rows( ); stage++ )
         {
-            // Compute the intermediate state to pass to the state derivative for this stage.
-            StateType intermediateState( this->currentState_ );
-
             // Compute the intermediate state.
+            stateUpdate.setZero( );
             for ( int column = 0; column < stage; column++ )
             {
-                intermediateState += stepSize * this->butcherTableau_.aCoefficients( stage, column ) *
-                        currentStateDerivatives_[ column ];
+                if( this->butcherTableau_.aCoefficients( stage, column ) !=
+                        mathematical_constants::getFloatingInteger< typename StateType::Scalar >( 0 ) )
+                {
+                    stateUpdate += stepSize * this->butcherTableau_.aCoefficients( stage, column ) *
+                            currentStateDerivatives_[ column ];
+                }
             }
+
+            // Compute the intermediate state to pass to the state derivative for this stage.
+            StateType intermediateState = this->currentState_ + stateUpdate;
 
             // Compute the state derivative.
             const IndependentVariableType time = this->currentIndependentVariable_ +
@@ -190,17 +194,25 @@ public:
                 this->propagationTerminationConditionReachedDuringStep_ = true;
                 return this->currentState_;
             }
+        }
 
-            // Update the estimate.
-            stateEstimate += this->butcherTableau_.bCoefficients( 0, stage ) * stepSize *
-                    currentStateDerivatives_[ stage ];
+        stateUpdate.setZero( );
+        for ( int stage = 0; stage < this->butcherTableau_.cCoefficients.rows( ); stage++ )
+        {
+            if( this->butcherTableau_.bCoefficients( 0, stage ) !=
+                    mathematical_constants::getFloatingInteger< typename StateType::Scalar >( 0 ) )
+            {
+                // Update the estimate.
+                stateUpdate += this->butcherTableau_.bCoefficients( 0, stage ) * stepSize *
+                        currentStateDerivatives_[ stage ];
+            }
         }
 
         // Keep step size unchanged.
         stepSize_ = stepSize;
         // Update the current state and independent variable.
         this->currentIndependentVariable_ += stepSize;
-        this->currentState_ = stateEstimate;
+        this->currentState_ += stateUpdate;
 
         // Return the integration result.
         return currentState_;
