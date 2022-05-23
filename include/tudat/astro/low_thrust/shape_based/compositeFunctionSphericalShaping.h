@@ -103,7 +103,7 @@ class CompositeRadialFunctionSphericalShaping : public CompositeFunctionSpherica
 public:
 
     //! Constructor.
-    CompositeRadialFunctionSphericalShaping( Eigen::VectorXd& compositeFunctionCoefficients ){
+    CompositeRadialFunctionSphericalShaping( const Eigen::VectorXd& compositeFunctionCoefficients ){
 
         compositeFunctionCoefficients_ = compositeFunctionCoefficients;
 
@@ -183,7 +183,7 @@ class CompositeElevationFunctionSphericalShaping : public CompositeFunctionSpher
 public:
 
     //! Constructor.
-    CompositeElevationFunctionSphericalShaping( Eigen::VectorXd& compositeFunctionCoefficients ){
+    CompositeElevationFunctionSphericalShaping( const Eigen::VectorXd& compositeFunctionCoefficients ){
 
         compositeFunctionCoefficients_ = compositeFunctionCoefficients;
 

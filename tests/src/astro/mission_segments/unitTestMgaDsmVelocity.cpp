@@ -153,6 +153,23 @@ BOOST_AUTO_TEST_CASE( testVelocities )
             BOOST_CHECK_SMALL( std::fabs( statesAlongTrajectory.begin( )->second( i ) - planet1State( i ) ), 1.0E-2 );
             BOOST_CHECK_SMALL( std::fabs( statesAlongTrajectory.rbegin( )->second( i ) - dsmLocation( i ) ), 5.0E-2 );
         }
+
+
+        // Get data on 10 equispaced points on trajectory
+        std::map< double, Eigen::Vector3d > thrustAccelerationsAlongTrajectory;
+        transferLeg.getThrustAccelerationsAlongTrajectory( thrustAccelerationsAlongTrajectory, outputTimes );
+
+        // Check initial and final time on output list
+        BOOST_CHECK_SMALL( thrustAccelerationsAlongTrajectory.begin( )->first, 1.0E-14 );
+        BOOST_CHECK_CLOSE_FRACTION( thrustAccelerationsAlongTrajectory.rbegin( )->first, dsmTime - timeTolerance, 1.0E-14 );
+
+        // Check if thrust acceleration is zero
+        for( auto it : thrustAccelerationsAlongTrajectory )
+        {
+            Eigen::Vector3d currentCartesianThrustAcceleration = it.second;
+            BOOST_CHECK_SMALL( currentCartesianThrustAcceleration.norm(), 1.0E-14 );
+        }
+
     }
 
     // Test state output from DSM to arrival
@@ -189,6 +206,22 @@ BOOST_AUTO_TEST_CASE( testVelocities )
         {
             BOOST_CHECK_SMALL( std::fabs( statesAlongTrajectory.begin( )->second( i ) - dsmLocation( i ) ), 5.0E-2 );
             BOOST_CHECK_SMALL( std::fabs( statesAlongTrajectory.rbegin( )->second( i ) - planet2State( i ) ), 1.0E-2 );
+        }
+
+
+        // Get data on 10 equispaced points on trajectory
+        std::map< double, Eigen::Vector3d > thrustAccelerationsAlongTrajectory;
+        transferLeg.getThrustAccelerationsAlongTrajectory( thrustAccelerationsAlongTrajectory, outputTimes );
+
+        // Check initial and final time on output list
+        BOOST_CHECK_CLOSE_FRACTION( thrustAccelerationsAlongTrajectory.begin( )->first, dsmTime + timeTolerance, 1.0E-14 );
+        BOOST_CHECK_CLOSE_FRACTION( thrustAccelerationsAlongTrajectory.rbegin( )->first, timeOfFlight, 1.0E-14 );
+
+        // Check if thrust acceleration is zero
+        for( auto it : thrustAccelerationsAlongTrajectory )
+        {
+            Eigen::Vector3d currentCartesianThrustAcceleration = it.second;
+            BOOST_CHECK_SMALL( currentCartesianThrustAcceleration.norm(), 1.0E-14 );
         }
 
     }
