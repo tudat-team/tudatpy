@@ -64,20 +64,20 @@ public:
         return compositeFunctionComponents_.size( );
     }
 
-    double evaluateCompositeFunctionCurrentTime( const double independentVariable );
+    double evaluateCompositeFunctionCurrentValue (const double independentVariable );
 
-    double evaluateCompositeFunctionDerivativeCurrentTime( const double independentVariable );
+    double evaluateCompositeFunctionDerivativeCurrentValue (const double independentVariable );
 
-    double evaluateCompositeFunctionIntegralCurrentTime( const double independentVariable );
+    double evaluateCompositeFunctionIntegralCurrentValue (const double independentVariable );
 
     double getComponentFunctionCurrentValue(
-        const int componentIndex, const double currentTime );
+        const int componentIndex, const double independentVariable );
 
-    double getComponentFunctionDerivativeCurrentTime(
-        const int componentIndex, const double currentTime );
+    double getComponentFunctionDerivativeCurrentValue(
+        const int componentIndex, const double independentVariable );
 
-    double getComponentFunctionIntegralCurrentTime(
-        const int componentIndex, const double currentTime );
+    double getComponentFunctionIntegralCurrentValue(
+        const int componentIndex, const double independentVariable );
 
 
 protected:

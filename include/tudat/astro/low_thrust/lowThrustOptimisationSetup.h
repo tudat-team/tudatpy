@@ -24,9 +24,6 @@
 #include <functional>
 
 #include "tudat/astro/low_thrust/simsFlanagan.h"
-#include "tudat/astro/low_thrust/shape_based/createBaseFunctionHodographicShaping.h"
-#include "tudat/astro/low_thrust/shape_based/hodographicShaping.h"
-#include "tudat/astro/low_thrust/shape_based/sphericalShaping.h"
 #include "tudat/astro/low_thrust/lowThrustLegSettings.h"
 #include "pagmo/island.hpp"
 #include "pagmo/io.hpp"

@@ -69,6 +69,9 @@ private:
 };
 
 
+typedef std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > > HodographicBasisFunctionList;
+
+
 //! Constant function.
 class ConstantFunctionHodographicShaping : public BaseFunctionHodographicShaping
 {
