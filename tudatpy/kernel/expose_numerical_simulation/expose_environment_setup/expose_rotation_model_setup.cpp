@@ -137,37 +137,36 @@ namespace rotation_model {
               py::arg("central_body"),
               py::arg("base_frame"),
               py::arg("target_frame"),
-              py::arg("angle_funcion"),
+              py::arg("angle_funcion") = nullptr,
               get_docstring("aerodynamic_angle_based").c_str()
         );
 
-
-        m.def("pitch_trim_based ",
+        m.def("zero_pitch_moment_aerodynamic_angle_based",
               &tss::pitchTrimRotationSettings,
               py::arg("central_body"),
               py::arg("base_frame"),
               py::arg("target_frame"),
-              py::arg("angle_funcion"),
+              py::arg("angle_funcion") = nullptr,
               get_docstring("pitch_trim_based").c_str()
         );
 
-        m.def("body_fixed_direction_based ",
+        m.def("custom_inertial_direction_based",
               &tss::bodyFixedDirectionBasedRotationSettings,
               py::arg("inertial_body_axis_direction"),
               py::arg("base_frame"),
               py::arg("target_frame"),
-              py::arg("free_rotation_angle_function"),
+              py::arg("free_rotation_angle_function") = nullptr,
               get_docstring("body_fixed_direction_based").c_str()
         );
 
-        m.def("orbital_state_based ",
+        m.def("orbital_state_direction_based",
               &tss::orbitalStateBasedRotationSettings,
               py::arg("central_body"),
               py::arg("is_colinear_with_velocity"),
               py::arg("direction_is_opposite_to_vector"),
               py::arg("base_frame"),
               py::arg("target_frame"),
-              py::arg("free_rotation_angle_function"),
+              py::arg("free_rotation_angle_function") = nullptr,
               get_docstring("orbital_state_based").c_str()
               );
 
