@@ -696,7 +696,7 @@ BOOST_AUTO_TEST_CASE( testPoweredGravityAssistBackwardPropagationConsistencyChec
     const Eigen::Vector3d planetocentricOutgoingVelocity = outgoingVelocity - venusVelocity;
     const Eigen::Vector3d planetocentricCalculatedIncomingVelocity = calculatedIncomingVelocity - venusVelocity;
 
-    const double calculatedBendingAngle = acos(
+    const double calculatedBendingAngle = std::acos(
             planetocentricOutgoingVelocity.dot(planetocentricCalculatedIncomingVelocity) / planetocentricOutgoingVelocity.norm() /
                     planetocentricCalculatedIncomingVelocity.norm() );
     BOOST_CHECK_CLOSE_FRACTION( calculatedBendingAngle, bendingAngle, tolerance );
@@ -762,22 +762,22 @@ BOOST_AUTO_TEST_CASE( testPoweredGravityAssistBackwardPropagation )
     Eigen::MatrixXd C = A * B.inverse();
 
     // Extract bending angle and incoming velocity rotation angle
-    const double bendingAngle = acos(C(0,0));
+    const double bendingAngle = std::acos(C(0,0));
     const double incomingVelocityRotationAngleCosine = C(0,1) / sin(bendingAngle);
     const double incomingVelocityRotationAngleSine = C(0,2) / sin(bendingAngle);
     double incomingVelocityRotationAngle;
 
     if (incomingVelocityRotationAngleCosine > 0)
     {
-        incomingVelocityRotationAngle = asin(incomingVelocityRotationAngleSine);
+        incomingVelocityRotationAngle = std::asin(incomingVelocityRotationAngleSine);
     }
     else if ( incomingVelocityRotationAngleSine > 0)
     {
-        incomingVelocityRotationAngle = acos(incomingVelocityRotationAngleCosine);
+        incomingVelocityRotationAngle = std::acos(incomingVelocityRotationAngleCosine);
     }
     else
     {
-        incomingVelocityRotationAngle = M_PI - acos(incomingVelocityRotationAngleCosine);
+        incomingVelocityRotationAngle = mathematical_constants::PI - std::acos(incomingVelocityRotationAngleCosine);
     }
 
     // Backward propagate gravity assist to get incoming velocity
