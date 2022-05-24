@@ -226,6 +226,12 @@ std::string getDependentVariableName( const std::shared_ptr< SingleDependentVari
     case single_gravity_field_variation_acceleration_terms:
         variableName = "Single-source time-variable gravity field per-term acceleration correction ";
         break;
+    case total_spherical_harmonic_cosine_coefficient_variation:
+        variableName = "Total spherical-harmonic cosine coefficient variation ";
+        break;
+    case total_spherical_harmonic_sine_coefficient_variation:
+        variableName = "Total spherical-harmonic sine coefficient variation ";
+        break;
     case acceleration_partial_wrt_body_translational_state:
         variableName = "Acceleration partial w.r.t body state ";
         break;

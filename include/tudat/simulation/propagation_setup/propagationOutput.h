@@ -636,6 +636,100 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
 
         break;
     }
+    case total_spherical_harmonic_cosine_coefficient_variation:
+    {
+        // Check input consistency.
+        std::shared_ptr< TotalGravityFieldVariationSettings > totalGravityFieldVariationSettings =
+                std::dynamic_pointer_cast< TotalGravityFieldVariationSettings >( dependentVariableSettings );
+        if( totalGravityFieldVariationSettings == nullptr )
+        {
+            std::string errorMessage= "Error, inconsistent inout when creating dependent variable function of type total_spherical_harmonic_cosine_coefficient_variation";
+            throw std::runtime_error( errorMessage );
+        }
+        else
+        {
+
+            std::shared_ptr< gravitation::TimeDependentSphericalHarmonicsGravityField > timeDependentGravityField =
+                    std::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >(
+                        bodies.at( dependentVariableSettings->associatedBody_ )->getGravityFieldModel( ) );
+
+            if( timeDependentGravityField == nullptr )
+            {
+                throw std::runtime_error( "Error when requesting save of gravity field variation, central body " +
+                                          dependentVariableSettings->secondaryBody_ +
+                                          " has no TimeDependentSphericalHarmonicsGravityField." );
+            }
+            else
+            {
+                std::vector< std::pair< int, int > > componentIndices = totalGravityFieldVariationSettings->componentIndices_;
+                unsigned int numberOfCoefficients =  componentIndices.size( );
+
+                variableFunction = [=]( )
+                {
+                    Eigen::VectorXd coefficientCorrections =
+                            Eigen::VectorXd::Zero( numberOfCoefficients );
+                    for( unsigned int i = 0; i < numberOfCoefficients; i++ )
+                    {
+                        coefficientCorrections( i ) = timeDependentGravityField->getSingleCosineCoefficientCorrection(
+                                    componentIndices.at( i ).first, componentIndices.at( i ).second );
+                    }
+                    return coefficientCorrections;
+                };
+
+                parameterSize = numberOfCoefficients;
+            }
+
+        }
+        break;
+
+    }
+    case total_spherical_harmonic_sine_coefficient_variation:
+    {
+        // Check input consistency.
+        std::shared_ptr< TotalGravityFieldVariationSettings > totalGravityFieldVariationSettings =
+                std::dynamic_pointer_cast< TotalGravityFieldVariationSettings >( dependentVariableSettings );
+        if( totalGravityFieldVariationSettings == nullptr )
+        {
+            std::string errorMessage= "Error, inconsistent inout when creating dependent variable function of type total_spherical_harmonic_sine_coefficient_variation";
+            throw std::runtime_error( errorMessage );
+        }
+        else
+        {
+
+            std::shared_ptr< gravitation::TimeDependentSphericalHarmonicsGravityField > timeDependentGravityField =
+                    std::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >(
+                        bodies.at( dependentVariableSettings->associatedBody_ )->getGravityFieldModel( ) );
+
+            if( timeDependentGravityField == nullptr )
+            {
+                throw std::runtime_error( "Error when requesting save of gravity field variation, central body " +
+                                          dependentVariableSettings->secondaryBody_ +
+                                          " has no TimeDependentSphericalHarmonicsGravityField." );
+            }
+            else
+            {
+                std::vector< std::pair< int, int > > componentIndices = totalGravityFieldVariationSettings->componentIndices_;
+                int numberOfCoefficients =  componentIndices.size( );
+
+                variableFunction = [=]( )
+                {
+                    Eigen::VectorXd coefficientCorrections =
+                            Eigen::VectorXd::Zero( numberOfCoefficients );
+                    for( unsigned int i = 0; i < componentIndices.size( ); i++ )
+                    {
+                        coefficientCorrections( i ) = timeDependentGravityField->getSingleSineCoefficientCorrection(
+                                    componentIndices.at( i ).first, componentIndices.at( i ).second );
+                    }
+                    return coefficientCorrections;
+                };
+
+                parameterSize = numberOfCoefficients;
+            }
+
+        }
+        break;
+
+    }
     case single_gravity_field_variation_acceleration:
     {
         std::shared_ptr< SingleVariationSphericalHarmonicAccelerationSaveSettings > accelerationVariableSettings =
