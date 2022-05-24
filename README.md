@@ -110,6 +110,12 @@ There are two directions you can go from here. CLion or the command line.
 -DTUDAT_BUILD_TESTS="${build_tests:-1}"
 ````
 
+The following line can also be edited if you wish to build tudatpy with its debug info (switching from `Release` to `RelWithDebInfo`; note that `Debug` is also available):
+````
+-DCMAKE_BUILD_TYPE=RelWithDebInfo
+````
+
+
 > **Note** \
 > The `CONDA_PREFIX` may be determined with by activating the environment installed in step 4 and printing its value:
 > ````
@@ -135,6 +141,11 @@ conda activate tudat-bundle
 [**Optional**] Edit the [build.sh](build.sh) script to build tudatpy with the tests by changing the `BUILD_TESTS` variable:
 ````
 BUILD_TESTS="${build_tests:-1}"
+````
+
+The following line can also be edited if you wish to build tudatpy with its debug info (switching from `Release` to `RelWithDebInfo`; note that `Debug` is also available):
+````
+-DCMAKE_BUILD_TYPE=RelWithDebInfo
 ````
 
 6. Run the [build.sh](build.sh) script.
