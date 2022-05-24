@@ -190,6 +190,21 @@ public:
                 nominalCosineCoefficients_.block( 0, 0, maximumDegree + 1, maximumOrder + 1 );
     }
 
+    double getSingleCosineCoefficientCorrection(
+            const int degree, const int order )
+    {
+        if( degree > maximumDegree_ || order > maximumOrder_ )
+        {
+            throw std::runtime_error( "Error when retrieving cosine spherical harmonic coefficient time variation at D/O " +
+                                      std::to_string( degree ) + "/" + std::to_string( order ) +
+                                      " maximum D/O is " +
+                                      std::to_string( maximumDegree_ ) + "/" + std::to_string( maximumOrder_ ) );
+        }
+
+
+        return cosineCoefficients_( degree, order ) - nominalCosineCoefficients_( degree, order );
+    }
+
     //! Get current total correction to sine coefficients
     /*!
      * Get current total correction to sine coefficients up to given degree and order
@@ -212,6 +227,21 @@ public:
 
         return sineCoefficients_.block( 0, 0, maximumDegree + 1, maximumOrder + 1 ) -
                 nominalSineCoefficients_.block( 0, 0, maximumDegree + 1, maximumOrder + 1 );
+    }
+
+    double getSingleSineCoefficientCorrection(
+            const int degree, const int order )
+    {
+        if( degree > maximumDegree_ || order > maximumOrder_ )
+        {
+            throw std::runtime_error( "Error when retrieving sine spherical harmonic coefficient time variation at D/O " +
+                                      std::to_string( degree ) + "/" + std::to_string( order ) +
+                                      " maximum D/O is " +
+                                      std::to_string( maximumDegree_ ) + "/" + std::to_string( maximumOrder_ ) );
+        }
+
+
+        return sineCoefficients_( degree, order ) - nominalSineCoefficients_( degree, order );
     }
 
     //! Set nominal (i.e. with zero variations) cosine coefficients.
