@@ -474,6 +474,36 @@ namespace dependent_variable {
               py::arg("identifier") = "",
               get_docstring("single_per_term_gravity_field_variation_acceleration").c_str());
 
+        m.def("total_spherical_harmonic_cosine_coefficien_variations",
+              &tp::totalSphericalHarmonicCosineCoefficientVariation,
+              py::arg("body"),
+              py::arg("minimum_degree"),
+              py::arg("maximum_degree"),
+              py::arg("minimum_order"),
+              py::arg("maximum_order"),
+              get_docstring("total_spherical_harmonic_cosine_coefficien_variation").c_str());
+
+        m.def("total_spherical_harmonic_sine_coefficien_variations",
+              &tp::totalSphericalHarmonicSineCoefficientVariation,
+              py::arg("body"),
+              py::arg("minimum_degree"),
+              py::arg("maximum_degree"),
+              py::arg("minimum_order"),
+              py::arg("maximum_order"),
+              get_docstring("total_spherical_harmonic_sine_coefficien_variation").c_str());
+
+        m.def("total_spherical_harmonic_cosine_coefficien_variations_from_indices",
+              &tp::totalSphericalHarmonicCosineCoefficientVariation,
+              py::arg("body"),
+              py::arg("component_indices"),
+              get_docstring("total_spherical_harmonic_cosine_coefficien_variations_from_indices").c_str());
+
+        m.def("total_spherical_harmonic_sine_coefficien_variations_from_indices",
+              &tp::totalSphericalHarmonicSineCoefficientVariation,
+              py::arg("body"),
+              py::arg("component_indices"),
+              get_docstring("total_spherical_harmonic_cosine_coefficien_variations_from_indices").c_str());
+
         m.def("body_fixed_airspeed_velocity",
               &tp::bodyFixedAirspeedBasedVelocityVariable,
               py::arg("body"),
@@ -565,6 +595,7 @@ namespace dependent_variable {
               py::arg("custom_function"),
               py::arg("variable_size"),
               get_docstring("custom").c_str());
+
 
     }
 
