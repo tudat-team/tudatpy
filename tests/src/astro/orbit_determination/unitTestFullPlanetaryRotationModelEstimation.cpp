@@ -69,7 +69,7 @@ BOOST_AUTO_TEST_CASE( test_FullPlanetaryRotationalParameters )
     // Specify total time
     double initialEphemerisTime = 0.0;
     double finalEphemerisTime = 1000.0 * 86400.0;
-    double maximumTimeStep = 86400.0;
+    double maximumTimeStep = 86400.0 * 2.0;
     double buffer = 10.0 * maximumTimeStep;
     // Set-up different cases with various parameters to estimate.
     for ( int testCase = 0 ; testCase < 3 ; testCase++ )
