@@ -973,7 +973,7 @@ BOOST_AUTO_TEST_CASE( test_GravityFieldVariationAccelerationSaving )
     std::shared_ptr< IntegratorSettings< double > > integratorSettings =
             std::make_shared< RungeKuttaVariableStepSizeSettings< double > >
             ( double( initialEphemerisTime ), 300.0,
-              RungeKuttaCoefficients::CoefficientSets::rungeKuttaFehlberg78,
+              CoefficientSets::rungeKuttaFehlberg78,
               300.0, 300.0, 1.0, 1.0 );
 
     // Create simulation object and propagate dynamics.
@@ -1168,7 +1168,7 @@ BOOST_AUTO_TEST_CASE( test_AccelerationPartialSaving )
         std::shared_ptr< IntegratorSettings< double > > integratorSettings =
                 std::make_shared< RungeKuttaVariableStepSizeSettings< double > >
                 ( double( initialEphemerisTime ), 0.1,
-                  RungeKuttaCoefficients::CoefficientSets::rungeKuttaFehlberg78,
+                  CoefficientSets::rungeKuttaFehlberg78,
                   0.1, 0.1, 1.0, 1.0 );
 
 
