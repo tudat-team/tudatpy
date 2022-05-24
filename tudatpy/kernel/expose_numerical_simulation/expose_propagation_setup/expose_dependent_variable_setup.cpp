@@ -493,13 +493,13 @@ namespace dependent_variable {
               get_docstring("total_spherical_harmonic_sine_coefficien_variation").c_str());
 
         m.def("total_spherical_harmonic_cosine_coefficien_variations_from_indices",
-              &tp::totalSphericalHarmonicCosineCoefficientVariation,
+              &tp::totalSphericalHarmonicCosineCoefficientVariationFromIndices,
               py::arg("body"),
               py::arg("component_indices"),
               get_docstring("total_spherical_harmonic_cosine_coefficien_variations_from_indices").c_str());
 
         m.def("total_spherical_harmonic_sine_coefficien_variations_from_indices",
-              &tp::totalSphericalHarmonicSineCoefficientVariation,
+              &tp::totalSphericalHarmonicCosineCoefficientVariationFromIndices,
               py::arg("body"),
               py::arg("component_indices"),
               get_docstring("total_spherical_harmonic_cosine_coefficien_variations_from_indices").c_str());
