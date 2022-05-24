@@ -118,7 +118,9 @@ enum PropagationDependentVariables
     current_body_mass_dependent_variable = 45,
     radiation_pressure_coefficient_dependent_variable = 46,
     rsw_to_inertial_frame_rotation_dependent_variable = 47,
-    custom_dependent_variable = 48
+    custom_dependent_variable = 48,
+    total_spherical_harmonic_cosine_coefficient_variation = 49,
+    total_spherical_harmonic_sine_coefficient_variation = 50
 };
 
 // Functional base class for defining settings for dependent variables that are to be saved during propagation
@@ -507,6 +509,54 @@ public:
 
 };
 
+class TotalGravityFieldVariationSettings: public SingleDependentVariableSaveSettings
+{
+public:
+
+    TotalGravityFieldVariationSettings(
+            const std::string& bodyName,
+            const int minimumDegree, const int maximumDegree,
+            const int minimumOrder, const int maximumOrder,
+            const bool useCosineCoefficients ):
+        SingleDependentVariableSaveSettings(
+            useCosineCoefficients ?
+                total_spherical_harmonic_cosine_coefficient_variation : total_spherical_harmonic_sine_coefficient_variation, bodyName, "" )
+    {
+        for( int i = minimumDegree; i <= maximumDegree; i++ )
+        {
+            for( int j = minimumOrder; ( j <= i && j <= maximumOrder ); j++ )
+            {
+                componentIndices_.push_back( std::make_pair( i, j ) );
+            }
+        }
+        if( componentIndices_.size( ) ==  0 )
+        {
+            throw std::runtime_error( "Error when saving total gravity field variation with min/max degree" +
+                                      std::to_string( minimumDegree ) + ", " + std::to_string( maximumDegree ) +
+                                      "and min/max order " +
+                                      std::to_string( minimumOrder ) + ", " + std::to_string( maximumOrder ) +
+                                      ", no terms fall in range. " );
+        }
+    }
+
+    TotalGravityFieldVariationSettings(
+            const std::string& bodyName,
+            const std::vector< std::pair< int, int > >& componentIndices,
+            const bool useCosineCoefficients ):
+        SingleDependentVariableSaveSettings(
+            useCosineCoefficients ?
+                total_spherical_harmonic_cosine_coefficient_variation : total_spherical_harmonic_sine_coefficient_variation, bodyName, "" ),
+        componentIndices_( componentIndices )
+    {
+        if( componentIndices_.size( ) ==  0 )
+        {
+            throw std::runtime_error( "Error when saving total gravity field variation with min/max degree, empty list of components is entered" );
+        }
+    }
+
+    std::vector< std::pair< int, int > > componentIndices_;
+
+};
 
 
 
@@ -726,6 +776,14 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > totalGravityFieldV
     return std::make_shared< SingleDependentVariableSaveSettings >(
                 total_gravity_field_variation_acceleration, bodyUndergoingAcceleration, bodyExertingAcceleration );
 }
+
+////! @get_docstring(totalGravityFieldVariationAccelerationContributionVariable)
+//inline std::shared_ptr< SingleDependentVariableSaveSettings > totalGravityFieldVariationAccelerationContributionVariable(
+//        const std::string& bodyWithGravityField )
+//{
+//    return std::make_shared< SingleDependentVariableSaveSettings >(
+//                total_gravity_field_variation, bodyWithGravityField );
+//}
 
 //! @get_docstring(singleGravityFieldVariationAccelerationContributionVariable)
 inline std::shared_ptr< SingleDependentVariableSaveSettings > singleGravityFieldVariationAccelerationContributionVariable(
@@ -1102,8 +1160,40 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > customDependentVar
 }
 
 
+inline std::shared_ptr< SingleDependentVariableSaveSettings > totalSphericalHarmonicCosineCoefficientVariation(
+        const std::string& bodyName,
+        const int minimumDegree, const int maximumDegree,
+        const int minimumOrder, const int maximumOrder )
+{
+    return std::make_shared< TotalGravityFieldVariationSettings >(
+                bodyName, minimumDegree, maximumDegree, minimumOrder, maximumOrder, true );
+}
 
+inline std::shared_ptr< SingleDependentVariableSaveSettings > totalSphericalHarmonicCosineCoefficientVariationFromIndices(
+        const std::string& bodyName,
+        const std::vector< std::pair< int, int > >& componentIndices)
+{
+    return std::make_shared< TotalGravityFieldVariationSettings >(
+                bodyName, componentIndices, true );
+}
 
+inline std::shared_ptr< SingleDependentVariableSaveSettings > totalSphericalHarmonicSineCoefficientVariation(
+        const std::string& bodyName,
+        const int minimumDegree, const int maximumDegree,
+        const int minimumOrder, const int maximumOrder )
+{
+    return std::make_shared< TotalGravityFieldVariationSettings >(
+                bodyName, minimumDegree, maximumDegree, minimumOrder, maximumOrder, false );
+}
+
+inline std::shared_ptr< SingleDependentVariableSaveSettings > totalSphericalHarmonicSineCoefficientVariationFromIndices(
+        const std::string& bodyName,
+        const std::vector< std::pair< int, int > >& componentIndices)
+
+{
+    return std::make_shared< TotalGravityFieldVariationSettings >(
+                bodyName, componentIndices, false );
+}
 
 } // namespace propagators
 
