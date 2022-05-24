@@ -54,22 +54,22 @@ using namespace tudat;
 //! (for a full planetary rotational model) are estimated correctly. Translatuonal state estimation is included for interface
 //! consistency only
 BOOST_AUTO_TEST_CASE( test_FullPlanetaryRotationalParameters )
-{    
+{
     //Load spice kernels.
     std::string kernelsPath = paths::getSpiceKernelPath( );
     spice_interface::loadStandardSpiceKernels( );
-    
+
     //Define environment settings
     std::vector< std::string > bodyNames;
     bodyNames.push_back( "Earth" );
     bodyNames.push_back( "Mars" );
     bodyNames.push_back( "Sun" );
     bodyNames.push_back( "Moon" );
-    
+
     // Specify total time
     double initialEphemerisTime = 0.0;
     double finalEphemerisTime = 1000.0 * 86400.0;
-    double maximumTimeStep = 86400.0 * 2.0;
+    double maximumTimeStep = 86400.0;
     double buffer = 10.0 * maximumTimeStep;
     // Set-up different cases with various parameters to estimate.
     for ( int testCase = 0 ; testCase < 3 ; testCase++ )
@@ -173,16 +173,16 @@ BOOST_AUTO_TEST_CASE( test_FullPlanetaryRotationalParameters )
         // Create orbit determination object.
         OrbitDeterminationManager< double, double > orbitDeterminationManager = OrbitDeterminationManager< double, double >(
                     bodies, parametersToEstimate, observationSettingsList, integratorSettings, propagatorSettings );
-        
+
         // Define initial parameter estimate.
         Eigen::VectorXd initialParameterEstimate =
                 parametersToEstimate->template getFullParameterValues< double >( );
-        
+
         // Simulate observations
         std::shared_ptr< ObservationCollection< > > observationsAndTimes = simulateObservations< double, double >(
                     measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
-        
-        
+
+
         // Define perturbation of parameter estimate
         Eigen::VectorXd truthParameters = initialParameterEstimate;
         if ( testCase == 0 )
@@ -224,15 +224,15 @@ BOOST_AUTO_TEST_CASE( test_FullPlanetaryRotationalParameters )
         // Perform state estimation
         std::shared_ptr< PodOutput< double, double > > podOutput = orbitDeterminationManager.estimateParameters(
                     podInput, std::make_shared< EstimationConvergenceChecker >( 3 ) );
-        
-        
+
+
         // Retrieve estimated parameter, and compare against true values
         Eigen::VectorXd parameterError = podOutput->parameterEstimate_ - truthParameters;
         if ( testCase == 0 ) {
-            
+
             BOOST_CHECK_SMALL( std::fabs( parameterError( 6 ) ), 1.0E-7 );
             BOOST_CHECK_SMALL( std::fabs( parameterError( 6 + 1 ) ), 1.0E-12 );
-            
+
         }
         else
         {

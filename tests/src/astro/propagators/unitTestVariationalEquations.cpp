@@ -759,7 +759,7 @@ executePhobosRotationSimulation(
     // Create integrator settings
     std::shared_ptr< IntegratorSettings< TimeType > > integratorSettings =
             std::make_shared< IntegratorSettings< TimeType > >
-            ( rungeKutta4, TimeType( initialEphemerisTime ), 15.0 );
+            ( rungeKutta4, TimeType( initialEphemerisTime ), 60.0 );
 
     // Define parameters.
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;

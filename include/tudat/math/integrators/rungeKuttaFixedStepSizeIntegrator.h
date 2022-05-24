@@ -119,6 +119,10 @@ public:
                 butcherTableau_.bCoefficients.row( 0 ) = oldBCoefficients.row( 1 );
             }
         }
+
+        currentScaledStateDerivatives_.clear( );
+        currentScaledStateDerivatives_.resize( this->butcherTableau_.cCoefficients.rows( ) );
+
     }
 
     //! Get step size of the next step.
@@ -156,10 +160,6 @@ public:
         // Save the current state and independent variable.
         lastIndependentVariable_ = currentIndependentVariable_;
         lastState_ = currentState_;
-        
-        // Define and allocated vector for the number of stages.
-        currentStateDerivatives_.clear( );
-        currentStateDerivatives_.reserve( this->butcherTableau_.cCoefficients.rows( ) );
 
         StateType stateUpdate = StateType::Zero( currentState_.rows( ), currentState_.cols( ) );
 
@@ -173,8 +173,8 @@ public:
                 if( this->butcherTableau_.aCoefficients( stage, column ) !=
                         mathematical_constants::getFloatingInteger< typename StateType::Scalar >( 0 ) )
                 {
-                    stateUpdate += stepSize * this->butcherTableau_.aCoefficients( stage, column ) *
-                            currentStateDerivatives_[ column ];
+                    stateUpdate += this->butcherTableau_.aCoefficients( stage, column ) *
+                            currentScaledStateDerivatives_[ column ];
                 }
             }
 
@@ -184,7 +184,7 @@ public:
             // Compute the state derivative.
             const IndependentVariableType time = this->currentIndependentVariable_ +
                     this->butcherTableau_.cCoefficients( stage ) * stepSize;
-            currentStateDerivatives_.push_back( this->stateDerivativeFunction_( time, intermediateState ) );
+            currentScaledStateDerivatives_[ stage ] = stepSize * this->stateDerivativeFunction_( time, intermediateState );
 
             // Check if propagation should terminate because the propagation termination condition has been reached
             // while computing the intermediate state.
@@ -203,8 +203,7 @@ public:
                     mathematical_constants::getFloatingInteger< typename StateType::Scalar >( 0 ) )
             {
                 // Update the estimate.
-                stateUpdate += this->butcherTableau_.bCoefficients( 0, stage ) * stepSize *
-                        currentStateDerivatives_[ stage ];
+                stateUpdate += this->butcherTableau_.bCoefficients( 0, stage ) * currentScaledStateDerivatives_[ stage ];
             }
         }
 
@@ -217,6 +216,8 @@ public:
         // Return the integration result.
         return currentState_;
     }
+
+
 
     //! Rollback internal state to the last state.
     /*!
@@ -347,7 +348,7 @@ protected:
     /*!
      * Vector of state derivatives, i.e. values of k_{i} in Runge-Kutta scheme.
      */
-    std::vector< StateDerivativeType > currentStateDerivatives_;
+    std::vector< StateDerivativeType > currentScaledStateDerivatives_;
 
     // Order of Runge-Kutta method to be used.
     RungeKuttaCoefficients::OrderEstimateToIntegrate orderToUse_;
