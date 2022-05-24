@@ -98,6 +98,8 @@ protected:
      */
     Eigen::Vector3d bodyFixedThrustDirection_;
 
+    std::shared_ptr< ThrustMagnitudeWrapper > thrustMagnitudeWrapper_;
+
 };
 
 //! Engine model derived class in which the thrust is computed directly from the propellant mass flow and specific impulse
