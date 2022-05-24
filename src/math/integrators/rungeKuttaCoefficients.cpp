@@ -138,8 +138,8 @@ void initializeRungeKutta4Coefficients( RungeKuttaCoefficients&
     // Define b-coefficients for the Runge-Kutta method of order 4 and with 4 stages.
     rungeKutta4Coefficients.bCoefficients = Eigen::MatrixXd::Zero( 1, 4 );
     rungeKutta4Coefficients.bCoefficients( 0, 0 ) = 1.0 / 6.0;
-    rungeKutta4Coefficients.bCoefficients( 0, 1 ) = 1.0 / 3.0;
-    rungeKutta4Coefficients.bCoefficients( 0, 2 ) = 1.0 / 3.0;
+    rungeKutta4Coefficients.bCoefficients( 0, 1 ) = 2.0 / 6.0;
+    rungeKutta4Coefficients.bCoefficients( 0, 2 ) = 2.0 / 6.0;
     rungeKutta4Coefficients.bCoefficients( 0, 3 ) = 1.0 / 6.0;
 
     // Set the name of these coefficients.
