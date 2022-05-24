@@ -1160,8 +1160,40 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > customDependentVar
 }
 
 
+inline std::shared_ptr< SingleDependentVariableSaveSettings > totalSphericalHarmonicCosineCoefficientVariation(
+        const std::string& bodyName,
+        const int minimumDegree, const int maximumDegree,
+        const int minimumOrder, const int maximumOrder )
+{
+    return std::make_shared< TotalGravityFieldVariationSettings >(
+                bodyName, minimumDegree, maximumDegree, minimumOrder, maximumOrder, true );
+}
 
+inline std::shared_ptr< SingleDependentVariableSaveSettings > totalSphericalHarmonicCosineCoefficientVariationFromIndices(
+        const std::string& bodyName,
+        const std::vector< std::pair< int, int > >& componentIndices)
+{
+    return std::make_shared< TotalGravityFieldVariationSettings >(
+                bodyName, componentIndices, true );
+}
 
+inline std::shared_ptr< SingleDependentVariableSaveSettings > totalSphericalHarmonicSineCoefficientVariation(
+        const std::string& bodyName,
+        const int minimumDegree, const int maximumDegree,
+        const int minimumOrder, const int maximumOrder )
+{
+    return std::make_shared< TotalGravityFieldVariationSettings >(
+                bodyName, minimumDegree, maximumDegree, minimumOrder, maximumOrder, false );
+}
+
+inline std::shared_ptr< SingleDependentVariableSaveSettings > totalSphericalHarmonicSineCoefficientVariationFromIndices(
+        const std::string& bodyName,
+        const std::vector< std::pair< int, int > >& componentIndices)
+
+{
+    return std::make_shared< TotalGravityFieldVariationSettings >(
+                bodyName, componentIndices, false );
+}
 
 } // namespace propagators
 
