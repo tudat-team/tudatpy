@@ -180,7 +180,7 @@ BOOST_AUTO_TEST_CASE( test_DesaturationDeltaVsEstimation )
         // Create integrator settings.
         std::shared_ptr< IntegratorSettings< double > > integratorSettings
                 = std::make_shared< RungeKuttaVariableStepSizeSettings< double > >
-                ( initialEphemerisTime, 40.0, RungeKuttaCoefficients::CoefficientSets::rungeKuttaFehlberg78,
+                ( initialEphemerisTime, 40.0, CoefficientSets::rungeKuttaFehlberg78,
                   40.0, 40.0, 1.0, 1.0 );
 
         // Define link ends.

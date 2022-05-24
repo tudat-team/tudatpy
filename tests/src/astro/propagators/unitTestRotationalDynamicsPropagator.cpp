@@ -193,7 +193,7 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagation )
             std::shared_ptr< numerical_integrators::IntegratorSettings< > > integratorSettings =
                     std::make_shared< RungeKuttaVariableStepSizeSettings< > >
                     ( initialEphemerisTime, 10.0,
-                      RungeKuttaCoefficients::rungeKuttaFehlberg78,
+                      rungeKuttaFehlberg78,
                       2.0, 30.0, 1.0E-13, 1.0E-13 );
 
 
@@ -460,7 +460,7 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagationWithObliquity )
         std::shared_ptr< numerical_integrators::IntegratorSettings< > > integratorSettings =
                 std::make_shared< RungeKuttaVariableStepSizeSettings< > >
                 ( initialEphemerisTime, 30.0,
-                  RungeKuttaCoefficients::rungeKuttaFehlberg78,
+                  rungeKuttaFehlberg78,
                   30.0, 300.0, 1.0E-14, 1.0E-14 );
 
         // Define propagator settings.
@@ -777,7 +777,7 @@ BOOST_AUTO_TEST_CASE( testRotationalAndTranslationalDynamicsPropagation )
             std::shared_ptr< IntegratorSettings< > > integratorSettings =
                     std::make_shared< RungeKuttaVariableStepSizeSettings< > >
                     ( 0.0, 0.02,
-                      RungeKuttaCoefficients::rungeKuttaFehlberg78, 1.0E-4, 0.02, 1.0E-12, 1.0E-12 );
+                      rungeKuttaFehlberg78, 1.0E-4, 0.02, 1.0E-12, 1.0E-12 );
 
             // Create simulation object and propagate dynamics.
             SingleArcDynamicsSimulator< > dynamicsSimulator(
