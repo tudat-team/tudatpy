@@ -429,35 +429,35 @@ public:
 
 };
 
-// Class to define thrust magnitude  to be taken directly from an engine model
-//! @get_docstring(FromBodyThrustMagnitudeSettings.__docstring__)
-class FromBodyThrustMagnitudeSettings: public ThrustMagnitudeSettings
-{
-public:
+//// Class to define thrust magnitude  to be taken directly from an engine model
+////! @get_docstring(FromBodyThrustMagnitudeSettings.__docstring__)
+//class FromBodyThrustMagnitudeSettings: public ThrustMagnitudeSettings
+//{
+//public:
 
-    // Constructor
-    /*
-     * Constructor
-     * \param useAllEngines Boolean denoting whether all engines of the associated body are to be combined into a
-     * single thrust magnitude.
-     * \param thrustOrigin Name of engine model from which thrust is to be derived (must be empty if
-     * useAllThrustModels is set to true)
-     */
-    FromBodyThrustMagnitudeSettings(
-            const bool useAllEngines = 1,
-            const std::string& thrustOrigin = "" ):
-        ThrustMagnitudeSettings( from_engine_properties_thrust_magnitude, thrustOrigin ),
-        useAllEngines_( useAllEngines ){ }
+//    // Constructor
+//    /*
+//     * Constructor
+//     * \param useAllEngines Boolean denoting whether all engines of the associated body are to be combined into a
+//     * single thrust magnitude.
+//     * \param thrustOrigin Name of engine model from which thrust is to be derived (must be empty if
+//     * useAllThrustModels is set to true)
+//     */
+//    FromBodyThrustMagnitudeSettings(
+//            const bool useAllEngines = 1,
+//            const std::string& thrustOrigin = "" ):
+//        ThrustMagnitudeSettings( from_engine_properties_thrust_magnitude, thrustOrigin ),
+//        useAllEngines_( useAllEngines ){ }
 
-    bool bodyFixedThrustDirectionIsFixed( )
-    {
-        return false;
-    }
+//    bool bodyFixedThrustDirectionIsFixed( )
+//    {
+//        return false;
+//    }
 
-    // Boolean denoting whether all engines of the associated body are to be combined into a single thrust magnitude
-    bool useAllEngines_;
+//    // Boolean denoting whether all engines of the associated body are to be combined into a single thrust magnitude
+//    bool useAllEngines_;
 
-};
+//};
 
 // Class to define custom settings for thrust magnitude/specific impulse.
 /*
@@ -648,15 +648,15 @@ inline std::shared_ptr< ThrustMagnitudeSettings > constantThrustMagnitudeSetting
                 thrustMagnitude, specificImpulse, bodyFixedThrustDirection );
 }
 
-// TODO: EngineModel still to be implemented
-//! @get_docstring(fromBodyThrustMagnitudeSettings)
-inline std::shared_ptr< ThrustMagnitudeSettings > fromBodyThrustMagnitudeSettings(
-        const bool useAllEngines = 1,
-        const std::string& thrustOrigin = "" )
-{
-    return std::make_shared< FromBodyThrustMagnitudeSettings >(
-                useAllEngines, thrustOrigin  );
-}
+//// TODO: EngineModel still to be implemented
+////! @get_docstring(fromBodyThrustMagnitudeSettings)
+//inline std::shared_ptr< ThrustMagnitudeSettings > fromBodyThrustMagnitudeSettings(
+//        const bool useAllEngines = 1,
+//        const std::string& thrustOrigin = "" )
+//{
+//    return std::make_shared< FromBodyThrustMagnitudeSettings >(
+//                useAllEngines, thrustOrigin  );
+//}
 
 //! @get_docstring(fromFunctionThrustMagnitudeSettings)
 inline std::shared_ptr< ThrustMagnitudeSettings > fromFunctionThrustMagnitudeSettings(

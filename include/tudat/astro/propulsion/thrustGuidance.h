@@ -101,7 +101,7 @@ class DirectThrustDirectionCalculator: public ThrustDirectionCalculator
 {
 public:
     DirectThrustDirectionCalculator(
-            const std::shared_ptr< ephemerides::DirectionBasedRotationalEphemeris > directionBasedRotationModel, ):
+            const std::shared_ptr< ephemerides::DirectionBasedRotationalEphemeris > directionBasedRotationModel ):
         directionBasedRotationModel_( directionBasedRotationModel ){ }
 
     virtual ~DirectThrustDirectionCalculator( ){ }
