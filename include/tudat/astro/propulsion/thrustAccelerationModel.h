@@ -93,7 +93,7 @@ public:
     virtual void resetCurrentTime( )
     {
         currentTime_ = TUDAT_NAN;
-        for( int i = 0; i < thrustSources_.size( ); i++ )
+        for( unsigned int i = 0; i < thrustSources_.size( ); i++ )
         {
             thrustSources_.at( i )->resetCurrentTime( );
         }
@@ -117,12 +117,12 @@ public:
             currentAcceleration_.setZero( );
             thrustDirectionCalculator_->update( currentTime );
 
-            for( int i = 0; i < thrustSources_.size( ); i++ )
+            for( unsigned int i = 0; i < thrustSources_.size( ); i++ )
             {
                 thrustSources_.at( i )->updateEngineModel( currentTime );
-                currentMassRate_ += thrustSources_.at( i )->getCurrentMassRate( );
+                currentMassRate_ -= thrustSources_.at( i )->getCurrentMassRate( );
                 currentAcceleration_ += thrustSources_.at( i )->getCurrentThrust( ) *
-                        thrustDirectionCalculator_->getInertialThrustDirection( thrustSources_.at( i ) );
+                        thrustDirectionCalculator_->getInertialThrustDirection( thrustSources_.at( i ) ) / bodyMassFunction_( );
             }
 
             // Reset current time.
