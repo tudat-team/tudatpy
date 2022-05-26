@@ -12,6 +12,7 @@
 
 #include "expose_shape_based_thrust.h"
 
+#include <tudat/astro/low_thrust/shape_based/hodographicShaping.h>
 #include <tudat/astro/low_thrust/shape_based/baseFunctionsHodographicShaping.h>
 #include <tudat/astro/low_thrust/shape_based/getRecommendedBaseFunctionsHodographicShaping.h>
 
@@ -20,10 +21,9 @@
 #include <pybind11/stl.h>
 #include <pybind11/functional.h>
 
-#include "tudatpy/docstrings.h"
-
 namespace py = pybind11;
 namespace tsbm = tudat::shape_based_methods;
+namespace tltt = tudat::low_thrust_trajectories;
 
 namespace tudatpy {
 namespace trajectory_design {
