@@ -193,7 +193,7 @@ void expose_numerical_simulation(py::module &m) {
           .def("integrate_full_equations",
                &tp::SingleArcVariationalEquationsSolver<double, double>::integrateVariationalAndDynamicalEquations,
                py::arg("initial_states"),
-               py::arg("integrate_equations_concurrently"),
+               py::arg("integrate_equations_concurrently") = true,
                get_docstring("SingleArcVariationalSimulator.integrate_full_equations").c_str() )
           .def_property("parameter_vector",
                         &tp::SingleArcVariationalEquationsSolver<double, double>::getParametersToEstimate,
