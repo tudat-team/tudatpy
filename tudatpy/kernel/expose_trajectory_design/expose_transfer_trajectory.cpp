@@ -17,12 +17,16 @@
 
 #include <tudat/astro/mission_segments/createTransferTrajectory.h>
 #include <tudat/simulation/propagation_setup/accelerationSettings.h>
+#include "tudat/math/root_finders.h"
 
 #include "tudatpy/docstrings.h"
 
 namespace py = pybind11;
 namespace tms = tudat::mission_segments;
 namespace tss = tudat::simulation_setup;
+namespace tpc = tudat::physical_constants;
+namespace trf = tudat::root_finders;
+namespace tsbm = tudat::shape_based_methods;
 
 namespace tudatpy {
 namespace trajectory_design {
@@ -43,7 +47,30 @@ void expose_transfer_trajectory(py::module &m) {
             .value("dsm_velocity_based_leg_type",
                    tms::TransferLegTypes::dsm_velocity_based_leg,
                    get_docstring("TransferLegTypes.dsm_velocity_based_leg_type").c_str())
+            .value("spherical_shaping_low_thrust_leg",
+                   tms::TransferLegTypes::spherical_shaping_low_thrust_leg,
+                   get_docstring("TransferLegTypes.spherical_shaping_low_thrust_leg").c_str())
+            .value("hodographic_low_thrust_leg",
+                   tms::TransferLegTypes::hodographic_low_thrust_leg,
+                   get_docstring("TransferLegTypes.hodographic_low_thrust_leg").c_str())
             .export_values();
+
+    py::class_<
+            tms::TransferLeg,
+            std::shared_ptr<tms::TransferLeg> >(m, "TransferLeg",
+                                                get_docstring("TransferLeg").c_str());
+
+    py::class_<
+            tsbm::SphericalShapingLeg,
+            std::shared_ptr<tsbm::SphericalShapingLeg>,
+            tms::TransferLeg >(m, "SphericalShapingLeg",
+                               get_docstring("SphericalShapingLeg").c_str());
+
+    py::class_<
+            tsbm::HodographicShapingLeg,
+            std::shared_ptr<tsbm::HodographicShapingLeg>,
+            tms::TransferLeg >(m, "HodographicShapingLeg",
+                               get_docstring("HodographicShapingLeg").c_str());
 
     py::class_<
             tms::TransferNodeSettings,
@@ -73,21 +100,101 @@ void expose_transfer_trajectory(py::module &m) {
             std::shared_ptr<tms::TransferLegSettings> >(m, "TransferLegSettings",
                                                         get_docstring("TransferLegSettings").c_str());
 
-    m.def("mga_transfer_settings",
+    m.def("mga_settings_unpowered_unperturbed_legs",
           py::overload_cast<
           const std::vector< std::string >&,
-          const tms::TransferLegTypes,
           const std::pair< double, double >,
           const std::pair< double, double >,
           const std::map< std::string, double >
-          >( &tms::getMgaTransferTrajectorySettings ),
+          >( &tms::getMgaTransferTrajectorySettingsWithoutDsm ),
           py::arg( "body_order" ),
-          py::arg( "leg_type" ),
           py::arg( "departure_orbit" ) = std::make_pair( TUDAT_NAN, TUDAT_NAN ),
           py::arg( "arrival_orbit" ) = std::make_pair( TUDAT_NAN, TUDAT_NAN ),
           py::arg( "minimum_pericenters" ) = tms::DEFAULT_MINIMUM_PERICENTERS,
-          get_docstring("mga_transfer_settings").c_str()
-          );
+          get_docstring("mga_settings_unpowered_unperturbed_legs").c_str() );
+
+    m.def("mga_settings_dsm_position_based_legs",
+          py::overload_cast<
+          const std::vector< std::string >&,
+          const std::pair< double, double >,
+          const std::pair< double, double >,
+          const std::map< std::string, double >
+          >( &tms::getMgaTransferTrajectorySettingsWithPositionBasedDsm ),
+          py::arg( "body_order" ),
+          py::arg( "departure_orbit" ) = std::make_pair( TUDAT_NAN, TUDAT_NAN ),
+          py::arg( "arrival_orbit" ) = std::make_pair( TUDAT_NAN, TUDAT_NAN ),
+          py::arg( "minimum_pericenters" ) = tms::DEFAULT_MINIMUM_PERICENTERS,
+          get_docstring("mga_settings_dsm_position_based_legs").c_str() );
+
+    m.def("mga_settings_dsm_velocity_based_legs",
+          py::overload_cast<
+          const std::vector< std::string >&,
+          const std::pair< double, double >,
+          const std::pair< double, double >,
+          const std::map< std::string, double >
+          >( &tms::getMgaTransferTrajectorySettingsWithVelocityBasedDsm ),
+          py::arg( "body_order" ),
+          py::arg( "departure_orbit" ) = std::make_pair( TUDAT_NAN, TUDAT_NAN ),
+          py::arg( "arrival_orbit" ) = std::make_pair( TUDAT_NAN, TUDAT_NAN ),
+          py::arg( "minimum_pericenters" ) = tms::DEFAULT_MINIMUM_PERICENTERS,
+          get_docstring("mga_settings_dsm_velocity_based_legs").c_str() );
+
+    m.def("mga_settings_spherical_shaping_legs",
+          py::overload_cast<
+          const std::vector< std::string >&,
+          const std::shared_ptr< trf::RootFinderSettings >,
+          const std::pair< double, double >,
+          const std::pair< double, double >,
+          const double,
+          const double,
+          const double,
+          const std::map< std::string, double >
+          >( &tms::getMgaTransferTrajectorySettingsWithSphericalShapingThrust ),
+          py::arg( "body_order" ),
+          py::arg( "root_finder_settings" ),
+          py::arg( "departure_orbit" ) = std::make_pair( TUDAT_NAN, TUDAT_NAN ),
+          py::arg( "arrival_orbit" ) = std::make_pair( TUDAT_NAN, TUDAT_NAN ),
+          py::arg("lower_bound_free_coefficient") = TUDAT_NAN,
+          py::arg("upper_bound_free_coefficient") = TUDAT_NAN,
+          py::arg("initial_value_free_coefficient") = TUDAT_NAN,
+          py::arg( "minimum_pericenters" ) = tms::DEFAULT_MINIMUM_PERICENTERS,
+          get_docstring("mga_settings_spherical_shaping_legs").c_str() );
+
+    m.def("mga_settings_hodographic_shaping_legs",
+          py::overload_cast<
+          const std::vector< std::string >&,
+          const std::vector< tsbm::HodographicBasisFunctionList >&,
+          const std::vector< tsbm::HodographicBasisFunctionList >&,
+          const std::vector< tsbm::HodographicBasisFunctionList >&,
+          const std::pair< double, double >,
+          const std::pair< double, double >,
+          const std::map< std::string, double >
+          >( &tms::getMgaTransferTrajectorySettingsWithHodographicShapingThrust ),
+          py::arg( "body_order" ),
+          py::arg( "radial_velocity_function_components_per_leg" ),
+          py::arg( "normal_velocity_function_components_per_leg" ),
+          py::arg( "axial_velocity_function_components_per_leg" ),
+          py::arg( "departure_orbit" ) = std::make_pair( TUDAT_NAN, TUDAT_NAN ),
+          py::arg( "arrival_orbit" ) = std::make_pair( TUDAT_NAN, TUDAT_NAN ),
+          py::arg( "minimum_pericenters" ) = tms::DEFAULT_MINIMUM_PERICENTERS,
+          get_docstring("mga_settings_hodographic_shaping_legs").c_str() );
+
+    m.def("mga_settings_hodographic_shaping_legs_with_recommended_functions",
+          py::overload_cast<
+          const std::vector< std::string >&,
+          const std::vector< double >&,
+          const std::vector< double >&,
+          const std::pair< double, double >,
+          const std::pair< double, double >,
+          const std::map< std::string, double >
+          >( &tms::getMgaTransferTrajectorySettingsWithHodographicShapingThrust ),
+          py::arg( "body_order" ),
+          py::arg( "time_of_flight_per_leg" ),
+          py::arg( "number_of_revolutions_per_leg" ),
+          py::arg( "departure_orbit" ) = std::make_pair( TUDAT_NAN, TUDAT_NAN ),
+          py::arg( "arrival_orbit" ) = std::make_pair( TUDAT_NAN, TUDAT_NAN ),
+          py::arg( "minimum_pericenters" ) = tms::DEFAULT_MINIMUM_PERICENTERS,
+          get_docstring("mga_settings_hodographic_shaping_legs").c_str() );
 
     py::class_<
             tms::TransferTrajectory,
@@ -112,6 +219,18 @@ void expose_transfer_trajectory(py::module &m) {
                  py::overload_cast<const int> (&tms::TransferTrajectory::getStatesAlongTrajectory),
                  py::arg("number_of_data_points_per_leg"),
                  get_docstring("TransferTrajectory.states_along_trajectory").c_str() )
+            .def("inertial_thrust_accelerations_along_trajectory",
+                 py::overload_cast<const int> (&tms::TransferTrajectory::getInertialThrustAccelerationsAlongTrajectory),
+                 py::arg("number_of_data_points_per_leg"),
+                 get_docstring("TransferTrajectory.inertial_thrust_accelerations_along_trajectory").c_str())
+            .def("rsw_thrust_accelerations_along_trajectory",
+                 py::overload_cast<const int> (&tms::TransferTrajectory::getRswThrustAccelerationsAlongTrajectory),
+                 py::arg("number_of_data_points_per_leg"),
+                 get_docstring("TransferTrajectory.rsw_thrust_accelerations_along_trajectory").c_str())
+            .def("tnw_thrust_accelerations_along_trajectory",
+                 py::overload_cast<const int> (&tms::TransferTrajectory::getTnwThrustAccelerationsAlongTrajectory),
+                 py::arg("number_of_data_points_per_leg"),
+                 get_docstring("TransferTrajectory.tnw_thrust_accelerations_along_trajectory").c_str())
             .def_property_readonly("delta_v_per_node", &tms::TransferTrajectory::getDeltaVPerNode,
                                    get_docstring("TransferTrajectory.delta_v_per_node").c_str() )
             .def_property_readonly("delta_v_per_leg", &tms::TransferTrajectory::getDeltaVPerLeg,
@@ -133,6 +252,22 @@ void expose_transfer_trajectory(py::module &m) {
           &tms::dsmVelocityBasedLeg,
           get_docstring("dsm_velocity_based_leg").c_str() );
 
+    m.def("spherical_shaping_leg",
+          &tms::sphericalShapingLeg,
+          py::arg( "root_finder_settings" ),
+          py::arg( "lower_bound_free_coefficient" ) = TUDAT_NAN,
+          py::arg( "upper_bound_free_coefficient" ) = TUDAT_NAN,
+          py::arg( "initial_value_free_coefficient" ) = TUDAT_NAN,
+          py::arg( "time_to_azimuth_interpolator_step_size" ) = tpc::JULIAN_DAY,
+          get_docstring("spherical_shaping_leg").c_str() );
+
+    m.def("hodographic_shaping_leg",
+          &tms::hodographicShapingLeg,
+          py::arg("radial_velocity_function_components"),
+          py::arg("normal_velocity_function_components"),
+          py::arg("axial_velocity_function_components"),
+          get_docstring("hodographic_shaping_leg").c_str() );
+
     m.def("swingby_node",
           &tms::swingbyNode,
           py::arg( "minimum_periapsis" ) = TUDAT_NAN,
@@ -150,7 +285,6 @@ void expose_transfer_trajectory(py::module &m) {
           py::arg( "capture_eccentricity" ),
           get_docstring("capture_node").c_str() );
 
-
     m.def("print_parameter_definitions",
           &tms::printTransferParameterDefinition,
           py::arg( "leg_settings" ),
@@ -167,13 +301,6 @@ void expose_transfer_trajectory(py::module &m) {
           get_docstring("create_transfer_trajectory").c_str());
 
 
-    m.def("get_low_thrust_acceleration_settings",
-          &tss::getLowThrustLegAccelerationSettings,
-          py::arg("low_thrust_leg"),
-          py::arg("bodies"),
-          py::arg("body_to_propagate"),
-          py::arg("specific_impulse_function"),
-          py::arg("low_thrust_leg_initial_time") );
 };
 
 } // namespace transfer_trajectory
