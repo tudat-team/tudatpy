@@ -32,6 +32,82 @@ namespace tudat
 namespace simulation_setup
 {
 
+std::function< Eigen::Matrix3d( const double ) > getRotationFunctionFromSatelliteBasedFrame(
+        const ephemerides::SatelliteBasedFrames frameId,
+        const SystemOfBodies& bodies,
+        const std::string& body,
+        const std::string& centralBody )
+{
+    std::function< Eigen::Matrix3d( const double ) > rotationToInertialFrameFunction;
+    switch( frameId )
+    {
+    case ephemerides::inertial_satellite_based_frame:
+    {
+        rotationToInertialFrameFunction = [](const double){return Eigen::Matrix3d::Identity( ); };
+    }
+    case ephemerides::tnw_satellite_based_frame:
+    {
+        if( bodies.count( body ) == 0 )
+        {
+            throw std::runtime_error( "Error when getting rotation function from TNW, input body " + body + " not found" );
+        }
+
+        if( ephemerides::isFrameInertial( centralBody ) )
+        {
+            rotationToInertialFrameFunction = [=](const double)
+            {
+                return reference_frames::getTnwToInertialRotation( bodies.at( body )->getState( ), true );
+            };
+        }
+        else
+        {
+            if( bodies.count( centralBody ) == 0 )
+            {
+                throw std::runtime_error( "Error when getting rotation function from TNW, input central body " + centralBody + " not found" );
+            }
+            rotationToInertialFrameFunction = [=](const double)
+            {
+                return reference_frames::getTnwToInertialRotation(
+                            bodies.at( body )->getState( ) - bodies.at( centralBody )->getState( ), true );
+            };
+        }
+        break;
+    }
+    case ephemerides::rsw_satellite_based_frame:
+    {
+        if( bodies.count( body ) == 0 )
+        {
+            throw std::runtime_error( "Error when getting rotation function from TNW, input body " + body + " not found" );
+        }
+
+        if( ephemerides::isFrameInertial( centralBody ) )
+        {
+            rotationToInertialFrameFunction = [=](const double)
+            {
+                return reference_frames::getRswSatelliteCenteredToInertialFrameRotationMatrix( bodies.at( body )->getState( ) );
+            };
+        }
+        else
+        {
+            if( bodies.count( centralBody ) == 0 )
+            {
+                throw std::runtime_error( "Error when getting rotation function from TNW, input central body " + centralBody + " not found" );
+            }
+            rotationToInertialFrameFunction = [=](const double)
+            {
+                return reference_frames::getRswSatelliteCenteredToInertialFrameRotationMatrix(
+                            bodies.at( body )->getState( ) - bodies.at( centralBody )->getState( ) );
+            };
+        }
+        break;
+    }
+    default:
+            throw std::runtime_error( "Error when getting rotation function from satellite fixedd frame, input type " +
+                                      std::to_string( frameId ) + " not found" );
+    }
+    return rotationToInertialFrameFunction;
+}
+
 //! Function to retrieve a state from one of two functions
 Eigen::Vector6d getStateFromSelectedStateFunction(
         const double currentTime,
@@ -575,40 +651,17 @@ std::shared_ptr< ephemerides::RotationalEphemeris > createRotationModel(
 
             if( bodyFixedDirectionBasedRotationSettings->directionFrame_.first != ephemerides::inertial_satellite_based_frame )
             {
-                if( bodyFixedDirectionBasedRotationSettings->directionFrame_.first == ephemerides::tnw_satellite_based_frame )
+                std::function< Eigen::Matrix3d( const double ) > rotationMatrixFunction =
+                        getRotationFunctionFromSatelliteBasedFrame(
+                            bodyFixedDirectionBasedRotationSettings->directionFrame_.first,
+                            bodies,
+                            body,
+                            bodyFixedDirectionBasedRotationSettings->directionFrame_.second );
+                inertialBodyAxisDirectionFunction = [=]( const double time )
                 {
-                    // Create rotation function from thrust-frame to propagation frame.
-                    if( bodyFixedDirectionBasedRotationSettings->directionFrame_.first == tnw_satellite_based_frame )
-                    {
-                        std::function< Eigen::Vector6d( ) > vehicleStateFunction =
-                                std::bind( &Body::getState, bodies.at( body ) );
-                        std::function< Eigen::Vector6d( ) > centralBodyStateFunction;
-
-                        if( ephemerides::isFrameInertial( bodyFixedDirectionBasedRotationSettings->directionFrame_.second ) )
-                        {
-                            centralBodyStateFunction =  [ ]( ){ return Eigen::Vector6d::Zero( ); };
-                        }
-                        else
-                        {
-                            if( bodies.count( bodyFixedDirectionBasedRotationSettings->directionFrame_.second ) == 0 )
-                            {
-                                throw std::runtime_error( "Error when creating thrust acceleration, input central body not found" );
-                            }
-                            centralBodyStateFunction =
-                                    std::bind( &Body::getState, bodies.at( bodyFixedDirectionBasedRotationSettings->directionFrame_.second ) );
-                        }
-                        inertialBodyAxisDirectionFunction = [=]( const double time )
-                        {
-                            return reference_frames::getTnwToInertialRotationFromFunctions(
-                                               vehicleStateFunction, centralBodyStateFunction, true ) *
-                                    bodyFixedDirectionBasedRotationSettings->inertialBodyAxisDirectionFunction_( time );
-                        };
-                    }
-                }
-                else
-                {
-                    throw std::runtime_error( "Error when making body-fixed direction based rotation model; frame not recognized");
-                }
+                    return rotationMatrixFunction( time )*
+                            bodyFixedDirectionBasedRotationSettings->inertialBodyAxisDirectionFunction_( time );
+                };
             }
             else
             {

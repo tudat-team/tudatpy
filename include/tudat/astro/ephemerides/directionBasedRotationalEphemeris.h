@@ -13,7 +13,8 @@ enum SatelliteBasedFrames
 {
     unspecified_satellite_based_frame = -1,
     inertial_satellite_based_frame = 0,
-    tnw_satellite_based_frame = 1
+    tnw_satellite_based_frame = 1,
+    rsw_satellite_based_frame = 2
 };
 
 class DirectionBasedRotationalEphemeris: public ephemerides::RotationalEphemeris
