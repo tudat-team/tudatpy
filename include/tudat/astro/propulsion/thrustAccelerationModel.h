@@ -121,8 +121,8 @@ public:
             {
                 thrustSources_.at( i )->updateEngineModel( currentTime );
                 currentMassRate_ -= thrustSources_.at( i )->getCurrentMassRate( );
-                currentAcceleration_ += thrustSources_.at( i )->getCurrentThrust( ) *
-                        thrustDirectionCalculator_->getInertialThrustDirection( thrustSources_.at( i ) ) / bodyMassFunction_( );
+                currentAcceleration_ += ( thrustSources_.at( i )->getCurrentThrust( ) / bodyMassFunction_( ) )*
+                        thrustDirectionCalculator_->getInertialThrustDirection( thrustSources_.at( i ) ) ;
             }
 
             // Reset current time.
@@ -150,6 +150,16 @@ public:
     std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > getRequiredModelUpdates( )
     {
         return requiredModelUpdates_;
+    }
+
+    std::vector< std::string > getAssociatedThrustSources( )
+    {
+        std::vector< std::string > thrustSourceIds;
+        for( unsigned int j = 0; j < thrustSources_.size( ); j++ )
+        {
+            thrustSourceIds.push_back( thrustSources_.at( j )->getEngineName( ) );
+        }
+        return thrustSourceIds;
     }
 
 protected:

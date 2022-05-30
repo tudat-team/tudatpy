@@ -145,7 +145,7 @@ public:
         else
         {
             updateQuaternion( currentTime_ );
-            return currentRotationToBaseFrame_ * engineModel->getBodyFixedThrustDirection( );
+            return ( currentRotationToBaseFrame_ * engineModel->getBodyFixedThrustDirection( ) ).normalized( );
         }
     }
 
@@ -184,7 +184,7 @@ public:
     Eigen::Vector3d getInertialThrustDirection(
             const std::shared_ptr< system_models::EngineModel > engineModel )
     {
-        return currentRotation_ * engineModel->getBodyFixedThrustDirection( );
+        return ( currentRotation_ * engineModel->getBodyFixedThrustDirection( ) ).normalized( );
     }
 
 protected:

@@ -43,9 +43,11 @@ public:
      */
     EngineModel(
             const std::shared_ptr< propulsion::ThrustMagnitudeWrapper > thrustMagnitudeWrapper,
+            const std::string engineName,
             const std::function< Eigen::Vector3d( const double ) > bodyFixedThrustDirection =
                 []( const double ){ return Eigen::Vector3d::UnitX( ); } ):
        thrustMagnitudeWrapper_( thrustMagnitudeWrapper ),
+       engineName_( engineName ),
        bodyFixedThrustDirection_( bodyFixedThrustDirection )
     { }
 
@@ -102,9 +104,17 @@ public:
         thrustMagnitudeWrapper_->resetCurrentTime( );
         bodyFixedThrustDirection_( TUDAT_NAN );
     }
+
+    const std::string getEngineName( )
+    {
+        return engineName_;
+    }
+
 protected:
 
     std::shared_ptr< propulsion::ThrustMagnitudeWrapper > thrustMagnitudeWrapper_;
+
+    const std::string engineName_;
 
     std::function< Eigen::Vector3d( const double ) > bodyFixedThrustDirection_;
 

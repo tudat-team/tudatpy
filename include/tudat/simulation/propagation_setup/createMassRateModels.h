@@ -95,13 +95,18 @@ public:
             const bool useAllThrustModels = 1,
             const std::string& associatedThrustSource = "" ):
         MassRateModelSettings( basic_astrodynamics::from_thrust_mass_rate_model ),
-    associatedThrustSource_( associatedThrustSource ), useAllThrustModels_( useAllThrustModels ){ }
+        associatedThrustSource_( { associatedThrustSource } ), useAllThrustModels_( useAllThrustModels ){ }
+
+    FromThrustMassRateSettings(
+            const std::vector< std::string > associatedThrustSources ):
+        MassRateModelSettings( basic_astrodynamics::from_thrust_mass_rate_model ),
+    associatedThrustSource_( associatedThrustSources ), useAllThrustModels_( false ){ }
 
     //! Destructor
     ~FromThrustMassRateSettings( ){ }
 
     //! Name of engine model from which thrust is to be derived
-    std::string associatedThrustSource_;
+    std::vector< std::string > associatedThrustSource_;
 
     //! Boolean denoting whether all engines of the associated body are to be combined into a single thrust model.
     bool useAllThrustModels_;

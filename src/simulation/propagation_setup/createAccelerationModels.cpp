@@ -1107,6 +1107,7 @@ createThrustAcceleratioModel(
         throw std::runtime_error( "Error when creating thrust acceleration model for " + nameOfBodyUndergoingThrust +
                                   ", body has no systems" );
     }
+
     std::map< std::string, std::shared_ptr< system_models::EngineModel > > engineModels = vehicleSystems->getEngineModels( );
 
     for( unsigned int i = 0; i < thrustAccelerationSettings->engineIds_.size( ); i++ )
