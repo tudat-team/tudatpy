@@ -169,6 +169,12 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientsFromFile )
                 std::make_shared< interpolators::MultiLinearInterpolator< double, double, 2 > >(
                     specificImpulseValues.second, specificImpulseValues.first );
 
+        addEngineModel(
+                    "SpacePlane", "MainEngine",
+                    std::make_shared< ParameterizedThrustMagnitudeSettings >(
+                        thrustMagnitudeInterpolator, thrustDependencies,
+                        specificImpulseInterpolator, thrustDependencies ), bodies );
+
         //////////////////////////////////////// End Variable thrust calculations /////////////////////////////////////////////
 
 
@@ -178,11 +184,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientsFromFile )
         accelerationsOfSpacePlane[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( aerodynamic ) );
 
         accelerationsOfSpacePlane[ "SpacePlane" ].push_back( std::make_shared< ThrustAccelerationSettings >(
-//                                                                 std::make_shared< ThrustDirectionSettings >(
-//                                                                     thrust_direction_from_existing_body_orientation, "Earth" ),
-                                                                 std::make_shared< ParameterizedThrustMagnitudeSettings >(
-                                                                     thrustMagnitudeInterpolator, thrustDependencies,
-                                                                     specificImpulseInterpolator, thrustDependencies ) ) );
+                                                                  "MainEngine" ) );
 
         accelerationMap[ "SpacePlane" ] = accelerationsOfSpacePlane;
 

@@ -79,20 +79,27 @@ void AerodynamicAngleRotationalEphemeris::updateBodyAngles( )
 
 void AerodynamicAngleRotationalEphemeris::update( const double currentTime )
 {
-    if( !( currentTime == currentTime_ ) )
+//    if( !isBodyInPropagation_ )
+//    {
+//        throw std::runtime_error( "Error, can only use AerodynamicAngleRotationalEphemeris during propagation" );
+//    }
+//    else
     {
-        if( currentTime == currentTime )
+        if( !( currentTime == currentTime_ ) )
         {
-            currentTime_ = currentTime;
-            aerodynamicAngleCalculator_->update( currentTime, false );
-            updateBodyAngles( );
-            aerodynamicAngleCalculator_->update( currentTime, true );
-        }
-        else
-        {
-            resetCurrentTime( );
-        }
+            if( currentTime == currentTime )
+            {
+                currentTime_ = currentTime;
+                aerodynamicAngleCalculator_->update( currentTime, false );
+                updateBodyAngles( );
+                aerodynamicAngleCalculator_->update( currentTime, true );
+            }
+            else
+            {
+                resetCurrentTime( );
+            }
 
+        }
     }
 }
 

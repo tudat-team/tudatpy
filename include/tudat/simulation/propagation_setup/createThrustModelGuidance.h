@@ -39,19 +39,6 @@ Eigen::Vector3d getCombinedThrustDirection(
         const std::vector< std::function< Eigen::Vector3d( )> >& thrustDirections,
         const std::vector< std::function< double( )> >& thrustMagnitudes );
 
-//! Function to create a function that returns the thrust direction in the body-fixed frame.
-/*!
- * Function to create a function that returns the thrust direction in the body-fixed frame.
- * \param thrustMagnitudeSettings Settings for the thrust magnitude
- * \param bodies List of body objects that comprises the environment
- * \param bodyName Name of body for which thrust is to be created.
- * \return Function that returns the thrust direction in the body-fixed frame.
- */
-std::function< Eigen::Vector3d( ) > getBodyFixedThrustDirection(
-        const std::shared_ptr< ThrustMagnitudeSettings > thrustMagnitudeSettings,
-        const SystemOfBodies& bodies,
-        const std::string bodyName );
-
 //! Function to create a wrapper object that computes the thrust magnitude
 /*!
  * Function to create a wrapper object that computes the thrust magnitude

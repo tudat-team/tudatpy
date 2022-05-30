@@ -409,10 +409,15 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
 
         if( includeThrustForce )
         {
+            addEngineModel(
+                        "Vehicle", "MainEngine",
+                        std::make_shared< ConstantThrustMagnitudeSettings >(
+                            thrustMagnitude, specificImpulse ),
+                        bodies, bodyFixedThrustDirection );
+
             accelerationsOfVehicle[ "Vehicle" ].push_back(
                         std::make_shared< ThrustAccelerationSettings >(
-                            std::make_shared< ConstantThrustMagnitudeSettings >(
-                                thrustMagnitude, specificImpulse, bodyFixedThrustDirection ) ) );
+                             "MainEngine" ) );
         }
 
         if( !swapCreationOrder )
@@ -490,7 +495,7 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
         std::shared_ptr< ephemerides::RotationalEphemeris > rotationalEphemeris =
                 bodies.at( "Vehicle" )->getRotationalEphemeris( );
 
-        double thrustAcceleration = thrustMagnitude / vehicleMass;
+        double thrustAccelerationMagnitude = thrustMagnitude / vehicleMass;
         Eigen::Matrix3d matrixDifference;
         for( std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > >::const_iterator outputIterator =
              dependentVariableOutput.begin( ); outputIterator != dependentVariableOutput.end( ); outputIterator++ )
@@ -577,7 +582,7 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
                 {
                     BOOST_CHECK_SMALL(
                                 std::fabs( thrustForceInBodyFrame( j ) - bodyFixedThrustDirection( j ) *
-                                           thrustAcceleration ), 1.0E-14 );
+                                           thrustAccelerationMagnitude ), 1.0E-14 );
                 }
             }
             else if( includeThrustForce && useSpiceRotationModel )
@@ -587,7 +592,7 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
                 Eigen::Matrix3d rotationToBodyFrameFromEphemeris = spice_interface::computeRotationQuaternionBetweenFrames(
                             "ECLIPJ2000", "IAU_MOON", outputIterator->first ).toRotationMatrix( );
                 Eigen::Vector3d imposedThrustForceInPropagationFrame =
-                        thrustAcceleration * ( rotationToBodyFrameFromEphemeris.transpose( ) * bodyFixedThrustDirection );
+                        thrustAccelerationMagnitude * ( rotationToBodyFrameFromEphemeris.transpose( ) * bodyFixedThrustDirection );
 
 
 

@@ -232,151 +232,6 @@ Eigen::Vector3d getCombinedThrustDirection(
     return thrustDirection / totalThrust;
 }
 
-//! Function to create a function that returns the thrust direction in the body-fixed frame.
-std::function< Eigen::Vector3d( ) > getBodyFixedThrustDirection(
-        const std::shared_ptr< ThrustMagnitudeSettings > thrustMagnitudeSettings,
-        const SystemOfBodies& bodies,
-        const std::string bodyName )
-{
-    std::function< Eigen::Vector3d( ) > thrustDirectionFunction;
-
-    // Identify magnitude settings type
-    switch( thrustMagnitudeSettings->thrustMagnitudeType_ )
-    {
-    case constant_thrust_magnitude:
-    {
-        // Check input consistency
-        std::shared_ptr< ConstantThrustMagnitudeSettings > constantThrustMagnitudeSettings =
-                std::dynamic_pointer_cast< ConstantThrustMagnitudeSettings >( thrustMagnitudeSettings );
-        if( constantThrustMagnitudeSettings == nullptr )
-        {
-            throw std::runtime_error( "Error when creating body-fixed thrust direction of type constant_thrust_magnitude, input is inconsistent" );
-        }
-        else
-        {
-            thrustDirectionFunction = [ = ]( ){ return constantThrustMagnitudeSettings->bodyFixedThrustDirection_; };
-        }
-        break;
-    }
-    case from_engine_properties_thrust_magnitude:
-    {
-        // Check input consistency
-        std::shared_ptr< FromBodyThrustMagnitudeSettings > fromEngineThrustMagnitudeSettings =
-                std::dynamic_pointer_cast< FromBodyThrustMagnitudeSettings >( thrustMagnitudeSettings );
-        if( fromEngineThrustMagnitudeSettings == nullptr )
-        {
-            throw std::runtime_error( "Error when creating body-fixed thrust direction of type from_engine_properties_thrust_magnitude, input is inconsistent" );
-        }
-        if( bodies.at( bodyName )->getVehicleSystems( ) == nullptr )
-        {
-            throw std::runtime_error( "Error when creating body-fixed thrust direction of type from_engine_properties_thrust_magnitude, no vehicle systems found" );
-
-        }
-
-        // Retrieve single engine
-        if( fromEngineThrustMagnitudeSettings->useAllEngines_ == false  )
-        {
-            // Check if engine model exists
-            if( ( bodies.at( bodyName )->getVehicleSystems( )->getEngineModels( ).count(
-                      thrustMagnitudeSettings->thrustOriginId_ ) == 0 ) )
-            {
-                throw std::runtime_error( "Error when creating body-fixed thrust direction of type from_engine_properties_thrust_magnitude, no engine of right ID found" );
-            }
-            else
-            {
-                thrustDirectionFunction =
-                        std::bind( &system_models::EngineModel::getBodyFixedThrustDirection,
-                                     bodies.at( bodyName )->getVehicleSystems( )->getEngineModels( ).at(
-                                         thrustMagnitudeSettings->thrustOriginId_ ) );
-            }
-
-        }
-        // Retrieve mean thrust direction from all engines
-        else
-        {
-            // Print warning if there are no engines (zero thrust)
-            if( ( bodies.at( bodyName )->getVehicleSystems( )->getEngineModels( ).size( ) == 0 ) )
-            {
-                std::cerr << "Warning when creating body-fixed thrust direction of type from_engine_properties_thrust_magnitude; no engines found: returning 0 thrust" << std::endl;
-            }
-
-            // Retrieve force directions/magnitudes
-            std::vector< std::function< Eigen::Vector3d( )> > thrustDirections;
-            std::vector< std::function< double( )> > thrustMagnitudes;
-
-            std::map< std::string, std::shared_ptr< system_models::EngineModel > > engineModels =
-                    bodies.at( bodyName )->getVehicleSystems( )->getEngineModels( );
-
-            for( std::map< std::string, std::shared_ptr< system_models::EngineModel > >::const_iterator engineIterator =
-                 engineModels.begin( ); engineIterator != engineModels.end( ); engineIterator++ )
-            {
-                thrustDirections.push_back(
-                            std::bind( &system_models::EngineModel::getBodyFixedThrustDirection, engineIterator->second ) );
-                thrustMagnitudes.push_back(
-                            std::bind( &system_models::EngineModel::getCurrentThrust, engineIterator->second ) );
-            }
-
-            // Create effective thrust direction function.
-            thrustDirectionFunction = std::bind(
-                        &getCombinedThrustDirection, thrustDirections, thrustMagnitudes );
-
-        }
-        break;
-
-    }
-    case thrust_magnitude_from_time_function:
-    {
-        // Check input consistency
-        std::shared_ptr< FromFunctionThrustMagnitudeSettings > fromFunctionThrustMagnitudeSettings =
-                std::dynamic_pointer_cast< FromFunctionThrustMagnitudeSettings >( thrustMagnitudeSettings );
-        if( fromFunctionThrustMagnitudeSettings == nullptr )
-        {
-            throw std::runtime_error( "Error when creating body-fixed thrust direction of type thrust_magnitude_from_time_function, input is inconsistent" );
-        }
-        else
-        {
-            thrustDirectionFunction =  fromFunctionThrustMagnitudeSettings->bodyFixedThrustDirection_;
-        }
-        break;
-
-    }
-    case thrust_magnitude_from_dependent_variables:
-    {
-        // Check input consistency
-        std::shared_ptr< ParameterizedThrustMagnitudeSettings > fromFunctionThrustMagnitudeSettings =
-                std::dynamic_pointer_cast< ParameterizedThrustMagnitudeSettings >( thrustMagnitudeSettings );
-        if( fromFunctionThrustMagnitudeSettings == nullptr )
-        {
-            throw std::runtime_error( "Error when creating body-fixed thrust direction of type thrust_magnitude_from_dependent_variables, input is inconsistent" );
-        }
-        else
-        {
-            thrustDirectionFunction = [ = ]( ){ return fromFunctionThrustMagnitudeSettings->bodyFixedThrustDirection_; };
-        }
-        break;
-    }
-//    case bang_bang_thrust_magnitude_from_mee_costates:
-//    {
-//        // Check input consistency
-//        std::shared_ptr< FromMeeCostatesBangBangThrustMagnitudeSettings > fromMeeCostatesBangBangThrustMagnitudeSettings =
-//                std::dynamic_pointer_cast< FromMeeCostatesBangBangThrustMagnitudeSettings >( thrustMagnitudeSettings );
-//        if( fromMeeCostatesBangBangThrustMagnitudeSettings == nullptr )
-//        {
-//            throw std::runtime_error( "Error when creating body-fixed thrust direction of type "
-//                                      "bang_bang_thrust_magnitude_from_mee_costates, input is inconsistent" );
-//        }
-//        else
-//        {
-//            thrustDirectionFunction =  fromMeeCostatesBangBangThrustMagnitudeSettings->bodyFixedThrustDirection_;
-//        }
-//        break;
-//    }
-    default:
-        throw std::runtime_error( "Error when creating body-fixed thrust direction, type not identified" );
-    }
-    return thrustDirectionFunction;
-}
-
 //! Function to create a wrapper object that computes the thrust magnitude
 std::shared_ptr< propulsion::ThrustMagnitudeWrapper > createThrustMagnitudeWrapper(
         const std::shared_ptr< ThrustMagnitudeSettings > thrustMagnitudeSettings,
@@ -405,64 +260,62 @@ std::shared_ptr< propulsion::ThrustMagnitudeWrapper > createThrustMagnitudeWrapp
         break;
 
     }
-    case from_engine_properties_thrust_magnitude:
-    {
-        // Check input consistency
-        std::shared_ptr< FromBodyThrustMagnitudeSettings > fromEngineThrustMagnitudeSettings =
-                std::dynamic_pointer_cast< FromBodyThrustMagnitudeSettings >( thrustMagnitudeSettings );
-        if( fromEngineThrustMagnitudeSettings == nullptr )
-        {
-            throw std::runtime_error( "Error when creating from-engine thrust magnitude wrapper, input is inconsistent" );
-        }
-        if( bodies.at( nameOfBodyWithGuidance )->getVehicleSystems( ) == nullptr )
-        {
-            throw std::runtime_error( "Error when creating from-engine thrust magnitude wrapper, no vehicle systems found" );
+//    case from_engine_properties_thrust_magnitude:
+//    {
+//        // Check input consistency
+//        std::shared_ptr< FromBodyThrustMagnitudeSettings > fromEngineThrustMagnitudeSettings =
+//                std::dynamic_pointer_cast< FromBodyThrustMagnitudeSettings >( thrustMagnitudeSettings );
+//        if( fromEngineThrustMagnitudeSettings == nullptr )
+//        {
+//            throw std::runtime_error( "Error when creating from-engine thrust magnitude wrapper, input is inconsistent" );
+//        }
+//        if( bodies.at( nameOfBodyWithGuidance )->getVehicleSystems( ) == nullptr )
+//        {
+//            throw std::runtime_error( "Error when creating from-engine thrust magnitude wrapper, no vehicle systems found" );
 
-        }
+//        }
 
-        // Retrieve single engine thrust
-        if( fromEngineThrustMagnitudeSettings->useAllEngines_ == false  )
-        {
-            if( ( bodies.at( nameOfBodyWithGuidance )->getVehicleSystems( )->getEngineModels( ).count(
-                      thrustMagnitudeSettings->thrustOriginId_ ) == 0 ) )
-            {
-                throw std::runtime_error( "Error when creating from-engine thrust magnitude wrapper, no engine of right ID found" );
-            }
-            else
-            {
-                thrustMagnitudeWrapper = std::make_shared< propulsion::ThrustMagnitudeFromEngineWrapper >(
-                            bodies.at( nameOfBodyWithGuidance )->getVehicleSystems( )->getEngineModels( ).at(
-                                thrustMagnitudeSettings->thrustOriginId_ ) );
-            }
-        }
-        // Retrieve total engine thrust
-        else
-        {
-            if( ( bodies.at( nameOfBodyWithGuidance )->getVehicleSystems( )->getEngineModels( ).size( ) == 0 ) )
-            {
-                std::cerr << "Warning when creating from-engine thrust magnitude wrapper for all engines; no engines found: returning 0 thrust" << std::endl;
-            }
-            thrustMagnitudeWrapper = std::make_shared< propulsion::ThrustMagnitudeFromEngineWrapper >(
-                        utilities::createVectorFromMapValues< std::shared_ptr< system_models::EngineModel >, std::string >(
-                            bodies.at( nameOfBodyWithGuidance )->getVehicleSystems( )->getEngineModels( ) ));
-        }
-        break;
+//        // Retrieve single engine thrust
+//        if( fromEngineThrustMagnitudeSettings->useAllEngines_ == false  )
+//        {
+//            if( ( bodies.at( nameOfBodyWithGuidance )->getVehicleSystems( )->getEngineModels( ).count(
+//                      thrustMagnitudeSettings->thrustOriginId_ ) == 0 ) )
+//            {
+//                throw std::runtime_error( "Error when creating from-engine thrust magnitude wrapper, no engine of right ID found" );
+//            }
+//            else
+//            {
+//                thrustMagnitudeWrapper = std::make_shared< propulsion::ThrustMagnitudeFromEngineWrapper >(
+//                            bodies.at( nameOfBodyWithGuidance )->getVehicleSystems( )->getEngineModels( ).at(
+//                                thrustMagnitudeSettings->thrustOriginId_ ) );
+//            }
+//        }
+//        // Retrieve total engine thrust
+//        else
+//        {
+//            if( ( bodies.at( nameOfBodyWithGuidance )->getVehicleSystems( )->getEngineModels( ).size( ) == 0 ) )
+//            {
+//                std::cerr << "Warning when creating from-engine thrust magnitude wrapper for all engines; no engines found: returning 0 thrust" << std::endl;
+//            }
+//            thrustMagnitudeWrapper = std::make_shared< propulsion::ThrustMagnitudeFromEngineWrapper >(
+//                        utilities::createVectorFromMapValues< std::shared_ptr< system_models::EngineModel >, std::string >(
+//                            bodies.at( nameOfBodyWithGuidance )->getVehicleSystems( )->getEngineModels( ) ));
+//        }
+//        break;
 
-    }
+//    }
     case thrust_magnitude_from_time_function:
     {
         // Check input consistency
-        std::shared_ptr< FromFunctionThrustMagnitudeSettings > fromFunctionThrustMagnitudeSettings =
-                std::dynamic_pointer_cast< FromFunctionThrustMagnitudeSettings >( thrustMagnitudeSettings );
+        std::shared_ptr< CustomThrustMagnitudeSettings > fromFunctionThrustMagnitudeSettings =
+                std::dynamic_pointer_cast< CustomThrustMagnitudeSettings >( thrustMagnitudeSettings );
         if( fromFunctionThrustMagnitudeSettings == nullptr )
         {
             throw std::runtime_error( "Error when creating from-function thrust magnitude wrapper, input is inconsistent" );
         }
         thrustMagnitudeWrapper = std::make_shared< propulsion::CustomThrustMagnitudeWrapper >(
                     fromFunctionThrustMagnitudeSettings->thrustMagnitudeFunction_,
-                    fromFunctionThrustMagnitudeSettings->specificImpulseFunction_,
-                    fromFunctionThrustMagnitudeSettings->isEngineOnFunction_,
-                    fromFunctionThrustMagnitudeSettings->customThrustResetFunction_ );
+                    fromFunctionThrustMagnitudeSettings->specificImpulseFunction_ );
         break;
 
     }

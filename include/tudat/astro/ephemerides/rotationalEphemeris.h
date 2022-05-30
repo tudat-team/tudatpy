@@ -480,6 +480,8 @@ public:
 
     virtual void resetCurrentTime( ){ }
 
+    virtual void setIsBodyInPropagation( const bool isBodyInPropagation )
+    { }
 protected:
 
     //! Base reference frame orientation.

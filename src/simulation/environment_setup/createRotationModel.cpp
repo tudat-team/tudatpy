@@ -567,14 +567,58 @@ std::shared_ptr< ephemerides::RotationalEphemeris > createRotationModel(
         if( bodyFixedDirectionBasedRotationSettings == nullptr )
         {
             throw std::runtime_error(
-                        "Error, expected pitch trim rotation model settings for " + body );
+                        "Error, expected body-fixed direction rotation model settings for " + body );
         }
         else
         {
+            std::function< Eigen::Vector3d( const double ) > inertialBodyAxisDirectionFunction;
+
+            if( bodyFixedDirectionBasedRotationSettings->directionFrame_.first != ephemerides::inertial_satellite_based_frame )
+            {
+                if( bodyFixedDirectionBasedRotationSettings->directionFrame_.first == ephemerides::tnw_satellite_based_frame )
+                {
+                    // Create rotation function from thrust-frame to propagation frame.
+                    if( bodyFixedDirectionBasedRotationSettings->directionFrame_.first == tnw_satellite_based_frame )
+                    {
+                        std::function< Eigen::Vector6d( ) > vehicleStateFunction =
+                                std::bind( &Body::getState, bodies.at( body ) );
+                        std::function< Eigen::Vector6d( ) > centralBodyStateFunction;
+
+                        if( ephemerides::isFrameInertial( bodyFixedDirectionBasedRotationSettings->directionFrame_.second ) )
+                        {
+                            centralBodyStateFunction =  [ ]( ){ return Eigen::Vector6d::Zero( ); };
+                        }
+                        else
+                        {
+                            if( bodies.count( bodyFixedDirectionBasedRotationSettings->directionFrame_.second ) == 0 )
+                            {
+                                throw std::runtime_error( "Error when creating thrust acceleration, input central body not found" );
+                            }
+                            centralBodyStateFunction =
+                                    std::bind( &Body::getState, bodies.at( bodyFixedDirectionBasedRotationSettings->directionFrame_.second ) );
+                        }
+                        inertialBodyAxisDirectionFunction = [=]( const double time )
+                        {
+                            return reference_frames::getTnwToInertialRotationFromFunctions(
+                                               vehicleStateFunction, centralBodyStateFunction, true ) *
+                                    bodyFixedDirectionBasedRotationSettings->inertialBodyAxisDirectionFunction_( time );
+                        };
+                    }
+                }
+                else
+                {
+                    throw std::runtime_error( "Error when making body-fixed direction based rotation model; frame not recognized");
+                }
+            }
+            else
+            {
+                inertialBodyAxisDirectionFunction = bodyFixedDirectionBasedRotationSettings->inertialBodyAxisDirectionFunction_;
+            }
+
             // Create and initialize simple rotation model.
             rotationalEphemeris =
                     std::make_shared< DirectionBasedRotationalEphemeris >(
-                        bodyFixedDirectionBasedRotationSettings->inertialBodyAxisDirectionFunction_, Eigen::Vector3d::UnitX( ),
+                        inertialBodyAxisDirectionFunction, Eigen::Vector3d::UnitX( ),
                         bodyFixedDirectionBasedRotationSettings->getOriginalFrame( ),
                         bodyFixedDirectionBasedRotationSettings->getTargetFrame( ),
                         bodyFixedDirectionBasedRotationSettings->freeRotationAngleFunction_ );
