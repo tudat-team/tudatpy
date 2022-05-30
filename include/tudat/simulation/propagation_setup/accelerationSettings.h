@@ -415,16 +415,6 @@ private:
 
 };
 
-
-// Enum defining identifiers of frames in which a user-specified thrust is defined.
-//! @get_docstring(ThrustFrames.__docstring__)
-enum ThrustFrames
-{
-    unspecified_thrust_frame = -1,
-    inertial_thrust_frame = 0,
-    tnw_thrust_frame = 1
-};
-
 // Class for providing acceleration settings for a thrust acceleration model
 /*
  *  Class for providing acceleration settings for a thrust acceleration model. Settings for the direction and magnitude

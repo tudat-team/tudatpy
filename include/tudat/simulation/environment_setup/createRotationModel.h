@@ -460,14 +460,19 @@ public:
             const std::function< Eigen::Vector3d( const double ) > inertialBodyAxisDirectionFunction,
             const std::string& baseFrameOrientation,
             const std::string& targetFrameOrientation,
-            const std::function< double( const double ) > freeRotationAngleFunction = nullptr  ):
+            const std::function< double( const double ) > freeRotationAngleFunction = nullptr,
+            const std::pair< ephemerides::SatelliteBasedFrames, std::string > directionFrame =
+            std::make_pair( ephemerides::inertial_satellite_based_frame, "" ) ):
         RotationModelSettings( body_fixed_direction_based_rotation_model, baseFrameOrientation, targetFrameOrientation ),
         inertialBodyAxisDirectionFunction_( inertialBodyAxisDirectionFunction ),
-        freeRotationAngleFunction_( freeRotationAngleFunction ){ }
+        freeRotationAngleFunction_( freeRotationAngleFunction ),
+        directionFrame_( directionFrame ){ }
 
     std::function< Eigen::Vector3d( const double ) > inertialBodyAxisDirectionFunction_;
 
     std::function< double( const double ) > freeRotationAngleFunction_;
+
+    std::pair< ephemerides::SatelliteBasedFrames, std::string > directionFrame_;
 };
 
 class OrbitalStateBasedRotationSettings: public RotationModelSettings
