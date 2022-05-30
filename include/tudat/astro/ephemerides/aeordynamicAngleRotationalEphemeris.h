@@ -29,7 +29,8 @@ public:
         : RotationalEphemeris( baseFrameOrientation, targetFrameOrientation ),
           aerodynamicAngleCalculator_( aerodynamicAngleCalculator ),
           aerodynamicAngleFunction_( aerodynamicAngleFunction ),
-          currentTime_( TUDAT_NAN )
+          currentTime_( TUDAT_NAN ),
+          isBodyInPropagation_( false )
     {
         aerodynamicAngleCalculator->setAerodynamicAngleClosureIsIncomplete( );
 //        aerodynamicAngleCalculator->setBodyFixedAngleInterface(
@@ -68,8 +69,6 @@ public:
     {
         return Eigen::Matrix3d::Constant( TUDAT_NAN );
     }
-
-    void updateBodyAngles( );
 
     void update( const double currentTime );
 
@@ -111,8 +110,14 @@ public:
         }
     }
 
+    void setIsBodyInPropagation( const bool isBodyInPropagation )
+    {
+        isBodyInPropagation_ = isBodyInPropagation;
+    }
 
 protected:
+
+    void updateBodyAngles( );
 
     std::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator_;
 
@@ -121,6 +126,8 @@ protected:
     Eigen::Vector3d currentBodyAngles_;
 
     double currentTime_;
+
+    bool isBodyInPropagation_;
 
 };
 

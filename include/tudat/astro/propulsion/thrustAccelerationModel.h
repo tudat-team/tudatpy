@@ -20,6 +20,7 @@
 #include "tudat/astro/propagators/environmentUpdateTypes.h"
 #include "tudat/astro/propulsion/thrustGuidance.h"
 #include "tudat/astro/propulsion/thrustMagnitudeWrapper.h"
+#include "tudat/astro/system_models/engineModel.h"
 #include "tudat/math/interpolators/lookupScheme.h"
 
 namespace tudat
@@ -70,25 +71,15 @@ public:
      * list is included here to account for versatility of dependencies of thrust model (guidance) algorithms. Default empty.
      */
     ThrustAcceleration(
-           const std::shared_ptr< ThrustMagnitudeWrapper > thrustMagnitudeWrapper,
-//            const std::function< double( ) > thrustMagnitudeFunction,
-            const std::shared_ptr< ThrustDirectionWrapper > thrustDirectionWrapper,
+            const std::vector< std::shared_ptr< system_models::EngineModel > > thrustSources,
+            const std::shared_ptr< ThrustDirectionCalculator > thrustDirectionWrapper,
             const std::function< double( ) > bodyMassFunction,
-//            const std::function< double( ) > massRateFunction,
-//            const std::string associatedThrustSource = "",
-//            const std::function< void( const double ) > thrustUpdateFunction = std::function< void( const double ) >( ),
-//            const std::function< void( const double ) > timeResetFunction = std::function< void( const double ) >( ),
             const std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >& requiredModelUpdates =
             std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >( ) ):
         AccelerationModel< Eigen::Vector3d >( ),
-        thrustMagnitudeWrapper_( thrustMagnitudeWrapper ),
-//        thrustMagnitudeFunction_( thrustMagnitudeFunction ),
-        thrustDirectionWrapper_( thrustDirectionWrapper ),
+        thrustSources_( thrustSources ),
+        thrustDirectionCalculator_( thrustDirectionWrapper ),
         bodyMassFunction_( bodyMassFunction ),
-//        massRateFunction_( massRateFunction ),
-//        associatedThrustSource_( associatedThrustSource ),
-//        thrustUpdateFunction_( thrustUpdateFunction ),
-//        timeResetFunction_( timeResetFunction ),
         requiredModelUpdates_( requiredModelUpdates ){ }
 
     //! Destructor
@@ -102,12 +93,11 @@ public:
     virtual void resetCurrentTime( )
     {
         currentTime_ = TUDAT_NAN;
-        thrustMagnitudeWrapper_->resetCurrentTime( );
-        thrustDirectionWrapper_->resetCurrentTime( );
-//        if( !( timeResetFunction_ == nullptr ) )
-//        {
-//            timeResetFunction_( currentTime_ );
-//        }
+        for( unsigned int i = 0; i < thrustSources_.size( ); i++ )
+        {
+            thrustSources_.at( i )->resetCurrentTime( );
+        }
+        thrustDirectionCalculator_->resetCurrentTime( );
     }
 
     //! Update member variables used by the thrust acceleration model.
@@ -123,35 +113,17 @@ public:
         // Check if update is needed
         if( !( currentTime_ == currentTime ) )
         {
-//            // Update thrust dependencies if needed
-//            if( !( thrustUpdateFunction_ == nullptr ) )
-//            {
-//                thrustUpdateFunction_( currentTime );
-//            }
+            currentMassRate_ = 0.0;
+            currentAcceleration_.setZero( );
+            thrustDirectionCalculator_->update( currentTime );
 
-            // Retrieve thrust direction.
-            thrustDirectionWrapper_->update( currentTime );
-            currentAccelerationDirection_ = thrustDirectionWrapper_->getCurrentThrustDirection( );
-
-            if( ( std::fabs( currentAccelerationDirection_.norm( ) ) - 1.0 ) >
-                    10.0 * std::numeric_limits< double >::epsilon( ) )
+            for( unsigned int i = 0; i < thrustSources_.size( ); i++ )
             {
-                std::cout<<"Thrust direction: "<<currentAccelerationDirection_.transpose( )<<std::endl;
-                std::cout<<std::setprecision( 16 )<<currentAccelerationDirection_.norm( )<<std::endl;
-                throw std::runtime_error( "Error in thrust acceleration, direction is not a unit vector" + std::to_string(
-                                              ( std::fabs( currentAccelerationDirection_.norm( ) ) - 1.0 ) ) );
+                thrustSources_.at( i )->updateEngineModel( currentTime );
+                currentMassRate_ -= thrustSources_.at( i )->getCurrentMassRate( );
+                currentAcceleration_ += ( thrustSources_.at( i )->getCurrentThrust( ) / bodyMassFunction_( ) )*
+                        thrustDirectionCalculator_->getInertialThrustDirection( thrustSources_.at( i ) ) ;
             }
-
-            // Retrieve magnitude of thrust and mass rate.
-            thrustMagnitudeWrapper_->update( currentTime );
-            currentThrustMagnitude_ = thrustMagnitudeWrapper_->getCurrentThrustMagnitude( );
-            currentMassRate_ = -thrustMagnitudeWrapper_->getCurrentMassRate( );
-
-            // Compute acceleration due to thrust
-            currentAcceleration_ = currentAccelerationDirection_ * currentThrustMagnitude_ / bodyMassFunction_( );
-
-//            std::cout<<currentAcceleration_<<" "<<currentAccelerationDirection_<<" "<<
-//                       currentThrustMagnitude_ <<" "<<bodyMassFunction_( )<<std::endl;
 
             // Reset current time.
             currentTime_ = currentTime;
@@ -170,16 +142,6 @@ public:
         return currentMassRate_;
     }
 
-//    //! Function to retreieve the ID associated with the source of the thrust (i.e. engine name).
-//    /*!
-//     * Function to retreieve the ID associated with the source of the thrust (i.e. engine name).
-//     * \return ID associated with the source of the thrust (i.e. engine name).
-//     */
-//    std::string getAssociatedThrustSource( )
-//    {
-//        return associatedThrustSource_;
-//    }
-
     //! Function to retrieve the list of environment models that are to be updated before computing the acceleration.
     /*!
      * Function to retrieve the list of environment models that are to be updated before computing the acceleration.
@@ -190,66 +152,30 @@ public:
         return requiredModelUpdates_;
     }
 
-//    //! Function to set or add a thrust update function
-//    /*!
-//     * Function to set or add a thrust update function
-//     * \param thrustUpdateFunction Update function that is to be added to class
-//     */
-//    void setThrustUpdateFunction( const std::function< void( const double ) > thrustUpdateFunction )
-//    {
-//        if( ( thrustUpdateFunction_ == nullptr ) )
-//        {
-//            thrustUpdateFunction_ = thrustUpdateFunction;
-//        }
-//        else
-//        {
-//            thrustUpdateFunction_ = std::bind( &mergeUpdateFunctions, thrustUpdateFunction, thrustUpdateFunction_, std::placeholders::_1 );
-//        }
-//    }
+    std::vector< std::string > getAssociatedThrustSources( )
+    {
+        std::vector< std::string > thrustSourceIds;
+        for( unsigned int j = 0; j < thrustSources_.size( ); j++ )
+        {
+            thrustSourceIds.push_back( thrustSources_.at( j )->getEngineName( ) );
+        }
+        return thrustSourceIds;
+    }
 
 protected:
 
-//    //! Function returning the current magnitude of the thrust.
-//    /*!
-//     * Function returning the current magnitude of the thrust. Any dependencies of the
-//     * thrust on (in)dependent variables is to be handled by the thrustUpdateFunction.
-//     */
-//    std::function< double( ) > thrustMagnitudeFunction_;
+    std::vector< std::shared_ptr< system_models::EngineModel > > thrustSources_;
 
-    std::shared_ptr< ThrustMagnitudeWrapper > thrustMagnitudeWrapper_;
-
-    const std::shared_ptr< ThrustDirectionWrapper > thrustDirectionWrapper_;
-
-    //! Function returning the direction of the thrust (as a unit vector).
-    /*!
-     * Function returning the direction of the thrust (as a unit vector). Any dependencies of the
-     * thrust on (in)dependent variables is to be handled by the thrustUpdateFunction.
-     */
-    std::function< Eigen::Vector3d( const double ) > inertialThrustDirectionFunction_;
+    std::shared_ptr< ThrustDirectionCalculator > thrustDirectionCalculator_;
 
     //! Function returning the current mass of the body being propagated.
     std::function< double( ) > bodyMassFunction_;
 
-//    //! Function returning total propellant mass rate from the thrust system.
-//    std::function< double( ) > massRateFunction_;
-
-//    //! ID associated with the source of the thrust (i.e. engine name).
-//    std::string associatedThrustSource_;
-
-//    //! Function used to update the thrust magnitude and direction to current time.
-//    std::function< void( const double ) > thrustUpdateFunction_;
-
     //! Current acceleration direction, as computed by last call to updateMembers function.
     Eigen::Vector3d currentAccelerationDirection_;
 
-    //! Current thrust magnitude, as computed by last call to updateMembers function.
-    double currentThrustMagnitude_;
-
     //! Current propellant mass rate, as computed by last call to updateMembers function.
     double currentMassRate_;
-
-//    //! Function to reset the time in the classes to which the thrustUpdateFunction function directs
-//    const std::function< void( const double ) > timeResetFunction_;
 
     //! List of environment models that are to be updated before computing the acceleration,
     /*!

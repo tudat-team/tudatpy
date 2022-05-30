@@ -415,16 +415,6 @@ private:
 
 };
 
-
-// Enum defining identifiers of frames in which a user-specified thrust is defined.
-//! @get_docstring(ThrustFrames.__docstring__)
-enum ThrustFrames
-{
-    unspecified_thrust_frame = -1,
-    inertial_thrust_frame = 0,
-    tnw_thrust_frame = 1
-};
-
 // Class for providing acceleration settings for a thrust acceleration model
 /*
  *  Class for providing acceleration settings for a thrust acceleration model. Settings for the direction and magnitude
@@ -435,99 +425,19 @@ class ThrustAccelerationSettings: public AccelerationSettings
 {
 public:
 
-    // Constructor from separate magnitude and diretion settings.
-    /*
-     * Constructor from separate magnitude and diretion settings.
-     * \param thrustDirectionSettings Settings for the direction of the thrust
-     * \param thrustMagnitudeSettings Settings for the magnitude of the thrust
-     */
-    ThrustAccelerationSettings(
-            const std::shared_ptr< ThrustMagnitudeSettings > thrustMagnitudeSettings ):
-            AccelerationSettings( basic_astrodynamics::thrust_acceleration ),
-            thrustMagnitudeSettings_( thrustMagnitudeSettings ){ }
+    ThrustAccelerationSettings( const std::string& engineId ):
+        AccelerationSettings( basic_astrodynamics::thrust_acceleration )
+    {
+        engineIds_.push_back( engineId );
+    }
 
-//    // Constructor used for defining total thrust vector (in local or inertial frame) from interpolator using
-//    // variable specific impulse
-//    /*
-//     * Constructor used for defining total thrust vector (in local or inertial frame) from interpolator using
-//     * variable specific impulse
-//     * \param specificImpulseFunction Function returning the specific impulse as a function of time
-//     * \param thrustFrame Identifier of frame in which thrust returned by fullThrustInterpolator is expressed
-//     * \param centralBody Central body identifier for thrustFrame (if needed; empty by default).
-//     */
-//    ThrustAccelerationSettings(
-//            const std::function< Eigen::Vector3d( const double ) > thrustForceFunction,
-//            const std::function< double( const double ) > specificImpulseFunction,
-//            const ThrustFrames thrustFrame = inertial_thrust_frame,
-//            const std::string centralBody = "" ):
-//        AccelerationSettings( basic_astrodynamics::thrust_acceleration ),
-//        constantSpecificImpulse_( TUDAT_NAN ), thrustFrame_( thrustFrame ),
-//        centralBody_( centralBody )
-//    {
-//        interpolatorInterface_ = std::make_shared< FullThrustInterpolationInterface >( thrustForceFunction);
-//        thrustDirectionSettings_ = std::make_shared< CustomThrustDirectionSettings >(
-//                    std::bind( &FullThrustInterpolationInterface::getThrustDirection, interpolatorInterface_, std::placeholders::_1 ) );
-//        thrustMagnitudeSettings_ =  std::make_shared< FromFunctionThrustMagnitudeSettings >(
-//                    std::bind( &FullThrustInterpolationInterface::getThrustMagnitude, interpolatorInterface_, std::placeholders::_1 ),
-//                    specificImpulseFunction, [ ]( const double ){ return true; },
-//        [ ]( ){ return  Eigen::Vector3d::UnitX( ); },
-//        std::bind( &FullThrustInterpolationInterface::resetCurrentTime, interpolatorInterface_, std::placeholders::_1 ) );
-//    }
-
-//    // Constructor used for defining total thrust vector (in local or inertial frame) from interpolator using constant
-//    // specific impulse
-//    /*
-//     * Constructor used for defining total thrust vector (in local or inertial frame) from interpolator using constant
-//     * specific impulse
-//     * \param constantSpecificImpulse Constant specific impulse
-//     * \param thrustFrame Identifier of frame in which thrust returned by fullThrustInterpolator is expressed
-//     * \param centralBody Central body identifier for thrustFrame (if needed; empty by default).
-//     */
-//    ThrustAccelerationSettings(
-//            const std::function< Eigen::Vector3d( const double ) > thrustForceFunction,
-//            const double constantSpecificImpulse,
-//            const ThrustFrames thrustFrame = inertial_thrust_frame,
-//            const std::string centralBody = "" ):
-//        ThrustAccelerationSettings( thrustForceFunction,
-//                                    [ = ]( const double ){ return constantSpecificImpulse; },
-//    thrustFrame,
-//    centralBody )
-//    {
-//        constantSpecificImpulse_ = constantSpecificImpulse;
-//    }
-
-
+   ThrustAccelerationSettings( const std::vector< std::string >& engineIds ):
+            AccelerationSettings( basic_astrodynamics::thrust_acceleration ), engineIds_( engineIds ){ }
 
     // Destructor.
     ~ThrustAccelerationSettings( ){ }
 
-
-//    // Settings for the direction of the thrust
-//    std::shared_ptr< ThrustDirectionSettings > thrustDirectionSettings_;
-
-    // Settings for the magnitude of the thrust
-    std::shared_ptr< ThrustMagnitudeSettings > thrustMagnitudeSettings_;
-
-
-//    // Identifier of frame in which thrust returned by fullThrustInterpolator is expressed.
-//    /*
-//     *  Identifier of frame in which thrust returned by fullThrustInterpolator is expressed. Unspecifief by default,
-//     *  only used if interpolatorInterface_ is set
-//     */
-//    ThrustFrames thrustFrame_;
-
-//    // Central body identifier for thrustFrame.
-//    /*
-//     *  Central body identifier for thrustFrame. Empty by default,
-//     *  only used if interpolatorInterface_ is set
-//     */
-//    std::string centralBody_;
-
-//    // Settings to create the interpolator interface
-//    std::shared_ptr< interpolators::DataInterpolationSettings< double, Eigen::Vector3d > > dataInterpolationSettings_;
-
-//    // Interface object used when full thrust (direction and magnitude) are defined by a single user-supplied interpolation.
-//    std::shared_ptr< FullThrustInterpolationInterface > interpolatorInterface_;
+    std::vector< std::string > engineIds_;
 
 };
 
@@ -541,9 +451,9 @@ inline Eigen::Vector3d applyAccelerationScalingFunction(
 
 //! @get_docstring(thrustAcceleration, 1)
 inline std::shared_ptr< AccelerationSettings > thrustAcceleration(
-        const std::shared_ptr< ThrustMagnitudeSettings > thrustMagnitudeSettings )
+        const std::vector< std::string >& engineIds )
 {
-    return std::make_shared< ThrustAccelerationSettings >( thrustMagnitudeSettings );
+    return std::make_shared< ThrustAccelerationSettings >( engineIds );
 }
 
 ////! @get_docstring(thrustAcceleration, 2)

@@ -1087,11 +1087,14 @@ BOOST_AUTO_TEST_CASE( testMassRateVariationalEquations )
         std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfAsterix;
         accelerationsOfAsterix[ "Earth" ].push_back( std::make_shared< AccelerationSettings >(
                                                          basic_astrodynamics::point_mass_gravity ) );
-        accelerationsOfAsterix[ "Asterix" ].push_back( std::make_shared< ThrustAccelerationSettings >(
-//                                                           std::make_shared< ThrustDirectionFromStateGuidanceSettings >(
-//                                                               "Earth", true, false  ),
-                                                           std::make_shared< ConstantThrustMagnitudeSettings >(
-                                                               1.0E-4, 300.0 ) ) );
+        addEngineModel(
+                    "Asterix", "MainEngine",
+                    std::make_shared< ConstantThrustMagnitudeSettings >(
+                        1.0E-4, 300.0 ),
+                    bodies );
+
+
+        accelerationsOfAsterix[ "Asterix" ].push_back( std::make_shared< ThrustAccelerationSettings >( "MainEngine" ) );
 
         accelerationMap[ "Asterix" ] = accelerationsOfAsterix;
         bodiesToPropagate.push_back( "Asterix" );
