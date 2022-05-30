@@ -1262,7 +1262,7 @@ void createRotationAndEngineModelForFullThrust(
                         std::make_pair( directionFrame, "Earth" ) ),
                     bodyName, bodies ) );
     std::shared_ptr< simulation_setup::ThrustMagnitudeSettings > thrustSettings =
-            std::make_shared< simulation_setup::FromFunctionThrustMagnitudeSettings >( thrustMagnitudeFunction , [=](const double){return TUDAT_NAN; } );
+            std::make_shared< simulation_setup::CustomThrustMagnitudeSettings >( thrustMagnitudeFunction , [=](const double){return TUDAT_NAN; } );
 
     addEngineModel( bodyName,  engineName, thrustSettings,
                     bodies );
