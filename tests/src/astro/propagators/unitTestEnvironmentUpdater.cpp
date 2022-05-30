@@ -559,6 +559,7 @@ BOOST_AUTO_TEST_CASE( test_NonConservativeForceEnvironmentUpdate )
         BOOST_CHECK_EQUAL( environmentModelsToUpdate.at( vehicle_flight_conditions_update ).size( ), 1 );
 
         // Create and call updater.
+        vehicleRotationModel->setIsBodyInPropagation( true );
         std::shared_ptr< propagators::EnvironmentUpdater< double, double > > updater =
                 createEnvironmentUpdaterForDynamicalEquations< double, double >(
                     propagatorSettings, bodies );
