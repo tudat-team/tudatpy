@@ -1364,6 +1364,7 @@ BOOST_AUTO_TEST_CASE( test_flightConditionsSetup )
     vehicleRotationModel->setAerodynamicAngleFunction(
                 [=]( const double ){ return ( Eigen::Vector3d( ) << angleOfAttack, angleOfSideslip, bankAngle ).finished( ); } );
     bodies.at( "Vehicle" )->setRotationalEphemeris( vehicleRotationModel );
+    vehicleRotationModel->setIsBodyInPropagation( true );
 
 
     // Set vehicle body-fixed state (see testAerodynamicAngleCalculator)

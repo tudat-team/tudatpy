@@ -470,6 +470,7 @@ BOOST_AUTO_TEST_CASE( test_aerodynamicAccelerationModelSetup )
                     bodies.at( "Earth" )->getRotationalEphemeris( )->getDerivativeOfRotationToBaseFrame( testTime ) );
 
         // Set states in environment.
+        vehicleRotationModel->setIsBodyInPropagation( true );
         bodies.at( "Earth" )->setState( Eigen::Vector6d::Zero( ) );
         bodies.at( "Earth" )->setCurrentRotationalStateToLocalFrameFromEphemeris( testTime );
         bodies.at( "Vehicle" )->setState( vehicleInertialState );
@@ -657,6 +658,7 @@ BOOST_AUTO_TEST_CASE( test_aerodynamicAccelerationModelSetupWithCoefficientIndep
             angleOfSideslip += 0.00123;
         }
 
+        vehicleRotationModel->setIsBodyInPropagation( true );
         vehicleRotationModel->resetCurrentTime( );
         vehicleRotationModel->setAerodynamicAngleFunction(
                     [=]( const double ){ return ( Eigen::Vector3d( ) << angleOfAttack, angleOfSideslip, bankAngle ).finished( ); } );
