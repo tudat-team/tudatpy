@@ -67,7 +67,7 @@ public:
         // Check if engine with this name already exists.
         if( engineModels_.count( engineModel->getEngineName( ) ) )
         {
-            std::cerr << "Warning, engine model of name " << engineModel << " already exists, overriding old model" << std::endl;
+            std::cerr << "Warning, engine model of name " << engineModel->getEngineName( ) << " already exists, overriding old model" << std::endl;
         }
 
         engineModels_[ engineModel->getEngineName( ) ] = engineModel;
