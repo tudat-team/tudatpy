@@ -501,6 +501,12 @@ public:
     std::function< double( const double ) > freeRotationAngleFunction_;
 };
 
+std::function< Eigen::Matrix3d( const double ) > getRotationFunctionFromSatelliteBasedFrame(
+        const ephemerides::SatelliteBasedFrames frameId,
+        const SystemOfBodies& bodies,
+        const std::string& body,
+        const std::string& centralBody = "" );
+
 //Function to retrieve a state from one of two functions
 /*
  *  Function to retrieve a state from one of two functions, typically from an Ephemeris or a Body object.

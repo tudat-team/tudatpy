@@ -244,6 +244,22 @@ Eigen::Matrix3d getInertialToRswSatelliteCenteredFrameRotationMatrix(
 Eigen::Matrix3d getRswSatelliteCenteredToInertialFrameRotationMatrix(
         const Eigen::Vector6d& bodyState );
 
+Eigen::Matrix3d getPqwPerifocalToInertialRotationMatrix(
+        const Eigen::Vector6d& bodyState,
+        const double gravitationalParameter );
+
+Eigen::Matrix3d getInertialToPqwPerifocalRotationMatrix(
+        const Eigen::Vector6d& bodyState,
+        const double gravitationalParameter  );
+
+Eigen::Matrix3d getEqwEquinoctialToInertialRotationMatrix(
+        const Eigen::Vector6d& bodyState,
+        const double gravitationalParameter );
+
+Eigen::Matrix3d getInertialToEqwEquinoctialRotationMatrix(
+        const Eigen::Vector6d& bodyState,
+        const double gravitationalParameter );
+
 //! Get inertial (I) to rotating planetocentric (R) reference frame transformation quaternion.
 /*!
  * Returns transformation quaternion from inertial referenceframe (I) to the rotating
