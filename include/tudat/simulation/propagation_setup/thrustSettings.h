@@ -379,8 +379,6 @@ public:
     // Destructor
     virtual ~ThrustMagnitudeSettings( ){ }
 
-    virtual bool bodyFixedThrustDirectionIsFixed( ) = 0;
-
     // Type of thrust magnitude guidance that is to be used
     ThrustMagnitudeTypes thrustMagnitudeType_;
 
@@ -404,28 +402,19 @@ public:
      */
     ConstantThrustMagnitudeSettings(
             const double thrustMagnitude,
-            const double specificImpulse,
-            const Eigen::Vector3d bodyFixedThrustDirection = Eigen::Vector3d::UnitX( ) ):
+            const double specificImpulse ):
         ThrustMagnitudeSettings( constant_thrust_magnitude, "" ),
-        thrustMagnitude_( thrustMagnitude ), specificImpulse_( specificImpulse ),
-        bodyFixedThrustDirection_( bodyFixedThrustDirection ){ }
+        thrustMagnitude_( thrustMagnitude ), specificImpulse_( specificImpulse ){ }
 
     // Destructor
     ~ConstantThrustMagnitudeSettings( ){ }
 
-    bool bodyFixedThrustDirectionIsFixed( )
-    {
-        return true;
-    }
 
     // Constant thrust magnitude that is to be used.
     double thrustMagnitude_;
 
     // Constant specific impulse that is to be used
     double specificImpulse_;
-
-    // Direction of thrust force in body-fixed frame
-    Eigen::Vector3d bodyFixedThrustDirection_;
 
 };
 
@@ -469,7 +458,7 @@ public:
  * ParameterizedThrustMagnitudeSettings settings object can be used.
  */
 //! @get_docstring(FromFunctionThrustMagnitudeSettings.__docstring__)
-class FromFunctionThrustMagnitudeSettings: public ThrustMagnitudeSettings
+class CustomThrustMagnitudeSettings: public ThrustMagnitudeSettings
 {
 public:
 
@@ -480,45 +469,24 @@ public:
      * \param specificImpulseFunction Function returning specific impulse as a function of time.
      * \param isEngineOnFunction Function returning boolean denoting whether thrust is to be used (thrust and mass rate
      * set to zero if false, regardless of output of thrustMagnitudeFunction).
-     * \param bodyFixedThrustDirection Direction of thrust force in body-fixed frame (along longitudinal axis by default).
      * \param customThrustResetFunction Custom function that is to be called when signalling that a new time step is
      * being started (empty by default)
      */
-    FromFunctionThrustMagnitudeSettings(
+    CustomThrustMagnitudeSettings(
             const std::function< double( const double ) > thrustMagnitudeFunction,
-            const std::function< double( const double ) > specificImpulseFunction,
-            const std::function< bool( const double ) > isEngineOnFunction = [ ]( const double ){ return true; },
-            const std::function< Eigen::Vector3d( ) > bodyFixedThrustDirection = [ ]( ){ return  Eigen::Vector3d::UnitX( ); },
-            const std::function< void( const double ) > customThrustResetFunction = std::function< void( const double ) >( ) ):
+            const std::function< double( const double ) > specificImpulseFunction ):
         ThrustMagnitudeSettings( thrust_magnitude_from_time_function, "" ),
         thrustMagnitudeFunction_( thrustMagnitudeFunction ),
-        specificImpulseFunction_( specificImpulseFunction ),
-        isEngineOnFunction_( isEngineOnFunction ),
-        bodyFixedThrustDirection_( bodyFixedThrustDirection ),
-        customThrustResetFunction_( customThrustResetFunction ){ }
+        specificImpulseFunction_( specificImpulseFunction ){ }
 
     // Destructor.
-    ~FromFunctionThrustMagnitudeSettings( ){ }
-
-    bool bodyFixedThrustDirectionIsFixed( )
-    {
-        return false;
-    }
+    ~CustomThrustMagnitudeSettings( ){ }
 
     // Function returning thrust magnitude as a function of time.
     std::function< double( const double) > thrustMagnitudeFunction_;
 
     // Function returning specific impulse as a function of time.
     std::function< double( const double) > specificImpulseFunction_;
-
-    // Function returning boolean denoting whether thrust is to be used.
-    std::function< bool( const double ) > isEngineOnFunction_;
-
-    // Direction of thrust force in body-fixed frame
-    std::function< Eigen::Vector3d( ) > bodyFixedThrustDirection_;
-
-    // Custom function that is to be called when signalling that a new time step is being started.
-    std::function< void( const double ) > customThrustResetFunction_;
 };
 
 
@@ -641,11 +609,10 @@ public:
 //! @get_docstring(constantThrustMagnitudeSettings)
 inline std::shared_ptr< ThrustMagnitudeSettings > constantThrustMagnitudeSettings(
         const double thrustMagnitude,
-        const double specificImpulse,
-        const Eigen::Vector3d bodyFixedThrustDirection = Eigen::Vector3d::UnitX( ) )
+        const double specificImpulse )
 {
     return std::make_shared< ConstantThrustMagnitudeSettings >(
-                thrustMagnitude, specificImpulse, bodyFixedThrustDirection );
+                thrustMagnitude, specificImpulse );
 }
 
 //// TODO: EngineModel still to be implemented
@@ -661,14 +628,10 @@ inline std::shared_ptr< ThrustMagnitudeSettings > constantThrustMagnitudeSetting
 //! @get_docstring(fromFunctionThrustMagnitudeSettings)
 inline std::shared_ptr< ThrustMagnitudeSettings > fromFunctionThrustMagnitudeSettings(
         const std::function< double( const double ) > thrustMagnitudeFunction,
-        const std::function< double( const double ) > specificImpulseFunction,
-        const std::function< bool( const double ) > isEngineOnFunction = [ ]( const double ){ return true; },
-        const std::function< Eigen::Vector3d( ) > bodyFixedThrustDirection = [ ]( ){ return  Eigen::Vector3d::UnitX( ); },
-        const std::function< void( const double ) > customThrustResetFunction = std::function< void( const double ) >( ) )
+        const std::function< double( const double ) > specificImpulseFunction )
 {
-    return std::make_shared< FromFunctionThrustMagnitudeSettings >(
-                thrustMagnitudeFunction, specificImpulseFunction, isEngineOnFunction, bodyFixedThrustDirection,
-                customThrustResetFunction );
+    return std::make_shared< CustomThrustMagnitudeSettings >(
+                thrustMagnitudeFunction, specificImpulseFunction );
 }
 
 // Interface function to multiply a maximum thrust by a multiplier to obtain the actual thrust
@@ -1004,8 +967,6 @@ public:
      * vector
      * \param inputUpdateFunction Function that is called to update the user-defined guidance to the current time
      * (empty by default).
-     * \param bodyFixedThrustDirection Direction of the thrust vector in the body-fixed frame (default in x-direction; to
-     * vehicle front).
      */
     ParameterizedThrustMagnitudeSettings(
             const std::shared_ptr< interpolators::Interpolator< double, double > > thrustMagnitudeInterpolator,
@@ -1016,8 +977,7 @@ public:
             std::vector< std::function< double( ) > >( ),
             const std::vector< std::function< double( ) > > specificImpulseGuidanceInputVariables =
             std::vector< std::function< double( ) > >( ),
-            const std::function< void( const double) > inputUpdateFunction = std::function< void( const double) >( ),
-            const Eigen::Vector3d bodyFixedThrustDirection = Eigen::Vector3d::UnitX( ) ):
+            const std::function< void( const double) > inputUpdateFunction = std::function< void( const double) >( ) ):
         ThrustMagnitudeSettings( thrust_magnitude_from_dependent_variables, "" ),
         thrustMagnitudeFunction_( std::bind( &interpolators::Interpolator< double, double >::interpolate,
                                              thrustMagnitudeInterpolator, std::placeholders::_1 ) ),
@@ -1027,8 +987,7 @@ public:
         specificImpulseDependentVariables_( specificImpulseDependentVariables ),
         thrustGuidanceInputVariables_( thrustGuidanceInputVariables ),
         specificImpulseGuidanceInputVariables_( specificImpulseGuidanceInputVariables ),
-        inputUpdateFunction_( inputUpdateFunction ),
-        bodyFixedThrustDirection_( bodyFixedThrustDirection )
+        inputUpdateFunction_( inputUpdateFunction )
     {
         parseInputDataAndCheckConsistency( thrustMagnitudeInterpolator, specificImpulseInterpolator );
     }
@@ -1048,8 +1007,6 @@ public:
      * vector
      * \param inputUpdateFunction Function that is called to update the user-defined guidance to the current time
      * (empty by default).
-     * \param bodyFixedThrustDirection Direction of the thrust vector in the body-fixed frame (default in x-direction; to
-     * vehicle front).
      */
     ParameterizedThrustMagnitudeSettings(
             const std::shared_ptr< interpolators::Interpolator< double, double > > thrustMagnitudeInterpolator,
@@ -1057,24 +1014,17 @@ public:
             const double constantSpecificImpulse,
             const std::vector< std::function< double( ) > > thrustGuidanceInputVariables =
             std::vector< std::function< double( ) > >( ),
-            const std::function< void( const double ) > inputUpdateFunction = std::function< void( const double) >( ),
-            const Eigen::Vector3d bodyFixedThrustDirection = Eigen::Vector3d::UnitX( ) ):
+            const std::function< void( const double ) > inputUpdateFunction = std::function< void( const double) >( ) ):
         ThrustMagnitudeSettings( thrust_magnitude_from_dependent_variables, "" ),
         thrustMagnitudeFunction_( std::bind( &interpolators::Interpolator< double, double >::interpolate,
                                              thrustMagnitudeInterpolator, std::placeholders::_1 ) ),
         specificImpulseFunction_( [ = ]( const std::vector< double >& ){ return constantSpecificImpulse; } ),
         thrustIndependentVariables_( thrustIndependentVariables ),
         thrustGuidanceInputVariables_( thrustGuidanceInputVariables ),
-        inputUpdateFunction_( inputUpdateFunction ),
-        bodyFixedThrustDirection_( bodyFixedThrustDirection )
+        inputUpdateFunction_( inputUpdateFunction )
     {
         parseInputDataAndCheckConsistency(
                     thrustMagnitudeInterpolator, std::shared_ptr< interpolators::Interpolator< double, double > >( ) );
-    }
-
-    virtual bool bodyFixedThrustDirectionIsFixed( )
-    {
-        return false;
     }
 
     // Function returning the thrust as a function of the independent variables.
@@ -1097,9 +1047,6 @@ public:
 
     // Function that is called to update the user-defined guidance to the current time
     std::function< void( const double ) > inputUpdateFunction_;
-
-    // Direction of the thrust vector in the body-fixed frame
-    Eigen::Vector3d bodyFixedThrustDirection_;
 
 private:
 
