@@ -9,6 +9,13 @@ namespace tudat
 namespace ephemerides
 {
 
+enum SatelliteBasedFrames
+{
+    unspecified_thrust_frame = -1,
+    inertial_thrust_frame = 0,
+    tnw_thrust_frame = 1
+};
+
 class DirectionBasedRotationalEphemeris: public ephemerides::RotationalEphemeris
 {
 public:
