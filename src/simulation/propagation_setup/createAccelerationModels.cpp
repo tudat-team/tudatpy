@@ -44,6 +44,32 @@ using namespace electromagnetism;
 using namespace ephemerides;
 
 
+void addEngineModel(
+        const std::string& bodyName,
+        const std::string& engineName,
+        const std::shared_ptr< simulation_setup::ThrustMagnitudeSettings > thrustSettings,
+        const simulation_setup::SystemOfBodies& bodies,
+        const Eigen::Vector3d bodyFixedThrustDirection )
+{
+    std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > magnitudeUpdateSettings;
+    std::shared_ptr< propulsion::ThrustMagnitudeWrapper > thrustMagnitudeWrapper = createThrustMagnitudeWrapper(
+                thrustSettings,
+            bodies, bodyName, magnitudeUpdateSettings );
+
+
+    std::shared_ptr< system_models::EngineModel > vehicleEngineModel1 =
+            std::make_shared< system_models::EngineModel >( thrustMagnitudeWrapper, engineName, [=](const double){return bodyFixedThrustDirection; } );
+
+    if( bodies.at( bodyName )->getVehicleSystems( ) == nullptr )
+    {
+        std::shared_ptr< system_models::VehicleSystems > vehicleSystems = std::make_shared<
+                system_models::VehicleSystems >(  );
+        bodies.at( bodyName )->setVehicleSystems( vehicleSystems );
+    }
+    bodies.at( bodyName )->getVehicleSystems( )->setEngineModel( vehicleEngineModel1 );
+
+}
+
 //! Function to create a direct (i.e. not third-body) gravitational acceleration (of any type)
 std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > createDirectGravitationalAcceleration(
         const std::shared_ptr< Body > bodyUndergoingAcceleration,

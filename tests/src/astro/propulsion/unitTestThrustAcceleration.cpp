@@ -47,31 +47,6 @@ namespace unit_tests
 
 BOOST_AUTO_TEST_SUITE( test_thrust_acceleration )
 
-void addEngineModel(
-        const std::string& bodyName,
-        const std::string& engineName,
-        const std::shared_ptr< simulation_setup::ThrustMagnitudeSettings > thrustSettings,
-        const simulation_setup::SystemOfBodies& bodies,
-        const Eigen::Vector3d bodyFixedThrustDirection = Eigen::Vector3d::UnitX( ) )
-{
-    std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > magnitudeUpdateSettings;
-    std::shared_ptr< propulsion::ThrustMagnitudeWrapper > thrustMagnitudeWrapper = createThrustMagnitudeWrapper(
-                thrustSettings,
-            bodies, bodyName, magnitudeUpdateSettings );
-
-
-    std::shared_ptr< system_models::EngineModel > vehicleEngineModel1 =
-            std::make_shared< system_models::EngineModel >( thrustMagnitudeWrapper, engineName, [=](const double){return bodyFixedThrustDirection; } );
-
-    if( bodies.at( bodyName )->getVehicleSystems( ) == nullptr )
-    {
-        std::shared_ptr< system_models::VehicleSystems > vehicleSystems = std::make_shared<
-                system_models::VehicleSystems >(  );
-        bodies.at( bodyName )->setVehicleSystems( vehicleSystems );
-    }
-    bodies.at( bodyName )->getVehicleSystems( )->setEngineModel( vehicleEngineModel1 );
-
-}
 
 BOOST_AUTO_TEST_CASE( testConstantThrustAcceleration )
 {
@@ -1402,7 +1377,6 @@ BOOST_AUTO_TEST_CASE( testInterpolatedThrustVector )
 
         std::shared_ptr< ThrustAccelerationSettings > thrustSettings =
                 std::make_shared< ThrustAccelerationSettings >( "MainEngine" );
-//        testCase == 0 ? inertial_satellite_based_frame : tnw_satellite_based_frame, "Earth" );
 
         accelerationsOfAsterix[ "Asterix" ].push_back( thrustSettings );
         accelerationMap[ "Asterix" ] = accelerationsOfAsterix;
