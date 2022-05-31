@@ -47,12 +47,6 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > getAccelerationPar
                     }
                 }
 
-                std::cout << "Partial identified: " << partialIdentified << std::endl;
-                std::cout << "Bodies 1: " << accelerationPartial->getAccelerationType( ) << " " << accelerationPartial->getAcceleratedBody( )
-                    << " " << accelerationPartial->getAcceleratingBody( ) << std::endl;
-                std::cout << "Bodies 2: " << accelerationType << " " << bodyExertingAcceleration
-                    << " " << bodyUndergoignAcceleration << std::endl << std::endl;
-
                 // Set output; check if multiple models are identified.
                 if( partialIdentified )
                 {
