@@ -452,6 +452,89 @@ public:
     std::function< Eigen::Vector2d( const double ) > sideslipAndBankAngleFunction_;
 };
 
+enum InertialDirectionTypes
+{
+    custom_inertial_direction,
+    state_based_inertial_direction,
+    bilinear_tangent_inertial_direction
+};
+
+
+class InertialDirectionSettings
+{
+public:
+
+    InertialDirectionSettings( const InertialDirectionTypes inertialDirectionType ):
+    inertialDirectionType_( inertialDirectionType ){ }
+
+    virtual ~InertialDirectionSettings( ){ }
+
+    const InertialDirectionTypes inertialDirectionType_;
+};
+
+class CustomInertialDirectionSettings: public InertialDirectionSettings
+{
+public:
+
+    CustomInertialDirectionSettings(
+            const std::function< Eigen::Vector3d( const double ) > inertialBodyAxisDirectionFunction ):
+        InertialDirectionSettings( custom_inertial_direction ),
+    inertialBodyAxisDirectionFunction_( inertialBodyAxisDirectionFunction ){ }
+
+    ~CustomInertialDirectionSettings( ){ }
+
+    std::function< Eigen::Vector3d( const double ) > inertialBodyAxisDirectionFunction_;
+};
+
+
+class StateBasedInertialDirectionSettings: public InertialDirectionSettings
+{
+public:
+
+    StateBasedInertialDirectionSettings(
+            const std::string& centralBody,
+            const bool isColinearWithVelocity,
+            const bool directionIsOppositeToVector ):
+        InertialDirectionSettings( state_based_inertial_direction ),
+        centralBody_( centralBody ),
+        isColinearWithVelocity_( isColinearWithVelocity ),
+        directionIsOppositeToVector_( directionIsOppositeToVector ){ }
+
+    ~StateBasedInertialDirectionSettings( ){ }
+
+    std::string centralBody_;
+
+    bool isColinearWithVelocity_;
+
+    bool directionIsOppositeToVector_;
+};
+
+
+class BilinearTangentInertialDirectionSettings: public InertialDirectionSettings
+{
+public:
+
+    BilinearTangentInertialDirectionSettings(
+            const std::vector< double >& arcStartTimes,
+            const std::vector< double >& arcDurations,
+            const std::vector< Eigen::Vector3d >& constantDirectionTerms,
+            const std::vector< Eigen::Vector3d >& linearDirectionTerms ):
+        InertialDirectionSettings( bilinear_tangent_inertial_direction ),
+    arcStartTimes_( arcStartTimes ),
+    arcDurations_( arcDurations ),
+    constantDirectionTerms_( constantDirectionTerms ),
+    linearDirectionTerms_( linearDirectionTerms ){ }
+
+    ~BilinearTangentInertialDirectionSettings( ){ }
+
+    std::vector< double > arcStartTimes_;
+    std::vector< double > arcDurations_;
+    std::vector< Eigen::Vector3d > constantDirectionTerms_;
+    std::vector< Eigen::Vector3d > linearDirectionTerms_;
+
+};
+
+
 class BodyFixedDirectionBasedRotationSettings: public RotationModelSettings
 {
 public:

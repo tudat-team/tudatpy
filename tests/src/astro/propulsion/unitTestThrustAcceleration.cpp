@@ -1231,16 +1231,16 @@ void createRotationAndEngineModelForFullThrust(
         const ephemerides::SatelliteBasedFrames directionFrame = ephemerides::SatelliteBasedFrames::inertial_satellite_based_frame )
 {
     std::function< Eigen::Vector3d( const double ) > thrustDirectionFunction =
-            [=](const double time)
+            [=](const double time) -> Eigen::Vector3d
     {
         if( time == time )
         {
             return thrustFunction( time ).normalized( );
         }
-//        else
-//        {
-//            return Eigen::Vector3d::Zero( );
-//        }
+        else
+        {
+            return Eigen::Vector3d::Constant( TUDAT_NAN );
+        }
     };
     std::function< double( const double ) > thrustMagnitudeFunction =
             [=](const double time)

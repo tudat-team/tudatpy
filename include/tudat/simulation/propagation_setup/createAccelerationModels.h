@@ -35,12 +35,6 @@ namespace simulation_setup
 {
 
 
-void addEngineModel(
-        const std::string& bodyName,
-        const std::string& engineName,
-        const std::shared_ptr< simulation_setup::ThrustMagnitudeSettings > thrustSettings,
-        const simulation_setup::SystemOfBodies& bodies,
-        const Eigen::Vector3d bodyFixedThrustDirection = Eigen::Vector3d::UnitX( ) );
 
 //! Function to create a direct (i.e. not third-body) gravitational acceleration (of any type)
 /*!
