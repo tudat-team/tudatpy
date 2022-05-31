@@ -245,9 +245,17 @@ BOOST_AUTO_TEST_CASE( test_polyhedron_set_up )
 
         if ( positionId == 2 )
         {
+            Eigen::Matrix3d hessian_durso;
+            hessian_durso <<
+                -4.02204713784183E-08, 1.87140408935899E-07, 3.51261972418670E-07,
+                1.87140408935899E-07, -5.01781942367494E-07, 8.58712984897779E-08,
+                3.51261972418670E-07, 8.58712984897779E-08, -5.77398275537941E-07;
+
             Eigen::Matrix3d hessian = gravitation::calculatePolyhedronHessianOfGravitationalPotential(
                 gravitySettings.getGravitationalParameter() / gravitySettings.getVolume(), facetDyads, edgeDyads, perFacetFactor, perEdgeFactor);
-            std::cout << "Hessian\n: " << hessian.transpose() << std::endl;
+            std::cout << "Hessian:\n " << std::setprecision(17) << hessian << std::endl;
+            std::cout << "Hessian Durso:\n " << std::setprecision(15) << hessian_durso << std::endl;
+            std::cout << "Hessian error:\n " << std::setprecision(3) << hessian - hessian_durso << std::endl;
         }
     }
 

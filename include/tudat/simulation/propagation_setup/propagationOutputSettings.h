@@ -1103,7 +1103,6 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > customDependentVar
                 customDependentVariableFunction,  dependentVariableSize );
 }
 
-//! @get_docstring(machNumberDependentVariable)
 inline std::shared_ptr< SingleDependentVariableSaveSettings > gravityFieldPotentialDependentVariable(
         const std::string& bodyUndergoingAcceleration,
         const std::string& bodyExertingAcceleration )
@@ -1118,6 +1117,17 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > gravityFieldLaplac
 {
     return std::make_shared< SingleDependentVariableSaveSettings >(
             gravity_field_laplacian_of_potential_dependent_variable, bodyUndergoingAcceleration, bodyExertingAcceleration );
+}
+
+inline std::shared_ptr< AccelerationPartialWrtStateSaveSettings > accelerationPartialWrtBodyTranslationalStateDependentVariable(
+        const std::string& bodyUndergoingAcceleration,
+        const std::string& bodyExertingAcceleration,
+        const basic_astrodynamics::AvailableAcceleration accelerationModelType,
+        const std::string derivativeWrtBody,
+        const std::string thirdBody = "" )
+{
+    return std::make_shared< AccelerationPartialWrtStateSaveSettings >(
+            bodyUndergoingAcceleration, bodyExertingAcceleration, accelerationModelType, derivativeWrtBody, thirdBody);
 }
 
 
