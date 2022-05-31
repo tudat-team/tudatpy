@@ -797,9 +797,9 @@ BOOST_AUTO_TEST_CASE( testMultiArcMultiBodyVariationalEquationCalculation1 )
 
 //            if ( arc == 0 ) {
                 Eigen::MatrixXd combinedStateTransitionMatrix = multiArcStateTransitionInterface->getCombinedStateTransitionAndSensitivityMatrix(
-                        (arcStartTimes[arc] + multiArcEndTimes[arc]) / 2.0, true);
+                        (arcStartTimes[arc] + multiArcEndTimes[arc]) / 2.0, std::vector< std::string >( ), true);
                 Eigen::MatrixXd fullCombinedStateTransitionMatrix = multiArcStateTransitionInterface->getFullCombinedStateTransitionAndSensitivityMatrix(
-                        (arcStartTimes[arc] + multiArcEndTimes[arc]) / 2.0, true);
+                        (arcStartTimes[arc] + multiArcEndTimes[arc]) / 2.0, std::vector< std::string >( ), true);
                 std::cout << "arc: " << arc << " - size combinedStateTransitionMatrix: " << combinedStateTransitionMatrix.rows() <<
                           " & " << combinedStateTransitionMatrix.cols() << "\n\n";
                 std::cout << "arc: " << arc << " - size fullCombinedStateTransitionMatrix: " << fullCombinedStateTransitionMatrix.rows() <<
@@ -1052,9 +1052,9 @@ BOOST_AUTO_TEST_CASE( testMultiArcMultiBodyVariationalEquationCalculation1 )
         ///////////////////////////////////////////////////////////////////////////////////////////
 
         Eigen::MatrixXd undefinedCombinedStateTransitionMatrix = multiArcStateTransitionInterface->getCombinedStateTransitionAndSensitivityMatrix(
-                ( arcStartTimes[ 1 ] + multiArcEndTimes[ 0 ] ) / 2.0, true );
+                ( arcStartTimes[ 1 ] + multiArcEndTimes[ 0 ] ) / 2.0, std::vector< std::string >( ), true );
         Eigen::MatrixXd undefinedFullCombinedStateTransitionMatrix = multiArcStateTransitionInterface->getFullCombinedStateTransitionAndSensitivityMatrix(
-                ( arcStartTimes[ 1 ] + multiArcEndTimes[ 0 ] ) / 2.0, true );
+                ( arcStartTimes[ 1 ] + multiArcEndTimes[ 0 ] ) / 2.0, std::vector< std::string >( ), true );
         std::cout << "undefined combined STM & SEM: " << undefinedCombinedStateTransitionMatrix << "\n\n";
         std::cout << "undefined full combined STM & SEM: " << undefinedFullCombinedStateTransitionMatrix << "\n\n";
 
