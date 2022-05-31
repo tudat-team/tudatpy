@@ -24,6 +24,7 @@ set(environment_HEADERS
         createGravityFieldVariations.h
         createAtmosphereModel.h
         createFlightConditions.h
+        createSystemModel.h
         )
 
 # Add header files.
@@ -42,6 +43,7 @@ set(environment_SOURCES
         defaultBodies.cpp
         body.cpp
         createAtmosphereModel.cpp
+        createSystemModel.cpp
         )
 
 # Add library.

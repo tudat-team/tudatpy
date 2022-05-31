@@ -88,9 +88,16 @@ void Body::setTemplatedState( const Eigen::Matrix< long double, 6, 1 >& state )
 void Body::setIsBodyInPropagation( const bool isBodyInPropagation )
 {
     isBodyInPropagation_ = isBodyInPropagation;
+
     if( rotationalEphemeris_ != nullptr )
     {
         rotationalEphemeris_->setIsBodyInPropagation( isBodyInPropagation );
+    }
+
+    if( !isBodyInPropagation )
+    {
+        isStateSet_ = false;
+        isRotationSet_ = false;
     }
 }
 
