@@ -547,11 +547,24 @@ public:
             const std::pair< ephemerides::SatelliteBasedFrames, std::string > directionFrame =
             std::make_pair( ephemerides::inertial_satellite_based_frame, "" ) ):
         RotationModelSettings( body_fixed_direction_based_rotation_model, baseFrameOrientation, targetFrameOrientation ),
-        inertialBodyAxisDirectionFunction_( inertialBodyAxisDirectionFunction ),
+        inertialDirectionSettings_( std::make_shared< CustomInertialDirectionSettings >(
+                                        inertialBodyAxisDirectionFunction ) ),
         freeRotationAngleFunction_( freeRotationAngleFunction ),
         directionFrame_( directionFrame ){ }
 
-    std::function< Eigen::Vector3d( const double ) > inertialBodyAxisDirectionFunction_;
+    BodyFixedDirectionBasedRotationSettings(
+            const std::shared_ptr< InertialDirectionSettings > inertialDirectionSettings,
+            const std::string& baseFrameOrientation,
+            const std::string& targetFrameOrientation,
+            const std::function< double( const double ) > freeRotationAngleFunction = nullptr,
+            const std::pair< ephemerides::SatelliteBasedFrames, std::string > directionFrame =
+            std::make_pair( ephemerides::inertial_satellite_based_frame, "" ) ):
+        RotationModelSettings( body_fixed_direction_based_rotation_model, baseFrameOrientation, targetFrameOrientation ),
+        inertialDirectionSettings_( inertialDirectionSettings ),
+        freeRotationAngleFunction_( freeRotationAngleFunction ),
+        directionFrame_( directionFrame ){ }
+
+    std::shared_ptr< InertialDirectionSettings > inertialDirectionSettings_;
 
     std::function< double( const double ) > freeRotationAngleFunction_;
 
@@ -833,6 +846,11 @@ std::function< Eigen::Vector6d( const double, bool ) > createRelativeStateFuncti
  */
 std::shared_ptr< aerodynamics::TrimOrientationCalculator > setTrimmedConditions(
         const std::shared_ptr< Body > bodyWithFlightConditions );
+
+std::shared_ptr< ephemerides::InertialBodyFixedDirectionCalculator > createInertialDirectionCalculator(
+        const std::shared_ptr< InertialDirectionSettings > directionSettings,
+        const std::string& body,
+        const SystemOfBodies& bodies = SystemOfBodies( ) );
 
 std::shared_ptr< ephemerides::DirectionBasedRotationalEphemeris > createStateDirectionBasedRotationModel(
         const std::string& body,

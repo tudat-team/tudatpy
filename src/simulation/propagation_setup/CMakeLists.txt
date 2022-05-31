@@ -27,7 +27,6 @@ set(propagation_HEADERS
         propagationOutputSettings.h
         setNumericallyIntegratedStates.h
         environmentUpdater.h
-        createThrustModelGuidance.h
 #        propagationLambertTargeterFullProblem.h
 #<<<<<<< HEAD
 #        propagationPatchedConicFullProblem.h
@@ -38,7 +37,6 @@ set(propagation_HEADERS
 set(propagation_SOURCES
         createStateDerivativeModel.cpp
 #        propagationLambertTargeterFullProblem.cpp
-        createThrustModelGuidance.cpp
         thrustSettings.cpp
         propagationSettings.cpp
         setNumericallyIntegratedStates.cpp

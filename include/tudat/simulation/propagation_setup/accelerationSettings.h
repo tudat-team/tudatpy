@@ -20,7 +20,6 @@
 #include "tudat/astro/gravitation/thirdBodyPerturbation.h"
 #include "tudat/astro/aerodynamics/aerodynamicAcceleration.h"
 #include "tudat/astro/basic_astro/accelerationModelTypes.h"
-#include "tudat/simulation/propagation_setup/createThrustModelGuidance.h"
 // #include "tudat/math/interpolators/createInterpolator.h"
 
 namespace tudat

@@ -8,8 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "tudat/astro/propulsion/costateBasedThrustGuidance.h"
-#include "tudat/simulation/propagation_setup/createThrustModelGuidance.h"
+#include "tudat/simulation/environment_setup/createThrustModelGuidance.h"
 #include "tudat/basics/utilities.h"
 
 namespace tudat

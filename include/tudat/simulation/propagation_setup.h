@@ -16,7 +16,6 @@
 #include "propagation_setup/createEnvironmentUpdater.h"
 #include "propagation_setup/createMassRateModels.h"
 #include "propagation_setup/createStateDerivativeModel.h"
-#include "propagation_setup/createThrustModelGuidance.h"
 #include "propagation_setup/createTorqueModel.h"
 #include "propagation_setup/dynamicsSimulator.h"
 #include "propagation_setup/environmentUpdater.h"

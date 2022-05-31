@@ -253,6 +253,85 @@ std::shared_ptr< ephemerides::AerodynamicAngleRotationalEphemeris > createAerody
     return rotationModel;
 }
 
+std::shared_ptr< ephemerides::InertialBodyFixedDirectionCalculator > createInertialDirectionCalculator(
+        const std::shared_ptr< InertialDirectionSettings > directionSettings,
+        const std::string& body,
+        const SystemOfBodies& bodies )
+{
+    std::shared_ptr< ephemerides::InertialBodyFixedDirectionCalculator > directionCalculator;
+    switch( directionSettings->inertialDirectionType_ )
+    {
+    case custom_inertial_direction:
+    {
+        std::shared_ptr< CustomInertialDirectionSettings > customDirectionSettings =
+                std::dynamic_pointer_cast< CustomInertialDirectionSettings >( directionSettings );
+        if( customDirectionSettings == nullptr )
+        {
+            throw std::runtime_error(
+                        "Error when making direction calculator for direction-based rotation model, expected type CustomInertialDirectionSettings" );
+        }
+        directionCalculator = std::make_shared< ephemerides::CustomBodyFixedDirectionCalculator >(
+                    customDirectionSettings->inertialBodyAxisDirectionFunction_ );
+        break;
+    }
+    case state_based_inertial_direction:
+    {
+        std::shared_ptr< StateBasedInertialDirectionSettings > stateBasedDirectionSettings =
+                std::dynamic_pointer_cast< StateBasedInertialDirectionSettings >( directionSettings );
+        if( stateBasedDirectionSettings == nullptr )
+        {
+            throw std::runtime_error(
+                        "Error when making direction calculator for direction-based rotation model, expected type StateBasedInertialDirectionSettings" );
+        }
+        // Retrieve state function of body for which thrust is to be computed.
+        std::function< Eigen::Vector6d( ) > bodyStateFunction =
+                std::bind( &Body::getState, bodies.at( body ) );
+        std::function< Eigen::Vector6d( ) > centralBodyStateFunction;
+
+        // Retrieve state function of central body (or set to zero if inertial)
+        if( stateBasedDirectionSettings->centralBody_ != "SSB" )
+        {
+            // FIXME: add update function.
+            centralBodyStateFunction = std::bind( &Body::getState, bodies.at( stateBasedDirectionSettings->centralBody_ ) );
+            //        magnitudeUpdateSettings[ propagators::body_translational_state_update ].push_back(
+            //                    thrustDirectionFromStateGuidanceSettings->relativeBody_ );
+        }
+        else if( bodies.getFrameOrigin( ) == "SSB" )
+        {
+            centralBodyStateFunction = [ ]( ){ return Eigen::Vector6d::Zero( ); };
+        }
+        else
+        {
+            throw std::runtime_error( "Error when getting state-direction-based rotation model, requested state w.r.t. SSB, but SSB is not the global origin" );
+        }
+
+        // Define relative state function
+        std::function< void( Eigen::Vector6d& ) > stateFunction =
+                std::bind( &ephemerides::getRelativeState, std::placeholders::_1, bodyStateFunction, centralBodyStateFunction );
+
+        directionCalculator = std::make_shared< ephemerides::StateBasedBodyFixedDirectionCalculator >(
+                    stateBasedDirectionSettings->centralBody_,
+                    stateBasedDirectionSettings->isColinearWithVelocity_,
+                    stateBasedDirectionSettings->directionIsOppositeToVector_,
+                    stateFunction );
+        break;
+    }
+    case bilinear_tangent_inertial_direction:
+    {
+        throw std::runtime_error(
+                    "Error when making direction calculator for direction-based rotation model, bilinear_tangent_inertial_direction not yet implemented" );
+        break;
+    }
+    default:
+    {
+        throw std::runtime_error(
+                    "Error when making direction calculator for direction-based rotation model, type not yet implemented" );
+        break;
+    }
+    }
+    return directionCalculator;
+}
+
 std::shared_ptr< ephemerides::DirectionBasedRotationalEphemeris > createStateDirectionBasedRotationModel(
         const std::string& body,
         const std::string& centralBody,
@@ -264,49 +343,13 @@ std::shared_ptr< ephemerides::DirectionBasedRotationalEphemeris > createStateDir
         const bool directionIsOppositeToVector,
         const std::function< double( const double ) > freeRotationAngleFunction )
 {
-    // Retrieve state function of body for which thrust is to be computed.
-    std::function< Eigen::Vector6d( ) > bodyStateFunction =
-            std::bind( &Body::getState, bodies.at( body ) );
-    std::function< Eigen::Vector6d( ) > centralBodyStateFunction;
-
-    // Retrieve state function of central body (or set to zero if inertial)
-    if( centralBody != "SSB" )
-    {
-        // FIXME: add update function.
-        centralBodyStateFunction = std::bind( &Body::getState, bodies.at( centralBody ) );
-//        magnitudeUpdateSettings[ propagators::body_translational_state_update ].push_back(
-//                    thrustDirectionFromStateGuidanceSettings->relativeBody_ );
-    }
-    else if( bodies.getFrameOrigin( ) == "SSB" )
-    {
-        centralBodyStateFunction = [ ]( ){ return Eigen::Vector6d::Zero( ); };
-    }
-    else
-    {
-        throw std::runtime_error( "Error when getting state-direction-based rotation model, requested state w.r.t. SSB, but SSB is not the global origin" );
-    }
-
-    // Define relative state function
-    std::function< void( Eigen::Vector6d& ) > stateFunction =
-            std::bind( &ephemerides::getRelativeState, std::placeholders::_1, bodyStateFunction, centralBodyStateFunction );
-    std::function< Eigen::Vector3d( const double ) > thrustDirectionFunction;
-
-    // Create force direction function.
-    if( isColinearWithVelocity )
-    {
-        thrustDirectionFunction =
-                std::bind( &propulsion::getDirectionColinearWithVelocity, stateFunction, std::placeholders::_1,
-                           directionIsOppositeToVector );
-    }
-    else
-    {
-        thrustDirectionFunction =
-                std::bind( &propulsion::getDirectionColinearWithPosition, stateFunction, std::placeholders::_1,
-                           directionIsOppositeToVector );
-    }
-
+    std::shared_ptr< ephemerides::InertialBodyFixedDirectionCalculator > directionCalculator =
+            createInertialDirectionCalculator(
+                std::make_shared< StateBasedInertialDirectionSettings >(
+                    centralBody, isColinearWithVelocity, directionIsOppositeToVector ),
+                body, bodies );
     return std::make_shared< ephemerides::DirectionBasedRotationalEphemeris >(
-                thrustDirectionFunction, associatedBodyFixedDirection, originalFrame, targetFrame, freeRotationAngleFunction );
+                directionCalculator, associatedBodyFixedDirection, originalFrame, targetFrame, freeRotationAngleFunction );
 
 
 }
@@ -647,31 +690,35 @@ std::shared_ptr< ephemerides::RotationalEphemeris > createRotationModel(
         }
         else
         {
-            std::function< Eigen::Vector3d( const double ) > inertialBodyAxisDirectionFunction;
+            std::shared_ptr< InertialBodyFixedDirectionCalculator > directionCalculator;
 
             if( bodyFixedDirectionBasedRotationSettings->directionFrame_.first != ephemerides::inertial_satellite_based_frame )
             {
-                std::function< Eigen::Matrix3d( const double ) > rotationMatrixFunction =
-                        getRotationFunctionFromSatelliteBasedFrame(
-                            bodyFixedDirectionBasedRotationSettings->directionFrame_.first,
-                            bodies,
-                            body,
-                            bodyFixedDirectionBasedRotationSettings->directionFrame_.second );
-                inertialBodyAxisDirectionFunction = [=]( const double time )
-                {
-                    return rotationMatrixFunction( time )*
-                            bodyFixedDirectionBasedRotationSettings->inertialBodyAxisDirectionFunction_( time );
-                };
+//                std::function< Eigen::Matrix3d( const double ) > rotationMatrixFunction =
+//                        getRotationFunctionFromSatelliteBasedFrame(
+//                            bodyFixedDirectionBasedRotationSettings->directionFrame_.first,
+//                            bodies,
+//                            body,
+//                            bodyFixedDirectionBasedRotationSettings->directionFrame_.second );
+//                inertialBodyAxisDirectionFunction = [=]( const double time )
+//                {
+//                    return rotationMatrixFunction( time )*
+//                            bodyFixedDirectionBasedRotationSettings->inertialBodyAxisDirectionFunction_( time );
+//                };
+                throw std::runtime_error( "Error, only inertial DirectionBasedRotationalEphemeris supported now" );
             }
             else
             {
-                inertialBodyAxisDirectionFunction = bodyFixedDirectionBasedRotationSettings->inertialBodyAxisDirectionFunction_;
+                directionCalculator = createInertialDirectionCalculator(
+                            bodyFixedDirectionBasedRotationSettings->inertialDirectionSettings_,
+                            body, bodies );
             }
 
             // Create and initialize simple rotation model.
             rotationalEphemeris =
                     std::make_shared< DirectionBasedRotationalEphemeris >(
-                        inertialBodyAxisDirectionFunction, Eigen::Vector3d::UnitX( ),
+                        directionCalculator,
+                        Eigen::Vector3d::UnitX( ),
                         bodyFixedDirectionBasedRotationSettings->getOriginalFrame( ),
                         bodyFixedDirectionBasedRotationSettings->getTargetFrame( ),
                         bodyFixedDirectionBasedRotationSettings->freeRotationAngleFunction_ );

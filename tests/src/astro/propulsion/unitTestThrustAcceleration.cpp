@@ -34,6 +34,7 @@ using namespace boost::placeholders;
 #include "tudat/simulation/propagation_setup/createMassRateModels.h"
 #include "tudat/simulation/estimation_setup/variationalEquationsSolver.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/environment_setup/createSystemModel.h"
 #include <limits>
 #include <string>
 
@@ -244,11 +245,12 @@ BOOST_AUTO_TEST_CASE( testDirectionBasedRotationWithThrustAcceleration )
             bodySettings.addSettings( "Vehicle" );
             bodySettings.at( "Vehicle" )->rotationModelSettings =
                     std::make_shared< BodyFixedDirectionBasedRotationSettings >(
-                        nullptr, "J2000", "VehicleFixed" );
+                        std::function< Eigen::Vector3d( const double ) >( ), "J2000", "VehicleFixed" );
             bodies = createSystemOfBodies( bodySettings );
             std::dynamic_pointer_cast< tudat::ephemerides::DirectionBasedRotationalEphemeris >(
-                        bodies.at( "Vehicle")->getRotationalEphemeris( ) )->setInertialBodyAxisDirectionFunction(
-                        std::bind( &getEarthJupiterVectorFromEnvironment, std::placeholders::_1, bodies ) );
+                        bodies.at( "Vehicle")->getRotationalEphemeris( ) )->setInertialBodyAxisDirectionCalculator(
+                        std::make_shared< CustomBodyFixedDirectionCalculator >(
+                        std::bind( &getEarthJupiterVectorFromEnvironment, std::placeholders::_1, bodies ) ) );
             std::dynamic_pointer_cast< tudat::ephemerides::DirectionBasedRotationalEphemeris >(
                         bodies.at( "Vehicle")->getRotationalEphemeris( ) )->setFreeRotationAngleFunction(
                         freeRotationAngleFunction );
