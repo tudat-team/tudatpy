@@ -40,6 +40,9 @@ if bool(os.getenv("READTHEDOCS")) is True:
     # source path
     source_path = generate_documentation(api_declaration, '.')
 
+    # Install tudatpy dev version if needed
+    os.system('conda install -c tudat-team/label/dev tudatpy -y')
+
 else:
     sys.path.insert(0, os.path.abspath('../..'))
 
