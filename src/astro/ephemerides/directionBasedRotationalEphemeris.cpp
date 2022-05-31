@@ -35,9 +35,9 @@ void DirectionBasedRotationalEphemeris::update( const double currentTime )
         if( currentTime == currentTime )
         {
             currentTime_ = currentTime;
-            if( inertialBodyAxisDirectionFunction_ != nullptr )
+            if( directionCalculator_ != nullptr )
             {
-                currentInertialDirection_ = inertialBodyAxisDirectionFunction_( currentTime_ ).normalized( );
+                currentInertialDirection_ = directionCalculator_->getInertialDirection( currentTime_ ).normalized( );
             }
             else
             {

@@ -9,6 +9,7 @@
  */
 
 #include "tudat/simulation/environment_setup/createSystemModel.h"
+#include "tudat/simulation/environment_setup/createThrustModelGuidance.h"
 
 namespace tudat
 {

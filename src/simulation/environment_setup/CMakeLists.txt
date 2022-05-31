@@ -25,6 +25,7 @@ set(environment_HEADERS
         createAtmosphereModel.h
         createFlightConditions.h
         createSystemModel.h
+        createThrustModelGuidance.h
         )
 
 # Add header files.
@@ -44,6 +45,7 @@ set(environment_SOURCES
         body.cpp
         createAtmosphereModel.cpp
         createSystemModel.cpp
+        createThrustModelGuidance.cpp
         )
 
 # Add library.

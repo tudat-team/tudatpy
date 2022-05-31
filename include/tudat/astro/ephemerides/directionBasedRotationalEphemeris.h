@@ -17,6 +17,86 @@ enum SatelliteBasedFrames
     rsw_satellite_based_frame = 2
 };
 
+class InertialBodyFixedDirectionCalculator
+{
+public:
+    InertialBodyFixedDirectionCalculator( ){ }
+
+    virtual ~InertialBodyFixedDirectionCalculator( ){ }
+
+    virtual Eigen::Vector3d getInertialDirection( const double time ) = 0;
+
+protected:
+
+
+
+};
+
+class CustomBodyFixedDirectionCalculator: public InertialBodyFixedDirectionCalculator
+{
+public:
+    CustomBodyFixedDirectionCalculator(
+            const std::function< Eigen::Vector3d( const double ) > inertialBodyAxisDirectionFunction ):
+        InertialBodyFixedDirectionCalculator( ),
+        inertialBodyAxisDirectionFunction_( inertialBodyAxisDirectionFunction )
+        { }
+
+    ~CustomBodyFixedDirectionCalculator( ){ }
+
+    Eigen::Vector3d getInertialDirection( const double time )
+    {
+        return inertialBodyAxisDirectionFunction_( time );
+    }
+
+protected:
+
+    std::function< Eigen::Vector3d( const double ) > inertialBodyAxisDirectionFunction_;
+
+};
+
+class StateBasedBodyFixedDirectionCalculator: public InertialBodyFixedDirectionCalculator
+{
+public:
+    StateBasedBodyFixedDirectionCalculator(
+            const std::string& centralBody,
+            const bool isColinearWithVelocity,
+            const bool directionIsOppositeToVector,
+            const std::function< void( Eigen::Vector6d& ) > relativeStateFunction ):
+        InertialBodyFixedDirectionCalculator( ),
+        centralBody_( centralBody ),
+        isColinearWithVelocity_( isColinearWithVelocity ),
+        directionIsOppositeToVector_( directionIsOppositeToVector ),
+        relativeStateFunction_( relativeStateFunction ){ }
+
+    ~StateBasedBodyFixedDirectionCalculator( ){ }
+
+    Eigen::Vector3d getInertialDirection( const double time )
+    {
+        relativeStateFunction_( currentRelativeState_ );
+        if( isColinearWithVelocity_ )
+        {
+            return ( directionIsOppositeToVector_ ? -1.0 : 1.0 ) * currentRelativeState_.segment( 3, 3 );
+        }
+        else
+        {
+            return ( directionIsOppositeToVector_ ? -1.0 : 1.0 ) * currentRelativeState_.segment( 0, 3 );
+        }
+    }
+
+protected:
+
+    std::string centralBody_;
+
+    bool isColinearWithVelocity_;
+
+    bool directionIsOppositeToVector_;
+
+    std::function< void( Eigen::Vector6d& ) > relativeStateFunction_;
+
+    Eigen::Vector6d currentRelativeState_;
+
+};
+
 class DirectionBasedRotationalEphemeris: public ephemerides::RotationalEphemeris
 {
 public:
@@ -28,13 +108,13 @@ public:
      * \param targetFrameOrientation Target frame identifier.
      */
     DirectionBasedRotationalEphemeris(
-            const std::function< Eigen::Vector3d( const double ) > inertialBodyAxisDirectionFunction,
-            const Eigen::Vector3d associatedBodyFixedDirection,
+            const std::shared_ptr< InertialBodyFixedDirectionCalculator > directionCalculator,
+            const Eigen::Vector3d& associatedBodyFixedDirection,
             const std::string& baseFrameOrientation,
             const std::string& targetFrameOrientation,
             const std::function< double( const double ) > freeRotationAngleFunction = nullptr )
         : RotationalEphemeris( baseFrameOrientation, targetFrameOrientation ),
-          inertialBodyAxisDirectionFunction_( inertialBodyAxisDirectionFunction ),
+          directionCalculator_( directionCalculator ),
           associatedBodyFixedDirection_( associatedBodyFixedDirection ),
           freeRotationAngleFunction_( freeRotationAngleFunction ),
           currentTime_( TUDAT_NAN ),
@@ -92,10 +172,10 @@ public:
         return currentInertialDirection_;
     }
 
-    void setInertialBodyAxisDirectionFunction(
-            const std::function< Eigen::Vector3d( const double ) >& inertialBodyAxisDirectionFunction )
+    void setInertialBodyAxisDirectionCalculator(
+            const std::shared_ptr< InertialBodyFixedDirectionCalculator > directionCalculator )
     {
-        inertialBodyAxisDirectionFunction_ = inertialBodyAxisDirectionFunction;
+        directionCalculator_ = directionCalculator;
     }
 
     void setFreeRotationAngleFunction( const std::function< double( const double ) >& freeRotationAngleFunction )
@@ -122,6 +202,8 @@ protected:
     }
 
     void calculateEulerAngles( );
+
+    std::shared_ptr< InertialBodyFixedDirectionCalculator > directionCalculator_;
 
     std::function< Eigen::Vector3d( const double ) > inertialBodyAxisDirectionFunction_;
 

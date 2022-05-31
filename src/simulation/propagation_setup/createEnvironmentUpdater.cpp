@@ -11,6 +11,7 @@
 #include "tudat/astro/basic_astro/accelerationModelTypes.h"
 #include "tudat/astro/basic_astro/torqueModelTypes.h"
 #include "tudat/simulation/propagation_setup/createEnvironmentUpdater.h"
+#include "tudat/simulation/environment_setup/createFlightConditions.h"
 
 namespace tudat
 {
