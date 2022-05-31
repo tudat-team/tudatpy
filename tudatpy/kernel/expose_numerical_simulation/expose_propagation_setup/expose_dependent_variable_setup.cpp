@@ -591,7 +591,7 @@ namespace dependent_variable {
               py::arg("body_exerting_acceleration"),
               py::arg("acceleration_model_type"),
               py::arg("derivative_wrt_body"),
-              py::arg("third_body") = "");
+              py::arg("central_body_in_3rd_body_gravity") = "");
 
     }
 
