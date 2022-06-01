@@ -190,6 +190,7 @@ BOOST_AUTO_TEST_CASE( testWindModelInPropagation )
         {
             // Update environment
             bodies.at( "Vehicle" )->setState( numericalSolution.at( dataIterator->first ) );
+            bodies.at( "Earth" )->setState( Eigen::Vector6d::Zero( ) );
             bodies.at( "Earth" )->setCurrentRotationalStateToLocalFrameFromEphemeris( dataIterator->first );
             bodies.at( "Vehicle" )->getFlightConditions( )->updateConditions( dataIterator->first );
 
