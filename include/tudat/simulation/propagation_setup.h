@@ -28,7 +28,6 @@
 #include "propagation_setup/propagationTermination.h"
 #include "propagation_setup/propagationTerminationSettings.h"
 #include "propagation_setup/setNumericallyIntegratedStates.h"
-#include "propagation_setup/thrustSettings.h"
 #include "propagation_setup/torqueSettings.h"
 
 #endif // TUDAT_PROPAGATION_SETUP_H

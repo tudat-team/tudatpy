@@ -187,6 +187,11 @@ public:
         return ( currentRotation_ * engineModel->getBodyFixedThrustDirection( ) ).normalized( );
     }
 
+    Eigen::Quaterniond getCurrentRotation( )
+    {
+        return currentRotation_;
+    }
+
 protected:
 
     const std::function< Eigen::Quaterniond( ) > rotationFunction_;

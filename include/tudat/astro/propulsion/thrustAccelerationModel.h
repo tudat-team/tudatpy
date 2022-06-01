@@ -80,7 +80,8 @@ public:
         thrustSources_( thrustSources ),
         thrustDirectionCalculator_( thrustDirectionWrapper ),
         bodyMassFunction_( bodyMassFunction ),
-        requiredModelUpdates_( requiredModelUpdates ){ }
+        requiredModelUpdates_( requiredModelUpdates ),
+        saveThrustContributions_( false ){ }
 
     //! Destructor
     ~ThrustAcceleration( ){ }
@@ -120,9 +121,20 @@ public:
             for( unsigned int i = 0; i < thrustSources_.size( ); i++ )
             {
                 thrustSources_.at( i )->updateEngineModel( currentTime );
-                currentMassRate_ -= thrustSources_.at( i )->getCurrentMassRate( );
-                currentAcceleration_ += ( thrustSources_.at( i )->getCurrentThrust( ) / bodyMassFunction_( ) )*
-                        thrustDirectionCalculator_->getInertialThrustDirection( thrustSources_.at( i ) ) ;
+                if( !saveThrustContributions_ )
+                {
+                    currentMassRate_ -= thrustSources_.at( i )->getCurrentMassRate( );
+                    currentAcceleration_ += ( thrustSources_.at( i )->getCurrentThrust( ) / bodyMassFunction_( ) )*
+                            thrustDirectionCalculator_->getInertialThrustDirection( thrustSources_.at( i ) ) ;
+                }
+                else
+                {
+                    currentMassRateContributions_[ i ] = thrustSources_.at( i )->getCurrentMassRate( );
+                    currentMassRate_ -= currentMassRateContributions_[ i ];
+                    currentThrustAccelerationContributions_[ i ] = ( thrustSources_.at( i )->getCurrentThrust( ) / bodyMassFunction_( ) )*
+                            thrustDirectionCalculator_->getInertialThrustDirection( thrustSources_.at( i ) ) ;
+                    currentAcceleration_ += currentThrustAccelerationContributions_[ i ];
+                }
             }
 
             // Reset current time.
@@ -140,6 +152,27 @@ public:
     double getCurrentMassRate( )
     {
         return currentMassRate_;
+    }
+
+    Eigen::Vector3d getCurrentThrustAccelerationContribution(
+            const unsigned int index )
+    {
+        if( !saveThrustContributions_ )
+        {
+            throw std::runtime_error( "Error when getting single thrust acceleration contribution, separate contributions not saved" );
+        }
+        else if( currentTime_ != currentTime_ )
+        {
+            throw std::runtime_error( "Error when getting single thrust acceleration contribution, thrust model is not updated" );
+        }
+        else if( index >= currentThrustAccelerationContributions_.size( ) )
+        {
+            throw std::runtime_error( "Error when getting single thrust acceleration contribution, requested index is out of bounds" );
+        }
+        else
+        {
+            return currentThrustAccelerationContributions_.at( index );
+        }
     }
 
     //! Function to retrieve the list of environment models that are to be updated before computing the acceleration.
@@ -162,6 +195,29 @@ public:
         return thrustSourceIds;
     }
 
+    std::vector< std::shared_ptr< system_models::EngineModel > > getThrustSources( )
+    {
+        return thrustSources_;
+    }
+
+    void setSaveThrustContributions( const bool saveThrustContributions )
+    {
+        saveThrustContributions_ = saveThrustContributions;
+        currentMassRateContributions_.resize( thrustSources_.size( ) );
+        currentThrustAccelerationContributions_.resize( thrustSources_.size( ) );
+    }
+
+    double getCurrentBodyMass( )
+    {
+        return bodyMassFunction_( );
+    }
+
+    std::shared_ptr< ThrustDirectionCalculator > getThrustDirectionCalculator( )
+    {
+        return thrustDirectionCalculator_;
+    }
+
+
 protected:
 
     std::vector< std::shared_ptr< system_models::EngineModel > > thrustSources_;
@@ -183,6 +239,12 @@ protected:
      *  list is included here to account for versatility of dependencies of thrust model (guidance) algorithms.
      */
     std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > requiredModelUpdates_;
+
+    bool saveThrustContributions_;
+
+    std::vector< Eigen::Vector3d > currentThrustAccelerationContributions_;
+
+    std::vector< double > currentMassRateContributions_;
 
 };
 

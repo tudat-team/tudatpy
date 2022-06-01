@@ -76,7 +76,7 @@ public:
      */
     double getCurrentThrust( )
     {
-        return thrustMagnitudeWrapper_->getCurrentThrustMagnitude( );
+        return thrustMagnitudeWrapper_->getCurrentThrustForceMagnitude( );
     }
 
     //! Pure virtual function to retrieve the propellant mass rate.
@@ -109,6 +109,12 @@ public:
     {
         return engineName_;
     }
+
+    std::shared_ptr< propulsion::ThrustMagnitudeWrapper > getThrustMagnitudeWrapper( )
+    {
+        return thrustMagnitudeWrapper_;
+    }
+
 
 protected:
 
