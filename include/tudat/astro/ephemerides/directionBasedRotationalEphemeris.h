@@ -20,13 +20,30 @@ enum SatelliteBasedFrames
 class InertialBodyFixedDirectionCalculator
 {
 public:
-    InertialBodyFixedDirectionCalculator( ){ }
+    InertialBodyFixedDirectionCalculator(
+            const std::function< Eigen::Matrix3d( const double ) > rotationMatrixToPropagationFrame = nullptr ):
+        rotationMatrixToPropagationFrame_( rotationMatrixToPropagationFrame ){ }
 
     virtual ~InertialBodyFixedDirectionCalculator( ){ }
 
-    virtual Eigen::Vector3d getInertialDirection( const double time ) = 0;
+    virtual Eigen::Vector3d getDirection( const double time ) = 0;
+
+    Eigen::Vector3d getInertialDirection( const double time )
+    {
+        if( rotationMatrixToPropagationFrame_ != nullptr )
+        {
+            return rotationMatrixToPropagationFrame_( time ) * getDirection( time );
+        }
+        else
+        {
+            return getDirection( time );
+        }
+    }
 
 protected:
+
+    std::function< Eigen::Matrix3d( const double ) > rotationMatrixToPropagationFrame_;
+
 
 
 
@@ -36,14 +53,15 @@ class CustomBodyFixedDirectionCalculator: public InertialBodyFixedDirectionCalcu
 {
 public:
     CustomBodyFixedDirectionCalculator(
-            const std::function< Eigen::Vector3d( const double ) > inertialBodyAxisDirectionFunction ):
-        InertialBodyFixedDirectionCalculator( ),
+            const std::function< Eigen::Vector3d( const double ) > inertialBodyAxisDirectionFunction,
+            const std::function< Eigen::Matrix3d( const double ) > rotationMatrixToPropagationFrame = nullptr ):
+        InertialBodyFixedDirectionCalculator( rotationMatrixToPropagationFrame ),
         inertialBodyAxisDirectionFunction_( inertialBodyAxisDirectionFunction )
         { }
 
     ~CustomBodyFixedDirectionCalculator( ){ }
 
-    Eigen::Vector3d getInertialDirection( const double time )
+    Eigen::Vector3d getDirection( const double time )
     {
         return inertialBodyAxisDirectionFunction_( time );
     }
@@ -61,8 +79,9 @@ public:
             const std::string& centralBody,
             const bool isColinearWithVelocity,
             const bool directionIsOppositeToVector,
-            const std::function< void( Eigen::Vector6d& ) > relativeStateFunction ):
-        InertialBodyFixedDirectionCalculator( ),
+            const std::function< void( Eigen::Vector6d& ) > relativeStateFunction,
+            const std::function< Eigen::Matrix3d( const double ) > rotationMatrixToPropagationFrame = nullptr ):
+        InertialBodyFixedDirectionCalculator( rotationMatrixToPropagationFrame ),
         centralBody_( centralBody ),
         isColinearWithVelocity_( isColinearWithVelocity ),
         directionIsOppositeToVector_( directionIsOppositeToVector ),
@@ -70,7 +89,7 @@ public:
 
     ~StateBasedBodyFixedDirectionCalculator( ){ }
 
-    Eigen::Vector3d getInertialDirection( const double time )
+    Eigen::Vector3d getDirection( const double time )
     {
         relativeStateFunction_( currentRelativeState_ );
         if( isColinearWithVelocity_ )

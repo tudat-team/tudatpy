@@ -258,6 +258,15 @@ std::shared_ptr< ephemerides::InertialBodyFixedDirectionCalculator > createInert
         const std::string& body,
         const SystemOfBodies& bodies )
 {
+    std::function< Eigen::Matrix3d( const double ) > rotationFunction = nullptr;
+    if( directionSettings->directionFrame_.first != ephemerides::inertial_satellite_based_frame )
+    {
+        rotationFunction = getRotationFunctionFromSatelliteBasedFrame(
+            directionSettings->directionFrame_.first, bodies, body,
+                    directionSettings->directionFrame_.second );
+    }
+
+
     std::shared_ptr< ephemerides::InertialBodyFixedDirectionCalculator > directionCalculator;
     switch( directionSettings->inertialDirectionType_ )
     {
@@ -271,7 +280,7 @@ std::shared_ptr< ephemerides::InertialBodyFixedDirectionCalculator > createInert
                         "Error when making direction calculator for direction-based rotation model, expected type CustomInertialDirectionSettings" );
         }
         directionCalculator = std::make_shared< ephemerides::CustomBodyFixedDirectionCalculator >(
-                    customDirectionSettings->inertialBodyAxisDirectionFunction_ );
+                    customDirectionSettings->inertialBodyAxisDirectionFunction_, rotationFunction );
         break;
     }
     case state_based_inertial_direction:
@@ -313,7 +322,8 @@ std::shared_ptr< ephemerides::InertialBodyFixedDirectionCalculator > createInert
                     stateBasedDirectionSettings->centralBody_,
                     stateBasedDirectionSettings->isColinearWithVelocity_,
                     stateBasedDirectionSettings->directionIsOppositeToVector_,
-                    stateFunction );
+                    stateFunction,
+                    rotationFunction );
         break;
     }
     case bilinear_tangent_inertial_direction:
@@ -690,29 +700,10 @@ std::shared_ptr< ephemerides::RotationalEphemeris > createRotationModel(
         }
         else
         {
-            std::shared_ptr< InertialBodyFixedDirectionCalculator > directionCalculator;
-
-            if( bodyFixedDirectionBasedRotationSettings->directionFrame_.first != ephemerides::inertial_satellite_based_frame )
-            {
-//                std::function< Eigen::Matrix3d( const double ) > rotationMatrixFunction =
-//                        getRotationFunctionFromSatelliteBasedFrame(
-//                            bodyFixedDirectionBasedRotationSettings->directionFrame_.first,
-//                            bodies,
-//                            body,
-//                            bodyFixedDirectionBasedRotationSettings->directionFrame_.second );
-//                inertialBodyAxisDirectionFunction = [=]( const double time )
-//                {
-//                    return rotationMatrixFunction( time )*
-//                            bodyFixedDirectionBasedRotationSettings->inertialBodyAxisDirectionFunction_( time );
-//                };
-                throw std::runtime_error( "Error, only inertial DirectionBasedRotationalEphemeris supported now" );
-            }
-            else
-            {
-                directionCalculator = createInertialDirectionCalculator(
+            std::shared_ptr< InertialBodyFixedDirectionCalculator > directionCalculator =
+                    createInertialDirectionCalculator(
                             bodyFixedDirectionBasedRotationSettings->inertialDirectionSettings_,
                             body, bodies );
-            }
 
             // Create and initialize simple rotation model.
             rotationalEphemeris =

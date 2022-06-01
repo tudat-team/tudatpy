@@ -464,12 +464,19 @@ class InertialDirectionSettings
 {
 public:
 
-    InertialDirectionSettings( const InertialDirectionTypes inertialDirectionType ):
-    inertialDirectionType_( inertialDirectionType ){ }
+    InertialDirectionSettings(
+            const InertialDirectionTypes inertialDirectionType,
+            std::pair< ephemerides::SatelliteBasedFrames, std::string > directionFrame =
+            std::make_pair( ephemerides::inertial_satellite_based_frame, "" ) ):
+    inertialDirectionType_( inertialDirectionType ),
+    directionFrame_( directionFrame ){ }
 
     virtual ~InertialDirectionSettings( ){ }
 
     const InertialDirectionTypes inertialDirectionType_;
+
+    std::pair< ephemerides::SatelliteBasedFrames, std::string > directionFrame_;
+
 };
 
 class CustomInertialDirectionSettings: public InertialDirectionSettings
@@ -477,8 +484,10 @@ class CustomInertialDirectionSettings: public InertialDirectionSettings
 public:
 
     CustomInertialDirectionSettings(
-            const std::function< Eigen::Vector3d( const double ) > inertialBodyAxisDirectionFunction ):
-        InertialDirectionSettings( custom_inertial_direction ),
+            const std::function< Eigen::Vector3d( const double ) > inertialBodyAxisDirectionFunction,
+            std::pair< ephemerides::SatelliteBasedFrames, std::string > directionFrame =
+            std::make_pair( ephemerides::inertial_satellite_based_frame, "" ) ):
+        InertialDirectionSettings( custom_inertial_direction, directionFrame ),
     inertialBodyAxisDirectionFunction_( inertialBodyAxisDirectionFunction ){ }
 
     ~CustomInertialDirectionSettings( ){ }
@@ -494,8 +503,10 @@ public:
     StateBasedInertialDirectionSettings(
             const std::string& centralBody,
             const bool isColinearWithVelocity,
-            const bool directionIsOppositeToVector ):
-        InertialDirectionSettings( state_based_inertial_direction ),
+            const bool directionIsOppositeToVector,
+            std::pair< ephemerides::SatelliteBasedFrames, std::string > directionFrame =
+            std::make_pair( ephemerides::inertial_satellite_based_frame, "" )  ):
+        InertialDirectionSettings( state_based_inertial_direction, directionFrame ),
         centralBody_( centralBody ),
         isColinearWithVelocity_( isColinearWithVelocity ),
         directionIsOppositeToVector_( directionIsOppositeToVector ){ }
@@ -518,8 +529,10 @@ public:
             const std::vector< double >& arcStartTimes,
             const std::vector< double >& arcDurations,
             const std::vector< Eigen::Vector3d >& constantDirectionTerms,
-            const std::vector< Eigen::Vector3d >& linearDirectionTerms ):
-        InertialDirectionSettings( bilinear_tangent_inertial_direction ),
+            const std::vector< Eigen::Vector3d >& linearDirectionTerms,
+            std::pair< ephemerides::SatelliteBasedFrames, std::string > directionFrame =
+            std::make_pair( ephemerides::inertial_satellite_based_frame, "" ) ):
+        InertialDirectionSettings( bilinear_tangent_inertial_direction, directionFrame ),
     arcStartTimes_( arcStartTimes ),
     arcDurations_( arcDurations ),
     constantDirectionTerms_( constantDirectionTerms ),
@@ -548,27 +561,21 @@ public:
             std::make_pair( ephemerides::inertial_satellite_based_frame, "" ) ):
         RotationModelSettings( body_fixed_direction_based_rotation_model, baseFrameOrientation, targetFrameOrientation ),
         inertialDirectionSettings_( std::make_shared< CustomInertialDirectionSettings >(
-                                        inertialBodyAxisDirectionFunction ) ),
-        freeRotationAngleFunction_( freeRotationAngleFunction ),
-        directionFrame_( directionFrame ){ }
+                                        inertialBodyAxisDirectionFunction, directionFrame ) ),
+        freeRotationAngleFunction_( freeRotationAngleFunction ){ }
 
     BodyFixedDirectionBasedRotationSettings(
             const std::shared_ptr< InertialDirectionSettings > inertialDirectionSettings,
             const std::string& baseFrameOrientation,
             const std::string& targetFrameOrientation,
-            const std::function< double( const double ) > freeRotationAngleFunction = nullptr,
-            const std::pair< ephemerides::SatelliteBasedFrames, std::string > directionFrame =
-            std::make_pair( ephemerides::inertial_satellite_based_frame, "" ) ):
+            const std::function< double( const double ) > freeRotationAngleFunction = nullptr ):
         RotationModelSettings( body_fixed_direction_based_rotation_model, baseFrameOrientation, targetFrameOrientation ),
         inertialDirectionSettings_( inertialDirectionSettings ),
-        freeRotationAngleFunction_( freeRotationAngleFunction ),
-        directionFrame_( directionFrame ){ }
+        freeRotationAngleFunction_( freeRotationAngleFunction ){ }
 
     std::shared_ptr< InertialDirectionSettings > inertialDirectionSettings_;
 
     std::function< double( const double ) > freeRotationAngleFunction_;
-
-    std::pair< ephemerides::SatelliteBasedFrames, std::string > directionFrame_;
 };
 
 class OrbitalStateBasedRotationSettings: public RotationModelSettings

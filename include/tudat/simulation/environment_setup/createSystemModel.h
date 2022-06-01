@@ -14,7 +14,7 @@
 #include <memory>
 
 #include "tudat/simulation/environment_setup/body.h"
-#include "tudat/simulation/propagation_setup/thrustSettings.h"
+#include "tudat/simulation/environment_setup/thrustSettings.h"
 
 namespace tudat
 {

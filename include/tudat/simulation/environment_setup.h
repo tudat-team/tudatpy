@@ -25,5 +25,6 @@
 #include "environment_setup/createRadiationPressureInterface.h"
 #include "environment_setup/createRotationModel.h"
 #include "environment_setup/defaultBodies.h"
+#include "environment_setup/thrustSettings.h"
 
 #endif // TUDAT_ENVIRONMENT_SETUP_H

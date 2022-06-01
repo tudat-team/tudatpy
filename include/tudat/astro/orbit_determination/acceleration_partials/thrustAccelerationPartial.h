@@ -14,6 +14,7 @@
 #include "tudat/astro/propulsion/thrustAccelerationModel.h"
 
 #include "tudat/astro/orbit_determination/acceleration_partials/accelerationPartial.h"
+#include "tudat/astro/orbit_determination/observation_partials/rotationMatrixPartial.h"
 
 namespace tudat
 {
@@ -21,6 +22,110 @@ namespace tudat
 namespace acceleration_partials
 {
 
+
+class ThrustAccelerationPartial: public AccelerationPartial
+{
+public:
+
+    ThrustAccelerationPartial(
+            const std::shared_ptr< propulsion::ThrustAcceleration > thrustAcceleration,
+            const std::string acceleratedBody,
+            const std::map< std::pair< estimatable_parameters::EstimatebleParametersEnum, std::string >,
+                    std::shared_ptr< observation_partials::RotationMatrixPartial > >& rotationMatrixPartials  );
+
+    ~ThrustAccelerationPartial( ){ }
+
+
+    void wrtPositionOfAcceleratedBody(
+            Eigen::Block< Eigen::MatrixXd > partialMatrix,
+            const bool addContribution = 1, const int startRow = 0, const int startColumn = 0 ){ }
+
+
+    void wrtPositionOfAcceleratingBody(
+            Eigen::Block< Eigen::MatrixXd > partialMatrix,
+            const bool addContribution = 1, const int startRow = 0, const int startColumn = 0 ){ }
+
+
+    bool isStateDerivativeDependentOnIntegratedAdditionalStateTypes(
+            const std::pair< std::string, std::string >& stateReferencePoint,
+            const propagators::IntegratedStateType integratedStateType );
+
+    //! Function to calculate an acceleration partial wrt a rotational parameter.
+    void wrtRotationModelParameter(
+            Eigen::MatrixXd& accelerationPartial,
+            const estimatable_parameters::EstimatebleParametersEnum parameterType,
+            const std::string& secondaryIdentifier );
+
+    void wrtNonTranslationalStateOfAdditionalBody(
+            Eigen::Block< Eigen::MatrixXd > partialMatrix,
+            const std::pair< std::string, std::string >& stateReferencePoint,
+            const propagators::IntegratedStateType integratedStateType,
+            const bool addContribution = true );
+
+    std::pair< std::function< void( Eigen::MatrixXd& ) >, int >
+    getParameterPartialFunction(
+            std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
+    {
+        std::pair< std::function< void( Eigen::MatrixXd& ) >, int > partialFunction =
+                std::make_pair( nullptr, 0 );
+
+        if( rotationMatrixPartials_.count( std::make_pair( parameter->getParameterName( ).first,
+                                                           parameter->getSecondaryIdentifier( ) ) ) != 0 )
+        {
+            partialFunction = std::make_pair(
+                        std::bind( &ThrustAccelerationPartial::wrtRotationModelParameter, this,
+                                         std::placeholders::_1,
+                                         parameter->getParameterName( ).first,
+                                         parameter->getSecondaryIdentifier( ) ), 1 );
+        }
+        return partialFunction;
+    }
+
+    std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunction(
+            std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
+    {
+        std::pair< std::function< void( Eigen::MatrixXd& ) >, int > partialFunction =
+                std::make_pair( nullptr, 0 );
+
+        if( rotationMatrixPartials_.count( std::make_pair( parameter->getParameterName( ).first,
+                                                           parameter->getSecondaryIdentifier( ) ) ) != 0 )
+        {
+            partialFunction = std::make_pair(
+                        std::bind( &ThrustAccelerationPartial::wrtRotationModelParameter, this,
+                                         std::placeholders::_1,
+                                         parameter->getParameterName( ).first,
+                                         parameter->getSecondaryIdentifier( ) ),
+                        parameter->getParameterSize( ) );
+        }
+        return partialFunction;
+    }
+
+
+    void update( const double currentTime = TUDAT_NAN )
+    {
+
+        if( !( currentTime_ == currentTime ) )
+        {
+            thrustAcceleration_->updateMembers( currentTime );
+            currentTime_ = currentTime;
+        }
+    }
+
+protected:
+
+    std::shared_ptr< propulsion::ThrustAcceleration > thrustAcceleration_;
+
+    std::map< std::pair< estimatable_parameters::EstimatebleParametersEnum, std::string >,
+                    std::shared_ptr< observation_partials::RotationMatrixPartial > > rotationMatrixPartials_;
+
+    std::vector< std::shared_ptr< system_models::EngineModel > > thrustSources_;
+
+    std::vector< unsigned int > massDependentThrustSources_;
+
+    bool isAccelerationDependentOnMass_;
+
+    bool isAccelerationDependentOnTranslationalState_;
+};
 //! Class to calculate the partials of the momentum wheel desaturation acceleration w.r.t. parameters and states.
 class MomentumWheelDesaturationPartial: public AccelerationPartial
 {

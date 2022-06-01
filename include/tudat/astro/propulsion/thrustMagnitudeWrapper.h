@@ -51,7 +51,9 @@ public:
      * Pure virtual function to get the current thrust magnitude.
      * \return Current thrust magnitude.
      */
-    virtual double getCurrentThrustMagnitude( ) = 0;
+    virtual double getCurrentThrustForceMagnitude( ) = 0;
+
+//    virtual double getCurrentThrustAccelerationMagnitude( ){ }// = 0;
 
     //! Pure virtual function to get the current mass rate.
     /*!
@@ -59,6 +61,8 @@ public:
      * \return Current mass rate.
      */
     virtual double getCurrentMassRate( ) = 0;
+
+    virtual bool modelIsForceBased( ) = 0;
 
     //! Function to reset the current time of the thrust model
     /*!
@@ -141,9 +145,14 @@ public:
      * Function to return the current thrust magnitude, as computed by last call to update member function.
      * \return Current thrust magnitude
      */
-    double getCurrentThrustMagnitude( )
+    double getCurrentThrustForceMagnitude( )
     {
         return currentThrustMagnitude_;
+    }
+
+    bool modelIsForceBased( )
+    {
+        return true;
     }
 
     //! Function to return the current mass rate.
@@ -342,9 +351,14 @@ public:
      * Function to return the current thrust magnitude, as computed by last call to update member function.
      * \return Current thrust magnitude
      */
-    double getCurrentThrustMagnitude( )
+    double getCurrentThrustForceMagnitude( )
     {
         return currentThrustMagnitude_;
+    }
+
+    bool modelIsForceBased( )
+    {
+        return true;
     }
 
     //! Function to return the current mass rate.
@@ -549,9 +563,14 @@ public:
      * Function to return the current thrust magnitude, as computed by last call to update member function.
      * \return Current thrust magnitude
      */
-    double getCurrentThrustMagnitude( )
+    double getCurrentThrustForceMagnitude( )
     {
         return currentThrustMagnitude_;
+    }
+
+    bool modelIsForceBased( )
+    {
+        return true;
     }
 
     //! Function to return the current mass rate.

@@ -22,7 +22,6 @@ set(propagation_HEADERS
         createMassRateModels.h
         propagationTermination.h
         propagationSettings.h
-        thrustSettings.h
         accelerationSettings.h
         propagationOutputSettings.h
         setNumericallyIntegratedStates.h
@@ -37,7 +36,6 @@ set(propagation_HEADERS
 set(propagation_SOURCES
         createStateDerivativeModel.cpp
 #        propagationLambertTargeterFullProblem.cpp
-        thrustSettings.cpp
         propagationSettings.cpp
         setNumericallyIntegratedStates.cpp
         dynamicsSimulator.cpp
