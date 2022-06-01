@@ -321,9 +321,10 @@ public:
             const std::string& associatedBody,
             const reference_frames::AerodynamicsReferenceFrames baseFrame,
             const reference_frames::AerodynamicsReferenceFrames targetFrame,
+            const std::string& centralBody = "",
             const int componentIndex = -1 ):
         SingleDependentVariableSaveSettings( intermediate_aerodynamic_rotation_matrix_variable, associatedBody,
-                                             "", componentIndex ),
+                                             centralBody, componentIndex ),
         baseFrame_( baseFrame ), targetFrame_( targetFrame ){ }
 
     // Frame from which rotation is to take place.
@@ -826,18 +827,20 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > totalAccelerationN
 
 //! @get_docstring(aerodynamicForceCoefficientDependentVariable)
 inline std::shared_ptr< SingleDependentVariableSaveSettings > aerodynamicForceCoefficientDependentVariable(
-        const std::string& associatedBody )
+        const std::string& associatedBody,
+        const std::string& centralBody = "" )
 {
     return std::make_shared< SingleDependentVariableSaveSettings >(
-                aerodynamic_force_coefficients_dependent_variable, associatedBody );
+                aerodynamic_force_coefficients_dependent_variable, associatedBody, centralBody );
 }
 
 //! @get_docstring(aerodynamicMomentCoefficientDependentVariable)
 inline std::shared_ptr< SingleDependentVariableSaveSettings > aerodynamicMomentCoefficientDependentVariable(
-        const std::string& associatedBody )
+        const std::string& associatedBody,
+        const std::string& centralBody = "" )
 {
     return std::make_shared< SingleDependentVariableSaveSettings >(
-                aerodynamic_moment_coefficients_dependent_variable, associatedBody );
+                aerodynamic_moment_coefficients_dependent_variable, associatedBody, centralBody );
 }
 
 //! @get_docstring(inertialToBodyFixedRotationMatrixVariable)
@@ -852,10 +855,11 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > inertialToBodyFixe
 inline std::shared_ptr< SingleDependentVariableSaveSettings > intermediateAerodynamicRotationMatrixVariable(
         const std::string& associatedBody,
         const reference_frames::AerodynamicsReferenceFrames baseFrame,
-        const reference_frames::AerodynamicsReferenceFrames targetFrame )
+        const reference_frames::AerodynamicsReferenceFrames targetFrame,
+        const std::string& centralBody = "" )
 {
     return std::make_shared< IntermediateAerodynamicRotationVariableSaveSettings >(
-                associatedBody, baseFrame, targetFrame );
+                associatedBody, baseFrame, targetFrame, centralBody );
 }
 
 //! @get_docstring(latitudeDependentVariable)
@@ -936,7 +940,7 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > bodyFixedAirspeedB
         const std::string& centralBody )
 {
     return std::make_shared< SingleDependentVariableSaveSettings >(
-                body_fixed_airspeed_based_velocity_variable, associatedBody );
+                body_fixed_airspeed_based_velocity_variable, associatedBody, centralBody );
 }
 
 //! @get_docstring(bodyFixedGroundspeedBasedVelocityVariable)

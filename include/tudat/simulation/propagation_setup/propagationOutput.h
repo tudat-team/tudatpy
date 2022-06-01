@@ -842,9 +842,8 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
         if( std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
                     bodies.at( bodyWithProperty )->getFlightConditions( ) )== nullptr )
         {
-            std::string errorMessage = "Error, no atmospheric flight conditions available when requesting density output of aerodynamic force coefficients " +
-                    bodyWithProperty + "w.r.t." + secondaryBody;
-            throw std::runtime_error( errorMessage );
+            simulation_setup::addAtmosphericFlightConditions(
+                        bodies, bodyWithProperty, secondaryBody );
         }
 
         variableFunction = std::bind(
@@ -860,10 +859,8 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
         if( std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
                     bodies.at( bodyWithProperty )->getFlightConditions( ) )== nullptr )
         {
-
-            std::string errorMessage = "Error, no atmospheric flight conditions available when requesting density output of aerodynamic moment coefficients " +
-                    bodyWithProperty + "w.r.t." + secondaryBody;
-            throw std::runtime_error( errorMessage );
+            simulation_setup::addAtmosphericFlightConditions(
+                        bodies, bodyWithProperty, secondaryBody );
         }
 
         variableFunction = std::bind(
@@ -886,8 +883,8 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
     {
         if( bodies.at( bodyWithProperty )->getFlightConditions( ) == nullptr )
         {
-            std::string errorMessage= "Error, no flight conditions when creating dependent variable function of type intermediate_aerodynamic_rotation_matrix_variable";
-            throw std::runtime_error( errorMessage );
+            simulation_setup::addFlightConditions(
+                        bodies, bodyWithProperty, secondaryBody );
         }
 
         // Check input consistency.
@@ -916,8 +913,8 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
         if( std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
                     bodies.at( bodyWithProperty )->getFlightConditions( ) )== nullptr )
         {
-            std::string errorMessage= "Error, no atmospheric flight conditions when creating dependent variable function of type body_fixed_airspeed_based_velocity_variable";
-            throw std::runtime_error( errorMessage );
+            simulation_setup::addAtmosphericFlightConditions(
+                        bodies, bodyWithProperty, secondaryBody );
         }
 
         variableFunction = std::bind( &aerodynamics::AtmosphericFlightConditions::getCurrentAirspeedBasedVelocity,
@@ -1357,9 +1354,8 @@ std::function< double( ) > getDoubleDependentVariableFunction(
             if( std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
                         bodies.at( bodyWithProperty )->getFlightConditions( ) )== nullptr )
             {
-                std::string errorMessage = "Error, no atmospheric flight conditions available when requesting Mach number output of " +
-                        bodyWithProperty + "w.r.t." + secondaryBody;
-                throw std::runtime_error( errorMessage );
+                simulation_setup::addAtmosphericFlightConditions(
+                            bodies, bodyWithProperty, secondaryBody );
             }
 
             std::function< double( const double, const double ) > functionToEvaluate =
@@ -1383,9 +1379,8 @@ std::function< double( ) > getDoubleDependentVariableFunction(
         case altitude_dependent_variable:
             if( bodies.at( bodyWithProperty )->getFlightConditions( ) == nullptr )
             {
-                std::string errorMessage = "Error, no flight conditions available when requesting altitude output of " +
-                        bodyWithProperty + "w.r.t." + secondaryBody;
-                throw std::runtime_error( errorMessage );
+                simulation_setup::addFlightConditions(
+                            bodies, bodyWithProperty, secondaryBody );
             }
             variableFunction = std::bind( &aerodynamics::FlightConditions::getCurrentAltitude,
                                           bodies.at( bodyWithProperty )->getFlightConditions( ) );
@@ -1394,9 +1389,8 @@ std::function< double( ) > getDoubleDependentVariableFunction(
             if( std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
                         bodies.at( bodyWithProperty )->getFlightConditions( ) )== nullptr )
             {
-                std::string errorMessage = "Error, no atmospheric flight conditions available when requesting airspeed output of " +
-                        bodyWithProperty + "w.r.t." + secondaryBody;
-                throw std::runtime_error( errorMessage );
+                simulation_setup::addAtmosphericFlightConditions(
+                            bodies, bodyWithProperty, secondaryBody );
             }
             variableFunction = std::bind( &aerodynamics::AtmosphericFlightConditions::getCurrentAirspeed,
                                           std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
@@ -1406,9 +1400,8 @@ std::function< double( ) > getDoubleDependentVariableFunction(
             if( std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
                         bodies.at( bodyWithProperty )->getFlightConditions( ) )== nullptr )
             {
-                std::string errorMessage = "Error, no atmospheric flight conditions available when requesting density output of " +
-                        bodyWithProperty + "w.r.t." + secondaryBody;
-                throw std::runtime_error( errorMessage );
+                simulation_setup::addAtmosphericFlightConditions(
+                            bodies, bodyWithProperty, secondaryBody );
             }
             variableFunction = std::bind( &aerodynamics::AtmosphericFlightConditions::getCurrentDensity,
                                           std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
@@ -1613,9 +1606,8 @@ std::function< double( ) > getDoubleDependentVariableFunction(
         {
             if( bodies.at( bodyWithProperty )->getFlightConditions( ) == nullptr )
             {
-                std::string errorMessage = "Error when flight conditions for relative_body_aerodynamic_orientation_angle_variable output " +
-                        bodyWithProperty + " has no flight conditions";
-                throw std::runtime_error( errorMessage );
+                simulation_setup::addFlightConditions(
+                            bodies, bodyWithProperty, secondaryBody );
             }
 
             // Check input consistency.
@@ -1658,9 +1650,8 @@ std::function< double( ) > getDoubleDependentVariableFunction(
                         bodies.at( bodyWithProperty )->getFlightConditions( ) );
             if( flightConditions == nullptr )
             {
-                std::string errorMessage = "Error no atmospheric flight conditions available when requesting stagnation point heating output of" +
-                        bodyWithProperty + "w.r.t." + secondaryBody;
-                throw std::runtime_error( errorMessage );
+                simulation_setup::addAtmosphericFlightConditions(
+                            bodies, bodyWithProperty, secondaryBody );
             }
 
             if( bodies.at( bodyWithProperty )->getVehicleSystems( ) == nullptr )
@@ -1699,9 +1690,8 @@ std::function< double( ) > getDoubleDependentVariableFunction(
             if( std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
                         bodies.at( bodyWithProperty )->getFlightConditions( ) )== nullptr )
             {
-                std::string errorMessage = "Error, no atmospheric flight conditions available when requesting temperature output of " +
-                        bodyWithProperty + "w.r.t." + secondaryBody;
-                throw std::runtime_error( errorMessage );
+                simulation_setup::addAtmosphericFlightConditions(
+                            bodies, bodyWithProperty, secondaryBody );
             }
             variableFunction = std::bind( &aerodynamics::AtmosphericFlightConditions::getCurrentFreestreamTemperature,
                                           std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
@@ -1713,9 +1703,8 @@ std::function< double( ) > getDoubleDependentVariableFunction(
             if( std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
                         bodies.at( bodyWithProperty )->getFlightConditions( ) ) == nullptr )
             {
-                std::string errorMessage = "Error, no atmospheric flight conditions available when requesting dynamic pressure "
-                                           "output of " + bodyWithProperty + "w.r.t." + secondaryBody;
-                throw std::runtime_error( errorMessage );
+                simulation_setup::addAtmosphericFlightConditions(
+                            bodies, bodyWithProperty, secondaryBody );
             }
             variableFunction = std::bind( &aerodynamics::AtmosphericFlightConditions::getCurrentDynamicPressure,
                                           std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
@@ -1727,9 +1716,8 @@ std::function< double( ) > getDoubleDependentVariableFunction(
             if( std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
                         bodies.at( bodyWithProperty )->getFlightConditions( ) ) == nullptr )
             {
-                std::string errorMessage = "Error, no atmospheric flight conditions available when requesting heat rate "
-                                           "output of " + bodyWithProperty + "w.r.t." + secondaryBody;
-                throw std::runtime_error( errorMessage );
+                simulation_setup::addAtmosphericFlightConditions(
+                            bodies, bodyWithProperty, secondaryBody );
             }
             variableFunction = std::bind( &aerodynamics::AtmosphericFlightConditions::getCurrentAerodynamicHeatRate,
                                           std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
@@ -1740,9 +1728,8 @@ std::function< double( ) > getDoubleDependentVariableFunction(
         {
             if( bodies.at( bodyWithProperty )->getFlightConditions( ) == nullptr )
             {
-                std::string errorMessage = "Error, no flight conditions available when requesting geodetic latitude output of " +
-                        bodyWithProperty + "w.r.t." + secondaryBody;
-                throw std::runtime_error( errorMessage );
+                simulation_setup::addFlightConditions(
+                            bodies, bodyWithProperty, secondaryBody );
             }
 
             variableFunction = std::bind( &aerodynamics::FlightConditions::getCurrentGeodeticLatitude,
