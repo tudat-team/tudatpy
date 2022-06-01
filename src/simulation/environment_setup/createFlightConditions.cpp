@@ -62,13 +62,6 @@ std::shared_ptr< aerodynamics::AtmosphericFlightConditions > createAtmosphericFl
                     " has no rotation model." );
     }
 
-    if( bodyWithFlightConditions->getAerodynamicCoefficientInterface( ) == nullptr )
-    {
-        throw std::runtime_error(
-                    "Error when making flight conditions, body " + nameOfBodyUndergoingAcceleration +
-                    " has no aerodynamic coefficients." );
-    }
-
 
     // Create function to rotate state from intertial to body-fixed frame.
     std::function< Eigen::Quaterniond( ) > rotationToFrameFunction =

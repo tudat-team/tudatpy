@@ -930,8 +930,8 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
     {
         if( bodies.at( bodyWithProperty )->getFlightConditions( ) == nullptr )
         {
-            std::string errorMessage= "Error, no flight conditions when creating dependent variable function of type body_fixed_groundspeed_based_velocity_variable";
-            throw std::runtime_error( errorMessage );
+            simulation_setup::addFlightConditions(
+                        bodies, bodyWithProperty, secondaryBody );
         }
 
         if(  bodies.at( bodyWithProperty )->getFlightConditions( )->getAerodynamicAngleCalculator( ) == nullptr )
