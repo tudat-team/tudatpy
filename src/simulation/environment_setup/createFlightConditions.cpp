@@ -199,6 +199,29 @@ void addFlightConditions(
     }
 }
 
+void addAtmosphericFlightConditions(
+        const SystemOfBodies& bodies,
+        const std::string bodyName,
+        const std::string centralBodyName )
+{
+    addFlightConditions( bodies, bodyName, centralBodyName );
+    if( std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
+                bodies.at( bodyName )->getFlightConditions( ) ) == nullptr )
+    {
+        if( bodies.at( centralBodyName )->getAtmosphereModel( ) == nullptr )
+        {
+            throw std::runtime_error( "Error when adding atmospheric flight conditions for " + bodyName + " w.r.t. " +
+                                      centralBodyName + ", conditions could not be created, central body has no atmosphere" );
+        }
+        else
+        {
+            throw std::runtime_error( "Error when adding atmospheric flight conditions for " + bodyName + " w.r.t. " +
+                                      centralBodyName + ", conditions could not be created" );
+        }
+
+    }
+}
+
 
 
 //! Function to set the angle of attack to trimmed conditions.
