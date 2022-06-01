@@ -945,7 +945,7 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > bodyFixedGroundspe
         const std::string& centralBody )
 {
     return std::make_shared< SingleDependentVariableSaveSettings >(
-                body_fixed_groundspeed_based_velocity_variable, associatedBody );
+                body_fixed_groundspeed_based_velocity_variable, associatedBody, centralBody );
 }
 
 //! @get_docstring(tnwToInertialFrameRotationMatrixVariable)
