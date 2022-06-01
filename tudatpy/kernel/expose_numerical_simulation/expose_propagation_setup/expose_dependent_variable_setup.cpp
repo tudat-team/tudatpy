@@ -390,11 +390,13 @@ namespace dependent_variable {
         m.def("aerodynamic_force_coefficients",
               &tp::aerodynamicForceCoefficientDependentVariable,
               py::arg("body"),
+              py::arg("central_body") = "",
               get_docstring("aerodynamic_force_coefficients").c_str());
 
         m.def("aerodynamic_moment_coefficients",
               &tp::aerodynamicMomentCoefficientDependentVariable,
               py::arg("body"),
+              py::arg("central_body") = "",
               get_docstring("aerodynamic_moment_coefficients").c_str());
 
         m.def("latitude",
@@ -543,6 +545,7 @@ namespace dependent_variable {
               py::arg("body"),
               py::arg("base_frame"),
               py::arg("target_frame"),
+              py::arg("central_body") = "",
               get_docstring("intermediate_aerodynamic_rotation_matrix_variable").c_str());
 
         m.def("periapsis_altitude",
