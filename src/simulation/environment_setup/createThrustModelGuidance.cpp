@@ -253,9 +253,9 @@ std::shared_ptr< propulsion::ThrustMagnitudeWrapper > createThrustMagnitudeWrapp
             throw std::runtime_error( "Error when creating constant thrust magnitude wrapper, input is inconsistent" );
         }
 
-        thrustMagnitudeWrapper = std::make_shared< propulsion::CustomThrustMagnitudeWrapper >(
-                    [ = ]( const double ){ return constantThrustMagnitudeSettings->thrustMagnitude_; },
-                    [ = ]( const double ){ return constantThrustMagnitudeSettings->specificImpulse_; } );
+        thrustMagnitudeWrapper = std::make_shared< propulsion::ConstantThrustMagnitudeWrapper >(
+                    constantThrustMagnitudeSettings->thrustMagnitude_,
+                    constantThrustMagnitudeSettings->specificImpulse_ );
         break;
 
     }

@@ -33,6 +33,7 @@ ThrustAccelerationPartial::ThrustAccelerationPartial(
     isAccelerationDependentOnMass_ = false;
     std::vector< std::shared_ptr< system_models::EngineModel > > thrustSources =
             thrustAcceleration_->getThrustSources( );
+
     for( unsigned int i = 0; i < thrustSources.size( ); i++ )
     {
         if( thrustSources.at( i )->getThrustMagnitudeWrapper( )->modelIsForceBased( ) )
@@ -88,17 +89,18 @@ void ThrustAccelerationPartial::wrtRotationModelParameter(
             rotationMatrixPartials_.at( std::make_pair( parameterType, secondaryIdentifier ) )->
             calculatePartialOfRotationMatrixToBaseFrameWrParameter( currentTime_ );
 
-    // Iterate for each single parameter entry partial.
-    Eigen::Vector3d currentBodyFixedThrust;
+    // Compute total body-fixed thrust
+    Eigen::Vector3d currentBodyFixedThrust = Eigen::Vector3d::Zero( );
+    for( unsigned int j = 0; j < thrustAcceleration_->getThrustSources( ).size( ); j++ )
+    {
+        currentBodyFixedThrust += thrustSources_.at( j )->getBodyFixedThrustDirection( ) *
+                thrustSources_.at( j )->getCurrentThrust( );
+
+    }
+
+    // Compute derivate w.r.t. each parameter entry
     for( unsigned int i = 0; i < rotationMatrixPartials.size( ); i++ )
     {
-        currentBodyFixedThrust.setZero( );
-        for( unsigned int j = 0; j < thrustAcceleration_->getThrustSources( ).size( ); j++ )
-        {
-            currentBodyFixedThrust += thrustSources_.at( j )->getBodyFixedThrustDirection( ) *
-                    thrustSources_.at( j )->getCurrentThrust( );
-
-        }
         accelerationPartial.block( 0, i, 3, 1 ) += rotationMatrixPartials[ i ] * currentBodyFixedThrust;
 
     }
@@ -110,6 +112,7 @@ void ThrustAccelerationPartial::wrtNonTranslationalStateOfAdditionalBody(
         const propagators::IntegratedStateType integratedStateType,
         const bool addContribution )
 {
+    // If partial is w.r.t. body mass, iterate over all mass-dependent sources, and compute contributions
     if( integratedStateType == propagators::body_mass_state && stateReferencePoint.first == acceleratedBody_ )
     {
         for( unsigned int i = 0; i < massDependentThrustSources_.size( ); i++ )
@@ -121,6 +124,7 @@ void ThrustAccelerationPartial::wrtNonTranslationalStateOfAdditionalBody(
         partialMatrix.block( 0, 0, 1, 1 )  /= thrustAcceleration_->getCurrentBodyMass( );
     }
 
+    // If partial is w.r.t. rotational state, call corresponding rotation matrix partial
     if( integratedStateType == propagators::rotational_state && stateReferencePoint.first == acceleratedBody_ )
     {
         Eigen::MatrixXd tempMatrix = Eigen::MatrixXd::Zero( 3, 7 );

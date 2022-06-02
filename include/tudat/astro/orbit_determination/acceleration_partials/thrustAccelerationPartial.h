@@ -22,6 +22,16 @@ namespace tudat
 namespace acceleration_partials
 {
 
+class ThrustMagnitudePartial
+{
+    std::pair< std::function< void( Eigen::MatrixXd& ) >, int >
+    getParameterPartialFunction(
+            std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter );
+
+    std::pair< std::function< void( Eigen::MatrixXd& ) >, int >
+    getParameterPartialFunction(
+            std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter );
+};
 
 class ThrustAccelerationPartial: public AccelerationPartial
 {
@@ -69,6 +79,7 @@ public:
         std::pair< std::function< void( Eigen::MatrixXd& ) >, int > partialFunction =
                 std::make_pair( nullptr, 0 );
 
+        // Check if any partials w.r.t. rotation matrix parameters are found matching the request
         if( rotationMatrixPartials_.count( std::make_pair( parameter->getParameterName( ).first,
                                                            parameter->getSecondaryIdentifier( ) ) ) != 0 )
         {
@@ -87,6 +98,7 @@ public:
         std::pair< std::function< void( Eigen::MatrixXd& ) >, int > partialFunction =
                 std::make_pair( nullptr, 0 );
 
+        // Check if any partials w.r.t. rotation matrix parameters are found matching the request
         if( rotationMatrixPartials_.count( std::make_pair( parameter->getParameterName( ).first,
                                                            parameter->getSecondaryIdentifier( ) ) ) != 0 )
         {

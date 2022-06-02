@@ -95,6 +95,72 @@ protected:
     double currentTime_;
 };
 
+class ConstantThrustMagnitudeWrapper: public ThrustMagnitudeWrapper
+{
+public:
+
+    ConstantThrustMagnitudeWrapper(
+            const double thrustMagnitude,
+            const double specificImpulse ):
+        thrustMagnitude_( thrustMagnitude ),
+        specificImpulse_( specificImpulse )
+    {
+        massRate_ = computePropellantMassRateFromSpecificImpulse(
+                    thrustMagnitude_, specificImpulse_ );
+    }
+
+    //! Destructor.
+    ~ConstantThrustMagnitudeWrapper( ){ }
+
+    //! Function to update the thrust magnitude to the current time.
+    /*!
+     *  Function to update the thrust magnitude to the current time.
+     *  \param time Time to which the model is to be updated.
+     */
+    void update( const double time )
+    {
+        if( !( currentTime_ == time ) )
+        {
+            currentTime_ = time;
+        }
+    }
+
+    double getCurrentThrustForceMagnitude( )
+    {
+        return thrustMagnitude_;
+    }
+
+    double getCurrentMassRate( )
+    {
+        return massRate_;
+    }
+
+    double getSpecificImpulse( )
+    {
+        return specificImpulse_;
+    }
+
+    //! Function to reset the current time of the thrust model derived class.
+    /*!
+     *  Function to reset the current time of the thrust model derived class. Function is typically used to reset the time
+     *  to NaN, signalling the need for a recomputation of all required quantities.
+     *  \param currentTime New current time to be set in model.
+     */
+    virtual void resetDerivedClassCurrentTime( )
+    {
+        currentTime_ = TUDAT_NAN;
+    }
+
+private:
+
+    double specificImpulse_;
+
+    double thrustMagnitude_;
+
+    double massRate_;
+
+};
+
 //! Class for custom computations of thrust magnitude and mass rate.
 /*!
  *  Class for custom computations of thrust magnitude and mass rate. Both the magnitude and specific impulse
@@ -120,7 +186,17 @@ public:
         thrustMagnitudeFunction_( thrustMagnitudeFunction ),
         specificImpulseFunction_( specificImpulseFunction ),
         currentThrustMagnitude_( TUDAT_NAN ),
-        currentSpecificImpulse_( TUDAT_NAN ){ }
+        currentSpecificImpulse_( TUDAT_NAN ),
+        isSpecificImpulseConstant( false ){ }
+
+    CustomThrustMagnitudeWrapper(
+            const std::function< double( const double ) > thrustMagnitudeFunction,
+            const double specificImpulse ):
+        thrustMagnitudeFunction_( thrustMagnitudeFunction ),
+        specificImpulseFunction_( [=](const double){return specificImpulse;} ),
+        currentThrustMagnitude_( TUDAT_NAN ),
+        currentSpecificImpulse_( TUDAT_NAN ),
+        isSpecificImpulseConstant( true ){ }
 
     //! Destructor.
     ~CustomThrustMagnitudeWrapper( ){ }
@@ -196,6 +272,9 @@ private:
 
     //! Function returning specific impulse as a function of time.
     std::function< double( const double ) > specificImpulseFunction_;
+
+    bool isSpecificImpulseConstant_;
+
     //! Current thrust magnitude, as computed by last call to update member function.
     double currentThrustMagnitude_;
 
