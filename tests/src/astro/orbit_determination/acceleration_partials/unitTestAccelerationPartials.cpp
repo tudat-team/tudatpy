@@ -33,6 +33,7 @@
 #include "tudat/astro/orbit_determination/estimatable_parameters/radiationPressureCoefficient.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/ppnParameters.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/directTidalTimeLag.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/constantThrust.h"
 #include "tudat/astro/relativity/metric.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/numericalAccelerationPartial.h"
 #include "tudat/astro/relativity/relativisticAccelerationCorrection.h"
@@ -1402,6 +1403,11 @@ BOOST_AUTO_TEST_CASE( testThrustPartials )
                     tudat::simulation_setup::createThrustAcceleratioModel(
                         std::make_shared< ThrustAccelerationSettings >( "MainEngine" ), bodies, "Vehicle" ) );
 
+        std::shared_ptr< EstimatableParameter< double > > constantThrustParameter = std::make_shared<
+                ConstantThrustMagnitudeParameter >(
+                    vehicle->getVehicleSystems( )->getEngineModels( ).at( "MainEngine" ),
+                    "Vehicle", "MainEngine" );
+
         // Create central gravity partial.
         std::shared_ptr< ThrustAccelerationPartial > thrustPartial =
                 std::dynamic_pointer_cast< ThrustAccelerationPartial >(
@@ -1413,6 +1419,8 @@ BOOST_AUTO_TEST_CASE( testThrustPartials )
 
         Eigen::MatrixXd partialWrtMass = Eigen::Vector3d::Zero( );
         thrustPartial->wrtBodyMass( partialWrtMass.block( 0, 0, 3, 1 ) );
+        Eigen::Vector3d partialWrtMainEngineThrust = thrustPartial->wrtParameter(
+                    constantThrustParameter );
 
         // Declare numerical partials.
         Eigen::Vector3d testPartialWrtMass = Eigen::Vector3d::Zero( );
@@ -1428,8 +1436,7 @@ BOOST_AUTO_TEST_CASE( testThrustPartials )
         testPartialWrtMass = calculateAccelerationWrtMassPartials(
                     massSetFunction, thrustAcceleration, vehicleMass, massPerturbation );
 
-        std::cout<<testPartialWrtMass<<std::endl<<std::endl<<( partialWrtMass-testPartialWrtMass ).cwiseQuotient( testPartialWrtMass )<<std::endl<<std::endl<<std::endl;
-
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtMass, testPartialWrtMass, 1.0E-10 );
 
     }
 }

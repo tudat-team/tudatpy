@@ -131,6 +131,14 @@ public:
         return thrustMagnitude_;
     }
 
+    void resetConstantThrustForceMagnitude( const double thrustMagnitude )
+    {
+        thrustMagnitude_ = thrustMagnitude;
+        massRate_ = computePropellantMassRateFromSpecificImpulse(
+                    thrustMagnitude_, specificImpulse_ );
+    }
+
+
     double getCurrentMassRate( )
     {
         return massRate_;
@@ -140,6 +148,14 @@ public:
     {
         return specificImpulse_;
     }
+
+    void resetConstantSpecificImpulse( const double specificImpulse )
+    {
+        specificImpulse_ = specificImpulse;
+        massRate_ = computePropellantMassRateFromSpecificImpulse(
+                    thrustMagnitude_, specificImpulse_ );
+    }
+
 
     //! Function to reset the current time of the thrust model derived class.
     /*!

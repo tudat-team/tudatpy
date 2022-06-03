@@ -109,6 +109,10 @@ public:
     void wrtBodyMass( Eigen::Block< Eigen::MatrixXd > partialMatrix,
                       const bool addContribution = true );
 
+    void wrtThrustMagnitude( Eigen::Block< Eigen::MatrixXd > partialMatrix,
+                             const int engineIndex );
+
+
     void wrtNonTranslationalStateOfAdditionalBody(
             Eigen::Block< Eigen::MatrixXd > partialMatrix,
             const std::pair< std::string, std::string >& stateReferencePoint,
@@ -131,6 +135,17 @@ public:
                                          std::placeholders::_1,
                                          parameter->getParameterName( ).first,
                                          parameter->getSecondaryIdentifier( ) ), 1 );
+        }
+        else if( parameter->getParameterName( ).first == estimatable_parameters::constant_thrust_magnitude &&
+                 parameter->getParameterName( ).second.first == acceleratedBody_ &&
+                 getEngineModelIndex( parameter->getParameterName( ).second.second ) >= 0 )
+        {
+            int engineIndex = getEngineModelIndex( parameter->getParameterName( ).second.second );
+            partialFunction = std::make_pair(
+                        std::bind( &ThrustAccelerationPartial::wrtThrustMagnitude, this,
+                                         std::placeholders::_1,
+                                         engineIndex ), 1 );
+
         }
         return partialFunction;
     }
@@ -168,6 +183,19 @@ public:
 
 protected:
 
+    int getEngineModelIndex(
+            const std::string& engineId )
+    {
+        int engineModelIndex = -1;
+        for( unsigned int i = 0; i < thrustSources_.size( ); i++ )
+        {
+            if( thrustSources_.at( i )->getEngineName( ) == engineId )
+            {
+                engineModelIndex = i;
+            }
+        }
+        return engineModelIndex;
+    }
     std::shared_ptr< propulsion::ThrustAcceleration > thrustAcceleration_;
 
     std::map< std::pair< estimatable_parameters::EstimatebleParametersEnum, std::string >,
