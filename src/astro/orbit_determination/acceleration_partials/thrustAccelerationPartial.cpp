@@ -130,6 +130,14 @@ void ThrustAccelerationPartial::wrtBodyMass( Eigen::Block< Eigen::MatrixXd > par
     partialMatrix.block( 0, 0, 3, 1 ) /= -thrustAcceleration_->getCurrentBodyMass( );
 }
 
+void ThrustAccelerationPartial::wrtThrustMagnitude(
+        Eigen::Block< Eigen::MatrixXd > partialMatrix,
+        const int engineIndex )
+{
+    partialMatrix.block( 0, 0, 3, 1 ) += thrustAcceleration_->getCurrentThrustAccelerationContribution(
+                engineIndex ) / thrustSources_.at( engineIndex )->getCurrentThrust( );
+}
+
 void ThrustAccelerationPartial::wrtNonTranslationalStateOfAdditionalBody(
         Eigen::Block< Eigen::MatrixXd > partialMatrix,
         const std::pair< std::string, std::string >& stateReferencePoint,

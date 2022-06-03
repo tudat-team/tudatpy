@@ -183,7 +183,7 @@ public:
             for( unsigned int i = 0; i < it.second.size( ); i++ )
             {
                 partialMatrix( 0, 0 ) += it.second.at( i )->getCurrentMassRate( ) /
-                     thrustAccelerations_.at( i )->getCurrentBodyMass( );
+                        thrustAccelerations_.at( i )->getCurrentBodyMass( );
             }
         }
     }
@@ -192,25 +192,19 @@ public:
             Eigen::Block< Eigen::MatrixXd > partialMatrix,
             const std::string& engineName )
     {
-        if( engineModelList_.count( engineName ) != 0 )
-        {
-            std::shared_ptr< system_models::EngineModel > engineModel = engineModelList_.at( engineName );
-            partialMatrix( 0, 0 ) += -engineModel->getCurrentMassRate( ) /
-                    engineModel->getThrustMagnitudeWrapper( )->getCurrentSpecificImpulse( );
-        }
+        std::shared_ptr< system_models::EngineModel > engineModel = engineModelList_.at( engineName );
+        partialMatrix( 0, 0 ) += -engineModel->getCurrentMassRate( ) /
+                engineModel->getThrustMagnitudeWrapper( )->getCurrentSpecificImpulse( );
     }
 
     void wrtEngineThrustMagnitude(
             Eigen::Block< Eigen::MatrixXd > partialMatrix,
             const std::string& engineName )
     {
-        if( engineModelList_.count( engineName ) != 0 )
-        {
-            std::shared_ptr< system_models::EngineModel > engineModel = engineModelList_.at( engineName );
-            partialMatrix( 0, 0 ) += 1.0 /
-                        ( engineModel->getThrustMagnitudeWrapper( )->getCurrentSpecificImpulse( ) *
-                          physical_constants::SEA_LEVEL_GRAVITATIONAL_ACCELERATION );
-        }
+        std::shared_ptr< system_models::EngineModel > engineModel = engineModelList_.at( engineName );
+        partialMatrix( 0, 0 ) += 1.0 /
+                ( engineModel->getThrustMagnitudeWrapper( )->getCurrentSpecificImpulse( ) *
+                  physical_constants::SEA_LEVEL_GRAVITATIONAL_ACCELERATION );
     }
 
     virtual bool isStateDerivativeDependentOnIntegratedAdditionalStateTypes(
@@ -218,6 +212,36 @@ public:
             const propagators::IntegratedStateType integratedStateType )
     {
         return false;
+    }
+
+    std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunction(
+            std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
+    {
+        std::function< void( Eigen::MatrixXd& ) > partialFunction = std::make_pair( partialFunction, 0 );
+
+        if( parameter->getParameterName( ).first == estimatable_parameters::constant_thrust_magnitude &&
+                parameter->getParameterName( ).second.first == body_ &&
+                engineModelList_.count( parameter->getParameterName( ).second.second ) != 0 )
+        {
+            partialFunction = std::make_pair(
+                        std::bind( &FromThrustMassRatePartial::wrtEngineThrustMagnitude, this,
+                                   std::placeholders::_1,
+                                   parameter->getParameterName( ).second.secon ), 1 );
+
+        }
+        else if( parameter->getParameterName( ).first == estimatable_parameters::constant_specific_impulse &&
+                 parameter->getParameterName( ).second.first == body_ &&
+                 engineModelList_.count( parameter->getParameterName( ).second.second ) != 0 )
+        {
+            partialFunction = std::make_pair(
+                        std::bind( &FromThrustMassRatePartial::wrtEngineSpecificImpulse, this,
+                                   std::placeholders::_1,
+                                   parameter->getParameterName( ).second.second ), 1 );
+
+        }
+
+
+        return partialFunction;
     }
 
     virtual void update( const double currentTime )
