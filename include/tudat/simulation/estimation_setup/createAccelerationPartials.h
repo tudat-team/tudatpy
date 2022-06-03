@@ -435,8 +435,12 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
         {
             std::map< std::pair< estimatable_parameters::EstimatebleParametersEnum, std::string >,
                     std::shared_ptr< observation_partials::RotationMatrixPartial > >
+                    rotationMatrixPartials;
+            if( parametersToEstimate != nullptr )
+            {
                     rotationMatrixPartials = observation_partials::createRotationMatrixPartials(
                         parametersToEstimate, acceleratingBody.first, bodies );
+            }
 
 
             // Create partial-calculating object.

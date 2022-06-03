@@ -11,6 +11,7 @@
 
 # Set the source files.
 set(propulsion_SOURCES
+        "thrustAccelerationModel.cpp"
         "thrustGuidance.cpp"
         "thrustFunctions.cpp"
         "costateBasedThrustGuidance.cpp"

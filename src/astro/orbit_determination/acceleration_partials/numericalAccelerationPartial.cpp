@@ -81,6 +81,51 @@ Eigen::Matrix3d calculateAccelerationWrtStatePartials(
     return accelerationPartials;
 }
 
+Eigen::Vector3d calculateAccelerationWrtMassPartials(
+        std::function< void( double ) > setBodyMass,
+        std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > accelerationModel,
+        double originalMass,
+        double massPerturbation,
+        std::function< void( ) > updateFunction,
+        const double evaluationTime )
+{
+    Eigen::Vector3d upAccelerations = Eigen::Vector3d::Zero( );
+    Eigen::Vector3d downAccelerations = Eigen::Vector3d::Zero( );
+
+    double perturbedMass = originalMass;
+
+    accelerationModel->resetCurrentTime( );
+
+    // Calculate perturbed accelerations for up-perturbed state entries.
+    perturbedMass += massPerturbation;
+    setBodyMass( perturbedMass );
+    updateFunction( );
+    upAccelerations = basic_astrodynamics::updateAndGetAcceleration< Eigen::Vector3d >(
+                accelerationModel, evaluationTime );
+    accelerationModel->resetCurrentTime( );
+    perturbedMass = originalMass;
+
+    // Calculate perturbed accelerations for down-perturbed state entries.
+    perturbedMass -= massPerturbation;
+    setBodyMass( perturbedMass );
+    updateFunction( );
+    downAccelerations = basic_astrodynamics::updateAndGetAcceleration< Eigen::Vector3d >(
+                accelerationModel, evaluationTime );
+    accelerationModel->resetCurrentTime( );
+    perturbedMass = originalMass;
+
+
+    // Reset state/environment to original state.
+    setBodyMass( perturbedMass );
+    updateFunction( );
+
+    basic_astrodynamics::updateAndGetAcceleration< Eigen::Vector3d >(
+                accelerationModel, evaluationTime );
+
+    // Numerically compute partial derivatives.
+    return ( upAccelerations - downAccelerations ) / ( 2.0 * massPerturbation );
+}
+
 //! Function to numerical compute the partial derivative of a torque w.r.t. a body translational state.
 Eigen::MatrixXd calculateTorqueWrtTranslationalStatePartials(
         std::function< void( Eigen::Vector6d ) > setBodyState,

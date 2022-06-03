@@ -73,7 +73,8 @@ Eigen::Vector3d getForceDirectionFromTimeOnlyFunction(
 class ThrustDirectionCalculator
 {
 public:
-    ThrustDirectionCalculator( ){ }
+    ThrustDirectionCalculator( ):
+    currentTime_( TUDAT_NAN ){ }
 
     virtual ~ThrustDirectionCalculator( ){ }
 

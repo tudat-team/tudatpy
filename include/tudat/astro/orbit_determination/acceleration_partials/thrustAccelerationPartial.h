@@ -88,16 +88,13 @@ public:
 
     ~ThrustAccelerationPartial( ){ }
 
-
     void wrtPositionOfAcceleratedBody(
             Eigen::Block< Eigen::MatrixXd > partialMatrix,
             const bool addContribution = 1, const int startRow = 0, const int startColumn = 0 ){ }
 
-
     void wrtPositionOfAcceleratingBody(
             Eigen::Block< Eigen::MatrixXd > partialMatrix,
             const bool addContribution = 1, const int startRow = 0, const int startColumn = 0 ){ }
-
 
     bool isStateDerivativeDependentOnIntegratedAdditionalStateTypes(
             const std::pair< std::string, std::string >& stateReferencePoint,
@@ -108,6 +105,9 @@ public:
             Eigen::MatrixXd& accelerationPartial,
             const estimatable_parameters::EstimatebleParametersEnum parameterType,
             const std::string& secondaryIdentifier );
+
+    void wrtBodyMass( Eigen::Block< Eigen::MatrixXd > partialMatrix,
+                      const bool addContribution = true );
 
     void wrtNonTranslationalStateOfAdditionalBody(
             Eigen::Block< Eigen::MatrixXd > partialMatrix,

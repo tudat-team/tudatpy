@@ -18,6 +18,15 @@ namespace tudat
 namespace ephemerides
 {
 
+void CustomBodyFixedDirectionCalculator::update( const double time )
+{
+    if( time != currentTime_ )
+    {
+    currentBodyAxisDirection_ = inertialBodyAxisDirectionFunction_( time );
+    currentTime_ =  time;
+}
+}
+
 Eigen::Quaterniond DirectionBasedRotationalEphemeris::getRotationToBaseFrame(
         const double currentTime )
 {
