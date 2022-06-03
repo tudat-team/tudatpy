@@ -59,6 +59,8 @@ void DirectionBasedRotationalEphemeris::resetCurrentTime(  )
 
     currentEulerAnglesTime_ = TUDAT_NAN;
     eulerAngles_.setConstant( TUDAT_NAN );
+
+    directionCalculator_->resetCurrentTime( );
 }
 
 void DirectionBasedRotationalEphemeris::calculateEulerAngles( )

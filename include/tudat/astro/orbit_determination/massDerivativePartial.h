@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef TUDAT_MASSDERIVATIVEPARTIAL_H
-#define TUDAT_MASSDERIVATIVEPARTIAL_H
+#ifndef TUDAT_MASSRATEPARTIAL_H
+#define TUDAT_MASSRATEPARTIAL_H
 
 #include "tudat/astro/orbit_determination/stateDerivativePartial.h"
 
@@ -20,16 +20,17 @@ namespace tudat
 namespace orbit_determination
 {
 
-class MassDerivativePartial: public StateDerivativePartial
+class MassRatePartial: public StateDerivativePartial
 {
 public:
-    MassDerivativePartial( const std::string& body,
-                         const basic_astrodynamics::AvailableMassRateModels massRateType ):
+    MassRatePartial( const std::string& body,
+                     const basic_astrodynamics::AvailableMassRateModels massRateType ):
         StateDerivativePartial( propagators::body_mass_state, std::make_pair( body, "" ) ),
-        body_( body ), massRateType_( massRateType ) { }
+        body_( body ), massRateType_( massRateType )
+    { }
 
     //! Virtual destructor.
-    virtual ~MassDerivativePartial( ) { }
+    virtual ~MassRatePartial( ) { }
 
     std::pair< std::function< void( Eigen::Block< Eigen::MatrixXd > ) >, int >
     getDerivativeFunctionWrtStateOfIntegratedBody(
@@ -50,34 +51,21 @@ public:
             {
                 throw std::runtime_error( "Error when getting mass rate derivative model, cannot have reference point on body for translational dynamics" );
             }
-            // Check if propagated body corresponds to accelerated, accelerating, ro relevant third body.
-            else if( stateReferencePoint.first == acceleratedBody_ )
+            else if( body_ == stateReferencePoint .first && isStateDerivativeDependentOnIntegratedAdditionalStateTypes(
+                         stateReferencePoint, integratedStateType ) )
             {
-                partialFunction = std::make_pair( std::bind( &AccelerationPartial::wrtStateOfAcceleratedBody, this, std::placeholders::_1 ), 3 );
+                partialFunction = std::make_pair( std::bind( &MassRatePartial::wrtTranslationalStateOfBody, this, std::placeholders::_1 ), 6 );
             }
-            else if( stateReferencePoint.first == acceleratingBody_ )
+            else if( isStateDerivativeDependentOnIntegratedAdditionalStateTypes(
+                         stateReferencePoint, integratedStateType ) )
             {
-                partialFunction = std::make_pair( std::bind( &AccelerationPartial::wrtStateOfAcceleratingBody, this, std::placeholders::_1 ), 3 );
-            }
-            else if( isAccelerationPartialWrtAdditionalBodyNonnullptr( stateReferencePoint.first ) )
-            {
-                partialFunction = std::make_pair( std::bind( &AccelerationPartial::wrtStateOfAdditionalBody,
-                                                             this, std::placeholders::_1, stateReferencePoint.first ), 3 );
+                partialFunction = std::make_pair( std::bind( &MassRatePartial::wrtTranslationalStateOfAdditionalBody, this, std::placeholders::_1, stateReferencePoint.first ), 6 );
             }
             break;
         }
         case propagators::rotational_state:
         {
-            // Check if reference id is consistent.
-            if( stateReferencePoint.second != "" )
-            {
-                throw std::runtime_error( "Error when getting state derivative partial acceleration model, cannot have reference point on body for body mass" );
-            }
-            else if( isStateDerivativeDependentOnIntegratedAdditionalStateTypes( stateReferencePoint, integratedStateType ) )
-            {
-                partialFunction = std::make_pair( std::bind( &AccelerationPartial::wrtNonTranslationalStateOfAdditionalBody,
-                                                             this, std::placeholders::_1, stateReferencePoint, integratedStateType, true ), 1 );
-            }
+            throw std::runtime_error( "Error when getting mass rate partial, rotational dynamics partial no yet implemented" );
             break;
         }
         case propagators::body_mass_state:
@@ -87,10 +75,10 @@ public:
             {
                 throw std::runtime_error( "Error when getting state derivative partial acceleration model, cannot have reference point on body for body mass" );
             }
-            else if( isStateDerivativeDependentOnIntegratedAdditionalStateTypes( stateReferencePoint, integratedStateType ) )
+            else if( isMassRatePartialWrtMassNonZero( ) )
             {
-                partialFunction = std::make_pair( std::bind( &AccelerationPartial::wrtNonTranslationalStateOfAdditionalBody,
-                                                             this, std::placeholders::_1, stateReferencePoint, integratedStateType, true ), 1 );
+                partialFunction = std::make_pair( std::bind( &MassRatePartial::wrtMassOfBody,
+                                                             this, std::placeholders::_1 ), 1 );
             }
             break;
         }
@@ -110,22 +98,31 @@ public:
         return partialFunction;
     }
 
-//    virtual bool isStateDerivativeDependentOnIntegratedAdditionalStateTypes(
-//            const std::pair< std::string, std::string >& stateReferencePoint,
-//            const propagators::IntegratedStateType integratedStateType )
-//    {
-//        return false;
-//    }
-
-    virtual bool isAccelerationPartialWrtAdditionalBodyNonnullptr( const std::string& bodyName )
+    virtual void wrtMassOfBody(
+            Eigen::Block< Eigen::MatrixXd > partialMatrix )
     {
-        return 0;
+
     }
+
+    virtual void wrtTranslationalStateOfBody(
+            Eigen::Block< Eigen::MatrixXd > partialMatrix )
+    {
+
+    }
+
+    virtual void wrtTranslationalStateOfAdditionalBody(
+            Eigen::Block< Eigen::MatrixXd > partialMatrix,
+            const std::string& bodyName )
+    {
+
+    }
+
+    virtual bool isMassRatePartialWrtMassNonZero( ) = 0;
 
     std::string getBody( ) { return body_; }
 
 
-    basic_astrodynamics::AvailableAcceleration getMassRateType( )
+    basic_astrodynamics::AvailableMassRateModels getMassRateType( )
     {
         return massRateType_;
     }
@@ -137,9 +134,111 @@ protected:
     basic_astrodynamics::AvailableMassRateModels massRateType_;
 };
 
+class FromThrustMassRatePartial: public MassRatePartial
+{
+public:
+    FromThrustMassRatePartial( const std::string& body,
+                               const std::shared_ptr< propulsion::FromThrustMassRateModel > massRateModel ):
+        MassRatePartial( body, basic_astrodynamics::from_thrust_mass_rate_model )
+    {
+        thrustAccelerations_ = massRateModel->getThrustAccelerations( );
+
+        for( unsigned int i = 0; i < thrustAccelerations_.size( ); i++ )
+        {
+            std::vector< std::shared_ptr< system_models::EngineModel > > thrustSources =
+                    thrustAccelerations_.at( i )->getThrustSources( );
+            std::vector< std::shared_ptr< system_models::EngineModel > > currentMassDependentThrustSources;
+            for( unsigned int j = 0; j < thrustSources.size( ); j++ )
+            {
+                if( !thrustSources.at( i )->getThrustMagnitudeWrapper( )->modelIsForceBased( ) )
+                {
+                    currentMassDependentThrustSources.push_back( thrustSources.at( i ) );
+                }
+            }
+            if( currentMassDependentThrustSources.size( ) > 0 )
+            {
+                accelerationBasedThrustSources_[ i ] = currentMassDependentThrustSources;
+
+            }
+        }
+    }
+
+    bool isMassRatePartialWrtMassNonZero( )
+    {
+        if( accelerationBasedThrustSources_.size( ) == 0 )
+        {
+            return false;
+        }
+        else
+        {
+            return true;
+        }
+    }
+
+    void wrtMassOfBody(
+            Eigen::Block< Eigen::MatrixXd > partialMatrix )
+    {
+        for( auto it : accelerationBasedThrustSources_ )
+        {
+            for( unsigned int i = 0; i < it.second.size( ); i++ )
+            {
+                partialMatrix( 0, 0 ) += it.second.at( i )->getCurrentMassRate( ) /
+                     thrustAccelerations_.at( i )->getCurrentBodyMass( );
+            }
+        }
+    }
+
+    void wrtEngineSpecificImpulse(
+            Eigen::Block< Eigen::MatrixXd > partialMatrix,
+            const std::string& engineName )
+    {
+        if( engineModelList_.count( engineName ) != 0 )
+        {
+            std::shared_ptr< system_models::EngineModel > engineModel = engineModelList_.at( engineName );
+            partialMatrix( 0, 0 ) += -engineModel->getCurrentMassRate( ) /
+                    engineModel->getThrustMagnitudeWrapper( )->getCurrentSpecificImpulse( );
+        }
+    }
+
+    void wrtEngineThrustMagnitude(
+            Eigen::Block< Eigen::MatrixXd > partialMatrix,
+            const std::string& engineName )
+    {
+        if( engineModelList_.count( engineName ) != 0 )
+        {
+            std::shared_ptr< system_models::EngineModel > engineModel = engineModelList_.at( engineName );
+            partialMatrix( 0, 0 ) += 1.0 /
+                        ( engineModel->getThrustMagnitudeWrapper( )->getCurrentSpecificImpulse( ) *
+                          physical_constants::SEA_LEVEL_GRAVITATIONAL_ACCELERATION );
+        }
+    }
+
+    virtual bool isStateDerivativeDependentOnIntegratedAdditionalStateTypes(
+            const std::pair< std::string, std::string >& stateReferencePoint,
+            const propagators::IntegratedStateType integratedStateType )
+    {
+        return false;
+    }
+
+    virtual void update( const double currentTime )
+    {
+
+    }
+
+
+
+private:
+    std::vector< std::shared_ptr< propulsion::ThrustAcceleration > > thrustAccelerations_;
+
+    std::map< int, std::vector< std::shared_ptr< system_models::EngineModel > > > accelerationBasedThrustSources_;
+
+    std::map< std::string, std::shared_ptr< system_models::EngineModel > > engineModelList_;
+
+};
+
 
 } // namespace orbit_determination
 
 } // namespace tudat
 
-#endif // TUDAT_MASSDERIVATIVEPARTIAL_H
+#endif // TUDAT_MASSRATEPARTIAL_H

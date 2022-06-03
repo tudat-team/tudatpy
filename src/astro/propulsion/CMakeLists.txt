@@ -14,6 +14,7 @@ set(propulsion_SOURCES
         "thrustGuidance.cpp"
         "thrustFunctions.cpp"
         "costateBasedThrustGuidance.cpp"
+        "thrustMagnitudeWrapper.cpp"
         )
 
 # Set the header files.

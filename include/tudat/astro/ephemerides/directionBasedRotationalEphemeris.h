@@ -28,6 +28,10 @@ public:
 
     virtual Eigen::Vector3d getDirection( const double time ) = 0;
 
+    virtual void resetCurrentTime( ) = 0;
+
+    virtual void update( const double time ) = 0;
+
     Eigen::Vector3d getInertialDirection( const double time )
     {
         if( rotationMatrixToPropagationFrame_ != nullptr )
@@ -63,12 +67,34 @@ public:
 
     Eigen::Vector3d getDirection( const double time )
     {
-        return inertialBodyAxisDirectionFunction_( time );
+        if( time != currentTime_ )
+        {
+            update( time );
+            currentTime_ =  time;
+        }
+        return currentBodyAxisDirection_;
+    }
+
+    virtual void resetCurrentTime( )
+    {
+        currentBodyAxisDirection_.setConstant( TUDAT_NAN );
+        currentTime_ = TUDAT_NAN;
+        try { inertialBodyAxisDirectionFunction_( TUDAT_NAN ); }
+        catch( ... ) { }
+    }
+
+    virtual void update( const double time )
+    {
+        currentBodyAxisDirection_ = inertialBodyAxisDirectionFunction_( time );
     }
 
 protected:
 
     std::function< Eigen::Vector3d( const double ) > inertialBodyAxisDirectionFunction_;
+
+    double currentTime_;
+
+    Eigen::Vector3d currentBodyAxisDirection_;
 
 };
 
@@ -91,14 +117,31 @@ public:
 
     Eigen::Vector3d getDirection( const double time )
     {
+        if( currentTime_ != time )
+        {
+            update( time );
+            currentTime_ = time;
+        }
+        return currentDirection;
+
+    }
+
+    virtual void resetCurrentTime( )
+    {
+        currentRelativeState_.setConstant( TUDAT_NAN );
+        currentTime_ = TUDAT_NAN;
+    }
+
+    virtual void update( const double time )
+    {
         relativeStateFunction_( currentRelativeState_ );
         if( isColinearWithVelocity_ )
         {
-            return ( directionIsOppositeToVector_ ? -1.0 : 1.0 ) * currentRelativeState_.segment( 3, 3 );
+            currentDirection = ( directionIsOppositeToVector_ ? -1.0 : 1.0 ) * currentRelativeState_.segment( 3, 3 );
         }
         else
         {
-            return ( directionIsOppositeToVector_ ? -1.0 : 1.0 ) * currentRelativeState_.segment( 0, 3 );
+            currentDirection = ( directionIsOppositeToVector_ ? -1.0 : 1.0 ) * currentRelativeState_.segment( 0, 3 );
         }
     }
 
@@ -113,6 +156,11 @@ protected:
     std::function< void( Eigen::Vector6d& ) > relativeStateFunction_;
 
     Eigen::Vector6d currentRelativeState_;
+
+    double currentTime_;
+
+    Eigen::Vector3d currentDirection;
+
 
 };
 

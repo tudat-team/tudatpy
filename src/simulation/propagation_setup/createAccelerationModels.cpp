@@ -228,9 +228,14 @@ std::shared_ptr< CentralGravitationalAccelerationModel3d > createCentralGravityA
     {
         std::function< double( ) > gravitationalParameterFunction;
 
+        bool useMutualAttraction = useCentralBodyFixedFrame;
+        if( bodyUndergoingAcceleration->getGravityFieldModel( ) == nullptr && useMutualAttraction )
+        {
+            useMutualAttraction = false;
+        }
+
         // Set correct value for gravitational parameter.
-        if( useCentralBodyFixedFrame == 0  ||
-                bodyUndergoingAcceleration->getGravityFieldModel( ) == nullptr )
+        if( !useMutualAttraction )
         {
             gravitationalParameterFunction =
                     std::bind( &gravitation::GravityFieldModel::getGravitationalParameter,
@@ -261,7 +266,7 @@ std::shared_ptr< CentralGravitationalAccelerationModel3d > createCentralGravityA
                     bodyUndergoingAccelerationPositionFunction,
                     gravitationalParameterFunction,
                     bodyExertingAccelerationPositionFunction,
-                    useCentralBodyFixedFrame );
+                    useMutualAttraction );
     }
 
 
@@ -331,9 +336,14 @@ createSphericalHarmonicsGravityAcceleration(
 
             std::function< double( ) > gravitationalParameterFunction;
 
+            bool useMutualAttraction = useCentralBodyFixedFrame;
+            if( bodyUndergoingAcceleration->getGravityFieldModel( ) == nullptr && useMutualAttraction )
+            {
+                useMutualAttraction = false;
+            }
+
             // Check if mutual acceleration is to be used.
-            if( useCentralBodyFixedFrame == false ||
-                    bodyUndergoingAcceleration->getGravityFieldModel( ) == nullptr )
+            if( !useMutualAttraction )
             {
                 gravitationalParameterFunction =
                         std::bind( &SphericalHarmonicsGravityField::getGravitationalParameter,
@@ -384,7 +394,7 @@ createSphericalHarmonicsGravityAcceleration(
                                  sphericalHarmonicsSettings->maximumOrder_ ),
                     std::bind( &Body::getPositionByReference, bodyExertingAcceleration, std::placeholders::_1 ),
                       std::bind( &Body::getCurrentRotationToGlobalFrame,
-                                 bodyExertingAcceleration ), useCentralBodyFixedFrame );
+                                 bodyExertingAcceleration ), useMutualAttraction );
         }
     }
     return accelerationModel;
@@ -445,6 +455,7 @@ createMutualSphericalHarmonicsGravityAcceleration(
         else
         {
             std::function< double( ) > gravitationalParameterFunction;
+
 
             // Create function returning summed gravitational parameter of the two bodies.
             if( useCentralBodyFixedFrame == false )
