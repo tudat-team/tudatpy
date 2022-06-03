@@ -31,6 +31,17 @@ namespace tudat
 namespace acceleration_partials
 {
 
+inline Eigen::Vector3d computeDerivativeOfForceBasedAccelerationWrtMass(
+        const Eigen::Vector3d& acceleration,
+        const double mass )
+{
+    if( mass == 0.0 )
+    {
+        throw std::runtime_error( "Error calculating derivative of force-based acceleration w.r.t. mass; cannot calculate for zero mass." );
+    }
+    return -acceleration / mass;
+}
+
 //! Base class for objects calculating partial derivatives of accelerations w.r.t. states, model parameters.
 /*!
  *  Base class for objects calculating partial derivatives of accelerations  w.r.t. states, model parameters. Such
@@ -87,16 +98,16 @@ public:
             // Check if propagated body corresponds to accelerated, accelerating, ro relevant third body.
             else if( stateReferencePoint.first == acceleratedBody_ )
             {
-                partialFunction = std::make_pair( std::bind( &AccelerationPartial::wrtStateOfAcceleratedBody, this, std::placeholders::_1 ), 3 );
+                partialFunction = std::make_pair( std::bind( &AccelerationPartial::wrtStateOfAcceleratedBody, this, std::placeholders::_1 ), 6 );
             }
             else if( stateReferencePoint.first == acceleratingBody_ )
             {
-                partialFunction = std::make_pair( std::bind( &AccelerationPartial::wrtStateOfAcceleratingBody, this, std::placeholders::_1 ), 3 );
+                partialFunction = std::make_pair( std::bind( &AccelerationPartial::wrtStateOfAcceleratingBody, this, std::placeholders::_1 ), 6 );
             }
             else if( isAccelerationPartialWrtAdditionalBodyNonnullptr( stateReferencePoint.first ) )
             {
                 partialFunction = std::make_pair( std::bind( &AccelerationPartial::wrtStateOfAdditionalBody,
-                                                               this, std::placeholders::_1, stateReferencePoint.first ), 3 );
+                                                               this, std::placeholders::_1, stateReferencePoint.first ), 6 );
             }
             break;
         }
@@ -110,7 +121,7 @@ public:
             else if( isStateDerivativeDependentOnIntegratedAdditionalStateTypes( stateReferencePoint, integratedStateType ) )
             {
                 partialFunction = std::make_pair( std::bind( &AccelerationPartial::wrtNonTranslationalStateOfAdditionalBody,
-                                                               this, std::placeholders::_1, stateReferencePoint, integratedStateType, true ), 1 );
+                                                               this, std::placeholders::_1, stateReferencePoint, integratedStateType, true ), 7 );
             }
             break;
         }

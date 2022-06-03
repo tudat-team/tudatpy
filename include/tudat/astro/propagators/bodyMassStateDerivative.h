@@ -262,6 +262,11 @@ public:
         return totalMassRate;
     }
 
+    std::map< std::string, std::vector< std::shared_ptr< basic_astrodynamics::MassRateModel > > > getMassRateModels( )
+    {
+        return massRateModels_;
+    }
+
 private:
 
     void verifyInput( )

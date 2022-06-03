@@ -24,13 +24,56 @@ namespace acceleration_partials
 
 class ThrustMagnitudePartial
 {
-    std::pair< std::function< void( Eigen::MatrixXd& ) >, int >
-    getParameterPartialFunction(
-            std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter );
+    ThrustMagnitudePartial( ){ }
 
-    std::pair< std::function< void( Eigen::MatrixXd& ) >, int >
+    virtual ~ThrustMagnitudePartial( ){ }
+
+    virtual std::pair< std::function< void( Eigen::MatrixXd& ) >, int >
+    getStatePartialFunction(
+            std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
+    {
+        return std::make_pair( nullptr, 0 );
+    }
+
+    virtual std::pair< std::function< void( Eigen::MatrixXd& ) >, int >
     getParameterPartialFunction(
-            std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter );
+            std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
+    {
+        return std::make_pair( nullptr, 0 );
+    }
+
+    virtual std::pair< std::function< void( Eigen::MatrixXd& ) >, int >
+    getParameterPartialFunction(
+            std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
+    {
+        return std::make_pair( nullptr, 0 );
+    }
+};
+
+class ConstantThrustMagnitudePartial
+{
+    ConstantThrustMagnitudePartial(
+            const std::shared_ptr< propulsion::ConstantThrustMagnitudeWrapper > constantThrustWrapper ):
+    constantThrustWrapper_( constantThrustWrapper ){ }
+
+    virtual ~ConstantThrustMagnitudePartial( ){ }
+
+    virtual std::pair< std::function< void( Eigen::MatrixXd& ) >, int >
+    getParameterPartialFunction(
+            std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
+    {
+        return std::make_pair( nullptr, 0 );
+    }
+
+    virtual std::pair< std::function< void( Eigen::MatrixXd& ) >, int >
+    getParameterPartialFunction(
+            std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
+    {
+        return std::make_pair( nullptr, 0 );
+    }
+protected:
+
+    std::shared_ptr< propulsion::ConstantThrustMagnitudeWrapper > constantThrustWrapper_;
 };
 
 class ThrustAccelerationPartial: public AccelerationPartial
@@ -137,7 +180,11 @@ protected:
     bool isAccelerationDependentOnMass_;
 
     bool isAccelerationDependentOnTranslationalState_;
+
+    bool isRotationDirectionBased_;
 };
+
+
 //! Class to calculate the partials of the momentum wheel desaturation acceleration w.r.t. parameters and states.
 class MomentumWheelDesaturationPartial: public AccelerationPartial
 {

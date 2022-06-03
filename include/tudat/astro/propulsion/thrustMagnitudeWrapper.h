@@ -19,6 +19,7 @@
 #include "tudat/math/interpolators/interpolator.h"
 #include "tudat/astro/basic_astro/modifiedEquinoctialElementConversions.h"
 #include "tudat/astro/propulsion/thrustFunctions.h"
+#include "tudat/astro/ephemerides/directionBasedRotationalEphemeris.h"
 
 namespace tudat
 {
@@ -53,14 +54,14 @@ public:
      */
     virtual double getCurrentThrustForceMagnitude( ) = 0;
 
-//    virtual double getCurrentThrustAccelerationMagnitude( ){ }// = 0;
-
     //! Pure virtual function to get the current mass rate.
     /*!
      * Pure virtual function to get the current mass rate.
      * \return Current mass rate.
      */
     virtual double getCurrentMassRate( ) = 0;
+
+    virtual double getCurrentSpecificImpulse( ) = 0;
 
     virtual bool modelIsForceBased( ) = 0;
 
@@ -135,7 +136,7 @@ public:
         return massRate_;
     }
 
-    double getSpecificImpulse( )
+    double getCurrentSpecificImpulse( )
     {
         return specificImpulse_;
     }
@@ -151,11 +152,17 @@ public:
         currentTime_ = TUDAT_NAN;
     }
 
+
+    bool modelIsForceBased( )
+    {
+        return true;
+    }
+
 private:
 
-    double specificImpulse_;
-
     double thrustMagnitude_;
+
+    double specificImpulse_;
 
     double massRate_;
 
@@ -187,7 +194,7 @@ public:
         specificImpulseFunction_( specificImpulseFunction ),
         currentThrustMagnitude_( TUDAT_NAN ),
         currentSpecificImpulse_( TUDAT_NAN ),
-        isSpecificImpulseConstant( false ){ }
+        isSpecificImpulseConstant_( false ){ }
 
     CustomThrustMagnitudeWrapper(
             const std::function< double( const double ) > thrustMagnitudeFunction,
@@ -196,7 +203,7 @@ public:
         specificImpulseFunction_( [=](const double){return specificImpulse;} ),
         currentThrustMagnitude_( TUDAT_NAN ),
         currentSpecificImpulse_( TUDAT_NAN ),
-        isSpecificImpulseConstant( true ){ }
+        isSpecificImpulseConstant_( true ){ }
 
     //! Destructor.
     ~CustomThrustMagnitudeWrapper( ){ }
@@ -206,15 +213,7 @@ public:
      *  Function to update the thrust magnitude to the current time.
      *  \param time Time to which the model is to be updated.
      */
-    void update( const double time )
-    {
-        if( !( currentTime_ == time ) )
-        {
-            currentThrustMagnitude_ = thrustMagnitudeFunction_( time );
-            currentSpecificImpulse_ = specificImpulseFunction_( time );
-            currentTime_ = time;
-        }
-    }
+    void update( const double time );
 
     //! Function to return the current thrust magnitude
     /*!
@@ -249,6 +248,10 @@ public:
         }
     }
 
+    double getCurrentSpecificImpulse( )
+    {
+        return currentSpecificImpulse_;
+    }
 
     //! Function to reset the current time of the thrust model derived class.
     /*!
@@ -265,6 +268,11 @@ public:
         currentTime_ = TUDAT_NAN;
     }
 
+    bool isSpecificImpulseConstant( )
+    {
+        return isSpecificImpulseConstant_;
+    }
+
 private:
 
     //! Function returning thrust as a function of time..
@@ -273,13 +281,13 @@ private:
     //! Function returning specific impulse as a function of time.
     std::function< double( const double ) > specificImpulseFunction_;
 
-    bool isSpecificImpulseConstant_;
-
     //! Current thrust magnitude, as computed by last call to update member function.
     double currentThrustMagnitude_;
 
     //! Current specific impulse, as computed by last call to update member function.
     double currentSpecificImpulse_;
+
+    bool isSpecificImpulseConstant_;
 
 };
 
@@ -330,100 +338,7 @@ public:
      *  Function to update the thrust magnitude to the current time.
      *  \param time Time to which the model is to be updated.
      */
-    void update( const double time )
-    {
-        if( !( currentTime_ == time ) )
-        {
-
-            Eigen::VectorXd costates_ = costateFunction_( time );
-
-            // Get the current state in cartesian coordinates and keplerian elements, and some convenient parameters
-            Eigen::Vector6d currentState = thrustingBodyStateFunction_( ) - centralBodyStateFunction_( );
-            double centralBodyGravitationalParameter = centralBodyGravitationalParameterFunction_( );
-
-            // Obtain ModifiedEquinoctial elements, flag of 0 indicates that singularity occurs at 180 deg inclination.
-            Eigen::Vector6d modifiedEquinoctialElements =
-                    orbital_element_conversions::convertCartesianToModifiedEquinoctialElements(
-                        currentState, centralBodyGravitationalParameter, 0 );
-
-            // Retrieve modified equinoctial elements.
-            double p = modifiedEquinoctialElements[ orbital_element_conversions::semiParameterIndex ];
-            double f = modifiedEquinoctialElements[ orbital_element_conversions::fElementIndex ];
-            double g = modifiedEquinoctialElements[ orbital_element_conversions::gElementIndex ];
-            double h = modifiedEquinoctialElements[ orbital_element_conversions::hElementIndex ];
-            double k = modifiedEquinoctialElements[ orbital_element_conversions::kElementIndex ];
-            double L = modifiedEquinoctialElements[ orbital_element_conversions::trueLongitudeIndex ];
-
-            double w1 = 1.0 + f * std::cos( L ) + g * std::sin( L );
-            double w2 = 1.0 + h * h + k * k;
-
-            // Compute all required auxiliary variables to compute optimal angle alpha.
-            double lambdap = costates_[ orbital_element_conversions::semiParameterIndex ] * ( 2.0 * p ) / w1;
-            double lambdaf1 = costates_[ orbital_element_conversions::fElementIndex ] * std::sin( L );
-            double lambdag1 = costates_[ orbital_element_conversions::gElementIndex ] * std::cos( L );
-            double lambdaf2 = costates_[ orbital_element_conversions::fElementIndex ] / w1 *
-                    ( ( w1 + 1.0 ) * std::cos( L ) + f );
-                    //costates_[ orbital_element_conversions::fElementIndex ] * ( ( w1 + 1.0 ) * std::cos( L ) + f ) / w1;
-            double lambdag2 = costates_[ orbital_element_conversions::gElementIndex ] / w1 * ( ( w1 + 1.0 ) * std::sin( L ) + g );
-
-            // Compute sinus of the optimal value of angle alpha.
-            double sinOptimalAlpha = - ( lambdaf1 - lambdag1 ) /
-                    std::sqrt( ( lambdaf1 - lambdag1 ) * ( lambdaf1 - lambdag1 ) +
-                               ( lambdap + lambdaf2 + lambdag2 ) * ( lambdap + lambdaf2 + lambdag2 ) );
-
-            // Compute cosinus of the optimal value of angle alpha.
-            double cosOptimalAlpha = - ( lambdap + lambdaf2 + lambdag2 ) /
-                    std::sqrt( ( lambdaf1 - lambdag1 ) * ( lambdaf1 - lambdag1 ) +
-                               ( lambdap + lambdaf2 + lambdag2 ) * ( lambdap + lambdaf2 + lambdag2 ) );
-
-            // Compute all required auxiliary variables to compute optimal angle beta.
-            lambdap = costates_[ orbital_element_conversions::semiParameterIndex ] * ( 2.0 * p ) / w1 * cosOptimalAlpha;
-            lambdaf1 = costates_[ orbital_element_conversions::fElementIndex ] * std::sin( L ) * sinOptimalAlpha;
-            lambdag1 = costates_[ orbital_element_conversions::gElementIndex ] * std::cos( L ) * sinOptimalAlpha;
-            lambdaf2 = costates_[ orbital_element_conversions::fElementIndex ] * ( ( 1.0 + w1 ) * std::cos( L ) + f ) / w1 * cosOptimalAlpha;
-            lambdag2 = costates_[ orbital_element_conversions::gElementIndex ] * ( ( 1.0 + w1 ) * std::sin( L ) + g ) / w1 * cosOptimalAlpha;
-            double lambdaf3 = costates_[ orbital_element_conversions::fElementIndex ] * ( g / w1 ) * ( h * std::sin( L ) - k * std::cos( L ) );
-            double lambdag3 = costates_[ orbital_element_conversions::gElementIndex ] * ( f / w1 ) * ( h * std::sin( L ) - k * std::cos( L ) );
-            double lambdah = costates_[ orbital_element_conversions::hElementIndex ] * ( w2 * std::cos( L ) ) / ( 2.0 * w1 );
-            double lambdak = costates_[ orbital_element_conversions::kElementIndex ] * ( w2 * std::sin( L ) ) / ( 2.0 * w1 );
-
-            // Compute sinus of optimal thrust angle beta.
-            double sinOptimalBeta = - ( - lambdaf3 + lambdag3 + lambdah + lambdak ) /
-                    std::sqrt( ( - lambdaf3 + lambdag3 + lambdah + lambdak ) * ( - lambdaf3 + lambdag3 + lambdah + lambdak )
-                               + ( lambdap + lambdaf1 - lambdag1 + lambdaf2 + lambdag2 )
-                               * ( lambdap + lambdaf1 - lambdag1 + lambdaf2 + lambdag2 ) );
-
-            // Compute cosinus of optimal thrust angle beta.
-            double cosOptimalBeta = - ( lambdap + lambdaf1 - lambdag1 + lambdaf2 + lambdag2 ) /
-                    std::sqrt( ( - lambdaf3 + lambdag3 + lambdah + lambdak ) * ( - lambdaf3 + lambdag3 + lambdah + lambdak )
-                               + ( lambdap + lambdaf1 - lambdag1 + lambdaf2 + lambdag2 )
-                               * ( lambdap + lambdaf1 - lambdag1 + lambdaf2 + lambdag2 ) );
-
-
-            // Switching function for the thrust magnitude.
-            double thrustMagnitudeSwitchingCondition = ( 1.0 / thrustingBodyMassFunction_( ) ) *
-                    ( lambdap * cosOptimalBeta + lambdah * sinOptimalBeta + lambdak * sinOptimalBeta
-                    + lambdaf1 * cosOptimalBeta + lambdaf2 * cosOptimalBeta - lambdaf3 * sinOptimalBeta
-                    - lambdag1 * cosOptimalBeta + lambdag2 * cosOptimalBeta + lambdag3 * sinOptimalBeta );
-
-
-            // Compute current thrust magnitude and specific impulse.
-            if ( thrustMagnitudeSwitchingCondition <= 0.0 )
-            {
-//                std::cout << "INSIDE THRUST MAGNITUDE FUNCTION, THRUST ON. " << "\n\n";
-                currentThrustMagnitude_ = maximumThrustMagnitude_;
-                currentSpecificImpulse_ = specificImpulseFunction_( time );
-            }
-            else
-            {
-//                std::cout << "INSIDE THRUST MAGNITUDE FUNCTION, THRUST OFF. " << "\n\n";
-                currentThrustMagnitude_ = 0.0;
-                currentSpecificImpulse_ = specificImpulseFunction_( time );
-            }
-
-            currentTime_ = time;
-        }
-    }
+    void update( const double time );
 
     //! Function to return the current thrust magnitude
     /*!
@@ -458,6 +373,10 @@ public:
         }
     }
 
+    double getCurrentSpecificImpulse( )
+    {
+        return currentSpecificImpulse_;
+    }
 
     //! Function to reset the current time of the thrust model derived class.
     /*!
@@ -595,33 +514,7 @@ public:
      *  Function to update the thrust magnitude to the current time.
      *  \param time Time to which the model is to be updated.
      */
-    void update( const double time )
-    {
-        if( !( currentTime_ == time ) )
-        {
-            if( !( inputUpdateFunction_ == nullptr ) )
-            {
-                inputUpdateFunction_( time );
-            }
-            // Retrieve thrust independent variables
-            for( unsigned int i = 0; i < thrustInputVariableFunctions_.size( ); i++ )
-            {
-                currentThrustInputVariables_[ i ] = thrustInputVariableFunctions_.at( i )( );
-            }
-
-            // Compute thrust
-            currentThrustMagnitude_ = thrustMagnitudeFunction_( currentThrustInputVariables_ );
-
-            // Retrieve specific impulse independent variables
-            for( unsigned int i = 0; i < specificImpulseInputVariableFunctions_.size( ); i++ )
-            {
-                currentSpecificImpulseInputVariables_[ i ] = specificImpulseInputVariableFunctions_.at( i )( );
-            }
-
-            // Compute specific impulse
-            currentSpecificImpulse_ = specificImpulseFunction_( currentSpecificImpulseInputVariables_ );
-        }
-    }
+    void update( const double time );
 
     //! Function to reset the current time of the thrust model derived class.
     /*!
@@ -663,6 +556,11 @@ public:
                     currentThrustMagnitude_, currentSpecificImpulse_ );
     }
 
+    double getCurrentSpecificImpulse( )
+    {
+        return currentSpecificImpulse_;
+    }
+
 private:
 
     //! Function returning the current thrust as a function of its independent variables
@@ -701,6 +599,90 @@ private:
     //! Current specific impulse, as computed by last call to update member function.
     double currentSpecificImpulse_;
 
+};
+
+class CustomThrustVectorWrapper: public ThrustMagnitudeWrapper, public ephemerides::InertialBodyFixedDirectionCalculator
+{
+    CustomThrustVectorWrapper(
+            const std::function< Eigen::Vector3d( const double ) > thrustVectorFunction,
+            const std::function< double( const double ) > specificImpulseFunction ):
+        ThrustMagnitudeWrapper( ), ephemerides::InertialBodyFixedDirectionCalculator( ),
+        thrustVectorFunction_( thrustVectorFunction ),
+        specificImpulseFunction_( specificImpulseFunction ),
+        currentThrustMagnitude_( TUDAT_NAN ),
+        currentSpecificImpulse_( TUDAT_NAN ),
+        isSpecificImpulseConstant_( false ){ }
+
+    void update( const double time );
+
+    double getCurrentThrustForceMagnitude( )
+    {
+        return currentThrustMagnitude_;
+    }
+
+    virtual Eigen::Vector3d getDirection( const double time )
+    {
+        if( time != currentTime_ )
+        {
+            update( time );
+        }
+        return currentThrustVector_.normalized( );
+    }
+
+
+    bool modelIsForceBased( )
+    {
+        return true;
+    }
+
+    double getCurrentMassRate( )
+    {
+        if( currentThrustMagnitude_ != 0.0 )
+        {
+            return propulsion::computePropellantMassRateFromSpecificImpulse(
+                        currentThrustMagnitude_, currentSpecificImpulse_ );
+        }
+        else
+        {
+            return 0.0;
+        }
+    }
+
+    double getCurrentSpecificImpulse( )
+    {
+        return currentSpecificImpulse_;
+    }
+
+    virtual void resetDerivedClassCurrentTime( )
+    {
+        thrustVectorFunction_( NAN );
+        specificImpulseFunction_( TUDAT_NAN );
+        currentThrustMagnitude_ = TUDAT_NAN;
+        currentSpecificImpulse_ = TUDAT_NAN;
+        currentTime_ = TUDAT_NAN;
+    }
+
+    bool isSpecificImpulseConstant( )
+    {
+        return isSpecificImpulseConstant_;
+    }
+
+private:
+
+    //! Function returning thrust as a function of time..
+    std::function< Eigen::Vector3d( const double ) > thrustVectorFunction_;
+
+    //! Function returning specific impulse as a function of time.
+    std::function< double( const double ) > specificImpulseFunction_;
+
+    Eigen::Vector3d currentThrustVector_;
+
+    double currentThrustMagnitude_;
+
+    //! Current specific impulse, as computed by last call to update member function.
+    double currentSpecificImpulse_;
+
+    bool isSpecificImpulseConstant_;
 };
 
 } // namespace propulsion

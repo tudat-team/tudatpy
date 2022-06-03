@@ -51,6 +51,17 @@ ThrustAccelerationPartial::ThrustAccelerationPartial(
 
     }
 
+
+    if( std::dynamic_pointer_cast< propulsion::DirectThrustDirectionCalculator >(
+                thrustAcceleration->getThrustDirectionCalculator( ) ) != nullptr )
+    {
+        isRotationDirectionBased_ = true;
+    }
+    else
+    {
+        isRotationDirectionBased_ = false;
+    }
+
 }
 
 
@@ -117,11 +128,11 @@ void ThrustAccelerationPartial::wrtNonTranslationalStateOfAdditionalBody(
     {
         for( unsigned int i = 0; i < massDependentThrustSources_.size( ); i++ )
         {
-            partialMatrix.block( 0, 0, 1, 1 ) +=
-                   ( addContribution ? -1.0 : 1.0 ) * thrustAcceleration_->getCurrentThrustAccelerationContribution(
+            partialMatrix.block( 0, 0, 3, 1 ) +=
+                   ( addContribution ? 1.0 : -1.0 ) * thrustAcceleration_->getCurrentThrustAccelerationContribution(
                         massDependentThrustSources_.at( i ) );
         }
-        partialMatrix.block( 0, 0, 1, 1 )  /= thrustAcceleration_->getCurrentBodyMass( );
+        partialMatrix.block( 0, 0, 3, 1 ) /= -thrustAcceleration_->getCurrentBodyMass( );
     }
 
     // If partial is w.r.t. rotational state, call corresponding rotation matrix partial

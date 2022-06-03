@@ -92,6 +92,12 @@ public:
         }
     }
 
+    std::vector< std::shared_ptr< ThrustAcceleration > > getThrustAccelerations( )
+    {
+        return thrustAccelerations_;
+    }
+
+
 private:
 
     //! List of thrust accelerations from which the total mass rate is to be computed.
