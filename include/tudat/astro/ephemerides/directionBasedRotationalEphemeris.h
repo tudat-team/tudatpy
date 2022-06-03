@@ -60,18 +60,15 @@ public:
             const std::function< Eigen::Vector3d( const double ) > inertialBodyAxisDirectionFunction,
             const std::function< Eigen::Matrix3d( const double ) > rotationMatrixToPropagationFrame = nullptr ):
         InertialBodyFixedDirectionCalculator( rotationMatrixToPropagationFrame ),
-        inertialBodyAxisDirectionFunction_( inertialBodyAxisDirectionFunction )
+        inertialBodyAxisDirectionFunction_( inertialBodyAxisDirectionFunction ),
+        currentTime_( TUDAT_NAN )
         { }
 
     ~CustomBodyFixedDirectionCalculator( ){ }
 
     Eigen::Vector3d getDirection( const double time )
     {
-        if( time != currentTime_ )
-        {
-            update( time );
-            currentTime_ =  time;
-        }
+        update( time );
         return currentBodyAxisDirection_;
     }
 
@@ -83,10 +80,7 @@ public:
         catch( ... ) { }
     }
 
-    virtual void update( const double time )
-    {
-        currentBodyAxisDirection_ = inertialBodyAxisDirectionFunction_( time );
-    }
+    virtual void update( const double time );
 
 protected:
 
@@ -111,19 +105,15 @@ public:
         centralBody_( centralBody ),
         isColinearWithVelocity_( isColinearWithVelocity ),
         directionIsOppositeToVector_( directionIsOppositeToVector ),
-        relativeStateFunction_( relativeStateFunction ){ }
+        relativeStateFunction_( relativeStateFunction ),
+        currentTime_( TUDAT_NAN ){ }
 
     ~StateBasedBodyFixedDirectionCalculator( ){ }
 
     Eigen::Vector3d getDirection( const double time )
     {
-        if( currentTime_ != time )
-        {
-            update( time );
-            currentTime_ = time;
-        }
+        update( time );
         return currentDirection;
-
     }
 
     virtual void resetCurrentTime( )
@@ -134,14 +124,18 @@ public:
 
     virtual void update( const double time )
     {
-        relativeStateFunction_( currentRelativeState_ );
-        if( isColinearWithVelocity_ )
+        if( currentTime_ != time )
         {
-            currentDirection = ( directionIsOppositeToVector_ ? -1.0 : 1.0 ) * currentRelativeState_.segment( 3, 3 );
-        }
-        else
-        {
-            currentDirection = ( directionIsOppositeToVector_ ? -1.0 : 1.0 ) * currentRelativeState_.segment( 0, 3 );
+            relativeStateFunction_( currentRelativeState_ );
+            if( isColinearWithVelocity_ )
+            {
+                currentDirection = ( directionIsOppositeToVector_ ? -1.0 : 1.0 ) * currentRelativeState_.segment( 3, 3 );
+            }
+            else
+            {
+                currentDirection = ( directionIsOppositeToVector_ ? -1.0 : 1.0 ) * currentRelativeState_.segment( 0, 3 );
+            }
+            currentTime_ = time;
         }
     }
 
@@ -232,10 +226,7 @@ public:
 
     Eigen::Vector3d getCurrentInertialDirection( const double currentTime )
     {
-        if( currentTime != currentTime_ )
-        {
-            update( currentTime );
-        }
+        update( currentTime );
         return currentInertialDirection_;
     }
 

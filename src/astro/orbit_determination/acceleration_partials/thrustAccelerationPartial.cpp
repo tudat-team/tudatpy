@@ -117,6 +117,19 @@ void ThrustAccelerationPartial::wrtRotationModelParameter(
     }
 }
 
+void ThrustAccelerationPartial::wrtBodyMass( Eigen::Block< Eigen::MatrixXd > partialMatrix,
+                                             const bool addContribution )
+{
+    for( unsigned int i = 0; i < massDependentThrustSources_.size( ); i++ )
+    {
+        partialMatrix.block( 0, 0, 3, 1 ) +=
+                ( addContribution ? 1.0 : -1.0 ) * thrustAcceleration_->getCurrentThrustAccelerationContribution(
+                    massDependentThrustSources_.at( i ) );
+
+    }
+    partialMatrix.block( 0, 0, 3, 1 ) /= -thrustAcceleration_->getCurrentBodyMass( );
+}
+
 void ThrustAccelerationPartial::wrtNonTranslationalStateOfAdditionalBody(
         Eigen::Block< Eigen::MatrixXd > partialMatrix,
         const std::pair< std::string, std::string >& stateReferencePoint,
@@ -126,13 +139,7 @@ void ThrustAccelerationPartial::wrtNonTranslationalStateOfAdditionalBody(
     // If partial is w.r.t. body mass, iterate over all mass-dependent sources, and compute contributions
     if( integratedStateType == propagators::body_mass_state && stateReferencePoint.first == acceleratedBody_ )
     {
-        for( unsigned int i = 0; i < massDependentThrustSources_.size( ); i++ )
-        {
-            partialMatrix.block( 0, 0, 3, 1 ) +=
-                   ( addContribution ? 1.0 : -1.0 ) * thrustAcceleration_->getCurrentThrustAccelerationContribution(
-                        massDependentThrustSources_.at( i ) );
-        }
-        partialMatrix.block( 0, 0, 3, 1 ) /= -thrustAcceleration_->getCurrentBodyMass( );
+        wrtBodyMass( partialMatrix, addContribution );
     }
 
     // If partial is w.r.t. rotational state, call corresponding rotation matrix partial
