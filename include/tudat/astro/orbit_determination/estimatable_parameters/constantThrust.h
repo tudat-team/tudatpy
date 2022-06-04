@@ -31,7 +31,7 @@ public:
             const std::shared_ptr< propulsion::ConstantThrustMagnitudeWrapper > thrustWrapper,
             const std::string& associatedBody,
             const std::string& engineId ):
-        EstimatableParameter< double  >( constant_thrust_magnitude, associatedBody, engineId ),
+        EstimatableParameter< double  >( constant_thrust_magnitude_parameter, associatedBody, engineId ),
         thrustWrapper_( thrustWrapper ) { }
 
     ~ConstantThrustMagnitudeParameter( ) { }
@@ -73,7 +73,7 @@ public:
         EstimatableParameter< double  >( constant_specific_impulse, associatedBody, engineId ),
         thrustWrapper_( thrustWrapper ) { }
 
-    ~ConstantThrustMagnitudeParameter( ) { }
+    ~ConstantSpecificImpulseParameter( ) { }
 
 
     double getParameterValue( )

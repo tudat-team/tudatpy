@@ -259,50 +259,6 @@ std::shared_ptr< propulsion::ThrustMagnitudeWrapper > createThrustMagnitudeWrapp
         break;
 
     }
-//    case from_engine_properties_thrust_magnitude:
-//    {
-//        // Check input consistency
-//        std::shared_ptr< FromBodyThrustMagnitudeSettings > fromEngineThrustMagnitudeSettings =
-//                std::dynamic_pointer_cast< FromBodyThrustMagnitudeSettings >( thrustMagnitudeSettings );
-//        if( fromEngineThrustMagnitudeSettings == nullptr )
-//        {
-//            throw std::runtime_error( "Error when creating from-engine thrust magnitude wrapper, input is inconsistent" );
-//        }
-//        if( bodies.at( nameOfBodyWithGuidance )->getVehicleSystems( ) == nullptr )
-//        {
-//            throw std::runtime_error( "Error when creating from-engine thrust magnitude wrapper, no vehicle systems found" );
-
-//        }
-
-//        // Retrieve single engine thrust
-//        if( fromEngineThrustMagnitudeSettings->useAllEngines_ == false  )
-//        {
-//            if( ( bodies.at( nameOfBodyWithGuidance )->getVehicleSystems( )->getEngineModels( ).count(
-//                      thrustMagnitudeSettings->thrustOriginId_ ) == 0 ) )
-//            {
-//                throw std::runtime_error( "Error when creating from-engine thrust magnitude wrapper, no engine of right ID found" );
-//            }
-//            else
-//            {
-//                thrustMagnitudeWrapper = std::make_shared< propulsion::ThrustMagnitudeFromEngineWrapper >(
-//                            bodies.at( nameOfBodyWithGuidance )->getVehicleSystems( )->getEngineModels( ).at(
-//                                thrustMagnitudeSettings->thrustOriginId_ ) );
-//            }
-//        }
-//        // Retrieve total engine thrust
-//        else
-//        {
-//            if( ( bodies.at( nameOfBodyWithGuidance )->getVehicleSystems( )->getEngineModels( ).size( ) == 0 ) )
-//            {
-//                std::cerr << "Warning when creating from-engine thrust magnitude wrapper for all engines; no engines found: returning 0 thrust" << std::endl;
-//            }
-//            thrustMagnitudeWrapper = std::make_shared< propulsion::ThrustMagnitudeFromEngineWrapper >(
-//                        utilities::createVectorFromMapValues< std::shared_ptr< system_models::EngineModel >, std::string >(
-//                            bodies.at( nameOfBodyWithGuidance )->getVehicleSystems( )->getEngineModels( ) ));
-//        }
-//        break;
-
-//    }
     case thrust_magnitude_from_time_function:
     {
         // Check input consistency

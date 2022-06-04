@@ -131,7 +131,7 @@ void ThrustAccelerationPartial::wrtBodyMass( Eigen::Block< Eigen::MatrixXd > par
 }
 
 void ThrustAccelerationPartial::wrtThrustMagnitude(
-        Eigen::Block< Eigen::MatrixXd > partialMatrix,
+        Eigen::MatrixXd& partialMatrix,
         const int engineIndex )
 {
     partialMatrix.block( 0, 0, 3, 1 ) += thrustAcceleration_->getCurrentThrustAccelerationContribution(

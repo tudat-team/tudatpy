@@ -1001,7 +1001,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
             }
             break;
         }
-        case constant_thrust_magnitude:
+        case constant_thrust_magnitude_parameter:
         {
             if( currentBody->getVehicleSystems( ) == nullptr )
             {
@@ -1022,7 +1022,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
                     std::shared_ptr< propulsion::ThrustMagnitudeWrapper > thrustWrapper =
                             currentBody->getVehicleSystems( )->getEngineModels( ).at(
                                                        doubleParameterName->parameterType_.second.second )->getThrustMagnitudeWrapper( );
-                    if( thrustWrapper == nulltr )
+                    if( thrustWrapper == nullptr )
                     {
                         throw std::runtime_error( "Error when creating constant thrust magnitude for engine " +
                                                   doubleParameterName->parameterType_.second.second + " on body " +
@@ -1069,7 +1069,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
                     std::shared_ptr< propulsion::ThrustMagnitudeWrapper > thrustWrapper =
                             currentBody->getVehicleSystems( )->getEngineModels( ).at(
                                                        doubleParameterName->parameterType_.second.second )->getThrustMagnitudeWrapper( );
-                    if( thrustWrapper == nulltr )
+                    if( thrustWrapper == nullptr )
                     {
                         throw std::runtime_error( "Error when creating constant specific impulse for engine " +
                                                   doubleParameterName->parameterType_.second.second + " on body " +
