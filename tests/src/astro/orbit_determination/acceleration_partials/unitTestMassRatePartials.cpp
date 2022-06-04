@@ -101,40 +101,65 @@ BOOST_AUTO_TEST_CASE( testMassRatePartials )
                         "Vehicle", bodies ) );
 
 
-        double thrustMagnitude = 1.0E3;
-        double specificImpulse = 250.0;
-        double massRate = thrustMagnitude / ( specificImpulse * physical_constants::SEA_LEVEL_GRAVITATIONAL_ACCELERATION );
-
-        addEngineModel( "Vehicle", "MainEngine",
+        double thrustMagnitude1 = 1.0E3;
+        double specificImpulse1 = 250.0;
+        addEngineModel( "Vehicle", "Engine1",
                         std::make_shared< ConstantThrustMagnitudeSettings >(
-                            thrustMagnitude, specificImpulse ), bodies );
+                            thrustMagnitude1, specificImpulse1 ), bodies );
+
+        double thrustMagnitude2 = 20.0E3;
+        double specificImpulse2 = 50.0;
+        addEngineModel( "Vehicle", "Engine2",
+                        std::make_shared< ConstantThrustMagnitudeSettings >(
+                            thrustMagnitude2, specificImpulse2 ), bodies, Eigen::Vector3d::UnitY( ) );
 
         // Create acceleration due to sun on earth.
-        std::shared_ptr< ThrustAcceleration > thrustAcceleration =
-                std::dynamic_pointer_cast< ThrustAcceleration >(
-                    tudat::simulation_setup::createThrustAcceleratioModel(
-                        std::make_shared< ThrustAccelerationSettings >( "MainEngine" ), bodies, "Vehicle" ) );
+        std::shared_ptr< ThrustAcceleration > thrustAcceleration;
+        if( i == 0 )
+        {
+            thrustAcceleration = std::dynamic_pointer_cast< ThrustAcceleration >(
+                        tudat::simulation_setup::createThrustAcceleratioModel(
+                            std::make_shared< ThrustAccelerationSettings >( "Engine1" ), bodies, "Vehicle" ) );
+        }
+        else if( i == 1 )
+        {
+            thrustAcceleration = std::dynamic_pointer_cast< ThrustAcceleration >(
+                        tudat::simulation_setup::createThrustAcceleratioModel(
+                            std::make_shared< ThrustAccelerationSettings >(
+                                std::vector< std::string >( { "Engine1", "Engine2" } ) ), bodies, "Vehicle" ) );
+        }
+
         std::shared_ptr< FromThrustMassRateModel > massRateModel =  std::make_shared< FromThrustMassRateModel >(
                     thrustAcceleration );
 
-        std::shared_ptr< EstimatableParameter< double > > constantThrustParameter = std::make_shared<
+        std::shared_ptr< EstimatableParameter< double > > constantThrustParameter1 = std::make_shared<
                 ConstantThrustMagnitudeParameter >(
-                    std::dynamic_pointer_cast< ConstantThrustMagnitudeWrapper >(
-                        vehicle->getVehicleSystems( )->getEngineModels( ).at( "MainEngine" )->getThrustMagnitudeWrapper( ) ),
-                    "Vehicle", "MainEngine" );
+                    std::dynamic_pointer_cast< propulsion::ConstantThrustMagnitudeWrapper >(
+                        vehicle->getVehicleSystems( )->getEngineModels( ).at( "Engine1" )->getThrustMagnitudeWrapper( ) ),
+                    "Vehicle", "Engine1" );
+        std::shared_ptr< EstimatableParameter< double > > constantThrustParameter2 = std::make_shared<
+                ConstantThrustMagnitudeParameter >(
+                    std::dynamic_pointer_cast< propulsion::ConstantThrustMagnitudeWrapper >(
+                        vehicle->getVehicleSystems( )->getEngineModels( ).at( "Engine2" )->getThrustMagnitudeWrapper( ) ),
+                    "Vehicle", "Engine2" );
 
-        std::shared_ptr< EstimatableParameter< double > > constantSpecificImpulseParameter = std::make_shared<
+        std::shared_ptr< EstimatableParameter< double > > constantSpecificImpulseParameter1 = std::make_shared<
                 ConstantSpecificImpulseParameter< ConstantThrustMagnitudeWrapper > >(
                     std::dynamic_pointer_cast< ConstantThrustMagnitudeWrapper >(
-                        vehicle->getVehicleSystems( )->getEngineModels( ).at( "MainEngine" )->getThrustMagnitudeWrapper( ) ),
-                    "Vehicle", "MainEngine" );
+                        vehicle->getVehicleSystems( )->getEngineModels( ).at( "Engine1" )->getThrustMagnitudeWrapper( ) ),
+                    "Vehicle", "Engine1" );
+        std::shared_ptr< EstimatableParameter< double > > constantSpecificImpulseParameter2 = std::make_shared<
+                ConstantSpecificImpulseParameter< ConstantThrustMagnitudeWrapper > >(
+                    std::dynamic_pointer_cast< ConstantThrustMagnitudeWrapper >(
+                        vehicle->getVehicleSystems( )->getEngineModels( ).at( "Engine2" )->getThrustMagnitudeWrapper( ) ),
+                    "Vehicle", "Engine2" );
 
 
         // Create central gravity partial.
         std::shared_ptr< FromThrustMassRatePartial > massRatePartial =
                 std::dynamic_pointer_cast< FromThrustMassRatePartial >(
                     createAnalyticalMassRatePartial( massRateModel, std::make_pair( "Vehicle", vehicle ),
-                                                         bodies ) );
+                                                     bodies ) );
 
         BOOST_CHECK_EQUAL( massRatePartial == nullptr, false );
         BOOST_CHECK_EQUAL( massRatePartial->isMassRatePartialWrtMassNonZero( ), false );
@@ -147,19 +172,38 @@ BOOST_AUTO_TEST_CASE( testMassRatePartials )
         Eigen::MatrixXd partialWrtMass = Eigen::Vector1d::Zero( );
         massRatePartial->wrtMassOfBody( partialWrtMass.block( 0, 0, 1, 1 ) );
 
-        double partialWrtMainEngineThrust = massRatePartial->wrtParameter(
-                    constantThrustParameter )( 0 );
-        double partialWrtSpecificImpulse = massRatePartial->wrtParameter(
-                     constantSpecificImpulseParameter )( 0 );
+        double partialWrtEngine1Thrust = massRatePartial->wrtParameter(
+                    constantThrustParameter1 )( 0 );
+        double partialWrtSpecificImpulse1 = massRatePartial->wrtParameter(
+                    constantSpecificImpulseParameter1 )( 0 );
+        double partialWrtEngine2Thrust = massRatePartial->wrtParameter(
+                    constantThrustParameter2 )( 0 );
+        double partialWrtSpecificImpulse2 = massRatePartial->wrtParameter(
+                    constantSpecificImpulseParameter2 )( 0 );
 
-        double testPartialWrtMainEngineThrust = calculateMassRateWrtParameterPartials(
-                        constantThrustParameter, massRateModel, 1.0 );
-        double testPartialWrtSpecificImpulse = calculateMassRateWrtParameterPartials(
-                        constantSpecificImpulseParameter, massRateModel, 0.0001 );
+
+        double testPartialWrtEngine1Thrust = calculateMassRateWrtParameterPartials(
+                    constantThrustParameter1, massRateModel, 1.0 );
+        double testPartialWrtSpecificImpulse1 = calculateMassRateWrtParameterPartials(
+                    constantSpecificImpulseParameter1, massRateModel, 0.001 );
+        double testPartialWrtEngine2Thrust = calculateMassRateWrtParameterPartials(
+                    constantThrustParameter2, massRateModel, 1.0 );
+        double testPartialWrtSpecificImpulse2 = calculateMassRateWrtParameterPartials(
+                    constantSpecificImpulseParameter2, massRateModel, 0.001 );
 
         BOOST_CHECK_EQUAL( partialWrtMass( 0 ), 0.0 );
-        BOOST_CHECK_CLOSE_FRACTION( testPartialWrtMainEngineThrust, partialWrtMainEngineThrust, 1.0E-12 );
-        BOOST_CHECK_CLOSE_FRACTION( testPartialWrtSpecificImpulse, partialWrtSpecificImpulse, 1.0E-10 );
+        BOOST_CHECK_CLOSE_FRACTION( testPartialWrtEngine1Thrust, partialWrtEngine1Thrust, 1.0E-10 );
+        BOOST_CHECK_CLOSE_FRACTION( testPartialWrtSpecificImpulse1, partialWrtSpecificImpulse1, 1.0E-8 );
+        if( i == 0 )
+        {
+            BOOST_CHECK_EQUAL( partialWrtEngine2Thrust, 0.0 );
+            BOOST_CHECK_EQUAL( partialWrtSpecificImpulse2, 0.0 );
+        }
+        else if( i == 1 )
+        {
+            BOOST_CHECK_CLOSE_FRACTION( testPartialWrtEngine2Thrust, partialWrtEngine2Thrust, 1.0E-10 );
+            BOOST_CHECK_CLOSE_FRACTION( testPartialWrtSpecificImpulse2, partialWrtSpecificImpulse2, 1.0E-8 );
+        }
     }
 }
 

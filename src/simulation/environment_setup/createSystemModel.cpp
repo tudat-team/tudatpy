@@ -32,7 +32,7 @@ void addEngineModel(
             bodies, bodyName, magnitudeUpdateSettings );
 
 
-    std::shared_ptr< system_models::EngineModel > vehicleEngineModel1 =
+    std::shared_ptr< system_models::EngineModel > vehicleEngineModel =
             std::make_shared< system_models::EngineModel >( thrustMagnitudeWrapper, engineName, [=](const double){return bodyFixedThrustDirection; } );
 
     if( bodies.at( bodyName )->getVehicleSystems( ) == nullptr )
@@ -41,7 +41,7 @@ void addEngineModel(
                 system_models::VehicleSystems >(  );
         bodies.at( bodyName )->setVehicleSystems( vehicleSystems );
     }
-    bodies.at( bodyName )->getVehicleSystems( )->setEngineModel( vehicleEngineModel1 );
+    bodies.at( bodyName )->getVehicleSystems( )->setEngineModel( vehicleEngineModel );
 
 }
 

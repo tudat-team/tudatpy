@@ -18,14 +18,15 @@ FromThrustMassRatePartial::FromThrustMassRatePartial( const std::string& body,
     {
         std::vector< std::shared_ptr< system_models::EngineModel > > thrustSources =
                 thrustAccelerations_.at( i )->getThrustSources( );
+
         std::vector< std::shared_ptr< system_models::EngineModel > > currentMassDependentThrustSources;
         for( unsigned int j = 0; j < thrustSources.size( ); j++ )
         {
-            if( !thrustSources.at( i )->getThrustMagnitudeWrapper( )->modelIsForceBased( ) )
+            if( !thrustSources.at( j )->getThrustMagnitudeWrapper( )->modelIsForceBased( ) )
             {
-                currentMassDependentThrustSources.push_back( thrustSources.at( i ) );
+                currentMassDependentThrustSources.push_back( thrustSources.at( j ) );
             }
-            engineModelList_[ thrustSources.at( i )->getEngineName( ) ] = thrustSources.at( i );
+            engineModelList_[ thrustSources.at( j )->getEngineName( ) ] = thrustSources.at( j );
         }
 
         if( currentMassDependentThrustSources.size( ) > 0 )
