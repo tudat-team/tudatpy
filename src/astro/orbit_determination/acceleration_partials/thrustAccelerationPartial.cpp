@@ -120,6 +120,7 @@ void ThrustAccelerationPartial::wrtRotationModelParameter(
 void ThrustAccelerationPartial::wrtBodyMass( Eigen::Block< Eigen::MatrixXd > partialMatrix,
                                              const bool addContribution )
 {
+    partialMatrix.setZero( );
     for( unsigned int i = 0; i < massDependentThrustSources_.size( ); i++ )
     {
         partialMatrix.block( 0, 0, 3, 1 ) +=
@@ -134,6 +135,7 @@ void ThrustAccelerationPartial::wrtThrustMagnitude(
         Eigen::MatrixXd& partialMatrix,
         const int engineIndex )
 {
+    partialMatrix.setZero( );
     partialMatrix.block( 0, 0, 3, 1 ) += thrustAcceleration_->getCurrentThrustAccelerationContribution(
                 engineIndex ) / thrustSources_.at( engineIndex )->getCurrentThrust( );
 }

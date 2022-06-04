@@ -169,7 +169,7 @@ BOOST_AUTO_TEST_CASE( testConstantThrustAcceleration )
             double currentMass = vehicleMass - outputIterator->first * massRate;
 
             Eigen::Vector3d currentVelocity = thrustDirection.normalized( ) *
-                    specificImpulse * physical_constants::SEA_LEVEL_GRAVITATIONAL_ACCELERATION *
+                    specificImpulse1 * physical_constants::SEA_LEVEL_GRAVITATIONAL_ACCELERATION *
                     std::log( vehicleMass / currentMass );
             BOOST_CHECK_CLOSE_FRACTION( outputIterator->second( 6 ), currentMass, 1.0E-12 );
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
@@ -216,9 +216,9 @@ BOOST_AUTO_TEST_CASE( testDirectionBasedRotationWithThrustAcceleration )
     // Set simulation time settings.
     const double simulationEndEpoch = 4.0 * 3600.0;
 
-    double thrustMagnitude = 1.0E3;
+    double thrustMagnitude1 = 1.0E3;
     double bodyMass = 400.0;
-    double specificImpulse = 250.0;
+    double specificImpulse1 = 250.0;
 
     std::vector< std::map< double, Eigen::Matrix3d > > rotationMatrixHistoriesWithoutFreeRotationAngle;
     for( int test = 0; test < 8; test++ )
@@ -298,7 +298,7 @@ BOOST_AUTO_TEST_CASE( testDirectionBasedRotationWithThrustAcceleration )
         addEngineModel(
                     "Vehicle", "MainEngine",
                     std::make_shared< ConstantThrustMagnitudeSettings >(
-                        thrustMagnitude, specificImpulse ), bodies, bodyFixedThrustDirection );
+                        thrustMagnitude1, specificImpulse1 ), bodies, bodyFixedThrustDirection );
 
 
         std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
@@ -412,11 +412,11 @@ BOOST_AUTO_TEST_CASE( testDirectionBasedRotationWithThrustAcceleration )
                 zeroIndex = 0;
                 nonZeroIndex = 1;
             }
-            BOOST_CHECK_CLOSE_FRACTION( bodyFixedThrustVector( nonZeroIndex ), thrustMagnitude / bodyMass,
+            BOOST_CHECK_CLOSE_FRACTION( bodyFixedThrustVector( nonZeroIndex ), thrustMagnitude1 / bodyMass,
                                         5.0 * std::numeric_limits< double >::epsilon( ) );
-            BOOST_CHECK_SMALL( bodyFixedThrustVector( zeroIndex ), thrustMagnitude / bodyMass *
+            BOOST_CHECK_SMALL( bodyFixedThrustVector( zeroIndex ), thrustMagnitude1 / bodyMass *
                                5.0 * std::numeric_limits< double >::epsilon( ) );
-            BOOST_CHECK_SMALL( bodyFixedThrustVector( 2 ), thrustMagnitude / bodyMass *
+            BOOST_CHECK_SMALL( bodyFixedThrustVector( 2 ), thrustMagnitude1 / bodyMass *
                                10.0 * std::numeric_limits< double >::epsilon( ) );
         }
         if( test < 4 )
@@ -641,8 +641,8 @@ BOOST_AUTO_TEST_CASE( testRadialAndVelocityThrustAcceleration )
     //Load spice kernels.
     spice_interface::loadStandardSpiceKernels( );
 
-    double thrustMagnitude = 1.0E3;
-    double specificImpulse = 250.0;
+    double thrustMagnitude1 = 1.0E3;
+    double specificImpulse1 = 250.0;
 
     for( unsigned int i = 0; i < 2; i++ )
     {
@@ -688,7 +688,7 @@ BOOST_AUTO_TEST_CASE( testRadialAndVelocityThrustAcceleration )
         addEngineModel(
                     "Vehicle", "MainEngine",
                     std::make_shared< ConstantThrustMagnitudeSettings >(
-                        thrustMagnitude, specificImpulse ), bodies );
+                        thrustMagnitude1, specificImpulse1 ), bodies );
 
         // Define acceleration model settings.
         std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
@@ -706,7 +706,7 @@ BOOST_AUTO_TEST_CASE( testRadialAndVelocityThrustAcceleration )
 
         // Set initial state
         double radius = 1.0E3;
-        double circularVelocity = std::sqrt( radius * thrustMagnitude / vehicleMass );
+        double circularVelocity = std::sqrt( radius * thrustMagnitude1 / vehicleMass );
         Eigen::Vector6d systemInitialState = Eigen::Vector6d::Zero( );
 
         if( i == 0 )
@@ -796,7 +796,7 @@ BOOST_AUTO_TEST_CASE( testRadialAndVelocityThrustAcceleration )
                  numericalSolution.begin( ); outputIterator != numericalSolution.end( ); outputIterator++ )
             {
                 Eigen::Vector3d vectorDifference =
-                        ( -1.0 * thrustMagnitude / vehicleMass * outputIterator->second.segment( 3, 3 ).normalized( ) ) -
+                        ( -1.0 * thrustMagnitude1 / vehicleMass * outputIterator->second.segment( 3, 3 ).normalized( ) ) -
                         ( dependentVariableSolution.at( outputIterator->first ).normalized( ) );
 
 //                for( int j = 0; j < 3; j++ )
@@ -807,7 +807,7 @@ BOOST_AUTO_TEST_CASE( testRadialAndVelocityThrustAcceleration )
 
                 // Check if the thrust acceleration is of the correct magnitude, and in the same direction as the velocity.
                 TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                            ( -1.0 * thrustMagnitude / vehicleMass * outputIterator->second.segment( 3, 3 ).normalized( ) ),
+                            ( -1.0 * thrustMagnitude1 / vehicleMass * outputIterator->second.segment( 3, 3 ).normalized( ) ),
                             ( dependentVariableSolution.at( outputIterator->first ) ), 1.0E-14 );
 //                }
 
@@ -834,8 +834,8 @@ BOOST_AUTO_TEST_CASE( testThrustAccelerationFromExistingRotation )
 
 
 
-    double thrustMagnitude = 1.0E3;
-    double specificImpulse = 250.0;
+    double thrustMagnitude1 = 1.0E3;
+    double specificImpulse1 = 250.0;
 
     // Create Earth object
     simulation_setup::SystemOfBodies bodies;
@@ -865,7 +865,7 @@ BOOST_AUTO_TEST_CASE( testThrustAccelerationFromExistingRotation )
     addEngineModel(
                 "Vehicle", "MainEngine",
                 std::make_shared< ConstantThrustMagnitudeSettings >(
-                    thrustMagnitude, specificImpulse ), bodies, bodyFixedThrustDirection );
+                    thrustMagnitude1, specificImpulse1 ), bodies, bodyFixedThrustDirection );
 
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
     accelerationsOfVehicle[ "Vehicle" ].push_back( std::make_shared< ThrustAccelerationSettings >( "MainEngine" ) );
@@ -916,7 +916,7 @@ BOOST_AUTO_TEST_CASE( testThrustAccelerationFromExistingRotation )
     std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > dependentVariableOutput =
             dynamicsSimulator.getDependentVariableHistory( );
 
-    double thrustAcceleration = thrustMagnitude / vehicleMass;
+    double thrustAcceleration = thrustMagnitude1 / vehicleMass;
     Eigen::Quaterniond rotationToInertialFrame;
     for( std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > >::const_iterator outputIterator =
          dependentVariableOutput.begin( ); outputIterator != dependentVariableOutput.end( ); outputIterator++ )
@@ -1018,13 +1018,13 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAcceleration )
         accelerationsOfApollo[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( aerodynamic ) );
         accelerationsOfApollo[ "Moon" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
 
-        double thrustMagnitude = 1.0E-3;
-        double specificImpulse = 250.0;
+        double thrustMagnitude1 = 1.0E-3;
+        double specificImpulse1 = 250.0;
 
         addEngineModel(
                     "Apollo", "MainEngine",
                     std::make_shared< ConstantThrustMagnitudeSettings >(
-                        thrustMagnitude, specificImpulse ), bodies );
+                        thrustMagnitude1, specificImpulse1 ), bodies );
 
 
         accelerationsOfApollo[ "Apollo" ].push_back( std::make_shared< ThrustAccelerationSettings >( "MainEngine" ) );
@@ -1161,7 +1161,7 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAcceleration )
 
             // Check thrust magnitude
             BOOST_CHECK_CLOSE_FRACTION(
-                        ( currentThrustAcceleration ).norm( ), thrustMagnitude / vehicleMass,
+                        ( currentThrustAcceleration ).norm( ), thrustMagnitude1 / vehicleMass,
                         20.0 * std::numeric_limits< double >::epsilon( ) );
 
 
