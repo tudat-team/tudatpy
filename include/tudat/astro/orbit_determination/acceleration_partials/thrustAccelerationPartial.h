@@ -109,7 +109,7 @@ public:
     void wrtBodyMass( Eigen::Block< Eigen::MatrixXd > partialMatrix,
                       const bool addContribution = true );
 
-    void wrtThrustMagnitude( Eigen::Block< Eigen::MatrixXd > partialMatrix,
+    void wrtThrustMagnitude( Eigen::MatrixXd& partialMatrix,
                              const int engineIndex );
 
 
@@ -136,7 +136,7 @@ public:
                                          parameter->getParameterName( ).first,
                                          parameter->getSecondaryIdentifier( ) ), 1 );
         }
-        else if( parameter->getParameterName( ).first == estimatable_parameters::constant_thrust_magnitude &&
+        else if( parameter->getParameterName( ).first == estimatable_parameters::constant_thrust_magnitude_parameter &&
                  parameter->getParameterName( ).second.first == acceleratedBody_ &&
                  getEngineModelIndex( parameter->getParameterName( ).second.second ) >= 0 )
         {

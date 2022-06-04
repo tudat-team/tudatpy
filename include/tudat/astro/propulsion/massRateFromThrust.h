@@ -97,6 +97,14 @@ public:
         return thrustAccelerations_;
     }
 
+    virtual void resetCurrentTime( )
+    {
+        for( unsigned int i = 0; i < thrustAccelerations_.size( );i++ )
+        {
+            thrustAccelerations_.at( i )->resetCurrentTime( );
+        }
+        currentTime_ = TUDAT_NAN;
+    }
 
 private:
 

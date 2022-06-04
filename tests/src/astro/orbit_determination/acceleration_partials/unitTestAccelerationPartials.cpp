@@ -1393,7 +1393,7 @@ BOOST_AUTO_TEST_CASE( testThrustPartials )
         double specificImpulse = 250.0;
         double massRate = thrustMagnitude / ( specificImpulse * physical_constants::SEA_LEVEL_GRAVITATIONAL_ACCELERATION );
 
-        addEngineModel( "Vehicle", "MainEngine",
+        addEngineModel( "Vehicle", "Engine1",
                         std::make_shared< ConstantThrustMagnitudeSettings >(
                             thrustMagnitude, specificImpulse ), bodies );
 
@@ -1401,12 +1401,13 @@ BOOST_AUTO_TEST_CASE( testThrustPartials )
         std::shared_ptr< ThrustAcceleration > thrustAcceleration =
                 std::dynamic_pointer_cast< ThrustAcceleration >(
                     tudat::simulation_setup::createThrustAcceleratioModel(
-                        std::make_shared< ThrustAccelerationSettings >( "MainEngine" ), bodies, "Vehicle" ) );
+                        std::make_shared< ThrustAccelerationSettings >( "Engine1" ), bodies, "Vehicle" ) );
 
         std::shared_ptr< EstimatableParameter< double > > constantThrustParameter = std::make_shared<
                 ConstantThrustMagnitudeParameter >(
-                    vehicle->getVehicleSystems( )->getEngineModels( ).at( "MainEngine" ),
-                    "Vehicle", "MainEngine" );
+                    std::dynamic_pointer_cast< propulsion::ConstantThrustMagnitudeWrapper >(
+                        vehicle->getVehicleSystems( )->getEngineModels( ).at( "Engine1" )->getThrustMagnitudeWrapper( ) ),
+                    "Vehicle", "Engine1" );
 
         // Create central gravity partial.
         std::shared_ptr< ThrustAccelerationPartial > thrustPartial =
@@ -1419,11 +1420,12 @@ BOOST_AUTO_TEST_CASE( testThrustPartials )
 
         Eigen::MatrixXd partialWrtMass = Eigen::Vector3d::Zero( );
         thrustPartial->wrtBodyMass( partialWrtMass.block( 0, 0, 3, 1 ) );
-        Eigen::Vector3d partialWrtMainEngineThrust = thrustPartial->wrtParameter(
+        Eigen::Vector3d partialWrtEngine1Thrust = thrustPartial->wrtParameter(
                     constantThrustParameter );
 
         // Declare numerical partials.
         Eigen::Vector3d testPartialWrtMass = Eigen::Vector3d::Zero( );
+        Eigen::Vector3d testPartialWrtEngine1Thrust = Eigen::Vector3d::Zero( );
 
         // Declare perturbations in position for numerical partial/
         double massPerturbation = 0.01;
@@ -1435,9 +1437,10 @@ BOOST_AUTO_TEST_CASE( testThrustPartials )
         // Calculate numerical partials.
         testPartialWrtMass = calculateAccelerationWrtMassPartials(
                     massSetFunction, thrustAcceleration, vehicleMass, massPerturbation );
-
+        testPartialWrtEngine1Thrust = calculateAccelerationWrtParameterPartials(
+                    constantThrustParameter, thrustAcceleration, 0.01 );
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtMass, testPartialWrtMass, 1.0E-10 );
-
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtEngine1Thrust, partialWrtEngine1Thrust, 1.0E-10 );
     }
 }
 

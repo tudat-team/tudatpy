@@ -432,6 +432,55 @@ Eigen::Vector3d calculateTorqueWrtParameterPartials(
 
 }
 
+
+//! Function to numerical compute the partial derivative of an acceleration w.r.t. a double parameter
+double calculateMassRateWrtParameterPartials(
+        std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter,
+        std::shared_ptr< basic_astrodynamics::MassRateModel > massRateModel,
+        double parameterPerturbation,
+        std::function< void( ) > updateDependentVariables,
+        const double currentTime,
+        std::function< void( const double ) > timeDependentUpdateDependentVariables )
+{
+    // Store uperturbed value.
+    double unperturbedParameterValue = parameter->getParameterValue( );
+
+    // Calculate up-perturbation
+    parameter->setParameterValue(
+                unperturbedParameterValue + parameterPerturbation );
+    updateDependentVariables( );
+    timeDependentUpdateDependentVariables( currentTime );
+    massRateModel->resetCurrentTime( );
+
+    massRateModel->updateMembers( currentTime );
+    double upPerturbedMassRate = massRateModel->getMassRate( );
+    massRateModel->resetCurrentTime( );
+
+    // Calculate down-perturbation.
+    parameter->setParameterValue(
+                unperturbedParameterValue - parameterPerturbation );
+    updateDependentVariables( );
+    timeDependentUpdateDependentVariables( currentTime );
+
+    massRateModel->updateMembers( currentTime );
+    double downPerturbedMassRate = massRateModel->getMassRate( );
+    massRateModel->resetCurrentTime( );
+
+    // Reset to original value.
+    parameter->setParameterValue(
+                unperturbedParameterValue ) ;
+    updateDependentVariables( );
+    timeDependentUpdateDependentVariables( currentTime );
+
+    massRateModel->resetCurrentTime( );
+    massRateModel->updateMembers( currentTime );
+
+    // Calculate partial using central difference.
+    return ( upPerturbedMassRate - downPerturbedMassRate ) / ( 2.0 * parameterPerturbation );
+
+}
+
+
 //! Function to numerical compute the partial derivative of an acceleration w.r.t. a vector parameter
 Eigen::Matrix< double, 3, Eigen::Dynamic > calculateAccelerationWrtParameterPartials(
         std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter,

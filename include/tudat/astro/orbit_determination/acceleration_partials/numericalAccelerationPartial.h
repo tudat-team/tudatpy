@@ -15,6 +15,7 @@
 
 #include <Eigen/Core>
 
+#include "tudat/astro/basic_astro/massRateModel.h"
 #include "tudat/astro/basic_astro/accelerationModel.h"
 #include "tudat/astro/basic_astro/torqueModel.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
@@ -202,6 +203,14 @@ Eigen::Vector3d calculateAccelerationWrtParameterPartials(
 Eigen::Vector3d calculateTorqueWrtParameterPartials(
         std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter,
         std::shared_ptr< basic_astrodynamics::TorqueModel > torqueModel,
+        double parameterPerturbation,
+        std::function< void( ) > updateDependentVariables = emptyFunction,
+        const double currentTime = 0.0,
+        std::function< void( const double ) > timeDependentUpdateDependentVariables = emptyTimeFunction );
+
+double calculateMassRateWrtParameterPartials(
+        std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter,
+        std::shared_ptr< basic_astrodynamics::MassRateModel > massRateModel,
         double parameterPerturbation,
         std::function< void( ) > updateDependentVariables = emptyFunction,
         const double currentTime = 0.0,
