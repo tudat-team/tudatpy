@@ -37,7 +37,7 @@ void CompositeFunctionHodographicShaping::resetCompositeFunctionCoefficients(
 }
 
 
-double CompositeFunctionHodographicShaping::evaluateCompositeFunctionCurrentTime( const double independentVariable )
+double CompositeFunctionHodographicShaping::evaluateCompositeFunctionCurrentValue (const double independentVariable )
 {
     double functionValue = 0.0;
     for( unsigned int i = 0; i < compositeFunctionComponents_.size(); i++ )
@@ -48,7 +48,7 @@ double CompositeFunctionHodographicShaping::evaluateCompositeFunctionCurrentTime
 }
 
 
-double CompositeFunctionHodographicShaping::evaluateCompositeFunctionDerivativeCurrentTime( const double independentVariable )
+double CompositeFunctionHodographicShaping::evaluateCompositeFunctionDerivativeCurrentValue( const double independentVariable )
 {
     double functionValue = 0.0;
     for( unsigned int i = 0; i < compositeFunctionComponents_.size(); i++ )
@@ -59,7 +59,7 @@ double CompositeFunctionHodographicShaping::evaluateCompositeFunctionDerivativeC
 }
 
 
-double CompositeFunctionHodographicShaping::evaluateCompositeFunctionIntegralCurrentTime( const double independentVariable )
+double CompositeFunctionHodographicShaping::evaluateCompositeFunctionIntegralCurrentValue (const double independentVariable )
 {
     double functionValue = 0.0;
     for( unsigned int i = 0; i < compositeFunctionComponents_.size(); i++ )
@@ -70,24 +70,24 @@ double CompositeFunctionHodographicShaping::evaluateCompositeFunctionIntegralCur
 }
 
 
-double CompositeFunctionHodographicShaping::getComponentFunctionDerivativeCurrentTime(
-        const int componentIndex, const double currentTime )
+double CompositeFunctionHodographicShaping::getComponentFunctionDerivativeCurrentValue(
+        const int componentIndex, const double independentVariable )
 {
-    return compositeFunctionComponents_[ componentIndex ]->evaluateDerivative( currentTime );
+    return compositeFunctionComponents_[ componentIndex ]->evaluateDerivative(independentVariable );
 }
 
 
 double CompositeFunctionHodographicShaping::getComponentFunctionCurrentValue(
-        const int componentIndex, const double currentTime )
+        const int componentIndex, const double independentVariable )
 {
-    return compositeFunctionComponents_[ componentIndex ]->evaluateFunction( currentTime );
+    return compositeFunctionComponents_[ componentIndex ]->evaluateFunction(independentVariable );
 }
 
 
-double CompositeFunctionHodographicShaping::getComponentFunctionIntegralCurrentTime(
-        const int componentIndex, const double currentTime )
+double CompositeFunctionHodographicShaping::getComponentFunctionIntegralCurrentValue(
+        const int componentIndex, const double independentVariable )
 {
-    return compositeFunctionComponents_[ componentIndex ]->evaluateIntegral( currentTime );
+    return compositeFunctionComponents_[ componentIndex ]->evaluateIntegral(independentVariable );
 }
 
 } // namespace shape_based_methods
