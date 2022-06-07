@@ -1,0 +1,20 @@
+name: pull request comment
+
+on:
+  issue_comment:
+    types: [created, edited, deleted]
+    
+# on:
+#   issue_comment:
+#     types: [created, edited, deleted]
+#     branches: [ develop ]
+
+jobs:
+ job01:
+   if: contains(github.event.comment.body, '/test')    # check if the comments come from pull request, exclude those from issue.
+   runs-on: [ubuntu-latest]
+   steps:
+     - name: say hello
+       run: |
+         echo say hello
+
