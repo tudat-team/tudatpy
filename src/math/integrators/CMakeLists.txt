@@ -16,6 +16,7 @@ set(numerical_integrators_SOURCES
         "numericalIntegrator.cpp"
         "reinitializableNumericalIntegrator.cpp"
         "rungeKutta4Integrator.cpp"
+        "rungeKuttaFixedStepSizeIntegrator.cpp"
         "rungeKuttaVariableStepSizeIntegrator.cpp"
         "adamsBashforthMoultonIntegrator.cpp"
         "bulirschStoerVariableStepsizeIntegrator.cpp"
@@ -31,6 +32,7 @@ set(numerical_integrators_HEADERS
         "reinitializableNumericalIntegrator.h"
         "rungeKutta4Integrator.h"
         "rungeKuttaCoefficients.h"
+        "rungeKuttaFixedStepSizeIntegrator.h"
         "rungeKuttaVariableStepSizeIntegrator.h"
         )
 

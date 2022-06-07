@@ -76,6 +76,12 @@ void addFlightConditions(
         const std::string centralBodyName );
 
 
+void addAtmosphericFlightConditions(
+        const SystemOfBodies& bodies,
+        const std::string bodyName,
+        const std::string centralBodyName );
+
+
 ////! Function that must be called to link the AerodynamicGuidance object to the simulation
 ///*!
 // * Function that must be called to link the AerodynamicGuidance object to the simulation

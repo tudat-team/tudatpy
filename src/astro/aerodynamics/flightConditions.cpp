@@ -145,9 +145,12 @@ void AtmosphericFlightConditions::updateConditions( const double currentTime )
         }
 
         // Update aerodynamic coefficients.
-        aerodynamicCoefficientInterface_->updateFullCurrentCoefficients(
-                    aerodynamicCoefficientIndependentVariables_, controlSurfaceAerodynamicCoefficientIndependentVariables_,
-                    currentTime_ );
+        if( aerodynamicCoefficientInterface_ != nullptr )
+        {
+            aerodynamicCoefficientInterface_->updateFullCurrentCoefficients(
+                        aerodynamicCoefficientIndependentVariables_, controlSurfaceAerodynamicCoefficientIndependentVariables_,
+                        currentTime_ );
+        }
     }
 }
 
@@ -235,6 +238,10 @@ void AtmosphericFlightConditions::updateAerodynamicCoefficientInput( )
 {
 
     aerodynamicCoefficientIndependentVariables_.clear( );
+    if( aerodynamicCoefficientInterface_ == nullptr )
+    {
+        throw std::runtime_error( "Error when calcualting aerodynamic coefficient input, no coefficient interface is defined" );
+    }
     // Calculate independent variables for aerodynamic coefficients.
     for( unsigned int i = 0; i < aerodynamicCoefficientInterface_->getNumberOfIndependentVariables( ); i++ )
     {
@@ -256,7 +263,6 @@ void AtmosphericFlightConditions::updateAerodynamicCoefficientInput( )
         }
     }
 }
-
 
 } // namespace aerodynamics
 
