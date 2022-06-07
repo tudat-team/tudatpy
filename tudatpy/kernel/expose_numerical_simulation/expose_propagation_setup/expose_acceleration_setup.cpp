@@ -135,7 +135,7 @@ void expose_acceleration_setup(py::module &m) {
     py::class_<tss::ThrustAccelerationSettings,
             std::shared_ptr<tss::ThrustAccelerationSettings>,
             tss::AccelerationSettings>(m, "ThrustAccelerationSettings",
-                                       get_docstring("ThrustAccelerationSettings").c_str())
+                                       get_docstring("ThrustAccelerationSettings").c_str());
 //            .def(py::init<//ctor 1
 //                         const std::shared_ptr<tss::ThrustDirectionSettings>,
 //                         const std::shared_ptr<tss::ThrustMagnitudeSettings>>(),
@@ -160,7 +160,7 @@ void expose_acceleration_setup(py::module &m) {
 //                 py::arg("thrust_frame"),
 //                 py::arg("central_body") = "")
 //            .def_readwrite("direction_settings", &tss::ThrustAccelerationSettings::thrustMagnitudeSettings_ )
-            .def_readwrite("magnitude_settings", &tss::ThrustAccelerationSettings::thrustMagnitudeSettings_ );
+//            .def_readwrite("magnitude_settings", &tss::ThrustAccelerationSettings::thrustMagnitudeSettings_ );
 
 
     // Unified interface functions for acceleration settings
@@ -226,8 +226,12 @@ void expose_acceleration_setup(py::module &m) {
           py::arg("maneuver_rise_time"),
           get_docstring("quasi_impulsive_shots_acceleration").c_str());
 
-    m.def("thrust", py::overload_cast< const std::shared_ptr<tss::ThrustMagnitudeSettings>>(&tss::thrustAcceleration),
-          py::arg("thrust_magnitude_settings"),
+    m.def("thrust_from_engines", &tss::thrustAcceleration,
+          py::arg("engine_names"),
+          get_docstring("thrust").c_str());
+
+    m.def("thrust_from_engine", &tss::thrustAccelerationFromSingleEngine,
+          py::arg("engine_name"),
           get_docstring("thrust").c_str());
 
 //    m.def("thrust_from_custom_function", py::overload_cast<

@@ -165,7 +165,7 @@ namespace rotation_model {
               py::arg("is_colinear_with_velocity"),
               py::arg("direction_is_opposite_to_vector"),
               py::arg("base_frame"),
-              py::arg("target_frame"),
+              py::arg("target_frame") = "",
               py::arg("free_rotation_angle_function") = nullptr,
               get_docstring("orbital_state_based").c_str()
               );
