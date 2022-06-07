@@ -34,7 +34,6 @@
 #include "tudat/simulation/propagation_setup/propagationTermination.h"
 #include "tudat/simulation/propagation_setup/propagationTerminationSettings.h"
 #include "tudat/simulation/propagation_setup/setNumericallyIntegratedStates.h"
-#include "tudat/simulation/propagation_setup/thrustSettings.h"
 #include "tudat/simulation/propagation_setup/torqueSettings.h"
 
 namespace py = pybind11;

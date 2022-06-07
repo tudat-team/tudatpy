@@ -120,7 +120,7 @@ void expose_thrust_setup(py::module &m) {
 //    py::class_<
 //            tss::ThrustDirectionFromStateGuidanceSettings,
 //            std::shared_ptr<tss::ThrustDirectionFromStateGuidanceSettings>,
-//            tss::ThrustDirectionSettings>(m, "ThrustDirectionFromStateGuidanceSettings",
+//            tss::ThrustDirectionSettin    gs>(m, "ThrustDirectionFromStateGuidanceSettings",
 //                                          get_docstring("ThrustDirectionFromStateGuidanceSettings").c_str())
 ////            .def(py::init<const std::string &,
 ////                         const bool,
