@@ -169,7 +169,7 @@ BOOST_AUTO_TEST_CASE( testConstantThrustAcceleration )
             double currentMass = vehicleMass - outputIterator->first * massRate;
 
             Eigen::Vector3d currentVelocity = thrustDirection.normalized( ) *
-                    specificImpulse1 * physical_constants::SEA_LEVEL_GRAVITATIONAL_ACCELERATION *
+                    specificImpulse * physical_constants::SEA_LEVEL_GRAVITATIONAL_ACCELERATION *
                     std::log( vehicleMass / currentMass );
             BOOST_CHECK_CLOSE_FRACTION( outputIterator->second( 6 ), currentMass, 1.0E-12 );
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
