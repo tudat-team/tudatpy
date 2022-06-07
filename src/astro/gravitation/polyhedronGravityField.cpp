@@ -56,7 +56,7 @@ void calculatePolyhedronPerFacetFactor (
         }
         else
         {
-            perFacetFactor(facet) = 2.0 * atan( numerator /
+            perFacetFactor(facet) = 2.0 * atan2( numerator,
                 ( relPosI.norm() * relPosJ.norm() * relPosK.norm() + relPosI.norm() * relPosJ.dot(relPosK) +
                   relPosJ.norm() * relPosK.dot(relPosI) + relPosK.norm() * relPosI.dot(relPosJ) ) );
         }
