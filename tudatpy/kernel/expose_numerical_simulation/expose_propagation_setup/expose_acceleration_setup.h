@@ -23,7 +23,6 @@
 #include "tudat/simulation/propagation_setup/createEnvironmentUpdater.h"
 #include "tudat/simulation/propagation_setup/createMassRateModels.h"
 #include "tudat/simulation/propagation_setup/createStateDerivativeModel.h"
-#include "tudat/simulation/propagation_setup/createThrustModelGuidance.h"
 #include "tudat/simulation/propagation_setup/createTorqueModel.h"
 #include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
 #include "tudat/simulation/propagation_setup/environmentUpdater.h"

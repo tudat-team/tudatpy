@@ -25,29 +25,45 @@ sys.path.insert(0, os.path.abspath('.'))
 # -- Multidoc configuration --------------------------------------------------
 # Alternative preparation required if building docs on readthedocs.
 if bool(os.getenv("READTHEDOCS")) is True:
-    import subprocess
     from document import *
+    from urllib.request import urlopen
+    import json
+    from datetime import datetime
 
     multidoc_git_url = 'https://github.com/tudat-team/tudat-multidoc.git'
-    multidoc_git_rev = 'a3b7d316751cf7233f58eb0e427fd5865d0f8e56' 
+    multidoc_git_rev = None # If left at None, latest version is used
+    # multidoc_git_rev = '96d2748ea2a203c797552f56155f1703524f53f6'
+
+    # Return the latest timestamp of the tudapty conda package for a given label (dev/main)
+    def get_latest_conda_package(label):
+        # Get json data from conda repo
+        response = urlopen('https://conda.anaconda.org/tudat-team/label/%s/linux-64/repodata.json' % label)
+        data_json = json.loads(response.read())
+        latest_package = 0
+        # Go trough tudatpy packages and find the latest version
+        for package_name, package_info in data_json['packages'].items():
+            if package_name.startswith('tudatpy'):
+                package_timestamp = package_info['timestamp']
+                latest_package = max(latest_package, package_timestamp)
+        return latest_package
+
+    latest_main_package = get_latest_conda_package('main')
+    print('Latest main package time:', datetime.fromtimestamp(latest_main_package/1e3))
+    latest_dev_package = get_latest_conda_package('dev')
+    print('Latest dev package time:', datetime.fromtimestamp(latest_dev_package/1e3))
+
+    # Install the dev version of the tudatpy package if it was the latest to be published
+    install_dev_tudatpy = latest_dev_package >= latest_main_package
+    print("Tudatpy dev version will%s be installed." % ("" if install_dev_tudatpy else " not"))
+    if install_dev_tudatpy:
+        os.system('conda install -c tudat-team/label/dev tudatpy -y')
+
 
     # clone repository
     docstring_path = get_docstrings(multidoc_git_url, multidoc_git_rev)
 
     # parse api declaration
     api_declaration = parse_api_declaration(docstring_path, py=True)
-
-    # generate docstring header
-    generate_docstring_header(api_declaration, "../../include/tudatpy/docstrings.h")
-
-    # build repository
-    rc = subprocess.call(['chmod +x ../build.sh'], shell=True)
-    assert rc == 0  # returning non-zero means failure.
-
-    rc = subprocess.call(['../build.sh'], shell=True)
-    assert rc == 0  # returning non-zero means failure.
-
-    sys.path.insert(0, os.path.abspath('../../build'))
 
     # source path
     source_path = generate_documentation(api_declaration, '.')
