@@ -161,6 +161,20 @@ namespace environment_setup {
               py::arg("bodies"), py::arg("body_name"), py::arg("radiation_pressure_settings"),
               get_docstring("add_radiation_pressure_interface").c_str());
 
+        m.def("add_rotation_model",
+              &tss::addRotationModel,
+              py::arg("bodies"), py::arg("body_name"), py::arg("rotation_model_settings"),
+              get_docstring("add_rotation_model").c_str());
+
+
+        m.def("add_engine_model",
+              &tss::addEngineModel,
+              py::arg("body_name"),
+              py::arg("engine_name"),
+              py::arg("thrust_magnitude_settings"),
+              py::arg("bodies"),
+              py::arg("body_fixed_thrust_direction") = Eigen::Vector3d::UnitX( ) );
+
         m.def("add_flight_conditions",
               &tss::addFlightConditions,
               py::arg("bodies"), py::arg("body_name"), py::arg("central_body_name"),
