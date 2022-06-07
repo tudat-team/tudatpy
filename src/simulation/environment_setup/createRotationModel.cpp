@@ -408,6 +408,11 @@ std::shared_ptr< ephemerides::RotationalEphemeris > createRotationModel(
         const std::string& body,
         const SystemOfBodies& bodies )
 {
+    if( rotationModelSettings->getOriginalFrame( ) == "" )
+    {
+        rotationModelSettings->resetOriginalFrame( bodies.getFrameOrientation( ) );
+    }
+
     using namespace tudat::ephemerides;
 
     // Declare return object.

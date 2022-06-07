@@ -455,6 +455,12 @@ inline std::shared_ptr< AccelerationSettings > thrustAcceleration(
     return std::make_shared< ThrustAccelerationSettings >( engineIds );
 }
 
+inline std::shared_ptr< AccelerationSettings > thrustAccelerationFromSingleEngine(
+        const std::string& engineId )
+{
+    return std::make_shared< ThrustAccelerationSettings >( std::vector< std::string >( { engineId } ) );
+}
+
 ////! @get_docstring(thrustAcceleration, 2)
 //inline std::shared_ptr< AccelerationSettings > thrustAcceleration(
 //        const std::function< Eigen::Vector3d( const double ) > thrustForceFunction,
