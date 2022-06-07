@@ -61,6 +61,18 @@ void addRadiationPressureInterface(
                     radiationPressureSettings, bodyName, bodies ) );
 }
 
+void addRotationModel(
+        const SystemOfBodies& bodies, const std::string bodyName,
+        const std::shared_ptr< RotationModelSettings > rotationModelSettings )
+{
+    if( bodies.count( bodyName ) == 0 )
+    {
+        throw std::runtime_error( "Error when setting rotation model for body "+ bodyName + ", body is not found in system of bodies" );
+    }
+    bodies.at( bodyName )->setRotationalEphemeris( createRotationModel(
+                    rotationModelSettings, bodyName, bodies ) );
+}
+
 void setSimpleRotationSettingsFromSpice(
         const BodyListSettings& bodySettings, const std::string& bodyName, const double spiceEvaluationTime )
 {
