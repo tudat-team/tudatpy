@@ -378,11 +378,25 @@ protected:
              partialIterator = currentLinkEndPartials.begin( );
              partialIterator != currentLinkEndPartials.end( ); partialIterator++ )
         {
-            // Get Observation partial start and size indices in parameter veector.
+            // Get Observation partial start and size indices in parameter vector.
             std::pair< int, int > currentIndexInfo = partialIterator->first;
             std::cout << "current index info: " << currentIndexInfo.first << " & " << currentIndexInfo.second << "\n\n";
             std::cout << "block STM: " << currentIndexInfo.first << " - " << 0 << " & " << currentIndexInfo.second << " - " <<  fullParameterVector << "\n\n";
             std::cout << "stateTransitionMatrixSize_: " << stateTransitionMatrixSize_ << "\n\n";
+
+            std::cout << "param identifier: " << partialIterator->second->getParameterIdentifier( ).second.first << "\n\n";
+            std::vector< std::string > bodiesOfInterestInLinkEnds;
+            for ( unsigned int k = 0  ; k < bodiesInLinkEnds.size( ) ; k++ )
+            {
+                if ( partialIterator->second->getParameterIdentifier( ).second.first == bodiesInLinkEnds.at( k ) )
+                {
+                    bodiesOfInterestInLinkEnds.push_back( bodiesInLinkEnds.at( k ) );
+                }
+            }
+            if ( bodiesOfInterestInLinkEnds.size( ) == 0 )
+            {
+                bodiesOfInterestInLinkEnds = bodiesInLinkEnds;
+            }
 
             // Calculate partials of observation w.r.t. parameters, with associated observation times (single partial
             // can consist of multiple partial matrices, associated at different times)
@@ -406,7 +420,7 @@ protected:
                     if( combinedStateTransitionMatrices.count( singlePartialSet[ i ].second ) == 0 )
                     {
                         combinedStateTransitionMatrices[ singlePartialSet[ i ].second ] =
-                                this->getCombinedStateTransitionAndSensitivityMatrix( singlePartialSet[ i ].second, bodiesInLinkEnds );
+                                this->getCombinedStateTransitionAndSensitivityMatrix( singlePartialSet[ i ].second, bodiesOfInterestInLinkEnds /*bodiesInLinkEnds*/ );
                     }
 
                     // Add partial of observation h w.r.t. initial state x_{0} (dh/dx_{0}=dh/dx*dx/dx_{0})
