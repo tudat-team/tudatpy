@@ -238,10 +238,11 @@ Eigen::MatrixXd MultiArcCombinedStateTransitionAndSensitivityMatrixInterface::ge
     int currentArc = getCurrentArc( evaluationTime ).first;
 
     std::vector< int > currentArcsDefinedByEachBody;
+    std::cout << "arcDefiningBodies.size( ): " << arcDefiningBodies.size( ) << "\n\n";
     for ( unsigned int i = 0 ; i < arcDefiningBodies.size( ) ; i++ )
     {
         std::pair< int, double > currentArcDefinedByBody = getCurrentArc(evaluationTime, arcDefiningBodies.at( i ) );
-        std::cout << "current arc defined by body: " << currentArcDefinedByBody.first << "\n\n";
+        std::cout << "current arc defined by body: " << arcDefiningBodies.at( i ) << " = " << currentArcDefinedByBody.first << "\n\n";
         currentArcsDefinedByEachBody.push_back( currentArcDefinedByBody.first );
     }
     for ( unsigned int i = 0 ; i < currentArcsDefinedByEachBody.size( ) ; i++ )
@@ -249,7 +250,7 @@ Eigen::MatrixXd MultiArcCombinedStateTransitionAndSensitivityMatrixInterface::ge
         if ( ( currentArcsDefinedByEachBody[ i ] != currentArcsDefinedByEachBody[ 0 ] ) && ( currentArcsDefinedByEachBody[ i ] != -1 )
                                                                                            && ( currentArcsDefinedByEachBody[ 0 ] != -1 ) )
         {
-            std::runtime_error( "Error when getting current arc, different definitions for bodies " + arcDefiningBodies.at( i ) + " & " + arcDefiningBodies.at( 0 ) + "." );
+            throw std::runtime_error( "Error when getting current arc, different definitions for bodies " + arcDefiningBodies.at( i ) + " & " + arcDefiningBodies.at( 0 ) + "." );
         }
         if ( currentArcsDefinedByEachBody[ i ] != -1 )
         {
