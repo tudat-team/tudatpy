@@ -412,6 +412,10 @@ BOOST_AUTO_TEST_CASE( testDirectionBasedRotationWithThrustAcceleration )
                 zeroIndex = 0;
                 nonZeroIndex = 1;
             }
+            if( it.first < 50.0 )
+            {
+                std::cout<<"Testt "<<test<<" Time "<<it.first<<std::endl;
+            }
             BOOST_CHECK_CLOSE_FRACTION( bodyFixedThrustVector( nonZeroIndex ), thrustMagnitude1 / bodyMass,
                                         5.0 * std::numeric_limits< double >::epsilon( ) );
             BOOST_CHECK_SMALL( bodyFixedThrustVector( zeroIndex ), thrustMagnitude1 / bodyMass *

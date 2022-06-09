@@ -1537,6 +1537,21 @@ public:
     }
 };
 
+template< typename StateScalarType = double, typename TimeType = double >
+inline std::shared_ptr< CustomStatePropagatorSettings< StateScalarType > >
+customStatePropagatorSettings(
+        const std::function< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >( const TimeType, const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& ) > stateDerivativeFunction,
+        const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialState,
+        const std::shared_ptr< PropagationTerminationSettings > terminationSetings,
+        const std::shared_ptr< DependentVariableSaveSettings > dependentVariablesToSave =
+        std::shared_ptr< DependentVariableSaveSettings >( ),
+        const double printInterval = TUDAT_NAN  )
+{
+    return std::make_shared< CustomStatePropagatorSettings < StateScalarType > >(
+                stateDerivativeFunction, initialState, terminationSetings, dependentVariablesToSave, printInterval );
+}
+
+
 //! Function to create multi-arc propagator settings by merging an existing multi-arc with single-arc settings
 /*!
  *  Function to create multi-arc propagator settings by merging an existing multi-arc with single-arc settings. The single-arc
