@@ -262,6 +262,9 @@ namespace environment_setup {
         auto gravity_variation_setup = m.def_submodule("gravity_field_variation");
         gravity_field_variation::expose_gravity_field_variation_setup(gravity_variation_setup);
 
+//        auto system_model_setup = m.def_submodule("system_models");
+//        gravity_field_variation::expose_system_model_setup(system_model_setup);
+
 
     }
 
