@@ -340,6 +340,16 @@ void expose_propagator_setup(py::module &m) {
           py::arg("print_interval") = TUDAT_NAN,
           get_docstring("mass").c_str());
 
+    m.def("custom_state",
+          &tp::customStatePropagatorSettings<double, double>,
+          py::arg("state_derivative_function"),
+          py::arg("initial_state"),
+          py::arg("termination_settings"),
+          py::arg("output_variables") = std::vector<std::shared_ptr<tp::SingleDependentVariableSaveSettings> >(),
+          py::arg("print_interval") = TUDAT_NAN,
+          get_docstring("custom_state").c_str());
+
+
 
 
     m.def("multitype",
