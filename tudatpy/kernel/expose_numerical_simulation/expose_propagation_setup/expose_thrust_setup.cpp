@@ -120,7 +120,7 @@ void expose_thrust_setup(py::module &m) {
 //    py::class_<
 //            tss::ThrustDirectionFromStateGuidanceSettings,
 //            std::shared_ptr<tss::ThrustDirectionFromStateGuidanceSettings>,
-//            tss::ThrustDirectionSettings>(m, "ThrustDirectionFromStateGuidanceSettings",
+//            tss::ThrustDirectionSettin    gs>(m, "ThrustDirectionFromStateGuidanceSettings",
 //                                          get_docstring("ThrustDirectionFromStateGuidanceSettings").c_str())
 ////            .def(py::init<const std::string &,
 ////                         const bool,
@@ -281,15 +281,14 @@ void expose_thrust_setup(py::module &m) {
           py::arg("specific_impulse"),
           get_docstring("constant_thrust_magnitude").c_str());
 
-//    m.def("custom_thrust_magnitude", &tss::fromFunctionThrustMagnitudeSettings,
-//          py::arg("thrust_magnitude_function"),
-//          py::arg("specific_impulse_function"),
-//          py::arg("is_engine_on_function" ) =
-//                  std::function< bool( const double ) >( [ ]( const double ){ return true; } ),
-//          py::arg("body_fixed_thrust_direction" ) =
-//                  std::function< Eigen::Vector3d( ) >( [ ]( ){ return  Eigen::Vector3d::UnitX( ); } ),
-//          py::arg("custom_thrust_reset_function" ) = std::function< void( const double ) >( ),
-//          get_docstring("custom_thrust_magnitude").c_str());
+    m.def("custom_thrust_magnitude", &tss::fromFunctionThrustMagnitudeSettings,
+          py::arg("thrust_magnitude_function"),
+          py::arg("specific_impulse_function") );
+
+    m.def("custom_thrust_magnitude_fixed_isp", &tss::fromFunctionThrustMagnitudeFixedIspSettings,
+          py::arg("thrust_magnitude_function"),
+          py::arg("specific_impulse") );
+
 
     // TODO: EngineModel still to be implemented
 //    m.def("from_body_thrust_magnitude", &tss::fromBodyThrustMagnitudeSettings,
