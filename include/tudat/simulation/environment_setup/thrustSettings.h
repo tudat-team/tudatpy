@@ -634,6 +634,16 @@ inline std::shared_ptr< ThrustMagnitudeSettings > fromFunctionThrustMagnitudeSet
                 thrustMagnitudeFunction, specificImpulseFunction );
 }
 
+inline std::shared_ptr< ThrustMagnitudeSettings > fromFunctionThrustMagnitudeFixedIspSettings(
+        const std::function< double( const double ) > thrustMagnitudeFunction,
+        const double specificImpulse )
+{
+    return std::make_shared< CustomThrustMagnitudeSettings >(
+                thrustMagnitudeFunction, [=](const double){return specificImpulse; } );
+}
+
+
+
 // Interface function to multiply a maximum thrust by a multiplier to obtain the actual thrust
 /*
          * Interface function to multiply a maximum thrust by a multiplier to obtain the actual thrust
