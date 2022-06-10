@@ -228,11 +228,16 @@ void expose_acceleration_setup(py::module &m) {
 
     m.def("thrust_from_engines", &tss::thrustAcceleration,
           py::arg("engine_names"),
-          get_docstring("thrust").c_str());
+          get_docstring("thrust_from_engines").c_str());
 
     m.def("thrust_from_engine", &tss::thrustAccelerationFromSingleEngine,
           py::arg("engine_name"),
-          get_docstring("thrust").c_str());
+          get_docstring("thrust_from_engine").c_str());
+
+
+    m.def("thrust_from_all_engines", &tss::thrustAccelerationFromAllEngines,
+          get_docstring("thrust_from_all_engines").c_str());
+
 
 //    m.def("thrust_from_custom_function", py::overload_cast<
 //                  const std::function< Eigen::Vector3d( const double ) >,
