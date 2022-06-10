@@ -147,7 +147,7 @@ namespace rotation_model {
               py::arg("base_frame"),
               py::arg("target_frame"),
               py::arg("angle_funcion") = nullptr,
-              get_docstring("pitch_trim_based").c_str()
+              get_docstring("zero_pitch_moment_aerodynamic_angle_based").c_str()
         );
 
         m.def("custom_inertial_direction_based",
