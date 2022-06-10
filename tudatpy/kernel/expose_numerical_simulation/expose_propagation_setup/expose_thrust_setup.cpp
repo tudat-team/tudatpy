@@ -289,6 +289,15 @@ void expose_thrust_setup(py::module &m) {
           py::arg("thrust_magnitude_function"),
           py::arg("specific_impulse") );
 
+    m.def("custom_thrust_acceleration_magnitude", &tss::customThrustAccelerationMagnitudeSettings,
+          py::arg("thrust_acceleration_magnitude_function"),
+          py::arg("specific_impulse_function") );
+
+    m.def("custom_thrust_acceleration_magnitude_fixed_isp", &tss::customThrustAccelerationMagnitudeFixedIspSettings,
+          py::arg("thrust_acceleration_magnitude_function"),
+          py::arg("specific_impulse") );
+
+
 
     // TODO: EngineModel still to be implemented
 //    m.def("from_body_thrust_magnitude", &tss::fromBodyThrustMagnitudeSettings,
