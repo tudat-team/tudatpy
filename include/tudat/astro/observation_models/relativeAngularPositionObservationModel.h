@@ -43,7 +43,7 @@ public:
      *  Constructor,
      *  \param lightTimeCalculatorFirstTransmitter Object to compute the light-time (including any corrections w.r.t. Euclidean case)
      *  between first source and receiver
-     *  \param ightTimeCalculatorSecondTransmitter Object to compute the light-time (including any corrections w.r.t. Euclidean case)
+     *  \param lightTimeCalculatorSecondTransmitter Object to compute the light-time (including any corrections w.r.t. Euclidean case)
      *  between second source and receiver
      *  \param observationBiasCalculator Object for calculating system-dependent errors in the
      *  observable, i.e. deviations from the physically ideal observable between reference points (default none).
@@ -84,7 +84,7 @@ public:
         // Check link end associated with input time and compute observable.
         if( linkEndAssociatedWithTime != receiver )
         {
-            throw std::runtime_error( "Error when calculating relative angular position observation, link end is not receiver." );
+            throw std::runtime_error( "Error when calculating relative angular position observation, link end associated with time is not receiver." );
         }
 
         Eigen::Matrix< ObservationScalarType, 6, 1 > receiverState;

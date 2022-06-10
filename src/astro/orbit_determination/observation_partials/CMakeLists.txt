@@ -17,6 +17,7 @@ set(observation_partials_SOURCES
   "nWayRangePartial.cpp"
   "differencedOneWayRangeRatePartial.cpp"
   "oneWayDopplerPartial.cpp"
+  "relativeAngularPositionPartial.cpp"
   "observationPartial.cpp"
   "lightTimeCorrectionPartial.cpp"
   "firstOrderRelativisticPartial.cpp"
@@ -34,6 +35,7 @@ set(observation_partials_HEADERS
   "twoWayDopplerPartial.h"
   "observationPartial.h"
   "eulerAngleObservablePartials.h"
+  "relativeAngularPositionPartial.h"
   "lightTimeCorrectionPartial.h"
   "firstOrderRelativisticPartial.h"
 )

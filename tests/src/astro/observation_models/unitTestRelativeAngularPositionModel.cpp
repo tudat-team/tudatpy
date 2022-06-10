@@ -45,7 +45,7 @@ BOOST_AUTO_TEST_CASE( testRelativeAngularPositionModel )
 {
 //    spice_interface::loadStandardSpiceKernels( );
 
-        spice_interface::loadStandardSpiceKernels( { paths::getSpiceKernelPath( ) + "/de430_mar097_small.bsp" } );
+    spice_interface::loadStandardSpiceKernels( { paths::getSpiceKernelPath( ) + "/de430_mar097_small.bsp" } );
 
     // Define bodies to use.
     std::vector< std::string > bodiesToCreate;
