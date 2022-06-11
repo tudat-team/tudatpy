@@ -1542,13 +1542,13 @@ inline std::shared_ptr< CustomStatePropagatorSettings< StateScalarType > >
 customStatePropagatorSettings(
         const std::function< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >( const TimeType, const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& ) > stateDerivativeFunction,
         const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialState,
-        const std::shared_ptr< PropagationTerminationSettings > terminationSetings,
-        const std::shared_ptr< DependentVariableSaveSettings > dependentVariablesToSave =
-        std::shared_ptr< DependentVariableSaveSettings >( ),
+        const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
+        const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
+                std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
         const double printInterval = TUDAT_NAN  )
 {
     return std::make_shared< CustomStatePropagatorSettings < StateScalarType > >(
-                stateDerivativeFunction, initialState, terminationSetings, dependentVariablesToSave, printInterval );
+                stateDerivativeFunction, initialState, terminationSettings, std::make_shared< DependentVariableSaveSettings >( dependentVariablesToSave ), printInterval );
 }
 
 
