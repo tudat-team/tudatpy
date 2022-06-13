@@ -9,6 +9,7 @@
  */
 
 #include "expose_acceleration_setup.h"
+#include "kernel/deprecationWarnings.h"
 
 #include "tudatpy/docstrings.h"
 #include <tudat/simulation/propagation_setup.h>
@@ -32,6 +33,20 @@ namespace tmrf = tudat::root_finders;
 
 namespace tudat {
 namespace simulation_setup {
+
+inline std::shared_ptr< AccelerationSettings > customAccelerationSettingsDeprecated(
+        const std::function< Eigen::Vector3d( const double ) > accelerationFunction )
+{
+    static bool isWarningPrinted = false;
+    if( isWarningPrinted == false )
+    {
+        tudatpy::printDeprecationWarning( "tudatpy.numerical_simulation.propagation_setup.acceleration.custom",
+                             "tudatpy.numerical_simulation.propagation_setup.acceleration.custom_acceleration");
+        isWarningPrinted = true;
+    }
+
+    return customAccelerationSettings( accelerationFunction );
+}
 
 //! @get_docstring(cannonBallRadiationPressureAcceleration)
 inline std::shared_ptr< AccelerationSettings > panelledRadiationPressureAcceleration( )
@@ -207,10 +222,14 @@ void expose_acceleration_setup(py::module &m) {
           get_docstring("empirical").c_str());
 
     m.def("custom",
+          &tss::customAccelerationSettingsDeprecated );
+
+
+    m.def("custom_acceleration",
           py::overload_cast< std::function< Eigen::Vector3d( const double ) > >(
               &tss::customAccelerationSettings ),
           py::arg( "acceleration_function" ),
-          get_docstring("custom").c_str());
+          get_docstring("custom_acceleration").c_str());
 
     m.def("direct_tidal_dissipation_acceleration", &tss::directTidalDissipationAcceleration,
           py::arg("k2_love_number"),
