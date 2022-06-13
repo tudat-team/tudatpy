@@ -474,10 +474,23 @@ public:
      */
     CustomThrustMagnitudeSettings(
             const std::function< double( const double ) > thrustMagnitudeFunction,
-            const std::function< double( const double ) > specificImpulseFunction ):
+            const std::function< double( const double ) > specificImpulseFunction,
+            const bool inputIsForce = true ):
         ThrustMagnitudeSettings( thrust_magnitude_from_time_function, "" ),
         thrustMagnitudeFunction_( thrustMagnitudeFunction ),
-        specificImpulseFunction_( specificImpulseFunction ){ }
+        specificImpulseFunction_( specificImpulseFunction ),
+        specificImpulseIsConstant_( false ),
+        inputIsForce_( inputIsForce ){ }
+
+    CustomThrustMagnitudeSettings(
+            const std::function< double( const double ) > thrustMagnitudeFunction,
+            const double specificImpulse,
+            const bool inputIsForce = true ):
+        ThrustMagnitudeSettings( thrust_magnitude_from_time_function, "" ),
+        thrustMagnitudeFunction_( thrustMagnitudeFunction ),
+        specificImpulseFunction_( [=](const double){return specificImpulse;} ),
+        specificImpulseIsConstant_( true ),
+        inputIsForce_( inputIsForce ){ }
 
     // Destructor.
     ~CustomThrustMagnitudeSettings( ){ }
@@ -487,6 +500,10 @@ public:
 
     // Function returning specific impulse as a function of time.
     std::function< double( const double) > specificImpulseFunction_;
+
+    bool specificImpulseIsConstant_;
+
+    bool inputIsForce_;
 };
 
 
@@ -639,8 +656,29 @@ inline std::shared_ptr< ThrustMagnitudeSettings > fromFunctionThrustMagnitudeFix
         const double specificImpulse )
 {
     return std::make_shared< CustomThrustMagnitudeSettings >(
-                thrustMagnitudeFunction, [=](const double){return specificImpulse; } );
+                thrustMagnitudeFunction, specificImpulse );
 }
+
+//! @get_docstring(fromFunctionThrustMagnitudeSettings)
+inline std::shared_ptr< ThrustMagnitudeSettings > customThrustAccelerationMagnitudeSettings(
+        const std::function< double( const double ) > thrustAccelerationMagnitudeFunction,
+        const std::function< double( const double ) > specificImpulseFunction )
+{
+    return std::make_shared< CustomThrustMagnitudeSettings >(
+                thrustAccelerationMagnitudeFunction, specificImpulseFunction, false );
+}
+
+//! @get_docstring(fromFunctionThrustMagnitudeSettings)
+inline std::shared_ptr< ThrustMagnitudeSettings > customThrustAccelerationMagnitudeFixedIspSettings(
+        const std::function< double( const double ) > thrustAccelerationMagnitudeFunction,
+        const double specificImpulse )
+{
+    return std::make_shared< CustomThrustMagnitudeSettings >(
+                thrustAccelerationMagnitudeFunction, specificImpulse, false );
+}
+
+
+
 
 
 

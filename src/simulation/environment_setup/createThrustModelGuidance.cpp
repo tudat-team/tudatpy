@@ -268,9 +268,36 @@ std::shared_ptr< propulsion::ThrustMagnitudeWrapper > createThrustMagnitudeWrapp
         {
             throw std::runtime_error( "Error when creating from-function thrust magnitude wrapper, input is inconsistent" );
         }
-        thrustMagnitudeWrapper = std::make_shared< propulsion::CustomThrustMagnitudeWrapper >(
-                    fromFunctionThrustMagnitudeSettings->thrustMagnitudeFunction_,
-                    fromFunctionThrustMagnitudeSettings->specificImpulseFunction_ );
+        if( fromFunctionThrustMagnitudeSettings->inputIsForce_ )
+        {
+            if( !fromFunctionThrustMagnitudeSettings->specificImpulseIsConstant_ )
+            {
+                thrustMagnitudeWrapper = std::make_shared< propulsion::CustomThrustMagnitudeWrapper >(
+                            fromFunctionThrustMagnitudeSettings->thrustMagnitudeFunction_,
+                            fromFunctionThrustMagnitudeSettings->specificImpulseFunction_ );
+            }
+            else
+            {
+                thrustMagnitudeWrapper = std::make_shared< propulsion::CustomThrustMagnitudeWrapper >(
+                            fromFunctionThrustMagnitudeSettings->thrustMagnitudeFunction_,
+                            fromFunctionThrustMagnitudeSettings->specificImpulseFunction_( TUDAT_NAN ) );
+            }
+        }
+        else
+        {
+            if( !fromFunctionThrustMagnitudeSettings->specificImpulseIsConstant_ )
+            {
+                thrustMagnitudeWrapper = std::make_shared< propulsion::CustomThrustAccelerationMagnitudeWrapper >(
+                            fromFunctionThrustMagnitudeSettings->thrustMagnitudeFunction_,
+                            fromFunctionThrustMagnitudeSettings->specificImpulseFunction_ );
+            }
+            else
+            {
+                thrustMagnitudeWrapper = std::make_shared< propulsion::CustomThrustAccelerationMagnitudeWrapper >(
+                            fromFunctionThrustMagnitudeSettings->thrustMagnitudeFunction_,
+                            fromFunctionThrustMagnitudeSettings->specificImpulseFunction_( TUDAT_NAN ) );
+            }
+        }
         break;
 
     }

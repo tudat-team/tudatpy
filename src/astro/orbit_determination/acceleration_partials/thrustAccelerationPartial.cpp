@@ -105,7 +105,7 @@ void ThrustAccelerationPartial::wrtRotationModelParameter(
     for( unsigned int j = 0; j < thrustAcceleration_->getThrustSources( ).size( ); j++ )
     {
         currentBodyFixedThrust += thrustSources_.at( j )->getBodyFixedThrustDirection( ) *
-                thrustSources_.at( j )->getCurrentThrust( );
+                thrustSources_.at( j )->getCurrentThrustAcceleration( thrustAcceleration_->getCurrentBodyMass( ) );
 
     }
 
@@ -137,7 +137,7 @@ void ThrustAccelerationPartial::wrtThrustMagnitude(
 {
     partialMatrix.setZero( );
     partialMatrix.block( 0, 0, 3, 1 ) += thrustAcceleration_->getCurrentThrustAccelerationContribution(
-                engineIndex ) / thrustSources_.at( engineIndex )->getCurrentThrust( );
+                engineIndex ) / thrustSources_.at( engineIndex )->getCurrentThrust( thrustAcceleration_->getCurrentBodyMass( ) );
 }
 
 void ThrustAccelerationPartial::wrtNonTranslationalStateOfAdditionalBody(

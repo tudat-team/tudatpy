@@ -158,7 +158,7 @@ public:
 
     double getCurrentBodyMass( )
     {
-        return bodyMassFunction_( );
+        return currentMass_;
     }
 
     std::shared_ptr< ThrustDirectionCalculator > getThrustDirectionCalculator( )
@@ -178,6 +178,8 @@ protected:
 
     //! Current acceleration direction, as computed by last call to updateMembers function.
     Eigen::Vector3d currentAccelerationDirection_;
+
+    double currentMass_;
 
     //! Current propellant mass rate, as computed by last call to updateMembers function.
     double currentMassRate_;

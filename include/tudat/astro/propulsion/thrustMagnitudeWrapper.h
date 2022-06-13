@@ -52,14 +52,17 @@ public:
      * Pure virtual function to get the current thrust magnitude.
      * \return Current thrust magnitude.
      */
-    virtual double getCurrentThrustForceMagnitude( ) = 0;
+    virtual double getCurrentThrustForceMagnitude( const double currentMass = TUDAT_NAN ) = 0;
+
+    virtual double getCurrentThrustAccelerationMagnitude( const double currentMass = TUDAT_NAN ) = 0;
+
 
     //! Pure virtual function to get the current mass rate.
     /*!
      * Pure virtual function to get the current mass rate.
      * \return Current mass rate.
      */
-    virtual double getCurrentMassRate( ) = 0;
+    virtual double getCurrentMassRate( const double currentMass = TUDAT_NAN ) = 0;
 
     virtual double getCurrentSpecificImpulse( ) = 0;
 
@@ -126,10 +129,16 @@ public:
         }
     }
 
-    double getCurrentThrustForceMagnitude( )
+    double getCurrentThrustForceMagnitude( const double currentMass = TUDAT_NAN )
     {
         return thrustMagnitude_;
     }
+
+    double getCurrentThrustAccelerationMagnitude( const double currentMass )
+    {
+        return thrustMagnitude_ / currentMass;
+    }
+
 
     void resetConstantThrustForceMagnitude( const double thrustMagnitude )
     {
@@ -139,7 +148,7 @@ public:
     }
 
 
-    double getCurrentMassRate( )
+    double getCurrentMassRate( const double currentMass = TUDAT_NAN )
     {
         return massRate_;
     }
@@ -236,9 +245,14 @@ public:
      * Function to return the current thrust magnitude, as computed by last call to update member function.
      * \return Current thrust magnitude
      */
-    double getCurrentThrustForceMagnitude( )
+    double getCurrentThrustForceMagnitude( const double currentMass = TUDAT_NAN )
     {
         return currentThrustMagnitude_;
+    }
+
+    double getCurrentThrustAccelerationMagnitude( const double currentMass )
+    {
+        return currentThrustMagnitude_ / currentMass;
     }
 
     bool modelIsForceBased( )
@@ -251,7 +265,7 @@ public:
      * Function to return the current mass rate, computed from quantities set by last call to update member function.
      * \return Current mass rate.
      */
-    double getCurrentMassRate( )
+    double getCurrentMassRate( const double currentMass = TUDAT_NAN )
     {
         if( currentThrustMagnitude_ != 0.0 )
         {
@@ -308,6 +322,95 @@ private:
 };
 
 
+class CustomThrustAccelerationMagnitudeWrapper: public ThrustMagnitudeWrapper
+{
+public:
+
+    CustomThrustAccelerationMagnitudeWrapper(
+            const std::function< double( const double ) > thrustAccelerationMagnitudeFunction,
+            const std::function< double( const double ) > specificImpulseFunction ):
+        thrustAccelerationMagnitudeFunction_( thrustAccelerationMagnitudeFunction ),
+        specificImpulseFunction_( specificImpulseFunction ),
+        currentThrustAccelerationMagnitude_( TUDAT_NAN ),
+        currentSpecificImpulse_( TUDAT_NAN ),
+        isSpecificImpulseConstant_( false ){ }
+
+    CustomThrustAccelerationMagnitudeWrapper(
+            const std::function< double( const double ) > thrustAccelerationMagnitudeFunction,
+            const double specificImpulse ):
+        thrustAccelerationMagnitudeFunction_( thrustAccelerationMagnitudeFunction ),
+        specificImpulseFunction_( [=](const double){return specificImpulse;} ),
+        currentThrustAccelerationMagnitude_( TUDAT_NAN ),
+        currentSpecificImpulse_( TUDAT_NAN ),
+        isSpecificImpulseConstant_( true ){ }
+
+    ~CustomThrustAccelerationMagnitudeWrapper( ){ }
+
+    void update( const double time );
+
+    double getCurrentThrustForceMagnitude( const double currentMass )
+    {
+        return currentThrustAccelerationMagnitude_ * currentMass;
+    }
+
+    double getCurrentThrustAccelerationMagnitude( const double currentMass = TUDAT_NAN )
+    {
+        return currentThrustAccelerationMagnitude_;
+    }
+
+    bool modelIsForceBased( )
+    {
+        return false;
+    }
+
+    double getCurrentMassRate( const double currentMass )
+    {
+        if( currentThrustAccelerationMagnitude_ != 0.0 )
+        {
+            return propulsion::computePropellantMassRateFromSpecificImpulse(
+                        getCurrentThrustForceMagnitude( currentMass ), currentSpecificImpulse_ );
+        }
+        else
+        {
+            return 0.0;
+        }
+    }
+
+    double getCurrentSpecificImpulse( )
+    {
+        return currentSpecificImpulse_;
+    }
+
+    virtual void resetDerivedClassCurrentTime( )
+    {
+        thrustAccelerationMagnitudeFunction_( TUDAT_NAN );
+        specificImpulseFunction_( TUDAT_NAN );
+        currentThrustAccelerationMagnitude_ = TUDAT_NAN;
+        currentSpecificImpulse_ = TUDAT_NAN;
+        currentTime_ = TUDAT_NAN;
+    }
+
+    bool isSpecificImpulseConstant( )
+    {
+        return isSpecificImpulseConstant_;
+    }
+
+private:
+
+    std::function< double( const double ) > thrustAccelerationMagnitudeFunction_;
+
+    //! Function returning specific impulse as a function of time.
+    std::function< double( const double ) > specificImpulseFunction_;
+
+    double currentThrustAccelerationMagnitude_;
+
+    //! Current specific impulse, as computed by last call to update member function.
+    double currentSpecificImpulse_;
+
+    bool isSpecificImpulseConstant_;
+
+};
+
 
 //! Class for bang-bang thrust magnitude from MEE co-states (optimal control theory).
 /*!
@@ -361,9 +464,14 @@ public:
      * Function to return the current thrust magnitude, as computed by last call to update member function.
      * \return Current thrust magnitude
      */
-    double getCurrentThrustForceMagnitude( )
+    double getCurrentThrustForceMagnitude( const double currentMass = TUDAT_NAN  )
     {
         return currentThrustMagnitude_;
+    }
+
+    double getCurrentThrustAccelerationMagnitude( const double currentMass )
+    {
+        return currentThrustMagnitude_ / currentMass;
     }
 
     bool modelIsForceBased( )
@@ -376,7 +484,7 @@ public:
      * Function to return the current mass rate, computed from quantities set by last call to update member function.
      * \return Current mass rate.
      */
-    double getCurrentMassRate( )
+    double getCurrentMassRate( const double currentMass = TUDAT_NAN )
     {
         if( currentThrustMagnitude_ != 0.0 )
         {
@@ -551,9 +659,14 @@ public:
      * Function to return the current thrust magnitude, as computed by last call to update member function.
      * \return Current thrust magnitude
      */
-    double getCurrentThrustForceMagnitude( )
+    double getCurrentThrustForceMagnitude( const double currentMass = TUDAT_NAN )
     {
         return currentThrustMagnitude_;
+    }
+
+    double getCurrentThrustAccelerationMagnitude( const double currentMass )
+    {
+        return currentThrustMagnitude_ / currentMass;
     }
 
     bool modelIsForceBased( )
@@ -566,7 +679,7 @@ public:
      * Function to return the current mass rate, computed from quantities set by last call to update member function.
      * \return Current mass rate.
      */
-    double getCurrentMassRate( )
+    double getCurrentMassRate( const double currentMass = TUDAT_NAN  )
     {
         return propulsion::computePropellantMassRateFromSpecificImpulse(
                     currentThrustMagnitude_, currentSpecificImpulse_ );
@@ -631,12 +744,18 @@ class CustomThrustVectorWrapper: public ThrustMagnitudeWrapper, public ephemerid
 
     void update( const double time );
 
-    double getCurrentThrustForceMagnitude( )
+    double getCurrentThrustForceMagnitude( const double currentMass = TUDAT_NAN )
     {
         return currentThrustMagnitude_;
     }
 
-    virtual Eigen::Vector3d getDirection( const double time )
+    double getCurrentThrustAccelerationMagnitude( const double currentMass )
+    {
+        return currentThrustMagnitude_ / currentMass;
+    }
+
+
+    Eigen::Vector3d getDirection( const double time )
     {
         if( time != currentTime_ )
         {
@@ -651,7 +770,7 @@ class CustomThrustVectorWrapper: public ThrustMagnitudeWrapper, public ephemerid
         return true;
     }
 
-    double getCurrentMassRate( )
+    double getCurrentMassRate( const double currentMass = TUDAT_NAN )
     {
         if( currentThrustMagnitude_ != 0.0 )
         {

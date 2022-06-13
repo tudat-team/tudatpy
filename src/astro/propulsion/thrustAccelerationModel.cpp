@@ -12,6 +12,7 @@ void ThrustAcceleration::updateMembers( const double currentTime )
     if( !( currentTime_ == currentTime ) )
     {
         currentMassRate_ = 0.0;
+        currentMass_ = bodyMassFunction_( );
         currentAcceleration_.setZero( );
         thrustDirectionCalculator_->update( currentTime );
 
@@ -20,15 +21,15 @@ void ThrustAcceleration::updateMembers( const double currentTime )
             thrustSources_.at( i )->updateEngineModel( currentTime );
             if( !saveThrustContributions_ )
             {
-                currentMassRate_ -= thrustSources_.at( i )->getCurrentMassRate( );
-                currentAcceleration_ += ( thrustSources_.at( i )->getCurrentThrust( ) / bodyMassFunction_( ) )*
+                currentMassRate_ -= thrustSources_.at( i )->getCurrentMassRate( currentMass_ );
+                currentAcceleration_ += ( thrustSources_.at( i )->getCurrentThrustAcceleration( currentMass_ ) )*
                         thrustDirectionCalculator_->getInertialThrustDirection( thrustSources_.at( i ) ) ;
             }
             else
             {
-                currentMassRateContributions_[ i ] = thrustSources_.at( i )->getCurrentMassRate( );
+                currentMassRateContributions_[ i ] = thrustSources_.at( i )->getCurrentMassRate( currentMass_ );
                 currentMassRate_ -= currentMassRateContributions_[ i ];
-                currentThrustAccelerationContributions_[ i ] = ( thrustSources_.at( i )->getCurrentThrust( ) / bodyMassFunction_( ) )*
+                currentThrustAccelerationContributions_[ i ] = ( thrustSources_.at( i )->getCurrentThrustAcceleration( currentMass_ )  )*
                         thrustDirectionCalculator_->getInertialThrustDirection( thrustSources_.at( i ) );
                 currentAcceleration_ += currentThrustAccelerationContributions_[ i ];
             }

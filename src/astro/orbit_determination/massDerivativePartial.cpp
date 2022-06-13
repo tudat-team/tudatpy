@@ -67,7 +67,7 @@ void FromThrustMassRatePartial::wrtEngineSpecificImpulse(
         const std::string& engineName )
 {
     std::shared_ptr< system_models::EngineModel > engineModel = engineModelList_.at( engineName );
-    partialMatrix( 0, 0 ) += engineModel->getCurrentMassRate( ) /
+    partialMatrix( 0, 0 ) += engineModel->getCurrentMassRate( currentBodyMass_ ) /
             engineModel->getThrustMagnitudeWrapper( )->getCurrentSpecificImpulse( );
 }
 

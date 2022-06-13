@@ -428,15 +428,29 @@ public:
         AccelerationSettings( basic_astrodynamics::thrust_acceleration )
     {
         engineIds_.push_back( engineId );
+        useAllEngines_ = false;
     }
 
    ThrustAccelerationSettings( const std::vector< std::string >& engineIds ):
-            AccelerationSettings( basic_astrodynamics::thrust_acceleration ), engineIds_( engineIds ){ }
+            AccelerationSettings( basic_astrodynamics::thrust_acceleration ), engineIds_( engineIds )
+   {
+        useAllEngines_ = false;
+   }
+
+   ThrustAccelerationSettings( ):
+       AccelerationSettings( basic_astrodynamics::thrust_acceleration )
+   {
+        engineIds_ = std::vector< std::string >( );
+        useAllEngines_ = true;
+   }
+
 
     // Destructor.
     ~ThrustAccelerationSettings( ){ }
 
     std::vector< std::string > engineIds_;
+
+    bool useAllEngines_;
 
 };
 
@@ -460,6 +474,12 @@ inline std::shared_ptr< AccelerationSettings > thrustAccelerationFromSingleEngin
 {
     return std::make_shared< ThrustAccelerationSettings >( std::vector< std::string >( { engineId } ) );
 }
+
+inline std::shared_ptr< AccelerationSettings > thrustAccelerationFromAllEngines( )
+{
+    return std::make_shared< ThrustAccelerationSettings >( );
+}
+
 
 ////! @get_docstring(thrustAcceleration, 2)
 //inline std::shared_ptr< AccelerationSettings > thrustAcceleration(
