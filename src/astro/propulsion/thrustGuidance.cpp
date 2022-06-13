@@ -44,6 +44,34 @@ Eigen::Vector3d getForceDirectionFromTimeOnlyFunction(
     return timeOnlyFunction( currentTime ).normalized( );
 }
 
+void DirectThrustDirectionCalculator::updateQuaternion( const double time )
+{
+    if( time != currentQuaterionTime_  && time == time )
+    {
+        currentRotationToBaseFrame_ = directionBasedRotationModel_->getRotationToBaseFrame( time );
+    }
+    currentQuaterionTime_ = time;
+}
+
+Eigen::Vector3d DirectThrustDirectionCalculator::getInertialThrustDirection(
+        const std::shared_ptr< system_models::EngineModel > engineModel )
+{
+    if( engineModel->getBodyFixedThrustDirection( ) == directionBasedRotationModel_->getAssociatedBodyFixedDirection( ) )
+    {
+        return currentInertialDirection_;
+    }
+    else if( engineModel->getBodyFixedThrustDirection( ) == -directionBasedRotationModel_->getAssociatedBodyFixedDirection( ) )
+    {
+        return currentInertialDirection_;
+    }
+    else
+    {
+        updateQuaternion( currentTime_ );
+        return ( currentRotationToBaseFrame_ * engineModel->getBodyFixedThrustDirection( ) ).normalized( );
+    }
+}
+
+
 } // namespace propulsion
 
 } // namespace tudat

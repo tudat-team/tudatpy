@@ -103,13 +103,15 @@ class DirectThrustDirectionCalculator: public ThrustDirectionCalculator
 public:
     DirectThrustDirectionCalculator(
             const std::shared_ptr< ephemerides::DirectionBasedRotationalEphemeris > directionBasedRotationModel ):
-        directionBasedRotationModel_( directionBasedRotationModel ){ }
+        directionBasedRotationModel_( directionBasedRotationModel ),
+    currentQuaterionTime_( TUDAT_NAN ){ }
 
     virtual ~DirectThrustDirectionCalculator( ){ }
 
     void resetDerivedClassCurrentTime( )
     {
         directionBasedRotationModel_->resetCurrentTime( );
+        currentQuaterionTime_ = TUDAT_NAN;
     }
 
     void update( const double time )
@@ -122,33 +124,11 @@ public:
     }
 
 
-    void updateQuaternion( const double time )
-    {
-        if( time != currentQuaterionTime_  && time == time )
-        {
-            currentRotationToBaseFrame_ = directionBasedRotationModel_->getRotationToBaseFrame( time );
-        }
-        currentQuaterionTime_ = time;
-    }
+    void updateQuaternion( const double time );
 
 
     Eigen::Vector3d getInertialThrustDirection(
-            const std::shared_ptr< system_models::EngineModel > engineModel )
-    {
-        if( engineModel->getBodyFixedThrustDirection( ) == directionBasedRotationModel_->getAssociatedBodyFixedDirection( ) )
-        {
-            return currentInertialDirection_;
-        }
-        else if( engineModel->getBodyFixedThrustDirection( ) == -directionBasedRotationModel_->getAssociatedBodyFixedDirection( ) )
-        {
-            return currentInertialDirection_;
-        }
-        else
-        {
-            updateQuaternion( currentTime_ );
-            return ( currentRotationToBaseFrame_ * engineModel->getBodyFixedThrustDirection( ) ).normalized( );
-        }
-    }
+            const std::shared_ptr< system_models::EngineModel > engineModel );
 
 
 protected:
