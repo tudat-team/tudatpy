@@ -252,14 +252,24 @@ public:
             const observation_models::LinkEndType linkEndOfFixedTime,
             const Eigen::Vector2d& currentObservation = Eigen::Vector2d::Constant( TUDAT_NAN ) );
 
-    //! Function to get the number of light-time correction partial functions.
+    //! Function to get the number of light-time correction partial functions for receiver - first transmitter leg.
     /*!
-     * Number of light-time correction partial functions.
+     * Number of light-time correction partial functions for receiver - first transmitter leg.
      * \return Number of light-time correction partial functions.
      */
-    int getNumberOfLightTimeCorrectionPartialsFunctions( )
+    int getNumberOfLightTimeCorrectionPartialsFunctionsFirstTransmitter( )
     {
         return lightTimeCorrectionPartialsFunctionsFirstTransmitter_.size( );
+    }
+
+    //! Function to get the number of light-time correction partial functions for receiver - second transmitter leg.
+    /*!
+     * Number of light-time correction partial functions for receiver - second transmitter leg.
+     * \return Number of light-time correction partial functions.
+     */
+    int getNumberOfLightTimeCorrectionPartialsFunctionsSecondTransmitter( )
+    {
+        return lightTimeCorrectionPartialsFunctionsSecondTransmitter_.size( );
     }
 
 protected:

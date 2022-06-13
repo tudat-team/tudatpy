@@ -87,7 +87,8 @@ std::shared_ptr< RelativeAngularPositionPartial > createRelativeAngularPositionP
                     relativeAngularPositionScaler, positionPartials, parameterToEstimate->getParameterName( ),
                     lightTimeCorrectionPartialObjects );
         // Create angular position partials if any position partials are created (i.e. if any dependency exists).
-        if( positionPartials.size( ) > 0 || testRelativeAngularPositionPartial->getNumberOfLightTimeCorrectionPartialsFunctions( ) )
+        if( positionPartials.size( ) > 0 || testRelativeAngularPositionPartial->getNumberOfLightTimeCorrectionPartialsFunctionsFirstTransmitter( ) ||
+        testRelativeAngularPositionPartial->getNumberOfLightTimeCorrectionPartialsFunctionsSecondTransmitter( ) )
         {
             relativeAngularPositionPartial = testRelativeAngularPositionPartial;
         }

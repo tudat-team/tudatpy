@@ -143,6 +143,8 @@ void testObservationPartials(
         const double positionPerturbationMultiplier = 1.0,
         const Eigen::VectorXd parameterPerturbationMultipliers = Eigen::VectorXd::Constant( 4, 1.0 ) ) {
 
+        printEstimatableParameterEntries( fullEstimatableParameterSet );
+
         // Retrieve double and vector parameters and estimate body states
         std::vector<std::string> bodiesWithEstimatedTranslationalState =
                 estimatable_parameters::getListOfBodiesToEstimate(
