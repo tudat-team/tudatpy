@@ -22,9 +22,9 @@ void CustomBodyFixedDirectionCalculator::update( const double time )
 {
     if( time != currentTime_ )
     {
-    currentBodyAxisDirection_ = inertialBodyAxisDirectionFunction_( time );
-    currentTime_ =  time;
-}
+        currentBodyAxisDirection_ = inertialBodyAxisDirectionFunction_( time );
+        currentTime_ =  time;
+    }
 }
 
 Eigen::Quaterniond DirectionBasedRotationalEphemeris::getRotationToBaseFrame(

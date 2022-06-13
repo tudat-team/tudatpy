@@ -1362,7 +1362,7 @@ BOOST_AUTO_TEST_CASE( testThrustPartials )
     // Load spice kernels.
     spice_interface::loadStandardSpiceKernels( );
 
-    for( unsigned int i = 0; i < 2; i++ )
+    for( unsigned int   i = 0; i < 2; i++ )
     {
         // Create empty bodies, earth and sun.
         std::shared_ptr< Body > vehicle = std::make_shared< Body >( );
