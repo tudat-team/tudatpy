@@ -1121,17 +1121,24 @@ createThrustAcceleratioModel(
 
     std::map< std::string, std::shared_ptr< system_models::EngineModel > > engineModels = vehicleSystems->getEngineModels( );
 
-    for( unsigned int i = 0; i < thrustAccelerationSettings->engineIds_.size( ); i++ )
+    if( thrustAccelerationSettings->useAllEngines_ == true )
     {
-        if( engineModels.count( thrustAccelerationSettings->engineIds_.at( i ) ) == 0 )
+        engineModelsForAcceleration = utilities::createVectorFromMapValues( engineModels );
+    }
+    else
+    {
+        for( unsigned int i = 0; i < thrustAccelerationSettings->engineIds_.size( ); i++ )
         {
-            throw std::runtime_error( "Error when retrieving engine " + thrustAccelerationSettings->engineIds_.at( i ) +
-                                      " for thrust acceleration. Engine with this name not found. " );
-        }
-        else
-        {
-            engineModelsForAcceleration.push_back(
-                        engineModels.at( thrustAccelerationSettings->engineIds_.at( i ) ) );
+            if( engineModels.count( thrustAccelerationSettings->engineIds_.at( i ) ) == 0 )
+            {
+                throw std::runtime_error( "Error when retrieving engine " + thrustAccelerationSettings->engineIds_.at( i ) +
+                                          " for thrust acceleration. Engine with this name not found. " );
+            }
+            else
+            {
+                engineModelsForAcceleration.push_back(
+                            engineModels.at( thrustAccelerationSettings->engineIds_.at( i ) ) );
+            }
         }
     }
 

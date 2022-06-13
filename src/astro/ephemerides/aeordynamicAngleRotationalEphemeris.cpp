@@ -109,7 +109,7 @@ void AerodynamicAngleRotationalEphemeris::resetCurrentTime(  )
     {
         currentTime_ = TUDAT_NAN;
         aerodynamicAngleCalculator_->resetCurrentTime( );
-//        aerodynamicAngleFunction_( TUDAT_NAN );
+        aerodynamicAngleFunction_( TUDAT_NAN );
     }
     else
     {

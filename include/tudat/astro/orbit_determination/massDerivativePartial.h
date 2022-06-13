@@ -162,11 +162,21 @@ public:
 
     std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunction(
             std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter );
+
     virtual void update( const double currentTime )
     {
         for( unsigned int i = 0; i < thrustAccelerations_.size( ); i++ )
         {
             thrustAccelerations_.at( i )->updateMembers( currentTime );
+            if( i == 0 )
+            {
+                currentBodyMass_ = thrustAccelerations_.at( i )->getCurrentBodyMass( );
+            }
+            else if( currentBodyMass_ != thrustAccelerations_.at( i )->getCurrentBodyMass( ) )
+            {
+                throw std::runtime_error( "Error when updating FromThrustMassRatePartial, constituent thrust accelerations are incompatible" );
+            }
+
         }
     }
 
@@ -178,6 +188,9 @@ private:
     std::map< int, std::vector< std::shared_ptr< system_models::EngineModel > > > accelerationBasedThrustSources_;
 
     std::map< std::string, std::shared_ptr< system_models::EngineModel > > engineModelList_;
+
+    double currentBodyMass_;
+
 
 };
 

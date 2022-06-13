@@ -26,6 +26,16 @@ namespace propulsion
         }
     }
 
+    void CustomThrustAccelerationMagnitudeWrapper::update( const double time )
+    {
+        if( !( currentTime_ == time ) )
+        {
+            currentThrustAccelerationMagnitude_ = thrustAccelerationMagnitudeFunction_( time );
+            currentSpecificImpulse_ = specificImpulseFunction_( time );
+            currentTime_ = time;
+        }
+    }
+
 
     void MeeCostatesBangBangThrustMagnitudeWrapper::update( const double time )
     {

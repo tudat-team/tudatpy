@@ -74,9 +74,15 @@ public:
      *  updateEngineModel function (to be defined in the derived class).
      *  \return Current engine thrust.
      */
-    double getCurrentThrust( )
+    double getCurrentThrust( const double currentMass = TUDAT_NAN )
     {
-        return thrustMagnitudeWrapper_->getCurrentThrustForceMagnitude( );
+        return thrustMagnitudeWrapper_->getCurrentThrustForceMagnitude( currentMass );
+    }
+
+
+    double getCurrentThrustAcceleration( const double currentMass = TUDAT_NAN )
+    {
+        return thrustMagnitudeWrapper_->getCurrentThrustAccelerationMagnitude( currentMass );
     }
 
     //! Pure virtual function to retrieve the propellant mass rate.
@@ -84,9 +90,9 @@ public:
      *  Pure virtual function to retrieve the propellant mass rate.
      *  \return Propellant mass rate.
      */
-    double getCurrentMassRate( )
+    double getCurrentMassRate( const double currentMass = TUDAT_NAN )
     {
-        return thrustMagnitudeWrapper_->getCurrentMassRate( );
+        return thrustMagnitudeWrapper_->getCurrentMassRate( currentMass );
     }
 
     //! Function to retrieve the vector denoting the direction of the thrust delivered by the engine in the body-fixed frame
