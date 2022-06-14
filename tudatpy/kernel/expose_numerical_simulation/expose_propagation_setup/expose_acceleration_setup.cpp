@@ -9,6 +9,8 @@
  */
 
 #include "expose_acceleration_setup.h"
+#include "kernel/expose_numerical_simulation/deprecation_support.h"
+
 #include <tudat/basics/deprecationWarnings.h>
 
 #include "tudatpy/docstrings.h"
@@ -34,6 +36,7 @@ namespace tmrf = tudat::root_finders;
 namespace tudat {
 namespace simulation_setup {
 
+
 inline std::shared_ptr< AccelerationSettings > customAccelerationSettingsDeprecated(
         const std::function< Eigen::Vector3d( const double ) > accelerationFunction )
 {
@@ -49,12 +52,13 @@ inline std::shared_ptr< AccelerationSettings > customAccelerationSettingsDepreca
 }
 
 
-inline std::shared_ptr< AccelerationSettings > thrustAccelerationRemoved2(
+inline std::shared_ptr< AccelerationSettings > thrustAccelerationRemoved1(
         const std::shared_ptr<tss::ThrustDirectionSettings> thrustDirectionSettings,
         const std::shared_ptr<tss::ThrustMagnitudeSettings> thrustMagnitudeSettings )
 {
     tudat::utilities::printDeprecationError( "tudatpy.numerical_simulation.propagation_setup.acceleration.thrust_from_direction_and_magnitude",
                                              "https://docs.tudat.space/en/stable/_src_user_guide/state_propagation/environment_setup/thrust_refactor/thrust_refactor.html#thrust-acceleration" );
+    return nullptr;
 }
 
 inline std::shared_ptr< AccelerationSettings > thrustAccelerationRemoved2(
@@ -65,6 +69,8 @@ inline std::shared_ptr< AccelerationSettings > thrustAccelerationRemoved2(
 {
     tudat::utilities::printDeprecationError( "tudatpy.numerical_simulation.propagation_setup.acceleration.thrust_and_isp_from_custom_function",
                                              "https://docs.tudat.space/en/stable/_src_user_guide/state_propagation/environment_setup/thrust_refactor/thrust_refactor.html#thrust-acceleration" );
+    return nullptr;
+
 }
 
 inline std::shared_ptr< AccelerationSettings > thrustAccelerationRemoved3(
@@ -75,6 +81,7 @@ inline std::shared_ptr< AccelerationSettings > thrustAccelerationRemoved3(
 {
     tudat::utilities::printDeprecationError( "tudatpy.numerical_simulation.propagation_setup.acceleration.thrust_from_custom_function",
                                              "https://docs.tudat.space/en/stable/_src_user_guide/state_propagation/environment_setup/thrust_refactor/thrust_refactor.html#thrust-acceleration" );
+    return nullptr;
 }
 
 
@@ -94,6 +101,7 @@ inline std::shared_ptr< AccelerationSettings > customAccelerationSettings(
 }
 
 }
+
 }
 
 namespace tudatpy {
@@ -180,7 +188,7 @@ void expose_acceleration_setup(py::module &m) {
     py::class_<tss::ThrustAccelerationSettings,
             std::shared_ptr<tss::ThrustAccelerationSettings>,
             tss::AccelerationSettings>(m, "ThrustAccelerationSettings",
-                                       get_docstring("ThrustAccelerationSettings").c_str());
+                                       get_docstring("ThrustAccelerationSettings").c_str())
             .def_property_readonly("direction_settings",
                                    &tss::ThrustAccelerationSettings::printDeprecationError<
                                    std::shared_ptr< tss::ThrustDirectionSettings > > )
