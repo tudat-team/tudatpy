@@ -9,7 +9,7 @@
  */
 
 #include "expose_dependent_variable_setup.h"
-#include "kernel/deprecationWarnings.h"
+#include <tudat/basics/deprecationWarnings.h>
 
 #include "tudatpy/docstrings.h"
 #include <tudat/simulation/propagation_setup.h>
@@ -44,7 +44,7 @@ std::shared_ptr< SingleDependentVariableSaveSettings > customDependentVariableDe
     static bool isWarningPrinted = false;
     if( isWarningPrinted == false )
     {
-        tudatpy::printDeprecationWarning( "tudatpy.numerical_simulation.propagation_setup.dependent_variable.custom",
+        tudat::utilities::printDeprecationWarning( "tudatpy.numerical_simulation.propagation_setup.dependent_variable.custom",
                              "tudatpy.numerical_simulation.propagation_setup.dependent_variable.custom_dependent_variable");
         isWarningPrinted = true;
     }

@@ -9,6 +9,7 @@
  */
 
 #include "expose_environment.h"
+#include <tudat/basics/deprecationWarnings.h>
 
 #include "tudatpy/docstrings.h"
 
@@ -50,7 +51,6 @@ namespace trf = tudat::reference_frames;
 namespace tss = tudat::simulation_setup;
 namespace ti = tudat::interpolators;
 namespace tsm = tudat::system_models;
-
 
 
 namespace tudat
@@ -260,37 +260,30 @@ void expose_environment(py::module &m) {
 
     py::class_<trf::AerodynamicAngleCalculator,
             std::shared_ptr<trf::AerodynamicAngleCalculator>>(m, "AerodynamicAngleCalculator")
-//            .def("set_body_orientation_angle_functions",
-//                 py::overload_cast<
-//                 const std::function<double()>,
-//                 const std::function<double()>,
-//                 const std::function<double()>,
-//                 const std::function<void(const double)>,
-//                 const bool>(
-//                     &trf::AerodynamicAngleCalculator::setOrientationAngleFunctions),
-//                 py::arg("angle_of_attack_function") = std::function<double()>(),       // <pybind11/functional.h>
-//                 py::arg("angle_of_sideslip_function") = std::function<double()>(),     // <pybind11/functional.h>
-//                 py::arg("bank_angle_function") = std::function<double()>(),            // <pybind11/functional.h>
-//                 py::arg("angle_update_function") = std::function<void(
-//                const double)>(),
-//                 py::arg("silence_warnings")=false)
-//            .def("set_body_orientation_angles",
-//                 py::overload_cast<
-//                 const double,
-//                 const double,
-//                 const double,
-//                 const bool>(&trf::AerodynamicAngleCalculator::setOrientationAngleFunctions),
-//                 py::arg("angle_of_attack") = TUDAT_NAN,
-//                 py::arg("angle_of_sideslip") = TUDAT_NAN,
-//                 py::arg("bank_angle") = TUDAT_NAN,
-//                 py::arg("silence_warnings")=false)
             .def("get_rotation_matrix_between_frames",
                  &trf::AerodynamicAngleCalculator::getRotationMatrixBetweenFrames,
                  py::arg("original_frame"),
                  py::arg("target_frame"))
             .def("get_angle",
                  &trf::AerodynamicAngleCalculator::getAerodynamicAngle,
-                 py::arg("angle_type"));
+                 py::arg("angle_type"))
+            // Function removed; error is shown
+            .def("set_body_orientation_angles",
+                 &trf::AerodynamicAngleCalculator::setOrientationAngleFunctionsRemoved2,
+                 py::arg("angle_of_attack") = TUDAT_NAN,
+                 py::arg("angle_of_sideslip") = TUDAT_NAN,
+                 py::arg("bank_angle") = TUDAT_NAN,
+                 py::arg("silence_warnings")=false)
+            // Function removed; error is shown
+            .def("set_body_orientation_angle_functions",
+                 &trf::AerodynamicAngleCalculator::setOrientationAngleFunctionsRemoved1,
+                 py::arg("angle_of_attack_function") = std::function<double()>(),       // <pybind11/functional.h>
+                 py::arg("angle_of_sideslip_function") = std::function<double()>(),     // <pybind11/functional.h>
+                 py::arg("bank_angle_function") = std::function<double()>(),            // <pybind11/functional.h>
+                 py::arg("angle_update_function") = std::function<void(
+                const double)>(),
+                 py::arg("silence_warnings")=false);
+
 
 
     py::class_<ta::FlightConditions,
