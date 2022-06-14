@@ -48,7 +48,6 @@ YACMA_PYTHON_MODULE(kernel
 
         # kernel/utils
         kernel/expose_utils.cpp
-        kernel/deprecationWarnings.cpp
         kernel/expose_utils/expose_data.cpp
 
 

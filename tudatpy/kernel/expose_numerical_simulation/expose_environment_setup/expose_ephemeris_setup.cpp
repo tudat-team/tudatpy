@@ -9,7 +9,7 @@
  */
 
 #include "expose_ephemeris_setup.h"
-#include "kernel/deprecationWarnings.h"
+#include <tudat/basics/deprecationWarnings.h>
 
 #include "tudatpy/docstrings.h"
 #include <tudat/simulation/environment_setup.h>
@@ -42,7 +42,7 @@ inline std::shared_ptr< EphemerisSettings > customEphemerisSettingsDeprecated(
     static bool isWarningPrinted = false;
     if( isWarningPrinted == false )
     {
-        tudatpy::printDeprecationWarning( "tudatpy.numerical_simulation.environment_setup.ephemeris.custom",
+        tudat::utilities::printDeprecationWarning( "tudatpy.numerical_simulation.environment_setup.ephemeris.custom",
                              "tudatpy.numerical_simulation.environment_setup.ephemeris.custom_ephemeris");
         isWarningPrinted = true;
     }

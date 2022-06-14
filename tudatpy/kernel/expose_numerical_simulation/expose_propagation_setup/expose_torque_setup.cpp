@@ -9,7 +9,7 @@
  */
 
 #include "expose_torque_setup.h"
-#include "kernel/deprecationWarnings.h"
+#include <tudat/basics/deprecationWarnings.h>
 
 #include "tudatpy/docstrings.h"
 #include <tudat/simulation/propagation_setup.h>
@@ -42,7 +42,7 @@ inline std::shared_ptr< TorqueSettings > customTorqueSettingsDeprecated(
     static bool isWarningPrinted = false;
     if( isWarningPrinted == false )
     {
-        tudatpy::printDeprecationWarning( "tudatpy.numerical_simulation.propagation_setup.acceleration.custom",
+        tudat::utilities::printDeprecationWarning( "tudatpy.numerical_simulation.propagation_setup.acceleration.custom",
                              "tudatpy.numerical_simulation.propagation_setup.acceleration.custom_torque");
         isWarningPrinted = true;
     }
