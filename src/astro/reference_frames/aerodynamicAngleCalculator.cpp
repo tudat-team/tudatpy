@@ -22,6 +22,7 @@ using namespace boost::placeholders;
 #include "tudat/math/basic/coordinateConversions.h"
 #include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/math/basic/rotationRepresentations.h"
+#include "tudat/basics/deprecationWarnings.h"
 
 namespace tudat
 {
@@ -386,56 +387,30 @@ double AerodynamicAngleCalculator::getAerodynamicAngle(
     return currentAerodynamicAngles_.at( angleId );
 }
 
-////! Function to set the trajectory<->body-fixed orientation angles.
-//void AerodynamicAngleCalculator::setOrientationAngleFunctions(
-//        const std::function< double( ) > angleOfAttackFunction,
-//        const std::function< double( ) > angleOfSideslipFunction,
-//        const std::function< double( ) > bankAngleFunction,
-//        const bool silenceWarnings )
-//{
-//    if( !( angleOfAttackFunction == nullptr ) )
-//    {
-//        if( !( angleOfAttackFunction_ == nullptr ) && !silenceWarnings )
-//        {
-//            std::cerr << "Warning, overriding existing angle of attack function in AerodynamicAngleCalculator" << std::endl;
-//        }
-//        angleOfAttackFunction_ = angleOfAttackFunction;
-//    }
-
-//    if( !( angleOfSideslipFunction == nullptr ) )
-//    {
-//        if( !( angleOfSideslipFunction_ == nullptr ) && !silenceWarnings  )
-//        {
-//            std::cerr << "Warning, overriding existing angle of sideslip function in AerodynamicAngleCalculator" << std::endl;
-//        }
-//        angleOfSideslipFunction_ = angleOfSideslipFunction;
-//    }
-
-//    if( !( bankAngleFunction == nullptr ) )
-//    {
-//        if( !( bankAngleFunction_ == nullptr ) && !silenceWarnings  )
-//        {
-//            std::cerr << "Warning, overriding existing bank angle function in AerodynamicAngleCalculator" << std::endl;
-//        }
-//        bankAngleFunction_ = bankAngleFunction;
-//    }
-//}
+//! Function to set the trajectory<->body-fixed orientation angles.
+void AerodynamicAngleCalculator::setOrientationAngleFunctionsRemoved1(
+        const std::function< double( ) > angleOfAttackFunction,
+        const std::function< double( ) > angleOfSideslipFunction,
+        const std::function< double( ) > bankAngleFunction,
+        const std::function< void( const double ) > updateFunction,
+        const bool silenceWarnings )
+{
+    utilities::printDeprecationError(
+                "tudatpy.numerical_simulation.environment.AerodynamicAngleCalculator.set_body_orientation_angle_functions",
+                "https://docs.tudat.space/en/stable/_src_user_guide/state_propagation/environment_setup/thrust_refactor/thrust_refactor.html#aerodynamic-guidance" );
+}
 
 ////! Function to set constant trajectory<->body-fixed orientation angles.
-//void AerodynamicAngleCalculator::setOrientationAngleFunctions(
-//        const double angleOfAttack,
-//        const double angleOfSideslip,
-//        const double bankAngle,
-//        const bool silenceWarnings )
-//{
-//    std::function< double( ) > angleOfAttackFunction =
-//            ( ( angleOfAttack == angleOfAttack ) ? [ = ]( ){ return angleOfAttack; } : std::function< double( ) >( ) );
-//    std::function< double( ) > angleOfSideslipFunction =
-//            ( ( angleOfSideslip == angleOfSideslip ) ? [ = ]( ){ return angleOfSideslip; } : std::function< double( ) >( ) );
-//    std::function< double( ) > bankAngleFunction =
-//            ( ( bankAngle == bankAngle ) ? [ = ]( ){ return bankAngle; }: std::function< double( ) >( ) );
-//    setOrientationAngleFunctions( angleOfAttackFunction, angleOfSideslipFunction, bankAngleFunction, silenceWarnings );
-//}
+void AerodynamicAngleCalculator::setOrientationAngleFunctionsRemoved2(
+        const double angleOfAttack,
+        const double angleOfSideslip,
+        const double bankAngle,
+        const bool silenceWarnings )
+{
+    utilities::printDeprecationError(
+                "tudatpy.numerical_simulation.environment.AerodynamicAngleCalculator.set_body_orientation_angle_functions",
+                "https://docs.tudat.space/en/stable/_src_user_guide/state_propagation/environment_setup/thrust_refactor/thrust_refactor.html#aerodynamic-guidance" );
+}
 
 //! Get a function to transform aerodynamic force from local to propagation frame.
 std::function< Eigen::Vector3d( const Eigen::Vector3d& ) >

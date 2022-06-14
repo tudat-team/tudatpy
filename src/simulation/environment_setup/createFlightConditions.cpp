@@ -23,6 +23,7 @@ using namespace boost::placeholders;
 #include "tudat/astro/aerodynamics/aerodynamicCoefficientInterface.h"
 #include "tudat/astro/aerodynamics/customAerodynamicCoefficientInterface.h"
 #include "tudat/simulation/environment_setup/createFlightConditions.h"
+#include "tudat/basics/deprecationWarnings.h"
 
 namespace tudat
 {
@@ -232,77 +233,49 @@ void addAtmosphericFlightConditions(
 }
 
 
-////! Function that must be called to link the AerodynamicGuidance object to the simulation
-//void setGuidanceAnglesFunctions(
-//        const std::shared_ptr< aerodynamics::AerodynamicGuidance > aerodynamicGuidance,
-//        const std::shared_ptr< reference_frames::AerodynamicAngleCalculator > angleCalculator,
-//        const bool silenceWarnings  )
-//{
-//    angleCalculator->setOrientationAngleFunctions(
-//                std::bind( &aerodynamics::AerodynamicGuidance::getCurrentAngleOfAttack, aerodynamicGuidance ),
-//                std::bind( &aerodynamics::AerodynamicGuidance::getCurrentAngleOfSideslip, aerodynamicGuidance ),
-//                std::bind( &aerodynamics::AerodynamicGuidance::getCurrentBankAngle, aerodynamicGuidance ),
-//                std::bind( &aerodynamics::AerodynamicGuidance::updateGuidance, aerodynamicGuidance, std::placeholders::_1 ),
-//                silenceWarnings );
-//}
+void setGuidanceAnglesFunctions(
+        const std::shared_ptr< aerodynamics::AerodynamicGuidance > aerodynamicGuidance,
+        const std::shared_ptr< reference_frames::AerodynamicAngleCalculator > angleCalculator,
+        const bool silenceWarnings  )
+{
+    utilities::printDeprecationError(
+                "tudatpy.numerical_simulation.environment_setup.set_aerodynamic_guidance",
+                "https://docs.tudat.space/en/stable/_src_user_guide/state_propagation/environment_setup/thrust_refactor/thrust_refactor.html#aerodynamic-guidance" );
+}
 
-////! Function that must be called to link the AerodynamicGuidance object to the simulation
-//void setGuidanceAnglesFunctions(
-//        const std::shared_ptr< aerodynamics::AerodynamicGuidance > aerodynamicGuidance,
-//        const std::shared_ptr< simulation_setup::Body > bodyWithAngles,
-//        const bool silenceWarnings )
-//{
-//    std::shared_ptr< reference_frames::DependentOrientationCalculator >  orientationCalculator =
-//            bodyWithAngles->getDependentOrientationCalculator( );
-//    std::shared_ptr< reference_frames::AerodynamicAngleCalculator > angleCalculator =
-//            std::dynamic_pointer_cast< reference_frames::AerodynamicAngleCalculator >( orientationCalculator );
+void setGuidanceAnglesFunctions(
+        const std::shared_ptr< aerodynamics::AerodynamicGuidance > aerodynamicGuidance,
+        const std::shared_ptr< simulation_setup::Body > bodyWithAngles,
+        const bool silenceWarnings )
+{
+    utilities::printDeprecationError(
+                "tudatpy.numerical_simulation.environment_setup.set_aerodynamic_guidance",
+                "https://docs.tudat.space/en/stable/_src_user_guide/state_propagation/environment_setup/thrust_refactor/thrust_refactor.html#aerodynamic-guidance" );
+}
 
-//    if( angleCalculator == nullptr )
-//    {
-//        throw std::runtime_error( "Error, body does not have AerodynamicAngleCalculator when setting aerodynamic guidance" );
-//    }
-//    else
-//    {
-//        setGuidanceAnglesFunctions( aerodynamicGuidance, angleCalculator, silenceWarnings );
-//    }
-//}
+void setAerodynamicOrientationFunctions(
+        const std::shared_ptr< simulation_setup::Body > body,
+        const std::function< double( ) > angleOfAttackFunction,
+        const std::function< double( ) > angleOfSideslipFunction,
+        const std::function< double( ) > bankAngleFunction,
+        const std::function<void(const double)> updateFunction )
+{
+    utilities::printDeprecationError(
+                "tudatpy.numerical_simulation.environment_setup.set_aerodynamic_orientation_functions",
+                "https://docs.tudat.space/en/stable/_src_user_guide/state_propagation/environment_setup/thrust_refactor/thrust_refactor.html#aerodynamic-guidance" );
+}
 
-//void setAerodynamicOrientationFunctions(
-//        const std::shared_ptr< simulation_setup::Body > body,
-//        const std::function< double( ) > angleOfAttackFunction,
-//        const std::function< double( ) > angleOfSideslipFunction,
-//        const std::function< double( ) > bankAngleFunction )
-//{
-//    if( body->getFlightConditions( ) == nullptr )
-//    {
-//        throw std::runtime_error( "Error when setting aerodynamic angle functions, body " + body->getBodyName( ) + " has no FlightConditions." +
-//                                  " You can use the addFlightConditions (C++) or add_flight_conditions (Python) function to endow your body with one. " );
-//    }
-
-//    std::shared_ptr< aerodynamics::FlightConditions > vehicleFlightConditions =
-//            body->getFlightConditions( );
-//    vehicleFlightConditions->getAerodynamicAngleCalculator( )->setOrientationAngleFunctions(
-//                angleOfAttackFunction, angleOfSideslipFunction, bankAngleFunction );
-//}
-
-//void setConstantAerodynamicOrientation(
-//        const std::shared_ptr< simulation_setup::Body > body,
-//        const double angleOfAttack,
-//        const double sideslipAngle,
-//        const double bankAngle,
-//        const bool silenceWarnings )
-//{
-//    if( body->getFlightConditions( ) == nullptr )
-//    {
-//        throw std::runtime_error( "Error when setting constant aerodynamic angles, body " + body->getBodyName( ) + " has no FlightConditions" +
-//                                  " You can use the addFlightConditions (C++) or add_flight_conditions (Python) function to endow your body with one. " );
-//    }
-
-//    std::shared_ptr< aerodynamics::FlightConditions > vehicleFlightConditions =
-//            body->getFlightConditions( );
-//    vehicleFlightConditions->getAerodynamicAngleCalculator( )->setOrientationAngleFunctions(
-//                angleOfAttack, sideslipAngle, bankAngle, silenceWarnings );
-//}
+void setConstantAerodynamicOrientation(
+        const std::shared_ptr< simulation_setup::Body > body,
+        const double angleOfAttack,
+        const double sideslipAngle,
+        const double bankAngle,
+        const bool silenceWarnings )
+{
+    utilities::printDeprecationError(
+                "tudatpy.numerical_simulation.environment_setup.set_constant_aerodynamic_orientation",
+                "https://docs.tudat.space/en/stable/_src_user_guide/state_propagation/environment_setup/thrust_refactor/thrust_refactor.html#aerodynamic-guidance" );
+}
 
 } // namespace simulation_setup
 

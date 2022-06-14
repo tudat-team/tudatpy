@@ -224,11 +224,12 @@ public:
 //     * \param bankAngleFunction Function to return the bank angle.
 //     * \param angleUpdateFunction Function to update the angles to the current time.
 //     */
-//    void setOrientationAngleFunctions(
-//            const std::function< double( ) > angleOfAttackFunction = std::function< double( ) >( ),
-//            const std::function< double( ) > angleOfSideslipFunction = std::function< double( ) >( ),
-//            const std::function< double( ) > bankAngleFunction =  std::function< double( ) >( ),
-//            const bool silenceWarnings = false );
+    void setOrientationAngleFunctionsRemoved1(
+            const std::function< double( ) > angleOfAttackFunction = std::function< double( ) >( ),
+            const std::function< double( ) > angleOfSideslipFunction = std::function< double( ) >( ),
+            const std::function< double( ) > bankAngleFunction =  std::function< double( ) >( ),
+            const std::function< void( const double ) > updateFunction = std::function< void( const double ) >( ),
+            const bool silenceWarnings = false );
 
 //    //! Function to set constant trajectory<->body-fixed orientation angles.
 //    /*!
@@ -237,11 +238,11 @@ public:
 //     * \param angleOfSideslip Constant angle of sideslip (default NaN, used if no angle is to be defined).
 //     * \param bankAngle Constant bank angle (default NaN, used if no angle is to be defined).
 //     */
-//    void setOrientationAngleFunctions(
-//            const double angleOfAttack = TUDAT_NAN,
-//            const double angleOfSideslip = TUDAT_NAN,
-//            const double bankAngle = TUDAT_NAN,
-//            const bool silenceWarnings = false );
+    void setOrientationAngleFunctionsRemoved2(
+            const double angleOfAttack = TUDAT_NAN,
+            const double angleOfSideslip = TUDAT_NAN,
+            const double bankAngle = TUDAT_NAN,
+            const bool silenceWarnings = false );
 
     //! Function to get the function returning the quaternion that rotates from the corotating to the inertial frame.
     /*!

@@ -11,6 +11,7 @@
 #define TUDAT_ENTRYGUIDANCE_H
 
 #include "tudat/astro/reference_frames/aerodynamicAngleCalculator.h"
+#include "tudat/basics/deprecationWarnings.h"
 
 namespace tudat
 {
@@ -18,68 +19,34 @@ namespace tudat
 namespace aerodynamics
 {
 
-////! Base class in which the aerodynamic angles (angle of attack, sideslip and bank angle) are computed. A derived class
-////! implementing a specific guidance law is to be implemented by the user.
-//class AerodynamicGuidance
-//{
-//public:
 
-//    //! Constructor.
-//    AerodynamicGuidance( ):
-//        currentAngleOfAttack_( TUDAT_NAN ), currentAngleOfSideslip_( TUDAT_NAN ), currentBankAngle_( TUDAT_NAN ){ }
+class AerodynamicGuidance
+{
+public:
 
-//    //! Destructor
-//    virtual ~AerodynamicGuidance( ){ }
+    //! Constructor.
+    AerodynamicGuidance( )
+    {
+        utilities::printDeprecationError(
+                    "tudatpy.numerical_simulation.propagation.AerodynamicGuidance",
+                    "https://docs.tudat.space/en/stable/_src_user_guide/state_propagation/environment_setup/thrust_refactor/thrust_refactor.html#aerodynamic-guidance" );
 
-//    //! Pure virtual function to update the guidance to the current time and state
-//    /*!
-//     *  Pure virtual function to update the guidance to the current time and state
-//     *  \param currentTime Time to which the guidance object is to be updated.
-//     */
-//    virtual void updateGuidance( const double currentTime ) = 0;
+    }
 
-//    //! Function to retrieve the current angle of attack, as set by last call to updateGuidance function
-//    /*!
-//     * Function to retrieve the current angle of attack, as set by last call to updateGuidance function
-//     * \return Current angle of attack, as set by last call to updateGuidance function
-//     */
-//    double getCurrentAngleOfAttack( )
-//    {
-//        return currentAngleOfAttack_;
-//    }
+    virtual ~AerodynamicGuidance( ){ }
 
-//    //! Function to retrieve the current angle of sideslip, as set by last call to updateGuidance function
-//    /*!
-//     * Function to retrieve the current angle of sideslip, as set by last call to updateGuidance function
-//     * \return Current angle of sideslip, as set by last call to updateGuidance function
-//     */
-//    double getCurrentAngleOfSideslip( )
-//    {
-//        return currentAngleOfSideslip_;
-//    }
+    virtual void updateGuidance( const double currentTime ) = 0;
 
-//    //! Function to retrieve the current bank angle, as set by last call to updateGuidance function
-//    /*!
-//     * Function to retrieve the current bank angle, as set by last call to updateGuidance function
-//     * \return Current bank angle, as set by last call to updateGuidance function
-//     */
-//    double getCurrentBankAngle( )
-//    {
-//        return currentBankAngle_;
-//    }
 
-//protected:
+protected:
 
-//    //! Current angle of attack, as set by last call to updateGuidance function
-//    double currentAngleOfAttack_;
+    double currentAngleOfAttack_;
 
-//    //! Current angle of sideslip, as set by last call to updateGuidance function
-//    double currentAngleOfSideslip_;
+    double currentAngleOfSideslip_;
 
-//    //! Current bank angle, as set by last call to updateGuidance function
-//    double currentBankAngle_;
+    double currentBankAngle_;
 
-//};
+};
 
 } // namespace aerodynamics
 
