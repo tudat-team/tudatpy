@@ -9,6 +9,7 @@
  */
 
 #include "expose_acceleration_setup.h"
+#include "kernel/expose_numerical_simulation/deprecation_support.h"
 
 #include "tudatpy/docstrings.h"
 #include <tudat/simulation/propagation_setup.h>
@@ -48,7 +49,7 @@ void expose_thrust_setup(py::module &m) {
     py::class_<
             tss::ThrustMagnitudeSettings,
             std::shared_ptr<tss::ThrustMagnitudeSettings>>(m, "ThrustMagnitudeSettings",
-                                                           get_docstring("ThrustMagnitudeSettings").c_str());
+                                                           get_docstring("ThrustMagnitudeSettings").c_str())
             .def_readonly("thrust_magnitude_type", &tss::ThrustMagnitudeSettings::thrustMagnitudeType_)
             .def_readonly("thrust_origin_id", &tss::ThrustMagnitudeSettings::thrustOriginId_);
 
@@ -65,8 +66,6 @@ void expose_thrust_setup(py::module &m) {
             std::shared_ptr<tss::CustomThrustMagnitudeSettings>,
             tss::ThrustMagnitudeSettings>(m, "CustomThrustMagnitudeSettings",
                                           get_docstring("CustomThrustMagnitudeSettings").c_str());
-                 py::arg("thrust_magnitude_function"),
-                 py::arg("specific_impulse_function") );
 
     m.def("get_propulsion_input_variables",
           &tss::getPropulsionInputVariables,
