@@ -20,6 +20,7 @@
 #include "tudat/astro/gravitation/thirdBodyPerturbation.h"
 #include "tudat/astro/aerodynamics/aerodynamicAcceleration.h"
 #include "tudat/astro/basic_astro/accelerationModelTypes.h"
+#include "tudat/basics/deprecationWarnings.h"
 // #include "tudat/math/interpolators/createInterpolator.h"
 
 namespace tudat
@@ -450,7 +451,15 @@ public:
 
     std::vector< std::string > engineIds_;
 
-    bool useAllEngines_;
+    bool useAllEngines_;    
+
+    template< typename ReturnType >
+    ReturnType printDeprecationError( )
+    {
+        utilities::printDeprecationError(
+                    "tudatpy.numerical_simulation.propagation_setup.acceleration.direction_settings/magnitude_settings",
+                    "https://docs.tudat.space/en/stable/_src_user_guide/state_propagation/environment_setup/thrust_refactor/thrust_refactor.html#thrust-acceleration" );
+    }
 
 };
 
