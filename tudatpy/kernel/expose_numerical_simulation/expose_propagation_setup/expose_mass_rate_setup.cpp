@@ -9,7 +9,7 @@
  */
 
 #include "expose_mass_rate_setup.h"
-#include "kernel/deprecationWarnings.h"
+#include <tudat/basics/deprecationWarnings.h>
 
 #include "tudatpy/docstrings.h"
 #include <tudat/simulation/propagation_setup.h>
@@ -44,7 +44,7 @@ inline std::shared_ptr< MassRateModelSettings > customMassRateDeprecated(
     static bool isWarningPrinted = false;
     if( isWarningPrinted == false )
     {
-        tudatpy::printDeprecationWarning( "tudatpy.numerical_simulation.propagation_setup.mass_rate.custom",
+        tudat::utilities::printDeprecationWarning( "tudatpy.numerical_simulation.propagation_setup.mass_rate.custom",
                              "tudatpy.numerical_simulation.propagation_setup.mass_rate.custom_mass_rate");
         isWarningPrinted = true;
     }

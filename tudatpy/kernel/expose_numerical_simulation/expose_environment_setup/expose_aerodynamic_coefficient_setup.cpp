@@ -9,7 +9,7 @@
  */
 
 #include "expose_aerodynamic_coefficient_setup.h"
-#include "kernel/deprecationWarnings.h"
+#include <tudat/basics/deprecationWarnings.h>
 
 #include "tudatpy/docstrings.h"
 #include <tudat/simulation/environment_setup.h>
@@ -44,7 +44,7 @@ inline std::shared_ptr< AerodynamicCoefficientSettings > customAerodynamicCoeffi
     static bool isWarningPrinted = false;
     if( isWarningPrinted == false )
     {
-        tudatpy::printDeprecationWarning( "tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.custom",
+        tudat::utilities::printDeprecationWarning( "tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.custom",
                              "tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.custom_aerodynamic_force_coefficients");
         isWarningPrinted = true;
     }
