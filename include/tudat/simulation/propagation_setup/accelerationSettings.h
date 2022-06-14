@@ -459,6 +459,7 @@ public:
         utilities::printDeprecationError(
                     "tudatpy.numerical_simulation.propagation_setup.acceleration.direction_settings/magnitude_settings",
                     "https://docs.tudat.space/en/stable/_src_user_guide/state_propagation/environment_setup/thrust_refactor/thrust_refactor.html#thrust-acceleration" );
+        return nullptr;
     }
 
 };
@@ -489,28 +490,6 @@ inline std::shared_ptr< AccelerationSettings > thrustAccelerationFromAllEngines(
     return std::make_shared< ThrustAccelerationSettings >( );
 }
 
-
-////! @get_docstring(thrustAcceleration, 2)
-//inline std::shared_ptr< AccelerationSettings > thrustAcceleration(
-//        const std::function< Eigen::Vector3d( const double ) > thrustForceFunction,
-//        const std::function< double( const double ) > specificImpulseFunction,
-//        const ThrustFrames thrustFrame = unspecified_thrust_frame,
-//		const std::string centralBody = "" )
-//{
-//    return std::make_shared< ThrustAccelerationSettings >( thrustForceFunction, specificImpulseFunction,
-//														thrustFrame, centralBody );
-//}
-
-////! @get_docstring(thrustAcceleration, 3)
-//inline std::shared_ptr< AccelerationSettings > thrustAcceleration(
-//        const std::function< Eigen::Vector3d( const double ) > thrustForceFunction,
-//        const double constantSpecificImpulse,
-//        const ThrustFrames thrustFrame = unspecified_thrust_frame,
-//		const std::string centralBody = "" )
-//{
-//    return std::make_shared< ThrustAccelerationSettings >( thrustForceFunction, constantSpecificImpulse,
-//														   thrustFrame, centralBody );
-//}
 
 //// TODO: not exposed
 //// Retrieve acceleration model (thrust).
