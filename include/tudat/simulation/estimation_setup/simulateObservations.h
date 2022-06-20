@@ -119,6 +119,7 @@ simulateObservationsWithCheck(
 
     for( unsigned int i = 0; i < observationTimes.size( ); i++ )
     {
+        std::cout << "observationTimes: " << observationTimes.at( i ) << "\n\n";
         simulatedObservation = simulateObservationWithCheck< ObservationSize, ObservationScalarType, TimeType >(
                     observationTimes.at( i ), observationModel, referenceLinkEnd, linkViabilityCalculators, noiseFunction, dependentVariableCalculator );
 

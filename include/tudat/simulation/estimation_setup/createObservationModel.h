@@ -26,6 +26,7 @@
 #include "tudat/astro/observation_models/twoWayDopplerObservationModel.h"
 #include "tudat/astro/observation_models/oneWayDifferencedRangeRateObservationModel.h"
 #include "tudat/astro/observation_models/angularPositionObservationModel.h"
+#include "tudat/astro/observation_models/relativeAngularPositionObservationModel.h"
 #include "tudat/astro/observation_models/positionObservationModel.h"
 #include "tudat/astro/observation_models/eulerAngleObservationModel.h"
 #include "tudat/astro/observation_models/velocityObservationModel.h"
@@ -587,6 +588,16 @@ inline std::shared_ptr< ObservationModelSettings > angularPositionSettings(
     return std::make_shared< ObservationModelSettings >(
                 angular_position, linkEnds, lightTimeCorrectionsList, biasSettings );
 }
+
+    inline std::shared_ptr< ObservationModelSettings > relativeAngularPositionSettings(
+            const LinkEnds& linkEnds,
+            const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =
+            std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
+            const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr)
+    {
+        return std::make_shared< ObservationModelSettings >(
+                relative_angular_position, linkEnds, lightTimeCorrectionsList, biasSettings );
+    }
 
 inline std::shared_ptr< ObservationModelSettings > positionObservableSettings(
         const LinkDefinition& linkEnds,
@@ -1430,6 +1441,48 @@ public:
                             linkEnds.at( transmitter ), linkEnds.at( receiver ),
                             bodies, observationSettings->lightTimeCorrectionsList_ ),
                         observationBias );
+
+            break;
+        }
+        case relative_angular_position:
+        {
+            // Check consistency input.
+            if( linkEnds.size( ) != 3 )
+            {
+                std::string errorMessage =
+                        "Error when making angular position model, " +
+                        std::to_string( linkEnds.size( ) ) + " link ends found";
+                throw std::runtime_error( errorMessage );
+            }
+            if( linkEnds.count( receiver ) == 0 )
+            {
+                throw std::runtime_error( "Error when making angular position model, no receiver found" );
+            }
+            if( linkEnds.count( transmitter ) == 0 )
+            {
+                throw std::runtime_error( "Error when making angular position model, no transmitter found" );
+            }
+            if( linkEnds.count( transmitter2 ) == 0 )
+            {
+                throw std::runtime_error( "Error when making angular position model, no second transmitter found" );
+            }
+
+
+            std::shared_ptr< ObservationBias< 2 > > observationBias;
+            if( observationSettings->biasSettings_ != nullptr )
+            {
+                observationBias =
+                        createObservationBiasCalculator< 2 >(
+                                linkEnds, observationSettings->observableType_, observationSettings->biasSettings_,bodies );
+            }
+
+            // Create observation model
+            observationModel = std::make_shared< RelativeAngularPositionObservationModel<
+                    ObservationScalarType, TimeType > >(
+                            linkEnds, createLightTimeCalculator< ObservationScalarType, TimeType >(
+                                    linkEnds.at( transmitter ), linkEnds.at( receiver ), bodies, observationSettings->lightTimeCorrectionsList_ ),
+                            createLightTimeCalculator< ObservationScalarType, TimeType >(
+                                    linkEnds.at( transmitter2 ), linkEnds.at( receiver ), bodies, observationSettings->lightTimeCorrectionsList_ ), observationBias );
 
             break;
         }

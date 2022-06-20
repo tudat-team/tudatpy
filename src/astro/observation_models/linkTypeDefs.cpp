@@ -45,6 +45,9 @@ std::string getLinkEndTypeString( const LinkEndType linkEndType )
     case observed_body:
         linkEndString = "observed body";
         break;
+    case transmitter2:
+        linkEndString = "transmitter_2";
+        break;
     default:
         std::string errorMessage = "Error when getting link end string for type " +
                 std::to_string( linkEndType ) + ", type not found.";

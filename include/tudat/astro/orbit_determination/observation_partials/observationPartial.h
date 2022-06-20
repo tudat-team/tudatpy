@@ -244,6 +244,10 @@ public:
             const Eigen::Matrix< double, ObservationSize, 1 >& currentObservation =
             Eigen::Matrix< double, ObservationSize, 1 >::Zero( ) )
     {
+        std::cout << "TEST CALCULATE PARTIALS W.R.T. ARC WISE CONSTANT BIAS" << "\n\n";
+        int currentIndex = arcLookupScheme_->findNearestLowerNeighbour( times.at( linkEndIndex_ ) );
+
+
         totalPartial_.setZero( );
         if( arcLookupScheme_->getMinimumValue( ) <= times.at( linkEndIndex_ ) )
         {
@@ -489,6 +493,9 @@ std::shared_ptr< ObservationPartial< ObservationSize > > createObservationPartia
         const std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameterToEstimate,
         const bool useBiasPartials = true )
 {
+    std::cout << "TEST createObservationPartialWrtLinkProperty" << "\n\n";
+    std::cout << "observableType: " << observableType << "\n\n";
+
     std::shared_ptr< ObservationPartial< ObservationSize > > observationPartial;
 
     // Check parameter type

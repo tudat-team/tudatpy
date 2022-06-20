@@ -622,8 +622,10 @@ public:
                       << dynamicsStateDerivative_->getNumberOfFunctionEvaluations( ) << std::endl;
         }
 
+        std::cout << "INTEGRATE EOMs FOR SINGLE-ARC" << "\n\n";
         if( this->setIntegratedResult_ )
         {
+            std::cout << "results integrated for single-arc" << "\n\n";
             processNumericalEquationsOfMotionSolution( );
         }
     }
@@ -813,8 +815,8 @@ public:
      * updating the environment
      * \return List of object (per dynamics type) that process the integrated numerical solution by updating the environment
      */
-    std::map< IntegratedStateType, std::vector< std::shared_ptr<
-    IntegratedStateProcessor< TimeType, StateScalarType > > > > getIntegratedStateProcessors( )
+    std::map< IntegratedStateType,
+    std::shared_ptr< SingleArcIntegratedStateProcessor< TimeType, StateScalarType > > > getIntegratedStateProcessors( )
     {
         return integratedStateProcessors_;
     }
@@ -906,6 +908,7 @@ public:
      */
     void processNumericalEquationsOfMotionSolution( )
     {
+        std::cout << "RESET SOLUTION" << "\n\n";
         try
         {
             // Create and set interpolators for ephemerides
@@ -953,8 +956,8 @@ public:
 protected:
 
     //! List of object (per dynamics type) that process the integrated numerical solution by updating the environment
-    std::map< IntegratedStateType, std::vector< std::shared_ptr<
-    IntegratedStateProcessor< TimeType, StateScalarType > > > > integratedStateProcessors_;
+    std::map< IntegratedStateType,
+            std::shared_ptr< SingleArcIntegratedStateProcessor< TimeType, StateScalarType > > > integratedStateProcessors_;
 
     //! Object responsible for updating the environment based on the current state and time.
     /*!
@@ -1545,10 +1548,35 @@ public:
     {
         try
         {
-            // Create and set interpolators for ephemerides
-            resetIntegratedMultiArcStatesWithEqualArcDynamics(
-                        equationsOfMotionNumericalSolution_,
-                        singleArcDynamicsSimulators_.at( 0 )->getIntegratedStateProcessors( ), arcStartTimes_ );
+            std::map< IntegratedStateType, std::vector< std::shared_ptr<
+                    SingleArcIntegratedStateProcessor< TimeType, StateScalarType > > > > singleArcIntegratedStatesProcessors;
+
+            for ( unsigned int i = 0 ; i < arcStartTimes_.size( ) ; i++ )
+            {
+                std::cout << "arc " << i << "\n\n";
+                std::map< IntegratedStateType, std::shared_ptr<
+                        SingleArcIntegratedStateProcessor< TimeType, StateScalarType > > > currentArcStateProcessors =
+                        singleArcDynamicsSimulators_.at( i )->getIntegratedStateProcessors( );
+
+                for ( auto itr : currentArcStateProcessors )
+                {
+                    singleArcIntegratedStatesProcessors[ itr.first ].push_back( itr.second );
+                    std::cout << "in processNumericalEquationsOfMotionSolution for multi-arc - arc " << i << "\n\n";
+                    std::vector< std::string > test = itr.second->bodiesToIntegrate_;
+                    for ( unsigned int k = 0 ; k < test.size( ) ; k++ )
+                    {
+                        std::cout << test[ k ] << "\n\n";
+                    }
+                }
+            }
+
+            std::map< IntegratedStateType,
+                    std::shared_ptr< MultiArcIntegratedStateProcessor< TimeType, StateScalarType > > > multiArcStateProcessors
+                    = createMultiArcIntegratedStateProcessors( bodies_, arcStartTimes_, singleArcIntegratedStatesProcessors );
+            for ( auto itr : multiArcStateProcessors )
+            {
+                itr.second->processIntegratedMultiArcStates( equationsOfMotionNumericalSolution_, arcStartTimes_ );
+            }
         }
         catch( const std::exception& caughtException )
         {
@@ -1556,8 +1584,6 @@ public:
             std::cerr << caughtException.what( ) << std::endl << std::endl;
             std::cerr << "The problem may be that there is an insufficient number of data points (epochs) at which propagation results are produced for one or more arcs"<< std::endl;
         }
-
-
 
         if( clearNumericalSolutions_ )
         {
@@ -1567,6 +1593,7 @@ public:
             }
             equationsOfMotionNumericalSolution_.clear( );
         }
+
     }
 
     std::vector< std::shared_ptr< PropagationTerminationDetails > > getPropagationTerminationReasons( )

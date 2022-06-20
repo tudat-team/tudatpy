@@ -403,6 +403,11 @@ std::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > cre
                     observableType, observationModelSettingsList, bodies, parametersToEstimate,
                     stateTransitionMatrixInterface );
         break;
+    case relative_angular_position:
+        observationManager = createObservationManager< 2, ObservationScalarType, TimeType >(
+                observableType, observationModelSettingsList, bodies, parametersToEstimate,
+                        stateTransitionMatrixInterface );
+        break;
     default:
         throw std::runtime_error(
                     "Error when making observation manager, could not identify observable type " +

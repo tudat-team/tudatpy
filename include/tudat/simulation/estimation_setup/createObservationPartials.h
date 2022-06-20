@@ -18,6 +18,7 @@
 #include "tudat/astro/observation_models/angularPositionObservationModel.h"
 
 #include "tudat/simulation/estimation_setup/createAngularPositionPartials.h"
+#include "tudat/simulation/estimation_setup/createRelativeAngularPositionPartials.h"
 #include "tudat/simulation/estimation_setup/createOneWayRangePartials.h"
 #include "tudat/simulation/estimation_setup/createDopplerPartials.h"
 #include "tudat/simulation/estimation_setup/createDifferencedOneWayRangeRatePartials.h"
@@ -158,6 +159,17 @@ PerLinkEndPerLightTimeSolutionCorrections getLightTimeCorrectionsList(
             {
                 break;
             }
+            case observation_models::relative_angular_position:
+            {
+                std::shared_ptr< observation_models::RelativeAngularPositionObservationModel< ObservationScalarType, TimeType> > relativeAngularPositionModel =
+                        std::dynamic_pointer_cast< observation_models::RelativeAngularPositionObservationModel
+                                < ObservationScalarType, TimeType> >( observationModelIterator->second );
+                currentLightTimeCorrections.push_back(
+                        relativeAngularPositionModel->getLightTimeCalculatorFirstTransmitter( )->getLightTimeCorrection( ) );
+                currentLightTimeCorrections.push_back(
+                        relativeAngularPositionModel->getLightTimeCalculatorSecondTransmitter( )->getLightTimeCorrection( ) );
+                break;
+            }
             default:
                 std::string errorMessage =
                         "Error in light time correction list creation, observable type " +
@@ -170,7 +182,7 @@ PerLinkEndPerLightTimeSolutionCorrections getLightTimeCorrectionsList(
                 currentLightTimeCorrections.push_back( singleObservableCorrectionList );
             }
 
-            // Add light-time correctionsfor current link ends.
+            // Add light-time corrections for current link ends.
             if( currentLightTimeCorrections.size( ) > 0 )
             {
                 lightTimeCorrectionsList[ observationModelIterator->first ] = currentLightTimeCorrections;
@@ -363,6 +375,11 @@ public:
             observationPartialList = createAngularPositionPartials< ObservationScalarType >(
                         utilities::createVectorFromMapKeys( observationModelList ), bodies, parametersToEstimate,
                         getLightTimeCorrectionsList( observationModelList ) );
+            break;
+        case observation_models::relative_angular_position:
+            observationPartialList = createRelativeAngularPositionPartials< ObservationScalarType >(
+                    utilities::createVectorFromMapKeys( observationModelList ), bodies, parametersToEstimate,
+                    getLightTimeCorrectionsList( observationModelList ) );
             break;
         default:
             std::string errorMessage =

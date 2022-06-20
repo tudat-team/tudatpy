@@ -69,6 +69,9 @@ bool isObservableOfIntegratedType( const ObservableType observableType )
     case velocity_observable:
         isIntegratedType = false;
         break;
+    case relative_angular_position:
+        isIntegratedType = false;
+        break;
     default:
         throw std::runtime_error( "Error when determining if observable type is integrated; observable " +
                                   getObservableName( observableType ) + " not found" );
@@ -106,6 +109,9 @@ bool areObservableLinksContinuous( const ObservableType observableType )
         isTypeContinuous = true;
         break;
     case velocity_observable:
+        isTypeContinuous = true;
+        break;
+    case relative_angular_position:
         isTypeContinuous = true;
         break;
     default:
@@ -177,6 +183,9 @@ std::string getObservableName( const ObservableType observableType, const int nu
     case euler_angle_313_observable:
         observableName = "EulerAngle313";
         break;
+    case relative_angular_position:
+        observableName = "RelativeAngularPosition";
+        break;
     default:
         std::string errorMessage =
                 "Error, could not find observable type " + std::to_string( observableType ) +
@@ -224,6 +233,10 @@ ObservableType getObservableType( const std::string& observableName )
     {
         observableType = euler_angle_313_observable;
     }
+    else if( observableName == "RelativeAngularPosition" )
+    {
+        observableType = relative_angular_position;
+    }
     else
     {
         std::string errorMessage =
@@ -267,6 +280,9 @@ int getObservableSize( const ObservableType observableType )
         break;
     case euler_angle_313_observable:
         observableSize = 3;
+        break;
+    case relative_angular_position:
+        observableSize = 2;
         break;
     default:
        std::string errorMessage = "Error, did not recognize observable " + std::to_string( observableType )
@@ -436,7 +452,26 @@ std::vector< int > getLinkEndIndicesForLinkEndTypeAtObservable(
             linkEndIndices.push_back( 2 * linkEndIndex );
         }
         break;
-
+    case relative_angular_position:
+        switch( linkEndType )
+        {
+            case transmitter:
+                linkEndIndices.push_back( 0 );
+                break;
+            case transmitter2:
+                linkEndIndices.push_back( 1 );
+                break;
+            case receiver:
+                linkEndIndices.push_back( 2 );
+                break;
+            default:
+                std::string errorMessage =
+                        "Error, could not find link end type index for link end " +
+                        std::to_string( linkEndType ) + " of observable " +
+                        std::to_string( observableType );
+                throw std::runtime_error( errorMessage );
+        }
+        break;
     default:
         std::string errorMessage =
                 "Error, could not find link end type index for link end types of observable " +
@@ -480,6 +515,9 @@ LinkEndType getDefaultReferenceLinkEndType(
         break;
     case euler_angle_313_observable:
         referenceLinkEndType = observed_body;
+        break;
+    case relative_angular_position:
+        referenceLinkEndType = receiver;
         break;
     default:
         throw std::runtime_error( "Error, default reference link end not defined for observable " +
@@ -525,6 +563,9 @@ int getNumberOfLinksInObservable(
     case euler_angle_313_observable:
         numberOfLinks = 0;
         break;
+    case relative_angular_position:
+        numberOfLinks = 3;
+        break;
     default:
         throw std::runtime_error( "Error, number of links not defined for observable " +
                                   std::to_string( observableType ) );
@@ -551,7 +592,7 @@ void checkObservationResidualDiscontinuities(
         Eigen::Block< Eigen::VectorXd > observationResidualBlock,
         const ObservableType observableType )
 {
-    if( observableType == angular_position || observableType == euler_angle_313_observable )
+    if( observableType == angular_position || observableType == euler_angle_313_observable || observableType == relative_angular_position )
     {
         for( int i = 1; i < observationResidualBlock.rows( ); i++ )
         {
@@ -719,6 +760,28 @@ std::vector< std::pair< int, int > > getLinkStateAndTimeIndicesForLinkEnd(
     case velocity_observable:
 
         throw std::runtime_error( "Error, parsed irrelevant position observable link end types for link end indices" );
+        break;
+    case relative_angular_position:
+        if( ( linkEnds.at( transmitter ) == linkEndToCheck ) || ( ( linkEnds.at( transmitter ).first == linkEndToCheck.first ) &&
+                                                                  ( linkEndToCheck.second == "" ) ) )
+        {
+            linkEndIndices.push_back( std::make_pair( 0, 2 ) );
+        }
+        else if( ( linkEnds.at( transmitter2 ) == linkEndToCheck ) || ( ( linkEnds.at( transmitter2 ).first == linkEndToCheck.first ) &&
+                                                                  ( linkEndToCheck.second == "" ) ) )
+        {
+            linkEndIndices.push_back( std::make_pair( 1, 2 ) );
+        }
+        else if( linkEnds.at( receiver ) == linkEndToCheck || ( ( linkEnds.at( receiver ).first == linkEndToCheck.first ) &&
+                                                                linkEndToCheck.second == "" ) )
+        {
+            linkEndIndices.push_back( std::make_pair( 2, 0 ) );
+            linkEndIndices.push_back( std::make_pair( 2, 1 ) );
+        }
+        else
+        {
+            throw std::runtime_error( "Error, parsed irrelevant angular position link end types for link end indices" );
+        }
         break;
     default:
         throw std::runtime_error( "Error, observable type " + std::to_string(

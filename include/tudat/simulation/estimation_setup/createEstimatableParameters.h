@@ -1842,34 +1842,74 @@ void setInitialStateVectorFromParameterSet(
     {
         std::shared_ptr< propagators::MultiArcPropagatorSettings< InitialStateParameterType > > multiArcSettings =
                 std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< InitialStateParameterType > >( propagatorSettings );
+
         std::vector< std::shared_ptr< propagators::SingleArcPropagatorSettings< InitialStateParameterType > > > singleArcSettings =
                 multiArcSettings->getSingleArcSettings( );
         int numberOfArcs = singleArcSettings.size( );
+
+        // Counting in how many arcs each body has already been propagated/estimated.
+        std::map< propagators::IntegratedStateType, std::map< std::string, unsigned int > > initialStatesBodiesCounter;
 
         for( int i = 0; i < numberOfArcs; i++ )
         {
             std::map< propagators::IntegratedStateType, std::map< std::pair< std::string, std::string >, VectorType > > currentArcInitialStates;
 
-            for( unsigned int j = 0; j < initialDynamicalParameters.size( ); j++ )
+            std::shared_ptr< propagators::TranslationalStatePropagatorSettings< InitialStateParameterType > > singleArcTranslationalStatePropagatorSettings
+            = std::dynamic_pointer_cast< propagators::TranslationalStatePropagatorSettings< InitialStateParameterType > >( singleArcSettings.at( i ) );
+
+            if ( singleArcTranslationalStatePropagatorSettings == nullptr )
             {
-                VectorType currentParameterValue = initialDynamicalParameters.at( j )->getParameterValue( );
-                int currentParameterSize = initialDynamicalParameters.at( j )->getParameterSize( );
-                std::pair< std::string, std::string > bodyIdentifier = initialDynamicalParameters.at( j )->getParameterName( ).second;
+                throw std::runtime_error( "Propagator settings for arc " + std::to_string( i ) + " are not translational state propagator settings. "
+                                                                            " Other propagator settings not supported (yet) for multi-arc propagation." );
+            }
+            else
+            {
 
-                switch( initialDynamicalParameters.at( j )->getParameterName( ).first )
-                {
-                case estimatable_parameters::arc_wise_initial_body_state:
-                {
-                    if( currentParameterSize / numberOfArcs != 6 )
+                for ( unsigned int j = 0; j < initialDynamicalParameters.size( ); j++ ) {
+                    VectorType currentParameterValue = initialDynamicalParameters.at(j)->getParameterValue();
+                    int currentParameterSize = initialDynamicalParameters.at(j)->getParameterSize();
+                    std::pair<std::string, std::string> bodyIdentifier = initialDynamicalParameters.at(j)->getParameterName().second;
+                    std::cout << "body identifier: " << bodyIdentifier.first << " & " << bodyIdentifier.second << "\n\n";
+
+                    auto itr = std::find( singleArcTranslationalStatePropagatorSettings->bodiesToIntegrate_.begin( ),
+                                                                          singleArcTranslationalStatePropagatorSettings->bodiesToIntegrate_.end( ), bodyIdentifier.first );
+                    if ( itr != singleArcTranslationalStatePropagatorSettings->bodiesToIntegrate_.cend( ) )
                     {
-                        throw std::runtime_error( "Error when moving initial states from parameters to propagator settings. Incompatible multi-arc translational state size found" );
-                    }
+                        std::cout << "body " << bodyIdentifier.first << " - detected for arc " << i << "\n\n";
 
-                    currentArcInitialStates[ propagators::translational_state ][ bodyIdentifier ] = currentParameterValue.segment( i * 6, 6 );
-                    break;
-                }
-                default:
-                    throw std::runtime_error( "Error when moving initial states from parameters to propagator settings. Multi-arc parameter type not recognized" );
+
+                        switch ( initialDynamicalParameters.at( j )->getParameterName( ).first )
+                        {
+                            case estimatable_parameters::arc_wise_initial_body_state:
+                            {
+                                std::cout << "current parameter size: " << currentParameterSize << "\n\n";
+
+                                if ( ( initialStatesBodiesCounter.count( propagators::translational_state )  == 0 )
+                                || initialStatesBodiesCounter.at( propagators::translational_state ).count( bodyIdentifier.first ) == 0 )
+                                {
+                                    initialStatesBodiesCounter[ propagators::translational_state ][ bodyIdentifier.first ] = 0;
+                                }
+                                int index = initialStatesBodiesCounter.at( propagators::translational_state ).at( bodyIdentifier.first );
+                                std::cout << "index: " << index << "\n\n";
+
+
+//                                if ( currentParameterSize / numberOfArcs != 6 )
+//                                {
+//                                    throw std::runtime_error("Error when moving initial states from parameters to propagator settings. Incompatible multi-arc translational state size found");
+//                                }
+                                std::cout << "full parameters values: " << currentParameterValue.transpose( ) << "\n\n";
+                                std::cout << "subset parameters values: " << currentParameterValue.segment( index * 6, 6 ).transpose( ) << "\n\n";
+                                currentArcInitialStates[ propagators::translational_state ][ bodyIdentifier ] = currentParameterValue.segment( index * 6, 6 );
+
+                                // update counter of propagated/estimated bodies
+                                initialStatesBodiesCounter.at( propagators::translational_state ).at( bodyIdentifier.first ) ++;
+
+                                break;
+                            }
+                            default:
+                                throw std::runtime_error("Error when moving initial states from parameters to propagator settings. Multi-arc parameter type not recognized");
+                        }
+                    }
                 }
             }
             propagators::resetSingleArcInitialStates( singleArcSettings.at( i ), currentArcInitialStates );

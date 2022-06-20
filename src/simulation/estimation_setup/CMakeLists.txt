@@ -35,6 +35,7 @@ set(estimation_HEADERS
         createEulerAngleObservationPartials.h
         createDopplerPartials.h
         createAngularPositionPartials.h
+        createRelativeAngularPositionPartials.h
         createDifferencedOneWayRangeRatePartials.h
         createNWayRangePartials.h
         observationOutputSettings.h
@@ -64,6 +65,7 @@ set(estimation_SOURCES
         createObservationViability.cpp
         createDopplerPartials.cpp
         createAngularPositionPartials.cpp
+        createRelativeAngularPositionPartials.cpp
         observationSimulationSettings.cpp
         observationOutputSettings.cpp
         observationOutput.cpp
