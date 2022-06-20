@@ -439,6 +439,15 @@ std::vector< TimeType > > > > removeLinkIdFromSimulatedObservations(
     return observationsWithoutLinkEndId;
 }
 
+
+std::map< double, Eigen::VectorXd > getTargetAnglesAndRange(
+        const simulation_setup::SystemOfBodies& bodies,
+        const std::pair< std::string, std::string > groundStationId,
+        const std::string& targetBody,
+        const std::vector< double > times,
+        const bool transmittingToTarget );
+
+
 }
 
 }

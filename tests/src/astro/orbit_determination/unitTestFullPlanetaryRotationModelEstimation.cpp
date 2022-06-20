@@ -54,18 +54,18 @@ using namespace tudat;
 //! (for a full planetary rotational model) are estimated correctly. Translatuonal state estimation is included for interface
 //! consistency only
 BOOST_AUTO_TEST_CASE( test_FullPlanetaryRotationalParameters )
-{    
+{
     //Load spice kernels.
     std::string kernelsPath = paths::getSpiceKernelPath( );
     spice_interface::loadStandardSpiceKernels( );
-    
+
     //Define environment settings
     std::vector< std::string > bodyNames;
     bodyNames.push_back( "Earth" );
     bodyNames.push_back( "Mars" );
     bodyNames.push_back( "Sun" );
     bodyNames.push_back( "Moon" );
-    
+
     // Specify total time
     double initialEphemerisTime = 0.0;
     double finalEphemerisTime = 1000.0 * 86400.0;
@@ -77,7 +77,7 @@ BOOST_AUTO_TEST_CASE( test_FullPlanetaryRotationalParameters )
         // Create body objects; Mars with high-accuracy rotation model
         BodyListSettings bodySettings =
                 getDefaultBodySettings( bodyNames, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
-        bodySettings.at( "Mars" )->rotationModelSettings = getHighAccuracyMarsRotationModel( initialEphemerisTime, finalEphemerisTime );
+        bodySettings.at( "Mars" )->rotationModelSettings = getHighAccuracyMarsRotationModel( );
         SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
 
@@ -90,8 +90,8 @@ BOOST_AUTO_TEST_CASE( test_FullPlanetaryRotationalParameters )
         // Set accelerations between bodies that are to be taken into account.
         SelectedAccelerationMap accelerationMap;
         std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfEarth;
-        accelerationsOfEarth[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
-        accelerationsOfEarth[ "Moon" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+        accelerationsOfEarth[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
+        accelerationsOfEarth[ "Moon" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
         accelerationMap[ "Earth" ] = accelerationsOfEarth;
 
         // Set bodies for which initial state is to be estimated and integrated.
@@ -173,16 +173,16 @@ BOOST_AUTO_TEST_CASE( test_FullPlanetaryRotationalParameters )
         // Create orbit determination object.
         OrbitDeterminationManager< double, double > orbitDeterminationManager = OrbitDeterminationManager< double, double >(
                     bodies, parametersToEstimate, observationSettingsList, integratorSettings, propagatorSettings );
-        
+
         // Define initial parameter estimate.
         Eigen::VectorXd initialParameterEstimate =
                 parametersToEstimate->template getFullParameterValues< double >( );
-        
+
         // Simulate observations
         std::shared_ptr< ObservationCollection< > > observationsAndTimes = simulateObservations< double, double >(
                     measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
-        
-        
+
+
         // Define perturbation of parameter estimate
         Eigen::VectorXd truthParameters = initialParameterEstimate;
         if ( testCase == 0 )
@@ -224,15 +224,15 @@ BOOST_AUTO_TEST_CASE( test_FullPlanetaryRotationalParameters )
         // Perform state estimation
         std::shared_ptr< PodOutput< double, double > > podOutput = orbitDeterminationManager.estimateParameters(
                     podInput, std::make_shared< EstimationConvergenceChecker >( 3 ) );
-        
-        
+
+
         // Retrieve estimated parameter, and compare against true values
         Eigen::VectorXd parameterError = podOutput->parameterEstimate_ - truthParameters;
         if ( testCase == 0 ) {
-            
+
             BOOST_CHECK_SMALL( std::fabs( parameterError( 6 ) ), 1.0E-7 );
             BOOST_CHECK_SMALL( std::fabs( parameterError( 6 + 1 ) ), 1.0E-12 );
-            
+
         }
         else
         {

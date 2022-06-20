@@ -93,8 +93,10 @@ BOOST_AUTO_TEST_CASE( testJulianDayToSecondsConversions )
         // Test that computed result matches expected result.
         // Test is run at reduced tolerance, because the final digits of the seconds were lost
         // when converting to Julian day.
+#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
         BOOST_CHECK_CLOSE_FRACTION( computedSecondsSinceEpoch, expectedSecondsSinceEpoch,
                                     1.0e-14 );
+#endif
     }
 
     // Test conversion from Julian day to seconds since J2000 epoch  with long doubles
@@ -411,6 +413,7 @@ BOOST_AUTO_TEST_CASE( testTimeConversions )
 
     }
 }
+#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 
 // Test relativistic time scale conversions (TCG, TT, TDB, TCB) for long double precision.
 BOOST_AUTO_TEST_CASE( testTimeConversionsLong )
@@ -534,6 +537,7 @@ BOOST_AUTO_TEST_CASE( testTimeConversionsLong )
                                 std::numeric_limits< long double >::epsilon( ) );
 
 }
+#endif
 
 BOOST_AUTO_TEST_SUITE_END( )
 

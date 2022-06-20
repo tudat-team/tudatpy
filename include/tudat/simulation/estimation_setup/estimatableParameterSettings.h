@@ -920,9 +920,7 @@ inline std::shared_ptr< EstimatableParameterSettings > ppnParameterGamma( )
     return std::make_shared< EstimatableParameterSettings >( "", ppn_parameter_gamma );
 }
 
-inline std::shared_ptr< EstimatableParameterSettings > ppnParameterBeta(
-        const std::string& body,
-        const std::string& groundStationName )
+inline std::shared_ptr< EstimatableParameterSettings > ppnParameterBeta( )
 {
     return std::make_shared< EstimatableParameterSettings >( "", ppn_parameter_beta );
 }
@@ -1023,6 +1021,41 @@ inline std::shared_ptr< EstimatableParameterSettings > orderVaryingKLoveNumber(
                 associatedBody, degree, orders, std::vector< std::string >( ), useComplexValue );
 }
 
+
+inline std::shared_ptr< EstimatableParameterSettings > coreFactor(
+        const std::string& associatedBody )
+{
+    return std::make_shared< EstimatableParameterSettings >(
+                associatedBody, core_factor );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > freeCoreNutationRate(
+        const std::string& associatedBody )
+{
+    return std::make_shared< EstimatableParameterSettings >(
+                associatedBody, free_core_nutation_rate );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > periodicSpinVariations(
+        const std::string& associatedBody )
+{
+    return std::make_shared< EstimatableParameterSettings >(
+                associatedBody, periodic_spin_variation );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > polarMotionAmplitudes(
+        const std::string& associatedBody )
+{
+    return std::make_shared< EstimatableParameterSettings >(
+                associatedBody, polar_motion_amplitude );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > quasiImpulsiveShots(
+        const std::string& associatedBody )
+{
+    return std::make_shared< EstimatableParameterSettings >(
+                associatedBody, desaturation_delta_v_values );
+}
 
 } // namespace estimatable_parameters
 

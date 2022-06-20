@@ -14,7 +14,6 @@
 #include <vector>
 #include <cmath>
 
-#include "tudat/astro/aerodynamics/nrlmsise00Atmosphere.h"
 #include "tudat/io/solarActivityData.h"
 
 
@@ -23,6 +22,72 @@ namespace tudat
 
 namespace aerodynamics
 {
+
+
+//! Struct for Solar Activity data.
+/*!
+ *
+ */
+struct NRLMSISE00Input
+{
+    //! Input for computation of NRLMSISE00 atmospheric conditions at current time and position.
+    /*!
+     * Input for computation of NRLMSISE00 atmospheric conditions at current time and position. The computation of
+     * this struct may be reperformed every time step, to reflect the changes in atmospheric condition.
+     * \param year Current year
+     * \param dayOfTheYear Day in the current year
+     * \param secondOfTheDay Number of seconds into the current day.
+     * \param localSolarTime Local solar time at the computation position
+     * \param f107 Current daily F10.7 flux for previous day
+     * \param f107a 81 day average of F10.7 flux (centered on current dayOfTheYear).
+     * \param apDaily Current daily magnetic index
+     * \param apVector Current magnetic index data vector: \sa ap_array
+     * \param switches List of NRLMSISE-specific flags: \sa nrlmsise_flags
+     */
+    NRLMSISE00Input(
+            int year = 0, int dayOfTheYear = 0, double secondOfTheDay = 0.0,
+            double localSolarTime = 0.0, double f107 = 0.0, double f107a = 0.0,
+            double apDaily = 0.0,
+            std::vector< double > apVector = std::vector< double>( 7, 0.0 ),
+            std::vector< int > switches = std::vector< int >( ) )
+        : year( year ), dayOfTheYear( dayOfTheYear ), secondOfTheDay( secondOfTheDay) ,
+          localSolarTime( localSolarTime ), f107( f107 ), f107a( f107a ),
+          apDaily( apDaily ), apVector( apVector ), switches( switches )
+    {
+        if( switches.empty( ) )
+        {
+            this->switches = std::vector< int >( 24, 1 );
+            this->switches[ 0 ] = 0;
+        }
+    }
+
+    //! Current year
+    int year;
+
+    //! Day in the current year
+    int dayOfTheYear;
+
+    //! Number of seconds into the current day.
+    double secondOfTheDay;\
+
+    //! Local solar time at the computation position
+    double localSolarTime;
+
+    //! Current daily F10.7 flux for previous day
+    double f107;
+
+    //! 81 day average of F10.7 flux (centered on current dayOfTheYear).
+    double f107a;
+
+    //! Current daily magnetic index
+    double apDaily;
+
+    //! Current magnetic index data vector: \sa ap_array
+    std::vector< double > apVector;
+
+    //! List of NRLMSISE-specific flags: \sa nrlmsise_flag
+    std::vector< int > switches;
+};
 
 
 //! NRLMSISE00 Input function

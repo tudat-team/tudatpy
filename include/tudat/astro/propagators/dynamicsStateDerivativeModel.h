@@ -145,6 +145,20 @@ public:
      */
     StateType computeStateDerivative( const TimeType time, const StateType& state )
     {
+        if( !( time == time ) )
+        {
+            throw std::invalid_argument( "Error when computing system state derivative. Input time is NaN" );
+        }
+
+        if( state.hasNaN( ) )
+        {
+            throw std::invalid_argument( "Error when computing system state derivative. State vector contains NaN" );
+        }
+
+        if( !state.allFinite( ) )
+        {
+            throw std::invalid_argument( "Error when computing system state derivative. State vector contains Inf" );
+        }
 //        std::cout << "Computing state derivative: " <<time<<" "<<state.transpose( ) << std::endl;
 
         // Initialize state derivative
@@ -749,7 +763,7 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
     {
         basic_astrodynamics::AccelerationMap accelerationModelList =
                 std::dynamic_pointer_cast< NBodyStateDerivative< StateScalarType, TimeType > >(
-                    stateDerivativeModels.at( propagators::translational_state ).at( 0 ) )->getAccelerationsMap( );
+                    stateDerivativeModels.at( propagators::translational_state ).at( 0 ) )->getFullAccelerationsMap( );
 
         if( accelerationModelList.count( bodyUndergoingAcceleration ) == 0 )
         {

@@ -434,13 +434,13 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldSetup )
     BOOST_CHECK_EQUAL(
                 ( defaultEarthField->getReferenceRadius( ) ), ( 6378137.0 ) );
     BOOST_CHECK_EQUAL(
-                ( defaultEarthField->getCosineCoefficients( ).rows( ) ), 51 );
+                ( defaultEarthField->getCosineCoefficients( ).rows( ) ), 361 );
     BOOST_CHECK_EQUAL(
-                ( defaultEarthField->getCosineCoefficients( ).cols( ) ), 51 );
+                ( defaultEarthField->getCosineCoefficients( ).cols( ) ), 361 );
     BOOST_CHECK_EQUAL(
-                ( defaultEarthField->getSineCoefficients( ).rows( ) ), 51 );
+                ( defaultEarthField->getSineCoefficients( ).rows( ) ), 361 );
     BOOST_CHECK_EQUAL(
-                ( defaultEarthField->getSineCoefficients( ).cols( ) ), 51 );
+                ( defaultEarthField->getSineCoefficients( ).cols( ) ), 361 );
     BOOST_CHECK_EQUAL(
                 ( defaultEarthField->getCosineCoefficients( )( 2, 0 ) ), -0.484165371736E-03 );
     BOOST_CHECK_EQUAL(
@@ -457,13 +457,13 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldSetup )
     BOOST_CHECK_EQUAL(
                 ( defaultMoonField->getReferenceRadius( ) ), ( 0.17380E+07 ) );
     BOOST_CHECK_EQUAL(
-                ( defaultMoonField->getCosineCoefficients( ).rows( ) ), 51 );
+                ( defaultMoonField->getCosineCoefficients( ).rows( ) ), 201 );
     BOOST_CHECK_EQUAL(
-                ( defaultMoonField->getCosineCoefficients( ).cols( ) ), 51 );
+                ( defaultMoonField->getCosineCoefficients( ).cols( ) ), 201 );
     BOOST_CHECK_EQUAL(
-                ( defaultMoonField->getSineCoefficients( ).rows( ) ), 51 );
+                ( defaultMoonField->getSineCoefficients( ).rows( ) ), 201 );
     BOOST_CHECK_EQUAL(
-                ( defaultMoonField->getSineCoefficients( ).cols( ) ), 51 );
+                ( defaultMoonField->getSineCoefficients( ).cols( ) ), 201 );
     BOOST_CHECK_EQUAL(
                 ( defaultMoonField->getCosineCoefficients( )( 5, 3 ) ), 0.5493176535439800E-06 );
     BOOST_CHECK_EQUAL(
@@ -773,7 +773,6 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldVariationSetup )
         // Test for separate or joint deforming bodies
         for( int bodyTest = 0; bodyTest < 3; bodyTest++ )
         {
-            std::cout<<"Test: "<<functionTest<<" "<<bodyTest<<std::endl;
 
             // Clear for current test
             bodySettings.at( "Earth" )->gravityFieldVariationSettings.clear( );
@@ -1606,6 +1605,8 @@ BOOST_AUTO_TEST_CASE( test_panelledRadiationPressureInterfaceSetup )
                 initialKeplerElements, 0.0, spice_interface::getBodyGravitationalParameter( "Earth" ), "Earth", "ECLIPJ2000" );
 
 
+
+
     // Create radiation pressure properties
     std::vector< double > areas;
     areas.push_back( 4.0 );
@@ -1659,6 +1660,11 @@ BOOST_AUTO_TEST_CASE( test_panelledRadiationPressureInterfaceSetup )
     // Create bodies
     SystemOfBodies bodies = createSystemOfBodies( bodySettings );
     
+
+    Eigen::Vector7d unitRotationalState = Eigen::Vector7d::Zero( );
+    unitRotationalState.segment( 0, 4 ) = linear_algebra::convertQuaternionToVectorFormat(
+                Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ) );
+    bodies.at( "Vehicle" )->setCurrentRotationalStateToLocalFrame( unitRotationalState );
 
     BOOST_CHECK_EQUAL( bodies.at( "Vehicle" )->getRadiationPressureInterfaces( ).size( ), 1 );
     BOOST_CHECK_EQUAL( bodies.at( "Vehicle" )->getRadiationPressureInterfaces( ).count( "Sun" ), 1 );

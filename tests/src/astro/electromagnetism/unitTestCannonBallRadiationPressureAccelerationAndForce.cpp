@@ -433,6 +433,8 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAccelerationModelClassConstructor )
     const Eigen::Vector3d expectedRadiationPressureAcceleration 
         = Eigen::Vector3d( -2.964e-06, 0.0, 0.0 );
 
+    radiationPressureModel->updateMembers( 0.0 );
+
     // Compute radiation pressure acceleration [m/s^2].
     const Eigen::Vector3d computedRadiationPressureAcceleration 
         = radiationPressureModel->getAcceleration( );
@@ -452,6 +454,8 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAccelerationModelClassUpdateMembers )
             &getSourcePosition, &getAcceleratedBodyPosition, &getRadiationPressure,
             &getRadiationPressureCoefficient, &getAreaSubjectToRadiationPressure, 
             &getMassOfAcceleratedBody );
+
+    radiationPressureModel->updateMembers( 0.0 );
 
     // Set expected radiation pressure acceleration [m/s^2].
     const Eigen::Vector3d expectedRadiationPressureAcceleration 
@@ -482,7 +486,7 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAccelerationModelClassUpdateMembers )
     massOfAcceleratedBody = 0.0022;
 
     // Update class members.
-    radiationPressureModel->updateMembers( );
+    radiationPressureModel->updateMembers( 0.0 );
 
     // Compute radiation pressure acceleration [m/s^2].
     const Eigen::Vector3d computedRadiationPressureAcceleration 

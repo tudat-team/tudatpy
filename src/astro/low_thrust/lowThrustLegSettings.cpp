@@ -18,46 +18,18 @@ namespace tudat
 namespace low_thrust_trajectories
 {
 
-std::shared_ptr< low_thrust_trajectories::LowThrustLeg  > createLowThrustLeg(
-        const std::shared_ptr< LowThrustLegSettings >& lowThrustLegSettings,
-        const Eigen::Vector6d& stateAtDeparture,
-        const Eigen::Vector6d& stateAtArrival,
-        const double& timeOfFlight )
-{
-    // Declare LowThrustLeg object.
-    std::shared_ptr< LowThrustLeg > lowThrustLeg;
+//std::shared_ptr< low_thrust_trajectories::LowThrustLeg  > createLowThrustLeg(
+//        const std::shared_ptr< LowThrustLegSettings >& lowThrustLegSettings,
+//        const Eigen::Vector6d& stateAtDeparture,
+//        const Eigen::Vector6d& stateAtArrival,
+//        const double& timeOfFlight )
+//{
+//    // Declare LowThrustLeg object.
+//    std::shared_ptr< LowThrustLeg > lowThrustLeg;
 
-    switch( lowThrustLegSettings->lowThrustLegType_ )
-    {
-    case hodographic_shaping_leg:
-    {
-        std::shared_ptr< HodographicShapingLegSettings > hodographicShapingSettings =
-                std::dynamic_pointer_cast< HodographicShapingLegSettings >( lowThrustLegSettings );
-
-        lowThrustLeg = std::make_shared< shape_based_methods::HodographicShaping >(
-                    stateAtDeparture, stateAtArrival, timeOfFlight,
-                    hodographicShapingSettings->centralBodyGravitationalParameter_,
-                    hodographicShapingSettings->numberOfRevolutions_,
-                    hodographicShapingSettings->radialVelocityFunctionComponents_,
-                    hodographicShapingSettings->normalVelocityFunctionComponents_, hodographicShapingSettings->axialVelocityFunctionComponents_,
-                    hodographicShapingSettings->freeCoefficientsNormalVelocityFunction_, hodographicShapingSettings->freeCoefficientsNormalVelocityFunction_,
-                    hodographicShapingSettings->freeCoefficientsAxialVelocityFunction_ );
-        break;
-    }
-    case spherical_shaping_leg:
-    {
-        std::shared_ptr< SphericalShapingLegSettings > sphericalShapingSettings =
-                std::dynamic_pointer_cast< SphericalShapingLegSettings >( lowThrustLegSettings );
-
-        lowThrustLeg = std::make_shared< shape_based_methods::SphericalShaping >(
-                    stateAtDeparture, stateAtArrival, timeOfFlight,
-                    sphericalShapingSettings->centralBodyGravitationalParameter_,
-                    sphericalShapingSettings->numberOfRevolutions_,
-                    sphericalShapingSettings->initialValueFreeCoefficient_,
-                    sphericalShapingSettings->rootFinderSettings_, sphericalShapingSettings->boundsFreeCoefficient_.first,
-                    sphericalShapingSettings->boundsFreeCoefficient_.second );
-        break;
-    }
+//    switch( lowThrustLegSettings->lowThrustLegType_ )
+//    {
+//
 //#if( TUDAT_BUILD_WITH_PAGMO )
 //    case sims_flanagan_leg:
 //    {
@@ -87,11 +59,11 @@ std::shared_ptr< low_thrust_trajectories::LowThrustLeg  > createLowThrustLeg(
 //        break;
 //    }
 //#endif
-    }
-
-    // Return low-thrust leg.
-    return lowThrustLeg;
-}
+//    }
+//
+//    // Return low-thrust leg.
+//    return lowThrustLeg;
+//}
 
 } // namespace transfer_trajectories
 

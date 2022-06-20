@@ -114,11 +114,6 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
                 // Create spacecraft object.
                 bodies.createEmptyBody( "Vehicle" );
                 bodies.at( "Vehicle" )->setConstantBodyMass( 400.0 );
-                bodies.at( "Vehicle" )->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
-                                                        std::shared_ptr< interpolators::OneDimensionalInterpolator
-                                                        < double, Eigen::Vector6d  > >( ), "Earth", "ECLIPJ2000" ) );
-
-
 
                 // Define propagator settings variables.
                 SelectedAccelerationMap accelerationMap;
@@ -130,11 +125,11 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
 
                 {
                     accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< AccelerationSettings >(
-                                                                     basic_astrodynamics::central_gravity ) );
+                                                                     basic_astrodynamics::point_mass_gravity ) );
                     accelerationsOfVehicle[ "Sun" ].push_back( std::make_shared< AccelerationSettings >(
-                                                                   basic_astrodynamics::central_gravity ) );
+                                                                   basic_astrodynamics::point_mass_gravity ) );
                     accelerationsOfVehicle[ "Moon" ].push_back( std::make_shared< AccelerationSettings >(
-                                                                    basic_astrodynamics::central_gravity ) );
+                                                                    basic_astrodynamics::point_mass_gravity ) );
                 }
 
                 accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
@@ -243,7 +238,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
                 {
                     integratorSettings = std::make_shared< RungeKuttaVariableStepSizeSettings< double > >
                             ( simulationStartEpoch, directionMultiplier * fixedStepSize,
-                              RungeKuttaCoefficients::CoefficientSets::rungeKuttaFehlberg45,
+                              CoefficientSets::rungeKuttaFehlberg45,
                               1.0E-3, 1.0E3, 1.0E-12, 1.0E-12 );
                 }
 

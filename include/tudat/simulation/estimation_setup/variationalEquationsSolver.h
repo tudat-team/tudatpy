@@ -868,7 +868,8 @@ public:
             std::map< TimeType, double > cumulativeComputationTimeHistory;
 
             simulation_setup::setAreBodiesInPropagation( bodies_, true );
-            EquationIntegrationInterface< MatrixType, TimeType >::integrateEquations(
+            std::shared_ptr< PropagationTerminationDetails > propagationTerminationReason =
+                    EquationIntegrationInterface< MatrixType, TimeType >::integrateEquations(
                         dynamicsSimulator_->getStateDerivativeFunction( ), rawNumericalSolution,
                         initialVariationalState, integratorSettings_,
                         dynamicsSimulator_->getPropagationTerminationCondition( ),
@@ -877,6 +878,7 @@ public:
                         dynamicsSimulator_->getDependentVariablesFunctions( ),
                         statePostProcessingFunction_,
                         propagatorSettings_->getPrintInterval( ) );
+            dynamicsSimulator_->setPropagationTerminationReason( propagationTerminationReason );
             simulation_setup::setAreBodiesInPropagation( bodies_, false );
 
             std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > equationsOfMotionNumericalSolutionRaw;
@@ -1038,9 +1040,22 @@ private:
                 stateTransitionMatrixInterpolator;
         std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >
                 sensitivityMatrixInterpolator;
-        createStateTransitionAndSensitivityMatrixInterpolator(
-                    stateTransitionMatrixInterpolator, sensitivityMatrixInterpolator, variationalEquationsSolution_,
-                    this->clearNumericalSolution_ );
+
+        try
+        {
+            createStateTransitionAndSensitivityMatrixInterpolator(
+                        stateTransitionMatrixInterpolator, sensitivityMatrixInterpolator, variationalEquationsSolution_,
+                        this->clearNumericalSolution_ );
+
+        }
+        catch( const std::exception& caughtException )
+        {
+            std::cerr << "Error occured when post-processing single-arc variational equation integration results, and creating interpolators, caught error is: " << std::endl << std::endl;
+            std::cerr << caughtException.what( ) << std::endl << std::endl;
+            std::cerr << "The problem may be that there is an insufficient number of data points (epochs) at which propagation results are produced for one or more arcs. Integrated results are given at" +
+                         std::to_string( variationalEquationsSolution_.at( 0 ).size( ) ) + " epochs"<< std::endl;
+        }
+
 
         // Create (if non-existent) or reset state transition matrix interface
         if( stateTransitionInterface_ == nullptr )
@@ -1486,6 +1501,7 @@ public:
                 dynamicsSimulator_->getDynamicsStateDerivative( ).at( i )->resetFunctionEvaluationCounter( );
                 simulation_setup::setAreBodiesInPropagation( bodies_, true );
                 std::map< TimeType, MatrixType > rawNumericalSolution;
+                std::shared_ptr< PropagationTerminationDetails > propagationTerminationReason =
                 EquationIntegrationInterface< MatrixType, TimeType >::integrateEquations(
                             singleArcDynamicsSimulators.at( i )->getStateDerivativeFunction( ),
                             rawNumericalSolution,
@@ -1497,6 +1513,7 @@ public:
                             std::bind(
                                 &DynamicsStateDerivativeModel< TimeType, StateScalarType >::postProcessStateAndVariationalEquations,
                                 singleArcDynamicsSimulators.at( i )->getDynamicsStateDerivative( ), std::placeholders::_1 ) );
+                dynamicsSimulator_->setPropagationTerminationReason( propagationTerminationReason, i );
                 simulation_setup::setAreBodiesInPropagation( bodies_, false );
 
                 // Extract solution of equations of motion.
@@ -1815,11 +1832,23 @@ private:
                 arcEndTimes_[ i ] = variationalEquationsSolution_[ i ][ 0 ].begin( )->first;
             }
 
-            createStateTransitionAndSensitivityMatrixInterpolator(
-                        stateTransitionMatrixInterpolators[ i ],
-                        sensitivityMatrixInterpolators[ i ],
-                        variationalEquationsSolution_[ i ],
-                        this->clearNumericalSolution_ );
+            try
+            {
+                createStateTransitionAndSensitivityMatrixInterpolator(
+                            stateTransitionMatrixInterpolators[ i ],
+                            sensitivityMatrixInterpolators[ i ],
+                            variationalEquationsSolution_[ i ],
+                            this->clearNumericalSolution_ );
+            }
+            catch( const std::exception& caughtException )
+            {
+                std::cerr << "Error occured when post-processing multi-arc variational equation integration results, and creating interpolators in arc" + std::to_string( i ) + ", caught error is: " << std::endl << std::endl;
+                std::cerr << caughtException.what( ) << std::endl << std::endl;
+                std::cerr << "The problem may be that there is an insufficient number of data points (epochs) at which propagation results are produced for one or more arcs. Integrated results are given at" +
+                             std::to_string( variationalEquationsSolution_[ i ].at( 0 ).size( ) ) + " epochs"<< std::endl;
+            }
+
+
         }
 
         // Create stare transition matrix interface if needed, reset otherwise.
@@ -2114,7 +2143,7 @@ public:
         // Reset initial time and propagate multi-arc equations
         singleArcIntegratorSettings_->initialTime_ = singleArcInitialTime_;
 
-        std::cout<<"Integrating single arc "<<std::endl;
+//        std::cout<<"Integrating single arc "<<std::endl;
         singleArcSolver_->integrateVariationalAndDynamicalEquations(
                     initialStateEstimate.block( 0, 0, singleArcDynamicsSize_, 1 ),
                     integrateEquationsConcurrently );
@@ -2129,7 +2158,7 @@ public:
 
         // Reset initial time and propagate single-arc equations
         multiArcIntegratorSettings_->initialTime_ = arcStartTimes_.at( 0 );
-        std::cout<<"Integrating multi arc "<<std::endl;
+//        std::cout<<"Integrating multi arc "<<std::endl;
         multiArcSolver_->integrateVariationalAndDynamicalEquations(
                     propagatorSettings_->getMultiArcPropagatorSettings( )->getInitialStates( ),
                     integrateEquationsConcurrently );
