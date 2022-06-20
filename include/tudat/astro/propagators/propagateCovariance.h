@@ -11,7 +11,8 @@
 #ifndef TUDAT_PROPAGATECOVARIANCE_H
 #define TUDAT_PROPAGATECOVARIANCE_H
 
-#include<tudat/astro/propagators/stateTransitionMatrixInterface.h>
+#include <tudat/astro/reference_frames/referenceFrameTransformations.h>
+#include <tudat/astro/propagators/stateTransitionMatrixInterface.h>
 
 namespace tudat
 {
@@ -101,6 +102,18 @@ void propagateCovariance(
         const double timeStep,
         const double initialTime,
         const double finalTime );
+
+//Eigen::MatrixXd convertCovarianceToFrame(
+//        const Eigen::MatrixXd inputCovariance,
+//        const Eigen::VectorXd inertialCartesianRelativeState,
+//        const reference_frames::SatelliteReferenceFrames inputFrame,
+//        const reference_frames::SatelliteReferenceFrames outputFrame );
+
+//std::map< double, Eigen::MatrixXd > convertCovarianceHistoryToFrame(
+//        const std::map< double, Eigen::MatrixXd > inputCovariances,
+//        const std::map< double, Eigen::VectorXd > inertialCartesianRelativeStates,
+//        const reference_frames::SatelliteReferenceFrames inputFrame,
+//        const reference_frames::SatelliteReferenceFrames outputFrame );
 
 //! Function to propagate full covariance at the initial time to state formal errors at later times
 /*!
