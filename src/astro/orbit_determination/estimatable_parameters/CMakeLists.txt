@@ -10,6 +10,7 @@
 # Set the source files.
 set(estimatable_parameters_SOURCES
   "estimatableParameter.cpp"
+  "estimatableParameterSet.cpp"
   "sphericalHarmonicSineCoefficients.cpp"
   "sphericalHarmonicCosineCoefficients.cpp"
   "tidalLoveNumber.cpp"
@@ -18,6 +19,7 @@ set(estimatable_parameters_SOURCES
 # Set the header files.
 set(estimatable_parameters_HEADERS
   "estimatableParameter.h"
+  "estimatableParameterSet.h"
   "gravitationalParameter.h"
   "initialTranslationalState.h"
   "initialRotationalState.h"

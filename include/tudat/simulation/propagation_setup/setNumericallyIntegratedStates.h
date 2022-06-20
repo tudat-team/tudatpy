@@ -360,70 +360,119 @@ void resetMultiArcIntegratedEphemerides(
         const std::vector< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > >&
         equationsOfMotionNumericalSolution,
         const std::vector< double > arcStartTimes,
-        const std::vector< std::string >& bodiesToIntegrate,
+        const std::vector< std::vector< std::string > >& bodiesToIntegrate,
         const std::pair< unsigned int, unsigned int > startIndexAndSize,
-        std::vector< std::string > ephemerisUpdateOrder = std::vector< std::string >( ),
-        const std::map< std::string, std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > >&
-        integrationToEphemerisFrameFunctions =
-        std::map< std::string, std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > >( ) )
+        std::vector< std::vector< std::string > > ephemerisUpdateOrder = std::vector< std::vector< std::string > >( ),
+        const std::map< std::string, std::vector< std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > > >&
+        multiArcIntegrationToEphemerisFrameFunctions =
+        std::map< std::string, std::vector< std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > > >( ) )
 {
     using namespace tudat::interpolators;
     using namespace tudat::ephemerides;
-    
+
     // Check input consistency
     if( ephemerisUpdateOrder.size( ) == 0 )
     {
         ephemerisUpdateOrder = bodiesToIntegrate;
     }
-    
+
+
+//    // Check that, for each arc, the bodies to integrate and ephemeris update order are identical (for now).
+//    for ( unsigned int i = 1 ; i < bodiesToIntegrate.size( ) ; i++ )
+//    {
+//        for ( unsigned int k = 0 ; k < bodiesToIntegrate.at( i ).size( ) ; k++ )
+//        {
+//            if ( ( bodiesToIntegrate.at( 0 ).at( k ) != bodiesToIntegrate.at( i ).at( k ) ) ||
+//                 ( ephemerisUpdateOrder.at( 0 ).at( k ) != ephemerisUpdateOrder.at( i ).at( k ) ) )
+//            {
+//                throw std::runtime_error( "Error when resetting multi-arc integrated ephemerides, the bodies to integrate and/or "
+//                                          " ephemeris update order are inconsistent in-between arcs." );
+//            }
+//        }
+//    }
+
+//    std::cout << "bodies to integrate size per arc!" << "\n\n";
+//    for ( unsigned int i = 0 ; i < arcStartTimes.size( ) ; i++ )
+//    {
+//        std::cout << "arc " << i <<  " = " << bodiesToIntegrate.at( i ).size( ) << "\n\n";
+//    }
+
     // Update ephemerides
-    for( unsigned int i = 0; i < ephemerisUpdateOrder.size( ); i++ )
+    std::map< std::string, std::vector< std::shared_ptr< Ephemeris > > > arcEphemerisListPerBody;
+    std::map< std::string, std::vector< double > > arcStartingTimesPerBody;
+    std::map< std::string, int > counterArcPerBody;
+    for ( unsigned int arc = 0 ; arc < arcStartTimes.size( ) ; arc++ )
     {
-        // Find index of current body in bodiesToIntegrate.
-        std::vector< std::string >::const_iterator bodyFindIterator = std::find(
-                    bodiesToIntegrate.begin( ), bodiesToIntegrate.end( ), ephemerisUpdateOrder.at( i ) );
-        int bodyIndex = std::distance( bodiesToIntegrate.begin( ), bodyFindIterator );
-        
-        
-        // Check environment consistency
-        std::shared_ptr< MultiArcEphemeris > currentBodyEphemeris =
-                std::dynamic_pointer_cast< MultiArcEphemeris >(
-                    bodies.at( bodiesToIntegrate.at( bodyIndex ) )->getEphemeris( ) );
-        if( currentBodyEphemeris == nullptr )
+        for ( unsigned int i = 0 ; i < ephemerisUpdateOrder.at( arc ).size( ) ; i++ )
         {
-            throw std::runtime_error( "Error when resetting ephemeris of body " + bodiesToIntegrate.at( bodyIndex ) +
-                                      ", original ephemeris is of incompatible type" );
-        }
-        
-        std::vector< std::shared_ptr< Ephemeris > > arcEphemerisList;
-        for( unsigned int j = 0; j < arcStartTimes.size( ); j++ )
-        {
-            std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) >
-                    integrationToEphemerisFrameFunction = nullptr;
-            
-            // Create transformation function, if needed.
-            if( integrationToEphemerisFrameFunctions.count( bodiesToIntegrate.at( bodyIndex ) ) > 0 )
+            // Find index of current body in bodiesToIntegrate.
+            std::vector< std::string >::const_iterator bodyFindIterator = std::find(
+                    bodiesToIntegrate.at( arc ).begin( ), bodiesToIntegrate.at( arc ).end( ), ephemerisUpdateOrder.at( arc ).at( i ) );
+            int bodyIndex = std::distance( bodiesToIntegrate.at( arc ).begin( ), bodyFindIterator );
+
+            // Update counter for nb of arc associated with given body.
+            if ( counterArcPerBody.count( bodiesToIntegrate.at( arc ).at( bodyIndex ) ) == 0 )
             {
-                integrationToEphemerisFrameFunction =
-                        integrationToEphemerisFrameFunctions.at( bodiesToIntegrate.at( bodyIndex ) );
+                counterArcPerBody[ bodiesToIntegrate.at( arc ).at( bodyIndex ) ] = 0;
+            }
+            else
+            {
+                counterArcPerBody[ bodiesToIntegrate.at( arc ).at( bodyIndex ) ] += 1;
+            }
+            int counterArcCurrentBody = counterArcPerBody[ bodiesToIntegrate.at( arc ).at( bodyIndex ) ];
+
+            // Check environment consistency
+            std::shared_ptr<MultiArcEphemeris> currentBodyEphemeris =
+                    std::dynamic_pointer_cast< MultiArcEphemeris >(
+                            bodies.at( bodiesToIntegrate.at( arc ).at( bodyIndex ) )->getEphemeris( ) );
+            if ( currentBodyEphemeris == nullptr )
+            {
+                throw std::runtime_error("Error when resetting ephemeris of body " + bodiesToIntegrate.at( arc ).at( bodyIndex ) +
+                                         ", original ephemeris is of incompatible type");
             }
 
-            std::map< TimeType, Eigen::Matrix< StateScalarType, 6, 1 > > currentArcSolution;
-            convertNumericalSolutionToEphemerisInput(
+//            std::vector<std::shared_ptr<Ephemeris> > arcEphemerisList;
+//            for ( unsigned int j = 0; j < arcStartTimes.size( ); j++ )
+//            {
+                std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) >
+                        integrationToEphemerisFrameFunction = nullptr;
+
+                // Create transformation function, if needed.
+                if ( multiArcIntegrationToEphemerisFrameFunctions.count( bodiesToIntegrate.at( arc ).at( bodyIndex ) ) > 0 )
+                {
+                    if ( multiArcIntegrationToEphemerisFrameFunctions.at( bodiesToIntegrate.at( arc ).at( bodyIndex ) ).at( counterArcCurrentBody /*arc*/ ) != nullptr )
+                    {
+                        integrationToEphemerisFrameFunction =
+                                multiArcIntegrationToEphemerisFrameFunctions.at( bodiesToIntegrate.at( arc ).at( bodyIndex ) ).at( counterArcCurrentBody /*arc*/ );
+                    }
+                }
+
+                std::map<TimeType, Eigen::Matrix<StateScalarType, 6, 1> > currentArcSolution;
+                convertNumericalSolutionToEphemerisInput(
                         bodyIndex, startIndexAndSize.first,
-                        equationsOfMotionNumericalSolution.at( j ), currentArcSolution, integrationToEphemerisFrameFunction );
-            
-            // Create interpolator.
-            std::shared_ptr< OneDimensionalInterpolator< TimeType, Eigen::Matrix< StateScalarType, 6, 1 > > >
-                    ephemerisInterpolator = createStateInterpolator( currentArcSolution );
-            
-            arcEphemerisList.push_back( std::make_shared< TabulatedCartesianEphemeris< StateScalarType, TimeType > >(
-                                            ephemerisInterpolator, currentBodyEphemeris->getReferenceFrameOrigin( ),
-                                            currentBodyEphemeris->getReferenceFrameOrientation( ) ) );
+                        equationsOfMotionNumericalSolution.at( arc ), currentArcSolution, integrationToEphemerisFrameFunction );
+
+                // Create interpolator.
+                std::shared_ptr<OneDimensionalInterpolator< TimeType, Eigen::Matrix<StateScalarType, 6, 1 > > >
+                        ephemerisInterpolator = createStateInterpolator( currentArcSolution );
+
+                arcEphemerisListPerBody[ bodiesToIntegrate.at( arc ).at( bodyIndex ) ].push_back(
+                        std::make_shared< TabulatedCartesianEphemeris< StateScalarType, TimeType > >(
+                                ephemerisInterpolator, currentBodyEphemeris->getReferenceFrameOrigin( ),
+                                currentBodyEphemeris->getReferenceFrameOrientation( ) ) );
+
+                arcStartingTimesPerBody[ bodiesToIntegrate.at( arc ).at( bodyIndex ) ].push_back( arcStartTimes.at( arc ) );
+
+//                arcEphemerisList.push_back( std::make_shared< TabulatedCartesianEphemeris< StateScalarType, TimeType > >(
+//                        ephemerisInterpolator, currentBodyEphemeris->getReferenceFrameOrigin( ),
+//                        currentBodyEphemeris->getReferenceFrameOrientation( ) ) );
+//            }
+            currentBodyEphemeris->resetSingleArcEphemerides( arcEphemerisListPerBody.at( bodiesToIntegrate.at( arc ).at( bodyIndex ) ) /*arcEphemerisList*/,
+                                                             arcStartingTimesPerBody.at( bodiesToIntegrate.at( arc ).at( bodyIndex ) ) /*arcStartTimes*/ );
+
         }
-        currentBodyEphemeris->resetSingleArcEphemerides( arcEphemerisList, arcStartTimes );
     }
-    
+
     // Having set new ephemerides, update body properties depending on ephemerides.
     for( auto bodyIterator : bodies.getMap( )  )
     {
@@ -638,7 +687,7 @@ template< typename TimeType, typename StateScalarType >
 class IntegratedStateProcessor
 {
 public:
-    
+
     //! Constructor
     /*!
      * Constructor
@@ -648,29 +697,14 @@ public:
      */
     IntegratedStateProcessor( const IntegratedStateType stateType,
                               const std::pair< int, int > startIndexAndSize ):
-        stateType_( stateType ), startIndexAndSize_( startIndexAndSize ){ }
-    
+            stateType_( stateType ), startIndexAndSize_( startIndexAndSize ){ }
+
     //! Virtual destructor.
     virtual ~IntegratedStateProcessor( ){ }
-    
-    //! Function that processes the entries of the stateType_ in the full numericalSolution
-    /*!
-     * Function that processes the entries of the stateType_ in the full numericalSolution
-     * \param numericalSolution Full numerical solution, in global representation (see
-     * convertToOutputSolution function in associated SingleStateTypeDerivative derived class.
-     */
-    virtual void processIntegratedStates(
-            const std::map< TimeType, Eigen::Matrix< StateScalarType,
-            Eigen::Dynamic, 1 > >& numericalSolution ) = 0;
-    
-    virtual void processIntegratedMultiArcStates(
-            const std::vector< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > >& numericalSolution,
-            const std::vector< double >& arcStartTimes ) = 0;
-    
-    
+
     //! Type of state that is to be set in environment.
     IntegratedStateType stateType_;
-    
+
     //! Start index of current state type in integrated state vector, and its size in the vector
     /*!
      *  Start index of current state type in integrated state vector, and its size in the vector
@@ -679,16 +713,115 @@ public:
     std::pair< int, int > startIndexAndSize_;
 };
 
+
+//! Base class for settings how numerically integrated single-arc states are processed
+/*!
+ *  Base class for defining settings on how numerically integrated single-arc states are to be processed in the
+ *  environment. This class is pure virtual, and a derived class must be provided for each state
+ *  type.
+ */
+template< typename TimeType, typename StateScalarType >
+class SingleArcIntegratedStateProcessor : public IntegratedStateProcessor< TimeType, StateScalarType >
+{
+public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param stateType Type of state that is to be set in environment.
+     * \param startIndexAndSize Start index of current state type in integrated state vector, and
+     * its size in the vector (first and second entry of pair).
+     */
+    SingleArcIntegratedStateProcessor( const IntegratedStateType stateType,
+                                       const std::pair< int, int > startIndexAndSize,
+                                       const simulation_setup::SystemOfBodies& bodies,
+                                       const std::vector< std::string >& bodiesToIntegrate ) :
+            IntegratedStateProcessor< TimeType, StateScalarType >( stateType, startIndexAndSize ),
+            bodies_( bodies ), bodiesToIntegrate_( bodiesToIntegrate ){ }
+
+    //! Virtual destructor.
+    virtual ~SingleArcIntegratedStateProcessor( ){ }
+
+    //! Function that processes the entries of the stateType_ in the full numericalSolution
+    /*!
+     * Function that processes the entries of the stateType_ in the full numericalSolution
+     * \param numericalSolution Full numerical solution, in global representation (see
+     * convertToOutputSolution function in associated SingleStateTypeDerivative derived class.
+     */
+    virtual void processIntegratedStates(
+            const std::map< TimeType, Eigen::Matrix< StateScalarType,
+                    Eigen::Dynamic, 1 > >& numericalSolution ) = 0;
+
+    //! List of bodies used in simulations.
+    simulation_setup::SystemOfBodies bodies_;
+
+    //! List of bodies for which the translational state is numerically integrated.
+    /*!
+     * List of bodies for which the translational state is numerically integrated. Order in this
+     * vector is the same as the order in state vector.
+     */
+    std::vector< std::string > bodiesToIntegrate_;
+};
+
+
+//! Base class for settings how numerically integrated single-arc states are processed
+/*!
+ *  Base class for defining settings on how numerically integrated single-arc states are to be processed in the
+ *  environment. This class is pure virtual, and a derived class must be provided for each state
+ *  type.
+ */
+template< typename TimeType, typename StateScalarType >
+class MultiArcIntegratedStateProcessor : public IntegratedStateProcessor< TimeType, StateScalarType >
+{
+public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param stateType Type of state that is to be set in environment.
+     * \param startIndexAndSize Start index of current state type in integrated state vector, and
+     * its size in the vector (first and second entry of pair).
+     */
+    MultiArcIntegratedStateProcessor( const IntegratedStateType stateType,
+                                      const std::pair< int, int > startIndexAndSize,
+                                      const simulation_setup::SystemOfBodies& bodies,
+                                      const std::vector< double > arcStartTimes ) :
+            IntegratedStateProcessor< TimeType, StateScalarType >( stateType, startIndexAndSize ),
+            bodies_( bodies ), arcStartTimes_( arcStartTimes ){ }
+
+    //! Virtual destructor.
+    virtual ~MultiArcIntegratedStateProcessor( ){ }
+
+    virtual void processIntegratedMultiArcStates(
+            const std::vector< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > >& numericalSolution,
+            const std::vector< double >& arcStartTimes ) = 0;
+
+
+    //! List of bodies used in simulations.
+    simulation_setup::SystemOfBodies bodies_;
+
+    //! List of bodies for which the translational state is numerically integrated (per arc).
+    /*!
+     * List of bodies for which the translational state is numerically integrated (per arc). Order in this
+     * vector is the same as the order in state vector.
+     */
+    std::vector< std::vector< std::string > > bodiesToIntegrate_;
+
+    // List of arc-wise starting times.
+    std::vector< double > arcStartTimes_;
+};
+
+
 //! Class used for processing numerically integrated translational states
 /*!
  *  Class used for processing numerically integrated translational states, updates ephemeris object
  *  of each integrated body, performing frame translations if needed.
  */
 template< typename TimeType, typename StateScalarType >
-class TranslationalStateIntegratedStateProcessor: public IntegratedStateProcessor< TimeType, StateScalarType >
+class TranslationalStateIntegratedStateProcessor: public SingleArcIntegratedStateProcessor< TimeType, StateScalarType >
 {
 public:
-    
+
     //! Constructor.
     /*!
      * Constructor.
@@ -706,24 +839,21 @@ public:
             const std::vector< std::string >& bodiesToIntegrate,
             const std::vector< std::string >& centralBodies,
             const std::shared_ptr< ephemerides::ReferenceFrameManager > frameManager ):
-        IntegratedStateProcessor< TimeType, StateScalarType >(
-            translational_state, std::make_pair( startIndex, 6 * bodiesToIntegrate.size( ) ) ),
-        bodies_( bodies ), bodiesToIntegrate_( bodiesToIntegrate )
+            SingleArcIntegratedStateProcessor< TimeType, StateScalarType >(
+                    translational_state, std::make_pair( startIndex, 6 * bodiesToIntegrate.size( ) ), bodies, bodiesToIntegrate )
     {
         // Get update orders.
         ephemerisUpdateOrder_ = determineEphemerisUpdateorder(
-                    bodiesToIntegrate_, centralBodies,
-                    frameManager->getEphemerisOrigins( bodiesToIntegrate ) );
-        
+                this->bodiesToIntegrate_, centralBodies,
+                frameManager->getEphemerisOrigins( bodiesToIntegrate ) );
+
         // Get required frame origin translations.
-        integrationToEphemerisFrameFunctions_
-                = ephemerides::getTranslationFunctionsFromIntegrationFrameToEphemerisFrame
-                < StateScalarType, TimeType >( centralBodies,
-                                               bodiesToIntegrate_, frameManager );
+        integrationToEphemerisFrameFunctions_ = ephemerides::getTranslationFunctionsFromIntegrationFrameToEphemerisFrame< StateScalarType, TimeType >(
+                centralBodies, this->bodiesToIntegrate_, frameManager );
     }
-    
+
     ~TranslationalStateIntegratedStateProcessor( ){ }
-    
+
     //! Function processing single-arc translational state, resetting bodies' ephemerides with new states
     /*!
      * Function processing single-arc translational state, resetting bodies' ephemerides with new states in numericalSolution
@@ -734,13 +864,130 @@ public:
      */
     void processIntegratedStates(
             const std::map< TimeType,
-            Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& numericalSolution )
+                    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& numericalSolution )
     {
         resetIntegratedEphemerides< TimeType, StateScalarType >(
-                    bodies_, numericalSolution, bodiesToIntegrate_, this->startIndexAndSize_, ephemerisUpdateOrder_,
-                    integrationToEphemerisFrameFunctions_ );
+                this->bodies_, numericalSolution, this->bodiesToIntegrate_, this->startIndexAndSize_, ephemerisUpdateOrder_,
+                integrationToEphemerisFrameFunctions_ );
     }
-    
+
+    std::map< std::string, std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > > getIntegrationToEphemerisFrameFunctions( )
+    {
+        return integrationToEphemerisFrameFunctions_;
+    }
+
+    std::vector< std::string > getBodiesToIntegrate( )
+    {
+        return this->bodiesToIntegrate_;
+    }
+
+    std::vector< std::string > getEphemerisUpdateOrder( )
+    {
+        return ephemerisUpdateOrder_;
+    }
+
+private:
+
+    //! Order in which to update the ephemeris objects
+    std::vector< std::string > ephemerisUpdateOrder_;
+
+    //! Function to provide the states of the ephemeris origins of each body w.r.t. their respective
+    //! integration origins.
+    std::map< std::string, std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > >
+            integrationToEphemerisFrameFunctions_;
+
+};
+
+
+//! Class used for processing numerically integrated translational states
+/*!
+*  Class used for processing numerically integrated translational states, updates ephemeris object
+*  of each integrated body, performing frame translations if needed.
+*/
+template< typename TimeType, typename StateScalarType >
+class MultiArcTranslationalStateIntegratedStateProcessor: public MultiArcIntegratedStateProcessor< TimeType, StateScalarType >
+{
+public:
+
+    //! Constructor.
+    /*!
+     * Constructor.
+     * \param startIndex Index in the state vector where the translational state starts.
+     * \param bodies List of bodies used in simulations.
+     * \param bodiesToIntegrate List of bodies for which the translational state is numerically
+     * integrated. Order in this vector is the same as the order in state vector.
+     * \param centralBodies List of origing w.r.t. which the translational states are integrated
+     * (with the same order as bodiesToIntegrate).
+     * \param frameManager Object to get state of one body w.r.t. another body.
+     */
+    MultiArcTranslationalStateIntegratedStateProcessor(
+            const simulation_setup::SystemOfBodies& bodies,
+            std::vector< double >& arcStartTimes,
+            const std::vector< std::shared_ptr<
+                    TranslationalStateIntegratedStateProcessor< TimeType, StateScalarType > > > singleArcTranslationalStateProcessors ):
+            MultiArcIntegratedStateProcessor< TimeType, StateScalarType >(
+                    translational_state, singleArcTranslationalStateProcessors.at( 0 )->startIndexAndSize_, bodies, arcStartTimes ),
+            singleArcTranslationalStateProcessors_( singleArcTranslationalStateProcessors )
+    {
+
+        // All bodies to integrate as keys, and the values are maps containing the general arc indices and arc indices specifically for the given body.
+        std::map< std::string, std::map< int, int > > bodiesToIntegrateArcsAndIndices;
+
+        unsigned int counterMultiArcStates = 0;
+        for ( unsigned int i = 0 ; i < this->arcStartTimes_.size( ) ; i++ )
+        {
+            ephemerisUpdateOrder_.push_back(singleArcTranslationalStateProcessors_.at(i)->getEphemerisUpdateOrder());
+            this->bodiesToIntegrate_.push_back(singleArcTranslationalStateProcessors_.at(i)->getBodiesToIntegrate());
+
+            for ( unsigned int k = 0 ; k < singleArcTranslationalStateProcessors_.at( i )->getBodiesToIntegrate( ).size( ) ; k++ ) {
+                std::string currentBodyToIntegrate = singleArcTranslationalStateProcessors_.at( i )->getBodiesToIntegrate( ).at( k );
+                if ( bodiesToIntegrateArcsAndIndices.count( currentBodyToIntegrate ) == 0 )
+                {
+                    std::map< int, int > currentBodyArcAndIndex;
+                    currentBodyArcAndIndex[ i ] = 0;
+                    bodiesToIntegrateArcsAndIndices[ currentBodyToIntegrate ] = currentBodyArcAndIndex;
+                }
+                else
+                {
+                    int counterArcs = bodiesToIntegrateArcsAndIndices[ currentBodyToIntegrate ].rbegin( )->second;
+                    bodiesToIntegrateArcsAndIndices.at( currentBodyToIntegrate )[ i ] = counterArcs + 1;
+                }
+            }
+
+            counterMultiArcStates += singleArcTranslationalStateProcessors_.at( i )->getBodiesToIntegrate( ).size( );
+        }
+        this->startIndexAndSize_ = std::make_pair(  this->startIndexAndSize_.first, 6 * counterMultiArcStates );
+
+        for ( unsigned int i = 0 ; i < this->arcStartTimes_.size( ) ; i++ )
+        {
+            std::shared_ptr<
+                    TranslationalStateIntegratedStateProcessor< TimeType, StateScalarType > > currentTranslationalStateProcessor =
+                    singleArcTranslationalStateProcessors_.at( i );
+
+            std::map< std::string, std::function< Eigen::Matrix<StateScalarType, 6, 1 >( const TimeType ) > > singleArcIntegrationToEphemerisFrameFunctions
+                    = currentTranslationalStateProcessor->getIntegrationToEphemerisFrameFunctions( );
+            for ( auto itr: singleArcIntegrationToEphemerisFrameFunctions )
+            {
+                int currentArcIndexForBody = bodiesToIntegrateArcsAndIndices.at( itr.first ).at( i );
+                if ( multiArcIntegrationToEphemerisFrameFunctions_.count( itr.first ) == 0 )
+                {
+                    std::vector< std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > > ephemerisToFrameFunctions;
+                    ephemerisToFrameFunctions.resize( bodiesToIntegrateArcsAndIndices.at( itr.first ).size( ) /*this->arcStartTimes_.size( )*/ );
+                    ephemerisToFrameFunctions[ currentArcIndexForBody ] = itr.second;
+                    multiArcIntegrationToEphemerisFrameFunctions_[ itr.first ] = ephemerisToFrameFunctions;
+                }
+                else
+                {
+                    multiArcIntegrationToEphemerisFrameFunctions_.at( itr.first ).at( currentArcIndexForBody ) = itr.second;
+                }
+
+            }
+        }
+    }
+
+    ~MultiArcTranslationalStateIntegratedStateProcessor( ){ }
+
+
     //! Function processing multi-arc translational state, resetting bodies' ephemerides with new states
     /*!
      * Function processing multi-arc translational state, resetting bodies' ephemerides with new states in numericalSolution
@@ -755,30 +1002,22 @@ public:
             const std::vector< double >& arcStartTimes )
     {
         resetMultiArcIntegratedEphemerides< TimeType, StateScalarType >(
-                    bodies_, numericalSolution, arcStartTimes,
-                    bodiesToIntegrate_, this->startIndexAndSize_, ephemerisUpdateOrder_, integrationToEphemerisFrameFunctions_ );
+                this->bodies_, numericalSolution, this->arcStartTimes_,
+                this->bodiesToIntegrate_, this->startIndexAndSize_, ephemerisUpdateOrder_, multiArcIntegrationToEphemerisFrameFunctions_ /*integrationToEphemerisFrameFunctions_*/ );
     }
-    
+
 private:
-    
-    //! List of bodies used in simulations.
-    simulation_setup::SystemOfBodies bodies_;
-    
-    //! List of bodies for which the translational state is numerically integrated.
-    /*!
-     * List of bodies for which the translational state is numerically integrated. Order in this
-     * vector is the same as the order in state vector.
-     */
-    std::vector< std::string > bodiesToIntegrate_;
-    
     //! Order in which to update the ephemeris objects
-    std::vector< std::string > ephemerisUpdateOrder_;
-    
-    //! Function to provide the states of the ephemeris origins of each body w.r.t. their respective
-    //! integration origins.
-    std::map< std::string, std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > >
-    integrationToEphemerisFrameFunctions_;
+    std::vector< std::vector< std::string > > ephemerisUpdateOrder_;
+
+    std::map< std::string, std::vector< std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > > >
+            multiArcIntegrationToEphemerisFrameFunctions_;
+
+    std::vector< std::shared_ptr<
+            TranslationalStateIntegratedStateProcessor< TimeType, StateScalarType > > > singleArcTranslationalStateProcessors_;
+
 };
+
 
 //! Class used for processing numerically integrated rotational states
 /*!
@@ -786,10 +1025,10 @@ private:
  *  of each integrated body.
  */
 template< typename TimeType, typename StateScalarType >
-class RotationalStateIntegratedStateProcessor: public IntegratedStateProcessor< TimeType, StateScalarType >
+class RotationalStateIntegratedStateProcessor: public SingleArcIntegratedStateProcessor< TimeType, StateScalarType >
 {
 public:
-    
+
     //! Constructor.
     /*!
      * Constructor.
@@ -802,10 +1041,11 @@ public:
             const int startIndex,
             const simulation_setup::SystemOfBodies& bodies,
             const std::vector< std::string >& bodiesToIntegrate ):
-        IntegratedStateProcessor< TimeType, StateScalarType >( rotational_state, std::make_pair( startIndex, 7 * bodiesToIntegrate.size( ) ) ),
-        bodies_( bodies ), bodiesToIntegrate_( bodiesToIntegrate )
+            SingleArcIntegratedStateProcessor< TimeType, StateScalarType >(
+                    rotational_state, std::make_pair( startIndex, 7 * bodiesToIntegrate.size( ) ),
+                    bodies, bodiesToIntegrate )
     { }
-    
+
     //! Function processing rotational state in the full numericalSolution
     /*!
      * Function that processes the entries of the rotational state in the full numericalSolution,
@@ -817,43 +1057,19 @@ public:
             const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& numericalSolution )
     {
         resetIntegratedRotationalEphemerides< TimeType, StateScalarType >(
-                    bodies_, numericalSolution, bodiesToIntegrate_, this->startIndexAndSize_ );
+                this->bodies_, numericalSolution, this->bodiesToIntegrate_, this->startIndexAndSize_ );
     }
-    
-    //! Function processing multi-arc rotational state, resetting bodies' ephemerides with new states
-    /*!
-     * Function processing multi-arc rotational state, resetting bodies' rotational ephemerides with new states in
-     * numericalSolution variable.
-     * \param numericalSolution Vector of numerical solutions (one vector per arc)
-     * \param arcStartTimes List of start times of the propagation arcs.
-     */
-    void processIntegratedMultiArcStates(
-            const std::vector< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > >& numericalSolution,
-            const std::vector< double >& arcStartTimes )
-    {
-        throw std::runtime_error( "Error, cannot yet set multi-arc rotational ephemeris" );
-    }
-    
+
 private:
-    
-    //! List of bodies used in simulations.
-    simulation_setup::SystemOfBodies bodies_;
-    
-    //! List of bodies for which the rotational state is numerically integrated.
-    /*!
-     * List of bodies for which the rotational state is numerically integrated. Order in this
-     * vector is the same as the order in state vector.
-     */
-    std::vector< std::string > bodiesToIntegrate_;
-    
+
 };
 
 //! Class used for processing numerically integrated masses of bodies.
 template< typename TimeType, typename StateScalarType >
-class BodyMassIntegratedStateProcessor: public IntegratedStateProcessor< TimeType, StateScalarType >
+class BodyMassIntegratedStateProcessor: public SingleArcIntegratedStateProcessor< TimeType, StateScalarType >
 {
 public:
-    
+
     //! Constructor
     /*!
      * Constructor
@@ -866,14 +1082,13 @@ public:
             const int startIndex,
             const simulation_setup::SystemOfBodies& bodies,
             const std::vector< std::string >& bodiesToIntegrate ):
-        IntegratedStateProcessor<  TimeType, StateScalarType >(
-            body_mass_state, std::make_pair( startIndex, bodiesToIntegrate.size( ) ) ),
-        bodies_( bodies ), bodiesToIntegrate_( bodiesToIntegrate )
+            SingleArcIntegratedStateProcessor<  TimeType, StateScalarType >(
+                    body_mass_state, std::make_pair( startIndex, bodiesToIntegrate.size( ) ), bodies, bodiesToIntegrate )
     { }
-    
+
     //! Destructor
     ~BodyMassIntegratedStateProcessor( ){ }
-    
+
     //! Function processing mass state in the full numericalSolution
     /*!
      * Function that processes the entries of the propagated mass in the full numericalSolution, resetting bodies' mass models
@@ -883,33 +1098,11 @@ public:
     void processIntegratedStates(
             const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& numericalSolution )
     {
-        resetIntegratedBodyMass( bodies_, numericalSolution, bodiesToIntegrate_, this->startIndexAndSize_ );
+        resetIntegratedBodyMass( this->bodies_, numericalSolution, this->bodiesToIntegrate_, this->startIndexAndSize_ );
     }
-    
-    //! Function processing multi-arc translational mass, resetting bodies' mass models
-    /*!
-     * Function processing multi-arc translational mass, resetting bodies' mass models
-     * \param numericalSolution Vector of numerical solutions (one vector per arc) for mass.
-     * \param arcStartTimes List of start times of the propagation arcs.
-     */
-    void processIntegratedMultiArcStates(
-            const std::vector< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > >& numericalSolution,
-            const std::vector< double >& arcStartTimes )
-    {
-        throw std::runtime_error( "Error, cannot yet reset multi-arc mass model" );
-    }
-    
+
 private:
-    
-    //! List of bodies used in simulations.
-    simulation_setup::SystemOfBodies bodies_;
-    
-    //! List of bodies for which the body mass is numerically integrated.
-    /*!
-     * List of bodies for which the body mass is numerically integrated. Order in this
-     * vector is the same as the order in state vector.
-     */
-    std::vector< std::string > bodiesToIntegrate_;
+
 };
 
 void checkRotationalStatesFeasibility(
@@ -1034,6 +1227,7 @@ void checkPropagatedStatesFeasibility(
     }
 }
 
+
 //! Function to create list objects for processing numerically integrated results.
 /*!
  * Function to create list objects for processing numerically integrated results, so that all
@@ -1048,133 +1242,144 @@ void checkPropagatedStatesFeasibility(
  */
 template< typename TimeType, typename StateScalarType >
 std::map< IntegratedStateType,
-std::vector< std::shared_ptr< IntegratedStateProcessor< TimeType, StateScalarType > > > >
+        std::shared_ptr< SingleArcIntegratedStateProcessor< TimeType, StateScalarType > > >
 createIntegratedStateProcessors(
         const std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > propagatorSettings,
         const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< ephemerides::ReferenceFrameManager > frameManager,
         const int startIndex = 0 )
 {
-    std::map< IntegratedStateType, std::vector< std::shared_ptr< IntegratedStateProcessor
-            < TimeType, StateScalarType > > > > integratedStateProcessors;
-    
+    std::map< IntegratedStateType, std::shared_ptr< SingleArcIntegratedStateProcessor< TimeType, StateScalarType > > > integratedStateProcessors;
+
     // Check dynamics type.
     switch( propagatorSettings->getStateType( ) )
     {
-    case hybrid:
-    {
-        // Check input consistency
-        std::shared_ptr< MultiTypePropagatorSettings< StateScalarType > > multiTypePropagatorSettings =
-                std::dynamic_pointer_cast< MultiTypePropagatorSettings< StateScalarType > >( propagatorSettings );
-        if( multiTypePropagatorSettings == nullptr )
+        case hybrid:
         {
-            throw std::runtime_error( "Error, multi-type propagator settings are inconsistent when make state processors" );
-        }
-        
-        // Iterate over each propagated state type
-        std::map< IntegratedStateType, std::vector< std::shared_ptr< IntegratedStateProcessor< TimeType, StateScalarType > > > >
-                singleTypeIntegratedStateProcessors;
-        int currentStartIndex = 0;
-        for( typename std::map< IntegratedStateType,
-             std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > >::const_iterator
-             typeIterator = multiTypePropagatorSettings->propagatorSettingsMap_.begin( );
-             typeIterator != multiTypePropagatorSettings->propagatorSettingsMap_.end( ); typeIterator++ )
-        {
-            // Multi-type in multi-type not allowed (yet)
-            if( typeIterator->first != hybrid )
+            // Check input consistency
+            std::shared_ptr< MultiTypePropagatorSettings< StateScalarType > > multiTypePropagatorSettings =
+            std::dynamic_pointer_cast< MultiTypePropagatorSettings< StateScalarType > >( propagatorSettings );
+            if ( multiTypePropagatorSettings == nullptr )
             {
-                for( unsigned int i = 0; i < typeIterator->second.size( ); i++ )
+                throw std::runtime_error( "Error, multi-type propagator settings are inconsistent when make state processors" );
+            }
+
+            // Iterate over each propagated state type
+            std::map< IntegratedStateType, std::shared_ptr< SingleArcIntegratedStateProcessor< TimeType, StateScalarType > > >
+                    singleTypeIntegratedStateProcessors;
+            int currentStartIndex = 0;
+            for ( typename std::map< IntegratedStateType,
+                    std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > >::const_iterator
+                    typeIterator = multiTypePropagatorSettings->propagatorSettingsMap_.begin( );
+                    typeIterator != multiTypePropagatorSettings->propagatorSettingsMap_.end( ); typeIterator++ )
+            {
+                // Multi-type in multi-type not allowed (yet)
+                if ( typeIterator->first != hybrid )
                 {
-                    if(  typeIterator->second.at( i ) == nullptr )
+                    for ( unsigned int i = 0; i < typeIterator->second.size( ); i++ )
                     {
-                        std::string errorMessage = "Error in when processing hybrid propagator settings, propagator entry " +
-                                std::to_string( i ) + " is not defined.";
-                        throw std::runtime_error( errorMessage );
-                    }
-                    
-                    //  Create state processor
-                    singleTypeIntegratedStateProcessors = createIntegratedStateProcessors< TimeType, StateScalarType >(
+                        if( typeIterator->second.at( i ) == nullptr )
+                        {
+                            std::string errorMessage = "Error in when processing hybrid propagator settings, propagator entry " +
+                                                       std::to_string( i ) + " is not defined.";
+                            throw std::runtime_error( errorMessage );
+                        }
+
+                        //  Create state processor
+                        singleTypeIntegratedStateProcessors = createIntegratedStateProcessors< TimeType, StateScalarType >(
                                 typeIterator->second.at( i ), bodies, frameManager, currentStartIndex );
-                    
-                    if( singleTypeIntegratedStateProcessors.size( ) > 1 )
-                    {
-                        throw std::runtime_error( "Error when making hybrid integrated result processors, multiple types found" );
-                    }
-                    else if( ( singleTypeIntegratedStateProcessors.size( ) == 0 ) &&  ( typeIterator->first != custom_state ) )
-                    {
-                        throw std::runtime_error( "Error when making hybrid integrated result processors, no types found" );
-                    }
-                    else if( ( singleTypeIntegratedStateProcessors.size( ) == 1 ) )
-                    {
-                        if( singleTypeIntegratedStateProcessors.begin( )->second.size( ) != 1 )
+
+                        if ( singleTypeIntegratedStateProcessors.size( ) > 1 )
                         {
-                            throw std::runtime_error(
-                                        "Error when making hybrid integrated result processors, multiple processors of single type found" );
+                            throw std::runtime_error( "Error when making hybrid integrated result processors, multiple types found" );
                         }
-                        else
+                        else if ( ( singleTypeIntegratedStateProcessors.size( ) == 0 ) &&  ( typeIterator->first != custom_state ) )
                         {
-                            integratedStateProcessors[ singleTypeIntegratedStateProcessors.begin( )->first ].push_back(
-                                        singleTypeIntegratedStateProcessors.begin( )->second.at( 0 ) );
+                            throw std::runtime_error( "Error when making hybrid integrated result processors, no types found" );
                         }
+                        else if ( ( singleTypeIntegratedStateProcessors.size( ) == 1 ) )
+                        {
+                            integratedStateProcessors[ singleTypeIntegratedStateProcessors.begin( )->first ] =
+                                    singleTypeIntegratedStateProcessors.begin( )->second;
+                        }
+
+                        currentStartIndex += typeIterator->second.at( i )->getConventionalStateSize( );
                     }
-                    
-                    currentStartIndex += typeIterator->second.at( i )->getConventionalStateSize( );
+                }
+                else
+                {
+                    throw std::runtime_error( "Error when making integrated state processors, cannot handle hybrid propagator inside hybrid propagator" );
                 }
             }
-            else
+            break;
+        }
+
+        case translational_state:
+        {
+//<<<<<<< HEAD
+            // Check input feasibility
+            std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > >
+            translationalPropagatorSettings =
+                    std::dynamic_pointer_cast< TranslationalStatePropagatorSettings< StateScalarType > >( propagatorSettings );
+            if ( translationalPropagatorSettings == nullptr )
             {
-                throw std::runtime_error(
-                            "Error when making integrated state processors, cannot handle hybrid propagator inside hybrid propagator" );
+                throw std::runtime_error( "Error, input type is inconsistent in createIntegratedStateProcessors" );
             }
-        }
-        break;
-    }
-    case translational_state:
-    {
-        // Check input feasibility
-        std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > >
-                translationalPropagatorSettings = std::dynamic_pointer_cast
-                < TranslationalStatePropagatorSettings< StateScalarType > >( propagatorSettings );
-        if( translationalPropagatorSettings == nullptr )
-        {
-            throw std::runtime_error( "Error, input type for translational dynamics is inconsistent in createIntegratedStateProcessors" );
-        }
-        
-        // Create state processors
-        integratedStateProcessors[ translational_state ].push_back(
+
+            // Create state processors
+            integratedStateProcessors[ translational_state ] =
                     std::make_shared< TranslationalStateIntegratedStateProcessor< TimeType, StateScalarType > >(
-                        startIndex, bodies, translationalPropagatorSettings->bodiesToIntegrate_,
-                        translationalPropagatorSettings->centralBodies_, frameManager ) );
-        break;
-    }
-    case rotational_state:
-    {
-        std::shared_ptr< RotationalStatePropagatorSettings< StateScalarType > > rotationalPropagatorSettings =
-                std::dynamic_pointer_cast< RotationalStatePropagatorSettings< StateScalarType > >( propagatorSettings );
-        if( rotationalPropagatorSettings == nullptr )
-        {
-            throw std::runtime_error( "Error, input type for rotational dynamics is inconsistent in createIntegratedStateProcessors" );
+                            startIndex, bodies, translationalPropagatorSettings->bodiesToIntegrate_,
+            translationalPropagatorSettings->centralBodies_, frameManager );
+            break;
         }
-        integratedStateProcessors[ rotational_state ].push_back(
+
+        case rotational_state:
+        {
+            std::shared_ptr< RotationalStatePropagatorSettings< StateScalarType > > rotationalPropagatorSettings =
+                    std::dynamic_pointer_cast< RotationalStatePropagatorSettings< StateScalarType > >( propagatorSettings );
+
+            integratedStateProcessors[ rotational_state ] =
+//=======
+//            throw std::runtime_error( "Error, input type for translational dynamics is inconsistent in createIntegratedStateProcessors" );
+//        }
+        
+//        // Create state processors
+//        integratedStateProcessors[ translational_state ].push_back(
+//                    std::make_shared< TranslationalStateIntegratedStateProcessor< TimeType, StateScalarType > >(
+//                        startIndex, bodies, translationalPropagatorSettings->bodiesToIntegrate_,
+//                        translationalPropagatorSettings->centralBodies_, frameManager ) );
+//        break;
+//    }
+//    case rotational_state:
+//    {
+//        std::shared_ptr< RotationalStatePropagatorSettings< StateScalarType > > rotationalPropagatorSettings =
+//                std::dynamic_pointer_cast< RotationalStatePropagatorSettings< StateScalarType > >( propagatorSettings );
+//        if( rotationalPropagatorSettings == nullptr )
+//        {
+//            throw std::runtime_error( "Error, input type for rotational dynamics is inconsistent in createIntegratedStateProcessors" );
+//        }
+//        integratedStateProcessors[ rotational_state ].push_back(
+//>>>>>>> develop
                     std::make_shared< RotationalStateIntegratedStateProcessor< TimeType, StateScalarType > >(
-                        startIndex, bodies, rotationalPropagatorSettings->bodiesToIntegrate_ ) );
+                            startIndex, bodies, rotationalPropagatorSettings->bodiesToIntegrate_ );
         break;
     }
+
     case body_mass_state:
     {
         // Check input feasibility
-        std::shared_ptr< MassPropagatorSettings< StateScalarType > >
-                massPropagatorSettings = std::dynamic_pointer_cast
-                < MassPropagatorSettings< StateScalarType > >( propagatorSettings );
-        if( massPropagatorSettings == nullptr )
+        std::shared_ptr< MassPropagatorSettings< StateScalarType > > massPropagatorSettings =
+                std::dynamic_pointer_cast< MassPropagatorSettings< StateScalarType > >( propagatorSettings );
+        if ( massPropagatorSettings == nullptr )
         {
             throw std::runtime_error( "Error, input type is inconsistent in createIntegratedStateProcessors" );
         }
-        
+
         // Create mass processors.
-        integratedStateProcessors[ body_mass_state ].push_back(
-                    std::make_shared< BodyMassIntegratedStateProcessor< TimeType, StateScalarType > >(
-                        startIndex, bodies, massPropagatorSettings->bodiesWithMassToPropagate_ ) );
+        integratedStateProcessors[ body_mass_state ] =
+                std::make_shared< BodyMassIntegratedStateProcessor< TimeType, StateScalarType > >(
+                        startIndex, bodies, massPropagatorSettings->bodiesWithMassToPropagate_ );
         break;
     }
     case custom_state:
@@ -1183,11 +1388,88 @@ createIntegratedStateProcessors(
     }
     default:
         throw std::runtime_error( "Error, could not process integrated state type " +
-                                  std::to_string( propagatorSettings->getStateType( ) ) );
+            std::to_string( propagatorSettings->getStateType( ) ) );
     }
-    
+
     return integratedStateProcessors;
 }
+
+//! Function to create list objects for processing numerically integrated multi-arc results.
+/*!
+ * Function to create list objects for processing numerically integrated multi-arc results, so that all
+ * multi-arc results are set in the environment models (i.e. resetting tabulated ephemeris for translational
+ * dynamics).
+ * \param propagatorSettings Settings for the propagation that is used
+ * \param bodies List of body objects that represents the environemnt
+ * \param frameManager Object for providinf conversion functions between different ephemeris origins.
+ * \param startIndex Index of state vector where the state entries handled with propagatorSettings
+ *        starts.
+ * \return List objects for processing numerically integrated results.
+ */
+template< typename TimeType, typename StateScalarType >
+std::map< IntegratedStateType,
+        std::shared_ptr< MultiArcIntegratedStateProcessor< TimeType, StateScalarType > > >
+createMultiArcIntegratedStateProcessors(
+        const simulation_setup::SystemOfBodies& bodies,
+        std::vector< double > arcStartTimes,
+        const std::map< IntegratedStateType, std::vector< std::shared_ptr<
+                SingleArcIntegratedStateProcessor< TimeType, StateScalarType > > > > singleArcIntegratedStatesProcessors )
+{
+    std::map< IntegratedStateType, std::shared_ptr< MultiArcIntegratedStateProcessor< TimeType, StateScalarType > > > integratedStateProcessors;
+
+    for ( auto stateTypeItr : singleArcIntegratedStatesProcessors )
+    {
+        // Check input consistency
+        if ( arcStartTimes.size( ) != stateTypeItr.second.size( ) )
+        {
+            throw std::runtime_error( "Error when creating multi-arc integrated state processors, input sizes are inconsistent." );
+        }
+
+        // Check dynamics type.
+        switch( stateTypeItr.first )
+        {
+            case hybrid:
+            {
+                throw std::runtime_error( "Error when creating multi-arc integrated state processors, hybrid type should not be detected." );
+                break;
+            }
+            case translational_state:
+            {
+                std::vector< std::shared_ptr<
+                        TranslationalStateIntegratedStateProcessor< TimeType, StateScalarType > > > singleArcTranslationalStateProcessors;
+                for ( unsigned int i = 0 ; i < stateTypeItr.second.size( ) ; i++ )
+                {
+                    singleArcTranslationalStateProcessors.push_back(
+                            std::dynamic_pointer_cast< TranslationalStateIntegratedStateProcessor< TimeType, StateScalarType > >( stateTypeItr.second.at( i ) ) );
+                }
+                integratedStateProcessors[ translational_state ] =
+                        std::make_shared< MultiArcTranslationalStateIntegratedStateProcessor< TimeType, StateScalarType > >(
+                                bodies, arcStartTimes, singleArcTranslationalStateProcessors );
+                break;
+            }
+            case rotational_state:
+            {
+                throw std::runtime_error( "Error, cannot yet reset multi-arc rotational model" );
+                break;
+            }
+            case body_mass_state:
+            {
+                throw std::runtime_error( "Error, cannot yet reset multi-arc mass model" );
+                break;
+            }
+            case custom_state:
+            {
+                break;
+            }
+            default:
+                throw std::runtime_error( "Error, could not process integrated state type " + std::to_string( stateTypeItr.first ) );
+        }
+
+    }
+
+    return integratedStateProcessors;
+}
+
 
 //! Function resetting dynamical properties of environment from numerical dynamics solution
 /*!
@@ -1202,50 +1484,14 @@ createIntegratedStateProcessors(
 template< typename TimeType, typename StateScalarType >
 void resetIntegratedStates(
         const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& equationsOfMotionNumericalSolution,
-        const std::map< IntegratedStateType, std::vector< std::shared_ptr<
-        IntegratedStateProcessor< TimeType, StateScalarType > > > >  integratedStateProcessors )
+        const std::map< IntegratedStateType, std::shared_ptr<
+                SingleArcIntegratedStateProcessor< TimeType, StateScalarType > > > integratedStateProcessors )
 {
-    for( typename std::map< IntegratedStateType, std::vector< std::shared_ptr< IntegratedStateProcessor<
-         TimeType, StateScalarType > > > >::const_iterator updateIterator = integratedStateProcessors.begin( );
-         updateIterator != integratedStateProcessors.end( ); updateIterator++ )
+    for( typename std::map< IntegratedStateType, std::shared_ptr< SingleArcIntegratedStateProcessor<
+            TimeType, StateScalarType > > >::const_iterator updateIterator = integratedStateProcessors.begin( );
+            updateIterator != integratedStateProcessors.end( ); updateIterator++ )
     {
-        for( unsigned int i = 0; i < updateIterator->second.size( ); i++ )
-        {
-            updateIterator->second.at( i )->processIntegratedStates(
-                        equationsOfMotionNumericalSolution );
-        }
-    }
-}
-
-//! Function resetting dynamical properties of environment from numerical multi-arc dynamics solution
-/*!
- * Function to reset the dynamical properties of the environment from the numerically integrated multi-arc
- * dynamics solution
- * \param equationsOfMotionNumericalSolution Solution produced by the numerical integration, in the
- * 'conventional form'. One vector entry contains the data for one arc
- * \sa SingleStateTypeDerivative::convertToOutputSolution
- * \param integratedStateProcessors List of objects (per dynamics type) used to process integrated
- * results into environment
- * \param arcStartTimes List of start times of the propagation arcs.
- */
-template< typename TimeType, typename StateScalarType >
-void resetIntegratedMultiArcStatesWithEqualArcDynamics(
-        const std::vector< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > >&
-        equationsOfMotionNumericalSolution,
-        const std::map< IntegratedStateType,
-        std::vector< std::shared_ptr< IntegratedStateProcessor< TimeType, StateScalarType > > > >
-        integratedStateProcessors,
-        const std::vector< double >& arcStartTimes )
-{
-    for( typename std::map< IntegratedStateType,
-         std::vector< std::shared_ptr< IntegratedStateProcessor< TimeType, StateScalarType > > > >:: const_iterator
-         updateIterator = integratedStateProcessors.begin( );
-         updateIterator != integratedStateProcessors.end( ); updateIterator++ )
-    {
-        for( unsigned int i = 0; i < updateIterator->second.size( ); i++ )
-        {
-            updateIterator->second.at( i )->processIntegratedMultiArcStates( equationsOfMotionNumericalSolution, arcStartTimes );
-        }
+        updateIterator->second->processIntegratedStates( equationsOfMotionNumericalSolution );
     }
 }
 

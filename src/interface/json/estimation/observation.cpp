@@ -43,6 +43,7 @@ void to_json( nlohmann::json& jsonObject,
     {
     case one_way_range:
     case angular_position:
+    case relative_angular_position:
     case position_observable:
     case one_way_doppler:
     {
