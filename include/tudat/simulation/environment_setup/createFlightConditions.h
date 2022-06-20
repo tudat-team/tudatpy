@@ -73,6 +73,12 @@ void addFlightConditions(
         const std::string bodyName,
         const std::string centralBodyName );
 
+void addAtmosphericFlightConditions(
+        const SystemOfBodies& bodies,
+        const std::string bodyName,
+        const std::string centralBodyName );
+
+
 //! Function to set the angle of attack to trimmed conditions.
 /*!
  * Function to set the angle of attack to trimmed conditions. Using this function requires the aerodynamic coefficient

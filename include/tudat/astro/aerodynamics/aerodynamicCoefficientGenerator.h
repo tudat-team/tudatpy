@@ -251,6 +251,23 @@ public:
 
     }
 
+    void clearBaseData( )
+    {
+        boost::array< int, NumberOfCoefficients > numberOfPointsPerIndependentVariables;
+        for( unsigned int i = 0; i < NumberOfCoefficients; i++ )
+        {
+            numberOfPointsPerIndependentVariables[ i ] = 0;
+        }
+        aerodynamicCoefficients_.resize( numberOfPointsPerIndependentVariables );
+
+        for( unsigned int i = 0; i < dataPointsOfIndependentVariables_.size( ); i++ )
+        {
+            dataPointsOfIndependentVariables_.at( i ).clear( );
+        }
+        dataPointsOfIndependentVariables_.clear( );
+
+    }
+
 protected:
 
     //! Generate aerodynamic coefficients.

@@ -95,7 +95,7 @@ BOOST_AUTO_TEST_CASE( testVelocities )
     //set the minimum pericenter radius
     const double minimumRadiusPlanet1 = 6351800;
 
-    SwingbyWithFixedOutgoingVelocity transferNode(
+    SwingbyWithFixedIncomingFixedOutgoingVelocity transferNode(
                 constantEphemeris1,
                 planet1GravitationalParameter, minimumRadiusPlanet1,
                 [=]( ){ return velocityBeforePlanet1; },
@@ -139,6 +139,22 @@ BOOST_AUTO_TEST_CASE( testVelocities )
         //TODO: Find out why tolerance needs to be so big for one of the legs
         BOOST_CHECK_SMALL( std::fabs( statesAlongTrajectory.begin( )->second( i ) - planet1State( i ) ), 20.0E3 );
         BOOST_CHECK_SMALL( std::fabs( statesAlongTrajectory.rbegin( )->second( i ) - planet2State( i ) ), 20.0E3 );
+    }
+
+
+    // Get data on 10 equispace points on trajectory
+    std::map< double, Eigen::Vector3d > thrustAccelerationsAlongTrajectory;
+    transferLeg.getThrustAccelerationsAlongTrajectory( thrustAccelerationsAlongTrajectory, 10 );
+
+    // Check initial and final time on output list
+    BOOST_CHECK_SMALL( thrustAccelerationsAlongTrajectory.begin( )->first, 1.0E-14 );
+    BOOST_CHECK_CLOSE_FRACTION( thrustAccelerationsAlongTrajectory.rbegin( )->first, timeOfFlight, 1.0E-14 );
+
+    // Check if thrust acceleration is zero
+    for( auto it : thrustAccelerationsAlongTrajectory )
+    {
+        Eigen::Vector3d currentCartesianThrustAcceleration = it.second;
+        BOOST_CHECK_SMALL( currentCartesianThrustAcceleration.norm(), 1.0E-14 );
     }
 }
 

@@ -166,6 +166,19 @@ public:
         setConstantPerObservableAndLinkEndsWeights( weightPerObservableAndLinkEnds );
     }
 
+//<<<<<<< HEAD
+//=======
+    void setConstantPerObservableAndLinkEndsWeights(
+            const observation_models::ObservableType observableType,
+            const observation_models::LinkEnds& linkEnds,
+            const double weight )
+    {
+        std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds, double > > weightPerObservableAndLinkEnds;
+        weightPerObservableAndLinkEnds[ observableType ][ linkEnds ] =  weight;
+        setConstantPerObservableAndLinkEndsWeights( weightPerObservableAndLinkEnds );
+    }
+
+//>>>>>>> develop
     //! Function to return the total data structure of observations and associated times/link ends/type (by reference)
     /*!
      * Function to return the total data structure of observations and associated times/link ends/type (by reference)

@@ -26,6 +26,7 @@ static std::map< AvailableIntegrators, std::string > integratorTypes =
 {
     { rungeKutta4, "rungeKutta4" },
     { euler, "euler" },
+    { rungeKuttaFixedStepSize, "rungeKuttaFixedStepSize" },
     { rungeKuttaVariableStepSize, "rungeKuttaVariableStepSize" },
     { adamsBashforthMoulton, "adamsBashforthMoulton" },
     { bulirschStoer, "bulirschStoer" },
@@ -47,26 +48,28 @@ inline void from_json( const nlohmann::json& jsonObject, AvailableIntegrators& a
 }
 
 
-//! Map of `RungeKuttaCoefficients::CoefficientSets` string representations.
-static std::map< RungeKuttaCoefficients::CoefficientSets, std::string > rungeKuttaCoefficientSets =
+//! Map of `CoefficientSets` string representations.
+static std::map< CoefficientSets, std::string > rungeKuttaCoefficientSets =
 {
-    { RungeKuttaCoefficients::rungeKuttaFehlberg45, "rungeKuttaFehlberg45" },
-    { RungeKuttaCoefficients::rungeKuttaFehlberg56, "rungeKuttaFehlberg56" },
-    { RungeKuttaCoefficients::rungeKuttaFehlberg78, "rungeKuttaFehlberg78" },
-    { RungeKuttaCoefficients::rungeKutta87DormandPrince, "rungeKutta87DormandPrince" }
+    { forwardEuler, "forwardEuler" },
+    { rungeKutta4Classic, "rungeKutta4" },
+    { rungeKuttaFehlberg45, "rungeKuttaFehlberg45" },
+    { rungeKuttaFehlberg56, "rungeKuttaFehlberg56" },
+    { rungeKuttaFehlberg78, "rungeKuttaFehlberg78" },
+    { rungeKutta87DormandPrince, "rungeKutta87DormandPrince" }
 };
 
-//! `RungeKuttaCoefficients::CoefficientSets` not supported by `json_interface`.
-static std::vector< RungeKuttaCoefficients::CoefficientSets > unsupportedRungeKuttaCoefficientSets = { };
+//! `CoefficientSets` not supported by `json_interface`.
+static std::vector< CoefficientSets > unsupportedRungeKuttaCoefficientSets = { };
 
-//! Convert `RungeKuttaCoefficients::CoefficientSets` to `json`.
-inline void to_json( nlohmann::json& jsonObject, const RungeKuttaCoefficients::CoefficientSets& rungeKuttaCoefficientSet )
+//! Convert `CoefficientSets` to `json`.
+inline void to_json( nlohmann::json& jsonObject, const CoefficientSets& rungeKuttaCoefficientSet )
 {
     jsonObject = json_interface::stringFromEnum( rungeKuttaCoefficientSet, rungeKuttaCoefficientSets );
 }
 
-//! Convert `json` to `RungeKuttaCoefficients::CoefficientSets`.
-inline void from_json( const nlohmann::json& jsonObject, RungeKuttaCoefficients::CoefficientSets& rungeKuttaCoefficientSet )
+//! Convert `json` to `CoefficientSets`.
+inline void from_json( const nlohmann::json& jsonObject, CoefficientSets& rungeKuttaCoefficientSet )
 {
     rungeKuttaCoefficientSet =
             json_interface::enumFromString( jsonObject, rungeKuttaCoefficientSets );
@@ -179,7 +182,7 @@ template< typename TimeType >
 void from_json( const nlohmann::json& jsonObject, std::shared_ptr< IntegratorSettings< TimeType > >& integratorSettings )
 {
     using namespace json_interface;
-    using RungeKuttaCoefficientSet = RungeKuttaCoefficients::CoefficientSets;
+    using RungeKuttaCoefficientSet = CoefficientSets;
     using K = Keys::Integrator;
 
     // Read JSON settings shared by all supported integrators
