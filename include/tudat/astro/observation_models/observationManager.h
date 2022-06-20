@@ -365,10 +365,10 @@ protected:
         std::vector< std::string > bodiesInLinkEnds;
         for ( auto itr : linkEnds )
         {
-            if ( std::count( bodiesInLinkEnds.begin( ), bodiesInLinkEnds.end( ), itr.second.first  ) == 0 )
+            if ( std::count( bodiesInLinkEnds.begin( ), bodiesInLinkEnds.end( ), itr.second.bodyName_  ) == 0 )
             {
-                std::cout << "BODY INCLUDED IN LINK END: " << itr.second.first << "\n\n";
-                bodiesInLinkEnds.push_back( itr.second.first );
+                std::cout << "BODY INCLUDED IN LINK END: " << itr.second.bodyName_ << "\n\n";
+                bodiesInLinkEnds.push_back( itr.second.bodyName_ );
             }
         }
 

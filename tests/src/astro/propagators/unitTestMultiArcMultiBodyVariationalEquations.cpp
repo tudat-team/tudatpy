@@ -736,10 +736,10 @@ BOOST_AUTO_TEST_CASE( testMultiArcMultiBodyVariationalEquationCalculation1 )
 
         // Define links in simulation.
         LinkEnds linkEndsJuice;
-        linkEndsJuice[ observed_body ] = std::make_pair( "JUICE", "" );
+        linkEndsJuice[ observed_body ] = std::make_pair< std::string, std::string >( "JUICE", "" );
         LinkEnds linkEndsGanymede;
-        linkEndsGanymede[ transmitter ] = std::make_pair( "Ganymede", "" );
-        linkEndsGanymede[ receiver ] = std::make_pair( "Earth", "" );
+        linkEndsGanymede[ transmitter ] = std::make_pair< std::string, std::string >( "Ganymede", "" );
+        linkEndsGanymede[ receiver ] = std::make_pair< std::string, std::string >( "Earth", "" );
 
         // Create parameters to estimate
         std::shared_ptr<estimatable_parameters::EstimatableParameterSet<double> > parametersToEstimate = getParametersToEstimate(
@@ -864,18 +864,18 @@ BOOST_AUTO_TEST_CASE( testMultiArcMultiBodyVariationalEquationCalculation1 )
                 measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
         // Define POD input
-        std::shared_ptr< PodInput< double, double > > podInput =
-                std::make_shared< PodInput< double, double > >(
+        std::shared_ptr< EstimationInput< double, double > > estimationInput =
+                std::make_shared< EstimationInput< double, double > >(
                         observationsAndTimes, parametersToEstimate->getParameterSetSize( ) );
 
         // Set observations weights.
         std::map< observation_models::ObservableType, double > weightPerObservable;
         weightPerObservable[ position_observable ] = 1.0 / ( 1.0 * 1.0 );
         weightPerObservable[ one_way_range ] = 1.0 / ( 1.0 * 1.0 );
-        podInput->setConstantPerObservableWeightsMatrix( weightPerObservable );
+        estimationInput->setConstantPerObservableWeightsMatrix( weightPerObservable );
 
-        podInput->defineEstimationSettings( false, false, true, true, true, false );
-        std::shared_ptr< PodOutput< double > > podOutput = orbitDeterminationManager.estimateParameters( podInput );
+        estimationInput->defineEstimationSettings( false, false, true, true, true, false );
+        std::shared_ptr< EstimationOutput< double > > estimationOutput = orbitDeterminationManager.estimateParameters( estimationInput );
 
         std::cout << "from OD manager, state transition matrix size: " << orbitDeterminationManager.
         getStateTransitionAndSensitivityMatrixInterface()->getStateTransitionMatrixSize( ) << "\n\n";

@@ -74,9 +74,9 @@ BOOST_AUTO_TEST_CASE( testRelativeAngularPositionModel )
 
     // Define link ends for observations.
     LinkEnds linkEnds;
-    linkEnds[ receiver ] = std::make_pair( "Earth" , ""  );
-    linkEnds[ transmitter ] = std::make_pair( "Mars" , ""  );
-    linkEnds[ transmitter2 ] = std::make_pair( "Phobos" , ""  );
+    linkEnds[ receiver ] = std::make_pair< std::string, std::string >( "Earth" , ""  );
+    linkEnds[ transmitter ] = std::make_pair< std::string, std::string >( "Mars" , ""  );
+    linkEnds[ transmitter2 ] = std::make_pair< std::string, std::string >( "Phobos" , "" );
 
     // Create light-time correction settings
     std::vector< std::string > lightTimePerturbingBodies = { "Sun" };
