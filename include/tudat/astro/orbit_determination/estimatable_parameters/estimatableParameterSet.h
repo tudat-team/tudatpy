@@ -1138,7 +1138,7 @@ int getSingleArcParameterSetSize(
 
 
     // Check consistency between number of detected arcs and size of the vector containing the multi-arc dynamical state sizes.
-    if ( detectedNumberArcs != estimatableParameterSet->getMultiArcStateParametersSizePerArc( ).size( ) )
+    if ( static_cast< unsigned int >( detectedNumberArcs ) != estimatableParameterSet->getMultiArcStateParametersSizePerArc( ).size( ) )
     {
         throw std::runtime_error(  "Error when getting single arc parameter size for a given arc, inconsistency between the detected number of arcs and "
                                    "the vector giving the multi-arc dynamical state parameter sizes per arc." );

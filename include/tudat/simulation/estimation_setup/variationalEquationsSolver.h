@@ -515,11 +515,11 @@ bool checkMultiArcPropagatorSettingsAndParameterEstimationConsistency(
                     parameterIterator->second )->getArcStartTimes( );
 
         // Check that each arc has at least one body whose state is to be estimated.
-        for ( int i = 0 ; i < parameterArcStartTimes.size( ) ; i++ )
+        for ( unsigned int i = 0 ; i < parameterArcStartTimes.size( ) ; i++ )
         {
             bool detectedArc = false;
             int indexDetectedArc = 0;
-            for ( int j = indexDetectedArc ; j < arcStartTimes.size( ) ; j++ )
+            for ( unsigned int j = indexDetectedArc ; j < arcStartTimes.size( ) ; j++ )
             {
                 if( std::fabs( arcStartTimes.at( j ) - parameterArcStartTimes.at( i ) ) <
                     std::max( 4.0 * parameterArcStartTimes.at( i ) * std::numeric_limits< double >::epsilon( ), 1.0E-12 ) )
@@ -658,7 +658,7 @@ void getParametersToEstimatePerArc(
     std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > > vectorParameters =
             parametersToEstimate->getEstimatedVectorParameters( );
 
-    for ( int i = 0 ; i < estimatedBodiesPerArc.size( ) ; i++ )
+    for ( unsigned int i = 0 ; i < estimatedBodiesPerArc.size( ) ; i++ )
     {
         std::vector< std::string > arcWiseBodiesToEstimate = estimatedBodiesPerArc.at( i );
 
@@ -1691,7 +1691,7 @@ public:
         //                    estimatable_parameters::getInitialStateVectorOfBodiesToEstimate( parametersToEstimate_ ) );
         simulation_setup::setInitialStateVectorFromParameterSet< StateScalarType >( parametersToEstimate_, propagatorSettings_ );
 
-        for ( unsigned int i = 0 ; i < numberOfArcs_ ; i++ )
+        for ( int i = 0 ; i < numberOfArcs_ ; i++ )
         {
             Eigen::VectorXd newParametersValues = propagatorSettings_->getSingleArcSettings( ).at( i )->getInitialStates( );
             Eigen::VectorXd arcWiseParametersValues = arcWiseParametersToEstimate_.at( i )->template getFullParameterValues< double >( );

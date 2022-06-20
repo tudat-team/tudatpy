@@ -1325,7 +1325,6 @@ createIntegratedStateProcessors(
             {
                 throw std::runtime_error( "Error, input type is inconsistent in createIntegratedStateProcessors" );
             }
-            checkTranslationalStatesFeasibility( translationalPropagatorSettings->bodiesToIntegrate_, bodies );
 
             // Create state processors
             integratedStateProcessors[ translational_state ] =

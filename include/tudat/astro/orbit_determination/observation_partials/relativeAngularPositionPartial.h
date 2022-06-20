@@ -103,6 +103,11 @@ public:
         {
             return referenceScalingFactorSecondTransmitter_ - referenceScalingFactorFirstTransmitter_;
         }
+        else
+        {
+            throw std::runtime_error( "Error when geting relative angular position scaling factor, incorrect link end type provided: " +
+                                      observation_models::getLinkEndTypeString( linkEndType ) );
+        }
     }
 
     //! Function to retrieve the factor by which the light-time partials should be scaled in one-way observation partial.
