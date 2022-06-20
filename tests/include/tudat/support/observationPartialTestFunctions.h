@@ -183,7 +183,7 @@ void testObservationPartials(
              linkEndIterator++) {
 
             if ( ( observableType != observation_models::relative_angular_position ) ||
-                ( observableType == observation_models::relative_angular_position ) && ( linkEndIterator->first == receiver ) )
+                ( ( observableType == observation_models::relative_angular_position ) && ( linkEndIterator->first == receiver ) ) )
             {
 
                 // Evaluate nominal observation values

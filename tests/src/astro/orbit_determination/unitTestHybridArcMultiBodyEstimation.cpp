@@ -665,9 +665,11 @@ BOOST_AUTO_TEST_CASE( testHybridArcMultiBodyStateEstimation )
         // Set accelerations map for the moons.
         std::vector<std::string> moonsToPropagate, centralBodiesForMoons;
         std::map<int, AccelerationMap> multiArcMoonsAccelerationMap;
-        for (int i = 0; i < numberArcs; i++) {
+        for( unsigned int i = 0; i < numberArcs; i++)
+        {
             std::vector<std::string> arcWiseMoonsToPropagate, arcWiseMoonsCentralBodies;
-            for (int j = 0; j < bodiesToPropagatePerArc.at(i).size() - 1; j++) {
+            for( unsigned int j = 0; j < bodiesToPropagatePerArc.at(i).size() - 1; j++)
+            {
                 arcWiseMoonsToPropagate.push_back(bodiesToPropagatePerArc.at(i).at(j));
                 arcWiseMoonsCentralBodies.push_back(centralBodiesPerArc.at(i).at(j));
             }
@@ -768,11 +770,11 @@ BOOST_AUTO_TEST_CASE( testHybridArcMultiBodyStateEstimation )
 
         // Define links in simulation.
         LinkEnds linkEndsJuice;
-        linkEndsJuice[observed_body] = std::make_pair("JUICE", "");
+        linkEndsJuice[observed_body] = std::make_pair< std::string, std::string >("JUICE", "");
 //        linkEndsJuice[receiver] = std::make_pair("Earth", "");
         LinkEnds linkEndsGanymede;
-        linkEndsGanymede[transmitter] = std::make_pair("Ganymede", "");
-        linkEndsGanymede[receiver] = std::make_pair("Earth", "");
+        linkEndsGanymede[transmitter] = std::make_pair< std::string, std::string >("Ganymede", "");
+        linkEndsGanymede[receiver] = std::make_pair< std::string, std::string >("Earth", "");
 
 
 
@@ -890,8 +892,8 @@ BOOST_AUTO_TEST_CASE( testHybridArcMultiBodyStateEstimation )
 
 
         // Define POD input
-        std::shared_ptr<PodInput<double, double> > podInput =
-                std::make_shared<PodInput<double, double> >(
+        std::shared_ptr<EstimationInput<double, double> > podInput =
+                std::make_shared<EstimationInput<double, double> >(
                         observationsAndTimes, parametersToEstimate->getParameterSetSize());
 
         // Set observations weights.
@@ -901,7 +903,7 @@ BOOST_AUTO_TEST_CASE( testHybridArcMultiBodyStateEstimation )
 //        podInput->setConstantPerObservableWeightsMatrix( weightPerObservable );
 
 
-        for (unsigned int k = 0; k < numberArcs; k++) {
+        for( int k = 0; k < numberArcs; k++) {
             std::cout << "arc " << k << " - start: " << arcStartTimes.at(k) << " - end: " << multiArcEndTimes.at(k) << "\n\n";
         }
 
@@ -913,7 +915,7 @@ BOOST_AUTO_TEST_CASE( testHybridArcMultiBodyStateEstimation )
 //                                                                       arcStartTimes, true, false, true );
 
         podInput->defineEstimationSettings(false, false, true, true, true, false);
-        std::shared_ptr<PodOutput<double> > podOutput = orbitDeterminationManager.estimateParameters( podInput );
+        std::shared_ptr<EstimationOutput<double> > podOutput = orbitDeterminationManager.estimateParameters( podInput );
 
 //        std::cout << "from OD manager, state transition matrix size: " << orbitDeterminationManager.
 //                getStateTransitionAndSensitivityMatrixInterface()->getStateTransitionMatrixSize( ) << "\n\n";
@@ -938,7 +940,7 @@ BOOST_AUTO_TEST_CASE( testHybridArcMultiBodyStateEstimation )
         ///////////////////////////////////////
 
         std::vector< double > testEpochs;
-        for ( unsigned int k = 0 ; k < numberArcs ; k++ ) {
+        for ( int k = 0 ; k < numberArcs ; k++ ) {
 
             std::cout << "-------------------------------" << "\n\n";
             std::cout << "ARC " << k << " - test resetting ephemerides" << "\n\n";
@@ -998,7 +1000,7 @@ BOOST_AUTO_TEST_CASE( testHybridArcMultiBodyStateEstimation )
                 std::cout << "original parameters values: " << fullParametersValues.transpose() << "\n\n";
 
                 unsigned int numberStates = 0;
-                for ( unsigned int i = 0; i < numberArcs; i++ )
+                for ( int i = 0; i < numberArcs; i++ )
                 {
                     numberStates += bodiesToPropagatePerArc.at(i).size();
                 }
@@ -1019,7 +1021,7 @@ BOOST_AUTO_TEST_CASE( testHybridArcMultiBodyStateEstimation )
                         std::dynamic_pointer_cast<HybridArcVariationalEquationsSolver<double, double> >(orbitDeterminationManager.getVariationalEquationsSolver())
                                 ->getSingleArcSolver()->getParametersToEstimate()->getFullParameterValues<double>();
                 std::vector<Eigen::VectorXd> beforeResetParametersMultiArcSolver;
-                for (unsigned int arc = 0; arc < numberArcs; arc++) {
+                for ( int arc = 0; arc < numberArcs; arc++) {
                     beforeResetParametersMultiArcSolver.push_back(
                             std::dynamic_pointer_cast<HybridArcVariationalEquationsSolver<double, double> >(orbitDeterminationManager.getVariationalEquationsSolver())
                                     ->getMultiArcSolver()->getArcWiseParametersToEstimate().at(arc)->getFullParameterValues<double>());
@@ -1054,7 +1056,7 @@ BOOST_AUTO_TEST_CASE( testHybridArcMultiBodyStateEstimation )
                           (std::dynamic_pointer_cast<HybridArcVariationalEquationsSolver<double, double> >(orbitDeterminationManager.getVariationalEquationsSolver())
                                    ->getSingleArcSolver()->getParametersToEstimate()->getFullParameterValues<double>()
                            - beforeResetParametersSingleArcSolver).transpose() << "\n\n";
-                for (unsigned int arc = 0; arc < numberArcs; arc++)
+                for ( int arc = 0; arc < numberArcs; arc++)
                 {
                     std::cout << "AFTER RESET - arc " << arc << "- parameters values for multi-arc solver (differences): " <<
                               (std::dynamic_pointer_cast<HybridArcVariationalEquationsSolver<double, double> >(orbitDeterminationManager.getVariationalEquationsSolver())

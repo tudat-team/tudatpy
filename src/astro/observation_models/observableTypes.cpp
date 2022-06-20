@@ -762,18 +762,18 @@ std::vector< std::pair< int, int > > getLinkStateAndTimeIndicesForLinkEnd(
         throw std::runtime_error( "Error, parsed irrelevant position observable link end types for link end indices" );
         break;
     case relative_angular_position:
-        if( ( linkEnds.at( transmitter ) == linkEndToCheck ) || ( ( linkEnds.at( transmitter ).first == linkEndToCheck.first ) &&
-                                                                  ( linkEndToCheck.second == "" ) ) )
+        if( ( linkEnds.at( transmitter ) == linkEndToCheck ) || ( ( linkEnds.at( transmitter ).bodyName_ == linkEndToCheck.bodyName_ ) &&
+                                                                  ( linkEndToCheck.stationName_ == "" ) ) )
         {
             linkEndIndices.push_back( std::make_pair( 0, 2 ) );
         }
-        else if( ( linkEnds.at( transmitter2 ) == linkEndToCheck ) || ( ( linkEnds.at( transmitter2 ).first == linkEndToCheck.first ) &&
-                                                                  ( linkEndToCheck.second == "" ) ) )
+        else if( ( linkEnds.at( transmitter2 ) == linkEndToCheck ) || ( ( linkEnds.at( transmitter2 ).bodyName_ == linkEndToCheck.bodyName_ ) &&
+                                                                  ( linkEndToCheck.stationName_ == "" ) ) )
         {
             linkEndIndices.push_back( std::make_pair( 1, 2 ) );
         }
-        else if( linkEnds.at( receiver ) == linkEndToCheck || ( ( linkEnds.at( receiver ).first == linkEndToCheck.first ) &&
-                                                                linkEndToCheck.second == "" ) )
+        else if( linkEnds.at( receiver ) == linkEndToCheck || ( ( linkEnds.at( receiver ).bodyName_ == linkEndToCheck.bodyName_ ) &&
+                                                                linkEndToCheck.stationName_ == "" ) )
         {
             linkEndIndices.push_back( std::make_pair( 2, 0 ) );
             linkEndIndices.push_back( std::make_pair( 2, 1 ) );
