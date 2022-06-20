@@ -311,12 +311,12 @@ basic_astrodynamics::AccelerationMap getMultiArcAccelerationModelMap(
 //        if( galileanSatelliteNames.at( j ) != multiArcCentralBody )
 //        {
 //            accelerationSettingsJuice[ "JUICE" ][ galileanSatelliteNames.at( j ) ].push_back(
-//                    std::make_shared< AccelerationSettings >( central_gravity ) );
+//                    std::make_shared< AccelerationSettings >( point_mass_gravity ) );
 //        }
 //    }
 
     accelerationSettingsJuice[ "JUICE" ][ "Sun" ].push_back(
-            std::make_shared< AccelerationSettings >( central_gravity ) );
+            std::make_shared< AccelerationSettings >( point_mass_gravity ) );
 
     bool estimateAccelerometerCalibrationsPerArc = true;
     if( estimateAccelerometerCalibrationsPerArc )

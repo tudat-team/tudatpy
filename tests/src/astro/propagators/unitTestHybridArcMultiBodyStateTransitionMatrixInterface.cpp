@@ -308,12 +308,12 @@ namespace tudat
         if( galileanSatelliteNames.at( j ) != multiArcCentralBody )
         {
             accelerationSettingsJuice[ "JUICE" ][ galileanSatelliteNames.at( j ) ].push_back(
-                    std::make_shared< AccelerationSettings >( central_gravity ) );
+                    std::make_shared< AccelerationSettings >( point_mass_gravity ) );
         }
     }
 
                 accelerationSettingsJuice[ "JUICE" ][ "Sun" ].push_back(
-                        std::make_shared< AccelerationSettings >( central_gravity ) );
+                        std::make_shared< AccelerationSettings >( point_mass_gravity ) );
 
                 bool estimateAccelerometerCalibrationsPerArc = true;
                 if( estimateAccelerometerCalibrationsPerArc )
@@ -354,7 +354,7 @@ namespace tudat
                         if ( i != j )
                         {
                             accelerationSettingsMoons[ bodiesToPropagate.at( i ) ][ bodiesToPropagate.at( j ) ].push_back(
-                                    std::make_shared< AccelerationSettings >( central_gravity ) );
+                                    std::make_shared< AccelerationSettings >( point_mass_gravity ) );
                         }
                     }
                 }
@@ -733,7 +733,7 @@ namespace tudat
                     std::vector< std::string > singleArcCentralBody = { "Sun" };
                     std::vector< std::string > singleArcPropagatedBody = { "Jupiter" };
                     SelectedAccelerationMap accelerationSettingsJupiter;
-                    accelerationSettingsJupiter[ "Jupiter" ][ "Sun" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+                    accelerationSettingsJupiter[ "Jupiter" ][ "Sun" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
                     basic_astrodynamics::AccelerationMap jupiterAccelerationModelMap = createAccelerationModelsMap(
                             bodies, accelerationSettingsJupiter, singleArcPropagatedBody, singleArcCentralBody );
 
