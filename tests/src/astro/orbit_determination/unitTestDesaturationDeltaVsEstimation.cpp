@@ -309,7 +309,7 @@ BOOST_AUTO_TEST_CASE( test_DesaturationDeltaVsEstimation )
 
 
         // Define estimation input
-        std::shared_ptr< PodInput< double, double  > > podInput = std::make_shared< PodInput< double, double > >(
+        std::shared_ptr< EstimationInput< double, double  > > estimationInput = std::make_shared< EstimationInput< double, double > >(
                     observationsAndTimes, initialParameterEstimate.rows( ),
                     Eigen::MatrixXd::Zero( truthParameters.rows( ), truthParameters.rows( ) ),
                     initialParameterEstimate - truthParameters );
@@ -319,51 +319,51 @@ BOOST_AUTO_TEST_CASE( test_DesaturationDeltaVsEstimation )
         weightPerObservable[ angular_position ] = 1.0 / ( 1.0E-5 * 1.0E-5 );
         weightPerObservable[ one_way_doppler ] = 1.0 / ( 1.0E-11 * 1.0E-11 );
 
-        podInput->setConstantPerObservableWeightsMatrix( weightPerObservable );
-        podInput->defineEstimationSettings( true, true, true, true, false );
+        estimationInput->setConstantPerObservableWeightsMatrix( weightPerObservable );
+        estimationInput->defineEstimationSettings( true, true, true, true, false );
 
         // Perform estimation
-        std::shared_ptr< PodOutput< double > > podOutput = orbitDeterminationManager.estimateParameters(
-                    podInput, std::make_shared< EstimationConvergenceChecker >( 4 ) );
+        std::shared_ptr< EstimationOutput< double > > estimationOutput = orbitDeterminationManager.estimateParameters(
+                    estimationInput, std::make_shared< EstimationConvergenceChecker >( 4 ) );
 
-        Eigen::VectorXd estimationError = podOutput->parameterEstimate_ - truthParameters;
+        Eigen::VectorXd estimationError = estimationOutput->parameterEstimate_ - truthParameters;
         std::cout <<"estimation error: "<< ( estimationError ).transpose( ) << std::endl;
 
 
         // Check if parameters are correctly estimated
-        Eigen::VectorXd estimatedParametervalues = podOutput->parameterEstimate_;
+        Eigen::VectorXd estimatedParametervalues = estimationOutput->parameterEstimate_;
 
         // Initial state.
         for( unsigned int i = 0; i < 3; i++ )
         {
-            BOOST_CHECK_SMALL( std::fabs( truthParameters( i ) - podOutput->parameterEstimate_( i ) ), 0.1 );
-            BOOST_CHECK_SMALL( std::fabs( truthParameters( i + 3 ) - podOutput->parameterEstimate_( i + 3 ) ), 1.0E-6 );
+            BOOST_CHECK_SMALL( std::fabs( truthParameters( i ) - estimationOutput->parameterEstimate_( i ) ), 0.1 );
+            BOOST_CHECK_SMALL( std::fabs( truthParameters( i + 3 ) - estimationOutput->parameterEstimate_( i + 3 ) ), 1.0E-6 );
         }
         // Radiation pressure and drag coefficients.
-        BOOST_CHECK_SMALL( std::fabs( truthParameters( 6 ) - podOutput->parameterEstimate_( 6 ) ), 1.0e-4 );
-        BOOST_CHECK_SMALL( std::fabs( truthParameters( 7 ) - podOutput->parameterEstimate_( 7 ) ), 1.0e-4 );
+        BOOST_CHECK_SMALL( std::fabs( truthParameters( 6 ) - estimationOutput->parameterEstimate_( 6 ) ), 1.0e-4 );
+        BOOST_CHECK_SMALL( std::fabs( truthParameters( 7 ) - estimationOutput->parameterEstimate_( 7 ) ), 1.0e-4 );
 
         // Momentum wheel desaturation deltaV values.
         for ( unsigned int i = 8 ; i < 8 + deltaVValues.size() * 3 ; i++ )
         {
-            BOOST_CHECK_SMALL( std::fabs( truthParameters( i ) - podOutput->parameterEstimate_( i ) ), 1.0E-9 );
+            BOOST_CHECK_SMALL( std::fabs( truthParameters( i ) - estimationOutput->parameterEstimate_( i ) ), 1.0E-9 );
         }
 
         // Gravity field coefficients.
         for ( unsigned int i = 17 ; i < 22 ; i++ ){
-            BOOST_CHECK_SMALL( std::fabs( truthParameters( i ) - podOutput->parameterEstimate_( i ) ), 1.0E-12 );
+            BOOST_CHECK_SMALL( std::fabs( truthParameters( i ) - estimationOutput->parameterEstimate_( i ) ), 1.0E-12 );
         }
 
         // Earth pole position.
         for ( unsigned int i = 22 ; i < 24 ; i++ )
         {
-            BOOST_CHECK_SMALL( std::fabs( truthParameters( i ) - podOutput->parameterEstimate_( i ) ), 1.0E-12 );
+            BOOST_CHECK_SMALL( std::fabs( truthParameters( i ) - estimationOutput->parameterEstimate_( i ) ), 1.0E-12 );
         }
 
         // Ground station position.
         for ( unsigned int i = 24 ; i < 27 ; i++ )
         {
-            BOOST_CHECK_SMALL( std::fabs( truthParameters( i ) - podOutput->parameterEstimate_( i ) ), 1.0E-6 );
+            BOOST_CHECK_SMALL( std::fabs( truthParameters( i ) - estimationOutput->parameterEstimate_( i ) ), 1.0E-6 );
         }
 
     }

@@ -289,17 +289,17 @@ BOOST_AUTO_TEST_CASE( test_ArcwiseEnvironmentParameters )
 
 
     // Define estimation input
-    std::shared_ptr< PodInput< double, double > > podInput =
-            std::make_shared< PodInput< double, double > >(
+    std::shared_ptr< EstimationInput< double, double > > estimationInput =
+            std::make_shared< EstimationInput< double, double > >(
                 observationsAndTimes, initialParameterEstimate.rows( ),
                 Eigen::MatrixXd::Zero( truthParameters.rows( ), truthParameters.rows( ) ),
                 initialParameterEstimate - truthParameters );
-    podInput->defineEstimationSettings( true, true, false, true );
+    estimationInput->defineEstimationSettings( true, true, false, true );
 
     // Perform estimation
-    std::shared_ptr< PodOutput< double > > podOutput = orbitDeterminationManager.estimateParameters(
-                podInput, std::make_shared< EstimationConvergenceChecker >( 4 ) );
-    Eigen::VectorXd parameterEstimate = podOutput->parameterEstimate_ - truthParameters;
+    std::shared_ptr< EstimationOutput< double > > estimationOutput = orbitDeterminationManager.estimateParameters(
+                estimationInput, std::make_shared< EstimationConvergenceChecker >( 4 ) );
+    Eigen::VectorXd parameterEstimate = estimationOutput->parameterEstimate_ - truthParameters;
 
     for( int i = 0; i < 3; i++ )
     {

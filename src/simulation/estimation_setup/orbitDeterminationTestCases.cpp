@@ -19,45 +19,44 @@ Eigen::VectorXd getDefaultInitialParameterPerturbation( )
     return parameterPerturbations;
 }
 
-template std::pair< std::shared_ptr< PodOutput< double > >, Eigen::VectorXd > executePlanetaryParameterEstimation< double, double >(
-        const int observableType,
-        Eigen::VectorXd parameterPerturbation,
-        Eigen::MatrixXd inverseAPrioriCovariance,
-        const double weight );
+//template std::pair< std::shared_ptr< EstimationOutput< double > >, Eigen::VectorXd > executePlanetaryParameterEstimation< double, double >(
+//        const int observableType,
+//        Eigen::VectorXd parameterPerturbation,
+//        Eigen::MatrixXd inverseAPrioriCovariance,
+//        const double weight );
 
-#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
-template std::pair< std::shared_ptr< PodOutput< long double > >, Eigen::VectorXd > executePlanetaryParameterEstimation< double, long double >(
-        const int observableType,
-        Eigen::VectorXd parameterPerturbation,
-        Eigen::MatrixXd inverseAPrioriCovariance,
-        const double weight );
-template std::pair< std::shared_ptr< PodOutput< double, Time > >, Eigen::VectorXd > executePlanetaryParameterEstimation< Time, double >(
-        const int observableType ,
-        Eigen::VectorXd parameterPerturbation,
-        Eigen::MatrixXd inverseAPrioriCovariance,
-        const double weight );
-template std::pair< std::shared_ptr< PodOutput< long double, Time > >, Eigen::VectorXd > executePlanetaryParameterEstimation< Time, long double >(
-        const int observableType,
-        Eigen::VectorXd parameterPerturbation,
-        Eigen::MatrixXd inverseAPrioriCovariance,
-        const double weight );
-#endif
+//#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+//template std::pair< std::shared_ptr< EstimationOutput< long double > >, Eigen::VectorXd > executePlanetaryParameterEstimation< double, long double >(
+//        const int observableType,
+//        Eigen::VectorXd parameterPerturbation,
+//        Eigen::MatrixXd inverseAPrioriCovariance,
+//        const double weight );
+//template std::pair< std::shared_ptr< EstimationOutput< double, Time > >, Eigen::VectorXd > executePlanetaryParameterEstimation< Time, double >(
+//        const int observableType ,
+//        Eigen::VectorXd parameterPerturbation,
+//        Eigen::MatrixXd inverseAPrioriCovariance,
+//        const double weight );
+//template std::pair< std::shared_ptr< EstimationOutput< long double, Time > >, Eigen::VectorXd > executePlanetaryParameterEstimation< Time, long double >(
+//        const int observableType,
+//        Eigen::VectorXd parameterPerturbation,
+//        Eigen::MatrixXd inverseAPrioriCovariance,
+//        const double weight );
+//#endif
 
-template Eigen::VectorXd executeEarthOrbiterParameterEstimation< double, double >(
-        std::pair< std::shared_ptr< PodOutput< double > > , std::shared_ptr< PodInput< double, double > > >& podData,
-        const double startTime,
-        const int numberOfDaysOfData,
-        const int numberOfIterations,
-        const bool useFullParameterSet );
+//template Eigen::VectorXd executeEarthOrbiterParameterEstimation< double, double >(
+//        std::pair< std::shared_ptr< EstimationOutput< double > > , std::shared_ptr< EstimationInput< double, double > > >& podData,
+//        const double startTime,
+//        const int numberOfDaysOfData,
+//        const int numberOfIterations,
+//        const bool useFullParameterSet );
 
-template std::pair< Eigen::VectorXd, bool > executeEarthOrbiterBiasEstimation< double, double >(
-        const bool estimateRangeBiases,
-        const bool estimateTwoWayBiases,
-        const bool useSingleBiasModel,
-        const bool estimateAbsoluteBiases,
-        const bool omitRangeData,
-        const bool useMultiArcBiases );
-;
+//template std::pair< Eigen::VectorXd, bool > executeEarthOrbiterBiasEstimation< double, double >(
+//        const bool estimateRangeBiases,
+//        const bool estimateTwoWayBiases,
+//        const bool useSingleBiasModel,
+//        const bool estimateAbsoluteBiases,
+//        const bool omitRangeData,
+//        const bool useMultiArcBiases );
 
 }
 
