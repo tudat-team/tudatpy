@@ -221,7 +221,7 @@ int main( )
             {
                 // Reference trajectory
                 integratorSettings = std::make_shared< RungeKuttaVariableStepSizeSettingsScalarTolerances< > >(
-                            simulationStartEpoch, 100.0, RungeKuttaCoefficients::rungeKuttaFehlberg78, 1.0e-5, 1.0e5,
+                            simulationStartEpoch, 100.0, rungeKuttaFehlberg78, 1.0e-5, 1.0e5,
                             integrationReferenceTolerance, integrationReferenceTolerance );
             }
             else
@@ -230,7 +230,7 @@ int main( )
                 if ( integratorType == 0 )
                 {
                     integratorSettings = std::make_shared< RungeKuttaVariableStepSizeSettingsScalarTolerances< > >(
-                                simulationStartEpoch, 100.0, RungeKuttaCoefficients::rungeKuttaFehlberg56, 1.0e-5, 1.0e5,
+                                simulationStartEpoch, 100.0, rungeKuttaFehlberg56, 1.0e-5, 1.0e5,
                                 integrationRelativeTolerance, integrationAbsoluteTolerance );
                 }
                 else if ( integratorType == 1 )

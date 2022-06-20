@@ -190,6 +190,17 @@ public:
         setConstantPerObservableAndLinkEndsWeights( weightPerObservableAndLinkEnds );
     }
 
+    void setConstantPerObservableAndLinkEndsWeights(
+            const observation_models::ObservableType observableType,
+            const observation_models::LinkEnds& linkEnds,
+            const double weight )
+    {
+        std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds, double > > weightPerObservableAndLinkEnds;
+        weightPerObservableAndLinkEnds[ observableType ][ linkEnds ] =  weight;
+        setConstantPerObservableAndLinkEndsWeights( weightPerObservableAndLinkEnds );
+    }
+
+
     //! Function to define specific settings for estimation process
     /*!
      *  Function to define specific settings for estimation process
@@ -428,6 +439,18 @@ protected:
     unsigned int numberOfIterationsWithoutImprovement_;
 };
 
+
+inline std::shared_ptr< EstimationConvergenceChecker > estimationConvergenceChecker(
+        const unsigned int maximumNumberOfIterations = 5,
+        const double minimumResidualChange = 0.0,
+        const double minimumResidual = 1.0E-20,
+        const int numberOfIterationsWithoutImprovement = 2 )
+{
+    return std::make_shared< EstimationConvergenceChecker >(
+            maximumNumberOfIterations, minimumResidualChange, minimumResidual, numberOfIterationsWithoutImprovement );
+}
+
+
 void scaleInformationMatrixWithWeights(
         Eigen::MatrixXd& informationMatrix,
         const Eigen::VectorXd& weightsDiagonal );
@@ -477,6 +500,11 @@ struct PodOutput
         exceptionDuringPropagation_( exceptionDuringPropagation)
     { }
 
+    Eigen::MatrixXd getNormalizedInverseCovarianceMatrix( )
+    {
+        return inverseNormalizedCovarianceMatrix_;
+    }
+
     //! Function to retrieve the unnormalized inverse estimation covariance matrix
     /*!
      * Function to retrieve the unnormalized inverse estimation covariance matrix
@@ -485,7 +513,7 @@ struct PodOutput
     Eigen::MatrixXd getUnnormalizedInverseCovarianceMatrix( )
     {
 
-        Eigen::MatrixXd inverseUnnormalizedCovarianceMatrix = inverseNormalizedCovarianceMatrix_;
+        Eigen::MatrixXd inverseUnnormalizedCovarianceMatrix = getNormalizedInverseCovarianceMatrix( );
 
         for( int i = 0; i < informationMatrixTransformationDiagonal_.rows( ); i++ )
         {
@@ -499,6 +527,11 @@ struct PodOutput
         return inverseUnnormalizedCovarianceMatrix;
     }
 
+    Eigen::MatrixXd getNormalizedCovarianceMatrix( )
+    {
+        return inverseNormalizedCovarianceMatrix_.inverse( );
+    }
+
     //! Function to retrieve the unnormalized estimation covariance matrix
     /*!
      * Function to retrieve the unnormalized estimation covariance matrix
@@ -506,7 +539,7 @@ struct PodOutput
      */
     Eigen::MatrixXd getUnnormalizedCovarianceMatrix( )
     {
-        Eigen::MatrixXd unnormalizedCovarianceMatrix = inverseNormalizedCovarianceMatrix_.inverse( );
+        Eigen::MatrixXd unnormalizedCovarianceMatrix = getNormalizedCovarianceMatrix( );
 
         for( int i = 0; i < informationMatrixTransformationDiagonal_.rows( ); i++ )
         {

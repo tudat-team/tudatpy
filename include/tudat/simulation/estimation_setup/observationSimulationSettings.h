@@ -53,11 +53,12 @@ struct ObservationSimulationSettings
     ObservationSimulationSettings(
             const observation_models::ObservableType observableType,
             const observation_models::LinkEnds linkEnds,
-            const observation_models::LinkEndType linkEndType = observation_models::receiver,
+            const observation_models::LinkEndType linkEndType = observation_models::unidentified_link_end,
             const std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >& viabilitySettingsList =
             std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >( ),
             const std::function< Eigen::VectorXd( const double ) > observationNoiseFunction = nullptr ):
-        observableType_( observableType ), linkEnds_( linkEnds ), linkEndType_( linkEndType ),
+        observableType_( observableType ), linkEnds_( linkEnds ),
+        linkEndType_( linkEndType == observation_models::unidentified_link_end ? observation_models::getDefaultReferenceLinkEndType( observableType ) : linkEndType ),
         viabilitySettingsList_( viabilitySettingsList ), observationNoiseFunction_( observationNoiseFunction )
     {
         dependentVariableCalculator_ = std::make_shared< ObservationDependentVariableCalculator >(
@@ -158,7 +159,7 @@ struct TabulatedObservationSimulationSettings: public ObservationSimulationSetti
             const observation_models::ObservableType observableType,
             const observation_models::LinkEnds linkEnds,
             const std::vector< TimeType >& simulationTimes,
-            const observation_models::LinkEndType linkEndType = observation_models::receiver,
+            const observation_models::LinkEndType linkEndType = observation_models::unidentified_link_end,
             const std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >& viabilitySettingsList =
             std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >( ),
             const std::function< Eigen::VectorXd( const double ) > observationNoiseFunction = nullptr  ):
@@ -174,9 +175,28 @@ struct TabulatedObservationSimulationSettings: public ObservationSimulationSetti
 };
 
 template< typename TimeType = double >
+inline std::shared_ptr< ObservationSimulationSettings< TimeType > > tabulatedObservationSimulationSettings(
+        const observation_models::ObservableType observableType,
+        const observation_models::LinkEnds linkEnds,
+        const std::vector< TimeType >& simulationTimes,
+        const observation_models::LinkEndType linkEndType = observation_models::receiver,
+        const std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >& viabilitySettingsList =
+        std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >( ),
+        const std::function< Eigen::VectorXd( const double ) > observationNoiseFunction = nullptr  )
+{
+    return std::make_shared< TabulatedObservationSimulationSettings< TimeType > >(
+                observableType, linkEnds, simulationTimes, linkEndType, viabilitySettingsList,
+                observationNoiseFunction );
+}
+
+template< typename TimeType = double >
 std::vector< std::shared_ptr< ObservationSimulationSettings< TimeType > > > createTabulatedObservationSimulationSettingsList(
         const std::map< observation_models::ObservableType, std::vector< observation_models::LinkEnds > > linkEndsPerObservable,
-        const std::vector< TimeType >& simulationTimes )
+        const std::vector< TimeType >& simulationTimes,
+        const observation_models::LinkEndType linkEndType = observation_models::receiver,
+        const std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >& viabilitySettingsList =
+        std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >( )
+        )
 {
     std::vector< std::shared_ptr< ObservationSimulationSettings< TimeType > > > observationSimulationSettingsList;
     for( auto observableIterator : linkEndsPerObservable )
@@ -185,7 +205,8 @@ std::vector< std::shared_ptr< ObservationSimulationSettings< TimeType > > > crea
         {
             observationSimulationSettingsList.push_back(
                         std::make_shared< TabulatedObservationSimulationSettings< TimeType > >(
-                            observableIterator.first, observableIterator.second.at( i ), simulationTimes ) );
+                            observableIterator.first, observableIterator.second.at( i ), simulationTimes, linkEndType,
+                            viabilitySettingsList) );
         }
     }
     return observationSimulationSettingsList;
@@ -223,11 +244,7 @@ void addViabilityToSingleObservationSimulationSettings(
     std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > > viabilitySettingsToAdd;
     for( unsigned int j = 0; j < viabilitySettingsList.size( ); j++ )
     {
-        if( observation_models::isLinkEndPresent( observationSimulationSettings->getLinkEnds( ),
-                                                  viabilitySettingsList.at( j )->getAssociatedLinkEnd( ) ) )
-        {
-            viabilitySettingsToAdd.push_back( viabilitySettingsList.at( j ) );
-        }
+        viabilitySettingsToAdd.push_back( viabilitySettingsList.at( j ) );
     }
 
     if( viabilitySettingsToAdd.size( ) > 0 )

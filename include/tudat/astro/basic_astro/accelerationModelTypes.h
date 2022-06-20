@@ -46,13 +46,11 @@ enum AvailableAcceleration
 {
     undefined_acceleration,
     point_mass_gravity,
-    central_gravity = point_mass_gravity,  // deprecated
     aerodynamic,
     cannon_ball_radiation_pressure,
     spherical_harmonic_gravity,
     mutual_spherical_harmonic_gravity,
     third_body_point_mass_gravity,
-    third_body_central_gravity = third_body_point_mass_gravity,  // deprecated
     third_body_spherical_harmonic_gravity,
     third_body_mutual_spherical_harmonic_gravity,
     thrust_acceleration,
@@ -138,8 +136,8 @@ bool isAccelerationFromThirdBody( const AvailableAcceleration accelerationType )
 
 // Function to get the third-body counterpart of a direct gravitational acceleration type
 /*
- * Function to get the third-body counterpart of a direct gravitational acceleration type, e.g. a third_body_central_gravity
- * for a central_gravity input. Function throws an exception is input is not direct gravitational
+ * Function to get the third-body counterpart of a direct gravitational acceleration type, e.g. a third_body_point_mass_gravity
+ * for a point_mass_gravity input. Function throws an exception is input is not direct gravitational
  * \param accelerationType Acceleration type for which the third-body counterpart is to be determined.
  * \return Third-body counterpart of accelerationType.
  */

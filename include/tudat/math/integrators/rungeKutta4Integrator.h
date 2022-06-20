@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2019, Delft University of Technology
+/*    Copyright (c) 2010-2022, Delft University of Technology
  *    All rights reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -23,6 +23,8 @@
 #include <Eigen/Core>
 
 #include "tudat/math/integrators/reinitializableNumericalIntegrator.h"
+#include "tudat/math/integrators/rungeKuttaCoefficients.h"
+#include "tudat/math/integrators/rungeKuttaFixedStepSizeIntegrator.h"
 
 namespace tudat
 {
@@ -45,7 +47,7 @@ template< typename IndependentVariableType = double,
            typename StateDerivativeType = Eigen::VectorXd,
          typename TimeStepType = IndependentVariableType >
 class RungeKutta4Integrator
-        : public numerical_integrators::ReinitializableNumericalIntegrator<
+        : public numerical_integrators::RungeKuttaFixedStepSizeIntegrator<
         IndependentVariableType, StateType, StateDerivativeType, TimeStepType >
 {
 public:
@@ -54,15 +56,14 @@ public:
     /*!
      * Typedef of the base class with all template parameters filled in.
      */
-    typedef numerical_integrators::ReinitializableNumericalIntegrator<
-    IndependentVariableType, StateType, StateDerivativeType, TimeStepType > ReinitializableNumericalIntegratorBase;
+    typedef numerical_integrators::RungeKuttaFixedStepSizeIntegrator<
+    IndependentVariableType, StateType, StateDerivativeType, TimeStepType > RungeKuttaFixedStepSizeIntegratorBase;
 
     //! Typedef for the state derivative function.
     /*!
      * Typedef to the state derivative function inherited from the base class.
-     * \sa NumericalIntegrator::StateDerivativeFunction.
      */
-    typedef typename ReinitializableNumericalIntegratorBase::NumericalIntegratorBase::
+    typedef typename RungeKuttaFixedStepSizeIntegratorBase::
     StateDerivativeFunction StateDerivativeFunction;
 
     //! Default constructor.
@@ -71,208 +72,15 @@ public:
      * \param stateDerivativeFunction State derivative function.
      * \param intervalStart The start of the integration interval.
      * \param initialState The initial state.
-     * \sa NumericalIntegrator::NumericalIntegrator.
      */
     RungeKutta4Integrator( const StateDerivativeFunction& stateDerivativeFunction,
                            const IndependentVariableType intervalStart,
                            const StateType& initialState )
-        : ReinitializableNumericalIntegratorBase( stateDerivativeFunction ),
-          currentIndependentVariable_( intervalStart ),
-          currentState_( initialState ),
-          lastIndependentVariable_( intervalStart )
-    { }
-
-    //! Get step size of the next step.
-    /*!
-     * Returns the step size of the next step.
-     * \return Step size to be used for the next step.
-     */
-    virtual TimeStepType getNextStepSize( ) const { return stepSize_; }
-
-    //! Get current state.
-    /*!
-     * Returns the current state of the integrator.
-     * \return Current integrated state,
-     */
-    virtual StateType getCurrentState( ) const { return currentState_; }
-
-    //! Returns the current independent variable.
-    /*!
-     * Returns the current value of the independent variable of the integrator.
-     * \return Current independent variable.
-     */
-    virtual IndependentVariableType getCurrentIndependentVariable( ) const
+        : RungeKuttaFixedStepSizeIntegratorBase( stateDerivativeFunction, intervalStart, initialState, rungeKutta4Classic )
     {
-        return currentIndependentVariable_;
-    }
-
-    //! Perform a single integration step.
-    /*!
-     * Perform a single integration step.
-     * \param stepSize The step size to take.
-     * \return The state at the end of the interval,
-     */
-    virtual StateType performIntegrationStep( const TimeStepType stepSize )
-    {
-        lastIndependentVariable_ = currentIndependentVariable_;
-        lastState_ = currentState_;
-
-        // Calculate k1-k4.
-        StateDerivativeType k1, k2, k3, k4;
-        for ( unsigned int i = 1; i <= 4; i++ )
-        {
-            IndependentVariableType time;
-            StateType state;
-            switch ( i )
-            {
-            case 1:
-                time = currentIndependentVariable_;
-                state = currentState_;
-                k1 = stepSize * this->stateDerivativeFunction_( time, state );
-                break;
-            case 2:
-                time = currentIndependentVariable_ + stepSize / 2.0;
-                state = static_cast< StateType >( currentState_ + k1 / 2.0 );
-                k2 = stepSize * this->stateDerivativeFunction_( time, state );
-                break;
-            case 3:
-                time = currentIndependentVariable_ + stepSize / 2.0;
-                state = static_cast< StateType >( currentState_ + k2 / 2.0 );
-                k3 = stepSize * this->stateDerivativeFunction_( time, state );
-                break;
-            case 4:
-                time = currentIndependentVariable_ + stepSize;
-                state = static_cast< StateType >( currentState_ + k3 );
-                k4 = stepSize * this->stateDerivativeFunction_( time, state );
-                break;
-            }
-
-            // Check if propagation should terminate because the propagation termination condition has been reached
-            // while computing k1, k2, k3 or k4. If so, return immediately the current state (not recomputed yet),
-            // which will be discarded.
-            if ( this->propagationTerminationFunction_( static_cast< double >( time ), TUDAT_NAN ) )
-            {
-                this->propagationTerminationConditionReachedDuringStep_ = true;
-                return currentState_;
-            }
-        }
-
-        stepSize_ = stepSize;
-        currentIndependentVariable_ += stepSize_;
-        currentState_ += ( k1 + 2.0 * k2 + 2.0 * k3 + k4 ) / 6.0;
-
-        // Return the integration result.
-        return currentState_;
-    }
-
-    //! Rollback internal state to the last state.
-    /*!
-     * Performs rollback of internal state to the last state. This function can only be called once
-     * after calling integrateTo() or performIntegrationStep() unless specified otherwise by
-     * implementations, and can not be called before any of these functions have been called. Will
-     * return true if the rollback was succesful, and false otherwise.
-     * \return True if the rollback was successful.
-     */
-    virtual bool rollbackToPreviousState( )
-    {
-        if ( currentIndependentVariable_ == lastIndependentVariable_ )
-        {
-            return false;
-        }
-
-        currentIndependentVariable_ = lastIndependentVariable_;
-        currentState_ = lastState_;
-        return true;
-    }
-
-    //! Get previous independent variable.
-    /*!
-     * Returns the previoius value of the independent variable of the integrator.
-     * \return Previous independent variable.
-     */
-    IndependentVariableType getPreviousIndependentVariable( )
-    {
-        return lastIndependentVariable_;
-    }
-
-    //! Get previous state value.
-    /*!
-     * Returns the previous value of the state.
-     * \return Previous state
-     */
-    StateType getPreviousState( )
-    {
-        return lastState_;
-    }
-
-    //! Replace the state with a new value.
-    /*!
-     * Replace the state with a new value. This allows for discrete jumps in the state, often
-     * used in simulations of discrete events. In astro, this relates to simulations of rocket staging,
-     * impulsive shots, parachuting, ideal control, etc. The modified state, by default, cannot be rolled back; to do this, either
-     * set the flag to true, or store the state before calling this function the first time, and call it again with the initial state
-     * as parameter to revert to the state before the discrete change.
-     * \param newState The value of the new state.
-     * \param allowRollback Boolean denoting whether roll-back should be allowed.
-     */
-    void modifyCurrentState( const StateType& newState, const bool allowRollback = false )
-    {
-        currentState_ = newState;
-        if ( !allowRollback )
-        {
-            this->lastIndependentVariable_ = currentIndependentVariable_;
-        }
-    }
-
-    //! Modify the state and time for the current step.
-    /*!
-     * Modify the state and time for the current step.
-     * \param newState The new state to set the current state to.
-     * \param newTime The time to set the current time to.
-     * \param allowRollback Boolean denoting whether roll-back should be allowed.
-     */
-    void modifyCurrentIntegrationVariables( const StateType& newState, const IndependentVariableType newTime,
-                                            const bool allowRollback = false )
-    {
-        currentState_ = newState;
-        currentIndependentVariable_ = newTime;
-        if ( !allowRollback )
-        {
-            this->lastIndependentVariable_ = currentIndependentVariable_;
-        }
     }
 
 protected:
-
-    //! Last used step size.
-    /*!
-     * Last used step size, passed to either integrateTo() or performIntegrationStep().
-     */
-    TimeStepType stepSize_;
-
-    //! Current independent variable.
-    /*!
-     * Current independent variable as computed by performIntegrationStep().
-     */
-    IndependentVariableType currentIndependentVariable_;
-
-    //! Current state.
-    /*!
-     * Current state as computed by performIntegrationStep().
-     */
-    StateType currentState_;
-
-    //! Last independent variable.
-    /*!
-     * Last independent variable value as computed by performIntegrationStep().
-     */
-    IndependentVariableType lastIndependentVariable_;
-
-    //! Last state.
-    /*!
-     * Last state as computed by performIntegrationStep().
-     */
-    StateType lastState_;
 
 };
 

@@ -63,13 +63,6 @@ BOOST_AUTO_TEST_CASE( testConstantThrustAcceleration )
     double vehicleMass = 5.0E3;
     bodies.createEmptyBody( "Vehicle" );
     bodies.at( "Vehicle" )->setConstantBodyMass( vehicleMass );
-    bodies.at( "Vehicle" )->setEphemeris(
-                std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
-                    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector6d  > >( ),
-                    "SSB" ) );
-
-    
-    
 
     // Define propagator settings variables.
     SelectedAccelerationMap accelerationMap;
@@ -200,16 +193,11 @@ BOOST_AUTO_TEST_CASE( testFromEngineThrustAcceleration )
 
         bodies.createEmptyBody( "Vehicle" );
         bodies.at( "Vehicle" )->setConstantBodyMass( vehicleMass );
-        bodies.at( "Vehicle" )->setEphemeris(
-                    std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
-                        std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector6d  > >( ),
-                        "SSB" ) );
 
         double thrustMagnitude1 = 1.0E3;
         double specificImpulse1 = 250.0;
         double massFlow1 = propulsion::computePropellantMassRateFromSpecificImpulse(
                     thrustMagnitude1, specificImpulse1 );
-
 
         double thrustMagnitude2 = 2.0E3;
         double specificImpulse2 = 300.0;
@@ -423,12 +411,6 @@ BOOST_AUTO_TEST_CASE( testRadialAndVelocityThrustAcceleration )
 
         bodies.createEmptyBody( "Vehicle" );
         bodies.at( "Vehicle" )->setConstantBodyMass( vehicleMass );
-        bodies.at( "Vehicle" )->setEphemeris(
-                    std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
-                        std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector6d  > >( ),
-                        "Earth" ) );
-
-        
 
         // Define propagator settings variables.
         SelectedAccelerationMap accelerationMap;
@@ -455,7 +437,7 @@ BOOST_AUTO_TEST_CASE( testRadialAndVelocityThrustAcceleration )
                                                                thrustMagnitude, specificImpulse ) ) );
         if( i == 1 )
         {
-            accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+            accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
         }
 
         accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
@@ -597,10 +579,6 @@ BOOST_AUTO_TEST_CASE( testThrustAccelerationFromExistingRotation )
     double vehicleMass = 5.0E3;
     bodies.createEmptyBody( "Vehicle" );
     bodies.at( "Vehicle" )->setConstantBodyMass( vehicleMass );
-    bodies.at( "Vehicle" )->setEphemeris(
-                std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
-                    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector6d  > >( ),
-                    "Earth" ) );
     bodies.at( "Vehicle" )->setRotationalEphemeris(
                 std::make_shared< ephemerides::SpiceRotationalEphemeris >( "ECLIPJ2000", "IAU_MOON" ) );
     
@@ -619,7 +597,7 @@ BOOST_AUTO_TEST_CASE( testThrustAccelerationFromExistingRotation )
                                                            thrust_direction_from_existing_body_orientation ),
                                                        std::make_shared< ConstantThrustMagnitudeSettings >(
                                                            thrustMagnitude, specificImpulse, bodyFixedThrustDirection ) ) );
-    accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+    accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
 
 
     accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
@@ -750,13 +728,7 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAcceleration )
         // Create vehicle aerodynamic coefficients
         bodies.at( "Apollo" )->setAerodynamicCoefficientInterface(
                     unit_tests::getApolloCoefficientInterface( ) );
-        bodies.at( "Apollo" )->setEphemeris(
-                    std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
-                        std::shared_ptr< interpolators::OneDimensionalInterpolator<
-                        double, Eigen::Vector6d  > >( ), "Earth" ) );
 
-        
-        
 
         // Define propagator settings variables.
         SelectedAccelerationMap accelerationMap;
@@ -765,9 +737,9 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAcceleration )
 
         // Define acceleration model settings.
         std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfApollo;
-        accelerationsOfApollo[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+        accelerationsOfApollo[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
         accelerationsOfApollo[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( aerodynamic ) );
-        accelerationsOfApollo[ "Moon" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+        accelerationsOfApollo[ "Moon" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
 
         double thrustMagnitude = 1.0E-3;
         double specificImpulse = 250.0;
@@ -1060,7 +1032,7 @@ BOOST_AUTO_TEST_CASE( testInterpolatedThrustVector )
         // Define propagation settings.
         std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfAsterix;
         accelerationsOfAsterix[ "Earth" ].push_back( std::make_shared< AccelerationSettings >(
-                                                         basic_astrodynamics::central_gravity ) );
+                                                         basic_astrodynamics::point_mass_gravity ) );
 
         std::shared_ptr< OneDimensionalInterpolator< double, Eigen::Vector3d > > thrustInterpolator =
                 interpolators::createOneDimensionalInterpolator( thrustDataInterpolation );
@@ -1291,13 +1263,6 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
 
     // Create vehicle aerodynamic coefficients
     bodies.at( "Apollo" )->setAerodynamicCoefficientInterface( unit_tests::getApolloCoefficientInterface( ) );
-    bodies.at( "Apollo" )->setEphemeris(
-                std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
-                    std::shared_ptr< interpolators::OneDimensionalInterpolator<
-                    double, Eigen::Vector6d  > >( ), "Earth" ) );
-
-    
-    
 
     int numberOfCasesPerSet = 4;
     for( int i = 0; i < numberOfCasesPerSet * 2; i++ )
@@ -1309,9 +1274,9 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
 
         // Define acceleration model settings.
         std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfApollo;
-        accelerationsOfApollo[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+        accelerationsOfApollo[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
         accelerationsOfApollo[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( aerodynamic ) );
-        accelerationsOfApollo[ "Moon" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+        accelerationsOfApollo[ "Moon" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
 
         // Define specific impulse dependencies.
         std::vector< propulsion::ThrustIndependentVariables > specificImpulseDependencies;
@@ -1638,14 +1603,6 @@ BOOST_AUTO_TEST_CASE( testAccelerationLimitedGuidedThrust )
 
     // Create vehicle aerodynamic coefficients
     bodies.at( "Apollo" )->setAerodynamicCoefficientInterface( unit_tests::getApolloCoefficientInterface( ) );
-    bodies.at( "Apollo" )->setEphemeris(
-                std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
-                    std::shared_ptr< interpolators::OneDimensionalInterpolator<
-                    double, Eigen::Vector6d  > >( ), "Earth" ) );
-
-    
-    
-
 
     // Define propagator settings variables.
     SelectedAccelerationMap accelerationMap;
@@ -1654,9 +1611,9 @@ BOOST_AUTO_TEST_CASE( testAccelerationLimitedGuidedThrust )
 
     // Define acceleration model settings.
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfApollo;
-    accelerationsOfApollo[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+    accelerationsOfApollo[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
     accelerationsOfApollo[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( aerodynamic ) );
-    accelerationsOfApollo[ "Moon" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+    accelerationsOfApollo[ "Moon" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
 
     std::vector< propulsion::ThrustIndependentVariables > thrustDependencies;
     thrustDependencies.push_back( propulsion::mach_number_dependent_thrust );
@@ -1825,7 +1782,7 @@ BOOST_AUTO_TEST_CASE( testMeeCostateBasedThrust )
 
         // Define acceleration model settings.
         std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfAsterix;
-        accelerationsOfAsterix[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+        accelerationsOfAsterix[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
 
         Eigen::VectorXd costates = Eigen::VectorXd::Zero( 5 );
         costates( i ) = 100.0;

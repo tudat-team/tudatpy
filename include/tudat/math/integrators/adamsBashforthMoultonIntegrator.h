@@ -811,14 +811,14 @@ protected:
         // Single step integrator with fixed stepsize and no error control
         RungeKuttaVariableStepSizeIntegrator< IndependentVariableType, StateType, StateType, TimeStepType >
                 singleFixedStepIntegrator_( RungeKuttaCoefficients::get(
-                                                RungeKuttaCoefficients::rungeKutta87DormandPrince ),
+                                                rungeKutta87DormandPrince ),
                                             this->stateDerivativeFunction_, currentIndependentVariable_, currentState_,
                                             stepSize_, stepSize_, maximumTolerance, maximumTolerance );
         
         // Single step integrator with variable stepsize and error control
         RungeKuttaVariableStepSizeIntegrator< IndependentVariableType, StateType, StateType, TimeStepType >
                 singleVariableStepIntegrator_(
-                    RungeKuttaCoefficients::get( RungeKuttaCoefficients::rungeKutta87DormandPrince ),
+                    RungeKuttaCoefficients::get( CoefficientSets::rungeKutta87DormandPrince ),
                     this->stateDerivativeFunction_, currentIndependentVariable_, currentState_,
                     minimumStepSize_, maximumStepSize_, relativeErrorTolerance_, absoluteErrorTolerance_ );
         

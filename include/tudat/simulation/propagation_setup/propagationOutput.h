@@ -120,6 +120,9 @@ int getDependentVariableSaveSize(
 int getDependentVariableSize(
         const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings );
 
+bool isScalarDependentVariable(
+        const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings );
+
 //! Get the vector representation of a rotation matrix.
 /*!
  *  Get the vector representation of a rotation matrix.
@@ -400,6 +403,7 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
         // Retrieve model responsible for computing accelerations of requested bodies.
         std::shared_ptr< NBodyStateDerivative< StateScalarType, TimeType > > nBodyModel =
                 getTranslationalStateDerivativeModelForBody( bodyWithProperty, stateDerivativeModels );
+        nBodyModel->setUpdateRemovedAcceleration( dependentVariableSettings->associatedBody_ );
         variableFunction =
                 std::bind( &NBodyStateDerivative< StateScalarType, TimeType >::getTotalAccelerationForBody, nBodyModel,
                            bodyWithProperty );
@@ -443,14 +447,26 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
                 std::string errorMessage = "Error when getting acceleration between bodies " +
                         accelerationDependentVariableSettings->associatedBody_ + " and " +
                         accelerationDependentVariableSettings->secondaryBody_ + " of type " +
-                        std::to_string(
+                        getAccelerationModelName(
                             accelerationDependentVariableSettings->accelerationModelType_ ) +
                         ", no such acceleration found";
                 throw std::runtime_error( errorMessage );
             }
             else
             {
-                //std::function< Eigen::Vector3d( ) > vectorFunction =
+                std::shared_ptr< NBodyStateDerivative< StateScalarType, TimeType > > nBodyModel =
+                        getTranslationalStateDerivativeModelForBody( bodyWithProperty, stateDerivativeModels );
+                std::map< std::string, std::shared_ptr< gravitation::CentralGravitationalAccelerationModel3d > > removedAcceleration =
+                        nBodyModel->getRemovedCentralAcceleration( );
+                if( removedAcceleration.count( accelerationDependentVariableSettings->associatedBody_ ) > 0 )
+                {
+                    if( listOfSuitableAccelerationModels.at( 0 ) ==
+                            removedAcceleration.at( accelerationDependentVariableSettings->associatedBody_ ) )
+                    {
+                        nBodyModel->setUpdateRemovedAcceleration( accelerationDependentVariableSettings->associatedBody_ );
+                    }
+                }
+
                 variableFunction = std::bind( &basic_astrodynamics::AccelerationModel3d::getAcceleration,
                                               listOfSuitableAccelerationModels.at( 0 ) );
                 parameterSize = 3;
@@ -465,7 +481,7 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
                 std::dynamic_pointer_cast< SphericalHarmonicAccelerationTermsDependentVariableSaveSettings >( dependentVariableSettings );
         if( accelerationComponentVariableSettings == nullptr )
         {
-            std::string errorMessage= "Error, inconsistent inout when creating dependent variable function of type single_acceleration_dependent_variable";
+            std::string errorMessage= "Error, inconsistent inout when creating dependent variable function of type spherical_harmonic_acceleration_norm_terms_dependent_variable";
             throw std::runtime_error( errorMessage );
         }
         else
@@ -525,7 +541,7 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
                 std::dynamic_pointer_cast< SphericalHarmonicAccelerationTermsDependentVariableSaveSettings >( dependentVariableSettings );
         if( accelerationComponentVariableSettings == nullptr )
         {
-            std::string errorMessage= "Error, inconsistent inout when creating dependent variable function of type single_acceleration_dependent_variable";
+            std::string errorMessage= "Error, inconsistent inout when creating dependent variable function of type spherical_harmonic_acceleration_terms_dependent_variable";
             throw std::runtime_error( errorMessage );
         }
         else
@@ -619,6 +635,100 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
         }
 
         break;
+    }
+    case total_spherical_harmonic_cosine_coefficient_variation:
+    {
+        // Check input consistency.
+        std::shared_ptr< TotalGravityFieldVariationSettings > totalGravityFieldVariationSettings =
+                std::dynamic_pointer_cast< TotalGravityFieldVariationSettings >( dependentVariableSettings );
+        if( totalGravityFieldVariationSettings == nullptr )
+        {
+            std::string errorMessage= "Error, inconsistent inout when creating dependent variable function of type total_spherical_harmonic_cosine_coefficient_variation";
+            throw std::runtime_error( errorMessage );
+        }
+        else
+        {
+
+            std::shared_ptr< gravitation::TimeDependentSphericalHarmonicsGravityField > timeDependentGravityField =
+                    std::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >(
+                        bodies.at( dependentVariableSettings->associatedBody_ )->getGravityFieldModel( ) );
+
+            if( timeDependentGravityField == nullptr )
+            {
+                throw std::runtime_error( "Error when requesting save of gravity field variation, central body " +
+                                          dependentVariableSettings->secondaryBody_ +
+                                          " has no TimeDependentSphericalHarmonicsGravityField." );
+            }
+            else
+            {
+                std::vector< std::pair< int, int > > componentIndices = totalGravityFieldVariationSettings->componentIndices_;
+                unsigned int numberOfCoefficients =  componentIndices.size( );
+
+                variableFunction = [=]( )
+                {
+                    Eigen::VectorXd coefficientCorrections =
+                            Eigen::VectorXd::Zero( numberOfCoefficients );
+                    for( unsigned int i = 0; i < numberOfCoefficients; i++ )
+                    {
+                        coefficientCorrections( i ) = timeDependentGravityField->getSingleCosineCoefficientCorrection(
+                                    componentIndices.at( i ).first, componentIndices.at( i ).second );
+                    }
+                    return coefficientCorrections;
+                };
+
+                parameterSize = numberOfCoefficients;
+            }
+
+        }
+        break;
+
+    }
+    case total_spherical_harmonic_sine_coefficient_variation:
+    {
+        // Check input consistency.
+        std::shared_ptr< TotalGravityFieldVariationSettings > totalGravityFieldVariationSettings =
+                std::dynamic_pointer_cast< TotalGravityFieldVariationSettings >( dependentVariableSettings );
+        if( totalGravityFieldVariationSettings == nullptr )
+        {
+            std::string errorMessage= "Error, inconsistent inout when creating dependent variable function of type total_spherical_harmonic_sine_coefficient_variation";
+            throw std::runtime_error( errorMessage );
+        }
+        else
+        {
+
+            std::shared_ptr< gravitation::TimeDependentSphericalHarmonicsGravityField > timeDependentGravityField =
+                    std::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >(
+                        bodies.at( dependentVariableSettings->associatedBody_ )->getGravityFieldModel( ) );
+
+            if( timeDependentGravityField == nullptr )
+            {
+                throw std::runtime_error( "Error when requesting save of gravity field variation, central body " +
+                                          dependentVariableSettings->secondaryBody_ +
+                                          " has no TimeDependentSphericalHarmonicsGravityField." );
+            }
+            else
+            {
+                std::vector< std::pair< int, int > > componentIndices = totalGravityFieldVariationSettings->componentIndices_;
+                int numberOfCoefficients =  componentIndices.size( );
+
+                variableFunction = [=]( )
+                {
+                    Eigen::VectorXd coefficientCorrections =
+                            Eigen::VectorXd::Zero( numberOfCoefficients );
+                    for( unsigned int i = 0; i < componentIndices.size( ); i++ )
+                    {
+                        coefficientCorrections( i ) = timeDependentGravityField->getSingleSineCoefficientCorrection(
+                                    componentIndices.at( i ).first, componentIndices.at( i ).second );
+                    }
+                    return coefficientCorrections;
+                };
+
+                parameterSize = numberOfCoefficients;
+            }
+
+        }
+        break;
+
     }
     case single_gravity_field_variation_acceleration:
     {
@@ -732,9 +842,8 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
         if( std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
                     bodies.at( bodyWithProperty )->getFlightConditions( ) )== nullptr )
         {
-            std::string errorMessage = "Error, no atmospheric flight conditions available when requesting density output of aerodynamic force coefficients " +
-                    bodyWithProperty + "w.r.t." + secondaryBody;
-            throw std::runtime_error( errorMessage );
+            simulation_setup::addAtmosphericFlightConditions(
+                        bodies, bodyWithProperty, secondaryBody );
         }
 
         variableFunction = std::bind(
@@ -750,10 +859,8 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
         if( std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
                     bodies.at( bodyWithProperty )->getFlightConditions( ) )== nullptr )
         {
-
-            std::string errorMessage = "Error, no atmospheric flight conditions available when requesting density output of aerodynamic moment coefficients " +
-                    bodyWithProperty + "w.r.t." + secondaryBody;
-            throw std::runtime_error( errorMessage );
+            simulation_setup::addAtmosphericFlightConditions(
+                        bodies, bodyWithProperty, secondaryBody );
         }
 
         variableFunction = std::bind(
@@ -776,8 +883,8 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
     {
         if( bodies.at( bodyWithProperty )->getFlightConditions( ) == nullptr )
         {
-            std::string errorMessage= "Error, no flight conditions when creating dependent variable function of type intermediate_aerodynamic_rotation_matrix_variable";
-            throw std::runtime_error( errorMessage );
+            simulation_setup::addFlightConditions(
+                        bodies, bodyWithProperty, secondaryBody );
         }
 
         // Check input consistency.
@@ -806,8 +913,8 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
         if( std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
                     bodies.at( bodyWithProperty )->getFlightConditions( ) )== nullptr )
         {
-            std::string errorMessage= "Error, no atmospheric flight conditions when creating dependent variable function of type body_fixed_airspeed_based_velocity_variable";
-            throw std::runtime_error( errorMessage );
+            simulation_setup::addAtmosphericFlightConditions(
+                        bodies, bodyWithProperty, secondaryBody );
         }
 
         variableFunction = std::bind( &aerodynamics::AtmosphericFlightConditions::getCurrentAirspeedBasedVelocity,
@@ -820,8 +927,8 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
     {
         if( bodies.at( bodyWithProperty )->getFlightConditions( ) == nullptr )
         {
-            std::string errorMessage= "Error, no flight conditions when creating dependent variable function of type body_fixed_groundspeed_based_velocity_variable";
-            throw std::runtime_error( errorMessage );
+            simulation_setup::addFlightConditions(
+                        bodies, bodyWithProperty, secondaryBody );
         }
 
         if(  bodies.at( bodyWithProperty )->getFlightConditions( )->getAerodynamicAngleCalculator( ) == nullptr )
@@ -1148,6 +1255,31 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
         break;
     }
 #endif
+    case custom_dependent_variable:
+    {
+        std::shared_ptr< CustomDependentVariableSaveSettings > customVariableSettings =
+                std::dynamic_pointer_cast< CustomDependentVariableSaveSettings >( dependentVariableSettings );
+
+        if( customVariableSettings == nullptr )
+        {
+            std::string errorMessage= "Error, inconsistent inout when creating dependent variable function of type custom_dependent_variable";
+            throw std::runtime_error( errorMessage );
+        }
+        else
+        {
+            variableFunction = [=]( )
+            {
+                Eigen::VectorXd customVariables = customVariableSettings->customDependentVariableFunction_( );
+                if( customVariables.rows( ) != customVariableSettings->dependentVariableSize_ )
+                {
+                    throw std::runtime_error( "Error when retrieving custom dependent variable, actual size is different from pre-defined size" );
+                }
+                return customVariables;
+            };
+            parameterSize = customVariableSettings->dependentVariableSize_;
+        }
+        break;
+    }
     default:
         std::string errorMessage =
                 "Error, did not recognize vector dependent variable type when making variable function: " +
@@ -1222,9 +1354,8 @@ std::function< double( ) > getDoubleDependentVariableFunction(
             if( std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
                         bodies.at( bodyWithProperty )->getFlightConditions( ) )== nullptr )
             {
-                std::string errorMessage = "Error, no atmospheric flight conditions available when requesting Mach number output of " +
-                        bodyWithProperty + "w.r.t." + secondaryBody;
-                throw std::runtime_error( errorMessage );
+                simulation_setup::addAtmosphericFlightConditions(
+                            bodies, bodyWithProperty, secondaryBody );
             }
 
             std::function< double( const double, const double ) > functionToEvaluate =
@@ -1248,9 +1379,8 @@ std::function< double( ) > getDoubleDependentVariableFunction(
         case altitude_dependent_variable:
             if( bodies.at( bodyWithProperty )->getFlightConditions( ) == nullptr )
             {
-                std::string errorMessage = "Error, no flight conditions available when requesting altitude output of " +
-                        bodyWithProperty + "w.r.t." + secondaryBody;
-                throw std::runtime_error( errorMessage );
+                simulation_setup::addFlightConditions(
+                            bodies, bodyWithProperty, secondaryBody );
             }
             variableFunction = std::bind( &aerodynamics::FlightConditions::getCurrentAltitude,
                                           bodies.at( bodyWithProperty )->getFlightConditions( ) );
@@ -1259,9 +1389,8 @@ std::function< double( ) > getDoubleDependentVariableFunction(
             if( std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
                         bodies.at( bodyWithProperty )->getFlightConditions( ) )== nullptr )
             {
-                std::string errorMessage = "Error, no atmospheric flight conditions available when requesting airspeed output of " +
-                        bodyWithProperty + "w.r.t." + secondaryBody;
-                throw std::runtime_error( errorMessage );
+                simulation_setup::addAtmosphericFlightConditions(
+                            bodies, bodyWithProperty, secondaryBody );
             }
             variableFunction = std::bind( &aerodynamics::AtmosphericFlightConditions::getCurrentAirspeed,
                                           std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
@@ -1271,9 +1400,8 @@ std::function< double( ) > getDoubleDependentVariableFunction(
             if( std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
                         bodies.at( bodyWithProperty )->getFlightConditions( ) )== nullptr )
             {
-                std::string errorMessage = "Error, no atmospheric flight conditions available when requesting density output of " +
-                        bodyWithProperty + "w.r.t." + secondaryBody;
-                throw std::runtime_error( errorMessage );
+                simulation_setup::addAtmosphericFlightConditions(
+                            bodies, bodyWithProperty, secondaryBody );
             }
             variableFunction = std::bind( &aerodynamics::AtmosphericFlightConditions::getCurrentDensity,
                                           std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
@@ -1386,6 +1514,19 @@ std::function< double( ) > getDoubleDependentVariableFunction(
                 }
                 else
                 {
+                    std::shared_ptr< NBodyStateDerivative< StateScalarType, TimeType > > nBodyModel =
+                            getTranslationalStateDerivativeModelForBody( bodyWithProperty, stateDerivativeModels );
+                    std::map< std::string, std::shared_ptr< gravitation::CentralGravitationalAccelerationModel3d > > removedAcceleration =
+                            nBodyModel->getRemovedCentralAcceleration( );
+                    if( removedAcceleration.count( accelerationDependentVariableSettings->associatedBody_ ) > 0 )
+                    {
+                        if( listOfSuitableAccelerationModels.at( 0 ) ==
+                                removedAcceleration.at( accelerationDependentVariableSettings->associatedBody_ ) )
+                        {
+                            nBodyModel->setUpdateRemovedAcceleration( accelerationDependentVariableSettings->associatedBody_ );
+                        }
+                    }
+
                     std::function< Eigen::Vector3d( ) > vectorFunction =
                             std::bind( &basic_astrodynamics::AccelerationModel3d::getAcceleration,
                                        listOfSuitableAccelerationModels.at( 0 ) );
@@ -1399,6 +1540,7 @@ std::function< double( ) > getDoubleDependentVariableFunction(
             // Retrieve model responsible for computing accelerations of requested bodies.
             std::shared_ptr< NBodyStateDerivative< StateScalarType, TimeType > > nBodyModel =
                     getTranslationalStateDerivativeModelForBody( bodyWithProperty, stateDerivativeModels );
+            nBodyModel->setUpdateRemovedAcceleration( dependentVariableSettings->associatedBody_ );
             std::function< Eigen::Vector3d( ) > vectorFunction =
                     std::bind( &NBodyStateDerivative< StateScalarType, TimeType >::getTotalAccelerationForBody,
                                nBodyModel, bodyWithProperty );
@@ -1464,9 +1606,8 @@ std::function< double( ) > getDoubleDependentVariableFunction(
         {
             if( bodies.at( bodyWithProperty )->getFlightConditions( ) == nullptr )
             {
-                std::string errorMessage = "Error when flight conditions for relative_body_aerodynamic_orientation_angle_variable output " +
-                        bodyWithProperty + " has no flight conditions";
-                throw std::runtime_error( errorMessage );
+                simulation_setup::addFlightConditions(
+                            bodies, bodyWithProperty, secondaryBody );
             }
 
             // Check input consistency.
@@ -1509,9 +1650,8 @@ std::function< double( ) > getDoubleDependentVariableFunction(
                         bodies.at( bodyWithProperty )->getFlightConditions( ) );
             if( flightConditions == nullptr )
             {
-                std::string errorMessage = "Error no atmospheric flight conditions available when requesting stagnation point heating output of" +
-                        bodyWithProperty + "w.r.t." + secondaryBody;
-                throw std::runtime_error( errorMessage );
+                simulation_setup::addAtmosphericFlightConditions(
+                            bodies, bodyWithProperty, secondaryBody );
             }
 
             if( bodies.at( bodyWithProperty )->getVehicleSystems( ) == nullptr )
@@ -1550,9 +1690,8 @@ std::function< double( ) > getDoubleDependentVariableFunction(
             if( std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
                         bodies.at( bodyWithProperty )->getFlightConditions( ) )== nullptr )
             {
-                std::string errorMessage = "Error, no atmospheric flight conditions available when requesting temperature output of " +
-                        bodyWithProperty + "w.r.t." + secondaryBody;
-                throw std::runtime_error( errorMessage );
+                simulation_setup::addAtmosphericFlightConditions(
+                            bodies, bodyWithProperty, secondaryBody );
             }
             variableFunction = std::bind( &aerodynamics::AtmosphericFlightConditions::getCurrentFreestreamTemperature,
                                           std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
@@ -1564,9 +1703,8 @@ std::function< double( ) > getDoubleDependentVariableFunction(
             if( std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
                         bodies.at( bodyWithProperty )->getFlightConditions( ) ) == nullptr )
             {
-                std::string errorMessage = "Error, no atmospheric flight conditions available when requesting dynamic pressure "
-                                           "output of " + bodyWithProperty + "w.r.t." + secondaryBody;
-                throw std::runtime_error( errorMessage );
+                simulation_setup::addAtmosphericFlightConditions(
+                            bodies, bodyWithProperty, secondaryBody );
             }
             variableFunction = std::bind( &aerodynamics::AtmosphericFlightConditions::getCurrentDynamicPressure,
                                           std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
@@ -1578,9 +1716,8 @@ std::function< double( ) > getDoubleDependentVariableFunction(
             if( std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
                         bodies.at( bodyWithProperty )->getFlightConditions( ) ) == nullptr )
             {
-                std::string errorMessage = "Error, no atmospheric flight conditions available when requesting heat rate "
-                                           "output of " + bodyWithProperty + "w.r.t." + secondaryBody;
-                throw std::runtime_error( errorMessage );
+                simulation_setup::addAtmosphericFlightConditions(
+                            bodies, bodyWithProperty, secondaryBody );
             }
             variableFunction = std::bind( &aerodynamics::AtmosphericFlightConditions::getCurrentAerodynamicHeatRate,
                                           std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
@@ -1591,9 +1728,8 @@ std::function< double( ) > getDoubleDependentVariableFunction(
         {
             if( bodies.at( bodyWithProperty )->getFlightConditions( ) == nullptr )
             {
-                std::string errorMessage = "Error, no flight conditions available when requesting geodetic latitude output of " +
-                        bodyWithProperty + "w.r.t." + secondaryBody;
-                throw std::runtime_error( errorMessage );
+                simulation_setup::addFlightConditions(
+                            bodies, bodyWithProperty, secondaryBody );
             }
 
             variableFunction = std::bind( &aerodynamics::FlightConditions::getCurrentGeodeticLatitude,
@@ -1682,6 +1818,7 @@ std::function< double( ) > getDoubleDependentVariableFunction(
                     std::to_string( dependentVariableSettings->dependentVariableType_ );
             throw std::runtime_error( errorMessage );
         }
+
         return variableFunction;
     }
 }
@@ -1739,7 +1876,7 @@ std::pair< std::function< Eigen::VectorXd( ) >, std::map< int, std::string > > c
     {
         std::pair< std::function< Eigen::VectorXd( ) >, int > vectorFunction;
         // Create double parameter
-        if( getDependentVariableSaveSize( variable ) == 1 )
+        if( isScalarDependentVariable( variable ) )
         {
 #if(TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
             std::function< double( ) > doubleFunction =

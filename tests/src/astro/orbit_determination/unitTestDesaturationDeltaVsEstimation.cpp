@@ -112,10 +112,6 @@ BOOST_AUTO_TEST_CASE( test_DesaturationDeltaVsEstimation )
                     "Sun", createRadiationPressureInterface(
                         asterixRadiationPressureSettings, "Vehicle", bodies ) );
 
-        bodies.at( "Vehicle" )->setEphemeris( std::make_shared< TabulatedCartesianEphemeris< > >(
-                                                std::shared_ptr< interpolators::OneDimensionalInterpolator
-                                                < double, Eigen::Vector6d > >( ), "Earth", "ECLIPJ2000" ) );
-
         // Create ground stations.
         std::vector< std::string > groundStationNames;
         groundStationNames.push_back( "Station1" );
@@ -134,11 +130,11 @@ BOOST_AUTO_TEST_CASE( test_DesaturationDeltaVsEstimation )
         std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
         accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< SphericalHarmonicAccelerationSettings >( 8, 8 ) );
         accelerationsOfVehicle[ "Sun" ].push_back( std::make_shared< AccelerationSettings >(
-                                                       basic_astrodynamics::central_gravity ) );
+                                                       basic_astrodynamics::point_mass_gravity ) );
         accelerationsOfVehicle[ "Moon" ].push_back( std::make_shared< AccelerationSettings >(
-                                                        basic_astrodynamics::central_gravity ) );
+                                                        basic_astrodynamics::point_mass_gravity ) );
         accelerationsOfVehicle[ "Mars" ].push_back( std::make_shared< AccelerationSettings >(
-                                                        basic_astrodynamics::central_gravity ) );
+                                                        basic_astrodynamics::point_mass_gravity ) );
         accelerationsOfVehicle[ "Sun" ].push_back( std::make_shared< AccelerationSettings >(
                                                        basic_astrodynamics::cannon_ball_radiation_pressure ) );
         accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< AccelerationSettings >(
@@ -184,7 +180,7 @@ BOOST_AUTO_TEST_CASE( test_DesaturationDeltaVsEstimation )
         // Create integrator settings.
         std::shared_ptr< IntegratorSettings< double > > integratorSettings
                 = std::make_shared< RungeKuttaVariableStepSizeSettings< double > >
-                ( initialEphemerisTime, 40.0, RungeKuttaCoefficients::CoefficientSets::rungeKuttaFehlberg78,
+                ( initialEphemerisTime, 40.0, CoefficientSets::rungeKuttaFehlberg78,
                   40.0, 40.0, 1.0, 1.0 );
 
         // Define link ends.

@@ -220,6 +220,8 @@ public:
           bodyName_( "unnamed_body" )
     {
         currentLongState_ = currentState_.cast< long double >( );
+        isStateSet_ = false;
+        isRotationSet_ = false;
     }
 
     //! Function to retrieve the class returning the state of this body's ephemeris origin w.r.t. the global origin
@@ -245,7 +247,17 @@ public:
      * Returns the internally stored current state vector.
      * \return Current state.
      */
-    Eigen::Vector6d getState() { return currentState_; }
+    Eigen::Vector6d getState( )
+    {
+        if( !isStateSet_ )
+        {
+            throw std::runtime_error( "Error when retrieving state from body " + bodyName_ + ", state of body is not yet defined" );
+        }
+        else
+        {
+            return currentState_;
+        }
+    }
 
     //! Set current state of body manually
     /*!
@@ -254,8 +266,10 @@ public:
      * long precision current state.
      * \param state Current state of the body that is set.
      */
-    void setState(const Eigen::Vector6d &state) {
+    void setState(const Eigen::Vector6d &state)
+    {
         currentState_ = state;
+        isStateSet_ = true;
     }
 
     //! Set current state of body manually in long double precision.
@@ -268,6 +282,8 @@ public:
     void setLongState(const Eigen::Matrix<long double, 6, 1> &longState) {
         currentLongState_ = longState;
         currentState_ = longState.cast<double>();
+        isStateSet_ = true;
+
     }
 
     //! Templated function to set the state manually.
@@ -291,6 +307,10 @@ public:
     {
         if (!(static_cast<Time>(time) == timeOfCurrentState_))
         {
+            if( bodyEphemeris_ == nullptr )
+            {
+                throw std::runtime_error( "Error when requesting state from ephemeris of body " + bodyName_ + ", body has no ephemeris" );
+            }
             // If body is not global frame origin, set state.
             if (bodyIsGlobalFrameOrigin_ == 0)
             {
@@ -299,7 +319,8 @@ public:
                     currentState_ =
                             (bodyEphemeris_->getTemplatedStateFromEphemeris<StateScalarType, TimeType>(time) + ephemerisFrameToBaseFrame_->getBaseFrameState<TimeType, StateScalarType>(time)).template cast<double>();
                     currentLongState_ = currentState_.template cast<long double>();
-                } else
+                }
+                else
                 {
                     currentLongState_ =
                             (bodyEphemeris_->getTemplatedStateFromEphemeris<StateScalarType, TimeType>(time) + ephemerisFrameToBaseFrame_->getBaseFrameState<TimeType, StateScalarType>(time)).template cast<long double>();
@@ -332,6 +353,7 @@ public:
 
             timeOfCurrentState_ = static_cast<TimeType>(time);
         }
+        isStateSet_ = true;
     }
 
     //    extern template void setStateFromEphemeris< double, double >( const double& time );
@@ -346,7 +368,8 @@ public:
      * \return State at requested time
      */
     template<typename StateScalarType = double, typename TimeType = double>
-    Eigen::Matrix<StateScalarType, 6, 1> getStateInBaseFrameFromEphemeris(const TimeType time) {
+    Eigen::Matrix<StateScalarType, 6, 1> getStateInBaseFrameFromEphemeris(const TimeType time)
+    {
         setStateFromEphemeris<StateScalarType, TimeType>(time);
         if (sizeof(StateScalarType) == 8) {
             return currentState_.template cast<StateScalarType>();
@@ -399,7 +422,17 @@ public:
      * Returns the internally stored current position vector.
      * \return Current position.
      */
-    Eigen::Vector3d getPosition() { return currentState_.segment(0, 3); }
+    Eigen::Vector3d getPosition()
+    {
+        if( !isStateSet_ )
+        {
+            throw std::runtime_error( "Error when retrieving position from body " + bodyName_ + ", state of body is not yet defined" );
+        }
+        else
+        {
+            return currentState_.segment(0, 3);
+        }
+    }
 
     void getPositionByReference( Eigen::Vector3d& position );
 
@@ -408,28 +441,68 @@ public:
      * Returns the internally stored current velocity vector.
      * \return Current velocity.
      */
-    Eigen::Vector3d getVelocity() { return currentState_.segment(3, 3); }
+    Eigen::Vector3d getVelocity()
+    {
+        if( !isStateSet_ )
+        {
+            throw std::runtime_error( "Error when retrieving velociy from body " + bodyName_ + ", state of body is not yet defined" );
+        }
+        else
+        {
+            return currentState_.segment(3, 3);
+        }
+    }
 
     //! Get current state, in long double precision
     /*!
      * Returns the internally stored current state vector, in long double precision
      * \return Current state, in long double precisio
      */
-    Eigen::Matrix<long double, 6, 1> getLongState() { return currentLongState_; }
+    Eigen::Matrix<long double, 6, 1> getLongState()
+    {
+        if( !isStateSet_ )
+        {
+            throw std::runtime_error( "Error when retrieving long state from body " + bodyName_ + ", state of body is not yet defined" );
+        }
+        else
+        {
+            return currentLongState_;
+        }
+    }
 
     //! Get current position, in long double precision
     /*!
      * Returns the internally stored current position vector, in long double precision
      * \return Current position, in long double precision
      */
-    Eigen::Matrix<long double, 3, 1> getLongPosition() { return currentLongState_.segment(0, 3); }
+    Eigen::Matrix<long double, 3, 1> getLongPosition( )
+    {
+        if( !isStateSet_ )
+        {
+            throw std::runtime_error( "Error when retrieving long position from body " + bodyName_ + ", state of body is not yet defined" );
+        }
+        else
+        {
+            return currentLongState_.segment(0, 3);
+        }
+    }
 
     //! Get current velocity, in long double precision.
     /*!
      * Returns the internally stored current velocity vector.
      * \return Current velocity, in long double precision
      */
-    Eigen::Matrix<long double, 3, 1> getLongVelocity() { return currentLongState_.segment(3, 3); }
+    Eigen::Matrix<long double, 3, 1> getLongVelocity( )
+    {
+        if( !isStateSet_ )
+        {
+            throw std::runtime_error( "Error when retrieving long velocity from body " + bodyName_ + ", state of body is not yet defined" );
+        }
+        else
+        {
+            return currentLongState_.segment(3, 3);
+        }
+    }
 
     //! Templated function to retrieve the state.
     /*!
@@ -461,44 +534,45 @@ public:
                         "Error, no rotation model found in Body::setCurrentRotationToLocalFrameFromEphemeris" );
         }
         currentRotationToGlobalFrame_ = currentRotationToLocalFrame_.inverse( );
+        isRotationSet_ = true;
     }
 
-    //! Function to set the rotation matrix derivative from global to body-fixed frame at given time
-    /*!
-     * Function to set the rotation matrix derivative from global to body-fixed frame at given time,
-     * using the rotationalEphemeris_ member object
-     * \param time Time at which the rotation matrix derivative is to be retrieved.
-     */
-    void setCurrentRotationToLocalFrameDerivativeFromEphemeris(const double time) {
-        if (rotationalEphemeris_ != nullptr) {
-            currentRotationToLocalFrameDerivative_ = rotationalEphemeris_->getDerivativeOfRotationToTargetFrame(time);
-        } else if (dependentOrientationCalculator_ != nullptr) {
-            currentRotationToLocalFrameDerivative_.setZero();
-        } else {
-            throw std::runtime_error(
-                        "Error, no rotationalEphemeris_ found in Body::setCurrentRotationToLocalFrameDerivativeFromEphemeris");
-        }
-    }
+//    //! Function to set the rotation matrix derivative from global to body-fixed frame at given time
+//    /*!
+//     * Function to set the rotation matrix derivative from global to body-fixed frame at given time,
+//     * using the rotationalEphemeris_ member object
+//     * \param time Time at which the rotation matrix derivative is to be retrieved.
+//     */
+//    void setCurrentRotationToLocalFrameDerivativeFromEphemeris(const double time) {
+//        if (rotationalEphemeris_ != nullptr) {
+//            currentRotationToLocalFrameDerivative_ = rotationalEphemeris_->getDerivativeOfRotationToTargetFrame(time);
+//        } else if (dependentOrientationCalculator_ != nullptr) {
+//            currentRotationToLocalFrameDerivative_.setZero();
+//        } else {
+//            throw std::runtime_error(
+//                        "Error, no rotationalEphemeris_ found in Body::setCurrentRotationToLocalFrameDerivativeFromEphemeris");
+//        }
+//    }
 
-    //! Function to set the angular velocity vector in the global frame at given time
-    /*!
-     * Function to set the angular velocity vector in the global frame at given time, using the
-     * rotationalEphemeris_ member object
-     * \param time Time at which the angular velocity vector in the global frame is to be retrieved.
-     */
-    void setCurrentAngularVelocityVectorInGlobalFrame(const double time) {
-        if (rotationalEphemeris_ != nullptr) {
-            currentAngularVelocityVectorInGlobalFrame_ = rotationalEphemeris_->getRotationalVelocityVectorInBaseFrame(time);
-            currentAngularVelocityVectorInLocalFrame_ = currentRotationToLocalFrame_ * currentAngularVelocityVectorInGlobalFrame_;
+//    //! Function to set the angular velocity vector in the global frame at given time
+//    /*!
+//     * Function to set the angular velocity vector in the global frame at given time, using the
+//     * rotationalEphemeris_ member object
+//     * \param time Time at which the angular velocity vector in the global frame is to be retrieved.
+//     */
+//    void setCurrentAngularVelocityVectorInGlobalFrame(const double time) {
+//        if (rotationalEphemeris_ != nullptr) {
+//            currentAngularVelocityVectorInGlobalFrame_ = rotationalEphemeris_->getRotationalVelocityVectorInBaseFrame(time);
+//            currentAngularVelocityVectorInLocalFrame_ = currentRotationToLocalFrame_ * currentAngularVelocityVectorInGlobalFrame_;
 
-        } else if (dependentOrientationCalculator_ != nullptr) {
-            currentAngularVelocityVectorInGlobalFrame_.setZero();
-            currentAngularVelocityVectorInLocalFrame_.setZero();
-        } else {
-            throw std::runtime_error(
-                        "Error, no rotationalEphemeris_ found in Body::setCurrentAngularVelocityVectorInGlobalFrame");
-        }
-    }
+//        } else if (dependentOrientationCalculator_ != nullptr) {
+//            currentAngularVelocityVectorInGlobalFrame_.setZero();
+//            currentAngularVelocityVectorInLocalFrame_.setZero();
+//        } else {
+//            throw std::runtime_error(
+//                        "Error, no rotationalEphemeris_ found in Body::setCurrentAngularVelocityVectorInGlobalFrame");
+//        }
+//    }
 
     //! Function to set the full rotational state at given time
     /*!
@@ -530,6 +604,7 @@ public:
                         "Error, no rotationalEphemeris_ found in Body::setCurrentRotationalStateToLocalFrameFromEphemeris" );
         }
         currentRotationToGlobalFrame_ = currentRotationToLocalFrame_.inverse( );
+        isRotationSet_ = true;
 
     }
 
@@ -559,6 +634,8 @@ public:
     currentRotationToLocalFrameDerivative_ = linear_algebra::getCrossProductMatrix(
                                                  currentRotationalStateFromLocalToGlobalFrame.block< 3, 1 >(4, 0 ))
         * currentRotationMatrixToLocalFrame;
+    isRotationSet_ = true;
+
   }
 
     //! Get current rotation from body-fixed to inertial frame.
@@ -571,12 +648,26 @@ public:
      */
     Eigen::Quaterniond getCurrentRotationToGlobalFrame( )
     {
-        return currentRotationToGlobalFrame_;
+        if( !isRotationSet_ )
+        {
+            throw std::runtime_error( "Error when retrieving rotation to global frame from body " + bodyName_ + ", state of body is not yet defined" );
+        }
+        else
+        {
+            return currentRotationToGlobalFrame_;
+        }
     }
 
     Eigen::Quaterniond& getCurrentRotationToGlobalFrameReference( )
     {
-        return currentRotationToGlobalFrame_;
+        if( !isRotationSet_ )
+        {
+            throw std::runtime_error( "Error when retrieving rotation to global frame from body " + bodyName_ + ", state of body is not yet defined" );
+        }
+        else
+        {
+            return currentRotationToGlobalFrame_;
+        }
     }
 
     //! Get current rotation from inertial to body-fixed frame.
@@ -587,17 +678,41 @@ public:
      *  an identity quaternion (no rotation) is returned.
      *  \return Current rotation from inertial to body-fixed frame.
      */
-    Eigen::Quaterniond getCurrentRotationToLocalFrame() {
-        return currentRotationToLocalFrame_;
+    Eigen::Quaterniond getCurrentRotationToLocalFrame()
+    {
+        if( !isRotationSet_ )
+        {
+            throw std::runtime_error( "Error when retrieving rotation to local frame from body " + bodyName_ + ", state of body is not yet defined" );
+        }
+        else
+        {
+            return currentRotationToLocalFrame_;
+        }
     }
 
-  Eigen::Matrix3d getCurrentRotationMatrixToGlobalFrame() {
-    return Eigen::Matrix3d( currentRotationToLocalFrame_.inverse() );
-  }
+    Eigen::Matrix3d getCurrentRotationMatrixToGlobalFrame()
+    {
+        if( !isRotationSet_ )
+        {
+            throw std::runtime_error( "Error when retrieving rotation to global frame from body " + bodyName_ + ", state of body is not yet defined" );
+        }
+        else
+        {
+            return Eigen::Matrix3d( currentRotationToLocalFrame_.inverse() );
+        }
+    }
 
-  Eigen::Matrix3d getCurrentRotationMatrixToLocalFrame() {
-    return Eigen::Matrix3d( currentRotationToLocalFrame_ );
-  }
+    Eigen::Matrix3d getCurrentRotationMatrixToLocalFrame()
+    {
+        if( !isRotationSet_ )
+        {
+            throw std::runtime_error( "Error when retrieving rotation to local frame from body " + bodyName_ + ", state of body is not yet defined" );
+        }
+        else
+        {
+            return Eigen::Matrix3d( currentRotationToLocalFrame_ );
+        }
+    }
 
     //! Get current rotational state.
     /*!
@@ -605,10 +720,18 @@ public:
      *  (in vector form) and the body's angular velocity vector in inertial frame.
      *  \return Current rotational state in quaternions and rotational velocity.
      */
-    Eigen::Vector7d getCurrentRotationalState() {
-        return (Eigen::VectorXd(7) << linear_algebra::convertQuaternionToVectorFormat(getCurrentRotationToGlobalFrame()),
-                getCurrentAngularVelocityVectorInGlobalFrame())
-                .finished();
+    Eigen::Vector7d getCurrentRotationalState()
+    {
+        if( !isRotationSet_ )
+        {
+            throw std::runtime_error( "Error when retrieving rotation from body " + bodyName_ + ", state of body is not yet defined" );
+        }
+        else
+        {
+            return (Eigen::VectorXd(7) << linear_algebra::convertQuaternionToVectorFormat(getCurrentRotationToGlobalFrame()),
+                    getCurrentAngularVelocityVectorInGlobalFrame())
+                    .finished();
+        }
     }
 
     //! Get current rotation matrix derivative from body-fixed to global frame.
@@ -619,8 +742,16 @@ public:
      *  ephemeris, an zero matrix (no rotation) is returned.
      *  \return Current otation matrix derivative from global to body-fixed frame.
      */
-    Eigen::Matrix3d getCurrentRotationMatrixDerivativeToGlobalFrame() {
-        return currentRotationToLocalFrameDerivative_.transpose();
+    Eigen::Matrix3d getCurrentRotationMatrixDerivativeToGlobalFrame( )
+    {
+        if( !isRotationSet_ )
+        {
+            throw std::runtime_error( "Error when retrieving derivative of rotation to global frame from body " + bodyName_ + ", state of body is not yet defined" );
+        }
+        else
+        {
+            return currentRotationToLocalFrameDerivative_.transpose();
+        }
     }
 
     //! Get current rotation matrix derivative from global to body-fixed frame.
@@ -631,8 +762,16 @@ public:
      *  ephemeris, an zero matrix (no rotation) is returned.
      *  \return Current otation matrix derivative from global to body-fixed frame.
      */
-    Eigen::Matrix3d getCurrentRotationMatrixDerivativeToLocalFrame() {
-        return currentRotationToLocalFrameDerivative_;
+    Eigen::Matrix3d getCurrentRotationMatrixDerivativeToLocalFrame()
+    {
+        if( !isRotationSet_ )
+        {
+            throw std::runtime_error( "Error when retrieving derivative of rotation to local frame from body " + bodyName_ + ", state of body is not yet defined" );
+        }
+        else
+        {
+            return currentRotationToLocalFrameDerivative_;
+        }
     }
 
     //! Get current angular velocity vector for body's rotation, expressed in the global frame.
@@ -640,8 +779,16 @@ public:
      *  Get current angular velocity vector for body's rotation, expressed in the global frame.
      *  \return Current angular velocity vector for body's rotation, expressed in the global frame.
      */
-    Eigen::Vector3d getCurrentAngularVelocityVectorInGlobalFrame() {
-        return currentAngularVelocityVectorInGlobalFrame_;
+    Eigen::Vector3d getCurrentAngularVelocityVectorInGlobalFrame( )
+    {
+        if( !isRotationSet_ )
+        {
+            throw std::runtime_error( "Error when retrieving angular velocioty of body " + bodyName_ + ", state of body is not yet defined" );
+        }
+        else
+        {
+            return currentAngularVelocityVectorInGlobalFrame_;
+        }
     }
 
     //! Get current angular velocity vector for body's rotation, expressed in the local frame.
@@ -651,8 +798,16 @@ public:
      *  current quaternion to local frame.
      *  \return Current angular velocity vector for body's rotation, expressed in the local frame.
      */
-    Eigen::Vector3d getCurrentAngularVelocityVectorInLocalFrame() {
-        return currentAngularVelocityVectorInLocalFrame_;
+    Eigen::Vector3d getCurrentAngularVelocityVectorInLocalFrame( )
+    {
+        if( !isRotationSet_ )
+        {
+            throw std::runtime_error( "Error when retrieving angular velocioty of body " + bodyName_ + ", state of body is not yet defined" );
+        }
+        else
+        {
+            return currentAngularVelocityVectorInLocalFrame_;
+        }
     }
 
     //! Function to set the ephemeris of the body.
@@ -664,10 +819,6 @@ public:
     void setEphemeris( const std::shared_ptr< ephemerides::Ephemeris > bodyEphemeris )
     {
         bodyEphemeris_ = bodyEphemeris;
-        if( resetBaseFrames_ != nullptr )
-        {
-            resetBaseFrames_( );
-        }
     }
 
     //! Function to set the gravity field of the body.
@@ -1205,10 +1356,6 @@ public:
 
     void setBodyName( const std::string bodyName ){ bodyName_ = bodyName; }
 
-    void setBaseFrameFunction( const std::function< void( ) > resetBaseFrames )
-    {
-        resetBaseFrames_ = resetBaseFrames;
-    }
 protected:
 private:
     //! Variable denoting whether this body is the global frame origin (1 if true, 0 if false, -1 if not yet set)
@@ -1306,7 +1453,9 @@ private:
 
     std::string bodyName_;
 
-    std::function< void( ) > resetBaseFrames_;
+    bool isStateSet_;
+
+    bool isRotationSet_;
 };
 
 
@@ -1567,6 +1716,10 @@ public:
 
     std::shared_ptr< Body > at( const std::string& bodyName ) const
     {
+        if( bodyMap_.count( bodyName ) == 0 )
+        {
+            throw std::runtime_error( "Error when retrieving body " + bodyName + "from SystemOfBodies, no such body exists." );
+        }
         return bodyMap_.at( bodyName );
     }
 
@@ -1607,15 +1760,15 @@ public:
 
     const std::unordered_map< std::string, std::shared_ptr< Body > >& getMap( ) const { return bodyMap_; }
 
-    void processBodyFrameDefinitions( )
+    void processBodyFrameDefinitions( ) const
     {
         setGlobalFrameBodyEphemerides( bodyMap_, frameOrigin_, frameOrientation_);
 
-        for( auto bodyIterator : bodyMap_ )
-        {
-            bodyIterator.second->setBaseFrameFunction(
-                        std::bind( &SystemOfBodies::processBodyFrameDefinitions, this ) );
-        }
+//        for( auto bodyIterator : bodyMap_ )
+//        {
+//            bodyIterator.second->setBaseFrameFunction(
+//                        std::bind( &SystemOfBodies::processBodyFrameDefinitions, this ) );
+//        }
     }
 
 

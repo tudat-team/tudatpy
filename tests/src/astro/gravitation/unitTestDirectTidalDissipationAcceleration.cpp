@@ -69,7 +69,7 @@ std::pair< double, double > computeKeplerElementRatesDueToDissipation(
     std::shared_ptr< IntegratorSettings< > > integratorSettings =
             std::make_shared< RungeKuttaVariableStepSizeSettings< > >
             ( 0.0, fixedStepSize,
-              RungeKuttaCoefficients::rungeKuttaFehlberg78, fixedStepSize, fixedStepSize, 1.0, 1.0);
+              rungeKuttaFehlberg78, fixedStepSize, fixedStepSize, 1.0, 1.0);
 
     std::map< double, Eigen::VectorXd > integrationResultWithDissipation;
     std::map< double, Eigen::VectorXd > integrationResultWithDissipationKepler;
@@ -78,7 +78,7 @@ std::pair< double, double > computeKeplerElementRatesDueToDissipation(
     {
         std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfIo;
         accelerationsOfIo[ "Jupiter" ].push_back( std::make_shared< AccelerationSettings >(
-                                                      basic_astrodynamics::central_gravity ) );
+                                                      basic_astrodynamics::point_mass_gravity ) );
         accelerationsOfIo[ "Jupiter" ].push_back( std::make_shared< DirectTidalDissipationAccelerationSettings >(
                                                       k2LoveNumber, tidalTimeLag, false, usePlanetDissipation ) );
         accelerationMap[ satelliteToPropagate ] = accelerationsOfIo;

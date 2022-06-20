@@ -69,24 +69,24 @@ std::shared_ptr< IntegratorSettings< TimeType > > getIntegrationSettings(
     }
     else if( integratorCase < 5 )
     {
-        RungeKuttaCoefficients::CoefficientSets coefficientSet = RungeKuttaCoefficients::undefinedCoefficientSet;
+        CoefficientSets coefficientSet = CoefficientSets::undefinedCoefficientSet;
         if( integratorCase == 1 )
         {
-            coefficientSet = RungeKuttaCoefficients::rungeKuttaFehlberg45;
+            coefficientSet = rungeKuttaFehlberg45;
         }
         else if( integratorCase == 2 )
         {
-            coefficientSet = RungeKuttaCoefficients::rungeKuttaFehlberg56;
+            coefficientSet = rungeKuttaFehlberg56;
 
         }
         else if( integratorCase == 3 )
         {
-            coefficientSet = RungeKuttaCoefficients::rungeKuttaFehlberg78;
+            coefficientSet = rungeKuttaFehlberg78;
 
         }
         else if( integratorCase == 4 )
         {
-            coefficientSet = RungeKuttaCoefficients::rungeKutta87DormandPrince;
+            coefficientSet = rungeKutta87DormandPrince;
 
         }
         integratorSettings = std::make_shared< RungeKuttaVariableStepSizeSettings< TimeType > >
@@ -128,8 +128,8 @@ Eigen::Matrix< StateScalarType, 6, 1 > propagateForwardBackwards( const int inte
     // Set accelerations between bodies that are to be taken into account.
     SelectedAccelerationMap accelerationMap;
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfMoon;
-    accelerationsOfMoon[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
-    accelerationsOfMoon[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+    accelerationsOfMoon[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
+    accelerationsOfMoon[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
     accelerationMap[ "Moon" ] = accelerationsOfMoon;
 
     // Propagate the moon only

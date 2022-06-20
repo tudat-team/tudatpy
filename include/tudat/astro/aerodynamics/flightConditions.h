@@ -466,6 +466,12 @@ public:
      */
     std::vector< double > getAerodynamicCoefficientIndependentVariables( )
     {
+        if( aerodynamicCoefficientInterface_ == nullptr )
+        {
+            throw std::runtime_error(
+                        "Error when getting aerodynamic coefficient independent variables, no coefficient interface is defined" );
+        }
+
         if( aerodynamicCoefficientIndependentVariables_.size( ) !=
                 aerodynamicCoefficientInterface_->getNumberOfIndependentVariables( ) )
         {
@@ -483,6 +489,12 @@ public:
      */
     std::map< std::string, std::vector< double > > getControlSurfaceAerodynamicCoefficientIndependentVariables( )
     {
+        if( aerodynamicCoefficientInterface_ == nullptr )
+        {
+            throw std::runtime_error(
+                        "Error when getting control surface aerodynamic coefficient independent variables, no coefficient interface is defined" );
+        }
+
         if( controlSurfaceAerodynamicCoefficientIndependentVariables_.size( ) !=
                 aerodynamicCoefficientInterface_->getNumberOfControlSurfaces( ) )
         {

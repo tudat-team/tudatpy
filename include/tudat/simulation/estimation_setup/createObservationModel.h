@@ -433,6 +433,20 @@ public:
 
     }
 
+    TwoWayDopplerObservationSettings(
+            const LinkEnds& linkEnds,
+            const std::shared_ptr< LightTimeCorrectionSettings > lightTimeCorrections = nullptr,
+            const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr ):
+        ObservationModelSettings( two_way_doppler, linkEnds,
+                                  lightTimeCorrections, biasSettings )
+    {
+        uplinkOneWayDopplerSettings_ = std::make_shared< OneWayDopplerObservationSettings >(
+                    getUplinkFromTwoWayLinkEnds( linkEnds ), lightTimeCorrections );
+        downlinkOneWayDopplerSettings_ = std::make_shared< OneWayDopplerObservationSettings >(
+                    getDownlinkFromTwoWayLinkEnds( linkEnds ), lightTimeCorrections );
+    }
+
+
     //! Destructor
     ~TwoWayDopplerObservationSettings( ){ }
 
@@ -631,6 +645,17 @@ inline std::shared_ptr< ObservationModelSettings > twoWayOpenLoopDoppler(
                 uplinkOneWayDopplerSettings, downlinkOneWayDopplerSettings, biasSettings );
 }
 
+
+inline std::shared_ptr< ObservationModelSettings > twoWayOpenLoopDoppler(
+        const LinkEnds& linkEnds,
+        const std::shared_ptr< LightTimeCorrectionSettings > lightTimeCorrections = nullptr,
+        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr )
+{
+    return std::make_shared< TwoWayDopplerObservationSettings >(
+                linkEnds, lightTimeCorrections, biasSettings );
+}
+
+
 inline std::shared_ptr< ObservationModelSettings > oneWayClosedLoopDoppler(
         const LinkEnds& linkEnds,
         const std::function< double( const double ) > integrationTimeFunction,
@@ -662,6 +687,22 @@ inline std::shared_ptr< ObservationModelSettings > nWayRange(
     return std::make_shared< NWayRangeObservationSettings >(
                 oneWayRangeObsevationSettings, retransmissionTimesFunction, biasSettings );
 }
+
+
+inline std::shared_ptr< ObservationModelSettings > nWayRangeSimple(
+        const LinkEnds& linkEnds,
+        const int numberOfLinkEnds,
+        const std::shared_ptr< LightTimeCorrectionSettings > lightTimeCorrections = std::shared_ptr< LightTimeCorrectionSettings > ( ),
+        const std::function< std::vector< double >( const double ) > retransmissionTimesFunction =
+        std::function< std::vector< double >( const double  ) >( ),
+        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr )
+{
+    // change order of input args from FF to accomodate default (empty) lightTimeCorrections
+    return std::make_shared< NWayRangeObservationSettings >(
+            linkEnds, lightTimeCorrections, numberOfLinkEnds, retransmissionTimesFunction, biasSettings );
+}
+
+
 
 //! Function to create the proper time rate calculator for use in one-way Doppler
 /*!
@@ -1719,6 +1760,8 @@ std::vector< std::shared_ptr< ObservationSimulatorBase< ObservationScalarType, T
     }
     return observationSimulators;
 }
+
+
 
 
 } // namespace observation_models

@@ -22,7 +22,9 @@
 #include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/astro/aerodynamics/atmosphereModel.h"
 #include "tudat/astro/aerodynamics/aerodynamics.h"
+#include "tudat/astro/aerodynamics/nrlmsise00InputFunctions.h"
 #include "tudat/math/basic/mathematicalConstants.h"
+#include "tudat/io/solarActivityData.h"
 
 extern "C"
 {
@@ -104,70 +106,6 @@ struct GasComponentProperties
     double molarMassAtomicOxygen;
 };
 
-//! Struct for Solar Activity data.
-/*!
- *
- */
-struct NRLMSISE00Input
-{
-    //! Input for computation of NRLMSISE00 atmospheric conditions at current time and position.
-    /*!
-     * Input for computation of NRLMSISE00 atmospheric conditions at current time and position. The computation of
-     * this struct may be reperformed every time step, to reflect the changes in atmospheric condition.
-     * \param year Current year
-     * \param dayOfTheYear Day in the current year
-     * \param secondOfTheDay Number of seconds into the current day.
-     * \param localSolarTime Local solar time at the computation position
-     * \param f107 Current daily F10.7 flux for previous day
-     * \param f107a 81 day average of F10.7 flux (centered on current dayOfTheYear).
-     * \param apDaily Current daily magnetic index
-     * \param apVector Current magnetic index data vector: \sa ap_array
-     * \param switches List of NRLMSISE-specific flags: \sa nrlmsise_flags
-     */
-    NRLMSISE00Input(
-            int year = 0, int dayOfTheYear = 0, double secondOfTheDay = 0.0,
-            double localSolarTime = 0.0, double f107 = 0.0, double f107a = 0.0,
-            double apDaily = 0.0,
-            std::vector< double > apVector = std::vector< double>( 7, 0.0 ),
-            std::vector< int > switches = std::vector< int >( ) )
-        : year( year ), dayOfTheYear( dayOfTheYear ), secondOfTheDay( secondOfTheDay) ,
-          localSolarTime( localSolarTime ), f107( f107 ), f107a( f107a ),
-          apDaily( apDaily ), apVector( apVector ), switches( switches )
-    {
-        if( switches.empty( ) )
-        {
-            this->switches = std::vector< int >( 24, 1 );
-            this->switches[ 0 ] = 0;
-        }
-    }
-
-    //! Current year
-    int year;
-
-    //! Day in the current year
-    int dayOfTheYear;
-
-    //! Number of seconds into the current day.
-    double secondOfTheDay;\
-
-    //! Local solar time at the computation position
-    double localSolarTime;
-
-    //! Current daily F10.7 flux for previous day
-    double f107;
-
-    //! 81 day average of F10.7 flux (centered on current dayOfTheYear).
-    double f107a;
-
-    //! Current daily magnetic index
-    double apDaily;
-
-    //! Current magnetic index data vector: \sa ap_array
-    std::vector< double > apVector;
-
-    //! List of NRLMSISE-specific flags: \sa nrlmsise_flag
-    std::vector< int > switches;
-};
 
 //! NRLMSISE-00 atmosphere model class.
 /*!
@@ -207,6 +145,23 @@ class NRLMSISE00Atmosphere : public AtmosphereModel
         useIdealGasLaw_ = useIdealGasLaw;
     }
 
+    NRLMSISE00Atmosphere( const tudat::input_output::solar_activity::SolarActivityDataMap solarActivityData,
+                          const bool useIdealGasLaw = true )
+    {
+        nrlmsise00InputFunction_ = std::bind( &tudat::aerodynamics::nrlmsiseInputFunction,
+                   std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4,
+                   solarActivityData, false, TUDAT_NAN );
+        solarActivityContainer_ = std::make_shared< input_output::solar_activity::SolarActivityContainer >(
+                    solarActivityData );
+
+        resetHashKey( );
+        molarGasConstant_ = tudat::physical_constants::MOLAR_GAS_CONSTANT;
+        specificHeatRatio_ = 1.4;
+        GasComponentProperties gasProperties;
+        gasComponentProperties_ = gasProperties; // Default gas properties
+        useIdealGasLaw_ = useIdealGasLaw;
+    }
+
     //! Constructor
     /*!
      * Constructor that sets the gas component properties and specific heat ratio.
@@ -216,12 +171,17 @@ class NRLMSISE00Atmosphere : public AtmosphereModel
      *  the molecule collision diameters and the molar mass.
      * \param useIdealGasLaw Boolean denoting whether the ideal gas law is to be used.
      */
-    NRLMSISE00Atmosphere( const NRLMSISE00InputFunction nrlmsise00InputFunction,
+    NRLMSISE00Atmosphere(const tudat::input_output::solar_activity::SolarActivityDataMap solarActivityData,
                          const double specificHeatRatio,
                          const GasComponentProperties gasProperties,
                          const bool useIdealGasLaw = true)
-        : nrlmsise00InputFunction_(nrlmsise00InputFunction)
     {
+        nrlmsise00InputFunction_ = std::bind( &tudat::aerodynamics::nrlmsiseInputFunction,
+                   std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4,
+                   solarActivityData, false, TUDAT_NAN );
+        solarActivityContainer_ = std::make_shared< input_output::solar_activity::SolarActivityContainer >(
+                    solarActivityData );
+
         resetHashKey( );
         molarGasConstant_ = tudat::physical_constants::MOLAR_GAS_CONSTANT;
         specificHeatRatio_ = specificHeatRatio;
@@ -418,6 +378,11 @@ class NRLMSISE00Atmosphere : public AtmosphereModel
         hashKey_ = 0;
     }
 
+    std::shared_ptr< input_output::solar_activity::SolarActivityContainer > getSolarActivityContainer( )
+    {
+        return solarActivityContainer_;
+    }
+
     //! Function to get  Input data to NRLMSISE00 atmosphere model
     /*!
      *  Function to get input data to NRLMSISE00 atmosphere model
@@ -589,6 +554,8 @@ class NRLMSISE00Atmosphere : public AtmosphereModel
 
     //! Input data to NRLMSISE00 atmosphere model
     NRLMSISE00Input inputData_;
+
+    std::shared_ptr< input_output::solar_activity::SolarActivityContainer > solarActivityContainer_;
 };
 
 }  // namespace aerodynamics

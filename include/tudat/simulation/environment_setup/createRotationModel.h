@@ -456,9 +456,6 @@ public:
                                     const std::string originalFrame,
                                     const std::string targetFrame,
                                     const std::string centralBody,
-                                    const double initialTime,
-                                    const double finalTime,
-                                    const double timeStep = 150.0,
                                     const std::map< double, std::pair< double, double > > meanMotionDirectNutationCorrections =
             ( std::map< double, std::pair< double, double > >( ) ),
                                     std::vector< std::map< double, std::pair< double, double > > > meanMotionTimeDependentPhaseNutationCorrections =
@@ -481,7 +478,7 @@ public:
         timeDependentPhaseCorrectionFunctions_( timeDependentPhaseCorrectionFunctions ),
         rotationRateCorrections_( rotationRateCorrections ),
         xPolarMotionCoefficients_( xPolarMotionCoefficients ), yPolarMotionCoefficients_( yPolarMotionCoefficients ),
-        centralBody_( centralBody ), initialTime_( initialTime ), finalTime_( finalTime ), timeStep_( timeStep ){ }
+        centralBody_( centralBody ){ }
 
     void updateAnglesAtEpoch( Eigen::Vector3d anglesAtEpoch )
     {
@@ -569,20 +566,6 @@ public:
         return yPolarMotionCoefficients_;
     }
 
-    double getInitialTime( )
-    {
-        return initialTime_;
-    }
-
-    double getFinalTime( )
-    {
-        return finalTime_;
-    }
-
-    double getTimeStep( )
-    {
-        return timeStep_;
-    }
 
     std::string getCentralBody( )
     {
@@ -637,10 +620,6 @@ private:
     std::map< double, std::pair< double, double > > yPolarMotionCoefficients_;
 
     std::string centralBody_;
-
-    double initialTime_;
-    double finalTime_;
-    double timeStep_;
 };
 
 

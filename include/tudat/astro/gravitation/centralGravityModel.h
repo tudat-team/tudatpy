@@ -175,7 +175,6 @@ public:
                 positionOfBodyExertingAccelerationFunction,
                 isMutualAttractionUsed )
     {
-        this->updateMembers( );
     }
 
     //! Constructor taking position-functions for bodies, and constant gravitational parameter.
@@ -209,7 +208,6 @@ public:
                 positionOfBodyExertingAccelerationFunction,
                 isMutualAttractionUsed )
     {
-        this->updateMembers( );
     }
 
     //! Update members.

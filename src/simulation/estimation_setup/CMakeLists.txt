@@ -69,6 +69,7 @@ set(estimation_SOURCES
         observationSimulationSettings.cpp
         observationOutputSettings.cpp
         observationOutput.cpp
+        simulateObservations.cpp
         )
 
 # Add library.
