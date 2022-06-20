@@ -595,16 +595,44 @@ struct CovarianceAnalysisOutput
     {
         return normalizedDesignMatrix_;
     }
-    // Michael
+
     std::vector< std::vector< std::map< TimeType, Eigen::VectorXd > > > getDependentVariableHistory( )
     {
+        if( dependentVariableHistoryPerIteration_.size( ) == 0 )
+        {
+            throw std::runtime_error( "Error when retrieving dependent variable histories from estimation, no dependent variable histories set." );
+        }
         return dependentVariableHistoryPerIteration_;
     }
-    // Michael
+
     std::vector< std::vector< std::map< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > > > getDynamicsHistory( )
     {
+        if( dynamicsHistoryPerIteration_.size( ) == 0 )
+        {
+            throw std::runtime_error( "Error when retrieving dynamics histories from estimation, no dynamics results set." );
+        }
         return dynamicsHistoryPerIteration_;
     }
+
+    std::vector< std::map< TimeType, Eigen::VectorXd > > getFinalDependentVariableHistory( )
+    {
+        if( dependentVariableHistoryPerIteration_.size( ) == 0 )
+        {
+            throw std::runtime_error( "Error when retrieving final dependent variable histories from estimation, no dependent variable histories set." );
+        }
+        return dependentVariableHistoryPerIteration_.at( dependentVariableHistoryPerIteration_.size( ) - 1 );
+    }
+
+    std::vector< std::map< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > > getFinalDynamicsHistory( )
+    {
+        if( dynamicsHistoryPerIteration_.size( ) == 0 )
+        {
+            throw std::runtime_error( "Error when retrieving final dynamics histories from estimation, no dynamics results set." );
+        }
+        return dynamicsHistoryPerIteration_.at( dynamicsHistoryPerIteration_.size( ) - 1 );
+    }
+
+
     Eigen::MatrixXd getNormalizedWeightedDesignMatrix( )
     {
         Eigen::MatrixXd weightedNormalizedDesignMatrix = normalizedDesignMatrix_;
