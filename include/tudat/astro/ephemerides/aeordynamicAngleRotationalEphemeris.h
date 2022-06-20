@@ -11,16 +11,17 @@ namespace tudat
 namespace ephemerides
 {
 
+/*!
+ * Rotation model that calculates the body's orientation based on the current angles of
+ * attack, sideslip angle and bank angle. These angles cann be defined as a custom function
+ * and are 0 by default. These angles transform from body-fixed to trajectory frame
+ * The transformation to inertial frame is handled through the AerodynamicAngleCalculator
+ * class, which requires the current state of the vehicle.
+ */
 class AerodynamicAngleRotationalEphemeris: public ephemerides::RotationalEphemeris
 {
 public:
 
-    //! Constructor.
-    /*!
-     * Constructor, sets frames between which rotation is determined.
-     * \param baseFrameOrientation Base frame identifier.
-     * \param targetFrameOrientation Target frame identifier.
-     */
     AerodynamicAngleRotationalEphemeris(
             const std::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator,
             const std::string& baseFrameOrientation,
@@ -33,8 +34,7 @@ public:
           isBodyInPropagation_( false )
     {
         aerodynamicAngleCalculator->setAerodynamicAngleClosureIsIncomplete( );
-//        aerodynamicAngleCalculator->setBodyFixedAngleInterface(
-//                    std::make_shared< reference_frames::FromAeroEphemerisAerodynamicAngleInterface >( this ) );
+
     }
 
     //! Virtual destructor.
@@ -132,33 +132,6 @@ protected:
 };
 
 
-////! Function to make aerodynamic angle computation consistent with imposed body-fixed to inertial rotation.
-///*!
-// * Function to make aerodynamic angle computation consistent with imposed body-fixed to inertial rotation.
-// * \param imposedRotationFromInertialToBodyFixedFrame Inertial to body-fixed frame rotation to which the
-// * aerodynamicAngleCalculator object is to be made consistent
-// * \param aerodynamicAngleCalculator Object from which the aerodynamic angles are computed.
-// */
-//void setAerodynamicDependentOrientationCalculatorClosure(
-//        const std::function< Eigen::Quaterniond( const double ) > imposedRotationFromInertialToBodyFixedFrame,
-//        std::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator );
-
-////! Function to make aerodynamic angle computation consistent with existing rotational ephemeris
-///*!
-// * Function to make aerodynamic angle computation consistent with existing  rotational ephemeris
-// * \param rotationalEphemeris Object computing the current orientation of the body. Aerodynamic angles are to be computed
-// * from output given by this class.
-// * \param aerodynamicAngleCalculator Object from which the aerodynamic angles are computed.
-// */
-//void setAerodynamicDependentOrientationCalculatorClosure(
-//        std::shared_ptr< ephemerides::RotationalEphemeris > rotationalEphemeris,
-//        std::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator );
-
-void verifyAerodynamicDependentOrientationCalculatorClosure(
-        std::shared_ptr< ephemerides::RotationalEphemeris > rotationalEphemeris,
-        std::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator );
-
-
 } // namespace ephemerides
 
 
@@ -170,6 +143,10 @@ Eigen::Vector3d computeBodyFixedAeroAngles(
         const Eigen::Matrix3d& inertialToBodyFixedFrame,
         const Eigen::Matrix3d& trajectoryToInertialFrame );
 
+/*!
+ * Class to communicate aerodynamic angles (attack, sidelip, bank) to the AerodynamicAngleCalculator
+ * class from an arbitrary ephemeris object
+ */
 class FromGenericEphemerisAerodynamicAngleInterface: public BodyFixedAerodynamicAngleInterface
 {
 public:
@@ -190,6 +167,10 @@ private:
 
 };
 
+/*!
+ * Class to communicate aerodynamic angles (attack, sidelip, bank) to the AerodynamicAngleCalculator
+ * class from an AerodynamicAngleRotationalEphemeris object
+ */
 class FromAeroEphemerisAerodynamicAngleInterface: public BodyFixedAerodynamicAngleInterface
 {
 public:

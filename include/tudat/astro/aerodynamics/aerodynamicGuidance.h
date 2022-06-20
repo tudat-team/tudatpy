@@ -19,7 +19,9 @@ namespace tudat
 namespace aerodynamics
 {
 
-
+/*!
+ * Functionality is no longer supported, interfaces are retained to print error messages with referral to website for people using old code.
+ */
 class AerodynamicGuidance
 {
 public:

@@ -469,7 +469,14 @@ public:
             std::pair< ephemerides::SatelliteBasedFrames, std::string > directionFrame =
             std::make_pair( ephemerides::inertial_satellite_based_frame, "" ) ):
     inertialDirectionType_( inertialDirectionType ),
-    directionFrame_( directionFrame ){ }
+    directionFrame_( directionFrame )
+    {
+        if( inertialDirectionType_ == state_based_inertial_direction &&
+                directionFrame.first != ephemerides::inertial_satellite_based_frame )
+        {
+            throw std::runtime_error( "Error when making inertial direction settings for direction-based rotation model, state-based direction can only be provided in inertial coordinates" );
+        }
+    }
 
     virtual ~InertialDirectionSettings( ){ }
 
