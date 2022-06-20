@@ -17,6 +17,11 @@ enum SatelliteBasedFrames
     rsw_satellite_based_frame = 2
 };
 
+/*!
+ *  Base class for computation of inertial direction algorithm to be used in DirectionBasedRotationalEphemeris
+ *  rotation model. The rotationMatrixToPropagationFrame input allows the frame in which the direction is defined
+ *  to be non-inertial (but RSW, TNW, etc.)
+ */
 class InertialBodyFixedDirectionCalculator
 {
 public:
@@ -53,6 +58,13 @@ protected:
 
 };
 
+
+/*!
+ *  Custom class for computation of inertial direction algorithm to be used in DirectionBasedRotationalEphemeris
+ *  rotation model. This class takes an arbitrary direction function as input.
+ *  The rotationMatrixToPropagationFrame input allows the frame in which the direction is defined
+ *  to be non-inertial (but RSW, TNW, etc.)
+ */
 class CustomBodyFixedDirectionCalculator: public InertialBodyFixedDirectionCalculator
 {
 public:
@@ -92,6 +104,11 @@ protected:
 
 };
 
+/*!
+ *  Class for computation of inertial direction algorithm to be used in DirectionBasedRotationalEphemeris
+ *  rotation model, with the direction based on current position/velocity.
+ *  This class takes an arbitrary direction function as input.
+ */
 class StateBasedBodyFixedDirectionCalculator: public InertialBodyFixedDirectionCalculator
 {
 public:
@@ -99,9 +116,8 @@ public:
             const std::string& centralBody,
             const bool isColinearWithVelocity,
             const bool directionIsOppositeToVector,
-            const std::function< void( Eigen::Vector6d& ) > relativeStateFunction,
-            const std::function< Eigen::Matrix3d( const double ) > rotationMatrixToPropagationFrame = nullptr ):
-        InertialBodyFixedDirectionCalculator( rotationMatrixToPropagationFrame ),
+            const std::function< void( Eigen::Vector6d& ) > relativeStateFunction ):
+        InertialBodyFixedDirectionCalculator( nullptr ),
         centralBody_( centralBody ),
         isColinearWithVelocity_( isColinearWithVelocity ),
         directionIsOppositeToVector_( directionIsOppositeToVector ),
@@ -158,6 +174,11 @@ protected:
 
 };
 
+/*!
+ *  Class to define a vehicle rotation model based on aligning a body-fixed axis with a given
+ *  (time-variable) inertial axis. This aligning of vectors, plus the definition of a
+ *  free rotation angle, defines the body-fixed <-> inertial frame.
+ */
 class DirectionBasedRotationalEphemeris: public ephemerides::RotationalEphemeris
 {
 public:

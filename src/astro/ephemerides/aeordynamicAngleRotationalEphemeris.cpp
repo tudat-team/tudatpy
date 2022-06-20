@@ -117,12 +117,6 @@ void AerodynamicAngleRotationalEphemeris::resetCurrentTime(  )
     }
 }
 
-void verifyAerodynamicDependentOrientationCalculatorClosure(
-        std::shared_ptr< ephemerides::RotationalEphemeris > rotationalEphemeris,
-        std::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator )
-{
-
-}
 
 } // namespace tudat
 } // namespace ephemerides

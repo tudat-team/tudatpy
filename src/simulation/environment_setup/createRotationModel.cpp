@@ -322,8 +322,7 @@ std::shared_ptr< ephemerides::InertialBodyFixedDirectionCalculator > createInert
                     stateBasedDirectionSettings->centralBody_,
                     stateBasedDirectionSettings->isColinearWithVelocity_,
                     stateBasedDirectionSettings->directionIsOppositeToVector_,
-                    stateFunction,
-                    rotationFunction );
+                    stateFunction );
         break;
     }
     case bilinear_tangent_inertial_direction:

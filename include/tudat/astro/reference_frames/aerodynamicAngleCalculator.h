@@ -61,6 +61,12 @@ enum BodyFixedAngleSource
     custom_body_fixed_angles
 };
 
+/*!
+ * Base class to communicate aerodynamic angles (attack, sidelip, bank) to the AerodynamicAngleCalculator
+ * class. These angles may come from an AerodynamicAngleRotationalEphemeris (where they are defined directly)
+ * from any other ephemeris, or directly from the Body object. Each of these interfaces has a dedicated derived class
+ * to convert the interfaces/information.
+ */
 class BodyFixedAerodynamicAngleInterface
 {
 public:

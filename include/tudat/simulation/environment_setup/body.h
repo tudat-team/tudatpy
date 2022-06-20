@@ -966,9 +966,6 @@ public:
             aerodynamicFlightConditions_->getAerodynamicAngleCalculator( )->setBodyFixedAngleInterface(
                         std::make_shared< reference_frames::FromGenericEphemerisAerodynamicAngleInterface >(
                             rotationalEphemeris_ ) );
-            ephemerides::verifyAerodynamicDependentOrientationCalculatorClosure(
-                        rotationalEphemeris_,
-                        aerodynamicFlightConditions_->getAerodynamicAngleCalculator());
         }
     }
 

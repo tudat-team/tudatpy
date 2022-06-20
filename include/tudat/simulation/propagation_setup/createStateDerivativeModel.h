@@ -550,9 +550,6 @@ void setMultiTypePropagationClosure(
                         std::make_shared< reference_frames::FromBodyAerodynamicAngleInterface >(
                             bodies.at( bodiesWithAerodynamicRotationalClosure.at( i ) ) );
                 currentFlightConditions->getAerodynamicAngleCalculator( )->setBodyFixedAngleInterface( rotationInterface );
-//                ephemerides::verifyAerodynamicDependentOrientationCalculatorClosure(
-//                            bodies.at( bodiesWithAerodynamicRotationalClosure.at( i ) )->getRotationalEphemeris( ),
-//                            currentFlightConditions->getAerodynamicAngleCalculator( ) );
             }
         }
     }
