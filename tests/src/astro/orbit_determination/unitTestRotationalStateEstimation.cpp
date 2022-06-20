@@ -405,7 +405,7 @@ BOOST_AUTO_TEST_CASE( test_RotationalTranslationalDynamicsEstimationFromLanderDa
     std::shared_ptr< IntegratorSettings< > > integratorSettings =
             std::make_shared< RungeKuttaVariableStepSizeSettings< > >
             ( initialEphemerisTime, timeStep,
-              RungeKuttaCoefficients::rungeKuttaFehlberg78, timeStep, timeStep, 1.0, 1.0 );
+              rungeKuttaFehlberg78, timeStep, timeStep, 1.0, 1.0 );
 
     // Define propagator settings.
     std::shared_ptr< RotationalStatePropagatorSettings< double > > rotationalPropagatorSettings =

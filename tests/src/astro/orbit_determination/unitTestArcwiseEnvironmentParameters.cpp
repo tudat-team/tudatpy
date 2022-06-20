@@ -159,7 +159,7 @@ BOOST_AUTO_TEST_CASE( test_ArcwiseEnvironmentParameters )
     std::shared_ptr< IntegratorSettings< double > > integratorSettings =
             std::make_shared< RungeKuttaVariableStepSizeSettingsScalarTolerances< double > >(
                 double( initialEphemerisTime ), 90.0,
-                RungeKuttaCoefficients::CoefficientSets::rungeKuttaFehlberg78,
+                CoefficientSets::rungeKuttaFehlberg78,
                 90.0, 90.0, 1.0, 1.0 );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

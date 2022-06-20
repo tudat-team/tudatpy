@@ -408,6 +408,36 @@ int getDependentVariableSize(
                         dependentVariableSettings )->dependentVariableSize_;
         }
         break;
+    case total_spherical_harmonic_cosine_coefficient_variation:
+    {
+        if( std::dynamic_pointer_cast< TotalGravityFieldVariationSettings >(
+                    dependentVariableSettings ) == nullptr )
+        {
+             std::string errorMessage = "Error, input for total_spherical_harmonic_cosine_coefficient_variation inconsistent when getting parameter size ";
+             throw std::runtime_error( errorMessage );
+        }
+        else
+        {
+            variableSize = std::dynamic_pointer_cast< TotalGravityFieldVariationSettings >(
+                        dependentVariableSettings )->componentIndices_.size( );
+        }
+        break;
+    }
+    case total_spherical_harmonic_sine_coefficient_variation:
+    {
+        if( std::dynamic_pointer_cast< TotalGravityFieldVariationSettings >(
+                    dependentVariableSettings ) == nullptr )
+        {
+             std::string errorMessage = "Error, input for total_spherical_harmonic_sine_coefficient_variation inconsistent when getting parameter size ";
+             throw std::runtime_error( errorMessage );
+        }
+        else
+        {
+            variableSize = std::dynamic_pointer_cast< TotalGravityFieldVariationSettings >(
+                        dependentVariableSettings )->componentIndices_.size( );
+        }
+        break;
+    }
     default:
         std::string errorMessage = "Error, did not recognize dependent variable size of type: " +
                 std::to_string( dependentVariableSettings->dependentVariableType_ );

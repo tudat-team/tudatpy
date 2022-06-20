@@ -436,7 +436,7 @@ Eigen::Vector3d calculateUnpoweredGravityAssistOutgoingVelocity(
         const double centralBodyGravitationalParameter,
         const Eigen::Vector3d& centralBodyVelocity,
         const Eigen::Vector3d& incomingVelocity,
-        const double rotationAngle,
+        const double outgoingVelocityRotationAngle,
         const double pericenterRadius )
 {
     // Calculate the incoming velocity.
@@ -457,8 +457,8 @@ Eigen::Vector3d calculateUnpoweredGravityAssistOutgoingVelocity(
     // Calculate the relative outgoing velocity.
     const Eigen::Vector3d relativeOutgoingVelocity = absoluteRelativeIncomingVelocity *
             ( std::cos( bendingAngle ) * unitVector1 + std::sin( bendingAngle ) *
-              std::cos( rotationAngle ) * unitVector2 + std::sin( bendingAngle ) *
-              std::sin( rotationAngle ) * unitVector3 );
+                                                       std::cos(outgoingVelocityRotationAngle ) * unitVector2 + std::sin(bendingAngle ) *
+                                                                                                                std::sin(outgoingVelocityRotationAngle ) * unitVector3 );
     
     // Add the relative outgoing velocity to the swing-by body velocity and return it.
     return centralBodyVelocity + relativeOutgoingVelocity;
@@ -469,13 +469,23 @@ Eigen::Vector3d calculatePoweredGravityAssistOutgoingVelocity(
         const double centralBodyGravitationalParameter,
         const Eigen::Vector3d& centralBodyVelocity,
         const Eigen::Vector3d& incomingVelocity,
-        const double rotationAngle,
+        const double outgoingVelocityRotationAngle,
         const double pericenterRadius,
         const double deltaV )
 {
     // Calculate the incoming velocity.
     const Eigen::Vector3d relativeIncomingVelocity = incomingVelocity - centralBodyVelocity;
     const double absoluteRelativeIncomingVelocity = relativeIncomingVelocity.norm( );
+
+    if ( absoluteRelativeIncomingVelocity == 0 )
+    {
+        throw std::runtime_error( "Incoming excess velocity at swingby must be different from 0. " );
+    }
+    if ( pericenterRadius <= 0 )
+    {
+        throw std::runtime_error( "Error when computing powered swingby: pericenter radius (" + std::to_string(pericenterRadius) +
+            ") must be larger than zero.");
+    }
     
     // Calculate the incoming eccentricity and bending angle.
     const double incomingEccentricity = 1.0 + pericenterRadius /
@@ -485,16 +495,31 @@ Eigen::Vector3d calculatePoweredGravityAssistOutgoingVelocity(
     const double incomingBendingAngle = std::asin ( 1.0 / incomingEccentricity );
     
     // Calculate the pericenter velocities.
-    const double incomingPericenterVelocity = std::sqrt( absoluteRelativeIncomingVelocity *
-                                                         absoluteRelativeIncomingVelocity *
-                                                         ( incomingEccentricity + 1.0 ) /
-                                                         ( incomingEccentricity - 1.0 ) );
+    // Deal with limit case where eccentricity is infinity by setting the velocity to absoluteRelativeIncomingVelocity
+    double incomingPericenterVelocity;
+    if ( incomingEccentricity < std::numeric_limits< double >::infinity() )
+    {
+        incomingPericenterVelocity = std::sqrt( absoluteRelativeIncomingVelocity *
+                                                 absoluteRelativeIncomingVelocity *
+                                                 ( incomingEccentricity + 1.0 ) /
+                                                 ( incomingEccentricity - 1.0 ) );
+    }
+    else
+    {
+        incomingPericenterVelocity = absoluteRelativeIncomingVelocity;
+    }
+
     const double outgoingPericenterVelocity = incomingPericenterVelocity + deltaV;
     
     // Calculate magnitude of the absolute relative outgoing velocity.
     const double absoluteRelativeOutgoingVelocity =
             std::sqrt( outgoingPericenterVelocity * outgoingPericenterVelocity -
                        2.0 * centralBodyGravitationalParameter / pericenterRadius );
+
+    if ( !(absoluteRelativeOutgoingVelocity == absoluteRelativeOutgoingVelocity) )
+    {
+        throw std::runtime_error( "Invalid gravity assist: there is no feasible relative incoming/outgoing velocity." );
+    }
     
     // Calculate the remaining bending angles.
     const double outgoingBendingAngle =
@@ -513,12 +538,32 @@ Eigen::Vector3d calculatePoweredGravityAssistOutgoingVelocity(
     const Eigen::Vector3d relativeOutgoingVelocity = absoluteRelativeOutgoingVelocity *
             ( std::cos( bendingAngle ) * unitVector1 +
               std::sin( bendingAngle ) *
-              std::cos( rotationAngle ) * unitVector2 +
+              std::cos(outgoingVelocityRotationAngle ) * unitVector2 +
               std::sin( bendingAngle ) *
-              std::sin( rotationAngle ) * unitVector3 );
+              std::sin(outgoingVelocityRotationAngle ) * unitVector3 );
     
     // Add the relative outgoing velocity to the swing-by body velocity and return it.
     return centralBodyVelocity + relativeOutgoingVelocity;
+}
+
+//! Backward propagate a powered gravity assist.
+Eigen::Vector3d calculatePoweredGravityAssistIncomingVelocity(
+        const double centralBodyGravitationalParameter,
+        const Eigen::Vector3d& centralBodyVelocity,
+        const Eigen::Vector3d& outgoingVelocity,
+        const double incomingVelocityRotationAngle,
+        const double pericenterRadius,
+        const double deltaV )
+{
+    // To compute the incoming velocity one uses the same equations as for computing the outgoing velocity, the only
+    // difference being that the deltaV is negative.
+    // Evidently, the rotationAngle has a different physical meaning with respect to the one used when computing the
+    // outgoing velocity, since the two are defined with respect to two different frames.
+    Eigen::Vector3d incomingVelocity;
+    incomingVelocity = calculatePoweredGravityAssistOutgoingVelocity(
+            centralBodyGravitationalParameter, centralBodyVelocity, outgoingVelocity, incomingVelocityRotationAngle,
+            pericenterRadius, -deltaV);
+    return incomingVelocity;
 }
 
 //! Compute pericenter radius function.

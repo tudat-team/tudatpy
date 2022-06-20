@@ -31,7 +31,7 @@ set(propagation_HEADERS
 #        propagationLambertTargeterFullProblem.h
 #<<<<<<< HEAD
 #        propagationPatchedConicFullProblem.h
-        propagationLowThrustProblem.h
+#        propagationLowThrustProblem.h
         )
 
 # Add header files.
@@ -54,7 +54,7 @@ set(propagation_SOURCES
         environmentUpdater.cpp
 #<<<<<<< HEAD
 #        propagationPatchedConicFullProblem.cpp
-        propagationLowThrustProblem.cpp
+#        propagationLowThrustProblem.cpp
         )
 
 # Add library.
