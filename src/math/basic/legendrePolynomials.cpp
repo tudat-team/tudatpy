@@ -893,10 +893,10 @@ std::pair< Eigen::MatrixXd, Eigen::MatrixXd > convertGeodesyNormalizedToUnnormal
 {
     Eigen::MatrixXd unnormalizedCosineCoefficients;
     Eigen::MatrixXd unnormalizedSineCoefficients;
-    convertUnnormalizedToGeodesyNormalizedCoefficients(
+    convertGeodesyNormalizedToUnnormalizedCoefficients(
                 normalizedCosineCoefficients, normalizedSineCoefficients,
                 unnormalizedCosineCoefficients, unnormalizedSineCoefficients );
-    return std::make_pair( normalizedCosineCoefficients, normalizedSineCoefficients );
+    return std::make_pair( unnormalizedCosineCoefficients, unnormalizedSineCoefficients );
 
 }
 
