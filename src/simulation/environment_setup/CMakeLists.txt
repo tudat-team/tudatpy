@@ -19,6 +19,7 @@ set(environment_HEADERS
         defaultBodies.h
         createBodies.h
         createGroundStations.h
+        createBodyDeformationModel.h
         body.h
         createRadiationPressureInterface.h
         createGravityFieldVariations.h
@@ -35,6 +36,7 @@ set(environment_SOURCES
         createBodies.cpp
         createGravityField.cpp
         createBodyShapeModel.cpp
+        createBodyDeformationModel.cpp
         createFlightConditions.cpp
         createGroundStations.cpp
         createAerodynamicCoefficientInterface.cpp

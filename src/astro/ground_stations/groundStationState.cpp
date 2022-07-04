@@ -24,10 +24,10 @@ namespace ground_stations
 
 //! Function to generate unit vectors of topocentric frame.
 std::vector< Eigen::Vector3d > getGeocentricLocalUnitVectors(
-            const Eigen::Matrix3d& toPlanetFixedFrameMatrix )
+        const Eigen::Matrix3d& toPlanetFixedFrameMatrix )
 {
     std::vector< Eigen::Vector3d > geocentricUnitVectors;
-    geocentricUnitVectors.reserve( 3 );
+    geocentricUnitVectors.resize( 3 );
     geocentricUnitVectors[ 0 ] = toPlanetFixedFrameMatrix.block( 0, 0, 3, 1 );
     geocentricUnitVectors[ 1 ] = toPlanetFixedFrameMatrix.block( 0, 1, 3, 1 );
     geocentricUnitVectors[ 2 ] = toPlanetFixedFrameMatrix.block( 0, 2, 3, 1 );
@@ -41,46 +41,58 @@ std::vector< Eigen::Vector3d > getGeocentricLocalUnitVectors(
 {
     return getGeocentricLocalUnitVectors(
                 Eigen::Matrix3d( reference_frames::getEnuLocalVerticalToRotatingPlanetocentricFrameTransformationQuaternion(
-                                 longitude, latitude ) ) );
+                                     longitude, latitude ) ) );
 }
 
 //! Constructor
 GroundStationState::GroundStationState(
-        const Eigen::Vector3d stationPosition,
+        const Eigen::Vector3d& stationPosition,
         const coordinate_conversions::PositionElementTypes inputElementType,
-        const std::shared_ptr< basic_astrodynamics::BodyShapeModel > bodySurface ):
-    bodySurface_( bodySurface )
+        const std::shared_ptr< basic_astrodynamics::BodyShapeModel > bodySurface,
+        const std::shared_ptr< StationMotionModel > stationMotionModel ):
+    bodyShapeModel_( bodySurface ),
+    stationMotionModel_( stationMotionModel )
 {
     resetGroundStationPositionAtEpoch( stationPosition, inputElementType );
 }
 
 //! Function to obtain the Cartesian state of the ground station in the local frame at a given time.
 Eigen::Vector6d GroundStationState::getCartesianStateInTime(
-        const double secondsSinceEpoch,
-        const double inputReferenceEpoch )
+        const double secondsSinceEpoch )
 {
-    return ( Eigen::Vector6d( ) << cartesianPosition_, Eigen::Vector3d::Zero( ) ).finished( );
+    Eigen::Vector6d currentStationState =
+            ( stationMotionModel_ != nullptr ) ? ( nominalCartesianState_ + stationMotionModel_->getBodyFixedStationMotion(
+                                                       secondsSinceEpoch ) ) : nominalCartesianState_;
+//    if( bodyShapeModel_!= nullptr )
+//    {
+//        currentStationState.segment( 0, 3 ) += bodyShapeModel_->getDisplacement(
+//                    secondsSinceEpoch, cartesianPosition_ );
+//    }
+    return currentStationState;
 }
 
 //! Function to (re)set the nominal state of the station
 void GroundStationState::resetGroundStationPositionAtEpoch(
-                const Eigen::Vector3d stationPosition,
-                const coordinate_conversions::PositionElementTypes inputElementType )
+        const Eigen::Vector3d stationPosition,
+        const coordinate_conversions::PositionElementTypes inputElementType )
 {
     using namespace coordinate_conversions;
     using mathematical_constants::PI;
 
     // Set Cartesian and spherical position
     cartesianPosition_ = coordinate_conversions::convertPositionElements(
-                stationPosition, inputElementType, coordinate_conversions::cartesian_position, bodySurface_ );
+                stationPosition, inputElementType, coordinate_conversions::cartesian_position, bodyShapeModel_ );
+    nominalCartesianState_.segment( 0, 3 ) = cartesianPosition_;
+    nominalCartesianState_.segment( 3, 3 ).setZero( );
+
     sphericalPosition_ = coordinate_conversions::convertPositionElements(
-                stationPosition, inputElementType, coordinate_conversions::spherical_position, bodySurface_ );
+                stationPosition, inputElementType, coordinate_conversions::spherical_position, bodyShapeModel_ );
 
     // If possible, set geodetic position, otherwise, set to NaN.
     try
     {
         geodeticPosition = coordinate_conversions::convertPositionElements(
-                    stationPosition, inputElementType, coordinate_conversions::geodetic_position, bodySurface_ );
+                    stationPosition, inputElementType, coordinate_conversions::geodetic_position, bodyShapeModel_ );
     }
     catch( std::runtime_error const& )
     {
@@ -94,9 +106,9 @@ void GroundStationState::resetGroundStationPositionAtEpoch(
 //! Function to reset the rotation from the body-fixed to local topocentric frame, and associated unit vectors
 void GroundStationState::setTransformationAndUnitVectors( )
 {
-    geocentricUnitVectors_ = getGeocentricLocalUnitVectors( getLongitude( ), getLatitude( ) );
+    geocentricUnitVectors_ = getGeocentricLocalUnitVectors( getNominalLatitude( ), getNominalLongitude( ) );
     bodyFixedToTopocentricFrameRotation_ = getRotationQuaternionFromBodyFixedToTopocentricFrame(
-                bodySurface_, getLatitude( ), getLongitude( ), cartesianPosition_  );
+                bodyShapeModel_, getNominalLatitude( ), getNominalLongitude( ), cartesianPosition_  );
 }
 
 //! Function to calculate the rotation from a body-fixed to a topocentric frame.
@@ -135,7 +147,8 @@ Eigen::Quaterniond getRotationQuaternionFromBodyFixedToTopocentricFrame(
     else
     {
         isSurfaceModelRecognized = 0;
-        throw std::runtime_error( "Error when making transformation to topocentric frame, shape model not recognized" );
+        std::cerr<<"Error when making transformation to topocentric frame, shape model not recognized"<<std::endl;
+//        throw std::runtime_error( "Error when making transformation to topocentric frame, shape model not recognized" );
     }
 
     // Create rotation matrix
