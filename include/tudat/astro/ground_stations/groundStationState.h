@@ -44,6 +44,40 @@ std::vector< Eigen::Vector3d > getGeocentricLocalUnitVectors(
 std::vector< Eigen::Vector3d > getGeocentricLocalUnitVectors(
         const double latitude,  const double longitude );
 
+struct StationMotionModel
+{
+public:
+    StationMotionModel( ){ }
+
+    virtual ~StationMotionModel( ){ }
+
+    virtual Eigen::Vector6d getBodyFixedStationMotion( const double time ) = 0;
+};
+
+struct LinearStationMotionModel: public StationMotionModel
+{
+public:
+    LinearStationMotionModel(
+            const Eigen::Vector3d& linearVelocity,
+            const double referenceEpoch = basic_astrodynamics::JULIAN_DAY_ON_J2000 ):
+    linearVelocity_( linearVelocity ),
+    referenceEpoch_( referenceEpoch ){ }
+
+    ~LinearStationMotionModel( ){ }
+
+    Eigen::Vector6d getBodyFixedStationMotion( const double time )
+    {
+        return ( Eigen::Vector6d( ) << linearVelocity_ * ( time - referenceEpoch_ ), linearVelocity_ ).finished( );
+    }
+
+protected:
+
+    Eigen::Vector3d linearVelocity_;
+
+    double referenceEpoch_;
+};
+
+
 //! Class storing and computing the (time-variable) state of a ground station in a body-fixed frame.
 class GroundStationState
 {
@@ -58,10 +92,10 @@ public:
      * geodetic position are possible.
      */
     GroundStationState(
-            const Eigen::Vector3d stationPosition,
+            const Eigen::Vector3d& stationPosition,
             const coordinate_conversions::PositionElementTypes inputElementType = coordinate_conversions::cartesian_position,
-            const std::shared_ptr< basic_astrodynamics::BodyShapeModel > bodySurface =
-            std::shared_ptr< basic_astrodynamics::BodyShapeModel >( ) );
+            const std::shared_ptr< basic_astrodynamics::BodyShapeModel > bodySurface = nullptr,
+            const std::shared_ptr< StationMotionModel > stationMotionModel = nullptr );
 
     virtual ~GroundStationState( ){ }
 
@@ -75,8 +109,7 @@ public:
      *  \return Cartesian state of station in local frame at requested time.
      */
      Eigen::Vector6d getCartesianStateInTime(
-            const double secondsSinceEpoch,
-            const double inputReferenceEpoch = basic_astrodynamics::JULIAN_DAY_ON_J2000 );
+            const double secondsSinceEpoch );
 
      //! Function to obtain the Cartesian position of the ground station in the local frame at a given time.
      /*!
@@ -88,10 +121,9 @@ public:
       *  \return Cartesian position of station in local frame at requested time.
       */
      Eigen::Vector3d getCartesianPositionInTime(
-            const double secondsSinceEpoch,
-            const double inputReferenceEpoch = basic_astrodynamics::JULIAN_DAY_ON_J2000 )
+            const double secondsSinceEpoch )
      {
-         return getCartesianStateInTime( secondsSinceEpoch, inputReferenceEpoch ).segment( 0, 3 );
+         return getCartesianStateInTime( secondsSinceEpoch ).segment( 0, 3 );
      }
 
     //! Function to return the nominal (unperturbed) Cartesian position of the station
@@ -138,7 +170,7 @@ public:
      *  Function to return the geocentric latitude of the station.
      *  \return Geocentric latitude of the station.
      */
-    double getLatitude( )
+    double getNominalLatitude( )
     {
         return sphericalPosition_.y( );
     }
@@ -148,7 +180,7 @@ public:
      *  Function to return the geocentric longtude of the station.
      *  \return Geocentric longtude of the station.
      */
-    double getLongitude( )
+    double getNominalLongitude( )
     {
         return sphericalPosition_.z( );
     }
@@ -189,7 +221,24 @@ public:
      */
     std::shared_ptr< basic_astrodynamics::BodyShapeModel > getBodySurface( )
     {
-        return bodySurface_;
+        return bodyShapeModel_;
+    }
+
+    std::vector< Eigen::Vector3d > getEnuGeocentricUnitVectors( )
+    {
+        if( geocentricUnitVectors_.size( ) == 0 )
+        {
+            try
+            {
+                setTransformationAndUnitVectors( );
+            }
+            catch( std::runtime_error& caughtException )
+            {
+                throw std::runtime_error( "Error when computing ground station unit vectors: " +
+                                std::string( caughtException.what( ) ) );
+            }
+        }
+        return geocentricUnitVectors_;
     }
 
 protected:
@@ -203,6 +252,8 @@ protected:
      *  Cartesian position of station, without variations (linear drift, eccentricity, tides, etc.), in the body-fixed frame.
      */
     Eigen::Vector3d cartesianPosition_;
+
+    Eigen::Vector6d nominalCartesianState_;
 
     //! Spherical position of station
     /*!
@@ -238,7 +289,9 @@ protected:
     Eigen::Quaterniond bodyFixedToTopocentricFrameRotation_;
 
     //! Shape of body on which state is defined
-    std::shared_ptr< basic_astrodynamics::BodyShapeModel > bodySurface_;
+    std::shared_ptr< basic_astrodynamics::BodyShapeModel > bodyShapeModel_;
+
+    std::shared_ptr< StationMotionModel > stationMotionModel_;
 };
 
 //! Function to calculate the rotation from a body-fixed to a topocentric frame.

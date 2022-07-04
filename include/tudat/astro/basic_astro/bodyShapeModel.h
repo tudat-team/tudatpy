@@ -21,6 +21,7 @@
 #include <functional>
 #include <memory>
 
+//#include "tudat/astro/basic_astro/bodyDeformationModel.h"
 
 namespace tudat
 {
@@ -62,11 +63,38 @@ public:
      */
     virtual double getAverageRadius( ) = 0;
 
+//    Eigen::Vector3d getDisplacement(
+//            const double time,
+//            const Eigen::Vector3d& bodyFixedPosition  )
+//    {
+//        Eigen::Vector3d displacementVector = Eigen::Vector3d::Zero( );
+//        for( unsigned int i = 0; i < bodyDeformationModels_.size( ); i++ )
+//        {
+//            displacementVector += bodyDeformationModels_.at( i )->calculateDisplacement(
+//                        time, bodyFixedPosition );
+//        }
+//        return displacementVector;
+//    }
+
+//    std::vector< std::shared_ptr< BodyDeformationModel > > getBodyDeformationModels( )
+//    {
+//        return bodyDeformationModels_;
+//    }
+
+//    void setBodyDeformationModels( const std::vector< std::shared_ptr< BodyDeformationModel > >& bodyDeformationModels )
+//    {
+//        bodyDeformationModels_ = bodyDeformationModels;
+//    }
+
+
+
 protected:
+
+//    std::vector< std::shared_ptr< BodyDeformationModel > > bodyDeformationModels_;
 
 };
 
-//! Function to calculate the altitude of a point over a central body from positions of both the
+    //! Function to calculate the altitude of a point over a central body from positions of both the
 //! point and the body (in any frame)
 /*!
  *  Function to calculate the altitude of a point over a central body from positions of both the
