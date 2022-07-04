@@ -78,7 +78,6 @@ protected:
 
 
     Eigen::Vector3d calculateBasicTicalDisplacement(
-            const double time,
             const Eigen::Vector3d& bodyFixedPosition,
             const std::map< int, std::pair< double, double > >& loveNumbers );
 

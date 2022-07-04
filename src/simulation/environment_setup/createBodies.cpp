@@ -260,6 +260,21 @@ SystemOfBodies createSystemOfBodies(
 
     for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
     {
+        if( orderedBodySettings.at( i ).second->bodyDeformationSettings.size( ) > 0 )
+        {
+            for( unsigned int i = 0; i < orderedBodySettings.at( i ).second->bodyDeformationSettings.size( ); i++ )
+            {
+                bodyList.at( orderedBodySettings.at( i ).first )->addBodyDeformationModel(
+                            createBodyDeformationModel(
+                                orderedBodySettings.at( i ).second->bodyDeformationSettings.at( i ),
+                                orderedBodySettings.at( i ).first, bodyList ) );
+            }
+        }
+    }
+
+
+    for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
+    {
         for( unsigned int j = 0; j < orderedBodySettings.at( i ).second->groundStationSettings.size( ); j++ )
         {
             createGroundStation( bodyList.at( orderedBodySettings.at( i ).first ), orderedBodySettings.at( i ).first,

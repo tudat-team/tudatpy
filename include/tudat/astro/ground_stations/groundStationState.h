@@ -11,10 +11,13 @@
 #ifndef TUDAT_GROUNDSTATIONSTATE_H
 #define TUDAT_GROUNDSTATIONSTATE_H
 
+#include <memory>
+
 #include "tudat/astro/basic_astro/bodyShapeModel.h"
 #include "tudat/astro/basic_astro/stateRepresentationConversions.h"
 #include "tudat/astro/basic_astro/timeConversions.h"
-
+#include "tudat/math/interpolators/lookupScheme.h"
+#include "tudat/basics/utilities.h"
 
 namespace tudat
 {
@@ -44,6 +47,8 @@ std::vector< Eigen::Vector3d > getGeocentricLocalUnitVectors(
 std::vector< Eigen::Vector3d > getGeocentricLocalUnitVectors(
         const double latitude,  const double longitude );
 
+class GroundStationState;
+
 struct StationMotionModel
 {
 public:
@@ -52,34 +57,15 @@ public:
     virtual ~StationMotionModel( ){ }
 
     virtual Eigen::Vector6d getBodyFixedStationMotion( const double time ) = 0;
-};
 
-struct LinearStationMotionModel: public StationMotionModel
-{
-public:
-    LinearStationMotionModel(
-            const Eigen::Vector3d& linearVelocity,
-            const double referenceEpoch = basic_astrodynamics::JULIAN_DAY_ON_J2000 ):
-    linearVelocity_( linearVelocity ),
-    referenceEpoch_( referenceEpoch ){ }
-
-    ~LinearStationMotionModel( ){ }
-
-    Eigen::Vector6d getBodyFixedStationMotion( const double time )
-    {
-        return ( Eigen::Vector6d( ) << linearVelocity_ * ( time - referenceEpoch_ ), linearVelocity_ ).finished( );
-    }
-
-protected:
-
-    Eigen::Vector3d linearVelocity_;
-
-    double referenceEpoch_;
+    virtual void setNominalStationState(
+            const std::shared_ptr< ground_stations::GroundStationState > groundStationState )
+    { }
 };
 
 
 //! Class storing and computing the (time-variable) state of a ground station in a body-fixed frame.
-class GroundStationState
+class GroundStationState: public std::enable_shared_from_this<GroundStationState>
 {
 public:
 
@@ -91,7 +77,7 @@ public:
      * \param bodySurface Shape of body on which state is defined. If nullptr (default), no conversions to/from
      * geodetic position are possible.
      */
-    GroundStationState(
+    explicit GroundStationState(
             const Eigen::Vector3d& stationPosition,
             const coordinate_conversions::PositionElementTypes inputElementType = coordinate_conversions::cartesian_position,
             const std::shared_ptr< basic_astrodynamics::BodyShapeModel > bodySurface = nullptr,
@@ -312,6 +298,114 @@ Eigen::Quaterniond getRotationQuaternionFromBodyFixedToTopocentricFrame(
         const double geocentricLatitude,
         const double geocentricLongitude,
         const Eigen::Vector3d localPoint );
+
+
+struct LinearStationMotionModel: public StationMotionModel
+{
+public:
+    LinearStationMotionModel(
+            const Eigen::Vector3d& linearVelocity,
+            const double referenceEpoch = basic_astrodynamics::JULIAN_DAY_ON_J2000 ):
+    linearVelocity_( linearVelocity ),
+    referenceEpoch_( referenceEpoch ){ }
+
+    ~LinearStationMotionModel( ){ }
+
+    Eigen::Vector6d getBodyFixedStationMotion( const double time )
+    {
+        return ( Eigen::Vector6d( ) << linearVelocity_ * ( time - referenceEpoch_ ), linearVelocity_ ).finished( );
+    }
+
+protected:
+
+    Eigen::Vector3d linearVelocity_;
+
+    double referenceEpoch_;
+};
+
+struct PiecewiseConstantStationMotionModel: public StationMotionModel
+{
+public:
+    PiecewiseConstantStationMotionModel(
+            const std::map< double, Eigen::Vector3d >& displacementList ):
+    displacementList_( displacementList )
+    {
+        firstDisplacementTime_ = displacementList_.begin( )->first;
+        timeLookupScheme_ = std::make_shared< interpolators::HuntingAlgorithmLookupScheme< double > >(
+                    utilities::createVectorFromMapKeys( displacementList_ ) );
+    }
+
+    ~PiecewiseConstantStationMotionModel( ){ }
+
+    Eigen::Vector6d getBodyFixedStationMotion( const double time )
+    {
+        Eigen::Vector6d stationMotion = Eigen::Vector6d::Zero( );
+        if( !( time < firstDisplacementTime_ ) )
+        {
+            stationMotion.segment( 0, 3 ) += displacementList_.at(
+                       timeLookupScheme_->findNearestLowerNeighbour( time ) );
+        }
+        return stationMotion;
+    }
+
+protected:
+
+    double firstDisplacementTime_;
+
+    std::shared_ptr< interpolators::LookUpScheme< double > > timeLookupScheme_;
+
+    std::map< double, Eigen::Vector3d > displacementList_;
+};
+
+struct CustomStationMotionModel: public StationMotionModel
+{
+public:
+    CustomStationMotionModel(
+            const std::function< Eigen::Vector6d( const double ) > customDisplacementModel ):
+    customDisplacementModel_( customDisplacementModel ){ }
+
+    ~CustomStationMotionModel( ){ }
+
+    Eigen::Vector6d getBodyFixedStationMotion( const double time )
+    {
+        return customDisplacementModel_( time );
+    }
+
+protected:
+
+    std::function< Eigen::Vector6d( const double ) > customDisplacementModel_;
+};
+
+struct CombinedStationMotionModel: public StationMotionModel
+{
+public:
+    CombinedStationMotionModel(
+            const std::vector< std::shared_ptr< StationMotionModel > >& modelList ):
+    modelList_( modelList ){ }
+
+    Eigen::Vector6d getBodyFixedStationMotion( const double time )
+    {
+        Eigen::Vector6d motion = Eigen::Vector6d::Zero( );
+        for( unsigned int i = 0; i < modelList_.size( ); i++ )
+        {
+            motion += modelList_.at( i )->getBodyFixedStationMotion( time );
+        }
+        return motion;
+    }
+
+    void setNominalStationState(
+            const std::shared_ptr< ground_stations::GroundStationState > groundStationState )
+    {
+        for( unsigned int i = 0; i < modelList_.size( ); i++ )
+        {
+            modelList_.at( i )->setNominalStationState( groundStationState );
+        }
+    }
+
+protected:
+
+    std::vector< std::shared_ptr< StationMotionModel > > modelList_;
+};
 
 } // namespace ground_stations
 

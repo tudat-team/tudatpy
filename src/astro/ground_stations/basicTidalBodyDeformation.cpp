@@ -97,7 +97,6 @@ BasicTidalBodyDeformation::BasicTidalBodyDeformation(
 }
 
 Eigen::Vector3d BasicTidalBodyDeformation::calculateBasicTicalDisplacement(
-        const double time,
         const Eigen::Vector3d& bodyFixedPosition,
         const std::map< int, std::pair< double, double > >& loveNumbers )
 {
@@ -142,7 +141,7 @@ Eigen::Vector3d BasicTidalBodyDeformation::calculateDisplacement(
         const Eigen::Vector3d& bodyFixedPosition )
 {
     updateBodyProperties( time );
-    return calculateBasicTicalDisplacement( time, bodyFixedPosition );
+    return calculateBasicTicalDisplacement( bodyFixedPosition, displacementLoveNumbers_ );
 
 }
 
