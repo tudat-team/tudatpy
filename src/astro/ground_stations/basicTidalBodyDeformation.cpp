@@ -96,17 +96,17 @@ BasicTidalBodyDeformation::BasicTidalBodyDeformation(
     gravitationalParameterRatios_.resize( numberOfBodies_ );
 }
 
-Eigen::Vector3d BasicTidalBodyDeformation::calculateDisplacement(
+Eigen::Vector3d BasicTidalBodyDeformation::calculateBasicTicalDisplacement(
         const double time,
-        const Eigen::Vector3d& bodyFixedPosition )
+        const Eigen::Vector3d& bodyFixedPosition,
+        const std::map< int, std::pair< double, double > >& loveNumbers )
 {
-    updateBodyProperties( time );
     Eigen::Vector3d siteDisplacement = Eigen::Vector3d::Zero( );
     Eigen::Vector3d nominalSiteUnitVector = bodyFixedPosition.normalized( );
 
     for( int i = 0; i < numberOfBodies_; i++ )
     {
-        for( auto it : displacementLoveNumbers_ )
+        for( auto it : loveNumbers )
         {
             switch( it.first )
             {
@@ -135,6 +135,15 @@ Eigen::Vector3d BasicTidalBodyDeformation::calculateDisplacement(
         }
     }
     return siteDisplacement;
+}
+
+Eigen::Vector3d BasicTidalBodyDeformation::calculateDisplacement(
+        const double time,
+        const Eigen::Vector3d& bodyFixedPosition )
+{
+    updateBodyProperties( time );
+    return calculateBasicTicalDisplacement( time, bodyFixedPosition );
+
 }
 
 void BasicTidalBodyDeformation::updateBodyProperties( const double time )

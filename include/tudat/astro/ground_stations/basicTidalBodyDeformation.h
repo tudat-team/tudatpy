@@ -77,6 +77,11 @@ protected:
     void updateBodyProperties( const double time );
 
 
+    Eigen::Vector3d calculateBasicTicalDisplacement(
+            const double time,
+            const Eigen::Vector3d& bodyFixedPosition,
+            const std::map< int, std::pair< double, double > >& loveNumbers );
+
     std::function< Eigen::Vector6d( const double ) > deformedBodyStateFunction_;
 
     std::vector< std::function< Eigen::Vector6d( const double ) > > deformingBodyStateFunctions_;
