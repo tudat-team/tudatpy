@@ -1211,9 +1211,9 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureAccelerationPartials )
 
     // Create links to set and get state functions of bodies.
     std::function< void( Eigen::Vector6d ) > sunStateSetFunction =
-            std::bind( &Body::setState, sun, _1  );
+            std::bind( &Body::setState, sun, std::placeholders::_1  );
     std::function< void( Eigen::Vector6d ) > vehicleStateSetFunction =
-            std::bind( &Body::setState, vehicle, _1  );
+            std::bind( &Body::setState, vehicle, std::placeholders::_1  );
     std::function< Eigen::Vector6d( ) > sunStateGetFunction =
             std::bind( &Body::getState, sun );
     std::function< Eigen::Vector6d( ) > vehicleStateGetFunction =

@@ -356,7 +356,32 @@ BOOST_AUTO_TEST_CASE( test_Iers2012DeformationModel )
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( calculatedDeformation, expectedDeformation, 1.0E-5 );
     }
 
+    // Check equivalance of basic and IERS model
+    {
+        for( int i = 0; i < 6; i++ )
+        {
+            areFirstStepCorrectionsCalculated[ i ] = 0;
+        }
+        firstStepLatitudeDependenceTerms[ 0 ] = 0.0;
+        firstStepLatitudeDependenceTerms[ 1 ] = 0.0;
 
+        std::shared_ptr< BasicTidalBodyDeformation > basicDeformationModel =
+                std::make_shared< BasicTidalBodyDeformation >(
+                    earthEphemeris, ephemerides, rotationEphemeris,
+                                      boost::lambda::constant( 1.0 ), massFunctions, earthEquatorialRadius,
+                                      nominalDisplacementLoveNumbers );
+
+        deformationModel = std::make_shared< Iers2010EarthDeformation >
+                ( earthEphemeris, ephemerides, rotationEphemeris,
+                  boost::lambda::constant( 1.0 ), massFunctions, earthEquatorialRadius,
+                  nominalDisplacementLoveNumbers, firstStepLatitudeDependenceTerms,
+                  areFirstStepCorrectionsCalculated, correctionLoveAndShidaNumbers, "", "" );
+
+        expectedDeformation = deformationModel->calculateDisplacement( evaluationTime, siteState.segment( 0, 3 ) );
+        calculatedDeformation = basicDeformationModel->calculateDisplacement( evaluationTime, siteState.segment( 0, 3 ) );
+
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( calculatedDeformation, expectedDeformation, 1.0E-12 );
+    }
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
