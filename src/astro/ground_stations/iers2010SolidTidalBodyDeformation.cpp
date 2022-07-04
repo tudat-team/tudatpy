@@ -441,21 +441,7 @@ Eigen::Vector3d Iers2010EarthDeformation::calculateDisplacement(
         const double ephemerisTime,
         const std::shared_ptr< ground_stations::GroundStationState > nominalSiteState )
 {
-    // Declare vector that is to hold position of Moon and Sun in Earth-fixed, Earth-centered frame.
-    std::vector< Eigen::Vector3d > tideRaisingBodiesPositions;
-    tideRaisingBodiesPositions.resize( numberOfBodies_ );
-
-    // Calculate current orientation and position of Earth from member ephemerides.
-    Eigen::Quaterniond currentDeformedBodyRotation = deformedBodyRotationFunction_( ephemerisTime );
-    Eigen::Vector3d deformedBodyPosition = deformedBodyStateFunction_( ephemerisTime ).segment( 0, 3 );
-
-    // Calculate current positions of Moon and Sun in Earth-fixed, Earth-centered frame from member ephemerides.
-    for( int i = 0; i < numberOfBodies_; i++ )
-    {
-        tideRaisingBodiesPositions[ i ] = ( currentDeformedBodyRotation * (
-                                                deformingBodyStateFunctions_[ i ]( ephemerisTime ).segment( 0, 3 ) -
-                                                deformedBodyPosition ) );
-    }
+    updateBodyProperties( ephemerisTime );
 
     // If Doodson arguments are required and not provided by user, calculate them.
     Eigen::Vector6d doodsonArguments = doodsonArgumentFunction_( ephemerisTime );
@@ -465,21 +451,19 @@ Eigen::Vector3d Iers2010EarthDeformation::calculateDisplacement(
     }
 
     // Call third overloaded version of function for further calculations.
-    return calculateDisplacement( tideRaisingBodiesPositions, nominalSiteState, doodsonArguments );
+    return calculateDisplacement( nominalSiteState, doodsonArguments );
 }
 
 Eigen::Vector3d Iers2010EarthDeformation::calculateDisplacement(
-        const std::vector< Eigen::Vector3d >& tideRaisingBodiesPositions,
         const std::shared_ptr< ground_stations::GroundStationState > nominalSiteState,
         const Eigen::Vector6d& doodsonArguments )
 {
 
     std::pair< Eigen::Vector3d, Eigen::Vector3d > planetCenteredAndLocalDisplacements =
-            calculateFirstStepDisplacements( tideRaisingBodiesPositions, nominalSiteState );
+            calculateFirstStepDisplacements( nominalSiteState );
 
     Eigen::Vector3d planetCenteredDisplacement = planetCenteredAndLocalDisplacements.first;
     Eigen::Vector3d siteDisplacement = planetCenteredAndLocalDisplacements.second;
-
 
     if( areFrequencyDependentTermsCalculated_ )
     {
@@ -500,68 +484,31 @@ Eigen::Vector3d Iers2010EarthDeformation::calculateDisplacement(
 
 //! Calculate site displacements due to solid Earth tide deformation according to first step of Section 7.1.1 of IERS 2010 Conventions
 std::pair< Eigen::Vector3d, Eigen::Vector3d > Iers2010EarthDeformation::calculateFirstStepDisplacements(
-        const std::vector< Eigen::Vector3d >& tideRaisingBodiesPositions,
         const std::shared_ptr< ground_stations::GroundStationState > nominalSiteState )
 {
     // Initialize displacements calculated in local frame (Step I corrections and Step II) to zero.
     Eigen::Vector3d localFrameDisplacement = Eigen::Vector3d::Zero( );
 
-    // Initialize displacements calculated in planet-centered frame (ITRS) (First part of Step I) to zero.
-    Eigen::Vector3d planetCenteredDisplacement = Eigen::Vector3d::Zero( );
 
     // Calculate degree two Love and Shida numbers for first part of Step I, including latitude-dependent correction
     double sineOfStationLatitude = std::sin( nominalSiteState->getNominalLatitude( ) );
     double latitudeCorrectionTerm = ( 3.0 * sineOfStationLatitude * sineOfStationLatitude - 1.0 ) / 2.0;
-    double correctedDegreeTwoLoveNumber =
-            displacementLoveNumbers_[ 2 ].first + firstStepLatitudeDependenceTerms_[ 0 ] * latitudeCorrectionTerm;
-    double correctedDegreeTwoShidaNumber =
-            displacementLoveNumbers_[ 2 ].second + firstStepLatitudeDependenceTerms_[ 1 ] * latitudeCorrectionTerm;
+    std::map< int, std::pair< double, double > > currentLoveNumbers_ = displacementLoveNumbers_;
+    currentLoveNumbers_[ 2 ].first += firstStepLatitudeDependenceTerms_[ 0 ] * latitudeCorrectionTerm;
+    currentLoveNumbers_[ 2 ].second += firstStepLatitudeDependenceTerms_[ 1 ] * latitudeCorrectionTerm;
+
+    // Initialize displacements calculated in planet-centered frame (ITRS) (First part of Step I) to zero.
+    Eigen::Vector3d planetCenteredDisplacement = calculateBasicTicalDisplacement(
+                nominalSiteState->getNominalCartesianPosition( ), currentLoveNumbers_ );
 
     // Loop over contributions of each of the bodies causing deformation of Earth (typically Moon and Sun).
-    double currentGravitationalParameterRatio;
-    Eigen::Vector3d currentRelativeBodyState;
-
     for( int i = 0; i < numberOfBodies_; i++ )
     {
-        // Calculate ratio of gravitational parameter of current body with Earth.
-        currentGravitationalParameterRatio = gravitionalParametersOfDeformingBodies_[ i ]( ) /
-                gravitionalParameterOfDeformedBody_( );
-
-        // Retrieve relative position of body in body-centered,fixed frame
-        currentRelativeBodyState = tideRaisingBodiesPositions[ i ];
-
-        // Loop over all degrees for which in-phase nominal displacement is to be calculated (2 and 3 in this case).
-        for( int j = 2; j <= 3; j++ )
-        {
-            switch( j )
-            {
-            case 2:
-                planetCenteredDisplacement += calculateDegreeTwoBasicTidalDisplacement(
-                            currentGravitationalParameterRatio,
-                            nominalSiteState->getNominalCartesianPosition( ).normalized( ),
-                            currentRelativeBodyState,
-                            deformedBodyEquatorialRadius_,
-                            correctedDegreeTwoLoveNumber,
-                            correctedDegreeTwoShidaNumber );
-                break;
-            case 3:
-                planetCenteredDisplacement += calculateDegreeThreeBasicTidalDisplacement(
-                            currentGravitationalParameterRatio,
-                            nominalSiteState->getNominalCartesianPosition( ).normalized( ),
-                            currentRelativeBodyState,
-                            deformedBodyEquatorialRadius_,
-                            displacementLoveNumbers_[ 3 ].first,
-                            displacementLoveNumbers_[ 3 ].second );
-
-                break;
-            }
-        }
-
         // Calculate first step corrections to site displacement.
         localFrameDisplacement += calculateFirstCorrectionStepDisplacements(
-                    currentRelativeBodyState,
+                    relativeBodyStates_.at( i ),
                     nominalSiteState->getNominalSphericalPosition( ),
-                    currentGravitationalParameterRatio,
+                    gravitationalParameterRatios_.at( i ),
                     deformedBodyEquatorialRadius_,
                     correctionLoveAndShidaNumbers_,
                     areFirstStepCorrectionsCalculated_ );

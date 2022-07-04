@@ -174,13 +174,14 @@ public:
      *  by default, in which case the arguments will be computed internally.
      */
     Eigen::Vector3d calculateDisplacement( const double ephemerisTime,
-                                               const std::shared_ptr< ground_stations::GroundStationState > nominalSiteState );
+                                           const std::shared_ptr< ground_stations::GroundStationState > nominalSiteState );
 
-    Eigen::Vector3d calculateDisplacement( const std::vector< Eigen::Vector3d >& tideRaisingBodiesPositions,
-                                           const std::shared_ptr< ground_stations::GroundStationState > nominalSiteState,
-                                           const Eigen::Vector6d& doodsonArguments );
 
 private:
+
+    Eigen::Vector3d calculateDisplacement( const std::shared_ptr< ground_stations::GroundStationState > nominalSiteState,
+                                           const Eigen::Vector6d& doodsonArguments );
+
     //! Calculate site displacements due to solid Earth tide deformation according to first step of Section 7.1.1 of IERS 2010 Conventions.
     /*!
      *  Calculate site displacements due to solid Earth tide deformation according to first step of Section 7.1.1 of IERS 2010 Conventions.
@@ -192,7 +193,6 @@ private:
      *  \return Pair of Vector3d containing displacemnts in, first: planet-centered frame, second: local frame (see above)
      */
     std::pair< Eigen::Vector3d, Eigen::Vector3d > calculateFirstStepDisplacements(
-            const std::vector< Eigen::Vector3d >& tideRaisingBodiesPositions,
             const std::shared_ptr< ground_stations::GroundStationState > nominalSiteState );
 
     std::vector< double > firstStepLatitudeDependenceTerms_;

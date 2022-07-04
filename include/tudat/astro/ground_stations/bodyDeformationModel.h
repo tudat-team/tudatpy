@@ -48,6 +48,43 @@ public:
 
 } // namespace basic_astrodynamics
 
+namespace ground_stations
+{
+
+struct BodyDeformationStationMotionModel: public StationMotionModel
+{
+public:
+    BodyDeformationStationMotionModel(
+            std::function< std::vector< std::shared_ptr< basic_astrodynamics::BodyDeformationModel > >& ( ) > modelList ):
+    modelList_( modelList ){ }
+
+    Eigen::Vector6d getBodyFixedStationMotion( const double time )
+    {
+        Eigen::Vector6d motion = Eigen::Vector6d::Zero( );
+        std::vector< std::shared_ptr< basic_astrodynamics::BodyDeformationModel > >& currentModels = modelList_( );
+        for( unsigned int i = 0; i < currentModels.size( ); i++ )
+        {
+            motion.segment( 0, 3 ) += currentModels.at( i )->calculateDisplacement(
+                        time, groundStationState_ );
+        }
+        return motion;
+    }
+
+    void setNominalStationState(
+                const std::shared_ptr< ground_stations::GroundStationState > groundStationState )
+    {
+        groundStationState_ = groundStationState;
+    }
+
+protected:
+
+    std::function< std::vector< std::shared_ptr< basic_astrodynamics::BodyDeformationModel > >& ( ) > modelList_;
+
+    std::shared_ptr< ground_stations::GroundStationState > groundStationState_;
+};
+
+}
+
 } // namespace tudat
 
 #endif // TUDAT_BODYDEFORMATIONMODEL_H

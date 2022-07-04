@@ -54,6 +54,10 @@ GroundStationState::GroundStationState(
     stationMotionModel_( stationMotionModel )
 {
     resetGroundStationPositionAtEpoch( stationPosition, inputElementType );
+    if( stationMotionModel_ != nullptr )
+    {
+        stationMotionModel->setNominalStationState( shared_from_this( ) );
+    }
 }
 
 //! Function to obtain the Cartesian state of the ground station in the local frame at a given time.

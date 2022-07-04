@@ -22,6 +22,80 @@ namespace tudat
 namespace simulation_setup
 {
 
+enum StationMotionModelTypes
+{
+    linear_station_motion,
+    piecewise_constant_station_motion,
+    custom_station_motion,
+    body_deformation_station_motion
+};
+
+class GroundStationMotionSettings
+{
+public:
+    GroundStationMotionSettings(
+            const StationMotionModelTypes& modelType );
+
+    virtual ~GroundStationMotionSettings( ){ }
+
+    StationMotionModelTypes getModelType( )
+    {
+        return modelType_;
+    }
+
+private:
+    StationMotionModelTypes modelType_;
+};
+
+class LinearGroundStationMotionSettings: public GroundStationMotionSettings
+{
+public:
+    LinearGroundStationMotionSettings(
+            const Eigen::Vector3d& linearVelocity,
+            const double referenceEpoch = basic_astrodynamics::JULIAN_DAY_ON_J2000):
+        GroundStationMotionSettings( linear_station_motion ),
+    linearVelocity_( linearVelocity ),
+    referenceEpoch_( referenceEpoch ){ }
+
+    virtual ~LinearGroundStationMotionSettings( ){ }
+
+    Eigen::Vector3d linearVelocity_;
+
+    double referenceEpoch_;
+};
+
+class PiecewiseConstantGroundStationMotionSettings: public GroundStationMotionSettings
+{
+public:
+    PiecewiseConstantGroundStationMotionSettings(
+            const std::map< double, Eigen::Vector3d >& displacementList ):
+        GroundStationMotionSettings( piecewise_constant_station_motion ),
+    displacementList_( displacementList ){ }
+
+    virtual ~PiecewiseConstantGroundStationMotionSettings( ){ }
+
+    std::map< double, Eigen::Vector3d > displacementList_;
+};
+
+class CustomGroundStationMotionSettings: public GroundStationMotionSettings
+{
+public:
+    CustomGroundStationMotionSettings(
+            const std::function< Eigen::Vector6d( const double ) > customDisplacementModel ):
+        GroundStationMotionSettings( custom_station_motion ),
+    customDisplacementModel_( customDisplacementModel ){ }
+
+    CustomGroundStationMotionSettings(
+            const std::function< Eigen::Vector3d( const double ) > customDisplacementModel ):
+        GroundStationMotionSettings( custom_station_motion ),
+        customDisplacementModel_( [=](const double time ){
+        return ( Eigen::Vector6d( ) << customDisplacementModel( time ), Eigen::Vector3d::Zero( ) ).finished( ); } ){ }
+
+    virtual ~CustomGroundStationMotionSettings( ){ }
+
+    const std::function< Eigen::Vector6d( const double ) > customDisplacementModel_;
+};
+
 class GroundStationSettings
 {
 public:
@@ -29,10 +103,13 @@ public:
             const std::string& stationName,
             const Eigen::Vector3d& groundStationPosition,
             const coordinate_conversions::PositionElementTypes positionElementType =
-            coordinate_conversions::cartesian_position ):
+            coordinate_conversions::cartesian_position,
+            const std::vector< std::shared_ptr< GroundStationMotionSettings > > stationMotionSettings =
+            std::vector< std::shared_ptr< GroundStationMotionSettings > >( ) ):
         stationName_( stationName ),
         groundStationPosition_( groundStationPosition ),
-        positionElementType_( positionElementType ){ }
+        positionElementType_( positionElementType ),
+    stationMotionSettings_( stationMotionSettings ){ }
 
     std::string getStationName( )
     {
@@ -49,6 +126,11 @@ public:
         return positionElementType_;
     }
 
+    std::vector< std::shared_ptr< GroundStationMotionSettings > > getStationMotionSettings( )
+    {
+        return stationMotionSettings_;
+    }
+
 protected:
 
     std::string stationName_;
@@ -56,6 +138,8 @@ protected:
     Eigen::Vector3d groundStationPosition_;
 
     coordinate_conversions::PositionElementTypes positionElementType_;
+
+    std::vector< std::shared_ptr< GroundStationMotionSettings > > stationMotionSettings_;
 };
 
 //! Function to create a ground station from pre-defined station state object, and add it to a Body object
@@ -70,6 +154,11 @@ void createGroundStation(
         const std::string groundStationName,
         const std::shared_ptr< ground_stations::GroundStationState > groundStationState );
 
+std::shared_ptr< ground_stations::GroundStationState > createGroundStationState(
+        const std::shared_ptr< Body > body,
+        const Eigen::Vector3d groundStationPosition,
+        const coordinate_conversions::PositionElementTypes positionElementType );
+
 //! Function to create a ground station and add it to a Body object
 /*!
  * Function to create a ground station and add it to a Body object
@@ -83,7 +172,9 @@ void createGroundStation(
         const std::string groundStationName,
         const Eigen::Vector3d groundStationPosition,
         const coordinate_conversions::PositionElementTypes positionElementType =
-        coordinate_conversions::cartesian_position );
+        coordinate_conversions::cartesian_position,
+        const std::vector< std::shared_ptr< GroundStationMotionSettings > > stationMotionSettings =
+        std::vector< std::shared_ptr< GroundStationMotionSettings > >( ) );
 
 //! Function to create a set of ground stations and add them to the corresponding Body objects
 /*!
