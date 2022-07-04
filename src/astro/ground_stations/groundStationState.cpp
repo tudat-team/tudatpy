@@ -54,10 +54,6 @@ GroundStationState::GroundStationState(
     stationMotionModel_( stationMotionModel )
 {
     resetGroundStationPositionAtEpoch( stationPosition, inputElementType );
-    if( stationMotionModel_ != nullptr )
-    {
-        stationMotionModel->setNominalStationState( shared_from_this( ) );
-    }
 }
 
 //! Function to obtain the Cartesian state of the ground station in the local frame at a given time.
@@ -66,12 +62,8 @@ Eigen::Vector6d GroundStationState::getCartesianStateInTime(
 {
     Eigen::Vector6d currentStationState =
             ( stationMotionModel_ != nullptr ) ? ( nominalCartesianState_ + stationMotionModel_->getBodyFixedStationMotion(
-                                                       secondsSinceEpoch ) ) : nominalCartesianState_;
-//    if( bodyShapeModel_!= nullptr )
-//    {
-//        currentStationState.segment( 0, 3 ) += bodyShapeModel_->getDisplacement(
-//                    secondsSinceEpoch, cartesianPosition_ );
-//    }
+                                                       secondsSinceEpoch, shared_from_this( )  ) ) : nominalCartesianState_;
+
     return currentStationState;
 }
 

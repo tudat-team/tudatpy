@@ -56,11 +56,10 @@ public:
 
     virtual ~StationMotionModel( ){ }
 
-    virtual Eigen::Vector6d getBodyFixedStationMotion( const double time ) = 0;
+    virtual Eigen::Vector6d getBodyFixedStationMotion(
+            const double time,
+            const std::shared_ptr< ground_stations::GroundStationState > groundStationState ) = 0;
 
-    virtual void setNominalStationState(
-            const std::shared_ptr< ground_stations::GroundStationState > groundStationState )
-    { }
 };
 
 
@@ -311,7 +310,9 @@ public:
 
     ~LinearStationMotionModel( ){ }
 
-    Eigen::Vector6d getBodyFixedStationMotion( const double time )
+    Eigen::Vector6d getBodyFixedStationMotion(
+            const double time,
+            const std::shared_ptr< ground_stations::GroundStationState > groundStationState = nullptr )
     {
         return ( Eigen::Vector6d( ) << linearVelocity_ * ( time - referenceEpoch_ ), linearVelocity_ ).finished( );
     }
@@ -337,13 +338,15 @@ public:
 
     ~PiecewiseConstantStationMotionModel( ){ }
 
-    Eigen::Vector6d getBodyFixedStationMotion( const double time )
+    Eigen::Vector6d getBodyFixedStationMotion(
+            const double time,
+            const std::shared_ptr< ground_stations::GroundStationState > groundStationState = nullptr )
     {
         Eigen::Vector6d stationMotion = Eigen::Vector6d::Zero( );
         if( !( time < firstDisplacementTime_ ) )
         {
             stationMotion.segment( 0, 3 ) += displacementList_.at(
-                       timeLookupScheme_->findNearestLowerNeighbour( time ) );
+                        timeLookupScheme_->findNearestLowerNeighbour( time ) );
         }
         return stationMotion;
     }
@@ -366,7 +369,9 @@ public:
 
     ~CustomStationMotionModel( ){ }
 
-    Eigen::Vector6d getBodyFixedStationMotion( const double time )
+    Eigen::Vector6d getBodyFixedStationMotion(
+            const double time,
+            const std::shared_ptr< ground_stations::GroundStationState > groundStationState = nullptr  )
     {
         return customDisplacementModel_( time );
     }
@@ -383,24 +388,18 @@ public:
             const std::vector< std::shared_ptr< StationMotionModel > >& modelList ):
     modelList_( modelList ){ }
 
-    Eigen::Vector6d getBodyFixedStationMotion( const double time )
+    Eigen::Vector6d getBodyFixedStationMotion(
+            const double time,
+            const std::shared_ptr< ground_stations::GroundStationState > groundStationState )
     {
         Eigen::Vector6d motion = Eigen::Vector6d::Zero( );
         for( unsigned int i = 0; i < modelList_.size( ); i++ )
         {
-            motion += modelList_.at( i )->getBodyFixedStationMotion( time );
+            motion += modelList_.at( i )->getBodyFixedStationMotion( time, groundStationState );
         }
         return motion;
     }
 
-    void setNominalStationState(
-            const std::shared_ptr< ground_stations::GroundStationState > groundStationState )
-    {
-        for( unsigned int i = 0; i < modelList_.size( ); i++ )
-        {
-            modelList_.at( i )->setNominalStationState( groundStationState );
-        }
-    }
 
 protected:
 
