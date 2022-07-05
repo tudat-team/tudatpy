@@ -328,36 +328,35 @@ struct PiecewiseConstantStationMotionModel: public StationMotionModel
 {
 public:
     PiecewiseConstantStationMotionModel(
-            const std::map< double, Eigen::Vector3d >& displacementList ):
-    displacementList_( displacementList )
+            const std::map< double, Eigen::Vector3d >& displacementList )
     {
-        firstDisplacementTime_ = displacementList_.begin( )->first;
+        displacementTimes_ = utilities::createVectorFromMapKeys( displacementList );
+        displacementVectors_ = utilities::createVectorFromMapValues( displacementList );
+
+        firstDisplacementTime_ = displacementTimes_.at( 0 );
+        finalDisplacementTime_ = displacementTimes_.at( displacementTimes_.size( ) - 1 );
         timeLookupScheme_ = std::make_shared< interpolators::HuntingAlgorithmLookupScheme< double > >(
-                    utilities::createVectorFromMapKeys( displacementList_ ) );
+                     displacementTimes_ );
     }
 
     ~PiecewiseConstantStationMotionModel( ){ }
 
     Eigen::Vector6d getBodyFixedStationMotion(
             const double time,
-            const std::shared_ptr< ground_stations::GroundStationState > groundStationState = nullptr )
-    {
-        Eigen::Vector6d stationMotion = Eigen::Vector6d::Zero( );
-        if( !( time < firstDisplacementTime_ ) )
-        {
-            stationMotion.segment( 0, 3 ) += displacementList_.at(
-                        timeLookupScheme_->findNearestLowerNeighbour( time ) );
-        }
-        return stationMotion;
-    }
-
+            const std::shared_ptr< ground_stations::GroundStationState > groundStationState = nullptr );
 protected:
 
     double firstDisplacementTime_;
 
+    double finalDisplacementTime_;
+
+
     std::shared_ptr< interpolators::LookUpScheme< double > > timeLookupScheme_;
 
-    std::map< double, Eigen::Vector3d > displacementList_;
+    std::vector< double > displacementTimes_;
+
+    std::vector< Eigen::Vector3d > displacementVectors_;
+
 };
 
 struct CustomStationMotionModel: public StationMotionModel

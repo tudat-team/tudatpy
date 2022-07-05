@@ -34,7 +34,7 @@ class GroundStationMotionSettings
 {
 public:
     GroundStationMotionSettings(
-            const StationMotionModelTypes& modelType );
+            const StationMotionModelTypes& modelType ):modelType_( modelType ){ }
 
     virtual ~GroundStationMotionSettings( ){ }
 
@@ -80,10 +80,10 @@ public:
 class CustomGroundStationMotionSettings: public GroundStationMotionSettings
 {
 public:
-    CustomGroundStationMotionSettings(
-            const std::function< Eigen::Vector6d( const double ) > customDisplacementModel ):
-        GroundStationMotionSettings( custom_station_motion ),
-    customDisplacementModel_( customDisplacementModel ){ }
+//    CustomGroundStationMotionSettings(
+//            const std::function< Eigen::Vector6d( const double ) > customDisplacementModel ):
+//        GroundStationMotionSettings( custom_station_motion ),
+//    customDisplacementModel_( customDisplacementModel ){ }
 
     CustomGroundStationMotionSettings(
             const std::function< Eigen::Vector3d( const double ) > customDisplacementModel ):
@@ -192,7 +192,6 @@ void createGroundStations(
 
 void createGroundStation(
         const std::shared_ptr< Body > body,
-        const std::string& bodyName,
         const std::shared_ptr< GroundStationSettings > groundStationSettings );
 
 std::vector< std::pair< std::string, std::string > > getGroundStationsLinkEndList(

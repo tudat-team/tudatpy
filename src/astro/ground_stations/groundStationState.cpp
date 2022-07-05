@@ -144,7 +144,7 @@ Eigen::Quaterniond getRotationQuaternionFromBodyFixedToTopocentricFrame(
     {
         isSurfaceModelRecognized = 0;
         std::cerr<<"Error when making transformation to topocentric frame, shape model not recognized"<<std::endl;
-//        throw std::runtime_error( "Error when making transformation to topocentric frame, shape model not recognized" );
+        //        throw std::runtime_error( "Error when making transformation to topocentric frame, shape model not recognized" );
     }
 
     // Create rotation matrix
@@ -168,7 +168,29 @@ Eigen::Quaterniond getRotationQuaternionFromBodyFixedToTopocentricFrame(
     return Eigen::Quaterniond( bodyFixedToTopocentricFrame );
 }
 
+Eigen::Vector6d PiecewiseConstantStationMotionModel::getBodyFixedStationMotion(
+        const double time,
+        const std::shared_ptr< ground_stations::GroundStationState > groundStationState )
+{
+    timeLookupScheme_ = std::make_shared< interpolators::BinarySearchLookupScheme< double > >(
+                displacementTimes_ );
+    Eigen::Vector6d stationMotion = Eigen::Vector6d::Zero( );
+    if( !( time < firstDisplacementTime_ ) )
+    {
+        if( time >= finalDisplacementTime_ )
+        {
+            stationMotion.segment( 0, 3 ) += displacementVectors_.at(
+                        displacementVectors_.size( ) - 1 );
+        }
+        else
+        {
+            stationMotion.segment( 0, 3 ) += displacementVectors_.at(
+                        timeLookupScheme_->findNearestLowerNeighbour( time ) );
+        }
+    }
+    return stationMotion;
 }
 
+}
 
 }
