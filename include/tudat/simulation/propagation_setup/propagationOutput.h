@@ -1794,6 +1794,39 @@ std::function< double( ) > getDoubleDependentVariableFunction(
                                           functionToEvaluate, firstInput, secondInput, thirdInput );
             break;
         }
+        case apoapsis_altitude_dependent_variable:
+        {
+            using namespace Eigen;
+            std::function< double( const Vector6d&, const double, const double ) > functionToEvaluate =
+                    std::bind( &basic_astrodynamics::computeApoapsisAltitudeFromCartesianState, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3 );
+
+            // Retrieve function for propagated body's Cartesian state in the global reference frame.
+            std::function< Vector6d( ) > propagatedBodyStateFunction =
+                    std::bind( &simulation_setup::Body::getState, bodies.at( bodyWithProperty ) );
+
+            // Retrieve function for central body's Cartesian state in the global reference frame.
+            std::function< Vector6d( ) > centralBodyStateFunction =
+                    std::bind( &simulation_setup::Body::getState, bodies.at( secondaryBody ) );
+
+            // Retrieve function for propagated body's Cartesian state in the propagation reference frame.
+            std::function< Vector6d( ) > firstInput =
+                    std::bind( &utilities::subtractFunctionReturn< Vector6d >,
+                               propagatedBodyStateFunction, centralBodyStateFunction );
+
+            // Retrieve function for central body's gravitational parameter.
+            std::function< double( ) > secondInput =
+                    std::bind( &gravitation::GravityFieldModel::getGravitationalParameter,
+                               bodies.at( secondaryBody )->getGravityFieldModel( ) );
+
+            // Retrieve function for central body's average radius.
+            std::function< double( ) > thirdInput =
+                    std::bind( &basic_astrodynamics::BodyShapeModel::getAverageRadius,
+                               bodies.at( secondaryBody )->getShapeModel( ) );
+
+            variableFunction = std::bind( &evaluateTrivariateFunction< double, Vector6d, double, double >,
+                                          functionToEvaluate, firstInput, secondInput, thirdInput );
+            break;
+        }
         case current_body_mass_dependent_variable:
         {
             variableFunction = std::bind(

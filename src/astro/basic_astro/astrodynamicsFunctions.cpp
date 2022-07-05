@@ -129,6 +129,24 @@ double computePeriapsisAltitudeFromCartesianState( const Eigen::Vector6d& state,
                     state, centralBodyGravitationalParameter ), centralBodyRadius );
 }
 
+//! Compute apoapsis altitude from Keplerian state for spherical central body.
+double computeApoapsisAltitudeFromKeplerianState( const Eigen::Vector6d& state,
+                                                   const double centralBodyRadius )
+{
+    return state( orbital_element_conversions::semiMajorAxisIndex ) *
+            ( 1.0 + state( orbital_element_conversions::eccentricityIndex ) ) - centralBodyRadius;
+}
+
+//! Compute apoapsis altitude from Cartesian state for spherical central body.
+double computeApoapsisAltitudeFromCartesianState( const Eigen::Vector6d& state,
+                                                   const double centralBodyGravitationalParameter,
+                                                   const double centralBodyRadius )
+{
+    return computeApoapsisAltitudeFromKeplerianState(
+                orbital_element_conversions::convertCartesianToKeplerianElements(
+                    state, centralBodyGravitationalParameter ), centralBodyRadius );
+}
+
 } // namespace basic_astrodynamics
 
 } // namespace tudat
