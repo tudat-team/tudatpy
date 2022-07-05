@@ -64,6 +64,7 @@ std::shared_ptr< ground_stations::StationMotionModel > createGroundStationMotion
                 }
                 currentStationMotionModel = std::make_shared< ground_stations::LinearStationMotionModel >(
                             linearStationMotionSettings->linearVelocity_, linearStationMotionSettings->referenceEpoch_ );
+                break;
             }
             case piecewise_constant_station_motion:
             {
@@ -75,6 +76,7 @@ std::shared_ptr< ground_stations::StationMotionModel > createGroundStationMotion
                 }
                 currentStationMotionModel = std::make_shared< ground_stations::PiecewiseConstantStationMotionModel >(
                             piecewiseConstantStationMotionSettings->displacementList_ );
+                break;
             }
             case custom_station_motion:
             {
@@ -86,6 +88,7 @@ std::shared_ptr< ground_stations::StationMotionModel > createGroundStationMotion
                 }
                 currentStationMotionModel = std::make_shared< ground_stations::CustomStationMotionModel >(
                             customStationMotionSettings->customDisplacementModel_ );
+                break;
             }
             default:
                 throw std::runtime_error( "Error when making ground station motion model, settings type not recognized" );
@@ -143,7 +146,6 @@ void createGroundStations(
 
 void createGroundStation(
         const std::shared_ptr< Body > body,
-        const std::string& bodyName,
         const std::shared_ptr< GroundStationSettings > groundStationSettings )
 {
 
@@ -151,7 +153,7 @@ void createGroundStation(
     {
         throw std::runtime_error(
                     "Error when creating ground station " + groundStationSettings->getStationName( ) +
-                    " on body " + bodyName + ", station already exists." );
+                    " on body " + body->getBodyName( ) + ", station already exists." );
     }
     else
     {

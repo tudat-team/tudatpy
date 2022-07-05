@@ -26,6 +26,7 @@
 #include "tudat/simulation/environment_setup/createBodies.h"
 #include "tudat/simulation/environment_setup/createGroundStations.h"
 #include "tudat/simulation/estimation_setup/createLightTimeCalculator.h"
+#include "tudat/simulation/simulation.h"
 #include "tudat/io/basicInputOutput.h"
 
 namespace tudat
@@ -209,6 +210,142 @@ BOOST_AUTO_TEST_CASE( test_GroundStationGlobalState )
         for( unsigned int i = 0; i < 6; i++ )
         {
             BOOST_CHECK_EQUAL( currentGlobalState( i ), currentGlobalStateFromFunction( i ) );
+        }
+    }
+}
+
+
+Eigen::Vector3d getCustomDisplacementFunction( const double time )
+{
+    return ( Eigen::Vector3d( )<<4.3, 1.3, -1.3 ).finished( ) *
+            std::sin( time / ( 10.0 * physical_constants::JULIAN_DAY ) );
+}
+
+Eigen::Vector3d getExpectedPiecewiseConstantDisplacement( const int j )
+{
+    Eigen::Vector3d expectedStateDifference;
+    switch( j )
+    {
+    case 0:
+        expectedStateDifference = Eigen::Vector3d::Zero( );
+        break;
+    case 1:
+        expectedStateDifference = ( Eigen::Vector3d( ) << 5.3, -1.2, 7.6 ).finished( );
+        break;
+    case 2:
+        expectedStateDifference = ( Eigen::Vector3d( ) << 4.5, 3.2, -4.6 ).finished( );
+        break;
+    case 3:
+        expectedStateDifference = ( Eigen::Vector3d( ) << 0.2, 6.4, 12.4 ).finished( );
+        break;
+    }
+    return expectedStateDifference;
+}
+
+//! Test if global state function for ground station is correctly created.
+BOOST_AUTO_TEST_CASE( test_GroundStationTimeVaryingState )
+{
+    //Load spice kernels.
+    std::string kernelsPath = paths::getSpiceKernelPath( );
+    spice_interface::loadStandardSpiceKernels( );
+
+    //Define environment settings
+    std::vector< std::string > bodyNames;
+    bodyNames.push_back( "Earth" );
+    bodyNames.push_back( "Sun" );
+    bodyNames.push_back( "Moon" );
+
+    for( unsigned int i = 0; i < 4; i++ )
+    {
+        BodyListSettings bodySettings =
+                getDefaultBodySettings( bodyNames );
+        SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+
+        const Eigen::Vector3d nominalStationState( 1917032.190, 6029782.349, -801376.113 );
+
+        std::vector< std::shared_ptr< GroundStationMotionSettings > > stationMotionSettings;
+
+        //! Test case 0
+        double referenceTime = 10.0 * physical_constants::JULIAN_YEAR;
+        Eigen::Vector3d linearMotion = ( Eigen::Vector3d( ) << 2.1, 0.5 , -1.5 ).finished( ) / physical_constants::JULIAN_YEAR;
+
+        //! Test case 1
+        std::map< double, Eigen::Vector3d > positionDiscontinuities;
+        positionDiscontinuities[ -2.4 * physical_constants::JULIAN_YEAR ] = ( Eigen::Vector3d( ) << 4.3, -9.2, 4.1 ).finished( );
+        positionDiscontinuities[ -20.0 * physical_constants::JULIAN_DAY ] = ( Eigen::Vector3d( ) << 5.3, -1.2, 7.6 ).finished( );
+        positionDiscontinuities[ -10.0 * physical_constants::JULIAN_DAY ] = ( Eigen::Vector3d( ) << 4.5, 3.2, -4.6 ).finished( );
+        positionDiscontinuities[ 10.0 * physical_constants::JULIAN_YEAR ] = ( Eigen::Vector3d( ) << 0.2, 6.4, 12.4 ).finished( );
+
+        if( i == 0 || i == 3 )
+        {
+            stationMotionSettings.push_back(
+                        std::make_shared< LinearGroundStationMotionSettings >( linearMotion, referenceTime ) );
+        }
+        if( i == 1 || i == 3 )
+        {
+            stationMotionSettings.push_back(
+                        std::make_shared< PiecewiseConstantGroundStationMotionSettings >( positionDiscontinuities ) );
+        }
+        if( i == 2 || i == 3 )
+        {
+            stationMotionSettings.push_back(
+                        std::make_shared< CustomGroundStationMotionSettings >( &getCustomDisplacementFunction ) );
+        }
+
+        std::shared_ptr< GroundStationSettings > stationSettings = std::make_shared< GroundStationSettings >(
+                    "Station1", nominalStationState, coordinate_conversions::cartesian_position, stationMotionSettings );
+        createGroundStation( bodies.at( "Earth" ), stationSettings );
+
+        std::shared_ptr< tudat::ground_stations::GroundStationState > stationState = bodies.at( "Earth" )->getGroundStation(
+                    "Station1" )->getNominalStationState( );
+
+        std::vector< double > testTimes ={ -30.0 * physical_constants::JULIAN_YEAR, -20.0 * physical_constants::JULIAN_DAY, 0.0,
+                                           20.0 * physical_constants::JULIAN_YEAR };
+        //        std::vector< double >( { -30.0 * physical_constants::JULIAN_YEAR, -20.0 * physical_constants::JULIAN_DAY, 0.0,
+        //          physical_constants::JULIAN_YEAR, 20.0 physical_constants::JULIAN_YEAR } );
+        if( i == 0 )
+        {
+            for( unsigned int j = 0; j < testTimes.size( ); j++ )
+            {
+                Eigen::Vector3d currentState = stationState->getCartesianPositionInTime( testTimes.at( j ) );
+                Eigen::Vector3d stateDifference = currentState - nominalStationState;
+                Eigen::Vector3d expectedStateDifference = ( linearMotion * ( testTimes.at( j ) - referenceTime ) );
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION( stateDifference, expectedStateDifference, 1.0E-9 );
+
+            }
+        }
+        else if( i == 1 )
+        {
+            for( unsigned int j = 0; j < testTimes.size( ); j++ )
+            {
+                Eigen::Vector3d currentState = stationState->getCartesianPositionInTime( testTimes.at( j ) );
+                Eigen::Vector3d stateDifference = currentState - nominalStationState;
+                Eigen::Vector3d expectedStateDifference = getExpectedPiecewiseConstantDisplacement( j );
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION( stateDifference, expectedStateDifference, 1.0E-9 );
+
+            }
+        }
+        else if( i == 2 )
+        {
+            for( unsigned int j = 0; j < testTimes.size( ); j++ )
+            {
+                Eigen::Vector3d currentState = stationState->getCartesianPositionInTime( testTimes.at( j ) );
+                Eigen::Vector3d stateDifference = currentState - nominalStationState;
+                Eigen::Vector3d expectedStateDifference = getCustomDisplacementFunction( testTimes.at( j ) );
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION( stateDifference, expectedStateDifference, 1.0E-9 );
+            }
+        }
+        else if( i == 3 )
+        {
+            for( unsigned int j = 0; j < testTimes.size( ); j++ )
+            {
+                Eigen::Vector3d currentState = stationState->getCartesianPositionInTime( testTimes.at( j ) );
+                Eigen::Vector3d stateDifference = currentState - nominalStationState;
+                Eigen::Vector3d expectedStateDifference =
+                        getCustomDisplacementFunction( testTimes.at( j ) ) + getExpectedPiecewiseConstantDisplacement( j ) +
+                        ( linearMotion * ( testTimes.at( j ) - referenceTime ) );
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION( stateDifference, expectedStateDifference, 1.0E-9 );
+            }
         }
     }
 }
