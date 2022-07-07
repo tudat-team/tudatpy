@@ -404,7 +404,7 @@ int getDependentVariableSize(
         }
         else
         {
-            variableSize = 3 * std::dynamic_pointer_cast< CustomDependentVariableSaveSettings >(
+            variableSize = std::dynamic_pointer_cast< CustomDependentVariableSaveSettings >(
                         dependentVariableSettings )->dependentVariableSize_;
         }
         break;
@@ -451,7 +451,8 @@ bool isScalarDependentVariable(
 {
     int dependentVariableSize = getDependentVariableSaveSize( dependentVariableSettings );
     if( dependentVariableSize > 1 ||
-            dependentVariableSettings->dependentVariableType_ == spherical_harmonic_acceleration_norm_terms_dependent_variable )
+            dependentVariableSettings->dependentVariableType_ == spherical_harmonic_acceleration_norm_terms_dependent_variable ||
+            dependentVariableSettings->dependentVariableType_ == custom_dependent_variable )
     {
         return false;
     }
