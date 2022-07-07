@@ -304,6 +304,9 @@ int getDependentVariableSize(
     case periapsis_altitude_dependent_variable:
         variableSize = 1;
         break;
+    case apoapsis_altitude_dependent_variable:
+        variableSize = 1;
+        break;
     case total_torque_dependent_variable:
         variableSize = 3;
         break;

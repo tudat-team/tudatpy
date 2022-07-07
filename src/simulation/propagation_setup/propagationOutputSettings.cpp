@@ -184,6 +184,9 @@ std::string getDependentVariableName( const std::shared_ptr< SingleDependentVari
     case periapsis_altitude_dependent_variable:
         variableName = "Periapsis altitude ";
         break;
+    case apoapsis_altitude_dependent_variable:
+        variableName = "Apoapsis altitude ";
+        break;
     case single_torque_dependent_variable:
         variableName = "Single torque in body-fixed frame of type ";
         break;
