@@ -109,6 +109,7 @@ AngularPositionPartial::AngularPositionPartialReturnType AngularPositionPartial:
         const observation_models::LinkEndType linkEndOfFixedTime,
         const Eigen::Vector2d& currentObservation )
 {
+    std::cout<<"*************************"<<std::endl;
     if( linkEndOfFixedTime != angularPositionScaler_->getCurrentLinkEndType( ) )
     {
         throw std::runtime_error( "Error angular position partial and scaling are inconsistent" );

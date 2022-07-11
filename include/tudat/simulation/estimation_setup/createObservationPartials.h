@@ -24,6 +24,8 @@
 #include "tudat/simulation/estimation_setup/createDifferencedOneWayRangeRatePartials.h"
 #include "tudat/simulation/estimation_setup/createNWayRangePartials.h"
 #include "tudat/simulation/estimation_setup/createEulerAngleObservationPartials.h"
+#include "tudat/simulation/estimation_setup/createObservationPartialsRefactor.h"
+
 namespace tudat
 {
 
@@ -301,9 +303,8 @@ public:
         switch( observableType )
         {
         case observation_models::one_way_range:
-            observationPartialList = createOneWayRangePartials< ObservationScalarType >(
-                        utilities::createVectorFromMapKeys( observationModelList ), bodies, parametersToEstimate,
-                        getLightTimeCorrectionsList( observationModelList ) );
+            observationPartialList = createSingleLinkObservationPartialsList< ObservationScalarType, TimeType, 1 >(
+                        observationModelList, bodies, parametersToEstimate );
             break;
         case observation_models::one_way_doppler:
             observationPartialList = createOneWayDopplerPartials< ObservationScalarType, TimeType >(
@@ -372,9 +373,8 @@ public:
         switch( observableType )
         {
         case observation_models::angular_position:
-            observationPartialList = createAngularPositionPartials< ObservationScalarType >(
-                        utilities::createVectorFromMapKeys( observationModelList ), bodies, parametersToEstimate,
-                        getLightTimeCorrectionsList( observationModelList ) );
+            observationPartialList = createSingleLinkObservationPartialsList< ObservationScalarType, TimeType, 2 >(
+                        observationModelList, bodies, parametersToEstimate );
             break;
         case observation_models::relative_angular_position:
             observationPartialList = createRelativeAngularPositionPartials< ObservationScalarType >(

@@ -34,7 +34,7 @@ namespace observation_partials
  *  Derived class for scaling three-dimensional position partial to one-way range observable partial. Implementation is taken
  *  from Moyer(2000) and is separately implemented for fixed receiver and transmitter.
  */
-class OneWayRangeScaling: public PositionPartialScaling
+class OneWayRangeScaling: public OneWayLinkPositionPartialScaling< 1 >
 {
 public:
 
@@ -72,9 +72,9 @@ public:
      * Function to retrieve the factor by which the light-time partials should be scaled in one-way observation partial.
      * \return Factor by which the light-time partials should be scaled in one-way observation partial.
      */
-    double getLightTimePartialScalingFactor( )
+    Eigen::Vector1d getLightTimePartialScalingFactor( )
     {
-       return referenceLightTimeCorrectionScaling_;
+       return ( Eigen::Vector1d( ) << referenceLightTimeCorrectionScaling_ ).finished( );
     }
 
     //! Function to get the fixed link end for last computation of update() function.
