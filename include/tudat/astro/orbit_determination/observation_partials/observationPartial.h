@@ -24,6 +24,7 @@
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/observationBiasParameter.h"
+#include "tudat/astro/observation_models/corrections/lightTimeCorrection.h"
 #include "tudat/math/basic/mathematicalConstants.h"
 
 namespace tudat
@@ -59,6 +60,23 @@ public:
                          const std::vector< double >& times,
                          const observation_models::LinkEndType fixedLinkEnd,
                          const Eigen::VectorXd currentObservation ) = 0;
+
+
+};
+
+template< int ObservationSize >
+class OneWayLinkPositionPartialScaling: public PositionPartialScaling
+{
+public:
+    virtual ~OneWayLinkPositionPartialScaling( ){ }
+
+    virtual observation_models::LinkEndType getCurrentLinkEndType( ) = 0;
+
+    virtual Eigen::Matrix< double, ObservationSize, 3 > getScalingFactor( const observation_models::LinkEndType linkEndType ) = 0;
+
+    virtual Eigen::Matrix< double, ObservationSize, 1 > getLightTimePartialScalingFactor( ) = 0;
+
+
 };
 
 //! Base class of partial derivative of an observable w.r.t. an estimated parameter.
@@ -119,8 +137,6 @@ protected:
 
     //! Parameter id of for specifc parameter of which partial is computed by object.
     estimatable_parameters::EstimatebleParameterIdentifier parameterIdentifier_;
-
-
 };
 
 
