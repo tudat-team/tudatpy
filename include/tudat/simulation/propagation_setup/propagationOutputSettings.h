@@ -120,7 +120,8 @@ enum PropagationDependentVariables
     rsw_to_inertial_frame_rotation_dependent_variable = 47,
     custom_dependent_variable = 48,
     total_spherical_harmonic_cosine_coefficient_variation = 49,
-    total_spherical_harmonic_sine_coefficient_variation = 50
+    total_spherical_harmonic_sine_coefficient_variation = 50,
+    apoapsis_altitude_dependent_variable = 51
 };
 
 // Functional base class for defining settings for dependent variables that are to be saved during propagation
@@ -977,6 +978,15 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > periapsisAltitudeV
 {
     return std::make_shared< SingleDependentVariableSaveSettings >(
                 periapsis_altitude_dependent_variable, associatedBody, centralBody );
+}
+
+//! @get_docstring(apoapsisAltitudeVariable)
+inline std::shared_ptr< SingleDependentVariableSaveSettings > apoapsisAltitudeVariable(
+        const std::string& associatedBody,
+        const std::string& centralBody )
+{
+    return std::make_shared< SingleDependentVariableSaveSettings >(
+                apoapsis_altitude_dependent_variable, associatedBody, centralBody );
 }
 
 //! @get_docstring(singleTorqueNormVariable)
