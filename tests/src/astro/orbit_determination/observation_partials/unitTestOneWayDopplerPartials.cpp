@@ -205,6 +205,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
 
     }
 
+    std::cout<<"A ****************************************** "<<std::endl;
     // Test partials with constant ephemerides (allows test of position partials)
     {
         // Create environment
@@ -255,6 +256,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
                 parameterPerturbationMultipliers( 2 ) = 1.0E-4;
             }
 
+            std::cout<<"A"<<std::endl;
             testObservationPartials< 1 >(
                         oneWayDopplerModel, bodies, fullEstimatableParameterSet, linkEnds, one_way_doppler, 1.0E-5,
                         true, true, 10.0, parameterPerturbationMultipliers );
@@ -263,6 +265,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
         }
     }
 
+    std::cout<<"B ****************************************** "<<std::endl;
     // Test partials with real ephemerides (without test of position partials)
     {
         // Create environment
@@ -318,7 +321,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
         }
     }
 
-
+    std::cout<<"C ****************************************** "<<std::endl;
     // Test partials with constant ephemerides (allows test of position partials)
     {
         // Create environment
@@ -451,6 +454,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
                         numericalReceiverProperTimePartialsWrtEarthVelocity, 1.0E-6 );
         }
 
+        std::cout<<"D ****************************************** "<<std::endl;
 
         // Create one-way doppler model without proper time rates
         std::shared_ptr< OneWayDopplerObservationModel< > > oneWayDopplerModelWithoutProperTime =

@@ -36,19 +36,19 @@ double computePartialOfProjectedLinkEndVelocityWrtAssociatedTime(
         const bool linkEndIsReceiver,
         const bool projectedLinkEndIsVariableLinkEnd )
 {
-     Eigen::Vector3d normalizedVector = vectorToReceiver.normalized( );
-     double distance = vectorToReceiver.norm( );
+    Eigen::Vector3d normalizedVector = vectorToReceiver.normalized( );
+    double distance = vectorToReceiver.norm( );
 
-     return static_cast< double >( linkEndIsReceiver ? 1.0 : -1.0 ) * computePartialOfUnitVectorWrtLinkEndTime(
-                 vectorToReceiver, normalizedVector, distance, variableLinkEndVelocity ).dot( projectedLinkEndVelocity ) +
-             static_cast< double >( projectedLinkEndIsVariableLinkEnd ) * normalizedVector.dot( projectedLinkEndAcceleration );
+    return static_cast< double >( linkEndIsReceiver ? 1.0 : -1.0 ) * computePartialOfUnitVectorWrtLinkEndTime(
+                vectorToReceiver, normalizedVector, distance, variableLinkEndVelocity ).dot( projectedLinkEndVelocity ) +
+            static_cast< double >( projectedLinkEndIsVariableLinkEnd ) * normalizedVector.dot( projectedLinkEndAcceleration );
 }
 
 //! Update the scaling object to the current times and states
 void OneWayDopplerDirectFirstOrderProperTimeComponentScaling::update( const std::vector< Eigen::Vector6d >& linkEndStates,
-             const std::vector< double >& times,
-             const observation_models::LinkEndType fixedLinkEnd,
-             const Eigen::VectorXd currentObservation )
+                                                                      const std::vector< double >& times,
+                                                                      const observation_models::LinkEndType fixedLinkEnd,
+                                                                      const Eigen::VectorXd currentObservation )
 {
     // Get relative state
     Eigen::Vector6d relativeState = properTimeRateModel_->getComputationPointRelativeState(
@@ -189,15 +189,15 @@ void OneWayDopplerScaling::update( const std::vector< Eigen::Vector6d >& linkEnd
     {
         lightTimeEffectPositionScalingFactor_ =
                 1.0 / ( ( physical_constants::SPEED_OF_LIGHT - lineOfSightVector.dot( receiverVelocity ) ) *
-                   physical_constants::SPEED_OF_LIGHT ) *
+                        physical_constants::SPEED_OF_LIGHT ) *
                 ( receiverPartialScalingTerm *
-                computePartialOfProjectedLinkEndVelocityWrtAssociatedTime(
-                    ( linkEndStates.at( 1 ) - linkEndStates.at( 0 ) ).segment( 0, 3 ),
-                    receiverVelocity, receiverVelocity, receiverAccelerationFunction_( times.at( 1 ) ), true, true ) +
-                transmitterPartialScalingTerm *
-                computePartialOfProjectedLinkEndVelocityWrtAssociatedTime(
-                    ( linkEndStates.at( 1 ) - linkEndStates.at( 0 ) ).segment( 0, 3 ),
-                    transmitterVelocity, receiverVelocity, Eigen::Vector3d::Zero( ), true, true ) );
+                  computePartialOfProjectedLinkEndVelocityWrtAssociatedTime(
+                      ( linkEndStates.at( 1 ) - linkEndStates.at( 0 ) ).segment( 0, 3 ),
+                      receiverVelocity, receiverVelocity, receiverAccelerationFunction_( times.at( 1 ) ), true, true ) +
+                  transmitterPartialScalingTerm *
+                  computePartialOfProjectedLinkEndVelocityWrtAssociatedTime(
+                      ( linkEndStates.at( 1 ) - linkEndStates.at( 0 ) ).segment( 0, 3 ),
+                      transmitterVelocity, receiverVelocity, Eigen::Vector3d::Zero( ), true, true ) );
     }
 
 
@@ -303,34 +303,39 @@ int OneWayDopplerScaling::getProperTimeParameterDependencySize(
 }
 
 //! Function to get the direct partial derivatives, and associated times, of proper time components of Doppler partials
-std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > OneWayDopplerScaling::getProperTimeParameterPartial(
-        const estimatable_parameters::EstimatebleParameterIdentifier parameterType  )
+std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > OneWayDopplerScaling::getLinkIndependentPartials(
+        const estimatable_parameters::EstimatebleParameterIdentifier parameterType )
 {
-    std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > transmitterPartial =
-            transmitterProperTimePartials_->getProperTimeParameterPartial( parameterType );
-    std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > receiverPartial =
-            receiverProperTimePartials_->getProperTimeParameterPartial( parameterType );
-
     std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > totalPartial;
-    if( transmitterPartial.first.rows( ) == receiverPartial.first.rows( ) )
-    {
-        totalPartial.push_back( transmitterPartial );
-        totalPartial.push_back( receiverPartial );
 
-        totalPartial[ totalPartial.size( ) - 1 ].first *= -1.0;
-    }
-    else if( transmitterPartial.first.rows( ) == 0 )
+    if( parameterType.first == estimatable_parameters::equivalence_principle_lpi_violation_parameter )
     {
-        totalPartial.push_back( receiverPartial );
-        totalPartial[ totalPartial.size( ) - 1 ].first *= -1.0;
-    }
-    else if( receiverPartial.first.rows( ) == 0 )
-    {
-        totalPartial.push_back( transmitterPartial );
-    }
-    else
-    {
-        throw std::runtime_error( "Error, proper time parameter partials have inconsistent size" );
+        std::cout<<"Partials null "<<transmitterProperTimePartials_<<" "<<receiverProperTimePartials_<<std::endl;
+        std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > transmitterPartial =
+                transmitterProperTimePartials_->getProperTimeParameterPartial( parameterType );
+        std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > receiverPartial =
+                receiverProperTimePartials_->getProperTimeParameterPartial( parameterType );
+
+        if( transmitterPartial.first.rows( ) == receiverPartial.first.rows( ) )
+        {
+            totalPartial.push_back( transmitterPartial );
+            totalPartial.push_back( receiverPartial );
+
+            totalPartial[ totalPartial.size( ) - 1 ].first *= -1.0;
+        }
+        else if( transmitterPartial.first.rows( ) == 0 )
+        {
+            totalPartial.push_back( receiverPartial );
+            totalPartial[ totalPartial.size( ) - 1 ].first *= -1.0;
+        }
+        else if( receiverPartial.first.rows( ) == 0 )
+        {
+            totalPartial.push_back( transmitterPartial );
+        }
+        else
+        {
+            throw std::runtime_error( "Error, proper time parameter partials have inconsistent size" );
+        }
     }
     return totalPartial;
 }
@@ -415,13 +420,14 @@ OneWayDopplerPartial::OneWayDopplerPartialReturnType OneWayDopplerPartial::calcu
 
         returnPartial.push_back( lighTimeCorrectionPartialsFunctions_.at( i )( states, times ) );
         returnPartial[ returnPartial.size( ) - 1 ].first *=
-                physical_constants::SPEED_OF_LIGHT * oneWayDopplerScaler_->getLightTimeCorrectionPartialScaling( );
+                physical_constants::SPEED_OF_LIGHT * oneWayDopplerScaler_->getLightTimePartialScalingFactor( );
     }
 
     if( addProperTimeParameterPartials_ )
     {
-        OneWayDopplerPartialReturnType properTimeReturnPartials = oneWayDopplerScaler_->getProperTimeParameterPartial(
+        OneWayDopplerPartialReturnType properTimeReturnPartials = oneWayDopplerScaler_->getLinkIndependentPartials(
                     parameterIdentifier_ );
+        std::cout<<"LPI partial (Doppler) "<<returnPartial.size( )<<" "<<properTimeReturnPartials.size( )<<std::endl;
         for( unsigned int i = 0; i < properTimeReturnPartials.size( ); i++ )
         {
             returnPartial.push_back( properTimeReturnPartials.at( i ) );

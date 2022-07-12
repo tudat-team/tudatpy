@@ -71,12 +71,7 @@ public:
 
     OneWayLinkPositionPartialScaling( const observation_models::ObservableType observableType ):
         observableType_( observableType )
-    {
-        if( observableType == observation_models::one_way_doppler )
-        {
-            doesVelocityScalingFactorExist_ = true;
-        }
-    }
+    { }
 
     virtual ~OneWayLinkPositionPartialScaling( ){ }
 
@@ -97,6 +92,28 @@ public:
     }
 
     virtual bool isVelocityScalingNonZero( )
+    {
+        return false;
+    }
+
+    virtual std::vector< std::pair< Eigen::Matrix< double, ObservationSize, Eigen::Dynamic >, double > > getLinkIndependentPartials(
+            const estimatable_parameters::EstimatebleParameterIdentifier parameterType )
+    {
+        if( useLinkIndependentPartials( ) == false )
+        {
+            throw std::runtime_error( "Error when getting link independent partials of observable type " +
+                                      observation_models::getObservableName( observableType_) +
+                                      ", no such model is defined." );
+        }
+        else
+        {
+            throw std::runtime_error( "Error when getting link independent partials of observable type " +
+                                      observation_models::getObservableName( observableType_) +
+                                      ", derived class model is not implemented." );
+        }
+    }
+
+    virtual bool useLinkIndependentPartials( )
     {
         return false;
     }

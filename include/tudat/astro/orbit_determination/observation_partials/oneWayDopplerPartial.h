@@ -203,7 +203,7 @@ private:
  *  Derived class for scaling three-dimensional position partial to one-way doppler observable partial. Implementation is taken
  *  from Moyer(2000) and is separately implemented for fixed receiver and transmitter.
  */
-class OneWayDopplerScaling: public PositionPartialScaling
+class OneWayDopplerScaling: public OneWayLinkPositionPartialScaling< 1 >
 {
 public:
 
@@ -222,10 +222,16 @@ public:
             const std::function< Eigen::Vector3d( const double ) > receiverAccelerationFunction,
             const std::shared_ptr< OneWayDopplerProperTimeComponentScaling > transmitterProperTimePartials = nullptr,
             const std::shared_ptr< OneWayDopplerProperTimeComponentScaling > receiverProperTimePartials = nullptr ):
+        OneWayLinkPositionPartialScaling< 1 >( observation_models::one_way_doppler ),
         transmitterAccelerationFunction_( transmitterAccelerationFunction ),
         receiverAccelerationFunction_( receiverAccelerationFunction ),
         transmitterProperTimePartials_( transmitterProperTimePartials ),
-        receiverProperTimePartials_( receiverProperTimePartials ){ }
+        receiverProperTimePartials_( receiverProperTimePartials )
+    {
+        std::cout<<"Partials null in constructor "<<transmitterProperTimePartials_<<" "<<receiverProperTimePartials_<<std::endl;
+
+        this->doesVelocityScalingFactorExist_ = true;
+    }
 
     //! Destructor
     ~OneWayDopplerScaling( ){ }
@@ -277,9 +283,14 @@ public:
      *  Function to return factor by which light-time correction state partial is to be scaled to be added to one-way
      *  \return Factor by which light-time correction state partial is to be scaled for  one-way Doppler partial
      */
-    double getLightTimeCorrectionPartialScaling( )
+    Eigen::Vector1d getLightTimePartialScalingFactor( )
     {
-        return lightTimeEffectPositionScalingFactor_;
+        return ( Eigen::Vector1d( ) << lightTimeEffectPositionScalingFactor_ ).finished( );
+    }
+
+    bool isVelocityScalingNonZero( )
+    {
+        return true;
     }
 
     //! Function to return object used to compute the contribution of transmitter proper time rate to the scaling
@@ -320,8 +331,14 @@ public:
      *  \param parameterType Parameter for which partial is to be checked
      *  \return Direct partial derivatives, and associated times, of proper time components of Doppler partials
      */
-    std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > getProperTimeParameterPartial(
-            const estimatable_parameters::EstimatebleParameterIdentifier parameterType  );
+    std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > getLinkIndependentPartials(
+            const estimatable_parameters::EstimatebleParameterIdentifier parameterType );
+
+    bool useLinkIndependentPartials( )
+    {
+        return ( transmitterProperTimePartials_ != nullptr ) || ( receiverProperTimePartials_ != nullptr );
+    }
+
 
 private:
 

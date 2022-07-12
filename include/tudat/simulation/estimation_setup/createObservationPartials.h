@@ -305,7 +305,7 @@ public:
                         observationModelList, bodies, parametersToEstimate );
             break;
         case observation_models::one_way_doppler:
-            observationPartialList = createOneWayDopplerPartials< ObservationScalarType, TimeType >(
+            observationPartialList = createSingleLinkObservationPartialsList< ObservationScalarType, TimeType, 1 >(
                         observationModelList, bodies, parametersToEstimate );
             break;
         case observation_models::two_way_doppler:

@@ -47,6 +47,7 @@ public:
         ObservationPartial< ObservationSize >( parameterIdentifier ), positionPartialScaler_( positionPartialScaler ),
         positionPartialList_( positionPartialList )
     {
+        std::cout<<"CREATING PARTIAL "<<parameterIdentifier.first<<" "<<parameterIdentifier.second.first<<std::endl;
         stateEntryIndices_ = observation_models::getSingleLinkStateEntryIndices( positionPartialScaler->getObservableType( ) );
 
         std::pair< std::function< SingleLightTimePartialReturnType(
@@ -91,7 +92,9 @@ public:
             throw std::runtime_error( "Error observation partial and scaling are inconsistent" );
         }
 
+
         ObservationPartialReturnType returnPartial;
+        std::cout<<"Calculating partial (pre) "<<returnPartial.size( )<<" "<<this->parameterIdentifier_.first<<std::endl;
 
         // Iterate over all link ends
         for( positionPartialIterator_ = positionPartialList_.begin( ); positionPartialIterator_ != positionPartialList_.end( );
@@ -102,22 +105,53 @@ public:
             currentState_  = states[ currentIndex ];
             currentTime_ = times[ currentIndex ];
 
-            // Scale position partials
-            returnPartial.push_back(
-                        std::make_pair(
-                            positionPartialScaler_->getPositionScalingFactor( positionPartialIterator_->first ) *
-                            ( positionPartialIterator_->second->calculatePartialOfPosition(
-                                  currentState_ , currentTime_ ) ), currentTime_ ) );
+            if( positionPartialScaler_->isVelocityScalingNonZero( ) )
+            {
+                // Scale position partials
+                returnPartial.push_back(
+                            std::make_pair(
+                                positionPartialScaler_->getPositionScalingFactor( positionPartialIterator_->first ) *
+                                ( positionPartialIterator_->second->calculatePartialOfPosition(
+                                      currentState_ , currentTime_ ) ) +
+                                positionPartialScaler_->getVelocityScalingFactor( positionPartialIterator_->first ) *
+                                ( positionPartialIterator_->second->calculatePartialOfVelocity(
+                                      currentState_ , currentTime_ ) ), currentTime_ ) );
+            }
+            else
+            {
+                returnPartial.push_back(
+                            std::make_pair(
+                                positionPartialScaler_->getPositionScalingFactor( positionPartialIterator_->first ) *
+                                ( positionPartialIterator_->second->calculatePartialOfPosition(
+                                      currentState_ , currentTime_ ) ), currentTime_ ) );
+            }
+            std::cout<<"Calculating partial (post state) "<<returnPartial.size( )<<" "<<this->parameterIdentifier_.first<<std::endl;
+
         }
 
         // Add scaled light-time correcion partials.
         for( unsigned int i = 0; i < lighTimeCorrectionPartialsFunctions_.size( ); i++ )
         {
+
             currentLinkTimeCorrectionPartial_ = lighTimeCorrectionPartialsFunctions_.at( i )( states, times );
             returnPartial.push_back(
                         std::make_pair( positionPartialScaler_->getLightTimePartialScalingFactor( ) *
                                         physical_constants::SPEED_OF_LIGHT * currentLinkTimeCorrectionPartial_.first,
-                        currentLinkTimeCorrectionPartial_.second ) );
+                                        currentLinkTimeCorrectionPartial_.second ) );
+            std::cout<<"Calculating partial (post parameter) "<<returnPartial.size( )<<" "<<this->parameterIdentifier_.first<<std::endl;
+
+        }
+
+        if( useLinkIndependentPartials( ) )
+        {
+            std::vector< std::pair< Eigen::Matrix< double, ObservationSize, Eigen::Dynamic >, double > > additionalPartials =
+                    positionPartialScaler_->getLinkIndependentPartials( this->parameterIdentifier_ );
+            std::cout<<"LPI partial (generic) "<<returnPartial.size( )<<" "<<additionalPartials.size( )<<std::endl;
+            for( unsigned int i = 0; i < additionalPartials.size( ); i++ )
+            {
+                returnPartial.push_back( additionalPartials.at( i ) );
+            }
+
         }
 
         return returnPartial;
@@ -141,6 +175,11 @@ public:
     int getNumberOfLighTimeCorrectionPartialsFunctions( )
     {
         return lighTimeCorrectionPartialsFunctions_.size( );
+    }
+
+    virtual bool useLinkIndependentPartials( )
+    {
+        return positionPartialScaler_->useLinkIndependentPartials( );
     }
 
 protected:

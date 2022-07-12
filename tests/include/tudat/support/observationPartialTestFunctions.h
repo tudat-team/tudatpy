@@ -171,10 +171,13 @@ void testObservationPartials(
 
         std::shared_ptr<ObservationPartialCreator<ObservableSize, double, double> > observationPartialCreator =
                 std::make_shared<ObservationPartialCreator<ObservableSize, double, double> >();
+        std::cout<<"Creating analytical partial "<<std::endl;
         std::pair<std::map<std::pair<int, int>, std::shared_ptr<ObservationPartial<ObservableSize> > >,
                 std::shared_ptr<PositionPartialScaling> > fullAnalyticalPartialSet =
                 observationPartialCreator->createObservationPartials(
                         observableType, observationModelList, bodies, fullEstimatableParameterSet).begin()->second;
+        std::cout<<"Created analytical partial "<<fullAnalyticalPartialSet.first.size( )<<std::endl;
+
         std::shared_ptr<PositionPartialScaling> positionPartialScaler = fullAnalyticalPartialSet.second;
 
 
@@ -229,7 +232,8 @@ void testObservationPartials(
                     }
 
                     // Associated times for partial derivatives w.r.t. gamma not yet fully consistent (no impact on estimation)
-                    if (i < 2) {
+                    if (i < 2)
+                    {
 
                         BOOST_CHECK_EQUAL(analyticalObservationPartials[i].size(), expectedPartialTimes[i].size());
                     }
@@ -365,6 +369,8 @@ void testObservationPartials(
                             currentParameterPartial += analyticalObservationPartials[i + numberOfEstimatedBodies][j].first;
 
                         }
+                        std::cout<<"Partial "<<currentParameterPartial<<std::endl<<std::endl<<
+                                   numericalPartialsWrtDoubleParameters[i]<<std::endl<<std::endl<<std::endl;
                         TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                                 currentParameterPartial, (numericalPartialsWrtDoubleParameters[i]), tolerance);
                     }
@@ -395,14 +401,20 @@ void testObservationPartials(
                     Eigen::MatrixXd currentParameterPartial;
                     int startIndex = bodiesWithEstimatedTranslationalState.size() + bodiesWithEstimatedRotationalState.size() +
                                      doubleParameterVector.size();
-                    for (unsigned int i = 0; i < numericalPartialsWrtVectorParameters.size(); i++) {
+                    for (unsigned int i = 0; i < numericalPartialsWrtVectorParameters.size(); i++)
+                    {
                         currentParameterPartial = Eigen::MatrixXd::Zero(
                                 ObservableSize, vectorParameterVector.at(i)->getParameterSize());
+                        std::cout<<"A "<<i<<" "<<startIndex<<std::endl<<numericalPartialsWrtVectorParameters[i]<<std::endl<<std::endl;
+                        std::cout<<"B "<<i - startIndex<<" "<<analyticalObservationPartials.size( )<<std::endl<<std::endl;
 
-                        for (unsigned int j = 0; j < analyticalObservationPartials[i + startIndex].size(); j++) {
+                        for (unsigned int j = 0; j < analyticalObservationPartials[i + startIndex].size(); j++)
+                        {
                             currentParameterPartial += analyticalObservationPartials[i + startIndex][j].first;
 
                         }
+                        std::cout<<"C "<<i<<std::endl;
+
                         TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                                 (currentParameterPartial), (numericalPartialsWrtVectorParameters[i]), tolerance);
                     }

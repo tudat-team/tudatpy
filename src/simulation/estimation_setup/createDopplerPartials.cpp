@@ -57,35 +57,35 @@ std::shared_ptr< OneWayDopplerPartial > createOneWayDopplerPartialWrtBodyState(
     return oneWayDopplerPartial;
 }
 
-//! Function to create an object that computes the scaling of the state partials to obtain proper time rate partials
-std::shared_ptr< OneWayDopplerProperTimeComponentScaling > createDopplerProperTimePartials(
-        const std::shared_ptr< observation_models::DopplerProperTimeRateInterface > dopplerProperTimeInterface,
-        const observation_models::LinkEnds oneWayDopplerLinkEnds,
-        const observation_models::LinkEndType linkEndAtWhichPartialIsComputed )
-{
-    std::shared_ptr< OneWayDopplerProperTimeComponentScaling >  properTimeRateDopplerPartial = nullptr;
-    if( dopplerProperTimeInterface == nullptr )
-    {
-        properTimeRateDopplerPartial = nullptr;
-    }
-    else if( std::dynamic_pointer_cast< observation_models::DirectFirstOrderDopplerProperTimeRateInterface >(
-                 dopplerProperTimeInterface ) != nullptr )
-    {
-        bool computeStatePartials = ( oneWayDopplerLinkEnds.at( linkEndAtWhichPartialIsComputed ).bodyName_ !=
-                std::dynamic_pointer_cast< observation_models::DirectFirstOrderDopplerProperTimeRateInterface >(
-                    dopplerProperTimeInterface )->getCentralBody( ) );
-        properTimeRateDopplerPartial = std::make_shared< OneWayDopplerDirectFirstOrderProperTimeComponentScaling >(
-                    std::dynamic_pointer_cast< observation_models::DirectFirstOrderDopplerProperTimeRateInterface >(
-                        dopplerProperTimeInterface ), linkEndAtWhichPartialIsComputed, computeStatePartials );
-    }
-    else
-    {
-        std::cerr << "Warning, proper time contribution to Doppler observable not incorporated into Doppler partial " << std::endl;
-        properTimeRateDopplerPartial = nullptr;
-    }
-    return properTimeRateDopplerPartial;
+////! Function to create an object that computes the scaling of the state partials to obtain proper time rate partials
+//std::shared_ptr< OneWayDopplerProperTimeComponentScaling > createDopplerProperTimePartials(
+//        const std::shared_ptr< observation_models::DopplerProperTimeRateInterface > dopplerProperTimeInterface,
+//        const observation_models::LinkEnds oneWayDopplerLinkEnds,
+//        const observation_models::LinkEndType linkEndAtWhichPartialIsComputed )
+//{
+//    std::shared_ptr< OneWayDopplerProperTimeComponentScaling >  properTimeRateDopplerPartial = nullptr;
+//    if( dopplerProperTimeInterface == nullptr )
+//    {
+//        properTimeRateDopplerPartial = nullptr;
+//    }
+//    else if( std::dynamic_pointer_cast< observation_models::DirectFirstOrderDopplerProperTimeRateInterface >(
+//                 dopplerProperTimeInterface ) != nullptr )
+//    {
+//        bool computeStatePartials = ( oneWayDopplerLinkEnds.at( linkEndAtWhichPartialIsComputed ).bodyName_ !=
+//                std::dynamic_pointer_cast< observation_models::DirectFirstOrderDopplerProperTimeRateInterface >(
+//                    dopplerProperTimeInterface )->getCentralBody( ) );
+//        properTimeRateDopplerPartial = std::make_shared< OneWayDopplerDirectFirstOrderProperTimeComponentScaling >(
+//                    std::dynamic_pointer_cast< observation_models::DirectFirstOrderDopplerProperTimeRateInterface >(
+//                        dopplerProperTimeInterface ), linkEndAtWhichPartialIsComputed, computeStatePartials );
+//    }
+//    else
+//    {
+//        std::cerr << "Warning, proper time contribution to Doppler observable not incorporated into Doppler partial " << std::endl;
+//        properTimeRateDopplerPartial = nullptr;
+//    }
+//    return properTimeRateDopplerPartial;
 
-}
+//}
 
 }
 
