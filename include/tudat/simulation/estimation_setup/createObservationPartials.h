@@ -19,7 +19,6 @@
 
 #include "tudat/simulation/estimation_setup/createAngularPositionPartials.h"
 #include "tudat/simulation/estimation_setup/createRelativeAngularPositionPartials.h"
-#include "tudat/simulation/estimation_setup/createOneWayRangePartials.h"
 #include "tudat/simulation/estimation_setup/createDopplerPartials.h"
 #include "tudat/simulation/estimation_setup/createDifferencedOneWayRangeRatePartials.h"
 #include "tudat/simulation/estimation_setup/createNWayRangePartials.h"

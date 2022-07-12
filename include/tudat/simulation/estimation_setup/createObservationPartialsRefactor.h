@@ -30,6 +30,7 @@
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/astro/observation_models/observationModel.h"
 #include "tudat/astro/observation_models/oneWayRangeObservationModel.h"
+#include "tudat/astro/observation_models/angularPositionObservationModel.h"
 #include "tudat/astro/observation_models/oneWayDopplerObservationModel.h"
 #include "tudat/simulation/estimation_setup/createLightTimeCorrectionPartials.h"
 
