@@ -428,8 +428,8 @@ public:
         switch( observableType )
         {
         case observation_models::position_observable:
-            observationPartialList = createPositionObservablePartials< ObservationScalarType >(
-                        utilities::createVectorFromMapKeys( observationModelList ), bodies, parametersToEstimate );
+            observationPartialList = createSingleLinkObservationPartialsList< ObservationScalarType, TimeType, 3 >(
+                        observationModelList, bodies, parametersToEstimate );
             break;
         case observation_models::euler_angle_313_observable:
             observationPartialList = createEulerAngleObservablePartials< ObservationScalarType >(
@@ -437,110 +437,14 @@ public:
             break;
 
         case observation_models::velocity_observable:
-            observationPartialList = createVelocityObservablePartials< ObservationScalarType >(
-                        utilities::createVectorFromMapKeys( observationModelList ), bodies, parametersToEstimate );
+            observationPartialList = createSingleLinkObservationPartialsList< ObservationScalarType, TimeType, 3 >(
+                        observationModelList, bodies, parametersToEstimate );
             break;
         default:
             std::string errorMessage =
                     "Error when making observation partial set, could not recognize observable " +
                     std::to_string( observableType ) + " of size 3 ";
             throw std::runtime_error( errorMessage );        }
-        return observationPartialList;
-    }
-
-};
-
-//! Interface class for creating observation partials for observables of size 3.
-template< typename ObservationScalarType, typename TimeType >
-class ObservationPartialCreator< 6, ObservationScalarType, TimeType >
-{
-public:
-
-    //! Function to create a list of observation partial objects, and associated scaling objects
-    /*!
-     * Function to create a list of observation partial objects, and associated scaling objects
-     * \param observableType Type of observable for which partials are to be created
-     * \param observationModelList List of observation models, with the link ends of map key, for which partials are to be created
-     * \param bodies Map of body objects that comprises the environment
-     * \param parametersToEstimate Parameters for which partial derivatives are to be computed
-     * \return Map with list of observation partials. Key is associated link ends. Value is a list of observation partial
-     * objects, one for each parameter w.r.t. which the observation partial is non-zero (in general). The format is a pair
-     * with:
-     * first: map with pair (parameter start entry in parameter vector and parameter size) and associated observation partial
-     * object as value of map
-     * second: PositionPartialScaling object associated with all partials of single LinkEnds.
-     */
-    static std::map< observation_models::LinkEnds, std::pair< std::map< std::pair< int, int >,
-    std::shared_ptr< ObservationPartial< 6 > > >,
-    std::shared_ptr< PositionPartialScaling > > > createObservationPartials(
-            const observation_models::ObservableType observableType,
-            const std::map< observation_models::LinkEnds,
-            std::shared_ptr< observation_models::ObservationModel< 6, ObservationScalarType, TimeType > > >
-            observationModelList,
-            const simulation_setup::SystemOfBodies& bodies,
-            const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > >
-            parametersToEstimate )
-    {
-        std::map< observation_models::LinkEnds, std::pair< std::map< std::pair< int, int >,
-                std::shared_ptr< ObservationPartial< 6 > > >,
-                std::shared_ptr< PositionPartialScaling > > > observationPartialList;
-
-        switch( observableType )
-        {
-        default:
-            std::string errorMessage =
-                    "Error when making observation partial set, could not recognize observable " +
-                    std::to_string( observableType ) + " of size 6 ";
-            throw std::runtime_error( errorMessage );
-        }
-        return observationPartialList;
-    }
-
-};
-
-//! Interface class for creating observation partials for observables of dynamic sizwe.
-template< typename ObservationScalarType, typename TimeType >
-class ObservationPartialCreator< Eigen::Dynamic, ObservationScalarType, TimeType >
-{
-public:
-
-    //! Function to create a list of observation partial objects, and associated scaling objects
-    /*!
-     * Function to create a list of observation partial objects, and associated scaling objects
-     * \param observableType Type of observable for which partials are to be created
-     * \param observationModelList List of observation models, with the link ends of map key, for which partials are to be created
-     * \param bodies Map of body objects that comprises the environment
-     * \param parametersToEstimate Parameters for which partial derivatives are to be computed
-     * \return Map with list of observation partials. Key is associated link ends. Value is a list of observation partial
-     * objects, one for each parameter w.r.t. which the observation partial is non-zero (in general). The format is a pair
-     * with:
-     * first: map with pair (parameter start entry in parameter vector and parameter size) and associated observation partial
-     * object as value of map
-     * second: PositionPartialScaling object associated with all partials of single LinkEnds.
-     */
-    static std::map< observation_models::LinkEnds, std::pair< std::map< std::pair< int, int >,
-    std::shared_ptr< ObservationPartial< Eigen::Dynamic > > >,
-    std::shared_ptr< PositionPartialScaling > > > createObservationPartials(
-            const observation_models::ObservableType observableType,
-            const std::map< observation_models::LinkEnds,
-            std::shared_ptr< observation_models::ObservationModel< Eigen::Dynamic, ObservationScalarType, TimeType > > >
-            observationModelList,
-            const simulation_setup::SystemOfBodies& bodies,
-            const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > >
-            parametersToEstimate )
-    {
-        std::map< observation_models::LinkEnds, std::pair< std::map< std::pair< int, int >,
-                std::shared_ptr< ObservationPartial< Eigen::Dynamic > > >,
-                std::shared_ptr< PositionPartialScaling > > > observationPartialList;
-
-        switch( observableType )
-        {
-        default:
-            std::string errorMessage =
-                    "Error when making observation partial set, could not recognize observable " +
-                    std::to_string( observableType ) + " of size dynamic ";
-            throw std::runtime_error( errorMessage );
-        }
         return observationPartialList;
     }
 

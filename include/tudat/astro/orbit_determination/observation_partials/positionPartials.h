@@ -259,9 +259,12 @@ private:
  *  is trivial for non-relativistic reference frames, it is included in the architecture pending future implementation
  *  of more rigorous reference frames.
  */
-class PositionObservationScaling: public PositionPartialScaling
+class PositionObservationScaling: public OneWayLinkPositionPartialScaling< 3 >
 {
 public:
+
+    PositionObservationScaling( ):
+        OneWayLinkPositionPartialScaling< 3 >( observation_models::position_observable ){ }
 
     //! Destructor
     ~PositionObservationScaling( ){ }
@@ -286,111 +289,121 @@ public:
      * \param linkEndType Link end for which scaling factor is to be returned
      * \return Position partial scaling factor at current link end
      */
-    Eigen::Matrix< double, 3, 3 > getScalingFactor(
+    Eigen::Matrix< double, 3, 3 > getPositionScalingFactor(
             const observation_models::LinkEndType linkEndType )
     {
         return Eigen::Matrix3d::Identity( );
+    }
+
+    virtual Eigen::Matrix< double, 3, 1 > getLightTimePartialScalingFactor( )
+    {
+        throw std::runtime_error( "Error when calculating position partial scaling factor; term non-existent for position observables" );
+    }
+
+    observation_models::LinkEndType getCurrentLinkEndType( )
+    {
+        return observation_models::observed_body;
     }
 
 private:
 
 };
 
-//! Class to compute the partial derivatives of a three-dimensional position observable.
-class PositionObervationPartial: public ObservationPartial< 3 >
-{
+////! Class to compute the partial derivatives of a three-dimensional position observable.
+//class PositionObervationPartial: public ObservationPartial< 3 >
+//{
 
-public:
+//public:
 
-    //! Local typedef for return type (list of partial matrices and associated evaluation times).
-    typedef std::vector< std::pair< Eigen::Matrix< double, 3, Eigen::Dynamic >, double > >
-    PositionObservationPartialReturnType;
+//    //! Local typedef for return type (list of partial matrices and associated evaluation times).
+//    typedef std::vector< std::pair< Eigen::Matrix< double, 3, Eigen::Dynamic >, double > >
+//    PositionObservationPartialReturnType;
 
-    //! Constructor
-    /*!
-     * Constructor
-     * \param positionObservationScaler Scaling object used for mapping partials of positions to partials of observable
-     * \param positionPartialList List of position partial per link end.
-     * \param parameterIdentifier Id of parameter for which instance of class computes partial derivatives
-     */
-    PositionObervationPartial(
-            const std::shared_ptr< PositionObservationScaling > positionObservationScaler,
-            const std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > >& positionPartialList,
-            const estimatable_parameters::EstimatebleParameterIdentifier parameterIdentifier ):
-        ObservationPartial< 3 >( parameterIdentifier ), positionObservationScaler_( positionObservationScaler ),
-        positionPartialList_( positionPartialList )
-    { }
+//    //! Constructor
+//    /*!
+//     * Constructor
+//     * \param positionObservationScaler Scaling object used for mapping partials of positions to partials of observable
+//     * \param positionPartialList List of position partial per link end.
+//     * \param parameterIdentifier Id of parameter for which instance of class computes partial derivatives
+//     */
+//    PositionObervationPartial(
+//            const std::shared_ptr< PositionObservationScaling > positionObservationScaler,
+//            const std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > >& positionPartialList,
+//            const estimatable_parameters::EstimatebleParameterIdentifier parameterIdentifier ):
+//        ObservationPartial< 3 >( parameterIdentifier ), positionObservationScaler_( positionObservationScaler ),
+//        positionPartialList_( positionPartialList )
+//    { }
 
-    //! Destructor
-    ~PositionObervationPartial( ) { }
+//    //! Destructor
+//    ~PositionObervationPartial( ) { }
 
-    //! Fnuction to calculate the observation partial(s) at required time and state
-    /*!
-     *  Function to calculate the observation partial(s) at required time and state. State and time
-     *  are typically obtained from evaluation of observation model.
-     *  \param states Link end stats. Index maps to link end for a given ObsevableType through getLinkEndIndex function.
-     *  \param times Link end time.
-     *  \param linkEndOfFixedTime Link end that is kept fixed when computing the observable.
-     *  \param currentObservation Value of the observation for which the partial is to be computed (default NaN for
-     *  compatibility purposes)
-     *  \return Vector of pairs containing partial values and associated times.
-     */
-    virtual PositionObservationPartialReturnType calculatePartial(
-            const std::vector< Eigen::Vector6d >& states,
-            const std::vector< double >& times,
-            const observation_models::LinkEndType linkEndOfFixedTime,
-            const Eigen::Vector3d& currentObservation = Eigen::Vector3d::Constant( TUDAT_NAN ) )
-    {
-        PositionObservationPartialReturnType returnPartial;
-
-
-        // Iterate over all link ends.
-        for( positionPartialIterator_ = positionPartialList_.begin( );
-             positionPartialIterator_ != positionPartialList_.end( );
-             positionPartialIterator_++ )
-        {
-            // Retrieve link end time and state
-            if( positionPartialIterator_->first == observation_models::observed_body )
-            {
-                currentState_ = states[ 0 ];
-                currentTime_ = times[ 0 ];
-            }
-            else
-            {
-                throw std::runtime_error(
-                            "Error when calculating position observation partial, invalid link end type requested" );
-            }
-
-            // Get position partial and scale with associated term.
-            returnPartial.push_back(
-                        std::make_pair(
-                            positionObservationScaler_->getScalingFactor(
-                                positionPartialIterator_->first ) *
-                            ( positionPartialIterator_->second->calculatePartialOfPosition(
-                                  currentState_, currentTime_ ) ), currentTime_ ) );
-        }
-
-        return returnPartial;
-    }
-
-protected:
-
-    //!  Scaling object used for mapping partials of positions to partials of observable
-    std::shared_ptr< PositionObservationScaling > positionObservationScaler_;
-
-    //! List of position partial per link end.
-    std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > > positionPartialList_;
-
-    //! Iterator over list of position partial per link end (predeclared for efficiency).
-    std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > >::iterator positionPartialIterator_;
+//    //! Fnuction to calculate the observation partial(s) at required time and state
+//    /*!
+//     *  Function to calculate the observation partial(s) at required time and state. State and time
+//     *  are typically obtained from evaluation of observation model.
+//     *  \param states Link end stats. Index maps to link end for a given ObsevableType through getLinkEndIndex function.
+//     *  \param times Link end time.
+//     *  \param linkEndOfFixedTime Link end that is kept fixed when computing the observable.
+//     *  \param currentObservation Value of the observation for which the partial is to be computed (default NaN for
+//     *  compatibility purposes)
+//     *  \return Vector of pairs containing partial values and associated times.
+//     */
+//    virtual PositionObservationPartialReturnType calculatePartial(
+//            const std::vector< Eigen::Vector6d >& states,
+//            const std::vector< double >& times,
+//            const observation_models::LinkEndType linkEndOfFixedTime,
+//            const Eigen::Vector3d& currentObservation = Eigen::Vector3d::Constant( TUDAT_NAN ) )
+//    {
+//        PositionObservationPartialReturnType returnPartial;
 
 
-    //! Pre-declared state variable to be used in calculatePartial function.
-    Eigen::Vector6d currentState_;
+//        // Iterate over all link ends.
+//        for( positionPartialIterator_ = positionPartialList_.begin( );
+//             positionPartialIterator_ != positionPartialList_.end( );
+//             positionPartialIterator_++ )
+//        {
+//            // Retrieve link end time and state
+//            if( positionPartialIterator_->first == observation_models::observed_body )
+//            {
+//                currentState_ = states[ 0 ];
+//                currentTime_ = times[ 0 ];
+//            }
+//            else
+//            {
+//                throw std::runtime_error(
+//                            "Error when calculating position observation partial, invalid link end type requested" );
+//            }
 
-    //! Pre-declared time variable to be used in calculatePartial function.
-    double currentTime_;
-};
+//            // Get position partial and scale with associated term.
+//            returnPartial.push_back(
+//                        std::make_pair(
+//                            positionObservationScaler_->getScalingFactor(
+//                                positionPartialIterator_->first ) *
+//                            ( positionPartialIterator_->second->calculatePartialOfPosition(
+//                                  currentState_, currentTime_ ) ), currentTime_ ) );
+//        }
+
+//        return returnPartial;
+//    }
+
+//protected:
+
+//    //!  Scaling object used for mapping partials of positions to partials of observable
+//    std::shared_ptr< PositionObservationScaling > positionObservationScaler_;
+
+//    //! List of position partial per link end.
+//    std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > > positionPartialList_;
+
+//    //! Iterator over list of position partial per link end (predeclared for efficiency).
+//    std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > >::iterator positionPartialIterator_;
+
+
+//    //! Pre-declared state variable to be used in calculatePartial function.
+//    Eigen::Vector6d currentState_;
+
+//    //! Pre-declared time variable to be used in calculatePartial function.
+//    double currentTime_;
+//};
 
 
 //! Derived class for scaling three-dimensional velocity partial to velocity observable partial
@@ -399,9 +412,12 @@ protected:
  *  is trivial for non-relativistic reference frames, it is included in teh architecture pending future implementation
  *  of more rigorous reference frames.
  */
-class VelocityObservationScaling: public PositionPartialScaling
+class VelocityObservationScaling: public OneWayLinkPositionPartialScaling< 3 >
 {
 public:
+
+    VelocityObservationScaling( ):
+        OneWayLinkPositionPartialScaling< 3 >( observation_models::velocity_observable ){ }
 
     //! Destructor
     ~VelocityObservationScaling( ){ }
@@ -426,10 +442,31 @@ public:
      * \param linkEndType Link end for which scaling factor is to be returned
      * \return Velocity partial scaling factor at current link end
      */
-    Eigen::Matrix< double, 3, 3 > getScalingFactor(
+    Eigen::Matrix< double, 3, 3 > getPositionScalingFactor(
+            const observation_models::LinkEndType linkEndType )
+    {
+        return Eigen::Matrix3d::Zero( );
+    }
+
+    Eigen::Matrix< double, 3, 3 > getVelocityScalingFactor(
             const observation_models::LinkEndType linkEndType )
     {
         return Eigen::Matrix3d::Identity( );
+    }
+
+    virtual Eigen::Matrix< double, 3, 1 > getLightTimePartialScalingFactor( )
+    {
+        throw std::runtime_error( "Error when calculating velocity partial scaling factor; term non-existent for position observables" );
+    }
+
+    observation_models::LinkEndType getCurrentLinkEndType( )
+    {
+        return observation_models::observed_body;
+    }
+
+    virtual bool isVelocityScalingNonZero( )
+    {
+        return true;
     }
 
 private:
@@ -437,101 +474,101 @@ private:
 };
 
 
-//! Class to compute the partial derivatives of a three-dimensional velocity observable.
-class VelocityObervationPartial: public ObservationPartial< 3 >
-{
+////! Class to compute the partial derivatives of a three-dimensional velocity observable.
+//class VelocityObervationPartial: public ObservationPartial< 3 >
+//{
 
-public:
+//public:
 
-    //! Local typedef for return type (list of partial matrices and associated evaluation times).
-    typedef std::vector< std::pair< Eigen::Matrix< double, 3, Eigen::Dynamic >, double > >
-    VelocityObservationPartialReturnType;
+//    //! Local typedef for return type (list of partial matrices and associated evaluation times).
+//    typedef std::vector< std::pair< Eigen::Matrix< double, 3, Eigen::Dynamic >, double > >
+//    VelocityObservationPartialReturnType;
 
-    //! Constructor
-    /*!
-     * Constructor
-     * \param velocityObservationScaler Scaling object used for mapping partials of velocitys to partials of observable
-     * \param velocityPartialList List of velocity partial per link end.
-     * \param parameterIdentifier Id of parameter for which instance of class computes partial derivatives
-     */
-    VelocityObervationPartial(
-            const std::shared_ptr< VelocityObservationScaling > velocityObservationScaler,
-            const std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > >& velocityPartialList,
-            const estimatable_parameters::EstimatebleParameterIdentifier parameterIdentifier ):
-        ObservationPartial< 3 >( parameterIdentifier ), velocityObservationScaler_( velocityObservationScaler ),
-        velocityPartialList_( velocityPartialList )
-    { }
+//    //! Constructor
+//    /*!
+//     * Constructor
+//     * \param velocityObservationScaler Scaling object used for mapping partials of velocitys to partials of observable
+//     * \param velocityPartialList List of velocity partial per link end.
+//     * \param parameterIdentifier Id of parameter for which instance of class computes partial derivatives
+//     */
+//    VelocityObervationPartial(
+//            const std::shared_ptr< VelocityObservationScaling > velocityObservationScaler,
+//            const std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > >& velocityPartialList,
+//            const estimatable_parameters::EstimatebleParameterIdentifier parameterIdentifier ):
+//        ObservationPartial< 3 >( parameterIdentifier ), velocityObservationScaler_( velocityObservationScaler ),
+//        velocityPartialList_( velocityPartialList )
+//    { }
 
-    //! Destructor
-    ~VelocityObervationPartial( ) { }
+//    //! Destructor
+//    ~VelocityObervationPartial( ) { }
 
-    //! Fnuction to calculate the observation partial(s) at required time and state
-    /*!
-     *  Function to calculate the observation partial(s) at required time and state. State and time
-     *  are typically obtained from evaluation of observation model.
-     *  \param states Link end stats. Index maps to link end for a given ObsevableType through getLinkEndIndex function.
-     *  \param times Link end time.
-     *  \param linkEndOfFixedTime Link end that is kept fixed when computing the observable.
-     *  \param currentObservation Value of the observation for which the partial is to be computed (default NaN for
-     *  compatibility purposes)
-     *  \return Vector of pairs containing partial values and associated times.
-     */
-    virtual VelocityObservationPartialReturnType calculatePartial(
-            const std::vector< Eigen::Vector6d >& states,
-            const std::vector< double >& times,
-            const observation_models::LinkEndType linkEndOfFixedTime,
-            const Eigen::Vector3d& currentObservation = Eigen::Vector3d::Constant( TUDAT_NAN ) )
-    {
-        VelocityObservationPartialReturnType returnPartial;
-
-
-        // Iterate over all link ends.
-        for( velocityPartialIterator_ = velocityPartialList_.begin( );
-             velocityPartialIterator_ != velocityPartialList_.end( );
-             velocityPartialIterator_++ )
-        {
-            // Retrieve link end time and state
-            if( velocityPartialIterator_->first == observation_models::observed_body )
-            {
-                currentState_ = states[ 0 ];
-                currentTime_ = times[ 0 ];
-            }
-            else
-            {
-                throw std::runtime_error(
-                            "Error when calculating velocity observation partial, invalid link end type requested" );
-            }
-
-            // Get velocity partial and scale with associated term.
-            returnPartial.push_back(
-                        std::make_pair(
-                            velocityObservationScaler_->getScalingFactor(
-                                velocityPartialIterator_->first ) *
-                            ( velocityPartialIterator_->second->calculatePartialOfVelocity(
-                                  currentState_, currentTime_ ) ), currentTime_ ) );
-        }
-
-        return returnPartial;
-    }
-
-protected:
-
-    //!  Scaling object used for mapping partials of velocitys to partials of observable
-    std::shared_ptr< VelocityObservationScaling > velocityObservationScaler_;
-
-    //! List of velocity partial per link end.
-    std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > > velocityPartialList_;
-
-    //! Iterator over list of velocity partial per link end (predeclared for efficiency).
-    std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > >::iterator velocityPartialIterator_;
+//    //! Fnuction to calculate the observation partial(s) at required time and state
+//    /*!
+//     *  Function to calculate the observation partial(s) at required time and state. State and time
+//     *  are typically obtained from evaluation of observation model.
+//     *  \param states Link end stats. Index maps to link end for a given ObsevableType through getLinkEndIndex function.
+//     *  \param times Link end time.
+//     *  \param linkEndOfFixedTime Link end that is kept fixed when computing the observable.
+//     *  \param currentObservation Value of the observation for which the partial is to be computed (default NaN for
+//     *  compatibility purposes)
+//     *  \return Vector of pairs containing partial values and associated times.
+//     */
+//    virtual VelocityObservationPartialReturnType calculatePartial(
+//            const std::vector< Eigen::Vector6d >& states,
+//            const std::vector< double >& times,
+//            const observation_models::LinkEndType linkEndOfFixedTime,
+//            const Eigen::Vector3d& currentObservation = Eigen::Vector3d::Constant( TUDAT_NAN ) )
+//    {
+//        VelocityObservationPartialReturnType returnPartial;
 
 
-    //! Pre-declared state variable to be used in calculatePartial function.
-    Eigen::Vector6d currentState_;
+//        // Iterate over all link ends.
+//        for( velocityPartialIterator_ = velocityPartialList_.begin( );
+//             velocityPartialIterator_ != velocityPartialList_.end( );
+//             velocityPartialIterator_++ )
+//        {
+//            // Retrieve link end time and state
+//            if( velocityPartialIterator_->first == observation_models::observed_body )
+//            {
+//                currentState_ = states[ 0 ];
+//                currentTime_ = times[ 0 ];
+//            }
+//            else
+//            {
+//                throw std::runtime_error(
+//                            "Error when calculating velocity observation partial, invalid link end type requested" );
+//            }
 
-    //! Pre-declared time variable to be used in calculatePartial function.
-    double currentTime_;
-};
+//            // Get velocity partial and scale with associated term.
+//            returnPartial.push_back(
+//                        std::make_pair(
+//                            velocityObservationScaler_->getScalingFactor(
+//                                velocityPartialIterator_->first ) *
+//                            ( velocityPartialIterator_->second->calculatePartialOfVelocity(
+//                                  currentState_, currentTime_ ) ), currentTime_ ) );
+//        }
+
+//        return returnPartial;
+//    }
+
+//protected:
+
+//    //!  Scaling object used for mapping partials of velocitys to partials of observable
+//    std::shared_ptr< VelocityObservationScaling > velocityObservationScaler_;
+
+//    //! List of velocity partial per link end.
+//    std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > > velocityPartialList_;
+
+//    //! Iterator over list of velocity partial per link end (predeclared for efficiency).
+//    std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > >::iterator velocityPartialIterator_;
+
+
+//    //! Pre-declared state variable to be used in calculatePartial function.
+//    Eigen::Vector6d currentState_;
+
+//    //! Pre-declared time variable to be used in calculatePartial function.
+//    double currentTime_;
+//};
 
 }
 
