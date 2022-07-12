@@ -110,19 +110,19 @@ std::shared_ptr< OneWayDopplerPartial > createOneWayDopplerPartialWrtBodyState(
         lightTimeCorrectionPartialObjects =
         std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > >( ) );
 
-//! Function to create an object that computes the scaling of the state partials to obtain proper time rate partials
-/*!
- * Function to create an object that computes the scaling of the state partials to obtain proper time rate partials. A single
- * scaling object is used for a single link end of the one-way Doppler partials
- * \param dopplerProperTimeInterface Object that is used to computed proper-time rate in one-way Doppler modelkkl
- * \param oneWayDopplerLinkEnds Link ends of observable
- * \param linkEndAtWhichPartialIsComputed Link end for which proper-time partials are to be created
- * \return Scaling object for proper-time rate partials
- */
-std::shared_ptr< OneWayDopplerProperTimeComponentScaling > createDopplerProperTimePartials(
-        const std::shared_ptr< observation_models::DopplerProperTimeRateInterface > dopplerProperTimeInterface,
-        const observation_models::LinkEnds oneWayDopplerLinkEnds,
-        const observation_models::LinkEndType linkEndAtWhichPartialIsComputed  );
+////! Function to create an object that computes the scaling of the state partials to obtain proper time rate partials
+///*!
+// * Function to create an object that computes the scaling of the state partials to obtain proper time rate partials. A single
+// * scaling object is used for a single link end of the one-way Doppler partials
+// * \param dopplerProperTimeInterface Object that is used to computed proper-time rate in one-way Doppler modelkkl
+// * \param oneWayDopplerLinkEnds Link ends of observable
+// * \param linkEndAtWhichPartialIsComputed Link end for which proper-time partials are to be created
+// * \return Scaling object for proper-time rate partials
+// */
+//std::shared_ptr< OneWayDopplerProperTimeComponentScaling > createDopplerProperTimePartials(
+//        const std::shared_ptr< observation_models::DopplerProperTimeRateInterface > dopplerProperTimeInterface,
+//        const observation_models::LinkEnds oneWayDopplerLinkEnds,
+//        const observation_models::LinkEndType linkEndAtWhichPartialIsComputed  );
 
 //! Function to generate one-way doppler partials and associated scaler for single link end.
 /*!
@@ -179,7 +179,8 @@ std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialSca
             createDopplerProperTimePartials( receiverDopplerProperTimeInterface, oneWayDopplerLinkEnds,
                                              observation_models::receiver  );
 
-    std::shared_ptr< OneWayDopplerScaling > oneWayDopplerScaling = std::make_shared< OneWayDopplerScaling >(
+    std::shared_ptr< OneWayDopplerScaling > oneWayDopplerScaling =
+            std::make_shared< OneWayDopplerScaling >(
                 std::bind( &linear_algebra::evaluateSecondBlockInStateVector, transmitterNumericalStateDerivativeFunction, std::placeholders::_1 ),
                 std::bind( &linear_algebra::evaluateSecondBlockInStateVector, receiverNumericalStateDerivativeFunction, std::placeholders::_1 ),
                 transmitterProperTimePartials,
@@ -446,7 +447,7 @@ std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialSca
                         currentLinkEnds, bodies, parametersToEstimate, transmitterDopplerProperTimeInterface,
                         receiverDopplerProperTimeInterface, currentLightTimeCorrections, false ) );
         constituentOneWayRangePartials.push_back(
-                    createSingleLinkObservationPartials< ParameterType, 1 >(
+                    createSingleLinkObservationPartials< ParameterType, 1, TimeType >(
                         currentLinkEnds, observation_models::one_way_range, bodies, parametersToEstimate, currentLightTimeCorrections ) );
     }
 

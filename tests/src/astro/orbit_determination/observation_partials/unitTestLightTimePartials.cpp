@@ -95,7 +95,7 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartialsWrtLightTimeParameters )
 
         // Create partial objects.
         std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialScaling > > partialList =
-                createSingleLinkObservationPartials( linkEnds, observation_models::one_way_range, bodies, parametersToEstimate,
+                createSingleLinkObservationPartials< double, 1 >( linkEnds, observation_models::one_way_range, bodies, parametersToEstimate,
                                            oneWayRangeModel->getLightTimeCalculator( )->getLightTimeCorrection( ) );
         std::shared_ptr< PositionPartialScaling > positionPartialScaler = partialList.second;
 
