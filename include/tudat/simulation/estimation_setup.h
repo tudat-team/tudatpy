@@ -12,7 +12,6 @@
 #define TUDAT_ESTIMATION_SETUP_H
 
 #include "estimation_setup/createAccelerationPartials.h"
-#include "estimation_setup/createAngularPositionPartials.h"
 #include "estimation_setup/createCartesianStatePartials.h"
 #include "estimation_setup/createDifferencedOneWayRangeRatePartials.h"
 #include "estimation_setup/createDopplerPartials.h"
@@ -26,7 +25,6 @@
 #include "estimation_setup/createObservationManager.h"
 #include "estimation_setup/createObservationModel.h"
 #include "estimation_setup/createObservationPartials.h"
-#include "estimation_setup/createOneWayRangePartials.h"
 #include "estimation_setup/createStateDerivativePartials.h"
 #include "estimation_setup/createTorquePartials.h"
 #include "estimation_setup/determinePostFitParameterInfluence.h"
