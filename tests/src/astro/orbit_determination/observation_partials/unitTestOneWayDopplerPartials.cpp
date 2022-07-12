@@ -218,7 +218,6 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
 
         for( unsigned int estimationCase  = 0; estimationCase  < 3; estimationCase ++ )
         {
-            std::cout << "Case " << estimationCase << std::endl;
             // Generate one-way doppler model
             std::shared_ptr< ObservationModel< 1 > > oneWayDopplerModel;
             std::vector< std::string > perturbingBodies;
@@ -256,7 +255,6 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
                 parameterPerturbationMultipliers( 2 ) = 1.0E-4;
             }
 
-            std::cout<<"A"<<std::endl;
             testObservationPartials< 1 >(
                         oneWayDopplerModel, bodies, fullEstimatableParameterSet, linkEnds, one_way_doppler, 1.0E-5,
                         true, true, 10.0, parameterPerturbationMultipliers );
@@ -357,7 +355,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
         std::map< LinkEnds, std::shared_ptr< ObservationModel< 1 > > > observationModelList;
         observationModelList[ linkEnds ] = oneWayDopplerModel;
         std::map< LinkEnds, std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialScaling > > > dopplerPartials =
-                createOneWayDopplerPartials( observationModelList, bodies, fullEstimatableParameterSet );
+                createSingleLinkObservationPartialsList< double, double, 1 >( observationModelList, bodies, fullEstimatableParameterSet );
 
         // Retrieve  scaling objects and partials with proper time
         std::shared_ptr< OneWayDopplerScaling > partialScalingObject =
@@ -368,11 +366,11 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
         std::shared_ptr< OneWayDopplerProperTimeComponentScaling > receiverProperTimePartials =
                 partialScalingObject->getReceiverProperTimePartials( );
 
-        std::shared_ptr< OneWayDopplerPartial > earthStatePartial =
-                std::dynamic_pointer_cast< OneWayDopplerPartial >(
+        std::shared_ptr< OneWayLinkObservationPartial< 1 > > earthStatePartial =
+                std::dynamic_pointer_cast< OneWayLinkObservationPartial< 1 > >(
                     ( dopplerPartials.begin( )->second.first ).begin( )->second );
-        std::shared_ptr< OneWayDopplerPartial > marsStatePartial =
-                std::dynamic_pointer_cast< OneWayDopplerPartial >(
+        std::shared_ptr< OneWayLinkObservationPartial< 1 > > marsStatePartial =
+                std::dynamic_pointer_cast< OneWayLinkObservationPartial< 1 > >(
                     ( ++( ( dopplerPartials.begin( )->second.first ).begin( ) ) )->second );
 
         // Compute nominal observation with proper time
@@ -386,13 +384,16 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
         // Compute partials with proper time.
         partialScalingObject->update(
                     linkEndStates, linkEndTimes, referenceLinkEnd, nominalObservable );
+
         std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > earthStatePartialOutput =
                 earthStatePartial->calculatePartial( linkEndStates, linkEndTimes, referenceLinkEnd, nominalObservable );
+
         std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > marsStatePartialOutput =
                 marsStatePartial->calculatePartial( linkEndStates, linkEndTimes, referenceLinkEnd, nominalObservable );
 
         // Compute numerical proper time rate partials and compare to analytical results
         {
+
             std::function< Eigen::VectorXd( const double ) > transmitterProperTimeRateFunction =
                     std::bind( &getProperTimeRateInVectorForm,
                                  transmitterProperTimeRateCalculator,
@@ -467,16 +468,16 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
         observationModelList.clear( );
         observationModelList[ linkEnds ] = oneWayDopplerModelWithoutProperTime;
         std::map< LinkEnds, std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialScaling > > > dopplerPartialsWithoutProperTime =
-                createOneWayDopplerPartials( observationModelList, bodies, fullEstimatableParameterSet );
+                createSingleLinkObservationPartialsList< double, double, 1 >( observationModelList, bodies, fullEstimatableParameterSet );
 
         // Retrieve partial object without proper time
         std::shared_ptr< OneWayDopplerScaling > partialScalingObjectWithoutProperTime =
                 std::dynamic_pointer_cast< OneWayDopplerScaling >( dopplerPartialsWithoutProperTime.begin( )->second.second );
-        std::shared_ptr< OneWayDopplerPartial > earthStatePartialWithoutProperTime =
-                std::dynamic_pointer_cast< OneWayDopplerPartial >(
+        std::shared_ptr< OneWayLinkObservationPartial< 1 > > earthStatePartialWithoutProperTime =
+                std::dynamic_pointer_cast< OneWayLinkObservationPartial< 1 > >(
                     ( dopplerPartialsWithoutProperTime.begin( )->second.first ).begin( )->second );
-        std::shared_ptr< OneWayDopplerPartial > marsStatePartialWithoutProperTime =
-                std::dynamic_pointer_cast< OneWayDopplerPartial >(
+        std::shared_ptr< OneWayLinkObservationPartial< 1 > > marsStatePartialWithoutProperTime =
+                std::dynamic_pointer_cast< OneWayLinkObservationPartial< 1 > >(
                     ( ++( ( dopplerPartialsWithoutProperTime.begin( )->second.first ).begin( ) ) )->second );
 
         // Compute nominal observation without proper time
