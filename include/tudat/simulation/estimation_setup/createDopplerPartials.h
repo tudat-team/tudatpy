@@ -24,6 +24,7 @@
 #include "tudat/astro/observation_models/corrections/lightTimeCorrection.h"
 #include "tudat/simulation/estimation_setup/createCartesianStatePartials.h"
 #include "tudat/simulation/estimation_setup/createLightTimeCalculator.h"
+#include "tudat/simulation/estimation_setup/createObservationPartialsRefactor.h"
 #include "tudat/astro/orbit_determination/observation_partials/oneWayDopplerPartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/twoWayDopplerPartial.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/initialTranslationalState.h"
@@ -445,8 +446,8 @@ std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialSca
                         currentLinkEnds, bodies, parametersToEstimate, transmitterDopplerProperTimeInterface,
                         receiverDopplerProperTimeInterface, currentLightTimeCorrections, false ) );
         constituentOneWayRangePartials.push_back(
-                    createOneWayRangePartials( currentLinkEnds, bodies, parametersToEstimate,
-                                               currentLightTimeCorrections ) );
+                    createSingleLinkObservationPartials< ParameterType, 1 >(
+                        currentLinkEnds, observation_models::one_way_range, bodies, parametersToEstimate, currentLightTimeCorrections ) );
     }
 
     // Retrieve sorted (by parameter index and link index) one-way range partials and (by link index) opne-way range partials

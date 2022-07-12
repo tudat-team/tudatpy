@@ -22,6 +22,7 @@
 #include "tudat/simulation/estimation_setup/createObservationModel.h"
 #include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
 #include "tudat/simulation/estimation_setup/createLightTimeCorrectionPartials.h"
+#include "tudat/simulation/estimation_setup/createObservationPartialsRefactor.h"
 #include "tudat/astro/orbit_determination/observation_partials/firstOrderRelativisticPartial.h"
 #include "tudat/support/observationPartialTestFunctions.h"
 
@@ -94,7 +95,7 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartialsWrtLightTimeParameters )
 
         // Create partial objects.
         std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialScaling > > partialList =
-                createOneWayRangePartials( linkEnds, bodies, parametersToEstimate,
+                createSingleLinkObservationPartials( linkEnds, observation_models::one_way_range, bodies, parametersToEstimate,
                                            oneWayRangeModel->getLightTimeCalculator( )->getLightTimeCorrection( ) );
         std::shared_ptr< PositionPartialScaling > positionPartialScaler = partialList.second;
 
