@@ -107,7 +107,10 @@ std::vector< std::vector< std::shared_ptr< observation_models::LightTimeCorrecti
                             angularPositionModel->getLightTimeCalculator( )->getLightTimeCorrection( ) );
                 break;
             }
-
+            case observation_models::position_observable:
+                break;
+            case observation_models::velocity_observable:
+                break;
             default:
                 std::string errorMessage =
                         "Error in light time correction list creation, observable type " +
@@ -294,9 +297,9 @@ public:
 
         switch( observableType )
         {
-        //        case observation_models::angular_position:
-        //            positionPartialScaler = std::make_shared< AngularPositionScaling >( );
-        //            break;
+        case observation_models::position_observable:
+            positionPartialScaler = std::make_shared< PositionObservationScaling >( );
+            break;
         default:
             throw std::runtime_error( "Error when creating partial scaler for " +
                                       observation_models::getObservableName( observableType, linkEnds.size( ) ) +

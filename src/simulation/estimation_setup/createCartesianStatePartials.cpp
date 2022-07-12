@@ -475,49 +475,49 @@ std::shared_ptr< RotationMatrixPartial > createRotationMatrixPartialsWrtParamete
 
 }
 
-//! Function to create an objects that computes the partial derivatives of a three-dimensional position observable w.r.t.
-//! the position of a body.
-std::shared_ptr< PositionObervationPartial > createPositionObservablePartialWrtPosition(
-        const  observation_models::LinkEnds linkEnds,
-        const simulation_setup::SystemOfBodies& bodies,
-        const std::string bodyToEstimate,
-        const std::shared_ptr< PositionObservationScaling > positionObservableScaler )
-{
-    std::map<  observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > > positionPartials =
-            createCartesianStatePartialsWrtBodyState( linkEnds, bodies, bodyToEstimate );
-    std::shared_ptr< PositionObervationPartial > positionObervationPartial;
+////! Function to create an objects that computes the partial derivatives of a three-dimensional position observable w.r.t.
+////! the position of a body.
+//std::shared_ptr< PositionObervationPartial > createPositionObservablePartialWrtPosition(
+//        const  observation_models::LinkEnds linkEnds,
+//        const simulation_setup::SystemOfBodies& bodies,
+//        const std::string bodyToEstimate,
+//        const std::shared_ptr< PositionObservationScaling > positionObservableScaler )
+//{
+//    std::map<  observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > > positionPartials =
+//            createCartesianStatePartialsWrtBodyState( linkEnds, bodies, bodyToEstimate );
+//    std::shared_ptr< PositionObervationPartial > positionObervationPartial;
 
-    if( positionPartials.size( ) > 0 )
-    {
-        positionObervationPartial = std::make_shared< PositionObervationPartial >(
-                    positionObservableScaler, positionPartials, std::make_pair(
-                        estimatable_parameters::initial_body_state, std::make_pair( bodyToEstimate, "") ) );
-    }
+//    if( positionPartials.size( ) > 0 )
+//    {
+//        positionObervationPartial = std::make_shared< PositionObervationPartial >(
+//                    positionObservableScaler, positionPartials, std::make_pair(
+//                        estimatable_parameters::initial_body_state, std::make_pair( bodyToEstimate, "") ) );
+//    }
 
-    return positionObervationPartial;
-}
+//    return positionObervationPartial;
+//}
 
-//! Function to create an objects that computes the partial derivatives of a three-dimensional position observable w.r.t.
-//! the Velocity of a body.
-std::shared_ptr< VelocityObervationPartial > createVelocityObservablePartialWrtVelocity(
-        const  observation_models::LinkEnds linkEnds,
-        const simulation_setup::SystemOfBodies& bodies,
-        const std::string bodyToEstimate,
-        const std::shared_ptr< VelocityObservationScaling > velocityObservableScaler )
-{
-    std::map<  observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > > velocityPartials =
-            createCartesianStatePartialsWrtBodyState( linkEnds, bodies, bodyToEstimate );
-    std::shared_ptr< VelocityObervationPartial > velocityObervationPartial;
+////! Function to create an objects that computes the partial derivatives of a three-dimensional position observable w.r.t.
+////! the Velocity of a body.
+//std::shared_ptr< VelocityObervationPartial > createVelocityObservablePartialWrtVelocity(
+//        const  observation_models::LinkEnds linkEnds,
+//        const simulation_setup::SystemOfBodies& bodies,
+//        const std::string bodyToEstimate,
+//        const std::shared_ptr< VelocityObservationScaling > velocityObservableScaler )
+//{
+//    std::map<  observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > > velocityPartials =
+//            createCartesianStatePartialsWrtBodyState( linkEnds, bodies, bodyToEstimate );
+//    std::shared_ptr< VelocityObervationPartial > velocityObervationPartial;
 
-    if( velocityPartials.size( ) > 0 )
-    {
-        velocityObervationPartial = std::make_shared< VelocityObervationPartial >(
-                    velocityObservableScaler, velocityPartials, std::make_pair(
-                        estimatable_parameters::initial_body_state, std::make_pair( bodyToEstimate, "") ) );
-    }
+//    if( velocityPartials.size( ) > 0 )
+//    {
+//        velocityObervationPartial = std::make_shared< VelocityObervationPartial >(
+//                    velocityObservableScaler, velocityPartials, std::make_pair(
+//                        estimatable_parameters::initial_body_state, std::make_pair( bodyToEstimate, "") ) );
+//    }
 
-    return velocityObervationPartial;
-}
+//    return velocityObervationPartial;
+//}
 
 }
 
