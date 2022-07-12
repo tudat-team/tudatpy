@@ -462,7 +462,6 @@ createSingleLinkObservationPartials(
         const bool useBiasPartials = true,
         const std::shared_ptr< observation_models::ObservationModel< ObservationSize, ParameterType, TimeType > > observationModel = nullptr )
 {
-    std::cout<<"Pre-create "<<observableType<<" "<<observationModel<<std::endl;
     std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > > lightTimeCorrectionPartialObjects;
 
     if( lightTimeCorrections.size( ) > 0 )
@@ -553,7 +552,6 @@ createSingleLinkObservationPartials(
                     positionScaling, lightTimeCorrectionPartialObjects );
 
 
-        std::cout<<parameterIterator->second->getParameterName( ).first<<" "<<currentObservationPartial<<std::endl;
         // Check if partial is non-nullptr (i.e. whether dependency exists between current observable and current parameter)
         if( currentObservationPartial != nullptr )
         {
@@ -595,7 +593,6 @@ createSingleLinkObservationPartials(
             observationPartials[ currentPair ] = currentObservationPartial;
         }
     }
-    std::cout<<"Post-create "<<observableType<<" "<<observationPartials.size( )<<std::endl;
 
     // Return complete set of partials and scaling object.
     return std::make_pair( observationPartials, positionScaling );
@@ -623,7 +620,6 @@ std::shared_ptr< PositionPartialScaling > > > createSingleLinkObservationPartial
         {
             throw std::runtime_error( "Error when creating observaion partials, list of observation models provided, but size is incompatible." );
         }
-        std::cout<<"Using list of obs. model"<<std::endl;
         useObservationModel = true;
     }
     // Declare return list.

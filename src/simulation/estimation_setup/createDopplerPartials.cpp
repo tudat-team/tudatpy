@@ -24,38 +24,38 @@ namespace observation_partials
 
 using namespace ephemerides;
 
-//! Function to generate one-way doppler partial wrt an initial position of a body.
-std::shared_ptr< OneWayDopplerPartial > createOneWayDopplerPartialWrtBodyState(
-        const observation_models::LinkEnds oneWayDopplerLinkEnds,
-        const simulation_setup::SystemOfBodies& bodies,
-        const std::string bodyToEstimate,
-        const std::shared_ptr< PositionPartialScaling > oneWayDopplerScaler,
-        const std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > >&
-        lightTimeCorrectionPartialObjects  )
-{
-    if( std::dynamic_pointer_cast< OneWayDopplerScaling >( oneWayDopplerScaler ) == nullptr )
-    {
-        throw std::runtime_error( "Error, expected one-way doppler scaling when making one-way doppler partial" );
-    }
+////! Function to generate one-way doppler partial wrt an initial position of a body.
+//std::shared_ptr< OneWayDopplerPartial > createOneWayDopplerPartialWrtBodyState(
+//        const observation_models::LinkEnds oneWayDopplerLinkEnds,
+//        const simulation_setup::SystemOfBodies& bodies,
+//        const std::string bodyToEstimate,
+//        const std::shared_ptr< PositionPartialScaling > oneWayDopplerScaler,
+//        const std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > >&
+//        lightTimeCorrectionPartialObjects  )
+//{
+//    if( std::dynamic_pointer_cast< OneWayDopplerScaling >( oneWayDopplerScaler ) == nullptr )
+//    {
+//        throw std::runtime_error( "Error, expected one-way doppler scaling when making one-way doppler partial" );
+//    }
 
-    // Create position partials of link ends for current body position
-    std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > > positionPartials =
-            createCartesianStatePartialsWrtBodyState( oneWayDopplerLinkEnds, bodies, bodyToEstimate );
+//    // Create position partials of link ends for current body position
+//    std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > > positionPartials =
+//            createCartesianStatePartialsWrtBodyState( oneWayDopplerLinkEnds, bodies, bodyToEstimate );
 
-    // Create one-doppler partials if any position partials are created (i.e. if any dependency exists).
-    std::shared_ptr< OneWayDopplerPartial > oneWayDopplerPartial;
-    if( positionPartials.size( ) > 0 )
-    {
-        oneWayDopplerPartial = std::make_shared< OneWayDopplerPartial >(
-                    std::dynamic_pointer_cast< OneWayDopplerScaling >( oneWayDopplerScaler ),
-                    positionPartials, std::make_pair(
-                        estimatable_parameters::initial_body_state, std::make_pair( bodyToEstimate, "" ) ),
-                    lightTimeCorrectionPartialObjects );
-    }
+//    // Create one-doppler partials if any position partials are created (i.e. if any dependency exists).
+//    std::shared_ptr< OneWayDopplerPartial > oneWayDopplerPartial;
+//    if( positionPartials.size( ) > 0 )
+//    {
+//        oneWayDopplerPartial = std::make_shared< OneWayDopplerPartial >(
+//                    std::dynamic_pointer_cast< OneWayDopplerScaling >( oneWayDopplerScaler ),
+//                    positionPartials, std::make_pair(
+//                        estimatable_parameters::initial_body_state, std::make_pair( bodyToEstimate, "" ) ),
+//                    lightTimeCorrectionPartialObjects );
+//    }
 
-    // Return doppler partial object (nullptr if no dependency exists).
-    return oneWayDopplerPartial;
-}
+//    // Return doppler partial object (nullptr if no dependency exists).
+//    return oneWayDopplerPartial;
+//}
 
 ////! Function to create an object that computes the scaling of the state partials to obtain proper time rate partials
 //std::shared_ptr< OneWayDopplerProperTimeComponentScaling > createDopplerProperTimePartials(

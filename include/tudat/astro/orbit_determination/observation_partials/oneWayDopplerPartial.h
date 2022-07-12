@@ -228,8 +228,6 @@ public:
         transmitterProperTimePartials_( transmitterProperTimePartials ),
         receiverProperTimePartials_( receiverProperTimePartials )
     {
-        std::cout<<"Partials null in constructor "<<transmitterProperTimePartials_<<" "<<receiverProperTimePartials_<<std::endl;
-
         this->doesVelocityScalingFactorExist_ = true;
     }
 

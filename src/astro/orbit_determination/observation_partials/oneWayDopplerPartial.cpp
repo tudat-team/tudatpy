@@ -310,7 +310,6 @@ std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > O
 
     if( parameterType.first == estimatable_parameters::equivalence_principle_lpi_violation_parameter )
     {
-        std::cout<<"Partials null "<<transmitterProperTimePartials_<<" "<<receiverProperTimePartials_<<std::endl;
         std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > transmitterPartial =
                 transmitterProperTimePartials_->getProperTimeParameterPartial( parameterType );
         std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > receiverPartial =
