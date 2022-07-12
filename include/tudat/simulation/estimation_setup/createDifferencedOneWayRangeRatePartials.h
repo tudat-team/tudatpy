@@ -13,7 +13,7 @@
 
 #include "tudat/simulation/estimation_setup/createObservationModel.h"
 #include "tudat/simulation/estimation_setup/createDifferencedOneWayRangeRatePartials.h"
-#include "tudat/simulation/estimation_setup/createOneWayRangePartials.h"
+#include "tudat/simulation/estimation_setup/createObservationPartialsRefactor.h"
 
 #include "tudat/astro/orbit_determination/observation_partials/oneWayRangePartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/differencedOneWayRangeRatePartial.h"
@@ -80,12 +80,12 @@ createDifferencedOneWayRangeRatePartials(
     // Create one way range partials for link at start of arc.
     std::map< observation_models::LinkEnds,
             std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialScaling > > > arcStartPartials
-            = createOneWayRangePartials( linkEnds, bodies, parametersToEstimate, splitLightTimeCorrections.first );
+            = createSingleLinkObservationPartialsList< ParameterType, 1 >( linkEnds, observation_models::one_way_range, bodies, parametersToEstimate, splitLightTimeCorrections.first );
 
     // Create one way range partials for link at end of arc.
     std::map< observation_models::LinkEnds,
             std::pair< SingleLinkObservationPartialList , std::shared_ptr< PositionPartialScaling > > > arcEndPartials
-            = createOneWayRangePartials( linkEnds, bodies, parametersToEstimate, splitLightTimeCorrections.second );
+            = createSingleLinkObservationPartialsList< ParameterType, 1 >( linkEnds, observation_models::one_way_range, bodies, parametersToEstimate, splitLightTimeCorrections.second );
 
     // Check output consistency
     if( arcStartPartials.size( ) != arcEndPartials.size( ) )

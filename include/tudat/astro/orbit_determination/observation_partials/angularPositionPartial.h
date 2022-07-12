@@ -66,6 +66,7 @@ class AngularPositionScaling: public OneWayLinkPositionPartialScaling< 2 >
 {
 public:
 
+    AngularPositionScaling( ): OneWayLinkPositionPartialScaling< 2 >( observation_models::angular_position ){ }
     //! Destructor
     ~AngularPositionScaling( ){ }
 
@@ -90,7 +91,7 @@ public:
      * \param linkEndType Link end for which scaling factor is to be returned
      * \return Position partial scaling factor at current link end
      */
-    Eigen::Matrix< double, 2, 3 > getScalingFactor(
+    Eigen::Matrix< double, 2, 3 > getPositionScalingFactor(
             const observation_models::LinkEndType linkEndType )
     {
         return referenceScalingFactor_ * ( ( linkEndType == observation_models::transmitter ) ? ( -1.0 ) : ( 1.0 ) );
@@ -133,105 +134,105 @@ private:
 
 };
 
-//! Class to compute the partial derivatives of a angular position observation partial.
-class AngularPositionPartial: public ObservationPartial< 2 >
-{
-public:
-    typedef std::vector< std::pair< Eigen::Matrix< double, 2, Eigen::Dynamic >, double > > AngularPositionPartialReturnType;
-    typedef std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > SingleOneWayRangePartialReturnType;
+////! Class to compute the partial derivatives of a angular position observation partial.
+//class AngularPositionPartial: public ObservationPartial< 2 >
+//{
+//public:
+//    typedef std::vector< std::pair< Eigen::Matrix< double, 2, Eigen::Dynamic >, double > > AngularPositionPartialReturnType;
+//    typedef std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > SingleOneWayRangePartialReturnType;
 
-    //! Constructor
-    /*!
-     * Constructor
-     * \param angularPositionScaler Scaling object used for mapping partials of positions to partials of observable
-     * \param positionPartialList List of position partials per link end.
-     * \param parameterIdentifier Id of parameter for which instance of class computes partial derivatives.
-     * \param lighTimeCorrectionPartials List if light-time correction partial objects.
-     */
-    AngularPositionPartial(
-            const std::shared_ptr< AngularPositionScaling > angularPositionScaler,
-            const std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > >& positionPartialList,
-            const estimatable_parameters::EstimatebleParameterIdentifier parameterIdentifier,
-            const std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > >& lighTimeCorrectionPartials =
-            std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > >( ) ):
-        ObservationPartial< 2 >( parameterIdentifier ),
-        angularPositionScaler_( angularPositionScaler ), positionPartialList_( positionPartialList ),
-        lighTimeCorrectionPartials_( lighTimeCorrectionPartials )
-    {
-        std::pair< std::function< SingleOneWayRangePartialReturnType(
-                    const std::vector< Eigen::Vector6d >&, const std::vector< double >& ) >,
-                bool > lightTimeCorrectionPartial;
+//    //! Constructor
+//    /*!
+//     * Constructor
+//     * \param angularPositionScaler Scaling object used for mapping partials of positions to partials of observable
+//     * \param positionPartialList List of position partials per link end.
+//     * \param parameterIdentifier Id of parameter for which instance of class computes partial derivatives.
+//     * \param lighTimeCorrectionPartials List if light-time correction partial objects.
+//     */
+//    AngularPositionPartial(
+//            const std::shared_ptr< AngularPositionScaling > angularPositionScaler,
+//            const std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > >& positionPartialList,
+//            const estimatable_parameters::EstimatebleParameterIdentifier parameterIdentifier,
+//            const std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > >& lighTimeCorrectionPartials =
+//            std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > >( ) ):
+//        ObservationPartial< 2 >( parameterIdentifier ),
+//        angularPositionScaler_( angularPositionScaler ), positionPartialList_( positionPartialList ),
+//        lighTimeCorrectionPartials_( lighTimeCorrectionPartials )
+//    {
+//        std::pair< std::function< SingleOneWayRangePartialReturnType(
+//                    const std::vector< Eigen::Vector6d >&, const std::vector< double >& ) >,
+//                bool > lightTimeCorrectionPartial;
 
-        // Create light time correction partial functions
-        for( unsigned int i = 0; i < lighTimeCorrectionPartials.size( ); i++ )
-        {
-            lightTimeCorrectionPartial = getLightTimeParameterPartialFunction(
-                        parameterIdentifier, lighTimeCorrectionPartials.at( i ) );
-            if( lightTimeCorrectionPartial.second != 0 )
-            {
-                lighTimeCorrectionPartialsFunctions_.push_back( lightTimeCorrectionPartial.first );
-            }
-        }
-    }
+//        // Create light time correction partial functions
+//        for( unsigned int i = 0; i < lighTimeCorrectionPartials.size( ); i++ )
+//        {
+//            lightTimeCorrectionPartial = getLightTimeParameterPartialFunction(
+//                        parameterIdentifier, lighTimeCorrectionPartials.at( i ) );
+//            if( lightTimeCorrectionPartial.second != 0 )
+//            {
+//                lighTimeCorrectionPartialsFunctions_.push_back( lightTimeCorrectionPartial.first );
+//            }
+//        }
+//    }
 
-    //! Destructor.
-    ~AngularPositionPartial( ){ }
+//    //! Destructor.
+//    ~AngularPositionPartial( ){ }
 
-    //! Function to calculate the observation partial(s) at required time and state
-    /*!
-     *  Function to calculate the observation partial(s) at required time and state. State and time
-     *  are typically obtained from evaluation of observation model.
-     *  \param states Link end states. Index maps to link end for a given ObsevableType through getLinkEndIndex function.
-     *  \param times Link end time.
-     *  \param linkEndOfFixedTime Link end that is kept fixed when computing the observable.
-     *  \param currentObservation Value of the observation for which the partial is to be computed (default NaN for
-     *  compatibility purposes)
-     *  \return Vector of pairs containing partial values and associated times.
-     */
-    AngularPositionPartialReturnType calculatePartial(
-            const std::vector< Eigen::Vector6d >& states,
-            const std::vector< double >& times,
-            const observation_models::LinkEndType linkEndOfFixedTime,
-            const Eigen::Vector2d& currentObservation = Eigen::Vector2d::Constant( TUDAT_NAN ) );
+//    //! Function to calculate the observation partial(s) at required time and state
+//    /*!
+//     *  Function to calculate the observation partial(s) at required time and state. State and time
+//     *  are typically obtained from evaluation of observation model.
+//     *  \param states Link end states. Index maps to link end for a given ObsevableType through getLinkEndIndex function.
+//     *  \param times Link end time.
+//     *  \param linkEndOfFixedTime Link end that is kept fixed when computing the observable.
+//     *  \param currentObservation Value of the observation for which the partial is to be computed (default NaN for
+//     *  compatibility purposes)
+//     *  \return Vector of pairs containing partial values and associated times.
+//     */
+//    AngularPositionPartialReturnType calculatePartial(
+//            const std::vector< Eigen::Vector6d >& states,
+//            const std::vector< double >& times,
+//            const observation_models::LinkEndType linkEndOfFixedTime,
+//            const Eigen::Vector2d& currentObservation = Eigen::Vector2d::Constant( TUDAT_NAN ) );
 
-    //! Function to get the number of light-time correction partial functions.
-    /*!
-     * Number of light-time correction partial functions.
-     * \return Number of light-time correction partial functions.
-     */
-    int getNumberOfLighTimeCorrectionPartialsFunctions( )
-    {
-        return lighTimeCorrectionPartialsFunctions_.size( );
-    }
+//    //! Function to get the number of light-time correction partial functions.
+//    /*!
+//     * Number of light-time correction partial functions.
+//     * \return Number of light-time correction partial functions.
+//     */
+//    int getNumberOfLighTimeCorrectionPartialsFunctions( )
+//    {
+//        return lighTimeCorrectionPartialsFunctions_.size( );
+//    }
 
-protected:
+//protected:
 
-    //! Scaling object used for mapping partials of positions to partials of observable
-    std::shared_ptr< AngularPositionScaling > angularPositionScaler_;
+//    //! Scaling object used for mapping partials of positions to partials of observable
+//    std::shared_ptr< AngularPositionScaling > angularPositionScaler_;
 
-    //! List of position partials per link end.
-    std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > > positionPartialList_;
+//    //! List of position partials per link end.
+//    std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > > positionPartialList_;
 
-    //! Iterator over list of position partials per link end.
-    std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > >::iterator positionPartialIterator_;
+//    //! Iterator over list of position partials per link end.
+//    std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > >::iterator positionPartialIterator_;
 
-    //! List of light-time correction partial functions.
-    std::vector< std::function< SingleOneWayRangePartialReturnType(
-            const std::vector< Eigen::Vector6d >&, const std::vector< double >& ) > >
-    lighTimeCorrectionPartialsFunctions_;
+//    //! List of light-time correction partial functions.
+//    std::vector< std::function< SingleOneWayRangePartialReturnType(
+//            const std::vector< Eigen::Vector6d >&, const std::vector< double >& ) > >
+//    lighTimeCorrectionPartialsFunctions_;
 
-    //! List of light-time correction partial objects.
-    std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > > lighTimeCorrectionPartials_;
+//    //! List of light-time correction partial objects.
+//    std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > > lighTimeCorrectionPartials_;
 
-    //! Pre-declare partial for current link end.
-    std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > currentLinkTimeCorrectionPartial_;
+//    //! Pre-declare partial for current link end.
+//    std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > currentLinkTimeCorrectionPartial_;
 
-    //! Pre-declared state variable to be used in calculatePartial function.
-    Eigen::Vector6d currentState_;
+//    //! Pre-declared state variable to be used in calculatePartial function.
+//    Eigen::Vector6d currentState_;
 
-    //! Pre-declared time variable to be used in calculatePartial function.
-    double currentTime_;
-};
+//    //! Pre-declared time variable to be used in calculatePartial function.
+//    double currentTime_;
+//};
 
 }
 

@@ -20,7 +20,7 @@
 
 #include "tudat/math/interpolators/interpolator.h"
 
-#include "tudat/simulation/estimation_setup/createOneWayRangePartials.h"
+#include "tudat/simulation/estimation_setup/createObservationPartialsRefactor.h"
 #include "tudat/astro/orbit_determination/observation_partials/nWayRangePartial.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/observableTypes.h"
@@ -89,7 +89,8 @@ std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialSca
 
         // Create onw-way range partials for current link
         constituentOneWayRangePartials[ i ] =
-                createOneWayRangePartials( currentLinkEnds, bodies, parametersToEstimate, currentLightTimeCorrections, false );
+                createSingleLinkObservationPartials< ParameterType, 1 >
+                ( currentLinkEnds, observation_models::one_way_range, bodies, parametersToEstimate, currentLightTimeCorrections, false );
     }
 
     // Retrieve sorted (by parameter index and link index) one-way range partials and (by link index) opne-way range partials

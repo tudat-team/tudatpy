@@ -73,7 +73,7 @@ std::tuple< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, bool, Eig
         Eigen::VectorXd noiseToAdd = noiseFunction( observationTime );
         if( noiseToAdd.rows( ) != ObservationSize )
         {
-            std::cout<<noiseToAdd.rows( )<<" "<<ObservationSize<<" "<<observationModel->getObservableType( )<<std::endl;
+//            std::cout<<noiseToAdd.rows( )<<" "<<ObservationSize<<" "<<observationModel->getObservableType( )<<std::endl;
             throw std::runtime_error(
                         "Error wen simulating observation noise, size of noise (" + std::to_string( noiseToAdd.rows( ) ) +
                         ") and size of observable (" + std::to_string( ObservationSize ) +
@@ -119,7 +119,7 @@ simulateObservationsWithCheck(
 
     for( unsigned int i = 0; i < observationTimes.size( ); i++ )
     {
-        std::cout << "observationTimes: " << observationTimes.at( i ) << "\n\n";
+//        std::cout << "observationTimes: " << observationTimes.at( i ) << "\n\n";
         simulatedObservation = simulateObservationWithCheck< ObservationSize, ObservationScalarType, TimeType >(
                     observationTimes.at( i ), observationModel, referenceLinkEnd, linkViabilityCalculators, noiseFunction, dependentVariableCalculator );
 

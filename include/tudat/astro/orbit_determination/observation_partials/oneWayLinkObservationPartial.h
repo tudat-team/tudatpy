@@ -47,6 +47,8 @@ public:
         ObservationPartial< ObservationSize >( parameterIdentifier ), positionPartialScaler_( positionPartialScaler ),
         positionPartialList_( positionPartialList )
     {
+        stateEntryIndices_ = observation_models::getSingleLinkStateEntryIndices( positionPartialScaler->getObservableType( ) );
+
         std::pair< std::function< SingleLightTimePartialReturnType(
                     const std::vector< Eigen::Vector6d >&, const std::vector< double >& ) >, bool > lightTimeCorrectionPartial;
 
@@ -95,21 +97,15 @@ public:
         for( positionPartialIterator_ = positionPartialList_.begin( ); positionPartialIterator_ != positionPartialList_.end( );
              positionPartialIterator_++ )
         {
-            if( positionPartialIterator_->first == observation_models::transmitter )
-            {
-                currentState_  = states[ 0 ];
-                currentTime_ = times[ 0 ];
-            }
-            else if( positionPartialIterator_->first == observation_models::receiver )
-            {
-                currentState_  = states[ 1 ];
-                currentTime_ = times[ 1 ];
-            }
+            int currentIndex = stateEntryIndices_.at( positionPartialIterator_->first );
+
+            currentState_  = states[ currentIndex ];
+            currentTime_ = times[ currentIndex ];
 
             // Scale position partials
             returnPartial.push_back(
                         std::make_pair(
-                            positionPartialScaler_->getScalingFactor( positionPartialIterator_->first ) *
+                            positionPartialScaler_->getPositionScalingFactor( positionPartialIterator_->first ) *
                             ( positionPartialIterator_->second->calculatePartialOfPosition(
                                   currentState_ , currentTime_ ) ), currentTime_ ) );
         }
@@ -174,6 +170,7 @@ protected:
 
     std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > currentLinkTimeCorrectionPartial_;
 
+    std::map< observation_models::LinkEndType, int > stateEntryIndices_;
 
 };
 

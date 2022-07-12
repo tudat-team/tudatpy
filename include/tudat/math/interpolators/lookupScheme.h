@@ -151,7 +151,6 @@ public:
                  ( previousNearestLowerIndex_, valueToLookup, independentVariableValues_ ) )
             {
                 newNearestLowerIndex = previousNearestLowerIndex_;
-                std::cout<<"Is in same interval "<<valueToLookup<<" "<<newNearestLowerIndex<<std::endl;
 
             }
 
@@ -162,7 +161,6 @@ public:
                         basic_mathematics::findNearestLeftNeighbourUsingHuntingAlgorithm<
                         IndependentVariableType >
                         (  valueToLookup, previousNearestLowerIndex_, independentVariableValues_ );
-                std::cout<<"Not in same interval "<<valueToLookup<<" "<<newNearestLowerIndex<<std::endl;
 
             }
         }

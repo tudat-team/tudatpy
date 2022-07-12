@@ -57,7 +57,7 @@ public:
         if( stateTransitionMatrixInterface_ != nullptr )
         {
             stateTransitionMatrixSize_ = stateTransitionMatrixInterface_->getStateTransitionMatrixSize( );
-            std::cout << "in observation manager, STM size: " << stateTransitionMatrixSize_ << "\n\n";
+//            std::cout << "in observation manager, STM size: " << stateTransitionMatrixSize_ << "\n\n";
         }
         else
         {
@@ -259,15 +259,15 @@ public:
 
             // Compute observation partial
             currentObservationSize = currentObservation.rows( );
-            std::cout << "before call to determineObservationPartialMatrix" << "\n\n";
+//            std::cout << "before call to determineObservationPartialMatrix" << "\n\n";
             observationMatrices[ times[ i ] ] = determineObservationPartialMatrix(
                         currentObservationSize, vectorOfStates, vectorOfTimes, linkEnds, currentObservation,
                         linkEndAssociatedWithTime );
-            std::cout << "after call to determineObservationPartialMatrix" << "\n\n";
+//            std::cout << "after call to determineObservationPartialMatrix" << "\n\n";
 
         }
 
-        std::cout << "end computeObservationsWithPartials" << "\n\n";
+//        std::cout << "end computeObservationsWithPartials" << "\n\n";
 
         return std::make_pair( utilities::createConcatenatedEigenMatrixFromMapValues( observations ),
                                utilities::createConcatenatedEigenMatrixFromMapValues( observationMatrices ) );
@@ -344,7 +344,7 @@ protected:
             const Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > currentObservation,
             const LinkEndType linkEndAssociatedWithTime )
     {
-        std::cout << "link end associated with time: " << linkEndAssociatedWithTime << "\n\n";
+//        std::cout << "link end associated with time: " << linkEndAssociatedWithTime << "\n\n";
 
         // Initialize partial vector of observation w.r.t. all parameter.
         int fullParameterVector = stateTransitionMatrixInterface_->getFullParameterVectorSize( );
@@ -355,7 +355,7 @@ protected:
         // Initialize list of [Phi;S] matrices at times required by calculation (key)
         std::map< double, Eigen::MatrixXd > combinedStateTransitionMatrices;
 
-        std::cout << "before update partials" << "\n\n";
+//        std::cout << "before update partials" << "\n\n";
         // Perform updates of dependent variables used by (subset of) observation partials.
         updatePartials( states, times, linkEnds, linkEndAssociatedWithTime, currentObservation );
 
@@ -367,7 +367,7 @@ protected:
         {
             if ( std::count( bodiesInLinkEnds.begin( ), bodiesInLinkEnds.end( ), itr.second.bodyName_  ) == 0 )
             {
-                std::cout << "BODY INCLUDED IN LINK END: " << itr.second.bodyName_ << "\n\n";
+//                std::cout << "BODY INCLUDED IN LINK END: " << itr.second.bodyName_ << "\n\n";
                 bodiesInLinkEnds.push_back( itr.second.bodyName_ );
             }
         }
@@ -380,11 +380,11 @@ protected:
         {
             // Get Observation partial start and size indices in parameter vector.
             std::pair< int, int > currentIndexInfo = partialIterator->first;
-            std::cout << "current index info: " << currentIndexInfo.first << " & " << currentIndexInfo.second << "\n\n";
-            std::cout << "block STM: " << currentIndexInfo.first << " - " << 0 << " & " << currentIndexInfo.second << " - " <<  fullParameterVector << "\n\n";
-            std::cout << "stateTransitionMatrixSize_: " << stateTransitionMatrixSize_ << "\n\n";
+//            std::cout << "current index info: " << currentIndexInfo.first << " & " << currentIndexInfo.second << "\n\n";
+//            std::cout << "block STM: " << currentIndexInfo.first << " - " << 0 << " & " << currentIndexInfo.second << " - " <<  fullParameterVector << "\n\n";
+//            std::cout << "stateTransitionMatrixSize_: " << stateTransitionMatrixSize_ << "\n\n";
 
-            std::cout << "param identifier: " << partialIterator->second->getParameterIdentifier( ).second.first << "\n\n";
+//            std::cout << "param identifier: " << partialIterator->second->getParameterIdentifier( ).second.first << "\n\n";
             std::vector< std::string > bodiesOfInterestInLinkEnds;
             for ( unsigned int k = 0  ; k < bodiesInLinkEnds.size( ) ; k++ )
             {
@@ -402,8 +402,8 @@ protected:
             // can consist of multiple partial matrices, associated at different times)
             std::vector< std::pair< Eigen::Matrix< double, ObservationSize, Eigen::Dynamic >, double > > singlePartialSet =
                     partialIterator->second->calculatePartial( states, times, linkEndAssociatedWithTime, currentObservation.template cast< double >( ) );
-            std::cout << "size time entry: " << times.size( ) << "\n\n";
-            std::cout << "first time entry: " << times.at( 0 ) << "\n\n";
+//            std::cout << "size time entry: " << times.size( ) << "\n\n";
+//            std::cout << "first time entry: " << times.at( 0 ) << "\n\n";
 
             //            std::cout<<"Obs. "<<currentObservation.transpose( )<<std::endl;
             //            std::cout<<"Partial "<<singlePartialSet.at( 0 ).first<<std::endl<<std::endl;
@@ -414,7 +414,7 @@ protected:
             {
                 for( unsigned int i = 0; i < singlePartialSet.size( ); i++ )
                 {
-                    std::cout << "size singlePartialSet: " << singlePartialSet[ i ].first.rows( ) << " & " << singlePartialSet[ i ].first.cols( ) << "\n\n";
+//                    std::cout << "size singlePartialSet: " << singlePartialSet[ i ].first.rows( ) << " & " << singlePartialSet[ i ].first.cols( ) << "\n\n";
 
                     // Evaluate [Phi;S] matrix at each time instant associated with partial, if not yet evaluated.
                     if( combinedStateTransitionMatrices.count( singlePartialSet[ i ].second ) == 0 )
@@ -428,20 +428,20 @@ protected:
                             combinedStateTransitionMatrices[ singlePartialSet[ i ].second ].block
                             ( currentIndexInfo.first, 0, currentIndexInfo.second, fullParameterVector );
 
-                    std::cout << "end single partial set" << "\n\n";
+//                    std::cout << "end single partial set" << "\n\n";
                 }
             }
             else
             {
-                std::cout << "index larger than size STM detected" << "\n\n";
+//                std::cout << "index larger than size STM detected" << "\n\n";
                 for( unsigned int i = 0; i < singlePartialSet.size( ); i++ )
                 {
                     // Add direct partial of observation w.r.t. parameter.
                     partialMatrix.block( 0, currentIndexInfo.first, observationSize, currentIndexInfo.second ) +=
                             singlePartialSet[ i ].first;
-                    std::cout << "partials block: " << 0 << " - " << currentIndexInfo.first << " & " << observationSize << " - " << currentIndexInfo.second << "\n\n";
+//                    std::cout << "partials block: " << 0 << " - " << currentIndexInfo.first << " & " << observationSize << " - " << currentIndexInfo.second << "\n\n";
                 }
-                std::cout << "end code for index larger than size STM" << "\n\n";
+//                std::cout << "end code for index larger than size STM" << "\n\n";
             }
         }
         return partialMatrix;
