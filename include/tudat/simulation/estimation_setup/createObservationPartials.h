@@ -17,7 +17,6 @@
 #include "tudat/astro/observation_models/oneWayDopplerObservationModel.h"
 #include "tudat/astro/observation_models/angularPositionObservationModel.h"
 
-#include "tudat/simulation/estimation_setup/createAngularPositionPartials.h"
 #include "tudat/simulation/estimation_setup/createRelativeAngularPositionPartials.h"
 #include "tudat/simulation/estimation_setup/createDopplerPartials.h"
 #include "tudat/simulation/estimation_setup/createDifferencedOneWayRangeRatePartials.h"
