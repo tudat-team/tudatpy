@@ -190,7 +190,9 @@ std::string getObservableName( const ObservableType observableType, const int nu
         std::string errorMessage =
                 "Error, could not find observable type " + std::to_string( observableType ) +
                 " when getting name from type";
-        throw std::runtime_error( errorMessage );
+        std::cerr<<errorMessage<<std::endl;
+
+//        throw std::runtime_error( errorMessage );
     }
 
     return observableName;
@@ -784,12 +786,36 @@ std::vector< std::pair< int, int > > getLinkStateAndTimeIndicesForLinkEnd(
         }
         break;
     default:
+
         throw std::runtime_error( "Error, observable type " + std::to_string(
                                       observableType ) + " not recognized when making viability link ends" );
 
     }
 
     return linkEndIndices;
+}
+
+std::map< LinkEndType, int > getSingleLinkStateEntryIndices( const ObservableType observableType )
+{
+    std::map< LinkEndType, int > singleLinkStateEntries;
+    if( observableType == one_way_range ||
+            observableType == angular_position ||
+            observableType == one_way_doppler )
+    {
+        singleLinkStateEntries = oneWayLinkStateEntries;
+    }
+    else if( observableType == position_observable ||
+             observableType == velocity_observable ||
+             observableType == euler_angle_313_observable )
+    {
+        singleLinkStateEntries = observedBodyLinkStateEntries;
+    }
+    else
+    {
+        throw std::runtime_error( "Error when getting single link state entries, observable type " +
+                                  getObservableName( observableType ) + " not recognized." );
+    }
+    return singleLinkStateEntries;
 }
 
 

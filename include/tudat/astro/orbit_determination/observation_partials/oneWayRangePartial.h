@@ -38,6 +38,8 @@ class OneWayRangeScaling: public OneWayLinkPositionPartialScaling< 1 >
 {
 public:
 
+    OneWayRangeScaling( ): OneWayLinkPositionPartialScaling< 1 >( observation_models::one_way_range ){ }
+
     //! Destructor
     ~OneWayRangeScaling( ){ }
 
@@ -62,7 +64,7 @@ public:
      * \param linkEndType Link end for which scaling factor is to be returned
      * \return Position partial scaling factor at current link end
      */
-    Eigen::Matrix< double, 1, 3 > getScalingFactor( const observation_models::LinkEndType linkEndType )
+    Eigen::Matrix< double, 1, 3 > getPositionScalingFactor( const observation_models::LinkEndType linkEndType )
     {
         return referenceScalingFactor_ * ( ( linkEndType == observation_models::transmitter ) ? ( -1.0 ) : ( 1.0 ) );
     }

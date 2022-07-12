@@ -68,15 +68,44 @@ template< int ObservationSize >
 class OneWayLinkPositionPartialScaling: public PositionPartialScaling
 {
 public:
+
+    OneWayLinkPositionPartialScaling( const observation_models::ObservableType observableType ):
+        observableType_( observableType )
+    {
+        if( observableType == observation_models::one_way_doppler )
+        {
+            doesVelocityScalingFactorExist_ = true;
+        }
+    }
+
     virtual ~OneWayLinkPositionPartialScaling( ){ }
 
     virtual observation_models::LinkEndType getCurrentLinkEndType( ) = 0;
 
-    virtual Eigen::Matrix< double, ObservationSize, 3 > getScalingFactor( const observation_models::LinkEndType linkEndType ) = 0;
+    virtual Eigen::Matrix< double, ObservationSize, 3 > getPositionScalingFactor( const observation_models::LinkEndType linkEndType ) = 0;
+
+    virtual Eigen::Matrix< double, ObservationSize, 3 > getVelocityScalingFactor( const observation_models::LinkEndType linkEndType )
+    {
+        return Eigen::MatrixXd::Zero( ObservationSize, 3 );
+    }
 
     virtual Eigen::Matrix< double, ObservationSize, 1 > getLightTimePartialScalingFactor( ) = 0;
 
+    observation_models::ObservableType getObservableType( )
+    {
+        return observableType_;
+    }
 
+    virtual bool isVelocityScalingNonZero( )
+    {
+        return false;
+    }
+
+protected:
+
+    observation_models::ObservableType observableType_;
+
+    bool doesVelocityScalingFactorExist_;
 };
 
 //! Base class of partial derivative of an observable w.r.t. an estimated parameter.

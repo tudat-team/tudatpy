@@ -39,17 +39,17 @@ Eigen::MatrixXd SingleArcCombinedStateTransitionAndSensitivityMatrixInterface::g
 
 
     // Set Phi and S matrices.
-    std::cout << "before calculating STM: " << "\n\n";
+//    std::cout << "before calculating STM: " << "\n\n";
     combinedStateTransitionMatrix_.block( 0, 0, stateTransitionMatrixSize_, stateTransitionMatrixSize_ ) =
             stateTransitionMatrixInterpolator_->interpolate( evaluationTime );
-    std::cout << "after calculating STM: " << "\n\n";
+//    std::cout << "after calculating STM: " << "\n\n";
 
     if( sensitivityMatrixSize_ > 0 )
     {
-        std::cout << "before calculating SEM: " << "\n\n";
+//        std::cout << "before calculating SEM: " << "\n\n";
         combinedStateTransitionMatrix_.block( 0, stateTransitionMatrixSize_, stateTransitionMatrixSize_, sensitivityMatrixSize_ ) =
                 sensitivityMatrixInterpolator_->interpolate( evaluationTime );
-        std::cout << "before calculating SEM: " << "\n\n";
+//        std::cout << "before calculating SEM: " << "\n\n";
     }
 
     for( unsigned int i = 0; i < statePartialAdditionIndices_.size( ); i++ )
@@ -95,8 +95,8 @@ MultiArcCombinedStateTransitionAndSensitivityMatrixInterface::MultiArcCombinedSt
 
     sensitivityMatrixSize_ = fullSensitivityMatrixSize_; // numberOfParameters - numberOfStateArcs_ * stateTransitionMatrixSize_;
     stateTransitionMatrixSize_ = fullStateSize_;
-    std::cout << "TEST sensitivityMatrixSize_: " << sensitivityMatrixSize_ << "\n\n";
-    std::cout << "TEST stateTransitionMatrixSize_: " << stateTransitionMatrixSize_ << "\n\n";
+//    std::cout << "TEST sensitivityMatrixSize_: " << sensitivityMatrixSize_ << "\n\n";
+//    std::cout << "TEST stateTransitionMatrixSize_: " << stateTransitionMatrixSize_ << "\n\n";
 
     if( stateTransitionMatrixInterpolators_.size( ) != sensitivityMatrixInterpolators_.size( ) ||
             stateTransitionMatrixInterpolators_.size( ) != static_cast< unsigned int >( numberOfStateArcs_ ) )
@@ -161,7 +161,7 @@ Eigen::MatrixXd MultiArcCombinedStateTransitionAndSensitivityMatrixInterface::ge
     for ( unsigned int i = 0 ; i < arcDefiningBodies.size( ) ; i++ )
     {
         std::pair< int, double > currentArcDefinedByBody = getCurrentArc(evaluationTime, arcDefiningBodies.at( i ) );
-        std::cout << "current arc defined by body: " << currentArcDefinedByBody.first << "\n\n";
+//        std::cout << "current arc defined by body: " << currentArcDefinedByBody.first << "\n\n";
         currentArcsDefinedByEachBody.push_back( currentArcDefinedByBody.first );
     }
     for ( unsigned int i = 0 ; i < currentArcsDefinedByEachBody.size( ) ; i++ )
@@ -204,8 +204,8 @@ Eigen::MatrixXd MultiArcCombinedStateTransitionAndSensitivityMatrixInterface::ge
 
             int indicesToAdd = addCentralBodySensitivity ?
                         ( stateTransitionMatrixSize + sensitivityMatrixSize ) : stateTransitionMatrixSize;
-            std::cout << "multi-arc: statePartialAdditionIndices: " << statePartialAdditionIndices_.at( currentArc ).at( i ).first << " & " <<
-                      statePartialAdditionIndices_.at( currentArc ).at( i ).second << " indicesToAdd: " << indicesToAdd << "\n\n";
+//            std::cout << "multi-arc: statePartialAdditionIndices: " << statePartialAdditionIndices_.at( currentArc ).at( i ).first << " & " <<
+//                      statePartialAdditionIndices_.at( currentArc ).at( i ).second << " indicesToAdd: " << indicesToAdd << "\n\n";
             combinedStateTransitionMatrix.block(
                         statePartialAdditionIndices_.at( currentArc ).at( i ).first, 0, 6, indicesToAdd ) +=
                     combinedStateTransitionMatrix.block(
@@ -238,11 +238,11 @@ Eigen::MatrixXd MultiArcCombinedStateTransitionAndSensitivityMatrixInterface::ge
     int currentArc = getCurrentArc( evaluationTime ).first;
 
     std::vector< int > currentArcsDefinedByEachBody;
-    std::cout << "arcDefiningBodies.size( ): " << arcDefiningBodies.size( ) << "\n\n";
+//    std::cout << "arcDefiningBodies.size( ): " << arcDefiningBodies.size( ) << "\n\n";
     for ( unsigned int i = 0 ; i < arcDefiningBodies.size( ) ; i++ )
     {
         std::pair< int, double > currentArcDefinedByBody = getCurrentArc(evaluationTime, arcDefiningBodies.at( i ) );
-        std::cout << "current arc defined by body: " << arcDefiningBodies.at( i ) << " = " << currentArcDefinedByBody.first << "\n\n";
+//        std::cout << "current arc defined by body: " << arcDefiningBodies.at( i ) << " = " << currentArcDefinedByBody.first << "\n\n";
         currentArcsDefinedByEachBody.push_back( currentArcDefinedByBody.first );
     }
     for ( unsigned int i = 0 ; i < currentArcsDefinedByEachBody.size( ) ; i++ )
@@ -344,8 +344,8 @@ std::pair< int, double > MultiArcCombinedStateTransitionAndSensitivityMatrixInte
         currentArc = lookUpschemePerBody_.at( body )->findNearestLowerNeighbour( evaluationTime );
         if( evaluationTime < arcEndTimesPerBody_.at( body ).first.at( currentArc ) && evaluationTime > arcStartTimesPerBody_.at( body ).first.at( currentArc ) )
         {
-            std::cout << "arcStartTimesPerBody_.at( body ).at( currentArc ): " << arcStartTimesPerBody_.at( body ).first.at( currentArc ) << "\n\n";
-            std::cout << "arcEndTimesPerBody_.at( body ).at( currentArc ): " << arcEndTimesPerBody_.at( body ).first.at( currentArc ) << "\n\n";
+//            std::cout << "arcStartTimesPerBody_.at( body ).at( currentArc ): " << arcStartTimesPerBody_.at( body ).first.at( currentArc ) << "\n\n";
+//            std::cout << "arcEndTimesPerBody_.at( body ).at( currentArc ): " << arcEndTimesPerBody_.at( body ).first.at( currentArc ) << "\n\n";
 //            std::cout << "arcStartTimes_: " << arcStartTimes_.at( 1 ) << "\n\n";
 //            std::vector< double >::iterator itr = std::find( arcStartTimes_.begin( ), arcStartTimes_.end( ), arcStartTimesPerBody_.at( body ).at( currentArc ) );
 //            if ( itr != arcStartTimes_.cend( ) )
@@ -424,8 +424,8 @@ void MultiArcCombinedStateTransitionAndSensitivityMatrixInterface::processArcWis
         arcWiseStateTransitionMatrixSize_.push_back( getSingleArcInitialDynamicalStateParameterSetSize( arcWiseParametersToEstimate_[ arc ] ) );
         arcWiseSensitivityMatrixSize_.push_back( getSingleArcParameterSetSize( arcWiseParametersToEstimate_[ arc ] ) - arcWiseStateTransitionMatrixSize_[ arc ] );
 
-        std::cout << "arc " << arc << " - arcWiseStateTransitionMatrixSize_: " << arcWiseStateTransitionMatrixSize_[ arc ] << "\n\n";
-        std::cout << "arc " << arc << " - arcWiseSensitivityMatrixSize_: " << arcWiseSensitivityMatrixSize_[ arc ] << "\n\n";
+//        std::cout << "arc " << arc << " - arcWiseStateTransitionMatrixSize_: " << arcWiseStateTransitionMatrixSize_[ arc ] << "\n\n";
+//        std::cout << "arc " << arc << " - arcWiseSensitivityMatrixSize_: " << arcWiseSensitivityMatrixSize_[ arc ] << "\n\n";
 
         fullStateTransitionMatrixSize_ += arcWiseStateTransitionMatrixSize_[ arc ];
 
@@ -434,7 +434,7 @@ void MultiArcCombinedStateTransitionAndSensitivityMatrixInterface::processArcWis
         for ( typename ArcWiseParameterList::const_iterator parameterIterator = estimatedBodiesPerArc.begin( ); parameterIterator !=
                                                                                                                 estimatedBodiesPerArc.end( ); parameterIterator++ )
         {
-            std::cout << "estimated body: " << parameterIterator->first << "\n\n";
+//            std::cout << "estimated body: " << parameterIterator->first << "\n\n";
             estimatable_parameters::EstimatebleParameterIdentifier parameterId = parameterIterator->second->getParameterName( );
             std::vector< std::pair< int, int > > parametersIndices = arcWiseParametersToEstimate_[ arc ]->getIndicesForParameterType( parameterId );
             for ( unsigned int j = 0 ; j < parametersIndices.size( ) ; j++ )
@@ -444,10 +444,10 @@ void MultiArcCombinedStateTransitionAndSensitivityMatrixInterface::processArcWis
                 int sizeInitialState = parametersIndices[ j ].second;
                 int startIndexFullMatrix = initialStatesIndicesForFullMatrix.at( parameterIterator->first )[ 0 ].first
                                            + sizeInitialState * arcIndicesPerBody_.at( arc ).at( parameterIterator->first );
-                std::cout << "in current arc: " << startIndexInitialStateArcWise << "\n\n";
-                std::cout << "in full state: " << startIndexInitialStateFullSolution << "\n\n";
-                std::cout << "sizeInitialState: " << sizeInitialState << "\n\n";
-                std::cout << "in full matrix: " << startIndexFullMatrix << "\n\n";
+//                std::cout << "in current arc: " << startIndexInitialStateArcWise << "\n\n";
+//                std::cout << "in full state: " << startIndexInitialStateFullSolution << "\n\n";
+//                std::cout << "sizeInitialState: " << sizeInitialState << "\n\n";
+//                std::cout << "in full matrix: " << startIndexFullMatrix << "\n\n";
                 arcWiseAndFullSolutionInitialStateIndices_[ arc ][ parameterIterator->first ] =
                         std::make_pair( std::make_pair( startIndexInitialStateArcWise, sizeInitialState ),
                                         std::make_pair( std::make_pair( startIndexInitialStateFullSolution, startIndexFullMatrix), sizeInitialState ) );
@@ -463,9 +463,9 @@ void MultiArcCombinedStateTransitionAndSensitivityMatrixInterface::processArcWis
         }
     }
     fullSensitivityMatrixSize_ = arcWiseSensitivityMatrixSize_[ 0 ];
-    std::cout << "full sensitivity matrix size: " << fullSensitivityMatrixSize_ << "\n\n";
-    std::cout << "full state transition matrix size: " << fullStateTransitionMatrixSize_ << "\n\n";
-    std::cout << "full state size: " << fullStateSize_ << "\n\n";
+//    std::cout << "full sensitivity matrix size: " << fullSensitivityMatrixSize_ << "\n\n";
+//    std::cout << "full state transition matrix size: " << fullStateTransitionMatrixSize_ << "\n\n";
+//    std::cout << "full state size: " << fullStateSize_ << "\n\n";
 }
 
 void MultiArcCombinedStateTransitionAndSensitivityMatrixInterface::getArcStartTimesPerBody( )
@@ -474,8 +474,8 @@ void MultiArcCombinedStateTransitionAndSensitivityMatrixInterface::getArcStartTi
     {
         for ( unsigned int i = 0 ; i < itr.second.size( ) ; i++ )
         {
-            std::cout << "body: " << itr.second.at( i ) << "\n\n";
-            std::cout << "arc start time per body: " << arcStartTimes_.at( itr.first ) << "\n\n";
+//            std::cout << "body: " << itr.second.at( i ) << "\n\n";
+//            std::cout << "arc start time per body: " << arcStartTimes_.at( itr.first ) << "\n\n";
             if ( arcStartTimesPerBody_.count( itr.second.at( i ) ) == 0 )
             {
                 std::vector< double > arcStartTimesVector = { arcStartTimes_.at( itr.first ) };
@@ -505,15 +505,15 @@ void MultiArcCombinedStateTransitionAndSensitivityMatrixInterface::getArcStartTi
 Eigen::MatrixXd HybridArcCombinedStateTransitionAndSensitivityMatrixInterface::getCombinedStateTransitionAndSensitivityMatrix(
         const double evaluationTime, const std::vector< std::string >& arcDefiningBodies )
 {
-    std::cout << "before identifying current arc" << "\n\n";
+//    std::cout << "before identifying current arc" << "\n\n";
     std::pair< int, double > currentArc = multiArcInterface_->getCurrentArc( evaluationTime );
-    std::cout << "current arc: " << currentArc.first << " & " << currentArc.second << "\n\n";
+//    std::cout << "current arc: " << currentArc.first << " & " << currentArc.second << "\n\n";
 
     std::vector< std::pair< int, double > > currentArcsDefinedByEachBody;
     for ( unsigned int i = 0 ; i < arcDefiningBodies.size( ) ; i++ )
     {
         std::pair< int, double > currentArcDefinedByBody = multiArcInterface_->getCurrentArc(evaluationTime, arcDefiningBodies.at( i ) );
-        std::cout << "current arc defined by body: " << currentArcDefinedByBody.first << "\n\n";
+//        std::cout << "current arc defined by body: " << currentArcDefinedByBody.first << "\n\n";
         currentArcsDefinedByEachBody.push_back( currentArcDefinedByBody );
     }
     for ( unsigned int i = 0 ; i < currentArcsDefinedByEachBody.size( ) ; i++ )
@@ -540,16 +540,16 @@ Eigen::MatrixXd HybridArcCombinedStateTransitionAndSensitivityMatrixInterface::g
     }
     int multiArcStateSize = stateTransitionMatrixSize;
     int originalMultiArcStateSize = stateTransitionMatrixSize - singleArcStateSize_;
-    std::cout << "multi-arc arc-wise state transition matrix size: " << stateTransitionMatrixSize << "\n\n";
-    std::cout << "multi-arc arc-wise sensitivity matrix size: " << sensitivityMatrixSize << "\n\n";
-    std::cout << "multi-arc arc-wise state size: " << multiArcStateSize << "\n\n";
-    std::cout << "original multi-arc arc-wise state size: " << originalMultiArcStateSize << "\n\n";
+//    std::cout << "multi-arc arc-wise state transition matrix size: " << stateTransitionMatrixSize << "\n\n";
+//    std::cout << "multi-arc arc-wise sensitivity matrix size: " << sensitivityMatrixSize << "\n\n";
+//    std::cout << "multi-arc arc-wise state size: " << multiArcStateSize << "\n\n";
+//    std::cout << "original multi-arc arc-wise state size: " << originalMultiArcStateSize << "\n\n";
 
     Eigen::MatrixXd combinedStateTransitionMatrix = Eigen::MatrixXd::Zero(
                 stateTransitionMatrixSize, stateTransitionMatrixSize + sensitivityMatrixSize );
 
     // Get single-arc matrices
-    std::cout << "test0" << "\n\n";
+//    std::cout << "test0" << "\n\n";
     Eigen::MatrixXd singleArcStateTransition = singleArcInterface_->getCombinedStateTransitionAndSensitivityMatrix(
                 evaluationTime, arcDefiningBodies );
 
@@ -564,7 +564,7 @@ Eigen::MatrixXd HybridArcCombinedStateTransitionAndSensitivityMatrixInterface::g
     if( !( currentArc.first < 0 ) )
     {
         // Get multi-arc matrices
-        std::cout << "test1" << "\n\n";
+//        std::cout << "test1" << "\n\n";
         Eigen::MatrixXd multiArcStateTransition = multiArcInterface_->getCombinedStateTransitionAndSensitivityMatrix(
                 evaluationTime, arcDefiningBodies, false );
 
@@ -575,11 +575,11 @@ Eigen::MatrixXd HybridArcCombinedStateTransitionAndSensitivityMatrixInterface::g
                     singleArcStateSize_, singleArcStateSize_, originalMultiArcStateSize, originalMultiArcStateSize );
 
         // Get single-arc matrices at current arc start
-        std::cout << "test2: " << currentArc.second << "\n\n";
+//        std::cout << "test2: " << currentArc.second << "\n\n";
         Eigen::MatrixXd singleArcStateTransitionAtArcStart = singleArcInterface_->getCombinedStateTransitionAndSensitivityMatrix(
                     currentArc.second, arcDefiningBodies );
 
-        std::cout << "test2" << "\n\n";
+//        std::cout << "test2" << "\n\n";
 
         // Set coupled block
         combinedStateTransitionMatrix.block(
@@ -598,11 +598,11 @@ Eigen::MatrixXd HybridArcCombinedStateTransitionAndSensitivityMatrixInterface::g
         std::vector< std::pair< int, int > > statePartialAdditionIndices =
                 multiArcInterface_->getStatePartialAdditionIndices( currentArc.first );
 
-        std::cout << "test3" << "\n\n";
+//        std::cout << "test3" << "\n\n";
 
         for( unsigned int i = 0; i < statePartialAdditionIndices.size( ); i++ )
         {
-            std::cout << "state partial addition indices: " << statePartialAdditionIndices.at( i ).first << " & " << statePartialAdditionIndices.at( i ).second << "\n\n";
+//            std::cout << "state partial addition indices: " << statePartialAdditionIndices.at( i ).first << " & " << statePartialAdditionIndices.at( i ).second << "\n\n";
             combinedStateTransitionMatrix.block(
                         statePartialAdditionIndices.at( i ).first, multiArcStateSize,
                         6, sensitivityMatrixSize_ ) +=
@@ -611,7 +611,7 @@ Eigen::MatrixXd HybridArcCombinedStateTransitionAndSensitivityMatrixInterface::g
                         6, sensitivityMatrixSize_ );
 
         }
-        std::cout << "test4" << "\n\n";
+//        std::cout << "test4" << "\n\n";
     }
 
     return combinedStateTransitionMatrix;
@@ -630,17 +630,17 @@ Eigen::MatrixXd HybridArcCombinedStateTransitionAndSensitivityMatrixInterface::g
     Eigen::MatrixXd fullCombinedStateTransitionMatrix = Eigen::MatrixXd::Zero(
             multiArcInterface_->getFullStateSize( ),
             multiArcInterface_->getFullStateTransitionMatrixSize( ) + multiArcInterface_->getFullSensitivityMatrixSize( ) - singleArcStateSize_ * ( numberOfMultiArcs_ - 1 ) );
-    std::cout << "size full combined state transition matrix: " << fullCombinedStateTransitionMatrix.rows( ) << " & " << fullCombinedStateTransitionMatrix.cols( ) << "\n\n";
-    std::cout << "sensitivity matrix size: " << sensitivityMatrixSize_ << "\n\n";
-    std::cout << "multiArcInterface_->getFullSensitivityMatrixSize( ): " << multiArcInterface_->getFullSensitivityMatrixSize( ) << "\n\n";
-    std::cout << "singleArcStateSize_: " << singleArcStateSize_ << "\n\n";
+//    std::cout << "size full combined state transition matrix: " << fullCombinedStateTransitionMatrix.rows( ) << " & " << fullCombinedStateTransitionMatrix.cols( ) << "\n\n";
+//    std::cout << "sensitivity matrix size: " << sensitivityMatrixSize_ << "\n\n";
+//    std::cout << "multiArcInterface_->getFullSensitivityMatrixSize( ): " << multiArcInterface_->getFullSensitivityMatrixSize( ) << "\n\n";
+//    std::cout << "singleArcStateSize_: " << singleArcStateSize_ << "\n\n";
     std::pair< int, double > currentArc = multiArcInterface_->getCurrentArc( evaluationTime );
 
     std::vector< std::pair< int, double > > currentArcsDefinedByEachBody;
     for ( unsigned int i = 0 ; i < arcDefiningBodies.size( ) ; i++ )
     {
         std::pair< int, double > currentArcDefinedByBody = multiArcInterface_->getCurrentArc(evaluationTime, arcDefiningBodies.at( i ) );
-        std::cout << "current arc defined by body: " << currentArcDefinedByBody.first << "\n\n";
+//        std::cout << "current arc defined by body: " << currentArcDefinedByBody.first << "\n\n";
         currentArcsDefinedByEachBody.push_back( currentArcDefinedByBody );
     }
     for ( unsigned int i = 0 ; i < currentArcsDefinedByEachBody.size( ) ; i++ )
@@ -685,14 +685,14 @@ Eigen::MatrixXd HybridArcCombinedStateTransitionAndSensitivityMatrixInterface::g
         // Set multi-arc block
         for ( auto itr : arcWiseAndFullSolutionIndices )
         {
-            std::cout << "body: " << itr.first << "\n\n";
+//            std::cout << "body: " << itr.first << "\n\n";
             std::pair< int, int > indicesInArcWiseSolution = itr.second.first;
             std::pair<std::pair< int, int >, int > indicesInFullSolution = itr.second.second;
             int indexInArcState = indicesInArcWiseSolution.first;
             int indexInArcMatrix = indicesInArcWiseSolution.second; // - singleArcStateSize_ * numberOfMultiArcs_;
             int indexInFullState = indicesInFullSolution.first.first;
             int indexInFullMatrix = indicesInFullSolution.first.second;
-            std::cout << "indexInFullMatrix: " << indexInFullMatrix << "\n\n";
+//            std::cout << "indexInFullMatrix: " << indexInFullMatrix << "\n\n";
             int sizeInFullSolution = indicesInFullSolution.second;
 //            if ( indexInFullMatrix >= singleArcStateSize_ * ( currentArc.first + 1 ) )
 //            {
@@ -706,8 +706,8 @@ Eigen::MatrixXd HybridArcCombinedStateTransitionAndSensitivityMatrixInterface::g
                 }
 
 
-                std::cout << "arc-wise indices: " << indexInArcState << " & " << indexInArcMatrix << "\n\n";
-                std::cout << "full solution indices: " << indexInFullState << " & " << indexInFullMatrix << "\n\n";
+//                std::cout << "arc-wise indices: " << indexInArcState << " & " << indexInArcMatrix << "\n\n";
+//                std::cout << "full solution indices: " << indexInFullState << " & " << indexInFullMatrix << "\n\n";
 
                 // Set multi-arc block (self)
                 fullCombinedStateTransitionMatrix.block( indexInFullState, indexInFullMatrix, sizeInFullSolution, sizeInFullSolution ) =
@@ -719,10 +719,10 @@ Eigen::MatrixXd HybridArcCombinedStateTransitionAndSensitivityMatrixInterface::g
                         combinedStateTransitionMatrix.block( indicesInArcWiseSolution.first, 0, indicesInArcWiseSolution.second, indicesInArcWiseSolution.second );
 
                 // Set multi-arc sensitivity block
-                std::cout << "sensitivity block: " << indexInFullState << " - " << fullStateTransitionMatrixSize << " & " <<
-                indicesInFullSolution.second << " - " << fullSensitivityMatrixSize << "\n\n";
-                std::cout << "sensitivity block: " << indicesInArcWiseSolution.first << " - " << multiArcInterface_->getArcWiseStateTransitionMatrixSize( currentArc.first ) << " & " <<
-                indicesInArcWiseSolution.second << " - " << fullSensitivityMatrixSize << "\n\n";
+//                std::cout << "sensitivity block: " << indexInFullState << " - " << fullStateTransitionMatrixSize << " & " <<
+//                indicesInFullSolution.second << " - " << fullSensitivityMatrixSize << "\n\n";
+//                std::cout << "sensitivity block: " << indicesInArcWiseSolution.first << " - " << multiArcInterface_->getArcWiseStateTransitionMatrixSize( currentArc.first ) << " & " <<
+//                indicesInArcWiseSolution.second << " - " << fullSensitivityMatrixSize << "\n\n";
                 fullCombinedStateTransitionMatrix.block(
                         indexInFullState, fullStateTransitionMatrixSize, indicesInFullSolution.second, fullSensitivityMatrixSize ) =
                         combinedStateTransitionMatrix.block( indicesInArcWiseSolution.first, multiArcInterface_->getArcWiseStateTransitionMatrixSize( currentArc.first ),
@@ -734,7 +734,7 @@ Eigen::MatrixXd HybridArcCombinedStateTransitionAndSensitivityMatrixInterface::g
                 {
                     if ( itr2.first != itr.first )
                     {
-                        std::cout << "other body: " << itr2.first << "\n\n";
+//                        std::cout << "other body: " << itr2.first << "\n\n";
                         std::pair< int, int > indicesInArcWiseSolutionOtherBody = itr2.second.first;
                         std::pair< std::pair< int, int>, int > indicesInFullSolutionOtherBody = itr2.second.second;
                         int indexInArcStateOtherBody = indicesInArcWiseSolutionOtherBody.first;
@@ -753,7 +753,7 @@ Eigen::MatrixXd HybridArcCombinedStateTransitionAndSensitivityMatrixInterface::g
                                 indexInFullMatrixOtherBody -= /*indexInArcStateOtherBody*/ singleArcStateSize_ * ( numberOfMultiArcs_ - 1 );
                             }
 
-                            std::cout << "index full matrix other body: " << indexInFullMatrixOtherBody << "\n\n";
+//                            std::cout << "index full matrix other body: " << indexInFullMatrixOtherBody << "\n\n";
 
                         fullCombinedStateTransitionMatrix.block(
                                 indexInFullState, indexInFullMatrixOtherBody,

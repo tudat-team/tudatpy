@@ -27,6 +27,7 @@ namespace observation_models
 //! Enum for types of observations
 enum ObservableType
 {
+    undefined_observation_model = -1,
     one_way_range = 0,
     angular_position = 1,
     position_observable = 2,
@@ -114,6 +115,18 @@ std::vector< LinkEndType > getLinkEndTypesForGivenLinkEndId(
 void checkObservationResidualDiscontinuities(
         Eigen::Block< Eigen::VectorXd > observationBlock,
         const ObservableType observableType );
+
+static const std::map< LinkEndType, int > oneWayLinkStateEntries = {
+    { transmitter, 0 },
+    { receiver, 1 }
+};
+
+
+static const std::map< LinkEndType, int > observedBodyLinkStateEntries = {
+    { observed_body, 0 }
+};
+
+std::map< LinkEndType, int > getSingleLinkStateEntryIndices( const ObservableType observableType );
 
 
 } // namespace observation_models

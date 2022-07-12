@@ -80,7 +80,7 @@ OneWayRangePartial::OneWayRangePartialReturnType OneWayRangePartial::calculatePa
         // Scale position partials
         returnPartial.push_back(
                     std::make_pair(
-                        oneWayRangeScaler_->getScalingFactor( positionPartialIterator_->first ) *
+                        oneWayRangeScaler_->getPositionScalingFactor( positionPartialIterator_->first ) *
                         ( positionPartialIterator_->second->calculatePartialOfPosition(
                               currentState_ , currentTime_ ) ), currentTime_ ) );
     }
