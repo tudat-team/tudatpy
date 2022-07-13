@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef TUDAT_CREATEOBSERVATIONPARTIALSREFACTOR_H
-#define TUDAT_CREATEOBSERVATIONPARTIALSREFACTOR_H
+#ifndef TUDAT_CREATEDIRECTOBSERVATIONPARTIALS_H
+#define TUDAT_CREATEDIRECTOBSERVATIONPARTIALS_H
 
 #include <vector>
 #include <map>
@@ -27,7 +27,7 @@
 #include "tudat/astro/orbit_determination/observation_partials/angularPositionPartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/oneWayRangePartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/oneWayDopplerPartial.h"
-#include "tudat/astro/observation_models/linkTypeDefs.h"
+#include "tudat/astro/observation_models.h"
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/astro/observation_models/observationModel.h"
 #include "tudat/astro/observation_models/oneWayRangeObservationModel.h"
@@ -41,14 +41,23 @@ namespace tudat
 namespace observation_partials
 {
 
+//! Typedef for list of light time corrections for a list of link ends
+typedef std::map< observation_models::LinkEnds,
+std::vector< std::vector< std::shared_ptr< observation_models::LightTimeCorrection > > > >
+PerLinkEndPerLightTimeSolutionCorrections;
+
+//! Function to retrieve a list of light-time corrections per link end from a list of observation models.
+/*!
+ *  Function to retrieve a list of light-time corrections per link end from a list of observation models.
+ *  \param observationModels Map of observation models (may not be of mixed type) with LinkEnds of observable as map key
+ *  \return Map of light-time corrections, with associated link ends as key.
+ */
 template< typename ObservationScalarType, typename TimeType, int ObservationSize  >
-std::map< observation_models::LinkEnds,
-std::vector< std::vector< std::shared_ptr< observation_models::LightTimeCorrection > > > > getLightTimeCorrectionsList2(
+PerLinkEndPerLightTimeSolutionCorrections getLightTimeCorrectionsList(
         const std::map< observation_models::LinkEnds, std::shared_ptr< observation_models::ObservationModel<
         ObservationSize, ObservationScalarType, TimeType> > > observationModels )
 {
-    std::map< observation_models::LinkEnds,
-            std::vector< std::vector< std::shared_ptr< observation_models::LightTimeCorrection > > > > lightTimeCorrectionsList;
+    PerLinkEndPerLightTimeSolutionCorrections lightTimeCorrectionsList;
     std::vector< std::vector< std::shared_ptr< observation_models::LightTimeCorrection > > > currentLightTimeCorrections;
 
     // Retrieve type of observable
@@ -96,6 +105,19 @@ std::vector< std::vector< std::shared_ptr< observation_models::LightTimeCorrecti
                             oneWayRangeModel->getLightTimeCalculator( )->getLightTimeCorrection( ) );
                 break;
             }
+            case observation_models::two_way_doppler:
+            {
+                std::shared_ptr< observation_models::TwoWayDopplerObservationModel
+                        < ObservationScalarType, TimeType> > twoWaDopplerModel =
+                        std::dynamic_pointer_cast< observation_models::TwoWayDopplerObservationModel
+                        < ObservationScalarType, TimeType> >
+                        ( observationModelIterator->second );
+                currentLightTimeCorrections.push_back(
+                            twoWaDopplerModel->getUplinkDopplerCalculator( )->getLightTimeCalculator( )->getLightTimeCorrection( ) );
+                currentLightTimeCorrections.push_back(
+                            twoWaDopplerModel->getDownlinkDopplerCalculator( )->getLightTimeCalculator( )->getLightTimeCorrection( ) );
+                break;
+            }
             case observation_models::angular_position:
             {
                 std::shared_ptr< observation_models::AngularPositionObservationModel
@@ -107,10 +129,58 @@ std::vector< std::vector< std::shared_ptr< observation_models::LightTimeCorrecti
                             angularPositionModel->getLightTimeCalculator( )->getLightTimeCorrection( ) );
                 break;
             }
+            case observation_models::one_way_differenced_range:
+            {
+                std::shared_ptr< observation_models::OneWayDifferencedRangeObservationModel
+                        < ObservationScalarType, TimeType> > oneWayDifferencedRangeObservationModel =
+                        std::dynamic_pointer_cast< observation_models::OneWayDifferencedRangeObservationModel
+                        < ObservationScalarType, TimeType> >
+                        ( observationModelIterator->second );
+                currentLightTimeCorrections.push_back(
+                            oneWayDifferencedRangeObservationModel->getArcStartLightTimeCalculator( )->
+                            getLightTimeCorrection( ) );
+                currentLightTimeCorrections.push_back(
+                            oneWayDifferencedRangeObservationModel->getArcEndLightTimeCalculator( )->
+                            getLightTimeCorrection( ) );
+
+                break;
+            }
+            case observation_models::n_way_range:
+            {
+                std::shared_ptr< observation_models::NWayRangeObservationModel< ObservationScalarType, TimeType > > nWayRangeObservationModel =
+                        std::dynamic_pointer_cast< observation_models::NWayRangeObservationModel< ObservationScalarType, TimeType > >
+                        ( observationModelIterator->second );
+                std::vector< std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > > lightTimeCalculatorList =
+                        nWayRangeObservationModel->getLightTimeCalculators( );
+                for( unsigned int i = 0; i < lightTimeCalculatorList.size( ); i++ )
+                {
+                    currentLightTimeCorrections.push_back( lightTimeCalculatorList.at( i )->getLightTimeCorrection( ) );
+                }
+                break;
+            }
             case observation_models::position_observable:
+            {
                 break;
+            }
+            case observation_models::euler_angle_313_observable:
+            {
+                break;
+            }
             case observation_models::velocity_observable:
+            {
                 break;
+            }
+            case observation_models::relative_angular_position:
+            {
+                std::shared_ptr< observation_models::RelativeAngularPositionObservationModel< ObservationScalarType, TimeType> > relativeAngularPositionModel =
+                        std::dynamic_pointer_cast< observation_models::RelativeAngularPositionObservationModel
+                                < ObservationScalarType, TimeType> >( observationModelIterator->second );
+                currentLightTimeCorrections.push_back(
+                        relativeAngularPositionModel->getLightTimeCalculatorFirstTransmitter( )->getLightTimeCorrection( ) );
+                currentLightTimeCorrections.push_back(
+                        relativeAngularPositionModel->getLightTimeCalculatorSecondTransmitter( )->getLightTimeCorrection( ) );
+                break;
+            }
             default:
                 std::string errorMessage =
                         "Error in light time correction list creation, observable type " +
@@ -696,7 +766,7 @@ std::shared_ptr< PositionPartialScaling > > > createSingleLinkObservationPartial
 {
 
     std::map< observation_models::LinkEnds, std::vector< std::vector< std::shared_ptr< observation_models::LightTimeCorrection > > > >
-            lightTimeCorrections = getLightTimeCorrectionsList2( observationModelList );
+            lightTimeCorrections = getLightTimeCorrectionsList( observationModelList );
 
     std::vector< observation_models::LinkEnds > linkEndsList = utilities::createVectorFromMapKeys( observationModelList );
 
@@ -725,4 +795,4 @@ std::shared_ptr< PositionPartialScaling > > > createSingleLinkObservationPartial
 }
 
 
-#endif // TUDAT_CREATEOBSERVATIONPARTIALSREFACTOR_H
+#endif // TUDAT_CREATEDIRECTOBSERVATIONPARTIALS_H

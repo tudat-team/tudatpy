@@ -26,7 +26,6 @@ set(estimation_HEADERS
         createStateDerivativePartials.h
         estimatableParameterSettings.h
         orbitDeterminationTestCases.h
-#        createOneWayRangePartials.h
         createObservationPartials.h
         podProcessing.h
         determinePostFitParameterInfluence.h
@@ -34,7 +33,6 @@ set(estimation_HEADERS
         createNumericalSimulator.h
         createEulerAngleObservationPartials.h
         createDopplerPartials.h
-#        createAngularPositionPartials.h
         createRelativeAngularPositionPartials.h
         createDifferencedOneWayRangeRatePartials.h
         createNWayRangePartials.h
@@ -42,6 +40,7 @@ set(estimation_HEADERS
         observationOutput.h
         observationSimulationSettings.h
         observations.h
+        createDirectObservationPartials.h
         )
 
 # Add header files.
@@ -58,13 +57,10 @@ set(estimation_SOURCES
         createCartesianStatePartials.cpp
         createStateDerivativePartials.cpp
         orbitDeterminationTestCases.cpp
-#        createOneWayRangePartials.cpp
         createNumericalSimulator.cpp
         createAccelerationPartials.cpp
         createObservationModel.cpp
         createObservationViability.cpp
-        createDopplerPartials.cpp
-#        createAngularPositionPartials.cpp
         createRelativeAngularPositionPartials.cpp
         observationSimulationSettings.cpp
         observationOutputSettings.cpp

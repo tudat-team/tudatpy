@@ -24,7 +24,7 @@
 #include "tudat/astro/observation_models/corrections/lightTimeCorrection.h"
 #include "tudat/simulation/estimation_setup/createCartesianStatePartials.h"
 #include "tudat/simulation/estimation_setup/createLightTimeCalculator.h"
-#include "tudat/simulation/estimation_setup/createObservationPartialsRefactor.h"
+#include "tudat/simulation/estimation_setup/createDirectObservationPartials.h"
 #include "tudat/astro/orbit_determination/observation_partials/oneWayDopplerPartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/twoWayDopplerPartial.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/initialTranslationalState.h"
