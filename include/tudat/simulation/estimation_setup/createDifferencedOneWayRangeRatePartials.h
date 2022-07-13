@@ -13,7 +13,7 @@
 
 #include "tudat/simulation/estimation_setup/createObservationModel.h"
 #include "tudat/simulation/estimation_setup/createDifferencedOneWayRangeRatePartials.h"
-#include "tudat/simulation/estimation_setup/createObservationPartialsRefactor.h"
+#include "tudat/simulation/estimation_setup/createDirectObservationPartials.h"
 
 #include "tudat/astro/orbit_determination/observation_partials/oneWayRangePartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/differencedOneWayRangeRatePartial.h"

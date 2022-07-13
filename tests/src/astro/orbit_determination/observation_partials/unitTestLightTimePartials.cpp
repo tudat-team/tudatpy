@@ -22,7 +22,7 @@
 #include "tudat/simulation/estimation_setup/createObservationModel.h"
 #include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
 #include "tudat/simulation/estimation_setup/createLightTimeCorrectionPartials.h"
-#include "tudat/simulation/estimation_setup/createObservationPartialsRefactor.h"
+#include "tudat/simulation/estimation_setup/createDirectObservationPartials.h"
 #include "tudat/astro/orbit_determination/observation_partials/firstOrderRelativisticPartial.h"
 #include "tudat/support/observationPartialTestFunctions.h"
 

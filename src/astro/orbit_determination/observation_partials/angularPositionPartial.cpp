@@ -102,56 +102,6 @@ void AngularPositionScaling::update( const std::vector< Eigen::Vector6d >& linkE
 
 }
 
-////! Function to calculate the observation partial(s) at required time and state
-//AngularPositionPartial::AngularPositionPartialReturnType AngularPositionPartial::calculatePartial(
-//        const std::vector< Eigen::Vector6d >& states,
-//        const std::vector< double >& times,
-//        const observation_models::LinkEndType linkEndOfFixedTime,
-//        const Eigen::Vector2d& currentObservation )
-//{
-//    if( linkEndOfFixedTime != angularPositionScaler_->getCurrentLinkEndType( ) )
-//    {
-//        throw std::runtime_error( "Error angular position partial and scaling are inconsistent" );
-//    }
-
-//    AngularPositionPartialReturnType returnPartial;
-
-//    // Iterate over all link ends
-//    for( positionPartialIterator_ = positionPartialList_.begin( ); positionPartialIterator_ != positionPartialList_.end( );
-//         positionPartialIterator_++ )
-//    {
-//        if( positionPartialIterator_->first == observation_models::transmitter )
-//        {
-//            currentState_  = states[ 0 ];
-//            currentTime_ = times[ 0 ];
-//        }
-//        else if( positionPartialIterator_->first == observation_models::receiver )
-//        {
-//            currentState_  = states[ 1 ];
-//            currentTime_ = times[ 1 ];
-//        }
-
-//        // Scale position partials
-//        returnPartial.push_back(
-//                    std::make_pair(
-//                        angularPositionScaler_->getPositionScalingFactor( positionPartialIterator_->first ) *
-//                        ( positionPartialIterator_->second->calculatePartialOfPosition(
-//                              currentState_ , currentTime_ ) ), currentTime_ ) );
-//    }
-
-//    // Add scaled light-time correcion partials.
-//    for( unsigned int i = 0; i < lighTimeCorrectionPartialsFunctions_.size( ); i++ )
-//    {
-//        currentLinkTimeCorrectionPartial_ = lighTimeCorrectionPartialsFunctions_.at( i )( states, times );
-//        returnPartial.push_back(
-//                    std::make_pair( angularPositionScaler_->getLightTimePartialScalingFactor( ) *
-//                                    physical_constants::SPEED_OF_LIGHT * currentLinkTimeCorrectionPartial_.first,
-//                    currentLinkTimeCorrectionPartial_.second ) );
-//    }
-
-
-//    return returnPartial;
-//}
 
 }
 
