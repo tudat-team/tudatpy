@@ -69,7 +69,8 @@ ObservableType getUndifferencedObservableType( const ObservableType differencedO
 ObservableType getDifferencedObservableType( const ObservableType undifferencedObservableType );
 
 std::pair< std::vector< int >, std::vector< int > > getUndifferencedTimeAndStateIndices(
-        const ObservableType differencedObservableType );
+        const ObservableType differencedObservableType,
+        const int numberOfLinkEnds );
 
 //! Function to get the size of an observable of a given type.
 /*!
@@ -81,7 +82,7 @@ int getObservableSize( const ObservableType observableType );
 
 bool isObservableOfIntegratedType( const ObservableType observableType );
 
-bool areObservableLinksContinuous( const ObservableType observableType );
+//bool areObservableLinksContinuous( const ObservableType observableType );
 
 LinkEndType getDefaultReferenceLinkEndType(
         const ObservableType observableType );

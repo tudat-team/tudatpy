@@ -13,6 +13,7 @@
 
 #include "tudat/astro/orbit_determination/observation_partials/differencedObservationPartial.h"
 #include "tudat/simulation/estimation_setup/createDirectObservationPartials.h"
+#include "tudat/simulation/estimation_setup/createNWayRangePartials.h"
 #include "tudat/simulation/estimation_setup/createObservationModel.h"
 
 namespace tudat
@@ -27,7 +28,8 @@ std::shared_ptr< ObservationPartial< ObservationSize > >
 createDifferencedObservationPartial(
         const observation_models::ObservableType differencedObservableType,
         const std::shared_ptr< ObservationPartial< ObservationSize > > firstPartial,
-        const std::shared_ptr< ObservationPartial< ObservationSize > > secondPartial )
+        const std::shared_ptr< ObservationPartial< ObservationSize > > secondPartial,
+        const observation_models::LinkEnds& linkEnds )
 {
     using namespace observation_models;
 
@@ -55,7 +57,24 @@ createDifferencedObservationPartial(
         }
         differencedPartial = std::make_shared< DifferencedObservablePartial< ObservationSize > >(
                     firstPartial, secondPartial, &observation_models::getDifferencedOneWayRangeScalingFactor,
-                    getUndifferencedTimeAndStateIndices( one_way_differenced_range ) );
+                    getUndifferencedTimeAndStateIndices( one_way_differenced_range, linkEnds.size( ) ) );
+        break;
+    }
+    case n_way_differenced_range:
+    {
+        if( std::dynamic_pointer_cast< NWayRangePartial >( firstPartial ) == nullptr )
+        {
+            throw std::runtime_error( "Error when creating n-way differenced range partial; first input object type is incompatible" );
+        }
+
+        if( std::dynamic_pointer_cast< NWayRangePartial >( secondPartial ) == nullptr )
+        {
+            throw std::runtime_error( "Error when creating n-way differenced range partial; second input object type is incompatible" );
+        }
+
+        differencedPartial = std::make_shared< DifferencedObservablePartial< ObservationSize > >(
+                    firstPartial, secondPartial, &observation_models::getDifferencedNWayRangeScalingFactor,
+                    getUndifferencedTimeAndStateIndices( n_way_differenced_range, linkEnds.size( ) ) );
         break;
     }
     default:
@@ -136,9 +155,10 @@ std::shared_ptr< PositionPartialScaling > > createDifferencedObservablePartials(
             // Create range rate partial.
             differencedObservationPartialList[ firstPartialsIterator->first ] =
                     createDifferencedObservationPartial(
-                            differencedObservableType,
-                            firstPartialsIterator->second,
-                            secondPartialsIterator->second );
+                        differencedObservableType,
+                        firstPartialsIterator->second,
+                        secondPartialsIterator->second,
+                        linkEnds );
         }
 
         // Increment range partial iterators.
@@ -147,6 +167,30 @@ std::shared_ptr< PositionPartialScaling > > createDifferencedObservablePartials(
     }
 
 
+    // Create two-way Doppler partials
+    std::map< int, std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > >
+            vectorParametersToEstimate =  parametersToEstimate->getVectorParameters( );
+    for( std::map< int, std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd  > > >::iterator
+         parameterIterator =
+         vectorParametersToEstimate.begin( ); parameterIterator != vectorParametersToEstimate.end( ); parameterIterator++ )
+    {
+
+        std::shared_ptr< ObservationPartial< 1 > > currentDifferencedObservationPartial;
+        if( isParameterObservationLinkProperty( parameterIterator->second->getParameterName( ).first ) && useBiasPartials )
+        {
+            currentDifferencedObservationPartial = createObservationPartialWrtLinkProperty< 1 >(
+                        linkEnds, undifferencedObservableType, parameterIterator->second );
+        }
+
+        // Check if partial is non-nullptr (i.e. whether dependency exists between current doppler and current parameter)
+        if( currentDifferencedObservationPartial != nullptr )
+        {
+            // Add partial to the list.
+            std::pair< double, double > currentPair = std::pair< int, int >( parameterIterator->first,
+                                                 parameterIterator->second->getParameterSize( ) );
+            differencedObservationPartialList[ currentPair ] = currentDifferencedObservationPartial;
+        }
+    }
 
     differencedPartialsAndScaling = std::make_pair(
                 differencedObservationPartialList, ObservationPartialScalingCreator< ObservationSize >::

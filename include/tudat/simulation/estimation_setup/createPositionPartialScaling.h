@@ -18,6 +18,7 @@
 #include "tudat/astro/orbit_determination/observation_partials/angularPositionPartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/oneWayRangePartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/oneWayDopplerPartial.h"
+#include "tudat/astro/orbit_determination/observation_partials/nWayRangePartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/differencedObservationPartial.h"
 #include "tudat/simulation/environment_setup/body.h"
 
@@ -171,9 +172,31 @@ public:
             {
                 throw std::runtime_error( "Error when creating one-way differenced range partial scaling object, second range partial is of incompatible type" );
             }
-            positionPartialScaler = std::make_shared< OneWayRangeRateScaling >(
-                                    std::dynamic_pointer_cast< OneWayRangeScaling >( firstPositionPartialScaling ),
-                                    std::dynamic_pointer_cast< OneWayRangeScaling >( secondPositionPartialScaling ) );
+            positionPartialScaler = std::make_shared< DifferencedObservablePartialScaling >(
+                        firstPositionPartialScaling, secondPositionPartialScaling,
+                        observation_models::getUndifferencedTimeAndStateIndices( observation_models::one_way_differenced_range, 2 ) );
+            break;
+        }
+        case observation_models::n_way_differenced_range:
+        {
+            if( std::dynamic_pointer_cast< NWayRangeScaling >( firstPositionPartialScaling ) == nullptr )
+            {
+                throw std::runtime_error( "Error when creating n-way differenced range partial scaling object, first range partial is of incompatible type" );
+            }
+            if( std::dynamic_pointer_cast< NWayRangeScaling >( secondPositionPartialScaling ) == nullptr )
+            {
+                throw std::runtime_error( "Error when creating n-way differenced range partial scaling object, second range partial is of incompatible type" );
+            }
+
+            int numberOfLinkEnds = std::dynamic_pointer_cast< NWayRangeScaling >( firstPositionPartialScaling )->getNumberOfLinkEnds( );
+            if( std::dynamic_pointer_cast< NWayRangeScaling >( firstPositionPartialScaling )->getNumberOfLinkEnds( ) !=
+                    std::dynamic_pointer_cast< NWayRangeScaling >( secondPositionPartialScaling )->getNumberOfLinkEnds( ) )
+            {
+                throw std::runtime_error( "Error when creating n-way differenced range partial scaling object, first and second range partials are incompatible" );
+            }
+            positionPartialScaler = std::make_shared< DifferencedObservablePartialScaling >(
+                        firstPositionPartialScaling, secondPositionPartialScaling,
+                        observation_models::getUndifferencedTimeAndStateIndices( observation_models::n_way_differenced_range, numberOfLinkEnds ) );
             break;
         }
         default:

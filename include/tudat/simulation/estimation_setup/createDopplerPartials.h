@@ -63,7 +63,8 @@ template< typename ParameterType, typename TimeType >
 std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialScaling > > createTwoWayDopplerPartials(
         const std::shared_ptr< observation_models::ObservationModel< 1, ParameterType, TimeType > > observationModel,
         const simulation_setup::SystemOfBodies& bodies,
-        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate )
+        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
+        const bool useBiasPartials = true  )
 
 {    
     std::shared_ptr< observation_models::TwoWayDopplerObservationModel< ParameterType, TimeType > >  twoWayObservationModel =
@@ -230,7 +231,7 @@ std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialSca
     {
 
         std::shared_ptr< ObservationPartial< 1 > > currentTwoWayDopplerPartial;
-        if( isParameterObservationLinkProperty( parameterIterator->second->getParameterName( ).first )  )
+        if( isParameterObservationLinkProperty( parameterIterator->second->getParameterName( ).first ) && useBiasPartials )
         {
             currentTwoWayDopplerPartial = createObservationPartialWrtLinkProperty< 1 >(
                         twoWayDopplerLinkEnds, observation_models::two_way_doppler, parameterIterator->second );
@@ -272,7 +273,8 @@ createTwoWayDopplerPartials(
         const std::map< observation_models::LinkEnds,
         std::shared_ptr< observation_models::ObservationModel< 1, ParameterType, TimeType > > > observationModelList,
         const simulation_setup::SystemOfBodies& bodies,
-        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate )
+        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
+        const bool useBiasPartials = true  )
 {
 
     std::map< observation_models::LinkEnds,
@@ -281,7 +283,7 @@ createTwoWayDopplerPartials(
     for( auto it : observationModelList )
     {
         partialsList[ it.first ] = createTwoWayDopplerPartials(
-                    it.second, bodies, parametersToEstimate );
+                    it.second, bodies, parametersToEstimate, useBiasPartials );
     }
 
     return partialsList;

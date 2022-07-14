@@ -19,6 +19,29 @@ namespace tudat
 namespace observation_models
 {
 
+inline double getDifferencedNWayRangeScalingFactor(
+        const std::vector< double >& linkEndTimes,
+        const observation_models::LinkEndType referenceLinkEnd )
+{
+    int numberOfEntries = linkEndTimes.size( ) / 2;
+    double arcDuration = TUDAT_NAN;
+    if ( referenceLinkEnd == observation_models::transmitter )
+    {
+        arcDuration = linkEndTimes[ numberOfEntries ] - linkEndTimes[ 0 ];
+    }
+    else if ( referenceLinkEnd == observation_models::receiver )
+    {
+        arcDuration = linkEndTimes[ 2 * numberOfEntries - 1 ] - linkEndTimes[ numberOfEntries - 1 ];
+    }
+    else
+    {
+        throw std::runtime_error( "Error when getting differenced n-way range scaling factor; link end " +
+                                  getLinkEndTypeString( referenceLinkEnd ) + " not recognized." );
+    }
+    return 1.0 / arcDuration;
+}
+
+
 template< typename ObservationScalarType = double,
           typename TimeType = double >
 class NWayDifferencedRangeObservationModel: public ObservationModel< 1, ObservationScalarType, TimeType >
@@ -30,17 +53,15 @@ public:
 
     NWayDifferencedRangeObservationModel(
             const LinkEnds& linkEnds,
-            const std::shared_ptr< NWayRangeObservationModel< ObservationScalarType, TimeType > arcStartObservationModel,
-            const std::shared_ptr< NWayRangeObservationModel< ObservationScalarType, TimeType > arcEndObservationModel,
+            const std::shared_ptr< NWayRangeObservationModel< ObservationScalarType, TimeType > > arcStartObservationModel,
+            const std::shared_ptr< NWayRangeObservationModel< ObservationScalarType, TimeType > > arcEndObservationModel,
             const std::function< double( const double ) > integrationTimeFunction,
             const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr ):
         ObservationModel< 1, ObservationScalarType, TimeType >( n_way_differenced_range, linkEnds, observationBiasCalculator ),
         arcStartObservationModel_( arcStartObservationModel ),
         arcEndObservationModel_( arcEndObservationModel ),
-        integrationTimeFunction_( integrationTimeFunction )
-    {
-        numberOfLinkEnds_ = linkEnds.size( );
-    }
+        integrationTimeFunction_( integrationTimeFunction ),
+        numberOfLinkEnds_( linkEnds.size( ) ){ }
 
     //! Destructor
     ~NWayDifferencedRangeObservationModel( ){ }
@@ -52,36 +73,36 @@ public:
      *  \param isTimeAtReception True if given time is to be the reception time, false if it is transmission time.
      *  \return Calculated observed one-way range rate value.
      */
-    ObservationScalarType computeObservation(
+    Eigen::Matrix< ObservationScalarType, 1, 1 > computeObservations(
             const TimeType time,
             const LinkEndType linkEndAssociatedWithTime ) const
     {
-        ObservationScalarType countIntervalDuration = countIntervalDurationFunction_( );
-        return ( arcEndObservationModel_->computeObservation( time, linkEndAssociatedWithTime ) -
-                arcStartObservationModel_->computeObservation( time - countIntervalDuration, linkEndAssociatedWithTime ) ) /
-                static_cast< ObservationScalarType >( countIntervalDuration );
+        double integrationTime = integrationTimeFunction_( time );
+        return ( arcEndObservationModel_->computeObservations( time, linkEndAssociatedWithTime ) -
+                arcStartObservationModel_->computeObservations( time - integrationTime, linkEndAssociatedWithTime ) ) /
+                static_cast< ObservationScalarType >( integrationTime );
     }
 
 
     Eigen::Matrix< ObservationScalarType, 1, 1 > computeIdealObservationsWithLinkEndData(
             const TimeType time,
             const LinkEndType linkEndAssociatedWithTime,
-            std::vector< TimeType >& linkEndTimes,
-            std::vector< Eigen::Matrix< ObservationScalarType, 6, 1 > >& linkEndStates )  const
+            std::vector< double >& linkEndTimes,
+            std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates )
     {
-        std::vector< TimeType > arcStartLinkEndTimes;
-        std::vector< Eigen::Matrix< ObservationScalarType, 6, 1 > > arcStartLinkEndStates;
-        std::vector< TimeType > arcEndLinkEndTimes;
-        std::vector< Eigen::Matrix< ObservationScalarType, 6, 1 > > arcEndLinkEndStates;
+        std::vector< double > arcStartLinkEndTimes;
+        std::vector< Eigen::Matrix< double, 6, 1 > > arcStartLinkEndStates;
+        std::vector< double > arcEndLinkEndTimes;
+        std::vector< Eigen::Matrix< double, 6, 1 > > arcEndLinkEndStates;
 
-        ObservationScalarType countIntervalDuration = countIntervalDurationFunction_( );
+        double integrationTime = integrationTimeFunction_( time );
 
-        ObservationScalarType observation =
-                ( arcEndObservationModel_->computeObservationAndFullPrecisionLinkEndData(
+        Eigen::Matrix< ObservationScalarType, 1, 1 > observation =
+                ( arcEndObservationModel_->computeIdealObservationsWithLinkEndData(
                     time, linkEndAssociatedWithTime, arcEndLinkEndTimes, arcEndLinkEndStates ) -
-                arcStartObservationModel_->computeObservationAndFullPrecisionLinkEndData(
-                    time - countIntervalDuration, linkEndAssociatedWithTime, arcStartLinkEndTimes, arcStartLinkEndStates ) ) /
-                static_cast< ObservationScalarType >( countIntervalDuration );
+                arcStartObservationModel_->computeIdealObservationsWithLinkEndData(
+                    time - integrationTime, linkEndAssociatedWithTime, arcStartLinkEndTimes, arcStartLinkEndStates ) ) /
+                static_cast< ObservationScalarType >( integrationTime );
 
         linkEndTimes.clear( );
         linkEndStates.clear( );
@@ -97,36 +118,36 @@ public:
             linkEndStates[ i + 2 * ( numberOfLinkEnds_ - 1 ) ] = arcEndLinkEndStates[ i ];
         }
 
-        return ( Eigen::Matrix< ObservationScalarType, 1, 1 >( ) << observation ).finished( );
+        return observation;
     }
 
 //    void resetRetransmissionDelaysFunctions(
-//            const boost::function< std::vector< ObservationScalarType >( ) > arcStartRetransmissionDelaysFunction,
-//            const boost::function< std::vector< ObservationScalarType >( ) > arcEndRetransmissionDelaysFunction )
+//            const std::function< std::vector< ObservationScalarType >( ) > arcStartRetransmissionDelaysFunction,
+//            const std::function< std::vector< ObservationScalarType >( ) > arcEndRetransmissionDelaysFunction )
 //    {
 //        arcStartObservationModel_->resetRetransmissionDelaysFunction( arcStartRetransmissionDelaysFunction );
 //        arcEndObservationModel_->resetRetransmissionDelaysFunction( arcEndRetransmissionDelaysFunction );
 //    }
 
-    boost::function< ObservationScalarType( ) > getIntegrationTimeFunction( )
+    std::function< double( const double ) > getIntegrationTimeFunction( )
     {
         return integrationTimeFunction_;
     }
 
-    boost::shared_ptr< NWayRangeObservationModel< ObservationScalarType, TimeType, ObservationScalarType > > getArcEndObservationModel( )
+    std::shared_ptr< NWayRangeObservationModel< ObservationScalarType, TimeType > > getArcEndObservationModel( )
     {
         return arcEndObservationModel_;
     }
 
-    boost::shared_ptr< NWayRangeObservationModel< ObservationScalarType, TimeType, ObservationScalarType > > getArcStartObservationModel( )
+    std::shared_ptr< NWayRangeObservationModel< ObservationScalarType, TimeType > > getArcStartObservationModel( )
     {
         return arcStartObservationModel_;
     }
 private:
 
-    boost::shared_ptr< NWayRangeObservationModel< ObservationScalarType, TimeType > > arcEndObservationModel_;
+    std::shared_ptr< NWayRangeObservationModel< ObservationScalarType, TimeType > > arcStartObservationModel_;
 
-    boost::shared_ptr< NWayRangeObservationModel< ObservationScalarType, TimeType > > arcStartObservationModel_;
+    std::shared_ptr< NWayRangeObservationModel< ObservationScalarType, TimeType > > arcEndObservationModel_;
 
     std::function< double( const double ) > integrationTimeFunction_;
 

@@ -18,6 +18,7 @@
 
 #include "tudat/astro/orbit_determination/observation_partials/oneWayRangePartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/observationPartial.h"
+#include "tudat/basics/utilities.h"
 
 namespace tudat
 {
@@ -26,52 +27,57 @@ namespace observation_partials
 {
 
 //! Derived class for scaling three-dimensional position partial to one-way range-rate (differenced) observable partial
-class OneWayRangeRateScaling: public PositionPartialScaling
+class DifferencedObservablePartialScaling: public PositionPartialScaling
 {
 public:
 
     //! Constructor
     /*!
      * Constructor
-     * \param oneWayRangeScalerArcStart Partial scaling for arc start range observation
-     * \param oneWayRangeScalerArcEnd Partial scaling for arc end range observation
+     * \param firstPartialScaling Partial scaling for arc start range observation
+     * \param secondPartialScaling Partial scaling for arc end range observation
      */
-    OneWayRangeRateScaling(
-            const std::shared_ptr< OneWayRangeScaling > oneWayRangeScalerArcStart,
-            const std::shared_ptr< OneWayRangeScaling > oneWayRangeScalerArcEnd ):
-        oneWayRangeScalerArcStart_( oneWayRangeScalerArcStart ), oneWayRangeScalerArcEnd_( oneWayRangeScalerArcEnd ){ }
+    DifferencedObservablePartialScaling(
+            const std::shared_ptr< PositionPartialScaling > firstPartialScaling,
+            const std::shared_ptr< PositionPartialScaling > secondPartialScaling,
+            const std::pair< std::vector< int >, std::vector< int > > timeStateIndices ):
+        firstPartialScaling_( firstPartialScaling ), secondPartialScaling_( secondPartialScaling ),
+        firstIndices_( timeStateIndices.first ), secondIndices_( timeStateIndices.second ){ }
 
     //! Destructor
-    ~OneWayRangeRateScaling( ){ }
+    ~DifferencedObservablePartialScaling( ){ }
 
-    //! Update the scaling object to the current times and states
-    /*!
-     *  Update the scaling object to the current times and states
-     *  \param linkEndStates List of states at each link end during observation Index of vector maps to link end for a
-     *  given ObsevableType through getLinkEndIndex function.
-     *  \param times List of times at each link end during observation.
-     *  \param fixedLinkEnd Link end at which observation time is defined, i.e. link end for which associated time
-     *  is kept constant when computing observable.
-     *  \param currentObservation Current value of observation for which scaling is to be computed
-     */
+
     void update( const std::vector< Eigen::Vector6d >& linkEndStates,
                  const std::vector< double >& times,
                  const observation_models::LinkEndType fixedLinkEnd,
                  const Eigen::VectorXd currentObservation )
     {
-        oneWayRangeScalerArcStart_->update(
-                    std::vector< Eigen::Vector6d >(
-                        linkEndStates.begin( ), linkEndStates.begin( ) + 2 ), times, fixedLinkEnd );
-        oneWayRangeScalerArcEnd_->update(
-                    std::vector< Eigen::Vector6d >(
-                        linkEndStates.begin( ) + 2, linkEndStates.begin( ) + 4 ), times, fixedLinkEnd );
+        try
+        {
+            firstPartialScaling_->update(
+                        utilities::getVectorEntries( linkEndStates, firstIndices_ ), utilities::getVectorEntries( times, firstIndices_ ),
+                        fixedLinkEnd, Eigen::VectorXd::Constant( currentObservation.rows( ), TUDAT_NAN ) );
+            secondPartialScaling_->update(
+                        utilities::getVectorEntries( linkEndStates, secondIndices_ ), utilities::getVectorEntries( times, secondIndices_ ),
+                        fixedLinkEnd, Eigen::VectorXd::Constant( currentObservation.rows( ), TUDAT_NAN ) );;
+        }
+        catch( const std::exception& caughtException )
+        {
+            std::string exceptionText = std::string( caughtException.what( ) );
+            throw std::runtime_error( "Error when computing differenced observation partial scaling, error: " + exceptionText );
+        }
+
+
     }
 
-    //! Partial scaling for arc start range observation
-    std::shared_ptr< OneWayRangeScaling > oneWayRangeScalerArcStart_;
+    std::shared_ptr< PositionPartialScaling > firstPartialScaling_;
 
-    //! Partial scaling for arc end range observation
-    std::shared_ptr< OneWayRangeScaling > oneWayRangeScalerArcEnd_;
+    std::shared_ptr< PositionPartialScaling > secondPartialScaling_;
+
+    std::vector< int > firstIndices_;
+
+    std::vector< int > secondIndices_;
 };
 
 //! Class to compute the partial derivatives of a one-way range-rate (differenced) observation

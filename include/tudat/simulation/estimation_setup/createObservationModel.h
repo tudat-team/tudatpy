@@ -21,6 +21,7 @@
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/simulation/estimation_setup/createLightTimeCorrection.h"
 #include "tudat/astro/observation_models/nWayRangeObservationModel.h"
+#include "tudat/astro/observation_models/nWayRangeRateObservationModel.h"
 #include "tudat/astro/observation_models/oneWayRangeObservationModel.h"
 #include "tudat/astro/observation_models/oneWayDopplerObservationModel.h"
 #include "tudat/astro/observation_models/twoWayDopplerObservationModel.h"
@@ -562,6 +563,60 @@ public:
     ~NWayRangeObservationSettings( ){ }
 
     std::vector< std::shared_ptr< ObservationModelSettings > > oneWayRangeObsevationSettings_;
+
+    //! Function that returns the integration time of observable as a function of time
+    std::function< std::vector< double >( const double ) > retransmissionTimesFunction_;
+
+};
+
+class NWayDifferencedRangeObservationSettings: public ObservationModelSettings
+{
+public:
+
+    NWayDifferencedRangeObservationSettings(
+            const LinkDefinition& linkEnds,
+            const std::function< double( const double ) > integrationTimeFunction,
+            const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =
+            std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
+            const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
+            const std::function< std::vector< double >( const double ) > retransmissionTimesFunction =
+            std::function< std::vector< double >( const double ) >( ) ):
+        ObservationModelSettings( n_way_differenced_range, linkEnds, lightTimeCorrectionsList, biasSettings ),
+        integrationTimeFunction_( integrationTimeFunction ),
+        retransmissionTimesFunction_( retransmissionTimesFunction )
+    {
+        for( unsigned int i = 0; i < linkEnds.size( ) - 1; i++ )
+        {
+            oneWayRangeObsevationSettings_.push_back( std::make_shared< ObservationModelSettings >(
+                                                          one_way_range, linkEnds, lightTimeCorrectionsList ) );
+        }
+    }
+
+    NWayDifferencedRangeObservationSettings(
+            const std::vector< std::shared_ptr< ObservationModelSettings > > oneWayRangeObsevationSettings,
+            const std::function< double( const double ) > integrationTimeFunction,
+            const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =
+            std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
+            const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
+            const std::function< std::vector< double >( const double ) > retransmissionTimesFunction =
+            std::function< std::vector< double >( const double  ) >( ) ):
+        ObservationModelSettings( n_way_differenced_range,
+                                  mergeOneWayLinkEnds( getObservationModelListLinkEnds( oneWayRangeObsevationSettings ) ),
+                                  lightTimeCorrectionsList, biasSettings ),
+        oneWayRangeObsevationSettings_( oneWayRangeObsevationSettings ),
+        integrationTimeFunction_( integrationTimeFunction ),
+        retransmissionTimesFunction_( retransmissionTimesFunction ){ }
+
+    std::shared_ptr< ObservationModelSettings > getUndifferencedObservationSettings( )
+    {
+        return std::make_shared< NWayRangeObservationSettings >( oneWayRangeObsevationSettings_, retransmissionTimesFunction_ );
+    }
+
+
+    std::vector< std::shared_ptr< ObservationModelSettings > > oneWayRangeObsevationSettings_;
+
+    //! Function that returns the integration time of observable as a function of time
+    const std::function< double( const double ) > integrationTimeFunction_;
 
     //! Function that returns the integration time of observable as a function of time
     std::function< std::vector< double >( const double ) > retransmissionTimesFunction_;
@@ -1306,9 +1361,7 @@ public:
             }
 
             std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList;
-
-            std::function< std::vector< double >( const double ) > retransmissionTimesFunction_;
-
+            std::function< std::vector< double >( const double ) > retransmissionTimesFunction;
             std::shared_ptr< NWayRangeObservationSettings > nWayRangeObservationSettings =
                     std::dynamic_pointer_cast< NWayRangeObservationSettings >( observationSettings );
 
@@ -1322,7 +1375,7 @@ public:
             }
             else
             {
-                retransmissionTimesFunction_ = nWayRangeObservationSettings->retransmissionTimesFunction_;
+                retransmissionTimesFunction = nWayRangeObservationSettings->retransmissionTimesFunction_;
             }
 
             // Define light-time calculator list
@@ -1362,8 +1415,52 @@ public:
             observationModel = std::make_shared< NWayRangeObservationModel<
                     ObservationScalarType, TimeType > >(
                         linkEnds,
-                        lightTimeCalculators, retransmissionTimesFunction_,
+                        lightTimeCalculators, retransmissionTimesFunction,
                         observationBias );
+            break;
+        }
+        case n_way_differenced_range:
+        {
+            std::shared_ptr< NWayDifferencedRangeObservationSettings > nWayDifferencedRangeObservationSettings =
+                    std::dynamic_pointer_cast< NWayDifferencedRangeObservationSettings >( observationSettings );
+            if( nWayDifferencedRangeObservationSettings )
+            {
+                throw std::runtime_error( "Error whaen making n-way differenced range observation model, input type inconsistent" );
+            }
+            std::shared_ptr< NWayRangeObservationModel< ObservationScalarType, TimeType > > arcStartObservationModel;
+            std::shared_ptr< NWayRangeObservationModel< ObservationScalarType, TimeType > > arcEndObservationModel;
+            try
+            {
+                std::shared_ptr< ObservationModelSettings > undifferencedObservationSettings =
+                        nWayDifferencedRangeObservationSettings->getUndifferencedObservationSettings( );
+
+                arcStartObservationModel =
+                        std::dynamic_pointer_cast< NWayRangeObservationModel< ObservationScalarType, TimeType > >(
+                            ObservationModelCreator< 1, ObservationScalarType, TimeType >::createObservationModel(
+                                undifferencedObservationSettings, bodies ) );
+                arcEndObservationModel =
+                        std::dynamic_pointer_cast< NWayRangeObservationModel< ObservationScalarType, TimeType > >(
+                            ObservationModelCreator< 1, ObservationScalarType, TimeType >::createObservationModel(
+                                undifferencedObservationSettings, bodies ) );
+            }
+            catch( const std::exception& caughtException )
+            {
+                std::string exceptionText = std::string( caughtException.what( ) );
+                throw std::runtime_error( "Error when creating n-way differenced range observation model, error: " + exceptionText );
+            }
+
+            std::shared_ptr< ObservationBias< 1 > > observationBias;
+            if( observationSettings->biasSettings_ != nullptr )
+            {
+                observationBias =
+                        createObservationBiasCalculator(
+                            linkEnds, observationSettings->observableType_, observationSettings->biasSettings_, bodies );
+            }
+
+            observationModel = std::make_shared< NWayDifferencedRangeObservationModel<
+                    ObservationScalarType, TimeType > >(
+                        linkEnds, arcStartObservationModel, arcEndObservationModel,
+                        nWayDifferencedRangeObservationSettings->integrationTimeFunction_, observationBias );
             break;
         }
 
