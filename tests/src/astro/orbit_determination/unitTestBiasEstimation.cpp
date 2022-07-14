@@ -75,7 +75,6 @@ BOOST_AUTO_TEST_CASE( test_EstimationFromPosition )
                                 BOOST_CHECK_SMALL( std::fabs( totalError( j ) ), 1.0E-13 );
                             }
                         }
-                        break;
                     }
 
                 }
