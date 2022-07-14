@@ -190,15 +190,28 @@ template< typename ParameterType, int ObservationSize, typename TimeType = doubl
 std::pair< std::map< std::pair< int, int >, std::shared_ptr< ObservationPartial< ObservationSize > > >,
 std::shared_ptr< PositionPartialScaling > >
 createSingleLinkObservationPartials(
-        const observation_models::LinkEnds oneWayLinkEnds,
-        const observation_models::ObservableType observableType,
+        const std::shared_ptr< observation_models::ObservationModel< ObservationSize, ParameterType, TimeType > > observationModel,
         const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
-        const std::vector< std::shared_ptr< observation_models::LightTimeCorrection > >& lightTimeCorrections =
-        std::vector< std::shared_ptr< observation_models::LightTimeCorrection > >( ),
-        const bool useBiasPartials = true,
-        const std::shared_ptr< observation_models::ObservationModel< ObservationSize, ParameterType, TimeType > > observationModel = nullptr )
+        const bool useBiasPartials = true )
 {
+    observation_models::LinkEnds oneWayLinkEnds = observationModel->getLinkEnds( );
+    observation_models::ObservableType observableType = observationModel->getObservableType( );
+    std::vector< std::shared_ptr< observation_models::LightTimeCorrection > > lightTimeCorrections;
+
+    {
+        auto fullLightTimeCorrections=
+                observation_models::getLightTimeCorrections( observationModel );
+        if( fullLightTimeCorrections.size( ) > 1 )
+        {
+            throw std::runtime_error( "Error when creatin direct observation partial, light time corrections list is of incorrect size." );
+        }
+        else if( fullLightTimeCorrections.size( ) == 1 )
+        {
+            lightTimeCorrections = fullLightTimeCorrections.at( 0 );
+        }
+    }
+
     std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > > lightTimeCorrectionPartialObjects;
 
     if( lightTimeCorrections.size( ) > 0 )
@@ -335,71 +348,6 @@ createSingleLinkObservationPartials(
     return std::make_pair( observationPartials, positionScaling );
 }
 
-template< typename ParameterType, int ObservationSize, typename TimeType = double >
-std::map< observation_models::LinkEnds,
-std::pair< std::map< std::pair< int, int >, std::shared_ptr< ObservationPartial< ObservationSize > > > ,
-std::shared_ptr< PositionPartialScaling > > > createSingleLinkObservationPartialsList(
-        const std::vector< observation_models::LinkEnds >& linkEndsList,
-        const observation_models::ObservableType observableType,
-        const simulation_setup::SystemOfBodies& bodies,
-        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
-        std::map< observation_models::LinkEnds, std::vector< std::vector< std::shared_ptr< observation_models::LightTimeCorrection > > > >
-        lightTimeCorrections =
-        std::map< observation_models::LinkEnds, std::vector< std::vector< std::shared_ptr< observation_models::LightTimeCorrection > > > >( ),
-        const bool useBiasPartials = true,
-        const std::vector< std::shared_ptr< observation_models::ObservationModel< ObservationSize, ParameterType, TimeType > > > observationModelList =
-        std::vector< std::shared_ptr< observation_models::ObservationModel< ObservationSize, ParameterType, TimeType > > >( ) )
-{
-    bool useObservationModel = false;
-    if( observationModelList.size( ) != 0 )
-    {
-        if( linkEndsList.size( ) != observationModelList.size( ) )
-        {
-            throw std::runtime_error( "Error when creating observaion partials, list of observation models provided, but size is incompatible." );
-        }
-        useObservationModel = true;
-    }
-    // Declare return list.
-    std::map< observation_models::LinkEnds,
-            std::pair<
-            std::map< std::pair< int, int >, std::shared_ptr< ObservationPartial< ObservationSize > > >,
-            std::shared_ptr< PositionPartialScaling > >
-            > observationPartials;
-
-    // Iterate over all link ends.
-    std::shared_ptr< observation_models::ObservationModel< ObservationSize, ParameterType, TimeType > > currentObservationModel = nullptr;
-    for( unsigned int i = 0; i < linkEndsList.size( ); i++ )
-    {
-        observation_models::LinkEnds linkEnds = linkEndsList.at( i );
-
-        std::vector< std::shared_ptr< observation_models::LightTimeCorrection > > singleLinkLightTimeCorrections;
-        if( lightTimeCorrections.count( linkEnds ) > 0 )
-        {
-            if( lightTimeCorrections.at( linkEnds ).size( ) > 1 )
-            {
-                std::cerr << "Error when making observation partials, light time corrections for "
-                          << lightTimeCorrections.at( linkEnds ).size( ) << " links found" << std::endl;
-            }
-            else if( lightTimeCorrections.at( linkEnds ).size( ) == 1 )
-            {
-                singleLinkLightTimeCorrections = lightTimeCorrections.at( linkEnds ).at( 0 );
-            }
-        }
-
-        if( useObservationModel == true )
-        {
-            currentObservationModel = observationModelList.at( i );
-        }
-
-        // Create observation partials for current link ends
-        observationPartials[ linkEnds ] = createSingleLinkObservationPartials< ParameterType, ObservationSize >(
-                    linkEnds, observableType, bodies, parametersToEstimate,
-                    singleLinkLightTimeCorrections, useBiasPartials, currentObservationModel );
-    }
-
-    // Return complete set of link ends.
-    return observationPartials;
-}
 
 //! Function to generate observation partials for all parameters that are to be estimated, for all sets of link ends.
 /*!
@@ -426,10 +374,9 @@ std::shared_ptr< PositionPartialScaling > > > createSingleLinkObservationPartial
         const bool useBiasPartials = true )
 {
 
-    std::map< observation_models::LinkEnds, std::vector< std::vector< std::shared_ptr< observation_models::LightTimeCorrection > > > >
-            lightTimeCorrections = getLightTimeCorrectionsList( observationModelList );
-
-    std::vector< observation_models::LinkEnds > linkEndsList = utilities::createVectorFromMapKeys( observationModelList );
+    std::map< observation_models::LinkEnds,
+    std::pair< std::map< std::pair< int, int >, std::shared_ptr< ObservationPartial< ObservationSize > > > ,
+    std::shared_ptr< PositionPartialScaling > > > partialsList;
 
     observation_models::ObservableType observableType = observation_models::undefined_observation_model;
     // Iterate over all link ends.
@@ -441,14 +388,14 @@ std::shared_ptr< PositionPartialScaling > > > createSingleLinkObservationPartial
         }
         else if( observableType != it.second->getObservableType( ) )
         {
-            throw std::runtime_error( "Error when creating single link observation partials, input models are inconsistent" );
+            throw std::runtime_error( "Error when creating direct observation partials, input models are inconsistent" );
         }
+        partialsList[ it.first ] = createSingleLinkObservationPartials(
+                    it.second, bodies, parametersToEstimate, useBiasPartials );
     }
 
     // Return complete set of link ends.
-    return createSingleLinkObservationPartialsList< ParameterType, ObservationSize >(
-                linkEndsList, observableType, bodies, parametersToEstimate, lightTimeCorrections, useBiasPartials,
-                utilities::createVectorFromMapValues( observationModelList ) );
+    return partialsList;
 }
 
 }
