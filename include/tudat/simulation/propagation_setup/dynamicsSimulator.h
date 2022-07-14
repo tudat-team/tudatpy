@@ -622,10 +622,10 @@ public:
                       << dynamicsStateDerivative_->getNumberOfFunctionEvaluations( ) << std::endl;
         }
 
-        std::cout << "INTEGRATE EOMs FOR SINGLE-ARC" << "\n\n";
+//        std::cout << "INTEGRATE EOMs FOR SINGLE-ARC" << "\n\n";
         if( this->setIntegratedResult_ )
         {
-            std::cout << "results integrated for single-arc" << "\n\n";
+//            std::cout << "results integrated for single-arc" << "\n\n";
             processNumericalEquationsOfMotionSolution( );
         }
     }
@@ -908,7 +908,7 @@ public:
      */
     void processNumericalEquationsOfMotionSolution( )
     {
-        std::cout << "RESET SOLUTION" << "\n\n";
+//        std::cout << "RESET SOLUTION" << "\n\n";
         try
         {
             // Create and set interpolators for ephemerides
@@ -1553,7 +1553,7 @@ public:
 
             for ( unsigned int i = 0 ; i < arcStartTimes_.size( ) ; i++ )
             {
-                std::cout << "arc " << i << "\n\n";
+//                std::cout << "arc " << i << "\n\n";
                 std::map< IntegratedStateType, std::shared_ptr<
                         SingleArcIntegratedStateProcessor< TimeType, StateScalarType > > > currentArcStateProcessors =
                         singleArcDynamicsSimulators_.at( i )->getIntegratedStateProcessors( );
@@ -1561,11 +1561,11 @@ public:
                 for ( auto itr : currentArcStateProcessors )
                 {
                     singleArcIntegratedStatesProcessors[ itr.first ].push_back( itr.second );
-                    std::cout << "in processNumericalEquationsOfMotionSolution for multi-arc - arc " << i << "\n\n";
+//                    std::cout << "in processNumericalEquationsOfMotionSolution for multi-arc - arc " << i << "\n\n";
                     std::vector< std::string > test = itr.second->bodiesToIntegrate_;
                     for ( unsigned int k = 0 ; k < test.size( ) ; k++ )
                     {
-                        std::cout << test[ k ] << "\n\n";
+//                        std::cout << test[ k ] << "\n\n";
                     }
                 }
             }

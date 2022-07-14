@@ -337,8 +337,6 @@ createSingleLinkObservationPartials(
         // Check if partial is non-nullptr (i.e. whether dependency exists between current observable and current parameter)
         if( currentObservationPartial != nullptr )
         {
-            std::cout<<"Non-null parameter partial "<<observableType<<" "<<parameterIterator->first<<" "<<
-                    parameterIterator->second->getParameterSize( )<<std::endl;
             // Add partial to the list.
             currentPair = std::pair< int, int >( parameterIterator->first,
                                                  parameterIterator->second->getParameterSize( ) );

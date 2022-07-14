@@ -387,7 +387,7 @@ public:
             const std::vector< double >& times,
             const observation_models::LinkEndType linkEndOfFixedTime = observation_models::receiver,
             const Eigen::Matrix< double, ObservationSize, 1 >& currentObservation =
-            Eigen::Matrix< double, ObservationSize, 1 >::Constant( 10101. ) )
+            Eigen::Matrix< double, ObservationSize, 1 >::Constant( TUDAT_NAN ) )
     {
         return { std::make_pair( currentObservation, times.at( 0 ) ) };
     }
