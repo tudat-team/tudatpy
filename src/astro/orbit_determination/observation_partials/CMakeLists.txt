@@ -12,6 +12,7 @@ set(observation_partials_SOURCES
   "angularPositionPartial.cpp"
   "rotationMatrixPartial.cpp"
   "positionPartials.cpp"
+  "differencedObservationPartial.cpp"
   "oneWayRangePartial.cpp"
   "twoWayDopplerPartial.cpp"
   "nWayRangePartial.cpp"

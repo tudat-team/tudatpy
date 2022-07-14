@@ -737,7 +737,7 @@ std::vector< ValueType > getVectorEntries( const std::vector< ValueType >& fullV
     subVector.resize( indices.size( ) );
     for( unsigned int i = 0; i < indices.size( ); i++ )
     {
-        subVector.push_back( fullVector.at( indices.at( i ) ) );
+        subVector[ i ] = fullVector.at( indices.at( i ) );
     }
     return subVector;
 }
