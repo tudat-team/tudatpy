@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef TUDAT_DIFFERENCEDONEWAYRANGERATEPARTIAL_H
-#define TUDAT_DIFFERENCEDONEWAYRANGERATEPARTIAL_H
+#ifndef TUDAT_DIFFERENCEDOBSERVATIONPARTIAL_H
+#define TUDAT_DIFFERENCEDOBSERVATIONPARTIAL_H
 
 #include <functional>
 #include <boost/lambda/lambda.hpp>
@@ -73,56 +73,6 @@ public:
     //! Partial scaling for arc end range observation
     std::shared_ptr< OneWayRangeScaling > oneWayRangeScalerArcEnd_;
 };
-
-////! Class to compute the partial derivatives of a one-way range-rate (differenced) observation
-//class DifferencedOneWayRangeRatePartial: public ObservationPartial< 1 >
-//{
-
-//public:
-
-//    //! Constructor
-//    /*!
-//     * Constructor
-//     * \param parameterIdentifier Id of parameter for which instance of class computes partial derivatives.
-//     * \param arcStartRangePartial Partial object for arc start range observation
-//     * \param arcEndRangePartial Partial object for arc end range observation
-//     */
-//    DifferencedOneWayRangeRatePartial(
-//            const estimatable_parameters::EstimatebleParameterIdentifier parameterIdentifier,
-//            const std::shared_ptr< ObservationPartial< 1 > > arcStartRangePartial,
-//            const std::shared_ptr< ObservationPartial< 1 > > arcEndRangePartial):
-//        ObservationPartial< 1 >( parameterIdentifier ),
-//        arcStartRangePartial_( arcStartRangePartial ),
-//        arcEndRangePartial_( arcEndRangePartial ){ }
-
-//    //! Destructor
-//    ~DifferencedOneWayRangeRatePartial( ) { }
-
-//    //! Function to calculate the observation partial(s) at required time and state
-//    /*!
-//     *  Function to calculate the observation partial(s) at required time and state. State and time
-//     *  are typically obtained from evaluation of observation model.
-//     *  \param states Link end states. Index maps to link end for a given ObsevableType through getLinkEndIndex function.
-//     *  \param times Link end time.
-//     *  \param linkEndOfFixedTime Link end that is kept fixed when computing the observable.
-//     *  \param currentObservation Value of observation for which partial scaling is to be computed
-//     *  \return Vector of pairs containing partial values and associated times.
-//     */
-//    std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > calculatePartial(
-//            const std::vector< Eigen::Vector6d >& states,
-//            const std::vector< double >& times,
-//            const observation_models::LinkEndType linkEndOfFixedTime,
-//            const Eigen::Vector1d& currentObservation = Eigen::Vector1d::Constant( TUDAT_NAN ) );
-
-//protected:
-
-//    //! Partial object for arc start range observation
-//    std::shared_ptr< ObservationPartial< 1 > > arcStartRangePartial_;
-
-//    //! Partial object for arc end range observation
-//    std::shared_ptr< ObservationPartial< 1 > > arcEndRangePartial_;
-//};
-
 
 //! Class to compute the partial derivatives of a one-way range-rate (differenced) observation
 template< int ObservationSize >
@@ -243,4 +193,4 @@ protected:
 }
 
 
-#endif // TUDAT_DIFFERENCEDONEWAYRANGERATEPARTIAL_H
+#endif // TUDAT_DIFFERENCEDOBSERVATIONPARTIAL_H

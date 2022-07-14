@@ -23,7 +23,7 @@
 #include "tudat/astro/observation_models/corrections/lightTimeCorrection.h"
 #include "tudat/simulation/estimation_setup/createCartesianStatePartials.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/initialTranslationalState.h"
-#include "tudat/astro/orbit_determination/observation_partials/oneWayLinkObservationPartial.h"
+#include "tudat/astro/orbit_determination/observation_partials/directObservationPartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/angularPositionPartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/oneWayRangePartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/oneWayDopplerPartial.h"

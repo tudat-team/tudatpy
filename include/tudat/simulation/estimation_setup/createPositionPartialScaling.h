@@ -14,11 +14,11 @@
 #include <vector>
 #include <map>
 
-#include "tudat/astro/orbit_determination/observation_partials/oneWayLinkObservationPartial.h"
+#include "tudat/astro/orbit_determination/observation_partials/directObservationPartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/angularPositionPartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/oneWayRangePartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/oneWayDopplerPartial.h"
-#include "tudat/astro/orbit_determination/observation_partials/differencedOneWayRangeRatePartial.h"
+#include "tudat/astro/orbit_determination/observation_partials/differencedObservationPartial.h"
 #include "tudat/simulation/environment_setup/body.h"
 
 namespace tudat

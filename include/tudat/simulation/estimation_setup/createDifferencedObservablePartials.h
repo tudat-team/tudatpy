@@ -11,7 +11,7 @@
 #ifndef TUDAT_CREATEDIFFERENCEDOBSERVABLEPARTIALS_H
 #define TUDAT_CREATEDIFFERENCEDOBSERVABLEPARTIALS_H
 
-#include "tudat/astro/orbit_determination/observation_partials/differencedOneWayRangeRatePartial.h"
+#include "tudat/astro/orbit_determination/observation_partials/differencedObservationPartial.h"
 #include "tudat/simulation/estimation_setup/createDirectObservationPartials.h"
 #include "tudat/simulation/estimation_setup/createObservationModel.h"
 

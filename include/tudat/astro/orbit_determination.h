@@ -52,7 +52,7 @@
 #include "orbit_determination/observation_partials/firstOrderRelativisticPartial.h"
 #include "orbit_determination/observation_partials/lightTimeCorrectionPartial.h"
 #include "orbit_determination/observation_partials/angularPositionPartial.h"
-#include "orbit_determination/observation_partials/differencedOneWayRangeRatePartial.h"
+#include "orbit_determination/observation_partials/differencedObservationPartial.h"
 #include "orbit_determination/observation_partials/eulerAngleObservablePartials.h"
 #include "orbit_determination/observation_partials/nWayRangePartial.h"
 #include "orbit_determination/observation_partials/observationPartial.h"
