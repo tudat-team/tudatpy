@@ -203,7 +203,7 @@ private:
  *  Derived class for scaling three-dimensional position partial to one-way doppler observable partial. Implementation is taken
  *  from Moyer(2000) and is separately implemented for fixed receiver and transmitter.
  */
-class OneWayDopplerScaling: public OneWayLinkPositionPartialScaling< 1 >
+class OneWayDopplerScaling: public DirectPositionPartialScaling< 1 >
 {
 public:
 
@@ -222,7 +222,7 @@ public:
             const std::function< Eigen::Vector3d( const double ) > receiverAccelerationFunction,
             const std::shared_ptr< OneWayDopplerProperTimeComponentScaling > transmitterProperTimePartials = nullptr,
             const std::shared_ptr< OneWayDopplerProperTimeComponentScaling > receiverProperTimePartials = nullptr ):
-        OneWayLinkPositionPartialScaling< 1 >( observation_models::one_way_doppler ),
+        DirectPositionPartialScaling< 1 >( observation_models::one_way_doppler ),
         transmitterAccelerationFunction_( transmitterAccelerationFunction ),
         receiverAccelerationFunction_( receiverAccelerationFunction ),
         transmitterProperTimePartials_( transmitterProperTimePartials ),

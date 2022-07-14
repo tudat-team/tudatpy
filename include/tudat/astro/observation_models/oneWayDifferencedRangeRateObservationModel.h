@@ -28,6 +28,27 @@ namespace tudat
 namespace observation_models
 {
 
+inline double getDifferencedOneWayRangeScalingFactor(
+        const std::vector< double >& linkEndTimes,
+        const observation_models::LinkEndType referenceLinkEnd )
+{
+    double arcDuration = TUDAT_NAN;
+    if ( referenceLinkEnd == observation_models::transmitter )
+    {
+        arcDuration = linkEndTimes[ 2 ] - linkEndTimes[ 0 ];
+    }
+    else if ( referenceLinkEnd == observation_models::receiver )
+    {
+        arcDuration = linkEndTimes[ 3 ] - linkEndTimes[ 1 ];
+    }
+    else
+    {
+        throw std::runtime_error( "Error when getting differenced one-way range scaling factor; link end " +
+                                  getLinkEndTypeString( referenceLinkEnd ) + " not recognized." );
+    }
+    return 1.0 / arcDuration;
+}
+
 //! Class for simulating one-way differenced range (e.g. closed-loop Doppler) observable
 /*!
  *  Class for simulating one-way differenced range (e.g. closed-loop Doppler) observable. The observable is obtained by

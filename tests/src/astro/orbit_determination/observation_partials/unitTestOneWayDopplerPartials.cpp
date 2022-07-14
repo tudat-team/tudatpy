@@ -366,11 +366,11 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
         std::shared_ptr< OneWayDopplerProperTimeComponentScaling > receiverProperTimePartials =
                 partialScalingObject->getReceiverProperTimePartials( );
 
-        std::shared_ptr< OneWayLinkObservationPartial< 1 > > earthStatePartial =
-                std::dynamic_pointer_cast< OneWayLinkObservationPartial< 1 > >(
+        std::shared_ptr< DirectObservationPartial< 1 > > earthStatePartial =
+                std::dynamic_pointer_cast< DirectObservationPartial< 1 > >(
                     ( dopplerPartials.begin( )->second.first ).begin( )->second );
-        std::shared_ptr< OneWayLinkObservationPartial< 1 > > marsStatePartial =
-                std::dynamic_pointer_cast< OneWayLinkObservationPartial< 1 > >(
+        std::shared_ptr< DirectObservationPartial< 1 > > marsStatePartial =
+                std::dynamic_pointer_cast< DirectObservationPartial< 1 > >(
                     ( ++( ( dopplerPartials.begin( )->second.first ).begin( ) ) )->second );
 
         // Compute nominal observation with proper time
@@ -473,11 +473,11 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
         // Retrieve partial object without proper time
         std::shared_ptr< OneWayDopplerScaling > partialScalingObjectWithoutProperTime =
                 std::dynamic_pointer_cast< OneWayDopplerScaling >( dopplerPartialsWithoutProperTime.begin( )->second.second );
-        std::shared_ptr< OneWayLinkObservationPartial< 1 > > earthStatePartialWithoutProperTime =
-                std::dynamic_pointer_cast< OneWayLinkObservationPartial< 1 > >(
+        std::shared_ptr< DirectObservationPartial< 1 > > earthStatePartialWithoutProperTime =
+                std::dynamic_pointer_cast< DirectObservationPartial< 1 > >(
                     ( dopplerPartialsWithoutProperTime.begin( )->second.first ).begin( )->second );
-        std::shared_ptr< OneWayLinkObservationPartial< 1 > > marsStatePartialWithoutProperTime =
-                std::dynamic_pointer_cast< OneWayLinkObservationPartial< 1 > >(
+        std::shared_ptr< DirectObservationPartial< 1 > > marsStatePartialWithoutProperTime =
+                std::dynamic_pointer_cast< DirectObservationPartial< 1 > >(
                     ( ++( ( dopplerPartialsWithoutProperTime.begin( )->second.first ).begin( ) ) )->second );
 
         // Compute nominal observation without proper time

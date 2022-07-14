@@ -259,12 +259,12 @@ private:
  *  is trivial for non-relativistic reference frames, it is included in the architecture pending future implementation
  *  of more rigorous reference frames.
  */
-class PositionObservationScaling: public OneWayLinkPositionPartialScaling< 3 >
+class PositionObservationScaling: public DirectPositionPartialScaling< 3 >
 {
 public:
 
     PositionObservationScaling( ):
-        OneWayLinkPositionPartialScaling< 3 >( observation_models::position_observable ){ }
+        DirectPositionPartialScaling< 3 >( observation_models::position_observable ){ }
 
     //! Destructor
     ~PositionObservationScaling( ){ }
@@ -317,12 +317,12 @@ private:
  *  is trivial for non-relativistic reference frames, it is included in teh architecture pending future implementation
  *  of more rigorous reference frames.
  */
-class VelocityObservationScaling: public OneWayLinkPositionPartialScaling< 3 >
+class VelocityObservationScaling: public DirectPositionPartialScaling< 3 >
 {
 public:
 
     VelocityObservationScaling( ):
-        OneWayLinkPositionPartialScaling< 3 >( observation_models::velocity_observable ){ }
+        DirectPositionPartialScaling< 3 >( observation_models::velocity_observable ){ }
 
     //! Destructor
     ~VelocityObservationScaling( ){ }

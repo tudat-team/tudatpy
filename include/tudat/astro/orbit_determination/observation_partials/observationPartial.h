@@ -65,15 +65,15 @@ public:
 };
 
 template< int ObservationSize >
-class OneWayLinkPositionPartialScaling: public PositionPartialScaling
+class DirectPositionPartialScaling: public PositionPartialScaling
 {
 public:
 
-    OneWayLinkPositionPartialScaling( const observation_models::ObservableType observableType ):
+    DirectPositionPartialScaling( const observation_models::ObservableType observableType ):
         observableType_( observableType )
     { }
 
-    virtual ~OneWayLinkPositionPartialScaling( ){ }
+    virtual ~DirectPositionPartialScaling( ){ }
 
     virtual observation_models::LinkEndType getCurrentLinkEndType( ) = 0;
 

@@ -34,6 +34,8 @@
 #include "tudat/astro/observation_models/angularPositionObservationModel.h"
 #include "tudat/astro/observation_models/oneWayDopplerObservationModel.h"
 #include "tudat/simulation/estimation_setup/createLightTimeCorrectionPartials.h"
+#include "tudat/simulation/estimation_setup/createPositionPartialScaling.h"
+#include "tudat/simulation/estimation_setup/createObservationModel.h"
 
 namespace tudat
 {
@@ -41,347 +43,6 @@ namespace tudat
 namespace observation_partials
 {
 
-//! Typedef for list of light time corrections for a list of link ends
-typedef std::map< observation_models::LinkEnds,
-std::vector< std::vector< std::shared_ptr< observation_models::LightTimeCorrection > > > >
-PerLinkEndPerLightTimeSolutionCorrections;
-
-//! Function to retrieve a list of light-time corrections per link end from a list of observation models.
-/*!
- *  Function to retrieve a list of light-time corrections per link end from a list of observation models.
- *  \param observationModels Map of observation models (may not be of mixed type) with LinkEnds of observable as map key
- *  \return Map of light-time corrections, with associated link ends as key.
- */
-template< typename ObservationScalarType, typename TimeType, int ObservationSize  >
-PerLinkEndPerLightTimeSolutionCorrections getLightTimeCorrectionsList(
-        const std::map< observation_models::LinkEnds, std::shared_ptr< observation_models::ObservationModel<
-        ObservationSize, ObservationScalarType, TimeType> > > observationModels )
-{
-    PerLinkEndPerLightTimeSolutionCorrections lightTimeCorrectionsList;
-    std::vector< std::vector< std::shared_ptr< observation_models::LightTimeCorrection > > > currentLightTimeCorrections;
-
-    // Retrieve type of observable
-    observation_models::ObservableType observableType = observationModels.begin( )->second->getObservableType( );
-
-    // Iterate over link ends
-    for( typename  std::map< observation_models::LinkEnds, std::shared_ptr< observation_models::ObservationModel<
-         ObservationSize, ObservationScalarType, TimeType> > >::const_iterator
-         observationModelIterator = observationModels.begin( );
-         observationModelIterator != observationModels.end( ); observationModelIterator++ )
-    {
-        // Clear list, for current link ends.
-        currentLightTimeCorrections.clear( );
-
-        if( observationModelIterator->second->getObservableType( ) != observableType )
-        {
-            throw std::runtime_error( "Error when making grouped light time correction list, observable type is not constant" );
-        }
-        else
-        {
-            std::vector< std::shared_ptr< observation_models::LightTimeCorrection > > singleObservableCorrectionList;
-
-            // Check type of observable
-            switch( observableType )
-            {
-            case observation_models::one_way_range:
-            {
-                std::shared_ptr< observation_models::OneWayRangeObservationModel
-                        < ObservationScalarType, TimeType> > oneWayRangeModel =
-                        std::dynamic_pointer_cast< observation_models::OneWayRangeObservationModel
-                        < ObservationScalarType, TimeType> >
-                        ( observationModelIterator->second );
-                singleObservableCorrectionList = (
-                            oneWayRangeModel->getLightTimeCalculator( )->getLightTimeCorrection( ) );
-                break;
-            }
-            case observation_models::one_way_doppler:
-            {
-                std::shared_ptr< observation_models::OneWayDopplerObservationModel
-                        < ObservationScalarType, TimeType> > oneWayRangeModel =
-                        std::dynamic_pointer_cast< observation_models::OneWayDopplerObservationModel
-                        < ObservationScalarType, TimeType> >
-                        ( observationModelIterator->second );
-                singleObservableCorrectionList = (
-                            oneWayRangeModel->getLightTimeCalculator( )->getLightTimeCorrection( ) );
-                break;
-            }
-            case observation_models::two_way_doppler:
-            {
-                std::shared_ptr< observation_models::TwoWayDopplerObservationModel
-                        < ObservationScalarType, TimeType> > twoWaDopplerModel =
-                        std::dynamic_pointer_cast< observation_models::TwoWayDopplerObservationModel
-                        < ObservationScalarType, TimeType> >
-                        ( observationModelIterator->second );
-                currentLightTimeCorrections.push_back(
-                            twoWaDopplerModel->getUplinkDopplerCalculator( )->getLightTimeCalculator( )->getLightTimeCorrection( ) );
-                currentLightTimeCorrections.push_back(
-                            twoWaDopplerModel->getDownlinkDopplerCalculator( )->getLightTimeCalculator( )->getLightTimeCorrection( ) );
-                break;
-            }
-            case observation_models::angular_position:
-            {
-                std::shared_ptr< observation_models::AngularPositionObservationModel
-                        < ObservationScalarType, TimeType> > angularPositionModel =
-                        std::dynamic_pointer_cast< observation_models::AngularPositionObservationModel
-                        < ObservationScalarType, TimeType> >
-                        ( observationModelIterator->second );
-                singleObservableCorrectionList = (
-                            angularPositionModel->getLightTimeCalculator( )->getLightTimeCorrection( ) );
-                break;
-            }
-            case observation_models::one_way_differenced_range:
-            {
-                std::shared_ptr< observation_models::OneWayDifferencedRangeObservationModel
-                        < ObservationScalarType, TimeType> > oneWayDifferencedRangeObservationModel =
-                        std::dynamic_pointer_cast< observation_models::OneWayDifferencedRangeObservationModel
-                        < ObservationScalarType, TimeType> >
-                        ( observationModelIterator->second );
-                currentLightTimeCorrections.push_back(
-                            oneWayDifferencedRangeObservationModel->getArcStartLightTimeCalculator( )->
-                            getLightTimeCorrection( ) );
-                currentLightTimeCorrections.push_back(
-                            oneWayDifferencedRangeObservationModel->getArcEndLightTimeCalculator( )->
-                            getLightTimeCorrection( ) );
-
-                break;
-            }
-            case observation_models::n_way_range:
-            {
-                std::shared_ptr< observation_models::NWayRangeObservationModel< ObservationScalarType, TimeType > > nWayRangeObservationModel =
-                        std::dynamic_pointer_cast< observation_models::NWayRangeObservationModel< ObservationScalarType, TimeType > >
-                        ( observationModelIterator->second );
-                std::vector< std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > > lightTimeCalculatorList =
-                        nWayRangeObservationModel->getLightTimeCalculators( );
-                for( unsigned int i = 0; i < lightTimeCalculatorList.size( ); i++ )
-                {
-                    currentLightTimeCorrections.push_back( lightTimeCalculatorList.at( i )->getLightTimeCorrection( ) );
-                }
-                break;
-            }
-            case observation_models::position_observable:
-            {
-                break;
-            }
-            case observation_models::euler_angle_313_observable:
-            {
-                break;
-            }
-            case observation_models::velocity_observable:
-            {
-                break;
-            }
-            case observation_models::relative_angular_position:
-            {
-                std::shared_ptr< observation_models::RelativeAngularPositionObservationModel< ObservationScalarType, TimeType> > relativeAngularPositionModel =
-                        std::dynamic_pointer_cast< observation_models::RelativeAngularPositionObservationModel
-                                < ObservationScalarType, TimeType> >( observationModelIterator->second );
-                currentLightTimeCorrections.push_back(
-                        relativeAngularPositionModel->getLightTimeCalculatorFirstTransmitter( )->getLightTimeCorrection( ) );
-                currentLightTimeCorrections.push_back(
-                        relativeAngularPositionModel->getLightTimeCalculatorSecondTransmitter( )->getLightTimeCorrection( ) );
-                break;
-            }
-            default:
-                std::string errorMessage =
-                        "Error in light time correction list creation, observable type " +
-                        std::to_string( observableType ) + " not recognized.";
-                throw std::runtime_error( errorMessage );
-            }
-
-            if( singleObservableCorrectionList.size( ) > 0 )
-            {
-                currentLightTimeCorrections.push_back( singleObservableCorrectionList );
-            }
-
-            // Add light-time corrections for current link ends.
-            if( currentLightTimeCorrections.size( ) > 0 )
-            {
-                lightTimeCorrectionsList[ observationModelIterator->first ] = currentLightTimeCorrections;
-            }
-        }
-
-    }
-    return lightTimeCorrectionsList;
-}
-
-//! Function to create an object that computes the scaling of the state partials to obtain proper time rate partials
-/*!
- * Function to create an object that computes the scaling of the state partials to obtain proper time rate partials. A single
- * scaling object is used for a single link end of the one-way Doppler partials
- * \param dopplerProperTimeInterface Object that is used to computed proper-time rate in one-way Doppler modelkkl
- * \param oneWayDopplerLinkEnds Link ends of observable
- * \param linkEndAtWhichPartialIsComputed Link end for which proper-time partials are to be created
- * \return Scaling object for proper-time rate partials
- */
-inline std::shared_ptr< OneWayDopplerProperTimeComponentScaling > createDopplerProperTimePartials(
-        const std::shared_ptr< observation_models::DopplerProperTimeRateInterface > dopplerProperTimeInterface,
-        const observation_models::LinkEnds oneWayDopplerLinkEnds,
-        const observation_models::LinkEndType linkEndAtWhichPartialIsComputed  )
-{
-    std::shared_ptr< OneWayDopplerProperTimeComponentScaling >  properTimeRateDopplerPartial = nullptr;
-    if( dopplerProperTimeInterface == nullptr )
-    {
-        properTimeRateDopplerPartial = nullptr;
-    }
-    else if( std::dynamic_pointer_cast< observation_models::DirectFirstOrderDopplerProperTimeRateInterface >(
-                 dopplerProperTimeInterface ) != nullptr )
-    {
-        bool computeStatePartials = ( oneWayDopplerLinkEnds.at( linkEndAtWhichPartialIsComputed ).bodyName_ !=
-                std::dynamic_pointer_cast< observation_models::DirectFirstOrderDopplerProperTimeRateInterface >(
-                    dopplerProperTimeInterface )->getCentralBody( ) );
-        properTimeRateDopplerPartial = std::make_shared< OneWayDopplerDirectFirstOrderProperTimeComponentScaling >(
-                    std::dynamic_pointer_cast< observation_models::DirectFirstOrderDopplerProperTimeRateInterface >(
-                        dopplerProperTimeInterface ), linkEndAtWhichPartialIsComputed, computeStatePartials );
-    }
-    else
-    {
-        std::cerr << "Warning, proper time contribution to Doppler observable not incorporated into Doppler partial " << std::endl;
-        properTimeRateDopplerPartial = nullptr;
-    }
-    return properTimeRateDopplerPartial;
-
-}
-
-template< int ObservationSize >
-class ObservationPartialScalingCreator
-{
-public:
-
-    template< typename ParameterType = double, typename TimeType = double >
-    static std::shared_ptr< OneWayLinkPositionPartialScaling< ObservationSize > > createPositionScalingObject(
-            const observation_models::LinkEnds& linkEnds,
-            const observation_models::ObservableType observableType,
-            const simulation_setup::SystemOfBodies& bodies,
-            const std::shared_ptr< observation_models::ObservationModel< ObservationSize, ParameterType, TimeType > > observationModel = nullptr );
-};
-
-template< >
-class ObservationPartialScalingCreator< 1 >
-{
-public:
-
-    template< typename ParameterType = double, typename TimeType = double >
-    static std::shared_ptr< OneWayLinkPositionPartialScaling< 1 > > createPositionScalingObject(
-            const observation_models::LinkEnds& linkEnds,
-            const observation_models::ObservableType observableType,
-            const simulation_setup::SystemOfBodies& bodies,
-            const std::shared_ptr< observation_models::ObservationModel< 1, ParameterType, TimeType > > observationModel = nullptr  )
-    {
-        std::shared_ptr< OneWayLinkPositionPartialScaling< 1 > > positionPartialScaler;
-
-        switch( observableType )
-        {
-        case observation_models::one_way_range:
-            positionPartialScaler = std::make_shared< OneWayRangeScaling >( );
-            break;
-        case observation_models::one_way_doppler:
-        {
-            std::shared_ptr< observation_models::OneWayDopplerObservationModel< ParameterType, TimeType > > dopplerObservationModel =
-                    std::dynamic_pointer_cast< observation_models::OneWayDopplerObservationModel< ParameterType, TimeType > >(
-                        observationModel );
-            if( dopplerObservationModel == nullptr )
-            {
-                throw std::runtime_error( "Error when creating one-way Doppler partial scaling object, input observation model is incompatible" );
-            }
-            // Create scaling object, to be used for all one-way doppler partials in current link end.
-            std::shared_ptr< OneWayDopplerProperTimeComponentScaling > transmitterProperTimePartials =
-                    createDopplerProperTimePartials( dopplerObservationModel->getTransmitterProperTimeRateCalculator( ), linkEnds,
-                                                     observation_models::transmitter );
-            std::shared_ptr< OneWayDopplerProperTimeComponentScaling > receiverProperTimePartials =
-                    createDopplerProperTimePartials( dopplerObservationModel->getReceiverProperTimeRateCalculator( ), linkEnds,
-                                                     observation_models::receiver  );
-
-            std::function< Eigen::Vector6d( const double )> transmitterNumericalStateDerivativeFunction =
-                    std::bind( &numerical_derivatives::computeCentralDifferenceFromFunction< Eigen::Vector6d, double >,
-                                 simulation_setup::getLinkEndCompleteEphemerisFunction< double, double >(
-                                     linkEnds.at( observation_models::transmitter ), bodies ), std::placeholders::_1, 100.0,
-                                 numerical_derivatives::order8 );
-            std::function< Eigen::Vector6d( const double )> receiverNumericalStateDerivativeFunction =
-                    std::bind( numerical_derivatives::computeCentralDifferenceFromFunction< Eigen::Vector6d, double >,
-                                 simulation_setup::getLinkEndCompleteEphemerisFunction< double, double >(
-                                     linkEnds.at( observation_models::receiver ), bodies ), std::placeholders::_1, 100.0,
-                                 numerical_derivatives::order8 );
-
-            positionPartialScaler =
-                    std::make_shared< OneWayDopplerScaling >(
-                        std::bind( &linear_algebra::evaluateSecondBlockInStateVector, transmitterNumericalStateDerivativeFunction, std::placeholders::_1 ),
-                        std::bind( &linear_algebra::evaluateSecondBlockInStateVector, receiverNumericalStateDerivativeFunction, std::placeholders::_1 ),
-                        transmitterProperTimePartials,
-                        receiverProperTimePartials );
-
-            break;
-        }
-        default:
-            throw std::runtime_error( "Error when creating partial scaler for " +
-                                      observation_models::getObservableName( observableType, linkEnds.size( ) ) +
-                                      ", type not yet rezognized. " );
-        }
-
-        return positionPartialScaler;
-    }
-};
-
-
-template< >
-class ObservationPartialScalingCreator< 2 >
-{
-public:
-
-    template< typename ParameterType = double, typename TimeType = double >
-    static std::shared_ptr< OneWayLinkPositionPartialScaling< 2 > > createPositionScalingObject(
-            const observation_models::LinkEnds& linkEnds,
-            const observation_models::ObservableType observableType,
-            const simulation_setup::SystemOfBodies& bodies,
-            const std::shared_ptr< observation_models::ObservationModel< 2, ParameterType, TimeType > > observationModel = nullptr  )
-    {
-        std::shared_ptr< OneWayLinkPositionPartialScaling< 2 > > positionPartialScaler;
-
-        switch( observableType )
-        {
-        case observation_models::angular_position:
-            positionPartialScaler = std::make_shared< AngularPositionScaling >( );
-            break;
-        default:
-            throw std::runtime_error( "Error when creating partial scaler for " +
-                                      observation_models::getObservableName( observableType, linkEnds.size( ) ) +
-                                      ", type not yet rezognized. " );
-        }
-
-        return positionPartialScaler;
-    }
-};
-
-template< >
-class ObservationPartialScalingCreator< 3 >
-{
-public:
-
-    template< typename ParameterType = double, typename TimeType = double >
-    static std::shared_ptr< OneWayLinkPositionPartialScaling< 3 > > createPositionScalingObject(
-            const observation_models::LinkEnds& linkEnds,
-            const observation_models::ObservableType observableType,
-            const simulation_setup::SystemOfBodies& bodies,
-            const std::shared_ptr< observation_models::ObservationModel< 3, ParameterType, TimeType > > observationModel = nullptr  )
-    {
-        std::shared_ptr< OneWayLinkPositionPartialScaling< 3 > > positionPartialScaler;
-
-        switch( observableType )
-        {
-        case observation_models::position_observable:
-            positionPartialScaler = std::make_shared< PositionObservationScaling >( );
-            break;
-        case observation_models::velocity_observable:
-            positionPartialScaler = std::make_shared< VelocityObservationScaling >( );
-            break;
-        default:
-            throw std::runtime_error( "Error when creating partial scaler for " +
-                                      observation_models::getObservableName( observableType, linkEnds.size( ) ) +
-                                      ", type not yet rezognized. " );
-        }
-
-        return positionPartialScaler;
-    }
-};
 
 
 //! Function to generate observation partial wrt a single  parameter.
@@ -402,7 +63,7 @@ std::shared_ptr< ObservationPartial< ObservationSize > > createObservationPartia
         const observation_models::LinkEnds oneWayLinkEnds,
         const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< estimatable_parameters::EstimatableParameter< ParameterType > > parameterToEstimate,
-        const std::shared_ptr< OneWayLinkPositionPartialScaling< ObservationSize > > positionPartialScaler,
+        const std::shared_ptr< DirectPositionPartialScaling< ObservationSize > > positionPartialScaler,
         const std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > >&
         lightTimeCorrectionPartialObjects =
         std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > >( ) )
@@ -414,8 +75,8 @@ std::shared_ptr< ObservationPartial< ObservationSize > > createObservationPartia
                 createCartesianStatePartialsWrtParameter( oneWayLinkEnds, bodies, parameterToEstimate );
 
         // Create observation partials if any position partials are created (i.e. if any dependency exists).
-        std::shared_ptr< OneWayLinkObservationPartial< ObservationSize > > testObservationPartial  =
-                std::make_shared< OneWayLinkObservationPartial< ObservationSize > >(
+        std::shared_ptr< DirectObservationPartial< ObservationSize > > testObservationPartial  =
+                std::make_shared< DirectObservationPartial< ObservationSize > >(
                     positionPartialScaler, positionPartials, parameterToEstimate->getParameterName( ),
                     lightTimeCorrectionPartialObjects );
         if( positionPartials.size( ) > 0 || testObservationPartial->getNumberOfLighTimeCorrectionPartialsFunctions( ) > 0 ||
@@ -446,7 +107,7 @@ std::shared_ptr< ObservationPartial< ObservationSize > > createObservationPartia
         const observation_models::LinkEnds oneWayLinkEnds,
         const simulation_setup::SystemOfBodies& bodies,
         const std::string bodyToEstimate,
-        const std::shared_ptr< OneWayLinkPositionPartialScaling< ObservationSize > > positionPartialScaler,
+        const std::shared_ptr< DirectPositionPartialScaling< ObservationSize > > positionPartialScaler,
         const std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > >&
         lightTimeCorrectionPartialObjects =
         std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > >( ) )
@@ -456,10 +117,10 @@ std::shared_ptr< ObservationPartial< ObservationSize > > createObservationPartia
             createCartesianStatePartialsWrtBodyState( oneWayLinkEnds, bodies, bodyToEstimate );
 
     // Create observation partials if any position partials are created (i.e. if any dependency exists).
-    std::shared_ptr< OneWayLinkObservationPartial< ObservationSize > > observationPartial;
+    std::shared_ptr< DirectObservationPartial< ObservationSize > > observationPartial;
     if( positionPartials.size( ) > 0 )
     {
-        observationPartial = std::make_shared< OneWayLinkObservationPartial< ObservationSize > >(
+        observationPartial = std::make_shared< DirectObservationPartial< ObservationSize > >(
                     positionPartialScaler, positionPartials, std::make_pair(
                         estimatable_parameters::initial_body_state, std::make_pair( bodyToEstimate, "" ) ),
                     lightTimeCorrectionPartialObjects );
@@ -486,7 +147,7 @@ std::shared_ptr< ObservationPartial< ObservationSize > > createObservationPartia
         const observation_models::LinkEnds oneWayLinkEnds,
         const simulation_setup::SystemOfBodies& bodies,
         const std::string bodyToEstimate,
-        const std::shared_ptr< OneWayLinkPositionPartialScaling< ObservationSize > > positionPartialScaler,
+        const std::shared_ptr< DirectPositionPartialScaling< ObservationSize > > positionPartialScaler,
         const std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > >&
         lightTimeCorrectionPartialObjects  )
 {
@@ -495,10 +156,10 @@ std::shared_ptr< ObservationPartial< ObservationSize > > createObservationPartia
             createCartesianStatePartialsWrtBodyRotationalState( oneWayLinkEnds, bodies, bodyToEstimate );
 
     // Create observation partials if any position partials are created (i.e. if any dependency exists).
-    std::shared_ptr< OneWayLinkObservationPartial< ObservationSize > > observationPartial;
+    std::shared_ptr< DirectObservationPartial< ObservationSize > > observationPartial;
     if( positionPartials.size( ) > 0 )
     {
-        observationPartial = std::make_shared< OneWayLinkObservationPartial< ObservationSize > >(
+        observationPartial = std::make_shared< DirectObservationPartial< ObservationSize > >(
                     positionPartialScaler, positionPartials, std::make_pair(
                         estimatable_parameters::initial_body_state, std::make_pair( bodyToEstimate, "" ) ),
                     lightTimeCorrectionPartialObjects );
@@ -548,7 +209,7 @@ createSingleLinkObservationPartials(
     // Create scaling object, to be used for all observation partials in current link end.
     //    std::shared_ptr< ObservationPartialScalingCreator< ObservationSize > > observationPartialScalingCreator =
     //            std::make_shared< ObservationPartialScalingCreator< ObservationSize > >;
-    std::shared_ptr< OneWayLinkPositionPartialScaling< ObservationSize > > positionScaling =
+    std::shared_ptr< DirectPositionPartialScaling< ObservationSize > > positionScaling =
             ObservationPartialScalingCreator< ObservationSize >::createPositionScalingObject(
                 oneWayLinkEnds, observableType, bodies, observationModel );
 

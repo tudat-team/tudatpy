@@ -34,11 +34,11 @@ namespace observation_partials
  *  Derived class for scaling three-dimensional position partial to one-way range observable partial. Implementation is taken
  *  from Moyer(2000) and is separately implemented for fixed receiver and transmitter.
  */
-class OneWayRangeScaling: public OneWayLinkPositionPartialScaling< 1 >
+class OneWayRangeScaling: public DirectPositionPartialScaling< 1 >
 {
 public:
 
-    OneWayRangeScaling( ): OneWayLinkPositionPartialScaling< 1 >( observation_models::one_way_range ){ }
+    OneWayRangeScaling( ): DirectPositionPartialScaling< 1 >( observation_models::one_way_range ){ }
 
     //! Destructor
     ~OneWayRangeScaling( ){ }

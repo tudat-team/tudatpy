@@ -62,11 +62,11 @@ Eigen::Matrix< double, 2, 3 > calculatePartialOfAngularPositionWrtLinkEndPositio
         const bool isLinkEndReceiver );
 
 //! Derived class for scaling three-dimensional position partial to angular position observable partial
-class AngularPositionScaling: public OneWayLinkPositionPartialScaling< 2 >
+class AngularPositionScaling: public DirectPositionPartialScaling< 2 >
 {
 public:
 
-    AngularPositionScaling( ): OneWayLinkPositionPartialScaling< 2 >( observation_models::angular_position ){ }
+    AngularPositionScaling( ): DirectPositionPartialScaling< 2 >( observation_models::angular_position ){ }
     //! Destructor
     ~AngularPositionScaling( ){ }
 

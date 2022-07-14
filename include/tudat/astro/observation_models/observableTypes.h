@@ -63,6 +63,13 @@ std::string getObservableName( const ObservableType observableType, const int nu
  */
 ObservableType getObservableType( const std::string& observableName );
 
+ObservableType getUndifferencedObservableType( const ObservableType differencedObservableType );
+
+ObservableType getDifferencedObservableType( const ObservableType undifferencedObservableType );
+
+std::pair< std::vector< int >, std::vector< int > > getUndifferencedTimeAndStateIndices(
+        const ObservableType differencedObservableType );
+
 //! Function to get the size of an observable of a given type.
 /*!
  * Function to get the size of an observable of a given type.
