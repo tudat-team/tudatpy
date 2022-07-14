@@ -322,13 +322,13 @@ createSingleLinkObservationPartials(
         // Create observation partial for current parameter
         std::shared_ptr< ObservationPartial< ObservationSize > > currentObservationPartial;
 
-        if( !isParameterObservationLinkProperty( parameterIterator->second->getParameterName( ).first )  )
+        if( !isParameterObservationLinkProperty( parameterIterator->second->getParameterName( ).first ) )
         {
             currentObservationPartial = createObservationPartialWrtParameter< Eigen::VectorXd, ObservationSize >(
                         oneWayLinkEnds, bodies, parameterIterator->second, positionScaling,
                         lightTimeCorrectionPartialObjects );
         }
-        else
+        else if( useBiasPartials )
         {
             currentObservationPartial = createObservationPartialWrtLinkProperty< ObservationSize >(
                         oneWayLinkEnds, observableType, parameterIterator->second, useBiasPartials );
@@ -337,6 +337,8 @@ createSingleLinkObservationPartials(
         // Check if partial is non-nullptr (i.e. whether dependency exists between current observable and current parameter)
         if( currentObservationPartial != nullptr )
         {
+            std::cout<<"Non-null parameter partial "<<observableType<<" "<<parameterIterator->first<<" "<<
+                    parameterIterator->second->getParameterSize( )<<std::endl;
             // Add partial to the list.
             currentPair = std::pair< int, int >( parameterIterator->first,
                                                  parameterIterator->second->getParameterSize( ) );

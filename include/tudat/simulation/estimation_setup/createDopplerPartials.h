@@ -127,13 +127,13 @@ std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialSca
         // Create one-way Doppler partials for current link
         constituentOneWayDopplerPartials.push_back(
                     createSingleLinkObservationPartials< ParameterType, 1, TimeType >(
-                        currentDopplerModel, bodies, parametersToEstimate ) );
+                        currentDopplerModel, bodies, parametersToEstimate, false ) );
 
         constituentOneWayRangePartials.push_back(
                     createSingleLinkObservationPartials< ParameterType, 1, TimeType >(
                         std::make_shared< observation_models::OneWayRangeObservationModel< ParameterType, TimeType > >(
                             currentLinkEnds, currentDopplerModel->getLightTimeCalculator( ) ), bodies,
-                        parametersToEstimate ) );
+                        parametersToEstimate, false ) );
     }
 
     // Retrieve sorted (by parameter index and link index) one-way range partials and (by link index) opne-way range partials

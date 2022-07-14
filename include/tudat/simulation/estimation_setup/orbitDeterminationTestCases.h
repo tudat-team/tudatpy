@@ -1069,24 +1069,24 @@ std::pair< Eigen::VectorXd, bool > executeEarthOrbiterBiasEstimation(
         parameterPerturbation.segment( 0, 3 ) = Eigen::Vector3d::Constant( 1.0 );
         parameterPerturbation.segment( 3, 3 ) = Eigen::Vector3d::Constant( 1.E-3 );
 
-//        for( unsigned int i = 6; i < initialParameterEstimate.rows( ); i++ )
-//        {
-//            if( estimateAbsoluteBiases )
-//            {
-//                if( estimateRangeBiases )
-//                {
-//                    parameterPerturbation( i ) = 1.0;
-//                }
-//                else
-//                {
-//                    parameterPerturbation( i ) = 1.0E-8;
-//                }
-//            }
-//            else
-//            {
-//                parameterPerturbation( i ) = 1.0E-6;
-//            }
-//        }
+        for( unsigned int i = 6; i < initialParameterEstimate.rows( ); i++ )
+        {
+            if( estimateAbsoluteBiases )
+            {
+                if( estimateRangeBiases )
+                {
+                    parameterPerturbation( i ) = 1.0;
+                }
+                else
+                {
+                    parameterPerturbation( i ) = 1.0E-8;
+                }
+            }
+            else
+            {
+                parameterPerturbation( i ) = 1.0E-6;
+            }
+        }
         initialParameterEstimate += parameterPerturbation;
     }
 
@@ -1113,6 +1113,8 @@ std::pair< Eigen::VectorXd, bool > executeEarthOrbiterBiasEstimation(
                 estimationInput, std::make_shared< EstimationConvergenceChecker >( numberOfIterations ) );
 
     Eigen::VectorXd estimationError = estimationOutput->parameterEstimate_ - truthParameters;
+
+    std::cout <<"initial error: "<< ( parameterPerturbation ).transpose( ) << std::endl<< std::endl;
     std::cout <<"estimation error: "<< ( estimationError ).transpose( ) << std::endl<< std::endl;
 
     return std::make_pair( estimationError,
