@@ -25,14 +25,14 @@ namespace observation_partials
 template< int ObservationSize >
 std::shared_ptr< ObservationPartial< ObservationSize > >
 createDifferencedObservationPartial(
-        const observation_models::ObservableType undifferencedObservableType,
+        const observation_models::ObservableType differencedObservableType,
         const std::shared_ptr< ObservationPartial< ObservationSize > > firstPartial,
         const std::shared_ptr< ObservationPartial< ObservationSize > > secondPartial )
 {
     using namespace observation_models;
 
     std::shared_ptr< ObservationPartial< ObservationSize > > differencedPartial;
-    switch( undifferencedObservableType )
+    switch( differencedObservableType )
     {
     case one_way_differenced_range:
     {
@@ -56,9 +56,10 @@ createDifferencedObservationPartial(
         differencedPartial = std::make_shared< DifferencedObservablePartial< ObservationSize > >(
                     firstPartial, secondPartial, &observation_models::getDifferencedOneWayRangeScalingFactor,
                     getUndifferencedTimeAndStateIndices( one_way_differenced_range ) );
+        break;
     }
     default:
-        throw std::runtime_error( "Error when creating differenced observable partial; observable " + getObservableName( undifferencedObservableType ) +
+        throw std::runtime_error( "Error when creating differenced observable partial; observable " + getObservableName( differencedObservableType ) +
                                   " is not differenced. " );
 
     }
@@ -81,8 +82,12 @@ std::shared_ptr< PositionPartialScaling > > createDifferencedObservablePartials(
     std::shared_ptr< PositionPartialScaling > > differencedPartialsAndScaling;
 
     LinkEnds linkEnds = observationModel->getLinkEnds( );
+    ObservableType differencedObservableType = observationModel->getObservableType( );
     ObservableType undifferencedObservableType = getUndifferencedObservableType(
-                observationModel->getObservableType( ) );
+                differencedObservableType );
+
+    std::cout<<"Diff "<<differencedObservableType<<std::endl;
+    std::cout<<"Undiff "<<undifferencedObservableType<<std::endl;
 
     auto undifferencedObservationModels = getUndifferencedObservationModels( observationModel );
 
@@ -132,27 +137,22 @@ std::shared_ptr< PositionPartialScaling > > createDifferencedObservablePartials(
                 secondPartialsIterator->first )
         {
             throw std::runtime_error(
-                        "Error when making differenced observation partials of type " + getObservableName( observationModel->getObservableType( ) ) + " parameter indices did not match" );
+                        "Error when making differenced observation partials of type " + getObservableName( differencedObservableType ) + " parameter indices did not match" );
         }
         if( firstPartialsIterator->second->getParameterIdentifier( ) !=
                 secondPartialsIterator->second->getParameterIdentifier( ) )
         {
             throw std::runtime_error(
-                        "Error when making differenced observation partials of type " + getObservableName( observationModel->getObservableType( ) ) + " parameters did not match" );
+                        "Error when making differenced observation partials of type " + getObservableName( differencedObservableType ) + " parameters did not match" );
         }
         else
         {
             // Create range rate partial.
             differencedObservationPartialList[ firstPartialsIterator->first ] =
                     createDifferencedObservationPartial(
-                            undifferencedObservableType,
+                            differencedObservableType,
                             firstPartialsIterator->second,
                             secondPartialsIterator->second );
-
-//                    std::make_shared< DifferencedOneWayRangeRatePartial >(
-//                        firstPartialsIterator->second->getParameterIdentifier( ),
-//                        firstPartialsIterator->second,
-//                        secondPartialsIterator->second );
         }
 
         // Increment range partial iterators.
@@ -160,10 +160,12 @@ std::shared_ptr< PositionPartialScaling > > createDifferencedObservablePartials(
         secondPartialsIterator++;
     }
 
+
+
     differencedPartialsAndScaling = std::make_pair(
                 differencedObservationPartialList, ObservationPartialScalingCreator< ObservationSize >::
                 template createDifferencedPositionPartialScalingObject< ParameterType, TimeType >(
-                    observationModel->getObservableType( ), firstUndifferencedObservablePartials.second, secondUndifferencedObservablePartials.second, bodies ) );
+                    differencedObservableType, firstUndifferencedObservablePartials.second, secondUndifferencedObservablePartials.second, bodies ) );
     return differencedPartialsAndScaling;
 
 
