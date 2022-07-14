@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef TUDAT_ONEWAYLINKOBSERVATIONPARTIAL_H
-#define TUDAT_ONEWAYLINKOBSERVATIONPARTIAL_H
+#ifndef TUDAT_DIRECTOBSERVATIONPARTIAL_H
+#define TUDAT_DIRECTOBSERVATIONPARTIAL_H
 
 #include "tudat/astro/orbit_determination/observation_partials/observationPartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/positionPartials.h"
@@ -214,4 +214,4 @@ protected:
 
 }
 
-#endif // ONEWAYLINKOBSERVATIONPARTIAL_H
+#endif // directObservationPartial_H
