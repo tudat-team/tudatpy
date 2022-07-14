@@ -37,7 +37,8 @@ enum ObservableType
     two_way_doppler = 6,
     euler_angle_313_observable = 7,
     velocity_observable = 8,
-    relative_angular_position = 9
+    relative_angular_position = 9,
+    n_way_differenced_range = 10
 };
 
 

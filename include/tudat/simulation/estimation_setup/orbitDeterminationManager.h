@@ -271,7 +271,7 @@ public:
         typename observation_models::ObservationCollection< ObservationScalarType, TimeType >::SortedObservationSets
                 sortedObservations = observationsCollection->getObservations( );
 
-        std::cout << "start calculateObservationMatrixAndResiduals" << "\n\n";
+//        std::cout << "start calculateObservationMatrixAndResiduals" << "\n\n";
 
         // Iterate over all observable types in observationsAndTimes
         for( auto observablesIterator : sortedObservations )
@@ -320,7 +320,7 @@ public:
                             currentObservableType );
             }
         }
-        std::cout << "end calculateObservationMatrixAndResiduals" << "\n\n";
+//        std::cout << "end calculateObservationMatrixAndResiduals" << "\n\n";
 
     }
 
@@ -540,7 +540,7 @@ public:
 
     {
         currentParameterEstimate_ = parametersToEstimate_->template getFullParameterValues< ObservationScalarType >( );
-        std::cout << "current parameter estimate: " << currentParameterEstimate_.transpose( ) << "\n\n";
+//        std::cout << "current parameter estimate: " << currentParameterEstimate_.transpose( ) << "\n\n";
 
         // Get size of parameter vector and number of observations (total and per type)
         int parameterVectorSize = currentParameterEstimate_.size( );
@@ -570,7 +570,7 @@ public:
         ParameterVectorType newParameterEstimate = currentParameterEstimate_ +
                 estimationInput->getInitialParameterDeviationEstimate( );
         ParameterVectorType oldParameterEstimate = currentParameterEstimate_;
-        std::cout << "old parameter estimate: " << oldParameterEstimate.transpose( ) << "\n\n";
+//        std::cout << "old parameter estimate: " << oldParameterEstimate.transpose( ) << "\n\n";
 
         int numberOfEstimatedParameters = parameterVectorSize;
 
@@ -657,13 +657,13 @@ public:
                 Eigen::MatrixXd constraintStateMultiplier;
                 Eigen::VectorXd constraintRightHandSide;
                 parametersToEstimate_->getConstraints( constraintStateMultiplier, constraintRightHandSide );
-                std::cout << "before least-squares adjustment" << "\n\n";
+//                std::cout << "before least-squares adjustment" << "\n\n";
                 leastSquaresOutput =
                         std::move( linear_algebra::performLeastSquaresAdjustmentFromDesignMatrix(
                                        designMatrix.block( 0, 0, designMatrix.rows( ), numberOfEstimatedParameters ),
                                        residuals, estimationInput->getWeightsMatrixDiagonals( ),
                                        normalizedInverseAprioriCovarianceMatrix, 1, 1.0E8, constraintStateMultiplier, constraintRightHandSide ) );
-                std::cout << "after least-squares adjustment" << "\n\n";
+//                std::cout << "after least-squares adjustment" << "\n\n";
 
                 if( constraintStateMultiplier.rows( ) > 0 )
                 {
@@ -688,13 +688,13 @@ public:
 
 
             // Update value of parameter vector
-            std::cout << "before updating parameter vector" << "\n\n";
-            std::cout << "oldParameterEstimate: " << oldParameterEstimate.transpose() << "\n\n";
-            std::cout << "parameter addition: " << parameterAddition.transpose( ) << "\n\n";
+//            std::cout << "before updating parameter vector" << "\n\n";
+//            std::cout << "oldParameterEstimate: " << oldParameterEstimate.transpose() << "\n\n";
+//            std::cout << "parameter addition: " << parameterAddition.transpose( ) << "\n\n";
             newParameterEstimate = oldParameterEstimate + parameterAddition;
             parametersToEstimate_->template resetParameterValues< ObservationScalarType >( newParameterEstimate );
             newParameterEstimate = parametersToEstimate_->template getFullParameterValues< ObservationScalarType >( );
-            std::cout << "after updating parameter vector" << "\n\n";
+//            std::cout << "after updating parameter vector" << "\n\n";
 
             if( estimationInput->getSaveResidualsAndParametersFromEachIteration( ) )
             {
