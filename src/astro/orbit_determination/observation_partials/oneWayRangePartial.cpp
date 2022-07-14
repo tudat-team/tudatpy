@@ -44,6 +44,7 @@ void OneWayRangeScaling::update( const std::vector< Eigen::Vector6d >& linkEndSt
         referenceScalingFactor_ =  rangeVectorNormalized * referenceLightTimeCorrectionScaling_;
     }
 
+
     currentLinkEndType_ = fixedLinkEnd;
 }
 

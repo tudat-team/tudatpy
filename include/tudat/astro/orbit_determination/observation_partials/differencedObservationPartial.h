@@ -51,25 +51,7 @@ public:
     void update( const std::vector< Eigen::Vector6d >& linkEndStates,
                  const std::vector< double >& times,
                  const observation_models::LinkEndType fixedLinkEnd,
-                 const Eigen::VectorXd currentObservation )
-    {
-        try
-        {
-            firstPartialScaling_->update(
-                        utilities::getVectorEntries( linkEndStates, firstIndices_ ), utilities::getVectorEntries( times, firstIndices_ ),
-                        fixedLinkEnd, Eigen::VectorXd::Constant( currentObservation.rows( ), TUDAT_NAN ) );
-            secondPartialScaling_->update(
-                        utilities::getVectorEntries( linkEndStates, secondIndices_ ), utilities::getVectorEntries( times, secondIndices_ ),
-                        fixedLinkEnd, Eigen::VectorXd::Constant( currentObservation.rows( ), TUDAT_NAN ) );;
-        }
-        catch( const std::exception& caughtException )
-        {
-            std::string exceptionText = std::string( caughtException.what( ) );
-            throw std::runtime_error( "Error when computing differenced observation partial scaling, error: " + exceptionText );
-        }
-
-
-    }
+                 const Eigen::VectorXd currentObservation );
 
     std::shared_ptr< PositionPartialScaling > firstPartialScaling_;
 
