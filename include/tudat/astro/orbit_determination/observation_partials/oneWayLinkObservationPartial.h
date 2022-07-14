@@ -22,7 +22,7 @@ namespace observation_partials
 {
 
 template< int ObservationSize >
-class OneWayLinkObservationPartial: public ObservationPartial< ObservationSize >
+class DirectObservationPartial: public ObservationPartial< ObservationSize >
 {
 public:
     typedef std::vector< std::pair< Eigen::Matrix< double, ObservationSize, Eigen::Dynamic >, double > > ObservationPartialReturnType;
@@ -37,8 +37,8 @@ public:
      * \param parameterIdentifier Id of parameter for which instance of class computes partial derivatives.
      * \param lighTimeCorrectionPartials List if light-time correction partial objects.
      */
-    OneWayLinkObservationPartial(
-            const std::shared_ptr< OneWayLinkPositionPartialScaling< ObservationSize > > positionPartialScaler,
+    DirectObservationPartial(
+            const std::shared_ptr< DirectPositionPartialScaling< ObservationSize > > positionPartialScaler,
             const std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > >& positionPartialList,
             const estimatable_parameters::EstimatebleParameterIdentifier parameterIdentifier,
             const std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > >&
@@ -65,7 +65,7 @@ public:
     }
 
     //! Destructor.
-    ~OneWayLinkObservationPartial( ) { }
+    ~DirectObservationPartial( ) { }
 
     //! Function to calculate the observation partial(s) at required time and state
     /*!
@@ -173,10 +173,15 @@ public:
         return positionPartialScaler_->useLinkIndependentPartials( );
     }
 
+    observation_models::ObservableType getObservableType( )
+    {
+        return positionPartialScaler_->getObservableType( );
+    }
+
 protected:
 
     //! Scaling object used for mapping partials of positions to partials of observable
-    std::shared_ptr< OneWayLinkPositionPartialScaling< ObservationSize > > positionPartialScaler_;
+    std::shared_ptr< DirectPositionPartialScaling< ObservationSize > > positionPartialScaler_;
 
     //! List of position partials per link end.
     std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > > positionPartialList_;

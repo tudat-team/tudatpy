@@ -16,10 +16,10 @@
 
 #include "tudat/simulation/estimation_setup/createRelativeAngularPositionPartials.h"
 #include "tudat/simulation/estimation_setup/createDopplerPartials.h"
-#include "tudat/simulation/estimation_setup/createDifferencedOneWayRangeRatePartials.h"
 #include "tudat/simulation/estimation_setup/createNWayRangePartials.h"
 #include "tudat/simulation/estimation_setup/createEulerAngleObservationPartials.h"
 #include "tudat/simulation/estimation_setup/createDirectObservationPartials.h"
+#include "tudat/simulation/estimation_setup/createDifferencedObservablePartials.h"
 
 namespace tudat
 {
@@ -149,9 +149,8 @@ public:
                         getLightTimeCorrectionsList( observationModelList ) );
             break;
         case observation_models::one_way_differenced_range:
-            observationPartialList = createDifferencedOneWayRangeRatePartials< ObservationScalarType >(
-                        utilities::createVectorFromMapKeys( observationModelList ), bodies, parametersToEstimate,
-                        getLightTimeCorrectionsList( observationModelList ) );
+            observationPartialList = createDifferencedObservablePartialsList< ObservationScalarType, TimeType, 1 >(
+                        observationModelList, bodies, parametersToEstimate );
             break;
         case observation_models::n_way_range:
             observationPartialList = createNWayRangePartials< ObservationScalarType >(

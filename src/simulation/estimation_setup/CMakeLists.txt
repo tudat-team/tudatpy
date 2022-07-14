@@ -34,13 +34,14 @@ set(estimation_HEADERS
         createEulerAngleObservationPartials.h
         createDopplerPartials.h
         createRelativeAngularPositionPartials.h
-        createDifferencedOneWayRangeRatePartials.h
         createNWayRangePartials.h
         observationOutputSettings.h
         observationOutput.h
         observationSimulationSettings.h
         observations.h
         createDirectObservationPartials.h
+        createPositionPartialScaling.h
+        createDifferencedObservablePartials.h
         )
 
 # Add header files.
@@ -51,7 +52,6 @@ set(estimation_SOURCES
         createObservationManager.cpp
         createEstimatableParameters.cpp
         createLightTimeCorrection.cpp
-        createDifferencedOneWayRangeRatePartials.cpp
         createLightTimeCorrectionPartials.cpp
         orbitDeterminationManager.cpp
         createCartesianStatePartials.cpp

@@ -250,6 +250,58 @@ ObservableType getObservableType( const std::string& observableName )
     return observableType;
 }
 
+ObservableType getUndifferencedObservableType( const ObservableType differencedObservableType )
+{
+    ObservableType undifferencedObservableType = undefined_observation_model;
+    switch( differencedObservableType )
+    {
+    case one_way_differenced_range:
+        undifferencedObservableType = one_way_range;
+        break;
+    default:
+        throw std::runtime_error( "Error when getting undifferenced observable type for " + getObservableName(
+                                      differencedObservableType ) + ", no such type exists" );
+
+    }
+    return undifferencedObservableType;
+}
+
+ObservableType getDifferencedObservableType( const ObservableType undifferencedObservableType )
+{
+    ObservableType differencedObservableType = undefined_observation_model;
+    switch( undifferencedObservableType )
+    {
+    case one_way_range:
+        differencedObservableType = one_way_differenced_range;
+        break;
+    default:
+        throw std::runtime_error( "Error when getting differenced observable type for " + getObservableName(
+                                      undifferencedObservableType ) + ", no such type exists" );
+
+    }
+    return differencedObservableType;
+}
+
+std::pair< std::vector< int >, std::vector< int > > getUndifferencedTimeAndStateIndices(
+        const ObservableType differencedObservableType )
+{
+    std::vector< int > firstIndices;
+    std::vector< int > secondIndices;
+
+    switch( differencedObservableType )
+    {
+    case one_way_differenced_range:
+        firstIndices = { 0, 1 };
+        secondIndices = { 2, 3 };
+        break;
+    default:
+        throw std::runtime_error( "Error when getting undifferenced time and state entries for: " + getObservableName(
+                                      differencedObservableType ) + ", no such type found" );
+    }
+    return std::make_pair( firstIndices, secondIndices );
+}
+
+
 //! Function to get the size of an observable of a given type.
 int getObservableSize( const ObservableType observableType )
 {
