@@ -589,15 +589,15 @@ inline std::shared_ptr< ObservationModelSettings > angularPositionSettings(
                 angular_position, linkEnds, lightTimeCorrectionsList, biasSettings );
 }
 
-    inline std::shared_ptr< ObservationModelSettings > relativeAngularPositionSettings(
-            const LinkEnds& linkEnds,
-            const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =
-            std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
-            const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr)
-    {
-        return std::make_shared< ObservationModelSettings >(
+inline std::shared_ptr< ObservationModelSettings > relativeAngularPositionSettings(
+        const LinkEnds& linkEnds,
+        const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =
+        std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
+        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr)
+{
+    return std::make_shared< ObservationModelSettings >(
                 relative_angular_position, linkEnds, lightTimeCorrectionsList, biasSettings );
-    }
+}
 
 inline std::shared_ptr< ObservationModelSettings > positionObservableSettings(
         const LinkDefinition& linkEnds,
@@ -699,7 +699,7 @@ inline std::shared_ptr< ObservationModelSettings > nWayRangeSimple(
 {
     // change order of input args from FF to accomodate default (empty) lightTimeCorrections
     return std::make_shared< NWayRangeObservationSettings >(
-            linkEnds, lightTimeCorrections, numberOfLinkEnds, retransmissionTimesFunction, biasSettings );
+                linkEnds, lightTimeCorrections, numberOfLinkEnds, retransmissionTimesFunction, biasSettings );
 }
 
 
@@ -1125,8 +1125,8 @@ public:
                             createLightTimeCalculator< ObservationScalarType, TimeType >(
                                 linkEnds.at( transmitter ), linkEnds.at( receiver ),
                                 bodies, observationSettings->lightTimeCorrectionsList_ ),
-                                transmitterProperTimeRate,
-                                receiverProperTimeRate,
+                            transmitterProperTimeRate,
+                            receiverProperTimeRate,
                             observationBias );
             }
 
@@ -1201,7 +1201,7 @@ public:
                             linkEnds,
                             std::dynamic_pointer_cast< OneWayDopplerObservationModel< ObservationScalarType, TimeType > >(
                                 ObservationModelCreator< 1, ObservationScalarType, TimeType >::createObservationModel(
-                                     twoWayDopplerSettings->uplinkOneWayDopplerSettings_, bodies ) ),
+                                    twoWayDopplerSettings->uplinkOneWayDopplerSettings_, bodies ) ),
                             std::dynamic_pointer_cast< OneWayDopplerObservationModel< ObservationScalarType, TimeType > >(
                                 ObservationModelCreator< 1, ObservationScalarType, TimeType >::createObservationModel(
                                     twoWayDopplerSettings->downlinkOneWayDopplerSettings_, bodies ) ),
@@ -1473,16 +1473,16 @@ public:
             {
                 observationBias =
                         createObservationBiasCalculator< 2 >(
-                                linkEnds, observationSettings->observableType_, observationSettings->biasSettings_,bodies );
+                            linkEnds, observationSettings->observableType_, observationSettings->biasSettings_,bodies );
             }
 
             // Create observation model
             observationModel = std::make_shared< RelativeAngularPositionObservationModel<
                     ObservationScalarType, TimeType > >(
-                            linkEnds, createLightTimeCalculator< ObservationScalarType, TimeType >(
-                                    linkEnds.at( transmitter ), linkEnds.at( receiver ), bodies, observationSettings->lightTimeCorrectionsList_ ),
-                            createLightTimeCalculator< ObservationScalarType, TimeType >(
-                                    linkEnds.at( transmitter2 ), linkEnds.at( receiver ), bodies, observationSettings->lightTimeCorrectionsList_ ), observationBias );
+                        linkEnds, createLightTimeCalculator< ObservationScalarType, TimeType >(
+                            linkEnds.at( transmitter ), linkEnds.at( receiver ), bodies, observationSettings->lightTimeCorrectionsList_ ),
+                        createLightTimeCalculator< ObservationScalarType, TimeType >(
+                            linkEnds.at( transmitter2 ), linkEnds.at( receiver ), bodies, observationSettings->lightTimeCorrectionsList_ ), observationBias );
 
             break;
         }
@@ -1740,19 +1740,19 @@ std::vector< std::shared_ptr< ObservationSimulatorBase< ObservationScalarType, T
         case 1:
         {
             observationSimulators.push_back( createObservationSimulator< 1, ObservationScalarType, TimeType >(
-                        observableType, it.second, bodies ) );
+                                                 observableType, it.second, bodies ) );
             break;
         }
         case 2:
         {
             observationSimulators.push_back( createObservationSimulator< 2, ObservationScalarType, TimeType >(
-                        observableType, it.second, bodies ) );
+                                                 observableType, it.second, bodies ) );
             break;
         }
         case 3:
         {
             observationSimulators.push_back( createObservationSimulator< 3, ObservationScalarType, TimeType >(
-                        observableType, it.second, bodies ) );
+                                                 observableType, it.second, bodies ) );
             break;
         }
         default:
@@ -1768,6 +1768,133 @@ typedef std::map< observation_models::LinkEnds,
 std::vector< std::vector< std::shared_ptr< observation_models::LightTimeCorrection > > > >
 PerLinkEndPerLightTimeSolutionCorrections;
 
+template< typename ObservationScalarType, typename TimeType, int ObservationSize  >
+std::vector< std::vector< std::shared_ptr< observation_models::LightTimeCorrection > > > getLightTimeCorrections(
+        const std::shared_ptr< observation_models::ObservationModel<
+        ObservationSize, ObservationScalarType, TimeType> > observationModel )
+{
+    // Clear list, for current link ends.
+    std::vector< std::vector< std::shared_ptr< observation_models::LightTimeCorrection > > > currentLightTimeCorrections;
+
+    std::vector< std::shared_ptr< observation_models::LightTimeCorrection > > singleObservableCorrectionList;
+
+    // Check type of observable
+    switch( observationModel->getObservableType( ) )
+    {
+    case observation_models::one_way_range:
+    {
+        std::shared_ptr< observation_models::OneWayRangeObservationModel
+                < ObservationScalarType, TimeType> > oneWayRangeModel =
+                std::dynamic_pointer_cast< observation_models::OneWayRangeObservationModel
+                < ObservationScalarType, TimeType> >
+                ( observationModel );
+        singleObservableCorrectionList = (
+                    oneWayRangeModel->getLightTimeCalculator( )->getLightTimeCorrection( ) );
+        break;
+    }
+    case observation_models::one_way_doppler:
+    {
+        std::shared_ptr< observation_models::OneWayDopplerObservationModel
+                < ObservationScalarType, TimeType> > oneWayRangeModel =
+                std::dynamic_pointer_cast< observation_models::OneWayDopplerObservationModel
+                < ObservationScalarType, TimeType> >
+                ( observationModel );
+        singleObservableCorrectionList = (
+                    oneWayRangeModel->getLightTimeCalculator( )->getLightTimeCorrection( ) );
+        break;
+    }
+    case observation_models::two_way_doppler:
+    {
+        std::shared_ptr< observation_models::TwoWayDopplerObservationModel
+                < ObservationScalarType, TimeType> > twoWaDopplerModel =
+                std::dynamic_pointer_cast< observation_models::TwoWayDopplerObservationModel
+                < ObservationScalarType, TimeType> >
+                ( observationModel );
+        currentLightTimeCorrections.push_back(
+                    twoWaDopplerModel->getUplinkDopplerCalculator( )->getLightTimeCalculator( )->getLightTimeCorrection( ) );
+        currentLightTimeCorrections.push_back(
+                    twoWaDopplerModel->getDownlinkDopplerCalculator( )->getLightTimeCalculator( )->getLightTimeCorrection( ) );
+        break;
+    }
+    case observation_models::angular_position:
+    {
+        std::shared_ptr< observation_models::AngularPositionObservationModel
+                < ObservationScalarType, TimeType> > angularPositionModel =
+                std::dynamic_pointer_cast< observation_models::AngularPositionObservationModel
+                < ObservationScalarType, TimeType> >
+                ( observationModel );
+        singleObservableCorrectionList = (
+                    angularPositionModel->getLightTimeCalculator( )->getLightTimeCorrection( ) );
+        break;
+    }
+    case observation_models::one_way_differenced_range:
+    {
+        std::shared_ptr< observation_models::OneWayDifferencedRangeObservationModel
+                < ObservationScalarType, TimeType> > oneWayDifferencedRangeObservationModel =
+                std::dynamic_pointer_cast< observation_models::OneWayDifferencedRangeObservationModel
+                < ObservationScalarType, TimeType> >
+                ( observationModel );
+        currentLightTimeCorrections.push_back(
+                    oneWayDifferencedRangeObservationModel->getArcStartLightTimeCalculator( )->
+                    getLightTimeCorrection( ) );
+        currentLightTimeCorrections.push_back(
+                    oneWayDifferencedRangeObservationModel->getArcEndLightTimeCalculator( )->
+                    getLightTimeCorrection( ) );
+
+        break;
+    }
+    case observation_models::n_way_range:
+    {
+        std::shared_ptr< observation_models::NWayRangeObservationModel< ObservationScalarType, TimeType > > nWayRangeObservationModel =
+                std::dynamic_pointer_cast< observation_models::NWayRangeObservationModel< ObservationScalarType, TimeType > >
+                ( observationModel );
+        std::vector< std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > > lightTimeCalculatorList =
+                nWayRangeObservationModel->getLightTimeCalculators( );
+        for( unsigned int i = 0; i < lightTimeCalculatorList.size( ); i++ )
+        {
+            currentLightTimeCorrections.push_back( lightTimeCalculatorList.at( i )->getLightTimeCorrection( ) );
+        }
+        break;
+    }
+    case observation_models::position_observable:
+    {
+        break;
+    }
+    case observation_models::euler_angle_313_observable:
+    {
+        break;
+    }
+    case observation_models::velocity_observable:
+    {
+        break;
+    }
+    case observation_models::relative_angular_position:
+    {
+        std::shared_ptr< observation_models::RelativeAngularPositionObservationModel< ObservationScalarType, TimeType> > relativeAngularPositionModel =
+                std::dynamic_pointer_cast< observation_models::RelativeAngularPositionObservationModel
+                < ObservationScalarType, TimeType> >( observationModel );
+        currentLightTimeCorrections.push_back(
+                    relativeAngularPositionModel->getLightTimeCalculatorFirstTransmitter( )->getLightTimeCorrection( ) );
+        currentLightTimeCorrections.push_back(
+                    relativeAngularPositionModel->getLightTimeCalculatorSecondTransmitter( )->getLightTimeCorrection( ) );
+        break;
+    }
+    default:
+        std::string errorMessage =
+                "Error in light time correction list creation, observable type " +
+                std::to_string( observationModel->getObservableType( ) ) + " not recognized.";
+        throw std::runtime_error( errorMessage );
+    }
+
+    if( singleObservableCorrectionList.size( ) > 0 )
+    {
+        currentLightTimeCorrections.push_back( singleObservableCorrectionList );
+    }
+
+    return currentLightTimeCorrections;
+
+}
+
 //! Function to retrieve a list of light-time corrections per link end from a list of observation models.
 /*!
  *  Function to retrieve a list of light-time corrections per link end from a list of observation models.
@@ -1780,7 +1907,6 @@ PerLinkEndPerLightTimeSolutionCorrections getLightTimeCorrectionsList(
         ObservationSize, ObservationScalarType, TimeType> > > observationModels )
 {
     PerLinkEndPerLightTimeSolutionCorrections lightTimeCorrectionsList;
-    std::vector< std::vector< std::shared_ptr< observation_models::LightTimeCorrection > > > currentLightTimeCorrections;
 
     // Retrieve type of observable
     observation_models::ObservableType observableType = observationModels.begin( )->second->getObservableType( );
@@ -1791,135 +1917,13 @@ PerLinkEndPerLightTimeSolutionCorrections getLightTimeCorrectionsList(
          observationModelIterator = observationModels.begin( );
          observationModelIterator != observationModels.end( ); observationModelIterator++ )
     {
-        // Clear list, for current link ends.
-        currentLightTimeCorrections.clear( );
+        std::vector< std::vector< std::shared_ptr< observation_models::LightTimeCorrection > > > currentLightTimeCorrections =
+                getLightTimeCorrections( observationModelIterator->second );
 
-        if( observationModelIterator->second->getObservableType( ) != observableType )
+        // Add light-time corrections for current link ends.
+        if( currentLightTimeCorrections.size( ) > 0 )
         {
-            throw std::runtime_error( "Error when making grouped light time correction list, observable type is not constant" );
-        }
-        else
-        {
-            std::vector< std::shared_ptr< observation_models::LightTimeCorrection > > singleObservableCorrectionList;
-
-            // Check type of observable
-            switch( observableType )
-            {
-            case observation_models::one_way_range:
-            {
-                std::shared_ptr< observation_models::OneWayRangeObservationModel
-                        < ObservationScalarType, TimeType> > oneWayRangeModel =
-                        std::dynamic_pointer_cast< observation_models::OneWayRangeObservationModel
-                        < ObservationScalarType, TimeType> >
-                        ( observationModelIterator->second );
-                singleObservableCorrectionList = (
-                            oneWayRangeModel->getLightTimeCalculator( )->getLightTimeCorrection( ) );
-                break;
-            }
-            case observation_models::one_way_doppler:
-            {
-                std::shared_ptr< observation_models::OneWayDopplerObservationModel
-                        < ObservationScalarType, TimeType> > oneWayRangeModel =
-                        std::dynamic_pointer_cast< observation_models::OneWayDopplerObservationModel
-                        < ObservationScalarType, TimeType> >
-                        ( observationModelIterator->second );
-                singleObservableCorrectionList = (
-                            oneWayRangeModel->getLightTimeCalculator( )->getLightTimeCorrection( ) );
-                break;
-            }
-            case observation_models::two_way_doppler:
-            {
-                std::shared_ptr< observation_models::TwoWayDopplerObservationModel
-                        < ObservationScalarType, TimeType> > twoWaDopplerModel =
-                        std::dynamic_pointer_cast< observation_models::TwoWayDopplerObservationModel
-                        < ObservationScalarType, TimeType> >
-                        ( observationModelIterator->second );
-                currentLightTimeCorrections.push_back(
-                            twoWaDopplerModel->getUplinkDopplerCalculator( )->getLightTimeCalculator( )->getLightTimeCorrection( ) );
-                currentLightTimeCorrections.push_back(
-                            twoWaDopplerModel->getDownlinkDopplerCalculator( )->getLightTimeCalculator( )->getLightTimeCorrection( ) );
-                break;
-            }
-            case observation_models::angular_position:
-            {
-                std::shared_ptr< observation_models::AngularPositionObservationModel
-                        < ObservationScalarType, TimeType> > angularPositionModel =
-                        std::dynamic_pointer_cast< observation_models::AngularPositionObservationModel
-                        < ObservationScalarType, TimeType> >
-                        ( observationModelIterator->second );
-                singleObservableCorrectionList = (
-                            angularPositionModel->getLightTimeCalculator( )->getLightTimeCorrection( ) );
-                break;
-            }
-            case observation_models::one_way_differenced_range:
-            {
-                std::shared_ptr< observation_models::OneWayDifferencedRangeObservationModel
-                        < ObservationScalarType, TimeType> > oneWayDifferencedRangeObservationModel =
-                        std::dynamic_pointer_cast< observation_models::OneWayDifferencedRangeObservationModel
-                        < ObservationScalarType, TimeType> >
-                        ( observationModelIterator->second );
-                currentLightTimeCorrections.push_back(
-                            oneWayDifferencedRangeObservationModel->getArcStartLightTimeCalculator( )->
-                            getLightTimeCorrection( ) );
-                currentLightTimeCorrections.push_back(
-                            oneWayDifferencedRangeObservationModel->getArcEndLightTimeCalculator( )->
-                            getLightTimeCorrection( ) );
-
-                break;
-            }
-            case observation_models::n_way_range:
-            {
-                std::shared_ptr< observation_models::NWayRangeObservationModel< ObservationScalarType, TimeType > > nWayRangeObservationModel =
-                        std::dynamic_pointer_cast< observation_models::NWayRangeObservationModel< ObservationScalarType, TimeType > >
-                        ( observationModelIterator->second );
-                std::vector< std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > > lightTimeCalculatorList =
-                        nWayRangeObservationModel->getLightTimeCalculators( );
-                for( unsigned int i = 0; i < lightTimeCalculatorList.size( ); i++ )
-                {
-                    currentLightTimeCorrections.push_back( lightTimeCalculatorList.at( i )->getLightTimeCorrection( ) );
-                }
-                break;
-            }
-            case observation_models::position_observable:
-            {
-                break;
-            }
-            case observation_models::euler_angle_313_observable:
-            {
-                break;
-            }
-            case observation_models::velocity_observable:
-            {
-                break;
-            }
-            case observation_models::relative_angular_position:
-            {
-                std::shared_ptr< observation_models::RelativeAngularPositionObservationModel< ObservationScalarType, TimeType> > relativeAngularPositionModel =
-                        std::dynamic_pointer_cast< observation_models::RelativeAngularPositionObservationModel
-                                < ObservationScalarType, TimeType> >( observationModelIterator->second );
-                currentLightTimeCorrections.push_back(
-                        relativeAngularPositionModel->getLightTimeCalculatorFirstTransmitter( )->getLightTimeCorrection( ) );
-                currentLightTimeCorrections.push_back(
-                        relativeAngularPositionModel->getLightTimeCalculatorSecondTransmitter( )->getLightTimeCorrection( ) );
-                break;
-            }
-            default:
-                std::string errorMessage =
-                        "Error in light time correction list creation, observable type " +
-                        std::to_string( observableType ) + " not recognized.";
-                throw std::runtime_error( errorMessage );
-            }
-
-            if( singleObservableCorrectionList.size( ) > 0 )
-            {
-                currentLightTimeCorrections.push_back( singleObservableCorrectionList );
-            }
-
-            // Add light-time corrections for current link ends.
-            if( currentLightTimeCorrections.size( ) > 0 )
-            {
-                lightTimeCorrectionsList[ observationModelIterator->first ] = currentLightTimeCorrections;
-            }
+            lightTimeCorrectionsList[ observationModelIterator->first ] = currentLightTimeCorrections;
         }
 
     }

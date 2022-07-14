@@ -86,9 +86,6 @@ std::shared_ptr< PositionPartialScaling > > createDifferencedObservablePartials(
     ObservableType undifferencedObservableType = getUndifferencedObservableType(
                 differencedObservableType );
 
-    std::cout<<"Diff "<<differencedObservableType<<std::endl;
-    std::cout<<"Undiff "<<undifferencedObservableType<<std::endl;
-
     auto undifferencedObservationModels = getUndifferencedObservationModels( observationModel );
 
     std::shared_ptr< ObservationModel< ObservationSize, ParameterType, TimeType > > undifferencedObservationModelFirst =
@@ -96,26 +93,15 @@ std::shared_ptr< PositionPartialScaling > > createDifferencedObservablePartials(
     std::shared_ptr< ObservationModel< ObservationSize, ParameterType, TimeType > > undifferencedObservationModelSecond =
             undifferencedObservationModels.second;
 
-    std::map< LinkEnds, std::shared_ptr< ObservationModel< ObservationSize, ParameterType, TimeType> > > inputList;
-
-    inputList[ undifferencedObservationModelFirst->getLinkEnds( ) ] = undifferencedObservationModelFirst;
-    std::vector< std::shared_ptr< LightTimeCorrection > > lightTimeCorrectionsFirst =
-            getLightTimeCorrectionsList( inputList ).begin( )->second.at( 0 );
-    inputList.clear( );
-
-    inputList[ undifferencedObservationModelSecond->getLinkEnds( ) ] = undifferencedObservationModelSecond;
-    std::vector< std::shared_ptr< LightTimeCorrection > > lightTimeCorrectionsSecond =
-            getLightTimeCorrectionsList( inputList ).begin( )->second.at( 0 );
-
     std::pair< std::map< std::pair< int, int >, std::shared_ptr< ObservationPartial< ObservationSize > > >, std::shared_ptr< PositionPartialScaling > >
             firstUndifferencedObservablePartials =
     createSingleLinkObservationPartials< ParameterType, ObservationSize, TimeType >(
-            linkEnds, undifferencedObservableType, bodies, parametersToEstimate, lightTimeCorrectionsFirst, false, undifferencedObservationModelFirst );
+           undifferencedObservationModelFirst, bodies, parametersToEstimate, false );
 
     std::pair< std::map< std::pair< int, int >, std::shared_ptr< ObservationPartial< ObservationSize > > >, std::shared_ptr< PositionPartialScaling > >
             secondUndifferencedObservablePartials =
     createSingleLinkObservationPartials< ParameterType, ObservationSize, TimeType >(
-            linkEnds, undifferencedObservableType, bodies, parametersToEstimate, lightTimeCorrectionsSecond, false, undifferencedObservationModelSecond );
+                undifferencedObservationModelSecond, bodies, parametersToEstimate, false );
 
     if( firstUndifferencedObservablePartials.first.size( ) != secondUndifferencedObservablePartials.first.size( ) )
     {
@@ -184,8 +170,18 @@ std::shared_ptr< PositionPartialScaling > > > createDifferencedObservablePartial
     std::map< observation_models::LinkEnds,
     std::pair< std::map< std::pair< int, int >, std::shared_ptr< ObservationPartial< ObservationSize > > > ,
     std::shared_ptr< PositionPartialScaling > > > partialsList;
+
+    observation_models::ObservableType observableType = observation_models::undefined_observation_model;
     for( auto it : observationModelList )
     {
+        if( observableType == observation_models::undefined_observation_model )
+        {
+            observableType = it.second->getObservableType( );
+        }
+        else if( observableType != it.second->getObservableType( ) )
+        {
+            throw std::runtime_error( "Error when creating differenced observation partials, input models are inconsistent" );
+        }
         partialsList[ it.first ] = createDifferencedObservablePartials(
                     it.second, bodies, parametersToEstimate, useBiasPartials );
     }

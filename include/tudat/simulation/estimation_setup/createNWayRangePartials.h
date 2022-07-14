@@ -49,15 +49,27 @@ namespace observation_partials
  *  representing all  necessary n-way range partials of a single link end, and NWayRangeScaling, object, used for
  *  scaling the position partial members of all NWayRangePartials in link end.
  */
-template< typename ParameterType >
+template< typename ParameterType, typename TimeType >
 std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialScaling > > createNWayRangePartials(
-        const observation_models::LinkEnds& nWayRangeLinkEnds,
+        const std::shared_ptr< observation_models::ObservationModel< 1, ParameterType, TimeType > > observationModel,
         const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
-        const std::vector< std::vector< std::shared_ptr< observation_models::LightTimeCorrection > > > lightTimeCorrections =
-        std::vector< std::vector< std::shared_ptr< observation_models::LightTimeCorrection > > >( ) )
-
+        const bool useBiasPartials = true )
 {
+    using namespace observation_models;
+
+    std::shared_ptr< observation_models::NWayRangeObservationModel< ParameterType, TimeType > >
+            nWayRangeObservationModel =
+            std::dynamic_pointer_cast< observation_models::NWayRangeObservationModel< ParameterType, TimeType > >(
+                observationModel );
+    if( nWayRangeObservationModel == nullptr )
+    {
+        throw std::runtime_error( "Error when creating n-way range partials; input observation model is not n-way range" );
+    }
+
+    observation_models::LinkEnds nWayRangeLinkEnds = nWayRangeObservationModel->getLinkEnds( );
+
+
     // Define return partial list
     SingleLinkObservationPartialList nWayRangePartialList;
 
@@ -75,10 +87,7 @@ std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialSca
     for( int i = 0; i < numberOfLinkEnds - 1; i++ )
     {
         currentLightTimeCorrections.clear( );
-        if( lightTimeCorrections.size( ) > 0 )
-        {
-            currentLightTimeCorrections = lightTimeCorrections.at( i );
-        }
+        currentLightTimeCorrections = nWayRangeObservationModel->getLightTimeCalculators( ).at( i )->getLightTimeCorrection( );
 
         // Define links for current one-way range link
         currentLinkEnds.clear( );
@@ -89,8 +98,10 @@ std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialSca
 
         // Create onw-way range partials for current link
         constituentOneWayRangePartials[ i ] =
-                createSingleLinkObservationPartials< ParameterType, 1 >
-                ( currentLinkEnds, observation_models::one_way_range, bodies, parametersToEstimate, currentLightTimeCorrections, false );
+                createSingleLinkObservationPartials< ParameterType, 1, TimeType >
+                ( std::make_shared< OneWayRangeObservationModel< ParameterType, TimeType > >(
+                      currentLinkEnds, nWayRangeObservationModel->getLightTimeCalculators( ).at( i ) ),
+                  bodies, parametersToEstimate, false );
     }
 
     // Retrieve sorted (by parameter index and link index) one-way range partials and (by link index) opne-way range partials
@@ -143,7 +154,7 @@ std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialSca
     {
 
         std::shared_ptr< ObservationPartial< 1 > > currentNWayRangePartial;
-        if( isParameterObservationLinkProperty( parameterIterator->second->getParameterName( ).first )  )
+        if( isParameterObservationLinkProperty( parameterIterator->second->getParameterName( ).first ) && useBiasPartials )
         {
             currentNWayRangePartial = createObservationPartialWrtLinkProperty< 1 >(
                         nWayRangeLinkEnds, observation_models::n_way_range, parameterIterator->second );
@@ -178,48 +189,25 @@ std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialSca
  *  \return Map of SingleLinkObservationPartialList, representing all necessary n-way range partials of a single link end,
  *  and NWayRangeScaling, object, used for scaling the position partial members of all NWayRangePartials in link end.
  */
-template< typename ParameterType >
+template< typename ParameterType, typename TimeType >
 std::map< observation_models::LinkEnds, std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialScaling > > >
 createNWayRangePartials(
-        const std::vector< observation_models::LinkEnds >& linkEnds,
+        const std::map< observation_models::LinkEnds,
+        std::shared_ptr< observation_models::ObservationModel< 1, ParameterType, TimeType > > > observationModelList,
         const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
-        const std::map< observation_models::LinkEnds,
-        std::vector< std::vector< std::shared_ptr< observation_models::LightTimeCorrection > > > >& lightTimeCorrections =
-        std::map< observation_models::LinkEnds,
-        std::vector< std::vector< std::shared_ptr< observation_models::LightTimeCorrection > > > >( ) )
+        const bool useBiasPartials = true )
 {
     std::map< observation_models::LinkEnds,
-            std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialScaling > > > partialMap;
-    std::vector< std::vector< std::shared_ptr< observation_models::LightTimeCorrection > > > currentLightTimeCorrections;
-
-    // Iterate over all sets of link ends, and  create associated n-way range partials
-    for( unsigned int i = 0; i < linkEnds.size( ); i++ )
+    std::pair< std::map< std::pair< int, int >, std::shared_ptr< ObservationPartial< 1 > > > ,
+    std::shared_ptr< PositionPartialScaling > > > partialsList;
+    for( auto it : observationModelList )
     {
-        // Retrieve light-time corrections
-        if( lightTimeCorrections.count( linkEnds.at( i ) ) > 0 )
-        {
-            currentLightTimeCorrections = lightTimeCorrections.at( linkEnds.at( i ) );
-            if( currentLightTimeCorrections.size( ) != linkEnds.at( i ).size( ) - 1 )
-            {
-                throw std::runtime_error(
-                            "Error when making n-way range partials, found light time correction partials for " +
-                            std::to_string( currentLightTimeCorrections.size( ) ) +
-                            " links, with " + std::to_string( linkEnds.size( ) ) + " link ends" );
-            }
-        }
-        else
-        {
-            currentLightTimeCorrections.clear( );
-        }
-
-        // Create n-way range partials for current LinkEnds
-        partialMap[ linkEnds.at( i ) ] = createNWayRangePartials< ParameterType >(
-                    linkEnds.at( i ), bodies, parametersToEstimate, currentLightTimeCorrections );
-
+        partialsList[ it.first ] = createNWayRangePartials(
+                    it.second, bodies, parametersToEstimate, useBiasPartials );
     }
 
-    return partialMap;
+    return partialsList;
 }
 
 }

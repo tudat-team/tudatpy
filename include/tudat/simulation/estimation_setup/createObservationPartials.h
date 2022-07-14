@@ -145,8 +145,7 @@ public:
             break;
         case observation_models::two_way_doppler:
             observationPartialList = createTwoWayDopplerPartials< ObservationScalarType, TimeType >(
-                        observationModelList, bodies, parametersToEstimate,
-                        getLightTimeCorrectionsList( observationModelList ) );
+                        observationModelList, bodies, parametersToEstimate );
             break;
         case observation_models::one_way_differenced_range:
             observationPartialList = createDifferencedObservablePartialsList< ObservationScalarType, TimeType, 1 >(
@@ -154,8 +153,8 @@ public:
             break;
         case observation_models::n_way_range:
             observationPartialList = createNWayRangePartials< ObservationScalarType >(
-                        utilities::createVectorFromMapKeys( observationModelList ), bodies, parametersToEstimate,
-                        getLightTimeCorrectionsList( observationModelList ) );
+                        observationModelList, bodies, parametersToEstimate );
+
             break;
         default:
             std::string errorMessage =
