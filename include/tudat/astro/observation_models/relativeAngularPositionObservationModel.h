@@ -150,6 +150,21 @@ public:
         return lightTimeCalculatorSecondTransmitter_;
     }
 
+    LinkEnds getFirstLinkEnds( )
+    {
+        LinkEnds firstLinkEnds;
+        firstLinkEnds[ transmitter ] = this->linkEnds_[ transmitter ];
+        firstLinkEnds[ receiver ] = this->linkEnds_[ receiver ];
+        return firstLinkEnds;
+    }
+
+    LinkEnds getSecondLinkEnds( )
+    {
+        LinkEnds secondLinkEnds;
+        secondLinkEnds[ transmitter ] = this->linkEnds_[ transmitter2 ];
+        secondLinkEnds[ receiver ] = this->linkEnds_[ receiver ];
+        return secondLinkEnds;
+    }
 private:
 
     //! Object to calculate light time between the first transmitter and receiver.

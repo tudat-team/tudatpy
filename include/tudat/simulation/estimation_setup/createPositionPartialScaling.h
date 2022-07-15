@@ -236,6 +236,49 @@ public:
 
         return positionPartialScaler;
     }
+
+    template< typename ParameterType = double, typename TimeType = double >
+    static std::shared_ptr< PositionPartialScaling > createDifferencedPositionPartialScalingObject(
+            const observation_models::ObservableType differencedObservableType,
+            const std::shared_ptr< PositionPartialScaling > firstPositionPartialScaling,
+            const std::shared_ptr< PositionPartialScaling > secondPositionPartialScaling,
+            const simulation_setup::SystemOfBodies& bodies )
+
+    {
+        std::shared_ptr< PositionPartialScaling > positionPartialScaler;
+
+        switch( differencedObservableType )
+        {
+        case observation_models::relative_angular_position:
+        {
+            if( std::dynamic_pointer_cast< AngularPositionScaling >( firstPositionPartialScaling ) == nullptr )
+            {
+                throw std::runtime_error( "Error when creating relative angular position partial scaling object, first range partial is of incompatible type" );
+            }
+            if( std::dynamic_pointer_cast< AngularPositionScaling >( secondPositionPartialScaling ) == nullptr )
+            {
+                throw std::runtime_error( "Error when creating relative angular position partial scaling object, second range partial is of incompatible type" );
+            }
+            std::function< void( const observation_models::LinkEndType ) > customCheckFunction =
+                    []( const observation_models::LinkEndType fixedLinkEnd )
+            {
+                if ( fixedLinkEnd != observation_models::receiver )
+                {
+                    throw std::runtime_error( "Error when updating a relative angular position scaling object, fixed link end time different from receiver." );
+                }
+            };
+            positionPartialScaler = std::make_shared< DifferencedObservablePartialScaling >(
+                        firstPositionPartialScaling, secondPositionPartialScaling,
+                        observation_models::getUndifferencedTimeAndStateIndices( observation_models::relative_angular_position, 3 ), customCheckFunction );
+            break;
+        }
+        default:
+            throw std::runtime_error( "Error when creating differenced observable partial scaler for " +
+                                      observation_models::getObservableName( differencedObservableType ) +
+                                      ", type not yet rezognized. " );
+        }
+        return positionPartialScaler;
+    }
 };
 
 template< >

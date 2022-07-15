@@ -24,6 +24,11 @@ namespace observation_partials
     {
         try
         {
+            if( customCheckFunction_ != nullptr )
+            {
+                customCheckFunction_( fixedLinkEnd );
+            }
+
             firstPartialScaling_->update(
                         utilities::getVectorEntries( linkEndStates, firstIndices_ ), utilities::getVectorEntries( times, firstIndices_ ),
                         fixedLinkEnd, Eigen::VectorXd::Constant( currentObservation.rows( ), TUDAT_NAN ) );

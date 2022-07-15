@@ -250,44 +250,6 @@ std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialSca
     return std::make_pair( twoWayDopplerPartialList, twoWayDopplerScaler );
 }
 
-//! Function to generate two-way Doppler partials for all parameters that are to be estimated, for all sets of link ends.
-/*!
- *  Function to generate two-way Doppler partials for all parameters that are to be estimated, for all sets of link ends.
- *  The two-way Doppler partials are generated per set of link ends. The set of parameters and bodies that are to be
- *  estimated, as well as the set of link ends (each of which must contain a transmitter and receiever linkEndType)
- *  that are to be used.
- *  The two-way Doppler partials are built from one-way range partials of the constituent links
- *  \param observationModelList List of all two-way Doppler models (as a function of LinkEnds) for which partials are to be
- *  created.
- *  \param bodies List of all bodies, for creating two-way Doppler partials.
- *  \param parametersToEstimate Set of parameters that are to be estimated (in addition to initial states
- *  of requested bodies)
- *  \param lightTimeCorrections List of light time correction used (empty by default). First vector entry is
- *  index of link in 2-way link ends (up and downlink), second vector is list of light-time corrections.
- *  \return Map of SingleLinkObservationPartialList, representing all necessary two-way Doppler partials of a single link end,
- *  and TwoWayDopplerScaling, object, used for scaling the position partial members of all TwoWayDopplerPartials in link end.
- */
-template< typename ParameterType, typename TimeType >
-std::map< observation_models::LinkEnds, std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialScaling > > >
-createTwoWayDopplerPartials(
-        const std::map< observation_models::LinkEnds,
-        std::shared_ptr< observation_models::ObservationModel< 1, ParameterType, TimeType > > > observationModelList,
-        const simulation_setup::SystemOfBodies& bodies,
-        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
-        const bool useBiasPartials = true  )
-{
-
-    std::map< observation_models::LinkEnds,
-            std::pair< std::map< std::pair< int, int >, std::shared_ptr< ObservationPartial< 1 > > > ,
-            std::shared_ptr< PositionPartialScaling > > > partialsList;
-    for( auto it : observationModelList )
-    {
-        partialsList[ it.first ] = createTwoWayDopplerPartials(
-                    it.second, bodies, parametersToEstimate, useBiasPartials );
-    }
-
-    return partialsList;
-}
 
 
 

@@ -272,6 +272,9 @@ ObservableType getUndifferencedObservableType( const ObservableType differencedO
     case n_way_differenced_range:
         undifferencedObservableType = n_way_range;
         break;
+    case relative_angular_position:
+        undifferencedObservableType = angular_position;
+        break;
     default:
         throw std::runtime_error( "Error when getting undifferenced observable type for " + getObservableName(
                                       differencedObservableType ) + ", no such type exists" );
@@ -290,6 +293,9 @@ ObservableType getDifferencedObservableType( const ObservableType undifferencedO
         break;
     case n_way_range:
         differencedObservableType = n_way_differenced_range;
+        break;
+    case angular_position:
+        differencedObservableType = relative_angular_position;
         break;
     default:
         throw std::runtime_error( "Error when getting differenced observable type for " + getObservableName(
@@ -318,6 +324,10 @@ std::pair< std::vector< int >, std::vector< int > > getUndifferencedTimeAndState
            firstIndices.push_back( i );
            secondIndices.push_back( i + numberOfLinkEnds );
         }
+        break;
+    case relative_angular_position:
+        firstIndices = { 0, 2 };
+        secondIndices = { 1, 2 };
         break;
     default:
         throw std::runtime_error( "Error when getting undifferenced time and state entries for: " + getObservableName(

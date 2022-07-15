@@ -40,9 +40,11 @@ public:
     DifferencedObservablePartialScaling(
             const std::shared_ptr< PositionPartialScaling > firstPartialScaling,
             const std::shared_ptr< PositionPartialScaling > secondPartialScaling,
-            const std::pair< std::vector< int >, std::vector< int > > timeStateIndices ):
+            const std::pair< std::vector< int >, std::vector< int > > timeStateIndices,
+            const std::function< void( const observation_models::LinkEndType ) > customCheckFunction = nullptr ):
         firstPartialScaling_( firstPartialScaling ), secondPartialScaling_( secondPartialScaling ),
-        firstIndices_( timeStateIndices.first ), secondIndices_( timeStateIndices.second ){ }
+        firstIndices_( timeStateIndices.first ), secondIndices_( timeStateIndices.second ),
+        customCheckFunction_( ){ }
 
     //! Destructor
     ~DifferencedObservablePartialScaling( ){ }
@@ -60,6 +62,8 @@ public:
     std::vector< int > firstIndices_;
 
     std::vector< int > secondIndices_;
+
+    std::function< void( const observation_models::LinkEndType ) > customCheckFunction_;
 };
 
 //! Class to compute the partial derivatives of a one-way range-rate (differenced) observation
@@ -85,11 +89,14 @@ public:
         firstPartial_( firstPartial ),
         secondPartial_( secondPartial ),
         scalingFactorFunction_( scalingFactorFunction ),
-    undifferencedTimeAndStateIndices_( undifferencedTimeAndStateIndices )
+        undifferencedTimeAndStateIndices_( undifferencedTimeAndStateIndices )
     {
-        if( firstPartial_->getParameterIdentifier( ) != secondPartial_->getParameterIdentifier( ) )
+        if( firstPartial_ != nullptr && secondPartial_ != nullptr )
         {
-            throw std::runtime_error( "Error when creating differenced observable partial; first and second parameter identifiers are no equal" );
+            if( firstPartial_->getParameterIdentifier( ) != secondPartial_->getParameterIdentifier( ) )
+            {
+                throw std::runtime_error( "Error when creating differenced observable partial; first and second parameter identifiers are no equal" );
+            }
         }
     }
 
@@ -106,11 +113,11 @@ public:
      *  \param currentObservation Value of observation for which partial scaling is to be computed
      *  \return Vector of pairs containing partial values and associated times.
      */
-    std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > calculatePartial(
+    std::vector< std::pair< Eigen::Matrix< double, ObservationSize, Eigen::Dynamic >, double > > calculatePartial(
             const std::vector< Eigen::Vector6d >& states,
             const std::vector< double >& times,
             const observation_models::LinkEndType linkEndOfFixedTime,
-            const Eigen::Vector1d& currentObservation = Eigen::Vector1d::Constant( TUDAT_NAN ) )
+            const Eigen::Matrix< double, ObservationSize, 1 >& currentObservation = Eigen::Matrix< double, ObservationSize, 1 >::Constant( TUDAT_NAN ) )
     {
         using namespace observation_partials;
 
@@ -132,18 +139,18 @@ public:
         }
 
         // Obtain arc start and end range partials
-        std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > firstPartials =
-                firstPartial_->calculatePartial( firstStates, firstTimes, linkEndOfFixedTime );
-        std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > secondPartials =
-                secondPartial_->calculatePartial( secondStates, secondTimes, linkEndOfFixedTime );
-        if( firstPartials.size( ) != secondPartials.size( ) )
+        std::vector< std::pair< Eigen::Matrix< double, ObservationSize, Eigen::Dynamic >, double > > firstPartials;
+        if( firstPartial_ != nullptr )
         {
-            throw std::runtime_error(
-                        "Error when calculating differenced observation partials, first and second partial sets are inconsistent(?)" );
+            firstPartials = firstPartial_->calculatePartial( firstStates, firstTimes, linkEndOfFixedTime );
+        }
+        std::vector< std::pair< Eigen::Matrix< double, ObservationSize, Eigen::Dynamic >, double > > secondPartials;
+        if( secondPartial_ != nullptr )
+        {
+            secondPartials = secondPartial_->calculatePartial( secondStates, secondTimes, linkEndOfFixedTime );
         }
 
-
-        std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > differencedPartials;
+        std::vector< std::pair< Eigen::Matrix< double, ObservationSize, Eigen::Dynamic >, double > > differencedPartials;
         double scalingFactor = scalingFactorFunction_( times, linkEndOfFixedTime );
 
         // Scale partials by arc duration
@@ -172,7 +179,7 @@ protected:
 
     std::function< double( const std::vector< double >&, const observation_models::LinkEndType ) > scalingFactorFunction_;
 
-     const std::pair< std::vector< int >, std::vector< int > > undifferencedTimeAndStateIndices_;
+    const std::pair< std::vector< int >, std::vector< int > > undifferencedTimeAndStateIndices_;
 };
 
 

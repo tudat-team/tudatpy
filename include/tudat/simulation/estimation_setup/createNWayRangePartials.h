@@ -173,42 +173,6 @@ std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialSca
     return std::make_pair( nWayRangePartialList, nWayRangeScaler );
 }
 
-//! Function to generate n-way range partials for all parameters that are to be estimated, for all sets of link ends.
-/*!
- *  Function to generate n-way range partials for all parameters that are to be estimated, for all sets of link ends.
- *  The n-way range partials are generated per set of link ends. The set of parameters and bodies that are to be
- *  estimated, as well as the set of link ends (each of which must contain a transmitter and receiever linkEndType)
- *  that are to be used.
- *  The n-way range partials are built from one-way range partials of the constituent links
- *  \param linkEnds List of all n-way link ends sets with observation models for which partials are to be created
- *  \param bodies List of all bodies, for creating n-way range partials.
- *  \param parametersToEstimate Set of parameters that are to be estimated (in addition to initial states
- *  of requested bodies)
- *  \param lightTimeCorrections List of light time correction partials to be used (empty by default). First vector entry is
- *  index of link in n-way link ends, second vector is list of light-time corrections.
- *  \return Map of SingleLinkObservationPartialList, representing all necessary n-way range partials of a single link end,
- *  and NWayRangeScaling, object, used for scaling the position partial members of all NWayRangePartials in link end.
- */
-template< typename ParameterType, typename TimeType >
-std::map< observation_models::LinkEnds, std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialScaling > > >
-createNWayRangePartials(
-        const std::map< observation_models::LinkEnds,
-        std::shared_ptr< observation_models::ObservationModel< 1, ParameterType, TimeType > > > observationModelList,
-        const simulation_setup::SystemOfBodies& bodies,
-        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
-        const bool useBiasPartials = true )
-{
-    std::map< observation_models::LinkEnds,
-    std::pair< std::map< std::pair< int, int >, std::shared_ptr< ObservationPartial< 1 > > > ,
-    std::shared_ptr< PositionPartialScaling > > > partialsList;
-    for( auto it : observationModelList )
-    {
-        partialsList[ it.first ] = createNWayRangePartials(
-                    it.second, bodies, parametersToEstimate, useBiasPartials );
-    }
-
-    return partialsList;
-}
 
 }
 
