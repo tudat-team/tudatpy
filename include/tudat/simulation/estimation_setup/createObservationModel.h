@@ -2027,40 +2027,93 @@ PerLinkEndPerLightTimeSolutionCorrections getLightTimeCorrectionsList(
     return lightTimeCorrectionsList;
 }
 
-template< typename ObservationScalarType, typename TimeType, int ObservationSize  >
-std::pair< std::shared_ptr< observation_models::ObservationModel< ObservationSize, ObservationScalarType, TimeType > >,
-std::shared_ptr< observation_models::ObservationModel< ObservationSize, ObservationScalarType, TimeType > > >
-getUndifferencedObservationModels(
-        const std::shared_ptr< observation_models::ObservationModel< ObservationSize, ObservationScalarType, TimeType > > differencedObservationModel )
+template< int ObservationSize >
+class UndifferencedObservationModelExtractor
 {
-    std::shared_ptr< observation_models::ObservationModel< ObservationSize, ObservationScalarType, TimeType > > firstObservationModel;
-    std::shared_ptr< observation_models::ObservationModel< ObservationSize, ObservationScalarType, TimeType > > secondObservationModel;
+public:
+    template< typename ObservationScalarType, typename TimeType >
+    static std::pair< std::shared_ptr< observation_models::ObservationModel< ObservationSize, ObservationScalarType, TimeType > >,
+    std::shared_ptr< observation_models::ObservationModel< ObservationSize, ObservationScalarType, TimeType > > >
+    extract( const std::shared_ptr< observation_models::ObservationModel< ObservationSize, ObservationScalarType, TimeType > > differencedObservationModel );
+};
 
-    // Check type of observable
-    switch( differencedObservationModel->getObservableType( ) )
+template< >
+class UndifferencedObservationModelExtractor< 1 >
+{
+public:
+    template< typename ObservationScalarType, typename TimeType >
+    static std::pair< std::shared_ptr< observation_models::ObservationModel< 1, ObservationScalarType, TimeType > >,
+    std::shared_ptr< observation_models::ObservationModel< 1, ObservationScalarType, TimeType > > >
+    extract( const std::shared_ptr< observation_models::ObservationModel< 1, ObservationScalarType, TimeType > > differencedObservationModel )
     {
-    case observation_models::one_way_differenced_range:
+        std::shared_ptr< observation_models::ObservationModel< 1, ObservationScalarType, TimeType > > firstObservationModel;
+        std::shared_ptr< observation_models::ObservationModel< 1, ObservationScalarType, TimeType > > secondObservationModel;
+
+        // Check type of observable
+        switch( differencedObservationModel->getObservableType( ) )
+        {
+        case observation_models::one_way_differenced_range:
+        {
+            std::shared_ptr< observation_models::OneWayDifferencedRangeObservationModel
+                    < ObservationScalarType, TimeType> > oneWayDifferencedRangeObservationModel =
+                    std::dynamic_pointer_cast< observation_models::OneWayDifferencedRangeObservationModel
+                    < ObservationScalarType, TimeType > >( differencedObservationModel );
+            firstObservationModel = std::make_shared< observation_models::OneWayRangeObservationModel< ObservationScalarType, TimeType > >(
+                        oneWayDifferencedRangeObservationModel->getLinkEnds( ),
+                        oneWayDifferencedRangeObservationModel->getArcStartLightTimeCalculator( ) );
+            secondObservationModel = std::make_shared< observation_models::OneWayRangeObservationModel< ObservationScalarType, TimeType > >(
+                        oneWayDifferencedRangeObservationModel->getLinkEnds( ),
+                        oneWayDifferencedRangeObservationModel->getArcEndLightTimeCalculator( ) );
+            break;
+        }
+        default:
+            std::string errorMessage =
+                    "Error when getting undifferenced observation models " +
+                    std::to_string( differencedObservationModel->getObservableType( ) ) + " not recognized.";
+            throw std::runtime_error( errorMessage );
+        }
+        return std::make_pair( firstObservationModel, secondObservationModel );
+    }
+};
+
+template< >
+class UndifferencedObservationModelExtractor< 2 >
+{
+public:
+    template< typename ObservationScalarType, typename TimeType >
+    static std::pair< std::shared_ptr< observation_models::ObservationModel< 2, ObservationScalarType, TimeType > >,
+    std::shared_ptr< observation_models::ObservationModel< 2, ObservationScalarType, TimeType > > >
+    extract( const std::shared_ptr< observation_models::ObservationModel< 2, ObservationScalarType, TimeType > > differencedObservationModel )
     {
-        std::shared_ptr< observation_models::OneWayDifferencedRangeObservationModel
-                < ObservationScalarType, TimeType> > oneWayDifferencedRangeObservationModel =
-                std::dynamic_pointer_cast< observation_models::OneWayDifferencedRangeObservationModel
-                < ObservationScalarType, TimeType > >( differencedObservationModel );
-        firstObservationModel = std::make_shared< observation_models::OneWayRangeObservationModel< ObservationScalarType, TimeType > >(
-                    oneWayDifferencedRangeObservationModel->getLinkEnds( ),
-                    oneWayDifferencedRangeObservationModel->getArcStartLightTimeCalculator( ) );
-        secondObservationModel = std::make_shared< observation_models::OneWayRangeObservationModel< ObservationScalarType, TimeType > >(
-                    oneWayDifferencedRangeObservationModel->getLinkEnds( ),
-                    oneWayDifferencedRangeObservationModel->getArcEndLightTimeCalculator( ) );
-        break;
+        std::shared_ptr< observation_models::ObservationModel< 2, ObservationScalarType, TimeType > > firstObservationModel;
+        std::shared_ptr< observation_models::ObservationModel< 2, ObservationScalarType, TimeType > > secondObservationModel;
+
+        // Check type of observable
+        switch( differencedObservationModel->getObservableType( ) )
+        {
+        case observation_models::relative_angular_position:
+        {
+            std::shared_ptr< observation_models::RelativeAngularPositionObservationModel
+                    < ObservationScalarType, TimeType> > relativeAngularPositionModel =
+                    std::dynamic_pointer_cast< observation_models::RelativeAngularPositionObservationModel
+                    < ObservationScalarType, TimeType > >( differencedObservationModel );
+            firstObservationModel = std::make_shared< observation_models::AngularPositionObservationModel< ObservationScalarType, TimeType > >(
+                        relativeAngularPositionModel->getFirstLinkEnds( ),
+                        relativeAngularPositionModel->getLightTimeCalculatorFirstTransmitter( ) );
+            secondObservationModel = std::make_shared< observation_models::AngularPositionObservationModel< ObservationScalarType, TimeType > >(
+                        relativeAngularPositionModel->getSecondLinkEnds( ),
+                        relativeAngularPositionModel->getLightTimeCalculatorSecondTransmitter() );
+            break;
+        }
+        default:
+            std::string errorMessage =
+                    "Error when getting undifferenced observation models " +
+                    std::to_string( differencedObservationModel->getObservableType( ) ) + " not recognized.";
+            throw std::runtime_error( errorMessage );
+        }
+        return std::make_pair( firstObservationModel, secondObservationModel );
     }
-    default:
-        std::string errorMessage =
-                "Error when getting undifferenced observation models " +
-                std::to_string( differencedObservationModel->getObservableType( ) ) + " not recognized.";
-        throw std::runtime_error( errorMessage );
-    }
-    return std::make_pair( firstObservationModel, secondObservationModel );
-}
+};
 
 
 

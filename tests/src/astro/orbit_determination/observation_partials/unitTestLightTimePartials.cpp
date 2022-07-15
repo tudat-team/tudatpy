@@ -166,9 +166,6 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartialsWrtLightTimeParameters )
                 observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
                     observationSettings, bodies  );
 
-        std::map< LinkEnds, std::shared_ptr< ObservationModel< 1 > > > oneWayRangeModelMap;
-        oneWayRangeModelMap[ linkEnds ] = oneWayRangeModel;
-
         // Create parameter objects.
         std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
         parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Sun", gravitational_parameter ) );
@@ -182,12 +179,12 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartialsWrtLightTimeParameters )
                 parametersToEstimate->getEstimatedDoubleParameters( );
 
         // Create observation partials.
-        std::shared_ptr< ObservationPartialCreator< 1, double, double > > observationPartialCreator =
-                std::make_shared< ObservationPartialCreator< 1, double, double > >( );
         std::pair< std::map< std::pair< int, int >, std::shared_ptr< ObservationPartial< 1 > > >,
                 std::shared_ptr< PositionPartialScaling > > fullAnalyticalPartialSet =
-                observationPartialCreator->createObservationPartials(
-                    one_way_range, oneWayRangeModelMap, bodies, parametersToEstimate ).begin( )->second;
+                ObservationPartialCreator<1, double, double>::createObservationPartials(
+                     oneWayRangeModel, bodies, parametersToEstimate );
+
+
 
         std::shared_ptr< PositionPartialScaling > positionPartialScaler = fullAnalyticalPartialSet.second;
 

@@ -348,56 +348,6 @@ createSingleLinkObservationPartials(
     return std::make_pair( observationPartials, positionScaling );
 }
 
-
-//! Function to generate observation partials for all parameters that are to be estimated, for all sets of link ends.
-/*!
- *  Function to generate observation partials for all parameters that are to be estimated, for all sets of link ends.
- *  The observation partials are generated per set of link ends. The set of parameters and bodies that are to be
- *  estimated, as well as the set of link ends (each of which must contain a transmitter and receiever linkEndType)
- *  that are to be used.
- *  \param bodies List of all bodies, for creating observation partials.
- *  \param parametersToEstimate Set of parameters that are to be estimated (in addition to initial states
- *  of requested bodies)
- *  \param lightTimeCorrections List of light time correction partials to be used (empty by default)
- *  \param useBiasPartials Boolean to denote whether this function should create partials w.r.t. observation bias parameters
- *  \return Map of SingleLinkObservationPartialList, representing all necessary observation partials of a single link end,
- *  and ObservationPartial< ObservationSize >, object, used for scaling the position partial members of all ObservationPartials in link end.
- */
-template< typename ParameterType, typename TimeType, int ObservationSize >
-std::map< observation_models::LinkEnds,
-std::pair< std::map< std::pair< int, int >, std::shared_ptr< ObservationPartial< ObservationSize > > > ,
-std::shared_ptr< PositionPartialScaling > > > createSingleLinkObservationPartialsList(
-        const std::map< observation_models::LinkEnds,
-        std::shared_ptr< observation_models::ObservationModel< ObservationSize, ParameterType, TimeType > > > observationModelList,
-        const simulation_setup::SystemOfBodies& bodies,
-        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
-        const bool useBiasPartials = true )
-{
-
-    std::map< observation_models::LinkEnds,
-    std::pair< std::map< std::pair< int, int >, std::shared_ptr< ObservationPartial< ObservationSize > > > ,
-    std::shared_ptr< PositionPartialScaling > > > partialsList;
-
-    observation_models::ObservableType observableType = observation_models::undefined_observation_model;
-    // Iterate over all link ends.
-    for( auto it : observationModelList )
-    {
-        if( observableType == observation_models::undefined_observation_model )
-        {
-            observableType = it.second->getObservableType( );
-        }
-        else if( observableType != it.second->getObservableType( ) )
-        {
-            throw std::runtime_error( "Error when creating direct observation partials, input models are inconsistent" );
-        }
-        partialsList[ it.first ] = createSingleLinkObservationPartials(
-                    it.second, bodies, parametersToEstimate, useBiasPartials );
-    }
-
-    // Return complete set of link ends.
-    return partialsList;
-}
-
 }
 
 }

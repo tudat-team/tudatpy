@@ -22,69 +22,184 @@ namespace tudat
 namespace observation_partials
 {
 
+template< int ObservationSize >
+class DifferencedObservationPartialCreator
+{
+public:
+    static std::shared_ptr< ObservationPartial< ObservationSize > > createDifferencedObservationPartial(
+            const observation_models::ObservableType differencedObservableType,
+            const std::shared_ptr< ObservationPartial< ObservationSize > > firstPartial,
+            const std::shared_ptr< ObservationPartial< ObservationSize > > secondPartial,
+            const observation_models::LinkEnds& linkEnds );
+};
+
+template< >
+class DifferencedObservationPartialCreator< 1 >
+{
+public:
+    static std::shared_ptr< ObservationPartial< 1 > > createDifferencedObservationPartial(
+            const observation_models::ObservableType differencedObservableType,
+            const std::shared_ptr< ObservationPartial< 1 > > firstPartial,
+            const std::shared_ptr< ObservationPartial< 1 > > secondPartial,
+            const observation_models::LinkEnds& linkEnds )
+    {
+        using namespace observation_models;
+
+        std::shared_ptr< ObservationPartial< 1 > > differencedPartial;
+        switch( differencedObservableType )
+        {
+        case one_way_differenced_range:
+        {
+            if( firstPartial != nullptr )
+            {
+                if( std::dynamic_pointer_cast< DirectObservationPartial< 1 > >( firstPartial ) == nullptr )
+                {
+                    throw std::runtime_error( "Error when creating one-way differenced range partial; first input object type is incompatible" );
+                }
+                else if( std::dynamic_pointer_cast< DirectObservationPartial< 1 > >( firstPartial )->getObservableType( ) != one_way_range )
+                {
+                    throw std::runtime_error( "Error when creating one-way differenced range partial; first input observable type is incompatible" );
+                }
+            }
+
+            if( secondPartial != nullptr )
+            {
+                if( std::dynamic_pointer_cast< DirectObservationPartial< 1 > >( secondPartial ) == nullptr )
+                {
+                    throw std::runtime_error( "Error when creating one-way differenced range partial; second input object type is incompatible" );
+                }
+                else if( std::dynamic_pointer_cast< DirectObservationPartial< 1 > >( secondPartial )->getObservableType( ) != one_way_range )
+                {
+                    throw std::runtime_error( "Error when creating one-way differenced range partial; second input observable type is incompatible" );
+                }
+            }
+            differencedPartial = std::make_shared< DifferencedObservablePartial< 1 > >(
+                        firstPartial, secondPartial, &observation_models::getDifferencedOneWayRangeScalingFactor,
+                        getUndifferencedTimeAndStateIndices( one_way_differenced_range, linkEnds.size( ) ) );
+            break;
+        }
+        case n_way_differenced_range:
+        {
+            if( firstPartial != nullptr )
+            {
+                if( std::dynamic_pointer_cast< NWayRangePartial >( firstPartial ) == nullptr )
+                {
+                    throw std::runtime_error( "Error when creating n-way differenced range partial; first input object type is incompatible" );
+                }
+            }
+
+            if( secondPartial != nullptr )
+            {
+                if( std::dynamic_pointer_cast< NWayRangePartial >( secondPartial ) == nullptr )
+                {
+                    throw std::runtime_error( "Error when creating n-way differenced range partial; second input object type is incompatible" );
+                }
+            }
+
+            differencedPartial = std::make_shared< DifferencedObservablePartial< 1 > >(
+                        firstPartial, secondPartial, &observation_models::getDifferencedNWayRangeScalingFactor,
+                        getUndifferencedTimeAndStateIndices( n_way_differenced_range, linkEnds.size( ) ) );
+            break;
+        }
+        default:
+            throw std::runtime_error( "Error when creating differenced observable partial (size 1); observable " + getObservableName( differencedObservableType ) +
+                                      " is not differenced. " );
+
+        }
+        return differencedPartial;
+    }
+};
+
+template< >
+class DifferencedObservationPartialCreator< 2 >
+{
+public:
+    static std::shared_ptr< ObservationPartial< 2 > > createDifferencedObservationPartial(
+            const observation_models::ObservableType differencedObservableType,
+            const std::shared_ptr< ObservationPartial< 2 > > firstPartial,
+            const std::shared_ptr< ObservationPartial< 2 > > secondPartial,
+            const observation_models::LinkEnds& linkEnds )
+    {
+        using namespace observation_models;
+
+        std::shared_ptr< ObservationPartial< 2 > > differencedPartial;
+        switch( differencedObservableType )
+        {
+        case relative_angular_position:
+        {
+            if( firstPartial != nullptr )
+            {
+                if( std::dynamic_pointer_cast< DirectObservationPartial< 2 > >( firstPartial ) == nullptr )
+                {
+                    throw std::runtime_error( "Error when creating relative angular position partial; first input object type is incompatible" );
+                }
+                else if( std::dynamic_pointer_cast< DirectObservationPartial< 2 > >( firstPartial )->getObservableType( ) != angular_position )
+                {
+                    throw std::runtime_error( "Error when creating relative angular position partial; first input observable type is incompatible" );
+                }
+            }
+
+            if( secondPartial != nullptr )
+            {
+                if( std::dynamic_pointer_cast< DirectObservationPartial< 2 > >( secondPartial ) == nullptr )
+                {
+                    std::cout<<secondPartial<<" "<<
+                               std::dynamic_pointer_cast< DirectObservationPartial< 2 > >( secondPartial )<<std::endl;
+                    throw std::runtime_error( "Error when creating relative angular position partial; second input object type is incompatible" );
+                }
+                else if( std::dynamic_pointer_cast< DirectObservationPartial< 2 > >( secondPartial )->getObservableType( ) != angular_position )
+                {
+                    throw std::runtime_error( "Error when creating relative angular position partial; second input observable type is incompatible" );
+                }
+            }
+            differencedPartial = std::make_shared< DifferencedObservablePartial< 2 > >(
+                        firstPartial, secondPartial, [=]( const std::vector< double >&, const observation_models::LinkEndType ){ return 1.0; },
+            getUndifferencedTimeAndStateIndices( relative_angular_position, linkEnds.size( ) ) );
+            break;
+        }
+        default:
+            throw std::runtime_error( "Error when creating differenced observable partial (size 2); observable " + getObservableName( differencedObservableType ) +
+                                      " is not differenced. " );
+
+        }
+        return differencedPartial;
+    }
+};
 
 template< int ObservationSize >
-std::shared_ptr< ObservationPartial< ObservationSize > >
-createDifferencedObservationPartial(
-        const observation_models::ObservableType differencedObservableType,
-        const std::shared_ptr< ObservationPartial< ObservationSize > > firstPartial,
-        const std::shared_ptr< ObservationPartial< ObservationSize > > secondPartial,
-        const observation_models::LinkEnds& linkEnds )
+std::map< std::pair< int, int >, std::pair< std::shared_ptr< ObservationPartial< ObservationSize > >, std::shared_ptr< ObservationPartial< ObservationSize > > > >
+mergeUndifferencedPartialContribution(
+        const std::map< std::pair< int, int >, std::shared_ptr< ObservationPartial< ObservationSize > > >& firstPartialList,
+        const std::map< std::pair< int, int >, std::shared_ptr< ObservationPartial< ObservationSize > > >& secondPartialList )
 {
-    using namespace observation_models;
+    std::map< std::pair< int, int >, std::pair< std::shared_ptr< ObservationPartial< ObservationSize > >, std::shared_ptr< ObservationPartial< ObservationSize > > > >
+            mergedPartials;
 
-    std::shared_ptr< ObservationPartial< ObservationSize > > differencedPartial;
-    switch( differencedObservableType )
+    std::shared_ptr< ObservationPartial< ObservationSize > > firstPartial;
+    std::shared_ptr< ObservationPartial< ObservationSize > > secondPartial;
+    for( auto it : firstPartialList )
     {
-    case one_way_differenced_range:
+        firstPartial = it.second;
+        if( secondPartialList.count( it.first ) != 0 )
+        {
+            secondPartial = secondPartialList.at( it.first );
+        }
+        else
+        {
+            secondPartial = nullptr;
+        }
+        mergedPartials[ it.first ] = std::make_pair( firstPartial, secondPartial );
+    }
+
+    for( auto it : secondPartialList )
     {
-        if( std::dynamic_pointer_cast< DirectObservationPartial< ObservationSize > >( firstPartial ) == nullptr )
+        if( mergedPartials.count( it.first ) == 0 )
         {
-            throw std::runtime_error( "Error when creating one-way differenced range partial; first input object type is incompatible" );
+            mergedPartials[ it.first ] = std::make_pair( nullptr, it.second );
         }
-        else if( std::dynamic_pointer_cast< DirectObservationPartial< ObservationSize > >( firstPartial )->getObservableType( ) != one_way_range )
-        {
-            throw std::runtime_error( "Error when creating one-way differenced range partial; first input observable type is incompatible" );
-        }
-
-        if( std::dynamic_pointer_cast< DirectObservationPartial< ObservationSize > >( secondPartial ) == nullptr )
-        {
-            throw std::runtime_error( "Error when creating one-way differenced range partial; second input object type is incompatible" );
-        }
-        else if( std::dynamic_pointer_cast< DirectObservationPartial< ObservationSize > >( secondPartial )->getObservableType( ) != one_way_range )
-        {
-            throw std::runtime_error( "Error when creating one-way differenced range partial; second input observable type is incompatible" );
-        }
-        differencedPartial = std::make_shared< DifferencedObservablePartial< ObservationSize > >(
-                    firstPartial, secondPartial, &observation_models::getDifferencedOneWayRangeScalingFactor,
-                    getUndifferencedTimeAndStateIndices( one_way_differenced_range, linkEnds.size( ) ) );
-        break;
     }
-    case n_way_differenced_range:
-    {
-        if( std::dynamic_pointer_cast< NWayRangePartial >( firstPartial ) == nullptr )
-        {
-            throw std::runtime_error( "Error when creating n-way differenced range partial; first input object type is incompatible" );
-        }
-
-        if( std::dynamic_pointer_cast< NWayRangePartial >( secondPartial ) == nullptr )
-        {
-            throw std::runtime_error( "Error when creating n-way differenced range partial; second input object type is incompatible" );
-        }
-
-        differencedPartial = std::make_shared< DifferencedObservablePartial< ObservationSize > >(
-                    firstPartial, secondPartial, &observation_models::getDifferencedNWayRangeScalingFactor,
-                    getUndifferencedTimeAndStateIndices( n_way_differenced_range, linkEnds.size( ) ) );
-        break;
-    }
-    default:
-        throw std::runtime_error( "Error when creating differenced observable partial; observable " + getObservableName( differencedObservableType ) +
-                                  " is not differenced. " );
-
-    }
-    return differencedPartial;
+    return mergedPartials;
 }
-
 
 
 template< typename ParameterType, typename TimeType, int ObservationSize >
@@ -98,14 +213,14 @@ std::shared_ptr< PositionPartialScaling > > createDifferencedObservablePartials(
     using namespace observation_models;
 
     std::pair< std::map< std::pair< int, int >, std::shared_ptr< ObservationPartial< ObservationSize > > > ,
-    std::shared_ptr< PositionPartialScaling > > differencedPartialsAndScaling;
+            std::shared_ptr< PositionPartialScaling > > differencedPartialsAndScaling;
 
     LinkEnds linkEnds = observationModel->getLinkEnds( );
     ObservableType differencedObservableType = observationModel->getObservableType( );
     ObservableType undifferencedObservableType = getUndifferencedObservableType(
                 differencedObservableType );
 
-    auto undifferencedObservationModels = getUndifferencedObservationModels( observationModel );
+    auto undifferencedObservationModels = UndifferencedObservationModelExtractor< ObservationSize >::extract( observationModel );
 
     std::shared_ptr< ObservationModel< ObservationSize, ParameterType, TimeType > > undifferencedObservationModelFirst =
             undifferencedObservationModels.first;
@@ -114,56 +229,30 @@ std::shared_ptr< PositionPartialScaling > > createDifferencedObservablePartials(
 
     std::pair< std::map< std::pair< int, int >, std::shared_ptr< ObservationPartial< ObservationSize > > >, std::shared_ptr< PositionPartialScaling > >
             firstUndifferencedObservablePartials =
-    createSingleLinkObservationPartials< ParameterType, ObservationSize, TimeType >(
-           undifferencedObservationModelFirst, bodies, parametersToEstimate, false );
+            createSingleLinkObservationPartials< ParameterType, ObservationSize, TimeType >(
+                undifferencedObservationModelFirst, bodies, parametersToEstimate, false );
 
     std::pair< std::map< std::pair< int, int >, std::shared_ptr< ObservationPartial< ObservationSize > > >, std::shared_ptr< PositionPartialScaling > >
             secondUndifferencedObservablePartials =
-    createSingleLinkObservationPartials< ParameterType, ObservationSize, TimeType >(
+            createSingleLinkObservationPartials< ParameterType, ObservationSize, TimeType >(
                 undifferencedObservationModelSecond, bodies, parametersToEstimate, false );
 
-    if( firstUndifferencedObservablePartials.first.size( ) != secondUndifferencedObservablePartials.first.size( ) )
-    {
-        throw std::runtime_error( "Error when making differenced observation partials of type " + getObservableName( observationModel->getObservableType( ) ) +
-                                  ", size of constituent partials is not equal" );
-    }
-
-    int numberOfPartials = firstUndifferencedObservablePartials.first.size( );
-
-    auto firstPartialsIterator = firstUndifferencedObservablePartials.first.begin( );
-    auto secondPartialsIterator = secondUndifferencedObservablePartials.first.begin( );
+    std::map< std::pair< int, int >, std::pair< std::shared_ptr< ObservationPartial< ObservationSize > >, std::shared_ptr< ObservationPartial< ObservationSize > > > >
+            mergedPartials = mergeUndifferencedPartialContribution(
+                firstUndifferencedObservablePartials.first, secondUndifferencedObservablePartials.first );
 
     std::map< std::pair< int, int >, std::shared_ptr< ObservationPartial< ObservationSize > > > differencedObservationPartialList;
 
     // Iterate over all one-way range partials and create one-way range rate partial from them.
-    for( int j = 0; j < numberOfPartials; j++ )
+    for( auto it : mergedPartials )
     {
-        if( firstPartialsIterator->first !=
-                secondPartialsIterator->first )
-        {
-            throw std::runtime_error(
-                        "Error when making differenced observation partials of type " + getObservableName( differencedObservableType ) + " parameter indices did not match" );
-        }
-        if( firstPartialsIterator->second->getParameterIdentifier( ) !=
-                secondPartialsIterator->second->getParameterIdentifier( ) )
-        {
-            throw std::runtime_error(
-                        "Error when making differenced observation partials of type " + getObservableName( differencedObservableType ) + " parameters did not match" );
-        }
-        else
-        {
-            // Create range rate partial.
-            differencedObservationPartialList[ firstPartialsIterator->first ] =
-                    createDifferencedObservationPartial(
-                        differencedObservableType,
-                        firstPartialsIterator->second,
-                        secondPartialsIterator->second,
-                        linkEnds );
-        }
-
-        // Increment range partial iterators.
-        firstPartialsIterator++;
-        secondPartialsIterator++;
+        // Create range rate partial.
+        differencedObservationPartialList[ it.first] =
+                DifferencedObservationPartialCreator< ObservationSize >::createDifferencedObservationPartial(
+                    differencedObservableType,
+                    it.second.first,
+                    it.second.second,
+                    linkEnds );
     }
 
 
@@ -175,10 +264,10 @@ std::shared_ptr< PositionPartialScaling > > createDifferencedObservablePartials(
          vectorParametersToEstimate.begin( ); parameterIterator != vectorParametersToEstimate.end( ); parameterIterator++ )
     {
 
-        std::shared_ptr< ObservationPartial< 1 > > currentDifferencedObservationPartial;
+        std::shared_ptr< ObservationPartial< ObservationSize > > currentDifferencedObservationPartial;
         if( isParameterObservationLinkProperty( parameterIterator->second->getParameterName( ).first ) && useBiasPartials )
         {
-            currentDifferencedObservationPartial = createObservationPartialWrtLinkProperty< 1 >(
+            currentDifferencedObservationPartial = createObservationPartialWrtLinkProperty< ObservationSize >(
                         linkEnds, undifferencedObservableType, parameterIterator->second );
         }
 
@@ -187,7 +276,7 @@ std::shared_ptr< PositionPartialScaling > > createDifferencedObservablePartials(
         {
             // Add partial to the list.
             std::pair< double, double > currentPair = std::pair< int, int >( parameterIterator->first,
-                                                 parameterIterator->second->getParameterSize( ) );
+                                                                             parameterIterator->second->getParameterSize( ) );
             differencedObservationPartialList[ currentPair ] = currentDifferencedObservationPartial;
         }
     }
@@ -195,42 +284,11 @@ std::shared_ptr< PositionPartialScaling > > createDifferencedObservablePartials(
     differencedPartialsAndScaling = std::make_pair(
                 differencedObservationPartialList, ObservationPartialScalingCreator< ObservationSize >::
                 template createDifferencedPositionPartialScalingObject< ParameterType, TimeType >(
-                    differencedObservableType, firstUndifferencedObservablePartials.second, secondUndifferencedObservablePartials.second, bodies ) );
+                    differencedObservableType, firstUndifferencedObservablePartials.second,
+                    secondUndifferencedObservablePartials.second, bodies ) );
     return differencedPartialsAndScaling;
 
 
-}
-
-template< typename ParameterType, typename TimeType, int ObservationSize >
-std::map< observation_models::LinkEnds,
-std::pair< std::map< std::pair< int, int >, std::shared_ptr< ObservationPartial< ObservationSize > > > ,
-std::shared_ptr< PositionPartialScaling > > > createDifferencedObservablePartialsList(
-        const std::map< observation_models::LinkEnds,
-        std::shared_ptr< observation_models::ObservationModel< ObservationSize, ParameterType, TimeType > > > observationModelList,
-        const simulation_setup::SystemOfBodies& bodies,
-        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
-        const bool useBiasPartials = true )
-{
-    std::map< observation_models::LinkEnds,
-    std::pair< std::map< std::pair< int, int >, std::shared_ptr< ObservationPartial< ObservationSize > > > ,
-    std::shared_ptr< PositionPartialScaling > > > partialsList;
-
-    observation_models::ObservableType observableType = observation_models::undefined_observation_model;
-    for( auto it : observationModelList )
-    {
-        if( observableType == observation_models::undefined_observation_model )
-        {
-            observableType = it.second->getObservableType( );
-        }
-        else if( observableType != it.second->getObservableType( ) )
-        {
-            throw std::runtime_error( "Error when creating differenced observation partials, input models are inconsistent" );
-        }
-        partialsList[ it.first ] = createDifferencedObservablePartials(
-                    it.second, bodies, parametersToEstimate, useBiasPartials );
-    }
-
-    return partialsList;
 }
 
 }

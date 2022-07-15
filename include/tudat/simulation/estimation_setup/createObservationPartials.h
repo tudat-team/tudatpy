@@ -87,16 +87,12 @@ public:
      * object as value of map
      * second: PositionPartialScaling object associated with all partials of single LinkEnds.
      */
-    static std::map< observation_models::LinkEnds, std::pair< std::map< std::pair< int, int >,
-    std::shared_ptr< ObservationPartial< ObservationSize > > >,
-    std::shared_ptr< PositionPartialScaling > > > createObservationPartials(
-            const observation_models::ObservableType observableType,
-            const std::map< observation_models::LinkEnds,
-            std::shared_ptr< observation_models::ObservationModel< ObservationSize, ObservationScalarType, TimeType > > >
-            observationModelList,
+    static std::pair< std::map< std::pair< int, int >,
+            std::shared_ptr< ObservationPartial< ObservationSize > > >, std::shared_ptr< PositionPartialScaling > > createObservationPartials(
+            const std::shared_ptr< observation_models::ObservationModel< ObservationSize, ObservationScalarType, TimeType > > observationModel,
             const simulation_setup::SystemOfBodies& bodies,
-            const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > >
-            parametersToEstimate );
+            const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > > parametersToEstimate,
+            const bool useBiasPartials = true );
 };
 
 //! Interface class for creating observation partials for observables of size 1.
@@ -119,51 +115,46 @@ public:
      * object as value of map
      * second: PositionPartialScaling object associated with all partials of single LinkEnds.
      */
-    static std::map< observation_models::LinkEnds, std::pair< std::map< std::pair< int, int >,
-    std::shared_ptr< ObservationPartial< 1 > > >,
-    std::shared_ptr< PositionPartialScaling > > > createObservationPartials(
-            const observation_models::ObservableType observableType,
-            const std::map< observation_models::LinkEnds,
-            std::shared_ptr< observation_models::ObservationModel< 1, ObservationScalarType, TimeType > > >
-            observationModelList,
+    static std::pair< std::map< std::pair< int, int >,
+            std::shared_ptr< ObservationPartial< 1 > > >, std::shared_ptr< PositionPartialScaling > > createObservationPartials(
+            const std::shared_ptr< observation_models::ObservationModel< 1, ObservationScalarType, TimeType > > observationModel,
             const simulation_setup::SystemOfBodies& bodies,
-            const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > >
-            parametersToEstimate )
+            const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > > parametersToEstimate,
+            const bool useBiasPartials = true )
     {
-        std::map< observation_models::LinkEnds, std::pair< std::map< std::pair< int, int >,
-                std::shared_ptr< ObservationPartial< 1 > > >,
-                std::shared_ptr< PositionPartialScaling > > > observationPartialList;
-        switch( observableType )
+        std::pair< std::map< std::pair< int, int >,
+                std::shared_ptr< ObservationPartial< 1 > > >, std::shared_ptr< PositionPartialScaling > > observationPartials;
+        switch( observationModel->getObservableType( ) )
         {
         case observation_models::one_way_range:
-            observationPartialList = createSingleLinkObservationPartialsList< ObservationScalarType, TimeType, 1 >(
-                        observationModelList, bodies, parametersToEstimate );
+            observationPartials = createSingleLinkObservationPartials< ObservationScalarType, 1, TimeType >(
+                        observationModel, bodies, parametersToEstimate, useBiasPartials );
             break;
         case observation_models::one_way_doppler:
-            observationPartialList = createSingleLinkObservationPartialsList< ObservationScalarType, TimeType, 1 >(
-                        observationModelList, bodies, parametersToEstimate );
+            observationPartials = createSingleLinkObservationPartials< ObservationScalarType, 1, TimeType >(
+                        observationModel, bodies, parametersToEstimate, useBiasPartials );
             break;
         case observation_models::two_way_doppler:
-            observationPartialList = createTwoWayDopplerPartials< ObservationScalarType, TimeType >(
-                        observationModelList, bodies, parametersToEstimate );
+            observationPartials = createTwoWayDopplerPartials< ObservationScalarType, TimeType >(
+                        observationModel, bodies, parametersToEstimate, useBiasPartials );
             break;
         case observation_models::one_way_differenced_range:
-            observationPartialList = createDifferencedObservablePartialsList< ObservationScalarType, TimeType, 1 >(
-                        observationModelList, bodies, parametersToEstimate );
+            observationPartials = createDifferencedObservablePartials< ObservationScalarType, TimeType, 1 >(
+                        observationModel, bodies, parametersToEstimate, useBiasPartials );
             break;
         case observation_models::n_way_range:
-            observationPartialList = createNWayRangePartials< ObservationScalarType >(
-                        observationModelList, bodies, parametersToEstimate );
+            observationPartials = createNWayRangePartials< ObservationScalarType >(
+                        observationModel, bodies, parametersToEstimate, useBiasPartials );
 
             break;
         default:
             std::string errorMessage =
                     "Error when making observation partial set, could not recognize observable " +
-                    std::to_string( observableType ) + " of size 1 ";
+                    std::to_string( observationModel->getObservableType( ) ) + " of size 1 ";
             throw std::runtime_error( errorMessage );
         }
 
-        return observationPartialList;
+        return observationPartials;
     }
 };
 
@@ -187,38 +178,36 @@ public:
      * object as value of map
      * second: PositionPartialScaling object associated with all partials of single LinkEnds.
      */
-    static std::map< observation_models::LinkEnds, std::pair< std::map< std::pair< int, int >,
-    std::shared_ptr< ObservationPartial< 2 > > >,
-    std::shared_ptr< PositionPartialScaling > > > createObservationPartials(
-            const observation_models::ObservableType observableType,
-            const std::map< observation_models::LinkEnds,
-            std::shared_ptr< observation_models::ObservationModel< 2, ObservationScalarType, TimeType > > > observationModelList,
+    static std::pair< std::map< std::pair< int, int >,
+            std::shared_ptr< ObservationPartial< 2 > > >, std::shared_ptr< PositionPartialScaling > > createObservationPartials(
+            const std::shared_ptr< observation_models::ObservationModel< 2, ObservationScalarType, TimeType > > observationModel,
             const simulation_setup::SystemOfBodies& bodies,
-            const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > >
-            parametersToEstimate )
+            const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > > parametersToEstimate,
+            const bool useBiasPartials = true )
     {
-        std::map< observation_models::LinkEnds, std::pair< std::map< std::pair< int, int >,
-                std::shared_ptr< ObservationPartial< 2 > > >,
-                std::shared_ptr< PositionPartialScaling > > > observationPartialList;
+        std::pair< std::map< std::pair< int, int >,
+                std::shared_ptr< ObservationPartial< 2 > > >, std::shared_ptr< PositionPartialScaling > > observationPartials;
 
-        switch( observableType )
+        switch( observationModel->getObservableType( ) )
         {
         case observation_models::angular_position:
-            observationPartialList = createSingleLinkObservationPartialsList< ObservationScalarType, TimeType, 2 >(
-                        observationModelList, bodies, parametersToEstimate );
+            observationPartials = createSingleLinkObservationPartials< ObservationScalarType, 2, TimeType >(
+                        observationModel, bodies, parametersToEstimate, useBiasPartials );
             break;
         case observation_models::relative_angular_position:
-            observationPartialList = createRelativeAngularPositionPartials< ObservationScalarType >(
-                    utilities::createVectorFromMapKeys( observationModelList ), bodies, parametersToEstimate,
-                    getLightTimeCorrectionsList( observationModelList ) );
+            observationPartials = createDifferencedObservablePartials< ObservationScalarType, TimeType, 2 >(
+                        observationModel, bodies, parametersToEstimate, useBiasPartials );
+//            observationPartialList = createRelativeAngularPositionPartials< ObservationScalarType >(
+//                    utilities::createVectorFromMapKeys( observationModelList ), bodies, parametersToEstimate,
+//                    getLightTimeCorrectionsList( observationModelList ) );
             break;
         default:
             std::string errorMessage =
                     "Error when making observation partial set, could not recognize observable " +
-                    std::to_string( observableType ) + " of size 2 ";
+                    std::to_string( observationModel->getObservableType( ) ) + " of size 2 ";
             throw std::runtime_error( errorMessage );
         }
-        return observationPartialList;
+        return observationPartials;
     }
 
 };
@@ -243,46 +232,74 @@ public:
      * object as value of map
      * second: PositionPartialScaling object associated with all partials of single LinkEnds.
      */
-    static std::map< observation_models::LinkEnds, std::pair< std::map< std::pair< int, int >,
-    std::shared_ptr< ObservationPartial< 3 > > >,
-    std::shared_ptr< PositionPartialScaling > > > createObservationPartials(
-            const observation_models::ObservableType observableType,
-            const std::map< observation_models::LinkEnds,
-            std::shared_ptr< observation_models::ObservationModel< 3, ObservationScalarType, TimeType > > >
-            observationModelList,
+    static std::pair< std::map< std::pair< int, int >,
+            std::shared_ptr< ObservationPartial< 3 > > >, std::shared_ptr< PositionPartialScaling > > createObservationPartials(
+            const std::shared_ptr< observation_models::ObservationModel< 3, ObservationScalarType, TimeType > > observationModel,
             const simulation_setup::SystemOfBodies& bodies,
-            const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > >
-            parametersToEstimate )
+            const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > > parametersToEstimate,
+            const bool useBiasPartials = true )
     {
-        std::map< observation_models::LinkEnds, std::pair< std::map< std::pair< int, int >,
-                std::shared_ptr< ObservationPartial< 3 > > >,
-                std::shared_ptr< PositionPartialScaling > > > observationPartialList;
+        std::pair< std::map< std::pair< int, int >,
+                std::shared_ptr< ObservationPartial< 3 > > >, std::shared_ptr< PositionPartialScaling > > observationPartials;
 
-        switch( observableType )
+        switch( observationModel->getObservableType( ) )
         {
         case observation_models::position_observable:
-            observationPartialList = createSingleLinkObservationPartialsList< ObservationScalarType, TimeType, 3 >(
-                        observationModelList, bodies, parametersToEstimate );
+            observationPartials = createSingleLinkObservationPartials< ObservationScalarType, 3, TimeType >(
+                        observationModel, bodies, parametersToEstimate, useBiasPartials );
             break;
         case observation_models::euler_angle_313_observable:
-            observationPartialList = createEulerAngleObservablePartials< ObservationScalarType >(
-                        utilities::createVectorFromMapKeys( observationModelList ), bodies, parametersToEstimate );
+            observationPartials = createEulerAngleObservablePartials< ObservationScalarType >(
+                        observationModel->getLinkEnds( ), bodies, parametersToEstimate, useBiasPartials );
             break;
 
         case observation_models::velocity_observable:
-            observationPartialList = createSingleLinkObservationPartialsList< ObservationScalarType, TimeType, 3 >(
-                        observationModelList, bodies, parametersToEstimate );
+            observationPartials = createSingleLinkObservationPartials< ObservationScalarType, 3, TimeType >(
+                        observationModel, bodies, parametersToEstimate, useBiasPartials );
             break;
         default:
             std::string errorMessage =
                     "Error when making observation partial set, could not recognize observable " +
-                    std::to_string( observableType ) + " of size 3 ";
-            throw std::runtime_error( errorMessage );        }
-        return observationPartialList;
+                    std::to_string( observationModel->getObservableType( ) ) + " of size 3 ";
+            throw std::runtime_error( errorMessage );
+        }
+        return observationPartials;
     }
 
 };
 
+
+template< typename ObservationScalarType, typename TimeType, int ObservationSize >
+std::map< observation_models::LinkEnds,
+std::pair< std::map< std::pair< int, int >, std::shared_ptr< ObservationPartial< ObservationSize > > > ,
+std::shared_ptr< PositionPartialScaling > > > createObservablePartialsList(
+        const std::map< observation_models::LinkEnds,
+        std::shared_ptr< observation_models::ObservationModel< ObservationSize, ObservationScalarType, TimeType > > > observationModelList,
+        const simulation_setup::SystemOfBodies& bodies,
+        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > > parametersToEstimate,
+        const bool useBiasPartials = true )
+{
+    std::map< observation_models::LinkEnds,
+    std::pair< std::map< std::pair< int, int >, std::shared_ptr< ObservationPartial< ObservationSize > > > ,
+    std::shared_ptr< PositionPartialScaling > > > partialsList;
+
+    observation_models::ObservableType observableType = observation_models::undefined_observation_model;
+    for( auto it : observationModelList )
+    {
+        if( observableType == observation_models::undefined_observation_model )
+        {
+            observableType = it.second->getObservableType( );
+        }
+        else if( observableType != it.second->getObservableType( ) )
+        {
+            throw std::runtime_error( "Error when creating differenced observation partials, input models are inconsistent" );
+        }
+        partialsList[ it.first ] =  ObservationPartialCreator< ObservationSize, ObservationScalarType, TimeType >::createObservationPartials(
+                    it.second, bodies, parametersToEstimate, useBiasPartials );
+    }
+
+    return partialsList;
+}
 
 }
 
