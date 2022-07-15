@@ -163,11 +163,6 @@ BOOST_AUTO_TEST_CASE( testRelativeAngularPositionPartials )
 
     Eigen::Matrix< double, 2, 3 > partialsAngularPositionWrtPosition = calculatePartialOfAngularPositionWrtLinkEndPosition(
             - positionDifferenceMarsEarth,  false );
-    Eigen::Matrix< double, 2, 3 > partialsAngularPositionWrtPosition2 = calculatePartialOfAngularPositionWrtLinkEndPosition2(
-            - positionDifferenceMarsEarth,  false );
-
-    std::cout << "partialsAngularPositionWrtPosition: " << partialsAngularPositionWrtPosition << "\n\n";
-    std::cout << "partialsAngularPositionWrtPosition - v2: " << partialsAngularPositionWrtPosition2 << "\n\n";
 
     // Define and create ground stations.
     std::vector< std::pair< std::string, std::string > > groundStations;

@@ -38,15 +38,14 @@ Eigen::Matrix< double, 1, 3 > calculatePartialOfDeclinationWrtLinkEndPosition(
         Eigen::Vector3d relativeRangeVector,
         const bool isLinkEndReceiver )
 {
-    // Define multiplier of patial vector
+    // Define multiplier of partial vector
     double partialMultiplier = ( ( isLinkEndReceiver ) ? 1.0 : -1.0 );
 
     // Set partial vector
     double range = relativeRangeVector.norm( );
+    Eigen::Matrix< double, 1, 3 > partial = Eigen::Matrix< double, 1, 3 >::Zero( );
     double inPlaneRange = relativeRangeVector.segment( 0, 2 ).norm( );
-
-    Eigen::Matrix< double, 1, 3 > partial = partialMultiplier * relativeRangeVector.transpose( ) / inPlaneRange;
-
+    partial = partialMultiplier * relativeRangeVector.transpose( ) / inPlaneRange;
     partial *= relativeRangeVector( 2 ) / ( range * range );
     partial += -partialMultiplier * ( Eigen::Vector3d::UnitZ( ) ).transpose( ) / inPlaneRange;
 

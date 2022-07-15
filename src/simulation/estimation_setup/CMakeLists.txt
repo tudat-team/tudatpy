@@ -33,7 +33,6 @@ set(estimation_HEADERS
         createNumericalSimulator.h
         createEulerAngleObservationPartials.h
         createDopplerPartials.h
-        createRelativeAngularPositionPartials.h
         createNWayRangePartials.h
         observationOutputSettings.h
         observationOutput.h
@@ -61,7 +60,6 @@ set(estimation_SOURCES
         createAccelerationPartials.cpp
         createObservationModel.cpp
         createObservationViability.cpp
-        createRelativeAngularPositionPartials.cpp
         observationSimulationSettings.cpp
         observationOutputSettings.cpp
         observationOutput.cpp

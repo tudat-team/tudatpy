@@ -14,7 +14,6 @@
 #include <memory>
 
 
-#include "tudat/simulation/estimation_setup/createRelativeAngularPositionPartials.h"
 #include "tudat/simulation/estimation_setup/createDopplerPartials.h"
 #include "tudat/simulation/estimation_setup/createNWayRangePartials.h"
 #include "tudat/simulation/estimation_setup/createEulerAngleObservationPartials.h"
@@ -197,9 +196,6 @@ public:
         case observation_models::relative_angular_position:
             observationPartials = createDifferencedObservablePartials< ObservationScalarType, TimeType, 2 >(
                         observationModel, bodies, parametersToEstimate, useBiasPartials );
-//            observationPartialList = createRelativeAngularPositionPartials< ObservationScalarType >(
-//                    utilities::createVectorFromMapKeys( observationModelList ), bodies, parametersToEstimate,
-//                    getLightTimeCorrectionsList( observationModelList ) );
             break;
         default:
             std::string errorMessage =
