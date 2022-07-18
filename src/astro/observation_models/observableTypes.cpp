@@ -319,7 +319,7 @@ std::pair< std::vector< int >, std::vector< int > > getUndifferencedTimeAndState
         secondIndices = { 2, 3 };
         break;
     case n_way_differenced_range:
-        for( unsigned int i = 0; i < numberOfLinkEnds; i++ )
+        for( int i = 0; i < numberOfLinkEnds; i++ )
         {
            firstIndices.push_back( i );
            secondIndices.push_back( i + numberOfLinkEnds );
