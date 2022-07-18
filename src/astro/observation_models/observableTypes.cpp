@@ -545,8 +545,6 @@ std::vector< int > getLinkEndIndicesForLinkEndTypeAtObservable(
         }
         break;
     case n_way_differenced_range:
-        std::cerr<<"Warning, n-way differenced range indices function not yet tested"<<std::endl;
-
         if( numberOfLinkEnds < 2 )
         {
             throw std::runtime_error( "Error when getting n way range link end indices, not enough link ends" );

@@ -554,8 +554,9 @@ public:
     {
         for( int i = 0; i < numberOfLinkEnds - 1; i++ )
         {
-            oneWayRangeObsevationSettings_.push_back( std::make_shared< ObservationModelSettings >(
-                                                          one_way_range, linkEnds, lightTimeCorrections ) );
+            oneWayRangeObsevationSettings_.push_back(
+                        std::make_shared< ObservationModelSettings >(
+                            one_way_range, getSingleLegLinkEnds( linkEnds.linkEnds_, i ), lightTimeCorrections ) );
         }
     }
 
@@ -587,8 +588,9 @@ public:
     {
         for( unsigned int i = 0; i < linkEnds.size( ) - 1; i++ )
         {
-            oneWayRangeObsevationSettings_.push_back( std::make_shared< ObservationModelSettings >(
-                                                          one_way_range, linkEnds, lightTimeCorrectionsList ) );
+            oneWayRangeObsevationSettings_.push_back(
+                        std::make_shared< ObservationModelSettings >(
+                            one_way_range, getSingleLegLinkEnds( linkEnds.linkEnds_, i ), lightTimeCorrectionsList ) );
         }
     }
 
@@ -1423,7 +1425,7 @@ public:
         {
             std::shared_ptr< NWayDifferencedRangeObservationSettings > nWayDifferencedRangeObservationSettings =
                     std::dynamic_pointer_cast< NWayDifferencedRangeObservationSettings >( observationSettings );
-            if( nWayDifferencedRangeObservationSettings )
+            if( nWayDifferencedRangeObservationSettings == nullptr )
             {
                 throw std::runtime_error( "Error whaen making n-way differenced range observation model, input type inconsistent" );
             }

@@ -99,9 +99,9 @@ public:
 
         Eigen::Matrix< ObservationScalarType, 1, 1 > observation =
                 ( arcEndObservationModel_->computeIdealObservationsWithLinkEndData(
-                    time, linkEndAssociatedWithTime, arcEndLinkEndTimes, arcEndLinkEndStates ) -
+                    time + integrationTime / 2.0, linkEndAssociatedWithTime, arcEndLinkEndTimes, arcEndLinkEndStates ) -
                 arcStartObservationModel_->computeIdealObservationsWithLinkEndData(
-                    time - integrationTime, linkEndAssociatedWithTime, arcStartLinkEndTimes, arcStartLinkEndStates ) ) /
+                    time - integrationTime / 2.0, linkEndAssociatedWithTime, arcStartLinkEndTimes, arcStartLinkEndStates ) ) /
                 static_cast< ObservationScalarType >( integrationTime );
 
         linkEndTimes.clear( );
