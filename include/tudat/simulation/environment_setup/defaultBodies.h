@@ -180,6 +180,8 @@ BodyListSettings getDefaultBodySettings(
         const std::string baseFrameOrigin = "SSB",
         const std::string baseFrameOrientation = "ECLIPJ2000" );
 
+std::vector< GroundStationSettings > getDsnStationSettings( );
+
 } // namespace simulation_setup
 
 } // namespace tudat
