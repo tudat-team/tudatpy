@@ -25,6 +25,12 @@ TUDAT_ADD_TEST_CASE(DifferencedOneWayRangePartials
         ${Tudat_ESTIMATION_LIBRARIES}
         )
 
+TUDAT_ADD_TEST_CASE(DifferencedNWayRangePartials
+        PRIVATE_LINKS
+        tudat_test_support
+        ${Tudat_ESTIMATION_LIBRARIES}
+        )
+
 TUDAT_ADD_TEST_CASE(OneWayDopplerPartials
         PRIVATE_LINKS
         tudat_test_support
@@ -70,7 +76,7 @@ TUDAT_ADD_TEST_CASE(FullRotationPartials
         PRIVATE_LINKS
         ${Tudat_ESTIMATION_LIBRARIES}
         )
-        
+
 TUDAT_ADD_TEST_CASE(RelativeAngularPositionPartials
         PRIVATE_LINKS
         tudat_test_support
