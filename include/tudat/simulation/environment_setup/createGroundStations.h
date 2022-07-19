@@ -131,6 +131,11 @@ public:
         return stationMotionSettings_;
     }
 
+    void addStationMotionSettings( const std::shared_ptr< GroundStationMotionSettings > stationMotionSetting )
+    {
+        stationMotionSettings_.push_back( stationMotionSetting );
+    }
+
 protected:
 
     std::string stationName_;

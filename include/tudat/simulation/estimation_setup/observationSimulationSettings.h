@@ -175,6 +175,46 @@ struct TabulatedObservationSimulationSettings: public ObservationSimulationSetti
 };
 
 template< typename TimeType = double >
+struct PerArcObservationSimulationSettings: public ObservationSimulationSettings< TimeType >
+{
+
+    PerArcObservationSimulationSettings(
+            const observation_models::ObservableType observableType,
+            const observation_models::LinkDefinition& linkEnds,
+            const TimeType startTime, const TimeType endTime, const TimeType intervalBetweenObservations,
+            const std::shared_ptr< observation_models::ObservationViabilitySettings > arcDefiningConstraint,
+            const TimeType minimumArcDuration = TUDAT_NAN, TimeType maximumArcDuration = TUDAT_NAN,
+            const observation_models::LinkEndType linkEndType = observation_models::unidentified_link_end,
+            const std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >&
+            additionalViabilitySettingsList =
+            std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >( ),
+            const std::function< Eigen::VectorXd( const double ) > observationNoiseFunction = nullptr  ):
+        ObservationSimulationSettings< TimeType >(
+            observableType, linkEnds, linkEndType, additionalViabilitySettingsList, observationNoiseFunction ),
+        startTime_( startTime ), endTime_( endTime ), intervalBetweenObservations_( intervalBetweenObservations ),
+        arcDefiningConstraint_( arcDefiningConstraint ),
+        minimumArcDuration_( minimumArcDuration ), maximumArcDuration_( maximumArcDuration ),
+    additionalViabilitySettingsList_( additionalViabilitySettingsList ){ }
+
+    ~PerArcObservationSimulationSettings( ){ }
+
+    TimeType startTime_;
+
+    TimeType endTime_;
+
+    TimeType intervalBetweenObservations_;
+
+    std::shared_ptr< observation_models::ObservationViabilitySettings > arcDefiningConstraint_;
+
+    TimeType minimumArcDuration_;
+
+    TimeType maximumArcDuration_;
+
+    std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > > additionalViabilitySettingsList_;
+
+};
+
+template< typename TimeType = double >
 inline std::shared_ptr< ObservationSimulationSettings< TimeType > > tabulatedObservationSimulationSettings(
         const observation_models::ObservableType observableType,
         const observation_models::LinkDefinition& linkEnds,
