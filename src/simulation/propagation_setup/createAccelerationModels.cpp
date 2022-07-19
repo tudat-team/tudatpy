@@ -1287,6 +1287,7 @@ std::shared_ptr< gravitation::DirectTidalDissipationAcceleration > createDirectT
         return std::make_shared< DirectTidalDissipationAcceleration >(
                     std::bind( &Body::getState, bodyUndergoingAcceleration ),
                     std::bind( &Body::getState, bodyExertingAcceleration ),
+                    gravitationalParaterFunctionOfBodyExertingTide,
                     gravitationalParaterFunctionOfBodyUndergoingTide,
                     moonAngularVelocityVectorFunction,
                     tidalAccelerationSettings->k2LoveNumber_,
