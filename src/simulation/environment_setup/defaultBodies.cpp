@@ -370,7 +370,7 @@ BodyListSettings getDefaultBodySettings(
     return BodyListSettings( settingsMap, baseFrameOrigin, baseFrameOrientation );
 }
 
-std::vector< GroundStationSettings > getDsnStationSettings( )
+std::vector< std::shared_ptr< GroundStationSettings > > getDsnStationSettings( )
 {
     std::map< std::string, Eigen::Vector3d > dsnStationPositions = {
         { "DSS-13", ( Eigen::Vector3d( )<< -2351112.659, -4655530.636, +3660912.728 ).finished( ) },
@@ -407,17 +407,17 @@ std::vector< GroundStationSettings > getDsnStationSettings( )
     {
         std::shared_ptr< GroundStationSettings > stationSettings  =
                 std::make_shared< GroundStationSettings >( it.first, it.second );
-        if( it.first[ 4 ] == "1" || it.first[ 4 ] == "2" )
+        if( it.first[ 4 ] == '1' || it.first[ 4 ] == '2' )
         {
-            stationSetting->addStationMotionSettings( goldstoneStationMotion );
+            stationSettings->addStationMotionSettings( goldstoneStationMotion );
         }
-        else if( it.first[ 4 ] == "3" || it.first[ 4 ] == "4" )
+        else if( it.first[ 4 ] == '3' || it.first[ 4 ] == '4' )
         {
-            stationSetting->addStationMotionSettings( canberraStationMotion );
+            stationSettings->addStationMotionSettings( canberraStationMotion );
         }
-        else if( it.first[ 4 ] == "5" || it.first[ 4 ] == "6" )
+        else if( it.first[ 4 ] == '5' || it.first[ 4 ] == '6' )
         {
-            stationSetting->addStationMotionSettings( madridStationMotion );
+            stationSettings->addStationMotionSettings( madridStationMotion );
         }
         stationSettingsList.push_back( stationSettings );
     }
