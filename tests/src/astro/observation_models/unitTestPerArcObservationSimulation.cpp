@@ -159,13 +159,10 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
     std::vector< std::vector< double > > perArcIdealObservationTimes = splitArcTimes( idealObservationTimes );
     std::vector< double > idealArcLengths = getArcLengths( perArcIdealObservationTimes );
 
-    //    for( unsigned int i = 0; i < perArcIdealObservationTimes.size( ); i++ )
-    //    {
-    //        idealArcLengths.push_back( perArcIdealObservationTimes.at( i ).at( perArcIdealObservationTimes.at( i ).size( ) - 1 ) -
-    //                                   perArcIdealObservationTimes.at( i ).at( 0 ) );
-    //    }
 
-    for( int test = 0; test < 2; test++ )
+    std::shared_ptr< ObservationCollection< > > caseTwoObservationsAndTimes;
+
+    for( int test = 0; test < 4; test++ )
     {
         double minimumArcDuration = TUDAT_NAN;
         double maximumArcDuration = TUDAT_NAN;
@@ -181,13 +178,13 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
             maximumArcDuration = 12.0 * 3600.0;
         }
 
-        if( test == 2 || test == 4 )
+        if( test == 2 || test == 3 )
         {
             minimumArcDuration = 11.5 * 3600.0;
-            minimumArcDuration = 12.5 * 3600.0;
+            maximumArcDuration = 12.5 * 3600.0;
         }
 
-        if( test == 3 || test == 4 )
+        if( test == 3 )
         {
             additionalViabilitySettingsList.push_back( bodyOccultationViabilitySettings(
                                                            std::make_pair( "LunarOrbiter", "" ), "Moon"  ) );
@@ -206,21 +203,15 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
                         additionalViabilitySettingsList ) );
         std::shared_ptr< ObservationCollection< > > testObservationsAndTimes = simulateObservations< double, double >(
                     measurementSimulationInput, observationSimulators, bodies );
+        if( test == 2 )
+        {
+            caseTwoObservationsAndTimes = testObservationsAndTimes;
+        }
         std::vector< double > testObservationTimes = testObservationsAndTimes->getConcatenatedTimeVector( );
         std::vector< std::vector< double > > perArcTestObservationTimes = splitArcTimes( testObservationTimes );
         std::vector< double > testArcLengths = getArcLengths( perArcTestObservationTimes );
 
-        std::cout<<"Total number: "<<testObservationTimes.size( )<<" "<<idealObservationTimes.size( )<<std::endl;
         int testArcCounter = 0;
-        for( unsigned int i = 0; i < perArcIdealObservationTimes.size( ); i++ )
-        {
-            std::cout<<"Ideal: "<<perArcIdealObservationTimes.at( i ).size( )<<std::endl;
-        }
-
-        for( unsigned int i = 0; i < perArcTestObservationTimes.size( ); i++ )
-        {
-            std::cout<<"Test: "<<perArcTestObservationTimes.at( i ).size( )<<std::endl;
-        }
 
         if( test == 1 )
         {
@@ -234,7 +225,6 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
             {
                 if( idealArcLengths.at( i ) >= 12.0 * 3600.0 )
                 {
-                    std::cout<<"Arc length: "<<idealArcLengths.at( i )<<" "<<testArcCounter<<std::endl;
                     BOOST_CHECK_EQUAL( perArcIdealObservationTimes.at( i ).size( ),
                                        perArcTestObservationTimes.at( testArcCounter ).size( ) );
                     for( unsigned int j = 0; j < perArcIdealObservationTimes.at( i ).size( ); j++ )
@@ -248,7 +238,6 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
             }
             if( test == 1 )
             {
-
                 if( idealArcLengths.at( i ) < 12.0 * 3600.0 )
                 {
                     BOOST_CHECK_EQUAL( perArcIdealObservationTimes.at( i ).size( ),
@@ -264,8 +253,82 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
                     BOOST_CHECK_EQUAL( perArcIdealObservationTimes.at( i ).at( j ),
                                        perArcTestObservationTimes.at( i ).at( j ) );
                 }
-
             }
+
+            if( test == 2 )
+            {
+                if( idealArcLengths.at( i ) >= 11.5 * 3600.0 )
+                {
+                    if( idealArcLengths.at( i ) < 12.5 * 3600.0 )
+                    {
+                        BOOST_CHECK_EQUAL( perArcIdealObservationTimes.at( i ).size( ),
+                                           perArcTestObservationTimes.at( testArcCounter ).size( ) );
+                    }
+                    else
+                    {
+                        BOOST_CHECK_SMALL( std::fabs( testArcLengths.at( testArcCounter ) - 12.5 * 3600.0 ), 60.0 );
+                    }
+
+                    for( unsigned int j = 0; j < perArcTestObservationTimes.at( testArcCounter ).size( ); j++ )
+                    {
+                        BOOST_CHECK_EQUAL( perArcIdealObservationTimes.at( i ).at( j ),
+                                           perArcTestObservationTimes.at( testArcCounter ).at( j ) );
+                    }
+                    testArcCounter++;
+                }
+            }
+        }
+
+        if( test == 0 || test == 2 )
+        {
+            BOOST_CHECK_EQUAL( testArcCounter, perArcTestObservationTimes.size( ) );
+        }
+
+        if( test == 3 )
+        {
+            std::vector< double > testObservationTimes = testObservationsAndTimes->getConcatenatedTimeVector( );
+            std::vector< double > referenceObservationTimes = caseTwoObservationsAndTimes->getConcatenatedTimeVector( );
+
+            std::shared_ptr< observation_models::ObservationModel< 1 > > observationModel =
+                    std::dynamic_pointer_cast< ObservationSimulator< 1 > >( observationSimulators.at( 0 ) )->getObservationModel(
+                        testLinkEnds );
+
+            unsigned int testIndex = 0;
+
+            Eigen::VectorXd currentObservation;
+            std::vector< Eigen::Vector6d > vectorOfStates;
+            std::vector< double > vectorOfTimes;
+            bool isObservationFeasible;
+
+            std::vector< std::shared_ptr< observation_models::ObservationViabilityCalculator > > additionalViabilityCalculators =
+                    observation_models::createObservationViabilityCalculators(
+                        bodies, testLinkEnds, one_way_range, additionalViabilitySettingsList );
+
+            BOOST_CHECK_EQUAL( ( testObservationTimes.size( ) < referenceObservationTimes.size( ) ), true );
+
+            for( unsigned int i = 0; i < referenceObservationTimes.size( ); i++ )
+            {
+                currentObservation = observationModel->computeIdealObservationsWithLinkEndData(
+                            referenceObservationTimes.at( i ), receiver, vectorOfTimes, vectorOfStates );
+                isObservationFeasible = isObservationViable( vectorOfStates, vectorOfTimes, additionalViabilityCalculators );
+                if( testObservationTimes.at( testIndex ) == referenceObservationTimes.at( i )  )
+                {
+                    BOOST_CHECK_EQUAL( isObservationFeasible, true );
+                    testIndex++;
+                }
+                else
+                {
+                    BOOST_CHECK_EQUAL( isObservationFeasible, false );
+                }
+
+                if( testIndex == testObservationTimes.size( ) )
+                {
+                    break;
+                }
+            }
+
+            BOOST_CHECK_EQUAL( testIndex, testObservationTimes.size( ) );
+
         }
     }
 }
