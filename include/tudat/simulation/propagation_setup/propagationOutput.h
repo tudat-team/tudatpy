@@ -255,69 +255,17 @@ getSphericalHarmonicAccelerationForDependentVariables(
                         basic_astrodynamics::spherical_harmonic_gravity ) );
     }
 
-    if( listOfSuitableAccelerationModels.size( ) == 0 )
+    if( listOfSuitableAccelerationModels.size( ) != 1 )
     {
-        bool invertOrder = false;
-        listOfSuitableAccelerationModels = getAccelerationBetweenBodies(
-                    dependentVariableSettings->associatedBody_,
-                    dependentVariableSettings->secondaryBody_, stateDerivativeModels,
-                    basic_astrodynamics::mutual_spherical_harmonic_gravity );
-
-        if( listOfSuitableAccelerationModels.size( ) == 0 )
-        {
-            listOfSuitableAccelerationModels = getAccelerationBetweenBodies(
-                        dependentVariableSettings->secondaryBody_,
-                        dependentVariableSettings->associatedBody_, stateDerivativeModels,
-                        basic_astrodynamics::mutual_spherical_harmonic_gravity );
-            invertOrder = true;
-        }
-
-        if( listOfSuitableAccelerationModels.size( ) == 0 )
-        {
-            std::string errorMessage = "Error when getting spherical harmonic acceleration components between bodies " +
-                    dependentVariableSettings->associatedBody_ + " and " +
-                    dependentVariableSettings->secondaryBody_ + " of type " +
-                    std::to_string(
-                        basic_astrodynamics::spherical_harmonic_gravity ) +
-                    ", no such acceleration found";
-            throw std::runtime_error( errorMessage );
-        }
-        else if( listOfSuitableAccelerationModels.size( ) > 1 )
-        {
-            std::string errorMessage = "Error when getting spherical harmonic acceleration components between bodies " +
-                    dependentVariableSettings->associatedBody_ + " and " +
-                    dependentVariableSettings->secondaryBody_ + " of type " +
-                    std::to_string(
-                        basic_astrodynamics::spherical_harmonic_gravity ) +
-                    ", multiple mutual SH options found";
-            throw std::runtime_error( errorMessage );
-        }
-        else
-        {
-            std::shared_ptr< gravitation::MutualSphericalHarmonicsGravitationalAccelerationModel > mutualShModel =
-                    std::dynamic_pointer_cast< gravitation::MutualSphericalHarmonicsGravitationalAccelerationModel >(
-                        listOfSuitableAccelerationModels.at( 0 ) );
-            if( mutualShModel == nullptr )
-            {
-                std::string errorMessage = "Error when getting spherical harmonic acceleration components between bodies " +
-                        dependentVariableSettings->associatedBody_ + " and " +
-                        dependentVariableSettings->secondaryBody_ + " of type " +
-                        std::to_string(
-                            basic_astrodynamics::spherical_harmonic_gravity ) +
-                        ", mutual SH acceleration is incompatible.";
-                throw std::runtime_error( errorMessage );
-            }
-            if( !invertOrder )
-            {
-                selectedAccelerationModel = mutualShModel->getAccelerationModelFromShExpansionOfBodyExertingAcceleration( );
-            }
-            else
-            {
-                selectedAccelerationModel = mutualShModel->getAccelerationModelFromShExpansionOfBodyUndergoingAcceleration( );
-            }
-        }
+        std::string errorMessage = "Error when getting spherical harmonic acceleration components between bodies " +
+                dependentVariableSettings->associatedBody_ + " and " +
+                dependentVariableSettings->secondaryBody_ + " of type " +
+                std::to_string(
+                    basic_astrodynamics::spherical_harmonic_gravity ) +
+                ", no such acceleration found";
+        throw std::runtime_error( errorMessage );
     }
-    else if( listOfSuitableAccelerationModels.size( ) == 1 )
+    else
     {
         std::shared_ptr< gravitation::SphericalHarmonicsGravitationalAccelerationModel > sphericalHarmonicAcceleration =
                 std::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravitationalAccelerationModel >(
@@ -355,17 +303,6 @@ getSphericalHarmonicAccelerationForDependentVariables(
             }
         }
     }
-    else
-    {
-        std::string errorMessage = "Error when getting spherical harmonic acceleration components between bodies " +
-                dependentVariableSettings->associatedBody_ + " and " +
-                dependentVariableSettings->secondaryBody_ + " of type " +
-                std::to_string(
-                    basic_astrodynamics::spherical_harmonic_gravity ) +
-                ", multiple suitable acceleration models found";
-        throw std::runtime_error( errorMessage );
-    }
-
 
     return selectedAccelerationModel;
 }
