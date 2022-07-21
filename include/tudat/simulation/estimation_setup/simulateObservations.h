@@ -238,7 +238,6 @@ simulatePerArcSingleObservationSet(
 
         // If observation is feasible, add to arc. If not, check if current arc is to be terminated.
         observationFeasible = isObservationViable( vectorOfStates, vectorOfTimes, arcDefiningViabilityCalculators );
-//        std::cout<<"Obs: "<<observationFeasible<<" "<<currentObservationArc.size( )<<" "<<currentObservationTime<<" "<<currentObservation<<std::endl;
         if( observationFeasible )
         {
             bool isMaximumArcDurationExceeded = false;
@@ -254,7 +253,6 @@ simulatePerArcSingleObservationSet(
 
             if( !isMaximumArcDurationExceeded )
             {
-//                std::cout<<"Adding time "<<currentObservationTime<<std::endl;
                 currentObservationArc[ currentObservationTime ] = std::make_tuple(
                             currentObservation, vectorOfStates, vectorOfTimes );
             }
@@ -264,13 +262,9 @@ simulatePerArcSingleObservationSet(
             TimeType arcInitialTime = currentObservationArc.begin( )->first;
             TimeType arcFinalTime = currentObservationArc.rbegin( )->first;
 
-            std::cout<<"Arc length "<<( arcFinalTime - arcInitialTime ) / 3600.0<<" "<<
-                        observationsToSimulate->minimumArcDuration_<<" "<<
-                        observationsToSimulate->maximumArcDuration_ <<std::endl;
             if( ( arcFinalTime - arcInitialTime ) > observationsToSimulate->minimumArcDuration_ ||
                     !( observationsToSimulate->minimumArcDuration_ == observationsToSimulate->minimumArcDuration_  ) )
             {
-                std::cout<<"Adding arc "<<currentObservationArc.size( )<<std::endl;
                 simulatedObservations.push_back( currentObservationArc );
             }
 
@@ -303,7 +297,6 @@ simulatePerArcSingleObservationSet(
             currentDependentVariable = Eigen::VectorXd::Zero( 0 );
 
             observationFeasible = isObservationViable( vectorOfStates, vectorOfTimes, additionalViabilityCalculators );
-//            std::cout<<"Filter "<<observationFeasible<<" "<<additionalViabilityCalculators.size( )<<std::endl;
             if( observationFeasible )
             {
                 addNoiseAndDependentVariableToObservation(
