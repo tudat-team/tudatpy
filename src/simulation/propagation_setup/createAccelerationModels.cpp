@@ -786,6 +786,7 @@ createCannonballRadiationPressureAcceleratioModel(
                 nameOfBodyExertingAcceleration );
 
     // Create acceleration model.
+    // TODO-DOMINIK use source and target from radiation pressure interface instead of body positions
     return std::make_shared< CannonBallRadiationPressureAcceleration >(
                 std::bind( &Body::getPosition, bodyExertingAcceleration ),
                 std::bind( &Body::getPosition, bodyUndergoingAcceleration ),
