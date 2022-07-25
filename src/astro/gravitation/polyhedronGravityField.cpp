@@ -86,7 +86,7 @@ void calculatePolyhedronPerEdgeFactor (
         // potential, not when computing the 2nd derivative! See "The solid angle hidden in polyhedron gravitation
         // formulations", Werner (2017), appendix C1
         const double denominator = relPosI.norm() + relPosJ.norm() - eIJ.norm();
-        if ( denominator == 0)
+        if ( std::abs(denominator) <  1e-18 )
         {
             perEdgeFactor(edge) = 0;
         }
