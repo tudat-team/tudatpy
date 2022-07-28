@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2019, Delft University of Technology
+/*    Copyright (c) 2010-2022, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -231,15 +231,15 @@ void PolyhedronGravityCache::update (const Eigen::Vector3d& currentBodyFixedPosi
 
         // Compute coordinates of vertices with respect to field point
         calculatePolyhedronVerticesCoordinatesRelativeToFieldPoint(
-                verticesCoordinatesRelativeToFieldPoint_, currentBodyFixedPosition_, verticesCoordinates_);
+                currentVerticesCoordinatesRelativeToFieldPoint_, currentBodyFixedPosition_, verticesCoordinates_);
 
         // Compute per-facet factor
         calculatePolyhedronPerFacetFactor(
-                perFacetFactor_, verticesCoordinatesRelativeToFieldPoint_, verticesDefiningEachFacet_);
+                currentPerFacetFactor_, currentVerticesCoordinatesRelativeToFieldPoint_, verticesDefiningEachFacet_);
 
         // Compute per-edge factor
         calculatePolyhedronPerEdgeFactor(
-                perEdgeFactor_, verticesCoordinatesRelativeToFieldPoint_, verticesDefiningEachEdge_);
+                currentPerEdgeFactor_, currentVerticesCoordinatesRelativeToFieldPoint_, verticesDefiningEachEdge_);
     }
 }
 

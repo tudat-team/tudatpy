@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2019, Delft University of Technology
+/*    Copyright (c) 2010-2022, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -10,6 +10,7 @@
  *    References:
  *       "EXTERIOR GRAVITATION OF A POLYHEDRON DERIVED AND COMPARED WITH HARMONIC AND MASCON GRAVITATION REPRESENTATIONS
  *          OF ASTEROID 4769 CASTALIA", Werner and Scheeres (1997), Celestial Mechanics and Dynamical Astronomy
+ *       "The solid angle hidden in polyhedron gravitation formulations", Werner (2017), Journal of Geodesy
  */
 
 #ifndef TUDATBUNDLE_POLYHEDRONGRAVITYFIELD_H
@@ -30,25 +31,56 @@ namespace tudat
 namespace gravitation
 {
 
-// Function to calculate the position of the vertices of a polyhedron relative to a field point
+/*! Computes the coordinates of the polyhedron vertices with respect a the field point.
+ *
+ * Computes the coordinates of the polyhedron vertices with respect to the field point.
+ * @param verticesCoordinatesRelativeToFieldPoint Matrix with coordinates of each vertex wrt field point (output).
+ * @param bodyFixedPosition Body fixed position of field point (input).
+ * @param verticesCoordinates Coordinates of polyehdron vertices (input).
+ */
 void calculatePolyhedronVerticesCoordinatesRelativeToFieldPoint (
         Eigen::MatrixXd& verticesCoordinatesRelativeToFieldPoint,
         const Eigen::Vector3d& bodyFixedPosition,
         const Eigen::MatrixXd& verticesCoordinates);
 
-// Function to calculate the per-facet factor of a polyhedron
+/*! Calculates the per-facet factor of each polyhedron facet.
+ *
+ * Calculates the per-facet factor of each polyhedron facet, according to Eq. 27 of Werner and Scheeres (1997).
+ * @param perFacetFactor Vector with the per-facet factor of each facet (output).
+ * @param verticesCoordinatesRelativeToFieldPoint Matrix with coordinates of each vertex wrt field point (input).
+ * @param verticesDefiningEachFacet Identification of the vertices defining each facet (0 indexed) (input)
+ */
 void calculatePolyhedronPerFacetFactor (
         Eigen::VectorXd& perFacetFactor,
         const Eigen::MatrixXd& verticesCoordinatesRelativeToFieldPoint,
         const Eigen::MatrixXi& verticesDefiningEachFacet);
 
-// Function to calculate the per-edge factor of a polyhedron
+/*! Calculates the per-edge factor of each polyhedron edge.
+ *
+ * Calculates the per-edge factor of each polyhedron edge, according to Eq. 7 of Werner and Scheeres (1997).
+ * @param perEdgeFactor Vector with the per-edge factor of each edge (output).
+ * @param verticesCoordinatesRelativeToFieldPoint Matrix with coordinates of each vertex wrt field point (input).
+ * @param verticesDefiningEachEdge Identification of the vertices defining each facet (0 indexed) (input)
+ */
 void calculatePolyhedronPerEdgeFactor (
         Eigen::VectorXd& perEdgeFactor,
         const Eigen::MatrixXd& verticesCoordinatesRelativeToFieldPoint,
         const Eigen::MatrixXi& verticesDefiningEachEdge);
 
-// Function to calculate the gravitational potential of a constant-density polyhedron
+/*! Calculates the gravitational potential of a constant-density polyhedron.
+ *
+ * Calculates the gravitational potential of a constant-density polyhedron, according to Eq. 10 of Werner and Scheeres
+ * (1997).
+ * @param gravitationalConstantTimesDensity Product of the gravitational constant and density.
+ * @param verticesCoordinatesRelativeToFieldPoint Matrix with coordinates of each vertex wrt field point.
+ * @param verticesDefiningEachFacet Identification of the vertices defining each facet (0 indexed).
+ * @param verticesDefiningEachEdge Identification of the vertices defining each edge (0 indexed).
+ * @param facetDyads Vector containing facet dyads.
+ * @param edgeDyads Vector containing edge dyads.
+ * @param perFacetFactor Vector containing per-facet factors.
+ * @param perEdgeFactor Vector containing per-edge factors.
+ * @return Gravitational potential.
+ */
 double calculatePolyhedronGravitationalPotential(
         const double gravitationalConstantTimesDensity,
         const Eigen::MatrixXd& verticesCoordinatesRelativeToFieldPoint,
@@ -59,7 +91,20 @@ double calculatePolyhedronGravitationalPotential(
         const Eigen::VectorXd& perFacetFactor,
         const Eigen::VectorXd& perEdgeFactor );
 
-// Function to calculate the gradient of the potential of a constant-density polyhedron
+/*! Calculates the gradient of the potential of a constant-density polyhedron.
+ *
+ * Calculates the gradient of the potential of a constant-density polyhedron, according to Eq. 15 of Werner and Scheeres
+ * (1997).
+ * @param gravitationalConstantTimesDensity Product of the gravitational constant and density.
+ * @param verticesCoordinatesRelativeToFieldPoint Matrix with coordinates of each vertex wrt field point.
+ * @param verticesDefiningEachFacet Identification of the vertices defining each facet (0 indexed).
+ * @param verticesDefiningEachEdge Identification of the vertices defining each edge (0 indexed).
+ * @param facetDyads Vector containing facet dyads.
+ * @param edgeDyads Vector containing edge dyads.
+ * @param perFacetFactor Vector containing per-facet factors.
+ * @param perEdgeFactor Vector containing per-edge factors.
+ * @return Gradient of gravitational potential.
+ */
 Eigen::Vector3d calculatePolyhedronGradientOfGravitationalPotential(
         const double gravitationalConstantTimesDensity,
         const Eigen::MatrixXd& verticesCoordinatesRelativeToFieldPoint,
@@ -70,7 +115,17 @@ Eigen::Vector3d calculatePolyhedronGradientOfGravitationalPotential(
         const Eigen::VectorXd& perFacetFactor,
         const Eigen::VectorXd& perEdgeFactor);
 
-// Function to calculate the Hessian matrix of the potential of a constant-density polyhedron
+/*! Calculates the Hessian matrix of the potential of a constant-density polyhedron.
+ *
+ * Calculates the Hessian matrix of the potential of a constant-density polyhedron, according to Eq. 16 of Werner and
+ * Scheeres (1997).
+ * @param gravitationalConstantTimesDensity Product of the gravitational constant and density.
+ * @param facetDyads Vector containing facet dyads.
+ * @param edgeDyads Vector containing edge dyads.
+ * @param perFacetFactor Vector containing per-facet factors.
+ * @param perEdgeFactor Vector containing per-edge factors.
+ * @return Hessian matrix of the potential.
+ */
 Eigen::Matrix3d calculatePolyhedronHessianOfGravitationalPotential(
         const double gravitationalConstantTimesDensity,
         const std::vector< Eigen::MatrixXd >& facetDyads,
@@ -78,7 +133,14 @@ Eigen::Matrix3d calculatePolyhedronHessianOfGravitationalPotential(
         const Eigen::VectorXd& perFacetFactor,
         const Eigen::VectorXd& perEdgeFactor);
 
-// Function to calculate the laplacian of the gravitational potential of a constant-density polyhedron
+/*! Calculate the laplacian of the gravitational potential of a constant-density polyhedron.
+ *
+ * Calculate the laplacian of the gravitational potential of a constant-density polyhedron, according to Eq. 17 of
+ * Werner and Scheeres (1997).
+ * @param gravitationalConstantTimesDensity Product of the gravitational constant and density.
+ * @param perFacetFactor Vector containing per-facet factors.
+ * @return Laplacian of the gravitational potential
+ */
 double calculatePolyhedronLaplacianOfGravitationalPotential(
         const double gravitationalConstantTimesDensity,
         const Eigen::VectorXd& perFacetFactor);
@@ -88,6 +150,17 @@ double calculatePolyhedronLaplacianOfGravitationalPotential(
 class PolyhedronGravityCache
 {
 public:
+
+    /*! Constructor.
+     *
+     * Constructor.
+     * @param verticesCoordinates Matrix with coordinates of the polyhedron vertices. Each row represents the (x,y,z)
+     * coordinates of one vertex.
+     * @param verticesDefiningEachFacet Matrix with the indices (0 indexed) of the vertices defining each facet. Each
+     * row contains 3 indices, which must be provided in counterclockwise order when seen from outise the polyhedron.
+     * @param verticesDefiningEachEdge Matrix with the indices (0 indexed) of the vertices defining each facet. Each
+     * row contains 2 indices.
+     */
     PolyhedronGravityCache(
             const Eigen::MatrixXd& verticesCoordinates,
             const Eigen::MatrixXi& verticesDefiningEachFacet,
@@ -99,35 +172,62 @@ public:
         currentBodyFixedPosition_ = (Eigen::Vector3d() << TUDAT_NAN, TUDAT_NAN, TUDAT_NAN).finished();
     }
 
+    /*! Update cached variables to current state.
+     *
+     * Update cached variables to current state.
+     * @param currentBodyFixedPosition Current body fixed position.
+     */
     void update( const Eigen::Vector3d& currentBodyFixedPosition );
 
+    /*! Function to retrieve the coordinates of the polyhedron vertices wrt field point.
+     *
+     * Function to retrieve the coordinates of the polyhedron vertices wrt field point.
+     * @return Coordinates of the polyhedron vertices wrt field point.
+     */
     Eigen::MatrixXd& getVerticesCoordinatesRelativeToFieldPoint ( )
-    { return verticesCoordinatesRelativeToFieldPoint_; }
+    { return currentVerticesCoordinatesRelativeToFieldPoint_; }
 
+    /*! Function to retrieve the vector of per-facet factors.
+     *
+     * Function to retrieve the vector of per-facet factors.
+     * @return Per-facet factors.
+     */
     Eigen::VectorXd& getPerFacetFactor ( )
-    { return perFacetFactor_; }
+    { return currentPerFacetFactor_; }
 
+    /*! Function to retrieve the vector of per-edge factors.
+     *
+     * Function to retrieve the vector of per-edge factors.
+     * @return Per-edge factors.
+     */
     Eigen::VectorXd& getPerEdgeFactor ( )
-    { return perEdgeFactor_; }
+    { return currentPerEdgeFactor_; }
 
 
 protected:
 
 private:
 
+    // Current body fixed position.
     Eigen::Vector3d currentBodyFixedPosition_;
 
+    // Matrix with coordinates of the polyhedron vertices.
     const Eigen::MatrixXd verticesCoordinates_;
 
+    // Matrix with the indices (0 indexed) of the vertices defining each facet.
     const Eigen::MatrixXi verticesDefiningEachFacet_;
 
+    // Matrix with the indices (0 indexed) of the vertices defining each facet.
     const Eigen::MatrixXi verticesDefiningEachEdge_;
 
-    Eigen::MatrixXd verticesCoordinatesRelativeToFieldPoint_;
+    // Current vertices coordinates wrt body fixed position.
+    Eigen::MatrixXd currentVerticesCoordinatesRelativeToFieldPoint_;
 
-    Eigen::VectorXd perFacetFactor_;
+    // Current value of the per-facet factors.
+    Eigen::VectorXd currentPerFacetFactor_;
 
-    Eigen::VectorXd perEdgeFactor_;
+    // Current value of the per-edge factors.
+    Eigen::VectorXd currentPerEdgeFactor_;
 };
 
 

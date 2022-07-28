@@ -481,6 +481,26 @@ std::shared_ptr< SphericalHarmonicsGravityFieldSettings > createHomogeneousTriAx
                 coefficients.second, associatedReferenceFrame );
 }
 
+//! Function to create gravity field settings for a homogeneous triaxial ellipsoid
+std::shared_ptr< SphericalHarmonicsGravityFieldSettings > createHomogeneousTriAxialEllipsoidGravitySettings(
+        const double axisA, const double axisB, const double axisC, const double ellipsoidGravitationalParameter,
+        const int maximumDegree, const int maximumOrder,
+        const std::string& associatedReferenceFrame )
+{
+    // Compute reference quantities
+    double ellipsoidReferenceRadius = gravitation::calculateTriAxialEllipsoidReferenceRadius(
+                axisA, axisB, axisC );
+
+    // Compute coefficients
+    std::pair< Eigen::MatrixXd, Eigen::MatrixXd > coefficients =
+            gravitation::createTriAxialEllipsoidNormalizedSphericalHarmonicCoefficients(
+                axisA, axisB, axisC, maximumDegree, maximumOrder );
+
+    return std::make_shared< SphericalHarmonicsGravityFieldSettings >(
+                ellipsoidGravitationalParameter, ellipsoidReferenceRadius, coefficients.first,
+                coefficients.second, associatedReferenceFrame );
+}
+
 PolyhedronGravityFieldSettings::PolyhedronGravityFieldSettings (
         const double gravitationalConstant,
         const double density,
