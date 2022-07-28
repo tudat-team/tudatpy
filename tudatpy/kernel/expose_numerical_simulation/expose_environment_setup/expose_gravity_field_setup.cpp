@@ -184,7 +184,7 @@ namespace gravity_field {
               );
 
 
-        m.def("spherical_harmonic_triaxial_body",
+        m.def("spherical_harmonic_triaxial_ellipsoid_from_density",
               &tss::createHomogeneousTriAxialEllipsoidGravitySettings,
               py::arg("axis_a"),
               py::arg("axis_b"),
@@ -194,7 +194,19 @@ namespace gravity_field {
               py::arg("maximum_order"),
               py::arg("associated_reference_frame"),
               py::arg("gravitational_constant") = tudat::physical_constants::GRAVITATIONAL_CONSTANT,
-              get_docstring("spherical_harmonic_triaxial_body").c_str()
+              get_docstring("spherical_harmonic_triaxial_ellipsoid_from_density").c_str()
+              );
+
+        m.def("spherical_harmonic_triaxial_ellipsoid_from_gravitational_parameter",
+              &tss::createHomogeneousTriAxialEllipsoidGravitySettings,
+              py::arg("axis_a"),
+              py::arg("axis_b"),
+              py::arg("axis_c"),
+              py::arg("gravitational_parameter"),
+              py::arg("maximum_degree"),
+              py::arg("maximum_order"),
+              py::arg("associated_reference_frame"),
+              get_docstring("spherical_harmonic_triaxial_ellipsoid_from_gravitational_parameter").c_str()
         );
     }
 
