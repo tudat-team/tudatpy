@@ -593,7 +593,16 @@ std::shared_ptr< PropagationTerminationDetails > integrateEquationsFromIntegrato
 
             if( propagationTerminationCondition->checkStopCondition( static_cast< double >( currentTime ), currentCPUTime ) )
             {
-                // Set termination details: identify which termination conditions were triggered
+                // Propagate to the exact termination conditions
+                if( propagationTerminationCondition->getcheckTerminationToExactCondition( ) )
+                {
+                    propagateToExactTerminationCondition(
+                                integrator, propagationTerminationCondition,
+                                timeStep, dependentVariableFunction,
+                                solutionHistory, dependentVariableHistory, currentCPUTime );
+                }
+
+                // Set termination details
                 if( propagationTerminationCondition->getTerminationType( ) != hybrid_stopping_condition )
                 {
                     propagationTerminationReason = std::make_shared< PropagationTerminationDetails >(
@@ -611,15 +620,6 @@ std::shared_ptr< PropagationTerminationDetails > integrateEquationsFromIntegrato
                                 propagationTerminationCondition->getcheckTerminationToExactCondition( ),
                                 std::dynamic_pointer_cast< HybridPropagationTerminationCondition >(
                                     propagationTerminationCondition ) );
-                }
-
-                // Propagate to the exact termination conditions
-                if( propagationTerminationCondition->getcheckTerminationToExactCondition( ) )
-                {
-                    propagateToExactTerminationCondition(
-                                integrator, propagationTerminationCondition,
-                                timeStep, dependentVariableFunction,
-                                solutionHistory, dependentVariableHistory, currentCPUTime );
                 }
 
                 breakPropagation = true;
