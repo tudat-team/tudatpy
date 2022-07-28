@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2019, Delft University of Technology
+/*    Copyright (c) 2010-2022, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -79,8 +79,6 @@ public:
             const std::function< Eigen::Quaterniond( ) > rotationFromBodyFixedToIntegrationFrameFunction =
                 [ ]( ){ return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ); },
             const bool isMutualAttractionUsed = 0 )
-//            std::shared_ptr< PolyhedronGravityCache > polyhedronCache =
-//                std::make_shared< PolyhedronGravityCache >( ) )
         : subjectPositionFunction_( positionOfBodySubjectToAccelerationFunction ),
         gravitationalParameterFunction_( [ = ]( ){ return aGravitationalParameter; } ),
         volumeFunction_( [ = ]( ){ return aVolume; } ),

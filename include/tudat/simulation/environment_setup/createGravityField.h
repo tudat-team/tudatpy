@@ -580,10 +580,10 @@ protected:
 
 };
 
-// Function to create gravity field settings for a homogeneous triaxial ellipsoid
+// Function to create gravity field settings for a homogeneous triaxial ellipsoid with density as argument.
 /*
- * Function to create gravity field settings for a homogeneous triaxial ellipsoid. The gravity field is expressed in
- * normalized spherical harmonic coefficients.  X-axis is alligned
+ * Function to create gravity field settings for a homogeneous triaxial ellipsoid with density as argument. The gravity
+ * field is expressed in normalized spherical harmonic coefficients.  X-axis is alligned
  * with largest axis, y-axis with middle axis and z-axis with smallest axis
  * \param axisA Largest axis of triaxial ellipsoid
  * \param axisB Middle axis of triaxial ellipsoid
@@ -593,6 +593,7 @@ protected:
  * \param maximumOrder Maximum oredr of expansion
  * \param associatedReferenceFrame Identifier for body-fixed reference frame to which
  * the coefficients are referred.
+ * \param gravitationalConstant Gravitational constant.
  * \return Gravity field settings for a homogeneous triaxial ellipsoid of given properties.
  */
 std::shared_ptr< SphericalHarmonicsGravityFieldSettings > createHomogeneousTriAxialEllipsoidGravitySettings(
@@ -600,6 +601,26 @@ std::shared_ptr< SphericalHarmonicsGravityFieldSettings > createHomogeneousTriAx
         const int maximumDegree, const int maximumOrder,
         const std::string& associatedReferenceFrame,
         const double gravitationalConstant = physical_constants::GRAVITATIONAL_CONSTANT );
+
+// Function to create gravity field settings for a homogeneous triaxial ellipsoid with the gravitational parameter as argument.
+/*
+ * Function to create gravity field settings for a homogeneous triaxial ellipsoid with the gravitational parameters as
+ * argument. The gravity field is expressed in normalized spherical harmonic coefficients.  X-axis is alligned
+ * with largest axis, y-axis with middle axis and z-axis with smallest axis
+ * \param axisA Largest axis of triaxial ellipsoid
+ * \param axisB Middle axis of triaxial ellipsoid
+ * \param axisC Smallest axis of triaxial ellipsoid
+ * \param ellipsoidGravitationalParameter Gravitational parameter of the gravity field.
+ * \param maximumDegree Maximum degree of expansion
+ * \param maximumOrder Maximum oredr of expansion
+ * \param associatedReferenceFrame Identifier for body-fixed reference frame to which
+ * the coefficients are referred.
+ * \return Gravity field settings for a homogeneous triaxial ellipsoid of given properties.
+ */
+std::shared_ptr< SphericalHarmonicsGravityFieldSettings > createHomogeneousTriAxialEllipsoidGravitySettings(
+        const double axisA, const double axisB, const double axisC, const double ellipsoidGravitationalParameter,
+        const int maximumDegree, const int maximumOrder,
+        const std::string& associatedReferenceFrame );
 
 // Function to read a spherical harmonic gravity field file
 /*
