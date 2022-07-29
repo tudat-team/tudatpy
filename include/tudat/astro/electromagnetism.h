@@ -21,4 +21,7 @@
 #include "electromagnetism/solarSailAcceleration.h"
 #include "electromagnetism/solarSailForce.h"
 
+#include "electromagnetism/radiationSourceInterface.h"
+#include "electromagnetism/radiationPowerModel.h"
+
 #endif // TUDAT_ELECTROMAGNETISM_H
