@@ -25,7 +25,7 @@ public:
 
     virtual ~RadiationSourceInterface() = default;
 
-    virtual IrradianceWithSourceList evaluateIrradianceAtPosition(Eigen::Vector3d) = 0;
+    virtual IrradianceWithSourceList evaluateIrradianceAtPosition(Eigen::Vector3d) const = 0;
 
 protected:
     std::function< Eigen::Vector3d( ) > sourcePositionFunction_;
@@ -41,7 +41,7 @@ public:
         RadiationSourceInterface(sourcePositionFunction),
         radiantPowerModel_(radiantPowerModel) {}
 
-    IrradianceWithSourceList evaluateIrradianceAtPosition(Eigen::Vector3d targetPosition) override
+    IrradianceWithSourceList evaluateIrradianceAtPosition(Eigen::Vector3d targetPosition) const override
     {
         auto sourcePosition = sourcePositionFunction_();
         auto distanceSourceToTarget = (targetPosition - sourcePosition).norm();
