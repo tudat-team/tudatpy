@@ -11,7 +11,7 @@
 
 namespace tudat
 {
-namespace unit_test
+namespace unit_tests
 {
 
 using namespace tudat::electromagnetism;
@@ -20,20 +20,26 @@ BOOST_AUTO_TEST_SUITE(test_radiant_power_model)
 
 BOOST_AUTO_TEST_CASE( testConstantRadiantPowerModel )
 {
-    ConstantRadiantPowerModel model(42);
+    const auto expectedRadiantPower = 42;
 
-    BOOST_CHECK_EQUAL(model.getRadiantPower(), 42);
+    ConstantRadiantPowerModel model(expectedRadiantPower);
+    const auto actualRadiantPower = model.getRadiantPower();
+
+    BOOST_CHECK_EQUAL(actualRadiantPower, expectedRadiantPower);
 }
 
 BOOST_AUTO_TEST_CASE( testIrradianceBasedRadiantPowerModel )
 {
+    const auto expectedRadiantPower = 3.8e26;
+
     IrradianceBasedRadiantPowerModel model([]() { return 1360.8; },
                                            physical_constants::ASTRONOMICAL_UNIT);
+    const auto actualRadiantPower = model.getRadiantPower();
 
-    BOOST_CHECK_CLOSE(model.getRadiantPower(), 3.8e26, 0.1e26);
+    BOOST_CHECK_CLOSE(actualRadiantPower, expectedRadiantPower, 0.1e26);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
 
-}
-}
+} // namespace unit_tests
+} // namespace tudat

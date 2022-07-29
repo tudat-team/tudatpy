@@ -23,5 +23,6 @@
 
 #include "electromagnetism/radiationSourceInterface.h"
 #include "electromagnetism/radiationPowerModel.h"
+#include "electromagnetism/radiationPRessureTargetInterface.h"
 
 #endif // TUDAT_ELECTROMAGNETISM_H

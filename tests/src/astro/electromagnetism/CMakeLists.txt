@@ -42,7 +42,7 @@ TUDAT_ADD_TEST_CASE(RadiationSourceInterface
         ${Tudat_PROPAGATION_LIBRARIES}
         )
 
-TUDAT_ADD_TEST_CASE(RadiantPowerModel
+TUDAT_ADD_TEST_CASE(RadiationPressureTargetInterface
         PRIVATE_LINKS
         ${Tudat_PROPAGATION_LIBRARIES}
         )
