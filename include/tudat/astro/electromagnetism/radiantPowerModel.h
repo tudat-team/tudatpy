@@ -17,17 +17,16 @@ public:
 
     virtual ~RadiantPowerModel() = default;
 
-    virtual double getRadiantPower() = 0;
+    virtual double getRadiantPower() const = 0;
 };
 
 
 class ConstantRadiantPowerModel : public RadiantPowerModel
 {
 public:
-    explicit ConstantRadiantPowerModel(double radiantPower) : radiantPower(radiantPower)
-    {}
+    explicit ConstantRadiantPowerModel(double radiantPower) : radiantPower(radiantPower) {}
 
-    double getRadiantPower() override
+    double getRadiantPower() const override
     {
         return radiantPower;
     }
@@ -41,10 +40,9 @@ class IrradianceBasedRadiantPowerModel : public RadiantPowerModel
 {
 public:
     IrradianceBasedRadiantPowerModel(const std::function<double()> irradianceAtDistanceFunction, double distance)
-            : irradianceAtDistanceFunction(irradianceAtDistanceFunction), distance(distance)
-    {}
+            : irradianceAtDistanceFunction(irradianceAtDistanceFunction), distance(distance) {}
 
-    double getRadiantPower() override
+    double getRadiantPower() const override
     {
         auto sphereArea = 4 * mathematical_constants::PI * distance * distance;
         auto radiantPower = irradianceAtDistanceFunction() * sphereArea;

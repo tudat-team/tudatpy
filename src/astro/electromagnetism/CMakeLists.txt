@@ -21,6 +21,7 @@ set(electromagnetism_HEADERS
         "solarSailForce.h"
         "radiationSourceInterface.h"
         "radiantPowerModel.h"
+        "radiationPressureTargetInterface.h"
         )
 
 # Set the header files.
@@ -34,6 +35,7 @@ set(electromagnetism_SOURCES
         "solarSailAcceleration.cpp"
         "solarSailForce.cpp"
         "radiationSourceInterface.cpp"
+        "radiationPressureTargetInterface.cpp"
         )
 
 # Add tests.
