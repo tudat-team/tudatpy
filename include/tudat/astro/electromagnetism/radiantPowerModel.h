@@ -1,8 +1,10 @@
 #ifndef TUDATBUNDLE_RADIANTPOWERMODEL_H
 #define TUDATBUNDLE_RADIANTPOWERMODEL_H
 
-#include "tudat/math/basic/mathematicalConstants.h"
+#include <functional>
+#include <memory>
 
+#include "tudat/math/basic/mathematicalConstants.h"
 
 namespace tudat
 {
