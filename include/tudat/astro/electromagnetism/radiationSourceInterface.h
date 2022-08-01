@@ -1,13 +1,15 @@
 #ifndef TUDATBUNDLE_RADIATIONSOURCEINTERFACE_H
 #define TUDATBUNDLE_RADIATIONSOURCEINTERFACE_H
 
-#include <iostream>
 #include <vector>
 #include <tuple>
+#include <functional>
+#include <memory>
+
+#include <Eigen/Core>
 
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/astro/electromagnetism/radiantPowerModel.h"
-
 
 namespace tudat
 {
