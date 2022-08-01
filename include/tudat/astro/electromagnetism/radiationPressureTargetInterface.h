@@ -1,8 +1,8 @@
 #ifndef TUDATBUNDLE_RADIATIONPRESSURETARGETINTERFACE_H
 #define TUDATBUNDLE_RADIATIONPRESSURETARGETINTERFACE_H
 
-
 #include <Eigen/Core>
+
 #include "tudat/astro/basic_astro/physicalConstants.h"
 
 namespace tudat
@@ -10,7 +10,7 @@ namespace tudat
 namespace electromagnetism
 {
 
-
+// All calculations in body-fixed frame
 class RadiationPressureTargetInterface
 {
 public:
@@ -45,6 +45,5 @@ private:
 
 } // tudat
 } // electromagnetism
-
 
 #endif //TUDATBUNDLE_RADIATIONPRESSURETARGETINTERFACE_H
