@@ -1,5 +1,5 @@
-#ifndef TUDATBUNDLE_RADIATIONPRESSURETARGETINTERFACE_H
-#define TUDATBUNDLE_RADIATIONPRESSURETARGETINTERFACE_H
+#ifndef TUDATBUNDLE_RADIATIONPRESSURETARGETMODEL_H
+#define TUDATBUNDLE_RADIATIONPRESSURETARGETMODEL_H
 
 #include <Eigen/Core>
 
@@ -11,20 +11,20 @@ namespace electromagnetism
 {
 
 // All calculations in body-fixed frame
-class RadiationPressureTargetInterface
+class RadiationPressureTargetModel
 {
 public:
-    virtual ~RadiationPressureTargetInterface() = default;
+    virtual ~RadiationPressureTargetModel() = default;
 
     virtual Eigen::Vector3d evaluateRadiationPressureForce(
             double sourceIrradiance, Eigen::Vector3d sourceToTargetDirection) const = 0;
 };
 
 
-class CannonballRadiationPressureTargetInterface : public RadiationPressureTargetInterface
+class CannonballRadiationPressureTargetModel : public RadiationPressureTargetModel
 {
 public:
-    CannonballRadiationPressureTargetInterface(double area, double coefficient)
+    CannonballRadiationPressureTargetModel(double area, double coefficient)
             : area_(area), coefficient_(coefficient) {}
 
     Eigen::Vector3d evaluateRadiationPressureForce(
@@ -46,4 +46,4 @@ private:
 } // tudat
 } // electromagnetism
 
-#endif //TUDATBUNDLE_RADIATIONPRESSURETARGETINTERFACE_H
+#endif //TUDATBUNDLE_RADIATIONPRESSURETARGETMODEL_H

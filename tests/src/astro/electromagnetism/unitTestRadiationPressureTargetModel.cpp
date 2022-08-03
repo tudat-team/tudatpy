@@ -21,7 +21,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/basics/testMacros.h"
-#include "tudat/astro/electromagnetism/radiationPressureTargetInterface.h"
+#include "tudat/astro/electromagnetism/radiationPressureTargetModel.h"
 
 
 namespace tudat
@@ -31,17 +31,17 @@ namespace unit_tests
 
 using namespace tudat::electromagnetism;
 
-BOOST_AUTO_TEST_SUITE(test_radiation_pressure_target_interface)
+BOOST_AUTO_TEST_SUITE(test_radiation_pressure_target_model)
 
 //! Check force due to solar constant based on data from (Montenbruck, 2000)
-BOOST_AUTO_TEST_CASE( testCannonballRadiationPressureTargetInterfaceAtAU )
+BOOST_AUTO_TEST_CASE( testCannonballRadiationPressureTargetModelAtAU )
 {
     // From (Montenbruck, 2000) Eq. (3.69)
     const auto expectedForce = Eigen::Vector3d(4.56e-6, 0, 0);
 
-    CannonballRadiationPressureTargetInterface targetInterface(1, 1);
+    CannonballRadiationPressureTargetModel targetModel(1, 1);
 
-    const auto actualForce = targetInterface.evaluateRadiationPressureForce(
+    const auto actualForce = targetModel.evaluateRadiationPressureForce(
             1367,
             Eigen::Vector3d::UnitX());
 
@@ -49,15 +49,15 @@ BOOST_AUTO_TEST_CASE( testCannonballRadiationPressureTargetInterfaceAtAU )
 }
 
 //! Check force with benchmark data is obtained from MATLAB script (Ganeff, 2012)
-BOOST_AUTO_TEST_CASE( testCannonballRadiationPressureTargetInterfaceGaneff )
+BOOST_AUTO_TEST_CASE( testCannonballRadiationPressureTargetModelGaneff )
 {
     const auto expectedForce = Eigen::Vector3d( -0.975383093968723e-6, -0.975383093968723e-6, 0.0 );
 
-    CannonballRadiationPressureTargetInterface targetInterface(0.5, 1.21);
+    CannonballRadiationPressureTargetModel targetModel(0.5, 1.21);
 
     const auto sourceIrradiance = 683.5;  // at (1 AU, 1 AU, 0) from Sun
     const auto sourceToTargetDirection = Eigen::Vector3d(-1, -1, 0).normalized();
-    const auto actualForce = targetInterface.evaluateRadiationPressureForce(
+    const auto actualForce = targetModel.evaluateRadiationPressureForce(
             sourceIrradiance,
             sourceToTargetDirection);
 
@@ -65,15 +65,15 @@ BOOST_AUTO_TEST_CASE( testCannonballRadiationPressureTargetInterfaceGaneff )
 }
 
 //! Check force when radiation pressure coefficient is zero
-BOOST_AUTO_TEST_CASE( testCannonballRadiationPressureTargetInterfaceZeroCoeff )
+BOOST_AUTO_TEST_CASE( testCannonballRadiationPressureTargetModelZeroCoeff )
 {
     const auto expectedForce = Eigen::Vector3d::Zero();
 
-    CannonballRadiationPressureTargetInterface targetInterface(1, 0);
+    CannonballRadiationPressureTargetModel targetModel(1, 0);
 
     const auto sourceIrradiance = 1367;
     const auto sourceToTargetDirection = Eigen::Vector3d(-1, -1, 0).normalized();
-    const auto actualForce = targetInterface.evaluateRadiationPressureForce(
+    const auto actualForce = targetModel.evaluateRadiationPressureForce(
             sourceIrradiance,
             sourceToTargetDirection);
 

@@ -41,13 +41,13 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAccelerationUnity )
 
     auto radiantPowerModel = std::make_shared<IrradianceBasedRadiantPowerModel>(
             [] () { return physical_constants::SPEED_OF_LIGHT; }, 1);
-    auto sourceInterface = std::make_shared<IsotropicPointRadiationSourceInterface>(
+    auto sourceModel = std::make_shared<IsotropicPointRadiationSourceModel>(
             [] () { return Eigen::Vector3d::Zero(); }, radiantPowerModel);
-    auto targetInterface = std::make_shared<CannonballRadiationPressureTargetInterface>(
+    auto targetModel = std::make_shared<CannonballRadiationPressureTargetModel>(
             1, 1);
     RadiationPressureAcceleration accelerationModel(
-            sourceInterface,
-            targetInterface,
+            sourceModel,
+            targetModel,
             []() { return Eigen::Vector3d::UnitX(); },
             []() { return 1; },
             []() { return Eigen::Quaterniond::Identity(); });
@@ -65,13 +65,13 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAccelerationGOCE )
 
     auto radiantPowerModel = std::make_shared<IrradianceBasedRadiantPowerModel>(
             [] () { return 1371; }, physical_constants::ASTRONOMICAL_UNIT);
-    auto sourceInterface = std::make_shared<IsotropicPointRadiationSourceInterface>(
+    auto sourceModel = std::make_shared<IsotropicPointRadiationSourceModel>(
             [] () { return Eigen::Vector3d::Zero(); }, radiantPowerModel);
-    auto targetInterface = std::make_shared<CannonballRadiationPressureTargetInterface>(
+    auto targetModel = std::make_shared<CannonballRadiationPressureTargetModel>(
             1, 1.2);
     RadiationPressureAcceleration accelerationModel(
-            sourceInterface,
-            targetInterface,
+            sourceModel,
+            targetModel,
             []() { return Eigen::Vector3d(1, 1, 0).normalized() * physical_constants::ASTRONOMICAL_UNIT; },
             []() { return 1050; },
             []() { return Eigen::Quaterniond::Identity(); });
@@ -99,13 +99,13 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAccelerationCannonballRotationInvaria
                 auto rotation = basic_mathematics::getQuaternionFrom313EulerAngles(Eigen::Vector3d(x, y, z));
 
                 auto radiantPowerModel = std::make_shared<ConstantRadiantPowerModel>(1);
-                auto sourceInterface = std::make_shared<IsotropicPointRadiationSourceInterface>(
+                auto sourceModel = std::make_shared<IsotropicPointRadiationSourceModel>(
                         [] () { return Eigen::Vector3d::Zero(); }, radiantPowerModel);
-                auto targetInterface = std::make_shared<CannonballRadiationPressureTargetInterface>(
+                auto targetModel = std::make_shared<CannonballRadiationPressureTargetModel>(
                         1, 1);
                 RadiationPressureAcceleration accelerationModel(
-                        sourceInterface,
-                        targetInterface,
+                        sourceModel,
+                        targetModel,
                         []() { return Eigen::Vector3d(1, 1, 0).normalized(); },
                         []() { return 1; },
                         [=]() { return rotation; });
