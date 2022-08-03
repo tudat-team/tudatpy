@@ -19,9 +19,9 @@ set(electromagnetism_HEADERS
         "panelledRadiationPressure.h"
         "solarSailAcceleration.h"
         "solarSailForce.h"
-        "radiationSourceInterface.h"
+        "radiationSourceModel.h"
         "radiantPowerModel.h"
-        "radiationPressureTargetInterface.h"
+        "radiationPressureTargetModel.h"
         "radiationPressureAcceleration.h"
         )
 
@@ -35,8 +35,8 @@ set(electromagnetism_SOURCES
         "panelledRadiationPressure.cpp"
         "solarSailAcceleration.cpp"
         "solarSailForce.cpp"
-        "radiationSourceInterface.cpp"
-        "radiationPressureTargetInterface.cpp"
+        "radiationSourceModel.cpp"
+        "radiationPressureTargetModel.cpp"
         "radiationPressureAcceleration.cpp"
         )
 

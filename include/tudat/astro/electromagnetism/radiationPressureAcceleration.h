@@ -8,8 +8,8 @@
 
 #include "tudat/astro/basic_astro/accelerationModel.h"
 #include "tudat/simulation/environment_setup/body.h"
-#include "radiationSourceInterface.h"
-#include "radiationPressureTargetInterface.h"
+#include "radiationSourceModel.h"
+#include "radiationPressureTargetModel.h"
 
 namespace tudat
 {
@@ -19,14 +19,14 @@ namespace electromagnetism
 class RadiationPressureAcceleration: public basic_astrodynamics::AccelerationModel3d
 {
 public:
-    RadiationPressureAcceleration(const std::shared_ptr<RadiationSourceInterface> sourceInterface,
-                                  const std::shared_ptr<RadiationPressureTargetInterface> targetInterface,
+    RadiationPressureAcceleration(const std::shared_ptr<RadiationSourceModel> sourceModel,
+                                  const std::shared_ptr<RadiationPressureTargetModel> targetModel,
                                   const std::function<Eigen::Vector3d()> targetPositionFunction,
                                   const std::function<double()> targetMassFunction,
                                   const std::function<Eigen::Quaterniond()> targetRotationFromLocalToPropagationFrameFunction)
             :
-            sourceInterface_(sourceInterface),
-            targetInterface_(targetInterface),
+            sourceModel_(sourceModel),
+            targetModel_(targetModel),
             targetPositionFunction_(targetPositionFunction),
             targetMassFunction_(targetMassFunction),
             targetRotationFromLocalToPropagationFrameFunction_(targetRotationFromLocalToPropagationFrameFunction)
@@ -38,9 +38,9 @@ private:
     Eigen::Vector3d calculateAcceleration();
 
 
-    std::shared_ptr<RadiationSourceInterface> sourceInterface_;
+    std::shared_ptr<RadiationSourceModel> sourceModel_;
 
-    std::shared_ptr<RadiationPressureTargetInterface> targetInterface_;
+    std::shared_ptr<RadiationPressureTargetModel> targetModel_;
 
     std::function<Eigen::Vector3d()> targetPositionFunction_;
 

@@ -37,12 +37,12 @@ TUDAT_ADD_TEST_CASE(SolarSailAccelerationAndForce
         tudat_basic_astrodynamics
         )
 
-TUDAT_ADD_TEST_CASE(RadiationSourceInterface
+TUDAT_ADD_TEST_CASE(RadiationSourceModel
         PRIVATE_LINKS
         ${Tudat_PROPAGATION_LIBRARIES}
         )
 
-TUDAT_ADD_TEST_CASE(RadiationPressureTargetInterface
+TUDAT_ADD_TEST_CASE(RadiationPressureTargetModel
         PRIVATE_LINKS
         ${Tudat_PROPAGATION_LIBRARIES}
         )
