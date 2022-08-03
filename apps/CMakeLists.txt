@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.15.0)
 
-TUDAT_ADD_EXECUTABLE(application_lro
-        "src/lro.cpp"
+TUDAT_ADD_EXECUTABLE(application_lro_baseline
+        "src/lro_baseline.cpp"
         ${Tudat_PROPAGATION_LIBRARIES}
         )
 
