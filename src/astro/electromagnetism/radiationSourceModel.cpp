@@ -1,4 +1,4 @@
-#include "tudat/astro/electromagnetism/radiationPressureTargetInterface.h"
+#include "tudat/astro/electromagnetism/radiationSourceModel.h"
 
 namespace tudat
 {

@@ -1,5 +1,5 @@
-#ifndef TUDATBUNDLE_RADIATIONSOURCEINTERFACE_H
-#define TUDATBUNDLE_RADIATIONSOURCEINTERFACE_H
+#ifndef TUDATBUNDLE_RADIATIONSOURCEMODEL_H
+#define TUDATBUNDLE_RADIATIONSOURCEMODEL_H
 
 #include <vector>
 #include <tuple>
@@ -19,13 +19,13 @@ namespace electromagnetism
 typedef std::vector<std::tuple<double, Eigen::Vector3d>> IrradianceWithSourceList;
 
 
-class RadiationSourceInterface
+class RadiationSourceModel
 {
 public:
-    explicit RadiationSourceInterface(const std::function< Eigen::Vector3d( ) > sourcePositionFunction):
+    explicit RadiationSourceModel(const std::function< Eigen::Vector3d( ) > sourcePositionFunction):
             sourcePositionFunction_(sourcePositionFunction) {}
 
-    virtual ~RadiationSourceInterface() = default;
+    virtual ~RadiationSourceModel() = default;
 
     virtual IrradianceWithSourceList evaluateIrradianceAtPosition(Eigen::Vector3d) const = 0;
 
@@ -34,14 +34,14 @@ protected:
 };
 
 
-class IsotropicPointRadiationSourceInterface : public RadiationSourceInterface
+class IsotropicPointRadiationSourceModel : public RadiationSourceModel
 {
 public:
-    explicit IsotropicPointRadiationSourceInterface(
+    explicit IsotropicPointRadiationSourceModel(
             const std::function< Eigen::Vector3d( ) > sourcePositionFunction,
             const std::shared_ptr<RadiantPowerModel> radiantPowerModel):
-        RadiationSourceInterface(sourcePositionFunction),
-        radiantPowerModel_(radiantPowerModel) {}
+            RadiationSourceModel(sourcePositionFunction),
+            radiantPowerModel_(radiantPowerModel) {}
 
     IrradianceWithSourceList evaluateIrradianceAtPosition(Eigen::Vector3d targetPosition) const override
     {
@@ -62,4 +62,4 @@ private:
 } // tudat
 } // electromagnetism
 
-#endif //TUDATBUNDLE_RADIATIONSOURCEINTERFACE_H
+#endif //TUDATBUNDLE_RADIATIONSOURCEMODEL_H
