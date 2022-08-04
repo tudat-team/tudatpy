@@ -790,13 +790,28 @@ createRadiationPressureAccelerationModel(
                                   " has no radiation pressure target model." );
     }
 
+    std::function<Eigen::Quaterniond()> targetRotationFromLocalToPropagationFrameFunction;
+
+    auto cannonballRadiationPressureTargetModel =
+            std::dynamic_pointer_cast<electromagnetism::CannonballRadiationPressureTargetModel>(
+                    target->getRadiationPressureTargetModel());
+    if (cannonballRadiationPressureTargetModel != nullptr) {
+        // Cannonball target is rotation-invariant and can use identity rotation
+        // Enables use of cannonball target without target body rotation model
+        targetRotationFromLocalToPropagationFrameFunction = [] () { return Eigen::Quaterniond::Identity(); };
+    }
+    else
+    {
+        targetRotationFromLocalToPropagationFrameFunction = std::bind( &Body::getCurrentRotationToGlobalFrame, target );
+    }
+
     // Create acceleration model.
     return std::make_shared< RadiationPressureAcceleration >(
             source->getRadiationSourceModel(),
             target->getRadiationPressureTargetModel(),
             std::bind( &Body::getPosition, target ),
             std::bind( &Body::getBodyMass, target ),
-            std::bind( &Body::getCurrentRotationToGlobalFrame, target ));
+            targetRotationFromLocalToPropagationFrameFunction);
 }
 
 //! Function to create a cannonball radiation pressure acceleration model.
