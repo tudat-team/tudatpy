@@ -85,9 +85,12 @@ SystemOfBodies createSimulationBodies()
     auto bodies = createSystemOfBodies(bodySettings);
 
     // Create LRO
-    auto lro = std::make_shared<Body>();
-    lro->setConstantBodyMass(1916.0);
-    bodies.addBody(lro, "LRO");
+    bodies.createEmptyBody("LRO");
+    bodies.getBody("LRO")->setConstantBodyMass(1916.0);
+    bodies.getBody("LRO")->setRadiationPressureTargetModel(
+            createRadiationPressureTargetModel(
+                    std::make_shared<CannonballRadiationPressureTargetModelSettings>(15.38, 1.41),
+            "LRO"));
 
     setGlobalFrameBodyEphemerides(bodies.getMap(), globalFrameOrigin, globalFrameOrientation);
 
@@ -105,7 +108,8 @@ AccelerationMap createSimulationAccelerations(const SystemOfBodies& bodies)
                         sphericalHarmonicAcceleration(2, 2)
                 }},
                 {"Sun", {
-                        pointMassGravityAcceleration()
+                        pointMassGravityAcceleration(),
+                        radiationPressureAcceleration()
                 }},
             }}
     };

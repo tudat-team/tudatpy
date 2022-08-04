@@ -21,6 +21,7 @@
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/astro/aerodynamics/aerodynamicAcceleration.h"
 #include "tudat/simulation/propagation_setup/accelerationSettings.h"
+#include "tudat/astro/electromagnetism/radiationPressureAcceleration.h"
 #include "tudat/astro/electromagnetism/cannonBallRadiationPressureAcceleration.h"
 #include "tudat/astro/electromagnetism/solarSailAcceleration.h"
 #include "tudat/astro/gravitation/thirdBodyPerturbation.h"
@@ -287,6 +288,24 @@ createThirdBodyMutualSphericalHarmonicGravityAccelerationModel(
  */
 std::shared_ptr< aerodynamics::AerodynamicAcceleration >
 createAerodynamicAcceleratioModel(
+        const std::shared_ptr< Body > bodyUndergoingAcceleration,
+        const std::shared_ptr< Body > bodyExertingAcceleration,
+        const std::string& nameOfBodyUndergoingAcceleration,
+        const std::string& nameOfBodyExertingAcceleration );
+
+//! Function to create a radiation pressure acceleration model.
+/*!
+ *  Function to create a radiation pressure automatically creates all required
+ *  links to environment models, vehicle properties and frame conversions
+ *  \param bodyUndergoingAcceleration Pointer to object of body that is being accelerated.
+ *  \param bodyExertingAcceleration Pointer to object of body that is exerting the acceleration,
+ *  i.e. body emitting the radiation.
+ *  \param nameOfBodyUndergoingAcceleration Name of object of body that is being accelerated.
+ *  \param nameOfBodyExertingAcceleration Name of object of body that is exerting the acceleration.
+ *  \return Pointer to object for calculating radiation pressure acceleration.
+ */
+std::shared_ptr< electromagnetism::RadiationPressureAcceleration >
+createRadiationPressureAccelerationModel(
         const std::shared_ptr< Body > bodyUndergoingAcceleration,
         const std::shared_ptr< Body > bodyExertingAcceleration,
         const std::string& nameOfBodyUndergoingAcceleration,
