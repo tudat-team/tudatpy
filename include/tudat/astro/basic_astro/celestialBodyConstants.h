@@ -130,7 +130,7 @@ const static double PLUTO_GRAVITATIONAL_PARAMETER = SUN_GRAVITATIONAL_PARAMETER 
 /*!
  * Solar luminosity (or radiant power) [W] (IAU, 2016).
  */
-const static double SUN_LUMINOSITY = 3.828e6;
+const static double SUN_LUMINOSITY = 3.828e26;
 
 //static std::map< int, std::string > planetNames =
 //{

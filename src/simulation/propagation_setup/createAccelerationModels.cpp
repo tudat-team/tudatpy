@@ -764,6 +764,41 @@ std::shared_ptr< aerodynamics::AerodynamicAcceleration > createAerodynamicAccele
                 aerodynamicCoefficients->getAreCoefficientsInNegativeAxisDirection( ) );
 }
 
+std::shared_ptr< RadiationPressureAcceleration >
+createRadiationPressureAccelerationModel(
+        const std::shared_ptr< Body > bodyUndergoingAcceleration,
+        const std::shared_ptr< Body > bodyExertingAcceleration,
+        const std::string& nameOfBodyUndergoingAcceleration,
+        const std::string& nameOfBodyExertingAcceleration )
+{
+    // Create references to bodies in radiation pressure terms
+    auto& source = bodyExertingAcceleration;
+    auto& target = bodyUndergoingAcceleration;
+    auto& sourceName = nameOfBodyExertingAcceleration;
+    auto& targetName = nameOfBodyUndergoingAcceleration;
+
+    if( source->getRadiationSourceModel() == nullptr )
+    {
+        throw std::runtime_error( "Error when making radiation pressure acceleration, body " +
+                                  sourceName +
+                                  " has no radiation source model." );
+    }
+    if( target->getRadiationPressureTargetModel() == nullptr )
+    {
+        throw std::runtime_error( "Error when making radiation pressure acceleration, body " +
+                                  targetName +
+                                  " has no radiation pressure target model." );
+    }
+
+    // Create acceleration model.
+    return std::make_shared< RadiationPressureAcceleration >(
+            source->getRadiationSourceModel(),
+            target->getRadiationPressureTargetModel(),
+            std::bind( &Body::getPosition, target ),
+            std::bind( &Body::getBodyMass, target ),
+            std::bind( &Body::getCurrentRotationToGlobalFrame, target ));
+}
+
 //! Function to create a cannonball radiation pressure acceleration model.
 // RP-OLD
 std::shared_ptr< CannonBallRadiationPressureAcceleration >
@@ -1365,6 +1400,13 @@ std::shared_ptr< AccelerationModel< Eigen::Vector3d > > createAccelerationModel(
         break;
     case aerodynamic:
         accelerationModelPointer = createAerodynamicAcceleratioModel(
+                    bodyUndergoingAcceleration,
+                    bodyExertingAcceleration,
+                    nameOfBodyUndergoingAcceleration,
+                    nameOfBodyExertingAcceleration );
+        break;
+    case radiation_pressure_acceleration:
+        accelerationModelPointer = createRadiationPressureAccelerationModel(
                     bodyUndergoingAcceleration,
                     bodyExertingAcceleration,
                     nameOfBodyUndergoingAcceleration,

@@ -83,6 +83,11 @@ inline std::shared_ptr< AccelerationSettings > aerodynamicAcceleration( )
 inline std::shared_ptr< AccelerationSettings > cannonBallRadiationPressureAcceleration( )
 {
     return std::make_shared< AccelerationSettings >( basic_astrodynamics::cannon_ball_radiation_pressure );
+
+}
+inline std::shared_ptr< AccelerationSettings > radiationPressureAcceleration( )
+{
+    return std::make_shared< AccelerationSettings >( basic_astrodynamics::radiation_pressure_acceleration );
 }
 
 // Class for providing settings for spherical harmonics acceleration model.
