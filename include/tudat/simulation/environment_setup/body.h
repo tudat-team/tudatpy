@@ -24,6 +24,7 @@
 #include "tudat/astro/basic_astro/accelerationModel.h"
 #include "tudat/astro/basic_astro/bodyShapeModel.h"
 #include "tudat/astro/basic_astro/timeConversions.h"
+#include "tudat/astro/electromagnetism/radiationPressureInterface.h"
 #include "tudat/astro/electromagnetism/radiationSourceModel.h"
 #include "tudat/astro/electromagnetism/radiationPressureTargetModel.h"
 #include "tudat/astro/ephemerides/ephemeris.h"
@@ -958,6 +959,20 @@ public:
         }
     }
 
+    //! Function to set the radiation pressure interface of the body, for a single radiation source.
+    /*!
+     *  Function to set the radiation pressure interface of the body, for a single radiation source
+     *  \param radiatingBody Name of body that is the source of the radiation.
+     *  \param radiationPressureInterface Radiation pressure interface of the body.
+     */
+    void setRadiationPressureInterface(
+            const std::string &radiatingBody,
+            const std::shared_ptr<electromagnetism::RadiationPressureInterface>
+            radiationPressureInterface) {
+        // RP-OLD
+        radiationPressureInterfaces_[radiatingBody] = radiationPressureInterface;
+    }
+
     //! Function to set the radiation source model of the body.
     /*!
      *  Function to set the radiation source model of the body.
@@ -1074,6 +1089,17 @@ public:
      */
     std::shared_ptr<aerodynamics::FlightConditions> getFlightConditions() {
         return aerodynamicFlightConditions_;
+    }
+
+    //! Function to retrieve the shape model of the body.
+    /*!
+     *  Function to retrieve the shape model of the body.
+     *  \return Shape model of the body.
+     */
+    std::map<std::string, std::shared_ptr<electromagnetism::RadiationPressureInterface>>
+    getRadiationPressureInterfaces() {
+        // RP-OLD
+        return radiationPressureInterfaces_;
     }
 
     //! Function to retrieve the radiation source model of the body.
@@ -1450,6 +1476,11 @@ private:
 
     //! Model to compute the rotation of the body based on the current state of the environment, only valid during propagation.
     std::shared_ptr<reference_frames::DependentOrientationCalculator> dependentOrientationCalculator_;
+
+    //! List of radiation pressure models for the body, with the sources bodies as key
+    // RP-OLD
+    std::map<std::string, std::shared_ptr<electromagnetism::RadiationPressureInterface>>
+            radiationPressureInterfaces_;
 
     //! Radiation source model of the body.
     std::shared_ptr<electromagnetism::RadiationSourceModel> radiationSourceModel_;

@@ -51,6 +51,20 @@ void addAerodynamicCoefficientInterface(
                 createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, bodyName) );
 }
 
+// RP-OLD
+void addRadiationPressureInterface(
+        const SystemOfBodies& bodies, const std::string bodyName,
+        const std::shared_ptr< RadiationPressureInterfaceSettings > radiationPressureSettings )
+{
+    if( bodies.count( bodyName ) == 0 )
+    {
+        throw std::runtime_error( "Error when setting radiation pressure interface for body "+ bodyName + ", body is not found in system of bodies" );
+    }
+    bodies.at( bodyName )->setRadiationPressureInterface(
+                radiationPressureSettings->getSourceBody( ), createRadiationPressureInterface(
+                    radiationPressureSettings, bodyName, bodies ) );
+}
+
 void setSimpleRotationSettingsFromSpice(
         const BodyListSettings& bodySettings, const std::string& bodyName, const double spiceEvaluationTime )
 {
@@ -225,6 +239,28 @@ SystemOfBodies createSystemOfBodies(
                             orderedBodySettings.at( i ).second->aerodynamicCoefficientSettings,
                             orderedBodySettings.at( i ).first ) );
         }
+    }
+
+
+    // Create radiation pressure coefficient objects for each body (if required).
+    // RP-OLD
+    for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
+    {
+        std::map< std::string, std::shared_ptr< RadiationPressureInterfaceSettings > >
+                radiationPressureSettings
+                = orderedBodySettings.at( i ).second->radiationPressureSettings;
+        for( std::map< std::string, std::shared_ptr< RadiationPressureInterfaceSettings > >::iterator
+             radiationPressureSettingsIterator = radiationPressureSettings.begin( );
+             radiationPressureSettingsIterator != radiationPressureSettings.end( );
+             radiationPressureSettingsIterator++ )
+        {
+            bodyList.at( orderedBodySettings.at( i ).first )->setRadiationPressureInterface(
+                        radiationPressureSettingsIterator->first,
+                        createRadiationPressureInterface(
+                            radiationPressureSettingsIterator->second,
+                            orderedBodySettings.at( i ).first, bodyList ) );
+        }
+
     }
 
     // Create radiation source model objects for each body (if required).

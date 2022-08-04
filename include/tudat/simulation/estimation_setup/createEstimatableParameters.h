@@ -805,28 +805,29 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
             }
             break;
         }
-//        case radiation_pressure_coefficient:
-//        {
-//            if( currentBody->getRadiationPressureInterfaces( ).size( ) == 0 )
-//            {
-//                std::string errorMessage = "Error, no radiation pressure interfaces found in body " +
-//                        currentBodyName + " when making Cr parameter.";
-//                throw std::runtime_error( errorMessage );
-//            }
-//            else if( currentBody->getRadiationPressureInterfaces( ).size( ) > 1 )
-//            {
-//                std::string errorMessage = "Error, multiple radiation pressure interfaces found in body " +
-//                        currentBodyName + " when making Cr parameter.";
-//                throw std::runtime_error( errorMessage );
-//            }
-//            else
-//            {
-//                doubleParameterToEstimate = std::make_shared< RadiationPressureCoefficient >(
-//                            currentBody->getRadiationPressureInterfaces( ).begin( )->second,
-//                            currentBodyName );
-//            }
-//            break;
-//        }
+        // RP-OLD
+        case radiation_pressure_coefficient:
+        {
+            if( currentBody->getRadiationPressureInterfaces( ).size( ) == 0 )
+            {
+                std::string errorMessage = "Error, no radiation pressure interfaces found in body " +
+                        currentBodyName + " when making Cr parameter.";
+                throw std::runtime_error( errorMessage );
+            }
+            else if( currentBody->getRadiationPressureInterfaces( ).size( ) > 1 )
+            {
+                std::string errorMessage = "Error, multiple radiation pressure interfaces found in body " +
+                        currentBodyName + " when making Cr parameter.";
+                throw std::runtime_error( errorMessage );
+            }
+            else
+            {
+                doubleParameterToEstimate = std::make_shared< RadiationPressureCoefficient >(
+                            currentBody->getRadiationPressureInterfaces( ).begin( )->second,
+                            currentBodyName );
+            }
+            break;
+        }
         case constant_rotation_rate:
         {
             if( std::dynamic_pointer_cast< SimpleRotationalEphemeris >( currentBody->getRotationalEphemeris( ) ) == nullptr )
@@ -1346,42 +1347,42 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
             }
             break;
         }
-
-//        case arc_wise_radiation_pressure_coefficient:
-//        {
-//            // Check input consistency
-//            std::shared_ptr< ArcWiseRadiationPressureCoefficientEstimatableParameterSettings > radiationPressureCoefficientSettings =
-//                    std::dynamic_pointer_cast< ArcWiseRadiationPressureCoefficientEstimatableParameterSettings >( vectorParameterName );
-//            if( radiationPressureCoefficientSettings == nullptr )
-//            {
-//                throw std::runtime_error(
-//                            "Error when trying to make arc-wise radiation pressure coefficients parameter, settings type inconsistent" );
-//            }
-//            else
-//            {
-//                if( currentBody->getRadiationPressureInterfaces( ).size( ) == 0 )
-//                {
-//                    std::string errorMessage = "Error, no radiation pressure interfaces found in body " +
-//                            currentBodyName + " when making Cr parameter.";
-//                    throw std::runtime_error( errorMessage );
-//                }
-//                else if( currentBody->getRadiationPressureInterfaces( ).size( ) > 1 )
-//                {
-//                    std::string errorMessage = "Error, multiple radiation pressure interfaces found in body " +
-//                            currentBodyName + " when making Cr parameter.";
-//                    throw std::runtime_error( errorMessage );
-//                }
-//                else
-//                {
-//                    vectorParameterToEstimate = std::make_shared< ArcWiseRadiationPressureCoefficient >(
-//                                currentBody->getRadiationPressureInterfaces( ).begin( )->second,
-//                                radiationPressureCoefficientSettings->arcStartTimeList_,
-//                                currentBodyName );
-//                }
-//                break;
-//            }
-//            break;
-//        }
+        // RP-OLD
+        case arc_wise_radiation_pressure_coefficient:
+        {
+            // Check input consistency
+            std::shared_ptr< ArcWiseRadiationPressureCoefficientEstimatableParameterSettings > radiationPressureCoefficientSettings =
+                    std::dynamic_pointer_cast< ArcWiseRadiationPressureCoefficientEstimatableParameterSettings >( vectorParameterName );
+            if( radiationPressureCoefficientSettings == nullptr )
+            {
+                throw std::runtime_error(
+                            "Error when trying to make arc-wise radiation pressure coefficients parameter, settings type inconsistent" );
+            }
+            else
+            {
+                if( currentBody->getRadiationPressureInterfaces( ).size( ) == 0 )
+                {
+                    std::string errorMessage = "Error, no radiation pressure interfaces found in body " +
+                            currentBodyName + " when making Cr parameter.";
+                    throw std::runtime_error( errorMessage );
+                }
+                else if( currentBody->getRadiationPressureInterfaces( ).size( ) > 1 )
+                {
+                    std::string errorMessage = "Error, multiple radiation pressure interfaces found in body " +
+                            currentBodyName + " when making Cr parameter.";
+                    throw std::runtime_error( errorMessage );
+                }
+                else
+                {
+                    vectorParameterToEstimate = std::make_shared< ArcWiseRadiationPressureCoefficient >(
+                                currentBody->getRadiationPressureInterfaces( ).begin( )->second,
+                                radiationPressureCoefficientSettings->arcStartTimeList_,
+                                currentBodyName );
+                }
+                break;
+            }
+            break;
+        }
         case arc_wise_constant_drag_coefficient:
         {
             // Check input consistency
