@@ -22,7 +22,8 @@
 #include "tudat/simulation/environment_setup/createGravityField.h"
 #include "tudat/simulation/environment_setup/createGroundStations.h"
 #include "tudat/simulation/environment_setup/createRotationModel.h"
-#include "tudat/simulation/environment_setup/createRadiationPressureInterface.h"
+#include "tudat/simulation/environment_setup/createRadiationSourceModel.h"
+#include "tudat/simulation/environment_setup/createRadiationPressureTargetModel.h"
 #include "tudat/simulation/environment_setup/createFlightConditions.h"
 #include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
 
@@ -58,9 +59,11 @@ struct BodySettings
     //! Settings for the shape model that the body is to contain.
     std::shared_ptr< BodyShapeSettings > shapeModelSettings;
 
-    //! Settings for the radiations pressure interfaces that the body is to contain (source body as key).
-    std::map< std::string,
-    std::shared_ptr< RadiationPressureInterfaceSettings > > radiationPressureSettings;
+    //! Settings for the radiation source model that the body is to contain.
+    std::shared_ptr< RadiationSourceModelSettings > radiationSourceModelSettings;
+
+    //! Settings for the radiation pressure target model that the body is to contain.
+    std::shared_ptr< RadiationPressureTargetModelSettings > radiationPressureTargetModelSettings;
 
     //! Settings for the aerodynamic coefficients that the body is to contain.
     std::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings;
@@ -75,11 +78,6 @@ struct BodySettings
 void addAerodynamicCoefficientInterface(
         const SystemOfBodies& bodies, const std::string bodyName,
         const std::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings );
-
-
-void addRadiationPressureInterface(
-        const SystemOfBodies& bodies, const std::string bodyName,
-        const std::shared_ptr< RadiationPressureInterfaceSettings > radiationPressureSettings );
 
 class BodyListSettings
 {

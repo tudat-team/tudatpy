@@ -39,10 +39,10 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAccelerationUnity )
 {
     const auto expectedAcceleration = Eigen::Vector3d::UnitX();
 
-    auto radiantPowerModel = std::make_shared<IrradianceBasedRadiantPowerModel>(
+    auto luminosityModel = std::make_shared<IrradianceBasedLuminosityModel>(
             [] () { return physical_constants::SPEED_OF_LIGHT; }, 1);
     auto sourceModel = std::make_shared<IsotropicPointRadiationSourceModel>(
-            [] () { return Eigen::Vector3d::Zero(); }, radiantPowerModel);
+            [] () { return Eigen::Vector3d::Zero(); }, luminosityModel);
     auto targetModel = std::make_shared<CannonballRadiationPressureTargetModel>(
             1, 1);
     RadiationPressureAcceleration accelerationModel(
@@ -63,10 +63,10 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAccelerationGOCE )
 {
     const auto expectedAcceleration = Eigen::Vector3d(1, 1, 0).normalized() * 5.2e-9;
 
-    auto radiantPowerModel = std::make_shared<IrradianceBasedRadiantPowerModel>(
+    auto luminosityModel = std::make_shared<IrradianceBasedLuminosityModel>(
             [] () { return 1371; }, physical_constants::ASTRONOMICAL_UNIT);
     auto sourceModel = std::make_shared<IsotropicPointRadiationSourceModel>(
-            [] () { return Eigen::Vector3d::Zero(); }, radiantPowerModel);
+            [] () { return Eigen::Vector3d::Zero(); }, luminosityModel);
     auto targetModel = std::make_shared<CannonballRadiationPressureTargetModel>(
             1, 1.2);
     RadiationPressureAcceleration accelerationModel(
@@ -98,9 +98,9 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAccelerationCannonballRotationInvaria
             {
                 auto rotation = basic_mathematics::getQuaternionFrom313EulerAngles(Eigen::Vector3d(x, y, z));
 
-                auto radiantPowerModel = std::make_shared<ConstantRadiantPowerModel>(1);
+                auto luminosityModel = std::make_shared<ConstantLuminosityModel>(1);
                 auto sourceModel = std::make_shared<IsotropicPointRadiationSourceModel>(
-                        [] () { return Eigen::Vector3d::Zero(); }, radiantPowerModel);
+                        [] () { return Eigen::Vector3d::Zero(); }, luminosityModel);
                 auto targetModel = std::make_shared<CannonballRadiationPressureTargetModel>(
                         1, 1);
                 RadiationPressureAcceleration accelerationModel(

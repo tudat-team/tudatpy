@@ -37,6 +37,16 @@ public:
         return force;
     }
 
+    double getArea() const
+    {
+        return area_;
+    }
+
+    double getCoefficient() const
+    {
+        return coefficient_;
+    }
+
 private:
     double area_{};
     double coefficient_{};

@@ -36,6 +36,22 @@ std::shared_ptr< AtmosphereSettings > getDefaultAtmosphereModelSettings(
         const double initialTime,
         const double finalTime );
 
+//! Function to create default settings for a body's radiation source model.
+/*!
+ *  Function to create default settings for a body's radiation source model. Currently set to no
+ *  source, except for the Sun.
+ *  \param bodyName Name of body for which default radiation source model settings are to be retrieved.
+ *  \param initialTime Start time at which environment models in body are to be created
+ *  (not currently used by this function, but included for consistency).
+ *  \param finalTime End time up to which environment models in body are to be created
+ *  (not currently used by this function, but included for consistency).
+ *  \return Default settings for a body's radiation source model.
+ */
+std::shared_ptr< RadiationSourceModelSettings > getDefaultRadiationSourceModelSettings(
+        const std::string& bodyName,
+        const double initialTime,
+        const double finalTime );
+
 //! Function to create default settings for a body's ephemeris.
 /*!
  *  Function to create default settings for a body's ephemeris without a limitation on the time interval.

@@ -5,9 +5,9 @@
 #include <memory>
 
 #include <Eigen/Core>
+#include <Eigen/Geometry>
 
 #include "tudat/astro/basic_astro/accelerationModel.h"
-#include "tudat/simulation/environment_setup/body.h"
 #include "radiationSourceModel.h"
 #include "radiationPressureTargetModel.h"
 

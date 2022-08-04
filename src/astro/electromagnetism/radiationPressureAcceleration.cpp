@@ -7,7 +7,6 @@ namespace electromagnetism
 
 void RadiationPressureAcceleration::updateMembers(const double currentTime)
 {
-    // Radiation pressure force is evaluated in local frame, then rotated to propagation frame
     if(this->currentTime_ != currentTime)
     {
         this->currentAcceleration_ = calculateAcceleration();
@@ -17,6 +16,7 @@ void RadiationPressureAcceleration::updateMembers(const double currentTime)
 
 Eigen::Vector3d RadiationPressureAcceleration::calculateAcceleration()
 {
+    // Radiation pressure force is evaluated in local frame, then rotated to propagation frame
     auto targetPosition = targetPositionFunction_();
     auto targetRotationFromLocalToPropagationFrame = targetRotationFromLocalToPropagationFrameFunction_();
     auto targetRotationFromPropagationToLocalFrame = targetRotationFromLocalToPropagationFrame.inverse();

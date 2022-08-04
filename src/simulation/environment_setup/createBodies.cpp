@@ -10,6 +10,7 @@
 
 #include <iostream>
 #include <cmath>
+#include <memory>
 
 #include <boost/make_shared.hpp>
 #include <boost/lambda/lambda.hpp>
@@ -22,6 +23,7 @@
 
 #include "tudat/simulation/environment_setup/createBodies.h"
 #include "tudat/astro/basic_astro/sphericalBodyShapeModel.h"
+#include "tudat/astro/electromagnetism/radiationSourceModel.h"
 #include "tudat/astro/ephemerides/simpleRotationalEphemeris.h"
 //#include "tudat/astro/reference_frames/referenceFrameTransformations.h"
 #include "tudat/interface/spice/spiceRotationalEphemeris.h"
@@ -35,6 +37,7 @@ namespace simulation_setup
 using namespace ephemerides;
 using namespace gravitation;
 using namespace basic_astrodynamics;
+using namespace electromagnetism;
 
 void addAerodynamicCoefficientInterface(
         const SystemOfBodies& bodies, const std::string bodyName,
@@ -46,19 +49,6 @@ void addAerodynamicCoefficientInterface(
     }
     bodies.at( bodyName )->setAerodynamicCoefficientInterface(
                 createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, bodyName) );
-}
-
-void addRadiationPressureInterface(
-        const SystemOfBodies& bodies, const std::string bodyName,
-        const std::shared_ptr< RadiationPressureInterfaceSettings > radiationPressureSettings )
-{
-    if( bodies.count( bodyName ) == 0 )
-    {
-        throw std::runtime_error( "Error when setting radiation pressure interface for body "+ bodyName + ", body is not found in system of bodies" );
-    }
-    bodies.at( bodyName )->setRadiationPressureInterface(
-                radiationPressureSettings->getSourceBody( ), createRadiationPressureInterface(
-                    radiationPressureSettings, bodyName, bodies ) );
 }
 
 void setSimpleRotationSettingsFromSpice(
@@ -237,25 +227,28 @@ SystemOfBodies createSystemOfBodies(
         }
     }
 
-
-    // Create radiation pressure coefficient objects for each body (if required).
+    // Create radiation source model objects for each body (if required).
     for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
     {
-        std::map< std::string, std::shared_ptr< RadiationPressureInterfaceSettings > >
-                radiationPressureSettings
-                = orderedBodySettings.at( i ).second->radiationPressureSettings;
-        for( std::map< std::string, std::shared_ptr< RadiationPressureInterfaceSettings > >::iterator
-             radiationPressureSettingsIterator = radiationPressureSettings.begin( );
-             radiationPressureSettingsIterator != radiationPressureSettings.end( );
-             radiationPressureSettingsIterator++ )
+        if( orderedBodySettings.at( i ).second->radiationSourceModelSettings != nullptr )
         {
-            bodyList.at( orderedBodySettings.at( i ).first )->setRadiationPressureInterface(
-                        radiationPressureSettingsIterator->first,
-                        createRadiationPressureInterface(
-                            radiationPressureSettingsIterator->second,
-                            orderedBodySettings.at( i ).first, bodyList ) );
+            bodyList.at( orderedBodySettings.at( i ).first )->setRadiationSourceModel(
+                        createRadiationSourceModel(
+                            orderedBodySettings.at( i ).second->radiationSourceModelSettings,
+                            orderedBodySettings.at( i ).first, bodyList ));
         }
+    }
 
+    // Create radiation pressure target model objects for each body (if required).
+    for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
+    {
+        if( orderedBodySettings.at( i ).second->radiationPressureTargetModelSettings != nullptr )
+        {
+            bodyList.at( orderedBodySettings.at( i ).first )->setRadiationPressureTargetModel(
+                        createRadiationPressureTargetModel(
+                            orderedBodySettings.at( i ).second->radiationPressureTargetModelSettings,
+                            orderedBodySettings.at( i ).first ) );
+        }
     }
 
     for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
@@ -318,6 +311,11 @@ simulation_setup::SystemOfBodies createSimplifiedSystemOfBodies(const double sec
 
     // Earth's shape model
     bodies.getBody( "Earth" )->setShapeModel( std::make_shared< SphericalBodyShapeModel >(celestial_body_constants::EARTH_EQUATORIAL_RADIUS ) );
+
+    // Sun's radiation source model
+    bodies.getBody( "Sun" )->setRadiationSourceModel( std::make_shared< IsotropicPointRadiationSourceModel >(
+            std::bind(&Body::getPosition, bodies.getBody( "Sun" )),
+            std::make_shared< ConstantLuminosityModel >( celestial_body_constants::SUN_LUMINOSITY )));
 
     // Calculate position of rotation axis at initialTime, with respect to J2000 frame. Values from:
     // "Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2009", B.A. Archinal et al.(2011)

@@ -28,10 +28,10 @@ BOOST_AUTO_TEST_CASE( testIsotropicPointRadiationSourceModel )
     auto sourcePosition = Eigen::Vector3d(0, 0, 0);
     auto targetPosition = Eigen::Vector3d(physical_constants::ASTRONOMICAL_UNIT, 0, 0);
 
-    auto radiantPowerModel = std::make_shared<IrradianceBasedRadiantPowerModel>(
+    auto luminosityModel = std::make_shared<IrradianceBasedLuminosityModel>(
             [=]() { return expectedIrradiance; }, physical_constants::ASTRONOMICAL_UNIT);
     auto radiationSourceModel = std::make_shared<IsotropicPointRadiationSourceModel>(
-            [=]() { return sourcePosition; }, radiantPowerModel);
+            [=]() { return sourcePosition; }, luminosityModel);
 
     const auto ret = radiationSourceModel->evaluateIrradianceAtPosition(targetPosition).front();
     const auto actualIrradiance = std::get<0>(ret);
@@ -57,9 +57,9 @@ BOOST_AUTO_TEST_CASE( testIsotropicPointRadiationSourceModelPositionInvariance )
         {
             auto targetPosition = coordinate_conversions::convertSphericalToCartesian(
                     Eigen::Vector3d(radius, zenithAngle, azimuthAngle));
-            auto radiantPowerModel = std::make_shared<ConstantRadiantPowerModel>(1);
+            auto luminosityModel = std::make_shared<ConstantLuminosityModel>(1);
             auto radiationSourceModel = std::make_shared<IsotropicPointRadiationSourceModel>(
-                    [=]() { return Eigen::Vector3d(0, 0, 0); }, radiantPowerModel);
+                    [=]() { return Eigen::Vector3d(0, 0, 0); }, luminosityModel);
 
             const auto ret = radiationSourceModel->evaluateIrradianceAtPosition(targetPosition).front();
             actualIrradiances.push_back(std::get<0>(ret));
