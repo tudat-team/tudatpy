@@ -99,8 +99,14 @@ AccelerationMap createSimulationAccelerations(const SystemOfBodies& bodies)
     SelectedAccelerationMap accelerationMap {
             {"LRO", {
                 {"Moon", {
-                        sphericalHarmonicAcceleration(100, 100)
-                }}
+                        sphericalHarmonicAcceleration(2, 2)
+                }},
+                {"Earth", {
+                        sphericalHarmonicAcceleration(2, 2)
+                }},
+                {"Sun", {
+                        pointMassGravityAcceleration()
+                }},
             }}
     };
     return createAccelerationModelsMap(bodies, accelerationMap, bodiesToPropagate, centralBodies);
@@ -122,7 +128,9 @@ SingleArcDynamicsSimulator<> createSimulator(
                     relativePositionDependentVariable("LRO", "Moon"),
                     relativeVelocityDependentVariable("LRO", "Moon"),
                     keplerianStateDependentVariable("LRO", "Moon"),
-                    singleAccelerationDependentVariable(spherical_harmonic_gravity, "LRO", "Moon")
+                    singleAccelerationDependentVariable(spherical_harmonic_gravity, "LRO", "Moon"),
+                    singleAccelerationDependentVariable(spherical_harmonic_gravity, "LRO", "Earth"),
+                    singleAccelerationDependentVariable(point_mass_gravity, "LRO", "Sun")
             };
 
     auto propagatorSettings =  translationalStatePropagatorSettings (
