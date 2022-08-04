@@ -34,7 +34,7 @@ const auto simulationStartEpoch =
         (convertCalendarDateToJulianDay(2010, 1, 1, 0, 0, 0) - JULIAN_DAY_ON_J2000) * JULIAN_DAY;
 const auto simulationEndEpoch = simulationStartEpoch + simulationDuration;
 const auto printInterval = simulationDuration / 10;
-const auto minStepSize = 10.0;
+const auto minStepSize = 10.0;  // no improvement when setting to 1 s
 
 const auto globalFrameOrigin = "Moon";
 const auto globalFrameOrientation = "ECLIPJ2000";
@@ -82,6 +82,9 @@ SystemOfBodies createSimulationBodies()
         singleBodySettings->ephemerisSettings->resetFrameOrientation(globalFrameOrientation);
         singleBodySettings->rotationModelSettings->resetOriginalFrame(globalFrameOrientation);
     }
+//    bodySettings.at("Sun")->radiationSourceModelSettings =
+//            std::make_shared<IsotropicPointRadiationSourceModelSettings>(
+//                    std::make_shared<ConstantLuminosityModelSettings>(9e33));
     auto bodies = createSystemOfBodies(bodySettings);
 
     // Create LRO
@@ -102,10 +105,10 @@ AccelerationMap createSimulationAccelerations(const SystemOfBodies& bodies)
     SelectedAccelerationMap accelerationMap {
             {"LRO", {
                 {"Moon", {
-                        sphericalHarmonicAcceleration(2, 2)
+                        sphericalHarmonicAcceleration(100, 100)
                 }},
                 {"Earth", {
-                        sphericalHarmonicAcceleration(2, 2)
+                        sphericalHarmonicAcceleration(50, 50)
                 }},
                 {"Sun", {
                         pointMassGravityAcceleration(),
@@ -132,9 +135,11 @@ SingleArcDynamicsSimulator<> createSimulator(
                     relativePositionDependentVariable("LRO", "Moon"),
                     relativeVelocityDependentVariable("LRO", "Moon"),
                     keplerianStateDependentVariable("LRO", "Moon"),
+                    relativePositionDependentVariable("Sun", "Moon"),
                     singleAccelerationDependentVariable(spherical_harmonic_gravity, "LRO", "Moon"),
                     singleAccelerationDependentVariable(spherical_harmonic_gravity, "LRO", "Earth"),
-                    singleAccelerationDependentVariable(point_mass_gravity, "LRO", "Sun")
+                    singleAccelerationDependentVariable(point_mass_gravity, "LRO", "Sun"),
+                    singleAccelerationDependentVariable(radiation_pressure_acceleration, "LRO", "Sun")
             };
 
     auto propagatorSettings =  translationalStatePropagatorSettings (
