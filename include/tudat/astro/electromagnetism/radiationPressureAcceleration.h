@@ -34,6 +34,16 @@ public:
 
     void updateMembers(const double currentTime) override;
 
+    const std::shared_ptr<RadiationSourceModel> getSourceModel() const
+    {
+        return sourceModel_;
+    }
+
+    const std::shared_ptr<RadiationPressureTargetModel> getTargetModel() const
+    {
+        return targetModel_;
+    }
+
 private:
     Eigen::Vector3d calculateAcceleration();
 

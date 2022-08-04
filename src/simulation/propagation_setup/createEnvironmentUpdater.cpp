@@ -341,7 +341,27 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                     singleAccelerationUpdateNeeds[ body_mass_update ].push_back(
                                 acceleratedBodyIterator->first );
                     break;
+                case radiation_pressure_acceleration:
+                {
+                    singleAccelerationUpdateNeeds[ body_mass_update ].push_back(
+                            acceleratedBodyIterator->first );
+
+                    auto radiationPressureAcceleration =
+                            std::dynamic_pointer_cast<electromagnetism::RadiationPressureAcceleration>(
+                                    accelerationModelIterator->second.at(i));
+                    // TODO-DOMINIK uncomment when paneled target is implemented
+//                    auto paneledRadiationPressureTargetModel =
+//                            std::dynamic_pointer_cast<electromagnetism::PaneledRadiationPressureTargetModel>(
+//                                    radiationPressureAcceleration->getTargetModel());
+//                    if (paneledRadiationPressureTargetModel != nullptr) {
+//                        // Only paneled target, not cannonball target needs rotational state
+//                        singleAccelerationUpdateNeeds[ body_rotational_state_update ].push_back(
+//                                acceleratedBodyIterator->first );
+//                    }
+                    break;
+                }
                 case cannon_ball_radiation_pressure:
+                    // RP-OLD
                     singleAccelerationUpdateNeeds[ radiation_pressure_interface_update ].push_back(
                                 acceleratedBodyIterator->first );
                     singleAccelerationUpdateNeeds[ body_mass_update ].push_back(
