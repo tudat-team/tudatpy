@@ -97,19 +97,20 @@ void checkValidityOfRequiredEnvironmentUpdates(
                     }
                     break;
                 }
-//                case radiation_pressure_interface_update:
-//                {
-//                    std::map< std::string, std::shared_ptr< electromagnetism::RadiationPressureInterface > >
-//                            radiationPressureInterfaces = bodies.at(
-//                                updateIterator->second.at( i ) )->getRadiationPressureInterfaces( );
-//                    if( radiationPressureInterfaces.size( ) == 0 )
-//                    {
-//                        throw std::runtime_error(
-//                                    "Error when making environment model update settings, could not find radiation pressure interface of body "
-//                                    + updateIterator->second.at( i ) );
-//                    }
-//                    break;
-//                }
+                // RP-OLD
+                case radiation_pressure_interface_update:
+                {
+                    std::map< std::string, std::shared_ptr< electromagnetism::RadiationPressureInterface > >
+                            radiationPressureInterfaces = bodies.at(
+                                updateIterator->second.at( i ) )->getRadiationPressureInterfaces( );
+                    if( radiationPressureInterfaces.size( ) == 0 )
+                    {
+                        throw std::runtime_error(
+                                    "Error when making environment model update settings, could not find radiation pressure interface of body "
+                                    + updateIterator->second.at( i ) );
+                    }
+                    break;
+                }
                 case body_mass_update:
                     if( bodies.at( updateIterator->second.at( i ) )->getBodyMassFunction( ) == nullptr )
                     {
@@ -945,19 +946,20 @@ std::vector< std::string > > createFullEnvironmentUpdaterSettings(
                     push_back( bodyIterator.first );
         }
 
-//        // Get body radiation pressure interface(s) (one per source)
-//        std::map< std::string,
-//                std::shared_ptr< RadiationPressureInterface > > radiationPressureInterfaces
-//                = bodyIterator.second->getRadiationPressureInterfaces( );
-//
-//        // Add each interface update function to update list.
-//        for( std::map< std::string, std::shared_ptr< RadiationPressureInterface > >::iterator
-//             iterator = radiationPressureInterfaces.begin( );
-//             iterator != radiationPressureInterfaces.end( ); iterator++ )
-//        {
-//            singleAccelerationUpdateNeeds[ radiation_pressure_interface_update ].
-//                    push_back( bodyIterator.first );
-//        }
+        // RP-OLD
+        // Get body radiation pressure interface(s) (one per source)
+        std::map< std::string,
+                std::shared_ptr< RadiationPressureInterface > > radiationPressureInterfaces
+                = bodyIterator.second->getRadiationPressureInterfaces( );
+
+        // Add each interface update function to update list.
+        for( std::map< std::string, std::shared_ptr< RadiationPressureInterface > >::iterator
+             iterator = radiationPressureInterfaces.begin( );
+             iterator != radiationPressureInterfaces.end( ); iterator++ )
+        {
+            singleAccelerationUpdateNeeds[ radiation_pressure_interface_update ].
+                    push_back( bodyIterator.first );
+        }
 
         // If body has rotation model, update rotational state in each time step.;
         if( ( bodyIterator.second->getRotationalEphemeris( ) != nullptr ) ||

@@ -20,6 +20,7 @@ set(environment_HEADERS
         createBodies.h
         createGroundStations.h
         body.h
+        createRadiationPressureInterface.h
         createGravityFieldVariations.h
         createAtmosphereModel.h
         createFlightConditions.h
@@ -29,6 +30,7 @@ set(environment_HEADERS
 
 # Add header files.
 set(environment_SOURCES
+        createRadiationPressureInterface.cpp
         createEphemeris.cpp
         createRotationModel.cpp
         createGravityFieldVariations.cpp
