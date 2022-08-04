@@ -1407,16 +1407,16 @@ std::function< double( ) > getDoubleDependentVariableFunction(
                                           std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
                                               bodies.at( bodyWithProperty )->getFlightConditions( ) ) );
             break;
-        case radiation_pressure_dependent_variable:
-            if( bodies.at( bodyWithProperty )->getRadiationPressureInterfaces( ).count( secondaryBody ) == 0 )
-            {
-                std::string errorMessage = "Error, no radiation pressure interfaces when requesting radiation pressure output of " +
-                        bodyWithProperty + "w.r.t." + secondaryBody;
-                throw std::runtime_error( errorMessage );
-            }
-            variableFunction = std::bind( &electromagnetism::RadiationPressureInterface::getCurrentRadiationPressure,
-                                          bodies.at( bodyWithProperty )->getRadiationPressureInterfaces( ).at( secondaryBody ) );
-            break;
+//        case radiation_pressure_dependent_variable:
+//            if( bodies.at( bodyWithProperty )->getRadiationPressureInterfaces( ).count( secondaryBody ) == 0 )
+//            {
+//                std::string errorMessage = "Error, no radiation pressure interfaces when requesting radiation pressure output of " +
+//                        bodyWithProperty + "w.r.t." + secondaryBody;
+//                throw std::runtime_error( errorMessage );
+//            }
+//            variableFunction = std::bind( &electromagnetism::RadiationPressureInterface::getCurrentRadiationPressure,
+//                                          bodies.at( bodyWithProperty )->getRadiationPressureInterfaces( ).at( secondaryBody ) );
+//            break;
         case relative_distance_dependent_variable:
         {
             // Retrieve functions for positions of two bodies.
@@ -1833,18 +1833,18 @@ std::function< double( ) > getDoubleDependentVariableFunction(
                         &simulation_setup::Body::getBodyMass, bodies.at( bodyWithProperty ) );
             break;
         }
-        case radiation_pressure_coefficient_dependent_variable:
-        {
-            if( bodies.at( bodyWithProperty )->getRadiationPressureInterfaces( ).count( secondaryBody ) == 0 )
-            {
-                std::string errorMessage = "Error, no radiation pressure interfaces when requesting radiation pressure output of " +
-                        bodyWithProperty + "w.r.t." + secondaryBody;
-                throw std::runtime_error( errorMessage );
-            }
-            variableFunction = std::bind( &electromagnetism::RadiationPressureInterface::getRadiationPressureCoefficient,
-                                          bodies.at( bodyWithProperty )->getRadiationPressureInterfaces( ).at( secondaryBody ) );
-            break;
-        }
+//        case radiation_pressure_coefficient_dependent_variable:
+//        {
+//            if( bodies.at( bodyWithProperty )->getRadiationPressureInterfaces( ).count( secondaryBody ) == 0 )
+//            {
+//                std::string errorMessage = "Error, no radiation pressure interfaces when requesting radiation pressure output of " +
+//                        bodyWithProperty + "w.r.t." + secondaryBody;
+//                throw std::runtime_error( errorMessage );
+//            }
+//            variableFunction = std::bind( &electromagnetism::RadiationPressureInterface::getRadiationPressureCoefficient,
+//                                          bodies.at( bodyWithProperty )->getRadiationPressureInterfaces( ).at( secondaryBody ) );
+//            break;
+//        }
         default:
             std::string errorMessage =
                     "Error, did not recognize double dependent variable type when making variable function: " +

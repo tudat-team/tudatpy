@@ -20,7 +20,7 @@ set(electromagnetism_HEADERS
         "solarSailAcceleration.h"
         "solarSailForce.h"
         "radiationSourceModel.h"
-        "radiantPowerModel.h"
+        "luminosityModel.h"
         "radiationPressureTargetModel.h"
         "radiationPressureAcceleration.h"
         )

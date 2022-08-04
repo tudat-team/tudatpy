@@ -8,8 +8,7 @@
 
 #include <Eigen/Core>
 
-#include "tudat/simulation/environment_setup/body.h"
-#include "tudat/astro/electromagnetism/radiantPowerModel.h"
+#include "tudat/astro/electromagnetism/luminosityModel.h"
 
 namespace tudat
 {
@@ -39,24 +38,29 @@ class IsotropicPointRadiationSourceModel : public RadiationSourceModel
 public:
     explicit IsotropicPointRadiationSourceModel(
             const std::function< Eigen::Vector3d( ) > sourcePositionFunction,
-            const std::shared_ptr<RadiantPowerModel> radiantPowerModel):
+            const std::shared_ptr<LuminosityModel> luminosityModel):
             RadiationSourceModel(sourcePositionFunction),
-            radiantPowerModel_(radiantPowerModel) {}
+            luminosityModel_(luminosityModel) {}
 
     IrradianceWithSourceList evaluateIrradianceAtPosition(Eigen::Vector3d targetPosition) const override
     {
         auto sourcePosition = sourcePositionFunction_();
         auto distanceSourceToTarget = (targetPosition - sourcePosition).norm();
-        auto radiantPower = radiantPowerModel_->getRadiantPower();
+        auto luminosity = luminosityModel_->getLuminosity();
 
         auto sphereArea = 4 * mathematical_constants::PI * distanceSourceToTarget * distanceSourceToTarget;
-        auto irradiance = radiantPower / sphereArea;
+        auto irradiance = luminosity / sphereArea;
 
         return IrradianceWithSourceList { std::make_tuple(irradiance, sourcePosition) };
     }
 
+    std::shared_ptr<LuminosityModel> getLuminosityModel() const
+    {
+        return luminosityModel_;
+    }
+
 private:
-    std::shared_ptr<RadiantPowerModel> radiantPowerModel_;
+    std::shared_ptr<LuminosityModel> luminosityModel_;
 };
 
 } // tudat
