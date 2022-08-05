@@ -23,8 +23,7 @@
 
 #include "electromagnetism/luminosityModel.h"
 #include "electromagnetism/radiationSourceModel.h"
-#include "electromagnetism/radiationPowerModel.h"
-#include "electromagnetism/radiationPressureTargetInterface.h"
+#include "electromagnetism/radiationPressureTargetModel.h"
 #include "electromagnetism/radiationPressureAcceleration.h"
 #include "electromagnetism/reflectionLaw.h"
 
