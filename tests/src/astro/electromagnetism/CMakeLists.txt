@@ -51,6 +51,14 @@ TUDAT_ADD_TEST_CASE(RadiationPressureAcceleration
         PRIVATE_LINKS
         ${Tudat_PROPAGATION_LIBRARIES}
         )
+
+TUDAT_ADD_TEST_CASE(ReflectionLaw
+        PRIVATE_LINKS
+        tudat_electromagnetism
+        tudat_basic_mathematics
+#        ${Tudat_PROPAGATION_LIBRARIES}
+        )
+
 # Add unit tests.
 #add_executable(test_CannonBallRadiationPressureAccelerationAndForce "${SRCROOT}${ELECTROMAGNETISMDIR}/tests/unitTestCannonBallRadiationPressureAccelerationAndForce.cpp")
 #setup_custom_test_program(test_CannonBallRadiationPressureAccelerationAndForce "${SRCROOT}${ELECTROMAGNETISMDIR}")
