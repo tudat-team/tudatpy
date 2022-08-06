@@ -41,8 +41,15 @@ private:
 class IrradianceBasedLuminosityModel : public LuminosityModel
 {
 public:
-    IrradianceBasedLuminosityModel(const std::function<double()> irradianceAtDistanceFunction, double distance)
+    IrradianceBasedLuminosityModel(
+            const std::function<double()> irradianceAtDistanceFunction,
+            double distance)
             : irradianceAtDistanceFunction_(irradianceAtDistanceFunction), distance_(distance) {}
+
+    IrradianceBasedLuminosityModel(
+            double irradianceAtDistance,
+            double distance)
+            : IrradianceBasedLuminosityModel([=] () { return irradianceAtDistance; }, distance) {}
 
     double getLuminosity() const override
     {

@@ -37,9 +37,9 @@ TUDAT_ADD_TEST_CASE(SolarSailAccelerationAndForce
         tudat_basic_astrodynamics
         )
 
-TUDAT_ADD_TEST_CASE(RadiationSourceModel
+TUDAT_ADD_TEST_CASE(LuminosityModel
         PRIVATE_LINKS
-        ${Tudat_PROPAGATION_LIBRARIES}
+        tudat_electromagnetism
         )
 
 TUDAT_ADD_TEST_CASE(RadiationPressureTargetModel
@@ -56,7 +56,6 @@ TUDAT_ADD_TEST_CASE(ReflectionLaw
         PRIVATE_LINKS
         tudat_electromagnetism
         tudat_basic_mathematics
-#        ${Tudat_PROPAGATION_LIBRARIES}
         )
 
 # Add unit tests.
