@@ -88,6 +88,39 @@ public:
         }
     }
 
+    static std::shared_ptr<SpecularDiffuseMixReflectionLaw> fromAbsorptivityAndSpecularReflectivity(
+            double absorptivity,
+            double specularReflectivity)
+    {
+        const auto diffuseReflectivity = 1 - absorptivity - specularReflectivity;
+        return std::make_shared<SpecularDiffuseMixReflectionLaw>(
+                absorptivity,
+                specularReflectivity,
+                diffuseReflectivity);
+    }
+
+    static std::shared_ptr<SpecularDiffuseMixReflectionLaw> fromAbsorptivityAndDiffuseReflectivity(
+            double absorptivity,
+            double diffuseReflectivity)
+    {
+        const auto specularReflectivity = 1 - absorptivity - diffuseReflectivity;
+        return std::make_shared<SpecularDiffuseMixReflectionLaw>(
+                absorptivity,
+                specularReflectivity,
+                diffuseReflectivity);
+    }
+
+    static std::shared_ptr<SpecularDiffuseMixReflectionLaw> fromSpecularAndDiffuseReflectivity(
+            double specularReflectivity,
+            double diffuseReflectivity)
+    {
+        const auto absorptivity = 1 - specularReflectivity - diffuseReflectivity;
+        return std::make_shared<SpecularDiffuseMixReflectionLaw>(
+                absorptivity,
+                specularReflectivity,
+                diffuseReflectivity);
+    }
+
     double evaluateReflectedFraction(
             Eigen::Vector3d surfaceNormal,
             Eigen::Vector3d incomingDirection,

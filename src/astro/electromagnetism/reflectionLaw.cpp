@@ -13,10 +13,10 @@ double SpecularDiffuseMixReflectionLaw::evaluateReflectedFraction(Eigen::Vector3
 {
     // Check if any reflected radiation would reach observer
     const auto cosBetweenNormalAndIncoming =
-            linear_algebra::computeCosineOfAngleBetweenVectors(surfaceNormal, incomingDirection);
+            linear_algebra::computeCosineOfAngleBetweenVectors(surfaceNormal, -incomingDirection);
     const auto cosBetweenNormalAndObserver =
             linear_algebra::computeCosineOfAngleBetweenVectors(surfaceNormal, observerDirection);
-    if (cosBetweenNormalAndIncoming >= 0 || cosBetweenNormalAndObserver <= 0)
+    if (cosBetweenNormalAndIncoming <= 0 || cosBetweenNormalAndObserver <= 0)
     {
         return 0;
     }
@@ -28,7 +28,7 @@ double SpecularDiffuseMixReflectionLaw::evaluateReflectedFraction(Eigen::Vector3
     if (observerDirection.isApprox(mirrorOfIncomingDirection))
     {
         // Observer only receives specular reflection if it is in mirrored path of incident radiation
-        const auto specularReflectance = specularReflectivity_ / -cosBetweenNormalAndIncoming;
+        const auto specularReflectance = specularReflectivity_ / cosBetweenNormalAndIncoming;
         return diffuseReflectance + specularReflectance;
     }
     else
@@ -41,8 +41,8 @@ Eigen::Vector3d SpecularDiffuseMixReflectionLaw::evaluateReactionVector(Eigen::V
                                                                           Eigen::Vector3d incomingDirection) const
 {
     const auto cosBetweenNormalAndIncoming =
-            linear_algebra::computeCosineOfAngleBetweenVectors(surfaceNormal, incomingDirection);
-    if (cosBetweenNormalAndIncoming >= 0)
+            linear_algebra::computeCosineOfAngleBetweenVectors(surfaceNormal, -incomingDirection);
+    if (cosBetweenNormalAndIncoming <= 0)
     {
         // Radiation is incident on backside of surface
         return Eigen::Vector3d::Zero();
@@ -51,7 +51,7 @@ Eigen::Vector3d SpecularDiffuseMixReflectionLaw::evaluateReactionVector(Eigen::V
     // Montenbruck (2014) Eq. 5
     const auto reactionFromIncidence = (absorptivity_ + diffuseReflectivity) * incomingDirection;
     const auto reactionFromReflection =
-            -(2. / 3 * diffuseReflectivity - 2 * specularReflectivity_ * cosBetweenNormalAndIncoming) * surfaceNormal;
+            -(2. / 3 * diffuseReflectivity + 2 * specularReflectivity_ * cosBetweenNormalAndIncoming) * surfaceNormal;
     Eigen::Vector3d reactionFromInstantaneousReradiation;
     if (withInstantaneousLambertianReradiation_)
     {
