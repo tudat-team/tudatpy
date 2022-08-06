@@ -52,7 +52,8 @@ public:
             Eigen::Vector3d observerDirection) const = 0;
 
     /*!
-     * Evaluate direction of reaction force due to incident and reflected radiation.
+     * Evaluate direction of reaction force due to incident and reflected radiation. If the incoming vector is incident
+     * on the backside of the surface, the zero vector is returned.
      *
      * @param surfaceNormal Surface normal unit vector
      * @param incomingDirection Incoming radiation unit vector from source to target
@@ -119,7 +120,7 @@ public:
 
 /*!
  * Computed the mirrorlike reflection of an incoming vector on a surface. If the incoming vector is incident on the
- * backside of the surface, a null vector is returned.
+ * backside of the surface, the zero vector is returned.
  *
  * @param vectorToMirror Incoming vector to mirror, pointing towards the surface
  * @param surfaceNormal Surface normal unit vector

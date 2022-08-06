@@ -44,12 +44,16 @@ TUDAT_ADD_TEST_CASE(LuminosityModel
 
 TUDAT_ADD_TEST_CASE(RadiationPressureTargetModel
         PRIVATE_LINKS
-        ${Tudat_PROPAGATION_LIBRARIES}
+        tudat_electromagnetism
+        tudat_basic_astrodynamics
+        tudat_basic_mathematics
         )
 
 TUDAT_ADD_TEST_CASE(RadiationPressureAcceleration
         PRIVATE_LINKS
-        ${Tudat_PROPAGATION_LIBRARIES}
+        tudat_electromagnetism
+        tudat_basic_astrodynamics
+        tudat_basic_mathematics
         )
 
 TUDAT_ADD_TEST_CASE(ReflectionLaw

@@ -1,9 +1,13 @@
 #ifndef TUDAT_RADIATIONPRESSURETARGETMODEL_H
 #define TUDAT_RADIATIONPRESSURETARGETMODEL_H
 
+#include <vector>
+#include <memory>
+
 #include <Eigen/Core>
 
 #include "tudat/astro/basic_astro/physicalConstants.h"
+#include "tudat/astro/electromagnetism/reflectionLaw.h"
 
 namespace tudat
 {
@@ -29,13 +33,7 @@ public:
 
     Eigen::Vector3d evaluateRadiationPressureForce(
             double sourceIrradiance,
-            Eigen::Vector3d sourceToTargetDirection) const override
-    {
-        auto radiationPressure = sourceIrradiance / physical_constants::SPEED_OF_LIGHT;
-        auto forceMagnitude = coefficient_ * area_ * radiationPressure;
-        auto force = forceMagnitude * sourceToTargetDirection;
-        return force;
-    }
+            Eigen::Vector3d sourceToTargetDirection) const override;
 
     double getArea() const
     {
@@ -48,10 +46,64 @@ public:
     }
 
 private:
-    double area_{};
-    double coefficient_{};
+    double area_;
+    double coefficient_;
 };
 
+
+class PaneledRadiationPressureTargetModel : public RadiationPressureTargetModel
+{
+public:
+    class Panel;
+
+    explicit PaneledRadiationPressureTargetModel(
+            std::vector<Panel> &panels)
+            : panels_(panels) {}
+
+    Eigen::Vector3d evaluateRadiationPressureForce(
+            double sourceIrradiance,
+            Eigen::Vector3d sourceToTargetDirection) const override;
+
+private:
+    std::vector<Panel> panels_;
+};
+
+class PaneledRadiationPressureTargetModel::Panel
+{
+public:
+    explicit Panel(double area,
+                   const std::function<Eigen::Vector3d()> surfaceNormalFunction,
+                   const std::shared_ptr<ReflectionLaw> reflectionLaw) :
+            area_(area),
+            surfaceNormalFunction_(surfaceNormalFunction),
+            reflectionLaw_(reflectionLaw) {}
+
+    explicit Panel(double area,
+                   const Eigen::Vector3d surfaceNormal,
+                   const std::shared_ptr<ReflectionLaw> reflectionLaw) :
+            Panel(area, [=] () { return surfaceNormal; }, reflectionLaw) {}
+
+
+    double getArea() const
+    {
+        return area_;
+    }
+
+    std::function<Eigen::Vector3d()> getSurfaceNormalFunction() const
+    {
+        return surfaceNormalFunction_;
+    }
+
+    std::shared_ptr<ReflectionLaw> getReflectionLaw() const
+    {
+        return reflectionLaw_;
+    }
+
+private:
+    double area_;
+    std::function<Eigen::Vector3d()> surfaceNormalFunction_;
+    std::shared_ptr<ReflectionLaw> reflectionLaw_;
+};
 
 } // tudat
 } // electromagnetism
