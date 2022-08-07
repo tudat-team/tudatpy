@@ -34,12 +34,12 @@ public:
 
     void updateMembers(const double currentTime) override;
 
-    const std::shared_ptr<RadiationSourceModel> getSourceModel() const
+    std::shared_ptr<RadiationSourceModel> getSourceModel() const
     {
         return sourceModel_;
     }
 
-    const std::shared_ptr<RadiationPressureTargetModel> getTargetModel() const
+    std::shared_ptr<RadiationPressureTargetModel> getTargetModel() const
     {
         return targetModel_;
     }

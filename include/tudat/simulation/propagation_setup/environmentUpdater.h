@@ -602,7 +602,42 @@ private:
                         }
                         break;
                     }
-
+                    case radiation_source_model_update:
+                    {
+                        // Check if current body has radiation source model set.
+                        if( bodyList_.at( currentBodies.at( i ) )->getRadiationSourceModel() == nullptr )
+                        {
+                            throw std::runtime_error(
+                                        "Request radiation source model update of " + currentBodies.at( i ) +
+                                        ", but body has no radiation source model" );
+                        }
+                        // If vehicle has radiation source model, add its update function to update list.
+                        updateTimeFunctionList[ radiation_source_model_update ].push_back(
+                                    std::make_pair(
+                                        currentBodies.at( i ), std::bind(
+                                            &electromagnetism::RadiationSourceModel::updateMembers,
+                                            bodyList_.at( currentBodies.at( i ) )
+                                            ->getRadiationSourceModel(), std::placeholders::_1 ) ) );
+                        break;
+                    }
+                    case radiation_pressure_target_model_update:
+                    {
+                        // Check if current body has radiation pressure target model set.
+                        if( bodyList_.at( currentBodies.at( i ) )->getRadiationPressureTargetModel() == nullptr )
+                        {
+                            throw std::runtime_error(
+                                        "Request radiation pressure target model update of " + currentBodies.at( i ) +
+                                        ", but body has no radiation pressure target model" );
+                        }
+                        // If vehicle has radiation pressure target model, add its update function to update list.
+                        updateTimeFunctionList[ radiation_pressure_target_model_update ].push_back(
+                                    std::make_pair(
+                                        currentBodies.at( i ), std::bind(
+                                            &electromagnetism::RadiationPressureTargetModel::updateMembers,
+                                            bodyList_.at( currentBodies.at( i ) )
+                                            ->getRadiationPressureTargetModel(), std::placeholders::_1 ) ) );
+                        break;
+                    }
                     case radiation_pressure_interface_update:
                     {
                         // RP-OLD

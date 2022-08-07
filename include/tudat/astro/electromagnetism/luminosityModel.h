@@ -20,6 +20,8 @@ public:
     virtual ~LuminosityModel() = default;
 
     virtual double getLuminosity() const = 0;
+
+    virtual void updateMembers() {};
 };
 
 
@@ -51,21 +53,17 @@ public:
             double distance)
             : IrradianceBasedLuminosityModel([=] () { return irradianceAtDistance; }, distance) {}
 
-    double getLuminosity() const override
-    {
-        auto sphereArea = 4 * mathematical_constants::PI * distance_ * distance_;
-        auto luminosity = irradianceAtDistanceFunction_() * sphereArea;
-        return luminosity;
-    }
+    double getLuminosity() const override;
+
+    void updateMembers() override;
 
 private:
     std::function<double()> irradianceAtDistanceFunction_;
+    double irradianceAtDistance_{};
     double distance_;
 };
 
-
 }
 }
-
 
 #endif //TUDAT_LUMINOSITYMODEL_H

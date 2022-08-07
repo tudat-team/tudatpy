@@ -67,7 +67,10 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_Unity )
             []() { return 1; },
             []() { return Eigen::Quaterniond::Identity(); });
 
-    accelerationModel.updateMembers(0);
+    sourceModel->updateMembers(TUDAT_NAN);
+    targetModel->updateMembers(TUDAT_NAN);
+    accelerationModel.updateMembers(TUDAT_NAN);
+
     const auto actualAcceleration = accelerationModel.getAcceleration();
 
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(actualAcceleration, expectedAcceleration, 1e-15);
@@ -91,7 +94,10 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_GOCE )
             []() { return 1050; },
             []() { return Eigen::Quaterniond::Identity(); });
 
-    accelerationModel.updateMembers(0);
+    sourceModel->updateMembers(TUDAT_NAN);
+    targetModel->updateMembers(TUDAT_NAN);
+    accelerationModel.updateMembers(TUDAT_NAN);
+
     const auto actualAcceleration = accelerationModel.getAcceleration();
 
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(actualAcceleration, expectedAcceleration, 1e-2);
@@ -124,6 +130,10 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_Cannonball_RotationInvar
                         []() { return Eigen::Vector3d(1, 1, 0).normalized(); },
                         []() { return 1; },
                         [=]() { return rotation; });
+
+                sourceModel->updateMembers(TUDAT_NAN);
+                targetModel->updateMembers(TUDAT_NAN);
+                accelerationModel.updateMembers(TUDAT_NAN);
 
                 accelerationModel.updateMembers(0);
                 actualAccelerations.push_back(accelerationModel.getAcceleration());
@@ -171,7 +181,10 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_Paneled_Basic )
                 [] () { return 1; },
                 [] () { return Eigen::Quaterniond::Identity(); });
 
-        accelerationModel.updateMembers(0);
+        sourceModel->updateMembers(TUDAT_NAN);
+        targetModel->updateMembers(TUDAT_NAN);
+        accelerationModel.updateMembers(TUDAT_NAN);
+
         const auto actualAcceleration = accelerationModel.getAcceleration();
 
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION(actualAcceleration, expectedAcceleration, 1e-15);
@@ -191,7 +204,10 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_Paneled_Basic )
                     return Eigen::Quaterniond(Eigen::AngleAxisd(angle, Eigen::Vector3d::UnitZ()));
                 });
 
-        accelerationModel.updateMembers(0);
+        sourceModel->updateMembers(TUDAT_NAN);
+        targetModel->updateMembers(TUDAT_NAN);
+        accelerationModel.updateMembers(TUDAT_NAN);
+
         const auto actualAcceleration = accelerationModel.getAcceleration();
 
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION(actualAcceleration, expectedAcceleration, 1e-15);
@@ -217,7 +233,10 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_Paneled_Basic )
                     return Eigen::Quaterniond(Eigen::AngleAxisd(angle, Eigen::Vector3d::UnitZ()));
                 });
 
-        accelerationModel.updateMembers(0);
+        sourceModel->updateMembers(TUDAT_NAN);
+        targetModel->updateMembers(TUDAT_NAN);
+        accelerationModel.updateMembers(TUDAT_NAN);
+
         const auto actualAcceleration = accelerationModel.getAcceleration();
 
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION(actualAcceleration, expectedAcceleration, 1e-15);
@@ -389,6 +408,9 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_Paneled_Realistic )
             // those calculated considering all panels in the tested class
             bodies.at( "Vehicle" )->setState(bodies.at( "Vehicle" )->getState().array().round());
             bodies.at( "Vehicle" )->setCurrentRotationToLocalFrameFromEphemeris( testTimes[ i ] );
+
+            bodies.at( "Sun" )->getRadiationSourceModel()->updateMembers( testTimes[ i ] );
+            bodies.at( "Vehicle" )->getRadiationPressureTargetModel()->updateMembers( testTimes[ i ] );
             accelerationModel->updateMembers( testTimes[ i ] );
 
             // Retrieve acceleration.
