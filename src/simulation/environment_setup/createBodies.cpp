@@ -283,7 +283,7 @@ SystemOfBodies createSystemOfBodies(
             bodyList.at( orderedBodySettings.at( i ).first )->setRadiationPressureTargetModel(
                         createRadiationPressureTargetModel(
                             orderedBodySettings.at( i ).second->radiationPressureTargetModelSettings,
-                            orderedBodySettings.at( i ).first ) );
+                            orderedBodySettings.at( i ).first, bodyList ) );
         }
     }
 

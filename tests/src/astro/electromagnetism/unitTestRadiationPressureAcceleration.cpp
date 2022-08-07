@@ -285,7 +285,7 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_Paneled_Realistic )
             Eigen::Vector7d rotationalStateVehicle;
             rotationalStateVehicle.segment( 0, 4 ) = linear_algebra::convertQuaternionToVectorFormat(Eigen::Quaterniond::Identity());
             bodies.at( "Vehicle" )->setRotationalEphemeris(
-                    std::make_shared< ConstantRotationalEphemeris >( rotationalStateVehicle, "ECLIPJ2000","VehicleFixed" ));
+                    std::make_shared< ConstantRotationalEphemeris >( rotationalStateVehicle, "ECLIPJ2000", "VehicleFixed" ));
         }
         else if ( testCase == 3 )
         {
@@ -585,7 +585,6 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_Paneled_Realistic )
                                 * expectedPanelNormal ) );
             }
 
-            std::cout << testCase << ", " << testTimes[i] / orbitalPeriod << std::endl;
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(calculatedAcceleration, expectedAcceleration, 1e-10)
         }
     }
