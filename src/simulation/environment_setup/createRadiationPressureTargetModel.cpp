@@ -65,6 +65,7 @@ std::shared_ptr<electromagnetism::RadiationPressureTargetModel> createRadiationP
                     // Tracking a body means setting the surface normal towards the tracked body in the local frame
                     const auto bodyToTrack = bodies.at(panel.getBodyToTrack());
                     const auto targetBody = bodies.at(body);
+                    const auto sign = panel.isTowardsTrackedBody() ? +1 : -1;
                     surfaceNormalFunction = [=] () {
                         const auto rotationFromPropagationToLocalFrame =
                                 targetBody->getCurrentRotationToLocalFrame();
@@ -72,7 +73,7 @@ std::shared_ptr<electromagnetism::RadiationPressureTargetModel> createRadiationP
                                 bodyToTrack->getPosition() - targetBody->getPosition();
                         const auto relativeSourcePositionInLocalFrame =
                                 rotationFromPropagationToLocalFrame * relativeSourcePositionInPropagationFrame;
-                        return relativeSourcePositionInLocalFrame.normalized();
+                        return sign * relativeSourcePositionInLocalFrame.normalized();
                     };
                 }
 
