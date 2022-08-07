@@ -30,6 +30,7 @@
 #include "tudat/astro/basic_astro/geodeticCoordinateConversions.h"
 #include "tudat/astro/electromagnetism/radiationSourceModel.h"
 #include "tudat/astro/electromagnetism/radiationPressureTargetModel.h"
+#include "tudat/astro/electromagnetism/reflectionLaw.h"
 #include "tudat/astro/ephemerides/approximatePlanetPositions.h"
 #include "tudat/astro/ephemerides/tabulatedEphemeris.h"
 #include "tudat/astro/ephemerides/simpleRotationalEphemeris.h"
@@ -1225,6 +1226,7 @@ BOOST_AUTO_TEST_CASE( test_earthRotationModelSetup )
 
 
 //! Test set up of radiation pressure interfacel environment models.
+// RP-OLD
 BOOST_AUTO_TEST_CASE( test_radiationPressureInterfaceSetup )
 {
     // Load Spice kernels
@@ -1308,26 +1310,77 @@ BOOST_AUTO_TEST_CASE( test_radiationSourceModelSetup )
 
 
 
-BOOST_AUTO_TEST_CASE( test_radiationPressureTargetModelSetup )
+BOOST_AUTO_TEST_CASE( test_radiationPressureTargetModelSetup_CannonballTarget )
 {
-    {
-        const auto expectedArea = 42;
-        const auto expectedCoefficient = 1.42;
+    const auto expectedArea = 42;
+    const auto expectedCoefficient = 1.42;
 
-        auto cannonballRadiationPressureTargetSettings =
-                std::make_shared<CannonballRadiationPressureTargetModelSettings>(
-                        expectedArea, expectedCoefficient);
-        auto cannonballRadiationPressureTarget =
-                std::dynamic_pointer_cast<electromagnetism::CannonballRadiationPressureTargetModel>(
-                        createRadiationPressureTargetModel(
-                                cannonballRadiationPressureTargetSettings, "Vehicle"));
+    auto cannonballRadiationPressureTargetSettings =
+            std::make_shared<CannonballRadiationPressureTargetModelSettings>(
+                    expectedArea, expectedCoefficient);
+    auto cannonballRadiationPressureTarget =
+            std::dynamic_pointer_cast<electromagnetism::CannonballRadiationPressureTargetModel>(
+                    createRadiationPressureTargetModel(
+                            cannonballRadiationPressureTargetSettings, "Vehicle"));
 
-        const auto actualArea = cannonballRadiationPressureTarget->getArea();
-        const auto actualCoefficient = cannonballRadiationPressureTarget->getCoefficient();
+    const auto actualArea = cannonballRadiationPressureTarget->getArea();
+    const auto actualCoefficient = cannonballRadiationPressureTarget->getCoefficient();
 
-        BOOST_CHECK_EQUAL(actualArea, expectedArea);
-        BOOST_CHECK_EQUAL(actualCoefficient, expectedCoefficient);
-    }
+    BOOST_CHECK_EQUAL(actualArea, expectedArea);
+    BOOST_CHECK_EQUAL(actualCoefficient, expectedCoefficient);
+}
+
+BOOST_AUTO_TEST_CASE( test_radiationPressureTargetModelSetup_PaneledTarget )
+{
+    const auto expectedAreaPanel1 = 42;
+    const auto expectedAreaPanel2 = 43;
+    const auto expectedSpecularReflectivityPanel1 = 0.1;
+    const auto expectedSpecularReflectivityPanel2 = 0.2;
+    const auto expectedDiffuseReflectivityPanel1 = 0.3;
+    const auto expectedDiffuseReflectivityPanel2 = 0.4;
+    const auto expectedAbsorptivityPanel1 = 0.6;
+    const auto expectedAbsorptivityPanel2 = 0.4;
+    const auto expectedSurfaceNormalPanel1 = Eigen::Vector3d::UnitX();
+    const auto expectedSurfaceNormalPanel2 = Eigen::Vector3d::UnitY();
+
+    auto paneledRadiationPressureTargetSettings =
+            paneledRadiationPressureTargetModelSettings({
+                    TargetPanelSettings(
+                            expectedAreaPanel1,
+                            expectedSpecularReflectivityPanel1,
+                            expectedDiffuseReflectivityPanel1,
+                            expectedSurfaceNormalPanel1
+                            ),
+                    TargetPanelSettings(
+                            expectedAreaPanel2,
+                            expectedSpecularReflectivityPanel2,
+                            expectedDiffuseReflectivityPanel2,
+                            2 * expectedSurfaceNormalPanel2
+                            )});
+    auto paneledRadiationPressureTarget =
+            std::dynamic_pointer_cast<electromagnetism::PaneledRadiationPressureTargetModel>(
+                    createRadiationPressureTargetModel(
+                            paneledRadiationPressureTargetSettings, "Vehicle"));
+
+    BOOST_CHECK_EQUAL(paneledRadiationPressureTarget->getPanels().size(), 2);
+
+    const auto panel1 = paneledRadiationPressureTarget->getPanels()[0];
+    const auto panel2 = paneledRadiationPressureTarget->getPanels()[1];
+    const auto panel1ReflectionLaw =
+            std::dynamic_pointer_cast<electromagnetism::SpecularDiffuseMixReflectionLaw>(panel1.getReflectionLaw());
+    const auto panel2ReflectionLaw =
+            std::dynamic_pointer_cast<electromagnetism::SpecularDiffuseMixReflectionLaw>(panel2.getReflectionLaw());
+
+    BOOST_CHECK_CLOSE(panel1.getArea(), expectedAreaPanel1, 1e-10);
+    BOOST_CHECK_CLOSE(panel2.getArea(), expectedAreaPanel2, 1e-10);
+    BOOST_CHECK_CLOSE(panel1ReflectionLaw->getSpecularReflectivity(), expectedSpecularReflectivityPanel1, 1e-10);
+    BOOST_CHECK_CLOSE(panel2ReflectionLaw->getSpecularReflectivity(), expectedSpecularReflectivityPanel2, 1e-10);
+    BOOST_CHECK_CLOSE(panel1ReflectionLaw->getDiffuseReflectivity(), expectedDiffuseReflectivityPanel1, 1e-10);
+    BOOST_CHECK_CLOSE(panel2ReflectionLaw->getDiffuseReflectivity(), expectedDiffuseReflectivityPanel2, 1e-10);
+    BOOST_CHECK_CLOSE(panel1ReflectionLaw->getAbsorptivity(), expectedAbsorptivityPanel1, 1e-10);
+    BOOST_CHECK_CLOSE(panel2ReflectionLaw->getAbsorptivity(), expectedAbsorptivityPanel2, 1e-10);
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(panel1.getSurfaceNormal(), expectedSurfaceNormalPanel1, 1e-10);
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(panel2.getSurfaceNormal(), expectedSurfaceNormalPanel2, 1e-10);
 }
 
 

@@ -32,6 +32,31 @@ std::shared_ptr<electromagnetism::RadiationPressureTargetModel> createRadiationP
             );
             break;
         }
+        case paneled_target:
+        {
+            auto paneledTargetModelSettings =
+                    std::dynamic_pointer_cast< PaneledRadiationPressureTargetModelSettings >(modelSettings);
+
+            if(paneledTargetModelSettings == nullptr)
+            {
+                throw std::runtime_error(
+                        "Error, expected paneled radiation pressure target for body " + body );
+            }
+
+            std::vector<PaneledRadiationPressureTargetModel::Panel> panels;
+            for (auto& panel : paneledTargetModelSettings->getPanels())
+            {
+                panels.emplace_back(
+                        panel.getArea(),
+                        [=] () { return panel.getSurfaceNormalFunction()().normalized(); },
+                        SpecularDiffuseMixReflectionLaw::fromSpecularAndDiffuseReflectivity(
+                                panel.getSpecularReflectivity(),
+                                panel.getDiffuseReflectivity()));
+            }
+
+            radiationPressureTargetModel = std::make_shared<PaneledRadiationPressureTargetModel>(panels);
+            break;
+        }
         default:
             throw std::runtime_error( "Error, do not recognize radiation pressure target model settings for " + body );
     }
