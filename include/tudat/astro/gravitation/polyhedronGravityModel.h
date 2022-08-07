@@ -65,7 +65,7 @@ public:
      * \param polyhedronCache Cache object for computing/retrieving repeated terms in polyhedron potential
      *          gradient calculation.
      */
-    PolyhedronGravitationalAccelerationModel(
+    PolyhedronGravitationalAccelerationModel (
             const StateFunction positionOfBodySubjectToAccelerationFunction,
             const double aGravitationalParameter,
             const double aVolume,
@@ -74,10 +74,11 @@ public:
             const Eigen::MatrixXi& aVerticesDefiningEachEdgeMatrix,
             const std::vector< Eigen::MatrixXd >& aFacetDyadsVector,
             const std::vector< Eigen::MatrixXd >& aEdgeDyadsVector,
+            std::shared_ptr< PolyhedronGravityCache >& polyhedronGravityCache,
             const StateFunction positionOfBodyExertingAccelerationFunction =
-                [ ]( Eigen::Vector3d& input ){ input = Eigen::Vector3d::Zero( ); },
-            const std::function< Eigen::Quaterniond( ) > rotationFromBodyFixedToIntegrationFrameFunction =
-                [ ]( ){ return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ); },
+                    [ ]( Eigen::Vector3d& input) { input = Eigen::Vector3d::Zero( ); },
+            const std::function< Eigen::Quaterniond ( ) > rotationFromBodyFixedToIntegrationFrameFunction =
+                    [ ] ( ) { return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ); },
             const bool isMutualAttractionUsed = 0 )
         : subjectPositionFunction_( positionOfBodySubjectToAccelerationFunction ),
         gravitationalParameterFunction_( [ = ]( ){ return aGravitationalParameter; } ),
@@ -90,8 +91,7 @@ public:
         sourcePositionFunction_( positionOfBodyExertingAccelerationFunction ),
         rotationFromBodyFixedToIntegrationFrameFunction_( rotationFromBodyFixedToIntegrationFrameFunction ),
         isMutualAttractionUsed_( isMutualAttractionUsed ),
-        polyhedronCache_( std::make_shared< PolyhedronGravityCache >(
-                aVerticesCoordinatesMatrix, aVerticesDefiningEachFacetMatrix, aVerticesDefiningEachEdgeMatrix) )
+        polyhedronCache_( polyhedronGravityCache )
     { }
 
     //! Constructor taking functions for position of bodies, and parameters of polyhedron.
@@ -124,6 +124,7 @@ public:
             const std::function< Eigen::MatrixXi() > verticesDefiningEachEdgeFunction,
             const std::function< std::vector< Eigen::MatrixXd >() > facetDyadsFunction,
             const std::function< std::vector< Eigen::MatrixXd >() > edgeDyadsFunction,
+            std::shared_ptr< PolyhedronGravityCache >& polyhedronGravityCache,
             const StateFunction positionOfBodyExertingAccelerationFunction =
                 [ ]( Eigen::Vector3d& input ){ input = Eigen::Vector3d::Zero( ); },
             const std::function< Eigen::Quaterniond( ) > rotationFromBodyFixedToIntegrationFrameFunction =
@@ -140,9 +141,7 @@ public:
         sourcePositionFunction_( positionOfBodyExertingAccelerationFunction ),
         rotationFromBodyFixedToIntegrationFrameFunction_( rotationFromBodyFixedToIntegrationFrameFunction ),
         isMutualAttractionUsed_( isMutualAttractionUsed ),
-        polyhedronCache_( std::make_shared< PolyhedronGravityCache >(
-                verticesCoordinatesFunction(), verticesDefiningEachFacetFunction(),
-                verticesDefiningEachEdgeFunction() ) )
+        polyhedronCache_( polyhedronGravityCache )
     { }
 
     //! Update class members.
