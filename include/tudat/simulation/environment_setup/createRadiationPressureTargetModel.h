@@ -103,11 +103,13 @@ public:
     explicit Panel(double area,
                    double specularReflectivity,
                    double diffuseReflectivity,
-                   const std::string bodyToTrack) :
+                   const std::string bodyToTrack,
+                   const bool towardsTrackedBody = true) :
             area_(area),
             specularReflectivity_(specularReflectivity),
             diffuseReflectivity_(diffuseReflectivity),
-            bodyToTrack_(bodyToTrack)  {}
+            bodyToTrack_(bodyToTrack),
+            towardsTrackedBody_(towardsTrackedBody) {}
 
     double getArea() const
     {
@@ -134,12 +136,18 @@ public:
         return bodyToTrack_;
     }
 
+    bool isTowardsTrackedBody() const
+    {
+        return towardsTrackedBody_;
+    }
+
 private:
     double area_;
     double specularReflectivity_;
     double diffuseReflectivity_;
     std::function<Eigen::Vector3d()> surfaceNormalFunction_;
     std::string bodyToTrack_;
+    bool towardsTrackedBody_;
 };
 
 inline std::shared_ptr<CannonballRadiationPressureTargetModelSettings>

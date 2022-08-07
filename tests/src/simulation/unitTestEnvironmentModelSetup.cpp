@@ -1343,6 +1343,7 @@ BOOST_AUTO_TEST_CASE( test_radiationPressureTargetModelSetup_PaneledTarget )
     const auto expectedSurfaceNormalPanel1 = Eigen::Vector3d::UnitX();
     const auto expectedSurfaceNormalPanel2 = Eigen::Vector3d::UnitY();
     const auto expectedSurfaceNormalPanel3 = Eigen::Vector3d(-1, -1, 0).normalized(); // towards Sun
+    const auto expectedSurfaceNormalPanel4 = Eigen::Vector3d(1, 1, 0).normalized(); // away from Sun
 
     spice_interface::loadStandardSpiceKernels( );
 
@@ -1372,7 +1373,13 @@ BOOST_AUTO_TEST_CASE( test_radiationPressureTargetModelSetup_PaneledTarget )
                             expectedAreaPanel2,
                             expectedSpecularReflectivityPanel2,
                             expectedDiffuseReflectivityPanel2,
-                            "Sun")});
+                            "Sun"), // towards Sun
+                    TargetPanelSettings(
+                            expectedAreaPanel2,
+                            expectedSpecularReflectivityPanel2,
+                            expectedDiffuseReflectivityPanel2,
+                            "Sun", // away from Sun
+                            false)});
     auto paneledRadiationPressureTarget =
             std::dynamic_pointer_cast<electromagnetism::PaneledRadiationPressureTargetModel>(
                     createRadiationPressureTargetModel(
@@ -1382,11 +1389,12 @@ BOOST_AUTO_TEST_CASE( test_radiationPressureTargetModelSetup_PaneledTarget )
     bodies.at( "Vehicle" )->setStateFromEphemeris( 0. );
     bodies.at( "Vehicle" )->setCurrentRotationToLocalFrameFromEphemeris( 0. );
 
-    BOOST_CHECK_EQUAL(paneledRadiationPressureTarget->getPanels().size(), 3);
+    BOOST_CHECK_EQUAL(paneledRadiationPressureTarget->getPanels().size(), 4);
 
     const auto panel1 = paneledRadiationPressureTarget->getPanels()[0];
     const auto panel2 = paneledRadiationPressureTarget->getPanels()[1];
     const auto panel3 = paneledRadiationPressureTarget->getPanels()[2];
+    const auto panel4 = paneledRadiationPressureTarget->getPanels()[3];
     const auto panel1ReflectionLaw =
             std::dynamic_pointer_cast<electromagnetism::SpecularDiffuseMixReflectionLaw>(panel1.getReflectionLaw());
     const auto panel2ReflectionLaw =
@@ -1403,6 +1411,7 @@ BOOST_AUTO_TEST_CASE( test_radiationPressureTargetModelSetup_PaneledTarget )
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(panel1.getSurfaceNormal(), expectedSurfaceNormalPanel1, 1e-10);
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(panel2.getSurfaceNormal(), expectedSurfaceNormalPanel2, 1e-10);
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(panel3.getSurfaceNormal(), expectedSurfaceNormalPanel3, 1e-10);
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(panel4.getSurfaceNormal(), expectedSurfaceNormalPanel4, 1e-10);
 }
 
 
