@@ -31,5 +31,28 @@ Eigen::Vector3d PaneledRadiationPressureTargetModel::evaluateRadiationPressureFo
     }
     return force;
 }
+
+void RadiationPressureTargetModel::updateMembers(const double currentTime)
+{
+    if(currentTime_ != currentTime)
+    {
+        currentTime_ = currentTime;
+        updateMembers_(currentTime);
+    }
+}
+
+void PaneledRadiationPressureTargetModel::updateMembers_(double currentTime)
+{
+    for (auto& panel : panels_)
+    {
+        panel.updateMembers();
+    }
+}
+
+void PaneledRadiationPressureTargetModel::Panel::updateMembers()
+{
+    // Evaluate only once per timestep since surface normal function could be expensive to evaluate
+    surfaceNormal_ = surfaceNormalFunction_();
+}
 } // tudat
 } // electromagnetism

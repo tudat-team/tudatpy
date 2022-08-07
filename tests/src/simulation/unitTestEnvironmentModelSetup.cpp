@@ -1388,6 +1388,7 @@ BOOST_AUTO_TEST_CASE( test_radiationPressureTargetModelSetup_PaneledTarget )
     bodies.at( "Sun" )->setStateFromEphemeris( 0. );
     bodies.at( "Vehicle" )->setStateFromEphemeris( 0. );
     bodies.at( "Vehicle" )->setCurrentRotationToLocalFrameFromEphemeris( 0. );
+    paneledRadiationPressureTarget->updateMembers( 0. );
 
     BOOST_CHECK_EQUAL(paneledRadiationPressureTarget->getPanels().size(), 4);
 

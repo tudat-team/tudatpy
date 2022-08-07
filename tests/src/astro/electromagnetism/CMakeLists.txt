@@ -42,9 +42,16 @@ TUDAT_ADD_TEST_CASE(LuminosityModel
         tudat_electromagnetism
         )
 
+TUDAT_ADD_TEST_CASE(RadiationSourceModel
+        PRIVATE_LINKS
+        tudat_electromagnetism
+        tudat_basic_mathematics
+        )
+
 TUDAT_ADD_TEST_CASE(RadiationPressureTargetModel
         PRIVATE_LINKS
-        ${Tudat_PROPAGATION_LIBRARIES}
+        tudat_electromagnetism
+        tudat_basic_mathematics
         )
 
 TUDAT_ADD_TEST_CASE(RadiationPressureAcceleration

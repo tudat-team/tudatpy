@@ -7,10 +7,10 @@ namespace electromagnetism
 
 void RadiationPressureAcceleration::updateMembers(const double currentTime)
 {
-    if(this->currentTime_ != currentTime)
+    if(currentTime_ != currentTime)
     {
-        this->currentAcceleration_ = calculateAcceleration();
-        this->currentTime_ = currentTime;
+        currentTime_ = currentTime;
+        currentAcceleration_ = calculateAcceleration();
     }
 }
 

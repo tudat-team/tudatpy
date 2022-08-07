@@ -20,8 +20,15 @@ class RadiationPressureTargetModel
 public:
     virtual ~RadiationPressureTargetModel() = default;
 
+    void updateMembers(double currentTime);
+
     virtual Eigen::Vector3d evaluateRadiationPressureForce(
             double sourceIrradiance, Eigen::Vector3d sourceToTargetDirection) const = 0;
+
+protected:
+    virtual void updateMembers_(const double currentTime) {};
+
+    double currentTime_{TUDAT_NAN};
 };
 
 
@@ -74,11 +81,15 @@ public:
     }
 
 private:
+    void updateMembers_(double currentTime) override;
+
     std::vector<Panel> panels_;
 };
 
 class PaneledRadiationPressureTargetModel::Panel
 {
+    friend class PaneledRadiationPressureTargetModel;
+
 public:
     explicit Panel(double area,
                    const std::function<Eigen::Vector3d()> surfaceNormalFunction,
@@ -99,7 +110,7 @@ public:
 
     Eigen::Vector3d getSurfaceNormal() const
     {
-        return surfaceNormalFunction_();
+        return surfaceNormal_;
     }
 
     std::shared_ptr<ReflectionLaw> getReflectionLaw() const
@@ -108,8 +119,11 @@ public:
     }
 
 private:
+    void updateMembers();
+
     double area_;
     std::function<Eigen::Vector3d()> surfaceNormalFunction_;
+    Eigen::Vector3d surfaceNormal_;
     std::shared_ptr<ReflectionLaw> reflectionLaw_;
 };
 
