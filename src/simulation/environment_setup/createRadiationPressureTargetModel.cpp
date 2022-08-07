@@ -7,7 +7,9 @@ namespace simulation_setup
 {
 
 std::shared_ptr<electromagnetism::RadiationPressureTargetModel> createRadiationPressureTargetModel(
-        std::shared_ptr<RadiationPressureTargetModelSettings> modelSettings, const std::string &body)
+        std::shared_ptr<RadiationPressureTargetModelSettings> modelSettings,
+        const std::string &body,
+        const SystemOfBodies& bodies)
 {
     using namespace tudat::electromagnetism;
 
@@ -46,9 +48,37 @@ std::shared_ptr<electromagnetism::RadiationPressureTargetModel> createRadiationP
             std::vector<PaneledRadiationPressureTargetModel::Panel> panels;
             for (auto& panel : paneledTargetModelSettings->getPanels())
             {
+                std::function<Eigen::Vector3d()> surfaceNormalFunction;
+                if((panel.getSurfaceNormalFunction() && !panel.getBodyToTrack().empty()) ||
+                        (!panel.getSurfaceNormalFunction() && panel.getBodyToTrack().empty())
+                        )
+                {
+                    throw std::runtime_error(
+                            "Error, must specify either surface normal or body to track for all"
+                            "paneled radiation pressure target panel for body " + body );
+                }
+                else if (panel.getSurfaceNormalFunction())
+                {
+                    surfaceNormalFunction = [=] () { return panel.getSurfaceNormalFunction()().normalized(); };
+                }
+                else {
+                    // Tracking a body means setting the surface normal towards the tracked body in the local frame
+                    const auto bodyToTrack = bodies.at(panel.getBodyToTrack());
+                    const auto targetBody = bodies.at(body);
+                    surfaceNormalFunction = [=] () {
+                        const auto rotationFromPropagationToLocalFrame =
+                                targetBody->getCurrentRotationToLocalFrame();
+                        const auto relativeSourcePositionInPropagationFrame =
+                                bodyToTrack->getPosition() - targetBody->getPosition();
+                        const auto relativeSourcePositionInLocalFrame =
+                                rotationFromPropagationToLocalFrame * relativeSourcePositionInPropagationFrame;
+                        return relativeSourcePositionInLocalFrame.normalized();
+                    };
+                }
+
                 panels.emplace_back(
                         panel.getArea(),
-                        [=] () { return panel.getSurfaceNormalFunction()().normalized(); },
+                        surfaceNormalFunction,
                         SpecularDiffuseMixReflectionLaw::fromSpecularAndDiffuseReflectivity(
                                 panel.getSpecularReflectivity(),
                                 panel.getDiffuseReflectivity()));

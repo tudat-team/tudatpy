@@ -4,6 +4,7 @@
 #include <memory>
 
 #include "tudat/astro/electromagnetism/radiationPressureTargetModel.h"
+#include "tudat/simulation/environment_setup/body.h"
 
 namespace tudat
 {
@@ -99,6 +100,15 @@ public:
                   diffuseReflectivity,
                   [=] () { return surfaceNormal; }) {}
 
+    explicit Panel(double area,
+                   double specularReflectivity,
+                   double diffuseReflectivity,
+                   const std::string bodyToTrack) :
+            area_(area),
+            specularReflectivity_(specularReflectivity),
+            diffuseReflectivity_(diffuseReflectivity),
+            bodyToTrack_(bodyToTrack)  {}
+
     double getArea() const
     {
         return area_;
@@ -119,12 +129,24 @@ public:
         return diffuseReflectivity_;
     }
 
+    const std::string &getBodyToTrack() const
+    {
+        return bodyToTrack_;
+    }
+
 private:
     double area_;
     double specularReflectivity_;
     double diffuseReflectivity_;
     std::function<Eigen::Vector3d()> surfaceNormalFunction_;
+    std::string bodyToTrack_;
 };
+
+inline std::shared_ptr<CannonballRadiationPressureTargetModelSettings>
+        cannonballRadiationPressureTargetModelSettings(double area, double coefficient)
+{
+    return std::make_shared< CannonballRadiationPressureTargetModelSettings >(area, coefficient);
+}
 
 inline std::shared_ptr<PaneledRadiationPressureTargetModelSettings>
         paneledRadiationPressureTargetModelSettings(std::initializer_list<PaneledRadiationPressureTargetModelSettings::Panel> panels)
@@ -135,7 +157,8 @@ inline std::shared_ptr<PaneledRadiationPressureTargetModelSettings>
 
 std::shared_ptr<electromagnetism::RadiationPressureTargetModel> createRadiationPressureTargetModel(
         std::shared_ptr< RadiationPressureTargetModelSettings > modelSettings,
-        const std::string& body);
+        const std::string& body,
+        const SystemOfBodies& bodies);
 
 typedef PaneledRadiationPressureTargetModelSettings::Panel TargetPanelSettings;
 
