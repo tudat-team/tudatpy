@@ -26,10 +26,16 @@ public:
 
     virtual ~RadiationSourceModel() = default;
 
+    void updateMembers(double currentTime );
+
     virtual IrradianceWithSourceList evaluateIrradianceAtPosition(Eigen::Vector3d) const = 0;
 
 protected:
+    virtual void updateMembers_(const double currentTime) {};
+
+    Eigen::Vector3d sourcePosition_;
     std::function< Eigen::Vector3d( ) > sourcePositionFunction_;
+    double currentTime_{TUDAT_NAN};
 };
 
 
@@ -50,6 +56,8 @@ public:
     }
 
 private:
+    void updateMembers_(double currentTime) override;
+
     std::shared_ptr<LuminosityModel> luminosityModel_;
 };
 

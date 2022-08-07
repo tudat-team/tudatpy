@@ -93,6 +93,7 @@ BOOST_AUTO_TEST_CASE( testPaneledRadiationPressureTargetModel_PointingAway )
             TargetPanel(1, Eigen::Vector3d(0, 1, -3).normalized(), reflectionLaw),
             TargetPanel(1, Eigen::Vector3d(0, -1, -4).normalized(), reflectionLaw)
     });
+    targetModel.updateMembers(TUDAT_NAN);
 
     const auto sourceIrradiance = 1000;
     const auto sourceToTargetDirection = Eigen::Vector3d(0, 0, -1).normalized();
@@ -114,6 +115,7 @@ BOOST_AUTO_TEST_CASE( testPaneledRadiationPressureTargetModel_LateralCancellatio
             TargetPanel(1, Eigen::Vector3d(0, 1, 1).normalized(), reflectionLaw),
             TargetPanel(1, Eigen::Vector3d(0, -1, 1).normalized(), reflectionLaw)
     });
+    targetModel.updateMembers(TUDAT_NAN);
 
     const auto sourceIrradiance = 1000;
     const auto sourceToTargetDirection = Eigen::Vector3d(0, 0, -1).normalized();

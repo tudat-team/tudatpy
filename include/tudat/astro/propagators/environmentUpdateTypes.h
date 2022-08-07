@@ -30,7 +30,9 @@ enum EnvironmentModelsToUpdate
     body_mass_update = 2,
     spherical_harmonic_gravity_field_update = 3,
     vehicle_flight_conditions_update = 4,
-    radiation_pressure_interface_update = 5
+    radiation_pressure_interface_update = 5,
+    radiation_source_model_update = 6,
+    radiation_pressure_target_model_update = 7
 };
 
 //! Function to extend existing list of required environment update types

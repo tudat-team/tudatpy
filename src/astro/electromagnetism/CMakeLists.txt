@@ -37,6 +37,7 @@ set(electromagnetism_SOURCES
         "solarSailAcceleration.cpp"
         "solarSailForce.cpp"
         "radiationSourceModel.cpp"
+        "luminosityModel.cpp"
         "radiationPressureTargetModel.cpp"
         "radiationPressureAcceleration.cpp"
         "reflectionLaw.cpp"

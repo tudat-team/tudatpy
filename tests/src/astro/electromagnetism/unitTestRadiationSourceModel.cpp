@@ -32,6 +32,7 @@ BOOST_AUTO_TEST_CASE( testIsotropicPointRadiationSourceModel )
             [=]() { return expectedIrradiance; }, physical_constants::ASTRONOMICAL_UNIT);
     auto radiationSourceModel = std::make_shared<IsotropicPointRadiationSourceModel>(
             [=]() { return sourcePosition; }, luminosityModel);
+    radiationSourceModel->updateMembers(TUDAT_NAN);
 
     const auto ret = radiationSourceModel->evaluateIrradianceAtPosition(targetPosition).front();
     const auto actualIrradiance = std::get<0>(ret);
@@ -60,6 +61,7 @@ BOOST_AUTO_TEST_CASE( testIsotropicPointRadiationSourceModelPositionInvariance )
             auto luminosityModel = std::make_shared<ConstantLuminosityModel>(1);
             auto radiationSourceModel = std::make_shared<IsotropicPointRadiationSourceModel>(
                     [=]() { return Eigen::Vector3d(0, 0, 0); }, luminosityModel);
+            radiationSourceModel->updateMembers(TUDAT_NAN);
 
             const auto ret = radiationSourceModel->evaluateIrradianceAtPosition(targetPosition).front();
             actualIrradiances.push_back(std::get<0>(ret));

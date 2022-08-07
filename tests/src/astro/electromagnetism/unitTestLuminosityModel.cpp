@@ -23,8 +23,8 @@ BOOST_AUTO_TEST_CASE( testConstantLuminosityModel )
 {
     const auto expectedLuminosity = 42;
 
-    ConstantLuminosityModel model(expectedLuminosity);
-    const auto actualLuminosity = model.getLuminosity();
+    ConstantLuminosityModel luminosityModel(expectedLuminosity);
+    const auto actualLuminosity = luminosityModel.getLuminosity();
 
     BOOST_CHECK_EQUAL(actualLuminosity, expectedLuminosity);
 }
@@ -33,8 +33,9 @@ BOOST_AUTO_TEST_CASE( testIrradianceBasedLuminosityModel )
 {
     const auto expectedLuminosity = celestial_body_constants::SUN_LUMINOSITY;
 
-    IrradianceBasedLuminosityModel model(1360.8, physical_constants::ASTRONOMICAL_UNIT);
-    const auto actualLuminosity = model.getLuminosity();
+    IrradianceBasedLuminosityModel luminosityModel(1360.8, physical_constants::ASTRONOMICAL_UNIT);
+    luminosityModel.updateMembers();
+    const auto actualLuminosity = luminosityModel.getLuminosity();
 
     BOOST_CHECK_CLOSE(actualLuminosity, expectedLuminosity, 0.1);
 }

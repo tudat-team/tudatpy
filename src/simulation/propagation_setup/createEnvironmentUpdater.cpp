@@ -111,6 +111,30 @@ void checkValidityOfRequiredEnvironmentUpdates(
                     }
                     break;
                 }
+                case radiation_source_model_update:
+                {
+                    std::shared_ptr< electromagnetism::RadiationSourceModel > radiationSourceModel = bodies.at(
+                            updateIterator->second.at( i ) )->getRadiationSourceModel();
+                    if( radiationSourceModel == nullptr )
+                    {
+                        throw std::runtime_error(
+                                "Error when making environment model update settings, could not find radiation source model of body "
+                                + updateIterator->second.at( i ) );
+                    }
+                    break;
+                }
+                case radiation_pressure_target_model_update:
+                {
+                    std::shared_ptr< electromagnetism::RadiationPressureTargetModel > radiationPressureTargetModel = bodies.at(
+                            updateIterator->second.at( i ) )->getRadiationPressureTargetModel();
+                    if( radiationPressureTargetModel == nullptr )
+                    {
+                        throw std::runtime_error(
+                                "Error when making environment model update settings, could not find radiation pressure target model of body "
+                                + updateIterator->second.at( i ) );
+                    }
+                    break;
+                }
                 case body_mass_update:
                     if( bodies.at( updateIterator->second.at( i ) )->getBodyMassFunction( ) == nullptr )
                     {
@@ -345,19 +369,23 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                 {
                     singleAccelerationUpdateNeeds[ body_mass_update ].push_back(
                             acceleratedBodyIterator->first );
+                    singleAccelerationUpdateNeeds[ radiation_source_model_update ].push_back(
+                            accelerationModelIterator->first );
+                    singleAccelerationUpdateNeeds[ radiation_pressure_target_model_update ].push_back(
+                            acceleratedBodyIterator->first );
 
                     auto radiationPressureAcceleration =
                             std::dynamic_pointer_cast<electromagnetism::RadiationPressureAcceleration>(
                                     accelerationModelIterator->second.at(i));
-                    // TODO-DOMINIK uncomment when paneled target is implemented
-//                    auto paneledRadiationPressureTargetModel =
-//                            std::dynamic_pointer_cast<electromagnetism::PaneledRadiationPressureTargetModel>(
-//                                    radiationPressureAcceleration->getTargetModel());
-//                    if (paneledRadiationPressureTargetModel != nullptr) {
-//                        // Only paneled target, not cannonball target needs rotational state
-//                        singleAccelerationUpdateNeeds[ body_rotational_state_update ].push_back(
-//                                acceleratedBodyIterator->first );
-//                    }
+
+                    auto paneledRadiationPressureTargetModel =
+                            std::dynamic_pointer_cast<electromagnetism::PaneledRadiationPressureTargetModel>(
+                                    radiationPressureAcceleration->getTargetModel());
+                    if (paneledRadiationPressureTargetModel != nullptr) {
+                        // Only paneled target, not cannonball target needs rotational state
+                        singleAccelerationUpdateNeeds[ body_rotational_state_update ].push_back(
+                                acceleratedBodyIterator->first );
+                    }
                     break;
                 }
                 case cannon_ball_radiation_pressure:
@@ -978,6 +1006,20 @@ std::vector< std::string > > createFullEnvironmentUpdaterSettings(
              iterator != radiationPressureInterfaces.end( ); iterator++ )
         {
             singleAccelerationUpdateNeeds[ radiation_pressure_interface_update ].
+                    push_back( bodyIterator.first );
+        }
+
+        // If body has radiation source model, add its update to update list
+        if( bodyIterator.second->getRadiationSourceModel() != nullptr )
+        {
+            singleAccelerationUpdateNeeds[ radiation_source_model_update ].
+                    push_back( bodyIterator.first );
+        }
+
+        // If body has radiation pressure target model, add its update to update list
+        if( bodyIterator.second->getRadiationPressureTargetModel() != nullptr )
+        {
+            singleAccelerationUpdateNeeds[ radiation_pressure_target_model_update ].
                     push_back( bodyIterator.first );
         }
 
