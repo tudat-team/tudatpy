@@ -30,6 +30,7 @@
 #include "basic_astro/oblateSpheroidBodyShapeModel.h"
 #include "basic_astro/orbitalElementConversions.h"
 #include "basic_astro/physicalConstants.h"
+#include "basic_astro/polyhedronFunctions.h"
 #include "basic_astro/sphericalBodyShapeModel.h"
 #include "basic_astro/sphericalStateConversions.h"
 #include "basic_astro/stateRepresentationConversions.h"
