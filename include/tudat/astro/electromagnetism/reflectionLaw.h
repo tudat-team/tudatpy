@@ -130,6 +130,21 @@ public:
             Eigen::Vector3d surfaceNormal,
             Eigen::Vector3d incomingDirection) const override;
 
+    double getAbsorptivity() const
+    {
+        return absorptivity_;
+    }
+
+    double getSpecularReflectivity() const
+    {
+        return specularReflectivity_;
+    }
+
+    double getDiffuseReflectivity() const
+    {
+        return diffuseReflectivity;
+    }
+
 private:
     double absorptivity_;
 

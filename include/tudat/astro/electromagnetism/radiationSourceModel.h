@@ -42,17 +42,7 @@ public:
             RadiationSourceModel(sourcePositionFunction),
             luminosityModel_(luminosityModel) {}
 
-    IrradianceWithSourceList evaluateIrradianceAtPosition(Eigen::Vector3d targetPosition) const override
-    {
-        auto sourcePosition = sourcePositionFunction_();
-        auto distanceSourceToTarget = (targetPosition - sourcePosition).norm();
-        auto luminosity = luminosityModel_->getLuminosity();
-
-        auto sphereArea = 4 * mathematical_constants::PI * distanceSourceToTarget * distanceSourceToTarget;
-        auto irradiance = luminosity / sphereArea;
-
-        return IrradianceWithSourceList { std::make_tuple(irradiance, sourcePosition) };
-    }
+    IrradianceWithSourceList evaluateIrradianceAtPosition(Eigen::Vector3d targetPosition) const override;
 
     std::shared_ptr<LuminosityModel> getLuminosityModel() const
     {

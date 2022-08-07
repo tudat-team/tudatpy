@@ -56,13 +56,13 @@ Eigen::Vector3d SpecularDiffuseMixReflectionLaw::evaluateReactionVector(Eigen::V
     if (withInstantaneousLambertianReradiation_)
     {
         // Montenbruck (2014) Eq. 6
+        // Instantaneous Lambertian reradiation behaves similarly to diffuse Lambertian reflection
         reactionFromInstantaneousReradiation = -(2. / 3 * absorptivity_) * surfaceNormal;
     }
     else
     {
         reactionFromInstantaneousReradiation = Eigen::Vector3d::Zero();
     }
-
 
     return reactionFromIncidence + reactionFromReflection + reactionFromInstantaneousReradiation;
 }
