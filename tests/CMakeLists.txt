@@ -1,4 +1,4 @@
-#add_subdirectory(src/astro)
+add_subdirectory(src/astro)
 #add_subdirectory(src/basics)
 #add_subdirectory(src/interface)
 #add_subdirectory(src/math)
