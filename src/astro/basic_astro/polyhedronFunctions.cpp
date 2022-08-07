@@ -118,25 +118,27 @@ Eigen::Vector3d computeCentroidPosition ( const Eigen::MatrixXd& verticesCoordin
     return centroid;
 }
 
-Eigen::MatrixXd modifyCentroidPosition ( Eigen::MatrixXd verticesCoordinates,
+Eigen::MatrixXd modifyCentroidPosition ( const Eigen::MatrixXd& verticesCoordinates,
                                          const Eigen::MatrixXi& verticesDefiningEachFacet,
                                          const Eigen::Vector3d desiredCentroid )
 {
     Eigen::Vector3d initialCentroid = computeCentroidPosition( verticesCoordinates, verticesDefiningEachFacet );
     Eigen::Vector3d centroidCorrection = desiredCentroid - initialCentroid;
 
+    Eigen::MatrixXd translatedVerticesCoordinates = verticesCoordinates;
+
     // Correct the centroid position if necessary
     if ( desiredCentroid != initialCentroid )
     {
-        const unsigned int numberOfVertices = verticesCoordinates.rows();
+        const unsigned int numberOfVertices = translatedVerticesCoordinates.rows();
 
         for (unsigned int vertex = 0; vertex < numberOfVertices; ++vertex)
         {
-            verticesCoordinates.block<1,3>(vertex,0) += centroidCorrection;
+            translatedVerticesCoordinates.block<1,3>(vertex,0) += centroidCorrection;
         }
     }
 
-    return verticesCoordinates;
+    return translatedVerticesCoordinates;
 }
 
 Eigen::Matrix3d computeInertiaTensor ( const Eigen::MatrixXd& verticesCoordinates,
@@ -165,9 +167,8 @@ Eigen::Matrix3d computeInertiaTensor ( const Eigen::MatrixXd& verticesCoordinate
 
         for (unsigned int row = 0; row < 3; ++row)
         {
-            for (unsigned int col = row; col <= 3; ++col)
+            for (unsigned int col = row; col < 3; ++col)
             {
-
                 inertiaProducts(row, col) += density * volumeOfTetrahedron / 20.0 * (
                         12 * vertex0(row) * vertex0(col) + 2 * edge0(row) * edge0(col) + 2 * edge1(row) * edge1(col) +
                         4 * ( vertex0(row) * edge0(col) + vertex0(col) * edge0(row) ) +
@@ -183,11 +184,11 @@ Eigen::Matrix3d computeInertiaTensor ( const Eigen::MatrixXd& verticesCoordinate
     inertiaTensor(1,1) = inertiaProducts(0,0) + inertiaProducts(2,2);
     inertiaTensor(2,2) = inertiaProducts(0,0) + inertiaProducts(1,1);
     inertiaTensor(0,1) = - inertiaProducts(0,1);
-    inertiaTensor(1,0) = inertiaTensor(0,1);
+    inertiaTensor(1,0) = - inertiaProducts(0,1);
     inertiaTensor(0,2) = - inertiaProducts(0,2);
-    inertiaTensor(2,0) = inertiaTensor(0,2);
+    inertiaTensor(2,0) = - inertiaProducts(0,2);
     inertiaTensor(1,2) = - inertiaProducts(1,2);
-    inertiaTensor(2,1) = inertiaTensor(1,2);
+    inertiaTensor(2,1) = - inertiaProducts(1,2);
 
     return inertiaTensor;
 }
