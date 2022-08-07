@@ -24,13 +24,24 @@ namespace polyhedron_utilities
 /*! Checks if the provided polyhedron settings are valid.
  *
  * Checks if the provided polyhedron settings are valid. It verifies that the provided matrices with the vertices coordinates
- * and the vertices defining each facet have valid dimensions. Throwns an error if invalid dimensions.
+ * and the vertices defining each facet have valid dimensions. Throws an error if invalid dimensions.
  *
  * @param verticesCoordinates Cartesian coordinates of each vertex (one row per vertex).
  * @param verticesDefiningEachFacet Index (0 based) of the vertices constituting each facet (one row per facet).
  */
 void checkValidityOfPolyhedronSettings( const Eigen::MatrixXd& verticesCoordinates,
                                         const Eigen::MatrixXi& verticesDefiningEachFacet);
+
+/*! Computes the surface area of a polyhedron.
+ *
+ * Computes the surface area of a polyhedron, according to Dobrovolskis (1996), section 2.
+ *
+ * @param verticesCoordinates Cartesian coordinates of each vertex (one row per vertex).
+ * @param verticesDefiningEachFacet Index (0 based) of the vertices constituting each facet (one row per facet).
+ * @return Volume.
+ */
+double computeSurfaceArea ( const Eigen::MatrixXd& verticesCoordinates,
+                            const Eigen::MatrixXi& verticesDefiningEachFacet );
 
 /*! Computes the volume of a polyhedron.
  *
@@ -69,6 +80,35 @@ Eigen::Vector3d computeCentroidPosition (const Eigen::MatrixXd& verticesCoordina
 Eigen::MatrixXd modifyCentroidPosition ( Eigen::MatrixXd verticesCoordinates,
                                          const Eigen::MatrixXi& verticesDefiningEachFacet,
                                          const Eigen::Vector3d desiredCentroid );
+
+
+/*! Computes the inertia tensor a polyhedron.
+ *
+ * Computes the inertia tensor of a polyhedron, according to Dobrovolskis (1996), section 5.
+ *
+ * @param verticesCoordinates Cartesian coordinates of each vertex (one row per vertex).
+ * @param verticesDefiningEachFacet Index (0 based) of the vertices constituting each facet (one row per facet).
+ * @param density Density of polyhedron
+ * @return Inertia tensor.
+ */
+Eigen::Matrix3d computeInertiaTensor ( const Eigen::MatrixXd& verticesCoordinates,
+                                       const Eigen::MatrixXi& verticesDefiningEachFacet,
+                                       const double density );
+
+/*! Computes the inertia tensor a polyhedron.
+ *
+ * Computes the inertia tensor of a polyhedron, according to Dobrovolskis (1996), section 5.
+ *
+ * @param verticesCoordinates Cartesian coordinates of each vertex (one row per vertex).
+ * @param verticesDefiningEachFacet Index (0 based) of the vertices constituting each facet (one row per facet).
+ * @param gravitationalParameter Gravitational parameter of the polyhedron.
+ * @param gravitationalConstant Gravitational constant
+ * @return Inertia tensor.
+ */
+Eigen::Matrix3d computeInertiaTensor ( const Eigen::MatrixXd& verticesCoordinates,
+                                       const Eigen::MatrixXi& verticesDefiningEachFacet,
+                                       const double gravitationalParameter,
+                                       const double gravitationalConstant );
 
 } // namespace polyhedron_utilities
 } // namespace tudat
