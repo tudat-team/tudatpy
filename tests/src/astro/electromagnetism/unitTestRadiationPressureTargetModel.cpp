@@ -81,20 +81,18 @@ BOOST_AUTO_TEST_CASE( testCannonballRadiationPressureTargetModelZeroCoeff )
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(actualForce, expectedForce, 1e-15);
 }
 
-
 //! Check if force is zero if all panels point away from incident radiation
 BOOST_AUTO_TEST_CASE( testPaneledRadiationPressureTargetModel_PointingAway )
 {
     const auto expectedForce = Eigen::Vector3d::Zero();
 
     const auto reflectionLaw = std::make_shared<SpecularDiffuseMixReflectionLaw>(0.2, 0.4, 0.4);
-    std::vector<TargetPanel> panels{
-        TargetPanel(1, Eigen::Vector3d(1, 0, -1).normalized(), reflectionLaw),
-        TargetPanel(1, Eigen::Vector3d(-1, 0, -2).normalized(), reflectionLaw),
-        TargetPanel(1, Eigen::Vector3d(0, 1, -3).normalized(), reflectionLaw),
-        TargetPanel(1, Eigen::Vector3d(0, -1, -4).normalized(), reflectionLaw)
-    };
-    PaneledRadiationPressureTargetModel targetModel(panels);
+    PaneledRadiationPressureTargetModel targetModel({
+            TargetPanel(1, Eigen::Vector3d(1, 0, -1).normalized(), reflectionLaw),
+            TargetPanel(1, Eigen::Vector3d(-1, 0, -2).normalized(), reflectionLaw),
+            TargetPanel(1, Eigen::Vector3d(0, 1, -3).normalized(), reflectionLaw),
+            TargetPanel(1, Eigen::Vector3d(0, -1, -4).normalized(), reflectionLaw)
+    });
 
     const auto sourceIrradiance = 1000;
     const auto sourceToTargetDirection = Eigen::Vector3d(0, 0, -1).normalized();
@@ -103,20 +101,19 @@ BOOST_AUTO_TEST_CASE( testPaneledRadiationPressureTargetModel_PointingAway )
             sourceToTargetDirection);
 
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(actualForce, expectedForce, 1e-15);
-
 }
+
 //! Check if lateral forces due to angled panels cancel and all force is along z-axis
 BOOST_AUTO_TEST_CASE( testPaneledRadiationPressureTargetModel_LateralCancellation )
 {
     // Purely diffuse Lambertian radiation so radiation pressure force is along normal of each panel
     const auto reflectionLaw = std::make_shared<SpecularDiffuseMixReflectionLaw>(0, 0, 1);
-    std::vector<TargetPanel> panels{
-        TargetPanel(1, Eigen::Vector3d(1, 0, 1).normalized(), reflectionLaw),
-        TargetPanel(1, Eigen::Vector3d(-1, 0, 1).normalized(), reflectionLaw),
-        TargetPanel(1, Eigen::Vector3d(0, 1, 1).normalized(), reflectionLaw),
-        TargetPanel(1, Eigen::Vector3d(0, -1, 1).normalized(), reflectionLaw)
-    };
-    PaneledRadiationPressureTargetModel targetModel(panels);
+    PaneledRadiationPressureTargetModel targetModel({
+            TargetPanel(1, Eigen::Vector3d(1, 0, 1).normalized(), reflectionLaw),
+            TargetPanel(1, Eigen::Vector3d(-1, 0, 1).normalized(), reflectionLaw),
+            TargetPanel(1, Eigen::Vector3d(0, 1, 1).normalized(), reflectionLaw),
+            TargetPanel(1, Eigen::Vector3d(0, -1, 1).normalized(), reflectionLaw)
+    });
 
     const auto sourceIrradiance = 1000;
     const auto sourceToTargetDirection = Eigen::Vector3d(0, 0, -1).normalized();
