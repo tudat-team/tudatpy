@@ -74,7 +74,6 @@ public:
             const Eigen::MatrixXi& aVerticesDefiningEachEdgeMatrix,
             const std::vector< Eigen::MatrixXd >& aFacetDyadsVector,
             const std::vector< Eigen::MatrixXd >& aEdgeDyadsVector,
-            std::shared_ptr< PolyhedronGravityCache >& polyhedronGravityCache,
             const StateFunction positionOfBodyExertingAccelerationFunction =
                     [ ]( Eigen::Vector3d& input) { input = Eigen::Vector3d::Zero( ); },
             const std::function< Eigen::Quaterniond ( ) > rotationFromBodyFixedToIntegrationFrameFunction =
@@ -91,7 +90,8 @@ public:
         sourcePositionFunction_( positionOfBodyExertingAccelerationFunction ),
         rotationFromBodyFixedToIntegrationFrameFunction_( rotationFromBodyFixedToIntegrationFrameFunction ),
         isMutualAttractionUsed_( isMutualAttractionUsed ),
-        polyhedronCache_( polyhedronGravityCache )
+        polyhedronCache_( std::make_shared< PolyhedronGravityCache >(
+                 aVerticesCoordinatesMatrix, aVerticesDefiningEachFacetMatrix, aVerticesDefiningEachEdgeMatrix) )
     { }
 
     //! Constructor taking functions for position of bodies, and parameters of polyhedron.
@@ -124,7 +124,6 @@ public:
             const std::function< Eigen::MatrixXi() > verticesDefiningEachEdgeFunction,
             const std::function< std::vector< Eigen::MatrixXd >() > facetDyadsFunction,
             const std::function< std::vector< Eigen::MatrixXd >() > edgeDyadsFunction,
-            std::shared_ptr< PolyhedronGravityCache >& polyhedronGravityCache,
             const StateFunction positionOfBodyExertingAccelerationFunction =
                 [ ]( Eigen::Vector3d& input ){ input = Eigen::Vector3d::Zero( ); },
             const std::function< Eigen::Quaterniond( ) > rotationFromBodyFixedToIntegrationFrameFunction =
@@ -141,7 +140,9 @@ public:
         sourcePositionFunction_( positionOfBodyExertingAccelerationFunction ),
         rotationFromBodyFixedToIntegrationFrameFunction_( rotationFromBodyFixedToIntegrationFrameFunction ),
         isMutualAttractionUsed_( isMutualAttractionUsed ),
-        polyhedronCache_( polyhedronGravityCache )
+        polyhedronCache_( std::make_shared< PolyhedronGravityCache >(
+                 verticesCoordinatesFunction(), verticesDefiningEachFacetFunction(),
+                 verticesDefiningEachEdgeFunction() ) )
     { }
 
     //! Update class members.
