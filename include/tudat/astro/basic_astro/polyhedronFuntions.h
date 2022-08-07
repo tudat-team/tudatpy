@@ -15,6 +15,10 @@
 #define TUDATBUNDLE_POLYHEDRONFUNTIONS_H
 
 #include <Eigen/Core>
+#include <Eigen/Geometry>
+#include <Eigen/Eigenvalues>
+
+#include <iostream>
 
 namespace tudat
 {
@@ -77,7 +81,7 @@ Eigen::Vector3d computeCentroidPosition (const Eigen::MatrixXd& verticesCoordina
  * @param desiredCentroid Desired position of the centroid wrt the frame in which the vertices were defined.
  * @return Corrected coordinates of vertices.
  */
-Eigen::MatrixXd modifyCentroidPosition ( Eigen::MatrixXd verticesCoordinates,
+Eigen::MatrixXd modifyCentroidPosition ( const Eigen::MatrixXd& verticesCoordinates,
                                          const Eigen::MatrixXi& verticesDefiningEachFacet,
                                          const Eigen::Vector3d desiredCentroid );
 
