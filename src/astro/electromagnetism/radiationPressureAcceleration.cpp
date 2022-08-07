@@ -37,6 +37,5 @@ Eigen::Vector3d RadiationPressureAcceleration::calculateAcceleration()
     return acceleration;
 }
 
-
 } // tudat
 } // electromagnetism

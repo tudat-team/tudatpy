@@ -57,12 +57,21 @@ public:
     class Panel;
 
     explicit PaneledRadiationPressureTargetModel(
-            std::vector<Panel> &panels)
+            std::vector<Panel> panels)
+            : panels_(panels) {}
+
+    PaneledRadiationPressureTargetModel(
+            std::initializer_list<Panel> panels)
             : panels_(panels) {}
 
     Eigen::Vector3d evaluateRadiationPressureForce(
             double sourceIrradiance,
             Eigen::Vector3d sourceToTargetDirection) const override;
+
+    const std::vector<Panel> getPanels() const
+    {
+        return panels_;
+    }
 
 private:
     std::vector<Panel> panels_;
@@ -83,15 +92,14 @@ public:
                    const std::shared_ptr<ReflectionLaw> reflectionLaw) :
             Panel(area, [=] () { return surfaceNormal; }, reflectionLaw) {}
 
-
     double getArea() const
     {
         return area_;
     }
 
-    std::function<Eigen::Vector3d()> getSurfaceNormalFunction() const
+    Eigen::Vector3d getSurfaceNormal() const
     {
-        return surfaceNormalFunction_;
+        return surfaceNormalFunction_();
     }
 
     std::shared_ptr<ReflectionLaw> getReflectionLaw() const
