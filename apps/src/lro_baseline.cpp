@@ -28,24 +28,31 @@ SingleArcDynamicsSimulator<> createSimulator(const SystemOfBodies&, const Accele
 void runSimulationAndSaveResults(SingleArcDynamicsSimulator<>& dynamicsSimulator);
 
 
-const auto outputFolder = "/home/dominik/dev/tudat-bundle/output/lro/baseline";
-const auto simulationDuration = 226 * 60;  // 226 min, about 2 orbital revolutions
-const auto simulationStartEpoch =
-        (convertCalendarDateToJulianDay(2010, 1, 1, 0, 0, 0) - JULIAN_DAY_ON_J2000) * JULIAN_DAY;
-const auto simulationEndEpoch = simulationStartEpoch + simulationDuration;
-const auto printInterval = simulationDuration / 10;
-const auto minStepSize = 10.0;  // no improvement when setting to 1 s
+namespace simulation_constants
+{
+    const auto outputFolder = "/home/dominik/dev/tudat-bundle/output/lro/baseline";
+    const auto simulationDuration = 565 * 60;  // 565 min, about 5 orbital revolutions
+    const auto simulationStart = "2010 JUN 26 03:00:00";
+    double simulationStartEpoch;
+    double simulationEndEpoch;
+    const auto printInterval = simulationDuration / 10;
+    const auto minStepSize = 5.0;
 
-const auto globalFrameOrigin = "Moon";
-const auto globalFrameOrientation = "ECLIPJ2000";
+    const auto globalFrameOrigin = "Moon";
+    const auto globalFrameOrientation = "ECLIPJ2000";
 
-const std::vector< std::string > bodiesToPropagate{"LRO"};
-const std::vector< std::string > centralBodies{"Moon"};
+    const std::vector< std::string > bodiesToPropagate{"LRO"};
+    const std::vector< std::string > centralBodies{"Moon"};
+}
+using namespace simulation_constants;
 
 
 int main()
 {
     loadLROSpiceKernels();
+
+    simulationStartEpoch = spice_interface::convertDateStringToEphemerisTime(simulationStart);
+    simulationEndEpoch = simulationStartEpoch + simulationDuration;
 
     auto bodies = createSimulationBodies();
     auto accelerations = createSimulationAccelerations(bodies);
@@ -56,21 +63,40 @@ int main()
     return EXIT_SUCCESS;
 }
 
-// Loads reconstructed LRO and DE421 ephemerides
+// Loads SPICE kernels for lro
 void loadLROSpiceKernels()
 {
-    std::string path = "/home/dominik/dev/tudat-bundle/spice/lro/data/spk";
+    using namespace tudat::spice_interface;
 
-    std::vector<std::string> ephemerisKernels;
+    std::string path = "/home/dominik/dev/tudat-bundle/spice/lro/data";
 
-    for(auto& entry : boost::make_iterator_range(boost::filesystem::directory_iterator(path), {})) {
+    // Leap seconds
+    loadSpiceKernelInTudat(path + "/lsk/naif0012.tls");
+    // Planetary shapes
+    loadSpiceKernelInTudat(path + "/pck/pck00010.tpc");
+    // Planetary gravitational parameters
+    loadSpiceKernelInTudat(path + "/pck/gm_de431.tpc");
+
+    // LRO spacecraft bus and instrument frames
+    loadSpiceKernelInTudat(path + "/fk/lro_frames_2012255_v02.tf");
+    // LRO spacecraft clock
+    loadSpiceKernelInTudat(path + "/sclk/lro_clkcor_2022075_v00.tsc");
+
+    // LRO ephemeris
+    for(auto& entry : boost::make_iterator_range(boost::filesystem::directory_iterator(path + "/spk"), {})) {
         if (entry.path().extension() == ".bsp")
         {
-            ephemerisKernels.push_back(entry.path().string());
+            loadSpiceKernelInTudat(entry.path().string());
         }
     }
 
-    spice_interface::loadStandardSpiceKernels(ephemerisKernels);
+    // LRO orientation
+    for(auto& entry : boost::make_iterator_range(boost::filesystem::directory_iterator(path + "/ck"), {})) {
+        if (entry.path().extension() == ".bc")
+        {
+            loadSpiceKernelInTudat(entry.path().string());
+        }
+    }
 }
 
 SystemOfBodies createSimulationBodies()
@@ -84,17 +110,28 @@ SystemOfBodies createSimulationBodies()
     }
 //    bodySettings.at("Sun")->radiationSourceModelSettings =
 //            std::make_shared<IsotropicPointRadiationSourceModelSettings>(
-//                    std::make_shared<ConstantLuminosityModelSettings>(9e33));
-    auto bodies = createSystemOfBodies(bodySettings);
+//                    std::make_shared<ConstantLuminosityModelSettings>(1e33));
 
     // Create LRO
-    bodies.createEmptyBody("LRO");
-    bodies.getBody("LRO")->setConstantBodyMass(1916.0);
-    bodies.getBody("LRO")->setRadiationPressureTargetModel(
-            createRadiationPressureTargetModel(
-                    std::make_shared<CannonballRadiationPressureTargetModelSettings>(15.38, 1.41),
-            "LRO"));
+    bodySettings.addSettings("LRO");
+    bodySettings.get("LRO")->constantMass = 1916.0;
+    bodySettings.get("LRO")->rotationModelSettings = spiceRotationModelSettings(globalFrameOrientation, "LRO_SC_BUS");
+//    bodySettings.get("LRO")->radiationPressureTargetModelSettings =
+//            cannonballRadiationPressureTargetModelSettings(15.38, 1.41);
+    bodySettings.get("LRO")->radiationPressureTargetModelSettings = paneledRadiationPressureTargetModelSettings({
+            TargetPanelSettings(2.82, 0.29, 0.22, Eigen::Vector3d::UnitX()),
+            TargetPanelSettings(2.82, 0.39, 0.19, -Eigen::Vector3d::UnitX()),
+            TargetPanelSettings(3.69, 0.32, 0.23, Eigen::Vector3d::UnitY()),
+            TargetPanelSettings(3.69, 0.32, 0.18, -Eigen::Vector3d::UnitY()),
+            TargetPanelSettings(5.14, 0.32, 0.18, Eigen::Vector3d::UnitZ()),
+            TargetPanelSettings(5.14, 0.54, 0.15, -Eigen::Vector3d::UnitZ()),
+            TargetPanelSettings(11.0, 0.05, 0.05, "Sun"),
+            TargetPanelSettings(11.0, 0.05, 0.05, "Sun", false),  // not officially given
+            TargetPanelSettings(1.0, 0.18, 0.28, "Earth"),
+            TargetPanelSettings(1.0, 0.019, 0.0495, "Earth", false),
+    });
 
+    auto bodies = createSystemOfBodies(bodySettings);
     setGlobalFrameBodyEphemerides(bodies.getMap(), globalFrameOrigin, globalFrameOrientation);
 
     return bodies;
@@ -147,7 +184,7 @@ SingleArcDynamicsSimulator<> createSimulator(
             createDependentVariableSaveSettings(dependentVariablesList), printInterval);
 
     auto integratorSettings = adamsBashforthMoultonSettings(
-                    simulationStartEpoch, minStepSize, minStepSize, 1.0e5);
+                    simulationStartEpoch, minStepSize, minStepSize, minStepSize);
 
     SingleArcDynamicsSimulator< > dynamicsSimulator(
             bodies, integratorSettings, propagatorSettings, true, false, false );
