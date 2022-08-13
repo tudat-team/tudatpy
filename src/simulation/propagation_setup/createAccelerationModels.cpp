@@ -790,7 +790,24 @@ createRadiationPressureAccelerationModel(
                                   " has no radiation pressure target model." );
     }
 
-    std::function<Eigen::Quaterniond()> targetRotationFromLocalToPropagationFrameFunction;
+    // Get source rotation function
+    std::function<Eigen::Quaterniond()> sourceRotationFromLocalToGlobalFrameFunction;
+
+    auto isotropicPointRadiationSourceModel =
+            std::dynamic_pointer_cast<electromagnetism::IsotropicPointRadiationSourceModel>(
+                    source->getRadiationSourceModel());
+    if (isotropicPointRadiationSourceModel != nullptr) {
+        // Isotropic point source is rotation-invariant and can use identity rotation
+        // Enables use of isotropic point source without source body rotation model
+        sourceRotationFromLocalToGlobalFrameFunction = [] () { return Eigen::Quaterniond::Identity(); };
+    }
+    else
+    {
+        sourceRotationFromLocalToGlobalFrameFunction = std::bind( &Body::getCurrentRotationToGlobalFrame, source );
+    }
+
+    // Get target rotation function
+    std::function<Eigen::Quaterniond()> targetRotationFromLocalToGlobalFrameFunction;
 
     auto cannonballRadiationPressureTargetModel =
             std::dynamic_pointer_cast<electromagnetism::CannonballRadiationPressureTargetModel>(
@@ -798,20 +815,22 @@ createRadiationPressureAccelerationModel(
     if (cannonballRadiationPressureTargetModel != nullptr) {
         // Cannonball target is rotation-invariant and can use identity rotation
         // Enables use of cannonball target without target body rotation model
-        targetRotationFromLocalToPropagationFrameFunction = [] () { return Eigen::Quaterniond::Identity(); };
+        targetRotationFromLocalToGlobalFrameFunction = [] () { return Eigen::Quaterniond::Identity(); };
     }
     else
     {
-        targetRotationFromLocalToPropagationFrameFunction = std::bind( &Body::getCurrentRotationToGlobalFrame, target );
+        targetRotationFromLocalToGlobalFrameFunction = std::bind( &Body::getCurrentRotationToGlobalFrame, target );
     }
 
     // Create acceleration model.
     return std::make_shared< RadiationPressureAcceleration >(
             source->getRadiationSourceModel(),
+            std::bind( &Body::getPosition, source ),
+            sourceRotationFromLocalToGlobalFrameFunction,
             target->getRadiationPressureTargetModel(),
             std::bind( &Body::getPosition, target ),
-            std::bind( &Body::getBodyMass, target ),
-            targetRotationFromLocalToPropagationFrameFunction);
+            targetRotationFromLocalToGlobalFrameFunction,
+            std::bind( &Body::getBodyMass, target ));
 }
 
 //! Function to create a cannonball radiation pressure acceleration model.

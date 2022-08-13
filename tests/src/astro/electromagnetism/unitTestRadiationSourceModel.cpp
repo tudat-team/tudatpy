@@ -5,6 +5,9 @@
 
 #include <boost/test/unit_test.hpp>
 
+#include <Eigen/Core>
+#include <Eigen/Geometry>
+
 #include "tudat/basics/testMacros.h"
 #include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/math/basic/coordinateConversions.h"
@@ -30,8 +33,7 @@ BOOST_AUTO_TEST_CASE( testIsotropicPointRadiationSourceModel )
 
     auto luminosityModel = std::make_shared<IrradianceBasedLuminosityModel>(
             [=]() { return expectedIrradiance; }, physical_constants::ASTRONOMICAL_UNIT);
-    auto radiationSourceModel = std::make_shared<IsotropicPointRadiationSourceModel>(
-            [=]() { return sourcePosition; }, luminosityModel);
+    auto radiationSourceModel = std::make_shared<IsotropicPointRadiationSourceModel>(luminosityModel);
     radiationSourceModel->updateMembers(TUDAT_NAN);
 
     const auto ret = radiationSourceModel->evaluateIrradianceAtPosition(targetPosition).front();
@@ -39,7 +41,7 @@ BOOST_AUTO_TEST_CASE( testIsotropicPointRadiationSourceModel )
     const auto actualSourcePosition = std::get<1>(ret);
 
     BOOST_CHECK_CLOSE_FRACTION(actualIrradiance, expectedIrradiance, 1.0e-15);
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(sourcePosition, actualSourcePosition, 1.0e-15);
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(actualSourcePosition, sourcePosition, 1.0e-15);
 }
 
 //! Test if isotropic point source is invariant w.r.t. position at given distance
@@ -59,8 +61,7 @@ BOOST_AUTO_TEST_CASE( testIsotropicPointRadiationSourceModelPositionInvariance )
             auto targetPosition = coordinate_conversions::convertSphericalToCartesian(
                     Eigen::Vector3d(radius, zenithAngle, azimuthAngle));
             auto luminosityModel = std::make_shared<ConstantLuminosityModel>(1);
-            auto radiationSourceModel = std::make_shared<IsotropicPointRadiationSourceModel>(
-                    [=]() { return Eigen::Vector3d(0, 0, 0); }, luminosityModel);
+            auto radiationSourceModel = std::make_shared<IsotropicPointRadiationSourceModel>(luminosityModel);
             radiationSourceModel->updateMembers(TUDAT_NAN);
 
             const auto ret = radiationSourceModel->evaluateIrradianceAtPosition(targetPosition).front();

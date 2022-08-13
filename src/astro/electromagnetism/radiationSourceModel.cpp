@@ -5,16 +5,28 @@ namespace tudat
 namespace electromagnetism
 {
 
+void RadiationSourceModel::updateMembers(const double currentTime)
+{
+    if(currentTime_ != currentTime)
+    {
+        currentTime_ = currentTime;
+        updateMembers_(currentTime);
+    }
+}
+
+//*********************************************************************************************
+//   Isotropic point radiation source
+//*********************************************************************************************
 
 IrradianceWithSourceList IsotropicPointRadiationSourceModel::evaluateIrradianceAtPosition(Eigen::Vector3d targetPosition) const
 {
-    auto distanceSourceToTarget = (targetPosition - sourcePosition_).norm();
+    auto distanceSourceToTarget = targetPosition.norm();
     auto luminosity = luminosityModel_->getLuminosity();
 
     auto sphereArea = 4 * mathematical_constants::PI * distanceSourceToTarget * distanceSourceToTarget;
     auto irradiance = luminosity / sphereArea;
 
-    return IrradianceWithSourceList { std::make_tuple(irradiance, sourcePosition_) };
+    return IrradianceWithSourceList { std::make_pair(irradiance, Eigen::Vector3d::Zero()) };
 }
 
 void RadiationSourceModel::updateMembers(const double currentTime)

@@ -56,16 +56,17 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_Unity )
     // Set distance to speed of light to cancel to unity radiation pressure
     auto luminosityModel = std::make_shared<IrradianceBasedLuminosityModel>(
             [] () { return physical_constants::SPEED_OF_LIGHT; }, 1);
-    auto sourceModel = std::make_shared<IsotropicPointRadiationSourceModel>(
-            [] () { return Eigen::Vector3d::Zero(); }, luminosityModel);
+    auto sourceModel = std::make_shared<IsotropicPointRadiationSourceModel>(luminosityModel);
     auto targetModel = std::make_shared<CannonballRadiationPressureTargetModel>(
             1, 1);
     RadiationPressureAcceleration accelerationModel(
             sourceModel,
+            []() { return Eigen::Vector3d::Zero(); },
+            []() { return Eigen::Quaterniond::Identity(); },
             targetModel,
             []() { return Eigen::Vector3d::UnitX(); },
-            []() { return 1; },
-            []() { return Eigen::Quaterniond::Identity(); });
+            []() { return Eigen::Quaterniond::Identity(); },
+            []() { return 1; });
 
     sourceModel->updateMembers(TUDAT_NAN);
     targetModel->updateMembers(TUDAT_NAN);
@@ -79,20 +80,21 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_Unity )
 //! Test acceleration for idealized GOCE spacecraft (Noomen 2022)
 BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_GOCE )
 {
-    const auto expectedAcceleration = Eigen::Vector3d(1, 1, 0).normalized() * 5.2e-9;
+    const auto expectedAcceleration = (Eigen::Vector3d(1, 1, 0).normalized() * 5.2e-9).eval();
 
     auto luminosityModel = std::make_shared<IrradianceBasedLuminosityModel>(
             [] () { return 1371; }, physical_constants::ASTRONOMICAL_UNIT);
-    auto sourceModel = std::make_shared<IsotropicPointRadiationSourceModel>(
-            [] () { return Eigen::Vector3d::Zero(); }, luminosityModel);
+    auto sourceModel = std::make_shared<IsotropicPointRadiationSourceModel>(luminosityModel);
     auto targetModel = std::make_shared<CannonballRadiationPressureTargetModel>(
             1, 1.2);
     RadiationPressureAcceleration accelerationModel(
             sourceModel,
+            [] () { return Eigen::Vector3d::Zero(); },
+            []() { return Eigen::Quaterniond::Identity(); },
             targetModel,
             []() { return Eigen::Vector3d(1, 1, 0).normalized() * physical_constants::ASTRONOMICAL_UNIT; },
-            []() { return 1050; },
-            []() { return Eigen::Quaterniond::Identity(); });
+            []() { return Eigen::Quaterniond::Identity(); },
+            []() { return 1050; });
 
     sourceModel->updateMembers(TUDAT_NAN);
     targetModel->updateMembers(TUDAT_NAN);
@@ -103,8 +105,8 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_GOCE )
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(actualAcceleration, expectedAcceleration, 1e-2);
 }
 
-//! Test that cannonball acceleration is invariant under target rotation
-BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_Cannonball_RotationInvariance )
+//! Test that acceleration of cannonball target with isotropic point source is invariant under rotation
+BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPoint_Cannonball_RotationInvariance )
 {
     using mathematical_constants::PI;
 
@@ -120,22 +122,21 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_Cannonball_RotationInvar
                 auto rotation = basic_mathematics::getQuaternionFrom313EulerAngles(Eigen::Vector3d(x, y, z));
 
                 auto luminosityModel = std::make_shared<ConstantLuminosityModel>(1);
-                auto sourceModel = std::make_shared<IsotropicPointRadiationSourceModel>(
-                        [] () { return Eigen::Vector3d::Zero(); }, luminosityModel);
-                auto targetModel = std::make_shared<CannonballRadiationPressureTargetModel>(
-                        1, 1);
+                auto sourceModel = std::make_shared<IsotropicPointRadiationSourceModel>(luminosityModel);
+                auto targetModel = std::make_shared<CannonballRadiationPressureTargetModel>(42, 1.42);
                 RadiationPressureAcceleration accelerationModel(
                         sourceModel,
+                        [] () { return Eigen::Vector3d::Zero(); },
+                        [=] () { return rotation.inverse(); }, // vary source rotation
                         targetModel,
-                        []() { return Eigen::Vector3d(1, 1, 0).normalized(); },
-                        []() { return 1; },
-                        [=]() { return rotation; });
+                        [=] () { return Eigen::Vector3d(0, 1, 1); },
+                        [=] () { return rotation; }, // vary target rotation
+                        []() { return 1; });
 
                 sourceModel->updateMembers(TUDAT_NAN);
                 targetModel->updateMembers(TUDAT_NAN);
                 accelerationModel.updateMembers(TUDAT_NAN);
 
-                accelerationModel.updateMembers(0);
                 actualAccelerations.push_back(accelerationModel.getAcceleration());
             }
         }
@@ -154,11 +155,8 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_Paneled_Basic )
 
     // Set distance to speed of light to cancel to unity radiation pressure
     auto luminosityModel = std::make_shared<IrradianceBasedLuminosityModel>(
-            []()
-            { return physical_constants::SPEED_OF_LIGHT; }, 1);
-    auto sourceModel = std::make_shared<IsotropicPointRadiationSourceModel>(
-            []()
-            { return Eigen::Vector3d::Zero(); }, luminosityModel);
+            []() { return physical_constants::SPEED_OF_LIGHT; }, 1);
+    auto sourceModel = std::make_shared<IsotropicPointRadiationSourceModel>(luminosityModel);
     std::vector<PaneledRadiationPressureTargetModel::Panel> panels{
             TargetPanel(1, -Eigen::Vector3d::UnitX(),
                         SpecularDiffuseMixReflectionLaw::fromAbsorptivityAndDiffuseReflectivity(1, 0)),
@@ -176,10 +174,12 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_Paneled_Basic )
         const auto expectedAcceleration = Eigen::Vector3d::UnitX();
         RadiationPressureAcceleration accelerationModel(
                 sourceModel,
+                [] () { return Eigen::Vector3d::Zero(); },
+                [] () { return Eigen::Quaterniond::Identity(); },
                 targetModel,
                 [] () { return Eigen::Vector3d::UnitX(); },
-                [] () { return 1; },
-                [] () { return Eigen::Quaterniond::Identity(); });
+                [] () { return Eigen::Quaterniond::Identity(); },
+                [] () { return 1; });
 
         sourceModel->updateMembers(TUDAT_NAN);
         targetModel->updateMembers(TUDAT_NAN);
@@ -196,13 +196,15 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_Paneled_Basic )
         const auto expectedAcceleration = 2 * (1 + 2./3) * Eigen::Vector3d::UnitX();
         RadiationPressureAcceleration accelerationModel(
                 sourceModel,
+                [] () { return Eigen::Vector3d::Zero(); },
+                [] () { return Eigen::Quaterniond::Identity(); },
                 targetModel,
                 [] () { return Eigen::Vector3d::UnitX(); },
-                [] () { return 1; },
                 [] () {
                     const auto angle = unit_conversions::convertDegreesToRadians(-90.);
                     return Eigen::Quaterniond(Eigen::AngleAxisd(angle, Eigen::Vector3d::UnitZ()));
-                });
+                },
+                [] () { return 1; });
 
         sourceModel->updateMembers(TUDAT_NAN);
         targetModel->updateMembers(TUDAT_NAN);
@@ -225,13 +227,15 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_Paneled_Basic )
         const auto expectedAcceleration = expectedAccelerationDueToPanel1 + expectedAccelerationDueToPanel2;
         RadiationPressureAcceleration accelerationModel(
                 sourceModel,
+                [] () { return Eigen::Vector3d::Zero(); },
+                [] () { return Eigen::Quaterniond::Identity(); },
                 targetModel,
                 [] () { return Eigen::Vector3d::UnitX(); },
-                [] () { return 1; },
                 [] () {
                     const auto angle = unit_conversions::convertDegreesToRadians(-45.);
                     return Eigen::Quaterniond(Eigen::AngleAxisd(angle, Eigen::Vector3d::UnitZ()));
-                });
+                },
+                [] () { return 1; });
 
         sourceModel->updateMembers(TUDAT_NAN);
         targetModel->updateMembers(TUDAT_NAN);

@@ -2,7 +2,7 @@
 #define TUDAT_RADIATIONSOURCEMODEL_H
 
 #include <vector>
-#include <tuple>
+#include <utility>
 #include <functional>
 #include <memory>
 
@@ -15,26 +15,29 @@ namespace tudat
 namespace electromagnetism
 {
 
-typedef std::vector<std::tuple<double, Eigen::Vector3d>> IrradianceWithSourceList;
+typedef std::vector<std::pair<double, Eigen::Vector3d>> IrradianceWithSourceList;
 
 
 class RadiationSourceModel
 {
 public:
-    explicit RadiationSourceModel(const std::function< Eigen::Vector3d( ) > sourcePositionFunction):
-            sourcePositionFunction_(sourcePositionFunction) {}
+    explicit RadiationSourceModel() = default;
 
     virtual ~RadiationSourceModel() = default;
 
     void updateMembers(double currentTime );
 
-    virtual IrradianceWithSourceList evaluateIrradianceAtPosition(Eigen::Vector3d) const = 0;
+    /*!
+     * Evaluate the irradiance [W/m²] at a certain positition due to this source.
+     * @param targetPosition Position where to evaluate the irradiance in local (i.e. source-fixed) coordinates
+     * @return A list of irradiances and their source-fixed origin. Single element for point sources, multiple
+     * elements for paneled sources.
+     */
+    virtual IrradianceWithSourceList evaluateIrradianceAtPosition(Eigen::Vector3d targetPosition) const = 0;
 
 protected:
     virtual void updateMembers_(const double currentTime) {};
 
-    Eigen::Vector3d sourcePosition_;
-    std::function< Eigen::Vector3d( ) > sourcePositionFunction_;
     double currentTime_{TUDAT_NAN};
 };
 
@@ -43,10 +46,8 @@ class IsotropicPointRadiationSourceModel : public RadiationSourceModel
 {
 public:
     explicit IsotropicPointRadiationSourceModel(
-            const std::function< Eigen::Vector3d( ) > sourcePositionFunction,
-            const std::shared_ptr<LuminosityModel> luminosityModel):
-            RadiationSourceModel(sourcePositionFunction),
-            luminosityModel_(luminosityModel) {}
+            const std::shared_ptr<LuminosityModel> luminosityModel) :
+        luminosityModel_(luminosityModel) {}
 
     IrradianceWithSourceList evaluateIrradianceAtPosition(Eigen::Vector3d targetPosition) const override;
 

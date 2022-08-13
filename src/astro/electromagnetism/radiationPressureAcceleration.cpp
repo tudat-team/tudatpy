@@ -16,24 +16,33 @@ void RadiationPressureAcceleration::updateMembers(const double currentTime)
 
 Eigen::Vector3d RadiationPressureAcceleration::calculateAcceleration()
 {
-    // Radiation pressure force is evaluated in local frame, then rotated to propagation frame
-    auto targetPosition = targetPositionFunction_();
-    auto targetRotationFromLocalToPropagationFrame = targetRotationFromLocalToPropagationFrameFunction_();
-    auto targetRotationFromPropagationToLocalFrame = targetRotationFromLocalToPropagationFrame.inverse();
+    auto sourceCenterPositionInGlobalFrame = sourcePositionFunction_(); // position of center of source (e.g. planet)
+    auto sourceRotationFromLocalToGlobalFrame = sourceRotationFromLocalToGlobalFrameFunction_();
+    auto sourceRotationFromGlobalToLocalFrame = sourceRotationFromLocalToGlobalFrame.inverse();
+    
+    auto targetCenterPositionInGlobalFrame = targetPositionFunction_();
+    auto targetRotationFromLocalToGlobalFrame = targetRotationFromLocalToGlobalFrameFunction_();
+    auto targetRotationFromGlobalToLocalFrame = targetRotationFromLocalToGlobalFrame.inverse();
 
-    auto totalForce = Eigen::Vector3d::Zero().eval();
-    auto irradiancesFromSource = sourceModel_->evaluateIrradianceAtPosition(targetPosition);
+    // Evaluate irradiances at target position in source frame
+    auto targetCenterPositionInSourceFrame =
+            sourceRotationFromGlobalToLocalFrame * (targetCenterPositionInGlobalFrame - sourceCenterPositionInGlobalFrame);
+    auto irradiancesFromSource = sourceModel_->evaluateIrradianceAtPosition(targetCenterPositionInSourceFrame);
+
+    // Calculate radiation pressure force due to all sub-sources
+    auto totalForceInTargetFrame = Eigen::Vector3d::Zero().eval();
     for (auto sourceIrradianceAndPosition : irradiancesFromSource) {
         auto sourceIrradiance = std::get<0>(sourceIrradianceAndPosition);
-        auto sourcePosition = std::get<1>(sourceIrradianceAndPosition);
+        auto sourcePositionInSourceFrame = std::get<1>(sourceIrradianceAndPosition); // position of sub-source (e.g. panel)
+        auto sourcePositionInGlobalFrame = sourceCenterPositionInGlobalFrame + sourceRotationFromLocalToGlobalFrame * sourcePositionInSourceFrame;
 
-        auto sourceToTargetDirection = (targetPosition - sourcePosition).normalized();
-        auto sourceToTargetDirectionInLocalFrame = targetRotationFromPropagationToLocalFrame * sourceToTargetDirection;
-        totalForce += targetModel_->evaluateRadiationPressureForce(sourceIrradiance,
-                                                                   sourceToTargetDirectionInLocalFrame);
+        auto sourceToTargetDirectionInGlobalFrame = (targetCenterPositionInGlobalFrame - sourcePositionInGlobalFrame).normalized();
+        auto sourceToTargetDirectionInTargetFrame = targetRotationFromGlobalToLocalFrame * sourceToTargetDirectionInGlobalFrame;
+        totalForceInTargetFrame += targetModel_->evaluateRadiationPressureForce(sourceIrradiance,
+                                                                                sourceToTargetDirectionInTargetFrame);
     }
 
-    auto acceleration = targetRotationFromLocalToPropagationFrame * totalForce / targetMassFunction_();
+    auto acceleration = targetRotationFromLocalToGlobalFrame * totalForceInTargetFrame / targetMassFunction_();
     return acceleration;
 }
 

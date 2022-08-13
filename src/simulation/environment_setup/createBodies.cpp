@@ -350,7 +350,6 @@ simulation_setup::SystemOfBodies createSimplifiedSystemOfBodies(const double sec
 
     // Sun's radiation source model
     bodies.getBody( "Sun" )->setRadiationSourceModel( std::make_shared< IsotropicPointRadiationSourceModel >(
-            std::bind(&Body::getPosition, bodies.getBody( "Sun" )),
             std::make_shared< ConstantLuminosityModel >( celestial_body_constants::SUN_LUMINOSITY )));
 
     // Calculate position of rotation axis at initialTime, with respect to J2000 frame. Values from:
