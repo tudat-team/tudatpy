@@ -83,10 +83,7 @@ createRadiationSourceModel(
         auto luminosityModel = createLuminosityModel(
                 isotropicPointModelSettings->getLuminosityModelSettings(), body);
 
-        radiationSourceModel = std::make_shared<IsotropicPointRadiationSourceModel>(
-                std::bind(&Body::getPosition, sourceBody),
-                luminosityModel
-                );
+        radiationSourceModel = std::make_shared<IsotropicPointRadiationSourceModel>(luminosityModel);
         break;
     }
     default:
