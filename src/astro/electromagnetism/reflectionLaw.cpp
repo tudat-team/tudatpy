@@ -18,6 +18,7 @@ double SpecularDiffuseMixReflectionLaw::evaluateReflectedFraction(Eigen::Vector3
             linear_algebra::computeCosineOfAngleBetweenVectors(surfaceNormal, observerDirection);
     if (cosBetweenNormalAndIncoming <= 0 || cosBetweenNormalAndObserver <= 0)
     {
+        // Radiation is incident on backside, or observer is on backside
         return 0;
     }
 
