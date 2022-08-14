@@ -26,13 +26,31 @@ public:
                                   const std::function<Eigen::Vector3d()> targetPositionFunction,
                                   const std::function<Eigen::Quaterniond()> targetRotationFromLocalToGlobalFrameFunction,
                                   const std::function<double()> targetMassFunction) :
+            RadiationPressureAcceleration(sourceModel, sourcePositionFunction, sourceRotationFromLocalToGlobalFrameFunction,
+                                          targetModel, targetPositionFunction, targetRotationFromLocalToGlobalFrameFunction,
+                                          targetMassFunction,
+                                          nullptr, nullptr, nullptr) {}
+
+    RadiationPressureAcceleration(const std::shared_ptr<RadiationSourceModel> sourceModel,
+                                  const std::function<Eigen::Vector3d()> sourcePositionFunction,
+                                  const std::function<Eigen::Quaterniond()> sourceRotationFromLocalToGlobalFrameFunction,
+                                  const std::shared_ptr<RadiationPressureTargetModel> targetModel,
+                                  const std::function<Eigen::Vector3d()> targetPositionFunction,
+                                  const std::function<Eigen::Quaterniond()> targetRotationFromLocalToGlobalFrameFunction,
+                                  const std::function<double()> targetMassFunction,
+                                  const std::shared_ptr<IsotropicPointRadiationSourceModel> originalSourceModel,
+                                  const std::function<Eigen::Vector3d()> originalSourcePositionFunction,
+                                  const std::function<Eigen::Quaterniond()> originalSourceRotationFromLocalToGlobalFrameFunction) :
             sourceModel_(sourceModel),
             sourcePositionFunction_(sourcePositionFunction),
             sourceRotationFromLocalToGlobalFrameFunction_(sourceRotationFromLocalToGlobalFrameFunction),
             targetModel_(targetModel),
             targetPositionFunction_(targetPositionFunction),
             targetRotationFromLocalToGlobalFrameFunction_(targetRotationFromLocalToGlobalFrameFunction),
-            targetMassFunction_(targetMassFunction) {}
+            targetMassFunction_(targetMassFunction),
+            originalSourceModel_(originalSourceModel),
+            originalSourcePositionFunction_(originalSourcePositionFunction),
+            originalSourceRotationFromLocalToGlobalFrameFunction_(originalSourceRotationFromLocalToGlobalFrameFunction) {}
 
     void updateMembers(double currentTime) override;
 
@@ -63,6 +81,13 @@ private:
     std::function< Eigen::Quaterniond( ) > targetRotationFromLocalToGlobalFrameFunction_;
 
     std::function<double()> targetMassFunction_;
+
+    // Only populated if source has albedo radiation
+    std::shared_ptr<IsotropicPointRadiationSourceModel> originalSourceModel_;
+
+    std::function<Eigen::Vector3d()> originalSourcePositionFunction_;
+
+    std::function< Eigen::Quaterniond( ) > originalSourceRotationFromLocalToGlobalFrameFunction_;
 };
 
 } // tudat
