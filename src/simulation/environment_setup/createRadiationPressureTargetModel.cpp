@@ -7,8 +7,8 @@ namespace simulation_setup
 {
 
 std::shared_ptr<electromagnetism::RadiationPressureTargetModel> createRadiationPressureTargetModel(
-        std::shared_ptr<RadiationPressureTargetModelSettings> modelSettings,
-        const std::string &body,
+        const std::shared_ptr<RadiationPressureTargetModelSettings>& modelSettings,
+        const std::string& body,
         const SystemOfBodies& bodies)
 {
     using namespace tudat::electromagnetism;
@@ -50,8 +50,7 @@ std::shared_ptr<electromagnetism::RadiationPressureTargetModel> createRadiationP
             {
                 std::function<Eigen::Vector3d()> surfaceNormalFunction;
                 if((panel.getSurfaceNormalFunction() && !panel.getBodyToTrack().empty()) ||
-                        (!panel.getSurfaceNormalFunction() && panel.getBodyToTrack().empty())
-                        )
+                        (!panel.getSurfaceNormalFunction() && panel.getBodyToTrack().empty()))
                 {
                     throw std::runtime_error(
                             "Error, must specify either surface normal or body to track for all"
@@ -67,13 +66,14 @@ std::shared_ptr<electromagnetism::RadiationPressureTargetModel> createRadiationP
                     const auto targetBody = bodies.at(body);
                     const auto sign = panel.isTowardsTrackedBody() ? +1 : -1;
                     surfaceNormalFunction = [=] () {
-                        const auto rotationFromPropagationToLocalFrame =
+                        const Eigen::Quaterniond rotationFromPropagationToLocalFrame =
                                 targetBody->getCurrentRotationToLocalFrame();
-                        const auto relativeSourcePositionInPropagationFrame =
+                        const Eigen::Vector3d relativeSourcePositionInPropagationFrame =
                                 bodyToTrack->getPosition() - targetBody->getPosition();
-                        const auto relativeSourcePositionInLocalFrame =
+                        const Eigen::Vector3d relativeSourcePositionInLocalFrame =
                                 rotationFromPropagationToLocalFrame * relativeSourcePositionInPropagationFrame;
-                        return sign * relativeSourcePositionInLocalFrame.normalized();
+                        Eigen::Vector3d surfaceNormal = sign * relativeSourcePositionInLocalFrame.normalized();
+                        return surfaceNormal;
                     };
                 }
 

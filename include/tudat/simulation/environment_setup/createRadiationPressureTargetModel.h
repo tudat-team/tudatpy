@@ -39,7 +39,8 @@ class CannonballRadiationPressureTargetModelSettings : public RadiationPressureT
 {
 public:
     explicit CannonballRadiationPressureTargetModelSettings(
-            double area, double coefficient) :
+            double area,
+            double coefficient) :
             RadiationPressureTargetModelSettings(cannonball_target),
             area_(area),
             coefficient_(coefficient) {}
@@ -66,11 +67,11 @@ public:
     class Panel;
 
     explicit PaneledRadiationPressureTargetModelSettings(
-            std::vector<Panel> panels) :
+            const std::vector<Panel>& panels) :
             RadiationPressureTargetModelSettings(paneled_target),
             panels_(panels) {}
 
-    const std::vector<Panel> getPanels() const
+    const std::vector<Panel>& getPanels() const
     {
         return panels_;
     }
@@ -85,7 +86,7 @@ public:
     explicit Panel(double area,
                    double specularReflectivity,
                    double diffuseReflectivity,
-                   const std::function<Eigen::Vector3d()> surfaceNormalFunction) :
+                   const std::function<Eigen::Vector3d()>& surfaceNormalFunction) :
             area_(area),
             specularReflectivity_(specularReflectivity),
             diffuseReflectivity_(diffuseReflectivity),
@@ -94,7 +95,7 @@ public:
     explicit Panel(double area,
                    double specularReflectivity,
                    double diffuseReflectivity,
-                   const Eigen::Vector3d surfaceNormal) :
+                   const Eigen::Vector3d& surfaceNormal) :
             Panel(area,
                   specularReflectivity,
                   diffuseReflectivity,
@@ -103,7 +104,7 @@ public:
     explicit Panel(double area,
                    double specularReflectivity,
                    double diffuseReflectivity,
-                   const std::string bodyToTrack,
+                   const std::string& bodyToTrack,
                    const bool towardsTrackedBody = true) :
             area_(area),
             specularReflectivity_(specularReflectivity),
@@ -116,7 +117,7 @@ public:
         return area_;
     }
 
-    std::function<Eigen::Vector3d()> getSurfaceNormalFunction() const
+    const std::function<Eigen::Vector3d()>& getSurfaceNormalFunction() const
     {
         return surfaceNormalFunction_;
     }
@@ -147,7 +148,7 @@ private:
     double diffuseReflectivity_;
     std::function<Eigen::Vector3d()> surfaceNormalFunction_;
     std::string bodyToTrack_;
-    bool towardsTrackedBody_;
+    bool towardsTrackedBody_{true};
 };
 
 inline std::shared_ptr<CannonballRadiationPressureTargetModelSettings>
@@ -164,7 +165,7 @@ inline std::shared_ptr<PaneledRadiationPressureTargetModelSettings>
 }
 
 std::shared_ptr<electromagnetism::RadiationPressureTargetModel> createRadiationPressureTargetModel(
-        std::shared_ptr< RadiationPressureTargetModelSettings > modelSettings,
+        const std::shared_ptr< RadiationPressureTargetModelSettings >& modelSettings,
         const std::string& body,
         const SystemOfBodies& bodies);
 

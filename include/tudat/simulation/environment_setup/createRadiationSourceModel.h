@@ -56,7 +56,7 @@ class IrradianceBasedLuminosityModelSettings : public LuminosityModelSettings
 {
 public:
     explicit IrradianceBasedLuminosityModelSettings(
-            const std::function<double()> irradianceAtDistanceFunction,
+            const std::function<double()>& irradianceAtDistanceFunction,
             const double distance) :
             LuminosityModelSettings(irradiance_based_radiant_power),
             irradianceAtDistanceFunction_(irradianceAtDistanceFunction),
@@ -69,7 +69,7 @@ public:
             irradianceAtDistanceFunction_([=] () { return distance; }),
             distance_(distance) {}
 
-    const std::function<double()> getIrradianceAtDistanceFunction() const
+    const std::function<double()>& getIrradianceAtDistanceFunction() const
     {
         return irradianceAtDistanceFunction_;
     }
@@ -118,11 +118,11 @@ class IsotropicPointRadiationSourceModelSettings : public RadiationSourceModelSe
 {
 public:
     explicit IsotropicPointRadiationSourceModelSettings(
-            const std::shared_ptr<LuminosityModelSettings> luminosityModelSettings) :
+            const std::shared_ptr<LuminosityModelSettings>& luminosityModelSettings) :
             RadiationSourceModelSettings(isotropic_point_source),
             luminosityModelSettings_(luminosityModelSettings) {}
 
-    const std::shared_ptr<LuminosityModelSettings> getLuminosityModelSettings() const
+    const std::shared_ptr<LuminosityModelSettings>& getLuminosityModelSettings() const
     {
         return luminosityModelSettings_;
     }
@@ -132,11 +132,11 @@ private:
 };
 
 std::shared_ptr<electromagnetism::LuminosityModel> createLuminosityModel(
-        std::shared_ptr< LuminosityModelSettings > modelSettings,
+        const std::shared_ptr< LuminosityModelSettings >& modelSettings,
         const std::string& body);
 
 std::shared_ptr<electromagnetism::RadiationSourceModel> createRadiationSourceModel(
-        std::shared_ptr< RadiationSourceModelSettings > modelSettings,
+        const std::shared_ptr< RadiationSourceModelSettings >& modelSettings,
         const std::string& body,
         const SystemOfBodies& bodies);
 
