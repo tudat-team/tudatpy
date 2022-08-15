@@ -8,7 +8,10 @@
  *    http://tudat.tudelft.nl/LICENSE.
  *
  *    References
- *      E. B. Saff, et al. "Distributing many points on a sphere". The Mathematical Intelligencer 19. 1(1997): 5–11.
+ *      E. B. Saff, et al. "Distributing many points on a sphere".
+ *          The Mathematical Intelligencer 19. 1(1997): 5–11.
+ *      Frank G. Lemoine, et al. "High‒degree gravity models from GRAIL primary mission data".
+ *          Journal of Geophysical Research: Planets 118. 8(2013): 1676–1698.
  */
 
 #ifndef TUDAT_RADIATIONSOURCEMODEL_H
@@ -158,12 +161,12 @@ private:
     std::vector<Panel> panels_;
 };
 
-class DynamicallyPaneledRadiationSourceModel : public PaneledRadiationSourceModel
-{
-private:
-    // keep target-specific panel lists, otherwise may have to regenerate a lot
-    std::map<std::string, std::vector<Panel>> panels_;
-};
+//class DynamicallyPaneledRadiationSourceModel : public PaneledRadiationSourceModel
+//{
+//private:
+//    // keep target-specific panel lists, otherwise may have to regenerate a lot
+//    std::map<std::string, std::vector<Panel>> panels_;
+//};
 
 class PaneledRadiationSourceModel::Panel
 {
@@ -238,6 +241,33 @@ public:
 
 private:
     std::shared_ptr<ReflectionLaw> reflectionLaw_;
+};
+
+/*!
+ * Panel radiosity model for thermal emissions, based on angle to subsolar point. This model was introduced in
+ * Lemoine (2013) for lunar thermal radiation.
+ */
+class AngleBasedThermalPanelRadiosityModel : public PaneledRadiationSourceModel::PanelRadiosityModel
+{
+public:
+    explicit AngleBasedThermalPanelRadiosityModel(
+            double minTemperature,
+            double maxTemperature,
+            double emissivity) :
+            minTemperature_(minTemperature),
+            maxTemperature_(maxTemperature),
+            emissivity_(emissivity) {}
+
+    double evaluateIrradianceAtPosition(
+            const PaneledRadiationSourceModel::Panel& panel,
+            const Eigen::Vector3d& targetPosition,
+            double originalSourceIrradiance,
+            const Eigen::Vector3d& originalSourceToSourceDirection) const override;
+
+private:
+    double minTemperature_;
+    double maxTemperature_;
+    double emissivity_;
 };
 
 /*!
