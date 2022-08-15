@@ -22,17 +22,17 @@ void RadiationSourceModel::updateMembers(const double currentTime)
 //*********************************************************************************************
 
 IrradianceWithSourceList IsotropicPointRadiationSourceModel::evaluateIrradianceAtPosition(
-        Eigen::Vector3d targetPosition,
+        const Eigen::Vector3d& targetPosition,
         double originalSourceIrradiance,
-        Eigen::Vector3d originalSourceToSourceDirection) const
+        const Eigen::Vector3d& originalSourceToSourceDirection) const
 {
     return IrradianceWithSourceList {
         std::make_pair(evaluateIrradianceAtPosition(targetPosition), Eigen::Vector3d::Zero()) };
 
 }
-double IsotropicPointRadiationSourceModel::evaluateIrradianceAtPosition(Eigen::Vector3d targetPosition) const
+double IsotropicPointRadiationSourceModel::evaluateIrradianceAtPosition(const Eigen::Vector3d& targetPosition) const
 {
-    auto distanceSourceToTargetSquared = targetPosition.squaredNorm();
+    double distanceSourceToTargetSquared = targetPosition.squaredNorm();
     auto luminosity = luminosityModel_->getLuminosity();
 
     auto sphereArea = 4 * mathematical_constants::PI * distanceSourceToTargetSquared;
@@ -50,9 +50,9 @@ void IsotropicPointRadiationSourceModel::updateMembers_(double currentTime)
 //*********************************************************************************************
 
 IrradianceWithSourceList PaneledRadiationSourceModel::evaluateIrradianceAtPosition(
-        Eigen::Vector3d targetPosition,
+        const Eigen::Vector3d& targetPosition,
         double originalSourceIrradiance,
-        Eigen::Vector3d originalSourceToSourceDirection) const
+        const Eigen::Vector3d& originalSourceToSourceDirection) const
 {
     IrradianceWithSourceList irradiances{};
 
@@ -102,9 +102,9 @@ void StaticallyPaneledRadiationSourceModel::updateMembers_(double currentTime)
         {
             const auto polarAngle = polarAngles[i];
             const auto azimuthAngle = azimuthAngles[i];
-            const auto relativeCenter = coordinate_conversions::convertSphericalToCartesian(
+            const Eigen::Vector3d relativeCenter = coordinate_conversions::convertSphericalToCartesian(
                     Eigen::Vector3d(sourceBodyShapeModel_->getAverageRadius(), polarAngle, azimuthAngle));
-            const auto surfaceNormal = relativeCenter.normalized();
+            const Eigen::Vector3d surfaceNormal = relativeCenter.normalized();
 
             panels_.emplace_back(
                     panelArea,
@@ -144,12 +144,12 @@ std::pair<std::vector<double>, std::vector<double>> generateEvenlySpacedPoints(u
 }
 
 double AlbedoPanelRadiosityModel::evaluateIrradianceAtPosition(
-        PaneledRadiationSourceModel::Panel panel,
-        Eigen::Vector3d targetPosition,
+        const PaneledRadiationSourceModel::Panel& panel,
+        const Eigen::Vector3d& targetPosition,
         double originalSourceIrradiance,
-        Eigen::Vector3d originalSourceToSourceDirection) const
+        const Eigen::Vector3d& originalSourceToSourceDirection) const
 {
-    const auto surfaceNormal = panel.getSurfaceNormal();
+    const auto& surfaceNormal = panel.getSurfaceNormal();
     const auto cosBetweenNormalAndOriginalSource =
             linear_algebra::computeCosineOfAngleBetweenVectors(surfaceNormal, -originalSourceToSourceDirection);
     const auto cosBetweenNormalAndTarget =
@@ -157,11 +157,11 @@ double AlbedoPanelRadiosityModel::evaluateIrradianceAtPosition(
 
     const auto receivedIrradiance = cosBetweenNormalAndOriginalSource * originalSourceIrradiance;
 
-    const auto targetDirection = targetPosition.normalized();
+    const Eigen::Vector3d targetDirection = targetPosition.normalized();
     const auto reflectedFraction =  // [1/sr]
             reflectionLaw_->evaluateReflectedFraction(surfaceNormal, originalSourceToSourceDirection, targetDirection);
 
-    const auto distanceSourceToTargetSquared = targetPosition.squaredNorm();
+    const double distanceSourceToTargetSquared = targetPosition.squaredNorm();
     const auto effectiveEmittingArea = cosBetweenNormalAndTarget * panel.getArea();
     // No need to check if panel is illuminated or target would receive radiation because reaction vector is zero if not
     const auto albedoIrradiance =

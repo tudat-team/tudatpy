@@ -10,7 +10,7 @@ Eigen::Vector3d CannonballRadiationPressureTargetModel::evaluateRadiationPressur
 {
     const auto radiationPressure = sourceIrradiance / physical_constants::SPEED_OF_LIGHT;
     const auto forceMagnitude = coefficient_ * area_ * radiationPressure;
-    const auto force = forceMagnitude * sourceToTargetDirection;
+    Eigen::Vector3d force = forceMagnitude * sourceToTargetDirection;
     return force;
 }
 
@@ -18,11 +18,11 @@ Eigen::Vector3d PaneledRadiationPressureTargetModel::evaluateRadiationPressureFo
         double sourceIrradiance,
         Eigen::Vector3d sourceToTargetDirection) const
 {
-    auto force = Eigen::Vector3d::Zero().eval();
+    Eigen::Vector3d force = Eigen::Vector3d::Zero();
     for (auto& panel : panels_)
     {
         const auto surfaceNormal = panel.getSurfaceNormal();
-        const auto effectiveArea = panel.getArea() * (-sourceToTargetDirection).dot(surfaceNormal);
+        const double effectiveArea = panel.getArea() * (-sourceToTargetDirection).dot(surfaceNormal);
         const auto radiationPressure = sourceIrradiance / physical_constants::SPEED_OF_LIGHT;
         const auto reactionVector =
                 panel.getReflectionLaw()->evaluateReactionVector(surfaceNormal, sourceToTargetDirection);

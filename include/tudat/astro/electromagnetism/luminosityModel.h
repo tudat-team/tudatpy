@@ -44,7 +44,7 @@ class IrradianceBasedLuminosityModel : public LuminosityModel
 {
 public:
     IrradianceBasedLuminosityModel(
-            const std::function<double()> irradianceAtDistanceFunction,
+            const std::function<double()>& irradianceAtDistanceFunction,
             double distance)
             : irradianceAtDistanceFunction_(irradianceAtDistanceFunction), distance_(distance) {}
 

@@ -53,9 +53,9 @@ public:
      * Single element for point sources, multiple elements for paneled sources.
      */
     virtual IrradianceWithSourceList evaluateIrradianceAtPosition(
-            Eigen::Vector3d targetPosition,
+            const Eigen::Vector3d& targetPosition,
             double originalSourceIrradiance,
-            Eigen::Vector3d originalSourceToSourceDirection) const = 0;
+            const Eigen::Vector3d& originalSourceToSourceDirection) const = 0;
 
 protected:
     virtual void updateMembers_(const double currentTime) {};
@@ -71,15 +71,15 @@ class IsotropicPointRadiationSourceModel : public RadiationSourceModel
 {
 public:
     explicit IsotropicPointRadiationSourceModel(
-            const std::shared_ptr<LuminosityModel> luminosityModel) :
+            const std::shared_ptr<LuminosityModel>& luminosityModel) :
         luminosityModel_(luminosityModel) {}
 
     IrradianceWithSourceList evaluateIrradianceAtPosition(
-            Eigen::Vector3d targetPosition,
+            const Eigen::Vector3d& targetPosition,
             double originalSourceIrradiance,
-            Eigen::Vector3d originalSourceToSourceDirection) const override;
+            const Eigen::Vector3d& originalSourceToSourceDirection) const override;
 
-    double evaluateIrradianceAtPosition(Eigen::Vector3d targetPosition) const;
+    double evaluateIrradianceAtPosition(const Eigen::Vector3d& targetPosition) const;
 
     std::shared_ptr<LuminosityModel> getLuminosityModel() const
     {
@@ -103,18 +103,18 @@ public:
     class PanelRadiosityModel; // cannot make this nested class of Panel since forward declaration is impossible
 
     explicit PaneledRadiationSourceModel(
-            const std::shared_ptr<basic_astrodynamics::BodyShapeModel> sourceBodyShapeModel) :
+            const std::shared_ptr<basic_astrodynamics::BodyShapeModel>& sourceBodyShapeModel) :
         sourceBodyShapeModel_(sourceBodyShapeModel) {}
 
     explicit PaneledRadiationSourceModel() :
             PaneledRadiationSourceModel(nullptr) {}
 
     IrradianceWithSourceList evaluateIrradianceAtPosition(
-            Eigen::Vector3d targetPosition,
+            const Eigen::Vector3d& targetPosition,
             double originalSourceIrradiance,
-            Eigen::Vector3d originalSourceToSourceDirection) const override;
+            const Eigen::Vector3d& originalSourceToSourceDirection) const override;
 
-    virtual std::vector<Panel> getPanels() const = 0;
+    virtual const std::vector<Panel>& getPanels() const = 0;
 
 protected:
     void updateMembers_(double currentTime) override;
@@ -126,26 +126,26 @@ class StaticallyPaneledRadiationSourceModel : public PaneledRadiationSourceModel
 {
 public:
     explicit StaticallyPaneledRadiationSourceModel(
-            const std::vector<Panel> panels) :
+            const std::vector<Panel>& panels) :
             PaneledRadiationSourceModel(),
             n_(panels.size()),
             panels_(panels) {}
 
     explicit StaticallyPaneledRadiationSourceModel(
-            const std::shared_ptr<basic_astrodynamics::BodyShapeModel> sourceBodyShapeModel,
-            const std::function<std::vector<std::shared_ptr<PanelRadiosityModel>>(double, double)> radiosityModelFunction,
+            const std::shared_ptr<basic_astrodynamics::BodyShapeModel>& sourceBodyShapeModel,
+            const std::function<std::vector<std::shared_ptr<PanelRadiosityModel>>(double, double)>& radiosityModelFunction,
             int n) :
             PaneledRadiationSourceModel(sourceBodyShapeModel),
             n_(n),
             radiosityModelFunction_(radiosityModelFunction) {}
 
     explicit StaticallyPaneledRadiationSourceModel(
-            const std::shared_ptr<basic_astrodynamics::BodyShapeModel> sourceBodyShapeModel,
-            std::vector<std::shared_ptr<PanelRadiosityModel>> radiosityModel,
+            const std::shared_ptr<basic_astrodynamics::BodyShapeModel>& sourceBodyShapeModel,
+            const std::vector<std::shared_ptr<PanelRadiosityModel>>& radiosityModel,
             int n) :
             StaticallyPaneledRadiationSourceModel(sourceBodyShapeModel, [=](double, double) { return radiosityModel; }, n) {}
 
-    std::vector<Panel> getPanels() const override
+    const std::vector<Panel>& getPanels() const override
     {
         return panels_;
     }
@@ -170,9 +170,9 @@ class PaneledRadiationSourceModel::Panel
 public:
     explicit Panel(
             double area,
-            const Eigen::Vector3d relativeCenter,
-            const Eigen::Vector3d surfaceNormal,
-            const std::vector<std::shared_ptr<PanelRadiosityModel>> radiosityModels) :
+            const Eigen::Vector3d& relativeCenter,
+            const Eigen::Vector3d& surfaceNormal,
+            const std::vector<std::shared_ptr<PanelRadiosityModel>>& radiosityModels) :
         area_(area),
         relativeCenter_(relativeCenter),
         surfaceNormal_(surfaceNormal),
@@ -183,17 +183,17 @@ public:
         return area_;
     }
 
-    Eigen::Vector3d getRelativeCenter() const
+    const Eigen::Vector3d& getRelativeCenter() const
     {
         return relativeCenter_;
     }
 
-    Eigen::Vector3d getSurfaceNormal() const
+    const Eigen::Vector3d& getSurfaceNormal() const
     {
         return surfaceNormal_;
     }
 
-    std::vector<std::shared_ptr<PanelRadiosityModel>> getRadiosityModels() const
+    const std::vector<std::shared_ptr<PanelRadiosityModel>>& getRadiosityModels() const
     {
         return radiosityModels_;
     }
@@ -217,24 +217,24 @@ public:
      * @return The irradiance
      */
     virtual double evaluateIrradianceAtPosition(
-            Panel panel,
-            Eigen::Vector3d targetPosition,
+            const Panel& panel,
+            const Eigen::Vector3d& targetPosition,
             double originalSourceIrradiance,
-            Eigen::Vector3d originalSourceToSourceDirection) const = 0;
+            const Eigen::Vector3d& originalSourceToSourceDirection) const = 0;
 };
 
 class AlbedoPanelRadiosityModel : public PaneledRadiationSourceModel::PanelRadiosityModel
 {
 public:
     explicit AlbedoPanelRadiosityModel(
-            const std::shared_ptr<ReflectionLaw> reflectionLaw) :
+            const std::shared_ptr<ReflectionLaw>& reflectionLaw) :
             reflectionLaw_(reflectionLaw) {}
 
     double evaluateIrradianceAtPosition(
-            PaneledRadiationSourceModel::Panel panel,
-            Eigen::Vector3d targetPosition,
+            const PaneledRadiationSourceModel::Panel& panel,
+            const Eigen::Vector3d& targetPosition,
             double originalSourceIrradiance,
-            Eigen::Vector3d originalSourceToSourceDirection) const override;
+            const Eigen::Vector3d& originalSourceToSourceDirection) const override;
 
 private:
     std::shared_ptr<ReflectionLaw> reflectionLaw_;
