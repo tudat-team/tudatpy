@@ -7,9 +7,9 @@ namespace tudat
 namespace electromagnetism
 {
 
-double SpecularDiffuseMixReflectionLaw::evaluateReflectedFraction(Eigen::Vector3d surfaceNormal,
-                                                                  Eigen::Vector3d incomingDirection,
-                                                                  Eigen::Vector3d observerDirection) const
+double SpecularDiffuseMixReflectionLaw::evaluateReflectedFraction(const Eigen::Vector3d& surfaceNormal,
+                                                                  const Eigen::Vector3d& incomingDirection,
+                                                                  const Eigen::Vector3d& observerDirection) const
 {
     // Check if any reflected radiation would reach observer
     const auto cosBetweenNormalAndIncoming =
@@ -38,8 +38,8 @@ double SpecularDiffuseMixReflectionLaw::evaluateReflectedFraction(Eigen::Vector3
     }
 }
 
-Eigen::Vector3d SpecularDiffuseMixReflectionLaw::evaluateReactionVector(Eigen::Vector3d surfaceNormal,
-                                                                          Eigen::Vector3d incomingDirection) const
+Eigen::Vector3d SpecularDiffuseMixReflectionLaw::evaluateReactionVector(const Eigen::Vector3d& surfaceNormal,
+                                                                        const Eigen::Vector3d& incomingDirection) const
 {
     const auto cosBetweenNormalAndIncoming =
             linear_algebra::computeCosineOfAngleBetweenVectors(surfaceNormal, -incomingDirection);
@@ -50,8 +50,8 @@ Eigen::Vector3d SpecularDiffuseMixReflectionLaw::evaluateReactionVector(Eigen::V
     }
 
     // Montenbruck (2014) Eq. 5
-    const auto reactionFromIncidence = (absorptivity_ + diffuseReflectivity) * incomingDirection;
-    const auto reactionFromReflection =
+    const Eigen::Vector3d reactionFromIncidence = (absorptivity_ + diffuseReflectivity) * incomingDirection;
+    const Eigen::Vector3d reactionFromReflection =
             -(2. / 3 * diffuseReflectivity + 2 * specularReflectivity_ * cosBetweenNormalAndIncoming) * surfaceNormal;
     Eigen::Vector3d reactionFromInstantaneousReradiation;
     if (withInstantaneousLambertianReradiation_)
@@ -72,7 +72,7 @@ Eigen::Vector3d computeMirrorlikeReflection(
         const Eigen::Vector3d& vectorToMirror,
         const Eigen::Vector3d& surfaceNormal)
 {
-    const auto vectorDotNormal = vectorToMirror.dot(surfaceNormal);
+    const double vectorDotNormal = vectorToMirror.dot(surfaceNormal);
     if (vectorDotNormal >= 0)
     {
         // Vector is incident on backside of surface

@@ -1308,8 +1308,6 @@ BOOST_AUTO_TEST_CASE( test_radiationSourceModelSetup )
     }
 }
 
-
-
 BOOST_AUTO_TEST_CASE( test_radiationPressureTargetModelSetup_CannonballTarget )
 {
     const auto expectedArea = 42;

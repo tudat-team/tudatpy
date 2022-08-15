@@ -47,9 +47,9 @@ public:
      * @return The reflected fraction of radiation per steradian [1/sr]
      */
     virtual double evaluateReflectedFraction(
-            Eigen::Vector3d surfaceNormal,
-            Eigen::Vector3d incomingDirection,
-            Eigen::Vector3d observerDirection) const = 0;
+            const Eigen::Vector3d& surfaceNormal,
+            const Eigen::Vector3d& incomingDirection,
+            const Eigen::Vector3d& observerDirection) const = 0;
 
     /*!
      * Evaluate direction of reaction force due to incident and reflected radiation. If the incoming vector is incident
@@ -60,8 +60,8 @@ public:
      * @return The vector containing direction and magnitude of reaction due to surface properties [-]
      */
     virtual Eigen::Vector3d evaluateReactionVector(
-            Eigen::Vector3d surfaceNormal,
-            Eigen::Vector3d incomingDirection) const = 0;
+            const Eigen::Vector3d& surfaceNormal,
+            const Eigen::Vector3d& incomingDirection) const = 0;
 };
 
 /*!
@@ -122,13 +122,13 @@ public:
     }
 
     double evaluateReflectedFraction(
-            Eigen::Vector3d surfaceNormal,
-            Eigen::Vector3d incomingDirection,
-            Eigen::Vector3d observerDirection) const override;
+            const Eigen::Vector3d& surfaceNormal,
+            const Eigen::Vector3d& incomingDirection,
+            const Eigen::Vector3d& observerDirection) const override;
 
     Eigen::Vector3d evaluateReactionVector(
-            Eigen::Vector3d surfaceNormal,
-            Eigen::Vector3d incomingDirection) const override;
+            const Eigen::Vector3d& surfaceNormal,
+            const Eigen::Vector3d& incomingDirection) const override;
 
     double getAbsorptivity() const
     {

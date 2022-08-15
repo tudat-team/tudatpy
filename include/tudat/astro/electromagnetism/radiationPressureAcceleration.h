@@ -19,28 +19,28 @@ namespace electromagnetism
 class RadiationPressureAcceleration: public basic_astrodynamics::AccelerationModel3d
 {
 public:
-    RadiationPressureAcceleration(const std::shared_ptr<RadiationSourceModel> sourceModel,
-                                  const std::function<Eigen::Vector3d()> sourcePositionFunction,
-                                  const std::function<Eigen::Quaterniond()> sourceRotationFromLocalToGlobalFrameFunction,
-                                  const std::shared_ptr<RadiationPressureTargetModel> targetModel,
-                                  const std::function<Eigen::Vector3d()> targetPositionFunction,
-                                  const std::function<Eigen::Quaterniond()> targetRotationFromLocalToGlobalFrameFunction,
-                                  const std::function<double()> targetMassFunction) :
+    RadiationPressureAcceleration(const std::shared_ptr<RadiationSourceModel>& sourceModel,
+                                  const std::function<Eigen::Vector3d()>& sourcePositionFunction,
+                                  const std::function<Eigen::Quaterniond()>& sourceRotationFromLocalToGlobalFrameFunction,
+                                  const std::shared_ptr<RadiationPressureTargetModel>& targetModel,
+                                  const std::function<Eigen::Vector3d()>& targetPositionFunction,
+                                  const std::function<Eigen::Quaterniond()>& targetRotationFromLocalToGlobalFrameFunction,
+                                  const std::function<double()>& targetMassFunction) :
             RadiationPressureAcceleration(sourceModel, sourcePositionFunction, sourceRotationFromLocalToGlobalFrameFunction,
                                           targetModel, targetPositionFunction, targetRotationFromLocalToGlobalFrameFunction,
                                           targetMassFunction,
                                           nullptr, nullptr, nullptr) {}
 
-    RadiationPressureAcceleration(const std::shared_ptr<RadiationSourceModel> sourceModel,
-                                  const std::function<Eigen::Vector3d()> sourcePositionFunction,
-                                  const std::function<Eigen::Quaterniond()> sourceRotationFromLocalToGlobalFrameFunction,
-                                  const std::shared_ptr<RadiationPressureTargetModel> targetModel,
-                                  const std::function<Eigen::Vector3d()> targetPositionFunction,
-                                  const std::function<Eigen::Quaterniond()> targetRotationFromLocalToGlobalFrameFunction,
-                                  const std::function<double()> targetMassFunction,
-                                  const std::shared_ptr<IsotropicPointRadiationSourceModel> originalSourceModel,
-                                  const std::function<Eigen::Vector3d()> originalSourcePositionFunction,
-                                  const std::function<Eigen::Quaterniond()> originalSourceRotationFromLocalToGlobalFrameFunction) :
+    RadiationPressureAcceleration(const std::shared_ptr<RadiationSourceModel>& sourceModel,
+                                  const std::function<Eigen::Vector3d()>& sourcePositionFunction,
+                                  const std::function<Eigen::Quaterniond()>& sourceRotationFromLocalToGlobalFrameFunction,
+                                  const std::shared_ptr<RadiationPressureTargetModel>& targetModel,
+                                  const std::function<Eigen::Vector3d()>& targetPositionFunction,
+                                  const std::function<Eigen::Quaterniond()>& targetRotationFromLocalToGlobalFrameFunction,
+                                  const std::function<double()>& targetMassFunction,
+                                  const std::shared_ptr<IsotropicPointRadiationSourceModel>& originalSourceModel,
+                                  const std::function<Eigen::Vector3d()>& originalSourcePositionFunction,
+                                  const std::function<Eigen::Quaterniond()>& originalSourceRotationFromLocalToGlobalFrameFunction) :
             sourceModel_(sourceModel),
             sourcePositionFunction_(sourcePositionFunction),
             sourceRotationFromLocalToGlobalFrameFunction_(sourceRotationFromLocalToGlobalFrameFunction),

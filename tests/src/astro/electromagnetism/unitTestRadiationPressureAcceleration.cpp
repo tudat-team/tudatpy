@@ -61,10 +61,10 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_Unity )
             1, 1);
     RadiationPressureAcceleration accelerationModel(
             sourceModel,
-            []() { return Eigen::Vector3d::Zero(); },
+            []() { return Eigen::Vector3d(1, 0, 0); },
             []() { return Eigen::Quaterniond::Identity(); },
             targetModel,
-            []() { return Eigen::Vector3d::UnitX(); },
+            []() { return Eigen::Vector3d(2, 0, 0); },
             []() { return Eigen::Quaterniond::Identity(); },
             []() { return 1; });
 
@@ -80,7 +80,7 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_Unity )
 //! Test acceleration for idealized GOCE spacecraft (Noomen 2022)
 BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_GOCE )
 {
-    const auto expectedAcceleration = (Eigen::Vector3d(1, 1, 0).normalized() * 5.2e-9).eval();
+    const Eigen::Vector3d expectedAcceleration = Eigen::Vector3d(1, 1, 0).normalized() * 5.2e-9;
 
     auto luminosityModel = std::make_shared<IrradianceBasedLuminosityModel>(
             [] () { return 1371; }, physical_constants::ASTRONOMICAL_UNIT);
@@ -171,7 +171,7 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_Paneled_Basic )
     {
         // Only panel 1 towards source
         // Magnitude 1 because area 1 and only absorption
-        const auto expectedAcceleration = Eigen::Vector3d::UnitX();
+        const Eigen::Vector3d expectedAcceleration = Eigen::Vector3d::UnitX();
         RadiationPressureAcceleration accelerationModel(
                 sourceModel,
                 [] () { return Eigen::Vector3d::Zero(); },
@@ -193,7 +193,7 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_Paneled_Basic )
     {
         // Only panel 2 towards source
         // Magnitude 3.333 because area 2 and factor 1.667 from diffuse reflection
-        const auto expectedAcceleration = 2 * (1 + 2./3) * Eigen::Vector3d::UnitX();
+        const Eigen::Vector3d expectedAcceleration = 2 * (1 + 2./3) * Eigen::Vector3d::UnitX();
         RadiationPressureAcceleration accelerationModel(
                 sourceModel,
                 [] () { return Eigen::Vector3d::Zero(); },
@@ -218,13 +218,13 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_Paneled_Basic )
     {
         // Panel 1 and 2 angled 45° towards source
         // Panel 1 gives magnitude 1/√2 away from source (effective area is 1/√2)
-        const auto expectedAccelerationDueToPanel1 = Eigen::Vector3d::UnitX() * 1 / sqrt(2);
+        const Eigen::Vector3d expectedAccelerationDueToPanel1 = Eigen::Vector3d::UnitX() * 1 / sqrt(2);
         // Panel 2 due to diffuse reflection (effective area is 2/√2)
-        const auto expectedAccelerationDueToPanel2 = (
+        const Eigen::Vector3d expectedAccelerationDueToPanel2 = (
                     1 * Eigen::Vector3d::UnitX() // incident light
                     + 2./3 * Eigen::Vector3d(1, 1, 0).normalized() // diffuse reflection
                 ) * 2 / sqrt(2);
-        const auto expectedAcceleration = expectedAccelerationDueToPanel1 + expectedAccelerationDueToPanel2;
+        const Eigen::Vector3d expectedAcceleration = expectedAccelerationDueToPanel1 + expectedAccelerationDueToPanel2;
         RadiationPressureAcceleration accelerationModel(
                 sourceModel,
                 [] () { return Eigen::Vector3d::Zero(); },
@@ -266,7 +266,8 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_Paneled_Realistic )
     double finalEphemerisTime = 1.1 * 365.25 * 86400.0;
     SystemOfBodies bodies = createSystemOfBodies(
             getDefaultBodySettings( std::vector<std::string>{"Sun"}, initialEphemerisTime, finalEphemerisTime, "Sun" ) );
-    auto radiationSourceModel = bodies.at("Sun")->getRadiationSourceModel();
+    auto radiationSourceModel =
+            std::dynamic_pointer_cast<IsotropicPointRadiationSourceModel>(bodies.at("Sun")->getRadiationSourceModel());
 
     // Create vehicle
     bodies.createEmptyBody( "Vehicle" );
@@ -424,8 +425,7 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_Paneled_Realistic )
                     bodies.at( "Sun" )->getPosition() - bodies.at( "Vehicle" )->getPosition();
             Eigen::Vector3d expectedVehicleToSunVectorNormalized = expectedVehicleToSunVector.normalized();
 
-            auto sourceIrradiance =
-                    std::get<0>(radiationSourceModel->evaluateIrradianceAtPosition(bodies.at( "Vehicle" )->getPosition()).front());
+            auto sourceIrradiance = radiationSourceModel->evaluateIrradianceAtPosition(bodies.at( "Vehicle" )->getPosition());
             auto radiationPressure = sourceIrradiance / physical_constants::SPEED_OF_LIGHT;
 
             // Calculated accelerations.
@@ -439,7 +439,7 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_Paneled_Realistic )
                     + 2.0 / 3.0 * diffuseReflectivities[5] * Eigen::Vector3d::UnitX( ) )
                     + areas[6] * (( 1.0 - specularReflectivities[6] ) * expectedVehicleToSunVectorNormalized
                     + ( 2.0 / 3.0 * diffuseReflectivities[6] + 2.0 * cosPanelInclinationPositiveXaxis * specularReflectivities[6] )
-                    * Eigen::Vector3d::UnitX( ) )  );
+                    * Eigen::Vector3d::UnitX( ) ) );
 
 
             // Calculated acceleration generated by the panels whose normals are along -X-axis.

@@ -5,9 +5,9 @@ namespace tudat
 namespace simulation_setup
 {
 
-std::shared_ptr<electromagnetism::LuminosityModel>
-createLuminosityModel(const std::shared_ptr<LuminosityModelSettings> modelSettings,
-                        const std::string &body)
+std::shared_ptr<electromagnetism::LuminosityModel> createLuminosityModel(
+        const std::shared_ptr<LuminosityModelSettings>& modelSettings,
+        const std::string &body)
 {
     using namespace tudat::electromagnetism;
 
@@ -51,10 +51,9 @@ createLuminosityModel(const std::shared_ptr<LuminosityModelSettings> modelSettin
     return luminosityModel;
 }
 
-std::shared_ptr<electromagnetism::RadiationSourceModel>
-createRadiationSourceModel(
-        const std::shared_ptr<RadiationSourceModelSettings> modelSettings,
-        const std::string &body,
+std::shared_ptr<electromagnetism::RadiationSourceModel> createRadiationSourceModel(
+        const std::shared_ptr<RadiationSourceModelSettings>& modelSettings,
+        const std::string& body,
         const SystemOfBodies& bodies)
 {
     using namespace tudat::electromagnetism;
