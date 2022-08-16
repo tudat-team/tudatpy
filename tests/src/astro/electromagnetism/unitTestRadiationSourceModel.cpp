@@ -91,9 +91,12 @@ BOOST_AUTO_TEST_CASE( testStaticallyPaneledRadiationSourceModel_Generation )
     const auto n = 10;
     const auto radius = 1000;
 
+    const std::vector<std::function<std::shared_ptr<StaticallyPaneledRadiationSourceModel::PanelRadiosityModel>(double, double)>>
+        radiosityModelFunctions{};
+
     StaticallyPaneledRadiationSourceModel radiationSourceModel(
             std::make_shared<basic_astrodynamics::SphericalBodyShapeModel>(radius),
-            std::vector<std::shared_ptr<StaticallyPaneledRadiationSourceModel::PanelRadiosityModel>>(),
+            radiosityModelFunctions,
             n);
     radiationSourceModel.updateMembers(TUDAT_NAN);
     const auto panels = radiationSourceModel.getPanels();

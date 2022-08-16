@@ -53,7 +53,7 @@ std::shared_ptr<electromagnetism::RadiationPressureTargetModel> createRadiationP
                         (!panel.getSurfaceNormalFunction() && panel.getBodyToTrack().empty()))
                 {
                     throw std::runtime_error(
-                            "Error, must specify either surface normal or body to track for all"
+                            "Error, must specify either surface normal or body to track for all "
                             "paneled radiation pressure target panel for body " + body );
                 }
                 else if (panel.getSurfaceNormalFunction())
