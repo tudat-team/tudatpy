@@ -105,6 +105,7 @@ void StaticallyPaneledRadiationSourceModel::updateMembers_(double currentTime)
         {
             const auto polarAngle = polarAngles[i];
             const auto azimuthAngle = azimuthAngles[i];
+            //TODO-DOMINIK if oblate spheroid body, use actual position on surface
             const Eigen::Vector3d relativeCenter = coordinate_conversions::convertSphericalToCartesian(
                     Eigen::Vector3d(sourceBodyShapeModel_->getAverageRadius(), polarAngle, azimuthAngle));
             const Eigen::Vector3d surfaceNormal = relativeCenter.normalized();
@@ -172,6 +173,29 @@ double AlbedoPanelRadiosityModel::evaluateIrradianceAtPosition(
     return albedoIrradiance;
 }
 
+double DelayedThermalPanelRadiosityModel::evaluateIrradianceAtPosition(
+        const PaneledRadiationSourceModel::Panel& panel,
+        const Eigen::Vector3d& targetPosition,
+        double originalSourceIrradiance,
+        const Eigen::Vector3d& originalSourceToSourceDirection) const
+{
+    const auto& surfaceNormal = panel.getSurfaceNormal();
+    const auto cosBetweenNormalAndTarget =
+            linear_algebra::computeCosineOfAngleBetweenVectors(surfaceNormal, targetPosition);
+    if (cosBetweenNormalAndTarget <= 0)
+    {
+        // Target is on backside of panel
+        return 0;
+    }
+
+    const auto emittedExitance = emissivity_ * originalSourceIrradiance / 4;
+
+    const double distanceSourceToTargetSquared = targetPosition.squaredNorm();
+    const auto effectiveEmittingArea = cosBetweenNormalAndTarget * panel.getArea();
+    const auto thermalIrradiance = emittedExitance * effectiveEmittingArea / (PI * distanceSourceToTargetSquared);
+    return thermalIrradiance;
+}
+
 double AngleBasedThermalPanelRadiosityModel::evaluateIrradianceAtPosition(
         const PaneledRadiationSourceModel::Panel& panel,
         const Eigen::Vector3d& targetPosition,
@@ -194,7 +218,6 @@ double AngleBasedThermalPanelRadiosityModel::evaluateIrradianceAtPosition(
 
     const double distanceSourceToTargetSquared = targetPosition.squaredNorm();
     const auto effectiveEmittingArea = cosBetweenNormalAndTarget * panel.getArea();
-    // No need to check if panel is illuminated or target would receive radiation because reaction vector is zero if not
     const auto thermalIrradiance = emittedExitance * effectiveEmittingArea / (PI * distanceSourceToTargetSquared);
     return thermalIrradiance;
 }

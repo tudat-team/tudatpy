@@ -12,6 +12,8 @@
  *          The Mathematical Intelligencer 19. 1(1997): 5–11.
  *      Frank G. Lemoine, et al. "High‒degree gravity models from GRAIL primary mission data".
  *          Journal of Geophysical Research: Planets 118. 8(2013): 1676–1698.
+ *      Knocke, Philip et al. "Earth radiation pressure effects on satellites."
+ *          Astrodynamics Conference. American Institute of Aeronautics and Astronautics, 1988.
  */
 
 #ifndef TUDAT_RADIATIONSOURCEMODEL_H
@@ -244,8 +246,8 @@ private:
 };
 
 /*!
- * Panel radiosity model for thermal emissions, based on angle to subsolar point. This model was introduced in
- * Lemoine (2013) for lunar thermal radiation.
+ * Panel radiosity model for thermal emissions, based on delayed, isotropic and constant flux. This model was introduced
+ * in Knocke (1988) for Earth thermal radiation.
  */
 class AngleBasedThermalPanelRadiosityModel : public PaneledRadiationSourceModel::PanelRadiosityModel
 {
@@ -267,6 +269,27 @@ public:
 private:
     double minTemperature_;
     double maxTemperature_;
+    double emissivity_;
+};
+
+/*!
+ * Panel radiosity model for thermal emissions, based on angle to subsolar point. This model was introduced in
+ * Lemoine (2013) for lunar thermal radiation.
+ */
+class DelayedThermalPanelRadiosityModel : public PaneledRadiationSourceModel::PanelRadiosityModel
+{
+public:
+    explicit DelayedThermalPanelRadiosityModel(
+            double emissivity) :
+            emissivity_(emissivity) {}
+
+    double evaluateIrradianceAtPosition(
+            const PaneledRadiationSourceModel::Panel& panel,
+            const Eigen::Vector3d& targetPosition,
+            double originalSourceIrradiance,
+            const Eigen::Vector3d& originalSourceToSourceDirection) const override;
+
+private:
     double emissivity_;
 };
 

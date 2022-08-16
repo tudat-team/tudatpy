@@ -303,6 +303,52 @@ BOOST_AUTO_TEST_CASE( testAlbedoPanelRadiosityModel )
     }
 }
 
+//! Test basic cases for delayed thermal panel radiosity model
+BOOST_AUTO_TEST_CASE( testDelayedThermalPanelRadiosityModel )
+{
+    const auto radiosityModel = std::make_shared<DelayedThermalPanelRadiosityModel>(1);
+
+    const auto panel = PaneledRadiationSourceModel::Panel(
+            1,
+            Eigen::Vector3d(1, 0, 0), // not used
+            Eigen::Vector3d::UnitX(),
+            { radiosityModel } // not used
+    );
+
+    {
+        // Target in front of panel, 1 away orthogonal to panel
+        const auto expectedEmittedIrradiance = 1 / mathematical_constants::PI;
+        const auto actualEmittedIrradiance = radiosityModel->evaluateIrradianceAtPosition(
+                panel,
+                Eigen::Vector3d::UnitX(),
+                4,
+                -Eigen::Vector3d::UnitX());
+        BOOST_CHECK_CLOSE(expectedEmittedIrradiance, actualEmittedIrradiance, 1e-10);
+    }
+
+    {
+        // Target at 45° angle with panel, 2 away orthogonal to panel
+        const auto expectedEmittedIrradiance = 1 / (mathematical_constants::PI * sqrt(2) * 4);
+        const auto actualEmittedIrradiance = radiosityModel->evaluateIrradianceAtPosition(
+                panel,
+                2 * Eigen::Vector3d(1, 0, 1).normalized(),
+                4,
+                -Eigen::Vector3d(1, 1, 0).normalized());
+        BOOST_CHECK_CLOSE(expectedEmittedIrradiance, actualEmittedIrradiance, 1e-10);
+    }
+
+    {
+        // Target behind panel
+        const auto expectedEmittedIrradiance = 0;
+        const auto actualEmittedIrradiance = radiosityModel->evaluateIrradianceAtPosition(
+                panel,
+                -Eigen::Vector3d::UnitX(),
+                1,
+                -Eigen::Vector3d::UnitX());
+        BOOST_CHECK_CLOSE(expectedEmittedIrradiance, actualEmittedIrradiance, 1e-10);
+    }
+}
+
 //! Test basic cases for angle-based thermal panel radiosity model
 BOOST_AUTO_TEST_CASE( testAngleBasedThermalPanelRadiosityModel )
 {
