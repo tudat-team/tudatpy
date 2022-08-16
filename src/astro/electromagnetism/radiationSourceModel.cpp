@@ -79,29 +79,23 @@ IrradianceWithSourceList PaneledRadiationSourceModel::evaluateIrradianceAtPositi
     return irradiances;
 }
 
-void PaneledRadiationSourceModel::updateMembers_(double currentTime)
-{
-}
-
 void StaticallyPaneledRadiationSourceModel::updateMembers_(double currentTime)
 {
-    PaneledRadiationSourceModel::updateMembers_(currentTime);
-
-    // Check if panels have been initialized
-    if (panels_.size() != n_)
+    // Check if panels have been initialized, generate them once it not
+    if (panels_.size() != numberOfPanels)
     {
         panels_.clear();
 
         // Assume that all panels have the same area since they are evenly spaced on the sphere
         const auto bodyAverageRadius = sourceBodyShapeModel_->getAverageRadius();
         const auto totalBodyArea = 4 * PI * bodyAverageRadius * bodyAverageRadius;
-        const auto panelArea = totalBodyArea / n_;
+        const auto panelArea = totalBodyArea / numberOfPanels;
 
-        const auto pairOfAngleVectors = generateEvenlySpacedPoints(n_);
+        const auto pairOfAngleVectors = generateEvenlySpacedPoints(numberOfPanels);
         const auto polarAngles = std::get<0>(pairOfAngleVectors);
         const auto azimuthAngles = std::get<1>(pairOfAngleVectors);
 
-        for (unsigned int i = 0; i < n_; ++i)
+        for (unsigned int i = 0; i < numberOfPanels; ++i)
         {
             const auto polarAngle = polarAngles[i];
             const auto azimuthAngle = azimuthAngles[i];
@@ -110,10 +104,16 @@ void StaticallyPaneledRadiationSourceModel::updateMembers_(double currentTime)
                     Eigen::Vector3d(sourceBodyShapeModel_->getAverageRadius(), polarAngle, azimuthAngle));
             const Eigen::Vector3d surfaceNormal = relativeCenter.normalized();
 
+            std::vector<std::shared_ptr<PanelRadiosityModel>> radiosityModels;
+            for (auto& radiosityModelFunction : radiosityModelFunctions_)
+            {
+                radiosityModels.push_back(radiosityModelFunction(polarAngle, azimuthAngle));
+            }
+
             panels_.emplace_back(
                     panelArea,
                     relativeCenter, surfaceNormal,
-                    radiosityModelFunction_(polarAngle, azimuthAngle));
+                    radiosityModels);
         }
     }
 }

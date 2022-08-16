@@ -101,6 +101,10 @@ private:
 //   Paneled radiation source
 //*********************************************************************************************
 
+/*!
+ * A source that is discretized into panels, each with its own radiosity model. A radiosity model describes the
+ * radiation emitted (thermal) or reflected (albedo) by each panel.
+ */
 class PaneledRadiationSourceModel : public RadiationSourceModel
 {
 public:
@@ -122,33 +126,29 @@ public:
     virtual const std::vector<Panel>& getPanels() const = 0;
 
 protected:
-    void updateMembers_(double currentTime) override;
-
     std::shared_ptr<basic_astrodynamics::BodyShapeModel> sourceBodyShapeModel_;
 };
 
+/*!
+ * A paneled source with paneling of the whole body that is constant and generated only once. Panel properties such as
+ * albedo and emissivity are constant in time as well.
+ */
 class StaticallyPaneledRadiationSourceModel : public PaneledRadiationSourceModel
 {
 public:
     explicit StaticallyPaneledRadiationSourceModel(
             const std::vector<Panel>& panels) :
             PaneledRadiationSourceModel(),
-            n_(panels.size()),
+            numberOfPanels(panels.size()),
             panels_(panels) {}
 
     explicit StaticallyPaneledRadiationSourceModel(
             const std::shared_ptr<basic_astrodynamics::BodyShapeModel>& sourceBodyShapeModel,
-            const std::function<std::vector<std::shared_ptr<PanelRadiosityModel>>(double, double)>& radiosityModelFunction,
-            int n) :
+            const std::vector<std::function<std::shared_ptr<PanelRadiosityModel>(double, double)>>& radiosityModelFunctions,
+            int numberOfPanels) :
             PaneledRadiationSourceModel(sourceBodyShapeModel),
-            n_(n),
-            radiosityModelFunction_(radiosityModelFunction) {}
-
-    explicit StaticallyPaneledRadiationSourceModel(
-            const std::shared_ptr<basic_astrodynamics::BodyShapeModel>& sourceBodyShapeModel,
-            const std::vector<std::shared_ptr<PanelRadiosityModel>>& radiosityModel,
-            int n) :
-            StaticallyPaneledRadiationSourceModel(sourceBodyShapeModel, [=](double, double) { return radiosityModel; }, n) {}
+            numberOfPanels(numberOfPanels),
+            radiosityModelFunctions_(radiosityModelFunctions) {}
 
     const std::vector<Panel>& getPanels() const override
     {
@@ -158,8 +158,8 @@ public:
 private:
     void updateMembers_(double currentTime) override;
 
-    unsigned int n_;
-    std::function<std::vector<std::shared_ptr<PanelRadiosityModel>>(double, double)> radiosityModelFunction_;
+    unsigned int numberOfPanels;
+    std::vector<std::function<std::shared_ptr<PanelRadiosityModel>(double, double)>> radiosityModelFunctions_;
     std::vector<Panel> panels_;
 };
 
@@ -228,6 +228,12 @@ public:
             const Eigen::Vector3d& originalSourceToSourceDirection) const = 0;
 };
 
+/*!
+ * Panel radiosity model for albedo radiation with an arbitrary reflection law. This model was introduced in
+ * Knocke (1988) for Earth thermal radiation, but assuming Lambertian reflectance.
+ *
+ * For most cases, albedo radiation with a diffuse-only Lambertian reflectance law is sufficient.
+ */
 class AlbedoPanelRadiosityModel : public PaneledRadiationSourceModel::PanelRadiosityModel
 {
 public:
@@ -241,6 +247,11 @@ public:
             double originalSourceIrradiance,
             const Eigen::Vector3d& originalSourceToSourceDirection) const override;
 
+    const std::shared_ptr<ReflectionLaw>& getReflectionLaw() const
+    {
+        return reflectionLaw_;
+    }
+
 private:
     std::shared_ptr<ReflectionLaw> reflectionLaw_;
 };
@@ -248,6 +259,34 @@ private:
 /*!
  * Panel radiosity model for thermal emissions, based on delayed, isotropic and constant flux. This model was introduced
  * in Knocke (1988) for Earth thermal radiation.
+ */
+class DelayedThermalPanelRadiosityModel : public PaneledRadiationSourceModel::PanelRadiosityModel
+{
+public:
+    explicit DelayedThermalPanelRadiosityModel(
+            double emissivity) :
+            emissivity_(emissivity) {}
+
+    double evaluateIrradianceAtPosition(
+            const PaneledRadiationSourceModel::Panel& panel,
+            const Eigen::Vector3d& targetPosition,
+            double originalSourceIrradiance,
+            const Eigen::Vector3d& originalSourceToSourceDirection) const override;
+
+    double getEmissivity() const
+    {
+        return emissivity_;
+    }
+
+private:
+    double emissivity_;
+};
+
+/*!
+ * Panel radiosity model for thermal emissions, based on angle to subsolar point. This model was introduced in
+ * Lemoine (2013) for lunar thermal radiation. At the subsolar point, the thermal radiation is due to
+ * emissivity-corrected black-body radiation at maxTemperature. At positions away from the sub-solar point, the
+ * temperature drops, until it reaches minTemperature on the backside.
  */
 class AngleBasedThermalPanelRadiosityModel : public PaneledRadiationSourceModel::PanelRadiosityModel
 {
@@ -266,30 +305,24 @@ public:
             double originalSourceIrradiance,
             const Eigen::Vector3d& originalSourceToSourceDirection) const override;
 
+    double getMinTemperature() const
+    {
+        return minTemperature_;
+    }
+
+    double getMaxTemperature() const
+    {
+        return maxTemperature_;
+    }
+
+    double getEmissivity() const
+    {
+        return emissivity_;
+    }
+
 private:
     double minTemperature_;
     double maxTemperature_;
-    double emissivity_;
-};
-
-/*!
- * Panel radiosity model for thermal emissions, based on angle to subsolar point. This model was introduced in
- * Lemoine (2013) for lunar thermal radiation.
- */
-class DelayedThermalPanelRadiosityModel : public PaneledRadiationSourceModel::PanelRadiosityModel
-{
-public:
-    explicit DelayedThermalPanelRadiosityModel(
-            double emissivity) :
-            emissivity_(emissivity) {}
-
-    double evaluateIrradianceAtPosition(
-            const PaneledRadiationSourceModel::Panel& panel,
-            const Eigen::Vector3d& targetPosition,
-            double originalSourceIrradiance,
-            const Eigen::Vector3d& originalSourceToSourceDirection) const override;
-
-private:
     double emissivity_;
 };
 
