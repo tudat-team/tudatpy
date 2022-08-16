@@ -30,6 +30,7 @@
 #include "tudat/astro/basic_astro/geodeticCoordinateConversions.h"
 #include "tudat/astro/electromagnetism/radiationSourceModel.h"
 #include "tudat/astro/electromagnetism/radiationPressureTargetModel.h"
+#include "tudat/astro/electromagnetism/radiationSourceModel.h"
 #include "tudat/astro/electromagnetism/reflectionLaw.h"
 #include "tudat/astro/ephemerides/approximatePlanetPositions.h"
 #include "tudat/astro/ephemerides/tabulatedEphemeris.h"
@@ -1280,8 +1281,7 @@ BOOST_AUTO_TEST_CASE( test_radiationPressureInterfaceSetup )
 }
 
 
-
-BOOST_AUTO_TEST_CASE( test_radiationSourceModelSetup )
+BOOST_AUTO_TEST_CASE( test_radiationSourceModelSetup_IsotropicPoint )
 {
     spice_interface::loadStandardSpiceKernels( );
 
@@ -1290,22 +1290,71 @@ BOOST_AUTO_TEST_CASE( test_radiationSourceModelSetup )
 
     SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
-    {
-        const auto expectedLuminosity = 42;
+    const auto expectedLuminosity = 42;
 
-        auto isotropicPointSourceWithConstantLuminosityModelSettings =
-                std::make_shared<IsotropicPointRadiationSourceModelSettings>(
-                        std::make_shared<ConstantLuminosityModelSettings>(expectedLuminosity));
-        auto isotropicPointSourceWithConstantLuminosityModel =
-                std::dynamic_pointer_cast<electromagnetism::IsotropicPointRadiationSourceModel>(
-                        createRadiationSourceModel(
-                                isotropicPointSourceWithConstantLuminosityModelSettings, "Sun", bodies));
+    auto isotropicPointSourceWithConstantLuminosityModelSettings =
+            isotropicPointRadiationSourceModelSettings(
+                    constantLuminosityModelSettings(expectedLuminosity));
+    auto isotropicPointSourceWithConstantLuminosityModel =
+            std::dynamic_pointer_cast<electromagnetism::IsotropicPointRadiationSourceModel>(
+                    createRadiationSourceModel(
+                            isotropicPointSourceWithConstantLuminosityModelSettings, "Sun", bodies));
 
-        const auto actualLuminosity =
-                isotropicPointSourceWithConstantLuminosityModel->getLuminosityModel()->getLuminosity();
+    const auto actualLuminosity =
+            isotropicPointSourceWithConstantLuminosityModel->getLuminosityModel()->getLuminosity();
 
-        BOOST_CHECK_EQUAL(actualLuminosity, expectedLuminosity);
-    }
+    BOOST_CHECK_EQUAL(actualLuminosity, expectedLuminosity);
+}
+
+BOOST_AUTO_TEST_CASE( test_radiationSourceModelSetup_StaticallyPaneled )
+{
+    spice_interface::loadStandardSpiceKernels( );
+
+    BodyListSettings bodySettings;
+    bodySettings.addSettings( getDefaultSingleBodySettings("Earth", 0.0, 86400.0 ), "Earth" );
+
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+
+    const auto expectedNumberOfPanels = 42;
+    const auto expectedAlbedo = 0.42;
+    const auto expectedEmissivity = 0.32;
+    const auto expectedMinTemperature = 100;
+    const auto expectedMaxTemperature = 200;
+
+    auto staticallyPaneledSourceModelSettings =
+            staticallyPaneledRadiationSourceModelSettings({
+                albedoPanelRadiosityModelSettings(expectedAlbedo),
+                angleBasedThermalPanelRadiosityModelSettings(
+                        expectedMinTemperature, expectedMaxTemperature, expectedEmissivity)
+            }, expectedNumberOfPanels);
+    auto staticallyPaneledSourceModel =
+            std::dynamic_pointer_cast<electromagnetism::StaticallyPaneledRadiationSourceModel>(
+                    createRadiationSourceModel(
+                            staticallyPaneledSourceModelSettings, "Earth", bodies));
+    staticallyPaneledSourceModel->updateMembers(TUDAT_NAN);
+
+    BOOST_CHECK_EQUAL(staticallyPaneledSourceModel->getPanels().size(), expectedNumberOfPanels);
+
+    const auto panel = staticallyPaneledSourceModel->getPanels().front();
+
+    BOOST_CHECK_EQUAL(panel.getRadiosityModels().size(), 2);
+
+    const auto albedoModel =
+            std::dynamic_pointer_cast<electromagnetism::AlbedoPanelRadiosityModel>(panel.getRadiosityModels()[0]);
+    const auto reflectionLaw =
+            std::dynamic_pointer_cast<electromagnetism::LambertianReflectionLaw>(albedoModel->getReflectionLaw());
+    const auto thermalModel =
+            std::dynamic_pointer_cast<electromagnetism::AngleBasedThermalPanelRadiosityModel>(panel.getRadiosityModels()[1]);
+
+    const auto actualAlbedo = reflectionLaw->getDiffuseReflectivity();
+    const auto actualEmissivity = thermalModel->getEmissivity();
+    const auto actualMinTemperature = thermalModel->getMinTemperature();
+    const auto actualMaxTemperature = thermalModel->getMaxTemperature();
+
+    BOOST_CHECK_EQUAL(actualAlbedo, expectedAlbedo);
+    BOOST_CHECK_EQUAL(actualEmissivity, expectedEmissivity);
+    BOOST_CHECK_EQUAL(actualMinTemperature, expectedMinTemperature);
+    BOOST_CHECK_EQUAL(actualMaxTemperature, expectedMaxTemperature);
 }
 
 BOOST_AUTO_TEST_CASE( test_radiationPressureTargetModelSetup_CannonballTarget )
@@ -1314,8 +1363,7 @@ BOOST_AUTO_TEST_CASE( test_radiationPressureTargetModelSetup_CannonballTarget )
     const auto expectedCoefficient = 1.42;
 
     auto cannonballRadiationPressureTargetSettings =
-            std::make_shared<CannonballRadiationPressureTargetModelSettings>(
-                    expectedArea, expectedCoefficient);
+            cannonballRadiationPressureTargetModelSettings(expectedArea, expectedCoefficient);
     auto cannonballRadiationPressureTarget =
             std::dynamic_pointer_cast<electromagnetism::CannonballRadiationPressureTargetModel>(
                     createRadiationPressureTargetModel(
