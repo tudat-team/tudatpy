@@ -378,6 +378,23 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                             std::dynamic_pointer_cast<electromagnetism::RadiationPressureAcceleration>(
                                     accelerationModelIterator->second.at(i));
 
+                    auto paneledRadiationSourceModel =
+                            std::dynamic_pointer_cast<electromagnetism::PaneledRadiationSourceModel>(
+                                    radiationPressureAcceleration->getSourceModel());
+                    if (paneledRadiationSourceModel != nullptr) {
+                        // Only paneled source, not point source needs rotational state and has original source
+                        singleAccelerationUpdateNeeds[ body_rotational_state_update ].push_back(
+                                accelerationModelIterator->first );
+
+                        std::string originalSourceName = radiationPressureAcceleration->getOriginalSourceName();
+                        singleAccelerationUpdateNeeds[ radiation_source_model_update ].push_back(
+                                originalSourceName );
+                        singleAccelerationUpdateNeeds[ body_translational_state_update ].push_back(
+                                originalSourceName );
+                        singleAccelerationUpdateNeeds[ body_rotational_state_update ].push_back(
+                                originalSourceName );
+                    }
+
                     auto paneledRadiationPressureTargetModel =
                             std::dynamic_pointer_cast<electromagnetism::PaneledRadiationPressureTargetModel>(
                                     radiationPressureAcceleration->getTargetModel());

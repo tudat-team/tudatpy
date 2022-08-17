@@ -52,33 +52,6 @@ void IsotropicPointRadiationSourceModel::updateMembers_(double currentTime)
 //   Paneled radiation source
 //*********************************************************************************************
 
-IrradianceWithSourceList PaneledRadiationSourceModel::evaluateIrradianceAtPosition(
-        const Eigen::Vector3d& targetPosition,
-        double originalSourceIrradiance,
-        const Eigen::Vector3d& originalSourceToSourceDirection) const
-{
-    IrradianceWithSourceList irradiances{};
-
-    for (auto& panel : getPanels())
-    {
-        const Eigen::Vector3d targetPositionRelativeToPanel = targetPosition - panel.getRelativeCenter();
-
-        double irradiance = 0;
-        for (auto& radiosityModel : panel.getRadiosityModels())
-        {
-            irradiance += radiosityModel->evaluateIrradianceAtPosition(
-                    panel,
-                    targetPositionRelativeToPanel,
-                    originalSourceIrradiance,
-                    originalSourceToSourceDirection);
-        }
-
-        irradiances.emplace_back(irradiance, panel.getRelativeCenter());
-    }
-
-    return irradiances;
-}
-
 void StaticallyPaneledRadiationSourceModel::updateMembers_(double currentTime)
 {
     // Check if panels have been initialized, generate them once it not
@@ -118,33 +91,31 @@ void StaticallyPaneledRadiationSourceModel::updateMembers_(double currentTime)
     }
 }
 
-std::pair<std::vector<double>, std::vector<double>> generateEvenlySpacedPoints(unsigned int n)
+IrradianceWithSourceList PaneledRadiationSourceModel::evaluateIrradianceAtPosition(
+        const Eigen::Vector3d& targetPosition,
+        double originalSourceIrradiance,
+        const Eigen::Vector3d& originalSourceToSourceDirection) const
 {
-    std::vector<double> polarAngles;
-    std::vector<double> azimuthAngles;
+    IrradianceWithSourceList irradiances{};
 
-    double previousAzimuthAngle{};
-    for (unsigned int k = 1; k <= n; ++k)
+    for (auto& panel : getPanels())
     {
-        double h = -1 + 2. * (k-1) / (n-1);
-        double polarAngle = acos(h);
-        double azimuthAngle;
-        if (k == 1 || k == n)
+        const Eigen::Vector3d targetPositionRelativeToPanel = targetPosition - panel.getRelativeCenter();
+
+        double irradiance = 0;
+        for (auto& radiosityModel : panel.getRadiosityModels())
         {
-            azimuthAngle = 0.;
-        }
-        else
-        {
-            azimuthAngle = fmod(previousAzimuthAngle + 3.6 / sqrt(n * (1 - h * h)), 2 * PI);
+            irradiance += radiosityModel->evaluateIrradianceAtPosition(
+                    panel,
+                    targetPositionRelativeToPanel,
+                    originalSourceIrradiance,
+                    originalSourceToSourceDirection);
         }
 
-        polarAngles.push_back(polarAngle);
-        azimuthAngles.push_back(azimuthAngle);
-
-        previousAzimuthAngle = azimuthAngle;
+        irradiances.emplace_back(irradiance, panel.getRelativeCenter());
     }
 
-    return std::make_pair(polarAngles, azimuthAngles);
+    return irradiances;
 }
 
 double AlbedoPanelRadiosityModel::evaluateIrradianceAtPosition(
@@ -162,8 +133,12 @@ double AlbedoPanelRadiosityModel::evaluateIrradianceAtPosition(
     const auto receivedIrradiance = cosBetweenNormalAndOriginalSource * originalSourceIrradiance;
 
     const Eigen::Vector3d targetDirection = targetPosition.normalized();
-    const auto reflectedFraction =  // [1/sr]
+    const auto reflectedFraction =
             reflectionLaw_->evaluateReflectedFraction(surfaceNormal, originalSourceToSourceDirection, targetDirection);
+    if (reflectedFraction == 0)
+    {
+        return 0;
+    }
 
     const double distanceSourceToTargetSquared = targetPosition.squaredNorm();
     const auto effectiveEmittingArea = cosBetweenNormalAndTarget * panel.getArea();
@@ -203,23 +178,54 @@ double AngleBasedThermalPanelRadiosityModel::evaluateIrradianceAtPosition(
         const Eigen::Vector3d& originalSourceToSourceDirection) const
 {
     const auto& surfaceNormal = panel.getSurfaceNormal();
-    const auto cosBetweenNormalAndOriginalSource =
-            linear_algebra::computeCosineOfAngleBetweenVectors(surfaceNormal, -originalSourceToSourceDirection);
     const auto cosBetweenNormalAndTarget =
             linear_algebra::computeCosineOfAngleBetweenVectors(surfaceNormal, targetPosition);
-    if (cosBetweenNormalAndTarget <= 0)
+    const auto cosBetweenNormalAndOriginalSource =
+            linear_algebra::computeCosineOfAngleBetweenVectors(surfaceNormal, -originalSourceToSourceDirection);
+    if (cosBetweenNormalAndTarget <= 0 || cosBetweenNormalAndOriginalSource <= 0)
     {
-        // Target is on backside of panel
+        // Target or original source are on backside of panel
         return 0;
     }
 
-    const auto temperature = std::max(maxTemperature_ * pow(cosBetweenNormalAndOriginalSource, 1./4), minTemperature_);
+    const auto temperature = std::max(
+            maxTemperature_ * pow(cosBetweenNormalAndOriginalSource, 1./4),
+            minTemperature_);
     const auto emittedExitance = emissivity_ * physical_constants::STEFAN_BOLTZMANN_CONSTANT * pow(temperature, 4);
 
     const double distanceSourceToTargetSquared = targetPosition.squaredNorm();
     const auto effectiveEmittingArea = cosBetweenNormalAndTarget * panel.getArea();
     const auto thermalIrradiance = emittedExitance * effectiveEmittingArea / (PI * distanceSourceToTargetSquared);
     return thermalIrradiance;
+}
+
+std::pair<std::vector<double>, std::vector<double>> generateEvenlySpacedPoints(unsigned int n)
+{
+    std::vector<double> polarAngles;
+    std::vector<double> azimuthAngles;
+
+    double previousAzimuthAngle{};
+    for (unsigned int k = 1; k <= n; ++k)
+    {
+        double h = -1 + 2. * (k-1) / (n-1);
+        double polarAngle = acos(h);
+        double azimuthAngle;
+        if (k == 1 || k == n)
+        {
+            azimuthAngle = 0.;
+        }
+        else
+        {
+            azimuthAngle = fmod(previousAzimuthAngle + 3.6 / sqrt(n * (1 - h * h)), 2 * PI);
+        }
+
+        polarAngles.push_back(polarAngle);
+        azimuthAngles.push_back(azimuthAngle);
+
+        previousAzimuthAngle = azimuthAngle;
+    }
+
+    return std::make_pair(polarAngles, azimuthAngles);
 }
 
 } // tudat
