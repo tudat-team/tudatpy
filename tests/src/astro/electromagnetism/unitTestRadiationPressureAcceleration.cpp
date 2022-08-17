@@ -92,7 +92,7 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_GOCE )
             [] () { return Eigen::Vector3d::Zero(); },
             []() { return Eigen::Quaterniond::Identity(); },
             targetModel,
-            []() { return Eigen::Vector3d(1, 1, 0).normalized() * physical_constants::ASTRONOMICAL_UNIT; },
+            []() { return (Eigen::Vector3d(1, 1, 0).normalized() * physical_constants::ASTRONOMICAL_UNIT).eval(); },
             []() { return Eigen::Quaterniond::Identity(); },
             []() { return 1050; });
 

@@ -12,10 +12,8 @@ double SpecularDiffuseMixReflectionLaw::evaluateReflectedFraction(const Eigen::V
                                                                   const Eigen::Vector3d& observerDirection) const
 {
     // Check if any reflected radiation would reach observer
-    const auto cosBetweenNormalAndIncoming =
-            linear_algebra::computeCosineOfAngleBetweenVectors(surfaceNormal, -incomingDirection);
-    const auto cosBetweenNormalAndObserver =
-            linear_algebra::computeCosineOfAngleBetweenVectors(surfaceNormal, observerDirection);
+    const double cosBetweenNormalAndIncoming = surfaceNormal.dot(-incomingDirection);
+    const double cosBetweenNormalAndObserver = surfaceNormal.dot(observerDirection);
     if (cosBetweenNormalAndIncoming <= 0 || cosBetweenNormalAndObserver <= 0)
     {
         // Radiation is incident on backside, or observer is on backside
@@ -41,8 +39,7 @@ double SpecularDiffuseMixReflectionLaw::evaluateReflectedFraction(const Eigen::V
 Eigen::Vector3d SpecularDiffuseMixReflectionLaw::evaluateReactionVector(const Eigen::Vector3d& surfaceNormal,
                                                                         const Eigen::Vector3d& incomingDirection) const
 {
-    const auto cosBetweenNormalAndIncoming =
-            linear_algebra::computeCosineOfAngleBetweenVectors(surfaceNormal, -incomingDirection);
+    const double cosBetweenNormalAndIncoming = surfaceNormal.dot(-incomingDirection);
     if (cosBetweenNormalAndIncoming <= 0)
     {
         // Radiation is incident on backside of surface

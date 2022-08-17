@@ -86,7 +86,7 @@ public:
 
     double evaluateIrradianceAtPosition(const Eigen::Vector3d& targetPosition) const;
 
-    std::shared_ptr<LuminosityModel> getLuminosityModel() const
+    const std::shared_ptr<LuminosityModel>& getLuminosityModel() const
     {
         return luminosityModel_;
     }
@@ -173,15 +173,17 @@ private:
 class PaneledRadiationSourceModel::Panel
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
     explicit Panel(
             double area,
             const Eigen::Vector3d& relativeCenter,
             const Eigen::Vector3d& surfaceNormal,
             const std::vector<std::shared_ptr<PanelRadiosityModel>>& radiosityModels) :
-        area_(area),
         relativeCenter_(relativeCenter),
         surfaceNormal_(surfaceNormal),
-        radiosityModels_(radiosityModels) {}
+        radiosityModels_(radiosityModels),
+        area_(area) {}
 
     double getArea() const
     {
@@ -204,10 +206,10 @@ public:
     }
 
 private:
-    double area_;
     Eigen::Vector3d relativeCenter_;
     Eigen::Vector3d surfaceNormal_;
     std::vector<std::shared_ptr<PanelRadiosityModel>> radiosityModels_;
+    double area_;
 };
 
 class PaneledRadiationSourceModel::PanelRadiosityModel
