@@ -20,6 +20,24 @@ void RadiationSourceModel::updateMembers(const double currentTime)
     }
 }
 
+double RadiationSourceModel::evaluateTotalIrradianceAtPosition(
+        const Eigen::Vector3d& targetPosition,
+        double originalSourceIrradiance,
+        const Eigen::Vector3d& originalSourceToSourceDirection) const
+{
+    auto irradiances = evaluateIrradianceAtPosition(
+            targetPosition, originalSourceIrradiance, originalSourceToSourceDirection);
+
+    // Sum contributions of all panels
+    double totalIrradiance = 0;
+    for (auto& e: irradiances)
+    {
+        totalIrradiance += std::get<0>(e);
+    }
+
+    return totalIrradiance;
+}
+
 //*********************************************************************************************
 //   Isotropic point radiation source
 //*********************************************************************************************
