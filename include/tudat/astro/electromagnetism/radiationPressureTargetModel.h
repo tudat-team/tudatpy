@@ -91,12 +91,14 @@ class PaneledRadiationPressureTargetModel::Panel
     friend class PaneledRadiationPressureTargetModel;
 
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
     explicit Panel(double area,
                    const std::function<Eigen::Vector3d()>& surfaceNormalFunction,
                    const std::shared_ptr<ReflectionLaw>& reflectionLaw) :
-            area_(area),
             surfaceNormalFunction_(surfaceNormalFunction),
-            reflectionLaw_(reflectionLaw) {}
+            reflectionLaw_(reflectionLaw),
+            area_(area) {}
 
     explicit Panel(double area,
                    const Eigen::Vector3d& surfaceNormal,
@@ -121,10 +123,10 @@ public:
 private:
     void updateMembers();
 
-    double area_;
-    std::function<Eigen::Vector3d()> surfaceNormalFunction_;
     Eigen::Vector3d surfaceNormal_;
+    std::function<Eigen::Vector3d()> surfaceNormalFunction_;
     std::shared_ptr<ReflectionLaw> reflectionLaw_;
+    double area_;
 };
 
 } // tudat
