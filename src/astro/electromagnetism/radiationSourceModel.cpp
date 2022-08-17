@@ -189,15 +189,17 @@ double AngleBasedThermalPanelRadiosityModel::evaluateIrradianceAtPosition(
 {
     const auto& surfaceNormal = panel.getSurfaceNormal();
     const double cosBetweenNormalAndTarget = surfaceNormal.dot(targetPosition.normalized());
-    const double cosBetweenNormalAndOriginalSource = surfaceNormal.dot(-originalSourceToSourceDirection);
-    if (cosBetweenNormalAndTarget <= 0 || cosBetweenNormalAndOriginalSource <= 0)
+    if (cosBetweenNormalAndTarget <= 0)
     {
-        // Target or original source are on backside of panel
+        // Target is on backside of panel
         return 0;
     }
 
+    const double cosBetweenNormalAndOriginalSource = surfaceNormal.dot(-originalSourceToSourceDirection);
+    const double positiveCosBetweenNormalAndOriginalSource = std::max(cosBetweenNormalAndOriginalSource, 0.);
+
     const auto temperature = std::max(
-            maxTemperature_ * pow(cosBetweenNormalAndOriginalSource, 1./4),
+            maxTemperature_ * pow(positiveCosBetweenNormalAndOriginalSource, 1./4),
             minTemperature_);
     const auto emittedExitance = emissivity_ * physical_constants::STEFAN_BOLTZMANN_CONSTANT * pow(temperature, 4);
 
