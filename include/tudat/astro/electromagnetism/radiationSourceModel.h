@@ -62,6 +62,18 @@ public:
             double originalSourceIrradiance,
             const Eigen::Vector3d& originalSourceToSourceDirection) const = 0;
 
+    /*!
+     * Evaluate the total irradiance [W/m²] at a certain position due to this source.
+     * @param targetPosition Position where to evaluate the irradiance in local (i.e. source-fixed) coordinates
+     * @param originalSourceIrradiance Irradiance from the original source (if applicable)
+     * @param originalSourceToSourceDirection Direction of incoming radiation in local (i.e. source-fixed) coordinates
+     * @return The total irradiance from this source
+     */
+    double evaluateTotalIrradianceAtPosition(
+            const Eigen::Vector3d& targetPosition,
+            double originalSourceIrradiance,
+            const Eigen::Vector3d& originalSourceToSourceDirection) const;
+
 protected:
     virtual void updateMembers_(const double currentTime) {};
 

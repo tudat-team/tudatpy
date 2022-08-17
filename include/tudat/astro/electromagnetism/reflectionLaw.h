@@ -14,8 +14,8 @@
  *          Journal of Geodesy 89. 3(2014): 283–297.
  */
 
-#ifndef TUDATBUNDLE_REFLECTIONLAW_H
-#define TUDATBUNDLE_REFLECTIONLAW_H
+#ifndef TUDAT_REFLECTIONLAW_H
+#define TUDAT_REFLECTIONLAW_H
 
 #include <iostream>
 #include <memory>
@@ -181,4 +181,4 @@ Eigen::Vector3d computeMirrorlikeReflection(
 } // tudat
 } // electromagnetism
 
-#endif //TUDATBUNDLE_REFLECTIONLAW_H
+#endif //TUDAT_REFLECTIONLAW_H

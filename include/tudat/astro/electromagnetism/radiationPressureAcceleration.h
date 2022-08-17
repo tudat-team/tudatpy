@@ -78,6 +78,9 @@ public:
 
 private:
     Eigen::Vector3d calculateAcceleration();
+    std::pair<double, Eigen::Vector3d> calculateOriginalSourceIrradiance(
+            const Eigen::Vector3d& sourceCenterPositionInGlobalFrame,
+            const Eigen::Quaterniond& sourceRotationFromGlobalToLocalFrame);
 
 
     std::shared_ptr<RadiationSourceModel> sourceModel_;
