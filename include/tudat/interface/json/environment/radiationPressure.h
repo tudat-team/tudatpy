@@ -20,7 +20,7 @@ namespace tudat
 
 namespace simulation_setup
 {
-
+//RP-OLD
 //! Map of `RadiationPressureType`s string representations.
 static std::map< RadiationPressureType, std::string > radiationPressureTypes =
 {

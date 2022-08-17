@@ -25,6 +25,42 @@ Eigen::Vector3d RadiationPressureAcceleration::calculateAcceleration()
     Eigen::Quaterniond targetRotationFromLocalToGlobalFrame = targetRotationFromLocalToGlobalFrameFunction_();
     Eigen::Quaterniond targetRotationFromGlobalToLocalFrame = targetRotationFromLocalToGlobalFrame.inverse();
 
+    // Evaluate original source irradiance in source frame (if applicable, e.g. for albedo)
+    const auto originalSourceIrradiance = calculateOriginalSourceIrradiance(
+            sourceCenterPositionInGlobalFrame, sourceRotationFromGlobalToLocalFrame);
+    double irradianceFromOriginalSource = std::get<0>(originalSourceIrradiance);
+    Eigen::Vector3d originalSourceToSourceDirectionInSourceFrame = std::get<1>(originalSourceIrradiance);
+
+    // Evaluate irradiances at target position in source frame
+    Eigen::Vector3d targetCenterPositionInSourceFrame =
+            sourceRotationFromGlobalToLocalFrame * (targetCenterPositionInGlobalFrame - sourceCenterPositionInGlobalFrame);
+    auto irradiancesFromSource = sourceModel_->evaluateIrradianceAtPosition(
+            targetCenterPositionInSourceFrame,
+            irradianceFromOriginalSource,
+            originalSourceToSourceDirectionInSourceFrame);
+
+    // Calculate radiation pressure force due to all sub-sources in target frame
+    Eigen::Vector3d totalForceInTargetFrame = Eigen::Vector3d::Zero();
+    for (auto sourceIrradianceAndPosition : irradiancesFromSource) {
+        auto sourceIrradiance = std::get<0>(sourceIrradianceAndPosition);
+        Eigen::Vector3d sourcePositionInSourceFrame = std::get<1>(sourceIrradianceAndPosition); // position of sub-source (e.g. panel)
+        Eigen::Vector3d sourcePositionInGlobalFrame = sourceCenterPositionInGlobalFrame + sourceRotationFromLocalToGlobalFrame * sourcePositionInSourceFrame;
+
+        Eigen::Vector3d sourceToTargetDirectionInTargetFrame =
+                targetRotationFromGlobalToLocalFrame * (targetCenterPositionInGlobalFrame - sourcePositionInGlobalFrame).normalized();
+        totalForceInTargetFrame += targetModel_->evaluateRadiationPressureForce(sourceIrradiance,
+                                                                                sourceToTargetDirectionInTargetFrame);
+    }
+
+    // Calculate acceleration due to radiation pressure in global frame
+    Eigen::Vector3d acceleration = targetRotationFromLocalToGlobalFrame * totalForceInTargetFrame / targetMassFunction_();
+    return acceleration;
+}
+
+std::pair<double, Eigen::Vector3d> RadiationPressureAcceleration::calculateOriginalSourceIrradiance(
+        const Eigen::Vector3d& sourceCenterPositionInGlobalFrame,
+        const Eigen::Quaterniond& sourceRotationFromGlobalToLocalFrame)
+{
     double irradianceFromOriginalSource;
     Eigen::Vector3d originalSourceToSourceDirectionInSourceFrame;
 
@@ -48,29 +84,7 @@ Eigen::Vector3d RadiationPressureAcceleration::calculateAcceleration()
         originalSourceToSourceDirectionInSourceFrame = Eigen::Vector3d::Zero();
     }
 
-    // Evaluate irradiances at target position in source frame
-    Eigen::Vector3d targetCenterPositionInSourceFrame =
-            sourceRotationFromGlobalToLocalFrame * (targetCenterPositionInGlobalFrame - sourceCenterPositionInGlobalFrame);
-    auto irradiancesFromSource = sourceModel_->evaluateIrradianceAtPosition(
-            targetCenterPositionInSourceFrame,
-            irradianceFromOriginalSource,
-            originalSourceToSourceDirectionInSourceFrame);
-
-    // Calculate radiation pressure force due to all sub-sources
-    Eigen::Vector3d totalForceInTargetFrame = Eigen::Vector3d::Zero();
-    for (auto sourceIrradianceAndPosition : irradiancesFromSource) {
-        auto sourceIrradiance = std::get<0>(sourceIrradianceAndPosition);
-        Eigen::Vector3d sourcePositionInSourceFrame = std::get<1>(sourceIrradianceAndPosition); // position of sub-source (e.g. panel)
-        Eigen::Vector3d sourcePositionInGlobalFrame = sourceCenterPositionInGlobalFrame + sourceRotationFromLocalToGlobalFrame * sourcePositionInSourceFrame;
-
-        Eigen::Vector3d sourceToTargetDirectionInTargetFrame =
-                targetRotationFromGlobalToLocalFrame * (targetCenterPositionInGlobalFrame - sourcePositionInGlobalFrame).normalized();
-        totalForceInTargetFrame += targetModel_->evaluateRadiationPressureForce(sourceIrradiance,
-                                                                                sourceToTargetDirectionInTargetFrame);
-    }
-
-    Eigen::Vector3d acceleration = targetRotationFromLocalToGlobalFrame * totalForceInTargetFrame / targetMassFunction_();
-    return acceleration;
+    return std::make_pair(irradianceFromOriginalSource, originalSourceToSourceDirectionInSourceFrame);
 }
 
 } // tudat
