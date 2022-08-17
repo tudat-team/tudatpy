@@ -85,10 +85,7 @@ inline std::shared_ptr< AccelerationSettings > cannonBallRadiationPressureAccele
     return std::make_shared< AccelerationSettings >( basic_astrodynamics::cannon_ball_radiation_pressure );
 
 }
-inline std::shared_ptr< AccelerationSettings > radiationPressureAcceleration( )
-{
-    return std::make_shared< AccelerationSettings >( basic_astrodynamics::radiation_pressure_acceleration );
-}
+
 
 // Class for providing settings for spherical harmonics acceleration model.
 /*
@@ -789,6 +786,35 @@ inline std::shared_ptr< AccelerationSettings > momentumWheelDesaturationAccelera
 {
 	return std::make_shared< MomentumWheelDesaturationAccelerationSettings >( thrustMidTimes, deltaVValues,
 																		   totalManeuverTime, maneuverRiseTime);
+}
+
+// Class for providing acceleration settings for a radiation pressure acceleration model.
+class RadiationPressureAccelerationSettings: public AccelerationSettings
+{
+public:
+    RadiationPressureAccelerationSettings(const std::string& originalSourceBody = "") :
+            AccelerationSettings(basic_astrodynamics::radiation_pressure_acceleration),
+            originalSourceBody_(originalSourceBody) {}
+
+    std::string originalSourceBody_;
+};
+
+inline std::shared_ptr< AccelerationSettings > radiationPressureAcceleration(
+        const std::string& originalSourceBody = "")
+{
+    return std::make_shared< RadiationPressureAccelerationSettings >( originalSourceBody );
+}
+
+//! @get_docstring(momentumWheelDesaturationAcceleration)
+inline std::shared_ptr< AccelerationSettings > radiationPressureAcceleration(
+        const std::vector< double > thrustMidTimes,
+        const std::vector< Eigen::Vector3d > deltaVValues,
+        const double totalManeuverTime,
+        const double maneuverRiseTime
+)
+{
+    return std::make_shared< MomentumWheelDesaturationAccelerationSettings >( thrustMidTimes, deltaVValues,
+                                                                              totalManeuverTime, maneuverRiseTime);
 }
 
 // Typedef defining a list of acceleration settings, set up in the same manner as the

@@ -284,7 +284,7 @@ BOOST_AUTO_TEST_CASE( testAlbedoPanelRadiosityModel )
     }
 
     {
-        // Target on back of panel
+        // Target behind panel
         const auto expectedReflectedIrradiance = 0;
         const auto actualReflectedIrradiance = radiosityModel->evaluateIrradianceAtPosition(
                 panel,
@@ -295,7 +295,7 @@ BOOST_AUTO_TEST_CASE( testAlbedoPanelRadiosityModel )
     }
 
     {
-        // Original source on back of panel
+        // Original source behind panel
         const auto expectedReflectedIrradiance = 0;
         const auto actualReflectedIrradiance = radiosityModel->evaluateIrradianceAtPosition(
                 panel,
@@ -408,6 +408,17 @@ BOOST_AUTO_TEST_CASE( testAngleBasedThermalPanelRadiosityModel )
                 1,
                 -Eigen::Vector3d::UnitX());
         BOOST_CHECK_CLOSE(expectedEmittedIrradiance, actualEmittedIrradiance, 1e-2);
+    }
+
+    {
+        // Original source behind panel
+        const auto expectedReflectedIrradiance = 0;
+        const auto actualReflectedIrradiance = radiosityModel->evaluateIrradianceAtPosition(
+                panel,
+                Eigen::Vector3d::UnitX(),
+                1,
+                Eigen::Vector3d::UnitX());
+        BOOST_CHECK_CLOSE(actualReflectedIrradiance, expectedReflectedIrradiance, 1e-15);
     }
 }
 

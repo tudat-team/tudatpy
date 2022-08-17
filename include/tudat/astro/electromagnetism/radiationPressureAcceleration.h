@@ -29,7 +29,7 @@ public:
             RadiationPressureAcceleration(sourceModel, sourcePositionFunction, sourceRotationFromLocalToGlobalFrameFunction,
                                           targetModel, targetPositionFunction, targetRotationFromLocalToGlobalFrameFunction,
                                           targetMassFunction,
-                                          nullptr, nullptr, nullptr) {}
+                                          "", nullptr, nullptr, nullptr) {}
 
     RadiationPressureAcceleration(const std::shared_ptr<RadiationSourceModel>& sourceModel,
                                   const std::function<Eigen::Vector3d()>& sourcePositionFunction,
@@ -38,6 +38,7 @@ public:
                                   const std::function<Eigen::Vector3d()>& targetPositionFunction,
                                   const std::function<Eigen::Quaterniond()>& targetRotationFromLocalToGlobalFrameFunction,
                                   const std::function<double()>& targetMassFunction,
+                                  const std::string& originalSourceName,
                                   const std::shared_ptr<IsotropicPointRadiationSourceModel>& originalSourceModel,
                                   const std::function<Eigen::Vector3d()>& originalSourcePositionFunction,
                                   const std::function<Eigen::Quaterniond()>& originalSourceRotationFromLocalToGlobalFrameFunction) :
@@ -48,6 +49,7 @@ public:
             targetPositionFunction_(targetPositionFunction),
             targetRotationFromLocalToGlobalFrameFunction_(targetRotationFromLocalToGlobalFrameFunction),
             targetMassFunction_(targetMassFunction),
+            originalSourceName_(originalSourceName),
             originalSourceModel_(originalSourceModel),
             originalSourcePositionFunction_(originalSourcePositionFunction),
             originalSourceRotationFromLocalToGlobalFrameFunction_(originalSourceRotationFromLocalToGlobalFrameFunction) {}
@@ -62,6 +64,16 @@ public:
     std::shared_ptr<RadiationPressureTargetModel> getTargetModel() const
     {
         return targetModel_;
+    }
+
+    const std::shared_ptr<IsotropicPointRadiationSourceModel>& getOriginalSourceModel() const
+    {
+        return originalSourceModel_;
+    }
+
+    const std::string& getOriginalSourceName() const
+    {
+        return originalSourceName_;
     }
 
 private:
@@ -83,6 +95,8 @@ private:
     std::function<double()> targetMassFunction_;
 
     // Only populated if source has albedo radiation
+    std::string originalSourceName_; // needed for environment updater
+
     std::shared_ptr<IsotropicPointRadiationSourceModel> originalSourceModel_;
 
     std::function<Eigen::Vector3d()> originalSourcePositionFunction_;
