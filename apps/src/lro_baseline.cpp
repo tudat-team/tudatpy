@@ -32,7 +32,7 @@ namespace simulation_constants
 {
     const auto outputFolder = "/home/dominik/dev/tudat-bundle/output/lro/baseline";
     const auto simulationDuration = 565 * 60;  // 565 min, about 5 orbital revolutions
-    const auto simulationStart = "2010 JUN 26 03:00:00";
+    const auto simulationStart = "2010 JUN 26 06:00:00";
     double simulationStartEpoch;
     double simulationEndEpoch;
     const auto printInterval = simulationDuration / 10;
@@ -63,7 +63,7 @@ int main()
     return EXIT_SUCCESS;
 }
 
-// Loads SPICE kernels for lro
+// Loads SPICE kernels for LRO
 void loadLROSpiceKernels()
 {
     using namespace tudat::spice_interface;
@@ -109,12 +109,17 @@ SystemOfBodies createSimulationBodies()
         singleBodySettings->rotationModelSettings->resetOriginalFrame(globalFrameOrientation);
     }
 //    bodySettings.at("Sun")->radiationSourceModelSettings =
-//            std::make_shared<IsotropicPointRadiationSourceModelSettings>(
-//                    std::make_shared<ConstantLuminosityModelSettings>(1e33));
+//            isotropicPointRadiationSourceModelSettings(
+//                    constantLuminosityModelSettings(1e33));
+    bodySettings.at("Moon")->radiationSourceModelSettings =
+            staticallyPaneledRadiationSourceModelSettings({
+                albedoPanelRadiosityModelSettings(0.12),
+                angleBasedThermalPanelRadiosityModelSettings(100, 375, 0.95)
+            }, 100);
 
     // Create LRO
     bodySettings.addSettings("LRO");
-    bodySettings.get("LRO")->constantMass = 1916.0;
+    bodySettings.get("LRO")->constantMass = 1208.0;
     bodySettings.get("LRO")->rotationModelSettings = spiceRotationModelSettings(globalFrameOrientation, "LRO_SC_BUS");
 //    bodySettings.get("LRO")->radiationPressureTargetModelSettings =
 //            cannonballRadiationPressureTargetModelSettings(15.38, 1.41);
@@ -142,7 +147,8 @@ AccelerationMap createSimulationAccelerations(const SystemOfBodies& bodies)
     SelectedAccelerationMap accelerationMap {
             {"LRO", {
                 {"Moon", {
-                        sphericalHarmonicAcceleration(100, 100)
+                        sphericalHarmonicAcceleration(100, 100),
+                        radiationPressureAcceleration("Sun")
                 }},
                 {"Earth", {
                         sphericalHarmonicAcceleration(50, 50)
@@ -176,7 +182,8 @@ SingleArcDynamicsSimulator<> createSimulator(
                     singleAccelerationDependentVariable(spherical_harmonic_gravity, "LRO", "Moon"),
                     singleAccelerationDependentVariable(spherical_harmonic_gravity, "LRO", "Earth"),
                     singleAccelerationDependentVariable(point_mass_gravity, "LRO", "Sun"),
-                    singleAccelerationDependentVariable(radiation_pressure_acceleration, "LRO", "Sun")
+                    singleAccelerationDependentVariable(radiation_pressure_acceleration, "LRO", "Sun"),
+                    singleAccelerationDependentVariable(radiation_pressure_acceleration, "LRO", "Moon"),
             };
 
     auto propagatorSettings =  translationalStatePropagatorSettings (
