@@ -769,13 +769,24 @@ createRadiationPressureAccelerationModel(
         const std::shared_ptr< Body > bodyUndergoingAcceleration,
         const std::shared_ptr< Body > bodyExertingAcceleration,
         const std::string& nameOfBodyUndergoingAcceleration,
-        const std::string& nameOfBodyExertingAcceleration )
+        const std::string& nameOfBodyExertingAcceleration,
+        const std::shared_ptr< AccelerationSettings > accelerationSettings,
+        const SystemOfBodies& bodies)
 {
+    // Check input consistency
+    std::shared_ptr< RadiationPressureAccelerationSettings > radiationPressureAccelerationSettings =
+            std::dynamic_pointer_cast< RadiationPressureAccelerationSettings >( accelerationSettings );
+    if( radiationPressureAccelerationSettings == nullptr )
+    {
+        throw std::runtime_error( "Error when creating radiation pressure acceleration, input is inconsistent" );
+    }
+
     // Create references to bodies in radiation pressure terms
-    auto& source = bodyExertingAcceleration;
-    auto& target = bodyUndergoingAcceleration;
-    auto& sourceName = nameOfBodyExertingAcceleration;
-    auto& targetName = nameOfBodyUndergoingAcceleration;
+    const auto& sourceName = nameOfBodyExertingAcceleration;
+    const auto& targetName = nameOfBodyUndergoingAcceleration;
+    const auto& originalSourceName = radiationPressureAccelerationSettings->originalSourceBody_;
+    const auto& source = bodyExertingAcceleration;
+    const auto& target = bodyUndergoingAcceleration;
 
     if( source->getRadiationSourceModel() == nullptr )
     {
@@ -795,6 +806,9 @@ createRadiationPressureAccelerationModel(
 
     auto isotropicPointRadiationSourceModel =
             std::dynamic_pointer_cast<electromagnetism::IsotropicPointRadiationSourceModel>(
+                    source->getRadiationSourceModel());
+    auto paneledRadiationSourceModel =
+            std::dynamic_pointer_cast<electromagnetism::PaneledRadiationSourceModel>(
                     source->getRadiationSourceModel());
     if (isotropicPointRadiationSourceModel != nullptr) {
         // Isotropic point source is rotation-invariant and can use identity rotation
@@ -822,6 +836,43 @@ createRadiationPressureAccelerationModel(
         targetRotationFromLocalToGlobalFrameFunction = std::bind( &Body::getCurrentRotationToGlobalFrame, target );
     }
 
+    // Assign original source for paneled sources
+    std::shared_ptr<IsotropicPointRadiationSourceModel> originalSourceModel;
+    std::function<Eigen::Vector3d()> originalSourcePositionFunction;
+    std::function< Eigen::Quaterniond( ) > originalSourceRotationFromLocalToGlobalFrameFunction;
+
+    if (paneledRadiationSourceModel != nullptr)
+    {
+        if( originalSourceName.empty() )
+        {
+            throw std::runtime_error( "Error when making radiation pressure acceleration, paneled radiation source model "
+                                      "for body " + sourceName +
+                                      " requires an original source body with isotropic point radiation source model." );
+        }
+
+        const auto& originalSource = bodies.at(originalSourceName);
+        auto originalIsotropicPointRadiationSourceModel =
+                std::dynamic_pointer_cast<electromagnetism::IsotropicPointRadiationSourceModel>(
+                        originalSource->getRadiationSourceModel());
+
+        if( originalIsotropicPointRadiationSourceModel == nullptr )
+        {
+            throw std::runtime_error( "Error when making radiation pressure acceleration, body " +
+                                      sourceName +
+                                      " (original source) has no isotropic point radiation source model." );
+        }
+
+        originalSourceModel = originalIsotropicPointRadiationSourceModel;
+        originalSourcePositionFunction = std::bind( &Body::getPosition, originalSource );
+        originalSourceRotationFromLocalToGlobalFrameFunction = std::bind( &Body::getCurrentRotationToGlobalFrame, originalSource );
+    }
+    else
+    {
+        originalSourceModel = nullptr;
+        originalSourcePositionFunction = nullptr;
+        originalSourceRotationFromLocalToGlobalFrameFunction = nullptr;
+    }
+
     // Create acceleration model.
     return std::make_shared< RadiationPressureAcceleration >(
             source->getRadiationSourceModel(),
@@ -830,7 +881,11 @@ createRadiationPressureAccelerationModel(
             target->getRadiationPressureTargetModel(),
             std::bind( &Body::getPosition, target ),
             targetRotationFromLocalToGlobalFrameFunction,
-            std::bind( &Body::getBodyMass, target ));
+            std::bind( &Body::getBodyMass, target ),
+            originalSourceName,
+            originalSourceModel,
+            originalSourcePositionFunction,
+            originalSourceRotationFromLocalToGlobalFrameFunction);
 }
 
 //! Function to create a cannonball radiation pressure acceleration model.
@@ -1444,7 +1499,9 @@ std::shared_ptr< AccelerationModel< Eigen::Vector3d > > createAccelerationModel(
                     bodyUndergoingAcceleration,
                     bodyExertingAcceleration,
                     nameOfBodyUndergoingAcceleration,
-                    nameOfBodyExertingAcceleration );
+                    nameOfBodyExertingAcceleration,
+                    accelerationSettings,
+                    bodies);
         break;
     case cannon_ball_radiation_pressure:
         accelerationModelPointer = createCannonballRadiationPressureAcceleratioModel(
