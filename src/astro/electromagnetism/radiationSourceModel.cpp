@@ -101,6 +101,13 @@ IrradianceWithSourceList PaneledRadiationSourceModel::evaluateIrradianceAtPositi
     for (auto& panel : getPanels())
     {
         const Eigen::Vector3d targetPositionRelativeToPanel = targetPosition - panel.getRelativeCenter();
+        if (targetPositionRelativeToPanel.dot(panel.getSurfaceNormal()) <= 0)
+        {
+            // Avoids unnecessary panel radiosity model evaluations
+            // No need to normalize target position here
+            // TODO-DOMINIK find better way to eliminate unnecessary evaluations
+            continue;
+        }
 
         double irradiance = 0;
         for (auto& radiosityModel : panel.getRadiosityModels())
@@ -112,7 +119,11 @@ IrradianceWithSourceList PaneledRadiationSourceModel::evaluateIrradianceAtPositi
                     originalSourceToSourceDirection);
         }
 
-        irradiances.emplace_back(irradiance, panel.getRelativeCenter());
+        if (irradiance != 0)
+        {
+            // Do not add panels to list if they do not contribute to irradiance at target location
+            irradiances.emplace_back(irradiance, panel.getRelativeCenter());
+        }
     }
 
     return irradiances;
@@ -125,20 +136,20 @@ double AlbedoPanelRadiosityModel::evaluateIrradianceAtPosition(
         const Eigen::Vector3d& originalSourceToSourceDirection) const
 {
     const auto& surfaceNormal = panel.getSurfaceNormal();
-    const auto cosBetweenNormalAndOriginalSource =
-            linear_algebra::computeCosineOfAngleBetweenVectors(surfaceNormal, -originalSourceToSourceDirection);
-    const auto cosBetweenNormalAndTarget =
-            linear_algebra::computeCosineOfAngleBetweenVectors(surfaceNormal, targetPosition);
+    const Eigen::Vector3d targetDirection = targetPosition.normalized();
+    const double cosBetweenNormalAndOriginalSource = surfaceNormal.dot(-originalSourceToSourceDirection);
+    const double cosBetweenNormalAndTarget = surfaceNormal.dot(targetDirection);
+    if (cosBetweenNormalAndOriginalSource <= 0 || cosBetweenNormalAndTarget <= 0)
+    {
+        // Target or original source are on backside of panel
+        // This is checked by evaluateReflectedFraction as well, but check here to avoid unnecessary calculations/calls
+        return 0;
+    }
 
     const auto receivedIrradiance = cosBetweenNormalAndOriginalSource * originalSourceIrradiance;
 
-    const Eigen::Vector3d targetDirection = targetPosition.normalized();
     const auto reflectedFraction =
             reflectionLaw_->evaluateReflectedFraction(surfaceNormal, originalSourceToSourceDirection, targetDirection);
-    if (reflectedFraction == 0)
-    {
-        return 0;
-    }
 
     const double distanceSourceToTargetSquared = targetPosition.squaredNorm();
     const auto effectiveEmittingArea = cosBetweenNormalAndTarget * panel.getArea();
@@ -155,8 +166,7 @@ double DelayedThermalPanelRadiosityModel::evaluateIrradianceAtPosition(
         const Eigen::Vector3d& originalSourceToSourceDirection) const
 {
     const auto& surfaceNormal = panel.getSurfaceNormal();
-    const auto cosBetweenNormalAndTarget =
-            linear_algebra::computeCosineOfAngleBetweenVectors(surfaceNormal, targetPosition);
+    const double cosBetweenNormalAndTarget = surfaceNormal.dot(targetPosition.normalized());
     if (cosBetweenNormalAndTarget <= 0)
     {
         // Target is on backside of panel
@@ -178,10 +188,8 @@ double AngleBasedThermalPanelRadiosityModel::evaluateIrradianceAtPosition(
         const Eigen::Vector3d& originalSourceToSourceDirection) const
 {
     const auto& surfaceNormal = panel.getSurfaceNormal();
-    const auto cosBetweenNormalAndTarget =
-            linear_algebra::computeCosineOfAngleBetweenVectors(surfaceNormal, targetPosition);
-    const auto cosBetweenNormalAndOriginalSource =
-            linear_algebra::computeCosineOfAngleBetweenVectors(surfaceNormal, -originalSourceToSourceDirection);
+    const double cosBetweenNormalAndTarget = surfaceNormal.dot(targetPosition.normalized());
+    const double cosBetweenNormalAndOriginalSource = surfaceNormal.dot(-originalSourceToSourceDirection);
     if (cosBetweenNormalAndTarget <= 0 || cosBetweenNormalAndOriginalSource <= 0)
     {
         // Target or original source are on backside of panel
