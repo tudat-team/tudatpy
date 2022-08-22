@@ -386,7 +386,12 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                         singleAccelerationUpdateNeeds[ body_rotational_state_update ].push_back(
                                 accelerationModelIterator->first );
 
-                        std::string originalSourceName = radiationPressureAcceleration->getOriginalSourceName();
+                        auto paneledSourceRadiationPressureAcceleration =
+                                std::dynamic_pointer_cast<electromagnetism::PaneledSourceRadiationPressureAcceleration>(
+                                        accelerationModelIterator->second.at(i));
+
+                        std::string originalSourceName =
+                                paneledSourceRadiationPressureAcceleration->getOriginalSourceName();
                         singleAccelerationUpdateNeeds[ radiation_source_model_update ].push_back(
                                 originalSourceName );
                         singleAccelerationUpdateNeeds[ body_translational_state_update ].push_back(

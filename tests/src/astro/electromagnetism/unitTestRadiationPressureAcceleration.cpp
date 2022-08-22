@@ -29,6 +29,7 @@
 #include "tudat/interface/spice/spiceInterface.h"
 #include "tudat/astro/basic_astro/orbitalElementConversions.h"
 #include "tudat/astro/basic_astro/astrodynamicsFunctions.h"
+#include "tudat/astro/basic_astro/sphericalBodyShapeModel.h"
 #include "tudat/astro/ephemerides/keplerEphemeris.h"
 #include "tudat/astro/ephemerides/simpleRotationalEphemeris.h"
 #include "tudat/astro/ephemerides/constantRotationalEphemeris.h"
@@ -59,15 +60,16 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_Unity )
     auto sourceModel = std::make_shared<IsotropicPointRadiationSourceModel>(luminosityModel);
     auto targetModel = std::make_shared<CannonballRadiationPressureTargetModel>(
             1, 1);
-    RadiationPressureAcceleration accelerationModel(
+    IsotropicPointSourceRadiationPressureAcceleration accelerationModel(
             sourceModel,
+            std::make_shared<basic_astrodynamics::SphericalBodyShapeModel>(1),
             []() { return Eigen::Vector3d(1, 0, 0); },
             []() { return Eigen::Quaterniond::Identity(); },
             targetModel,
             []() { return Eigen::Vector3d(2, 0, 0); },
             []() { return Eigen::Quaterniond::Identity(); },
             []() { return 1; },
-            [](const Eigen::Vector3d&, const Eigen::Vector3d&) { return 1; });
+            std::make_shared<NoOccultingBodyOccultationModel>());
 
     sourceModel->updateMembers(TUDAT_NAN);
     targetModel->updateMembers(TUDAT_NAN);
@@ -78,25 +80,26 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_Unity )
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(actualAcceleration, expectedAcceleration, 1e-15);
 }
 
-//! Test acceleration for idealized GOCE spacecraft (Noomen 2022) with partial occultation
+//! Test acceleration for idealized GOCE spacecraft (Noomen 2022)
 BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_GOCE )
 {
-    const Eigen::Vector3d expectedAcceleration = 0.42 * Eigen::Vector3d(1, 1, 0).normalized() * 5.2e-9;
+    const Eigen::Vector3d expectedAcceleration = Eigen::Vector3d(1, 1, 0).normalized() * 5.2e-9;
 
     auto luminosityModel = std::make_shared<IrradianceBasedLuminosityModel>(
             [] () { return 1371; }, physical_constants::ASTRONOMICAL_UNIT);
     auto sourceModel = std::make_shared<IsotropicPointRadiationSourceModel>(luminosityModel);
     auto targetModel = std::make_shared<CannonballRadiationPressureTargetModel>(
             1, 1.2);
-    RadiationPressureAcceleration accelerationModel(
+    IsotropicPointSourceRadiationPressureAcceleration accelerationModel(
             sourceModel,
+            std::make_shared<basic_astrodynamics::SphericalBodyShapeModel>(1),
             [] () { return Eigen::Vector3d::Zero(); },
             []() { return Eigen::Quaterniond::Identity(); },
             targetModel,
             []() { return (Eigen::Vector3d(1, 1, 0).normalized() * physical_constants::ASTRONOMICAL_UNIT).eval(); },
             []() { return Eigen::Quaterniond::Identity(); },
             []() { return 1050; },
-            [](const Eigen::Vector3d&, const Eigen::Vector3d&) { return 0.42; });
+            std::make_shared<NoOccultingBodyOccultationModel>());
 
     sourceModel->updateMembers(TUDAT_NAN);
     targetModel->updateMembers(TUDAT_NAN);
@@ -126,15 +129,16 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPoint_Cannonbal
                 auto luminosityModel = std::make_shared<ConstantLuminosityModel>(1);
                 auto sourceModel = std::make_shared<IsotropicPointRadiationSourceModel>(luminosityModel);
                 auto targetModel = std::make_shared<CannonballRadiationPressureTargetModel>(42, 1.42);
-                RadiationPressureAcceleration accelerationModel(
+                IsotropicPointSourceRadiationPressureAcceleration accelerationModel(
                         sourceModel,
+                        std::make_shared<basic_astrodynamics::SphericalBodyShapeModel>(1),
                         [] () { return Eigen::Vector3d::Zero(); },
                         [=] () { return rotation.inverse(); }, // vary source rotation
                         targetModel,
                         [=] () { return Eigen::Vector3d(0, 1, 1); },
                         [=] () { return rotation; }, // vary target rotation
                         []() { return 1; },
-                        [](const Eigen::Vector3d&, const Eigen::Vector3d&) { return 1; });
+                        std::make_shared<NoOccultingBodyOccultationModel>());
 
                 sourceModel->updateMembers(TUDAT_NAN);
                 targetModel->updateMembers(TUDAT_NAN);
@@ -175,15 +179,16 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_Paneled_Basic )
         // Only panel 1 towards source
         // Magnitude 1 because area 1 and only absorption
         const Eigen::Vector3d expectedAcceleration = Eigen::Vector3d::UnitX();
-        RadiationPressureAcceleration accelerationModel(
+        IsotropicPointSourceRadiationPressureAcceleration accelerationModel(
                 sourceModel,
+                std::make_shared<basic_astrodynamics::SphericalBodyShapeModel>(1),
                 [] () { return Eigen::Vector3d::Zero(); },
                 [] () { return Eigen::Quaterniond::Identity(); },
                 targetModel,
                 [] () { return Eigen::Vector3d::UnitX(); },
                 [] () { return Eigen::Quaterniond::Identity(); },
                 [] () { return 1; },
-                [](const Eigen::Vector3d&, const Eigen::Vector3d&) { return 1; });
+                std::make_shared<NoOccultingBodyOccultationModel>());
 
         sourceModel->updateMembers(TUDAT_NAN);
         targetModel->updateMembers(TUDAT_NAN);
@@ -198,8 +203,9 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_Paneled_Basic )
         // Only panel 2 towards source
         // Magnitude 3.333 because area 2 and factor 1.667 from diffuse reflection
         const Eigen::Vector3d expectedAcceleration = 2 * (1 + 2./3) * Eigen::Vector3d::UnitX();
-        RadiationPressureAcceleration accelerationModel(
+        IsotropicPointSourceRadiationPressureAcceleration accelerationModel(
                 sourceModel,
+                std::make_shared<basic_astrodynamics::SphericalBodyShapeModel>(1),
                 [] () { return Eigen::Vector3d::Zero(); },
                 [] () { return Eigen::Quaterniond::Identity(); },
                 targetModel,
@@ -209,7 +215,7 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_Paneled_Basic )
                     return Eigen::Quaterniond(Eigen::AngleAxisd(angle, Eigen::Vector3d::UnitZ()));
                 },
                 [] () { return 1; },
-                [](const Eigen::Vector3d&, const Eigen::Vector3d&) { return 1; });
+                std::make_shared<NoOccultingBodyOccultationModel>());
 
         sourceModel->updateMembers(TUDAT_NAN);
         targetModel->updateMembers(TUDAT_NAN);
@@ -230,8 +236,9 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_Paneled_Basic )
                     + 2./3 * Eigen::Vector3d(1, 1, 0).normalized() // diffuse reflection
                 ) * 2 / sqrt(2);
         const Eigen::Vector3d expectedAcceleration = expectedAccelerationDueToPanel1 + expectedAccelerationDueToPanel2;
-        RadiationPressureAcceleration accelerationModel(
+        IsotropicPointSourceRadiationPressureAcceleration accelerationModel(
                 sourceModel,
+                std::make_shared<basic_astrodynamics::SphericalBodyShapeModel>(1),
                 [] () { return Eigen::Vector3d::Zero(); },
                 [] () { return Eigen::Quaterniond::Identity(); },
                 targetModel,
@@ -241,7 +248,7 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_Paneled_Basic )
                     return Eigen::Quaterniond(Eigen::AngleAxisd(angle, Eigen::Vector3d::UnitZ()));
                 },
                 [] () { return 1; },
-                [](const Eigen::Vector3d&, const Eigen::Vector3d&) { return 1; });
+                std::make_shared<NoOccultingBodyOccultationModel>());
 
         sourceModel->updateMembers(TUDAT_NAN);
         targetModel->updateMembers(TUDAT_NAN);
