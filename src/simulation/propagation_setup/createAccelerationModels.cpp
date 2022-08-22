@@ -801,15 +801,19 @@ createRadiationPressureAccelerationModel(
                                   " has no radiation pressure target model." );
     }
 
-    // Get source rotation function
-    std::function<Eigen::Quaterniond()> sourceRotationFromLocalToGlobalFrameFunction;
-
+    // Cast source and target models for type checks
     auto isotropicPointRadiationSourceModel =
             std::dynamic_pointer_cast<electromagnetism::IsotropicPointRadiationSourceModel>(
                     source->getRadiationSourceModel());
     auto paneledRadiationSourceModel =
             std::dynamic_pointer_cast<electromagnetism::PaneledRadiationSourceModel>(
                     source->getRadiationSourceModel());
+    auto cannonballRadiationPressureTargetModel =
+            std::dynamic_pointer_cast<electromagnetism::CannonballRadiationPressureTargetModel>(
+                    target->getRadiationPressureTargetModel());
+
+    // Get source rotation function
+    std::function<Eigen::Quaterniond()> sourceRotationFromLocalToGlobalFrameFunction;
     if (isotropicPointRadiationSourceModel != nullptr) {
         // Isotropic point source is rotation-invariant and can use identity rotation
         // Enables use of isotropic point source without source body rotation model
@@ -822,10 +826,6 @@ createRadiationPressureAccelerationModel(
 
     // Get target rotation function
     std::function<Eigen::Quaterniond()> targetRotationFromLocalToGlobalFrameFunction;
-
-    auto cannonballRadiationPressureTargetModel =
-            std::dynamic_pointer_cast<electromagnetism::CannonballRadiationPressureTargetModel>(
-                    target->getRadiationPressureTargetModel());
     if (cannonballRadiationPressureTargetModel != nullptr) {
         // Cannonball target is rotation-invariant and can use identity rotation
         // Enables use of cannonball target without target body rotation model
@@ -836,10 +836,86 @@ createRadiationPressureAccelerationModel(
         targetRotationFromLocalToGlobalFrameFunction = std::bind( &Body::getCurrentRotationToGlobalFrame, target );
     }
 
+    // Check if occulting bodies are not original source, source or target
+    for (auto& occultingBodyName : radiationPressureAccelerationSettings->occultingBodies_)
+    {
+        if (occultingBodyName == sourceName)
+        {
+            throw std::runtime_error( "Error when making radiation pressure acceleration, source body cannot "
+                                      "act as occulting body.");
+        }
+        if (occultingBodyName == targetName)
+        {
+            throw std::runtime_error( "Error when making radiation pressure acceleration, target body cannot "
+                                      "act as occulting body.");
+        }
+        if (occultingBodyName == originalSourceName)
+        {
+            throw std::runtime_error( "Error when making radiation pressure acceleration, original source body cannot "
+                                      "act as occulting body.");
+        }
+    }
+
+    // Create occultation models
+    std::shared_ptr<OccultationModel> occultationModel;
+    switch(radiationPressureAccelerationSettings->occultingBodies_.size())
+    {
+        case 0:
+        {
+            occultationModel = std::make_shared<NoOccultingBodyOccultationModel>();
+            break;
+        }
+        case 1:
+        {
+            auto occultingBodyName = radiationPressureAccelerationSettings->occultingBodies_.front();
+            auto occultingBody = bodies.at(occultingBodyName);
+            occultationModel = std::make_shared<SingleOccultingBodyOccultationModel>(
+                    std::bind( &Body::getPosition, occultingBody),
+                    occultingBody->getShapeModel());
+            break;
+        }
+        default:
+        {
+            throw std::runtime_error( "Error when making radiation pressure acceleration, only a single "
+                                      "occulting body is supported.");
+            break;
+        }
+    }
+
+    // Create source-target occultation function
+    SourceOccultationFactorFunctionType sourceOccultationFactorFunction;
+    if (isotropicPointRadiationSourceModel != nullptr)
+    {
+        // For isotropic point radiation source, use shadow function
+        sourceOccultationFactorFunction =
+                [=] (const Eigen::Vector3d& sourcePosition, const Eigen::Vector3d& targetPosition)
+                {
+            return occultationModel->evaluateReceivedFraction(
+                    sourcePosition, source->getShapeModel(), targetPosition);
+                };
+    }
+    else if (paneledRadiationSourceModel != nullptr)
+    {
+        // For paneled radiation source, use point-to-point visibility
+        sourceOccultationFactorFunction =
+                [=] (const Eigen::Vector3d& sourcePosition, const Eigen::Vector3d& targetPosition)
+                {
+                    auto isVisible = occultationModel->evaluateVisibility(sourcePosition, targetPosition);
+                    return static_cast<double>(isVisible);
+                };
+    }
+    else
+    {
+        throw std::runtime_error( "Error when making radiation pressure acceleration, body " +
+                                  sourceName +
+                                  " has unsupported radiation source model for occultation." );
+    }
+
     // Assign original source for paneled sources
     std::shared_ptr<IsotropicPointRadiationSourceModel> originalSourceModel;
     std::function<Eigen::Vector3d()> originalSourcePositionFunction;
     std::function< Eigen::Quaterniond( ) > originalSourceRotationFromLocalToGlobalFrameFunction;
+    OriginalSourceOccultationFactorFunctionType originalSourceOccultationFactorFunction;
 
     if (paneledRadiationSourceModel != nullptr)
     {
@@ -865,12 +941,22 @@ createRadiationPressureAccelerationModel(
         originalSourceModel = originalIsotropicPointRadiationSourceModel;
         originalSourcePositionFunction = std::bind( &Body::getPosition, originalSource );
         originalSourceRotationFromLocalToGlobalFrameFunction = std::bind( &Body::getCurrentRotationToGlobalFrame, originalSource );
+        // Create original source-to-source occultation function
+        originalSourceOccultationFactorFunction =
+                [=] (const Eigen::Vector3d& originalSourcePosition, const Eigen::Vector3d& sourcePosition)
+                {
+            // An original source is always an isotropic point radiation source (never paneled), hence use
+            // evaluateReceivedFraction instead of evaluateVisibility
+            return occultationModel->evaluateReceivedFraction(
+                    originalSourcePosition, originalSource->getShapeModel(), sourcePosition);
+                };
     }
     else
     {
         originalSourceModel = nullptr;
         originalSourcePositionFunction = nullptr;
         originalSourceRotationFromLocalToGlobalFrameFunction = nullptr;
+        originalSourceOccultationFactorFunction = nullptr;
     }
 
     // Create acceleration model.
@@ -885,7 +971,9 @@ createRadiationPressureAccelerationModel(
             originalSourceName,
             originalSourceModel,
             originalSourcePositionFunction,
-            originalSourceRotationFromLocalToGlobalFrameFunction);
+            originalSourceRotationFromLocalToGlobalFrameFunction,
+            sourceOccultationFactorFunction,
+            originalSourceOccultationFactorFunction);
 }
 
 //! Function to create a cannonball radiation pressure acceleration model.

@@ -47,7 +47,7 @@ public:
 
     virtual ~RadiationSourceModel() = default;
 
-    void updateMembers(double currentTime );
+    void updateMembers(double currentTime);
 
     /*!
      * Evaluate the irradiance [W/m²] at a certain position due to this source.
