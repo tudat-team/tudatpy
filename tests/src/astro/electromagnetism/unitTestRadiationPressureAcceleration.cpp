@@ -66,7 +66,8 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_Unity )
             targetModel,
             []() { return Eigen::Vector3d(2, 0, 0); },
             []() { return Eigen::Quaterniond::Identity(); },
-            []() { return 1; });
+            []() { return 1; },
+            [](const Eigen::Vector3d&, const Eigen::Vector3d&) { return 1; });
 
     sourceModel->updateMembers(TUDAT_NAN);
     targetModel->updateMembers(TUDAT_NAN);
@@ -77,10 +78,10 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_Unity )
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(actualAcceleration, expectedAcceleration, 1e-15);
 }
 
-//! Test acceleration for idealized GOCE spacecraft (Noomen 2022)
+//! Test acceleration for idealized GOCE spacecraft (Noomen 2022) with partial occultation
 BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_GOCE )
 {
-    const Eigen::Vector3d expectedAcceleration = Eigen::Vector3d(1, 1, 0).normalized() * 5.2e-9;
+    const Eigen::Vector3d expectedAcceleration = 0.42 * Eigen::Vector3d(1, 1, 0).normalized() * 5.2e-9;
 
     auto luminosityModel = std::make_shared<IrradianceBasedLuminosityModel>(
             [] () { return 1371; }, physical_constants::ASTRONOMICAL_UNIT);
@@ -94,7 +95,8 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_GOCE )
             targetModel,
             []() { return (Eigen::Vector3d(1, 1, 0).normalized() * physical_constants::ASTRONOMICAL_UNIT).eval(); },
             []() { return Eigen::Quaterniond::Identity(); },
-            []() { return 1050; });
+            []() { return 1050; },
+            [](const Eigen::Vector3d&, const Eigen::Vector3d&) { return 0.42; });
 
     sourceModel->updateMembers(TUDAT_NAN);
     targetModel->updateMembers(TUDAT_NAN);
@@ -131,7 +133,8 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPoint_Cannonbal
                         targetModel,
                         [=] () { return Eigen::Vector3d(0, 1, 1); },
                         [=] () { return rotation; }, // vary target rotation
-                        []() { return 1; });
+                        []() { return 1; },
+                        [](const Eigen::Vector3d&, const Eigen::Vector3d&) { return 1; });
 
                 sourceModel->updateMembers(TUDAT_NAN);
                 targetModel->updateMembers(TUDAT_NAN);
@@ -179,7 +182,8 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_Paneled_Basic )
                 targetModel,
                 [] () { return Eigen::Vector3d::UnitX(); },
                 [] () { return Eigen::Quaterniond::Identity(); },
-                [] () { return 1; });
+                [] () { return 1; },
+                [](const Eigen::Vector3d&, const Eigen::Vector3d&) { return 1; });
 
         sourceModel->updateMembers(TUDAT_NAN);
         targetModel->updateMembers(TUDAT_NAN);
@@ -204,7 +208,8 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_Paneled_Basic )
                     const auto angle = unit_conversions::convertDegreesToRadians(-90.);
                     return Eigen::Quaterniond(Eigen::AngleAxisd(angle, Eigen::Vector3d::UnitZ()));
                 },
-                [] () { return 1; });
+                [] () { return 1; },
+                [](const Eigen::Vector3d&, const Eigen::Vector3d&) { return 1; });
 
         sourceModel->updateMembers(TUDAT_NAN);
         targetModel->updateMembers(TUDAT_NAN);
@@ -235,7 +240,8 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_Paneled_Basic )
                     const auto angle = unit_conversions::convertDegreesToRadians(-45.);
                     return Eigen::Quaterniond(Eigen::AngleAxisd(angle, Eigen::Vector3d::UnitZ()));
                 },
-                [] () { return 1; });
+                [] () { return 1; },
+                [](const Eigen::Vector3d&, const Eigen::Vector3d&) { return 1; });
 
         sourceModel->updateMembers(TUDAT_NAN);
         targetModel->updateMembers(TUDAT_NAN);

@@ -64,3 +64,10 @@ TUDAT_ADD_TEST_CASE(ReflectionLaw
         tudat_electromagnetism
         tudat_basic_mathematics
         )
+
+TUDAT_ADD_TEST_CASE(OccultationModel
+        PRIVATE_LINKS
+        tudat_electromagnetism
+        tudat_basic_mathematics
+        tudat_basic_astrodynamics
+        )

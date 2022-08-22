@@ -1,7 +1,5 @@
 #include "tudat/astro/electromagnetism/radiationSourceModel.h"
-#include "tudat/basics/utilityMacros.h"
 #include "tudat/math/basic/coordinateConversions.h"
-#include "tudat/math/basic/linearAlgebra.h"
 #include "tudat/astro/basic_astro/physicalConstants.h"
 
 namespace tudat

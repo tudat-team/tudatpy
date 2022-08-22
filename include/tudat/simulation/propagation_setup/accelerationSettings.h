@@ -792,17 +792,24 @@ inline std::shared_ptr< AccelerationSettings > momentumWheelDesaturationAccelera
 class RadiationPressureAccelerationSettings: public AccelerationSettings
 {
 public:
-    RadiationPressureAccelerationSettings(const std::string& originalSourceBody = "") :
+    explicit RadiationPressureAccelerationSettings(
+            const std::vector<std::string>& occultingBodies = {},
+            const std::string& originalSourceBody = "") :
             AccelerationSettings(basic_astrodynamics::radiation_pressure_acceleration),
-            originalSourceBody_(originalSourceBody) {}
+            originalSourceBody_(originalSourceBody),
+            occultingBodies_(occultingBodies) {}
 
     std::string originalSourceBody_;
+    std::vector<std::string> occultingBodies_;
 };
 
 inline std::shared_ptr< AccelerationSettings > radiationPressureAcceleration(
+        std::initializer_list<std::string> occultingBodies = {},
         const std::string& originalSourceBody = "")
 {
-    return std::make_shared< RadiationPressureAccelerationSettings >( originalSourceBody );
+    return std::make_shared< RadiationPressureAccelerationSettings >(
+            occultingBodies,
+            originalSourceBody);
 }
 
 //! @get_docstring(momentumWheelDesaturationAcceleration)
