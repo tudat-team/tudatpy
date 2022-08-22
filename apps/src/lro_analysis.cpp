@@ -10,15 +10,9 @@
 
 using namespace tudat;
 using namespace tudat::simulation_setup;
-using namespace tudat::propagators;
-using namespace tudat::numerical_integrators;
-using namespace tudat::orbital_element_conversions;
-using namespace tudat::basic_astrodynamics;
 using namespace tudat::basic_mathematics;
 using namespace tudat::electromagnetism;
 using namespace tudat::physical_constants;
-using namespace tudat::gravitation;
-using namespace tudat::numerical_integrators;
 
 
 void loadLROSpiceKernels();

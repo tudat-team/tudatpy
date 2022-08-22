@@ -61,7 +61,7 @@ std::shared_ptr<electromagnetism::RadiationPressureTargetModel> createRadiationP
                     surfaceNormalFunction = [=] () { return panel.getSurfaceNormalFunction()().normalized(); };
                 }
                 else {
-                    // Tracking a body means setting the surface normal towards the tracked body in the local frame
+                    // Tracking a body means setting the surface normal towards the tracked body in the source local frame
                     const auto bodyToTrack = bodies.at(panel.getBodyToTrack());
                     const auto targetBody = bodies.at(body);
                     const auto sign = panel.isTowardsTrackedBody() ? +1 : -1;

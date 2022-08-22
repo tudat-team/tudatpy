@@ -1386,10 +1386,10 @@ BOOST_AUTO_TEST_CASE( test_radiationPressureTargetModelSetup_PaneledTarget )
     const auto expectedDiffuseReflectivityPanel2 = 0.4;
     const auto expectedAbsorptivityPanel1 = 0.6;
     const auto expectedAbsorptivityPanel2 = 0.4;
-    const auto expectedSurfaceNormalPanel1 = Eigen::Vector3d::UnitX();
-    const auto expectedSurfaceNormalPanel2 = Eigen::Vector3d::UnitY();
-    const auto expectedSurfaceNormalPanel3 = Eigen::Vector3d(-1, -1, 0).normalized(); // towards Sun
-    const auto expectedSurfaceNormalPanel4 = Eigen::Vector3d(1, 1, 0).normalized(); // away from Sun
+    const Eigen::Vector3d expectedSurfaceNormalPanel1 = Eigen::Vector3d::UnitX();
+    const Eigen::Vector3d expectedSurfaceNormalPanel2 = Eigen::Vector3d::UnitY();
+    const Eigen::Vector3d expectedSurfaceNormalPanel3 = Eigen::Vector3d(-1, -1, 0).normalized(); // towards Sun
+    const Eigen::Vector3d expectedSurfaceNormalPanel4 = Eigen::Vector3d(1, 1, 0).normalized(); // away from Sun
 
     spice_interface::loadStandardSpiceKernels( );
 

@@ -24,25 +24,26 @@ void loadLROSpiceKernels();
 SystemOfBodies createSimulationBodies();
 AccelerationMap createSimulationAccelerations(const SystemOfBodies&);
 Eigen::VectorXd createSimulationInitialState();
-SingleArcDynamicsSimulator<> createSimulator(const SystemOfBodies&, const AccelerationMap&, const Eigen::VectorXd&);
-void runSimulationAndSaveResults(SingleArcDynamicsSimulator<>& dynamicsSimulator);
+SingleArcDynamicsSimulator<> createAndRunSimulation(const SystemOfBodies&, const AccelerationMap&, const Eigen::VectorXd&);
+void saveSimulationResults(SingleArcDynamicsSimulator<>& dynamicsSimulator);
 
 
 namespace simulation_constants
 {
     const auto outputFolder = "/home/dominik/dev/tudat-bundle/output/lro/baseline";
-    const auto simulationDuration = 565 * 60;  // 565 min, about 5 orbital revolutions
+    const auto simulationDuration = 5 * 113 * 60;  // 565 min, about 5 orbital revolutions
+//    const auto simulationDuration = 500;
     const auto simulationStart = "2010 JUN 26 06:00:00";
     double simulationStartEpoch;
     double simulationEndEpoch;
     const auto printInterval = simulationDuration / 10;
-    const auto minStepSize = 5.0;
+    const auto fixedStepSize = 10.0;
 
     const auto globalFrameOrigin = "Moon";
     const auto globalFrameOrientation = "ECLIPJ2000";
 
-    const std::vector< std::string > bodiesToPropagate{"LRO"};
-    const std::vector< std::string > centralBodies{"Moon"};
+    const std::vector<std::string> bodiesToPropagate{"LRO"};
+    const std::vector<std::string> centralBodies{"Moon"};
 }
 using namespace simulation_constants;
 
@@ -57,8 +58,8 @@ int main()
     auto bodies = createSimulationBodies();
     auto accelerations = createSimulationAccelerations(bodies);
     auto initialState = createSimulationInitialState();
-    auto dynamicsSimulator = createSimulator(bodies, accelerations, initialState);
-    runSimulationAndSaveResults(dynamicsSimulator);
+    auto dynamicsSimulator = createAndRunSimulation(bodies, accelerations, initialState);
+    saveSimulationResults(dynamicsSimulator);
 
     return EXIT_SUCCESS;
 }
@@ -102,12 +103,7 @@ void loadLROSpiceKernels()
 SystemOfBodies createSimulationBodies()
 {
     // Create planets
-    auto bodySettings = getDefaultBodySettings({"Sun", "Earth", "Moon"});
-    for(auto const& item : bodySettings.getMap()){
-        auto singleBodySettings = item.second;
-        singleBodySettings->ephemerisSettings->resetFrameOrientation(globalFrameOrientation);
-        singleBodySettings->rotationModelSettings->resetOriginalFrame(globalFrameOrientation);
-    }
+    auto bodySettings = getDefaultBodySettings({"Sun", "Earth", "Moon"}, globalFrameOrigin, globalFrameOrientation);
 //    bodySettings.at("Sun")->radiationSourceModelSettings =
 //            isotropicPointRadiationSourceModelSettings(
 //                    constantLuminosityModelSettings(1e33));
@@ -115,7 +111,7 @@ SystemOfBodies createSimulationBodies()
             staticallyPaneledRadiationSourceModelSettings({
                 albedoPanelRadiosityModelSettings(0.12),
                 angleBasedThermalPanelRadiosityModelSettings(100, 375, 0.95)
-            }, 100);
+            }, 2000);
 
     // Create LRO
     bodySettings.addSettings("LRO");
@@ -144,18 +140,18 @@ SystemOfBodies createSimulationBodies()
 
 AccelerationMap createSimulationAccelerations(const SystemOfBodies& bodies)
 {
-    SelectedAccelerationMap accelerationMap {
+    SelectedAccelerationMap accelerationMap{
             {"LRO", {
                 {"Moon", {
                         sphericalHarmonicAcceleration(100, 100),
-                        radiationPressureAcceleration("Sun")
+                        radiationPressureAcceleration({}, "Sun")
                 }},
                 {"Earth", {
                         sphericalHarmonicAcceleration(50, 50)
                 }},
                 {"Sun", {
                         pointMassGravityAcceleration(),
-                        radiationPressureAcceleration()
+                        radiationPressureAcceleration({})
                 }},
             }}
     };
@@ -170,7 +166,7 @@ Eigen::VectorXd createSimulationInitialState()
     return initialState;
 }
 
-SingleArcDynamicsSimulator<> createSimulator(
+SingleArcDynamicsSimulator<> createAndRunSimulation(
         const SystemOfBodies& bodies, const AccelerationMap& accelerations, const Eigen::VectorXd& initialState)
 {
     std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesList
@@ -191,14 +187,14 @@ SingleArcDynamicsSimulator<> createSimulator(
             createDependentVariableSaveSettings(dependentVariablesList), printInterval);
 
     auto integratorSettings = adamsBashforthMoultonSettings(
-                    simulationStartEpoch, minStepSize, minStepSize, minStepSize);
+            simulationStartEpoch, fixedStepSize, fixedStepSize, fixedStepSize);
 
     SingleArcDynamicsSimulator< > dynamicsSimulator(
             bodies, integratorSettings, propagatorSettings, true, false, false );
     return dynamicsSimulator;
 }
 
-void runSimulationAndSaveResults(SingleArcDynamicsSimulator<>& dynamicsSimulator)
+void saveSimulationResults(SingleArcDynamicsSimulator<>& dynamicsSimulator)
 {
     auto integrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution();
     auto dependentVariableResult = dynamicsSimulator.getDependentVariableHistory();
