@@ -465,8 +465,15 @@ double HodographicShapingLeg::evaluateDerivativePolarAngleWrtTime( const double 
 double HodographicShapingLeg::computeCurrentRadialDistance( const double timeSinceDeparture )
 {
     // Compute radial distance from the central body.
-    return radialVelocityFunction_->evaluateCompositeFunctionIntegralCurrentValue(timeSinceDeparture)
+    double radialDistance = radialVelocityFunction_->evaluateCompositeFunctionIntegralCurrentValue(timeSinceDeparture)
            - radialVelocityFunction_->evaluateCompositeFunctionIntegralCurrentValue(0.0) + radialBoundaryConditions_[0];
+    // Check if computed radial distance is valid
+    if ( radialDistance < 0 )
+    {
+        throw std::runtime_error( "Error when computing radial distance in hodographic shaping: computed distance is negative." );
+    }
+        
+    return radialDistance;
 }
 
 //! Compute current polar angle.
