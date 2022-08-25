@@ -155,6 +155,9 @@ namespace dependent_variable {
                 .value("periapsis_altitude_type",
                        tp::PropagationDependentVariables::periapsis_altitude_dependent_variable,
                        get_docstring("PropagationDependentVariables.periapsis_altitude_type").c_str())
+                .value("apoapsis_altitude_type",
+                       tp::PropagationDependentVariables::apoapsis_altitude_dependent_variable,
+                       get_docstring("PropagationDependentVariables.apoapsis_altitude_type").c_str())
                 .value("total_torque_norm_type",
                        tp::PropagationDependentVariables::total_torque_norm_dependent_variable,
                        get_docstring("PropagationDependentVariables.total_torque_norm_type").c_str())
@@ -580,6 +583,12 @@ namespace dependent_variable {
               py::arg("body"),
               py::arg("central_body"),
               get_docstring("periapsis_altitude").c_str());
+
+        m.def("apoapsis_altitude",
+              &tp::apoapsisAltitudeVariable,
+              py::arg("body"),
+              py::arg("central_body"),
+              get_docstring("apoapsis_altitude").c_str());
 
         m.def("control_surface_deflection",
               &tp::controlSurfaceDeflectionDependentVariable,
