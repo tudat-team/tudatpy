@@ -60,6 +60,16 @@ using namespace estimatable_parameters;
 
 BOOST_AUTO_TEST_SUITE( test_dependent_variable_output )
 
+Eigen::VectorXd customDependentVariable1( const simulation_setup::SystemOfBodies& bodies )
+{
+    return bodies.at( "Apollo" )->getPosition( ) / 2.0;
+}
+
+Eigen::VectorXd customDependentVariable2( const simulation_setup::SystemOfBodies& bodies )
+{
+    return ( Eigen::VectorXd( 1 ) << bodies.at( "Apollo" )->getPosition( ).norm( ) / 2.0 ).finished( );
+}
+
 //! Propagate entry of Apollo capsule, and save a list of dependent variables during entry. The saved dependent variables
 //! are compared against theoretical/manual values in this test.
 BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
@@ -293,6 +303,12 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
             dependentVariablesToAdd.push_back(
                         std::make_shared< SingleDependentVariableSaveSettings >(
                             rsw_to_inertial_frame_rotation_dependent_variable,  "Apollo", "Earth" ) );
+            dependentVariablesToAdd.push_back(
+                        std::make_shared< CustomDependentVariableSaveSettings >(
+                            std::bind( &customDependentVariable1, bodies ), 3 ) );
+            dependentVariablesToAdd.push_back(
+                        std::make_shared< CustomDependentVariableSaveSettings >(
+                            std::bind( &customDependentVariable2, bodies ), 1 ) );
 
             addDepedentVariableSettings< double >( dependentVariablesToAdd, propagatorSettings );
 
@@ -366,6 +382,8 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
                 Eigen::Vector3d bodyFixedSphericalPosition = variableIterator->second.segment( 57, 3 );
                 Eigen::Matrix3d rswToInertialRotationMatrix =
                         propagators::getMatrixFromVectorRotationRepresentation( variableIterator->second.segment( 60, 9 ) );
+                Eigen::Vector3d customVariable1 = variableIterator->second.segment( 69, 3 );
+                Eigen::Vector3d customVariable2 = variableIterator->second.segment( 72, 1 );
 
                 currentStateDerivative = dynamicsSimulator.getDynamicsStateDerivative( )->computeStateDerivative(
                             variableIterator->first, rawNumericalSolution.at( variableIterator->first ) );
@@ -561,12 +579,17 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
                             10.0 * std::numeric_limits< double >::epsilon( ) );
                 BOOST_CHECK_SMALL(
                             std::fabs( computedSphericalBodyFixedPosition( 2 ) - bodyFixedSphericalPosition( 2 ) ),
-                            10.0 * std::numeric_limits< double >::epsilon( ));
+                            10.0 * std::numeric_limits< double >::epsilon( ) );
                 Eigen::Matrix3d computedRswRotationMatrix =
                         tudat::reference_frames::getRswSatelliteCenteredToInertialFrameRotationMatrix( numericalSolution.at( variableIterator->first ) );
 
                 TUDAT_CHECK_MATRIX_CLOSE_FRACTION( rswToInertialRotationMatrix, computedRswRotationMatrix,
                                                    ( 10.0 * std::numeric_limits< double >::epsilon( ) ) );
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(  customVariable1, ( relativePosition / 2.0 ),
+                                                    ( 10.0 * std::numeric_limits< double >::epsilon( ) ) );
+                BOOST_CHECK_CLOSE_FRACTION(  customVariable2( 0 ), ( relativePosition.norm( ) / 2.0 ),
+                                             ( 10.0 * std::numeric_limits< double >::epsilon( ) ) );
+
 
             }
         }

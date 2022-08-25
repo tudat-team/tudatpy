@@ -12,6 +12,7 @@
 #ifndef TUDAT_DIRECTTIDALDISSIPATIONACCELERATION_H
 #define TUDAT_DIRECTTIDALDISSIPATIONACCELERATION_H
 
+#include <iostream>
 #include <functional>
 #include <memory>
 #include <boost/lambda/lambda.hpp>
@@ -102,7 +103,34 @@ public:
         angularVelocityVectorOfBodyUndergoingTide_( angularVelocityVectorOfBodyUndergoingTide ),
         k2LoveNumber_( k2LoveNumber ), timeLag_( timeLag ),
         equatorialRadiusOfBodyUndergoingTide_( equatorialRadiusOfBodyUndergoingTide ),
-        includeDirectRadialComponent_( includeDirectRadialComponent ), modelTideOnPlanet_( true )
+        includeDirectRadialComponent_( includeDirectRadialComponent ), modelTideOnPlanet_( true ),
+        explicitLibraionalTideOnSatellite_( false )
+    {
+        equatorialRadiusToFifthPower_ =
+                equatorialRadiusOfBodyUndergoingTide_ * equatorialRadiusOfBodyUndergoingTide_ *
+                equatorialRadiusOfBodyUndergoingTide_ * equatorialRadiusOfBodyUndergoingTide_ *
+                equatorialRadiusOfBodyUndergoingTide_;
+    }
+
+
+    DirectTidalDissipationAcceleration(
+            const std::function< Eigen::Vector6d( ) > stateFunctionOfBodyExertingTide,
+            const std::function< Eigen::Vector6d( ) > stateFunctionOfBodyUndergoingTide,
+            const std::function< double( ) > gravitationalParameterFunctionOfBodyExertingTide,
+            const std::function< double( ) > gravitationalParameterFunctionOfBodyUndergoingTide,
+            const double k2LoveNumber,
+            const double timeLag,
+            const double equatorialRadiusOfBodyUndergoingTide,
+            const bool includeDirectRadialComponent ):
+        stateFunctionOfBodyExertingTide_( stateFunctionOfBodyExertingTide ),
+        stateFunctionOfBodyUndergoingTide_( stateFunctionOfBodyUndergoingTide ),
+        gravitationalParameterFunctionOfBodyExertingTide_( gravitationalParameterFunctionOfBodyExertingTide ),
+        gravitationalParameterFunctionOfBodyUndergoingTide_( gravitationalParameterFunctionOfBodyUndergoingTide ),
+        angularVelocityVectorOfBodyUndergoingTide_( [ = ]( ){ return Eigen::Vector3d::Constant( TUDAT_NAN ); } ),
+        k2LoveNumber_( k2LoveNumber ), timeLag_( timeLag ),
+        equatorialRadiusOfBodyUndergoingTide_( equatorialRadiusOfBodyUndergoingTide ),
+        includeDirectRadialComponent_( includeDirectRadialComponent ), modelTideOnPlanet_( false ),
+        explicitLibraionalTideOnSatellite_( false )
     {
         equatorialRadiusToFifthPower_ =
                 equatorialRadiusOfBodyUndergoingTide_ * equatorialRadiusOfBodyUndergoingTide_ *
@@ -127,6 +155,7 @@ public:
             const std::function< Eigen::Vector6d( ) > stateFunctionOfBodyUndergoingTide,
             const std::function< double( ) > gravitationalParameterFunctionOfBodyExertingTide,
             const std::function< double( ) > gravitationalParameterFunctionOfBodyUndergoingTide,
+            const std::function< Eigen::Vector3d( ) > angularVelocityVectorOfBodyUndergoingTide,
             const double k2LoveNumber,
             const double timeLag,
             const double equatorialRadiusOfBodyUndergoingTide,
@@ -135,10 +164,11 @@ public:
         stateFunctionOfBodyUndergoingTide_( stateFunctionOfBodyUndergoingTide ),
         gravitationalParameterFunctionOfBodyExertingTide_( gravitationalParameterFunctionOfBodyExertingTide ),
         gravitationalParameterFunctionOfBodyUndergoingTide_( gravitationalParameterFunctionOfBodyUndergoingTide ),
-        angularVelocityVectorOfBodyUndergoingTide_( [ = ]( ){ return Eigen::Vector3d::Constant( TUDAT_NAN ); } ),
+        angularVelocityVectorOfBodyUndergoingTide_( angularVelocityVectorOfBodyUndergoingTide ),
         k2LoveNumber_( k2LoveNumber ), timeLag_( timeLag ),
         equatorialRadiusOfBodyUndergoingTide_( equatorialRadiusOfBodyUndergoingTide ),
-        includeDirectRadialComponent_( includeDirectRadialComponent ), modelTideOnPlanet_( false )
+        includeDirectRadialComponent_( includeDirectRadialComponent ), modelTideOnPlanet_( false ),
+        explicitLibraionalTideOnSatellite_( true )
     {
         equatorialRadiusToFifthPower_ =
                 equatorialRadiusOfBodyUndergoingTide_ * equatorialRadiusOfBodyUndergoingTide_ *
@@ -182,16 +212,33 @@ public:
             }
             else
             {
-                // Retrieve/compute satellite-specific models
-                currentTidalAccelerationMultiplier_ =
-                        - 3.0 * gravitationalParameterFunctionOfBodyExertingTide_( ) * equatorialRadiusToFifthPower_ /
-                        distanceToEighthPower * k2LoveNumber_;
-                currentTidalAccelerationMultiplier_ *= gravitationalParameterFunctionOfBodyExertingTide_( ) /
-                        gravitationalParameterFunctionOfBodyUndergoingTide_( );
+                if( !explicitLibraionalTideOnSatellite_ )
+                {
+                    // Retrieve/compute satellite-specific models
+                    currentTidalAccelerationMultiplier_ =
+                            - 3.0 * gravitationalParameterFunctionOfBodyExertingTide_( ) * equatorialRadiusToFifthPower_ /
+                            distanceToEighthPower * k2LoveNumber_;
+                    currentTidalAccelerationMultiplier_ *= gravitationalParameterFunctionOfBodyExertingTide_( ) /
+                            gravitationalParameterFunctionOfBodyUndergoingTide_( );
 
-                currentAcceleration_ = computeDirectTidalAccelerationDueToTideOnSatellite(
-                            currentRelativeState_, currentTidalAccelerationMultiplier_,
-                            timeLag_, includeDirectRadialComponent_ );
+                    currentAcceleration_ = computeDirectTidalAccelerationDueToTideOnSatellite(
+                                currentRelativeState_, currentTidalAccelerationMultiplier_,
+                                timeLag_, includeDirectRadialComponent_ );
+                }
+                else
+                {
+                    // Retrieve/compute satellite-specific models
+                    currentTidalAccelerationMultiplier_ =
+                            - 3.0 * gravitationalParameterFunctionOfBodyExertingTide_( ) * equatorialRadiusToFifthPower_ /
+                            distanceToEighthPower * k2LoveNumber_;
+                    currentTidalAccelerationMultiplier_ *= gravitationalParameterFunctionOfBodyExertingTide_( ) /
+                            gravitationalParameterFunctionOfBodyUndergoingTide_( );
+                    currentAngularVelocityVectorOfBodyUndergoingTide_ = angularVelocityVectorOfBodyUndergoingTide_( );
+
+                    currentAcceleration_ = computeDirectTidalAccelerationDueToTideOnPlanet(
+                                currentRelativeState_, currentAngularVelocityVectorOfBodyUndergoingTide_, currentTidalAccelerationMultiplier_,
+                                timeLag_, includeDirectRadialComponent_ );
+                }
             }
 
             currentTime_ = currentTime;
@@ -353,6 +400,8 @@ private:
 
     //! True if object models tidal bulge on planet, false if on satellite
     bool modelTideOnPlanet_;
+
+    bool explicitLibraionalTideOnSatellite_;
 
     //! Scalar multiplier that is common to all vector terms in acceleration model
     /*!

@@ -1259,13 +1259,29 @@ std::shared_ptr< gravitation::DirectTidalDissipationAcceleration > createDirectT
                     referenceRadius,
                     tidalAccelerationSettings->includeDirectRadialComponent_);
     }
-    else
+    else if( !tidalAccelerationSettings->explicitLibraionalTideOnSatellite_ )
     {
         return std::make_shared< DirectTidalDissipationAcceleration >(
                     std::bind( &Body::getState, bodyUndergoingAcceleration ),
                     std::bind( &Body::getState, bodyExertingAcceleration ),
                     gravitationalParaterFunctionOfBodyExertingTide,
                     gravitationalParaterFunctionOfBodyUndergoingTide,
+                    tidalAccelerationSettings->k2LoveNumber_,
+                    tidalAccelerationSettings->timeLag_,
+                    referenceRadius,
+                    tidalAccelerationSettings->includeDirectRadialComponent_);
+    }
+    else
+    {
+        std::function< Eigen::Vector3d( ) > moonAngularVelocityVectorFunction =
+                std::bind( &Body::getCurrentAngularVelocityVectorInGlobalFrame, bodyExertingAcceleration );
+
+        return std::make_shared< DirectTidalDissipationAcceleration >(
+                    std::bind( &Body::getState, bodyUndergoingAcceleration ),
+                    std::bind( &Body::getState, bodyExertingAcceleration ),
+                    gravitationalParaterFunctionOfBodyExertingTide,
+                    gravitationalParaterFunctionOfBodyUndergoingTide,
+                    moonAngularVelocityVectorFunction,
                     tidalAccelerationSettings->k2LoveNumber_,
                     tidalAccelerationSettings->timeLag_,
                     referenceRadius,

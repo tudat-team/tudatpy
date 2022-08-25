@@ -388,7 +388,7 @@ BOOST_AUTO_TEST_CASE( test_HybridArcStateEstimation )
     }
 
     // Test errors for gravitational parameters
-    BOOST_CHECK_SMALL( std::fabs( parameterError( parameterError.rows( ) - 2 ) ), 1.0E11 );
+    BOOST_CHECK_SMALL( std::fabs( parameterError( parameterError.rows( ) - 2 ) ), 1.5E11 );
     BOOST_CHECK_SMALL( std::fabs( parameterError( parameterError.rows( ) - 1 ) ), 1.0E6 );
 
 }
