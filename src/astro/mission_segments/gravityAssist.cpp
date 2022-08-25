@@ -481,6 +481,11 @@ Eigen::Vector3d calculatePoweredGravityAssistOutgoingVelocity(
     {
         throw std::runtime_error( "Incoming excess velocity at swingby must be different from 0. " );
     }
+    if ( pericenterRadius <= 0 )
+    {
+        throw std::runtime_error( "Error when computing powered swingby: pericenter radius (" + std::to_string(pericenterRadius) +
+            ") must be larger than zero.");
+    }
     
     // Calculate the incoming eccentricity and bending angle.
     const double incomingEccentricity = 1.0 + pericenterRadius /
@@ -510,6 +515,11 @@ Eigen::Vector3d calculatePoweredGravityAssistOutgoingVelocity(
     const double absoluteRelativeOutgoingVelocity =
             std::sqrt( outgoingPericenterVelocity * outgoingPericenterVelocity -
                        2.0 * centralBodyGravitationalParameter / pericenterRadius );
+
+    if ( !(absoluteRelativeOutgoingVelocity == absoluteRelativeOutgoingVelocity) )
+    {
+        throw std::runtime_error( "Invalid gravity assist: there is no feasible relative incoming/outgoing velocity." );
+    }
     
     // Calculate the remaining bending angles.
     const double outgoingBendingAngle =

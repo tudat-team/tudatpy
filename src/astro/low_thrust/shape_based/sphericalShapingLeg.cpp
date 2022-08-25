@@ -240,7 +240,7 @@ double SphericalShapingLeg::convertAzimuthToTime( const double currentAzimuthAng
     double currentTime = quadrature->getQuadrature( );
     if( currentTime != currentTime )
     {
-        throw std::runtime_error( "Error in spherical shaping, convering azimuth to time resulted in NaN value, this could be a result of poorly defined ephemerides or gravitattional parameter." );
+        throw std::runtime_error( "Error in spherical shaping, converting azimuth to time resulted in NaN value, this could be a result of poorly defined ephemerides or gravitational parameter." );
     }
 
     return currentTime;

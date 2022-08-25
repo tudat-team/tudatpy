@@ -606,12 +606,19 @@ public:
      */
     DirectTidalDissipationAccelerationSettings( const double k2LoveNumber, const double timeLag,
                                                 const bool includeDirectRadialComponent = true,
-                                                const bool useTideRaisedOnPlanet = true ):
+                                                const bool useTideRaisedOnPlanet = true,
+                                                const bool explicitLibraionalTideOnSatellite = false ):
         AccelerationSettings(
             ( useTideRaisedOnPlanet ? basic_astrodynamics::direct_tidal_dissipation_in_central_body_acceleration :
                                       basic_astrodynamics::direct_tidal_dissipation_in_orbiting_body_acceleration ) ),
         k2LoveNumber_( k2LoveNumber ), timeLag_( timeLag ), includeDirectRadialComponent_( includeDirectRadialComponent ),
-        useTideRaisedOnPlanet_( useTideRaisedOnPlanet ){ }
+        useTideRaisedOnPlanet_( useTideRaisedOnPlanet ), explicitLibraionalTideOnSatellite_( explicitLibraionalTideOnSatellite )
+    {
+        if( explicitLibraionalTideOnSatellite_ && useTideRaisedOnPlanet_ )
+        {
+            throw std::runtime_error( "Error when creating tidal dissipation acceleration model, cannot use tide on planet and librational tide on satellite in same model" );
+        }
+    }
 
     // Static k2 Love number of the satellite
     double k2LoveNumber_;
@@ -624,18 +631,23 @@ public:
 
     // True if acceleration model is to model tide raised on planet by satellite, false if vice versa
     bool useTideRaisedOnPlanet_;
+
+    bool explicitLibraionalTideOnSatellite_;
+
 };
 
 //! @get_docstring(directTidalDissipationAcceleration)
 inline std::shared_ptr< AccelerationSettings > directTidalDissipationAcceleration(
 		const double k2LoveNumber, const double timeLag,
 		const bool includeDirectRadialComponent = true,
-		const bool useTideRaisedOnPlanet = true
+        const bool useTideRaisedOnPlanet = true,
+        const bool explicitLibraionalTideOnSatellite = false
 		)
 {
 	return std::make_shared< DirectTidalDissipationAccelerationSettings >( k2LoveNumber, timeLag,
 																		includeDirectRadialComponent,
-																		useTideRaisedOnPlanet);
+                                                                        useTideRaisedOnPlanet,
+                                                                           explicitLibraionalTideOnSatellite);
 }
 
 // Class for providing acceleration settings for a momentum wheel desaturation acceleration model.
