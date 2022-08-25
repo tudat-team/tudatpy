@@ -28,7 +28,8 @@ enum BodyShapeTypes
 {
     spherical,
     spherical_spice,
-    oblate_spheroid
+    oblate_spheroid,
+    polyhedron
 };
 
 //  Class for providing settings for body shape model.
@@ -141,6 +142,67 @@ private:
     double flattening_;
 };
 
+class PolyhedronBodyShapeSettings: public BodyShapeSettings
+{
+public:
+
+    /*! Constructor.
+     *
+     * Constructor.
+     * @param verticesCoordinates Matrix with coordinates of the polyhedron vertices. Each row represents the (x,y,z)
+     * coordinates of one vertex.
+     * @param verticesDefiningEachFacet Matrix with the indices (0 indexed) of the vertices defining each facet. Each
+     * row contains 3 indices, which must be provided in counterclockwise order when seen from outside the polyhedron.
+     * @param computeAltitudeWithSign Flag indicating whether the altitude should be computed with sign (i.e. >0 if
+     * above surface, <0 otherwise) or having always a positive value.
+     * @param justComputeDistanceToVertices Flag indicating whether the distance should be computed wrt to all the
+     * polyhedron features or wrt to just the vertices.
+     */
+    PolyhedronBodyShapeSettings(
+            const Eigen::MatrixXd& verticesCoordinates,
+            const Eigen::MatrixXi& verticesDefiningEachFacet,
+            const bool computeAltitudeWithSign = true,
+            const bool justComputeDistanceToVertices = false):
+        BodyShapeSettings( polyhedron ),
+        verticesCoordinates_( verticesCoordinates ),
+        verticesDefiningEachFacet_( verticesDefiningEachFacet ),
+        computeAltitudeWithSign_( computeAltitudeWithSign ),
+        justComputeDistanceToVertices_( justComputeDistanceToVertices )
+    { }
+
+    /*! Constructor.
+     *
+     * Constructor.
+     * @param verticesCoordinates Matrix with coordinates of the polyhedron vertices. Each row represents the (x,y,z)
+     * coordinates of one vertex.
+     */
+    PolyhedronBodyShapeSettings(
+            const Eigen::MatrixXd& verticesCoordinates):
+        BodyShapeSettings( polyhedron ),
+        verticesCoordinates_( verticesCoordinates ),
+        verticesDefiningEachFacet_( Eigen::Matrix3d::Constant( TUDAT_NAN ) ),
+        computeAltitudeWithSign_( false ),
+        justComputeDistanceToVertices_( true )
+    { }
+
+private:
+
+    // Matrix with coordinates of the polyhedron vertices.
+    Eigen::MatrixXd verticesCoordinates_;
+
+    // Matrix with the indices (0 indexed) of the vertices defining each facet.
+    Eigen::MatrixXi verticesDefiningEachFacet_;
+
+    // Flag indicating whether the altitude should be computed with sign (i.e. >0 if above surface, <0 otherwise) or
+    // having always a positive value
+    bool computeAltitudeWithSign_;
+
+    // Flag indicating whether the distance should be computed wrt to all the polyhedron features or wrt to just the
+    // vertices.
+    bool justComputeDistanceToVertices_;
+
+};
+
 //  Function to create a body shape model.
 /* 
  *  Function to create a body shape model based on model-specific settings for the shape.
@@ -170,6 +232,22 @@ inline std::shared_ptr< BodyShapeSettings > oblateSphericalBodyShapeSettings( co
 																			  const double flattening )
 {
 	return std::make_shared< OblateSphericalBodyShapeSettings >( equatorialRadius, flattening );
+}
+
+inline std::shared_ptr< BodyShapeSettings > fullPolyhedronBodyShapeSettings(
+        const Eigen::MatrixXd& verticesCoordinates,
+        const Eigen::MatrixXi& verticesDefiningEachFacet,
+        const bool computeAltitudeWithSign = true,
+        const bool justComputeDistanceToVertices = false )
+{
+    return std::make_shared< PolyhedronBodyShapeSettings >( verticesCoordinates, verticesDefiningEachFacet,
+                                                            computeAltitudeWithSign, justComputeDistanceToVertices);
+}
+
+inline std::shared_ptr< BodyShapeSettings > simplifiedPolyhedronBodyShapeSettings(
+        const Eigen::MatrixXd& verticesCoordinates )
+{
+    return std::make_shared< PolyhedronBodyShapeSettings >( verticesCoordinates );
 }
 
 } // namespace simulation_setup
