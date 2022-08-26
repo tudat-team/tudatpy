@@ -20,16 +20,97 @@ double PolyhedronBodyShapeModel::getAltitude( const Eigen::Vector3d& bodyFixedPo
 {
     double altitude = std::numeric_limits< double >::infinity( );
 
+    // Compute distance to closest vertex and closest vertex id
+    int closestVertex;
+    double distanceToVertex = computeDistanceToClosestVertex( bodyFixedPosition, closestVertex );
+
     // Compute altitude using just the distance to the vertices
     if ( justComputeDistanceToVertices_ )
     {
-        altitude = computeDistanceToClosestVertex( bodyFixedPosition );
+        altitude = distanceToVertex;
     }
 
     // Compute altitude using distance to vertices, facets and edges
     else
     {
+        const unsigned int numberOfFacets = verticesDefiningEachFacet_.rows();
+        const unsigned int numberOfEdges = verticesDefiningEachEdge_.rows();
 
+        std::vector< unsigned int > verticesToTest;
+        std::vector< unsigned int > edgesToTest;
+        std::vector< unsigned int > facetsToTest;
+
+        // Select vertices connected to the closest vertex
+        for (unsigned int edge = 0; edge < numberOfEdges; ++edge)
+        {
+            if ( closestVertex == verticesDefiningEachEdge_(edge, 0) )
+            {
+                verticesToTest.push_back( verticesDefiningEachEdge_(edge, 1) );
+            }
+            else if ( closestVertex == verticesDefiningEachEdge_(edge, 1) )
+            {
+                verticesToTest.push_back( verticesDefiningEachEdge_(edge, 0) );
+            }
+        }
+
+        // Loop over selected vertices
+        for ( unsigned int vertex : verticesToTest )
+        {
+            // Loop over the edges and select the ones that include the selected vertex
+            for ( unsigned int edge = 0; edge < numberOfEdges; ++edge )
+            {
+                // If the edge isn't in the list of edges to test, check whether it should be added to it
+                if ( std::count( edgesToTest.begin(), edgesToTest.end(), edge ) == 0)
+                {
+                    if ( (unsigned int) verticesDefiningEachEdge_(edge, 0) == vertex || (unsigned int) verticesDefiningEachEdge_(edge, 1) == vertex )
+                    {
+                        edgesToTest.push_back( edge );
+                    }
+                }
+            }
+
+            // Loop over the facets and select the ones that include the selected vertex
+            for ( unsigned int facet = 0; facet < numberOfFacets; ++facet )
+            {
+                // If the edge isn't in the list of edges to test, check whether it should be added to it
+                if ( std::count( facetsToTest.begin(), facetsToTest.end(), facet ) == 0)
+                {
+                    if ( (unsigned int) verticesDefiningEachFacet_(facet, 0) == vertex || (unsigned int) verticesDefiningEachEdge_(facet, 1) == vertex ||
+                        (unsigned int) verticesDefiningEachFacet_(facet, 2) == vertex )
+                    {
+                        facetsToTest.push_back( facet );
+                    }
+                }
+            }
+        }
+
+        // Create matrix with vertices defining each edge to be tested
+        Eigen::MatrixXi verticesDefiningEachEdgeToTest = Eigen::MatrixXi::Constant( edgesToTest.size(), 2, TUDAT_NAN );
+        unsigned int counter = 0;
+        for ( unsigned int edge : edgesToTest )
+        {
+            verticesDefiningEachEdgeToTest(counter,0) = verticesDefiningEachEdge_(edge,0);
+            verticesDefiningEachEdgeToTest(counter,1) = verticesDefiningEachEdge_(edge,1);
+            ++counter;
+        }
+
+        // Create matrix with vertices defining each facet to be tested
+        Eigen::MatrixXi verticesDefiningEachFacetToTest = Eigen::MatrixXi::Constant( facetsToTest.size(), 2, TUDAT_NAN );
+        counter = 0;
+        for ( unsigned int facet : facetsToTest )
+        {
+            verticesDefiningEachFacetToTest(counter,0) = verticesDefiningEachFacet_(facet,0);
+            verticesDefiningEachFacetToTest(counter,1) = verticesDefiningEachFacet_(facet,1);
+            verticesDefiningEachFacetToTest(counter,2) = verticesDefiningEachFacet_(facet,2);
+            ++counter;
+        }
+
+        // Compute distance to closest edge and facet, using limited set of edges and facets
+        double distanceToFacet = computeDistanceToClosestFacet(bodyFixedPosition, verticesDefiningEachFacetToTest);
+        double distanceToEdge = computeDistanceToClosestEdge(bodyFixedPosition, verticesDefiningEachEdgeToTest);
+
+        // Altitude is the minimum distance to any of the polyhedrin features
+        altitude = std::min({distanceToVertex, distanceToFacet, distanceToEdge});
     }
 
     // Select the altitude sign if necessary
@@ -59,7 +140,9 @@ double PolyhedronBodyShapeModel::getAltitude( const Eigen::Vector3d& bodyFixedPo
     return altitude;
 }
 
-double PolyhedronBodyShapeModel::computeDistanceToClosestVertex( const Eigen::Vector3d& bodyFixedPosition )
+double PolyhedronBodyShapeModel::computeDistanceToClosestVertex(
+        const Eigen::Vector3d& bodyFixedPosition,
+        int& closestVertexId )
 {
     const unsigned int numberOfVertices = verticesCoordinates_.rows();
 
@@ -75,6 +158,7 @@ double PolyhedronBodyShapeModel::computeDistanceToClosestVertex( const Eigen::Ve
         if ( distanceToVertex < distance )
         {
             distance = distanceToVertex;
+            closestVertexId = vertex;
         }
     }
 
@@ -169,6 +253,67 @@ double PolyhedronBodyShapeModel::computeDistanceToClosestEdge (
     }
 
     return distance;
+}
+
+void PolyhedronBodyShapeModel::computeVerticesDefiningEachEdge( )
+{
+    const unsigned int numberOfVertices = verticesCoordinates_.rows();
+    const unsigned int numberOfFacets = verticesDefiningEachFacet_.rows();
+    const unsigned int numberOfEdges = 3 * ( numberOfVertices - 2 );
+
+    verticesDefiningEachEdge_ = Eigen::MatrixXi::Constant( numberOfEdges, 2, TUDAT_NAN );
+
+    unsigned int numberOfInsertedEdges = 0;
+    for ( unsigned int facet = 0; facet < numberOfFacets; ++facet )
+    {
+        // Extract edges from face
+        std::vector< std::vector< int > > edgesToInsert;
+        const int vertex0 = verticesDefiningEachFacet_(facet,0);
+        const int vertex1 = verticesDefiningEachFacet_(facet,1);
+        const int vertex2 = verticesDefiningEachFacet_(facet,2);
+        edgesToInsert.push_back( { vertex0, vertex1 } );
+        edgesToInsert.push_back( { vertex1, vertex2 } );
+        edgesToInsert.push_back( { vertex2, vertex0 } );
+
+        // Check if all edges of the facet have been included in verticesDefiningEachEdge. If so, remove the edge from
+        // the edgesToInsert vector and add the facet to facetsDefiningEachEdge
+        for ( unsigned int edge = 0; edge < numberOfInsertedEdges and !edgesToInsert.empty(); ++edge )
+        {
+            // Loop over edges of current facet still to be inserted
+            for ( unsigned int i = 0; i < edgesToInsert.size(); ++i)
+            {
+                if ( ( edgesToInsert.at(i).at(0) == verticesDefiningEachEdge_(edge, 0) && edgesToInsert.at(i).at(1) == verticesDefiningEachEdge_(edge, 1) ) ||
+                        ( edgesToInsert.at(i).at(0) == verticesDefiningEachEdge_(edge, 1) && edgesToInsert.at(i).at(1) == verticesDefiningEachEdge_(edge, 0) ) )
+                {
+                    edgesToInsert.erase(edgesToInsert.begin() + i);
+                }
+            }
+        }
+
+        // Check if any of the facet's edges still needs to be added to verticesDefiningEachEdge, and add it/them if so
+        for ( unsigned int i = 0; i < edgesToInsert.size(); ++i)
+        {
+            verticesDefiningEachEdge_(numberOfInsertedEdges,0) = edgesToInsert.at(i).at(0);
+            verticesDefiningEachEdge_(numberOfInsertedEdges,1) = edgesToInsert.at(i).at(1);
+            ++numberOfInsertedEdges;
+        }
+    }
+
+    // Sanity checks
+    if ( numberOfInsertedEdges != numberOfEdges )
+    {
+        throw std::runtime_error( "Extracted number of polyhedron edges not correct." );
+    }
+    for ( unsigned int i = 0; i < numberOfEdges; ++i )
+    {
+        for (unsigned int j : {0,1} )
+        {
+            if ( verticesDefiningEachEdge_(i,j) != verticesDefiningEachEdge_(i,j) )
+            {
+                throw std::runtime_error( "The vertices defining some edge were not selected." );
+            }
+        }
+    }
 }
 
 } // namespace basic_astrodynamics
