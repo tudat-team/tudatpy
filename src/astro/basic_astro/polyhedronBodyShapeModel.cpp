@@ -21,7 +21,7 @@ double PolyhedronBodyShapeModel::getAltitude( const Eigen::Vector3d& bodyFixedPo
     double altitude = std::numeric_limits< double >::infinity( );
 
     // Compute distance to closest vertex and closest vertex id
-    int closestVertex;
+    unsigned int closestVertex;
     double distanceToVertex = computeDistanceToClosestVertex( bodyFixedPosition, closestVertex );
 
     // Compute altitude using just the distance to the vertices
@@ -43,11 +43,11 @@ double PolyhedronBodyShapeModel::getAltitude( const Eigen::Vector3d& bodyFixedPo
         // Select vertices connected to the closest vertex
         for (unsigned int edge = 0; edge < numberOfEdges; ++edge)
         {
-            if ( closestVertex == verticesDefiningEachEdge_(edge, 0) )
+            if ( closestVertex == (unsigned int) verticesDefiningEachEdge_(edge, 0) )
             {
                 verticesToTest.push_back( verticesDefiningEachEdge_(edge, 1) );
             }
-            else if ( closestVertex == verticesDefiningEachEdge_(edge, 1) )
+            else if ( closestVertex == (unsigned int) verticesDefiningEachEdge_(edge, 1) )
             {
                 verticesToTest.push_back( verticesDefiningEachEdge_(edge, 0) );
             }
@@ -110,7 +110,7 @@ double PolyhedronBodyShapeModel::getAltitude( const Eigen::Vector3d& bodyFixedPo
         double distanceToEdge = computeDistanceToClosestEdge(bodyFixedPosition, verticesDefiningEachEdgeToTest);
 
         // Altitude is the minimum distance to any of the polyhedrin features
-        altitude = std::min({distanceToVertex, distanceToFacet, distanceToEdge});
+        // altitude = std::min({distanceToVertex, distanceToFacet, distanceToEdge});
     }
 
     // Select the altitude sign if necessary
@@ -142,7 +142,7 @@ double PolyhedronBodyShapeModel::getAltitude( const Eigen::Vector3d& bodyFixedPo
 
 double PolyhedronBodyShapeModel::computeDistanceToClosestVertex(
         const Eigen::Vector3d& bodyFixedPosition,
-        int& closestVertexId )
+        unsigned int& closestVertexId )
 {
     const unsigned int numberOfVertices = verticesCoordinates_.rows();
 
@@ -167,7 +167,7 @@ double PolyhedronBodyShapeModel::computeDistanceToClosestVertex(
 
 double PolyhedronBodyShapeModel::computeDistanceToClosestFacet (
         const Eigen::Vector3d& bodyFixedPosition,
-        const Eigen::MatrixXd& verticesDefiningEachFacetToEvaluate )
+        const Eigen::MatrixXi& verticesDefiningEachFacetToEvaluate )
 {
     const unsigned int numberOfFacets = verticesDefiningEachFacetToEvaluate.rows();
 
@@ -216,7 +216,7 @@ double PolyhedronBodyShapeModel::computeDistanceToClosestFacet (
 
 double PolyhedronBodyShapeModel::computeDistanceToClosestEdge (
         const Eigen::Vector3d& bodyFixedPosition,
-        const Eigen::MatrixXd& verticesDefiningEachEdgeToEvaluate )
+        const Eigen::MatrixXi& verticesDefiningEachEdgeToEvaluate )
 {
     const unsigned int numberOfEdges = verticesDefiningEachEdgeToEvaluate.rows();
 
