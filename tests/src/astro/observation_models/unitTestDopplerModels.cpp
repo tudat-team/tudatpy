@@ -168,7 +168,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
         double lightTimeSensitivity = -( upPerturbedLightTime - downPerturbedLightTime ) / ( 2.0 * timePerturbation );
 
         // Test numerical derivative against Doppler observable
-        BOOST_CHECK_SMALL( std::fabs( lightTimeSensitivity - dopplerObservable ), 1.0E-14 );
+        BOOST_CHECK_SMALL( std::fabs( lightTimeSensitivity - dopplerObservable ), 2.0E-14 );
     }
 
     // Test observation biases
@@ -438,7 +438,7 @@ BOOST_AUTO_TEST_CASE( testTwoWayDoppplerModel )
 
             // Test numerical derivative against Doppler observable
             BOOST_CHECK_SMALL( std::fabs( uplinkLightTimeSensitivity + downlinkLightTimeSensitivity +
-                                          downlinkLightTimeSensitivity * uplinkLightTimeSensitivity - dopplerObservable ), 1.0E-14 );
+                                          downlinkLightTimeSensitivity * uplinkLightTimeSensitivity - dopplerObservable ), 5.0E-14 );
             BOOST_CHECK_SMALL( std::fabs( ( uplinkDopplerObservable + 1 ) * ( downlinkDopplerObservable + 1 ) -
                                           ( dopplerObservable + 1 ) ), std::numeric_limits< double >::epsilon( ) );
 
