@@ -57,6 +57,12 @@ public:
     {
         // Check if provided settings are valid
         polyhedron_utilities::checkValidityOfPolyhedronSettings( verticesCoordinates, verticesDefiningEachFacet );
+
+        // If necessary, get list with vertices defining each edge
+        if ( !justComputeDistanceToVertices_ )
+        {
+            computeVerticesDefiningEachEdge();
+        }
     }
 
     //! Destructor
@@ -118,22 +124,10 @@ public:
         return computeAltitudeWithSign_;
     }
 
-    // Function to modify the computeAltitudeWithSign flag.
-    void setComputeAltitudeWithSign( const bool computeAltitudeWithSign )
-    {
-        computeAltitudeWithSign_ = computeAltitudeWithSign;
-    }
-
     // Function to return the justComputeDistanceToVertices flag.
     bool getJustComputeDistanceToVertices( )
     {
         return justComputeDistanceToVertices_;
-    }
-
-    // Function to modify the justComputeDistanceToVertices flag.
-    void setJustComputeDistanceToVertices( const bool justComputeDistanceToVertices )
-    {
-        justComputeDistanceToVertices_ = justComputeDistanceToVertices;
     }
 
 private:
@@ -145,7 +139,8 @@ private:
      *  is to be determined.
      * @return Distance to the vertex closest to the field point.
      */
-    double computeDistanceToClosestVertex( const Eigen::Vector3d& bodyFixedPosition );
+    double computeDistanceToClosestVertex( const Eigen::Vector3d& bodyFixedPosition,
+                                           int& closestVertexId);
 
     /*! Computes the distance to the facet closest to the field point.
      *
@@ -173,12 +168,21 @@ private:
     double computeDistanceToClosestEdge ( const Eigen::Vector3d& bodyFixedPosition,
                                            const Eigen::MatrixXd& verticesDefiningEachEdgeToEvaluate );
 
+    /*! Computes the matrix with the indices of the vertices defining each edge.
+     *
+     * Computes the matrix with the indices of the vertices defining each edge; saves the list to verticesDefiningEachEdge_.
+     */
+    void computeVerticesDefiningEachEdge( );
+
 
     // Matrix with coordinates of the polyhedron vertices.
     Eigen::MatrixXd verticesCoordinates_;
 
     // Matrix with the indices (0 indexed) of the vertices defining each facet.
     Eigen::MatrixXi verticesDefiningEachFacet_;
+
+    // Matrix with the indices (0 indexed) of the vertices defining each edge.
+    Eigen::MatrixXi verticesDefiningEachEdge_;
 
     // Flag indicating whether the altitude should be computed with sign (i.e. >0 if above surface, <0 otherwise) or
     // having always a positive value
