@@ -20,6 +20,28 @@ namespace tudat {
 namespace spice_interface {
 using Eigen::Vector6d;
 
+std::string getCorrectedTargetBodyName(
+        const std::string &targetBodyName )
+{
+    std::string correctedTargetBodyName;
+    if( targetBodyName == "Mercury" ||
+            targetBodyName == "Venus" ||
+            targetBodyName == "MERCURY" ||
+            targetBodyName == "VENUS" ||
+            targetBodyName == "mercury" ||
+            targetBodyName == "venus" )
+    {
+        correctedTargetBodyName = targetBodyName + "_Barycenter";
+    }
+    else
+    {
+        correctedTargetBodyName = targetBodyName;
+    }
+
+    return correctedTargetBodyName;
+}
+
+
 //! Convert a Julian date to ephemeris time (equivalent to TDB in Spice).
 double convertJulianDateToEphemerisTime(const double julianDate) {
     return (julianDate - j2000_c()) * spd_c();
@@ -53,8 +75,9 @@ Vector6d getBodyCartesianStateAtEpoch(
     double lightTime;
 
     // Call Spice function to calculate state and light-time.
-    spkezr_c(targetBodyName.c_str(), ephemerisTime, referenceFrameName.c_str(),
-             aberrationCorrections.c_str(), observerBodyName.c_str(), stateAtEpoch,
+    spkezr_c(getCorrectedTargetBodyName( targetBodyName ).c_str(), ephemerisTime, referenceFrameName.c_str(),
+             aberrationCorrections.c_str(),
+             getCorrectedTargetBodyName( observerBodyName ).c_str(), stateAtEpoch,
              &lightTime);
 
     // Put result in Eigen Vector.
@@ -84,8 +107,9 @@ Eigen::Vector3d getBodyCartesianPositionAtEpoch(const std::string &targetBodyNam
     double lightTime;
 
     // Call Spice function to calculate position and light-time.
-    spkpos_c(targetBodyName.c_str(), ephemerisTime, referenceFrameName.c_str(),
-             aberrationCorrections.c_str(), observerBodyName.c_str(), positionAtEpoch,
+    spkpos_c(getCorrectedTargetBodyName( targetBodyName ).c_str(), ephemerisTime, referenceFrameName.c_str(),
+             aberrationCorrections.c_str(),
+             getCorrectedTargetBodyName( observerBodyName ).c_str(), positionAtEpoch,
              &lightTime);
 
     // Put result in Eigen Vector.
@@ -337,18 +361,18 @@ void clearSpiceKernels() { kclear_c(); }
 std::vector<std::string> getStandardSpiceKernels(const std::vector<std::string> alternativeEphemerisKernels) {
     std::vector<std::string> standardSpiceKernels;
 
-    std::string kernelPath = paths::getSpiceKernelPath();
-    standardSpiceKernels.push_back(kernelPath + "/pck00010.tpc");
-    standardSpiceKernels.push_back(kernelPath + "/gm_de431.tpc");
+//    std::string kernelPath = paths::getSpiceKernelPath();
+//    standardSpiceKernels.push_back(kernelPath + "/pck00010.tpc");
+//    standardSpiceKernels.push_back(kernelPath + "/gm_de431.tpc");
 
-    if (alternativeEphemerisKernels.size() == 0) {
-        standardSpiceKernels.push_back(kernelPath + "/tudat_merged_spk_kernel.bsp");
-    } else {
-        for (unsigned int i = 0; i < alternativeEphemerisKernels.size(); i++) {
-            standardSpiceKernels.push_back(alternativeEphemerisKernels.at(i));
-        }
-    }
-    standardSpiceKernels.push_back(kernelPath + "/naif0012.tls");
+//    if (alternativeEphemerisKernels.size() == 0) {
+//        standardSpiceKernels.push_back(kernelPath + "/tudat_merged_spk_kernel.bsp");
+//    } else {
+//        for (unsigned int i = 0; i < alternativeEphemerisKernels.size(); i++) {
+//            standardSpiceKernels.push_back(alternativeEphemerisKernels.at(i));
+//        }
+//    }
+//    standardSpiceKernels.push_back(kernelPath + "/naif0012.tls");
     return standardSpiceKernels;
 }
 
@@ -357,9 +381,18 @@ void loadStandardSpiceKernels(const std::vector<std::string> alternativeEphemeri
     std::string kernelPath = paths::getSpiceKernelPath();
     loadSpiceKernelInTudat(kernelPath + "/pck00010.tpc");
     loadSpiceKernelInTudat(kernelPath + "/gm_de431.tpc");
+    loadSpiceKernelInTudat(kernelPath + "/inpop19a_TDB_m100_p100_spice.tpc");
+    loadSpiceKernelInTudat(kernelPath + "/NOE-4-2020.tpc");
+    loadSpiceKernelInTudat(kernelPath + "/NOE-5-2021.tpc");
+    loadSpiceKernelInTudat(kernelPath + "/NOE-6-2018-MAIN-v2.tpc");
 
     if (alternativeEphemerisKernels.size() == 0) {
-        loadSpiceKernelInTudat(kernelPath + "/tudat_merged_spk_kernel.bsp");
+
+        loadSpiceKernelInTudat(kernelPath + "/inpop19a_TDB_m100_p100_spice.bsp");
+        loadSpiceKernelInTudat(kernelPath + "/NOE-4-2020.bsp");
+        loadSpiceKernelInTudat(kernelPath + "/NOE-5-2021.bsp");
+        loadSpiceKernelInTudat(kernelPath + "/NOE-6-2018-MAIN-v2.bsp");
+
     } else {
         for (unsigned int i = 0; i < alternativeEphemerisKernels.size(); i++) {
             loadSpiceKernelInTudat(alternativeEphemerisKernels.at(i));

@@ -347,7 +347,8 @@ public:
      * Constructor with model included in Tudat.
      * \param sphericalHarmonicsModel Spherical harmonics model to be used.
      */
-    FromFileSphericalHarmonicsGravityFieldSettings( const SphericalHarmonicsModel sphericalHarmonicsModel );
+    FromFileSphericalHarmonicsGravityFieldSettings( const SphericalHarmonicsModel sphericalHarmonicsModel,
+                                                    const int maximumDegree = -1 );
 
     virtual ~FromFileSphericalHarmonicsGravityFieldSettings( ){ }
     // Get the sphericals harmonics model.
