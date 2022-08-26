@@ -19,7 +19,6 @@
 #include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/astro/basic_astro/bodyShapeModel.h"
 #include "tudat/astro/basic_astro/polyhedronFuntions.h"
-#include "tudat/astro/gravitation/polyhedronGravityField.h"
 #include <iostream>
 
 namespace tudat

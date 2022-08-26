@@ -10,6 +10,7 @@
  */
 
 #include "tudat/astro/basic_astro/polyhedronBodyShapeModel.h"
+#include "tudat/astro/gravitation/polyhedronGravityField.h"
 
 namespace tudat
 {
@@ -18,7 +19,8 @@ namespace basic_astrodynamics
 
 double PolyhedronBodyShapeModel::getAltitude( const Eigen::Vector3d& bodyFixedPosition )
 {
-    double altitude = std::numeric_limits< double >::infinity( );
+    // Initialize the variable that will hold the altitude
+    double altitude;
 
     // Compute distance to closest vertex and closest vertex id
     unsigned int closestVertex;
@@ -95,7 +97,7 @@ double PolyhedronBodyShapeModel::getAltitude( const Eigen::Vector3d& bodyFixedPo
         }
 
         // Create matrix with vertices defining each facet to be tested
-        Eigen::MatrixXi verticesDefiningEachFacetToTest = Eigen::MatrixXi::Constant( facetsToTest.size(), 2, TUDAT_NAN );
+        Eigen::MatrixXi verticesDefiningEachFacetToTest = Eigen::MatrixXi::Constant( facetsToTest.size(), 3, TUDAT_NAN );
         counter = 0;
         for ( unsigned int facet : facetsToTest )
         {
@@ -110,32 +112,32 @@ double PolyhedronBodyShapeModel::getAltitude( const Eigen::Vector3d& bodyFixedPo
         double distanceToEdge = computeDistanceToClosestEdge(bodyFixedPosition, verticesDefiningEachEdgeToTest);
 
         // Altitude is the minimum distance to any of the polyhedrin features
-        // altitude = std::min({distanceToVertex, distanceToFacet, distanceToEdge});
+        altitude = std::min({distanceToVertex, distanceToFacet, distanceToEdge});
     }
 
     // Select the altitude sign if necessary
-    if ( computeAltitudeWithSign_ )
-    {
-        // Compute coordinates of vertices with respect to field point
-        Eigen::MatrixXd verticesCoordinatesRelativeToFieldPoint;
-        gravitation::calculatePolyhedronVerticesCoordinatesRelativeToFieldPoint(
-                verticesCoordinatesRelativeToFieldPoint, bodyFixedPosition, verticesCoordinates_);
-
-        // Compute per-facet factor
-        Eigen::VectorXd perFacetFactor;
-        gravitation::calculatePolyhedronPerFacetFactor(
-                perFacetFactor, verticesCoordinatesRelativeToFieldPoint, verticesDefiningEachFacet_);
-
-        // Compute Laplacian
-        double perFacetFactorsSum = - gravitation::calculatePolyhedronLaplacianOfGravitationalPotential(
-                1.0, perFacetFactor);
-
-        // If point inside the polyhedron, altitude should be negative
-        if ( perFacetFactorsSum > 2.0 * mathematical_constants::PI )
-        {
-            altitude = - altitude;
-        }
-    }
+//    if ( computeAltitudeWithSign_ )
+//    {
+//        // Compute coordinates of vertices with respect to field point
+//        Eigen::MatrixXd verticesCoordinatesRelativeToFieldPoint;
+//        gravitation::calculatePolyhedronVerticesCoordinatesRelativeToFieldPoint(
+//                verticesCoordinatesRelativeToFieldPoint, bodyFixedPosition, verticesCoordinates_);
+//
+//        // Compute per-facet factor
+//        Eigen::VectorXd perFacetFactor;
+//        gravitation::calculatePolyhedronPerFacetFactor(
+//                perFacetFactor, verticesCoordinatesRelativeToFieldPoint, verticesDefiningEachFacet_);
+//
+//        // Compute Laplacian
+//        double perFacetFactorsSum = - gravitation::calculatePolyhedronLaplacianOfGravitationalPotential(
+//                1.0, perFacetFactor);
+//
+//        // If point inside the polyhedron, altitude should be negative
+//        if ( perFacetFactorsSum > 2.0 * mathematical_constants::PI )
+//        {
+//            altitude = - altitude;
+//        }
+//    }
 
     return altitude;
 }
@@ -152,9 +154,8 @@ double PolyhedronBodyShapeModel::computeDistanceToClosestVertex(
     // Loop over vertices and select the one with smallest distance
     for (unsigned int vertex = 0; vertex < numberOfVertices; ++vertex)
     {
-        double distanceToVertex = (
-                ( Eigen::Vector3d() << verticesCoordinates_.block<1,3>(vertex, 0) ).finished() -
-                bodyFixedPosition ).norm( );
+        Eigen::Vector3d vertexCoordinates = verticesCoordinates_.block<1,3>(vertex, 0);
+        double distanceToVertex = ( vertexCoordinates - bodyFixedPosition ).norm( );
         if ( distanceToVertex < distance )
         {
             distance = distanceToVertex;
@@ -196,8 +197,10 @@ double PolyhedronBodyShapeModel::computeDistanceToClosestFacet (
         Eigen::Vector3d v2 = u1.cross(u2);
 
         // If computed distance is valid
-        if ( ( v0.dot(v1) >= 0 ) && ( v1.dot(v2) >= 0 ) )
+        if ( ( v0.dot(v1) > 0 ) && ( v1.dot(v2) > 0 ) )
         {
+            // Compute absolute value of distance
+            d = std::abs( d );
             // If there was no previous valid distance value: save d
             if ( std::isnan( distance ) )
             {
@@ -234,7 +237,7 @@ double PolyhedronBodyShapeModel::computeDistanceToClosestEdge (
         double d_v0_h = r_v0_p.dot( r_v0_v1.normalized() );
         double t = d_v0_h / r_v0_v1.norm();
 
-        if ( 0 < t < 1)
+        if ( 0 < t && t < 1)
         {
             Eigen::Vector3d h = vertex0 + t * r_v0_v1;
             double d = ( bodyFixedPosition - h ).norm();
