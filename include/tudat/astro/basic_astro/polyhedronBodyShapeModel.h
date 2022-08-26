@@ -70,7 +70,9 @@ public:
 
     //! Calculates the altitude above the polyhedron
     /*!
-     *  Function to calculate the altitude above the oblate spheroid from a body fixed position.
+     *  Function to calculate the altitude above the polyhedron from a body fixed position.
+     *  Function computes the minimum distance to each of the polyhedron features (vertices, edges and facets); the
+     *  distance is only computed wrt to the edges and facets around the closest vertex. See Avillez (2022).
      *  \param bodyFixedPosition Cartesian, body-fixed position of the point at which the altitude
      *  is to be determined.
      *  \return Altitude above the oblate spheroid.
@@ -140,7 +142,7 @@ private:
      * @return Distance to the vertex closest to the field point.
      */
     double computeDistanceToClosestVertex( const Eigen::Vector3d& bodyFixedPosition,
-                                           int& closestVertexId);
+                                           unsigned int& closestVertexId);
 
     /*! Computes the distance to the facet closest to the field point.
      *
@@ -153,7 +155,7 @@ private:
      * @return Distance to closest facet.
      */
     double computeDistanceToClosestFacet ( const Eigen::Vector3d& bodyFixedPosition,
-                                           const Eigen::MatrixXd& verticesDefiningEachFacetToEvaluate );
+                                           const Eigen::MatrixXi& verticesDefiningEachFacetToEvaluate );
 
     /*! Computes the distance to the edge closest to the field point.
      *
@@ -166,7 +168,7 @@ private:
      * @return Distance to closest edge.
      */
     double computeDistanceToClosestEdge ( const Eigen::Vector3d& bodyFixedPosition,
-                                           const Eigen::MatrixXd& verticesDefiningEachEdgeToEvaluate );
+                                          const Eigen::MatrixXi& verticesDefiningEachEdgeToEvaluate );
 
     /*! Computes the matrix with the indices of the vertices defining each edge.
      *

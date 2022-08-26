@@ -151,6 +151,17 @@ public:
      *
      * Constructor. Defaults define a shape model for which the distance is computed wrt to all polyhedron
      * features (vertices, facets and edges) and for which the altitude is signed.
+     *
+     * The computeAltitudeWithSign indicates whether the altitude should be computed with sign (i.e. >0 if above surface,
+     * <0 otherwise) or having always a positive value. If the the sign of the altitude is not relevant, then setting
+     * it to "false" is recommended, as that reduces the CPU time for the computation of the altitude.
+     *
+     * Setting the justComputeDistanceToVertices flag to true defines a polyhedron for which the distance is computed
+     * solely wrt the vertices. Useful for medium to high altitudes, as it allows reducing the CPU time with only small
+     * errors in the computed altitude ("small" depends on the resolution of the used polyhedron and altitude).
+     * To further reduce the CPU time, this simplified computation of the altitude might be applied to a low-resolution
+     * polyhedron. For further discussion see Avillez (2022), MSc thesis (TU Delft).
+     *
      * @param verticesCoordinates Matrix with coordinates of the polyhedron vertices. Each row represents the (x,y,z)
      * coordinates of one vertex.
      * @param verticesDefiningEachFacet Matrix with the indices (0 indexed) of the vertices defining each facet. Each
@@ -171,29 +182,6 @@ public:
         computeAltitudeWithSign_( computeAltitudeWithSign ),
         justComputeDistanceToVertices_( justComputeDistanceToVertices )
     { }
-
-    /*! Constructor.
-     *
-     * Constructor. Defines a polyhedron for which the distance is computed solely wrt the vertices. Useful for
-     * medium to high altitudes, as it allows reducing the CPU time with only small errors in the computed altitude
-     * ("small" depends on the resolution of the used polyhedron and altitude). To further reduce the CPU time, this
-     * simplified computation of the altitude might be applied to a low-resolution polyhedron. For further discussion
-     * see Avillez (2022), MSc thesis (TU Delft).
-     * @param verticesCoordinates Matrix with coordinates of the polyhedron vertices. Each row represents the (x,y,z)
-     * coordinates of one vertex.
-     */
-    PolyhedronBodyShapeSettings(
-            const Eigen::MatrixXd& verticesCoordinates):
-        BodyShapeSettings( polyhedron_shape ),
-        verticesCoordinates_( verticesCoordinates ),
-        //verticesDefiningEachFacet_( Eigen::Matrix< double, 1, 3 >::Constant( TUDAT_NAN ) ),
-        computeAltitudeWithSign_( false ),
-        justComputeDistanceToVertices_( true )
-    {
-        (Eigen::MatrixXd() << TUDAT_NAN, TUDAT_NAN, TUDAT_NAN).finished();
-        (Eigen::MatrixXd() << Eigen::MatrixXd::Constant(1, 3, TUDAT_NAN) ).finished();
-
-    }
 
 private:
 
@@ -252,12 +240,6 @@ inline std::shared_ptr< BodyShapeSettings > polyhedronBodyShapeSettings(
 {
     return std::make_shared< PolyhedronBodyShapeSettings >( verticesCoordinates, verticesDefiningEachFacet,
                                                             computeAltitudeWithSign, justComputeDistanceToVertices);
-}
-
-inline std::shared_ptr< BodyShapeSettings > polyhedronBodyShapeSettings(
-        const Eigen::MatrixXd& verticesCoordinates )
-{
-    return std::make_shared< PolyhedronBodyShapeSettings >( verticesCoordinates );
 }
 
 } // namespace simulation_setup
