@@ -11,6 +11,7 @@
 #include "tudat/interface/spice/spiceInterface.h"
 #include "tudat/astro/basic_astro/sphericalBodyShapeModel.h"
 #include "tudat/astro/basic_astro/oblateSpheroidBodyShapeModel.h"
+#include "tudat/astro/basic_astro/polyhedronBodyShapeModel.h"
 #include "tudat/simulation/environment_setup/createBodyShapeModel.h"
 
 namespace tudat
@@ -71,6 +72,26 @@ std::shared_ptr< basic_astrodynamics::BodyShapeModel > createBodyShapeModel(
         // Retrieve radius from Spice and create spherical shape model.
         shapeModel = std::make_shared< SphericalBodyShapeModel >(
                     spice_interface::getAverageRadius( body ) );
+        break;
+    }
+    case polyhedron_shape:
+    {
+        // Check input consistency
+        std::shared_ptr< PolyhedronBodyShapeSettings > polyhedronShapeSettings =
+                std::dynamic_pointer_cast< PolyhedronBodyShapeSettings >( shapeSettings );
+        if( polyhedronShapeSettings == nullptr )
+        {
+           throw std::runtime_error( "Error, expected polyhedron shape settings for body " + body );
+        }
+        else
+        {
+            // Creat polyhedron shape model
+            shapeModel = std::make_shared< PolyhedronBodyShapeModel >(
+                        polyhedronShapeSettings->getVerticesCoordinates(),
+                        polyhedronShapeSettings->getVerticesDefiningEachFacet(),
+                        polyhedronShapeSettings->getComputeAltitudeWithSign(),
+                        polyhedronShapeSettings->getJustComputeDistanceToVertices() );
+        }
         break;
     }
     default:

@@ -183,6 +183,38 @@ public:
         justComputeDistanceToVertices_( justComputeDistanceToVertices )
     { }
 
+    // Function to return the vertices coordinates.
+    const Eigen::MatrixXd& getVerticesCoordinates( )
+    { return verticesCoordinates_; }
+
+    // Function to reset the vertices coordinates.
+    void resetVerticesCoordinates( const Eigen::MatrixXd& verticesCoordinates )
+    { verticesCoordinates_ = verticesCoordinates; }
+
+    // Function to return the vertices defining each facet.
+    const Eigen::MatrixXi& getVerticesDefiningEachFacet( )
+    { return verticesDefiningEachFacet_; }
+
+    // Function to reset the vertices defining each facet.
+    void resetVerticesDefiningEachFacet( const Eigen::MatrixXi& verticesDefiningEachFacet )
+    { verticesDefiningEachFacet_ = verticesDefiningEachFacet; }
+
+    // Function to return the computeAltitudeWithSign flag.
+    bool getComputeAltitudeWithSign( )
+    { return computeAltitudeWithSign_; }
+
+    // Function to reset the computeAltitudeWithSign flag.
+    void resetComputeAltitudeWithSign( bool computeAltitudeWithSign )
+    { computeAltitudeWithSign_ = computeAltitudeWithSign; }
+
+    // Function to return the justComputeDistanceToVertices flag.
+    bool getJustComputeDistanceToVertices( )
+    { return justComputeDistanceToVertices_; }
+
+    // Function to reset the justComputeDistanceToVertices flag.
+    void resetJustComputeDistanceToVertices( bool justComputeDistanceToVertices )
+    { justComputeDistanceToVertices_ = justComputeDistanceToVertices; }
+
 private:
 
     // Matrix with coordinates of the polyhedron vertices.
