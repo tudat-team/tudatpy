@@ -24,6 +24,7 @@
 #include "tudat/astro/basic_astro/unitConversions.h"
 #include "tudat/astro/basic_astro/oblateSpheroidBodyShapeModel.h"
 #include "tudat/astro/basic_astro/sphericalBodyShapeModel.h"
+#include "tudat/astro/basic_astro/polyhedronBodyShapeModel.h"
 
 namespace tudat
 {
@@ -131,6 +132,127 @@ BOOST_AUTO_TEST_CASE( testShapeModels )
         BOOST_CHECK_SMALL( calculatedAltitute - testGeodeticPosition.x( ), 1.0E-4 );
 
     }
+}
+
+BOOST_AUTO_TEST_CASE( testPolyhedronShapeModel )
+{
+    using namespace tudat::basic_astrodynamics;
+
+    // Define tolerance
+    const double tolerance = 1e-15;
+
+    // Define cuboid polyhedron
+    const double w = 10.0; // width
+    const double h = 10.0; // height
+    const double l = 20.0; // length
+
+    Eigen::MatrixXd verticesCoordinates(8,3);
+    Eigen::MatrixXi verticesDefiningEachFacet(12,3);
+    verticesCoordinates <<
+        0.0, 0.0, 0.0,
+        l, 0.0, 0.0,
+        0.0, w, 0.0,
+        l, w, 0.0,
+        0.0, 0.0, h,
+        l, 0.0, h,
+        0.0, w, h,
+        l, w, h;
+    verticesDefiningEachFacet <<
+        2, 1, 0,
+        1, 2, 3,
+        4, 2, 0,
+        2, 4, 6,
+        1, 4, 0,
+        4, 1, 5,
+        6, 5, 7,
+        5, 6, 4,
+        3, 6, 7,
+        6, 3, 2,
+        5, 3, 7,
+        3, 5, 1;
+
+    // Test computation of altitude wrt to vertices, without sign
+    {
+        PolyhedronBodyShapeModel shapeModel = PolyhedronBodyShapeModel (
+            verticesCoordinates, verticesDefiningEachFacet, false, true );
+
+        Eigen::Vector3d testCartesianPosition;
+
+        testCartesianPosition << 0.0, 0.0, 0.0;
+        BOOST_CHECK_CLOSE_FRACTION( shapeModel.getAltitude( testCartesianPosition ), 0.0, tolerance );
+
+        testCartesianPosition << 20.0, 10.0, 0.0;
+        BOOST_CHECK_CLOSE_FRACTION( shapeModel.getAltitude( testCartesianPosition ), 0.0, tolerance );
+
+        testCartesianPosition << 10.0, 0.0, 5.0;
+        BOOST_CHECK_CLOSE_FRACTION( shapeModel.getAltitude( testCartesianPosition ), std::sqrt(100 + 25), tolerance );
+
+        testCartesianPosition << 10.0, 0.0, 0.0;
+        BOOST_CHECK_CLOSE_FRACTION( shapeModel.getAltitude( testCartesianPosition ), 10.0, tolerance );
+
+        testCartesianPosition << 10.0, 5.0, 5.0;
+        BOOST_CHECK_CLOSE_FRACTION( shapeModel.getAltitude( testCartesianPosition ), std::sqrt(100 + 25 + 25), tolerance );
+
+        testCartesianPosition << 10.0, 5.0, 20.0;
+        BOOST_CHECK_CLOSE_FRACTION( shapeModel.getAltitude( testCartesianPosition ), std::sqrt(100 + 25 + 100), tolerance );
+    }
+
+    // Test computation of altitude wrt to vertices, with sign
+//    {
+//        PolyhedronBodyShapeModel shapeModel = PolyhedronBodyShapeModel (
+//            verticesCoordinates, verticesDefiningEachFacet, true, true );
+//
+//        Eigen::Vector3d testCartesianPosition;
+//
+//        testCartesianPosition << 0.0, 0.0, 0.0;
+//        BOOST_CHECK_CLOSE_FRACTION( shapeModel.getAltitude( testCartesianPosition ), 0.0, tolerance );
+//
+//        testCartesianPosition << 20.0, 10.0, 0.0;
+//        BOOST_CHECK_CLOSE_FRACTION( shapeModel.getAltitude( testCartesianPosition ), 0.0, tolerance );
+//
+//        testCartesianPosition << 10.0, 0.0, 5.0;
+//        BOOST_CHECK_CLOSE_FRACTION( shapeModel.getAltitude( testCartesianPosition ), std::sqrt(100 + 25), tolerance );
+//
+//        testCartesianPosition << 10.0, 0.0, 0.0;
+//        BOOST_CHECK_CLOSE_FRACTION( shapeModel.getAltitude( testCartesianPosition ), 10.0, tolerance );
+//
+//        testCartesianPosition << 10.0, 5.0, 5.0;
+//        BOOST_CHECK_CLOSE_FRACTION( shapeModel.getAltitude( testCartesianPosition ), -std::sqrt(100 + 25 + 25), tolerance );
+//
+//        testCartesianPosition << 10.0, 5.0, 20.0;
+//        BOOST_CHECK_CLOSE_FRACTION( shapeModel.getAltitude( testCartesianPosition ), std::sqrt(100 + 25 + 100), tolerance );
+//    }
+
+    // Test computation of altitude wrt to all polyhedron features, without sign
+    {
+        PolyhedronBodyShapeModel shapeModel = PolyhedronBodyShapeModel (
+            verticesCoordinates, verticesDefiningEachFacet, false, false );
+
+        Eigen::Vector3d testCartesianPosition;
+
+        testCartesianPosition << 10.0, 5.0, 10.0;
+        BOOST_CHECK_CLOSE_FRACTION( shapeModel.getAltitude( testCartesianPosition ), 0.0, tolerance );
+
+        testCartesianPosition << 10.0, 5.0, 10.5;
+        BOOST_CHECK_CLOSE_FRACTION( shapeModel.getAltitude( testCartesianPosition ), 0.5, tolerance );
+
+        testCartesianPosition << 10.0, 5.0, 9.5;
+        BOOST_CHECK_CLOSE_FRACTION( shapeModel.getAltitude( testCartesianPosition ), 0.5, tolerance );
+
+        testCartesianPosition << 10.0, 0.0, 10.0;
+        BOOST_CHECK_CLOSE_FRACTION( shapeModel.getAltitude( testCartesianPosition ), 0.0, tolerance );
+
+        testCartesianPosition << 0.0, -1.0, 11.0;
+        BOOST_CHECK_CLOSE_FRACTION( shapeModel.getAltitude( testCartesianPosition ), std::sqrt(2), tolerance );
+
+        testCartesianPosition << 20.0, 10.0, 10.0;
+        BOOST_CHECK_CLOSE_FRACTION( shapeModel.getAltitude( testCartesianPosition ), 0.0, tolerance );
+
+        testCartesianPosition << 10.0, -1.0, 11.0;
+        BOOST_CHECK_CLOSE_FRACTION( shapeModel.getAltitude( testCartesianPosition ), std::sqrt(2), tolerance );
+
+    }
+
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

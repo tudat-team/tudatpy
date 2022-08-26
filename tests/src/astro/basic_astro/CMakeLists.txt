@@ -112,11 +112,11 @@
 #        tudat_basic_mathematics
 #        )
 #
-#TUDAT_ADD_TEST_CASE(BodyShapeModels
-#        PRIVATE_LINKS
-#        tudat_basic_astrodynamics
-#        tudat_basic_mathematics
-#        )
+TUDAT_ADD_TEST_CASE(BodyShapeModels
+        PRIVATE_LINKS
+        tudat_basic_astrodynamics
+        tudat_basic_mathematics
+        )
 #
 #TUDAT_ADD_TEST_CASE(UnifiedStateModelQuaternionElementConversions
 #        PRIVATE_LINKS
