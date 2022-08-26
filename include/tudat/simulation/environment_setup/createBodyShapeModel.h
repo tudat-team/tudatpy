@@ -29,7 +29,7 @@ enum BodyShapeTypes
     spherical,
     spherical_spice,
     oblate_spheroid,
-    polyhedron
+    polyhedron_shape
 };
 
 //  Class for providing settings for body shape model.
@@ -142,13 +142,15 @@ private:
     double flattening_;
 };
 
+//  BodyShapeSettings derived class for defining settings of a polyhedron shape model
 class PolyhedronBodyShapeSettings: public BodyShapeSettings
 {
 public:
 
     /*! Constructor.
      *
-     * Constructor.
+     * Constructor. Defaults define a shape model for which the distance is computed wrt to all polyhedron
+     * features (vertices, facets and edges) and for which the altitude is signed.
      * @param verticesCoordinates Matrix with coordinates of the polyhedron vertices. Each row represents the (x,y,z)
      * coordinates of one vertex.
      * @param verticesDefiningEachFacet Matrix with the indices (0 indexed) of the vertices defining each facet. Each
@@ -163,7 +165,7 @@ public:
             const Eigen::MatrixXi& verticesDefiningEachFacet,
             const bool computeAltitudeWithSign = true,
             const bool justComputeDistanceToVertices = false):
-        BodyShapeSettings( polyhedron ),
+        BodyShapeSettings( polyhedron_shape ),
         verticesCoordinates_( verticesCoordinates ),
         verticesDefiningEachFacet_( verticesDefiningEachFacet ),
         computeAltitudeWithSign_( computeAltitudeWithSign ),
@@ -172,18 +174,26 @@ public:
 
     /*! Constructor.
      *
-     * Constructor.
+     * Constructor. Defines a polyhedron for which the distance is computed solely wrt the vertices. Useful for
+     * medium to high altitudes, as it allows reducing the CPU time with only small errors in the computed altitude
+     * ("small" depends on the resolution of the used polyhedron and altitude). To further reduce the CPU time, this
+     * simplified computation of the altitude might be applied to a low-resolution polyhedron. For further discussion
+     * see Avillez (2022), MSc thesis (TU Delft).
      * @param verticesCoordinates Matrix with coordinates of the polyhedron vertices. Each row represents the (x,y,z)
      * coordinates of one vertex.
      */
     PolyhedronBodyShapeSettings(
             const Eigen::MatrixXd& verticesCoordinates):
-        BodyShapeSettings( polyhedron ),
+        BodyShapeSettings( polyhedron_shape ),
         verticesCoordinates_( verticesCoordinates ),
-        verticesDefiningEachFacet_( Eigen::Matrix3d::Constant( TUDAT_NAN ) ),
+        //verticesDefiningEachFacet_( Eigen::Matrix< double, 1, 3 >::Constant( TUDAT_NAN ) ),
         computeAltitudeWithSign_( false ),
         justComputeDistanceToVertices_( true )
-    { }
+    {
+        (Eigen::MatrixXd() << TUDAT_NAN, TUDAT_NAN, TUDAT_NAN).finished();
+        (Eigen::MatrixXd() << Eigen::MatrixXd::Constant(1, 3, TUDAT_NAN) ).finished();
+
+    }
 
 private:
 
@@ -234,7 +244,7 @@ inline std::shared_ptr< BodyShapeSettings > oblateSphericalBodyShapeSettings( co
 	return std::make_shared< OblateSphericalBodyShapeSettings >( equatorialRadius, flattening );
 }
 
-inline std::shared_ptr< BodyShapeSettings > fullPolyhedronBodyShapeSettings(
+inline std::shared_ptr< BodyShapeSettings > polyhedronBodyShapeSettings(
         const Eigen::MatrixXd& verticesCoordinates,
         const Eigen::MatrixXi& verticesDefiningEachFacet,
         const bool computeAltitudeWithSign = true,
@@ -244,7 +254,7 @@ inline std::shared_ptr< BodyShapeSettings > fullPolyhedronBodyShapeSettings(
                                                             computeAltitudeWithSign, justComputeDistanceToVertices);
 }
 
-inline std::shared_ptr< BodyShapeSettings > simplifiedPolyhedronBodyShapeSettings(
+inline std::shared_ptr< BodyShapeSettings > polyhedronBodyShapeSettings(
         const Eigen::MatrixXd& verticesCoordinates )
 {
     return std::make_shared< PolyhedronBodyShapeSettings >( verticesCoordinates );
