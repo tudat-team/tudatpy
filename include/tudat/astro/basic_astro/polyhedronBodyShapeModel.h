@@ -74,7 +74,7 @@ public:
      *  distance is only computed wrt to the edges and facets around the closest vertex. See Avillez (2022).
      *  \param bodyFixedPosition Cartesian, body-fixed position of the point at which the altitude
      *  is to be determined.
-     *  \return Altitude above the oblate spheroid.
+     *  \return Altitude above the polyhedron.
      */
     double getAltitude( const Eigen::Vector3d& bodyFixedPosition );
 
