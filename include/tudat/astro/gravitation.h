@@ -27,6 +27,8 @@
 #include "gravitation/sphericalHarmonicsGravityField.h"
 #include "gravitation/sphericalHarmonicsGravityModel.h"
 #include "gravitation/sphericalHarmonicsGravityModelBase.h"
+#include "gravitation/polyhedronGravityField.h"
+#include "gravitation/polyhedronGravityModel.h"
 #include "gravitation/tabulatedGravityFieldVariations.h"
 #include "gravitation/thirdBodyPerturbation.h"
 #include "gravitation/timeDependentSphericalHarmonicsGravityField.h"
