@@ -277,6 +277,32 @@ void expose_observation_setup(py::module &m) {
           py::arg("reference_link_end_type" ),
           get_docstring("arcwise_relative_bias", 1).c_str() );
 
+    m.def("time_drift_bias",
+          &tom::constantTimeDriftBias,
+          py::arg("bias_value"),
+          py::arg( "time_link_end" ),
+          py::arg( "ref_epoch" ) );
+
+    m.def("arc_wise_time_drift_bias",
+          py::overload_cast<
+                  const std::vector< Eigen::VectorXd >&,
+                  const std::vector< double >&,
+                  const tom::LinkEndType,
+                  const std::vector< double >& >( &tom::arcWiseTimeDriftBias ),
+          py::arg("bias_value"),
+          py::arg("arc_start_times"),
+          py::arg("time_link_end"),
+          py::arg("ref_epochs") );
+
+    m.def("arc_wise_time_drift_bias",
+          py::overload_cast<
+                  const std::map< double, Eigen::VectorXd >&,
+                  const tom::LinkEndType,
+                  const std::vector< double > >( &tom::arcWiseTimeDriftBias ),
+          py::arg( "bias_value_per_start_time" ),
+          py::arg("time_link_end"),
+          py::arg("ref_epochs" ) );
+
     m.def("combined_bias",
           &tom::multipleObservationBiasSettings,
           py::arg("bias_list"),
