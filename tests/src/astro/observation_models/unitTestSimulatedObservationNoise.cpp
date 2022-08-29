@@ -169,10 +169,10 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
 
     std::map< double, Eigen::VectorXd > targetAngles = getTargetAnglesAndRange(
             bodies, std::make_pair< std::string, std::string >( "Earth", "Station1" ), "Moon", baseTimeList, true );
-    for( auto it : targetAngles )
-    {
-        std::cout<<it.first<<"("<<it.second.transpose( )<<")"<<std::endl;
-    }
+//    for( auto it : targetAngles )
+//    {
+//        std::cout<<it.first<<"("<<it.second.transpose( )<<")"<<std::endl;
+//    }
 
     // Define observation simulation settings (observation type, link end, times and reference link end)
     std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > measurementSimulationInput;

@@ -33,6 +33,7 @@
 #include "tudat/astro/orbit_determination/estimatable_parameters/radiationPressureCoefficient.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/ppnParameters.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/directTidalTimeLag.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/constantThrust.h"
 #include "tudat/astro/relativity/metric.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/numericalAccelerationPartial.h"
 #include "tudat/astro/relativity/relativisticAccelerationCorrection.h"
@@ -41,6 +42,8 @@
 #include "tudat/simulation/propagation_setup/createAccelerationModels.h"
 #include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/environment_setup/thrustSettings.h"
+#include "tudat/simulation/environment_setup/createSystemModel.h"
 
 namespace tudat
 {
@@ -61,6 +64,7 @@ using namespace tudat::orbit_determination;
 using namespace tudat::estimatable_parameters;
 using namespace tudat::electromagnetism;
 using namespace tudat::basic_astrodynamics;
+using namespace tudat::propulsion;
 
 BOOST_AUTO_TEST_SUITE( test_acceleration_partials )
 
@@ -517,7 +521,7 @@ void updateFlightConditionsWithPerturbedState(
         const std::shared_ptr< aerodynamics::FlightConditions > flightConditions,
         const double timeToUpdate )
 {
-    flightConditions->resetCurrentTime( TUDAT_NAN );
+    flightConditions->resetCurrentTime( );
     flightConditions->updateConditions( timeToUpdate );
 }
 
@@ -570,7 +574,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicAccelerationPartials )
     // Convert vehicle state from spherical elements to Cartesian elements.
     Eigen::Vector6d systemInitialState = tudat::ephemerides::transformStateToTargetFrame(
                 convertSphericalOrbitalToCartesianState(
-                vehicleSphericalEntryState ), 0.0, bodies.at( "Earth" )->getRotationalEphemeris( ) );
+                    vehicleSphericalEntryState ), 0.0, bodies.at( "Earth" )->getRotationalEphemeris( ) );
 
 
     bodies.at( "Earth" )->setStateFromEphemeris( 0.0 );
@@ -588,7 +592,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicAccelerationPartials )
     std::shared_ptr< AccelerationPartial > aerodynamicAccelerationPartial =
             createAnalyticalAccelerationPartial(
                 accelerationModel, std::make_pair( "Vehicle", bodies.at( "Vehicle" ) ),
-            std::make_pair( "Earth", bodies.at( "Earth" ) ), bodies );
+                std::make_pair( "Earth", bodies.at( "Earth" ) ), bodies );
 
     // Create gravitational parameter object.
     std::shared_ptr< EstimatableParameter< double > > dragCoefficientParameter = std::make_shared<
@@ -874,7 +878,7 @@ BOOST_AUTO_TEST_CASE( testEmpiricalAccelerationPartial )
     // Create time-independent empirical acceleration object.
     std::shared_ptr< EmpiricalAccelerationCoefficientsParameter > empiricalAccelerationParameter = std::make_shared<
             EmpiricalAccelerationCoefficientsParameter >(
-    std::vector< std::shared_ptr< EmpiricalAcceleration > >( { accelerationModel } ), "Vehicle", "Earth",
+                std::vector< std::shared_ptr< EmpiricalAcceleration > >( { accelerationModel } ), "Vehicle", "Earth",
                 empiricalComponentsToEstimate );
 
     {
@@ -963,7 +967,7 @@ BOOST_AUTO_TEST_CASE( testEmpiricalAccelerationPartial )
     for( unsigned int i = 0; i < evaluationTimes.size( ); i++ )
     {
         // Update models to current time
-        accelerationModel->resetTime( TUDAT_NAN );
+        accelerationModel->resetCurrentTime( );
         accelerationModel->updateMembers( evaluationTimes.at( i ) );
         accelerationPartial->update( evaluationTimes.at( i ) );
 
@@ -1260,7 +1264,7 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureAccelerationPartials )
     std::shared_ptr< PanelledRadiationPressureInterface > radiationPressureInterface =
             std::dynamic_pointer_cast< PanelledRadiationPressureInterface >(
                 createRadiationPressureInterface( std::make_shared< PanelledRadiationPressureInterfaceSettings >(
-                        "Sun", areas, emissivities, diffuseReflectionCoefficients, panelSurfaceNormals ), "Vehicle", bodies ) );
+                                                      "Sun", areas, emissivities, diffuseReflectionCoefficients, panelSurfaceNormals ), "Vehicle", bodies ) );
 
     radiationPressureInterface->updateInterface( 0.0 );
     vehicle->setRadiationPressureInterface( "Sun", radiationPressureInterface );
@@ -1276,8 +1280,8 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureAccelerationPartials )
             std::make_shared< PanelledRadiationPressurePartial >
             ( accelerationModel, radiationPressureInterface, "Vehicle", "Sun" );
 
-//    std::vector< int > panelIndices1 = boost::assign::list_of( 0 )( 6 );
-//    std::vector< int > panelIndices2 = boost::assign::list_of( 2 );
+    //    std::vector< int > panelIndices1 = boost::assign::list_of( 0 )( 6 );
+    //    std::vector< int > panelIndices2 = boost::assign::list_of( 2 );
 
     //    std::vector< std::vector< int > > panelIndices;
     //    panelIndices.push_back( panelIndices2 );
@@ -1326,7 +1330,7 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureAccelerationPartials )
 
     // Calculate numerical partials.
     std::function< void( ) > updateFunction = std::bind( &RadiationPressureInterface::updateInterface,
-                                                             radiationPressureInterface, 0.0 );
+                                                         radiationPressureInterface, 0.0 );
     testPartialWrtSunPosition = calculateAccelerationWrtStatePartials(
                 sunStateSetFunction, accelerationModel, sun->getState( ), positionPerturbation, 0, updateFunction );
     testPartialWrtVehiclePosition = calculateAccelerationWrtStatePartials(
@@ -1350,6 +1354,136 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureAccelerationPartials )
     //    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtEmissivities,
     //                                       partialWrtEmissivities, 1.0e-14 );
 }
+
+
+
+BOOST_AUTO_TEST_CASE( testThrustPartials )
+{
+    // Load spice kernels.
+    spice_interface::loadStandardSpiceKernels( );
+
+    for( unsigned int   i = 0; i < 2; i++ )
+    {
+        // Create empty bodies, earth and sun.
+        std::shared_ptr< Body > vehicle = std::make_shared< Body >( );
+
+        SystemOfBodies bodies;
+        bodies.addBody( vehicle, "Vehicle" );
+
+        double vehicleMass = 5.0E3;
+        bodies.at( "Vehicle" )->setConstantBodyMass( vehicleMass );
+
+        Eigen::Vector3d thrustDirection;
+        thrustDirection << -1.4, 2.4, 5.6;
+
+        std::function< Eigen::Vector3d( const double ) > thrustDirectionFunction =
+                [=](const double){ return thrustDirection; };
+        bodies.at( "Vehicle" )->setRotationalEphemeris(
+                    createRotationModel(
+                        std::make_shared< BodyFixedDirectionBasedRotationSettings >(
+                            thrustDirectionFunction, "ECLIPJ2000", "VehicleFixed" ),
+                        "Vehicle", bodies ) );
+
+        // Define propagator settings variables.
+        SelectedAccelerationMap accelerationMap;
+        std::vector< std::string > bodiesToPropagate;
+        std::vector< std::string > centralBodies;
+
+        double thrustMagnitude1 = 1.0E3;
+        double specificImpulse1 = 250.0;
+        addEngineModel( "Vehicle", "Engine1",
+                        std::make_shared< ConstantThrustMagnitudeSettings >(
+                            thrustMagnitude1, specificImpulse1 ), bodies );
+
+        double thrustMagnitude2 = 20.0E3;
+        double specificImpulse2 = 50.0;
+        addEngineModel( "Vehicle", "Engine2",
+                        std::make_shared< ConstantThrustMagnitudeSettings >(
+                            thrustMagnitude2, specificImpulse2 ), bodies, Eigen::Vector3d::UnitY( ) );
+
+        // Create acceleration due to sun on earth.
+        std::shared_ptr< ThrustAcceleration > thrustAcceleration;
+        if( i == 0 )
+        {
+            thrustAcceleration = std::dynamic_pointer_cast< ThrustAcceleration >(
+                    tudat::simulation_setup::createThrustAcceleratioModel(
+                        std::make_shared< ThrustAccelerationSettings >( "Engine1" ), bodies, "Vehicle" ) );
+        }
+        else if( i == 1 )
+        {
+            thrustAcceleration = std::dynamic_pointer_cast< ThrustAcceleration >(
+                    tudat::simulation_setup::createThrustAcceleratioModel(
+                        std::make_shared< ThrustAccelerationSettings >(
+                                std::vector< std::string >( { "Engine1", "Engine2" } ) ), bodies, "Vehicle" ) );
+        }
+
+        std::shared_ptr< EstimatableParameter< double > > constantThrustParameter1 = std::make_shared<
+                ConstantThrustMagnitudeParameter >(
+                    std::dynamic_pointer_cast< propulsion::ConstantThrustMagnitudeWrapper >(
+                        vehicle->getVehicleSystems( )->getEngineModels( ).at( "Engine1" )->getThrustMagnitudeWrapper( ) ),
+                    "Vehicle", "Engine1" );
+        std::shared_ptr< EstimatableParameter< double > > constantThrustParameter2 = std::make_shared<
+                ConstantThrustMagnitudeParameter >(
+                    std::dynamic_pointer_cast< propulsion::ConstantThrustMagnitudeWrapper >(
+                        vehicle->getVehicleSystems( )->getEngineModels( ).at( "Engine2" )->getThrustMagnitudeWrapper( ) ),
+                    "Vehicle", "Engine2" );
+
+        // Create central gravity partial.
+        std::shared_ptr< ThrustAccelerationPartial > thrustPartial =
+                std::dynamic_pointer_cast< ThrustAccelerationPartial >(
+                    createAnalyticalAccelerationPartial( thrustAcceleration, std::make_pair( "Vehicle", vehicle ),
+                                                         std::make_pair( "Vehicle", vehicle ), bodies ) );
+
+        // Calculate analytical partials.
+        thrustPartial->update( 0.0 );
+
+        Eigen::MatrixXd partialWrtMass = Eigen::Vector3d::Zero( );
+        thrustPartial->wrtBodyMass( partialWrtMass.block( 0, 0, 3, 1 ) );
+        Eigen::Vector3d partialWrtEngine1Thrust = thrustPartial->wrtParameter(
+                    constantThrustParameter1 );
+        Eigen::Vector3d partialWrtEngine2Thrust = thrustPartial->wrtParameter(
+                    constantThrustParameter2 );
+
+        // Declare numerical partials.
+        Eigen::Vector3d testPartialWrtMass = Eigen::Vector3d::Zero( );
+        Eigen::Vector3d testPartialWrtEngine1Thrust = Eigen::Vector3d::Zero( );
+        Eigen::Vector3d testPartialWrtEngine2Thrust = Eigen::Vector3d::Zero( );
+
+        // Declare perturbations in position for numerical partial/
+        double massPerturbation = 0.01;
+
+        // Create state access/modification functions for bodies.
+        std::function< void( double ) > massSetFunction =
+                std::bind( &Body::setConstantBodyMass, vehicle, std::placeholders::_1 );
+
+        // Calculate numerical partials.
+        testPartialWrtMass = calculateAccelerationWrtMassPartials(
+                    massSetFunction, thrustAcceleration, vehicleMass, massPerturbation );
+        testPartialWrtEngine1Thrust = calculateAccelerationWrtParameterPartials(
+                    constantThrustParameter1, thrustAcceleration, 1.0 );
+        testPartialWrtEngine2Thrust = calculateAccelerationWrtParameterPartials(
+                    constantThrustParameter2, thrustAcceleration, 1.0 );
+
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtMass, testPartialWrtMass, 1.0E-10 );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtEngine1Thrust, partialWrtEngine1Thrust, 1.0E-10 );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtEngine2Thrust, partialWrtEngine2Thrust, 1.0E-10 );
+
+        if( i == 0 )
+        {
+            for( int j = 0; j < 3; j++ )
+            {
+                BOOST_CHECK_EQUAL( partialWrtEngine2Thrust( j ), 0.0 );
+            }
+        }
+        std::cout<<testPartialWrtEngine1Thrust<<std::endl<<std::endl;
+        std::cout<<partialWrtEngine1Thrust<<std::endl<<std::endl<<std::endl;
+
+        std::cout<<testPartialWrtEngine2Thrust<<std::endl<<std::endl;
+        std::cout<<partialWrtEngine2Thrust<<std::endl<<std::endl<<std::endl;
+
+    }
+}
+
 
 
 BOOST_AUTO_TEST_SUITE_END( )

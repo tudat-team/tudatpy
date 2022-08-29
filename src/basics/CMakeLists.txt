@@ -11,6 +11,7 @@
 # Add source files.
 set(basics_SOURCES
         "utilities.cpp"
+        "deprecationWarnings.cpp"
         )
 
 # Add header files.
@@ -22,6 +23,7 @@ set(basics_HEADERS
         "basicTypedefs.h"
         "identityElements.h"
         "tudatTypeTraits.h"
+        "deprecationWarnings.h"
         )
 
 # Add library.

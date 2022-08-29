@@ -149,6 +149,10 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
             bodies.at( "Apollo" )->setAerodynamicCoefficientInterface(
                         unit_tests::getApolloCoefficientInterface( ) );
             bodies.at( "Apollo" )->setConstantBodyMass( 5.0E3 );
+            bodies.at( "Apollo" )->setRotationalEphemeris(
+                        createRotationModel(
+                            std::make_shared< PitchTrimRotationSettings >( "Earth", "ECLIPJ2000", "VehicleFixed" ),
+                            "Apollo", bodies ) );
 
             std::shared_ptr< system_models::VehicleSystems > vehicleSystems =
                     std::make_shared< system_models::VehicleSystems >( );
@@ -276,8 +280,6 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
             basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
                         bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
-            setTrimmedConditions( bodies.at( "Apollo" ) );
-
             std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings;
             if( propagatorType == 0 )
             {
@@ -338,6 +340,7 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
                         bodies.at( "Apollo" )->getFlightConditions( ) );
             std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > apolloCoefficientInterface =
                     bodies.at( "Apollo" )->getAerodynamicCoefficientInterface( );
+            bodies.at( "Apollo" )->setIsBodyInPropagation( true );
 
             for( std::map< double, Eigen::VectorXd >::iterator variableIterator = dependentVariableSolution.begin( );
                  variableIterator != dependentVariableSolution.end( ); variableIterator++ )

@@ -97,7 +97,7 @@ executeMultiArcEarthMoonSimulation(
 
 
     SystemOfBodies bodies = createSystemOfBodies( bodySettings );
-    
+
 
 
     // Set accelerations between bodies that are to be taken into account.
@@ -417,7 +417,6 @@ BOOST_AUTO_TEST_CASE( testEarthMoonMultiArcVariationalEquationCalculation )
                                 stateTransitionAndSensitivityMatrixAtEpoch.at( arc ).block( 0, 0, 12, 15 ),
                                 manualPartial.at( arc ).block( 0, 0, 12, 15 ), 5.0E-4 );
                 }
-
             }
         }
     }

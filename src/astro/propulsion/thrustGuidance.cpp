@@ -17,23 +17,23 @@ namespace propulsion
 {
 
 //! Function to get the unit vector colinear with velocity segment of a translational state.
-Eigen::Vector3d getForceDirectionColinearWithVelocity(
+Eigen::Vector3d getDirectionColinearWithVelocity(
         const std::function< void( Eigen::Vector6d& ) > currentStateFunction,
-        const double currentTime, const bool putForceInOppositeDirection )
+        const double currentTime, const bool putVectorInOppositeDirection )
 {
     static Eigen::Vector6d currentState;
     currentStateFunction( currentState );
-    return ( ( putForceInOppositeDirection == 1 ) ? -1.0 : 1.0 ) * ( currentState.segment( 3, 3 ) ).normalized( );
+    return ( ( putVectorInOppositeDirection == 1 ) ? -1.0 : 1.0 ) * ( currentState.segment( 3, 3 ) ).normalized( );
 }
 
 //! Function to get the unit vector colinear with position segment of a translational state.
-Eigen::Vector3d getForceDirectionColinearWithPosition(
+Eigen::Vector3d getDirectionColinearWithPosition(
         const std::function< void( Eigen::Vector6d& ) > currentStateFunction,
-        const double currentTime, const bool putForceInOppositeDirection )
+        const double currentTime, const bool putVectorInOppositeDirection )
 {
     static Eigen::Vector6d currentState;
     currentStateFunction( currentState );
-    return ( ( putForceInOppositeDirection == 1 ) ? -1.0 : 1.0 ) * ( currentState.segment( 0, 3 ) ).normalized( );
+    return ( ( putVectorInOppositeDirection == 1 ) ? -1.0 : 1.0 ) * ( currentState.segment( 0, 3 ) ).normalized( );
 }
 
 //! Function to get the force direction from a time-only function.
@@ -43,6 +43,34 @@ Eigen::Vector3d getForceDirectionFromTimeOnlyFunction(
 {
     return timeOnlyFunction( currentTime ).normalized( );
 }
+
+void DirectThrustDirectionCalculator::updateQuaternion( const double time )
+{
+    if( time != currentQuaterionTime_  && time == time )
+    {
+        currentRotationToBaseFrame_ = directionBasedRotationModel_->getRotationToBaseFrame( time );
+    }
+    currentQuaterionTime_ = time;
+}
+
+Eigen::Vector3d DirectThrustDirectionCalculator::getInertialThrustDirection(
+        const std::shared_ptr< system_models::EngineModel > engineModel )
+{
+    if( engineModel->getBodyFixedThrustDirection( ) == directionBasedRotationModel_->getAssociatedBodyFixedDirection( ) )
+    {
+        return currentInertialDirection_;
+    }
+    else if( engineModel->getBodyFixedThrustDirection( ) == -directionBasedRotationModel_->getAssociatedBodyFixedDirection( ) )
+    {
+        return currentInertialDirection_;
+    }
+    else
+    {
+        updateQuaternion( currentTime_ );
+        return ( currentRotationToBaseFrame_ * engineModel->getBodyFixedThrustDirection( ) ).normalized( );
+    }
+}
+
 
 } // namespace propulsion
 

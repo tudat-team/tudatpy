@@ -169,11 +169,11 @@ public:
      *  to NaN, indicating the need to recompute all quantities for the next time computation.
      * \param currentTime
      */
-    virtual void resetCurrentTime( const double currentTime = TUDAT_NAN )
+    virtual void resetCurrentTime( )
     {
-        currentTime_ = currentTime;
+        currentTime_ = TUDAT_NAN;
         isScalarFlightConditionComputed_ = allScalarFlightConditionsUncomputed;
-        aerodynamicAngleCalculator_->resetCurrentTime( currentTime_ );
+        aerodynamicAngleCalculator_->resetCurrentTime( );
     }
 
     //! Function to return current central body-fixed state of vehicle.
@@ -510,12 +510,12 @@ public:
      *  to NaN, indicating the need to recompute all quantities for the next time computation.
      * \param currentTime
      */
-    void resetCurrentTime( const double currentTime = TUDAT_NAN )
+    void resetCurrentTime( )
     {
-        currentTime_ = currentTime;
+        currentTime_ = TUDAT_NAN;
 
         isScalarFlightConditionComputed_ = allScalarFlightConditionsUncomputed;
-        aerodynamicAngleCalculator_->resetCurrentTime( currentTime_ );
+        aerodynamicAngleCalculator_->resetCurrentTime( );
         aerodynamicCoefficientIndependentVariables_.clear( );
         controlSurfaceAerodynamicCoefficientIndependentVariables_.clear( );
     }

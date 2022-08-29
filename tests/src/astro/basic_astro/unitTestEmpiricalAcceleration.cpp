@@ -241,7 +241,7 @@ BOOST_AUTO_TEST_CASE( testEmpiricalAccelerations )
             for( unsigned int i = 0; i < 3; i++ )
             {
                 BOOST_CHECK_SMALL( std::fabs( expectedAccelerationInRswFrame( i ) - totalEmpiricalAccelerationInRswFrame( i ) ),
-                    8.0 * std::numeric_limits< double >::epsilon( ) * empiricalAccelerationNorm );
+                    10.0 * std::numeric_limits< double >::epsilon( ) * empiricalAccelerationNorm );
             }
         }
     }

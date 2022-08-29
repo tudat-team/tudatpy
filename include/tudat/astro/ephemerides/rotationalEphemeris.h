@@ -478,6 +478,10 @@ public:
      */
     std::string getTargetFrameOrientation( ) { return targetFrameOrientation_; }
 
+    virtual void resetCurrentTime( ){ }
+
+    virtual void setIsBodyInPropagation( const bool isBodyInPropagation )
+    { }
 protected:
 
     //! Base reference frame orientation.

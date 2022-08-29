@@ -101,6 +101,20 @@ public:
                         "Error when making rotational state derivative model, inertia tensor list is of incompatible size" );
         }
 
+        for( unsigned int i = 0; i < bodyInertiaTensorFunctions_.size( ); i++ )
+        {
+            if( bodyInertiaTensorFunctions_.at( i )( ).hasNaN( ) )
+            {
+                throw std::runtime_error( "Error when creating rotational state derivative model, inertia tensor of body " +
+                                          bodiesToPropagate.at( i ) + "contains NaN. ");
+            }
+            if( bodyInertiaTensorFunctions_.at( i )( ).inverse( ).hasNaN( ) )
+            {
+                throw std::runtime_error( "Error when creating rotational state derivative model, inverse inertia tensor of body " +
+                                          bodiesToPropagate.at( i ) + "contains NaN. ");
+            }
+        }
+
         if( bodyInertiaTensorTimeDerivativeFunctions_.size( ) == 0 )
         {
             for( unsigned int i = 0; i < bodiesToPropagate.size( ); i++ )
@@ -152,7 +166,7 @@ public:
             {
                 for( unsigned int j = 0; j < innerTorqueIterator->second.size( ); j++ )
                 {
-                    innerTorqueIterator->second[ j ]->resetTime( TUDAT_NAN );
+                    innerTorqueIterator->second[ j ]->resetCurrentTime( );
                 }
             }
         }
