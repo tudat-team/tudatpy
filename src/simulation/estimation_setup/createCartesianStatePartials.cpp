@@ -273,6 +273,10 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
                                     currentBody->getRotationalEphemeris( ) );
                     }
                     break;
+                case estimatable_parameters::constant_time_drift_bias:
+                    break;
+                case estimatable_parameters::arc_wise_time_drift_bias:
+                    break;
                 default:
                     std::string errorMessage =
                             "Parameter " + std::to_string(
