@@ -26,6 +26,7 @@ namespace toec = tudat::orbital_element_conversions;
 namespace tcc = tudat::coordinate_conversions;
 namespace tla = tudat::linear_algebra;
 namespace te = tudat::ephemerides;
+namespace tba = tudat::basic_astrodynamics;
 
 namespace tudatpy {
 
@@ -230,6 +231,34 @@ void expose_element_conversion(py::module &m) {
           &tla::convertMatrixToVectorQuaternionFormat,
           py::arg( "rotation_matrix" ) ,
           get_docstring("rotation_matrix_to_quaternion_entries").c_str());
+
+    /*!
+     **************   TLE  ******************
+
+     */
+    m.def("teme_state_to_j2000",
+          py::overload_cast< double, Eigen::Vector6d >(
+                  &tba::convertStateFromTEMEtoJ2000 ),
+          py::arg("epoch"),
+          py::arg("teme_state") );
+
+    m.def("teme_state_to_eclipj2000",
+          py::overload_cast< double, Eigen::Vector6d >(
+                  &tba::convertStateFromTEMEtoEclipJ2000 ),
+          py::arg("epoch"),
+          py::arg("teme_state") );
+
+    m.def("j2000_state_to_teme",
+          py::overload_cast< double, Eigen::Vector6d >(
+                  &tba::convertStateFromJ2000ToTEME ),
+          py::arg("epoch"),
+          py::arg("j2000_state") );
+
+    m.def("eclipj2000_state_to_teme",
+          py::overload_cast< double, Eigen::Vector6d >(
+                  &tba::convertStateFromEclipJ2000ToTEME ),
+          py::arg("epoch"),
+          py::arg("eclipj2000_state") );
 
 
 }
