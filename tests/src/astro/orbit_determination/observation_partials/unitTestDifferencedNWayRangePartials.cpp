@@ -76,17 +76,18 @@ BOOST_AUTO_TEST_CASE( testNWayRangeRatePartials )
         // Generate n-way differenced range model
         std::vector< std::string > perturbingBodies;
         perturbingBodies.push_back( "Earth" );
+        std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList;
+        lightTimeCorrectionsList.push_back(
+                    std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies ) );
+
+
         std::shared_ptr< ObservationModel< 1 > > nWayDifferencedRangeModel =
                 observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
                     std::make_shared< observation_models::NWayDifferencedRangeObservationSettings >(
-                        linkEnds, [ ]( const double ){ return 60.0; } )
-//                        std::vector< std::shared_ptr< LightTimeCorrectionSettings > >(
-//        { std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
-//         perturbingBodies ) } ) )
-                     , bodies  );
+                        linkEnds, [ ]( const double ){ return 60.0; },
+                        lightTimeCorrectionsList ) , bodies  );
 
-        // Create parame
-        // ter objects.
+        // Create parame ter objects.
         std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
                 createEstimatableParameters( bodies, 1.1E7 );
 
@@ -95,34 +96,38 @@ BOOST_AUTO_TEST_CASE( testNWayRangeRatePartials )
                     n_way_differenced_range, 1.0E-4, true, true, 1000.0, parameterPerturbationMultipliers );
     }
 
-//    // Test partials with real ephemerides (without test of position partials)
-//    {
-//        // Create environment
-//        SystemOfBodies bodies = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, false );
+    // Test partials with real ephemerides (without test of position partials)
+    {
+        // Create environment
+        SystemOfBodies bodies = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, false );
 
-//        // Set link ends for observation model
-//        LinkEnds linkEnds;
-//        linkEnds[ transmitter ] = groundStations[ 1 ];
-//        linkEnds[ receiver ] = groundStations[ 0 ];
+        // Set link ends for observation model
+        LinkEnds linkEnds;
+        linkEnds[ transmitter ] = groundStations[ 1 ];
+        linkEnds[ retransmitter ] = groundStations[ 0 ];
+        linkEnds[ receiver ] = groundStations[ 1 ];
 
-//        // Generate one-way range model
-//        std::vector< std::string > perturbingBodies;
-//        perturbingBodies.push_back( "Earth" );
-//        std::shared_ptr< ObservationModel< 1 > > oneWayDifferencedRangeModel =
-//                observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
-//                    std::make_shared< observation_models::OneWayDifferencedRangeRateObservationSettings >(
-//                        linkEnds, [ ]( const double ){ return 60.0; },
-//                        std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
-//         perturbingBodies ) ), bodies  );
+        // Generate one-way range model
+        std::vector< std::string > perturbingBodies;
+        perturbingBodies.push_back( "Earth" );
+        std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList;
+        lightTimeCorrectionsList.push_back(
+                    std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies ) );
 
-//        // Create parameter objects.
-//        std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
-//                createEstimatableParameters( bodies, 1.1E7 );
 
-//        testObservationPartials< 1 >(
-//                    oneWayDifferencedRangeModel, bodies, fullEstimatableParameterSet, linkEnds,
-//                    one_way_differenced_range, 1.0E-4, false, true, 1000.0, parameterPerturbationMultipliers );
-//    }
+        std::shared_ptr< ObservationModel< 1 > > nWayDifferencedRangeModel =
+                observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
+                    std::make_shared< observation_models::NWayDifferencedRangeObservationSettings >(
+                        linkEnds, [ ]( const double ){ return 60.0; },
+                        lightTimeCorrectionsList ) , bodies  );
+        // Create parameter objects.
+        std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
+                createEstimatableParameters( bodies, 1.1E7 );
+
+        testObservationPartials< 1 >(
+                    nWayDifferencedRangeModel, bodies, fullEstimatableParameterSet, linkEnds,
+                    n_way_differenced_range, 1.0E-4, false, true, 1000.0, parameterPerturbationMultipliers );
+    }
 }
 
 

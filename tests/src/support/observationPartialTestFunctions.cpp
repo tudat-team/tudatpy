@@ -8,6 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#include <algorithm>
+
 #include "tudat/astro/ephemerides/constantRotationalEphemeris.h"
 #include "tudat/support/observationPartialTestFunctions.h"
 #include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
@@ -437,6 +439,12 @@ std::vector< std::vector< double > > getAnalyticalPartialEvaluationTimes(
                 }
             }
         }
+
+        // Swap entries for consistency with test
+        if( observableType == observation_models::n_way_differenced_range && i == 1 )
+        {
+            iter_swap(currentPartialTimes.begin( ) + 1, currentPartialTimes.begin( ) + 2);
+        }
         partialTimes.push_back( currentPartialTimes );
     }
 
@@ -510,6 +518,13 @@ std::vector< std::vector< double > > getAnalyticalPartialEvaluationTimes(
                 }
             }
         }
+
+        // Swap entries for consistency with test
+        if( observableType == observation_models::n_way_differenced_range && i == 1 )
+        {
+            iter_swap(currentPartialTimes.begin( ) + 1, currentPartialTimes.begin( ) + 2);
+        }
+
         partialTimes.push_back( currentPartialTimes );
     }
 
@@ -553,6 +568,13 @@ std::vector< std::vector< double > > getAnalyticalPartialEvaluationTimes(
                 }
             }
         }
+
+        // Swap entries for consistency with test
+        if( observableType == observation_models::n_way_differenced_range && i == 1 )
+        {
+            iter_swap(currentPartialTimes.begin( ) + 1, currentPartialTimes.begin( ) + 2);
+        }
+
         partialTimes.push_back( currentPartialTimes );
     }
 

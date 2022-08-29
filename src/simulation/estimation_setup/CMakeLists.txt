@@ -40,7 +40,6 @@ set(estimation_HEADERS
         observations.h
         createDirectObservationPartials.h
         createPositionPartialScaling.h
-        createDifferencedObservablePartials.h
         )
 
 # Add header files.
