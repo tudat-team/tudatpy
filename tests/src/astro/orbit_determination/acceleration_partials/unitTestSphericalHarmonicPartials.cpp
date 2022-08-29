@@ -933,9 +933,9 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartialWithSynchronousRot
                 updateFunction );
 
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtMoonPosition, partialWrtMoonPosition, 1.0E-6 );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtMoonVelocity, partialWrtMoonVelocity, 1.0E-4 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtMoonVelocity, partialWrtMoonVelocity, 1.0E-3 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtEarthPosition, partialWrtEarthPosition, 1.0E-6 );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtEarthVelocity, partialWrtEarthVelocity, 1.0E-4 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtEarthVelocity, partialWrtEarthVelocity, 1.0E-3 );
 
 }
 BOOST_AUTO_TEST_SUITE_END( )

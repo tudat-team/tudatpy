@@ -132,7 +132,7 @@ void VariationalEquations::clearPartials( )
         {
             for( unsigned int j = 0; j < stateDerivativeTypeIterator_->second.at( i ).size( ); j++ )
             {
-                stateDerivativeTypeIterator_->second.at( i ).at( j )->resetTime( TUDAT_NAN );
+                stateDerivativeTypeIterator_->second.at( i ).at( j )->resetCurrentTime( );
             }
 
         }

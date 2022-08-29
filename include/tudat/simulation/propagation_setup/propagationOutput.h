@@ -22,6 +22,7 @@
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/propagation_setup/propagationOutputSettings.h"
 #include "tudat/simulation/propagation_setup/propagationSettings.h"
+#include "tudat/simulation/environment_setup/createFlightConditions.h"
 #include "tudat/math/basic/rotationRepresentations.h"
 
 namespace tudat

@@ -13,7 +13,7 @@
 
 #include "reference_frames/aerodynamicAngleCalculator.h"
 #include "reference_frames/apparentAccelerationModel.h"
-#include "reference_frames/dependentOrientationCalculator.h"
+//#include "reference_frames/dependentOrientationCalculator.h"
 #include "reference_frames/referenceFrameTransformations.h"
 
 #endif // TUDAT_REFERENCE_FRAMES_H

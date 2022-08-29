@@ -43,27 +43,29 @@ class DummyGuidanceSystem
 {
 public:
     DummyGuidanceSystem(
-            const std::function< void( const std::string&, const double ) > controlSurfaceFunction,
-            const std::shared_ptr< reference_frames::AerodynamicAngleCalculator > angleCalculator ):
-        controlSurfaceFunction_( controlSurfaceFunction ), angleCalculator_( angleCalculator ),
+            const std::function< void( const std::string&, const double ) > controlSurfaceFunction ):
+        controlSurfaceFunction_( controlSurfaceFunction ),
         currentAngleOfAttack_( 0.0 ), currentSurfaceDeflection_( 0.0 )
     {
-        angleCalculator_->setOrientationAngleFunctions(
-                    std::bind( &DummyGuidanceSystem::getCurrentAngleOfAttack, this ),
-                    std::function< double( ) >( ),
-                    std::function< double( ) >( ),
-                    std::bind( &DummyGuidanceSystem::updateGuidance, this, std::placeholders::_1 ) );
+//        angleCalculator_->setOrientationAngleFunctions(
+//                    std::bind( &DummyGuidanceSystem::getCurrentAngleOfAttack, this ),
+//                    std::function< double( ) >( ),
+//                    std::function< double( ) >( ),
+//                    std::bind( &DummyGuidanceSystem::updateGuidance, this, std::placeholders::_1 ) );
 
         controlSurfaceFunction_( "TestSurface", 0.2 );
     }
 
     ~DummyGuidanceSystem( ){ }
 
-    void updateGuidance( const double currentTime )
+    Eigen::Vector3d computeAndGetAerodynamicAngles( const double currentTime )
     {
-        currentAngleOfAttack_ = 0.3 * ( 1.0 - currentTime / 1000.0 );
         currentSurfaceDeflection_ = -0.02 + 0.04 * currentTime / 1000.0;
         controlSurfaceFunction_( "TestSurface", currentSurfaceDeflection_ );
+
+        currentAngleOfAttack_ = 0.3 * ( 1.0 - currentTime / 1000.0 );
+        return ( Eigen::Vector3d( ) << currentAngleOfAttack_, 0.0, 0.0 ).finished( );
+
     }
 
     double getCurrentAngleOfAttack( )
@@ -78,8 +80,6 @@ public:
 
 private:
     std::function< void( const std::string&, const double ) > controlSurfaceFunction_;
-
-    std::shared_ptr< reference_frames::AerodynamicAngleCalculator > angleCalculator_;
 
     double currentAngleOfAttack_;
 
@@ -244,6 +244,7 @@ BOOST_AUTO_TEST_CASE( testControlSurfaceIncrementInterfaceInPropagation )
     // Create vehicle aerodynamic coefficients
     bodies.at( "Apollo" )->setAerodynamicCoefficientInterface(
                 unit_tests::getApolloCoefficientInterface( ) );
+
     std::shared_ptr< ControlSurfaceIncrementAerodynamicInterface > controlSurfaceInterface =
             std::make_shared< CustomControlSurfaceIncrementAerodynamicInterface >(
                 &dummyControlIncrements,
@@ -256,6 +257,22 @@ BOOST_AUTO_TEST_CASE( testControlSurfaceIncrementInterfaceInPropagation )
     bodies.at( "Apollo" )->setConstantBodyMass( 5.0E3 );
     std::shared_ptr< system_models::VehicleSystems > apolloSystems = std::make_shared< system_models::VehicleSystems >( );
     bodies.at( "Apollo" )->setVehicleSystems( apolloSystems );
+
+
+    // Set update function for body orientation and control surface deflections
+    std::shared_ptr< DummyGuidanceSystem > dummyGuidanceSystem = std::make_shared< DummyGuidanceSystem >(
+                std::bind( &system_models::VehicleSystems::setCurrentControlSurfaceDeflection, apolloSystems,
+                           std::placeholders::_1, std::placeholders::_2 ) );
+
+
+    std::shared_ptr< ephemerides::RotationalEphemeris > vehicleRotationModel =
+            createRotationModel(
+                std::make_shared< AerodynamicAngleRotationSettings >(
+                    "Earth", "ECLIPJ2000", "VehicleFixed",
+                    std::bind( &unit_tests::DummyGuidanceSystem::computeAndGetAerodynamicAngles, dummyGuidanceSystem, std::placeholders::_1 ) ),
+                "Apollo", bodies );
+
+    bodies.at( "Apollo" )->setRotationalEphemeris( vehicleRotationModel );
 
 
     // Define propagator settings variables.
@@ -301,11 +318,6 @@ BOOST_AUTO_TEST_CASE( testControlSurfaceIncrementInterfaceInPropagation )
     // Create acceleration models
     basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
                 bodies, accelerationMap, bodiesToPropagate, centralBodies );
-
-    // Set update function for body orientation and control surface deflections
-    std::shared_ptr< DummyGuidanceSystem > dummyGuidanceSystem = std::make_shared< DummyGuidanceSystem >(
-                std::bind( &system_models::VehicleSystems::setCurrentControlSurfaceDeflection, apolloSystems, std::placeholders::_1, std::placeholders::_2 ),
-            bodies.at( "Apollo" )->getFlightConditions( )->getAerodynamicAngleCalculator( ) );
 
     // Create propagation and integrtion settings.
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =

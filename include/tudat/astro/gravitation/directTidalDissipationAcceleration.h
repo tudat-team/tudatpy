@@ -12,6 +12,7 @@
 #ifndef TUDAT_DIRECTTIDALDISSIPATIONACCELERATION_H
 #define TUDAT_DIRECTTIDALDISSIPATIONACCELERATION_H
 
+#include <iostream>
 #include <functional>
 #include <memory>
 #include <boost/lambda/lambda.hpp>

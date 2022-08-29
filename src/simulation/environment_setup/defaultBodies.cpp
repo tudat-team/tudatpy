@@ -9,8 +9,8 @@
  */
 
 #define DEFAULT_MERCURY_GRAVITY_FIELD_SETTINGS
-#define DEFAULT_EARTH_GRAVITY_FIELD_SETTINGS std::make_shared< FromFileSphericalHarmonicsGravityFieldSettings >( egm96 )
-#define DEFAULT_MOON_GRAVITY_FIELD_SETTINGS std::make_shared< FromFileSphericalHarmonicsGravityFieldSettings >( lpe200 )
+#define DEFAULT_EARTH_GRAVITY_FIELD_SETTINGS std::make_shared< FromFileSphericalHarmonicsGravityFieldSettings >( goco05c, 200 )
+#define DEFAULT_MOON_GRAVITY_FIELD_SETTINGS std::make_shared< FromFileSphericalHarmonicsGravityFieldSettings >( gggrx1200, 200 )
 #define DEFAULT_MARS_GRAVITY_FIELD_SETTINGS std::make_shared< FromFileSphericalHarmonicsGravityFieldSettings >( jgmro120d )
 
 #include "tudat/interface/spice/spiceInterface.h"

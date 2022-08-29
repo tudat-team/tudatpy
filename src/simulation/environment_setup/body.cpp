@@ -88,10 +88,16 @@ void Body::setTemplatedState( const Eigen::Matrix< long double, 6, 1 >& state )
 void Body::setIsBodyInPropagation( const bool isBodyInPropagation )
 {
     isBodyInPropagation_ = isBodyInPropagation;
-    if( std::dynamic_pointer_cast< ephemerides::SynchronousRotationalEphemeris >( rotationalEphemeris_ ) != nullptr )
+
+    if( rotationalEphemeris_ != nullptr )
     {
-        std::dynamic_pointer_cast< ephemerides::SynchronousRotationalEphemeris >( rotationalEphemeris_ ) ->setIsBodyInPropagation(
-                    isBodyInPropagation );
+        rotationalEphemeris_->setIsBodyInPropagation( isBodyInPropagation );
+    }
+
+    if( !isBodyInPropagation )
+    {
+        isStateSet_ = false;
+        isRotationSet_ = false;
     }
 }
 

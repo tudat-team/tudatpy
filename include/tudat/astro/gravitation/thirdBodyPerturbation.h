@@ -124,10 +124,10 @@ public:
      * Function to reset the current time of the acceleration model.
      * \param currentTime Current time (default NaN).
      */
-    void resetTime( const double currentTime = TUDAT_NAN )
+    void resetCurrentTime( )
     {
-        accelerationModelForBodyUndergoingAcceleration_->resetTime( currentTime );
-        accelerationModelForCentralBody_->resetTime( currentTime );
+        accelerationModelForBodyUndergoingAcceleration_->resetCurrentTime( );
+        accelerationModelForCentralBody_->resetCurrentTime( );
     }
 
     //! Function to return the direct acceleration model on body undergoing acceleration.

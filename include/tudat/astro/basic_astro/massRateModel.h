@@ -68,9 +68,9 @@ public:
      * Function to reset the current time of the acceleration model.
      * \param currentTime Current time (default NaN).
      */
-    virtual void resetTime( const double currentTime = TUDAT_NAN )
+    virtual void resetCurrentTime( )
     {
-        currentTime_ = currentTime;
+        currentTime_ = TUDAT_NAN;
     }
 
 protected:

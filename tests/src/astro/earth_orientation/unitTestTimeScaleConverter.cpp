@@ -141,7 +141,9 @@ BOOST_AUTO_TEST_CASE( testDifferentTimeScaleConversions )
 
     // Create default time converter.
     std::shared_ptr< TerrestrialTimeScaleConverter > timeScaleConverter =
-            createStandardEarthOrientationCalculator( )->getTerrestrialTimeScaleConverter( );
+            createStandardEarthOrientationCalculator(
+                std::make_shared< EOPReader >( tudat::paths::getEarthOrientationDataFilesPath( ) + "/eopc04_08_IAU2000.62-now.txt" ) )->
+            getTerrestrialTimeScaleConverter( );
 
     // Set station position
     Eigen::Vector3d stationCartesianPosition;

@@ -196,11 +196,11 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
 
             for( unsigned int i = 0; i < 3; i++ )
             {
-                BOOST_CHECK_SMALL( std::fabs( analyticalUnitVectorDerivative( i ) - numericalUnitVectorDerivative( i ) ), 1.0E-18 );
+                BOOST_CHECK_SMALL( std::fabs( analyticalUnitVectorDerivative( i ) - numericalUnitVectorDerivative( i ) ), 1.0E-17 );
 
             }
             BOOST_CHECK_SMALL( std::fabs( analyticalProjectedVelocityDerivative / physical_constants::SPEED_OF_LIGHT -
-                                          numericalProjectedVelocityDerivative ), 1.0E-22 );
+                                          numericalProjectedVelocityDerivative ), 1.5E-22 );
         }
 
     }
