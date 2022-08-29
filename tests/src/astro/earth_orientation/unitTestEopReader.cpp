@@ -38,7 +38,7 @@ BOOST_AUTO_TEST_SUITE( test_eop_reader )
 BOOST_AUTO_TEST_CASE( testEopReaderData )
 {
     std::shared_ptr< EOPReader > eopReader = std::make_shared< EOPReader >(
-                tudat::paths::getEarthOrientationDataFilesPath( ) + "/eopc04_08_IAU2000.62-now.txt",
+                tudat::paths::getEarthOrientationDataFilesPath( ) + "/eopc04_14_IAU2000.62-now.txt",
                 "C04", basic_astrodynamics::iau_2000_a );
 
     // Define current time/
@@ -54,11 +54,11 @@ BOOST_AUTO_TEST_CASE( testEopReaderData )
 
     // Set EOP corrections read manually from file for 5-4-2007
     double arcSecondToRadian = 4.848136811095359935899141E-6;
-    double expectedXp = 0.033227 * arcSecondToRadian;
-    double expectedYp = 0.483135 * arcSecondToRadian;
-    double expectedUT1COffset = -0.0714209;
-    double expecteddX = 0.000247 * arcSecondToRadian;
-    double expecteddY = -0.000280 * arcSecondToRadian;
+    double expectedXp = 0.033194 * arcSecondToRadian;
+    double expectedYp = 0.483144 * arcSecondToRadian;
+    double expectedUT1COffset = -0.0714163;
+    double expecteddX = 0.000250 * arcSecondToRadian;
+    double expecteddY = -0.000302 * arcSecondToRadian;
 
     // Create interpolator for x_{p} and y_{p} (polar motion) and retrieve current value
     std::shared_ptr< OneDimensionalInterpolator< double, Eigen::Vector2d > > cipInItrsInterpolator =
@@ -91,12 +91,11 @@ BOOST_AUTO_TEST_CASE( testEopReaderData )
             * physical_constants::JULIAN_DAY;
 
     // Set EOP corrections read manually from file for 6-4-2007
-    double expectedXp2 = 0.035739  * arcSecondToRadian;
-    double expectedYp2 = 0.484209 * arcSecondToRadian;
-    double expectedUT1COffset2 = -0.0727562;
-    double expecteddX2 = 0.000252 * arcSecondToRadian;
-    double expecteddY2 = -0.000294 * arcSecondToRadian;
-
+    double expectedXp2 = 0.035736 * arcSecondToRadian;
+    double expectedYp2 = 0.484204 * arcSecondToRadian;
+    double expectedUT1COffset2 = -0.0728009;
+    double expecteddX2 = 0.000254 * arcSecondToRadian;
+    double expecteddY2 = -0.000309 * arcSecondToRadian;
 
     // Read correction interpolators
     cipInItrs = cipInItrsInterpolator->interpolate( utcSecondsSinceJ2000 );
@@ -156,7 +155,7 @@ BOOST_AUTO_TEST_CASE( testLeapSecondIdentification )
 {
     // Read EOP file and get UT1-UTC interpolator
     std::shared_ptr< EOPReader > eopReader = std::make_shared< EOPReader >(
-                tudat::paths::getEarthOrientationDataFilesPath( ) + "/eopc04_08_IAU2000.62-now.txt",
+                tudat::paths::getEarthOrientationDataFilesPath( ) + "/eopc04_14_IAU2000.62-now.txt",
                 "C04", basic_astrodynamics::iau_2000_a );
     std::shared_ptr< OneDimensionalInterpolator< double, double > > ut1MinusUtcInterpolator =
             createDefaultTimeConverter( eopReader )->getDailyUtcUt1CorrectionInterpolator( );
