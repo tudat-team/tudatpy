@@ -178,10 +178,20 @@ void testObservationPartials(
     for (LinkEnds::const_iterator linkEndIterator = linkEnds.begin(); linkEndIterator != linkEnds.end();
          linkEndIterator++)
     {
+        bool runSimulation = true;
+        if( ( observableType == observation_models::relative_angular_position ) &&
+                ( linkEndIterator->first != receiver ) )
+        {
+            runSimulation = false;
+        }
 
-        if ( ( observableType != observation_models::relative_angular_position ) ||
-             ( ( observableType == observation_models::relative_angular_position ) &&
-               ( linkEndIterator->first == receiver ) ) )
+        if( ( observableType == observation_models::n_way_differenced_range ) &&
+               ( linkEndIterator->first == retransmitter ) )
+        {
+            runSimulation = false;
+        }
+
+        if ( runSimulation )
         {
 
             // Evaluate nominal observation values
@@ -204,15 +214,16 @@ void testObservationPartials(
                         fullAnalyticalPartialSet.first, vectorOfStates, vectorOfTimes, linkEndIterator->first, currentObservation);
 
             // Set and test expected partial size and time
-            if (observableType != euler_angle_313_observable) {
+            if (observableType != euler_angle_313_observable)
+            {
                 std::vector<std::vector<double> > expectedPartialTimes = getAnalyticalPartialEvaluationTimes(
                             linkEnds, observableType, vectorOfTimes, fullEstimatableParameterSet);
 
                 // Test analytical partial times.
                 BOOST_CHECK_EQUAL(analyticalObservationPartials.size(), expectedPartialTimes.size());
 
-                for (unsigned int i = 0; i < analyticalObservationPartials.size(); i++) {
-
+                for (unsigned int i = 0; i < analyticalObservationPartials.size(); i++)
+                {
                     if (observableType == two_way_doppler)
                     {
                         std::vector<double> currentTimes = expectedPartialTimes.at( i );
@@ -249,7 +260,8 @@ void testObservationPartials(
                         &ObservationModel<ObservableSize, double, double>::computeObservations,
                         observationModel, std::placeholders::_1, linkEndIterator->first);
 
-            if (testPositionPartial) {
+            if (testPositionPartial)
+            {
                 // Set position perturbation for numerical partial
                 Eigen::Vector3d bodyPositionVariation;
                 bodyPositionVariation << 1000.0E3, 1000.0E3, 1000.0E3;
@@ -301,7 +313,8 @@ void testObservationPartials(
 
             Eigen::Matrix<double, Eigen::Dynamic, 7> bodyRotationalStatePartial =
                     Eigen::Matrix<double, ObservableSize, 7>::Zero();
-            for (unsigned int i = 0; i < bodiesWithEstimatedRotationalState.size(); i++) {
+            for (unsigned int i = 0; i < bodiesWithEstimatedRotationalState.size(); i++)
+            {
                 // Compute numerical position partial
                 Eigen::Matrix<double, Eigen::Dynamic, 3> numericalPartialWrtAngularVelocityVector =
                         calculatePartialWrtConstantBodyAngularVelocityVector(
@@ -337,7 +350,8 @@ void testObservationPartials(
             }
 
 
-            if (testParameterPartial) {
+            if (testParameterPartial)
+            {
 
                 // Test double parameter partials
                 {
@@ -368,9 +382,11 @@ void testObservationPartials(
                     int numberOfEstimatedBodies =
                             bodiesWithEstimatedTranslationalState.size() + bodiesWithEstimatedRotationalState.size();
 
-                    for (unsigned int i = 0; i < numericalPartialsWrtDoubleParameters.size(); i++) {
+                    for (unsigned int i = 0; i < numericalPartialsWrtDoubleParameters.size(); i++)
+                    {
                         currentParameterPartial.setZero(ObservableSize);
-                        for (unsigned int j = 0; j < analyticalObservationPartials[i + numberOfEstimatedBodies].size(); j++) {
+                        for (unsigned int j = 0; j < analyticalObservationPartials[i + numberOfEstimatedBodies].size(); j++)
+                        {
                             currentParameterPartial += analyticalObservationPartials[i + numberOfEstimatedBodies].at( j ).first;
 
                         }
@@ -405,6 +421,7 @@ void testObservationPartials(
                     Eigen::MatrixXd currentParameterPartial;
                     int startIndex = bodiesWithEstimatedTranslationalState.size() + bodiesWithEstimatedRotationalState.size() +
                             doubleParameterVector.size();
+
                     for (unsigned int i = 0; i < numericalPartialsWrtVectorParameters.size(); i++)
                     {
                         currentParameterPartial = Eigen::MatrixXd::Zero(

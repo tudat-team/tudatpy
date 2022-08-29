@@ -39,7 +39,6 @@ namespace tudat
 namespace observation_partials
 {
 
-
 //! Function to generate tow-way Doppler partials and associated scaler for single link ends.
 /*!
  *  Function to generate tow-way Doppler partials and associated scaler for all parameters that are to be estimated,

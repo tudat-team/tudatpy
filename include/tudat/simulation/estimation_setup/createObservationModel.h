@@ -2068,6 +2068,16 @@ public:
                         oneWayDifferencedRangeObservationModel->getArcEndLightTimeCalculator( ) );
             break;
         }
+        case observation_models::n_way_differenced_range:
+        {
+            std::shared_ptr< observation_models::NWayDifferencedRangeObservationModel
+                    < ObservationScalarType, TimeType> > nWayDifferencedRangeObservationModel =
+                    std::dynamic_pointer_cast< observation_models::NWayDifferencedRangeObservationModel
+                    < ObservationScalarType, TimeType > >( differencedObservationModel );
+            firstObservationModel = nWayDifferencedRangeObservationModel->getArcStartObservationModel( );
+            secondObservationModel = nWayDifferencedRangeObservationModel->getArcEndObservationModel( );
+            break;
+        }
         default:
             std::string errorMessage =
                     "Error when getting undifferenced observation models " +

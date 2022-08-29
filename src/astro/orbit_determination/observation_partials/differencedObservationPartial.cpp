@@ -32,18 +32,17 @@ namespace observation_partials
             firstPartialScaling_->update(
                         utilities::getVectorEntries( linkEndStates, firstIndices_ ), utilities::getVectorEntries( times, firstIndices_ ),
                         fixedLinkEnd, Eigen::VectorXd::Constant( currentObservation.rows( ), TUDAT_NAN ) );
+
             secondPartialScaling_->update(
                         utilities::getVectorEntries( linkEndStates, secondIndices_ ), utilities::getVectorEntries( times, secondIndices_ ),
-                        fixedLinkEnd, Eigen::VectorXd::Constant( currentObservation.rows( ), TUDAT_NAN ) );;
+                        fixedLinkEnd, Eigen::VectorXd::Constant( currentObservation.rows( ), TUDAT_NAN ) );
+
         }
         catch( const std::exception& caughtException )
         {
             std::string exceptionText = std::string( caughtException.what( ) );
             throw std::runtime_error( "Error when computing differenced observation partial scaling, error: " + exceptionText );
         }
-
-
-
     }
 
 }

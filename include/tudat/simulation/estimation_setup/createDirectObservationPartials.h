@@ -204,6 +204,9 @@ createSingleLinkObservationPartials(
                 observation_models::getLightTimeCorrections( observationModel );
         if( fullLightTimeCorrections.size( ) > 1 )
         {
+            std::cout<<fullLightTimeCorrections.size( )<<std::endl;
+            lightTimeCorrections = fullLightTimeCorrections.at( 0 );
+
             throw std::runtime_error( "Error when creatin direct observation partial, light time corrections list is of incorrect size." );
         }
         else if( fullLightTimeCorrections.size( ) == 1 )
