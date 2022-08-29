@@ -176,6 +176,98 @@ public:
     bool useAbsoluteBias_;
 };
 
+
+//! Class for defining settings for the creation of a constant time drift model
+class ConstantTimeDriftBiasSettings: public ObservationBiasSettings
+{
+public:
+
+    //! Constuctor
+    /*!
+     * Constuctor
+     * \param observationBias Constant bias that is to be added to the observable. The size of this vector must be equal to the
+     * size of the observable to which it is assigned.
+     * \param linkEndForTime Link end at which time is to be evaluated to determine current time
+     * \param referenceEpoch Reference epoch at which the effect of the clock drift is initialised.
+     */
+    ConstantTimeDriftBiasSettings(
+            const Eigen::VectorXd& timeDriftBias,
+            const LinkEndType linkEndForTime,
+            const double referenceEpoch ):
+            ObservationBiasSettings( constant_time_drift_bias ),
+            timeDriftBias_( timeDriftBias ), linkEndForTime_( linkEndForTime ), referenceEpoch_( referenceEpoch ){ }
+
+    //! Destructor
+    ~ConstantTimeDriftBiasSettings( ){ }
+
+    //! Time drift to be considered for the observation time.
+    /*!
+     *  Time drift to be considered for the observation time. The size of this vector must be equal to the
+     *  size of the observable to which it is assigned.
+     */
+    Eigen::VectorXd timeDriftBias_;
+
+    //! Link end at which time is to be evaluated to determine current time (and current arc)
+    LinkEndType linkEndForTime_;
+
+    //! Reference epoch at which the effect of the time drift is supposed to be zero
+    double referenceEpoch_;
+};
+
+//! Class for defining settings for the creation of an arc-wise time drift bias model
+class ArcWiseTimeDriftBiasSettings: public ObservationBiasSettings
+{
+public:
+
+    //! Constuctor
+    /*!
+     * Constuctor
+     * \param arcStartTimes Start times for arcs in which biases (observationBiases) are used
+     * \param timeDriftBiases List of observation biases per arc
+     * \param linkEndForTime Link end at which time is to be evaluated to determine current time (and current arc)
+     * \param referenceEpochs Reference epochs (per arc) at which the time drifts are initialised.
+     */
+    ArcWiseTimeDriftBiasSettings(
+            const std::vector< double >& arcStartTimes,
+            const std::vector< Eigen::VectorXd >& timeDriftBiases,
+            const LinkEndType linkEndForTime,
+            const std::vector< double > referenceEpochs ):
+            ObservationBiasSettings( arc_wise_time_drift_bias ),
+            arcStartTimes_( arcStartTimes ), timeDriftBiases_( timeDriftBiases ), linkEndForTime_( linkEndForTime ),
+            referenceEpochs_( referenceEpochs ){ }
+
+    //! Constuctor
+    /*!
+     * Constuctor
+     * \param timeDriftBiases Map of observation biases per arc, with bias as map value, and arc start time as map key
+     * \param linkEndForTime Link end at which time is to be evaluated to determine current time (and current arc)
+     * \param referenceEpochs Reference epochs (per arc) at which the time drifts are initialised.
+     */
+    ArcWiseTimeDriftBiasSettings(
+            const std::map< double, Eigen::VectorXd >& timeDriftBiases,
+            const LinkEndType linkEndForTime,
+            const std::vector< double > referenceEpochs ):
+            ObservationBiasSettings( arc_wise_time_drift_bias ),
+            arcStartTimes_( utilities::createVectorFromMapKeys( timeDriftBiases ) ),
+            timeDriftBiases_( utilities::createVectorFromMapValues( timeDriftBiases ) ), linkEndForTime_( linkEndForTime ),
+            referenceEpochs_( referenceEpochs ){ }
+
+    //! Destructor
+    ~ArcWiseTimeDriftBiasSettings( ){ }
+
+    //! Start times for arcs in which biases (observationBiases) are used
+    std::vector< double > arcStartTimes_;
+
+    //! List of observation biases per arc
+    std::vector< Eigen::VectorXd > timeDriftBiases_;
+
+    //! Link end at which time is to be evaluated to determine current time (and current arc)
+    LinkEndType linkEndForTime_;
+
+    //! Reference epochs at which the time drifts are initialised.
+    std::vector< double > referenceEpochs_;
+};
+
 inline std::shared_ptr< ObservationBiasSettings > constantAbsoluteBias(
         const Eigen::VectorXd& observationBias )
 {
@@ -230,6 +322,32 @@ inline std::shared_ptr< ObservationBiasSettings > multipleObservationBiasSetting
 {
     return std::make_shared< MultipleObservationBiasSettings >(
                 biasSettingsList );
+}
+
+inline std::shared_ptr< ObservationBiasSettings > constantTimeDriftBias(
+        const Eigen::VectorXd& observationBias,
+        const LinkEndType linkEndForTime,
+        const double referenceEpoch )
+{
+    return std::make_shared< ConstantTimeDriftBiasSettings >( observationBias, linkEndForTime, referenceEpoch );
+}
+
+inline std::shared_ptr< ObservationBiasSettings > arcWiseTimeDriftBias(
+        const std::vector< Eigen::VectorXd >& observationBiases,
+        const std::vector< double >& arcStartTimes,
+        const LinkEndType linkEndForTime,
+        const std::vector< double >& referenceEpochs )
+{
+    return std::make_shared< ArcWiseTimeDriftBiasSettings >( arcStartTimes, observationBiases, linkEndForTime, referenceEpochs );
+}
+
+inline std::shared_ptr< ObservationBiasSettings > arcWiseTimeDriftBias(
+        const std::map< double, Eigen::VectorXd >& observationBiases,
+        const LinkEndType linkEndForTime,
+        const std::vector< double > referenceEpochs )
+{
+    return std::make_shared< ArcWiseTimeDriftBiasSettings >(
+            observationBiases, linkEndForTime, referenceEpochs );
 }
 
 //! Class used for defining the settings for an observation model that is to be created.

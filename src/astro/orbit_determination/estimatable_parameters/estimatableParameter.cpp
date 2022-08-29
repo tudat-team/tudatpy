@@ -120,6 +120,12 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
     case scaled_longitude_libration_amplitude:
         parameterDescription = " scaled longitude libration amplitude ";
         break;
+    case constant_time_drift_bias:
+        parameterDescription = " observation time drift bias ";
+        break;
+    case arc_wise_time_drift_bias:
+        parameterDescription = " observation arc-wise time drift bias ";
+        break;
     default:
         std::string errorMessage = "Error when getting parameter string, did not recognize parameter " +
                 std::to_string( parameterType );
@@ -246,6 +252,12 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
     case scaled_longitude_libration_amplitude:
         isDoubleParameter = true;
         break;
+    case constant_time_drift_bias:
+        isDoubleParameter = false;
+        break;
+    case arc_wise_time_drift_bias:
+        isDoubleParameter = false;
+        break;
     default:
         throw std::runtime_error( "Error, parameter type " + std::to_string( parameterType ) +
                                   " not found when getting parameter type" );
@@ -306,6 +318,12 @@ bool isParameterObservationLinkProperty( const EstimatebleParametersEnum paramet
         flag = true;
         break;
     case arcwise_constant_relative_observation_bias:
+        flag = true;
+        break;
+    case constant_time_drift_bias:
+        flag = true;
+        break;
+    case arc_wise_time_drift_bias:
         flag = true;
         break;
     default:
