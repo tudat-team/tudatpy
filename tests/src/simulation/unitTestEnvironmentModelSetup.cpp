@@ -430,30 +430,30 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldSetup )
                 createGravityFieldModel( getDefaultGravityFieldSettings(
                                              "Earth", TUDAT_NAN, TUDAT_NAN ), "Earth" ) );
     BOOST_CHECK_EQUAL(
-                ( defaultEarthField->getGravitationalParameter( ) ), ( 0.3986004418E15 ) );
+                ( defaultEarthField->getGravitationalParameter( ) ), ( 398600441500000) );
     BOOST_CHECK_EQUAL(
-                ( defaultEarthField->getReferenceRadius( ) ), ( 6378137.0 ) );
+                ( defaultEarthField->getReferenceRadius( ) ), ( 6378136.3 ) );
     BOOST_CHECK_EQUAL(
-                ( defaultEarthField->getCosineCoefficients( ).rows( ) ), 361 );
+                ( defaultEarthField->getCosineCoefficients( ).rows( ) ), 201 );
     BOOST_CHECK_EQUAL(
-                ( defaultEarthField->getCosineCoefficients( ).cols( ) ), 361 );
+                ( defaultEarthField->getCosineCoefficients( ).cols( ) ), 201 );
     BOOST_CHECK_EQUAL(
-                ( defaultEarthField->getSineCoefficients( ).rows( ) ), 361 );
+                ( defaultEarthField->getSineCoefficients( ).rows( ) ), 201 );
     BOOST_CHECK_EQUAL(
-                ( defaultEarthField->getSineCoefficients( ).cols( ) ), 361 );
+                ( defaultEarthField->getSineCoefficients( ).cols( ) ), 201 );
     BOOST_CHECK_EQUAL(
-                ( defaultEarthField->getCosineCoefficients( )( 2, 0 ) ), -0.484165371736E-03 );
+                ( defaultEarthField->getCosineCoefficients( )( 2, 0 ) ), -0.00048416945884303183 );
     BOOST_CHECK_EQUAL(
-                ( defaultEarthField->getCosineCoefficients( )( 5, 3 ) ), -0.451955406071E-06 );
+                ( defaultEarthField->getCosineCoefficients( )( 5, 3 ) ), -4.5184119950616202e-07);
     BOOST_CHECK_EQUAL(
-                ( defaultEarthField->getSineCoefficients( )( 7, 1 ) ), 0.954336911867E-07 );
+                ( defaultEarthField->getSineCoefficients( )( 7, 1 ) ), 9.5160187646035301e-08 );
 
     std::shared_ptr< gravitation::SphericalHarmonicsGravityField > defaultMoonField =
             std::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >(
                 createGravityFieldModel( getDefaultGravityFieldSettings(
                                              "Moon", TUDAT_NAN, TUDAT_NAN ), "Moon" ) );
     BOOST_CHECK_EQUAL(
-                ( defaultMoonField->getGravitationalParameter( ) ), ( 0.4902800238000000E+13 ) );
+                ( defaultMoonField->getGravitationalParameter( ) ), ( 4902800121846.7998 ) );
     BOOST_CHECK_EQUAL(
                 ( defaultMoonField->getReferenceRadius( ) ), ( 0.17380E+07 ) );
     BOOST_CHECK_EQUAL(
@@ -465,9 +465,9 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldSetup )
     BOOST_CHECK_EQUAL(
                 ( defaultMoonField->getSineCoefficients( ).cols( ) ), 201 );
     BOOST_CHECK_EQUAL(
-                ( defaultMoonField->getCosineCoefficients( )( 5, 3 ) ), 0.5493176535439800E-06 );
+                ( defaultMoonField->getCosineCoefficients( )( 5, 3 ) ), 4.6582451480171e-07 );
     BOOST_CHECK_EQUAL(
-                ( defaultMoonField->getSineCoefficients( )( 7, 1 ) ), -0.1744763377093700E-06 );
+                ( defaultMoonField->getSineCoefficients( )( 7, 1 ) ),-1.2002068145852e-07 );
 
 }
 
@@ -741,7 +741,7 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldVariationSetup )
     // Calculate corrections manually and compare against created results.
     std::pair< Eigen::MatrixXd, Eigen::MatrixXd > directMoonTide =
             gravitation::calculateSolidBodyTideSingleCoefficientSetCorrectionFromAmplitude(
-                fullLoveNumberVector, 0.4902800238000000E+13 / gravitationalParameter,
+                fullLoveNumberVector, 0.49028001218467998E+13 / gravitationalParameter,
                 referenceRadius,  spice_interface::getBodyCartesianPositionAtEpoch(
                     "Moon", "Earth", "IAU_Earth", "None", testTime ), 3, 2 );
     std::pair< Eigen::MatrixXd, Eigen::MatrixXd > directSunTide =

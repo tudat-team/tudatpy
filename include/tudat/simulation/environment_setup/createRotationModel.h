@@ -240,7 +240,7 @@ public:
     GcrsToItrsRotationModelSettings(
             const basic_astrodynamics::IAUConventions nutationTheory = basic_astrodynamics::iau_2006,
             const std::string baseFrameName = "GCRS",
-            const std::string& eopFile = paths::getEarthOrientationDataFilesPath( ) + "/eopc04_08_IAU2000.62-now.txt",
+            const std::string& eopFile = paths::getEarthOrientationDataFilesPath( ) + "/eopc04_14_IAU2000.62-now.txt",
             const basic_astrodynamics::TimeScales inputTimeScale = basic_astrodynamics::tdb_scale,
             const std::shared_ptr< EopCorrectionSettings > ut1CorrectionSettings =
             std::make_shared< EopCorrectionSettings >(

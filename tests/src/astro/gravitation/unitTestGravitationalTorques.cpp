@@ -301,10 +301,10 @@ BOOST_AUTO_TEST_CASE( testSphericalGravitationalTorque )
                 for( unsigned int k = 0; k <= j; k++ )
                 {
                     BOOST_CHECK_SMALL( std::fabs( moonReconstructedCosineCoefficients( j, k ) -
-                                                  moonCosineCoefficients( j, k ) ), 1.0E-20 );
+                                                  moonCosineCoefficients( j, k ) ), 1.0E-19 );
 
                     BOOST_CHECK_SMALL( std::fabs( moonReconstructedSineCoefficients( j, k ) -
-                                                  moonSineCoefficients( j, k ) ), 1.0E-20 );
+                                                  moonSineCoefficients( j, k ) ), 1.0E-19 );
                 }
             }
         }
