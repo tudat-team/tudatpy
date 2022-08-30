@@ -57,28 +57,40 @@ BOOST_AUTO_TEST_CASE( test_EstimationFromPosition )
 
                             for ( unsigned int j = 6; j < totalError.rows( ); j++ )
                             {
-                                if ( estimateAbsoluteBiases )
+                                if ( estimateTimeBiases )
                                 {
-                                    if ( estimateRangeBiases )
+                                    if ( estimateRangeBiases || estimateMultiArcBiases )
                                     {
-                                        BOOST_CHECK_SMALL( std::fabs( totalError( j ) ), 1.0E-7 );
+                                        BOOST_CHECK_SMALL( std::fabs( totalError( j ) ), 1.0E-11 );
                                     }
                                     else
                                     {
-                                        BOOST_CHECK_SMALL( std::fabs( totalError( j ) ), 1.0E-18 );
+                                        BOOST_CHECK_SMALL( std::fabs( totalError( j ) ), 1.0E-14 );
                                     }
-                                }
-                                else if
-                                ( !estimateMultiArcBiases )
-                                {
-                                    BOOST_CHECK_SMALL( std::fabs( totalError( j ) ), 1.0E-14 );
                                 }
                                 else
                                 {
-                                    BOOST_CHECK_SMALL( std::fabs( totalError( j ) ), 1.0E-13 );
+                                    if ( estimateAbsoluteBiases )
+                                    {
+                                        if ( estimateRangeBiases )
+                                        {
+                                            BOOST_CHECK_SMALL( std::fabs( totalError( j ) ), 1.0E-7 );
+                                        }
+                                        else
+                                        {
+                                            BOOST_CHECK_SMALL( std::fabs( totalError( j ) ), 1.0E-18 );
+                                        }
+                                    }
+                                    else if ( !estimateMultiArcBiases )
+                                    {
+                                        BOOST_CHECK_SMALL( std::fabs( totalError( j ) ), 1.0E-14 );
+                                    }
+                                    else
+                                    {
+                                        BOOST_CHECK_SMALL( std::fabs( totalError( j ) ), 1.0E-13 );
+                                    }
                                 }
                             }
-                            break;
                         }
                     }
                 }
@@ -86,7 +98,7 @@ BOOST_AUTO_TEST_CASE( test_EstimationFromPosition )
         }
     }
 
-    BOOST_CHECK_EQUAL( executeEarthOrbiterBiasEstimation( true, false, true, true, true ).second, true );
+    BOOST_CHECK_EQUAL( executeEarthOrbiterBiasEstimation( true, false, true, true, true, false ).second, true );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
