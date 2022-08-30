@@ -428,7 +428,7 @@ private:
  *  (constant time drift bias), not the type of observable: the implementation is identical for each observable.
  */
 template< int ObservationSize >
-class ObservationPartialWrtTimeDriftBias: public ObservationPartial< ObservationSize >
+class ObservationPartialWrtConstantTimeDriftBias: public ObservationPartial< ObservationSize >
 {
 public:
 
@@ -438,19 +438,19 @@ public:
      * \param observableType Observable type for which the bias is active.
      * \param linkEnds Observation link ends for which the bias is active.
      * \param linkEndIndex Link end index from which the 'current time' is determined
-     * \param referenceEpoch Reference epoch at which the clock drift is initialised.
+     * \param referenceEpoch Reference epoch at which the time drift is initialised.
      */
-    ObservationPartialWrtTimeDriftBias( const observation_models::ObservableType observableType,
-                                           const observation_models::LinkEnds& linkEnds,
-                                           const int linkEndIndex,
-                                           const double referenceEpoch ):
+    ObservationPartialWrtConstantTimeDriftBias( const observation_models::ObservableType observableType,
+                                                const observation_models::LinkEnds& linkEnds,
+                                                const int linkEndIndex,
+                                                const double referenceEpoch ):
             ObservationPartial< ObservationSize >(
-                    std::make_pair( estimatable_parameters::constant_time_drift_bias, linkEnds.begin( )->second ) ),
+                    std::make_pair( estimatable_parameters::constant_time_drift_observation_bias, linkEnds.begin( )->second ) ),
             observableType_( observableType ), linkEnds_( linkEnds ), linkEndIndex_( linkEndIndex ), referenceEpoch_( referenceEpoch )
     {  }
 
     //! Destructor
-    ~ObservationPartialWrtTimeDriftBias( ){ }
+    ~ObservationPartialWrtConstantTimeDriftBias( ){ }
 
     //! Function to calculate the observation partial w.r.t. time drift bias
     /*!
@@ -495,7 +495,7 @@ private:
 
 //! Class for computing the derivative of any observable w.r.t. an arc-wise time drift bias
 /*!
-*  Class for computing the derivative of any observable w.r.t. an arc-wise time drift. Note that this
+*  Class for computing the derivative of any observable w.r.t. an arc-wise time drift bias. Note that this
 *  partial is distinct from most other ObservationPartial partial derived classes, as its implementation is based on the
 *  parameter (arc-wise time drift bias), not the type of observable: the implementation is identical for each
 *  observable.
@@ -521,7 +521,7 @@ public:
                                           const int linkEndIndex,
                                           const int numberOfArcs,
                                           const std::vector< double > referenceEpochs ):
-            ObservationPartial< ObservationSize >( std::make_pair( estimatable_parameters::arc_wise_time_drift_bias, linkEnds.begin( )->second ) ),
+            ObservationPartial< ObservationSize >( std::make_pair( estimatable_parameters::arc_wise_time_drift_observation_bias, linkEnds.begin( )->second ) ),
             observableType_( observableType ), linkEnds_( linkEnds ), arcLookupScheme_( arcLookupScheme ),
             linkEndIndex_( linkEndIndex ), numberOfArcs_( numberOfArcs ), referenceEpochs_( referenceEpochs )
     {
@@ -582,7 +582,7 @@ private:
     //! Pre-allocated partial vector
     Eigen::VectorXd totalPartial_;
 
-    //! Reference epochs (per arc) at which the time drifts are initialised.
+    //! Reference epochs (per arc) at which the time drift biases are initialised.
     std::vector< double > referenceEpochs_;
 
 };
@@ -600,13 +600,13 @@ extern template class ObservationPartialWrtArcWiseAbsoluteBias< 1 >;
 extern template class ObservationPartialWrtArcWiseAbsoluteBias< 2 >;
 extern template class ObservationPartialWrtArcWiseAbsoluteBias< 3 >;
 
-extern template class ObservationPartialWrtConstantRelativeBias< 1 >;
-extern template class ObservationPartialWrtConstantRelativeBias< 2 >;
-extern template class ObservationPartialWrtConstantRelativeBias< 3 >;
+extern template class ObservationPartialWrtConstantTimeDriftBias< 1 >;
+extern template class ObservationPartialWrtConstantTimeDriftBias< 2 >;
+extern template class ObservationPartialWrtConstantTimeDriftBias< 3 >;
 
-extern template class ObservationPartialWrtArcWiseRelativeBias< 1 >;
-extern template class ObservationPartialWrtArcWiseRelativeBias< 2 >;
-extern template class ObservationPartialWrtArcWiseRelativeBias< 3 >;
+extern template class ObservationPartialWrtArcWiseTimeDriftBias< 1 >;
+extern template class ObservationPartialWrtArcWiseTimeDriftBias< 2 >;
+extern template class ObservationPartialWrtArcWiseTimeDriftBias< 3 >;
 
 
 
@@ -758,6 +758,57 @@ std::shared_ptr< ObservationPartial< ObservationSize > > createObservationPartia
                                 arcwiseBias->getLookupScheme( ),
                                 arcwiseBias->getLinkEndIndex( ),
                                 arcwiseBias->getArcStartTimes( ).size( ) );
+                }
+            }
+        }
+        break;
+    }
+    case estimatable_parameters::constant_time_drift_observation_bias:
+    {
+        if( useBiasPartials )
+        {
+            // Check input consistency
+            std::shared_ptr< estimatable_parameters::ConstantTimeDriftBiasParameter > constantTimeDriftBias =
+                    std::dynamic_pointer_cast< estimatable_parameters::ConstantTimeDriftBiasParameter >(
+                            parameterToEstimate );
+            if( constantTimeDriftBias == nullptr )
+            {
+                throw std::runtime_error( "Error when making partial w.r.t. time drift bias, type is inconsistent" );
+            }
+            else
+            {
+                // Check dependency between parameter and link properties.
+                if( linkEnds == constantTimeDriftBias->getLinkEnds( ) && observableType == constantTimeDriftBias->getObservableType( ) )
+                {
+                    observationPartial = std::make_shared< ObservationPartialWrtConstantTimeDriftBias< ObservationSize > >(
+                            observableType, linkEnds, constantTimeDriftBias->getLinkEndIndex( ), constantTimeDriftBias->getReferenceEpoch( ) );
+                }
+            }
+        }
+        break;
+    }
+    case estimatable_parameters::arc_wise_time_drift_observation_bias:
+    {
+        if( useBiasPartials )
+        {
+            // Check input consistency
+            std::shared_ptr< estimatable_parameters::ArcWiseTimeDriftBiasParameter > arcwiseTimeDriftBias =
+                    std::dynamic_pointer_cast< estimatable_parameters::ArcWiseTimeDriftBiasParameter >( parameterToEstimate );
+            if ( arcwiseTimeDriftBias == nullptr )
+            {
+                throw std::runtime_error( "Error when making partial w.r.t. arcwise time drift bias, type is inconsistent" );
+            }
+            else
+            {
+                // Check dependency between parameter and link properties.
+                if ( linkEnds == arcwiseTimeDriftBias->getLinkEnds( ) && observableType == arcwiseTimeDriftBias->getObservableType( ) )
+                {
+                    observationPartial = std::make_shared< ObservationPartialWrtArcWiseTimeDriftBias< ObservationSize > >(
+                            observableType, linkEnds,
+                            arcwiseTimeDriftBias->getLookupScheme( ),
+                            arcwiseTimeDriftBias->getLinkEndIndex( ),
+                            arcwiseTimeDriftBias->getArcStartTimes( ).size( ),
+                            arcwiseTimeDriftBias->getReferenceEpochs( ) );
                 }
             }
         }

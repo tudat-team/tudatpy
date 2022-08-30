@@ -221,7 +221,7 @@ void performObservationParameterEstimationClosureForSingleModelSet(
             }
             break;
         }
-        case estimatable_parameters::constant_time_drift_bias:
+        case estimatable_parameters::constant_time_drift_observation_bias:
         {
             // Test input consistency
             std::shared_ptr< estimatable_parameters::ConstantTimeDriftBiasParameter > biasParameter =
@@ -248,7 +248,7 @@ void performObservationParameterEstimationClosureForSingleModelSet(
             }
             break;
         }
-        case estimatable_parameters::arc_wise_time_drift_bias:
+        case estimatable_parameters::arc_wise_time_drift_observation_bias:
         {
             // Test input consistency
             std::shared_ptr< estimatable_parameters::ArcWiseTimeDriftBiasParameter > timeBiasParameter =

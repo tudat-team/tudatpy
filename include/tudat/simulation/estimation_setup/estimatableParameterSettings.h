@@ -254,7 +254,7 @@ public:
             const observation_models::ObservableType observableType,
             const observation_models::LinkEndType linkEndForTime,
             const double referenceEpoch ):
-            EstimatableParameterSettings( linkEnds.begin( )->second.first, constant_time_drift_bias,
+            EstimatableParameterSettings( linkEnds.begin( )->second.first, constant_time_drift_observation_bias,
                                           linkEnds.begin( )->second.second ), linkEnds_( linkEnds ),
             observableType_( observableType ), linkEndForTime_( linkEndForTime ), referenceEpoch_( referenceEpoch ){ }
 
@@ -297,7 +297,7 @@ public:
             const observation_models::LinkEndType linkEndForTime,
             const std::vector< double > referenceEpochs ):
             EstimatableParameterSettings(
-                    linkEnds.begin( )->second.first, arc_wise_time_drift_bias,
+                    linkEnds.begin( )->second.first, arc_wise_time_drift_observation_bias,
                     linkEnds.begin( )->second.second ), linkEnds_( linkEnds ), observableType_( observableType ),
             arcStartTimes_( arcStartTimes ), linkEndForTime_( linkEndForTime ), referenceEpochs_( referenceEpochs ){ }
 
@@ -940,7 +940,7 @@ inline std::shared_ptr< EstimatableParameterSettings > arcwiseRelativeObservatio
                 linkEnds, observableType, arcStartTimes, linkEndForTime, false );
 }
 
-inline std::shared_ptr< EstimatableParameterSettings > timeDriftBias(
+inline std::shared_ptr< EstimatableParameterSettings > timeDriftObservationBias(
         const observation_models::LinkEnds& linkEnds,
         const observation_models::ObservableType observableType,
         const double referenceEpoch,
@@ -950,7 +950,7 @@ inline std::shared_ptr< EstimatableParameterSettings > timeDriftBias(
             linkEnds, observableType, linkEndForTime, referenceEpoch );
 }
 
-inline std::shared_ptr< EstimatableParameterSettings > arcwiseTimeDriftBias(
+inline std::shared_ptr< EstimatableParameterSettings > arcwiseTimeDriftObservationBias(
         const observation_models::LinkEnds& linkEnds,
         const observation_models::ObservableType observableType,
         const std::vector< double > arcStartTimes,

@@ -438,8 +438,8 @@ public:
     //! Constructor
     /*!
      * Constructor
-     * \param getCurrentBias Function to retrieve the current time drift bias.
-     * \param resetCurrentBias Function to reset the current time drift bias
+     * \param getCurrentBias Function to retrieve the current observation time bias.
+     * \param resetCurrentBias Function to reset the current observation time bias
      * \param linkEndIndex Link end index from which the 'current time' is determined
      * \param linkEnds Observation link ends for which the bias is active.
      * \param observableType Observable type for which the bias is active.
@@ -452,7 +452,7 @@ public:
             const observation_models::LinkEnds linkEnds,
             const observation_models::ObservableType observableType,
             const double referenceEpoch ):
-            EstimatableParameter< Eigen::VectorXd >( constant_time_drift_bias, linkEnds.begin( )->second. first ),
+            EstimatableParameter< Eigen::VectorXd >( constant_time_drift_observation_bias, linkEnds.begin( )->second. first ),
             getCurrentBias_( getCurrentBias ), resetCurrentBias_( resetCurrentBias ), linkEndIndex_( linkEndIndex ),
             linkEnds_( linkEnds ), observableType_( observableType ), referenceEpoch_( referenceEpoch ){ }
 
@@ -462,7 +462,7 @@ public:
     //! Function to get the current value of the constant time drift bias that is to be estimated.
     /*!
      * Function to get the current value of the constant time drift bias that is to be estimated.
-     * \return Current value of the constant observation time drift bias that is to be estimated.
+     * \return Current value of the constant time drift bias that is to be estimated.
      */
     Eigen::VectorXd getParameterValue( )
     {
@@ -476,10 +476,10 @@ public:
         }
     }
 
-    //! Function to reset the value of the constant time drift bias that is to be estimated.
+    //! Function to reset the value of the time drift bias that is to be estimated.
     /*!
-     * Function to reset the value of the constant time drift bias that is to be estimated.
-     * \param parameterValue New value of the constant time drift bias that is to be estimated.
+     * Function to reset the value of the time drift bias that is to be estimated.
+     * \param parameterValue New value of the time drift bias that is to be estimated.
      */
     void setParameterValue( Eigen::VectorXd parameterValue )
     {
@@ -569,10 +569,10 @@ protected:
 
 private:
 
-    //! Function to retrieve the current observation bias.
+    //! Function to retrieve the current time drift bias.
     std::function< Eigen::VectorXd( ) > getCurrentBias_;
 
-    //! Function to reset the current observation bias
+    //! Function to reset the current time drift
     std::function< void( const Eigen::VectorXd& ) > resetCurrentBias_;
 
     //! Observation link ends for which the bias is active.
@@ -588,12 +588,12 @@ private:
     double referenceEpoch_;
 };
 
-//! Interface class for the estimation of an arc-wise constant time drift bias.
+//! Interface class for the estimation of an arc-wise time drift bias.
 /*!
-*  Interface class for the estimation of aan arc-wise constant time drift bias (at given link ends and
+*  Interface class for the estimation of an arc-wise time drift bias (at given link ends and
 *  observable type).  Unlike most other EstimatableParameter derived
-*  classes, this class does not have direct access to the class (ConstantArcWiseTimeDriftBias) used in the
-*  simulations for the observation bias. This is due to the fact that the ConstantArcWiseTimeDriftBias class
+*  classes, this class does not have direct access to the class (ArcWiseTimeDriftBias) used in the
+*  simulations for the observation bias. This is due to the fact that the ArcWiseTimeDriftBias class
 *  is templated by the observable size, while this class is not.
 */
 class ArcWiseTimeDriftBiasParameter: public EstimatableParameter< Eigen::VectorXd >
@@ -610,7 +610,7 @@ public:
      * \param linkEndIndex Link end index from which the 'current time' is determined
      * \param linkEnds Observation link ends for which the bias is active.
      * \param observableType Observable type for which the bias is active.
-     * \param referenceEpochs Reference epochs (per arc) at which the time drift is initialised.
+     * \param referenceEpochs Reference epochs (per arc) at which the time drifts are initialised.
      */
     ArcWiseTimeDriftBiasParameter(
             const std::vector< double > arcStartTimes,
@@ -620,7 +620,7 @@ public:
             const observation_models::LinkEnds linkEnds,
             const observation_models::ObservableType observableType,
             const std::vector< double > referenceEpochs ):
-            EstimatableParameter< Eigen::VectorXd >( arc_wise_time_drift_bias, linkEnds.begin( )->second.first ),
+            EstimatableParameter< Eigen::VectorXd >( arc_wise_time_drift_observation_bias, linkEnds.begin( )->second.first ),
             arcStartTimes_( arcStartTimes ), getBiasList_( getBiasList ), resetBiasList_( resetBiasList ),
             linkEndIndex_( linkEndIndex ), linkEnds_( linkEnds ), observableType_( observableType ), referenceEpochs_( referenceEpochs )
     {
@@ -811,7 +811,7 @@ private:
     //! Object used to determine the current arc, based on the current time.
     std::shared_ptr< interpolators::LookUpScheme< double > > lookupScheme_;
 
-    //! Reference epochs (per arc) at which the time drift is initialised.
+    //! Reference epochs (per arc) at which the time drifts are initialised.
     std::vector< double > referenceEpochs_;
 };
 

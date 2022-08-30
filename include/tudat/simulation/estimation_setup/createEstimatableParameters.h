@@ -1133,13 +1133,13 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
             }
             break;
         }
-        case constant_time_drift_bias:
+        case constant_time_drift_observation_bias:
         {
-            std::shared_ptr< ConstantTimeDriftBiasEstimatableParameterSettings > timeDriftSettings =
+            std::shared_ptr< ConstantTimeDriftBiasEstimatableParameterSettings > biasSettings =
                     std::dynamic_pointer_cast< ConstantTimeDriftBiasEstimatableParameterSettings >( vectorParameterName );
-            if( timeDriftSettings == nullptr )
+            if( biasSettings == nullptr )
             {
-                throw std::runtime_error( "Error when creating time drift bias, input is inconsistent" );
+                throw std::runtime_error( "Error when creating constant time drift bias, input is inconsistent" );
             }
             else
             {
@@ -1147,28 +1147,28 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                         std::function< Eigen::VectorXd( ) >( ),
                         std::function< void( const Eigen::VectorXd& ) >( ),
                         observation_models::getLinkEndIndicesForLinkEndTypeAtObservable(
-                                timeDriftSettings->observableType_, timeDriftSettings->linkEndForTime_, timeDriftSettings->linkEnds_.size( ) ).at( 0 ),
-                        timeDriftSettings->linkEnds_, timeDriftSettings->observableType_, timeDriftSettings->referenceEpoch_ );
+                                biasSettings->observableType_, biasSettings->linkEndForTime_, biasSettings->linkEnds_.size( ) ).at( 0 ),
+                        biasSettings->linkEnds_, biasSettings->observableType_, biasSettings->referenceEpoch_ );
             }
             break;
         }
-        case arc_wise_time_drift_bias:
+        case arc_wise_time_drift_observation_bias:
         {
-            std::shared_ptr< ArcWiseTimeDriftBiasEstimatableParameterSettings > timeDriftSettings =
+            std::shared_ptr< ArcWiseTimeDriftBiasEstimatableParameterSettings > timeBiasSettings =
                     std::dynamic_pointer_cast< ArcWiseTimeDriftBiasEstimatableParameterSettings >( vectorParameterName );
-            if( timeDriftSettings == nullptr )
+            if( timeBiasSettings == nullptr )
             {
-                throw std::runtime_error( "Error when creating arcwise time drift observation bias, input is inconsistent" );
+                throw std::runtime_error( "Error when creating arcwise time drift bias, input is inconsistent" );
             }
             else
             {
                 vectorParameterToEstimate = std::make_shared< ArcWiseTimeDriftBiasParameter >(
-                        timeDriftSettings->arcStartTimes_,
+                        timeBiasSettings->arcStartTimes_,
                         std::function< std::vector< Eigen::VectorXd >( ) >( ),
                         std::function< void( const std::vector< Eigen::VectorXd >& ) >( ),
                         observation_models::getLinkEndIndicesForLinkEndTypeAtObservable(
-                                timeDriftSettings->observableType_, timeDriftSettings->linkEndForTime_, timeDriftSettings->linkEnds_.size( ) ).at( 0 ),
-                        timeDriftSettings->linkEnds_, timeDriftSettings->observableType_, timeDriftSettings->referenceEpochs_ );
+                                timeBiasSettings->observableType_, timeBiasSettings->linkEndForTime_, timeBiasSettings->linkEnds_.size( ) ).at( 0 ),
+                        timeBiasSettings->linkEnds_, timeBiasSettings->observableType_, timeBiasSettings->referenceEpochs_ );
             }
             break;
         }

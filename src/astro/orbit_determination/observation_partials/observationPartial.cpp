@@ -26,9 +26,9 @@ template class ObservationPartialWrtArcWiseRelativeBias< 1 >;
 template class ObservationPartialWrtArcWiseRelativeBias< 2 >;
 template class ObservationPartialWrtArcWiseRelativeBias< 3 >;
 
-template class ObservationPartialWrtTimeDriftBias< 1 >;
-template class ObservationPartialWrtTimeDriftBias< 2 >;
-template class ObservationPartialWrtTimeDriftBias< 3 >;
+template class ObservationPartialWrtConstantTimeDriftBias< 1 >;
+template class ObservationPartialWrtConstantTimeDriftBias< 2 >;
+template class ObservationPartialWrtConstantTimeDriftBias< 3 >;
 
 template class ObservationPartialWrtArcWiseTimeDriftBias< 1 >;
 template class ObservationPartialWrtArcWiseTimeDriftBias< 2 >;
