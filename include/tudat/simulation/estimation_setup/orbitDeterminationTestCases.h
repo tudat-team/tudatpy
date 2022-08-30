@@ -658,7 +658,12 @@ std::pair< Eigen::VectorXd, bool > executeEarthOrbiterBiasEstimation(
 {
 
     const int numberOfDaysOfData = 1;
-    const int numberOfIterations = 3;
+
+    int numberOfIterations = 3;
+    if ( estimateRangeBiases && estimateTimeBiases )
+    {
+        numberOfIterations = 6;
+    }
 
     //Load spice kernels.
     spice_interface::loadStandardSpiceKernels( );
@@ -1174,7 +1179,7 @@ std::pair< Eigen::VectorXd, bool > executeEarthOrbiterBiasEstimation(
         {
             if ( estimateTimeBiases )
             {
-                parameterPerturbation( i ) = 1.0e-8;
+                parameterPerturbation( i ) = 1.0e-7;
             }
             else
             {
