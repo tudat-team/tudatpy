@@ -171,6 +171,11 @@ void expose_estimation(py::module &m) {
           py::arg("bodies"),
           get_docstring("simulate_observations").c_str() );
 
+    m.def("set_existing_observations",
+          &tss::setExistingObservations< >,
+          py::arg("observations"),
+          py::arg("reference_link_end" ) );
+
     m.def("compute_target_angles_and_range",
           &tss::getTargetAnglesAndRange,
           py::arg("bodies"),
