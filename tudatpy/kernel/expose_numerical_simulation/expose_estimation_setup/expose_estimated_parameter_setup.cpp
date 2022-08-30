@@ -57,8 +57,8 @@ void expose_estimated_parameter_setup(py::module &m) {
             .value("core_factor_type", tep::EstimatebleParametersEnum::core_factor)
             .value("free_core_nutation_rate_type", tep::EstimatebleParametersEnum::free_core_nutation_rate)
             .value("desaturation_delta_v_values_type", tep::EstimatebleParametersEnum::desaturation_delta_v_values)
-            .value("constant_time_drift_bias_type", tep::EstimatebleParametersEnum::constant_time_drift_bias)
-            .value("arc_wise_time_drift_bias_type", tep::EstimatebleParametersEnum::arc_wise_time_drift_bias)
+            .value("constant_time_drift_observation_bias_type", tep::EstimatebleParametersEnum::constant_time_drift_observation_bias)
+            .value("arc_wise_time_drift_observation_bias_type", tep::EstimatebleParametersEnum::arc_wise_time_drift_observation_bias)
             .export_values();
 
     py::class_<tep::EstimatableParameterSettings,
@@ -260,15 +260,15 @@ void expose_estimated_parameter_setup(py::module &m) {
           py::arg("time_link_end" ),
           get_docstring("arcwise_relative_observation_bias").c_str() );
 
-    m.def("time_drift_bias",
-          &tep::timeDriftBias,
+    m.def("time_drift_observation_bias",
+          &tep::timeDriftObservationBias,
           py::arg("link_ends"),
           py::arg("observable_type"),
           py::arg("ref_epoch"),
           py::arg("time_link_end"));
 
-    m.def("arcwise_time_drift_bias",
-          &tep::arcwiseTimeDriftBias,
+    m.def("arcwise_time_drift_observation_bias",
+          &tep::arcwiseTimeDriftObservationBias,
           py::arg("link_ends"),
           py::arg("observable_type"),
           py::arg("arc_start_times" ),
