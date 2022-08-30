@@ -176,7 +176,6 @@ public:
     bool useAbsoluteBias_;
 };
 
-
 //! Class for defining settings for the creation of a constant time drift model
 class ConstantTimeDriftBiasSettings: public ObservationBiasSettings
 {
@@ -185,10 +184,10 @@ public:
     //! Constuctor
     /*!
      * Constuctor
-     * \param observationBias Constant bias that is to be added to the observable. The size of this vector must be equal to the
+     * \param observationBias Constant time drift bias that is to be considered for the observation time. The size of this vector must be equal to the
      * size of the observable to which it is assigned.
      * \param linkEndForTime Link end at which time is to be evaluated to determine current time
-     * \param referenceEpoch Reference epoch at which the effect of the clock drift is initialised.
+     * \param referenceEpoch Reference epoch at which the effect of the time drift is initialised.
      */
     ConstantTimeDriftBiasSettings(
             const Eigen::VectorXd& timeDriftBias,
@@ -200,9 +199,9 @@ public:
     //! Destructor
     ~ConstantTimeDriftBiasSettings( ){ }
 
-    //! Time drift to be considered for the observation time.
+    //! Constant time drift bias that is to be considered for the observation time.
     /*!
-     *  Time drift to be considered for the observation time. The size of this vector must be equal to the
+     *  Constant time drift bias that is to be considered for the observation time. The size of this vector must be equal to the
      *  size of the observable to which it is assigned.
      */
     Eigen::VectorXd timeDriftBias_;
@@ -222,8 +221,8 @@ public:
     //! Constuctor
     /*!
      * Constuctor
-     * \param arcStartTimes Start times for arcs in which biases (observationBiases) are used
-     * \param timeDriftBiases List of observation biases per arc
+     * \param arcStartTimes Start times for arcs in which biases (timeDriftBiases) are used
+     * \param timeDriftBiases List of time drift biases per arc
      * \param linkEndForTime Link end at which time is to be evaluated to determine current time (and current arc)
      * \param referenceEpochs Reference epochs (per arc) at which the time drifts are initialised.
      */
@@ -258,7 +257,7 @@ public:
     //! Start times for arcs in which biases (observationBiases) are used
     std::vector< double > arcStartTimes_;
 
-    //! List of observation biases per arc
+    //! List of time drift biases per arc
     std::vector< Eigen::VectorXd > timeDriftBiases_;
 
     //! Link end at which time is to be evaluated to determine current time (and current arc)
@@ -325,29 +324,28 @@ inline std::shared_ptr< ObservationBiasSettings > multipleObservationBiasSetting
 }
 
 inline std::shared_ptr< ObservationBiasSettings > constantTimeDriftBias(
-        const Eigen::VectorXd& observationBias,
+        const Eigen::VectorXd& timeDriftBias,
         const LinkEndType linkEndForTime,
         const double referenceEpoch )
 {
-    return std::make_shared< ConstantTimeDriftBiasSettings >( observationBias, linkEndForTime, referenceEpoch );
+    return std::make_shared< ConstantTimeDriftBiasSettings >( timeDriftBias, linkEndForTime, referenceEpoch );
 }
 
 inline std::shared_ptr< ObservationBiasSettings > arcWiseTimeDriftBias(
-        const std::vector< Eigen::VectorXd >& observationBiases,
+        const std::vector< Eigen::VectorXd >& timeDriftBiases,
         const std::vector< double >& arcStartTimes,
         const LinkEndType linkEndForTime,
         const std::vector< double >& referenceEpochs )
 {
-    return std::make_shared< ArcWiseTimeDriftBiasSettings >( arcStartTimes, observationBiases, linkEndForTime, referenceEpochs );
+    return std::make_shared< ArcWiseTimeDriftBiasSettings >( arcStartTimes, timeDriftBiases, linkEndForTime, referenceEpochs );
 }
 
 inline std::shared_ptr< ObservationBiasSettings > arcWiseTimeDriftBias(
-        const std::map< double, Eigen::VectorXd >& observationBiases,
+        const std::map< double, Eigen::VectorXd >& timeDriftBiases,
         const LinkEndType linkEndForTime,
         const std::vector< double > referenceEpochs )
 {
-    return std::make_shared< ArcWiseTimeDriftBiasSettings >(
-            observationBiases, linkEndForTime, referenceEpochs );
+    return std::make_shared< ArcWiseTimeDriftBiasSettings >( timeDriftBiases, linkEndForTime, referenceEpochs );
 }
 
 //! Class used for defining the settings for an observation model that is to be created.
@@ -1040,6 +1038,55 @@ std::shared_ptr< ObservationBias< ObservationSize > > createObservationBiasCalcu
                     arcwiseBiasSettings->arcStartTimes_, observationBiases,
                     observation_models::getLinkEndIndicesForLinkEndTypeAtObservable(
                         observableType, arcwiseBiasSettings->linkEndForTime_, linkEnds.size( ) ).at( 0 ) );
+        break;
+    }
+    case constant_time_drift_bias:
+    {
+        // Check input consistency
+        std::shared_ptr< ConstantTimeDriftBiasSettings > constantTimeDriftBiasSettings = std::dynamic_pointer_cast<
+                ConstantTimeDriftBiasSettings >( biasSettings );
+        if( constantTimeDriftBiasSettings == nullptr )
+        {
+            throw std::runtime_error( "Error when making constant time drift observation bias, settings are inconsistent" );
+        }
+
+        // Check if size of bias is consistent with requested observable size
+        if( constantTimeDriftBiasSettings->timeDriftBias_.rows( ) != ObservationSize )
+        {
+            throw std::runtime_error( "Error when making constant observation time drift bias, bias size is inconsistent" );
+        }
+        observationBias = std::make_shared< ConstantTimeDriftBias< ObservationSize > >(
+                    constantTimeDriftBiasSettings->timeDriftBias_, observation_models::getLinkEndIndicesForLinkEndTypeAtObservable(
+                    observableType, constantTimeDriftBiasSettings->linkEndForTime_, linkEnds.size( ) ).at( 0 ), constantTimeDriftBiasSettings->referenceEpoch_ );
+        break;
+    }
+    case arc_wise_time_drift_bias:
+    {
+        // Check input consistency
+        std::shared_ptr< ArcWiseTimeDriftBiasSettings > arcwiseBiasSettings = std::dynamic_pointer_cast<
+                ArcWiseTimeDriftBiasSettings >( biasSettings );
+        if( arcwiseBiasSettings == nullptr )
+        {
+            throw std::runtime_error( "Error when making arc-wise time drift bias, settings are inconsistent" );
+        }
+
+        std::vector< Eigen::Matrix< double, ObservationSize, 1 > > observationBiases;
+        for( unsigned int i = 0; i < arcwiseBiasSettings->timeDriftBiases_.size( ); i++ )
+        {
+            // Check if size of bias is consistent with requested observable size
+            if( arcwiseBiasSettings->timeDriftBiases_.at( i ).rows( ) != ObservationSize )
+            {
+                throw std::runtime_error( "Error when making arc-wise time drift bias, bias size is inconsistent" );
+            }
+            else
+            {
+                observationBiases.push_back( arcwiseBiasSettings->timeDriftBiases_.at( i ) );
+            }
+        }
+        observationBias = std::make_shared< ArcWiseTimeDriftBias< ObservationSize > >(
+                arcwiseBiasSettings->arcStartTimes_, observationBiases,
+                observation_models::getLinkEndIndicesForLinkEndTypeAtObservable(
+                        observableType, arcwiseBiasSettings->linkEndForTime_, linkEnds.size( ) ).at( 0 ), arcwiseBiasSettings->referenceEpochs_ );
         break;
     }
     case multiple_observation_biases:
