@@ -76,7 +76,8 @@ public:
 
     //! Function to return the average radius of the polyhedron.
     /*!
-     *  Function to return the average radius of the polyhedron.
+     *  Function to return the average radius of the polyhedron. It takes the average radius from the high resolution
+     *  model.
      *  \return Average radius of the polyhedron.
      */
     double getAverageRadius( )

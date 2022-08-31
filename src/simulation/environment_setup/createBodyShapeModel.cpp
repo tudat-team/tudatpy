@@ -12,6 +12,7 @@
 #include "tudat/astro/basic_astro/sphericalBodyShapeModel.h"
 #include "tudat/astro/basic_astro/oblateSpheroidBodyShapeModel.h"
 #include "tudat/astro/basic_astro/polyhedronBodyShapeModel.h"
+#include "tudat/astro/basic_astro/hybridBodyShapeModel.h"
 #include "tudat/simulation/environment_setup/createBodyShapeModel.h"
 
 namespace tudat
@@ -91,6 +92,31 @@ std::shared_ptr< basic_astrodynamics::BodyShapeModel > createBodyShapeModel(
                         polyhedronShapeSettings->getVerticesDefiningEachFacet(),
                         polyhedronShapeSettings->getComputeAltitudeWithSign(),
                         polyhedronShapeSettings->getJustComputeDistanceToVertices() );
+        }
+        break;
+    }
+    case hybrid_shape:
+    {
+        // Check input consistency
+        std::shared_ptr< HybridBodyShapeSettings > hybridShapeSettings =
+                std::dynamic_pointer_cast< HybridBodyShapeSettings >( shapeSettings );
+        if( hybridShapeSettings == nullptr )
+        {
+           throw std::runtime_error( "Error, expected polyhedron shape settings for body " + body );
+        }
+        else
+        {
+            // Create low-resolution shape model
+            std::shared_ptr< BodyShapeModel > lowResolutionShapeModel = createBodyShapeModel(
+                    hybridShapeSettings->getLowResolutionBodyShapeSettings(), body);
+
+            // Create high-resolution shape model
+            std::shared_ptr< BodyShapeModel > highResolutionShapeModel = createBodyShapeModel(
+                    hybridShapeSettings->getHighResolutionBodyShapeSettings(), body);
+
+            // Creat hybrid shape model
+            shapeModel = std::make_shared< HybridBodyShapeModel >(
+                    lowResolutionShapeModel, highResolutionShapeModel, hybridShapeSettings->getSwitchoverAltitude() );
         }
         break;
     }
