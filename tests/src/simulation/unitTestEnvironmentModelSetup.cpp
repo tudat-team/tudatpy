@@ -1314,6 +1314,117 @@ BOOST_AUTO_TEST_CASE( test_shapeModelSetup )
                                     std::numeric_limits< double >::epsilon( ) );
     }
 
+    // Test polyhedron setup
+    {
+        // Define cuboid polyhedron
+        const double w = 10.0; // width
+        const double h = 10.0; // height
+        const double l = 20.0; // length
+
+        Eigen::MatrixXd verticesCoordinates(8,3);
+        Eigen::MatrixXi verticesDefiningEachFacet(12,3);
+        verticesCoordinates <<
+            0.0, 0.0, 0.0,
+            l, 0.0, 0.0,
+            0.0, w, 0.0,
+            l, w, 0.0,
+            0.0, 0.0, h,
+            l, 0.0, h,
+            0.0, w, h,
+            l, w, h;
+        verticesDefiningEachFacet <<
+            2, 1, 0,
+            1, 2, 3,
+            4, 2, 0,
+            2, 4, 6,
+            1, 4, 0,
+            4, 1, 5,
+            6, 5, 7,
+            5, 6, 4,
+            3, 6, 7,
+            6, 3, 2,
+            5, 3, 7,
+            3, 5, 1;
+
+        std::shared_ptr< BodyShapeSettings > shapeSettings = std::make_shared< PolyhedronBodyShapeSettings >(
+                verticesCoordinates, verticesDefiningEachFacet, false, false);
+        std::shared_ptr< BodyShapeModel > shapeModel = createBodyShapeModel( shapeSettings, "Earth" );
+
+        Eigen::Vector3d testCartesianPosition2;
+        testCartesianPosition2 << 10.0, 5.0, 10.5;
+        BOOST_CHECK_CLOSE_FRACTION( shapeModel->getAltitude( testCartesianPosition2 ), 0.5, 1e-15 );
+    }
+
+    // Test hybrid shape model setup
+    {
+        // Define switchover altitude
+        const double switchoverAltitude = 5.0;
+
+        // Define high- and low-resolution cuboid polyhedron (they just have different sizes)
+        const double wLowRes = 10.0; // width
+        const double hLowRes = 10.0; // height
+        const double lLowRes = 20.0; // length
+        Eigen::MatrixXd verticesCoordinatesLowResModel( 8, 3);
+        verticesCoordinatesLowResModel <<
+            0.0, 0.0, 0.0,
+            lLowRes, 0.0, 0.0,
+            0.0, wLowRes, 0.0,
+            lLowRes, wLowRes, 0.0,
+            0.0, 0.0, hLowRes,
+            lLowRes, 0.0, hLowRes,
+            0.0, wLowRes, hLowRes,
+            lLowRes, wLowRes, hLowRes;
+
+        const double wHighRes = 5.0; // width
+        const double hHighRes = 5.0; // height
+        const double lHighRes = 10.0; // length
+        Eigen::MatrixXd verticesCoordinatesHighResModel( 8, 3);
+        verticesCoordinatesHighResModel <<
+            0.0, 0.0, 0.0,
+            lHighRes, 0.0, 0.0,
+            0.0, wHighRes, 0.0,
+            lHighRes, wHighRes, 0.0,
+            0.0, 0.0, hHighRes,
+            lHighRes, 0.0, hHighRes,
+            0.0, wHighRes, hHighRes,
+            lHighRes, wHighRes, hHighRes;
+
+        Eigen::MatrixXi verticesDefiningEachFacet(12,3);
+        verticesDefiningEachFacet <<
+            2, 1, 0,
+            1, 2, 3,
+            4, 2, 0,
+            2, 4, 6,
+            1, 4, 0,
+            4, 1, 5,
+            6, 5, 7,
+            5, 6, 4,
+            3, 6, 7,
+            6, 3, 2,
+            5, 3, 7,
+            3, 5, 1;
+
+
+        std::shared_ptr< BodyShapeSettings > lowResolutionShapeSettings = std::make_shared< PolyhedronBodyShapeSettings >(
+                verticesCoordinatesLowResModel, verticesDefiningEachFacet, false, false );
+        std::shared_ptr< BodyShapeSettings > highResolutionShapeSettings = std::make_shared< PolyhedronBodyShapeSettings >(
+                verticesCoordinatesHighResModel, verticesDefiningEachFacet, false, false );
+
+        std::shared_ptr< BodyShapeSettings > shapeSettings = std::make_shared< HybridBodyShapeSettings >(
+                lowResolutionShapeSettings, highResolutionShapeSettings, switchoverAltitude);
+
+        std::shared_ptr< BodyShapeModel > shapeModel = createBodyShapeModel( shapeSettings, "Earth" );
+
+        // Point above switchover altitude: altitude computed wrt low-resolution shape model
+        Eigen::Vector3d testCartesianPosition2;
+        testCartesianPosition2 << 5.0, 2.5, 20.0;
+        BOOST_CHECK_CLOSE_FRACTION( shapeModel->getAltitude( testCartesianPosition2 ), 10.0, 1e-15 );
+
+        // Point below switchover altitude: altitude computed wrt high-resolution shape model
+        testCartesianPosition2 << 5.0, 2.5, 12.0;
+        BOOST_CHECK_CLOSE_FRACTION( shapeModel->getAltitude( testCartesianPosition2 ), 7.0, 1e-15 );
+    }
+
 }
 
 
