@@ -201,15 +201,15 @@ namespace gravity_field {
 
         // Triaxial ellipsoid: overload 2
         m.def("spherical_harmonic_triaxial_ellipsoid_from_gravitational_parameter",
-              py::overload_cast< const double, const double, const double, const double, const int, const int,
-                      const std::string& >(&tss::createHomogeneousTriAxialEllipsoidGravitySettings),
+              py::overload_cast< const double, const double, const double, const int, const int,
+                      const std::string&, const double >(&tss::createHomogeneousTriAxialEllipsoidGravitySettings),
               py::arg("axis_a"),
               py::arg("axis_b"),
               py::arg("axis_c"),
-              py::arg("gravitational_parameter"),
               py::arg("maximum_degree"),
               py::arg("maximum_order"),
               py::arg("associated_reference_frame"),
+              py::arg("gravitational_parameter"),
               get_docstring("spherical_harmonic_triaxial_ellipsoid_from_gravitational_parameter").c_str()
         );
     }
