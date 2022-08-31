@@ -25,6 +25,7 @@
 #include "tudat/astro/basic_astro/oblateSpheroidBodyShapeModel.h"
 #include "tudat/astro/basic_astro/sphericalBodyShapeModel.h"
 #include "tudat/astro/basic_astro/polyhedronBodyShapeModel.h"
+#include "tudat/astro/basic_astro/hybridBodyShapeModel.h"
 
 namespace tudat
 {
@@ -252,6 +253,83 @@ BOOST_AUTO_TEST_CASE( testPolyhedronShapeModel )
         BOOST_CHECK_CLOSE_FRACTION( shapeModel.getAltitude( testCartesianPosition ), std::sqrt(2), tolerance );
 
     }
+
+}
+
+BOOST_AUTO_TEST_CASE( testHybridShapeModel )
+{
+    using namespace tudat::basic_astrodynamics;
+
+    // Define tolerance
+    const double tolerance = 1e-15;
+
+    // Define switchover altitude between the two models
+    const double switchoverAltitude = 5;
+
+    // Define cuboid polyhedra. High- and low-resolution models are considered to both be cuboids,
+    // but with different sizes
+
+    const double wLowRes = 10.0; // width
+    const double hLowRes = 10.0; // height
+    const double lLowRes = 20.0; // length
+    Eigen::MatrixXd verticesCoordinatesLowResModel( 8, 3);
+    verticesCoordinatesLowResModel <<
+        0.0, 0.0, 0.0,
+        lLowRes, 0.0, 0.0,
+        0.0, wLowRes, 0.0,
+        lLowRes, wLowRes, 0.0,
+        0.0, 0.0, hLowRes,
+        lLowRes, 0.0, hLowRes,
+        0.0, wLowRes, hLowRes,
+        lLowRes, wLowRes, hLowRes;
+
+    const double wHighRes = 5.0; // width
+    const double hHighRes = 5.0; // height
+    const double lHighRes = 10.0; // length
+    Eigen::MatrixXd verticesCoordinatesHighResModel( 8, 3);
+    verticesCoordinatesHighResModel <<
+        0.0, 0.0, 0.0,
+        lHighRes, 0.0, 0.0,
+        0.0, wHighRes, 0.0,
+        lHighRes, wHighRes, 0.0,
+        0.0, 0.0, hHighRes,
+        lHighRes, 0.0, hHighRes,
+        0.0, wHighRes, hHighRes,
+        lHighRes, wHighRes, hHighRes;
+
+    Eigen::MatrixXi verticesDefiningEachFacet(12,3);
+    verticesDefiningEachFacet <<
+        2, 1, 0,
+        1, 2, 3,
+        4, 2, 0,
+        2, 4, 6,
+        1, 4, 0,
+        4, 1, 5,
+        6, 5, 7,
+        5, 6, 4,
+        3, 6, 7,
+        6, 3, 2,
+        5, 3, 7,
+        3, 5, 1;
+
+    std::shared_ptr< PolyhedronBodyShapeModel > highResShapeModel = std::make_shared< PolyhedronBodyShapeModel >(
+    verticesCoordinatesHighResModel, verticesDefiningEachFacet, false, false );
+
+    std::shared_ptr< PolyhedronBodyShapeModel > lowResShapeModel = std::make_shared< PolyhedronBodyShapeModel >(
+        verticesCoordinatesLowResModel, verticesDefiningEachFacet, false, false );
+
+    HybridBodyShapeModel shapeModel = HybridBodyShapeModel(
+            lowResShapeModel, highResShapeModel, switchoverAltitude);
+
+    Eigen::Vector3d testCartesianPosition;
+
+    // Point above switchover altitude: altitude computed wrt low-resolution shape model
+    testCartesianPosition << 5.0, 2.5, 20.0;
+    BOOST_CHECK_CLOSE_FRACTION( shapeModel.getAltitude( testCartesianPosition ), 10.0, tolerance );
+
+    // Point below switchover altitude: altitude computed wrt high-resolution shape model
+    testCartesianPosition << 5.0, 2.5, 12.0;
+    BOOST_CHECK_CLOSE_FRACTION( shapeModel.getAltitude( testCartesianPosition ), 7.0, tolerance );
 
 }
 
