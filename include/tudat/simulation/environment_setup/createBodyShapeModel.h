@@ -29,7 +29,8 @@ enum BodyShapeTypes
     spherical,
     spherical_spice,
     oblate_spheroid,
-    polyhedron_shape
+    polyhedron_shape,
+    hybrid_shape
 };
 
 //  Class for providing settings for body shape model.
@@ -183,6 +184,9 @@ public:
         justComputeDistanceToVertices_( justComputeDistanceToVertices )
     { }
 
+    //! Destructor
+    ~PolyhedronBodyShapeSettings( ){ }
+
     // Function to return the vertices coordinates.
     const Eigen::MatrixXd& getVerticesCoordinates( )
     { return verticesCoordinates_; }
@@ -233,6 +237,58 @@ private:
 
 };
 
+//  BodyShapeSettings derived class for defining settings of a hybrid shape model.
+class HybridBodyShapeSettings: public BodyShapeSettings
+{
+public:
+
+    /*! Constructor.
+     *
+     * Constructor. Settings to define a hybrid model, consisting of a low-resolution model which is used at high altitudes
+     * (above the switchover altitude) and a high-resolution model used at low altitudes (below the switchover altitude).
+     * Useful when the evaluation of the high-resolution model is computationally expensive (e.g. polyhedron model).
+     * @param lowResolutionBodyShapeSettings Body shape settings of the low-resolution model.
+     * @param highResolutionBodyShapeSettings Body shape settings of the high-resolution model.
+     * @param switchoverAltitude Altitude at which the model used to compute the altitude is changed.
+     */
+    HybridBodyShapeSettings(
+            const std::shared_ptr< BodyShapeSettings > lowResolutionBodyShapeSettings,
+            const std::shared_ptr< BodyShapeSettings > highResolutionBodyShapeSettings,
+            double switchoverAltitude):
+        BodyShapeSettings( hybrid_shape ),
+        lowResolutionBodyShapeSettings_( lowResolutionBodyShapeSettings ),
+        highResolutionBodyShapeSettings_( highResolutionBodyShapeSettings ),
+        switchoverAltitude_( switchoverAltitude )
+    { }
+
+    //! Destructor
+    ~HybridBodyShapeSettings( ){ }
+
+    // Function to return the body shape settings of the low-resolution model.
+    std::shared_ptr< BodyShapeSettings > getLowResolutionBodyShapeSettings ( )
+    { return lowResolutionBodyShapeSettings_; }
+
+    // Function to return the body shape settings of the high-resolution model.
+    std::shared_ptr< BodyShapeSettings > getHighResolutionBodyShapeSettings ( )
+    { return highResolutionBodyShapeSettings_; }
+
+    // Function to return the switchover altitude
+    double getSwitchoverAltitude ( )
+    { return switchoverAltitude_; }
+
+private:
+
+    // Settings of the model used to compute the altitude for altitudes higher than switchoverAltitude.
+    std::shared_ptr< BodyShapeSettings > lowResolutionBodyShapeSettings_;
+
+    // Settings of the model used to compute the altitude for altitudes lower than switchoverAltitude.
+    std::shared_ptr< BodyShapeSettings > highResolutionBodyShapeSettings_;
+
+    // Altitude at which the model used to compute the altitude is changed.
+    double switchoverAltitude_;
+
+};
+
 //  Function to create a body shape model.
 /* 
  *  Function to create a body shape model based on model-specific settings for the shape.
@@ -272,6 +328,15 @@ inline std::shared_ptr< BodyShapeSettings > polyhedronBodyShapeSettings(
 {
     return std::make_shared< PolyhedronBodyShapeSettings >( verticesCoordinates, verticesDefiningEachFacet,
                                                             computeAltitudeWithSign, justComputeDistanceToVertices);
+}
+
+inline std::shared_ptr< BodyShapeSettings > hybridBodyShapeSettings(
+        std::shared_ptr< BodyShapeSettings > lowResolutionBodyShapeSettings,
+        std::shared_ptr< BodyShapeSettings > highResolutionBodyShapeSettings,
+        double switchoverAltitude)
+{
+    return std::make_shared< HybridBodyShapeSettings >( lowResolutionBodyShapeSettings, highResolutionBodyShapeSettings,
+                                                        switchoverAltitude );
 }
 
 } // namespace simulation_setup
