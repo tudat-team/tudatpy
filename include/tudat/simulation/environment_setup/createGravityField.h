@@ -618,9 +618,10 @@ std::shared_ptr< SphericalHarmonicsGravityFieldSettings > createHomogeneousTriAx
  * \return Gravity field settings for a homogeneous triaxial ellipsoid of given properties.
  */
 std::shared_ptr< SphericalHarmonicsGravityFieldSettings > createHomogeneousTriAxialEllipsoidGravitySettings(
-        const double axisA, const double axisB, const double axisC, const double ellipsoidGravitationalParameter,
+        const double axisA, const double axisB, const double axisC,
         const int maximumDegree, const int maximumOrder,
-        const std::string& associatedReferenceFrame );
+        const std::string& associatedReferenceFrame,
+        const double ellipsoidGravitationalParameter );
 
 // Function to read a spherical harmonic gravity field file
 /*
