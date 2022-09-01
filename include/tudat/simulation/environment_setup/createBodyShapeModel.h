@@ -268,13 +268,26 @@ public:
     std::shared_ptr< BodyShapeSettings > getLowResolutionBodyShapeSettings ( )
     { return lowResolutionBodyShapeSettings_; }
 
+    // Function to reset the body shape settings of the low-resolution model.
+    void resetLowResolutionBodyShapeSettings ( std::shared_ptr< BodyShapeSettings > lowResolutionBodyShapeSettings )
+    { lowResolutionBodyShapeSettings_ = lowResolutionBodyShapeSettings; }
+
     // Function to return the body shape settings of the high-resolution model.
     std::shared_ptr< BodyShapeSettings > getHighResolutionBodyShapeSettings ( )
     { return highResolutionBodyShapeSettings_; }
 
+    // Function to reset the body shape settings of the high-resolution model.
+    void resetHighResolutionBodyShapeSettings ( std::shared_ptr< BodyShapeSettings > highResolutionBodyShapeSettings )
+    { highResolutionBodyShapeSettings_ = highResolutionBodyShapeSettings; }
+
     // Function to return the switchover altitude
     double getSwitchoverAltitude ( )
     { return switchoverAltitude_; }
+
+    // Function to reset the switchover altitude
+    void resetSwitchoverAltitude ( double switchoverAltitude )
+    { switchoverAltitude_ = switchoverAltitude; }
+
 
 private:
 
