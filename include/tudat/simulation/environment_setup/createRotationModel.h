@@ -48,7 +48,8 @@ enum RotationModelType
     aerodynamic_angle_based_rotation_model,
     pitch_trim_rotation_model,
     body_fixed_direction_based_rotation_model,
-    orbital_state_based_rotation_model
+    orbital_state_based_rotation_model,
+    custom_rotation_model
 };
 
 //Class for providing settings for rotation model.
@@ -611,6 +612,32 @@ public:
     std::function< double( const double ) > freeRotationAngleFunction_;
 };
 
+
+
+
+class CustomRotationModelSettings: public RotationModelSettings
+{
+public:
+
+    CustomRotationModelSettings(
+            const std::string& baseFrameOrientation,
+            const std::string& targetFrameOrientation,
+            const std::function< Eigen::Matrix3d( const double ) > customOrientationFunction,
+            const double finiteDifferenceTimeStep ):
+    RotationModelSettings( custom_rotation_model, baseFrameOrientation, targetFrameOrientation ),
+    customOrientationFunction_( customOrientationFunction ),
+    finiteDifferenceTimeStep_( finiteDifferenceTimeStep ){ }
+
+    ~CustomRotationModelSettings( ){ }
+
+    std::function< Eigen::Matrix3d( const double ) > customOrientationFunction_;
+
+    double finiteDifferenceTimeStep_;
+};
+
+
+
+
 std::function< Eigen::Matrix3d( const double ) > getRotationFunctionFromSatelliteBasedFrame(
         const ephemerides::SatelliteBasedFrames frameId,
         const SystemOfBodies& bodies,
@@ -954,6 +981,18 @@ inline std::shared_ptr< RotationModelSettings > constantRotationModelSettings(
     return std::make_shared< SimpleRotationModelSettings >(
                 originalFrame, targetFrame, Eigen::Quaterniond( initialOrientation ), 0.0, 0.0 );
 }
+
+//! @get_docstring(constantRotationModelSettings, 1)
+inline std::shared_ptr< RotationModelSettings > customRotationModelSettings(
+        const std::string& originalFrame,
+        const std::string& targetFrame,
+        const std::function< Eigen::Matrix3d( const double ) > customOrientationFunction,
+        const double finiteDifferenceTimeStep )
+{
+    return std::make_shared< CustomRotationModelSettings >(
+                originalFrame, targetFrame, customOrientationFunction, finiteDifferenceTimeStep );
+}
+
 
 //! @get_docstring(spiceRotationModelSettings)
 inline std::shared_ptr< RotationModelSettings > spiceRotationModelSettings(
