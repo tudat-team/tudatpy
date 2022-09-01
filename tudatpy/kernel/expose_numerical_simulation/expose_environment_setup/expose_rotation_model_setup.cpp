@@ -171,14 +171,25 @@ namespace rotation_model {
               );
 
 
-        m.def("constant",
+        m.def("constant_rotation_model",
               py::overload_cast<const std::string &, const std::string &, const Eigen::Matrix3d &>(
                       &tss::constantRotationModelSettings),
               py::arg("base_frame"),
               py::arg("target_frame"),
               py::arg("initial_orientation"),
-              get_docstring("constant").c_str()
+              get_docstring("constant_rotation_model").c_str()
         );
+
+        m.def("custom_rotation_model",
+              &tss::customRotationModelSettings,
+              py::arg("base_frame"),
+              py::arg("target_frame"),
+              py::arg("custom_rotation_matrix_function"),
+              py::arg("finite_difference_time_step"),
+              get_docstring("custom_rotation_model").c_str()
+        );
+
+
 
         m.def("mars_high_accuracy",
               &tss::getHighAccuracyMarsRotationModel,
