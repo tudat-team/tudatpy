@@ -134,10 +134,10 @@ namespace spice {
               py::arg("body_name"),
               get_docstring("convert_body_name_to_naif_id").c_str());
 
-        // kernel pool related
-        m.def("get_standard_kernels",
-              &tudat::spice_interface::getStandardSpiceKernels,
-              get_docstring("get_standard_kernels").c_str());
+//        // kernel pool related
+//        m.def("get_standard_kernels",
+//              &tudat::spice_interface::getStandardSpiceKernels,
+//              get_docstring("get_standard_kernels").c_str());
 
         m.def("load_standard_kernels",
               &tudat::spice_interface::loadStandardSpiceKernels,
