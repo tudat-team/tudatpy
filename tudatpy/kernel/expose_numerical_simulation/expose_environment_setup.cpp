@@ -181,7 +181,7 @@ namespace environment_setup {
               py::arg("engine_name"),
               py::arg("thrust_magnitude_settings"),
               py::arg("bodies"),
-              py::arg("body_fixed_thrust_direction") = Eigen::Vector3d::UnitX( ) );
+              py::arg("body_fixed_thrust_direction_function") );
 
 
         m.def("add_flight_conditions",
