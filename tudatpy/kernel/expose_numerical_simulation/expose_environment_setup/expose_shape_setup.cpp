@@ -56,6 +56,37 @@ namespace shape {
                               &tss::OblateSphericalBodyShapeSettings::resetFlattening,
                               get_docstring("OblateSphericalBodyShapeSettings.flattening").c_str());
 
+        py::class_<tss::PolyhedronBodyShapeSettings,
+                std::shared_ptr<tss::PolyhedronBodyShapeSettings>,
+                tss::BodyShapeSettings>(m, "PolyhedronBodyShapeSettings",
+                                        get_docstring("PolyhedronBodyShapeSettings").c_str())
+                .def_property("vertices_coordinates", &tss::PolyhedronBodyShapeSettings::getVerticesCoordinates,
+                              &tss::PolyhedronBodyShapeSettings::resetVerticesCoordinates,
+                              get_docstring("PolyhedronBodyShapeSettings.vertices_coordinates").c_str())
+                .def_property("vertices_defining_each_facet", &tss::PolyhedronBodyShapeSettings::getVerticesDefiningEachFacet,
+                              &tss::PolyhedronBodyShapeSettings::resetVerticesDefiningEachFacet,
+                              get_docstring("PolyhedronBodyShapeSettings.vertices_defining_each_facet").c_str())
+                .def_property("compute_altitude_with_sign", &tss::PolyhedronBodyShapeSettings::getComputeAltitudeWithSign,
+                              &tss::PolyhedronBodyShapeSettings::resetComputeAltitudeWithSign,
+                              get_docstring("PolyhedronBodyShapeSettings.compute_altitude_with_sign").c_str())
+                .def_property("just_compute_distance_to_vertices", &tss::PolyhedronBodyShapeSettings::getJustComputeDistanceToVertices,
+                              &tss::PolyhedronBodyShapeSettings::resetJustComputeDistanceToVertices,
+                              get_docstring("PolyhedronBodyShapeSettings.just_compute_distance_to_vertices").c_str());
+
+        py::class_<tss::HybridBodyShapeSettings,
+                std::shared_ptr<tss::HybridBodyShapeSettings>,
+                tss::BodyShapeSettings>(m, "HybridBodyShapeSettings",
+                                        get_docstring("HybridBodyShapeSettings").c_str())
+                .def_property("low_resolution_body_shape_settings", &tss::HybridBodyShapeSettings::getLowResolutionBodyShapeSettings,
+                              &tss::HybridBodyShapeSettings::resetLowResolutionBodyShapeSettings,
+                              get_docstring("HybridBodyShapeSettings.vertices_coordinates").c_str())
+                .def_property("high_resolution_body_shape_settings", &tss::HybridBodyShapeSettings::getHighResolutionBodyShapeSettings,
+                              &tss::HybridBodyShapeSettings::resetHighResolutionBodyShapeSettings,
+                              get_docstring("HybridBodyShapeSettings.vertices_defining_each_facet").c_str())
+                .def_property("switchover_altitude", &tss::HybridBodyShapeSettings::getSwitchoverAltitude,
+                              &tss::HybridBodyShapeSettings::resetSwitchoverAltitude,
+                              get_docstring("HybridBodyShapeSettings.compute_altitude_with_sign").c_str());
+
 
         m.def("spherical",
               &tss::sphericalBodyShapeSettings,
@@ -71,6 +102,21 @@ namespace shape {
               py::arg("equatorial_radius"),
               py::arg("flattening"),
               get_docstring("oblate_spherical").c_str());
+
+        m.def("polyhedron",
+              &tss::polyhedronBodyShapeSettings,
+              py::arg("vertices_coordinates"),
+              py::arg("vertices_defining_each_facet"),
+              py::arg("compute_altitude_with_sign") = true,
+              py::arg("just_compute_distance_to_vertices") = false,
+              get_docstring("polyhedron").c_str());
+
+        m.def("hybrid",
+              &tss::hybridBodyShapeSettings,
+              py::arg("low_resolution_body_shape_settings"),
+              py::arg("high_resolution_body_shape_settings"),
+              py::arg("switchover_altitude"),
+              get_docstring("hybrid").c_str());
 
     }
 
