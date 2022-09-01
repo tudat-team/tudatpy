@@ -25,6 +25,7 @@
 #endif
 
 #include "tudat/astro/ephemerides/synchronousRotationalEphemeris.h"
+#include "tudat/astro/ephemerides/customRotationalEphemeris.h"
 
 namespace tudat
 {
@@ -729,7 +730,7 @@ std::shared_ptr< ephemerides::RotationalEphemeris > createRotationModel(
         if( orbitalStateBasedRotationSettings == nullptr )
         {
             throw std::runtime_error(
-                        "Error, orbital state based rotation model settings for " + body );
+                        "Error, expected orbital state based rotation model settings for " + body );
         }
         else
         {
@@ -743,6 +744,32 @@ std::shared_ptr< ephemerides::RotationalEphemeris > createRotationModel(
                         orbitalStateBasedRotationSettings->isColinearWithVelocity_,
                         orbitalStateBasedRotationSettings->directionIsOppositeToVector_,
                         orbitalStateBasedRotationSettings->freeRotationAngleFunction_ );
+
+
+        }
+        break;
+    }
+    case custom_rotation_model:
+    {
+        // Check whether settings for simple rotation model are consistent with its type.
+        std::shared_ptr< CustomRotationModelSettings > customRotationSettings =
+                std::dynamic_pointer_cast< CustomRotationModelSettings >( rotationModelSettings );
+        if( customRotationSettings == nullptr )
+        {
+            throw std::runtime_error(
+                        "Error, expected custom rotation model settings for " + body );
+        }
+        else
+        {
+            std::function< Eigen::Quaterniond( const double ) > customOrientationFunction =
+                    [=](const double time){ return Eigen::Quaterniond(
+                            customRotationSettings->customOrientationFunction_( time ) ); };
+
+            rotationalEphemeris = std::make_shared< CustomRotationalEphemeris >(
+                        customOrientationFunction,
+                        customRotationSettings->getOriginalFrame( ),
+                        customRotationSettings->getTargetFrame( ),
+                        customRotationSettings->finiteDifferenceTimeStep_ );
 
 
         }

@@ -26,23 +26,38 @@ void addEngineModel(
         const simulation_setup::SystemOfBodies& bodies,
         const Eigen::Vector3d bodyFixedThrustDirection )
 {
-    std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > magnitudeUpdateSettings;
-    std::shared_ptr< propulsion::ThrustMagnitudeWrapper > thrustMagnitudeWrapper = createThrustMagnitudeWrapper(
-                thrustSettings,
-            bodies, bodyName, magnitudeUpdateSettings );
+    addVariableDirectionEngineModel( bodyName, engineName, thrustSettings, bodies,
+                                     [=](const double){return bodyFixedThrustDirection; } );
+}
 
 
-    std::shared_ptr< system_models::EngineModel > vehicleEngineModel =
-            std::make_shared< system_models::EngineModel >( thrustMagnitudeWrapper, engineName, [=](const double){return bodyFixedThrustDirection; } );
-
-    if( bodies.at( bodyName )->getVehicleSystems( ) == nullptr )
+void addVariableDirectionEngineModel(
+        const std::string& bodyName,
+        const std::string& engineName,
+        const std::shared_ptr< simulation_setup::ThrustMagnitudeSettings > thrustSettings,
+        const simulation_setup::SystemOfBodies& bodies,
+        const std::function< Eigen::Vector3d( const double ) > bodyFixedThrustDirection )
+{
     {
-        std::shared_ptr< system_models::VehicleSystems > vehicleSystems = std::make_shared<
-                system_models::VehicleSystems >(  );
-        bodies.at( bodyName )->setVehicleSystems( vehicleSystems );
-    }
-    bodies.at( bodyName )->getVehicleSystems( )->setEngineModel( vehicleEngineModel );
+        std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > magnitudeUpdateSettings;
+        std::shared_ptr< propulsion::ThrustMagnitudeWrapper > thrustMagnitudeWrapper = createThrustMagnitudeWrapper(
+                    thrustSettings,
+                    bodies, bodyName, magnitudeUpdateSettings );
 
+
+        std::shared_ptr< system_models::EngineModel > vehicleEngineModel =
+                std::make_shared< system_models::EngineModel >(
+                    thrustMagnitudeWrapper, engineName, bodyFixedThrustDirection);
+
+        if( bodies.at( bodyName )->getVehicleSystems( ) == nullptr )
+        {
+            std::shared_ptr< system_models::VehicleSystems > vehicleSystems = std::make_shared<
+                    system_models::VehicleSystems >(  );
+            bodies.at( bodyName )->setVehicleSystems( vehicleSystems );
+        }
+        bodies.at( bodyName )->getVehicleSystems( )->setEngineModel( vehicleEngineModel );
+
+    }
 }
 
 } // namespace simulation_setup
