@@ -145,8 +145,7 @@ namespace aerodynamic_coefficients {
               py::arg("reference_area"),
               py::arg("independent_variable_names"),
               py::arg("are_coefficients_in_aerodynamic_frame") = true,
-              py::arg("are_coefficients_in_negative_axis_direction") = true,
-              get_docstring("custom").c_str());
+              py::arg("are_coefficients_in_negative_axis_direction") = true );
 
         m.def("tabulated",
               py::overload_cast<
