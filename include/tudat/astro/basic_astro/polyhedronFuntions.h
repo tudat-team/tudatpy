@@ -30,8 +30,8 @@ namespace polyhedron_utilities
  * Checks if the provided polyhedron settings are valid. It verifies that the provided matrices with the vertices coordinates
  * and the vertices defining each facet have valid dimensions. Throws an error if invalid dimensions.
  *
- * @param verticesCoordinates Cartesian coordinates of each vertex (one row per vertex).
- * @param verticesDefiningEachFacet Index (0 based) of the vertices constituting each facet (one row per facet).
+ * @param verticesCoordinates Cartesian coordinates of each vertex (one row per vertex, 3 columns).
+ * @param verticesDefiningEachFacet Index (0 based) of the vertices constituting each facet (one row per facet, 3 columns).
  */
 void checkValidityOfPolyhedronSettings( const Eigen::MatrixXd& verticesCoordinates,
                                         const Eigen::MatrixXi& verticesDefiningEachFacet);
@@ -40,8 +40,8 @@ void checkValidityOfPolyhedronSettings( const Eigen::MatrixXd& verticesCoordinat
  *
  * Computes the surface area of a polyhedron, according to Dobrovolskis (1996), section 2.
  *
- * @param verticesCoordinates Cartesian coordinates of each vertex (one row per vertex).
- * @param verticesDefiningEachFacet Index (0 based) of the vertices constituting each facet (one row per facet).
+ * @param verticesCoordinates Cartesian coordinates of each vertex (one row per vertex, 3 columns).
+ * @param verticesDefiningEachFacet Index (0 based) of the vertices constituting each facet (one row per facet, 3 columns).
  * @return Volume.
  */
 double computeSurfaceArea ( const Eigen::MatrixXd& verticesCoordinates,
@@ -51,8 +51,8 @@ double computeSurfaceArea ( const Eigen::MatrixXd& verticesCoordinates,
  *
  * Computes the volume of a polyhedron, according to Dobrovolskis (1996), section 3.
  *
- * @param verticesCoordinates Cartesian coordinates of each vertex (one row per vertex).
- * @param verticesDefiningEachFacet Index (0 based) of the vertices constituting each facet (one row per facet).
+ * @param verticesCoordinates Cartesian coordinates of each vertex (one row per vertex, 3 columns).
+ * @param verticesDefiningEachFacet Index (0 based) of the vertices constituting each facet (one row per facet, 3 columns).
  * @return Volume.
  */
 double computeVolume ( const Eigen::MatrixXd& verticesCoordinates,
@@ -63,8 +63,8 @@ double computeVolume ( const Eigen::MatrixXd& verticesCoordinates,
  * Computes the volume of a polyhedron, according to Dobrovolskis (1996), section 4. When using the polyhedron as a
  * constant density gravity model, the centroid coincides with the center of mass.
  *
- * @param verticesCoordinates Cartesian coordinates of each vertex (one row per vertex).
- * @param verticesDefiningEachFacet Index (0 based) of the vertices constituting each facet (one row per facet).
+ * @param verticesCoordinates Cartesian coordinates of each vertex (one row per vertex, 3 columns).
+ * @param verticesDefiningEachFacet Index (0 based) of the vertices constituting each facet (one row per facet, 3 columns).
  * @return Position of centroid.
  */
 Eigen::Vector3d computeCentroidPosition (const Eigen::MatrixXd& verticesCoordinates,
@@ -76,8 +76,8 @@ Eigen::Vector3d computeCentroidPosition (const Eigen::MatrixXd& verticesCoordina
  * model, the centroid coincides with the center of mass; this function might be useful e.g. to ensure that the center
  * of mass coincides with the origin of some body fixed frame.
  *
- * @param verticesCoordinates Cartesian coordinates of each vertex (one row per vertex).
- * @param verticesDefiningEachFacet Index (0 based) of the vertices constituting each facet (one row per facet).
+ * @param verticesCoordinates Cartesian coordinates of each vertex (one row per vertex, 3 columns).
+ * @param verticesDefiningEachFacet Index (0 based) of the vertices constituting each facet (one row per facet, 3 columns).
  * @param desiredCentroid Desired position of the centroid wrt the frame in which the vertices were defined.
  * @return Corrected coordinates of vertices.
  */
@@ -90,8 +90,8 @@ Eigen::MatrixXd modifyCentroidPosition ( const Eigen::MatrixXd& verticesCoordina
  *
  * Computes the inertia tensor of a polyhedron, according to Dobrovolskis (1996), section 5.
  *
- * @param verticesCoordinates Cartesian coordinates of each vertex (one row per vertex).
- * @param verticesDefiningEachFacet Index (0 based) of the vertices constituting each facet (one row per facet).
+ * @param verticesCoordinates Cartesian coordinates of each vertex (one row per vertex, 3 columns).
+ * @param verticesDefiningEachFacet Index (0 based) of the vertices constituting each facet (one row per facet, 3 columns).
  * @param density Density of polyhedron
  * @return Inertia tensor.
  */
@@ -103,8 +103,8 @@ Eigen::Matrix3d computeInertiaTensor ( const Eigen::MatrixXd& verticesCoordinate
  *
  * Computes the inertia tensor of a polyhedron, according to Dobrovolskis (1996), section 5.
  *
- * @param verticesCoordinates Cartesian coordinates of each vertex (one row per vertex).
- * @param verticesDefiningEachFacet Index (0 based) of the vertices constituting each facet (one row per facet).
+ * @param verticesCoordinates Cartesian coordinates of each vertex (one row per vertex, 3 columns).
+ * @param verticesDefiningEachFacet Index (0 based) of the vertices constituting each facet (one row per facet, 3 columns).
  * @param gravitationalParameter Gravitational parameter of the polyhedron.
  * @param gravitationalConstant Gravitational constant
  * @return Inertia tensor.
