@@ -259,14 +259,16 @@ void expose_environment(py::module &m) {
             .export_values();
 
     py::class_<trf::AerodynamicAngleCalculator,
-            std::shared_ptr<trf::AerodynamicAngleCalculator>>(m, "AerodynamicAngleCalculator")
+            std::shared_ptr<trf::AerodynamicAngleCalculator>>(m, "AerodynamicAngleCalculator", get_docstring("AerodynamicAngleCalculator").c_str())
             .def("get_rotation_matrix_between_frames",
                  &trf::AerodynamicAngleCalculator::getRotationMatrixBetweenFrames,
                  py::arg("original_frame"),
-                 py::arg("target_frame"))
+                 py::arg("target_frame"),
+                 get_docstring("AerodynamicAngleCalculator.get_rotation_matrix_between_frames").c_str())
             .def("get_angle",
                  &trf::AerodynamicAngleCalculator::getAerodynamicAngle,
-                 py::arg("angle_type"))
+                 py::arg("angle_type"),
+                 get_docstring("AerodynamicAngleCalculator.get_angle").c_str())
             // Function removed; error is shown
             .def("set_body_orientation_angles",
                  &trf::AerodynamicAngleCalculator::setOrientationAngleFunctionsRemoved2,

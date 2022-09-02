@@ -173,7 +173,8 @@ namespace environment_setup {
               py::arg("engine_name"),
               py::arg("thrust_magnitude_settings"),
               py::arg("bodies"),
-              py::arg("body_fixed_thrust_direction") = Eigen::Vector3d::UnitX( ) );
+              py::arg("body_fixed_thrust_direction") = Eigen::Vector3d::UnitX( ),
+              get_docstring("add_engine_model").c_str());
 
         m.def("add_variable_direction_engine_model",
               &tss::addVariableDirectionEngineModel,
@@ -181,7 +182,8 @@ namespace environment_setup {
               py::arg("engine_name"),
               py::arg("thrust_magnitude_settings"),
               py::arg("bodies"),
-              py::arg("body_fixed_thrust_direction_function") );
+              py::arg("body_fixed_thrust_direction_function"),
+              get_docstring("add_variable_direction_engine_model").c_str());
 
 
         m.def("add_flight_conditions",
@@ -216,12 +218,6 @@ namespace environment_setup {
               py::arg( "target_body" ),
               py::arg( "station_name" ),
               py::arg( "times" ) );
-
-        m.def("add_flight_conditions",
-              &tss::addFlightConditions,
-              py::arg( "bodies" ),
-              py::arg( "body_name" ),
-              py::arg( "central_body_name" ) );
 
         auto aerodynamic_coefficient_setup = m.def_submodule("aerodynamic_coefficients");
         aerodynamic_coefficients::expose_aerodynamic_coefficient_setup(aerodynamic_coefficient_setup);
