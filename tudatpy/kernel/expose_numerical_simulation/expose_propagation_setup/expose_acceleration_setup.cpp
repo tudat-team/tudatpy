@@ -241,7 +241,8 @@ void expose_acceleration_setup(py::module &m) {
           get_docstring("empirical").c_str());
 
     m.def("custom",
-          &tss::customAccelerationSettingsDeprecated );
+          &tss::customAccelerationSettingsDeprecated,
+          py::arg( "acceleration_function" ) );
 
 
     m.def("custom_acceleration",

@@ -38,13 +38,13 @@ namespace thrust {
 
 void expose_thrust_setup(py::module &m) {
 
-    py::enum_<tss::ThrustMagnitudeTypes>(m, "ThrustMagnitudeTypes",
-                                         get_docstring("ThrustMagnitudeTypes").c_str())
+    py::enum_<tss::ThrustMagnitudeTypes>(m, "ThrustMagnitudeTypes" )
+//                                         get_docstring("ThrustMagnitudeTypes").c_str())
             .value("constant_thrust_magnitude", tss::ThrustMagnitudeTypes::constant_thrust_magnitude)
-            .value("from_engine_properties_thrust_magnitude", tss::ThrustMagnitudeTypes::from_engine_properties_thrust_magnitude)
+//            .value("from_engine_properties_thrust_magnitude", tss::ThrustMagnitudeTypes::from_engine_properties_thrust_magnitude)
             .value("thrust_magnitude_from_time_function", tss::ThrustMagnitudeTypes::thrust_magnitude_from_time_function)
-            .value("thrust_magnitude_from_dependent_variables", tss::ThrustMagnitudeTypes::thrust_magnitude_from_dependent_variables)
-            .value("bang_bang_thrust_magnitude_from_mee_costates", tss::ThrustMagnitudeTypes::bang_bang_thrust_magnitude_from_mee_costates);
+            .value("thrust_magnitude_from_dependent_variables", tss::ThrustMagnitudeTypes::thrust_magnitude_from_dependent_variables);
+//            .value("bang_bang_thrust_magnitude_from_mee_costates", tss::ThrustMagnitudeTypes::bang_bang_thrust_magnitude_from_mee_costates);
 
     py::class_<
             tss::ThrustMagnitudeSettings,
@@ -71,8 +71,8 @@ void expose_thrust_setup(py::module &m) {
           &tss::getPropulsionInputVariables,
           py::arg("body_with_guidance") = std::shared_ptr<tss::Body>(),
           py::arg("independent_variables") = std::vector<tudat::propulsion::ThrustIndependentVariables>(),
-          py::arg("guidance_input_functions") = std::vector<std::function<double()>>(),
-          get_docstring("get_propulsion_input_variables").c_str());
+          py::arg("guidance_input_functions") = std::vector<std::function<double()>>() );//,
+//          get_docstring("get_propulsion_input_variables").c_str());
 
 
     // Thrust orientation factory functions
@@ -84,19 +84,24 @@ void expose_thrust_setup(py::module &m) {
 
     m.def("custom_thrust_magnitude", &tss::fromFunctionThrustMagnitudeSettings,
           py::arg("thrust_magnitude_function"),
-          py::arg("specific_impulse_function") );
+          py::arg("specific_impulse_function"),
+          get_docstring("custom_thrust_magnitude").c_str());
 
     m.def("custom_thrust_magnitude_fixed_isp", &tss::fromFunctionThrustMagnitudeFixedIspSettings,
           py::arg("thrust_magnitude_function"),
-          py::arg("specific_impulse") );
+          py::arg("specific_impulse"),
+          get_docstring("custom_thrust_magnitude_fixed_isp").c_str());
+
 
     m.def("custom_thrust_acceleration_magnitude", &tss::customThrustAccelerationMagnitudeSettings,
           py::arg("thrust_acceleration_magnitude_function"),
-          py::arg("specific_impulse_function") );
+          py::arg("specific_impulse_function"),
+          get_docstring("custom_thrust_acceleration_magnitude").c_str());
 
     m.def("custom_thrust_acceleration_magnitude_fixed_isp", &tss::customThrustAccelerationMagnitudeFixedIspSettings,
           py::arg("thrust_acceleration_magnitude_function"),
-          py::arg("specific_impulse") );
+          py::arg("specific_impulse"),
+          get_docstring("custom_thrust_acceleration_magnitude_fixed_isp").c_str());
 
 
 
@@ -115,8 +120,8 @@ void expose_thrust_setup(py::module &m) {
             .value("mee_costate_based_thrust_direction_type", tss::ThrustDirectionTypes::mee_costate_based_thrust_direction);
 
 
-    py::enum_<tss::ThrustFrames>(m, "ThrustFrames",
-                                 get_docstring("ThrustFrames").c_str())
+    py::enum_<tss::ThrustFrames>(m, "ThrustFrames" )
+//                                 get_docstring("ThrustFrames").c_str())
             .value("unspecified_thrust_frame_type", tss::ThrustFrames::unspecified_thrust_frame)
             .value("inertial_thrust_frame_type", tss::ThrustFrames::inertial_thrust_frame)
             .value("tnw_thrust_frame_type", tss::ThrustFrames::tnw_thrust_frame)
@@ -157,21 +162,17 @@ void expose_thrust_setup(py::module &m) {
         m.def("thrust_direction_from_state_guidance", &tss::thrustDirectionFromStateGuidanceSettings,
               py::arg( "central_body"),
               py::arg("is_colinear_with_velocity"),
-              py::arg("direction_is_opposite_to_vector"),
-              get_docstring("thrust_direction_from_state_guidance").c_str());
+              py::arg("direction_is_opposite_to_vector") );
 
-        m.def("thrust_from_existing_body_orientation", &tss::thrustFromExistingBodyOrientation,
-              get_docstring("thrust_from_existing_body_orientation").c_str());
+        m.def("thrust_from_existing_body_orientation", &tss::thrustFromExistingBodyOrientation );
 
         m.def("custom_thrust_orientation",
               py::overload_cast< std::function< Eigen::Matrix3d( const double ) > >(
                       &tss::customThrustOrientationSettings ),
-              py::arg( "thrust_orientation_function" ),
-              get_docstring("custom_thrust_orientation").c_str());
+              py::arg( "thrust_orientation_function" ) );
 
         m.def("custom_thrust_direction", &tss::customThrustDirectionSettings,
-              py::arg( "thrust_direction_function" ),
-              get_docstring("custom_thrust_direction").c_str());
+              py::arg( "thrust_direction_function" ) );
 
 
 
