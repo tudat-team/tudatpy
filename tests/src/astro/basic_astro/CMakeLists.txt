@@ -141,8 +141,8 @@ TUDAT_ADD_TEST_CASE(BodyShapeModels
 #        ${Tudat_PROPAGATION_LIBRARIES}
 #        )
 
-TUDAT_ADD_TEST_CASE(PolyhedronFunctions
-        PRIVATE_LINKS
-        tudat_basic_astrodynamics
-        )
+#TUDAT_ADD_TEST_CASE(PolyhedronFunctions
+#        PRIVATE_LINKS
+#        tudat_basic_astrodynamics
+#        )
 
