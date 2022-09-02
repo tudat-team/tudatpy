@@ -9,6 +9,7 @@
  */
 
 #include "tudat/astro/orbit_determination/acceleration_partials/polyhedronAccelerationPartial.h"
+#include "tudat/math/basic/polyhedron.h"
 
 namespace tudat
 {
@@ -61,7 +62,7 @@ void PolyhedronGravityPartial::update( const double currentTime )
         bodyFixedSphericalPosition_( 1 ) = mathematical_constants::PI / 2.0 - bodyFixedSphericalPosition_( 1 );
 
         // Calculate partial of acceleration wrt position of body undergoing acceleration.
-        currentBodyFixedPartialWrtPosition_ = gravitation::calculatePolyhedronHessianOfGravitationalPotential(
+        currentBodyFixedPartialWrtPosition_ = basic_mathematics::calculatePolyhedronHessianOfGravitationalPotential(
                 gravitationalParameterFunction_() / volumeFunction_(),
                 facetDyads_, edgeDyads_,
                 polyhedronCache_->getPerFacetFactor(),

@@ -21,6 +21,7 @@
 
 #include "tudat/astro/basic_astro/accelerationModel.h"
 #include "tudat/astro/gravitation/polyhedronGravityField.h"
+#include "tudat/math/basic/polyhedron.h"
 
 namespace tudat
 {
@@ -167,7 +168,7 @@ public:
 
             polyhedronCache_->update( currentRelativePosition_ );
 
-            currentAccelerationInBodyFixedFrame_ = calculatePolyhedronGradientOfGravitationalPotential(
+            currentAccelerationInBodyFixedFrame_ = basic_mathematics::calculatePolyhedronGradientOfGravitationalPotential(
                     gravitationalParameterFunction_() / volumeFunction_(),
                     polyhedronCache_->getVerticesCoordinatesRelativeToFieldPoint(),
                     getVerticesDefiningEachFacet_(),

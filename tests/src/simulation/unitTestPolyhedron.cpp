@@ -23,6 +23,7 @@
 #include "tudat/simulation/environment_setup/createBodies.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
 #include "tudat/astro/gravitation/polyhedronGravityField.h"
+#include "tudat/math/basic/polyhedron.h"
 
 namespace tudat
 {
@@ -31,6 +32,7 @@ namespace unit_tests
 
 using namespace simulation_setup;
 using namespace basic_astrodynamics;
+using namespace basic_mathematics;
 using namespace input_output;
 using namespace reference_frames;
 using namespace gravitation;
@@ -218,27 +220,27 @@ BOOST_AUTO_TEST_CASE( test_polyhedron_set_up )
         }
         std::cout << std::endl << "###### Point " << positionId << std::endl;
 
-        gravitation::calculatePolyhedronVerticesCoordinatesRelativeToFieldPoint(
+        basic_mathematics::calculatePolyhedronVerticesCoordinatesRelativeToFieldPoint(
                 verticesCoordinatesRelativeToFieldPoint, bodyFixedPosition, verticesCoordinates);
 
         Eigen::VectorXd perFacetFactor;
-        gravitation::calculatePolyhedronPerFacetFactor(
+        basic_mathematics::calculatePolyhedronPerFacetFactor(
                 perFacetFactor, verticesCoordinatesRelativeToFieldPoint, verticesDefiningEachFacet);
 
         Eigen::VectorXd perEdgeFactor;
-        gravitation::calculatePolyhedronPerEdgeFactor(
+        basic_mathematics::calculatePolyhedronPerEdgeFactor(
                 perEdgeFactor, verticesCoordinatesRelativeToFieldPoint, verticesDefiningEachEdge);
 
-        double laplacian = gravitation::calculatePolyhedronLaplacianOfGravitationalPotential(
+        double laplacian = basic_mathematics::calculatePolyhedronLaplacianOfGravitationalPotential(
                 gravitySettings.getGravitationalParameter() / gravitySettings.getVolume(), perFacetFactor);
         std::cout << "Laplace equation: " << - laplacian / gravitationalConstant / density / M_PI << " pi" << std::endl;
 
-        double potential = gravitation::calculatePolyhedronGravitationalPotential(
+        double potential = basic_mathematics::calculatePolyhedronGravitationalPotential(
                 gravitySettings.getGravitationalParameter() / gravitySettings.getVolume(), verticesCoordinatesRelativeToFieldPoint, verticesDefiningEachFacet,
                 verticesDefiningEachEdge, facetDyads, edgeDyads, perFacetFactor, perEdgeFactor);
         std::cout << "Potential: " << potential << std::endl;
 
-        Eigen::Vector3d acceleration = gravitation::calculatePolyhedronGradientOfGravitationalPotential(
+        Eigen::Vector3d acceleration = basic_mathematics::calculatePolyhedronGradientOfGravitationalPotential(
                 gravitySettings.getGravitationalParameter() / gravitySettings.getVolume(), verticesCoordinatesRelativeToFieldPoint, verticesDefiningEachFacet,
                 verticesDefiningEachEdge, facetDyads, edgeDyads, perFacetFactor, perEdgeFactor);
         std::cout << "Acceleration: " << acceleration.transpose() << std::endl;
@@ -251,7 +253,7 @@ BOOST_AUTO_TEST_CASE( test_polyhedron_set_up )
                 1.87140408935899E-07, -5.01781942367494E-07, 8.58712984897779E-08,
                 3.51261972418670E-07, 8.58712984897779E-08, -5.77398275537941E-07;
 
-            Eigen::Matrix3d hessian = gravitation::calculatePolyhedronHessianOfGravitationalPotential(
+            Eigen::Matrix3d hessian = basic_mathematics::calculatePolyhedronHessianOfGravitationalPotential(
                 gravitySettings.getGravitationalParameter() / gravitySettings.getVolume(), facetDyads, edgeDyads, perFacetFactor, perEdgeFactor);
             std::cout << "Hessian:\n " << std::setprecision(17) << hessian << std::endl;
             std::cout << "Hessian Durso:\n " << std::setprecision(15) << hessian_durso << std::endl;

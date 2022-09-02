@@ -10,41 +10,18 @@
  */
 
 #include "tudat/astro/basic_astro/polyhedronFuntions.h"
+#include "tudat/math/basic/polyhedron.h"
 
 namespace tudat
 {
-namespace polyhedron_utilities
+namespace basic_astrodynamics
 {
-
-void checkValidityOfPolyhedronSettings( const Eigen::MatrixXd& verticesCoordinates,
-                                        const Eigen::MatrixXi& verticesDefiningEachFacet )
-{
-    const unsigned int numberOfFacets = verticesDefiningEachFacet.rows();
-    const unsigned int numberOfVertices = verticesCoordinates.rows();
-
-    if ( numberOfFacets != 2 * ( numberOfVertices - 2) )
-    {
-        throw std::runtime_error( "Error when processing polyhedron: number of facets (" + std::to_string( numberOfFacets ) +
-            ") and vertices (" + std::to_string( numberOfVertices ) + ") are not consistent." );
-    }
-    else if ( verticesCoordinates.cols() != 3 )
-    {
-        throw std::runtime_error( "Error when processing polyhedron: table with vertices coordinates has invalid "
-                                  "number of columns (" + std::to_string( verticesCoordinates.cols() ) + ")." );
-    }
-    else if ( verticesDefiningEachFacet.cols() != 3 )
-    {
-        throw std::runtime_error( "Error when processing polyhedron: table with vertices defining each facet has invalid "
-                                  "number of columns (" + std::to_string( verticesCoordinates.cols() ) + ")." );
-    }
-
-}
 
 double computeSurfaceArea ( const Eigen::MatrixXd& verticesCoordinates,
                             const Eigen::MatrixXi& verticesDefiningEachFacet )
 {
     // Check if inputs are valid
-    checkValidityOfPolyhedronSettings ( verticesCoordinates, verticesDefiningEachFacet );
+    basic_mathematics::checkValidityOfPolyhedronSettings ( verticesCoordinates, verticesDefiningEachFacet );
 
     const unsigned int numberOfFacets = verticesDefiningEachFacet.rows();
 
@@ -70,7 +47,7 @@ double computeVolume ( const Eigen::MatrixXd& verticesCoordinates,
                       const Eigen::MatrixXi& verticesDefiningEachFacet )
 {
     // Check if inputs are valid
-    checkValidityOfPolyhedronSettings ( verticesCoordinates, verticesDefiningEachFacet );
+    basic_mathematics::checkValidityOfPolyhedronSettings ( verticesCoordinates, verticesDefiningEachFacet );
 
     const unsigned int numberOfFacets = verticesDefiningEachFacet.rows();
 
@@ -94,7 +71,7 @@ Eigen::Vector3d computeCentroidPosition ( const Eigen::MatrixXd& verticesCoordin
                                           const Eigen::MatrixXi& verticesDefiningEachFacet )
 {
     // Check if inputs are valid
-    checkValidityOfPolyhedronSettings ( verticesCoordinates, verticesDefiningEachFacet );
+    basic_mathematics::checkValidityOfPolyhedronSettings ( verticesCoordinates, verticesDefiningEachFacet );
 
     const unsigned int numberOfFacets = verticesDefiningEachFacet.rows();
 
@@ -146,7 +123,7 @@ Eigen::Matrix3d computeInertiaTensor ( const Eigen::MatrixXd& verticesCoordinate
                                        const double density )
 {
     // Check if inputs are valid
-    checkValidityOfPolyhedronSettings ( verticesCoordinates, verticesDefiningEachFacet );
+    basic_mathematics::checkValidityOfPolyhedronSettings ( verticesCoordinates, verticesDefiningEachFacet );
 
     const unsigned int numberOfFacets = verticesDefiningEachFacet.rows();
 
@@ -204,5 +181,5 @@ Eigen::Matrix3d computeInertiaTensor ( const Eigen::MatrixXd& verticesCoordinate
     return computeInertiaTensor(verticesCoordinates, verticesDefiningEachFacet, density);
 }
 
-} // namespace polyhedron_utilities
+} // namespace basic_astrodynamics
 } // namespace tudat

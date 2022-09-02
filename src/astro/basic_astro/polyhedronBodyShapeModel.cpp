@@ -115,28 +115,28 @@ double PolyhedronBodyShapeModel::getAltitude( const Eigen::Vector3d& bodyFixedPo
     }
 
     // Select the altitude sign if necessary
-//    if ( computeAltitudeWithSign_ )
-//    {
-//        // Compute coordinates of vertices with respect to field point
-//        Eigen::MatrixXd verticesCoordinatesRelativeToFieldPoint;
-//        gravitation::calculatePolyhedronVerticesCoordinatesRelativeToFieldPoint(
-//                verticesCoordinatesRelativeToFieldPoint, bodyFixedPosition, verticesCoordinates_);
-//
-//        // Compute per-facet factor
-//        Eigen::VectorXd perFacetFactor;
-//        gravitation::calculatePolyhedronPerFacetFactor(
-//                perFacetFactor, verticesCoordinatesRelativeToFieldPoint, verticesDefiningEachFacet_);
-//
-//        // Compute Laplacian
-//        double perFacetFactorsSum = - gravitation::calculatePolyhedronLaplacianOfGravitationalPotential(
-//                1.0, perFacetFactor);
-//
-//        // If point inside the polyhedron, altitude should be negative
-//        if ( perFacetFactorsSum > 2.0 * mathematical_constants::PI )
-//        {
-//            altitude = - altitude;
-//        }
-//    }
+    if ( computeAltitudeWithSign_ )
+    {
+        // Compute coordinates of vertices with respect to field point
+        Eigen::MatrixXd verticesCoordinatesRelativeToFieldPoint;
+        basic_mathematics::calculatePolyhedronVerticesCoordinatesRelativeToFieldPoint(
+                verticesCoordinatesRelativeToFieldPoint, bodyFixedPosition, verticesCoordinates_);
+
+        // Compute per-facet factor
+        Eigen::VectorXd perFacetFactor;
+        basic_mathematics::calculatePolyhedronPerFacetFactor(
+                perFacetFactor, verticesCoordinatesRelativeToFieldPoint, verticesDefiningEachFacet_);
+
+        // Compute Laplacian
+        double perFacetFactorsSum = - basic_mathematics::calculatePolyhedronLaplacianOfGravitationalPotential(
+                1.0, perFacetFactor);
+
+        // If point inside the polyhedron, altitude should be negative
+        if ( perFacetFactorsSum > 2.0 * mathematical_constants::PI )
+        {
+            altitude = - altitude;
+        }
+    }
 
     return altitude;
 }
