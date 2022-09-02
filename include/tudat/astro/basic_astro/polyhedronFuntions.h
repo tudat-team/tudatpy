@@ -22,19 +22,8 @@
 
 namespace tudat
 {
-namespace polyhedron_utilities
+namespace basic_astrodynamics
 {
-
-/*! Checks if the provided polyhedron settings are valid.
- *
- * Checks if the provided polyhedron settings are valid. It verifies that the provided matrices with the vertices coordinates
- * and the vertices defining each facet have valid dimensions. Throws an error if invalid dimensions.
- *
- * @param verticesCoordinates Cartesian coordinates of each vertex (one row per vertex, 3 columns).
- * @param verticesDefiningEachFacet Index (0 based) of the vertices constituting each facet (one row per facet, 3 columns).
- */
-void checkValidityOfPolyhedronSettings( const Eigen::MatrixXd& verticesCoordinates,
-                                        const Eigen::MatrixXi& verticesDefiningEachFacet);
 
 /*! Computes the surface area of a polyhedron.
  *
@@ -114,7 +103,7 @@ Eigen::Matrix3d computeInertiaTensor ( const Eigen::MatrixXd& verticesCoordinate
                                        const double gravitationalParameter,
                                        const double gravitationalConstant );
 
-} // namespace polyhedron_utilities
+} // namespace basic_astrodynamics
 } // namespace tudat
 
 #endif //TUDATBUNDLE_POLYHEDRONFUNTIONS_H

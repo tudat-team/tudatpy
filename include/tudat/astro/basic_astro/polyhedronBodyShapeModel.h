@@ -19,6 +19,7 @@
 #include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/astro/basic_astro/bodyShapeModel.h"
 #include "tudat/astro/basic_astro/polyhedronFuntions.h"
+#include "tudat/math/basic/polyhedron.h"
 #include <iostream>
 
 namespace tudat
@@ -55,7 +56,7 @@ public:
         averageRadius_( TUDAT_NAN )
     {
         // Check if provided settings are valid
-        polyhedron_utilities::checkValidityOfPolyhedronSettings( verticesCoordinates, verticesDefiningEachFacet );
+        basic_mathematics::checkValidityOfPolyhedronSettings( verticesCoordinates, verticesDefiningEachFacet );
 
         // If necessary, get list with vertices defining each edge
         if ( !justComputeDistanceToVertices_ )
