@@ -156,7 +156,7 @@ namespace rotation_model {
               py::arg("base_frame"),
               py::arg("target_frame"),
               py::arg("free_rotation_angle_function") = nullptr,
-              get_docstring("body_fixed_direction_based").c_str()
+              get_docstring("custom_inertial_direction_based").c_str()
         );
 
         m.def("orbital_state_direction_based",
@@ -167,7 +167,7 @@ namespace rotation_model {
               py::arg("base_frame"),
               py::arg("target_frame") = "",
               py::arg("free_rotation_angle_function") = nullptr,
-              get_docstring("orbital_state_based").c_str()
+              get_docstring("orbital_state_direction_based").c_str()
               );
 
 
