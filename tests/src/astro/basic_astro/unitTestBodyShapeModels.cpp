@@ -199,30 +199,30 @@ BOOST_AUTO_TEST_CASE( testPolyhedronShapeModel )
     }
 
     // Test computation of altitude wrt to vertices, with sign
-//    {
-//        PolyhedronBodyShapeModel shapeModel = PolyhedronBodyShapeModel (
-//            verticesCoordinates, verticesDefiningEachFacet, true, true );
-//
-//        Eigen::Vector3d testCartesianPosition;
-//
-//        testCartesianPosition << 0.0, 0.0, 0.0;
-//        BOOST_CHECK_CLOSE_FRACTION( shapeModel.getAltitude( testCartesianPosition ), 0.0, tolerance );
-//
-//        testCartesianPosition << 20.0, 10.0, 0.0;
-//        BOOST_CHECK_CLOSE_FRACTION( shapeModel.getAltitude( testCartesianPosition ), 0.0, tolerance );
-//
-//        testCartesianPosition << 10.0, 0.0, 5.0;
-//        BOOST_CHECK_CLOSE_FRACTION( shapeModel.getAltitude( testCartesianPosition ), std::sqrt(100 + 25), tolerance );
-//
-//        testCartesianPosition << 10.0, 0.0, 0.0;
-//        BOOST_CHECK_CLOSE_FRACTION( shapeModel.getAltitude( testCartesianPosition ), 10.0, tolerance );
-//
-//        testCartesianPosition << 10.0, 5.0, 5.0;
-//        BOOST_CHECK_CLOSE_FRACTION( shapeModel.getAltitude( testCartesianPosition ), -std::sqrt(100 + 25 + 25), tolerance );
-//
-//        testCartesianPosition << 10.0, 5.0, 20.0;
-//        BOOST_CHECK_CLOSE_FRACTION( shapeModel.getAltitude( testCartesianPosition ), std::sqrt(100 + 25 + 100), tolerance );
-//    }
+    {
+        PolyhedronBodyShapeModel shapeModel = PolyhedronBodyShapeModel (
+            verticesCoordinates, verticesDefiningEachFacet, true, true );
+
+        Eigen::Vector3d testCartesianPosition;
+
+        testCartesianPosition << 0.0, 0.0, 0.0;
+        BOOST_CHECK_CLOSE_FRACTION( shapeModel.getAltitude( testCartesianPosition ), 0.0, tolerance );
+
+        testCartesianPosition << 20.0, 10.0, 0.0;
+        BOOST_CHECK_CLOSE_FRACTION( shapeModel.getAltitude( testCartesianPosition ), 0.0, tolerance );
+
+        testCartesianPosition << 10.0, 0.0, 5.0;
+        BOOST_CHECK_CLOSE_FRACTION( shapeModel.getAltitude( testCartesianPosition ), std::sqrt(100 + 25), tolerance );
+
+        testCartesianPosition << 10.0, 0.0, 0.0;
+        BOOST_CHECK_CLOSE_FRACTION( shapeModel.getAltitude( testCartesianPosition ), 10.0, tolerance );
+
+        testCartesianPosition << 10.0, 5.0, 5.0;
+        BOOST_CHECK_CLOSE_FRACTION( shapeModel.getAltitude( testCartesianPosition ), -std::sqrt(100 + 25 + 25), tolerance );
+
+        testCartesianPosition << 10.0, 5.0, 20.0;
+        BOOST_CHECK_CLOSE_FRACTION( shapeModel.getAltitude( testCartesianPosition ), std::sqrt(100 + 25 + 100), tolerance );
+    }
 
     // Test computation of altitude wrt to all polyhedron features, without sign
     {
@@ -239,6 +239,39 @@ BOOST_AUTO_TEST_CASE( testPolyhedronShapeModel )
 
         testCartesianPosition << 10.0, 5.0, 9.5;
         BOOST_CHECK_CLOSE_FRACTION( shapeModel.getAltitude( testCartesianPosition ), 0.5, tolerance );
+
+        testCartesianPosition << 10.0, 0.0, 10.0;
+        BOOST_CHECK_CLOSE_FRACTION( shapeModel.getAltitude( testCartesianPosition ), 0.0, tolerance );
+
+        testCartesianPosition << 0.0, -1.0, 11.0;
+        BOOST_CHECK_CLOSE_FRACTION( shapeModel.getAltitude( testCartesianPosition ), std::sqrt(2), tolerance );
+
+        testCartesianPosition << 20.0, 10.0, 10.0;
+        BOOST_CHECK_CLOSE_FRACTION( shapeModel.getAltitude( testCartesianPosition ), 0.0, tolerance );
+
+        testCartesianPosition << 10.0, -1.0, 11.0;
+        BOOST_CHECK_CLOSE_FRACTION( shapeModel.getAltitude( testCartesianPosition ), std::sqrt(2), tolerance );
+
+    }
+
+    // Test computation of altitude wrt to all polyhedron features, with sign
+    {
+        PolyhedronBodyShapeModel shapeModel = PolyhedronBodyShapeModel (
+            verticesCoordinates, verticesDefiningEachFacet, true, false );
+
+        Eigen::Vector3d testCartesianPosition;
+
+        testCartesianPosition << 10.0, 5.0, 10.0;
+        BOOST_CHECK_CLOSE_FRACTION( shapeModel.getAltitude( testCartesianPosition ), 0.0, tolerance );
+
+        testCartesianPosition << 10.0, 5.0, 10.5;
+        BOOST_CHECK_CLOSE_FRACTION( shapeModel.getAltitude( testCartesianPosition ), 0.5, tolerance );
+
+        testCartesianPosition << 10.0, 5.0, 9.5;
+        BOOST_CHECK_CLOSE_FRACTION( shapeModel.getAltitude( testCartesianPosition ), -0.5, tolerance );
+
+        testCartesianPosition << 10.0, 5.0, 10.0 - 1e-5;
+        BOOST_CHECK_CLOSE_FRACTION( shapeModel.getAltitude( testCartesianPosition ) + 1.0, -1e-5 + 1.0, tolerance );
 
         testCartesianPosition << 10.0, 0.0, 10.0;
         BOOST_CHECK_CLOSE_FRACTION( shapeModel.getAltitude( testCartesianPosition ), 0.0, tolerance );
