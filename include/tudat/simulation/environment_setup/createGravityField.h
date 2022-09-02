@@ -294,104 +294,92 @@ public:
     // Constructor.
     /*
      *  Constructor.
-     *  \param gravitationalConstant Gravitational constant of gravity field.
+     *  \param gravitationalConstant Gravitational constant of the gravity field.
      *  \param density Density of polyhedron.
-     *  \param verticesCoordinates Cartesian coordinates of each vertex.
-     *  \param verticesDefiningEachFacet Index (0-based indexing!) of the vertices constituting each facet.
+     *  \param verticesCoordinates Cartesian coordinates of each vertex (one row per vertex, 3 columns).
+     *  \param verticesDefiningEachFacet Index (0 based) of the vertices constituting each facet (one row per facet, 3 columns).
      *  \param associatedReferenceFrame Identifier for body-fixed reference frame to which the polyhedron is referred.
      */
     PolyhedronGravityFieldSettings( const double gravitationalConstant,
                                     const double density,
                                     const Eigen::MatrixXd& verticesCoordinates,
                                     const Eigen::MatrixXi& verticesDefiningEachFacet,
-                                    const std::string& associatedReferenceFrame,
-                                    const Eigen::Vector3d desiredCenterOfMassPosition =
-                                        (Eigen::Vector3d() << TUDAT_NAN, TUDAT_NAN, TUDAT_NAN).finished() );
+                                    const std::string& associatedReferenceFrame):
+        GravityFieldSettings( polyhedron ),
+        verticesCoordinates_( verticesCoordinates ),
+        verticesDefiningEachFacet_( verticesDefiningEachFacet ),
+        associatedReferenceFrame_( associatedReferenceFrame )
+    {
+        volume_ = basic_astrodynamics::computeVolume(verticesCoordinates, verticesDefiningEachFacet);
+        gravitationalParameter_ = gravitationalConstant * density * volume_;
+    }
 
+
+    /*! Constructor.
+     *
+     * Constructor.
+     * @param gravitationalParameter Gravitational parameter of the polyhedron.
+     * @param verticesCoordinates Cartesian coordinates of each vertex (one row per vertex, 3 columns).
+     * @param verticesDefiningEachFacet Index (0 based) of the vertices constituting each facet (one row per facet, 3 columns).
+     * @param associatedReferenceFrame Identifier for body-fixed reference frame to which the polyhedron is referred.
+     */
     PolyhedronGravityFieldSettings( const double gravitationalParameter,
                                     const Eigen::MatrixXd& verticesCoordinates,
                                     const Eigen::MatrixXi& verticesDefiningEachFacet,
-                                    const std::string& associatedReferenceFrame,
-                                    const Eigen::Vector3d desiredCenterOfMassPosition =
-                                        (Eigen::Vector3d() << TUDAT_NAN, TUDAT_NAN, TUDAT_NAN).finished() );
+                                    const std::string& associatedReferenceFrame ):
+        GravityFieldSettings( polyhedron ),
+        gravitationalParameter_( gravitationalParameter ),
+        verticesCoordinates_( verticesCoordinates ),
+        verticesDefiningEachFacet_( verticesDefiningEachFacet ),
+        associatedReferenceFrame_( associatedReferenceFrame )
+    {
+        volume_ = basic_astrodynamics::computeVolume(verticesCoordinates, verticesDefiningEachFacet);
+    }
 
+    //! Destructor
     virtual ~PolyhedronGravityFieldSettings( ){ }
 
-    // Function to return gravitational constant for gravity field.
-    /*
-     *  Function to return gravitational constant for gravity field.
-     *  \return Gravitational constant for gravity field.
-     */
+    // Function to return the gravitational parameter.
     double getGravitationalParameter( )
     { return gravitationalParameter_; }
 
-    // Function to reset gravitational constant for gravity field.
-    /*
-     *  Function to reset gravitational constant for gravity field.
-     *  \param gravitationalConstant New gravitational constant for gravity field.
-     */
+    // Function to reset the gravitational parameter.
     void resetGravitationalParameter ( const double gravitationalParameter )
     { gravitationalParameter_ = gravitationalParameter; }
 
+    // Function to return the volume.
     double getVolume ( )
     { return volume_; }
 
-    Eigen::Vector3d getCenterOfMassPosition ( )
-    {
-        computeCenterOfMassPosition();
-        return centerOfMassPosition_;
-    }
+    // Function to reset the volume.
+    void resetVolume ( double volume )
+    { volume_ = volume; }
 
     // Function to return identifier for body-fixed reference frame.
-    /*
-     *  Function to return identifier for body-fixed reference frame to which the polyhedron is referred.
-     *  \return Identifier for body-fixed reference frame to which the polyhedron is referred.
-     */
     std::string getAssociatedReferenceFrame( )
     { return associatedReferenceFrame_; }
 
     // Function to reset identifier for body-fixed reference frame to which the polyhedron is referred.
-    /*
-     *  Function to reset identifier for body-fixed reference frame to which the polyhedron is referred.
-     *  \param associatedReferenceFrame Identifier for body-fixed reference frame to which the polyhedron is referred.
-     */
     void resetAssociatedReferenceFrame( const std::string& associatedReferenceFrame )
     { associatedReferenceFrame_ = associatedReferenceFrame; }
 
-    Eigen::MatrixXd& getVerticesCoordinates( )
+    //! Function to return the vertices coordinates.
+    const Eigen::MatrixXd& getVerticesCoordinates( )
     { return verticesCoordinates_; }
 
-    Eigen::MatrixXi& getVerticesDefiningEachFacet( )
+    //! Function to reset the vertices coordinates.
+    void getVerticesCoordinates( const Eigen::MatrixXd& verticesCoordinates )
+    { verticesCoordinates_ = verticesCoordinates; }
+
+    //! Function to return the vertices defining each facet.
+    const Eigen::MatrixXi& getVerticesDefiningEachFacet( )
     { return verticesDefiningEachFacet_; }
 
-    Eigen::MatrixXi& getVerticesDefiningEachEdge( )
-    { return verticesDefiningEachEdge_; }
-
-    std::vector< Eigen::Vector3d >& getFacetNormalVectors( )
-    { return facetNormalVectors_; }
-
-    std::vector< Eigen::MatrixXd >& getFacetDyads( )
-    { return facetDyads_; }
-
-    std::vector< Eigen::MatrixXd >& getEdgeDyads( )
-    { return edgeDyads_; }
+    //! Function to reset the vertices defining each facet.
+    void resetVerticesDefiningEachFacet ( const Eigen::MatrixXi& verticesDefiningEachFacet )
+    { verticesDefiningEachFacet_ = verticesDefiningEachFacet; }
 
 protected:
-
-    void computeVerticesAndFacetsDefiningEachEdge ( );
-
-    void computeFacetNormalsAndDyads ( );
-
-    void computeEdgeDyads ( );
-
-    // Compute the volume of a polyhedron, according to "Inertia of Any Polyhedron", DOBROVOLSKIS (1996), Icarus
-    void computeVolume ( );
-
-    // Compute the center of mass of a polyhedron, according to "Inertia of Any Polyhedron", DOBROVOLSKIS (1996), Icarus
-    void computeCenterOfMassPosition( );
-
-    // Corrects the position of the polyhedron such that the center of mass coincides with the specified point
-    void correctCenterOfMassPosition( const Eigen::Vector3d desiredCenterOfMassPosition );
 
     // Gravitational parameter
     double gravitationalParameter_;
@@ -399,29 +387,11 @@ protected:
     // Volume of polyhedron
     double volume_;
 
-    // Center of mass of the polyhedron
-    Eigen::Vector3d centerOfMassPosition_;
-
     // Cartesian coordinates of each vertex.
     Eigen::MatrixXd verticesCoordinates_;
 
     // Indices of the 3 vertices describing each facet.
     Eigen::MatrixXi verticesDefiningEachFacet_;
-
-    // Indices of the 2 vertices describing each edge.
-    Eigen::MatrixXi verticesDefiningEachEdge_;
-
-    // Indices of the 2 facets describing each edge.
-    Eigen::MatrixXi facetsDefiningEachEdge_;
-
-    // Outward-pointing normal vector of each facet.
-    std::vector< Eigen::Vector3d > facetNormalVectors_;
-
-    // Facet dyad of each facet.
-    std::vector< Eigen::MatrixXd > facetDyads_;
-
-    // Edge dyad of each edge.
-    std::vector< Eigen::MatrixXd > edgeDyads_;
 
     // Identifier for body-fixed reference frame to which the polyhedron is referred.
     std::string associatedReferenceFrame_;
@@ -731,13 +701,10 @@ inline std::shared_ptr< GravityFieldSettings > polyhedronGravitySettings(
         const double gravitationalParameter,
         const Eigen::MatrixXd verticesCoordinates,
         const Eigen::MatrixXi verticesDefiningEachFacet,
-        const std::string& associatedReferenceFrame,
-        const Eigen::Vector3d& desiredCenterOfMassPosition =
-                (Eigen::Vector3d() << TUDAT_NAN, TUDAT_NAN, TUDAT_NAN).finished() )
+        const std::string& associatedReferenceFrame )
 {
     return std::make_shared< PolyhedronGravityFieldSettings >(
-            gravitationalParameter, verticesCoordinates,
-            verticesDefiningEachFacet, associatedReferenceFrame, desiredCenterOfMassPosition);
+            gravitationalParameter, verticesCoordinates, verticesDefiningEachFacet, associatedReferenceFrame);
 }
 
 } // namespace simulation_setup
