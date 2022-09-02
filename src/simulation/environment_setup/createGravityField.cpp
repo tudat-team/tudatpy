@@ -15,6 +15,7 @@
 #include "tudat/astro/gravitation/triAxialEllipsoidGravity.h"
 #include "tudat/simulation/environment_setup/createGravityField.h"
 #include "tudat/io/basicInputOutput.h"
+#include "tudat/astro/basic_astro/polyhedronFuntions.h"
 
 namespace tudat
 {
@@ -441,9 +442,6 @@ std::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
                     polyhedronFieldSettings->getVolume(),
                     polyhedronFieldSettings->getVerticesCoordinates(),
                     polyhedronFieldSettings->getVerticesDefiningEachFacet(),
-                    polyhedronFieldSettings->getVerticesDefiningEachEdge(),
-                    polyhedronFieldSettings->getFacetDyads(),
-                    polyhedronFieldSettings->getEdgeDyads(),
                     associatedReferenceFrame );
         }
         break;
@@ -538,6 +536,7 @@ PolyhedronGravityFieldSettings::PolyhedronGravityFieldSettings (
 
     // Compute gravitational parameter
     computeVolume();
+    // polyhedron_utilities::computeVolume(verticesCoordinates, verticesDefiningEachFacet);
     gravitationalParameter_ = gravitationalConstant * density * volume_;
 }
 
