@@ -82,3 +82,9 @@ TUDAT_ADD_TEST_CASE(PolyhedronGravityField
         tudat_gravitation
         tudat_basic_astrodynamics
         tudat_basic_mathematics)
+
+TUDAT_ADD_TEST_CASE(PolyhedronGravityModel
+        PRIVATE_LINKS
+        tudat_gravitation
+        tudat_basic_astrodynamics
+        tudat_basic_mathematics)
