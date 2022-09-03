@@ -144,7 +144,7 @@ BOOST_AUTO_TEST_CASE( testGravityComputation )
     double expectedLaplacian, computedLaplacian;
     Eigen::Matrix3d expectedHessian, computedHessian;
 
-    for (unsigned int positionId : {0,1,2,3,4})
+    for (unsigned int positionId : {0,1,2,3,4,5})
     {
         bool testPotential = true;
         bool testGradient = true;
@@ -187,10 +187,18 @@ BOOST_AUTO_TEST_CASE( testGravityComputation )
             testGradient = false;
             testHessian = false;
         }
-        else
+        else if ( positionId == 4 )
         {
             (bodyFixedPosition << 10.0, 5.0, 5.0).finished();
             expectedLaplacian = - 4.0 * mathematical_constants::PI * gravitationalConstant * density;
+            testPotential = false;
+            testGradient = false;
+            testHessian = false;
+        }
+        else
+        {
+            (bodyFixedPosition << 10.0, 5.0, 10.0 + 1e-10).finished();
+            expectedLaplacian = 0.0;
             testPotential = false;
             testGradient = false;
             testHessian = false;
@@ -211,12 +219,12 @@ BOOST_AUTO_TEST_CASE( testGravityComputation )
         {
             computedLaplacian = gravityField.getLaplacianOfPotential( bodyFixedPosition );
             // Expected value is 0 for point 3, so add a constant to the laplacian
-            if ( positionId == 3)
+            if ( positionId == 3 || positionId == 5 )
             {
                 computedLaplacian += 0.1;
                 expectedLaplacian += 0.1;
             }
-            BOOST_CHECK_CLOSE_FRACTION( expectedLaplacian, computedLaplacian, tolerance );
+
         }
         if ( testHessian )
         {
