@@ -149,6 +149,10 @@ BOOST_AUTO_TEST_CASE( testGravityComputation )
 
         gravityModel.updateMembers( );
 
+        // Check if getters
+        BOOST_CHECK_EQUAL( gravitationalParameter, gravityModel.getGravitationalParameterFunction()() );
+        BOOST_CHECK_EQUAL( volume, gravityModel.getVolumeFunction()() );
+
         // Compute values and compare with expected ones
         if ( testPotential )
         {
