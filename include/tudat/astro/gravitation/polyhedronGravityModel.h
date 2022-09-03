@@ -65,6 +65,10 @@ public:
      * if the variable is true.
      * \param polyhedronCache Cache object for computing/retrieving repeated terms in polyhedron potential
      *          gradient calculation.
+     * \param updatePotential Flag indicating whether to update the gravitational potential when calling
+     * the updateMembers function.
+     * \param updateLaplacianOfPotential Flag indicating whether to update the laplacian of the
+     * gravitational potential when calling the updateMembers function.
      */
     PolyhedronGravitationalAccelerationModel (
             const StateFunction positionOfBodySubjectToAccelerationFunction,
@@ -79,20 +83,26 @@ public:
                     [ ]( Eigen::Vector3d& input) { input = Eigen::Vector3d::Zero( ); },
             const std::function< Eigen::Quaterniond ( ) > rotationFromBodyFixedToIntegrationFrameFunction =
                     [ ] ( ) { return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ); },
-            const bool isMutualAttractionUsed = 0 )
+            const bool isMutualAttractionUsed = 0,
+            const bool updateGravitationalPotential = false,
+            const bool updateLaplacianOfGravitationalPotential = false)
         : subjectPositionFunction_( positionOfBodySubjectToAccelerationFunction ),
-        gravitationalParameterFunction_( [ = ]( ){ return aGravitationalParameter; } ),
-        volumeFunction_( [ = ]( ){ return aVolume; } ),
-        getVerticesCoordinates_( [ = ]( ){ return aVerticesCoordinatesMatrix; } ),
-        getVerticesDefiningEachFacet_( [ = ]( ){ return aVerticesDefiningEachFacetMatrix; } ),
-        getVerticesDefiningEachEdge_( [ = ]( ){ return aVerticesDefiningEachEdgeMatrix; } ),
-        getFacetDyads_( [ = ]( ){ return aFacetDyadsVector; } ),
-        getEdgeDyads_( [ = ]( ){ return aEdgeDyadsVector; } ),
-        sourcePositionFunction_( positionOfBodyExertingAccelerationFunction ),
-        rotationFromBodyFixedToIntegrationFrameFunction_( rotationFromBodyFixedToIntegrationFrameFunction ),
-        isMutualAttractionUsed_( isMutualAttractionUsed ),
-        polyhedronCache_( std::make_shared< PolyhedronGravityCache >(
-                 aVerticesCoordinatesMatrix, aVerticesDefiningEachFacetMatrix, aVerticesDefiningEachEdgeMatrix) )
+          gravitationalParameterFunction_( [ = ]( ){ return aGravitationalParameter; } ),
+          volumeFunction_( [ = ]( ){ return aVolume; } ),
+          getVerticesCoordinates_( [ = ]( ){ return aVerticesCoordinatesMatrix; } ),
+          getVerticesDefiningEachFacet_( [ = ]( ){ return aVerticesDefiningEachFacetMatrix; } ),
+          getVerticesDefiningEachEdge_( [ = ]( ){ return aVerticesDefiningEachEdgeMatrix; } ),
+          getFacetDyads_( [ = ]( ){ return aFacetDyadsVector; } ),
+          getEdgeDyads_( [ = ]( ){ return aEdgeDyadsVector; } ),
+          sourcePositionFunction_( positionOfBodyExertingAccelerationFunction ),
+          rotationFromBodyFixedToIntegrationFrameFunction_( rotationFromBodyFixedToIntegrationFrameFunction ),
+          isMutualAttractionUsed_( isMutualAttractionUsed ),
+          polyhedronCache_( std::make_shared< PolyhedronGravityCache >(
+                 aVerticesCoordinatesMatrix, aVerticesDefiningEachFacetMatrix, aVerticesDefiningEachEdgeMatrix) ),
+          currentPotential_( TUDAT_NAN ),
+          currentLaplacianOfPotential_( TUDAT_NAN ),
+          updatePotential_( updateGravitationalPotential ),
+          updateLaplacianOfPotential_( updateLaplacianOfGravitationalPotential )
     { }
 
     //! Constructor taking functions for position of bodies, and parameters of polyhedron.
@@ -115,6 +125,10 @@ public:
      * if the variable is true.
      * \param polyhedronCache Cache object for computing/retrieving repeated terms in polyhedron potential
      *          gradient calculation.
+     * \param updatePotential Flag indicating whether to update the gravitational potential when calling
+     * the updateMembers function.
+     * \param updateLaplacianOfPotential Flag indicating whether to update the laplacian of the
+     * gravitational potential when calling the updateMembers function.
      */
     PolyhedronGravitationalAccelerationModel(
             const StateFunction positionOfBodySubjectToAccelerationFunction,
@@ -129,58 +143,36 @@ public:
                 [ ]( Eigen::Vector3d& input ){ input = Eigen::Vector3d::Zero( ); },
             const std::function< Eigen::Quaterniond( ) > rotationFromBodyFixedToIntegrationFrameFunction =
                 [ ]( ){ return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ); },
-            const bool isMutualAttractionUsed = 0 )
+            const bool isMutualAttractionUsed = 0,
+            const bool updateGravitationalPotential = false,
+            const bool updateLaplacianOfGravitationalPotential = false)
         : subjectPositionFunction_( positionOfBodySubjectToAccelerationFunction ),
-        gravitationalParameterFunction_( gravitationalParameterFunction ),
-        volumeFunction_( volumeFunction ),
-        getVerticesCoordinates_( verticesCoordinatesFunction ),
-        getVerticesDefiningEachFacet_( verticesDefiningEachFacetFunction ),
-        getVerticesDefiningEachEdge_( verticesDefiningEachEdgeFunction ),
-        getFacetDyads_( facetDyadsFunction ),
-        getEdgeDyads_( edgeDyadsFunction ),
-        sourcePositionFunction_( positionOfBodyExertingAccelerationFunction ),
-        rotationFromBodyFixedToIntegrationFrameFunction_( rotationFromBodyFixedToIntegrationFrameFunction ),
-        isMutualAttractionUsed_( isMutualAttractionUsed ),
-        polyhedronCache_( std::make_shared< PolyhedronGravityCache >(
+          gravitationalParameterFunction_( gravitationalParameterFunction ),
+          volumeFunction_( volumeFunction ),
+          getVerticesCoordinates_( verticesCoordinatesFunction ),
+          getVerticesDefiningEachFacet_( verticesDefiningEachFacetFunction ),
+          getVerticesDefiningEachEdge_( verticesDefiningEachEdgeFunction ),
+          getFacetDyads_( facetDyadsFunction ),
+          getEdgeDyads_( edgeDyadsFunction ),
+          sourcePositionFunction_( positionOfBodyExertingAccelerationFunction ),
+          rotationFromBodyFixedToIntegrationFrameFunction_( rotationFromBodyFixedToIntegrationFrameFunction ),
+          isMutualAttractionUsed_( isMutualAttractionUsed ),
+          polyhedronCache_( std::make_shared< PolyhedronGravityCache >(
                  verticesCoordinatesFunction(), verticesDefiningEachFacetFunction(),
-                 verticesDefiningEachEdgeFunction() ) )
+                 verticesDefiningEachEdgeFunction() ) ),
+          currentPotential_( TUDAT_NAN ),
+          currentLaplacianOfPotential_( TUDAT_NAN ),
+          updatePotential_( updateGravitationalPotential ),
+          updateLaplacianOfPotential_( updateLaplacianOfGravitationalPotential )
     { }
 
     //! Update class members.
     /*!
-     * Updates all the base class members to their current values and also updates the class
-     * members of this class.
+     * Updates all the base class members to their current values and also updates the class members of this class.
+     * The potential and laplacian of potential are only updated if the associated flags indicate so.
      * \param currentTime Time at which acceleration model is to be updated.
      */
-    void updateMembers( const double currentTime = TUDAT_NAN )
-    {
-        if( !( this->currentTime_ == currentTime ) )
-        {
-
-            rotationToIntegrationFrame_ = rotationFromBodyFixedToIntegrationFrameFunction_( );
-
-            subjectPositionFunction_( positionOfBodySubjectToAcceleration_ );
-            sourcePositionFunction_( positionOfBodyExertingAcceleration_ );
-            currentInertialRelativePosition_ =
-                    positionOfBodySubjectToAcceleration_ - positionOfBodyExertingAcceleration_ ;
-
-            currentRelativePosition_ = rotationToIntegrationFrame_.inverse( ) * currentInertialRelativePosition_;
-
-            polyhedronCache_->update( currentRelativePosition_ );
-
-            currentAccelerationInBodyFixedFrame_ = basic_mathematics::calculatePolyhedronGradientOfGravitationalPotential(
-                    gravitationalParameterFunction_() / volumeFunction_(),
-                    polyhedronCache_->getVerticesCoordinatesRelativeToFieldPoint(),
-                    getVerticesDefiningEachFacet_(),
-                    getVerticesDefiningEachEdge_(),
-                    getFacetDyads_(),
-                    getEdgeDyads_(),
-                    polyhedronCache_->getPerFacetFactor(),
-                    polyhedronCache_->getPerEdgeFactor() );
-
-            currentAcceleration_ = rotationToIntegrationFrame_ * currentAccelerationInBodyFixedFrame_;
-        }
-    }
+    void updateMembers( const double currentTime = TUDAT_NAN );
 
     //! Function to return current position vector from body exerting acceleration to body undergoing acceleration, in frame
     //! fixed to body undergoing acceleration
@@ -250,6 +242,30 @@ public:
         return polyhedronCache_;
     }
 
+    //! Function to return the value of the current gravitational potential.
+    double getCurrentPotential ( )
+    { return currentPotential_; }
+
+    //! Function to return the value of the current laplacian of the gravitational potential.
+    double getCurrentLaplacianOfPotential ( )
+    { return currentLaplacianOfPotential_; }
+
+    //! Function to return the update potential flag.
+    bool getUpdatePotential ( )
+    { return updatePotential_; }
+
+    //! Function to reset the update potential flag.
+    void resetUpdatePotential ( bool updatePotential )
+    { updatePotential_ = updatePotential; }
+
+    //! Function to return the update laplacian of potential flag.
+    bool getUpdateLaplacianOfPotential ( )
+    { return updateLaplacianOfPotential_; }
+
+    //! Function to reset the update laplacian of potential flag.
+    void resetUpdateLaplacianOfPotential ( bool updateLaplacianOfPotential )
+    { updateLaplacianOfPotential_ = updateLaplacianOfPotential; }
+
 private:
 
     //! Pointer to function returning position of body subject to acceleration.
@@ -306,6 +322,20 @@ private:
 
     //! Position of body exerting acceleration.
     Eigen::Vector3d positionOfBodyExertingAcceleration_;
+
+    //! Current gravitational potential acting on the body undergoing acceleration, as computed by last call to
+    //! updateMembers function
+    double currentPotential_;
+
+    //! Current laplacian of the gravitational potential acting on the body undergoing acceleration, as computed by last
+    //! call to updateMembers function
+    double currentLaplacianOfPotential_;
+
+    //! Flag indicating whether to update the gravitational potential when calling the updateMembers function.
+    bool updatePotential_;
+
+    //! Flag indicating whether to update the laplacian of the gravitational potential when calling the updateMembers function.
+    bool updateLaplacianOfPotential_;
 };
 
 
