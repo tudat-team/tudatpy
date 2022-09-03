@@ -471,6 +471,100 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldSetup )
 
 }
 
+//! Test set up of polyhedron gravity field model
+BOOST_AUTO_TEST_CASE( test_polyhedronGravityFieldSetup )
+{
+    // Define cuboid polyhedron dimensions
+    const double w = 10.0; // width
+    const double h = 10.0; // height
+    const double l = 20.0; // length
+
+    // Define parameters
+    const double gravitationalConstant = 6.67259e-11;
+    const double density = 2670;
+    const double volume = w * h * l;
+    const double gravitationalParameter = gravitationalConstant * density * volume;
+
+    // Define cuboid
+    Eigen::MatrixXd verticesCoordinates(8,3);
+    verticesCoordinates <<
+        0.0, 0.0, 0.0,
+        l, 0.0, 0.0,
+        0.0, w, 0.0,
+        l, w, 0.0,
+        0.0, 0.0, h,
+        l, 0.0, h,
+        0.0, w, h,
+        l, w, h;
+    Eigen::MatrixXi verticesDefiningEachFacet(12,3);
+    verticesDefiningEachFacet <<
+        2, 1, 0,
+        1, 2, 3,
+        4, 2, 0,
+        2, 4, 6,
+        1, 4, 0,
+        4, 1, 5,
+        6, 5, 7,
+        5, 6, 4,
+        3, 6, 7,
+        6, 3, 2,
+        5, 3, 7,
+        3, 5, 1;
+
+    // Create settings for polyhedron gravity field with both factory functions
+    std::shared_ptr< GravityFieldSettings > polyhedronGravityFieldSettings1 = polyhedronGravitySettings(
+            gravitationalConstant, density, verticesCoordinates, verticesDefiningEachFacet, "DummyFrame");
+    std::shared_ptr< GravityFieldSettings > polyhedronGravityFieldSettings2 = polyhedronGravitySettings(
+            gravitationalParameter, verticesCoordinates, verticesDefiningEachFacet, "DummyFrame");
+
+    // Create the two gravity field models, downcasting to PolyhedronGravityField
+    std::shared_ptr< gravitation::PolyhedronGravityField > polyhedronGravityField1 =
+            std::dynamic_pointer_cast< gravitation::PolyhedronGravityField >(
+                    createGravityFieldModel( polyhedronGravityFieldSettings1, "Earth" ) );
+    if( polyhedronGravityField1 == nullptr )
+    {
+        throw std::runtime_error(
+                "Error in polyhedron gravity field setup test: downcasting to PolyhedronGravityField failed.");
+    }
+    std::shared_ptr< gravitation::PolyhedronGravityField > polyhedronGravityField2 =
+            std::dynamic_pointer_cast< gravitation::PolyhedronGravityField >(
+                    createGravityFieldModel( polyhedronGravityFieldSettings2, "Earth" ) );
+    if( polyhedronGravityField2 == nullptr )
+    {
+        throw std::runtime_error(
+                "Error in polyhedron gravity field setup test: downcasting to PolyhedronGravityField failed.");
+    }
+
+    // Check both gravity fields have the correct model parameters
+    double tolerance = 1e-14;
+
+    BOOST_CHECK_CLOSE_FRACTION( gravitationalParameter, polyhedronGravityField1->getGravitationalParameter(), tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( volume, polyhedronGravityField1->getVolume(), tolerance );
+    BOOST_CHECK_EQUAL( verticesCoordinates, polyhedronGravityField1->getVerticesCoordinates() );
+    BOOST_CHECK_EQUAL( verticesDefiningEachFacet, polyhedronGravityField1->getVerticesDefiningEachFacet() );
+
+    // Check both gravity fields have the correct model parameters
+    BOOST_CHECK_CLOSE_FRACTION( gravitationalParameter, polyhedronGravityField2->getGravitationalParameter(), tolerance);
+    BOOST_CHECK_CLOSE_FRACTION( volume, polyhedronGravityField2->getVolume(), tolerance );
+    BOOST_CHECK_EQUAL( verticesCoordinates, polyhedronGravityField2->getVerticesCoordinates() );
+    BOOST_CHECK_EQUAL( verticesDefiningEachFacet, polyhedronGravityField2->getVerticesDefiningEachFacet() );
+
+    // Test computation of potential, gradient of potential, laplacian of potential
+    Eigen::Vector3d bodyFixedPosition = (Eigen::Vector3d() << 0.0, 0.0, 0.0).finished();
+    double expectedPotential = 3.19403761604211e-5;
+    Eigen::Vector3d expectedGradient = (Eigen::Vector3d() << 2.31329148957265e-6, 1.91973919943187e-6, 1.91973919943187e-6).finished();
+    double expectedLaplacian = - 0.5 * mathematical_constants::PI * gravitationalConstant * density;
+
+    BOOST_CHECK_CLOSE_FRACTION( expectedPotential, polyhedronGravityField1->getGravitationalPotential( bodyFixedPosition ), tolerance );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedGradient, polyhedronGravityField1->getGradientOfPotential( bodyFixedPosition ), tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( expectedLaplacian, polyhedronGravityField1->getLaplacianOfPotential( bodyFixedPosition ), tolerance );
+
+    BOOST_CHECK_CLOSE_FRACTION( expectedPotential, polyhedronGravityField2->getGravitationalPotential( bodyFixedPosition ), tolerance );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedGradient, polyhedronGravityField2->getGradientOfPotential( bodyFixedPosition ), tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( expectedLaplacian, polyhedronGravityField2->getLaplacianOfPotential( bodyFixedPosition ), tolerance );
+}
+
+
 //! Test set up of triaxial ellipsoid gravity field model settings
 BOOST_AUTO_TEST_CASE( test_triaxialEllipsoidGravityFieldSetup )
 {
