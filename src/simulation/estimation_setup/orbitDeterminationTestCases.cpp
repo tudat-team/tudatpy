@@ -56,7 +56,8 @@ template std::pair< Eigen::VectorXd, bool > executeEarthOrbiterBiasEstimation< d
         const bool useSingleBiasModel,
         const bool estimateAbsoluteBiases,
         const bool omitRangeData,
-        const bool useMultiArcBiases );
+        const bool useMultiArcBiases,
+        const bool estimateTimeBiases );
 ;
 
 }
