@@ -1228,6 +1228,45 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
             }
             break;
         }
+        case constant_time_drift_observation_bias:
+        {
+            std::shared_ptr< ConstantTimeDriftBiasEstimatableParameterSettings > biasSettings =
+                    std::dynamic_pointer_cast< ConstantTimeDriftBiasEstimatableParameterSettings >( vectorParameterName );
+            if( biasSettings == nullptr )
+            {
+                throw std::runtime_error( "Error when creating constant time drift bias, input is inconsistent" );
+            }
+            else
+            {
+                vectorParameterToEstimate = std::make_shared< ConstantTimeDriftBiasParameter >(
+                        std::function< Eigen::VectorXd( ) >( ),
+                        std::function< void( const Eigen::VectorXd& ) >( ),
+                        observation_models::getLinkEndIndicesForLinkEndTypeAtObservable(
+                                biasSettings->observableType_, biasSettings->linkEndForTime_, biasSettings->linkEnds_.size( ) ).at( 0 ),
+                        biasSettings->linkEnds_, biasSettings->observableType_, biasSettings->referenceEpoch_ );
+            }
+            break;
+        }
+        case arc_wise_time_drift_observation_bias:
+        {
+            std::shared_ptr< ArcWiseTimeDriftBiasEstimatableParameterSettings > timeBiasSettings =
+                    std::dynamic_pointer_cast< ArcWiseTimeDriftBiasEstimatableParameterSettings >( vectorParameterName );
+            if( timeBiasSettings == nullptr )
+            {
+                throw std::runtime_error( "Error when creating arcwise time drift bias, input is inconsistent" );
+            }
+            else
+            {
+                vectorParameterToEstimate = std::make_shared< ArcWiseTimeDriftBiasParameter >(
+                        timeBiasSettings->arcStartTimes_,
+                        std::function< std::vector< Eigen::VectorXd >( ) >( ),
+                        std::function< void( const std::vector< Eigen::VectorXd >& ) >( ),
+                        observation_models::getLinkEndIndicesForLinkEndTypeAtObservable(
+                                timeBiasSettings->observableType_, timeBiasSettings->linkEndForTime_, timeBiasSettings->linkEnds_.size( ) ).at( 0 ),
+                        timeBiasSettings->linkEnds_, timeBiasSettings->observableType_, timeBiasSettings->referenceEpochs_ );
+            }
+            break;
+        }
         case rotation_pole_position:
             if( std::dynamic_pointer_cast< SimpleRotationalEphemeris >( currentBody->getRotationalEphemeris( ) ) == nullptr )
             {
@@ -1243,6 +1282,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
 
             }
             break;
+
         case spherical_harmonics_cosine_coefficient_block:
         {
             std::shared_ptr< GravityFieldModel > gravityField = currentBody->getGravityFieldModel( );
