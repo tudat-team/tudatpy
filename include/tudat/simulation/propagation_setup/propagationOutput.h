@@ -1733,6 +1733,101 @@ std::function< double( ) > getDoubleDependentVariableFunction(
         }
         case gravity_field_potential_dependent_variable:
         {
+
+            // Retrieve list of suitable acceleration models (size should be one to avoid ambiguities): either
+            // point mass gravity, spherical harmonics gravity or polyhedron gravity
+            std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > >
+                    listOfSuitableAccelerationModels;
+
+            basic_astrodynamics::AvailableAcceleration selectedAccelerationModelType;
+            for( basic_astrodynamics::AvailableAcceleration accelerationModelType:
+                {basic_astrodynamics::spherical_harmonic_gravity, basic_astrodynamics::polyhedron_gravity,
+                 basic_astrodynamics::point_mass_gravity} )
+            {
+
+                listOfSuitableAccelerationModels = getAccelerationBetweenBodies(
+                        dependentVariableSettings->associatedBody_, dependentVariableSettings->secondaryBody_,
+                        stateDerivativeModels, accelerationModelType );
+
+                // Check if third-body counterpart of acceleration is found
+                if( listOfSuitableAccelerationModels.size( ) == 0 &&
+                    basic_astrodynamics::isAccelerationDirectGravitational(accelerationModelType ) )
+                {
+                    listOfSuitableAccelerationModels = getAccelerationBetweenBodies(
+                            dependentVariableSettings->associatedBody_, dependentVariableSettings->secondaryBody_,
+                            stateDerivativeModels, basic_astrodynamics::getAssociatedThirdBodyAcceleration(
+                                    accelerationModelType ) );
+                }
+
+                if( listOfSuitableAccelerationModels.size( ) == 1 )
+                {
+                    selectedAccelerationModelType = accelerationModelType;
+                    break;
+                }
+            }
+
+            if( listOfSuitableAccelerationModels.size( ) != 1 )
+            {
+                std::string errorMessage = "Error when getting acceleration between bodies " +
+                        dependentVariableSettings->associatedBody_ + " and " +
+                        dependentVariableSettings->secondaryBody_ + ": no acceleration with implemented"
+                        "computation of gravitational potential found.";
+                throw std::runtime_error( errorMessage );
+            }
+            else
+            {
+                std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > gravityModel =
+                        listOfSuitableAccelerationModels.at(0);
+
+                // Position functions
+                std::function< Eigen::Vector3d( ) > positionFunctionOfRelativeBody =
+                        std::bind( &simulation_setup::Body::getPosition, bodies.at( bodyWithProperty ) );
+                std::function< Eigen::Vector3d( ) > positionFunctionOfCentralBody =
+                        std::bind( &simulation_setup::Body::getPosition, bodies.at( secondaryBody ) );
+
+                // Retrieve orientation function depending on type of gravity field
+                std::function< Eigen::Quaterniond( ) > orientationFunctionOfCentralBody;
+
+                // If gravity field is point mass, don't need orientation function
+                if ( selectedAccelerationModelType == basic_astrodynamics::point_mass_gravity ||
+                    selectedAccelerationModelType == basic_astrodynamics::getAssociatedThirdBodyAcceleration( basic_astrodynamics::point_mass_gravity ) )
+                {
+                    orientationFunctionOfCentralBody = [=]( ){ return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ); };
+                }
+                // Else get orientation function
+                else
+                {
+                    orientationFunctionOfCentralBody = std::bind( &simulation_setup::Body::getCurrentRotationToLocalFrame, bodies.at( secondaryBody ) );
+                }
+
+                // Retrieve function to get body fixed position of body
+                std::function< Eigen::Vector3d() > bodyFixedPositionOfBodyWithProperty =
+                        std::bind( &reference_frames::getBodyFixedCartesianPosition, positionFunctionOfCentralBody,
+                                   positionFunctionOfRelativeBody, orientationFunctionOfCentralBody );
+
+                // Downcast gravity model
+
+
+                std::shared_ptr< PolyhedronGravityField > polyhedronGravityField =
+                    std::dynamic_pointer_cast< PolyhedronGravityField >(
+                        bodyExertingAcceleration->getGravityFieldModel( ) );
+        
+                std::shared_ptr< RotationalEphemeris> rotationalEphemeris = bodyExertingAcceleration->getRotationalEphemeris( );
+
+                if( polyhedronGravityField == nullptr )
+                {
+                    throw std::runtime_error(
+                                std::string( "Error, polyhedron gravity field model not set when ")
+                                + " making polyhedron gravitational acceleration of " +
+                                nameOfBodyExertingAcceleration +
+                                " on " + nameOfBodyUndergoingAcceleration );
+                }
+
+
+                variableFunction = [=]( ){ return gravityField->getGravitationalPotential( bodyFixedPositionOfBodyWithProperty( ) ); };
+            }
+
+
             // TODO: function is a bit messy... mix of std::bind and lambda functions
 
             // Retrieve gravity field
