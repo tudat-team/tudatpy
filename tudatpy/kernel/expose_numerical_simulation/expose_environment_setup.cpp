@@ -218,6 +218,11 @@ namespace environment_setup {
               py::arg( "station_name" ),
               py::arg( "times" ) );
 
+        m.def("add_flight_conditions",
+              &tss::addFlightConditions,
+              py::arg( "bodies" ),
+              py::arg( "body_name" ),
+              py::arg( "central_body_name" ) );
 
         auto aerodynamic_coefficient_setup = m.def_submodule("aerodynamic_coefficients");
         aerodynamic_coefficients::expose_aerodynamic_coefficient_setup(aerodynamic_coefficient_setup);

@@ -11,6 +11,7 @@
 #include "expose_estimation.h"
 
 #include "tudat/astro/propagators/propagateCovariance.h"
+#include "tudat/basics/utilities.h"
 
 #include "tudatpy/docstrings.h"
 
@@ -30,9 +31,67 @@ namespace tni = tudat::numerical_integrators;
 namespace tom = tudat::observation_models;
 
 
+namespace tudat
+{
+
+namespace propagators
+{
+
+std::pair< std::vector< double >, std::vector< Eigen::MatrixXd > > propagateCovarianceVectors(
+        const Eigen::MatrixXd initialCovariance,
+        const std::shared_ptr< tp::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionInterface,
+        const std::vector< double > evaluationTimes )
+{
+    std::map< double, Eigen::MatrixXd > propagatedCovariance;
+    tp::propagateCovariance(
+                propagatedCovariance, initialCovariance, stateTransitionInterface, evaluationTimes );
+    return std::make_pair( utilities::createVectorFromMapKeys(
+                               propagatedCovariance ),
+                           utilities::createVectorFromMapValues(
+                               propagatedCovariance ) );
+}
+
+std::pair< std::vector< double >, std::vector< Eigen::VectorXd > > propagateFormalErrorVectors(
+        const Eigen::MatrixXd initialCovariance,
+        const std::shared_ptr< tp::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionInterface,
+        const std::vector< double > evaluationTimes )
+{
+    std::map< double, Eigen::VectorXd > propagatedFormalErrors;
+    tp::propagateFormalErrors( propagatedFormalErrors, initialCovariance, stateTransitionInterface, evaluationTimes );
+    return std::make_pair( utilities::createVectorFromMapKeys(
+                               propagatedFormalErrors ),
+                           utilities::createVectorFromMapValues(
+                               propagatedFormalErrors ) );
+}
+
+}
+
+namespace simulation_setup
+{
+
+std::pair< std::vector< double >, std::vector< Eigen::VectorXd > > getTargetAnglesAndRangeVector(
+        const simulation_setup::SystemOfBodies& bodies,
+        const std::pair< std::string, std::string > groundStationId,
+        const std::string& targetBody,
+        const std::vector< double > times,
+        const bool transmittingToTarget )
+{
+    std::map< double, Eigen::VectorXd > targetAnglesAndRange = getTargetAnglesAndRange(
+                bodies, groundStationId, targetBody, times, transmittingToTarget );
+    return std::make_pair( utilities::createVectorFromMapKeys(
+                               targetAnglesAndRange ),
+                           utilities::createVectorFromMapValues(
+                               targetAnglesAndRange ) );
+}
+
+}
+
+}
+
 namespace tudatpy {
 namespace numerical_simulation {
 namespace estimation {
+
 
 
 void expose_estimation(py::module &m) {
@@ -112,6 +171,11 @@ void expose_estimation(py::module &m) {
           py::arg("bodies"),
           get_docstring("simulate_observations").c_str() );
 
+    m.def("set_existing_observations",
+          &tss::setExistingObservations< >,
+          py::arg("observations"),
+          py::arg("reference_link_end" ) );
+
     m.def("compute_target_angles_and_range",
           &tss::getTargetAnglesAndRange,
           py::arg("bodies"),
@@ -121,6 +185,14 @@ void expose_estimation(py::module &m) {
           py::arg("is_station_transmitting"),
           get_docstring("compute_target_angles_and_range").c_str() );
 
+    m.def("compute_target_angles_and_range_vectors",
+          &tss::getTargetAnglesAndRangeVector,
+          py::arg("bodies"),
+          py::arg("station_id" ),
+          py::arg("target_body" ),
+          py::arg("observation_times"),
+          py::arg("is_station_transmitting"),
+          get_docstring("compute_target_angles_and_range").c_str() );
 
     py::class_< tom::ObservationCollection<>,
             std::shared_ptr<tom::ObservationCollection<>>>(m, "ObservationCollection",
@@ -171,6 +243,17 @@ void expose_estimation(py::module &m) {
      *************** COVARIANCE ***************
      */
 
+    m.def("propagate_covariance_split_output",
+          py::overload_cast<
+          const Eigen::MatrixXd,
+          const std::shared_ptr< tp::CombinedStateTransitionAndSensitivityMatrixInterface >,
+          const std::vector< double > >(
+              &tp::propagateCovarianceVectors ),
+          py::arg("initial_covariance"),
+          py::arg("state_transition_interface"),
+          py::arg("output_times"),
+          get_docstring("propagate_covariance").c_str() );
+
     m.def("propagate_covariance",
           py::overload_cast<
           const Eigen::MatrixXd,
@@ -181,6 +264,15 @@ void expose_estimation(py::module &m) {
           py::arg("state_transition_interface"),
           py::arg("output_times"),
           get_docstring("propagate_covariance").c_str() );
+
+    m.def("propagate_formal_errors_split_output",
+          py::overload_cast< const Eigen::MatrixXd,
+          const std::shared_ptr< tp::CombinedStateTransitionAndSensitivityMatrixInterface >,
+          const std::vector< double > >( &tp::propagateFormalErrorVectors ),
+          py::arg("initial_covariance"),
+          py::arg("state_transition_interface"),
+          py::arg("output_times"),
+          get_docstring("propagate_formal_errors").c_str() );
 
 
     m.def("propagate_formal_errors",

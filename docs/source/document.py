@@ -1,8 +1,6 @@
 # insert current directory into path
-import sys
-import os
-
-# sys.path.insert(0, '..')
+import sys, os
+sys.path.insert(0, "/".join(os.path.abspath(__file__).split("/")[:-2]))
 
 import tempfile
 from multidoc.generate import generate_py_sphinx, generate_docstring_header
@@ -10,7 +8,7 @@ from multidoc.parsing import parse_api_declaration
 
 
 # get docstrings from github
-def get_docstrings(git_url, git_rev):
+def get_docstrings(git_url, git_rev=None):
     import os
     import subprocess
     import shutil
@@ -23,7 +21,8 @@ def get_docstrings(git_url, git_rev):
     subprocess.check_call(['git', 'clone', git_url, tmp_dir])
 
     # checkout revision
-    subprocess.check_call(['git', 'checkout', git_rev], cwd=tmp_dir)
+    if git_rev is not None:
+        subprocess.check_call(['git', 'checkout', git_rev], cwd=tmp_dir)
 
     # delete docstrings folder if exists
     if os.path.exists('docstrings'):
