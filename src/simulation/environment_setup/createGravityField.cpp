@@ -43,6 +43,10 @@ std::string getPathForSphericalHarmonicsModel( const SphericalHarmonicsModel sph
         return paths::getGravityModelsPath( ) + "/Moon/lpe200.txt";
     case jgmro120d:
         return paths::getGravityModelsPath( ) + "/Mars/jgmro120d.txt";
+    case jgmess160a:
+        return paths::getGravityModelsPath( ) + "/Mercury/jgmess_160a_sha.tab";
+    case shgj180u:
+        return paths::getGravityModelsPath( ) + "/Venus/shgj180u.a01";
     default:
         std::cerr << "No path known for Spherical Harmonics Model " << sphericalHarmonicsModel << std::endl;
         throw;
@@ -78,6 +82,12 @@ int getMaximumGravityFieldDegreeOrder( const SphericalHarmonicsModel sphericalHa
     case jgmro120d:
         maximumDegreeOrder = 120;
         break;
+    case jgmess160a:
+        maximumDegreeOrder = 160;
+        break;
+    case shgj180u:
+        maximumDegreeOrder = 180;
+        break;
     default:
         throw std::runtime_error( "No maximum degree known for Spherical Harmonics Model " + std::to_string(
                                       static_cast< int >( sphericalHarmonicsModel ) ) );
@@ -101,6 +111,10 @@ std::string getReferenceFrameForSphericalHarmonicsModel( const SphericalHarmonic
         return "IAU_Moon";
     case jgmro120d:
         return "IAU_Mars";
+    case jgmess160a:
+        return "IAU_Mercury";
+    case shgj180u:
+        return "IAU_Venus";
     default:
         std::cerr << "No reference frame known for Spherical Harmonics Model " << sphericalHarmonicsModel << std::endl;
         throw;
