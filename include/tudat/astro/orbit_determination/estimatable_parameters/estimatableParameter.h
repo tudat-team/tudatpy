@@ -66,8 +66,13 @@ enum EstimatebleParametersEnum
     free_core_nutation_rate,
     desaturation_delta_v_values,
     scaled_longitude_libration_amplitude,
+<<<<<<< HEAD
     constant_thrust_magnitude_parameter,
     constant_specific_impulse
+=======
+    constant_time_drift_observation_bias,
+    arc_wise_time_drift_observation_bias
+>>>>>>> develop
 };
 
 std::string getParameterTypeString( const EstimatebleParametersEnum parameterType );
