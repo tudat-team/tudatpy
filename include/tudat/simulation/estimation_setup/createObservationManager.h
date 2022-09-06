@@ -221,6 +221,78 @@ void performObservationParameterEstimationClosureForSingleModelSet(
             }
             break;
         }
+        case estimatable_parameters::constant_time_drift_observation_bias:
+        {
+            // Test input consistency
+            std::shared_ptr< estimatable_parameters::ConstantTimeDriftBiasParameter > biasParameter =
+                    std::dynamic_pointer_cast< estimatable_parameters::ConstantTimeDriftBiasParameter >( parameter );
+            if( biasParameter == nullptr )
+            {
+                throw std::runtime_error( "Error, cannot perform bias closure for time drift bias, inconsistent bias types" );
+            }
+
+            // Check if bias object is of same type as estimated parameter
+            std::shared_ptr< ConstantTimeDriftBias< ObservationSize > > timeBiasObject =
+                    std::dynamic_pointer_cast< ConstantTimeDriftBias< ObservationSize > >( observationBias );
+            if ( timeBiasObject != nullptr )
+            {
+                // Check if bias and parameter link properties are equal
+                if ( linkEnds == biasParameter->getLinkEnds( ) && observableType == biasParameter->getObservableType( ) )
+                {
+                    biasParameter->setObservationBiasFunctions(
+                            std::bind( &ConstantTimeDriftBias< ObservationSize >::getTemplateFreeConstantObservationBias,
+                                       timeBiasObject ),
+                            std::bind( &ConstantTimeDriftBias< ObservationSize >::resetConstantObservationBiasTemplateFree,
+                                       timeBiasObject, std::placeholders::_1 ) );
+                }
+            }
+            break;
+        }
+        case estimatable_parameters::arc_wise_time_drift_observation_bias:
+        {
+            // Test input consistency
+            std::shared_ptr< estimatable_parameters::ArcWiseTimeDriftBiasParameter > timeBiasParameter =
+                    std::dynamic_pointer_cast< estimatable_parameters::ArcWiseTimeDriftBiasParameter >( parameter );
+
+            if ( timeBiasParameter == nullptr )
+            {
+                throw std::runtime_error( "Error, cannot perform bias closure for arc-wise time drift biases, inconsistent bias types" );
+            }
+
+            // Check if bias object is of same type as estimated parameter
+            std::shared_ptr< ArcWiseTimeDriftBias< ObservationSize > > timeBiasObject =
+                    std::dynamic_pointer_cast< ArcWiseTimeDriftBias< ObservationSize > >( observationBias );
+            if( timeBiasObject != nullptr )
+            {
+                // Check if bias and parameter link properties are equal
+                if ( ( linkEnds == timeBiasParameter->getLinkEnds( ) ) && ( observableType == timeBiasParameter->getObservableType( ) ) &&
+                     ( timeBiasObject->getLinkEndIndexForTime( ) == timeBiasParameter->getLinkEndIndex( ) ) &&
+                     ( timeBiasObject->getArcStartTimes( ).size( ) == timeBiasParameter->getArcStartTimes( ).size( ) ) )
+                {
+                    bool doTimesMatch = true;
+                    for( unsigned int i = 0 ; i < timeBiasObject->getArcStartTimes( ).size( ) ; i++ )
+                    {
+                        if ( std::fabs( timeBiasObject->getArcStartTimes( ).at( i ) - timeBiasParameter->getArcStartTimes( ).at( i ) ) >
+                             std::max( 1.0E-15 * std::fabs( timeBiasObject->getArcStartTimes( ).at( i ) ),
+                                       1.0E-15 * std::fabs( timeBiasParameter->getArcStartTimes( ).at( i ) ) ) )
+                        {
+                            doTimesMatch = false;
+                        }
+                    }
+
+                    if( doTimesMatch == true )
+                    {
+                        timeBiasParameter->setObservationBiasFunctions(
+                                std::bind( &ArcWiseTimeDriftBias< ObservationSize >::getTemplateFreeConstantObservationBias,
+                                           timeBiasObject ),
+                                std::bind( &ArcWiseTimeDriftBias< ObservationSize >::resetConstantObservationBiasTemplateFree,
+                                           timeBiasObject, std::placeholders::_1 ) );
+                        timeBiasParameter->setLookupScheme( timeBiasObject->getLookupScheme( ) );
+                    }
+                }
+            }
+            break;
+        }
         default:
             std::string errorMessage = "Error when closing observation bias/estimation loop, did not recognize bias type " +
                     std::to_string( parameter->getParameterName( ).first );
