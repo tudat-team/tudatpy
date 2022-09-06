@@ -210,7 +210,7 @@ BOOST_AUTO_TEST_CASE( testMgaMixedHighLowThrustLegs )
     transferNodeFreeParameters.at(0) = ( Eigen::Vector3d( ) << 0.0, 0.0, 0.0 ).finished( );
     transferNodeFreeParameters.at(1) = ( Eigen::Vector3d( ) << swingbyPeriapsis1, swingbyRotationAngle1, swingbyNodeDeltaV1 ).finished( );
     transferNodeFreeParameters.at(2) = ( Eigen::Vector3d( ) << swingbyPeriapsis2, swingbyRotationAngle2, swingbyNodeDeltaV2 ).finished( );
-    transferNodeFreeParameters.at(3) = ( Eigen::Vector3d( ) << 0.0, 0.0, 0.0 ).finished( );
+    transferNodeFreeParameters.at(3) = Eigen::VectorXd::Zero( 0 );
 
     transferTrajectory->evaluateTrajectory(nodeTimes, transferLegFreeParameters, transferNodeFreeParameters);
 
