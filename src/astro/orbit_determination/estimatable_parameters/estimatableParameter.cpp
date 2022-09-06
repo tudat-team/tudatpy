@@ -120,19 +120,16 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
     case scaled_longitude_libration_amplitude:
         parameterDescription = " scaled longitude libration amplitude ";
         break;
-<<<<<<< HEAD
     case constant_thrust_magnitude_parameter:
         parameterDescription = " constant thrust magnitude ";
         break;
     case constant_specific_impulse:
         parameterDescription = " constant specific impulse ";
-=======
     case constant_time_drift_observation_bias:
         parameterDescription = "time drift observation bias ";
         break;
     case arc_wise_time_drift_observation_bias:
         parameterDescription = "arc-wise time drift observation bias ";
->>>>>>> develop
         break;
     default:
         std::string errorMessage = "Error when getting parameter string, did not recognize parameter " +
@@ -260,19 +257,17 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
     case scaled_longitude_libration_amplitude:
         isDoubleParameter = true;
         break;
-<<<<<<< HEAD
     case constant_thrust_magnitude_parameter:
         isDoubleParameter = true;
         break;
     case constant_specific_impulse:
         isDoubleParameter = true;
-=======
+        break;
     case constant_time_drift_observation_bias:
         isDoubleParameter = false;
         break;
     case arc_wise_time_drift_observation_bias:
         isDoubleParameter = false;
->>>>>>> develop
         break;
     default:
         throw std::runtime_error( "Error, parameter type " + std::to_string( parameterType ) +
