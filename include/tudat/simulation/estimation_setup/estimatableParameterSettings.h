@@ -254,8 +254,8 @@ public:
             const observation_models::ObservableType observableType,
             const observation_models::LinkEndType linkEndForTime,
             const double referenceEpoch ):
-            EstimatableParameterSettings( linkEnds.begin( )->second.first, constant_time_drift_observation_bias,
-                                          linkEnds.begin( )->second.second ), linkEnds_( linkEnds ),
+            EstimatableParameterSettings( linkEnds.begin( )->second.bodyName_, constant_time_drift_observation_bias,
+                                          linkEnds.begin( )->second.stationName_ ), linkEnds_( linkEnds ),
             observableType_( observableType ), linkEndForTime_( linkEndForTime ), referenceEpoch_( referenceEpoch ){ }
 
     //! Destructor
@@ -297,8 +297,8 @@ public:
             const observation_models::LinkEndType linkEndForTime,
             const std::vector< double > referenceEpochs ):
             EstimatableParameterSettings(
-                    linkEnds.begin( )->second.first, arc_wise_time_drift_observation_bias,
-                    linkEnds.begin( )->second.second ), linkEnds_( linkEnds ), observableType_( observableType ),
+                    linkEnds.begin( )->second.bodyName_, arc_wise_time_drift_observation_bias,
+                    linkEnds.begin( )->second.stationName_ ), linkEnds_( linkEnds ), observableType_( observableType ),
             arcStartTimes_( arcStartTimes ), linkEndForTime_( linkEndForTime ), referenceEpochs_( referenceEpochs ){ }
 
     //! Destructor

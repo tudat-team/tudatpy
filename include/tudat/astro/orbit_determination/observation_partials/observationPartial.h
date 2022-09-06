@@ -511,7 +511,7 @@ public:
                                                 const int linkEndIndex,
                                                 const double referenceEpoch ):
             ObservationPartial< ObservationSize >(
-                    std::make_pair( estimatable_parameters::constant_time_drift_observation_bias, linkEnds.begin( )->second ) ),
+                    std::make_pair( estimatable_parameters::constant_time_drift_observation_bias, linkEnds.begin( )->second.getDualStringLinkEnd( )  ) ),
             observableType_( observableType ), linkEnds_( linkEnds ), linkEndIndex_( linkEndIndex ), referenceEpoch_( referenceEpoch )
     {  }
 
@@ -587,7 +587,7 @@ public:
                                           const int linkEndIndex,
                                           const int numberOfArcs,
                                           const std::vector< double > referenceEpochs ):
-            ObservationPartial< ObservationSize >( std::make_pair( estimatable_parameters::arc_wise_time_drift_observation_bias, linkEnds.begin( )->second ) ),
+            ObservationPartial< ObservationSize >( std::make_pair( estimatable_parameters::arc_wise_time_drift_observation_bias, linkEnds.begin( )->second.getDualStringLinkEnd( )  ) ),
             observableType_( observableType ), linkEnds_( linkEnds ), arcLookupScheme_( arcLookupScheme ),
             linkEndIndex_( linkEndIndex ), numberOfArcs_( numberOfArcs ), referenceEpochs_( referenceEpochs )
     {

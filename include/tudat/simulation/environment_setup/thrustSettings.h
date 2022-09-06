@@ -289,10 +289,10 @@ inline std::shared_ptr< ThrustDirectionSettings > customThrustDirectionSettings(
 enum ThrustMagnitudeTypes
 {
     constant_thrust_magnitude,
-    from_engine_properties_thrust_magnitude,
+//    from_engine_properties_thrust_magnitude,
     thrust_magnitude_from_time_function,
-    thrust_magnitude_from_dependent_variables,
-    bang_bang_thrust_magnitude_from_mee_costates
+    thrust_magnitude_from_dependent_variables
+//    bang_bang_thrust_magnitude_from_mee_costates
 };
 
 // Class defining settings for the thrust magnitude

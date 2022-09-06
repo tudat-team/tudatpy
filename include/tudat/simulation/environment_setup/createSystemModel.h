@@ -30,6 +30,13 @@ void addEngineModel(
         const simulation_setup::SystemOfBodies& bodies,
         const Eigen::Vector3d bodyFixedThrustDirection = Eigen::Vector3d::UnitX( ) );
 
+void addVariableDirectionEngineModel(
+        const std::string& bodyName,
+        const std::string& engineName,
+        const std::shared_ptr< simulation_setup::ThrustMagnitudeSettings > thrustSettings,
+        const simulation_setup::SystemOfBodies& bodies,
+        const std::function< Eigen::Vector3d( const double ) > bodyFixedThrustDirection );
+
 
 } // namespace simulation_setup
 
