@@ -9,6 +9,7 @@
  */
 
 #include "expose_aerodynamic_coefficient_setup.h"
+#include <tudat/basics/deprecationWarnings.h>
 
 #include "tudatpy/docstrings.h"
 #include <tudat/simulation/environment_setup.h>
@@ -26,6 +27,36 @@ namespace py = pybind11;
 namespace tss = tudat::simulation_setup;
 namespace ti = tudat::interpolators;
 namespace ta = tudat::aerodynamics;
+
+namespace tudat
+{
+namespace simulation_setup
+{
+//! @get_docstring(customAerodynamicCoefficientSettings)
+inline std::shared_ptr< AerodynamicCoefficientSettings > customAerodynamicCoefficientSettingsDeprecated(
+        const std::function< Eigen::Vector3d( const std::vector< double >& ) > forceCoefficientFunction,
+        const double referenceArea,
+        const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables >
+        independentVariableNames,
+        const bool areCoefficientsInAerodynamicFrame = true,
+        const bool areCoefficientsInNegativeAxisDirection = true )
+{
+    static bool isWarningPrinted = false;
+    if( isWarningPrinted == false )
+    {
+        tudat::utilities::printDeprecationWarning( "tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.custom",
+                             "tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.custom_aerodynamic_force_coefficients");
+        isWarningPrinted = true;
+    }
+
+    return customAerodynamicCoefficientSettingsDeprecated(
+                forceCoefficientFunction, referenceArea, independentVariableNames,
+                areCoefficientsInAerodynamicFrame,
+                areCoefficientsInNegativeAxisDirection );
+
+}
+}
+}
 
 namespace tudatpy {
 namespace numerical_simulation {
@@ -76,7 +107,7 @@ namespace aerodynamic_coefficients {
               py::arg("are_coefficients_in_negative_axis_direction") = true,
               get_docstring("constant").c_str());
 
-        m.def("custom",
+        m.def("custom_aerodynamic_force_coefficients",
               py::overload_cast<
                       const std::function<Eigen::Vector3d(const std::vector<double> &)>,
                       const double, const std::vector<ta::AerodynamicCoefficientsIndependentVariables>,
@@ -86,7 +117,35 @@ namespace aerodynamic_coefficients {
               py::arg("independent_variable_names"),
               py::arg("are_coefficients_in_aerodynamic_frame") = true,
               py::arg("are_coefficients_in_negative_axis_direction") = true,
-              get_docstring("custom").c_str());
+              get_docstring("custom_aerodynamic_force_coefficients").c_str());
+
+        m.def("custom_aerodynamic_force_and_moment_coefficients",
+              py::overload_cast<
+              const std::function< Eigen::Vector3d( const std::vector< double >& ) >,
+              const std::function< Eigen::Vector3d( const std::vector< double >& ) >,
+              const double,
+              const double,
+              const Eigen::Vector3d&,
+              const std::vector< ta::AerodynamicCoefficientsIndependentVariables >,
+              const bool,
+              const bool >(&tss::customAerodynamicCoefficientSettings),
+              py::arg("force_coefficient_function"),
+              py::arg("moment_coefficient_function"),
+              py::arg("reference_length"),
+              py::arg("reference_area"),
+              py::arg("moment_reference_point"),
+              py::arg("independent_variable_names"),
+              py::arg("are_coefficients_in_aerodynamic_frame") = true,
+              py::arg("are_coefficients_in_negative_axis_direction") = true,
+              get_docstring("custom_aerodynamic_force_and_moment_coefficients").c_str());
+
+        m.def("custom",
+              &tss::customAerodynamicCoefficientSettingsDeprecated,
+              py::arg("force_coefficient_function"),
+              py::arg("reference_area"),
+              py::arg("independent_variable_names"),
+              py::arg("are_coefficients_in_aerodynamic_frame") = true,
+              py::arg("are_coefficients_in_negative_axis_direction") = true );
 
         m.def("tabulated",
               py::overload_cast<
