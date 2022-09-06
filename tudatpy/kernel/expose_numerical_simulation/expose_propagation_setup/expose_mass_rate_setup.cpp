@@ -9,6 +9,7 @@
  */
 
 #include "expose_mass_rate_setup.h"
+#include <tudat/basics/deprecationWarnings.h>
 
 #include "tudatpy/docstrings.h"
 #include <tudat/simulation/propagation_setup.h>
@@ -29,6 +30,30 @@ namespace te = tudat::ephemerides;
 namespace tni = tudat::numerical_integrators;
 namespace trf = tudat::reference_frames;
 namespace tmrf = tudat::root_finders;
+
+
+namespace tudat
+{
+namespace simulation_setup
+{
+
+inline std::shared_ptr< MassRateModelSettings > customMassRateDeprecated(
+        const std::function< double( const double ) > massRateFunction )
+
+{
+    static bool isWarningPrinted = false;
+    if( isWarningPrinted == false )
+    {
+        tudat::utilities::printDeprecationWarning( "tudatpy.numerical_simulation.propagation_setup.mass_rate.custom",
+                             "tudatpy.numerical_simulation.propagation_setup.mass_rate.custom_mass_rate");
+        isWarningPrinted = true;
+    }
+
+    return customMassRate( massRateFunction );
+
+}
+}
+}
 
 namespace tudatpy {
 namespace numerical_simulation {
@@ -78,10 +103,12 @@ namespace mass_rate {
               py::arg("associated_thrust_source") = "",
               get_docstring("from_thrust").c_str());
 
-        m.def("custom", &tss::customMassRate,
-              py::arg("mass_rate_function"),
-              get_docstring("custom").c_str());
+        m.def("custom", &tss::customMassRateDeprecated,
+              py::arg("mass_rate_function") );
 
+        m.def("custom_mass_rate", &tss::customMassRate,
+              py::arg("mass_rate_function"),
+              get_docstring("custom_mass_rate").c_str());
 
     }
 

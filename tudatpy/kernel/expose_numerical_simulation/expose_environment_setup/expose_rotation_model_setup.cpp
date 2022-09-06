@@ -132,14 +132,64 @@ namespace rotation_model {
               get_docstring("gcrs_to_itrs").c_str()
         );
 
-        m.def("constant",
+        m.def("aerodynamic_angle_based",
+              &tss::aerodynamicAngleRotationSettings,
+              py::arg("central_body"),
+              py::arg("base_frame"),
+              py::arg("target_frame"),
+              py::arg("angle_funcion") = nullptr,
+              get_docstring("aerodynamic_angle_based").c_str()
+        );
+
+        m.def("zero_pitch_moment_aerodynamic_angle_based",
+              &tss::pitchTrimRotationSettings,
+              py::arg("central_body"),
+              py::arg("base_frame"),
+              py::arg("target_frame"),
+              py::arg("angle_funcion") = nullptr,
+              get_docstring("zero_pitch_moment_aerodynamic_angle_based").c_str()
+        );
+
+        m.def("custom_inertial_direction_based",
+              &tss::bodyFixedDirectionBasedRotationSettings,
+              py::arg("inertial_body_axis_direction"),
+              py::arg("base_frame"),
+              py::arg("target_frame"),
+              py::arg("free_rotation_angle_function") = nullptr,
+              get_docstring("custom_inertial_direction_based").c_str()
+        );
+
+        m.def("orbital_state_direction_based",
+              &tss::orbitalStateBasedRotationSettings,
+              py::arg("central_body"),
+              py::arg("is_colinear_with_velocity"),
+              py::arg("direction_is_opposite_to_vector"),
+              py::arg("base_frame"),
+              py::arg("target_frame") = "",
+              py::arg("free_rotation_angle_function") = nullptr,
+              get_docstring("orbital_state_direction_based").c_str()
+              );
+
+
+        m.def("constant_rotation_model",
               py::overload_cast<const std::string &, const std::string &, const Eigen::Matrix3d &>(
                       &tss::constantRotationModelSettings),
               py::arg("base_frame"),
               py::arg("target_frame"),
               py::arg("initial_orientation"),
-              get_docstring("constant").c_str()
+              get_docstring("constant_rotation_model").c_str()
         );
+
+        m.def("custom_rotation_model",
+              &tss::customRotationModelSettings,
+              py::arg("base_frame"),
+              py::arg("target_frame"),
+              py::arg("custom_rotation_matrix_function"),
+              py::arg("finite_difference_time_step"),
+              get_docstring("custom_rotation_model").c_str()
+        );
+
+
 
         m.def("mars_high_accuracy",
               &tss::getHighAccuracyMarsRotationModel,

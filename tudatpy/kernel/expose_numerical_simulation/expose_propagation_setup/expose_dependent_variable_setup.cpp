@@ -9,6 +9,7 @@
  */
 
 #include "expose_dependent_variable_setup.h"
+#include <tudat/basics/deprecationWarnings.h>
 
 #include "tudatpy/docstrings.h"
 #include <tudat/simulation/propagation_setup.h>
@@ -29,6 +30,32 @@ namespace te = tudat::ephemerides;
 namespace tni = tudat::numerical_integrators;
 namespace trf = tudat::reference_frames;
 namespace tmrf = tudat::root_finders;
+
+
+namespace tudat
+{
+namespace propagators
+{
+
+std::shared_ptr< SingleDependentVariableSaveSettings > customDependentVariableDeprecated(
+        const std::function< Eigen::VectorXd( ) > customDependentVariableFunction,
+        const int dependentVariableSize  )
+{
+    static bool isWarningPrinted = false;
+    if( isWarningPrinted == false )
+    {
+        tudat::utilities::printDeprecationWarning( "tudatpy.numerical_simulation.propagation_setup.dependent_variable.custom",
+                             "tudatpy.numerical_simulation.propagation_setup.dependent_variable.custom_dependent_variable");
+        isWarningPrinted = true;
+    }
+
+    return customDependentVariable(
+                customDependentVariableFunction, dependentVariableSize );
+
+}
+
+}
+}
 
 namespace tudatpy {
 namespace numerical_simulation {
@@ -602,11 +629,16 @@ namespace dependent_variable {
               py::arg("body"),
               get_docstring("total_mass_rate").c_str());
 
-        m.def("custom",
+        m.def("custom_dependent_variable",
               &tp::customDependentVariable,
               py::arg("custom_function"),
               py::arg("variable_size"),
-              get_docstring("custom").c_str());
+              get_docstring("custom_dependent_variable").c_str());
+
+        m.def("custom",
+              &tp::customDependentVariableDeprecated,
+              py::arg("custom_function"),
+              py::arg("variable_size"));
 
 
     }
