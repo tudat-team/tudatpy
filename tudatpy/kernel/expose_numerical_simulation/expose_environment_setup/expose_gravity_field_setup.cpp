@@ -74,6 +74,8 @@ void expose_gravity_field_setup(py::module &m) {
             .value("glgm3150", tss::SphericalHarmonicsModel::glgm3150, get_docstring("SphericalHarmonicsModel.glgm3150").c_str())
             .value("lpe200", tss::SphericalHarmonicsModel::lpe200, get_docstring("SphericalHarmonicsModel.lpe200").c_str())
             .value("jgmro120d", tss::SphericalHarmonicsModel::jgmro120d, get_docstring("SphericalHarmonicsModel.jgmro120d").c_str())
+            .value("jgmess160a", tss::SphericalHarmonicsModel::jgmess160a, get_docstring("SphericalHarmonicsModel.jgmess160a").c_str())
+            .value("jgmess160a", tss::SphericalHarmonicsModel::jgmess160a, get_docstring("SphericalHarmonicsModel.jgmess160a").c_str())
             .export_values();
 
     py::class_<tss::GravityFieldSettings, std::shared_ptr<tss::GravityFieldSettings>>(

@@ -176,7 +176,7 @@ namespace spice {
                   const double>(),
                   py::arg("target_body_name"),
                   py::arg("observer_body_name"),
-                  py::arg("correct_for_stellar_aberration") = true,
+                  py::arg("correct_for_stellar_aberration") = false,
                   py::arg("correct_for_light_time_aberration") = true,
                   py::arg("converge_light_time_aberration") = false,
                   py::arg("reference_frame_name") = "ECLIPJ2000",
