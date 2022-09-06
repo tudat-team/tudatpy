@@ -9,6 +9,7 @@
  */
 
 #include "expose_ephemeris_setup.h"
+#include <tudat/basics/deprecationWarnings.h>
 
 #include "tudatpy/docstrings.h"
 #include <tudat/simulation/environment_setup.h>
@@ -27,6 +28,31 @@ namespace tss = tudat::simulation_setup;
 namespace te = tudat::ephemerides;
 namespace ti = tudat::interpolators;
 
+
+namespace tudat
+{
+namespace simulation_setup
+{
+
+inline std::shared_ptr< EphemerisSettings > customEphemerisSettingsDeprecated(
+        const std::function< Eigen::Vector6d( const double ) > customStateFunction,
+        const std::string& frameOrigin = "SSB",
+        const std::string& frameOrientation = "ECLIPJ2000" )
+{
+    static bool isWarningPrinted = false;
+    if( isWarningPrinted == false )
+    {
+        tudat::utilities::printDeprecationWarning( "tudatpy.numerical_simulation.environment_setup.ephemeris.custom",
+                             "tudatpy.numerical_simulation.environment_setup.ephemeris.custom_ephemeris");
+        isWarningPrinted = true;
+    }
+
+    return customEphemerisSettings(
+                customStateFunction, frameOrigin, frameOrientation );
+
+}
+}
+}
 
 namespace tudatpy {
 namespace numerical_simulation {
@@ -293,12 +319,18 @@ namespace ephemeris {
               py::arg("is_scaling_absolute") = false,
               get_docstring("scaled_by_vector_function", 0).c_str());
 
-        m.def("custom",
+        m.def("custom_ephemeris",
               &tss::customEphemerisSettings,
               py::arg("custom_state_function"),
               py::arg("frame_origin") = "SSB",
               py::arg("frame_orientation") = "ECLIPJ2000",
-              get_docstring("custom").c_str());
+              get_docstring("custom_ephemeris").c_str());
+
+        m.def("custom",
+              &tss::customEphemerisSettingsDeprecated,
+              py::arg("custom_state_function"),
+              py::arg("frame_origin") = "SSB",
+              py::arg("frame_orientation") = "ECLIPJ2000" );
     }
 
 

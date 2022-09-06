@@ -134,10 +134,10 @@ namespace spice {
               py::arg("body_name"),
               get_docstring("convert_body_name_to_naif_id").c_str());
 
-        // kernel pool related
-        m.def("get_standard_kernels",
-              &tudat::spice_interface::getStandardSpiceKernels,
-              get_docstring("get_standard_kernels").c_str());
+//        // kernel pool related
+//        m.def("get_standard_kernels",
+//              &tudat::spice_interface::getStandardSpiceKernels,
+//              get_docstring("get_standard_kernels").c_str());
 
         m.def("load_standard_kernels",
               &tudat::spice_interface::loadStandardSpiceKernels,
@@ -176,7 +176,7 @@ namespace spice {
                   const double>(),
                   py::arg("target_body_name"),
                   py::arg("observer_body_name"),
-                  py::arg("correct_for_stellar_aberration") = true,
+                  py::arg("correct_for_stellar_aberration") = false,
                   py::arg("correct_for_light_time_aberration") = true,
                   py::arg("converge_light_time_aberration") = false,
                   py::arg("reference_frame_name") = "ECLIPJ2000",
