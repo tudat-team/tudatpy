@@ -374,27 +374,65 @@ void TransferTrajectory::getLegTotalParameters(
         legTotalParameters.resize( 2, 1 );
         legTotalParameters( 0 ) = nodeTimes.at( legIndex );
         legTotalParameters( 1 ) = nodeTimes.at( legIndex + 1 );
+        if( legFreeParameters.rows( ) != 0 )
+        {
+            throw std::runtime_error(
+                        "Error when getting leg parameters for leg " + std::to_string( legIndex ) +
+                        " (type: unpowered, unperturbed). Leg should have no free parameters (except node times), but " +
+                        std::to_string( legFreeParameters.rows( ) ) + " free parameters detected." );
+        }
     }
     else if( legs_.at( legIndex )->getTransferLegType( ) == dsm_position_based_leg )
     {
         legTotalParameters.resize( 6, 1 );
         legTotalParameters( 0 ) = nodeTimes.at( legIndex );
         legTotalParameters( 1 ) = nodeTimes.at( legIndex + 1 );
-        legTotalParameters.segment( 2, 4 ) = legFreeParameters;
+        if( legFreeParameters.rows( ) != 4 )
+        {
+            throw std::runtime_error(
+                        "Error when getting leg parameters for leg " + std::to_string( legIndex ) +
+                        " (type: position-based DSM). Leg should have 4 free parameters (except node times), but " +
+                        std::to_string( legFreeParameters.rows( ) ) + " free parameters detected." );
+        }
+        else
+        {
+            legTotalParameters.segment( 2, 4 ) = legFreeParameters;
+        }
+
     }
     else if( legs_.at( legIndex )->getTransferLegType( ) == dsm_velocity_based_leg )
     {
         legTotalParameters.resize( 3, 1 );
         legTotalParameters( 0 ) = nodeTimes.at( legIndex );
         legTotalParameters( 1 ) = nodeTimes.at( legIndex + 1 );
-        legTotalParameters( 2 ) = legFreeParameters( 0 );
+        if( legFreeParameters.rows( ) != 1 )
+        {
+            throw std::runtime_error(
+                        "Error when getting leg parameters for leg " + std::to_string( legIndex ) +
+                        " (type: velocity-based DSM). Leg should have 1 free parameters (except node times), but " +
+                        std::to_string( legFreeParameters.rows( ) ) + " free parameters detected." );
+        }
+        else
+        {
+            legTotalParameters( 2 ) = legFreeParameters( 0 );
+        }
     }
     else if( legs_.at( legIndex )->getTransferLegType( ) == spherical_shaping_low_thrust_leg )
     {
         legTotalParameters.resize( 3, 1 );
         legTotalParameters( 0 ) = nodeTimes.at( legIndex );
         legTotalParameters( 1 ) = nodeTimes.at( legIndex + 1 );
-        legTotalParameters( 2 ) = legFreeParameters( 0 );
+        if( legFreeParameters.rows( ) != 1 )
+        {
+            throw std::runtime_error(
+                        "Error when getting leg parameters for leg " + std::to_string( legIndex ) +
+                        " (type: spherical shaping). Leg should have 1 free parameters (except node times), but " +
+                        std::to_string( legFreeParameters.rows( ) ) + " free parameters detected." );
+        }
+        else
+        {
+            legTotalParameters( 2 ) = legFreeParameters( 0 );
+        }
     }
     else if ( legs_.at( legIndex )->getTransferLegType( ) == hodographic_low_thrust_leg )
     {
@@ -409,7 +447,18 @@ void TransferTrajectory::getLegTotalParameters(
         legTotalParameters.resize( 3 + legFreeVelocityShapingParameters, 1 );
         legTotalParameters( 0 ) = nodeTimes.at( legIndex );
         legTotalParameters( 1 ) = nodeTimes.at( legIndex + 1 );
-        legTotalParameters.segment( 2, 1 + legFreeVelocityShapingParameters) = legFreeParameters;
+        if( 1 + legFreeVelocityShapingParameters != legFreeParameters.rows( ) )
+        {
+            throw std::runtime_error(
+                        "Error getting leg parameters, hodographic leg free parameters are incompatible for leg " + std::to_string( legIndex ) +
+                        ". Expected " + std::to_string( 1 + legFreeVelocityShapingParameters ) +
+                        " free parameters (excluding node times; including number of revolutions), but "  +
+                        std::to_string( legFreeParameters.rows( ) ) + " are provided." );
+        }
+        else
+        {
+            legTotalParameters.segment( 2, 1 + legFreeVelocityShapingParameters) = legFreeParameters;
+        }
     }
     else
     {
