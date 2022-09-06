@@ -46,6 +46,11 @@ YACMA_PYTHON_MODULE(kernel
         # kernel
         kernel/kernel.cpp
 
+        # kernel/utils
+        kernel/expose_utils.cpp
+        kernel/expose_utils/expose_data.cpp
+
+
         # kernel/astro
         kernel/expose_astro.cpp
         kernel/expose_astro/expose_gravitation.cpp
