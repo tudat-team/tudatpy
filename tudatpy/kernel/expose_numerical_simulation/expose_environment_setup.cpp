@@ -161,6 +161,31 @@ namespace environment_setup {
               py::arg("bodies"), py::arg("body_name"), py::arg("radiation_pressure_settings"),
               get_docstring("add_radiation_pressure_interface").c_str());
 
+        m.def("add_rotation_model",
+              &tss::addRotationModel,
+              py::arg("bodies"), py::arg("body_name"), py::arg("rotation_model_settings"),
+              get_docstring("add_rotation_model").c_str());
+
+
+        m.def("add_engine_model",
+              &tss::addEngineModel,
+              py::arg("body_name"),
+              py::arg("engine_name"),
+              py::arg("thrust_magnitude_settings"),
+              py::arg("bodies"),
+              py::arg("body_fixed_thrust_direction") = Eigen::Vector3d::UnitX( ),
+              get_docstring("add_engine_model").c_str());
+
+        m.def("add_variable_direction_engine_model",
+              &tss::addVariableDirectionEngineModel,
+              py::arg("body_name"),
+              py::arg("engine_name"),
+              py::arg("thrust_magnitude_settings"),
+              py::arg("bodies"),
+              py::arg("body_fixed_thrust_direction_function"),
+              get_docstring("add_variable_direction_engine_model").c_str());
+
+
         m.def("add_flight_conditions",
               &tss::addFlightConditions,
               py::arg("bodies"), py::arg("body_name"), py::arg("central_body_name"),
@@ -183,30 +208,6 @@ namespace environment_setup {
               py::arg("radiationPressureInterfaceSettings"), py::arg("body_name"),
               py::arg("body_dict"));
 
-        m.def("set_aerodynamic_guidance",
-              py::overload_cast<
-                      const std::shared_ptr<ta::AerodynamicGuidance>,
-                      const std::shared_ptr<tss::Body >,
-                      const bool >
-                      (&tss::setGuidanceAnglesFunctions),
-              py::arg("aerodynamic_guidance"),
-              py::arg("body"),
-              py::arg("silence_warnings") = false );
-
-        m.def("set_aerodynamic_orientation_functions", &tss::setAerodynamicOrientationFunctions,
-              py::arg("body"),
-              py::arg("angle_of_attack_function") = std::function<double()>(),
-              py::arg("sideslip_angle_function") = std::function<double()>(),
-              py::arg("bank_angle_function") = std::function<double()>(),
-              py::arg("update_function") = std::function<void(const double)>());
-
-        m.def("set_constant_aerodynamic_orientation", &tss::setConstantAerodynamicOrientation,
-              py::arg("body"),
-              py::arg("angle_of_attack"),
-              py::arg("sideslip_angle"),
-              py::arg("bank_angle"),
-              py::arg("silence_warnings") = false );
-
         m.def("get_ground_station_list",
               &tss::getGroundStationsLinkEndList,
               py::arg( "body" ) );
@@ -217,12 +218,6 @@ namespace environment_setup {
               py::arg( "target_body" ),
               py::arg( "station_name" ),
               py::arg( "times" ) );
-
-        m.def("add_flight_conditions",
-              &tss::addFlightConditions,
-              py::arg( "bodies" ),
-              py::arg( "body_name" ),
-              py::arg( "central_body_name" ) );
 
         auto aerodynamic_coefficient_setup = m.def_submodule("aerodynamic_coefficients");
         aerodynamic_coefficients::expose_aerodynamic_coefficient_setup(aerodynamic_coefficient_setup);
@@ -248,7 +243,37 @@ namespace environment_setup {
         auto gravity_variation_setup = m.def_submodule("gravity_field_variation");
         gravity_field_variation::expose_gravity_field_variation_setup(gravity_variation_setup);
 
+//        auto system_model_setup = m.def_submodule("system_models");
+//        gravity_field_variation::expose_system_model_setup(system_model_setup);
 
+
+
+        // Function removed; error is shown
+        m.def("set_aerodynamic_guidance",
+              py::overload_cast<
+                      const std::shared_ptr<ta::AerodynamicGuidance>,
+                      const std::shared_ptr<tss::Body >,
+                      const bool >
+                      (&tss::setGuidanceAnglesFunctions),
+              py::arg("aerodynamic_guidance"),
+              py::arg("body"),
+              py::arg("silence_warnings") = false );
+
+        // Function removed; error is shown
+        m.def("set_aerodynamic_orientation_functions", &tss::setAerodynamicOrientationFunctions,
+              py::arg("body"),
+              py::arg("angle_of_attack_function") = std::function<double()>(),
+              py::arg("sideslip_angle_function") = std::function<double()>(),
+              py::arg("bank_angle_function") = std::function<double()>(),
+              py::arg("update_function") = std::function<void(const double)>());
+
+        // Function removed; error is shown
+        m.def("set_constant_aerodynamic_orientation", &tss::setConstantAerodynamicOrientation,
+              py::arg("body"),
+              py::arg("angle_of_attack"),
+              py::arg("sideslip_angle"),
+              py::arg("bank_angle"),
+              py::arg("silence_warnings") = false );
     }
 
 }// namespace environment_setup
