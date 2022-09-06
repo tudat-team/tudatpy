@@ -128,6 +128,9 @@ namespace dependent_variable {
                 .value("periapsis_altitude_type",
                        tp::PropagationDependentVariables::periapsis_altitude_dependent_variable,
                        get_docstring("PropagationDependentVariables.periapsis_altitude_type").c_str())
+                .value("apoapsis_altitude_type",
+                       tp::PropagationDependentVariables::apoapsis_altitude_dependent_variable,
+                       get_docstring("PropagationDependentVariables.apoapsis_altitude_type").c_str())
                 .value("total_torque_norm_type",
                        tp::PropagationDependentVariables::total_torque_norm_dependent_variable,
                        get_docstring("PropagationDependentVariables.total_torque_norm_type").c_str())
@@ -390,11 +393,13 @@ namespace dependent_variable {
         m.def("aerodynamic_force_coefficients",
               &tp::aerodynamicForceCoefficientDependentVariable,
               py::arg("body"),
+              py::arg("central_body") = "",
               get_docstring("aerodynamic_force_coefficients").c_str());
 
         m.def("aerodynamic_moment_coefficients",
               &tp::aerodynamicMomentCoefficientDependentVariable,
               py::arg("body"),
+              py::arg("central_body") = "",
               get_docstring("aerodynamic_moment_coefficients").c_str());
 
         m.def("latitude",
@@ -474,6 +479,36 @@ namespace dependent_variable {
               py::arg("identifier") = "",
               get_docstring("single_per_term_gravity_field_variation_acceleration").c_str());
 
+        m.def("total_spherical_harmonic_cosine_coefficien_variations",
+              &tp::totalSphericalHarmonicCosineCoefficientVariation,
+              py::arg("body"),
+              py::arg("minimum_degree"),
+              py::arg("maximum_degree"),
+              py::arg("minimum_order"),
+              py::arg("maximum_order"),
+              get_docstring("total_spherical_harmonic_cosine_coefficien_variation").c_str());
+
+        m.def("total_spherical_harmonic_sine_coefficien_variations",
+              &tp::totalSphericalHarmonicSineCoefficientVariation,
+              py::arg("body"),
+              py::arg("minimum_degree"),
+              py::arg("maximum_degree"),
+              py::arg("minimum_order"),
+              py::arg("maximum_order"),
+              get_docstring("total_spherical_harmonic_sine_coefficien_variation").c_str());
+
+        m.def("total_spherical_harmonic_cosine_coefficien_variations_from_indices",
+              &tp::totalSphericalHarmonicCosineCoefficientVariationFromIndices,
+              py::arg("body"),
+              py::arg("component_indices"),
+              get_docstring("total_spherical_harmonic_cosine_coefficien_variations_from_indices").c_str());
+
+        m.def("total_spherical_harmonic_sine_coefficien_variations_from_indices",
+              &tp::totalSphericalHarmonicCosineCoefficientVariationFromIndices,
+              py::arg("body"),
+              py::arg("component_indices"),
+              get_docstring("total_spherical_harmonic_cosine_coefficien_variations_from_indices").c_str());
+
         m.def("body_fixed_airspeed_velocity",
               &tp::bodyFixedAirspeedBasedVelocityVariable,
               py::arg("body"),
@@ -513,6 +548,7 @@ namespace dependent_variable {
               py::arg("body"),
               py::arg("base_frame"),
               py::arg("target_frame"),
+              py::arg("central_body") = "",
               get_docstring("intermediate_aerodynamic_rotation_matrix_variable").c_str());
 
         m.def("periapsis_altitude",
@@ -520,6 +556,12 @@ namespace dependent_variable {
               py::arg("body"),
               py::arg("central_body"),
               get_docstring("periapsis_altitude").c_str());
+
+        m.def("apoapsis_altitude",
+              &tp::apoapsisAltitudeVariable,
+              py::arg("body"),
+              py::arg("central_body"),
+              get_docstring("apoapsis_altitude").c_str());
 
         m.def("control_surface_deflection",
               &tp::controlSurfaceDeflectionDependentVariable,
@@ -565,6 +607,7 @@ namespace dependent_variable {
               py::arg("custom_function"),
               py::arg("variable_size"),
               get_docstring("custom").c_str());
+
 
     }
 
