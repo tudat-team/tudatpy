@@ -294,7 +294,9 @@ enum SphericalHarmonicsModel
     glgm3150,
     lpe200,
     gggrx1200,
-    jgmro120d
+    jgmro120d,
+    jgmess160a,
+    shgj180u
 };
 
 // Get the path of the SH file for a SH model.

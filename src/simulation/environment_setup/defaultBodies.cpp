@@ -8,7 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define DEFAULT_MERCURY_GRAVITY_FIELD_SETTINGS
+#define DEFAULT_MERCURY_GRAVITY_FIELD_SETTINGS std::make_shared< FromFileSphericalHarmonicsGravityFieldSettings >( jgmess160a )
+#define DEFAULT_VENUS_GRAVITY_FIELD_SETTINGS std::make_shared< FromFileSphericalHarmonicsGravityFieldSettings >( shgj180u )
 #define DEFAULT_EARTH_GRAVITY_FIELD_SETTINGS std::make_shared< FromFileSphericalHarmonicsGravityFieldSettings >( goco05c, 200 )
 #define DEFAULT_MOON_GRAVITY_FIELD_SETTINGS std::make_shared< FromFileSphericalHarmonicsGravityFieldSettings >( gggrx1200, 200 )
 #define DEFAULT_MARS_GRAVITY_FIELD_SETTINGS std::make_shared< FromFileSphericalHarmonicsGravityFieldSettings >( jgmro120d )
@@ -93,6 +94,14 @@ std::shared_ptr< GravityFieldSettings > getDefaultGravityFieldSettings(
     else if( bodyName == "Mars" )
     {
         return DEFAULT_MARS_GRAVITY_FIELD_SETTINGS;
+    }
+    else if( bodyName == "Venus" )
+    {
+        return DEFAULT_VENUS_GRAVITY_FIELD_SETTINGS;
+    }
+    else if( bodyName == "Mercury" )
+    {
+        return DEFAULT_MERCURY_GRAVITY_FIELD_SETTINGS;
     }
     else if( bodyName == "Jupiter" )
     {

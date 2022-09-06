@@ -380,21 +380,26 @@ void loadStandardSpiceKernels(const std::vector<std::string> alternativeEphemeri
 
     std::string kernelPath = paths::getSpiceKernelPath();
     loadSpiceKernelInTudat(kernelPath + "/pck00010.tpc");
-    loadSpiceKernelInTudat(kernelPath + "/gm_de431.tpc");
+//    loadSpiceKernelInTudat(kernelPath + "/gm_de431.tpc");
     loadSpiceKernelInTudat(kernelPath + "/inpop19a_TDB_m100_p100_spice.tpc");
     loadSpiceKernelInTudat(kernelPath + "/NOE-4-2020.tpc");
     loadSpiceKernelInTudat(kernelPath + "/NOE-5-2021.tpc");
     loadSpiceKernelInTudat(kernelPath + "/NOE-6-2018-MAIN-v2.tpc");
 
-    if (alternativeEphemerisKernels.size() == 0) {
+    if (alternativeEphemerisKernels.size() == 0)
+    {
 
+        loadSpiceKernelInTudat(kernelPath + "/codes_300ast_20100725.bsp");
         loadSpiceKernelInTudat(kernelPath + "/inpop19a_TDB_m100_p100_spice.bsp");
         loadSpiceKernelInTudat(kernelPath + "/NOE-4-2020.bsp");
         loadSpiceKernelInTudat(kernelPath + "/NOE-5-2021.bsp");
         loadSpiceKernelInTudat(kernelPath + "/NOE-6-2018-MAIN-v2.bsp");
 
-    } else {
-        for (unsigned int i = 0; i < alternativeEphemerisKernels.size(); i++) {
+    }
+    else
+    {
+        for (unsigned int i = 0; i < alternativeEphemerisKernels.size(); i++)
+        {
             loadSpiceKernelInTudat(alternativeEphemerisKernels.at(i));
         }
     }
