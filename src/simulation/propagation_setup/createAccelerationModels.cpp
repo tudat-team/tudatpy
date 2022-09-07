@@ -932,6 +932,12 @@ createRadiationPressureAccelerationModel(
                 std::bind( &Body::getCurrentRotationToGlobalFrame, originalSource ),
                 occultationModel);
     }
+    else
+    {
+        throw std::runtime_error( "Error when making radiation pressure acceleration, radiation source model "
+                                  "for body " + sourceName +
+                                  " is not supported." );
+    }
 }
 
 //! Function to create a cannonball radiation pressure acceleration model.
