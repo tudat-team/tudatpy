@@ -1836,40 +1836,69 @@ std::function< double( ) > getDoubleDependentVariableFunction(
             if ( selectedAccelerationModelType == basic_astrodynamics::spherical_harmonic_gravity )
             {
                 std::shared_ptr< gravitation::SphericalHarmonicsGravitationalAccelerationModel >
-                        castSelectedAccelerationModel =  std::dynamic_pointer_cast<
+                        sphericalHarmonicsAccelerationModel =  std::dynamic_pointer_cast<
                                 gravitation::SphericalHarmonicsGravitationalAccelerationModel >( selectedAccelerationModel );
+
+                sphericalHarmonicsAccelerationModel->resetUpdatePotential( true );
+                variableFunction = [=]( ){ return sphericalHarmonicsAccelerationModel->getCurrentPotential( ); };
             }
             else if ( selectedAccelerationModelType == basic_astrodynamics::third_body_spherical_harmonic_gravity )
             {
                 std::shared_ptr< gravitation::ThirdBodySphericalHarmonicsGravitationalAccelerationModel >
-                        castSelectedAccelerationModel =  std::dynamic_pointer_cast<
+                        thirdBodySphericalHarmonicsAccelerationModel =  std::dynamic_pointer_cast<
                                 gravitation::ThirdBodySphericalHarmonicsGravitationalAccelerationModel >( selectedAccelerationModel );
+
+                std::shared_ptr< gravitation::SphericalHarmonicsGravitationalAccelerationModel >
+                        sphericalHarmonicsAccelerationModel =  std::dynamic_pointer_cast<
+                                gravitation::SphericalHarmonicsGravitationalAccelerationModel >(
+                                        thirdBodySphericalHarmonicsAccelerationModel->getAccelerationModelForBodyUndergoingAcceleration( ) );
+
+                sphericalHarmonicsAccelerationModel->resetUpdatePotential( true );
+                variableFunction = [=]( ){ return sphericalHarmonicsAccelerationModel->getCurrentPotential( ); };
             }
             else if ( selectedAccelerationModelType == basic_astrodynamics::point_mass_gravity )
             {
                 std::shared_ptr< gravitation::CentralGravitationalAccelerationModel3d >
-                        castSelectedAccelerationModel =  std::dynamic_pointer_cast<
+                        pointMassAccelerationModel =  std::dynamic_pointer_cast<
                                 gravitation::CentralGravitationalAccelerationModel3d >( selectedAccelerationModel );
+                pointMassAccelerationModel->resetUpdatePotential( true );
+                variableFunction = [=]( ){ return pointMassAccelerationModel->getCurrentPotential( ); };
             }
             else if ( selectedAccelerationModelType == basic_astrodynamics::third_body_point_mass_gravity )
             {
                 std::shared_ptr< gravitation::ThirdBodyCentralGravityAcceleration >
-                        castSelectedAccelerationModel =  std::dynamic_pointer_cast<
+                        thirdBodyPointMassAccelerationModel =  std::dynamic_pointer_cast<
                                 gravitation::ThirdBodyCentralGravityAcceleration >( selectedAccelerationModel );
+
+                std::shared_ptr< gravitation::CentralGravitationalAccelerationModel3d >
+                        pointMassAccelerationModel =  std::dynamic_pointer_cast<
+                                gravitation::CentralGravitationalAccelerationModel3d >(
+                                        thirdBodyPointMassAccelerationModel->getAccelerationModelForBodyUndergoingAcceleration( ) );
+
+                pointMassAccelerationModel->resetUpdatePotential( true );
+                variableFunction = [=]( ){ return pointMassAccelerationModel->getCurrentPotential( ); };
             }
             else if ( selectedAccelerationModelType == basic_astrodynamics::polyhedron_gravity )
             {
                 std::shared_ptr< gravitation::PolyhedronGravitationalAccelerationModel >
-                        castSelectedAccelerationModel =  std::dynamic_pointer_cast<
+                        polyhedronAccelerationModel =  std::dynamic_pointer_cast<
                                 gravitation::PolyhedronGravitationalAccelerationModel >( selectedAccelerationModel );
-                castSelectedAccelerationModel->resetUpdatePotential( true );
-                variableFunction = [=]( ){ return castSelectedAccelerationModel->getCurrentPotential( ); };
+                polyhedronAccelerationModel->resetUpdatePotential( true );
+                variableFunction = [=]( ){ return polyhedronAccelerationModel->getCurrentPotential( ); };
             }
             else if ( selectedAccelerationModelType == basic_astrodynamics::third_body_polyhedron_gravity )
             {
                 std::shared_ptr< gravitation::ThirdBodyPolyhedronGravitationalAccelerationModel >
-                        castSelectedAccelerationModel =  std::dynamic_pointer_cast<
+                        thirdBodyPolyhedronAccelerationModel =  std::dynamic_pointer_cast<
                                 gravitation::ThirdBodyPolyhedronGravitationalAccelerationModel >( selectedAccelerationModel );
+
+                std::shared_ptr< gravitation::PolyhedronGravitationalAccelerationModel >
+                        polyhedronAccelerationModel =  std::dynamic_pointer_cast<
+                                gravitation::PolyhedronGravitationalAccelerationModel >(
+                                        thirdBodyPolyhedronAccelerationModel->getAccelerationModelForBodyUndergoingAcceleration( ) );
+
+                polyhedronAccelerationModel->resetUpdatePotential( true );
+                variableFunction = [=]( ){ return polyhedronAccelerationModel->getCurrentPotential( ); };
             }
             else
             {
