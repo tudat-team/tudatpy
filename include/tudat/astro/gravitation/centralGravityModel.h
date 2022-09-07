@@ -275,6 +275,14 @@ public:
                         this->positionOfBodySubjectToAcceleration,
                         this->gravitationalParameter,
                         this->positionOfBodyExertingAcceleration );
+
+            if ( this->updatePotential_ )
+            {
+                this->currentPotential_ = computeGravitationalPotential(
+                        this->positionOfBodySubjectToAcceleration,
+                        this->gravitationalParameter,
+                        this->positionOfBodyExertingAcceleration );
+            }
         }
     }
 
