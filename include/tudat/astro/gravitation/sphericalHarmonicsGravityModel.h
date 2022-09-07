@@ -231,7 +231,7 @@ public:
 
             if ( this->updatePotential_ )
             {
-                currentPotential_ = gravitation::calculateSphericalHarmonicGravitationalPotential(
+                this->currentPotential_ = gravitation::calculateSphericalHarmonicGravitationalPotential(
                         currentRelativePosition_,
                         gravitationalParameter,
                         equatorialRadius,
