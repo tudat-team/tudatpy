@@ -1862,6 +1862,7 @@ std::function< double( ) > getDoubleDependentVariableFunction(
                 std::shared_ptr< gravitation::PolyhedronGravitationalAccelerationModel >
                         castSelectedAccelerationModel =  std::dynamic_pointer_cast<
                                 gravitation::PolyhedronGravitationalAccelerationModel >( selectedAccelerationModel );
+                castSelectedAccelerationModel->resetUpdatePotential( true );
                 variableFunction = [=]( ){ return castSelectedAccelerationModel->getCurrentPotential( ); };
             }
             else if ( selectedAccelerationModelType == basic_astrodynamics::third_body_polyhedron_gravity )
