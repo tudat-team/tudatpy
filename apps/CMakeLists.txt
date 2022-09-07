@@ -14,3 +14,8 @@ TUDAT_ADD_EXECUTABLE(application_spice
         "src/spice_exe.cpp"
         ${Tudat_PROPAGATION_LIBRARIES}
         )
+
+TUDAT_ADD_EXECUTABLE(application_shadow_function_estimation
+        "src/shadow_function_estimation.cpp"
+        ${Tudat_PROPAGATION_LIBRARIES}
+        )
