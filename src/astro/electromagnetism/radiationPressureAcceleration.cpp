@@ -10,7 +10,7 @@ void RadiationPressureAcceleration::updateMembers(const double currentTime)
     if(currentTime_ != currentTime)
     {
         currentTime_ = currentTime;
-        // TODO for dynamic paneling, set target position here
+        // TODO-DOMINIK for dynamic paneling, set target position here
         currentAcceleration_ = calculateAcceleration();
     }
 }
@@ -91,8 +91,8 @@ Eigen::Vector3d PaneledSourceRadiationPressureAcceleration::calculateAcceleratio
 
         auto originalSourceToSourceOccultationFactor = occultationModel_->evaluateReceivedFraction(
                 originalSourceCenterPositionInGlobalFrame, originalSourceBodyShapeModel_, targetCenterPositionInGlobalFrame);
-        auto sourceToTargetOccultationFactor = static_cast<double>(occultationModel_->evaluateVisibility(
-                sourcePositionInSourceFrame, targetCenterPositionInGlobalFrame));
+        auto sourceToTargetOccultationFactor = static_cast<double>(
+                occultationModel_->evaluateVisibility(sourcePositionInSourceFrame, targetCenterPositionInGlobalFrame));
         auto occultedSourceIrradiance =
                 sourceIrradiance * originalSourceToSourceOccultationFactor * sourceToTargetOccultationFactor;
 
@@ -101,8 +101,8 @@ Eigen::Vector3d PaneledSourceRadiationPressureAcceleration::calculateAcceleratio
             // No body is occluding source seen from target
             Eigen::Vector3d sourceToTargetDirectionInTargetFrame =
                     targetRotationFromGlobalToLocalFrame * (targetCenterPositionInGlobalFrame - sourcePositionInGlobalFrame).normalized();
-            totalForceInTargetFrame += targetModel_->evaluateRadiationPressureForce(occultedSourceIrradiance,
-                                                                                    sourceToTargetDirectionInTargetFrame);
+            totalForceInTargetFrame +=
+                    targetModel_->evaluateRadiationPressureForce(occultedSourceIrradiance, sourceToTargetDirectionInTargetFrame);
         }
     }
 

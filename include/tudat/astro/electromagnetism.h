@@ -26,5 +26,6 @@
 #include "electromagnetism/radiationPressureTargetModel.h"
 #include "electromagnetism/radiationPressureAcceleration.h"
 #include "electromagnetism/reflectionLaw.h"
+#include "electromagnetism/occultationModel.h"
 
 #endif // TUDAT_ELECTROMAGNETISM_H
