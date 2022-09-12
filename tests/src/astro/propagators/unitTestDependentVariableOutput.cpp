@@ -318,6 +318,8 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
             SingleArcDynamicsSimulator< > dynamicsSimulator(
                         bodies, integratorSettings, propagatorSettings, true, false, false );
 
+            std::cout<<"Propagation finished "<<std::endl;
+
             // Retrieve numerical solutions for state and dependent variables
             std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > numericalSolution =
                     dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
@@ -342,6 +344,10 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
             for( std::map< double, Eigen::VectorXd >::iterator variableIterator = dependentVariableSolution.begin( );
                  variableIterator != dependentVariableSolution.end( ); variableIterator++ )
             {
+                if( variableIterator == dependentVariableSolution.begin( ) )
+                {
+                    std::cout<<"Analysis size "<<variableIterator->second.rows( )<<std::endl;
+                }
                 double machNumber = variableIterator->second( 0 );
                 double altitude = variableIterator->second( 1 );
                 double relativeDistance = variableIterator->second( 2 );
