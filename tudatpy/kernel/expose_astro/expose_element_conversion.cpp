@@ -27,6 +27,7 @@ namespace tcc = tudat::coordinate_conversions;
 namespace tla = tudat::linear_algebra;
 namespace te = tudat::ephemerides;
 namespace tba = tudat::basic_astrodynamics;
+namespace tmg = tudat::mission_geometry;
 
 namespace tudatpy {
 
@@ -125,6 +126,17 @@ void expose_element_conversion(py::module &m) {
           py::arg("eccentricity") ,
            get_docstring("eccentric_to_mean_anomaly").c_str());
 
+
+    m.def("mean_to_eccentric_anomaly",
+          &toec::convertMeanAnomalyToEccentricAnomaly< double >,
+          py::arg("eccentricity"),
+          py::arg("mean_anomaly"),
+          py::arg("use_default_initial_guess") = true,
+          py::arg("non_default_initial_guess") = TUDAT_NAN,
+          py::arg("root_finder") = nullptr ,
+           get_docstring("mean_to_eccentric_anomaly").c_str());
+
+
     m.def("elapsed_time_to_delta_mean_anomaly",
           &toec::convertElapsedTimeToMeanAnomalyChange< double >,
           py::arg("elapsed_time"),
@@ -160,14 +172,21 @@ void expose_element_conversion(py::module &m) {
           py::overload_cast< const Eigen::Vector6d&, const bool >(
               &toec::convertKeplerianToModifiedEquinoctialElements< double > ),
           py::arg("keplerian_elements"),
-          py::arg("singularity_at_zero_inclination") );
+          py::arg("singularity_at_zero_inclination"),
+          get_docstring("keplerian_to_mee").c_str());
 
     m.def("keplerian_to_mee",
           py::overload_cast< const Eigen::Vector6d& >(
               &toec::convertKeplerianToModifiedEquinoctialElements< double > ),
-          py::arg("keplerian_elements") );
+          py::arg("keplerian_elements"),
+          get_docstring("keplerian_to_mee").c_str());
 
-    m.def("keplerian_to_mee",
+//    m.def("flip_mee_singularity",
+//          &tmg::isOrbitRetrograde,
+//          py::arg("keplerian_elements"),
+//          get_docstring("flip_mee_singularity").c_str());
+
+    m.def("mee_to_keplerian",
           &toec::convertModifiedEquinoctialToKeplerianElements< double >,
           py::arg("modified_equinoctial_elements"),
           py::arg("singularity_at_zero_inclination") );
