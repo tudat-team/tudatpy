@@ -16,12 +16,12 @@
 
 #include "tudat/simulation/environment_setup/createRotationModel.h"
 
-#if TUDAT_BUILD_WITH_SOFA_INTERFACE
+//#if TUDAT_BUILD_WITH_SOFA_INTERFACE
 #include "tudat/astro/ephemerides/itrsToGcrsRotationModel.h"
 #include "tudat/astro/earth_orientation/earthOrientationCalculator.h"
 #include "tudat/astro/earth_orientation/shortPeriodEarthOrientationCorrectionCalculator.h"
 #include "tudat/math/interpolators/jumpDataLinearInterpolator.h"
-#endif
+//#endif
 
 #include "tudat/astro/ephemerides/synchronousRotationalEphemeris.h"
 
@@ -123,7 +123,7 @@ std::shared_ptr< ephemerides::RotationalEphemeris > createRotationModel(
         }
         break;
     }
-#if TUDAT_BUILD_WITH_SOFA_INTERFACE
+//#if TUDAT_BUILD_WITH_SOFA_INTERFACE
     case gcrs_to_itrs_rotation_model:
     {
 
@@ -201,7 +201,7 @@ std::shared_ptr< ephemerides::RotationalEphemeris > createRotationModel(
         }
 
     }
-#endif
+//#endif
 
     case spice_rotation_model:
     {
