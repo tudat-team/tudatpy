@@ -1160,7 +1160,7 @@ BOOST_AUTO_TEST_CASE( test_synchronousRotationModelSetup )
 
 
 
-#if TUDAT_BUILD_WITH_SOFA_INTERFACE
+//#if TUDAT_BUILD_WITH_SOFA_INTERFACE
 //! Test set up of GCRS<->ITRS rotation model
 BOOST_AUTO_TEST_CASE( test_earthRotationModelSetup )
 {
@@ -1217,7 +1217,7 @@ BOOST_AUTO_TEST_CASE( test_earthRotationModelSetup )
         }
     }
 }
-#endif
+//#endif
 
 
 //! Test set up of radiation pressure interfacel environment models.
