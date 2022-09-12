@@ -427,7 +427,12 @@ void expose_environment(py::module &m) {
             .def("inertial_to_body_fixed_rotation", &te::RotationalEphemeris::getRotationMatrixToTargetFrame,
                  py::arg( "time" ) )
             .def("time_derivative_inertial_to_body_fixed_rotation", &te::RotationalEphemeris::getDerivativeOfRotationToTargetFrame,
-                 py::arg( "time" ) );
+                 py::arg( "time" ) )
+            .def("angular_velocity_in_body_fixed_frame", &te::RotationalEphemeris::getRotationalVelocityVectorInTargetFrame,
+                 py::arg( "time" ) )
+            .def("angular_velocity_in_inertial_frame", &te::RotationalEphemeris::getRotationalVelocityVectorInBaseFrame,
+                 py::arg( "time" ) )
+            .def_property_readonly("body_fixed_frame_name", &te::RotationalEphemeris::getTargetFrameOrientation );
 
 
     m.def("transform_to_inertial_orientation",
@@ -457,6 +462,12 @@ void expose_environment(py::module &m) {
             .def_property("libration_calculator",
                           &te::SynchronousRotationalEphemeris::getLongitudeLibrationCalculator,
                           &te::SynchronousRotationalEphemeris::setLibrationCalculation);
+
+    py::class_<te::GcrsToItrsRotationModel,
+            std::shared_ptr<te::GcrsToItrsRotationModel>,
+            te::RotationalEphemeris>(
+                m, "GcrsToItrsRotationModel");
+
 
     /*!
      **************   GRAVITY FIELD  ******************
