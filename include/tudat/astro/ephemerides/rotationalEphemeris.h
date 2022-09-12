@@ -33,6 +33,7 @@ namespace tudat
 namespace ephemerides
 {
 
+
 //! Function to calculate the rotational velocity vector of frame B w.r.t frame A.
 /*!
  *  Function to calculate the rotational velocity vector of frame B (local) w.r.t frame A (global)
