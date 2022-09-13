@@ -93,6 +93,14 @@ void testAerodynamicAngleCalculation(
     // Update angle calculator.
     aerodynamicAngleCalculator.update( 0.0, true );
 
+    std::cout<<"Test state: " <<testState.transpose( )<<std::endl;
+    std::cout<<"Heading: " <<aerodynamicAngleCalculator.getAerodynamicAngle( heading_angle )<<" "<<testHeadingAngle<<std::endl;
+    std::cout<<"Flight-path angle: " <<aerodynamicAngleCalculator.getAerodynamicAngle( flight_path_angle )<<" "<<testFlightPathAngle<<std::endl;
+    std::cout<<"Latitude angle: " <<aerodynamicAngleCalculator.getAerodynamicAngle( latitude_angle )<<" "<<testLatitude<<std::endl;
+    std::cout<<"Longitude angle: " <<aerodynamicAngleCalculator.getAerodynamicAngle( longitude_angle )<<" "<<testLongitude<<std::endl<<std::endl;
+
+
+
     // Compare expected against computed angles.
     BOOST_CHECK_SMALL(
                 std::fabs( ( aerodynamicAngleCalculator.getAerodynamicAngle( heading_angle ) -
@@ -136,22 +144,53 @@ void testAerodynamicAngleCalculation(
             getRotatingPlanetocentricToLocalVerticalFrameTransformationMatrix(
                 testLongitude, testLatitude );
 
+
+    std::vector< Eigen::Vector3d > testVectors;
+    testVectors.push_back( Eigen::Vector3d::UnitX( ) );
+    testVectors.push_back( Eigen::Vector3d::UnitY( ) );
+    testVectors.push_back( Eigen::Vector3d::UnitZ( ) );
+
+    Eigen::Vector3d rotatedVector;
+    Eigen::Vector3d testRotatedVector;
+
     // Compare rotation matrices.
     for( unsigned int l = 0; l < 3; l++ )
     {
+        rotatedVector = aerodynamicToBodyFrameMatrix * testVectors.at( l );
+        testRotatedVector = testAerodynamicToBodyFrameMatrix * testVectors.at( l );
+
         for( unsigned int m = 0; m < 3; m++ )
         {
-            BOOST_CHECK_SMALL( std::fabs( aerodynamicToBodyFrameMatrix( l, m ) -
-                                          testAerodynamicToBodyFrameMatrix( l, m ) ), 2.0E-15 );
-            BOOST_CHECK_SMALL( std::fabs( trajectoryToAerodynamicFrameMatrix( l, m ) -
-                                          testTrajectoryToAerodynamicFrameMatrix( l, m ) ), 2.0E-15 );
-            BOOST_CHECK_SMALL( std::fabs( verticalToTrajectoryFrameMatrix( l, m ) -
-                                          testVerticalToTrajectoryFrameMatrix( l, m ) ), 2.0E-15 );
-            BOOST_CHECK_SMALL( std::fabs( corotatingToVerticalFrameMatrix( l, m ) -
-                                          testCorotatingToVerticalFrameMatrix( l, m ) ), 2.0E-15 );
-
+            BOOST_CHECK_SMALL( std::fabs( rotatedVector( m ) -
+                                          testRotatedVector( m ) ), 2.0E-15 );
         }
 
+        rotatedVector = trajectoryToAerodynamicFrameMatrix * testVectors.at( l );
+        testRotatedVector = testTrajectoryToAerodynamicFrameMatrix * testVectors.at( l );
+
+        for( unsigned int m = 0; m < 3; m++ )
+        {
+            BOOST_CHECK_SMALL( std::fabs( rotatedVector( m ) -
+                                          testRotatedVector( m ) ), 2.0E-15 );
+        }
+
+        rotatedVector = verticalToTrajectoryFrameMatrix * testVectors.at( l );
+        testRotatedVector = testVerticalToTrajectoryFrameMatrix * testVectors.at( l );
+
+        for( unsigned int m = 0; m < 3; m++ )
+        {
+            BOOST_CHECK_SMALL( std::fabs( rotatedVector( m ) -
+                                          testRotatedVector( m ) ), 2.0E-15 );
+        }
+
+        rotatedVector = corotatingToVerticalFrameMatrix * testVectors.at( l );
+        testRotatedVector = testCorotatingToVerticalFrameMatrix * testVectors.at( l );
+
+        for( unsigned int m = 0; m < 3; m++ )
+        {
+            BOOST_CHECK_SMALL( std::fabs( rotatedVector( m ) -
+                                          testRotatedVector( m ) ), 2.0E-15 );
+        }
     }
 
     // Test rotation matrix obtained directly and from combination of two rotation matrices from
@@ -211,7 +250,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicAngleCalculator )
 
         double angleOfAttack = 1.232;
         double angleOfSideslip = -0.00322;
-        double bankAngle = 2.323432;\
+        double bankAngle = 2.323432;
 
         testAerodynamicAngleCalculation( testState, testHeadingAngle, testFlightPathAngle,
                                          testLatitude, testLongitude,
