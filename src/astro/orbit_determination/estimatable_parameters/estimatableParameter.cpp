@@ -125,6 +125,7 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
         break;
     case constant_specific_impulse:
         parameterDescription = " constant specific impulse ";
+        break;
     case constant_time_drift_observation_bias:
         parameterDescription = "time drift observation bias ";
         break;

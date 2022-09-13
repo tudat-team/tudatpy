@@ -96,8 +96,8 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > EmpiricalAcceleratio
                             &EmpiricalAccelerationPartial::wrtEmpiricalAccelerationCoefficientFromIndices, this, parameter->getParameterSize( ),
                             std::dynamic_pointer_cast< EmpiricalAccelerationCoefficientsParameter >( parameter )->getIndices( ), std::placeholders::_1 );
                 numberOfRows = parameter->getParameterSize( );
-                break;
             }
+            break;
         }
         case arc_wise_empirical_acceleration_coefficients:
         {
@@ -107,8 +107,8 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > EmpiricalAcceleratio
                             &EmpiricalAccelerationPartial::wrtArcWiseEmpiricalAccelerationCoefficient, this,
                             std::dynamic_pointer_cast< ArcWiseEmpiricalAccelerationCoefficientsParameter >( parameter ), std::placeholders::_1 );
                 numberOfRows = parameter->getParameterSize( );
-                break;
             }
+            break;
         }
         default:
             break;
