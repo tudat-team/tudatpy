@@ -329,13 +329,13 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientsFromFile )
             double angleOfAttack = variableIterator->second( 1 );
             double sideslipAngle = variableIterator->second( 2 );
             double bankAngle = variableIterator->second( 3 );
-            std::cout<<"AoA "<<angleOfAttack<<std::endl;
+//            std::cout<<"AoA "<<angleOfAttack<<std::endl;
 
             double controlSurfaceDeflection  = 0.0;
             if( i > 0 )
             {
                 controlSurfaceDeflection = variableIterator->second( 4 );
-                std::cout<<"CSD "<<controlSurfaceDeflection<<std::endl;
+//                std::cout<<"CSD "<<controlSurfaceDeflection<<std::endl;
 
             }
 

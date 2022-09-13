@@ -1464,10 +1464,10 @@ BOOST_AUTO_TEST_CASE( testThrustPartials )
         testPartialWrtEngine2Thrust = calculateAccelerationWrtParameterPartials(
                     constantThrustParameter2, thrustAcceleration, 1.0 );
 
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtMass, testPartialWrtMass, 1.0E-10 );
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtEngine1Thrust, partialWrtEngine1Thrust, 1.0E-10 );
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtEngine2Thrust, partialWrtEngine2Thrust, 1.0E-10 );
-
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtMass, testPartialWrtMass, 1.0E-9 );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtEngine1Thrust, partialWrtEngine1Thrust, 1.0E-9 );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtEngine2Thrust, partialWrtEngine2Thrust, 1.0E-9 );
+        std::cout<<"Test norm: "<<testPartialWrtEngine2Thrust.norm( )<<std::endl;
         if( i == 0 )
         {
             for( int j = 0; j < 3; j++ )

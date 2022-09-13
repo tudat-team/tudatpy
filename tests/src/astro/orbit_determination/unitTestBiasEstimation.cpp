@@ -61,7 +61,7 @@ BOOST_AUTO_TEST_CASE( test_EstimationFromPosition )
                                 {
                                     if ( estimateRangeBiases || estimateMultiArcBiases )
                                     {
-                                        BOOST_CHECK_SMALL( std::fabs( totalError( j ) ), 1.0E-11 );
+                                        BOOST_CHECK_SMALL( std::fabs( totalError( j ) ), 2.0E-11 );
                                     }
                                     else
                                     {

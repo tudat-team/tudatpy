@@ -67,8 +67,14 @@ void FromThrustMassRatePartial::wrtEngineSpecificImpulse(
         const std::string& engineName )
 {
     std::shared_ptr< system_models::EngineModel > engineModel = engineModelList_.at( engineName );
+    std::cout<<"W.r.t. Isp: "<<std::endl<<
+               "Body mass: "<<currentBodyMass_<<std::endl<<
+               "Mass rate: "<<engineModel->getCurrentMassRate( currentBodyMass_ )<<std::endl<<
+               "Isp "<<engineModel->getThrustMagnitudeWrapper( )->getCurrentSpecificImpulse( )<<std::endl<<
+               "Partial-pre: "<<partialMatrix<<std::endl;
     partialMatrix( 0, 0 ) += engineModel->getCurrentMassRate( currentBodyMass_ ) /
             engineModel->getThrustMagnitudeWrapper( )->getCurrentSpecificImpulse( );
+    std::cout<<"Partial-post: "<<partialMatrix<<std::endl<<std::endl;
 }
 
 void FromThrustMassRatePartial::wrtEngineThrustMagnitude(
@@ -76,9 +82,15 @@ void FromThrustMassRatePartial::wrtEngineThrustMagnitude(
         const std::string& engineName )
 {
     std::shared_ptr< system_models::EngineModel > engineModel = engineModelList_.at( engineName );
+
+    std::cout<<"W.r.t. thrust magnitude: "<<std::endl<<
+               "Isp "<<engineModel->getThrustMagnitudeWrapper( )->getCurrentSpecificImpulse( )<<std::endl<<
+               "Partial-pre: "<<partialMatrix<<std::endl;
     partialMatrix( 0, 0 ) += -1.0 /
             ( engineModel->getThrustMagnitudeWrapper( )->getCurrentSpecificImpulse( ) *
               physical_constants::SEA_LEVEL_GRAVITATIONAL_ACCELERATION );
+    std::cout<<"Partial-post: "<<partialMatrix<<std::endl<<std::endl;
+
 }
 
 std::pair< std::function< void( Eigen::MatrixXd& ) >, int > FromThrustMassRatePartial::getParameterPartialFunction(
