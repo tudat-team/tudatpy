@@ -748,6 +748,8 @@ public:
         minimumStepSize( minimumStepSize_ ), requestedStepSize( requestedStepSize_ )
     { }
 
+    ~MinimumStepSizeExceededError( ){ }
+
     //! The minimum step size allowed by the integrator.
     /*!
      * The minimum step size allowed by the integrator.
