@@ -305,6 +305,22 @@ BOOST_AUTO_TEST_CASE( testMgaMixedHighLowThrustLegs )
     // Retrieve state history and thrust acceleration history.
     transferTrajectory->getStatesAlongTrajectory(50);
     transferTrajectory->getInertialThrustAccelerationsAlongTrajectory(50);
+
+    // Check continuity of retrieved position between legs
+    for( int i = 0; i < transferTrajectory->getNumberOfLegs() - 1; i++ )
+    {
+        std::shared_ptr< TransferLeg > currentLeg = transferTrajectory->getLegs().at(i);
+        std::shared_ptr< TransferLeg > nextLeg = transferTrajectory->getLegs().at(i+1);
+
+        Eigen::Vector6d currentLegFinalState = currentLeg->getStateAlongTrajectory( currentLeg->getLegArrivalTime( ) );
+        Eigen::Vector6d nextLegInitialState = nextLeg->getStateAlongTrajectory( nextLeg->getLegDepartureTime() );
+
+        // Add 1 to z position because it's value is approximately zero
+        Eigen::Vector3d vectorToAdd (0, 0, 1);
+        currentLegFinalState.segment(0, 3) += vectorToAdd;
+        nextLegInitialState.segment(0, 3) += vectorToAdd;
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( currentLegFinalState.segment(0, 3), nextLegInitialState.segment(0, 3), 1e-6);
+    }
 }
 
 // Test checks delta V of a single hodographic shaping leg, with free parameters for the shaping functions, inserted
@@ -812,6 +828,18 @@ BOOST_AUTO_TEST_CASE( testMgaMultipleHodographicShapingLegs )
         transferTrajectory->getStatesAlongTrajectory(10);
         transferTrajectory->getInertialThrustAccelerationsAlongTrajectory(10);
 
+        // Check continuity of retrieved position between legs
+        for( int i = 0; i < transferTrajectory->getNumberOfLegs() - 1; i++ )
+        {
+            std::shared_ptr< TransferLeg > currentLeg = transferTrajectory->getLegs().at(i);
+            std::shared_ptr< TransferLeg > nextLeg = transferTrajectory->getLegs().at(i+1);
+
+            Eigen::Vector6d currentLegFinalState = currentLeg->getStateAlongTrajectory( currentLeg->getLegArrivalTime( ) );
+            Eigen::Vector6d nextLegInitialState = nextLeg->getStateAlongTrajectory( nextLeg->getLegDepartureTime() );
+
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION( currentLegFinalState.segment(0, 3), nextLegInitialState.segment(0, 3), 1e-12);
+
+        }
     }
 }
 
@@ -1069,6 +1097,17 @@ BOOST_AUTO_TEST_CASE( testMgaMultipleSphericalShapingLegs )
             BOOST_CHECK_SMALL(std::fabs(it->second.transpose()[1]), 1e-16);
         }
 
+        // Check continuity of retrieved position between legs
+        for( int i = 0; i < transferTrajectory->getNumberOfLegs() - 1; i++ )
+        {
+            std::shared_ptr< TransferLeg > currentLeg = transferTrajectory->getLegs().at(i);
+            std::shared_ptr< TransferLeg > nextLeg = transferTrajectory->getLegs().at(i+1);
+
+            Eigen::Vector6d currentLegFinalState = currentLeg->getStateAlongTrajectory( currentLeg->getLegArrivalTime( ) );
+            Eigen::Vector6d nextLegInitialState = nextLeg->getStateAlongTrajectory( nextLeg->getLegDepartureTime() );
+
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION( currentLegFinalState.segment(0, 3), nextLegInitialState.segment(0, 3), 1e-12);
+        }
     }
 }
 
@@ -1245,6 +1284,23 @@ BOOST_AUTO_TEST_CASE( testMGATrajectory_New )
                 BOOST_CHECK_SMALL( std::fabs( statesAlongSingleLeg.rbegin( )->second( j ) - arrivalBodyPosition( j ) ), 20.0E3 );
             }
         }
+
+        // Check continuity of retrieved position between legs
+        for( int i = 0; i < transferTrajectory->getNumberOfLegs() - 1; i++ )
+        {
+            std::shared_ptr< TransferLeg > currentLeg = transferTrajectory->getLegs().at(i);
+            std::shared_ptr< TransferLeg > nextLeg = transferTrajectory->getLegs().at(i+1);
+
+            Eigen::Vector6d currentLegFinalState = currentLeg->getStateAlongTrajectory( currentLeg->getLegArrivalTime( ) );
+            Eigen::Vector6d nextLegInitialState = nextLeg->getStateAlongTrajectory( nextLeg->getLegDepartureTime() );
+
+            // Add 1 to z position because it's value is approximately zero
+            Eigen::Vector3d vectorToAdd (0, 0, 1);
+            currentLegFinalState.segment(0, 3) += vectorToAdd;
+            nextLegInitialState.segment(0, 3) += vectorToAdd;
+            // Not sure why tolerance needs to be so large... probably related to why the tolerance above is also large
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION( currentLegFinalState.segment(0, 3), nextLegInitialState.segment(0, 3), 1e-5);
+        }
     }
 
 }
@@ -1315,6 +1371,24 @@ BOOST_AUTO_TEST_CASE( testMGA1DSMVFTrajectory1 )
     printTransferParameterDefinition( transferLegSettings, transferNodeSettings );
 
     BOOST_CHECK_CLOSE_FRACTION( expectedDeltaV, transferTrajectory->getTotalDeltaV( ), 1.0E-3 );
+
+    // Check continuity of retrieved position between legs
+    // Tolerance is large because the state is retrieved from the converged state history (so not from the leg's
+    // boundary conditions)
+    for( int i = 0; i < transferTrajectory->getNumberOfLegs() - 1; i++ )
+    {
+        std::shared_ptr< TransferLeg > currentLeg = transferTrajectory->getLegs().at(i);
+        std::shared_ptr< TransferLeg > nextLeg = transferTrajectory->getLegs().at(i+1);
+
+        Eigen::Vector6d currentLegFinalState = currentLeg->getStateAlongTrajectory( currentLeg->getLegArrivalTime( ) );
+        Eigen::Vector6d nextLegInitialState = nextLeg->getStateAlongTrajectory( nextLeg->getLegDepartureTime() );
+
+        // Add 1 to z position because it's value is approximately zero
+        Eigen::Vector3d vectorToAdd (0, 0, 1);
+        currentLegFinalState.segment(0, 3) += vectorToAdd;
+        nextLegInitialState.segment(0, 3) += vectorToAdd;
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( currentLegFinalState.segment(0, 3), nextLegInitialState.segment(0, 3), 1e-6);
+    }
 }
 
 //! Test delta-V computation for another MGA-1DSM Velocity Formulation trajectory model.
@@ -1392,6 +1466,24 @@ BOOST_AUTO_TEST_CASE( testMGA1DSMVFTrajectory2 )
     // tolerance and if the computed velocity before target planet matches the expected velocity
     // within the specified tolerance.
     BOOST_CHECK_CLOSE_FRACTION( expectedDeltaV, transferTrajectory->getTotalDeltaV( ), 1.0E-3);
+
+    // Check continuity of retrieved position between legs
+    // Tolerance is large because the state is retrieved from the converged state history (so not from the leg's
+    // boundary conditions)
+    for( int i = 0; i < transferTrajectory->getNumberOfLegs() - 1; i++ )
+    {
+        std::shared_ptr< TransferLeg > currentLeg = transferTrajectory->getLegs().at(i);
+        std::shared_ptr< TransferLeg > nextLeg = transferTrajectory->getLegs().at(i+1);
+
+        Eigen::Vector6d currentLegFinalState = currentLeg->getStateAlongTrajectory( currentLeg->getLegArrivalTime( ) );
+        Eigen::Vector6d nextLegInitialState = nextLeg->getStateAlongTrajectory( nextLeg->getLegDepartureTime() );
+
+        // Add 1 to z position because it's value is approximately zero
+        Eigen::Vector3d vectorToAdd (0, 0, 1);
+        currentLegFinalState.segment(0, 3) += vectorToAdd;
+        nextLegInitialState.segment(0, 3) += vectorToAdd;
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( currentLegFinalState.segment(0, 3), nextLegInitialState.segment(0, 3), 1e-6);
+    }
 }
 
 
