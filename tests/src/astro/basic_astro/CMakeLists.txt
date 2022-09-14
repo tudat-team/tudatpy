@@ -144,5 +144,6 @@ TUDAT_ADD_TEST_CASE(BodyShapeModels
 TUDAT_ADD_TEST_CASE(PolyhedronFunctions
         PRIVATE_LINKS
         tudat_basic_astrodynamics
+        tudat_basic_mathematics
         )
 
