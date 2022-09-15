@@ -1482,7 +1482,7 @@ BOOST_AUTO_TEST_CASE( testMGA1DSMVFTrajectory2 )
         Eigen::Vector3d vectorToAdd (0, 0, 1);
         currentLegFinalState.segment(0, 3) += vectorToAdd;
         nextLegInitialState.segment(0, 3) += vectorToAdd;
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( currentLegFinalState.segment(0, 3), nextLegInitialState.segment(0, 3), 1e-6);
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( currentLegFinalState.segment(0, 3), nextLegInitialState.segment(0, 3), 1e-5);
     }
 }
 
