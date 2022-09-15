@@ -173,10 +173,9 @@ public:
 
     void update( const double currentTime = TUDAT_NAN )
     {
-
+        thrustAcceleration_->updateMembers( currentTime );
         if( !( currentTime_ == currentTime ) )
         {
-            thrustAcceleration_->updateMembers( currentTime );
             currentTime_ = currentTime;
         }
     }
