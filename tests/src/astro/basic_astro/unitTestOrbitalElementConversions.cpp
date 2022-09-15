@@ -1623,11 +1623,13 @@ BOOST_AUTO_TEST_CASE( test_LongitudeOfNodeBugfix )
             orbital_element_conversions::convertCartesianToKeplerianElements(
                 recomputedCartesianState, gravitationalParameterOfCentralBody );
 
-//    std::cout << std::setprecision( 16 ) << cartesianState.transpose( ) << std::endl;
-//    std::cout << std::setprecision( 16 ) << recomputedCartesianState.transpose( ) << std::endl << std::endl;
 
-//    std::cout << std::setprecision( 16 ) << keplerianState.transpose( ) << std::endl;
-//    std::cout << std::setprecision( 16 ) << recomputedKeplerianState.transpose( ) << std::endl;
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( cartesianState,recomputedCartesianState, 1.0E-10 );
+    recomputedKeplerianState( 4 ) = basic_mathematics::computeModulo( recomputedKeplerianState( 4 ), 2.0 * mathematical_constants::PI );
+    keplerianState( 4 ) = basic_mathematics::computeModulo( keplerianState( 4 ), 2.0 * mathematical_constants::PI );
+    BOOST_CHECK_SMALL( std::fabs( recomputedKeplerianState( 4 ) - keplerianState( 4 ) ), 1.0E-10 );
+    recomputedKeplerianState( 4 ) = keplerianState( 4 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( keplerianState, recomputedKeplerianState, 1.0E-10 );
 }
 
 
