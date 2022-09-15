@@ -1467,7 +1467,9 @@ BOOST_AUTO_TEST_CASE( testThrustPartials )
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtMass, testPartialWrtMass, 1.0E-9 );
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtEngine1Thrust, partialWrtEngine1Thrust, 1.0E-9 );
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtEngine2Thrust, partialWrtEngine2Thrust, 1.0E-9 );
-        std::cout<<"Test norm: "<<testPartialWrtEngine2Thrust.norm( )<<std::endl;
+        std::cout<<"Test partial: "<<testPartialWrtEngine2Thrust.transpose( )<<std::endl;
+        std::cout<<"Analytical partial: "<<partialWrtEngine2Thrust.transpose( )<<std::endl;
+
         if( i == 0 )
         {
             for( int j = 0; j < 3; j++ )
@@ -1475,11 +1477,11 @@ BOOST_AUTO_TEST_CASE( testThrustPartials )
                 BOOST_CHECK_EQUAL( partialWrtEngine2Thrust( j ), 0.0 );
             }
         }
-        std::cout<<testPartialWrtEngine1Thrust<<std::endl<<std::endl;
-        std::cout<<partialWrtEngine1Thrust<<std::endl<<std::endl<<std::endl;
+//        std::cout<<testPartialWrtEngine1Thrust<<std::endl<<std::endl;
+//        std::cout<<partialWrtEngine1Thrust<<std::endl<<std::endl<<std::endl;
 
-        std::cout<<testPartialWrtEngine2Thrust<<std::endl<<std::endl;
-        std::cout<<partialWrtEngine2Thrust<<std::endl<<std::endl<<std::endl;
+//        std::cout<<testPartialWrtEngine2Thrust<<std::endl<<std::endl;
+//        std::cout<<partialWrtEngine2Thrust<<std::endl<<std::endl<<std::endl;
 
     }
 }
