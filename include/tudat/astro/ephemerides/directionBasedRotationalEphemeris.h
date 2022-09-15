@@ -266,19 +266,7 @@ public:
 
 protected:
 
-    Eigen::Vector3d getEulerAngles( const double currentTime )
-    {
-        if( currentTime_ != currentTime )
-        {
-            update( currentTime );
-            calculateEulerAngles( );
-        }
-        else if( currentEulerAnglesTime_ != currentTime )
-        {
-            calculateEulerAngles( );
-        }
-        return eulerAngles_;
-    }
+    Eigen::Vector3d getEulerAngles( const double currentTime );
 
     void calculateEulerAngles( );
 

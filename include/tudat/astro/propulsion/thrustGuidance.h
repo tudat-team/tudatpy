@@ -163,10 +163,7 @@ public:
 
 
     Eigen::Vector3d getInertialThrustDirection(
-            const std::shared_ptr< system_models::EngineModel > engineModel )
-    {
-        return ( currentRotation_ * engineModel->getBodyFixedThrustDirection( ) ).normalized( );
-    }
+            const std::shared_ptr< system_models::EngineModel > engineModel );
 
     Eigen::Quaterniond getCurrentRotation( )
     {

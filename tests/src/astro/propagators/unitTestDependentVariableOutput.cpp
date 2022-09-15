@@ -344,6 +344,7 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
                     bodies.at( "Apollo" )->getAerodynamicCoefficientInterface( );
             bodies.at( "Apollo" )->setIsBodyInPropagation( true );
 
+            std::cout<<"Number of points: "<<dependentVariableSolution.size( )<<std::endl;
             for( std::map< double, Eigen::VectorXd >::iterator variableIterator = dependentVariableSolution.begin( );
                  variableIterator != dependentVariableSolution.end( ); variableIterator++ )
             {

@@ -21,7 +21,7 @@
 
 #include <boost/make_shared.hpp>
 #include <memory>
-#include <boost/test/tools/floating_point_comparison.hpp> 
+#include <boost/test/tools/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <Eigen/Core>
@@ -1387,7 +1387,7 @@ BOOST_AUTO_TEST_CASE( testMGA1DSMVFTrajectory1 )
         Eigen::Vector3d vectorToAdd (0, 0, 1);
         currentLegFinalState.segment(0, 3) += vectorToAdd;
         nextLegInitialState.segment(0, 3) += vectorToAdd;
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( currentLegFinalState.segment(0, 3), nextLegInitialState.segment(0, 3), 1e-6);
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( currentLegFinalState.segment(0, 3), nextLegInitialState.segment(0, 3), 1e-5);
     }
 }
 
