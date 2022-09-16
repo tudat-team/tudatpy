@@ -17,8 +17,8 @@ namespace tudat
 namespace basic_astrodynamics
 {
 
-double computeSurfaceArea ( const Eigen::MatrixXd& verticesCoordinates,
-                            const Eigen::MatrixXi& verticesDefiningEachFacet )
+double computePolyhedronSurfaceArea (const Eigen::MatrixXd& verticesCoordinates,
+                                     const Eigen::MatrixXi& verticesDefiningEachFacet )
 {
     // Check if inputs are valid
     basic_mathematics::checkValidityOfPolyhedronSettings ( verticesCoordinates, verticesDefiningEachFacet );
@@ -43,8 +43,8 @@ double computeSurfaceArea ( const Eigen::MatrixXd& verticesCoordinates,
     return area;
 }
 
-double computeVolume ( const Eigen::MatrixXd& verticesCoordinates,
-                      const Eigen::MatrixXi& verticesDefiningEachFacet )
+double computePolyhedronVolume (const Eigen::MatrixXd& verticesCoordinates,
+                                const Eigen::MatrixXi& verticesDefiningEachFacet )
 {
     // Check if inputs are valid
     basic_mathematics::checkValidityOfPolyhedronSettings ( verticesCoordinates, verticesDefiningEachFacet );
@@ -67,8 +67,8 @@ double computeVolume ( const Eigen::MatrixXd& verticesCoordinates,
     return volume;
 }
 
-Eigen::Vector3d computeCentroidPosition ( const Eigen::MatrixXd& verticesCoordinates,
-                                          const Eigen::MatrixXi& verticesDefiningEachFacet )
+Eigen::Vector3d computePolyhedronCentroidPosition (const Eigen::MatrixXd& verticesCoordinates,
+                                                   const Eigen::MatrixXi& verticesDefiningEachFacet )
 {
     // Check if inputs are valid
     basic_mathematics::checkValidityOfPolyhedronSettings ( verticesCoordinates, verticesDefiningEachFacet );
@@ -90,16 +90,17 @@ Eigen::Vector3d computeCentroidPosition ( const Eigen::MatrixXd& verticesCoordin
         centroid += volumeOfTetrahedron * centerOfMassOfTetrahedron;
     }
 
-    centroid = centroid / computeVolume( verticesCoordinates, verticesDefiningEachFacet );
+    centroid = centroid / computePolyhedronVolume( verticesCoordinates, verticesDefiningEachFacet );
 
     return centroid;
 }
 
-Eigen::MatrixXd modifyCentroidPosition ( const Eigen::MatrixXd& verticesCoordinates,
-                                         const Eigen::MatrixXi& verticesDefiningEachFacet,
-                                         const Eigen::Vector3d desiredCentroid )
+Eigen::MatrixXd modifyPolyhedronCentroidPosition (const Eigen::MatrixXd& verticesCoordinates,
+                                                  const Eigen::MatrixXi& verticesDefiningEachFacet,
+                                                  const Eigen::Vector3d desiredCentroid )
 {
-    Eigen::Vector3d initialCentroid = computeCentroidPosition( verticesCoordinates, verticesDefiningEachFacet );
+    Eigen::Vector3d initialCentroid = computePolyhedronCentroidPosition( verticesCoordinates,
+                                                                         verticesDefiningEachFacet );
     Eigen::Vector3d centroidCorrection = desiredCentroid - initialCentroid;
 
     Eigen::MatrixXd translatedVerticesCoordinates = verticesCoordinates;
@@ -118,9 +119,9 @@ Eigen::MatrixXd modifyCentroidPosition ( const Eigen::MatrixXd& verticesCoordina
     return translatedVerticesCoordinates;
 }
 
-Eigen::Matrix3d computeInertiaTensor ( const Eigen::MatrixXd& verticesCoordinates,
-                                       const Eigen::MatrixXi& verticesDefiningEachFacet,
-                                       const double density )
+Eigen::Matrix3d computePolyhedronInertiaTensor (const Eigen::MatrixXd& verticesCoordinates,
+                                                const Eigen::MatrixXi& verticesDefiningEachFacet,
+                                                const double density )
 {
     // Check if inputs are valid
     basic_mathematics::checkValidityOfPolyhedronSettings ( verticesCoordinates, verticesDefiningEachFacet );
@@ -170,15 +171,16 @@ Eigen::Matrix3d computeInertiaTensor ( const Eigen::MatrixXd& verticesCoordinate
     return inertiaTensor;
 }
 
-Eigen::Matrix3d computeInertiaTensor ( const Eigen::MatrixXd& verticesCoordinates,
-                                       const Eigen::MatrixXi& verticesDefiningEachFacet,
-                                       const double gravitationalParameter,
-                                       const double gravitationalConstant )
+Eigen::Matrix3d computePolyhedronInertiaTensor (const Eigen::MatrixXd& verticesCoordinates,
+                                                const Eigen::MatrixXi& verticesDefiningEachFacet,
+                                                const double gravitationalParameter,
+                                                const double gravitationalConstant )
 {
-    double density = gravitationalParameter / ( computeVolume(verticesCoordinates, verticesDefiningEachFacet) *
-            gravitationalConstant );
+    double density = gravitationalParameter / ( computePolyhedronVolume( verticesCoordinates,
+                                                                         verticesDefiningEachFacet ) *
+                                                gravitationalConstant );
 
-    return computeInertiaTensor(verticesCoordinates, verticesDefiningEachFacet, density);
+    return computePolyhedronInertiaTensor( verticesCoordinates, verticesDefiningEachFacet, density );
 }
 
 } // namespace basic_astrodynamics

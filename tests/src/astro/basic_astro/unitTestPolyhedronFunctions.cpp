@@ -66,24 +66,28 @@ BOOST_AUTO_TEST_CASE( testPolyhedronUtilities )
 
     // Computation of surface area
     double expectedArea = 2 * l * h + 2 * l * w + 2 * w * h;
-    double computedArea = basic_astrodynamics::computeSurfaceArea(verticesCoordinates, verticesDefiningEachFacet);
+    double computedArea = basic_astrodynamics::computePolyhedronSurfaceArea( verticesCoordinates,
+                                                                             verticesDefiningEachFacet );
     BOOST_CHECK_CLOSE_FRACTION( expectedArea, computedArea, tolerance );
 
     // Computation of volume
     double expectedVolume = l * w * h;
-    double computedVolume = basic_astrodynamics::computeVolume(verticesCoordinates, verticesDefiningEachFacet);
+    double computedVolume = basic_astrodynamics::computePolyhedronVolume( verticesCoordinates,
+                                                                          verticesDefiningEachFacet );
     BOOST_CHECK_CLOSE_FRACTION( expectedVolume, computedVolume, tolerance );
 
     // Computation of centroid
     Eigen::Vector3d expectedCentroid = (Eigen::Vector3d() << l / 2.0, w / 2.0, h / 2.0).finished();
-    Eigen::Vector3d computedCentroid = basic_astrodynamics::computeCentroidPosition(verticesCoordinates, verticesDefiningEachFacet);
+    Eigen::Vector3d computedCentroid = basic_astrodynamics::computePolyhedronCentroidPosition( verticesCoordinates,
+                                                                                               verticesDefiningEachFacet );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedCentroid, computedCentroid, tolerance );
 
     // Correction of centroid
     Eigen::Vector3d desiredCentroid = (Eigen::Vector3d() << 3.0, 4.0, -5.0).finished();
-    Eigen::MatrixXd correctedVerticesCoordinates = basic_astrodynamics::modifyCentroidPosition(
-            verticesCoordinates, verticesDefiningEachFacet, desiredCentroid);
-    computedCentroid = basic_astrodynamics::computeCentroidPosition(correctedVerticesCoordinates, verticesDefiningEachFacet);
+    Eigen::MatrixXd correctedVerticesCoordinates = basic_astrodynamics::modifyPolyhedronCentroidPosition(
+            verticesCoordinates, verticesDefiningEachFacet, desiredCentroid );
+    computedCentroid = basic_astrodynamics::computePolyhedronCentroidPosition( correctedVerticesCoordinates,
+                                                                               verticesDefiningEachFacet );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( desiredCentroid, computedCentroid, tolerance );
 
     // Computation of inertia tensor
@@ -107,8 +111,8 @@ BOOST_AUTO_TEST_CASE( testPolyhedronUtilities )
             - expectedCentroid(1) * expectedCentroid(2),
             std::pow(expectedCentroid(0), 2) + std::pow(expectedCentroid(1), 2) ).finished();
 
-    Eigen::Matrix3d computedInertiaTensor = basic_astrodynamics::computeInertiaTensor(
-            verticesCoordinates, verticesDefiningEachFacet, density);
+    Eigen::Matrix3d computedInertiaTensor = basic_astrodynamics::computePolyhedronInertiaTensor(
+            verticesCoordinates, verticesDefiningEachFacet, density );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedInertiaTensor, computedInertiaTensor, tolerance );
 
 }

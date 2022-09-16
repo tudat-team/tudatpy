@@ -1283,10 +1283,10 @@ public:
         }
         else
         {
-            bodyInertiaTensor_ = basic_astrodynamics::computeInertiaTensor(
-                    polyhedronGravityField->getVerticesCoordinates(),
-                    polyhedronGravityField->getVerticesDefiningEachEdge(),
-                    density);
+            bodyInertiaTensor_ = basic_astrodynamics::computePolyhedronInertiaTensor(
+                    polyhedronGravityField->getVerticesCoordinates( ),
+                    polyhedronGravityField->getVerticesDefiningEachEdge( ),
+                    density );
 
         }
     }
