@@ -33,6 +33,8 @@
 #include "tudat/astro/gravitation/gravityFieldModel.h"
 #include "tudat/astro/gravitation/gravityFieldVariations.h"
 #include "tudat/astro/gravitation/timeDependentSphericalHarmonicsGravityField.h"
+#include "tudat/astro/gravitation/polyhedronGravityField.h"
+#include "tudat/astro/basic_astro/polyhedronFuntions.h"
 #include "tudat/astro/ground_stations/groundStation.h"
 #include "tudat/astro/propulsion/thrustGuidance.h"
 #include "tudat/astro/reference_frames/dependentOrientationCalculator.h"
@@ -217,6 +219,7 @@ public:
           bodyMassFunction_( nullptr ),
           bodyInertiaTensor_( Eigen::Matrix3d::Zero( ) ),
           scaledMeanMomentOfInertia_( TUDAT_NAN ),
+          density_( TUDAT_NAN ),
           bodyName_( "unnamed_body" )
     {
         currentLongState_ = currentState_.cast< long double >( );
@@ -1221,7 +1224,7 @@ public:
         scaledMeanMomentOfInertia_ = scaledMeanMomentOfInertia;
     }
 
-    //! Function to (re)set the body moment-of-inertia tensor from the gravity field.
+    //! Function to (re)set the body moment-of-inertia tensor from the gravity field, for a spherical harmonics gravity field.
     /*!
      * Function to (re)set the body moment-of-inertia tensor from the gravity field, requires only a mean moment of inertia
      * (scaled by mass times reference radius squared). Other data are taken from this body's spherical harmonic gravity field
@@ -1263,6 +1266,53 @@ public:
             setBodyInertiaTensorFromGravityField(scaledMeanMomentOfInertia_);
         }
     }
+
+    //! Function to (re)set the body moment-of-inertia tensor from the gravity field, for a polyhedron gravity field.
+    /*!
+     * Function to (re)set the body moment-of-inertia tensor from the gravity field, for a polyhedron gravity field.
+     * Requires only the density as argument. Other data are taken from this body's polyhedron gravity field
+     * \param density Density of the body.
+     */
+    void setBodyInertiaTensorFromGravityFieldAndDensity ( const double density )
+    {
+        std::shared_ptr< gravitation::PolyhedronGravityField > polyhedronGravityField =
+                std::dynamic_pointer_cast< gravitation::PolyhedronGravityField >( gravityFieldModel_ );
+        if ( polyhedronGravityField == nullptr )
+        {
+            throw std::runtime_error("Error when setting inertia tensor from density, gravity field model is not polyhedron");
+        }
+        else
+        {
+            bodyInertiaTensor_ = basic_astrodynamics::computeInertiaTensor(
+                    polyhedronGravityField->getVerticesCoordinates(),
+                    polyhedronGravityField->getVerticesDefiningEachEdge(),
+                    density);
+
+        }
+    }
+
+    //! Function to (re)set the body moment-of-inertia tensor from the gravity field, for a polyhedron gravity field.
+    /*!
+     * Function to (re)set the body moment-of-inertia tensor from the gravity field, for a polyhedron gravity field.
+     * Uses an already existing body density.
+     */
+    void setBodyInertiaTensorFromGravityFieldAndExistingDensity( )
+    {
+        if (!std::isnan( density_ ) )
+        {
+            std::shared_ptr< gravitation::PolyhedronGravityField > polyhedronGravityField =
+                    std::dynamic_pointer_cast< gravitation::PolyhedronGravityField >( gravityFieldModel_ );
+            if ( polyhedronGravityField == nullptr )
+            {
+                throw std::runtime_error("Error when setting inertia tensor from polyhedron model, "
+                                         "gravity field model is not polyhedron.");
+            }
+
+            setBodyInertiaTensorFromGravityFieldAndDensity( density_ );
+        }
+    }
+
+
 
     //! Function to add a ground station to the body
     /*!
@@ -1403,6 +1453,9 @@ private:
 
     //! Body scaled mean moment of inertia
     double scaledMeanMomentOfInertia_;
+
+    //! Body density
+    double density_;
 
     //! Ephemeris of body.
     std::shared_ptr<ephemerides::Ephemeris> bodyEphemeris_;

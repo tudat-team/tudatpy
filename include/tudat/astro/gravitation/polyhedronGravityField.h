@@ -248,10 +248,6 @@ public:
     double getVolume( )
     { return volume_; }
 
-    //! Function to reset the volume.
-    void resetVolume( double volume )
-    { volume_ = volume; }
-
     //! Function to return the vertices coordinates.
     const Eigen::MatrixXd& getVerticesCoordinates( )
     { return verticesCoordinates_; }
