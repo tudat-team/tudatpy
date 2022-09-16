@@ -12,20 +12,20 @@
 #define TUDATPY_DEPRECATION_SUPPORT_H
 
 
-namespace tudat
-{
+//namespace tudat
+//{
 
-namespace simulation_setup
-{
-enum ThrustFrames
-{
-    unspecified_thrust_frame = -1,
-    inertial_thrust_frame = 0,
-    tnw_thrust_frame = 1
-};
+//namespace simulation_setup
+//{
+//enum ThrustFrames
+//{
+//    unspecified_thrust_frame = -1,
+//    inertial_thrust_frame = 0,
+//    tnw_thrust_frame = 1
+//};
 
-}
-}
+//}
+//}
 
 
 #endif// TUDATPY_DEPRECATION_SUPPORT_H
