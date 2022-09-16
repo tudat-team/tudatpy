@@ -351,7 +351,7 @@ BOOST_AUTO_TEST_CASE( test_polyhedronGravityModelSetup )
 
     bodies.at( "Earth" )->setGravityFieldModel(
             std::make_shared< gravitation::PolyhedronGravityField >(
-                    gravitationalParameter, volume, verticesCoordinates,
+                    gravitationalParameter, verticesCoordinates,
                     verticesDefiningEachFacet, "IAU_Earth" ) );
     bodies.at( "Earth" )->setRotationalEphemeris(
             std::make_shared< ephemerides::SpiceRotationalEphemeris >( "ECLIPJ2000", "IAU_Earth" ) );
@@ -373,7 +373,7 @@ BOOST_AUTO_TEST_CASE( test_polyhedronGravityModelSetup )
 
     // Manually create acceleration model.
     gravitation::PolyhedronGravityField manualGravityField = gravitation::PolyhedronGravityField(
-            gravitationalParameter, volume, verticesCoordinates, verticesDefiningEachFacet);
+            gravitationalParameter, verticesCoordinates, verticesDefiningEachFacet);
 
     std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > manualAcceleration =
             std::make_shared< gravitation::PolyhedronGravitationalAccelerationModel >(
