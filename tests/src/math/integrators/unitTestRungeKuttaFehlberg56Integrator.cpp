@@ -53,7 +53,7 @@ using namespace numerical_integrators;
 BOOST_AUTO_TEST_CASE( test_RungeKuttaFehlberg56_Integrator_Fehlberg_Benchmark )
 {
     RungeKuttaCoefficients coeff56 =
-        RungeKuttaCoefficients::get( RungeKuttaCoefficients::rungeKuttaFehlberg56);
+        RungeKuttaCoefficients::get( CoefficientSets::rungeKuttaFehlberg56);
 
     // Integrator settings
     double minimumStepSize   = std::numeric_limits< double >::epsilon( );
@@ -108,10 +108,10 @@ BOOST_AUTO_TEST_CASE( test_RungeKuttaFehlberg56_Integrator_Compare78 )
 {
     // Setup integrator
     RungeKuttaCoefficients coeff56 =
-            RungeKuttaCoefficients::get( RungeKuttaCoefficients::rungeKuttaFehlberg56);
+            RungeKuttaCoefficients::get( CoefficientSets::rungeKuttaFehlberg56);
 
     RungeKuttaCoefficients coeff78 =
-            RungeKuttaCoefficients::get( RungeKuttaCoefficients::rungeKuttaFehlberg78);
+            RungeKuttaCoefficients::get( CoefficientSets::rungeKuttaFehlberg78);
 
     // Integrator settings
     double minimumStepSize = std::numeric_limits< double >::epsilon( );
@@ -149,11 +149,11 @@ BOOST_AUTO_TEST_CASE( test_RungeKuttaFehlberg56_Integrator_Compare78_v2 )
     // Setup integrator
     RungeKuttaCoefficients coeff56 =
             RungeKuttaCoefficients::get(
-                RungeKuttaCoefficients::rungeKuttaFehlberg56 );
+                rungeKuttaFehlberg56 );
 
     RungeKuttaCoefficients coeff78 =
             RungeKuttaCoefficients::get(
-                RungeKuttaCoefficients::rungeKuttaFehlberg78 );
+                rungeKuttaFehlberg78 );
 
     // Integrator settings
     double minimumStepSize = std::numeric_limits< double >::epsilon( );
@@ -190,10 +190,10 @@ BOOST_AUTO_TEST_CASE( test_RungeKuttaFehlberg56_Integrator_Compare78_VanDerPol )
 {
     // Setup integrator
     RungeKuttaCoefficients coeff56 =
-            RungeKuttaCoefficients::get( RungeKuttaCoefficients::rungeKuttaFehlberg56 );
+            RungeKuttaCoefficients::get( CoefficientSets::rungeKuttaFehlberg56 );
 
     RungeKuttaCoefficients coeff78 =
-            RungeKuttaCoefficients::get( RungeKuttaCoefficients::rungeKuttaFehlberg78 );
+            RungeKuttaCoefficients::get( CoefficientSets::rungeKuttaFehlberg78 );
 
     // Integrator settings
     double minimumStepSize = std::numeric_limits< double >::epsilon( );

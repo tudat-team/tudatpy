@@ -39,6 +39,7 @@
 #include "tudat/astro/orbit_determination/estimatable_parameters/freeCoreNutationRate.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/desaturationDeltaV.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/longitudeLibrationAmplitude.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/constantThrust.h"
 #include "tudat/astro/relativity/metric.h"
 #include "tudat/astro/basic_astro/accelerationModelTypes.h"
 #include "tudat/simulation/estimation_setup/estimatableParameterSettings.h"
@@ -1000,6 +1001,100 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
             }
             break;
         }
+        case constant_thrust_magnitude_parameter:
+        {
+            if( currentBody->getVehicleSystems( ) == nullptr )
+            {
+                throw std::runtime_error( "Error when creating constant thrust magnitude for body " + currentBodyName +
+                                          ", body has no vehicle systems" );
+            }
+            else
+            {
+                if( currentBody->getVehicleSystems( )->getEngineModels( ).count(
+                            doubleParameterName->parameterType_.second.second ) == 0 )
+                {
+                    throw std::runtime_error( "Error when creating constant thrust magnitude for engine " +
+                                              doubleParameterName->parameterType_.second.second + " on body " +
+                                              currentBodyName + ", engine does not exist" );
+                }
+                else
+                {
+                    std::shared_ptr< propulsion::ThrustMagnitudeWrapper > thrustWrapper =
+                            currentBody->getVehicleSystems( )->getEngineModels( ).at(
+                                                       doubleParameterName->parameterType_.second.second )->getThrustMagnitudeWrapper( );
+                    if( thrustWrapper == nullptr )
+                    {
+                        throw std::runtime_error( "Error when creating constant thrust magnitude for engine " +
+                                                  doubleParameterName->parameterType_.second.second + " on body " +
+                                                  currentBodyName + ", engine does not have thrust magnitude model." );
+                    }
+                    else
+                    {
+                        if( std::dynamic_pointer_cast< propulsion::ConstantThrustMagnitudeWrapper >( thrustWrapper ) == nullptr )
+                        {
+                            throw std::runtime_error( "Error when creating constant thrust magnitude for engine " +
+                                                      doubleParameterName->parameterType_.second.second + " on body " +
+                                                      currentBodyName + ", engine thrust magnitude model does not support constant thrust." );
+                        }
+                        else
+                        {
+                            doubleParameterToEstimate = std::make_shared< ConstantThrustMagnitudeParameter >
+                                    ( std::dynamic_pointer_cast< propulsion::ConstantThrustMagnitudeWrapper >( thrustWrapper ),
+                                      currentBodyName, doubleParameterName->parameterType_.second.second );
+                        }
+                    }
+                }
+            }
+
+            break;
+        }
+        case constant_specific_impulse:
+        {
+            if( currentBody->getVehicleSystems( ) == nullptr )
+            {
+                throw std::runtime_error( "Error when creating constant specific impulse for body " + currentBodyName +
+                                          ", body has no vehicle systems" );
+            }
+            else
+            {
+                if( currentBody->getVehicleSystems( )->getEngineModels( ).count(
+                            doubleParameterName->parameterType_.second.second ) == 0 )
+                {
+                    throw std::runtime_error( "Error when creating constant specific impulse for engine " +
+                                              doubleParameterName->parameterType_.second.second + " on body " +
+                                              currentBodyName + ", engine does not exist" );
+                }
+                else
+                {
+                    std::shared_ptr< propulsion::ThrustMagnitudeWrapper > thrustWrapper =
+                            currentBody->getVehicleSystems( )->getEngineModels( ).at(
+                                                       doubleParameterName->parameterType_.second.second )->getThrustMagnitudeWrapper( );
+                    if( thrustWrapper == nullptr )
+                    {
+                        throw std::runtime_error( "Error when creating constant specific impulse for engine " +
+                                                  doubleParameterName->parameterType_.second.second + " on body " +
+                                                  currentBodyName + ", engine does not have thrust magnitude model." );
+                    }
+                    else
+                    {
+                        if( std::dynamic_pointer_cast< propulsion::ConstantThrustMagnitudeWrapper >( thrustWrapper ) == nullptr )
+                        {
+                            throw std::runtime_error( "Error when creating constant specific impulse for engine " +
+                                                      doubleParameterName->parameterType_.second.second + " on body " +
+                                                      currentBodyName + ", engine thrust magnitude model does not support constant thrust." );
+                        }
+                        else
+                        {
+                            doubleParameterToEstimate = std::make_shared< ConstantSpecificImpulseParameter< propulsion::ConstantThrustMagnitudeWrapper  > >
+                                    ( std::dynamic_pointer_cast< propulsion::ConstantThrustMagnitudeWrapper >( thrustWrapper ),
+                                      currentBodyName, doubleParameterName->parameterType_.second.second );
+                        }
+                    }
+                }
+            }
+
+            break;
+        }
         default:
             throw std::runtime_error( "Warning, this double parameter has not yet been implemented when making parameters" );
             break;
@@ -1133,6 +1228,45 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
             }
             break;
         }
+        case constant_time_drift_observation_bias:
+        {
+            std::shared_ptr< ConstantTimeDriftBiasEstimatableParameterSettings > biasSettings =
+                    std::dynamic_pointer_cast< ConstantTimeDriftBiasEstimatableParameterSettings >( vectorParameterName );
+            if( biasSettings == nullptr )
+            {
+                throw std::runtime_error( "Error when creating constant time drift bias, input is inconsistent" );
+            }
+            else
+            {
+                vectorParameterToEstimate = std::make_shared< ConstantTimeDriftBiasParameter >(
+                        std::function< Eigen::VectorXd( ) >( ),
+                        std::function< void( const Eigen::VectorXd& ) >( ),
+                        observation_models::getLinkEndIndicesForLinkEndTypeAtObservable(
+                                biasSettings->observableType_, biasSettings->linkEndForTime_, biasSettings->linkEnds_.size( ) ).at( 0 ),
+                        biasSettings->linkEnds_, biasSettings->observableType_, biasSettings->referenceEpoch_ );
+            }
+            break;
+        }
+        case arc_wise_time_drift_observation_bias:
+        {
+            std::shared_ptr< ArcWiseTimeDriftBiasEstimatableParameterSettings > timeBiasSettings =
+                    std::dynamic_pointer_cast< ArcWiseTimeDriftBiasEstimatableParameterSettings >( vectorParameterName );
+            if( timeBiasSettings == nullptr )
+            {
+                throw std::runtime_error( "Error when creating arcwise time drift bias, input is inconsistent" );
+            }
+            else
+            {
+                vectorParameterToEstimate = std::make_shared< ArcWiseTimeDriftBiasParameter >(
+                        timeBiasSettings->arcStartTimes_,
+                        std::function< std::vector< Eigen::VectorXd >( ) >( ),
+                        std::function< void( const std::vector< Eigen::VectorXd >& ) >( ),
+                        observation_models::getLinkEndIndicesForLinkEndTypeAtObservable(
+                                timeBiasSettings->observableType_, timeBiasSettings->linkEndForTime_, timeBiasSettings->linkEnds_.size( ) ).at( 0 ),
+                        timeBiasSettings->linkEnds_, timeBiasSettings->observableType_, timeBiasSettings->referenceEpochs_ );
+            }
+            break;
+        }
         case rotation_pole_position:
             if( std::dynamic_pointer_cast< SimpleRotationalEphemeris >( currentBody->getRotationalEphemeris( ) ) == nullptr )
             {
@@ -1148,6 +1282,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
 
             }
             break;
+
         case spherical_harmonics_cosine_coefficient_block:
         {
             std::shared_ptr< GravityFieldModel > gravityField = currentBody->getGravityFieldModel( );

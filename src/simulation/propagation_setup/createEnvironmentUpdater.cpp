@@ -11,6 +11,7 @@
 #include "tudat/astro/basic_astro/accelerationModelTypes.h"
 #include "tudat/astro/basic_astro/torqueModelTypes.h"
 #include "tudat/simulation/propagation_setup/createEnvironmentUpdater.h"
+#include "tudat/simulation/environment_setup/createFlightConditions.h"
 
 namespace tudat
 {
@@ -62,11 +63,13 @@ void checkValidityOfRequiredEnvironmentUpdates(
                 case body_rotational_state_update:
                 {
                     if( ( bodies.at( updateIterator->second.at( i ) )->
-                          getRotationalEphemeris( ) == nullptr ) &&
-                            ( bodies.at( updateIterator->second.at( i ) )->getDependentOrientationCalculator( ) == nullptr ) )
+                          getRotationalEphemeris( ) == nullptr )
+//                            &&
+//                            ( bodies.at( updateIterator->second.at( i ) )->getDependentOrientationCalculator( ) == nullptr )
+                            )
                     {
                         throw std::runtime_error(
-                                    "Error when making environment model update settings, could not find rotational ephemeris or dependent orientation calculator of body "
+                                    "Error when making environment model update settings, could not find rotational ephemeris of body "
                                     + updateIterator->second.at( i ) );
                     }
                     break;
@@ -808,6 +811,11 @@ std::vector< std::string > > createEnvironmentUpdaterSettingsForDependentVariabl
     case periapsis_altitude_dependent_variable:
         variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
         variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->secondaryBody_ );
+        break;
+    case apoapsis_altitude_dependent_variable:
+        variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
+        variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->secondaryBody_ );
+        break;
     case total_gravity_field_variation_acceleration:
         break;
     case single_gravity_field_variation_acceleration:
@@ -815,6 +823,12 @@ std::vector< std::string > > createEnvironmentUpdaterSettingsForDependentVariabl
     case single_gravity_field_variation_acceleration_terms:
         break;
     case acceleration_partial_wrt_body_translational_state:
+        break;
+    case total_spherical_harmonic_cosine_coefficient_variation:
+        variablesToUpdate[ spherical_harmonic_gravity_field_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
+        break;
+    case total_spherical_harmonic_sine_coefficient_variation:
+        variablesToUpdate[ spherical_harmonic_gravity_field_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
         break;
     case current_body_mass_dependent_variable:
         variablesToUpdate[ body_mass_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
@@ -949,8 +963,10 @@ std::vector< std::string > > createFullEnvironmentUpdaterSettings(
         }
 
         // If body has rotation model, update rotational state in each time step.;
-        if( ( bodyIterator.second->getRotationalEphemeris( ) != nullptr ) ||
-                ( bodyIterator.second->getDependentOrientationCalculator( ) != nullptr ) )
+        if( ( bodyIterator.second->getRotationalEphemeris( ) != nullptr )
+//                ||
+//                ( bodyIterator.second->getDependentOrientationCalculator( ) != nullptr )
+                )
         {
             singleAccelerationUpdateNeeds[ body_rotational_state_update ].
                     push_back( bodyIterator.first );

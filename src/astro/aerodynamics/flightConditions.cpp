@@ -67,6 +67,13 @@ void FlightConditions::updateConditions( const double currentTime )
 
         // Calculate state of vehicle in global frame and corotating frame.
         currentBodyCenteredAirspeedBasedBodyFixedState_ = bodyCenteredPseudoBodyFixedStateFunction_( );
+
+        // Update angles from aerodynamic to body-fixed frame (if relevant).
+        if( aerodynamicAngleCalculator_!= nullptr )
+        {
+            aerodynamicAngleCalculator_->update( currentTime, true );
+        }
+
     }
 }
 
@@ -138,9 +145,12 @@ void AtmosphericFlightConditions::updateConditions( const double currentTime )
         }
 
         // Update aerodynamic coefficients.
-        aerodynamicCoefficientInterface_->updateFullCurrentCoefficients(
-                    aerodynamicCoefficientIndependentVariables_, controlSurfaceAerodynamicCoefficientIndependentVariables_,
-                    currentTime_ );
+        if( aerodynamicCoefficientInterface_ != nullptr )
+        {
+            aerodynamicCoefficientInterface_->updateFullCurrentCoefficients(
+                        aerodynamicCoefficientIndependentVariables_, controlSurfaceAerodynamicCoefficientIndependentVariables_,
+                        currentTime_ );
+        }
     }
 }
 
@@ -226,7 +236,12 @@ double AtmosphericFlightConditions::getAerodynamicCoefficientIndependentVariable
 //! Function to update the independent variables of the aerodynamic coefficient interface
 void AtmosphericFlightConditions::updateAerodynamicCoefficientInput( )
 {
+
     aerodynamicCoefficientIndependentVariables_.clear( );
+    if( aerodynamicCoefficientInterface_ == nullptr )
+    {
+        throw std::runtime_error( "Error when calcualting aerodynamic coefficient input, no coefficient interface is defined" );
+    }
     // Calculate independent variables for aerodynamic coefficients.
     for( unsigned int i = 0; i < aerodynamicCoefficientInterface_->getNumberOfIndependentVariables( ); i++ )
     {
@@ -247,29 +262,6 @@ void AtmosphericFlightConditions::updateAerodynamicCoefficientInput( )
                                 currentControlSurface, j ), currentControlSurface ) );
         }
     }
-}
-
-//! Function to set the angle of attack to trimmed conditions.
-std::shared_ptr< TrimOrientationCalculator > setTrimmedConditions(
-        const std::shared_ptr< AtmosphericFlightConditions > flightConditions )
-{
-    // Create trim object.
-    std::shared_ptr< TrimOrientationCalculator > trimOrientation =
-            std::make_shared< TrimOrientationCalculator >(
-                flightConditions->getAerodynamicCoefficientInterface( ) );
-
-    // Create angle-of-attack function from trim object.
-    std::function< std::vector< double >( ) > untrimmedIndependentVariablesFunction =
-            std::bind( &AtmosphericFlightConditions::getAerodynamicCoefficientIndependentVariables,
-                         flightConditions );
-    std::function< std::map< std::string, std::vector< double > >( ) > untrimmedControlSurfaceIndependentVariablesFunction =
-            std::bind( &AtmosphericFlightConditions::getControlSurfaceAerodynamicCoefficientIndependentVariables,
-                         flightConditions );
-    flightConditions->getAerodynamicAngleCalculator( )->setOrientationAngleFunctions(
-                std::bind( &TrimOrientationCalculator::findTrimAngleOfAttackFromFunction, trimOrientation,
-                             untrimmedIndependentVariablesFunction, untrimmedControlSurfaceIndependentVariablesFunction ) );
-
-    return trimOrientation;
 }
 
 } // namespace aerodynamics

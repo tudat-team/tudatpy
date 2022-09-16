@@ -169,11 +169,11 @@ public:
      *  to NaN, indicating the need to recompute all quantities for the next time computation.
      * \param currentTime
      */
-    virtual void resetCurrentTime( const double currentTime = TUDAT_NAN )
+    virtual void resetCurrentTime( )
     {
-        currentTime_ = currentTime;
+        currentTime_ = TUDAT_NAN;
         isScalarFlightConditionComputed_ = allScalarFlightConditionsUncomputed;
-        aerodynamicAngleCalculator_->resetCurrentTime( currentTime_ );
+        aerodynamicAngleCalculator_->resetCurrentTime( );
     }
 
     //! Function to return current central body-fixed state of vehicle.
@@ -466,6 +466,12 @@ public:
      */
     std::vector< double > getAerodynamicCoefficientIndependentVariables( )
     {
+        if( aerodynamicCoefficientInterface_ == nullptr )
+        {
+            throw std::runtime_error(
+                        "Error when getting aerodynamic coefficient independent variables, no coefficient interface is defined" );
+        }
+
         if( aerodynamicCoefficientIndependentVariables_.size( ) !=
                 aerodynamicCoefficientInterface_->getNumberOfIndependentVariables( ) )
         {
@@ -483,6 +489,12 @@ public:
      */
     std::map< std::string, std::vector< double > > getControlSurfaceAerodynamicCoefficientIndependentVariables( )
     {
+        if( aerodynamicCoefficientInterface_ == nullptr )
+        {
+            throw std::runtime_error(
+                        "Error when getting control surface aerodynamic coefficient independent variables, no coefficient interface is defined" );
+        }
+
         if( controlSurfaceAerodynamicCoefficientIndependentVariables_.size( ) !=
                 aerodynamicCoefficientInterface_->getNumberOfControlSurfaces( ) )
         {
@@ -498,12 +510,12 @@ public:
      *  to NaN, indicating the need to recompute all quantities for the next time computation.
      * \param currentTime
      */
-    void resetCurrentTime( const double currentTime = TUDAT_NAN )
+    void resetCurrentTime( )
     {
-        currentTime_ = currentTime;
+        currentTime_ = TUDAT_NAN;
 
         isScalarFlightConditionComputed_ = allScalarFlightConditionsUncomputed;
-        aerodynamicAngleCalculator_->resetCurrentTime( currentTime_ );
+        aerodynamicAngleCalculator_->resetCurrentTime( );
         aerodynamicCoefficientIndependentVariables_.clear( );
         controlSurfaceAerodynamicCoefficientIndependentVariables_.clear( );
     }

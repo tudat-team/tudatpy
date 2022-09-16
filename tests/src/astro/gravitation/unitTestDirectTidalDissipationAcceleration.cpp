@@ -69,7 +69,7 @@ std::pair< double, double > computeKeplerElementRatesDueToDissipation(
     std::shared_ptr< IntegratorSettings< > > integratorSettings =
             std::make_shared< RungeKuttaVariableStepSizeSettings< > >
             ( 0.0, fixedStepSize,
-              RungeKuttaCoefficients::rungeKuttaFehlberg78, fixedStepSize, fixedStepSize, 1.0, 1.0);
+              rungeKuttaFehlberg78, fixedStepSize, fixedStepSize, 1.0, 1.0);
 
     std::map< double, Eigen::VectorXd > integrationResultWithDissipation;
     std::map< double, Eigen::VectorXd > integrationResultWithDissipationKepler;
@@ -173,7 +173,7 @@ BOOST_AUTO_TEST_CASE( testTidalDissipationInPlanetAndSatellite )
     BodyListSettings bodySettings =
             getDefaultBodySettings( bodyNames, initialTime - 86400.0, finalTime + 86400.0 );
 
-    std::vector< std::string > galileanSatellites = { "Io", "Europa", "Ganymede" };
+    std::vector< std::string > galileanSatellites = { "Io", "Europa" };
 
     Eigen::MatrixXd cosineCoefficients = Eigen::MatrixXd::Zero( 3, 3 );
     cosineCoefficients( 0, 0 ) = 1.0;

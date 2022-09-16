@@ -76,10 +76,14 @@ void addAerodynamicCoefficientInterface(
         const SystemOfBodies& bodies, const std::string bodyName,
         const std::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings );
 
-
 void addRadiationPressureInterface(
         const SystemOfBodies& bodies, const std::string bodyName,
         const std::shared_ptr< RadiationPressureInterfaceSettings > radiationPressureSettings );
+
+void addRotationModel(
+        const SystemOfBodies& bodies, const std::string bodyName,
+        const std::shared_ptr< RotationModelSettings > rotationModelSettings );
+
 
 class BodyListSettings
 {

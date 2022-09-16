@@ -81,7 +81,7 @@ std::shared_ptr< SolarActivityData > ExtractSolarActivityData::extract(
     {
         solarActivityContainer->dataType = getField< unsigned int >( data, dataType );
     }
-    catch( std::bad_cast )
+    catch( std::bad_cast& )
     {
         solarActivityContainer->dataType = std::numeric_limits< unsigned int >::max( );
     }
