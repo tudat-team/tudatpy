@@ -154,7 +154,7 @@ BOOST_AUTO_TEST_CASE( testEmpiricalAccelerations )
         std::shared_ptr< IntegratorSettings< > > integratorSettings =
                 std::make_shared< RungeKuttaVariableStepSizeSettings< > >
                 ( 0.0, fixedStepSize,
-                  RungeKuttaCoefficients::rungeKuttaFehlberg78, 1.0E-4, 3600.0, 1.0E-14, 1.0E-14 );
+                  rungeKuttaFehlberg78, 1.0E-4, 3600.0, 1.0E-14, 1.0E-14 );
 
         // Create simulation object and propagate dynamics.
         SingleArcDynamicsSimulator< > dynamicsSimulator(
@@ -241,7 +241,7 @@ BOOST_AUTO_TEST_CASE( testEmpiricalAccelerations )
             for( unsigned int i = 0; i < 3; i++ )
             {
                 BOOST_CHECK_SMALL( std::fabs( expectedAccelerationInRswFrame( i ) - totalEmpiricalAccelerationInRswFrame( i ) ),
-                    8.0 * std::numeric_limits< double >::epsilon( ) * empiricalAccelerationNorm );
+                    10.0 * std::numeric_limits< double >::epsilon( ) * empiricalAccelerationNorm );
             }
         }
     }

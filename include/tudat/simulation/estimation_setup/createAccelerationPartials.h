@@ -386,8 +386,8 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
                 std::dynamic_pointer_cast< EmpiricalAcceleration >( accelerationModel );
         if( empiricalAcceleration == nullptr )
         {
-            std::cerr << "Acceleration class type does not match acceleration type enum (rel. corr.) "
-                         "set when making acceleration partial." << std::endl;
+            throw std::runtime_error(
+                        "Acceleration class type does not match acceleration type enum (empirical) set when making acceleration partial." );
 
         }
         else
@@ -405,8 +405,8 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
                 std::dynamic_pointer_cast< propulsion::MomentumWheelDesaturationThrustAcceleration >( accelerationModel );
         if( thrustAcceleration == nullptr )
         {
-            std::cerr << "Acceleration class type does not match acceleration type enum (mom. wheel desat.) "
-                         "set when making acceleration partial." << std::endl;
+           throw std::runtime_error(
+                        "Acceleration class type does not match acceleration type enum (mom. wheel desat.) set when making acceleration partial." );
 
         }
         else
@@ -421,8 +421,34 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
         std::cerr<<"Warning, custom acceleration partials implicitly set to zero - depending on thrust guidance model, this may provide biased results for variational equations"<<std::endl;
         break;
     case thrust_acceleration:
-        std::cerr<<"Warning, thrust acceleration partials implicitly set to zero - depending on thrust guidance model, this may provide biased results for variational equations"<<std::endl;
+    {
+        // Check if identifier is consistent with type.
+        std::shared_ptr< propulsion::ThrustAcceleration > thrustAcceleration =
+                std::dynamic_pointer_cast< propulsion::ThrustAcceleration >( accelerationModel );
+        if( thrustAcceleration == nullptr )
+        {
+            throw std::runtime_error(
+                        "Acceleration class type does not match acceleration type enum (thrust) set when making acceleration partial." );
+
+        }
+        else
+        {
+            std::map< std::pair< estimatable_parameters::EstimatebleParametersEnum, std::string >,
+                    std::shared_ptr< observation_partials::RotationMatrixPartial > >
+                    rotationMatrixPartials;
+            if( parametersToEstimate != nullptr )
+            {
+                    rotationMatrixPartials = observation_partials::createRotationMatrixPartials(
+                        parametersToEstimate, acceleratingBody.first, bodies );
+            }
+
+
+            // Create partial-calculating object.
+            accelerationPartial = std::make_shared< ThrustAccelerationPartial >(
+                        thrustAcceleration, acceleratedBody.first, rotationMatrixPartials );
+        }
         break;
+    }
     default:
         std::string errorMessage = "Acceleration model " + std::to_string( accelerationType ) +
                 " not found when making acceleration partial";

@@ -47,6 +47,7 @@ void TransferLeg::updateDepartureAndArrivalBodies(
 {
     departureTime_ = departureTime;
     arrivalTime_ = arrivalTime;
+    timeOfFlight_ = arrivalTime_ - departureTime_;
     departureBodyState_ = departureBodyEphemeris_->getCartesianState( departureTime_ );
     arrivalBodyState_ = arrivalBodyEphemeris_->getCartesianState( arrivalTime_ );
 }
@@ -187,7 +188,7 @@ void DsmPositionBasedTransferLeg::computeTransfer( )
     updateDepartureAndArrivalBodies(
                 legParameters_( 0 ), legParameters_( 1 ) );
 
-    double timeOfFlight = arrivalTime_ - departureTime_;
+    // double timeOfFlight = arrivalTime_ - departureTime_;
     dsmTimeOfFlightFraction_ = legParameters_( 2 );
     dimensionlessRadiusDsm_ = legParameters_( 3 );
     inPlaneAngle_ = legParameters_( 4 );
@@ -198,7 +199,7 @@ void DsmPositionBasedTransferLeg::computeTransfer( )
 
 
     // Calculate the DSM time of application from the time of flight fraction.
-    double dsmTime = dsmTimeOfFlightFraction_ * timeOfFlight;
+    double dsmTime = dsmTimeOfFlightFraction_ * timeOfFlight_;
 
     // Calculate and set the spacecraft velocities after departure, before and after the DSM, and
     // before arrival using two lambert targeters and all the corresponding positions and flight
@@ -206,7 +207,7 @@ void DsmPositionBasedTransferLeg::computeTransfer( )
     mission_segments::solveLambertProblemIzzo( departureBodyState_.segment( 0, 3 ), dsmLocation, dsmTime,
                                                centralBodyGravitationalParameter_,
                                                departureVelocity_, velocityBeforeDsm_ );
-    mission_segments::solveLambertProblemIzzo( dsmLocation, arrivalBodyState_.segment( 0, 3 ), timeOfFlight -
+    mission_segments::solveLambertProblemIzzo( dsmLocation, arrivalBodyState_.segment( 0, 3 ), timeOfFlight_ -
                                                dsmTime, centralBodyGravitationalParameter_,
                                                velocityAfterDsm_, arrivalVelocity_ );
 
@@ -264,11 +265,11 @@ void DsmVelocityBasedTransferLeg::computeTransfer( )
     updateDepartureAndArrivalBodies(
                 legParameters_( 0 ), legParameters_( 1 ) );
 
-    double timeOfFlight = arrivalTime_ - departureTime_;
+    // double timeOfFlight = arrivalTime_ - departureTime_;
     dsmTimeOfFlightFraction_ = legParameters_( 2 );
 
     // Calculate the DSM time of application from the time of flight fraction.
-    double dsmTime = dsmTimeOfFlightFraction_ * timeOfFlight;
+    double dsmTime = dsmTimeOfFlightFraction_ * timeOfFlight_;
 
     departureVelocity_ = departureVelocityFunction_( );
 
@@ -286,7 +287,7 @@ void DsmVelocityBasedTransferLeg::computeTransfer( )
 
     // Calculate the velocities after the DSM and before the arrival body.
     mission_segments::solveLambertProblemIzzo(
-                dsmLocation, arrivalBodyState_.segment( 0, 3 ), timeOfFlight -  dsmTime,
+                dsmLocation, arrivalBodyState_.segment( 0, 3 ), timeOfFlight_ -  dsmTime,
                 centralBodyGravitationalParameter_, velocityAfterDsm_, arrivalVelocity_ );
 
     // Calculate the deltaV needed for the DSM.

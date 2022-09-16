@@ -238,7 +238,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
                 {
                     integratorSettings = std::make_shared< RungeKuttaVariableStepSizeSettings< double > >
                             ( simulationStartEpoch, directionMultiplier * fixedStepSize,
-                              RungeKuttaCoefficients::CoefficientSets::rungeKuttaFehlberg45,
+                              CoefficientSets::rungeKuttaFehlberg45,
                               1.0E-3, 1.0E3, 1.0E-12, 1.0E-12 );
                 }
 

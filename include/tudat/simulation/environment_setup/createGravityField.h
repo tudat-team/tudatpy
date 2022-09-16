@@ -294,7 +294,9 @@ enum SphericalHarmonicsModel
     glgm3150,
     lpe200,
     gggrx1200,
-    jgmro120d
+    jgmro120d,
+    jgmess160a,
+    shgj180u
 };
 
 // Get the path of the SH file for a SH model.
@@ -347,7 +349,8 @@ public:
      * Constructor with model included in Tudat.
      * \param sphericalHarmonicsModel Spherical harmonics model to be used.
      */
-    FromFileSphericalHarmonicsGravityFieldSettings( const SphericalHarmonicsModel sphericalHarmonicsModel );
+    FromFileSphericalHarmonicsGravityFieldSettings( const SphericalHarmonicsModel sphericalHarmonicsModel,
+                                                    const int maximumDegree = -1 );
 
     virtual ~FromFileSphericalHarmonicsGravityFieldSettings( ){ }
     // Get the sphericals harmonics model.

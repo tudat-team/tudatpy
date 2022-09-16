@@ -251,14 +251,14 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravity )
     for( unsigned int i = 0; i < 3; i++ )
     {
         BOOST_CHECK_SMALL( std::fabs( expectedAcceleration( i ) - mutualDirectJupiterIoShGravityAcceleration2( i ) ),
-                           12.0 * std::numeric_limits< double >::epsilon( ) * expectedAcceleration.norm( ) );
+                           15.0 * std::numeric_limits< double >::epsilon( ) * expectedAcceleration.norm( ) );
     }
 
     // Test against directly calculated mutual spherical harmonic gravity.
     for( unsigned int i = 0; i < 3; i++ )
     {
         BOOST_CHECK_SMALL( std::fabs( mutualDirectJupiterIoShGravityAcceleration( i ) + mutualDirectJupiterIoShGravityAcceleration2( i ) ),
-                           12.0 * std::numeric_limits< double >::epsilon( ) * mutualDirectJupiterIoShGravityAcceleration.norm( ) );
+                           15.0 * std::numeric_limits< double >::epsilon( ) * mutualDirectJupiterIoShGravityAcceleration.norm( ) );
     }
 
 

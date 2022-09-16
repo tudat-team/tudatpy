@@ -24,7 +24,7 @@
 #include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/math/basic/basicMathematicsFunctions.h"
 #include "tudat/astro/reference_frames/referenceFrameTransformations.h"
-
+#include "tudat/astro/basic_astro/orbitalElementConversions.h"
 namespace tudat
 {
 
@@ -307,6 +307,59 @@ Eigen::Matrix3d getRswSatelliteCenteredToInertialFrameRotationMatrix(
     return getInertialToRswSatelliteCenteredFrameRotationMatrix( bodyState ).transpose( );
 }
 
+Eigen::Matrix3d getPqwPerifocalToInertialRotationMatrix(
+        const Eigen::Vector6d& bodyState,
+        const double gravitationalParameter )
+{
+    return getInertialToPqwPerifocalRotationMatrix( bodyState, gravitationalParameter ).transpose( );
+}
+
+Eigen::Matrix3d getInertialToPqwPerifocalRotationMatrix(
+        const Eigen::Vector6d& bodyState,
+        const double gravitationalParameter )
+{
+    Eigen::Matrix3d rotationInerialToRsw =
+            getInertialToRswSatelliteCenteredFrameRotationMatrix( bodyState );
+    double trueAnomaly = orbital_element_conversions::convertCartesianToKeplerianElements( bodyState, gravitationalParameter )( 5 );
+    return Eigen::AngleAxisd( trueAnomaly,
+                              Eigen::Vector3d::UnitZ( ) ).toRotationMatrix( ) * rotationInerialToRsw;
+}
+
+
+Eigen::Matrix3d getEqwEquinoctialToInertialRotationMatrix(
+        const Eigen::Vector6d& bodyState,
+        const double gravitationalParameter )
+{
+    return getInertialToEqwEquinoctialRotationMatrix( bodyState, gravitationalParameter ).transpose( );
+}
+
+Eigen::Matrix3d getInertialToEqwEquinoctialRotationMatrix(
+        const Eigen::Vector6d& bodyState,
+        const double gravitationalParameter )
+{
+    Eigen::Matrix3d rotationInerialToRsw =
+            getInertialToRswSatelliteCenteredFrameRotationMatrix( bodyState );
+    Eigen::Vector6d keplerElements =
+            orbital_element_conversions::convertCartesianToKeplerianElements( bodyState, gravitationalParameter );
+    Eigen::Matrix3d intermediateRotation =
+            Eigen::AngleAxisd( -keplerElements( orbital_element_conversions::longitudeOfAscendingNodeIndex ),
+                               Eigen::Vector3d::UnitZ( ) ).toRotationMatrix( );
+
+    if( keplerElements( orbital_element_conversions::inclinationIndex ) > mathematical_constants::PI / 2.0 )
+    {
+        return intermediateRotation.transpose( ) *
+                Eigen::AngleAxisd( -orbital_element_conversions::inclinationIndex, Eigen::Vector3d::UnitX( ) ).toRotationMatrix( ) *
+                intermediateRotation *
+                rotationInerialToRsw;
+    }
+    else
+    {
+        return intermediateRotation *
+                Eigen::AngleAxisd( orbital_element_conversions::inclinationIndex, Eigen::Vector3d::UnitX( ) ).toRotationMatrix( ) *
+                intermediateRotation.transpose( ) *
+                rotationInerialToRsw;
+    }
+}
 //! Get inertial (I) to rotating planetocentric (R) reference frame transformtion quaternion.
 Eigen::Quaterniond getInertialToPlanetocentricFrameTransformationQuaternion(
         const double angleFromXItoXR )

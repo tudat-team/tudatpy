@@ -69,24 +69,24 @@ std::shared_ptr< IntegratorSettings< TimeType > > getIntegrationSettings(
     }
     else if( integratorCase < 5 )
     {
-        RungeKuttaCoefficients::CoefficientSets coefficientSet = RungeKuttaCoefficients::undefinedCoefficientSet;
+        CoefficientSets coefficientSet = CoefficientSets::undefinedCoefficientSet;
         if( integratorCase == 1 )
         {
-            coefficientSet = RungeKuttaCoefficients::rungeKuttaFehlberg45;
+            coefficientSet = rungeKuttaFehlberg45;
         }
         else if( integratorCase == 2 )
         {
-            coefficientSet = RungeKuttaCoefficients::rungeKuttaFehlberg56;
+            coefficientSet = rungeKuttaFehlberg56;
 
         }
         else if( integratorCase == 3 )
         {
-            coefficientSet = RungeKuttaCoefficients::rungeKuttaFehlberg78;
+            coefficientSet = rungeKuttaFehlberg78;
 
         }
         else if( integratorCase == 4 )
         {
-            coefficientSet = RungeKuttaCoefficients::rungeKutta87DormandPrince;
+            coefficientSet = rungeKutta87DormandPrince;
 
         }
         integratorSettings = std::make_shared< RungeKuttaVariableStepSizeSettings< TimeType > >

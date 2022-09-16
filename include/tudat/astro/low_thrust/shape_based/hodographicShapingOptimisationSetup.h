@@ -25,7 +25,6 @@
 #include <tudat/astro/basic_astro/orbitalElementConversions.h>
 #include <tudat/io/basicInputOutput.h>
 
-#include "tudat/astro/low_thrust/shape_based/hodographicShaping.h"
 #include <random>
 
 #include "pagmo/island.hpp"

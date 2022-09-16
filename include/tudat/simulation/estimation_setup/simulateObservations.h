@@ -403,6 +403,42 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
     return observationCollection;
 }
 
+template< typename ObservationScalarType = double, typename TimeType = double >
+std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > setExistingObservations(
+        const std::map< observation_models::ObservableType, std::pair< observation_models::LinkEnds,
+                std::pair< std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >,
+                        std::vector< TimeType > > > > observationsInput,
+        const observation_models::LinkEndType referenceLinkEnd )
+{
+    // Declare return map.
+    typename observation_models::ObservationCollection< ObservationScalarType, TimeType >::SortedObservationSets sortedObservations;
+
+    // Iterate over all observables.
+    for( auto itr : observationsInput )
+    {
+        observation_models::ObservableType observableType = itr.first;
+        observation_models::LinkEnds linkEnds = itr.second.first;
+        int observationSize = observation_models::getObservableSize( observableType );
+
+        std::pair< std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >, std::vector< TimeType > > observationsTimesAndValues = itr.second.second;
+
+        if ( observationsTimesAndValues.first.size( ) != observationsTimesAndValues.second.size( ) )
+        {
+            throw std::runtime_error("Error when setting observation collection from existing observations, size of observation times and observation values is inconsistent.");
+        }
+        std::shared_ptr< observation_models::SingleObservationSet<ObservationScalarType,TimeType> > observationSet =
+                std::make_shared< observation_models::SingleObservationSet<ObservationScalarType,TimeType> >(
+                        observableType, linkEnds, observationsTimesAndValues.first, observationsTimesAndValues.second, referenceLinkEnd );
+
+        sortedObservations[ observableType ][ linkEnds ].push_back( observationSet );
+
+    }
+    std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > observationCollection =
+            std::make_shared< observation_models::ObservationCollection< ObservationScalarType, TimeType > >( sortedObservations );
+
+    return observationCollection;
+}
+
 Eigen::VectorXd getIdenticallyAndIndependentlyDistributedNoise(
         const std::function< double( const double ) > noiseFunction,
         const int observationSize,

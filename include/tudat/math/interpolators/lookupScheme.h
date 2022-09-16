@@ -74,6 +74,15 @@ public:
     {
         return independentVariableValues_.at( 0 );
     }
+
+    IndependentVariableType getIndependentVariableValue( const int index )
+    {
+        if( index >= static_cast< int >( independentVariableValues_.size( ) ) || index < 0 )
+        {
+            throw std::runtime_error( "Error when getting independent variable value from lookup scheme; index is invalid" );
+        }
+        return independentVariableValues_.at( index );
+    }
 protected:
 
     //! Vector of independent variable values in which lookup is to be performed.

@@ -359,7 +359,7 @@ BOOST_AUTO_TEST_CASE( testassessTerminationOnMinorStepsRKVariableStepSize )
         std::shared_ptr< IntegratorSettings< > > integratorSettings =
                 std::make_shared< RungeKuttaVariableStepSizeSettings< > >
                 ( simulationStartEpoch, initialStepSize,
-                  RungeKuttaCoefficients::rungeKuttaFehlberg78, minStepSize, maxStepSize, tolerance, tolerance, 1,
+                  rungeKuttaFehlberg78, minStepSize, maxStepSize, tolerance, tolerance, 1,
                   assessDuringSubsteps );
 
 

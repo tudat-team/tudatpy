@@ -22,5 +22,9 @@ TUDAT_ADD_TEST_CASE(MutualSphericalHarmonicPartials
         ${Tudat_ESTIMATION_LIBRARIES}
         )
 
+    TUDAT_ADD_TEST_CASE(MassRatePartials
+        PRIVATE_LINKS
+        ${Tudat_ESTIMATION_LIBRARIES}
+        )
 
 

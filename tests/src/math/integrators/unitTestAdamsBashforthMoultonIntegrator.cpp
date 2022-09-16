@@ -55,7 +55,7 @@ BOOST_AUTO_TEST_CASE( test_AdamsBashforthMoulton_Integrator_Compare78 )
 {
     // Setup integrator
     RungeKuttaCoefficients coeff_rk78 =
-            RungeKuttaCoefficients::get( RungeKuttaCoefficients::rungeKuttaFehlberg78);
+            RungeKuttaCoefficients::get( CoefficientSets::rungeKuttaFehlberg78);
 
     // Integrator settings
     double minimumStepSize = std::numeric_limits< double >::epsilon( );
@@ -95,7 +95,7 @@ BOOST_AUTO_TEST_CASE( test_AdamsBashforthMoulton_Integrator_Compare78_v2 )
     // Setup integrator
     RungeKuttaCoefficients coeff_rk78 =
             RungeKuttaCoefficients::get(
-                RungeKuttaCoefficients::rungeKuttaFehlberg78 );
+                rungeKuttaFehlberg78 );
 
     // Integrator settings
     double minimumStepSize = std::numeric_limits< double >::epsilon( );
@@ -132,7 +132,7 @@ BOOST_AUTO_TEST_CASE( test_AdamsBashforthMoulton_Integrator_Compare78_VanDerPol 
 {
     // Setup integrator
     RungeKuttaCoefficients coeff_rk78 =
-            RungeKuttaCoefficients::get( RungeKuttaCoefficients::rungeKuttaFehlberg78 );
+            RungeKuttaCoefficients::get( CoefficientSets::rungeKuttaFehlberg78 );
 
     // Integrator settings
     double minimumStepSize = 0.001;

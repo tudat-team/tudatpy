@@ -29,13 +29,14 @@
 #include "tudat/astro/ephemerides/rotationalEphemeris.h"
 #include "tudat/astro/ephemerides/tabulatedEphemeris.h"
 #include "tudat/astro/ephemerides/multiArcEphemeris.h"
+#include "tudat/astro/ephemerides/aeordynamicAngleRotationalEphemeris.h"
 #include "tudat/astro/ephemerides/frameManager.h"
 #include "tudat/astro/gravitation/gravityFieldModel.h"
 #include "tudat/astro/gravitation/gravityFieldVariations.h"
 #include "tudat/astro/gravitation/timeDependentSphericalHarmonicsGravityField.h"
 #include "tudat/astro/ground_stations/groundStation.h"
 #include "tudat/astro/propulsion/thrustGuidance.h"
-#include "tudat/astro/reference_frames/dependentOrientationCalculator.h"
+//#include "tudat/astro/reference_frames/dependentOrientationCalculator.h"
 #include "tudat/astro/system_models/vehicleSystems.h"
 #include "tudat/basics/basicTypedefs.h"
 #include "tudat/math/basic/numericalDerivative.h"
@@ -524,10 +525,10 @@ public:
         {
             currentRotationToLocalFrame_ = rotationalEphemeris_->getRotationToTargetFrame( time );
         }
-        else if( dependentOrientationCalculator_ != nullptr )
-        {
-            currentRotationToLocalFrame_ = dependentOrientationCalculator_->computeAndGetRotationToLocalFrame( time );
-        }
+//        else if( dependentOrientationCalculator_ != nullptr )
+//        {
+//            currentRotationToLocalFrame_ = dependentOrientationCalculator_->computeAndGetRotationToLocalFrame( time );
+//        }
         else
         {
             throw std::runtime_error(
@@ -591,13 +592,13 @@ public:
                         currentAngularVelocityVectorInGlobalFrame_, time );
             currentAngularVelocityVectorInLocalFrame_ = currentRotationToLocalFrame_ * currentAngularVelocityVectorInGlobalFrame_;
         }
-        else if( dependentOrientationCalculator_ != nullptr )
-        {
-            currentRotationToLocalFrame_ = dependentOrientationCalculator_->computeAndGetRotationToLocalFrame( time );
-            currentRotationToLocalFrameDerivative_.setZero( );
-            currentAngularVelocityVectorInGlobalFrame_.setZero( );
-            currentAngularVelocityVectorInLocalFrame_.setZero( );
-        }
+//        else if( dependentOrientationCalculator_ != nullptr )
+//        {
+//            currentRotationToLocalFrame_ = dependentOrientationCalculator_->computeAndGetRotationToLocalFrame( time );
+//            currentRotationToLocalFrameDerivative_.setZero( );
+//            currentAngularVelocityVectorInGlobalFrame_.setZero( );
+//            currentAngularVelocityVectorInLocalFrame_.setZero( );
+//        }
         else
         {
             throw std::runtime_error(
@@ -748,6 +749,10 @@ public:
         {
             throw std::runtime_error( "Error when retrieving derivative of rotation to global frame from body " + bodyName_ + ", state of body is not yet defined" );
         }
+        else if( currentRotationToLocalFrameDerivative_.hasNaN( ) )
+        {
+            throw std::runtime_error( "Error when retrieving derivative of rotation to global frame from body " + bodyName_ + ", matrix is undefined" );
+        }
         else
         {
             return currentRotationToLocalFrameDerivative_.transpose();
@@ -767,6 +772,10 @@ public:
         if( !isRotationSet_ )
         {
             throw std::runtime_error( "Error when retrieving derivative of rotation to local frame from body " + bodyName_ + ", state of body is not yet defined" );
+        }
+        else if( currentRotationToLocalFrameDerivative_.hasNaN( ) )
+        {
+            throw std::runtime_error( "Error when retrieving derivative of rotation to local frame from body " + bodyName_ + ", matrix is undefined" );
         }
         else
         {
@@ -859,58 +868,58 @@ public:
      */
     void setRotationalEphemeris(
             const std::shared_ptr<ephemerides::RotationalEphemeris> rotationalEphemeris) {
-        if (dependentOrientationCalculator_ != nullptr) {
-            std::cerr << "Warning when setting rotational ephemeris, dependentOrientationCalculator_ already found, NOT setting closure" << std::endl;
-        }
+//        if (dependentOrientationCalculator_ != nullptr) {
+//            std::cerr << "Warning when setting rotational ephemeris, dependentOrientationCalculator_ already found, NOT setting closure" << std::endl;
+//        }
         rotationalEphemeris_ = rotationalEphemeris;
     }
 
-    //! Function to set a rotation model that is only valid during numerical propagation
-    /*!
-     *  Function to set a rotation model that is only valid during numerical propagation, as it depends on the full state
-     *  of the environment
-     *  \param dependentOrientationCalculator Object from which the orientation is computed.
-     */
-    void setDependentOrientationCalculator(
-            const std::shared_ptr<reference_frames::DependentOrientationCalculator> dependentOrientationCalculator) {
-        // Check if object already exists
-        if (dependentOrientationCalculator_ != nullptr) {
-            // Try to create closure between new and existing objects (i.e ensure that they end up computing the same rotation
-            // in differen manenrs.
-            if ((std::dynamic_pointer_cast<reference_frames::AerodynamicAngleCalculator>(
-                     dependentOrientationCalculator)
-                 != nullptr)
-                    && (std::dynamic_pointer_cast<reference_frames::AerodynamicAngleCalculator>(
-                            dependentOrientationCalculator_)
-                        == nullptr)) {
-                reference_frames::setAerodynamicDependentOrientationCalculatorClosure(
-                            dependentOrientationCalculator_,
-                            std::dynamic_pointer_cast<reference_frames::AerodynamicAngleCalculator>(
-                                dependentOrientationCalculator));
-            } else if ((std::dynamic_pointer_cast<reference_frames::AerodynamicAngleCalculator>(
-                            dependentOrientationCalculator_)
-                        != nullptr)
-                       && (std::dynamic_pointer_cast<reference_frames::AerodynamicAngleCalculator>(
-                               dependentOrientationCalculator)
-                           == nullptr)) {
-                reference_frames::setAerodynamicDependentOrientationCalculatorClosure(
-                            dependentOrientationCalculator,
-                            std::dynamic_pointer_cast<reference_frames::AerodynamicAngleCalculator>(
-                                dependentOrientationCalculator_));
-            } else if ((std::dynamic_pointer_cast<propulsion::BodyFixedForceDirectionGuidance>(
-                            dependentOrientationCalculator_)
-                        != nullptr)
-                       && (std::dynamic_pointer_cast<propulsion::BodyFixedForceDirectionGuidance>(
-                               dependentOrientationCalculator)
-                           != nullptr)) {
-                dependentOrientationCalculator_ = dependentOrientationCalculator;
-            } else if (!suppressDependentOrientationCalculatorWarning_) {
-                std::cerr << "Warning, cannot reset dependentOrientationCalculator, incompatible object already exists" << std::endl;
-            }
-        } else {
-            dependentOrientationCalculator_ = dependentOrientationCalculator;
-        }
-    }
+//    //! Function to set a rotation model that is only valid during numerical propagation
+//    /*!
+//     *  Function to set a rotation model that is only valid during numerical propagation, as it depends on the full state
+//     *  of the environment
+//     *  \param dependentOrientationCalculator Object from which the orientation is computed.
+//     */
+//    void setDependentOrientationCalculator(
+//            const std::shared_ptr<reference_frames::DependentOrientationCalculator> dependentOrientationCalculator) {
+//        // Check if object already exists
+//        if (dependentOrientationCalculator_ != nullptr) {
+//            // Try to create closure between new and existing objects (i.e ensure that they end up computing the same rotation
+//            // in differen manenrs.
+//            if ((std::dynamic_pointer_cast<reference_frames::AerodynamicAngleCalculator>(
+//                     dependentOrientationCalculator)
+//                 != nullptr)
+//                    && (std::dynamic_pointer_cast<reference_frames::AerodynamicAngleCalculator>(
+//                            dependentOrientationCalculator_)
+//                        == nullptr)) {
+//                reference_frames::setAerodynamicDependentOrientationCalculatorClosure(
+//                            dependentOrientationCalculator_,
+//                            std::dynamic_pointer_cast<reference_frames::AerodynamicAngleCalculator>(
+//                                dependentOrientationCalculator));
+//            } else if ((std::dynamic_pointer_cast<reference_frames::AerodynamicAngleCalculator>(
+//                            dependentOrientationCalculator_)
+//                        != nullptr)
+//                       && (std::dynamic_pointer_cast<reference_frames::AerodynamicAngleCalculator>(
+//                               dependentOrientationCalculator)
+//                           == nullptr)) {
+//                reference_frames::setAerodynamicDependentOrientationCalculatorClosure(
+//                            dependentOrientationCalculator,
+//                            std::dynamic_pointer_cast<reference_frames::AerodynamicAngleCalculator>(
+//                                dependentOrientationCalculator_));
+//            } else if ((std::dynamic_pointer_cast<propulsion::BodyFixedForceDirectionGuidance>(
+//                            dependentOrientationCalculator_)
+//                        != nullptr)
+//                       && (std::dynamic_pointer_cast<propulsion::BodyFixedForceDirectionGuidance>(
+//                               dependentOrientationCalculator)
+//                           != nullptr)) {
+//                dependentOrientationCalculator_ = dependentOrientationCalculator;
+//            } else if (!suppressDependentOrientationCalculatorWarning_) {
+//                std::cerr << "Warning, cannot reset dependentOrientationCalculator, incompatible object already exists" << std::endl;
+//            }
+//        } else {
+//            dependentOrientationCalculator_ = dependentOrientationCalculator;
+//        }
+//    }
 
     //! Function to set the shape model of the body.
     /*!
@@ -942,18 +951,21 @@ public:
             const std::shared_ptr<aerodynamics::FlightConditions> aerodynamicFlightConditions) {
         aerodynamicFlightConditions_ = aerodynamicFlightConditions;
 
-        // If dependentOrientationCalculator_ object already exists, provide a warning and create closure between the two
-        if (dependentOrientationCalculator_ != nullptr) {
-            reference_frames::setAerodynamicDependentOrientationCalculatorClosure(
-                        dependentOrientationCalculator_, aerodynamicFlightConditions_->getAerodynamicAngleCalculator());
-        } else {
-            dependentOrientationCalculator_ = aerodynamicFlightConditions->getAerodynamicAngleCalculator();
-        }
+//        // If dependentOrientationCalculator_ object already exists, provide a warning and create closure between the two
+//        if (dependentOrientationCalculator_ != nullptr) {
+//            reference_frames::setAerodynamicDependentOrientationCalculatorClosure(
+//                        dependentOrientationCalculator_, aerodynamicFlightConditions_->getAerodynamicAngleCalculator());
+//        } else {
+//            dependentOrientationCalculator_ = aerodynamicFlightConditions->getAerodynamicAngleCalculator();
+//        }
 
         // Create closure between rotational ephemeris and aerodynamic angle calculator.
-        if (rotationalEphemeris_ != nullptr) {
-            reference_frames::setAerodynamicDependentOrientationCalculatorClosure(
-                        rotationalEphemeris_, aerodynamicFlightConditions_->getAerodynamicAngleCalculator());
+        if( rotationalEphemeris_ != nullptr && std::dynamic_pointer_cast< ephemerides::AerodynamicAngleRotationalEphemeris >(
+                    rotationalEphemeris_ ) == nullptr )
+        {
+            aerodynamicFlightConditions_->getAerodynamicAngleCalculator( )->setBodyFixedAngleInterface(
+                        std::make_shared< reference_frames::FromGenericEphemerisAerodynamicAngleInterface >(
+                            rotationalEphemeris_ ) );
         }
     }
 
@@ -1027,15 +1039,15 @@ public:
         return rotationalEphemeris_;
     }
 
-    //! Function to retrieve the model to compute the rotation of the body based on the current state of the environment.
-    /*!
-     * Function to retrieve the model to compute the rotation of the body based on the current state of the environment
-     * (model is only valid during propagation).
-     * \return Model to compute the rotation of the body based on the current state of the environment
-     */
-    std::shared_ptr<reference_frames::DependentOrientationCalculator> getDependentOrientationCalculator() {
-        return dependentOrientationCalculator_;
-    }
+//    //! Function to retrieve the model to compute the rotation of the body based on the current state of the environment.
+//    /*!
+//     * Function to retrieve the model to compute the rotation of the body based on the current state of the environment
+//     * (model is only valid during propagation).
+//     * \return Model to compute the rotation of the body based on the current state of the environment
+//     */
+//    std::shared_ptr<reference_frames::DependentOrientationCalculator> getDependentOrientationCalculator() {
+//        return dependentOrientationCalculator_;
+//    }
 
     //! Function to retrieve the shape model of body.
     /*!
@@ -1348,9 +1360,9 @@ public:
      */
     void setIsBodyInPropagation(const bool isBodyInPropagation);
 
-    void setSuppressDependentOrientationCalculatorWarning(const bool suppressDependentOrientationCalculatorWarning) {
-        suppressDependentOrientationCalculatorWarning_ = suppressDependentOrientationCalculatorWarning;
-    }
+//    void setSuppressDependentOrientationCalculatorWarning(const bool suppressDependentOrientationCalculatorWarning) {
+//        suppressDependentOrientationCalculatorWarning_ = suppressDependentOrientationCalculatorWarning;
+//    }
 
     std::string getBodyName( ){ return bodyName_; }
 
@@ -1428,8 +1440,8 @@ private:
     //! Rotation model of body.
     std::shared_ptr<ephemerides::RotationalEphemeris> rotationalEphemeris_;
 
-    //! Model to compute the rotation of the body based on the current state of the environment, only valid during propagation.
-    std::shared_ptr<reference_frames::DependentOrientationCalculator> dependentOrientationCalculator_;
+//    //! Model to compute the rotation of the body based on the current state of the environment, only valid during propagation.
+//    std::shared_ptr<reference_frames::DependentOrientationCalculator> dependentOrientationCalculator_;
 
     //! List of radiation pressure models for the body, with the sources bodies as key
     std::map<std::string, std::shared_ptr<electromagnetism::RadiationPressureInterface>>
@@ -1449,7 +1461,7 @@ private:
     //!  Boolean defining whether the body is currently being propagated, or not
     bool isBodyInPropagation_ = false;
 
-    bool suppressDependentOrientationCalculatorWarning_ = false;
+//    bool suppressDependentOrientationCalculatorWarning_ = false;
 
     std::string bodyName_;
 
@@ -1716,6 +1728,10 @@ public:
 
     std::shared_ptr< Body > at( const std::string& bodyName ) const
     {
+        if( bodyMap_.count( bodyName ) == 0 )
+        {
+            throw std::runtime_error( "Error when retrieving body " + bodyName + " from SystemOfBodies, no such body exists" );
+        }
         return bodyMap_.at( bodyName );
     }
 

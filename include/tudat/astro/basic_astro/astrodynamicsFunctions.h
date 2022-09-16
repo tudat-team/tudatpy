@@ -159,6 +159,27 @@ double computePeriapsisAltitudeFromKeplerianState( const Eigen::Vector6d& state,
 double computePeriapsisAltitudeFromCartesianState( const Eigen::Vector6d& state,
                                                    const double centralBodyGravitationalParameter,
                                                    const double centralBodyRadius );
+//! Compute apoapsis altitude from Keplerian state for spherical central body.
+/*!
+ * Compute apoapsis altitude from Keplerian state for spherical central body.
+ * \param state Keplerian state of the propagated body.
+ * \param centralBodyRadius Radius of the central body (assumed spherical).
+ * \return The distance from the propagated body to the central body's spherical surface at apoapsis.
+ */
+double computeApoapsisAltitudeFromKeplerianState( const Eigen::Vector6d& state,
+                                                   const double centralBodyRadius );
+
+//! Compute apoapsis altitude from Cartesian state for spherical central body.
+/*!
+ * Compute apoapsis altitude from Cartesian state for spherical central body.
+ * \param state Cartesian state of the propagated body.
+ * \param centralBodyGravitationalParameter Gravitational parameter of the central body.
+ * \param centralBodyRadius Radius of the central body (assumed spherical).
+ * \return The distance from the propagated body to the central body's spherical surface at apoapsis.
+ */
+double computeApoapsisAltitudeFromCartesianState( const Eigen::Vector6d& state,
+                                                   const double centralBodyGravitationalParameter,
+                                                   const double centralBodyRadius );
 
 
 } // namespace basic_astrodynamics

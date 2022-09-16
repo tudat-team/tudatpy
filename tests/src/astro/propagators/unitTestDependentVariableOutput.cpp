@@ -60,6 +60,16 @@ using namespace estimatable_parameters;
 
 BOOST_AUTO_TEST_SUITE( test_dependent_variable_output )
 
+Eigen::VectorXd customDependentVariable1( const simulation_setup::SystemOfBodies& bodies )
+{
+    return bodies.at( "Apollo" )->getPosition( ) / 2.0;
+}
+
+Eigen::VectorXd customDependentVariable2( const simulation_setup::SystemOfBodies& bodies )
+{
+    return ( Eigen::VectorXd( 1 ) << bodies.at( "Apollo" )->getPosition( ).norm( ) / 2.0 ).finished( );
+}
+
 //! Propagate entry of Apollo capsule, and save a list of dependent variables during entry. The saved dependent variables
 //! are compared against theoretical/manual values in this test.
 BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
@@ -95,7 +105,7 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
                 getBodyGravitationalParameter( "Earth" ) );
 
 #if TUDAT_BUILD_WITH_NRLMSISE
-    unsigned int maximumTestCase = 4;
+    unsigned int maximumTestCase = 3;
 #else
     unsigned int maximumTestCase = 2;
 #endif
@@ -139,6 +149,10 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
             bodies.at( "Apollo" )->setAerodynamicCoefficientInterface(
                         unit_tests::getApolloCoefficientInterface( ) );
             bodies.at( "Apollo" )->setConstantBodyMass( 5.0E3 );
+            bodies.at( "Apollo" )->setRotationalEphemeris(
+                        createRotationModel(
+                            std::make_shared< PitchTrimRotationSettings >( "Earth", "ECLIPJ2000", "VehicleFixed" ),
+                            "Apollo", bodies ) );
 
             std::shared_ptr< system_models::VehicleSystems > vehicleSystems =
                     std::make_shared< system_models::VehicleSystems >( );
@@ -266,8 +280,6 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
             basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
                         bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
-            setTrimmedConditions( bodies.at( "Apollo" ) );
-
             std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings;
             if( propagatorType == 0 )
             {
@@ -291,6 +303,12 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
             dependentVariablesToAdd.push_back(
                         std::make_shared< SingleDependentVariableSaveSettings >(
                             rsw_to_inertial_frame_rotation_dependent_variable,  "Apollo", "Earth" ) );
+            dependentVariablesToAdd.push_back(
+                        std::make_shared< CustomDependentVariableSaveSettings >(
+                            std::bind( &customDependentVariable1, bodies ), 3 ) );
+            dependentVariablesToAdd.push_back(
+                        std::make_shared< CustomDependentVariableSaveSettings >(
+                            std::bind( &customDependentVariable2, bodies ), 1 ) );
 
             addDepedentVariableSettings< double >( dependentVariablesToAdd, propagatorSettings );
 
@@ -301,6 +319,8 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
             // Create simulation object and propagate dynamics.
             SingleArcDynamicsSimulator< > dynamicsSimulator(
                         bodies, integratorSettings, propagatorSettings, true, false, false );
+
+            std::cout<<"Propagation finished "<<std::endl;
 
             // Retrieve numerical solutions for state and dependent variables
             std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > numericalSolution =
@@ -322,10 +342,16 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
                         bodies.at( "Apollo" )->getFlightConditions( ) );
             std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > apolloCoefficientInterface =
                     bodies.at( "Apollo" )->getAerodynamicCoefficientInterface( );
+            bodies.at( "Apollo" )->setIsBodyInPropagation( true );
 
+            std::cout<<"Number of points: "<<dependentVariableSolution.size( )<<std::endl;
             for( std::map< double, Eigen::VectorXd >::iterator variableIterator = dependentVariableSolution.begin( );
                  variableIterator != dependentVariableSolution.end( ); variableIterator++ )
             {
+                if( variableIterator == dependentVariableSolution.begin( ) )
+                {
+                    std::cout<<"Analysis size "<<variableIterator->second.rows( )<<std::endl;
+                }
                 double machNumber = variableIterator->second( 0 );
                 double altitude = variableIterator->second( 1 );
                 double relativeDistance = variableIterator->second( 2 );
@@ -363,6 +389,8 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
                 Eigen::Vector3d bodyFixedSphericalPosition = variableIterator->second.segment( 57, 3 );
                 Eigen::Matrix3d rswToInertialRotationMatrix =
                         propagators::getMatrixFromVectorRotationRepresentation( variableIterator->second.segment( 60, 9 ) );
+                Eigen::Vector3d customVariable1 = variableIterator->second.segment( 69, 3 );
+                Eigen::Vector3d customVariable2 = variableIterator->second.segment( 72, 1 );
 
                 currentStateDerivative = dynamicsSimulator.getDynamicsStateDerivative( )->computeStateDerivative(
                             variableIterator->first, rawNumericalSolution.at( variableIterator->first ) );
@@ -558,12 +586,17 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
                             10.0 * std::numeric_limits< double >::epsilon( ) );
                 BOOST_CHECK_SMALL(
                             std::fabs( computedSphericalBodyFixedPosition( 2 ) - bodyFixedSphericalPosition( 2 ) ),
-                            10.0 * std::numeric_limits< double >::epsilon( ));
+                            10.0 * std::numeric_limits< double >::epsilon( ) );
                 Eigen::Matrix3d computedRswRotationMatrix =
                         tudat::reference_frames::getRswSatelliteCenteredToInertialFrameRotationMatrix( numericalSolution.at( variableIterator->first ) );
 
                 TUDAT_CHECK_MATRIX_CLOSE_FRACTION( rswToInertialRotationMatrix, computedRswRotationMatrix,
                                                    ( 10.0 * std::numeric_limits< double >::epsilon( ) ) );
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(  customVariable1, ( relativePosition / 2.0 ),
+                                                    ( 10.0 * std::numeric_limits< double >::epsilon( ) ) );
+                BOOST_CHECK_CLOSE_FRACTION(  customVariable2( 0 ), ( relativePosition.norm( ) / 2.0 ),
+                                             ( 10.0 * std::numeric_limits< double >::epsilon( ) ) );
+
 
             }
         }
@@ -957,11 +990,16 @@ BOOST_AUTO_TEST_CASE( test_GravityFieldVariationAccelerationSaving )
     dependentVariables.push_back(
                 std::make_shared< SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings >(
                     "Vehicle", "Earth", 3, 3, gravitation::basic_solid_body, "Moon" ) );
-
     std::vector< std::pair< int, int > > componentIndices = { { 1, 0 }, { 2, 0 }, { 2, 2 }, { 3, 1 } };
     dependentVariables.push_back(
                 std::make_shared< SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings >(
                     "Vehicle", "Earth", componentIndices, gravitation::basic_solid_body, "Moon" ) );
+    dependentVariables.push_back(
+                std::make_shared< TotalGravityFieldVariationSettings >(
+                    "Earth", 1, 3, 0, 3, true ) );
+    dependentVariables.push_back(
+                std::make_shared< TotalGravityFieldVariationSettings >(
+                    "Earth", 1, 3, 1, 3, false ) );
 
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
             std::make_shared< TranslationalStatePropagatorSettings< double > >
@@ -973,7 +1011,7 @@ BOOST_AUTO_TEST_CASE( test_GravityFieldVariationAccelerationSaving )
     std::shared_ptr< IntegratorSettings< double > > integratorSettings =
             std::make_shared< RungeKuttaVariableStepSizeSettings< double > >
             ( double( initialEphemerisTime ), 300.0,
-              RungeKuttaCoefficients::CoefficientSets::rungeKuttaFehlberg78,
+              CoefficientSets::rungeKuttaFehlberg78,
               300.0, 300.0, 1.0, 1.0 );
 
     // Create simulation object and propagate dynamics.
@@ -1011,6 +1049,8 @@ BOOST_AUTO_TEST_CASE( test_GravityFieldVariationAccelerationSaving )
         Eigen::Vector3d currentTotalMoonTidalCorrection = dependentVariableSolution.at( variableIterator->first ).segment( 9, 3 );
         Eigen::VectorXd perTermMoonTidalCorrections = dependentVariableSolution.at( variableIterator->first ).segment( 12, 30 );
         Eigen::VectorXd perTermMoonTidalSelectedCorrections = dependentVariableSolution.at( variableIterator->first ).segment( 42, 12 );
+        Eigen::VectorXd sphericalHarmonicCosineCoefficientCorrection = dependentVariableSolution.at( variableIterator->first ).segment( 54, 9 );
+        Eigen::VectorXd sphericalHarmonicSineCoefficientCorrection = dependentVariableSolution.at( variableIterator->first ).segment( 63, 6 );
 
         Eigen::Vector3d reconstructedTotalMoonTidalCorrection = Eigen::Vector3d::Zero( );
         for( int j = 0; j < 10; j++ )
@@ -1027,6 +1067,9 @@ BOOST_AUTO_TEST_CASE( test_GravityFieldVariationAccelerationSaving )
                     earthGravityField->getNominalSineCoefficients( ).block( 0, 0, 4, 4 ) );
         Eigen::Vector3d computedTotalTidalCorrection =
                 computedTotalCoefficientAcceleration - computedNominalCoefficientAcceleration;
+
+        Eigen::MatrixXd computedCosineCorrection = earthGravityField->getTotalCosineCoefficientCorrection( 3, 3 );
+        Eigen::MatrixXd computedSineCorrection = earthGravityField->getTotalSineCoefficientCorrection( 3, 3 );
 
         for( int i = 0; i < 3; i++ )
         {
@@ -1046,8 +1089,25 @@ BOOST_AUTO_TEST_CASE( test_GravityFieldVariationAccelerationSaving )
                                1.0E-14 );
             BOOST_CHECK_SMALL( std::fabs( perTermMoonTidalCorrections( i + 21 ) - perTermMoonTidalSelectedCorrections( i + 9 ) ),
                                1.0E-14 );
-
         }
+
+        BOOST_CHECK_SMALL( std::fabs( computedCosineCorrection( 1, 0 ) - sphericalHarmonicCosineCoefficientCorrection( 0 ) ), 1.0E-25 );
+        BOOST_CHECK_SMALL( std::fabs( computedCosineCorrection( 1, 1 ) - sphericalHarmonicCosineCoefficientCorrection( 1 ) ), 1.0E-25 );
+        BOOST_CHECK_SMALL( std::fabs( computedCosineCorrection( 2, 0 ) - sphericalHarmonicCosineCoefficientCorrection( 2 ) ), 1.0E-25 );
+        BOOST_CHECK_SMALL( std::fabs( computedCosineCorrection( 2, 1 ) - sphericalHarmonicCosineCoefficientCorrection( 3 ) ), 1.0E-25 );
+        BOOST_CHECK_SMALL( std::fabs( computedCosineCorrection( 2, 2 ) - sphericalHarmonicCosineCoefficientCorrection( 4 ) ), 1.0E-25 );
+        BOOST_CHECK_SMALL( std::fabs( computedCosineCorrection( 3, 0 ) - sphericalHarmonicCosineCoefficientCorrection( 5 ) ), 1.0E-25 );
+        BOOST_CHECK_SMALL( std::fabs( computedCosineCorrection( 3, 1 ) - sphericalHarmonicCosineCoefficientCorrection( 6 ) ), 1.0E-25 );
+        BOOST_CHECK_SMALL( std::fabs( computedCosineCorrection( 3, 2 ) - sphericalHarmonicCosineCoefficientCorrection( 7 ) ), 1.0E-25 );
+        BOOST_CHECK_SMALL( std::fabs( computedCosineCorrection( 3, 3 ) - sphericalHarmonicCosineCoefficientCorrection( 8 ) ), 1.0E-25 );
+
+        BOOST_CHECK_SMALL( std::fabs( computedSineCorrection( 1, 1 ) - sphericalHarmonicSineCoefficientCorrection( 0 ) ), 1.0E-25 );
+        BOOST_CHECK_SMALL( std::fabs( computedSineCorrection( 2, 1 ) - sphericalHarmonicSineCoefficientCorrection( 1 ) ), 1.0E-25 );
+        BOOST_CHECK_SMALL( std::fabs( computedSineCorrection( 2, 2 ) - sphericalHarmonicSineCoefficientCorrection( 2 ) ), 1.0E-25 );
+        BOOST_CHECK_SMALL( std::fabs( computedSineCorrection( 3, 1 ) - sphericalHarmonicSineCoefficientCorrection( 3 ) ), 1.0E-25 );
+        BOOST_CHECK_SMALL( std::fabs( computedSineCorrection( 3, 2 ) - sphericalHarmonicSineCoefficientCorrection( 4 ) ), 1.0E-25 );
+        BOOST_CHECK_SMALL( std::fabs( computedSineCorrection( 3, 3 ) - sphericalHarmonicSineCoefficientCorrection( 5 ) ), 1.0E-25 );
+
 
     }
 }
@@ -1168,7 +1228,7 @@ BOOST_AUTO_TEST_CASE( test_AccelerationPartialSaving )
         std::shared_ptr< IntegratorSettings< double > > integratorSettings =
                 std::make_shared< RungeKuttaVariableStepSizeSettings< double > >
                 ( double( initialEphemerisTime ), 0.1,
-                  RungeKuttaCoefficients::CoefficientSets::rungeKuttaFehlberg78,
+                  CoefficientSets::rungeKuttaFehlberg78,
                   0.1, 0.1, 1.0, 1.0 );
 
 

@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2019, Delft University of Technology
+/*    Copyright (c) 2010-2022, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -19,10 +19,40 @@
 
 #include <Eigen/Core>
 
+#include <iostream>
+
 namespace tudat
 {
 namespace numerical_integrators
 {
+
+// Enum of predefined coefficient sets.
+//! @get_docstring(CoefficientSets.__docstring__)
+enum CoefficientSets
+{
+    undefinedCoefficientSet = -1,
+    forwardEuler,
+    rungeKutta4Classic,
+    explicitMidPoint,
+    explicitTrapezoidRule,
+    ralston,
+    rungeKutta3,
+    ralston3,
+    SSPRK3,
+    ralston4,
+    threeEighthRuleRK4,
+    heunEuler,
+    rungeKuttaFehlberg12,
+    rungeKuttaFehlberg45,
+    rungeKuttaFehlberg56,
+    rungeKuttaFehlberg78,
+    rungeKutta87DormandPrince,
+    rungeKuttaFehlberg89,
+    rungeKuttaVerner89,
+    rungeKuttaFeagin108,
+    rungeKuttaFeagin1210,
+    rungeKuttaFeagin1412
+};
 
 // Struct that defines the coefficients of a Runge-Kutta integrator
 /*
@@ -51,6 +81,12 @@ struct RungeKuttaCoefficients
     // Order estimate to integrate.
     OrderEstimateToIntegrate orderEstimateToIntegrate;
 
+    // Save if the coefficient set corresponds to a fixed step size.
+    bool isFixedStepSize;
+
+    // Name of the coefficients.
+    std::string name;
+
     // Default constructor.
     /*
      * Default constructor that initializes coefficients to 0.
@@ -61,7 +97,9 @@ struct RungeKuttaCoefficients
         cCoefficients( ),
         higherOrder( 0 ),
         lowerOrder( 0 ),
-        orderEstimateToIntegrate( lower )
+        orderEstimateToIntegrate( lower ),
+        isFixedStepSize( false ),
+        name( "Undefined" )        
     { }
 
     // Constructor.
@@ -74,31 +112,26 @@ struct RungeKuttaCoefficients
      * \param lowerOrder_ Order of the embedded low-order integrator.
      * \param order Enum denoting whether to use the lower or higher order scheme for numerical
      * integration.
+     * \param isFixedStepSize_ Boolean denoting whether the coefficient set is made for a fixed step size.
+     * \param name_ Name of the coefficient set.
      */
     RungeKuttaCoefficients( const Eigen::MatrixXd& aCoefficients_,
                             const Eigen::MatrixXd& bCoefficients_,
                             const Eigen::MatrixXd& cCoefficients_,
                             const unsigned int higherOrder_,
                             const unsigned int lowerOrder_,
-                            OrderEstimateToIntegrate order ) :
+                            OrderEstimateToIntegrate order,
+                            const bool isFixedStepSize_ = false,
+                            std::string name_ = "Undefined" ) :
         aCoefficients( aCoefficients_ ),
         bCoefficients( bCoefficients_ ),
         cCoefficients( cCoefficients_ ),
         higherOrder( higherOrder_ ),
         lowerOrder( lowerOrder_ ),
-        orderEstimateToIntegrate( order )
+        orderEstimateToIntegrate( order ),
+        isFixedStepSize( isFixedStepSize_ ),
+        name( name_ )
     { }
-
-    // Enum of predefined coefficient sets.
-    //! @get_docstring(CoefficientSets.__docstring__)
-    enum CoefficientSets
-    {
-        undefinedCoefficientSet = -1,
-        rungeKuttaFehlberg45,
-        rungeKuttaFehlberg56,
-        rungeKuttaFehlberg78,
-        rungeKutta87DormandPrince
-    };
 
     // Get coefficients for a specified coefficient set.
     /*
@@ -107,10 +140,14 @@ struct RungeKuttaCoefficients
      * \return The requested coefficient set.
      */
     static const RungeKuttaCoefficients& get( CoefficientSets coefficientSet );
+
 };
 
 // Typedef for shared-pointer to RungeKuttaCoefficients object.
 typedef std::shared_ptr< RungeKuttaCoefficients > RungeKuttaCoefficientsPointer;
+
+// Function to print the coefficients of a Runge-Kutta integrator.
+void printButcherTableau( CoefficientSets coefficientSet );
 
 } // namespace numerical_integrators
 } // namespace tudat

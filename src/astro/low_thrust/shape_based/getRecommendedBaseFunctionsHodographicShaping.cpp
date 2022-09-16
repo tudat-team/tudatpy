@@ -1,4 +1,5 @@
 #include "tudat/astro/low_thrust/shape_based/getRecommendedBaseFunctionsHodographicShaping.h"
+#include "tudat/math/basic/mathematicalConstants.h"
 
 namespace tudat
 {

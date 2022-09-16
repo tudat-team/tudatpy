@@ -208,7 +208,7 @@ BOOST_AUTO_TEST_CASE( testStateDerivativeRetrievalFunction )
 
     // Create test integrator.
     RungeKuttaVariableStepSizeIntegratorXd integrator(
-                RungeKuttaCoefficients::get( RungeKuttaCoefficients::rungeKuttaFehlberg45 ),
+                RungeKuttaCoefficients::get( CoefficientSets::rungeKuttaFehlberg45 ),
                 &computeVanDerPolStateDerivative,
                 0.0,
                 ( Eigen::VectorXd( 2 ) << 1.0, 2.0 ).finished( ),
@@ -238,7 +238,7 @@ BOOST_AUTO_TEST_CASE( testStateDerivativeRetrievalFunction )
 
     // Perform manual state derivative evaluations at previous time step using RKF45 method
     RungeKuttaCoefficients rkf45Coefficients = RungeKuttaCoefficients::get(
-                RungeKuttaCoefficients::rungeKuttaFehlberg45 );
+                rungeKuttaFehlberg45 );
     std::vector< Eigen::VectorXd > directStateDerivativeValues;
 
     for ( int stage = 0; stage < rkf45Coefficients.cCoefficients.rows( ); stage++ )
@@ -279,7 +279,7 @@ BOOST_AUTO_TEST_CASE( testVariableStepIntegrateToFunction )
 
     // Create variable step size integrator.
     RungeKuttaVariableStepSizeIntegratorXd integrator(
-                RungeKuttaCoefficients::get( RungeKuttaCoefficients::rungeKuttaFehlberg45 ),
+                RungeKuttaCoefficients::get( CoefficientSets::rungeKuttaFehlberg45 ),
                 &computeSecondNonAutonomousModelStateDerivative,
                 0.0,
                 ( Eigen::VectorXd( 1 ) << 1.0 ).finished( ),
@@ -295,7 +295,7 @@ BOOST_AUTO_TEST_CASE( testVariableStepIntegrateToFunction )
     // Create integrator to see if performing a single step with the given settings will indeed
     // result in the step size being adapted.
     RungeKuttaVariableStepSizeIntegratorXd verificationIntegrator(
-                RungeKuttaCoefficients::get( RungeKuttaCoefficients::rungeKuttaFehlberg45 ),
+                RungeKuttaCoefficients::get( CoefficientSets::rungeKuttaFehlberg45 ),
                 &computeSecondNonAutonomousModelStateDerivative,
                 0.0,
                 ( Eigen::VectorXd( 1 ) << 1.0 ).finished( ),

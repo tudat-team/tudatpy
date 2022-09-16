@@ -27,8 +27,6 @@
 //    #include "tudat/astro/low_thrust/hybridMethod.h"
     #include "tudat/astro/low_thrust/simsFlanagan.h"
 #endif
-#include "tudat/astro/low_thrust/shape_based/hodographicShaping.h"
-#include "tudat/astro/low_thrust/shape_based/sphericalShaping.h"
 
 #include "tudat/astro/low_thrust/lowThrustLeg.h"
 
@@ -43,8 +41,6 @@ namespace low_thrust_trajectories
 //! List of available types of low thrust leg
 enum LowThrustLegTypes
 {
-    hodographic_shaping_leg,
-    spherical_shaping_leg
 #if( TUDAT_BUILD_WITH_PAGMO )
     ,sims_flanagan_leg,
     hybrid_method_leg
@@ -76,119 +72,6 @@ public:
 
     //! Type of low-thrust leg that is to be used.
     LowThrustLegTypes lowThrustLegType_;
-
-};
-
-//! Low-thrust leg settings for hodographic shaping method.
-class HodographicShapingLegSettings: public LowThrustLegSettings
-{
-public:
-
-    //! Constructor
-    /*!
-    * Constructor
-    * \param numberOfRevolutions Number of revolutions of the shape-based trajectory.
-    * \param centralBodyGravitationalParameter Gravitational parameter of the central body.
-    * \param radialVelocityFunctionComponents Base components of the radial velocity function.
-    * \param normalVelocityFunctionComponents Base components of the normal velocity function.
-    * \param axialVelocityFunctionComponents Base components of the axial velocity function.
-    * \param radialVelocityFunctionComponents Coefficients vector for the components of the radial velocity function.
-    * \param radialVelocityFunctionComponents Coefficients vector for the components of the normal velocity function.
-    * \param radialVelocityFunctionComponents Coefficients vector for the components of the axial velocity function.
-    */
-    HodographicShapingLegSettings(
-            const int numberOfRevolutions,
-            const double centralBodyGravitationalParameter,
-            std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > >& radialVelocityFunctionComponents,
-            std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > >& normalVelocityFunctionComponents,
-            std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > >& axialVelocityFunctionComponents,
-            const Eigen::VectorXd freeCoefficientsRadialVelocityFunction,
-            const Eigen::VectorXd freeCoefficientsNormalVelocityFunction,
-            const Eigen::VectorXd freeCoefficientsAxialVelocityFunction ):
-        LowThrustLegSettings( hodographic_shaping_leg ),
-        numberOfRevolutions_( numberOfRevolutions ),
-        centralBodyGravitationalParameter_( centralBodyGravitationalParameter ),
-        radialVelocityFunctionComponents_( radialVelocityFunctionComponents ),
-        normalVelocityFunctionComponents_( normalVelocityFunctionComponents ),
-        axialVelocityFunctionComponents_( axialVelocityFunctionComponents ),
-        freeCoefficientsRadialVelocityFunction_( freeCoefficientsRadialVelocityFunction ),
-        freeCoefficientsNormalVelocityFunction_( freeCoefficientsNormalVelocityFunction ),
-        freeCoefficientsAxialVelocityFunction_( freeCoefficientsAxialVelocityFunction ){ }
-
-    //! Destructor
-    ~HodographicShapingLegSettings( ){ }
-
-    //! Number of revolutions for the shape-based trajectory.
-    int numberOfRevolutions_;
-
-    //! Gravitational parameter of the central body.
-    bool centralBodyGravitationalParameter_;
-
-    //! Base components for radial velocity function.
-    std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > > radialVelocityFunctionComponents_;
-
-    //! Base components for normal velocity function.
-    std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > > normalVelocityFunctionComponents_;
-
-    //! Base components for axial velocity function.
-    std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > > axialVelocityFunctionComponents_;
-
-    //! Vector containing the coefficients of the radial function.
-    Eigen::VectorXd freeCoefficientsRadialVelocityFunction_;
-
-    //! Vector containing the coefficients of the normal function.
-    Eigen::VectorXd freeCoefficientsNormalVelocityFunction_;
-
-    //! Vector containing the coefficients of the axial function.
-    Eigen::VectorXd freeCoefficientsAxialVelocityFunction_;
-
-};
-
-
-//! Low-thrust leg settings for spherical shaping method.
-class SphericalShapingLegSettings: public LowThrustLegSettings
-{
-public:
-
-    //! Constructor
-    /*!
-    * Constructor
-    * \param numberOfRevolutions Number of revolutions of the shape-based trajectory.
-    * \param centralBodyGravitationalParameter Gravitational parameter of the central body.
-    * \param initialValueFreeCoefficient Initial guess for the free coefficient.
-    * \param rootFinderSettings Root finder settings to match the required time of flight.
-    * \param boundsFreeCoefficient Boundary values for the free coefficient.
-    */
-    SphericalShapingLegSettings(
-            const int numberOfRevolutions,
-            const double centralBodyGravitationalParameter,
-            const double initialValueFreeCoefficient,
-            const std::shared_ptr< root_finders::RootFinderSettings > rootFinderSettings,
-            const std::pair< double, double > boundsFreeCoefficient = std::make_pair( TUDAT_NAN, TUDAT_NAN ) ):
-        LowThrustLegSettings( spherical_shaping_leg ),
-        numberOfRevolutions_( numberOfRevolutions ),
-        centralBodyGravitationalParameter_( centralBodyGravitationalParameter ),
-        initialValueFreeCoefficient_( initialValueFreeCoefficient ),
-        rootFinderSettings_( rootFinderSettings ),
-        boundsFreeCoefficient_( boundsFreeCoefficient ){ }
-
-    //! Destructor
-    ~SphericalShapingLegSettings( ){ }
-
-    //! Number of revolutions for the shape-based trajectory.
-    int numberOfRevolutions_;
-
-    //! Gravitational parameter of the central body.
-    double centralBodyGravitationalParameter_;
-
-    //! Initial guess for the free coefficient (i.e. coefficient of the second order component of the radial inverse polynomial).
-    double initialValueFreeCoefficient_;
-
-    //! Root finder settings, to be used to find the free coefficient value that ensures the time of flight is correct.
-    std::shared_ptr< root_finders::RootFinderSettings > rootFinderSettings_;
-
-    //! Bounds for the free coefficient, to be used when trying to match the required time of flight.
-    std::pair< double, double > boundsFreeCoefficient_;
 
 };
 
@@ -296,11 +179,11 @@ public:
 #endif
 
 
-std::shared_ptr< low_thrust_trajectories::LowThrustLeg  > createLowThrustLeg(
-        const std::shared_ptr< LowThrustLegSettings >& lowThrustLegSettings,
-        const Eigen::Vector6d& stateAtDeparture,
-        const Eigen::Vector6d& stateAtArrival,
-        const double& timeOfFlight );
+//std::shared_ptr< low_thrust_trajectories::LowThrustLeg  > createLowThrustLeg(
+//        const std::shared_ptr< LowThrustLegSettings >& lowThrustLegSettings,
+//        const Eigen::Vector6d& stateAtDeparture,
+//        const Eigen::Vector6d& stateAtArrival,
+//        const double& timeOfFlight );
 
 } // namespace low_thrust_trajectories
 
