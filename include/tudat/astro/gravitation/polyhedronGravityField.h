@@ -136,20 +136,21 @@ public:
      */
     PolyhedronGravityField(
             const double gravitationalParameter,
-            const double volume,
             const Eigen::MatrixXd& verticesCoordinates,
             const Eigen::MatrixXi& verticesDefiningEachFacet,
             const std::string& fixedReferenceFrame = "",
             const std::function< void( ) > updateInertiaTensor = std::function< void( ) > ( ) )
         : GravityFieldModel(gravitationalParameter, updateInertiaTensor),
         gravitationalParameter_( gravitationalParameter ),
-        volume_( volume ),
         verticesCoordinates_( verticesCoordinates ),
         verticesDefiningEachFacet_( verticesDefiningEachFacet ),
         fixedReferenceFrame_( fixedReferenceFrame )
     {
         // Check if provided arguments are valid
         basic_mathematics::checkValidityOfPolyhedronSettings(verticesCoordinates, verticesDefiningEachFacet);
+
+        // Compute volume
+        volume_ = basic_astrodynamics::computeVolume(verticesCoordinates, verticesDefiningEachFacet);
 
         // Compute edges in polyhedron
         computeVerticesAndFacetsDefiningEachEdge();

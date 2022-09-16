@@ -311,8 +311,8 @@ public:
         verticesDefiningEachFacet_( verticesDefiningEachFacet ),
         associatedReferenceFrame_( associatedReferenceFrame )
     {
-        volume_ = basic_astrodynamics::computeVolume(verticesCoordinates, verticesDefiningEachFacet);
-        gravitationalParameter_ = gravitationalConstant * density_ * volume_;
+        double volume = basic_astrodynamics::computeVolume(verticesCoordinates, verticesDefiningEachFacet);
+        gravitationalParameter_ = gravitationalConstant * density_ * volume;
     }
 
 
@@ -323,6 +323,7 @@ public:
      * @param verticesCoordinates Cartesian coordinates of each vertex (one row per vertex, 3 columns).
      * @param verticesDefiningEachFacet Index (0 based) of the vertices constituting each facet (one row per facet, 3 columns).
      * @param associatedReferenceFrame Identifier for body-fixed reference frame to which the polyhedron is referred.
+     * @param density Density of the polyhedron. It is later used to set the function to update the inertia tensor.
      */
     PolyhedronGravityFieldSettings( const double gravitationalParameter,
                                     const Eigen::MatrixXd& verticesCoordinates,
@@ -335,9 +336,7 @@ public:
         verticesCoordinates_( verticesCoordinates ),
         verticesDefiningEachFacet_( verticesDefiningEachFacet ),
         associatedReferenceFrame_( associatedReferenceFrame )
-    {
-        volume_ = basic_astrodynamics::computeVolume(verticesCoordinates, verticesDefiningEachFacet);
-    }
+    { }
 
     //! Destructor
     virtual ~PolyhedronGravityFieldSettings( ){ }
@@ -349,14 +348,6 @@ public:
     // Function to reset the gravitational parameter.
     void resetGravitationalParameter ( const double gravitationalParameter )
     { gravitationalParameter_ = gravitationalParameter; }
-
-    // Function to return the volume.
-    double getVolume ( )
-    { return volume_; }
-
-    // Function to reset the volume.
-    void resetVolume ( double volume )
-    { volume_ = volume; }
 
     // Function to return the density.
     double getDensity ( )
@@ -394,9 +385,6 @@ protected:
 
     // Gravitational parameter
     double gravitationalParameter_;
-
-    // Volume of polyhedron
-    double volume_;
 
     // Density of the polyhedron
     double density_;

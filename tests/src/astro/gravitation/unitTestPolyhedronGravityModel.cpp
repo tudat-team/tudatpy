@@ -133,7 +133,7 @@ BOOST_AUTO_TEST_CASE( testGravityComputation )
 
         // Create gravity model
         gravitation::PolyhedronGravityField gravityField = gravitation::PolyhedronGravityField(
-            gravitationalParameter, volume, verticesCoordinates, verticesDefiningEachFacet);
+            gravitationalParameter, verticesCoordinates, verticesDefiningEachFacet);
         std::function< void( Eigen::Vector3d& ) > bodyFixedPositionFunction =
                 [ = ]( Eigen::Vector3d& positionOfBodySubjectToAcceleration ){
             positionOfBodySubjectToAcceleration = bodyFixedPosition; };
