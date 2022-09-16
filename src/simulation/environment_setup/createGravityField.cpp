@@ -409,6 +409,7 @@ std::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
         // Check whether settings for polyhedron gravity field model are consistent with its type.
         std::shared_ptr< PolyhedronGravityFieldSettings > polyhedronFieldSettings =
                 std::dynamic_pointer_cast< PolyhedronGravityFieldSettings >( gravityFieldSettings );
+
         if( polyhedronFieldSettings == nullptr )
         {
             throw std::runtime_error(
@@ -420,6 +421,26 @@ std::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
         }
         else
         {
+            std::function< void( ) > inertiaTensorUpdateFunction;
+            if( bodies.count( body ) == 0 )
+            {
+                inertiaTensorUpdateFunction = std::function< void( ) >( );
+            }
+            else
+            {
+                inertiaTensorUpdateFunction =
+                    std::bind( &Body::setBodyInertiaTensorFromGravityFieldAndExistingDensity, bodies.at( body ) );
+                if( !std::isnan( polyhedronFieldSettings->getDensity( ) ) )
+                {
+                    bodies.at( body )->setBodyInertiaTensor( basic_astrodynamics::computeInertiaTensor(
+                            polyhedronFieldSettings->getVerticesCoordinates(),
+                            polyhedronFieldSettings->getVerticesDefiningEachFacet(),
+                            polyhedronFieldSettings->getDensity( ) )
+                    );
+
+                }
+            }
+
             std::string associatedReferenceFrame = polyhedronFieldSettings->getAssociatedReferenceFrame( );
             if( associatedReferenceFrame == "" )
             {
@@ -442,7 +463,8 @@ std::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
                     polyhedronFieldSettings->getVolume(),
                     polyhedronFieldSettings->getVerticesCoordinates(),
                     polyhedronFieldSettings->getVerticesDefiningEachFacet(),
-                    associatedReferenceFrame );
+                    associatedReferenceFrame,
+                    inertiaTensorUpdateFunction );
         }
         break;
     }

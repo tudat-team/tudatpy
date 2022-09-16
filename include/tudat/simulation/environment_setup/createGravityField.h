@@ -306,12 +306,13 @@ public:
                                     const Eigen::MatrixXi& verticesDefiningEachFacet,
                                     const std::string& associatedReferenceFrame):
         GravityFieldSettings( polyhedron ),
+        density_( density ),
         verticesCoordinates_( verticesCoordinates ),
         verticesDefiningEachFacet_( verticesDefiningEachFacet ),
         associatedReferenceFrame_( associatedReferenceFrame )
     {
         volume_ = basic_astrodynamics::computeVolume(verticesCoordinates, verticesDefiningEachFacet);
-        gravitationalParameter_ = gravitationalConstant * density * volume_;
+        gravitationalParameter_ = gravitationalConstant * density_ * volume_;
     }
 
 
@@ -326,9 +327,11 @@ public:
     PolyhedronGravityFieldSettings( const double gravitationalParameter,
                                     const Eigen::MatrixXd& verticesCoordinates,
                                     const Eigen::MatrixXi& verticesDefiningEachFacet,
-                                    const std::string& associatedReferenceFrame ):
+                                    const std::string& associatedReferenceFrame,
+                                    const double density = TUDAT_NAN):
         GravityFieldSettings( polyhedron ),
         gravitationalParameter_( gravitationalParameter ),
+        density_( density ),
         verticesCoordinates_( verticesCoordinates ),
         verticesDefiningEachFacet_( verticesDefiningEachFacet ),
         associatedReferenceFrame_( associatedReferenceFrame )
@@ -354,6 +357,14 @@ public:
     // Function to reset the volume.
     void resetVolume ( double volume )
     { volume_ = volume; }
+
+    // Function to return the density.
+    double getDensity ( )
+    { return density_; }
+
+    // Function to reset the density.
+    void resetDensity ( double density )
+    { density_ = density; }
 
     // Function to return identifier for body-fixed reference frame.
     std::string getAssociatedReferenceFrame( )
@@ -386,6 +397,9 @@ protected:
 
     // Volume of polyhedron
     double volume_;
+
+    // Density of the polyhedron
+    double density_;
 
     // Cartesian coordinates of each vertex.
     Eigen::MatrixXd verticesCoordinates_;
