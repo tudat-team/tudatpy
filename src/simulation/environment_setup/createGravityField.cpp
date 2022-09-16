@@ -432,9 +432,9 @@ std::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
                     std::bind( &Body::setBodyInertiaTensorFromGravityFieldAndExistingDensity, bodies.at( body ) );
                 if( !std::isnan( polyhedronFieldSettings->getDensity( ) ) )
                 {
-                    bodies.at( body )->setBodyInertiaTensor( basic_astrodynamics::computeInertiaTensor(
-                            polyhedronFieldSettings->getVerticesCoordinates(),
-                            polyhedronFieldSettings->getVerticesDefiningEachFacet(),
+                    bodies.at( body )->setBodyInertiaTensor( basic_astrodynamics::computePolyhedronInertiaTensor(
+                            polyhedronFieldSettings->getVerticesCoordinates( ),
+                            polyhedronFieldSettings->getVerticesDefiningEachFacet( ),
                             polyhedronFieldSettings->getDensity( ) )
                     );
 

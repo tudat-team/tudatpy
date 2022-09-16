@@ -150,7 +150,7 @@ public:
         basic_mathematics::checkValidityOfPolyhedronSettings(verticesCoordinates, verticesDefiningEachFacet);
 
         // Compute volume
-        volume_ = basic_astrodynamics::computeVolume(verticesCoordinates, verticesDefiningEachFacet);
+        volume_ = basic_astrodynamics::computePolyhedronVolume( verticesCoordinates, verticesDefiningEachFacet );
 
         // Compute edges in polyhedron
         computeVerticesAndFacetsDefiningEachEdge();

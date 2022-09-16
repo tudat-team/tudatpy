@@ -311,7 +311,7 @@ public:
         verticesDefiningEachFacet_( verticesDefiningEachFacet ),
         associatedReferenceFrame_( associatedReferenceFrame )
     {
-        double volume = basic_astrodynamics::computeVolume(verticesCoordinates, verticesDefiningEachFacet);
+        double volume = basic_astrodynamics::computePolyhedronVolume( verticesCoordinates, verticesDefiningEachFacet );
         gravitationalParameter_ = gravitationalConstant * density_ * volume;
     }
 
