@@ -206,14 +206,11 @@ public:
      *  is required
      *  \param currentTime Current time to which interface is to be set.
      */
-    void resetTime( const double currentTime = TUDAT_NAN )
+    void resetCurrentTime( )
     {
-        if( !( currentTime_ == currentTime  ) )
-        {
-            currentDoubleParameterPartials_.clear( );
-            currentVectorParameterPartials_.clear( );
-        }
-        currentTime_ = currentTime;
+        currentDoubleParameterPartials_.clear( );
+        currentVectorParameterPartials_.clear( );
+        currentTime_ = TUDAT_NAN;
     }
 
     //! Function to update the values of the partial derivatives to current state and time.

@@ -173,7 +173,7 @@ BOOST_AUTO_TEST_CASE( testTidalDissipationInPlanetAndSatellite )
     BodyListSettings bodySettings =
             getDefaultBodySettings( bodyNames, initialTime - 86400.0, finalTime + 86400.0 );
 
-    std::vector< std::string > galileanSatellites = { "Io", "Europa", "Ganymede" };
+    std::vector< std::string > galileanSatellites = { "Io", "Europa" };
 
     Eigen::MatrixXd cosineCoefficients = Eigen::MatrixXd::Zero( 3, 3 );
     cosineCoefficients( 0, 0 ) = 1.0;

@@ -16,12 +16,14 @@
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/bind/bind.hpp>
+
 using namespace boost::placeholders;
 
 
 #include "tudat/astro/aerodynamics/aerodynamicCoefficientInterface.h"
 #include "tudat/astro/aerodynamics/customAerodynamicCoefficientInterface.h"
 #include "tudat/simulation/environment_setup/createFlightConditions.h"
+#include "tudat/basics/deprecationWarnings.h"
 
 namespace tudat
 {
@@ -29,16 +31,50 @@ namespace tudat
 namespace simulation_setup
 {
 
+std::shared_ptr< reference_frames::AerodynamicAngleCalculator >  createAerodynamicAngleCalculator(
+        const std::shared_ptr< Body > bodyWithFlightConditions,
+        const std::shared_ptr< Body > centralBody,
+        const std::string& nameOfBodyUndergoingAcceleration,
+        const std::string& nameOfBodyExertingAcceleration )
+{
+    if( std::dynamic_pointer_cast< ephemerides::AerodynamicAngleRotationalEphemeris >(
+                bodyWithFlightConditions->getRotationalEphemeris( ) ) != nullptr )
+    {
+        return std::dynamic_pointer_cast< ephemerides::AerodynamicAngleRotationalEphemeris >(
+                    bodyWithFlightConditions->getRotationalEphemeris( ) )->getAerodynamicAngleCalculator( );
+    }
+    else
+    {
+        // Create function to rotate state from intertial to body-fixed frame.
+        std::function< Eigen::Quaterniond( ) > rotationToFrameFunction =
+                std::bind( &Body::getCurrentRotationToLocalFrame, centralBody );
+        std::function< Eigen::Matrix3d( ) > rotationMatrixToFrameDerivativeFunction =
+                std::bind( &Body::getCurrentRotationMatrixDerivativeToLocalFrame, centralBody );
+
+        std::function< Eigen::Matrix< double, 6, 1 >( ) > bodyStateFunction = std::bind( &Body::getState, bodyWithFlightConditions );
+        std::function< Eigen::Matrix< double, 6, 1 >( ) > centralBodyStateFunction = std::bind( &Body::getState, centralBody );
+
+        std::function< Eigen::Matrix< double, 6, 1 >( ) > relativeBodyFixedStateFunction =
+                std::bind( &ephemerides::transformRelativeStateToFrame< double >,
+                           bodyStateFunction, centralBodyStateFunction,
+                           rotationToFrameFunction,
+                           rotationMatrixToFrameDerivativeFunction );
+
+        // Create aerodynamic angles calculator and set in flight conditions.
+        return std::make_shared< reference_frames::AerodynamicAngleCalculator >(
+                    relativeBodyFixedStateFunction,
+                    std::bind( &simulation_setup::Body::getCurrentRotationToGlobalFrame, centralBody ),
+                    nameOfBodyExertingAcceleration, 1 );
+    }
+
+}
+
 //! Function to create an atmospheric flight conditions object
 std::shared_ptr< aerodynamics::AtmosphericFlightConditions > createAtmosphericFlightConditions(
         const std::shared_ptr< Body > bodyWithFlightConditions,
         const std::shared_ptr< Body > centralBody,
         const std::string& nameOfBodyUndergoingAcceleration,
-        const std::string& nameOfBodyExertingAcceleration,
-        const std::function< double( ) > angleOfAttackFunction,
-        const std::function< double( ) > angleOfSideslipFunction,
-        const std::function< double( ) > bankAngleFunction,
-        const std::function< void( const double ) > angleUpdateFunction )
+        const std::string& nameOfBodyExertingAcceleration )
 {
     // Check whether all required environment models are set.
     if( centralBody->getAtmosphereModel( ) == nullptr )
@@ -62,29 +98,19 @@ std::shared_ptr< aerodynamics::AtmosphericFlightConditions > createAtmosphericFl
                     " has no rotation model." );
     }
 
+    if( bodyWithFlightConditions->getAerodynamicCoefficientInterface( ) == nullptr )
+    {
+        throw std::runtime_error(
+                    "Error when making flight conditions, body " + nameOfBodyUndergoingAcceleration +
+                    " has no aerodynamic coefficients." );
+    }
 
-    // Create function to rotate state from intertial to body-fixed frame.
-    std::function< Eigen::Quaterniond( ) > rotationToFrameFunction =
-            std::bind( &Body::getCurrentRotationToLocalFrame, centralBody );
-    std::function< Eigen::Matrix3d( ) > rotationMatrixToFrameDerivativeFunction =
-            std::bind( &Body::getCurrentRotationMatrixDerivativeToLocalFrame, centralBody );
-
-    std::function< Eigen::Matrix< double, 6, 1 >( ) > bodyStateFunction = std::bind( &Body::getState, bodyWithFlightConditions );
-    std::function< Eigen::Matrix< double, 6, 1 >( ) > centralBodyStateFunction = std::bind( &Body::getState, centralBody );
-
-    std::function< Eigen::Matrix< double, 6, 1 >( ) > relativeBodyFixedStateFunction =
-            std::bind( &ephemerides::transformRelativeStateToFrame< double >,
-                         bodyStateFunction, centralBodyStateFunction,
-                         rotationToFrameFunction,
-                         rotationMatrixToFrameDerivativeFunction );
 
     // Create aerodynamic angles calculator and set in flight conditions.
     std::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator =
-            std::make_shared< reference_frames::AerodynamicAngleCalculator >(
-                relativeBodyFixedStateFunction,
-                std::bind( &simulation_setup::Body::getCurrentRotationToGlobalFrame, centralBody ),
-                nameOfBodyExertingAcceleration, 1,
-                angleOfAttackFunction, angleOfSideslipFunction, bankAngleFunction, angleUpdateFunction );
+            createAerodynamicAngleCalculator(
+                bodyWithFlightConditions, centralBody, nameOfBodyUndergoingAcceleration,
+                nameOfBodyExertingAcceleration );
 
     // Add wind model if present
     if( centralBody->getAtmosphereModel( )->getWindModel( ) != nullptr )
@@ -142,27 +168,11 @@ std::shared_ptr< aerodynamics::FlightConditions >  createFlightConditions(
                     " has no rotation model." );
     }
 
-    // Create function to rotate state from intertial to body-fixed frame.
-    std::function< Eigen::Quaterniond( ) > rotationToFrameFunction =
-            std::bind( &Body::getCurrentRotationToLocalFrame, centralBody );
-    std::function< Eigen::Matrix3d( ) > rotationMatrixToFrameDerivativeFunction =
-            std::bind( &Body::getCurrentRotationMatrixDerivativeToLocalFrame, centralBody );
-
-    std::function< Eigen::Matrix< double, 6, 1 >( ) > bodyStateFunction = std::bind( &Body::getState, bodyWithFlightConditions );
-    std::function< Eigen::Matrix< double, 6, 1 >( ) > centralBodyStateFunction = std::bind( &Body::getState, centralBody );
-
-    std::function< Eigen::Matrix< double, 6, 1 >( ) > relativeBodyFixedStateFunction =
-            std::bind( &ephemerides::transformRelativeStateToFrame< double >,
-                         bodyStateFunction, centralBodyStateFunction,
-                         rotationToFrameFunction,
-                         rotationMatrixToFrameDerivativeFunction );
-
     // Create aerodynamic angles calculator and set in flight conditions.
     std::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator =
-            std::make_shared< reference_frames::AerodynamicAngleCalculator >(
-                relativeBodyFixedStateFunction,
-                std::bind( &simulation_setup::Body::getCurrentRotationToGlobalFrame, centralBody ),
-                nameOfBodyExertingAcceleration, 1 );
+            createAerodynamicAngleCalculator(
+                bodyWithFlightConditions, centralBody, nameOfBodyUndergoingAcceleration,
+                nameOfBodyExertingAcceleration );
 
     return std::make_shared< aerodynamics::FlightConditions >(
                 centralBody->getShapeModel( ), aerodynamicAngleCalculator );
@@ -223,78 +233,24 @@ void addAtmosphericFlightConditions(
 }
 
 
-
-//! Function to set the angle of attack to trimmed conditions.
-std::shared_ptr< aerodynamics::TrimOrientationCalculator > setTrimmedConditions(
-        const std::shared_ptr< aerodynamics::AtmosphericFlightConditions > flightConditions )
-{
-    // Create trim object.
-    std::shared_ptr< aerodynamics::TrimOrientationCalculator > trimOrientation =
-            std::make_shared< aerodynamics::TrimOrientationCalculator >(
-                flightConditions->getAerodynamicCoefficientInterface( ) );
-
-    // Create angle-of-attack function from trim object.
-    std::function< std::vector< double >( ) > untrimmedIndependentVariablesFunction =
-            std::bind( &aerodynamics::AtmosphericFlightConditions::getAerodynamicCoefficientIndependentVariables,
-                         flightConditions );
-    std::function< std::map< std::string, std::vector< double > >( ) > untrimmedControlSurfaceIndependentVariableFunction =
-            std::bind( &aerodynamics::AtmosphericFlightConditions::getControlSurfaceAerodynamicCoefficientIndependentVariables,
-                         flightConditions );
-
-    flightConditions->getAerodynamicAngleCalculator( )->setOrientationAngleFunctions(
-                std::bind( &aerodynamics::TrimOrientationCalculator::findTrimAngleOfAttackFromFunction, trimOrientation,
-                             untrimmedIndependentVariablesFunction, untrimmedControlSurfaceIndependentVariableFunction ) );
-
-    return trimOrientation;
-}
-
-//! Function to set the angle of attack to trimmed conditions.
-std::shared_ptr< aerodynamics::TrimOrientationCalculator > setTrimmedConditions(
-        const std::shared_ptr< Body > bodyWithFlightConditions )
-{
-    if( std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
-                bodyWithFlightConditions->getFlightConditions( ) ) == nullptr )
-    {
-        throw std::runtime_error( "Error, body does not have FlightConditions when setting trim conditions." );
-    }
-
-    return setTrimmedConditions( std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
-                                     bodyWithFlightConditions->getFlightConditions( ) ));
-}
-
-//! Function that must be called to link the AerodynamicGuidance object to the simulation
 void setGuidanceAnglesFunctions(
         const std::shared_ptr< aerodynamics::AerodynamicGuidance > aerodynamicGuidance,
         const std::shared_ptr< reference_frames::AerodynamicAngleCalculator > angleCalculator,
         const bool silenceWarnings  )
 {
-    angleCalculator->setOrientationAngleFunctions(
-                std::bind( &aerodynamics::AerodynamicGuidance::getCurrentAngleOfAttack, aerodynamicGuidance ),
-                std::bind( &aerodynamics::AerodynamicGuidance::getCurrentAngleOfSideslip, aerodynamicGuidance ),
-                std::bind( &aerodynamics::AerodynamicGuidance::getCurrentBankAngle, aerodynamicGuidance ),
-                std::bind( &aerodynamics::AerodynamicGuidance::updateGuidance, aerodynamicGuidance, std::placeholders::_1 ),
-                silenceWarnings );
+    utilities::printDeprecationError(
+                "tudatpy.numerical_simulation.environment_setup.set_aerodynamic_guidance",
+                "https://docs.tudat.space/en/stable/_src_user_guide/state_propagation/environment_setup/thrust_refactor/thrust_refactor.html#aerodynamic-guidance" );
 }
 
-//! Function that must be called to link the AerodynamicGuidance object to the simulation
 void setGuidanceAnglesFunctions(
         const std::shared_ptr< aerodynamics::AerodynamicGuidance > aerodynamicGuidance,
         const std::shared_ptr< simulation_setup::Body > bodyWithAngles,
         const bool silenceWarnings )
 {
-    std::shared_ptr< reference_frames::DependentOrientationCalculator >  orientationCalculator =
-            bodyWithAngles->getDependentOrientationCalculator( );
-    std::shared_ptr< reference_frames::AerodynamicAngleCalculator > angleCalculator =
-            std::dynamic_pointer_cast< reference_frames::AerodynamicAngleCalculator >( orientationCalculator );
-
-    if( angleCalculator == nullptr )
-    {
-        throw std::runtime_error( "Error, body does not have AerodynamicAngleCalculator when setting aerodynamic guidance" );
-    }
-    else
-    {
-        setGuidanceAnglesFunctions( aerodynamicGuidance, angleCalculator, silenceWarnings );
-    }
+    utilities::printDeprecationError(
+                "tudatpy.numerical_simulation.environment_setup.set_aerodynamic_guidance",
+                "https://docs.tudat.space/en/stable/_src_user_guide/state_propagation/environment_setup/thrust_refactor/thrust_refactor.html#aerodynamic-guidance" );
 }
 
 void setAerodynamicOrientationFunctions(
@@ -302,18 +258,11 @@ void setAerodynamicOrientationFunctions(
         const std::function< double( ) > angleOfAttackFunction,
         const std::function< double( ) > angleOfSideslipFunction,
         const std::function< double( ) > bankAngleFunction,
-        const std::function< void( const double ) > angleUpdateFunction )
+        const std::function<void(const double)> updateFunction )
 {
-    if( body->getFlightConditions( ) == nullptr )
-    {
-        throw std::runtime_error( "Error when setting aerodynamic angle functions, body " + body->getBodyName( ) + " has no FlightConditions." +
-                                  " You can use the addFlightConditions (C++) or add_flight_conditions (Python) function to endow your body with one. " );
-    }
-
-    std::shared_ptr< aerodynamics::FlightConditions > vehicleFlightConditions =
-            body->getFlightConditions( );
-    vehicleFlightConditions->getAerodynamicAngleCalculator( )->setOrientationAngleFunctions(
-                angleOfAttackFunction, angleOfSideslipFunction, bankAngleFunction, angleUpdateFunction );
+    utilities::printDeprecationError(
+                "tudatpy.numerical_simulation.environment_setup.set_aerodynamic_orientation_functions",
+                "https://docs.tudat.space/en/stable/_src_user_guide/state_propagation/environment_setup/thrust_refactor/thrust_refactor.html#aerodynamic-guidance" );
 }
 
 void setConstantAerodynamicOrientation(
@@ -323,16 +272,9 @@ void setConstantAerodynamicOrientation(
         const double bankAngle,
         const bool silenceWarnings )
 {
-    if( body->getFlightConditions( ) == nullptr )
-    {
-        throw std::runtime_error( "Error when setting constant aerodynamic angles, body " + body->getBodyName( ) + " has no FlightConditions" +
-                                  " You can use the addFlightConditions (C++) or add_flight_conditions (Python) function to endow your body with one. " );
-    }
-
-    std::shared_ptr< aerodynamics::FlightConditions > vehicleFlightConditions =
-            body->getFlightConditions( );
-    vehicleFlightConditions->getAerodynamicAngleCalculator( )->setOrientationAngleFunctions(
-                angleOfAttack, sideslipAngle, bankAngle, silenceWarnings );
+    utilities::printDeprecationError(
+                "tudatpy.numerical_simulation.environment_setup.set_constant_aerodynamic_orientation",
+                "https://docs.tudat.space/en/stable/_src_user_guide/state_propagation/environment_setup/thrust_refactor/thrust_refactor.html#aerodynamic-guidance" );
 }
 
 } // namespace simulation_setup

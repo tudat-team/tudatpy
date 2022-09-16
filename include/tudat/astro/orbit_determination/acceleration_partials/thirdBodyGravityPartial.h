@@ -484,10 +484,10 @@ public:
 protected:
 
     //! Function to reset the constituent DirectGravityPartial objects to the current time.
-    void resetTimeOfMemberObjects( )
+    void resetCurrentTimeOfMemberObjects( )
     {
-        partialOfDirectGravityOnBodyUndergoingAcceleration_->resetTime( currentTime_ );
-        partialOfDirectGravityOnCentralBody_->resetTime( currentTime_ );
+        partialOfDirectGravityOnBodyUndergoingAcceleration_->resetCurrentTime( );
+        partialOfDirectGravityOnCentralBody_->resetCurrentTime( );
     }
 
     //! Function to update the parameter partials of the constituent DirectGravityPartial objects.

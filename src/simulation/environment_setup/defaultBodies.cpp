@@ -8,9 +8,10 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define DEFAULT_MERCURY_GRAVITY_FIELD_SETTINGS
-#define DEFAULT_EARTH_GRAVITY_FIELD_SETTINGS std::make_shared< FromFileSphericalHarmonicsGravityFieldSettings >( egm96 )
-#define DEFAULT_MOON_GRAVITY_FIELD_SETTINGS std::make_shared< FromFileSphericalHarmonicsGravityFieldSettings >( lpe200 )
+#define DEFAULT_MERCURY_GRAVITY_FIELD_SETTINGS std::make_shared< FromFileSphericalHarmonicsGravityFieldSettings >( jgmess160a )
+#define DEFAULT_VENUS_GRAVITY_FIELD_SETTINGS std::make_shared< FromFileSphericalHarmonicsGravityFieldSettings >( shgj180u )
+#define DEFAULT_EARTH_GRAVITY_FIELD_SETTINGS std::make_shared< FromFileSphericalHarmonicsGravityFieldSettings >( goco05c, 200 )
+#define DEFAULT_MOON_GRAVITY_FIELD_SETTINGS std::make_shared< FromFileSphericalHarmonicsGravityFieldSettings >( gggrx1200, 200 )
 #define DEFAULT_MARS_GRAVITY_FIELD_SETTINGS std::make_shared< FromFileSphericalHarmonicsGravityFieldSettings >( jgmro120d )
 
 #include "tudat/interface/spice/spiceInterface.h"
@@ -93,6 +94,14 @@ std::shared_ptr< GravityFieldSettings > getDefaultGravityFieldSettings(
     else if( bodyName == "Mars" )
     {
         return DEFAULT_MARS_GRAVITY_FIELD_SETTINGS;
+    }
+    else if( bodyName == "Venus" )
+    {
+        return DEFAULT_VENUS_GRAVITY_FIELD_SETTINGS;
+    }
+    else if( bodyName == "Mercury" )
+    {
+        return DEFAULT_MERCURY_GRAVITY_FIELD_SETTINGS;
     }
     else if( bodyName == "Jupiter" )
     {
@@ -354,7 +363,7 @@ BodyListSettings getDefaultBodySettings(
 //! Function to create default settings from which to create a set of body objects, without stringent limitations on
 //! time-interval of validity of environment.
 BodyListSettings getDefaultBodySettings(
-        const std::vector< std::string >& bodies,        
+        const std::vector< std::string >& bodies,
         const std::string baseFrameOrigin,
         const std::string baseFrameOrientation )
 {

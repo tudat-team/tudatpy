@@ -40,6 +40,36 @@ using namespace boost::placeholders;
 namespace tudat
 {
 
+
+namespace reference_frames
+{
+
+
+class FromBodyAerodynamicAngleInterface: public BodyFixedAerodynamicAngleInterface
+{
+public:
+    FromBodyAerodynamicAngleInterface(
+            const std::shared_ptr< simulation_setup::Body > body ):
+    BodyFixedAerodynamicAngleInterface( body_fixed_angles_from_body ),
+    body_( body ){ }
+
+    virtual ~FromBodyAerodynamicAngleInterface( ){ }
+
+    Eigen::Vector3d getAngles( const double time,
+                               const Eigen::Matrix3d& trajectoryToInertialFrame )
+    {
+        return computeBodyFixedAeroAngles(
+                    body_->getCurrentRotationMatrixToLocalFrame( ), trajectoryToInertialFrame );
+    }
+
+private:
+
+    std::shared_ptr< simulation_setup::Body > body_;
+
+};
+
+}
+
 namespace propagators
 {
 
@@ -516,10 +546,10 @@ void setMultiTypePropagationClosure(
             {
                 std::shared_ptr< aerodynamics::FlightConditions > currentFlightConditions =
                         bodies.at( bodiesWithAerodynamicRotationalClosure.at( i ) )->getFlightConditions( );
-                reference_frames::setAerodynamicDependentOrientationCalculatorClosure(
-                            std::bind( &simulation_setup::Body::getCurrentRotationToLocalFrame,
-                                       bodies.at( bodiesWithAerodynamicRotationalClosure.at( i ) ) ),
-                            currentFlightConditions->getAerodynamicAngleCalculator( ) );
+                std::shared_ptr< reference_frames::FromBodyAerodynamicAngleInterface > rotationInterface =
+                        std::make_shared< reference_frames::FromBodyAerodynamicAngleInterface >(
+                            bodies.at( bodiesWithAerodynamicRotationalClosure.at( i ) ) );
+                currentFlightConditions->getAerodynamicAngleCalculator( )->setBodyFixedAngleInterface( rotationInterface );
             }
         }
     }

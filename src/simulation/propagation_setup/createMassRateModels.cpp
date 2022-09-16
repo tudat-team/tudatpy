@@ -80,21 +80,39 @@ createMassRateModel(
 
             if( fromThrustMassModelSettings->useAllThrustModels_ == 0 )
             {
+                std::vector< std::string > requiredThrustSources = fromThrustMassModelSettings->associatedThrustSource_;
                 // Retrieve thrust models with the correct id (should be 1)
+
                 for( unsigned int i = 0; i < thrustAccelerations.size( ); i++ )
                 {
-                    if( std::dynamic_pointer_cast< propulsion::ThrustAcceleration >(
-                                thrustAccelerations.at( i ) )->getAssociatedThrustSource( ) ==
-                            fromThrustMassModelSettings->associatedThrustSource_ )
+                    std::vector< std::string > thrustSourcesInAcceleration =
+                            std::dynamic_pointer_cast< propulsion::ThrustAcceleration >(
+                                thrustAccelerations.at( i ) )->getAssociatedThrustSources( );
+
+                    bool doSourcesMatch = true;
+
+                    for( unsigned int j = 0; j < thrustSourcesInAcceleration.size( ); j++ )
+                    {
+                        if( std::find( requiredThrustSources.begin( ), requiredThrustSources.end( ), thrustSourcesInAcceleration.at( j ) ) ==
+                                requiredThrustSources.end( ) )
+                        {
+                            doSourcesMatch = false;
+                        }
+                    }
+                    if( doSourcesMatch )
                     {
                         explicitThrustAccelerations.push_back( std::dynamic_pointer_cast< propulsion::ThrustAcceleration >(
-                                                                   thrustAccelerations.at( i ) ) );
-                    }
-                }
+                                                         thrustAccelerations.at( i ) ) );
 
-                if( explicitThrustAccelerations.size( ) != 1 )
-                {
-                    std::cerr << "Warning when making from-thrust mass-rate model, did not find exactly 1 thrust model with correct identifier" << std::endl;
+                        for( unsigned int j = 0; j < thrustSourcesInAcceleration.size( ); j++ )
+                        {
+                            requiredThrustSources.erase(
+                                        std::remove(requiredThrustSources.begin( ), requiredThrustSources.end( ),
+                                                    thrustSourcesInAcceleration.at( j ) ),
+                                        requiredThrustSources.end( ) );
+
+                        }
+                    }
                 }
             }
             else
