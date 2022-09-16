@@ -460,7 +460,6 @@ std::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
             // Create and initialize polyhedron gravity field model.
             gravityFieldModel = std::make_shared< PolyhedronGravityField >(
                     polyhedronFieldSettings->getGravitationalParameter(),
-                    polyhedronFieldSettings->getVolume(),
                     polyhedronFieldSettings->getVerticesCoordinates(),
                     polyhedronFieldSettings->getVerticesDefiningEachFacet(),
                     associatedReferenceFrame,

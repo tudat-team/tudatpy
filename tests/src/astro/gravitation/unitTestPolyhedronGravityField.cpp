@@ -72,7 +72,7 @@ BOOST_AUTO_TEST_CASE( testSettingAndGettingParameters )
         3, 5, 1;
 
     gravitation::PolyhedronGravityField gravityField = gravitation::PolyhedronGravityField(
-            gravitationalParameter, volume, verticesCoordinates, verticesDefiningEachFacet);
+            gravitationalParameter, verticesCoordinates, verticesDefiningEachFacet);
 
     // Gravitational parameter
     double retrievedGravitationalParameter = gravityField.getGravitationalParameter();
@@ -134,7 +134,7 @@ BOOST_AUTO_TEST_CASE( testGravityComputation )
         3, 5, 1;
 
     gravitation::PolyhedronGravityField gravityField = gravitation::PolyhedronGravityField(
-            gravitationalParameter, volume, verticesCoordinates, verticesDefiningEachFacet);
+            gravitationalParameter, verticesCoordinates, verticesDefiningEachFacet);
 
     // Compute potential, gradient, laplacian and hessian, and compare with results from D'Urso (2014)
 
