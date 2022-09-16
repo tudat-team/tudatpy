@@ -39,6 +39,7 @@
 #include "tudat/astro/orbit_determination/estimatable_parameters/freeCoreNutationRate.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/desaturationDeltaV.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/longitudeLibrationAmplitude.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/constantThrust.h"
 #include "tudat/astro/relativity/metric.h"
 #include "tudat/astro/basic_astro/accelerationModelTypes.h"
 #include "tudat/simulation/estimation_setup/estimatableParameterSettings.h"
@@ -998,6 +999,100 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
                 }
 
             }
+            break;
+        }
+        case constant_thrust_magnitude_parameter:
+        {
+            if( currentBody->getVehicleSystems( ) == nullptr )
+            {
+                throw std::runtime_error( "Error when creating constant thrust magnitude for body " + currentBodyName +
+                                          ", body has no vehicle systems" );
+            }
+            else
+            {
+                if( currentBody->getVehicleSystems( )->getEngineModels( ).count(
+                            doubleParameterName->parameterType_.second.second ) == 0 )
+                {
+                    throw std::runtime_error( "Error when creating constant thrust magnitude for engine " +
+                                              doubleParameterName->parameterType_.second.second + " on body " +
+                                              currentBodyName + ", engine does not exist" );
+                }
+                else
+                {
+                    std::shared_ptr< propulsion::ThrustMagnitudeWrapper > thrustWrapper =
+                            currentBody->getVehicleSystems( )->getEngineModels( ).at(
+                                                       doubleParameterName->parameterType_.second.second )->getThrustMagnitudeWrapper( );
+                    if( thrustWrapper == nullptr )
+                    {
+                        throw std::runtime_error( "Error when creating constant thrust magnitude for engine " +
+                                                  doubleParameterName->parameterType_.second.second + " on body " +
+                                                  currentBodyName + ", engine does not have thrust magnitude model." );
+                    }
+                    else
+                    {
+                        if( std::dynamic_pointer_cast< propulsion::ConstantThrustMagnitudeWrapper >( thrustWrapper ) == nullptr )
+                        {
+                            throw std::runtime_error( "Error when creating constant thrust magnitude for engine " +
+                                                      doubleParameterName->parameterType_.second.second + " on body " +
+                                                      currentBodyName + ", engine thrust magnitude model does not support constant thrust." );
+                        }
+                        else
+                        {
+                            doubleParameterToEstimate = std::make_shared< ConstantThrustMagnitudeParameter >
+                                    ( std::dynamic_pointer_cast< propulsion::ConstantThrustMagnitudeWrapper >( thrustWrapper ),
+                                      currentBodyName, doubleParameterName->parameterType_.second.second );
+                        }
+                    }
+                }
+            }
+
+            break;
+        }
+        case constant_specific_impulse:
+        {
+            if( currentBody->getVehicleSystems( ) == nullptr )
+            {
+                throw std::runtime_error( "Error when creating constant specific impulse for body " + currentBodyName +
+                                          ", body has no vehicle systems" );
+            }
+            else
+            {
+                if( currentBody->getVehicleSystems( )->getEngineModels( ).count(
+                            doubleParameterName->parameterType_.second.second ) == 0 )
+                {
+                    throw std::runtime_error( "Error when creating constant specific impulse for engine " +
+                                              doubleParameterName->parameterType_.second.second + " on body " +
+                                              currentBodyName + ", engine does not exist" );
+                }
+                else
+                {
+                    std::shared_ptr< propulsion::ThrustMagnitudeWrapper > thrustWrapper =
+                            currentBody->getVehicleSystems( )->getEngineModels( ).at(
+                                                       doubleParameterName->parameterType_.second.second )->getThrustMagnitudeWrapper( );
+                    if( thrustWrapper == nullptr )
+                    {
+                        throw std::runtime_error( "Error when creating constant specific impulse for engine " +
+                                                  doubleParameterName->parameterType_.second.second + " on body " +
+                                                  currentBodyName + ", engine does not have thrust magnitude model." );
+                    }
+                    else
+                    {
+                        if( std::dynamic_pointer_cast< propulsion::ConstantThrustMagnitudeWrapper >( thrustWrapper ) == nullptr )
+                        {
+                            throw std::runtime_error( "Error when creating constant specific impulse for engine " +
+                                                      doubleParameterName->parameterType_.second.second + " on body " +
+                                                      currentBodyName + ", engine thrust magnitude model does not support constant thrust." );
+                        }
+                        else
+                        {
+                            doubleParameterToEstimate = std::make_shared< ConstantSpecificImpulseParameter< propulsion::ConstantThrustMagnitudeWrapper  > >
+                                    ( std::dynamic_pointer_cast< propulsion::ConstantThrustMagnitudeWrapper >( thrustWrapper ),
+                                      currentBodyName, doubleParameterName->parameterType_.second.second );
+                        }
+                    }
+                }
+            }
+
             break;
         }
         default:

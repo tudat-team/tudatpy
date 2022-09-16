@@ -62,15 +62,15 @@ public:
      * \param engineName Reference id of the engine that is to be set.
      */
     void setEngineModel(
-            const std::shared_ptr< EngineModel > engineModel, const std::string engineName = "" )
+            const std::shared_ptr< EngineModel > engineModel )
     {
         // Check if engine with this name already exists.
-        if( engineModels_.count( engineName ) )
+        if( engineModels_.count( engineModel->getEngineName( ) ) )
         {
-            std::cerr << "Warning, engine model of name " << engineModel << " already exists, overriding old model" << std::endl;
+            std::cerr << "Warning, engine model of name " << engineModel->getEngineName( ) << " already exists, overriding old model" << std::endl;
         }
 
-        engineModels_[ engineName ] = engineModel;
+        engineModels_[ engineModel->getEngineName( ) ] = engineModel;
     }
 
     //! Function to retrieve the total dry mass of the vehicle

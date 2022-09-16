@@ -120,6 +120,12 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
     case scaled_longitude_libration_amplitude:
         parameterDescription = " scaled longitude libration amplitude ";
         break;
+    case constant_thrust_magnitude_parameter:
+        parameterDescription = " constant thrust magnitude ";
+        break;
+    case constant_specific_impulse:
+        parameterDescription = " constant specific impulse ";
+        break;
     case constant_time_drift_observation_bias:
         parameterDescription = "time drift observation bias ";
         break;
@@ -250,6 +256,12 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
         isDoubleParameter = true;
         break;
     case scaled_longitude_libration_amplitude:
+        isDoubleParameter = true;
+        break;
+    case constant_thrust_magnitude_parameter:
+        isDoubleParameter = true;
+        break;
+    case constant_specific_impulse:
         isDoubleParameter = true;
         break;
     case constant_time_drift_observation_bias:

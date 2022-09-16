@@ -43,6 +43,10 @@ std::string getPathForSphericalHarmonicsModel( const SphericalHarmonicsModel sph
         return paths::getGravityModelsPath( ) + "/Moon/lpe200.txt";
     case jgmro120d:
         return paths::getGravityModelsPath( ) + "/Mars/jgmro120d.txt";
+    case jgmess160a:
+        return paths::getGravityModelsPath( ) + "/Mercury/jgmess_160a_sha.tab";
+    case shgj180u:
+        return paths::getGravityModelsPath( ) + "/Venus/shgj180u.a01";
     default:
         std::cerr << "No path known for Spherical Harmonics Model " << sphericalHarmonicsModel << std::endl;
         throw;
@@ -55,7 +59,7 @@ int getMaximumGravityFieldDegreeOrder( const SphericalHarmonicsModel sphericalHa
     switch ( sphericalHarmonicsModel )
     {
     case egm96:
-        maximumDegreeOrder = 360;
+        maximumDegreeOrder = 200;
         break;
     case ggm02c:
         maximumDegreeOrder = 200;
@@ -77,6 +81,12 @@ int getMaximumGravityFieldDegreeOrder( const SphericalHarmonicsModel sphericalHa
         break;
     case jgmro120d:
         maximumDegreeOrder = 120;
+        break;
+    case jgmess160a:
+        maximumDegreeOrder = 160;
+        break;
+    case shgj180u:
+        maximumDegreeOrder = 180;
         break;
     default:
         throw std::runtime_error( "No maximum degree known for Spherical Harmonics Model " + std::to_string(
@@ -101,6 +111,10 @@ std::string getReferenceFrameForSphericalHarmonicsModel( const SphericalHarmonic
         return "IAU_Moon";
     case jgmro120d:
         return "IAU_Mars";
+    case jgmess160a:
+        return "IAU_Mercury";
+    case shgj180u:
+        return "IAU_Venus";
     default:
         std::cerr << "No reference frame known for Spherical Harmonics Model " << sphericalHarmonicsModel << std::endl;
         throw;
@@ -133,11 +147,14 @@ FromFileSphericalHarmonicsGravityFieldSettings::FromFileSphericalHarmonicsGravit
 
 //! Constructor with model included in Tudat.
 FromFileSphericalHarmonicsGravityFieldSettings::FromFileSphericalHarmonicsGravityFieldSettings(
-        const SphericalHarmonicsModel sphericalHarmonicsModel ) :
-    FromFileSphericalHarmonicsGravityFieldSettings( getPathForSphericalHarmonicsModel( sphericalHarmonicsModel ),
-                                                    getReferenceFrameForSphericalHarmonicsModel( sphericalHarmonicsModel ),
-                                                    getMaximumGravityFieldDegreeOrder( sphericalHarmonicsModel ),
-                                                    getMaximumGravityFieldDegreeOrder( sphericalHarmonicsModel ), 0, 1 )
+        const SphericalHarmonicsModel sphericalHarmonicsModel,
+        const int maximumDegree ) :
+    FromFileSphericalHarmonicsGravityFieldSettings(
+        getPathForSphericalHarmonicsModel( sphericalHarmonicsModel ),
+        getReferenceFrameForSphericalHarmonicsModel( sphericalHarmonicsModel ),
+        maximumDegree < 0 ? getMaximumGravityFieldDegreeOrder( sphericalHarmonicsModel ) : maximumDegree,
+        maximumDegree < 0 ? getMaximumGravityFieldDegreeOrder( sphericalHarmonicsModel ) : maximumDegree,
+        0, 1 )
 {
     sphericalHarmonicsModel_ = sphericalHarmonicsModel;
 }
@@ -329,7 +346,7 @@ std::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
             else
             {
                 inertiaTensorUpdateFunction =
-                    std::bind( &Body::setBodyInertiaTensorFromGravityFieldAndExistingMeanMoment, bodies.at( body ), true );
+                        std::bind( &Body::setBodyInertiaTensorFromGravityFieldAndExistingMeanMoment, bodies.at( body ), true );
                 if( sphericalHarmonicFieldSettings->getScaledMeanMomentOfInertia( ) == sphericalHarmonicFieldSettings->getScaledMeanMomentOfInertia( ) )
                 {
                     bodies.at( body )->setBodyInertiaTensor(

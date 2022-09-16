@@ -528,10 +528,15 @@ BOOST_AUTO_TEST_CASE( test_NonConservativeForceEnvironmentUpdate )
         double angleOfAttack = 35.0 * mathematical_constants::PI / 180.0;
         double angleOfSideslip = -0.00322;
         double bankAngle = 2.323432;
-        vehicleFlightConditions->getAerodynamicAngleCalculator( )->setOrientationAngleFunctions(
-                    [ & ]( ){ return angleOfAttack; },
-                    [ & ]( ){ return angleOfSideslip; },
-                    [ & ]( ){ return bankAngle; } );
+
+        std::shared_ptr< ephemerides::AerodynamicAngleRotationalEphemeris > vehicleRotationModel =
+                createAerodynamicAngleBasedRotationModel(
+                                "Vehicle", "Earth", bodies,
+                                "ECLIPJ2000", "VehicleFixed" );
+        vehicleRotationModel->setAerodynamicAngleFunction(
+                    [=](const double ){ return( Eigen::Vector3d( ) << angleOfAttack, angleOfSideslip, bankAngle ).finished( ); } );
+        bodies.at( "Vehicle" )->setRotationalEphemeris( vehicleRotationModel );
+
 
         std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings =
                 std::make_shared< TranslationalStatePropagatorSettings< double > >(
@@ -554,6 +559,7 @@ BOOST_AUTO_TEST_CASE( test_NonConservativeForceEnvironmentUpdate )
         BOOST_CHECK_EQUAL( environmentModelsToUpdate.at( vehicle_flight_conditions_update ).size( ), 1 );
 
         // Create and call updater.
+        vehicleRotationModel->setIsBodyInPropagation( true );
         std::shared_ptr< propagators::EnvironmentUpdater< double, double > > updater =
                 createEnvironmentUpdaterForDynamicalEquations< double, double >(
                     propagatorSettings, bodies );

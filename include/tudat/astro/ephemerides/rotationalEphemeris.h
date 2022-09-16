@@ -33,6 +33,7 @@ namespace tudat
 namespace ephemerides
 {
 
+
 //! Function to calculate the rotational velocity vector of frame B w.r.t frame A.
 /*!
  *  Function to calculate the rotational velocity vector of frame B (local) w.r.t frame A (global)
@@ -478,6 +479,10 @@ public:
      */
     std::string getTargetFrameOrientation( ) { return targetFrameOrientation_; }
 
+    virtual void resetCurrentTime( ){ }
+
+    virtual void setIsBodyInPropagation( const bool isBodyInPropagation )
+    { }
 protected:
 
     //! Base reference frame orientation.

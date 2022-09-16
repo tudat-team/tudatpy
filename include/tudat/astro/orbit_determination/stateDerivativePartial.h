@@ -97,7 +97,7 @@ public:
             const std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
     {
         // Initialize partial
-        Eigen::MatrixXd partial = Eigen::MatrixXd( accelerationSize_, 1 );
+        Eigen::MatrixXd partial = Eigen::MatrixXd::Zero( accelerationSize_, 1 );
 
         // Get partial computation function.
         std::pair< std::function< void( Eigen::MatrixXd& ) >, int > partialFunction =
@@ -142,7 +142,7 @@ public:
             std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
     {
         // Initialize partial
-        Eigen::MatrixXd partial = Eigen::MatrixXd( accelerationSize_, parameter->getParameterSize( ) );
+        Eigen::MatrixXd partial = Eigen::MatrixXd::Zero( accelerationSize_, parameter->getParameterSize( ) );
 
         // Get partial computation function.
         std::pair< std::function< void( Eigen::MatrixXd& ) >, int > partialFunction =
@@ -210,17 +210,13 @@ public:
      * Function to reset the  object to the current time, recomputing partials to current state.
      *  \param currentTime Time to which partials are to be updated.
      */
-    void resetTime( const double currentTime = TUDAT_NAN )
+    void resetCurrentTime( )
     {
-        // Check if update is needed.
-        if( !( currentTime_ == currentTime  ) )
-        {
-            resetCurrentParameterValues( );
-            currentTime_ = currentTime;
-        }        
+        resetCurrentParameterValues( );
+        currentTime_ = TUDAT_NAN;
 
         // Perform updates of member objects if needed.
-        resetTimeOfMemberObjects( );
+        resetCurrentTimeOfMemberObjects( );
     }
 
     //! Function to retrieve a partial w.r.t. a double parameter
@@ -434,9 +430,9 @@ protected:
     /*!
      *  Function to reset the member object to the current time. By default (implemented here) no computations are performed.
      *  For certain derived classed (i.e. ThirdBodyGravityPartial), there are member StateDerivativePartial objects that
-     *  need to be updated when calling resetTime, for which this function should be redefined.
+     *  need to be updated when calling resetCurrentTime, for which this function should be redefined.
      */
-    virtual void resetTimeOfMemberObjects( )
+    virtual void resetCurrentTimeOfMemberObjects( )
     {
 
     }

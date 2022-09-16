@@ -287,7 +287,7 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_4 )
     double sunGravitationalParameterSpice = getBodyGravitationalParameter( "Sun" );
 
     // Set Sun's gravitational parameter as read manually from kernel.
-    const double sunGravitationalParameter = 132712440041.9393 * 1.0e9;
+    const double sunGravitationalParameter = 1.327124400420322e+20;
 
     // Check if results are the same.
     BOOST_CHECK_CLOSE_FRACTION( sunGravitationalParameterSpice, sunGravitationalParameter,
@@ -452,10 +452,7 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_6 )
     horizonsState *= 1000.0;
 
     // Compare direct and wrapped results for state.
-    for ( int i = 0; i < 6; i++ )
-    {
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( horizonsState, wrapperState, 5.0e-7 );
-    }
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( horizonsState, wrapperState, 1.0e-5 );
 }
 
 // Test 7: Loading and clearing kernels.
@@ -480,7 +477,7 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_7 )
     spiceKernelsLoaded = getTotalCountOfKernelsLoaded( );
 
     // Loaded kernels should be 4.
-    BOOST_CHECK_EQUAL( spiceKernelsLoaded, 4 );
+    BOOST_CHECK_EQUAL( spiceKernelsLoaded, 11 );
 
     // Clear all Spice kernels.
     clearSpiceKernels( );

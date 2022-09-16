@@ -507,7 +507,6 @@ inline std::shared_ptr< AerodynamicCoefficientSettings > customAerodynamicCoeffi
         const std::function< Eigen::Vector3d( const std::vector< double >& ) > momentCoefficientFunction,
         const double referenceLength,
         const double referenceArea,
-        const double lateralReferenceLength,
         const Eigen::Vector3d& momentReferencePoint,
         const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables >
         independentVariableNames,
@@ -515,7 +514,7 @@ inline std::shared_ptr< AerodynamicCoefficientSettings > customAerodynamicCoeffi
         const bool areCoefficientsInNegativeAxisDirection = true )
 {
     return std::make_shared< CustomAerodynamicCoefficientSettings >(
-                forceCoefficientFunction, momentCoefficientFunction, referenceLength, referenceArea, lateralReferenceLength,
+                forceCoefficientFunction, momentCoefficientFunction, referenceLength, referenceArea, referenceLength,
                 momentReferencePoint, independentVariableNames, areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection );
 }
 
