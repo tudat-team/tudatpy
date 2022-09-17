@@ -236,6 +236,22 @@ public:
         return positionOfBodyExertingAcceleration_;
     }
 
+    //! Function to return the function returning position of body exerting acceleration.
+    /*!
+     * Function to return the function returning position of body exerting acceleration.
+     * \return Function returning position of body exerting acceleration.
+     */
+    StateFunction getStateFunctionOfBodyExertingAcceleration( )
+    { return sourcePositionFunction_; }
+
+    //! Function to return the function returning position of body subject to acceleration.
+    /*!
+     * Function to return the function returning position of body subject to acceleration.
+     * \return Function returning position of body subject to acceleration.
+     */
+    StateFunction getStateFunctionOfBodyUndergoingAcceleration( )
+    { return subjectPositionFunction_; }
+
     //! Function to retrieve the spherical harmonics cache for this acceleration.
     std::shared_ptr< PolyhedronGravityCache > getPolyhedronCache( )
     {
