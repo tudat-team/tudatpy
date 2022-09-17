@@ -228,10 +228,6 @@ namespace dependent_variable {
                                                          get_docstring(
                                                                  "SingleAccelerationDependentVariableSaveSettings").c_str());
 
-        py::class_<
-                tp::AccelerationPartialWrtStateSaveSettings,
-                std::shared_ptr<tp::AccelerationPartialWrtStateSaveSettings>,
-                tp::SingleDependentVariableSaveSettings>(m, "AccelerationPartialWrtStateSaveSettings");
 //            .def(py::init<
 //                 const tudat::basic_astrodynamics::AvailableAcceleration,
 //                 const std::string &,
@@ -584,14 +580,6 @@ namespace dependent_variable {
               &tp::gravityFieldLaplacianOfPotentialDependentVariable,
               py::arg("body_undergoing_acceleration"),
               py::arg("body_exerting_acceleration"));
-
-        m.def("acceleration_partial_wrt_body_translational_state",
-              &tp::accelerationPartialWrtBodyTranslationalStateDependentVariable,
-              py::arg("body_undergoing_acceleration"),
-              py::arg("body_exerting_acceleration"),
-              py::arg("acceleration_model_type"),
-              py::arg("derivative_wrt_body"),
-              py::arg("central_body_in_3rd_body_gravity") = "");
 
     }
 
