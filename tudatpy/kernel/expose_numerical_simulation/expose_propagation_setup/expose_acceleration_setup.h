@@ -23,7 +23,6 @@
 #include "tudat/simulation/propagation_setup/createEnvironmentUpdater.h"
 #include "tudat/simulation/propagation_setup/createMassRateModels.h"
 #include "tudat/simulation/propagation_setup/createStateDerivativeModel.h"
-#include "tudat/simulation/propagation_setup/createThrustModelGuidance.h"
 #include "tudat/simulation/propagation_setup/createTorqueModel.h"
 #include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
 #include "tudat/simulation/propagation_setup/environmentUpdater.h"
@@ -35,10 +34,25 @@
 #include "tudat/simulation/propagation_setup/propagationTermination.h"
 #include "tudat/simulation/propagation_setup/propagationTerminationSettings.h"
 #include "tudat/simulation/propagation_setup/setNumericallyIntegratedStates.h"
-#include "tudat/simulation/propagation_setup/thrustSettings.h"
 #include "tudat/simulation/propagation_setup/torqueSettings.h"
 
 namespace py = pybind11;
+
+//Deprecated
+namespace tudat
+{
+
+namespace simulation_setup
+{
+enum ThrustFrames
+{
+    unspecified_thrust_frame = -1,
+    inertial_thrust_frame = 0,
+    tnw_thrust_frame = 1
+};
+
+}
+}
 
 namespace tudatpy {
 namespace numerical_simulation {

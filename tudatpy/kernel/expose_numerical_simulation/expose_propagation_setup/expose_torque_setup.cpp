@@ -9,6 +9,7 @@
  */
 
 #include "expose_torque_setup.h"
+#include <tudat/basics/deprecationWarnings.h>
 
 #include "tudatpy/docstrings.h"
 #include <tudat/simulation/propagation_setup.h>
@@ -30,6 +31,26 @@ namespace tni = tudat::numerical_integrators;
 namespace trf = tudat::reference_frames;
 namespace tmrf = tudat::root_finders;
 
+namespace tudat
+{
+namespace simulation_setup
+{
+inline std::shared_ptr< TorqueSettings > customTorqueSettingsDeprecated(
+            const std::function< Eigen::Vector3d( const double ) > torqueFunction,
+        const std::function< double( const double ) > scalingFunction = nullptr )
+{
+    static bool isWarningPrinted = false;
+    if( isWarningPrinted == false )
+    {
+        tudat::utilities::printDeprecationWarning( "tudatpy.numerical_simulation.propagation_setup.acceleration.custom",
+                             "tudatpy.numerical_simulation.propagation_setup.acceleration.custom_torque");
+        isWarningPrinted = true;
+    }
+
+    return customTorqueSettings( torqueFunction, scalingFunction     );
+}
+}
+}
 namespace tudatpy {
 namespace numerical_simulation {
 namespace propagation_setup {
@@ -80,11 +101,15 @@ namespace torque {
               get_docstring("spherical_harmonic_gravitational").c_str());
 
 
-        m.def("custom", &tss::customTorqueSettings,
-              py::arg("torque_function"),
-              py::arg("scaling_function") = nullptr,
+
+        m.def("custom_torque", &tss::customTorqueSettings,
+                  py::arg("torque_function"),
+                  py::arg("scaling_function") = nullptr,
               get_docstring("custom").c_str());
 
+        m.def("custom", &tss::customTorqueSettingsDeprecated,
+              py::arg("torque_function"),
+              py::arg("scaling_function") = nullptr );
 
         // NOTE: the only unexposed torque model is dissipativeTorque, but it is probably obsolete
     }

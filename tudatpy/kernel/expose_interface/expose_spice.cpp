@@ -23,6 +23,32 @@ namespace py = pybind11;
 namespace tsi = tudat::spice_interface;
 namespace tba = tudat::basic_astrodynamics;
 
+namespace tudat
+{
+
+namespace spice_interface
+{
+
+void loadStandardDepracatedSpiceKernels(const std::vector<std::string> alternativeEphemerisKernels)
+{
+    std::string kernelPath = paths::getSpiceKernelPath();
+    loadSpiceKernelInTudat(kernelPath + "/pck00010.tpc");
+    loadSpiceKernelInTudat(kernelPath + "/gm_de431.tpc");
+
+    if (alternativeEphemerisKernels.size() == 0) {
+        loadSpiceKernelInTudat(kernelPath + "/tudat_merged_spk_kernel.bsp");
+    } else {
+        for (unsigned int i = 0; i < alternativeEphemerisKernels.size(); i++) {
+            loadSpiceKernelInTudat(alternativeEphemerisKernels.at(i));
+        }
+    }
+    loadSpiceKernelInTudat(kernelPath + "/naif0012.tls");
+}
+
+}
+
+}
+
 namespace tudatpy {
 namespace interface {
 namespace spice {
@@ -134,13 +160,18 @@ namespace spice {
               py::arg("body_name"),
               get_docstring("convert_body_name_to_naif_id").c_str());
 
-        // kernel pool related
-        m.def("get_standard_kernels",
-              &tudat::spice_interface::getStandardSpiceKernels,
-              get_docstring("get_standard_kernels").c_str());
+//        // kernel pool related
+//        m.def("get_standard_kernels",
+//              &tudat::spice_interface::getStandardSpiceKernels,
+//              get_docstring("get_standard_kernels").c_str());
 
         m.def("load_standard_kernels",
               &tudat::spice_interface::loadStandardSpiceKernels,
+              py::arg("alternative_kernels") = std::vector<std::string>(),// <pybind11/stl.h>
+              get_docstring("load_standard_kernels").c_str());
+
+        m.def("load_standard_deprecated_kernels",
+              &tudat::spice_interface::loadStandardDepracatedSpiceKernels,
               py::arg("alternative_kernels") = std::vector<std::string>(),// <pybind11/stl.h>
               get_docstring("load_standard_kernels").c_str());
 
@@ -176,7 +207,7 @@ namespace spice {
                   const double>(),
                   py::arg("target_body_name"),
                   py::arg("observer_body_name"),
-                  py::arg("correct_for_stellar_aberration") = true,
+                  py::arg("correct_for_stellar_aberration") = false,
                   py::arg("correct_for_light_time_aberration") = true,
                   py::arg("converge_light_time_aberration") = false,
                   py::arg("reference_frame_name") = "ECLIPJ2000",
