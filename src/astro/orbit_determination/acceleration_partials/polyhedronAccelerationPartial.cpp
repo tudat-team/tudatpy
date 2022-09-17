@@ -10,6 +10,7 @@
 
 #include "tudat/astro/orbit_determination/acceleration_partials/polyhedronAccelerationPartial.h"
 #include "tudat/math/basic/polyhedron.h"
+#include "tudat/astro/orbit_determination/acceleration_partials/centralGravityAccelerationPartial.h"
 
 namespace tudat
 {
@@ -79,7 +80,37 @@ void PolyhedronGravityPartial::update( const double currentTime )
         if( rotationMatrixPartials_.count(
                     std::make_pair( estimatable_parameters::initial_body_state, "" ) ) > 0 )
         {
-            throw std::runtime_error( "Computation of rotation correction partials not implemented for polyhedron acceleration." );
+            // Compute the acceleration and body-fixed position partial, without the central term (to avoid numerical errors)
+            Eigen::Vector3d nonCentralAcceleration = accelerationFunction_( );
+            Eigen::Matrix3d nonCentralBodyFixedPartial = currentBodyFixedPartialWrtPosition_;
+
+            nonCentralAcceleration -= gravitation::computeGravitationalAcceleration(
+                        positionFunctionOfAcceleratedBody_( ), gravitationalParameterFunction_( ), positionFunctionOfAcceleratingBody_( ) );
+
+            nonCentralBodyFixedPartial -=
+                    currentRotationToBodyFixedFrame_ * calculatePartialOfPointMassGravityWrtPositionOfAcceleratedBody(
+                        positionFunctionOfAcceleratedBody_( ), positionFunctionOfAcceleratingBody_( ), gravitationalParameterFunction_( ) ) *
+                    currentRotationToBodyFixedFrame_.inverse( );
+
+            // Compute rotation matrix partials
+            std::vector< Eigen::Matrix3d > rotationPositionPartials =
+                    rotationMatrixPartials_.at(
+                        std::make_pair( estimatable_parameters::initial_body_state, "" ) )->
+                    calculatePartialOfRotationMatrixToBaseFrameWrParameter( currentTime );
+
+            // Add correction terms to position and velocity partials
+            for( unsigned int i = 0; i < 3; i++ )
+            {
+                currentPartialWrtPosition_.block( 0, i, 3, 1 ) -=
+                        rotationPositionPartials.at( i ) * ( currentRotationToBodyFixedFrame_ * nonCentralAcceleration );
+
+                currentPartialWrtPosition_.block( 0, i, 3, 1 ) -=
+                        currentRotationToBodyFixedFrame_.inverse( ) * nonCentralBodyFixedPartial *
+                        ( rotationPositionPartials.at( i ).transpose( ) *
+                          ( positionFunctionOfAcceleratedBody_( ) - positionFunctionOfAcceleratingBody_( ) ) );
+                currentPartialWrtVelocity_.block( 0, i, 3, 1 ) -=
+                        rotationPositionPartials.at( i + 3 ) * ( currentRotationToBodyFixedFrame_ * nonCentralAcceleration );
+            }
         }
 
         currentTime_ = currentTime;
