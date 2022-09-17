@@ -48,6 +48,7 @@ std::vector< std::function< double( ) > > removeCentralGravityAccelerations(
             int lastCandidate = -1;
             int numberOfCandidates = 0;
             bool isLastCandidateSphericalHarmonic = 0;
+            bool isLastCandidatePolyhedron = 0;
             listOfAccelerations =
                     accelerationModelsPerBody[ bodiesToIntegrate.at( i ) ][ centralBodies.at( i ) ];
 
@@ -68,13 +69,27 @@ std::vector< std::function< double( ) > > removeCentralGravityAccelerations(
                     numberOfCandidates++;
                     lastCandidate = j;
                 }
+                else if ( currentAccelerationType == polyhedron_gravity )
+                {
+                    isLastCandidatePolyhedron = 1;
+                    numberOfCandidates++;
+                    lastCandidate = j;
+                }
                 else if( ( currentAccelerationType == third_body_point_mass_gravity ) ||
-                         ( currentAccelerationType == third_body_spherical_harmonic_gravity ) )
+                         ( currentAccelerationType == third_body_spherical_harmonic_gravity ) ||
+                        ( currentAccelerationType == third_body_polyhedron_gravity ) )
                 {
                     std::string errorMessage =
                             "Error when removing central body point gravity term, removal of 3rd body accelerations (of " +
                             centralBodies.at( i ) +
-                            " on " + bodiesToIntegrate.at( i ) + ",) not yet supported";
+                            " on " + bodiesToIntegrate.at( i ) + "), not yet supported";
+                    throw std::runtime_error( errorMessage );
+                }
+                else
+                {
+                    std::string errorMessage =
+                            "Error when removing central body point gravity term (of " + centralBodies.at( i ) + " on "
+                            + bodiesToIntegrate.at( i ) + "), the selected gravity acceleration type is not recognized.";
                     throw std::runtime_error( errorMessage );
                 }
             }
@@ -99,7 +114,7 @@ std::vector< std::function< double( ) > > removeCentralGravityAccelerations(
             }
             else
             {
-                if( !isLastCandidateSphericalHarmonic )
+                if( !isLastCandidateSphericalHarmonic && !isLastCandidatePolyhedron )
                 {
                     // Set central body gravitational parameter (used for Kepler orbit propagation)
                     removedAcceleration[ bodiesToIntegrate.at( i ) ] = std::dynamic_pointer_cast< CentralGravitationalAccelerationModel3d >(
@@ -113,10 +128,24 @@ std::vector< std::function< double( ) > > removeCentralGravityAccelerations(
                     accelerationModelsPerBody[ bodiesToIntegrate.at( i ) ][ centralBodies.at( i ) ] =
                             listOfAccelerations;
                 }
-                else
+                else if ( isLastCandidateSphericalHarmonic )
                 {
                     std::shared_ptr< SphericalHarmonicsGravitationalAccelerationModel > originalAcceleration =
                             std::dynamic_pointer_cast< SphericalHarmonicsGravitationalAccelerationModel >(
+                                listOfAccelerations.at( lastCandidate ) );
+                    centralBodyGravitationalParameters.at( i ) = originalAcceleration->getGravitationalParameterFunction( );
+
+                    // Create 'additional' acceleration model which subtracts central gravity term.
+                    accelerationModelsPerBody[ bodiesToIntegrate.at( i ) ][ centralBodies.at( i ) ].push_back(
+                                std::make_shared< CentralGravitationalAccelerationModel3d >
+                                ( originalAcceleration->getStateFunctionOfBodyExertingAcceleration( ),
+                                  originalAcceleration->getGravitationalParameterFunction( ),
+                                  originalAcceleration->getStateFunctionOfBodyUndergoingAcceleration( ) ) );
+                }
+                else
+                {
+                    std::shared_ptr< PolyhedronGravitationalAccelerationModel > originalAcceleration =
+                            std::dynamic_pointer_cast< PolyhedronGravitationalAccelerationModel >(
                                 listOfAccelerations.at( lastCandidate ) );
                     centralBodyGravitationalParameters.at( i ) = originalAcceleration->getGravitationalParameterFunction( );
 
