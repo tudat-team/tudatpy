@@ -396,6 +396,18 @@ public:
                     sineCoefficients_.block( 0, 0, maximumDegree, maximumOrder ), sphericalHarmonicsCache_, dummyMap );
     }
 
+    //! Get the gradient of the laplacian of potential.
+    /*!
+     * Returns the laplacian of the gravitational potential for the gravity field selected.
+     * \param bodyFixedPosition Position at which gradient of potential is to be determined.
+     * \return Laplacian of potential.
+     */
+    double getLaplacianOfPotential ( const Eigen::Vector3d& bodyFixedPosition )
+    {
+        throw std::runtime_error( "Computation of Laplacian of gravity potential not implemented for spherical "
+                                  "harmonics gravity field." );
+    }
+
     //! Function to retrieve the tdentifier for body-fixed reference frame
     /*!
      *  Function to retrieve the tdentifier for body-fixed reference frame
