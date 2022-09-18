@@ -64,6 +64,7 @@ YACMA_PYTHON_MODULE(kernel
         kernel/expose_trajectory_design.cpp
         kernel/expose_trajectory_design/expose_transfer_trajectory.cpp
         kernel/expose_trajectory_design/expose_shape_based_thrust.cpp
+        kernel/expose_trajectory_design/expose_approximate_models.cpp
 
         # kernel/constants
         kernel/expose_constants.cpp

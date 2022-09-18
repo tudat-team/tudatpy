@@ -12,6 +12,7 @@
 
 #include "expose_trajectory_design/expose_transfer_trajectory.h"
 #include "expose_trajectory_design/expose_shape_based_thrust.h"
+#include "expose_trajectory_design/expose_approximate_models.h"
 
 #include <pybind11/pybind11.h>
 
@@ -29,6 +30,8 @@ void expose_trajectory_design(py::module &m) {
   auto transfer_trajectory = m.def_submodule("transfer_trajectory");
   transfer_trajectory::expose_transfer_trajectory(transfer_trajectory);
 
+  auto approximate_models = m.def_submodule("approximate_models");
+  approximate_models::expose_approximate_models(approximate_models);
 
 }
 }

@@ -53,9 +53,6 @@ void expose_propagation_setup(py::module &m) {
     auto torque_setup = m.def_submodule("torque");
     torque::expose_torque_setup(torque_setup);
 
-    auto integrator_setup = m.def_submodule("integrator");
-    integrator::expose_integrator_setup(integrator_setup);
-
     auto propagator_setup = m.def_submodule("propagator");
     propagator::expose_propagator_setup(propagator_setup);
 
