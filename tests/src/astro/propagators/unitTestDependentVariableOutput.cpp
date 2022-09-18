@@ -348,49 +348,50 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
             for( std::map< double, Eigen::VectorXd >::iterator variableIterator = dependentVariableSolution.begin( );
                  variableIterator != dependentVariableSolution.end( ); variableIterator++ )
             {
-                if( variableIterator == dependentVariableSolution.begin( ) )
-                {
-                    std::cout<<"Analysis size "<<variableIterator->second.rows( )<<std::endl;
-                }
-                double machNumber = variableIterator->second( 0 );
-                double altitude = variableIterator->second( 1 );
-                double relativeDistance = variableIterator->second( 2 );
-                double relativeSpeed= variableIterator->second( 3 );
-                double gravitationalAccelerationNorm = variableIterator->second( 4 );
-                double gLoad = variableIterator->second( 5 );
-                double stagnationPointHeatFlux = variableIterator->second( 6 );
-                double freestreamTemperature = variableIterator->second( 7 );
-                double geodeticLatitude = variableIterator->second( 8 );
-                double freestreamDensity = variableIterator->second( 9 );
-                double latitude = variableIterator->second( 10 );
-                double longitude = variableIterator->second( 11 );
-                double angleOfAttack = variableIterator->second( 12 );
-                double sideslipAngle = variableIterator->second( 13 );
-                double bankAngle = variableIterator->second( 14 );
+                Eigen::VectorXd currentDependentVariables = variableIterator->second;
+//                if( variableIterator == dependentVariableSolution.begin( ) )
+//                {
+//                    std::cout<<"Analysis size "<<currentDependentVariables.rows( )<<std::endl;
+//                }
+                double machNumber = currentDependentVariables( 0 );
+                double altitude = currentDependentVariables( 1 );
+                double relativeDistance = currentDependentVariables( 2 );
+                double relativeSpeed= currentDependentVariables( 3 );
+                double gravitationalAccelerationNorm = currentDependentVariables( 4 );
+                double gLoad = currentDependentVariables( 5 );
+                double stagnationPointHeatFlux = currentDependentVariables( 6 );
+                double freestreamTemperature = currentDependentVariables( 7 );
+                double geodeticLatitude = currentDependentVariables( 8 );
+                double freestreamDensity = currentDependentVariables( 9 );
+                double latitude = currentDependentVariables( 10 );
+                double longitude = currentDependentVariables( 11 );
+                double angleOfAttack = currentDependentVariables( 12 );
+                double sideslipAngle = currentDependentVariables( 13 );
+                double bankAngle = currentDependentVariables( 14 );
 
-                Eigen::Vector3d relativePosition = variableIterator->second.segment( 15, 3 );
+                Eigen::Vector3d relativePosition = currentDependentVariables.segment( 15, 3 );
                 Eigen::Vector3d computedBodyFixedPosition =
                         earthRotationModel->getRotationToTargetFrame( variableIterator->first ) * relativePosition;
                 Eigen::Vector3d computedSphericalBodyFixedPosition =
                         coordinate_conversions::convertCartesianToSpherical( computedBodyFixedPosition );
 
-                Eigen::Vector3d relativeVelocity = variableIterator->second.segment( 18, 3 );
-                Eigen::Vector3d gravitationalAcceleration = variableIterator->second.segment( 21, 3 );
-                Eigen::Vector3d totalAcceleration = variableIterator->second.segment( 24, 3 );
-                Eigen::Vector3d momentCoefficients = variableIterator->second.segment( 27, 3 );
-                Eigen::Vector3d forceCoefficients = variableIterator->second.segment( 30, 3 );
-                Eigen::Vector3d aerodynamicAcceleration = variableIterator->second.segment( 33, 3 );
-                Eigen::Vector3d moonAcceleration1 = variableIterator->second.segment( 36, 3 );
-                Eigen::Vector3d moonAcceleration2 = variableIterator->second.segment( 39, 3 );
+                Eigen::Vector3d relativeVelocity = currentDependentVariables.segment( 18, 3 );
+                Eigen::Vector3d gravitationalAcceleration = currentDependentVariables.segment( 21, 3 );
+                Eigen::Vector3d totalAcceleration = currentDependentVariables.segment( 24, 3 );
+                Eigen::Vector3d momentCoefficients = currentDependentVariables.segment( 27, 3 );
+                Eigen::Vector3d forceCoefficients = currentDependentVariables.segment( 30, 3 );
+                Eigen::Vector3d aerodynamicAcceleration = currentDependentVariables.segment( 33, 3 );
+                Eigen::Vector3d moonAcceleration1 = currentDependentVariables.segment( 36, 3 );
+                Eigen::Vector3d moonAcceleration2 = currentDependentVariables.segment( 39, 3 );
 
-                Eigen::Vector6d keplerElements =  variableIterator->second.segment( 42, 6 );
-                Eigen::Vector6d modifiedEquinoctialElements =  variableIterator->second.segment( 48, 6 );
-                Eigen::Vector3d bodyFixedCartesianPosition = variableIterator->second.segment( 54, 3 );
-                Eigen::Vector3d bodyFixedSphericalPosition = variableIterator->second.segment( 57, 3 );
+                Eigen::Vector6d keplerElements =  currentDependentVariables.segment( 42, 6 );
+                Eigen::Vector6d modifiedEquinoctialElements =  currentDependentVariables.segment( 48, 6 );
+                Eigen::Vector3d bodyFixedCartesianPosition = currentDependentVariables.segment( 54, 3 );
+                Eigen::Vector3d bodyFixedSphericalPosition = currentDependentVariables.segment( 57, 3 );
                 Eigen::Matrix3d rswToInertialRotationMatrix =
-                        propagators::getMatrixFromVectorRotationRepresentation( variableIterator->second.segment( 60, 9 ) );
-                Eigen::Vector3d customVariable1 = variableIterator->second.segment( 69, 3 );
-                Eigen::Vector3d customVariable2 = variableIterator->second.segment( 72, 1 );
+                        propagators::getMatrixFromVectorRotationRepresentation( currentDependentVariables.segment( 60, 9 ) );
+                Eigen::Vector3d customVariable1 = currentDependentVariables.segment( 69, 3 );
+                Eigen::Vector3d customVariable2 = currentDependentVariables.segment( 72, 1 );
 
                 currentStateDerivative = dynamicsSimulator.getDynamicsStateDerivative( )->computeStateDerivative(
                             variableIterator->first, rawNumericalSolution.at( variableIterator->first ) );
@@ -700,32 +701,34 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicDependentVariableOutput )
     for( std::map< double, Eigen::VectorXd >::iterator variableIterator = depdendentVariableResult.begin( );
          variableIterator != depdendentVariableResult.end( ); variableIterator++ )
     {
+        Eigen::VectorXd currentDependentVariables = variableIterator->second;
+
         Eigen::Vector3d manualAccelerationSum = Eigen::Vector3d::Zero( );
         for( unsigned int i = 5; i < 33; i++ )
         {
-            manualAccelerationSum += variableIterator->second.segment( i * 3, 3 );
+            manualAccelerationSum += currentDependentVariables.segment( i * 3, 3 );
         }
 
         BOOST_CHECK_SMALL(
-                    std::fabs( ( variableIterator->second.segment( 96, 3 ) ).norm( ) - variableIterator->second( 99 ) ),
-                    10.0 * ( variableIterator->second.segment( 96, 3 ) ).norm( ) * std::numeric_limits< double >::epsilon( ) );
+                    std::fabs( ( currentDependentVariables.segment( 96, 3 ) ).norm( ) - currentDependentVariables( 99 ) ),
+                    10.0 * ( currentDependentVariables.segment( 96, 3 ) ).norm( ) * std::numeric_limits< double >::epsilon( ) );
         for( unsigned int i = 0; i < 3; i ++ )
         {
             BOOST_CHECK_SMALL(
-                        std::fabs( manualAccelerationSum( i ) - variableIterator->second( i ) ),
+                        std::fabs( manualAccelerationSum( i ) - currentDependentVariables( i ) ),
                         10.0 * manualAccelerationSum.norm( ) * std::numeric_limits< double >::epsilon( ) );
             BOOST_CHECK_SMALL(
-                        std::fabs( variableIterator->second( 3 + i ) - variableIterator->second( 15 + 3 * 1 + i ) ),
-                        10.0 * ( variableIterator->second.segment( 3, 3 ) ).norm( ) * std::numeric_limits< double >::epsilon( ) );
+                        std::fabs( currentDependentVariables( 3 + i ) - currentDependentVariables( 15 + 3 * 1 + i ) ),
+                        10.0 * ( currentDependentVariables.segment( 3, 3 ) ).norm( ) * std::numeric_limits< double >::epsilon( ) );
             BOOST_CHECK_SMALL(
-                        std::fabs( variableIterator->second( 6 + i ) - variableIterator->second( 15 + 3 * 6 + i ) ),
-                        10.0 * ( variableIterator->second.segment( 6, 3 ) ).norm( ) * std::numeric_limits< double >::epsilon( ) );
+                        std::fabs( currentDependentVariables( 6 + i ) - currentDependentVariables( 15 + 3 * 6 + i ) ),
+                        10.0 * ( currentDependentVariables.segment( 6, 3 ) ).norm( ) * std::numeric_limits< double >::epsilon( ) );
             BOOST_CHECK_SMALL(
-                        std::fabs( variableIterator->second( 9 + i ) - variableIterator->second( 15 + 3 * 8 + i ) ),
-                        10.0 * ( variableIterator->second.segment( 9, 3 ) ).norm( ) * std::numeric_limits< double >::epsilon( ) );
+                        std::fabs( currentDependentVariables( 9 + i ) - currentDependentVariables( 15 + 3 * 8 + i ) ),
+                        10.0 * ( currentDependentVariables.segment( 9, 3 ) ).norm( ) * std::numeric_limits< double >::epsilon( ) );
             BOOST_CHECK_SMALL(
-                        std::fabs( variableIterator->second( 12 + i ) - variableIterator->second( 15 + 3 * 7 + i ) ),
-                        10.0 * ( variableIterator->second.segment( 12, 3 ) ).norm( ) * std::numeric_limits< double >::epsilon( ) );
+                        std::fabs( currentDependentVariables( 12 + i ) - currentDependentVariables( 15 + 3 * 7 + i ) ),
+                        10.0 * ( currentDependentVariables.segment( 12, 3 ) ).norm( ) * std::numeric_limits< double >::epsilon( ) );
 
         }
     }
@@ -827,10 +830,12 @@ BOOST_AUTO_TEST_CASE( testDependentVariableEnvironmentUpdate )
     for( std::map< double, Eigen::VectorXd >::iterator variableIterator = depdendentVariableResult.begin( );
          variableIterator != depdendentVariableResult.end( ); variableIterator++ )
     {
+        Eigen::VectorXd currentDependentVariables = variableIterator->second;
+
         Eigen::Vector3d expectedRelativePosition =
                 tudat::spice_interface::getBodyCartesianPositionAtEpoch(
                     "Sun", "Venus", "ECLIPJ2000", "None", variableIterator->first );
-        Eigen::Vector3d computedRelativePosition = variableIterator->second.segment( 0, 3 );
+        Eigen::Vector3d computedRelativePosition = currentDependentVariables.segment( 0, 3 );
 
 
         for( unsigned int i = 0; i < 3; i ++ )
@@ -848,32 +853,32 @@ BOOST_AUTO_TEST_CASE( testDependentVariableEnvironmentUpdate )
                     Eigen::Vector3d( moonRelativeEarthFixedCartesianState.segment( 0, 3 ) ) );
 
         BOOST_CHECK_SMALL(
-                    std::fabs( variableIterator->second( 3 ) - (
+                    std::fabs( currentDependentVariables( 3 ) - (
                                    tudat::mathematical_constants::PI / 2.0 - moonSphericalPosition( 1 ) ) ), 1.0E-14 );
         BOOST_CHECK_SMALL(
-                    std::fabs( variableIterator->second( 4 ) - moonSphericalPosition( 2 ) ), 1.0E-14 );
+                    std::fabs( currentDependentVariables( 4 ) - moonSphericalPosition( 2 ) ), 1.0E-14 );
 
         Eigen::Vector6d moonRelativeSphericalState =
                 tudat::orbital_element_conversions::convertCartesianToSphericalOrbitalState(
                     moonRelativeEarthFixedCartesianState );
 
         BOOST_CHECK_SMALL(
-                    std::fabs( variableIterator->second( 3 ) - moonRelativeSphericalState(
+                    std::fabs( currentDependentVariables( 3 ) - moonRelativeSphericalState(
                                    orbital_element_conversions::latitudeIndex ) ), 1.0E-14 );
         BOOST_CHECK_SMALL(
-                    std::fabs( variableIterator->second( 4 ) - moonRelativeSphericalState(
+                    std::fabs( currentDependentVariables( 4 ) - moonRelativeSphericalState(
                                    orbital_element_conversions::longitudeIndex ) ), 1.0E-14 );
         BOOST_CHECK_SMALL(
-                    std::fabs( variableIterator->second( 5 ) - moonRelativeSphericalState(
+                    std::fabs( currentDependentVariables( 5 ) - moonRelativeSphericalState(
                                    orbital_element_conversions::headingAngleIndex ) ), 1.0E-14 );
         BOOST_CHECK_SMALL(
-                    std::fabs( variableIterator->second( 6 ) - moonRelativeSphericalState(
+                    std::fabs( currentDependentVariables( 6 ) - moonRelativeSphericalState(
                                    orbital_element_conversions::flightPathIndex ) ), 1.0E-14 );
 
         Eigen::Vector6d sunState = bodies.at( "Sun" )->getStateInBaseFrameFromEphemeris( variableIterator->first );
         Eigen::Vector6d moonState = bodies.at( "Moon" )->getStateInBaseFrameFromEphemeris(variableIterator->first  );
         Eigen::Vector6d customDependentVariable = sunState.cwiseQuotient( moonState );
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( customDependentVariable, ( variableIterator->second.segment( 7, 6 ) ), 1.0E-14 );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( customDependentVariable, ( currentDependentVariables.segment( 7, 6 ) ), 1.0E-14 );
     }
 }
 
