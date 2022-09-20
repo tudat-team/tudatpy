@@ -261,7 +261,6 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
                             body_fixed_relative_cartesian_position,  "Apollo", "Earth" ) );
 
 
-
             // Create acceleration models and propagation settings.
             basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
                         bodies, accelerationMap, bodiesToPropagate, centralBodies );
@@ -291,6 +290,9 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
             dependentVariablesToAdd.push_back(
                         std::make_shared< SingleDependentVariableSaveSettings >(
                             rsw_to_inertial_frame_rotation_dependent_variable,  "Apollo", "Earth" ) );
+            dependentVariablesToAdd.push_back(
+                        std::make_shared< SingleDependentVariableSaveSettings >(
+                            gravity_field_potential_dependent_variable,  "Apollo", "Earth" ) );
 
             addDepedentVariableSettings< double >( dependentVariablesToAdd, propagatorSettings );
 
@@ -317,6 +319,9 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
                     bodies.at( "Earth" )->getRotationalEphemeris( );
             std::shared_ptr< aerodynamics::AtmosphereModel > earthAtmosphereModel =
                     bodies.at( "Earth" )->getAtmosphereModel( );
+            std::shared_ptr< gravitation::GravityFieldModel > earthGravityModel =
+                    bodies.at( "Earth" )->getGravityFieldModel( );
+
             std::shared_ptr< aerodynamics::AtmosphericFlightConditions > apolloFlightConditions =
                     std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
                         bodies.at( "Apollo" )->getFlightConditions( ) );
@@ -363,6 +368,8 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
                 Eigen::Vector3d bodyFixedSphericalPosition = variableIterator->second.segment( 57, 3 );
                 Eigen::Matrix3d rswToInertialRotationMatrix =
                         propagators::getMatrixFromVectorRotationRepresentation( variableIterator->second.segment( 60, 9 ) );
+
+                double gravitationalPotential = variableIterator->second( 69 );
 
                 currentStateDerivative = dynamicsSimulator.getDynamicsStateDerivative( )->computeStateDerivative(
                             variableIterator->first, rawNumericalSolution.at( variableIterator->first ) );
@@ -565,11 +572,18 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
                 TUDAT_CHECK_MATRIX_CLOSE_FRACTION( rswToInertialRotationMatrix, computedRswRotationMatrix,
                                                    ( 10.0 * std::numeric_limits< double >::epsilon( ) ) );
 
+                // Check gravitational potential
+                BOOST_CHECK_CLOSE_FRACTION(
+                            gravitationalPotential,
+                            earthGravityModel->getGravitationalPotential( computedBodyFixedPosition ),
+                            6.0 * std::numeric_limits< double >::epsilon( ) );
+
             }
         }
     }
 }
 
+/*
 //! Function to test whether separate spherical harmonic acceleration contributions are correctly saved.
 BOOST_AUTO_TEST_CASE( testSphericalHarmonicDependentVariableOutput )
 {
@@ -1260,7 +1274,7 @@ BOOST_AUTO_TEST_CASE( test_AccelerationPartialSaving )
         }
     }
 }
-
+*/
 BOOST_AUTO_TEST_SUITE_END( )
 
 }
