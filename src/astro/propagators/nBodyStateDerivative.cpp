@@ -56,7 +56,6 @@ std::vector< std::function< double( ) > > removeCentralGravityAccelerations(
             {
                 // Get type of current acceleration.
                 AvailableAcceleration currentAccelerationType = getAccelerationModelType( listOfAccelerations[ j ] );
-
                 // If central gravity, set as central acceleration candidate.
                 if( currentAccelerationType == point_mass_gravity )
                 {
@@ -83,13 +82,6 @@ std::vector< std::function< double( ) > > removeCentralGravityAccelerations(
                             "Error when removing central body point gravity term, removal of 3rd body accelerations (of " +
                             centralBodies.at( i ) +
                             " on " + bodiesToIntegrate.at( i ) + "), not yet supported";
-                    throw std::runtime_error( errorMessage );
-                }
-                else
-                {
-                    std::string errorMessage =
-                            "Error when removing central body point gravity term (of " + centralBodies.at( i ) + " on "
-                            + bodiesToIntegrate.at( i ) + "), the selected gravity acceleration type is not recognized.";
                     throw std::runtime_error( errorMessage );
                 }
             }
