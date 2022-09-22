@@ -58,6 +58,7 @@ YACMA_PYTHON_MODULE(kernel
         kernel/expose_astro/expose_frame_conversion.cpp
         kernel/expose_astro/expose_time_conversion.cpp
         kernel/expose_astro/expose_two_body_dynamics.cpp
+        kernel/expose_astro/expose_cr3bp.cpp
         kernel/expose_astro/expose_fundamentals.cpp
 
         # kernel/trajectory_design
@@ -85,6 +86,7 @@ YACMA_PYTHON_MODULE(kernel
         kernel/expose_math/expose_numerical_integrators.cpp
         kernel/expose_math/expose_root_finders.cpp
         kernel/expose_math/expose_geometry.cpp
+        kernel/expose_math/expose_integrator_setup.cpp
 
         kernel/expose_numerical_simulation.cpp
 
@@ -106,7 +108,6 @@ YACMA_PYTHON_MODULE(kernel
         kernel/expose_numerical_simulation/expose_propagation_setup.cpp
         kernel/expose_numerical_simulation/expose_propagation_setup/expose_acceleration_setup.cpp
         kernel/expose_numerical_simulation/expose_propagation_setup/expose_dependent_variable_setup.cpp
-        kernel/expose_numerical_simulation/expose_propagation_setup/expose_integrator_setup.cpp
         kernel/expose_numerical_simulation/expose_propagation_setup/expose_mass_rate_setup.cpp
         kernel/expose_numerical_simulation/expose_propagation_setup/expose_propagator_setup.cpp
         kernel/expose_numerical_simulation/expose_propagation_setup/expose_torque_setup.cpp

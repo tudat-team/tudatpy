@@ -16,7 +16,6 @@
 #include "expose_propagation_setup/expose_torque_setup.h"
 #include "expose_propagation_setup/expose_acceleration_setup.h"
 #include "expose_propagation_setup/expose_thrust_setup.h"
-#include "expose_propagation_setup/expose_integrator_setup.h"
 #include "expose_propagation_setup/expose_propagator_setup.h"
 #include "expose_propagation_setup/expose_mass_rate_setup.h"
 

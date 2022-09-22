@@ -10,6 +10,7 @@
 
 #include "expose_math/expose_interpolators.h"
 #include "expose_math/expose_numerical_integrators.h"
+#include "expose_math/expose_integrator_setup.h"
 #include "expose_math/expose_root_finders.h"
 #include "expose_math/expose_geometry.h"
 
@@ -37,6 +38,10 @@ void expose_math(py::module &m) {
 
   auto geometry = m.def_submodule("geometry");
   expose_geometry(geometry);
+
+  auto integrator_setup = m.def_submodule("integrator_setup");
+  integrator_setup::expose_integrator_setup(integrator_setup);
+
 
 }
 };

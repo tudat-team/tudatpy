@@ -32,9 +32,8 @@ namespace tmrf = tudat::root_finders;
 
 
 namespace tudatpy {
-namespace numerical_simulation {
-namespace propagation_setup {
-namespace integrator {
+namespace math {
+namespace integrator_setup {
 
     void expose_integrator_setup(py::module &m) {
 
@@ -261,7 +260,6 @@ namespace integrator {
                   get_docstring("adams_bashforth_moulton").c_str());
         }
 
-}// namespace integrator
-}// namespace propagation_setup
-}// namespace numerical_simulation
+}
+}
 }// namespace tudatpy

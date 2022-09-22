@@ -15,6 +15,7 @@
 #include "expose_astro/expose_frame_conversion.h"
 #include "expose_astro/expose_time_conversion.h"
 #include "expose_astro/expose_two_body_dynamics.h"
+#include "expose_astro/expose_cr3bp.h"
 #include "expose_astro/expose_fundamentals.h"
 
 #include <pybind11/pybind11.h>
@@ -38,6 +39,9 @@ void expose_astro(py::module &m) {
 
     auto two_body_dynamics = m.def_submodule("two_body_dynamics");
     two_body_dynamics::expose_two_body_dynamics(two_body_dynamics);
+
+    auto cr3bp = m.def_submodule("cr3bp");
+    cr3bp::expose_cr3bp(cr3bp);
 
     auto gravitation = m.def_submodule("gravitation");
     gravitation::expose_gravitation(gravitation);

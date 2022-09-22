@@ -36,15 +36,13 @@
 namespace py = pybind11;
 
 namespace tudatpy {
-namespace numerical_simulation {
-namespace propagation_setup {
-namespace integrator {
+namespace math {
+namespace integrator_setup {
 
     void expose_integrator_setup(py::module &m);
 
-}// namespace integrator
-}// namespace propagation_setup
-}// namespace numerical_simulation
+}// namespace integrator_setup
+}// namespace math
 }// namespace tudatpy
 
 #endif //TUDATBUNDLE_EXPOSE_INTEGRATOR_SETUP_H
