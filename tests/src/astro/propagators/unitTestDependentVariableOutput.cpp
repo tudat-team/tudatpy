@@ -349,10 +349,7 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
                  variableIterator != dependentVariableSolution.end( ); variableIterator++ )
             {
                 Eigen::VectorXd currentDependentVariables = variableIterator->second;
-//                if( variableIterator == dependentVariableSolution.begin( ) )
-//                {
-//                    std::cout<<"Analysis size "<<currentDependentVariables.rows( )<<std::endl;
-//                }
+
                 double machNumber = currentDependentVariables( 0 );
                 double altitude = currentDependentVariables( 1 );
                 double relativeDistance = currentDependentVariables( 2 );
