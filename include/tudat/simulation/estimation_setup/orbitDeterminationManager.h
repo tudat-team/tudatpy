@@ -129,7 +129,8 @@ public:
             const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
             const std::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > propagatorSettings,
             const bool propagateOnCreation = true ):
-        parametersToEstimate_( parametersToEstimate )
+        parametersToEstimate_( parametersToEstimate ),
+        bodies_( bodies )
     {
         initializeOrbitDeterminationManager( bodies, observationSettingsList, { integratorSettings }, propagatorSettings,
                                              propagateOnCreation );
@@ -143,11 +144,23 @@ public:
             const std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > integratorSettings,
             const std::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > propagatorSettings,
             const bool propagateOnCreation = true ):
-        parametersToEstimate_( parametersToEstimate )
+        parametersToEstimate_( parametersToEstimate ),
+        bodies_( bodies )
     {
         initializeOrbitDeterminationManager( bodies, observationSettingsList, integratorSettings, propagatorSettings,
                                              propagateOnCreation );
     }
+
+    std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > > getParametersToEstimate( )
+    {
+        return parametersToEstimate_;
+    }
+
+    SystemOfBodies getBodies( )
+    {
+        return bodies_;
+    }
+
 
     //! Function to retrieve map of all observation managers
     /*!
@@ -1014,6 +1027,8 @@ protected:
 
     //! Container object for all parameters that are to be estimated
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > > parametersToEstimate_;
+
+    SystemOfBodies bodies_;
 
     //! Current values of the vector of estimated parameters
     ParameterVectorType currentParameterEstimate_;
