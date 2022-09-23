@@ -38,6 +38,22 @@
 
 namespace py = pybind11;
 
+//Deprecated
+namespace tudat
+{
+
+namespace simulation_setup
+{
+enum ThrustFrames
+{
+    unspecified_thrust_frame = -1,
+    inertial_thrust_frame = 0,
+    tnw_thrust_frame = 1
+};
+
+}
+}
+
 namespace tudatpy {
 namespace numerical_simulation {
 namespace propagation_setup {

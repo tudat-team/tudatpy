@@ -9,7 +9,7 @@
  */
 
 #include "expose_acceleration_setup.h"
-#include "kernel/expose_numerical_simulation/deprecation_support.h"
+//#include "kernel/expose_numerical_simulation/deprecation_support.h"
 
 #include "tudatpy/docstrings.h"
 #include <tudat/simulation/propagation_setup.h>
