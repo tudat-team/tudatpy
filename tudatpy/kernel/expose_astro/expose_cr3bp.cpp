@@ -148,7 +148,7 @@ void expose_cr3bp(py::module &m)
           py::arg( "secondary_gravitational_parameter" ),
           py::arg( "primary_secondary_distance" ),
           py::arg( "normalized_corotating_state" ),
-          py::arg( "regular_time" ),
+          py::arg( "dimensionless_time" ),
           get_docstring("corotating_normalized_to_inertial_state").c_str() );
 
     m.def("inertial_to_corotating_normalized_state",
@@ -157,20 +157,20 @@ void expose_cr3bp(py::module &m)
           py::arg( "secondary_gravitational_parameter" ),
           py::arg( "primary_secondary_distance" ),
           py::arg( "inertial_state" ),
-          py::arg( "time" ),
+          py::arg( "regular_time" ),
           get_docstring("inertial_to_corotating_normalized_state").c_str() );
 
     m.def("compute_jacobi_energy",
           &tg::computeJacobiEnergy,
           py::arg( "mass_parameter" ),
-          py::arg( "state" ),
-          get_docstring("computeJacobiEnergy").c_str() );
+          py::arg( "normalized_corotating_state" ),
+          get_docstring("compute_jacobi_energy").c_str() );
 
     m.def("compute_mass_parameter",
           &tcr3bp::computeMassParameter,
           py::arg( "primary_gravitational_parameter" ),
           py::arg( "secondary_gravitational_parameter" ),
-          get_docstring("computeJacobiEnergy").c_str() );
+          get_docstring("compute_mass_parameter").c_str() );
 
     m.def("compute_libration_point_position",
           &tcr3bp::computeLibrationPointPosition,
