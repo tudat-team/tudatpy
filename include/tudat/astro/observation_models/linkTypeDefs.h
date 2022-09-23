@@ -126,6 +126,14 @@ struct LinkDefinition
     LinkDefinition( const std::map< LinkEndType, LinkEndId >& linkEnds ):
         linkEnds_( linkEnds ){ }
 
+    LinkDefinition( const std::map< LinkEndType, std::pair< std::string, std::string > >& linkEnds )
+    {
+        for( auto it : linkEnds )
+        {
+            linkEnds_[ it.first ] = LinkEndId( it.second );
+        }
+    }
+
     LinkEndId at( const LinkEndType linkEndType ) const
     {
         if( linkEnds_.count( linkEndType ) == 0 )
