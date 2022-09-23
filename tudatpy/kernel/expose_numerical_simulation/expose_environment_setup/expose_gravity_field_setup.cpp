@@ -190,7 +190,7 @@ void expose_gravity_field_setup(py::module &m) {
           );
 
     m.def("from_file_spherical_harmonic",
-          tss::fromFileSphericalHarmonicsGravityFieldSettings,
+          tss::predefinedSphericalHarmonic,
           py::arg("predefined_model"),
           py::arg("maximum_degree") = -1,
           get_docstring("from_file_spherical_harmonic").c_str()
