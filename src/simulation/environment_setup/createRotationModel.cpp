@@ -15,14 +15,13 @@
 #include "tudat/interface/spice/spiceRotationalEphemeris.h"
 #include "tudat/simulation/environment_setup/createFlightConditions.h"
 #include "tudat/simulation/environment_setup/createRotationModel.h"
-
 #include "tudat/astro/ephemerides/directionBasedRotationalEphemeris.h"
-#if TUDAT_BUILD_WITH_SOFA_INTERFACE
+//#if TUDAT_BUILD_WITH_SOFA_INTERFACE
 #include "tudat/astro/ephemerides/itrsToGcrsRotationModel.h"
 #include "tudat/astro/earth_orientation/earthOrientationCalculator.h"
 #include "tudat/astro/earth_orientation/shortPeriodEarthOrientationCorrectionCalculator.h"
 #include "tudat/math/interpolators/jumpDataLinearInterpolator.h"
-#endif
+//#endif
 
 #include "tudat/astro/ephemerides/synchronousRotationalEphemeris.h"
 #include "tudat/astro/ephemerides/customRotationalEphemeris.h"
@@ -45,6 +44,7 @@ std::function< Eigen::Matrix3d( const double ) > getRotationFunctionFromSatellit
     case ephemerides::inertial_satellite_based_frame:
     {
         rotationToInertialFrameFunction = [](const double){return Eigen::Matrix3d::Identity( ); };
+        break;
     }
     case ephemerides::tnw_satellite_based_frame:
     {
@@ -443,7 +443,7 @@ std::shared_ptr< ephemerides::RotationalEphemeris > createRotationModel(
         }
         break;
     }
-#if TUDAT_BUILD_WITH_SOFA_INTERFACE
+//#if TUDAT_BUILD_WITH_SOFA_INTERFACE
     case gcrs_to_itrs_rotation_model:
     {
 
@@ -521,7 +521,7 @@ std::shared_ptr< ephemerides::RotationalEphemeris > createRotationModel(
         }
 
     }
-#endif
+//#endif
 
     case spice_rotation_model:
     {

@@ -130,6 +130,9 @@ void HodographicShapingLeg::satisfyBoundaryConditions( )
     Eigen::Vector6d initialCylindricalState = coordinate_conversions::convertCartesianToCylindricalState( initialCartesianState );
     Eigen::Vector6d finalCylindricalState = coordinate_conversions::convertCartesianToCylindricalState( finalCartesianState );
 
+    // Set initial polar angle
+    initialPolarAngle_ = initialCylindricalState[ 1 ];
+
     // Set boundary conditions in the radial direction.
     radialBoundaryConditions_.clear( );
     radialBoundaryConditions_.push_back( initialCylindricalState[ 0 ] );
@@ -487,7 +490,7 @@ double HodographicShapingLeg::computeCurrentPolarAngle( const double timeSinceDe
     std::shared_ptr< numerical_quadrature::NumericalQuadrature< double, double > > quadrature =
             numerical_quadrature::createQuadrature( derivativeFunctionPolarAngle, quadratureSettings_, timeSinceDeparture );
 
-    double currentPolarAngle = quadrature->getQuadrature( ) + radialBoundaryConditions_[ 1 ];
+    double currentPolarAngle = quadrature->getQuadrature( ) + initialPolarAngle_;
 
     return currentPolarAngle;
 

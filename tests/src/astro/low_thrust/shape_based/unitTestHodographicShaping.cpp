@@ -22,6 +22,8 @@
 #include <cmath>
 #include <iostream>
 
+#include <tudat/basics/testMacros.h>
+
 #include "tudat/astro/low_thrust/shape_based/hodographicShapingLeg.h"
 #include "tudat/astro/low_thrust/shape_based/baseFunctionsHodographicShaping.h"
 #include "tudat/astro/low_thrust/shape_based/createBaseFunctionHodographicShaping.h"
@@ -156,6 +158,18 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer_1 )
     // Peak acceleration provided with a precision 1.0e-6 m/s^2
     BOOST_CHECK_SMALL( std::fabs(  peakThrustAcceleration - expectedPeakAcceleration ), 1e-6 );
 
+    // Retrieve state history
+    std::map< double, Eigen::Vector6d > statesAlongTrajectory;
+    hodographicShapingLeg.getStatesAlongTrajectory(statesAlongTrajectory, 10 );
+
+    // Check initial and final time on output list
+    BOOST_CHECK_CLOSE_FRACTION( statesAlongTrajectory.begin( )->first, julianDate, 1.0E-14 );
+    BOOST_CHECK_CLOSE_FRACTION( statesAlongTrajectory.rbegin( )->first,
+                                julianDate + timeOfFlight * physical_constants::JULIAN_DAY, 1.0E-14 );
+
+    // Check initial and final state on output list
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( cartesianStateDepartureBody, statesAlongTrajectory.begin( )->second, 1.0E-5 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( cartesianStateArrivalBody, statesAlongTrajectory.rbegin( )->second, 1.0E-5 );
 }
 
 BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer_2 )
@@ -269,6 +283,19 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer_2 )
     BOOST_CHECK_SMALL( std::fabs(  hodographicShapingLeg.getLegDeltaV( ) - expectedDeltaV ), 1.0 );
     // Peak acceleration provided with a precision 1.0e-6 m/s^2
     BOOST_CHECK_SMALL( std::fabs(  peakThrustAcceleration - expectedPeakAcceleration ), 1e-6 );
+
+    // Retrieve state history
+    std::map< double, Eigen::Vector6d > statesAlongTrajectory;
+    hodographicShapingLeg.getStatesAlongTrajectory(statesAlongTrajectory, 10 );
+
+    // Check initial and final time on output list
+    BOOST_CHECK_CLOSE_FRACTION( statesAlongTrajectory.begin( )->first, julianDate, 1.0E-14 );
+    BOOST_CHECK_CLOSE_FRACTION( statesAlongTrajectory.rbegin( )->first,
+                                julianDate + timeOfFlight * physical_constants::JULIAN_DAY, 1.0E-14 );
+
+    // Check initial and final state on output list
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( cartesianStateDepartureBody, statesAlongTrajectory.begin( )->second, 1.0E-5 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( cartesianStateArrivalBody, statesAlongTrajectory.rbegin( )->second, 1.0E-5 );
 }
 
 BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer_3 )
@@ -381,6 +408,19 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer_3 )
     BOOST_CHECK_SMALL( std::fabs(  hodographicShapingLeg.getLegDeltaV( ) - expectedDeltaV ), 1.0 );
     // Peak acceleration provided with a precision 1.0e-6 m/s^2
     BOOST_CHECK_SMALL( std::fabs(  peakThrustAcceleration - expectedPeakAcceleration ), 1e-6 );
+
+    // Retrieve state history
+    std::map< double, Eigen::Vector6d > statesAlongTrajectory;
+    hodographicShapingLeg.getStatesAlongTrajectory(statesAlongTrajectory, 10 );
+
+    // Check initial and final time on output list
+    BOOST_CHECK_CLOSE_FRACTION( statesAlongTrajectory.begin( )->first, julianDate, 1.0E-14 );
+    BOOST_CHECK_CLOSE_FRACTION( statesAlongTrajectory.rbegin( )->first,
+                                julianDate + timeOfFlight * physical_constants::JULIAN_DAY, 1.0E-14 );
+
+    // Check initial and final state on output list
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( cartesianStateDepartureBody, statesAlongTrajectory.begin( )->second, 1.0E-5 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( cartesianStateArrivalBody, statesAlongTrajectory.rbegin( )->second, 1.0E-5 );
 }
 
 BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer_4 )
@@ -493,6 +533,19 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer_4 )
     BOOST_CHECK_SMALL( std::fabs(  hodographicShapingLeg.getLegDeltaV( ) - expectedDeltaV ), 1.0 );
     // Peak acceleration provided with a precision 1.0e-6 m/s^2
     BOOST_CHECK_SMALL( std::fabs(  peakThrustAcceleration - expectedPeakAcceleration ), 1e-6 );
+
+    // Retrieve state history
+    std::map< double, Eigen::Vector6d > statesAlongTrajectory;
+    hodographicShapingLeg.getStatesAlongTrajectory(statesAlongTrajectory, 10 );
+
+    // Check initial and final time on output list
+    BOOST_CHECK_CLOSE_FRACTION( statesAlongTrajectory.begin( )->first, julianDate, 1.0E-14 );
+    BOOST_CHECK_CLOSE_FRACTION( statesAlongTrajectory.rbegin( )->first,
+                                julianDate + timeOfFlight * physical_constants::JULIAN_DAY, 1.0E-14 );
+
+    // Check initial and final state on output list
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( cartesianStateDepartureBody, statesAlongTrajectory.begin( )->second, 1.0E-5 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( cartesianStateArrivalBody, statesAlongTrajectory.rbegin( )->second, 1.0E-5 );
 }
 
 BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer_5 )
@@ -605,6 +658,18 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer_5 )
     // Peak acceleration provided with a precision 1.0e-6 m/s^2
     BOOST_CHECK_SMALL( std::fabs(  peakThrustAcceleration - expectedPeakAcceleration ), 1e-6 );
 
+    // Retrieve state history
+    std::map< double, Eigen::Vector6d > statesAlongTrajectory;
+    hodographicShapingLeg.getStatesAlongTrajectory(statesAlongTrajectory, 10 );
+
+    // Check initial and final time on output list
+    BOOST_CHECK_CLOSE_FRACTION( statesAlongTrajectory.begin( )->first, julianDate, 1.0E-14 );
+    BOOST_CHECK_CLOSE_FRACTION( statesAlongTrajectory.rbegin( )->first,
+                                julianDate + timeOfFlight * physical_constants::JULIAN_DAY, 1.0E-14 );
+
+    // Check initial and final state on output list
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( cartesianStateDepartureBody, statesAlongTrajectory.begin( )->second, 1.0E-5 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( cartesianStateArrivalBody, statesAlongTrajectory.rbegin( )->second, 1.0E-5 );
 }
 
 
@@ -722,6 +787,19 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mercury_transfer )
     BOOST_CHECK_SMALL( std::fabs(  hodographicShapingLeg.getLegDeltaV( ) - expectedDeltaV ), 1.0 );
     // Peak acceleration provided with a precision 1.0e-6 m/s^2
     BOOST_CHECK_SMALL( std::fabs(  peakThrustAcceleration - expectedPeakAcceleration ), 1e-6 );
+
+    // Retrieve state history
+    std::map< double, Eigen::Vector6d > statesAlongTrajectory;
+    hodographicShapingLeg.getStatesAlongTrajectory(statesAlongTrajectory, 10 );
+
+    // Check initial and final time on output list
+    BOOST_CHECK_CLOSE_FRACTION( statesAlongTrajectory.begin( )->first, julianDate, 1.0E-14 );
+    BOOST_CHECK_CLOSE_FRACTION( statesAlongTrajectory.rbegin( )->first,
+                                julianDate + timeOfFlight * physical_constants::JULIAN_DAY, 1.0E-14 );
+
+    // Check initial and final state on output list
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( cartesianStateDepartureBody, statesAlongTrajectory.begin( )->second, 1.0E-5 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( cartesianStateArrivalBody, statesAlongTrajectory.rbegin( )->second, 1.0E-5 );
 }
 
 //! Test Earth-Mars transfer with shaping functions with free coefficients. Compare with the DeltaV calculated using the
@@ -847,6 +925,19 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_with_free_parameters )
     // Compare computed deltaV with deltaV predicted by original version of Gondelach's code.
     double expectedDeltaV = 172313.0;
     BOOST_CHECK_SMALL(std::fabs(hodographicShapingLeg.getLegDeltaV( ) - expectedDeltaV), 1.0);
+
+    // Retrieve state history
+    std::map< double, Eigen::Vector6d > statesAlongTrajectory;
+    hodographicShapingLeg.getStatesAlongTrajectory(statesAlongTrajectory, 10 );
+
+    // Check initial and final time on output list
+    BOOST_CHECK_CLOSE_FRACTION( statesAlongTrajectory.begin( )->first, julianDate, 1.0E-14 );
+    BOOST_CHECK_CLOSE_FRACTION( statesAlongTrajectory.rbegin( )->first,
+                                julianDate + timeOfFlight * physical_constants::JULIAN_DAY, 1.0E-14 );
+
+    // Check initial and final state on output list
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( cartesianStateDepartureBody, statesAlongTrajectory.begin( )->second, 1.0E-5 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( cartesianStateArrivalBody, statesAlongTrajectory.rbegin( )->second, 1.0E-5 );
 }
 
 //    /// Second Earth-Mercury transfer.

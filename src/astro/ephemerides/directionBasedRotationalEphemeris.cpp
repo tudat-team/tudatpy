@@ -31,6 +31,7 @@ Eigen::Quaterniond DirectionBasedRotationalEphemeris::getRotationToBaseFrame(
         const double currentTime )
 {
     Eigen::Vector3d eulerAngles = getEulerAngles( currentTime );
+
     return Eigen::Quaterniond(
                   Eigen::AngleAxisd( eulerAngles( 0 ), Eigen::Vector3d::UnitZ( ) )  *
                   Eigen::AngleAxisd( eulerAngles( 1 ), Eigen::Vector3d::UnitY( ) )  *
@@ -71,6 +72,21 @@ void DirectionBasedRotationalEphemeris::resetCurrentTime(  )
 
     directionCalculator_->resetCurrentTime( );
 }
+
+Eigen::Vector3d DirectionBasedRotationalEphemeris::getEulerAngles( const double currentTime )
+{
+    if( currentTime_ != currentTime )
+    {
+        update( currentTime );
+        calculateEulerAngles( );
+    }
+    else if( currentEulerAnglesTime_ != currentTime )
+    {
+        calculateEulerAngles( );
+    }
+    return eulerAngles_;
+}
+
 
 void DirectionBasedRotationalEphemeris::calculateEulerAngles( )
 {

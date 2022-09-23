@@ -12,7 +12,7 @@
 #ifndef TUDAT_GCRSTOITRSROTATIONMODEL_H
 #define TUDAT_GCRSTOITRSROTATIONMODEL_H
 
-#if TUDAT_BUILD_WITH_SOFA_INTERFACE
+//#if TUDAT_BUILD_WITH_SOFA_INTERFACE
 
 #include <boost/bind/bind.hpp>
 
@@ -216,6 +216,6 @@ private:
 
 }
 
-#endif
+//#endif
 
 #endif // TUDAT_GCRSTOITRSROTATIONMODEL_H

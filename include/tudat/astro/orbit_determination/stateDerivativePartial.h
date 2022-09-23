@@ -97,7 +97,7 @@ public:
             const std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
     {
         // Initialize partial
-        Eigen::MatrixXd partial = Eigen::MatrixXd( accelerationSize_, 1 );
+        Eigen::MatrixXd partial = Eigen::MatrixXd::Zero( accelerationSize_, 1 );
 
         // Get partial computation function.
         std::pair< std::function< void( Eigen::MatrixXd& ) >, int > partialFunction =
@@ -142,7 +142,7 @@ public:
             std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
     {
         // Initialize partial
-        Eigen::MatrixXd partial = Eigen::MatrixXd( accelerationSize_, parameter->getParameterSize( ) );
+        Eigen::MatrixXd partial = Eigen::MatrixXd::Zero( accelerationSize_, parameter->getParameterSize( ) );
 
         // Get partial computation function.
         std::pair< std::function< void( Eigen::MatrixXd& ) >, int > partialFunction =
