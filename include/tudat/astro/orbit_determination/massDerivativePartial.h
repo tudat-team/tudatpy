@@ -163,6 +163,14 @@ public:
     std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunction(
             std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter );
 
+    std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunction(
+            std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
+    {
+        std::function< void( Eigen::MatrixXd& ) > partialFunction;
+        return std::make_pair( partialFunction, 0 );
+    }
+
+
     virtual void update( const double currentTime )
     {
         for( unsigned int i = 0; i < thrustAccelerations_.size( ); i++ )

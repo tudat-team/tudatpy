@@ -125,9 +125,14 @@ public:
         centralBodyName_( centralBodyName ),
         calculateVerticalToAerodynamicFrame_( calculateVerticalToAerodynamicFrame ),
         currentBodyAngleTime_( TUDAT_NAN ),
+        currentTime_( TUDAT_NAN ),
         aerodynamicAngleClosureIsIncomplete_( false )
     {
         currentAerodynamicAngles_.resize( 7 );
+        for( unsigned int i = 0; i < 7; i++ )
+        {
+            currentAerodynamicAngles_[ i ] = TUDAT_NAN;
+        }
     }
 
     //! Function to set the atmospheric wind model

@@ -71,6 +71,11 @@ Eigen::Vector3d DirectThrustDirectionCalculator::getInertialThrustDirection(
     }
 }
 
+Eigen::Vector3d OrientationBasedThrustDirectionCalculator::getInertialThrustDirection(
+        const std::shared_ptr< system_models::EngineModel > engineModel )
+{
+    return ( currentRotation_ * engineModel->getBodyFixedThrustDirection( ) ).normalized( );
+}
 
 } // namespace propulsion
 

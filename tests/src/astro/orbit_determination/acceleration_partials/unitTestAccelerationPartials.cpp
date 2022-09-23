@@ -1377,7 +1377,7 @@ BOOST_AUTO_TEST_CASE( testThrustPartials )
         thrustDirection << -1.4, 2.4, 5.6;
 
         std::function< Eigen::Vector3d( const double ) > thrustDirectionFunction =
-                [=](const double){ return thrustDirection; };
+                [=](const double){ return thrustDirection.normalized( ); };
         bodies.at( "Vehicle" )->setRotationalEphemeris(
                     createRotationModel(
                         std::make_shared< BodyFixedDirectionBasedRotationSettings >(
@@ -1464,9 +1464,23 @@ BOOST_AUTO_TEST_CASE( testThrustPartials )
         testPartialWrtEngine2Thrust = calculateAccelerationWrtParameterPartials(
                     constantThrustParameter2, thrustAcceleration, 1.0 );
 
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtMass, testPartialWrtMass, 1.0E-10 );
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtEngine1Thrust, partialWrtEngine1Thrust, 1.0E-10 );
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtEngine2Thrust, partialWrtEngine2Thrust, 1.0E-10 );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtMass, testPartialWrtMass, 1.0E-9 );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtEngine1Thrust, partialWrtEngine1Thrust, 1.0E-9 );
+
+        BOOST_CHECK_SMALL( std::fabs( partialWrtEngine2Thrust( 2 ) ), ( 1.0E-14 * partialWrtEngine2Thrust.norm( ) ) );
+        testPartialWrtEngine2Thrust( 2 ) = 0.0;
+        partialWrtEngine2Thrust( 2 ) = 0.0;
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtEngine2Thrust, partialWrtEngine2Thrust, 1.0E-9 );
+
+        std::cout<<"Partial w.r.t. mass (analytical): "<<partialWrtMass.transpose( )<<std::endl;
+        std::cout<<"Partial w.r.t. mass (numerical): "<<testPartialWrtMass.transpose( )<<std::endl<<std::endl;
+
+        std::cout<<"Partial w.r.t. engine 1 thrust (analytical): "<<partialWrtEngine1Thrust.transpose( )<<std::endl;
+        std::cout<<"Partial w.r.t. engine 1 thrust (numerical): "<<testPartialWrtEngine1Thrust.transpose( )<<std::endl<<std::endl;
+
+        std::cout<<"Partial w.r.t. engine 2 thrust (analytical): "<<partialWrtEngine2Thrust.transpose( )<<std::endl;
+        std::cout<<"Partial w.r.t. engine 2 thrust (numerical): "<<testPartialWrtEngine2Thrust.transpose( )<<std::endl<<std::endl;
+        std::cout<<std::endl<<std::endl;
 
         if( i == 0 )
         {
@@ -1475,11 +1489,11 @@ BOOST_AUTO_TEST_CASE( testThrustPartials )
                 BOOST_CHECK_EQUAL( partialWrtEngine2Thrust( j ), 0.0 );
             }
         }
-        std::cout<<testPartialWrtEngine1Thrust<<std::endl<<std::endl;
-        std::cout<<partialWrtEngine1Thrust<<std::endl<<std::endl<<std::endl;
+//        std::cout<<testPartialWrtEngine1Thrust<<std::endl<<std::endl;
+//        std::cout<<partialWrtEngine1Thrust<<std::endl<<std::endl<<std::endl;
 
-        std::cout<<testPartialWrtEngine2Thrust<<std::endl<<std::endl;
-        std::cout<<partialWrtEngine2Thrust<<std::endl<<std::endl<<std::endl;
+//        std::cout<<testPartialWrtEngine2Thrust<<std::endl<<std::endl;
+//        std::cout<<partialWrtEngine2Thrust<<std::endl<<std::endl<<std::endl;
 
     }
 }

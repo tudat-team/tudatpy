@@ -196,6 +196,9 @@ private:
     std::vector< double > normalBoundaryConditions_;
     std::vector< double > axialBoundaryConditions_;
 
+    //! Initial polar angle
+    double initialPolarAngle_;
+
     /*! Inverse of matrix containing the boundary values of the terms in the radial velocity
      *  function which are used to satisfy the radial boundary conditions.
      */
