@@ -27,6 +27,7 @@
 #include "tudat/astro/propagators/singleStateTypeDerivative.h"
 #include "tudat/astro/propagators/nBodyStateDerivative.h"
 #include "tudat/astro/propagators/rotationalMotionStateDerivative.h"
+#include "tudat/math/integrators/createNumericalIntegrator.h"
 #include "tudat/simulation/propagation_setup/propagationOutputSettings.h"
 #include "tudat/simulation/propagation_setup/propagationTerminationSettings.h"
 #include "tudat/simulation/propagation_setup/createAccelerationModels.h"
@@ -136,13 +137,26 @@ protected:
     bool isMultiArc_;
 };
 
+class PropagatorOutputSettings
+{
+public:
+    PropagatorOutputSettings( ){ }
+
+
+    bool clearNumericalSolutions = false;
+    bool setIntegratedResult = false;
+    bool printNumberOfFunctionEvaluations = false;
+    bool printDependentVariableData = true;
+    bool printStateData = false;
+    const double printInterval = TUDAT_NAN;
+};
 
 //! Base class for defining setting of a propagator for single-arc dynamics
 /*!
  *  Base class for defining setting of a propagator for single-arc dynamics. This class is non-functional, and each state type
  *  requires its own derived class (which may have multiple derived classes of its own).
  */
-template< typename StateScalarType = double >
+template< typename StateScalarType = double, typename TimeType = double >
 class SingleArcPropagatorSettings: public PropagatorSettings< StateScalarType >
 {
 public:
@@ -240,7 +254,21 @@ public:
         terminationSettings_ = terminationSettings;
     }
 
+    std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > getIntegratorSettings( )
+    {
+        return integratorSettings_;
+    }
+
+    std::shared_ptr< PropagatorOutputSettings > getOutputSettings( )
+    {
+        return outputSettings_;
+    }
+
 protected:
+
+    std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings_;
+
+    std::shared_ptr< PropagatorOutputSettings > outputSettings_;
 
     //!Type of state being propagated
     IntegratedStateType stateType_;
