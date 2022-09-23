@@ -115,6 +115,10 @@ void propagateCovariance(
 //        const reference_frames::SatelliteReferenceFrames inputFrame,
 //        const reference_frames::SatelliteReferenceFrames outputFrame );
 
+void convertCovarianceHistoryToFormalErrorHistory(
+        std::map< double, Eigen::VectorXd >& propagatedFormalErrors,
+        std::map< double, Eigen::MatrixXd >& propagatedCovariance );
+
 //! Function to propagate full covariance at the initial time to state formal errors at later times
 /*!
  * Function to propagate full covariance at the initial time to state formal errors at later times
