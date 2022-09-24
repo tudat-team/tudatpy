@@ -180,7 +180,7 @@ namespace gravity_field {
               py::arg("vertices_defining_each_facet"),
               py::arg("associated_reference_frame"),
               py::arg("density") = TUDAT_NAN,
-              get_docstring("spherical_harmonic").c_str()
+              get_docstring("polyhedron_from_gravitational_parameter").c_str()
               );
 
         m.def("polyhedron_from_gravitational_constant_and_density",
@@ -195,7 +195,7 @@ namespace gravity_field {
               py::arg("vertices_coordinates"),
               py::arg("vertices_defining_each_facet"),
               py::arg("associated_reference_frame"),
-              get_docstring("spherical_harmonic").c_str()
+              get_docstring("polyhedron_from_gravitational_constant_and_density").c_str()
               );
 
 
