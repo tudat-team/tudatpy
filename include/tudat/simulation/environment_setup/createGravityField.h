@@ -703,10 +703,12 @@ inline std::shared_ptr< GravityFieldSettings > polyhedronGravitySettings(
         const double gravitationalParameter,
         const Eigen::MatrixXd verticesCoordinates,
         const Eigen::MatrixXi verticesDefiningEachFacet,
-        const std::string& associatedReferenceFrame )
+        const std::string& associatedReferenceFrame,
+        const double density = TUDAT_NAN )
 {
     return std::make_shared< PolyhedronGravityFieldSettings >(
-            gravitationalParameter, verticesCoordinates, verticesDefiningEachFacet, associatedReferenceFrame);
+            gravitationalParameter, verticesCoordinates, verticesDefiningEachFacet, associatedReferenceFrame,
+            density );
 }
 
 } // namespace simulation_setup
