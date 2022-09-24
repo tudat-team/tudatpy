@@ -43,7 +43,7 @@ void expose_polyhedron_utilities(py::module &m) {
           get_docstring("volume").c_str());
 
     m.def("centroid",
-          &tba::computePolyhedronVolume,
+          &tba::computePolyhedronCentroidPosition,
           py::arg("vertices_coordinates"),
           py::arg("vertices_defining_each_facet"),
           get_docstring("centroid").c_str());
