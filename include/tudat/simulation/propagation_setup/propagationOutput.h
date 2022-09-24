@@ -1803,9 +1803,6 @@ std::function< double( ) > getDoubleDependentVariableFunction(
                     getGravitationalAccelerationForDependentVariables( dependentVariableSettings, stateDerivativeModels,
                                                                        selectedAccelerationModelType );
 
-            std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > >
-                    listOfSuitableAccelerationModels;
-
             // Position functions
             std::function< Eigen::Vector3d( ) > positionFunctionOfRelativeBody =
                     std::bind( &simulation_setup::Body::getPosition, bodies.at( bodyWithProperty ) );
@@ -1866,14 +1863,26 @@ std::function< double( ) > getDoubleDependentVariableFunction(
             }
             else if ( selectedAccelerationModelType == basic_astrodynamics::third_body_point_mass_gravity )
             {
+                std::cerr << "Hello" << std::endl;
+
                 std::shared_ptr< gravitation::ThirdBodyCentralGravityAcceleration >
                         thirdBodyPointMassAccelerationModel =  std::dynamic_pointer_cast<
                                 gravitation::ThirdBodyCentralGravityAcceleration >( selectedAccelerationModel );
+
+                if ( thirdBodyPointMassAccelerationModel == nullptr )
+                {
+                    std::cerr << "Ups1!" << std::endl;
+                }
 
                 std::shared_ptr< gravitation::CentralGravitationalAccelerationModel3d >
                         pointMassAccelerationModel =  std::dynamic_pointer_cast<
                                 gravitation::CentralGravitationalAccelerationModel3d >(
                                         thirdBodyPointMassAccelerationModel->getAccelerationModelForBodyUndergoingAcceleration( ) );
+
+                if ( pointMassAccelerationModel == nullptr )
+                {
+                    std::cerr << "Ups2!" << std::endl;
+                }
 
                 pointMassAccelerationModel->resetUpdatePotential( true );
                 variableFunction = [=]( ){ return pointMassAccelerationModel->getCurrentPotential( ); };
@@ -1918,9 +1927,6 @@ std::function< double( ) > getDoubleDependentVariableFunction(
             std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > selectedAccelerationModel =
                     getGravitationalAccelerationForDependentVariables( dependentVariableSettings, stateDerivativeModels,
                                                                        selectedAccelerationModelType );
-
-            std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > >
-                    listOfSuitableAccelerationModels;
 
             // Position functions
             std::function< Eigen::Vector3d ( ) > positionFunctionOfRelativeBody =
