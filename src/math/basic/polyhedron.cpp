@@ -217,7 +217,7 @@ Eigen::Matrix3d calculatePolyhedronHessianOfGravitationalPotential(
         {
             // When computing the per edge factor, it is taken to be 0 at edges singularities (see function
             // calculatePolyhedronPerEdgeFactor, and reference within). This is not valid when computing the hessian matrix!
-            throw std::runtime_error( "Computation of hessian matrix of singular for points at edges." );
+            throw std::runtime_error( "Computation of hessian matrix has a singularity for points at edges." );
         }
         perEdgeSum += edgeDyads.at(edge) * perEdgeFactor(edge);
     }
