@@ -74,6 +74,13 @@ public:
         initialTimeStep_( initialTimeStep ), saveFrequency_( saveFrequency ),
         assessTerminationOnMinorSteps_( assessTerminationOnMinorSteps )
     { }
+
+//    IntegratorSettings( const IntegratorSettings< IndependentVariableType >& p1)
+//    {
+//        x = p1.x;
+//        y = p1.y;
+//    }
+
     
     // Virtual destructor.
     /*
