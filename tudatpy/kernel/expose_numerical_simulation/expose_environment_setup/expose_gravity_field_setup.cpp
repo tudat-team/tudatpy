@@ -114,34 +114,22 @@ namespace gravity_field {
                 &tss::PolyhedronGravityFieldSettings::getGravitationalParameter,
                 &tss::PolyhedronGravityFieldSettings::resetGravitationalParameter,
                 get_docstring("PolyhedronGravityFieldSettings.gravitational_parameter").c_str())
-            .def_property_readonly ("volume",
-                &tss::PolyhedronGravityFieldSettings::getVolume,
-                get_docstring("PolyhedronGravityFieldSettings.volume").c_str())
-            .def_property_readonly("center_of_mass",
-                &tss::PolyhedronGravityFieldSettings::getCenterOfMassPosition,
-                get_docstring("PolyhedronGravityFieldSettings.center_of_mass").c_str())
+            .def_property ("density",
+                &tss::PolyhedronGravityFieldSettings::getDensity,
+                &tss::PolyhedronGravityFieldSettings::resetDensity,
+                get_docstring("PolyhedronGravityFieldSettings.density").c_str())
             .def_property("associated_reference_frame",
                 &tss::PolyhedronGravityFieldSettings::getAssociatedReferenceFrame,
                 &tss::PolyhedronGravityFieldSettings::resetAssociatedReferenceFrame,
                 get_docstring("PolyhedronGravityFieldSettings.associated_reference_frame").c_str())
-            .def_property_readonly ("vertices_coordinates",
+            .def_property ("vertices_coordinates",
                 &tss::PolyhedronGravityFieldSettings::getVerticesCoordinates,
+                &tss::PolyhedronGravityFieldSettings::resetVerticesCoordinates,
                 get_docstring("PolyhedronGravityFieldSettings.vertices_coordinates").c_str())
-            .def_property_readonly ("vertices_defining_each_facet",
+            .def_property ("vertices_defining_each_facet",
                 &tss::PolyhedronGravityFieldSettings::getVerticesDefiningEachFacet,
-                get_docstring("PolyhedronGravityFieldSettings.vertices_defining_each_facet").c_str())
-            .def_property_readonly ("vertices_defining_each_edge",
-                &tss::PolyhedronGravityFieldSettings::getVerticesDefiningEachEdge,
-                get_docstring("PolyhedronGravityFieldSettings.vertices_defining_each_edge").c_str())
-            .def_property_readonly ("facet_normal_vectors",
-                &tss::PolyhedronGravityFieldSettings::getFacetNormalVectors,
-                get_docstring("PolyhedronGravityFieldSettings.facet_normal_vectors").c_str())
-            .def_property_readonly ("facet_dyads",
-                &tss::PolyhedronGravityFieldSettings::getFacetDyads,
-                get_docstring("PolyhedronGravityFieldSettings.facet_dyads").c_str())
-            .def_property_readonly ("edge_dyads",
-                &tss::PolyhedronGravityFieldSettings::getEdgeDyads,
-                get_docstring("PolyhedronGravityFieldSettings.edge_dyads").c_str());
+                &tss::PolyhedronGravityFieldSettings::resetVerticesDefiningEachFacet,
+                get_docstring("PolyhedronGravityFieldSettings.vertices_defining_each_facet").c_str());
 
 
         m.def("central",
