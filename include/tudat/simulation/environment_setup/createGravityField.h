@@ -370,7 +370,7 @@ public:
     { return verticesCoordinates_; }
 
     //! Function to reset the vertices coordinates.
-    void getVerticesCoordinates( const Eigen::MatrixXd& verticesCoordinates )
+    void resetVerticesCoordinates( const Eigen::MatrixXd& verticesCoordinates )
     { verticesCoordinates_ = verticesCoordinates; }
 
     //! Function to return the vertices defining each facet.
