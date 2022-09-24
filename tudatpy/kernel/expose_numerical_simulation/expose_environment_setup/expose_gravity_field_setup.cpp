@@ -169,17 +169,32 @@ namespace gravity_field {
               get_docstring("spherical_harmonic").c_str()
               );
 
-        m.def("polyhedron",
+        m.def("polyhedron_from_gravitational_parameter",
               py::overload_cast< const double,
               const Eigen::MatrixXd,
               const Eigen::MatrixXi,
               const std::string&,
-              const Eigen::Vector3d& >( &tss::polyhedronGravitySettings ),
+              const double >( &tss::polyhedronGravitySettings ),
               py::arg("gravitational_parameter"),
               py::arg("vertices_coordinates"),
               py::arg("vertices_defining_each_facet"),
               py::arg("associated_reference_frame"),
-              py::arg("desired_center_of_mass_position") = (Eigen::Vector3d() << TUDAT_NAN, TUDAT_NAN, TUDAT_NAN).finished(),
+              py::arg("density") = TUDAT_NAN,
+              get_docstring("spherical_harmonic").c_str()
+              );
+
+        m.def("polyhedron_from_gravitational_constant_and_density",
+              py::overload_cast<
+              const double,
+              const double,
+              const Eigen::MatrixXd,
+              const Eigen::MatrixXi,
+              const std::string& >( &tss::polyhedronGravitySettings ),
+              py::arg("gravitational_constant"),
+              py::arg("density"),
+              py::arg("vertices_coordinates"),
+              py::arg("vertices_defining_each_facet"),
+              py::arg("associated_reference_frame"),
               get_docstring("spherical_harmonic").c_str()
               );
 
