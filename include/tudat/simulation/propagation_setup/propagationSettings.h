@@ -188,10 +188,8 @@ public:
                                  const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialBodyStates,
                                  const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
                                  const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
-                                 const std::shared_ptr< PropagatorOutputSettings > outputSettings =
-            std::make_shared< PropagatorOutputSettings >( ),
-                                 const std::shared_ptr< DependentVariableSaveSettings > dependentVariablesToSave =
-            std::shared_ptr< DependentVariableSaveSettings >( ) ):
+                                 const std::shared_ptr< DependentVariableSaveSettings > dependentVariablesToSave = std::shared_ptr< DependentVariableSaveSettings >( ),
+                                 const std::shared_ptr< PropagatorOutputSettings > outputSettings = std::make_shared< PropagatorOutputSettings >( ) ):
         PropagatorSettings< StateScalarType >( initialBodyStates, false ),
         stateType_( stateType ), terminationSettings_( terminationSettings ),
         dependentVariablesToSave_( dependentVariablesToSave ), integratorSettings_( integratorSettings ),
