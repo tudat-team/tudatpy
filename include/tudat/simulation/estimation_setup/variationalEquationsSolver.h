@@ -674,14 +674,10 @@ public:
                     < StateScalarType, TimeType >(
                         getStateDerivativeModelMapFromVector( stateDerivativeModels ), bodies, parametersToEstimate );
 
-            // Create simulation object for dynamics only.
-            if( propagatorSettings_->getDependentVariablesToSave( ) != nullptr )
-            {
-                propagatorSettings_->getDependentVariablesToSave( )->stateDerivativePartials_ = stateDerivativePartials;
-            }
-
             dynamicsSimulator_ = std::make_shared< SingleArcDynamicsSimulator< StateScalarType, TimeType > >(
-                        bodies, integratorSettings, propagatorSettings_, stateDerivativeModels, false, clearNumericalSolution, setIntegratedResult, false,
+                        bodies, integratorSettings, propagatorSettings_,
+                        PredefinedSingleArcStateDerivativeModels< StateScalarType, TimeType >( stateDerivativeModels, stateDerivativePartials ),
+                        false, clearNumericalSolution, setIntegratedResult, false,
                         std::chrono::steady_clock::now( ) );
 
             dynamicsStateDerivative_ = dynamicsSimulator_->getDynamicsStateDerivative( );

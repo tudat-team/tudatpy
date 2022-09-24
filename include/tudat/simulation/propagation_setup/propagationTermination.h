@@ -407,7 +407,9 @@ std::shared_ptr< PropagationTerminationCondition > createPropagationTerminationC
         const std::unordered_map< IntegratedStateType, std::vector< std::shared_ptr
         < SingleStateTypeDerivative< StateScalarType, TimeType > > > >& stateDerivativeModels =
         std::unordered_map< IntegratedStateType, std::vector< std::shared_ptr
-                < SingleStateTypeDerivative< StateScalarType, TimeType > > > >( ) )
+                < SingleStateTypeDerivative< StateScalarType, TimeType > > > >( ),
+        const std::map< propagators::IntegratedStateType, orbit_determination::StateDerivativePartialsMap >& stateDerivativePartials =
+        std::map< propagators::IntegratedStateType, orbit_determination::StateDerivativePartialsMap >( ) )
 {
     std::shared_ptr< PropagationTerminationCondition > propagationTerminationCondition;
 
@@ -444,7 +446,8 @@ std::shared_ptr< PropagationTerminationCondition > createPropagationTerminationC
         {
             dependentVariableFunction =
                     getDoubleDependentVariableFunction(
-                        dependentVariableTerminationSettings->dependentVariableSettings_, bodies, stateDerivativeModels );
+                        dependentVariableTerminationSettings->dependentVariableSettings_, bodies,
+                        stateDerivativeModels, stateDerivativePartials );
         }
         else
         {
@@ -483,7 +486,7 @@ std::shared_ptr< PropagationTerminationCondition > createPropagationTerminationC
             propagationTerminationConditionList.push_back(
                         createPropagationTerminationConditions(
                             hybridTerminationSettings->terminationSettings_.at( i ),
-                            bodies, initialTimeStep, stateDerivativeModels ) );
+                            bodies, initialTimeStep, stateDerivativeModels, stateDerivativePartials ) );
         }
         propagationTerminationCondition = std::make_shared< HybridPropagationTerminationCondition >(
                     propagationTerminationConditionList, hybridTerminationSettings->fulfillSingleCondition_,

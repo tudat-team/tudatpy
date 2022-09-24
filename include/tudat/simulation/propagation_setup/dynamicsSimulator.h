@@ -498,6 +498,22 @@ std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > validateDeprec
     return singleArcPropagatorSettings;
 }
 
+template< typename StateScalarType = double, typename TimeType = double >
+struct PredefinedSingleArcStateDerivativeModels
+{
+public:
+    PredefinedSingleArcStateDerivativeModels(
+            const std::vector< std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > >& stateDerivativeModels,
+            const std::map< propagators::IntegratedStateType, orbit_determination::StateDerivativePartialsMap >& stateDerivativePartials ):
+        stateDerivativeModels_( stateDerivativeModels ), stateDerivativePartials_( stateDerivativePartials ){ }
+
+    PredefinedSingleArcStateDerivativeModels( ){ }
+
+    std::vector< std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > stateDerivativeModels_;
+
+    std::map< propagators::IntegratedStateType, orbit_determination::StateDerivativePartialsMap > stateDerivativePartials_;
+};
+
 //! Class for performing full numerical integration of a dynamical system in a single arc.
 /*!
  *  Class for performing full numerical integration of a dynamical system in a single arc, i.e. the equations of motion
@@ -514,8 +530,8 @@ public:
             const simulation_setup::SystemOfBodies& bodies,
             const std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > propagatorSettings,
             const bool areEquationsOfMotionToBeIntegrated = true,
-            const std::vector< std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > >& stateDerivativeModels =
-            std::vector< std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > >( ) ):
+            const PredefinedSingleArcStateDerivativeModels< StateScalarType, TimeType >& predefinedStateDerivativeModels =
+            PredefinedSingleArcStateDerivativeModels< StateScalarType, TimeType >( ) ):
         DynamicsSimulator< StateScalarType, TimeType >(
             bodies,
             propagatorSettings != nullptr ? propagatorSettings->getOutputSettings( )->clearNumericalSolutions : -1,
@@ -562,7 +578,7 @@ public:
         }
 
 
-        if( stateDerivativeModels.size( ) == 0 )
+        if( predefinedStateDerivativeModels.stateDerivativeModels_.size( ) == 0 )
         {
             dynamicsStateDerivative_ = std::make_shared< DynamicsStateDerivativeModel< TimeType, StateScalarType > >(
                         createStateDerivativeModels< StateScalarType, TimeType >(
@@ -573,14 +589,15 @@ public:
         else
         {
             dynamicsStateDerivative_ = std::make_shared< DynamicsStateDerivativeModel< TimeType, StateScalarType > >(
-                        stateDerivativeModels,
+                        predefinedStateDerivativeModels.stateDerivativeModels_,
                         std::bind( &EnvironmentUpdater< StateScalarType, TimeType >::updateEnvironment,
                                      environmentUpdater_, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3 ) );
         }
 
         propagationTerminationCondition_ = createPropagationTerminationConditions(
                     propagatorSettings_->getTerminationSettings( ), bodies_,
-                    integratorSettings_->initialTimeStep_, dynamicsStateDerivative_->getStateDerivativeModels( ) );
+                    integratorSettings_->initialTimeStep_, dynamicsStateDerivative_->getStateDerivativeModels( ),
+                    predefinedStateDerivativeModels.stateDerivativePartials_ );
 
         if( outputSettings_->printStateData )
         {
@@ -593,7 +610,8 @@ public:
             std::pair< std::function< Eigen::VectorXd( ) >, std::map< int, std::string > > dependentVariableData =
                     createDependentVariableListFunction< TimeType, StateScalarType >(
                         propagatorSettings_->getDependentVariablesToSave( ), bodies_,
-                        dynamicsStateDerivative_->getStateDerivativeModels( ) );
+                        dynamicsStateDerivative_->getStateDerivativeModels( ),
+                        predefinedStateDerivativeModels.stateDerivativePartials_ );
             dependentVariablesFunctions_ = dependentVariableData.first;
             dependentVariableIds = dependentVariableData.second;
 
@@ -654,7 +672,7 @@ public:
             const simulation_setup::SystemOfBodies& bodies,
             const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
             const std::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
-            const std::vector< std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > >& stateDerivativeModels,
+            const PredefinedSingleArcStateDerivativeModels< StateScalarType, TimeType >& predefinedStateDerivativeModels,
             const bool areEquationsOfMotionToBeIntegrated = true,
             const bool clearNumericalSolutions = false,
             const bool setIntegratedResult = false,
@@ -666,7 +684,8 @@ public:
                                         integratorSettings, propagatorSettings,
                                         clearNumericalSolutions, setIntegratedResult, printNumberOfFunctionEvaluations,
                                         printDependentVariableData, printStateData ),
-                                    areEquationsOfMotionToBeIntegrated, stateDerivativeModels ){ }
+                                    areEquationsOfMotionToBeIntegrated,
+                                    predefinedStateDerivativeModels){ }
 
     SingleArcDynamicsSimulator(
             const simulation_setup::SystemOfBodies& bodies,
@@ -679,7 +698,7 @@ public:
             const bool printDependentVariableData = true,
             const bool printStateData = false ):
         SingleArcDynamicsSimulator(  bodies, integratorSettings,  propagatorSettings,
-                                     std::vector< std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > >( ),
+                                     PredefinedSingleArcStateDerivativeModels< StateScalarType, TimeType >( ),
                                      areEquationsOfMotionToBeIntegrated,
                                      clearNumericalSolutions,
                                      setIntegratedResult,
