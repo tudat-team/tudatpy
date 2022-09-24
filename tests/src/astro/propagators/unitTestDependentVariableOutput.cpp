@@ -293,6 +293,9 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
             dependentVariablesToAdd.push_back(
                         std::make_shared< SingleDependentVariableSaveSettings >(
                             gravity_field_potential_dependent_variable,  "Apollo", "Earth" ) );
+            dependentVariablesToAdd.push_back(
+                        std::make_shared< SingleDependentVariableSaveSettings >(
+                            gravity_field_potential_dependent_variable,  "Apollo", "Moon" ) );
 
             addDepedentVariableSettings< double >( dependentVariablesToAdd, propagatorSettings );
 
@@ -321,6 +324,8 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
                     bodies.at( "Earth" )->getAtmosphereModel( );
             std::shared_ptr< gravitation::GravityFieldModel > earthGravityModel =
                     bodies.at( "Earth" )->getGravityFieldModel( );
+//            std::shared_ptr< gravitation::GravityFieldModel > moonGravityModel =
+//                    bodies.at( "Moon" )->getGravityFieldModel( );
 
             std::shared_ptr< aerodynamics::AtmosphericFlightConditions > apolloFlightConditions =
                     std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
@@ -369,7 +374,8 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
                 Eigen::Matrix3d rswToInertialRotationMatrix =
                         propagators::getMatrixFromVectorRotationRepresentation( variableIterator->second.segment( 60, 9 ) );
 
-                double gravitationalPotential = variableIterator->second( 69 );
+                double earthGravitationalPotential = variableIterator->second( 69 );
+//                double moonGravitationalPotential = variableIterator->second( 70 );
 
                 currentStateDerivative = dynamicsSimulator.getDynamicsStateDerivative( )->computeStateDerivative(
                             variableIterator->first, rawNumericalSolution.at( variableIterator->first ) );
@@ -574,9 +580,13 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
 
                 // Check gravitational potential
                 BOOST_CHECK_CLOSE_FRACTION(
-                            gravitationalPotential,
+                            earthGravitationalPotential,
                             earthGravityModel->getGravitationalPotential( computedBodyFixedPosition ),
                             6.0 * std::numeric_limits< double >::epsilon( ) );
+//                BOOST_CHECK_CLOSE_FRACTION(
+//                            moonGravitationalPotential,
+//                            moonGravityModel->getGravitationalPotential( computedBodyFixedPosition ),
+//                            6.0 * std::numeric_limits< double >::epsilon( ) );
 
             }
         }
