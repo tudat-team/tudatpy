@@ -19,8 +19,8 @@ namespace basic_mathematics
 void checkValidityOfPolyhedronSettings( const Eigen::MatrixXd& verticesCoordinates,
                                         const Eigen::MatrixXi& verticesDefiningEachFacet )
 {
-    const unsigned int numberOfFacets = verticesDefiningEachFacet.rows();
-    const unsigned int numberOfVertices = verticesCoordinates.rows();
+    const int numberOfFacets = verticesDefiningEachFacet.rows();
+    const int numberOfVertices = verticesCoordinates.rows();
 
     if ( numberOfFacets != 2 * ( numberOfVertices - 2) )
     {
@@ -36,6 +36,27 @@ void checkValidityOfPolyhedronSettings( const Eigen::MatrixXd& verticesCoordinat
     {
         throw std::runtime_error( "Error when processing polyhedron: table with vertices defining each facet has invalid "
                                   "number of columns (" + std::to_string( verticesCoordinates.cols() ) + ")." );
+    }
+
+
+    for ( int facet = 0; facet < numberOfFacets; ++facet )
+    {
+        for ( int vertex = 0; vertex < 3; ++ vertex )
+        {
+            if ( verticesDefiningEachFacet(facet, vertex) >= numberOfFacets )
+            {
+                throw std::runtime_error(
+                        "Error when processing polyhedron: table with vertices defining each facet has invalid vertex id "
+                        + std::to_string( verticesDefiningEachFacet(facet, vertex) ) + " (maximum allowed id is " +
+                        std::to_string( numberOfFacets - 1 ) + ")." );
+            }
+            else if ( verticesDefiningEachFacet(facet, vertex) < 0 )
+            {
+                throw std::runtime_error(
+                        "Error when processing polyhedron: table with vertices defining each facet has negative vertex id ("
+                        + std::to_string( verticesDefiningEachFacet(facet, vertex) ) + ")." );
+            }
+        }
     }
 
 }
