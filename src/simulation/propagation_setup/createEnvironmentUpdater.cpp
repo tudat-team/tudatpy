@@ -859,7 +859,7 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
 {
     std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > environmentModelsToUpdate;
 
-    if( dependentVariableSaveSettings != nullptr )
+    if( dependentVariableList.size( ) > 0 )
     {
         for( unsigned int i = 0; i < dependentVariableList.size( ); i++ )
         {
