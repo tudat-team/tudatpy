@@ -471,17 +471,17 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
 
         std::shared_ptr< PropagationTimeTerminationSettings > terminationSettings =
                 std::make_shared< propagators::PropagationTimeTerminationSettings >( 1000.0 );
-        std::shared_ptr< TranslationalStatePropagatorSettings< double > > translationalPropagatorSettings =
-                std::make_shared< TranslationalStatePropagatorSettings< double > >
-                ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, terminationSettings,
-                  cowell, dependentVariables );
         std::shared_ptr< IntegratorSettings< > > integratorSettings =
                 std::make_shared< IntegratorSettings< > >
                 ( rungeKutta4, 0.0, 5.0 );
+        std::shared_ptr< TranslationalStatePropagatorSettings< double > > translationalPropagatorSettings =
+                std::make_shared< TranslationalStatePropagatorSettings< double > >
+                ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, integratorSettings, terminationSettings,
+                  cowell, dependentVariables );
 
         // Create simulation object and propagate dynamics.
         SingleArcDynamicsSimulator< > dynamicsSimulator(
-                    bodies, integratorSettings, translationalPropagatorSettings, true, false, false );
+                    bodies, translationalPropagatorSettings );
 
         // Retrieve numerical solutions for state and dependent variables
         std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > dependentVariableOutput =
@@ -777,20 +777,20 @@ BOOST_AUTO_TEST_CASE( testAerodynamicTrimWithFreeAngles )
     basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
                 bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
-
-    std::shared_ptr< TranslationalStatePropagatorSettings < double > > propagatorSettings =
-            std::make_shared< TranslationalStatePropagatorSettings< double > >(
-                centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState,
-              std::make_shared< propagators::PropagationTimeTerminationSettings >( 3200.0 ), cowell,
-              dependentVariables );
-
     std::shared_ptr< IntegratorSettings< > > integratorSettings =
             std::make_shared< IntegratorSettings< > >
             ( rungeKutta4, simulationStartEpoch, fixedStepSize );
 
+    std::shared_ptr< TranslationalStatePropagatorSettings < double > > propagatorSettings =
+            std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, integratorSettings,
+              std::make_shared< propagators::PropagationTimeTerminationSettings >( 3200.0 ), cowell,
+              dependentVariables );
+
+
     // Create simulation object and propagate dynamics.
     SingleArcDynamicsSimulator< > dynamicsSimulator(
-                bodies, integratorSettings, propagatorSettings, true, false, false );
+                bodies, propagatorSettings );
 
     std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > dependentVariableOutput =
             dynamicsSimulator.getDependentVariableHistory( );

@@ -310,7 +310,7 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
                         std::make_shared< CustomDependentVariableSaveSettings >(
                             std::bind( &customDependentVariable2, bodies ), 1 ) );
 
-            addDepedentVariableSettings< double >( dependentVariablesToAdd, propagatorSettings );
+            addDepedentVariableSettings< double, double >( dependentVariablesToAdd, propagatorSettings );
 
             std::shared_ptr< IntegratorSettings< > > integratorSettings =
                     std::make_shared< IntegratorSettings< > >
@@ -679,7 +679,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicDependentVariableOutput )
     dependentVariables.push_back( sphericalHarmonicAccelerationTermsNormDependentVariable(
                                       "Asterix", "Earth", singleTermToSave ) );
 
-    addDepedentVariableSettings< double >( dependentVariables, propagatorSettings );
+    addDepedentVariableSettings< double, double >( dependentVariables, propagatorSettings );
 
     // Create numerical integrator.
     double simulationStartEpoch = 0.0;

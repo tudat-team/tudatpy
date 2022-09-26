@@ -142,6 +142,13 @@ BOOST_AUTO_TEST_CASE( test_customAccelerationModelCreation )
                 vehicleInitialStateInKeplerianElements,
                 earthGravitationalParameter );
 
+    // Create numerical integrator settings.
+    double simulationStartEpoch = 0.0;
+    const double fixedStepSize = 10.0;
+    std::shared_ptr< IntegratorSettings< > > integratorSettings =
+            std::make_shared< IntegratorSettings< > >
+            ( rungeKutta4, simulationStartEpoch, fixedStepSize );
+
     // Create propagator settings.
     // Set variables to save
     std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
@@ -150,22 +157,17 @@ BOOST_AUTO_TEST_CASE( test_customAccelerationModelCreation )
                     basic_astrodynamics::custom_acceleration, "Vehicle", "Earth", 0 ) );
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
             std::make_shared< TranslationalStatePropagatorSettings< double > >
-            ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, simulationEndEpoch,
+            ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, integratorSettings, simulationEndEpoch,
               cowell, dependentVariables );
 
-    // Create numerical integrator settings.
-    double simulationStartEpoch = 0.0;
-    const double fixedStepSize = 10.0;
-    std::shared_ptr< IntegratorSettings< > > integratorSettings =
-            std::make_shared< IntegratorSettings< > >
-            ( rungeKutta4, simulationStartEpoch, fixedStepSize );
+
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             PROPAGATE ORBIT            ////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Create simulation object and propagate dynamics.
-    SingleArcDynamicsSimulator< > dynamicsSimulator( bodies, integratorSettings, propagatorSettings );
+    SingleArcDynamicsSimulator< > dynamicsSimulator( bodies, propagatorSettings );
     std::map< double, Eigen::VectorXd > dependentVariableHistory = dynamicsSimulator.getDependentVariableHistory( );
     std::map< double, Eigen::VectorXd > stateHistory = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
 
@@ -342,18 +344,20 @@ BOOST_AUTO_TEST_CASE( test_customTorqueModelCreation )
     propagatorSettingsList.push_back( translationalPropagatorSettings );
     propagatorSettingsList.push_back( rotationalPropagatorSettings );
 
-    std::shared_ptr< PropagatorSettings< double > > propagatorSettings =
-            std::make_shared< MultiTypePropagatorSettings< double > >(
-                propagatorSettingsList,
-                std::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ),
-                dependentVariables );
-
     // Create numerical integrator settings.
     double simulationStartEpoch = 0.0;
     const double fixedStepSize = 10.0;
     std::shared_ptr< IntegratorSettings< > > integratorSettings =
             std::make_shared< IntegratorSettings< > >
             ( rungeKutta4, simulationStartEpoch, fixedStepSize );
+
+    std::shared_ptr< PropagatorSettings< double > > propagatorSettings =
+            std::make_shared< MultiTypePropagatorSettings< double > >(
+                propagatorSettingsList,
+                std::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ),
+                dependentVariables );
+
+
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             PROPAGATE ORBIT            ////////////////////////////////////////////////////////

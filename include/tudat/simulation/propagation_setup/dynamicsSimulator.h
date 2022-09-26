@@ -483,6 +483,10 @@ std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > validateDeprec
     }
     else
     {
+        if( integratorSettings != nullptr && singleArcPropagatorSettings->getIntegratorSettings( ) != nullptr )
+        {
+            throw std::runtime_error( "Error, integrator settings, defined independently, and in propagator settings" );
+        }
         std::shared_ptr< PropagatorOutputSettings > outputSettings = std::make_shared< PropagatorOutputSettings >( );
         outputSettings->clearNumericalSolutions = clearNumericalSolutions;
         outputSettings->printDependentVariableData = printDependentVariableData;
