@@ -154,17 +154,18 @@ BOOST_AUTO_TEST_CASE( testWindModelInPropagation )
         // Set propagation/integration settings
         std::shared_ptr< PropagationTimeTerminationSettings > terminationSettings =
                 std::make_shared< propagators::PropagationTimeTerminationSettings >( 1000.0 );
-        std::shared_ptr< TranslationalStatePropagatorSettings< double > > translationalPropagatorSettings =
-                std::make_shared< TranslationalStatePropagatorSettings< double > >
-                ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, terminationSettings,
-                  cowell, dependentVariables );
         std::shared_ptr< IntegratorSettings< > > integratorSettings =
                 std::make_shared< IntegratorSettings< > >
                 ( rungeKutta4, 0.0, 5.0 );
+        std::shared_ptr< TranslationalStatePropagatorSettings< double > > translationalPropagatorSettings =
+                std::make_shared< TranslationalStatePropagatorSettings< double > >
+                ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, integratorSettings, terminationSettings,
+                  cowell, dependentVariables );
+
 
         // Create simulation object and propagate dynamics.
         SingleArcDynamicsSimulator< > dynamicsSimulator(
-                    bodies, integratorSettings, translationalPropagatorSettings, true, false, false );
+                    bodies, translationalPropagatorSettings );
 
         // Retrieve numerical solutions for state and dependent variables
         std::map< double, Eigen::VectorXd > numericalSolution =
