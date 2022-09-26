@@ -18,6 +18,13 @@ TUDAT_ADD_TEST_CASE(SphericalHarmonicsGravityField
         tudat_basic_mathematics
         )
 
+TUDAT_ADD_TEST_CASE(CentralGravityModel
+        PRIVATE_LINKS
+        tudat_gravitation
+        tudat_basic_astrodynamics
+        tudat_basic_mathematics
+        )
+
 #TUDAT_ADD_TEST_CASE(JacobiEnergy
 #        PRIVATE_LINKS
 #        tudat_gravitation
