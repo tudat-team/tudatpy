@@ -148,7 +148,7 @@ BOOST_AUTO_TEST_CASE( testEmpiricalAccelerations )
         std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
                 std::make_shared< TranslationalStatePropagatorSettings< double > >
                 ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, simulationEndEpoch, propagatorType,
-                  std::make_shared< DependentVariableSaveSettings >( dependentVariables ) );
+                  dependentVariables );
 
         // Define integrator settings
         std::shared_ptr< IntegratorSettings< > > integratorSettings =

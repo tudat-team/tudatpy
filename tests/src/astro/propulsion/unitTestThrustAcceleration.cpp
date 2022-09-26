@@ -347,7 +347,7 @@ BOOST_AUTO_TEST_CASE( testDirectionBasedRotationWithThrustAcceleration )
         std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
                 std::make_shared< TranslationalStatePropagatorSettings< double > >
                 ( centralBodies, accelerationModelMap, bodiesToPropagate, vehicleInitialState, simulationEndEpoch,
-                  cowell, std::make_shared< DependentVariableSaveSettings >( dependentVariables ) );
+                  cowell, dependentVariables );
 
         // Define integrator settings.
         const double fixedStepSize = 5.0;
@@ -729,14 +729,12 @@ BOOST_AUTO_TEST_CASE( testRadialAndVelocityThrustAcceleration )
         basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
                     bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
-        std::shared_ptr< DependentVariableSaveSettings > dependentVariableSaveSettings;
+        std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
         if( i == 1 )
         {
-            std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
             dependentVariables.push_back(
                         std::make_shared< SingleAccelerationDependentVariableSaveSettings >(
                             thrust_acceleration, "Vehicle", "Vehicle", 0 ) );
-            dependentVariableSaveSettings = std::make_shared< DependentVariableSaveSettings >( dependentVariables );
 
         }
         std::shared_ptr< PropagationTimeTerminationSettings > terminationSettings =
@@ -744,7 +742,7 @@ BOOST_AUTO_TEST_CASE( testRadialAndVelocityThrustAcceleration )
         std::shared_ptr< TranslationalStatePropagatorSettings< double > > translationalPropagatorSettings =
                 std::make_shared< TranslationalStatePropagatorSettings< double > >
                 ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, terminationSettings,
-                  cowell, dependentVariableSaveSettings );
+                  cowell, dependentVariables );
         std::shared_ptr< IntegratorSettings< > > integratorSettings =
                 std::make_shared< IntegratorSettings< > >
                 ( rungeKutta4, 0.0, 0.1 );
@@ -892,14 +890,11 @@ BOOST_AUTO_TEST_CASE( testThrustAccelerationFromExistingRotation )
     basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
                 bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
-    std::shared_ptr< DependentVariableSaveSettings > dependentVariableSaveSettings;
-
 
     std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
     dependentVariables.push_back(
                 std::make_shared< SingleAccelerationDependentVariableSaveSettings >(
                     thrust_acceleration, "Vehicle", "Vehicle", 0 ) );
-    dependentVariableSaveSettings = std::make_shared< DependentVariableSaveSettings >( dependentVariables );
 
 
     std::shared_ptr< PropagationTimeTerminationSettings > terminationSettings =
@@ -907,7 +902,7 @@ BOOST_AUTO_TEST_CASE( testThrustAccelerationFromExistingRotation )
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > translationalPropagatorSettings =
             std::make_shared< TranslationalStatePropagatorSettings< double > >
             ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, terminationSettings,
-              cowell, dependentVariableSaveSettings );
+              cowell, dependentVariables );
     std::shared_ptr< IntegratorSettings< > > integratorSettings =
             std::make_shared< IntegratorSettings< > >
             ( rungeKutta4, 0.0, 2.5 );
@@ -1095,7 +1090,7 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAcceleration )
                 std::make_shared< TranslationalStatePropagatorSettings< double > >
                 ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState,
                   std::make_shared< propagators::PropagationTimeTerminationSettings >( 3200.0 ), cowell,
-                  std::make_shared< DependentVariableSaveSettings >( dependentVariables ) );
+                  dependentVariables );
         std::shared_ptr< IntegratorSettings< > > integratorSettings =
                 std::make_shared< IntegratorSettings< > >
                 ( rungeKutta4, simulationStartEpoch, fixedStepSize );
@@ -1429,7 +1424,7 @@ BOOST_AUTO_TEST_CASE( testInterpolatedThrustVector )
         std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
                 std::make_shared< TranslationalStatePropagatorSettings< double > >
                 ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, simulationEndEpoch,
-                  cowell, std::make_shared< DependentVariableSaveSettings >( dependentVariables ) );
+                  cowell, dependentVariables );
         std::shared_ptr< IntegratorSettings< > > integratorSettings =
                 std::make_shared< IntegratorSettings< > >
                 ( rungeKutta4, 0.0, fixedStepSize );
@@ -1779,7 +1774,7 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
                 std::make_shared< TranslationalStatePropagatorSettings< double > >
                 ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState,
                   std::make_shared< propagators::PropagationTimeTerminationSettings >( simulationEndEpoch ), cowell,
-                  std::make_shared< DependentVariableSaveSettings >( dependentVariables ) );
+                  dependentVariables );
 
         std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
         massRateModels[ "Apollo" ] = createMassRateModel( "Apollo", std::make_shared< FromThrustMassRateSettings >(1 ),
@@ -1799,7 +1794,7 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
                 std::make_shared< MultiTypePropagatorSettings< double > >(
                     propagatorSettingsVector, std::make_shared< propagators::PropagationTimeTerminationSettings >(
                         simulationEndEpoch ),
-                    std::make_shared< DependentVariableSaveSettings >( dependentVariables ) );
+                    dependentVariables );
 
         // Define integration settings.
         std::shared_ptr< IntegratorSettings< > > integratorSettings =
@@ -2011,7 +2006,7 @@ BOOST_AUTO_TEST_CASE( testAccelerationLimitedGuidedThrust )
             std::make_shared< TranslationalStatePropagatorSettings< double > >
             ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState,
               std::make_shared< propagators::PropagationTimeTerminationSettings >( simulationEndEpoch ), cowell,
-              std::make_shared< DependentVariableSaveSettings >( dependentVariables ) );
+              dependentVariables );
 
     std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
     massRateModels[ "Apollo" ] = createMassRateModel( "Apollo", std::make_shared< FromThrustMassRateSettings >(1 ),
@@ -2031,7 +2026,7 @@ BOOST_AUTO_TEST_CASE( testAccelerationLimitedGuidedThrust )
             std::make_shared< MultiTypePropagatorSettings< double > >(
                 propagatorSettingsVector, std::make_shared< propagators::PropagationTimeTerminationSettings >(
                     simulationEndEpoch ),
-                std::make_shared< DependentVariableSaveSettings >( dependentVariables ) );
+                dependentVariables );
 
 
     std::shared_ptr< IntegratorSettings< > > integratorSettings =
@@ -2172,7 +2167,7 @@ BOOST_AUTO_TEST_CASE( testAccelerationLimitedGuidedThrust )
 ////                std::make_shared< TranslationalStatePropagatorSettings< double > >
 ////                ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState,
 ////                  std::make_shared< propagators::PropagationTimeTerminationSettings >( simulationEndEpoch ), cowell,
-////                  std::make_shared< DependentVariableSaveSettings >( dependentVariables ) );
+////                  dependentVariables );
 ////        std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
 ////        massRateModels[ "Asterix" ] = createMassRateModel(
 ////                    "Asterix", std::make_shared< FromThrustMassRateSettings >(1 ),
@@ -2189,7 +2184,7 @@ BOOST_AUTO_TEST_CASE( testAccelerationLimitedGuidedThrust )
 ////                std::make_shared< MultiTypePropagatorSettings< double > >(
 ////                    propagatorSettingsVector, std::make_shared< propagators::PropagationTimeTerminationSettings >(
 ////                        simulationEndEpoch ),
-////                    std::make_shared< DependentVariableSaveSettings >( dependentVariables ) );
+////                    dependentVariables );
 
 ////        std::shared_ptr< IntegratorSettings< > > integratorSettings =
 ////                std::make_shared< IntegratorSettings< > >
@@ -2343,7 +2338,7 @@ BOOST_AUTO_TEST_CASE( testMomentumWheelDesaturationThrust )
             std::make_shared< TranslationalStatePropagatorSettings< double > >
             ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState,
               std::make_shared< propagators::PropagationTimeTerminationSettings >( simulationEndEpoch ), cowell,
-              std::make_shared< DependentVariableSaveSettings >( dependentVariables ) );
+              dependentVariables );
 
     std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings =
             translationalPropagatorSettings;

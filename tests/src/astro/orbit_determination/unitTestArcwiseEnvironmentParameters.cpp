@@ -140,7 +140,6 @@ BOOST_AUTO_TEST_CASE( test_ArcwiseEnvironmentParameters )
                 asterixInitialStateInKeplerianElements, earthGravitationalParameter );
 
     // Create propagator settings
-    std::shared_ptr< DependentVariableSaveSettings > dependentVariableSaveSettings;
     std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
     dependentVariables.push_back(
                 std::make_shared< SingleDependentVariableSaveSettings >(
@@ -148,12 +147,11 @@ BOOST_AUTO_TEST_CASE( test_ArcwiseEnvironmentParameters )
     dependentVariables.push_back(
                 std::make_shared< SingleDependentVariableSaveSettings >(
                     radiation_pressure_coefficient_dependent_variable, "Vehicle", "Sun" ) );
-    dependentVariableSaveSettings = std::make_shared< DependentVariableSaveSettings >( dependentVariables );
 
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
             std::make_shared< TranslationalStatePropagatorSettings< double > >(
                 centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState, double( finalEphemerisTime ),
-                cowell, dependentVariableSaveSettings);
+                cowell, dependentVariables);
 
     // Create integrator settings
     std::shared_ptr< IntegratorSettings< double > > integratorSettings =

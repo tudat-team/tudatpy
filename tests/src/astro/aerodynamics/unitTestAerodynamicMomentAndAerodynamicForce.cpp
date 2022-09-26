@@ -441,8 +441,6 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
         basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
                     bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
-        std::shared_ptr< DependentVariableSaveSettings > dependentVariableSaveSettings;
-
         std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
 
         dependentVariables.push_back(
@@ -470,15 +468,13 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
                             thrust_acceleration, "Vehicle", "Vehicle", 0 ) );
         }
 
-        dependentVariableSaveSettings = std::make_shared< DependentVariableSaveSettings >( dependentVariables );
-
 
         std::shared_ptr< PropagationTimeTerminationSettings > terminationSettings =
                 std::make_shared< propagators::PropagationTimeTerminationSettings >( 1000.0 );
         std::shared_ptr< TranslationalStatePropagatorSettings< double > > translationalPropagatorSettings =
                 std::make_shared< TranslationalStatePropagatorSettings< double > >
                 ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, terminationSettings,
-                  cowell, dependentVariableSaveSettings );
+                  cowell, dependentVariables );
         std::shared_ptr< IntegratorSettings< > > integratorSettings =
                 std::make_shared< IntegratorSettings< > >
                 ( rungeKutta4, 0.0, 5.0 );
@@ -786,7 +782,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicTrimWithFreeAngles )
             std::make_shared< TranslationalStatePropagatorSettings< double > >(
                 centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState,
               std::make_shared< propagators::PropagationTimeTerminationSettings >( 3200.0 ), cowell,
-              std::make_shared< DependentVariableSaveSettings >( dependentVariables ) );
+              dependentVariables );
 
     std::shared_ptr< IntegratorSettings< > > integratorSettings =
             std::make_shared< IntegratorSettings< > >

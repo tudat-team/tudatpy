@@ -854,15 +854,13 @@ std::vector< std::string > > createEnvironmentUpdaterSettingsForDependentVariabl
 
 //! Create environment update settings for dependent variables
 std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > createEnvironmentUpdaterSettings(
-        const std::shared_ptr< DependentVariableSaveSettings > dependentVariableSaveSettings,
+        const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >& dependentVariableList,
         const simulation_setup::SystemOfBodies& bodies )
 {
     std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > environmentModelsToUpdate;
 
     if( dependentVariableSaveSettings != nullptr )
     {
-        std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariableList =
-                dependentVariableSaveSettings->dependentVariables_;
         for( unsigned int i = 0; i < dependentVariableList.size( ); i++ )
         {
             std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > currentEnvironmentModelsToUpdate =

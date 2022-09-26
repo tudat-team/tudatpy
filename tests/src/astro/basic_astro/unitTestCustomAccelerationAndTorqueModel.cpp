@@ -144,16 +144,14 @@ BOOST_AUTO_TEST_CASE( test_customAccelerationModelCreation )
 
     // Create propagator settings.
     // Set variables to save
-    std::shared_ptr< DependentVariableSaveSettings > dependentVariableSaveSettings;
     std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
     dependentVariables.push_back(
                 std::make_shared< SingleAccelerationDependentVariableSaveSettings >(
                     basic_astrodynamics::custom_acceleration, "Vehicle", "Earth", 0 ) );
-    dependentVariableSaveSettings = std::make_shared< DependentVariableSaveSettings >( dependentVariables );
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
             std::make_shared< TranslationalStatePropagatorSettings< double > >
             ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, simulationEndEpoch,
-              cowell, dependentVariableSaveSettings );
+              cowell, dependentVariables );
 
     // Create numerical integrator settings.
     double simulationStartEpoch = 0.0;
@@ -339,8 +337,6 @@ BOOST_AUTO_TEST_CASE( test_customTorqueModelCreation )
     dependentVariables.push_back(
                 std::make_shared< SingleTorqueDependentVariableSaveSettings >(
                     custom_torque, "Vehicle", "Earth" ) );
-    std::shared_ptr< DependentVariableSaveSettings > dependentVariablesToSave =
-            std::make_shared< DependentVariableSaveSettings >( dependentVariables );
 
     std::vector< std::shared_ptr< SingleArcPropagatorSettings< double > > >  propagatorSettingsList;
     propagatorSettingsList.push_back( translationalPropagatorSettings );
@@ -350,7 +346,7 @@ BOOST_AUTO_TEST_CASE( test_customTorqueModelCreation )
             std::make_shared< MultiTypePropagatorSettings< double > >(
                 propagatorSettingsList,
                 std::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ),
-                dependentVariablesToSave );
+                dependentVariables );
 
     // Create numerical integrator settings.
     double simulationStartEpoch = 0.0;

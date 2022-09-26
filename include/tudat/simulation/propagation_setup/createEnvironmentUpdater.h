@@ -117,7 +117,7 @@ std::vector< std::string > > createEnvironmentUpdaterSettingsForDependentVariabl
  */
 std::map< propagators::EnvironmentModelsToUpdate,
 std::vector< std::string > > createEnvironmentUpdaterSettings(
-        const std::shared_ptr< DependentVariableSaveSettings > dependentVariableSaveSettings,
+        const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >& dependentVariableList,
         const simulation_setup::SystemOfBodies& bodies );
 
 //! Create environment update settings for termination settings
