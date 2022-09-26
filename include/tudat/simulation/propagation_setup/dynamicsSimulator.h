@@ -605,7 +605,7 @@ public:
         }
 
         std::map< int, std::string > dependentVariableIds;
-        if( propagatorSettings_->getDependentVariablesToSave( ) != nullptr )
+        if( propagatorSettings_->getDependentVariablesToSave( ).size( )> 0 )
         {
             std::pair< std::function< Eigen::VectorXd( ) >, std::map< int, std::string > > dependentVariableData =
                     createDependentVariableListFunction< TimeType, StateScalarType >(
@@ -615,8 +615,7 @@ public:
             dependentVariablesFunctions_ = dependentVariableData.first;
             dependentVariableIds = dependentVariableData.second;
 
-            if( propagatorSettings_->getDependentVariablesToSave( )->printDependentVariableTypes_ &&
-                    outputSettings_->printDependentVariableData )
+            if( outputSettings_->printDependentVariableData )
             {
                 std::cout << "Dependent variables being saved, output vector contains: " << std::endl
                           << "Vector entry, Vector contents" << std::endl;

@@ -450,7 +450,7 @@ Eigen::VectorXd  executeMultiBodyMultiArcParameterEstimation( )
                     std::make_shared< TranslationalStatePropagatorSettings< StateScalarType > >
                     ( centralBodies, accelerationModelMap, bodiesToIntegrate,
                       allBodiesPerArcInitialStates.at( i ),
-                      integrationArcEndTimes.at( i ), cowell, std::shared_ptr< DependentVariableSaveSettings >( ), 60.0 ) );
+                      integrationArcEndTimes.at( i ), cowell, std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ), 60.0 ) );
     }
     std::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > propagatorSettings =
             std::make_shared< MultiArcPropagatorSettings< StateScalarType > >( propagatorSettingsList );

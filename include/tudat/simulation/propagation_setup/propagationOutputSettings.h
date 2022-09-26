@@ -562,38 +562,38 @@ public:
 
 
 
-// Container class for settings of all dependent variables that are to be saved.
-class DependentVariableSaveSettings
-{
-public:
+//// Container class for settings of all dependent variables that are to be saved.
+//class DependentVariableSaveSettings
+//{
+//public:
 
-    // Constructor.
-    /*
-     *  Constructor.
-     *  \param dependentVariables List of settings for parameters that are to be saved.
-     *  \param printDependentVariableTypes Variable denoting whether to print the list and vector entries of
-     *      dependent variables when propagating.
-     */
-    DependentVariableSaveSettings(
-            const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables,
-            const bool printDependentVariableTypes = true ):
-        dependentVariables_( dependentVariables ), printDependentVariableTypes_( printDependentVariableTypes ){ }
+//    // Constructor.
+//    /*
+//     *  Constructor.
+//     *  \param dependentVariables List of settings for parameters that are to be saved.
+//     *  \param printDependentVariableTypes Variable denoting whether to print the list and vector entries of
+//     *      dependent variables when propagating.
+//     */
+//    DependentVariableSaveSettings(
+//            const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables,
+//            const bool printDependentVariableTypes = true ):
+//        dependentVariables_( dependentVariables ), printDependentVariableTypes_( printDependentVariableTypes ){ }
 
-    // List of settings for parameters that are to be saved.
-    std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables_;
+//    // List of settings for parameters that are to be saved.
+//    std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables_;
 
-    // Variable denoting whether to print the list and vector entries of dependent variables when propagating.
-    bool printDependentVariableTypes_;
-};
+//    // Variable denoting whether to print the list and vector entries of dependent variables when propagating.
+//    bool printDependentVariableTypes_;
+//};
 
-//! @get_docstring(createDependentVariableSaveSettings.__docstring__)
-inline std::shared_ptr< DependentVariableSaveSettings > createDependentVariableSaveSettings(
-        const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables,
-        const bool printDependentVariableTypes = true )
-{
-    return std::make_shared< DependentVariableSaveSettings >(
-                dependentVariables, printDependentVariableTypes );
-}
+////! @get_docstring(createDependentVariableSaveSettings.__docstring__)
+//inline std::shared_ptr< DependentVariableSaveSettings > createDependentVariableSaveSettings(
+//        const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables,
+//        const bool printDependentVariableTypes = true )
+//{
+//    return std::make_shared< DependentVariableSaveSettings >(
+//                dependentVariables, printDependentVariableTypes );
+//}
 
 // Function to get a string representing a 'named identification' of a variable type.
 /*
