@@ -324,7 +324,7 @@ BOOST_AUTO_TEST_CASE( testControlSurfaceIncrementInterfaceInPropagation )
             std::make_shared< TranslationalStatePropagatorSettings< double > >
             ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState,
               std::make_shared< propagators::PropagationTimeTerminationSettings >( 1000.0 ), cowell,
-              std::make_shared< DependentVariableSaveSettings >( dependentVariables ) );
+              dependentVariables );
     std::shared_ptr< IntegratorSettings< > > integratorSettings =
             std::make_shared< IntegratorSettings< > >
             ( rungeKutta4, simulationStartEpoch, fixedStepSize );

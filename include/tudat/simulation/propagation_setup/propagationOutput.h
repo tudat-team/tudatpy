@@ -1891,7 +1891,7 @@ Eigen::VectorXd evaluateListOfVectorFunctions(
  */
 template< typename TimeType = double, typename StateScalarType = double >
 std::pair< std::function< Eigen::VectorXd( ) >, std::map< int, std::string > > createDependentVariableListFunction(
-        const std::shared_ptr< DependentVariableSaveSettings > saveSettings,
+        const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables,
         const simulation_setup::SystemOfBodies& bodies,
         const std::unordered_map< IntegratedStateType,
         std::vector< std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > >& stateDerivativeModels =
@@ -1900,10 +1900,6 @@ std::pair< std::function< Eigen::VectorXd( ) >, std::map< int, std::string > > c
         const std::map< propagators::IntegratedStateType, orbit_determination::StateDerivativePartialsMap >& stateDerivativePartials =
         std::map< propagators::IntegratedStateType, orbit_determination::StateDerivativePartialsMap >( ) )
 {
-    // Retrieve list of save settings
-    std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables =
-            saveSettings->dependentVariables_;
-
     // create list of vector parameters
     std::vector< std::pair< std::function< Eigen::VectorXd( ) >, int > > vectorFunctionList;
     std::vector< std::pair< std::string, int > > vectorVariableList;

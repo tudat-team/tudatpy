@@ -101,14 +101,11 @@ std::pair< double, double > computeKeplerElementRatesDueToDissipation(
                             direct_tidal_dissipation_in_orbiting_body_acceleration, satelliteToPropagate, "Jupiter" ) );
         }
 
-        std::shared_ptr< DependentVariableSaveSettings > dependentVariableSaveSettings =
-                std::make_shared< DependentVariableSaveSettings >( dependentVariablesToSave, 0 ) ;
-
         std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
                 std::make_shared< TranslationalStatePropagatorSettings< double > >
                 ( centralBodies, accelerationModelMap, bodiesToPropagate, getInitialStatesOfBodies(
                       bodiesToPropagate, centralBodies, bodies, initialTime ), finalTime, cowell,
-                  dependentVariableSaveSettings );
+                  dependentVariablesToSave );
 
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

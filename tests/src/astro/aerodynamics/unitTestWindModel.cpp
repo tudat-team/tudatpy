@@ -125,7 +125,6 @@ BOOST_AUTO_TEST_CASE( testWindModelInPropagation )
                     bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
         // Set variables to save
-        std::shared_ptr< DependentVariableSaveSettings > dependentVariableSaveSettings;
         std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
         dependentVariables.push_back(
                     std::make_shared< SingleDependentVariableSaveSettings >(
@@ -151,7 +150,6 @@ BOOST_AUTO_TEST_CASE( testWindModelInPropagation )
         dependentVariables.push_back(
                     std::make_shared< SingleAccelerationDependentVariableSaveSettings >(
                         aerodynamic, "Vehicle", "Earth", 0 ) );
-        dependentVariableSaveSettings = std::make_shared< DependentVariableSaveSettings >( dependentVariables );
 
         // Set propagation/integration settings
         std::shared_ptr< PropagationTimeTerminationSettings > terminationSettings =
@@ -159,7 +157,7 @@ BOOST_AUTO_TEST_CASE( testWindModelInPropagation )
         std::shared_ptr< TranslationalStatePropagatorSettings< double > > translationalPropagatorSettings =
                 std::make_shared< TranslationalStatePropagatorSettings< double > >
                 ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, terminationSettings,
-                  cowell, dependentVariableSaveSettings );
+                  cowell, dependentVariables );
         std::shared_ptr< IntegratorSettings< > > integratorSettings =
                 std::make_shared< IntegratorSettings< > >
                 ( rungeKutta4, 0.0, 5.0 );

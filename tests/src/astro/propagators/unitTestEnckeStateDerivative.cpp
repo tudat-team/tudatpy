@@ -172,7 +172,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForPointMassCentralBodies )
         std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
                 std::make_shared< TranslationalStatePropagatorSettings< double > >
                 ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, finalEphemerisTime,
-                  cowell, std::make_shared< DependentVariableSaveSettings >( dependentVariables ) );
+                  cowell, dependentVariables );
 
         // Propagate orbit with Cowell method
         SingleArcDynamicsSimulator< double > dynamicsSimulator2(
@@ -203,7 +203,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForPointMassCentralBodies )
         // Create propagation settings (Encke)
         propagatorSettings = std::make_shared< TranslationalStatePropagatorSettings< double > >
                 ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, finalEphemerisTime,
-                  encke, std::make_shared< DependentVariableSaveSettings >( dependentVariables ) );
+                  encke, dependentVariables );
 
         // Propagate orbit with Encke method
         SingleArcDynamicsSimulator< double > dynamicsSimulator(
@@ -415,7 +415,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
         std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
                 std::make_shared< TranslationalStatePropagatorSettings< double > >
                 ( centralBodies, accelerationModelMap, bodiesToPropagate, vehicleInitialState, simulationEndEpoch,
-                  cowell, std::make_shared< DependentVariableSaveSettings >( dependentVariables ) );
+                  cowell, dependentVariables );
 
         // Define integrator settings.
         const double fixedStepSize = 5.0;
@@ -447,7 +447,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
         // Create propagation settings (Encke)
         propagatorSettings = std::make_shared< TranslationalStatePropagatorSettings< double > >
                 ( centralBodies, accelerationModelMap, bodiesToPropagate, vehicleInitialState, simulationEndEpoch,
-                  encke, std::make_shared< DependentVariableSaveSettings >( dependentVariables ) );
+                  encke, dependentVariables );
 
         // Propagate orbit with Encke method
         SingleArcDynamicsSimulator< double > dynamicsSimulator(

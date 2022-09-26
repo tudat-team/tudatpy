@@ -133,7 +133,7 @@ std::pair< std::shared_ptr< PodOutput< StateScalarType, TimeType > >, Eigen::Vec
             ( centralBodies, accelerationModelMap, bodiesToIntegrate,
               getInitialStateVectorOfBodiesToEstimate( parametersToEstimate ),
               TimeType( finalEphemerisTime + 4.0 * maximumTimeStep ),
-              cowell, std::shared_ptr< DependentVariableSaveSettings >( ) );
+              cowell );
 
 
     // Define link ends
