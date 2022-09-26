@@ -300,6 +300,48 @@ BOOST_AUTO_TEST_CASE( test_SphericalHarmonicsGravitationalAccelerationWrapperCla
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedAcceleration, acceleration, 1.0e-15 );
 }
 
+// Test the computation of the potential using the wrapper class, for harmonics terms up to degree 0 and order 0.
+BOOST_AUTO_TEST_CASE( test_SphericalHarmonicsGravitationalPotentialWrapperClass )
+{
+    // Short-cuts.
+    using namespace gravitation;
+
+    // Define gravitational parameter of Earth [m^3 s^-2]. The value is obtained from the Earth
+    // Gravitational Model 2008 as described by Mathworks [2012].
+    const double gravitationalParameter = 3.986004418e14;
+
+    // Define radius of Earth [m]. The value is obtained from the Earth Gravitational Model 2008 as
+    // described by Mathworks [2012].
+    const double planetaryRadius = 6378137.0;
+
+    // Define geodesy-normalized coefficients up to degree 0 and order 0.
+    const Eigen::MatrixXd cosineCoefficients =
+            ( Eigen::MatrixXd( 1, 1 ) << 1.0 ).finished( );
+
+    const Eigen::MatrixXd sineCoefficients =
+            ( Eigen::MatrixXd( 1, 1 ) << 0.0 ).finished( );
+
+    // Define arbitrary Cartesian position [m].
+    const Eigen::Vector3d position( 7.0e6, 8.0e6, 9.0e6 );
+
+    // Declare spherical harmonics gravitational acceleration class object.
+    SphericalHarmonicsGravitationalAccelerationModelPointer earthGravity
+            = std::make_shared< SphericalHarmonicsGravitationalAccelerationModel >(
+                [ & ]( Eigen::Vector3d& input ){ input = position; }, gravitationalParameter, planetaryRadius,
+                cosineCoefficients, sineCoefficients );
+    earthGravity->resetUpdatePotential( true );
+    earthGravity->updateMembers( );
+
+    // Compute resultant acceleration [m s^-2].
+    const double potential = earthGravity->getCurrentPotential( );
+
+    // Generate expected result for the potential of myPlanet
+    double expectedPotential = gravitationalParameter / position.norm( );
+
+    // Check if expected result matches computed result.
+    BOOST_CHECK_EQUAL( expectedPotential, potential );
+}
+
 BOOST_AUTO_TEST_SUITE_END( )
 
 } // namespace unit_tests
