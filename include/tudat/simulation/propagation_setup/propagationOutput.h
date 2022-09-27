@@ -1972,13 +1972,15 @@ std::function< double( ) > getDoubleDependentVariableFunction(
                 variableFunction = [ = ] ( ) { return polyhedronAccelerationModel->getCurrentLaplacianOfPotential( ); };
             }
             else {
-                std::string errorMessage = "Error, when setting up gravitational potential as dependent variable, for" +
+                std::string errorMessage = "Error, when setting up gravitational potential as dependent variable, for " +
                                            std::to_string( selectedAccelerationModelType ) + " gravity model of " +
                                            bodyWithProperty +
-                                           "w.r.t." + secondaryBody +
-                                           "acceleration model does not have the computation of potential implemented.";
+                                           " w.r.t. " + secondaryBody +
+                                           ": acceleration model does not have the computation of potential implemented.";
                 throw std::runtime_error( errorMessage );
             }
+
+            break;
         }
         default:
             std::string errorMessage =
