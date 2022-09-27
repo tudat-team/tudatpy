@@ -339,15 +339,6 @@ getGravitationalAccelerationForDependentVariables(
                 dependentVariableSettings->associatedBody_, dependentVariableSettings->secondaryBody_,
                 stateDerivativeModels, accelerationModelType );
 
-        // Check if third-body counterpart of acceleration is found
-        if( listOfSuitableAccelerationModels.size( ) == 0 )
-        {
-            listOfSuitableAccelerationModels = getAccelerationBetweenBodies(
-                    dependentVariableSettings->associatedBody_, dependentVariableSettings->secondaryBody_,
-                    stateDerivativeModels, basic_astrodynamics::getAssociatedThirdBodyAcceleration(
-                            accelerationModelType ) );
-        }
-
         // Check if gravitational acceleration between the two bodies was found
         if( listOfSuitableAccelerationModels.size( ) == 1 )
         {
@@ -355,14 +346,29 @@ getGravitationalAccelerationForDependentVariables(
             selectedAccelerationModel = listOfSuitableAccelerationModels.at( 0 );
             break;
         }
+
+        // Check if third-body counterpart of acceleration is found
+        if( listOfSuitableAccelerationModels.size( ) == 0 )
+        {
+            listOfSuitableAccelerationModels = getAccelerationBetweenBodies(
+                    dependentVariableSettings->associatedBody_, dependentVariableSettings->secondaryBody_,
+                    stateDerivativeModels, basic_astrodynamics::getAssociatedThirdBodyAcceleration( accelerationModelType ) );
+
+            // Check if gravitational acceleration between the two bodies was found
+            if( listOfSuitableAccelerationModels.size( ) == 1 )
+            {
+                selectedAccelerationModelType = basic_astrodynamics::getAssociatedThirdBodyAcceleration( accelerationModelType );
+                selectedAccelerationModel = listOfSuitableAccelerationModels.at( 0 );
+                break;
+            }
+        }
     }
 
     if( listOfSuitableAccelerationModels.size( ) != 1 )
     {
         std::string errorMessage = "Error when getting acceleration between bodies " +
                 dependentVariableSettings->associatedBody_ + " and " +
-                dependentVariableSettings->secondaryBody_ + ": no acceleration with implemented"
-                "computation of gravitational potential found.";
+                dependentVariableSettings->secondaryBody_ + ": no gravitational acceleration found.";
         throw std::runtime_error( errorMessage );
     }
 
@@ -1863,26 +1869,15 @@ std::function< double( ) > getDoubleDependentVariableFunction(
             }
             else if ( selectedAccelerationModelType == basic_astrodynamics::third_body_point_mass_gravity )
             {
-                std::cerr << "Hello" << std::endl;
 
                 std::shared_ptr< gravitation::ThirdBodyCentralGravityAcceleration >
                         thirdBodyPointMassAccelerationModel =  std::dynamic_pointer_cast<
                                 gravitation::ThirdBodyCentralGravityAcceleration >( selectedAccelerationModel );
 
-                if ( thirdBodyPointMassAccelerationModel == nullptr )
-                {
-                    std::cerr << "Ups1!" << std::endl;
-                }
-
                 std::shared_ptr< gravitation::CentralGravitationalAccelerationModel3d >
                         pointMassAccelerationModel =  std::dynamic_pointer_cast<
                                 gravitation::CentralGravitationalAccelerationModel3d >(
                                         thirdBodyPointMassAccelerationModel->getAccelerationModelForBodyUndergoingAcceleration( ) );
-
-                if ( pointMassAccelerationModel == nullptr )
-                {
-                    std::cerr << "Ups2!" << std::endl;
-                }
 
                 pointMassAccelerationModel->resetUpdatePotential( true );
                 variableFunction = [=]( ){ return pointMassAccelerationModel->getCurrentPotential( ); };
