@@ -33,6 +33,7 @@
 #include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
 #include "tudat/math/integrators/createNumericalIntegrator.h"
 #include "tudat/astro/basic_astro/celestialBodyConstants.h"
+#include "tudat/astro/basic_astro/polyhedronFuntions.h"
 
 namespace tudat
 {
@@ -41,7 +42,7 @@ namespace unit_tests
 
 BOOST_AUTO_TEST_SUITE( test_encke_propagator )
 
-/*
+
 // Test Encke propagator for point mass central body.
 BOOST_AUTO_TEST_CASE( testEnckePopagatorForPointMassCentralBodies )
 {
@@ -279,7 +280,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForPointMassCentralBodies )
         }
     }
 }
-*/
+
 // Test Encke propagator for point mass, spherical harmonics, and polyhedron central body.
 BOOST_AUTO_TEST_CASE( testEnckePopagatorForPointMassSphericalHarmonicPolyhedronCentralBodies )
 {
@@ -317,9 +318,9 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForPointMassSphericalHarmonicPolyhedronC
         if ( simulationCase >= 4 )
         {
             // Define cuboid polyhedron dimensions
-            const double w = 500e3 / 2; // width
-            const double h = 500e3 / 2; // height
-            const double l = 500e3 / 2; // length
+            const double w = 6378e3 / 2; // width
+            const double h = 6378e3 / 2; // height
+            const double l = 6378e3 / 2; // length
 
             // Define cuboid
             Eigen::MatrixXd verticesCoordinates(8,3);
@@ -346,6 +347,9 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForPointMassSphericalHarmonicPolyhedronC
                 6, 3, 2,
                 5, 3, 7,
                 3, 5, 1;
+
+            verticesCoordinates = basic_astrodynamics::modifyPolyhedronCentroidPosition(
+                    verticesCoordinates, verticesDefiningEachFacet, Eigen::Vector3d::Zero() );
 
             bodySettings.at( "Earth" )->gravityFieldSettings = polyhedronGravitySettings(
                 celestial_body_constants::EARTH_GRAVITATIONAL_PARAMETER, verticesCoordinates,
@@ -550,7 +554,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForPointMassSphericalHarmonicPolyhedronC
         }
     }
 }
-/*
+
 //! test if Encke propagator works properly for high eccentricities. Test if the propagation continmues unimpeded for
 //! large eccentricities (was found to fail in rpevious version due to no convergence of root finder
 BOOST_AUTO_TEST_CASE( testEnckePopagatorForHighEccentricities )
@@ -669,7 +673,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForHighEccentricities )
     }
 
 }
-*/
+
 BOOST_AUTO_TEST_SUITE_END( )
 
 
