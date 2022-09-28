@@ -465,6 +465,7 @@ private:
 
 };
 
+
 template< typename StateScalarType = double, typename TimeType = double >
 std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > validateDeprecatedSingleArcSettings(
         const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
@@ -2068,6 +2069,36 @@ protected:
     //! Size of multi-arc concatenated initial state vector
     int multiArcDynamicsSize_;
 };
+
+
+
+
+template< typename StateScalarType = double, typename TimeType = double >
+std::shared_ptr< PropagatorSettings< StateScalarType > > validateDeprecatePropagatorSettings(
+        const std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > >& integratorSettings,
+        const std::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings )
+{
+    if( std::dynamic_pointer_cast< propagators::SingleArcPropagatorSettings< StateScalarType > >( propagatorSettings ) != nullptr )
+    {
+        return validateDeprecatedSingleArcSettings( integratorSettings.at( 0 ), propagatorSettings );
+    }
+    else if( std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< StateScalarType > >( propagatorSettings ) != nullptr )
+    {
+        throw std::runtime_error( "Error when validating deprecated propagator settings, multi-arc not yet implemented" );
+        return nullptr;
+//        validateDeprecatedMultiArcSettings( integratorSettings.at( 0 ), propagatorSettings );
+    }
+    else if( std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< StateScalarType > >( propagatorSettings ) != nullptr )
+    {
+        throw std::runtime_error( "Error when validating deprecated propagator settings, hybrid-arc not yet implemented" );
+        return nullptr;
+    }
+    else
+    {
+        throw std::runtime_error( "Error when validating deprecated propagator settings" );
+        return nullptr;
+    }
+}
 
 extern template class DynamicsSimulator< double, double >;
 extern template class SingleArcDynamicsSimulator< double, double >;
