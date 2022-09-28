@@ -754,12 +754,6 @@ public:
 
 protected:
 
-    void validateDeprecatedIntegratorSettings(
-            const std::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > propagatorSettings,
-            const std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > >& integratorSettings )
-    {
-
-    }
     //! Function called by either constructor to initialize the object.
     /*!
      *  Function called by either constructor to initialize the object.
@@ -775,13 +769,14 @@ protected:
     void initializeOrbitDeterminationManager(
             const SystemOfBodies &bodies,
             const std::vector< std::shared_ptr< observation_models::ObservationModelSettings > >& observationSettingsList,
-            const std::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > propagatorSettings,
+            const std::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > prevalidatedPropagatorSettings,
             const bool propagateOnCreation = true,
             const std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > integratorSettings =
              std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > >( ) )
     {
-        validateDeprecatedIntegratorSettings( propagatorSettings, integratorSettings );
-
+        std::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > propagatorSettings =
+                propagators::validateDeprecatePropagatorSettings( integratorSettings, prevalidatedPropagatorSettings );
+        propagators::toggleIntegratedResultSettings< ObservationScalarType, TimeType >( propagatorSettings );
         using namespace numerical_integrators;
         using namespace orbit_determination;
         using namespace observation_models;

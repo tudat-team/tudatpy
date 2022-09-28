@@ -2334,6 +2334,32 @@ void resetSingleArcInitialStates(
 
 }
 
+template< typename StateScalarType = double, typename TimeType = double >
+void toggleIntegratedResultSettings(
+        const std::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings )
+{
+    if( std::dynamic_pointer_cast< propagators::SingleArcPropagatorSettings< StateScalarType > >( propagatorSettings ) != nullptr )
+    {
+        std::dynamic_pointer_cast< propagators::SingleArcPropagatorSettings< StateScalarType > >(
+                    propagatorSettings )->getOutputSettings( )->setIntegratedResult = true;
+    }
+    else if( std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< StateScalarType > >( propagatorSettings ) != nullptr )
+    {
+        std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< StateScalarType > >(
+                    propagatorSettings )->getOutputSettings( )->setIntegratedResult = true;;
+    }
+    else if( std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< StateScalarType > >( propagatorSettings ) != nullptr )
+    {
+        throw std::runtime_error( "Error when defining setIntegratedResult, hybrid arc not yet supported" );
+
+    }
+    else
+    {
+        throw std::runtime_error( "Error when defining setIntegratedResult, dynamics type not recognized" );
+    }
+}
+
+
 
 extern template std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string > > > getIntegratedTypeAndBodyList< double >(
         const std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings );

@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MAIN
+//#define BOOST_TEST_DYN_LINK
+//#define BOOST_TEST_MAIN
 
 #include <string>
 #include <thread>
@@ -34,11 +34,11 @@
 #include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
 #include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
 
-namespace tudat
-{
+//namespace tudat
+//{
 
-namespace unit_tests
-{
+//namespace unit_tests
+//{
 
 //Using declarations.
 using namespace tudat;
@@ -53,11 +53,11 @@ using namespace tudat::orbital_element_conversions;
 using namespace tudat::ephemerides;
 using namespace tudat::propagators;
 
-BOOST_AUTO_TEST_SUITE( test_variational_equation_calculation )
+//BOOST_AUTO_TEST_SUITE( test_variational_equation_calculation )
 
 
 template< typename TimeType = double , typename StateScalarType  = double >
-        std::pair< std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > >,
+std::pair< std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > >,
 std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > >
 executeMultiArcEarthMoonSimulation(
         const std::vector< std::string > centralBodies,
@@ -264,10 +264,10 @@ executeMultiArcEarthMoonSimulation(
                 results.second.push_back( multiArcPropagatorSettings->getInitialStateList( ).at( arc ) );
                 Eigen::MatrixXd testMatrixDirect =
                         variationalEquations.getStateTransitionMatrixInterface( )->
-                          getCombinedStateTransitionAndSensitivityMatrix( testEpoch );
+                        getCombinedStateTransitionAndSensitivityMatrix( testEpoch );
                 Eigen::MatrixXd testMatrixFull=
                         variationalEquations.getStateTransitionMatrixInterface( )->
-                          getFullCombinedStateTransitionAndSensitivityMatrix( testEpoch );
+                        getFullCombinedStateTransitionAndSensitivityMatrix( testEpoch );
 
                 TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                             testMatrixDirect.block( 0, 0, 12, 12 ),
@@ -288,7 +288,9 @@ executeMultiArcEarthMoonSimulation(
     return results;
 }
 
-BOOST_AUTO_TEST_CASE( testEarthMoonMultiArcVariationalEquationCalculation )
+
+//BOOST_AUTO_TEST_CASE( testEarthMoonMultiArcVariationalEquationCalculation )
+int main( )
 {
     std::pair< std::vector< Eigen::MatrixXd >, std::vector< Eigen::VectorXd > > currentOutput;
 
@@ -408,21 +410,21 @@ BOOST_AUTO_TEST_CASE( testEarthMoonMultiArcVariationalEquationCalculation )
                 }
 
                 // Check results
-                for( unsigned int arc = 0; arc < manualPartial.size( ); arc++ )
-                {
-                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                                stateTransitionAndSensitivityMatrixAtEpoch.at( arc ).block( 0, 0, 12, 15 ),
-                                manualPartial.at( arc ).block( 0, 0, 12, 15 ), 5.0E-4 );
-                }
+//                for( unsigned int arc = 0; arc < manualPartial.size( ); arc++ )
+//                {
+//                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+//                                stateTransitionAndSensitivityMatrixAtEpoch.at( arc ).block( 0, 0, 12, 15 ),
+//                                manualPartial.at( arc ).block( 0, 0, 12, 15 ), 5.0E-4 );
+//                }
             }
         }
     }
 }
 
 
-BOOST_AUTO_TEST_SUITE_END( )
+//BOOST_AUTO_TEST_SUITE_END( )
 
-}
+//}
 
-}
+//}
 
