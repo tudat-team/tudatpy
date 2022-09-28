@@ -32,6 +32,7 @@
 #include "tudat/simulation/environment_setup/createBodies.h"
 #include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
 #include "tudat/math/integrators/createNumericalIntegrator.h"
+#include "tudat/astro/basic_astro/celestialBodyConstants.h"
 
 namespace tudat
 {
@@ -40,6 +41,7 @@ namespace unit_tests
 
 BOOST_AUTO_TEST_SUITE( test_encke_propagator )
 
+/*
 // Test Encke propagator for point mass central body.
 BOOST_AUTO_TEST_CASE( testEnckePopagatorForPointMassCentralBodies )
 {
@@ -277,11 +279,11 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForPointMassCentralBodies )
         }
     }
 }
-
-// Test Encke propagator for point mass, and spherical harmonics central body.
-BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
+*/
+// Test Encke propagator for point mass, spherical harmonics, and polyhedron central body.
+BOOST_AUTO_TEST_CASE( testEnckePopagatorForPointMassSphericalHarmonicPolyhedronCentralBodies )
 {
-    for( unsigned int simulationCase = 0; simulationCase < 4; simulationCase++ )
+    for( unsigned int simulationCase = 0; simulationCase < 6; simulationCase++ )
     {
         using namespace tudat;
         using namespace simulation_setup;
@@ -312,6 +314,43 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
         BodyListSettings bodySettings =
                 getDefaultBodySettings( bodiesToCreate, simulationStartEpoch - 300.0, simulationEndEpoch + 300.0,
                                         "SSB", "J2000" );
+        if ( simulationCase >= 4 )
+        {
+            // Define cuboid polyhedron dimensions
+            const double w = 500e3 / 2; // width
+            const double h = 500e3 / 2; // height
+            const double l = 500e3 / 2; // length
+
+            // Define cuboid
+            Eigen::MatrixXd verticesCoordinates(8,3);
+            verticesCoordinates <<
+                0.0, 0.0, 0.0,
+                l, 0.0, 0.0,
+                0.0, w, 0.0,
+                l, w, 0.0,
+                0.0, 0.0, h,
+                l, 0.0, h,
+                0.0, w, h,
+                l, w, h;
+            Eigen::MatrixXi verticesDefiningEachFacet(12,3);
+            verticesDefiningEachFacet <<
+                2, 1, 0,
+                1, 2, 3,
+                4, 2, 0,
+                2, 4, 6,
+                1, 4, 0,
+                4, 1, 5,
+                6, 5, 7,
+                5, 6, 4,
+                3, 6, 7,
+                6, 3, 2,
+                5, 3, 7,
+                3, 5, 1;
+
+            bodySettings.at( "Earth" )->gravityFieldSettings = polyhedronGravitySettings(
+                celestial_body_constants::EARTH_GRAVITATIONAL_PARAMETER, verticesCoordinates,
+                verticesDefiningEachFacet, "IAU_Earth");
+        }
         SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
         // Create spacecraft object.
@@ -341,11 +380,16 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
                                                              basic_astrodynamics::point_mass_gravity ) );
         }
         // Use spherical harmonics for Earth
-        else
+        else if ( simulationCase < 4 )
         {
             accelerationsOfVehicle[ "Earth" ].push_back(
                         std::make_shared< SphericalHarmonicAccelerationSettings >( 5, 5 ) );
 
+        }
+        // Use polyhedron for Earth
+        else
+        {
+            accelerationsOfVehicle[ "Earth" ].push_back( polyhedronAcceleration( ) );
         }
 
         // Use perturbations other than Earth gravity
@@ -398,7 +442,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
                             point_mass_gravity, "Vehicle", "Earth" ) );
         }
         // Use spherical harmonics for Earth
-        else
+        else if ( simulationCase < 4 )
         {
             dependentVariables.push_back(
                         std::make_shared< SingleAccelerationDependentVariableSaveSettings >(
@@ -407,9 +451,22 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
                         std::make_shared< SingleAccelerationDependentVariableSaveSettings >(
                             spherical_harmonic_gravity, "Vehicle", "Earth" ) );
         }
+        // Use polyhedron for Earth
+        else
+        {
+            dependentVariables.push_back(
+                        std::make_shared< SingleAccelerationDependentVariableSaveSettings >(
+                            polyhedron_gravity, "Vehicle", "Earth", 1 ) );
+            dependentVariables.push_back(
+                        std::make_shared< SingleAccelerationDependentVariableSaveSettings >(
+                            polyhedron_gravity, "Vehicle", "Earth" ) );
+        }
         dependentVariables.push_back(
                     std::make_shared< SingleDependentVariableSaveSettings >(
                         total_acceleration_dependent_variable, "Vehicle" ) );
+        dependentVariables.push_back(
+                        std::make_shared< SingleDependentVariableSaveSettings >(
+                            keplerian_state_dependent_variable,  "Vehicle", "Earth" ) );
 
         // Define propagator settings (Cowell)
         std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
@@ -493,7 +550,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
         }
     }
 }
-
+/*
 //! test if Encke propagator works properly for high eccentricities. Test if the propagation continmues unimpeded for
 //! large eccentricities (was found to fail in rpevious version due to no convergence of root finder
 BOOST_AUTO_TEST_CASE( testEnckePopagatorForHighEccentricities )
@@ -612,6 +669,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForHighEccentricities )
     }
 
 }
+*/
 BOOST_AUTO_TEST_SUITE_END( )
 
 
