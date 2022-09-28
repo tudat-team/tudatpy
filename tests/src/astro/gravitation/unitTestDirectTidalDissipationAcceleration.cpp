@@ -104,7 +104,8 @@ std::pair< double, double > computeKeplerElementRatesDueToDissipation(
         std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
                 std::make_shared< TranslationalStatePropagatorSettings< double > >
                 ( centralBodies, accelerationModelMap, bodiesToPropagate, getInitialStatesOfBodies(
-                      bodiesToPropagate, centralBodies, bodies, initialTime ), finalTime, cowell,
+                      bodiesToPropagate, centralBodies, bodies, initialTime ), integratorSettings,
+                  std::make_shared< PropagationTimeTerminationSettings >( finalTime ), cowell,
                   dependentVariablesToSave );
 
 
@@ -113,7 +114,7 @@ std::pair< double, double > computeKeplerElementRatesDueToDissipation(
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // Create simulation object and propagate dynamics.
         SingleArcDynamicsSimulator< > dynamicsSimulator(
-                    bodies, integratorSettings, propagatorSettings, true, false, false );
+                    bodies, propagatorSettings );
         integrationResultWithDissipation = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
 
         for( std::map< double, Eigen::VectorXd >::const_iterator mapIterator = integrationResultWithDissipation.begin( );

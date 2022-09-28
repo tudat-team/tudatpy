@@ -131,9 +131,10 @@ public:
             const bool propagateOnCreation = true ):
         parametersToEstimate_( parametersToEstimate )
     {
-        initializeOrbitDeterminationManager( bodies, observationSettingsList, { integratorSettings }, propagatorSettings,
-                                             propagateOnCreation );
+        initializeOrbitDeterminationManager( bodies, observationSettingsList, propagatorSettings,
+                                             propagateOnCreation, { integratorSettings } );
     }
+
 
     OrbitDeterminationManager(
             const SystemOfBodies &bodies,
@@ -145,7 +146,20 @@ public:
             const bool propagateOnCreation = true ):
         parametersToEstimate_( parametersToEstimate )
     {
-        initializeOrbitDeterminationManager( bodies, observationSettingsList, integratorSettings, propagatorSettings,
+        initializeOrbitDeterminationManager( bodies, observationSettingsList, propagatorSettings,
+                                             propagateOnCreation, integratorSettings );
+    }
+
+    OrbitDeterminationManager(
+            const SystemOfBodies &bodies,
+            const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > >
+            parametersToEstimate,
+            const std::vector< std::shared_ptr< observation_models::ObservationModelSettings > >& observationSettingsList,
+            const std::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > propagatorSettings,
+            const bool propagateOnCreation = true ):
+        parametersToEstimate_( parametersToEstimate )
+    {
+        initializeOrbitDeterminationManager( bodies, observationSettingsList, propagatorSettings,
                                              propagateOnCreation );
     }
 
@@ -740,6 +754,12 @@ public:
 
 protected:
 
+    void validateDeprecatedIntegratorSettings(
+            const std::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > propagatorSettings,
+            const std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > >& integratorSettings )
+    {
+
+    }
     //! Function called by either constructor to initialize the object.
     /*!
      *  Function called by either constructor to initialize the object.
@@ -755,10 +775,13 @@ protected:
     void initializeOrbitDeterminationManager(
             const SystemOfBodies &bodies,
             const std::vector< std::shared_ptr< observation_models::ObservationModelSettings > >& observationSettingsList,
-            const std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > integratorSettings,
             const std::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > propagatorSettings,
-            const bool propagateOnCreation = true )
+            const bool propagateOnCreation = true,
+            const std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > integratorSettings =
+             std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > >( ) )
     {
+        validateDeprecatedIntegratorSettings( propagatorSettings, integratorSettings );
+
         using namespace numerical_integrators;
         using namespace orbit_determination;
         using namespace observation_models;
@@ -781,8 +804,7 @@ protected:
         {
             variationalEquationsSolver_ =
                     simulation_setup::createVariationalEquationsSolver(
-                        bodies, integratorSettings, propagatorSettings, parametersToEstimate_, 1,
-                        std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ), 0, propagateOnCreation );
+                        bodies, propagatorSettings, parametersToEstimate_, propagateOnCreation );
         }
 
         if( integrateAndEstimateOrbit_ )

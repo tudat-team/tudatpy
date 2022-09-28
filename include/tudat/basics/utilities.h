@@ -730,6 +730,25 @@ std::map< KeyType, ScalarType > getSingleVectorEntryHistory(
     return extractedMap;
 }
 
+template< typename A >
+std::vector< std::shared_ptr< A > > deepcopyDuplicatePointers(
+        const std::vector< std::shared_ptr< A > > originalPointers )
+{
+    std::vector< std::shared_ptr< A > > noDuplicatePointers;
+    for( unsigned int i = 0; i < originalPointers.size( ); i++ )
+    {
+        if( std::find( noDuplicatePointers.begin( ), noDuplicatePointers.end( ), originalPointers.at( i ) ) == noDuplicatePointers.end( ) )
+        {
+            noDuplicatePointers.push_back( originalPointers.at( i ) );
+        }
+        else
+        {
+            noDuplicatePointers.push_back( std::make_shared< A >( *originalPointers.at( i ) ) );
+        }
+    }
+    return noDuplicatePointers;
+}
+
 
 } // namespace utilities
 
