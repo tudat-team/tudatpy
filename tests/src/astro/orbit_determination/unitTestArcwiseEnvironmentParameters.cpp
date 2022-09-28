@@ -148,10 +148,6 @@ BOOST_AUTO_TEST_CASE( test_ArcwiseEnvironmentParameters )
                 std::make_shared< SingleDependentVariableSaveSettings >(
                     radiation_pressure_coefficient_dependent_variable, "Vehicle", "Sun" ) );
 
-    std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
-            std::make_shared< TranslationalStatePropagatorSettings< double > >(
-                centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState, double( finalEphemerisTime ),
-                cowell, dependentVariables);
 
     // Create integrator settings
     std::shared_ptr< IntegratorSettings< double > > integratorSettings =
@@ -159,6 +155,13 @@ BOOST_AUTO_TEST_CASE( test_ArcwiseEnvironmentParameters )
                 double( initialEphemerisTime ), 90.0,
                 CoefficientSets::rungeKuttaFehlberg78,
                 90.0, 90.0, 1.0, 1.0 );
+
+    std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
+            std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState, integratorSettings,
+                std::make_shared< PropagationTimeTerminationSettings >( finalEphemerisTime ),
+                cowell, dependentVariables);
+
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             CREATE OBSERVATION SETTINGS            ////////////////////////////////////////////

@@ -181,7 +181,7 @@ public:
         PropagatorSettings< StateScalarType >( initialBodyStates, false ),
         stateType_( stateType ), terminationSettings_( terminationSettings ),
         dependentVariablesToSave_( dependentVariablesToSave ),
-        integratorSettings_( nullptr ), outputSettings_( nullptr ), printInterval_( printInterval)
+        integratorSettings_( nullptr ), outputSettings_( std::make_shared< PropagatorOutputSettings >( ) ), printInterval_( printInterval)
     { }
 
     SingleArcPropagatorSettings( const IntegratedStateType stateType,
@@ -282,6 +282,15 @@ public:
 
     std::shared_ptr< PropagatorOutputSettings > getOutputSettings( )
     {
+        return outputSettings_;
+    }
+
+    std::shared_ptr< PropagatorOutputSettings > getOutputSettingsWithCheck( )
+    {
+        if( outputSettings_ == nullptr )
+        {
+            throw std::runtime_error( "Error whenen getting output settings from single-arc propagator settings; no output settings defined" );
+        }
         return outputSettings_;
     }
 
@@ -517,7 +526,20 @@ public:
         }
     }
 
+
+    std::shared_ptr< PropagatorOutputSettings > getOutputSettings( )
+    {
+        return outputSettings_;
+    }
+
+    void setOutputSettings( const std::shared_ptr< PropagatorOutputSettings > outputSettings )
+    {
+        outputSettings_ = outputSettings;
+    }
+
 protected:
+
+    std::shared_ptr< PropagatorOutputSettings > outputSettings_;
 
     //! List of propagator settings for each arc in propagation.
     std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > > singleArcSettings_;
