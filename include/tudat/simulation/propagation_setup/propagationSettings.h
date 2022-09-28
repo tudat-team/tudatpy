@@ -151,6 +151,8 @@ public:
     double printInterval = TUDAT_NAN;
 };
 
+
+
 //! Base class for defining setting of a propagator for single-arc dynamics
 /*!
  *  Base class for defining setting of a propagator for single-arc dynamics. This class is non-functional, and each state type

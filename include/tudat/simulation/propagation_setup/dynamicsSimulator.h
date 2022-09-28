@@ -1304,15 +1304,27 @@ std::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > validateDepreca
         const bool clearNumericalSolutions = true,
         const bool setIntegratedResult = true  )
 {
-    std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > independentIntegratorSettings =
-            utilities::deepcopyDuplicatePointers( integratorSettings );
     std::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > multiArcPropagatorSettings =
             std::dynamic_pointer_cast< MultiArcPropagatorSettings< StateScalarType > >( propagatorSettings );
     if( multiArcPropagatorSettings == nullptr )
     {
         throw std::runtime_error( "Error in dynamics simulator (deprecated), input must be multi-arc." );
     }
-    else if( multiArcPropagatorSettings->getSingleArcSettings( ).size( ) != independentIntegratorSettings.size( ) )
+
+    std::vector<std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > integratorSettingsList;
+    if( integratorSettings.size( ) == 1 &&  multiArcPropagatorSettings->getSingleArcSettings( ).size( ) > 1 )
+    {
+        integratorSettingsList = std::vector<std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > >(
+                    multiArcPropagatorSettings->getSingleArcSettings( ).size( ), integratorSettings.at( 0 ) );
+    }
+    else
+    {
+        integratorSettingsList = integratorSettings;
+    }
+    std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > independentIntegratorSettings =
+            utilities::deepcopyDuplicatePointers( integratorSettingsList );
+
+    if( multiArcPropagatorSettings->getSingleArcSettings( ).size( ) != independentIntegratorSettings.size( ) )
     {
         throw std::runtime_error( "Error in multi-arc dynamics simulator (deprecated), number of integrator settings is inconsistent." );
     }
@@ -1359,6 +1371,7 @@ std::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > validateDepreca
     return validateDeprecatedMultiArcSettings(
                 independentIntegratorSettingsList, propagatorSettings, clearNumericalSolutions, setIntegratedResult );
 }
+
 
 //! Class for performing full numerical integration of a dynamical system over multiple arcs.
 /*!
@@ -2084,9 +2097,7 @@ std::shared_ptr< PropagatorSettings< StateScalarType > > validateDeprecatePropag
     }
     else if( std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< StateScalarType > >( propagatorSettings ) != nullptr )
     {
-        throw std::runtime_error( "Error when validating deprecated propagator settings, multi-arc not yet implemented" );
-        return nullptr;
-//        validateDeprecatedMultiArcSettings( integratorSettings.at( 0 ), propagatorSettings );
+        return validateDeprecatedMultiArcSettings( integratorSettings, propagatorSettings );
     }
     else if( std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< StateScalarType > >( propagatorSettings ) != nullptr )
     {
