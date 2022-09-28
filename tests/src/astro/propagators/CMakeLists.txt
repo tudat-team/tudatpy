@@ -8,68 +8,68 @@
 #    http://tudat.tudelft.nl/LICENSE.
 #
 
-#TUDAT_ADD_TEST_CASE(CentralBodyData
-#        PRIVATE_LINKS
-#        tudat_propagators
-#        tudat_basic_mathematics
-#        )
-#
-#TUDAT_ADD_TEST_CASE(CowellStateDerivative
-#        PRIVATE_LINKS
-#        ${Tudat_PROPAGATION_LIBRARIES}
-#        )
-#
+TUDAT_ADD_TEST_CASE(CentralBodyData
+        PRIVATE_LINKS
+        tudat_propagators
+        tudat_basic_mathematics
+        )
+
+TUDAT_ADD_TEST_CASE(CowellStateDerivative
+        PRIVATE_LINKS
+        ${Tudat_PROPAGATION_LIBRARIES}
+        )
+
 TUDAT_ADD_TEST_CASE(EnckeStateDerivative PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
 
-#TUDAT_ADD_TEST_CASE(GaussStateDerivative PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
-#
-#TUDAT_ADD_TEST_CASE(UnifiedStateModelStateDerivative PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
-#
-#TUDAT_ADD_TEST_CASE(EnvironmentUpdater PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
-#
-#TUDAT_ADD_TEST_CASE(BodyMassPropagation PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
-#
-#TUDAT_ADD_TEST_CASE(MultiTypeStatePropagation PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
-#
-#TUDAT_ADD_TEST_CASE(StoppingConditions PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
-#
-#TUDAT_ADD_TEST_CASE(CustomStatePropagation PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
-#
-#TUDAT_ADD_TEST_CASE(MultiArcDynamics PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
-#
-#TUDAT_ADD_TEST_CASE(HybridArcDynamics PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
-#
-#TUDAT_ADD_TEST_CASE(PropagationTerminationReason PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
-#
-#TUDAT_ADD_TEST_CASE(RotationalDynamicsPropagator PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
-#
-#TUDAT_ADD_TEST_CASE(CR3BPPropagation PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
-#
-#TUDAT_ADD_TEST_CASE(PropagationTerminationCheckOnFinalStep PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
-#
-#TUDAT_ADD_TEST_CASE(GlobalFrameOrigin PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
-#
-#TUDAT_ADD_TEST_CASE(ForwardsBackwardsIntegration PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
-#
-#TUDAT_ADD_TEST_CASE(ExactTermination PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
-#
-#TUDAT_ADD_TEST_CASE(StateDerivativeRestrictedThreeBodyProblem PRIVATE_LINKS tudat_mission_segments tudat_root_finders tudat_propagators tudat_numerical_integrators tudat_basic_astrodynamics tudat_input_output)
-#
+TUDAT_ADD_TEST_CASE(GaussStateDerivative PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
+
+TUDAT_ADD_TEST_CASE(UnifiedStateModelStateDerivative PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
+
+TUDAT_ADD_TEST_CASE(EnvironmentUpdater PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
+
+TUDAT_ADD_TEST_CASE(BodyMassPropagation PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
+
+TUDAT_ADD_TEST_CASE(MultiTypeStatePropagation PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
+
+TUDAT_ADD_TEST_CASE(StoppingConditions PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
+
+TUDAT_ADD_TEST_CASE(CustomStatePropagation PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
+
+TUDAT_ADD_TEST_CASE(MultiArcDynamics PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
+
+TUDAT_ADD_TEST_CASE(HybridArcDynamics PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
+
+TUDAT_ADD_TEST_CASE(PropagationTerminationReason PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
+
+TUDAT_ADD_TEST_CASE(RotationalDynamicsPropagator PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
+
+TUDAT_ADD_TEST_CASE(CR3BPPropagation PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
+
+TUDAT_ADD_TEST_CASE(PropagationTerminationCheckOnFinalStep PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
+
+TUDAT_ADD_TEST_CASE(GlobalFrameOrigin PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
+
+TUDAT_ADD_TEST_CASE(ForwardsBackwardsIntegration PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
+
+TUDAT_ADD_TEST_CASE(ExactTermination PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
+
+TUDAT_ADD_TEST_CASE(StateDerivativeRestrictedThreeBodyProblem PRIVATE_LINKS tudat_mission_segments tudat_root_finders tudat_propagators tudat_numerical_integrators tudat_basic_astrodynamics tudat_input_output)
+
 #TUDAT_ADD_TEST_CASE(FullPropagationRestrictedThreeBodyProblem PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
-#
-##TUDAT_ADD_TEST_CASE(FullPropagationLambertTargeter PRIVATE_LINKS tudat_trajectory_design tudat_mission_segments tudat_ephemerides tudat_basic_astrodynamics tudat_basic_mathematics PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
-#
-##TUDAT_ADD_TEST_CASE(FullPropagationPatchedConicsTrajectory PRIVATE_LINKS tudat_trajectory_design tudat_mission_segments tudat_ephemerides tudat_basic_astrodynamics tudat_basic_mathematics PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
+
+#TUDAT_ADD_TEST_CASE(FullPropagationLambertTargeter PRIVATE_LINKS tudat_trajectory_design tudat_mission_segments tudat_ephemerides tudat_basic_astrodynamics tudat_basic_mathematics PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
+
+#TUDAT_ADD_TEST_CASE(FullPropagationPatchedConicsTrajectory PRIVATE_LINKS tudat_trajectory_design tudat_mission_segments tudat_ephemerides tudat_basic_astrodynamics tudat_basic_mathematics PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
 
 
 if(TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
-#TUDAT_ADD_TEST_CASE(SequentialVariationalEquations PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
-#
-#TUDAT_ADD_TEST_CASE(VariationalEquations PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
-#
-#TUDAT_ADD_TEST_CASE(MultiArcVariationalEquations PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
-#
-#TUDAT_ADD_TEST_CASE(HybridArcVariationalEquations PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
+TUDAT_ADD_TEST_CASE(SequentialVariationalEquations PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
+
+TUDAT_ADD_TEST_CASE(VariationalEquations PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
+
+TUDAT_ADD_TEST_CASE(MultiArcVariationalEquations PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
+
+TUDAT_ADD_TEST_CASE(HybridArcVariationalEquations PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
 
 TUDAT_ADD_TEST_CASE(DependentVariableOutput PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
 

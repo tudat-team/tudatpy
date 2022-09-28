@@ -15,83 +15,83 @@
 
 # Add subdirectories.
 add_subdirectory(acceleration_partials)
-#add_subdirectory(rotational_dynamics_partials)
-#add_subdirectory(observation_partials)
-#
-#
-#
-#TUDAT_ADD_TEST_CASE(EstimationInput
-#    PRIVATE_LINKS
-#    ${Tudat_ESTIMATION_LIBRARIES}
-#    )
-#
-#TUDAT_ADD_TEST_CASE(EstimationFromIdealDataDoubleDouble
-#    PRIVATE_LINKS
-#    ${Tudat_ESTIMATION_LIBRARIES}
-#    )
-#
-#TUDAT_ADD_TEST_CASE(TidalPropertyEstimation
-#    PRIVATE_LINKS
-#    ${Tudat_ESTIMATION_LIBRARIES}
-#    )
-#
-#TUDAT_ADD_TEST_CASE(HybridArcStateEstimation
-#    PRIVATE_LINKS
-#    ${Tudat_ESTIMATION_LIBRARIES}
-#    )
-#
-#TUDAT_ADD_TEST_CASE(MultiArcStateEstimation
-#    PRIVATE_LINKS
-#    ${Tudat_ESTIMATION_LIBRARIES}
-#    )
-#
-#TUDAT_ADD_TEST_CASE(ParameterInfluenceDetermination
-#    PRIVATE_LINKS
-#    ${Tudat_ESTIMATION_LIBRARIES}
-#    )
-#
-#TUDAT_ADD_TEST_CASE(BiasEstimation
-#    PRIVATE_LINKS
-#    ${Tudat_ESTIMATION_LIBRARIES}
-#    )
-#
-#TUDAT_ADD_TEST_CASE(RotationalStateEstimation
-#    PRIVATE_LINKS
-#    ${Tudat_ESTIMATION_LIBRARIES}
-#    )
-#
-#TUDAT_ADD_TEST_CASE(ArcwiseEnvironmentParameters
-#    PRIVATE_LINKS
-#    ${Tudat_ESTIMATION_LIBRARIES}
-#    )
-#
-#TUDAT_ADD_TEST_CASE(DesaturationDeltaVsEstimation
-#    PRIVATE_LINKS
-#    ${Tudat_ESTIMATION_LIBRARIES}
-#    )
-#
-#TUDAT_ADD_TEST_CASE(FullPlanetaryRotationModelEstimation
-#    PRIVATE_LINKS
-#    ${Tudat_ESTIMATION_LIBRARIES}
-#    )
-#
-#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
-#
-#    TUDAT_ADD_TEST_CASE(EstimationFromIdealDataDoubleLongDouble
-#        PRIVATE_LINKS
-#        ${Tudat_ESTIMATION_LIBRARIES}
-#        )
-#
-#    TUDAT_ADD_TEST_CASE(EstimationFromIdealDataTimeDouble
-#        PRIVATE_LINKS
-#        ${Tudat_ESTIMATION_LIBRARIES}
-#        )
-#
-#    TUDAT_ADD_TEST_CASE(EstimationFromIdealDataTimeLongDouble
-#        PRIVATE_LINKS
-#        ${Tudat_ESTIMATION_LIBRARIES}
-#        )
-#
-#endif( )
+add_subdirectory(rotational_dynamics_partials)
+add_subdirectory(observation_partials)
+
+
+
+TUDAT_ADD_TEST_CASE(EstimationInput
+    PRIVATE_LINKS
+    ${Tudat_ESTIMATION_LIBRARIES}
+    )
+
+TUDAT_ADD_TEST_CASE(EstimationFromIdealDataDoubleDouble
+    PRIVATE_LINKS
+    ${Tudat_ESTIMATION_LIBRARIES}
+    )
+
+TUDAT_ADD_TEST_CASE(TidalPropertyEstimation
+    PRIVATE_LINKS
+    ${Tudat_ESTIMATION_LIBRARIES}
+    )
+
+TUDAT_ADD_TEST_CASE(HybridArcStateEstimation
+    PRIVATE_LINKS
+    ${Tudat_ESTIMATION_LIBRARIES}
+    )
+
+TUDAT_ADD_TEST_CASE(MultiArcStateEstimation
+    PRIVATE_LINKS
+    ${Tudat_ESTIMATION_LIBRARIES}
+    )
+
+TUDAT_ADD_TEST_CASE(ParameterInfluenceDetermination
+    PRIVATE_LINKS
+    ${Tudat_ESTIMATION_LIBRARIES}
+    )
+
+TUDAT_ADD_TEST_CASE(BiasEstimation
+    PRIVATE_LINKS
+    ${Tudat_ESTIMATION_LIBRARIES}
+    )
+
+TUDAT_ADD_TEST_CASE(RotationalStateEstimation
+    PRIVATE_LINKS
+    ${Tudat_ESTIMATION_LIBRARIES}
+    )
+
+TUDAT_ADD_TEST_CASE(ArcwiseEnvironmentParameters
+    PRIVATE_LINKS
+    ${Tudat_ESTIMATION_LIBRARIES}
+    )
+
+TUDAT_ADD_TEST_CASE(DesaturationDeltaVsEstimation
+    PRIVATE_LINKS
+    ${Tudat_ESTIMATION_LIBRARIES}
+    )
+
+TUDAT_ADD_TEST_CASE(FullPlanetaryRotationModelEstimation
+    PRIVATE_LINKS
+    ${Tudat_ESTIMATION_LIBRARIES}
+    )
+
+if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+
+    TUDAT_ADD_TEST_CASE(EstimationFromIdealDataDoubleLongDouble
+        PRIVATE_LINKS
+        ${Tudat_ESTIMATION_LIBRARIES}
+        )
+
+    TUDAT_ADD_TEST_CASE(EstimationFromIdealDataTimeDouble
+        PRIVATE_LINKS
+        ${Tudat_ESTIMATION_LIBRARIES}
+        )
+
+    TUDAT_ADD_TEST_CASE(EstimationFromIdealDataTimeLongDouble
+        PRIVATE_LINKS
+        ${Tudat_ESTIMATION_LIBRARIES}
+        )
+
+endif( )
 
 

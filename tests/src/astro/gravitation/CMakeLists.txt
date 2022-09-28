@@ -25,64 +25,64 @@ TUDAT_ADD_TEST_CASE(CentralGravityModel
         tudat_basic_mathematics
         )
 
-#TUDAT_ADD_TEST_CASE(JacobiEnergy
-#        PRIVATE_LINKS
-#        tudat_gravitation
-#        tudat_mission_segments
-#        tudat_root_finders
-#        tudat_basic_astrodynamics
-#        tudat_input_output
-#        )
-#
-#TUDAT_ADD_TEST_CASE(UnitConversionsCircularRestrictedThreeBodyProblem
-#        PRIVATE_LINKS
-#        tudat_gravitation
-#        )
-#
-#TUDAT_ADD_TEST_CASE(LibrationPoints
-#    PRIVATE_LINKS
-#    tudat_ephemerides tudat_root_finders tudat_gravitation tudat_input_output )
+TUDAT_ADD_TEST_CASE(JacobiEnergy
+        PRIVATE_LINKS
+        tudat_gravitation
+        tudat_mission_segments
+        tudat_root_finders
+        tudat_basic_astrodynamics
+        tudat_input_output
+        )
+
+TUDAT_ADD_TEST_CASE(UnitConversionsCircularRestrictedThreeBodyProblem
+        PRIVATE_LINKS
+        tudat_gravitation
+        )
+
+TUDAT_ADD_TEST_CASE(LibrationPoints
+    PRIVATE_LINKS
+    tudat_ephemerides tudat_root_finders tudat_gravitation tudat_input_output )
 
 TUDAT_ADD_TEST_CASE(SphericalHarmonicsGravityModel
     PRIVATE_LINKS
     tudat_gravitation tudat_basic_astrodynamics tudat_basic_mathematics)
 
-#TUDAT_ADD_TEST_CASE(ThirdBodyPerturbation
-#    PRIVATE_LINKS
-#    tudat_gravitation tudat_basic_astrodynamics tudat_basic_mathematics)
-#
-#TUDAT_ADD_TEST_CASE(TriAxialEllipsoidGravity
-#    PRIVATE_LINKS
-#    tudat_gravitation tudat_basic_mathematics)
-#
-#TUDAT_ADD_TEST_CASE(DirectTidalDissipationAcceleration
-#    PRIVATE_LINKS
-#    ${Tudat_PROPAGATION_LIBRARIES})
-#
-##TUDAT_ADD_TEST_CASE(CentralAndZonalGravityModel
-##        PRIVATE_LINKS
-##        tudat_gravitation
-##        tudat_basic_astrodynamics
-##        tudat_basic_astrodynamics
-##        tudat_numerical_integrators
-##        SOURCES
-##        "planetTestData.cpp"
-##        )
-#
-#TUDAT_ADD_TEST_CASE(GravityFieldVariations
+TUDAT_ADD_TEST_CASE(ThirdBodyPerturbation
+    PRIVATE_LINKS
+    tudat_gravitation tudat_basic_astrodynamics tudat_basic_mathematics)
+
+TUDAT_ADD_TEST_CASE(TriAxialEllipsoidGravity
+    PRIVATE_LINKS
+    tudat_gravitation tudat_basic_mathematics)
+
+TUDAT_ADD_TEST_CASE(DirectTidalDissipationAcceleration
+    PRIVATE_LINKS
+    ${Tudat_PROPAGATION_LIBRARIES})
+
+#TUDAT_ADD_TEST_CASE(CentralAndZonalGravityModel
 #        PRIVATE_LINKS
-#        ${Tudat_PROPAGATION_LIBRARIES}
+#        tudat_gravitation
+#        tudat_basic_astrodynamics
+#        tudat_basic_astrodynamics
+#        tudat_numerical_integrators
+#        SOURCES
+#        "planetTestData.cpp"
 #        )
-#
-#TUDAT_ADD_TEST_CASE(MutualSphericalHarmonicAcceleration
-#        PRIVATE_LINKS
-#        ${Tudat_PROPAGATION_LIBRARIES}
-#        )
-#
-#TUDAT_ADD_TEST_CASE(GravitationalTorques
-#        PRIVATE_LINKS
-#        ${Tudat_PROPAGATION_LIBRARIES}
-#        )
+
+TUDAT_ADD_TEST_CASE(GravityFieldVariations
+        PRIVATE_LINKS
+        ${Tudat_PROPAGATION_LIBRARIES}
+        )
+
+TUDAT_ADD_TEST_CASE(MutualSphericalHarmonicAcceleration
+        PRIVATE_LINKS
+        ${Tudat_PROPAGATION_LIBRARIES}
+        )
+
+TUDAT_ADD_TEST_CASE(GravitationalTorques
+        PRIVATE_LINKS
+        ${Tudat_PROPAGATION_LIBRARIES}
+        )
 
 TUDAT_ADD_TEST_CASE(PolyhedronGravityField
         PRIVATE_LINKS
