@@ -34,6 +34,8 @@ BOOST_AUTO_TEST_SUITE( test_polyhedron_gravity_field )
 //! Test getters
 BOOST_AUTO_TEST_CASE( testSettingAndGettingParameters )
 {
+    const double tolerance = 1.0E-14;
+
     // Define cuboid polyhedron dimensions
     const double w = 10.0; // width
     const double h = 10.0; // height
@@ -76,11 +78,11 @@ BOOST_AUTO_TEST_CASE( testSettingAndGettingParameters )
 
     // Gravitational parameter
     double retrievedGravitationalParameter = gravityField.getGravitationalParameter();
-    BOOST_CHECK_EQUAL( gravitationalParameter, retrievedGravitationalParameter );
+    BOOST_CHECK_CLOSE_FRACTION( gravitationalParameter, retrievedGravitationalParameter, tolerance );
 
     // Volume
     double retrievedVolume = gravityField.getVolume();
-    BOOST_CHECK_EQUAL( volume, retrievedVolume );
+    BOOST_CHECK_CLOSE_FRACTION( volume, retrievedVolume, tolerance );
 
     // Vertices coordinates
     Eigen::MatrixXd retrievedVerticesCoordinates = gravityField.getVerticesCoordinates();
