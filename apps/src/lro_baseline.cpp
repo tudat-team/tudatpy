@@ -41,6 +41,7 @@ namespace simulation_constants
 
     const auto globalFrameOrigin = "Moon";
     const auto globalFrameOrientation = "ECLIPJ2000";
+    const auto moonFrame = "MOON_PA";
 
     const std::vector<std::string> bodiesToPropagate{"LRO"};
     const std::vector<std::string> centralBodies{"Moon"};
@@ -77,6 +78,9 @@ void loadLROSpiceKernels()
     loadSpiceKernelInTudat(path + "/pck/pck00010.tpc");
     // Planetary gravitational parameters
     loadSpiceKernelInTudat(path + "/pck/gm_de431.tpc");
+    // Lunar frame
+    loadSpiceKernelInTudat(path + "/fk/moon_080317.tf");
+    loadSpiceKernelInTudat(path + "/pck/moon_pa_de421_1900_2050.bpc");
 
     // LRO spacecraft bus and instrument frames
     loadSpiceKernelInTudat(path + "/fk/lro_frames_2012255_v02.tf");
@@ -107,6 +111,10 @@ SystemOfBodies createSimulationBodies()
 //    bodySettings.at("Sun")->radiationSourceModelSettings =
 //            isotropicPointRadiationSourceModelSettings(
 //                    constantLuminosityModelSettings(1e33));
+    bodySettings.at("Moon")->rotationModelSettings =
+            spiceRotationModelSettings(globalFrameOrientation, moonFrame);
+    std::dynamic_pointer_cast<SphericalHarmonicsGravityFieldSettings>(
+            bodySettings.at("Moon")->gravityFieldSettings)->resetAssociatedReferenceFrame(moonFrame);
     bodySettings.at("Moon")->radiationSourceModelSettings =
             staticallyPaneledRadiationSourceModelSettings({
                 albedoPanelRadiosityModelSettings(0.12),
