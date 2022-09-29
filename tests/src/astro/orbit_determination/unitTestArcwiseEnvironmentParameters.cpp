@@ -210,7 +210,7 @@ BOOST_AUTO_TEST_CASE( test_ArcwiseEnvironmentParameters )
     OrbitDeterminationManager< double, double > orbitDeterminationManager =
             OrbitDeterminationManager< double, double >(
                 bodies, parametersToEstimate, observationSettingsList,
-                integratorSettings, propagatorSettings );
+                propagatorSettings );
 
     std::map< double, Eigen::VectorXd > dependentVariableData =
             orbitDeterminationManager.getVariationalEquationsSolver( )->getDynamicsSimulatorBase(

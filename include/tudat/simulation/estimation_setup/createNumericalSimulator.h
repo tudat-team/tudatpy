@@ -191,12 +191,14 @@ createVariationalEquationsSolver(
     else if( std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< StateScalarType > >( propagatorSettings ) != nullptr )
     {
         return std::make_shared< propagators::MultiArcVariationalEquationsSolver< StateScalarType, TimeType > >(
-                    bodies, propagatorSettings, parametersToEstimate, integrateEquationsOnCreation );
+                    bodies, std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< StateScalarType > >( propagatorSettings ),
+                    parametersToEstimate, integrateEquationsOnCreation );
     }
     else if( std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< StateScalarType > >( propagatorSettings ) != nullptr )
     {
         return std::make_shared< propagators::HybridArcVariationalEquationsSolver< StateScalarType, TimeType > >(
-                    bodies, propagatorSettings, parametersToEstimate, integrateEquationsOnCreation );
+                    bodies, std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< StateScalarType > >( propagatorSettings ),
+                    parametersToEstimate, integrateEquationsOnCreation );
     }
     else
     {

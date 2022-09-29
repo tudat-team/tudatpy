@@ -343,12 +343,34 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                     singleAccelerationUpdateNeeds[ body_mass_update ].push_back(
                                 acceleratedBodyIterator->first );
                     break;
+
                 case cannon_ball_radiation_pressure:
+                {
+                    std::shared_ptr< electromagnetism::RadiationPressureInterface > radiationPressureInterface;
+                    try
+                    {
+                        radiationPressureInterface =
+                            bodies.at( acceleratedBodyIterator->first )->getRadiationPressureInterfaces( ).at(
+                                accelerationModelIterator->first );
+                    }
+                    catch( std::runtime_error& caughtException )
+                    {
+                            throw std::runtime_error(
+                                    "Error, could not identify relevant radiation pressure interface when setting environment update settings: "
+                                      + std::string( caughtException.what( ) ) );
+                    }
+
                     singleAccelerationUpdateNeeds[ radiation_pressure_interface_update ].push_back(
                                 acceleratedBodyIterator->first );
                     singleAccelerationUpdateNeeds[ body_mass_update ].push_back(
                                 acceleratedBodyIterator->first );
+                    for( unsigned int i = 0; i < radiationPressureInterface->getOccutingBodies( ).size( ); i++ )
+                    {
+                        singleAccelerationUpdateNeeds[ body_translational_state_update ].push_back(
+                                    radiationPressureInterface->getOccutingBodies( ).at( i ) );
+                    }
                     break;
+                }
                 case panelled_radiation_pressure_acceleration:
                     singleAccelerationUpdateNeeds[ radiation_pressure_interface_update ].push_back(
                                 acceleratedBodyIterator->first );

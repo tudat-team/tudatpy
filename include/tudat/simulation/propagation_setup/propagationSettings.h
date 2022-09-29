@@ -395,7 +395,8 @@ public:
     MultiArcPropagatorSettings(
             const std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > >& singleArcSettings,
             const bool transferInitialStateInformationPerArc = 0 ):
-        PropagatorSettings< StateScalarType >( getConcatenatedInitialStates( singleArcSettings ), true )
+        PropagatorSettings< StateScalarType >( getConcatenatedInitialStates( singleArcSettings ), true ),
+        outputSettings_( std::make_shared< PropagatorOutputSettings >( ) )
     {
         singleArcSettings_ = singleArcSettings;
         for( unsigned int i = 0; i < singleArcSettings.size( ); i++ )
@@ -531,6 +532,15 @@ public:
 
     std::shared_ptr< PropagatorOutputSettings > getOutputSettings( )
     {
+        return outputSettings_;
+    }
+
+    std::shared_ptr< PropagatorOutputSettings > getOutputSettingsWithCheck( )
+    {
+        if( outputSettings_ == nullptr )
+        {
+            throw std::runtime_error( "Error whenen getting output settings from single-arc propagator settings; no output settings defined" );
+        }
         return outputSettings_;
     }
 

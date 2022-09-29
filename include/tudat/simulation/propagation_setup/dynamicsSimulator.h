@@ -486,7 +486,7 @@ std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > validateDeprec
     {
         if( integratorSettings != nullptr && singleArcPropagatorSettings->getIntegratorSettings( ) != nullptr )
         {
-            throw std::runtime_error( "Error, integrator settings, defined independently, and in propagator settings" );
+            std::cerr<<"Warning, integrator settings defined independently, and in propagator settings"<<std::endl;
         }
         std::shared_ptr< PropagatorOutputSettings > outputSettings = std::make_shared< PropagatorOutputSettings >( );
         outputSettings->clearNumericalSolutions = clearNumericalSolutions;
@@ -1336,7 +1336,8 @@ std::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > validateDepreca
             if( multiArcPropagatorSettings->getSingleArcSettings( ).at( i )->getIntegratorSettings( ) != nullptr &&
                     independentIntegratorSettings.at( i ) != nullptr )
             {
-                throw std::runtime_error( "Error, multi-arc integrator settings, defined independently, and in propagator settings" );
+                std::cerr<<"Warning, multi-arc integrator settings, defined independently, and in propagator settings"<<std::endl;
+                break;
             }
             multiArcPropagatorSettings->getSingleArcSettings( ).at( i )->setIntegratorSettings( independentIntegratorSettings.at( i ) );
         }
@@ -1671,8 +1672,7 @@ public:
         {
             equationsOfMotionNumericalSolution_[ i ].clear( );
             equationsOfMotionNumericalSolution_[ i ] = std::move( equationsOfMotionNumericalSolution[ i ] );
-//            arcStartTimes_[ i ] = equationsOfMotionNumericalSolution_[ i ].begin( )->first;
-
+            arcStartTimes_[ i ] = equationsOfMotionNumericalSolution_[ i ].begin( )->first;
         }
 
         // Reset environment with new states.
@@ -2101,8 +2101,13 @@ std::shared_ptr< PropagatorSettings< StateScalarType > > validateDeprecatePropag
     }
     else if( std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< StateScalarType > >( propagatorSettings ) != nullptr )
     {
-        throw std::runtime_error( "Error when validating deprecated propagator settings, hybrid-arc not yet implemented" );
-        return nullptr;
+        std::shared_ptr< propagators::HybridArcPropagatorSettings< StateScalarType > > hybridArcSettings =
+                std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< StateScalarType > >( propagatorSettings );
+
+        validateDeprecatedSingleArcSettings< StateScalarType, TimeType >( integratorSettings.at( 0 ), hybridArcSettings->getSingleArcPropagatorSettings( ) );
+//        validateDeprecatedMultiArcSettings< StateScalarType, TimeType >( integratorSettings.at( integratorSettings.size( ) == 1 ? 0 : 1 ),
+//                                            hybridArcSettings->getMultiArcPropagatorSettings( ) );
+        return hybridArcSettings;
     }
     else
     {
