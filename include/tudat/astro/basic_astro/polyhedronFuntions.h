@@ -9,6 +9,8 @@
  *
  *    References
  *      A. Dobrovolskis (1996), "Inertia of Any Polyhedron", Icarus, 124 (243), 698-704
+ *      D.J. Scheeres (2012), "Orbital Motion in Strongly Perturbed Environments: Applications to Asteroid, Comet and
+ *          Planetary Satellite Orbiters", Springer-Praxis.
  */
 
 #ifndef TUDAT_POLYHEDRONFUNTIONS_H
@@ -46,6 +48,17 @@ double computePolyhedronSurfaceArea (const Eigen::MatrixXd& verticesCoordinates,
  */
 double computePolyhedronVolume (const Eigen::MatrixXd& verticesCoordinates,
                                 const Eigen::MatrixXi& verticesDefiningEachFacet );
+
+/*! Computes the mean radius of the polyhedron.
+ *
+ * Computes the mean radius of the polyhedron, according to Scheeres (2012), section 2.2.
+ *
+ * @param verticesCoordinates Cartesian coordinates of each vertex (one row per vertex, 3 columns).
+ * @param verticesDefiningEachFacet Index (0 based) of the vertices constituting each facet (one row per facet, 3 columns).
+ * @return Mean radius.
+ */
+double computePolyhedronMeanRadius( const Eigen::MatrixXd& verticesCoordinates,
+                                    const Eigen::MatrixXi& verticesDefiningEachFacet );
 
 /*! Computes the centroid a polyhedron.
  *
