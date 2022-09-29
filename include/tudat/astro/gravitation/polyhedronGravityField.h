@@ -13,8 +13,8 @@
  *       "The solid angle hidden in polyhedron gravitation formulations", Werner (2017), Journal of Geodesy
  */
 
-#ifndef TUDATBUNDLE_POLYHEDRONGRAVITYFIELD_H
-#define TUDATBUNDLE_POLYHEDRONGRAVITYFIELD_H
+#ifndef TUDAT_POLYHEDRONGRAVITYFIELD_H
+#define TUDAT_POLYHEDRONGRAVITYFIELD_H
 
 #include <memory>
 #include <cmath>
@@ -339,4 +339,4 @@ private:
 
 } // namespace tudat
 
-#endif //TUDATBUNDLE_POLYHEDRONGRAVITYFIELD_H
+#endif //TUDAT_POLYHEDRONGRAVITYFIELD_H

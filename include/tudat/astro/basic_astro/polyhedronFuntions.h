@@ -11,8 +11,8 @@
  *      A. Dobrovolskis (1996), "Inertia of Any Polyhedron", Icarus, 124 (243), 698-704
  */
 
-#ifndef TUDATBUNDLE_POLYHEDRONFUNTIONS_H
-#define TUDATBUNDLE_POLYHEDRONFUNTIONS_H
+#ifndef TUDAT_POLYHEDRONFUNTIONS_H
+#define TUDAT_POLYHEDRONFUNTIONS_H
 
 #include <Eigen/Core>
 #include <Eigen/Geometry>
@@ -106,4 +106,4 @@ Eigen::Matrix3d computePolyhedronInertiaTensor (const Eigen::MatrixXd& verticesC
 } // namespace basic_astrodynamics
 } // namespace tudat
 
-#endif //TUDATBUNDLE_POLYHEDRONFUNTIONS_H
+#endif //TUDAT_POLYHEDRONFUNTIONS_H
