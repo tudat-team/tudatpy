@@ -108,6 +108,56 @@ public:
 //    std::map< observation_models::LinkEnds, std::pair< std::map< TimeType, ObservationScalarType >,
 //    observation_models::LinkEndType > > > AlternativePodInputType;
 
+    std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > preprocessDeprecatedIntegratorSettings(
+            const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > > parametersToEstimate,
+            const std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > integratorSettings,
+            const std::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > propagatorSettings,
+            const int integratorIndexOffset = 0 )
+    {
+        std::cout<<"Calling"<<std::endl;
+        std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > independentIntegratorSettingsList =
+                utilities::deepcopyDuplicatePointers( integratorSettings );
+        if( std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< ObservationScalarType, TimeType > >( propagatorSettings ) != nullptr )
+        {
+            std::cout<<"Multi-arc"<<std::endl;
+
+            std::vector< double > arcStartTimes = estimatable_parameters::getMultiArcStateEstimationArcStartTimes(
+                            parametersToEstimate, ( integratorIndexOffset == 0 ) );
+            for( unsigned int i = 0; i < arcStartTimes.size( ); i++ )
+            {
+                independentIntegratorSettingsList.at( i + integratorIndexOffset )->initialTime_ = arcStartTimes.at( i );
+            }
+        }
+        else if( std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< ObservationScalarType, TimeType > >( propagatorSettings ) != nullptr )
+        {
+            std::cout<<"Hybrid-arc"<<std::endl;
+
+            independentIntegratorSettingsList = preprocessDeprecatedIntegratorSettings(
+                        parametersToEstimate, integratorSettings,
+                        std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< ObservationScalarType, TimeType > >( propagatorSettings )->getMultiArcPropagatorSettings( ),
+                        1 );
+        }
+        return independentIntegratorSettingsList;
+    }
+
+    OrbitDeterminationManager(
+            const SystemOfBodies &bodies,
+            const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > >
+            parametersToEstimate,
+            const std::vector< std::shared_ptr< observation_models::ObservationModelSettings > >& observationSettingsList,
+            const std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > integratorSettings,
+            const std::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > propagatorSettings,
+            const bool propagateOnCreation = true ):
+        parametersToEstimate_( parametersToEstimate )
+    {
+
+        std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > processedIntegratorSettings =
+                preprocessDeprecatedIntegratorSettings( parametersToEstimate, integratorSettings, propagatorSettings );
+        initializeOrbitDeterminationManager(
+                    bodies, observationSettingsList, propagators::validateDeprecatePropagatorSettings( processedIntegratorSettings, propagatorSettings ),
+                    propagateOnCreation );
+    }
+
     //! Constructor
     /*!
      *  Constructor
@@ -131,53 +181,62 @@ public:
             const bool propagateOnCreation = true ):
         parametersToEstimate_( parametersToEstimate )
     {
-        std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > independentIntegratorSettingsList =
-                { integratorSettings };
-        if( std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< ObservationScalarType, TimeType > >( propagatorSettings ) != nullptr )
+        std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > processedIntegratorSettings;
+        if( std::dynamic_pointer_cast< propagators::SingleArcPropagatorSettings< ObservationScalarType > >( propagatorSettings ) != nullptr )
         {
-            std::vector< double > arcStartTimes = estimatable_parameters::getMultiArcStateEstimationArcStartTimes(
-                        parametersToEstimate, true );
-            std::vector<std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > integratorSettingsList(
-                        arcStartTimes.size( ), integratorSettings);
-            independentIntegratorSettingsList = utilities::deepcopyDuplicatePointers( integratorSettingsList );
-
-            for( unsigned int i = 0; i < independentIntegratorSettingsList.size( ); i++ )
-            {
-                independentIntegratorSettingsList.at( i )->initialTime_ = arcStartTimes.at( i );
-            }
+            processedIntegratorSettings = { integratorSettings };
         }
-        initializeOrbitDeterminationManager( bodies, observationSettingsList, propagatorSettings,
-                                             propagateOnCreation, independentIntegratorSettingsList );
-    }
-
-
-
-
-    OrbitDeterminationManager(
-            const SystemOfBodies &bodies,
-            const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > >
-            parametersToEstimate,
-            const std::vector< std::shared_ptr< observation_models::ObservationModelSettings > >& observationSettingsList,
-            const std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > integratorSettings,
-            const std::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > propagatorSettings,
-            const bool propagateOnCreation = true ):
-        parametersToEstimate_( parametersToEstimate )
-    {
-        std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > independentIntegratorSettingsList =
-                utilities::deepcopyDuplicatePointers( integratorSettings );
-        if( std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< ObservationScalarType, TimeType > >( propagatorSettings ) != nullptr )
+        else if( std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< ObservationScalarType > >( propagatorSettings ) != nullptr )
         {
-            std::vector< double > arcStartTimes = estimatable_parameters::getMultiArcStateEstimationArcStartTimes(
-                            parametersToEstimate, true );
-
-            for( unsigned int i = 0; i < independentIntegratorSettingsList.size( ); i++ )
-            {
-                independentIntegratorSettingsList.at( i )->initialTime_ = arcStartTimes.at( i );
-            }
+            int numberOfArcs = estimatable_parameters::getMultiArcStateEstimationArcStartTimes(
+                        parametersToEstimate, true ).size( );
+            std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > unprocessedIntegratorSettings =
+                    std::vector<std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > >(
+                        numberOfArcs, integratorSettings );
+            processedIntegratorSettings =
+                    preprocessDeprecatedIntegratorSettings( parametersToEstimate, unprocessedIntegratorSettings, propagatorSettings );
+            std::cout<<"Sizes: "<<unprocessedIntegratorSettings.size( )<<" "<<processedIntegratorSettings.size( )<<" "<<numberOfArcs<<std::endl;
         }
-        initializeOrbitDeterminationManager( bodies, observationSettingsList, propagatorSettings,
-                                             propagateOnCreation, independentIntegratorSettingsList );
+        else if( std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< ObservationScalarType > >( propagatorSettings ) != nullptr )
+        {
+            int numberOfArcs = estimatable_parameters::getMultiArcStateEstimationArcStartTimes(
+                        parametersToEstimate, false ).size( );
+            std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > unprocessedIntegratorSettings =
+                    std::vector<std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > >(
+                        numberOfArcs + 1, integratorSettings );
+            processedIntegratorSettings =
+                    preprocessDeprecatedIntegratorSettings( parametersToEstimate, unprocessedIntegratorSettings, propagatorSettings );
+        }
+
+        initializeOrbitDeterminationManager(
+                    bodies, observationSettingsList, propagators::validateDeprecatePropagatorSettings( processedIntegratorSettings, propagatorSettings ),
+                    propagateOnCreation );
     }
+//        parametersToEstimate_( parametersToEstimate )
+//    {
+//        std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > independentIntegratorSettingsList =
+//                { integratorSettings };
+//        if( std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< ObservationScalarType, TimeType > >( propagatorSettings ) != nullptr )
+//        {
+//            std::vector< double > arcStartTimes = estimatable_parameters::getMultiArcStateEstimationArcStartTimes(
+//                        parametersToEstimate, true );
+//            std::vector<std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > integratorSettingsList(
+//                        arcStartTimes.size( ), integratorSettings);
+//            independentIntegratorSettingsList = utilities::deepcopyDuplicatePointers( integratorSettingsList );
+
+//            for( unsigned int i = 0; i < independentIntegratorSettingsList.size( ); i++ )
+//            {
+//                independentIntegratorSettingsList.at( i )->initialTime_ = arcStartTimes.at( i );
+//            }
+//        }
+//        propagatorSettings =
+
+//        initializeOrbitDeterminationManager( bodies, observationSettingsList, propagators::validateDeprecatePropagatorSettings( integratorSettings, propagatorSettings ),
+//                                             propagateOnCreation );
+//    }
+
+
+
 
     OrbitDeterminationManager(
             const SystemOfBodies &bodies,
@@ -798,17 +857,9 @@ protected:
     void initializeOrbitDeterminationManager(
             const SystemOfBodies &bodies,
             const std::vector< std::shared_ptr< observation_models::ObservationModelSettings > >& observationSettingsList,
-            const std::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > prevalidatedPropagatorSettings,
-            const bool propagateOnCreation = true,
-            const std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > integratorSettings =
-            std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > >( ) )
+            const std::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > propagatorSettings,
+            const bool propagateOnCreation = true )
     {
-        std::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > propagatorSettings = prevalidatedPropagatorSettings;
-        if( integratorSettings.size( ) > 0 )
-        {
-            propagatorSettings =
-                    propagators::validateDeprecatePropagatorSettings( integratorSettings, prevalidatedPropagatorSettings );
-        }
         propagators::toggleIntegratedResultSettings< ObservationScalarType, TimeType >( propagatorSettings );
         using namespace numerical_integrators;
         using namespace orbit_determination;
