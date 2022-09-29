@@ -78,7 +78,7 @@ BOOST_AUTO_TEST_CASE( testPolyhedronUtilities )
     BOOST_CHECK_CLOSE_FRACTION( expectedVolume, computedVolume, tolerance );
 
     // Mean radius
-    double expectedRadius = std::pow( 3.0 * expectedVolume / ( 4.0 * mathematical_constants::PI ), 1/3 );
+    double expectedRadius = 7.815926417967719; // Computed by hand
     double computedRadius = basic_astrodynamics::computePolyhedronMeanRadius( verticesCoordinates,
                                                                               verticesDefiningEachFacet );
     BOOST_CHECK_CLOSE_FRACTION( expectedRadius, computedRadius, tolerance );
