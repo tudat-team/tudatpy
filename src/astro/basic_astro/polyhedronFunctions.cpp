@@ -72,7 +72,7 @@ double computePolyhedronMeanRadius( const Eigen::MatrixXd& verticesCoordinates,
                                     const Eigen::MatrixXi& verticesDefiningEachFacet )
 {
     double volume = computePolyhedronVolume( verticesCoordinates, verticesDefiningEachFacet );
-    return std::pow( 3.0 * volume / ( 4.0 * mathematical_constants::PI ), 1/3 );
+    return std::pow( 3.0 * volume / ( 4.0 * mathematical_constants::PI ), 1.0/3.0 );
 }
 
 Eigen::Vector3d computePolyhedronCentroidPosition (const Eigen::MatrixXd& verticesCoordinates,
