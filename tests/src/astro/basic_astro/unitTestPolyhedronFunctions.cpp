@@ -20,6 +20,7 @@
 #include "tudat/basics/testMacros.h"
 
 #include "tudat/astro/basic_astro/polyhedronFuntions.h"
+#include "tudat/math/basic/mathematicalConstants.h"
 
 namespace tudat
 {
@@ -75,6 +76,13 @@ BOOST_AUTO_TEST_CASE( testPolyhedronUtilities )
     double computedVolume = basic_astrodynamics::computePolyhedronVolume( verticesCoordinates,
                                                                           verticesDefiningEachFacet );
     BOOST_CHECK_CLOSE_FRACTION( expectedVolume, computedVolume, tolerance );
+
+    // Mean radius
+    double expectedRadius = std::pow( 3.0 * expectedVolume / ( 4.0 * mathematical_constants::PI ), 1/3 );
+    double computedRadius = basic_astrodynamics::computePolyhedronMeanRadius( verticesCoordinates,
+                                                                              verticesDefiningEachFacet );
+    BOOST_CHECK_CLOSE_FRACTION( expectedRadius, computedRadius, tolerance );
+    std::cerr << 4/3 * mathematical_constants::PI * std::pow( computedRadius, 3 ) << std::endl;
 
     // Computation of centroid
     Eigen::Vector3d expectedCentroid = (Eigen::Vector3d() << l / 2.0, w / 2.0, h / 2.0).finished();

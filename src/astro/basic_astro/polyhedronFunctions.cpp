@@ -11,6 +11,7 @@
 
 #include "tudat/astro/basic_astro/polyhedronFuntions.h"
 #include "tudat/math/basic/polyhedron.h"
+#include "tudat/math/basic/mathematicalConstants.h"
 
 namespace tudat
 {
@@ -65,6 +66,13 @@ double computePolyhedronVolume (const Eigen::MatrixXd& verticesCoordinates,
     }
 
     return volume;
+}
+
+double computePolyhedronMeanRadius( const Eigen::MatrixXd& verticesCoordinates,
+                                    const Eigen::MatrixXi& verticesDefiningEachFacet )
+{
+    double volume = computePolyhedronVolume( verticesCoordinates, verticesDefiningEachFacet );
+    return std::pow( 3.0 * volume / ( 4.0 * mathematical_constants::PI ), 1/3 );
 }
 
 Eigen::Vector3d computePolyhedronCentroidPosition (const Eigen::MatrixXd& verticesCoordinates,

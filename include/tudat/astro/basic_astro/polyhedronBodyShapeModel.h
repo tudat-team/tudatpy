@@ -79,17 +79,6 @@ public:
      */
     double getAltitude( const Eigen::Vector3d& bodyFixedPosition );
 
-    /*! Function to set the average radius of the polyhedron.
-     *
-     * Function to set the average radius of the polyhedron. This function is necessary as currently no function to
-     * compute the average radius is implemented.
-     * @param averageRadius Average radius of the polyhedron.
-     */
-    void setAverageRadius( const double averageRadius )
-    {
-        averageRadius_ = averageRadius;
-    }
-
     //! Function to return the average radius of the polyhedron.
     /*!
      *  Function to return the average radius of the polyhedron.
@@ -99,11 +88,8 @@ public:
     {
         if ( std::isnan( averageRadius_ ) )
         {
-            throw std::runtime_error( "The average radius of the polyhedron shape model was not defined." );
+            averageRadius_ = computePolyhedronMeanRadius( verticesCoordinates_, verticesDefiningEachFacet_ );
         }
-
-        std::cerr << "Warning: the returned polyhedron average radius was manually defined and does not corresponds to"
-                     "the true average radius." << std::endl;
 
         return averageRadius_;
     }
