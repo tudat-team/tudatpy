@@ -131,9 +131,26 @@ public:
             const bool propagateOnCreation = true ):
         parametersToEstimate_( parametersToEstimate )
     {
+        std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > independentIntegratorSettingsList =
+                { integratorSettings };
+        if( std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< ObservationScalarType, TimeType > >( propagatorSettings ) != nullptr )
+        {
+            std::vector< double > arcStartTimes = estimatable_parameters::getMultiArcStateEstimationArcStartTimes(
+                        parametersToEstimate, true );
+            std::vector<std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > integratorSettingsList(
+                        arcStartTimes.size( ), integratorSettings);
+            independentIntegratorSettingsList = utilities::deepcopyDuplicatePointers( integratorSettingsList );
+
+            for( unsigned int i = 0; i < independentIntegratorSettingsList.size( ); i++ )
+            {
+                independentIntegratorSettingsList.at( i )->initialTime_ = arcStartTimes.at( i );
+            }
+        }
         initializeOrbitDeterminationManager( bodies, observationSettingsList, propagatorSettings,
-                                             propagateOnCreation, { integratorSettings } );
+                                             propagateOnCreation, independentIntegratorSettingsList );
     }
+
+
 
 
     OrbitDeterminationManager(
@@ -146,8 +163,20 @@ public:
             const bool propagateOnCreation = true ):
         parametersToEstimate_( parametersToEstimate )
     {
+        std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > independentIntegratorSettingsList =
+                utilities::deepcopyDuplicatePointers( integratorSettings );
+        if( std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< ObservationScalarType, TimeType > >( propagatorSettings ) != nullptr )
+        {
+            std::vector< double > arcStartTimes = estimatable_parameters::getMultiArcStateEstimationArcStartTimes(
+                            parametersToEstimate, true );
+
+            for( unsigned int i = 0; i < independentIntegratorSettingsList.size( ); i++ )
+            {
+                independentIntegratorSettingsList.at( i )->initialTime_ = arcStartTimes.at( i );
+            }
+        }
         initializeOrbitDeterminationManager( bodies, observationSettingsList, propagatorSettings,
-                                             propagateOnCreation, integratorSettings );
+                                             propagateOnCreation, independentIntegratorSettingsList );
     }
 
     OrbitDeterminationManager(
@@ -772,10 +801,14 @@ protected:
             const std::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > prevalidatedPropagatorSettings,
             const bool propagateOnCreation = true,
             const std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > integratorSettings =
-             std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > >( ) )
+            std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > >( ) )
     {
-        std::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > propagatorSettings =
-                propagators::validateDeprecatePropagatorSettings( integratorSettings, prevalidatedPropagatorSettings );
+        std::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > propagatorSettings = prevalidatedPropagatorSettings;
+        if( integratorSettings.size( ) > 0 )
+        {
+            propagatorSettings =
+                    propagators::validateDeprecatePropagatorSettings( integratorSettings, prevalidatedPropagatorSettings );
+        }
         propagators::toggleIntegratedResultSettings< ObservationScalarType, TimeType >( propagatorSettings );
         using namespace numerical_integrators;
         using namespace orbit_determination;

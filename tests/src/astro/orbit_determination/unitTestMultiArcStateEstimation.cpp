@@ -9,8 +9,8 @@
  *
  */
 
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MAIN
+//#define BOOST_TEST_DYN_LINK
+//#define BOOST_TEST_MAIN
 
 #include <string>
 #include <thread>
@@ -29,11 +29,11 @@
 #include "tudat/simulation/estimation_setup/podProcessing.h"
 
 
-namespace tudat
-{
-namespace unit_tests
-{
-BOOST_AUTO_TEST_SUITE( test_multi_arc_state_estimation )
+//namespace tudat
+//{
+//namespace unit_tests
+//{
+//BOOST_AUTO_TEST_SUITE( test_multi_arc_state_estimation )
 
 //Using declarations.
 using namespace tudat;
@@ -269,7 +269,8 @@ Eigen::VectorXd  executeParameterEstimation(
 }
 
 
-BOOST_AUTO_TEST_CASE( test_MultiArcStateEstimation )
+//BOOST_AUTO_TEST_CASE( test_MultiArcStateEstimation )
+int main( )
 {
     // Execute test for linked arcs and separate arcs.
     for( unsigned int testCase = 0; testCase < 2; testCase++ )
@@ -298,272 +299,272 @@ BOOST_AUTO_TEST_CASE( test_MultiArcStateEstimation )
         int numberOfEstimatedArcs = ( parameterError.rows( ) - 3 ) / 6;
 
         std::cout << parameterError.transpose( ) << std::endl;
-        for( int i = 0; i < numberOfEstimatedArcs; i++ )
-        {
-            for( unsigned int j = 0; j < 3; j++ )
-            {
-                BOOST_CHECK_SMALL( std::fabs( parameterError( i * 6 + j ) ), 1E-1 );
-                BOOST_CHECK_SMALL( std::fabs( parameterError( i * 6 + j + 3 ) ), 1.0E-7  );
-            }
-        }
+//        for( int i = 0; i < numberOfEstimatedArcs; i++ )
+//        {
+//            for( unsigned int j = 0; j < 3; j++ )
+//            {
+//                BOOST_CHECK_SMALL( std::fabs( parameterError( i * 6 + j ) ), 1E-1 );
+//                BOOST_CHECK_SMALL( std::fabs( parameterError( i * 6 + j + 3 ) ), 1.0E-7  );
+//            }
+//        }
 
-        BOOST_CHECK_SMALL( std::fabs( parameterError( parameterError.rows( ) - 3 ) ), 1.0E-17 );
-        BOOST_CHECK_SMALL( std::fabs( parameterError( parameterError.rows( ) - 2 ) ), 1.0E-9 );
-        BOOST_CHECK_SMALL( std::fabs( parameterError( parameterError.rows( ) - 1 ) ), 1.0E-9 );
+//        BOOST_CHECK_SMALL( std::fabs( parameterError( parameterError.rows( ) - 3 ) ), 1.0E-17 );
+//        BOOST_CHECK_SMALL( std::fabs( parameterError( parameterError.rows( ) - 2 ) ), 1.0E-9 );
+//        BOOST_CHECK_SMALL( std::fabs( parameterError( parameterError.rows( ) - 1 ) ), 1.0E-9 );
 #endif
     }
 
 }
 
-template< typename ObservationScalarType = double , typename TimeType = double , typename StateScalarType  = double >
-Eigen::VectorXd  executeMultiBodyMultiArcParameterEstimation( )
-{
-    //Load spice kernels
-    spice_interface::loadStandardSpiceKernels( );
+//template< typename ObservationScalarType = double , typename TimeType = double , typename StateScalarType  = double >
+//Eigen::VectorXd  executeMultiBodyMultiArcParameterEstimation( )
+//{
+//    //Load spice kernels
+//    spice_interface::loadStandardSpiceKernels( );
 
-    // Specify simulation time
-    TimeType initialEphemerisTime = TimeType( 1.0E7 );
-    TimeType finalEphemerisTime = initialEphemerisTime + 4.0 * 86400.0;
+//    // Specify simulation time
+//    TimeType initialEphemerisTime = TimeType( 1.0E7 );
+//    TimeType finalEphemerisTime = initialEphemerisTime + 4.0 * 86400.0;
 
-    //Define setting for celestial bodies
-    std::vector< std::string > bodyNames;
-    bodyNames.push_back( "Earth" );
-    bodyNames.push_back( "Mars" );
-    bodyNames.push_back( "Sun" );
-    bodyNames.push_back( "Moon" );
-    BodyListSettings bodySettings =
-            getDefaultBodySettings( bodyNames, initialEphemerisTime - 86400.0, finalEphemerisTime + 86400.0,
-                                    "Earth", "ECLIPJ2000" );
-    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+//    //Define setting for celestial bodies
+//    std::vector< std::string > bodyNames;
+//    bodyNames.push_back( "Earth" );
+//    bodyNames.push_back( "Mars" );
+//    bodyNames.push_back( "Sun" );
+//    bodyNames.push_back( "Moon" );
+//    BodyListSettings bodySettings =
+//            getDefaultBodySettings( bodyNames, initialEphemerisTime - 86400.0, finalEphemerisTime + 86400.0,
+//                                    "Earth", "ECLIPJ2000" );
+//    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
-    // CReate vehicles
-    std::vector< std::string > vehicleNames = { "Borzi1", "Borzi2" };
-    int numberOfVehicles = vehicleNames.size( );
-    for( int i = 0; i < numberOfVehicles; i++ )
-    {
-        bodies.createEmptyBody( vehicleNames.at( i ) );
-        bodies.at( vehicleNames.at( i ) )->setEphemeris( std::make_shared< MultiArcEphemeris >(
-                                                           std::map< double, std::shared_ptr< Ephemeris > >( ), "Earth", "ECLIPJ2000" ) );
-    }
-
-
-    // Set accelerations between bodies that are to be taken into account.
-    SelectedAccelerationMap accelerationMap;
-    for( int i = 0; i < numberOfVehicles; i++ )
-    {
-        std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
-        accelerationsOfVehicle[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
-        accelerationsOfVehicle[ "Moon" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
-        accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
-        accelerationMap[ vehicleNames.at( i ) ] = accelerationsOfVehicle;
-    }
-
-    // Set bodies for which initial state is to be estimated and integrated.
-    std::vector< std::string > bodiesToIntegrate = vehicleNames;
-    unsigned int numberOfNumericalBodies = bodiesToIntegrate.size( );
-    std::vector< std::string > centralBodies;
-    for( unsigned int i = 0; i < numberOfNumericalBodies; i++ )
-    {
-        centralBodies.push_back( "Earth" );
-    }
-
-    // Create acceleration models
-    AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodies, accelerationMap, bodiesToIntegrate, centralBodies );
+//    // CReate vehicles
+//    std::vector< std::string > vehicleNames = { "Borzi1", "Borzi2" };
+//    int numberOfVehicles = vehicleNames.size( );
+//    for( int i = 0; i < numberOfVehicles; i++ )
+//    {
+//        bodies.createEmptyBody( vehicleNames.at( i ) );
+//        bodies.at( vehicleNames.at( i ) )->setEphemeris( std::make_shared< MultiArcEphemeris >(
+//                                                           std::map< double, std::shared_ptr< Ephemeris > >( ), "Earth", "ECLIPJ2000" ) );
+//    }
 
 
-    // Define integration arc limits
-    std::vector< double > integrationArcStartTimes;
-    std::vector< double > integrationArcEndTimes;
-    std::vector< double > integrationArcLimits;
+//    // Set accelerations between bodies that are to be taken into account.
+//    SelectedAccelerationMap accelerationMap;
+//    for( int i = 0; i < numberOfVehicles; i++ )
+//    {
+//        std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
+//        accelerationsOfVehicle[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
+//        accelerationsOfVehicle[ "Moon" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
+//        accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
+//        accelerationMap[ vehicleNames.at( i ) ] = accelerationsOfVehicle;
+//    }
 
-    double integrationStartTime = initialEphemerisTime;
-    double integrationEndTime = finalEphemerisTime;
-    double arcDuration = 1.01 * 86400.0;
-    double arcOverlap = 300.0;
-    double currentStartTime = integrationStartTime;
-    double currentEndTime = integrationStartTime + arcDuration;
-    do
-    {
-        integrationArcLimits.push_back( currentStartTime );
-        integrationArcEndTimes.push_back( currentEndTime );
-        integrationArcStartTimes.push_back( currentStartTime );
-        currentStartTime = currentEndTime - arcOverlap;
-        currentEndTime = currentStartTime + arcDuration;
-    }
-    while( currentEndTime < integrationEndTime );
+//    // Set bodies for which initial state is to be estimated and integrated.
+//    std::vector< std::string > bodiesToIntegrate = vehicleNames;
+//    unsigned int numberOfNumericalBodies = bodiesToIntegrate.size( );
+//    std::vector< std::string > centralBodies;
+//    for( unsigned int i = 0; i < numberOfNumericalBodies; i++ )
+//    {
+//        centralBodies.push_back( "Earth" );
+//    }
 
-    integrationArcLimits.push_back( currentStartTime + arcOverlap );
-
-
-    // Create initial state container per arc
-    std::vector< Eigen::VectorXd > allBodiesPerArcInitialStates;
-    allBodiesPerArcInitialStates.resize( integrationArcStartTimes.size( ) );
-    for( unsigned int j = 0; j < integrationArcStartTimes.size( ); j++ )
-    {
-        allBodiesPerArcInitialStates[ j ] = Eigen::VectorXd::Zero( 6 * numberOfVehicles );
-    }
-
-    // Create initial state container per body
-    std::vector< Eigen::VectorXd > singleBodyForAllArcsInitialStates;
-    singleBodyForAllArcsInitialStates.resize( numberOfVehicles );
-    for( int i = 0; i < numberOfVehicles; i++ )
-    {
-        singleBodyForAllArcsInitialStates[ i ] = Eigen::VectorXd::Zero( 6 * integrationArcStartTimes.size( ) );
-    }
-
-    // Define (semi-arbitrary) initial states for vehicles
-    for( int i = 0; i < numberOfVehicles; i++ )
-    {
-        Eigen::Vector6d nominalInitialStateInKeplerianElements;
-        nominalInitialStateInKeplerianElements( semiMajorAxisIndex ) = 7500.0E3;
-        nominalInitialStateInKeplerianElements( eccentricityIndex ) = 0.1;
-        nominalInitialStateInKeplerianElements( inclinationIndex ) = unit_conversions::convertDegreesToRadians( 85.3 );
-        nominalInitialStateInKeplerianElements( argumentOfPeriapsisIndex ) = unit_conversions::convertDegreesToRadians( 235.7 );
-        nominalInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex ) = unit_conversions::convertDegreesToRadians( 23.4 );
-        nominalInitialStateInKeplerianElements( trueAnomalyIndex ) = unit_conversions::convertDegreesToRadians( 139.87 );
-
-        for( unsigned int j = 0; j < integrationArcStartTimes.size( ); j++ )
-        {
-            Eigen::Vector6d currentInitialStateInKeplerianElements = nominalInitialStateInKeplerianElements;
-            currentInitialStateInKeplerianElements( inclinationIndex ) = 10.0 * static_cast< double >( i );
-            currentInitialStateInKeplerianElements( trueAnomalyIndex ) = 10.0 * static_cast< double >( j );
-            double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
-            const Eigen::Vector6d currentInitialState = convertKeplerianToCartesianElements(
-                        currentInitialStateInKeplerianElements, earthGravitationalParameter );
-            allBodiesPerArcInitialStates[ j ].segment( i * 6, 6 ) = currentInitialState;
-            singleBodyForAllArcsInitialStates[ i ].segment( j * 6, 6 ) = currentInitialState;
-        }
-    }
+//    // Create acceleration models
+//    AccelerationMap accelerationModelMap = createAccelerationModelsMap(
+//                bodies, accelerationMap, bodiesToIntegrate, centralBodies );
 
 
-    // Define integrator settings.
-    std::shared_ptr< IntegratorSettings< TimeType > > integratorSettings =
-            std::make_shared< IntegratorSettings< TimeType > >
-            ( rungeKutta4, TimeType( initialEphemerisTime  ), 30.0 );
+//    // Define integration arc limits
+//    std::vector< double > integrationArcStartTimes;
+//    std::vector< double > integrationArcEndTimes;
+//    std::vector< double > integrationArcLimits;
 
-    // Define propagator settings.
-    std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > propagatorSettingsList;
-    for( unsigned int i = 0; i < integrationArcStartTimes.size( ); i++ )
-    {
-        propagatorSettingsList.push_back(
-                    std::make_shared< TranslationalStatePropagatorSettings< StateScalarType > >
-                    ( centralBodies, accelerationModelMap, bodiesToIntegrate,
-                      allBodiesPerArcInitialStates.at( i ),
-                      integrationArcEndTimes.at( i ), cowell, std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ), 60.0 ) );
-    }
-    std::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > propagatorSettings =
-            std::make_shared< MultiArcPropagatorSettings< StateScalarType > >( propagatorSettingsList );
+//    double integrationStartTime = initialEphemerisTime;
+//    double integrationEndTime = finalEphemerisTime;
+//    double arcDuration = 1.01 * 86400.0;
+//    double arcOverlap = 300.0;
+//    double currentStartTime = integrationStartTime;
+//    double currentEndTime = integrationStartTime + arcDuration;
+//    do
+//    {
+//        integrationArcLimits.push_back( currentStartTime );
+//        integrationArcEndTimes.push_back( currentEndTime );
+//        integrationArcStartTimes.push_back( currentStartTime );
+//        currentStartTime = currentEndTime - arcOverlap;
+//        currentEndTime = currentStartTime + arcDuration;
+//    }
+//    while( currentEndTime < integrationEndTime );
 
-
-    // Set parameters that are to be estimated.
-    std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames =
-            getInitialMultiArcParameterSettings< >( propagatorSettings, bodies, integrationArcStartTimes );
-
-    std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate =
-            createParametersToEstimate< StateScalarType >( parameterNames, bodies );
+//    integrationArcLimits.push_back( currentStartTime + arcOverlap );
 
 
-    // Define links and observations in simulation.
-    std::vector< LinkEnds > linkEndsList;
-    std::vector< std::shared_ptr< ObservationModelSettings > > observationSettingsList;
-    linkEndsList.resize( numberOfVehicles );
-    for( int i = 0; i < numberOfVehicles; i++ )
-    {
-        linkEndsList[ i ][ observed_body ] = std::make_pair( vehicleNames.at( i ), "" );
-        observationSettingsList.push_back( std::make_shared< ObservationModelSettings >(
-                                                           position_observable, linkEndsList[ i ] ) );
-    }
+//    // Create initial state container per arc
+//    std::vector< Eigen::VectorXd > allBodiesPerArcInitialStates;
+//    allBodiesPerArcInitialStates.resize( integrationArcStartTimes.size( ) );
+//    for( unsigned int j = 0; j < integrationArcStartTimes.size( ); j++ )
+//    {
+//        allBodiesPerArcInitialStates[ j ] = Eigen::VectorXd::Zero( 6 * numberOfVehicles );
+//    }
+
+//    // Create initial state container per body
+//    std::vector< Eigen::VectorXd > singleBodyForAllArcsInitialStates;
+//    singleBodyForAllArcsInitialStates.resize( numberOfVehicles );
+//    for( int i = 0; i < numberOfVehicles; i++ )
+//    {
+//        singleBodyForAllArcsInitialStates[ i ] = Eigen::VectorXd::Zero( 6 * integrationArcStartTimes.size( ) );
+//    }
+
+//    // Define (semi-arbitrary) initial states for vehicles
+//    for( int i = 0; i < numberOfVehicles; i++ )
+//    {
+//        Eigen::Vector6d nominalInitialStateInKeplerianElements;
+//        nominalInitialStateInKeplerianElements( semiMajorAxisIndex ) = 7500.0E3;
+//        nominalInitialStateInKeplerianElements( eccentricityIndex ) = 0.1;
+//        nominalInitialStateInKeplerianElements( inclinationIndex ) = unit_conversions::convertDegreesToRadians( 85.3 );
+//        nominalInitialStateInKeplerianElements( argumentOfPeriapsisIndex ) = unit_conversions::convertDegreesToRadians( 235.7 );
+//        nominalInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex ) = unit_conversions::convertDegreesToRadians( 23.4 );
+//        nominalInitialStateInKeplerianElements( trueAnomalyIndex ) = unit_conversions::convertDegreesToRadians( 139.87 );
+
+//        for( unsigned int j = 0; j < integrationArcStartTimes.size( ); j++ )
+//        {
+//            Eigen::Vector6d currentInitialStateInKeplerianElements = nominalInitialStateInKeplerianElements;
+//            currentInitialStateInKeplerianElements( inclinationIndex ) = 10.0 * static_cast< double >( i );
+//            currentInitialStateInKeplerianElements( trueAnomalyIndex ) = 10.0 * static_cast< double >( j );
+//            double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
+//            const Eigen::Vector6d currentInitialState = convertKeplerianToCartesianElements(
+//                        currentInitialStateInKeplerianElements, earthGravitationalParameter );
+//            allBodiesPerArcInitialStates[ j ].segment( i * 6, 6 ) = currentInitialState;
+//            singleBodyForAllArcsInitialStates[ i ].segment( j * 6, 6 ) = currentInitialState;
+//        }
+//    }
 
 
-    // Create orbit determination object.
-    OrbitDeterminationManager< ObservationScalarType, TimeType > orbitDeterminationManager =
-            OrbitDeterminationManager< ObservationScalarType, TimeType >(
-                bodies, parametersToEstimate,
-                observationSettingsList, integratorSettings, propagatorSettings );
-    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialParameterEstimate =
-            parametersToEstimate->template getFullParameterValues< StateScalarType >( );
+//    // Define integrator settings.
+//    std::shared_ptr< IntegratorSettings< TimeType > > integratorSettings =
+//            std::make_shared< IntegratorSettings< TimeType > >
+//            ( rungeKutta4, TimeType( initialEphemerisTime  ), 30.0 );
+
+//    // Define propagator settings.
+//    std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > propagatorSettingsList;
+//    for( unsigned int i = 0; i < integrationArcStartTimes.size( ); i++ )
+//    {
+//        propagatorSettingsList.push_back(
+//                    std::make_shared< TranslationalStatePropagatorSettings< StateScalarType > >
+//                    ( centralBodies, accelerationModelMap, bodiesToIntegrate,
+//                      allBodiesPerArcInitialStates.at( i ),
+//                      integrationArcEndTimes.at( i ), cowell, std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ), 60.0 ) );
+//    }
+//    std::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > propagatorSettings =
+//            std::make_shared< MultiArcPropagatorSettings< StateScalarType > >( propagatorSettingsList );
 
 
-    // Define times at which observations are to be simulated
-    TimeType observationTime;
-    int numberOfObservationsPerArc = 100;
-    double timeBuffer = 300.0;
+//    // Set parameters that are to be estimated.
+//    std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames =
+//            getInitialMultiArcParameterSettings< >( propagatorSettings, bodies, integrationArcStartTimes );
 
-    std::vector< TimeType > initialObservationTimes;
-    initialObservationTimes.resize( numberOfObservationsPerArc * integrationArcStartTimes.size( ) );
-    for( unsigned int i = 0; i < integrationArcLimits.size( ) - 1; i++ )
-    {
-        double currentTimeStep = ( integrationArcLimits[ i + 1 ] - integrationArcLimits[ i ] - 2.0 * timeBuffer ) /
-                static_cast< double >( numberOfObservationsPerArc - 1 );
-        observationTime = integrationArcLimits[ i ] + timeBuffer;
-        for( int j = 0; j < numberOfObservationsPerArc; j++ )
-        {
-            initialObservationTimes[ j + i * numberOfObservationsPerArc ] = observationTime;
-            observationTime += currentTimeStep;
-        }
-    }
+//    std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate =
+//            createParametersToEstimate< StateScalarType >( parameterNames, bodies );
 
 
-    // Define observation simulation settings
-    std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > measurementSimulationInput;
-    for( int i = 0; i < numberOfVehicles; i++ )
-    {
-        measurementSimulationInput.push_back(
-                    std::make_shared< TabulatedObservationSimulationSettings< > >(
-                        position_observable, linkEndsList[ i ], initialObservationTimes, observed_body ) );
-    }
+//    // Define links and observations in simulation.
+//    std::vector< LinkEnds > linkEndsList;
+//    std::vector< std::shared_ptr< ObservationModelSettings > > observationSettingsList;
+//    linkEndsList.resize( numberOfVehicles );
+//    for( int i = 0; i < numberOfVehicles; i++ )
+//    {
+//        linkEndsList[ i ][ observed_body ] = std::make_pair( vehicleNames.at( i ), "" );
+//        observationSettingsList.push_back( std::make_shared< ObservationModelSettings >(
+//                                                           position_observable, linkEndsList[ i ] ) );
+//    }
 
-    // Simulate observations
-    std::shared_ptr< ObservationCollection< > > observationsAndTimes = simulateObservations< ObservationScalarType, TimeType >(
-                measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies  );
 
-    // Perturb initial states
-    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > truthParameters = initialParameterEstimate;
-    for( unsigned int i = 0; i < numberOfNumericalBodies * integrationArcStartTimes.size( ); i++ )
-    {
-        initialParameterEstimate[ 0 + 6 * i ] += 1.0E0;
-        initialParameterEstimate[ 1 + 6 * i ] += 1.0E0;
-        initialParameterEstimate[ 2 + 6 * i ] += 1.0E0;
-        initialParameterEstimate[ 3 + 6 * i ] += 1.0E-5;
-        initialParameterEstimate[ 4 + 6 * i ] += 1.0E-5;
-        initialParameterEstimate[ 5 + 6 * i ] += 1.0E-5;
-    }
-    parametersToEstimate->resetParameterValues( initialParameterEstimate );
+//    // Create orbit determination object.
+//    OrbitDeterminationManager< ObservationScalarType, TimeType > orbitDeterminationManager =
+//            OrbitDeterminationManager< ObservationScalarType, TimeType >(
+//                bodies, parametersToEstimate,
+//                observationSettingsList, integratorSettings, propagatorSettings );
+//    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialParameterEstimate =
+//            parametersToEstimate->template getFullParameterValues< StateScalarType >( );
 
-    // Define POD input
-    std::shared_ptr< PodInput< ObservationScalarType, TimeType > > podInput =
-            std::make_shared< PodInput< ObservationScalarType, TimeType > >(
-                observationsAndTimes, ( initialParameterEstimate ).rows( ) );
 
-    // Estimate parameters
-    std::shared_ptr< PodOutput< StateScalarType, TimeType > > podOutput = orbitDeterminationManager.estimateParameters(
-                podInput, std::make_shared< EstimationConvergenceChecker >( 3 ) );
+//    // Define times at which observations are to be simulated
+//    TimeType observationTime;
+//    int numberOfObservationsPerArc = 100;
+//    double timeBuffer = 300.0;
 
-    std::string outputFolder = "/home/dominic/Software/tudatBundleTest/tudatBundle/tudatApplications/master_thesis/Output/";
+//    std::vector< TimeType > initialObservationTimes;
+//    initialObservationTimes.resize( numberOfObservationsPerArc * integrationArcStartTimes.size( ) );
+//    for( unsigned int i = 0; i < integrationArcLimits.size( ) - 1; i++ )
+//    {
+//        double currentTimeStep = ( integrationArcLimits[ i + 1 ] - integrationArcLimits[ i ] - 2.0 * timeBuffer ) /
+//                static_cast< double >( numberOfObservationsPerArc - 1 );
+//        observationTime = integrationArcLimits[ i ] + timeBuffer;
+//        for( int j = 0; j < numberOfObservationsPerArc; j++ )
+//        {
+//            initialObservationTimes[ j + i * numberOfObservationsPerArc ] = observationTime;
+//            observationTime += currentTimeStep;
+//        }
+//    }
 
-    return ( podOutput->parameterEstimate_ - truthParameters ).template cast< double >( );
-}
 
-BOOST_AUTO_TEST_CASE( test_MultiArcMultiBodyStateEstimation )
-{
+//    // Define observation simulation settings
+//    std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > measurementSimulationInput;
+//    for( int i = 0; i < numberOfVehicles; i++ )
+//    {
+//        measurementSimulationInput.push_back(
+//                    std::make_shared< TabulatedObservationSimulationSettings< > >(
+//                        position_observable, linkEndsList[ i ], initialObservationTimes, observed_body ) );
+//    }
 
-    Eigen::VectorXd parameterError = executeMultiBodyMultiArcParameterEstimation< double, double, double >( );
-    int numberOfEstimatedArcs = ( parameterError.rows( ) ) / 6;
+//    // Simulate observations
+//    std::shared_ptr< ObservationCollection< > > observationsAndTimes = simulateObservations< ObservationScalarType, TimeType >(
+//                measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies  );
 
-    std::cout <<"estimation error: "<< parameterError.transpose( ) << std::endl;
-    for( int i = 0; i < numberOfEstimatedArcs; i++ )
-    {
-        for( unsigned int j = 0; j < 3; j++ )
-        {
-            BOOST_CHECK_SMALL( std::fabs( parameterError( i * 6 + j ) ), 1E-4 );
-            BOOST_CHECK_SMALL( std::fabs( parameterError( i * 6 + j + 3 ) ), 1.0E-7  );
-        }
-    }
-}
+//    // Perturb initial states
+//    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > truthParameters = initialParameterEstimate;
+//    for( unsigned int i = 0; i < numberOfNumericalBodies * integrationArcStartTimes.size( ); i++ )
+//    {
+//        initialParameterEstimate[ 0 + 6 * i ] += 1.0E0;
+//        initialParameterEstimate[ 1 + 6 * i ] += 1.0E0;
+//        initialParameterEstimate[ 2 + 6 * i ] += 1.0E0;
+//        initialParameterEstimate[ 3 + 6 * i ] += 1.0E-5;
+//        initialParameterEstimate[ 4 + 6 * i ] += 1.0E-5;
+//        initialParameterEstimate[ 5 + 6 * i ] += 1.0E-5;
+//    }
+//    parametersToEstimate->resetParameterValues( initialParameterEstimate );
 
-BOOST_AUTO_TEST_SUITE_END( )
+//    // Define POD input
+//    std::shared_ptr< PodInput< ObservationScalarType, TimeType > > podInput =
+//            std::make_shared< PodInput< ObservationScalarType, TimeType > >(
+//                observationsAndTimes, ( initialParameterEstimate ).rows( ) );
 
-}
+//    // Estimate parameters
+//    std::shared_ptr< PodOutput< StateScalarType, TimeType > > podOutput = orbitDeterminationManager.estimateParameters(
+//                podInput, std::make_shared< EstimationConvergenceChecker >( 3 ) );
 
-}
+//    std::string outputFolder = "/home/dominic/Software/tudatBundleTest/tudatBundle/tudatApplications/master_thesis/Output/";
+
+//    return ( podOutput->parameterEstimate_ - truthParameters ).template cast< double >( );
+//}
+
+//BOOST_AUTO_TEST_CASE( test_MultiArcMultiBodyStateEstimation )
+//{
+
+//    Eigen::VectorXd parameterError = executeMultiBodyMultiArcParameterEstimation< double, double, double >( );
+//    int numberOfEstimatedArcs = ( parameterError.rows( ) ) / 6;
+
+//    std::cout <<"estimation error: "<< parameterError.transpose( ) << std::endl;
+//    for( int i = 0; i < numberOfEstimatedArcs; i++ )
+//    {
+//        for( unsigned int j = 0; j < 3; j++ )
+//        {
+//            BOOST_CHECK_SMALL( std::fabs( parameterError( i * 6 + j ) ), 1E-4 );
+//            BOOST_CHECK_SMALL( std::fabs( parameterError( i * 6 + j + 3 ) ), 1.0E-7  );
+//        }
+//    }
+//}
+
+//BOOST_AUTO_TEST_SUITE_END( )
+
+//}
+
+//}

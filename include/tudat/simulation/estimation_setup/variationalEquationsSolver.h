@@ -1113,12 +1113,15 @@ public:
 
     MultiArcVariationalEquationsSolver(
             const simulation_setup::SystemOfBodies& bodies,
-            const std::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
+            const std::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > propagatorSettings,
             const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate,
             const bool integrateEquationsOnCreation = false ):
         VariationalEquationsSolver< StateScalarType, TimeType >(
-            bodies, parametersToEstimate ),
-        propagatorSettings_( std::dynamic_pointer_cast< MultiArcPropagatorSettings< StateScalarType > >( propagatorSettings ) )
+            bodies, parametersToEstimate, propagatorSettings != nullptr ?
+                propagatorSettings->getOutputSettingsWithCheck( )->clearNumericalSolutions : false  ),
+        propagatorSettings_( std::dynamic_pointer_cast< MultiArcPropagatorSettings< StateScalarType > >( propagatorSettings ) ),
+        resetMultiArcDynamicsAfterPropagation_( propagatorSettings != nullptr ?
+                propagatorSettings->getOutputSettingsWithCheck( )->setIntegratedResult : false    )
     {
         if(  std::dynamic_pointer_cast< MultiArcPropagatorSettings< StateScalarType > >( propagatorSettings ) == nullptr )
         {
@@ -1313,7 +1316,6 @@ public:
                 // Retrieve integrator settings, and ensure correct initial time.
                 std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings =
                         singleArcDynamicsSimulators.at( i )->getIntegratorSettings( );
-
 //                integratorSettings->initialTime_ = arcStartTimes_.at( i );
 
                 // Set state derivative model to propagate both variational equations and equations of motion
@@ -1385,6 +1387,7 @@ public:
 
             }
 
+            std::cout<<"Reset: "<<resetMultiArcDynamicsAfterPropagation_<<std::endl;
             // Process numerical solution of equations of motion
             dynamicsSimulator_->manuallySetAndProcessRawNumericalEquationsOfMotionSolution(
                         equationsOfMotionNumericalSolutions, dependentVariableHistorySolutions,

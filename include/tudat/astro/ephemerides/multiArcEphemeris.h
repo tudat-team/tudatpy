@@ -72,7 +72,6 @@ public:
     Eigen::Vector6d getCartesianState(
             const double secondsSinceEpoch )
     {
-
         return singleArcEphemerides_.at( lookUpscheme_->findNearestLowerNeighbour( secondsSinceEpoch ) )->
                 getCartesianState( double( secondsSinceEpoch ) );
     }
@@ -144,6 +143,11 @@ public:
     void resetSingleArcEphemerides(
             const std::map< double, std::shared_ptr< Ephemeris > >& singleArcEphemerides )
     {
+        std::cout<<"New start times B: "<<std::endl;
+        for( auto it : singleArcEphemerides )
+        {
+            std::cout<<it.first<<std::endl;
+        }
         resetSingleArcEphemerides( utilities::createVectorFromMapValues( singleArcEphemerides ),
                                    utilities::createVectorFromMapKeys( singleArcEphemerides ) );
     }
