@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef TUDATBUNDLE_POLYHEDRONACCELERATIONPARTIAL_H
-#define TUDATBUNDLE_POLYHEDRONACCELERATIONPARTIAL_H
+#ifndef TUDAT_POLYHEDRONACCELERATIONPARTIAL_H
+#define TUDAT_POLYHEDRONACCELERATIONPARTIAL_H
 
 #include <tudat/astro/gravitation/polyhedronGravityField.h>
 #include "tudat/astro/gravitation/polyhedronGravityModel.h"
@@ -281,4 +281,4 @@ private:
 
 } // namespace tudat
 
-#endif //TUDATBUNDLE_POLYHEDRONACCELERATIONPARTIAL_H
+#endif //TUDAT_POLYHEDRONACCELERATIONPARTIAL_H

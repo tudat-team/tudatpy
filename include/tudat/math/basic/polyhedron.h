@@ -13,8 +13,8 @@
  *       "The solid angle hidden in polyhedron gravitation formulations", Werner (2017), Journal of Geodesy
  */
 
-#ifndef TUDATBUNDLE_POLYHEDRON_H
-#define TUDATBUNDLE_POLYHEDRON_H
+#ifndef TUDAT_POLYHEDRON_H
+#define TUDAT_POLYHEDRON_H
 
 #include <memory>
 #include <cmath>
@@ -156,4 +156,4 @@ double calculatePolyhedronLaplacianOfGravitationalPotential(
 } // namespace tudat
 
 
-#endif //TUDATBUNDLE_POLYHEDRON_H
+#endif //TUDAT_POLYHEDRON_H

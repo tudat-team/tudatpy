@@ -13,8 +13,8 @@
  *       Avillez (2022), MSc thesis (TU Delft) - TODO: add proper reference
  */
 
-#ifndef TUDATBUNDLE_POLYHEDRONBODYSHAPEMODEL_H
-#define TUDATBUNDLE_POLYHEDRONBODYSHAPEMODEL_H
+#ifndef TUDAT_POLYHEDRONBODYSHAPEMODEL_H
+#define TUDAT_POLYHEDRONBODYSHAPEMODEL_H
 
 #include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/astro/basic_astro/bodyShapeModel.h"
@@ -202,4 +202,4 @@ private:
 } // namespace basic_astrodynamics
 } // namespace tudat
 
-#endif //TUDATBUNDLE_POLYHEDRONBODYSHAPEMODEL_H
+#endif //TUDAT_POLYHEDRONBODYSHAPEMODEL_H

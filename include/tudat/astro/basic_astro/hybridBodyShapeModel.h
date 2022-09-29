@@ -9,8 +9,8 @@
  *
  */
 
-#ifndef TUDATBUNDLE_HYBRIDBODYSHAPEMODEL_H
-#define TUDATBUNDLE_HYBRIDBODYSHAPEMODEL_H
+#ifndef TUDAT_HYBRIDBODYSHAPEMODEL_H
+#define TUDAT_HYBRIDBODYSHAPEMODEL_H
 
 #include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/astro/basic_astro/bodyShapeModel.h"
@@ -120,4 +120,4 @@ private:
 } // namespace basic_astrodynamics
 } // namespace tudat
 
-#endif //TUDATBUNDLE_HYBRIDBODYSHAPEMODEL_H
+#endif //TUDAT_HYBRIDBODYSHAPEMODEL_H
