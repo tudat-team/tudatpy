@@ -1868,6 +1868,7 @@ public:
     void integrateVariationalAndDynamicalEquations(
             const VectorType& initialStateEstimate, const bool integrateEquationsConcurrently )
     {
+        std::cout<<"Propagating hybrid arc"<<std::endl;
 
         // Reset initial time and propagate multi-arc equations
         singleArcIntegratorSettings_->initialTime_ = singleArcInitialTime_;
@@ -1885,7 +1886,6 @@ public:
 
         // Reset initial time and propagate single-arc equations
         multiArcIntegratorSettings_->initialTime_ = arcStartTimes_.at( 0 );
-        //        std::cout<<"Integrating multi arc "<<std::endl;
         multiArcSolver_->integrateVariationalAndDynamicalEquations(
                     propagatorSettings_->getMultiArcPropagatorSettings( )->getInitialStates( ),
                     integrateEquationsConcurrently );
@@ -1895,6 +1895,10 @@ public:
         // Extract multi-arc solution of dynamics, and remove the single arc bodies from the map.
         std::vector< std::map< TimeType, VectorType > > numericalMultiArcSolution  =
                 multiArcSolver_->getDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
+        for( int i = 0; i < numericalMultiArcSolution.size( ); i++ )
+        {
+            std::cout<<"Arc "<<i<<", "<<numericalMultiArcSolution.at( i ).size( )<<std::endl;
+        }
         std::vector< std::map< TimeType, Eigen::VectorXd > > dependentVariableHistory  =
                 multiArcSolver_->getDynamicsSimulator( )->getDependentVariableHistory( );
 

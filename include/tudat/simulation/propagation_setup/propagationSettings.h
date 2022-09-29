@@ -549,6 +549,7 @@ public:
         outputSettings_ = outputSettings;
     }
 
+
 protected:
 
     std::shared_ptr< PropagatorOutputSettings > outputSettings_;
@@ -587,7 +588,8 @@ public:
         PropagatorSettings< StateScalarType >(
             Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( 0 ), false ),
         singleArcPropagatorSettings_( singleArcPropagatorSettings ),
-        multiArcPropagatorSettings_( multiArcPropagatorSettings )
+        multiArcPropagatorSettings_( multiArcPropagatorSettings ),
+        outputSettings_( std::make_shared< PropagatorOutputSettings >( ) )
     {
         // Set initial states
         this->initialStates_ =
@@ -660,6 +662,25 @@ public:
         multiArcPropagatorSettings_->resetIntegratedStateModels( bodies );
     }
 
+    std::shared_ptr< PropagatorOutputSettings > getOutputSettings( )
+    {
+        return outputSettings_;
+    }
+
+    std::shared_ptr< PropagatorOutputSettings > getOutputSettingsWithCheck( )
+    {
+        if( outputSettings_ == nullptr )
+        {
+            throw std::runtime_error( "Error whenen getting output settings from single-arc propagator settings; no output settings defined" );
+        }
+        return outputSettings_;
+    }
+
+    void setOutputSettings( const std::shared_ptr< PropagatorOutputSettings > outputSettings )
+    {
+        outputSettings_ = outputSettings;
+    }
+
 protected:
 
     //! Settings for single-arc propagation component
@@ -667,6 +688,8 @@ protected:
 
     //! Settings for multi-arc propagation component
     std::shared_ptr< MultiArcPropagatorSettings< StateScalarType, TimeType > > multiArcPropagatorSettings_;
+
+    std::shared_ptr< PropagatorOutputSettings > outputSettings_;
 
     //! Size of total single-arc initial state
     int singleArcStateSize_;
@@ -2358,12 +2381,14 @@ void toggleIntegratedResultSettings(
     else if( std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< StateScalarType > >( propagatorSettings ) != nullptr )
     {
         std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< StateScalarType > >(
-                    propagatorSettings )->getOutputSettings( )->setIntegratedResult = true;;
+                    propagatorSettings )->getOutputSettings( )->setIntegratedResult = true;
     }
     else if( std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< StateScalarType > >( propagatorSettings ) != nullptr )
     {
-        throw std::runtime_error( "Error when defining setIntegratedResult, hybrid arc not yet supported" );
-
+        std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< StateScalarType > >(
+                    propagatorSettings )->getSingleArcPropagatorSettings( )->getOutputSettings( )->setIntegratedResult = true;
+        std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< StateScalarType > >(
+                    propagatorSettings )->getMultiArcPropagatorSettings( )->getOutputSettings( )->setIntegratedResult = true;
     }
     else
     {

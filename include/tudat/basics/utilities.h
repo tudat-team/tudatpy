@@ -731,6 +731,13 @@ std::map< KeyType, ScalarType > getSingleVectorEntryHistory(
 }
 
 template< typename A >
+std::shared_ptr< A > deepcopyPointer(
+        const std::shared_ptr< A > originalPointer )
+{
+    return std::make_shared< A >( *originalPointer );
+}
+
+template< typename A >
 std::vector< std::shared_ptr< A > > deepcopyDuplicatePointers(
         const std::vector< std::shared_ptr< A > > originalPointers )
 {
