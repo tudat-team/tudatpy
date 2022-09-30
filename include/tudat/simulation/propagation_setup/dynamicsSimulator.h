@@ -539,8 +539,8 @@ public:
             PredefinedSingleArcStateDerivativeModels< StateScalarType, TimeType >( ) ):
         DynamicsSimulator< StateScalarType, TimeType >(
             bodies,
-            propagatorSettings != nullptr ? propagatorSettings->getOutputSettingsWithCheck( )->clearNumericalSolutions : -1,
-            propagatorSettings != nullptr ?  propagatorSettings->getOutputSettingsWithCheck( )->setIntegratedResult : -1 ),
+            propagatorSettings != nullptr ? propagatorSettings->getOutputSettingsWithCheck( )->clearNumericalSolutions : 0,
+            propagatorSettings != nullptr ?  propagatorSettings->getOutputSettingsWithCheck( )->setIntegratedResult : 0 ),
         propagatorSettings_( propagatorSettings ),
         initialClockTime_( std::chrono::steady_clock::now( ) )
     {
@@ -1395,9 +1395,13 @@ public:
             const bool areEquationsOfMotionToBeIntegrated = true ):
         DynamicsSimulator< StateScalarType, TimeType >(
             bodies,
-            propagatorSettings != nullptr ? propagatorSettings->getOutputSettingsWithCheck( )->clearNumericalSolutions : -1,
-            propagatorSettings != nullptr ?  propagatorSettings->getOutputSettingsWithCheck( )->setIntegratedResult : -1  )
+            propagatorSettings != nullptr ? propagatorSettings->getOutputSettingsWithCheck( )->clearNumericalSolutions : 0,
+            propagatorSettings != nullptr ?  propagatorSettings->getOutputSettingsWithCheck( )->setIntegratedResult : 0  )
     {
+        std::cout<<"Creating "<<propagatorSettings<<std::endl;
+        std::cout<<"Clear "<<propagatorSettings->getOutputSettingsWithCheck( )->clearNumericalSolutions<<std::endl;
+        std::cout<<"Set "<<propagatorSettings->getOutputSettingsWithCheck( )->setIntegratedResult<<std::endl;
+
         multiArcPropagatorSettings_ =
                 std::dynamic_pointer_cast< MultiArcPropagatorSettings< StateScalarType > >( propagatorSettings );
         if( multiArcPropagatorSettings_ == nullptr )
@@ -1589,6 +1593,7 @@ public:
                         arcInitialStateList );
         }
 
+        std::cout<<"Process: "<<this->setIntegratedResult_<<" "<<this->clearNumericalSolutions_<<std::endl;
         if( this->setIntegratedResult_ )
         {
             processNumericalEquationsOfMotionSolution( );
@@ -1753,6 +1758,7 @@ public:
      */
     void processNumericalEquationsOfMotionSolution( )
     {
+
         try
         {
             // Create and set interpolators for ephemerides
@@ -1912,8 +1918,8 @@ public:
             const bool addSingleArcBodiesToMultiArcDynamics = false ):
         DynamicsSimulator< StateScalarType, TimeType >(
             bodies,
-            propagatorSettings != nullptr ? propagatorSettings->getOutputSettingsWithCheck( )->clearNumericalSolutions : -1,
-            propagatorSettings != nullptr ?  propagatorSettings->getOutputSettingsWithCheck( )->setIntegratedResult : -1 )
+            propagatorSettings != nullptr ? propagatorSettings->getOutputSettingsWithCheck( )->clearNumericalSolutions : 0,
+            propagatorSettings != nullptr ?  propagatorSettings->getOutputSettingsWithCheck( )->setIntegratedResult : 0 )
     {
         std::shared_ptr< HybridArcPropagatorSettings< StateScalarType > > hybridPropagatorSettings =
                 std::dynamic_pointer_cast< HybridArcPropagatorSettings< StateScalarType > >( propagatorSettings );
