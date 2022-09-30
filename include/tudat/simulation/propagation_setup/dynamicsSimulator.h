@@ -1391,10 +1391,12 @@ public:
 
     MultiArcDynamicsSimulator(
             const simulation_setup::SystemOfBodies& bodies,
-            const std::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
+            const std::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > propagatorSettings,
             const bool areEquationsOfMotionToBeIntegrated = true ):
         DynamicsSimulator< StateScalarType, TimeType >(
-            bodies  )
+            bodies,
+            propagatorSettings != nullptr ? propagatorSettings->getOutputSettingsWithCheck( )->clearNumericalSolutions : -1,
+            propagatorSettings != nullptr ?  propagatorSettings->getOutputSettingsWithCheck( )->setIntegratedResult : -1  )
     {
         multiArcPropagatorSettings_ =
                 std::dynamic_pointer_cast< MultiArcPropagatorSettings< StateScalarType > >( propagatorSettings );
@@ -2150,10 +2152,10 @@ std::shared_ptr< PropagatorSettings< StateScalarType > > validateDeprecatePropag
         std::shared_ptr< propagators::HybridArcPropagatorSettings< StateScalarType > > hybridArcSettings =
                 std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< StateScalarType > >( propagatorSettings );
 
-//        validateDeprecatedHybridArcSettings
-//        validateDeprecatedSingleArcSettings< StateScalarType, TimeType >( integratorSettings.at( 0 ), hybridArcSettings->getSingleArcPropagatorSettings( ) );
-//        validateDeprecatedMultiArcSettings< StateScalarType, TimeType >( integratorSettings.at( integratorSettings.size( ) == 1 ? 0 : 1 ),
-//                                            hybridArcSettings->getMultiArcPropagatorSettings( ) );
+        validateDeprecatedSingleArcSettings< StateScalarType, TimeType >(
+                    integratorSettings.at( 0 ), hybridArcSettings->getSingleArcPropagatorSettings( ) );
+        validateDeprecatedMultiArcSettings< StateScalarType, TimeType >(
+                    { integratorSettings.begin( ) + 1, integratorSettings.end( ) }, hybridArcSettings->getMultiArcPropagatorSettings( ) );
         return hybridArcSettings;
     }
     else
