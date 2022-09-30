@@ -257,7 +257,7 @@ BOOST_AUTO_TEST_CASE( testHybridArcDynamics )
 
             HybridArcDynamicsSimulator< > hybridArcDynamicsSimulator(
                         bodies, singleArcIntegratorSettings, multiArcIntegratorSettings, std::make_shared< HybridArcPropagatorSettings< > >(
-                            singleArcPropagatorSettings, multiArcPropagatorSettings ), integrationArcStarts );
+                            singleArcPropagatorSettings, multiArcPropagatorSettings ), integrationArcStarts, true, false, false );
 
             singleArcSolutionFromHybrid = hybridArcDynamicsSimulator.getSingleArcDynamicsSimulator( )->
                     getEquationsOfMotionNumericalSolution( );
