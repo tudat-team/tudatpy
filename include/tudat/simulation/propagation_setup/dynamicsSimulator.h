@@ -771,6 +771,7 @@ public:
                       << dynamicsStateDerivative_->getNumberOfFunctionEvaluations( ) << std::endl;
         }
 
+        std::cout<<"Process (single): "<<this->setIntegratedResult_<<" "<<this->clearNumericalSolutions_<<std::endl;
         if( this->setIntegratedResult_ )
         {
             processNumericalEquationsOfMotionSolution( );
@@ -1849,11 +1850,15 @@ std::shared_ptr< HybridArcPropagatorSettings< StateScalarType > > validateDeprec
                 multiArcIntegratorSettings, hybridArcPropagatorSettings->getMultiArcPropagatorSettings( ),
                 clearNumericalSolutions, setIntegratedResult );
 
-    std::shared_ptr< PropagatorOutputSettings > outputSettings = std::make_shared< PropagatorOutputSettings >( );
-    outputSettings->clearNumericalSolutions = clearNumericalSolutions;
-    outputSettings->setIntegratedResult = setIntegratedResult;
+    hybridArcPropagatorSettings->getOutputSettingsWithCheck( )->clearNumericalSolutions = clearNumericalSolutions;
+    hybridArcPropagatorSettings->getOutputSettingsWithCheck( )->setIntegratedResult = setIntegratedResult;
 
-    hybridArcPropagatorSettings->setOutputSettings( outputSettings );
+    hybridArcPropagatorSettings->getMultiArcPropagatorSettings( )->getOutputSettingsWithCheck( )->clearNumericalSolutions = clearNumericalSolutions;
+    hybridArcPropagatorSettings->getMultiArcPropagatorSettings( )->getOutputSettingsWithCheck( )->setIntegratedResult = setIntegratedResult;
+
+    hybridArcPropagatorSettings->getSingleArcPropagatorSettings( )->getOutputSettingsWithCheck( )->clearNumericalSolutions = clearNumericalSolutions;
+    hybridArcPropagatorSettings->getSingleArcPropagatorSettings( )->getOutputSettingsWithCheck( )->setIntegratedResult = setIntegratedResult;
+
     return hybridArcPropagatorSettings;
 }
 
