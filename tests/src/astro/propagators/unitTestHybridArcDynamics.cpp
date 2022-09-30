@@ -236,7 +236,7 @@ BOOST_AUTO_TEST_CASE( testHybridArcDynamics )
         std::map< double, Eigen::VectorXd > singleArcSolution;
         {
             SingleArcDynamicsSimulator< > singleArcDynamicsSimulator(
-                        bodies, singleArcIntegratorSettings, singleArcPropagatorSettings, true, false, true );
+                        bodies, singleArcIntegratorSettings, singleArcPropagatorSettings, true, false, false );
             singleArcSolution = singleArcDynamicsSimulator.getEquationsOfMotionNumericalSolution( );
         }
 
@@ -309,6 +309,12 @@ BOOST_AUTO_TEST_CASE( testHybridArcDynamics )
                 BOOST_CHECK_CLOSE_FRACTION(
                             currentArcSolutionFromHybridIterator->first, currentArcSolutionIterator->first,
                             4.0 * std::numeric_limits< double >::epsilon( ) );
+                std::cout<<arc<<" "<<testCase<<std::endl;
+                std::cout<<currentArcSolutionFromHybridIterator->second.transpose( )<<std::endl;
+                std::cout<<currentArcSolutionIterator->second.transpose( )<<std::endl;
+                std::cout<<( currentArcSolutionIterator->second - currentArcSolutionFromHybridIterator->second ).cwiseQuotient(
+                               currentArcSolutionFromHybridIterator->second ).transpose( )<<std::endl<<std::endl;
+
                 for( unsigned int j = 0; j < 3; j++ )
                 {
                     BOOST_CHECK_SMALL(
