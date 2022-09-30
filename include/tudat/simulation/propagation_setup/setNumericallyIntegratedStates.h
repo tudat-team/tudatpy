@@ -398,9 +398,7 @@ void resetMultiArcIntegratedEphemerides(
         std::vector< std::shared_ptr< Ephemeris > > arcEphemerisList;
         for( unsigned int j = 0; j < arcStartTimes.size( ); j++ )
         {
-            std::cout<<"Resetting multi-arc, arc "<<j<<" "<<arcStartTimes.at( j )<<std::endl;
-            std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) >
-                    integrationToEphemerisFrameFunction = nullptr;
+            std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > integrationToEphemerisFrameFunction = nullptr;
             
             // Create transformation function, if needed.
             if( integrationToEphemerisFrameFunctions.count( bodiesToIntegrate.at( bodyIndex ) ) > 0 )
@@ -1238,7 +1236,6 @@ void resetIntegratedMultiArcStatesWithEqualArcDynamics(
         integratedStateProcessors,
         const std::vector< double >& arcStartTimes )
 {
-    std::cout<<"Resetting multi-arc"<<std::endl;
     for( typename std::map< IntegratedStateType,
          std::vector< std::shared_ptr< IntegratedStateProcessor< TimeType, StateScalarType > > > >:: const_iterator
          updateIterator = integratedStateProcessors.begin( );

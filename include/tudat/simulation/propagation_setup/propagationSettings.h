@@ -1711,9 +1711,9 @@ std::shared_ptr< MultiArcPropagatorSettings< StateScalarType, TimeType > > getEx
             constituentSingleArcSettings.push_back(
                         std::make_shared< TranslationalStatePropagatorSettings< StateScalarType, TimeType > >(
                             fullCentralBodies, fullAccelerationsMap, fullBodiesToIntegrate,
-                            currentArcInitialStates,
+                            currentArcInitialStates, multiArcSettings->getSingleArcSettings( ).at( i )->getIntegratorSettings( ),
                             multiArcSettings->getSingleArcSettings( ).at( i )->getTerminationSettings( ), propagatorToUse,
-                            fullDependentVariablesToSave, singleArcTranslationalSettings->getPrintInterval( ) ) );
+                            fullDependentVariablesToSave ) );
         }
 
         break;
