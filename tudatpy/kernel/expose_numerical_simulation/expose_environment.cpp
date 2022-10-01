@@ -514,11 +514,9 @@ void expose_environment(py::module &m) {
     py::class_<tgs::GroundStationState,
             std::shared_ptr<tgs::GroundStationState>>(m, "GroundStationState")
             .def("get_cartesian_state", &tgs::GroundStationState::getCartesianStateInTime,
-                 py::arg( "seconds_since_epoch" ),
-                 py::arg( "reference_epoch") = tba::JULIAN_DAY_ON_J2000 )
+                 py::arg( "seconds_since_epoch" ) )
             .def("get_cartesian_position", &tgs::GroundStationState::getCartesianPositionInTime,
-                 py::arg( "seconds_since_epoch" ),
-                 py::arg( "reference_epoch") = tba::JULIAN_DAY_ON_J2000 )
+                 py::arg( "seconds_since_epoch" ) )
             .def_property_readonly("cartesian_positon_at_reference_epoch", &tgs::GroundStationState::getNominalCartesianPosition )
             .def_property_readonly("spherical_positon_at_reference_epoch", &tgs::GroundStationState::getNominalSphericalPosition )
             .def_property_readonly("geodetic_positon_at_reference_epoch", &tgs::GroundStationState::getNominalGeodeticPosition )
