@@ -41,7 +41,7 @@ void checkTranslationalStatesFeasibility(
                 if( std::find( bodiesToIntegrate.begin( ), bodiesToIntegrate.end( ), ephemerisOrigin )
                         != bodiesToIntegrate.end( ) )
                 {
-                    std::cerr << "Warning, found non-integrated body with an integrated body as ephemeris origin" +
+                    std::cerr << "Warning, found non-integrated body with an integrated body as ephemeris origin " +
                                  bodyIterator.second->getEphemeris( )->getReferenceFrameOrigin( ) + " " +
                                  bodyIterator.first << std::endl;
                 }
