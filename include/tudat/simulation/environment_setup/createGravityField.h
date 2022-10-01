@@ -23,6 +23,7 @@
 #include "tudat/astro/gravitation/gravityFieldModel.h"
 #include "tudat/astro/gravitation/sphericalHarmonicsGravityField.h"
 #include "tudat/astro/gravitation/gravityFieldVariations.h"
+#include "tudat/astro/gravitation/polyhedronGravityField.h"
 
 namespace tudat
 {
@@ -40,7 +41,8 @@ enum GravityFieldType
 {
     central,
     central_spice,
-    spherical_harmonic
+    spherical_harmonic,
+    polyhedron
 };
 
 // Class for providing settings for gravity field model.
@@ -282,6 +284,123 @@ protected:
 };
 
 
+// Derived class of GravityFieldSettings defining settings of polyhedron gravity
+// field representation.
+// References: "EXTERIOR GRAVITATION OF A POLYHEDRON DERIVED AND COMPARED WITH HARMONIC AND MASCON GRAVITATION REPRESENTATIONS
+//              OF ASTEROID 4769 CASTALIA", Werner and Scheeres (1997), Celestial Mechanics and Dynamical Astronomy
+class PolyhedronGravityFieldSettings: public GravityFieldSettings
+{
+public:
+    // Constructor.
+    /*
+     *  Constructor.
+     *  \param gravitationalConstant Gravitational constant of the gravity field.
+     *  \param density Density of polyhedron.
+     *  \param verticesCoordinates Cartesian coordinates of each vertex (one row per vertex, 3 columns).
+     *  \param verticesDefiningEachFacet Index (0 based) of the vertices constituting each facet (one row per facet, 3 columns).
+     *  \param associatedReferenceFrame Identifier for body-fixed reference frame to which the polyhedron is referred.
+     */
+    PolyhedronGravityFieldSettings( const double gravitationalConstant,
+                                    const double density,
+                                    const Eigen::MatrixXd& verticesCoordinates,
+                                    const Eigen::MatrixXi& verticesDefiningEachFacet,
+                                    const std::string& associatedReferenceFrame):
+        GravityFieldSettings( polyhedron ),
+        density_( density ),
+        verticesCoordinates_( verticesCoordinates ),
+        verticesDefiningEachFacet_( verticesDefiningEachFacet ),
+        associatedReferenceFrame_( associatedReferenceFrame )
+    {
+        double volume = basic_astrodynamics::computePolyhedronVolume( verticesCoordinates, verticesDefiningEachFacet );
+        gravitationalParameter_ = gravitationalConstant * density_ * volume;
+    }
+
+
+    /*! Constructor.
+     *
+     * Constructor.
+     * @param gravitationalParameter Gravitational parameter of the polyhedron.
+     * @param verticesCoordinates Cartesian coordinates of each vertex (one row per vertex, 3 columns).
+     * @param verticesDefiningEachFacet Index (0 based) of the vertices constituting each facet (one row per facet, 3 columns).
+     * @param associatedReferenceFrame Identifier for body-fixed reference frame to which the polyhedron is referred.
+     * @param density Density of the polyhedron. It is later used to set the function to update the inertia tensor.
+     */
+    PolyhedronGravityFieldSettings( const double gravitationalParameter,
+                                    const Eigen::MatrixXd& verticesCoordinates,
+                                    const Eigen::MatrixXi& verticesDefiningEachFacet,
+                                    const std::string& associatedReferenceFrame,
+                                    const double density = TUDAT_NAN):
+        GravityFieldSettings( polyhedron ),
+        gravitationalParameter_( gravitationalParameter ),
+        density_( density ),
+        verticesCoordinates_( verticesCoordinates ),
+        verticesDefiningEachFacet_( verticesDefiningEachFacet ),
+        associatedReferenceFrame_( associatedReferenceFrame )
+    { }
+
+    //! Destructor
+    virtual ~PolyhedronGravityFieldSettings( ){ }
+
+    // Function to return the gravitational parameter.
+    double getGravitationalParameter( )
+    { return gravitationalParameter_; }
+
+    // Function to reset the gravitational parameter.
+    void resetGravitationalParameter ( const double gravitationalParameter )
+    { gravitationalParameter_ = gravitationalParameter; }
+
+    // Function to return the density.
+    double getDensity ( )
+    { return density_; }
+
+    // Function to reset the density.
+    void resetDensity ( double density )
+    { density_ = density; }
+
+    // Function to return identifier for body-fixed reference frame.
+    std::string getAssociatedReferenceFrame( )
+    { return associatedReferenceFrame_; }
+
+    // Function to reset identifier for body-fixed reference frame to which the polyhedron is referred.
+    void resetAssociatedReferenceFrame( const std::string& associatedReferenceFrame )
+    { associatedReferenceFrame_ = associatedReferenceFrame; }
+
+    //! Function to return the vertices coordinates.
+    const Eigen::MatrixXd& getVerticesCoordinates( )
+    { return verticesCoordinates_; }
+
+    //! Function to reset the vertices coordinates.
+    void resetVerticesCoordinates( const Eigen::MatrixXd& verticesCoordinates )
+    { verticesCoordinates_ = verticesCoordinates; }
+
+    //! Function to return the vertices defining each facet.
+    const Eigen::MatrixXi& getVerticesDefiningEachFacet( )
+    { return verticesDefiningEachFacet_; }
+
+    //! Function to reset the vertices defining each facet.
+    void resetVerticesDefiningEachFacet ( const Eigen::MatrixXi& verticesDefiningEachFacet )
+    { verticesDefiningEachFacet_ = verticesDefiningEachFacet; }
+
+protected:
+
+    // Gravitational parameter
+    double gravitationalParameter_;
+
+    // Density of the polyhedron
+    double density_;
+
+    // Cartesian coordinates of each vertex.
+    Eigen::MatrixXd verticesCoordinates_;
+
+    // Indices of the 3 vertices describing each facet.
+    Eigen::MatrixXi verticesDefiningEachFacet_;
+
+    // Identifier for body-fixed reference frame to which the polyhedron is referred.
+    std::string associatedReferenceFrame_;
+
+};
+
+
 // Spherical harmonics models supported by Tudat.
 //! @get_docstring(SphericalHarmonicsModel.__docstring__)
 enum SphericalHarmonicsModel
@@ -436,10 +555,10 @@ protected:
 
 };
 
-// Function to create gravity field settings for a homogeneous triaxial ellipsoid
+// Function to create gravity field settings for a homogeneous triaxial ellipsoid with density as argument.
 /*
- * Function to create gravity field settings for a homogeneous triaxial ellipsoid. The gravity field is expressed in
- * normalized spherical harmonic coefficients.  X-axis is alligned
+ * Function to create gravity field settings for a homogeneous triaxial ellipsoid with density as argument. The gravity
+ * field is expressed in normalized spherical harmonic coefficients.  X-axis is alligned
  * with largest axis, y-axis with middle axis and z-axis with smallest axis
  * \param axisA Largest axis of triaxial ellipsoid
  * \param axisB Middle axis of triaxial ellipsoid
@@ -449,12 +568,35 @@ protected:
  * \param maximumOrder Maximum oredr of expansion
  * \param associatedReferenceFrame Identifier for body-fixed reference frame to which
  * the coefficients are referred.
+ * \param gravitationalConstant Gravitational constant.
  * \return Gravity field settings for a homogeneous triaxial ellipsoid of given properties.
  */
 std::shared_ptr< SphericalHarmonicsGravityFieldSettings > createHomogeneousTriAxialEllipsoidGravitySettings(
         const double axisA, const double axisB, const double axisC, const double ellipsoidDensity,
         const int maximumDegree, const int maximumOrder,
-        const std::string& associatedReferenceFrame  );
+        const std::string& associatedReferenceFrame,
+        const double gravitationalConstant = physical_constants::GRAVITATIONAL_CONSTANT );
+
+// Function to create gravity field settings for a homogeneous triaxial ellipsoid with the gravitational parameter as argument.
+/*
+ * Function to create gravity field settings for a homogeneous triaxial ellipsoid with the gravitational parameters as
+ * argument. The gravity field is expressed in normalized spherical harmonic coefficients.  X-axis is alligned
+ * with largest axis, y-axis with middle axis and z-axis with smallest axis
+ * \param axisA Largest axis of triaxial ellipsoid
+ * \param axisB Middle axis of triaxial ellipsoid
+ * \param axisC Smallest axis of triaxial ellipsoid
+ * \param ellipsoidGravitationalParameter Gravitational parameter of the gravity field.
+ * \param maximumDegree Maximum degree of expansion
+ * \param maximumOrder Maximum oredr of expansion
+ * \param associatedReferenceFrame Identifier for body-fixed reference frame to which
+ * the coefficients are referred.
+ * \return Gravity field settings for a homogeneous triaxial ellipsoid of given properties.
+ */
+std::shared_ptr< SphericalHarmonicsGravityFieldSettings > createHomogeneousTriAxialEllipsoidGravitySettings(
+        const double axisA, const double axisB, const double axisC,
+        const int maximumDegree, const int maximumOrder,
+        const std::string& associatedReferenceFrame,
+        const double ellipsoidGravitationalParameter );
 
 // Function to read a spherical harmonic gravity field file
 /*
@@ -546,6 +688,30 @@ inline std::shared_ptr< GravityFieldSettings > sphericalHarmonicsGravitySettings
             normalizedCosineCoefficients, normalizedSineCoefficients,
             associatedReferenceFrame
             );
+}
+
+inline std::shared_ptr< GravityFieldSettings > polyhedronGravitySettings(
+        const double gravitationalConstant,
+        const double density,
+        const Eigen::MatrixXd verticesCoordinates,
+        const Eigen::MatrixXi verticesDefiningEachFacet,
+        const std::string& associatedReferenceFrame)
+{
+    return std::make_shared< PolyhedronGravityFieldSettings >(
+            gravitationalConstant, density, verticesCoordinates,
+            verticesDefiningEachFacet, associatedReferenceFrame);
+}
+
+inline std::shared_ptr< GravityFieldSettings > polyhedronGravitySettings(
+        const double gravitationalParameter,
+        const Eigen::MatrixXd verticesCoordinates,
+        const Eigen::MatrixXi verticesDefiningEachFacet,
+        const std::string& associatedReferenceFrame,
+        const double density = TUDAT_NAN )
+{
+    return std::make_shared< PolyhedronGravityFieldSettings >(
+            gravitationalParameter, verticesCoordinates, verticesDefiningEachFacet, associatedReferenceFrame,
+            density );
 }
 
 } // namespace simulation_setup

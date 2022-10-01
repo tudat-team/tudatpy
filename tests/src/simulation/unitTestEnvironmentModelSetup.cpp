@@ -471,6 +471,190 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldSetup )
 
 }
 
+//! Test set up of polyhedron gravity field model
+BOOST_AUTO_TEST_CASE( test_polyhedronGravityFieldSetup )
+{
+    // Define cuboid polyhedron dimensions
+    const double w = 10.0; // width
+    const double h = 10.0; // height
+    const double l = 20.0; // length
+
+    // Define parameters
+    const double gravitationalConstant = 6.67259e-11;
+    const double density = 2670;
+    const double volume = w * h * l;
+    const double gravitationalParameter = gravitationalConstant * density * volume;
+
+    // Define cuboid
+    Eigen::MatrixXd verticesCoordinates(8,3);
+    verticesCoordinates <<
+        0.0, 0.0, 0.0,
+        l, 0.0, 0.0,
+        0.0, w, 0.0,
+        l, w, 0.0,
+        0.0, 0.0, h,
+        l, 0.0, h,
+        0.0, w, h,
+        l, w, h;
+    Eigen::MatrixXi verticesDefiningEachFacet(12,3);
+    verticesDefiningEachFacet <<
+        2, 1, 0,
+        1, 2, 3,
+        4, 2, 0,
+        2, 4, 6,
+        1, 4, 0,
+        4, 1, 5,
+        6, 5, 7,
+        5, 6, 4,
+        3, 6, 7,
+        6, 3, 2,
+        5, 3, 7,
+        3, 5, 1;
+
+    // Create settings for polyhedron gravity field with both factory functions
+    std::shared_ptr< GravityFieldSettings > polyhedronGravityFieldSettings1 = polyhedronGravitySettings(
+            gravitationalConstant, density, verticesCoordinates, verticesDefiningEachFacet, "DummyFrame");
+    std::shared_ptr< GravityFieldSettings > polyhedronGravityFieldSettings2 = polyhedronGravitySettings(
+            gravitationalParameter, verticesCoordinates, verticesDefiningEachFacet, "DummyFrame");
+
+    // Create the two gravity field models, downcasting to PolyhedronGravityField
+    std::shared_ptr< gravitation::PolyhedronGravityField > polyhedronGravityField1 =
+            std::dynamic_pointer_cast< gravitation::PolyhedronGravityField >(
+                    createGravityFieldModel( polyhedronGravityFieldSettings1, "Earth" ) );
+    if( polyhedronGravityField1 == nullptr )
+    {
+        throw std::runtime_error(
+                "Error in polyhedron gravity field setup test: downcasting to PolyhedronGravityField failed.");
+    }
+    std::shared_ptr< gravitation::PolyhedronGravityField > polyhedronGravityField2 =
+            std::dynamic_pointer_cast< gravitation::PolyhedronGravityField >(
+                    createGravityFieldModel( polyhedronGravityFieldSettings2, "Earth" ) );
+    if( polyhedronGravityField2 == nullptr )
+    {
+        throw std::runtime_error(
+                "Error in polyhedron gravity field setup test: downcasting to PolyhedronGravityField failed.");
+    }
+
+    // Check both gravity fields have the correct model parameters
+    double tolerance = 1e-14;
+
+    BOOST_CHECK_CLOSE_FRACTION( gravitationalParameter, polyhedronGravityField1->getGravitationalParameter(), tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( volume, polyhedronGravityField1->getVolume(), tolerance );
+    BOOST_CHECK_EQUAL( verticesCoordinates, polyhedronGravityField1->getVerticesCoordinates() );
+    BOOST_CHECK_EQUAL( verticesDefiningEachFacet, polyhedronGravityField1->getVerticesDefiningEachFacet() );
+
+    // Check both gravity fields have the correct model parameters
+    BOOST_CHECK_CLOSE_FRACTION( gravitationalParameter, polyhedronGravityField2->getGravitationalParameter(), tolerance);
+    BOOST_CHECK_CLOSE_FRACTION( volume, polyhedronGravityField2->getVolume(), tolerance );
+    BOOST_CHECK_EQUAL( verticesCoordinates, polyhedronGravityField2->getVerticesCoordinates() );
+    BOOST_CHECK_EQUAL( verticesDefiningEachFacet, polyhedronGravityField2->getVerticesDefiningEachFacet() );
+
+    // Test computation of potential, gradient of potential, laplacian of potential
+    Eigen::Vector3d bodyFixedPosition = (Eigen::Vector3d() << 0.0, 0.0, 0.0).finished();
+    double expectedPotential = 3.19403761604211e-5;
+    Eigen::Vector3d expectedGradient = (Eigen::Vector3d() << 2.31329148957265e-6, 1.91973919943187e-6, 1.91973919943187e-6).finished();
+    double expectedLaplacian = - 0.5 * mathematical_constants::PI * gravitationalConstant * density;
+
+    BOOST_CHECK_CLOSE_FRACTION( expectedPotential, polyhedronGravityField1->getGravitationalPotential( bodyFixedPosition ), tolerance );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedGradient, polyhedronGravityField1->getGradientOfPotential( bodyFixedPosition ), tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( expectedLaplacian, polyhedronGravityField1->getLaplacianOfPotential( bodyFixedPosition ), tolerance );
+
+    BOOST_CHECK_CLOSE_FRACTION( expectedPotential, polyhedronGravityField2->getGravitationalPotential( bodyFixedPosition ), tolerance );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedGradient, polyhedronGravityField2->getGradientOfPotential( bodyFixedPosition ), tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( expectedLaplacian, polyhedronGravityField2->getLaplacianOfPotential( bodyFixedPosition ), tolerance );
+}
+
+//! Test set up of polyhedron gravity field model
+BOOST_AUTO_TEST_CASE( test_polyhedronInertiaTensorSetup )
+{
+    // Define cuboid polyhedron dimensions
+    const double w = 10.0; // width
+    const double h = 10.0; // height
+    const double l = 20.0; // length
+
+    // Define parameters
+    const double gravitationalConstant = 6.67259e-11;
+    const double density = 2670;
+    const double volume = w * h * l;
+    const double gravitationalParameter = gravitationalConstant * density * volume;
+
+    // Define cuboid
+    Eigen::MatrixXd verticesCoordinates(8,3);
+    verticesCoordinates <<
+        0.0, 0.0, 0.0,
+        l, 0.0, 0.0,
+        0.0, w, 0.0,
+        l, w, 0.0,
+        0.0, 0.0, h,
+        l, 0.0, h,
+        0.0, w, h,
+        l, w, h;
+    Eigen::MatrixXi verticesDefiningEachFacet(12,3);
+    verticesDefiningEachFacet <<
+        2, 1, 0,
+        1, 2, 3,
+        4, 2, 0,
+        2, 4, 6,
+        1, 4, 0,
+        4, 1, 5,
+        6, 5, 7,
+        5, 6, 4,
+        3, 6, 7,
+        6, 3, 2,
+        5, 3, 7,
+        3, 5, 1;
+
+    // Computation of inertia tensor
+    double mass = density * volume;
+    Eigen::Vector3d centroid = (Eigen::Vector3d() << l / 2.0, w / 2.0, h / 2.0).finished();
+    // Inertia tensor for a cuboid wrt principal axes of inertia
+    // http://www2.ece.ohio-state.edu/~zhang/RoboticsClass/docs/LN11_RigidBodyDynamics.pdf
+    Eigen::Matrix3d inertiaTensorWrtPrincipalAxes = (Eigen::Matrix3d() <<
+            mass / 12.0 * ( std::pow(w, 2) + std::pow(h, 2) ), 0.0, 0.0,
+            0.0, mass / 12.0 * ( std::pow(l, 2) + std::pow(h, 2) ), 0.0,
+            0.0, 0.0, mass / 12.0 * ( std::pow(l, 2) + std::pow(w, 2) )).finished();
+    // Inertia tensor for the cuboid, using parallel axis theorem (Dobrovolskis, 1996)
+    Eigen::Matrix3d expectedInertiaTensor = inertiaTensorWrtPrincipalAxes + mass * ( Eigen::Matrix3d() <<
+            std::pow(centroid(1), 2) + std::pow(centroid(2), 2),
+            - centroid(0) * centroid(1),
+            - centroid(0) * centroid(2),
+            - centroid(0) * centroid(1),
+            std::pow(centroid(0), 2) + std::pow(centroid(2), 2),
+            - centroid(1) * centroid(2),
+            - centroid(0) * centroid(2),
+            - centroid(1) * centroid(2),
+            std::pow(centroid(0), 2) + std::pow(centroid(1), 2) ).finished();
+
+    for ( unsigned int testMode: {0,1} )
+    {
+        // Create settings for polyhedron gravity field with both factory functions
+        std::shared_ptr< GravityFieldSettings > polyhedronGravityFieldSettings;
+
+        if ( testMode == 0 )
+        {
+            polyhedronGravityFieldSettings = polyhedronGravitySettings(
+                gravitationalConstant, density, verticesCoordinates, verticesDefiningEachFacet, "DummyFrame");
+        }
+        else
+        {
+            polyhedronGravityFieldSettings = polyhedronGravitySettings(
+                gravitationalParameter, verticesCoordinates, verticesDefiningEachFacet, "DummyFrame", density);
+        }
+
+        // Create bodies
+        std::vector< std::string > bodiesToCreate;
+        bodiesToCreate.push_back( "Phobos" );
+
+        // Set body settings
+        BodyListSettings bodySettings = getDefaultBodySettings( bodiesToCreate );
+        bodySettings.at( "Phobos" )->gravityFieldSettings = polyhedronGravityFieldSettings;
+
+        SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedInertiaTensor, bodies.getBody( "Phobos" )->getBodyInertiaTensor(), 1e-15 );
+    }
+}
+
 //! Test set up of triaxial ellipsoid gravity field model settings
 BOOST_AUTO_TEST_CASE( test_triaxialEllipsoidGravityFieldSetup )
 {
@@ -1312,6 +1496,117 @@ BOOST_AUTO_TEST_CASE( test_shapeModelSetup )
                     testCartesianPosition, equatorialRadius, flattening, 1.0E-4 );
         BOOST_CHECK_CLOSE_FRACTION( calculatedAltitude, manualAltitude,
                                     std::numeric_limits< double >::epsilon( ) );
+    }
+
+    // Test polyhedron setup
+    {
+        // Define cuboid polyhedron
+        const double w = 10.0; // width
+        const double h = 10.0; // height
+        const double l = 20.0; // length
+
+        Eigen::MatrixXd verticesCoordinates(8,3);
+        Eigen::MatrixXi verticesDefiningEachFacet(12,3);
+        verticesCoordinates <<
+            0.0, 0.0, 0.0,
+            l, 0.0, 0.0,
+            0.0, w, 0.0,
+            l, w, 0.0,
+            0.0, 0.0, h,
+            l, 0.0, h,
+            0.0, w, h,
+            l, w, h;
+        verticesDefiningEachFacet <<
+            2, 1, 0,
+            1, 2, 3,
+            4, 2, 0,
+            2, 4, 6,
+            1, 4, 0,
+            4, 1, 5,
+            6, 5, 7,
+            5, 6, 4,
+            3, 6, 7,
+            6, 3, 2,
+            5, 3, 7,
+            3, 5, 1;
+
+        std::shared_ptr< BodyShapeSettings > shapeSettings = std::make_shared< PolyhedronBodyShapeSettings >(
+                verticesCoordinates, verticesDefiningEachFacet, false, false);
+        std::shared_ptr< BodyShapeModel > shapeModel = createBodyShapeModel( shapeSettings, "Earth" );
+
+        Eigen::Vector3d testCartesianPosition2;
+        testCartesianPosition2 << 10.0, 5.0, 10.5;
+        BOOST_CHECK_CLOSE_FRACTION( shapeModel->getAltitude( testCartesianPosition2 ), 0.5, 1e-15 );
+    }
+
+    // Test hybrid shape model setup
+    {
+        // Define switchover altitude
+        const double switchoverAltitude = 5.0;
+
+        // Define high- and low-resolution cuboid polyhedron (they just have different sizes)
+        const double wLowRes = 10.0; // width
+        const double hLowRes = 10.0; // height
+        const double lLowRes = 20.0; // length
+        Eigen::MatrixXd verticesCoordinatesLowResModel( 8, 3);
+        verticesCoordinatesLowResModel <<
+            0.0, 0.0, 0.0,
+            lLowRes, 0.0, 0.0,
+            0.0, wLowRes, 0.0,
+            lLowRes, wLowRes, 0.0,
+            0.0, 0.0, hLowRes,
+            lLowRes, 0.0, hLowRes,
+            0.0, wLowRes, hLowRes,
+            lLowRes, wLowRes, hLowRes;
+
+        const double wHighRes = 5.0; // width
+        const double hHighRes = 5.0; // height
+        const double lHighRes = 10.0; // length
+        Eigen::MatrixXd verticesCoordinatesHighResModel( 8, 3);
+        verticesCoordinatesHighResModel <<
+            0.0, 0.0, 0.0,
+            lHighRes, 0.0, 0.0,
+            0.0, wHighRes, 0.0,
+            lHighRes, wHighRes, 0.0,
+            0.0, 0.0, hHighRes,
+            lHighRes, 0.0, hHighRes,
+            0.0, wHighRes, hHighRes,
+            lHighRes, wHighRes, hHighRes;
+
+        Eigen::MatrixXi verticesDefiningEachFacet(12,3);
+        verticesDefiningEachFacet <<
+            2, 1, 0,
+            1, 2, 3,
+            4, 2, 0,
+            2, 4, 6,
+            1, 4, 0,
+            4, 1, 5,
+            6, 5, 7,
+            5, 6, 4,
+            3, 6, 7,
+            6, 3, 2,
+            5, 3, 7,
+            3, 5, 1;
+
+
+        std::shared_ptr< BodyShapeSettings > lowResolutionShapeSettings = std::make_shared< PolyhedronBodyShapeSettings >(
+                verticesCoordinatesLowResModel, verticesDefiningEachFacet, false, false );
+        std::shared_ptr< BodyShapeSettings > highResolutionShapeSettings = std::make_shared< PolyhedronBodyShapeSettings >(
+                verticesCoordinatesHighResModel, verticesDefiningEachFacet, false, false );
+
+        std::shared_ptr< BodyShapeSettings > shapeSettings = std::make_shared< HybridBodyShapeSettings >(
+                lowResolutionShapeSettings, highResolutionShapeSettings, switchoverAltitude);
+
+        std::shared_ptr< BodyShapeModel > shapeModel = createBodyShapeModel( shapeSettings, "Earth" );
+
+        // Point above switchover altitude: altitude computed wrt low-resolution shape model
+        Eigen::Vector3d testCartesianPosition2;
+        testCartesianPosition2 << 5.0, 2.5, 20.0;
+        BOOST_CHECK_CLOSE_FRACTION( shapeModel->getAltitude( testCartesianPosition2 ), 10.0, 1e-15 );
+
+        // Point below switchover altitude: altitude computed wrt high-resolution shape model
+        testCartesianPosition2 << 5.0, 2.5, 12.0;
+        BOOST_CHECK_CLOSE_FRACTION( shapeModel->getAltitude( testCartesianPosition2 ), 7.0, 1e-15 );
     }
 
 }
