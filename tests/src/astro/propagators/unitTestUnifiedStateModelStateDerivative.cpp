@@ -20,6 +20,8 @@
 
 #include "tudat/simulation/simulation.h"
 
+#include "tudat/astro/basic_astro/celestialBodyConstants.h"
+
 
 namespace tudat
 {
@@ -44,6 +46,7 @@ BOOST_AUTO_TEST_CASE( testUnifiedStateModelPopagatorForPointMassCentralBodies )
         using namespace tudat::basic_astrodynamics;
         using namespace tudat::orbital_element_conversions;
         using namespace tudat::propagators;
+        using namespace celestial_body_constants;
 
 
         //Load spice kernels.
@@ -298,7 +301,7 @@ BOOST_AUTO_TEST_CASE( testUnifiedStateModelPopagatorForSphericalHarmonicCentralB
         {
             translationalPropagatorType = unified_state_model_exponential_map;
         }
-        for( unsigned int simulationCase = 0; simulationCase < 4; simulationCase++ )
+        for( unsigned int simulationCase = 0; simulationCase < 6; simulationCase++ )
         {
             std::cout << "Simulation case : " << simulationCase << std::endl << std::endl;
 
@@ -319,6 +322,46 @@ BOOST_AUTO_TEST_CASE( testUnifiedStateModelPopagatorForSphericalHarmonicCentralB
             {
                 bodySettings.at( bodiesToCreate.at( i ) )->ephemerisSettings->resetFrameOrientation( "J2000" );
                 bodySettings.at( bodiesToCreate.at( i ) )->rotationModelSettings->resetOriginalFrame( "J2000" );
+            }
+            if ( simulationCase >= 4 )
+            {
+                // Define cuboid polyhedron dimensions
+                const double w = 6378e3 / 2; // width
+                const double h = 6378e3 / 2; // height
+                const double l = 6378e3 / 2; // length
+
+                // Define cuboid
+                Eigen::MatrixXd verticesCoordinates(8,3);
+                verticesCoordinates <<
+                    0.0, 0.0, 0.0,
+                    l, 0.0, 0.0,
+                    0.0, w, 0.0,
+                    l, w, 0.0,
+                    0.0, 0.0, h,
+                    l, 0.0, h,
+                    0.0, w, h,
+                    l, w, h;
+                Eigen::MatrixXi verticesDefiningEachFacet(12,3);
+                verticesDefiningEachFacet <<
+                    2, 1, 0,
+                    1, 2, 3,
+                    4, 2, 0,
+                    2, 4, 6,
+                    1, 4, 0,
+                    4, 1, 5,
+                    6, 5, 7,
+                    5, 6, 4,
+                    3, 6, 7,
+                    6, 3, 2,
+                    5, 3, 7,
+                    3, 5, 1;
+
+                verticesCoordinates = basic_astrodynamics::modifyPolyhedronCentroidPosition(
+                        verticesCoordinates, verticesDefiningEachFacet, Eigen::Vector3d::Zero() );
+
+                bodySettings.at( "Earth" )->gravityFieldSettings = polyhedronGravitySettings(
+                    celestial_body_constants::EARTH_GRAVITATIONAL_PARAMETER, verticesCoordinates,
+                    verticesDefiningEachFacet, "IAU_Earth");
             }
             SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
@@ -348,11 +391,16 @@ BOOST_AUTO_TEST_CASE( testUnifiedStateModelPopagatorForSphericalHarmonicCentralB
                                                                  basic_astrodynamics::point_mass_gravity ) );
             }
             // Use spherical harmonics for Earth
-            else
+            else if ( simulationCase < 4 )
             {
                 accelerationsOfVehicle[ "Earth" ].push_back(
                             std::make_shared< SphericalHarmonicAccelerationSettings >( 5, 5 ) );
 
+            }
+            // Use polyhedron for Earth
+            else
+            {
+                accelerationsOfVehicle[ "Earth" ].push_back( polyhedronAcceleration( ) );
             }
 
             // Use perturbations other than Earth gravity

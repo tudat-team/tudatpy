@@ -642,7 +642,8 @@ public:
             = std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ),
             const bool clearNumericalSolution = true,
             const bool integrateEquationsOnCreation = true,
-            const bool setIntegratedResult = true ):
+            const bool setIntegratedResult = true,
+            const bool printDependentVariableData = true):
         VariationalEquationsSolver< StateScalarType, TimeType >(
             bodies, parametersToEstimate, clearNumericalSolution ),
         integratorSettings_( integratorSettings ),
@@ -682,7 +683,7 @@ public:
 
             dynamicsSimulator_ = std::make_shared< SingleArcDynamicsSimulator< StateScalarType, TimeType > >(
                         bodies, integratorSettings, propagatorSettings_, stateDerivativeModels, false, clearNumericalSolution, setIntegratedResult, false,
-                        std::chrono::steady_clock::now( ) );
+                        std::chrono::steady_clock::now( ), printDependentVariableData );
 
             dynamicsStateDerivative_ = dynamicsSimulator_->getDynamicsStateDerivative( );
             statePostProcessingFunction_ = std::bind(
