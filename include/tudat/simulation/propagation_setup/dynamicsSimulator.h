@@ -488,15 +488,15 @@ std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > validateDeprec
         {
             std::cerr<<"Warning, integrator settings defined independently, and in propagator settings"<<std::endl;
         }
-        std::shared_ptr< PropagatorOutputSettings > outputSettings = std::make_shared< PropagatorOutputSettings >( );
-        outputSettings->clearNumericalSolutions = clearNumericalSolutions;
-        outputSettings->printDependentVariableData = printDependentVariableData;
-        outputSettings->printInterval = singleArcPropagatorSettings->getPrintInterval( );
-        outputSettings->printNumberOfFunctionEvaluations = printNumberOfFunctionEvaluations;
-        outputSettings->printStateData = printStateData;
-        outputSettings->setIntegratedResult = setIntegratedResult;
+        std::shared_ptr< PropagatorOutputSettings > outputSettings = std::make_shared< PropagatorOutputSettings >(
+                    clearNumericalSolutions, printDependentVariableData,
+                    singleArcPropagatorSettings->getPrintInterval( ), printNumberOfFunctionEvaluations,
+                    printStateData, setIntegratedResult );
 
-        singleArcPropagatorSettings->setOutputSettings( outputSettings );
+        singleArcPropagatorSettings->getOutputSettings( )->reset(
+                    clearNumericalSolutions, printDependentVariableData,
+                    singleArcPropagatorSettings->getPrintInterval( ), printNumberOfFunctionEvaluations,
+                    printStateData, setIntegratedResult );
         singleArcPropagatorSettings->setIntegratorSettings( integratorSettings );
     }
 
@@ -539,8 +539,8 @@ public:
             PredefinedSingleArcStateDerivativeModels< StateScalarType, TimeType >( ) ):
         DynamicsSimulator< StateScalarType, TimeType >(
             bodies,
-            propagatorSettings != nullptr ? propagatorSettings->getOutputSettingsWithCheck( )->clearNumericalSolutions : 0,
-            propagatorSettings != nullptr ?  propagatorSettings->getOutputSettingsWithCheck( )->setIntegratedResult : 0 ),
+            propagatorSettings != nullptr ? propagatorSettings->getOutputSettingsWithCheck( )->getClearNumericalSolutions( ) : 0,
+            propagatorSettings != nullptr ?  propagatorSettings->getOutputSettingsWithCheck( )->getSetIntegratedResult( ) : 0 ),
         propagatorSettings_( propagatorSettings ),
         initialClockTime_( std::chrono::steady_clock::now( ) )
     {
@@ -604,7 +604,7 @@ public:
                     integratorSettings_->initialTimeStep_, dynamicsStateDerivative_->getStateDerivativeModels( ),
                     predefinedStateDerivativeModels.stateDerivativePartials_ );
 
-        if( outputSettings_->printStateData )
+        if( outputSettings_->getPrintStateData( ) )
         {
             printPropagatedStateVectorContent(getIntegratedTypeAndBodyList(propagatorSettings_));
         }
@@ -620,7 +620,7 @@ public:
             dependentVariablesFunctions_ = dependentVariableData.first;
             dependentVariableIds = dependentVariableData.second;
 
-            if( outputSettings_->printDependentVariableData )
+            if( outputSettings_->getPrintDependentVariableData( ) )
             {
                 std::cout << "Dependent variables being saved, output vector contains: " << std::endl
                           << "Vector entry, Vector contents" << std::endl;
@@ -765,13 +765,12 @@ public:
         propagationResults_->cumulativeNumberOfFunctionEvaluations_ = dynamicsStateDerivative_->getCumulativeNumberOfFunctionEvaluations( );
         propagationResults_->propagationIsPerformed_ = true;
         // Retrieve and print number of total function evaluations
-        if ( outputSettings_->printNumberOfFunctionEvaluations )
+        if ( outputSettings_->getPrintNumberOfFunctionEvaluations( ) )
         {
             std::cout << "Total Number of Function Evaluations: "
                       << dynamicsStateDerivative_->getNumberOfFunctionEvaluations( ) << std::endl;
         }
 
-        std::cout<<"Process (single): "<<this->setIntegratedResult_<<" "<<this->clearNumericalSolutions_<<std::endl;
         if( this->setIntegratedResult_ )
         {
             processNumericalEquationsOfMotionSolution( );
@@ -1002,12 +1001,12 @@ public:
 
     void suppressDependentVariableDataPrinting( )
     {
-        outputSettings_->printDependentVariableData = false;
+        outputSettings_->setPrintDependentVariableData( false );
     }
 
     void enableDependentVariableDataPrinting( )
     {
-        outputSettings_->printDependentVariableData = true;
+        outputSettings_->setPrintDependentVariableData( true );
     }
 
     void createAndSetIntegratedStateProcessors( )
@@ -1344,10 +1343,9 @@ std::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > validateDepreca
         }
     }
     std::shared_ptr< PropagatorOutputSettings > outputSettings = std::make_shared< PropagatorOutputSettings >( );
-    outputSettings->clearNumericalSolutions = clearNumericalSolutions;
-    outputSettings->setIntegratedResult = setIntegratedResult;
+    multiArcPropagatorSettings->getOutputSettings( )->setClearNumericalSolutions( clearNumericalSolutions );
+    multiArcPropagatorSettings->getOutputSettings( )->setIntegratedResult( setIntegratedResult );
 
-    multiArcPropagatorSettings->setOutputSettings( outputSettings );
     return multiArcPropagatorSettings;
 }
 
@@ -1396,15 +1394,10 @@ public:
             const bool areEquationsOfMotionToBeIntegrated = true ):
         DynamicsSimulator< StateScalarType, TimeType >(
             bodies,
-            propagatorSettings != nullptr ? propagatorSettings->getOutputSettingsWithCheck( )->clearNumericalSolutions : 0,
-            propagatorSettings != nullptr ?  propagatorSettings->getOutputSettingsWithCheck( )->setIntegratedResult : 0  )
+            propagatorSettings != nullptr ? propagatorSettings->getOutputSettingsWithCheck( )->getClearNumericalSolutions( ) : 0,
+            propagatorSettings != nullptr ?  propagatorSettings->getOutputSettingsWithCheck( )->getSetIntegratedResult( ) : 0  ),
+        multiArcPropagatorSettings_( propagatorSettings )
     {
-        std::cout<<"Creating "<<propagatorSettings<<std::endl;
-        std::cout<<"Clear "<<propagatorSettings->getOutputSettingsWithCheck( )->clearNumericalSolutions<<std::endl;
-        std::cout<<"Set "<<propagatorSettings->getOutputSettingsWithCheck( )->setIntegratedResult<<std::endl;
-
-        multiArcPropagatorSettings_ =
-                std::dynamic_pointer_cast< MultiArcPropagatorSettings< StateScalarType > >( propagatorSettings );
         if( multiArcPropagatorSettings_ == nullptr )
         {
             throw std::runtime_error( "Error when creating multi-arc dynamics simulator, input is not multi arc" );
@@ -1594,7 +1587,6 @@ public:
                         arcInitialStateList );
         }
 
-        std::cout<<"Process: "<<this->setIntegratedResult_<<" "<<this->clearNumericalSolutions_<<std::endl;
         if( this->setIntegratedResult_ )
         {
             processNumericalEquationsOfMotionSolution( );
@@ -1830,15 +1822,15 @@ protected:
 
 
 template< typename StateScalarType = double, typename TimeType = double >
-std::shared_ptr< HybridArcPropagatorSettings< StateScalarType > > validateDeprecatedHybridArcSettings(
+std::shared_ptr< HybridArcPropagatorSettings< StateScalarType, TimeType > > validateDeprecatedHybridArcSettings(
         const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > singleArcIntegratorSettings,
         const std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > multiArcIntegratorSettings,
         const std::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
         const bool clearNumericalSolutions = true,
         const bool setIntegratedResult = true  )
 {
-    std::shared_ptr< HybridArcPropagatorSettings< StateScalarType > > hybridArcPropagatorSettings =
-            std::dynamic_pointer_cast< HybridArcPropagatorSettings< StateScalarType > >( propagatorSettings );
+    std::shared_ptr< HybridArcPropagatorSettings< StateScalarType, TimeType > > hybridArcPropagatorSettings =
+            std::dynamic_pointer_cast< HybridArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings );
     if( hybridArcPropagatorSettings == nullptr )
     {
         throw std::runtime_error( "Error in dynamics simulator (deprecated), input must be multi-arc." );
@@ -1850,8 +1842,8 @@ std::shared_ptr< HybridArcPropagatorSettings< StateScalarType > > validateDeprec
                 multiArcIntegratorSettings, hybridArcPropagatorSettings->getMultiArcPropagatorSettings( ),
                 clearNumericalSolutions, setIntegratedResult );
 
-    hybridArcPropagatorSettings->getOutputSettingsWithCheck( )->clearNumericalSolutions = clearNumericalSolutions;
-    hybridArcPropagatorSettings->getOutputSettingsWithCheck( )->setIntegratedResult = setIntegratedResult;
+    hybridArcPropagatorSettings->getOutputSettingsWithCheck( )->setClearNumericalSolutions( clearNumericalSolutions );
+    hybridArcPropagatorSettings->getOutputSettingsWithCheck( )->setIntegratedResult( setIntegratedResult );
 
     hybridArcPropagatorSettings->getMultiArcPropagatorSettings( )->getOutputSettingsWithCheck( )->clearNumericalSolutions = clearNumericalSolutions;
     hybridArcPropagatorSettings->getMultiArcPropagatorSettings( )->getOutputSettingsWithCheck( )->setIntegratedResult = setIntegratedResult;
@@ -1886,7 +1878,7 @@ std::shared_ptr< HybridArcPropagatorSettings< StateScalarType > > validateDeprec
 }
 
 template< typename StateScalarType = double, typename TimeType = double >
-std::shared_ptr< HybridArcPropagatorSettings< StateScalarType > > validateDeprecatedHybridArcSettings(
+std::shared_ptr< HybridArcPropagatorSettings< StateScalarType, TimeType > > validateDeprecatedHybridArcSettings(
         const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
         const std::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
         const std::vector< double > arcStartTimes,
@@ -1923,8 +1915,8 @@ public:
             const bool addSingleArcBodiesToMultiArcDynamics = false ):
         DynamicsSimulator< StateScalarType, TimeType >(
             bodies,
-            propagatorSettings != nullptr ? propagatorSettings->getOutputSettingsWithCheck( )->clearNumericalSolutions : 0,
-            propagatorSettings != nullptr ?  propagatorSettings->getOutputSettingsWithCheck( )->setIntegratedResult : 0 )
+            propagatorSettings != nullptr ? propagatorSettings->getOutputSettingsWithCheck( )->getClearNumericalSolutions( ) : 0,
+            propagatorSettings != nullptr ?  propagatorSettings->getOutputSettingsWithCheck( )->getSetIntegratedResult( ) : 0 )
     {
         std::shared_ptr< HybridArcPropagatorSettings< StateScalarType > > hybridPropagatorSettings =
                 std::dynamic_pointer_cast< HybridArcPropagatorSettings< StateScalarType > >( propagatorSettings );

@@ -639,7 +639,7 @@ public:
             const bool integrateEquationsOnCreation = true ):
         VariationalEquationsSolver< StateScalarType, TimeType >(
             bodies, parametersToEstimate, propagatorSettings != nullptr ?
-                propagatorSettings->getOutputSettingsWithCheck( )->clearNumericalSolutions : false ),
+                propagatorSettings->getOutputSettingsWithCheck( )->getClearNumericalSolutions( ) : false ),
         propagatorSettings_( std::dynamic_pointer_cast< SingleArcPropagatorSettings< StateScalarType > >(propagatorSettings ) )
     {
         if( std::dynamic_pointer_cast< SingleArcPropagatorSettings< StateScalarType >  >( propagatorSettings ) == nullptr )
@@ -1118,10 +1118,10 @@ public:
             const bool integrateEquationsOnCreation = false ):
         VariationalEquationsSolver< StateScalarType, TimeType >(
             bodies, parametersToEstimate, propagatorSettings != nullptr ?
-                propagatorSettings->getOutputSettingsWithCheck( )->clearNumericalSolutions : false  ),
+                propagatorSettings->getOutputSettingsWithCheck( )->getClearNumericalSolutions( ) : false  ),
         propagatorSettings_( std::dynamic_pointer_cast< MultiArcPropagatorSettings< StateScalarType > >( propagatorSettings ) ),
         resetMultiArcDynamicsAfterPropagation_( propagatorSettings != nullptr ?
-                propagatorSettings->getOutputSettingsWithCheck( )->setIntegratedResult : false    )
+                propagatorSettings->getOutputSettingsWithCheck( )->getSetIntegratedResult( ) : false )
     {
         if(  std::dynamic_pointer_cast< MultiArcPropagatorSettings< StateScalarType > >( propagatorSettings ) == nullptr )
         {
@@ -1704,7 +1704,7 @@ public:
             const bool integrateEquationsOnCreation = false ):
         VariationalEquationsSolver< StateScalarType, TimeType >(
             bodies, parametersToEstimate, propagatorSettings != nullptr ?
-                propagatorSettings->getOutputSettingsWithCheck( )->clearNumericalSolutions : false  )
+                propagatorSettings->getOutputSettingsWithCheck( )->getClearNumericalSolutions( ) : false  )
     {
         propagatorSettings->getOutputSettingsWithCheck( )->setIntegratedResult = false;
         initializeHybridArcVariationalEquationsSolver(
@@ -1736,7 +1736,7 @@ public:
             const bool clearNumericalSolution = true,
             const bool integrateEquationsOnCreation = false ):
         HybridArcVariationalEquationsSolver< StateScalarType, TimeType >(
-            bodies,  validateDeprecatedHybridArcSettings(
+            bodies,  validateDeprecatedHybridArcSettings< StateScalarType, TimeType >(
                 integratorSettings,  propagatorSettings,  arcStartTimes, clearNumericalSolution, true ),
             parametersToEstimate, integrateEquationsOnCreation ){ }
 
@@ -1751,7 +1751,7 @@ public:
             const bool clearNumericalSolution = true,
             const bool integrateEquationsOnCreation = false ):
         HybridArcVariationalEquationsSolver< StateScalarType, TimeType >(
-            bodies,  validateDeprecatedHybridArcSettings(
+            bodies,  validateDeprecatedHybridArcSettings< StateScalarType, TimeType >(
                 singleArcIntegratorSettings,  multiArcIntegratorSettings, propagatorSettings,  arcStartTimes, clearNumericalSolution, true ),
             parametersToEstimate, integrateEquationsOnCreation ){ }
 
