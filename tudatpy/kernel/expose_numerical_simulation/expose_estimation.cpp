@@ -29,6 +29,7 @@ namespace ts = tudat::statistics;
 namespace tss = tudat::simulation_setup;
 namespace tni = tudat::numerical_integrators;
 namespace tom = tudat::observation_models;
+namespace trf = tudat::reference_frames;
 
 
 namespace tudat
@@ -36,6 +37,115 @@ namespace tudat
 
 namespace propagators
 {
+
+std::map< double, Eigen::MatrixXd > propagateCovarianceRsw(
+        const std::shared_ptr< tss::CovarianceAnalysisOutput< > > estimationOutput,
+        const std::shared_ptr< tss::OrbitDeterminationManager< > > orbitDeterminationManager,
+        const std::vector< double > evaluationTimes )
+{
+    std::map< double, Eigen::MatrixXd > propagatedCovariance;
+    tp::propagateCovariance(
+                propagatedCovariance, estimationOutput->getUnnormalizedCovarianceMatrix( ),
+                orbitDeterminationManager->getStateTransitionAndSensitivityMatrixInterface( ), evaluationTimes );
+
+    tss::SystemOfBodies bodies = orbitDeterminationManager->getBodies( );
+
+    std::shared_ptr< tep::EstimatableParameterSet< > > parameterSet = orbitDeterminationManager->getParametersToEstimate( );
+
+    std::map< int, std::shared_ptr< tep::EstimatableParameter< Eigen::VectorXd > > > initialStates = parameterSet->getInitialStateParameters( );
+    std::map< std::pair< std::string, std::string >, std::vector< int > > transformationList;
+    for( auto it : initialStates )
+    {
+        if( std::dynamic_pointer_cast< tep::InitialTranslationalStateParameter< double > >( it.second ) )
+        {
+            std::shared_ptr< tep::InitialTranslationalStateParameter< double > > currentInitialState =
+                    std::dynamic_pointer_cast< tep::InitialTranslationalStateParameter< double > >( it.second );
+            transformationList[ std::make_pair( currentInitialState->getParameterName( ).second.first, currentInitialState->getCentralBody( ) ) ].push_back(
+                        it.first );
+
+        }
+        else if( std::dynamic_pointer_cast< tep::ArcWiseInitialTranslationalStateParameter< double > >( it.second ) )
+        {
+            throw std::runtime_error( "Error, multi-arc not yet supported in automatic covariance conversion" );
+        }
+    }
+
+    Eigen::Matrix3d currentInertialToRswPosition;
+    Eigen::Matrix6d currentInertialToRswState;
+    Eigen::MatrixXd currentFullInertialToRswState = Eigen::MatrixXd::Zero( 6, 6 );
+
+    std::map< double, Eigen::MatrixXd > propagatedRswCovariance;
+    for( auto it : propagatedCovariance )
+    {
+        double currentTime = it.first;
+        Eigen::MatrixXd currentCovariance = it.second;
+        currentFullInertialToRswState.setZero( );
+
+        for( auto it_body : transformationList )
+        {
+            Eigen::Vector6d relativeState =
+                    bodies.getBody( it_body.first.first )->getStateInBaseFrameFromEphemeris( currentTime ) -
+                    bodies.getBody( it_body.first.second )->getStateInBaseFrameFromEphemeris( currentTime );
+            currentInertialToRswPosition = trf::getInertialToRswSatelliteCenteredFrameRotationMatrix( relativeState );
+            currentInertialToRswState.block( 0, 0, 3, 3 ) = currentInertialToRswPosition;
+            currentInertialToRswState.block( 3, 3, 3, 3 ) = currentInertialToRswPosition;
+            for( unsigned int j = 0; j < it_body.second.size( ); j++ )
+            {
+                int currentStartIndex = it_body.second.at( j );
+                currentFullInertialToRswState.block( currentStartIndex, currentStartIndex, 6, 6 ) =  currentInertialToRswState;
+            }
+        }
+        propagatedRswCovariance[ currentTime ] = currentFullInertialToRswState * currentCovariance * currentFullInertialToRswState.transpose( );
+
+    }
+    return propagatedRswCovariance;
+}
+
+
+std::pair< std::vector< double >, std::vector< Eigen::MatrixXd > > propagateCovarianceVectorsRsw(
+        const std::shared_ptr< tss::CovarianceAnalysisOutput< > > estimationOutput,
+        const std::shared_ptr< tss::OrbitDeterminationManager< > > orbitDeterminationManager,
+        const std::vector< double > evaluationTimes )
+{
+    std::map< double, Eigen::MatrixXd > propagatedRswCovariance = propagateCovarianceRsw(
+            estimationOutput, orbitDeterminationManager, evaluationTimes );
+
+    return std::make_pair( utilities::createVectorFromMapKeys(
+                               propagatedRswCovariance ),
+                           utilities::createVectorFromMapValues(
+                               propagatedRswCovariance ) );
+}
+
+std::map< double, Eigen::VectorXd > propagateFormalErrorsRsw(
+        const std::shared_ptr< tss::CovarianceAnalysisOutput< > > estimationOutput,
+        const std::shared_ptr< tss::OrbitDeterminationManager< > > orbitDeterminationManager,
+        const std::vector< double > evaluationTimes )
+{
+    std::map< double, Eigen::MatrixXd > propagatedCovariance;
+    std::map< double, Eigen::VectorXd > propagatedFormalErrors;
+
+    propagatedCovariance = propagateCovarianceRsw(
+                estimationOutput, orbitDeterminationManager, evaluationTimes );
+    tp::convertCovarianceHistoryToFormalErrorHistory( propagatedFormalErrors, propagatedCovariance );
+
+    return propagatedFormalErrors;
+}
+
+std::pair< std::vector< double >, std::vector< Eigen::VectorXd > > propagateFormalErrorVectorsRsw(
+        const std::shared_ptr< tss::CovarianceAnalysisOutput< > > estimationOutput,
+        const std::shared_ptr< tss::OrbitDeterminationManager< > > orbitDeterminationManager,
+        const std::vector< double > evaluationTimes )
+{
+    std::map< double, Eigen::VectorXd > propagatedFormalErrors =
+            propagateFormalErrorsRsw( estimationOutput, orbitDeterminationManager, evaluationTimes );
+    tp::propagateFormalErrorsRsw( estimationOutput, orbitDeterminationManager, evaluationTimes );
+    return std::make_pair( utilities::createVectorFromMapKeys(
+                               propagatedFormalErrors ),
+                           utilities::createVectorFromMapValues(
+                               propagatedFormalErrors ) );
+}
+
+
 
 std::pair< std::vector< double >, std::vector< Eigen::MatrixXd > > propagateCovarianceVectors(
         const Eigen::MatrixXd initialCovariance,
@@ -220,11 +330,13 @@ void expose_estimation(py::module &m) {
                  &tp::CombinedStateTransitionAndSensitivityMatrixInterface::
                  getCombinedStateTransitionAndSensitivityMatrix,
                  py::arg("time"),
+                 py::arg("arc_defining_bodies" ) = std::vector< std::string >( ),
                  get_docstring("CombinedStateTransitionAndSensitivityMatrixInterface.state_transition_sensitivity_at_epoch").c_str() )
             .def("full_state_transition_sensitivity_at_epoch",
                  &tp::CombinedStateTransitionAndSensitivityMatrixInterface::
                  getFullCombinedStateTransitionAndSensitivityMatrix,
                  py::arg("time"),
+                 py::arg("arc_defining_bodies" ) = std::vector< std::string >( ),
                  get_docstring("CombinedStateTransitionAndSensitivityMatrixInterface.full_state_transition_sensitivity_at_epoch").c_str() )
             .def_property_readonly(
                 "state_transition_size",
@@ -242,6 +354,21 @@ void expose_estimation(py::module &m) {
     /*!
      *************** COVARIANCE ***************
      */
+
+    m.def("propagate_covariance_rsw_split_output",
+          &tp::propagateCovarianceVectorsRsw,
+          py::arg("covariance_output"),
+          py::arg("estimator"),
+          py::arg("output_times"),
+          get_docstring("propagate_covariance_rsw_split_output").c_str( ) );
+
+
+    m.def("propagate_formal_errors_rsw_split_output",
+          &tp::propagateFormalErrorVectorsRsw,
+          py::arg("covariance_output"),
+          py::arg("estimator"),
+          py::arg("output_times"),
+          get_docstring("propagate_formal_errors_rsw_split_output").c_str( ) );
 
     m.def("propagate_covariance_split_output",
           py::overload_cast<
@@ -348,7 +475,7 @@ void expose_estimation(py::module &m) {
             tss::EstimationInput<double, double>,
             std::shared_ptr<tss::EstimationInput<double, double>>,
             tss::CovarianceAnalysisInput<double, double>>(m, "EstimationInput",
-                                                           get_docstring("EstimationInput").c_str() )
+                                                          get_docstring("EstimationInput").c_str() )
             .def(py::init<
                  const std::shared_ptr< tom::ObservationCollection< > >&,
                  const int,
@@ -409,7 +536,7 @@ void expose_estimation(py::module &m) {
             tss::EstimationOutput<double, double>,
             std::shared_ptr<tss::EstimationOutput<double, double>>,
             tss::CovarianceAnalysisOutput<double, double>>(m, "EstimationOutput",
-                                            get_docstring("EstimationOutput").c_str() )
+                                                           get_docstring("EstimationOutput").c_str() )
             .def_property_readonly("residual_history",
                                    &tss::EstimationOutput<double, double>::getResidualHistoryMatrix,
                                    get_docstring("EstimationOutput.residual_history").c_str() )
