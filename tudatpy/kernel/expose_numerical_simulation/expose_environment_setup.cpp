@@ -196,11 +196,13 @@ namespace environment_setup {
                       const std::shared_ptr<tss::Body>,
                       const std::string,
                       const Eigen::Vector3d,
-                      const tcc::PositionElementTypes>(&tss::createGroundStation),
+                      const tcc::PositionElementTypes,
+                      const std::vector< std::shared_ptr< tss::GroundStationMotionSettings > > >(&tss::createGroundStation),
               py::arg("body"),
               py::arg("ground_station_name"),
               py::arg("ground_station_position"),
               py::arg("position_type") = tcc::cartesian_position,
+              py::arg("station_motion_settings") = std::vector< std::shared_ptr< tss::GroundStationMotionSettings > >( ),
               get_docstring("add_ground_station").c_str());
 
         m.def("create_radiation_pressure_interface",
