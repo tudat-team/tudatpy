@@ -73,7 +73,6 @@ bool HybridPropagationTerminationCondition::checkStopCondition( const double tim
                 stopIndex = i;
                 stopPropagation = true;
                 isConditionMetWhenStopping_[ i ] = true;
-                break;
             }
             else
             {

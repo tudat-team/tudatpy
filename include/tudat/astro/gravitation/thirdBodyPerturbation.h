@@ -22,6 +22,7 @@
 #include "tudat/astro/gravitation/centralGravityModel.h"
 #include "tudat/astro/gravitation/sphericalHarmonicsGravityModel.h"
 #include "tudat/astro/gravitation/mutualSphericalHarmonicGravityModel.h"
+#include "tudat/astro/gravitation/polyhedronGravityModel.h"
 
 namespace tudat
 {
@@ -100,7 +101,8 @@ public:
         accelerationModelForBodyUndergoingAcceleration_(
             accelerationModelForBodyUndergoingAcceleration ),
         accelerationModelForCentralBody_( accelerationModelForCentralBody ),
-        centralBodyName_( centralBodyName ){ }
+        centralBodyName_( centralBodyName )
+    { }
 
     //! Update member variables to current state.
     /*!
@@ -195,6 +197,9 @@ ThirdBodySphericalHarmonicsGravitationalAccelerationModel;
 typedef ThirdBodyAcceleration< MutualSphericalHarmonicsGravitationalAccelerationModel >
 ThirdBodyMutualSphericalHarmonicsGravitationalAccelerationModel;
 
+//! Typedef for third body polyhedron gravity acceleration.
+typedef ThirdBodyAcceleration< PolyhedronGravitationalAccelerationModel >
+ThirdBodyPolyhedronGravitationalAccelerationModel;
 
 } // namespace gravitation
 
