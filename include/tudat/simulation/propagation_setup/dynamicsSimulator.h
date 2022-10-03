@@ -747,7 +747,6 @@ public:
                       << dynamicsStateDerivative_->getNumberOfFunctionEvaluations( ) << std::endl;
         }
 
-        std::cout<<"Processing results "<<outputSettings_->getSetIntegratedResult( )<<std::endl;
         if( outputSettings_->getSetIntegratedResult( ) )
         {
             processNumericalEquationsOfMotionSolution( );

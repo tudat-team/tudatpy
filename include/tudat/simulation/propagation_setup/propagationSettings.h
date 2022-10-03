@@ -217,6 +217,7 @@ public:
         this->setIntegratedResult_ = setIntegratedResult;
         for( unsigned int i = 0; i < singleArcSettings_.size( ); i++ )
         {
+            // Results should never be set during a single arc of the multi-arc
             singleArcSettings_.at( i )->setIntegratedResult( false );
         }
     }
@@ -663,6 +664,11 @@ public:
             throw std::runtime_error( "Error whenen getting output settings from single-arc propagator settings; no output settings defined" );
         }
         return outputSettings_;
+    }
+
+    virtual std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > clone( )
+    {
+        throw std::runtime_error( "Error, clone function not yet implemented" );
     }
 protected:
 
@@ -1141,6 +1147,14 @@ public:
         bodiesToIntegrate_( bodiesToIntegrate ),
         propagator_( propagator ),
         accelerationsMap_( accelerationsMap ) { verifyInput( ); }
+
+    virtual std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > clone( )
+    {
+        return std::make_shared< TranslationalStatePropagatorSettings< StateScalarType, TimeType > >(
+                    centralBodies_, accelerationsMap_, bodiesToIntegrate_, this->initialStates_, this->integratorSettings_,
+                    this->terminationSettings_, propagator_, this->dependentVariablesToSave_,
+                    std::make_shared< SingleArcPropagatorOutputSettings >( *this->outputSettings_ ) );
+    }
 
     //    //! Constructor for generic stopping conditions, providing settings to create accelerations map.
     //    /*!

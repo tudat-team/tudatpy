@@ -1734,7 +1734,7 @@ public:
             const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate,
             const std::vector< double > arcStartTimes,
             const bool integrateDynamicalAndVariationalEquationsConcurrently = true,
-            const bool clearNumericalSolution = true,
+            const bool clearNumericalSolution = false,
             const bool integrateEquationsOnCreation = false ):
         HybridArcVariationalEquationsSolver< StateScalarType, TimeType >(
             bodies,  validateDeprecatedHybridArcSettings< StateScalarType, TimeType >(
@@ -1749,7 +1749,7 @@ public:
             const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate,
             const std::vector< double > arcStartTimes,
             const bool integrateDynamicalAndVariationalEquationsConcurrently = true,
-            const bool clearNumericalSolution = true,
+            const bool clearNumericalSolution = false,
             const bool integrateEquationsOnCreation = false ):
         HybridArcVariationalEquationsSolver< StateScalarType, TimeType >(
             bodies, validateDeprecatedHybridArcSettings< StateScalarType, TimeType >(
@@ -1762,6 +1762,7 @@ public:
             const bool integrateDynamicalAndVariationalEquationsConcurrently,
             const bool integrateEquationsOnCreation )
     {
+
         // Cast propagator settings to correct type and check validity
         originalPopagatorSettings_ =
                 std::dynamic_pointer_cast< HybridArcPropagatorSettings< StateScalarType > >( propagatorSettings );
@@ -1788,10 +1789,11 @@ public:
                     originalPopagatorSettings_->getSingleArcPropagatorSettings( ),
                     originalPopagatorSettings_->getMultiArcPropagatorSettings( ),
                     numberOfArcs );
+
         multiArcDynamicsSize_ = extendedMultiArcSettings->getConventionalStateSize( );
         multiArcDynamicsSingleArcSize_ = extendedMultiArcSettings->getConventionalStateSize( ) / numberOfArcs;
         propagatorSettings_ = std::make_shared< HybridArcPropagatorSettings< StateScalarType> >(
-                    originalPopagatorSettings_->getSingleArcPropagatorSettings( ), extendedMultiArcSettings );
+                    originalPopagatorSettings_->getSingleArcPropagatorSettings( )->clone( ), extendedMultiArcSettings );
 
         // Update estimated parameter vector to extended multi-arc settings
         setExtendedMultiArcParameters( arcStartTimes_ );
@@ -1800,14 +1802,13 @@ public:
         extendedMultiArcSettings->getOutputSettings( )->setClearNumericalSolutions( false );
         extendedMultiArcSettings->getOutputSettings( )->setIntegratedResult( false );
 
-
         originalMultiArcSolver_ = std::make_shared< MultiArcVariationalEquationsSolver< StateScalarType, TimeType > >(
                     bodies, originalPopagatorSettings_->getMultiArcPropagatorSettings( ),
                     originalMultiArcParametersToEstimate_, false );
 
         // Create variational equations solvers for single- and multi-arc
         singleArcSolver_ = std::make_shared< SingleArcVariationalEquationsSolver< StateScalarType, TimeType > >(
-                    bodies, propagatorSettings_->getSingleArcPropagatorSettings( ),
+                    bodies, originalPopagatorSettings_->getSingleArcPropagatorSettings( ),
                     singleArcParametersToEstimate_, false );
         multiArcSolver_ = std::make_shared< MultiArcVariationalEquationsSolver< StateScalarType, TimeType > >(
                     bodies, extendedMultiArcSettings,
@@ -1833,6 +1834,7 @@ public:
                     singleArcPropagationSettings->bodiesToIntegrate_,
                     singleArcPropagationSettings->centralBodies_,
                     bodies, std::placeholders::_1, createFrameManager( bodies.getMap( ) ) );
+
 
         // Propagate dynamical equations if requested
         if( integrateEquationsOnCreation )
@@ -1865,11 +1867,9 @@ public:
     void integrateVariationalAndDynamicalEquations(
             const VectorType& initialStateEstimate, const bool integrateEquationsConcurrently )
     {
-
         singleArcSolver_->integrateVariationalAndDynamicalEquations(
                     initialStateEstimate.block( 0, 0, singleArcDynamicsSize_, 1 ),
                     integrateEquationsConcurrently );
-
         // Extract single arc state to update multi-arc initial states
         resetMultiArcInitialStates(
                     initialStateEstimate.block( singleArcDynamicsSize_, 0, multiArcDynamicsSize_, 1 ) );
@@ -1889,9 +1889,11 @@ public:
 
         removeSingleArcBodiesFromMultiArcSolultion( numericalMultiArcSolution );
 
-        // Reset original multi-arc bodies' dynamics
+
+
+        // Reset original multi-arc bodies' dynamicss
         originalMultiArcSolver_->getDynamicsSimulator( )->manuallySetAndProcessRawNumericalEquationsOfMotionSolution(
-                    numericalMultiArcSolution, dependentVariableHistory, propagatorSettings_->getOutputSettings( )->getSetIntegratedResult( ) );
+                    numericalMultiArcSolution, dependentVariableHistory, originalPopagatorSettings_->getOutputSettings( )->getSetIntegratedResult( ) );
 
         // Create state transition matrix if not yet created.
         if( stateTransitionInterface_ == nullptr )
@@ -1951,7 +1953,7 @@ public:
 
         // Reset original multi-arc bodies' dynamics
         originalMultiArcSolver_->getDynamicsSimulator( )->manuallySetAndProcessRawNumericalEquationsOfMotionSolution(
-                    numericalMultiArcSolution, dependentVariableHistory,  propagatorSettings_->getOutputSettings( )->getSetIntegratedResult( ) );
+                    numericalMultiArcSolution, dependentVariableHistory,  originalPopagatorSettings_->getOutputSettings( )->getSetIntegratedResult( ) );
 
     }
 
