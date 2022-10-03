@@ -177,13 +177,11 @@ void expose_gravity_field_setup(py::module &m) {
                           &tss::PolyhedronGravityFieldSettings::getAssociatedReferenceFrame,
                           &tss::PolyhedronGravityFieldSettings::resetAssociatedReferenceFrame,
                           get_docstring("PolyhedronGravityFieldSettings.associated_reference_frame").c_str())
-            .def_property ("vertices_coordinates",
+            .def_property_readonly ("vertices_coordinates",
                            &tss::PolyhedronGravityFieldSettings::getVerticesCoordinates,
-                           &tss::PolyhedronGravityFieldSettings::resetVerticesCoordinates,
                            get_docstring("PolyhedronGravityFieldSettings.vertices_coordinates").c_str())
-            .def_property ("vertices_defining_each_facet",
+            .def_property_readonly ("vertices_defining_each_facet",
                            &tss::PolyhedronGravityFieldSettings::getVerticesDefiningEachFacet,
-                           &tss::PolyhedronGravityFieldSettings::resetVerticesDefiningEachFacet,
                            get_docstring("PolyhedronGravityFieldSettings.vertices_defining_each_facet").c_str());
 
 
