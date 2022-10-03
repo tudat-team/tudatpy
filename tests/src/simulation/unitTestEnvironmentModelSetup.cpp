@@ -515,7 +515,7 @@ BOOST_AUTO_TEST_CASE( test_polyhedronGravityFieldSetup )
     std::shared_ptr< GravityFieldSettings > polyhedronGravityFieldSettings1 = polyhedronGravitySettings(
             density, verticesCoordinates, verticesDefiningEachFacet, "DummyFrame", gravitationalConstant );
     std::shared_ptr< GravityFieldSettings > polyhedronGravityFieldSettings2 = polyhedronGravitySettingsFromMu(
-            gravitationalParameter, verticesCoordinates, verticesDefiningEachFacet, "DummyFrame");
+            gravitationalParameter, verticesCoordinates, verticesDefiningEachFacet, "DummyFrame", gravitationalConstant );
 
     // Create the two gravity field models, downcasting to PolyhedronGravityField
     std::shared_ptr< gravitation::PolyhedronGravityField > polyhedronGravityField1 =
@@ -638,7 +638,7 @@ BOOST_AUTO_TEST_CASE( test_polyhedronInertiaTensorSetup )
         else
         {
             polyhedronGravityFieldSettings = polyhedronGravitySettingsFromMu(
-                gravitationalParameter, verticesCoordinates, verticesDefiningEachFacet, "DummyFrame", density);
+                gravitationalParameter, verticesCoordinates, verticesDefiningEachFacet, "DummyFrame", gravitationalConstant );
         }
 
         // Create bodies

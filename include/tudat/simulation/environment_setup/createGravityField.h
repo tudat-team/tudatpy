@@ -309,10 +309,11 @@ public:
         density_( density ),
         verticesCoordinates_( verticesCoordinates ),
         verticesDefiningEachFacet_( verticesDefiningEachFacet ),
-        associatedReferenceFrame_( associatedReferenceFrame )
+        associatedReferenceFrame_( associatedReferenceFrame ),
+        gravitationalConstant_( gravitationalConstant )
     {
-        double volume = basic_astrodynamics::computePolyhedronVolume( verticesCoordinates, verticesDefiningEachFacet );
-        gravitationalParameter_ = gravitationalConstant * density_ * volume;
+        volume_ = basic_astrodynamics::computePolyhedronVolume( verticesCoordinates, verticesDefiningEachFacet );
+        gravitationalParameter_ = gravitationalConstant_ * density_ * volume_;
     }
 
 
@@ -329,14 +330,17 @@ public:
                                     const Eigen::MatrixXd& verticesCoordinates,
                                     const Eigen::MatrixXi& verticesDefiningEachFacet,
                                     const std::string& associatedReferenceFrame,
-                                    const double density = TUDAT_NAN):
+                                    const double gravitationalConstant = physical_constants::GRAVITATIONAL_CONSTANT ):
         GravityFieldSettings( polyhedron ),
         gravitationalParameter_( gravitationalParameter ),
-        density_( density ),
         verticesCoordinates_( verticesCoordinates ),
         verticesDefiningEachFacet_( verticesDefiningEachFacet ),
-        associatedReferenceFrame_( associatedReferenceFrame )
-    { }
+        associatedReferenceFrame_( associatedReferenceFrame ),
+        gravitationalConstant_( gravitationalConstant )
+    {
+        volume_ = basic_astrodynamics::computePolyhedronVolume( verticesCoordinates, verticesDefiningEachFacet );
+        density_ = gravitationalParameter_ / ( gravitationalConstant_ * volume_ );
+    }
 
     //! Destructor
     virtual ~PolyhedronGravityFieldSettings( ){ }
@@ -347,7 +351,10 @@ public:
 
     // Function to reset the gravitational parameter.
     void resetGravitationalParameter ( const double gravitationalParameter )
-    { gravitationalParameter_ = gravitationalParameter; }
+    {
+        gravitationalParameter_ = gravitationalParameter;
+        density_ = gravitationalParameter_ / ( gravitationalConstant_ * volume_ );
+    }
 
     // Function to return the density.
     double getDensity ( )
@@ -355,7 +362,10 @@ public:
 
     // Function to reset the density.
     void resetDensity ( double density )
-    { density_ = density; }
+    {
+        density_ = density;
+        gravitationalParameter_ = gravitationalConstant_ * density_ * volume_;
+    }
 
     // Function to return identifier for body-fixed reference frame.
     std::string getAssociatedReferenceFrame( )
@@ -397,6 +407,10 @@ protected:
 
     // Identifier for body-fixed reference frame to which the polyhedron is referred.
     std::string associatedReferenceFrame_;
+
+    double gravitationalConstant_;
+
+    double volume_;
 
 };
 
@@ -707,11 +721,11 @@ inline std::shared_ptr< GravityFieldSettings > polyhedronGravitySettingsFromMu(
         const Eigen::MatrixXd verticesCoordinates,
         const Eigen::MatrixXi verticesDefiningEachFacet,
         const std::string& associatedReferenceFrame,
-        const double density = TUDAT_NAN )
+        const double gravitationalConstant = physical_constants::GRAVITATIONAL_CONSTANT )
 {
     return std::make_shared< PolyhedronGravityFieldSettings >(
             gravitationalParameter, verticesCoordinates, verticesDefiningEachFacet, associatedReferenceFrame,
-            density );
+            gravitationalConstant );
 }
 
 } // namespace simulation_setup
