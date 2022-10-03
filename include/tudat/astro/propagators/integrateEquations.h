@@ -593,6 +593,7 @@ std::shared_ptr< PropagationTerminationDetails > integrateEquationsFromIntegrato
 
             if( propagationTerminationCondition->checkStopCondition( static_cast< double >( currentTime ), currentCPUTime ) )
             {
+                // Propagate to the exact termination conditions
                 if( propagationTerminationCondition->getcheckTerminationToExactCondition( ) )
                 {
                     propagateToExactTerminationCondition(
@@ -620,6 +621,7 @@ std::shared_ptr< PropagationTerminationDetails > integrateEquationsFromIntegrato
                                 std::dynamic_pointer_cast< HybridPropagationTerminationCondition >(
                                     propagationTerminationCondition ) );
                 }
+
                 breakPropagation = true;
             }
         }
