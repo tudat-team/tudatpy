@@ -403,7 +403,7 @@ class SingleArcPropagatorResults
 public:
 
     SingleArcPropagatorResults( const std::map< int, std::string >& dependentVariableIds,
-                                const std::shared_ptr< PropagatorOutputSettings >& outputSettings ):
+                                const std::shared_ptr< SingleArcPropagatorOutputSettings >& outputSettings ):
         dependentVariableIds_( dependentVariableIds ),
         outputSettings_( outputSettings ),
         propagationIsPerformed_( false ),
@@ -454,7 +454,7 @@ private:
     //! Map listing starting entry of dependent variables in output vector, along with associated ID.
     std::map< int, std::string > dependentVariableIds_;
 
-    std::shared_ptr< PropagatorOutputSettings > outputSettings_;
+    std::shared_ptr< SingleArcPropagatorOutputSettings > outputSettings_;
 
     bool propagationIsPerformed_;
 
@@ -488,15 +488,13 @@ std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > validateDeprec
         {
             std::cerr<<"Warning, integrator settings defined independently, and in propagator settings"<<std::endl;
         }
-        std::shared_ptr< PropagatorOutputSettings > outputSettings = std::make_shared< PropagatorOutputSettings >(
-                    clearNumericalSolutions, printDependentVariableData,
-                    singleArcPropagatorSettings->getPrintInterval( ), printNumberOfFunctionEvaluations,
-                    printStateData, setIntegratedResult );
 
-        singleArcPropagatorSettings->getOutputSettings( )->reset(
-                    clearNumericalSolutions, printDependentVariableData,
-                    singleArcPropagatorSettings->getPrintInterval( ), printNumberOfFunctionEvaluations,
-                    printStateData, setIntegratedResult );
+        singleArcPropagatorSettings->getOutputSettings( )->setClearNumericalSolutions( clearNumericalSolutions );
+        singleArcPropagatorSettings->getOutputSettings( )->setIntegratedResult( setIntegratedResult );
+        singleArcPropagatorSettings->getOutputSettings( )->getPrintSettings( )->reset(
+                    printNumberOfFunctionEvaluations, printDependentVariableData, printStateData,
+                    singleArcPropagatorSettings->getOutputSettings( )->getPrintSettings( )->getStatePrintInterval( ) );
+
         singleArcPropagatorSettings->setIntegratorSettings( integratorSettings );
     }
 
@@ -604,7 +602,7 @@ public:
                     integratorSettings_->initialTimeStep_, dynamicsStateDerivative_->getStateDerivativeModels( ),
                     predefinedStateDerivativeModels.stateDerivativePartials_ );
 
-        if( outputSettings_->getPrintStateData( ) )
+        if( outputSettings_->getPrintSettings( )->getPrintStateData( ) )
         {
             printPropagatedStateVectorContent(getIntegratedTypeAndBodyList(propagatorSettings_));
         }
@@ -620,7 +618,7 @@ public:
             dependentVariablesFunctions_ = dependentVariableData.first;
             dependentVariableIds = dependentVariableData.second;
 
-            if( outputSettings_->getPrintDependentVariableData( ) )
+            if( outputSettings_->getPrintSettings( )->getPrintDependentVariableData( ) )
             {
                 std::cout << "Dependent variables being saved, output vector contains: " << std::endl
                           << "Vector entry, Vector contents" << std::endl;
@@ -752,7 +750,7 @@ public:
                     propagationResults_->cumulativeComputationTimeHistory_,
                     dependentVariablesFunctions_,
                     statePostProcessingFunction_,
-                    propagatorSettings_->getPrintInterval( ),
+                    propagatorSettings_->getStatePrintInterval( ),
                     initialClockTime_ );
         simulation_setup::setAreBodiesInPropagation( bodies_, false );
 
@@ -765,7 +763,7 @@ public:
         propagationResults_->cumulativeNumberOfFunctionEvaluations_ = dynamicsStateDerivative_->getCumulativeNumberOfFunctionEvaluations( );
         propagationResults_->propagationIsPerformed_ = true;
         // Retrieve and print number of total function evaluations
-        if ( outputSettings_->getPrintNumberOfFunctionEvaluations( ) )
+        if ( outputSettings_->getPrintSettings( )->getPrintNumberOfFunctionEvaluations( ) )
         {
             std::cout << "Total Number of Function Evaluations: "
                       << dynamicsStateDerivative_->getNumberOfFunctionEvaluations( ) << std::endl;
@@ -1001,12 +999,12 @@ public:
 
     void suppressDependentVariableDataPrinting( )
     {
-        outputSettings_->setPrintDependentVariableData( false );
+        outputSettings_->getPrintSettings( )->setPrintDependentVariableData( false );
     }
 
     void enableDependentVariableDataPrinting( )
     {
-        outputSettings_->setPrintDependentVariableData( true );
+        outputSettings_->getPrintSettings( )->setPrintDependentVariableData( true );
     }
 
     void createAndSetIntegratedStateProcessors( )
@@ -1164,7 +1162,7 @@ protected:
     //! Object for retrieving ephemerides for transformation of reference frame (origins)
     std::shared_ptr< ephemerides::ReferenceFrameManager > frameManager_;
 
-    std::shared_ptr< PropagatorOutputSettings > outputSettings_;
+    std::shared_ptr< SingleArcPropagatorOutputSettings > outputSettings_;
 
     std::shared_ptr< SingleArcPropagatorResults< StateScalarType, TimeType > > propagationResults_;
 
@@ -1844,12 +1842,6 @@ std::shared_ptr< HybridArcPropagatorSettings< StateScalarType, TimeType > > vali
 
     hybridArcPropagatorSettings->getOutputSettingsWithCheck( )->setClearNumericalSolutions( clearNumericalSolutions );
     hybridArcPropagatorSettings->getOutputSettingsWithCheck( )->setIntegratedResult( setIntegratedResult );
-
-    hybridArcPropagatorSettings->getMultiArcPropagatorSettings( )->getOutputSettingsWithCheck( )->clearNumericalSolutions = clearNumericalSolutions;
-    hybridArcPropagatorSettings->getMultiArcPropagatorSettings( )->getOutputSettingsWithCheck( )->setIntegratedResult = setIntegratedResult;
-
-    hybridArcPropagatorSettings->getSingleArcPropagatorSettings( )->getOutputSettingsWithCheck( )->clearNumericalSolutions = clearNumericalSolutions;
-    hybridArcPropagatorSettings->getSingleArcPropagatorSettings( )->getOutputSettingsWithCheck( )->setIntegratedResult = setIntegratedResult;
 
     return hybridArcPropagatorSettings;
 }

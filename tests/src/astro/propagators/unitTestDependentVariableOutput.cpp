@@ -1492,7 +1492,7 @@ BOOST_AUTO_TEST_CASE( test_GravitationalPotentialAndLaplacianSaving )
                             gravity_field_laplacian_of_potential_dependent_variable, "Asterix", "Moon" ) );
         }
 
-        addDepedentVariableSettings< double >( dependentVariables, propagatorSettings );
+        addDepedentVariableSettings< double, double >( dependentVariables, propagatorSettings );
 
         // Create numerical integrator.
         double simulationStartEpoch = 0.0;
