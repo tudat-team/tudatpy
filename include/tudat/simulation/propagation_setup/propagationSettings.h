@@ -137,44 +137,17 @@ protected:
     bool isMultiArc_;
 };
 
-class PropagatorOutputSettings
+class PropagationPrintSettings
 {
 public:
-    PropagatorOutputSettings(
-            const bool clearNumericalSolutions = false,
-            const bool setIntegratedResult = false,
+    PropagationPrintSettings(
             const bool printNumberOfFunctionEvaluations = false,
             const bool printDependentVariableData = true,
             const bool printStateData = false,
-            const double printInterval = TUDAT_NAN )
+            const double statePrintInterval = TUDAT_NAN )
     {
-        reset( clearNumericalSolutions, setIntegratedResult, printNumberOfFunctionEvaluations,
-               printDependentVariableData, printStateData, printInterval );
-    }
-
-    void reset( const bool clearNumericalSolutions = false,
-                const bool setIntegratedResult = false,
-                const bool printNumberOfFunctionEvaluations = false,
-                const bool printDependentVariableData = true,
-                const bool printStateData = false,
-                const double printInterval = TUDAT_NAN )
-    {
-        clearNumericalSolutions_ =  clearNumericalSolutions;
-        setIntegratedResult_ =  setIntegratedResult;
-        printNumberOfFunctionEvaluations_ =  printNumberOfFunctionEvaluations;
-        printDependentVariableData_ =  printDependentVariableData;
-        printStateData_ = printStateData;
-        printInterval_ = printInterval;
-    }
-
-    bool getClearNumericalSolutions( )
-    {
-        return clearNumericalSolutions_;
-    }
-
-    bool getSetIntegratedResult( )
-    {
-        return setIntegratedResult_;
+        reset( printNumberOfFunctionEvaluations,
+               printDependentVariableData, printStateData, statePrintInterval );
     }
 
     bool getPrintNumberOfFunctionEvaluations( )
@@ -187,19 +160,69 @@ public:
         return printDependentVariableData_;
     }
 
+    void setPrintDependentVariableData( const bool printDependentVariableData )
+    {
+        printDependentVariableData_ = printDependentVariableData;
+    }
+
     bool getPrintStateData( )
     {
         return printStateData_;
     }
 
-    double getPrintInterval( )
+    double getStatePrintInterval( )
     {
-        return printInterval_;
+        return statePrintInterval_;
     }
 
-    void setPrintDependentVariableData( const bool printDependentVariableData )
+    void reset( const bool printNumberOfFunctionEvaluations = false,
+                const bool printDependentVariableData = true,
+                const bool printStateData = false,
+                const double statePrintInterval = TUDAT_NAN )
     {
-        printDependentVariableData_ = printDependentVariableData;
+        printNumberOfFunctionEvaluations_ =  printNumberOfFunctionEvaluations;
+        printDependentVariableData_ =  printDependentVariableData;
+        printStateData_ = printStateData;
+        statePrintInterval_ = statePrintInterval;
+    }
+
+    void reset( const std::shared_ptr< PropagationPrintSettings > printSettings )
+    {
+        printNumberOfFunctionEvaluations_ =  printSettings->getPrintNumberOfFunctionEvaluations( );
+        printDependentVariableData_ =  printSettings->getPrintDependentVariableData( );
+        printStateData_ = printSettings->getPrintStateData( );
+        statePrintInterval_ = printSettings->getStatePrintInterval( );
+    }
+
+
+private:
+
+    bool printNumberOfFunctionEvaluations_;
+    bool printDependentVariableData_;
+    bool printStateData_;
+    double statePrintInterval_;
+};
+
+class PropagatorOutputSettings
+{
+public:
+    PropagatorOutputSettings(
+            const bool clearNumericalSolutions = false,
+            const bool setIntegratedResult = false ):
+        clearNumericalSolutions_( clearNumericalSolutions ),
+        setIntegratedResult_( setIntegratedResult )
+    { }
+
+    virtual ~PropagatorOutputSettings( ){ }
+
+    bool getClearNumericalSolutions( )
+    {
+        return clearNumericalSolutions_;
+    }
+
+    bool getSetIntegratedResult( )
+    {
+        return setIntegratedResult_;
     }
 
     virtual void setClearNumericalSolutions( const bool clearNumericalSolutions )
@@ -216,57 +239,275 @@ protected:
 
     bool clearNumericalSolutions_;
     bool setIntegratedResult_;
-    bool printNumberOfFunctionEvaluations_;
-    bool printDependentVariableData_;
-    bool printStateData_;
-    double printInterval_;
 };
 
-//class CombinedPropagatorOutputSettings: public PropagatorOutputSettings
-//{
-//public:
-//    CombinedPropagatorOutputSettings(
-//            const bool clearNumericalSolutions = false,
-//            const bool setIntegratedResult = false,
-//            const bool printNumberOfFunctionEvaluations = false,
-//            const bool printDependentVariableData = true,
-//            const bool printStateData = false,
-//            const double printInterval = TUDAT_NAN,
-//            const bool useIdenticalSettings = false ):
-//        PropagatorOutputSettings( clearNumericalSolutions, setIntegratedResult, printNumberOfFunctionEvaluations,
-//                                  printDependentVariableData, printStateData, printInterval, useIdenticalSettings ),
-//        useIdenticalSettings_( useIdenticalSettings ){ }
+class SingleArcPropagatorOutputSettings: public PropagatorOutputSettings
+{
+public:
+    SingleArcPropagatorOutputSettings(
+            const bool clearNumericalSolutions = false,
+            const bool setIntegratedResult = false,
+            const std::shared_ptr< PropagationPrintSettings > printSettings =
+            std::make_shared< PropagationPrintSettings >( ) ):
+        PropagatorOutputSettings( clearNumericalSolutions, setIntegratedResult ),
+        printSettings_( printSettings ){ }
+
+    virtual ~SingleArcPropagatorOutputSettings( ){ }
+
+    std::shared_ptr< PropagationPrintSettings > getPrintSettings( )
+    {
+        return printSettings_;
+    }
+
+protected:
+
+    const std::shared_ptr< PropagationPrintSettings > printSettings_;
+};
+
+template< typename StateScalarType, typename TimeType >
+class MultiArcPropagatorSettings;
+
+class MultiArcPropagatorOutputSettings: public PropagatorOutputSettings
+{
+public:
+    MultiArcPropagatorOutputSettings(
+            const std::shared_ptr< PropagationPrintSettings > consistentSingleArcPrintSettings,
+            const bool clearNumericalSolutions = false,
+            const bool setIntegratedResult = false,
+            const bool printFirstArcOnly = false,
+            const bool printCurrentArcIndex = false ):
+        PropagatorOutputSettings( clearNumericalSolutions, setIntegratedResult ),
+        consistentSingleArcPrintSettings_( consistentSingleArcPrintSettings ),
+        useIdenticalSettings_( true ),
+        printFirstArcOnly_( printFirstArcOnly ),
+        printCurrentArcIndex_( printCurrentArcIndex ),
+        areSingleArcSettingsSet_( false ){ }
+
+    MultiArcPropagatorOutputSettings(
+            const bool clearNumericalSolutions = false,
+            const bool setIntegratedResult = false,
+            const bool printFirstArcOnly = false,
+            const bool printCurrentArcIndex = false ):
+        PropagatorOutputSettings( clearNumericalSolutions, setIntegratedResult ),
+        consistentSingleArcPrintSettings_( nullptr ),
+        useIdenticalSettings_( false ),
+        printFirstArcOnly_( printFirstArcOnly ),
+        printCurrentArcIndex_( printCurrentArcIndex ),
+        areSingleArcSettingsSet_( false ){ }
+
+    virtual ~MultiArcPropagatorOutputSettings( ){ }
+
+    virtual void setClearNumericalSolutions( const bool clearNumericalSolutions )
+    {
+        this->clearNumericalSolutions_ = clearNumericalSolutions;
+        for( unsigned int i = 0; i < singleArcSettings_.size( ); i++ )
+        {
+            singleArcSettings_.at( i )->setClearNumericalSolutions( clearNumericalSolutions );
+        }
+    }
+
+    virtual void setIntegratedResult( const bool setIntegratedResult )
+    {
+        this->setIntegratedResult_ = setIntegratedResult;
+        for( unsigned int i = 0; i < singleArcSettings_.size( ); i++ )
+        {
+            singleArcSettings_.at( i )->setClearNumericalSolutions( setIntegratedResult );
+        }
+    }
+
+    void resetSingleArcSettings( const bool printWarning = false )
+    {
+        if( !areSingleArcSettingsSet_ )
+        {
+            throw std::runtime_error( "Error in multi-arc output settings, single arc settings not yet defined when resetting" );
+        }
+
+        for( unsigned int i = 0; i < singleArcSettings_.size( ); i++ )
+        {
+            singleArcSettings_.at( i )->setClearNumericalSolutions( clearNumericalSolutions_ );
+            singleArcSettings_.at( i )->setIntegratedResult( setIntegratedResult_ );
+            if( useIdenticalSettings_ )
+            {
+                if( consistentSingleArcPrintSettings_ == nullptr )
+                {
+                    throw std::runtime_error( "Error in multi-arc output settings, no consistent single arc print settings defined" );
+                }
+                singleArcSettings_.at( i )->getPrintSettings( )->reset(
+                            consistentSingleArcPrintSettings_ );
+            }
+        }
+    }
 
 
-//    virtual void setClearNumericalSolutions( const bool clearNumericalSolutions )
-//    {
-//        this->clearNumericalSolutions_ = clearNumericalSolutions;
-//        for( unsigned int i = 0; i < singleArcPropagatorSettings_.size( ); i++ )
-//        {
-//            singleArcPropagatorSettings_.at( i )->setClearNumericalSolutions( clearNumericalSolutions );
-//        }
-//    }
 
-//    virtual void setIntegratedResult( const bool setIntegratedResult )
-//    {
-//        this->setIntegratedResult_ = setIntegratedResult;
-//        for( unsigned int i = 0; i < singleArcPropagatorSettings_.size( ); i++ )
-//        {
-//            singleArcPropagatorSettings_.at( i )->setClearNumericalSolutions( setIntegratedResult );
-//        }
-//    }
+    void resetConsistentSingleArcPrintSettings(
+            const std::shared_ptr< PropagationPrintSettings > consistentSingleArcPrintSettings )
+    {
+        if( useIdenticalSettings_ )
+        {
+            consistentSingleArcPrintSettings_ = consistentSingleArcPrintSettings;
+            resetSingleArcSettings( );
+        }
+    }
 
-//    bool getUseIdenticalSettings( )
-//    {
-//        return useIdenticalSettings_;
-//    }
+    bool useIdenticalSettings( )
+    {
+        return useIdenticalSettings_;
+    }
 
-//protected:
+    void resetUseIdenticalSettings( const bool useIdenticalSettings )
+    {
+        useIdenticalSettings_ = useIdenticalSettings;
+    }
 
-//    std::vector< PropagatorOutputSettings > singleArcPropagatorSettings_;
-//    bool useIdenticalSettings_;
 
-//};
+protected:
+
+    std::shared_ptr< PropagationPrintSettings > consistentSingleArcPrintSettings_;
+
+    bool useIdenticalSettings_;
+
+    bool printFirstArcOnly_;
+
+    bool printCurrentArcIndex_;
+
+    std::vector< std::shared_ptr< SingleArcPropagatorOutputSettings > > singleArcSettings_;
+
+    bool areSingleArcSettingsSet_;
+
+private:
+
+
+    void setSingleArcSettings(
+            const std::vector< std::shared_ptr< SingleArcPropagatorOutputSettings > >& singleArcSettings )
+    {
+        if( !areSingleArcSettingsSet_ )
+        {
+            singleArcSettings_ = singleArcSettings;
+            areSingleArcSettingsSet_ = true;
+            resetSingleArcSettings( );
+        }
+        else
+        {
+            throw std::runtime_error(
+                        "Error, cannot set constituent single-arc output settings more than once in multi-arc output settings" );
+        }
+    }
+
+    template< typename StateScalarType, typename TimeType >
+    friend class MultiArcPropagatorSettings;
+
+};
+
+
+
+class HybridArcPropagatorOutputSettings: public PropagatorOutputSettings
+{
+public:
+    HybridArcPropagatorOutputSettings(
+            const std::shared_ptr< PropagationPrintSettings > consistentArcPrintSettings,
+            const bool clearNumericalSolutions = false,
+            const bool setIntegratedResult = false,
+            const bool printStateTypeStart = false ):
+        PropagatorOutputSettings( clearNumericalSolutions, setIntegratedResult ),
+        consistentArcPrintSettings_( consistentArcPrintSettings ),
+        useIdenticalSettings_( true ),
+        printStateTypeStart_( printStateTypeStart ){ }
+
+    HybridArcPropagatorOutputSettings(
+            const bool clearNumericalSolutions = false,
+            const bool setIntegratedResult = false,
+            const bool printStateTypeStart = false ):
+        PropagatorOutputSettings( clearNumericalSolutions, setIntegratedResult ),
+        useIdenticalSettings_( false ),
+        printStateTypeStart_( printStateTypeStart ){ }
+
+    virtual ~HybridArcPropagatorOutputSettings( ){ }
+
+    virtual void setClearNumericalSolutions( const bool clearNumericalSolutions )
+    {
+        this->clearNumericalSolutions_ = clearNumericalSolutions;
+        singleArcSettings_->setClearNumericalSolutions( clearNumericalSolutions );
+        multiArcSettings_->setClearNumericalSolutions( clearNumericalSolutions );
+    }
+
+    virtual void setIntegratedResult( const bool setIntegratedResult )
+    {
+        this->setIntegratedResult_ = setIntegratedResult;
+        singleArcSettings_->setClearNumericalSolutions( setIntegratedResult );
+        multiArcSettings_->setClearNumericalSolutions( setIntegratedResult );
+    }
+
+    void resetArcSettings( const bool printWarning = false )
+    {
+        if( !areArcSettingsSet_ )
+        {
+            throw std::runtime_error( "Error in hybrid-arc output settings, constitunt arc settings not yet defined when resetting" );
+        }
+
+        singleArcSettings_->setClearNumericalSolutions( clearNumericalSolutions_ );
+        singleArcSettings_->setIntegratedResult( setIntegratedResult_ );
+
+        multiArcSettings_->setClearNumericalSolutions( clearNumericalSolutions_ );
+        multiArcSettings_->setIntegratedResult( setIntegratedResult_ );
+
+        if( useIdenticalSettings_ )
+        {
+            if( consistentArcPrintSettings_ == nullptr )
+            {
+                throw std::runtime_error( "Error in bybrid-arc output settings, no consistent arc print settings defined" );
+            }
+            singleArcSettings_->getPrintSettings( )->reset( consistentArcPrintSettings_ );
+            if( !multiArcSettings_->useIdenticalSettings( ) )
+            {
+                multiArcSettings_->resetUseIdenticalSettings( true );
+            }
+            multiArcSettings_->resetConsistentSingleArcPrintSettings( consistentArcPrintSettings_ );
+        }
+
+    }
+
+protected:
+
+    const std::shared_ptr< PropagationPrintSettings > consistentArcPrintSettings_;
+
+    bool useIdenticalSettings_;
+
+    bool printStateTypeStart_;
+
+     std::shared_ptr< SingleArcPropagatorOutputSettings > singleArcSettings_ = nullptr;
+
+     std::shared_ptr< MultiArcPropagatorOutputSettings > multiArcSettings_ = nullptr;
+
+    bool areArcSettingsSet_ = false;
+
+private:
+
+
+    void setSingleArcSettings(
+            const std::shared_ptr< SingleArcPropagatorOutputSettings > singleArcSettings,
+            const std::shared_ptr< MultiArcPropagatorOutputSettings > multiArcSettings )
+    {
+        if( !areArcSettingsSet_ )
+        {
+            singleArcSettings_ = singleArcSettings;
+            multiArcSettings_ = multiArcSettings;
+            areArcSettingsSet_ = true;
+            resetArcSettings( );
+        }
+        else
+        {
+            throw std::runtime_error(
+                        "Error, cannot set constituent single-arc output settings more than once in multi-arc output settings" );
+        }
+    }
+
+    template< typename StateScalarType, typename TimeType >
+    friend class HybridArcPropagatorSettings;
+
+};
+
+
 
 //! Base class for defining setting of a propagator for single-arc dynamics
 /*!
@@ -286,19 +527,19 @@ public:
      * \param terminationSettings Settings for creating the object that checks whether the propagation is finished.
      * \param dependentVariablesToSave Settings for the dependent variables that are to be saved during propagation
      * (default none).
-     * \param printInterval Variable indicating how often (once per printInterval_ seconds or propagation independenty
+     * \param statePrintInterval Variable indicating how often (once per statePrintInterval_ seconds or propagation independenty
      * variable) the current state and time are to be printed to console (default never).
      */
     SingleArcPropagatorSettings( const IntegratedStateType stateType,
                                  const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialBodyStates,
                                  const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
                                  const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >& dependentVariablesToSave =
-                                                 std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
-                                 const double printInterval = TUDAT_NAN ):
+            std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
+                                 const double statePrintInterval = TUDAT_NAN ):
         PropagatorSettings< StateScalarType >( initialBodyStates, false ),
         stateType_( stateType ), terminationSettings_( terminationSettings ),
         dependentVariablesToSave_( dependentVariablesToSave ),
-        integratorSettings_( nullptr ), outputSettings_( std::make_shared< PropagatorOutputSettings >( ) ), printInterval_( printInterval)
+        integratorSettings_( nullptr ), outputSettings_( std::make_shared< SingleArcPropagatorOutputSettings >( ) ), statePrintInterval_( statePrintInterval)
     { }
 
     SingleArcPropagatorSettings( const IntegratedStateType stateType,
@@ -306,12 +547,12 @@ public:
                                  const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
                                  const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
                                  const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >& dependentVariablesToSave =
-                                                 std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
-                                 const std::shared_ptr< PropagatorOutputSettings > outputSettings = std::make_shared< PropagatorOutputSettings >( ) ):
+            std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
+                                 const std::shared_ptr< SingleArcPropagatorOutputSettings > outputSettings = std::make_shared< SingleArcPropagatorOutputSettings >( ) ):
         PropagatorSettings< StateScalarType >( initialBodyStates, false ),
         stateType_( stateType ), terminationSettings_( terminationSettings ),
         dependentVariablesToSave_( dependentVariablesToSave ), integratorSettings_( integratorSettings ),
-        outputSettings_( outputSettings ), printInterval_( TUDAT_NAN ){ }
+        outputSettings_( outputSettings ), statePrintInterval_( TUDAT_NAN ){ }
 
     //! Virtual destructor.
     virtual ~SingleArcPropagatorSettings( ){ }
@@ -368,9 +609,9 @@ public:
      * Function to retrieve how often the current state and time are to be printed to console
      * \return Time intercal with which the current state and time are to be printed to console (default NaN, meaning never).
      */
-    double getPrintInterval( )
+    double getStatePrintInterval( )
     {
-        return printInterval_;
+        return statePrintInterval_;
     }
 
     //! Function to modify settings for creating the object that checks whether the propagation is finished.
@@ -397,12 +638,12 @@ public:
         integratorSettings_ = integratorSettings;
     }
 
-    std::shared_ptr< PropagatorOutputSettings > getOutputSettings( )
+    std::shared_ptr< SingleArcPropagatorOutputSettings > getOutputSettings( )
     {
         return outputSettings_;
     }
 
-    std::shared_ptr< PropagatorOutputSettings > getOutputSettingsWithCheck( )
+    std::shared_ptr< SingleArcPropagatorOutputSettings > getOutputSettingsWithCheck( )
     {
         if( outputSettings_ == nullptr )
         {
@@ -410,13 +651,6 @@ public:
         }
         return outputSettings_;
     }
-
-//    void setOutputSettings( const std::shared_ptr< PropagatorOutputSettings > outputSettings )
-//    {
-//        outputSettings_ = outputSettings;
-//    }
-
-
 protected:
 
     //!Type of state being propagated
@@ -430,12 +664,12 @@ protected:
 
     std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings_;
 
-    std::shared_ptr< PropagatorOutputSettings > outputSettings_;
+    std::shared_ptr< SingleArcPropagatorOutputSettings > outputSettings_;
 
 
-    //! Variable indicating how often (once per printInterval_ seconds or propagation independenty variable) the
+    //! Variable indicating how often (once per statePrintInterval_ seconds or propagation independenty variable) the
     //! current state and time are to be printed to console (default never).
-    double printInterval_;
+    double statePrintInterval_;
 
 };
 
@@ -509,11 +743,14 @@ public:
      */
     MultiArcPropagatorSettings(
             const std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > >& singleArcSettings,
-            const bool transferInitialStateInformationPerArc = 0 ):
+            const bool transferInitialStateInformationPerArc = 0,
+            const std::shared_ptr< MultiArcPropagatorOutputSettings > outputSettings =
+            std::make_shared< MultiArcPropagatorOutputSettings >( )):
         PropagatorSettings< StateScalarType >( getConcatenatedInitialStates( singleArcSettings ), true ),
-        outputSettings_( std::make_shared< PropagatorOutputSettings >( ) )
+        singleArcSettings_( singleArcSettings ),
+        outputSettings_( outputSettings )
     {
-        singleArcSettings_ = singleArcSettings;
+        std::vector< std::shared_ptr< SingleArcPropagatorOutputSettings > > singleArcOutputSettings;
         for( unsigned int i = 0; i < singleArcSettings.size( ); i++ )
         {
             // If information is to be transferred between arcs, set arc N>0 initial state as NaN
@@ -527,15 +764,16 @@ public:
                 }
             }
 
+            singleArcOutputSettings.push_back( singleArcSettings_.at( i )->getOutputSettings( ) );
             initialStateList_.push_back( singleArcSettings_.at( i )->getInitialStates( ) );
         }
+
         if( transferInitialStateInformationPerArc )
         {
             this->initialStates_ = getConcatenatedInitialStates( singleArcSettings );
         }
-//        outputSettings_->setResultProcessUpdate(
-//                    std::bind( &MultiArcPropagatorSettings< StateScalarType, TimeType >::makeMultiArcOutputSettingsConsistent, this ) );
-        makeMultiArcOutputSettingsConsistent( );
+
+        outputSettings_->setSingleArcSettings( singleArcOutputSettings );
     }
 
     //! Destructor
@@ -647,49 +885,27 @@ public:
     }
 
 
-    std::shared_ptr< PropagatorOutputSettings > getOutputSettings( )
+    std::shared_ptr< MultiArcPropagatorOutputSettings > getOutputSettings( )
     {
         return outputSettings_;
     }
 
-    std::shared_ptr< PropagatorOutputSettings > getOutputSettingsWithCheck( )
+    std::shared_ptr< MultiArcPropagatorOutputSettings > getOutputSettingsWithCheck( )
     {
         if( outputSettings_ == nullptr )
         {
-            throw std::runtime_error( "Error whenen getting output settings from single-arc propagator settings; no output settings defined" );
+            throw std::runtime_error( "Error whenen getting output settings from multi-arc propagator settings; no output settings defined" );
         }
         return outputSettings_;
     }
 
-//    void setOutputSettings( const std::shared_ptr< PropagatorOutputSettings > outputSettings )
-//    {
-//        outputSettings_ = outputSettings;
-//        processMultiArcOutputSettings( );
-//    }
-
-    void processMultiArcOutputSettings( const bool clearNumericalSolution, const bool setIntegratedResult )
-    {
-        for( unsigned int i = 0; i < singleArcSettings_.size( ); i++ )
-        {
-            singleArcSettings_.at( i )->getOutputSettingsWithCheck( )->setClearNumericalSolutions(
-                    clearNumericalSolution );
-            singleArcSettings_.at( i )->getOutputSettingsWithCheck( )->setIntegratedResult(
-                    setIntegratedResult );
-        }
-    }
 
 protected:
 
-    void makeMultiArcOutputSettingsConsistent( )
-    {
-        processMultiArcOutputSettings(
-                    outputSettings_->getClearNumericalSolutions( ), outputSettings_->getSetIntegratedResult( ) );
-    }
-
-    std::shared_ptr< PropagatorOutputSettings > outputSettings_;
-
     //! List of propagator settings for each arc in propagation.
-    std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > > singleArcSettings_;
+    const std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > > singleArcSettings_;
+
+    std::shared_ptr< MultiArcPropagatorOutputSettings > outputSettings_;
 
     //! List of initial states for each arc in propagation.
     std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > initialStateList_;
@@ -700,8 +916,8 @@ std::shared_ptr< MultiArcPropagatorSettings< StateScalarType, TimeType > > multi
         const std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > >& singleArcSettings,
         const bool transferInitialStateInformationPerArc = 0 )
 {
-        return std::make_shared< MultiArcPropagatorSettings< StateScalarType, TimeType > >(
-                    singleArcSettings, transferInitialStateInformationPerArc );
+    return std::make_shared< MultiArcPropagatorSettings< StateScalarType, TimeType > >(
+                singleArcSettings, transferInitialStateInformationPerArc );
 }
 
 //! Class for defining setting of a propagator for a combination of single- and multi-arc dynamics
@@ -718,12 +934,14 @@ public:
      */
     HybridArcPropagatorSettings(
             const std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > singleArcPropagatorSettings,
-            const std::shared_ptr< MultiArcPropagatorSettings< StateScalarType, TimeType > > multiArcPropagatorSettings ):
+            const std::shared_ptr< MultiArcPropagatorSettings< StateScalarType, TimeType > > multiArcPropagatorSettings,
+            const std::shared_ptr< HybridArcPropagatorOutputSettings > outputSettings =
+            std::make_shared< HybridArcPropagatorOutputSettings >( ) ):
         PropagatorSettings< StateScalarType >(
             Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( 0 ), false ),
         singleArcPropagatorSettings_( singleArcPropagatorSettings ),
         multiArcPropagatorSettings_( multiArcPropagatorSettings ),
-        outputSettings_( std::make_shared< PropagatorOutputSettings >( ) )
+        outputSettings_( outputSettings )
     {
         // Set initial states
         this->initialStates_ =
@@ -736,9 +954,11 @@ public:
         this->stateSize_ = this->initialStates_.rows( );
         singleArcStateSize_ = singleArcPropagatorSettings_->getPropagatedStateSize( );
         multiArcStateSize_ = multiArcPropagatorSettings_->getPropagatedStateSize( );
-//        outputSettings_->setResultProcessUpdate(
-//                    std::bind( &HybridArcPropagatorSettings< StateScalarType, TimeType >::makeHybridArcOutputSettingsConsistent, this ) );
-        makeHybridArcOutputSettingsConsistent( );
+
+        outputSettings_->setSingleArcSettings(
+                    singleArcPropagatorSettings->getOutputSettings( ),
+                    multiArcPropagatorSettings->getOutputSettings( ) );
+
     }
 
     //! Function to reset the initial state used as input for numerical integration
@@ -799,12 +1019,12 @@ public:
         multiArcPropagatorSettings_->resetIntegratedStateModels( bodies );
     }
 
-    std::shared_ptr< PropagatorOutputSettings > getOutputSettings( )
+    std::shared_ptr< HybridArcPropagatorOutputSettings > getOutputSettings( )
     {
         return outputSettings_;
     }
 
-    std::shared_ptr< PropagatorOutputSettings > getOutputSettingsWithCheck( )
+    std::shared_ptr< HybridArcPropagatorOutputSettings > getOutputSettingsWithCheck( )
     {
         if( outputSettings_ == nullptr )
         {
@@ -813,28 +1033,14 @@ public:
         return outputSettings_;
     }
 
-//    void setOutputSettings( const std::shared_ptr< PropagatorOutputSettings > outputSettings )
+//    void processHybridArcOutputSettings( const bool clearNumericalSolution, const bool setIntegratedResult )
 //    {
-//        outputSettings_ = outputSettings;
-//        processHybridArcOutputSettings( );
+//        singleArcPropagatorSettings_->getOutputSettingsWithCheck( )->setClearNumericalSolutions( clearNumericalSolution );
+//        multiArcPropagatorSettings_->getOutputSettingsWithCheck( )->setIntegratedResult( setIntegratedResult );
+//        multiArcPropagatorSettings_->processMultiArcOutputSettings( clearNumericalSolution, setIntegratedResult );
 //    }
 
-
-    void processHybridArcOutputSettings( const bool clearNumericalSolution, const bool setIntegratedResult )
-    {
-            singleArcPropagatorSettings_->getOutputSettingsWithCheck( )->setClearNumericalSolutions( clearNumericalSolution );
-            multiArcPropagatorSettings_->getOutputSettingsWithCheck( )->setIntegratedResult( setIntegratedResult );
-            multiArcPropagatorSettings_->processMultiArcOutputSettings( clearNumericalSolution, setIntegratedResult );
-    }
-
 protected:
-
-
-    void makeHybridArcOutputSettingsConsistent( )
-    {
-        processHybridArcOutputSettings(
-            outputSettings_->getClearNumericalSolutions( ), outputSettings_->getSetIntegratedResult( ) );
-    }
 
     //! Settings for single-arc propagation component
     std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > singleArcPropagatorSettings_;
@@ -842,7 +1048,7 @@ protected:
     //! Settings for multi-arc propagation component
     std::shared_ptr< MultiArcPropagatorSettings< StateScalarType, TimeType > > multiArcPropagatorSettings_;
 
-    std::shared_ptr< PropagatorOutputSettings > outputSettings_;
+    std::shared_ptr< HybridArcPropagatorOutputSettings > outputSettings_;
 
     //! Size of total single-arc initial state
     int singleArcStateSize_;
@@ -857,8 +1063,8 @@ std::shared_ptr< HybridArcPropagatorSettings< StateScalarType, TimeType > > hybr
         const std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > singleArcPropagatorSettings,
         const std::shared_ptr< MultiArcPropagatorSettings< StateScalarType, TimeType > > multiArcPropagatorSettings )
 {
-        return std::make_shared< HybridArcPropagatorSettings< StateScalarType, TimeType > >(
-                    singleArcPropagatorSettings, multiArcPropagatorSettings );
+    return std::make_shared< HybridArcPropagatorSettings< StateScalarType, TimeType > >(
+                singleArcPropagatorSettings, multiArcPropagatorSettings );
 }
 
 //! Class for defining settings for propagating translational dynamics.
@@ -887,7 +1093,7 @@ public:
      * \param propagator Type of translational state propagator to be used
      * \param dependentVariablesToSave Settings for the dependent variables that are to be saved during propagation
      * (default none).
-     * \param printInterval Variable indicating how often (once per printInterval_ seconds or propagation independent
+     * \param statePrintInterval Variable indicating how often (once per statePrintInterval_ seconds or propagation independent
      * variable) the current state and time are to be printed to console (default never).
      */
     TranslationalStatePropagatorSettings( const std::vector< std::string >& centralBodies,
@@ -898,9 +1104,9 @@ public:
                                           const TranslationalPropagatorType propagator = cowell,
                                           const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
             std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
-                                          const double printInterval = TUDAT_NAN ):
+                                          const double statePrintInterval = TUDAT_NAN ):
         SingleArcPropagatorSettings< StateScalarType, TimeType >( translational_state, initialBodyStates, terminationSettings,
-                                                        dependentVariablesToSave, printInterval ),
+                                                                  dependentVariablesToSave, statePrintInterval ),
         centralBodies_( centralBodies ),
         bodiesToIntegrate_( bodiesToIntegrate ),
         propagator_( propagator ),
@@ -915,47 +1121,47 @@ public:
                                           const TranslationalPropagatorType propagator = cowell,
                                           const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
             std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
-                                          const std::shared_ptr< PropagatorOutputSettings > outputSettings = std::make_shared< PropagatorOutputSettings >( ) ):
+                                          const std::shared_ptr< SingleArcPropagatorOutputSettings > outputSettings = std::make_shared< SingleArcPropagatorOutputSettings >( ) ):
         SingleArcPropagatorSettings< StateScalarType, TimeType >( translational_state, initialBodyStates, integratorSettings, terminationSettings,
-                                                        dependentVariablesToSave, outputSettings ),
+                                                                  dependentVariablesToSave, outputSettings ),
         centralBodies_( centralBodies ),
         bodiesToIntegrate_( bodiesToIntegrate ),
         propagator_( propagator ),
         accelerationsMap_( accelerationsMap ) { verifyInput( ); }
 
-//    //! Constructor for generic stopping conditions, providing settings to create accelerations map.
-//    /*!
-//     * Constructor for generic stopping conditions, providing settings to create accelerations map.
-//     * \param centralBodies List of bodies w.r.t. which the bodies in bodiesToIntegrate_ are propagated.
-//     * \param accelerationSettingsMap A map containing settings for the accelerations acting on each body, identifying
-//     *  the body being acted on and the body acted on by an acceleration. The map has as key a string denoting
-//     *  the name of the body the list of accelerations, provided as the value corresponding to a key, is acting on.
-//     *  This map-value is again a map with string as key, denoting the body exerting the acceleration, and as value
-//     *  a pointer to an acceleration model.
-//     * \param bodiesToIntegrate List of bodies for which the translational state is to be propagated.
-//     * \param initialBodyStates Initial state used as input for numerical integration
-//     * \param terminationSettings Settings for creating the object that checks whether the propagation is finished.
-//     * \param propagator Type of translational state propagator to be used
-//     * \param dependentVariablesToSave Settings for the dependent variables that are to be saved during propagation
-//     * (default none).
-//     * \param printInterval Variable indicating how often (once per printInterval_ seconds or propagation independenty
-//     * variable) the current state and time are to be printed to console (default never).
-//     */
-//    TranslationalStatePropagatorSettings( const std::vector< std::string >& centralBodies,
-//                                          const simulation_setup::SelectedAccelerationMap& accelerationSettingsMap,
-//                                          const std::vector< std::string >& bodiesToIntegrate,
-//                                          const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyStates,
-//                                          const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
-//                                          const TranslationalPropagatorType propagator = cowell,
-//                                          const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
-//            std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
-//                                          const double printInterval = TUDAT_NAN ):
-//        SingleArcPropagatorSettings< StateScalarType, TimeType >( translational_state, initialBodyStates, terminationSettings,
-//                                                        dependentVariablesToSave, printInterval ),
-//        centralBodies_( centralBodies ),
-//        bodiesToIntegrate_( bodiesToIntegrate ),
-//        propagator_( propagator ),
-//        accelerationSettingsMap_( accelerationSettingsMap ) { verifyInput( ); }
+    //    //! Constructor for generic stopping conditions, providing settings to create accelerations map.
+    //    /*!
+    //     * Constructor for generic stopping conditions, providing settings to create accelerations map.
+    //     * \param centralBodies List of bodies w.r.t. which the bodies in bodiesToIntegrate_ are propagated.
+    //     * \param accelerationSettingsMap A map containing settings for the accelerations acting on each body, identifying
+    //     *  the body being acted on and the body acted on by an acceleration. The map has as key a string denoting
+    //     *  the name of the body the list of accelerations, provided as the value corresponding to a key, is acting on.
+    //     *  This map-value is again a map with string as key, denoting the body exerting the acceleration, and as value
+    //     *  a pointer to an acceleration model.
+    //     * \param bodiesToIntegrate List of bodies for which the translational state is to be propagated.
+    //     * \param initialBodyStates Initial state used as input for numerical integration
+    //     * \param terminationSettings Settings for creating the object that checks whether the propagation is finished.
+    //     * \param propagator Type of translational state propagator to be used
+    //     * \param dependentVariablesToSave Settings for the dependent variables that are to be saved during propagation
+    //     * (default none).
+    //     * \param statePrintInterval Variable indicating how often (once per statePrintInterval_ seconds or propagation independenty
+    //     * variable) the current state and time are to be printed to console (default never).
+    //     */
+    //    TranslationalStatePropagatorSettings( const std::vector< std::string >& centralBodies,
+    //                                          const simulation_setup::SelectedAccelerationMap& accelerationSettingsMap,
+    //                                          const std::vector< std::string >& bodiesToIntegrate,
+    //                                          const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyStates,
+    //                                          const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
+    //                                          const TranslationalPropagatorType propagator = cowell,
+    //                                          const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
+    //            std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
+    //                                          const double statePrintInterval = TUDAT_NAN ):
+    //        SingleArcPropagatorSettings< StateScalarType, TimeType >( translational_state, initialBodyStates, terminationSettings,
+    //                                                        dependentVariablesToSave, statePrintInterval ),
+    //        centralBodies_( centralBodies ),
+    //        bodiesToIntegrate_( bodiesToIntegrate ),
+    //        propagator_( propagator ),
+    //        accelerationSettingsMap_( accelerationSettingsMap ) { verifyInput( ); }
 
     //! Constructor for fixed propagation time stopping conditions, providing an alreay-created accelerations map.
     /*!
@@ -972,7 +1178,7 @@ public:
      * \param propagator Type of translational state propagator to be used
      * \param dependentVariablesToSave Settings for the dependent variables that are to be saved during propagation
      * (default none).
-     * \param printInterval Variable indicating how often (once per printInterval_ seconds or propagation independenty
+     * \param statePrintInterval Variable indicating how often (once per statePrintInterval_ seconds or propagation independenty
      * variable) the current state and time are to be printed to console (default never).
      */
     TranslationalStatePropagatorSettings( const std::vector< std::string >& centralBodies,
@@ -983,49 +1189,49 @@ public:
                                           const TranslationalPropagatorType propagator = cowell,
                                           const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
             std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
-                                          const double printInterval = TUDAT_NAN ):
+                                          const double statePrintInterval = TUDAT_NAN ):
         SingleArcPropagatorSettings< StateScalarType, TimeType >(
             translational_state, initialBodyStates,  std::make_shared< PropagationTimeTerminationSettings >( endTime ),
-            dependentVariablesToSave, printInterval ),
+            dependentVariablesToSave, statePrintInterval ),
         centralBodies_( centralBodies ),
         bodiesToIntegrate_( bodiesToIntegrate ),
         propagator_( propagator ),
         accelerationsMap_( accelerationsMap ) { verifyInput( ); }
 
-//    //! Constructor for fixed propagation time stopping conditions, providing settings to create accelerations map.
-//    /*!
-//     * Constructor for fixed propagation time stopping conditions, providing settings to create accelerations map.
-//     * \param centralBodies List of bodies w.r.t. which the bodies in bodiesToIntegrate_ are propagated.
-//     * \param accelerationSettingsMap A map containing settings for the accelerations acting on each body, identifying
-//     *  the body being acted on and the body acted on by an acceleration. The map has as key a string denoting
-//     *  the name of the body the list of accelerations, provided as the value corresponding to a key, is acting on.
-//     *  This map-value is again a map with string as key, denoting the body exerting the acceleration, and as value
-//     *  a pointer to an acceleration model.
-//     * \param bodiesToIntegrate List of bodies for which the translational state is to be propagated.
-//     * \param initialBodyStates Initial state used as input for numerical integration
-//     * \param endTime Time at which to stop the numerical propagation
-//     * \param propagator Type of translational state propagator to be used
-//     * \param dependentVariablesToSave Settings for the dependent variables that are to be saved during propagation
-//     * (default none).
-//     * \param printInterval Variable indicating how often (once per printInterval_ seconds or propagation independenty
-//     * variable) the current state and time are to be printed to console (default never).
-//     */
-//    TranslationalStatePropagatorSettings( const std::vector< std::string >& centralBodies,
-//                                          const simulation_setup::SelectedAccelerationMap& accelerationSettingsMap,
-//                                          const std::vector< std::string >& bodiesToIntegrate,
-//                                          const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyStates,
-//                                          const double endTime,
-//                                          const TranslationalPropagatorType propagator = cowell,
-//                                          const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
-//            std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
-//                                          const double printInterval = TUDAT_NAN ):
-//        SingleArcPropagatorSettings< StateScalarType, TimeType >(
-//            translational_state, initialBodyStates,  std::make_shared< PropagationTimeTerminationSettings >( endTime ),
-//            dependentVariablesToSave, printInterval ),
-//        centralBodies_( centralBodies ),
-//        bodiesToIntegrate_( bodiesToIntegrate ),
-//        propagator_( propagator ),
-//        accelerationSettingsMap_( accelerationSettingsMap ) { verifyInput( ); }
+    //    //! Constructor for fixed propagation time stopping conditions, providing settings to create accelerations map.
+    //    /*!
+    //     * Constructor for fixed propagation time stopping conditions, providing settings to create accelerations map.
+    //     * \param centralBodies List of bodies w.r.t. which the bodies in bodiesToIntegrate_ are propagated.
+    //     * \param accelerationSettingsMap A map containing settings for the accelerations acting on each body, identifying
+    //     *  the body being acted on and the body acted on by an acceleration. The map has as key a string denoting
+    //     *  the name of the body the list of accelerations, provided as the value corresponding to a key, is acting on.
+    //     *  This map-value is again a map with string as key, denoting the body exerting the acceleration, and as value
+    //     *  a pointer to an acceleration model.
+    //     * \param bodiesToIntegrate List of bodies for which the translational state is to be propagated.
+    //     * \param initialBodyStates Initial state used as input for numerical integration
+    //     * \param endTime Time at which to stop the numerical propagation
+    //     * \param propagator Type of translational state propagator to be used
+    //     * \param dependentVariablesToSave Settings for the dependent variables that are to be saved during propagation
+    //     * (default none).
+    //     * \param statePrintInterval Variable indicating how often (once per statePrintInterval_ seconds or propagation independenty
+    //     * variable) the current state and time are to be printed to console (default never).
+    //     */
+    //    TranslationalStatePropagatorSettings( const std::vector< std::string >& centralBodies,
+    //                                          const simulation_setup::SelectedAccelerationMap& accelerationSettingsMap,
+    //                                          const std::vector< std::string >& bodiesToIntegrate,
+    //                                          const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyStates,
+    //                                          const double endTime,
+    //                                          const TranslationalPropagatorType propagator = cowell,
+    //                                          const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
+    //            std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
+    //                                          const double statePrintInterval = TUDAT_NAN ):
+    //        SingleArcPropagatorSettings< StateScalarType, TimeType >(
+    //            translational_state, initialBodyStates,  std::make_shared< PropagationTimeTerminationSettings >( endTime ),
+    //            dependentVariablesToSave, statePrintInterval ),
+    //        centralBodies_( centralBodies ),
+    //        bodiesToIntegrate_( bodiesToIntegrate ),
+    //        propagator_( propagator ),
+    //        accelerationSettingsMap_( accelerationSettingsMap ) { verifyInput( ); }
 
     //! Destructor
     ~TranslationalStatePropagatorSettings( ){ }
@@ -1140,11 +1346,11 @@ translationalStatePropagatorSettings(
         const TranslationalPropagatorType propagator = cowell,
         const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >& dependentVariablesToSave =
         std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
-        const double printInterval = TUDAT_NAN )
+        const double statePrintInterval = TUDAT_NAN )
 {
     return std::make_shared< TranslationalStatePropagatorSettings < StateScalarType > >(
                 centralBodies, accelerationsMap, bodiesToIntegrate, initialBodyStates,
-                terminationSettings, propagator, dependentVariablesToSave, printInterval );
+                terminationSettings, propagator, dependentVariablesToSave, statePrintInterval );
 }
 
 //! Class for defining settings for propagating rotational dynamics.
@@ -1164,7 +1370,7 @@ public:
      * \param propagator Type of rotational state propagator to be used.
      * \param dependentVariablesToSave Settings for the dependent variables that are to be saved during propagation
      * (default none).
-     * \param printInterval Variable indicating how often (once per printInterval_ seconds or propagation independenty
+     * \param statePrintInterval Variable indicating how often (once per statePrintInterval_ seconds or propagation independenty
      * variable) the current state and time are to be printed to console (default never).
      *
      */
@@ -1175,9 +1381,9 @@ public:
                                        const RotationalPropagatorType propagator = quaternions,
                                        const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
             std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
-                                       const double printInterval = TUDAT_NAN ):
+                                       const double statePrintInterval = TUDAT_NAN ):
         SingleArcPropagatorSettings< StateScalarType, TimeType >( rotational_state, initialBodyStates, terminationSettings,
-                                                        dependentVariablesToSave, printInterval ),
+                                                                  dependentVariablesToSave, statePrintInterval ),
         bodiesToIntegrate_( bodiesToIntegrate ), propagator_( propagator ), torqueModelMap_( torqueModelMap )
     { verifyInput( ); }
 
@@ -1189,38 +1395,39 @@ public:
                                        const RotationalPropagatorType propagator = quaternions,
                                        const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
             std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
-                                       const std::shared_ptr< PropagatorOutputSettings > outputSettings = std::make_shared< PropagatorOutputSettings >( ) ):
+                                       const std::shared_ptr< SingleArcPropagatorOutputSettings > outputSettings =
+            std::make_shared< SingleArcPropagatorOutputSettings >( ) ):
         SingleArcPropagatorSettings< StateScalarType, TimeType >( rotational_state, initialBodyStates, integratorSettings, terminationSettings,
-                                                        dependentVariablesToSave, outputSettings ),
+                                                                  dependentVariablesToSave, outputSettings ),
         bodiesToIntegrate_( bodiesToIntegrate ), propagator_( propagator ), torqueModelMap_( torqueModelMap )
     { verifyInput( ); }
 
-//    //! Constructor with settings for torque models.
-//    /*!
-//     * Constructor with settings for torque models.
-//     * \param torqueSettingsMap List of settings for torque models that are to be used in propagation
-//     * \param bodiesToIntegrate List of bodies that are to be propagated numerically.
-//     * \param initialBodyStates Initial state used as input for numersical integration
-//     * \param terminationSettings Settings for creating the object that checks whether the propagation is finished.
-//     * \param propagator Type of rotational state propagator to be used.
-//     * \param dependentVariablesToSave Settings for the dependent variables that are to be saved during propagation
-//     * (default none).
-//     * \param printInterval Variable indicating how often (once per printInterval_ seconds or propagation independenty
-//     * variable) the current state and time are to be printed to console (default never).
-//     *
-//     */
-//    RotationalStatePropagatorSettings( const simulation_setup::SelectedTorqueMap& torqueSettingsMap,
-//                                       const std::vector< std::string >& bodiesToIntegrate,
-//                                       const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyStates,
-//                                       const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
-//                                       const RotationalPropagatorType propagator = quaternions,
-//                                       const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
-//            std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
-//                                       const double printInterval = TUDAT_NAN ):
-//        SingleArcPropagatorSettings< StateScalarType, TimeType >( rotational_state, initialBodyStates, terminationSettings,
-//                                                        dependentVariablesToSave, printInterval ),
-//        bodiesToIntegrate_( bodiesToIntegrate ), propagator_( propagator ), torqueSettingsMap_( torqueSettingsMap )
-//    { verifyInput( ); }
+    //    //! Constructor with settings for torque models.
+    //    /*!
+    //     * Constructor with settings for torque models.
+    //     * \param torqueSettingsMap List of settings for torque models that are to be used in propagation
+    //     * \param bodiesToIntegrate List of bodies that are to be propagated numerically.
+    //     * \param initialBodyStates Initial state used as input for numersical integration
+    //     * \param terminationSettings Settings for creating the object that checks whether the propagation is finished.
+    //     * \param propagator Type of rotational state propagator to be used.
+    //     * \param dependentVariablesToSave Settings for the dependent variables that are to be saved during propagation
+    //     * (default none).
+    //     * \param statePrintInterval Variable indicating how often (once per statePrintInterval_ seconds or propagation independenty
+    //     * variable) the current state and time are to be printed to console (default never).
+    //     *
+    //     */
+    //    RotationalStatePropagatorSettings( const simulation_setup::SelectedTorqueMap& torqueSettingsMap,
+    //                                       const std::vector< std::string >& bodiesToIntegrate,
+    //                                       const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyStates,
+    //                                       const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
+    //                                       const RotationalPropagatorType propagator = quaternions,
+    //                                       const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
+    //            std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
+    //                                       const double statePrintInterval = TUDAT_NAN ):
+    //        SingleArcPropagatorSettings< StateScalarType, TimeType >( rotational_state, initialBodyStates, terminationSettings,
+    //                                                        dependentVariablesToSave, statePrintInterval ),
+    //        bodiesToIntegrate_( bodiesToIntegrate ), propagator_( propagator ), torqueSettingsMap_( torqueSettingsMap )
+    //    { verifyInput( ); }
 
     //! Destructor
     ~RotationalStatePropagatorSettings( ){ }
@@ -1305,11 +1512,11 @@ inline std::shared_ptr< RotationalStatePropagatorSettings< StateScalarType, Time
         const RotationalPropagatorType propagator = quaternions,
         const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
         std::vector<std::shared_ptr<SingleDependentVariableSaveSettings> >(),
-        const double printInterval = TUDAT_NAN)
+        const double statePrintInterval = TUDAT_NAN)
 {
     return std::make_shared< RotationalStatePropagatorSettings< StateScalarType, TimeType > >(
                 torqueModelMap, bodiesToIntegrate, initialBodyStates, terminationSettings, propagator,
-                dependentVariablesToSave, printInterval );
+                dependentVariablesToSave, statePrintInterval );
 }
 
 template< typename StateScalarType = double, typename TimeType = double >
@@ -1322,12 +1529,12 @@ inline std::shared_ptr< RotationalStatePropagatorSettings< StateScalarType, Time
         const RotationalPropagatorType propagator = quaternions,
         const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
         std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
-        const double printInterval = TUDAT_NAN )
+        const double statePrintInterval = TUDAT_NAN )
 {
     return std::make_shared< RotationalStatePropagatorSettings< StateScalarType, TimeType > >(
                 torqueModelMap, bodiesToIntegrate, initialBodyStates,
                 std::make_shared< PropagationTimeTerminationSettings >( finalTime ), propagator,
-                dependentVariablesToSave, printInterval );
+                dependentVariablesToSave, statePrintInterval );
 }
 
 //template< typename StateScalarType = double, typename TimeType = double >
@@ -1340,11 +1547,11 @@ inline std::shared_ptr< RotationalStatePropagatorSettings< StateScalarType, Time
 //        const RotationalPropagatorType propagator = quaternions,
 //        const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
 //        std::vector<std::shared_ptr<SingleDependentVariableSaveSettings> >(),
-//        const double printInterval = TUDAT_NAN)
+//        const double statePrintInterval = TUDAT_NAN)
 //{
 //    return std::make_shared< RotationalStatePropagatorSettings< StateScalarType, TimeType > >(
 //                torqueSettingsMap, bodiesToIntegrate, initialBodyStates, terminationSettings, propagator,
-//                dependentVariablesToSave, printInterval );
+//                dependentVariablesToSave, statePrintInterval );
 //}
 
 //template< typename StateScalarType = double, typename TimeType = double >
@@ -1357,12 +1564,12 @@ inline std::shared_ptr< RotationalStatePropagatorSettings< StateScalarType, Time
 //        const RotationalPropagatorType propagator = quaternions,
 //        const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
 //        std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
-//        const double printInterval = TUDAT_NAN )
+//        const double statePrintInterval = TUDAT_NAN )
 //{
 //    return std::make_shared< RotationalStatePropagatorSettings< StateScalarType, TimeType > >(
 //                torqueSettingsMap, bodiesToIntegrate, initialBodyStates,
 //                std::make_shared< PropagationTimeTerminationSettings >( finalTime ), propagator,
-//                dependentVariablesToSave, printInterval );
+//                dependentVariablesToSave, statePrintInterval );
 //}
 
 
@@ -1385,7 +1592,7 @@ public:
      * \param terminationSettings Settings for creating the object that checks whether the propagation is finished.
      * \param dependentVariablesToSave Settings for the dependent variables that are to be saved during propagation
      * (default none).
-     * \param printInterval Variable indicating how often (once per printInterval_ seconds or propagation independenty
+     * \param statePrintInterval Variable indicating how often (once per statePrintInterval_ seconds or propagation independenty
      * variable) the current state and time are to be printed to console (default never).
      */
     MassPropagatorSettings(
@@ -1395,9 +1602,9 @@ public:
             const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
             const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
             std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
-            const double printInterval = TUDAT_NAN ):
+            const double statePrintInterval = TUDAT_NAN ):
         SingleArcPropagatorSettings< StateScalarType, TimeType >( body_mass_state, initialBodyMasses, terminationSettings,
-                                                        dependentVariablesToSave, printInterval ),
+                                                                  dependentVariablesToSave, statePrintInterval ),
         bodiesWithMassToPropagate_( bodiesWithMassToPropagate )
     {
         for( std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > >::const_iterator
@@ -1416,7 +1623,7 @@ public:
      * \param terminationSettings Settings for creating the object that checks whether the propagation is finished.
      * \param dependentVariablesToSave Settings for the dependent variables that are to be saved during propagation
      * (default none).
-     * \param printInterval Variable indicating how often (once per printInterval_ seconds or propagation independenty
+     * \param statePrintInterval Variable indicating how often (once per statePrintInterval_ seconds or propagation independenty
      * variable) the current state and time are to be printed to console (default never).
      */
     MassPropagatorSettings(
@@ -1427,9 +1634,9 @@ public:
             const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
             const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
             std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
-            const double printInterval = TUDAT_NAN ):
+            const double statePrintInterval = TUDAT_NAN ):
         SingleArcPropagatorSettings< StateScalarType, TimeType >( body_mass_state, initialBodyMasses, terminationSettings,
-                                                        dependentVariablesToSave, printInterval ),
+                                                                  dependentVariablesToSave, statePrintInterval ),
         bodiesWithMassToPropagate_( bodiesWithMassToPropagate ), massRateModels_( massRateModels )
     { verifyInput( ); }
 
@@ -1442,36 +1649,37 @@ public:
             const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
             const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
             std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
-            const std::shared_ptr< PropagatorOutputSettings > outputSettings = std::make_shared< PropagatorOutputSettings >( ) ):
+            const std::shared_ptr< SingleArcPropagatorOutputSettings > outputSettings =
+            std::make_shared< SingleArcPropagatorOutputSettings >( ) ):
         SingleArcPropagatorSettings< StateScalarType, TimeType >( body_mass_state, initialBodyMasses, integratorSettings, terminationSettings,
-                                                        dependentVariablesToSave, outputSettings ),
+                                                                  dependentVariablesToSave, outputSettings ),
         bodiesWithMassToPropagate_( bodiesWithMassToPropagate ), massRateModels_( massRateModels )
     { verifyInput( ); }
 
-//    //! Constructor of mass state propagator settings, with settings for mass rate models.
-//    /*!
-//     * Constructor  of mass state propagator settings, with settings for mass rate models.
-//     * \param bodiesWithMassToPropagate List of bodies for which the mass is to be propagated.
-//     * \param massRateSettings List of settings for mass rate models per propagated body.
-//     * \param initialBodyMasses Initial masses used as input for numerical integration.
-//     * \param terminationSettings Settings for creating the object that checks whether the propagation is finished.
-//     * \param dependentVariablesToSave Settings for the dependent variables that are to be saved during propagation
-//     * (default none).
-//     * \param printInterval Variable indicating how often (once per printInterval_ seconds or propagation independenty
-//     * variable) the current state and time are to be printed to console (default never).
-//     */
-//    MassPropagatorSettings(
-//            const std::vector< std::string > bodiesWithMassToPropagate,
-//            const simulation_setup::SelectedMassRateModelMap& massRateSettings,
-//            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyMasses,
-//            const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
-//            const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
-//            std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
-//            const double printInterval = TUDAT_NAN ):
-//        SingleArcPropagatorSettings< StateScalarType, TimeType >( body_mass_state, initialBodyMasses, terminationSettings,
-//                                                        dependentVariablesToSave, printInterval ),
-//        bodiesWithMassToPropagate_( bodiesWithMassToPropagate ), massRateSettingsMap_( massRateSettings )
-//    { verifyInput( ); }
+    //    //! Constructor of mass state propagator settings, with settings for mass rate models.
+    //    /*!
+    //     * Constructor  of mass state propagator settings, with settings for mass rate models.
+    //     * \param bodiesWithMassToPropagate List of bodies for which the mass is to be propagated.
+    //     * \param massRateSettings List of settings for mass rate models per propagated body.
+    //     * \param initialBodyMasses Initial masses used as input for numerical integration.
+    //     * \param terminationSettings Settings for creating the object that checks whether the propagation is finished.
+    //     * \param dependentVariablesToSave Settings for the dependent variables that are to be saved during propagation
+    //     * (default none).
+    //     * \param statePrintInterval Variable indicating how often (once per statePrintInterval_ seconds or propagation independenty
+    //     * variable) the current state and time are to be printed to console (default never).
+    //     */
+    //    MassPropagatorSettings(
+    //            const std::vector< std::string > bodiesWithMassToPropagate,
+    //            const simulation_setup::SelectedMassRateModelMap& massRateSettings,
+    //            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyMasses,
+    //            const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
+    //            const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
+    //            std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
+    //            const double statePrintInterval = TUDAT_NAN ):
+    //        SingleArcPropagatorSettings< StateScalarType, TimeType >( body_mass_state, initialBodyMasses, terminationSettings,
+    //                                                        dependentVariablesToSave, statePrintInterval ),
+    //        bodiesWithMassToPropagate_( bodiesWithMassToPropagate ), massRateSettingsMap_( massRateSettings )
+    //    { verifyInput( ); }
 
     //! List of bodies for which the mass is to be propagated.
     std::vector< std::string > bodiesWithMassToPropagate_;
@@ -1550,33 +1758,33 @@ private:
 
 template< typename StateScalarType = double, typename TimeType = double >
 inline std::shared_ptr< MassPropagatorSettings< StateScalarType, TimeType > > massPropagatorSettings(
-		const std::vector< std::string > bodiesWithMassToPropagate,
-		const std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > >& massRateModels,
-		const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyMasses,
-		const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
+        const std::vector< std::string > bodiesWithMassToPropagate,
+        const std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > >& massRateModels,
+        const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyMasses,
+        const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
         const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
         std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
-		const double printInterval = TUDAT_NAN )
+        const double statePrintInterval = TUDAT_NAN )
 {
     return std::make_shared< MassPropagatorSettings< StateScalarType, TimeType > >(bodiesWithMassToPropagate,
-			  massRateModels, initialBodyMasses, terminationSettings, dependentVariablesToSave,
-			  printInterval);
+                                                                                   massRateModels, initialBodyMasses, terminationSettings, dependentVariablesToSave,
+                                                                                   statePrintInterval);
 }
 
 template< typename StateScalarType = double, typename TimeType = double >
 inline std::shared_ptr< MassPropagatorSettings< StateScalarType, TimeType > > massPropagatorSettings(
-		const std::vector< std::string > bodiesWithMassToPropagate,
-		const std::map< std::string, std::vector< std::shared_ptr< basic_astrodynamics::MassRateModel > > >&
-				massRateModels,
-		const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyMasses,
-		const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
+        const std::vector< std::string > bodiesWithMassToPropagate,
+        const std::map< std::string, std::vector< std::shared_ptr< basic_astrodynamics::MassRateModel > > >&
+        massRateModels,
+        const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyMasses,
+        const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
         const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
-                std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
-		const double printInterval = TUDAT_NAN )
+        std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
+        const double statePrintInterval = TUDAT_NAN )
 {
     return std::make_shared< MassPropagatorSettings< StateScalarType, TimeType > >(bodiesWithMassToPropagate,
-			 massRateModels, initialBodyMasses, terminationSettings, dependentVariablesToSave,
-			 printInterval);
+                                                                                   massRateModels, initialBodyMasses, terminationSettings, dependentVariablesToSave,
+                                                                                   statePrintInterval);
 }
 
 //template< typename StateScalarType = double, typename TimeType = double >
@@ -1588,11 +1796,11 @@ inline std::shared_ptr< MassPropagatorSettings< StateScalarType, TimeType > > ma
 //		const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
 //        const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
 //                std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
-//		const double printInterval = TUDAT_NAN )
+//		const double statePrintInterval = TUDAT_NAN )
 //{
 //	return std::make_shared< MassPropagatorSettings< StateScalarType, TimeType > >(bodiesWithMassToPropagate,
 //			 massRateSettings, initialBodyMasses, terminationSettings, dependentVariablesToSave,
-//			 printInterval);
+//			 statePrintInterval);
 //}
 
 //template< typename StateScalarType = double, typename TimeType = double >
@@ -1605,11 +1813,11 @@ inline std::shared_ptr< MassPropagatorSettings< StateScalarType, TimeType > > ma
 //        const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
 //        const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
 //                std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
-//        const double printInterval = TUDAT_NAN )
+//        const double statePrintInterval = TUDAT_NAN )
 //{
 //    return std::make_shared< MassPropagatorSettings< StateScalarType, TimeType > >(bodiesWithMassToPropagate,
 //             massRateModels, initialBodyMasses, terminationSettings, dependentVariablesToSave,
-//             printInterval);
+//             statePrintInterval);
 //}
 
 //template< typename StateScalarType = double, typename TimeType = double >
@@ -1621,11 +1829,11 @@ inline std::shared_ptr< MassPropagatorSettings< StateScalarType, TimeType > > ma
 //        const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
 //        const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
 //                std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
-//        const double printInterval = TUDAT_NAN )
+//        const double statePrintInterval = TUDAT_NAN )
 //{
 //    return std::make_shared< MassPropagatorSettings< StateScalarType, TimeType > >(bodiesWithMassToPropagate,
 //             massRateSettings, initialBodyMasses, terminationSettings, dependentVariablesToSave,
-//             printInterval);
+//             statePrintInterval);
 //}
 
 //! Function to evaluate a floating point state-derivative function as though it was a vector state function
@@ -1672,7 +1880,7 @@ public:
      * \param terminationSettings Settings for creating the object that checks whether the propagation is finished.
      * \param dependentVariablesToSave Settings for the dependent variables that are to be saved during propagation
      * (default none).
-     * \param printInterval Variable indicating how often (once per printInterval_ seconds or propagation independenty
+     * \param statePrintInterval Variable indicating how often (once per statePrintInterval_ seconds or propagation independenty
      * variable) the current state and time are to be printed to console (default never).
      */
     CustomStatePropagatorSettings(
@@ -1681,10 +1889,10 @@ public:
             const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
             const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
             std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
-            const double printInterval = TUDAT_NAN ):
+            const double statePrintInterval = TUDAT_NAN ):
         SingleArcPropagatorSettings< StateScalarType, TimeType >(
             custom_state, ( StateVectorType( 1 ) << initialState ).finished( ), terminationSettings,
-            dependentVariablesToSave, printInterval ),
+            dependentVariablesToSave, statePrintInterval ),
         stateDerivativeFunction_( std::bind( &convertScalarToVectorStateFunction< StateScalarType, TimeType >,
                                              stateDerivativeFunction, std::placeholders::_1, std::placeholders::_2 ) ), stateSize_( 1 )
     { }
@@ -1697,7 +1905,7 @@ public:
      * \param terminationSettings Settings for creating the object that checks whether the propagation is finished.
      * \param dependentVariablesToSave Settings for the dependent variables that are to be saved during propagation
      * (default none).
-     * \param printInterval Variable indicating how often (once per printInterval_ seconds or propagation independenty
+     * \param statePrintInterval Variable indicating how often (once per statePrintInterval_ seconds or propagation independenty
      * variable) the current state and time are to be printed to console (default never).
      */
     CustomStatePropagatorSettings(
@@ -1706,9 +1914,9 @@ public:
             const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
             const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
             std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
-            const double printInterval = TUDAT_NAN ):
+            const double statePrintInterval = TUDAT_NAN ):
         SingleArcPropagatorSettings< StateScalarType, TimeType >( custom_state, initialState, terminationSettings,
-                                                        dependentVariablesToSave, printInterval ),
+                                                                  dependentVariablesToSave, statePrintInterval ),
         stateDerivativeFunction_( stateDerivativeFunction ), stateSize_( initialState.rows( ) ){ }
 
     CustomStatePropagatorSettings(
@@ -1718,9 +1926,10 @@ public:
             const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
             const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
             std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
-            const std::shared_ptr< PropagatorOutputSettings > outputSettings = std::make_shared< PropagatorOutputSettings >( ) ):
+            const std::shared_ptr< SingleArcPropagatorOutputSettings > outputSettings =
+            std::make_shared< SingleArcPropagatorOutputSettings >( ) ):
         SingleArcPropagatorSettings< StateScalarType, TimeType >( custom_state, initialState, integratorSettings, terminationSettings,
-                                                        dependentVariablesToSave, outputSettings ),
+                                                                  dependentVariablesToSave, outputSettings ),
         stateDerivativeFunction_( stateDerivativeFunction ), stateSize_( initialState.rows( ) ){ }
 
     //! Destructor
@@ -1751,11 +1960,11 @@ customStatePropagatorSettings(
         const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialState,
         const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
         const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
-                std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
-        const double printInterval = TUDAT_NAN  )
+        std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
+        const double statePrintInterval = TUDAT_NAN  )
 {
     return std::make_shared< CustomStatePropagatorSettings < StateScalarType > >(
-                stateDerivativeFunction, initialState, terminationSettings, dependentVariablesToSave, printInterval );
+                stateDerivativeFunction, initialState, terminationSettings, dependentVariablesToSave, statePrintInterval );
 }
 
 
@@ -1978,7 +2187,7 @@ public:
      * \param terminationSettings Settings for creating the object that checks whether the propagation is finished.
      * \param dependentVariablesToSave Settings for the dependent variables that are to be saved during propagation
      * (default none).
-     * \param printInterval Variable indicating how often (once per printInterval_ seconds or propagation independenty
+     * \param statePrintInterval Variable indicating how often (once per statePrintInterval_ seconds or propagation independenty
      * variable) the current state and time are to be printed to console (default never).
      */
     MultiTypePropagatorSettings(
@@ -1987,10 +2196,10 @@ public:
             const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
             const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
             std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
-            const double printInterval = TUDAT_NAN ):
+            const double statePrintInterval = TUDAT_NAN ):
         SingleArcPropagatorSettings< StateScalarType, TimeType >(
             hybrid, createCombinedInitialState< StateScalarType >( propagatorSettingsMap ),
-            terminationSettings, dependentVariablesToSave, printInterval ),
+            terminationSettings, dependentVariablesToSave, statePrintInterval ),
         propagatorSettingsMap_( propagatorSettingsMap )
     {
         this->stateSize_ = getMultiTypePropagatorStateSize( propagatorSettingsMap_ );
@@ -2003,7 +2212,7 @@ public:
      * \param terminationSettings Settings for creating the object that checks whether the propagation is finished.
      * \param dependentVariablesToSave Settings for the dependent variables that are to be saved during propagation
      * (default none).
-     * \param printInterval Variable indicating how often (once per printInterval_ seconds or propagation independenty
+     * \param statePrintInterval Variable indicating how often (once per statePrintInterval_ seconds or propagation independenty
      * variable) the current state and time are to be printed to console (default never).
      */
     MultiTypePropagatorSettings(
@@ -2011,10 +2220,10 @@ public:
             const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
             const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
             std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
-            const double printInterval = TUDAT_NAN ):
+            const double statePrintInterval = TUDAT_NAN ):
         SingleArcPropagatorSettings< StateScalarType, TimeType >(
             hybrid, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( 0 ),
-            terminationSettings, dependentVariablesToSave, printInterval )
+            terminationSettings, dependentVariablesToSave, statePrintInterval )
     {
         for( unsigned int i = 0; i < propagatorSettingsVector.size( ); i++ )
         {
@@ -2033,7 +2242,8 @@ public:
             const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
             const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
             std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
-            const std::shared_ptr< PropagatorOutputSettings > outputSettings = std::make_shared< PropagatorOutputSettings >( ) ):
+            const std::shared_ptr< SingleArcPropagatorOutputSettings > outputSettings =
+            std::make_shared< SingleArcPropagatorOutputSettings >( ) ):
         SingleArcPropagatorSettings< StateScalarType, TimeType >(
             hybrid, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( 0 ), integratorSettings,
             terminationSettings, dependentVariablesToSave, outputSettings )
@@ -2102,22 +2312,22 @@ public:
     }
 
     std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > getSingleTypePropagatorSettings(
-              const IntegratedStateType stateType )
-      {
-          if( propagatorSettingsMap_.count( stateType ) == 0 )
-          {
-              throw std::runtime_error( "Error when requesting propagator settings of type " +
-                                        std::to_string( stateType ) + " from multi-type settings, no such settings found" );
-          }
+            const IntegratedStateType stateType )
+    {
+        if( propagatorSettingsMap_.count( stateType ) == 0 )
+        {
+            throw std::runtime_error( "Error when requesting propagator settings of type " +
+                                      std::to_string( stateType ) + " from multi-type settings, no such settings found" );
+        }
 
-          if( propagatorSettingsMap_.count( stateType ) != 1 )
-          {
-              throw std::runtime_error( "Error when requesting propagator settings of type " +
-                                        std::to_string( stateType ) + " from multi-type settings, multiple settings of given type found" );
-          }
+        if( propagatorSettingsMap_.count( stateType ) != 1 )
+        {
+            throw std::runtime_error( "Error when requesting propagator settings of type " +
+                                      std::to_string( stateType ) + " from multi-type settings, multiple settings of given type found" );
+        }
 
-          return propagatorSettingsMap_.at( stateType ).at( 0 );
-      }
+        return propagatorSettingsMap_.at( stateType ).at( 0 );
+    }
 
     //! List of propagator settings to use
     /*!
@@ -2194,28 +2404,28 @@ public:
 template< typename StateScalarType = double, typename TimeType = double >
 
 inline std::shared_ptr< MultiTypePropagatorSettings< StateScalarType, TimeType > > multiTypePropagatorSettings(
-		const std::map< IntegratedStateType,
+        const std::map< IntegratedStateType,
         std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > > > propagatorSettingsMap,
-		const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
+        const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
         const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
         std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
-		const double printInterval = TUDAT_NAN )
+        const double statePrintInterval = TUDAT_NAN )
 {
     return std::make_shared< MultiTypePropagatorSettings< StateScalarType, TimeType > >(
-			propagatorSettingsMap, terminationSettings, dependentVariablesToSave, printInterval );
+                propagatorSettingsMap, terminationSettings, dependentVariablesToSave, statePrintInterval );
 }
 
 template< typename StateScalarType = double, typename TimeType = double >
 
 inline std::shared_ptr< MultiTypePropagatorSettings< StateScalarType, TimeType > > multiTypePropagatorSettings(
         const std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > > propagatorSettingsVector,
-		const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
+        const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
         const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
         std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
-		const double printInterval = TUDAT_NAN )
+        const double statePrintInterval = TUDAT_NAN )
 {
     return std::make_shared< MultiTypePropagatorSettings< StateScalarType, TimeType > >(
-			propagatorSettingsVector, terminationSettings, dependentVariablesToSave, printInterval );
+                propagatorSettingsVector, terminationSettings, dependentVariablesToSave, statePrintInterval );
 }
 
 //template< typename StateScalarType = double, typename TimeType = double >
@@ -2225,11 +2435,11 @@ inline std::shared_ptr< MultiTypePropagatorSettings< StateScalarType, TimeType >
 //        const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
 //        const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
 //                std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
-//        const double printInterval = TUDAT_NAN )
+//        const double statePrintInterval = TUDAT_NAN )
 //{
 //    return std::make_shared< MultiTypePropagatorSettings< StateScalarType, TimeType > >(
 //            propagatorSettingsVector, terminationSettings, dependentVariablesToSave,
-//                printInterval );
+//                statePrintInterval );
 //}
 
 template< typename StateScalarType = double, typename TimeType = double >
@@ -2238,13 +2448,13 @@ inline std::shared_ptr< MultiTypePropagatorSettings< StateScalarType, TimeType >
         const std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > > propagatorSettingsVector,
         const double finalTime,
         const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
-                std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
-        const double printInterval = TUDAT_NAN )
+        std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
+        const double statePrintInterval = TUDAT_NAN )
 {
     return std::make_shared< MultiTypePropagatorSettings< StateScalarType, TimeType > >(
-            propagatorSettingsVector, std::make_shared< PropagationTimeTerminationSettings >( finalTime ),
+                propagatorSettingsVector, std::make_shared< PropagationTimeTerminationSettings >( finalTime ),
                 dependentVariablesToSave,
-                printInterval );
+                statePrintInterval );
 }
 
 
@@ -2529,19 +2739,17 @@ void toggleIntegratedResultSettings(
     if( std::dynamic_pointer_cast< propagators::SingleArcPropagatorSettings< StateScalarType > >( propagatorSettings ) != nullptr )
     {
         std::dynamic_pointer_cast< propagators::SingleArcPropagatorSettings< StateScalarType > >(
-                    propagatorSettings )->getOutputSettings( )->setIntegratedResult = true;
+                    propagatorSettings )->getOutputSettings( )->setIntegratedResult( true );
     }
     else if( std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< StateScalarType > >( propagatorSettings ) != nullptr )
     {
         std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< StateScalarType > >(
-                    propagatorSettings )->getOutputSettings( )->setIntegratedResult = true;
+                    propagatorSettings )->getOutputSettings( )->setIntegratedResult( true );
     }
     else if( std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< StateScalarType > >( propagatorSettings ) != nullptr )
     {
         std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< StateScalarType > >(
-                    propagatorSettings )->getSingleArcPropagatorSettings( )->getOutputSettings( )->setIntegratedResult = true;
-        std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< StateScalarType > >(
-                    propagatorSettings )->getMultiArcPropagatorSettings( )->getOutputSettings( )->setIntegratedResult = true;
+                    propagatorSettings )->getOutputSettings( )->setIntegratedResult( true );
     }
     else
     {

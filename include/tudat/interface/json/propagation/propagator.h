@@ -362,9 +362,9 @@ void to_json( nlohmann::json& jsonObject,
             std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > >(
                 multiTypePropagatorSettings->propagatorSettingsMap_ );
     jsonObject[ Keys::termination ] = multiTypePropagatorSettings->getTerminationSettings( );
-    if ( ! isNaN( multiTypePropagatorSettings->getPrintInterval( ) ) )
+    if ( ! isNaN( multiTypePropagatorSettings->getStatePrintInterval( ) ) )
     {
-        jsonObject[ Keys::options ][ Keys::Options::printInterval ] = multiTypePropagatorSettings->getPrintInterval( );
+        jsonObject[ Keys::options ][ Keys::Options::statePrintInterval ] = multiTypePropagatorSettings->getStatePrintInterval( );
     }
 }
 
@@ -427,7 +427,7 @@ void from_json( const nlohmann::json& jsonObject,
                     jsonObject, Keys::propagators ),
                 terminationSettings,
                 std::shared_ptr< DependentVariableSaveSettings >( ),
-                getValue< double >( jsonObject, Keys::options / Keys::Options::printInterval, TUDAT_NAN ) );
+                getValue< double >( jsonObject, Keys::options / Keys::Options::statePrintInterval, TUDAT_NAN ) );
 }
 
 
@@ -471,9 +471,9 @@ void to_json( nlohmann::json& jsonObject,
                 std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > >(
                     multiTypePropagatorSettings->propagatorSettingsMap_ );
         jsonObject[ Keys::termination ] = multiTypePropagatorSettings->getTerminationSettings( );
-        if ( ! isNaN( multiTypePropagatorSettings->getPrintInterval( ) ) )
+        if ( ! isNaN( multiTypePropagatorSettings->getStatePrintInterval( ) ) )
         {
-            jsonObject[ Keys::options ][ Keys::Options::printInterval ] = multiTypePropagatorSettings->getPrintInterval( );
+            jsonObject[ Keys::options ][ Keys::Options::statePrintInterval ] = multiTypePropagatorSettings->getStatePrintInterval( );
         }
     }
     else

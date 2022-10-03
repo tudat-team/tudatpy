@@ -144,8 +144,9 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
     // Create acceleration models and propagation settings.
     AccelerationMap accelerationModelMap = createAccelerationModelsMap(
                 bodies, accelerationMap, centralBodyMap );
-    auto outputSettings = std::make_shared< PropagatorOutputSettings >( ) ;
-    outputSettings->setIntegratedResult = true;
+    std::shared_ptr< SingleArcPropagatorOutputSettings > outputSettings =
+            std::make_shared< SingleArcPropagatorOutputSettings >( );
+    outputSettings->setIntegratedResult( true );
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
             std::make_shared< TranslationalStatePropagatorSettings< double > >
             ( centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState, integratorSettings,

@@ -782,7 +782,7 @@ public:
                         cumulativeComputationTimeHistory,
                         dynamicsSimulator_->getDependentVariablesFunctions( ),
                         statePostProcessingFunction_,
-                        propagatorSettings_->getPrintInterval( ) );
+                        propagatorSettings_->getStatePrintInterval( ) );
             dynamicsSimulator_->setPropagationTerminationReason( propagationTerminationReason );
             simulation_setup::setAreBodiesInPropagation( bodies_, false );
 
@@ -1701,12 +1701,13 @@ public:
             const simulation_setup::SystemOfBodies& bodies,
             const std::shared_ptr< HybridArcPropagatorSettings< StateScalarType, TimeType > > propagatorSettings,
             const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate,
-            const bool integrateEquationsOnCreation = false ):
+            const bool integrateEquationsOnCreation = false,
+            const bool integrateDynamicalAndVariationalEquationsConcurrently = true ):
         VariationalEquationsSolver< StateScalarType, TimeType >(
             bodies, parametersToEstimate, propagatorSettings != nullptr ?
                 propagatorSettings->getOutputSettingsWithCheck( )->getClearNumericalSolutions( ) : false  )
     {
-        propagatorSettings->getOutputSettingsWithCheck( )->setIntegratedResult = false;
+        propagatorSettings->getOutputSettingsWithCheck( )->setIntegratedResult( false );
         initializeHybridArcVariationalEquationsSolver(
                     bodies, propagatorSettings, true, integrateEquationsOnCreation );
     }
@@ -1738,7 +1739,7 @@ public:
         HybridArcVariationalEquationsSolver< StateScalarType, TimeType >(
             bodies,  validateDeprecatedHybridArcSettings< StateScalarType, TimeType >(
                 integratorSettings,  propagatorSettings,  arcStartTimes, clearNumericalSolution, true ),
-            parametersToEstimate, integrateEquationsOnCreation ){ }
+            parametersToEstimate, integrateEquationsOnCreation, integrateDynamicalAndVariationalEquationsConcurrently ){ }
 
     HybridArcVariationalEquationsSolver(
             const simulation_setup::SystemOfBodies& bodies,
@@ -1751,9 +1752,9 @@ public:
             const bool clearNumericalSolution = true,
             const bool integrateEquationsOnCreation = false ):
         HybridArcVariationalEquationsSolver< StateScalarType, TimeType >(
-            bodies,  validateDeprecatedHybridArcSettings< StateScalarType, TimeType >(
+            bodies, validateDeprecatedHybridArcSettings< StateScalarType, TimeType >(
                 singleArcIntegratorSettings,  multiArcIntegratorSettings, propagatorSettings,  arcStartTimes, clearNumericalSolution, true ),
-            parametersToEstimate, integrateEquationsOnCreation ){ }
+            parametersToEstimate, integrateEquationsOnCreation, integrateDynamicalAndVariationalEquationsConcurrently ){ }
 
     void initializeHybridArcVariationalEquationsSolver(
             const simulation_setup::SystemOfBodies& bodies,
@@ -1761,9 +1762,6 @@ public:
             const bool integrateDynamicalAndVariationalEquationsConcurrently,
             const bool integrateEquationsOnCreation )
     {
-        arcStartTimes_ = estimatable_parameters::getMultiArcStateEstimationArcStartTimes(
-                            parametersToEstimate_, false );
-
         // Cast propagator settings to correct type and check validity
         originalPopagatorSettings_ =
                 std::dynamic_pointer_cast< HybridArcPropagatorSettings< StateScalarType > >( propagatorSettings );
@@ -1771,14 +1769,18 @@ public:
         {
             throw std::runtime_error( "Error when making HybridArcVariationalEquationsSolver, input propagation settings are not hybrid arc" );
         }
+
+        // Retrive arc properties
         singleArcInitialTime_ = originalPopagatorSettings_->getSingleArcPropagatorSettings( )->getIntegratorSettings( )->initialTime_;
         int numberOfArcs = originalPopagatorSettings_->getMultiArcPropagatorSettings( )->getNmberOfArcs( );
+        arcStartTimes_ = estimatable_parameters::getMultiArcStateEstimationArcStartTimes(
+                            parametersToEstimate_, false );
 
         // Get input size of single-arc and input multi-arc
         singleArcDynamicsSize_ = originalPopagatorSettings_->getSingleArcPropagatorSettings( )->getConventionalStateSize( );
         originalMultiArcDynamicsSize_ = originalPopagatorSettings_->getMultiArcPropagatorSettings( )->getConventionalStateSize( );
-        originalMultiArcDynamicsSingleArcSize_ = originalPopagatorSettings_->getMultiArcPropagatorSettings( )->getConventionalStateSize( ) /
-                numberOfArcs;
+        originalMultiArcDynamicsSingleArcSize_ =
+                originalPopagatorSettings_->getMultiArcPropagatorSettings( )->getConventionalStateSize( ) / numberOfArcs;
 
         // Create propagator settings with the single arc settings included (at the beginning) in each arc
         std::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > extendedMultiArcSettings =
@@ -1797,22 +1799,22 @@ public:
         // Create multi-arc solver with original parameter set
         std::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > originalMultiArcSettings =
                 originalPopagatorSettings_->getMultiArcPropagatorSettings( );
-        std::shared_ptr< PropagatorOutputSettings > correctedOutputSettings =
-                std::make_shared< PropagatorOutputSettings >( *originalMultiArcSettings->getOutputSettingsWithCheck( ) );
-        correctedOutputSettings->clearNumericalSolutions = false;
-        correctedOutputSettings->setIntegratedResult = false;
-        originalMultiArcSettings->setOutputSettings( correctedOutputSettings );
-        extendedMultiArcSettings->setOutputSettings( correctedOutputSettings );
+
+        originalMultiArcSettings->getOutputSettings( )->setClearNumericalSolutions( false );
+        originalMultiArcSettings->getOutputSettings( )->setIntegratedResult( false );
+
+        extendedMultiArcSettings->getOutputSettings( )->setClearNumericalSolutions( false );
+        extendedMultiArcSettings->getOutputSettings( )->setIntegratedResult( false );
+
 
         originalMultiArcSolver_ = std::make_shared< MultiArcVariationalEquationsSolver< StateScalarType, TimeType > >(
-                    bodies, originalPopagatorSettings_->getMultiArcPropagatorSettings( ), originalMultiArcParametersToEstimate_, false );
+                    bodies, originalPopagatorSettings_->getMultiArcPropagatorSettings( ),
+                    originalMultiArcParametersToEstimate_, false );
 
         // Create variational equations solvers for single- and multi-arc
-//        singleArcIntegratorSettings_->initialTime_ = singleArcInitialTime_;
         singleArcSolver_ = std::make_shared< SingleArcVariationalEquationsSolver< StateScalarType, TimeType > >(
                     bodies, propagatorSettings_->getSingleArcPropagatorSettings( ),
                     singleArcParametersToEstimate_, false );
-
         multiArcSolver_ = std::make_shared< MultiArcVariationalEquationsSolver< StateScalarType, TimeType > >(
                     bodies, extendedMultiArcSettings,
                     multiArcParametersToEstimate_, false );
@@ -2210,29 +2212,29 @@ protected:
 
 };
 
-extern template class VariationalEquationsSolver< double, double >;
-extern template class SingleArcVariationalEquationsSolver< double, double >;
-extern template class MultiArcVariationalEquationsSolver< double, double >;
-extern template class HybridArcVariationalEquationsSolver< double, double >;
+//extern template class VariationalEquationsSolver< double, double >;
+//extern template class SingleArcVariationalEquationsSolver< double, double >;
+//extern template class MultiArcVariationalEquationsSolver< double, double >;
+//extern template class HybridArcVariationalEquationsSolver< double, double >;
 
-#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
-extern template class VariationalEquationsSolver< long double, double >;
-extern template class VariationalEquationsSolver< double, Time >;
-extern template class VariationalEquationsSolver< long double, Time >;
+//#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+//extern template class VariationalEquationsSolver< long double, double >;
+//extern template class VariationalEquationsSolver< double, Time >;
+//extern template class VariationalEquationsSolver< long double, Time >;
 
-extern template class SingleArcVariationalEquationsSolver< long double, double >;
-extern template class SingleArcVariationalEquationsSolver< double, Time >;
-extern template class SingleArcVariationalEquationsSolver< long double, Time >;
+//extern template class SingleArcVariationalEquationsSolver< long double, double >;
+//extern template class SingleArcVariationalEquationsSolver< double, Time >;
+//extern template class SingleArcVariationalEquationsSolver< long double, Time >;
 
-extern template class MultiArcVariationalEquationsSolver< long double, double >;
-extern template class MultiArcVariationalEquationsSolver< double, Time >;
-extern template class MultiArcVariationalEquationsSolver< long double, Time >;
+//extern template class MultiArcVariationalEquationsSolver< long double, double >;
+//extern template class MultiArcVariationalEquationsSolver< double, Time >;
+//extern template class MultiArcVariationalEquationsSolver< long double, Time >;
 
-extern template class HybridArcVariationalEquationsSolver< long double, double >;
-extern template class HybridArcVariationalEquationsSolver< double, Time >;
-extern template class HybridArcVariationalEquationsSolver< long double, Time >;
+//extern template class HybridArcVariationalEquationsSolver< long double, double >;
+//extern template class HybridArcVariationalEquationsSolver< double, Time >;
+//extern template class HybridArcVariationalEquationsSolver< long double, Time >;
 
-#endif
+//#endif
 
 } // namespace propagators
 

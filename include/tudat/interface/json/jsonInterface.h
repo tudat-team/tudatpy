@@ -685,7 +685,7 @@ void to_json( nlohmann::json& jsonObject,
     // options
     jsonObject[ Keys::options ] = jsonSimulationManager->getApplicationOptions( );
 
-    // propagation + termination + options.printInterval
+    // propagation + termination + options.statePrintInterval
     propagators::to_json( jsonObject, std::dynamic_pointer_cast<
                           propagators::SingleArcPropagatorSettings< StateScalarType > >( jsonSimulationManager->getPropagatorSettings( ) ) );
 }

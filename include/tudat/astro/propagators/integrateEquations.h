@@ -464,7 +464,7 @@ void propagateToExactTerminationCondition(
  *  \param statePostProcessingFunction Function to post-process state after numerical integration (obtained from state derivative model).
  *  \param saveFrequency Frequency at which to save the numerical integrated states (in units of i.e. per n integration time
  *  steps, with n = saveFrequency).
- *  \param printInterval Frequency with which to print progress to console (nan = never).
+ *  \param statePrintInterval Frequency with which to print progress to console (nan = never).
  *  \param initialClockTime Initial clock time from which to determine cumulative computation time.
  *  By default now(), i.e. the moment at which this function is called.
  *  \return Event that triggered the termination of the propagation
@@ -480,7 +480,7 @@ std::shared_ptr< PropagationTerminationDetails > integrateEquationsFromIntegrato
         const std::function< Eigen::VectorXd( ) > dependentVariableFunction = std::function< Eigen::VectorXd( ) >( ),
         const std::function< void( StateType& ) > statePostProcessingFunction = std::function< void( StateType& ) >( ),
         const int saveFrequency = TUDAT_NAN,
-        const TimeType printInterval = TUDAT_NAN,
+        const TimeType statePrintInterval = TUDAT_NAN,
         const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ) )
 {
     std::shared_ptr< PropagationTerminationDetails > propagationTerminationReason;
@@ -579,10 +579,10 @@ std::shared_ptr< PropagationTerminationDetails > integrateEquationsFromIntegrato
             cumulativeComputationTimeHistory[ currentTime ] = currentCPUTime;
 
             // Print solutions
-            if( printInterval == printInterval )
+            if( statePrintInterval == statePrintInterval )
             {
                 if( !( previousPrintTime == previousPrintTime ) ||
-                        std::fabs( static_cast< double >( currentTime - previousPrintTime ) ) > printInterval )
+                        std::fabs( static_cast< double >( currentTime - previousPrintTime ) ) > statePrintInterval )
                 {
                     previousPrintTime = currentTime;
                     std::cout << "Current time: "<<currentTime<<"; time since initial time: "<<currentTime - initialTime<<std::endl;
@@ -651,7 +651,7 @@ Eigen::MatrixXd, double, double >(
         const std::function< Eigen::VectorXd( ) > dependentVariableFunction,
         const std::function< void( Eigen::MatrixXd& ) > statePostProcessingFunction,
         const int saveFrequency,
-        const double printInterval,
+        const double statePrintInterval,
         const std::chrono::steady_clock::time_point initialClockTime );
 
 
@@ -666,7 +666,7 @@ Eigen::VectorXd, double, double >(
         const std::function< Eigen::VectorXd( ) > dependentVariableFunction,
         const std::function< void( Eigen::VectorXd& ) > statePostProcessingFunction,
         const int saveFrequency,
-        const double printInterval,
+        const double statePrintInterval,
         const std::chrono::steady_clock::time_point initialClockTime );
 
 
@@ -698,7 +698,7 @@ public:
      *  \param dependentVariableFunction Function returning dependent variables (obtained from environment and state
      *  derivative model).
      *  \param statePostProcessingFunction Function to post-process state after numerical integration (obtained from state derivative model).
-     *  \param printInterval Frequency with which to print progress to console (nan = never).
+     *  \param statePrintInterval Frequency with which to print progress to console (nan = never).
      *  \param initialClockTime Initial clock time from which to determine cumulative computation time.
      *  By default now(), i.e. the moment at which this function is called.
      *  \return Event that triggered the termination of the propagation
@@ -713,7 +713,7 @@ public:
             std::map< TimeType, double >& cumulativeComputationTimeHistory,
             const std::function< Eigen::VectorXd( ) > dependentVariableFunction = std::function< Eigen::VectorXd( ) >( ),
             const std::function< void( StateType& ) > statePostProcessingFunction = std::function< void( StateType& ) >( ),
-            const TimeType printInterval = TUDAT_NAN,
+            const TimeType statePrintInterval = TUDAT_NAN,
             const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ) );
 
 };
@@ -740,7 +740,7 @@ public:
      *  \param dependentVariableFunction Function returning dependent variables (obtained from environment and state
      *  derivative model).
      *  \param statePostProcessingFunction Function to post-process state after numerical integration (obtained from state derivative model).
-     *  \param printInterval Frequency with which to print progress to console (nan = never).
+     *  \param statePrintInterval Frequency with which to print progress to console (nan = never).
      *  \param initialClockTime Initial clock time from which to determine cumulative computation time.
      *  By default now(), i.e. the moment at which this function is called.
      *  \return Event that triggered the termination of the propagation
@@ -755,7 +755,7 @@ public:
             std::map< double, double >& cumulativeComputationTimeHistory,
             const std::function< Eigen::VectorXd( ) > dependentVariableFunction = std::function< Eigen::VectorXd( ) >( ),
             const std::function< void( StateType& ) > statePostProcessingFunction = std::function< void( StateType& ) >( ),
-            const double printInterval = TUDAT_NAN,
+            const double statePrintInterval = TUDAT_NAN,
             const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ) )
     {
         std::function< bool( const double, const double ) > stopPropagationFunction =
@@ -778,7 +778,7 @@ public:
                     dependentVariableFunction,
                     statePostProcessingFunction,
                     integratorSettings->saveFrequency_,
-                    printInterval,
+                    statePrintInterval,
                     initialClockTime );
     }
 
@@ -806,7 +806,7 @@ public:
      *  \param dependentVariableFunction Function returning dependent variables (obtained from environment and state
      *  derivative model).
      *  \param statePostProcessingFunction Function to post-process state after numerical integration (obtained from state derivative model).
-     *  \param printInterval Frequency with which to print progress to console (nan = never).
+     *  \param statePrintInterval Frequency with which to print progress to console (nan = never).
      *  \param initialClockTime Initial clock time from which to determine cumulative computation time.
      *  By default now(), i.e. the moment at which this function is called.
      *  \return Event that triggered the termination of the propagation
@@ -821,7 +821,7 @@ public:
             std::map< Time, double >& cumulativeComputationTimeHistory,
             const std::function< Eigen::VectorXd( ) > dependentVariableFunction = std::function< Eigen::VectorXd( ) >( ),
             const std::function< void( StateType& ) > statePostProcessingFunction = std::function< void( StateType& ) >( ),
-            const Time printInterval = TUDAT_NAN,
+            const Time statePrintInterval = TUDAT_NAN,
             const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ) )
     {
         std::function< bool( const double, const double ) > stopPropagationFunction =
@@ -844,7 +844,7 @@ public:
                     dependentVariableFunction,
                     statePostProcessingFunction,
                     integratorSettings->saveFrequency_,
-                    printInterval,
+                    statePrintInterval,
                     initialClockTime );
     }
 
