@@ -24,6 +24,7 @@
 
 namespace py = pybind11;
 namespace tss = tudat::simulation_setup;
+namespace tpc = tudat::physical_constants;
 
 namespace tudat
 {
@@ -53,6 +54,24 @@ inline std::shared_ptr< GravityFieldSettings > predefinedSphericalHarmonic(
     return std::make_shared< FromFileSphericalHarmonicsGravityFieldSettings >( sphericalHarmonicsModel, maximumDegree );
 }
 
+inline std::shared_ptr< GravityFieldSettings > createHomogeneousTriAxialEllipsoidGravitySettingsDeprecated(
+        const double axisA, const double axisB, const double axisC, const double ellipsoidDensity,
+        const int maximumDegree, const int maximumOrder,
+        const std::string& associatedReferenceFrame,
+        const double gravitationalConstant = tpc::GRAVITATIONAL_CONSTANT )
+{
+    static bool isWarningPrinted = false;
+    if( isWarningPrinted == false )
+    {
+        tudat::utilities::printDeprecationWarning( "tudatpy.numerical_simulation.environment_setup.gravity_field.spherical_harmonic_triaxial_body",
+                             "tudatpy.numerical_simulation.environment_setup.gravity_field.sh_triaxial_ellipsoid_from_density");
+        isWarningPrinted = true;
+    }
+
+    return createHomogeneousTriAxialEllipsoidGravitySettings(
+                axisA, axisB, axisC, ellipsoidDensity, maximumDegree, maximumOrder, associatedReferenceFrame, gravitationalConstant );
+
+}
 
 }
 
@@ -72,11 +91,13 @@ void expose_gravity_field_setup(py::module &m) {
             .value("central_gravity", tss::GravityFieldType::central, get_docstring("GravityFieldType.central_gravity").c_str())
             .value("central_spice_gravity", tss::GravityFieldType::central_spice, get_docstring("GravityFieldType.central_spice_gravity").c_str())
             .value("spherical_harmonic_gravity", tss::GravityFieldType::spherical_harmonic, get_docstring("GravityFieldType.spherical_harmonic_gravity").c_str())
+            .value("polyhedron_gravity", tss::GravityFieldType::polyhedron, get_docstring("GravityFieldType.polyhedron_gravity").c_str())
             .export_values();
+
 
     py::enum_<tss::SphericalHarmonicsModel>(m, "PredefinedSphericalHarmonicsModel",
                                             get_docstring("PredefinedSphericalHarmonicsModel").c_str())
-//            .value("custom_model", tss::SphericalHarmonicsModel::customModel, get_docstring("SphericalHarmonicsModel.custom_model").c_str())
+            //            .value("custom_model", tss::SphericalHarmonicsModel::customModel, get_docstring("SphericalHarmonicsModel.custom_model").c_str())
             .value("egm96", tss::SphericalHarmonicsModel::egm96, get_docstring("PredefinedSphericalHarmonicsModel.egm96").c_str())
             .value("ggm02c", tss::SphericalHarmonicsModel::ggm02c, get_docstring("PredefinedSphericalHarmonicsModel.ggm02c").c_str())
             .value("ggm02s", tss::SphericalHarmonicsModel::ggm02s, get_docstring("PredefinedSphericalHarmonicsModel.ggm02s").c_str())
@@ -141,6 +162,31 @@ void expose_gravity_field_setup(py::module &m) {
                                                          get_docstring("FromFileSphericalHarmonicsGravityFieldSettings").c_str());
 
 
+    py::class_<tss::PolyhedronGravityFieldSettings, std::shared_ptr<tss::PolyhedronGravityFieldSettings>,
+            tss::GravityFieldSettings>(m, "PolyhedronGravityFieldSettings",
+                                       get_docstring("PolyhedronGravityFieldSettings").c_str())
+            .def_property ("gravitational_parameter",
+                           &tss::PolyhedronGravityFieldSettings::getGravitationalParameter,
+                           &tss::PolyhedronGravityFieldSettings::resetGravitationalParameter,
+                           get_docstring("PolyhedronGravityFieldSettings.gravitational_parameter").c_str())
+            .def_property ("density",
+                           &tss::PolyhedronGravityFieldSettings::getDensity,
+                           &tss::PolyhedronGravityFieldSettings::resetDensity,
+                           get_docstring("PolyhedronGravityFieldSettings.density").c_str())
+            .def_property("associated_reference_frame",
+                          &tss::PolyhedronGravityFieldSettings::getAssociatedReferenceFrame,
+                          &tss::PolyhedronGravityFieldSettings::resetAssociatedReferenceFrame,
+                          get_docstring("PolyhedronGravityFieldSettings.associated_reference_frame").c_str())
+            .def_property ("vertices_coordinates",
+                           &tss::PolyhedronGravityFieldSettings::getVerticesCoordinates,
+                           &tss::PolyhedronGravityFieldSettings::resetVerticesCoordinates,
+                           get_docstring("PolyhedronGravityFieldSettings.vertices_coordinates").c_str())
+            .def_property ("vertices_defining_each_facet",
+                           &tss::PolyhedronGravityFieldSettings::getVerticesDefiningEachFacet,
+                           &tss::PolyhedronGravityFieldSettings::resetVerticesDefiningEachFacet,
+                           get_docstring("PolyhedronGravityFieldSettings.vertices_defining_each_facet").c_str());
+
+
     m.def("central",
           &tss::centralGravitySettings,
           py::arg("gravitational_parameter"),
@@ -166,18 +212,6 @@ void expose_gravity_field_setup(py::module &m) {
           get_docstring("spherical_harmonic").c_str()
           );
 
-    m.def("spherical_harmonic_triaxial_body",
-          &tss::createHomogeneousTriAxialEllipsoidGravitySettings,
-          py::arg("axis_a"),
-          py::arg("axis_b"),
-          py::arg("axis_c"),
-          py::arg("density"),
-          py::arg("maximum_degree"),
-          py::arg("maximum_order"),
-          py::arg("associated_reference_frame"),
-          get_docstring("spherical_harmonic_triaxial_body").c_str()
-          );
-
     m.def("predefined_spherical_harmonic",
           tss::fromFileSphericalHarmonicsGravityFieldSettings,
           py::arg("file"),
@@ -195,6 +229,78 @@ void expose_gravity_field_setup(py::module &m) {
           py::arg("maximum_degree") = -1,
           get_docstring("from_file_spherical_harmonic").c_str()
           );
+
+
+    m.def("polyhedron_from_gravitational_parameter",
+          py::overload_cast< const double,
+          const Eigen::MatrixXd,
+          const Eigen::MatrixXi,
+          const std::string&,
+          const double >( &tss::polyhedronGravitySettings ),
+          py::arg("gravitational_parameter"),
+          py::arg("vertices_coordinates"),
+          py::arg("vertices_defining_each_facet"),
+          py::arg("associated_reference_frame"),
+          py::arg("density") = TUDAT_NAN,
+          get_docstring("polyhedron_from_mu").c_str()
+          );
+
+    m.def("polyhedron_from_density",
+          py::overload_cast<
+          const double,
+          const Eigen::MatrixXd,
+          const Eigen::MatrixXi,
+          const std::string&,
+          const double >( &tss::polyhedronGravitySettings ),
+          py::arg("density"),
+          py::arg("vertices_coordinates"),
+          py::arg("vertices_defining_each_facet"),
+          py::arg("associated_reference_frame"),
+          py::arg("gravitational_constant") = tpc::GRAVITATIONAL_CONSTANT,
+          get_docstring("polyhedron_from_gravitational_constant_and_density").c_str()
+          );
+
+    // Triaxial ellipsoid: overload 1
+    m.def("sh_triaxial_ellipsoid_from_density",
+          py::overload_cast< const double, const double, const double, const double, const int, const int,
+          const std::string&, const double >(&tss::createHomogeneousTriAxialEllipsoidGravitySettings),
+          py::arg("axis_a"),
+          py::arg("axis_b"),
+          py::arg("axis_c"),
+          py::arg("density"),
+          py::arg("maximum_degree"),
+          py::arg("maximum_order"),
+          py::arg("associated_reference_frame"),
+          py::arg("gravitational_constant") = tudat::physical_constants::GRAVITATIONAL_CONSTANT,
+          get_docstring("spherical_harmonic_triaxial_ellipsoid_from_density").c_str()
+          );
+
+    // Triaxial ellipsoid: overload 2
+    m.def("sh_triaxial_ellipsoid_from_gravitational_parameter",
+          py::overload_cast< const double, const double, const double, const int, const int,
+          const std::string&, const double >(&tss::createHomogeneousTriAxialEllipsoidGravitySettings),
+          py::arg("axis_a"),
+          py::arg("axis_b"),
+          py::arg("axis_c"),
+          py::arg("maximum_degree"),
+          py::arg("maximum_order"),
+          py::arg("associated_reference_frame"),
+          py::arg("gravitational_parameter"),
+          get_docstring("spherical_harmonic_triaxial_ellipsoid_from_gravitational_parameter").c_str()
+          );
+
+    m.def("spherical_harmonic_triaxial_body",
+          py::overload_cast< const double, const double, const double, const double, const int, const int,
+          const std::string&, const double >(&tss::createHomogeneousTriAxialEllipsoidGravitySettingsDeprecated),
+          py::arg("axis_a"),
+              py::arg("axis_b"),
+              py::arg("axis_c"),
+              py::arg("density"),
+              py::arg("maximum_degree"),
+              py::arg("maximum_order"),
+              py::arg("associated_reference_frame"),
+              py::arg("gravitational_constant") = tudat::physical_constants::GRAVITATIONAL_CONSTANT
+              );
 }
 
 }// namespace gravity_field
