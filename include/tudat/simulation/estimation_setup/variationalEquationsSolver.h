@@ -1707,7 +1707,7 @@ public:
             bodies, parametersToEstimate, propagatorSettings != nullptr ?
                 propagatorSettings->getOutputSettingsWithCheck( )->getClearNumericalSolutions( ) : false  )
     {
-        propagatorSettings->getOutputSettingsWithCheck( )->setIntegratedResult( false );
+//        propagatorSettings->getOutputSettingsWithCheck( )->setIntegratedResult( false );
         initializeHybridArcVariationalEquationsSolver(
                     bodies, propagatorSettings, true, integrateEquationsOnCreation );
     }
@@ -1797,12 +1797,6 @@ public:
         setExtendedMultiArcParameters( arcStartTimes_ );
 
         // Create multi-arc solver with original parameter set
-        std::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > originalMultiArcSettings =
-                originalPopagatorSettings_->getMultiArcPropagatorSettings( );
-
-        originalMultiArcSettings->getOutputSettings( )->setClearNumericalSolutions( false );
-        originalMultiArcSettings->getOutputSettings( )->setIntegratedResult( false );
-
         extendedMultiArcSettings->getOutputSettings( )->setClearNumericalSolutions( false );
         extendedMultiArcSettings->getOutputSettings( )->setIntegratedResult( false );
 
@@ -1871,14 +1865,10 @@ public:
     void integrateVariationalAndDynamicalEquations(
             const VectorType& initialStateEstimate, const bool integrateEquationsConcurrently )
     {
-        // Reset initial time and propagate multi-arc equations
-//        singleArcIntegratorSettings_->initialTime_ = singleArcInitialTime_;
 
-        //        std::cout<<"Integrating single arc "<<std::endl;
         singleArcSolver_->integrateVariationalAndDynamicalEquations(
                     initialStateEstimate.block( 0, 0, singleArcDynamicsSize_, 1 ),
                     integrateEquationsConcurrently );
-
 
         // Extract single arc state to update multi-arc initial states
         resetMultiArcInitialStates(
@@ -1901,7 +1891,7 @@ public:
 
         // Reset original multi-arc bodies' dynamics
         originalMultiArcSolver_->getDynamicsSimulator( )->manuallySetAndProcessRawNumericalEquationsOfMotionSolution(
-                    numericalMultiArcSolution, dependentVariableHistory, true );
+                    numericalMultiArcSolution, dependentVariableHistory, propagatorSettings_->getOutputSettings( )->getSetIntegratedResult( ) );
 
         // Create state transition matrix if not yet created.
         if( stateTransitionInterface_ == nullptr )
@@ -1961,7 +1951,7 @@ public:
 
         // Reset original multi-arc bodies' dynamics
         originalMultiArcSolver_->getDynamicsSimulator( )->manuallySetAndProcessRawNumericalEquationsOfMotionSolution(
-                    numericalMultiArcSolution, dependentVariableHistory, true );
+                    numericalMultiArcSolution, dependentVariableHistory,  propagatorSettings_->getOutputSettings( )->getSetIntegratedResult( ) );
 
     }
 

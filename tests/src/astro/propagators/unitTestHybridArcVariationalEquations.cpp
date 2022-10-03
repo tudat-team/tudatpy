@@ -274,10 +274,18 @@ executeHybridArcMarsAndOrbiterSensitivitySimulation(
             std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > results;
     {
         // Create dynamics simulator
+        hybridArcPropagatorSettings->getOutputSettings( )->setIntegratedResult( true );
+        std::cout<<"Test A"<<hybridArcPropagatorSettings->getOutputSettings( )->getSetIntegratedResult( )<<std::endl;
+        std::cout<<"Test A"<<singleArcPropagatorSettings->getOutputSettings( )->getSetIntegratedResult( )<<std::endl;
+        std::cout<<"Test A"<<singleArcPropagatorSettings->getOutputSettings( )<<std::endl;
+
         HybridArcVariationalEquationsSolver< StateScalarType, TimeType > variationalEquations =
                 HybridArcVariationalEquationsSolver< StateScalarType, TimeType >(
                     bodies, singleArcIntegratorSettings, multiArcIntegratorSettings,
                     hybridArcPropagatorSettings, parametersToEstimate, integrationArcStarts );
+        std::cout<<"Test B"<<hybridArcPropagatorSettings->getOutputSettings( )->getSetIntegratedResult( )<<std::endl;
+        std::cout<<"Test B"<<singleArcPropagatorSettings->getOutputSettings( )->getSetIntegratedResult( )<<std::endl;
+        std::cout<<"Test B"<<singleArcPropagatorSettings->getOutputSettings( )<<std::endl;
 
         // Propagate requested equations.
         if( propagateVariationalEquations )
@@ -299,7 +307,6 @@ executeHybridArcMarsAndOrbiterSensitivitySimulation(
             Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > testStates =
                     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( 12 );
             testStates.block( 0, 0, 6, 1 ) = bodies.at( "Mars" )->getStateInBaseFrameFromEphemeris( testEpoch );
-
             testStates.block( 6, 0, 6, 1 ) = bodies.at( "Orbiter" )->getStateInBaseFrameFromEphemeris( testEpoch );/* -
                     testStates.block( 0, 0, 6, 1 );*/
 

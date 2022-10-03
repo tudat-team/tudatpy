@@ -40,102 +40,6 @@ namespace tudat
 namespace propagators
 {
 
-//! Base class for defining propagation settings, derived classes split into settings for single- and multi-arc dynamics
-template< typename StateScalarType = double >
-class PropagatorSettings
-{
-
-public:
-    //! Constructor
-    /*!
-     * Constructor
-     * \param initialBodyStates Initial state used as input for numerical integration
-     * \param isMultiArc Boolean denoting whether the propagation settings are multi-arc (if true) or single arc (if false).
-     */
-    PropagatorSettings( const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialBodyStates,
-                        const bool isMultiArc ):
-        initialStates_( initialBodyStates ), stateSize_( initialBodyStates.rows( ) ), isMultiArc_( isMultiArc ){ }
-
-    //! Destructor
-    virtual ~PropagatorSettings( ){ }
-
-    //! Function to retrieve the initial state used as input for numerical integration
-    /*!
-     * Function to retrieve the initial state used as input for numerical integration
-     * \return Initial state used as input for numerical integration
-     */
-    virtual Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialStates( )
-    {
-        return initialStates_;
-    }
-
-    //! Function to reset the initial state used as input for numerical integration
-    /*!
-     * Function to reset the initial state used as input for numerical integration
-     * \param initialBodyStates New initial state used as input for numerical integration
-     */
-    virtual void resetInitialStates( const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyStates )
-    {
-        initialStates_ = initialBodyStates;
-        stateSize_ = initialStates_.rows( );
-    }
-
-    //! Get total size of the propagated state.
-    /*!
-     * Get total size of the propagated state.
-     * \return Total size of the propagated state.
-     */
-    virtual int getPropagatedStateSize( )
-    {
-        return stateSize_;
-    }
-
-    //! Get total size of the conventional state.
-    /*!
-     * Get total size of the conventional state.
-     * \return Total size of the conventional state.
-     */
-    int getConventionalStateSize( )
-    {
-        return stateSize_;
-    }
-
-    //! Function to get boolean denoting whether the propagation settings are multi-arc (if true) or single arc (if false).
-    /*!
-     *  Function to get boolean denoting whether the propagation settings are multi-arc (if true) or single arc (if false).
-     *  \return Boolean denoting whether the propagation settings are multi-arc (if true) or single arc (if false).
-     */
-    bool getIsMultiArc( )
-    {
-        return isMultiArc_;
-    }
-
-    //! Function to create the integrated state models (e.g. acceleration/torque/mass-rate models).
-    /*!
-     * Function to create the integrated state models (e.g. acceleration/torque/mass-rate models).
-     *
-     * Derived classes must provide an implementation for this method. This function will use the provided
-     * system of bodies and the member containing the acceleration/torque/mass-rate settings to create the
-     * actual models and assign them to the corresponding model map members.
-     *
-     * The implementation for MultiArc and MultiType (hybrid state) propagations will call the
-     * `resetIntegratedStateModels` method of each of the fundamental propagators that they contain.
-     *
-     * \param bodies Map of bodies in the propagation, with keys the names of the bodies.
-     */
-    virtual void resetIntegratedStateModels( const simulation_setup::SystemOfBodies& bodies ) = 0;
-
-protected:
-
-    //!  Initial state used as input for numerical integration
-    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialStates_;
-
-    //! Total size of the propagated state.
-    int stateSize_;
-
-    //! Boolean denoting whether the propagation settings are multi-arc (if true) or single arc (if false).
-    bool isMultiArc_;
-};
 
 class PropagationPrintSettings
 {
@@ -202,6 +106,8 @@ private:
     bool printStateData_;
     double statePrintInterval_;
 };
+
+
 
 class PropagatorOutputSettings
 {
@@ -311,7 +217,7 @@ public:
         this->setIntegratedResult_ = setIntegratedResult;
         for( unsigned int i = 0; i < singleArcSettings_.size( ); i++ )
         {
-            singleArcSettings_.at( i )->setClearNumericalSolutions( setIntegratedResult );
+            singleArcSettings_.at( i )->setIntegratedResult( false );
         }
     }
 
@@ -325,7 +231,7 @@ public:
         for( unsigned int i = 0; i < singleArcSettings_.size( ); i++ )
         {
             singleArcSettings_.at( i )->setClearNumericalSolutions( clearNumericalSolutions_ );
-            singleArcSettings_.at( i )->setIntegratedResult( setIntegratedResult_ );
+            singleArcSettings_.at( i )->setIntegratedResult( false );
             if( useIdenticalSettings_ )
             {
                 if( consistentSingleArcPrintSettings_ == nullptr )
@@ -434,8 +340,8 @@ public:
     virtual void setIntegratedResult( const bool setIntegratedResult )
     {
         this->setIntegratedResult_ = setIntegratedResult;
-        singleArcSettings_->setClearNumericalSolutions( setIntegratedResult );
-        multiArcSettings_->setClearNumericalSolutions( setIntegratedResult );
+        singleArcSettings_->setIntegratedResult( setIntegratedResult );
+        multiArcSettings_->setIntegratedResult( setIntegratedResult );
     }
 
     void resetArcSettings( const bool printWarning = false )
@@ -508,6 +414,112 @@ private:
 };
 
 
+//! Base class for defining propagation settings, derived classes split into settings for single- and multi-arc dynamics
+template< typename StateScalarType = double >
+class PropagatorSettings
+{
+
+public:
+    //! Constructor
+    /*!
+     * Constructor
+     * \param initialBodyStates Initial state used as input for numerical integration
+     * \param isMultiArc Boolean denoting whether the propagation settings are multi-arc (if true) or single arc (if false).
+     */
+    PropagatorSettings( const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialBodyStates,
+                        const std::shared_ptr< PropagatorOutputSettings > outputSettings,
+                        const bool isMultiArc ):
+        initialStates_( initialBodyStates ), outputSettingsBase_( outputSettings ),
+        stateSize_( initialBodyStates.rows( ) ), isMultiArc_( isMultiArc ){ }
+
+    //! Destructor
+    virtual ~PropagatorSettings( ){ }
+
+    //! Function to retrieve the initial state used as input for numerical integration
+    /*!
+     * Function to retrieve the initial state used as input for numerical integration
+     * \return Initial state used as input for numerical integration
+     */
+    virtual Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialStates( )
+    {
+        return initialStates_;
+    }
+
+    //! Function to reset the initial state used as input for numerical integration
+    /*!
+     * Function to reset the initial state used as input for numerical integration
+     * \param initialBodyStates New initial state used as input for numerical integration
+     */
+    virtual void resetInitialStates( const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyStates )
+    {
+        initialStates_ = initialBodyStates;
+        stateSize_ = initialStates_.rows( );
+    }
+
+    //! Get total size of the propagated state.
+    /*!
+     * Get total size of the propagated state.
+     * \return Total size of the propagated state.
+     */
+    virtual int getPropagatedStateSize( )
+    {
+        return stateSize_;
+    }
+
+    //! Get total size of the conventional state.
+    /*!
+     * Get total size of the conventional state.
+     * \return Total size of the conventional state.
+     */
+    int getConventionalStateSize( )
+    {
+        return stateSize_;
+    }
+
+    //! Function to get boolean denoting whether the propagation settings are multi-arc (if true) or single arc (if false).
+    /*!
+     *  Function to get boolean denoting whether the propagation settings are multi-arc (if true) or single arc (if false).
+     *  \return Boolean denoting whether the propagation settings are multi-arc (if true) or single arc (if false).
+     */
+    bool getIsMultiArc( )
+    {
+        return isMultiArc_;
+    }
+
+    //! Function to create the integrated state models (e.g. acceleration/torque/mass-rate models).
+    /*!
+     * Function to create the integrated state models (e.g. acceleration/torque/mass-rate models).
+     *
+     * Derived classes must provide an implementation for this method. This function will use the provided
+     * system of bodies and the member containing the acceleration/torque/mass-rate settings to create the
+     * actual models and assign them to the corresponding model map members.
+     *
+     * The implementation for MultiArc and MultiType (hybrid state) propagations will call the
+     * `resetIntegratedStateModels` method of each of the fundamental propagators that they contain.
+     *
+     * \param bodies Map of bodies in the propagation, with keys the names of the bodies.
+     */
+    virtual void resetIntegratedStateModels( const simulation_setup::SystemOfBodies& bodies ) = 0;
+
+    std::shared_ptr< PropagatorOutputSettings > getOutputSettingsBase( )
+    {
+        return outputSettingsBase_;
+    }
+
+protected:
+
+    //!  Initial state used as input for numerical integration
+    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialStates_;
+
+    std::shared_ptr< PropagatorOutputSettings > outputSettingsBase_;
+
+    //! Total size of the propagated state.
+    int stateSize_;
+
+    //! Boolean denoting whether the propagation settings are multi-arc (if true) or single arc (if false).
+    bool isMultiArc_;
+};
+
 
 //! Base class for defining setting of a propagator for single-arc dynamics
 /*!
@@ -535,11 +547,12 @@ public:
                                  const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
                                  const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >& dependentVariablesToSave =
             std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
-                                 const double statePrintInterval = TUDAT_NAN ):
-        PropagatorSettings< StateScalarType >( initialBodyStates, false ),
+                                 const double statePrintInterval = TUDAT_NAN,
+                                 const std::shared_ptr< SingleArcPropagatorOutputSettings > outputSettings = std::make_shared< SingleArcPropagatorOutputSettings >( ) ):
+        PropagatorSettings< StateScalarType >( initialBodyStates, outputSettings, false ),
         stateType_( stateType ), terminationSettings_( terminationSettings ),
         dependentVariablesToSave_( dependentVariablesToSave ),
-        integratorSettings_( nullptr ), outputSettings_( std::make_shared< SingleArcPropagatorOutputSettings >( ) ), statePrintInterval_( statePrintInterval)
+        integratorSettings_( nullptr ), outputSettings_( outputSettings ), statePrintInterval_( statePrintInterval)
     { }
 
     SingleArcPropagatorSettings( const IntegratedStateType stateType,
@@ -549,7 +562,7 @@ public:
                                  const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >& dependentVariablesToSave =
             std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
                                  const std::shared_ptr< SingleArcPropagatorOutputSettings > outputSettings = std::make_shared< SingleArcPropagatorOutputSettings >( ) ):
-        PropagatorSettings< StateScalarType >( initialBodyStates, false ),
+        PropagatorSettings< StateScalarType >( initialBodyStates, outputSettings, false ),
         stateType_( stateType ), terminationSettings_( terminationSettings ),
         dependentVariablesToSave_( dependentVariablesToSave ), integratorSettings_( integratorSettings ),
         outputSettings_( outputSettings ), statePrintInterval_( TUDAT_NAN ){ }
@@ -746,7 +759,7 @@ public:
             const bool transferInitialStateInformationPerArc = 0,
             const std::shared_ptr< MultiArcPropagatorOutputSettings > outputSettings =
             std::make_shared< MultiArcPropagatorOutputSettings >( )):
-        PropagatorSettings< StateScalarType >( getConcatenatedInitialStates( singleArcSettings ), true ),
+        PropagatorSettings< StateScalarType >( getConcatenatedInitialStates( singleArcSettings ), outputSettings, true ),
         singleArcSettings_( singleArcSettings ),
         outputSettings_( outputSettings )
     {
@@ -938,7 +951,7 @@ public:
             const std::shared_ptr< HybridArcPropagatorOutputSettings > outputSettings =
             std::make_shared< HybridArcPropagatorOutputSettings >( ) ):
         PropagatorSettings< StateScalarType >(
-            Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( 0 ), false ),
+            Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( 0 ), outputSettings, false ),
         singleArcPropagatorSettings_( singleArcPropagatorSettings ),
         multiArcPropagatorSettings_( multiArcPropagatorSettings ),
         outputSettings_( outputSettings )
