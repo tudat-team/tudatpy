@@ -1401,10 +1401,10 @@ BOOST_AUTO_TEST_CASE( test_GravitationalPotentialAndLaplacianSaving )
                 5, 3, 7,
                 3, 5, 1;
 
-            bodySettings.at( "Earth" )->gravityFieldSettings = polyhedronGravitySettings(
+            bodySettings.at( "Earth" )->gravityFieldSettings = polyhedronGravitySettingsFromMu(
                 celestial_body_constants::EARTH_GRAVITATIONAL_PARAMETER, verticesCoordinates,
                 verticesDefiningEachFacet, "IAU_Earth");
-            bodySettings.at( "Moon" )->gravityFieldSettings = polyhedronGravitySettings(
+            bodySettings.at( "Moon" )->gravityFieldSettings = polyhedronGravitySettingsFromMu(
                 celestial_body_constants::MOON_GRAVITATIONAL_PARAMETER, verticesCoordinates,
                 verticesDefiningEachFacet, "IAU_Moon");
         }
