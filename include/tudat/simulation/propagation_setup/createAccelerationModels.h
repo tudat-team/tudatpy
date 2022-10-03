@@ -195,6 +195,26 @@ createMutualSphericalHarmonicsGravityAcceleration(
         const bool useCentralBodyFixedFrame,
         const bool acceleratedBodyIsCentralBody );
 
+//! Function to create polyhedron gravity acceleration model.
+/*!
+ *  Function to create polyhedron gravity acceleration model from bodies exerting and
+ *  undergoing acceleration.
+ *  \param bodyUndergoingAcceleration Pointer to object of body that is being accelerated.
+ *  \param bodyExertingAcceleration Pointer to object of body that is exerting the spherical
+ *  harmonic gravity acceleration.
+ *  \param nameOfBodyUndergoingAcceleration Name of body that is being accelerated.
+ *  \param nameOfBodyExertingAcceleration Name of body that is exerting the spherical harmonic
+ *  gravity acceleration.
+ *  \return Polyhedron gravity acceleration model pointer.
+ */
+std::shared_ptr< gravitation::PolyhedronGravitationalAccelerationModel >
+createPolyhedronGravityAcceleration(
+        const std::shared_ptr< Body > bodyUndergoingAcceleration,
+        const std::shared_ptr< Body > bodyExertingAcceleration,
+        const std::string& nameOfBodyUndergoingAcceleration,
+        const std::string& nameOfBodyExertingAcceleration,
+        const bool useCentralBodyFixedFrame);
+
 //! Function to create a third body central gravity acceleration model.
 /*!
  *  Function to create a third body central gravity acceleration model from bodies exerting and
@@ -275,6 +295,31 @@ createThirdBodyMutualSphericalHarmonicGravityAccelerationModel(
         const std::string& nameOfBodyExertingAcceleration,
         const std::string& nameOfCentralBody,
         const std::shared_ptr< AccelerationSettings > accelerationSettings );
+
+//! Function to create a third body polyhedron gravity acceleration model.
+/*!
+ *  Function to create a third body polyhedron gravity acceleration model from bodies exerting and
+ *  undergoing acceleration, as well as the central body, w.r.t. which the integration is to be
+ *  performed.
+ *  \param bodyUndergoingAcceleration Pointer to object of body that is being accelerated.
+ *  \param bodyExertingAcceleration Pointer to object of body that is exerting the acceleration.
+ *  \param centralBody Pointer to central body in frame centered at which acceleration is to be
+ *  calculated.
+ *  \param nameOfBodyUndergoingAcceleration Name of object of body that is being accelerated.
+ *  \param nameOfBodyExertingAcceleration Name of object of body that is exerting the central
+ *  gravity acceleration.
+ *  \param nameOfCentralBody Name of central body in frame cenetered at which acceleration is to
+ *  be calculated.
+ *  \return Pointer to object for calculating third-body polyhedron gravity acceleration between bodies.
+ */
+std::shared_ptr< gravitation::ThirdBodyPolyhedronGravitationalAccelerationModel >
+createThirdBodyPolyhedronGravityAccelerationModel(
+        const std::shared_ptr< Body > bodyUndergoingAcceleration,
+        const std::shared_ptr< Body > bodyExertingAcceleration,
+        const std::shared_ptr< Body > centralBody,
+        const std::string& nameOfBodyUndergoingAcceleration,
+        const std::string& nameOfBodyExertingAcceleration,
+        const std::string& nameOfCentralBody );
 
 //! Function to create an aerodynamic acceleration model.
 /*!
