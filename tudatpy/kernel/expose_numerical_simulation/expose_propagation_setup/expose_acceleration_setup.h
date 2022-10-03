@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef TUDATBUNDLE_EXPOSE_ACCELERATION_SETUP_H
-#define TUDATBUNDLE_EXPOSE_ACCELERATION_SETUP_H
+#ifndef TUDATPY_EXPOSE_ACCELERATION_SETUP_H
+#define TUDATPY_EXPOSE_ACCELERATION_SETUP_H
 
 #include <pybind11/eigen.h>
 #include <pybind11/functional.h>
@@ -67,4 +67,4 @@ namespace acceleration {
 }// namespace tudatpy
 
 
-#endif //TUDATBUNDLE_EXPOSE_ACCELERATION_SETUP_H
+#endif //TUDATPY_EXPOSE_ACCELERATION_SETUP_H

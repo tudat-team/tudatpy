@@ -496,6 +496,13 @@ void expose_environment(py::module &m) {
             .def_property("sine_coefficients", &tg::SphericalHarmonicsGravityField::getSineCoefficients,
                           &tg::SphericalHarmonicsGravityField::setSineCoefficients);
 
+    py::class_<tg::PolyhedronGravityField,
+            std::shared_ptr<tg::PolyhedronGravityField >,
+            tg::GravityFieldModel>(m, "PolyhedronGravityField")
+            .def_property_readonly("volume", &tg::PolyhedronGravityField::getVolume )
+            .def_property_readonly("vertices_coordinates", &tg::PolyhedronGravityField::getVerticesCoordinates )
+            .def_property_readonly("vertices_defining_each_facet", &tg::PolyhedronGravityField::getVerticesDefiningEachFacet );
+
     /*!
      **************   SHAPE MODELS  ******************
      */
