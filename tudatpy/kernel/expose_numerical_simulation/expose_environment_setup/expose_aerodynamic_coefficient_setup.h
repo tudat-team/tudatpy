@@ -7,8 +7,8 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
-#ifndef TUDATBUNDLE_EXPOSE_AERODYNAMIC_COEFFICIENT_SETUP_H
-#define TUDATBUNDLE_EXPOSE_AERODYNAMIC_COEFFICIENT_SETUP_H
+#ifndef TUDATPY_EXPOSE_AERODYNAMIC_COEFFICIENT_SETUP_H
+#define TUDATPY_EXPOSE_AERODYNAMIC_COEFFICIENT_SETUP_H
 
 #include <pybind11/pybind11.h>
 
@@ -26,4 +26,4 @@ namespace aerodynamic_coefficients {
 }// namespace numerical_simulation
 }// namespace tudatpy
 
-#endif //TUDATBUNDLE_EXPOSE_AERODYNAMIC_COEFFICIENT_SETUP_H
+#endif //TUDATPY_EXPOSE_AERODYNAMIC_COEFFICIENT_SETUP_H
