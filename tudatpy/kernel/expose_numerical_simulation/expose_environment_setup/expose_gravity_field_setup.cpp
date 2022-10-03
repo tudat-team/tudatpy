@@ -239,7 +239,7 @@ void expose_gravity_field_setup(py::module &m) {
           py::arg("vertices_coordinates"),
           py::arg("vertices_defining_each_facet"),
           py::arg("associated_reference_frame"),
-          py::arg("density") = TUDAT_NAN,
+          py::arg("gravitational_constant") = tpc::GRAVITATIONAL_CONSTANT,
           get_docstring("polyhedron_from_mu").c_str()
           );
 
@@ -270,7 +270,7 @@ void expose_gravity_field_setup(py::module &m) {
           py::arg("maximum_order"),
           py::arg("associated_reference_frame"),
           py::arg("gravitational_constant") = tudat::physical_constants::GRAVITATIONAL_CONSTANT,
-          get_docstring("spherical_harmonic_triaxial_ellipsoid_from_density").c_str()
+          get_docstring("sh_triaxial_ellipsoid_from_density").c_str()
           );
 
     // Triaxial ellipsoid: overload 2
@@ -284,7 +284,7 @@ void expose_gravity_field_setup(py::module &m) {
           py::arg("maximum_order"),
           py::arg("associated_reference_frame"),
           py::arg("gravitational_parameter"),
-          get_docstring("spherical_harmonic_triaxial_ellipsoid_from_gravitational_parameter").c_str()
+          get_docstring("sh_triaxial_ellipsoid_from_gravitational_parameter").c_str()
           );
 
     m.def("spherical_harmonic_triaxial_body",
