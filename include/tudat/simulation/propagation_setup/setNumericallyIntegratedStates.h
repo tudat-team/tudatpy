@@ -926,8 +926,7 @@ void checkTranslationalStatesFeasibility(
 template< typename StateScalarType >
 void checkPropagatedStatesFeasibility(
         const std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > propagatorSettings,
-        const simulation_setup::SystemOfBodies& bodies,
-        const bool setIntegratedResult = false )
+        const simulation_setup::SystemOfBodies& bodies )
 {
     // Check dynamics type.
     switch( propagatorSettings->getStateType( ) )
@@ -961,7 +960,7 @@ void checkPropagatedStatesFeasibility(
                     }
 
                     //  Create state processor
-                    checkPropagatedStatesFeasibility( typeIterator->second.at( i ), bodies, setIntegratedResult );
+                    checkPropagatedStatesFeasibility( typeIterator->second.at( i ), bodies );
                 }
             }
             else
@@ -984,7 +983,8 @@ void checkPropagatedStatesFeasibility(
         }
         checkTranslationalStatesFeasibility(
                     translationalPropagatorSettings->bodiesToIntegrate_,
-                    translationalPropagatorSettings->centralBodies_, bodies, setIntegratedResult );
+                    translationalPropagatorSettings->centralBodies_, bodies,
+                    translationalPropagatorSettings->getOutputSettings( )->getSetIntegratedResult( ) );
         break;
     }
     case rotational_state:
@@ -997,7 +997,7 @@ void checkPropagatedStatesFeasibility(
         }
         checkRotationalStatesFeasibility(
                     rotationalPropagatorSettings->bodiesToIntegrate_,
-                    bodies, setIntegratedResult );
+                    bodies, rotationalPropagatorSettings->getOutputSettings( )->getSetIntegratedResult( ) );
         break;
     }
     case body_mass_state:

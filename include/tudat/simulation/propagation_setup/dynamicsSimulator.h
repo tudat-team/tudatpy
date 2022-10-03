@@ -289,11 +289,9 @@ public:
      */
     DynamicsSimulator(
             const simulation_setup::SystemOfBodies& bodies,
-            const bool clearNumericalSolutions = true,
-            const bool setIntegratedResult = true ):
+            const std::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings ):
         bodies_( bodies ),
-        clearNumericalSolutions_( clearNumericalSolutions ),
-        setIntegratedResult_( setIntegratedResult )
+        propagatorSettingsBase_( propagatorSettings )
     {
     }
 
@@ -357,20 +355,9 @@ public:
         bodies_ = bodies;
     }
 
-    //! fu
     bool getSetIntegratedResult( )
     {
-        return setIntegratedResult_;
-    }
-
-    //! Function to reset whether to automatically use the integrated results to set ephemerides.
-    /*!
-     * Function to reset whether to automatically use the integrated results to set ephemerides.
-     * \param setIntegratedResult New boolean to determine whether to automatically use the integrated results to set ephemerides.
-     */
-    void resetSetIntegratedResult( const bool setIntegratedResult )
-    {
-        setIntegratedResult_ = setIntegratedResult;
+        return propagatorSettingsBase_->getOutputSettingsBase( )->getSetIntegratedResult( );
     }
 
     //! This function updates the environment with the numerical solution of the propagation.
@@ -386,12 +373,7 @@ protected:
     //!  Map of bodies (with names) of all bodies in integration.
     simulation_setup::SystemOfBodies bodies_;
 
-    //! Boolean to determine whether to clear the raw numerical solution member variables after propagation and
-    //! resetting ephemerides.
-    bool clearNumericalSolutions_;
-
-    //! Boolean to determine whether to automatically use the integrated results to set ephemerides.
-    bool setIntegratedResult_;
+    std::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettingsBase_;
 };
 
 template< typename StateScalarType, typename TimeType >
@@ -536,9 +518,7 @@ public:
             const PredefinedSingleArcStateDerivativeModels< StateScalarType, TimeType >& predefinedStateDerivativeModels =
             PredefinedSingleArcStateDerivativeModels< StateScalarType, TimeType >( ) ):
         DynamicsSimulator< StateScalarType, TimeType >(
-            bodies,
-            propagatorSettings != nullptr ? propagatorSettings->getOutputSettingsWithCheck( )->getClearNumericalSolutions( ) : 0,
-            propagatorSettings != nullptr ?  propagatorSettings->getOutputSettingsWithCheck( )->getSetIntegratedResult( ) : 0 ),
+            bodies, propagatorSettings ),
         propagatorSettings_( propagatorSettings ),
         initialClockTime_( std::chrono::steady_clock::now( ) )
     {
@@ -563,9 +543,9 @@ public:
             throw std::runtime_error( "Error in dynamics simulator, integrator settings not defined." );
         }
 
-        checkPropagatedStatesFeasibility( propagatorSettings_, bodies_, setIntegratedResult_ );
+        checkPropagatedStatesFeasibility( propagatorSettings_, bodies_ );
 
-        if( setIntegratedResult_ )
+        if( propagatorSettings_->getOutputSettings( )->getSetIntegratedResult( ) )
         {
             createAndSetIntegratedStateProcessors( );
         }
@@ -649,8 +629,6 @@ public:
     }
 
     using DynamicsSimulator< StateScalarType, TimeType >::bodies_;
-    using DynamicsSimulator< StateScalarType, TimeType >::clearNumericalSolutions_;
-    using DynamicsSimulator< StateScalarType, TimeType >::setIntegratedResult_;
 
     //! Constructor of simulator.
     /*!
@@ -769,7 +747,8 @@ public:
                       << dynamicsStateDerivative_->getNumberOfFunctionEvaluations( ) << std::endl;
         }
 
-        if( this->setIntegratedResult_ )
+        std::cout<<"Processing results "<<outputSettings_->getSetIntegratedResult( )<<std::endl;
+        if( outputSettings_->getSetIntegratedResult( ) )
         {
             processNumericalEquationsOfMotionSolution( );
         }
@@ -985,7 +964,7 @@ public:
         }
 
         // Clear numerical solution if so required.
-        if( clearNumericalSolutions_ )
+        if( propagatorSettings_->getOutputSettings( )->getClearNumericalSolutions( ) )
         {
             propagationResults_->equationsOfMotionNumericalSolution_.clear( );
             propagationResults_->equationsOfMotionNumericalSolutionRaw_.clear( );
@@ -1383,7 +1362,6 @@ class MultiArcDynamicsSimulator: public DynamicsSimulator< StateScalarType, Time
 public:
 
     using DynamicsSimulator< StateScalarType, TimeType >::bodies_;
-    using DynamicsSimulator< StateScalarType, TimeType >::clearNumericalSolutions_;
 
 
     MultiArcDynamicsSimulator(
@@ -1391,9 +1369,7 @@ public:
             const std::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > propagatorSettings,
             const bool areEquationsOfMotionToBeIntegrated = true ):
         DynamicsSimulator< StateScalarType, TimeType >(
-            bodies,
-            propagatorSettings != nullptr ? propagatorSettings->getOutputSettingsWithCheck( )->getClearNumericalSolutions( ) : 0,
-            propagatorSettings != nullptr ?  propagatorSettings->getOutputSettingsWithCheck( )->getSetIntegratedResult( ) : 0  ),
+            bodies, propagatorSettings  ),
         multiArcPropagatorSettings_( propagatorSettings )
     {
         if( multiArcPropagatorSettings_ == nullptr )
@@ -1585,7 +1561,7 @@ public:
                         arcInitialStateList );
         }
 
-        if( this->setIntegratedResult_ )
+        if( multiArcPropagatorSettings_->getOutputSettings( )->getSetIntegratedResult( ) )
         {
             processNumericalEquationsOfMotionSolution( );
         }
@@ -1766,7 +1742,7 @@ public:
 
 
 
-        if( clearNumericalSolutions_ )
+        if( multiArcPropagatorSettings_->getOutputSettings( )->getClearNumericalSolutions( ) )
         {
             for( unsigned int i = 0; i < equationsOfMotionNumericalSolution_.size( ); i++ )
             {
@@ -1898,7 +1874,6 @@ public:
 
     //! Using statemebts
     using DynamicsSimulator< StateScalarType, TimeType >::bodies_;
-    using DynamicsSimulator< StateScalarType, TimeType >::clearNumericalSolutions_;
 
     HybridArcDynamicsSimulator(
             const simulation_setup::SystemOfBodies& bodies,
@@ -1906,9 +1881,7 @@ public:
             const bool areEquationsOfMotionToBeIntegrated = true,
             const bool addSingleArcBodiesToMultiArcDynamics = false ):
         DynamicsSimulator< StateScalarType, TimeType >(
-            bodies,
-            propagatorSettings != nullptr ? propagatorSettings->getOutputSettingsWithCheck( )->getClearNumericalSolutions( ) : 0,
-            propagatorSettings != nullptr ?  propagatorSettings->getOutputSettingsWithCheck( )->getSetIntegratedResult( ) : 0 )
+            bodies, propagatorSettings )
     {
         std::shared_ptr< HybridArcPropagatorSettings< StateScalarType > > hybridPropagatorSettings =
                 std::dynamic_pointer_cast< HybridArcPropagatorSettings< StateScalarType > >( propagatorSettings );
@@ -2160,28 +2133,28 @@ std::shared_ptr< PropagatorSettings< StateScalarType > > validateDeprecatePropag
     }
 }
 
-extern template class DynamicsSimulator< double, double >;
-extern template class SingleArcDynamicsSimulator< double, double >;
-extern template class MultiArcDynamicsSimulator< double, double >;
-extern template class HybridArcDynamicsSimulator< double, double >;
+//extern template class DynamicsSimulator< double, double >;
+//extern template class SingleArcDynamicsSimulator< double, double >;
+//extern template class MultiArcDynamicsSimulator< double, double >;
+//extern template class HybridArcDynamicsSimulator< double, double >;
 
-#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
-extern template class DynamicsSimulator< long double, double >;
-extern template class DynamicsSimulator< double, Time >;
-extern template class DynamicsSimulator< long double, Time >;
+//#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+//extern template class DynamicsSimulator< long double, double >;
+//extern template class DynamicsSimulator< double, Time >;
+//extern template class DynamicsSimulator< long double, Time >;
 
-extern template class SingleArcDynamicsSimulator< long double, double >;
-extern template class SingleArcDynamicsSimulator< double, Time >;
-extern template class SingleArcDynamicsSimulator< long double, Time >;
+//extern template class SingleArcDynamicsSimulator< long double, double >;
+//extern template class SingleArcDynamicsSimulator< double, Time >;
+//extern template class SingleArcDynamicsSimulator< long double, Time >;
 
-extern template class MultiArcDynamicsSimulator< long double, double >;
-extern template class MultiArcDynamicsSimulator< double, Time >;
-extern template class MultiArcDynamicsSimulator< long double, Time >;
+//extern template class MultiArcDynamicsSimulator< long double, double >;
+//extern template class MultiArcDynamicsSimulator< double, Time >;
+//extern template class MultiArcDynamicsSimulator< long double, Time >;
 
-extern template class HybridArcDynamicsSimulator< long double, double >;
-extern template class HybridArcDynamicsSimulator< double, Time >;
-extern template class HybridArcDynamicsSimulator< long double, Time >;
-#endif
+//extern template class HybridArcDynamicsSimulator< long double, double >;
+//extern template class HybridArcDynamicsSimulator< double, Time >;
+//extern template class HybridArcDynamicsSimulator< long double, Time >;
+//#endif
 
 
 
