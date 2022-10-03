@@ -2,8 +2,8 @@
 // Created by Filippo Oggionni on 12/07/21.
 //
 
-#ifndef TUDATBUNDLE_EXPOSE_TORQUE_SETUP_H
-#define TUDATBUNDLE_EXPOSE_TORQUE_SETUP_H
+#ifndef TUDATPY_EXPOSE_TORQUE_SETUP_H
+#define TUDATPY_EXPOSE_TORQUE_SETUP_H
 
 #include <pybind11/eigen.h>
 #include <pybind11/functional.h>
@@ -44,4 +44,4 @@ namespace torque {
 }// namespace numerical_simulation
 }// namespace tudatpy
 
-#endif //TUDATBUNDLE_EXPOSE_TORQUE_SETUP_H
+#endif //TUDATPY_EXPOSE_TORQUE_SETUP_H

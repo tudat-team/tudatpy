@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2019, Delft University of Technology
+/*    Copyright (c) 2010-2022, Delft University of Technology
  *    All rights reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -8,23 +8,22 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef TUDATPY_EXPOSE_SHAPE_SETUP_H
-#define TUDATPY_EXPOSE_SHAPE_SETUP_H
+#ifndef TUDATBUNDLE_EXPOSE_POLYHEDRON_UTILITIES_H
+#define TUDATBUNDLE_EXPOSE_POLYHEDRON_UTILITIES_H
 
 #include <pybind11/pybind11.h>
 
 namespace py = pybind11;
 
 namespace tudatpy {
-namespace numerical_simulation {
-namespace environment_setup {
-namespace shape {
+namespace astro {
+namespace polyhedron_utilities {
 
-    void expose_shape_setup(py::module &m);
+void expose_polyhedron_utilities(py::module &m);
 
-}// namespace shape
-}// namespace environment_setup
-}// namespace numerical_simulation
-}// namespace tudatpy
+} // namespace polyhedron_utilities
+} // namespace astro
+} // namespace tudatpy
 
-#endif //TUDATPY_EXPOSE_SHAPE_SETUP_H
+
+#endif //TUDATBUNDLE_EXPOSE_POLYHEDRON_UTILITIES_H

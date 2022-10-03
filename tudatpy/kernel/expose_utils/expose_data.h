@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef TUDATBUNDLE_EXPOSE_DATA_H
-#define TUDATBUNDLE_EXPOSE_DATA_H
+#ifndef TUDATPY_EXPOSE_DATA_H
+#define TUDATPY_EXPOSE_DATA_H
 
 #include <pybind11/pybind11.h>
 
@@ -25,4 +25,4 @@ void expose_data(py::module &m);
 } // namespace utils
 } // namespace tudatpy
 
-#endif // TUDATBUNDLE_EXPOSE_DATA_H
+#endif // TUDATPY_EXPOSE_DATA_H
