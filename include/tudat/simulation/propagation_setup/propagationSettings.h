@@ -222,51 +222,51 @@ protected:
     double printInterval_;
 };
 
-class CombinedPropagatorOutputSettings: public PropagatorOutputSettings
-{
-public:
-    CombinedPropagatorOutputSettings(
-            const bool clearNumericalSolutions = false,
-            const bool setIntegratedResult = false,
-            const bool printNumberOfFunctionEvaluations = false,
-            const bool printDependentVariableData = true,
-            const bool printStateData = false,
-            const double printInterval = TUDAT_NAN,
-            const bool useIdenticalSettings = false ):
-        PropagatorOutputSettings( clearNumericalSolutions, setIntegratedResult, printNumberOfFunctionEvaluations,
-                                  printDependentVariableData, printStateData, printInterval, useIdenticalSettings ),
-        useIdenticalSettings_( useIdenticalSettings ){ }
+//class CombinedPropagatorOutputSettings: public PropagatorOutputSettings
+//{
+//public:
+//    CombinedPropagatorOutputSettings(
+//            const bool clearNumericalSolutions = false,
+//            const bool setIntegratedResult = false,
+//            const bool printNumberOfFunctionEvaluations = false,
+//            const bool printDependentVariableData = true,
+//            const bool printStateData = false,
+//            const double printInterval = TUDAT_NAN,
+//            const bool useIdenticalSettings = false ):
+//        PropagatorOutputSettings( clearNumericalSolutions, setIntegratedResult, printNumberOfFunctionEvaluations,
+//                                  printDependentVariableData, printStateData, printInterval, useIdenticalSettings ),
+//        useIdenticalSettings_( useIdenticalSettings ){ }
 
 
-    virtual void setClearNumericalSolutions( const bool clearNumericalSolutions )
-    {
-        this->clearNumericalSolutions_ = clearNumericalSolutions;
-        for( unsigned int i = 0; i < singleArcPropagatorSettings_.size( ); i++ )
-        {
-            singleArcPropagatorSettings_.at( i )->setClearNumericalSolutions( clearNumericalSolutions );
-        }
-    }
+//    virtual void setClearNumericalSolutions( const bool clearNumericalSolutions )
+//    {
+//        this->clearNumericalSolutions_ = clearNumericalSolutions;
+//        for( unsigned int i = 0; i < singleArcPropagatorSettings_.size( ); i++ )
+//        {
+//            singleArcPropagatorSettings_.at( i )->setClearNumericalSolutions( clearNumericalSolutions );
+//        }
+//    }
 
-    virtual void setIntegratedResult( const bool setIntegratedResult )
-    {
-        this->setIntegratedResult_ = setIntegratedResult;
-        for( unsigned int i = 0; i < singleArcPropagatorSettings_.size( ); i++ )
-        {
-            singleArcPropagatorSettings_.at( i )->setClearNumericalSolutions( setIntegratedResult );
-        }
-    }
+//    virtual void setIntegratedResult( const bool setIntegratedResult )
+//    {
+//        this->setIntegratedResult_ = setIntegratedResult;
+//        for( unsigned int i = 0; i < singleArcPropagatorSettings_.size( ); i++ )
+//        {
+//            singleArcPropagatorSettings_.at( i )->setClearNumericalSolutions( setIntegratedResult );
+//        }
+//    }
 
-    bool getUseIdenticalSettings( )
-    {
-        return useIdenticalSettings_;
-    }
+//    bool getUseIdenticalSettings( )
+//    {
+//        return useIdenticalSettings_;
+//    }
 
-protected:
+//protected:
 
-    std::vector< PropagatorOutputSettings > singleArcPropagatorSettings_;
-    bool useIdenticalSettings_;
+//    std::vector< PropagatorOutputSettings > singleArcPropagatorSettings_;
+//    bool useIdenticalSettings_;
 
-};
+//};
 
 //! Base class for defining setting of a propagator for single-arc dynamics
 /*!
@@ -533,8 +533,8 @@ public:
         {
             this->initialStates_ = getConcatenatedInitialStates( singleArcSettings );
         }
-        outputSettings_->setResultProcessUpdate(
-                    std::bind( &MultiArcPropagatorSettings< StateScalarType, TimeType >::makeMultiArcOutputSettingsConsistent, this ) );
+//        outputSettings_->setResultProcessUpdate(
+//                    std::bind( &MultiArcPropagatorSettings< StateScalarType, TimeType >::makeMultiArcOutputSettingsConsistent, this ) );
         makeMultiArcOutputSettingsConsistent( );
     }
 
@@ -736,8 +736,8 @@ public:
         this->stateSize_ = this->initialStates_.rows( );
         singleArcStateSize_ = singleArcPropagatorSettings_->getPropagatedStateSize( );
         multiArcStateSize_ = multiArcPropagatorSettings_->getPropagatedStateSize( );
-        outputSettings_->setResultProcessUpdate(
-                    std::bind( &HybridArcPropagatorSettings< StateScalarType, TimeType >::makeHybridArcOutputSettingsConsistent, this ) );
+//        outputSettings_->setResultProcessUpdate(
+//                    std::bind( &HybridArcPropagatorSettings< StateScalarType, TimeType >::makeHybridArcOutputSettingsConsistent, this ) );
         makeHybridArcOutputSettingsConsistent( );
     }
 

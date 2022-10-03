@@ -122,6 +122,16 @@ struct is_direct_gravity_partial< acceleration_partials::MutualSphericalHarmonic
     static const bool value = true;
 };
 
+namespace acceleration_partials
+{
+class PolyhedronGravityPartial;
+}
+
+template< >
+struct is_direct_gravity_partial< acceleration_partials::PolyhedronGravityPartial > {
+    static const bool value = true;
+};
+
 template< typename T >
 struct is_direct_gravity_acceleration {
     static const bool value = false;
@@ -158,7 +168,15 @@ struct is_direct_gravity_acceleration< gravitation::MutualSphericalHarmonicsGrav
     static const bool value = true;
 };
 
+namespace gravitation
+{
+class PolyhedronGravitationalAccelerationModel;
+}
 
+template< >
+struct is_direct_gravity_acceleration< gravitation::PolyhedronGravitationalAccelerationModel > {
+    static const bool value = true;
+};
 
 } // namespace tudat
 
