@@ -198,7 +198,17 @@ void expose_propagation(py::module &m) {
                     &tp::PropagationTerminationDetails::getTerminationOnExactCondition,
                     get_docstring("PropagationTerminationDetails.terminated_on_exact_condition").c_str());
 
-
+    py::class_<
+            tp::PropagationTerminationDetailsFromHybridCondition,
+            std::shared_ptr<tp::PropagationTerminationDetailsFromHybridCondition>,
+            tp::PropagationTerminationDetails>(
+                    m,
+                    "PropagationTerminationDetailsFromHybridCondition",
+                    get_docstring("PropagationTerminationDetailsFromHybridCondition").c_str())
+            .def_property_readonly(
+                    "was_condition_met_when_stopping",
+                    &tp::PropagationTerminationDetailsFromHybridCondition::getWasConditionMetWhenStopping,
+                    get_docstring("PropagationTerminationDetailsFromHybridCondition.termination_reason").c_str());
 
 
 

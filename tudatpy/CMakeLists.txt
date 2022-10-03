@@ -59,6 +59,7 @@ YACMA_PYTHON_MODULE(kernel
         kernel/expose_astro/expose_time_conversion.cpp
         kernel/expose_astro/expose_two_body_dynamics.cpp
         kernel/expose_astro/expose_fundamentals.cpp
+        kernel/expose_astro/expose_polyhedron_utilities.cpp
 
         # kernel/trajectory_design
         kernel/expose_trajectory_design.cpp
