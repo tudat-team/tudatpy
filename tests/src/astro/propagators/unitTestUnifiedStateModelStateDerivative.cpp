@@ -359,7 +359,7 @@ BOOST_AUTO_TEST_CASE( testUnifiedStateModelPopagatorForSphericalHarmonicCentralB
                 verticesCoordinates = basic_astrodynamics::modifyPolyhedronCentroidPosition(
                         verticesCoordinates, verticesDefiningEachFacet, Eigen::Vector3d::Zero() );
 
-                bodySettings.at( "Earth" )->gravityFieldSettings = polyhedronGravitySettings(
+                bodySettings.at( "Earth" )->gravityFieldSettings = polyhedronGravitySettingsFromMu(
                     celestial_body_constants::EARTH_GRAVITATIONAL_PARAMETER, verticesCoordinates,
                     verticesDefiningEachFacet, "IAU_Earth");
             }
