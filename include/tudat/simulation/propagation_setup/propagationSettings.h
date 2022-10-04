@@ -522,6 +522,9 @@ protected:
 };
 
 
+template< typename StateScalarType, typename TimeType >
+class MultiTypePropagatorSettings;
+
 //! Base class for defining setting of a propagator for single-arc dynamics
 /*!
  *  Base class for defining setting of a propagator for single-arc dynamics. This class is non-functional, and each state type
@@ -689,6 +692,17 @@ protected:
     //! Variable indicating how often (once per statePrintInterval_ seconds or propagation independenty variable) the
     //! current state and time are to be printed to console (default never).
     double statePrintInterval_;
+
+private:
+
+    void resetSingleArcOutputSettings(
+            const std::shared_ptr< SingleArcPropagatorOutputSettings > outputSettings )
+    {
+        outputSettings_ = outputSettings;
+    }
+
+    friend class MultiTypePropagatorSettings< StateScalarType, TimeType >;
+
 
 };
 
@@ -2201,7 +2215,6 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > createCombinedInitialState(
 
 //! Class for defining settings for propagating multiple types of dynamics concurrently.
 template< typename StateScalarType = double, typename TimeType = double >
-
 class MultiTypePropagatorSettings: public SingleArcPropagatorSettings< StateScalarType, TimeType >
 {
 public:
@@ -2230,6 +2243,7 @@ public:
         propagatorSettingsMap_( propagatorSettingsMap )
     {
         this->stateSize_ = getMultiTypePropagatorStateSize( propagatorSettingsMap_ );
+        makeOutputSettingsConsistent( );
     }
 
     //! Constructor.
@@ -2247,7 +2261,9 @@ public:
             const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
             const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
             std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
-            const double statePrintInterval = TUDAT_NAN ):
+            const double statePrintInterval = TUDAT_NAN,
+            const std::shared_ptr< SingleArcPropagatorOutputSettings > outputSettings =
+            std::make_shared< SingleArcPropagatorOutputSettings >( ) ):
         SingleArcPropagatorSettings< StateScalarType, TimeType >(
             hybrid, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( 0 ),
             terminationSettings, dependentVariablesToSave, statePrintInterval )
@@ -2260,6 +2276,7 @@ public:
 
         this->initialStates_ = createCombinedInitialState< StateScalarType >( propagatorSettingsMap_ );
         this->stateSize_ = getMultiTypePropagatorStateSize( propagatorSettingsMap_ );
+        makeOutputSettingsConsistent( );
 
     }
 
@@ -2283,6 +2300,7 @@ public:
 
         this->initialStates_ = createCombinedInitialState< StateScalarType >( propagatorSettingsMap_ );
         this->stateSize_ = getMultiTypePropagatorStateSize( propagatorSettingsMap_ );
+        makeOutputSettingsConsistent( );
 
     }
 
@@ -2422,6 +2440,17 @@ public:
                         singleArcSettings->resetIntegratedStateModels( bodies );
                     }
                 }
+            }
+        }
+    }
+
+    void makeOutputSettingsConsistent( )
+    {
+        for( auto it : propagatorSettingsMap_ )
+        {
+            for( unsigned int i = 0; i < it.second.size( ); i++ )
+            {
+                it.second.at( i )->resetSingleArcOutputSettings( this->outputSettings_ );
             }
         }
     }
