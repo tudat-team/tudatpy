@@ -260,62 +260,34 @@ template< typename StateScalarType = double >
 void printPropagatedDependentVariableContent (
         std::map< std::pair< int, int >, std::string > dependentVariableIds )
 {
-    std::cout << "DEPENDENT VARIABLE VECTOR CONTENTS: " << std::endl
-              << "[Vector entries], content description" << std::endl;
-    for ( auto it : dependentVariableIds )
+    std::cout << "DEPENDENT VARIABLE VECTOR CONTENTS: " << std::endl;
+    if( dependentVariableIds.size( ) > 0 )
     {
-        int startIndex = it.first.first;
-        int variableSize = it.first.second;
+        std::cout<< "[Vector entries], content description" << std::endl;
+        for ( auto it : dependentVariableIds )
+        {
+            int startIndex = it.first.first;
+            int variableSize = it.first.second;
 
-        // Print index at which given state type of body can be accessed
-        if (variableSize == 1)
-        {
-            std::cout << "[" << startIndex << "], ";
+            // Print index at which given state type of body can be accessed
+            if (variableSize == 1)
+            {
+                std::cout << "[" << startIndex << "], ";
+            }
+            else
+            {
+                std::cout << "[" << startIndex << ":" << startIndex+variableSize-1<< "], ";
+            }
+            std::cout<<it.second<<std::endl;
         }
-        else
-        {
-            std::cout << "[" << startIndex << ":" << startIndex+variableSize-1<< "], ";
-        }
-        std::cout<<it.second<<std::endl;
+    }
+    else
+    {
+        std::cout<<"No dependent variables have been selected."<<std::endl;
     }
     std::cout<<std::endl;
 }
 
-////! Function to print what is inside the propagated state vector
-//template< typename StateScalarType = double >
-//void printPropagatedDependentVariableContent (const std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string > > > integratedTypeAndBodyList)
-//{
-//    std::cout << "Dependent variable vector contains: " << std::endl
-//              << "Vector entries, Vector contents" << std::endl;
-
-//    // Loop trough propagated state types and body names
-//    for (std::pair<IntegratedStateType, std::vector< std::pair< std::string, std::string > >> integratedTypeAndBody : integratedTypeAndBodyList)
-//    {
-//        // Extract state type and list of body names
-//        IntegratedStateType stateType = integratedTypeAndBody.first;
-//        std::vector< std::pair< std::string, std::string > > bodyList = integratedTypeAndBody.second;
-
-//        int stateSize = getSingleIntegrationSize(stateType);
-
-//        // Loop trough list of body names
-//        for(unsigned int i = 0; i < bodyList.size (); i++)
-//        {
-//            // Print index at which given state type of body can be accessed
-//            if (stateSize == 1) {
-//                std::cout << "[" << stateVectorIndex << "], ";
-//            }
-//            else {
-//                std::cout << "[" << stateVectorIndex << ":" << stateVectorIndex+stateSize << "], ";
-//            }
-
-//            // Print state type and body name (note: hybrid state type should never be printed, taken care of by `getIntegratedTypeAndBodyList()` function)
-//            std::cout << stateTypeStrings[stateType] << " state of body " << bodyList[i].first << std::endl;
-
-//            // Remember where we are at trough the state vector
-//            stateVectorIndex += stateSize;
-//        }
-//    }
-//}
 
 //! Base class for performing full numerical integration of a dynamical system.
 /*!
@@ -758,7 +730,7 @@ public:
 //            printPropagatedStateVectorContent(getIntegratedTypeAndBodyList(propagatorSettings_));
 //        }
 
-        if( outputSettings_->getPrintSettings( )->getPrintDependentVariableData( ) && propagatorSettings_->getDependentVariablesToSave( ).size( ) > 0  )
+        if( outputSettings_->getPrintSettings( )->getPrintDependentVariableData( ) )
         {
             printPropagatedDependentVariableContent( dependentVariableIds_ );
         }
@@ -1381,7 +1353,7 @@ std::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > validateDepreca
         integratorSettingsList = integratorSettings;
     }
     std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > independentIntegratorSettings =
-            utilities::deepcopyDuplicatePointers( integratorSettingsList );
+            utilities::cloneDuplicatePointers( integratorSettingsList );
 
     if( multiArcPropagatorSettings->getSingleArcSettings( ).size( ) != independentIntegratorSettings.size( ) )
     {
@@ -1420,7 +1392,7 @@ std::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > validateDepreca
                 arcStartTimes.size( ), integratorSettings);
 
     std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > independentIntegratorSettingsList =
-            utilities::deepcopyDuplicatePointers( integratorSettingsList );
+            utilities::cloneDuplicatePointers( integratorSettingsList );
 
     for( unsigned int i = 0; i < independentIntegratorSettingsList.size( ); i++ )
     {
@@ -1918,7 +1890,7 @@ std::shared_ptr< HybridArcPropagatorSettings< StateScalarType > > validateDeprec
                 arcStartTimes.size( ), multiArcIntegratorSettings);
 
     std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > independentIntegratorSettingsList =
-            utilities::deepcopyDuplicatePointers( integratorSettingsList );
+            utilities::cloneDuplicatePointers( integratorSettingsList );
     for( unsigned int i = 0; i < independentIntegratorSettingsList.size( ); i++ )
     {
         independentIntegratorSettingsList.at( i )->initialTime_ = arcStartTimes.at( i );

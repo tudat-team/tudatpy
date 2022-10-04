@@ -46,7 +46,7 @@ class PropagationPrintSettings
 public:
     PropagationPrintSettings(
             const bool printNumberOfFunctionEvaluations = false,
-            const bool printDependentVariableData = true,
+            const bool printDependentVariableData = false,
             const bool printStateData = false,
             const double statePrintInterval = TUDAT_NAN,
             const bool printTerminationReason = false,
@@ -147,9 +147,22 @@ public:
         printTerminationReason_ = printSettings->getPrintTerminationReason( );
         printPropagationTime_ = printSettings->getPrintPropagationTime( );
         printPropagatedStateData_ = printSettings->getPrintPropagatedStateData( );
-
     }
 
+    void disableAllPrinting( )
+    {
+        reset( false, false, false, TUDAT_NAN, false, false, false );
+    }
+
+    void enableAllPrinting( )
+    {
+        reset( false, false, false, statePrintInterval_, false, false, false );
+    }
+
+    void enableAllPrinting( const double statePrintInterval )
+    {
+        reset( false, false, false, statePrintInterval, false, false, false );
+    }
 
 private:
 
@@ -254,7 +267,10 @@ public:
         useIdenticalSettings_( false ),
         printFirstArcOnly_( printFirstArcOnly ),
         printCurrentArcIndex_( printCurrentArcIndex ),
-        areSingleArcSettingsSet_( false ){ }
+        areSingleArcSettingsSet_( false )
+    {
+
+    }
 
     virtual ~MultiArcPropagatorOutputSettings( ){ }
 

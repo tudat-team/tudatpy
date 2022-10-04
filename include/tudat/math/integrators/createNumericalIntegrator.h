@@ -75,11 +75,11 @@ public:
         assessTerminationOnMinorSteps_( assessTerminationOnMinorSteps )
     { }
 
-//    IntegratorSettings( const IntegratorSettings< IndependentVariableType >& p1)
-//    {
-//        x = p1.x;
-//        y = p1.y;
-//    }
+    virtual std::shared_ptr< IntegratorSettings > clone( ) const
+    {
+        return std::make_shared< IntegratorSettings >(
+                    integratorType_, initialTime_, initialTimeStep_, saveFrequency_, assessTerminationOnMinorSteps_ );
+    }
 
     
     // Virtual destructor.
@@ -163,6 +163,12 @@ public:
             orderToUse_(orderToUse)
     { }
 
+    virtual std::shared_ptr< IntegratorSettings< IndependentVariableType > > clone( ) const
+    {
+        return std::make_shared< RungeKuttaFixedStepSizeSettings< IndependentVariableType > >(
+                    this->initialTime_, this->initialTimeStep_, coefficientSet_, orderToUse_, this->saveFrequency_, this->assessTerminationOnMinorSteps_ );
+    }
+
     // Virtual destructor.
     /*
      *  Virtual destructor.
@@ -228,6 +234,15 @@ public:
         minimumFactorDecreaseForNextStepSize_( minimumFactorDecreaseForNextStepSize ),
         exceptionIfMinimumStepExceeded_( exceptionIfMinimumStepExceeded )
     { }
+
+    virtual std::shared_ptr< IntegratorSettings< IndependentVariableType > > clone( ) const
+    {
+        return std::make_shared< RungeKuttaVariableStepSizeBaseSettings< IndependentVariableType> >(
+                    areTolerancesDefinedAsScalar_, this->initialTime_, this->initialTimeStep_, coefficientSet_,
+                    minimumStepSize_, maximumStepSize_, this->saveFrequency_, this->assessTerminationOnMinorSteps_,
+                    safetyFactorForNextStepSize_, maximumFactorIncreaseForNextStepSize_, minimumFactorDecreaseForNextStepSize_,
+                    exceptionIfMinimumStepExceeded_ );
+    }
 
     // Virtual destructor.
     /*
@@ -312,6 +327,15 @@ public:
         relativeErrorTolerance_( relativeErrorTolerance ), absoluteErrorTolerance_( absoluteErrorTolerance )
     { }
 
+    virtual std::shared_ptr< IntegratorSettings< IndependentVariableType > > clone( ) const
+    {
+        return std::make_shared< RungeKuttaVariableStepSizeSettingsScalarTolerances< IndependentVariableType> >(
+                    this->initialTime_, this->initialTimeStep_, this->coefficientSet_,
+                    this->minimumStepSize_, this->maximumStepSize_, relativeErrorTolerance_, absoluteErrorTolerance_,
+                    this->saveFrequency_, this->assessTerminationOnMinorSteps_,
+                    this->safetyFactorForNextStepSize_, this->maximumFactorIncreaseForNextStepSize_, this->minimumFactorDecreaseForNextStepSize_,
+                    this->exceptionIfMinimumStepExceeded_ );
+    }
     // Constructor.
     /*
      *  Constructor for variable step RK integrator settings with scalar tolerances (also requires the input of the integratorType,
@@ -438,6 +462,16 @@ public:
         relativeErrorTolerance_( relativeErrorTolerance ), absoluteErrorTolerance_( absoluteErrorTolerance )
     { }
 
+    virtual std::shared_ptr< IntegratorSettings< IndependentVariableType > > clone( ) const
+    {
+        return std::make_shared< RungeKuttaVariableStepSizeSettingsVectorTolerances< IndependentVariableType> >(
+                    this->initialTime_, this->initialTimeStep_, this->coefficientSet_,
+                    this->minimumStepSize_, this->maximumStepSize_, relativeErrorTolerance_, absoluteErrorTolerance_,
+                    this->saveFrequency_, this->assessTerminationOnMinorSteps_,
+                    this->safetyFactorForNextStepSize_, this->maximumFactorIncreaseForNextStepSize_, this->minimumFactorDecreaseForNextStepSize_,
+                    this->exceptionIfMinimumStepExceeded_ );
+    }
+
     // Destructor.
     /*
      *  Destructor.
@@ -501,6 +535,15 @@ public:
         safetyFactorForNextStepSize_( safetyFactorForNextStepSize ),
         maximumFactorIncreaseForNextStepSize_( maximumFactorIncreaseForNextStepSize ),
         minimumFactorDecreaseForNextStepSize_( minimumFactorDecreaseForNextStepSize ){ }
+
+    virtual std::shared_ptr< IntegratorSettings< IndependentVariableType > > clone( ) const
+    {
+        return std::make_shared< BulirschStoerIntegratorSettings< IndependentVariableType> >(
+                    this->initialTime_, this->initialTimeStep_, extrapolationSequence_, maximumNumberOfSteps_,
+                    this->minimumStepSize_, this->maximumStepSize_, relativeErrorTolerance_, absoluteErrorTolerance_,
+                    this->saveFrequency_, this->assessTerminationOnMinorSteps_,
+                    this->safetyFactorForNextStepSize_, this->maximumFactorIncreaseForNextStepSize_, this->minimumFactorDecreaseForNextStepSize_ );
+    }
 
     // Destructor.
     /*
@@ -589,6 +632,15 @@ public:
         relativeErrorTolerance_( relativeErrorTolerance ), absoluteErrorTolerance_( absoluteErrorTolerance ),
         minimumOrder_( minimumOrder ), maximumOrder_( maximumOrder ),
         bandwidth_( bandwidth ) { }
+
+    virtual std::shared_ptr< IntegratorSettings< IndependentVariableType > > clone( ) const
+    {
+        return std::make_shared< AdamsBashforthMoultonSettings< IndependentVariableType> >(
+                    this->initialTime_, this->initialTimeStep_,
+                    this->minimumStepSize_, this->maximumStepSize_, relativeErrorTolerance_, absoluteErrorTolerance_,
+                    minimumOrder_, maximumOrder_,
+                    this->saveFrequency_, this->assessTerminationOnMinorSteps_, bandwidth_ );
+    }
 
     // Destructor
     /*

@@ -116,7 +116,7 @@ public:
     {
         std::cout<<"Calling"<<std::endl;
         std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > independentIntegratorSettingsList =
-                utilities::deepcopyDuplicatePointers( integratorSettings );
+                utilities::cloneDuplicatePointers( integratorSettings );
         if( std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< ObservationScalarType, TimeType > >( propagatorSettings ) != nullptr )
         {
             std::cout<<"Multi-arc"<<std::endl;

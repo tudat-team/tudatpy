@@ -585,9 +585,20 @@ std::shared_ptr< PropagationTerminationDetails > integrateEquationsFromIntegrato
                         std::fabs( static_cast< double >( currentTime - previousPrintTime ) ) > statePrintInterval )
                 {
                     previousPrintTime = currentTime;
-                    std::cout << "Current time: "<<currentTime<<"; time since initial time: "<<currentTime - initialTime<<std::endl;
-                    std::cout << "Current time step: "<<timeStep<<std::endl;
-                    std::cout << "Current state (transposed): "<<newState.transpose( ) <<std::endl<<std::endl;
+                    std::cout << "PRINTING STATUS DURING PROPAGATION"<<std::endl;
+                    std::cout << "   Current epoch: "<<currentTime<<std::endl;
+                    std::cout << "   Time since initial epoch: "<<currentTime - initialTime<<std::endl;
+                    std::cout << "   Current time step: "<<timeStep<<std::endl;
+                    std::cout << "   Clock time since propagation start: "<<currentCPUTime<<std::endl;
+
+                    if( newState.cols( ) == 1 )
+                    {
+                        std::cout << "   Current state (transpose): "<<std::endl<<newState.transpose( ) <<std::endl<<std::endl;
+                    }
+                    else
+                    {
+                        std::cout << "   Current state: "<<std::endl<<newState <<std::endl<<std::endl;
+                    }
                 }
             }
 

@@ -161,6 +161,7 @@ BOOST_AUTO_TEST_CASE( testWindModelInPropagation )
                 std::make_shared< TranslationalStatePropagatorSettings< double > >
                 ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, integratorSettings, terminationSettings,
                   cowell, dependentVariables );
+
         translationalPropagatorSettings->getOutputSettings( )->getPrintSettings( )->reset(
                     true, true, true, TUDAT_NAN, true, true );
 
