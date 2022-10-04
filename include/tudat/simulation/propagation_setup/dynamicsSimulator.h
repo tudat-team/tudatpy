@@ -228,42 +228,94 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialArcWiseStateOfBody
 
 //! Function to print what is inside the propagated state vector
 template< typename StateScalarType = double >
-void printPropagatedStateVectorContent (const std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string > > > integratedTypeAndBodyList)
+void printPropagatedStateVectorContent(
+        const std::map< std::pair< int, int >, std::string > stateDescriptions )
 {
-    std::cout << "State vector contains: " << std::endl
-              << "Vector entries, Vector contents" << std::endl;
-
-    unsigned int stateVectorIndex = 0;
-    std::vector<std::string> stateTypeStrings {"hybrid", "translational", "rotational", "body mass", "custom"};
+    std::cout << "PROCESSED STATE VECTOR CONTENTS: " << std::endl
+              << "[Vector entries], content description" << std::endl;
     
     // Loop trough propagated state types and body names
-    for (std::pair<IntegratedStateType, std::vector< std::pair< std::string, std::string > >> integratedTypeAndBody : integratedTypeAndBodyList)
+    for ( auto it : stateDescriptions )
     {
-        // Extract state type and list of body names
-        IntegratedStateType stateType = integratedTypeAndBody.first;
-        std::vector< std::pair< std::string, std::string > > bodyList = integratedTypeAndBody.second;
+        int startIndex = it.first.first;
+        int variableSize = it.first.second;
 
-        int stateSize = getSingleIntegrationSize(stateType);
-
-        // Loop trough list of body names
-        for(unsigned int i = 0; i < bodyList.size (); i++)
+        // Print index at which given state type of body can be accessed
+        if (variableSize == 1)
         {
-            // Print index at which given state type of body can be accessed
-            if (stateSize == 1) {
-                std::cout << "[" << stateVectorIndex << "], ";
-            }
-            else {
-                std::cout << "[" << stateVectorIndex << ":" << stateVectorIndex+stateSize << "], ";
-            }
-
-            // Print state type and body name (note: hybrid state type should never be printed, taken care of by `getIntegratedTypeAndBodyList()` function)
-            std::cout << stateTypeStrings[stateType] << " state of body " << bodyList[i].first << std::endl; 
-            
-            // Remember where we are at trough the state vector
-            stateVectorIndex += stateSize;
+            std::cout << "[" << startIndex << "], ";
         }
+        else
+        {
+            std::cout << "[" << startIndex << ":" << startIndex+variableSize-1<< "], ";
+        }
+        std::cout<<it.second<<std::endl;
     }
+    std::cout<<std::endl;
 }
+
+
+//! Function to print what is inside the propagated state vector
+template< typename StateScalarType = double >
+void printPropagatedDependentVariableContent (
+        std::map< std::pair< int, int >, std::string > dependentVariableIds )
+{
+    std::cout << "DEPENDENT VARIABLE VECTOR CONTENTS: " << std::endl
+              << "[Vector entries], content description" << std::endl;
+    for ( auto it : dependentVariableIds )
+    {
+        int startIndex = it.first.first;
+        int variableSize = it.first.second;
+
+        // Print index at which given state type of body can be accessed
+        if (variableSize == 1)
+        {
+            std::cout << "[" << startIndex << "], ";
+        }
+        else
+        {
+            std::cout << "[" << startIndex << ":" << startIndex+variableSize-1<< "], ";
+        }
+        std::cout<<it.second<<std::endl;
+    }
+    std::cout<<std::endl;
+}
+
+////! Function to print what is inside the propagated state vector
+//template< typename StateScalarType = double >
+//void printPropagatedDependentVariableContent (const std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string > > > integratedTypeAndBodyList)
+//{
+//    std::cout << "Dependent variable vector contains: " << std::endl
+//              << "Vector entries, Vector contents" << std::endl;
+
+//    // Loop trough propagated state types and body names
+//    for (std::pair<IntegratedStateType, std::vector< std::pair< std::string, std::string > >> integratedTypeAndBody : integratedTypeAndBodyList)
+//    {
+//        // Extract state type and list of body names
+//        IntegratedStateType stateType = integratedTypeAndBody.first;
+//        std::vector< std::pair< std::string, std::string > > bodyList = integratedTypeAndBody.second;
+
+//        int stateSize = getSingleIntegrationSize(stateType);
+
+//        // Loop trough list of body names
+//        for(unsigned int i = 0; i < bodyList.size (); i++)
+//        {
+//            // Print index at which given state type of body can be accessed
+//            if (stateSize == 1) {
+//                std::cout << "[" << stateVectorIndex << "], ";
+//            }
+//            else {
+//                std::cout << "[" << stateVectorIndex << ":" << stateVectorIndex+stateSize << "], ";
+//            }
+
+//            // Print state type and body name (note: hybrid state type should never be printed, taken care of by `getIntegratedTypeAndBodyList()` function)
+//            std::cout << stateTypeStrings[stateType] << " state of body " << bodyList[i].first << std::endl;
+
+//            // Remember where we are at trough the state vector
+//            stateVectorIndex += stateSize;
+//        }
+//    }
+//}
 
 //! Base class for performing full numerical integration of a dynamical system.
 /*!
@@ -384,7 +436,7 @@ class SingleArcPropagatorResults
 {
 public:
 
-    SingleArcPropagatorResults( const std::map< int, std::string >& dependentVariableIds,
+    SingleArcPropagatorResults( const std::map< std::pair< int, int >, std::string >& dependentVariableIds,
                                 const std::shared_ptr< SingleArcPropagatorOutputSettings >& outputSettings ):
         dependentVariableIds_( dependentVariableIds ),
         outputSettings_( outputSettings ),
@@ -434,7 +486,7 @@ private:
     std::map< TimeType, unsigned int > cumulativeNumberOfFunctionEvaluations_;
 
     //! Map listing starting entry of dependent variables in output vector, along with associated ID.
-    std::map< int, std::string > dependentVariableIds_;
+    std::map< std::pair< int, int >, std::string > dependentVariableIds_;
 
     std::shared_ptr< SingleArcPropagatorOutputSettings > outputSettings_;
 
@@ -581,32 +633,21 @@ public:
                     integratorSettings_->initialTimeStep_, dynamicsStateDerivative_->getStateDerivativeModels( ),
                     predefinedStateDerivativeModels.stateDerivativePartials_ );
 
-        if( outputSettings_->getPrintSettings( )->getPrintStateData( ) )
+        if( propagatorSettings_->getDependentVariablesToSave( ).size( ) > 0 )
         {
-            printPropagatedStateVectorContent(getIntegratedTypeAndBodyList(propagatorSettings_));
-        }
-
-        std::map< int, std::string > dependentVariableIds;
-        if( propagatorSettings_->getDependentVariablesToSave( ).size( )> 0 )
-        {
-            std::pair< std::function< Eigen::VectorXd( ) >, std::map< int, std::string > > dependentVariableData =
+            std::pair< std::function< Eigen::VectorXd( ) >, std::map< std::pair< int, int >, std::string > > dependentVariableData =
                     createDependentVariableListFunction< TimeType, StateScalarType >(
                         propagatorSettings_->getDependentVariablesToSave( ), bodies_,
                         dynamicsStateDerivative_->getStateDerivativeModels( ),
                         predefinedStateDerivativeModels.stateDerivativePartials_ );
             dependentVariablesFunctions_ = dependentVariableData.first;
-            dependentVariableIds = dependentVariableData.second;
+            dependentVariableIds_ = dependentVariableData.second;
 
-            if( outputSettings_->getPrintSettings( )->getPrintDependentVariableData( ) )
-            {
-                std::cout << "Dependent variables being saved, output vector contains: " << std::endl
-                          << "Vector entry, Vector contents" << std::endl;
-                utilities::printMapContents( dependentVariableIds );
-            }
+
         }
 
         propagationResults_= std::make_shared< SingleArcPropagatorResults< StateScalarType, TimeType > >(
-                    dependentVariableIds, propagatorSettings_->getOutputSettingsWithCheck( ) );
+                    dependentVariableIds_, propagatorSettings_->getOutputSettingsWithCheck( ) );
 
 
         stateDerivativeFunction_ =
@@ -702,6 +743,26 @@ public:
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& initialStates )
     {
 
+        if( outputSettings_->getPrintSettings( )->printAnyOutput( ) )
+        {
+            std::cout<<"===============  STARTING SINGLE-ARC PROPAGATION  ==============="<<std::endl<<std::endl;
+        }
+
+        if( outputSettings_->getPrintSettings( )->getPrintStateData( ) )
+        {
+            printPropagatedStateVectorContent(getProcessedStateStrings(getIntegratedTypeAndBodyList(propagatorSettings_)));
+        }
+
+//        if( outputSettings_->getPrintSettings( )->getPrintPropagatedStateData( ) )
+//        {
+//            printPropagatedStateVectorContent(getIntegratedTypeAndBodyList(propagatorSettings_));
+//        }
+
+        if( outputSettings_->getPrintSettings( )->getPrintDependentVariableData( ) && propagatorSettings_->getDependentVariablesToSave( ).size( ) > 0  )
+        {
+            printPropagatedDependentVariableContent( dependentVariableIds_ );
+        }
+
         // Reset functions
         dynamicsStateDerivative_->setPropagationSettings( std::vector< IntegratedStateType >( ), 1, 0 );
         dynamicsStateDerivative_->resetFunctionEvaluationCounter( );
@@ -740,10 +801,31 @@ public:
         propagationResults_->cumulativeNumberOfFunctionEvaluations_ = dynamicsStateDerivative_->getCumulativeNumberOfFunctionEvaluations( );
         propagationResults_->propagationIsPerformed_ = true;
         // Retrieve and print number of total function evaluations
-        if ( outputSettings_->getPrintSettings( )->getPrintNumberOfFunctionEvaluations( ) )
+        if ( outputSettings_->getPrintSettings( )->printPostPropagation( ) )
         {
-            std::cout << "Total Number of Function Evaluations: "
+            std::cout << "PROPAGATION FINISHED."<<std::endl;
+            if( outputSettings_->getPrintSettings( )->getPrintNumberOfFunctionEvaluations( ) )
+            {
+                std::cout << "Total Number of Function Evaluations: "
                       << dynamicsStateDerivative_->getNumberOfFunctionEvaluations( ) << std::endl;
+            }
+            if( outputSettings_->getPrintSettings( )->getPrintPropagationTime( ) )
+            {
+                std::cout << "Total propagation clock time: "
+                      << std::fabs( propagationResults_->cumulativeComputationTimeHistory_.begin( )->second -
+                                    propagationResults_->cumulativeComputationTimeHistory_.rbegin( )->second )<<" seconds"<<std::endl;
+            }
+            if( outputSettings_->getPrintSettings( )->getPrintTerminationReason( ) )
+            {
+                std::cout << "Termination reason: "<<propagationResults_->propagationTerminationReason_->getTerminationReasonString( )<<std::endl;
+            }
+            std::cout<<std::endl;
+        }
+
+        if( outputSettings_->getPrintSettings( )->printAnyOutput( ) )
+        {
+            std::cout<<"================================================================="<<std::endl<<std::endl;
+
         }
 
         if( outputSettings_->getSetIntegratedResult( ) )
@@ -1132,6 +1214,8 @@ protected:
 
     //! Function returning dependent variables (during numerical propagation)
     std::function< Eigen::VectorXd( ) > dependentVariablesFunctions_;
+
+    std::map< std::pair< int, int >, std::string > dependentVariableIds_;
 
     //! Function to post-process state (during numerical propagation)
     std::function< void( Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& ) > statePostProcessingFunction_;

@@ -2141,7 +2141,7 @@ Eigen::VectorXd evaluateListOfVectorFunctions(
  *  be updated to current state and independent variable before computation is performed.
  */
 template< typename TimeType = double, typename StateScalarType = double >
-std::pair< std::function< Eigen::VectorXd( ) >, std::map< int, std::string > > createDependentVariableListFunction(
+std::pair< std::function< Eigen::VectorXd( ) >, std::map< std::pair< int, int >, std::string > > createDependentVariableListFunction(
         const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables,
         const simulation_setup::SystemOfBodies& bodies,
         const std::unordered_map< IntegratedStateType,
@@ -2187,10 +2187,10 @@ std::pair< std::function< Eigen::VectorXd( ) >, std::map< int, std::string > > c
 
     // Set list of variable ids/indices in correc otder.
     int totalVariableSize = 0;
-    std::map< int, std::string > dependentVariableIds;
+    std::map< std::pair< int, int >, std::string > dependentVariableIds;
     for( std::pair< std::string, int > vectorVariable: vectorVariableList )
     {
-        dependentVariableIds[ totalVariableSize ] = vectorVariable.first;
+        dependentVariableIds[ { totalVariableSize, vectorVariable.second } ] = vectorVariable.first;
         totalVariableSize += vectorVariable.second;
     }
 

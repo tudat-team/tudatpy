@@ -36,6 +36,8 @@ enum IntegratedStateType
     custom_state = 4
 };
 
+std::string getIntegratedStateTypString( const IntegratedStateType stateType );
+
 // Get size of state for single propagated state of given type.
 /*
  * Get size of state for single propagated state of given type (i.e. 6 for translational state).

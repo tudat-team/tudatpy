@@ -32,6 +32,41 @@ enum PropagationTerminationReason
     nan_or_inf_detected_in_state
 };
 
+inline std::string getPropagationTerminationReasonString(
+        const PropagationTerminationReason terminationReason,
+        const bool exactFinalCondition = false )
+{
+    std::string reasonString;
+    switch( terminationReason )
+    {
+    case propagation_never_run:
+        reasonString = "Propagation was never run";
+        break;
+    case unknown_propagation_termination_reason:
+        reasonString = "Unknown termination reason";
+        break;
+    case termination_condition_reached:
+        if( !exactFinalCondition )
+        {
+            reasonString = "Propagation succesfull: termination condition exceeded";
+        }
+        else
+        {
+            reasonString = "Propagation succesfull: exact termination condition reached by iteration";
+        }
+        break;
+    case runtime_error_caught_in_propagation:
+        reasonString = "Exception caught";
+        break;
+    case nan_or_inf_detected_in_state:
+        reasonString = "NaN or Inf detected in state";
+        break;
+    default:
+        throw std::runtime_error( "Error when getting propagation termination reason string; type not recognized" );
+    }
+    return reasonString;
+}
+
 //! Base class for checking whether the numerical propagation is to be stopped at current time step or not
 /*!
  *  Base class for checking whether the numerical propagation is to be stopped at current time step or not. Derived
@@ -537,6 +572,13 @@ public:
     bool getTerminationOnExactCondition( )
     {
         return terminationOnExactCondition_;
+    }
+
+    std::string getTerminationReasonString( )
+    {
+        std::string baseString = getPropagationTerminationReasonString(
+                    propagationTerminationReason_, terminationOnExactCondition_ );
+        return baseString;
     }
 
 protected:

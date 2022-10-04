@@ -157,10 +157,12 @@ BOOST_AUTO_TEST_CASE( testWindModelInPropagation )
         std::shared_ptr< IntegratorSettings< > > integratorSettings =
                 std::make_shared< IntegratorSettings< > >
                 ( rungeKutta4, 0.0, 5.0 );
-        std::shared_ptr< TranslationalStatePropagatorSettings< double > > translationalPropagatorSettings =
+        std::shared_ptr< tudat::propagators::TranslationalStatePropagatorSettings< double > > translationalPropagatorSettings =
                 std::make_shared< TranslationalStatePropagatorSettings< double > >
                 ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, integratorSettings, terminationSettings,
                   cowell, dependentVariables );
+        translationalPropagatorSettings->getOutputSettings( )->getPrintSettings( )->reset(
+                    true, true, true, TUDAT_NAN, true, true );
 
 
         // Create simulation object and propagate dynamics.
