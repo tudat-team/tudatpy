@@ -157,13 +157,13 @@ std::map< double, Eigen::VectorXd > propagateKeplerOrbitAndMassState(
                     std::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ) );
     }
 
-
+    propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
     propagatorSettings->getOutputSettings( )->getPrintSettings( )->reset(
                 true, true, true, TUDAT_NAN, true, true );
 
     // Create simulation object and propagate dynamics.
     SingleArcDynamicsSimulator< > dynamicsSimulator(
-                bodies, integratorSettings, propagatorSettings, true, false, true );
+                bodies, propagatorSettings );
 
     // Return propagated dynamics (if simulationCase < 3) or interpolated dynamics (else)
     if( simulationCase < 3 )

@@ -756,6 +756,24 @@ std::vector< std::shared_ptr< A > > deepcopyDuplicatePointers(
     return noDuplicatePointers;
 }
 
+template< typename A >
+std::vector< std::shared_ptr< A > > cloneDuplicatePointers(
+        const std::vector< std::shared_ptr< A > > originalPointers )
+{
+    std::vector< std::shared_ptr< A > > noDuplicatePointers;
+    for( unsigned int i = 0; i < originalPointers.size( ); i++ )
+    {
+        if( std::find( noDuplicatePointers.begin( ), noDuplicatePointers.end( ), originalPointers.at( i ) ) == noDuplicatePointers.end( ) )
+        {
+            noDuplicatePointers.push_back( originalPointers.at( i ) );
+        }
+        else
+        {
+            noDuplicatePointers.push_back( originalPointers.at( i )->clone( ) );
+        }
+    }
+    return noDuplicatePointers;
+}
 
 } // namespace utilities
 

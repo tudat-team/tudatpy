@@ -48,11 +48,11 @@ inline std::string getPropagationTerminationReasonString(
     case termination_condition_reached:
         if( !exactFinalCondition )
         {
-            reasonString = "Propagation succesfull: termination condition exceeded";
+            reasonString = "Propagation successful; termination condition exceeded";
         }
         else
         {
-            reasonString = "Propagation succesfull: exact termination condition reached by iteration";
+            reasonString = "Propagation successful; exact termination condition reached by iteration";
         }
         break;
     case runtime_error_caught_in_propagation:
