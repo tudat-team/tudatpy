@@ -48,10 +48,14 @@ public:
             const bool printNumberOfFunctionEvaluations = false,
             const bool printDependentVariableData = true,
             const bool printStateData = false,
-            const double statePrintInterval = TUDAT_NAN )
+            const double statePrintInterval = TUDAT_NAN,
+            const bool printTerminationReason = false,
+            const bool printPropagationTime = false,
+            const bool printPropagatedStateData = false )
     {
         reset( printNumberOfFunctionEvaluations,
-               printDependentVariableData, printStateData, statePrintInterval );
+               printDependentVariableData, printStateData, statePrintInterval,
+               printTerminationReason, printPropagationTime, printPropagatedStateData );
     }
 
     bool getPrintNumberOfFunctionEvaluations( )
@@ -74,20 +78,64 @@ public:
         return printStateData_;
     }
 
+    bool getPrintPropagatedStateData( )
+    {
+        return printPropagatedStateData_;
+    }
+
+
     double getStatePrintInterval( )
     {
         return statePrintInterval_;
     }
 
+    bool getPrintTerminationReason( )
+    {
+        return printTerminationReason_;
+    }
+
+    bool getPrintPropagationTime( )
+    {
+        return printPropagationTime_;
+    }
+
+
+    bool printPostPropagation( )
+    {
+        return ( printNumberOfFunctionEvaluations_ || printTerminationReason_ || printPropagationTime_ );
+    }
+
+    bool printDuringPropagation( )
+    {
+        return ( ( statePrintInterval_ == statePrintInterval_ ) );
+    }
+
+    bool printBeforePropagation( )
+    {
+        return ( printStateData_ || printPropagatedStateData_ || printDependentVariableData_ );
+    }
+
+    bool printAnyOutput( )
+    {
+        return ( printPostPropagation( ) || printDuringPropagation( ) || printBeforePropagation( ) );
+    }
+
     void reset( const bool printNumberOfFunctionEvaluations = false,
                 const bool printDependentVariableData = true,
                 const bool printStateData = false,
-                const double statePrintInterval = TUDAT_NAN )
+                const double statePrintInterval = TUDAT_NAN,
+                const bool printTerminationReason = false,
+                const bool printPropagationTime = false,
+                const bool printPropagatedStateData = false )
     {
         printNumberOfFunctionEvaluations_ =  printNumberOfFunctionEvaluations;
         printDependentVariableData_ =  printDependentVariableData;
         printStateData_ = printStateData;
         statePrintInterval_ = statePrintInterval;
+        printTerminationReason_ = printTerminationReason;
+        printPropagationTime_ = printPropagationTime;
+        printPropagatedStateData_ = printPropagatedStateData;
+
     }
 
     void reset( const std::shared_ptr< PropagationPrintSettings > printSettings )
@@ -96,6 +144,10 @@ public:
         printDependentVariableData_ =  printSettings->getPrintDependentVariableData( );
         printStateData_ = printSettings->getPrintStateData( );
         statePrintInterval_ = printSettings->getStatePrintInterval( );
+        printTerminationReason_ = printSettings->getPrintTerminationReason( );
+        printPropagationTime_ = printSettings->getPrintPropagationTime( );
+        printPropagatedStateData_ = printSettings->getPrintPropagatedStateData( );
+
     }
 
 
@@ -105,6 +157,9 @@ private:
     bool printDependentVariableData_;
     bool printStateData_;
     double statePrintInterval_;
+    bool printTerminationReason_;
+    bool printPropagationTime_;
+    bool printPropagatedStateData_;
 };
 
 
@@ -1683,8 +1738,7 @@ public:
 
     MassPropagatorSettings(
             const std::vector< std::string > bodiesWithMassToPropagate,
-            const std::map< std::string, std::vector< std::shared_ptr< basic_astrodynamics::MassRateModel > > >&
-            massRateModels,
+            const std::map< std::string, std::vector< std::shared_ptr< basic_astrodynamics::MassRateModel > > >& massRateModels,
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyMasses,
             const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
             const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
@@ -2666,7 +2720,8 @@ std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string 
         std::vector< std::pair< std::string, std::string > > integratedBodies;
         for( unsigned int i = 0; i < translationalPropagatorSettings->bodiesToIntegrate_.size( ); i++ )
         {
-            integratedBodies.push_back( std::make_pair( translationalPropagatorSettings->bodiesToIntegrate_.at( i ), "" ) );
+            integratedBodies.push_back( std::make_pair( translationalPropagatorSettings->bodiesToIntegrate_.at( i ),
+                                                        translationalPropagatorSettings->centralBodies_.at( i ) ) );
         }
         integratedStateList[ translational_state ] = integratedBodies;
 
@@ -2711,7 +2766,7 @@ std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string 
     case custom_state:
     {
         std::vector< std::pair< std::string, std::string > > customList;
-        customList.push_back( std::make_pair( "N/A", "N/A" ) );
+        customList.push_back( std::make_pair( "", "" ) );
         integratedStateList[ custom_state ] = customList;
         break;
     }
@@ -2721,6 +2776,48 @@ std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string 
     }
 
     return integratedStateList;
+}
+
+inline std::map< std::pair< int, int >, std::string > getProcessedStateStrings(
+        const std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string > > > integratedTypeAndBodyList )
+{
+    unsigned int stateVectorIndex = 0;
+    std::map< std::pair< int, int >, std::string > stringPerIndex;
+
+    for ( auto integratedTypeAndBody : integratedTypeAndBodyList)
+    {
+        // Extract state type and list of body names
+        IntegratedStateType stateType = integratedTypeAndBody.first;
+        std::vector< std::pair< std::string, std::string > > bodyList = integratedTypeAndBody.second;
+
+        int stateSize = getSingleIntegrationSize( stateType );
+
+        // Loop trough list of body names
+        for(unsigned int i = 0; i < bodyList.size (); i++)
+        {
+            std::string currentString = getIntegratedStateTypString( stateType );
+            switch( stateType )
+            {
+            case translational_state:
+                currentString += " of body " + bodyList.at( i ).first + " w.r.t. " + bodyList.at( i ).second;
+                break;
+            case rotational_state:
+                currentString += " of body " + bodyList.at( i ).first;
+                break;
+            case body_mass_state:
+                currentString += " of body " + bodyList.at( i ).first;
+                break;
+            case custom_state:
+                break;
+            default:
+                throw std::runtime_error( "Error when getting processed state strings, type not recognized" );
+            }
+            stringPerIndex[std::make_pair( stateVectorIndex, stateSize ) ] = currentString;
+            // Remember where we are at trough the state vector
+            stateVectorIndex += stateSize;
+        }
+    }
+    return stringPerIndex;
 }
 
 
@@ -2815,8 +2912,6 @@ void toggleIntegratedResultSettings(
 
 
 
-extern template std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string > > > getIntegratedTypeAndBodyList< double >(
-        const std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings );
 
 } // namespace propagators
 

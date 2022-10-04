@@ -48,6 +48,7 @@ BOOST_AUTO_TEST_SUITE( test_hybrid_state_derivative_model )
 std::map< double, Eigen::VectorXd > propagateKeplerOrbitAndMassState(
         const int simulationCase )
 {
+    std::cout<<simulationCase<<std::endl<<std::endl<<std::endl;
     using namespace simulation_setup;
     using namespace propagators;
     using namespace numerical_integrators;
@@ -114,21 +115,25 @@ std::map< double, Eigen::VectorXd > propagateKeplerOrbitAndMassState(
                 asterixInitialStateInKeplerianElements,
                 earthGravitationalParameter );
 
+    // Define integrator settings
+    std::shared_ptr< IntegratorSettings< > > integratorSettings =
+            std::make_shared< IntegratorSettings< > >
+            ( rungeKutta4, 0.0, fixedStepSize );
 
     std::shared_ptr< SingleArcPropagatorSettings< double > > translationalPropagatorSettings =
             std::make_shared< TranslationalStatePropagatorSettings< double > >
-            ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState,
+            ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, integratorSettings,
               std::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ) );
 
     // Create mass rate model and mass propagation settings
-    std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
-    massRateModels[ "Asterix" ] = std::make_shared< basic_astrodynamics::CustomMassRateModel >(
-                [ ]( const double ){ return -0.01; } );
+    std::map< std::string, std::vector< std::shared_ptr< basic_astrodynamics::MassRateModel > > > massRateModels;
+    massRateModels[ "Asterix" ].push_back( std::make_shared< basic_astrodynamics::CustomMassRateModel >(
+                [ ]( const double ){ return -0.01; } ) );
     Eigen::VectorXd initialMass = Eigen::VectorXd( 1 );
     initialMass( 0 ) = 500.0;
     std::shared_ptr< SingleArcPropagatorSettings< double > > massPropagatorSettings =
             std::make_shared< MassPropagatorSettings< double > >(
-                std::vector< std::string >{ "Asterix" }, massRateModels, initialMass,
+                std::vector< std::string >{ "Asterix" }, massRateModels, initialMass, integratorSettings,
                 std::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ) );
 
     // Create total propagator settings, depending on current case.
@@ -148,15 +153,13 @@ std::map< double, Eigen::VectorXd > propagateKeplerOrbitAndMassState(
         propagatorSettingsList.push_back( massPropagatorSettings );
 
         propagatorSettings = std::make_shared< MultiTypePropagatorSettings< double > >(
-                    propagatorSettingsList,
+                    propagatorSettingsList, integratorSettings,
                     std::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ) );
     }
 
 
-
-    std::shared_ptr< IntegratorSettings< > > integratorSettings =
-            std::make_shared< IntegratorSettings< > >
-            ( rungeKutta4, 0.0, fixedStepSize );
+    propagatorSettings->getOutputSettings( )->getPrintSettings( )->reset(
+                true, true, true, TUDAT_NAN, true, true );
 
     // Create simulation object and propagate dynamics.
     SingleArcDynamicsSimulator< > dynamicsSimulator(
