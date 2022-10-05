@@ -143,9 +143,21 @@ BOOST_AUTO_TEST_CASE( testKeplerMultiArcDynamics )
             std::shared_ptr< IntegratorSettings< > > integratorSettings =
                     std::make_shared< IntegratorSettings< > >
                     ( rungeKutta4, initialEphemerisTime, 120.0 );
+            std::shared_ptr< MultiArcPropagatorSettings< double > > multiArcPropagatorSettings =
+                    validateDeprecatedMultiArcSettings< double, double >(
+                        integratorSettings, std::make_shared< MultiArcPropagatorSettings< double > >( arcPropagationSettingsList ),
+                        integrationArcStarts, true, true );
+
+            std::shared_ptr< PropagationPrintSettings > multiArcPrintSettings =
+                    std::make_shared< PropagationPrintSettings >( );
+            multiArcPrintSettings->reset(
+                        true, true, true, TUDAT_NAN, true, true );
+
+            multiArcPropagatorSettings->getOutputSettings( )->resetAndApplyConsistentSingleArcPrintSettings(
+                        multiArcPrintSettings );
+
             MultiArcDynamicsSimulator< > dynamicsSimulator(
-                        bodies, integratorSettings, std::make_shared< MultiArcPropagatorSettings< double > >(
-                            arcPropagationSettingsList ), integrationArcStarts );
+                        bodies, multiArcPropagatorSettings );
         }
         // For case 1: test multi-arc estimation with different integration settings object for each arc
         else if( testCase == 1 )
