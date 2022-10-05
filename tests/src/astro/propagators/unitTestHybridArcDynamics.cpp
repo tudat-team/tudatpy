@@ -272,7 +272,7 @@ BOOST_AUTO_TEST_CASE( testHybridArcDynamics )
             std::map< double, Eigen::VectorXd > singleArcSolutionFromHybrid;
             std::vector< std::map< double, Eigen::VectorXd > > multiArcSolutionFromHybrid;
             {
-                singleArcIntegratorSettings->initialTime_ = initialEphemerisTime;
+                singleArcIntegratorSettings->initialTimeDeprecated_ = initialEphemerisTime;
 
                 HybridArcDynamicsSimulator< > hybridArcDynamicsSimulator(
                             bodies, singleArcIntegratorSettings, multiArcIntegratorSettings, hybridArcPropagatorSettings, integrationArcStarts, true, clearNumericalSolution, setIntegratedResults );

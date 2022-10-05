@@ -122,7 +122,7 @@ std::map< double, Eigen::VectorXd > propagateKeplerOrbitAndMassState(
 
     std::shared_ptr< SingleArcPropagatorSettings< double > > translationalPropagatorSettings =
             std::make_shared< TranslationalStatePropagatorSettings< double > >
-            ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, integratorSettings,
+            ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, 0.0, integratorSettings,
               std::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ) );
 
     // Create mass rate model and mass propagation settings
@@ -133,7 +133,7 @@ std::map< double, Eigen::VectorXd > propagateKeplerOrbitAndMassState(
     initialMass( 0 ) = 500.0;
     std::shared_ptr< SingleArcPropagatorSettings< double > > massPropagatorSettings =
             std::make_shared< MassPropagatorSettings< double > >(
-                std::vector< std::string >{ "Asterix" }, massRateModels, initialMass, integratorSettings,
+                std::vector< std::string >{ "Asterix" }, massRateModels, initialMass, 0.0, integratorSettings,
                 std::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ) );
 
     // Create total propagator settings, depending on current case.

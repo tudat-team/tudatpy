@@ -1395,15 +1395,23 @@ std::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > validateDepreca
         const bool clearNumericalSolutions = true,
         const bool setIntegratedResult = true  )
 {
+    std::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > multiArcPropagatorSettings =
+            std::dynamic_pointer_cast< MultiArcPropagatorSettings< StateScalarType > >( propagatorSettings );
+    if( multiArcPropagatorSettings == nullptr )
+    {
+        throw std::runtime_error( "Error in dynamics simulator (deprecated), input must be multi-arc." );
+    }
+
     std::vector<std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > integratorSettingsList(
                 arcStartTimes.size( ), integratorSettings);
 
     std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > independentIntegratorSettingsList =
             utilities::cloneDuplicatePointers( integratorSettingsList );
 
-    for( unsigned int i = 0; i < independentIntegratorSettingsList.size( ); i++ )
+    for( unsigned int i = 0; i < arcStartTimes.size( ); i++ )
     {
-        independentIntegratorSettingsList.at( i )->initialTime_ = arcStartTimes.at( i );
+        multiArcPropagatorSettings->getSingleArcSettings( ).at( i )->resetInitialTime(
+                    arcStartTimes.at( i ) );
     }
 
     return validateDeprecatedMultiArcSettings(
@@ -1886,7 +1894,7 @@ std::shared_ptr< HybridArcPropagatorSettings< StateScalarType, TimeType > > vali
             std::dynamic_pointer_cast< HybridArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings );
     if( hybridArcPropagatorSettings == nullptr )
     {
-        throw std::runtime_error( "Error in dynamics simulator (deprecated), input must be multi-arc." );
+        throw std::runtime_error( "Error in dynamics simulator (deprecated), input must be hybrid-arc." );
     }
 
     validateDeprecatedSingleArcSettings< StateScalarType, TimeType >(
@@ -1910,16 +1918,23 @@ std::shared_ptr< HybridArcPropagatorSettings< StateScalarType > > validateDeprec
         const bool clearNumericalSolutions = true,
         const bool setIntegratedResult = true  )
 {
-
+    std::shared_ptr< HybridArcPropagatorSettings< StateScalarType, TimeType > > hybridArcPropagatorSettings =
+            std::dynamic_pointer_cast< HybridArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings );
+    if( hybridArcPropagatorSettings == nullptr )
+    {
+        throw std::runtime_error( "Error in dynamics simulator (deprecated), input must be hybrid-arc." );
+    }
     std::vector<std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > integratorSettingsList(
                 arcStartTimes.size( ), multiArcIntegratorSettings);
 
     std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > independentIntegratorSettingsList =
             utilities::cloneDuplicatePointers( integratorSettingsList );
-    for( unsigned int i = 0; i < independentIntegratorSettingsList.size( ); i++ )
+    for( unsigned int i = 0; i < arcStartTimes.size( ); i++ )
     {
-        independentIntegratorSettingsList.at( i )->initialTime_ = arcStartTimes.at( i );
+        hybridArcPropagatorSettings->getMultiArcPropagatorSettings( )->getSingleArcSettings( ).at( i )->resetInitialTime(
+                    arcStartTimes.at( i ) );
     }
+    hybridArcPropagatorSettings->getSingleArcPropagatorSettings( )->resetInitialTime( singleArcIntegratorSettings->initialTimeDeprecated_ );
     return validateDeprecatedHybridArcSettings( singleArcIntegratorSettings, independentIntegratorSettingsList,
                                                 propagatorSettings, clearNumericalSolutions, setIntegratedResult );
 }

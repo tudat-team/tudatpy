@@ -152,7 +152,7 @@ BOOST_AUTO_TEST_CASE( testReasonAfterSuccessfulPropagationWithTimeLimit )
 
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
             std::make_shared< TranslationalStatePropagatorSettings< double > >
-            ( centralBodies, accelerationModelMap, bodiesToPropagate, asterixInitialState, integratorSettings,
+            ( centralBodies, accelerationModelMap, bodiesToPropagate, asterixInitialState, 0.0, integratorSettings,
               std::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ) );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -356,7 +356,7 @@ BOOST_AUTO_TEST_CASE( testReasonAfterSuccessfulPropagationWithAltitudeLimit )
 
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
             std::make_shared< TranslationalStatePropagatorSettings< double > >
-            ( centralBodies, accelerationModelMap, bodiesToPropagate, asterixInitialState, integratorSettings, terminationSettings );
+            ( centralBodies, accelerationModelMap, bodiesToPropagate, asterixInitialState, 0.0, integratorSettings, terminationSettings );
 
 
 
@@ -524,7 +524,7 @@ BOOST_AUTO_TEST_CASE( testReasonAfterPropagationErrorCaught )
 
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
             std::make_shared< TranslationalStatePropagatorSettings< double > >
-            ( centralBodies, accelerationModelMap, bodiesToPropagate, asterixInitialState, integratorSettings,
+            ( centralBodies, accelerationModelMap, bodiesToPropagate, asterixInitialState, 0.0, integratorSettings,
               std::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ) );
 
 
