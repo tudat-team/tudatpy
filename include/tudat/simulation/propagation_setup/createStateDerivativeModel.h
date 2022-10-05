@@ -710,7 +710,8 @@ createStateDerivativeModelMap(
 std::shared_ptr< numerical_integrators::NumericalIntegrator< double, Eigen::Vector6d > > createCR3BPIntegrator(
         const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
         const double massParameter,
-        const Eigen::Vector6d& initialState );
+        const Eigen::Vector6d& initialState,
+        const double initialTime );
 
 //! Function to propagate the dynamics (in normalized units) in CR3BP
 /*!
@@ -727,6 +728,7 @@ std::map< double, Eigen::Vector6d > performCR3BPIntegration(
         const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
         const double massParameter,
         const Eigen::Vector6d& initialState,
+        const double initialTime,
         const double finalTime,
         const bool propagateToExactFinalTime = false );
 

@@ -492,7 +492,16 @@ std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > validateDeprec
     {
         if( integratorSettings != nullptr && singleArcPropagatorSettings->getIntegratorSettings( ) != nullptr )
         {
-            std::cerr<<"Warning, integrator settings defined independently, and in propagator settings"<<std::endl;
+            std::cerr<<"Warning when processing deprecated propagator settitngs, integrator settings defined independently, and in propagator settings"<<std::endl;
+        }
+
+        if( integratorSettings != nullptr )
+        {
+            singleArcPropagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
+            if( singleArcPropagatorSettings->getInitialTime( ) != singleArcPropagatorSettings->getInitialTime( ) )
+            {
+                std::cerr<<"Warning when processing deprecated propagator settitngs, initial propagation time is NaN"<<std::endl;
+            }
         }
 
         singleArcPropagatorSettings->getOutputSettings( )->setClearNumericalSolutions( clearNumericalSolutions );
@@ -558,8 +567,6 @@ public:
         {
             outputSettings_ = propagatorSettings_->getOutputSettingsWithCheck( );
             integratorSettings_ = propagatorSettings_->getIntegratorSettings( );
-            initialPropagationTime_ = integratorSettings_->initialTime_;
-
         }
 
         if( integratorSettings_ == nullptr )
@@ -588,7 +595,7 @@ public:
         {
             dynamicsStateDerivative_ = std::make_shared< DynamicsStateDerivativeModel< TimeType, StateScalarType > >(
                         createStateDerivativeModels< StateScalarType, TimeType >(
-                            propagatorSettings_, bodies_, initialPropagationTime_ ),
+                            propagatorSettings_, bodies_, propagatorSettings_->getInitialTime( ) ),
                         std::bind( &EnvironmentUpdater< StateScalarType, TimeType >::updateEnvironment,
                                      environmentUpdater_, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3 ) );
         }
@@ -719,9 +726,6 @@ public:
         dynamicsStateDerivative_->resetFunctionEvaluationCounter( );
         dynamicsStateDerivative_->resetCumulativeFunctionEvaluationCounter( );
 
-        // Reset initial time to ensure consistency with multi-arc propagation.
-        integratorSettings_->initialTime_ = this->initialPropagationTime_;
-
         // Empty solution maps
         propagationResults_->reset( );
 
@@ -734,7 +738,8 @@ public:
                 EquationIntegrationInterface< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >, TimeType >::integrateEquations(
                     stateDerivativeFunction_,
                     propagationResults_->equationsOfMotionNumericalSolutionRaw_,
-                    dynamicsStateDerivative_->convertFromOutputSolution( initialStates, this->initialPropagationTime_ ),
+                    dynamicsStateDerivative_->convertFromOutputSolution( initialStates, propagatorSettings_->getInitialTime( ) ),
+                    propagatorSettings_->getInitialTime( ),
                     integratorSettings_,
                     propagationTerminationCondition_,
                     propagationResults_->dependentVariableHistory_,
@@ -913,7 +918,7 @@ public:
      */
     double getInitialPropagationTime( )
     {
-        return this->initialPropagationTime_;
+        return propagatorSettings_->getInitialTime( );
     }
 
     //! Function to reset initial propagation time
@@ -923,7 +928,7 @@ public:
      */
     void resetInitialPropagationTime( const double initialPropagationTime )
     {
-        initialPropagationTime_ = initialPropagationTime;
+        propagatorSettings_->resetInitialTime( initialPropagationTime );
     }
 
     //! Function to retrieve the functions that compute the dependent variables at each time step
@@ -1202,8 +1207,8 @@ protected:
 
     std::shared_ptr< SingleArcPropagatorResults< StateScalarType, TimeType > > propagationResults_;
 
-    //! Initial time of propagation
-    double initialPropagationTime_;
+//    //! Initial time of propagation
+//    double initialPropagationTime_;
 
     //! Initial clock time
     std::chrono::steady_clock::time_point initialClockTime_;

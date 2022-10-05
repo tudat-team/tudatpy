@@ -2474,7 +2474,7 @@ BOOST_AUTO_TEST_CASE( testMomentumWheelDesaturationThrust )
 
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                     stateTransitionMatrix.block( 0, 3, 3, 3 ),
-                    ( ( currentTime - integratorSettings->initialTime_ ) * Eigen::Matrix3d::Identity( ) ),
+                    ( ( currentTime - simulationStartEpoch ) * Eigen::Matrix3d::Identity( ) ),
                     1.0E-8 );
         stateTransitionMatrix.block( 0, 3, 3, 3 ) = Eigen::Matrix3d::Zero( );
 

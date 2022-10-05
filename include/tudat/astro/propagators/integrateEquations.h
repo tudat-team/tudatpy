@@ -718,6 +718,7 @@ public:
             std::function< StateType( const TimeType, const StateType& ) > stateDerivativeFunction,
             std::map< TimeType, StateType >& solutionHistory,
             const StateType initialState,
+            const TimeType initialTime,
             const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
             const std::shared_ptr< PropagationTerminationCondition > propagationTerminationCondition,
             std::map< TimeType, Eigen::VectorXd >& dependentVariableHistory,
@@ -760,6 +761,7 @@ public:
             std::function< StateType( const double, const StateType& ) > stateDerivativeFunction,
             std::map< double, StateType >& solutionHistory,
             const StateType initialState,
+            const double initialTime,
             const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
             const std::shared_ptr< PropagationTerminationCondition > propagationTerminationCondition,
             std::map< double, Eigen::VectorXd >& dependentVariableHistory,
@@ -775,7 +777,7 @@ public:
         // Create numerical integrator.
         std::shared_ptr< numerical_integrators::NumericalIntegrator< double, StateType, StateType > > integrator =
                 numerical_integrators::createIntegrator< double, StateType >(
-                    stateDerivativeFunction, initialState, integratorSettings );
+                    stateDerivativeFunction, initialState, initialTime, integratorSettings );
 
         if( integratorSettings->assessTerminationOnMinorSteps_ )
         {
@@ -826,6 +828,7 @@ public:
             std::function< StateType( const Time, const StateType& ) > stateDerivativeFunction,
             std::map< Time, StateType >& solutionHistory,
             const StateType initialState,
+            const Time initialTime,
             const std::shared_ptr< numerical_integrators::IntegratorSettings< Time > > integratorSettings,
             const std::shared_ptr< PropagationTerminationCondition > propagationTerminationCondition,
             std::map< Time, Eigen::VectorXd >& dependentVariableHistory,
@@ -841,7 +844,7 @@ public:
         // Create numerical integrator.
         std::shared_ptr< numerical_integrators::NumericalIntegrator< Time, StateType, StateType, long double > > integrator =
                 numerical_integrators::createIntegrator< Time, StateType, long double  >(
-                    stateDerivativeFunction, initialState, integratorSettings );
+                    stateDerivativeFunction, initialState, initialTime, integratorSettings );
 
         if( integratorSettings->assessTerminationOnMinorSteps_ )
         {

@@ -153,7 +153,7 @@ BOOST_AUTO_TEST_CASE( testEmpiricalAccelerations )
         TranslationalPropagatorType propagatorType = encke;
         std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
                 std::make_shared< TranslationalStatePropagatorSettings< double > >
-                ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, integratorSettings,
+                ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, 0.0, integratorSettings,
                   std::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ), propagatorType,
                   dependentVariables );
 

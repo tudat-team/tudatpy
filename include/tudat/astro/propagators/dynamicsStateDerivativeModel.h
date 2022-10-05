@@ -191,6 +191,7 @@ public:
                         time, std::unordered_map<
                         IntegratedStateType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >( ),
                         integratedStatesFromEnvironment_ );
+
         }
 
         if( evaluateVariationalEquations_ )
@@ -543,6 +544,11 @@ public:
     std::map< IntegratedStateType, int > getStateTypeStartIndices( )
     {
         return conventionalStateTypeStartIndex_;
+    }
+
+    std::vector< IntegratedStateType > getIntegratedStateTypes( )
+    {
+        return utilities::createVectorFromMapKeys( conventionalStateTypeStartIndex_ );
     }
 
     //! Function to retrieve number of calls to the computeStateDerivative function

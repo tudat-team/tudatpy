@@ -104,7 +104,7 @@ std::pair< double, double > computeKeplerElementRatesDueToDissipation(
         std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
                 std::make_shared< TranslationalStatePropagatorSettings< double > >
                 ( centralBodies, accelerationModelMap, bodiesToPropagate, getInitialStatesOfBodies(
-                      bodiesToPropagate, centralBodies, bodies, initialTime ), integratorSettings,
+                      bodiesToPropagate, centralBodies, bodies, initialTime ), initialTime, integratorSettings,
                   std::make_shared< PropagationTimeTerminationSettings >( finalTime ), cowell,
                   dependentVariablesToSave );
 

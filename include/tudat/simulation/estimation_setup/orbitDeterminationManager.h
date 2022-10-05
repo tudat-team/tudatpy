@@ -120,12 +120,18 @@ public:
         if( std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< ObservationScalarType, TimeType > >( propagatorSettings ) != nullptr )
         {
             std::cout<<"Multi-arc"<<std::endl;
+            std::shared_ptr< propagators::MultiArcPropagatorSettings< ObservationScalarType, TimeType > > multiArcPropagatorSettings =
+                    std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< ObservationScalarType, TimeType > >( propagatorSettings );
 
             std::vector< double > arcStartTimes = estimatable_parameters::getMultiArcStateEstimationArcStartTimes(
                             parametersToEstimate, ( integratorIndexOffset == 0 ) );
+            if( multiArcPropagatorSettings->getSingleArcSettings( ).size( ) != arcStartTimes.size( ) )
+            {
+                throw std::runtime_error( "Error when processing deprecated integrator/propagator settings in estimation; inconsistent number of arcs" );
+            }
             for( unsigned int i = 0; i < arcStartTimes.size( ); i++ )
             {
-                independentIntegratorSettingsList.at( i + integratorIndexOffset )->initialTime_ = arcStartTimes.at( i );
+                multiArcPropagatorSettings->getSingleArcSettings( ).at( i )->resetInitialTime( arcStartTimes.at( i ) );
             }
         }
         else if( std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< ObservationScalarType, TimeType > >( propagatorSettings ) != nullptr )

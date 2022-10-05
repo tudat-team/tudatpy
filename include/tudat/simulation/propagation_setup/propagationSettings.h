@@ -778,15 +778,19 @@ public:
 
     SingleArcPropagatorSettings( const IntegratedStateType stateType,
                                  const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialBodyStates,
+                                 const TimeType& initialTime,
                                  const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
                                  const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
                                  const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >& dependentVariablesToSave =
             std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
                                  const std::shared_ptr< SingleArcPropagatorOutputSettings > outputSettings = std::make_shared< SingleArcPropagatorOutputSettings >( ) ):
         PropagatorSettings< StateScalarType >( initialBodyStates, outputSettings, false ),
-        stateType_( stateType ), terminationSettings_( terminationSettings ),
+        stateType_( stateType ), initialTime_( initialTime ), terminationSettings_( terminationSettings ),
         dependentVariablesToSave_( dependentVariablesToSave ), integratorSettings_( integratorSettings ),
-        outputSettings_( outputSettings ), statePrintInterval_( TUDAT_NAN ){ }
+        outputSettings_( outputSettings ), statePrintInterval_( TUDAT_NAN )
+    {
+//        if( )
+    }
 
     //! Virtual destructor.
     virtual ~SingleArcPropagatorSettings( ){ }
@@ -890,10 +894,23 @@ public:
     {
         throw std::runtime_error( "Error, clone function not yet implemented" );
     }
+
+    TimeType getInitialTime( )
+    {
+        return initialTime_;
+    }
+
+    void resetInitialTime( const TimeType& initialTime )
+    {
+        initialTime_ = initialTime;
+    }
+
 protected:
 
     //!Type of state being propagated
     IntegratedStateType stateType_;
+
+    TimeType initialTime_;
 
     //! Settings for creating the object that checks whether the propagation is finished.
     std::shared_ptr< PropagationTerminationSettings > terminationSettings_;
@@ -1366,14 +1383,16 @@ public:
                                           const basic_astrodynamics::AccelerationMap& accelerationsMap,
                                           const std::vector< std::string >& bodiesToIntegrate,
                                           const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyStates,
+                                          const TimeType& initialTime,
                                           const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
                                           const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
                                           const TranslationalPropagatorType propagator = cowell,
                                           const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
             std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
                                           const std::shared_ptr< SingleArcPropagatorOutputSettings > outputSettings = std::make_shared< SingleArcPropagatorOutputSettings >( ) ):
-        SingleArcPropagatorSettings< StateScalarType, TimeType >( translational_state, initialBodyStates, integratorSettings, terminationSettings,
-                                                                  dependentVariablesToSave, outputSettings ),
+        SingleArcPropagatorSettings< StateScalarType, TimeType >(
+            translational_state, initialBodyStates, initialTime, integratorSettings, terminationSettings,
+            dependentVariablesToSave, outputSettings ),
         centralBodies_( centralBodies ),
         bodiesToIntegrate_( bodiesToIntegrate ),
         propagator_( propagator ),
@@ -1382,7 +1401,7 @@ public:
     virtual std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > clone( )
     {
         return std::make_shared< TranslationalStatePropagatorSettings< StateScalarType, TimeType > >(
-                    centralBodies_, accelerationsMap_, bodiesToIntegrate_, this->initialStates_, this->integratorSettings_,
+                    centralBodies_, accelerationsMap_, bodiesToIntegrate_, this->initialStates_, this->initialTime_, this->integratorSettings_,
                     this->terminationSettings_, propagator_, this->dependentVariablesToSave_,
                     std::make_shared< SingleArcPropagatorOutputSettings >( *this->outputSettings_ ) );
     }
@@ -1648,6 +1667,7 @@ public:
     RotationalStatePropagatorSettings( const basic_astrodynamics::TorqueModelMap& torqueModelMap,
                                        const std::vector< std::string >& bodiesToIntegrate,
                                        const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyStates,
+                                       const TimeType& initialTime,
                                        const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
                                        const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
                                        const RotationalPropagatorType propagator = quaternions,
@@ -1655,8 +1675,9 @@ public:
             std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
                                        const std::shared_ptr< SingleArcPropagatorOutputSettings > outputSettings =
             std::make_shared< SingleArcPropagatorOutputSettings >( ) ):
-        SingleArcPropagatorSettings< StateScalarType, TimeType >( rotational_state, initialBodyStates, integratorSettings, terminationSettings,
-                                                                  dependentVariablesToSave, outputSettings ),
+        SingleArcPropagatorSettings< StateScalarType, TimeType >(
+            rotational_state, initialBodyStates, initialTime, integratorSettings, terminationSettings,
+            dependentVariablesToSave, outputSettings ),
         bodiesToIntegrate_( bodiesToIntegrate ), propagator_( propagator ), torqueModelMap_( torqueModelMap )
     { verifyInput( ); }
 
@@ -1902,14 +1923,16 @@ public:
             const std::vector< std::string > bodiesWithMassToPropagate,
             const std::map< std::string, std::vector< std::shared_ptr< basic_astrodynamics::MassRateModel > > >& massRateModels,
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyMasses,
+            const TimeType& initialTime,
             const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
             const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
             const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
             std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
             const std::shared_ptr< SingleArcPropagatorOutputSettings > outputSettings =
             std::make_shared< SingleArcPropagatorOutputSettings >( ) ):
-        SingleArcPropagatorSettings< StateScalarType, TimeType >( body_mass_state, initialBodyMasses, integratorSettings, terminationSettings,
-                                                                  dependentVariablesToSave, outputSettings ),
+        SingleArcPropagatorSettings< StateScalarType, TimeType >(
+            body_mass_state, initialBodyMasses, initialTime, integratorSettings, terminationSettings,
+            dependentVariablesToSave, outputSettings ),
         bodiesWithMassToPropagate_( bodiesWithMassToPropagate ), massRateModels_( massRateModels )
     { verifyInput( ); }
 
@@ -2179,14 +2202,16 @@ public:
     CustomStatePropagatorSettings(
             const std::function< StateVectorType( const TimeType, const StateVectorType& ) > stateDerivativeFunction,
             const StateVectorType initialState,
+            const TimeType& initialTime,
             const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
             const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
             const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
             std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
             const std::shared_ptr< SingleArcPropagatorOutputSettings > outputSettings =
             std::make_shared< SingleArcPropagatorOutputSettings >( ) ):
-        SingleArcPropagatorSettings< StateScalarType, TimeType >( custom_state, initialState, integratorSettings, terminationSettings,
-                                                                  dependentVariablesToSave, outputSettings ),
+        SingleArcPropagatorSettings< StateScalarType, TimeType >(
+            custom_state, initialState, initialTime, integratorSettings, terminationSettings,
+            dependentVariablesToSave, outputSettings ),
         stateDerivativeFunction_( stateDerivativeFunction ), stateSize_( initialState.rows( ) ){ }
 
     //! Destructor
@@ -2330,7 +2355,8 @@ std::shared_ptr< MultiArcPropagatorSettings< StateScalarType, TimeType > > getEx
             constituentSingleArcSettings.push_back(
                         std::make_shared< TranslationalStatePropagatorSettings< StateScalarType, TimeType > >(
                             fullCentralBodies, fullAccelerationsMap, fullBodiesToIntegrate,
-                            currentArcInitialStates, multiArcSettings->getSingleArcSettings( ).at( i )->getIntegratorSettings( ),
+                            currentArcInitialStates, currentArcTranslationalSettings->getInitialTime( ),
+                            multiArcSettings->getSingleArcSettings( ).at( i )->getIntegratorSettings( ),
                             multiArcSettings->getSingleArcSettings( ).at( i )->getTerminationSettings( ), propagatorToUse,
                             fullDependentVariablesToSave ) );
         }
@@ -2505,7 +2531,7 @@ public:
             const std::shared_ptr< SingleArcPropagatorOutputSettings > outputSettings =
             std::make_shared< SingleArcPropagatorOutputSettings >( ) ):
         SingleArcPropagatorSettings< StateScalarType, TimeType >(
-            hybrid, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( 0 ), integratorSettings,
+            hybrid, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( 0 ), TUDAT_NAN, integratorSettings,
             terminationSettings, dependentVariablesToSave, outputSettings )
     {
         for( unsigned int i = 0; i < propagatorSettingsVector.size( ); i++ )
