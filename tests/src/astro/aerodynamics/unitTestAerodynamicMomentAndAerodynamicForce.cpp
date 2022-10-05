@@ -476,7 +476,7 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
                 ( rungeKutta4, 0.0, 5.0 );
         std::shared_ptr< TranslationalStatePropagatorSettings< double > > translationalPropagatorSettings =
                 std::make_shared< TranslationalStatePropagatorSettings< double > >
-                ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, integratorSettings, terminationSettings,
+                ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, 0.0, integratorSettings, terminationSettings,
                   cowell, dependentVariables );
 
         // Create simulation object and propagate dynamics.
@@ -783,7 +783,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicTrimWithFreeAngles )
 
     std::shared_ptr< TranslationalStatePropagatorSettings < double > > propagatorSettings =
             std::make_shared< TranslationalStatePropagatorSettings< double > >(
-                centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, integratorSettings,
+                centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, simulationStartEpoch, integratorSettings,
               std::make_shared< propagators::PropagationTimeTerminationSettings >( 3200.0 ), cowell,
               dependentVariables );
 

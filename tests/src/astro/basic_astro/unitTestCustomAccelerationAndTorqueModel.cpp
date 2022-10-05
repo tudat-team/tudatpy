@@ -157,7 +157,8 @@ BOOST_AUTO_TEST_CASE( test_customAccelerationModelCreation )
                     basic_astrodynamics::custom_acceleration, "Vehicle", "Earth", 0 ) );
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
             std::make_shared< TranslationalStatePropagatorSettings< double > >
-            ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, integratorSettings,
+            ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, simulationStartEpoch,
+              integratorSettings,
               std::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ),
               cowell, dependentVariables );
 

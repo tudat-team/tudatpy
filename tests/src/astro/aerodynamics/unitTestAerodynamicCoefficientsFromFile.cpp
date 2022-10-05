@@ -264,7 +264,8 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientsFromFile )
                 ( rungeKutta4, simulationStartEpoch, fixedStepSize );
         std::shared_ptr< TranslationalStatePropagatorSettings < double > > propagatorSettings =
                 std::make_shared< TranslationalStatePropagatorSettings< double > >
-                ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, integratorSettings, propagationTerminationSettings,
+                ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, simulationStartEpoch,
+                  integratorSettings, propagationTerminationSettings,
                   cowell, dependentVariables );
 
 
