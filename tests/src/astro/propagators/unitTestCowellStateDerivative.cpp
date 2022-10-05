@@ -149,7 +149,7 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
     outputSettings->setIntegratedResult( true );
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
             std::make_shared< TranslationalStatePropagatorSettings< double > >
-            ( centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState, integratorSettings,
+            ( centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState, initialEphemerisTime, integratorSettings,
               std::make_shared< PropagationTimeTerminationSettings >( finalEphemerisTime ),
               cowell, std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
               outputSettings );
@@ -178,7 +178,7 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
                 bodies, accelerationMap, centralBodyMap );
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings2 =
             std::make_shared< TranslationalStatePropagatorSettings< double > >
-            ( centralBodies, accelerationModelMap2, bodiesToIntegrate, systemInitialState, integratorSettings,
+            ( centralBodies, accelerationModelMap2, bodiesToIntegrate, systemInitialState, initialEphemerisTime, integratorSettings,
               std::make_shared< PropagationTimeTerminationSettings >( finalEphemerisTime ),
               cowell, std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
               outputSettings );
@@ -198,7 +198,9 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
             ( rungeKutta4, solutionSetIterator->first, -200.0 );
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings3 =
             std::make_shared< TranslationalStatePropagatorSettings< double > >
-            ( centralBodies, accelerationModelMap2, bodiesToIntegrate, systemFinalState, integratorSettings2,
+            ( centralBodies, accelerationModelMap2, bodiesToIntegrate, systemFinalState,
+              solutionSetIterator->first,
+              integratorSettings2,
               std::make_shared< PropagationTimeTerminationSettings >( initialEphemerisTime ),
               cowell, std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
               outputSettings );
@@ -455,6 +457,7 @@ void testCowellPropagationOfKeplerOrbit( )
         std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > propagatorSettings =
                 std::make_shared< TranslationalStatePropagatorSettings< StateScalarType > >
                 ( centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState, finalEphemerisTime );
+                  //cowell, std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ), 1.0E6 );
 
         // Create dynamics simulation object.
         SingleArcDynamicsSimulator< StateScalarType, TimeType > dynamicsSimulator(

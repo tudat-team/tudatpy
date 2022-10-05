@@ -73,7 +73,7 @@ void integrateForwardWithDissipationAndBackwardsWithout(
             dynamicsSimulator->getDependentVariableHistory( );
 
     // Save original integration/propagation settings
-    TimeType originalStartTime = integratorSettings->initialTime_;
+    TimeType originalStartTime = dynamicsSimulator->getInitialPropagationTime( );
     TimeType originalEndTime = std::dynamic_pointer_cast< PropagationTimeTerminationSettings >(
                 propagatorSettings->getTerminationSettings( ) )->terminationTime_;
     double originalTimeStep = integratorSettings->initialTimeStep_;
@@ -83,7 +83,6 @@ void integrateForwardWithDissipationAndBackwardsWithout(
 
     // Reset propagation/integration settings for backwards propagation
     auto outputMapIterator = forwardIntegrated.rbegin( );
-    integratorSettings->initialTime_ = outputMapIterator->first;
     dynamicsSimulator->resetInitialPropagationTime( outputMapIterator->first );
     propagatorSettings->resetTerminationSettings(
                 std::make_shared< PropagationTimeTerminationSettings >( originalStartTime ) );
@@ -98,7 +97,6 @@ void integrateForwardWithDissipationAndBackwardsWithout(
             dynamicsSimulator->getDependentVariableHistory( );
 
     // Reset original integration/propagation settings
-    integratorSettings->initialTime_ = originalStartTime;
     dynamicsSimulator->resetInitialPropagationTime( originalStartTime );
     propagatorSettings->resetTerminationSettings(
                 std::make_shared< PropagationTimeTerminationSettings >( originalEndTime ) );
@@ -157,6 +155,8 @@ Eigen::VectorXd getZeroProperModeRotationalState(
     std::shared_ptr< RotationalStatePropagatorSettings< StateScalarType > > rotationPropagationSettings_ =
             std::dynamic_pointer_cast< RotationalStatePropagatorSettings< StateScalarType > >(
                 propagatorSettings );
+    TimeType originalInitialTime = rotationPropagationSettings_->getInitialTime( );
+
     if( rotationPropagationSettings_ == nullptr )
     {
         // Retrieve rotational propagator settings from multi-type settings
@@ -256,7 +256,7 @@ Eigen::VectorXd getZeroProperModeRotationalState(
                     getDissipationMatrix( dissipationTimes.at( i ), inertiaTensor ) );
 
         // Reset final time (propagate for 10 times the dissipation time)
-        newFinalTime = integratorSettings->initialTime_ + 10.0 * dissipationTimes.at( i );
+        newFinalTime = originalInitialTime + 10.0 * dissipationTimes.at( i );
         propagatorSettings->resetTerminationSettings(
                     std::make_shared< PropagationTimeTerminationSettings >( newFinalTime ) );
 
@@ -267,6 +267,7 @@ Eigen::VectorXd getZeroProperModeRotationalState(
         // Update initial state to current damped result
         currentInitialState = propagatedStates.at( i + 1 ).second.begin( )->second;
         propagatorSettings->resetInitialStates( currentInitialState );
+        propagatorSettings->resetInitialTime( originalInitialTime );
 
         // Write data to files if required
         if( writeToFileInLoop )

@@ -158,7 +158,7 @@ BOOST_AUTO_TEST_CASE( test_ArcwiseEnvironmentParameters )
 
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
             std::make_shared< TranslationalStatePropagatorSettings< double > >(
-                centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState, integratorSettings,
+                centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState, initialEphemerisTime, integratorSettings,
                 std::make_shared< PropagationTimeTerminationSettings >( finalEphemerisTime ),
                 cowell, dependentVariables);
 
