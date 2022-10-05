@@ -714,27 +714,6 @@ public:
     void integrateEquationsOfMotion(
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& initialStates )
     {
-
-        if( outputSettings_->getPrintSettings( )->printAnyOutput( ) )
-        {
-            std::cout<<"===============  STARTING SINGLE-ARC PROPAGATION  ==============="<<std::endl<<std::endl;
-        }
-
-        if( outputSettings_->getPrintSettings( )->getPrintStateData( ) )
-        {
-            printPropagatedStateVectorContent(getProcessedStateStrings(getIntegratedTypeAndBodyList(propagatorSettings_)));
-        }
-
-//        if( outputSettings_->getPrintSettings( )->getPrintPropagatedStateData( ) )
-//        {
-//            printPropagatedStateVectorContent(getIntegratedTypeAndBodyList(propagatorSettings_));
-//        }
-
-        if( outputSettings_->getPrintSettings( )->getPrintDependentVariableData( ) )
-        {
-            printPropagatedDependentVariableContent( dependentVariableIds_ );
-        }
-
         // Reset functions
         dynamicsStateDerivative_->setPropagationSettings( std::vector< IntegratedStateType >( ), 1, 0 );
         dynamicsStateDerivative_->resetFunctionEvaluationCounter( );
@@ -745,6 +724,8 @@ public:
 
         // Empty solution maps
         propagationResults_->reset( );
+
+        printPrePropagationMessages( );
 
         // Integrate equations of motion numerically.
         resetPropagationTerminationConditions( );
@@ -772,33 +753,8 @@ public:
         // Retrieve number of cumulative function evaluations
         propagationResults_->cumulativeNumberOfFunctionEvaluations_ = dynamicsStateDerivative_->getCumulativeNumberOfFunctionEvaluations( );
         propagationResults_->propagationIsPerformed_ = true;
-        // Retrieve and print number of total function evaluations
-        if ( outputSettings_->getPrintSettings( )->printPostPropagation( ) )
-        {
-            std::cout << "PROPAGATION FINISHED."<<std::endl;
-            if( outputSettings_->getPrintSettings( )->getPrintNumberOfFunctionEvaluations( ) )
-            {
-                std::cout << "Total Number of Function Evaluations: "
-                      << dynamicsStateDerivative_->getNumberOfFunctionEvaluations( ) << std::endl;
-            }
-            if( outputSettings_->getPrintSettings( )->getPrintPropagationTime( ) )
-            {
-                std::cout << "Total propagation clock time: "
-                      << std::fabs( propagationResults_->cumulativeComputationTimeHistory_.begin( )->second -
-                                    propagationResults_->cumulativeComputationTimeHistory_.rbegin( )->second )<<" seconds"<<std::endl;
-            }
-            if( outputSettings_->getPrintSettings( )->getPrintTerminationReason( ) )
-            {
-                std::cout << "Termination reason: "<<propagationResults_->propagationTerminationReason_->getTerminationReasonString( )<<std::endl;
-            }
-            std::cout<<std::endl;
-        }
 
-        if( outputSettings_->getPrintSettings( )->printAnyOutput( ) )
-        {
-            std::cout<<"================================================================="<<std::endl<<std::endl;
-
-        }
+        printPostPropagationMessages( );
 
         if( outputSettings_->getSetIntegratedResult( ) )
         {
@@ -1045,6 +1001,53 @@ public:
                     propagatorSettings_, bodies_, frameManager_ );
     }
 
+    void printPrePropagationMessages( )
+    {
+        if( outputSettings_->printAnyOutput( ) )
+        {
+            std::cout<<outputSettings_->getPropagationStartHeader( )<<std::endl<<std::endl;
+        }
+
+        if( outputSettings_->getPrintSettings( )->getPrintStateData( ) )
+        {
+            printPropagatedStateVectorContent(getProcessedStateStrings(getIntegratedTypeAndBodyList(propagatorSettings_)));
+        }
+
+        if( outputSettings_->getPrintSettings( )->getPrintDependentVariableData( ) )
+        {
+            printPropagatedDependentVariableContent( dependentVariableIds_ );
+        }
+    }
+
+    void printPostPropagationMessages( )
+    {
+        // Retrieve and print number of total function evaluations
+        if ( outputSettings_->getPrintSettings( )->printPostPropagation( ) )
+        {
+            std::cout << "PROPAGATION FINISHED."<<std::endl;
+            if( outputSettings_->getPrintSettings( )->getPrintNumberOfFunctionEvaluations( ) )
+            {
+                std::cout << "Total Number of Function Evaluations: "
+                      << dynamicsStateDerivative_->getNumberOfFunctionEvaluations( ) << std::endl;
+            }
+            if( outputSettings_->getPrintSettings( )->getPrintPropagationTime( ) )
+            {
+                std::cout << "Total propagation clock time: "
+                      << std::fabs( propagationResults_->cumulativeComputationTimeHistory_.begin( )->second -
+                                    propagationResults_->cumulativeComputationTimeHistory_.rbegin( )->second )<<" seconds"<<std::endl;
+            }
+            if( outputSettings_->getPrintSettings( )->getPrintTerminationReason( ) )
+            {
+                std::cout << "Termination reason: "<<propagationResults_->propagationTerminationReason_->getTerminationReasonString( )<<std::endl;
+            }
+            std::cout<<std::endl;
+        }
+
+        if( outputSettings_->printAnyOutput( ) )
+        {
+            std::cout<<outputSettings_->getPropagationEndHeader( )<<std::endl<<std::endl;
+        }
+    }
 ///////////////////////////////////////////////////
 //////////////// DEPRECATED ///////////////////////
 ///////////////////////////////////////////////////
@@ -1373,7 +1376,6 @@ std::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > validateDepreca
             multiArcPropagatorSettings->getSingleArcSettings( ).at( i )->setIntegratorSettings( independentIntegratorSettings.at( i ) );
         }
     }
-    std::shared_ptr< PropagatorOutputSettings > outputSettings = std::make_shared< PropagatorOutputSettings >( );
     multiArcPropagatorSettings->getOutputSettings( )->setClearNumericalSolutions( clearNumericalSolutions );
     multiArcPropagatorSettings->getOutputSettings( )->setIntegratedResult( setIntegratedResult );
 
@@ -1577,6 +1579,7 @@ public:
         std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > arcInitialStateList;
         bool updateInitialStates = false;
 
+        printPrePropagationMessages( );
         // Propagate dynamics for each arc
         for( unsigned int i = 0; i < singleArcDynamicsSimulators_.size( ); i++ )
         {
@@ -1608,6 +1611,7 @@ public:
             propagationTerminationReasons_[ i ] = singleArcDynamicsSimulators_.at( i )->getPropagationTerminationReason( );
             arcStartTimes_[ i ] = equationsOfMotionNumericalSolution_[ i ].begin( )->first;
         }
+        printPostPropagationMessages( );
 
         if( updateInitialStates )
         {
@@ -1821,6 +1825,22 @@ public:
         propagationTerminationReasons_[ arcIndex ] = propagationTerminationReason;
     }
 
+    void printPrePropagationMessages( )
+    {
+        if( multiArcPropagatorSettings_->getOutputSettings( )->printAnyOutput( ) )
+        {
+            std::cout<<multiArcPropagatorSettings_->getOutputSettings( )->getPropagationStartHeader( )<<std::endl<<std::endl;
+        }
+    }
+
+    void printPostPropagationMessages( )
+    {
+        if( multiArcPropagatorSettings_->getOutputSettings( )-> printAnyOutput( ) )
+        {
+            std::cout<<multiArcPropagatorSettings_->getOutputSettings( )->getPropagationEndHeader( )<<std::endl<<std::endl;
+        }
+    }
+
 protected:
 
     //! List of maps of state history of numerically integrated states.
@@ -1931,21 +1951,20 @@ public:
 
     HybridArcDynamicsSimulator(
             const simulation_setup::SystemOfBodies& bodies,
-            const std::shared_ptr< HybridArcPropagatorSettings< StateScalarType > > propagatorSettings,
+            const std::shared_ptr< HybridArcPropagatorSettings< StateScalarType > > hybridPropagatorSettings,
             const bool areEquationsOfMotionToBeIntegrated = true,
             const bool addSingleArcBodiesToMultiArcDynamics = false ):
         DynamicsSimulator< StateScalarType, TimeType >(
-            bodies, propagatorSettings )
+            bodies, hybridPropagatorSettings ),
+        hybridPropagatorSettings_( hybridPropagatorSettings )
     {
-        std::shared_ptr< HybridArcPropagatorSettings< StateScalarType > > hybridPropagatorSettings =
-                std::dynamic_pointer_cast< HybridArcPropagatorSettings< StateScalarType > >( propagatorSettings );
-        if( hybridPropagatorSettings == nullptr )
+        if( hybridPropagatorSettings_ == nullptr )
         {
             throw std::runtime_error( "Error when making HybridArcDynamicsSimulator, propagator settings are incompatible" );
         }
 
-        singleArcDynamicsSize_ = hybridPropagatorSettings->getSingleArcPropagatorSettings( )->getPropagatedStateSize( );
-        multiArcDynamicsSize_ = hybridPropagatorSettings->getMultiArcPropagatorSettings( )->getPropagatedStateSize( );
+        singleArcDynamicsSize_ = hybridPropagatorSettings_->getSingleArcPropagatorSettings( )->getPropagatedStateSize( );
+        multiArcDynamicsSize_ = hybridPropagatorSettings_->getMultiArcPropagatorSettings( )->getPropagatedStateSize( );
 
         if( !addSingleArcBodiesToMultiArcDynamics )
         {
@@ -1955,10 +1974,10 @@ public:
 //                             "result will be set in environment for consistency with multi-arc " << std::endl;
 //            }
             singleArcDynamicsSimulator_ = std::make_shared< SingleArcDynamicsSimulator< StateScalarType, TimeType > >(
-                        bodies, hybridPropagatorSettings->getSingleArcPropagatorSettings( ),
+                        bodies, hybridPropagatorSettings_->getSingleArcPropagatorSettings( ),
                         false );
             multiArcDynamicsSimulator_ = std::make_shared< MultiArcDynamicsSimulator< StateScalarType, TimeType > >(
-                        bodies, hybridPropagatorSettings->getMultiArcPropagatorSettings( ),
+                        bodies, hybridPropagatorSettings_->getMultiArcPropagatorSettings( ),
                         false );
         }
         else
@@ -1968,7 +1987,7 @@ public:
 
         if( areEquationsOfMotionToBeIntegrated )
         {
-            integrateEquationsOfMotion( hybridPropagatorSettings->getInitialStates( ) );
+            integrateEquationsOfMotion( hybridPropagatorSettings_->getInitialStates( ) );
         }
     }
 
@@ -2032,10 +2051,12 @@ public:
     void integrateEquationsOfMotion(
                 const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& initialGlobalStates )
     {
+        printPrePropagationMessages( );
         singleArcDynamicsSimulator_->integrateEquationsOfMotion(
                     initialGlobalStates.block( 0, 0, singleArcDynamicsSize_, 1 ) );
         multiArcDynamicsSimulator_->integrateEquationsOfMotion(
                     initialGlobalStates.block( singleArcDynamicsSize_, 0, multiArcDynamicsSize_, 1 ) );
+        printPostPropagationMessages( );
 
     }
 
@@ -2138,7 +2159,25 @@ public:
         return computationTime;
     }
 
+    void printPrePropagationMessages( )
+    {
+        if( hybridPropagatorSettings_->getOutputSettings( )->printAnyOutput( ) )
+        {
+            std::cout<<hybridPropagatorSettings_->getOutputSettings( )->getPropagationStartHeader( )<<std::endl<<std::endl;
+        }
+    }
+
+    void printPostPropagationMessages( )
+    {
+        if( hybridPropagatorSettings_->getOutputSettings( )-> printAnyOutput( ) )
+        {
+            std::cout<<hybridPropagatorSettings_->getOutputSettings( )->getPropagationEndHeader( )<<std::endl<<std::endl;
+        }
+    }
+
 protected:
+
+    std::shared_ptr< HybridArcPropagatorSettings< StateScalarType > > hybridPropagatorSettings_;
 
     //! Object used to propagate single-arc dynamics
     std::shared_ptr< SingleArcDynamicsSimulator< StateScalarType, TimeType > > singleArcDynamicsSimulator_;
