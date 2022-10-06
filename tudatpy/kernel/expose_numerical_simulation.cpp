@@ -59,6 +59,16 @@ void expose_numerical_simulation(py::module &m) {
         &tp::getSingleIntegrationSize,
         py::arg("state_type") );
 
+  m.def("create_dynamics_simulator",
+        &tss::createDynamicsSimulator< double, double >,
+        py::arg("bodies"),
+        py::arg("propagator_settings"),
+        py::arg("simulate_dynamics_on_creation") = true );
+
+
+
+
+
   py::class_<
           tp::SingleArcDynamicsSimulator<double, double>,
           std::shared_ptr<tp::SingleArcDynamicsSimulator<double, double>>>(m,
@@ -118,6 +128,9 @@ void expose_numerical_simulation(py::module &m) {
           .def_property_readonly("environment_updater",
                                  &tp::SingleArcDynamicsSimulator<double, double>::getEnvironmentUpdater,
                                  get_docstring("SingleArcSimulator.environment_updater").c_str())
+          .def_property_readonly("propagation_results",
+                                 &tp::SingleArcDynamicsSimulator<double, double>::getPropagationResults,
+                                 get_docstring("SingleArcSimulator.propagation_results").c_str())
 //          .def_property_readonly("dynamics_state_derivative",
 //                                 &tp::SingleArcDynamicsSimulator<double, double>::getDynamicsStateDerivative,
 //                                 get_docstring("dynamics_state_derivative").c_str())
@@ -132,10 +145,10 @@ void expose_numerical_simulation(py::module &m) {
                                  get_docstring("SingleArcSimulator.propagation_termination_reason").c_str())
           .def_property_readonly("integration_completed_successfully",
                                  &tp::SingleArcDynamicsSimulator<double, double>::integrationCompletedSuccessfully,
-                                 get_docstring("SingleArcSimulator.integration_completed_successfully").c_str())
-          .def_property_readonly("dependent_variable_ids",
-                                 &tp::SingleArcDynamicsSimulator<double, double>::getDependentVariableIds,
-                                 get_docstring("SingleArcSimulator.dependent_variable_ids").c_str());
+                                 get_docstring("SingleArcSimulator.integration_completed_successfully").c_str());
+//          .def_property_readonly("dependent_variable_ids",
+//                                 &tp::SingleArcDynamicsSimulator<double, double>::getDependentVariableIds,
+//                                 get_docstring("SingleArcSimulator.dependent_variable_ids").c_str());
 //          .def_property_readonly("initial_propagation_time",
 //                                 &tp::SingleArcDynamicsSimulator<double, double>::getInitialPropagationTime,
 //                                 get_docstring("initial_propagation_time").c_str());
