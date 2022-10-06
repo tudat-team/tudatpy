@@ -153,7 +153,7 @@ std::map< double, Eigen::VectorXd > propagateKeplerOrbitAndMassState(
         propagatorSettingsList.push_back( massPropagatorSettings );
 
         propagatorSettings = std::make_shared< MultiTypePropagatorSettings< double > >(
-                    propagatorSettingsList, integratorSettings,
+                    propagatorSettingsList, integratorSettings, 0.0,
                     std::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ) );
     }
 
@@ -225,6 +225,9 @@ BOOST_AUTO_TEST_CASE( testHybridStateDerivativeModel )
         std::map< double, Eigen::VectorXd >  massState = propagateKeplerOrbitAndMassState( 1 + simulationCaseToAdd );
         std::map< double, Eigen::VectorXd >  combinedState = propagateKeplerOrbitAndMassState( 2  + simulationCaseToAdd );
 
+        BOOST_CHECK_EQUAL( translationalState.size( ), combinedState.size( ) );
+        BOOST_CHECK_EQUAL( translationalState.size( ), massState.size( ) );
+
         std::map< double, Eigen::VectorXd >::const_iterator stateIterator = translationalState.begin( );
         std::map< double, Eigen::VectorXd >::const_iterator massIterator = massState.begin( );
         std::map< double, Eigen::VectorXd >::const_iterator combinedIterator = combinedState.begin( );
@@ -232,6 +235,9 @@ BOOST_AUTO_TEST_CASE( testHybridStateDerivativeModel )
         // Compare separate and multitype dynamics of each type.
         for( unsigned int i = 0; i < translationalState.size( ); i++ )
         {
+            BOOST_CHECK_EQUAL( stateIterator->first, combinedIterator->first );
+            BOOST_CHECK_EQUAL( stateIterator->first, massIterator->first );
+
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION( stateIterator->second, combinedIterator->second.segment( 0, 6 ),
                                                std::numeric_limits< double >::epsilon( ) );
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION( massIterator->second, combinedIterator->second.segment( 6, 1 ),

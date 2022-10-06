@@ -771,7 +771,7 @@ public:
                                  const double statePrintInterval = TUDAT_NAN,
                                  const std::shared_ptr< SingleArcPropagatorOutputSettings > outputSettings = std::make_shared< SingleArcPropagatorOutputSettings >( ) ):
         PropagatorSettings< StateScalarType >( initialBodyStates, outputSettings, false ),
-        stateType_( stateType ), terminationSettings_( terminationSettings ),
+        stateType_( stateType ), initialTime_( TUDAT_NAN ), terminationSettings_( terminationSettings ),
         dependentVariablesToSave_( dependentVariablesToSave ),
         integratorSettings_( nullptr ), outputSettings_( outputSettings ), statePrintInterval_( statePrintInterval)
     { }
@@ -2525,13 +2525,14 @@ public:
     MultiTypePropagatorSettings(
             const std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > > propagatorSettingsVector,
             const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
+            const TimeType initialTime,
             const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
             const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
             std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
             const std::shared_ptr< SingleArcPropagatorOutputSettings > outputSettings =
             std::make_shared< SingleArcPropagatorOutputSettings >( ) ):
         SingleArcPropagatorSettings< StateScalarType, TimeType >(
-            hybrid, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( 0 ), TUDAT_NAN, integratorSettings,
+            hybrid, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( 0 ), initialTime, integratorSettings,
             terminationSettings, dependentVariablesToSave, outputSettings )
     {
         for( unsigned int i = 0; i < propagatorSettingsVector.size( ); i++ )

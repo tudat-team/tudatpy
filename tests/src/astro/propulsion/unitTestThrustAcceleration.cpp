@@ -2276,7 +2276,7 @@ BOOST_AUTO_TEST_CASE( testMomentumWheelDesaturationThrust )
     spice_interface::loadStandardSpiceKernels( );
 
     // Set simulation start epoch.
-    const double simulationStartEpoch = 0.0;
+    const double simulationStartEpoch = 0.2;
 
     // Set simulation end epoch.
     const double simulationEndEpoch = 4.0 * 3600.0;
@@ -2345,7 +2345,7 @@ BOOST_AUTO_TEST_CASE( testMomentumWheelDesaturationThrust )
 
     std::shared_ptr< IntegratorSettings< > > integratorSettings =
             std::make_shared< IntegratorSettings< > >
-            ( rungeKutta4, simulationStartEpoch + fixedStepSize / 9.0, fixedStepSize );
+            ( rungeKutta4, simulationStartEpoch, fixedStepSize );
 
 
     // Define list of parameters to estimate.
