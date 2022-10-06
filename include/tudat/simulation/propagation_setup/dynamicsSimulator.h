@@ -428,6 +428,40 @@ public:
         propagationTerminationReason_ = std::make_shared< PropagationTerminationDetails >( propagation_never_run );
     }
 
+    std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& getEquationsOfMotionNumericalSolution( )
+    {
+        return equationsOfMotionNumericalSolution_;
+    }
+
+    std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& getEquationsOfMotionNumericalSolutionRaw( )
+    {
+        return equationsOfMotionNumericalSolutionRaw_;
+    }
+
+    std::map< TimeType, Eigen::VectorXd >& getDependentVariableHistory( )
+    {
+        return dependentVariableHistory_;
+    }
+
+    std::map< TimeType, double >& getCumulativeComputationTimeHistory( )
+    {
+        return cumulativeComputationTimeHistory_;
+    }
+
+    std::map< TimeType, unsigned int >& getCumulativeNumberOfFunctionEvaluations( )
+    {
+        return cumulativeNumberOfFunctionEvaluations_;
+    }
+
+//    std::map< std::pair< int, int >, std::string > dependentVariableIds_;
+
+//    std::shared_ptr< SingleArcPropagatorOutputSettings > outputSettings_;
+
+    std::shared_ptr< PropagationTerminationDetails > getPropagationTerminationReason( )
+    {
+        return propagationTerminationReason_;
+    }
+
 private:
 
     //! Map of state history of numerically integrated bodies.
@@ -746,7 +780,7 @@ public:
                     propagationResults_->cumulativeComputationTimeHistory_,
                     dependentVariablesFunctions_,
                     statePostProcessingFunction_,
-                    propagatorSettings_->getStatePrintInterval( ),
+                    propagatorSettings_->getOutputSettings( )->getPrintSettings( )->getStatePrintInterval( ),
                     initialClockTime_ );
         simulation_setup::setAreBodiesInPropagation( bodies_, false );
 
@@ -1005,6 +1039,12 @@ public:
         integratedStateProcessors_ = createIntegratedStateProcessors< TimeType, StateScalarType >(
                     propagatorSettings_, bodies_, frameManager_ );
     }
+
+    std::shared_ptr< SingleArcPropagatorResults< StateScalarType, TimeType > > getPropagationResults( )
+    {
+        return propagationResults_;
+    }
+
 
     void printPrePropagationMessages( )
     {

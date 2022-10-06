@@ -718,11 +718,12 @@ public:
             = std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ),
             const bool clearNumericalSolution = true,
             const bool integrateEquationsOnCreation = true,
-            const bool setIntegratedResult = true ):
+            const bool setIntegratedResult = true,
+            const bool printDependentVariableData = true):
         SingleArcVariationalEquationsSolver( bodies,validateDeprecatedSingleArcSettings(
                                                  integratorSettings, propagatorSettings,
                                                  clearNumericalSolution, setIntegratedResult, false,
-                                                 false, false ), parametersToEstimate,
+                                                 printDependentVariableData, false ), parametersToEstimate,
                                              integrateDynamicalAndVariationalEquationsConcurrently, integrateEquationsOnCreation ){ }
 
     //! Destructor
@@ -787,7 +788,7 @@ public:
                         cumulativeComputationTimeHistory,
                         dynamicsSimulator_->getDependentVariablesFunctions( ),
                         statePostProcessingFunction_,
-                        propagatorSettings_->getStatePrintInterval( ) );
+                        propagatorSettings_->getOutputSettings( )->getPrintSettings( )->getStatePrintInterval( ) );
             dynamicsSimulator_->setPropagationTerminationReason( propagationTerminationReason );
             simulation_setup::setAreBodiesInPropagation( bodies_, false );
             dynamicsSimulator_->printPostPropagationMessages( );

@@ -525,6 +525,28 @@ std::shared_ptr< PropagationTerminationDetails > integrateEquationsFromIntegrato
         {
             if( ( newState.allFinite( ) == true ) && ( !newState.hasNaN( ) ) )
             {
+                // Print solutions
+                if( statePrintInterval == statePrintInterval )
+                {
+                    if( !( previousPrintTime == previousPrintTime ) ||
+                            std::fabs( static_cast< double >( currentTime - previousPrintTime ) ) > statePrintInterval )
+                    {
+                        previousPrintTime = currentTime;
+                        std::cout << "PRINTING STATUS DURING PROPAGATION"<<std::endl;
+                        std::cout << "   Current epoch / time since initial epoch: "<<currentTime<<" / "<<currentTime - initialTime<<std::endl;
+                        std::cout << "   Clock time since propagation start: "<<currentCPUTime<<std::endl;
+
+                        if( newState.cols( ) == 1 )
+                        {
+                            std::cout << "   Current state (transpose): "<<std::endl<<newState.transpose( ) <<std::endl<<std::endl;
+                        }
+                        else
+                        {
+                            std::cout << "   Current state: "<<std::endl<<newState <<std::endl<<std::endl;
+                        }
+                    }
+                }
+
                 previousTime = currentTime;
 
                 // Perform integration step.
@@ -577,30 +599,6 @@ std::shared_ptr< PropagationTerminationDetails > integrateEquationsFromIntegrato
             currentCPUTime = std::chrono::duration_cast< std::chrono::nanoseconds >(
                         std::chrono::steady_clock::now( ) - initialClockTime ).count( ) * 1.0e-9;
             cumulativeComputationTimeHistory[ currentTime ] = currentCPUTime;
-
-            // Print solutions
-            if( statePrintInterval == statePrintInterval )
-            {
-                if( !( previousPrintTime == previousPrintTime ) ||
-                        std::fabs( static_cast< double >( currentTime - previousPrintTime ) ) > statePrintInterval )
-                {
-                    previousPrintTime = currentTime;
-                    std::cout << "PRINTING STATUS DURING PROPAGATION"<<std::endl;
-                    std::cout << "   Current epoch: "<<currentTime<<std::endl;
-                    std::cout << "   Time since initial epoch: "<<currentTime - initialTime<<std::endl;
-                    std::cout << "   Current time step: "<<timeStep<<std::endl;
-                    std::cout << "   Clock time since propagation start: "<<currentCPUTime<<std::endl;
-
-                    if( newState.cols( ) == 1 )
-                    {
-                        std::cout << "   Current state (transpose): "<<std::endl<<newState.transpose( ) <<std::endl<<std::endl;
-                    }
-                    else
-                    {
-                        std::cout << "   Current state: "<<std::endl<<newState <<std::endl<<std::endl;
-                    }
-                }
-            }
 
             if( propagationTerminationCondition->checkStopCondition( static_cast< double >( currentTime ), currentCPUTime ) )
             {
