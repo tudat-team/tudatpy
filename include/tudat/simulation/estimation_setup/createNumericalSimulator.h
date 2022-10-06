@@ -50,6 +50,36 @@ std::shared_ptr< propagators::SingleArcDynamicsSimulator< StateScalarType, TimeT
                 setIntegratedResult );
 }
 
+template< typename StateScalarType = double, typename TimeType = double >
+std::shared_ptr< propagators::DynamicsSimulator< StateScalarType, TimeType > > createDynamicsSimulator(
+        const  simulation_setup::SystemOfBodies& bodies,
+        const std::shared_ptr< propagators::PropagatorSettings< StateScalarType > > propagatorSettings,
+        const bool areEquationsOfMotionToBeIntegrated = true )
+{
+    if( std::dynamic_pointer_cast< propagators::SingleArcPropagatorSettings< StateScalarType > >( propagatorSettings ) != nullptr )
+    {
+        return std::make_shared< propagators::SingleArcDynamicsSimulator< StateScalarType, TimeType > >(
+                    bodies, std::dynamic_pointer_cast< propagators::SingleArcPropagatorSettings< StateScalarType > >( propagatorSettings ),
+                    areEquationsOfMotionToBeIntegrated );
+    }
+    else if( std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< StateScalarType > >( propagatorSettings ) != nullptr )
+    {
+        return std::make_shared< propagators::MultiArcDynamicsSimulator< StateScalarType, TimeType > >(
+                    bodies, std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< StateScalarType > >( propagatorSettings ),
+                    areEquationsOfMotionToBeIntegrated );
+    }
+    else if( std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< StateScalarType > >( propagatorSettings ) != nullptr )
+    {
+        return std::make_shared< propagators::HybridArcDynamicsSimulator< StateScalarType, TimeType > >(
+                    bodies, std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< StateScalarType > >( propagatorSettings ),
+                    areEquationsOfMotionToBeIntegrated );
+    }
+    else
+    {
+        throw std::runtime_error( "Error when creating variational equations solver, dynamics type not recognized" );
+    }
+}
+
 ////! Function to create single-arc variational equations solver object
 ///*!
 // *  Function to create single-arc variational equations solver object
