@@ -223,10 +223,10 @@ BOOST_AUTO_TEST_CASE( testKeplerMultiArcDynamics )
                             ( orbital_element_conversions::convertKeplerianToCartesianElements(
                                   propagateKeplerOrbit( initialKeplerElements.at( i ), currentTestTime - integrationArcStarts.at( i ),
                                                         earthGravitationalParameter ), earthGravitationalParameter ) );
-                    for( int i = 0; i < 3; i++ )
+                    for( int j = 0; j < 3; j++ )
                     {
-                        BOOST_CHECK_SMALL( stateDifference( i ), 1.0E-4 );
-                        BOOST_CHECK_SMALL( stateDifference( i + 3 ), 1.0E-10 );
+                        BOOST_CHECK_SMALL( stateDifference( j ), 1.0E-4 );
+                        BOOST_CHECK_SMALL( stateDifference( j + 3 ), 1.0E-10 );
 
                     }
                     currentTestTime += testTimeStep;

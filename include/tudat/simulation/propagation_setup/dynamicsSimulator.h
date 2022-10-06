@@ -1379,6 +1379,12 @@ std::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > validateDepreca
                 break;
             }
             multiArcPropagatorSettings->getSingleArcSettings( ).at( i )->setIntegratorSettings( independentIntegratorSettings.at( i ) );
+            if( multiArcPropagatorSettings->getSingleArcSettings( ).at( i )->getInitialTime( ) !=
+                    multiArcPropagatorSettings->getSingleArcSettings( ).at( i )->getInitialTime( ) )
+            {
+                multiArcPropagatorSettings->getSingleArcSettings( ).at( i )->resetInitialTime(
+                            independentIntegratorSettings.at( i )->initialTimeDeprecated_ );
+            }
         }
     }
     multiArcPropagatorSettings->getOutputSettings( )->setClearNumericalSolutions( clearNumericalSolutions );
