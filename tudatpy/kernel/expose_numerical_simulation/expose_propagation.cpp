@@ -17,13 +17,6 @@
 
 #include "expose_propagation.h"
 
-#include <pybind11/chrono.h>
-#include <pybind11/eigen.h>
-#include <pybind11/functional.h>
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
-#include <pybind11/numpy.h>
-
 
 namespace py = pybind11;
 
@@ -210,7 +203,22 @@ void expose_propagation(py::module &m) {
                     &tp::PropagationTerminationDetailsFromHybridCondition::getWasConditionMetWhenStopping,
                     get_docstring("PropagationTerminationDetailsFromHybridCondition.termination_reason").c_str());
 
-
+    py::class_<
+            tp::SingleArcPropagatorResults<double, double>,
+            std::shared_ptr<tp::SingleArcPropagatorResults<double, double>>>(m, "SingleArcPropagatorResults",
+                                                                             get_docstring("SingleArcPropagatorResults").c_str())
+            .def_property_readonly("state_history",
+                    &tp::SingleArcPropagatorResults<double, double>::getEquationsOfMotionNumericalSolution )
+            .def_property_readonly("unprocessed_state_history",
+                    &tp::SingleArcPropagatorResults<double, double>::getEquationsOfMotionNumericalSolutionRaw )
+            .def_property_readonly("dependent_variable_history",
+                    &tp::SingleArcPropagatorResults<double, double>::getDependentVariableHistory )
+            .def_property_readonly("cumulative_computation_time_history",
+                    &tp::SingleArcPropagatorResults<double, double>::getCumulativeComputationTimeHistory )
+            .def_property_readonly("cumulative_number_of_function_evaluations",
+                    &tp::SingleArcPropagatorResults<double, double>::getCumulativeNumberOfFunctionEvaluations )
+            .def_property_readonly("termination_details",
+                    &tp::SingleArcPropagatorResults<double, double>::getPropagationTerminationReason );
 
 }
 }// namespace propagation
