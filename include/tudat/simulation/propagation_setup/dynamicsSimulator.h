@@ -781,7 +781,8 @@ public:
                     dependentVariablesFunctions_,
                     statePostProcessingFunction_,
                     propagatorSettings_->getOutputSettings( )->getPrintSettings( )->getStatePrintInterval( ),
-                    initialClockTime_ );
+                    std::chrono::steady_clock::now( ),
+                    propagatorSettings_->getOutputSettings( )->getPrintSettings( )->getPrintInitialAndFinalConditions( )  );
         simulation_setup::setAreBodiesInPropagation( bodies_, false );
 
         // Convert numerical solution to conventional state
