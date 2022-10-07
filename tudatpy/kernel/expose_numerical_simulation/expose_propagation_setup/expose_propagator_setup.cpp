@@ -63,6 +63,9 @@ void expose_propagator_setup(py::module &m) {
             .def_property("state_print_interval",
                           &tp::PropagationPrintSettings::getStatePrintInterval,
                           &tp::PropagationPrintSettings::setStatePrintInterval )
+            .def_property("print_initial_and_final_conditions",
+                          &tp::PropagationPrintSettings::getPrintInitialAndFinalConditions,
+                          &tp::PropagationPrintSettings::setPrintInitialAndFinalConditions )
             .def("enable_all_printing",
                           py::overload_cast< >( &tp::PropagationPrintSettings::enableAllPrinting ) )
             .def("disable_all_printing",
