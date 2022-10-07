@@ -158,8 +158,7 @@ std::map< double, Eigen::VectorXd > propagateKeplerOrbitAndMassState(
     }
 
     propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
-    propagatorSettings->getOutputSettings( )->getPrintSettings( )->reset(
-                true, true, true, TUDAT_NAN, true, true );
+    propagatorSettings->getOutputSettings( )->getPrintSettings( )->enableAllPrinting( );
 
     // Create simulation object and propagate dynamics.
     SingleArcDynamicsSimulator< > dynamicsSimulator(

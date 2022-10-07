@@ -52,12 +52,13 @@ public:
             const bool printTerminationReason = false,
             const bool printPropagationTime = false,
             const bool printPropagatedStateData = false,
-            const bool printInitialAndFinalConditions = false ): printArcIndex_( false )
+            const bool printInitialAndFinalConditions = false,
+            const bool printDependentVariableDuringPropagation = false ): printArcIndex_( false )
     {
         reset( printNumberOfFunctionEvaluations,
                printDependentVariableData, printStateData, statePrintInterval,
                printTerminationReason, printPropagationTime, printPropagatedStateData,
-               printInitialAndFinalConditions );
+               printInitialAndFinalConditions, printDependentVariableDuringPropagation );
     }
 
     bool getPrintNumberOfFunctionEvaluations( ) { return printNumberOfFunctionEvaluations_; }
@@ -132,15 +133,15 @@ public:
         return ( printStateData_ || printPropagatedStateData_ || printDependentVariableData_ || printArcIndex_ );
     }
 
-    void reset( const bool printNumberOfFunctionEvaluations = false,
-                const bool printDependentVariableData = true,
-                const bool printStateData = false,
-                const double statePrintInterval = TUDAT_NAN,
-                const bool printTerminationReason = false,
-                const bool printPropagationTime = false,
-                const bool printPropagatedStateData = false,
-                const bool printInitialAndFinalConditions = false,
-                const bool printDependentVariableDuringPropagation = false )
+    void reset( const bool printNumberOfFunctionEvaluations,
+                const bool printDependentVariableData,
+                const bool printStateData,
+                const double statePrintInterval,
+                const bool printTerminationReason,
+                const bool printPropagationTime,
+                const bool printPropagatedStateData,
+                const bool printInitialAndFinalConditions,
+                const bool printDependentVariableDuringPropagation )
     {
         printNumberOfFunctionEvaluations_ =  printNumberOfFunctionEvaluations;
         printDependentVariableData_ =  printDependentVariableData;
@@ -169,17 +170,17 @@ public:
 
     void disableAllPrinting( )
     {
-        reset( false, false, false, TUDAT_NAN, false, false, false );
+        reset( false, false, false, TUDAT_NAN, false, false, false, false, false );
     }
 
     void enableAllPrinting( )
     {
-        reset( false, false, false, statePrintInterval_, false, false, false );
+        reset( true, true, true, statePrintInterval_, true, true, true, true, true );
     }
 
     void enableAllPrinting( const double statePrintInterval )
     {
-        reset( false, false, false, statePrintInterval, false, false, false );
+        reset( true, true, true, statePrintInterval, true, true, true, true, true );
     }
 
 private:

@@ -163,8 +163,7 @@ BOOST_AUTO_TEST_CASE( testWindModelInPropagation )
                   integratorSettings, terminationSettings,
                   cowell, dependentVariables );
 
-        translationalPropagatorSettings->getOutputSettings( )->getPrintSettings( )->reset(
-                    true, true, true, TUDAT_NAN, true, true );
+        translationalPropagatorSettings->getOutputSettings( )->getPrintSettings( )->enableAllPrinting( );
 
 
         // Create simulation object and propagate dynamics.
