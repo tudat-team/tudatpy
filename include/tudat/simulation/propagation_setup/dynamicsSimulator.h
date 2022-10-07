@@ -542,7 +542,8 @@ std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > validateDeprec
         singleArcPropagatorSettings->getOutputSettings( )->setIntegratedResult( setIntegratedResult );
         singleArcPropagatorSettings->getOutputSettings( )->getPrintSettings( )->reset(
                     printNumberOfFunctionEvaluations, printDependentVariableData, printStateData,
-                    singleArcPropagatorSettings->getOutputSettings( )->getPrintSettings( )->getStatePrintInterval( ) );
+                    singleArcPropagatorSettings->getOutputSettings( )->getPrintSettings( )->getStatePrintInterval( ),
+                    false, false, false, false, false );
 
         singleArcPropagatorSettings->setIntegratorSettings( integratorSettings );
     }
