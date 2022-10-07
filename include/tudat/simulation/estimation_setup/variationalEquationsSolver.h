@@ -788,7 +788,9 @@ public:
                         cumulativeComputationTimeHistory,
                         dynamicsSimulator_->getDependentVariablesFunctions( ),
                         statePostProcessingFunction_,
-                        propagatorSettings_->getOutputSettings( )->getPrintSettings( )->getStatePrintInterval( ) );
+                        propagatorSettings_->getOutputSettings( )->getPrintSettings( )->getStatePrintInterval( ),
+                        std::chrono::steady_clock::now( ),
+                        propagatorSettings_->getOutputSettings( )->getPrintSettings( )->getPrintInitialAndFinalConditions( ) );
             dynamicsSimulator_->setPropagationTerminationReason( propagationTerminationReason );
             simulation_setup::setAreBodiesInPropagation( bodies_, false );
             dynamicsSimulator_->printPostPropagationMessages( );
