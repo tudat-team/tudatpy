@@ -41,6 +41,7 @@ namespace propagators
 {
 
 
+//! Class defining settings for output written to cout (terminal) during a propagation
 class PropagationPrintSettings
 {
 public:
@@ -118,16 +119,19 @@ public:
         printArcIndex_ = printArcIndex;
     }
 
+    // Check if any output is to be printed before propagation
     bool printPostPropagation( )
     {
         return ( printNumberOfFunctionEvaluations_ || printTerminationReason_ || printPropagationTime_ || printInitialAndFinalConditions_ );
     }
 
+    // Check if any output is to be printed during propagation
     bool printDuringPropagation( )
     {
         return ( ( statePrintInterval_ == statePrintInterval_ ) );
     }
 
+    // Check if any output is to be printed after propagation
     bool printBeforePropagation( )
     {
         return ( printStateData_ || printPropagatedStateData_ || printDependentVariableData_ || printArcIndex_ );
@@ -168,16 +172,19 @@ public:
 
     }
 
+    // Print nothing
     void disableAllPrinting( )
     {
         reset( false, false, false, TUDAT_NAN, false, false, false, false, false );
     }
 
+    // Print everything, but keep print interval during propagation the same
     void enableAllPrinting( )
     {
         reset( true, true, true, statePrintInterval_, true, true, true, true, true );
     }
 
+    // Print everything, and reset print interval during propagation
     void enableAllPrinting( const double statePrintInterval )
     {
         reset( true, true, true, statePrintInterval, true, true, true, true, true );
@@ -200,7 +207,11 @@ private:
 };
 
 
-
+//! Base class for defining output and processing settings for propagation.
+//! This class is inherited for the separate cases of single, multi and hybrid
+//! arc. Each derived class defines whether the propagation results are to be
+//! used to reset the environment, and whether the numerical solution is to be
+//! deleted after the propagation.
 class PropagatorOutputSettings
 {
 public:
@@ -245,6 +256,9 @@ protected:
     bool setIntegratedResult_;
 };
 
+//! Base class for defining output and processing settings for single-arc propagation.
+//! In addition to implementing base class functionality, it defines the output
+//! that is to b printed to a terminal during a single-arc propagation (in the printSettings_ member)
 class SingleArcPropagatorOutputSettings: public PropagatorOutputSettings
 {
 public:
@@ -2083,7 +2097,7 @@ private:
 };
 
 template< typename StateScalarType = double, typename TimeType = double >
-inline std::shared_ptr< MassPropagatorSettings< StateScalarType, TimeType > > massPropagatorSettings(
+inline std::shared_ptr< MassPropagatorSettings< StateScalarType, TimeType > > massPropagatorSettingsDeprecated(
         const std::vector< std::string > bodiesWithMassToPropagate,
         const std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > >& massRateModels,
         const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyMasses,
@@ -2098,7 +2112,7 @@ inline std::shared_ptr< MassPropagatorSettings< StateScalarType, TimeType > > ma
 }
 
 template< typename StateScalarType = double, typename TimeType = double >
-inline std::shared_ptr< MassPropagatorSettings< StateScalarType, TimeType > > massPropagatorSettings(
+inline std::shared_ptr< MassPropagatorSettings< StateScalarType, TimeType > > massPropagatorSettingsDeprecated(
         const std::vector< std::string > bodiesWithMassToPropagate,
         const std::map< std::string, std::vector< std::shared_ptr< basic_astrodynamics::MassRateModel > > >&
         massRateModels,
@@ -2111,6 +2125,26 @@ inline std::shared_ptr< MassPropagatorSettings< StateScalarType, TimeType > > ma
     return std::make_shared< MassPropagatorSettings< StateScalarType, TimeType > >(bodiesWithMassToPropagate,
                                                                                    massRateModels, initialBodyMasses, terminationSettings, dependentVariablesToSave,
                                                                                    statePrintInterval);
+}
+
+template< typename StateScalarType = double, typename TimeType = double >
+inline std::shared_ptr< MassPropagatorSettings< StateScalarType, TimeType > > massPropagatorSettings(
+        const std::vector< std::string > bodiesWithMassToPropagate,
+        const std::map< std::string, std::vector< std::shared_ptr< basic_astrodynamics::MassRateModel > > >& massRateModels,
+        const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyMasses,
+        const TimeType& initialTime,
+        const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
+        const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
+        const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
+        std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
+        const std::shared_ptr< SingleArcPropagatorOutputSettings > outputSettings =
+        std::make_shared< SingleArcPropagatorOutputSettings >( ) )
+{
+    return std::make_shared< MassPropagatorSettings< StateScalarType, TimeType > >(
+                bodiesWithMassToPropagate,
+                massRateModels, initialBodyMasses,
+                initialTime, integratorSettings, terminationSettings, dependentVariablesToSave,
+                outputSettings);
 }
 
 //template< typename StateScalarType = double, typename TimeType = double >
