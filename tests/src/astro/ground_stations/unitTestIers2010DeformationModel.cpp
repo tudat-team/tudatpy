@@ -14,7 +14,7 @@
 #include "tudat/astro/ephemerides/constantRotationalEphemeris.h"
 #include "tudat/astro/ephemerides/constantEphemeris.h"
 #include "tudat/simulation/simulation.h"
-
+#include "tudat/simulation/environment_setup/createBodyDeformationModel.h"
 
 namespace tudat
 {
@@ -321,6 +321,8 @@ BOOST_AUTO_TEST_CASE( test_Iers2012DeformationModel )
 
     // Test full IERS chapter 7 model (case 2)
     {
+        for( int test = 0; test < 2; test++ )
+        {
         siteState( 0 ) = 1112189.660;
         siteState( 1 ) = -4842955.026;
         siteState( 2 ) = 3985352.284;
@@ -341,19 +343,34 @@ BOOST_AUTO_TEST_CASE( test_Iers2012DeformationModel )
         ephemerides[ 0 ] = moonEphemeris;
         ephemerides[ 1 ] = sunEphemeris;
 
-        deformationModel = std::make_shared< Iers2010EarthDeformation >
-                ( earthEphemeris, ephemerides, rotationEphemeris,
-                  boost::lambda::constant( 1.0 ), massFunctions, earthEquatorialRadius,
-                  nominalDisplacementLoveNumbers, firstStepLatitudeDependenceTerms,
-                  areFirstStepCorrectionsCalculated, correctionLoveAndShidaNumbers ,
-                  tudat::paths::getEarthDeformationDataFilesPath( ) + "/diurnalDisplacementFrequencyDependence2.txt",
-                  tudat::paths::getEarthDeformationDataFilesPath( ) + "/longPeriodDisplacementFrequencyDependence.txt",
-                  std::bind( &calculateFundamentalArgumentsIersCode, std::placeholders::_1 ) );
+        if( test == 0 )
+        {
+            deformationModel = std::make_shared< Iers2010EarthDeformation >
+                    ( earthEphemeris, ephemerides, rotationEphemeris,
+                      boost::lambda::constant( 1.0 ), massFunctions, earthEquatorialRadius,
+                      nominalDisplacementLoveNumbers, firstStepLatitudeDependenceTerms,
+                      areFirstStepCorrectionsCalculated, correctionLoveAndShidaNumbers ,
+                      tudat::paths::getEarthDeformationDataFilesPath( ) + "/diurnalDisplacementFrequencyDependence2.txt",
+                      tudat::paths::getEarthDeformationDataFilesPath( ) + "/longPeriodDisplacementFrequencyDependence.txt",
+                      std::bind( &calculateFundamentalArgumentsIersCode, std::placeholders::_1 ) );
+        }
+        else
+        {
+            deformationModel = createDefaultEarthIers2010DeformationModel(
+                        std::make_shared< ConstantEphemeris >( earthState ),
+                        std::make_shared< ConstantEphemeris >( moonState ),
+                        std::make_shared< ConstantEphemeris >( sunState ),
+                        std::make_shared< ConstantRotationalEphemeris >( orientationQuaternion ),
+                        boost::lambda::constant( 1.0 ),
+                        lunarMassFunction,
+                        solarMassFunction );
+        }
         evaluationTime = 395409600.0;
         expectedDeformation <<-0.2036831479592075833E-01,0.5658254776225972449E-01,-0.7597679676871742227E-01;
         calculatedDeformation =  deformationModel->calculateDisplacement( evaluationTime, siteState.segment( 0, 3 ) );
 
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( calculatedDeformation, expectedDeformation, 1.0E-5 );
+        }
     }
 
     // Check equivalance of basic and IERS model

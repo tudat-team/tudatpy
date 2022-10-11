@@ -2004,20 +2004,20 @@ void setInitialStateVectorFromParameterSet(
                     VectorType currentParameterValue = initialDynamicalParameters.at(j)->getParameterValue();
                     int currentParameterSize = initialDynamicalParameters.at(j)->getParameterSize();
                     std::pair<std::string, std::string> bodyIdentifier = initialDynamicalParameters.at(j)->getParameterName().second;
-                    std::cout << "body identifier: " << bodyIdentifier.first << " & " << bodyIdentifier.second << "\n\n";
+//                    std::cout << "body identifier: " << bodyIdentifier.first << " & " << bodyIdentifier.second << "\n\n";
 
                     auto itr = std::find( singleArcTranslationalStatePropagatorSettings->bodiesToIntegrate_.begin( ),
                                                                           singleArcTranslationalStatePropagatorSettings->bodiesToIntegrate_.end( ), bodyIdentifier.first );
                     if ( itr != singleArcTranslationalStatePropagatorSettings->bodiesToIntegrate_.cend( ) )
                     {
-                        std::cout << "body " << bodyIdentifier.first << " - detected for arc " << i << "\n\n";
+//                        std::cout << "body " << bodyIdentifier.first << " - detected for arc " << i << "\n\n";
 
 
                         switch ( initialDynamicalParameters.at( j )->getParameterName( ).first )
                         {
                             case estimatable_parameters::arc_wise_initial_body_state:
                             {
-                                std::cout << "current parameter size: " << currentParameterSize << "\n\n";
+//                                std::cout << "current parameter size: " << currentParameterSize << "\n\n";
 
                                 if ( ( initialStatesBodiesCounter.count( propagators::translational_state )  == 0 )
                                 || initialStatesBodiesCounter.at( propagators::translational_state ).count( bodyIdentifier.first ) == 0 )
@@ -2025,15 +2025,15 @@ void setInitialStateVectorFromParameterSet(
                                     initialStatesBodiesCounter[ propagators::translational_state ][ bodyIdentifier.first ] = 0;
                                 }
                                 int index = initialStatesBodiesCounter.at( propagators::translational_state ).at( bodyIdentifier.first );
-                                std::cout << "index: " << index << "\n\n";
+//                                std::cout << "index: " << index << "\n\n";
 
 
 //                                if ( currentParameterSize / numberOfArcs != 6 )
 //                                {
 //                                    throw std::runtime_error("Error when moving initial states from parameters to propagator settings. Incompatible multi-arc translational state size found");
 //                                }
-                                std::cout << "full parameters values: " << currentParameterValue.transpose( ) << "\n\n";
-                                std::cout << "subset parameters values: " << currentParameterValue.segment( index * 6, 6 ).transpose( ) << "\n\n";
+//                                std::cout << "full parameters values: " << currentParameterValue.transpose( ) << "\n\n";
+//                                std::cout << "subset parameters values: " << currentParameterValue.segment( index * 6, 6 ).transpose( ) << "\n\n";
                                 currentArcInitialStates[ propagators::translational_state ][ bodyIdentifier ] = currentParameterValue.segment( index * 6, 6 );
 
                                 // update counter of propagated/estimated bodies

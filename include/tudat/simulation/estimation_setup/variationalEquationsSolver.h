@@ -1288,11 +1288,11 @@ public:
         {
 //            arcWiseStateTransitionMatrixSize_.push_back( 6 * estimatedBodiesPerArc_[ arc ].size( ) );
             arcWiseStateTransitionMatrixSize_.push_back( estimatable_parameters::getSingleArcInitialDynamicalStateParameterSetSize( parametersToEstimate, arc ) );
-            std::cout << "arcWiseStateTransitionMatrixSize_: " << arcWiseStateTransitionMatrixSize_[ arc ] << "\n\n";
-            std::cout << "test STM size: " << estimatable_parameters::getSingleArcInitialDynamicalStateParameterSetSize( arcWiseParametersToEstimate_[ arc ] ) << "\n\n";
+//            std::cout << "arcWiseStateTransitionMatrixSize_: " << arcWiseStateTransitionMatrixSize_[ arc ] << "\n\n";
+//            std::cout << "test STM size: " << estimatable_parameters::getSingleArcInitialDynamicalStateParameterSetSize( arcWiseParametersToEstimate_[ arc ] ) << "\n\n";
 //            arcWiseParameterVectorSize_.push_back( estimatable_parameters::getSingleArcParameterSetSize( arcWiseParametersToEstimate_[ arc ] ) );
             arcWiseParameterVectorSize_.push_back( estimatable_parameters::getSingleArcParameterSetSize( parametersToEstimate, arc ) );
-            std::cout << "arcWiseParameterVectorSize_: " << arcWiseParameterVectorSize_[ arc ] << "\n\n";
+//            std::cout << "arcWiseParameterVectorSize_: " << arcWiseParameterVectorSize_[ arc ] << "\n\n";
         }
 
         dynamicsSimulator_ =  std::make_shared< MultiArcDynamicsSimulator< StateScalarType, TimeType > >(
@@ -1426,14 +1426,14 @@ public:
     void integrateVariationalAndDynamicalEquations(
             const VectorType& concatenatedInitialStates, const bool integrateEquationsConcurrently )
     {
-        std::cout << "concatenatedInitialStates: " << concatenatedInitialStates.transpose( ) << "\n\n";
+//        std::cout << "concatenatedInitialStates: " << concatenatedInitialStates.transpose( ) << "\n\n";
         std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > splitInitialState;
 
         int currentIndex = 0;
         for( unsigned int i = 0; i < dynamicsSimulator_->getSingleArcDynamicsSimulators( ).size( ); i++ )
         {
             int currentSize = dynamicsSimulator_->getSingleArcDynamicsSimulators( ).at( i )->getPropagatorSettings( )->getConventionalStateSize( );
-            std::cout << "current state size: " << currentSize << "\n\n";
+//            std::cout << "current state size: " << currentSize << "\n\n";
             splitInitialState.push_back( concatenatedInitialStates.block( currentIndex, 0, currentSize, 1 ) );
             currentIndex += currentSize;
         }
@@ -1443,10 +1443,10 @@ public:
             throw std::runtime_error( "Error when doing multi-arc variational equation integration, "
                                       "input state vector size is incompatible with settings." );
         }
-        for ( unsigned int k = 0 ; k < splitInitialState.size( ) ; k++ )
-        {
-            std::cout << "test " << k <<  " - splitInitialState: " << splitInitialState[ k ].transpose( ) << "\n\n";
-        }
+//        for ( unsigned int k = 0 ; k < splitInitialState.size( ) ; k++ )
+//        {
+//            std::cout << "test " << k <<  " - splitInitialState: " << splitInitialState[ k ].transpose( ) << "\n\n";
+//        }
         integrateVariationalAndDynamicalEquations( splitInitialState, integrateEquationsConcurrently );
     }
 
@@ -1528,26 +1528,26 @@ public:
                 }
                 else
                 {
-                    std::cout << "test - call to getArcInitialStateFromPreviousArcResult!" << "\n\n";
+//                    std::cout << "test - call to getArcInitialStateFromPreviousArcResult!" << "\n\n";
                     currentArcInitialState = getArcInitialStateFromPreviousArcResult(
                                 equationsOfMotionNumericalSolutions.at( i - 1 ),
                                 singleArcDynamicsSimulators.at( i )->getInitialPropagationTime( ) );
                     updateInitialStates = true;
                 }
-                std::cout << "currentArcInitialState: " << currentArcInitialState.transpose( ) << "\n\n";
+//                std::cout << "currentArcInitialState: " << currentArcInitialState.transpose( ) << "\n\n";
                 arcInitialStates.push_back( currentArcInitialState );
 
                 // Update state derivative model to (possible) update in state.
                 singleArcDynamicsSimulators.at( i )->getDynamicsStateDerivative( )->
                         updateStateDerivativeModelSettings( currentArcInitialState );
 
-                std::cout << "test before create initial conditions" << "\n\n";
+//                std::cout << "test before create initial conditions" << "\n\n";
 
                 // Create initial state for combined variational equations of motion.
                 MatrixType initialVariationalState = this->createInitialConditions(
                             currentArcInitialState, i );
 
-                std::cout << "test before create variational equations" << "\n\n";
+//                std::cout << "test before create variational equations" << "\n\n";
 
                 // Integrate variational and state equations.
                 dynamicsSimulator_->getDynamicsStateDerivative( ).at( i )->resetFunctionEvaluationCounter( );
@@ -2113,7 +2113,7 @@ public:
 //>>>>>>> feature/consistent_propagation_settings
 
         // Create propagator settings with the single arc settings included (at the beginning) in each arc
-        std::cout << "create extended multi-arc propagator settings" << "\n\n";
+//        std::cout << "create extended multi-arc propagator settings" << "\n\n";
         std::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > extendedMultiArcSettings =
                 getExtendedMultiPropagatorSettings(
                     originalPopagatorSettings_->getSingleArcPropagatorSettings( ),
@@ -2127,11 +2127,11 @@ public:
         {
             multiArcDynamicsSingleArcSize_.push_back(
                     extendedMultiArcSettings->getSingleArcSettings( ).at( i )->getConventionalStateSize( ) );
-            std::cout << "arc " << i << " - multiArcDynamicsSingleArcSize_ = " << multiArcDynamicsSingleArcSize_[ i ] << "\n\n";
+//            std::cout << "arc " << i << " - multiArcDynamicsSingleArcSize_ = " << multiArcDynamicsSingleArcSize_[ i ] << "\n\n";
 //            extendedMultiArcSettings->getSingleArcSettings( ).at( i )->getConventionalStateSize( ) << "\n\n";
 
         }
-        std::cout << "multiArcDynamicsSize_: " << multiArcDynamicsSize_ << "\n\n";
+//        std::cout << "multiArcDynamicsSize_: " << multiArcDynamicsSize_ << "\n\n";
 //        std::cout << "multiArcDynamicsSingleArcSize_: " << multiArcDynamicsSingleArcSize_ << "\n\n";
 //=======
 //        multiArcDynamicsSingleArcSize_ = extendedMultiArcSettings->getConventionalStateSize( ) / numberOfArcs;
@@ -2170,7 +2170,7 @@ public:
             multiArcSolver_->getDynamicsStateDerivatives( ).at( i )->getVariationalEquationsCalculator( )->suppressParameterCoupling(
                         propagatorSettings_->getSingleArcPropagatorSettings( )->getPropagatedStateSize( ) );
         }
-        std::cout << "suppress parameter coupling: " << propagatorSettings_->getSingleArcPropagatorSettings( )->getPropagatedStateSize( ) << "\n\n";
+//        std::cout << "suppress parameter coupling: " << propagatorSettings_->getSingleArcPropagatorSettings( )->getPropagatedStateSize( ) << "\n\n";
 
         // Create function to retrieve single-arc initial states for extended multi-arc
         std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > singleArcPropagationSettings =
@@ -2226,7 +2226,7 @@ public:
 //        // Reset initial time and propagate multi-arc equations
 //        singleArcIntegratorSettings_->initialTime_ = singleArcInitialTime_;
 
-////        std::cout<<"Integrating single arc "<<std::endl;
+//       std::cout<<"Integrating single arc "<<std::endl;
 //=======
 //>>>>>>> feature/consistent_propagation_settings
         singleArcSolver_->integrateVariationalAndDynamicalEquations(
@@ -2240,7 +2240,7 @@ public:
 //>>>>>>> feature/consistent_propagation_settings
         resetMultiArcInitialStates(
                     initialStateEstimate.block( singleArcDynamicsSize_, 0, multiArcDynamicsSize_, 1 ) );
-        std::cout << "getInitialStates - after reset: " << propagatorSettings_->getMultiArcPropagatorSettings( )->getInitialStates( ).transpose( ) << "\n\n";
+//        std::cout << "getInitialStates - after reset: " << propagatorSettings_->getMultiArcPropagatorSettings( )->getInitialStates( ).transpose( ) << "\n\n";
 
         // Reset initial time and propagate single-arc equations
         multiArcSolver_->integrateVariationalAndDynamicalEquations(
@@ -2337,10 +2337,10 @@ public:
     void resetParameterEstimate( const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > newParameterEstimate,
                                  const bool areVariationalEquationsToBeIntegrated = true )
     {
-        std::cout << "CALL TO FUNCTION resetParameterEstimate" << "\n\n";
-        std::cout << "BEFORE RESET - original propagator settings states: " << originalPopagatorSettings_->getInitialStates( ).transpose( ) << "\n\n";
-        std::cout << "BEFORE RESET - propagator settings states: " << propagatorSettings_->getInitialStates( ).transpose( ) << "\n\n";
-        // Reset values of parameters.
+//        std::cout << "CALL TO FUNCTION resetParameterEstimate" << "\n\n";
+//        std::cout << "BEFORE RESET - original propagator settings states: " << originalPopagatorSettings_->getInitialStates( ).transpose( ) << "\n\n";
+//        std::cout << "BEFORE RESET - propagator settings states: " << propagatorSettings_->getInitialStates( ).transpose( ) << "\n\n";
+//        // Reset values of parameters.
         parametersToEstimate_->template resetParameterValues< StateScalarType >( newParameterEstimate );
 //        std::cout << "getInitialStateVectorOfBodiesToEstimate: " << estimatable_parameters::getInitialStateVectorOfBodiesToEstimate( parametersToEstimate_ ).transpose( ) << "\n\n";
 //        originalPopagatorSettings_->resetInitialStates(
@@ -2348,14 +2348,14 @@ public:
 
 //        std::cout << "test original hybrid propagator: " << originalPopagatorSettings_->getInitialStates( ).transpose( ) << "\n\n";
         simulation_setup::setInitialStateVectorFromParameterSet< StateScalarType >( parametersToEstimate_, originalPopagatorSettings_ );
-        std::cout << "test set initial state vector hybrid propagator: " << originalPopagatorSettings_->getInitialStates( ).transpose( ) << "\n\n";
+//        std::cout << "test set initial state vector hybrid propagator: " << originalPopagatorSettings_->getInitialStates( ).transpose( ) << "\n\n";
 
         propagatorSettings_->getSingleArcPropagatorSettings( )->resetInitialStates(
                     newParameterEstimate.segment( 0, singleArcDynamicsSize_ ) );
-        std::cout << "single-arc initial state: " << newParameterEstimate.segment( 0, singleArcDynamicsSize_ ).transpose( ) << "\n\n";
+//        std::cout << "single-arc initial state: " << newParameterEstimate.segment( 0, singleArcDynamicsSize_ ).transpose( ) << "\n\n";
         Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > totalMultiArcInitialState =
                 propagatorSettings_->getMultiArcPropagatorSettings( )->getInitialStates( );
-        std::cout << "totalMultiArcInitialState size: " << totalMultiArcInitialState.size( ) << "\n\n";
+//        std::cout << "totalMultiArcInitialState size: " << totalMultiArcInitialState.size( ) << "\n\n";
 
         Eigen::VectorXd newInitialStatesOriginalPropagatorSettings = originalPopagatorSettings_->getInitialStates( );
 
@@ -2363,9 +2363,9 @@ public:
         unsigned int counterOriginalArcWiseIndex = 0;
         for( unsigned int i = 0; i < propagatorSettings_->getMultiArcPropagatorSettings( )->getSingleArcSettings( ).size( ); i++ )
         {
-            std::cout << "counter arc-wise index: " << counterFullArcWiseIndex << "\n\n";
-            std::cout << "counter total arc-wise index: " << counterOriginalArcWiseIndex << "\n\n";
-            std::cout << "multi-arc dynamic size: " << originalMultiArcDynamicsSingleArcSize_.at( i ) << "\n\n";
+//            std::cout << "counter arc-wise index: " << counterFullArcWiseIndex << "\n\n";
+//            std::cout << "counter total arc-wise index: " << counterOriginalArcWiseIndex << "\n\n";
+//            std::cout << "multi-arc dynamic size: " << originalMultiArcDynamicsSingleArcSize_.at( i ) << "\n\n";
             totalMultiArcInitialState.segment( counterFullArcWiseIndex, singleArcDynamicsSize_ ) = TUDAT_NAN * Eigen::VectorXd::Ones( singleArcDynamicsSize_ );
             totalMultiArcInitialState.segment(
                     counterFullArcWiseIndex /*i * multiArcDynamicsSingleArcSize_.at( i )*/ + singleArcDynamicsSize_,
@@ -2377,34 +2377,34 @@ public:
             counterOriginalArcWiseIndex += originalMultiArcDynamicsSingleArcSize_.at( i );
 
         }
-        std::cout << "multi-arc initial state: " << totalMultiArcInitialState.transpose( ) << "\n\n";
+//        std::cout << "multi-arc initial state: " << totalMultiArcInitialState.transpose( ) << "\n\n";
         propagatorSettings_->getMultiArcPropagatorSettings( )->resetInitialStates( totalMultiArcInitialState );
         propagatorSettings_->setInitialStatesFromConstituents( );
 
-        std::cout << "AFTER RESET - original propagator settings states: " << originalPopagatorSettings_->getInitialStates( ).transpose( ) << "\n\n";
-        std::cout << "AFTER RESET - propagator settings states: " << propagatorSettings_->getInitialStates( ).transpose( ) << "\n\n";
+//        std::cout << "AFTER RESET - original propagator settings states: " << originalPopagatorSettings_->getInitialStates( ).transpose( ) << "\n\n";
+//        std::cout << "AFTER RESET - propagator settings states: " << propagatorSettings_->getInitialStates( ).transpose( ) << "\n\n";
 
         // Reset parameters for arc-wise parameters in both originalMultiArcSolver_ and multiArcSolver_
         for ( unsigned int i = 0 ; i < arcStartTimes_.size( ) ; i++ )
         {
-            std::cout << "arc " << i << "\n\n";
-            std::cout << "test original multi-arc solver parameters before reset: " << originalMultiArcSolver_->getArcWiseParametersToEstimate( ).at( i )
-            ->template getFullParameterValues< double >( ).transpose( ) << "\n\n";
+//            std::cout << "arc " << i << "\n\n";
+//            std::cout << "test original multi-arc solver parameters before reset: " << originalMultiArcSolver_->getArcWiseParametersToEstimate( ).at( i )
+//            ->template getFullParameterValues< double >( ).transpose( ) << "\n\n";
             Eigen::VectorXd newParametersValues = originalPopagatorSettings_->getMultiArcPropagatorSettings( )->getSingleArcSettings( ).at( i )->getInitialStates( );
             Eigen::VectorXd newArcWiseParametersValues = originalMultiArcSolver_->getArcWiseParametersToEstimate( ).at( i )->template getFullParameterValues< double >( );
             newArcWiseParametersValues.segment( 0, newParametersValues.size( ) ) = newParametersValues;
             originalMultiArcSolver_->getArcWiseParametersToEstimate( ).at( i )->template resetParameterValues( newArcWiseParametersValues );
-            std::cout << "test original multi-arc solver parameters after reset: " << originalMultiArcSolver_->getArcWiseParametersToEstimate( ).at( i )
-            ->template getFullParameterValues< double >( ).transpose( ) << "\n\n";
+//            std::cout << "test original multi-arc solver parameters after reset: " << originalMultiArcSolver_->getArcWiseParametersToEstimate( ).at( i )
+//            ->template getFullParameterValues< double >( ).transpose( ) << "\n\n";
 
-            std::cout << "test multi-arc solver parameters before reset: " << multiArcSolver_->getArcWiseParametersToEstimate( ).at( i )
-                    ->template getFullParameterValues< double >( ).transpose( ) << "\n\n";
+//            std::cout << "test multi-arc solver parameters before reset: " << multiArcSolver_->getArcWiseParametersToEstimate( ).at( i )
+//                    ->template getFullParameterValues< double >( ).transpose( ) << "\n\n";
             Eigen::VectorXd newFullParametersValues = propagatorSettings_->getMultiArcPropagatorSettings( )->getSingleArcSettings( ).at( i )->getInitialStates( );
             Eigen::VectorXd newFullArcWiseParametersValues = multiArcSolver_->getArcWiseParametersToEstimate( ).at( i )->template getFullParameterValues< double >( );
             newFullArcWiseParametersValues.segment( 0, newFullParametersValues.size( ) ) = newFullParametersValues;
             multiArcSolver_->getArcWiseParametersToEstimate( ).at( i )->template resetParameterValues( newFullArcWiseParametersValues );
-            std::cout << "test multi-arc solver parameters after reset: " << multiArcSolver_->getArcWiseParametersToEstimate( ).at( i )
-                    ->template getFullParameterValues< double >( ).transpose( ) << "\n\n";
+//            std::cout << "test multi-arc solver parameters after reset: " << multiArcSolver_->getArcWiseParametersToEstimate( ).at( i )
+//                    ->template getFullParameterValues< double >( ).transpose( ) << "\n\n";
         }
 
         // Check if re-integration of variational equations is requested
@@ -2492,7 +2492,7 @@ protected:
                     parametersToEstimate_->getEstimatedDoubleParameters( ),
                     parametersToEstimate_->getEstimatedVectorParameters( ),
                     extendedMultiArcParameters );
-        std::cout << "TEST: " << "\n\n";
+//        std::cout << "TEST: " << "\n\n";
         estimatable_parameters::printEstimatableParameterEntries( multiArcParametersToEstimate_ );
     }
 
@@ -2504,8 +2504,8 @@ protected:
     void resetMultiArcInitialStates(
             const VectorType& manualMultiArcStates )
     {
-        std::cout << "manualMultiArcStates: " << manualMultiArcStates.transpose( ) << "\n\n";
-        std::cout << "size manualMultiArcStates: " << manualMultiArcStates.size( ) << "\n\n";
+//        std::cout << "manualMultiArcStates: " << manualMultiArcStates.transpose( ) << "\n\n";
+//        std::cout << "size manualMultiArcStates: " << manualMultiArcStates.size( ) << "\n\n";
 
         // Retrieve full multi-arc initial states, with single-arc bodies not (correctly) set
         std::vector< VectorType > arcInitialStates =
@@ -2517,14 +2517,14 @@ protected:
         for( unsigned int i = 0; i < arcInitialStates.size( ); i++ )
         {
             currentArcSize = arcInitialStates[ i ].rows( );
-            std::cout << "currentArcSize: " << currentArcSize << "\n\n";
-            std::cout << "singleArcDynamicsSize_" << singleArcDynamicsSize_ << "\n\n";
+//            std::cout << "currentArcSize: " << currentArcSize << "\n\n";
+//            std::cout << "singleArcDynamicsSize_" << singleArcDynamicsSize_ << "\n\n";
             arcInitialStates[ i ].segment( 0, singleArcDynamicsSize_ ) =
                     initialStatesFromSingleArcPropagation_( arcStartTimes_.at( i ) );
-            std::cout << "new single arc initial state:" << initialStatesFromSingleArcPropagation_( arcStartTimes_.at( i ) ).transpose( ) << "\n\n";
+//            std::cout << "new single arc initial state:" << initialStatesFromSingleArcPropagation_( arcStartTimes_.at( i ) ).transpose( ) << "\n\n";
 
-            std::cout << "currentArcSize - singleArcDynamicsSize_: " << currentArcSize - singleArcDynamicsSize_ << "\n\n";
-            std::cout << "i * currentArcSize + singleArcDynamicsSize_: " << i * currentArcSize + singleArcDynamicsSize_ << "\n\n";
+//            std::cout << "currentArcSize - singleArcDynamicsSize_: " << currentArcSize - singleArcDynamicsSize_ << "\n\n";
+//            std::cout << "i * currentArcSize + singleArcDynamicsSize_: " << i * currentArcSize + singleArcDynamicsSize_ << "\n\n";
             arcInitialStates[ i ].segment( singleArcDynamicsSize_, currentArcSize - singleArcDynamicsSize_ ) =
                     manualMultiArcStates.segment( indexMultiArcState /*i * currentArcSize*/ + singleArcDynamicsSize_, currentArcSize - singleArcDynamicsSize_ );
             indexMultiArcState += currentArcSize;
@@ -2544,7 +2544,7 @@ protected:
             std::vector< std::map< TimeType, VectorType > >& numericalMultiArcSolution )
     {
         // Iterate over all arcs
-        std::cout << "size numerical multi-arc solution: " << numericalMultiArcSolution.size( ) << "\n\n";
+//        std::cout << "size numerical multi-arc solution: " << numericalMultiArcSolution.size( ) << "\n\n";
         for( unsigned int i = 0; i < numericalMultiArcSolution.size( ); i++ )
         {
             // Iterate over all times and remove single-arc bodies from solution
@@ -2564,7 +2564,7 @@ protected:
                 propagatorSettings_->getMultiArcPropagatorSettings( )->getInitialStateList( );
         std::vector< VectorType > originalMultiArcInitialStates =
                 originalPopagatorSettings_->getMultiArcPropagatorSettings( )->getInitialStateList( );
-        std::cout << "size extendedMultiArcInitialStates: " << extendedMultiArcInitialStates.size( ) << "\n\n";
+//        std::cout << "size extendedMultiArcInitialStates: " << extendedMultiArcInitialStates.size( ) << "\n\n";
         for( unsigned int i = 0; i < extendedMultiArcInitialStates.size( ); i++ )
         {
             originalMultiArcInitialStates[ i ] = extendedMultiArcInitialStates.at( i ).segment(

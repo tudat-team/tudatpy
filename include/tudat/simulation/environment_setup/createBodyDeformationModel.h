@@ -14,6 +14,7 @@
 #include <memory>
 
 #include "tudat/astro/ground_stations/bodyDeformationModel.h"
+#include "tudat/astro/ground_stations/iers2010SolidTidalBodyDeformation.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/astro/gravitation/gravityFieldVariations.h"
 
@@ -23,6 +24,17 @@ namespace tudat
 
 namespace simulation_setup
 {
+
+
+std::shared_ptr< basic_astrodynamics::Iers2010EarthDeformation > createDefaultEarthIers2010DeformationModel(
+        const std::shared_ptr< ephemerides::Ephemeris > earthEphemeris,
+        const std::shared_ptr< ephemerides::Ephemeris > lunarEphemeris,
+        const std::shared_ptr< ephemerides::Ephemeris > solarEphemeris,
+        const std::shared_ptr< ephemerides::RotationalEphemeris > earthRotation,
+        const std::function< double( ) > gravitionalParametersOfEarth,
+        const std::function< double( ) > gravitionalParametersOfMoon,
+        const std::function< double( ) > gravitionalParametersOfSun );
+
 
 class BodyDeformationSettings
 {
