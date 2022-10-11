@@ -328,13 +328,24 @@ void expose_propagator_setup(py::module &m) {
           const Eigen::Matrix<double, Eigen::Dynamic, 1> &,
           const std::shared_ptr<tp::PropagationTerminationSettings>,
           const std::vector<std::shared_ptr<tp::SingleDependentVariableSaveSettings> >,
-          const double>(&tp::massPropagatorSettings<double>),
+          const double>(&tp::massPropagatorSettingsDeprecated<double>),
           py::arg("bodies_with_mass_to_propagate"),
           py::arg("mass_rate_models"),
           py::arg("initial_body_masses"),
           py::arg("termination_settings"),
           py::arg("output_variables") = std::vector<std::shared_ptr<tp::SingleDependentVariableSaveSettings> >(),
-          py::arg("print_interval") = TUDAT_NAN,
+          py::arg("print_interval") = TUDAT_NAN );
+
+    m.def("mass",
+          &tp::massPropagatorSettings<double>,
+          py::arg("bodies_with_mass_to_propagate"),
+          py::arg("mass_rate_models"),
+          py::arg("initial_body_masses"),
+          py::arg("initial_time"),
+          py::arg("integrator_settings"),
+          py::arg("termination_settings"),
+          py::arg("output_variables") = std::vector<std::shared_ptr<tp::SingleDependentVariableSaveSettings> >(),
+          py::arg("output_settings") = std::make_shared< tp::SingleArcPropagatorOutputSettings >( ),
           get_docstring("mass").c_str());
 
     m.def("custom_state",
