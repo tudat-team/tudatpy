@@ -665,7 +665,7 @@ BOOST_AUTO_TEST_CASE( testHybridArcMultiBodyStateEstimation )
         // Set accelerations map for the moons.
         std::vector<std::string> moonsToPropagate, centralBodiesForMoons;
         std::map<int, AccelerationMap> multiArcMoonsAccelerationMap;
-        for( unsigned int i = 0; i < numberArcs; i++)
+        for( int i = 0; i < numberArcs; i++)
         {
             std::vector<std::string> arcWiseMoonsToPropagate, arcWiseMoonsCentralBodies;
             for( unsigned int j = 0; j < bodiesToPropagatePerArc.at(i).size() - 1; j++)
@@ -678,7 +678,7 @@ BOOST_AUTO_TEST_CASE( testHybridArcMultiBodyStateEstimation )
 
         // Merge arc-wise acceleration maps
         std::map<int, AccelerationMap> multiArcCompleteAccelerationMaps = multiArcMoonsAccelerationMap;
-        for (unsigned int k = 0; k < numberArcs; k++) {
+        for( int k = 0; k < numberArcs; k++) {
             AccelerationMap arcWiseAccelerationMap = multiArcCompleteAccelerationMaps.at(k);
             arcWiseAccelerationMap["JUICE"] = multiArcJuiceAccelerationMap.at(k).at("JUICE");
             multiArcCompleteAccelerationMaps.at(k) = arcWiseAccelerationMap;

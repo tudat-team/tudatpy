@@ -546,10 +546,13 @@ Eigen::VectorXd  executeMultiBodyMultiArcParameterEstimation( )
     std::shared_ptr< EstimationInput< ObservationScalarType, TimeType > > estimationInput =
             std::make_shared< EstimationInput< ObservationScalarType, TimeType > >(
                 observationsAndTimes, ( initialParameterEstimate ).rows( ) );
+    estimationInput->setConvergenceChecker(
+                std::make_shared< EstimationConvergenceChecker >( 3 ) );
+    parametersToEstimate->resetParameterValues( initialParameterEstimate );
 
     // Estimate parameters
     std::shared_ptr< EstimationOutput< StateScalarType, TimeType > > estimationOutput = orbitDeterminationManager.estimateParameters(
-                estimationInput, std::make_shared< EstimationConvergenceChecker >( 3 ) );
+                estimationInput );
 
     std::string outputFolder = "/home/dominic/Software/tudatBundleTest/tudatBundle/tudatApplications/master_thesis/Output/";
 

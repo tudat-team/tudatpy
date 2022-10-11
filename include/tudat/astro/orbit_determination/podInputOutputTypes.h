@@ -200,6 +200,24 @@ public:
         return inverseOfAprioriCovariance_;
     }
 
+    Eigen::MatrixXd getInverseOfAprioriCovariance( const int numberOfParameters )
+    {
+        if( inverseOfAprioriCovariance_.rows( ) == 0 )
+        {
+            return Eigen::MatrixXd::Zero( numberOfParameters, numberOfParameters );
+        }
+        else if( inverseOfAprioriCovariance_.rows( ) != numberOfParameters ||
+                 inverseOfAprioriCovariance_.cols( ) != numberOfParameters )
+        {
+            throw std::runtime_error( "Error whenr retrieving invers a priori covariance; size is incompatible" );
+        }
+        else
+        {
+            return inverseOfAprioriCovariance_;
+        }
+    }
+
+
     //! Function to return the weight matrix diagonals, sorted by link ends and observable type (by reference)
     /*!
      * Function to return the weight matrix diagonals, sorted by link ends and observable type (by reference)
@@ -302,108 +320,7 @@ protected:
     bool saveStateHistoryForEachIteration_;
 
 };
-//! Data structure used to provide input to orbit determination procedure
-template< typename ObservationScalarType = double, typename TimeType = double >
-class EstimationInput: public CovarianceAnalysisInput< ObservationScalarType, TimeType >
-{
-public:
 
-    //! Constructor
-    /*!
-     * Constructor
-     * \param observationCollection Total data structure of observations and associated times/link ends/type
-     * \param numberOfEstimatedParameters Size of vector of estimated parameters
-     * \param inverseOfAprioriCovariance A priori covariance matrix (unnormalized) of estimated parameters. None (matrix of
-     * size 0) by default
-     * \param initialParameterDeviationEstimate Correction to estimated parameter vector to be applied on first iteration.
-     * None (vector of size 0) by default
-     */
-    EstimationInput( const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > >& observationCollection,
-              const int numberOfEstimatedParameters,
-              const Eigen::MatrixXd inverseOfAprioriCovariance = Eigen::MatrixXd::Zero( 0, 0 ),
-              const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > initialParameterDeviationEstimate =
-            Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >::Zero( 0, 1 ) ):
-        CovarianceAnalysisInput< ObservationScalarType, TimeType >( observationCollection, numberOfEstimatedParameters, inverseOfAprioriCovariance ),
-      initialParameterDeviationEstimate_( initialParameterDeviationEstimate ),
-        saveResidualsAndParametersFromEachIteration_( true )
-    {
-        if( initialParameterDeviationEstimate_.rows( ) == 0 )
-        {
-            initialParameterDeviationEstimate_ =
-                    Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >::Zero( numberOfEstimatedParameters, 1 );
-        }
-
-        if( numberOfEstimatedParameters != initialParameterDeviationEstimate_.rows( ) )
-        {
-            throw std::runtime_error( "Error when making POD input, size of initial parameter deviation is inconsistent" );
-        }
-    }
-
-    //! Destructor
-    virtual ~EstimationInput( ){ }
-
-
-    //! Function to define specific settings for estimation process
-    /*!
-     *  Function to define specific settings for estimation process
-     *  \param reintegrateEquationsOnFirstIteration Boolean denoting whether the dynamics and variational equations are to
-     *  be reintegrated on first iteration, or if existing values are to be used to perform first iteration.
-     *  \param reintegrateVariationalEquations Boolean denoting whether the variational equations are to be reintegrated during
-     *  estimation
-     *  \param saveDesignMatrix Boolean denoting whether to save the partials matrix in the output
-     *  \param printOutput Boolean denoting whether to print output to th terminal when running the estimation.
-     *  \param saveResidualsAndParametersFromEachIteration Boolean denoting whether the residuals and parameters from the each
-     *  iteration are to be saved
-     *  \param saveStateHistoryForEachIteration Boolean denoting whether the state history is to be saved on each iteration
-     */
-    void defineEstimationSettings( const bool reintegrateEquationsOnFirstIteration = 1,
-                                   const bool reintegrateVariationalEquations = 1,
-                                   const bool saveDesignMatrix = 1,
-                                   const bool printOutput = 1,
-                                   const bool saveResidualsAndParametersFromEachIteration = 1,
-                                   const bool saveStateHistoryForEachIteration = 0 )
-    {
-        this->reintegrateEquationsOnFirstIteration_ = reintegrateEquationsOnFirstIteration;
-        this->reintegrateVariationalEquations_ = reintegrateVariationalEquations;
-        this->saveDesignMatrix_ = saveDesignMatrix;
-        this->printOutput_ = printOutput;
-        this->saveResidualsAndParametersFromEachIteration_ = saveResidualsAndParametersFromEachIteration;
-        this->saveStateHistoryForEachIteration_ = saveStateHistoryForEachIteration;
-    }
-
-
-    //! Function to return the correction to estimated parameter vector to be applied on first iteration
-    /*!
-     * Function to return the correction to estimated parameter vector to be applied on first iteration
-     * \return Correction to estimated parameter vector to be applied on first iteration
-     */
-    Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > getInitialParameterDeviationEstimate( )
-    {
-        return initialParameterDeviationEstimate_;
-    }
-
-
-
-
-    //! Function to return the boolean denoting whether the residuals and parameters from the each iteration are to be saved
-    /*!
-     * Function to return the boolean denoting whether the residuals and parameters from the each iteration are to be saved
-     * \return Boolean denoting whether the residuals and parameters from the each iteration are to be saved
-     */
-    bool getSaveResidualsAndParametersFromEachIteration( )
-    {
-        return saveResidualsAndParametersFromEachIteration_;
-    }
-
-
-
-    //! Correction to estimated parameter vector to be applied on first iteration
-    Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > initialParameterDeviationEstimate_;
-
-    //! Boolean denoting whether the residuals and parameters from the each iteration are to be saved
-    bool saveResidualsAndParametersFromEachIteration_;
-
-};
 
 //! Class that is used during the orbit determination/parameter estimation to determine whether the estimation is converged.
 class EstimationConvergenceChecker
@@ -480,6 +397,93 @@ protected:
     unsigned int numberOfIterationsWithoutImprovement_;
 };
 
+
+
+//! Data structure used to provide input to orbit determination procedure
+template< typename ObservationScalarType = double, typename TimeType = double >
+class EstimationInput: public CovarianceAnalysisInput< ObservationScalarType, TimeType >
+{
+public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param observationCollection Total data structure of observations and associated times/link ends/type
+     * \param numberOfEstimatedParameters Size of vector of estimated parameters
+     * \param inverseOfAprioriCovariance A priori covariance matrix (unnormalized) of estimated parameters. None (matrix of
+     * size 0) by default
+     */
+    EstimationInput( const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > >& observationCollection,
+              const int numberOfEstimatedParameters,
+              const Eigen::MatrixXd inverseOfAprioriCovariance = Eigen::MatrixXd::Zero( 0, 0 ),
+              const std::shared_ptr< EstimationConvergenceChecker > convergenceChecker =
+            std::make_shared< EstimationConvergenceChecker >( ) ):
+        CovarianceAnalysisInput< ObservationScalarType, TimeType >( observationCollection, numberOfEstimatedParameters, inverseOfAprioriCovariance ),
+        saveResidualsAndParametersFromEachIteration_( true ),
+        convergenceChecker_( convergenceChecker )
+    { }
+
+    //! Destructor
+    virtual ~EstimationInput( ){ }
+
+
+    //! Function to define specific settings for estimation process
+    /*!
+     *  Function to define specific settings for estimation process
+     *  \param reintegrateEquationsOnFirstIteration Boolean denoting whether the dynamics and variational equations are to
+     *  be reintegrated on first iteration, or if existing values are to be used to perform first iteration.
+     *  \param reintegrateVariationalEquations Boolean denoting whether the variational equations are to be reintegrated during
+     *  estimation
+     *  \param saveDesignMatrix Boolean denoting whether to save the partials matrix in the output
+     *  \param printOutput Boolean denoting whether to print output to th terminal when running the estimation.
+     *  \param saveResidualsAndParametersFromEachIteration Boolean denoting whether the residuals and parameters from the each
+     *  iteration are to be saved
+     *  \param saveStateHistoryForEachIteration Boolean denoting whether the state history is to be saved on each iteration
+     */
+    void defineEstimationSettings( const bool reintegrateEquationsOnFirstIteration = 1,
+                                   const bool reintegrateVariationalEquations = 1,
+                                   const bool saveDesignMatrix = 1,
+                                   const bool printOutput = 1,
+                                   const bool saveResidualsAndParametersFromEachIteration = 1,
+                                   const bool saveStateHistoryForEachIteration = 0 )
+    {
+        this->reintegrateEquationsOnFirstIteration_ = reintegrateEquationsOnFirstIteration;
+        this->reintegrateVariationalEquations_ = reintegrateVariationalEquations;
+        this->saveDesignMatrix_ = saveDesignMatrix;
+        this->printOutput_ = printOutput;
+        this->saveResidualsAndParametersFromEachIteration_ = saveResidualsAndParametersFromEachIteration;
+        this->saveStateHistoryForEachIteration_ = saveStateHistoryForEachIteration;
+    }
+
+
+    //! Function to return the boolean denoting whether the residuals and parameters from the each iteration are to be saved
+    /*!
+     * Function to return the boolean denoting whether the residuals and parameters from the each iteration are to be saved
+     * \return Boolean denoting whether the residuals and parameters from the each iteration are to be saved
+     */
+    bool getSaveResidualsAndParametersFromEachIteration( )
+    {
+        return saveResidualsAndParametersFromEachIteration_;
+    }
+
+
+    std::shared_ptr< EstimationConvergenceChecker > getConvergenceChecker( )
+    {
+        return convergenceChecker_;
+    }
+
+
+    void setConvergenceChecker( const std::shared_ptr< EstimationConvergenceChecker > convergenceChecker )
+    {
+        convergenceChecker_ = convergenceChecker;
+    }
+
+    //! Boolean denoting whether the residuals and parameters from the each iteration are to be saved
+    bool saveResidualsAndParametersFromEachIteration_;
+
+    std::shared_ptr< EstimationConvergenceChecker > convergenceChecker_;
+
+};
 
 inline std::shared_ptr< EstimationConvergenceChecker > estimationConvergenceChecker(
         const unsigned int maximumNumberOfIterations = 5,
@@ -754,7 +758,8 @@ struct EstimationOutput: public CovarianceAnalysisOutput< ObservationScalarType,
         residualStandardDeviation_( residualStandardDeviation ),
         residualHistory_( residualHistory ),
         parameterHistory_( parameterHistory ),
-        exceptionDuringInversion_( exceptionDuringInversion )
+        exceptionDuringInversion_( exceptionDuringInversion ),
+        numberOfParameters_( normalizedDesignMatrix.cols( ) )
     { }
 
 
@@ -824,6 +829,8 @@ struct EstimationOutput: public CovarianceAnalysisOutput< ObservationScalarType,
 
     //! Boolean denoting whether an exception was caught during inversion of normal equations
     bool exceptionDuringInversion_;
+
+    int numberOfParameters_;
 
 
 

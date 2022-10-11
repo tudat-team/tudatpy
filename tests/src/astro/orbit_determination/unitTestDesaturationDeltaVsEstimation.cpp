@@ -305,14 +305,14 @@ BOOST_AUTO_TEST_CASE( test_DesaturationDeltaVsEstimation )
         }
 
         initialParameterEstimate += parameterPerturbation;
+        parametersToEstimate->resetParameterValues( initialParameterEstimate );
 
 
 
         // Define estimation input
         std::shared_ptr< EstimationInput< double, double  > > estimationInput = std::make_shared< EstimationInput< double, double > >(
                     observationsAndTimes, initialParameterEstimate.rows( ),
-                    Eigen::MatrixXd::Zero( truthParameters.rows( ), truthParameters.rows( ) ),
-                    initialParameterEstimate - truthParameters );
+                    Eigen::MatrixXd::Zero( truthParameters.rows( ), truthParameters.rows( ) ) );
 
         std::map< observation_models::ObservableType, double > weightPerObservable;
         weightPerObservable[ one_way_range ] = 1.0 / ( 1.0 * 1.0 );
@@ -321,10 +321,12 @@ BOOST_AUTO_TEST_CASE( test_DesaturationDeltaVsEstimation )
 
         estimationInput->setConstantPerObservableWeightsMatrix( weightPerObservable );
         estimationInput->defineEstimationSettings( true, true, true, true, false );
+        estimationInput->setConvergenceChecker(
+                    std::make_shared< EstimationConvergenceChecker >( 4 ) );
 
         // Perform estimation
         std::shared_ptr< EstimationOutput< double > > estimationOutput = orbitDeterminationManager.estimateParameters(
-                    estimationInput, std::make_shared< EstimationConvergenceChecker >( 4 ) );
+                    estimationInput );
 
         Eigen::VectorXd estimationError = estimationOutput->parameterEstimate_ - truthParameters;
         std::cout <<"estimation error: "<< ( estimationError ).transpose( ) << std::endl;

@@ -620,7 +620,7 @@ public:
 
         Eigen::VectorXd normalizationTerms = normalizeDesignMatrix( designMatrix );
         Eigen::MatrixXd normalizedInverseAprioriCovarianceMatrix = normalizeAprioriCovariance(
-                estimationInput->getInverseOfAprioriCovariance( ), normalizationTerms );
+                estimationInput->getInverseOfAprioriCovariance( numberOfEstimatedParameters ), normalizationTerms );
 
         Eigen::MatrixXd constraintStateMultiplier;
         Eigen::VectorXd constraintRightHandSide;
@@ -655,9 +655,7 @@ public:
      *  \return Object containing estimated parameter value and associateed data, such as residuals and observation partials.
      */
     std::shared_ptr< EstimationOutput< ObservationScalarType, TimeType > > estimateParameters(
-            const std::shared_ptr< EstimationInput< ObservationScalarType, TimeType > > estimationInput,
-            std::shared_ptr< EstimationConvergenceChecker > convergenceChecker =
-            std::make_shared< EstimationConvergenceChecker >( ) )
+            const std::shared_ptr< EstimationInput< ObservationScalarType, TimeType > > estimationInput )
 
     {
         currentParameterEstimate_ = parametersToEstimate_->template getFullParameterValues< ObservationScalarType >( );
@@ -688,8 +686,7 @@ public:
         // Declare variables to be used in loop.
 
         // Set current parameter estimate as both previous and current estimate
-        ParameterVectorType newParameterEstimate = currentParameterEstimate_ +
-                estimationInput->getInitialParameterDeviationEstimate( );
+        ParameterVectorType newParameterEstimate = currentParameterEstimate_;
         ParameterVectorType oldParameterEstimate = currentParameterEstimate_;
 //        std::cout << "old parameter estimate: " << oldParameterEstimate.transpose( ) << "\n\n";
 
@@ -769,7 +766,7 @@ public:
 
             Eigen::VectorXd normalizationTerms = normalizeDesignMatrix( designMatrix );
             Eigen::MatrixXd normalizedInverseAprioriCovarianceMatrix = normalizeAprioriCovariance(
-                    estimationInput->getInverseOfAprioriCovariance( ), normalizationTerms );
+                    estimationInput->getInverseOfAprioriCovariance( parameterVectorSize ), normalizationTerms );
 
             // Perform least squares calculation for correction to parameter vector.
             std::pair< Eigen::VectorXd, Eigen::MatrixXd > leastSquaresOutput;
@@ -864,7 +861,7 @@ public:
             numberOfIterations++;
 
             // Check for convergence
-        } while( convergenceChecker->isEstimationConverged( numberOfIterations, rmsResidualHistory ) == false );
+        } while( estimationInput->getConvergenceChecker( )->isEstimationConverged( numberOfIterations, rmsResidualHistory ) == false );
 
         if( estimationInput->getPrintOutput( ) )
         {

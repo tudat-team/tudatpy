@@ -136,6 +136,8 @@ std::pair< std::shared_ptr< EstimationOutput< StateScalarType > >, Eigen::Vector
             std::make_shared< EstimationInput< StateScalarType, TimeType > >(
                 observationsAndTimes, initialStateParametersToEstimate->getParameterSetSize( ) );
     estimationInput->defineEstimationSettings( true, true, false, true, true );
+    estimationInput->setConvergenceChecker(
+                std::make_shared< EstimationConvergenceChecker >( numberOfIterations ) );
 
     // Create parameters that are to be perturbed
     std::vector< std::shared_ptr< EstimatableParameterSettings > > perturbedParameterSettingsList;
@@ -161,7 +163,7 @@ std::pair< std::shared_ptr< EstimationOutput< StateScalarType > >, Eigen::Vector
 
     // Fit nominal dynamics to pertrubed dynamical model
     std::shared_ptr< EstimationOutput< StateScalarType > > estimationOutput = orbitDeterminationManager.estimateParameters(
-                estimationInput, std::make_shared< EstimationConvergenceChecker >( numberOfIterations ) );
+                estimationInput );
 
     // Reset parameter to nominal value
     perturbedParameters->resetParameterValues( unperturbedParameterVector );

@@ -434,7 +434,8 @@ std::map< TimeType, Eigen::MatrixXd >  calculateCovarianceUsingDataUpToEpoch(
     return calculateCovarianceUsingDataUpToEpoch< ObservationScalarType, TimeType >(
                 podInputData->getObservationsAndTimes( ), podOutputData->normalizedDesignMatrix_,
                 podOutputData->designMatrixTransformationDiagonal_, outputTimes,
-                podOutputData->weightsMatrixDiagonal_, podInputData->getInverseOfAprioriCovariance( ) );
+                podOutputData->weightsMatrixDiagonal_, podInputData->getInverseOfAprioriCovariance(
+                    podOutputData->numberOfParameters_ ) );
 }
 
 template< typename ObservationScalarType = double, typename TimeType = double, typename StateScalarType = ObservationScalarType,
@@ -447,7 +448,8 @@ std::map< TimeType, Eigen::MatrixXd >  calculateCovarianceUsingDataUpToEpoch(
     return calculateCovarianceUsingDataUpToEpoch< ObservationScalarType, TimeType >(
                 podInputData->getObservationCollection( ), podOutputData->normalizedDesignMatrix_,
                 podOutputData->designMatrixTransformationDiagonal_, outputTimeStep,
-                podOutputData->weightsMatrixDiagonal_, podInputData->getInverseOfAprioriCovariance( ) );
+                podOutputData->weightsMatrixDiagonal_, podInputData->getInverseOfAprioriCovariance(
+                    podOutputData->numberOfParameters_  ) );
 }
 
 
