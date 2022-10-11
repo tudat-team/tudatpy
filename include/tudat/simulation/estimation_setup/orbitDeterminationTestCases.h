@@ -295,12 +295,12 @@ std::pair< std::shared_ptr< EstimationOutput< StateScalarType, TimeType > >, Eig
     {
         initialParameterEstimate( i ) += parameterPerturbation( i );
     }
+    parametersToEstimate->resetParameterValues( initialParameterEstimate );
 
     // Define estimation input
     std::shared_ptr< EstimationInput< StateScalarType, TimeType > > estimationInput =
             std::make_shared< EstimationInput< StateScalarType, TimeType > >(
-                simulatedObservations, initialParameterEstimate.rows( ), inverseAPrioriCovariance,
-                initialParameterEstimate - truthParameters );
+                simulatedObservations, initialParameterEstimate.rows( ), inverseAPrioriCovariance );
     std::shared_ptr< CovarianceAnalysisInput< StateScalarType, TimeType > > covarianceInput =
             std::make_shared< EstimationInput< StateScalarType, TimeType > >(
                 simulatedObservations, initialParameterEstimate.rows( ), inverseAPrioriCovariance );
@@ -325,7 +325,7 @@ std::pair< std::shared_ptr< EstimationOutput< StateScalarType, TimeType > >, Eig
 
     // Perform estimation
     std::shared_ptr< EstimationOutput< StateScalarType, TimeType > > estimationOutput = orbitDeterminationManager.estimateParameters(
-                estimationInput, std::make_shared< EstimationConvergenceChecker >( ) );
+                estimationInput );
 
     parametersToEstimate->resetParameterValues( estimationOutput->parameterHistory_.at( estimationOutput->bestIteration_ ) );
     std::shared_ptr< CovarianceAnalysisOutput< StateScalarType, TimeType > > covarianceOutput = orbitDeterminationManager.computeCovariance(
@@ -643,14 +643,13 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation(
         }
         initialParameterEstimate += parameterPerturbation;
     }
-
+    parametersToEstimate->resetParameterValues( initialParameterEstimate );
 
     // Define estimation input
     std::shared_ptr< EstimationInput< StateScalarType, TimeType  > > estimationInput =
             std::make_shared< EstimationInput< StateScalarType, TimeType > >(
                 simulatedObservations, initialParameterEstimate.rows( ),
-                Eigen::MatrixXd::Zero( truthParameters.rows( ), truthParameters.rows( ) ),
-                initialParameterEstimate - truthParameters );
+                Eigen::MatrixXd::Zero( truthParameters.rows( ), truthParameters.rows( ) ) );
 
     std::map< observation_models::ObservableType, double > weightPerObservable;
     weightPerObservable[ one_way_range ] = 1.0 / ( 1.0 * 1.0 );
@@ -659,10 +658,12 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation(
 
     estimationInput->setConstantPerObservableWeightsMatrix( weightPerObservable );
     estimationInput->defineEstimationSettings( true, true, true, true, false );
+    estimationInput->setConvergenceChecker(
+                std::make_shared< EstimationConvergenceChecker >( numberOfIterations ) );
 
     // Perform estimation
     std::shared_ptr< EstimationOutput< StateScalarType > > estimationOutput = orbitDeterminationManager.estimateParameters(
-                estimationInput, std::make_shared< EstimationConvergenceChecker >( numberOfIterations ) );
+                estimationInput );
 
     Eigen::VectorXd estimationError = estimationOutput->parameterEstimate_ - truthParameters;
     std::cout <<"estimation error: "<< ( estimationError ).transpose( ) << std::endl;
@@ -1239,14 +1240,13 @@ std::pair< Eigen::VectorXd, bool > executeEarthOrbiterBiasEstimation(
         }
         initialParameterEstimate += parameterPerturbation;
     }
-
+    parametersToEstimate->resetParameterValues( initialParameterEstimate );
 
     // Define estimation input
     std::shared_ptr< EstimationInput< StateScalarType, TimeType  > > estimationInput =
             std::make_shared< EstimationInput< StateScalarType, TimeType > >(
                 simulatedObservations, initialParameterEstimate.rows( ),
-                Eigen::MatrixXd::Zero( truthParameters.rows( ), truthParameters.rows( ) ),
-                initialParameterEstimate - truthParameters );
+                Eigen::MatrixXd::Zero( truthParameters.rows( ), truthParameters.rows( ) ) );
 
     std::map< observation_models::ObservableType, double > weightPerObservable;
     weightPerObservable[ one_way_range ] = 1.0 / ( 1.0 * 1.0 );
@@ -1257,10 +1257,12 @@ std::pair< Eigen::VectorXd, bool > executeEarthOrbiterBiasEstimation(
 
     estimationInput->setConstantPerObservableWeightsMatrix( weightPerObservable );
     estimationInput->defineEstimationSettings( true, false, false, true, false );
+    estimationInput->setConvergenceChecker(
+                std::make_shared< EstimationConvergenceChecker >( numberOfIterations ) );
 
     // Perform estimation
     std::shared_ptr< EstimationOutput< StateScalarType > > estimationOutput = orbitDeterminationManager.estimateParameters(
-                estimationInput, std::make_shared< EstimationConvergenceChecker >( numberOfIterations ) );
+                estimationInput );
 
     Eigen::VectorXd estimationError = estimationOutput->parameterEstimate_ - truthParameters;
 

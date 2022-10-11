@@ -649,7 +649,7 @@ BOOST_AUTO_TEST_CASE( testMultiArcMultiBodyVariationalEquationCalculation1 )
         std::map<int, AccelerationMap> multiArcMoonsAccelerationMap;
         for (int i = 0; i < numberArcs; i++) {
             std::vector<std::string> arcWiseMoonsToPropagate, arcWiseMoonsCentralBodies;
-            for (int j = 0; j < bodiesToPropagatePerArc.at( i ).size() - 1; j++) {
+            for (unsigned int j = 0; j < bodiesToPropagatePerArc.at( i ).size() - 1; j++) {
                 arcWiseMoonsToPropagate.push_back( bodiesToPropagatePerArc.at( i ).at(j ) );
                 arcWiseMoonsCentralBodies.push_back( centralBodiesPerArc.at( i ).at( j ) );
             }
@@ -658,7 +658,7 @@ BOOST_AUTO_TEST_CASE( testMultiArcMultiBodyVariationalEquationCalculation1 )
 
         // Merge arc-wise acceleration maps
         std::map<int, AccelerationMap> multiArcCompleteAccelerationMaps = multiArcMoonsAccelerationMap;
-        for (unsigned int k = 0; k < numberArcs; k++) {
+        for (int k = 0; k < numberArcs; k++) {
             AccelerationMap arcWiseAccelerationMap = multiArcCompleteAccelerationMaps.at( k );
             arcWiseAccelerationMap[ "JUICE" ] = multiArcJuiceAccelerationMap.at( k ).at("JUICE");
             multiArcCompleteAccelerationMaps.at( k ) = arcWiseAccelerationMap;
@@ -770,7 +770,7 @@ BOOST_AUTO_TEST_CASE( testMultiArcMultiBodyVariationalEquationCalculation1 )
         std::shared_ptr< MultiArcCombinedStateTransitionAndSensitivityMatrixInterface > multiArcStateTransitionInterface =
                 std::dynamic_pointer_cast< MultiArcCombinedStateTransitionAndSensitivityMatrixInterface >( stateTransitionMatrixInterface );
 
-        for ( unsigned int arc = 0 ; arc < numberArcs ; arc++ )
+        for ( int arc = 0 ; arc < numberArcs ; arc++ )
         {
             std::cout << "ARC " << arc << "\n\n";
             double finalArcEpoch = multiArcStateHistory.at( arc ).rbegin( )->first;
@@ -931,7 +931,7 @@ BOOST_AUTO_TEST_CASE( testMultiArcMultiBodyVariationalEquationCalculation1 )
 
 
         // Test arc per arc
-        for (unsigned int arc = 0; arc < numberArcs; arc++) {
+        for ( int arc = 0; arc < numberArcs; arc++) {
 
             std::cout << "TEST - ARC : " << arc << "\n\n";
             std::vector<std::shared_ptr<SingleArcPropagatorSettings<> > > perArcPropagatorSettingsList;

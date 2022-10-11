@@ -220,10 +220,12 @@ BOOST_AUTO_TEST_CASE( test_FullPlanetaryRotationalParameters )
         std::shared_ptr< EstimationInput< double, double > > estimationInput = std::make_shared< EstimationInput< double, double > >(
                     observationsAndTimes, numberOfParameters, inverseAprioriCovariance );
         estimationInput->defineEstimationSettings( false, false );
+        estimationInput->setConvergenceChecker(
+                    std::make_shared< EstimationConvergenceChecker >( 3 ) );
 
         // Perform state estimation
         std::shared_ptr< EstimationOutput< double, double > > estimationOutput = orbitDeterminationManager.estimateParameters(
-                    estimationInput, std::make_shared< EstimationConvergenceChecker >( 3 ) );
+                    estimationInput );
         
         
         // Retrieve estimated parameter, and compare against true values

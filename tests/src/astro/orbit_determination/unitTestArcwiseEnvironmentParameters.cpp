@@ -287,19 +287,21 @@ BOOST_AUTO_TEST_CASE( test_ArcwiseEnvironmentParameters )
     parameterPerturbation.segment( 6, 6 ) = Eigen::VectorXd::Constant( 6, 1.0 );
     Eigen::Matrix< double, Eigen::Dynamic, 1 > initialParameterEstimate = truthParameters;
     initialParameterEstimate += parameterPerturbation;
+    parametersToEstimate->resetParameterValues( initialParameterEstimate );
 
 
     // Define estimation input
     std::shared_ptr< EstimationInput< double, double > > estimationInput =
             std::make_shared< EstimationInput< double, double > >(
                 observationsAndTimes, initialParameterEstimate.rows( ),
-                Eigen::MatrixXd::Zero( truthParameters.rows( ), truthParameters.rows( ) ),
-                initialParameterEstimate - truthParameters );
+                Eigen::MatrixXd::Zero( truthParameters.rows( ), truthParameters.rows( ) ) );
     estimationInput->defineEstimationSettings( true, true, false, true );
+    estimationInput->setConvergenceChecker(
+                std::make_shared< EstimationConvergenceChecker >( 4 ) );
 
     // Perform estimation
     std::shared_ptr< EstimationOutput< double > > estimationOutput = orbitDeterminationManager.estimateParameters(
-                estimationInput, std::make_shared< EstimationConvergenceChecker >( 4 ) );
+                estimationInput );
     Eigen::VectorXd parameterEstimate = estimationOutput->parameterEstimate_ - truthParameters;
 
     for( int i = 0; i < 3; i++ )

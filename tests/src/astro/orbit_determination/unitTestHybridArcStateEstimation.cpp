@@ -346,10 +346,11 @@ Eigen::VectorXd  executeParameterEstimation(
     weightPerObservable[ one_way_range ] = 1.0E-4;
     weightPerObservable[ angular_position ] = 1.0E-20;
     estimationInput->setConstantPerObservableWeightsMatrix( weightPerObservable );
-
+    estimationInput->setConvergenceChecker(
+                std::make_shared< EstimationConvergenceChecker >( 6 ) );
     // Estimate parameters and return postfit error
     std::shared_ptr< EstimationOutput< StateScalarType > > estimationOutput = orbitDeterminationManager.estimateParameters(
-                estimationInput, std::make_shared< EstimationConvergenceChecker >( 6 ) );
+                estimationInput  );
 
 //    input_output::writeMatrixToFile( estimationOutput->normalizedDesignMatrix_, "hybridArcPartials.dat" );
 //    input_output::writeMatrixToFile( estimationOutput->designMatrixTransformationDiagonal_, "hybridArcNormalization.dat" );

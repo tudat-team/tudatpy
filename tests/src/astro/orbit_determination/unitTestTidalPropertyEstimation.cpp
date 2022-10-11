@@ -263,8 +263,11 @@ BOOST_AUTO_TEST_CASE( test_DissipationParameterEstimation )
         std::shared_ptr< EstimationInput< double, double > > estimationInput =
                 std::make_shared< EstimationInput< double, double > >(
                     observationsAndTimes, ( initialParameterEstimate ).rows( ) );
+        estimationInput->setConvergenceChecker(
+                    std::make_shared< EstimationConvergenceChecker >( 3 ) );
+
         std::shared_ptr< EstimationOutput< double > > estimationOutput = orbitDeterminationManager.estimateParameters(
-                    estimationInput, std::make_shared< EstimationConvergenceChecker >( 3 ) );
+                    estimationInput );
 
         // Check if parameters are correctly estimated
         Eigen::VectorXd estimatedParametervalues = estimationOutput->parameterEstimate_;
@@ -462,18 +465,20 @@ BOOST_AUTO_TEST_CASE( test_LoveNumberEstimationFromOrbiterData )
         parameterPerturbation( i ) += 0.001;
     }
     initialParameterEstimate += parameterPerturbation;
+    parametersToEstimate->resetParameterValues( initialParameterEstimate );
 
 
     // Define estimation input
     std::shared_ptr< EstimationInput< double, double  > > estimationInput =
             std::make_shared< EstimationInput< double, double > >(
                 observationsAndTimes, initialParameterEstimate.rows( ),
-                Eigen::MatrixXd::Zero( truthParameters.rows( ), truthParameters.rows( ) ),
-                initialParameterEstimate - truthParameters );
+                Eigen::MatrixXd::Zero( truthParameters.rows( ), truthParameters.rows( ) ) );
+    estimationInput->setConvergenceChecker(
+                std::make_shared< EstimationConvergenceChecker >( 4 ) );
 
     // Perform estimation
     std::shared_ptr< EstimationOutput< double > > estimationOutput = orbitDeterminationManager.estimateParameters(
-                estimationInput, std::make_shared< EstimationConvergenceChecker >( 4 ) );
+                estimationInput );
 
     // Check estimation results
     Eigen::VectorXd estimationError = estimationOutput->parameterEstimate_ - truthParameters;

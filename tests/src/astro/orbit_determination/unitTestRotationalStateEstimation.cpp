@@ -272,15 +272,19 @@ BOOST_AUTO_TEST_CASE( test_RotationalDynamicsEstimationFromLanderData )
     initialParameterEstimate( 5 ) += 1.0E-9;
     initialParameterEstimate( 7 ) += 1.0E-12;
 
+    parametersToEstimate->resetParameterValues( initialParameterEstimate );
+
     // Define estimation input
     std::shared_ptr< EstimationInput< double, double  > > estimationInput =
             std::make_shared< EstimationInput< double, double > >(
                 observationsAndTimes, numberOfParameters,
-                Eigen::MatrixXd::Zero( numberOfParameters, numberOfParameters ), initialParameterEstimate - truthParameters );
+                Eigen::MatrixXd::Zero( numberOfParameters, numberOfParameters ) );
+    estimationInput->setConvergenceChecker(
+                std::make_shared< EstimationConvergenceChecker >( 6 ) );
 
     // Perform estimation
     std::shared_ptr< EstimationOutput< double > > estimationOutput = orbitDeterminationManager.estimateParameters(
-                estimationInput, std::make_shared< EstimationConvergenceChecker >( 6 ) );
+                estimationInput );
 
     // Check residual size (sub-mm over >1 AU)
     BOOST_CHECK_SMALL( std::fabs( estimationOutput->residualStandardDeviation_ ), 1.0E-3 );
@@ -521,17 +525,20 @@ BOOST_AUTO_TEST_CASE( test_RotationalTranslationalDynamicsEstimationFromLanderDa
     initialParameterEstimate( 1 ) += 1.0;
     initialParameterEstimate( 2 ) += 1.0;
     int parameterSize = initialParameterEstimate.rows( );
+    parametersToEstimate->resetParameterValues( initialParameterEstimate );
 
     // Define estimation input
     std::shared_ptr< EstimationInput< double, double  > > estimationInput =
             std::make_shared< EstimationInput< double, double > >(
                 observationsAndTimes, parameterSize,
-                Eigen::MatrixXd::Zero( parameterSize, parameterSize ), initialParameterEstimate - truthParameters );
+                Eigen::MatrixXd::Zero( parameterSize, parameterSize ) );
     estimationInput->defineEstimationSettings( true, false, true, true, true, true );
+    estimationInput->setConvergenceChecker(
+                std::make_shared< EstimationConvergenceChecker >( 6 ) );
 
     // Perform estimation
     std::shared_ptr< EstimationOutput< double > > estimationOutput = orbitDeterminationManager.estimateParameters(
-                estimationInput, std::make_shared< EstimationConvergenceChecker >( 6 ) );
+                estimationInput );
 
     // Check residual size (sub-mm over >1 AU)
     BOOST_CHECK_SMALL( std::fabs( estimationOutput->residualStandardDeviation_ ), 1.0E-3 );
