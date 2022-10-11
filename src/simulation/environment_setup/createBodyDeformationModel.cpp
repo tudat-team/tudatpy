@@ -1,5 +1,7 @@
 #include "tudat/astro/ground_stations/basicTidalBodyDeformation.h"
+#include "tudat/astro/ground_stations/iers2010SolidTidalBodyDeformation.h"
 #include "tudat/simulation/environment_setup/createBodyDeformationModel.h"
+#include "tudat/io/basicInputOutput.h"
 
 namespace tudat
 {
@@ -7,6 +9,74 @@ namespace tudat
 namespace simulation_setup
 {
 
+
+std::shared_ptr< basic_astrodynamics::Iers2010EarthDeformation > createDefaultEarthIers2010DeformationModel(
+        const std::shared_ptr< ephemerides::Ephemeris > earthEphemeris,
+        const std::shared_ptr< ephemerides::Ephemeris > lunarEphemeris,
+        const std::shared_ptr< ephemerides::Ephemeris > solarEphemeris,
+        const std::shared_ptr< ephemerides::RotationalEphemeris > earthRotation,
+        const std::function< double( ) > gravitionalParametersOfEarth,
+        const std::function< double( ) > gravitionalParametersOfMoon,
+        const std::function< double( ) > gravitionalParametersOfSun)
+{
+    using namespace tudat::ephemerides;
+    using namespace tudat::basic_astrodynamics;
+
+    std::vector< std::function< double( ) > > gravitationalParameters;
+    gravitationalParameters.resize( 2 );
+    gravitationalParameters[ 0 ] = gravitionalParametersOfMoon;
+    gravitationalParameters[ 1 ] = gravitionalParametersOfSun;
+
+    std::vector< std::function< Eigen::Vector6d( const double ) > > ephemerides;
+    ephemerides.resize( 2 );
+    ephemerides[ 0 ] = std::bind( &Ephemeris::getCartesianState, lunarEphemeris, std::placeholders::_1 );
+    ephemerides[ 1 ] = std::bind( &Ephemeris::getCartesianState, solarEphemeris, std::placeholders::_1 );
+
+    double equatorialRadius = 6378136.6;
+
+    using namespace iers_2010_parameters;
+
+    std::map< int, std::pair< double, double > > nominalDisplacementLoveNumbers;
+    nominalDisplacementLoveNumbers[ 2 ] = std::make_pair( PRINCIPAL_DEGREE_TWO_LOVE_NUMBER, PRINCIPAL_DEGREE_TWO_SHIDA_NUMBER );
+    nominalDisplacementLoveNumbers[ 3 ] = std::make_pair( PRINCIPAL_DEGREE_THREE_LOVE_NUMBER, PRINCIPAL_DEGREE_THREE_SHIDA_NUMBER );
+
+    std::vector< double > latitudeTerms;
+    latitudeTerms.resize( 2 );
+    latitudeTerms[ 0 ] = DEGREE_TWO_LATITUDE_LOVE_NUMBER;
+    latitudeTerms[ 1 ] = DEGREE_TWO_LATITUDE_SHIDA_NUMBER;
+
+    std::vector< bool > areTermsCalculated;
+    areTermsCalculated.resize( 6 );
+    for( int i = 0; i < 6 ; i++ )
+    {
+        areTermsCalculated[ i ] = 1;
+    }
+
+    std::vector< double > correctionNumbers;
+    correctionNumbers.resize( 6 );
+    correctionNumbers[ 2 ] = IMAGINARY_DEGREE_TWO_DIURNAL_LOVE_NUMBER;
+    correctionNumbers[ 3 ] = IMAGINARY_DEGREE_TWO_DIURNAL_SHIDA_NUMBER;
+    correctionNumbers[ 4 ] = IMAGINARY_DEGREE_TWO_SEMIDIURNAL_LOVE_NUMBER;
+    correctionNumbers[ 5 ] = IMAGINARY_DEGREE_TWO_SEMIDIURNAL_SHIDA_NUMBER;
+    correctionNumbers[ 0 ] = DEGREE_TWO_DIURNAL_TOROIDAL_LOVE_NUMBER;
+    correctionNumbers[ 1 ] = DEGREE_TWO_SEMIDIURNAL_TOROIDAL_LOVE_NUMBER;
+
+    std::string longPeriodFile = paths::getEarthOrientationDataFilesPath( ) +
+            "longPeriodDisplacementFrequencyDependence.txt";
+    std::string diurnalFile = paths::getEarthOrientationDataFilesPath( ) +
+            "diurnalDisplacementFrequencyDependence.txt";
+
+    std::shared_ptr< Iers2010EarthDeformation > deformationModel = std::make_shared< Iers2010EarthDeformation >
+            ( std::bind( &Ephemeris::getCartesianState, earthEphemeris, std::placeholders::_1 ),
+              ephemerides,
+              std::bind( &RotationalEphemeris::getRotationToTargetFrame, earthRotation, std::placeholders::_1 ),
+              gravitionalParametersOfEarth, gravitationalParameters,
+              equatorialRadius, nominalDisplacementLoveNumbers, latitudeTerms, areTermsCalculated,
+              correctionNumbers, diurnalFile, longPeriodFile );
+
+    return deformationModel;
+
+}
 
 std::shared_ptr< basic_astrodynamics::BodyDeformationModel > createBodyDeformationModel(
         const std::shared_ptr< BodyDeformationSettings > bodyDeformationSettings,
@@ -96,6 +166,34 @@ std::shared_ptr< basic_astrodynamics::BodyDeformationModel > createBodyDeformati
 
         }
         break;
+    }
+    case iers_2010:
+    {
+        if( body != "Earth" )
+        {
+            throw std::runtime_error( "Error, can only assign IERS 2010 deformation model to Earth" );
+        }
+        if( bodyMap.count( "Earth" ) == 0 )
+        {
+            throw std::runtime_error( "Error when making IERS 2010 deformation model, Earth not found" );
+        }
+        if( bodyMap.count( "Moon" ) == 0 )
+        {
+            throw std::runtime_error( "Error when making IERS 2010 deformation model, Moon not found" );
+        }
+        if( bodyMap.count( "Sun" ) == 0 )
+        {
+            throw std::runtime_error( "Error when making IERS 2010 deformation model, Sun not found" );
+        }
+
+        return createDefaultEarthIers2010DeformationModel(
+                    bodyMap.at( "Earth" )->getEphemeris( ),
+                    bodyMap.at( "Moon" )->getEphemeris( ),
+                    bodyMap.at( "Sun" )->getEphemeris( ),
+                    bodyMap.at( "Earth" )->getRotationalEphemeris( ),
+                    std::bind( &gravitation::GravityFieldModel::getGravitationalParameter, bodyMap.at( "Earth" )->getGravityFieldModel( ) ),
+                    std::bind( &gravitation::GravityFieldModel::getGravitationalParameter, bodyMap.at( "Moon" )->getGravityFieldModel( ) ),
+                    std::bind( &gravitation::GravityFieldModel::getGravitationalParameter, bodyMap.at( "Sun" )->getGravityFieldModel( ) ) );
     }
     default:
         throw std::runtime_error( "Error, did not recognize body deformation settings type " +

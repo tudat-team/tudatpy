@@ -526,15 +526,15 @@ public:
         {
             throw std::runtime_error( "Error when making hybrid state transition/sensitivity interface, input is inconsistent" );
         }
-        std::cout << "multi-arc sensitivity matrix size: " << multiArcInterface->getSensitivityMatrixSize( ) << " & single-arc sensitivity matrix size: "
-        << singleArcInterface->getSensitivityMatrixSize( ) << "\n\n";
+//        std::cout << "multi-arc sensitivity matrix size: " << multiArcInterface->getSensitivityMatrixSize( ) << " & single-arc sensitivity matrix size: "
+//        << singleArcInterface->getSensitivityMatrixSize( ) << "\n\n";
 
         singleArcStateSize_ = singleArcInterface_->getStateTransitionMatrixSize( );
         multiArcStateSize_ = multiArcInterface_->getStateTransitionMatrixSize( );
         originalMultiArcStateSize_ = multiArcStateSize_ - singleArcStateSize_;
-        std::cout << "single arc state size: " << singleArcStateSize_ << "\n\n";
-        std::cout << "multi arc state size: " << multiArcStateSize_ << "\n\n";
-        std::cout << "original multi arc state size: " << originalMultiArcStateSize_ << "\n\n";
+//        std::cout << "single arc state size: " << singleArcStateSize_ << "\n\n";
+//        std::cout << "multi arc state size: " << multiArcStateSize_ << "\n\n";
+//        std::cout << "original multi arc state size: " << originalMultiArcStateSize_ << "\n\n";
 
         numberOfMultiArcs_ = multiArcInterface->getNumberOfArcs( );
 
@@ -551,8 +551,8 @@ public:
      */
     int getFullParameterVectorSize( )
     {
-        std::cout << "multi arc - full parameter vector size: " << multiArcInterface_->getFullParameterVectorSize( ) << "\n\n";
-        std::cout << "hybrid arc - full parameter vector size: " << multiArcInterface_->getFullParameterVectorSize( ) + singleArcStateSize_ << "\n\n";
+//        std::cout << "multi arc - full parameter vector size: " << multiArcInterface_->getFullParameterVectorSize( ) << "\n\n";
+//        std::cout << "hybrid arc - full parameter vector size: " << multiArcInterface_->getFullParameterVectorSize( ) + singleArcStateSize_ << "\n\n";
         return multiArcInterface_->getFullParameterVectorSize( ) - singleArcStateSize_ * ( numberOfMultiArcs_ - 1 );
         //sensitivityMatrixSize_ + singleArcStateSize_ + numberOfMultiArcs_ * originalMultiArcStateSize_;
     }
