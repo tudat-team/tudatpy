@@ -293,8 +293,7 @@ BOOST_AUTO_TEST_CASE( test_ArcwiseEnvironmentParameters )
     // Define estimation input
     std::shared_ptr< EstimationInput< double, double > > estimationInput =
             std::make_shared< EstimationInput< double, double > >(
-                observationsAndTimes, initialParameterEstimate.rows( ),
-                Eigen::MatrixXd::Zero( truthParameters.rows( ), truthParameters.rows( ) ) );
+                observationsAndTimes );
     estimationInput->defineEstimationSettings( true, true, false, true );
     estimationInput->setConvergenceChecker(
                 std::make_shared< EstimationConvergenceChecker >( 4 ) );

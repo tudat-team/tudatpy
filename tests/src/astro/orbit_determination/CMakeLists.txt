@@ -40,10 +40,10 @@ TUDAT_ADD_TEST_CASE(HybridArcStateEstimation
     ${Tudat_ESTIMATION_LIBRARIES}
     )
 
- TUDAT_ADD_TEST_CASE(HybridArcMultiBodyEstimation
-         PRIVATE_LINKS
-         ${Tudat_ESTIMATION_LIBRARIES}
-         )
+# TUDAT_ADD_TEST_CASE(HybridArcMultiBodyEstimation
+#         PRIVATE_LINKS
+#         ${Tudat_ESTIMATION_LIBRARIES}
+#         )
 
 TUDAT_ADD_TEST_CASE(MultiArcStateEstimation
     PRIVATE_LINKS

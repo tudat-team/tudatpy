@@ -311,8 +311,7 @@ BOOST_AUTO_TEST_CASE( test_DesaturationDeltaVsEstimation )
 
         // Define estimation input
         std::shared_ptr< EstimationInput< double, double  > > estimationInput = std::make_shared< EstimationInput< double, double > >(
-                    observationsAndTimes, initialParameterEstimate.rows( ),
-                    Eigen::MatrixXd::Zero( truthParameters.rows( ), truthParameters.rows( ) ) );
+                    observationsAndTimes );
 
         std::map< observation_models::ObservableType, double > weightPerObservable;
         weightPerObservable[ one_way_range ] = 1.0 / ( 1.0 * 1.0 );

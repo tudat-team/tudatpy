@@ -277,8 +277,7 @@ BOOST_AUTO_TEST_CASE( test_RotationalDynamicsEstimationFromLanderData )
     // Define estimation input
     std::shared_ptr< EstimationInput< double, double  > > estimationInput =
             std::make_shared< EstimationInput< double, double > >(
-                observationsAndTimes, numberOfParameters,
-                Eigen::MatrixXd::Zero( numberOfParameters, numberOfParameters ) );
+                observationsAndTimes );
     estimationInput->setConvergenceChecker(
                 std::make_shared< EstimationConvergenceChecker >( 6 ) );
 
@@ -530,8 +529,7 @@ BOOST_AUTO_TEST_CASE( test_RotationalTranslationalDynamicsEstimationFromLanderDa
     // Define estimation input
     std::shared_ptr< EstimationInput< double, double  > > estimationInput =
             std::make_shared< EstimationInput< double, double > >(
-                observationsAndTimes, parameterSize,
-                Eigen::MatrixXd::Zero( parameterSize, parameterSize ) );
+                observationsAndTimes );
     estimationInput->defineEstimationSettings( true, false, true, true, true, true );
     estimationInput->setConvergenceChecker(
                 std::make_shared< EstimationConvergenceChecker >( 6 ) );

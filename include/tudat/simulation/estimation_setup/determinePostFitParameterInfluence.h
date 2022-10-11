@@ -134,7 +134,7 @@ std::pair< std::shared_ptr< EstimationOutput< StateScalarType > >, Eigen::Vector
     // Define estimation input
     std::shared_ptr< EstimationInput< StateScalarType, TimeType > > estimationInput =
             std::make_shared< EstimationInput< StateScalarType, TimeType > >(
-                observationsAndTimes, initialStateParametersToEstimate->getParameterSetSize( ) );
+                observationsAndTimes );
     estimationInput->defineEstimationSettings( true, true, false, true, true );
     estimationInput->setConvergenceChecker(
                 std::make_shared< EstimationConvergenceChecker >( numberOfIterations ) );

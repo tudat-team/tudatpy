@@ -261,10 +261,10 @@ Eigen::VectorXd  executeParameterEstimation(
 
     std::shared_ptr< EstimationInput< ObservationScalarType, TimeType > > estimationInput =
             std::make_shared< EstimationInput< ObservationScalarType, TimeType > >(
-                observationsAndTimes, ( initialParameterEstimate ).rows( ) );
+                observationsAndTimes );
     std::shared_ptr< CovarianceAnalysisInput< ObservationScalarType, TimeType > > covarianceInput =
             std::make_shared< CovarianceAnalysisInput< ObservationScalarType, TimeType > >(
-                observationsAndTimes, ( initialParameterEstimate ).rows( ) );
+                observationsAndTimes );
 
     std::shared_ptr< EstimationOutput< StateScalarType, TimeType > > estimationOutput = orbitDeterminationManager.estimateParameters(
                 estimationInput );
@@ -545,7 +545,7 @@ Eigen::VectorXd  executeMultiBodyMultiArcParameterEstimation( )
     // Define POD input
     std::shared_ptr< EstimationInput< ObservationScalarType, TimeType > > estimationInput =
             std::make_shared< EstimationInput< ObservationScalarType, TimeType > >(
-                observationsAndTimes, ( initialParameterEstimate ).rows( ) );
+                observationsAndTimes );
     estimationInput->setConvergenceChecker(
                 std::make_shared< EstimationConvergenceChecker >( 3 ) );
     parametersToEstimate->resetParameterValues( initialParameterEstimate );
