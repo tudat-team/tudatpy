@@ -36,7 +36,6 @@ class CovarianceAnalysisInput
 public:
     CovarianceAnalysisInput(
               const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > >& observationCollection,
-              const int numberOfEstimatedParameters,
               const Eigen::MatrixXd inverseOfAprioriCovariance = Eigen::MatrixXd::Zero( 0, 0 ) ):
         observationCollection_( observationCollection ),
         inverseOfAprioriCovariance_( inverseOfAprioriCovariance ),
@@ -46,18 +45,6 @@ public:
         printOutput_( true ),
         saveStateHistoryForEachIteration_( false )
     {
-        if( inverseOfAprioriCovariance_.rows( ) == 0 )
-        {
-            inverseOfAprioriCovariance_ = Eigen::MatrixXd::Zero( numberOfEstimatedParameters, numberOfEstimatedParameters );
-        }
-
-        if( ( numberOfEstimatedParameters != inverseOfAprioriCovariance_.rows( ) ) ||
-                ( numberOfEstimatedParameters != inverseOfAprioriCovariance_.cols( ) ) )
-        {
-            throw std::runtime_error( "Error when making POD input, size of a priori covariance is inconsistent" );
-        }
-
-
         weightsMatrixDiagonals_ = Eigen::VectorXd::Zero( observationCollection->getTotalObservableSize( ) );
         setConstantWeightsMatrix( 1.0 );
     }
@@ -409,16 +396,15 @@ public:
     /*!
      * Constructor
      * \param observationCollection Total data structure of observations and associated times/link ends/type
-     * \param numberOfEstimatedParameters Size of vector of estimated parameters
      * \param inverseOfAprioriCovariance A priori covariance matrix (unnormalized) of estimated parameters. None (matrix of
      * size 0) by default
      */
-    EstimationInput( const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > >& observationCollection,
-              const int numberOfEstimatedParameters,
-              const Eigen::MatrixXd inverseOfAprioriCovariance = Eigen::MatrixXd::Zero( 0, 0 ),
-              const std::shared_ptr< EstimationConvergenceChecker > convergenceChecker =
+    EstimationInput(
+            const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > >& observationCollection,
+            const Eigen::MatrixXd inverseOfAprioriCovariance = Eigen::MatrixXd::Zero( 0, 0 ),
+            const std::shared_ptr< EstimationConvergenceChecker > convergenceChecker =
             std::make_shared< EstimationConvergenceChecker >( ) ):
-        CovarianceAnalysisInput< ObservationScalarType, TimeType >( observationCollection, numberOfEstimatedParameters, inverseOfAprioriCovariance ),
+        CovarianceAnalysisInput< ObservationScalarType, TimeType >( observationCollection, inverseOfAprioriCovariance ),
         saveResidualsAndParametersFromEachIteration_( true ),
         convergenceChecker_( convergenceChecker )
     { }

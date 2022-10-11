@@ -300,10 +300,10 @@ std::pair< std::shared_ptr< EstimationOutput< StateScalarType, TimeType > >, Eig
     // Define estimation input
     std::shared_ptr< EstimationInput< StateScalarType, TimeType > > estimationInput =
             std::make_shared< EstimationInput< StateScalarType, TimeType > >(
-                simulatedObservations, initialParameterEstimate.rows( ), inverseAPrioriCovariance );
+                simulatedObservations, inverseAPrioriCovariance );
     std::shared_ptr< CovarianceAnalysisInput< StateScalarType, TimeType > > covarianceInput =
             std::make_shared< EstimationInput< StateScalarType, TimeType > >(
-                simulatedObservations, initialParameterEstimate.rows( ), inverseAPrioriCovariance );
+                simulatedObservations, inverseAPrioriCovariance );
     if( observableType == 4 )
     {
         std::map< observation_models::ObservableType, double > weightPerObservable;
@@ -648,8 +648,7 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation(
     // Define estimation input
     std::shared_ptr< EstimationInput< StateScalarType, TimeType  > > estimationInput =
             std::make_shared< EstimationInput< StateScalarType, TimeType > >(
-                simulatedObservations, initialParameterEstimate.rows( ),
-                Eigen::MatrixXd::Zero( truthParameters.rows( ), truthParameters.rows( ) ) );
+                simulatedObservations );
 
     std::map< observation_models::ObservableType, double > weightPerObservable;
     weightPerObservable[ one_way_range ] = 1.0 / ( 1.0 * 1.0 );
@@ -1245,8 +1244,7 @@ std::pair< Eigen::VectorXd, bool > executeEarthOrbiterBiasEstimation(
     // Define estimation input
     std::shared_ptr< EstimationInput< StateScalarType, TimeType  > > estimationInput =
             std::make_shared< EstimationInput< StateScalarType, TimeType > >(
-                simulatedObservations, initialParameterEstimate.rows( ),
-                Eigen::MatrixXd::Zero( truthParameters.rows( ), truthParameters.rows( ) ) );
+                simulatedObservations );
 
     std::map< observation_models::ObservableType, double > weightPerObservable;
     weightPerObservable[ one_way_range ] = 1.0 / ( 1.0 * 1.0 );

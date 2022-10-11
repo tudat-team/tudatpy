@@ -866,7 +866,7 @@ BOOST_AUTO_TEST_CASE( testMultiArcMultiBodyVariationalEquationCalculation1 )
         // Define POD input
         std::shared_ptr< EstimationInput< double, double > > estimationInput =
                 std::make_shared< EstimationInput< double, double > >(
-                        observationsAndTimes, parametersToEstimate->getParameterSetSize( ) );
+                        observationsAndTimes );
 
         // Set observations weights.
         std::map< observation_models::ObservableType, double > weightPerObservable;
@@ -966,7 +966,7 @@ BOOST_AUTO_TEST_CASE( testMultiArcMultiBodyVariationalEquationCalculation1 )
                             bodiesToEstimatePerArc, multiArcStateParametersSizePerArc );
 
             std::vector< double > arcStartingTimes = parametersToEstimate->getArcStartingTimes( );
-            for ( unsigned int i = 0 ; i < numberArcs ; i++ )
+            for ( int i = 0 ; i < numberArcs ; i++ )
             {
                 std::cout << "size parameters arc " << i << " = " << getSingleArcParameterSetSize( parametersToEstimate, i ) << "\n\n";
                 std::cout << "size dynamical parameters arc " << i << " = " << getSingleArcInitialDynamicalStateParameterSetSize( parametersToEstimate, i ) << "\n\n";

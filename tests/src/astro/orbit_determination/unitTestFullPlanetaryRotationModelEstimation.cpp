@@ -218,7 +218,7 @@ BOOST_AUTO_TEST_CASE( test_FullPlanetaryRotationalParameters )
 
         // Create estimation input
         std::shared_ptr< EstimationInput< double, double > > estimationInput = std::make_shared< EstimationInput< double, double > >(
-                    observationsAndTimes, numberOfParameters, inverseAprioriCovariance );
+                    observationsAndTimes, inverseAprioriCovariance );
         estimationInput->defineEstimationSettings( false, false );
         estimationInput->setConvergenceChecker(
                     std::make_shared< EstimationConvergenceChecker >( 3 ) );

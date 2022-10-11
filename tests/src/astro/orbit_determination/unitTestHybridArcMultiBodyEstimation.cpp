@@ -894,7 +894,7 @@ BOOST_AUTO_TEST_CASE( testHybridArcMultiBodyStateEstimation )
         // Define POD input
         std::shared_ptr<EstimationInput<double, double> > podInput =
                 std::make_shared<EstimationInput<double, double> >(
-                        observationsAndTimes, parametersToEstimate->getParameterSetSize());
+                        observationsAndTimes );
 
         // Set observations weights.
         std::map<observation_models::ObservableType, double> weightPerObservable;

@@ -341,7 +341,7 @@ Eigen::VectorXd  executeParameterEstimation(
     // Define estimation settings
     std::shared_ptr< EstimationInput< ObservationScalarType, TimeType > > estimationInput =
             std::make_shared< EstimationInput< ObservationScalarType, TimeType > >(
-                observationsAndTimes, ( initialParameterEstimate ).rows( ) );
+                observationsAndTimes );
     std::map< observation_models::ObservableType, double > weightPerObservable;
     weightPerObservable[ one_way_range ] = 1.0E-4;
     weightPerObservable[ angular_position ] = 1.0E-20;
