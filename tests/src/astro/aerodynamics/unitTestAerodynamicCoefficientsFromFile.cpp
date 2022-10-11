@@ -259,14 +259,16 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientsFromFile )
                     propagationTerminationSettingsList, true );
 
         // Create propagation settings.
-        std::shared_ptr< TranslationalStatePropagatorSettings < double > > propagatorSettings =
-                std::make_shared< TranslationalStatePropagatorSettings< double > >
-                ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, propagationTerminationSettings,
-                  cowell, std::make_shared< DependentVariableSaveSettings >( dependentVariables ) );
-
         std::shared_ptr< IntegratorSettings< > > integratorSettings =
                 std::make_shared< IntegratorSettings< > >
                 ( rungeKutta4, simulationStartEpoch, fixedStepSize );
+        std::shared_ptr< TranslationalStatePropagatorSettings < double > > propagatorSettings =
+                std::make_shared< TranslationalStatePropagatorSettings< double > >
+                ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, simulationStartEpoch,
+                  integratorSettings, propagationTerminationSettings,
+                  cowell, dependentVariables );
+
+
 
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -276,7 +278,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientsFromFile )
 
         // Create simulation object and propagate dynamics.
         SingleArcDynamicsSimulator< > dynamicsSimulator(
-                    bodies, integratorSettings, propagatorSettings, true, false, false );
+                    bodies, propagatorSettings );
 
         // Retrieve numerical solutions for state and dependent variables
         std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > numericalSolution =

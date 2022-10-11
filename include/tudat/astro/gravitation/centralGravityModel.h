@@ -127,6 +127,55 @@ Eigen::Vector3d computeGravitationalForce(
         const double gravitationalParameterOfBodyExertingForce,
         const Eigen::Vector3d& positionOfBodyExertingForce = Eigen::Vector3d::Zero( )  );
 
+/*! Compute gravitational potential.
+ *
+ * Computes gravitational potential experienced by body1, due to its interaction with body2.
+ * The basis for this gravitational potential is that body2 is a point mass, generating
+ * potential according to:
+ * \f[
+ *      U_{gravity} = -\frac{\mu_{2}}{r_{12}}
+ * \f]
+ * where \f$\mu_{2}\f$ is the gravitational parameter of the body exerting acceleration,
+ * and \f$\bar{r}_{12}\f$ is the relative position vector from body1 to body 2, with respect to an
+ * inertial (barycentric) reference frame.
+ * @param positionOfBodySubjectToAcceleration Position vector of body subject to acceleration
+ *          (body1) [m].
+ * @param gravitationalParameterOfBodyExertingAcceleration Gravitational parameter of body exerting
+ *          acceleration (body2) [m^3 s^-2].
+ * @param positionOfBodyExertingAcceleration Position vector of body exerting acceleration
+ *          (body2) [m].
+ * @return Gravitational potential acting on body1 [m^2 s^-2].
+ */
+double computeGravitationalPotential(
+        const Eigen::Vector3d& positionOfBodySubjectToAcceleration,
+        const double gravitationalParameterOfBodyExertingAcceleration,
+        const Eigen::Vector3d& positionOfBodyExertingAcceleration = Eigen::Vector3d::Zero( ) );
+
+/*! Compute gravitational potential.
+ *
+ * Computes gravitational potential experienced by body1, due to its interaction with body2.
+ * The basis for this gravitational potential is that body2 is a point mass, generating
+ * potential according to:
+ * \f[
+ *      U_{gravity} = -\frac{G * m_{2}}{r_{12}}
+ * \f]
+ * where \f$G\f$ is the universal gravitational constant, \f$m_{2}\f$ is the mass of body2,
+ * and \f$\bar{r}_{12}\f$ is the relative position vector from body1 to body 2, with respect to an
+ * inertial (barycentric) reference frame.
+ * @param universalGravitationalConstant Universal gravitational constant [m^3 kg^-1 s^-2].
+ * @param positionOfBodySubjectToAcceleration Position vector of body subject to acceleration
+ *          (body1) [m].
+ * @param massOfBodyExertingAcceleration Mass of body exerting acceleration (body2) [kg].
+ * @param positionOfBodyExertingAcceleration Position vector of body exerting acceleration
+ *          (body2) [m].
+ * @return Gravitational potential acting on body1 [m^2 s^-2].
+ */
+double computeGravitationalPotential(
+        const double universalGravitationalConstant,
+        const Eigen::Vector3d& positionOfBodySubjectToAcceleration,
+        const double massOfBodyExertingAcceleration,
+        const Eigen::Vector3d& positionOfBodyExertingAcceleration = Eigen::Vector3d::Zero( ) );
+
 //! Template class for central gravitational acceleration model.
 /*!
  * This template class implements a central gravitational acceleration model, i.e., only the
@@ -226,6 +275,14 @@ public:
                         this->positionOfBodySubjectToAcceleration,
                         this->gravitationalParameter,
                         this->positionOfBodyExertingAcceleration );
+
+            if ( this->updatePotential_ )
+            {
+                this->currentPotential_ = computeGravitationalPotential(
+                        this->positionOfBodySubjectToAcceleration,
+                        this->gravitationalParameter,
+                        this->positionOfBodyExertingAcceleration );
+            }
         }
     }
 

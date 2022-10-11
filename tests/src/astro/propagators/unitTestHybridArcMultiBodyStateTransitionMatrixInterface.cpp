@@ -799,7 +799,7 @@ namespace tudat
                     printEstimatableParameterEntries( multiArcParametersToEstimate );
 
 
-                    integratorSettings->initialTime_ = initialEpoch;
+//                    integratorSettings->initialTime_ = initialEpoch;
                     HybridArcVariationalEquationsSolver< double, double > hybridArcVariationalEquationsSolver =
                             HybridArcVariationalEquationsSolver< double, double >( bodies, integratorSettings, hybridArcPropagatorSettings, parametersToEstimate,
                                                                                    arcStartTimes, true, false, true );

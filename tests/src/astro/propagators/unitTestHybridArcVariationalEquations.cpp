@@ -114,9 +114,6 @@ executeHybridArcMarsAndOrbiterSensitivitySimulation(
 
 
 
-
-
-
     // Set accelerations between bodies that are to be taken into account.
     SelectedAccelerationMap singleArcAccelerationMap;
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfMars;
@@ -274,6 +271,8 @@ executeHybridArcMarsAndOrbiterSensitivitySimulation(
             std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > results;
     {
         // Create dynamics simulator
+        hybridArcPropagatorSettings->getOutputSettings( )->setIntegratedResult( true );
+
         HybridArcVariationalEquationsSolver< StateScalarType, TimeType > variationalEquations =
                 HybridArcVariationalEquationsSolver< StateScalarType, TimeType >(
                         bodies, singleArcIntegratorSettings, multiArcIntegratorSettings,
@@ -299,7 +298,6 @@ executeHybridArcMarsAndOrbiterSensitivitySimulation(
             Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > testStates =
                     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( 12 );
             testStates.block( 0, 0, 6, 1 ) = bodies.at( "Mars" )->getStateInBaseFrameFromEphemeris( testEpoch );
-
             testStates.block( 6, 0, 6, 1 ) = bodies.at( "Orbiter" )->getStateInBaseFrameFromEphemeris( testEpoch );/* -
         testStates.block( 0, 0, 6, 1 );*/
 

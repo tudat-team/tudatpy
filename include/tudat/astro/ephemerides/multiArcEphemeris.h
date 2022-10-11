@@ -72,7 +72,10 @@ public:
     Eigen::Vector6d getCartesianState(
             const double secondsSinceEpoch )
     {
-
+        if( singleArcEphemerides_.size( ) == 0 )
+        {
+            throw std::runtime_error( "Error when retrieving state from multi-arc ephemeris; no constituent single-arc ephemerides are set" );
+        }
         return singleArcEphemerides_.at( lookUpscheme_->findNearestLowerNeighbour( secondsSinceEpoch ) )->
                 getCartesianState( double( secondsSinceEpoch ) );
     }
@@ -86,6 +89,10 @@ public:
     Eigen::Matrix< long double, 6, 1 > getCartesianLongState(
             const double secondsSinceEpoch )
     {
+        if( singleArcEphemerides_.size( ) == 0 )
+        {
+            throw std::runtime_error( "Error when retrieving state from multi-arc ephemeris; no constituent single-arc ephemerides are set" );
+        }
         return singleArcEphemerides_.at( lookUpscheme_->findNearestLowerNeighbour( secondsSinceEpoch ) )->
                 getCartesianLongState( secondsSinceEpoch );
     }
@@ -99,6 +106,10 @@ public:
     Eigen::Vector6d getCartesianStateFromExtendedTime(
             const Time& currentTime )
     {
+        if( singleArcEphemerides_.size( ) == 0 )
+        {
+            throw std::runtime_error( "Error when retrieving state from multi-arc ephemeris; no constituent single-arc ephemerides are set" );
+        }
         return singleArcEphemerides_.at( lookUpscheme_->findNearestLowerNeighbour( currentTime ) )->
                 getCartesianStateFromExtendedTime( currentTime );
     }
@@ -112,6 +123,10 @@ public:
     Eigen::Matrix< long double, 6, 1 > getCartesianLongStateFromExtendedTime(
             const Time& currentTime )
     {
+        if( singleArcEphemerides_.size( ) == 0 )
+        {
+            throw std::runtime_error( "Error when retrieving state from multi-arc ephemeris; no constituent single-arc ephemerides are set" );
+        }
         return singleArcEphemerides_.at( lookUpscheme_->findNearestLowerNeighbour( currentTime ) )->
                 getCartesianLongStateFromExtendedTime( currentTime );
     }
@@ -144,6 +159,11 @@ public:
     void resetSingleArcEphemerides(
             const std::map< double, std::shared_ptr< Ephemeris > >& singleArcEphemerides )
     {
+        std::cout<<"New start times B: "<<std::endl;
+        for( auto it : singleArcEphemerides )
+        {
+            std::cout<<it.first<<std::endl;
+        }
         resetSingleArcEphemerides( utilities::createVectorFromMapValues( singleArcEphemerides ),
                                    utilities::createVectorFromMapKeys( singleArcEphemerides ) );
     }

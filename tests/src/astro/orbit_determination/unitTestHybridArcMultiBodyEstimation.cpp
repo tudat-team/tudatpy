@@ -851,7 +851,7 @@ BOOST_AUTO_TEST_CASE( testHybridArcMultiBodyStateEstimation )
         Eigen::VectorXd originalParameters = parametersToEstimate->getFullParameterValues<double>();
         std::cout << "parameters values: " << parametersToEstimate->getFullParameterValues<double>().transpose() << "\n\n";
 
-        integratorSettings->initialTime_ = initialEpoch;
+//        integratorSettings->initialTime_ = initialEpoch;
         OrbitDeterminationManager<double, double> orbitDeterminationManager =
                 OrbitDeterminationManager<double, double>(
                         bodies, parametersToEstimate,

@@ -200,6 +200,12 @@ RotationMatrixPartialNamedList createRotationMatrixPartials(
             std::shared_ptr< RotationMatrixPartial > >
             rotationMatrixPartials;
 
+    // Check if parametersToEstimate pointer isn't empty
+    if ( !parametersToEstimate )
+    {
+        throw std::runtime_error(
+                "Error when creating rotation matrix partials, the provided parameters to estimate are empty.");
+    }
     // Retrieve double and vector parameters from total set of parameters.
     std::map< int, std::shared_ptr< estimatable_parameters::EstimatableParameter<
             Eigen::Matrix< ParameterType, Eigen::Dynamic, 1 > > > > stateParameters =

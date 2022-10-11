@@ -343,12 +343,34 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                     singleAccelerationUpdateNeeds[ body_mass_update ].push_back(
                                 acceleratedBodyIterator->first );
                     break;
+
                 case cannon_ball_radiation_pressure:
+                {
+                    std::shared_ptr< electromagnetism::RadiationPressureInterface > radiationPressureInterface;
+                    try
+                    {
+                        radiationPressureInterface =
+                            bodies.at( acceleratedBodyIterator->first )->getRadiationPressureInterfaces( ).at(
+                                accelerationModelIterator->first );
+                    }
+                    catch( std::runtime_error& caughtException )
+                    {
+                            throw std::runtime_error(
+                                    "Error, could not identify relevant radiation pressure interface when setting environment update settings: "
+                                      + std::string( caughtException.what( ) ) );
+                    }
+
                     singleAccelerationUpdateNeeds[ radiation_pressure_interface_update ].push_back(
                                 acceleratedBodyIterator->first );
                     singleAccelerationUpdateNeeds[ body_mass_update ].push_back(
                                 acceleratedBodyIterator->first );
+                    for( unsigned int i = 0; i < radiationPressureInterface->getOccutingBodies( ).size( ); i++ )
+                    {
+                        singleAccelerationUpdateNeeds[ body_translational_state_update ].push_back(
+                                    radiationPressureInterface->getOccutingBodies( ).at( i ) );
+                    }
                     break;
+                }
                 case panelled_radiation_pressure_acceleration:
                     singleAccelerationUpdateNeeds[ radiation_pressure_interface_update ].push_back(
                                 acceleratedBodyIterator->first );
@@ -372,6 +394,10 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                                 acceleratedBodyIterator->first );
                     singleAccelerationUpdateNeeds[ spherical_harmonic_gravity_field_update ].push_back(
                                 acceleratedBodyIterator->first );
+                    break;
+                case polyhedron_gravity:
+                    singleAccelerationUpdateNeeds[ body_rotational_state_update ].push_back(
+                            accelerationModelIterator->first );
                     break;
                 case third_body_spherical_harmonic_gravity:
                 {
@@ -431,6 +457,31 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                                     std::string( "Error, incompatible input (ThirdBodyMutualSphericalHarmonicsGravitational" ) +
                                     std::string( "AccelerationModel) to createTranslationalEquationsOfMotion ") +
                                     std::string( "EnvironmentUpdaterSettings" ) );
+                    }
+                    break;
+                }
+                case third_body_polyhedron_gravity:
+                {
+                    singleAccelerationUpdateNeeds[ body_rotational_state_update ].push_back(
+                        accelerationModelIterator->first );
+
+                    std::shared_ptr< gravitation::ThirdBodyPolyhedronGravitationalAccelerationModel >
+                        thirdBodyAcceleration = std::dynamic_pointer_cast<
+                            gravitation::ThirdBodyPolyhedronGravitationalAccelerationModel >(
+                                accelerationModelIterator->second.at( i ) );
+
+                    if( thirdBodyAcceleration != nullptr && translationalAccelerationModels.count(
+                                thirdBodyAcceleration->getCentralBodyName( ) ) == 0  )
+                    {
+                        singleAccelerationUpdateNeeds[ body_translational_state_update ].push_back(
+                                    thirdBodyAcceleration->getCentralBodyName( ) );
+                    }
+                    else if( thirdBodyAcceleration == nullptr )
+                    {
+                        throw std::runtime_error(
+                                    std::string( "Error, incompatible input (ThirdBodyPolyhedronGravitational" )
+                                    + std::string( "AccelerationModel) to createTranslationalEquationsOfMotion ")
+                                    + std::string( "EnvironmentUpdaterSettings" ) );
                     }
                     break;
                 }
@@ -838,6 +889,14 @@ std::vector< std::string > > createEnvironmentUpdaterSettingsForDependentVariabl
         break;
     case custom_dependent_variable:
         break;
+    case gravity_field_potential_dependent_variable:
+        variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
+        variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->secondaryBody_ );
+        break;
+    case gravity_field_laplacian_of_potential_dependent_variable:
+        variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
+        variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->secondaryBody_ );
+        break;
     default:
         throw std::runtime_error( "Error when getting environment updates for dependent variables, parameter " +
                                   std::to_string( dependentVariableSaveSettings->dependentVariableType_ ) + " not found." );
@@ -854,15 +913,13 @@ std::vector< std::string > > createEnvironmentUpdaterSettingsForDependentVariabl
 
 //! Create environment update settings for dependent variables
 std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > createEnvironmentUpdaterSettings(
-        const std::shared_ptr< DependentVariableSaveSettings > dependentVariableSaveSettings,
+        const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >& dependentVariableList,
         const simulation_setup::SystemOfBodies& bodies )
 {
     std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > environmentModelsToUpdate;
 
-    if( dependentVariableSaveSettings != nullptr )
+    if( dependentVariableList.size( ) > 0 )
     {
-        std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariableList =
-                dependentVariableSaveSettings->dependentVariables_;
         for( unsigned int i = 0; i < dependentVariableList.size( ); i++ )
         {
             std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > currentEnvironmentModelsToUpdate =

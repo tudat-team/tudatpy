@@ -308,6 +308,74 @@ getSphericalHarmonicAccelerationForDependentVariables(
     return selectedAccelerationModel;
 }
 
+//! Function to retrieve the gravitational acceleration model for dependent variable settings.
+/*!
+ *  Function to retrieve the gravitational acceleration model for dependent variable settings. Returns the gravitational
+ *  acceleration model acting between the two relevant bodies.
+ *  \param dependentVariableSettings Settings for dependent variable, associatedBody_ defines body undergoing acceleration,
+ *  secondaryBody_ body exerting acceleration
+ *  \param stateDerivativeModels List of state derivative models from which acceleration is to be retrieved
+ *  \param selectedAccelerationModelType Acceleration type of the returned model
+ *  \return Relevant gravitational acceleration model for dependent variable setting
+ */
+template< typename StateScalarType, typename TimeType >
+std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > >
+getGravitationalAccelerationForDependentVariables(
+        const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings,
+        const std::unordered_map< IntegratedStateType,
+        std::vector< std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > >& stateDerivativeModels,
+        basic_astrodynamics::AvailableAcceleration& selectedAccelerationModelType )
+{
+
+    std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > selectedAccelerationModel;
+
+    std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > >
+            listOfSuitableAccelerationModels;
+
+    for( basic_astrodynamics::AvailableAcceleration accelerationModelType:
+        {basic_astrodynamics::spherical_harmonic_gravity, basic_astrodynamics::polyhedron_gravity,
+         basic_astrodynamics::point_mass_gravity, basic_astrodynamics::mutual_spherical_harmonic_gravity} )
+    {
+        listOfSuitableAccelerationModels = getAccelerationBetweenBodies(
+                dependentVariableSettings->associatedBody_, dependentVariableSettings->secondaryBody_,
+                stateDerivativeModels, accelerationModelType );
+
+        // Check if gravitational acceleration between the two bodies was found
+        if( listOfSuitableAccelerationModels.size( ) == 1 )
+        {
+            selectedAccelerationModelType = accelerationModelType;
+            selectedAccelerationModel = listOfSuitableAccelerationModels.at( 0 );
+            break;
+        }
+
+        // Check if third-body counterpart of acceleration is found
+        if( listOfSuitableAccelerationModels.size( ) == 0 )
+        {
+            listOfSuitableAccelerationModels = getAccelerationBetweenBodies(
+                    dependentVariableSettings->associatedBody_, dependentVariableSettings->secondaryBody_,
+                    stateDerivativeModels, basic_astrodynamics::getAssociatedThirdBodyAcceleration( accelerationModelType ) );
+
+            // Check if gravitational acceleration between the two bodies was found
+            if( listOfSuitableAccelerationModels.size( ) == 1 )
+            {
+                selectedAccelerationModelType = basic_astrodynamics::getAssociatedThirdBodyAcceleration( accelerationModelType );
+                selectedAccelerationModel = listOfSuitableAccelerationModels.at( 0 );
+                break;
+            }
+        }
+    }
+
+    if( listOfSuitableAccelerationModels.size( ) != 1 )
+    {
+        std::string errorMessage = "Error when getting acceleration between bodies " +
+                dependentVariableSettings->associatedBody_ + " and " +
+                dependentVariableSettings->secondaryBody_ + ": no gravitational acceleration found.";
+        throw std::runtime_error( errorMessage );
+    }
+
+    return selectedAccelerationModel;
+}
+
 
 //! Function to create a function returning a requested dependent variable value (of type VectorXd).
 /*!
@@ -1846,6 +1914,189 @@ std::function< double( ) > getDoubleDependentVariableFunction(
                                           bodies.at( bodyWithProperty )->getRadiationPressureInterfaces( ).at( secondaryBody ) );
             break;
         }
+        case gravity_field_potential_dependent_variable:
+        {
+
+            // Retrieve list of suitable acceleration models (size should be one to avoid ambiguities): either
+            // point mass gravity, spherical harmonics gravity or polyhedron gravity
+            basic_astrodynamics::AvailableAcceleration selectedAccelerationModelType;
+            std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > selectedAccelerationModel =
+                    getGravitationalAccelerationForDependentVariables( dependentVariableSettings, stateDerivativeModels,
+                                                                       selectedAccelerationModelType );
+
+            // Position functions
+            std::function< Eigen::Vector3d( ) > positionFunctionOfRelativeBody =
+                    std::bind( &simulation_setup::Body::getPosition, bodies.at( bodyWithProperty ) );
+            std::function< Eigen::Vector3d( ) > positionFunctionOfCentralBody =
+                    std::bind( &simulation_setup::Body::getPosition, bodies.at( secondaryBody ) );
+
+            // Retrieve orientation function depending on type of gravity field
+            std::function< Eigen::Quaterniond( ) > orientationFunctionOfCentralBody;
+
+            // If gravity field is point mass, don't need orientation function
+            if ( selectedAccelerationModelType == basic_astrodynamics::point_mass_gravity ||
+                selectedAccelerationModelType == basic_astrodynamics::third_body_point_mass_gravity )
+            {
+                orientationFunctionOfCentralBody = [=]( ){ return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ); };
+            }
+            // Else get orientation function
+            else
+            {
+                orientationFunctionOfCentralBody = std::bind( &simulation_setup::Body::getCurrentRotationToLocalFrame, bodies.at( secondaryBody ) );
+            }
+
+            // Retrieve function to get body fixed position of body
+            std::function< Eigen::Vector3d() > bodyFixedPositionOfBodyWithProperty =
+                    std::bind( &reference_frames::getBodyFixedCartesianPosition, positionFunctionOfCentralBody,
+                               positionFunctionOfRelativeBody, orientationFunctionOfCentralBody );
+
+            // Downcast gravity model and get variable function
+            if ( selectedAccelerationModelType == basic_astrodynamics::spherical_harmonic_gravity )
+            {
+                std::shared_ptr< gravitation::SphericalHarmonicsGravitationalAccelerationModel >
+                        sphericalHarmonicsAccelerationModel =  std::dynamic_pointer_cast<
+                                gravitation::SphericalHarmonicsGravitationalAccelerationModel >( selectedAccelerationModel );
+
+                sphericalHarmonicsAccelerationModel->resetUpdatePotential( true );
+                variableFunction = [=]( ){ return sphericalHarmonicsAccelerationModel->getCurrentPotential( ); };
+            }
+            else if ( selectedAccelerationModelType == basic_astrodynamics::third_body_spherical_harmonic_gravity )
+            {
+                std::shared_ptr< gravitation::ThirdBodySphericalHarmonicsGravitationalAccelerationModel >
+                        thirdBodySphericalHarmonicsAccelerationModel =  std::dynamic_pointer_cast<
+                                gravitation::ThirdBodySphericalHarmonicsGravitationalAccelerationModel >( selectedAccelerationModel );
+
+                std::shared_ptr< gravitation::SphericalHarmonicsGravitationalAccelerationModel >
+                        sphericalHarmonicsAccelerationModel =  std::dynamic_pointer_cast<
+                                gravitation::SphericalHarmonicsGravitationalAccelerationModel >(
+                                        thirdBodySphericalHarmonicsAccelerationModel->getAccelerationModelForBodyUndergoingAcceleration( ) );
+
+                sphericalHarmonicsAccelerationModel->resetUpdatePotential( true );
+                variableFunction = [=]( ){ return sphericalHarmonicsAccelerationModel->getCurrentPotential( ); };
+            }
+            else if ( selectedAccelerationModelType == basic_astrodynamics::point_mass_gravity )
+            {
+                std::shared_ptr< gravitation::CentralGravitationalAccelerationModel3d >
+                        pointMassAccelerationModel =  std::dynamic_pointer_cast<
+                                gravitation::CentralGravitationalAccelerationModel3d >( selectedAccelerationModel );
+                pointMassAccelerationModel->resetUpdatePotential( true );
+                variableFunction = [=]( ){ return pointMassAccelerationModel->getCurrentPotential( ); };
+            }
+            else if ( selectedAccelerationModelType == basic_astrodynamics::third_body_point_mass_gravity )
+            {
+
+                std::shared_ptr< gravitation::ThirdBodyCentralGravityAcceleration >
+                        thirdBodyPointMassAccelerationModel =  std::dynamic_pointer_cast<
+                                gravitation::ThirdBodyCentralGravityAcceleration >( selectedAccelerationModel );
+
+                std::shared_ptr< gravitation::CentralGravitationalAccelerationModel3d >
+                        pointMassAccelerationModel =  std::dynamic_pointer_cast<
+                                gravitation::CentralGravitationalAccelerationModel3d >(
+                                        thirdBodyPointMassAccelerationModel->getAccelerationModelForBodyUndergoingAcceleration( ) );
+
+                pointMassAccelerationModel->resetUpdatePotential( true );
+                variableFunction = [=]( ){ return pointMassAccelerationModel->getCurrentPotential( ); };
+            }
+            else if ( selectedAccelerationModelType == basic_astrodynamics::polyhedron_gravity )
+            {
+                std::shared_ptr< gravitation::PolyhedronGravitationalAccelerationModel >
+                        polyhedronAccelerationModel =  std::dynamic_pointer_cast<
+                                gravitation::PolyhedronGravitationalAccelerationModel >( selectedAccelerationModel );
+                polyhedronAccelerationModel->resetUpdatePotential( true );
+                variableFunction = [=]( ){ return polyhedronAccelerationModel->getCurrentPotential( ); };
+            }
+            else if ( selectedAccelerationModelType == basic_astrodynamics::third_body_polyhedron_gravity )
+            {
+                std::shared_ptr< gravitation::ThirdBodyPolyhedronGravitationalAccelerationModel >
+                        thirdBodyPolyhedronAccelerationModel =  std::dynamic_pointer_cast<
+                                gravitation::ThirdBodyPolyhedronGravitationalAccelerationModel >( selectedAccelerationModel );
+
+                std::shared_ptr< gravitation::PolyhedronGravitationalAccelerationModel >
+                        polyhedronAccelerationModel =  std::dynamic_pointer_cast<
+                                gravitation::PolyhedronGravitationalAccelerationModel >(
+                                        thirdBodyPolyhedronAccelerationModel->getAccelerationModelForBodyUndergoingAcceleration( ) );
+
+                polyhedronAccelerationModel->resetUpdatePotential( true );
+                variableFunction = [=]( ){ return polyhedronAccelerationModel->getCurrentPotential( ); };
+            }
+            else
+            {
+                std::string errorMessage = "Error, when setting up gravitational potential as dependent variable, for" +
+                        std::to_string( selectedAccelerationModelType ) + " gravity model of " + bodyWithProperty +
+                        "w.r.t." + secondaryBody + "acceleration model does not have the computation of potential implemented.";
+                throw std::runtime_error( errorMessage );
+            }
+
+            break;
+        }
+        case gravity_field_laplacian_of_potential_dependent_variable:
+        {
+            // Retrieve list of suitable acceleration models (size should be one to avoid ambiguities): either
+            // point mass gravity, spherical harmonics gravity or polyhedron gravity
+            basic_astrodynamics::AvailableAcceleration selectedAccelerationModelType;
+            std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > selectedAccelerationModel =
+                    getGravitationalAccelerationForDependentVariables( dependentVariableSettings, stateDerivativeModels,
+                                                                       selectedAccelerationModelType );
+
+            // Position functions
+            std::function< Eigen::Vector3d ( ) > positionFunctionOfRelativeBody =
+                    std::bind( &simulation_setup::Body::getPosition, bodies.at( bodyWithProperty ) );
+            std::function< Eigen::Vector3d ( ) > positionFunctionOfCentralBody =
+                    std::bind( &simulation_setup::Body::getPosition, bodies.at( secondaryBody ) );
+
+            // Retrieve orientation function depending on type of gravity field
+            std::function< Eigen::Quaterniond ( ) > orientationFunctionOfCentralBody;
+
+            // If gravity field is point mass, don't need orientation function
+            if ( selectedAccelerationModelType == basic_astrodynamics::point_mass_gravity ||
+                 selectedAccelerationModelType == basic_astrodynamics::third_body_point_mass_gravity ) {
+                orientationFunctionOfCentralBody = [ = ] ( ) {
+                    return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) );
+                };
+            }
+                // Else get orientation function
+            else {
+                orientationFunctionOfCentralBody = std::bind( &simulation_setup::Body::getCurrentRotationToLocalFrame,
+                                                              bodies.at( secondaryBody ) );
+            }
+
+            // Retrieve function to get body fixed position of body
+            std::function< Eigen::Vector3d ( ) > bodyFixedPositionOfBodyWithProperty =
+                    std::bind( &reference_frames::getBodyFixedCartesianPosition, positionFunctionOfCentralBody,
+                               positionFunctionOfRelativeBody, orientationFunctionOfCentralBody );
+
+            // Downcast gravity model and get variable function
+            if ( selectedAccelerationModelType == basic_astrodynamics::polyhedron_gravity ) {
+                std::shared_ptr< gravitation::PolyhedronGravitationalAccelerationModel >
+                        polyhedronAccelerationModel = std::dynamic_pointer_cast<
+                        gravitation::PolyhedronGravitationalAccelerationModel >( selectedAccelerationModel );
+                polyhedronAccelerationModel->resetUpdateLaplacianOfPotential( true );
+                variableFunction = [ = ] ( ) { return polyhedronAccelerationModel->getCurrentLaplacianOfPotential( ); };
+            }
+            else if ( selectedAccelerationModelType == basic_astrodynamics::third_body_polyhedron_gravity ) {
+                std::shared_ptr< gravitation::ThirdBodyPolyhedronGravitationalAccelerationModel >
+                        thirdBodyPolyhedronAccelerationModel = std::dynamic_pointer_cast<
+                        gravitation::ThirdBodyPolyhedronGravitationalAccelerationModel >( selectedAccelerationModel );
+
+                std::shared_ptr< gravitation::PolyhedronGravitationalAccelerationModel >
+                        polyhedronAccelerationModel = std::dynamic_pointer_cast<
+                        gravitation::PolyhedronGravitationalAccelerationModel >(
+                        thirdBodyPolyhedronAccelerationModel->getAccelerationModelForBodyUndergoingAcceleration( ) );
+
+                polyhedronAccelerationModel->resetUpdateLaplacianOfPotential( true );
+                variableFunction = [ = ] ( ) { return polyhedronAccelerationModel->getCurrentLaplacianOfPotential( ); };
+            }
+            else {
+                std::string errorMessage = "Error, when setting up gravitational potential as dependent variable, for " +
+                                           std::to_string( selectedAccelerationModelType ) + " gravity model of " +
+                                           bodyWithProperty +
+                                           " w.r.t. " + secondaryBody +
+                                           ": acceleration model does not have the computation of potential implemented.";
+                throw std::runtime_error( errorMessage );
+            }
+
+            break;
+        }
         default:
             std::string errorMessage =
                     "Error, did not recognize double dependent variable type when making variable function: " +
@@ -1890,18 +2141,16 @@ Eigen::VectorXd evaluateListOfVectorFunctions(
  *  be updated to current state and independent variable before computation is performed.
  */
 template< typename TimeType = double, typename StateScalarType = double >
-std::pair< std::function< Eigen::VectorXd( ) >, std::map< int, std::string > > createDependentVariableListFunction(
-        const std::shared_ptr< DependentVariableSaveSettings > saveSettings,
+std::pair< std::function< Eigen::VectorXd( ) >, std::map< std::pair< int, int >, std::string > > createDependentVariableListFunction(
+        const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables,
         const simulation_setup::SystemOfBodies& bodies,
         const std::unordered_map< IntegratedStateType,
         std::vector< std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > >& stateDerivativeModels =
         std::unordered_map< IntegratedStateType,
-        std::vector< std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > >( ) )
+        std::vector< std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > >( ),
+        const std::map< propagators::IntegratedStateType, orbit_determination::StateDerivativePartialsMap >& stateDerivativePartials =
+        std::map< propagators::IntegratedStateType, orbit_determination::StateDerivativePartialsMap >( ) )
 {
-    // Retrieve list of save settings
-    std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables =
-            saveSettings->dependentVariables_;
-
     // create list of vector parameters
     std::vector< std::pair< std::function< Eigen::VectorXd( ) >, int > > vectorFunctionList;
     std::vector< std::pair< std::string, int > > vectorVariableList;
@@ -1914,8 +2163,7 @@ std::pair< std::function< Eigen::VectorXd( ) >, std::map< int, std::string > > c
         {
 #if(TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
             std::function< double( ) > doubleFunction =
-                    getDoubleDependentVariableFunction( variable, bodies, stateDerivativeModels,
-                                                        saveSettings->stateDerivativePartials_ );
+                    getDoubleDependentVariableFunction( variable, bodies, stateDerivativeModels, stateDerivativePartials );
 #else
             std::function< double( ) > doubleFunction =
                     getDoubleDependentVariableFunction( variable, bodies, stateDerivativeModels );
@@ -1927,7 +2175,7 @@ std::pair< std::function< Eigen::VectorXd( ) >, std::map< int, std::string > > c
         {
 #if(TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
             vectorFunction = getVectorDependentVariableFunction(
-                        variable, bodies, stateDerivativeModels, saveSettings->stateDerivativePartials_ );
+                        variable, bodies, stateDerivativeModels, stateDerivativePartials );
 #else
             vectorFunction =
                     getVectorDependentVariableFunction( variable, bodies, stateDerivativeModels );
@@ -1939,10 +2187,10 @@ std::pair< std::function< Eigen::VectorXd( ) >, std::map< int, std::string > > c
 
     // Set list of variable ids/indices in correc otder.
     int totalVariableSize = 0;
-    std::map< int, std::string > dependentVariableIds;
+    std::map< std::pair< int, int >, std::string > dependentVariableIds;
     for( std::pair< std::string, int > vectorVariable: vectorVariableList )
     {
-        dependentVariableIds[ totalVariableSize ] = vectorVariable.first;
+        dependentVariableIds[ { totalVariableSize, vectorVariable.second } ] = vectorVariable.first;
         totalVariableSize += vectorVariable.second;
     }
 
@@ -1950,25 +2198,6 @@ std::pair< std::function< Eigen::VectorXd( ) >, std::map< int, std::string > > c
     return std::make_pair( std::bind( &evaluateListOfVectorFunctions, vectorFunctionList, totalVariableSize ),
                            dependentVariableIds );
 }
-
-extern template std::pair< std::function< Eigen::VectorXd( ) >, std::map< int, std::string > > createDependentVariableListFunction< double, double >(
-        const std::shared_ptr< DependentVariableSaveSettings > saveSettings,
-        const simulation_setup::SystemOfBodies& bodies,
-        const std::unordered_map< IntegratedStateType,
-        std::vector< std::shared_ptr< SingleStateTypeDerivative< double, double > > > >& stateDerivativeModels );
-
-//extern template std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariableFunction< double, double >(
-//        const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings,
-//        const simulation_setup::SystemOfBodies& bodies,
-//        const std::unordered_map< IntegratedStateType,
-//        std::vector< std::shared_ptr< SingleStateTypeDerivative< double, double > > > >& stateDerivativeModels );
-
-//extern template std::function< double( ) > getDoubleDependentVariableFunction< double, double >(
-//        const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings,
-//        const simulation_setup::SystemOfBodies& bodies,
-//        const std::unordered_map< IntegratedStateType,
-//        std::vector< std::shared_ptr< SingleStateTypeDerivative< double, double > > > >& stateDerivativeModels );
-
 
 } // namespace propagators
 

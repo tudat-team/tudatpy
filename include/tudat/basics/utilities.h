@@ -743,6 +743,51 @@ std::vector< ValueType > getVectorEntries( const std::vector< ValueType >& fullV
 }
 
 
+template< typename A >
+std::shared_ptr< A > deepcopyPointer(
+        const std::shared_ptr< A > originalPointer )
+{
+    return std::make_shared< A >( *originalPointer );
+}
+
+template< typename A >
+std::vector< std::shared_ptr< A > > deepcopyDuplicatePointers(
+        const std::vector< std::shared_ptr< A > > originalPointers )
+{
+    std::vector< std::shared_ptr< A > > noDuplicatePointers;
+    for( unsigned int i = 0; i < originalPointers.size( ); i++ )
+    {
+        if( std::find( noDuplicatePointers.begin( ), noDuplicatePointers.end( ), originalPointers.at( i ) ) == noDuplicatePointers.end( ) )
+        {
+            noDuplicatePointers.push_back( originalPointers.at( i ) );
+        }
+        else
+        {
+            noDuplicatePointers.push_back( std::make_shared< A >( *originalPointers.at( i ) ) );
+        }
+    }
+    return noDuplicatePointers;
+}
+
+template< typename A >
+std::vector< std::shared_ptr< A > > cloneDuplicatePointers(
+        const std::vector< std::shared_ptr< A > > originalPointers )
+{
+    std::vector< std::shared_ptr< A > > noDuplicatePointers;
+    for( unsigned int i = 0; i < originalPointers.size( ); i++ )
+    {
+        if( std::find( noDuplicatePointers.begin( ), noDuplicatePointers.end( ), originalPointers.at( i ) ) == noDuplicatePointers.end( ) )
+        {
+            noDuplicatePointers.push_back( originalPointers.at( i ) );
+        }
+        else
+        {
+            noDuplicatePointers.push_back( originalPointers.at( i )->clone( ) );
+        }
+    }
+    return noDuplicatePointers;
+}
+
 } // namespace utilities
 
 } // namespace tudat

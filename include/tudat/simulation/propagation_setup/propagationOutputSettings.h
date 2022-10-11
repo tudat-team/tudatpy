@@ -121,7 +121,9 @@ enum PropagationDependentVariables
     custom_dependent_variable = 48,
     total_spherical_harmonic_cosine_coefficient_variation = 49,
     total_spherical_harmonic_sine_coefficient_variation = 50,
-    apoapsis_altitude_dependent_variable = 51
+    apoapsis_altitude_dependent_variable = 51,
+    gravity_field_potential_dependent_variable = 52,
+    gravity_field_laplacian_of_potential_dependent_variable = 53
 };
 
 // Functional base class for defining settings for dependent variables that are to be saved during propagation
@@ -140,7 +142,7 @@ public:
      *  Constructor.
      *  \param dependentVariableType Type of dependent variable that is to be saved.
      *  \param associatedBody Body associated with dependent variable.
-     *  \param secondaryBody Secondary body (not necessarilly required) w.r.t. which parameter is defined (e.g. relative
+     *  \param secondaryBody Secondary body (not necessarily required) w.r.t. which parameter is defined (e.g. relative
      *  position, velocity etc. is defined of associatedBody w.r.t. secondaryBody).
      *  \param componentIndex Index of the component to be saved. Only applicable to vectorial dependent variables.
      *  By default -1, i.e. all the components are saved.
@@ -562,44 +564,38 @@ public:
 
 
 
-// Container class for settings of all dependent variables that are to be saved.
-class DependentVariableSaveSettings
-{
-public:
+//// Container class for settings of all dependent variables that are to be saved.
+//class DependentVariableSaveSettings
+//{
+//public:
 
-    // Constructor.
-    /*
-     *  Constructor.
-     *  \param dependentVariables List of settings for parameters that are to be saved.
-     *  \param printDependentVariableTypes Variable denoting whether to print the list and vector entries of
-     *      dependent variables when propagating.
-     */
-    DependentVariableSaveSettings(
-            const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables,
-            const bool printDependentVariableTypes = true ):
-        dependentVariables_( dependentVariables ), printDependentVariableTypes_( printDependentVariableTypes ){ }
+//    // Constructor.
+//    /*
+//     *  Constructor.
+//     *  \param dependentVariables List of settings for parameters that are to be saved.
+//     *  \param printDependentVariableTypes Variable denoting whether to print the list and vector entries of
+//     *      dependent variables when propagating.
+//     */
+//    DependentVariableSaveSettings(
+//            const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables,
+//            const bool printDependentVariableTypes = true ):
+//        dependentVariables_( dependentVariables ), printDependentVariableTypes_( printDependentVariableTypes ){ }
 
-    // List of settings for parameters that are to be saved.
-    std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables_;
+//    // List of settings for parameters that are to be saved.
+//    std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables_;
 
-    // Variable denoting whether to print the list and vector entries of dependent variables when propagating.
-    bool printDependentVariableTypes_;
+//    // Variable denoting whether to print the list and vector entries of dependent variables when propagating.
+//    bool printDependentVariableTypes_;
+//};
 
-#if(TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
-    // Map of state derivative partials, to be used when saving state derivative partials as dependent variables
-    std::map< propagators::IntegratedStateType, orbit_determination::StateDerivativePartialsMap > stateDerivativePartials_;
-#endif
-
-};
-
-//! @get_docstring(createDependentVariableSaveSettings.__docstring__)
-inline std::shared_ptr< DependentVariableSaveSettings > createDependentVariableSaveSettings(
-        const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables,
-        const bool printDependentVariableTypes = true )
-{
-    return std::make_shared< DependentVariableSaveSettings >(
-                dependentVariables, printDependentVariableTypes );
-}
+////! @get_docstring(createDependentVariableSaveSettings.__docstring__)
+//inline std::shared_ptr< DependentVariableSaveSettings > createDependentVariableSaveSettings(
+//        const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables,
+//        const bool printDependentVariableTypes = true )
+//{
+//    return std::make_shared< DependentVariableSaveSettings >(
+//                dependentVariables, printDependentVariableTypes );
+//}
 
 // Function to get a string representing a 'named identification' of a variable type.
 /*
@@ -1173,6 +1169,13 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > customDependentVar
                 customDependentVariableFunction,  dependentVariableSize );
 }
 
+inline std::shared_ptr< SingleDependentVariableSaveSettings > gravityFieldPotentialDependentVariable(
+        const std::string& bodyUndergoingAcceleration,
+        const std::string& bodyExertingAcceleration )
+{
+    return std::make_shared< SingleDependentVariableSaveSettings >(
+            gravity_field_potential_dependent_variable, bodyUndergoingAcceleration, bodyExertingAcceleration );
+}
 
 inline std::shared_ptr< SingleDependentVariableSaveSettings > totalSphericalHarmonicCosineCoefficientVariation(
         const std::string& bodyName,
@@ -1189,6 +1192,25 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > totalSphericalHarm
 {
     return std::make_shared< TotalGravityFieldVariationSettings >(
                 bodyName, componentIndices, true );
+}
+
+inline std::shared_ptr< SingleDependentVariableSaveSettings > gravityFieldLaplacianOfPotentialDependentVariable(
+        const std::string& bodyUndergoingAcceleration,
+        const std::string& bodyExertingAcceleration )
+{
+    return std::make_shared< SingleDependentVariableSaveSettings >(
+            gravity_field_laplacian_of_potential_dependent_variable, bodyUndergoingAcceleration, bodyExertingAcceleration );
+}
+
+inline std::shared_ptr< AccelerationPartialWrtStateSaveSettings > accelerationPartialWrtBodyTranslationalStateDependentVariable(
+        const std::string& bodyUndergoingAcceleration,
+        const std::string& bodyExertingAcceleration,
+        const basic_astrodynamics::AvailableAcceleration accelerationModelType,
+        const std::string derivativeWrtBody,
+        const std::string thirdBody = "" )
+{
+    return std::make_shared< AccelerationPartialWrtStateSaveSettings >(
+            bodyUndergoingAcceleration, bodyExertingAcceleration, accelerationModelType, derivativeWrtBody, thirdBody);
 }
 
 inline std::shared_ptr< SingleDependentVariableSaveSettings > totalSphericalHarmonicSineCoefficientVariation(
