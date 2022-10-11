@@ -181,8 +181,7 @@ public:
     //! Define appropriate translational state propagator settings for the full propagation.
     std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
     std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > createLowThrustTranslationalStatePropagatorSettings(
-            basic_astrodynamics::AccelerationMap accelerationModelMap,
-            std::shared_ptr< propagators::DependentVariableSaveSettings > dependentVariablesToSave );
+            basic_astrodynamics::AccelerationMap accelerationModelMap );
 
 
 private:

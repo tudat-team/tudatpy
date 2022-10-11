@@ -48,6 +48,7 @@ BOOST_AUTO_TEST_SUITE( test_hybrid_state_derivative_model )
 std::map< double, Eigen::VectorXd > propagateKeplerOrbitAndMassState(
         const int simulationCase )
 {
+    std::cout<<simulationCase<<std::endl<<std::endl<<std::endl;
     using namespace simulation_setup;
     using namespace propagators;
     using namespace numerical_integrators;
@@ -114,21 +115,25 @@ std::map< double, Eigen::VectorXd > propagateKeplerOrbitAndMassState(
                 asterixInitialStateInKeplerianElements,
                 earthGravitationalParameter );
 
+    // Define integrator settings
+    std::shared_ptr< IntegratorSettings< > > integratorSettings =
+            std::make_shared< IntegratorSettings< > >
+            ( rungeKutta4, 0.0, fixedStepSize );
 
     std::shared_ptr< SingleArcPropagatorSettings< double > > translationalPropagatorSettings =
             std::make_shared< TranslationalStatePropagatorSettings< double > >
-            ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState,
+            ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, 0.0, integratorSettings,
               std::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ) );
 
     // Create mass rate model and mass propagation settings
-    std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
-    massRateModels[ "Asterix" ] = std::make_shared< basic_astrodynamics::CustomMassRateModel >(
-                [ ]( const double ){ return -0.01; } );
+    std::map< std::string, std::vector< std::shared_ptr< basic_astrodynamics::MassRateModel > > > massRateModels;
+    massRateModels[ "Asterix" ].push_back( std::make_shared< basic_astrodynamics::CustomMassRateModel >(
+                [ ]( const double ){ return -0.01; } ) );
     Eigen::VectorXd initialMass = Eigen::VectorXd( 1 );
     initialMass( 0 ) = 500.0;
     std::shared_ptr< SingleArcPropagatorSettings< double > > massPropagatorSettings =
             std::make_shared< MassPropagatorSettings< double > >(
-                std::vector< std::string >{ "Asterix" }, massRateModels, initialMass,
+                std::vector< std::string >{ "Asterix" }, massRateModels, initialMass, 0.0, integratorSettings,
                 std::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ) );
 
     // Create total propagator settings, depending on current case.
@@ -148,19 +153,16 @@ std::map< double, Eigen::VectorXd > propagateKeplerOrbitAndMassState(
         propagatorSettingsList.push_back( massPropagatorSettings );
 
         propagatorSettings = std::make_shared< MultiTypePropagatorSettings< double > >(
-                    propagatorSettingsList,
+                    propagatorSettingsList, integratorSettings, 0.0,
                     std::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ) );
     }
 
-
-
-    std::shared_ptr< IntegratorSettings< > > integratorSettings =
-            std::make_shared< IntegratorSettings< > >
-            ( rungeKutta4, 0.0, fixedStepSize );
+    propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
+    propagatorSettings->getOutputSettings( )->getPrintSettings( )->enableAllPrinting( );
 
     // Create simulation object and propagate dynamics.
     SingleArcDynamicsSimulator< > dynamicsSimulator(
-                bodies, integratorSettings, propagatorSettings, true, false, true );
+                bodies, propagatorSettings );
 
     // Return propagated dynamics (if simulationCase < 3) or interpolated dynamics (else)
     if( simulationCase < 3 )
@@ -222,6 +224,9 @@ BOOST_AUTO_TEST_CASE( testHybridStateDerivativeModel )
         std::map< double, Eigen::VectorXd >  massState = propagateKeplerOrbitAndMassState( 1 + simulationCaseToAdd );
         std::map< double, Eigen::VectorXd >  combinedState = propagateKeplerOrbitAndMassState( 2  + simulationCaseToAdd );
 
+        BOOST_CHECK_EQUAL( translationalState.size( ), combinedState.size( ) );
+        BOOST_CHECK_EQUAL( translationalState.size( ), massState.size( ) );
+
         std::map< double, Eigen::VectorXd >::const_iterator stateIterator = translationalState.begin( );
         std::map< double, Eigen::VectorXd >::const_iterator massIterator = massState.begin( );
         std::map< double, Eigen::VectorXd >::const_iterator combinedIterator = combinedState.begin( );
@@ -229,6 +234,9 @@ BOOST_AUTO_TEST_CASE( testHybridStateDerivativeModel )
         // Compare separate and multitype dynamics of each type.
         for( unsigned int i = 0; i < translationalState.size( ); i++ )
         {
+            BOOST_CHECK_EQUAL( stateIterator->first, combinedIterator->first );
+            BOOST_CHECK_EQUAL( stateIterator->first, massIterator->first );
+
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION( stateIterator->second, combinedIterator->second.segment( 0, 6 ),
                                                std::numeric_limits< double >::epsilon( ) );
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION( massIterator->second, combinedIterator->second.segment( 6, 1 ),

@@ -342,14 +342,12 @@ BOOST_AUTO_TEST_CASE( testassessTerminationOnMinorStepsRKVariableStepSize )
         std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
            dependentVariables.push_back( std::make_shared< SingleDependentVariableSaveSettings >(
                                               altitude_dependent_variable, "Asterix", "Earth" ) );
-        std::shared_ptr< DependentVariableSaveSettings > dependentVariableSaveSettings =
-                std::make_shared< DependentVariableSaveSettings >( dependentVariables, 0 );
 
         // Create propagator settings
         std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
                 std::make_shared< TranslationalStatePropagatorSettings< double > >
                 ( centralBodies, accelerationModelMap, bodiesToPropagate, asterixInitialState,
-                  terminationSettings, cowell, dependentVariableSaveSettings );
+                  terminationSettings, cowell, dependentVariables );
 
 
         const double initialStepSize = 30.0;

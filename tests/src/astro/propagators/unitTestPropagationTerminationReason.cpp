@@ -146,14 +146,14 @@ BOOST_AUTO_TEST_CASE( testReasonAfterSuccessfulPropagationWithTimeLimit )
     const Eigen::Vector6d asterixInitialState = convertKeplerianToCartesianElements(
                 asterixInitialStateInKeplerianElements, earthGravitationalParameter );
 
-
-    std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
-            std::make_shared< TranslationalStatePropagatorSettings< double > >
-            ( centralBodies, accelerationModelMap, bodiesToPropagate, asterixInitialState, simulationEndEpoch );
-
     const double fixedStepSize = 30.0;
     std::shared_ptr< IntegratorSettings< > > integratorSettings =
             std::make_shared< IntegratorSettings< > >( rungeKutta4, 0.0, fixedStepSize );
+
+    std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
+            std::make_shared< TranslationalStatePropagatorSettings< double > >
+            ( centralBodies, accelerationModelMap, bodiesToPropagate, asterixInitialState, 0.0, integratorSettings,
+              std::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ) );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             PROPAGATE ORBIT            ////////////////////////////////////////////////////////
@@ -162,7 +162,7 @@ BOOST_AUTO_TEST_CASE( testReasonAfterSuccessfulPropagationWithTimeLimit )
 
     // Create simulation object (but do not propagate dynamics).
     SingleArcDynamicsSimulator< > dynamicsSimulator(
-                bodies, integratorSettings, propagatorSettings, false, false, false );
+                bodies, propagatorSettings, false );
 
     // Check that the propagation termination reason is unknown before propagation.
     BOOST_CHECK( dynamicsSimulator.getPropagationTerminationReason( )->getPropagationTerminationReason( ) == propagation_never_run );
@@ -183,9 +183,7 @@ BOOST_AUTO_TEST_CASE( testReasonAfterSuccessfulPropagationWithTimeLimit )
     // Create variaional equations simulator
     SingleArcVariationalEquationsSolver< > variationalEquationsSimulator =
             SingleArcVariationalEquationsSolver< >(
-                bodies, integratorSettings, propagatorSettings, parametersToEstimate,
-                1, std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ), 0, 0 );
-
+                bodies, propagatorSettings, parametersToEstimate, true, false );
     // Check that the propagation termination reason is unknown before propagation.
     BOOST_CHECK( variationalEquationsSimulator.getDynamicsSimulator( )->
                  getPropagationTerminationReason( )->getPropagationTerminationReason( ) == propagation_never_run );
@@ -351,14 +349,16 @@ BOOST_AUTO_TEST_CASE( testReasonAfterSuccessfulPropagationWithAltitudeLimit )
     std::shared_ptr< PropagationTerminationSettings > terminationSettings = std::make_shared<
             propagators::PropagationHybridTerminationSettings >( constituentSettings, 1 );
 
-    std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
-            std::make_shared< TranslationalStatePropagatorSettings< double > >
-            ( centralBodies, accelerationModelMap, bodiesToPropagate, asterixInitialState, terminationSettings );
-
-
     const double fixedStepSize = 30.0;
     std::shared_ptr< IntegratorSettings< > > integratorSettings =
             std::make_shared< IntegratorSettings< > >( rungeKutta4, 0.0, fixedStepSize );
+
+
+    std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
+            std::make_shared< TranslationalStatePropagatorSettings< double > >
+            ( centralBodies, accelerationModelMap, bodiesToPropagate, asterixInitialState, 0.0, integratorSettings, terminationSettings );
+
+
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             PROPAGATE ORBIT            ////////////////////////////////////////////////////////
@@ -367,7 +367,7 @@ BOOST_AUTO_TEST_CASE( testReasonAfterSuccessfulPropagationWithAltitudeLimit )
 
     // Create simulation object (but do not propagate dynamics).
     SingleArcDynamicsSimulator< > dynamicsSimulator(
-                bodies, integratorSettings, propagatorSettings, false, false, false );
+                bodies, propagatorSettings, false );
 
     // Check that the propagation termination reason is unknown before propagation.
     BOOST_CHECK( dynamicsSimulator.getPropagationTerminationReason( )->getPropagationTerminationReason( ) == propagation_never_run );
@@ -518,14 +518,16 @@ BOOST_AUTO_TEST_CASE( testReasonAfterPropagationErrorCaught )
     const Eigen::Vector6d asterixInitialState = convertKeplerianToCartesianElements(
                 asterixInitialStateInKeplerianElements, earthGravitationalParameter );
 
-
-    std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
-            std::make_shared< TranslationalStatePropagatorSettings< double > >
-            ( centralBodies, accelerationModelMap, bodiesToPropagate, asterixInitialState, simulationEndEpoch );
-
     const double fixedStepSize = 30.0;
     std::shared_ptr< IntegratorSettings< > > integratorSettings =
             std::make_shared< IntegratorSettings< > >( rungeKutta4, 0.0, fixedStepSize );
+
+    std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
+            std::make_shared< TranslationalStatePropagatorSettings< double > >
+            ( centralBodies, accelerationModelMap, bodiesToPropagate, asterixInitialState, 0.0, integratorSettings,
+              std::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ) );
+
+
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             PROPAGATE ORBIT            ////////////////////////////////////////////////////////
@@ -534,7 +536,7 @@ BOOST_AUTO_TEST_CASE( testReasonAfterPropagationErrorCaught )
 
     // Create simulation object (but do not propagate dynamics).
     SingleArcDynamicsSimulator< > dynamicsSimulator(
-                bodies, integratorSettings, propagatorSettings, false, false, false );
+                bodies, propagatorSettings, false );
 
     // Check that the propagation termination reason is unknown before propagation.
     BOOST_CHECK( dynamicsSimulator.getPropagationTerminationReason( )->getPropagationTerminationReason( ) == propagation_never_run );
@@ -555,8 +557,7 @@ BOOST_AUTO_TEST_CASE( testReasonAfterPropagationErrorCaught )
     // Create variaional equations simulator
     SingleArcVariationalEquationsSolver< > variationalEquationsSimulator =
             SingleArcVariationalEquationsSolver< >(
-                bodies, integratorSettings, propagatorSettings, parametersToEstimate,
-                1, std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ), 0, 0 );
+                bodies, propagatorSettings, parametersToEstimate, 1, 0 );
 
     // Check that the propagation termination reason is unknown before propagation.
     BOOST_CHECK( variationalEquationsSimulator.getDynamicsSimulator( )->

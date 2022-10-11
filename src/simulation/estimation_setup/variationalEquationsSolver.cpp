@@ -61,28 +61,28 @@ void createStateTransitionAndSensitivityMatrixInterpolator(
 
 }
 
-template class VariationalEquationsSolver< double, double >;
-template class SingleArcVariationalEquationsSolver< double, double >;
-template class MultiArcVariationalEquationsSolver< double, double >;
-template class HybridArcVariationalEquationsSolver< double, double >;
+//template class VariationalEquationsSolver< double, double >;
+//template class SingleArcVariationalEquationsSolver< double, double >;
+//template class MultiArcVariationalEquationsSolver< double, double >;
+//template class HybridArcVariationalEquationsSolver< double, double >;
 
-#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
-template class VariationalEquationsSolver< long double, double >;
-template class VariationalEquationsSolver< double, Time >;
-template class VariationalEquationsSolver< long double, Time >;
+//#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+//template class VariationalEquationsSolver< long double, double >;
+//template class VariationalEquationsSolver< double, Time >;
+//template class VariationalEquationsSolver< long double, Time >;
 
-template class SingleArcVariationalEquationsSolver< long double, double >;
-template class SingleArcVariationalEquationsSolver< double, Time >;
-template class SingleArcVariationalEquationsSolver< long double, Time >;
+//template class SingleArcVariationalEquationsSolver< long double, double >;
+//template class SingleArcVariationalEquationsSolver< double, Time >;
+//template class SingleArcVariationalEquationsSolver< long double, Time >;
 
-template class MultiArcVariationalEquationsSolver< long double, double >;
-template class MultiArcVariationalEquationsSolver< double, Time >;
-template class MultiArcVariationalEquationsSolver< long double, Time >;
+//template class MultiArcVariationalEquationsSolver< long double, double >;
+//template class MultiArcVariationalEquationsSolver< double, Time >;
+//template class MultiArcVariationalEquationsSolver< long double, Time >;
 
-template class HybridArcVariationalEquationsSolver< long double, double >;
-template class HybridArcVariationalEquationsSolver< double, Time >;
-template class HybridArcVariationalEquationsSolver< long double, Time >;
-#endif
+//template class HybridArcVariationalEquationsSolver< long double, double >;
+//template class HybridArcVariationalEquationsSolver< double, Time >;
+//template class HybridArcVariationalEquationsSolver< long double, Time >;
+//#endif
 
 
 

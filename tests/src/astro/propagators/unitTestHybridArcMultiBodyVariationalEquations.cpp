@@ -791,11 +791,11 @@ BOOST_AUTO_TEST_CASE( testHybridArcMultiBodyVariationalEquationCalculation1 )
         printEstimatableParameterEntries( multiArcParametersToEstimate );
 
 
-        integratorSettings->initialTime_ = initialEpoch;
+//        integratorSettings->initialTime_ = initialEpoch;
         HybridArcVariationalEquationsSolver< double, double > hybridArcVariationalEquationsSolver =
                 HybridArcVariationalEquationsSolver< double, double >( bodies, integratorSettings, hybridArcPropagatorSettings, parametersToEstimate,
                                                                        arcStartTimes, true, false, true );
-        integratorSettings->initialTime_ = initialEpoch;
+//        integratorSettings->initialTime_ = initialEpoch;
         SingleArcVariationalEquationsSolver< double, double > singleArcVariationalEquationsSolverTest =
                 SingleArcVariationalEquationsSolver< double, double >( bodies, integratorSettings, singleArcPropagatorSettings, singleArcParametersToEstimate,
                                                                        true, std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ), false, true, true );

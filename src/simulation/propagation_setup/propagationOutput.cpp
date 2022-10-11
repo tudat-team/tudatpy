@@ -441,6 +441,12 @@ int getDependentVariableSize(
         }
         break;
     }
+    case gravity_field_potential_dependent_variable:
+        variableSize = 1;
+        break;
+    case gravity_field_laplacian_of_potential_dependent_variable:
+        variableSize = 1;
+        break;
     default:
         std::string errorMessage = "Error, did not recognize dependent variable size of type: " +
                 std::to_string( dependentVariableSettings->dependentVariableType_ );
@@ -470,24 +476,6 @@ bool isScalarDependentVariable(
     }
 
 }
-
-template std::pair< std::function< Eigen::VectorXd( ) >, std::map< int, std::string > > createDependentVariableListFunction< double, double >(
-        const std::shared_ptr< DependentVariableSaveSettings > saveSettings,
-        const simulation_setup::SystemOfBodies& bodies,
-        const std::unordered_map< IntegratedStateType,
-        std::vector< std::shared_ptr< SingleStateTypeDerivative< double, double > > > >& stateDerivativeModels );
-
-//template std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariableFunction< double, double >(
-//        const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings,
-//        const simulation_setup::SystemOfBodies& bodies,
-//        const std::unordered_map< IntegratedStateType,
-//        std::vector< std::shared_ptr< SingleStateTypeDerivative< double, double > > > >& stateDerivativeModels );
-
-//template std::function< double( ) > getDoubleDependentVariableFunction< double, double >(
-//        const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings,
-//        const simulation_setup::SystemOfBodies& bodies,
-//        const std::unordered_map< IntegratedStateType,
-//        std::vector< std::shared_ptr< SingleStateTypeDerivative< double, double > > > >& stateDerivativeModels );
 
 } // namespace propagators
 

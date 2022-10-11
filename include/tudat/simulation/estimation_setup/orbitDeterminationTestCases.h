@@ -151,12 +151,12 @@ std::pair< std::shared_ptr< EstimationOutput< StateScalarType, TimeType > >, Eig
                 rungeKutta4, TimeType( initialEphemerisTime - 4.0 * maximumTimeStep ), 900.0 );
 
 
-    std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > propagatorSettings =
-            std::make_shared< TranslationalStatePropagatorSettings< StateScalarType > >
+    std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType, TimeType > > propagatorSettings =
+            std::make_shared< TranslationalStatePropagatorSettings< StateScalarType, TimeType > >
             ( centralBodies, accelerationModelMap, bodiesToIntegrate,
               getInitialStateVectorOfBodiesToEstimate( parametersToEstimate ),
               TimeType( finalEphemerisTime + 4.0 * maximumTimeStep ),
-              cowell, std::shared_ptr< DependentVariableSaveSettings >( ) );
+              cowell );
 
 
     // Define link ends
@@ -487,8 +487,8 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation(
                 asterixInitialStateInKeplerianElements, earthGravitationalParameter );
 
     // Create propagator settings
-    std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > propagatorSettings =
-            std::make_shared< TranslationalStatePropagatorSettings< StateScalarType > >
+    std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType, TimeType > > propagatorSettings =
+            std::make_shared< TranslationalStatePropagatorSettings< StateScalarType, TimeType > >
             ( centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState,
               TimeType( finalEphemerisTime ), cowell );
 
@@ -775,8 +775,8 @@ std::pair< Eigen::VectorXd, bool > executeEarthOrbiterBiasEstimation(
                 asterixInitialStateInKeplerianElements, earthGravitationalParameter );
 
     // Create propagator settings
-    std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > propagatorSettings =
-            std::make_shared< TranslationalStatePropagatorSettings< StateScalarType > >
+    std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType, TimeType > > propagatorSettings =
+            std::make_shared< TranslationalStatePropagatorSettings< StateScalarType, TimeType > >
             ( centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState,
               TimeType( finalEphemerisTime ), cowell );
 
