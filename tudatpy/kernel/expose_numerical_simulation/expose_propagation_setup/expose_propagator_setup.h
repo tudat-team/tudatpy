@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef TUDATBUNDLE_EXPOSE_PROPAGATOR_SETUP_H
-#define TUDATBUNDLE_EXPOSE_PROPAGATOR_SETUP_H
+#ifndef TUDATPY_EXPOSE_PROPAGATOR_SETUP_H
+#define TUDATPY_EXPOSE_PROPAGATOR_SETUP_H
 
 #include <pybind11/eigen.h>
 #include <pybind11/functional.h>
@@ -25,8 +25,6 @@
 #include "tudat/simulation/propagation_setup/createTorqueModel.h"
 #include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
 #include "tudat/simulation/propagation_setup/environmentUpdater.h"
-#include "tudat/simulation/propagation_setup/propagationCR3BPFullProblem.h"
-#include "tudat/simulation/propagation_setup/propagationLambertTargeterFullProblem.h"
 #include "tudat/simulation/propagation_setup/propagationOutput.h"
 #include "tudat/simulation/propagation_setup/propagationOutputSettings.h"
 #include "tudat/simulation/propagation_setup/propagationSettings.h"
@@ -50,4 +48,4 @@ namespace propagator {
 }// namespace numerical_simulation
 }// namespace tudatpy
 
-#endif //TUDATBUNDLE_EXPOSE_PROPAGATOR_SETUP_H
+#endif //TUDATPY_EXPOSE_PROPAGATOR_SETUP_H
