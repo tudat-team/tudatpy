@@ -96,7 +96,7 @@ BOOST_AUTO_TEST_CASE( testTwoWayDopplerPartials )
         SystemOfBodies bodies = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, true );
 
         // Set link ends for observation model
-        LinkEnds linkEnds;
+        LinkDefinition linkEnds;
         linkEnds[ transmitter ] = groundStations[ 1 ];
         linkEnds[ reflector1 ] = groundStations[ 0 ];
         linkEnds[ receiver ] = groundStations[ 1 ];
@@ -156,7 +156,7 @@ BOOST_AUTO_TEST_CASE( testTwoWayDopplerPartials )
         SystemOfBodies bodies = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, false );
 
         // Set link ends for observation model
-        LinkEnds linkEnds;
+        LinkDefinition linkEnds;
         linkEnds[ transmitter ] = groundStations[ 1 ];
         linkEnds[ reflector1 ] = groundStations[ 0 ];
         linkEnds[ receiver ] = groundStations[ 1 ];

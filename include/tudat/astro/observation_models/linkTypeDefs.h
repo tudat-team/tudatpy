@@ -105,7 +105,28 @@ struct LinkEndId
 
     std::string stationName_;
 
+    std::string getBodyName( )
+    {
+        return bodyName_;
+    }
+
+    std::string getStationName( )
+    {
+        return stationName_;
+    }
+
 };
+
+inline LinkEndId linkEndId( const std::string& bodyName,
+                            const std::string& stationName )
+{
+    return  LinkEndId( bodyName, stationName );
+}
+
+inline LinkEndId linkEndId( const std::string& bodyName )
+{
+    return LinkEndId( bodyName );
+}
 
 
 //! Function to get a string identifier for a link end type
@@ -198,6 +219,10 @@ struct LinkDefinition
 
 };
 
+inline LinkDefinition linkDefinition( const std::map< LinkEndType, LinkEndId >& linkEnds )
+{
+    return LinkDefinition( linkEnds );
+}
 
 //! Function to get a string identifier for a set of link ends
 /*!

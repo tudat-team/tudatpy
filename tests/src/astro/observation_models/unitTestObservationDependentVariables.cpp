@@ -88,7 +88,6 @@ int main( )
     // Define parameters.
     std::vector< LinkEnds > stationReceiverLinkEnds;
     std::vector< LinkEnds > stationTransmitterLinkEnds;
-    std::vector< LinkEnds > twoWayLinkEnds;
 
     // Define link ends to/from ground stations to Moon
     for( unsigned int i = 0; i < groundStationNames.size( ); i++ )
@@ -102,12 +101,6 @@ int main( )
         linkEnds[ receiver ] = LinkEndId( std::make_pair( "Earth", groundStationNames.at( i ) ) );
         linkEnds[ transmitter ] = LinkEndId( std::make_pair( "Moon", "" ) );
         stationReceiverLinkEnds.push_back( linkEnds );
-
-        twoWayLinkEnds.clear( );
-        linkEnds[ receiver ] = LinkEndId( std::make_pair( "Earth", groundStationNames.at( i ) ) );
-        linkEnds[ retransmitter ] = LinkEndId( std::make_pair( "Moon", "" ) );
-        linkEnds[ transmitter ] = LinkEndId( std::make_pair( "Earth", groundStationNames.at( i ) ) );
-        twoWayLinkEnds.push_back( linkEnds );
     }
 
     // Define (arbitrary) link ends for each observable

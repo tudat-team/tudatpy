@@ -404,7 +404,7 @@ std::vector< Eigen::MatrixXd > calculateNumericalPartialsWrtVectorParameters(
 
 //! Function to retrieve times associated with analytical partial derivatives for general observation partial tests.
 std::vector< std::vector< double > > getAnalyticalPartialEvaluationTimes(
-        const LinkEnds& linkEnds,
+        const LinkDefinition& linkEnds,
         const ObservableType observableType,
         const std::vector< double >& linkEndTimes,
         const std::shared_ptr< EstimatableParameterSet< double > >& estimatedParameters )
@@ -420,8 +420,9 @@ std::vector< std::vector< double > > getAnalyticalPartialEvaluationTimes(
     for( unsigned int i = 0; i < bodiesWithTranslationalState.size( ); i++ )
     {
         currentPartialTimes.clear( );
-        for( LinkEnds::const_iterator linkEndIterator = linkEnds.begin( );
-             linkEndIterator != linkEnds.end( ); linkEndIterator++ )
+        LinkEnds currentLinkEnds = linkEnds.linkEnds_;
+        for( LinkEnds::const_iterator linkEndIterator = currentLinkEnds.begin( );
+             linkEndIterator != currentLinkEnds.end( ); linkEndIterator++ )
         {
             if( linkEndIterator->second.bodyName_ == bodiesWithTranslationalState.at( i ) )
             {
@@ -458,8 +459,9 @@ std::vector< std::vector< double > > getAnalyticalPartialEvaluationTimes(
     for( unsigned int i = 0; i < bodiesWithRotationalState.size( ); i++ )
     {
         currentPartialTimes.clear( );
-        for( LinkEnds::const_iterator linkEndIterator = linkEnds.begin( );
-             linkEndIterator != linkEnds.end( ); linkEndIterator++ )
+        LinkEnds currentLinkEnds = linkEnds.linkEnds_;
+        for( LinkEnds::const_iterator linkEndIterator = currentLinkEnds.begin( );
+             linkEndIterator != currentLinkEnds.end( ); linkEndIterator++ )
         {
             if( linkEndIterator->second.bodyName_ == bodiesWithRotationalState.at( i ) )
             {
@@ -488,8 +490,9 @@ std::vector< std::vector< double > > getAnalyticalPartialEvaluationTimes(
             checkStationId = 1;
         }
         currentPartialTimes.clear( );
-        for( LinkEnds::const_iterator linkEndIterator = linkEnds.begin( );
-             linkEndIterator != linkEnds.end( ); linkEndIterator++ )
+        LinkEnds currentLinkEnds = linkEnds.linkEnds_;
+        for( LinkEnds::const_iterator linkEndIterator = currentLinkEnds.begin( );
+             linkEndIterator != currentLinkEnds.end( ); linkEndIterator++ )
         {
             if( linkEndIterator->second.bodyName_ == currentAssociatedLinkEndid.bodyName_ )
             {
@@ -538,8 +541,9 @@ std::vector< std::vector< double > > getAnalyticalPartialEvaluationTimes(
             checkStationId = 1;
         }
         currentPartialTimes.clear( );
-        for( LinkEnds::const_iterator linkEndIterator = linkEnds.begin( );
-             linkEndIterator != linkEnds.end( ); linkEndIterator++ )
+        LinkEnds currentLinkEnds = linkEnds.linkEnds_;
+        for( LinkEnds::const_iterator linkEndIterator = currentLinkEnds.begin( );
+             linkEndIterator != currentLinkEnds.end( ); linkEndIterator++ )
         {
             if( linkEndIterator->second.bodyName_ == currentAssociatedLinkEndid.bodyName_ )
             {

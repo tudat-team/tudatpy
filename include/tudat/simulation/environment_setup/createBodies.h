@@ -69,9 +69,10 @@ struct BodySettings
     //! Settings for variations of the gravity field of the body.
     std::vector< std::shared_ptr< GravityFieldVariationSettings > > gravityFieldVariationSettings;
 
+    std::vector< std::shared_ptr< BodyDeformationSettings > > bodyDeformationSettings;
+
     std::vector< std::shared_ptr< GroundStationSettings > > groundStationSettings;
 
-    std::vector< std::shared_ptr< BodyDeformationSettings > > bodyDeformationSettings;
 
 };
 

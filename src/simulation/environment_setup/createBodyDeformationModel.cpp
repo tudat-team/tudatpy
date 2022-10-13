@@ -17,7 +17,8 @@ std::shared_ptr< basic_astrodynamics::Iers2010EarthDeformation > createDefaultEa
         const std::shared_ptr< ephemerides::RotationalEphemeris > earthRotation,
         const std::function< double( ) > gravitionalParametersOfEarth,
         const std::function< double( ) > gravitionalParametersOfMoon,
-        const std::function< double( ) > gravitionalParametersOfSun)
+        const std::function< double( ) > gravitionalParametersOfSun,
+        const std::function< Eigen::Vector6d( const double ) > doodsonArgumentFunction )
 {
     using namespace tudat::ephemerides;
     using namespace tudat::basic_astrodynamics;
@@ -61,10 +62,10 @@ std::shared_ptr< basic_astrodynamics::Iers2010EarthDeformation > createDefaultEa
     correctionNumbers[ 0 ] = DEGREE_TWO_DIURNAL_TOROIDAL_LOVE_NUMBER;
     correctionNumbers[ 1 ] = DEGREE_TWO_SEMIDIURNAL_TOROIDAL_LOVE_NUMBER;
 
-    std::string longPeriodFile = paths::getEarthOrientationDataFilesPath( ) +
-            "longPeriodDisplacementFrequencyDependence.txt";
-    std::string diurnalFile = paths::getEarthOrientationDataFilesPath( ) +
-            "diurnalDisplacementFrequencyDependence.txt";
+    std::string longPeriodFile = paths::getEarthDeformationDataFilesPath( ) +
+            "/longPeriodDisplacementFrequencyDependence.txt";
+    std::string diurnalFile = paths::getEarthDeformationDataFilesPath( ) +
+            "/diurnalDisplacementFrequencyDependence2.txt";
 
     std::shared_ptr< Iers2010EarthDeformation > deformationModel = std::make_shared< Iers2010EarthDeformation >
             ( std::bind( &Ephemeris::getCartesianState, earthEphemeris, std::placeholders::_1 ),
@@ -72,7 +73,7 @@ std::shared_ptr< basic_astrodynamics::Iers2010EarthDeformation > createDefaultEa
               std::bind( &RotationalEphemeris::getRotationToTargetFrame, earthRotation, std::placeholders::_1 ),
               gravitionalParametersOfEarth, gravitationalParameters,
               equatorialRadius, nominalDisplacementLoveNumbers, latitudeTerms, areTermsCalculated,
-              correctionNumbers, diurnalFile, longPeriodFile );
+              correctionNumbers, diurnalFile, longPeriodFile, doodsonArgumentFunction );
 
     return deformationModel;
 

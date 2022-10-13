@@ -97,7 +97,6 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
         linkEnds[ receiver ] = std::make_pair< std::string, std::string >( "Moon", "" );
         stationTransmitterLinkEnds.push_back( linkEnds );
 
-        linkEnds.clear( );
         linkEnds[ receiver ] = std::pair< std::string, std::string >( std::make_pair( "Earth", groundStationNames.at( i ) ) );
         linkEnds[ transmitter ] = std::make_pair< std::string, std::string >( "Moon", "" );
         stationReceiverLinkEnds.push_back( linkEnds );

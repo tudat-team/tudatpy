@@ -52,7 +52,7 @@ class LinearGroundStationMotionSettings: public GroundStationMotionSettings
 public:
     LinearGroundStationMotionSettings(
             const Eigen::Vector3d& linearVelocity,
-            const double referenceEpoch = basic_astrodynamics::JULIAN_DAY_ON_J2000):
+            const double referenceEpoch = basic_astrodynamics::JULIAN_DAY_ON_J2000 ):
         GroundStationMotionSettings( linear_station_motion ),
     linearVelocity_( linearVelocity ),
     referenceEpoch_( referenceEpoch ){ }
@@ -95,6 +95,30 @@ public:
 
     const std::function< Eigen::Vector6d( const double ) > customDisplacementModel_;
 };
+
+
+inline std::shared_ptr< GroundStationMotionSettings > linearGroundStationMotionSettings(
+        const Eigen::Vector3d& linearVelocity,
+        const double referenceEpoch = basic_astrodynamics::JULIAN_DAY_ON_J2000 )
+{
+    return std::make_shared< LinearGroundStationMotionSettings >(
+                linearVelocity, referenceEpoch );
+}
+
+inline std::shared_ptr< GroundStationMotionSettings > piecewiseConstantGroundStationMotionSettings(
+        const std::map< double, Eigen::Vector3d >& displacementList)
+{
+    return std::make_shared< PiecewiseConstantGroundStationMotionSettings >(
+                displacementList );
+}
+
+inline std::shared_ptr< GroundStationMotionSettings > customGroundStationMotionSettings(
+        const std::function< Eigen::Vector3d( const double ) > customDisplacementModel )
+{
+    return std::make_shared< CustomGroundStationMotionSettings >(
+                customDisplacementModel );
+}
+
 
 class GroundStationSettings
 {
@@ -146,6 +170,18 @@ protected:
 
     std::vector< std::shared_ptr< GroundStationMotionSettings > > stationMotionSettings_;
 };
+
+inline std::shared_ptr< GroundStationSettings > groundStationSettings(
+        const std::string& stationName,
+        const Eigen::Vector3d& groundStationPosition,
+        const coordinate_conversions::PositionElementTypes positionElementType =
+        coordinate_conversions::cartesian_position,
+        const std::vector< std::shared_ptr< GroundStationMotionSettings > > stationMotionSettings =
+        std::vector< std::shared_ptr< GroundStationMotionSettings > >( ) )
+{
+    return std::make_shared< GroundStationSettings >(
+                stationName, groundStationPosition, positionElementType, stationMotionSettings );
+}
 
 //! Function to create a ground station from pre-defined station state object, and add it to a Body object
 /*!

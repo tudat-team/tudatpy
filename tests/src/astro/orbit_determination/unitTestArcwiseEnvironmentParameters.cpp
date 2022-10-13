@@ -167,7 +167,7 @@ BOOST_AUTO_TEST_CASE( test_ArcwiseEnvironmentParameters )
     ///////////////////////             CREATE OBSERVATION SETTINGS            ////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    LinkEnds linkEnds;
+    LinkDefinition linkEnds;
     linkEnds[ observed_body ] = std::make_pair< std::string, std::string >( "Vehicle", "" );
     std::vector< std::shared_ptr< ObservationModelSettings > >  observationSettingsList;
     observationSettingsList.push_back( std::make_shared< ObservationModelSettings >( position_observable, linkEnds ) );

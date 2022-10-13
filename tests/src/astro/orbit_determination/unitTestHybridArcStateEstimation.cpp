@@ -243,7 +243,7 @@ Eigen::VectorXd  executeParameterEstimation(
 
 
     // Define links and observables in simulation.
-    std::vector< LinkEnds > linkEnds2;
+    std::vector< LinkDefinition > linkEnds2;
     linkEnds2.resize( 2 );
     linkEnds2[ 0 ][ transmitter ] = grazStation;
     linkEnds2[ 0 ][ receiver ] = std::make_pair< std::string, std::string >( "Orbiter", "" );

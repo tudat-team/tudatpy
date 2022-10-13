@@ -125,7 +125,7 @@ calculateAnalyticalPartials(
 
 //! Function to retrieve times associated with partial derivatives for general observation partial tests.
 std::vector< std::vector< double > > getAnalyticalPartialEvaluationTimes(
-        const LinkEnds& linkEnds,
+        const LinkDefinition& linkEnds,
         const ObservableType observableType,
         const std::vector< double >& linkEndTimes,
         const std::shared_ptr< EstimatableParameterSet< double > >& estimatedParameters );
@@ -136,7 +136,7 @@ void testObservationPartials(
         const std::shared_ptr< ObservationModel< ObservableSize, double, double > > observationModel,
         SystemOfBodies& bodies,
         const std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet,
-        const LinkEnds& linkEnds, const ObservableType observableType,
+        const LinkDefinition& linkEnds, const ObservableType observableType,
         const double tolerance = 1.0E-6,
         const bool testPositionPartial = 1,
         const bool testParameterPartial = 1,
@@ -175,7 +175,8 @@ void testObservationPartials(
 
 
     // Iterate over link ends, compute and test partials for observable referenced at each link end.
-    for (LinkEnds::const_iterator linkEndIterator = linkEnds.begin(); linkEndIterator != linkEnds.end();
+    LinkEnds currentLinkEnds = linkEnds.linkEnds_;
+    for (LinkEnds::const_iterator linkEndIterator = currentLinkEnds.begin(); linkEndIterator != currentLinkEnds.end();
          linkEndIterator++)
     {
         bool runSimulation = true;

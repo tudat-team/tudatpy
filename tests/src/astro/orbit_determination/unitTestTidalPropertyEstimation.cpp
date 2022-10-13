@@ -163,7 +163,7 @@ BOOST_AUTO_TEST_CASE( test_DissipationParameterEstimation )
 
 
         // Define links in simulation.
-        std::vector< LinkEnds > linkEnds;
+        std::vector< LinkDefinition > linkEnds;
         linkEnds.resize( 2 );
         linkEnds[ 0 ][ observed_body ] = std::make_pair< std::string, std::string >( "Io", "" );
         linkEnds[ 1 ][ observed_body ] = std::make_pair< std::string, std::string >( "Europa", "" );
@@ -401,10 +401,8 @@ BOOST_AUTO_TEST_CASE( test_LoveNumberEstimationFromOrbiterData )
               60.0, 60.0, 1.0, 1.0 );
 
     // Define link ends to use
-    LinkEnds linkEnds;
+    LinkDefinition linkEnds;
     linkEnds[ observed_body ] = std::make_pair< std::string, std::string >( "Vehicle", "" );
-    std::map< ObservableType, std::vector< LinkEnds > > linkEndsPerObservable;
-    linkEndsPerObservable[ position_observable ].push_back( linkEnds );
 
     // Define parameters to estimate (vehicle initial state and various Love number combinations)
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames =
