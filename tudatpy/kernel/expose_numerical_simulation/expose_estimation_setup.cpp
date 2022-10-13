@@ -35,9 +35,6 @@ void expose_estimation_setup(py::module &m) {
 
     // *************** PARAMETER ***************
 
-    auto parameter_setup = m.def_submodule("parameter");
-    parameter::expose_estimated_parameter_setup(parameter_setup);
-
     m.def("print_parameter_names",
           &tep::printEstimatableParameterEntries< double >,
           py::arg("parameter_set") );
@@ -55,8 +52,7 @@ void expose_estimation_setup(py::module &m) {
 
     // ************** OBSERVATION ***************
 
-    auto observation_setup = m.def_submodule("observation");
-    observation::expose_observation_setup(observation_setup);
+
 
     // #   Observation Model Settings --> Observation Simulator #
     m.def("create_observation_simulators",
@@ -75,6 +71,14 @@ void expose_estimation_setup(py::module &m) {
           py::arg("times_list"),
           py::arg("reference_link_end" ),
           get_docstring("single_type_observaion_collection").c_str() );
+
+    // ************** Modules ***************
+
+    auto parameter_setup = m.def_submodule("parameter");
+    parameter::expose_estimated_parameter_setup(parameter_setup);
+
+    auto observation_setup = m.def_submodule("observation");
+    observation::expose_observation_setup(observation_setup);
 }
 
 }

@@ -49,7 +49,8 @@ enum ThrustFrames
     tnw_thrust_frame = 1
 };
 
-}https://webmail.tudelft.nl/owa/#path=/mail/inbox
+}
+
 }
 
 namespace tudatpy {
