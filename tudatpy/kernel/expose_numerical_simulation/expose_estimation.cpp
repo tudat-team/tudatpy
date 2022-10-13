@@ -421,15 +421,6 @@ void expose_estimation(py::module &m) {
             tss::EstimationConvergenceChecker,
             std::shared_ptr<tss::EstimationConvergenceChecker>>(m, "EstimationConvergenceChecker",
                                                                 get_docstring("EstimationConvergenceChecker").c_str() );
-    //       .def(py::init< const unsigned int,
-    //            const double,
-    //            const double,
-    //            const int >( ),
-    //            py::arg( "maximum_iterations" ) = 5,
-    //            py::arg( "minimum_residual_change" ) = 0.0,
-    //            py::arg( "minimum_residual" ) = 0.0,
-    //            py::arg( "number_of_iterations_without_improvement" ) = 2 );
-
 
     m.def("estimation_convergence_checker",
           &tss::estimationConvergenceChecker,
@@ -446,10 +437,8 @@ void expose_estimation(py::module &m) {
                                                                            get_docstring("CovarianceAnalysisInput").c_str() )
             .def(py::init<
                  const std::shared_ptr< tom::ObservationCollection< > >&,
-                 const int,
                  const Eigen::MatrixXd >( ),
                  py::arg( "observations_and_times" ),
-                 py::arg( "parameter_size" ),
                  py::arg( "inverse_apriori_covariance" ) = Eigen::MatrixXd::Zero( 0, 0 ),
                  get_docstring("CovarianceAnalysisInput.ctor").c_str() )
             .def( "set_constant_weight",
@@ -478,13 +467,11 @@ void expose_estimation(py::module &m) {
                                                           get_docstring("EstimationInput").c_str() )
             .def(py::init<
                  const std::shared_ptr< tom::ObservationCollection< > >&,
-                 const int,
                  const Eigen::MatrixXd,
-                 const Eigen::VectorXd >( ),
+                 std::shared_ptr< tss::EstimationConvergenceChecker > >( ),
                  py::arg( "observations_and_times" ),
-                 py::arg( "parameter_size" ),
                  py::arg( "inverse_apriori_covariance" ) = Eigen::MatrixXd::Zero( 0, 0 ),
-                 py::arg( "apriori_parameter_deviation" ) = Eigen::VectorXd::Zero( 0 ),
+                 py::arg( "convergence_checker" ) = std::make_shared< tss::EstimationConvergenceChecker >( ),
                  get_docstring("EstimationInput.ctor").c_str() )
             .def( "define_estimation_settings",
                   &tss::EstimationInput<double, double>::defineEstimationSettings,
