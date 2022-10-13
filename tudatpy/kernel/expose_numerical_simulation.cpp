@@ -258,7 +258,6 @@ void expose_numerical_simulation(py::module &m) {
           .def("perform_estimation",
                &tss::OrbitDeterminationManager<double, double>::estimateParameters,
                py::arg( "estimation_input" ),
-               py::arg( "convergence_checker" ) = std::make_shared< tss::EstimationConvergenceChecker >( ),
                get_docstring("Estimator.perform_estimation").c_str() )
           .def_property_readonly("variational_solver",
                &tss::OrbitDeterminationManager<double, double>::getVariationalEquationsSolver,
