@@ -184,23 +184,22 @@ BOOST_AUTO_TEST_CASE( test_DesaturationDeltaVsEstimation )
                   40.0, 40.0, 1.0, 1.0 );
 
         // Define link ends.
-        std::vector< LinkEnds > stationReceiverLinkEnds;
-        std::vector< LinkEnds > stationTransmitterLinkEnds;
+        std::vector< LinkDefinition > stationReceiverLinkEnds;
+        std::vector< LinkDefinition > stationTransmitterLinkEnds;
 
         for( unsigned int i = 0; i < groundStationNames.size( ); i++ )
         {
-            LinkEnds linkEnds;
+            LinkDefinition linkEnds;
             linkEnds[ transmitter ] = std::pair< std::string, std::string >( std::make_pair( "Earth", groundStationNames.at( i ) ) );
             linkEnds[ receiver ] = std::make_pair< std::string, std::string >( "Vehicle", "" );
             stationTransmitterLinkEnds.push_back( linkEnds );
 
-            linkEnds.clear( );
             linkEnds[ receiver ] = std::pair< std::string, std::string >( std::make_pair( "Earth", groundStationNames.at( i ) ) );
             linkEnds[ transmitter ] = std::make_pair< std::string, std::string >( "Vehicle", "" );
             stationReceiverLinkEnds.push_back( linkEnds );
         }
 
-        std::map< ObservableType, std::vector< LinkEnds > > linkEndsPerObservable;
+        std::map< ObservableType, std::vector< LinkDefinition > > linkEndsPerObservable;
         linkEndsPerObservable[ one_way_range ].push_back( stationReceiverLinkEnds[ 0 ] );
         linkEndsPerObservable[ one_way_range ].push_back( stationTransmitterLinkEnds[ 0 ] );
         linkEndsPerObservable[ one_way_range ].push_back( stationReceiverLinkEnds[ 1 ] );
@@ -236,13 +235,13 @@ BOOST_AUTO_TEST_CASE( test_DesaturationDeltaVsEstimation )
         printEstimatableParameterEntries( parametersToEstimate );
 
         std::vector< std::shared_ptr< ObservationModelSettings > > observationSettingsList;
-        for( std::map< ObservableType, std::vector< LinkEnds > >::iterator linkEndIterator = linkEndsPerObservable.begin( );
+        for( std::map< ObservableType, std::vector< LinkDefinition > >::iterator linkEndIterator = linkEndsPerObservable.begin( );
              linkEndIterator != linkEndsPerObservable.end( ); linkEndIterator++ )
         {
             ObservableType currentObservable = linkEndIterator->first;
 
 
-            std::vector< LinkEnds > currentLinkEndsList = linkEndIterator->second;
+            std::vector< LinkDefinition > currentLinkEndsList = linkEndIterator->second;
             for( unsigned int i = 0; i < currentLinkEndsList.size( ); i++ )
             {
                 observationSettingsList.push_back(
@@ -270,11 +269,11 @@ BOOST_AUTO_TEST_CASE( test_DesaturationDeltaVsEstimation )
 
 
         std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > measurementSimulationInput;
-        for( std::map< ObservableType, std::vector< LinkEnds > >::iterator linkEndIterator = linkEndsPerObservable.begin( );
+        for( std::map< ObservableType, std::vector< LinkDefinition > >::iterator linkEndIterator = linkEndsPerObservable.begin( );
              linkEndIterator != linkEndsPerObservable.end( ); linkEndIterator++ )
         {
             ObservableType currentObservable = linkEndIterator->first;
-            std::vector< LinkEnds > currentLinkEndsList = linkEndIterator->second;
+            std::vector< LinkDefinition > currentLinkEndsList = linkEndIterator->second;
             for( unsigned int i = 0; i < currentLinkEndsList.size( ); i++ )
             {
                 measurementSimulationInput.push_back(

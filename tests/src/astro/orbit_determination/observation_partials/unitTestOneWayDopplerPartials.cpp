@@ -98,7 +98,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
         SystemOfBodies bodies = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, false );
 
         // Set link ends for observation model
-        LinkEnds linkEnds;
+        LinkDefinition linkEnds;
         linkEnds[ transmitter ] = groundStations[ 1 ];
         linkEnds[ receiver ] = groundStations[ 0 ];
 
@@ -212,7 +212,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
         SystemOfBodies bodies = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, true );
 
         // Set link ends for observation model
-        LinkEnds linkEnds;
+        LinkDefinition linkEnds;
         linkEnds[ transmitter ] = groundStations[ 1 ];
         linkEnds[ receiver ] = groundStations[ 0 ];
 
@@ -270,7 +270,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
         SystemOfBodies bodies = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, false );
 
         // Set link ends for observation model
-        LinkEnds linkEnds;
+        LinkDefinition linkEnds;
         linkEnds[ transmitter ] = groundStations[ 1 ];
         linkEnds[ receiver ] = groundStations[ 0 ];
 
@@ -326,7 +326,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
         SystemOfBodies bodies = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, true, 1000000.0 );
 
         // Set link ends for observation model (Mars to Earth)
-        LinkEnds linkEnds;
+        LinkDefinition linkEnds;
         linkEnds[ transmitter ] = groundStations[ 1 ];
         linkEnds[ receiver ] = groundStations[ 0 ];
 

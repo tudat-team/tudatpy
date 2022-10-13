@@ -356,14 +356,15 @@ BOOST_AUTO_TEST_CASE( test_Iers2012DeformationModel )
         }
         else
         {
-            deformationModel = createDefaultEarthIers2010DeformationModel(
+            deformationModel = simulation_setup::createDefaultEarthIers2010DeformationModel(
                         std::make_shared< ConstantEphemeris >( earthState ),
                         std::make_shared< ConstantEphemeris >( moonState ),
                         std::make_shared< ConstantEphemeris >( sunState ),
                         std::make_shared< ConstantRotationalEphemeris >( orientationQuaternion ),
                         boost::lambda::constant( 1.0 ),
                         lunarMassFunction,
-                        solarMassFunction );
+                        solarMassFunction,
+                        std::bind( &calculateFundamentalArgumentsIersCode, std::placeholders::_1 ) );
         }
         evaluationTime = 395409600.0;
         expectedDeformation <<-0.2036831479592075833E-01,0.5658254776225972449E-01,-0.7597679676871742227E-01;

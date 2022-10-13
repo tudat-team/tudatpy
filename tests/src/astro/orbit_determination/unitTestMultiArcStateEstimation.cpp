@@ -182,7 +182,7 @@ Eigen::VectorXd  executeParameterEstimation(
 
 
     // Define links in simulation.
-    std::vector< LinkEnds > linkEnds2;
+    std::vector< LinkDefinition > linkEnds2;
     linkEnds2.resize( 2 );
     linkEnds2[ 0 ][ transmitter ] = grazStation;
     linkEnds2[ 0 ][ receiver ] = mslStation;
@@ -476,7 +476,7 @@ Eigen::VectorXd  executeMultiBodyMultiArcParameterEstimation( )
 
 
     // Define links and observations in simulation.
-    std::vector< LinkEnds > linkEndsList;
+    std::vector< LinkDefinition > linkEndsList;
     std::vector< std::shared_ptr< ObservationModelSettings > > observationSettingsList;
     linkEndsList.resize( numberOfVehicles );
     for( int i = 0; i < numberOfVehicles; i++ )

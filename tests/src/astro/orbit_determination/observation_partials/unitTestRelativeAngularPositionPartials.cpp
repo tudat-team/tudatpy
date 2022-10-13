@@ -79,12 +79,12 @@ BOOST_AUTO_TEST_CASE( testRelativeAngularPositionPartials )
     SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
     // Define link ends for observations.
-    LinkEnds linkEnds;
+    LinkDefinition linkEnds;
     linkEnds[ receiver ] = std::make_pair< std::string, std::string >( "Earth" , ""  );
     linkEnds[ transmitter ] = std::make_pair< std::string, std::string >( "Mars" , ""  );
     linkEnds[ transmitter2 ] = std::make_pair< std::string, std::string >( "Phobos" , ""  );
 
-    LinkEnds linkEndsAngularPosition;
+    LinkDefinition linkEndsAngularPosition;
     linkEndsAngularPosition[ receiver ] = std::make_pair< std::string, std::string >( "Earth" , ""  );
     linkEndsAngularPosition[ transmitter ] = std::make_pair< std::string, std::string >( "Mars" , ""  );
 
@@ -179,7 +179,7 @@ BOOST_AUTO_TEST_CASE( testRelativeAngularPositionPartials )
         SystemOfBodies bodies = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, true );
 
         // Set link ends for observation model
-        LinkEnds linkEnds;
+        LinkDefinition linkEnds;
         linkEnds[ receiver ] = groundStations[ 0 ];
         linkEnds[ transmitter ] = groundStations[ 1 ];
         linkEnds[ transmitter2 ] = groundStations[ 2 ];
@@ -210,7 +210,7 @@ BOOST_AUTO_TEST_CASE( testRelativeAngularPositionPartials )
 //        SystemOfBodies bodies = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, false );
 
 //        // Set link ends for observation model
-//        LinkEnds linkEnds;
+//        LinkDefinition linkEnds;
 //        linkEnds[ transmitter ] = groundStations[ 1 ];
 //        linkEnds[ receiver ] = groundStations[ 0 ];
 

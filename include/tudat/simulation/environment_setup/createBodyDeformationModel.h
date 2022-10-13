@@ -33,7 +33,9 @@ std::shared_ptr< basic_astrodynamics::Iers2010EarthDeformation > createDefaultEa
         const std::shared_ptr< ephemerides::RotationalEphemeris > earthRotation,
         const std::function< double( ) > gravitionalParametersOfEarth,
         const std::function< double( ) > gravitionalParametersOfMoon,
-        const std::function< double( ) > gravitionalParametersOfSun );
+        const std::function< double( ) > gravitionalParametersOfSun,
+        const std::function< Eigen::Vector6d( const double ) > doodsonArgumentFunction =
+        [](const double time){return sofa_interface::calculateDoodsonFundamentalArguments( time ); } );
 
 
 class BodyDeformationSettings
@@ -71,6 +73,20 @@ protected:
     std::map< int, std::pair< double, double > > displacementLoveNumbers_;
     double bodyReferenceRadius_;
 };
+
+inline std::shared_ptr< BasicSolidBodyDeformationSettings > basicTidalBodyShapeDeformation (
+        const std::vector< std::string > deformingBodies,
+        const std::map< int, std::pair< double, double > > displacementLoveNumbers,
+        const double bodyReferenceRadius = TUDAT_NAN )
+{
+    return std::make_shared< BasicSolidBodyDeformationSettings >(
+                deformingBodies, displacementLoveNumbers, bodyReferenceRadius );
+}
+
+inline std::shared_ptr< BodyDeformationSettings > iers2010TidalBodyShapeDeformation ( )
+{
+    return std::make_shared< BodyDeformationSettings >( gravitation::iers_2010 );
+}
 
 std::shared_ptr< basic_astrodynamics::BodyDeformationModel > createBodyDeformationModel(
         const std::shared_ptr< BodyDeformationSettings > bodyDeformationSettings,

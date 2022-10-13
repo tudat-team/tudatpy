@@ -76,7 +76,7 @@ BOOST_AUTO_TEST_CASE( testnWayRangePartials )
     for( unsigned int linkNumber = 0; linkNumber < 3; linkNumber++ )
     {
         // Set link ends for observation model
-        LinkEnds linkEnds;
+        LinkDefinition linkEnds;
         linkEnds[ transmitter ] = groundStations[ 0 ];
         linkEnds[ reflector1 ] = groundStations[ 1 ];
         if( linkNumber > 0 )
@@ -111,7 +111,7 @@ BOOST_AUTO_TEST_CASE( testnWayRangePartials )
                 legObservationModels.push_back(
                             std::make_shared< observation_models::ObservationModelSettings >(
                                 one_way_range,
-                                getSingleLegLinkEnds( linkEnds, i ),
+                                getSingleLegLinkEnds( linkEnds.linkEnds_, i ),
                                 std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
                                     perturbingBodies ) ) );
             }
@@ -145,7 +145,7 @@ BOOST_AUTO_TEST_CASE( testnWayRangePartials )
                 legObservationModels.push_back(
                             std::make_shared< observation_models::ObservationModelSettings >(
                                 one_way_range,
-                                getSingleLegLinkEnds( linkEnds, i ),
+                                getSingleLegLinkEnds( linkEnds.linkEnds_, i ),
                                 std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
                                     perturbingBodies ) ) );
             }

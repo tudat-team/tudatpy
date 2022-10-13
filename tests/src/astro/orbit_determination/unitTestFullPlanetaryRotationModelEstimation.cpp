@@ -115,7 +115,7 @@ BOOST_AUTO_TEST_CASE( test_FullPlanetaryRotationalParameters )
                 ( rungeKutta4, initialEphemerisTime, maximumTimeStep );
 
         // Define links in simulation.
-        std::vector< LinkEnds > linkEnds; linkEnds.resize( 1 );
+        std::vector< LinkDefinition > linkEnds; linkEnds.resize( 1 );
         linkEnds[ 0 ][ transmitter ] = grazStation;
         linkEnds[ 0 ][ receiver ] = mslStation;
 

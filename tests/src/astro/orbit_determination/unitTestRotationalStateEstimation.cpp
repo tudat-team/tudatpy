@@ -185,15 +185,15 @@ BOOST_AUTO_TEST_CASE( test_RotationalDynamicsEstimationFromLanderData )
                   finalEphemerisTime ) );
 
     // Define link ends and observables
-    std::vector< LinkEnds > linkEndsList;
-    LinkEnds currentLinkEnds;
+    std::vector< LinkDefinition > linkEndsList;
+    LinkDefinition currentLinkEnds;
     currentLinkEnds[ transmitter ] = std::make_pair< std::string, std::string >( "Earth", "" );
     currentLinkEnds[ receiver ] = std::make_pair< std::string, std::string >( "Phobos", "Lander" );
     linkEndsList.push_back( currentLinkEnds );
-    std::map< ObservableType, std::vector< LinkEnds > > linkEndsPerObservable;
+    std::map< ObservableType, std::vector< LinkDefinition > > linkEndsPerObservable;
     //linkEndsPerObservable[ one_way_range ].push_back( linkEndsList[ 0 ] );
 
-    LinkEnds currentLinkEnds2;
+    LinkDefinition currentLinkEnds2;
     currentLinkEnds2[ observed_body ] = std::make_pair< std::string, std::string >( "Phobos", "" );
     linkEndsPerObservable[ euler_angle_313_observable ].push_back( currentLinkEnds2 );
 
@@ -211,12 +211,12 @@ BOOST_AUTO_TEST_CASE( test_RotationalDynamicsEstimationFromLanderData )
 
     // Create observation settings
     std::vector< std::shared_ptr< ObservationModelSettings > > observationSettingsList;
-    for( std::map< ObservableType, std::vector< LinkEnds > >::iterator linkEndIterator = linkEndsPerObservable.begin( );
+    for( std::map< ObservableType, std::vector< LinkDefinition > >::iterator linkEndIterator = linkEndsPerObservable.begin( );
          linkEndIterator != linkEndsPerObservable.end( ); linkEndIterator++ )
     {
         ObservableType currentObservable = linkEndIterator->first;
 
-        std::vector< LinkEnds > currentLinkEndsList = linkEndIterator->second;
+        std::vector< LinkDefinition > currentLinkEndsList = linkEndIterator->second;
         for( unsigned int i = 0; i < currentLinkEndsList.size( ); i++ )
         {
             observationSettingsList.push_back( std::make_shared< ObservationModelSettings >(
@@ -242,11 +242,11 @@ BOOST_AUTO_TEST_CASE( test_RotationalDynamicsEstimationFromLanderData )
 
     std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > measurementSimulationInput;
 
-    for( std::map< ObservableType, std::vector< LinkEnds > >::iterator linkEndIterator = linkEndsPerObservable.begin( );
+    for( std::map< ObservableType, std::vector< LinkDefinition > >::iterator linkEndIterator = linkEndsPerObservable.begin( );
          linkEndIterator != linkEndsPerObservable.end( ); linkEndIterator++ )
     {
         ObservableType currentObservable = linkEndIterator->first;
-        std::vector< LinkEnds > currentLinkEndsList = linkEndIterator->second;
+        std::vector< LinkDefinition > currentLinkEndsList = linkEndIterator->second;
         for( unsigned int i = 0; i < currentLinkEndsList.size( ); i++ )
         {
             measurementSimulationInput.push_back(
@@ -434,13 +434,13 @@ BOOST_AUTO_TEST_CASE( test_RotationalTranslationalDynamicsEstimationFromLanderDa
                 std::make_shared< PropagationTimeTerminationSettings >( finalEphemerisTime ) );
 
     // Define link ends and observables
-    std::vector< LinkEnds > linkEndsList;
-    LinkEnds currentLinkEnds;
+    std::vector< LinkDefinition > linkEndsList;
+    LinkDefinition currentLinkEnds;
     currentLinkEnds[ transmitter ] = std::make_pair< std::string, std::string >( "Earth", "" );
     currentLinkEnds[ receiver ] = std::make_pair< std::string, std::string >( "Phobos", "Lander" );
     linkEndsList.push_back( currentLinkEnds );
 
-    std::map< ObservableType, std::vector< LinkEnds > > linkEndsPerObservable;
+    std::map< ObservableType, std::vector< LinkDefinition > > linkEndsPerObservable;
     linkEndsPerObservable[ one_way_range ].push_back( linkEndsList[ 0 ] );
 
     // Create parameters to estimate
@@ -459,12 +459,12 @@ BOOST_AUTO_TEST_CASE( test_RotationalTranslationalDynamicsEstimationFromLanderDa
 
     // Create observation settings
     std::vector< std::shared_ptr< ObservationModelSettings > > observationSettingsList;
-    for( std::map< ObservableType, std::vector< LinkEnds > >::iterator linkEndIterator = linkEndsPerObservable.begin( );
+    for( std::map< ObservableType, std::vector< LinkDefinition > >::iterator linkEndIterator = linkEndsPerObservable.begin( );
          linkEndIterator != linkEndsPerObservable.end( ); linkEndIterator++ )
     {
         ObservableType currentObservable = linkEndIterator->first;
 
-        std::vector< LinkEnds > currentLinkEndsList = linkEndIterator->second;
+        std::vector< LinkDefinition > currentLinkEndsList = linkEndIterator->second;
         for( unsigned int i = 0; i < currentLinkEndsList.size( ); i++ )
         {
             observationSettingsList.push_back(
@@ -490,11 +490,11 @@ BOOST_AUTO_TEST_CASE( test_RotationalTranslationalDynamicsEstimationFromLanderDa
 
 
     std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > measurementSimulationInput;
-    for( std::map< ObservableType, std::vector< LinkEnds > >::iterator linkEndIterator = linkEndsPerObservable.begin( );
+    for( std::map< ObservableType, std::vector< LinkDefinition > >::iterator linkEndIterator = linkEndsPerObservable.begin( );
          linkEndIterator != linkEndsPerObservable.end( ); linkEndIterator++ )
     {
         ObservableType currentObservable = linkEndIterator->first;
-        std::vector< LinkEnds > currentLinkEndsList = linkEndIterator->second;
+        std::vector< LinkDefinition > currentLinkEndsList = linkEndIterator->second;
         for( unsigned int i = 0; i < currentLinkEndsList.size( ); i++ )
         {
             measurementSimulationInput.push_back(
