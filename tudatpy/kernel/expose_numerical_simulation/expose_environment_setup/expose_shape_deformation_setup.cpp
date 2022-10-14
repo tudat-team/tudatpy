@@ -42,10 +42,18 @@ namespace shape_deformation{
 
         m.def("basic_solid_body_tidal",
               &tss::basicTidalBodyShapeDeformation,
-              py::arg("deforming_bodies"),
+              py::arg("tide_raising_bodies"),
               py::arg("displacement_love_numbers"),
               py::arg("reference_radius") = TUDAT_NAN,
               get_docstring("basic_solid_body_tidal").c_str());
+
+        m.def("degree_two_basic_solid_body_tidal",
+              &tss::degreeTwoBasicTidalBodyShapeDeformation,
+              py::arg("tide_raising_bodies"),
+              py::arg("love_number"),
+              py::arg("shida_number"),
+              py::arg("reference_radius") = TUDAT_NAN,
+              get_docstring("degree_two_basic_solid_body_tidal").c_str());
 
         m.def("iers_2010_solid_body_tidal",
               &tss::iers2010TidalBodyShapeDeformation,
