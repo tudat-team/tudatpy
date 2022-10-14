@@ -52,7 +52,7 @@ class LinearGroundStationMotionSettings: public GroundStationMotionSettings
 public:
     LinearGroundStationMotionSettings(
             const Eigen::Vector3d& linearVelocity,
-            const double referenceEpoch = basic_astrodynamics::JULIAN_DAY_ON_J2000 ):
+            const double referenceEpoch = 0.0 ):
         GroundStationMotionSettings( linear_station_motion ),
     linearVelocity_( linearVelocity ),
     referenceEpoch_( referenceEpoch ){ }
@@ -99,7 +99,7 @@ public:
 
 inline std::shared_ptr< GroundStationMotionSettings > linearGroundStationMotionSettings(
         const Eigen::Vector3d& linearVelocity,
-        const double referenceEpoch = basic_astrodynamics::JULIAN_DAY_ON_J2000 )
+        const double referenceEpoch =  0.0 )
 {
     return std::make_shared< LinearGroundStationMotionSettings >(
                 linearVelocity, referenceEpoch );

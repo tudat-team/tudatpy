@@ -83,6 +83,18 @@ inline std::shared_ptr< BasicSolidBodyDeformationSettings > basicTidalBodyShapeD
                 deformingBodies, displacementLoveNumbers, bodyReferenceRadius );
 }
 
+inline std::shared_ptr< BasicSolidBodyDeformationSettings > degreeTwoBasicTidalBodyShapeDeformation (
+        const std::vector< std::string > deformingBodies,
+        const double loveNumber,
+        const double shidaNumber,
+        const double bodyReferenceRadius = TUDAT_NAN )
+{
+    std::map< int, std::pair< double, double > > displacementLoveNumbers;
+    displacementLoveNumbers[ 2 ] = std::make_pair( loveNumber, shidaNumber );
+    return std::make_shared< BasicSolidBodyDeformationSettings >(
+                deformingBodies, displacementLoveNumbers, bodyReferenceRadius );
+}
+
 inline std::shared_ptr< BodyDeformationSettings > iers2010TidalBodyShapeDeformation ( )
 {
     return std::make_shared< BodyDeformationSettings >( gravitation::iers_2010 );
