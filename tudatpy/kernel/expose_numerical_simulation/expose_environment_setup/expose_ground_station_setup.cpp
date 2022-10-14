@@ -62,7 +62,7 @@ namespace ground_station{
               py::arg("station_name"),
               py::arg("station_nominal_position"),
               py::arg("station_position_element_type") = tcc::cartesian_position,
-              py::arg("station_motion_settings") = std::vector< std::shared_ptr< tss::GroundStationMotionSettings > >( ),
+              py::arg("station_motion_settings") = std::vector< std::shared_ptr< tss::GroundStationMotionSettings    > >( ),
               get_docstring("basic_station").c_str());
 
         m.def("dsn_station_settings",
@@ -72,7 +72,7 @@ namespace ground_station{
         m.def("linear_station_motion",
               &tss::linearGroundStationMotionSettings,
               py::arg("linear_velocity"),
-              py::arg("reference_epoch") = tba::JULIAN_DAY_ON_J2000,
+              py::arg("reference_epoch") = 0.0,
               get_docstring("linear_station_motion").c_str());
 
         m.def("piecewise_constant_station_motion",
