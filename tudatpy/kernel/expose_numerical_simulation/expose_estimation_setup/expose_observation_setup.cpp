@@ -210,12 +210,16 @@ void expose_observation_setup(py::module &m) {
           py::arg("reference_point_id"),
           get_docstring("body_reference_point_link_end_id").c_str() );
 
+
     py::class_<tom::LinkDefinition,
             std::shared_ptr<tom::LinkDefinition>>(
                 m, "LinkDefinition",
                 get_docstring("LinkDefinition").c_str() )
             .def(py::init<const std::map< tom::LinkEndType, tom::LinkEndId >&>(),
-                 py::arg("link_ends") );
+                 py::arg("link_ends") )
+            .def_property( "link_ends", &tom::LinkDefinition::linkEnds_,
+                           get_docstring("LinkDefinition.link_ends").c_str() );
+
 
     m.def("link_definition",
           &tom::linkDefinition,
