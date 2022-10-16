@@ -210,15 +210,17 @@ void expose_propagation(py::module &m) {
             .def_property_readonly("state_history",
                     &tp::SingleArcPropagatorResults<double, double>::getEquationsOfMotionNumericalSolution )
             .def_property_readonly("unprocessed_state_history",
-                    &tp::SingleArcPropagatorResults<double, double>::getEquationsOfMotionNumericalSolutionRaw )
+                                   &tp::SingleArcPropagatorResults<double, double>::getEquationsOfMotionNumericalSolutionRaw )
             .def_property_readonly("dependent_variable_history",
-                    &tp::SingleArcPropagatorResults<double, double>::getDependentVariableHistory )
+                                   &tp::SingleArcPropagatorResults<double, double>::getDependentVariableHistory )
             .def_property_readonly("cumulative_computation_time_history",
-                    &tp::SingleArcPropagatorResults<double, double>::getCumulativeComputationTimeHistory )
+                                   &tp::SingleArcPropagatorResults<double, double>::getCumulativeComputationTimeHistory )
             .def_property_readonly("cumulative_number_of_function_evaluations",
-                    &tp::SingleArcPropagatorResults<double, double>::getCumulativeNumberOfFunctionEvaluations )
+                                   &tp::SingleArcPropagatorResults<double, double>::getCumulativeNumberOfFunctionEvaluations )
             .def_property_readonly("termination_details",
-                    &tp::SingleArcPropagatorResults<double, double>::getPropagationTerminationReason );
+                                   &tp::SingleArcPropagatorResults<double, double>::getPropagationTerminationReason )
+            .def_property_readonly("integration_completed_successfully",
+                                   &tp::SingleArcPropagatorResults<double, double>::integrationCompletedSuccessfully);
 
 }
 }// namespace propagation

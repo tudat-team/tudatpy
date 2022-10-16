@@ -71,23 +71,32 @@ void expose_propagator_setup(py::module &m) {
             .def("disable_all_printing",
                           &tp::PropagationPrintSettings::disableAllPrinting );
 
-    py::class_<tp::PropagatorOutputSettings,
-            std::shared_ptr<tp::PropagatorOutputSettings>>(m, "PropagatorOutputSettings",
-                                                           get_docstring("PropagatorOutputSettings").c_str())
+    py::class_<tp::PropagatorProcessingSettings,
+            std::shared_ptr<tp::PropagatorProcessingSettings>>(m, "PropagatorProcessingSettings",
+                                                           get_docstring("PropagatorProcessingSettings").c_str())
             .def_property("set_integrated_result",
-                          &tp::PropagatorOutputSettings::getSetIntegratedResult,
-                          &tp::PropagatorOutputSettings::setIntegratedResult )
-            .def_property("clear_solution",
-                          &tp::PropagatorOutputSettings::getClearNumericalSolutions,
-                          &tp::PropagatorOutputSettings::setClearNumericalSolutions );
+                          &tp::PropagatorProcessingSettings::getSetIntegratedResult,
+                          &tp::PropagatorProcessingSettings::setIntegratedResult )
+            .def_property("clear_numerical_solution",
+                          &tp::PropagatorProcessingSettings::getClearNumericalSolutions,
+                          &tp::PropagatorProcessingSettings::setClearNumericalSolutions );
 
-    py::class_<tp::SingleArcPropagatorOutputSettings,
-            std::shared_ptr<tp::SingleArcPropagatorOutputSettings>,
-            tp::PropagatorOutputSettings >(m, "SingleArcPropagatorOutputSettings",
-                                           get_docstring("SingleArcPropagatorOutputSettings").c_str())
+    py::class_<tp::SingleArcPropagatorProcessingSettings,
+            std::shared_ptr<tp::SingleArcPropagatorProcessingSettings>,
+            tp::PropagatorProcessingSettings >(m, "SingleArcPropagatorProcessingSettings",
+                                           get_docstring("SingleArcPropagatorProcessingSettings").c_str())
             .def_property_readonly("print_settings",
-                                   &tp::SingleArcPropagatorOutputSettings::getPrintSettings );
+                                   &tp::SingleArcPropagatorProcessingSettings::getPrintSettings );
 
+    py::class_<tp::MultiArcPropagatorProcessingSettings,
+            std::shared_ptr<tp::MultiArcPropagatorProcessingSettings>,
+            tp::PropagatorProcessingSettings >(m, "MultiArcPropagatorProcessingSettings",
+                                           get_docstring("MultiArcPropagatorProcessingSettings").c_str());
+
+    py::class_<tp::HybridArcPropagatorProcessingSettings,
+            std::shared_ptr<tp::HybridArcPropagatorProcessingSettings>,
+            tp::PropagatorProcessingSettings >(m, "HybridArcPropagatorProcessingSettings",
+                                           get_docstring("HybridArcPropagatorProcessingSettings").c_str());
 
     ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -209,7 +218,7 @@ void expose_propagator_setup(py::module &m) {
                           &tp::SingleArcPropagatorSettings<double>::getTerminationSettings,
                           &tp::SingleArcPropagatorSettings<double>::resetTerminationSettings,
                           get_docstring("SingleArcPropagatorSettings.termination_settings").c_str() )
-            .def_property_readonly("output_settings",
+            .def_property_readonly("processing_settings",
                                    &tp::SingleArcPropagatorSettings<double>::getOutputSettings )
             .def_property_readonly("print_settings",
                                    &tp::SingleArcPropagatorSettings<double>::getPrintSettings );
@@ -299,7 +308,7 @@ void expose_propagator_setup(py::module &m) {
           py::arg("termination_settings"),
           py::arg("propagator") = tp::cowell,
           py::arg("output_variables") = std::vector<std::shared_ptr<tp::SingleDependentVariableSaveSettings> >(),
-          py::arg("output_settings") = std::make_shared< tp::SingleArcPropagatorOutputSettings >( ),
+          py::arg("processing_settings") = std::make_shared< tp::SingleArcPropagatorProcessingSettings >( ),
           get_docstring("translational").c_str());
 
     m.def("rotational",
@@ -310,16 +319,27 @@ void expose_propagator_setup(py::module &m) {
           const std::shared_ptr<tp::PropagationTerminationSettings>,
           const tp::RotationalPropagatorType,
           const std::vector<std::shared_ptr<tp::SingleDependentVariableSaveSettings> >,
-          const double>(&tp::rotationalStatePropagatorSettings<double>),
+          const double>(&tp::rotationalStatePropagatorSettingsDeprecated<double>),
           py::arg("torque_models"),
           py::arg("bodies_to_integrate"),
           py::arg("initial_states"),
           py::arg("termination_settings"),
           py::arg("propagator") = tp::quaternions,
           py::arg("output_variables") = std::vector<std::shared_ptr<tp::SingleDependentVariableSaveSettings> >(),
-          py::arg("print_interval") = TUDAT_NAN,
-          get_docstring("rotational").c_str());
+          py::arg("print_interval") = TUDAT_NAN );
 
+    m.def("rotational",
+          &tp::rotationalStatePropagatorSettings<double>,
+          py::arg("torque_models"),
+          py::arg("bodies_to_integrate"),
+          py::arg("initial_states"),
+          py::arg("initial_time"),
+          py::arg("integrator_settings"),
+          py::arg("termination_settings"),
+          py::arg("propagator") = tp::quaternions,
+          py::arg("output_variables") = std::vector<std::shared_ptr<tp::SingleDependentVariableSaveSettings> >(),
+          py::arg("processing_settings") = std::make_shared< tp::SingleArcPropagatorProcessingSettings >( ),
+          get_docstring("rotational").c_str());
 
     m.def("mass",
           py::overload_cast<
@@ -345,16 +365,18 @@ void expose_propagator_setup(py::module &m) {
           py::arg("integrator_settings"),
           py::arg("termination_settings"),
           py::arg("output_variables") = std::vector<std::shared_ptr<tp::SingleDependentVariableSaveSettings> >(),
-          py::arg("output_settings") = std::make_shared< tp::SingleArcPropagatorOutputSettings >( ),
+          py::arg("processing_settings") = std::make_shared< tp::SingleArcPropagatorProcessingSettings >( ),
           get_docstring("mass").c_str());
 
     m.def("custom_state",
           &tp::customStatePropagatorSettings<double, double>,
           py::arg("state_derivative_function"),
           py::arg("initial_state"),
+          py::arg("initial_time"),
+          py::arg("integrator_settings"),
           py::arg("termination_settings"),
           py::arg("output_variables") = std::vector<std::shared_ptr<tp::SingleDependentVariableSaveSettings> >(),
-          py::arg("print_interval") = TUDAT_NAN,
+          py::arg("processing_settings") = std::make_shared< tp::SingleArcPropagatorProcessingSettings >( ),
           get_docstring("custom_state").c_str());
 
 
@@ -378,7 +400,7 @@ void expose_propagator_setup(py::module &m) {
           py::arg("initial_time"),
           py::arg("termination_settings"),
           py::arg("output_variables") = std::vector<std::shared_ptr<tp::SingleDependentVariableSaveSettings> >(),
-          py::arg("output_settings") = std::make_shared< tp::SingleArcPropagatorOutputSettings >( ),
+          py::arg("processing_settings") = std::make_shared< tp::SingleArcPropagatorProcessingSettings >( ),
           get_docstring("multitype").c_str());
 
 
@@ -386,20 +408,21 @@ void expose_propagator_setup(py::module &m) {
           &tp::multiArcPropagatorSettings<double>,
           py::arg("single_arc_settings"),
           py::arg("transfer_state_to_next_arc") = false,
+          py::arg("processing_settings") = std::make_shared< tp::MultiArcPropagatorProcessingSettings >( ),
           get_docstring("multi_arc").c_str());
 
     m.def("hybrid_arc",
           &tp::hybridArcPropagatorSettings<double>,
           py::arg("single_arc_settings"),
           py::arg("multi_arc_settings"),
+          py::arg("processing_settings") = std::make_shared< tp::HybridArcPropagatorProcessingSettings >( ),
           get_docstring("hybrid_arc").c_str());
 
     ///////////////////////////////////////////////////////////////////////////////////////
 
 
     py::class_<tp::PropagationTerminationSettings,
-            std::shared_ptr<tp::PropagationTerminationSettings>>
-            PropagationTerminationSettings_(m, "PropagationTerminationSettings",
+            std::shared_ptr<tp::PropagationTerminationSettings>>(m, "PropagationTerminationSettings",
                                             get_docstring("PropagationTerminationSettings").c_str());
 
     py::class_<
