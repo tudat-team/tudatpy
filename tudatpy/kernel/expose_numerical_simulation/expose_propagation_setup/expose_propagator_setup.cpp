@@ -47,46 +47,58 @@ void expose_propagator_setup(py::module &m) {
                                                            get_docstring("PropagationPrintSettings").c_str())
             .def_property("print_dependent_variable_indices",
                           &tp::PropagationPrintSettings::getPrintDependentVariableData,
-                          &tp::PropagationPrintSettings::setPrintDependentVariableData )
+                          &tp::PropagationPrintSettings::setPrintDependentVariableData,
+                          get_docstring("PropagationPrintSettings.print_dependent_variable_indices").c_str() )
             .def_property("print_state_indices",
                           &tp::PropagationPrintSettings::getPrintStateData,
-                          &tp::PropagationPrintSettings::setPrintStateData )
+                          &tp::PropagationPrintSettings::setPrintStateData,
+                          get_docstring("PropagationPrintSettings.print_state_indices").c_str() )
             .def_property("print_number_of_function_evaluations",
                           &tp::PropagationPrintSettings::getPrintNumberOfFunctionEvaluations,
-                          &tp::PropagationPrintSettings::setPrintNumberOfFunctionEvaluations )
+                          &tp::PropagationPrintSettings::setPrintNumberOfFunctionEvaluations,
+                          get_docstring("PropagationPrintSettings.print_number_of_function_evaluations").c_str() )
             .def_property("print_propagation_clock_time",
                           &tp::PropagationPrintSettings::getPrintPropagationTime,
-                          &tp::PropagationPrintSettings::setPrintPropagationTime )
+                          &tp::PropagationPrintSettings::setPrintPropagationTime,
+                          get_docstring("PropagationPrintSettings.print_propagation_clock_time").c_str() )
             .def_property("print_termination_reason",
                           &tp::PropagationPrintSettings::getPrintTerminationReason,
-                          &tp::PropagationPrintSettings::setPrintTerminationReason )
+                          &tp::PropagationPrintSettings::setPrintTerminationReason,
+                          get_docstring("PropagationPrintSettings.print_termination_reason").c_str() )
             .def_property("state_print_interval",
                           &tp::PropagationPrintSettings::getStatePrintInterval,
-                          &tp::PropagationPrintSettings::setStatePrintInterval )
+                          &tp::PropagationPrintSettings::setStatePrintInterval,
+                          get_docstring("PropagationPrintSettings.state_print_interval").c_str() )
             .def_property("print_initial_and_final_conditions",
                           &tp::PropagationPrintSettings::getPrintInitialAndFinalConditions,
-                          &tp::PropagationPrintSettings::setPrintInitialAndFinalConditions )
+                          &tp::PropagationPrintSettings::setPrintInitialAndFinalConditions,
+                          get_docstring("PropagationPrintSettings.print_initial_and_final_conditions").c_str() )
             .def("enable_all_printing",
-                          py::overload_cast< >( &tp::PropagationPrintSettings::enableAllPrinting ) )
+                 py::overload_cast< >( &tp::PropagationPrintSettings::enableAllPrinting ),
+                 get_docstring("PropagationPrintSettings.enable_all_printing").c_str() )
             .def("disable_all_printing",
-                          &tp::PropagationPrintSettings::disableAllPrinting );
+                 &tp::PropagationPrintSettings::disableAllPrinting,
+                 get_docstring("PropagationPrintSettings.disable_all_printing").c_str() );
 
     py::class_<tp::PropagatorProcessingSettings,
             std::shared_ptr<tp::PropagatorProcessingSettings>>(m, "PropagatorProcessingSettings",
                                                            get_docstring("PropagatorProcessingSettings").c_str())
             .def_property("set_integrated_result",
                           &tp::PropagatorProcessingSettings::getSetIntegratedResult,
-                          &tp::PropagatorProcessingSettings::setIntegratedResult )
+                          &tp::PropagatorProcessingSettings::setIntegratedResult,
+                          get_docstring("PropagatorProcessingSettings.set_integrated_result").c_str() )
             .def_property("clear_numerical_solution",
                           &tp::PropagatorProcessingSettings::getClearNumericalSolutions,
-                          &tp::PropagatorProcessingSettings::setClearNumericalSolutions );
+                          &tp::PropagatorProcessingSettings::setClearNumericalSolutions,
+                          get_docstring("PropagatorProcessingSettings.clear_numerical_solution").c_str() );
 
     py::class_<tp::SingleArcPropagatorProcessingSettings,
             std::shared_ptr<tp::SingleArcPropagatorProcessingSettings>,
             tp::PropagatorProcessingSettings >(m, "SingleArcPropagatorProcessingSettings",
                                            get_docstring("SingleArcPropagatorProcessingSettings").c_str())
             .def_property_readonly("print_settings",
-                                   &tp::SingleArcPropagatorProcessingSettings::getPrintSettings );
+                                   &tp::SingleArcPropagatorProcessingSettings::getPrintSettings,
+                                   get_docstring("SingleArcPropagatorProcessingSettings.print_settings").c_str() );
 
     py::class_<tp::MultiArcPropagatorProcessingSettings,
             std::shared_ptr<tp::MultiArcPropagatorProcessingSettings>,

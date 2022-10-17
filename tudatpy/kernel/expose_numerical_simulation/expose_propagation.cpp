@@ -208,19 +208,33 @@ void expose_propagation(py::module &m) {
             std::shared_ptr<tp::SingleArcPropagatorResults<double, double>>>(m, "SingleArcPropagatorResults",
                                                                              get_docstring("SingleArcPropagatorResults").c_str())
             .def_property_readonly("state_history",
-                    &tp::SingleArcPropagatorResults<double, double>::getEquationsOfMotionNumericalSolution )
+                                   &tp::SingleArcPropagatorResults<double, double>::getEquationsOfMotionNumericalSolution,
+                                   get_docstring("SingleArcPropagatorResults.state_history").c_str() )
             .def_property_readonly("unprocessed_state_history",
-                                   &tp::SingleArcPropagatorResults<double, double>::getEquationsOfMotionNumericalSolutionRaw )
+                                   &tp::SingleArcPropagatorResults<double, double>::getEquationsOfMotionNumericalSolutionRaw,
+                                   get_docstring("SingleArcPropagatorResults.unprocessed_state_history").c_str() )
             .def_property_readonly("dependent_variable_history",
-                                   &tp::SingleArcPropagatorResults<double, double>::getDependentVariableHistory )
+                                   &tp::SingleArcPropagatorResults<double, double>::getDependentVariableHistory,
+                                   get_docstring("SingleArcPropagatorResults.dependent_variable_history").c_str() )
             .def_property_readonly("cumulative_computation_time_history",
-                                   &tp::SingleArcPropagatorResults<double, double>::getCumulativeComputationTimeHistory )
+                                   &tp::SingleArcPropagatorResults<double, double>::getCumulativeComputationTimeHistory,
+                                   get_docstring("SingleArcPropagatorResults.cumulative_computation_time_history").c_str() )
             .def_property_readonly("cumulative_number_of_function_evaluations",
-                                   &tp::SingleArcPropagatorResults<double, double>::getCumulativeNumberOfFunctionEvaluations )
+                                   &tp::SingleArcPropagatorResults<double, double>::getCumulativeNumberOfFunctionEvaluations,
+                                   get_docstring("SingleArcPropagatorResults.cumulative_number_of_function_evaluations").c_str() )
             .def_property_readonly("termination_details",
-                                   &tp::SingleArcPropagatorResults<double, double>::getPropagationTerminationReason )
+                                   &tp::SingleArcPropagatorResults<double, double>::getPropagationTerminationReason,
+                                   get_docstring("SingleArcPropagatorResults.termination_details").c_str() )
             .def_property_readonly("integration_completed_successfully",
-                                   &tp::SingleArcPropagatorResults<double, double>::integrationCompletedSuccessfully);
+                                   &tp::SingleArcPropagatorResults<double, double>::integrationCompletedSuccessfully,
+                                   get_docstring("SingleArcPropagatorResults.integration_completed_successfully").c_str() )
+            .def_property_readonly("dependent_variable_ids",
+                                   &tp::SingleArcPropagatorResults<double, double>::getDependentVariableId,
+                                   get_docstring("SingleArcPropagatorResults.dependent_variable_ids").c_str() )
+            .def_property_readonly("state_ids",
+                                   &tp::SingleArcPropagatorResults<double, double>::getStateIds,
+                                   get_docstring("SingleArcPropagatorResults.state_ids").c_str() );
+
 
 }
 }// namespace propagation
