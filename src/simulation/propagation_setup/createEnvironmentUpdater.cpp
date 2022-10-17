@@ -364,10 +364,10 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                                 acceleratedBodyIterator->first );
                     singleAccelerationUpdateNeeds[ body_mass_update ].push_back(
                                 acceleratedBodyIterator->first );
-                    for( unsigned int i = 0; i < radiationPressureInterface->getOccutingBodies( ).size( ); i++ )
+                    for( unsigned int i = 0; i < radiationPressureInterface->getOccultingBodies( ).size( ); i++ )
                     {
                         singleAccelerationUpdateNeeds[ body_translational_state_update ].push_back(
-                                    radiationPressureInterface->getOccutingBodies( ).at( i ) );
+                                    radiationPressureInterface->getOccultingBodies( ).at( i ) );
                     }
                     break;
                 }

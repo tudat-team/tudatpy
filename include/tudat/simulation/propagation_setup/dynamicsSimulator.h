@@ -409,8 +409,10 @@ class SingleArcPropagatorResults
 public:
 
     SingleArcPropagatorResults( const std::map< std::pair< int, int >, std::string >& dependentVariableIds,
-                                const std::shared_ptr< SingleArcPropagatorOutputSettings >& outputSettings ):
+                                const std::map< std::pair< int, int >, std::string >& stateIds,
+                                const std::shared_ptr< SingleArcPropagatorProcessingSettings >& outputSettings ):
         dependentVariableIds_( dependentVariableIds ),
+        stateIds_( stateIds ),
         outputSettings_( outputSettings ),
         propagationIsPerformed_( false ),
         propagationTerminationReason_( std::make_shared< PropagationTerminationDetails >( propagation_never_run ) )
@@ -455,11 +457,27 @@ public:
 
 //    std::map< std::pair< int, int >, std::string > dependentVariableIds_;
 
-//    std::shared_ptr< SingleArcPropagatorOutputSettings > outputSettings_;
+//    std::shared_ptr< SingleArcPropagatorProcessingSettings > outputSettings_;
 
     std::shared_ptr< PropagationTerminationDetails > getPropagationTerminationReason( )
     {
         return propagationTerminationReason_;
+    }
+
+    bool integrationCompletedSuccessfully( ) const
+    {
+        return ( propagationTerminationReason_->getPropagationTerminationReason( ) == termination_condition_reached );
+    }
+
+
+    std::map< std::pair< int, int >, std::string > getDependentVariableId( )
+    {
+        return dependentVariableIds_;
+    }
+
+    std::map< std::pair< int, int >, std::string > getStateIds( )
+    {
+        return stateIds_;
     }
 
 private:
@@ -494,9 +512,12 @@ private:
     //! Map listing starting entry of dependent variables in output vector, along with associated ID.
     std::map< std::pair< int, int >, std::string > dependentVariableIds_;
 
-    std::shared_ptr< SingleArcPropagatorOutputSettings > outputSettings_;
+    std::map< std::pair< int, int >, std::string > stateIds_;
+
+    std::shared_ptr< SingleArcPropagatorProcessingSettings > outputSettings_;
 
     bool propagationIsPerformed_;
+
 
     //! Event that triggered the termination of the propagation
     std::shared_ptr< PropagationTerminationDetails > propagationTerminationReason_;
@@ -647,6 +668,7 @@ public:
                     integratorSettings_->initialTimeStep_, dynamicsStateDerivative_->getStateDerivativeModels( ),
                     predefinedStateDerivativeModels.stateDerivativePartials_ );
 
+        stateIds_ = getProcessedStateStrings(getIntegratedTypeAndBodyList( propagatorSettings_ ) );
         if( propagatorSettings_->getDependentVariablesToSave( ).size( ) > 0 )
         {
             std::pair< std::function< Eigen::VectorXd( ) >, std::map< std::pair< int, int >, std::string > > dependentVariableData =
@@ -661,7 +683,7 @@ public:
         }
 
         propagationResults_= std::make_shared< SingleArcPropagatorResults< StateScalarType, TimeType > >(
-                    dependentVariableIds_, propagatorSettings_->getOutputSettingsWithCheck( ) );
+                    dependentVariableIds_, stateIds_, propagatorSettings_->getOutputSettingsWithCheck( ) );
 
 
         stateDerivativeFunction_ =
@@ -1060,7 +1082,7 @@ public:
 
         if( outputSettings_->getPrintSettings( )->getPrintStateData( ) )
         {
-            printPropagatedStateVectorContent(getProcessedStateStrings(getIntegratedTypeAndBodyList(propagatorSettings_)));
+            printPropagatedStateVectorContent( stateIds_ );
         }
 
         if( outputSettings_->getPrintSettings( )->getPrintDependentVariableData( ) )
@@ -1242,13 +1264,15 @@ protected:
 
     std::map< std::pair< int, int >, std::string > dependentVariableIds_;
 
+    std::map< std::pair< int, int >, std::string > stateIds_;
+
     //! Function to post-process state (during numerical propagation)
     std::function< void( Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& ) > statePostProcessingFunction_;
 
     //! Object for retrieving ephemerides for transformation of reference frame (origins)
     std::shared_ptr< ephemerides::ReferenceFrameManager > frameManager_;
 
-    std::shared_ptr< SingleArcPropagatorOutputSettings > outputSettings_;
+    std::shared_ptr< SingleArcPropagatorProcessingSettings > outputSettings_;
 
     std::shared_ptr< SingleArcPropagatorResults< StateScalarType, TimeType > > propagationResults_;
 
