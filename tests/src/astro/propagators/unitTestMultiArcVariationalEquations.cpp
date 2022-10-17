@@ -1,4 +1,4 @@
-/* git    Copyright (c) 2010-2019, Delft University of Technology
+/*    Copyright (c) 2010-2019, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-//#define BOOST_TEST_DYN_LINK
-//#define BOOST_TEST_MAIN
+#define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_MAIN
 
 #include <string>
 #include <thread>
@@ -34,11 +34,11 @@
 #include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
 #include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
 
-//namespace tudat
-//{
+namespace tudat
+{
 
-//namespace unit_tests
-//{
+namespace unit_tests
+{
 
 //Using declarations.
 using namespace tudat;
@@ -53,7 +53,7 @@ using namespace tudat::orbital_element_conversions;
 using namespace tudat::ephemerides;
 using namespace tudat::propagators;
 
-//BOOST_AUTO_TEST_SUITE( test_variational_equation_calculation )
+BOOST_AUTO_TEST_SUITE( test_variational_equation_calculation )
 
 
 template< typename TimeType = double , typename StateScalarType  = double >
@@ -289,8 +289,7 @@ executeMultiArcEarthMoonSimulation(
 }
 
 
-//BOOST_AUTO_TEST_CASE( testEarthMoonMultiArcVariationalEquationCalculation )
-int main( )
+BOOST_AUTO_TEST_CASE( testEarthMoonMultiArcVariationalEquationCalculation )
 {
     std::pair< std::vector< Eigen::MatrixXd >, std::vector< Eigen::VectorXd > > currentOutput;
 
@@ -410,21 +409,21 @@ int main( )
                 }
 
                 // Check results
-//                for( unsigned int arc = 0; arc < manualPartial.size( ); arc++ )
-//                {
-//                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-//                                stateTransitionAndSensitivityMatrixAtEpoch.at( arc ).block( 0, 0, 12, 15 ),
-//                                manualPartial.at( arc ).block( 0, 0, 12, 15 ), 5.0E-4 );
-//                }
+                for( unsigned int arc = 0; arc < manualPartial.size( ); arc++ )
+                {
+                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                                stateTransitionAndSensitivityMatrixAtEpoch.at( arc ).block( 0, 0, 12, 15 ),
+                                manualPartial.at( arc ).block( 0, 0, 12, 15 ), 5.0E-4 );
+                }
             }
         }
     }
 }
 
 
-//BOOST_AUTO_TEST_SUITE_END( )
+BOOST_AUTO_TEST_SUITE_END( )
 
-//}
+}
 
-//}
+}
 
