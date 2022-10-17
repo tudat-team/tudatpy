@@ -74,7 +74,7 @@ public:
             std::vector< std::function< Eigen::Vector3d( ) > >( ),
             const std::vector< double > occultingBodyRadii = std::vector< double > ( ),
             const double sourceRadius = 0.0,
-            const std::vector< std::string > occutingBodies = std::vector< std::string >( ) ):
+            const std::vector< std::string > occultingBodies = std::vector< std::string >( ) ):
         sourcePower_( sourcePower ), sourcePositionFunction_( sourcePositionFunction ),
         targetPositionFunction_( targetPositionFunction ),
         radiationPressureCoefficient_( radiationPressureCoefficient ),
@@ -83,7 +83,7 @@ public:
         occultingBodyPositions_( occultingBodyPositions ),
         occultingBodyRadii_( occultingBodyRadii ),
         sourceRadius_( sourceRadius ),
-        occutingBodies_( occutingBodies ),
+        occultingBodies_( occultingBodies ),
         currentRadiationPressure_( TUDAT_NAN ),
         currentSolarVector_( Eigen::Vector3d::Zero( ) ),
         currentTime_( TUDAT_NAN ){ }
@@ -98,7 +98,7 @@ public:
             std::vector< std::function< Eigen::Vector3d( ) > >( ),
             const std::vector< double > occultingBodyRadii = std::vector< double > ( ),
             const double sourceRadius = 0.0,
-            const std::vector< std::string > occutingBodies = std::vector< std::string >( )  ):
+            const std::vector< std::string > occultingBodies = std::vector< std::string >( )  ):
         sourcePower_( sourcePower ), sourcePositionFunction_( sourcePositionFunction ),
         targetPositionFunction_( targetPositionFunction ),
         radiationPressureCoefficient_( TUDAT_NAN ),
@@ -107,7 +107,7 @@ public:
         occultingBodyPositions_( occultingBodyPositions ),
         occultingBodyRadii_( occultingBodyRadii ),
         sourceRadius_( sourceRadius ),
-        occutingBodies_( occutingBodies ),
+        occultingBodies_( occultingBodies ),
         currentRadiationPressure_( TUDAT_NAN ),
         currentSolarVector_( Eigen::Vector3d::Zero( ) ),
         currentTime_( TUDAT_NAN ){ }
@@ -269,9 +269,9 @@ public:
         return sourceRadius_;
     }
 
-    std::vector< std::string > getOccutingBodies( )
+    std::vector< std::string > getOccultingBodies( )
     {
-        return occutingBodies_;
+        return occultingBodies_;
     }
 
 
@@ -305,7 +305,7 @@ protected:
     //! Radius of the source body.
     double sourceRadius_;
 
-    std::vector< std::string > occutingBodies_;
+    std::vector< std::string > occultingBodies_;
 
 
     //! Current radiation pressure due to source at target (in N/m^2).
