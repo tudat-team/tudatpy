@@ -40,6 +40,7 @@
 #include "tudat/astro/orbit_determination/estimatable_parameters/desaturationDeltaV.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/longitudeLibrationAmplitude.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/constantThrust.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/iauRotationModelParameters.h"
 #include "tudat/astro/relativity/metric.h"
 #include "tudat/astro/basic_astro/accelerationModelTypes.h"
 #include "tudat/simulation/estimation_setup/estimatableParameterSettings.h"
@@ -1774,6 +1775,36 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
             {
                 vectorParameterToEstimate = std::make_shared< PolarMotionAmplitude >
                         ( std::dynamic_pointer_cast< PlanetaryRotationModel > ( currentBody->getRotationalEphemeris( ) ), currentBodyName);
+            }
+            break;
+        }
+        case nominal_rotation_pole_position:
+        {
+            if( std::dynamic_pointer_cast< IauRotationModel >( currentBody->getRotationalEphemeris( ) ) == nullptr )
+            {
+                std::string errorMessage = "Warning, no iau rotational ephemeris" + currentBodyName +
+                        " when making nominal rotation pole parameter";
+                throw std::runtime_error( errorMessage );
+            }
+            else
+            {
+                vectorParameterToEstimate = std::make_shared< NominalRotationPoleParameter >
+                        ( std::dynamic_pointer_cast< IauRotationModel > ( currentBody->getRotationalEphemeris( ) ), currentBodyName);
+            }
+            break;
+        }
+        case rotation_pole_position_rate:
+        {
+            if( std::dynamic_pointer_cast< IauRotationModel >( currentBody->getRotationalEphemeris( ) ) == nullptr )
+            {
+                std::string errorMessage = "Warning, no iau rotational ephemeris" + currentBodyName +
+                        " when making rotation pole rate parameter";
+                throw std::runtime_error( errorMessage );
+            }
+            else
+            {
+                vectorParameterToEstimate = std::make_shared< RotationPoleRateParameter >
+                        ( std::dynamic_pointer_cast< IauRotationModel > ( currentBody->getRotationalEphemeris( ) ), currentBodyName);
             }
             break;
         }

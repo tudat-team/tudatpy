@@ -105,6 +105,9 @@ constexpr long double getJulianYearInDays< long double >( )
 //! Julian year in seconds. Result of JULIAN_YEAR_IN_DAYS * JULIAN_DAY.
 constexpr static double JULIAN_YEAR = 3.15576e7;
 
+//! 100 Julian years in seconds. Result of 100.0 * JULIAN_YEAR_IN_DAYS * JULIAN_DAY.
+constexpr static double JULIAN_CENTURY = 3.15576e9;
+
 //! Sidereal day in seconds (NASA, 2012).
 constexpr static double SIDEREAL_DAY = 86164.09054;
 
