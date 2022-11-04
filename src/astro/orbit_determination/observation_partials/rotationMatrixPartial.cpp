@@ -215,6 +215,50 @@ std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameDer
 
 }
 
+std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameWrtNominalPolePosition(
+        const std::shared_ptr< ephemerides::IauRotationModel > rotationModel,
+        const double ephemerisTime )
+{
+    rotationModel->updateRotationMatrices( ephemerisTime );
+    std::vector< Eigen::Matrix3d > rotationMatrixPartials;
+    rotationMatrixPartials.push_back(
+                ( rotationModel->getCurrentMeridianRotationAboutZAxis( ) *
+                  rotationModel->getCurrentDeclinationRotationAboutXAxis( ) *
+                  reference_frames::getDerivativeOfZAxisRotationWrtAngle( rotationModel->getCurrentRightAscensionRotationAboutZAxis( ) ) ).transpose( ) );
+    rotationMatrixPartials.push_back(
+                ( -rotationModel->getCurrentMeridianRotationAboutZAxis( ) *
+                  reference_frames::getDerivativeOfXAxisRotationWrtAngle( rotationModel->getCurrentDeclinationRotationAboutXAxis( ) ) *
+                  rotationModel->getCurrentRightAscensionRotationAboutZAxis( ) ).transpose( ) );;
+    return rotationMatrixPartials;
+
+}
+
+//std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtNominalPolePosition(
+//        const std::shared_ptr< ephemerides::IauRotationModel > rotationModel,
+//        const double ephemerisTime )
+//{
+
+//}
+
+std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameWrtPolePositionRate(
+        const std::shared_ptr< ephemerides::IauRotationModel > rotationModel,
+        const double ephemerisTime )
+{
+    rotationModel->updateRotationMatrices( ephemerisTime );
+    std::vector< Eigen::Matrix3d > rotationMatrixPartials;
+    rotationMatrixPartials.push_back(
+                ephemerisTime * ( rotationModel->getCurrentMeridianRotationAboutZAxis( ) *
+                  rotationModel->getCurrentDeclinationRotationAboutXAxis( ) *
+                  reference_frames::getDerivativeOfZAxisRotationWrtAngle( rotationModel->getCurrentRightAscensionRotationAboutZAxis( ) ) ).transpose( ) );
+    rotationMatrixPartials.push_back(
+                ephemerisTime * ( -rotationModel->getCurrentMeridianRotationAboutZAxis( ) *
+                  reference_frames::getDerivativeOfXAxisRotationWrtAngle( rotationModel->getCurrentDeclinationRotationAboutXAxis( ) ) *
+                  rotationModel->getCurrentRightAscensionRotationAboutZAxis( ) ).transpose( ) );
+    return rotationMatrixPartials;
+
+}
+
+
 //! Function to calculate a partial of rotation matrix from a body-fixed to inertial frame w.r.t.
 //! polar motion amplitude.
 std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameWrtPolarMotionAmplitude(

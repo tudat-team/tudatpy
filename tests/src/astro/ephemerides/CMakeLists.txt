@@ -118,6 +118,15 @@ TUDAT_ADD_TEST_CASE(TwoLineElementsEphemeris
        ${Tudat_PROPAGATION_LIBRARIES}
         )
 
+TUDAT_ADD_TEST_CASE(IauRotationalEphemeris
+        PRIVATE_LINKS
+        tudat_ephemerides
+        tudat_reference_frames
+        tudat_spice_interface
+        tudat_basic_astrodynamics
+        tudat_basic_mathematics
+        )
+
 if(TUDAT_BUILD_WITH_SOFA_INTERFACE)
 
     TUDAT_ADD_TEST_CASE(ItrsToGcrsRotationModel

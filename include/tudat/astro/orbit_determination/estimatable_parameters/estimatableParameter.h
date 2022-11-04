@@ -69,7 +69,9 @@ enum EstimatebleParametersEnum
     constant_thrust_magnitude_parameter,
     constant_specific_impulse,
     constant_time_drift_observation_bias,
-    arc_wise_time_drift_observation_bias
+    arc_wise_time_drift_observation_bias,
+    nominal_rotation_pole_position,
+    rotation_pole_position_rate
 };
 
 std::string getParameterTypeString( const EstimatebleParametersEnum parameterType );

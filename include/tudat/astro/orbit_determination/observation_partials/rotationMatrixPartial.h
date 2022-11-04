@@ -21,6 +21,7 @@
 #include "tudat/astro/ephemerides/simpleRotationalEphemeris.h"
 #include "tudat/astro/ephemerides/synchronousRotationalEphemeris.h"
 #include "tudat/astro/ephemerides/fullPlanetaryRotationModel.h"
+#include "tudat/astro/ephemerides/iauRotationModel.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
 #include "tudat/math/basic/linearAlgebra.h"
 
@@ -118,6 +119,18 @@ std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameDer
         const std::shared_ptr< ephemerides::PlanetaryOrientationAngleCalculator > planetaryOrientationCalculator,
         const Eigen::Quaterniond &rotationFromMeanOrbitToIcrf,
         const Eigen::Quaterniond& polarMotionRotation,
+        const double ephemerisTime );
+
+std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameWrtNominalPolePosition(
+        const std::shared_ptr< ephemerides::IauRotationModel > rotationModel,
+        const double ephemerisTime );
+
+//std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtNominalPolePosition(
+//        const std::shared_ptr< ephemerides::IauRotationModel > rotationModel,
+//        const double ephemerisTime );
+
+std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameWrtPolePositionRate(
+        const std::shared_ptr< ephemerides::IauRotationModel > rotationModel,
         const double ephemerisTime );
 
 //! Function to calculate a partial of rotation matrix derivative from a body-fixed to inertial frame w.r.t.
@@ -507,6 +520,74 @@ private:
     std::shared_ptr< ephemerides::PlanetaryRotationModel > bodyRotationModel_;
 
 };
+
+class RotationMatrixPartialWrtNominalPolePosition: public RotationMatrixPartial
+{
+public:
+
+    RotationMatrixPartialWrtNominalPolePosition(
+            const std::shared_ptr< ephemerides::IauRotationModel > bodyRotationModel ):
+        RotationMatrixPartial( bodyRotationModel ),
+        bodyRotationModel_( bodyRotationModel ){ }
+
+    ~RotationMatrixPartialWrtNominalPolePosition( ){ }
+
+    std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixToBaseFrameWrParameter(
+            const double time )
+    {
+        return  calculatePartialOfRotationMatrixFromLocalFrameWrtNominalPolePosition(
+                bodyRotationModel_, time );
+    }
+
+    std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter(
+            const double time )
+    {
+        throw std::runtime_error( "Error, rotation matrix derivative w.r.t. nominal pole no yet implemented" );
+//        return calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtNominalPolePosition(
+//                    bodyRotationModel_, time );
+
+    }
+
+private:
+
+    std::shared_ptr< ephemerides::IauRotationModel > bodyRotationModel_;
+
+};
+
+
+class RotationMatrixPartialWrtPolePositionRate: public RotationMatrixPartial
+{
+public:
+
+    RotationMatrixPartialWrtPolePositionRate(
+            const std::shared_ptr< ephemerides::IauRotationModel > bodyRotationModel ):
+        RotationMatrixPartial( bodyRotationModel ),
+        bodyRotationModel_( bodyRotationModel ){ }
+
+    ~RotationMatrixPartialWrtPolePositionRate( ){ }
+
+    std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixToBaseFrameWrParameter(
+            const double time )
+    {
+        return calculatePartialOfRotationMatrixFromLocalFrameWrtPolePositionRate(
+                bodyRotationModel_, time );
+    }
+
+    std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter(
+            const double time )
+    {
+        throw std::runtime_error( "Error, rotation matrix derivative w.r.t. pole position rate not yet implemented" );
+//        return calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtNominalPolePosition(
+//                    bodyRotationModel_, time );
+
+    }
+
+private:
+
+    std::shared_ptr< ephemerides::IauRotationModel > bodyRotationModel_;
+
+};
+
 
 //! Class to calculate a rotation matrix from a body-fixed to inertial frame w.r.t. polar motion amplitudes.
 /*!

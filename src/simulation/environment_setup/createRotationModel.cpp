@@ -12,6 +12,7 @@
 #include "tudat/astro/ephemerides/simpleRotationalEphemeris.h"
 #include "tudat/astro/ephemerides/fullPlanetaryRotationModel.h"
 #include "tudat/astro/ephemerides/tabulatedRotationalEphemeris.h"
+#include "tudat/astro/ephemerides/iauRotationModel.h"
 #include "tudat/interface/spice/spiceRotationalEphemeris.h"
 #include "tudat/simulation/environment_setup/createFlightConditions.h"
 #include "tudat/simulation/environment_setup/createRotationModel.h"
@@ -580,6 +581,29 @@ std::shared_ptr< ephemerides::RotationalEphemeris > createRotationModel(
                         planetaryRotationModelSettings->getAngleJ( ),
                         planetaryOrientationAnglesCalculator,
                         planetaryRotationModelSettings->getOriginalFrame( ), planetaryRotationModelSettings->getTargetFrame( ) );
+        }
+
+        break;
+    }
+    case iau_rotation_model:
+    {
+        std::shared_ptr< IauRotationModelSettings > iauRotationModelSettings =
+                std::dynamic_pointer_cast< IauRotationModelSettings >( rotationModelSettings );
+        if( iauRotationModelSettings == nullptr )
+        {
+            throw std::runtime_error( "Error, expected IAU rotation model settings for " + body );
+        }
+        else
+        {
+            rotationalEphemeris = std::make_shared< IauRotationModel >(
+                        iauRotationModelSettings->getOriginalFrame( ),
+                        iauRotationModelSettings->getTargetFrame( ),
+                        iauRotationModelSettings->nominalMeridian_,
+                        iauRotationModelSettings->nominalPole_,
+                        iauRotationModelSettings->rotationRate_,
+                        iauRotationModelSettings->polePrecession_,
+                        iauRotationModelSettings->meridianPeriodicTerms_,
+                        iauRotationModelSettings->polePeriodicTerms_ );
         }
 
         break;
