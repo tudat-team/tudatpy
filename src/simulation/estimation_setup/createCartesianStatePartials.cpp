@@ -9,6 +9,7 @@
  */
 
 #include "tudat/astro/ephemerides/simpleRotationalEphemeris.h"
+#include "tudat/astro/ephemerides/iauRotationModel.h"
 #include "tudat/simulation/estimation_setup/createCartesianStatePartials.h"
 
 
@@ -440,6 +441,33 @@ std::shared_ptr< RotationMatrixPartial > createRotationMatrixPartialsWrtParamete
         // Create rotation matrix partial object
         rotationMatrixPartial = std::make_shared< RotationMatrixPartialWrtPeriodicSpinVariations >(
                     std::dynamic_pointer_cast< PlanetaryRotationModel >( currentBody->getRotationalEphemeris() ));
+        break;
+    case estimatable_parameters::nominal_rotation_pole_position:
+
+        if( std::dynamic_pointer_cast< ephemerides::IauRotationModel >(
+                    currentBody->getRotationalEphemeris() ) == nullptr ){
+            std::string errorMessage = "Warning, body's rotation model is not an IAU rotational model when making"
+                                       "position w.r.t. nominal pole position partial";
+            throw std::runtime_error( errorMessage );
+        }
+
+        // Create rotation matrix partial object
+        rotationMatrixPartial = std::make_shared< RotationMatrixPartialWrtNominalPolePosition >(
+                    std::dynamic_pointer_cast< IauRotationModel >( currentBody->getRotationalEphemeris() ));
+        break;
+
+    case estimatable_parameters::rotation_pole_position_rate:
+
+        if( std::dynamic_pointer_cast< ephemerides::IauRotationModel >(
+                    currentBody->getRotationalEphemeris() ) == nullptr ){
+            std::string errorMessage = "Warning, body's rotation model is not an IAU rotational model when making"
+                                       "position w.r.t. pole position rate partial";
+            throw std::runtime_error( errorMessage );
+        }
+
+        // Create rotation matrix partial object
+        rotationMatrixPartial = std::make_shared< RotationMatrixPartialWrtPolePositionRate >(
+                    std::dynamic_pointer_cast< IauRotationModel >( currentBody->getRotationalEphemeris() ));
         break;
 
     case estimatable_parameters::polar_motion_amplitude:

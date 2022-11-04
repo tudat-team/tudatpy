@@ -132,6 +132,12 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
     case arc_wise_time_drift_observation_bias:
         parameterDescription = "arc-wise time drift observation bias ";
         break;
+    case nominal_rotation_pole_position:
+        parameterDescription = "nominal pole position ";
+        break;
+    case rotation_pole_position_rate:
+        parameterDescription = "pole position rate ";
+        break;
     default:
         std::string errorMessage = "Error when getting parameter string, did not recognize parameter " +
                 std::to_string( parameterType );
@@ -270,6 +276,12 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
     case arc_wise_time_drift_observation_bias:
         isDoubleParameter = false;
         break;
+    case nominal_rotation_pole_position:
+        isDoubleParameter = false;
+        break;
+    case rotation_pole_position_rate:
+        isDoubleParameter = false;
+        break;
     default:
         throw std::runtime_error( "Error, parameter type " + std::to_string( parameterType ) +
                                   " not found when getting parameter type" );
@@ -305,6 +317,12 @@ bool isParameterRotationMatrixProperty( const EstimatebleParametersEnum paramete
         flag = true;
         break;
     case scaled_longitude_libration_amplitude:
+        flag = true;
+        break;
+    case nominal_rotation_pole_position:
+        flag = true;
+        break;
+    case rotation_pole_position_rate:
         flag = true;
         break;
     default:
