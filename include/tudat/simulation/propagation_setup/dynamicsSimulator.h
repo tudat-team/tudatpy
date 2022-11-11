@@ -569,6 +569,7 @@ std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > validateDeprec
         singleArcPropagatorSettings->setIntegratorSettings( integratorSettings );
     }
 
+
     return singleArcPropagatorSettings;
 }
 
