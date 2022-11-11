@@ -286,14 +286,14 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
                 propagatorSettings = std::make_shared< TranslationalStatePropagatorSettings< double > >
                         ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState,
                           std::make_shared< propagators::PropagationTimeTerminationSettings >( 3200.0 ), cowell,
-                          std::make_shared< DependentVariableSaveSettings >( dependentVariables ) );
+                          dependentVariables );
             }
             else
             {
                 propagatorSettings = std::make_shared< TranslationalStatePropagatorSettings< double > >
                         ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState,
                           std::make_shared< propagators::PropagationTimeTerminationSettings >( 3200.0 ), gauss_modified_equinoctial,
-                          std::make_shared< DependentVariableSaveSettings >( dependentVariables ) );
+                          dependentVariables );
             }
 
             std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToAdd;
@@ -319,7 +319,7 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
                         std::make_shared< SingleDependentVariableSaveSettings >(
                             body_fixed_relative_cartesian_position,  "Apollo", "Moon" ) );
 
-            addDepedentVariableSettings< double >( dependentVariablesToAdd, propagatorSettings );
+            addDepedentVariableSettings< double, double >( dependentVariablesToAdd, propagatorSettings );
 
             std::shared_ptr< IntegratorSettings< > > integratorSettings =
                     std::make_shared< IntegratorSettings< > >
@@ -708,7 +708,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicDependentVariableOutput )
     dependentVariables.push_back( sphericalHarmonicAccelerationTermsNormDependentVariable(
                                       "Asterix", "Earth", singleTermToSave ) );
 
-    addDepedentVariableSettings< double >( dependentVariables, propagatorSettings );
+    addDepedentVariableSettings< double, double >( dependentVariables, propagatorSettings );
 
     // Create numerical integrator.
     double simulationStartEpoch = 0.0;
@@ -838,7 +838,7 @@ BOOST_AUTO_TEST_CASE( testDependentVariableEnvironmentUpdate )
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
             std::make_shared< TranslationalStatePropagatorSettings< double > >
             ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, finalEphemerisTime, cowell,
-              std::make_shared< DependentVariableSaveSettings >( dependentVariables )  );
+              dependentVariables  );
 
     // Define numerical integrator settings.
     std::shared_ptr< IntegratorSettings< > > integratorSettings =
@@ -1036,7 +1036,7 @@ BOOST_AUTO_TEST_CASE( test_GravityFieldVariationAccelerationSaving )
             std::make_shared< TranslationalStatePropagatorSettings< double > >
             ( centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState,
               double( finalEphemerisTime ), cowell,
-              std::make_shared< DependentVariableSaveSettings >( dependentVariables ) );
+              dependentVariables );
 
     // Create integrator settings
     std::shared_ptr< IntegratorSettings< double > > integratorSettings =
@@ -1253,7 +1253,7 @@ BOOST_AUTO_TEST_CASE( test_AccelerationPartialSaving )
                 std::make_shared< TranslationalStatePropagatorSettings< double > >
                 ( centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState,
                   double( finalEphemerisTime ), cowell,
-                  std::make_shared< DependentVariableSaveSettings >( dependentVariables ) );
+                  dependentVariables );
 
         // Create integrator settings
         std::shared_ptr< IntegratorSettings< double > > integratorSettings =
@@ -1492,7 +1492,7 @@ BOOST_AUTO_TEST_CASE( test_GravitationalPotentialAndLaplacianSaving )
                             gravity_field_laplacian_of_potential_dependent_variable, "Asterix", "Moon" ) );
         }
 
-        addDepedentVariableSettings< double >( dependentVariables, propagatorSettings );
+        addDepedentVariableSettings< double, double >( dependentVariables, propagatorSettings );
 
         // Create numerical integrator.
         double simulationStartEpoch = 0.0;

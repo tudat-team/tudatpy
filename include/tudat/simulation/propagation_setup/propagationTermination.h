@@ -32,6 +32,41 @@ enum PropagationTerminationReason
     nan_or_inf_detected_in_state
 };
 
+inline std::string getPropagationTerminationReasonString(
+        const PropagationTerminationReason terminationReason,
+        const bool exactFinalCondition = false )
+{
+    std::string reasonString;
+    switch( terminationReason )
+    {
+    case propagation_never_run:
+        reasonString = "Propagation was never run";
+        break;
+    case unknown_propagation_termination_reason:
+        reasonString = "Unknown termination reason";
+        break;
+    case termination_condition_reached:
+        if( !exactFinalCondition )
+        {
+            reasonString = "Propagation successful; termination condition exceeded";
+        }
+        else
+        {
+            reasonString = "Propagation successful; exact termination condition reached by iteration";
+        }
+        break;
+    case runtime_error_caught_in_propagation:
+        reasonString = "Exception caught";
+        break;
+    case nan_or_inf_detected_in_state:
+        reasonString = "NaN or Inf detected in state";
+        break;
+    default:
+        throw std::runtime_error( "Error when getting propagation termination reason string; type not recognized" );
+    }
+    return reasonString;
+}
+
 //! Base class for checking whether the numerical propagation is to be stopped at current time step or not
 /*!
  *  Base class for checking whether the numerical propagation is to be stopped at current time step or not. Derived
@@ -407,7 +442,9 @@ std::shared_ptr< PropagationTerminationCondition > createPropagationTerminationC
         const std::unordered_map< IntegratedStateType, std::vector< std::shared_ptr
         < SingleStateTypeDerivative< StateScalarType, TimeType > > > >& stateDerivativeModels =
         std::unordered_map< IntegratedStateType, std::vector< std::shared_ptr
-                < SingleStateTypeDerivative< StateScalarType, TimeType > > > >( ) )
+                < SingleStateTypeDerivative< StateScalarType, TimeType > > > >( ),
+        const std::map< propagators::IntegratedStateType, orbit_determination::StateDerivativePartialsMap >& stateDerivativePartials =
+        std::map< propagators::IntegratedStateType, orbit_determination::StateDerivativePartialsMap >( ) )
 {
     std::shared_ptr< PropagationTerminationCondition > propagationTerminationCondition;
 
@@ -444,7 +481,8 @@ std::shared_ptr< PropagationTerminationCondition > createPropagationTerminationC
         {
             dependentVariableFunction =
                     getDoubleDependentVariableFunction(
-                        dependentVariableTerminationSettings->dependentVariableSettings_, bodies, stateDerivativeModels );
+                        dependentVariableTerminationSettings->dependentVariableSettings_, bodies,
+                        stateDerivativeModels, stateDerivativePartials );
         }
         else
         {
@@ -483,7 +521,7 @@ std::shared_ptr< PropagationTerminationCondition > createPropagationTerminationC
             propagationTerminationConditionList.push_back(
                         createPropagationTerminationConditions(
                             hybridTerminationSettings->terminationSettings_.at( i ),
-                            bodies, initialTimeStep, stateDerivativeModels ) );
+                            bodies, initialTimeStep, stateDerivativeModels, stateDerivativePartials ) );
         }
         propagationTerminationCondition = std::make_shared< HybridPropagationTerminationCondition >(
                     propagationTerminationConditionList, hybridTerminationSettings->fulfillSingleCondition_,
@@ -534,6 +572,13 @@ public:
     bool getTerminationOnExactCondition( )
     {
         return terminationOnExactCondition_;
+    }
+
+    std::string getTerminationReasonString( )
+    {
+        std::string baseString = getPropagationTerminationReasonString(
+                    propagationTerminationReason_, terminationOnExactCondition_ );
+        return baseString;
     }
 
 protected:

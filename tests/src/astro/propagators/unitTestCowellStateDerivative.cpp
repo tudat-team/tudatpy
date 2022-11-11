@@ -144,13 +144,20 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
     // Create acceleration models and propagation settings.
     AccelerationMap accelerationModelMap = createAccelerationModelsMap(
                 bodies, accelerationMap, centralBodyMap );
+    std::shared_ptr< SingleArcPropagatorProcessingSettings > outputSettings =
+            std::make_shared< SingleArcPropagatorProcessingSettings >( );
+    outputSettings->setIntegratedResult( true );
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
             std::make_shared< TranslationalStatePropagatorSettings< double > >
-            ( centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState, finalEphemerisTime );
+            ( centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState, initialEphemerisTime, integratorSettings,
+              std::make_shared< PropagationTimeTerminationSettings >( finalEphemerisTime ),
+              cowell, std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
+              outputSettings );
+
 
     // Create simulation object and propagate dynamics.
     SingleArcDynamicsSimulator< > dynamicsSimulator(
-                bodies, integratorSettings, propagatorSettings, true, false, false );
+                bodies, propagatorSettings );
     std::map< double, Eigen::VectorXd > solutionSet1 = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
 
     // Define new central bodies (hierarchical system)
@@ -171,13 +178,16 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
                 bodies, accelerationMap, centralBodyMap );
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings2 =
             std::make_shared< TranslationalStatePropagatorSettings< double > >
-            ( centralBodies, accelerationModelMap2, bodiesToIntegrate, systemInitialState, finalEphemerisTime );
+            ( centralBodies, accelerationModelMap2, bodiesToIntegrate, systemInitialState, initialEphemerisTime, integratorSettings,
+              std::make_shared< PropagationTimeTerminationSettings >( finalEphemerisTime ),
+              cowell, std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
+              outputSettings );
 
 
 
     // Create new simulation object and propagate dynamics.
     SingleArcDynamicsSimulator< > dynamicsSimulator2(
-                bodies, integratorSettings, propagatorSettings2, true, false, true );
+                bodies, propagatorSettings2 );
     std::map< double, Eigen::VectorXd > solutionSet2 = dynamicsSimulator2.getEquationsOfMotionNumericalSolution( );
 
     // Create integration and propagation settings for reverse in time propagation
@@ -188,11 +198,16 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
             ( rungeKutta4, solutionSetIterator->first, -200.0 );
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings3 =
             std::make_shared< TranslationalStatePropagatorSettings< double > >
-            ( centralBodies, accelerationModelMap2, bodiesToIntegrate, systemFinalState, initialEphemerisTime );
+            ( centralBodies, accelerationModelMap2, bodiesToIntegrate, systemFinalState,
+              solutionSetIterator->first,
+              integratorSettings2,
+              std::make_shared< PropagationTimeTerminationSettings >( initialEphemerisTime ),
+              cowell, std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
+              outputSettings );
 
     // Create new simulation object and propagate dynamics backwards in time.
     SingleArcDynamicsSimulator< > dynamicsSimulator3(
-               bodies, integratorSettings2, propagatorSettings3, true, false, false );
+               bodies, propagatorSettings3 );
     std::map< double, Eigen::VectorXd > solutionSet3 = dynamicsSimulator3.getEquationsOfMotionNumericalSolution( );
 
     // Create interpolators from three numerical solutions (first one is inertial; second and third are non-inertial)
@@ -442,6 +457,7 @@ void testCowellPropagationOfKeplerOrbit( )
         std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > propagatorSettings =
                 std::make_shared< TranslationalStatePropagatorSettings< StateScalarType > >
                 ( centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState, finalEphemerisTime );
+                  //cowell, std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ), 1.0E6 );
 
         // Create dynamics simulation object.
         SingleArcDynamicsSimulator< StateScalarType, TimeType > dynamicsSimulator(

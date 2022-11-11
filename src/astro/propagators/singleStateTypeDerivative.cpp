@@ -15,6 +15,34 @@ namespace tudat
 
 namespace propagators
 {
+std::string getIntegratedStateTypString( const IntegratedStateType stateType )
+{
+    std::string stateTypeString;
+    switch( stateType )
+    {
+    case translational_state:
+        stateTypeString = "Translational state";
+        break;
+    case rotational_state:
+        stateTypeString = "Rotational state";
+        break;
+    case body_mass_state:
+        stateTypeString = "Mass state";
+        break;
+    case custom_state:
+        stateTypeString = "Custom state";
+        break;
+    case hybrid:
+        stateTypeString = "Multi-type state";
+        break;
+    default:
+        std::string errorMessage =
+                "Did not recognize state type " + std::to_string( stateType ) + "when getting string";
+       throw std::runtime_error( errorMessage );
+    }
+    return stateTypeString;
+}
+
 
 //! Get size of state for single propagated state of given type.
 int getSingleIntegrationSize( const IntegratedStateType stateType )
