@@ -200,8 +200,7 @@ public:
     std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > createLowThrustTranslationalStatePropagatorSettings(
             const std::string& bodyToPropagate,
             const std::string& centralBody,
-            const basic_astrodynamics::AccelerationMap& accelerationModelMap,
-            const std::shared_ptr< propagators::DependentVariableSaveSettings > dependentVariablesToSave );
+            const basic_astrodynamics::AccelerationMap& accelerationModelMap );
 
 
 protected:

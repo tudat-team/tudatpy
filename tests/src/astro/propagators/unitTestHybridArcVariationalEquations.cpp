@@ -113,7 +113,7 @@ executeHybridArcMarsAndOrbiterSensitivitySimulation(
                     orbiterRadiationPressureSettings, "Orbiter", bodies ) );
 
 
-    
+
     
 
 
@@ -274,6 +274,8 @@ executeHybridArcMarsAndOrbiterSensitivitySimulation(
             std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > results;
     {
         // Create dynamics simulator
+        hybridArcPropagatorSettings->getOutputSettings( )->setIntegratedResult( true );
+
         HybridArcVariationalEquationsSolver< StateScalarType, TimeType > variationalEquations =
                 HybridArcVariationalEquationsSolver< StateScalarType, TimeType >(
                     bodies, singleArcIntegratorSettings, multiArcIntegratorSettings,
@@ -299,7 +301,6 @@ executeHybridArcMarsAndOrbiterSensitivitySimulation(
             Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > testStates =
                     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( 12 );
             testStates.block( 0, 0, 6, 1 ) = bodies.at( "Mars" )->getStateInBaseFrameFromEphemeris( testEpoch );
-
             testStates.block( 6, 0, 6, 1 ) = bodies.at( "Orbiter" )->getStateInBaseFrameFromEphemeris( testEpoch );/* -
                     testStates.block( 0, 0, 6, 1 );*/
 
@@ -462,6 +463,13 @@ BOOST_AUTO_TEST_CASE( testMarsAndOrbiterHybridArcVariationalEquationCalculation 
                 TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                             stateTransitionAndSensitivityMatrixAtEpoch.at( arc ).block( 6, 6, 6, 6 ),
                             manualPartial.at( arc ).block( 6, 6, 6, 6 ), 5.0E-5 );
+                std::cout<<"New arc: "<<std::endl;
+                std::cout<<stateTransitionAndSensitivityMatrixAtEpoch.at( arc ).block( 0, 0, 6, 6 ).transpose( )<<std::endl;
+                std::cout<<manualPartial.at( arc ).block( 0, 0, 6, 6 ).transpose( )<<std::endl<<std::endl;
+
+                std::cout<<stateTransitionAndSensitivityMatrixAtEpoch.at( arc ).block( 6, 6, 6, 6 ).transpose( )<<std::endl;
+                std::cout<<manualPartial.at( arc ).block( 6, 6, 6, 6 ).transpose( )<<std::endl<<std::endl;
+
 
                 double couplingTolerance;
                 if( arc == 0 )

@@ -161,7 +161,8 @@ std::shared_ptr< electromagnetism::RadiationPressureInterface > createRadiationP
                     std::bind( &Body::getPosition, bodies.at( bodyName ) ),
                     cannonBallSettings->getRadiationPressureCoefficientFunction( ),
                     cannonBallSettings->getArea( ), occultingBodyPositions, occultingBodyRadii,
-                    sourceRadius );
+                    sourceRadius,
+                    occultingBodies );
         }
         else
         {
@@ -173,7 +174,8 @@ std::shared_ptr< electromagnetism::RadiationPressureInterface > createRadiationP
                         std::bind( &Body::getPosition, bodies.at( bodyName ) ),
                         cannonBallSettings->getRadiationPressureCoefficient( ),
                         cannonBallSettings->getArea( ), occultingBodyPositions, occultingBodyRadii,
-                        sourceRadius );
+                        sourceRadius,
+                        occultingBodies );
         }
         break;
     }

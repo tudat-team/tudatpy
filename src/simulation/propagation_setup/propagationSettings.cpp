@@ -28,8 +28,8 @@ template class CustomStatePropagatorSettings< double, Time >;
 template class CustomStatePropagatorSettings< long double, Time >;
 #endif
 
-template std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string > > > getIntegratedTypeAndBodyList< double >(
-        const std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings );
+//template std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string > > > getIntegratedTypeAndBodyList< double >(
+//        const std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings );
 
 } // namespace propagators
 

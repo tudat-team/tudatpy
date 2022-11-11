@@ -35,6 +35,7 @@ namespace unit_tests
 BOOST_AUTO_TEST_SUITE( test_hybrid_arc_state_estimation )
 
 //Using declarations.
+using namespace tudat;
 using namespace tudat::observation_models;
 using namespace tudat::orbit_determination;
 using namespace tudat::estimatable_parameters;
