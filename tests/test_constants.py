@@ -24,8 +24,6 @@ def test_constant_values():
 
     assert constants.SPEED_OF_LIGHT_LONG == 299792458.0
 
-    assert constants.GRAVITATIONAL_CONSTANT == 6.67259e-11
-
     assert constants.ASTRONOMICAL_UNIT == 149597870691.0
 
     assert constants.MOLAR_GAS_CONSTANT == 8.3144598
