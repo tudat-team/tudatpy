@@ -11,12 +11,13 @@
 #ifndef TUDATPY_EXPOSE_PROPAGATION_H
 #define TUDATPY_EXPOSE_PROPAGATION_H
 
+#include <pybind11/pybind11.h>
+#include <pybind11/chrono.h>
 #include <pybind11/eigen.h>
 #include <pybind11/functional.h>
-#include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
-
+#include <pybind11/numpy.h>
 
 namespace py = pybind11;
 

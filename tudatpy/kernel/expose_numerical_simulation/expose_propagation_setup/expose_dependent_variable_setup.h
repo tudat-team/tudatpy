@@ -25,8 +25,6 @@
 #include "tudat/simulation/propagation_setup/createTorqueModel.h"
 #include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
 #include "tudat/simulation/propagation_setup/environmentUpdater.h"
-#include "tudat/simulation/propagation_setup/propagationCR3BPFullProblem.h"
-#include "tudat/simulation/propagation_setup/propagationLambertTargeterFullProblem.h"
 #include "tudat/simulation/propagation_setup/propagationOutput.h"
 #include "tudat/simulation/propagation_setup/propagationOutputSettings.h"
 #include "tudat/simulation/propagation_setup/propagationSettings.h"
