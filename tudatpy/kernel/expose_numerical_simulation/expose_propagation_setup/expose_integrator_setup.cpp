@@ -127,7 +127,7 @@ namespace integrator {
 //                     py::arg("save_frequency") = 1,
 //                        // TODO: Discuss length of this argument: assess_propagation_termination_condition_during_integration_substeps.
 //                     py::arg("assess_propagation_termination_condition_during_integration_substeps") = false)
-                    .def_readwrite("initial_time", &tni::IntegratorSettings<double>::initialTime_);
+                    .def_readwrite("initial_time", &tni::IntegratorSettings<double>::initialTimeDeprecated_);
 
             py::class_<tni::RungeKuttaFixedStepSizeSettings<double>,
                     std::shared_ptr<tni::RungeKuttaFixedStepSizeSettings<double>>,
@@ -169,24 +169,45 @@ namespace integrator {
                   get_docstring("print_butcher_tableau").c_str());
 
             m.def("euler",
-                  &tni::eulerSettings<double>,
+                  &tni::eulerSettingsDeprecated<double>,
                   py::arg("initial_time"),
+                  py::arg("initial_time_step"),
+                  py::arg("save_frequency") = 1,
+                  py::arg("assess_termination_on_minor_steps") = false );
+
+            m.def("euler",
+                  &tni::eulerSettings<double>,
                   py::arg("initial_time_step"),
                   py::arg("save_frequency") = 1,
                   py::arg("assess_termination_on_minor_steps") = false,
                   get_docstring("euler").c_str());
 
+
+            m.def("runge_kutta_4",
+                  &tni::rungeKutta4SettingsDeprecated<double>,
+                  py::arg("initial_time"),
+                  py::arg("initial_time_step"),
+                  py::arg("save_frequency") = 1,
+                  py::arg("assess_termination_on_minor_steps") = false);
+
             m.def("runge_kutta_4",
                   &tni::rungeKutta4Settings<double>,
-                  py::arg("initial_time"),
                   py::arg("initial_time_step"),
                   py::arg("save_frequency") = 1,
                   py::arg("assess_termination_on_minor_steps") = false,
                   get_docstring("runge_kutta_4").c_str());
 
             m.def("runge_kutta_fixed_step_size",
-                  &tni::rungeKuttaFixedStepSettings<double>,
+                  &tni::rungeKuttaFixedStepSettingsDeprecated<double>,
                   py::arg("initial_time"),
+                  py::arg("initial_time_step"),
+                  py::arg("coefficient_set"),
+                  py::arg("order_to_use") = tni::RungeKuttaCoefficients::OrderEstimateToIntegrate::lower,
+                  py::arg("save_frequency") = 1,
+                  py::arg("assess_termination_on_minor_steps") = false );
+
+            m.def("runge_kutta_fixed_step_size",
+                  &tni::rungeKuttaFixedStepSettings<double>,
                   py::arg("initial_time_step"),
                   py::arg("coefficient_set"),
                   py::arg("order_to_use") = tni::RungeKuttaCoefficients::OrderEstimateToIntegrate::lower,
@@ -195,8 +216,23 @@ namespace integrator {
                   get_docstring("runge_kutta_fixed_step_size").c_str());
 
             m.def("runge_kutta_variable_step_size",
-                  &tni::rungeKuttaVariableStepSettingsScalarTolerances<double>,
+                  &tni::rungeKuttaVariableStepSettingsScalarTolerancesDeprecated<double>,
                   py::arg("initial_time"),
+                  py::arg("initial_time_step"),
+                  py::arg("coefficient_set"),
+                  py::arg("minimum_step_size"),
+                  py::arg("maximum_step_size"),
+                  py::arg("relative_error_tolerance"),
+                  py::arg("absolute_error_tolerance"),
+                  py::arg("save_frequency") = 1,
+                  py::arg("assess_termination_on_minor_steps") = false,
+                  py::arg("safety_factor") = 0.8,
+                  py::arg("maximum_factor_increase") = 4.0,
+                  py::arg("minimum_factor_increase") = 0.1,
+                  py::arg("throw_exception_if_minimum_step_exceeded") = true);
+
+            m.def("runge_kutta_variable_step_size",
+                  &tni::rungeKuttaVariableStepSettingsScalarTolerances<double>,
                   py::arg("initial_time_step"),
                   py::arg("coefficient_set"),
                   py::arg("minimum_step_size"),
@@ -212,8 +248,23 @@ namespace integrator {
                   get_docstring("runge_kutta_variable_step_size").c_str());
 
             m.def("runge_kutta_variable_step_size_vector_tolerances",
-                  &tni::rungeKuttaVariableStepSettingsVectorTolerances<double>,
+                  &tni::rungeKuttaVariableStepSettingsVectorTolerancesDeprecated<double>,
                   py::arg("initial_time"),
+                  py::arg("initial_time_step"),
+                  py::arg("coefficient_set"),
+                  py::arg("minimum_step_size"),
+                  py::arg("maximum_step_size"),
+                  py::arg("relative_error_tolerance"),
+                  py::arg("absolute_error_tolerance"),
+                  py::arg("save_frequency") = 1,
+                  py::arg("assess_termination_on_minor_steps") = false,
+                  py::arg("safety_factor") = 0.8,
+                  py::arg("maximum_factor_increase") = 4.0,
+                  py::arg("minimum_factor_increase") = 0.1,
+                  py::arg("throw_exception_if_minimum_step_exceeded") = true);
+
+            m.def("runge_kutta_variable_step_size_vector_tolerances",
+                  &tni::rungeKuttaVariableStepSettingsVectorTolerances<double>,
                   py::arg("initial_time_step"),
                   py::arg("coefficient_set"),
                   py::arg("minimum_step_size"),
@@ -229,8 +280,23 @@ namespace integrator {
                   get_docstring("runge_kutta_variable_step_size_vector_tolerances").c_str());
 
             m.def("bulirsch_stoer",
-                  &tni::bulirschStoerIntegratorSettings<double>,
+                  &tni::bulirschStoerIntegratorSettingsDeprecated<double>,
                   py::arg("initial_time"),
+                  py::arg("initial_time_step"),
+                  py::arg("extrapolation_sequence"),
+                  py::arg("maximum_number_of_steps"),
+                  py::arg("minimum_step_size"),
+                  py::arg("maximum_step_size"),
+                  py::arg("relative_error_tolerance") = 1.0E-12,
+                  py::arg("absolute_error_tolerance") = 1.0E-12,
+                  py::arg("save_frequency") = 1,
+                  py::arg("assess_termination_on_minor_steps") = false,
+                  py::arg("safety_factor") = 0.7,
+                  py::arg("maximum_factor_increase") = 10.0,
+                  py::arg("minimum_factor_increase") = 0.1);
+
+            m.def("bulirsch_stoer",
+                  &tni::bulirschStoerIntegratorSettings<double>,
                   py::arg("initial_time_step"),
                   py::arg("extrapolation_sequence"),
                   py::arg("maximum_number_of_steps"),
@@ -245,9 +311,23 @@ namespace integrator {
                   py::arg("minimum_factor_increase") = 0.1,
                   get_docstring("bulirsch_stoer").c_str());
 
+
+            m.def("adams_bashforth_moulton",
+                  &tni::adamsBashforthMoultonSettingsDeprecated<double>,
+                  py::arg("initial_time"),
+                  py::arg("initial_time_step"),
+                  py::arg("minimum_step_size"),
+                  py::arg("maximum_step_size"),
+                  py::arg("relative_error_tolerance") = 1.0E-12,
+                  py::arg("absolute_error_tolerance") = 1.0E-12,
+                  py::arg("minimum_order") = 6,
+                  py::arg("maximum_order") = 11,
+                  py::arg("save_frequency") = 1,
+                  py::arg("assess_termination_on_minor_steps") = false,
+                  py::arg("bandwidth") = 200.0);
+
             m.def("adams_bashforth_moulton",
                   &tni::adamsBashforthMoultonSettings<double>,
-                  py::arg("initial_time"),
                   py::arg("initial_time_step"),
                   py::arg("minimum_step_size"),
                   py::arg("maximum_step_size"),
