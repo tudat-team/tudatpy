@@ -560,7 +560,7 @@ namespace dependent_variable {
               get_docstring("tnw_to_inertial_rotation_matrix").c_str());
 
         m.def("rsw_to_inertial_rotation_matrix",
-              &tp::tnwToInertialFrameRotationMatrixVariable,
+              &tp::rswToInertialFrameRotationMatrixVariable,
               py::arg("body"),
               py::arg("central_body"),
               get_docstring("rsw_to_inertial_rotation_matrix").c_str());
