@@ -190,7 +190,6 @@ namespace rotation_model {
         );
 
 
-
         m.def("mars_high_accuracy",
               &tss::getHighAccuracyMarsRotationModel,
               get_docstring("mars_high_accuracy").c_str()
