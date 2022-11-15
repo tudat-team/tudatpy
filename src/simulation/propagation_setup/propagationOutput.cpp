@@ -530,7 +530,7 @@ Eigen::VectorXd getConstellationMinimumVisibleDistance(
             {
                 minimumDistanceValueAndIndex( 0 ) = currentDistance;
                 minimumDistanceValueAndIndex( 1 ) = static_cast< double >( i );
-                minimumDistanceValueAndIndex( 1 ) = currentElevationAngle;
+                minimumDistanceValueAndIndex( 2 ) = currentElevationAngle;
             }
         }
     }

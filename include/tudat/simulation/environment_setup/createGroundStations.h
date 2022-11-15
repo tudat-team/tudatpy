@@ -158,7 +158,7 @@ std::shared_ptr< ephemerides::Ephemeris > createReferencePointEphemeris(
 
 
 template< typename StateScalarType = double >
-Eigen::Matrix< StateScalarType, 3, 1 > getGroundStationStateDuringPropagation(
+Eigen::Matrix< StateScalarType, 3, 1 > getGroundStationPositionDuringPropagation(
         const std::shared_ptr< simulation_setup::Body > bodyWithLinkEnd,
         const std::string& stationName )
 {
@@ -169,7 +169,7 @@ Eigen::Matrix< StateScalarType, 3, 1 > getGroundStationStateDuringPropagation(
         throw std::runtime_error( errorMessage );
     }
 
-    return bodyWithLinkEnd->getState( ) + bodyWithLinkEnd->getCurrentRotationToGlobalFrame( ) *
+    return bodyWithLinkEnd->getPosition( ) + bodyWithLinkEnd->getCurrentRotationToGlobalFrame( ) *
             bodyWithLinkEnd->getGroundStation( stationName )->getNominalStationState( )->getCartesianPositionInTime(
                 bodyWithLinkEnd->getDoubleTimeOfCurrentState( ) );
 
