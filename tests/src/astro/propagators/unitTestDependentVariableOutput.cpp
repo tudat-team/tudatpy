@@ -1168,23 +1168,23 @@ BOOST_AUTO_TEST_CASE( test_AccelerationPartialSaving )
     bodies.createEmptyBody( "Vehicle" );
 
     // Set accelerations on Vehicle that are to be taken into account.
-    for( int test = 0; test < 3; test++ )
+    for( int test = 0; test < 5; test++ )
     {
         SelectedAccelerationMap accelerationMap;
         std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
 
-        if( test == 0 || test == 2 )
+        if( test == 0 || test == 3 || test == 4 )
         {
             accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< SphericalHarmonicAccelerationSettings >( 3, 3 ) );
         }
 
-        if( test == 1 || test == 2 )
+        if( test > 0 )
         {
             accelerationsOfVehicle[ "Moon" ].push_back( std::make_shared< AccelerationSettings >(
                                                             basic_astrodynamics::point_mass_gravity ) );
         }
 
-        if( test == 2 )
+        if( test > 2 )
         {
             accelerationsOfVehicle[ "Sun" ].push_back( std::make_shared< AccelerationSettings >(
                                                            basic_astrodynamics::point_mass_gravity ) );
@@ -1218,7 +1218,7 @@ BOOST_AUTO_TEST_CASE( test_AccelerationPartialSaving )
 
         // Create propagator settings
         std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
-        if( test == 0 || test == 2 )
+        if( test == 0 || test == 3 || test == 4 )
         {
             dependentVariables.push_back(
                         std::make_shared< AccelerationPartialWrtStateSaveSettings >(
@@ -1235,19 +1235,41 @@ BOOST_AUTO_TEST_CASE( test_AccelerationPartialSaving )
                             "Vehicle", "Earth", spherical_harmonic_gravity, "Moon" ) );
         }
 
-        if( test == 1 || test == 2 )
+        if( test == 1 || test == 3 )
         {
             dependentVariables.push_back(
                         std::make_shared< AccelerationPartialWrtStateSaveSettings >(
-                            "Vehicle", "Moon", third_body_point_mass_gravity, "Vehicle", "Earth" ) );
+                            "Vehicle", "Moon", point_mass_gravity, "Vehicle" ) );
+            dependentVariables.push_back(
+                        std::make_shared< AccelerationPartialWrtStateSaveSettings >(
+                            "Vehicle", "Moon", point_mass_gravity, "Moon" ) );
+        }
+        else if( test == 2 || test == 4 )
+        {
+            dependentVariables.push_back(
+                        std::make_shared< AccelerationPartialWrtStateSaveSettings >(
+                            "Vehicle", "Moon", third_body_point_mass_gravity, "Vehicle" ) );
+            dependentVariables.push_back(
+                        std::make_shared< AccelerationPartialWrtStateSaveSettings >(
+                            "Vehicle", "Moon", third_body_point_mass_gravity, "Moon" ) );
         }
 
-        if( test == 2 )
+        if( test == 3 )
         {
             dependentVariables.push_back(
                         std::make_shared< AccelerationPartialWrtStateSaveSettings >(
-                            "Vehicle", "Sun", third_body_point_mass_gravity, "Vehicle", "Earth" ) );
+                            "Vehicle", "Sun", point_mass_gravity, "Vehicle" ) );
         }
+        else if( test == 4 )
+        {
+            dependentVariables.push_back(
+                        std::make_shared< AccelerationPartialWrtStateSaveSettings >(
+                            "Vehicle", "Sun", third_body_point_mass_gravity, "Vehicle" ) );
+        }
+        dependentVariables.push_back(
+                std::make_shared< TotalAccelerationPartialWrtStateSaveSettings >( "Vehicle", "Vehicle" ) );
+        dependentVariables.push_back(
+                std::make_shared< TotalAccelerationPartialWrtStateSaveSettings >( "Vehicle", "Moon" ) );
 
         std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
                 std::make_shared< TranslationalStatePropagatorSettings< double > >
@@ -1302,8 +1324,9 @@ BOOST_AUTO_TEST_CASE( test_AccelerationPartialSaving )
 
         for( unsigned int i = 0; i < dependentVariableSolution.size( ) - 2; i++ )
         {
+
             Eigen::MatrixXd currentPartial;
-            if( test < 2 )
+            if( test < 3 )
             {
                 getOutputVectorInMatrixRepresentation( variableIteratorMid->second.segment( 0, 18 ), currentPartial, 3, 6 );
             }
@@ -1343,7 +1366,49 @@ BOOST_AUTO_TEST_CASE( test_AccelerationPartialSaving )
                 TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                             variableIteratorMid->second.segment( 36, 18 ), ( Eigen::VectorXd::Zero( 18 ) ),
                             std::numeric_limits< double >::epsilon( ) );
+                // Check consistency of partial of total acceleration of Vehicle w.r.t. Vehicle's translational state.
+                Eigen::VectorXd computedTotalAccelerationPartials = variableIteratorBack->second.segment( 0, 18 );
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                            computedTotalAccelerationPartials, variableIteratorBack->second.segment( 54, 18 ),
+                            std::numeric_limits< double >::epsilon( ) );
             }
+            else if ( test == 1 )
+            {
+                // Check consistency of partial of total acceleration of Vehicle w.r.t. Vehicle's translational state.
+                Eigen::VectorXd computedTotalAccelerationPartials = variableIteratorBack->second.segment( 0, 18 );
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                            computedTotalAccelerationPartials, variableIteratorBack->second.segment( 36, 18 ),
+                            std::numeric_limits< double >::epsilon( ) );
+
+                // Check consistency of partial of total acceleration of Vehicle w.r.t. Moon's translational state.
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                            variableIteratorBack->second.segment( 18, 18 ), variableIteratorBack->second.segment( 54, 18 ),
+                            std::numeric_limits< double >::epsilon( ) );
+            }
+            else if ( test == 2 )
+            {
+                // Check consistency of partial of total acceleration of Vehicle w.r.t. Vehicle's translational state.
+                Eigen::VectorXd computedTotalAccelerationPartials = Eigen::VectorXd::Zero( 18 );
+                computedTotalAccelerationPartials += variableIteratorBack->second.segment( 0, 18 );
+                computedTotalAccelerationPartials += variableIteratorBack->second.segment( 18, 18 );
+                computedTotalAccelerationPartials += variableIteratorBack->second.segment( 54, 18 );
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                            computedTotalAccelerationPartials, variableIteratorBack->second.segment( 72, 18 ),
+                            std::numeric_limits< double >::epsilon( ) );
+
+                // Check consistency of partial of total acceleration of Vehicle w.r.t. Moon's translational state.
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                            variableIteratorBack->second.segment( 36, 18 ), variableIteratorBack->second.segment( 90, 18 ),
+                            std::numeric_limits< double >::epsilon( ) );
+            }
+
+
+
+
+
+
+
+
 
             variableIteratorBack++;
             variableIteratorMid++;

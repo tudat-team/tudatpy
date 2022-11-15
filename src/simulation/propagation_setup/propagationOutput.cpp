@@ -447,6 +447,9 @@ int getDependentVariableSize(
     case gravity_field_laplacian_of_potential_dependent_variable:
         variableSize = 1;
         break;
+    case total_acceleration_partial_wrt_body_translational_state:
+        variableSize = 18;
+        break;
     default:
         std::string errorMessage = "Error, did not recognize dependent variable size of type: " +
                 std::to_string( dependentVariableSettings->dependentVariableType_ );

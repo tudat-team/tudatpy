@@ -1300,10 +1300,10 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
 
             std::shared_ptr< acceleration_partials::AccelerationPartial > partialToUse =
                     getAccelerationPartialForBody(
-                        stateDerivativePartials.at( translational_state ), accelerationPartialVariableSettings->accelerationModelType_,
+                        stateDerivativePartials.at( translational_state ),
+                        accelerationPartialVariableSettings->accelerationModelType_,
                         accelerationPartialVariableSettings->associatedBody_,
-                        accelerationPartialVariableSettings->secondaryBody_,
-                        accelerationPartialVariableSettings->thirdBody_ );
+                        accelerationPartialVariableSettings->secondaryBody_ );
 
             std::pair< std::function< void( Eigen::Block< Eigen::MatrixXd > ) >, int > partialFunction =
                     partialToUse->getDerivativeFunctionWrtStateOfIntegratedBody(
@@ -1318,6 +1318,75 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
             {
                 variableFunction = std::bind( &getVectorFunctionFromBlockFunction, partialFunction.first, 3, 6 );
             }
+
+            parameterSize = 18;
+        }
+        break;
+    }
+    case total_acceleration_partial_wrt_body_translational_state:
+    {
+        std::shared_ptr< TotalAccelerationPartialWrtStateSaveSettings > totalAccelerationPartialVariableSettings =
+                std::dynamic_pointer_cast< TotalAccelerationPartialWrtStateSaveSettings >( dependentVariableSettings );
+        if( totalAccelerationPartialVariableSettings == nullptr )
+        {
+            std::string errorMessage= "Error, inconsistent inout when creating dependent variable function of type total_acceleration_partial_wrt_body_translational_state";
+            throw std::runtime_error( errorMessage );
+        }
+        else
+        {
+            if( stateDerivativePartials.count( translational_state ) == 0 )
+            {
+                throw std::runtime_error( "Error when requesting total_acceleration_partial_wrt_body_translational_state dependent variable, no translational state partials found." );
+            }
+
+            // Retrieve model responsible for computing accelerations of requested bodies.
+            std::shared_ptr< NBodyStateDerivative< StateScalarType, TimeType > > nBodyModel =
+                    getTranslationalStateDerivativeModelForBody( totalAccelerationPartialVariableSettings->associatedBody_, stateDerivativeModels );
+
+            // Retrieve acceleration models and create partials
+            basic_astrodynamics::SingleBodyAccelerationMap accelerationModelList =
+                    nBodyModel->getFullAccelerationsMap( ).at( totalAccelerationPartialVariableSettings->associatedBody_ );
+
+            std::vector< std::pair< std::function< void( Eigen::Block< Eigen::MatrixXd > ) >, int > > partialFunctions;
+
+            // Parse all accelerations.
+            for ( basic_astrodynamics::SingleBodyAccelerationMap::iterator itr = accelerationModelList.begin( ) ;
+                  itr != accelerationModelList.end( ) ; itr++ )
+            {
+                std::string bodyExertingAcceleration = itr->first;
+
+                for ( unsigned int currentAcceleration = 0 ; currentAcceleration < itr->second.size( ) ; currentAcceleration++ )
+                {
+                    std::shared_ptr< acceleration_partials::AccelerationPartial > partialToUse =
+                            getAccelerationPartialForBody(
+                                stateDerivativePartials.at( translational_state ),
+                                basic_astrodynamics::getAccelerationModelType( itr->second[ currentAcceleration ] ),
+                                totalAccelerationPartialVariableSettings->associatedBody_,
+                                bodyExertingAcceleration );
+
+                    std::pair< std::function< void( Eigen::Block< Eigen::MatrixXd > ) >, int > partialFunction =
+                            partialToUse->getDerivativeFunctionWrtStateOfIntegratedBody(
+                                std::make_pair( totalAccelerationPartialVariableSettings->derivativeWrtBody_, "" ),
+                                propagators::translational_state );
+
+                    partialFunctions.push_back( partialFunction );
+                }
+            }
+
+            variableFunction = [ = ]( )
+            {
+                Eigen::VectorXd variable = Eigen::VectorXd::Zero( 18 );
+
+                for ( unsigned int i = 0 ; i < partialFunctions.size( ) ; i++ )
+                {
+                    if( partialFunctions[ i ].second != 0 )
+                    {
+                        variable += getVectorFunctionFromBlockFunction( partialFunctions[ i ].first, 3, 6 );
+                    }
+                }
+
+                return variable;
+            };
 
             parameterSize = 18;
         }
