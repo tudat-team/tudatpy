@@ -268,6 +268,9 @@ std::string getDependentVariableName(
     case gravity_field_laplacian_of_potential_dependent_variable:
         variableName = "Gravity field laplacian of potential";
         break;
+    case total_acceleration_partial_wrt_body_translational_state:
+        variableName = "Total acceleration partial w.r.t. translational state";
+        break;
     default:
         std::string errorMessage = "Error, dependent variable " +
                 std::to_string( propagationDependentVariables ) +
@@ -379,6 +382,22 @@ std::string getDependentVariableId(
             variableId += " w.r.t. body translational state of " + partialDependentVariableSettings->derivativeWrtBody_;
         }
     }
+
+
+    if( dependentVariableSettings->dependentVariableType_ == total_acceleration_partial_wrt_body_translational_state )
+    {
+        std::shared_ptr< TotalAccelerationPartialWrtStateSaveSettings > partialDependentVariableSettings =
+                std::dynamic_pointer_cast< TotalAccelerationPartialWrtStateSaveSettings >( dependentVariableSettings );
+        if( partialDependentVariableSettings == nullptr )
+        {
+            throw std::runtime_error( "Error when getting dependent variable type full string, expected full acceleration partial type" );
+        }
+        else
+        {
+            variableId += " w.r.t. body translational state of " + partialDependentVariableSettings->derivativeWrtBody_;
+        }
+    }
+
     return variableId;
 }
 

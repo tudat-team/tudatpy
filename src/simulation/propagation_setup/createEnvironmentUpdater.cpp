@@ -875,6 +875,8 @@ std::vector< std::string > > createEnvironmentUpdaterSettingsForDependentVariabl
         break;
     case acceleration_partial_wrt_body_translational_state:
         break;
+    case total_acceleration_partial_wrt_body_translational_state:
+        break;
     case total_spherical_harmonic_cosine_coefficient_variation:
         variablesToUpdate[ spherical_harmonic_gravity_field_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
         break;
