@@ -477,22 +477,16 @@ public:
             const std::string& bodyUndergoingAcceleration,
             const std::string& bodyExertingAcceleration,
             const basic_astrodynamics::AvailableAcceleration accelerationModelType,
-            const std::string derivativeWrtBody,
-            const std::string centralBody = "" ):
+            const std::string derivativeWrtBody ):
         SingleDependentVariableSaveSettings(
             acceleration_partial_wrt_body_translational_state, bodyUndergoingAcceleration, bodyExertingAcceleration ),
-        accelerationModelType_( accelerationModelType ), derivativeWrtBody_( derivativeWrtBody ),
-        centralBody_( centralBody ){ }
+        accelerationModelType_( accelerationModelType ), derivativeWrtBody_( derivativeWrtBody ){ }
 
     // Type of acceleration that is to be saved.
     basic_astrodynamics::AvailableAcceleration accelerationModelType_;
 
     // String denoting w.r.t. which body the derivative needs to be taken.
     std::string derivativeWrtBody_;
-
-    // String denoting the third body w.r.t. which the partial needs to be taken (in case of third body acceleration).
-    std::string centralBody_;
-
 };
 
 class CustomDependentVariableSaveSettings: public SingleDependentVariableSaveSettings
@@ -1173,11 +1167,10 @@ inline std::shared_ptr< AccelerationPartialWrtStateSaveSettings > accelerationPa
         const std::string& bodyUndergoingAcceleration,
         const std::string& bodyExertingAcceleration,
         const basic_astrodynamics::AvailableAcceleration accelerationModelType,
-        const std::string derivativeWrtBody,
-        const std::string thirdBody = "" )
+        const std::string derivativeWrtBody )
 {
     return std::make_shared< AccelerationPartialWrtStateSaveSettings >(
-            bodyUndergoingAcceleration, bodyExertingAcceleration, accelerationModelType, derivativeWrtBody, thirdBody);
+            bodyUndergoingAcceleration, bodyExertingAcceleration, accelerationModelType, derivativeWrtBody );
 }
 
 inline std::shared_ptr< SingleDependentVariableSaveSettings > totalSphericalHarmonicSineCoefficientVariation(

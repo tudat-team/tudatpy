@@ -57,7 +57,8 @@ std::string getVariableId( const std::shared_ptr< VariableSettings > variableSet
 
 
 //! Function to get a string representing a 'named identification' of a dependent variable type
-std::string getDependentVariableName( const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings )
+std::string getDependentVariableName(
+        const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings )
 {
 
     PropagationDependentVariables propagationDependentVariables = dependentVariableSettings->dependentVariableType_;
@@ -236,8 +237,22 @@ std::string getDependentVariableName( const std::shared_ptr< SingleDependentVari
         variableName = "Total spherical-harmonic sine coefficient variation ";
         break;
     case acceleration_partial_wrt_body_translational_state:
-        variableName = "Acceleration partial w.r.t body state ";
+    {
+        std::shared_ptr< AccelerationPartialWrtStateSaveSettings > partialDependentVariableSettings =
+                std::dynamic_pointer_cast< AccelerationPartialWrtStateSaveSettings >( dependentVariableSettings );
+        if( partialDependentVariableSettings == nullptr )
+        {
+            throw std::runtime_error( "Error when getting dependent variable type string, expected acceleration partial type" );
+        }
+        else
+        {
+            std::string accelerationName = basic_astrodynamics::getAccelerationModelName(
+                        partialDependentVariableSettings->accelerationModelType_ );
+            accelerationName[ 0 ] = std::toupper( accelerationName[ 0 ] );
+            variableName =  accelerationName + "acceleration partial";
+        }
         break;
+    }
     case current_body_mass_dependent_variable:
         variableName = "Current body mass ";
         break;
@@ -314,7 +329,6 @@ std::string getDependentVariableId(
                     reference_frames::getAerodynamicFrameName( rotationDependentVariableSettings->targetFrame_ );
         }
     }
-
     else if( dependentVariableSettings->dependentVariableType_ == relative_body_aerodynamic_orientation_angle_variable )
     {
         std::shared_ptr< BodyAerodynamicAngleVariableSaveSettings > angleDependentVariableSettings =
@@ -333,7 +347,8 @@ std::string getDependentVariableId(
     if( ( dependentVariableSettings->dependentVariableType_ == single_acceleration_dependent_variable ) ||
             ( dependentVariableSettings->dependentVariableType_ == single_acceleration_norm_dependent_variable ) ||
             ( dependentVariableSettings->dependentVariableType_ == spherical_harmonic_acceleration_terms_dependent_variable ) ||
-            ( dependentVariableSettings->dependentVariableType_ == spherical_harmonic_acceleration_norm_terms_dependent_variable ) )
+            ( dependentVariableSettings->dependentVariableType_ == spherical_harmonic_acceleration_norm_terms_dependent_variable )  ||
+            ( dependentVariableSettings->dependentVariableType_ == acceleration_partial_wrt_body_translational_state ) )
     {
         variableId += ", acting on " + dependentVariableSettings->associatedBody_;
         if( dependentVariableSettings->secondaryBody_ != dependentVariableSettings->associatedBody_ )
@@ -349,6 +364,20 @@ std::string getDependentVariableId(
             variableId += " w.r.t. " + dependentVariableSettings->secondaryBody_;
         }
 
+    }
+
+    if( dependentVariableSettings->dependentVariableType_ == acceleration_partial_wrt_body_translational_state )
+    {
+        std::shared_ptr< AccelerationPartialWrtStateSaveSettings > partialDependentVariableSettings =
+                std::dynamic_pointer_cast< AccelerationPartialWrtStateSaveSettings >( dependentVariableSettings );
+        if( partialDependentVariableSettings == nullptr )
+        {
+            throw std::runtime_error( "Error when getting dependent variable type full string, expected acceleration partial type" );
+        }
+        else
+        {
+            variableId += " w.r.t. body translational state of " + partialDependentVariableSettings->derivativeWrtBody_;
+        }
     }
     return variableId;
 }
