@@ -1203,11 +1203,10 @@ inline std::shared_ptr< AccelerationPartialWrtStateSaveSettings > accelerationPa
 
 inline std::shared_ptr< TotalAccelerationPartialWrtStateSaveSettings > totalAccelerationPartialWrtBodyTranslationalStateDependentVariable(
         const std::string& bodyUndergoingAcceleration,
-        const std::string& bodyExertingAcceleration,
-        const std::string derivativeWrtBody )
+        const std::string& derivativeWrtBody )
 {
     return std::make_shared< TotalAccelerationPartialWrtStateSaveSettings >(
-            bodyUndergoingAcceleration, bodyExertingAcceleration, derivativeWrtBody );
+            bodyUndergoingAcceleration, derivativeWrtBody );
 }
 
 
