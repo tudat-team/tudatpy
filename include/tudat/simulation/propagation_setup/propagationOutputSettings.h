@@ -123,7 +123,8 @@ enum PropagationDependentVariables
     total_spherical_harmonic_sine_coefficient_variation = 50,
     apoapsis_altitude_dependent_variable = 51,
     gravity_field_potential_dependent_variable = 52,
-    gravity_field_laplacian_of_potential_dependent_variable = 53
+    gravity_field_laplacian_of_potential_dependent_variable = 53,
+    total_acceleration_partial_wrt_body_translational_state = 54
 };
 
 // Functional base class for defining settings for dependent variables that are to be saved during propagation
@@ -488,6 +489,33 @@ public:
     // String denoting w.r.t. which body the derivative needs to be taken.
     std::string derivativeWrtBody_;
 };
+
+//! Class to define partial of the total acceleration of a given body w.r.t. translational state.
+class TotalAccelerationPartialWrtStateSaveSettings: public SingleDependentVariableSaveSettings
+{
+public:
+
+    //! Constructor.
+    /*!
+     *  Constructor.
+     *  \param bodyUndergoingAcceleration Body undergoing acceleration.
+     *  \param bodyExertingAcceleration Body exerting acceleration.
+     *  \param accelerationModelType Type of acceleration that is to be saved.
+     *  \param derivativeWrtBody String denoting w.r.t. which body the partial needs to be taken.
+     *  \param thirdBody String denoting the third body w.r.t. which the partial needs to be taken (in case
+     *      of third body acceleration).
+     */
+    TotalAccelerationPartialWrtStateSaveSettings(
+            const std::string& bodyUndergoingAcceleration,
+            const std::string derivativeWrtBody ):
+        SingleDependentVariableSaveSettings(
+            total_acceleration_partial_wrt_body_translational_state, bodyUndergoingAcceleration ), derivativeWrtBody_( derivativeWrtBody ){ }
+
+
+    //! String denoting w.r.t. which body the derivative needs to be taken.
+    std::string derivativeWrtBody_;
+};
+
 
 class CustomDependentVariableSaveSettings: public SingleDependentVariableSaveSettings
 {
