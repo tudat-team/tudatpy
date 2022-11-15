@@ -1372,7 +1372,7 @@ BOOST_AUTO_TEST_CASE( test_AccelerationPartialSaving )
                             computedTotalAccelerationPartials, variableIteratorBack->second.segment( 54, 18 ),
                             std::numeric_limits< double >::epsilon( ) );
             }
-            else if ( test == 1 )
+            else if ( test == 1 || test == 2 )
             {
                 // Check consistency of partial of total acceleration of Vehicle w.r.t. Vehicle's translational state.
                 Eigen::VectorXd computedTotalAccelerationPartials = variableIteratorBack->second.segment( 0, 18 );
@@ -1385,7 +1385,7 @@ BOOST_AUTO_TEST_CASE( test_AccelerationPartialSaving )
                             variableIteratorBack->second.segment( 18, 18 ), variableIteratorBack->second.segment( 54, 18 ),
                             std::numeric_limits< double >::epsilon( ) );
             }
-            else if ( test == 2 )
+            else if ( test == 3 || test == 4 )
             {
                 // Check consistency of partial of total acceleration of Vehicle w.r.t. Vehicle's translational state.
                 Eigen::VectorXd computedTotalAccelerationPartials = Eigen::VectorXd::Zero( 18 );
