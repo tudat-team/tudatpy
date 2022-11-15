@@ -156,6 +156,25 @@ std::shared_ptr< ephemerides::Ephemeris > createReferencePointEphemeris(
                 stationEphemerisVector, stationRotationVector, "SSB", "ECLIPJ2000" );
 }
 
+
+template< typename StateScalarType = double >
+Eigen::Matrix< StateScalarType, 3, 1 > getGroundStationStateDuringPropagation(
+        const std::shared_ptr< simulation_setup::Body > bodyWithLinkEnd,
+        const std::string& stationName )
+{
+    if( bodyWithLinkEnd->getGroundStationMap( ).count( stationName ) == 0 )
+    {
+        std::string errorMessage = "Error when getting grounf station position for " + bodyWithLinkEnd->getBodyName( ) + ", " +
+                stationName + ", station not found.";
+        throw std::runtime_error( errorMessage );
+    }
+
+    return bodyWithLinkEnd->getState( ) + bodyWithLinkEnd->getCurrentRotationToGlobalFrame( ) *
+            bodyWithLinkEnd->getGroundStation( stationName )->getNominalStationState( )->getCartesianPositionInTime(
+                bodyWithLinkEnd->getDoubleTimeOfCurrentState( ) );
+
+}
+
 //! Function to retrieve a state function for a link end (either a body center of mass or ground station).
 /*!
  *  Function to retrieve a state function for a link end (either a body center of mass or ground station).
