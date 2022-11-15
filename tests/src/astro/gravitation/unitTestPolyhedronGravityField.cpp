@@ -226,6 +226,7 @@ BOOST_AUTO_TEST_CASE( testGravityComputation )
                 computedLaplacian += 0.1;
                 expectedLaplacian += 0.1;
             }
+            BOOST_CHECK_CLOSE_FRACTION( expectedLaplacian, computedLaplacian, tolerance );
 
         }
         if ( testHessian )
