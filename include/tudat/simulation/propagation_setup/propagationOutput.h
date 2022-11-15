@@ -1441,7 +1441,7 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
         else
         {
             std::function< Eigen::Vector3d( ) > stationPositionFunction =
-                    std::bind( &simulation_setup::getGroundStationStateDuringPropagation< double >,
+                    std::bind( &simulation_setup::getGroundStationPositionDuringPropagation< double >,
                                    bodies.at( bodyWithProperty ), secondaryBody );
             std::shared_ptr< ground_stations::PointingAnglesCalculator > stationPointingAngleCalculator =
                     bodies.at( bodyWithProperty )->getGroundStation( secondaryBody )->getPointingAnglesCalculator( );
