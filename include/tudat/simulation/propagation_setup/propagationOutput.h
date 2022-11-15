@@ -1300,10 +1300,11 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
 
             std::shared_ptr< acceleration_partials::AccelerationPartial > partialToUse =
                     getAccelerationPartialForBody(
-                        stateDerivativePartials.at( translational_state ), accelerationPartialVariableSettings->accelerationModelType_,
+                        stateDerivativePartials.at( translational_state ),
+                        accelerationPartialVariableSettings->accelerationModelType_,
                         accelerationPartialVariableSettings->associatedBody_,
                         accelerationPartialVariableSettings->secondaryBody_,
-                        accelerationPartialVariableSettings->thirdBody_ );
+                        accelerationPartialVariableSettings->centralBody_ );
 
             std::pair< std::function< void( Eigen::Block< Eigen::MatrixXd > ) >, int > partialFunction =
                     partialToUse->getDerivativeFunctionWrtStateOfIntegratedBody(

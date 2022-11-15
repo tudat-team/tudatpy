@@ -37,14 +37,15 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > getAccelerationPar
                         ( accelerationPartial->getAcceleratedBody( ) == bodyExertingAcceleration ) &&
                         ( accelerationPartial->getAcceleratingBody( ) == bodyUndergoignAcceleration ) )
                 {
-                    if( !basic_astrodynamics::isAccelerationFromThirdBody( accelerationType  ) )
-                    {
-                        partialIdentified = true;
-                    }
-                    else if( getCentralBodyNameFromThirdBodyAccelerationPartial( accelerationPartial ) == centralBody )
-                    {
-                        partialIdentified = true;
-                    }
+                    partialIdentified = true;
+//                    if( !basic_astrodynamics::isAccelerationFromThirdBody( accelerationType  ) )
+//                    {
+//                        partialIdentified = true;
+//                    }
+//                    else if( getCentralBodyNameFromThirdBodyAccelerationPartial( accelerationPartial ) == centralBody )
+//                    {
+//                        partialIdentified = true;
+//                    }
                 }
 
                 // Set output; check if multiple models are identified.
@@ -52,7 +53,10 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > getAccelerationPar
                 {
                     if( matchingAccelerationPartial != nullptr )
                     {
-                        throw std::runtime_error( "Error when getting acceleration partial, found multiple matching accelerations." );
+                        throw std::runtime_error( "Error when getting acceleration partial exerted by " + bodyExertingAcceleration +
+                                                  " on " + bodyUndergoignAcceleration + "w.r.t. central body (if any) " + centralBody +
+                                                  " of type " + basic_astrodynamics::getAccelerationModelName( accelerationType ) +
+                                                  ", found multiple matching accelerations." );
                     }
                     else
                     {
@@ -61,6 +65,25 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > getAccelerationPar
                 }
             }
         }
+    }
+
+    if( matchingAccelerationPartial == nullptr )
+    {
+        if( basic_astrodynamics::isAccelerationDirectGravitational( accelerationType ) )
+        {
+            matchingAccelerationPartial = getAccelerationPartialForBody(
+                        accelerationPartials,
+                        basic_astrodynamics::getAssociatedThirdBodyAcceleration( accelerationType ),
+                        bodyExertingAcceleration, bodyUndergoignAcceleration,  centralBody );
+        }
+    }
+
+    if( matchingAccelerationPartial == nullptr )
+    {
+        throw std::runtime_error( "Error when getting acceleration partial exerted by " + bodyExertingAcceleration +
+                                  " on " + bodyUndergoignAcceleration + "w.r.t. central body (if any) " + centralBody +
+                                  " of type " + basic_astrodynamics::getAccelerationModelName( accelerationType ) +
+                                  ", found no matching accelerations." );
     }
 
     return matchingAccelerationPartial;

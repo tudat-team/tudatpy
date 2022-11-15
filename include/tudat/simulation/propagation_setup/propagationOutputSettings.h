@@ -478,11 +478,11 @@ public:
             const std::string& bodyExertingAcceleration,
             const basic_astrodynamics::AvailableAcceleration accelerationModelType,
             const std::string derivativeWrtBody,
-            const std::string thirdBody = "" ):
+            const std::string centralBody = "" ):
         SingleDependentVariableSaveSettings(
             acceleration_partial_wrt_body_translational_state, bodyUndergoingAcceleration, bodyExertingAcceleration ),
         accelerationModelType_( accelerationModelType ), derivativeWrtBody_( derivativeWrtBody ),
-        thirdBody_( thirdBody ){ }
+        centralBody_( centralBody ){ }
 
     // Type of acceleration that is to be saved.
     basic_astrodynamics::AvailableAcceleration accelerationModelType_;
@@ -491,7 +491,7 @@ public:
     std::string derivativeWrtBody_;
 
     // String denoting the third body w.r.t. which the partial needs to be taken (in case of third body acceleration).
-    std::string thirdBody_;
+    std::string centralBody_;
 
 };
 
