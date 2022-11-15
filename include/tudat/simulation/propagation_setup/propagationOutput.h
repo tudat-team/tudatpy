@@ -1303,8 +1303,7 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
                         stateDerivativePartials.at( translational_state ),
                         accelerationPartialVariableSettings->accelerationModelType_,
                         accelerationPartialVariableSettings->associatedBody_,
-                        accelerationPartialVariableSettings->secondaryBody_,
-                        accelerationPartialVariableSettings->centralBody_ );
+                        accelerationPartialVariableSettings->secondaryBody_ );
 
             std::pair< std::function< void( Eigen::Block< Eigen::MatrixXd > ) >, int > partialFunction =
                     partialToUse->getDerivativeFunctionWrtStateOfIntegratedBody(
