@@ -521,7 +521,7 @@ Eigen::VectorXd getConstellationMinimumVisibleDistance(
     Eigen::Vector3d mainBodyPosition = mainBodyPositionFunction( );
     for( unsigned int i = 0; i < bodiesToCheckPositionFunctions.size( ); i++ )
     {
-        Eigen::Vector3d vectorToTarget = mainBodyPosition - bodiesToCheckPositionFunctions.at( i )( );
+        Eigen::Vector3d vectorToTarget = bodiesToCheckPositionFunctions.at( i )( ) - mainBodyPosition;
         double currentElevationAngle = stationPointingAngleCalculator->calculateElevationAngle( vectorToTarget, time );
         if( currentElevationAngle > limitAngle )
         {
