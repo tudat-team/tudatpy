@@ -905,7 +905,7 @@ std::vector< std::string > > createEnvironmentUpdaterSettingsForDependentVariabl
                 std::dynamic_pointer_cast< MinimumConstellationDistanceDependentVariableSaveSettings >( dependentVariableSaveSettings );
         if( minimumDistanceDependentVariable == nullptr )
         {
-            throw std::runtime_error( "Error when getting environment updates for dependent variables, type for minimum_constellation_distance not consisten" );
+            throw std::runtime_error( "Error when getting environment updates for dependent variables, type for minimum_constellation_distance not consistent" );
         }
         else
         {
@@ -915,6 +915,7 @@ std::vector< std::string > > createEnvironmentUpdaterSettingsForDependentVariabl
                 variablesToUpdate[ body_translational_state_update ].push_back( minimumDistanceDependentVariable->bodiesToCheck_.at( i ) );
             }
         }
+        break;
     }
     case minimum_constellation_ground_station_distance:
     {
@@ -922,7 +923,7 @@ std::vector< std::string > > createEnvironmentUpdaterSettingsForDependentVariabl
                 std::dynamic_pointer_cast< MinimumConstellationStationDistanceDependentVariableSaveSettings >( dependentVariableSaveSettings );
         if( minimumDistanceDependentVariable == nullptr )
         {
-            throw std::runtime_error( "Error when getting environment updates for dependent variables, type for minimum_constellation_ground_station_distance not consisten" );
+            throw std::runtime_error( "Error when getting environment updates for dependent variables, type for minimum_constellation_ground_station_distance not consistent" );
         }
         else
         {
@@ -934,6 +935,7 @@ std::vector< std::string > > createEnvironmentUpdaterSettingsForDependentVariabl
                 variablesToUpdate[ body_translational_state_update ].push_back( minimumDistanceDependentVariable->bodiesToCheck_.at( i ) );
             }
         }
+        break;
     }
     default:
         throw std::runtime_error( "Error when getting environment updates for dependent variables, parameter " +
