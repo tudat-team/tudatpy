@@ -1385,6 +1385,12 @@ public:
         timeOfCurrentState_ = Time(TUDAT_NAN);
     }
 
+    double getDoubleTimeOfCurrentState( )
+    {
+        return static_cast< double >( timeOfCurrentState_ );
+    }
+
+
     //! Function to retrieve variable denoting whether this body is the global frame origin
     /*!
      * Function to retrieve variable denoting whether this body is the global frame origin

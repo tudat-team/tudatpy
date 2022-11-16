@@ -899,6 +899,44 @@ std::vector< std::string > > createEnvironmentUpdaterSettingsForDependentVariabl
         variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
         variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->secondaryBody_ );
         break;
+    case minimum_constellation_distance:
+    {
+        std::shared_ptr< MinimumConstellationDistanceDependentVariableSaveSettings > minimumDistanceDependentVariable =
+                std::dynamic_pointer_cast< MinimumConstellationDistanceDependentVariableSaveSettings >( dependentVariableSaveSettings );
+        if( minimumDistanceDependentVariable == nullptr )
+        {
+            throw std::runtime_error( "Error when getting environment updates for dependent variables, type for minimum_constellation_distance not consistent" );
+        }
+        else
+        {
+            variablesToUpdate[ body_translational_state_update ].push_back( minimumDistanceDependentVariable->associatedBody_ );
+            for( unsigned int i = 0; i < minimumDistanceDependentVariable->bodiesToCheck_.size( ); i++ )
+            {
+                variablesToUpdate[ body_translational_state_update ].push_back( minimumDistanceDependentVariable->bodiesToCheck_.at( i ) );
+            }
+        }
+        break;
+    }
+    case minimum_constellation_ground_station_distance:
+    {
+        std::shared_ptr< MinimumConstellationStationDistanceDependentVariableSaveSettings > minimumDistanceDependentVariable =
+                std::dynamic_pointer_cast< MinimumConstellationStationDistanceDependentVariableSaveSettings >( dependentVariableSaveSettings );
+        if( minimumDistanceDependentVariable == nullptr )
+        {
+            throw std::runtime_error( "Error when getting environment updates for dependent variables, type for minimum_constellation_ground_station_distance not consistent" );
+        }
+        else
+        {
+            variablesToUpdate[ body_translational_state_update ].push_back( minimumDistanceDependentVariable->associatedBody_ );
+            variablesToUpdate[ body_rotational_state_update ].push_back( minimumDistanceDependentVariable->associatedBody_ );
+
+            for( unsigned int i = 0; i < minimumDistanceDependentVariable->bodiesToCheck_.size( ); i++ )
+            {
+                variablesToUpdate[ body_translational_state_update ].push_back( minimumDistanceDependentVariable->bodiesToCheck_.at( i ) );
+            }
+        }
+        break;
+    }
     default:
         throw std::runtime_error( "Error when getting environment updates for dependent variables, parameter " +
                                   std::to_string( dependentVariableSaveSettings->dependentVariableType_ ) + " not found." );
