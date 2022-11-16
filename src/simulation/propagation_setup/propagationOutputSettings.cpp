@@ -271,6 +271,12 @@ std::string getDependentVariableName(
     case total_acceleration_partial_wrt_body_translational_state:
         variableName = "Total acceleration partial w.r.t. translational state";
         break;
+    case minimum_constellation_distance:
+        variableName = "Minimum instantaneous constellation distance";
+        break;
+    case minimum_constellation_ground_station_distance:
+        variableName = "Minimum instantaneous ground station visible constellation distance";
+        break;
     default:
         std::string errorMessage = "Error, dependent variable " +
                 std::to_string( propagationDependentVariables ) +

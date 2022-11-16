@@ -124,7 +124,9 @@ enum PropagationDependentVariables
     apoapsis_altitude_dependent_variable = 51,
     gravity_field_potential_dependent_variable = 52,
     gravity_field_laplacian_of_potential_dependent_variable = 53,
-    total_acceleration_partial_wrt_body_translational_state = 54
+    total_acceleration_partial_wrt_body_translational_state = 54,
+    minimum_constellation_distance = 55,
+    minimum_constellation_ground_station_distance = 56
 };
 
 // Functional base class for defining settings for dependent variables that are to be saved during propagation
@@ -515,6 +517,42 @@ public:
     //! String denoting w.r.t. which body the derivative needs to be taken.
     std::string derivativeWrtBody_;
 };
+
+
+//! Class to define partial of the total acceleration of a given body w.r.t. translational state.
+class MinimumConstellationDistanceDependentVariableSaveSettings: public SingleDependentVariableSaveSettings
+{
+public:
+
+    MinimumConstellationDistanceDependentVariableSaveSettings(
+            const std::string& mainBody,
+            const std::vector< std::string >& bodiesToCheck ):
+        SingleDependentVariableSaveSettings(
+            minimum_constellation_distance, mainBody ), bodiesToCheck_( bodiesToCheck ){ }
+
+    std::vector< std::string > bodiesToCheck_;
+};
+
+
+class MinimumConstellationStationDistanceDependentVariableSaveSettings: public SingleDependentVariableSaveSettings
+{
+public:
+
+    MinimumConstellationStationDistanceDependentVariableSaveSettings(
+            const std::string& bodyName,
+            const std::string& stationName,
+            const std::vector< std::string >& bodiesToCheck,
+            const double elevationAngleLimit ):
+        SingleDependentVariableSaveSettings(
+            minimum_constellation_ground_station_distance, bodyName, stationName ),
+        bodiesToCheck_( bodiesToCheck ),
+        elevationAngleLimit_( elevationAngleLimit ){ }
+
+    std::vector< std::string > bodiesToCheck_;
+
+    double elevationAngleLimit_;
+};
+
 
 
 class CustomDependentVariableSaveSettings: public SingleDependentVariableSaveSettings
