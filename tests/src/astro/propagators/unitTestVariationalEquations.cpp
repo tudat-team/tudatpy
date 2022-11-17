@@ -1248,7 +1248,6 @@ BOOST_AUTO_TEST_CASE( testMassRateVariationalEquations )
 
 }
 
-
 BOOST_AUTO_TEST_SUITE_END( )
 
 }

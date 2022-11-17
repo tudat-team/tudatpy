@@ -1851,7 +1851,7 @@ BOOST_AUTO_TEST_CASE( test_ConstellationVariables )
         if( std::get< 0 >( testTuple ) == -1 )
         {
             BOOST_CHECK_EQUAL( it.second( 7 ), -1 );
-            BOOST_CHECK_EQUAL( it.second( 6 ), std::numeric_limits< double >::infinity( ) );
+            BOOST_CHECK_EQUAL( ( it.second( 6 ) != it.second( 6 ) ), true );
             BOOST_CHECK_EQUAL( ( it.second( 8 ) != it.second( 8 ) ), true );
         }
         else

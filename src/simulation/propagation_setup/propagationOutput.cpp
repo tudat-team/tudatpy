@@ -514,7 +514,7 @@ Eigen::VectorXd getConstellationMinimumVisibleDistance(
     const double time )
 {
     Eigen::VectorXd minimumDistanceValueAndIndex = Eigen::Vector3d::Zero( );
-    minimumDistanceValueAndIndex( 0 ) = std::numeric_limits< double >::infinity( );
+    minimumDistanceValueAndIndex( 0 ) = TUDAT_NAN;
     minimumDistanceValueAndIndex( 1 ) = static_cast< double >( -1 );
     minimumDistanceValueAndIndex( 2 ) = TUDAT_NAN;
 
