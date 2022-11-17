@@ -503,6 +503,10 @@ Eigen::VectorXd getConstellationMinimumDistance(
             minimumDistanceValueAndIndex( 1 ) = static_cast< double >( i );
         }
     }
+    if( minimumDistanceValueAndIndex( 0 ) == std::numeric_limits< double >::infinity( ) )
+    {
+        minimumDistanceValueAndIndex( 0 ) = TUDAT_NAN;
+    }
     return minimumDistanceValueAndIndex;
 }
 
@@ -514,7 +518,7 @@ Eigen::VectorXd getConstellationMinimumVisibleDistance(
     const double time )
 {
     Eigen::VectorXd minimumDistanceValueAndIndex = Eigen::Vector3d::Zero( );
-    minimumDistanceValueAndIndex( 0 ) = TUDAT_NAN;
+    minimumDistanceValueAndIndex( 0 ) = std::numeric_limits< double >::infinity( );
     minimumDistanceValueAndIndex( 1 ) = static_cast< double >( -1 );
     minimumDistanceValueAndIndex( 2 ) = TUDAT_NAN;
 
@@ -533,6 +537,11 @@ Eigen::VectorXd getConstellationMinimumVisibleDistance(
                 minimumDistanceValueAndIndex( 2 ) = currentElevationAngle;
             }
         }
+    }
+
+    if( minimumDistanceValueAndIndex( 0 ) == std::numeric_limits< double >::infinity( ) )
+    {
+        minimumDistanceValueAndIndex( 0 ) = TUDAT_NAN;
     }
     return minimumDistanceValueAndIndex;
 }
