@@ -1266,14 +1266,14 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > totalSphericalHarm
                 bodyName, componentIndices, false );
 }
 
-inline std::shared_ptr< MinimumConstellationDistanceDependentVariableSaveSettings > minimumConstellationDistanceDependentVariableSaveSettings(
+inline std::shared_ptr< SingleDependentVariableSaveSettings > minimumConstellationDistanceDependentVariableSaveSettings(
         const std::string& mainBody,
             const std::vector< std::string >& bodiesToCheck )
 {
     return std::make_shared< MinimumConstellationDistanceDependentVariableSaveSettings >( mainBody, bodiesToCheck );
 }
 
-inline std::shared_ptr< MinimumConstellationStationDistanceDependentVariableSaveSettings > minimumConstellationStationDistanceDependentVariableSaveSettings(
+inline std::shared_ptr< SingleDependentVariableSaveSettings > minimumConstellationStationDistanceDependentVariableSaveSettings(
         const std::string& bodyName,
             const std::string& stationName,
             const std::vector< std::string >& bodiesToCheck,
