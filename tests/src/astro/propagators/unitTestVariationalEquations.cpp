@@ -1236,10 +1236,9 @@ BOOST_AUTO_TEST_CASE( testMassRateVariationalEquations )
                             bodies, integratorSettings, propagatorSettings );
                 downPerturbedInitialState = dynamicsSimulator.getEquationsOfMotionNumericalSolution( ).rbegin( )->second;
             }
-            Eigen::VectorXd numericalStatePartialWrtMass = ( upPerturbedInitialState - downPerturbedInitialState ) / ( 2.0 * massPerturbation );
+            Eigen::VectorXd numericalStatePartialWrtMass = ( ( upPerturbedInitialState - downPerturbedInitialState ) / ( 2.0 * massPerturbation ) ).block( 0, 0, 6, 1 );
             Eigen::VectorXd analyticalStatePartialWrtMass = finalStateTransitionCoupled.block( 0, 6, 6, 1 );
-            TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                        numericalStatePartialWrtMass, analyticalStatePartialWrtMass, 1.0E-5 );
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalStatePartialWrtMass, analyticalStatePartialWrtMass, 1.0E-5 );
         }
     }
 
