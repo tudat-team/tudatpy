@@ -229,12 +229,12 @@ void expose_gravity_field_setup(py::module &m) {
           );
 
 
-    m.def("polyhedron_from_gravitational_parameter",
+    m.def("polyhedron_from_mu",
           py::overload_cast< const double,
           const Eigen::MatrixXd,
           const Eigen::MatrixXi,
           const std::string&,
-          const double >( &tss::polyhedronGravitySettings ),
+          const double >( &tss::polyhedronGravitySettingsFromMu ),
           py::arg("gravitational_parameter"),
           py::arg("vertices_coordinates"),
           py::arg("vertices_defining_each_facet"),
@@ -255,7 +255,7 @@ void expose_gravity_field_setup(py::module &m) {
           py::arg("vertices_defining_each_facet"),
           py::arg("associated_reference_frame"),
           py::arg("gravitational_constant") = tpc::GRAVITATIONAL_CONSTANT,
-          get_docstring("polyhedron_from_gravitational_constant_and_density").c_str()
+          get_docstring("polyhedron_from_density").c_str()
           );
 
     // Triaxial ellipsoid: overload 1

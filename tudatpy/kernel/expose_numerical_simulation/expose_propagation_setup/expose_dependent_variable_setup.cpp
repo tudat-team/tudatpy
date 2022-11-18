@@ -567,7 +567,7 @@ namespace dependent_variable {
               get_docstring("tnw_to_inertial_rotation_matrix").c_str());
 
         m.def("rsw_to_inertial_rotation_matrix",
-              &tp::tnwToInertialFrameRotationMatrixVariable,
+              &tp::rswToInertialFrameRotationMatrixVariable,
               py::arg("body"),
               py::arg("central_body"),
               get_docstring("rsw_to_inertial_rotation_matrix").c_str());
@@ -659,6 +659,21 @@ namespace dependent_variable {
               py::arg("body_undergoing_acceleration"),
               py::arg("body_exerting_acceleration"),
               get_docstring("gravity_field_laplacian_of_potential").c_str());
+
+        m.def("minimum_body_distance",
+              &tp::minimumConstellationDistanceDependentVariableSaveSettings,
+              py::arg("body_name"),
+              py::arg("bodies_to_check"),
+              get_docstring("minimum_body_distance").c_str());
+
+        m.def("minimum_visible_station_body_distances",
+              &tp::minimumConstellationStationDistanceDependentVariableSaveSettings,
+              py::arg("body_name"),
+              py::arg("station_name"),
+              py::arg("bodies_to_check"),
+              py::arg("minimum_elevation_angle"),
+              get_docstring("minimum_visible_station_body_distances").c_str());
+
 
     }
 

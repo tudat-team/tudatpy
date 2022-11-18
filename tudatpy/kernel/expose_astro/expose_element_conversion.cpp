@@ -228,17 +228,20 @@ void expose_element_conversion(py::module &m) {
           py::arg("longitude"),
           py::arg("speed"),
           py::arg("flight_path_angle"),
-          py::arg("heading_angle"));
+          py::arg("heading_angle"),
+          get_docstring("spherical_to_cartesian_elementwise").c_str());
 
     m.def("spherical_to_cartesian",
           py::overload_cast<
           const Eigen::Vector6d& >(
               &toec::convertSphericalOrbitalToCartesianState< double > ),
-          py::arg("spherical_elements"));
+          py::arg("spherical_elements"),
+          get_docstring("spherical_to_cartesian").c_str());
 
     m.def("cartesian_to_spherical",
           &toec::convertCartesianToSphericalOrbitalState,
-          py::arg("cartesian_elements") );
+          py::arg("cartesian_elements"),
+          get_docstring("cartesian_to_spherical").c_str());
 
 
     /*!
