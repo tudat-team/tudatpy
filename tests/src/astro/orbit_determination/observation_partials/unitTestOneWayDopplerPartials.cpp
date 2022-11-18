@@ -507,21 +507,29 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
         Eigen::MatrixXd properTimePartialWrtMarsVelocity = transmitterProperTimePartials->getVelocityScalingFactor( transmitter );
         Eigen::MatrixXd properTimePartialWrtEarthVelocity = receiverProperTimePartials->getVelocityScalingFactor( receiver );
 
+        std::cout<<( ( partialWrtMarsState - partialWrtMarsStateWithoutProperTime ).block( 0, 0, 1, 3 ) - properTimePartialWrtMarsPosition ).cwiseQuotient(  properTimePartialWrtMarsPosition ).transpose( )<<std::endl;
+
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                     ( ( partialWrtMarsState - partialWrtMarsStateWithoutProperTime ).block( 0, 0, 1, 3 ) ),
-                    properTimePartialWrtMarsPosition, 1.0E-9 );
+                    properTimePartialWrtMarsPosition, 1.0E-5 );
+
+        std::cout<<( ( partialWrtEarthState - partialWrtEarthStateWithoutProperTime ).block( 0, 0, 1, 3 ) - properTimePartialWrtEarthPosition ).cwiseQuotient(  properTimePartialWrtEarthPosition ).transpose( )<<std::endl;
 
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                     ( -( partialWrtEarthState - partialWrtEarthStateWithoutProperTime ).block( 0, 0, 1, 3 ) ),
-                    properTimePartialWrtEarthPosition, 1.0E-9 );
+                    properTimePartialWrtEarthPosition, 1.0E-5 );
+
+        std::cout<<( ( partialWrtMarsState - partialWrtMarsStateWithoutProperTime ).block( 0, 0, 1, 3 ) - properTimePartialWrtMarsVelocity ).cwiseQuotient(  properTimePartialWrtMarsVelocity ).transpose( )<<std::endl;
 
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                     ( ( partialWrtMarsState - partialWrtMarsStateWithoutProperTime ).block( 0, 3, 1, 3 ) ),
-                    properTimePartialWrtMarsVelocity, 1.0E-8 );
+                    properTimePartialWrtMarsVelocity, 1.0E-5 );
+
+        std::cout<<( ( partialWrtEarthState - partialWrtEarthStateWithoutProperTime ).block( 0, 0, 1, 3 ) - properTimePartialWrtEarthVelocity ).cwiseQuotient(  properTimePartialWrtEarthVelocity ).transpose( )<<std::endl;
 
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                     ( -( partialWrtEarthState - partialWrtEarthStateWithoutProperTime ).block( 0, 3, 1, 3 ) ),
-                    properTimePartialWrtEarthVelocity, 1.0E-8 );
+                    properTimePartialWrtEarthVelocity, 1.0E-5 );
 
     }
 }

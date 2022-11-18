@@ -113,7 +113,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
             std::dynamic_pointer_cast< OneWayDopplerObservationModel< double, double> >( observationModel );
 
     // Test observable for both fixed link ends
-    for( unsigned testCase = 0; testCase < 2; testCase++ )
+    for( unsigned testCase = 0; testCase < 4; testCase++ )
     {
 
         double observationTime = ( finalEphemerisTime + initialEphemerisTime ) / 2.0;
@@ -122,13 +122,22 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
 
         // Define link end
         LinkEndType referenceLinkEnd;
-        if( testCase == 0 )
+        if( testCase == 0 || testCase == 2 )
         {
             referenceLinkEnd = transmitter;
         }
         else
         {
             referenceLinkEnd = receiver;
+        }
+
+        double scalingTerm = physical_constants::SPEED_OF_LIGHT;
+        bool useNormalization = false;
+        if( testCase > 1 )
+        {
+            scalingTerm = 1.0;
+            useNormalization = true;
+            dopplerObservationModel->setNormalizeWithSpeedOfLight( useNormalization );
         }
 
         // Compute observable
@@ -141,14 +150,14 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
         Eigen::Vector6d transmitterState, receiverState;
         // Compute light time
         double lightTime = lightTimeCalculator->calculateLightTimeWithLinkEndsStates(
-                    receiverState, transmitterState, observationTime, testCase );
+                    receiverState, transmitterState, observationTime, ( !( testCase == 0 || testCase == 2 ) ) );
 
         // Compare light time calculator link end conditions with observation model
         {
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION( receiverState, linkEndStates.at( 1 ), 1.0E-15 );
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION( transmitterState, linkEndStates.at( 0 ), 1.0E-15 );
 
-            if( testCase == 0 )
+            if( testCase == 0 || testCase == 2 )
             {
                 BOOST_CHECK_SMALL( std::fabs( observationTime  - linkEndTimes.at( 0 ) ), 1.0E-12 );
                 BOOST_CHECK_SMALL( std::fabs( observationTime + lightTime - linkEndTimes.at( 1 ) ), 1.0E-10 );
@@ -168,14 +177,16 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
         double lightTimeSensitivity = -( upPerturbedLightTime - downPerturbedLightTime ) / ( 2.0 * timePerturbation );
 
         // Test numerical derivative against Doppler observable
-        BOOST_CHECK_SMALL( std::fabs( lightTimeSensitivity - dopplerObservable ), 2.0E-14 );
+        BOOST_CHECK_SMALL( std::fabs( scalingTerm * lightTimeSensitivity - dopplerObservable ), 2.0E-14 * scalingTerm );
     }
+
+    dopplerObservationModel->setNormalizeWithSpeedOfLight( false );
 
     // Test observation biases
     {
         // Create observation and bias settings
         std::vector< std::shared_ptr< ObservationBiasSettings > > biasSettingsList;
-        biasSettingsList.push_back( std::make_shared< ConstantObservationBiasSettings >( Eigen::Vector1d( 1.0E-6 ), true ) );
+        biasSettingsList.push_back( std::make_shared< ConstantObservationBiasSettings >( Eigen::Vector1d( 1.0E2 ), true ) );
         biasSettingsList.push_back( std::make_shared< ConstantObservationBiasSettings >( Eigen::Vector1d( 2.5E-4 ), false ) );
         std::shared_ptr< ObservationBiasSettings > biasSettings = std::make_shared< MultipleObservationBiasSettings >(
                     biasSettingsList );
@@ -194,7 +205,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
                     observationTime, receiver )( 0 );
         double biasedObservation = biasedObservationModel->computeObservations(
                     observationTime, receiver )( 0 );
-        BOOST_CHECK_CLOSE_FRACTION( biasedObservation, 1.0E-6 + ( 1.0 + 2.5E-4 ) * unbiasedObservation, 1.0E-15 );
+        BOOST_CHECK_CLOSE_FRACTION( biasedObservation, 1.0E2 + ( 1.0 + 2.5E-4 ) * unbiasedObservation, 1.0E-15 );
 
     }
 
@@ -255,12 +266,12 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
                       earthGravitationalParameter / spacecraftState.segment( 0, 3 ).norm( ) ) );
 
         long double manualDopplerValue =
-                groundStationProperTimeRate *
-                ( 1.0L + static_cast< long double >( observationWithoutCorrections ) ) /
-                spacecraftProperTimeRate - 1.0L;
+                ( groundStationProperTimeRate *
+                  ( 1.0L + static_cast< long double >( observationWithoutCorrections ) / physical_constants::SPEED_OF_LIGHT ) /
+                  spacecraftProperTimeRate - 1.0L ) * physical_constants::SPEED_OF_LIGHT;
 
         BOOST_CHECK_SMALL( std::fabs( static_cast< double >( manualDopplerValue ) - observationWithCorrections ),
-                           static_cast< double >( std::numeric_limits< long double >::epsilon( ) ) );
+                           static_cast< double >( std::numeric_limits< long double >::epsilon( ) * physical_constants::SPEED_OF_LIGHT ) );
     }
 }
 
@@ -362,87 +373,114 @@ BOOST_AUTO_TEST_CASE( testTwoWayDoppplerModel )
         for( unsigned testCase = 0; testCase < 3; testCase++ )
         {
 
-            double observationTime = ( finalEphemerisTime + initialEphemerisTime ) / 2.0;
-            std::vector< double > linkEndTimes;
-            std::vector< Eigen::Vector6d > linkEndStates;
-
-            std::vector< double > rangeLinkEndTimes;
-            std::vector< Eigen::Vector6d > rangeLinkEndStates;
-
-
-            // Define link end
-            LinkEndType referenceLinkEnd, uplinkReferenceLinkEnd, downlinkReferenceLinkEnd;
-            int transmitterReferenceTimeIndex, receiverReferenceTimeIndex;
-            if( testCase == 0 )
+            for( unsigned int normalizeObservable = 0; normalizeObservable < 2 ; normalizeObservable++ )
             {
-                referenceLinkEnd = transmitter;
-                uplinkReferenceLinkEnd =  transmitter;
-                downlinkReferenceLinkEnd = transmitter;
-                transmitterReferenceTimeIndex = 0;
-                receiverReferenceTimeIndex = 2;
+                if( normalizeObservable == 0 )
+                {
+                    twoWayDopplerObservationModel->setNormalizeWithSpeedOfLight( 0 );
+                    std::dynamic_pointer_cast< OneWayDopplerObservationModel< double, double> >(
+                                uplinkDopplerObservationModel )->setNormalizeWithSpeedOfLight( 0 );
+                    std::dynamic_pointer_cast< OneWayDopplerObservationModel< double, double> >(
+                                downlinkDopplerObservationModel )->setNormalizeWithSpeedOfLight( 0 );
+                }
+                else
+                {
+                    twoWayDopplerObservationModel->setNormalizeWithSpeedOfLight( 1 );
+                    std::dynamic_pointer_cast< OneWayDopplerObservationModel< double, double> >(
+                                uplinkDopplerObservationModel )->setNormalizeWithSpeedOfLight( 1 );
+                    std::dynamic_pointer_cast< OneWayDopplerObservationModel< double, double> >(
+                                downlinkDopplerObservationModel )->setNormalizeWithSpeedOfLight( 1 );
+                }
+                double observationTime = ( finalEphemerisTime + initialEphemerisTime ) / 2.0;
+                std::vector< double > linkEndTimes;
+                std::vector< Eigen::Vector6d > linkEndStates;
+
+                std::vector< double > rangeLinkEndTimes;
+                std::vector< Eigen::Vector6d > rangeLinkEndStates;
+
+
+                // Define link end
+                LinkEndType referenceLinkEnd, uplinkReferenceLinkEnd, downlinkReferenceLinkEnd;
+                int transmitterReferenceTimeIndex, receiverReferenceTimeIndex;
+                if( testCase == 0 )
+                {
+                    referenceLinkEnd = transmitter;
+                    uplinkReferenceLinkEnd =  transmitter;
+                    downlinkReferenceLinkEnd = transmitter;
+                    transmitterReferenceTimeIndex = 0;
+                    receiverReferenceTimeIndex = 2;
+                }
+                else if( testCase == 1 )
+                {
+                    referenceLinkEnd = reflector1;
+                    uplinkReferenceLinkEnd =  receiver;
+                    downlinkReferenceLinkEnd = transmitter;
+                    transmitterReferenceTimeIndex = 1;
+                    receiverReferenceTimeIndex = 2;
+                }
+                else
+                {
+                    referenceLinkEnd = receiver;
+                    uplinkReferenceLinkEnd =  receiver;
+                    downlinkReferenceLinkEnd = receiver;
+                    transmitterReferenceTimeIndex = 1;
+                    receiverReferenceTimeIndex = 3;
+                }
+
+                // Compute observables
+                double dopplerObservable = twoWayDopplerObservationModel->computeObservationsWithLinkEndData(
+                            observationTime, referenceLinkEnd, linkEndTimes, linkEndStates )( 0 );
+                double uplinkDopplerObservable = uplinkDopplerObservationModel->computeObservations(
+                            linkEndTimes.at( transmitterReferenceTimeIndex ), uplinkReferenceLinkEnd )( 0 );
+                double downlinkDopplerObservable = downlinkDopplerObservationModel->computeObservations(
+                            linkEndTimes.at( receiverReferenceTimeIndex ), downlinkReferenceLinkEnd  )( 0 );
+                twoWayRangeObservationModel->computeObservationsWithLinkEndData(
+                            observationTime, referenceLinkEnd, rangeLinkEndTimes, rangeLinkEndStates )( 0 );
+
+
+                // Compare light time calculator link end conditions with observation model
+                {
+                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( rangeLinkEndStates.at( 3 ), linkEndStates.at( 3 ), 1.0E-15 );
+                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( rangeLinkEndStates.at( 2 ), linkEndStates.at( 2 ), 1.0E-15 );
+                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( rangeLinkEndStates.at( 1 ), linkEndStates.at( 1 ), 1.0E-15 );
+                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( rangeLinkEndStates.at( 0 ), linkEndStates.at( 0 ), 1.0E-15 );
+
+                    BOOST_CHECK_SMALL( std::fabs( rangeLinkEndTimes.at( 3 ) - linkEndTimes.at( 3 ) ), 1.0E-15 );
+                    BOOST_CHECK_SMALL( std::fabs( rangeLinkEndTimes.at( 2 ) - linkEndTimes.at( 2 ) ), 1.0E-15 );
+                    BOOST_CHECK_SMALL( std::fabs( rangeLinkEndTimes.at( 1 ) - linkEndTimes.at( 1 ) ), 1.0E-15 );
+                    BOOST_CHECK_SMALL( std::fabs( rangeLinkEndTimes.at( 0 ) - linkEndTimes.at( 0 ) ), 1.0E-15 );
+                }
+
+                // Compute numerical partial derivative of light time.
+                double timePerturbation = 100.0;
+                double upPerturbedLightTime =
+                        uplinkLightTimeCalculator->calculateLightTime( linkEndTimes.at( 1 ) + timePerturbation, true );
+                double downPerturbedLightTime =
+                        uplinkLightTimeCalculator->calculateLightTime( linkEndTimes.at( 1 ) - timePerturbation, true );
+
+                double uplinkLightTimeSensitivity = -( upPerturbedLightTime - downPerturbedLightTime ) / ( 2.0 * timePerturbation );
+
+                upPerturbedLightTime = downlinkLightTimeCalculator->calculateLightTime( linkEndTimes.at( 3 ) + timePerturbation, true );
+                downPerturbedLightTime = downlinkLightTimeCalculator->calculateLightTime( linkEndTimes.at( 3 ) - timePerturbation, true );
+
+                double downlinkLightTimeSensitivity = -( upPerturbedLightTime - downPerturbedLightTime ) / ( 2.0 * timePerturbation );
+
+                double scalingTerm = normalizeObservable ? 1.0 : physical_constants::SPEED_OF_LIGHT;
+
+                // Test numerical derivative against Doppler observable
+                BOOST_CHECK_SMALL( std::fabs( ( uplinkLightTimeSensitivity + downlinkLightTimeSensitivity +
+                                                downlinkLightTimeSensitivity * uplinkLightTimeSensitivity ) * scalingTerm - dopplerObservable ),
+                                   scalingTerm * 5.0E-14 );
+                BOOST_CHECK_SMALL( std::fabs( ( uplinkDopplerObservable / scalingTerm + 1 ) * ( downlinkDopplerObservable / scalingTerm + 1 ) -
+                                              ( dopplerObservable  / scalingTerm + 1 ) ), std::numeric_limits< double >::epsilon( ) );
             }
-            else if( testCase == 1 )
-            {
-                referenceLinkEnd = reflector1;
-                uplinkReferenceLinkEnd =  receiver;
-                downlinkReferenceLinkEnd = transmitter;
-                transmitterReferenceTimeIndex = 1;
-                receiverReferenceTimeIndex = 2;
-            }
-            else
-            {
-                referenceLinkEnd = receiver;
-                uplinkReferenceLinkEnd =  receiver;
-                downlinkReferenceLinkEnd = receiver;
-                transmitterReferenceTimeIndex = 1;
-                receiverReferenceTimeIndex = 3;
-            }
-
-            // Compute observables
-            double dopplerObservable = twoWayDopplerObservationModel->computeObservationsWithLinkEndData(
-                        observationTime, referenceLinkEnd, linkEndTimes, linkEndStates )( 0 );
-            double uplinkDopplerObservable = uplinkDopplerObservationModel->computeObservations(
-                        linkEndTimes.at( transmitterReferenceTimeIndex ), uplinkReferenceLinkEnd )( 0 );
-            double downlinkDopplerObservable = downlinkDopplerObservationModel->computeObservations(
-                        linkEndTimes.at( receiverReferenceTimeIndex ), downlinkReferenceLinkEnd  )( 0 );
-            twoWayRangeObservationModel->computeObservationsWithLinkEndData(
-                        observationTime, referenceLinkEnd, rangeLinkEndTimes, rangeLinkEndStates )( 0 );
-
-
-            // Compare light time calculator link end conditions with observation model
-            {
-                TUDAT_CHECK_MATRIX_CLOSE_FRACTION( rangeLinkEndStates.at( 3 ), linkEndStates.at( 3 ), 1.0E-15 );
-                TUDAT_CHECK_MATRIX_CLOSE_FRACTION( rangeLinkEndStates.at( 2 ), linkEndStates.at( 2 ), 1.0E-15 );
-                TUDAT_CHECK_MATRIX_CLOSE_FRACTION( rangeLinkEndStates.at( 1 ), linkEndStates.at( 1 ), 1.0E-15 );
-                TUDAT_CHECK_MATRIX_CLOSE_FRACTION( rangeLinkEndStates.at( 0 ), linkEndStates.at( 0 ), 1.0E-15 );
-
-                BOOST_CHECK_SMALL( std::fabs( rangeLinkEndTimes.at( 3 ) - linkEndTimes.at( 3 ) ), 1.0E-15 );
-                BOOST_CHECK_SMALL( std::fabs( rangeLinkEndTimes.at( 2 ) - linkEndTimes.at( 2 ) ), 1.0E-15 );
-                BOOST_CHECK_SMALL( std::fabs( rangeLinkEndTimes.at( 1 ) - linkEndTimes.at( 1 ) ), 1.0E-15 );
-                BOOST_CHECK_SMALL( std::fabs( rangeLinkEndTimes.at( 0 ) - linkEndTimes.at( 0 ) ), 1.0E-15 );
-            }
-
-            // Compute numerical partial derivative of light time.
-            double timePerturbation = 100.0;
-            double upPerturbedLightTime =
-                    uplinkLightTimeCalculator->calculateLightTime( linkEndTimes.at( 1 ) + timePerturbation, true );
-            double downPerturbedLightTime =
-                    uplinkLightTimeCalculator->calculateLightTime( linkEndTimes.at( 1 ) - timePerturbation, true );
-
-            double uplinkLightTimeSensitivity = -( upPerturbedLightTime - downPerturbedLightTime ) / ( 2.0 * timePerturbation );
-
-            upPerturbedLightTime = downlinkLightTimeCalculator->calculateLightTime( linkEndTimes.at( 3 ) + timePerturbation, true );
-            downPerturbedLightTime = downlinkLightTimeCalculator->calculateLightTime( linkEndTimes.at( 3 ) - timePerturbation, true );
-
-            double downlinkLightTimeSensitivity = -( upPerturbedLightTime - downPerturbedLightTime ) / ( 2.0 * timePerturbation );
-
-            // Test numerical derivative against Doppler observable
-            BOOST_CHECK_SMALL( std::fabs( uplinkLightTimeSensitivity + downlinkLightTimeSensitivity +
-                                          downlinkLightTimeSensitivity * uplinkLightTimeSensitivity - dopplerObservable ), 5.0E-14 );
-            BOOST_CHECK_SMALL( std::fabs( ( uplinkDopplerObservable + 1 ) * ( downlinkDopplerObservable + 1 ) -
-                                          ( dopplerObservable + 1 ) ), std::numeric_limits< double >::epsilon( ) );
 
         }
+        twoWayDopplerObservationModel->setNormalizeWithSpeedOfLight( 0 );
+        std::dynamic_pointer_cast< OneWayDopplerObservationModel< double, double> >(
+                    uplinkDopplerObservationModel )->setNormalizeWithSpeedOfLight( 0 );
+        std::dynamic_pointer_cast< OneWayDopplerObservationModel< double, double> >(
+                    downlinkDopplerObservationModel )->setNormalizeWithSpeedOfLight( 0 );
     }
 
     // Test proper time rates in two-way link where effects should cancel (no retransmission delays; transmitter and receiver are
@@ -561,7 +599,7 @@ BOOST_AUTO_TEST_CASE( testTwoWayDoppplerModel )
         if( test == 0 )
         {
             BOOST_CHECK_SMALL( std::fabs( observationWithCorrections - observationWithoutCorrections ),
-                               static_cast< double >( std::numeric_limits< long double >::epsilon( ) ) );
+                               static_cast< double >( std::numeric_limits< long double >::epsilon( ) * physical_constants::SPEED_OF_LIGHT ) );
             BOOST_CHECK_SMALL( std::fabs( static_cast< double >(
                                               groundStationProperTimeRateAtTransmission - groundStationProperTimeRateAtReception ) ),
                                static_cast< double >( std::numeric_limits< long double >::epsilon( ) ) );
@@ -572,8 +610,9 @@ BOOST_AUTO_TEST_CASE( testTwoWayDoppplerModel )
             long double properTimeRatioDeviation =
                     groundStationProperTimeRateAtTransmission / groundStationProperTimeRateAtReception - 1.0L;
             long double observableDifference =
-                    observationWithCorrections - ( observationWithoutCorrections + properTimeRatioDeviation +
-                                                   observationWithoutCorrections * properTimeRatioDeviation );
+                    observationWithCorrections / physical_constants::SPEED_OF_LIGHT -
+                    ( observationWithoutCorrections / physical_constants::SPEED_OF_LIGHT + properTimeRatioDeviation +
+                      observationWithoutCorrections / physical_constants::SPEED_OF_LIGHT * properTimeRatioDeviation );
             BOOST_CHECK_SMALL( std::fabs( static_cast< double >( observableDifference ) ),
                                static_cast< double >( std::numeric_limits< long double >::epsilon( ) ) );
         }
