@@ -488,10 +488,12 @@ public:
             const std::shared_ptr< LightTimeCorrectionSettings > lightTimeCorrections,
             const std::shared_ptr< DopplerProperTimeRateSettings > transmitterProperTimeRateSettings = nullptr,
             const std::shared_ptr< DopplerProperTimeRateSettings > receiverProperTimeRateSettings = nullptr,
-            const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr ):
+            const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
+            const bool normalizeWithSpeedOfLight = false ):
         ObservationModelSettings( one_way_doppler, linkEnds, lightTimeCorrections, biasSettings ),
         transmitterProperTimeRateSettings_( transmitterProperTimeRateSettings ),
-        receiverProperTimeRateSettings_( receiverProperTimeRateSettings ){ }
+        receiverProperTimeRateSettings_( receiverProperTimeRateSettings ),
+    normalizeWithSpeedOfLight_( normalizeWithSpeedOfLight ){ }
 
     //! Constructor
     /*!
@@ -508,10 +510,12 @@ public:
             std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
             const std::shared_ptr< DopplerProperTimeRateSettings > transmitterProperTimeRateSettings = nullptr,
             const std::shared_ptr< DopplerProperTimeRateSettings > receiverProperTimeRateSettings = nullptr,
-            const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr ):
+            const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
+            const bool normalizeWithSpeedOfLight = false ):
         ObservationModelSettings( one_way_doppler, linkEnds, lightTimeCorrectionsList, biasSettings ),
         transmitterProperTimeRateSettings_( transmitterProperTimeRateSettings ),
-        receiverProperTimeRateSettings_( receiverProperTimeRateSettings ){ }
+        receiverProperTimeRateSettings_( receiverProperTimeRateSettings ),
+        normalizeWithSpeedOfLight_( normalizeWithSpeedOfLight ){ }
 
     //! Destructor
     ~OneWayDopplerObservationSettings( ){ }
@@ -521,6 +525,8 @@ public:
 
     //! Settings for proper time rate at receiver
     std::shared_ptr< DopplerProperTimeRateSettings > receiverProperTimeRateSettings_;
+
+    bool normalizeWithSpeedOfLight_;
 };
 
 
@@ -802,11 +808,12 @@ inline std::shared_ptr< ObservationModelSettings > oneWayOpenLoopDoppler(
         std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
         const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
         const std::shared_ptr< DopplerProperTimeRateSettings > transmitterProperTimeRateSettings = nullptr,
-        const std::shared_ptr< DopplerProperTimeRateSettings > receiverProperTimeRateSettings = nullptr )
+        const std::shared_ptr< DopplerProperTimeRateSettings > receiverProperTimeRateSettings = nullptr,
+        const bool normalizeWithSpeedOfLight = false )
 {
     return std::make_shared< OneWayDopplerObservationSettings >(
                 linkEnds, lightTimeCorrectionsList, transmitterProperTimeRateSettings, receiverProperTimeRateSettings,
-                biasSettings );
+                biasSettings, normalizeWithSpeedOfLight );
 }
 
 inline std::shared_ptr< ObservationModelSettings > twoWayOpenLoopDoppler(
@@ -1318,7 +1325,10 @@ public:
                             createLightTimeCalculator< ObservationScalarType, TimeType >(
                                 linkEnds.at( transmitter ), linkEnds.at( receiver ),
                                 bodies, observationSettings->lightTimeCorrectionsList_ ),
-                            observationBias );
+                            observationBias,
+                            std::function< ObservationScalarType( const TimeType ) >( ),
+                            std::function< ObservationScalarType( const TimeType ) >( ),
+                            false );
             }
             else
             {
@@ -1349,7 +1359,8 @@ public:
                                 bodies, observationSettings->lightTimeCorrectionsList_ ),
                             transmitterProperTimeRate,
                             receiverProperTimeRate,
-                            observationBias );
+                            observationBias,
+                            oneWayDopplerSettings->normalizeWithSpeedOfLight_ );
             }
 
             break;

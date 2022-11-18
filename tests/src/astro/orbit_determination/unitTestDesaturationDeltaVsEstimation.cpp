@@ -315,7 +315,7 @@ BOOST_AUTO_TEST_CASE( test_DesaturationDeltaVsEstimation )
         std::map< observation_models::ObservableType, double > weightPerObservable;
         weightPerObservable[ one_way_range ] = 1.0 / ( 1.0 * 1.0 );
         weightPerObservable[ angular_position ] = 1.0 / ( 1.0E-5 * 1.0E-5 );
-        weightPerObservable[ one_way_doppler ] = 1.0 / ( 1.0E-11 * 1.0E-11 );
+        weightPerObservable[ one_way_doppler ] = 1.0 / ( 1.0E-11 * 1.0E-11 * physical_constants::SPEED_OF_LIGHT * physical_constants::SPEED_OF_LIGHT  );
 
         estimationInput->setConstantPerObservableWeightsMatrix( weightPerObservable );
         estimationInput->defineEstimationSettings( true, true, true, true, false );

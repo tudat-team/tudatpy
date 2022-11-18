@@ -248,12 +248,12 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
             // Define (arbitrary) noise properties for observables
             std::map< ObservableType, double > constantOffsets;
             constantOffsets[ one_way_range ] = -200.0;
-            constantOffsets[ one_way_doppler ] = -2.8E-5;
+            constantOffsets[ one_way_doppler ] = -2.8E3;
             constantOffsets[ angular_position ] = 3.0E-4;
 
             std::map< ObservableType, double > constantStandardDeviations;
             constantStandardDeviations[ one_way_range ] = 2.4;
-            constantStandardDeviations[ one_way_doppler ] = 7.5E-8;
+            constantStandardDeviations[ one_way_doppler ] = 7.5;
             constantStandardDeviations[ angular_position ] = 6.3E-6;
 
             clearNoiseFunctionFromObservationSimulationSettings( measurementSimulationInput );
@@ -318,8 +318,8 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
             constantOffsetsPerStation[ one_way_range ][ linkEndsPerObservable[ one_way_range ].at( 1 ) ] = -65.3;
             constantOffsetsPerStation[ one_way_range ][ linkEndsPerObservable[ one_way_range ].at( 2 ) ] = 54.1;
 
-            constantOffsetsPerStation[ one_way_doppler ][ linkEndsPerObservable[ one_way_doppler ].at( 0 ) ] = 4.3E-6;
-            constantOffsetsPerStation[ one_way_doppler ][ linkEndsPerObservable[ one_way_doppler ].at( 1 ) ] = -3.4E-5;
+            constantOffsetsPerStation[ one_way_doppler ][ linkEndsPerObservable[ one_way_doppler ].at( 0 ) ] = 4.3E2;
+            constantOffsetsPerStation[ one_way_doppler ][ linkEndsPerObservable[ one_way_doppler ].at( 1 ) ] = -3.4E3;
 
             constantOffsetsPerStation[ angular_position ][ linkEndsPerObservable[ angular_position ].at( 0 ) ] = 5.3E-7;
             constantOffsetsPerStation[ angular_position ][ linkEndsPerObservable[ angular_position ].at( 1 ) ] = 3.33E-6;
@@ -329,8 +329,8 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
             constantStandardDeviationsStation[ one_way_range ][ linkEndsPerObservable[ one_way_range ].at( 1 ) ] = 1.34;
             constantStandardDeviationsStation[ one_way_range ][ linkEndsPerObservable[ one_way_range ].at( 2 ) ] = 4.33;
 
-            constantStandardDeviationsStation[ one_way_doppler ][ linkEndsPerObservable[ one_way_doppler ].at( 0 ) ] = 2.6E-8;
-            constantStandardDeviationsStation[ one_way_doppler ][ linkEndsPerObservable[ one_way_doppler ].at( 1 ) ] = 2.2E-8;;
+            constantStandardDeviationsStation[ one_way_doppler ][ linkEndsPerObservable[ one_way_doppler ].at( 0 ) ] = 2.6;
+            constantStandardDeviationsStation[ one_way_doppler ][ linkEndsPerObservable[ one_way_doppler ].at( 1 ) ] = 2.2;
 
             constantStandardDeviationsStation[ angular_position ][ linkEndsPerObservable[ angular_position ].at( 0 ) ] = 1.2E-12;
             constantStandardDeviationsStation[ angular_position ][ linkEndsPerObservable[ angular_position ].at( 1 ) ] = 4.3E-10;
