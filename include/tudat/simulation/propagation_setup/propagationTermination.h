@@ -102,6 +102,11 @@ public:
      */
     virtual bool checkStopCondition( const double time, const double cpuTime ) = 0;
 
+    virtual bool iterateToExactTermination( )
+    {
+        return getcheckTerminationToExactCondition( );
+    }
+
     //! Function to retrieve type of termination condition
     /*!
      *  Function to retrieve type of termination condition
@@ -385,6 +390,8 @@ public:
      * \return True if propagation is to be stopped, false otherwise.
      */
     bool checkStopCondition( const double time, const double cpuTime );
+
+    bool iterateToExactTermination( );
 
     //! Function to retrieve list of termination conditions that are checked when calling checkStopCondition is called.
     /*!

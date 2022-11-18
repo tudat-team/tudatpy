@@ -197,7 +197,7 @@ bool getFinalStateForExactHybridVariableTerminationCondition(
     for( unsigned int i = 0; i < terminationConditionList.size( ); i++ )
     {
         if( terminationConditionList.at( i )->getcheckTerminationToExactCondition( ) )
-        {
+        {           
             // Determine single termination condition
             getFinalStateForExactTerminationCondition(
                         integrator, terminationConditionList.at( i ),secondToLastTime, lastTime, secondToLastState, lastState,
@@ -620,7 +620,7 @@ std::shared_ptr< PropagationTerminationDetails > integrateEquationsFromIntegrato
             if( propagationTerminationCondition->checkStopCondition( static_cast< double >( currentTime ), currentCPUTime ) )
             {
                 // Propagate to the exact termination conditions
-                if( propagationTerminationCondition->getcheckTerminationToExactCondition( ) )
+                if( propagationTerminationCondition->iterateToExactTermination( ) )
                 {
                     propagateToExactTerminationCondition(
                                 integrator, propagationTerminationCondition,
@@ -643,7 +643,7 @@ std::shared_ptr< PropagationTerminationDetails > integrateEquationsFromIntegrato
                         throw std::runtime_error( "Error when saving termination reason, type is hybrid, but class is not." );
                     }
                     propagationTerminationReason = std::make_shared< PropagationTerminationDetailsFromHybridCondition >(
-                                propagationTerminationCondition->getcheckTerminationToExactCondition( ),
+                                propagationTerminationCondition->iterateToExactTermination( ),
                                 std::dynamic_pointer_cast< HybridPropagationTerminationCondition >(
                                     propagationTerminationCondition ) );
                 }

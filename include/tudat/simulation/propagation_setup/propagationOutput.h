@@ -20,6 +20,7 @@
 #include "tudat/astro/propagators/dynamicsStateDerivativeModel.h"
 #include "tudat/astro/propagators/rotationalMotionStateDerivative.h"
 #include "tudat/simulation/environment_setup/body.h"
+#include "tudat/simulation/environment_setup/createGroundStations.h"
 #include "tudat/simulation/propagation_setup/propagationOutputSettings.h"
 #include "tudat/simulation/propagation_setup/propagationSettings.h"
 #include "tudat/simulation/environment_setup/createFlightConditions.h"
@@ -376,6 +377,16 @@ getGravitationalAccelerationForDependentVariables(
     return selectedAccelerationModel;
 }
 
+Eigen::VectorXd getConstellationMinimumDistance(
+    const std::function< Eigen::Vector3d( ) >& mainBodyPositionFunction,
+    const std::vector< std::function< Eigen::Vector3d( ) > >& bodiesToCheckPositionFunctions );
+
+Eigen::VectorXd getConstellationMinimumVisibleDistance(
+    const std::function< Eigen::Vector3d( ) >& mainBodyPositionFunction,
+    const std::vector< std::function< Eigen::Vector3d( ) > >& bodiesToCheckPositionFunctions,
+    const std::shared_ptr< ground_stations::PointingAnglesCalculator > stationPointingAngleCalculator,
+    const double limitAngle,
+    const double time );
 
 //! Function to create a function returning a requested dependent variable value (of type VectorXd).
 /*!
@@ -1300,10 +1311,10 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
 
             std::shared_ptr< acceleration_partials::AccelerationPartial > partialToUse =
                     getAccelerationPartialForBody(
-                        stateDerivativePartials.at( translational_state ), accelerationPartialVariableSettings->accelerationModelType_,
+                        stateDerivativePartials.at( translational_state ),
+                        accelerationPartialVariableSettings->accelerationModelType_,
                         accelerationPartialVariableSettings->associatedBody_,
-                        accelerationPartialVariableSettings->secondaryBody_,
-                        accelerationPartialVariableSettings->thirdBody_ );
+                        accelerationPartialVariableSettings->secondaryBody_ );
 
             std::pair< std::function< void( Eigen::Block< Eigen::MatrixXd > ) >, int > partialFunction =
                     partialToUse->getDerivativeFunctionWrtStateOfIntegratedBody(
@@ -1323,7 +1334,134 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
         }
         break;
     }
+    case total_acceleration_partial_wrt_body_translational_state:
+    {
+        std::shared_ptr< TotalAccelerationPartialWrtStateSaveSettings > totalAccelerationPartialVariableSettings =
+                std::dynamic_pointer_cast< TotalAccelerationPartialWrtStateSaveSettings >( dependentVariableSettings );
+        if( totalAccelerationPartialVariableSettings == nullptr )
+        {
+            std::string errorMessage= "Error, inconsistent inout when creating dependent variable function of type total_acceleration_partial_wrt_body_translational_state";
+            throw std::runtime_error( errorMessage );
+        }
+        else
+        {
+            if( stateDerivativePartials.count( translational_state ) == 0 )
+            {
+                throw std::runtime_error( "Error when requesting total_acceleration_partial_wrt_body_translational_state dependent variable, no translational state partials found." );
+            }
+
+            // Retrieve model responsible for computing accelerations of requested bodies.
+            std::shared_ptr< NBodyStateDerivative< StateScalarType, TimeType > > nBodyModel =
+                    getTranslationalStateDerivativeModelForBody( totalAccelerationPartialVariableSettings->associatedBody_, stateDerivativeModels );
+
+            // Retrieve acceleration models and create partials
+            basic_astrodynamics::SingleBodyAccelerationMap accelerationModelList =
+                    nBodyModel->getFullAccelerationsMap( ).at( totalAccelerationPartialVariableSettings->associatedBody_ );
+
+            std::vector< std::pair< std::function< void( Eigen::Block< Eigen::MatrixXd > ) >, int > > partialFunctions;
+
+            // Parse all accelerations.
+            for ( basic_astrodynamics::SingleBodyAccelerationMap::iterator itr = accelerationModelList.begin( ) ;
+                  itr != accelerationModelList.end( ) ; itr++ )
+            {
+                std::string bodyExertingAcceleration = itr->first;
+
+                for ( unsigned int currentAcceleration = 0 ; currentAcceleration < itr->second.size( ) ; currentAcceleration++ )
+                {
+                    std::shared_ptr< acceleration_partials::AccelerationPartial > partialToUse =
+                            getAccelerationPartialForBody(
+                                stateDerivativePartials.at( translational_state ),
+                                basic_astrodynamics::getAccelerationModelType( itr->second[ currentAcceleration ] ),
+                                totalAccelerationPartialVariableSettings->associatedBody_,
+                                bodyExertingAcceleration );
+
+                    std::pair< std::function< void( Eigen::Block< Eigen::MatrixXd > ) >, int > partialFunction =
+                            partialToUse->getDerivativeFunctionWrtStateOfIntegratedBody(
+                                std::make_pair( totalAccelerationPartialVariableSettings->derivativeWrtBody_, "" ),
+                                propagators::translational_state );
+
+                    partialFunctions.push_back( partialFunction );
+                }
+            }
+
+            variableFunction = [ = ]( )
+            {
+                Eigen::VectorXd variable = Eigen::VectorXd::Zero( 18 );
+
+                for ( unsigned int i = 0 ; i < partialFunctions.size( ) ; i++ )
+                {
+                    if( partialFunctions[ i ].second != 0 )
+                    {
+                        variable += getVectorFunctionFromBlockFunction( partialFunctions[ i ].first, 3, 6 );
+                    }
+                }
+
+                return variable;
+            };
+
+            parameterSize = 18;
+        }
+        break;
+    }
 #endif
+    case minimum_constellation_distance:
+    {
+        std::shared_ptr< MinimumConstellationDistanceDependentVariableSaveSettings > minimumDistanceDependentVariable =
+                std::dynamic_pointer_cast< MinimumConstellationDistanceDependentVariableSaveSettings >( dependentVariableSettings );
+        if( minimumDistanceDependentVariable == nullptr )
+        {
+            std::string errorMessage= "Error, inconsistent inout when creating dependent variable function of type minimum_constellation_distance";
+            throw std::runtime_error( errorMessage );
+        }
+        else
+        {
+            std::function< Eigen::Vector3d( ) > mainBodyPositionFunction =
+                    std::bind( &simulation_setup::Body::getPosition, bodies.at( bodyWithProperty ) );
+            std::vector< std::function< Eigen::Vector3d( ) > > bodiesToCheckPositionFunctions;
+            for( unsigned int i = 0; i < minimumDistanceDependentVariable->bodiesToCheck_.size( ); i++ )
+            {
+                bodiesToCheckPositionFunctions.push_back(
+                            std::bind( &simulation_setup::Body::getPosition, bodies.at( minimumDistanceDependentVariable->bodiesToCheck_.at( i ) ) ) );
+            }
+
+            variableFunction = std::bind( &getConstellationMinimumDistance, mainBodyPositionFunction, bodiesToCheckPositionFunctions );
+            parameterSize = 2;
+        }
+        break;
+    }
+    case minimum_constellation_ground_station_distance:
+    {
+        std::shared_ptr< MinimumConstellationStationDistanceDependentVariableSaveSettings > minimumDistanceDependentVariable =
+                std::dynamic_pointer_cast< MinimumConstellationStationDistanceDependentVariableSaveSettings >( dependentVariableSettings );
+        if( minimumDistanceDependentVariable == nullptr )
+        {
+            std::string errorMessage= "Error, inconsistent inout when creating dependent variable function of type minimum_constellation_ground_station_distance";
+            throw std::runtime_error( errorMessage );
+        }
+        else
+        {
+            std::function< Eigen::Vector3d( ) > stationPositionFunction =
+                    std::bind( &simulation_setup::getGroundStationPositionDuringPropagation< double >,
+                                   bodies.at( bodyWithProperty ), secondaryBody );
+            std::shared_ptr< ground_stations::PointingAnglesCalculator > stationPointingAngleCalculator =
+                    bodies.at( bodyWithProperty )->getGroundStation( secondaryBody )->getPointingAnglesCalculator( );
+
+            std::vector< std::function< Eigen::Vector3d( ) > > bodiesToCheckPositionFunctions;
+            for( unsigned int i = 0; i < minimumDistanceDependentVariable->bodiesToCheck_.size( ); i++ )
+            {
+                bodiesToCheckPositionFunctions.push_back(
+                            std::bind( &simulation_setup::Body::getPosition,
+                                       bodies.at( minimumDistanceDependentVariable->bodiesToCheck_.at( i ) ) ) );
+            }
+
+            variableFunction = [=]( ){ return getConstellationMinimumVisibleDistance(
+                                          stationPositionFunction, bodiesToCheckPositionFunctions,
+                                          stationPointingAngleCalculator, minimumDistanceDependentVariable->elevationAngleLimit_,
+                            bodies.at( bodyWithProperty )->getDoubleTimeOfCurrentState( ) ); };
+            parameterSize = 3;
+        }
+        break;
+    }
     case custom_dependent_variable:
     {
         std::shared_ptr< CustomDependentVariableSaveSettings > customVariableSettings =

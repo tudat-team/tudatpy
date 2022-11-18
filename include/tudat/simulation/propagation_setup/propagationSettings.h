@@ -2155,6 +2155,12 @@ public:
         }
     }
 
+    void recomputeInitialStates( )
+    {
+        this->initialStates_ = createCombinedInitialState< StateScalarType >( propagatorSettingsMap_ );
+    }
+
+
     void makeOutputSettingsConsistent( )
     {
         for( auto it : propagatorSettingsMap_ )

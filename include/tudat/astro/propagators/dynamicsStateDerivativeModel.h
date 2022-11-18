@@ -1040,8 +1040,7 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > getAccelerationPar
         const orbit_determination::StateDerivativePartialsMap& accelerationPartials,
         const basic_astrodynamics::AvailableAcceleration accelerationType,
         const std::string& bodyExertingAcceleration,
-        const std::string& bodyUndergoignAcceleration,
-        const std::string& centralBody = "" );
+        const std::string& bodyUndergoignAcceleration );
 #endif
 
 template< typename TimeType = double, typename StateScalarType = double,

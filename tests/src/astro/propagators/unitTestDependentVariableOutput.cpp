@@ -1168,23 +1168,23 @@ BOOST_AUTO_TEST_CASE( test_AccelerationPartialSaving )
     bodies.createEmptyBody( "Vehicle" );
 
     // Set accelerations on Vehicle that are to be taken into account.
-    for( int test = 0; test < 3; test++ )
+    for( int test = 0; test < 5; test++ )
     {
         SelectedAccelerationMap accelerationMap;
         std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
 
-        if( test == 0 || test == 2 )
+        if( test == 0 || test == 3 || test == 4 )
         {
             accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< SphericalHarmonicAccelerationSettings >( 3, 3 ) );
         }
 
-        if( test == 1 || test == 2 )
+        if( test > 0 )
         {
             accelerationsOfVehicle[ "Moon" ].push_back( std::make_shared< AccelerationSettings >(
                                                             basic_astrodynamics::point_mass_gravity ) );
         }
 
-        if( test == 2 )
+        if( test > 2 )
         {
             accelerationsOfVehicle[ "Sun" ].push_back( std::make_shared< AccelerationSettings >(
                                                            basic_astrodynamics::point_mass_gravity ) );
@@ -1218,7 +1218,7 @@ BOOST_AUTO_TEST_CASE( test_AccelerationPartialSaving )
 
         // Create propagator settings
         std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
-        if( test == 0 || test == 2 )
+        if( test == 0 || test == 3 || test == 4 )
         {
             dependentVariables.push_back(
                         std::make_shared< AccelerationPartialWrtStateSaveSettings >(
@@ -1235,19 +1235,41 @@ BOOST_AUTO_TEST_CASE( test_AccelerationPartialSaving )
                             "Vehicle", "Earth", spherical_harmonic_gravity, "Moon" ) );
         }
 
-        if( test == 1 || test == 2 )
+        if( test == 1 || test == 3 )
         {
             dependentVariables.push_back(
                         std::make_shared< AccelerationPartialWrtStateSaveSettings >(
-                            "Vehicle", "Moon", third_body_point_mass_gravity, "Vehicle", "Earth" ) );
+                            "Vehicle", "Moon", point_mass_gravity, "Vehicle" ) );
+            dependentVariables.push_back(
+                        std::make_shared< AccelerationPartialWrtStateSaveSettings >(
+                            "Vehicle", "Moon", point_mass_gravity, "Moon" ) );
+        }
+        else if( test == 2 || test == 4 )
+        {
+            dependentVariables.push_back(
+                        std::make_shared< AccelerationPartialWrtStateSaveSettings >(
+                            "Vehicle", "Moon", third_body_point_mass_gravity, "Vehicle" ) );
+            dependentVariables.push_back(
+                        std::make_shared< AccelerationPartialWrtStateSaveSettings >(
+                            "Vehicle", "Moon", third_body_point_mass_gravity, "Moon" ) );
         }
 
-        if( test == 2 )
+        if( test == 3 )
         {
             dependentVariables.push_back(
                         std::make_shared< AccelerationPartialWrtStateSaveSettings >(
-                            "Vehicle", "Sun", third_body_point_mass_gravity, "Vehicle", "Earth" ) );
+                            "Vehicle", "Sun", point_mass_gravity, "Vehicle" ) );
         }
+        else if( test == 4 )
+        {
+            dependentVariables.push_back(
+                        std::make_shared< AccelerationPartialWrtStateSaveSettings >(
+                            "Vehicle", "Sun", third_body_point_mass_gravity, "Vehicle" ) );
+        }
+        dependentVariables.push_back(
+                std::make_shared< TotalAccelerationPartialWrtStateSaveSettings >( "Vehicle", "Vehicle" ) );
+        dependentVariables.push_back(
+                std::make_shared< TotalAccelerationPartialWrtStateSaveSettings >( "Vehicle", "Moon" ) );
 
         std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
                 std::make_shared< TranslationalStatePropagatorSettings< double > >
@@ -1302,8 +1324,9 @@ BOOST_AUTO_TEST_CASE( test_AccelerationPartialSaving )
 
         for( unsigned int i = 0; i < dependentVariableSolution.size( ) - 2; i++ )
         {
+
             Eigen::MatrixXd currentPartial;
-            if( test < 2 )
+            if( test < 3 )
             {
                 getOutputVectorInMatrixRepresentation( variableIteratorMid->second.segment( 0, 18 ), currentPartial, 3, 6 );
             }
@@ -1343,7 +1366,49 @@ BOOST_AUTO_TEST_CASE( test_AccelerationPartialSaving )
                 TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                             variableIteratorMid->second.segment( 36, 18 ), ( Eigen::VectorXd::Zero( 18 ) ),
                             std::numeric_limits< double >::epsilon( ) );
+                // Check consistency of partial of total acceleration of Vehicle w.r.t. Vehicle's translational state.
+                Eigen::VectorXd computedTotalAccelerationPartials = variableIteratorBack->second.segment( 0, 18 );
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                            computedTotalAccelerationPartials, variableIteratorBack->second.segment( 54, 18 ),
+                            std::numeric_limits< double >::epsilon( ) );
             }
+            else if ( test == 1 || test == 2 )
+            {
+                // Check consistency of partial of total acceleration of Vehicle w.r.t. Vehicle's translational state.
+                Eigen::VectorXd computedTotalAccelerationPartials = variableIteratorBack->second.segment( 0, 18 );
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                            computedTotalAccelerationPartials, variableIteratorBack->second.segment( 36, 18 ),
+                            std::numeric_limits< double >::epsilon( ) );
+
+                // Check consistency of partial of total acceleration of Vehicle w.r.t. Moon's translational state.
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                            variableIteratorBack->second.segment( 18, 18 ), variableIteratorBack->second.segment( 54, 18 ),
+                            std::numeric_limits< double >::epsilon( ) );
+            }
+            else if ( test == 3 || test == 4 )
+            {
+                // Check consistency of partial of total acceleration of Vehicle w.r.t. Vehicle's translational state.
+                Eigen::VectorXd computedTotalAccelerationPartials = Eigen::VectorXd::Zero( 18 );
+                computedTotalAccelerationPartials += variableIteratorBack->second.segment( 0, 18 );
+                computedTotalAccelerationPartials += variableIteratorBack->second.segment( 18, 18 );
+                computedTotalAccelerationPartials += variableIteratorBack->second.segment( 54, 18 );
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                            computedTotalAccelerationPartials, variableIteratorBack->second.segment( 72, 18 ),
+                            std::numeric_limits< double >::epsilon( ) );
+
+                // Check consistency of partial of total acceleration of Vehicle w.r.t. Moon's translational state.
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                            variableIteratorBack->second.segment( 36, 18 ), variableIteratorBack->second.segment( 90, 18 ),
+                            std::numeric_limits< double >::epsilon( ) );
+            }
+
+
+
+
+
+
+
+
 
             variableIteratorBack++;
             variableIteratorMid++;
@@ -1569,6 +1634,235 @@ BOOST_AUTO_TEST_CASE( test_GravitationalPotentialAndLaplacianSaving )
             }
         }
     }
+}
+
+std::pair< int, double > getClosestSatelliteDistance(
+        const SystemOfBodies& bodies,
+        const std::string body,
+        const std::vector< std::string >& bodyList,
+        const double time )
+{
+    std::vector< double > distances;
+    distances.resize( bodyList.size( ) );
+    for( unsigned int i = 0; i < distances.size( ); i++ )
+    {
+        distances[ i ] = ( bodies.at( body )->getEphemeris( )->getCartesianPosition( time ) -
+                bodies.at( bodyList.at( i ) )->getEphemeris( )->getCartesianPosition( time ) ).norm( );
+    }
+    int minimumDistanceIndex = std::distance(std::begin(distances), std::min_element(std::begin(distances), std::end(distances)));
+
+    return std::make_pair( minimumDistanceIndex, distances[ minimumDistanceIndex ] );
+}
+
+std::tuple< int, double, double > getClosestStationSatelliteDistance(
+        const SystemOfBodies& bodies,
+        const std::shared_ptr< ground_stations::GroundStation > groundStation,
+        const std::vector< std::string >& bodyList,
+        const double time )
+{
+    std::vector< double > distances;
+    std::vector< double > elevationAngles;
+    std::vector< int > indices;
+
+
+    Eigen::Vector6d stationState = getLinkEndCompleteEphemerisFunction(
+            bodies.at( "Earth" ), std::make_pair( "Earth", groundStation->getStationId( ) ) )( time );
+
+    for( unsigned int i = 0; i < bodyList.size( ); i++ )
+    {
+        Eigen::Vector3d relativePosition =
+                bodies.at( bodyList.at( i ) )->getEphemeris( )->getCartesianPosition( time ) -
+                stationState.segment( 0, 3 );
+        double elevationAngle = groundStation->getPointingAnglesCalculator( )->calculateElevationAngle(
+                    relativePosition, time );
+        if( elevationAngle > 0.0 )
+        {
+            elevationAngles.push_back( elevationAngle );
+            distances.push_back( relativePosition.norm( ) );
+            indices.push_back( i );
+        }
+    }
+
+    if( elevationAngles.size( ) > 0 )
+    {
+        int minimumDistanceIndex = std::distance(std::begin(distances), std::min_element(std::begin(distances), std::end(distances)));
+        return std::make_tuple( indices.at( minimumDistanceIndex ), distances.at( minimumDistanceIndex ), elevationAngles.at( minimumDistanceIndex ) );
+    }
+    else
+    {
+        return std::make_tuple( -1, TUDAT_NAN, TUDAT_NAN );
+    }
+
+}
+
+BOOST_AUTO_TEST_CASE( test_ConstellationVariables )
+{
+    // Load Spice kernels.
+    spice_interface::loadStandardSpiceKernels( );
+
+    // Set simulation end epoch.
+    const double simulationStartEpoch = 0.0 * tudat::physical_constants::JULIAN_DAY;
+    const double simulationEndEpoch = 7.0 * tudat::physical_constants::JULIAN_DAY;
+
+    // Set numerical integration fixed step size.
+    const double fixedStepSize = 120.0;
+
+    // Define body settings for simulation.
+    BodyListSettings bodySettings =getDefaultBodySettings(
+        {"Earth"}, "Earth", "J2000" );
+
+    // Create Earth object
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+
+    // Create spacecraft object.
+    bodies.createEmptyBody( "Satellite1" );
+    bodies.createEmptyBody( "Satellite2" );
+    bodies.createEmptyBody( "Satellite3" );
+    bodies.createEmptyBody( "Satellite4" );
+    bodies.createEmptyBody( "Satellite5" );
+
+    // Define propagator settings variables.
+    SelectedAccelerationMap accelerationMap;
+    std::vector< std::string > bodiesToPropagate;
+    std::vector< std::string > centralBodies;
+
+    // Define propagation settings.
+    std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfSatellite1;
+    std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfSatellite2;
+    accelerationsOfSatellite1[ "Earth" ].push_back( std::make_shared< SphericalHarmonicAccelerationSettings >(
+                                                     2, 2 ) );
+//    accelerationsOfSatellite1[ "Earth" ].push_back( std::make_shared< AccelerationSettings >(
+//                                                     aerodynamic ) );
+    accelerationsOfSatellite2[ "Earth" ].push_back( std::make_shared< SphericalHarmonicAccelerationSettings >(
+                                                     2, 2 ) );
+    accelerationMap[ "Satellite1" ] = accelerationsOfSatellite1;
+    accelerationMap[ "Satellite2" ] = accelerationsOfSatellite1;
+
+    bodiesToPropagate.push_back( "Satellite1" );
+    bodiesToPropagate.push_back( "Satellite2" );
+
+    centralBodies.push_back( "Earth" );
+    centralBodies.push_back( "Earth" );
+
+    // Create acceleration models and propagation settings.
+    basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
+                bodies, accelerationMap, bodiesToPropagate, centralBodies );
+
+    double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
+
+    // Set Keplerian elements for Asterix.
+    Eigen::Vector6d satellite1InitialState;
+    satellite1InitialState( semiMajorAxisIndex ) = 6800.0E3;
+    satellite1InitialState( eccentricityIndex ) = 0.1;
+    satellite1InitialState( inclinationIndex ) = convertDegreesToRadians( 85.3 );
+    satellite1InitialState( argumentOfPeriapsisIndex ) = convertDegreesToRadians( 235.7 );
+    satellite1InitialState( longitudeOfAscendingNodeIndex ) = convertDegreesToRadians( 23.4 );
+    satellite1InitialState( trueAnomalyIndex ) = convertDegreesToRadians( 139.87 );
+
+    Eigen::Vector6d satellite2InitialState = satellite1InitialState;
+    satellite2InitialState( eccentricityIndex ) = 0.0;
+    satellite2InitialState( inclinationIndex ) = convertDegreesToRadians( 86.3 );
+    satellite2InitialState( trueAnomalyIndex ) = convertDegreesToRadians( 141.87 );
+
+    Eigen::Vector6d satellite3InitialState = satellite1InitialState;
+    satellite3InitialState( eccentricityIndex ) = 0.0;
+    satellite3InitialState( inclinationIndex ) = convertDegreesToRadians( 86.3 );
+    satellite3InitialState( trueAnomalyIndex ) = convertDegreesToRadians( 137.87 );
+    bodies.at( "Satellite3" )->setEphemeris( createBodyEphemeris( std::make_shared< KeplerEphemerisSettings >(
+                                                 satellite3InitialState, 0.0,earthGravitationalParameter, "Earth", "J2000" ),
+                                             "Satellite3" ) );
+
+    Eigen::Vector6d satellite4InitialState = satellite1InitialState;
+    satellite4InitialState( longitudeOfAscendingNodeIndex ) = convertDegreesToRadians( 24.4 );
+    bodies.at( "Satellite4" )->setEphemeris( createBodyEphemeris( std::make_shared< KeplerEphemerisSettings >(
+                                                 satellite4InitialState, 0.0,earthGravitationalParameter, "Earth", "J2000" ),
+                                             "Satellite4" ) );
+
+    Eigen::Vector6d satellite5InitialState = satellite1InitialState;
+    satellite5InitialState( semiMajorAxisIndex ) = 6810.0E3;
+    bodies.at( "Satellite5" )->setEphemeris( createBodyEphemeris( std::make_shared< KeplerEphemerisSettings >(
+                                                 satellite5InitialState, 0.0, earthGravitationalParameter, "Earth", "J2000" ),
+                                             "Satellite5" ) );
+
+    createGroundStation( bodies.at( "Earth" ), "Station", ( Eigen::Vector3d( ) << 0.0, 1.5, 2.1 ).finished( ),
+                         coordinate_conversions::geodetic_position );
+
+    // Convert Asterix state from Keplerian elements to Cartesian elements.
+    Eigen::VectorXd systemInitialState = Eigen::VectorXd::Zero( 12 );
+    systemInitialState.segment( 0, 6 ) = convertKeplerianToCartesianElements(
+                satellite1InitialState,
+                earthGravitationalParameter );
+    systemInitialState.segment( 6, 6 ) = convertKeplerianToCartesianElements(
+                satellite2InitialState,
+                earthGravitationalParameter );
+
+    std::shared_ptr< IntegratorSettings< > > integratorSettings =
+            std::make_shared< IntegratorSettings< > >
+            ( rungeKutta4, simulationStartEpoch, fixedStepSize );
+
+
+    std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
+
+    dependentVariables.push_back(
+                std::make_shared< MinimumConstellationDistanceDependentVariableSaveSettings >(
+                    "Satellite1", std::vector< std::string >( { "Satellite2", "Satellite3", "Satellite4", "Satellite5" } ) ) );
+    dependentVariables.push_back(
+                std::make_shared< MinimumConstellationDistanceDependentVariableSaveSettings >(
+                    "Satellite2", std::vector< std::string >( { "Satellite1", "Satellite3", "Satellite4", "Satellite5" } ) ) );
+    dependentVariables.push_back(
+                std::make_shared< MinimumConstellationDistanceDependentVariableSaveSettings >(
+                    "Satellite3", std::vector< std::string >( { "Satellite1", "Satellite2", "Satellite4", "Satellite5" } ) ) );
+    dependentVariables.push_back(
+                std::make_shared< MinimumConstellationStationDistanceDependentVariableSaveSettings >(
+                    "Earth", "Station", std::vector< std::string >( { "Satellite1", "Satellite2", "Satellite3", "Satellite4", "Satellite5" } ), 0.0 ) );
+
+    std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
+            std::make_shared< TranslationalStatePropagatorSettings< double > >
+            ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, simulationEndEpoch, cowell, dependentVariables );
+
+
+    // Create simulation object and propagate dynamics.
+    SingleArcDynamicsSimulator< > dynamicsSimulator(
+                bodies, integratorSettings, propagatorSettings, true, false, true );
+    std::map< double, Eigen::VectorXd > dependentVariableResults = dynamicsSimulator.getDependentVariableHistory( );
+    std::pair< int, double > testPair;
+    std::tuple< int, double, double > testTuple;
+    for( auto it : dependentVariableResults )
+    {
+        testPair = getClosestSatelliteDistance(
+                bodies, "Satellite1", std::vector< std::string >( { "Satellite2", "Satellite3", "Satellite4", "Satellite5" } ), it.first );
+        BOOST_CHECK_CLOSE_FRACTION( it.second( 0 ), testPair.second, 1.0E-12 );
+        BOOST_CHECK_EQUAL( it.second( 1 ), testPair.first );
+
+        testPair = getClosestSatelliteDistance(
+                bodies, "Satellite2", std::vector< std::string >( { "Satellite1", "Satellite3", "Satellite4", "Satellite5" } ), it.first );
+        BOOST_CHECK_CLOSE_FRACTION( it.second( 2 ), testPair.second, 1.0E-12 );
+        BOOST_CHECK_EQUAL( it.second( 3 ), testPair.first );
+
+        testPair = getClosestSatelliteDistance(
+                bodies, "Satellite3", std::vector< std::string >( { "Satellite1", "Satellite2", "Satellite4", "Satellite5" } ), it.first );
+        BOOST_CHECK_CLOSE_FRACTION( it.second( 4 ), testPair.second, 1.0E-12 );
+        BOOST_CHECK_EQUAL( it.second( 5 ), testPair.first );
+
+        testTuple = getClosestStationSatelliteDistance(
+                bodies, bodies.at( "Earth" )->getGroundStation( "Station" ),
+                     std::vector< std::string >( { "Satellite1", "Satellite2", "Satellite3", "Satellite4", "Satellite5" } ),
+                    it.first );
+        if( std::get< 0 >( testTuple ) == -1 )
+        {
+            BOOST_CHECK_EQUAL( it.second( 7 ), -1 );
+            BOOST_CHECK_EQUAL( ( it.second( 6 ) != it.second( 6 ) ), true );
+            BOOST_CHECK_EQUAL( ( it.second( 8 ) != it.second( 8 ) ), true );
+        }
+        else
+        {
+            BOOST_CHECK_EQUAL( it.second( 7 ), std::get< 0 >( testTuple ) );
+            BOOST_CHECK_CLOSE_FRACTION( it.second( 6 ), std::get< 1 >( testTuple ), 1.0E-12 );
+            BOOST_CHECK_CLOSE_FRACTION( it.second( 8 ), std::get< 2 >( testTuple ), 1.0E-12 );
+        }
+
+    }
+
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
