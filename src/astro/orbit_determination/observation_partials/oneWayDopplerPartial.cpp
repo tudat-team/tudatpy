@@ -64,9 +64,9 @@ void OneWayDopplerDirectFirstOrderProperTimeComponentScaling::update( const std:
         partialWrPosition_ = -physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT *
                 ( 1.0 + relativity::equivalencePrincipleLpiViolationParameter ) *
                 currentGravitationalParameter_ / ( currentDistance_ * currentDistance_ ) *
-                ( relativeState.segment( 0, 3 ).normalized( ) ).transpose( );
+                ( relativeState.segment( 0, 3 ).normalized( ) ).transpose( ) * physical_constants::SPEED_OF_LIGHT;
         partialWrtVelocity_ = physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT *
-                ( relativeState.segment( 3, 3 ) ).transpose( );
+                ( relativeState.segment( 3, 3 ) ).transpose( ) * physical_constants::SPEED_OF_LIGHT;
     }
 }
 
