@@ -412,16 +412,16 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
 
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                         ( transmitterProperTimePartials->getPositionScalingFactor( transmitter ) ),
-                        numericalTransmitterProperTimePartialsWrtMarsPosition, 1.0E-6 );
+                        ( numericalTransmitterProperTimePartialsWrtMarsPosition * physical_constants::SPEED_OF_LIGHT ), 1.0E-6 );
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                         ( transmitterProperTimePartials->getPositionScalingFactor( receiver ) ),
-                        numericalTransmitterProperTimePartialsWrtEarthPosition, 1.0E-6 );
+                        ( numericalTransmitterProperTimePartialsWrtEarthPosition * physical_constants::SPEED_OF_LIGHT ), 1.0E-6 );
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                         ( transmitterProperTimePartials->getVelocityScalingFactor( transmitter ) ),
-                        numericalTransmitterProperTimePartialsWrtMarsVelocity, 1.0E-6 );
+                        ( numericalTransmitterProperTimePartialsWrtMarsVelocity * physical_constants::SPEED_OF_LIGHT ), 1.0E-6 );
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                         ( transmitterProperTimePartials->getVelocityScalingFactor( receiver ) ),
-                        numericalTransmitterProperTimePartialsWrtEarthVelocity, 1.0E-6 );
+                        ( numericalTransmitterProperTimePartialsWrtEarthVelocity * physical_constants::SPEED_OF_LIGHT ), 1.0E-6 );
 
             std::function< Eigen::VectorXd( const double ) > receiverProperTimeRateFunction =
                     std::bind( &getProperTimeRateInVectorForm,
@@ -442,16 +442,16 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
 
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                         ( receiverProperTimePartials->getPositionScalingFactor( receiver ) ),
-                        numericalReceiverProperTimePartialsWrtEarthPosition, 1.0E-6 );
+                        ( numericalReceiverProperTimePartialsWrtEarthPosition * physical_constants::SPEED_OF_LIGHT ), 1.0E-6 );
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                         ( receiverProperTimePartials->getPositionScalingFactor( transmitter ) ),
-                        numericalReceiverProperTimePartialsWrtMarsPosition, 1.0E-6 );
+                        ( numericalReceiverProperTimePartialsWrtMarsPosition * physical_constants::SPEED_OF_LIGHT ), 1.0E-6 );
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                         ( receiverProperTimePartials->getVelocityScalingFactor( transmitter ) ),
-                        numericalReceiverProperTimePartialsWrtMarsVelocity, 1.0E-6 );
+                        ( numericalReceiverProperTimePartialsWrtMarsVelocity * physical_constants::SPEED_OF_LIGHT ), 1.0E-6 );
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                         ( receiverProperTimePartials->getVelocityScalingFactor( receiver ) ),
-                        numericalReceiverProperTimePartialsWrtEarthVelocity, 1.0E-6 );
+                        ( numericalReceiverProperTimePartialsWrtEarthVelocity * physical_constants::SPEED_OF_LIGHT ), 1.0E-6 );
         }
 
         std::cout<<"D ****************************************** "<<std::endl;
@@ -513,19 +513,19 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
                     ( ( partialWrtMarsState - partialWrtMarsStateWithoutProperTime ).block( 0, 0, 1, 3 ) ),
                     properTimePartialWrtMarsPosition, 1.0E-5 );
 
-        std::cout<<( ( partialWrtEarthState - partialWrtEarthStateWithoutProperTime ).block( 0, 0, 1, 3 ) - properTimePartialWrtEarthPosition ).cwiseQuotient(  properTimePartialWrtEarthPosition ).transpose( )<<std::endl;
+        std::cout<<( -( partialWrtEarthState - partialWrtEarthStateWithoutProperTime ).block( 0, 0, 1, 3 ) - properTimePartialWrtEarthPosition ).cwiseQuotient(  properTimePartialWrtEarthPosition ).transpose( )<<std::endl;
 
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                     ( -( partialWrtEarthState - partialWrtEarthStateWithoutProperTime ).block( 0, 0, 1, 3 ) ),
                     properTimePartialWrtEarthPosition, 1.0E-5 );
 
-        std::cout<<( ( partialWrtMarsState - partialWrtMarsStateWithoutProperTime ).block( 0, 0, 1, 3 ) - properTimePartialWrtMarsVelocity ).cwiseQuotient(  properTimePartialWrtMarsVelocity ).transpose( )<<std::endl;
+        std::cout<<( ( partialWrtMarsState - partialWrtMarsStateWithoutProperTime ).block( 0, 3, 1, 3 ) - properTimePartialWrtMarsVelocity ).cwiseQuotient(  properTimePartialWrtMarsVelocity ).transpose( )<<std::endl;
 
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                     ( ( partialWrtMarsState - partialWrtMarsStateWithoutProperTime ).block( 0, 3, 1, 3 ) ),
                     properTimePartialWrtMarsVelocity, 1.0E-5 );
 
-        std::cout<<( ( partialWrtEarthState - partialWrtEarthStateWithoutProperTime ).block( 0, 0, 1, 3 ) - properTimePartialWrtEarthVelocity ).cwiseQuotient(  properTimePartialWrtEarthVelocity ).transpose( )<<std::endl;
+        std::cout<<( -( partialWrtEarthState - partialWrtEarthStateWithoutProperTime ).block( 0, 3, 1, 3 ) - properTimePartialWrtEarthVelocity ).cwiseQuotient(  properTimePartialWrtEarthVelocity ).transpose( )<<std::endl;
 
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                     ( -( partialWrtEarthState - partialWrtEarthStateWithoutProperTime ).block( 0, 3, 1, 3 ) ),

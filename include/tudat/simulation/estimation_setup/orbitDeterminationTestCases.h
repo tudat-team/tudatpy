@@ -40,6 +40,7 @@ using namespace tudat::ephemerides;
 using namespace tudat::propagators;
 using namespace tudat::basic_astrodynamics;
 using namespace tudat::coordinate_conversions;
+using namespace tudat::physical_constants;
 
 
 Eigen::VectorXd getDefaultInitialParameterPerturbation( );
@@ -653,7 +654,7 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation(
     std::map< observation_models::ObservableType, double > weightPerObservable;
     weightPerObservable[ one_way_range ] = 1.0 / ( 1.0 * 1.0 );
     weightPerObservable[ angular_position ] = 1.0 / ( 1.0E-5 * 1.0E-5 );
-    weightPerObservable[ one_way_doppler ] = 1.0 / ( 1.0E-11 * 1.0E-11 );
+    weightPerObservable[ one_way_doppler ] = 1.0 / ( 1.0E-11 * 1.0E-11 * SPEED_OF_LIGHT * SPEED_OF_LIGHT );
 
     estimationInput->setConstantPerObservableWeightsMatrix( weightPerObservable );
     estimationInput->defineEstimationSettings( true, true, true, true, false );
@@ -1250,8 +1251,8 @@ std::pair< Eigen::VectorXd, bool > executeEarthOrbiterBiasEstimation(
     weightPerObservable[ one_way_range ] = 1.0 / ( 1.0 * 1.0 );
     weightPerObservable[ n_way_range ] = 1.0 / ( 1.0 * 1.0 );
 
-    weightPerObservable[ one_way_doppler ] = 1.0 / ( 1.0E-12 * 1.0E-12 );
-    weightPerObservable[ two_way_doppler ] = 1.0 / ( 1.0E-12 * 1.0E-12 );
+    weightPerObservable[ one_way_doppler ] = 1.0 / ( 1.0E-12 * 1.0E-12 * SPEED_OF_LIGHT * SPEED_OF_LIGHT );
+    weightPerObservable[ two_way_doppler ] = 1.0 / ( 1.0E-12 * 1.0E-12 * SPEED_OF_LIGHT * SPEED_OF_LIGHT );
 
     estimationInput->setConstantPerObservableWeightsMatrix( weightPerObservable );
     estimationInput->defineEstimationSettings( true, false, false, true, false );
