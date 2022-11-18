@@ -315,6 +315,20 @@ public:
         }
     }
 
+<<<<<<< HEAD
+=======
+    bool getPrintFirstArcOnly( )
+    {
+        return printFirstArcOnly_;
+    }
+
+    void resetPrintFirstArcOnly( const bool printFirstArcOnly )
+    {
+        printFirstArcOnly_ = printFirstArcOnly;
+    }
+
+
+>>>>>>> develop
 protected:
 
     std::shared_ptr< PropagationPrintSettings > consistentSingleArcPrintSettings_;
@@ -446,6 +460,19 @@ public:
         return "=================================================================";
     }
 
+<<<<<<< HEAD
+=======
+    std::shared_ptr< SingleArcPropagatorProcessingSettings > getSingleArcSettings( )
+    {
+        return singleArcSettings_;
+    }
+
+    std::shared_ptr< MultiArcPropagatorProcessingSettings > getMultiArcSettings( )
+    {
+        return multiArcSettings_;
+    }
+
+>>>>>>> develop
 protected:
 
     const std::shared_ptr< PropagationPrintSettings > consistentArcPrintSettings_;
@@ -456,7 +483,11 @@ protected:
 
     std::shared_ptr< SingleArcPropagatorProcessingSettings > singleArcSettings_ = nullptr;
 
+<<<<<<< HEAD
      std::shared_ptr< MultiArcPropagatorProcessingSettings > multiArcSettings_ = nullptr;
+=======
+    std::shared_ptr< MultiArcPropagatorProcessingSettings > multiArcSettings_ = nullptr;
+>>>>>>> develop
 
     bool areArcSettingsSet_ = false;
 

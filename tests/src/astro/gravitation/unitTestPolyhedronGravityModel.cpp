@@ -84,7 +84,6 @@ BOOST_AUTO_TEST_CASE( testGravityComputation )
         bool testPotential = true;
         bool testGradient = true;
         bool testLaplacian = true;
-        bool testHessian = true;
 
         // Select expected values
         if ( positionId == 0 )
@@ -93,7 +92,6 @@ BOOST_AUTO_TEST_CASE( testGravityComputation )
             expectedPotential = 3.19403761604211e-5;
             (expectedGradient << 2.31329148957265e-6, 1.91973919943187e-6, 1.91973919943187e-6).finished();
             expectedLaplacian = - 0.5 * mathematical_constants::PI * gravitationalConstant * density;
-            testHessian = false;
         }
         else if ( positionId == 1 )
         {
@@ -101,7 +99,6 @@ BOOST_AUTO_TEST_CASE( testGravityComputation )
             expectedPotential = 3.99993558939122e-5;
             (expectedGradient << 9.90115534890074e-7, 3.24128042248715e-6, 3.24128042248715e-6).finished();
             expectedLaplacian = - 1.0 * mathematical_constants::PI * gravitationalConstant * density;
-            testHessian = false;
         }
         else if ( positionId == 2 )
         {
@@ -120,7 +117,6 @@ BOOST_AUTO_TEST_CASE( testGravityComputation )
             expectedLaplacian = 0.0;
             testPotential = false;
             testGradient = false;
-            testHessian = false;
         }
         else
         {
@@ -128,7 +124,6 @@ BOOST_AUTO_TEST_CASE( testGravityComputation )
             expectedLaplacian = - 4.0 * mathematical_constants::PI * gravitationalConstant * density;
             testPotential = false;
             testGradient = false;
-            testHessian = false;
         }
 
         // Create gravity model
