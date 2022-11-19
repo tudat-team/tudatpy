@@ -39,7 +39,7 @@ namespace observation_partials
 inline std::shared_ptr< OneWayDopplerProperTimeComponentScaling > createDopplerProperTimePartials(
         const std::shared_ptr< observation_models::DopplerProperTimeRateInterface > dopplerProperTimeInterface,
         const observation_models::LinkEnds oneWayDopplerLinkEnds,
-        const observation_models::LinkEndType linkEndAtWhichPartialIsComputed  )
+        const observation_models::LinkEndType linkEndAtWhichPartialIsComputed )
 {
     std::shared_ptr< OneWayDopplerProperTimeComponentScaling >  properTimeRateDopplerPartial = nullptr;
     if( dopplerProperTimeInterface == nullptr )
@@ -136,6 +136,7 @@ public:
                     std::make_shared< OneWayDopplerScaling >(
                         std::bind( &linear_algebra::evaluateSecondBlockInStateVector, transmitterNumericalStateDerivativeFunction, std::placeholders::_1 ),
                         std::bind( &linear_algebra::evaluateSecondBlockInStateVector, receiverNumericalStateDerivativeFunction, std::placeholders::_1 ),
+                        dopplerObservationModel->getNormalizeWithSpeedOfLight( ) ? physical_constants::SPEED_OF_LIGHT : 1.0,
                         transmitterProperTimePartials,
                         receiverProperTimePartials );
 
