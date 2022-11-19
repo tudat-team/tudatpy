@@ -69,9 +69,9 @@ void OneWayDopplerDirectFirstOrderProperTimeComponentScaling::update( const std:
         partialWrPosition_ = -physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT *
                 ( 1.0 + relativity::equivalencePrincipleLpiViolationParameter ) *
                 currentGravitationalParameter_ / ( currentDistance_ * currentDistance_ ) *
-                ( relativeState.segment( 0, 3 ).normalized( ) ).transpose( ) * physical_constants::SPEED_OF_LIGHT;
+                ( relativeState.segment( 0, 3 ).normalized( ) ).transpose( );
         partialWrtVelocity_ = physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT *
-                ( relativeState.segment( 3, 3 ) ).transpose( ) * physical_constants::SPEED_OF_LIGHT;
+                ( relativeState.segment( 3, 3 ) ).transpose( );
     }
 }
 
@@ -234,12 +234,12 @@ Eigen::Matrix< double, 1, 3 > OneWayDopplerScaling::getPositionScalingFactor( co
 
     if( transmitterProperTimePartials_ != nullptr )
     {
-        scalingFactor += transmitterProperTimePartials_->getPositionScalingFactor( linkEndType );
+        scalingFactor += transmitterProperTimePartials_->getPositionScalingFactor( linkEndType ) * physical_constants::SPEED_OF_LIGHT / divisionTerm_;
     }
 
     if( receiverProperTimePartials_ != nullptr )
     {
-        scalingFactor -= receiverProperTimePartials_->getPositionScalingFactor( linkEndType );
+        scalingFactor -= receiverProperTimePartials_->getPositionScalingFactor( linkEndType ) * physical_constants::SPEED_OF_LIGHT / divisionTerm_;
     }
 
     return scalingFactor;
@@ -254,12 +254,12 @@ Eigen::Matrix< double, 1, 3 > OneWayDopplerScaling::getVelocityScalingFactor( co
 
     if( transmitterProperTimePartials_ != nullptr )
     {
-        scalingFactor += transmitterProperTimePartials_->getVelocityScalingFactor( linkEndType );
+        scalingFactor += transmitterProperTimePartials_->getVelocityScalingFactor( linkEndType ) * physical_constants::SPEED_OF_LIGHT / divisionTerm_;
     }
 
     if( receiverProperTimePartials_ != nullptr )
     {
-        scalingFactor -= receiverProperTimePartials_->getVelocityScalingFactor( linkEndType );
+        scalingFactor -= receiverProperTimePartials_->getVelocityScalingFactor( linkEndType ) * physical_constants::SPEED_OF_LIGHT / divisionTerm_;
     }
 
     return scalingFactor;
