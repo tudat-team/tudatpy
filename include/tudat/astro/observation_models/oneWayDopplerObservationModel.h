@@ -644,9 +644,19 @@ public:
 
     void setNormalizeWithSpeedOfLight( const bool normalizeWithSpeedOfLight )
     {
+        normalizeWithSpeedOfLight_ = normalizeWithSpeedOfLight;
         multiplicationTerm_ = normalizeWithSpeedOfLight ? one_ : physical_constants::getSpeedOfLight< ObservationScalarType >( );
     }
 
+    ObservationScalarType getMultiplicationTerm( )
+    {
+        return multiplicationTerm_;
+    }
+
+    bool getNormalizeWithSpeedOfLight( )
+    {
+        return normalizeWithSpeedOfLight_;
+    }
 
 private:
 
@@ -676,6 +686,8 @@ private:
 
     //! Pre-declared light-time partial w.r.t. transmitter sensitivity (used fopr first-order Doppler)
     Eigen::Matrix< ObservationScalarType, 1, 3 > lightTimePartialWrtTransmitterPosition_;
+
+    bool normalizeWithSpeedOfLight_;
 
     ObservationScalarType multiplicationTerm_;
 };

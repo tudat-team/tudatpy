@@ -50,6 +50,11 @@ void OneWayDopplerDirectFirstOrderProperTimeComponentScaling::update( const std:
                                                                       const observation_models::LinkEndType fixedLinkEnd,
                                                                       const Eigen::VectorXd currentObservation )
 {
+    if( divisionTerm_ != divisionTerm_ )
+    {
+        throw std::runtime_error( "Error in OneWayDopplerDirectFirstOrderProperTimeComponentScaling, division term (normalize Doppler with speed of light) not yet set" );
+    }
+
     // Get relative state
     Eigen::Vector6d relativeState = properTimeRateModel_->getComputationPointRelativeState(
                 times, linkEndStates );
@@ -167,13 +172,13 @@ void OneWayDopplerScaling::update( const std::vector< Eigen::Vector6d >& linkEnd
     // Compute position partial scaling term,
     positionScalingFactor_ =
             ( receiverVelocity.transpose( ) * receiverPartialScalingTerm +
-              transmitterVelocity.transpose( ) * transmitterPartialScalingTerm ) *
+              transmitterVelocity.transpose( ) * transmitterPartialScalingTerm ) / divisionTerm_ *
             ( Eigen::Matrix3d::Identity( ) - lineOfSightVector * lineOfSightVector.transpose( ) ) / distance;
 
     if( fixedLinkEnd == observation_models::receiver )
     {
         lightTimeEffectPositionScalingFactor_ =
-                -1.0 / ( ( physical_constants::SPEED_OF_LIGHT - lineOfSightVector.dot( transmitterVelocity ) ) ) *
+                -1.0 / ( ( physical_constants::SPEED_OF_LIGHT - lineOfSightVector.dot( transmitterVelocity ) ) * divisionTerm_ ) *
                 ( transmitterPartialScalingTerm *
                   computePartialOfProjectedLinkEndVelocityWrtAssociatedTime(
                       ( linkEndStates.at( 1 ) - linkEndStates.at( 0 ) ).segment( 0, 3 ),
@@ -186,7 +191,7 @@ void OneWayDopplerScaling::update( const std::vector< Eigen::Vector6d >& linkEnd
     else if( fixedLinkEnd == observation_models::transmitter )
     {
         lightTimeEffectPositionScalingFactor_ =
-                1.0 / ( ( physical_constants::SPEED_OF_LIGHT - lineOfSightVector.dot( receiverVelocity ) ) ) *
+                1.0 / ( ( physical_constants::SPEED_OF_LIGHT - lineOfSightVector.dot( receiverVelocity ) ) * divisionTerm_ ) *
                 ( receiverPartialScalingTerm *
                   computePartialOfProjectedLinkEndVelocityWrtAssociatedTime(
                       ( linkEndStates.at( 1 ) - linkEndStates.at( 0 ) ).segment( 0, 3 ),
@@ -201,8 +206,8 @@ void OneWayDopplerScaling::update( const std::vector< Eigen::Vector6d >& linkEnd
     positionScalingFactor_ += lineOfSightVector.transpose( ) * lightTimeEffectPositionScalingFactor_;
 
     // Compute velocity scaling terms
-    receiverVelocityScalingFactor_ = -lineOfSightVector.transpose( ) * receiverPartialScalingTerm;
-    transmitterVelocityScalingFactor_ = -lineOfSightVector.transpose( ) * transmitterPartialScalingTerm;
+    receiverVelocityScalingFactor_ = -lineOfSightVector.transpose( ) * receiverPartialScalingTerm / divisionTerm_;
+    transmitterVelocityScalingFactor_ = -lineOfSightVector.transpose( ) * transmitterPartialScalingTerm / divisionTerm_;
 
     // Update proper time scaling objects.
     currentLinkEndType_ = fixedLinkEnd;
@@ -334,102 +339,6 @@ std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > O
     return totalPartial;
 }
 
-////! Constructor
-//OneWayDopplerPartial::OneWayDopplerPartial(
-//        const std::shared_ptr< OneWayDopplerScaling > oneWayDopplerScaler,
-//        const std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > >& positionPartialList,
-//        const estimatable_parameters::EstimatebleParameterIdentifier parameterIdentifier,
-//        const std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > >&
-//        lighTimeCorrectionPartials ):
-//    ObservationPartial< 1 >( parameterIdentifier ), oneWayDopplerScaler_( oneWayDopplerScaler ),
-//    positionPartialList_( positionPartialList )
-//{
-//    std::pair< std::function< SingleOneWayDopplerPartialReturnType(
-//                const std::vector< Eigen::Vector6d >&, const std::vector< double >& ) >, bool > lightTimeCorrectionPartial;
-
-//    // Create light time correction partial functions
-//    for( unsigned int i = 0; i < lighTimeCorrectionPartials.size( ); i++ )
-//    {
-//        lightTimeCorrectionPartial = getLightTimeParameterPartialFunction(
-//                    parameterIdentifier_, lighTimeCorrectionPartials.at( i ) );
-//        if( lightTimeCorrectionPartial.second != 0 )
-//        {
-//            lighTimeCorrectionPartialsFunctions_.push_back( lightTimeCorrectionPartial.first );
-//        }
-//    }
-
-//    if( oneWayDopplerScaler->getProperTimeParameterDependencySize( parameterIdentifier ) > 0 )
-//    {
-//        addProperTimeParameterPartials_ = true;
-//    }
-//    else
-//    {
-//        addProperTimeParameterPartials_ = false;
-//    }
-//}
-
-////! Function to calculate the observation partial(s) at required time and state
-//OneWayDopplerPartial::OneWayDopplerPartialReturnType OneWayDopplerPartial::calculatePartial(
-//        const std::vector< Eigen::Vector6d >& states,
-//        const std::vector< double >& times,
-//        const observation_models::LinkEndType linkEndOfFixedTime,
-//        const Eigen::Vector1d& currentObservation )
-//{
-//    if( linkEndOfFixedTime != oneWayDopplerScaler_->getCurrentLinkEndType( ) )
-//    {
-//        throw std::runtime_error( "Error one-way doppler partial and scaling are inconsistent" );
-//    }
-
-//    OneWayDopplerPartialReturnType returnPartial;
-
-//    // Iterate over all link ends
-//    for( positionPartialIterator_ = positionPartialList_.begin( ); positionPartialIterator_ != positionPartialList_.end( );
-//         positionPartialIterator_++ )
-//    {
-//        if( positionPartialIterator_->first == observation_models::transmitter )
-//        {
-//            currentState_  = states[ 0 ];
-//            currentTime_ = times[ 0 ];
-//        }
-//        else if( positionPartialIterator_->first == observation_models::receiver )
-//        {
-//            currentState_  = states[ 1 ];
-//            currentTime_ = times[ 1 ];
-//        }
-
-//        // Scale position partials
-//        returnPartial.push_back(
-//                    std::make_pair(
-//                        oneWayDopplerScaler_->getPositionScalingFactor( positionPartialIterator_->first ) *
-//                        ( positionPartialIterator_->second->calculatePartialOfPosition(
-//                              currentState_ , currentTime_ ) ) +
-//                        oneWayDopplerScaler_->getVelocityScalingFactor( positionPartialIterator_->first ) *
-//                        ( positionPartialIterator_->second->calculatePartialOfVelocity(
-//                              currentState_ , currentTime_ ) ), currentTime_ ) );
-//    }
-
-//    // Add scaled light-time correcion partials.
-//    for( unsigned int i = 0; i < lighTimeCorrectionPartialsFunctions_.size( ); i++ )
-//    {
-
-//        returnPartial.push_back( lighTimeCorrectionPartialsFunctions_.at( i )( states, times ) );
-//        returnPartial[ returnPartial.size( ) - 1 ].first *=
-//                physical_constants::SPEED_OF_LIGHT * oneWayDopplerScaler_->getLightTimePartialScalingFactor( );
-//    }
-
-//    if( addProperTimeParameterPartials_ )
-//    {
-//        OneWayDopplerPartialReturnType properTimeReturnPartials = oneWayDopplerScaler_->getLinkIndependentPartials(
-//                    parameterIdentifier_ );
-//        std::cout<<"LPI partial (Doppler) "<<returnPartial.size( )<<" "<<properTimeReturnPartials.size( )<<std::endl;
-//        for( unsigned int i = 0; i < properTimeReturnPartials.size( ); i++ )
-//        {
-//            returnPartial.push_back( properTimeReturnPartials.at( i ) );
-//        }
-//    }
-
-//    return returnPartial;
-//}
 
 }
 

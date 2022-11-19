@@ -42,7 +42,7 @@ public:
      * \param linkEndWithPartial Link end for which this object computes partials
      */
     OneWayDopplerProperTimeComponentScaling( const observation_models::LinkEndType linkEndWithPartial ):
-        linkEndWithPartial_( linkEndWithPartial ){ }
+        linkEndWithPartial_( linkEndWithPartial ), divisionTerm_( TUDAT_NAN ){ }
 
     //! Destructor
     virtual ~OneWayDopplerProperTimeComponentScaling( ){ }
@@ -83,10 +83,16 @@ public:
     virtual int getParameterDependencySize(
             const estimatable_parameters::EstimatebleParameterIdentifier parameterType ) = 0;
 
+    void setDivisionTerm( const double divisionTerm )
+    {
+        divisionTerm_ = divisionTerm;
+    }
 protected:
 
     //! Link end for which this object computes partials
     observation_models::LinkEndType linkEndWithPartial_;
+
+    double divisionTerm_;
 
 };
 
@@ -148,7 +154,8 @@ public:
      */
     double getEquivalencePrincipleViolationParameterPartial( )
     {
-        return -currentGravitationalParameter_ / ( currentDistance_ * physical_constants::SPEED_OF_LIGHT );
+        std::cout<<divisionTerm_<<std::endl;
+        return -currentGravitationalParameter_ / ( currentDistance_ * physical_constants::SPEED_OF_LIGHT ) / divisionTerm_;
     }
 
     //! Function to get the direct partial derivative, and associated time, of proper time
@@ -220,15 +227,27 @@ public:
     OneWayDopplerScaling(
             const std::function< Eigen::Vector3d( const double ) > transmitterAccelerationFunction,
             const std::function< Eigen::Vector3d( const double ) > receiverAccelerationFunction,
+            const double divisionTerm,
             const std::shared_ptr< OneWayDopplerProperTimeComponentScaling > transmitterProperTimePartials = nullptr,
             const std::shared_ptr< OneWayDopplerProperTimeComponentScaling > receiverProperTimePartials = nullptr ):
         DirectPositionPartialScaling< 1 >( observation_models::one_way_doppler ),
         transmitterAccelerationFunction_( transmitterAccelerationFunction ),
         receiverAccelerationFunction_( receiverAccelerationFunction ),
+        divisionTerm_( divisionTerm ),
         transmitterProperTimePartials_( transmitterProperTimePartials ),
         receiverProperTimePartials_( receiverProperTimePartials )
     {
+        std::cout<<"Division temr "<<divisionTerm_<<std::endl;
         this->doesVelocityScalingFactorExist_ = true;
+        if( transmitterProperTimePartials_ != nullptr )
+        {
+            transmitterProperTimePartials_->setDivisionTerm( divisionTerm_ );
+        }
+
+        if( receiverProperTimePartials_ != nullptr )
+        {
+            receiverProperTimePartials_->setDivisionTerm( divisionTerm_ );
+        }
     }
 
     //! Destructor
@@ -365,6 +384,8 @@ private:
     //! Function returning the Cartesian acceleration of the receiver as a function of time.
     std::function< Eigen::Vector3d( const double ) > receiverAccelerationFunction_;
 
+    double divisionTerm_;
+
     //! Object used to compute the contribution of receiver proper time rate to the scaling
     std::shared_ptr< OneWayDopplerProperTimeComponentScaling > transmitterProperTimePartials_;
 
@@ -408,101 +429,6 @@ double computePartialOfProjectedLinkEndVelocityWrtAssociatedTime(
         const Eigen::Vector3d& projectedLinkEndAcceleration,
         const bool linkEndIsReceiver,
         const bool projectedLinkEndIsVariableLinkEnd = true );
-
-////! Class to compute the partial derivatives of a one-way doppler observation partial.
-//class OneWayDopplerPartial: public ObservationPartial< 1 >
-//{
-
-//public:
-
-//    typedef std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > OneWayDopplerPartialReturnType;
-//    typedef std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > SingleOneWayDopplerPartialReturnType;
-
-//    //! Constructor
-//    /*!
-//     * Constructor
-//     * \param oneWayDopplerScaler Scaling object used for mapping partials of positions to partials of observable
-//     * \param positionPartialList List of position partials per link end.
-//     * \param parameterIdentifier Id of parameter for which instance of class computes partial derivatives.
-//     * \param lighTimeCorrectionPartials List if light-time correction partial objects.
-//     */
-//    OneWayDopplerPartial(
-//            const std::shared_ptr< OneWayDopplerScaling > oneWayDopplerScaler,
-//            const std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > >& positionPartialList,
-//            const estimatable_parameters::EstimatebleParameterIdentifier parameterIdentifier,
-//            const std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > >&
-//            lighTimeCorrectionPartials =
-//            std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > >( ) );
-
-//    //! Destructor.
-//    ~OneWayDopplerPartial( ) { }
-
-//    //! Function to calculate the observation partial(s) at required time and state
-//    /*!
-//     *  Function to calculate the observation partial(s) at required time and state. State and time
-//     *  are typically obtained from evaluation of observation model.
-//     *  \param states Link end states. Index maps to link end for a given ObsevableType through getLinkEndIndex function.
-//     *  \param times Link end time.
-//     *  \param linkEndOfFixedTime Link end that is kept fixed when computing the observable.
-//     *  \param currentObservation Value of the observation for which the partial is to be computed (default NaN for
-//     *  compatibility purposes).
-//     *  \return Vector of pairs containing partial values and associated times.
-//     */
-//    OneWayDopplerPartialReturnType calculatePartial(
-//            const std::vector< Eigen::Vector6d >& states,
-//            const std::vector< double >& times,
-//            const observation_models::LinkEndType linkEndOfFixedTime,
-//            const Eigen::Vector1d& currentObservation = Eigen::Vector1d::Constant( TUDAT_NAN ) );
-
-//    //! Function to get scaling object used for mapping partials of positions to partials of observable
-//    /*!
-//     * Function to get scaling object used for mapping partials of positions to partials of observable
-//     * \return
-//     */
-//    std::shared_ptr< OneWayDopplerScaling > getOneWayDopplerScaler( )
-//    {
-//        return oneWayDopplerScaler_;
-//    }
-
-//    //! Function to get the number of light-time correction partial functions.
-//    /*!
-//     * Number of light-time correction partial functions.
-//     * \return Number of light-time correction partial functions.
-//     */
-//    int getNumberOfLighTimeCorrectionPartialsFunctions( )
-//    {
-//        return lighTimeCorrectionPartialsFunctions_.size( );
-//    }
-
-//protected:
-
-//    //! Scaling object used for mapping partials of positions to partials of observable
-//    std::shared_ptr< OneWayDopplerScaling > oneWayDopplerScaler_;
-
-//    //! List of position partials per link end.
-//    std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > > positionPartialList_;
-
-//    //! Iterator over list of position partials per link end.
-//    std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > >::iterator positionPartialIterator_;
-
-//    //! List of light-time correction partial functions.
-//    std::vector< std::function< SingleOneWayDopplerPartialReturnType(
-//            const std::vector< Eigen::Vector6d >&, const std::vector< double >& ) > >
-//    lighTimeCorrectionPartialsFunctions_;
-
-//    //! List of light-time correction partial objects.
-//    std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > > lighTimeCorrectionPartials_;
-
-//    //! Pre-declared state variable to be used in calculatePartial function.
-//    Eigen::Vector6d currentState_;
-
-//    //! Pre-declared time variable to be used in calculatePartial function.
-//    double currentTime_;
-
-//    //! Boolean to denote whether partials of proper time w.r.t. parameters should be added to final partial.
-//    bool addProperTimeParameterPartials_;
-
-//};
 
 }
 
