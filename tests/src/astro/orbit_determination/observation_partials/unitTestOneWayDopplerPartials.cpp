@@ -90,124 +90,124 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
     groundStations[ 1 ] = std::make_pair( "Mars", "MSL" );
 
 
-//    // Test ancilliary functions
-//    {
-//        double nominalEvaluationTime = 1.1E7;
+    // Test ancilliary functions
+    {
+        double nominalEvaluationTime = 1.1E7;
 
-//        // Create environment
-//        SystemOfBodies bodies = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, false );
+        // Create environment
+        SystemOfBodies bodies = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, false );
 
-//        // Set link ends for observation model
-//        LinkDefinition linkEnds;
-//        linkEnds[ transmitter ] = groundStations[ 1 ];
-//        linkEnds[ receiver ] = groundStations[ 0 ];
+        // Set link ends for observation model
+        LinkDefinition linkEnds;
+        linkEnds[ transmitter ] = groundStations[ 1 ];
+        linkEnds[ receiver ] = groundStations[ 0 ];
 
-//        // Create transmitter/receriver state functions
-//        std::function< Eigen::Vector6d( const double ) > transmitterStateFunction =
-//                getLinkEndCompleteEphemerisFunction< double, double >( linkEnds[ transmitter ], bodies );
-//        std::function< Eigen::Vector6d( const double ) > receiverStateFunction =
-//                getLinkEndCompleteEphemerisFunction< double, double >( linkEnds[ receiver ], bodies );
+        // Create transmitter/receriver state functions
+        std::function< Eigen::Vector6d( const double ) > transmitterStateFunction =
+                getLinkEndCompleteEphemerisFunction< double, double >( linkEnds[ transmitter ], bodies );
+        std::function< Eigen::Vector6d( const double ) > receiverStateFunction =
+                getLinkEndCompleteEphemerisFunction< double, double >( linkEnds[ receiver ], bodies );
 
-//        // Define (independent!) transmission/reception times
-//        double transmissionTime = nominalEvaluationTime;
-//        double receptionTime = nominalEvaluationTime + 1.0E3;
+        // Define (independent!) transmission/reception times
+        double transmissionTime = nominalEvaluationTime;
+        double receptionTime = nominalEvaluationTime + 1.0E3;
 
-//        // Compute associated states
-//        Eigen::Vector6d nominalTransmitterState = transmitterStateFunction( transmissionTime );
-//        Eigen::Vector6d nominalReceiverState = receiverStateFunction( receptionTime );
-//        Eigen::Vector3d nominalVectorToReceiver = ( nominalReceiverState - nominalTransmitterState ).segment( 0, 3 );
+        // Compute associated states
+        Eigen::Vector6d nominalTransmitterState = transmitterStateFunction( transmissionTime );
+        Eigen::Vector6d nominalReceiverState = receiverStateFunction( receptionTime );
+        Eigen::Vector3d nominalVectorToReceiver = ( nominalReceiverState - nominalTransmitterState ).segment( 0, 3 );
 
-//        double timePerturbation = 100.0;
+        double timePerturbation = 100.0;
 
-//        // Partials for fixed receiver
-//        {
-//            // Compute numerical derivative of transmitter state for acceleration)
-//            Eigen::Vector6d numericalStateDerivative = numerical_derivatives::computeCentralDifferenceFromFunction(
-//                        transmitterStateFunction, transmissionTime, timePerturbation, numerical_derivatives::order8 );
+        // Partials for fixed receiver
+        {
+            // Compute numerical derivative of transmitter state for acceleration)
+            Eigen::Vector6d numericalStateDerivative = numerical_derivatives::computeCentralDifferenceFromFunction(
+                        transmitterStateFunction, transmissionTime, timePerturbation, numerical_derivatives::order8 );
 
-//            // Compute unit vector derivative numerically
-//            std::function< Eigen::Vector3d( const double ) > unitVectorFunction =
-//                    std::bind( &computeUnitVectorToReceiverFromTransmitterState,
-//                                 nominalReceiverState.segment( 0, 3 ), transmitterStateFunction, std::placeholders::_1 );
-//            Eigen::Vector3d numericalUnitVectorDerivative = numerical_derivatives::computeCentralDifferenceFromFunction(
-//                        unitVectorFunction, transmissionTime, timePerturbation, numerical_derivatives::order8 );
+            // Compute unit vector derivative numerically
+            std::function< Eigen::Vector3d( const double ) > unitVectorFunction =
+                    std::bind( &computeUnitVectorToReceiverFromTransmitterState,
+                                 nominalReceiverState.segment( 0, 3 ), transmitterStateFunction, std::placeholders::_1 );
+            Eigen::Vector3d numericalUnitVectorDerivative = numerical_derivatives::computeCentralDifferenceFromFunction(
+                        unitVectorFunction, transmissionTime, timePerturbation, numerical_derivatives::order8 );
 
-//            // Compute projected velocoty vector derivative numerically
-//            std::function< double( const double) > projectedVelocityFunction =
-//                    std::bind( &calculateLineOfSightVelocityAsCFractionFromTransmitterStateFunction< double, double >,
-//                                 nominalReceiverState.segment( 0, 3 ), transmitterStateFunction, std::placeholders::_1 );
-//            double numericalProjectedVelocityDerivative =
-//                    numerical_derivatives::computeCentralDifferenceFromFunction(
-//                        projectedVelocityFunction, transmissionTime, timePerturbation, numerical_derivatives::order8 );
+            // Compute projected velocoty vector derivative numerically
+            std::function< double( const double) > projectedVelocityFunction =
+                    std::bind( &calculateLineOfSightVelocityAsCFractionFromTransmitterStateFunction< double, double >,
+                                 nominalReceiverState.segment( 0, 3 ), transmitterStateFunction, std::placeholders::_1 );
+            double numericalProjectedVelocityDerivative =
+                    numerical_derivatives::computeCentralDifferenceFromFunction(
+                        projectedVelocityFunction, transmissionTime, timePerturbation, numerical_derivatives::order8 );
 
-//            // Compute analytical partial derivatives
-//            Eigen::Vector3d analyticalUnitVectorDerivative =
-//                    -computePartialOfUnitVectorWrtLinkEndTime(
-//                        nominalVectorToReceiver, nominalVectorToReceiver.normalized( ),
-//                        nominalVectorToReceiver.norm( ), nominalTransmitterState.segment( 3, 3 ) );
-//            double analyticalProjectedVelocityDerivative = computePartialOfProjectedLinkEndVelocityWrtAssociatedTime(
-//                        nominalVectorToReceiver,
-//                        nominalTransmitterState.segment( 3, 3 ),
-//                        nominalTransmitterState.segment( 3, 3 ),
-//                        numericalStateDerivative.segment( 3, 3 ), false );
-
-
-//            for( unsigned int i = 0; i < 3; i++ )
-//            {
-//                BOOST_CHECK_SMALL( std::fabs( analyticalUnitVectorDerivative( i ) - numericalUnitVectorDerivative( i ) ), 1.0E-16 );
-
-//            }
-//            BOOST_CHECK_SMALL( std::fabs( analyticalProjectedVelocityDerivative / physical_constants::SPEED_OF_LIGHT -
-//                                          numericalProjectedVelocityDerivative ), 1.0E-21 );
-//        }
+            // Compute analytical partial derivatives
+            Eigen::Vector3d analyticalUnitVectorDerivative =
+                    -computePartialOfUnitVectorWrtLinkEndTime(
+                        nominalVectorToReceiver, nominalVectorToReceiver.normalized( ),
+                        nominalVectorToReceiver.norm( ), nominalTransmitterState.segment( 3, 3 ) );
+            double analyticalProjectedVelocityDerivative = computePartialOfProjectedLinkEndVelocityWrtAssociatedTime(
+                        nominalVectorToReceiver,
+                        nominalTransmitterState.segment( 3, 3 ),
+                        nominalTransmitterState.segment( 3, 3 ),
+                        numericalStateDerivative.segment( 3, 3 ), false );
 
 
-//        // Partials for fixed transmitter
-//        {
-//            // Compute numerical derivative of receiver state for acceleration)
-//            Eigen::Vector6d numericalStateDerivative = numerical_derivatives::computeCentralDifferenceFromFunction(
-//                        receiverStateFunction, receptionTime, timePerturbation, numerical_derivatives::order8 );
+            for( unsigned int i = 0; i < 3; i++ )
+            {
+                BOOST_CHECK_SMALL( std::fabs( analyticalUnitVectorDerivative( i ) - numericalUnitVectorDerivative( i ) ), 1.0E-16 );
 
-//            // Compute unit vector derivative numerically
-//            std::function< Eigen::Vector3d( const double ) > unitVectorFunction =
-//                    std::bind( &computeUnitVectorToReceiverFromReceiverState,
-//                                 receiverStateFunction, nominalTransmitterState.segment( 0, 3 ), std::placeholders::_1 );
-//            Eigen::Vector3d numericalUnitVectorDerivative = numerical_derivatives::computeCentralDifferenceFromFunction(
-//                        unitVectorFunction, receptionTime, timePerturbation, numerical_derivatives::order8 );
+            }
+            BOOST_CHECK_SMALL( std::fabs( analyticalProjectedVelocityDerivative / physical_constants::SPEED_OF_LIGHT -
+                                          numericalProjectedVelocityDerivative ), 1.0E-21 );
+        }
 
-//            // Compute projected velocoty vector derivative numerically
-//            std::function< double( const double) > projectedVelocityFunction =
-//                    std::bind( &calculateLineOfSightVelocityAsCFractionFromReceiverStateFunction< double, double >,
-//                                 receiverStateFunction, nominalTransmitterState.segment( 0, 3 ), std::placeholders::_1 );
-//            double numericalProjectedVelocityDerivative =
-//                    numerical_derivatives::computeCentralDifferenceFromFunction(
-//                        projectedVelocityFunction, receptionTime, timePerturbation, numerical_derivatives::order8 );
 
-//            // Compute analytical partial derivatives
-//            Eigen::Vector3d analyticalUnitVectorDerivative =
-//                    computePartialOfUnitVectorWrtLinkEndTime(
-//                        nominalVectorToReceiver, nominalVectorToReceiver.normalized( ),
-//                        nominalVectorToReceiver.norm( ), nominalReceiverState.segment( 3, 3 ) );
-//            double analyticalProjectedVelocityDerivative = computePartialOfProjectedLinkEndVelocityWrtAssociatedTime(
-//                        nominalVectorToReceiver,
-//                        nominalReceiverState.segment( 3, 3 ),
-//                        nominalReceiverState.segment( 3, 3 ),\
-//                        numericalStateDerivative.segment( 3, 3 ), true );
+        // Partials for fixed transmitter
+        {
+            // Compute numerical derivative of receiver state for acceleration)
+            Eigen::Vector6d numericalStateDerivative = numerical_derivatives::computeCentralDifferenceFromFunction(
+                        receiverStateFunction, receptionTime, timePerturbation, numerical_derivatives::order8 );
 
-//            for( unsigned int i = 0; i < 3; i++ )
-//            {
-//                BOOST_CHECK_SMALL( std::fabs( analyticalUnitVectorDerivative( i ) - numericalUnitVectorDerivative( i ) ), 1.0E-17 );
+            // Compute unit vector derivative numerically
+            std::function< Eigen::Vector3d( const double ) > unitVectorFunction =
+                    std::bind( &computeUnitVectorToReceiverFromReceiverState,
+                                 receiverStateFunction, nominalTransmitterState.segment( 0, 3 ), std::placeholders::_1 );
+            Eigen::Vector3d numericalUnitVectorDerivative = numerical_derivatives::computeCentralDifferenceFromFunction(
+                        unitVectorFunction, receptionTime, timePerturbation, numerical_derivatives::order8 );
 
-//            }
-//            BOOST_CHECK_SMALL( std::fabs( analyticalProjectedVelocityDerivative / physical_constants::SPEED_OF_LIGHT -
-//                                          numericalProjectedVelocityDerivative ), 1.5E-22 );
-//        }
+            // Compute projected velocoty vector derivative numerically
+            std::function< double( const double) > projectedVelocityFunction =
+                    std::bind( &calculateLineOfSightVelocityAsCFractionFromReceiverStateFunction< double, double >,
+                                 receiverStateFunction, nominalTransmitterState.segment( 0, 3 ), std::placeholders::_1 );
+            double numericalProjectedVelocityDerivative =
+                    numerical_derivatives::computeCentralDifferenceFromFunction(
+                        projectedVelocityFunction, receptionTime, timePerturbation, numerical_derivatives::order8 );
 
-//    }
+            // Compute analytical partial derivatives
+            Eigen::Vector3d analyticalUnitVectorDerivative =
+                    computePartialOfUnitVectorWrtLinkEndTime(
+                        nominalVectorToReceiver, nominalVectorToReceiver.normalized( ),
+                        nominalVectorToReceiver.norm( ), nominalReceiverState.segment( 3, 3 ) );
+            double analyticalProjectedVelocityDerivative = computePartialOfProjectedLinkEndVelocityWrtAssociatedTime(
+                        nominalVectorToReceiver,
+                        nominalReceiverState.segment( 3, 3 ),
+                        nominalReceiverState.segment( 3, 3 ),\
+                        numericalStateDerivative.segment( 3, 3 ), true );
+
+            for( unsigned int i = 0; i < 3; i++ )
+            {
+                BOOST_CHECK_SMALL( std::fabs( analyticalUnitVectorDerivative( i ) - numericalUnitVectorDerivative( i ) ), 1.0E-17 );
+
+            }
+            BOOST_CHECK_SMALL( std::fabs( analyticalProjectedVelocityDerivative / physical_constants::SPEED_OF_LIGHT -
+                                          numericalProjectedVelocityDerivative ), 1.5E-22 );
+        }
+
+    }
 
     std::cout<<"A ****************************************** "<<std::endl;
     // Test partials with constant ephemerides (allows test of position partials)
-    for( unsigned int normalizeObservable = 0; normalizeObservable < 1 ; normalizeObservable++ )
+    for( unsigned int normalizeObservable = 0; normalizeObservable < 2 ; normalizeObservable++ )
     {
         // Create environment
         SystemOfBodies bodies = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, true );
@@ -422,18 +422,18 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
                 std::cout<<"Trans. scaling factor: "<<transmitterProperTimePartials->getPositionScalingFactor( transmitter )<<std::endl;
                 std::cout<<"Trans. scaling factor: "<<transmitterProperTimePartials->getPositionScalingFactor( receiver )<<std::endl;
 
-//                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-//                            ( transmitterProperTimePartials->getPositionScalingFactor( transmitter ) ),
-//                            ( numericalTransmitterProperTimePartialsWrtMarsPosition ), 1.0E-6 );
-//                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-//                            ( transmitterProperTimePartials->getPositionScalingFactor( receiver ) ),
-//                            ( numericalTransmitterProperTimePartialsWrtEarthPosition ), 1.0E-6 );
-//                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-//                            ( transmitterProperTimePartials->getVelocityScalingFactor( transmitter ) ),
-//                            ( numericalTransmitterProperTimePartialsWrtMarsVelocity ), 1.0E-6 );
-//                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-//                            ( transmitterProperTimePartials->getVelocityScalingFactor( receiver ) ),
-//                            ( numericalTransmitterProperTimePartialsWrtEarthVelocity ), 1.0E-6 );
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                            ( transmitterProperTimePartials->getPositionScalingFactor( transmitter ) ),
+                            ( numericalTransmitterProperTimePartialsWrtMarsPosition ), 1.0E-6 );
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                            ( transmitterProperTimePartials->getPositionScalingFactor( receiver ) ),
+                            ( numericalTransmitterProperTimePartialsWrtEarthPosition ), 1.0E-6 );
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                            ( transmitterProperTimePartials->getVelocityScalingFactor( transmitter ) ),
+                            ( numericalTransmitterProperTimePartialsWrtMarsVelocity ), 1.0E-6 );
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                            ( transmitterProperTimePartials->getVelocityScalingFactor( receiver ) ),
+                            ( numericalTransmitterProperTimePartialsWrtEarthVelocity ), 1.0E-6 );
 
                 std::function< Eigen::VectorXd( const double ) > receiverProperTimeRateFunction =
                         std::bind( &getProperTimeRateInVectorForm,
@@ -452,18 +452,18 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
                         calculatePartialWrtConstantBodyVelocity(
                             "Mars", bodies, Eigen::Vector3d::Constant( 1000.0 ), receiverProperTimeRateFunction, 1.1E7, 1 );
 
-//                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-//                            ( receiverProperTimePartials->getPositionScalingFactor( receiver ) ),
-//                            ( numericalReceiverProperTimePartialsWrtEarthPosition ), 1.0E-6 );
-//                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-//                            ( receiverProperTimePartials->getPositionScalingFactor( transmitter ) ),
-//                            ( numericalReceiverProperTimePartialsWrtMarsPosition ), 1.0E-6 );
-//                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-//                            ( receiverProperTimePartials->getVelocityScalingFactor( transmitter ) ),
-//                            ( numericalReceiverProperTimePartialsWrtMarsVelocity ), 1.0E-6 );
-//                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-//                            ( receiverProperTimePartials->getVelocityScalingFactor( receiver ) ),
-//                            ( numericalReceiverProperTimePartialsWrtEarthVelocity ), 1.0E-6 );
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                            ( receiverProperTimePartials->getPositionScalingFactor( receiver ) ),
+                            ( numericalReceiverProperTimePartialsWrtEarthPosition ), 1.0E-6 );
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                            ( receiverProperTimePartials->getPositionScalingFactor( transmitter ) ),
+                            ( numericalReceiverProperTimePartialsWrtMarsPosition ), 1.0E-6 );
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                            ( receiverProperTimePartials->getVelocityScalingFactor( transmitter ) ),
+                            ( numericalReceiverProperTimePartialsWrtMarsVelocity ), 1.0E-6 );
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                            ( receiverProperTimePartials->getVelocityScalingFactor( receiver ) ),
+                            ( numericalReceiverProperTimePartialsWrtEarthVelocity ), 1.0E-6 );
             }
 
             std::cout<<"D ****************************************** "<<std::endl;
@@ -515,11 +515,11 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
             Eigen::MatrixXd partialWrtMarsState = marsStatePartialOutput.at( 0 ).first;
             Eigen::MatrixXd partialWrtMarsStateWithoutProperTime = marsStatePartialOutputWithoutProperTime.at( 0 ).first;
 
-            Eigen::MatrixXd properTimePartialWrtMarsPosition = transmitterProperTimePartials->getPositionScalingFactor( transmitter );
-            Eigen::MatrixXd properTimePartialWrtEarthPosition = receiverProperTimePartials->getPositionScalingFactor( receiver );
+            Eigen::MatrixXd properTimePartialWrtMarsPosition = transmitterProperTimePartials->getPositionScalingFactor( transmitter ) * partialScalingTerm;
+            Eigen::MatrixXd properTimePartialWrtEarthPosition = receiverProperTimePartials->getPositionScalingFactor( receiver ) * partialScalingTerm;
 
-            Eigen::MatrixXd properTimePartialWrtMarsVelocity = transmitterProperTimePartials->getVelocityScalingFactor( transmitter );
-            Eigen::MatrixXd properTimePartialWrtEarthVelocity = receiverProperTimePartials->getVelocityScalingFactor( receiver );
+            Eigen::MatrixXd properTimePartialWrtMarsVelocity = transmitterProperTimePartials->getVelocityScalingFactor( transmitter ) * partialScalingTerm;
+            Eigen::MatrixXd properTimePartialWrtEarthVelocity = receiverProperTimePartials->getVelocityScalingFactor( receiver ) * partialScalingTerm;
 
             std::cout<<"Partial w.r.t. Earth state "<<partialWrtEarthState<<std::endl;
             std::cout<<"Partial w.r.t. Mars state "<<partialWrtMarsState<<std::endl;
