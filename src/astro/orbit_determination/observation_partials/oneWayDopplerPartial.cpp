@@ -50,11 +50,6 @@ void OneWayDopplerDirectFirstOrderProperTimeComponentScaling::update( const std:
                                                                       const observation_models::LinkEndType fixedLinkEnd,
                                                                       const Eigen::VectorXd currentObservation )
 {
-    if( divisionTerm_ != divisionTerm_ )
-    {
-        throw std::runtime_error( "Error in OneWayDopplerDirectFirstOrderProperTimeComponentScaling, division term (normalize Doppler with speed of light) not yet set" );
-    }
-
     // Get relative state
     Eigen::Vector6d relativeState = properTimeRateModel_->getComputationPointRelativeState(
                 times, linkEndStates );
@@ -312,8 +307,11 @@ std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > O
     {
         std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > transmitterPartial =
                 transmitterProperTimePartials_->getProperTimeParameterPartial( parameterType );
+        transmitterPartial.first /= divisionTerm_;
+
         std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > receiverPartial =
                 receiverProperTimePartials_->getProperTimeParameterPartial( parameterType );
+        receiverPartial.first /= divisionTerm_;
 
         if( transmitterPartial.first.rows( ) == receiverPartial.first.rows( ) )
         {
