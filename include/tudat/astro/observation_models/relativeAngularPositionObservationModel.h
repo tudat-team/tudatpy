@@ -75,10 +75,11 @@ public:
      *  \return Calculated relative angular position observable values.
      */
     Eigen::Matrix< ObservationScalarType, 2, 1 > computeIdealObservationsWithLinkEndData(
-                    const TimeType time,
-                    const LinkEndType linkEndAssociatedWithTime,
-                    std::vector< double >& linkEndTimes,
-                    std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates )
+            const TimeType time,
+            const LinkEndType linkEndAssociatedWithTime,
+            std::vector< double >& linkEndTimes,
+            std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
+            const std::shared_ptr< ObservationAncilliarySimulationSettings< TimeType > > ancilliarySetings = nullptr  )
 
     {
         // Check link end associated with input time and compute observable.

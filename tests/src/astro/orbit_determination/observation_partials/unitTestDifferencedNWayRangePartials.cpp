@@ -84,7 +84,7 @@ BOOST_AUTO_TEST_CASE( testNWayRangeRatePartials )
         std::shared_ptr< ObservationModel< 1 > > nWayDifferencedRangeModel =
                 observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
                     std::make_shared< observation_models::NWayDifferencedRangeObservationSettings >(
-                        linkEnds, [ ]( const double ){ return 60.0; },
+                        linkEnds,
                         lightTimeCorrectionsList ) , bodies  );
 
         // Create parame ter objects.
@@ -93,7 +93,8 @@ BOOST_AUTO_TEST_CASE( testNWayRangeRatePartials )
 
         testObservationPartials< 1 >(
                     nWayDifferencedRangeModel, bodies, fullEstimatableParameterSet, linkEnds,
-                    n_way_differenced_range, 1.0E-4, true, true, 1000.0, parameterPerturbationMultipliers );
+                    n_way_differenced_range, 1.0E-4, true, true, 1000.0, parameterPerturbationMultipliers,
+                    std::make_shared< AveragedDopplerAncilliarySimulationSettings< > >( 60.0 )  );
     }
 
     // Test partials with real ephemerides (without test of position partials)
@@ -118,7 +119,7 @@ BOOST_AUTO_TEST_CASE( testNWayRangeRatePartials )
         std::shared_ptr< ObservationModel< 1 > > nWayDifferencedRangeModel =
                 observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
                     std::make_shared< observation_models::NWayDifferencedRangeObservationSettings >(
-                        linkEnds, [ ]( const double ){ return 60.0; },
+                        linkEnds,
                         lightTimeCorrectionsList ) , bodies  );
         // Create parameter objects.
         std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
@@ -126,7 +127,8 @@ BOOST_AUTO_TEST_CASE( testNWayRangeRatePartials )
 
         testObservationPartials< 1 >(
                     nWayDifferencedRangeModel, bodies, fullEstimatableParameterSet, linkEnds,
-                    n_way_differenced_range, 1.0E-4, false, true, 1000.0, parameterPerturbationMultipliers );
+                    n_way_differenced_range, 1.0E-4, false, true, 1000.0, parameterPerturbationMultipliers,
+                    std::make_shared< AveragedDopplerAncilliarySimulationSettings< > >( 60.0 )  );
     }
 }
 

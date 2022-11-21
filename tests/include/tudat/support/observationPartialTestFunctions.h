@@ -141,7 +141,9 @@ void testObservationPartials(
         const bool testPositionPartial = 1,
         const bool testParameterPartial = 1,
         const double positionPerturbationMultiplier = 1.0,
-        const Eigen::VectorXd parameterPerturbationMultipliers = Eigen::VectorXd::Constant( 4, 1.0 ) ) {
+        const Eigen::VectorXd parameterPerturbationMultipliers = Eigen::VectorXd::Constant( 4, 1.0 ),
+        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings < double > > ancilliarySettings = nullptr )
+{
 
     printEstimatableParameterEntries( fullEstimatableParameterSet );
 
@@ -200,7 +202,7 @@ void testObservationPartials(
             std::vector<double> vectorOfTimes;
             double observationTime = 1.1E7;
             Eigen::VectorXd currentObservation = observationModel->computeObservationsWithLinkEndData(
-                        observationTime, linkEndIterator->first, vectorOfTimes, vectorOfStates);
+                        observationTime, linkEndIterator->first, vectorOfTimes, vectorOfStates, ancilliarySettings );
 
             // Calculate analytical observation partials.
             if (positionPartialScaler != NULL) {
@@ -259,7 +261,7 @@ void testObservationPartials(
             // Define observation function for current observable/link end
             std::function<Eigen::VectorXd(const double)> observationFunction = std::bind(
                         &ObservationModel<ObservableSize, double, double>::computeObservations,
-                        observationModel, std::placeholders::_1, linkEndIterator->first);
+                        observationModel, std::placeholders::_1, linkEndIterator->first, ancilliarySettings );
 
             if (testPositionPartial)
             {
@@ -400,7 +402,7 @@ void testObservationPartials(
                 {
                     std::function<Eigen::VectorXd(const double)> vectorObservationFunction = std::bind(
                                 &ObservationModel<ObservableSize, double, double>::computeObservations,
-                                observationModel, std::placeholders::_1, linkEndIterator->first);
+                                observationModel, std::placeholders::_1, linkEndIterator->first, ancilliarySettings );
 
                     // Settings for parameter partial functions.
                     std::vector<Eigen::VectorXd> parameterPerturbations;

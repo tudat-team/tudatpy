@@ -33,6 +33,8 @@ set(observation_models_HEADERS
         "oneWayRangeObservationModel.h"
         "oneWayDopplerObservationModel.h"
         "oneWayDifferencedRangeRateObservationModel.h"
+        "nWayRangeRateObservationModel.h"
+        "relativeAngularPositionObservationModel.h"
         "positionObservationModel.h"
         "velocityObservationModel.h"
         "twoWayDopplerObservationModel.h"

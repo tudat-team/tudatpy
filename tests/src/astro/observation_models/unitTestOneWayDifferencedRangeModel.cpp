@@ -79,7 +79,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
 
     // Create range rate observation settings and model
     std::shared_ptr< ObservationModelSettings > rangeRateObservableSettings = std::make_shared<
-            OneWayDifferencedRangeRateObservationSettings >( linkEnds, std::bind( &integrationTimeFunction, std::placeholders::_1 ) );
+            ObservationModelSettings >( one_way_differenced_range, linkEnds );
     std::shared_ptr< ObservationModel< 1, double, double> > rangeRateObservationModel =
             ObservationModelCreator< 1, double, double>::createObservationModel(
                 rangeRateObservableSettings, bodies );
@@ -123,7 +123,8 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
 
             // Compute observable
             double rangeRateObservable = rangeRateObservationModel->computeObservationsWithLinkEndData(
-                        observationTime, referenceLinkEnd, rangeRateLinkEndTimes, rangeRateLinkEndStates )( 0 );
+                        observationTime, referenceLinkEnd, rangeRateLinkEndTimes, rangeRateLinkEndStates,
+                        std::make_shared< AveragedDopplerAncilliarySimulationSettings< > >( dopplerCountInterval ) )( 0 );
 
             double arcEndRange = rangeObservationModel->computeObservationsWithLinkEndData(
                         arcEndObservationTime, referenceLinkEnd, rangeEndLinkEndTimes, rangeEndLinkEndStates )( 0 );

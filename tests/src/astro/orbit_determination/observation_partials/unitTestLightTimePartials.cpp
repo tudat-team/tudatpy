@@ -116,7 +116,8 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartialsWrtLightTimeParameters )
 
         // Compute numerical partials for each parameter and compare to analytical result.
         std::function< double( const double ) > observationFunction = std::bind(
-                    &ObservationModel< 1, double, double >::computeObservationEntry, oneWayRangeModel, std::placeholders::_1, transmitter, 0 );
+                    &ObservationModel< 1, double, double >::computeObservationEntry,
+                    oneWayRangeModel, std::placeholders::_1, transmitter, 0, nullptr );
         for( SingleLinkObservationPartialList::iterator partialIterator = partialList.first.begin( ); partialIterator != partialList.first.end( );
              partialIterator++ )
         {
@@ -222,7 +223,7 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartialsWrtLightTimeParameters )
             // Settings for body state partials
             std::function< Eigen::VectorXd( const double ) > observationFunction = std::bind(
                         &ObservationModel< 1, double, double >::computeObservations, oneWayRangeModel, std::placeholders::_1,
-                        linkEndIterator->first );
+                        linkEndIterator->first, nullptr );
 
             // Settings for parameter partial functions.
             std::vector< double > parameterPerturbations = { 1.0E19, 1.0E16, 1.0E15, 1.0E8 };

@@ -47,7 +47,8 @@ public:
             const LinkEndType referenceLinkEnd,
             const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observationsDependentVariables =
             std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >( ),
-            const std::shared_ptr< simulation_setup::ObservationDependentVariableCalculator > dependentVariableCalculator = nullptr ):
+            const std::shared_ptr< simulation_setup::ObservationDependentVariableCalculator > dependentVariableCalculator = nullptr,
+            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings < TimeType > > ancilliarySettings = nullptr ):
         observableType_( observableType ),
         linkEnds_( linkEnds ),
         observations_( observations ),
@@ -55,6 +56,7 @@ public:
         referenceLinkEnd_( referenceLinkEnd ),
         observationsDependentVariables_( observationsDependentVariables ),
         dependentVariableCalculator_( dependentVariableCalculator ),
+        ancilliarySettings_( ancilliarySettings ),
         numberOfObservations_( observations_.size( ) )
     {
         if( observations_.size( ) != observationTimes_.size( ) )
@@ -161,6 +163,8 @@ private:
     const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observationsDependentVariables_;
 
     const std::shared_ptr< simulation_setup::ObservationDependentVariableCalculator > dependentVariableCalculator_;
+
+    const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings < TimeType > > ancilliarySettings_;
 
     const int numberOfObservations_;
 
@@ -551,10 +555,12 @@ inline std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > 
         const LinkEnds& linkEnds,
         const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations,
         const std::vector< TimeType > observationTimes,
-        const LinkEndType referenceLinkEnd )
+        const LinkEndType referenceLinkEnd,
+        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings < TimeType > > ancilliarySettings )
 {
     return std::make_shared< SingleObservationSet< ObservationScalarType, TimeType > >(
-                observableType, linkEnds, observations, observationTimes, referenceLinkEnd );
+                observableType, linkEnds, observations, observationTimes, referenceLinkEnd,
+                std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >( ), nullptr, ancilliarySettings );
 }
 
 //template< typename ObservationScalarType = double, typename TimeType = double,
@@ -581,10 +587,12 @@ inline std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType >
         const LinkDefinition& linkEnds,
         const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations,
         const std::vector< TimeType > observationTimes,
-        const LinkEndType referenceLinkEnd )
+        const LinkEndType referenceLinkEnd,
+        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings < TimeType > > ancilliarySettings  )
 {
     std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > singleObservationSet =
-            createSingleObservationSet( observableType, linkEnds.linkEnds_, observations, observationTimes, referenceLinkEnd );
+            createSingleObservationSet( observableType, linkEnds.linkEnds_, observations, observationTimes, referenceLinkEnd,
+                                        std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >( ), nullptr, ancilliarySettings );
 
     std::map< ObservableType, std::map< LinkEnds, std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > > > observationSetList;
     observationSetList[ observableType ][ linkEnds.linkEnds_ ].push_back( singleObservationSet );

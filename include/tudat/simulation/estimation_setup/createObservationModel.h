@@ -583,51 +583,51 @@ public:
 
 
 
-//! Class to define the settings for one-way differenced range-rate (e.g. closed-loop Doppler) observable
-class OneWayDifferencedRangeRateObservationSettings: public ObservationModelSettings
-{
-public:
+////! Class to define the settings for one-way differenced range-rate (e.g. closed-loop Doppler) observable
+//class OneWayDifferencedRangeRateObservationSettings: public ObservationModelSettings
+//{
+//public:
 
-    //! Constructor
-    /*!
-     * Constructor
-     * \param integrationTimeFunction Function that returns the integration time of observable as a function of time
-     * \param lightTimeCorrections Settings for a single light-time correction that is to be used for the observation model
-     * (nullptr if none)
-     * \param biasSettings Settings for the observation bias model that is to be used (default none: nullptr)
-     */
-    OneWayDifferencedRangeRateObservationSettings(
-            const LinkDefinition& linkEnds,
-            const std::function< double( const double ) > integrationTimeFunction,
-            const std::shared_ptr< LightTimeCorrectionSettings > lightTimeCorrections,
-            const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr ):
-        ObservationModelSettings( one_way_differenced_range, linkEnds, lightTimeCorrections, biasSettings ),
-        integrationTimeFunction_( integrationTimeFunction ){ }
+//    //! Constructor
+//    /*!
+//     * Constructor
+//     * \param integrationTimeFunction Function that returns the integration time of observable as a function of time
+//     * \param lightTimeCorrections Settings for a single light-time correction that is to be used for the observation model
+//     * (nullptr if none)
+//     * \param biasSettings Settings for the observation bias model that is to be used (default none: nullptr)
+//     */
+//    OneWayDifferencedRangeRateObservationSettings(
+//            const LinkDefinition& linkEnds,
+//            const std::function< double( const double ) > integrationTimeFunction,
+//            const std::shared_ptr< LightTimeCorrectionSettings > lightTimeCorrections,
+//            const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr ):
+//        ObservationModelSettings( one_way_differenced_range, linkEnds, lightTimeCorrections, biasSettings ),
+//        integrationTimeFunction_( integrationTimeFunction ){ }
 
-    //! Constructor
-    /*!
-     * Constructor
-     * \param integrationTimeFunction Function that returns the integration time of observable as a function of time
-     * \param lightTimeCorrectionsList List of ettings for a single light-time correction that is to be used for the observation model
-     * (empty if none)
-     * \param biasSettings Settings for the observation bias model that is to be used (default none: nullptr)
-     */
-    OneWayDifferencedRangeRateObservationSettings(
-            const LinkDefinition& linkEnds,
-            const std::function< double( const double ) > integrationTimeFunction,
-            const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =
-            std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
-            const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr ):
-        ObservationModelSettings( one_way_differenced_range, linkEnds, lightTimeCorrectionsList, biasSettings ),
-        integrationTimeFunction_( integrationTimeFunction ){ }
+//    //! Constructor
+//    /*!
+//     * Constructor
+//     * \param integrationTimeFunction Function that returns the integration time of observable as a function of time
+//     * \param lightTimeCorrectionsList List of ettings for a single light-time correction that is to be used for the observation model
+//     * (empty if none)
+//     * \param biasSettings Settings for the observation bias model that is to be used (default none: nullptr)
+//     */
+//    OneWayDifferencedRangeRateObservationSettings(
+//            const LinkDefinition& linkEnds,
+//            const std::function< double( const double ) > integrationTimeFunction,
+//            const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =
+//            std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
+//            const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr ):
+//        ObservationModelSettings( one_way_differenced_range, linkEnds, lightTimeCorrectionsList, biasSettings ),
+//        integrationTimeFunction_( integrationTimeFunction ){ }
 
-    //! Destructor
-    ~OneWayDifferencedRangeRateObservationSettings( ){ }
+//    //! Destructor
+//    ~OneWayDifferencedRangeRateObservationSettings( ){ }
 
-    //! Function that returns the integration time of observable as a function of time
-    const std::function< double( const double ) > integrationTimeFunction_;
+//    //! Function that returns the integration time of observable as a function of time
+//    const std::function< double( const double ) > integrationTimeFunction_;
 
-};
+//};
 
 
 //! Class to define the settings for one-way differenced range-rate (e.g. closed-loop Doppler) observable
@@ -698,14 +698,12 @@ public:
 
     NWayDifferencedRangeObservationSettings(
             const LinkDefinition& linkEnds,
-            const std::function< double( const double ) > integrationTimeFunction,
             const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =
             std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
             const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
             const std::function< std::vector< double >( const double ) > retransmissionTimesFunction =
             std::function< std::vector< double >( const double ) >( ) ):
         ObservationModelSettings( n_way_differenced_range, linkEnds, lightTimeCorrectionsList, biasSettings ),
-        integrationTimeFunction_( integrationTimeFunction ),
         retransmissionTimesFunction_( retransmissionTimesFunction )
     {
         for( unsigned int i = 0; i < linkEnds.size( ) - 1; i++ )
@@ -718,7 +716,6 @@ public:
 
     NWayDifferencedRangeObservationSettings(
             const std::vector< std::shared_ptr< ObservationModelSettings > > oneWayRangeObsevationSettings,
-            const std::function< double( const double ) > integrationTimeFunction,
             const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =
             std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
             const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
@@ -728,7 +725,6 @@ public:
                                   mergeOneWayLinkEnds( getObservationModelListLinkEnds( oneWayRangeObsevationSettings ) ),
                                   lightTimeCorrectionsList, biasSettings ),
         oneWayRangeObsevationSettings_( oneWayRangeObsevationSettings ),
-        integrationTimeFunction_( integrationTimeFunction ),
         retransmissionTimesFunction_( retransmissionTimesFunction ){ }
 
     std::shared_ptr< ObservationModelSettings > getUndifferencedObservationSettings( )
@@ -738,9 +734,6 @@ public:
 
 
     std::vector< std::shared_ptr< ObservationModelSettings > > oneWayRangeObsevationSettings_;
-
-    //! Function that returns the integration time of observable as a function of time
-    const std::function< double( const double ) > integrationTimeFunction_;
 
     //! Function that returns the integration time of observable as a function of time
     std::function< std::vector< double >( const double ) > retransmissionTimesFunction_;
@@ -838,24 +831,12 @@ inline std::shared_ptr< ObservationModelSettings > twoWayOpenLoopDoppler(
 
 inline std::shared_ptr< ObservationModelSettings > oneWayClosedLoopDoppler(
         const LinkDefinition& linkEnds,
-        const std::function< double( const double ) > integrationTimeFunction,
         const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =
         std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
         const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr )
 {
-    return std::make_shared< OneWayDifferencedRangeRateObservationSettings >(
-                linkEnds, integrationTimeFunction, lightTimeCorrectionsList, biasSettings );
-}
-
-inline std::shared_ptr< ObservationModelSettings > oneWayClosedLoopDoppler(
-        const LinkDefinition& linkEnds,
-        const double integrationTime,
-        const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =
-        std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
-        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr )
-{
-    return std::make_shared< OneWayDifferencedRangeRateObservationSettings >(
-                linkEnds, [=](const double){ return integrationTime; }, lightTimeCorrectionsList, biasSettings );
+    return std::make_shared< ObservationModelSettings >(
+                one_way_differenced_range, linkEnds, lightTimeCorrectionsList, biasSettings );
 }
 
 inline std::shared_ptr< ObservationModelSettings > nWayRange(
@@ -1446,12 +1427,12 @@ public:
 
         case one_way_differenced_range:
         {
-            std::shared_ptr< OneWayDifferencedRangeRateObservationSettings > rangeRateObservationSettings =
-                    std::dynamic_pointer_cast< OneWayDifferencedRangeRateObservationSettings >( observationSettings );
-            if( rangeRateObservationSettings == nullptr )
-            {
-                throw std::runtime_error( "Error when making differenced one-way range rate, input type is inconsistent" );
-            }
+//            std::shared_ptr< OneWayDifferencedRangeRateObservationSettings > rangeRateObservationSettings =
+//                    std::dynamic_pointer_cast< OneWayDifferencedRangeRateObservationSettings >( observationSettings );
+//            if( rangeRateObservationSettings == nullptr )
+//            {
+//                throw std::runtime_error( "Error when making differenced one-way range rate, input type is inconsistent" );
+//            }
             // Check consistency input.
             if( linkEnds.size( ) != 2 )
             {
@@ -1487,7 +1468,6 @@ public:
                         createLightTimeCalculator< ObservationScalarType, TimeType >(
                             linkEnds.at( transmitter ), linkEnds.at( receiver ),
                             bodies, observationSettings->lightTimeCorrectionsList_ ),
-                        rangeRateObservationSettings->integrationTimeFunction_,
                         observationBias );
 
             break;
@@ -1637,8 +1617,7 @@ public:
 
             observationModel = std::make_shared< NWayDifferencedRangeObservationModel<
                     ObservationScalarType, TimeType > >(
-                        linkEnds, arcStartObservationModel, arcEndObservationModel,
-                        nWayDifferencedRangeObservationSettings->integrationTimeFunction_, observationBias );
+                        linkEnds, arcStartObservationModel, arcEndObservationModel, observationBias );
             break;
         }
 

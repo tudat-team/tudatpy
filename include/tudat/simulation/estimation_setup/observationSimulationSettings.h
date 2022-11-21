@@ -36,69 +36,6 @@ std::function< Eigen::VectorXd( const double ) > getNoiseFunctionForObservable(
         const std::function< double( const double ) > singleNoiseFunction,
         const observation_models::ObservableType observableType );
 
-enum ObservationAncilliarySimulationVariable
-{
-    averaged_doppler_integration_time
-};
-
-template< typename TimeType = double >
-struct ObservationAncilliarySimulationSettings
-{
-    ObservationAncilliarySimulationSettings( ){ }
-
-    virtual ~ObservationAncilliarySimulationSettings( ){ }
-
-    virtual double getAncilliaryDoubleData( const ObservationAncilliarySimulationVariable& variableType )= 0;
-};
-
-
-template< typename TimeType = double >
-struct AveragedDopplerAncilliarySimulationSettings : public ObservationAncilliarySimulationSettings< TimeType >
-{
-    AveragedDopplerAncilliarySimulationSettings(
-            const double integrationTime ){ }
-
-    virtual ~AveragedDopplerAncilliarySimulationSettings( ){ }
-
-    double getAncilliaryDoubleData( const ObservationAncilliarySimulationVariable& variableType )
-    {
-        double returnVariable;
-        switch( variableType )
-        {
-        case averaged_doppler_integration_time:
-            returnVariable = integrationTime_;
-            break;
-        default:
-            throw std::runtime_error( "Error when getting averaged Doppler ancilliary data; could not retrieve type " +
-                                      std::to_string( variableType ) );
-        }
-        return returnVariable;
-    }
-
-private:
-    const double integrationTime_;
-};
-
-template< typename TimeType = double >
-std::shared_ptr< ObservationAncilliarySimulationSettings< TimeType > > getDefaultAncilliaryObservationSettings(
-        const observation_models::ObservableType observableType )
-{
-    std::shared_ptr< ObservationAncilliarySimulationSettings< TimeType > > ancilliarySettings = nullptr;
-    switch( observableType )
-    {
-    case observation_models::one_way_differenced_range:
-        ancilliarySettings = std::make_shared< AveragedDopplerAncilliarySimulationSettings< TimeType > >( 60.0 );
-        break;
-    case observation_models::n_way_differenced_range:
-        ancilliarySettings = std::make_shared< AveragedDopplerAncilliarySimulationSettings< TimeType > >( 60.0 );
-        break;
-    default:
-        break;
-    }
-    return ancilliarySettings;
-}
-
-
 //! Base struct for defining times at which observations are to be simulated.
 /*!
  *  Base struct for defining times at which observations are to be simulated. Here, only the link end from which the
@@ -120,18 +57,19 @@ struct ObservationSimulationSettings
             const std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >& viabilitySettingsList =
             std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >( ),
             const std::function< Eigen::VectorXd( const double ) > observationNoiseFunction = nullptr,
-            const std::shared_ptr< ObservationAncilliarySimulationSettings < TimeType > > ancilliarySettings = nullptr ):
+            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings < TimeType > > ancilliarySettings = nullptr ):
         observableType_( observableType ), linkEnds_( linkEnds ),
         linkEndType_( linkEndType == observation_models::unidentified_link_end ? observation_models::getDefaultReferenceLinkEndType( observableType ) : linkEndType ),
         viabilitySettingsList_( viabilitySettingsList ), observationNoiseFunction_( observationNoiseFunction ),
-        ancilliarySettings_( ancilliarySettings)
+        ancilliarySettings_( ancilliarySettings )
     {
-        dependentVariableCalculator_ = std::make_shared< ObservationDependentVariableCalculator >(
-                    observableType_, linkEnds_ );
         if( ancilliarySettings_ == nullptr )
         {
-            ancilliarySettings_ = getDefaultAncilliaryObservationSettings( observableType );
+            ancilliarySettings_ = observation_models::getDefaultAncilliaryObservationSettings< TimeType >( observableType );
         }
+        dependentVariableCalculator_ = std::make_shared< ObservationDependentVariableCalculator >(
+                    observableType_, linkEnds_ );
+
     }
 
     //! Destructor.
@@ -186,6 +124,12 @@ struct ObservationSimulationSettings
         return dependentVariableCalculator_;
     }
 
+
+    std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings < TimeType > > getAncilliarySettings( )
+    {
+        return ancilliarySettings_;
+    }
+
 protected:
 
     // Type of observable to be simulated
@@ -208,7 +152,7 @@ protected:
 
     std::shared_ptr< ObservationDependentVariableCalculator > dependentVariableCalculator_;
 
-    std::shared_ptr< ObservationAncilliarySimulationSettings< TimeType > > ancilliarySettings_;
+    std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings < TimeType > > ancilliarySettings_;
 };
 
 
@@ -233,9 +177,10 @@ struct TabulatedObservationSimulationSettings: public ObservationSimulationSetti
             const observation_models::LinkEndType linkEndType = observation_models::unidentified_link_end,
             const std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >& viabilitySettingsList =
             std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >( ),
-            const std::function< Eigen::VectorXd( const double ) > observationNoiseFunction = nullptr  ):
+            const std::function< Eigen::VectorXd( const double ) > observationNoiseFunction = nullptr,
+            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings < TimeType > > ancilliarySettings = nullptr  ):
         ObservationSimulationSettings< TimeType >(
-            observableType, linkEnds, linkEndType, viabilitySettingsList, observationNoiseFunction ),
+            observableType, linkEnds, linkEndType, viabilitySettingsList, observationNoiseFunction, ancilliarySettings ),
         simulationTimes_( simulationTimes ){ }
 
     //! Destructor
@@ -259,9 +204,10 @@ struct PerArcObservationSimulationSettings: public ObservationSimulationSettings
             const std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >&
             additionalViabilitySettingsList =
             std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >( ),
-            const std::function< Eigen::VectorXd( const double ) > observationNoiseFunction = nullptr  ):
+            const std::function< Eigen::VectorXd( const double ) > observationNoiseFunction = nullptr,
+            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings < TimeType > > ancilliarySettings = nullptr  ):
         ObservationSimulationSettings< TimeType >(
-            observableType, linkEnds, linkEndType, additionalViabilitySettingsList, observationNoiseFunction ),
+            observableType, linkEnds, linkEndType, additionalViabilitySettingsList, observationNoiseFunction, ancilliarySettings ),
         startTime_( startTime ), endTime_( endTime ), intervalBetweenObservations_( intervalBetweenObservations ),
         arcDefiningConstraint_( arcDefiningConstraint ),
         minimumArcDuration_( minimumArcDuration ), maximumArcDuration_( maximumArcDuration ),
