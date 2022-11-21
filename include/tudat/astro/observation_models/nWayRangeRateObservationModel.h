@@ -55,12 +55,10 @@ public:
             const LinkEnds& linkEnds,
             const std::shared_ptr< NWayRangeObservationModel< ObservationScalarType, TimeType > > arcStartObservationModel,
             const std::shared_ptr< NWayRangeObservationModel< ObservationScalarType, TimeType > > arcEndObservationModel,
-            const std::function< double( const double ) > integrationTimeFunction,
             const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr ):
         ObservationModel< 1, ObservationScalarType, TimeType >( n_way_differenced_range, linkEnds, observationBiasCalculator ),
         arcStartObservationModel_( arcStartObservationModel ),
         arcEndObservationModel_( arcEndObservationModel ),
-        integrationTimeFunction_( integrationTimeFunction ),
         numberOfLinkEnds_( linkEnds.size( ) ){ }
 
     //! Destructor
@@ -75,9 +73,25 @@ public:
      */
     Eigen::Matrix< ObservationScalarType, 1, 1 > computeObservations(
             const TimeType time,
-            const LinkEndType linkEndAssociatedWithTime ) const
+            const LinkEndType linkEndAssociatedWithTime,
+            const std::shared_ptr< ObservationAncilliarySimulationSettings< TimeType > > ancilliarySetings = nullptr ) const
     {
-        double integrationTime = integrationTimeFunction_( time );
+        if( ancilliarySetings == nullptr )
+        {
+            throw std::runtime_error( "Error when simulating one-way averaged Doppler observable; no ancilliary settings found. Ancilliary settings are requiured for integration time" );
+        }
+
+        TimeType integrationTime;
+        try
+        {
+            integrationTime = ancilliarySetings->getAncilliaryDoubleData( averaged_doppler_integration_time );
+        }
+        catch( std::runtime_error& caughtException )
+        {
+            throw std::runtime_error( "Error when retrieving integration time for one-way averaged Doppler observable: " +
+                            std::string( caughtException.what( ) ) );
+        }
+
         return ( arcEndObservationModel_->computeObservations( time, linkEndAssociatedWithTime ) -
                 arcStartObservationModel_->computeObservations( time - integrationTime, linkEndAssociatedWithTime ) ) /
                 static_cast< ObservationScalarType >( integrationTime );
@@ -88,14 +102,24 @@ public:
             const TimeType time,
             const LinkEndType linkEndAssociatedWithTime,
             std::vector< double >& linkEndTimes,
-            std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates )
+            std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
+            const std::shared_ptr< ObservationAncilliarySimulationSettings< TimeType > > ancilliarySetings = nullptr )
     {
         std::vector< double > arcStartLinkEndTimes;
         std::vector< Eigen::Matrix< double, 6, 1 > > arcStartLinkEndStates;
         std::vector< double > arcEndLinkEndTimes;
         std::vector< Eigen::Matrix< double, 6, 1 > > arcEndLinkEndStates;
 
-        double integrationTime = integrationTimeFunction_( time );
+        TimeType integrationTime;
+        try
+        {
+            integrationTime = ancilliarySetings->getAncilliaryDoubleData( averaged_doppler_integration_time );
+        }
+        catch( std::runtime_error& caughtException )
+        {
+            throw std::runtime_error( "Error when retrieving integration time for one-way averaged Doppler observable: " +
+                            std::string( caughtException.what( ) ) );
+        }
 
         Eigen::Matrix< ObservationScalarType, 1, 1 > observation =
                 ( arcEndObservationModel_->computeIdealObservationsWithLinkEndData(
@@ -129,10 +153,6 @@ public:
 //        arcEndObservationModel_->resetRetransmissionDelaysFunction( arcEndRetransmissionDelaysFunction );
 //    }
 
-    std::function< double( const double ) > getIntegrationTimeFunction( )
-    {
-        return integrationTimeFunction_;
-    }
 
     std::shared_ptr< NWayRangeObservationModel< ObservationScalarType, TimeType > > getArcEndObservationModel( )
     {
@@ -148,8 +168,6 @@ private:
     std::shared_ptr< NWayRangeObservationModel< ObservationScalarType, TimeType > > arcStartObservationModel_;
 
     std::shared_ptr< NWayRangeObservationModel< ObservationScalarType, TimeType > > arcEndObservationModel_;
-
-    std::function< double( const double ) > integrationTimeFunction_;
 
     int numberOfLinkEnds_;
 

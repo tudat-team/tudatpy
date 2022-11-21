@@ -77,8 +77,8 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartials )
         perturbingBodies.push_back( "Earth" );
         std::shared_ptr< ObservationModel< 1 > > oneWayDifferencedRangeModel =
                 observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
-                    std::make_shared< observation_models::OneWayDifferencedRangeRateObservationSettings >(
-                        linkEnds, [ ]( const double ){ return 60.0; },
+                    std::make_shared< observation_models::ObservationModelSettings >(
+                        observation_models::one_way_differenced_range, linkEnds,
                         std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
          perturbingBodies ) ), bodies  );
 
@@ -88,7 +88,8 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartials )
 
         testObservationPartials< 1 >(
                     oneWayDifferencedRangeModel, bodies, fullEstimatableParameterSet, linkEnds,
-                    one_way_differenced_range, 1.0E-4, true, true, 1000.0, parameterPerturbationMultipliers );
+                    one_way_differenced_range, 1.0E-4, true, true, 1000.0, parameterPerturbationMultipliers,
+                    std::make_shared< AveragedDopplerAncilliarySimulationSettings< > >( 60.0 ) );
     }
 
     // Test partials with real ephemerides (without test of position partials)
@@ -106,8 +107,8 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartials )
         perturbingBodies.push_back( "Earth" );
         std::shared_ptr< ObservationModel< 1 > > oneWayDifferencedRangeModel =
                 observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
-                    std::make_shared< observation_models::OneWayDifferencedRangeRateObservationSettings >(
-                        linkEnds, [ ]( const double ){ return 60.0; },
+                    std::make_shared< observation_models::ObservationModelSettings >(
+                        observation_models::one_way_differenced_range, linkEnds,
                         std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
          perturbingBodies ) ), bodies  );
 
@@ -117,7 +118,8 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartials )
 
         testObservationPartials< 1 >(
                     oneWayDifferencedRangeModel, bodies, fullEstimatableParameterSet, linkEnds,
-                    one_way_differenced_range, 1.0E-4, false, true, 1000.0, parameterPerturbationMultipliers );
+                    one_way_differenced_range, 1.0E-4, false, true, 1000.0, parameterPerturbationMultipliers,
+                    std::make_shared< AveragedDopplerAncilliarySimulationSettings< > >( 60.0 )  );
     }
 }
 

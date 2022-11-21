@@ -85,8 +85,15 @@ public:
             const TimeType time,
             const LinkEndType linkEndAssociatedWithTime,
             std::vector< double >& linkEndTimes,
-            std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates )
+            std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
+            const std::shared_ptr< ObservationAncilliarySimulationSettings< TimeType > > ancilliarySetings = nullptr  )
     {
+
+        if( ancilliarySetings != nullptr )
+        {
+            throw std::runtime_error( "Error, calling angular position observable with ancilliary settings, but none are supported." );
+        }
+
         // Initialize total light-time/single-leg light-time
         ObservationScalarType totalLightTime =
                 mathematical_constants::getFloatingInteger< ObservationScalarType >( 0 );

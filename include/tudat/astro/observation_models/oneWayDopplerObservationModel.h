@@ -532,7 +532,8 @@ public:
             const TimeType time,
             const LinkEndType linkEndAssociatedWithTime,
             std::vector< double >& linkEndTimes,
-            std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates )
+            std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
+            const std::shared_ptr< ObservationAncilliarySimulationSettings< TimeType > > ancilliarySetings = nullptr  )
     {
         ObservationScalarType lightTime = TUDAT_NAN;
         TimeType transmissionTime = TUDAT_NAN, receptionTime = TUDAT_NAN;
@@ -556,6 +557,11 @@ public:
         default:
             throw std::runtime_error(
                         "Error when calculating one way Doppler observation, link end is not transmitter or receiver" );
+        }
+
+        if( ancilliarySetings != nullptr )
+        {
+            throw std::runtime_error( "Error, calling angular position observable with ancilliary settings, but none are supported." );
         }
 
         linkEndTimes.clear( );
