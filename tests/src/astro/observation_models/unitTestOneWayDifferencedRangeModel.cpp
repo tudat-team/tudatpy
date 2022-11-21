@@ -124,7 +124,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
             // Compute observable
             double rangeRateObservable = rangeRateObservationModel->computeObservationsWithLinkEndData(
                         observationTime, referenceLinkEnd, rangeRateLinkEndTimes, rangeRateLinkEndStates,
-                        std::make_shared< AveragedDopplerAncilliarySimulationSettings< > >( dopplerCountInterval ) )( 0 );
+                        getAveragedDopplerAncilliarySettings( dopplerCountInterval ) )( 0 );
 
             double arcEndRange = rangeObservationModel->computeObservationsWithLinkEndData(
                         arcEndObservationTime, referenceLinkEnd, rangeEndLinkEndTimes, rangeEndLinkEndStates )( 0 );

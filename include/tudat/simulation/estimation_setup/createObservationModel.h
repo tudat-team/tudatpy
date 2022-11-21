@@ -640,19 +640,14 @@ public:
      * Constructor
      * \param oneWayRangeObsevationSettings List of settings for one-way observables that make up n-way link (each must be for
      * one_way_range_
-     * \param retransmissionTimesFunction Function that returns the retransmission delay time of the signal as a function of
-     * observation timew.
      * \param biasSettings Settings for the observation bias model that is to be used (default none: nullptr)
      */
     NWayRangeObservationSettings(
             const std::vector< std::shared_ptr< ObservationModelSettings > > oneWayRangeObsevationSettings,
-            const std::function< std::vector< double >( const double ) > retransmissionTimesFunction =
-            std::function< std::vector< double >( const double  ) >( ),
             const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr ):
         ObservationModelSettings( n_way_range, mergeOneWayLinkEnds( getObservationModelListLinkEnds( oneWayRangeObsevationSettings ) ),
                                   std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ), biasSettings ),
-        oneWayRangeObsevationSettings_( oneWayRangeObsevationSettings ),
-        retransmissionTimesFunction_( retransmissionTimesFunction ){ }
+        oneWayRangeObsevationSettings_( oneWayRangeObsevationSettings ){ }
 
     //! Constructor
     /*!
@@ -660,19 +655,14 @@ public:
      * \param lightTimeCorrections Settings for a single light-time correction that is to be used for the observation model
      * (nullptr if none)
      * \param numberOfLinkEnds Number of link ends in observable (equal to n+1 for 'n'-way observable)
-     * \param retransmissionTimesFunction Function that returns the retransmission delay time of the signal as a function of
-     * observation timew.
      * \param biasSettings Settings for the observation bias model that is to be used (default none: nullptr)
      */
     NWayRangeObservationSettings(
             const LinkDefinition& linkEnds,
             const std::shared_ptr< LightTimeCorrectionSettings > lightTimeCorrections,
             const int numberOfLinkEnds,
-            const std::function< std::vector< double >( const double ) > retransmissionTimesFunction =
-            std::function< std::vector< double >( const double  ) >( ),
             const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr ):
-        ObservationModelSettings( n_way_range, linkEnds, std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ), biasSettings ),
-        retransmissionTimesFunction_( retransmissionTimesFunction )
+        ObservationModelSettings( n_way_range, linkEnds, std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ), biasSettings )
     {
         for( int i = 0; i < numberOfLinkEnds - 1; i++ )
         {
@@ -687,9 +677,6 @@ public:
 
     std::vector< std::shared_ptr< ObservationModelSettings > > oneWayRangeObsevationSettings_;
 
-    //! Function that returns the integration time of observable as a function of time
-    std::function< std::vector< double >( const double ) > retransmissionTimesFunction_;
-
 };
 
 class NWayDifferencedRangeObservationSettings: public ObservationModelSettings
@@ -700,11 +687,8 @@ public:
             const LinkDefinition& linkEnds,
             const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =
             std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
-            const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
-            const std::function< std::vector< double >( const double ) > retransmissionTimesFunction =
-            std::function< std::vector< double >( const double ) >( ) ):
-        ObservationModelSettings( n_way_differenced_range, linkEnds, lightTimeCorrectionsList, biasSettings ),
-        retransmissionTimesFunction_( retransmissionTimesFunction )
+            const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr ):
+        ObservationModelSettings( n_way_differenced_range, linkEnds, lightTimeCorrectionsList, biasSettings )
     {
         for( unsigned int i = 0; i < linkEnds.size( ) - 1; i++ )
         {
@@ -718,25 +702,19 @@ public:
             const std::vector< std::shared_ptr< ObservationModelSettings > > oneWayRangeObsevationSettings,
             const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =
             std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
-            const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
-            const std::function< std::vector< double >( const double ) > retransmissionTimesFunction =
-            std::function< std::vector< double >( const double  ) >( ) ):
+            const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr ):
         ObservationModelSettings( n_way_differenced_range,
                                   mergeOneWayLinkEnds( getObservationModelListLinkEnds( oneWayRangeObsevationSettings ) ),
                                   lightTimeCorrectionsList, biasSettings ),
-        oneWayRangeObsevationSettings_( oneWayRangeObsevationSettings ),
-        retransmissionTimesFunction_( retransmissionTimesFunction ){ }
+        oneWayRangeObsevationSettings_( oneWayRangeObsevationSettings ){ }
 
     std::shared_ptr< ObservationModelSettings > getUndifferencedObservationSettings( )
     {
-        return std::make_shared< NWayRangeObservationSettings >( oneWayRangeObsevationSettings_, retransmissionTimesFunction_ );
+        return std::make_shared< NWayRangeObservationSettings >( oneWayRangeObsevationSettings_ );
     }
 
 
     std::vector< std::shared_ptr< ObservationModelSettings > > oneWayRangeObsevationSettings_;
-
-    //! Function that returns the integration time of observable as a function of time
-    std::function< std::vector< double >( const double ) > retransmissionTimesFunction_;
 
 };
 
@@ -841,12 +819,10 @@ inline std::shared_ptr< ObservationModelSettings > oneWayClosedLoopDoppler(
 
 inline std::shared_ptr< ObservationModelSettings > nWayRange(
         const std::vector< std::shared_ptr< ObservationModelSettings > > oneWayRangeObsevationSettings,
-        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
-        const std::function< std::vector< double >( const double ) > retransmissionTimesFunction =
-        std::function< std::vector< double >( const double  ) >( ))
+        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr )
 {
     return std::make_shared< NWayRangeObservationSettings >(
-                oneWayRangeObsevationSettings, retransmissionTimesFunction, biasSettings );
+                oneWayRangeObsevationSettings, biasSettings );
 }
 
 
@@ -854,13 +830,11 @@ inline std::shared_ptr< ObservationModelSettings > nWayRangeSimple(
         const LinkDefinition& linkEnds,
         const int numberOfLinkEnds,
         const std::shared_ptr< LightTimeCorrectionSettings > lightTimeCorrections = std::shared_ptr< LightTimeCorrectionSettings > ( ),
-        const std::function< std::vector< double >( const double ) > retransmissionTimesFunction =
-        std::function< std::vector< double >( const double  ) >( ),
         const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr )
 {
     // change order of input args from FF to accomodate default (empty) lightTimeCorrections
     return std::make_shared< NWayRangeObservationSettings >(
-                linkEnds, lightTimeCorrections, numberOfLinkEnds, retransmissionTimesFunction, biasSettings );
+                linkEnds, lightTimeCorrections, numberOfLinkEnds, biasSettings );
 }
 
 
@@ -1519,7 +1493,6 @@ public:
             }
 
             std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList;
-            std::function< std::vector< double >( const double ) > retransmissionTimesFunction;
             std::shared_ptr< NWayRangeObservationSettings > nWayRangeObservationSettings =
                     std::dynamic_pointer_cast< NWayRangeObservationSettings >( observationSettings );
 
@@ -1530,10 +1503,6 @@ public:
             else if( nWayRangeObservationSettings->oneWayRangeObsevationSettings_.size( ) != linkEnds.size( ) - 1 )
             {
                 throw std::runtime_error( "Error whaen making n-way range, input data is inconsistent" );
-            }
-            else
-            {
-                retransmissionTimesFunction = nWayRangeObservationSettings->retransmissionTimesFunction_;
             }
 
             // Define light-time calculator list
@@ -1573,7 +1542,7 @@ public:
             observationModel = std::make_shared< NWayRangeObservationModel<
                     ObservationScalarType, TimeType > >(
                         linkEnds,
-                        lightTimeCalculators, retransmissionTimesFunction,
+                        lightTimeCalculators,
                         observationBias );
             break;
         }
