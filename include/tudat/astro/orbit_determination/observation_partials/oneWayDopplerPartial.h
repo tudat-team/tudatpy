@@ -42,7 +42,7 @@ public:
      * \param linkEndWithPartial Link end for which this object computes partials
      */
     OneWayDopplerProperTimeComponentScaling( const observation_models::LinkEndType linkEndWithPartial ):
-        linkEndWithPartial_( linkEndWithPartial ), divisionTerm_( TUDAT_NAN ){ }
+        linkEndWithPartial_( linkEndWithPartial ){ }
 
     //! Destructor
     virtual ~OneWayDopplerProperTimeComponentScaling( ){ }
@@ -83,17 +83,10 @@ public:
     virtual int getParameterDependencySize(
             const estimatable_parameters::EstimatebleParameterIdentifier parameterType ) = 0;
 
-    void setDivisionTerm( const double divisionTerm )
-    {
-        divisionTerm_ = divisionTerm;
-    }
 protected:
 
     //! Link end for which this object computes partials
     observation_models::LinkEndType linkEndWithPartial_;
-
-    double divisionTerm_;
-
 };
 
 //! Class to compute the state partial scaling factors for first-order proper time component of one-way Doppler observables
@@ -154,8 +147,7 @@ public:
      */
     double getEquivalencePrincipleViolationParameterPartial( )
     {
-        std::cout<<divisionTerm_<<std::endl;
-        return -currentGravitationalParameter_ / ( currentDistance_ * physical_constants::SPEED_OF_LIGHT ) / divisionTerm_;
+        return -currentGravitationalParameter_ / ( currentDistance_ * physical_constants::SPEED_OF_LIGHT );
     }
 
     //! Function to get the direct partial derivative, and associated time, of proper time
@@ -237,17 +229,7 @@ public:
         transmitterProperTimePartials_( transmitterProperTimePartials ),
         receiverProperTimePartials_( receiverProperTimePartials )
     {
-        std::cout<<"Division temr "<<divisionTerm_<<std::endl;
         this->doesVelocityScalingFactorExist_ = true;
-        if( transmitterProperTimePartials_ != nullptr )
-        {
-            transmitterProperTimePartials_->setDivisionTerm( divisionTerm_ );
-        }
-
-        if( receiverProperTimePartials_ != nullptr )
-        {
-            receiverProperTimePartials_->setDivisionTerm( divisionTerm_ );
-        }
     }
 
     //! Destructor
