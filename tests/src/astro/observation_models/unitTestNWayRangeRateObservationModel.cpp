@@ -139,12 +139,11 @@ BOOST_AUTO_TEST_CASE( testNWayRateRangeModel )
         twoWayLinkSettings.push_back( downlinkObservableSettings );
 
         std::shared_ptr< NWayRangeObservationSettings > twoWayRangeObservableSettings = std::make_shared< NWayRangeObservationSettings >
-                ( twoWayLinkSettings, std::bind( &getRetransmissionDelays, std::placeholders::_1, 1 ) );
+                ( twoWayLinkSettings );
 
         std::shared_ptr< NWayDifferencedRangeObservationSettings > twoWayRangeRateObservableSettings =
                 std::make_shared< NWayDifferencedRangeObservationSettings >(
-                    twoWayLinkEnds, lightTimeCorrectionSettings, nullptr,
-        std::bind( &getRetransmissionDelays, std::placeholders::_1, 1 ) );
+                    twoWayLinkEnds, lightTimeCorrectionSettings, nullptr );
 
         // Create observation models
         std::shared_ptr< ObservationModel< 1, double, double > > twoWayRangeObservationModel =
@@ -188,7 +187,7 @@ BOOST_AUTO_TEST_CASE( testNWayRateRangeModel )
                             observationTime + 30.0, referenceLinkEnds.at( i ), rangeEndTimes, rangeEndStates );
                 twoWayRangeRate = twoWayRangeRateObservationModel->computeObservationsWithLinkEndData(
                             observationTime, referenceLinkEnds.at( i ), rangeRateTimes, rangeRateStates,
-                            std::make_shared< AveragedDopplerAncilliarySimulationSettings< > >( 60.0 ) );
+                            getAveragedDopplerAncilliarySettings( 60.0 ) );
 
                 double rangeRateError =  ( twoWayRangeRate - ( - twoWayRangeStart + twoWayRangeEnd ) / 60.0 )( 0 );
                 BOOST_CHECK_SMALL( rangeRateError, 1.0E-9 );
@@ -265,12 +264,11 @@ BOOST_AUTO_TEST_CASE( testNWayRateRangeModel )
         fourWayLinkSettings.push_back( fourthlinkObservableSettings );
         std::shared_ptr< NWayRangeObservationSettings > fourWayRangeObservableSettings =
                 std::make_shared< NWayRangeObservationSettings >
-                ( fourWayLinkSettings, std::bind( &getRetransmissionDelays, std::placeholders::_1, 3 ) );
+                ( fourWayLinkSettings );
 
         std::shared_ptr< NWayDifferencedRangeObservationSettings > fourWayRangeRateObservableSettings =
                 std::make_shared< NWayDifferencedRangeObservationSettings >(
-                    fourWayLinkEnds, lightTimeCorrectionSettings, nullptr,
-        std::bind( &getRetransmissionDelays, std::placeholders::_1, 3 ) );
+                    fourWayLinkEnds, lightTimeCorrectionSettings, nullptr );
 
 
         // Create observation models
@@ -315,7 +313,7 @@ BOOST_AUTO_TEST_CASE( testNWayRateRangeModel )
                             observationTime + 30.0, referenceLinkEnds.at( i ), rangeEndTimes, rangeEndStates );
                 fourWayRangeRate = fourWayRangeRateObservationModel->computeObservationsWithLinkEndData(
                             observationTime, referenceLinkEnds.at( i ), rangeRateTimes, rangeRateStates,
-                            std::make_shared< AveragedDopplerAncilliarySimulationSettings< > >( 60.0 ) );
+                            getAveragedDopplerAncilliarySettings( 60.0 ) );
 
                 double rangeRateError =  ( fourWayRangeRate - ( - fourWayRangeStart + fourWayRangeEnd ) / 60.0 )( 0 );
                 BOOST_CHECK_SMALL( rangeRateError, 1.0E-9 );

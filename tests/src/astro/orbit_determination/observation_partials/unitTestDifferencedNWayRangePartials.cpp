@@ -49,6 +49,18 @@ using namespace tudat::estimatable_parameters;
 
 BOOST_AUTO_TEST_SUITE( test_n_way_range_rate_observation_partials)
 
+std::vector< double > getRetransmissionDelays( const double evaluationTime, const int numberOfRetransmitters )
+{
+    std::vector< double > retransmissionDelays;
+
+        for( int i = 0; i < numberOfRetransmitters; i++ )
+        {
+            retransmissionDelays.push_back( evaluationTime * 5.0E-17 * static_cast< double >( i + 1 ) );
+        }
+    return retransmissionDelays;
+}
+
+
 //! Test partial derivatives of one-way differenced range observable, using general test suite of observation partials.
 BOOST_AUTO_TEST_CASE( testNWayRangeRatePartials )
 {
@@ -94,7 +106,7 @@ BOOST_AUTO_TEST_CASE( testNWayRangeRatePartials )
         testObservationPartials< 1 >(
                     nWayDifferencedRangeModel, bodies, fullEstimatableParameterSet, linkEnds,
                     n_way_differenced_range, 1.0E-4, true, true, 1000.0, parameterPerturbationMultipliers,
-                    std::make_shared< AveragedDopplerAncilliarySimulationSettings< > >( 60.0 )  );
+                    getNWayAveragedDopplerAncilliarySettings( 60.0, getRetransmissionDelays( 1.0E7, 1 ) ) );
     }
 
     // Test partials with real ephemerides (without test of position partials)
@@ -128,7 +140,7 @@ BOOST_AUTO_TEST_CASE( testNWayRangeRatePartials )
         testObservationPartials< 1 >(
                     nWayDifferencedRangeModel, bodies, fullEstimatableParameterSet, linkEnds,
                     n_way_differenced_range, 1.0E-4, false, true, 1000.0, parameterPerturbationMultipliers,
-                    std::make_shared< AveragedDopplerAncilliarySimulationSettings< > >( 60.0 )  );
+                    getNWayAveragedDopplerAncilliarySettings( 60.0, getRetransmissionDelays( 1.0E7, 1 ) ) );
     }
 }
 

@@ -84,7 +84,7 @@ public:
         TimeType integrationTime;
         try
         {
-            integrationTime = ancilliarySetings->getAncilliaryDoubleData( averaged_doppler_integration_time );
+            integrationTime = ancilliarySetings->getAncilliaryDoubleData( averaged_doppler_integration_time, true );
         }
         catch( std::runtime_error& caughtException )
         {
@@ -113,7 +113,7 @@ public:
         TimeType integrationTime;
         try
         {
-            integrationTime = ancilliarySetings->getAncilliaryDoubleData( averaged_doppler_integration_time );
+            integrationTime = ancilliarySetings->getAncilliaryDoubleData( averaged_doppler_integration_time, true );
         }
         catch( std::runtime_error& caughtException )
         {
@@ -123,9 +123,9 @@ public:
 
         Eigen::Matrix< ObservationScalarType, 1, 1 > observation =
                 ( arcEndObservationModel_->computeIdealObservationsWithLinkEndData(
-                    time + integrationTime / 2.0, linkEndAssociatedWithTime, arcEndLinkEndTimes, arcEndLinkEndStates ) -
+                    time + integrationTime / 2.0, linkEndAssociatedWithTime, arcEndLinkEndTimes, arcEndLinkEndStates, ancilliarySetings ) -
                 arcStartObservationModel_->computeIdealObservationsWithLinkEndData(
-                    time - integrationTime / 2.0, linkEndAssociatedWithTime, arcStartLinkEndTimes, arcStartLinkEndStates ) ) /
+                    time - integrationTime / 2.0, linkEndAssociatedWithTime, arcStartLinkEndTimes, arcStartLinkEndStates, ancilliarySetings ) ) /
                 static_cast< ObservationScalarType >( integrationTime );
 
         linkEndTimes.clear( );
@@ -144,15 +144,6 @@ public:
 
         return observation;
     }
-
-//    void resetRetransmissionDelaysFunctions(
-//            const std::function< std::vector< ObservationScalarType >( ) > arcStartRetransmissionDelaysFunction,
-//            const std::function< std::vector< ObservationScalarType >( ) > arcEndRetransmissionDelaysFunction )
-//    {
-//        arcStartObservationModel_->resetRetransmissionDelaysFunction( arcStartRetransmissionDelaysFunction );
-//        arcEndObservationModel_->resetRetransmissionDelaysFunction( arcEndRetransmissionDelaysFunction );
-//    }
-
 
     std::shared_ptr< NWayRangeObservationModel< ObservationScalarType, TimeType > > getArcEndObservationModel( )
     {

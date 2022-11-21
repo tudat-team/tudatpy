@@ -137,7 +137,7 @@ BOOST_AUTO_TEST_CASE( testNWayRangeModel )
             twoWayLinkSettings.push_back( uplinkObservableSettings );
             twoWayLinkSettings.push_back( downlinkObservableSettings );
             std::shared_ptr< NWayRangeObservationSettings > twoWayObservableSettings = std::make_shared< NWayRangeObservationSettings >
-                    ( twoWayLinkSettings, std::bind( &getRetransmissionDelays, std::placeholders::_1, 1 ) );
+                    ( twoWayLinkSettings );
 
             // Create observation models
             std::shared_ptr< ObservationModel< 1, double, double > > uplinkObservationModel =
@@ -174,7 +174,8 @@ BOOST_AUTO_TEST_CASE( testNWayRangeModel )
             {
                 // Compute 2-way range
                 twoWayRange = twoWayObservationModel->computeObservationsWithLinkEndData(
-                            observationTime, linkEndIterator->first, twoWayLinkEndTimes, twoWayLinkEndStates );
+                            observationTime, linkEndIterator->first, twoWayLinkEndTimes, twoWayLinkEndStates,
+                            getNWayRangeAncilliarySettings( getRetransmissionDelays( observationTime, 1 ) ) );
 
                 // Set observation times/reference link ends of constituent one-way ranges
                 if( linkEndIterator->first == transmitter )
@@ -292,7 +293,7 @@ BOOST_AUTO_TEST_CASE( testNWayRangeModel )
             fourWayLinkSettings.push_back( fourthlinkObservableSettings );
             std::shared_ptr< NWayRangeObservationSettings > fourWayObservableSettings =
                     std::make_shared< NWayRangeObservationSettings >(
-                        fourWayLinkSettings, std::bind( &getRetransmissionDelays, std::placeholders::_1, 3 ) );
+                        fourWayLinkSettings );
 
             // Create observation models
             std::shared_ptr< ObservationModel< 1, double, double > > firstlinkObservationModel =
@@ -344,7 +345,8 @@ BOOST_AUTO_TEST_CASE( testNWayRangeModel )
             {
                 // Compute 4-way range
                 fourWayRange = fourWayObservationModel->computeObservationsWithLinkEndData(
-                            observationTime, linkEndIterator->first, fourWayLinkEndTimes, fourWayLinkEndStates );
+                            observationTime, linkEndIterator->first, fourWayLinkEndTimes, fourWayLinkEndStates,
+                            getNWayRangeAncilliarySettings( getRetransmissionDelays( observationTime, 3 ) ) );
 
                 // Set observation times of constituent one-way ranges
                 firstlinkObservationTime = fourWayLinkEndTimes.at( 0 );

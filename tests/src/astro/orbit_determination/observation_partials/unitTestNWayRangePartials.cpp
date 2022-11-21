@@ -119,7 +119,7 @@ BOOST_AUTO_TEST_CASE( testnWayRangePartials )
             std::shared_ptr< ObservationModel< 1 > > nWayRangeModel =
                     observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
                         std::make_shared< observation_models::NWayRangeObservationSettings >(
-                            legObservationModels, std::bind( &getRetransmissionDelays, std::placeholders::_1, linkNumber + 1 ) ), bodies  );
+                            legObservationModels ), bodies );
 
             // Create parameter objects.
             std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
@@ -128,7 +128,8 @@ BOOST_AUTO_TEST_CASE( testnWayRangePartials )
             // Test observation partials
             testObservationPartials< 1 >(
                         nWayRangeModel, bodies, fullEstimatableParameterSet, linkEnds, n_way_range, 2.0E-6, true, true, 1.0,
-                        ( Eigen::Vector4d( ) << 10.0, 1.0, 1.0, 10.0 ).finished( ) );
+                        ( Eigen::Vector4d( ) << 10.0, 1.0, 1.0, 10.0 ).finished( ),
+                        getNWayRangeAncilliarySettings( getRetransmissionDelays( 1.0E7, linkNumber + 1 ) ) );
         }
 
         // Test partials with real ephemerides (without test of position partials)
@@ -152,7 +153,7 @@ BOOST_AUTO_TEST_CASE( testnWayRangePartials )
             std::shared_ptr< ObservationModel< 1 > > nWayRangeModel =
                     observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
                         std::make_shared< observation_models::NWayRangeObservationSettings >(
-                            legObservationModels, std::bind( &getRetransmissionDelays, std::placeholders::_1, linkNumber + 1 ) ), bodies  );
+                            legObservationModels ), bodies  );
 
             // Create parameter objects.
             std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
@@ -161,7 +162,8 @@ BOOST_AUTO_TEST_CASE( testnWayRangePartials )
             // Test observation partials
             testObservationPartials< 1 >(
                         nWayRangeModel, bodies, fullEstimatableParameterSet, linkEnds, n_way_range, 2.0E-6, false, true, 1.0,
-                        ( Eigen::Vector4d( ) << 10.0, 1.0, 1.0, 20.0 ).finished( ) );
+                        ( Eigen::Vector4d( ) << 10.0, 1.0, 1.0, 20.0 ).finished( ),
+                        getNWayRangeAncilliarySettings( getRetransmissionDelays( 1.0E7, linkNumber + 1 ) )  );
         }
     }
 }

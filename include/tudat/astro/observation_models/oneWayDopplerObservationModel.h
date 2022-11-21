@@ -561,7 +561,7 @@ public:
 
         if( ancilliarySetings != nullptr )
         {
-            throw std::runtime_error( "Error, calling angular position observable with ancilliary settings, but none are supported." );
+            throw std::runtime_error( "Error, calling one-way Doppler observable with ancilliary settings, but none are supported." );
         }
 
         linkEndTimes.clear( );
