@@ -216,9 +216,9 @@ void expose_observation_setup(py::module &m) {
                 m, "LinkDefinition",
                 get_docstring("LinkDefinition").c_str() )
             .def(py::init<const std::map< tom::LinkEndType, tom::LinkEndId >&>(),
-                 py::arg("link_ends") )
-            .def_property( "link_ends", &tom::LinkDefinition::linkEnds_,
-                           get_docstring("LinkDefinition.link_ends").c_str() );
+                 py::arg("link_ends") );
+//            .def_property( "link_ends", &tom::LinkDefinition::linkEnds_,
+//                           get_docstring("LinkDefinition.link_ends").c_str() );
 
 
     m.def("link_definition",
@@ -264,8 +264,41 @@ void expose_observation_setup(py::module &m) {
           py::arg("bias_settings") = nullptr,
           get_docstring("one_way_range").c_str() );
 
+    m.def("two_way_range",
+          &tom::twoWayRangeSimple,
+          py::arg("link_ends" ),
+          py::arg("light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
+          py::arg("bias_settings") = nullptr,
+          get_docstring("two_way_range").c_str() );
+
+    m.def("two_way_range_from_one_way_links",
+          &tom::twoWayRange,
+          py::arg("one_way_range_settings" ),
+          py::arg("bias_settings" ) = nullptr,
+          get_docstring("two_way_range_from_one_way_links").c_str() );
+
+    m.def("n_way_range",
+          &tom::nWayRangeSimple,
+          py::arg("link_ends" ),
+          py::arg("light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
+          py::arg("bias_settings") = nullptr,
+          get_docstring("n_way_range").c_str() );
+
+    m.def("n_way_range_from_one_way_links",
+          &tom::nWayRange,
+          py::arg("one_way_range_settings" ),
+          py::arg("bias_settings" ) = nullptr,
+          get_docstring("n_way_range_from_one_way_links").c_str() );
+
     m.def("angular_position",
           &tom::angularPositionSettings,
+          py::arg("link_ends"),
+          py::arg("light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
+          py::arg("bias_settings") = nullptr,
+          get_docstring("angular_position").c_str() );
+
+    m.def("relative_angular_position",
+          &tom::relativeAngularPositionSettings,
           py::arg("link_ends"),
           py::arg("light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
           py::arg("bias_settings") = nullptr,
@@ -289,66 +322,84 @@ void expose_observation_setup(py::module &m) {
           py::arg("bias_settings") = nullptr,
           get_docstring("313_euler_angles").c_str() );
 
-    m.def("one_way_open_loop_doppler",
+
+    m.def("one_way_doppler_instantaneous",
           &tom::oneWayOpenLoopDoppler,
           py::arg("link_ends"),
           py::arg("light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
           py::arg("bias_settings") = nullptr,
           py::arg("transmitter_proper_time_rate_settings") = nullptr,
           py::arg("receiver_proper_time_rate_settings") = nullptr,
-          get_docstring("313_euler_angles").c_str() );
+          py::arg("normalized_with_speed_of_light") = false,
+          get_docstring("one_way_doppler_instantaneous").c_str() );
 
-    m.def("two_way_open_loop_doppler_from_one_way_links",
+    m.def("two_way_doppler_instantaneous_from_one_way_links",
           py::overload_cast<
           const std::shared_ptr< tom::OneWayDopplerObservationSettings >,
           const std::shared_ptr< tom::OneWayDopplerObservationSettings >,
-          const std::shared_ptr< tom::ObservationBiasSettings > > ( &tom::twoWayOpenLoopDoppler ),
+          const std::shared_ptr< tom::ObservationBiasSettings > >( &tom::twoWayOpenLoopDoppler ),
           py::arg("uplink_doppler_settings" ),
           py::arg("downlink_doppler_settings" ),
           py::arg("bias_settings") = nullptr,
-          get_docstring("two_way_open_loop_doppler_from_one_way_links").c_str() );
+          get_docstring("two_way_doppler_instantaneous_from_one_way_links").c_str() );
 
-    m.def("two_way_open_loop_doppler",
+    m.def("two_doppler_instantaneous",
           py::overload_cast<
           const tom::LinkDefinition&,
           const std::shared_ptr< tom::LightTimeCorrectionSettings >,
-          const std::shared_ptr< tom::ObservationBiasSettings > >( &tom::twoWayOpenLoopDoppler ),
+          const std::shared_ptr< tom::ObservationBiasSettings >,
+          const bool >( &tom::twoWayOpenLoopDoppler ),
           py::arg("link_ends" ),
           py::arg("light_time_correction_settings" ) = nullptr,
           py::arg("bias_settings") = nullptr,
-          get_docstring("two_way_open_loop_doppler").c_str());
+          py::arg("normalized_with_speed_of_light") = false,
+          get_docstring("two_doppler_instantaneous").c_str());
 
-    m.def("one_way_closed_loop_doppler",
+    m.def("one_way_doppler_averaged",
           py::overload_cast<
           const tom::LinkDefinition&,
-          const double,
           const std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >,
           const std::shared_ptr< tom::ObservationBiasSettings > >( &tom::oneWayClosedLoopDoppler ),
           py::arg("link_ends" ),
-          py::arg("integration_time" ),
           py::arg("light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
           py::arg("bias_settings") = nullptr,
-          get_docstring("one_way_closed_loop_doppler", 0).c_str() );
+          get_docstring("one_way_doppler_averaged").c_str() );
 
-    m.def("one_way_closed_loop_doppler",
+    m.def("two_way_doppler_averaged",
           py::overload_cast<
           const tom::LinkDefinition&,
-          const std::function< double( const double ) >,
           const std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >,
-          const std::shared_ptr< tom::ObservationBiasSettings > >( &tom::oneWayClosedLoopDoppler ),
+          const std::shared_ptr< tom::ObservationBiasSettings > >( &tom::twoWayDifferencedRangeObservationSettings ),
           py::arg("link_ends" ),
-          py::arg("integration_time_function" ),
           py::arg("light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
           py::arg("bias_settings") = nullptr,
-          get_docstring("one_way_closed_loop_doppler", 1).c_str() );
+          get_docstring("n_way_doppler_averaged").c_str() );
 
-
-    m.def("n_way_range",
-          &tom::nWayRange,
+    m.def("two_way_doppler_averaged_from_one_way_links",
+          py::overload_cast<
+          const std::vector< std::shared_ptr< tom::ObservationModelSettings > >,
+          const std::shared_ptr< tom::ObservationBiasSettings > >( &tom::twoWayDifferencedRangeObservationSettings ),
           py::arg("one_way_range_settings" ),
-          py::arg("bias_settings" ) = nullptr,
-          py::arg("retransmission_times_function" ) = nullptr,
-          get_docstring("n_way_range").c_str() );
+          py::arg("bias_settings") = nullptr,
+          get_docstring("n_way_doppler_averaged").c_str() );
+
+    m.def("n_way_doppler_averaged",
+          py::overload_cast<
+          const tom::LinkDefinition&,
+          const std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >,
+          const std::shared_ptr< tom::ObservationBiasSettings > >( &tom::nWayDifferencedRangeObservationSettings ),
+          py::arg("link_ends" ),
+          py::arg("light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
+          py::arg("bias_settings") = nullptr,
+          get_docstring("n_way_doppler_averaged").c_str() );
+
+    m.def("n_way_doppler_averaged_from_one_way_links",
+          py::overload_cast<
+          const std::vector< std::shared_ptr< tom::ObservationModelSettings > >,
+          const std::shared_ptr< tom::ObservationBiasSettings > >( &tom::nWayDifferencedRangeObservationSettings ),
+          py::arg("one_way_range_settings" ),
+          py::arg("bias_settings") = nullptr,
+          get_docstring("n_way_doppler_averaged_from_one_way_links").c_str() );
 
 
     py::class_<tom::LightTimeCorrectionSettings,
@@ -639,7 +690,7 @@ void expose_observation_setup(py::module &m) {
           py::arg("observation_simulation_settings_list"),
           py::arg("noise_amplitude"),
           py::arg("observable_type"),
-          py::arg("link_ends"),
+          py::arg("link_definition"),
           get_docstring("add_gaussian_noise_to_settings_for_link_ends").c_str() );
 
 
@@ -726,6 +777,60 @@ void expose_observation_setup(py::module &m) {
           get_docstring("add_dependent_variables_to_observable_for_link_ends").c_str() );
 
 
+
+
+
+
+
+
+    //////////////////////////////////////////// DEPRECATED ////////////////////////////////////////////
+
+    m.def("one_way_open_loop_doppler",
+          &tom::oneWayOpenLoopDoppler,
+          py::arg("link_ends"),
+          py::arg("light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
+          py::arg("bias_settings") = nullptr,
+          py::arg("transmitter_proper_time_rate_settings") = nullptr,
+          py::arg("receiver_proper_time_rate_settings") = nullptr,
+          py::arg("normalized_with_speed_of_light") = false );
+
+    m.def("two_way_open_loop_doppler_from_one_way_links",
+          py::overload_cast<
+          const std::shared_ptr< tom::OneWayDopplerObservationSettings >,
+          const std::shared_ptr< tom::OneWayDopplerObservationSettings >,
+          const std::shared_ptr< tom::ObservationBiasSettings > > ( &tom::twoWayOpenLoopDoppler ),
+          py::arg("uplink_doppler_settings" ),
+          py::arg("downlink_doppler_settings" ),
+          py::arg("bias_settings") = nullptr );
+
+    m.def("two_way_open_loop_doppler",
+          py::overload_cast<
+          const tom::LinkDefinition&,
+          const std::shared_ptr< tom::LightTimeCorrectionSettings >,
+          const std::shared_ptr< tom::ObservationBiasSettings >,
+          const bool >( &tom::twoWayOpenLoopDoppler ),
+          py::arg("link_ends" ),
+          py::arg("light_time_correction_settings" ) = nullptr,
+          py::arg("bias_settings") = nullptr,
+          py::arg("normalized_with_speed_of_light") = false );
+
+    m.def("one_way_closed_loop_doppler",
+          py::overload_cast<
+          const tom::LinkDefinition&,
+          const std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >,
+          const std::shared_ptr< tom::ObservationBiasSettings > >( &tom::oneWayClosedLoopDoppler ),
+          py::arg("link_ends" ),
+          py::arg("light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
+          py::arg("bias_settings") = nullptr );
+
+    m.def("one_way_closed_loop_doppler",
+          py::overload_cast<
+          const tom::LinkDefinition&,
+          const std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >,
+          const std::shared_ptr< tom::ObservationBiasSettings > >( &tom::oneWayClosedLoopDoppler ),
+          py::arg("link_ends" ),
+          py::arg("light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
+          py::arg("bias_settings") = nullptr );
 
     //    m.def("gaussian_noise_function",
     //              &ts::getGaussianDistributionNoiseFunction,
