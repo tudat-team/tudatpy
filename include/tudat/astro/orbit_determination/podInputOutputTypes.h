@@ -23,6 +23,7 @@
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/simulation/estimation_setup/observations.h"
+#include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
 
 namespace tudat
 {
@@ -42,8 +43,7 @@ public:
         reintegrateEquationsOnFirstIteration_( true ),
         reintegrateVariationalEquations_( true ),
         saveDesignMatrix_( true ),
-        printOutput_( true ),
-        saveStateHistoryForEachIteration_( false )
+        printOutput_( true )
     {
         weightsMatrixDiagonals_ = Eigen::VectorXd::Zero( observationCollection->getTotalObservableSize( ) );
         setConstantWeightsMatrix( 1.0 );
@@ -256,27 +256,15 @@ public:
         return printOutput_;
     }
 
-    //! Function to return the boolean denoting whether the state history is to be saved on each iteration.
-    /*!
-     * Function to return the boolean denoting whether the state history is to be saved on each iteration.
-     * \return Boolean denoting whether the state history is to be saved on each iteration.
-     */
-    bool getSaveStateHistoryForEachIteration( )
-    {
-        return saveStateHistoryForEachIteration_;
-    }
-
     void defineCovarianceSettings( const bool reintegrateEquationsOnFirstIteration = 1,
                                    const bool reintegrateVariationalEquations = 1,
                                    const bool saveDesignMatrix = 1,
-                                   const bool printOutput = 1,
-                                   const bool saveStateHistoryForEachIteration = 0 )
+                                   const bool printOutput = 1 )
     {
         this->reintegrateEquationsOnFirstIteration_ = reintegrateEquationsOnFirstIteration;
         this->reintegrateVariationalEquations_ = reintegrateVariationalEquations;
         this->saveDesignMatrix_ = saveDesignMatrix;
         this->printOutput_ = printOutput;
-        this->saveStateHistoryForEachIteration_ = saveStateHistoryForEachIteration;
     }
 
 
@@ -302,10 +290,6 @@ protected:
 
     //! Boolean denoting whether to print output to th terminal when running the estimation.
     bool printOutput_;
-
-    //! Boolean denoting whether the state history is to be saved on each iteration.
-    bool saveStateHistoryForEachIteration_;
-
 };
 
 
@@ -369,6 +353,8 @@ public:
         }
         return isConverged;
     }
+
+
 protected:
 
     //! Maximum number of allowed iterations for estimation
@@ -406,6 +392,7 @@ public:
             std::make_shared< EstimationConvergenceChecker >( ) ):
         CovarianceAnalysisInput< ObservationScalarType, TimeType >( observationCollection, inverseOfAprioriCovariance ),
         saveResidualsAndParametersFromEachIteration_( true ),
+        saveStateHistoryForEachIteration_( false ),
         convergenceChecker_( convergenceChecker )
     { }
 
@@ -464,10 +451,25 @@ public:
         convergenceChecker_ = convergenceChecker;
     }
 
+
+    //! Function to return the boolean denoting whether the state history is to be saved on each iteration.
+    /*!
+     * Function to return the boolean denoting whether the state history is to be saved on each iteration.
+     * \return Boolean denoting whether the state history is to be saved on each iteration.
+     */
+    bool getSaveStateHistoryForEachIteration( )
+    {
+        return saveStateHistoryForEachIteration_;
+    }
+
     //! Boolean denoting whether the residuals and parameters from the each iteration are to be saved
     bool saveResidualsAndParametersFromEachIteration_;
 
-    std::shared_ptr< EstimationConvergenceChecker > convergenceChecker_;
+    //! Boolean denoting whether the state history is to be saved on each iteration.
+    bool saveStateHistoryForEachIteration_;
+
+    std::shared_ptr< EstimationConvergenceChecker > convergenceChecker_;    
+
 
 };
 
@@ -586,42 +588,6 @@ struct CovarianceAnalysisOutput
         return normalizedDesignMatrix_;
     }
 
-    std::vector< std::vector< std::map< TimeType, Eigen::VectorXd > > > getDependentVariableHistory( )
-    {
-        if( dependentVariableHistoryPerIteration_.size( ) == 0 )
-        {
-            throw std::runtime_error( "Error when retrieving dependent variable histories from estimation, no dependent variable histories set." );
-        }
-        return dependentVariableHistoryPerIteration_;
-    }
-
-    std::vector< std::vector< std::map< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > > > getDynamicsHistory( )
-    {
-        if( dynamicsHistoryPerIteration_.size( ) == 0 )
-        {
-            throw std::runtime_error( "Error when retrieving dynamics histories from estimation, no dynamics results set." );
-        }
-        return dynamicsHistoryPerIteration_;
-    }
-
-    std::vector< std::map< TimeType, Eigen::VectorXd > > getFinalDependentVariableHistory( )
-    {
-        if( dependentVariableHistoryPerIteration_.size( ) == 0 )
-        {
-            throw std::runtime_error( "Error when retrieving final dependent variable histories from estimation, no dependent variable histories set." );
-        }
-        return dependentVariableHistoryPerIteration_.at( dependentVariableHistoryPerIteration_.size( ) - 1 );
-    }
-
-    std::vector< std::map< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > > getFinalDynamicsHistory( )
-    {
-        if( dynamicsHistoryPerIteration_.size( ) == 0 )
-        {
-            throw std::runtime_error( "Error when retrieving final dynamics histories from estimation, no dynamics results set." );
-        }
-        return dynamicsHistoryPerIteration_.at( dynamicsHistoryPerIteration_.size( ) - 1 );
-    }
-
 
     Eigen::MatrixXd getNormalizedWeightedDesignMatrix( )
     {
@@ -662,22 +628,6 @@ struct CovarianceAnalysisOutput
         return getUnnormalizedCovarianceMatrix( ).cwiseQuotient( getFormalErrorVector( ) * getFormalErrorVector( ).transpose( ) );
     }
 
-    //! Function to set the full state histories of numerical solutions and dependent variables
-    /*!
-     * Function to set the full state histories of numerical solutions and dependent variables
-     * \param dynamicsHistoryPerIteration List of numerical solutions of dynamics (per iteration, per arc)
-     * \param dependentVariableHistoryPerIteration List of numerical solutions of dependent variables (per iteration, per arc)
-     */
-
-    void setStateHistories(
-            std::vector< std::vector< std::map< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > > >
-            dynamicsHistoryPerIteration,
-            std::vector< std::vector< std::map< TimeType, Eigen::VectorXd > > > dependentVariableHistoryPerIteration )
-    {
-        dynamicsHistoryPerIteration_ = dynamicsHistoryPerIteration;
-        dependentVariableHistoryPerIteration_ = dependentVariableHistoryPerIteration;
-    }
-
     //! Matrix of observation partials (normalixed) used in estimation (may be empty if so requested)
     Eigen::MatrixXd normalizedDesignMatrix_;
 
@@ -689,12 +639,6 @@ struct CovarianceAnalysisOutput
 
     //! Inverse of postfit normalized covariance matrix
     Eigen::MatrixXd inverseNormalizedCovarianceMatrix_;
-
-    //! List of numerical solutions of dynamics (per iteration, per arc)
-    std::vector< std::vector< std::map< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > > > dynamicsHistoryPerIteration_;
-
-    //! List of numerical solutions of dependent variables (per iteration, per arc)
-    std::vector< std::vector< std::map< TimeType, Eigen::VectorXd > > > dependentVariableHistoryPerIteration_;
 
     //! Boolean denoting whether an exception was caught during (re)propagation of equations of motion (and variational equations)
     bool exceptionDuringPropagation_;
@@ -796,6 +740,55 @@ struct EstimationOutput: public CovarianceAnalysisOutput< ObservationScalarType,
         }
     }
 
+
+//    std::vector< std::vector< std::map< TimeType, Eigen::VectorXd > > > getDependentVariableHistory( )
+//    {
+//        if( dependentVariableHistoryPerIteration_.size( ) == 0 )
+//        {
+//            throw std::runtime_error( "Error when retrieving dependent variable histories from estimation, no dependent variable histories set." );
+//        }
+//        return dependentVariableHistoryPerIteration_;
+//    }
+
+//    std::vector< std::vector< std::map< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > > > getDynamicsHistory( )
+//    {
+//        if( dynamicsHistoryPerIteration_.size( ) == 0 )
+//        {
+//            throw std::runtime_error( "Error when retrieving dynamics histories from estimation, no dynamics results set." );
+//        }
+//        return dynamicsHistoryPerIteration_;
+//    }
+
+//    std::vector< std::map< TimeType, Eigen::VectorXd > > getFinalDependentVariableHistory( )
+//    {
+//        if( dependentVariableHistoryPerIteration_.size( ) == 0 )
+//        {
+//            throw std::runtime_error( "Error when retrieving final dependent variable histories from estimation, no dependent variable histories set." );
+//        }
+//        return dependentVariableHistoryPerIteration_.at( dependentVariableHistoryPerIteration_.size( ) - 1 );
+//    }
+
+//    std::vector< std::map< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > > getFinalDynamicsHistory( )
+//    {
+//        if( dynamicsHistoryPerIteration_.size( ) == 0 )
+//        {
+//            throw std::runtime_error( "Error when retrieving final dynamics histories from estimation, no dynamics results set." );
+//        }
+//        return dynamicsHistoryPerIteration_.at( dynamicsHistoryPerIteration_.size( ) - 1 );
+//    }
+
+    void setSimulationResults(
+            std::vector< std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > > > simulationResultsPerIteration )
+    {
+        simulationResultsPerIteration_ = simulationResultsPerIteration;
+    }
+
+    std::vector< std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > > >  getSimulationResults( )
+    {
+        return simulationResultsPerIteration_;
+    }
+
+
     //! Vector of estimated parameter values.
     Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > parameterEstimate_;
 
@@ -817,6 +810,17 @@ struct EstimationOutput: public CovarianceAnalysisOutput< ObservationScalarType,
     bool exceptionDuringInversion_;
 
     int numberOfParameters_;
+
+
+    std::vector< std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > > > simulationResultsPerIteration_;
+
+//    //! List of numerical solutions of dynamics (per iteration, per arc)
+//    std::vector< std::vector< std::map< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > > > dynamicsHistoryPerIteration_;
+
+//    //! List of numerical solutions of dependent variables (per iteration, per arc)
+//    std::vector< std::vector< std::map< TimeType, Eigen::VectorXd > > > dependentVariableHistoryPerIteration_;
+
+
 
 
 

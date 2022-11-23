@@ -288,6 +288,15 @@ void printPropagatedDependentVariableContent (
     std::cout<<std::endl;
 }
 
+template< typename StateScalarType = double, typename TimeType = double >
+class SimulationResults
+{
+public:
+    SimulationResults( ){ }
+
+    virtual ~SimulationResults( ){ }
+
+};
 
 //! Base class for performing full numerical integration of a dynamical system.
 /*!
@@ -392,6 +401,7 @@ public:
      */
     virtual void processNumericalEquationsOfMotionSolution( ) = 0;
 
+    virtual std::shared_ptr< SimulationResults< StateScalarType, TimeType > > getPropagationResults( ) = 0;
 protected:
 
     //!  Map of bodies (with names) of all bodies in integration.
@@ -403,14 +413,16 @@ protected:
 template< typename StateScalarType, typename TimeType >
 class SingleArcDynamicsSimulator;
 
+
 template< typename StateScalarType = double, typename TimeType = double >
-class SingleArcPropagatorResults
+class SingleArcSimulationResults: public SimulationResults< StateScalarType, TimeType >
 {
 public:
 
-    SingleArcPropagatorResults( const std::map< std::pair< int, int >, std::string >& dependentVariableIds,
+    SingleArcSimulationResults( const std::map< std::pair< int, int >, std::string >& dependentVariableIds,
                                 const std::map< std::pair< int, int >, std::string >& stateIds,
                                 const std::shared_ptr< SingleArcPropagatorProcessingSettings >& outputSettings ):
+        SimulationResults< StateScalarType, TimeType >( ),
         dependentVariableIds_( dependentVariableIds ),
         stateIds_( stateIds ),
         outputSettings_( outputSettings ),
@@ -524,6 +536,25 @@ private:
 
     friend class SingleArcDynamicsSimulator< StateScalarType, TimeType >;
 
+};
+
+template< typename StateScalarType = double, typename TimeType = double >
+class MultiArcSimulationResults: public SimulationResults< StateScalarType, TimeType >
+{
+
+public:
+    MultiArcSimulationResults( ){ }
+
+    ~MultiArcSimulationResults( ){ }
+
+};
+
+template< typename StateScalarType = double, typename TimeType = double >
+class HybridArcSimulationResults: public SimulationResults< StateScalarType, TimeType >
+{
+    HybridArcSimulationResults( ){ }
+
+    ~HybridArcSimulationResults( ){ }
 };
 
 
@@ -683,7 +714,7 @@ public:
 
         }
 
-        propagationResults_= std::make_shared< SingleArcPropagatorResults< StateScalarType, TimeType > >(
+        propagationResults_= std::make_shared< SingleArcSimulationResults< StateScalarType, TimeType > >(
                     dependentVariableIds_, stateIds_, propagatorSettings_->getOutputSettingsWithCheck( ) );
 
 
@@ -1068,7 +1099,7 @@ public:
                     propagatorSettings_, bodies_, frameManager_ );
     }
 
-    std::shared_ptr< SingleArcPropagatorResults< StateScalarType, TimeType > > getPropagationResults( )
+    std::shared_ptr< SimulationResults< StateScalarType, TimeType > > getPropagationResults( )
     {
         return propagationResults_;
     }
@@ -1275,7 +1306,7 @@ protected:
 
     std::shared_ptr< SingleArcPropagatorProcessingSettings > outputSettings_;
 
-    std::shared_ptr< SingleArcPropagatorResults< StateScalarType, TimeType > > propagationResults_;
+    std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType > > propagationResults_;
 
 //    //! Initial time of propagation
 //    double initialPropagationTime_;
@@ -1954,6 +1985,11 @@ public:
         }
     }
 
+    std::shared_ptr< SimulationResults< StateScalarType, TimeType > > getPropagationResults( )
+    {
+        return propagationResults_;
+    }
+
 protected:
 
     //! List of maps of state history of numerically integrated states.
@@ -1979,6 +2015,9 @@ protected:
 
     //! Propagator settings used by this objec
     std::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > multiArcPropagatorSettings_;
+
+    std::shared_ptr< MultiArcSimulationResults< StateScalarType, TimeType > > propagationResults_;
+
 };
 
 
@@ -2295,6 +2334,11 @@ public:
         }
     }
 
+    std::shared_ptr< SimulationResults< StateScalarType, TimeType > > getPropagationResults( )
+    {
+        return propagationResults_;
+    }
+
 protected:
 
     std::shared_ptr< HybridArcPropagatorSettings< StateScalarType > > hybridPropagatorSettings_;
@@ -2310,6 +2354,8 @@ protected:
 
     //! Size of multi-arc concatenated initial state vector
     int multiArcDynamicsSize_;
+
+    std::shared_ptr< HybridArcSimulationResults< StateScalarType, TimeType > > propagationResults_;
 };
 
 

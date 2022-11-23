@@ -537,41 +537,40 @@ public:
         return normalizationTerms;
     }
 
-    void saveResultsFromCurrentIteration(
-            std::vector< std::vector< std::map< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > > >& dynamicsHistoryPerIteration,
-            std::vector< std::vector< std::map< TimeType, Eigen::VectorXd > > >& dependentVariableHistoryPerIteration )
-    {
-        if( std::dynamic_pointer_cast< propagators::HybridArcVariationalEquationsSolver< ObservationScalarType, TimeType > >(  variationalEquationsSolver_) != nullptr )
-        {
+//    void saveResultsFromCurrentIteration(
+//            std::vector< std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > > >& dynamicsHistoryPerIteration )
+//    {
+//        if( std::dynamic_pointer_cast< propagators::HybridArcVariationalEquationsSolver< ObservationScalarType, TimeType > >(  variationalEquationsSolver_) != nullptr )
+//        {
 
-            std::shared_ptr< propagators::HybridArcVariationalEquationsSolver< ObservationScalarType, TimeType > > hybridArcSolver =
-                    std::dynamic_pointer_cast< propagators::HybridArcVariationalEquationsSolver< ObservationScalarType, TimeType > >(  variationalEquationsSolver_);
+//            std::shared_ptr< propagators::HybridArcVariationalEquationsSolver< ObservationScalarType, TimeType > > hybridArcSolver =
+//                    std::dynamic_pointer_cast< propagators::HybridArcVariationalEquationsSolver< ObservationScalarType, TimeType > >(  variationalEquationsSolver_);
 
-            std::vector< std::map< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > > currentDynamicsSolution;
-            std::vector< std::map< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > > currentDependentVariableSolution;
+//            std::vector< std::map< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > > currentDynamicsSolution;
+//            std::vector< std::map< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > > currentDependentVariableSolution;
 
-            currentDynamicsSolution = hybridArcSolver->getSingleArcSolver( )->getDynamicsSimulator( )->getEquationsOfMotionNumericalSolutionBase( );
-            currentDependentVariableSolution = hybridArcSolver->getSingleArcSolver( )->getDynamicsSimulator( )->getDependentVariableNumericalSolutionBase( );
+//            currentDynamicsSolution = hybridArcSolver->getSingleArcSolver( )->getDynamicsSimulator( )->getEquationsOfMotionNumericalSolutionBase( );
+//            currentDependentVariableSolution = hybridArcSolver->getSingleArcSolver( )->getDynamicsSimulator( )->getDependentVariableNumericalSolutionBase( );
 
-            auto multiArcDynamicsSolution =
-                    hybridArcSolver->getMultiArcSolver( )->getDynamicsSimulatorBase( )->getEquationsOfMotionNumericalSolutionBase( );
-            auto multiArcDependentVariableSolution =
-                    hybridArcSolver->getMultiArcSolver( )->getDynamicsSimulatorBase( )->getDependentVariableNumericalSolutionBase( );
-            currentDynamicsSolution.insert( currentDynamicsSolution.end( ), multiArcDynamicsSolution.begin( ), multiArcDynamicsSolution.end( ) );
-            currentDependentVariableSolution.insert( currentDependentVariableSolution.end( ), multiArcDependentVariableSolution.begin( ), multiArcDependentVariableSolution.end( ) );
+//            auto multiArcDynamicsSolution =
+//                    hybridArcSolver->getMultiArcSolver( )->getDynamicsSimulatorBase( )->getEquationsOfMotionNumericalSolutionBase( );
+//            auto multiArcDependentVariableSolution =
+//                    hybridArcSolver->getMultiArcSolver( )->getDynamicsSimulatorBase( )->getDependentVariableNumericalSolutionBase( );
+//            currentDynamicsSolution.insert( currentDynamicsSolution.end( ), multiArcDynamicsSolution.begin( ), multiArcDynamicsSolution.end( ) );
+//            currentDependentVariableSolution.insert( currentDependentVariableSolution.end( ), multiArcDependentVariableSolution.begin( ), multiArcDependentVariableSolution.end( ) );
 
-            dynamicsHistoryPerIteration.push_back( currentDynamicsSolution );
-            dependentVariableHistoryPerIteration.push_back( currentDependentVariableSolution );
-        }
-        else
-        {
-            dynamicsHistoryPerIteration.push_back(
-                        variationalEquationsSolver_->getDynamicsSimulatorBase( )->getEquationsOfMotionNumericalSolutionBase( ));
-            dependentVariableHistoryPerIteration.push_back(
-                        variationalEquationsSolver_->getDynamicsSimulatorBase( )->getDependentVariableNumericalSolutionBase( ));
+//            dynamicsHistoryPerIteration.push_back( currentDynamicsSolution );
+//            dependentVariableHistoryPerIteration.push_back( currentDependentVariableSolution );
+//        }
+//        else
+//        {
+//            dynamicsHistoryPerIteration.push_back(
+//                        variationalEquationsSolver_->getDynamicsSimulatorBase( )->getEquationsOfMotionNumericalSolutionBase( ));
+//            dependentVariableHistoryPerIteration.push_back(
+//                        variationalEquationsSolver_->getDynamicsSimulatorBase( )->getDependentVariableNumericalSolutionBase( ));
 
-        }
-    }
+//        }
+//    }
 
     std::shared_ptr< CovarianceAnalysisOutput< ObservationScalarType, TimeType > > computeCovariance(
             const std::shared_ptr< CovarianceAnalysisInput< ObservationScalarType, TimeType > > estimationInput )
@@ -579,10 +578,6 @@ public:
         // Get size of parameter vector and number of observations (total and per type)
         int numberOfEstimatedParameters = parametersToEstimate_->getParameterSetSize( );
         int totalNumberOfObservations = estimationInput->getObservationCollection( )->getTotalObservableSize( );
-
-        std::vector< std::vector< std::map< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > > > dynamicsHistoryPerIteration;
-        std::vector< std::vector< std::map< TimeType, Eigen::VectorXd > > > dependentVariableHistoryPerIteration;
-
 
         bool exceptionDuringPropagation = false;
 
@@ -593,11 +588,6 @@ public:
                 resetParameterEstimate(
                             parametersToEstimate_->template getFullParameterValues< ObservationScalarType >( ),
                             estimationInput->getReintegrateVariationalEquations( ) );
-            }
-
-            if( estimationInput->getSaveStateHistoryForEachIteration( ) )
-            {
-                saveResultsFromCurrentIteration( dynamicsHistoryPerIteration, dependentVariableHistoryPerIteration );
             }
         }
         catch( std::runtime_error& error )
@@ -613,7 +603,6 @@ public:
         }
 
         // Calculate residuals and observation matrix for current parameter estimate.
-        Eigen::VectorXd residuals;
         Eigen::MatrixXd designMatrix;
         calculateDesignMatrix(
                     estimationInput->getObservationCollection( ), numberOfEstimatedParameters, totalNumberOfObservations, designMatrix );
@@ -636,11 +625,6 @@ public:
                      designMatrix, estimationInput->getWeightsMatrixDiagonals( ), normalizationTerms,
                     inverseNormalizedCovariance, exceptionDuringPropagation );
 
-        if( estimationInput->getSaveStateHistoryForEachIteration( ) )
-        {
-            estimationOutput->setStateHistories(
-                        dynamicsHistoryPerIteration, dependentVariableHistoryPerIteration );
-        }
         return estimationOutput;
     }
 
@@ -676,8 +660,7 @@ public:
 
         std::vector< Eigen::VectorXd > residualHistory;
         std::vector< Eigen::VectorXd > parameterHistory;
-        std::vector< std::vector< std::map< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > > > dynamicsHistoryPerIteration;
-        std::vector< std::vector< std::map< TimeType, Eigen::VectorXd > > > dependentVariableHistoryPerIteration;
+        std::vector< std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > > > simulationResultsPerIteration;
 
         // Declare residual bookkeeping variables
         std::vector< double > rmsResidualHistory;
@@ -701,7 +684,7 @@ public:
             // Re-integrate equations of motion and variational equations with new parameter estimate.
             try
             {
-                if( ( numberOfIterations > 0 ) ||( estimationInput->getReintegrateEquationsOnFirstIteration( ) ) )
+                if( ( numberOfIterations > 0 ) || ( estimationInput->getReintegrateEquationsOnFirstIteration( ) ) )
                 {
                     resetParameterEstimate( newParameterEstimate, estimationInput->getReintegrateVariationalEquations( ) );
                 }
@@ -711,32 +694,30 @@ public:
                     if( std::dynamic_pointer_cast< propagators::HybridArcVariationalEquationsSolver< ObservationScalarType, TimeType > >(  variationalEquationsSolver_) != nullptr )
                     {
 
-                        std::shared_ptr< propagators::HybridArcVariationalEquationsSolver< ObservationScalarType, TimeType > > hybridArcSolver =
-                                std::dynamic_pointer_cast< propagators::HybridArcVariationalEquationsSolver< ObservationScalarType, TimeType > >(  variationalEquationsSolver_);
+                        throw std::runtime_error( "Error, hybrid arc per-iteration state saving not yet implemented" );
+//                        std::shared_ptr< propagators::HybridArcVariationalEquationsSolver< ObservationScalarType, TimeType > > hybridArcSolver =
+//                                std::dynamic_pointer_cast< propagators::HybridArcVariationalEquationsSolver< ObservationScalarType, TimeType > >(  variationalEquationsSolver_);
 
-                        std::vector< std::map< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > >  currentStateHistories;
-                        currentStateHistories = hybridArcSolver->getMultiArcSolver( )->getDynamicsSimulatorBase( )->getEquationsOfMotionNumericalSolutionBase( );
-                        currentStateHistories.insert(
-                                    currentStateHistories.begin(),
-                                    hybridArcSolver->getSingleArcSolver( )->getDynamicsSimulatorBase( )->getEquationsOfMotionNumericalSolutionBase( ).at( 0 ) );
-                        dynamicsHistoryPerIteration.push_back( currentStateHistories );
+//                        std::vector< std::map< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > >  currentStateHistories;
+//                        currentStateHistories = hybridArcSolver->getMultiArcSolver( )->getDynamicsSimulatorBase( )->getEquationsOfMotionNumericalSolutionBase( );
+//                        currentStateHistories.insert(
+//                                    currentStateHistories.begin(),
+//                                    hybridArcSolver->getSingleArcSolver( )->getDynamicsSimulatorBase( )->getEquationsOfMotionNumericalSolutionBase( ).at( 0 ) );
+//                        dynamicsHistoryPerIteration.push_back( currentStateHistories );
 
-                        std::vector< std::map< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > >  currentDependentVariableHistories;
-                        currentDependentVariableHistories = hybridArcSolver->getMultiArcSolver( )->getDynamicsSimulatorBase( )->getDependentVariableNumericalSolutionBase( );
-                        currentDependentVariableHistories.insert(
-                                    currentDependentVariableHistories.begin(),
-                                    hybridArcSolver->getSingleArcSolver( )->getDynamicsSimulatorBase( )->getDependentVariableNumericalSolutionBase( ).at( 0 ) );
-                        dependentVariableHistoryPerIteration.push_back( currentDependentVariableHistories );
+//                        std::vector< std::map< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > >  currentDependentVariableHistories;
+//                        currentDependentVariableHistories = hybridArcSolver->getMultiArcSolver( )->getDynamicsSimulatorBase( )->getDependentVariableNumericalSolutionBase( );
+//                        currentDependentVariableHistories.insert(
+//                                    currentDependentVariableHistories.begin(),
+//                                    hybridArcSolver->getSingleArcSolver( )->getDynamicsSimulatorBase( )->getDependentVariableNumericalSolutionBase( ).at( 0 ) );
+//                        dependentVariableHistoryPerIteration.push_back( currentDependentVariableHistories );
                     }
                     else
                     {
-                        dynamicsHistoryPerIteration.push_back(
-                                variationalEquationsSolver_->getDynamicsSimulatorBase( )->getEquationsOfMotionNumericalSolutionBase( ));
-                        dependentVariableHistoryPerIteration.push_back(
-                                variationalEquationsSolver_->getDynamicsSimulatorBase( )->getDependentVariableNumericalSolutionBase( ));
+                        simulationResultsPerIteration.push_back(
+                                variationalEquationsSolver_->getDynamicsSimulatorBase( )->getPropagationResults( ) );
                     }
                 }
-
             }
             catch( std::runtime_error& error )
             {
@@ -746,10 +727,6 @@ public:
                 break;
             }
 
-            if( estimationInput->getSaveStateHistoryForEachIteration( ) )
-            {
-                saveResultsFromCurrentIteration( dynamicsHistoryPerIteration, dependentVariableHistoryPerIteration );
-            }
             oldParameterEstimate = newParameterEstimate;
 
             if( estimationInput->getPrintOutput( ) )
@@ -878,8 +855,8 @@ public:
 
         if( estimationInput->getSaveStateHistoryForEachIteration( ) )
         {
-            estimationOutput->setStateHistories(
-                        dynamicsHistoryPerIteration, dependentVariableHistoryPerIteration );
+            estimationOutput->setSimulationResults(
+                        simulationResultsPerIteration );
         }
 
         return estimationOutput;

@@ -507,7 +507,8 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
                 std::pair< std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >,
                         std::vector< TimeType > > > > observationsInput,
         const observation_models::LinkEndType referenceLinkEnd,
-        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings < TimeType > > ancilliarySettings )
+        const std::map< observation_models::ObservableType,
+        std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings < TimeType > > > ancilliarySettings = nullptr )
 {
     // Declare return map.
     typename observation_models::ObservationCollection< ObservationScalarType, TimeType >::SortedObservationSets sortedObservations;
@@ -525,10 +526,17 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
         {
             throw std::runtime_error("Error when setting observation collection from existing observations, size of observation times and observation values is inconsistent.");
         }
+
+        std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings < TimeType > > currentAncilliarySettings = nullptr;
+        if( ancilliarySettings.count( observableType ) )
+        {
+            currentAncilliarySettings = ancilliarySettings.at( observableType );
+        }
+
         std::shared_ptr< observation_models::SingleObservationSet<ObservationScalarType,TimeType> > observationSet =
                 std::make_shared< observation_models::SingleObservationSet<ObservationScalarType,TimeType> >(
                         observableType, linkEnds, observationsTimesAndValues.first, observationsTimesAndValues.second, referenceLinkEnd,
-                     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >( ), nullptr, ancilliarySettings );
+                     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >( ), nullptr, currentAncilliarySettings );
 
         sortedObservations[ observableType ][ linkEnds ].push_back( observationSet );
 
