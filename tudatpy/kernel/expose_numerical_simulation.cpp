@@ -252,6 +252,10 @@ void expose_numerical_simulation(py::module &m) {
                &tss::OrbitDeterminationManager<double, double>::estimateParameters,
                py::arg( "estimation_input" ),
                get_docstring("Estimator.perform_estimation").c_str() )
+          .def("compute_covariance",
+               &tss::OrbitDeterminationManager<double, double>::computeCovariance,
+               py::arg( "covariance_analysis_input" ),
+               get_docstring("Estimator.compute_covariance").c_str() )
           .def_property_readonly("variational_solver",
                &tss::OrbitDeterminationManager<double, double>::getVariationalEquationsSolver,
                                  get_docstring("Estimator.variational_solver").c_str() );

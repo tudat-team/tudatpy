@@ -284,7 +284,9 @@ void expose_estimation(py::module &m) {
     m.def("set_existing_observations",
           &tss::setExistingObservations< >,
           py::arg("observations"),
-          py::arg("reference_link_end" ) );
+          py::arg("reference_link_end" ),
+          py::arg("ancilliary_settings_per_observatble" ) = std::map< tom::ObservableType,
+          std::shared_ptr< tom::ObservationAncilliarySimulationSettings < double > > >( ) );
 
     m.def("compute_target_angles_and_range",
           &tss::getTargetAnglesAndRange,
@@ -455,10 +457,10 @@ void expose_estimation(py::module &m) {
                   py::arg( "reintegrate_variational_equations" ) = true,
                   py::arg( "save_design_matrix" ) = true,
                   py::arg( "print_output_to_terminal" ) = true,
-                  py::arg( "save_state_history_per_iteration" ) = false,
                   get_docstring("CovarianceAnalysisInput.define_covariance_settings").c_str() )
             .def_property_readonly("weight_matrix_diagonal",
-                                   &tss::CovarianceAnalysisInput<double, double>::getWeightsMatrixDiagonals);
+                                   &tss::CovarianceAnalysisInput<double, double>::getWeightsMatrixDiagonals,
+                                   get_docstring("CovarianceAnalysisInput.weight_matrix_diagonal").c_str();
 
     py::class_<
             tss::EstimationInput<double, double>,
@@ -496,6 +498,12 @@ void expose_estimation(py::module &m) {
             .def_property_readonly("covariance",
                                    &tss::CovarianceAnalysisOutput<double, double>::getUnnormalizedCovarianceMatrix,
                                    get_docstring("CovarianceAnalysisOutput.covariance").c_str() )
+            .def_property_readonly("inverse_normalized_covariance",
+                                   &tss::CovarianceAnalysisOutput<double, double>::getNormalizedInverseCovarianceMatrix,
+                                   get_docstring("CovarianceAnalysisOutput.inverse_normalized_covariance").c_str() )
+            .def_property_readonly("normalized_covariance",
+                                   &tss::CovarianceAnalysisOutput<double, double>::getNormalizedCovarianceMatrix,
+                                   get_docstring("CovarianceAnalysisOutput.normalized_covariance").c_str() )
             .def_property_readonly("formal_errors",
                                    &tss::CovarianceAnalysisOutput<double, double>::getFormalErrorVector,
                                    get_docstring("CovarianceAnalysisOutput.formal_errors").c_str() )
@@ -530,6 +538,9 @@ void expose_estimation(py::module &m) {
             .def_property_readonly("parameter_history",
                                    &tss::EstimationOutput<double, double>::getParameterHistoryMatrix,
                                    get_docstring("EstimationOutput.parameter_history").c_str() )
+            .def_property_readonly("simulation_results_per_iteration",
+                                   &tss::EstimationOutput<double, double>::getSimulationResults,
+                                   get_docstring("EstimationOutput.simulation_results_per_iteration").c_str() )
             .def_readonly("final_residuals",
                           &tss::EstimationOutput<double, double>::residuals_,
                           get_docstring("EstimationOutput.final_residuals").c_str() );
