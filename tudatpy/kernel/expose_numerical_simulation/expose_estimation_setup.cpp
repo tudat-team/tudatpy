@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2019, Delft University of Technology
+F/*    Copyright (c) 2010-2019, Delft University of Technology
  *    All rights reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -70,6 +70,7 @@ void expose_estimation_setup(py::module &m) {
           py::arg("observations_list"),
           py::arg("times_list"),
           py::arg("reference_link_end" ),
+          py::arg("ancilliary_settings" ) = nullptr,
           get_docstring("single_type_observaion_collection").c_str() );
 
     // ************** Modules ***************
