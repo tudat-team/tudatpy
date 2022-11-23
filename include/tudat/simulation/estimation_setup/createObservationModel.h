@@ -553,20 +553,26 @@ public:
         uplinkOneWayDopplerSettings_( uplinkOneWayDopplerSettings ),
         downlinkOneWayDopplerSettings_( downlinkOneWayDopplerSettings )
     {
-
+        if( uplinkOneWayDopplerSettings->normalizeWithSpeedOfLight_ != downlinkOneWayDopplerSettings->normalizeWithSpeedOfLight_ )
+        {
+            throw std::runtime_error( "Error when making two-way Doppler observable; up and downlink normalization not consistent." );
+        }
     }
 
     TwoWayDopplerObservationSettings(
             const LinkDefinition& linkEnds,
             const std::shared_ptr< LightTimeCorrectionSettings > lightTimeCorrections = nullptr,
-            const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr ):
+            const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
+            const bool normalizeWithSpeedOfLight = false ):
         ObservationModelSettings( two_way_doppler, linkEnds,
                                   lightTimeCorrections, biasSettings )
     {
         uplinkOneWayDopplerSettings_ = std::make_shared< OneWayDopplerObservationSettings >(
-                    getUplinkFromTwoWayLinkEnds( linkEnds ), lightTimeCorrections );
+                    getUplinkFromTwoWayLinkEnds( linkEnds ), lightTimeCorrections,
+                    nullptr, nullptr, nullptr, normalizeWithSpeedOfLight );
         downlinkOneWayDopplerSettings_ = std::make_shared< OneWayDopplerObservationSettings >(
-                    getDownlinkFromTwoWayLinkEnds( linkEnds ), lightTimeCorrections );
+                    getDownlinkFromTwoWayLinkEnds( linkEnds ), lightTimeCorrections,
+                    nullptr, nullptr, nullptr, normalizeWithSpeedOfLight );
     }
 
 
@@ -664,6 +670,11 @@ public:
             const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr ):
         ObservationModelSettings( n_way_range, linkEnds, std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ), biasSettings )
     {
+        if( static_cast< int >( linkEnds.size( ) ) != numberOfLinkEnds )
+        {
+            throw std::runtime_error( "Error when making n-way range settings, input is incompatible" );
+        }
+
         for( int i = 0; i < numberOfLinkEnds - 1; i++ )
         {
             oneWayRangeObsevationSettings_.push_back(
@@ -700,12 +711,10 @@ public:
 
     NWayDifferencedRangeObservationSettings(
             const std::vector< std::shared_ptr< ObservationModelSettings > > oneWayRangeObsevationSettings,
-            const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =
-            std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
             const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr ):
         ObservationModelSettings( n_way_differenced_range,
                                   mergeOneWayLinkEnds( getObservationModelListLinkEnds( oneWayRangeObsevationSettings ) ),
-                                  lightTimeCorrectionsList, biasSettings ),
+                                  std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ), biasSettings ),
         oneWayRangeObsevationSettings_( oneWayRangeObsevationSettings ){ }
 
     std::shared_ptr< ObservationModelSettings > getUndifferencedObservationSettings( )
@@ -740,7 +749,7 @@ inline std::shared_ptr< ObservationModelSettings > angularPositionSettings(
 }
 
 inline std::shared_ptr< ObservationModelSettings > relativeAngularPositionSettings(
-        const LinkEnds& linkEnds,
+        const LinkDefinition& linkEnds,
         const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =
         std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
         const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr)
@@ -800,10 +809,11 @@ inline std::shared_ptr< ObservationModelSettings > twoWayOpenLoopDoppler(
 inline std::shared_ptr< ObservationModelSettings > twoWayOpenLoopDoppler(
         const LinkDefinition& linkEnds,
         const std::shared_ptr< LightTimeCorrectionSettings > lightTimeCorrections = nullptr,
-        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr )
+        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
+        const bool normalizeWithSpeedOfLight = false )
 {
     return std::make_shared< TwoWayDopplerObservationSettings >(
-                linkEnds, lightTimeCorrections, biasSettings );
+                linkEnds, lightTimeCorrections, biasSettings, normalizeWithSpeedOfLight );
 }
 
 
@@ -817,6 +827,82 @@ inline std::shared_ptr< ObservationModelSettings > oneWayClosedLoopDoppler(
                 one_way_differenced_range, linkEnds, lightTimeCorrectionsList, biasSettings );
 }
 
+inline std::shared_ptr< ObservationModelSettings > twoWayDifferencedRangeObservationSettings(
+        const LinkDefinition& linkEnds,
+        const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =
+        std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
+        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr )
+{
+    if( linkEnds.linkEnds_.size( ) != 3 )
+    {
+        throw std::runtime_error( "Error when creating two-way averaged Doppler settings, number of input link ends (" +
+                                  std::to_string( linkEnds.linkEnds_.size( ) ) + ") is incompatible." );
+    }
+    return std::make_shared< NWayDifferencedRangeObservationSettings >(
+                linkEnds, lightTimeCorrectionsList, biasSettings );;
+}
+
+inline std::shared_ptr< ObservationModelSettings > twoWayDifferencedRangeObservationSettings(
+        const std::vector< std::shared_ptr< ObservationModelSettings > > oneWayRangeObsevationSettings,
+        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr )
+{
+    if( oneWayRangeObsevationSettings.size( ) != 2 )
+    {
+        throw std::runtime_error( "Error when creating two-way averaged Doppler settings, number of input one-way links (" +
+                                  std::to_string( oneWayRangeObsevationSettings.size( ) ) + ") is incompatible." );
+    }
+    return std::make_shared< NWayDifferencedRangeObservationSettings >(
+                oneWayRangeObsevationSettings, biasSettings );;
+}
+
+inline std::shared_ptr< ObservationModelSettings > nWayDifferencedRangeObservationSettings(
+        const LinkDefinition& linkEnds,
+        const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =
+        std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
+        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr )
+{
+    return std::make_shared< NWayDifferencedRangeObservationSettings >(
+                linkEnds, lightTimeCorrectionsList, biasSettings );;
+}
+
+inline std::shared_ptr< ObservationModelSettings > nWayDifferencedRangeObservationSettings(
+        const std::vector< std::shared_ptr< ObservationModelSettings > > oneWayRangeObsevationSettings,
+        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr )
+{
+    return std::make_shared< NWayDifferencedRangeObservationSettings >(
+                oneWayRangeObsevationSettings, biasSettings );;
+}
+
+
+inline std::shared_ptr< ObservationModelSettings > twoWayRange(
+        const std::vector< std::shared_ptr< ObservationModelSettings > > oneWayRangeObsevationSettings,
+        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr )
+{
+    if( oneWayRangeObsevationSettings.size( ) != 2 )
+    {
+        throw std::runtime_error( "Error when creating two-way range settings, number of input one-way links (" +
+                                  std::to_string( oneWayRangeObsevationSettings.size( ) ) + ") is incompatible." );
+    }
+    return std::make_shared< NWayRangeObservationSettings >(
+                oneWayRangeObsevationSettings, biasSettings );
+}
+
+
+inline std::shared_ptr< ObservationModelSettings > twoWayRangeSimple(
+        const LinkDefinition& linkEnds,
+        const std::shared_ptr< LightTimeCorrectionSettings > lightTimeCorrections = std::shared_ptr< LightTimeCorrectionSettings > ( ),
+        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr )
+{
+    if( linkEnds.linkEnds_.size( ) != 3 )
+    {
+        throw std::runtime_error( "Error when creating two-way range settings, number of input link ends (" +
+                                  std::to_string( linkEnds.linkEnds_.size( ) ) + ") is incompatible." );
+    }
+    return std::make_shared< NWayRangeObservationSettings >(
+                linkEnds, lightTimeCorrections, linkEnds.size( ), biasSettings );
+}
+
+
 inline std::shared_ptr< ObservationModelSettings > nWayRange(
         const std::vector< std::shared_ptr< ObservationModelSettings > > oneWayRangeObsevationSettings,
         const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr )
@@ -828,13 +914,11 @@ inline std::shared_ptr< ObservationModelSettings > nWayRange(
 
 inline std::shared_ptr< ObservationModelSettings > nWayRangeSimple(
         const LinkDefinition& linkEnds,
-        const int numberOfLinkEnds,
         const std::shared_ptr< LightTimeCorrectionSettings > lightTimeCorrections = std::shared_ptr< LightTimeCorrectionSettings > ( ),
         const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr )
 {
-    // change order of input args from FF to accomodate default (empty) lightTimeCorrections
     return std::make_shared< NWayRangeObservationSettings >(
-                linkEnds, lightTimeCorrections, numberOfLinkEnds, biasSettings );
+                linkEnds, lightTimeCorrections, linkEnds.size( ), biasSettings );
 }
 
 

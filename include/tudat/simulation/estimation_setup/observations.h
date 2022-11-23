@@ -588,11 +588,11 @@ inline std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType >
         const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations,
         const std::vector< TimeType > observationTimes,
         const LinkEndType referenceLinkEnd,
-        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings < TimeType > > ancilliarySettings  )
+        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings < TimeType > > ancilliarySettings = nullptr )
 {
     std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > singleObservationSet =
             createSingleObservationSet( observableType, linkEnds.linkEnds_, observations, observationTimes, referenceLinkEnd,
-                                        std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >( ), nullptr, ancilliarySettings );
+                                        ancilliarySettings );
 
     std::map< ObservableType, std::map< LinkEnds, std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > > > observationSetList;
     observationSetList[ observableType ][ linkEnds.linkEnds_ ].push_back( singleObservationSet );
