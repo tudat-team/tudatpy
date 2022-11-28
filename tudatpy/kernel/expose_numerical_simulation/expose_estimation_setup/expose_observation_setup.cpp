@@ -227,17 +227,20 @@ void expose_observation_setup(py::module &m) {
           get_docstring("link_definition").c_str() );
 
 
+
     py::enum_< tom::ObservableType >(m, "ObservableType",
                                      get_docstring("ObservableType").c_str() )
             .value("one_way_range_type", tom::ObservableType::one_way_range )
-            .value("angular_position_type", tom::ObservableType::angular_position )
-            .value("position_observable_type", tom::ObservableType::position_observable )
-            .value("one_way_doppler_type", tom::ObservableType::one_way_doppler )
-            .value("one_way_differenced_range_type", tom::ObservableType::one_way_differenced_range )
             .value("n_way_range_type", tom::ObservableType::n_way_range )
-            .value("two_way_doppler_type", tom::ObservableType::two_way_doppler )
-            .value("euler_angle_313_observable_type", tom::ObservableType::euler_angle_313_observable )
+            .value("angular_position_type", tom::ObservableType::angular_position )
+            .value("relative_angular_position_type", tom::ObservableType::angular_position )
+            .value("position_observable_type", tom::ObservableType::position_observable )
             .value("velocity_observable_type", tom::ObservableType::velocity_observable )
+            .value("one_way_instantaneous_doppler_type", tom::ObservableType::one_way_doppler )
+            .value("one_way_averaged_doppler_type", tom::ObservableType::one_way_differenced_range )
+            .value("two_way_instantaneous_doppler_type", tom::ObservableType::two_way_doppler )
+            .value("n_way_averaged_doppler_type", tom::ObservableType::n_way_differenced_range )
+            .value("euler_angle_313_observable_type", tom::ObservableType::euler_angle_313_observable )
             .export_values();
 
 
@@ -611,7 +614,7 @@ void expose_observation_setup(py::module &m) {
                  get_docstring("ObservationAncilliarySimulationSettings.get_float_list_settings").c_str() );
 
 
-    m.def("averaged_doppler_ancilliary_settings",
+    m.def("doppler_ancilliary_settings",
           &tom::getAveragedDopplerAncilliarySettings< double >,
           py::arg("integration_time") = 60.0,
           get_docstring("doppler_integration_time_settings").c_str() );
