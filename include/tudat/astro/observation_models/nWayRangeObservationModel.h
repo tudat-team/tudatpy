@@ -98,7 +98,7 @@ public:
         currentRetransmissionDelays_.clear( );
         if( ancilliarySetings != nullptr )
         {
-            currentRetransmissionDelays_ = ancilliarySetings->getAncilliaryDoubleVectorData( retransmission_times, false );
+            currentRetransmissionDelays_ = ancilliarySetings->getAncilliaryDoubleVectorData( retransmission_delays, false );
         }
         if( currentRetransmissionDelays_.size( ) == 0 )
         {

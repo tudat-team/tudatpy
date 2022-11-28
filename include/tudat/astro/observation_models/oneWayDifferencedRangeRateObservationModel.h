@@ -121,7 +121,7 @@ public:
         TimeType currentIntegrationTime;
         try
         {
-            currentIntegrationTime = ancilliarySetings->getAncilliaryDoubleData( averaged_doppler_integration_time, true );
+            currentIntegrationTime = ancilliarySetings->getAncilliaryDoubleData( doppler_integration_time, true );
         }
         catch( std::runtime_error& caughtException )
         {

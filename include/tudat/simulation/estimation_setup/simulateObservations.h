@@ -237,6 +237,7 @@ simulatePerArcSingleObservationSet(
 
     while( currentObservationTime < observationsToSimulate->endTime_ )
     {
+        bool addTimeInterval = true;
 
         // Simulate observation
         currentObservation = observationModel->computeObservationsWithLinkEndData(
@@ -261,6 +262,11 @@ simulatePerArcSingleObservationSet(
             {
                 currentObservationArc[ currentObservationTime ] = std::make_tuple(
                             currentObservation, vectorOfStates, vectorOfTimes );
+                if( observationsToSimulate->minimumTimeBetweenArcs_ == observationsToSimulate->minimumTimeBetweenArcs_  )
+                {
+                    currentObservationTime += observationsToSimulate->minimumTimeBetweenArcs_;
+                    addTimeInterval = false;
+                }
             }
         }
         else if( currentObservationArc.size( ) > 0 )
@@ -277,7 +283,10 @@ simulatePerArcSingleObservationSet(
             currentObservationArc.clear( );
         }
 
-        currentObservationTime += observationsToSimulate->intervalBetweenObservations_;
+        if( addTimeInterval )
+        {
+            currentObservationTime += observationsToSimulate->intervalBetweenObservations_;
+        }
     }
 
     std::vector< std::shared_ptr< observation_models::ObservationViabilityCalculator > > additionalViabilityCalculators =

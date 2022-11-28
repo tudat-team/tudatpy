@@ -199,7 +199,7 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
                         physical_constants::JULIAN_YEAR,
                         physical_constants::JULIAN_YEAR + 28.0 * physical_constants::JULIAN_DAY, 60.0,
                         elevationAngleViabilitySettings( std::make_pair( "Earth", "Station1" ), 0.0 ),
-                        minimumArcDuration, maximumArcDuration, observation_models::unidentified_link_end,
+                        minimumArcDuration, maximumArcDuration, TUDAT_NAN, observation_models::unidentified_link_end,
                         additionalViabilitySettingsList ) );
         std::shared_ptr< ObservationCollection< > > testObservationsAndTimes = simulateObservations< double, double >(
                     measurementSimulationInput, observationSimulators, bodies );
