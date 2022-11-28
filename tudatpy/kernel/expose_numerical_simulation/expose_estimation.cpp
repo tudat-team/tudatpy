@@ -312,12 +312,40 @@ void expose_estimation(py::module &m) {
             .def_property_readonly("concatenated_times", &tom::ObservationCollection<>::getConcatenatedTimeVector,
                                    get_docstring("ObservationCollection.concatenated_times").c_str() )
             .def_property_readonly("concatenated_observations", &tom::ObservationCollection<>::getObservationVector,
-                                   get_docstring("ObservationCollection.concatenated_observations").c_str() );
+                                   get_docstring("ObservationCollection.concatenated_observations").c_str() )
+            .def_property_readonly("concatenated_link_definition_ids", &tom::ObservationCollection<>::getConcatenatedLinkEndIds,
+                                   get_docstring("ObservationCollection.concatenated_link_definition_ids").c_str() )
+            .def_property_readonly("link_definition_ids", &tom::ObservationCollection<>::getInverseLinkEndIdentifierMap,
+                                   get_docstring("ObservationCollection.link_definition_ids").c_str() )
+            .def_property_readonly("observable_type_start_index_and_size", &tom::ObservationCollection<>::getObservationTypeStartAndSize,
+                                   get_docstring("ObservationCollection.observable_type_start_index_and_size").c_str() )
+            .def_property_readonly("observation_set_start_index_and_size", &tom::ObservationCollection<>::getObservationSetStartAndSizePerLinkEndIndex,
+                                   get_docstring("ObservationCollection.observation_set_start_index_and_size").c_str() )
+            .def_property_readonly("observation_vector_size", &tom::ObservationCollection<>::getTotalObservableSize,
+                                   get_docstring("ObservationCollection.observation_vector_size").c_str() )
+            .def_property_readonly("sorted_observation_sets", &tom::ObservationCollection<>::getSortedObservationSets,
+                                   get_docstring("ObservationCollection.sorted_observation_sets").c_str() );
+
 
     py::class_< tom::SingleObservationSet<>,
             std::shared_ptr<tom::SingleObservationSet<>>>(m, "SingleObservationSet",
-                                                          get_docstring("SingleObservationSet").c_str() );
-
+                                                          get_docstring("SingleObservationSet").c_str() )
+            .def_property_readonly("observable_type", &tom::SingleObservationSet<>::getObservableType,
+                                   get_docstring("SingleObservationSet.observable_type").c_str() )
+            .def_property_readonly("link_definition", &tom::SingleObservationSet<>::getLinkEnds,
+                                   get_docstring("SingleObservationSet.link_definition").c_str() )
+            .def_property_readonly("reference_link_end", &tom::SingleObservationSet<>::getReferenceLinkEnd,
+                                   get_docstring("SingleObservationSet.reference_link_end").c_str() )
+            .def_property_readonly("list_of_observations", &tom::SingleObservationSet<>::getObservations,
+                                   get_docstring("SingleObservationSet.list_of_observations").c_str() )
+            .def_property_readonly("observation_times", &tom::SingleObservationSet<>::getObservationTimes,
+                                   get_docstring("SingleObservationSet.observation_times").c_str() )
+            .def_property_readonly("concatenated_observations", &tom::SingleObservationSet<>::getObservationsVector,
+                                   get_docstring("SingleObservationSet.concatenated_observations").c_str() )
+            .def_property_readonly("observations_history", &tom::SingleObservationSet<>::getObservationsHistory,
+                                   get_docstring("SingleObservationSet.observations_history").c_str() )
+            .def_property_readonly("ancilliary_settings", &tom::SingleObservationSet<>::getAncilliarySettings,
+                                   get_docstring("SingleObservationSet.ancilliary_settings").c_str() );
 
     /*!
      *************** STATE TRANSITION INTERFACE ***************
@@ -460,7 +488,7 @@ void expose_estimation(py::module &m) {
                   get_docstring("CovarianceAnalysisInput.define_covariance_settings").c_str() )
             .def_property_readonly("weight_matrix_diagonal",
                                    &tss::CovarianceAnalysisInput<double, double>::getWeightsMatrixDiagonals,
-                                   get_docstring("CovarianceAnalysisInput.weight_matrix_diagonal").c_str();
+                                   get_docstring("CovarianceAnalysisInput.weight_matrix_diagonal").c_str() );
 
     py::class_<
             tss::EstimationInput<double, double>,

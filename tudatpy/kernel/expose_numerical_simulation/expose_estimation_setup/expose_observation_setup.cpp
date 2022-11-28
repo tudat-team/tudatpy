@@ -504,6 +504,11 @@ void expose_observation_setup(py::module &m) {
             .value("body_occultation", tom::ObservationViabilityType::body_occultation )
             .export_values();
 
+    py::enum_< tom::ObservationAncilliarySimulationVariable >(m, "ObservationAncilliarySimulationVariable",
+                                               get_docstring("ObservationAncilliarySimulationVariable").c_str() )
+            .value("retransmission_delays", tom::ObservationAncilliarySimulationVariable::retransmission_delays )
+            .value("doppler_integration_time", tom::ObservationAncilliarySimulationVariable::doppler_integration_time )
+            .export_values();
 
     py::class_<tom::ObservationViabilitySettings,
             std::shared_ptr<tom::ObservationViabilitySettings>>(
@@ -590,6 +595,49 @@ void expose_observation_setup(py::module &m) {
                                                          get_docstring("TabulatedObservationSimulationSettings").c_str() );
 
 
+    py::class_<tom::ObservationAncilliarySimulationSettings<double>,
+            std::shared_ptr<tom::ObservationAncilliarySimulationSettings<double>> >(
+                m, "ObservationAncilliarySimulationSettings",
+                get_docstring("ObservationAncilliarySimulationSettings").c_str() )
+            .def("get_float_settings",
+                 &tom::ObservationAncilliarySimulationSettings<double>::getAncilliaryDoubleData,
+                 py::arg("setting_type" ),
+                 py::arg("throw_exception" ) = true,
+                 get_docstring("ObservationAncilliarySimulationSettings.get_float_settings").c_str() )
+            .def("get_float_list_settings",
+                 &tom::ObservationAncilliarySimulationSettings<double>::getAncilliaryDoubleVectorData,
+                 py::arg("setting_type" ),
+                 py::arg("throw_exception" ) = true,
+                 get_docstring("ObservationAncilliarySimulationSettings.get_float_list_settings").c_str() );
+
+
+    m.def("averaged_doppler_ancilliary_settings",
+          &tom::getAveragedDopplerAncilliarySettings< double >,
+          py::arg("integration_time") = 60.0,
+          get_docstring("doppler_integration_time_settings").c_str() );
+
+    m.def("two_way_range_ancilliary_settings",
+          &tom::getTwoWayRangeAncilliarySettings< double >,
+          py::arg("retransmission_delay") = 0.0,
+          get_docstring("two_way_range_ancilliary_settings").c_str() );
+
+    m.def("two_way_doppler_ancilliary_settings",
+          &tom::getTwoWayAveragedDopplerAncilliarySettings< double >,
+          py::arg("integration_time") = 60.0,
+          py::arg("retransmission_delay") = 0.0,
+          get_docstring("two_way_doppler_ancilliary_settings").c_str() );
+
+    m.def("n_way_range_ancilliary_settings",
+          &tom::getNWayRangeAncilliarySettings< double >,
+          py::arg("retransmission_delays") = std::vector< double >( ),
+          get_docstring("n_way_range_ancilliary_settings").c_str() );
+
+    m.def("n_way_doppler_ancilliary_settings",
+          &tom::getNWayAveragedDopplerAncilliarySettings< double >,
+          py::arg("integration_time") = 60.0,
+          py::arg("retransmission_delays") = std::vector< double >( ),
+          get_docstring("n_way_doppler_ancilliary_settings").c_str() );
+
     m.def("tabulated_simulation_settings",
           &tss::tabulatedObservationSimulationSettings< double >,
           py::arg("observable_type"),
@@ -619,10 +667,25 @@ void expose_observation_setup(py::module &m) {
           py::arg("arc_limiting_constraints" ),
           py::arg("minimum_arc_duration" ),
           py::arg("maximum_arc_duration" ),
+          py::arg("minimum_time_between_arcs" ),
           py::arg("reference_link_end_type" ) = tom::receiver,
           py::arg("additional_viability_settings" ) = std::vector< std::shared_ptr< tom::ObservationViabilitySettings > >( ),
           py::arg("noise_function" ) = nullptr,
-          get_docstring("tabulated_simulation_settings").c_str() );
+          get_docstring("continuous_arc_simulation_settings").c_str() );
+
+    m.def("continuous_arc_simulation_settings_list",
+          &tss::perArcObservationSimulationSettingsList< double >,
+          py::arg("link_ends_per_observable"),
+          py::arg("start_time" ),
+          py::arg("end_time" ),
+          py::arg("interval_between_observations" ),
+          py::arg("arc_limiting_constraints" ),
+          py::arg("minimum_arc_duration" ),
+          py::arg("maximum_arc_duration" ),
+          py::arg("minimum_time_between_arcs" ),
+          py::arg("reference_link_end_type" ) = tom::receiver,
+          py::arg("additional_viability_settings" ) = std::vector< std::shared_ptr< tom::ObservationViabilitySettings > >( ),
+          get_docstring("continuous_arc_simulation_settings_list").c_str() );
 
     m.def("add_noise_function_to_all",
           py::overload_cast<
