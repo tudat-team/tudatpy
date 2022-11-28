@@ -200,6 +200,7 @@ struct PerArcObservationSimulationSettings: public ObservationSimulationSettings
             const TimeType startTime, const TimeType endTime, const TimeType intervalBetweenObservations,
             const std::shared_ptr< observation_models::ObservationViabilitySettings > arcDefiningConstraint,
             const TimeType minimumArcDuration = TUDAT_NAN, TimeType maximumArcDuration = TUDAT_NAN,
+            const TimeType minimumTimeBetweenArcs = TUDAT_NAN,
             const observation_models::LinkEndType linkEndType = observation_models::unidentified_link_end,
             const std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >&
             additionalViabilitySettingsList =
@@ -211,6 +212,7 @@ struct PerArcObservationSimulationSettings: public ObservationSimulationSettings
         startTime_( startTime ), endTime_( endTime ), intervalBetweenObservations_( intervalBetweenObservations ),
         arcDefiningConstraint_( arcDefiningConstraint ),
         minimumArcDuration_( minimumArcDuration ), maximumArcDuration_( maximumArcDuration ),
+        minimumTimeBetweenArcs_( minimumTimeBetweenArcs ),
     additionalViabilitySettingsList_( additionalViabilitySettingsList ){ }
 
     ~PerArcObservationSimulationSettings( ){ }
@@ -226,6 +228,8 @@ struct PerArcObservationSimulationSettings: public ObservationSimulationSettings
     TimeType minimumArcDuration_;
 
     TimeType maximumArcDuration_;
+
+    TimeType minimumTimeBetweenArcs_;
 
     std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > > additionalViabilitySettingsList_;
 
@@ -247,12 +251,13 @@ inline std::shared_ptr< ObservationSimulationSettings< TimeType > > tabulatedObs
 }
 
 template< typename TimeType = double >
-inline std::shared_ptr< PerArcObservationSimulationSettings< TimeType > > perArcObservationSimulationSettings(
+inline std::shared_ptr< ObservationSimulationSettings< TimeType > > perArcObservationSimulationSettings(
         const observation_models::ObservableType observableType,
         const observation_models::LinkDefinition& linkEnds,
         const TimeType startTime, const TimeType endTime, const TimeType intervalBetweenObservations,
         const std::shared_ptr< observation_models::ObservationViabilitySettings > arcDefiningConstraint,
         const TimeType minimumArcDuration = TUDAT_NAN, TimeType maximumArcDuration = TUDAT_NAN,
+        const TimeType minimumTimeBetweenArcs = TUDAT_NAN,
         const observation_models::LinkEndType linkEndType = observation_models::unidentified_link_end,
         const std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >&
         additionalViabilitySettingsList =
@@ -261,7 +266,7 @@ inline std::shared_ptr< PerArcObservationSimulationSettings< TimeType > > perArc
 {
     return std::make_shared< PerArcObservationSimulationSettings< TimeType > >(
                 observableType, linkEnds,  startTime, endTime, intervalBetweenObservations,
-                arcDefiningConstraint, minimumArcDuration, maximumArcDuration, linkEndType,
+                arcDefiningConstraint, minimumArcDuration, maximumArcDuration, minimumTimeBetweenArcs, linkEndType,
                 additionalViabilitySettingsList, observationNoiseFunction );
 }
 
@@ -287,6 +292,34 @@ std::vector< std::shared_ptr< ObservationSimulationSettings< TimeType > > > crea
     }
     return observationSimulationSettingsList;
 }
+
+template< typename TimeType = double >
+std::vector< std::shared_ptr< ObservationSimulationSettings< TimeType > > > perArcObservationSimulationSettingsList(
+        const std::map< observation_models::ObservableType, std::vector< observation_models::LinkDefinition > > linkEndsPerObservable,
+        const TimeType startTime, const TimeType endTime, const TimeType intervalBetweenObservations,
+        const std::shared_ptr< observation_models::ObservationViabilitySettings > arcDefiningConstraint,
+        const TimeType minimumArcDuration = TUDAT_NAN, TimeType maximumArcDuration = TUDAT_NAN,
+        const TimeType minimumTimeBetweenArcs = TUDAT_NAN,
+        const observation_models::LinkEndType linkEndType = observation_models::unidentified_link_end,
+        const std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >&
+        additionalViabilitySettingsList =
+        std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >( ) )
+{
+    std::vector< std::shared_ptr< ObservationSimulationSettings< TimeType > > > observationSimulationSettingsList;
+    for( auto observableIterator : linkEndsPerObservable )
+    {
+        for( unsigned int i = 0; i < observableIterator.second.size( ); i++ )
+        {
+            observationSimulationSettingsList.push_back(
+                        std::make_shared< PerArcObservationSimulationSettings< TimeType > >(
+                            observableIterator.first, observableIterator.second.at( i ),  startTime, endTime, intervalBetweenObservations,
+                            arcDefiningConstraint, minimumArcDuration, maximumArcDuration, minimumTimeBetweenArcs, linkEndType,
+                            additionalViabilitySettingsList ) );
+        }
+    }
+    return observationSimulationSettingsList;
+}
+
 
 template< typename TimeType = double >
 void clearNoiseFunctionFromObservationSimulationSettings(

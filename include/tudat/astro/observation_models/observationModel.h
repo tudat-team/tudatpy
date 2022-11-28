@@ -39,8 +39,8 @@ namespace observation_models
 
 enum ObservationAncilliarySimulationVariable
 {
-    averaged_doppler_integration_time,
-    retransmission_times
+    doppler_integration_time,
+    retransmission_delays
 };
 
 template< typename TimeType = double >
@@ -55,8 +55,8 @@ public:
     {
         switch( variableType )
         {
-        case averaged_doppler_integration_time:
-            doubleData_[ averaged_doppler_integration_time ] = variable;
+        case doppler_integration_time:
+            doubleData_[ doppler_integration_time ] = variable;
             break;
         default:
             throw std::runtime_error( "Error when setting double ancilliary observation data; could not set type " +
@@ -69,8 +69,8 @@ public:
     {
         switch( variableType )
         {
-        case retransmission_times:
-            doubleVectorData_[ retransmission_times ] = variable;
+        case retransmission_delays:
+            doubleVectorData_[ retransmission_delays ] = variable;
             break;
         default:
             throw std::runtime_error( "Error when setting double vector ancilliary observation data; could not set type " +
@@ -86,8 +86,8 @@ public:
         {
             switch( variableType )
             {
-            case averaged_doppler_integration_time:
-                returnVariable = doubleData_.at( averaged_doppler_integration_time );
+            case doppler_integration_time:
+                returnVariable = doubleData_.at( doppler_integration_time );
                 break;
             default:
                 break;
@@ -112,8 +112,8 @@ public:
         {
             switch( variableType )
             {
-            case retransmission_times:
-                returnVariable = doubleVectorData_.at( retransmission_times );
+            case retransmission_delays:
+                returnVariable = doubleVectorData_.at( retransmission_delays );
                 break;
             default:
                 break;
@@ -144,7 +144,7 @@ std::shared_ptr< ObservationAncilliarySimulationSettings< TimeType > > getAverag
 {
     std::shared_ptr< ObservationAncilliarySimulationSettings< TimeType > > ancilliarySettings =
             std::make_shared< ObservationAncilliarySimulationSettings< TimeType > >( );
-    ancilliarySettings->setAncilliaryDoubleData( averaged_doppler_integration_time, integrationTime );
+    ancilliarySettings->setAncilliaryDoubleData( doppler_integration_time, integrationTime );
     return ancilliarySettings;
 }
 
@@ -154,7 +154,7 @@ std::shared_ptr< ObservationAncilliarySimulationSettings< TimeType > > getNWayRa
 {
     std::shared_ptr< ObservationAncilliarySimulationSettings< TimeType > > ancilliarySettings =
             std::make_shared< ObservationAncilliarySimulationSettings< TimeType > >( );
-    ancilliarySettings->setAncilliaryDoubleVectorData( retransmission_times, retransmissionTimes );
+    ancilliarySettings->setAncilliaryDoubleVectorData( retransmission_delays, retransmissionTimes );
     return ancilliarySettings;
 }
 
@@ -165,10 +165,27 @@ std::shared_ptr< ObservationAncilliarySimulationSettings< TimeType > > getNWayAv
 {
     std::shared_ptr< ObservationAncilliarySimulationSettings< TimeType > > ancilliarySettings =
             std::make_shared< ObservationAncilliarySimulationSettings< TimeType > >( );
-    ancilliarySettings->setAncilliaryDoubleData( averaged_doppler_integration_time, integrationTime );
-    ancilliarySettings->setAncilliaryDoubleVectorData( retransmission_times, retransmissionTimes );
+    ancilliarySettings->setAncilliaryDoubleData( doppler_integration_time, integrationTime );
+    ancilliarySettings->setAncilliaryDoubleVectorData( retransmission_delays, retransmissionTimes );
     return ancilliarySettings;
 }
+
+template< typename TimeType = double >
+std::shared_ptr< ObservationAncilliarySimulationSettings< TimeType > > getTwoWayRangeAncilliarySettings(
+        const double retransmissionTime )
+{
+    return getNWayRangeAncilliarySettings< TimeType >( std::vector< double >( { retransmissionTime } ) );
+}
+
+template< typename TimeType = double >
+std::shared_ptr< ObservationAncilliarySimulationSettings< TimeType > > getTwoWayAveragedDopplerAncilliarySettings(
+        const TimeType integrationTime = 60.0,
+        const double retransmissionTime = 0.0 )
+{
+    return getNWayAveragedDopplerAncilliarySettings< TimeType >( integrationTime, std::vector< double >( { retransmissionTime } ) );
+
+}
+
 
 
 
