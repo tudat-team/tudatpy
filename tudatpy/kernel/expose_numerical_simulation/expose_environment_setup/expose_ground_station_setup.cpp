@@ -65,9 +65,9 @@ namespace ground_station{
               py::arg("station_motion_settings") = std::vector< std::shared_ptr< tss::GroundStationMotionSettings    > >( ),
               get_docstring("basic_station").c_str());
 
-        m.def("dsn_station_settings",
+        m.def("dsn_stations",
               &tss::getDsnStationSettings,
-              get_docstring("dsn_station_settings").c_str());
+              get_docstring("dsn_stations").c_str());
 
         m.def("linear_station_motion",
               &tss::linearGroundStationMotionSettings,
