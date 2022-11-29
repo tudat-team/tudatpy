@@ -324,7 +324,12 @@ void expose_estimation(py::module &m) {
             .def_property_readonly("observation_vector_size", &tom::ObservationCollection<>::getTotalObservableSize,
                                    get_docstring("ObservationCollection.observation_vector_size").c_str() )
             .def_property_readonly("sorted_observation_sets", &tom::ObservationCollection<>::getSortedObservationSets,
-                                   get_docstring("ObservationCollection.sorted_observation_sets").c_str() );
+                                   get_docstring("ObservationCollection.sorted_observation_sets").c_str() )
+            .def("get_single_link_and_type_observations", &tom::ObservationCollection<>::getSingleLinkAndTypeObservationSets,
+                                   py::arg( "observable_type" ),
+                                   py::arg( "link_definition" ),
+                                   get_docstring("ObservationCollection.get_single_link_and_type_observations").c_str() );
+
 
 
     py::class_< tom::SingleObservationSet<>,
