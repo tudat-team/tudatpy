@@ -273,9 +273,21 @@ public:
 
     std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > getSingleLinkAndTypeObservationSets(
             const ObservableType observableType,
-            const LinkEnds linkEnds )
+            const LinkDefinition linkEnds )
     {
-        return observationSetList_.at( observableType ).at( linkEnds );
+        if( observationSetList_.count( observableType ) == 0 )
+        {
+            throw std::runtime_error( "Error when retrieving observable of type " + observation_models::getObservableName( observableType ) +
+                                      " from observation collection, no such observable exists" );
+        }
+        else if( observationSetList_.at( observableType ).count( linkEnds.linkEnds_ ) == 0 )
+        {
+            throw std::runtime_error( "Error when retrieving observable of type " + observation_models::getObservableName( observableType ) +
+                                      " and link ends " + observation_models::getLinkEndsString( linkEnds.linkEnds_ ) +
+                                      " from observation collection, no such link ends found for observable" );
+        }
+
+        return observationSetList_.at( observableType ).at( linkEnds.linkEnds_ );
     }
 
     Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > getSingleLinkObservations(
