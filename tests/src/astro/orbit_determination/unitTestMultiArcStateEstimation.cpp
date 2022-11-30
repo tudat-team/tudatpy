@@ -150,25 +150,25 @@ Eigen::VectorXd  executeParameterEstimation(
     integrationArcLimits.push_back( currentStartTime + arcOverlap );
 
 
-    std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > propagatorSettingsList;
+    std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > > propagatorSettingsList;
     for( unsigned int i = 0; i < integrationArcStartTimes.size( ); i++ )
     {
         Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > currentInitialState =
                 getInitialStateOfBody< TimeType, StateScalarType>(
                     bodiesToIntegrate.at( 0 ), centralBodies.at( 0 ), bodies, integrationArcStartTimes.at( i ) );
         propagatorSettingsList.push_back(
-                    std::make_shared< TranslationalStatePropagatorSettings< StateScalarType > >
+                    std::make_shared< TranslationalStatePropagatorSettings< StateScalarType, TimeType > >
                     ( centralBodies, accelerationModelMap, bodiesToIntegrate,
                       currentInitialState,
                       integrationArcEndTimes.at( i ) ) );
     }
-    std::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > propagatorSettings =
-            std::make_shared< MultiArcPropagatorSettings< StateScalarType > >( propagatorSettingsList, linkArcs );
+    std::shared_ptr< MultiArcPropagatorSettings< StateScalarType, TimeType > > propagatorSettings =
+            std::make_shared< MultiArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettingsList, linkArcs );
 
 
     std::cout<<"************************************* RUNNING TEST *************************"<<std::endl;
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames =
-            getInitialMultiArcParameterSettings< double >( propagatorSettings, bodies, integrationArcStartTimes );
+            getInitialMultiArcParameterSettings< StateScalarType, TimeType  >( propagatorSettings, bodies, integrationArcStartTimes );
 
 //    parameterNames = getInitialStateParameterSettings< double >( propagatorSettings, bodies );
     parameterNames.push_back( std::make_shared< EstimatableParameterSettings >
@@ -232,10 +232,10 @@ Eigen::VectorXd  executeParameterEstimation(
 
     std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > measurementSimulationInput;
     measurementSimulationInput.push_back(
-                std::make_shared< TabulatedObservationSimulationSettings< > >(
+                std::make_shared< TabulatedObservationSimulationSettings< TimeType > >(
                     one_way_range, linkEnds2[ 0 ], initialObservationTimes, receiver ) );
 
-    std::shared_ptr< ObservationCollection< > > observationsAndTimes = simulateObservations< ObservationScalarType, TimeType >(
+    std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > observationsAndTimes = simulateObservations< ObservationScalarType, TimeType >(
                 measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies  );
 
 
@@ -443,17 +443,17 @@ Eigen::VectorXd  executeMultiBodyMultiArcParameterEstimation( )
             ( rungeKutta4, TimeType( initialEphemerisTime  ), 30.0 );
 
     // Define propagator settings.
-    std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > propagatorSettingsList;
+    std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > > propagatorSettingsList;
     for( unsigned int i = 0; i < integrationArcStartTimes.size( ); i++ )
     {
         propagatorSettingsList.push_back(
-                    std::make_shared< TranslationalStatePropagatorSettings< StateScalarType > >
+                    std::make_shared< TranslationalStatePropagatorSettings< StateScalarType, TimeType > >
                     ( centralBodies, accelerationModelMap, bodiesToIntegrate,
                       allBodiesPerArcInitialStates.at( i ),
                       integrationArcEndTimes.at( i ), cowell, std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ), 60.0 ) );
     }
-    std::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > propagatorSettings =
-            std::make_shared< MultiArcPropagatorSettings< StateScalarType > >( propagatorSettingsList );
+    std::shared_ptr< MultiArcPropagatorSettings< StateScalarType, TimeType > > propagatorSettings =
+            std::make_shared< MultiArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettingsList );
 
 
     // Set parameters that are to be estimated.

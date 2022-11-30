@@ -454,8 +454,8 @@ void testCowellPropagationOfKeplerOrbit( )
         // Create acceleration models and propagation settings.
         AccelerationMap accelerationModelMap = createAccelerationModelsMap(
                     bodies, accelerationMap, bodiesToIntegrate, centralBodies );
-        std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > propagatorSettings =
-                std::make_shared< TranslationalStatePropagatorSettings< StateScalarType > >
+        std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType, TimeType > > propagatorSettings =
+                std::make_shared< TranslationalStatePropagatorSettings< StateScalarType, TimeType > >
                 ( centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState, finalEphemerisTime );
                   //cowell, std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ), 1.0E6 );
 

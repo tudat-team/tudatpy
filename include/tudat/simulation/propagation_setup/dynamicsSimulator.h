@@ -528,7 +528,7 @@ private:
 
 
 template< typename StateScalarType = double, typename TimeType = double >
-std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > validateDeprecatedSingleArcSettings(
+std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > validateDeprecatedSingleArcSettings(
         const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
         const std::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
         const bool clearNumericalSolutions = false,
@@ -537,8 +537,8 @@ std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > validateDeprec
         const bool printDependentVariableData = true,
         const bool printStateData = false )
 {
-    std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > singleArcPropagatorSettings =
-            std::dynamic_pointer_cast< SingleArcPropagatorSettings< StateScalarType > >( propagatorSettings );
+    std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > singleArcPropagatorSettings =
+            std::dynamic_pointer_cast< SingleArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings );
     if( singleArcPropagatorSettings == nullptr )
     {
         throw std::runtime_error( "Error in dynamics simulator (deprecated), input must be single-arc." );
@@ -603,7 +603,7 @@ public:
 
     SingleArcDynamicsSimulator(
             const simulation_setup::SystemOfBodies& bodies,
-            const std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > propagatorSettings,
+            const std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > propagatorSettings,
             const bool areEquationsOfMotionToBeIntegrated = true,
             const PredefinedSingleArcStateDerivativeModels< StateScalarType, TimeType >& predefinedStateDerivativeModels =
             PredefinedSingleArcStateDerivativeModels< StateScalarType, TimeType >( ) ):
@@ -616,7 +616,7 @@ public:
         {
             throw std::runtime_error( "Error in dynamics simulator, propagator settings not defined." );
         }
-        else if( std::dynamic_pointer_cast< SingleArcPropagatorSettings< StateScalarType > >( propagatorSettings ) == nullptr )
+        else if( std::dynamic_pointer_cast< SingleArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ) == nullptr )
         {
             throw std::runtime_error( "Error in dynamics simulator, input must be single-arc." );
         }
@@ -920,7 +920,7 @@ public:
      * Function to get the settings for the propagator.
      * \return The settings for the propagator.
      */
-    std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > getPropagatorSettings( )
+    std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > getPropagatorSettings( )
     {
         return propagatorSettings_;
     }
@@ -1252,7 +1252,7 @@ protected:
     std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings_;
 
     //! Settings for propagator.
-    std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > propagatorSettings_;
+    std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > propagatorSettings_;
 
     //! Object defining when the propagation is to be terminated.
     std::shared_ptr< PropagationTerminationCondition > propagationTerminationCondition_;
@@ -1404,14 +1404,14 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getArcInitialStateFromPrevio
 
 
 template< typename StateScalarType = double, typename TimeType = double >
-std::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > validateDeprecatedMultiArcSettings(
+std::shared_ptr< MultiArcPropagatorSettings< StateScalarType, TimeType > > validateDeprecatedMultiArcSettings(
         const std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > integratorSettings,
         const std::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
         const bool clearNumericalSolutions = true,
         const bool setIntegratedResult = true  )
 {
-    std::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > multiArcPropagatorSettings =
-            std::dynamic_pointer_cast< MultiArcPropagatorSettings< StateScalarType > >( propagatorSettings );
+    std::shared_ptr< MultiArcPropagatorSettings< StateScalarType, TimeType > > multiArcPropagatorSettings =
+            std::dynamic_pointer_cast< MultiArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings );
     if( multiArcPropagatorSettings == nullptr )
     {
         throw std::runtime_error( "Error in dynamics simulator (deprecated), input must be multi-arc." );
@@ -1461,15 +1461,15 @@ std::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > validateDepreca
 }
 
 template< typename StateScalarType = double, typename TimeType = double >
-std::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > validateDeprecatedMultiArcSettings(
+std::shared_ptr< MultiArcPropagatorSettings< StateScalarType, TimeType > > validateDeprecatedMultiArcSettings(
         const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
         const std::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
         const std::vector< double > arcStartTimes,
         const bool clearNumericalSolutions = true,
         const bool setIntegratedResult = true  )
 {
-    std::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > multiArcPropagatorSettings =
-            std::dynamic_pointer_cast< MultiArcPropagatorSettings< StateScalarType > >( propagatorSettings );
+    std::shared_ptr< MultiArcPropagatorSettings< StateScalarType, TimeType > > multiArcPropagatorSettings =
+            std::dynamic_pointer_cast< MultiArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings );
     if( multiArcPropagatorSettings == nullptr )
     {
         throw std::runtime_error( "Error in dynamics simulator (deprecated), input must be multi-arc." );
@@ -1508,7 +1508,7 @@ public:
 
     MultiArcDynamicsSimulator(
             const simulation_setup::SystemOfBodies& bodies,
-            const std::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > propagatorSettings,
+            const std::shared_ptr< MultiArcPropagatorSettings< StateScalarType, TimeType > > propagatorSettings,
             const bool areEquationsOfMotionToBeIntegrated = true ):
         DynamicsSimulator< StateScalarType, TimeType >(
             bodies, propagatorSettings  ),
@@ -1520,7 +1520,7 @@ public:
         }
         else
         {
-            std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > singleArcSettings =
+            std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > > singleArcSettings =
                     multiArcPropagatorSettings_->getSingleArcSettings( );
 
             // Create dynamics simulators
@@ -1951,7 +1951,7 @@ protected:
     std::vector< std::shared_ptr< PropagationTerminationDetails > > propagationTerminationReasons_;
 
     //! Propagator settings used by this objec
-    std::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > multiArcPropagatorSettings_;
+    std::shared_ptr< MultiArcPropagatorSettings< StateScalarType, TimeType > > multiArcPropagatorSettings_;
 };
 
 
@@ -1983,7 +1983,7 @@ std::shared_ptr< HybridArcPropagatorSettings< StateScalarType, TimeType > > vali
 }
 
 template< typename StateScalarType = double, typename TimeType = double >
-std::shared_ptr< HybridArcPropagatorSettings< StateScalarType > > validateDeprecatedHybridArcSettings(
+std::shared_ptr< HybridArcPropagatorSettings< StateScalarType, TimeType > > validateDeprecatedHybridArcSettings(
         const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > singleArcIntegratorSettings,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > multiArcIntegratorSettings,
         const std::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
@@ -2044,7 +2044,7 @@ public:
 
     HybridArcDynamicsSimulator(
             const simulation_setup::SystemOfBodies& bodies,
-            const std::shared_ptr< HybridArcPropagatorSettings< StateScalarType > > hybridPropagatorSettings,
+            const std::shared_ptr< HybridArcPropagatorSettings< StateScalarType, TimeType > > hybridPropagatorSettings,
             const bool areEquationsOfMotionToBeIntegrated = true,
             const bool addSingleArcBodiesToMultiArcDynamics = false ):
         DynamicsSimulator< StateScalarType, TimeType >(
@@ -2270,7 +2270,7 @@ public:
 
 protected:
 
-    std::shared_ptr< HybridArcPropagatorSettings< StateScalarType > > hybridPropagatorSettings_;
+    std::shared_ptr< HybridArcPropagatorSettings< StateScalarType, TimeType > > hybridPropagatorSettings_;
 
     //! Object used to propagate single-arc dynamics
     std::shared_ptr< SingleArcDynamicsSimulator< StateScalarType, TimeType > > singleArcDynamicsSimulator_;
@@ -2293,11 +2293,11 @@ std::shared_ptr< PropagatorSettings< StateScalarType > > validateDeprecatePropag
         const std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > >& integratorSettings,
         const std::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings )
 {
-    if( std::dynamic_pointer_cast< propagators::SingleArcPropagatorSettings< StateScalarType > >( propagatorSettings ) != nullptr )
+    if( std::dynamic_pointer_cast< propagators::SingleArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ) != nullptr )
     {
         return validateDeprecatedSingleArcSettings( integratorSettings.at( 0 ), propagatorSettings );
     }
-    else if( std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< StateScalarType > >( propagatorSettings ) != nullptr )
+    else if( std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ) != nullptr )
     {
         return validateDeprecatedMultiArcSettings( integratorSettings, propagatorSettings );
     }

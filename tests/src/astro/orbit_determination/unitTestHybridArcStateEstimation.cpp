@@ -239,7 +239,7 @@ Eigen::VectorXd  executeParameterEstimation(
     parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Sun", gravitational_parameter ) );
     parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Mars", gravitational_parameter ) );
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate =
-            createParametersToEstimate< StateScalarType >( parameterNames, bodies );
+            createParametersToEstimate< StateScalarType, TimeType >( parameterNames, bodies );
 
 
     // Define links and observables in simulation.

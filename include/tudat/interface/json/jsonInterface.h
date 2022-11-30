@@ -395,7 +395,7 @@ public:
     }
 
     //! Get propagator settings.
-    std::shared_ptr< propagators::MultiTypePropagatorSettings< StateScalarType > > getPropagatorSettings( ) const
+    std::shared_ptr< propagators::MultiTypePropagatorSettings< StateScalarType, TimeType > > getPropagatorSettings( ) const
     {
         return propagatorSettings_;
     }
@@ -619,7 +619,7 @@ protected:
     simulation_setup::SystemOfBodies bodies_;
 
     //! Propagation settings.
-    std::shared_ptr< propagators::MultiTypePropagatorSettings< StateScalarType > > propagatorSettings_;
+    std::shared_ptr< propagators::MultiTypePropagatorSettings< StateScalarType, TimeType > > propagatorSettings_;
 
     //! Vector of export settings (each element corresponds to an output file).
     std::vector< std::shared_ptr< ExportSettings > > exportSettingsVector_;
@@ -687,7 +687,7 @@ void to_json( nlohmann::json& jsonObject,
 
     // propagation + termination + options.statePrintInterval
     propagators::to_json( jsonObject, std::dynamic_pointer_cast<
-                          propagators::SingleArcPropagatorSettings< StateScalarType > >( jsonSimulationManager->getPropagatorSettings( ) ) );
+                          propagators::SingleArcPropagatorSettings< StateScalarType, TimeType > >( jsonSimulationManager->getPropagatorSettings( ) ) );
 }
 
 } // namespace json_interface
