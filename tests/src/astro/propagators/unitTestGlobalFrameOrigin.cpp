@@ -131,8 +131,8 @@ Eigen::Matrix< StateScalarType, 6, 1 > testGlobalFrameOrigin(
                 template cast< StateScalarType >( );
     AccelerationMap accelerationModelMap = createAccelerationModelsMap(
                 bodies, accelerationMap, bodiesToIntegrate, centralBodies );
-    std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > propagatorSettings =
-            std::make_shared< TranslationalStatePropagatorSettings< StateScalarType > >
+    std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType, TimeType > > propagatorSettings =
+            std::make_shared< TranslationalStatePropagatorSettings< StateScalarType, TimeType > >
             ( centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState, finalEphemerisTime );
 
     // Create dynamics simulation object.

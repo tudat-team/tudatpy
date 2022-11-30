@@ -168,7 +168,7 @@ std::shared_ptr< CentralBodyData< StateScalarType, TimeType > > createCentralBod
 template< typename StateScalarType = double, typename TimeType = double >
 std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > >
 createTranslationalStateDerivativeModel(
-        const std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > >
+        const std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType, TimeType > >
         translationPropagatorSettings,
         const simulation_setup::SystemOfBodies& bodies,
         const TimeType propagationStartTime )
@@ -293,7 +293,7 @@ createTranslationalStateDerivativeModel(
  */
 template< typename StateScalarType = double, typename TimeType = double >
 std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > createRotationalStateDerivativeModel(
-        const std::shared_ptr< RotationalStatePropagatorSettings< StateScalarType > > rotationPropagatorSettings,
+        const std::shared_ptr< RotationalStatePropagatorSettings< StateScalarType, TimeType > > rotationPropagatorSettings,
         const simulation_setup::SystemOfBodies& bodies, const TimeType startTime )
 {
     std::vector< std::function< Eigen::Matrix3d( ) > > momentOfInertiaFunctions;
@@ -346,7 +346,7 @@ std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > create
  */
 template< typename StateScalarType = double, typename TimeType = double >
 std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > createBodyMassStateDerivativeModel(
-        const std::shared_ptr< MassPropagatorSettings< StateScalarType > > massPropagatorSettings,
+        const std::shared_ptr< MassPropagatorSettings< StateScalarType, TimeType > > massPropagatorSettings,
         const  simulation_setup::SystemOfBodies& bodies )
 {
     return std::make_shared< propagators::BodyMassStateDerivative< StateScalarType, TimeType > >(
@@ -365,7 +365,7 @@ std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > create
 template< typename StateScalarType = double, typename TimeType = double >
 std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > >
 createStateDerivativeModel(
-        const std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > propagatorSettings,
+        const std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > propagatorSettings,
         const simulation_setup::SystemOfBodies& bodies,
         const TimeType propagationStartTime )
 {
@@ -378,10 +378,10 @@ createStateDerivativeModel(
     case translational_state:
     {
         // Check input consistency.
-        std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > >
+        std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType, TimeType > >
                 translationPropagatorSettings =
                 std::dynamic_pointer_cast<
-                TranslationalStatePropagatorSettings< StateScalarType > >( propagatorSettings );
+                TranslationalStatePropagatorSettings< StateScalarType, TimeType > >( propagatorSettings );
         if( translationPropagatorSettings == nullptr )
         {
             throw std::runtime_error(
@@ -396,8 +396,8 @@ createStateDerivativeModel(
     }
     case rotational_state:
     {
-        std::shared_ptr< RotationalStatePropagatorSettings< StateScalarType > > rotationPropagatorSettings =
-                std::dynamic_pointer_cast< RotationalStatePropagatorSettings< StateScalarType > >( propagatorSettings );
+        std::shared_ptr< RotationalStatePropagatorSettings< StateScalarType, TimeType > > rotationPropagatorSettings =
+                std::dynamic_pointer_cast< RotationalStatePropagatorSettings< StateScalarType, TimeType > >( propagatorSettings );
         if( rotationPropagatorSettings == nullptr )
         {
             throw std::runtime_error(
@@ -413,8 +413,8 @@ createStateDerivativeModel(
     case body_mass_state:
     {
         // Check input consistency.
-        std::shared_ptr< MassPropagatorSettings< StateScalarType > > massPropagatorSettings =
-                std::dynamic_pointer_cast< MassPropagatorSettings< StateScalarType > >( propagatorSettings );
+        std::shared_ptr< MassPropagatorSettings< StateScalarType, TimeType > > massPropagatorSettings =
+                std::dynamic_pointer_cast< MassPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings );
         if( massPropagatorSettings == nullptr )
         {
             throw std::runtime_error(
@@ -460,14 +460,14 @@ createStateDerivativeModel(
  *  \param propagatorSettings Settings for the numerical propagation
  *  \param bodies List of body objects that comprises the environment
  */
-template< typename StateScalarType = double >
+template< typename StateScalarType = double, typename TimeType = double >
 void setMultiTypePropagationClosure(
-        const std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > propagatorSettings,
+        const std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > propagatorSettings,
         const simulation_setup::SystemOfBodies& bodies )
 {
     // Cast to multi-type settings, and perform closure if
-    std::shared_ptr< MultiTypePropagatorSettings< StateScalarType > > multiTypePropagatorSettings =
-            std::dynamic_pointer_cast< MultiTypePropagatorSettings< StateScalarType > >( propagatorSettings );
+    std::shared_ptr< MultiTypePropagatorSettings< StateScalarType, TimeType > > multiTypePropagatorSettings =
+            std::dynamic_pointer_cast< MultiTypePropagatorSettings< StateScalarType, TimeType > >( propagatorSettings );
 
     if( multiTypePropagatorSettings != nullptr )
     {
@@ -475,17 +475,17 @@ void setMultiTypePropagationClosure(
         if( multiTypePropagatorSettings->propagatorSettingsMap_.count( translational_state ) > 0 &&
                 multiTypePropagatorSettings->propagatorSettingsMap_.count( rotational_state ) > 0 )
         {
-            std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > translationalStateSettings =
+            std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > > translationalStateSettings =
                     multiTypePropagatorSettings->propagatorSettingsMap_.at( translational_state );
-            std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > rotationalStateSettings =
+            std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > > rotationalStateSettings =
                     multiTypePropagatorSettings->propagatorSettingsMap_.at( rotational_state );
 
             // Iterate over all accelerations, and identify those bodies for which an aerodynamic acceleration is applied
             std::vector< std::string > bodiesWithAerodynamicAcceleration;
             for( unsigned int i = 0; i < translationalStateSettings.size( ); i++ )
             {
-                std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > currentTranslationalState =
-                        std::dynamic_pointer_cast< TranslationalStatePropagatorSettings< StateScalarType > >(
+                std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType, TimeType > > currentTranslationalState =
+                        std::dynamic_pointer_cast< TranslationalStatePropagatorSettings< StateScalarType, TimeType > >(
                             translationalStateSettings.at( i ) );
                 basic_astrodynamics::AccelerationMap currentAccelerationsMap = currentTranslationalState->getAccelerationsMap( );
 
@@ -516,8 +516,8 @@ void setMultiTypePropagationClosure(
             std::vector< std::string > bodiesWithPropagatedRotation;
             for( unsigned int i = 0; i < rotationalStateSettings.size( ); i++ )
             {
-                std::shared_ptr< RotationalStatePropagatorSettings< StateScalarType > > currentTranslationalState =
-                        std::dynamic_pointer_cast< RotationalStatePropagatorSettings< StateScalarType > >(
+                std::shared_ptr< RotationalStatePropagatorSettings< StateScalarType, TimeType > > currentTranslationalState =
+                        std::dynamic_pointer_cast< RotationalStatePropagatorSettings< StateScalarType, TimeType > >(
                             rotationalStateSettings.at( i ) );
                 std::vector< std::string > currentBodiesWithPropagatedRotation = currentTranslationalState->bodiesToIntegrate_;
                 for( unsigned int j = 0; j < currentBodiesWithPropagatedRotation.size( ); j++ )
@@ -569,7 +569,7 @@ void setMultiTypePropagationClosure(
 template< typename StateScalarType = double, typename TimeType = double >
 std::vector< std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > >
 createStateDerivativeModels(
-        const std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > propagatorSettings,
+        const std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > propagatorSettings,
         const simulation_setup::SystemOfBodies& bodies,
         const TimeType propagationStartTime )
 {
@@ -582,12 +582,12 @@ createStateDerivativeModels(
     // If hybrid, call create function separately for each entry.
     case hybrid:
     {
-        std::shared_ptr< MultiTypePropagatorSettings< StateScalarType > > multiTypePropagatorSettings =
-                std::dynamic_pointer_cast< MultiTypePropagatorSettings< StateScalarType > >( propagatorSettings );
+        std::shared_ptr< MultiTypePropagatorSettings< StateScalarType, TimeType > > multiTypePropagatorSettings =
+                std::dynamic_pointer_cast< MultiTypePropagatorSettings< StateScalarType, TimeType > >( propagatorSettings );
 
         // Iterate over all propagation settings
         for( typename std::map< IntegratedStateType,
-             std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > >::iterator
+             std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > > >::iterator
              propagatorIterator = multiTypePropagatorSettings->propagatorSettingsMap_.begin( );
              propagatorIterator != multiTypePropagatorSettings->propagatorSettingsMap_.end( ); propagatorIterator++ )
         {
@@ -691,7 +691,7 @@ template< typename StateScalarType = double, typename TimeType = double >
 std::unordered_map< IntegratedStateType, std::vector< std::shared_ptr<
 SingleStateTypeDerivative< StateScalarType, TimeType > > > >
 createStateDerivativeModelMap(
-        const std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > propagatorSettings,
+        const std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > propagatorSettings,
         const simulation_setup::SystemOfBodies& bodies,
         const TimeType propagationStartTime )
 {

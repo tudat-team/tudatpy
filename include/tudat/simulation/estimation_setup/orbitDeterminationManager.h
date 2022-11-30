@@ -888,7 +888,7 @@ protected:
         if( integrateAndEstimateOrbit_ )
         {
             variationalEquationsSolver_ =
-                    simulation_setup::createVariationalEquationsSolver(
+                    simulation_setup::createVariationalEquationsSolver< ObservationScalarType, TimeType >(
                         bodies, propagatorSettings, parametersToEstimate_, propagateOnCreation );
         }
 
@@ -898,7 +898,7 @@ protected:
         }
         else if( propagatorSettings == nullptr )
         {
-            stateTransitionAndSensitivityMatrixInterface_ = createStateTransitionAndSensitivityMatrixInterface(
+            stateTransitionAndSensitivityMatrixInterface_ = createStateTransitionAndSensitivityMatrixInterface< ObservationScalarType, TimeType >(
                         propagatorSettings, 0, parametersToEstimate_->getParameterSetSize( ) );
         }
         else

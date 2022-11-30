@@ -360,3 +360,5 @@
      message(STATUS "CMAKE_C_FLAGS: ${CMAKE_C_FLAGS}")
      add_definitions(${MSVC_DISABLED_WARNINGS_STR})
  endif ()
+
+ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftemplate-backtrace-limit=0")
