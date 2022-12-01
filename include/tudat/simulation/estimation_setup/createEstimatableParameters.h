@@ -323,9 +323,10 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
     using namespace estimatable_parameters;
     using namespace propagators;
 
-    std::vector< std::shared_ptr< SingleArcPropagatorSettings< InitialStateParameterType > > > singleArcSettings =
+    std::vector< std::shared_ptr< SingleArcPropagatorSettings< InitialStateParameterType, TimeType > > > singleArcSettings =
             propagatorSettings->getSingleArcSettings( );
-    std::vector< std::shared_ptr< TranslationalStatePropagatorSettings< InitialStateParameterType > > > singleArcTranslationalSettings;
+    std::vector< std::shared_ptr< TranslationalStatePropagatorSettings< InitialStateParameterType, TimeType > > >
+            singleArcTranslationalSettings;
 
     std::vector< std::string > propagatedBodies;
     std::vector< std::vector< std::string > > centralBodiesPerArc;
@@ -334,7 +335,7 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
     for( unsigned int i = 0; i < singleArcSettings.size( ); i++ )
     {
         singleArcTranslationalSettings.push_back(
-                    std::dynamic_pointer_cast< TranslationalStatePropagatorSettings< InitialStateParameterType > >(
+                    std::dynamic_pointer_cast< TranslationalStatePropagatorSettings< InitialStateParameterType, TimeType > >(
                         singleArcSettings.at( i ) ) );
         if( singleArcTranslationalSettings.at( i ) == nullptr )
         {
@@ -396,17 +397,17 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
     return arcwiseInitialStates;
 }
 
-template< typename InitialStateParameterType = double >
+template< typename InitialStateParameterType = double, typename TimeType = double >
 std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > getInitialHybridArcParameterSettings(
-        const std::shared_ptr< propagators::HybridArcPropagatorSettings< InitialStateParameterType > > propagatorSettings,
+        const std::shared_ptr< propagators::HybridArcPropagatorSettings< InitialStateParameterType, TimeType > > propagatorSettings,
         const SystemOfBodies& bodies,
         const std::vector< double > arcStartTimes )
 {
     std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > multiArcParameters =
-            getInitialMultiArcParameterSettings< InitialStateParameterType >(
+            getInitialMultiArcParameterSettings< InitialStateParameterType, TimeType >(
                 propagatorSettings->getMultiArcPropagatorSettings( ), bodies, arcStartTimes );
     std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > singleArcParameters =
-            getInitialStateParameterSettings< InitialStateParameterType >(
+            getInitialStateParameterSettings< InitialStateParameterType, TimeType >(
                 propagatorSettings->getSingleArcPropagatorSettings( ), bodies );
     std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > hybirdArcParameters = multiArcParameters;
 
@@ -426,26 +427,26 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
     using namespace propagators;
 
     // Process single-arc settings
-    if( std::dynamic_pointer_cast< SingleArcPropagatorSettings< InitialStateParameterType > >( propagatorSettings ) != nullptr )
+    if( std::dynamic_pointer_cast< SingleArcPropagatorSettings< InitialStateParameterType, TimeType > >( propagatorSettings ) != nullptr )
     {
-        std::shared_ptr< SingleArcPropagatorSettings< InitialStateParameterType > > singleArcSettings =
-                std::dynamic_pointer_cast< SingleArcPropagatorSettings< InitialStateParameterType > >( propagatorSettings );
+        std::shared_ptr< SingleArcPropagatorSettings< InitialStateParameterType, TimeType > > singleArcSettings =
+                std::dynamic_pointer_cast< SingleArcPropagatorSettings< InitialStateParameterType, TimeType > >( propagatorSettings );
         switch( singleArcSettings->getStateType( ) )
         {
         case hybrid:
         {
-            std::shared_ptr< MultiTypePropagatorSettings< InitialStateParameterType > > multiTypePropagatorSettings =
-                    std::dynamic_pointer_cast< MultiTypePropagatorSettings< InitialStateParameterType > >( propagatorSettings );
+            std::shared_ptr< MultiTypePropagatorSettings< InitialStateParameterType, TimeType > > multiTypePropagatorSettings =
+                    std::dynamic_pointer_cast< MultiTypePropagatorSettings< InitialStateParameterType, TimeType > >( propagatorSettings );
 
 
-            std::map< IntegratedStateType, std::vector< std::shared_ptr< SingleArcPropagatorSettings< InitialStateParameterType > > > >
+            std::map< IntegratedStateType, std::vector< std::shared_ptr< SingleArcPropagatorSettings< InitialStateParameterType, TimeType > > > >
                     propagatorSettingsMap = multiTypePropagatorSettings->propagatorSettingsMap_;
             for( auto propIterator : propagatorSettingsMap )
             {
                 for( unsigned int i = 0; i < propIterator.second.size( ); i++ )
                 {
                     std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > >
-                            singleTypeinitialStateParameterSettings =  getInitialStateParameterSettings< InitialStateParameterType >(
+                            singleTypeinitialStateParameterSettings =  getInitialStateParameterSettings< InitialStateParameterType, TimeType >(
                                 propIterator.second.at( i ), bodies );
                     initialStateParameterSettings.insert(
                                 initialStateParameterSettings.end( ),
@@ -457,8 +458,8 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
         }
         case translational_state:
         {
-            std::shared_ptr< TranslationalStatePropagatorSettings< InitialStateParameterType > > translationalPropagatorSettings =
-                    std::dynamic_pointer_cast< TranslationalStatePropagatorSettings< InitialStateParameterType > >( propagatorSettings );
+            std::shared_ptr< TranslationalStatePropagatorSettings< InitialStateParameterType, TimeType > > translationalPropagatorSettings =
+                    std::dynamic_pointer_cast< TranslationalStatePropagatorSettings< InitialStateParameterType, TimeType > >( propagatorSettings );
 
             // Retrieve estimated and propagated translational states, and check equality.
             std::vector< std::string > propagatedBodies = translationalPropagatorSettings->bodiesToIntegrate_;
@@ -478,8 +479,8 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
         }
         case rotational_state:
         {
-            std::shared_ptr< RotationalStatePropagatorSettings< InitialStateParameterType > > rotationalPropagatorSettings =
-                    std::dynamic_pointer_cast< RotationalStatePropagatorSettings< InitialStateParameterType > >( propagatorSettings );
+            std::shared_ptr< RotationalStatePropagatorSettings< InitialStateParameterType, TimeType > > rotationalPropagatorSettings =
+                    std::dynamic_pointer_cast< RotationalStatePropagatorSettings< InitialStateParameterType, TimeType > >( propagatorSettings );
 
             // Retrieve estimated and propagated translational states, and check equality.
             std::vector< std::string > propagatedBodies = rotationalPropagatorSettings->bodiesToIntegrate_;
@@ -496,8 +497,8 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
         }
         case body_mass_state:
         {
-            std::shared_ptr< MassPropagatorSettings< InitialStateParameterType > > massPropagatorSettings =
-                    std::dynamic_pointer_cast< MassPropagatorSettings< InitialStateParameterType > >( propagatorSettings );
+            std::shared_ptr< MassPropagatorSettings< InitialStateParameterType, TimeType > > massPropagatorSettings =
+                    std::dynamic_pointer_cast< MassPropagatorSettings< InitialStateParameterType, TimeType > >( propagatorSettings );
 
             std::vector< std::string > propagatedBodies = massPropagatorSettings->bodiesWithMassToPropagate_;
             Eigen::VectorXd initialStates =  massPropagatorSettings->getInitialStates( );
