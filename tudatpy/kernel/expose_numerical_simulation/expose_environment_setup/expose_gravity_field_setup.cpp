@@ -34,11 +34,11 @@ namespace simulation_setup
 
 inline std::shared_ptr< GravityFieldSettings > fromFileSphericalHarmonicsGravityFieldSettings(
         const std::string& filePath,
-        const std::string& associatedReferenceFrame,
         const int maximumDegree,
         const int maximumOrder,
-        const int gravitationalParameterIndex,
-        const int referenceRadiusIndex )
+        const std::string& associatedReferenceFrame = "",
+        const int gravitationalParameterIndex = 0,
+        const int referenceRadiusIndex = 1 )
 {
 
     return std::make_shared< FromFileSphericalHarmonicsGravityFieldSettings >(
@@ -97,12 +97,13 @@ void expose_gravity_field_setup(py::module &m) {
 
     py::enum_<tss::SphericalHarmonicsModel>(m, "PredefinedSphericalHarmonicsModel",
                                             get_docstring("PredefinedSphericalHarmonicsModel").c_str())
-            //            .value("custom_model", tss::SphericalHarmonicsModel::customModel, get_docstring("SphericalHarmonicsModel.custom_model").c_str())
             .value("egm96", tss::SphericalHarmonicsModel::egm96, get_docstring("PredefinedSphericalHarmonicsModel.egm96").c_str())
             .value("ggm02c", tss::SphericalHarmonicsModel::ggm02c, get_docstring("PredefinedSphericalHarmonicsModel.ggm02c").c_str())
             .value("ggm02s", tss::SphericalHarmonicsModel::ggm02s, get_docstring("PredefinedSphericalHarmonicsModel.ggm02s").c_str())
+            .value("goco05c", tss::SphericalHarmonicsModel::ggm02s, get_docstring("PredefinedSphericalHarmonicsModel.goco05c").c_str())
             .value("glgm3150", tss::SphericalHarmonicsModel::glgm3150, get_docstring("PredefinedSphericalHarmonicsModel.glgm3150").c_str())
             .value("lpe200", tss::SphericalHarmonicsModel::lpe200, get_docstring("PredefinedSphericalHarmonicsModel.lpe200").c_str())
+            .value("gggrx1200", tss::SphericalHarmonicsModel::lpe200, get_docstring("PredefinedSphericalHarmonicsModel.ggglpe200rx1200").c_str())
             .value("jgmro120d", tss::SphericalHarmonicsModel::jgmro120d, get_docstring("PredefinedSphericalHarmonicsModel.jgmro120d").c_str())
             .value("jgmess160a", tss::SphericalHarmonicsModel::jgmess160a, get_docstring("PredefinedSphericalHarmonicsModel.jgmess160a").c_str())
             .value("shgj180u", tss::SphericalHarmonicsModel::shgj180u, get_docstring("PredefinedSphericalHarmonicsModel.shgj180u").c_str())
@@ -210,22 +211,22 @@ void expose_gravity_field_setup(py::module &m) {
           get_docstring("spherical_harmonic").c_str()
           );
 
-    m.def("predefined_spherical_harmonic",
+    m.def("from_file_spherical_harmonic",
           tss::fromFileSphericalHarmonicsGravityFieldSettings,
           py::arg("file"),
-          py::arg("associated_reference_frame"),
           py::arg("maximum_degree"),
           py::arg("maximum_order"),
-          py::arg("gravitational_parameter_index"),
-          py::arg("reference_radius_index"),
-          get_docstring("predefined_spherical_harmonic").c_str()
+          py::arg("associated_reference_frame") = "",
+          py::arg("gravitational_parameter_index") = 0,
+          py::arg("reference_radius_index") = 1,
+          get_docstring("from_file_spherical_harmonic").c_str()
           );
 
-    m.def("from_file_spherical_harmonic",
+    m.def("predefined_spherical_harmonic",
           tss::predefinedSphericalHarmonic,
           py::arg("predefined_model"),
           py::arg("maximum_degree") = -1,
-          get_docstring("from_file_spherical_harmonic").c_str()
+          get_docstring("predefined_spherical_harmonic").c_str()
           );
 
 
