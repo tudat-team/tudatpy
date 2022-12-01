@@ -43,8 +43,8 @@ void PolyhedronGravityField::computeVerticesAndFacetsDefiningEachEdge ( )
     const unsigned int numberOfFacets = verticesDefiningEachFacet_.rows();
     const unsigned int numberOfEdges = 3 * ( numberOfVertices - 2 );
 
-    verticesDefiningEachEdge_ = Eigen::MatrixXi::Constant( numberOfEdges, 2, TUDAT_NAN );
-    facetsDefiningEachEdge_ = Eigen::MatrixXi::Constant( numberOfEdges, 2, TUDAT_NAN );
+    verticesDefiningEachEdge_ = Eigen::MatrixXi::Constant( numberOfEdges, 2, -1 );
+    facetsDefiningEachEdge_ = Eigen::MatrixXi::Constant( numberOfEdges, 2, -1 );
 
     unsigned int numberOfInsertedEdges = 0;
     for ( unsigned int facet = 0; facet < numberOfFacets; ++facet )
@@ -93,11 +93,11 @@ void PolyhedronGravityField::computeVerticesAndFacetsDefiningEachEdge ( )
     {
         for (unsigned int j : {0,1} )
         {
-            if ( verticesDefiningEachEdge_(i,j) != verticesDefiningEachEdge_(i,j) )
+            if ( verticesDefiningEachEdge_(i,j) < 0 )
             {
                 throw std::runtime_error( "The vertices defining some edge were not selected." );
             }
-            else if ( facetsDefiningEachEdge_(i,j) != facetsDefiningEachEdge_(i,j) )
+            else if ( facetsDefiningEachEdge_(i,j) < 0 )
             {
                 throw std::runtime_error( "The facets defining some edge were not selected." );
             }

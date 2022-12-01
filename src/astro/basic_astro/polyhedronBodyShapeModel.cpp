@@ -44,11 +44,11 @@ double PolyhedronBodyShapeModel::getAltitude( const Eigen::Vector3d& bodyFixedPo
         // Select vertices connected to the closest vertex
         for (unsigned int edge = 0; edge < numberOfEdges; ++edge)
         {
-            if ( closestVertex == (unsigned int) verticesDefiningEachEdge_(edge, 0) )
+            if ( closestVertex == static_cast< unsigned int >( verticesDefiningEachEdge_(edge, 0) ) )
             {
                 verticesToTest.push_back( verticesDefiningEachEdge_(edge, 1) );
             }
-            else if ( closestVertex == (unsigned int) verticesDefiningEachEdge_(edge, 1) )
+            else if ( closestVertex == static_cast< unsigned int >( verticesDefiningEachEdge_(edge, 1) ) )
             {
                 verticesToTest.push_back( verticesDefiningEachEdge_(edge, 0) );
             }
@@ -63,7 +63,8 @@ double PolyhedronBodyShapeModel::getAltitude( const Eigen::Vector3d& bodyFixedPo
                 // If the edge isn't in the list of edges to test, check whether it should be added to it
                 if ( std::count( edgesToTest.begin(), edgesToTest.end(), edge ) == 0)
                 {
-                    if ( (unsigned int) verticesDefiningEachEdge_(edge, 0) == vertex || (unsigned int) verticesDefiningEachEdge_(edge, 1) == vertex )
+                    if ( static_cast< unsigned int >( verticesDefiningEachEdge_(edge, 0) ) == vertex ||
+                         static_cast< unsigned int >( verticesDefiningEachEdge_(edge, 1) )  == vertex )
                     {
                         edgesToTest.push_back( edge );
                     }
@@ -76,8 +77,9 @@ double PolyhedronBodyShapeModel::getAltitude( const Eigen::Vector3d& bodyFixedPo
                 // If the edge isn't in the list of edges to test, check whether it should be added to it
                 if ( std::count( facetsToTest.begin(), facetsToTest.end(), facet ) == 0)
                 {
-                    if ( (unsigned int) verticesDefiningEachFacet_(facet, 0) == vertex || (unsigned int) verticesDefiningEachEdge_(facet, 1) == vertex ||
-                        (unsigned int) verticesDefiningEachFacet_(facet, 2) == vertex )
+                    if ( static_cast< unsigned int >( verticesDefiningEachFacet_(facet, 0) == vertex )||
+                         static_cast< unsigned int >( verticesDefiningEachEdge_(facet, 1) == vertex ) ||
+                         static_cast< unsigned int >( verticesDefiningEachFacet_(facet, 2) == vertex ) )
                     {
                         facetsToTest.push_back( facet );
                     }
@@ -86,7 +88,8 @@ double PolyhedronBodyShapeModel::getAltitude( const Eigen::Vector3d& bodyFixedPo
         }
 
         // Create matrix with vertices defining each edge to be tested
-        Eigen::MatrixXi verticesDefiningEachEdgeToTest = Eigen::MatrixXi::Constant( edgesToTest.size(), 2, TUDAT_NAN );
+        Eigen::MatrixXi verticesDefiningEachEdgeToTest = Eigen::MatrixXi::Constant(
+                    edgesToTest.size( ), 2, -1 );
         unsigned int counter = 0;
         for ( unsigned int edge : edgesToTest )
         {
@@ -96,7 +99,8 @@ double PolyhedronBodyShapeModel::getAltitude( const Eigen::Vector3d& bodyFixedPo
         }
 
         // Create matrix with vertices defining each facet to be tested
-        Eigen::MatrixXi verticesDefiningEachFacetToTest = Eigen::MatrixXi::Constant( facetsToTest.size(), 3, TUDAT_NAN );
+        Eigen::MatrixXi verticesDefiningEachFacetToTest = Eigen::MatrixXi::Constant(
+                    facetsToTest.size( ), 3, -1 );
         counter = 0;
         for ( unsigned int facet : facetsToTest )
         {
@@ -263,7 +267,7 @@ void PolyhedronBodyShapeModel::computeVerticesDefiningEachEdge( )
     const unsigned int numberOfFacets = verticesDefiningEachFacet_.rows();
     const unsigned int numberOfEdges = 3 * ( numberOfVertices - 2 );
 
-    verticesDefiningEachEdge_ = Eigen::MatrixXi::Constant( numberOfEdges, 2, TUDAT_NAN );
+    verticesDefiningEachEdge_ = Eigen::MatrixXi::Constant( numberOfEdges, 2, -1 );
 
     unsigned int numberOfInsertedEdges = 0;
     for ( unsigned int facet = 0; facet < numberOfFacets; ++facet )
