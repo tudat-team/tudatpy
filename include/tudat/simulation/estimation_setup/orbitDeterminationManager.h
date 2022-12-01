@@ -188,11 +188,11 @@ public:
         parametersToEstimate_( parametersToEstimate )
     {
         std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > processedIntegratorSettings;
-        if( std::dynamic_pointer_cast< propagators::SingleArcPropagatorSettings< ObservationScalarType > >( propagatorSettings ) != nullptr )
+        if( std::dynamic_pointer_cast< propagators::SingleArcPropagatorSettings< ObservationScalarType, TimeType > >( propagatorSettings ) != nullptr )
         {
             processedIntegratorSettings = { integratorSettings };
         }
-        else if( std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< ObservationScalarType > >( propagatorSettings ) != nullptr )
+        else if( std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< ObservationScalarType, TimeType > >( propagatorSettings ) != nullptr )
         {
             int numberOfArcs = estimatable_parameters::getMultiArcStateEstimationArcStartTimes(
                         parametersToEstimate, true ).size( );
@@ -203,7 +203,7 @@ public:
                     preprocessDeprecatedIntegratorSettings( parametersToEstimate, unprocessedIntegratorSettings, propagatorSettings );
             std::cout<<"Sizes: "<<unprocessedIntegratorSettings.size( )<<" "<<processedIntegratorSettings.size( )<<" "<<numberOfArcs<<std::endl;
         }
-        else if( std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< ObservationScalarType > >( propagatorSettings ) != nullptr )
+        else if( std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< ObservationScalarType, TimeType > >( propagatorSettings ) != nullptr )
         {
             int numberOfArcs = estimatable_parameters::getMultiArcStateEstimationArcStartTimes(
                         parametersToEstimate, false ).size( );
@@ -215,7 +215,8 @@ public:
         }
 
         initializeOrbitDeterminationManager(
-                    bodies, observationSettingsList, propagators::validateDeprecatePropagatorSettings( processedIntegratorSettings, propagatorSettings ),
+                    bodies, observationSettingsList, propagators::validateDeprecatePropagatorSettings(
+                        processedIntegratorSettings, propagatorSettings ),
                     propagateOnCreation );
     }
 //        parametersToEstimate_( parametersToEstimate )

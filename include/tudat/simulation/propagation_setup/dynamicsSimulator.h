@@ -2295,6 +2295,10 @@ std::shared_ptr< PropagatorSettings< StateScalarType > > validateDeprecatePropag
 {
     if( std::dynamic_pointer_cast< propagators::SingleArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ) != nullptr )
     {
+        if( integratorSettings.size( ) == 0 )
+        {
+            throw std::runtime_error( "Error when validating deprecated propagator settings; did not find integrator settings for single-arc propagation" );;
+        }
         return validateDeprecatedSingleArcSettings( integratorSettings.at( 0 ), propagatorSettings );
     }
     else if( std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ) != nullptr )
@@ -2306,6 +2310,10 @@ std::shared_ptr< PropagatorSettings< StateScalarType > > validateDeprecatePropag
         std::shared_ptr< propagators::HybridArcPropagatorSettings< StateScalarType > > hybridArcSettings =
                 std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< StateScalarType > >( propagatorSettings );
 
+        if( integratorSettings.size( ) == 0 )
+        {
+            throw std::runtime_error( "Error when validating deprecated propagator settings; did not find integrator settings for hybrid-arc propagation" );;
+        }
         validateDeprecatedSingleArcSettings< StateScalarType, TimeType >(
                     integratorSettings.at( 0 ), hybridArcSettings->getSingleArcPropagatorSettings( ) );
         validateDeprecatedMultiArcSettings< StateScalarType, TimeType >(

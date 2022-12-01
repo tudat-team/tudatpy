@@ -230,7 +230,7 @@ Eigen::VectorXd  executeParameterEstimation(
         }
     }
 
-    std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > measurementSimulationInput;
+    std::vector< std::shared_ptr< ObservationSimulationSettings< TimeType > > > measurementSimulationInput;
     measurementSimulationInput.push_back(
                 std::make_shared< TabulatedObservationSimulationSettings< TimeType > >(
                     one_way_range, linkEnds2[ 0 ], initialObservationTimes, receiver ) );

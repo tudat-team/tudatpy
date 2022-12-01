@@ -1087,7 +1087,7 @@ createIntegratedStateProcessors(
                     }
                     
                     //  Create state processor
-//                    currentPropagatorSettings = typename typeIterator.second.at( i );
+                    currentPropagatorSettings = typeIterator.second.at( i );
                     singleTypeIntegratedStateProcessors = createIntegratedStateProcessors< TimeType, StateScalarType >(
                                 currentPropagatorSettings, bodies, frameManager, currentStartIndex );
                     
