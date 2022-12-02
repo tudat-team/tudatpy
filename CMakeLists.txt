@@ -83,7 +83,7 @@ if(CMAKE_CXX_SIMULATE_ID MATCHES "MSVC")
     # Build extended precision propagation tools.
     option(TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS "Build tudat with extended precision propagation tools." OFF)
 else()
-    option(TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS "Build tudat with extended precision propagation tools." ON)
+    option(TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS "Build tudat with extended precision propagation tools." OFF)
 endif()
 
 message(STATUS "******************** BUILD CONFIGURATION ********************")
