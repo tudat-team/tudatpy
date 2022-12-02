@@ -365,7 +365,7 @@ private:
  */
 template< typename StateScalarType = double, typename TimeType = double >
 int getConcatenatedStateSize(
-        const std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, StateScalarType > > >& singleArcPropagatorSettings )
+        const std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > >& singleArcPropagatorSettings )
 {
     int vectorSize = 0;
 
@@ -2231,18 +2231,6 @@ extern template class MassPropagatorSettings< double >;
 extern template class CustomStatePropagatorSettings< double >;
 extern template class MultiTypePropagatorSettings< double >;
 
-#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
-extern template class PropagatorSettings< long double >;
-extern template class SingleArcPropagatorSettings< long double >;
-extern template class MultiArcPropagatorSettings< long double >;
-extern template class TranslationalStatePropagatorSettings< long double >;
-extern template class RotationalStatePropagatorSettings< long double >;
-extern template class MassPropagatorSettings< long double >;
-extern template class MultiTypePropagatorSettings< long double >;
-extern template class CustomStatePropagatorSettings< long double >;
-extern template class CustomStatePropagatorSettings< double, Time >;
-extern template class CustomStatePropagatorSettings< long double, Time >;
-#endif
 
 //! Function to retrieve list of accelerations from propagator settings
 /*!
@@ -2543,14 +2531,14 @@ template< typename StateScalarType = double, typename TimeType = double >
 void toggleIntegratedResultSettings(
         const std::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings )
 {
-    if( std::dynamic_pointer_cast< propagators::SingleArcPropagatorSettings< StateScalarType > >( propagatorSettings ) != nullptr )
+    if( std::dynamic_pointer_cast< propagators::SingleArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ) != nullptr )
     {
-        std::dynamic_pointer_cast< propagators::SingleArcPropagatorSettings< StateScalarType > >(
+        std::dynamic_pointer_cast< propagators::SingleArcPropagatorSettings< StateScalarType, TimeType > >(
                     propagatorSettings )->getOutputSettings( )->setIntegratedResult( true );
     }
-    else if( std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< StateScalarType > >( propagatorSettings ) != nullptr )
+    else if( std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ) != nullptr )
     {
-        std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< StateScalarType > >(
+        std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< StateScalarType, TimeType > >(
                     propagatorSettings )->getOutputSettings( )->setIntegratedResult( true );
     }
     else if( std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< StateScalarType > >( propagatorSettings ) != nullptr )

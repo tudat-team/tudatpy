@@ -16,12 +16,17 @@
 
 #include <Eigen/Core>
 
+#include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/math/basic/basicMathematicsFunctions.h"
 
 namespace tudat
 {
 
-static const long double TIME_NORMALIZATION_TERM = 3600.0L;
+static constexpr int TIME_NORMALIZATION_INTEGER_TERM = 60;
+
+static constexpr long double TIME_NORMALIZATION_TERM = mathematical_constants::getFloatingInteger< long double >( TIME_NORMALIZATION_INTEGER_TERM );
+
+static constexpr int TIME_NORMALIZATION_TERMS_PER_DAY = 86400 / TIME_NORMALIZATION_INTEGER_TERM;
 
 //! Class for defining time with a resolution that is sub-fs for very long periods of time.
 /*!
@@ -990,6 +995,21 @@ public:
     long double getSecondsIntoFullPeriod( ) const
     {
         return secondsIntoFullPeriod_;
+    }
+
+    int fullDaysSinceEpoch( ) const
+    {
+        return fullPeriods_ / TIME_NORMALIZATION_TERMS_PER_DAY;
+    }
+
+    int fullPeriodsIntoCurrentDay( ) const
+    {
+        return fullPeriods_ - fullDaysSinceEpoch( ) * TIME_NORMALIZATION_TERMS_PER_DAY;
+    }
+
+    long double secondsIntoCurrentDay( ) const
+    {
+        return static_cast< long double >( fullPeriodsIntoCurrentDay( ) * TIME_NORMALIZATION_TERM ) + secondsIntoFullPeriod_;
     }
 
 protected:

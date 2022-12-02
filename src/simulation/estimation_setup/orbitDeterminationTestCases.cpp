@@ -25,23 +25,6 @@ Eigen::VectorXd getDefaultInitialParameterPerturbation( )
 //        Eigen::MatrixXd inverseAPrioriCovariance,
 //        const double weight );
 
-//#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
-//template std::pair< std::shared_ptr< EstimationOutput< long double > >, Eigen::VectorXd > executePlanetaryParameterEstimation< double, long double >(
-//        const int observableType,
-//        Eigen::VectorXd parameterPerturbation,
-//        Eigen::MatrixXd inverseAPrioriCovariance,
-//        const double weight );
-//template std::pair< std::shared_ptr< EstimationOutput< double, Time > >, Eigen::VectorXd > executePlanetaryParameterEstimation< Time, double >(
-//        const int observableType ,
-//        Eigen::VectorXd parameterPerturbation,
-//        Eigen::MatrixXd inverseAPrioriCovariance,
-//        const double weight );
-//template std::pair< std::shared_ptr< EstimationOutput< long double, Time > >, Eigen::VectorXd > executePlanetaryParameterEstimation< Time, long double >(
-//        const int observableType,
-//        Eigen::VectorXd parameterPerturbation,
-//        Eigen::MatrixXd inverseAPrioriCovariance,
-//        const double weight );
-//#endif
 
 //template Eigen::VectorXd executeEarthOrbiterParameterEstimation< double, double >(
 //        std::pair< std::shared_ptr< EstimationOutput< double > > , std::shared_ptr< EstimationInput< double, double > > >& podData,

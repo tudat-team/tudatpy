@@ -21,13 +21,6 @@ void scaleDesignMatrixWithWeights(
 template class EstimationInput< double, double >;
 template struct EstimationOutput< double >;
 
-#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
-template class EstimationInput< long double, double >;
-template class EstimationInput< double, Time >;
-template class EstimationInput< long double, Time >;
-template struct EstimationOutput< long double >;
-#endif
-
 }
 
 }

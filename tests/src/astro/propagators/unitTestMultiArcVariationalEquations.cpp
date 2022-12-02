@@ -182,26 +182,26 @@ executeMultiArcEarthMoonSimulation(
     {
         propagatorType = encke;
     }
-    std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > propagatorSettingsList;
+    std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > > propagatorSettingsList;
 
     for( unsigned int i = 0; i < arcStartTimes.size( ); i++ )
     {
-        propagatorSettingsList.push_back( std::make_shared< TranslationalStatePropagatorSettings< StateScalarType > >
+        propagatorSettingsList.push_back( std::make_shared< TranslationalStatePropagatorSettings< StateScalarType, TimeType > >
                                           ( centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialStates.at( i ),
                                             arcEndTimes.at( i ), propagatorType ) );
     }
-    std::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > multiArcPropagatorSettings;
+    std::shared_ptr< MultiArcPropagatorSettings< StateScalarType, TimeType > > multiArcPropagatorSettings;
 
     if( patchArcsTogether && forcedArcInitialStates.size( ) == 0 )
     {
         multiArcPropagatorSettings =
-                std::make_shared< MultiArcPropagatorSettings< StateScalarType > >(
+                std::make_shared< MultiArcPropagatorSettings< StateScalarType, TimeType > >(
                     propagatorSettingsList, patchArcsTogether );
     }
     else
     {
         multiArcPropagatorSettings =
-                std::make_shared< MultiArcPropagatorSettings< StateScalarType > >(
+                std::make_shared< MultiArcPropagatorSettings< StateScalarType, TimeType > >(
                     propagatorSettingsList );
     }
 
@@ -218,7 +218,7 @@ executeMultiArcEarthMoonSimulation(
 
     // Create parameters
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate =
-            createParametersToEstimate( parameterNames, bodies );
+            createParametersToEstimate< double, double >( parameterNames, bodies );
 
     // Perturb parameters.
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > parameterVector =

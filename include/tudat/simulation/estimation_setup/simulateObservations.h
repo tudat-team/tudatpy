@@ -61,7 +61,7 @@ void addNoiseAndDependentVariableToObservation(
         }
         else
         {
-            calculatedObservation += noiseToAdd;
+            calculatedObservation += noiseToAdd.template cast< ObservationScalarType >( );
         }
     }
 }
@@ -188,7 +188,7 @@ simulateObservationsWithCheckAndLinkEndIdOutput(
 {
     std::tuple< std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >,
     std::vector< TimeType >, std::vector< Eigen::VectorXd > >  simulatedObservations =
-            simulateObservationsWithCheck(
+            simulateObservationsWithCheck< ObservationSize, ObservationScalarType, TimeType >(
                 observationTimes, observationModel, referenceLinkEnd, linkViabilityCalculators,
                 noiseFunction, dependentVariableCalculator, ancilliarySettings );
 
@@ -298,7 +298,7 @@ simulatePerArcSingleObservationSet(
 
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observations;
     std::vector< TimeType > observationTimes;
-    std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observationsDependentVariables;
+    std::vector< Eigen::VectorXd > observationsDependentVariables;
 
     Eigen::VectorXd currentDependentVariable;
     for( unsigned int i = 0; i < simulatedObservations.size( ); i++ )

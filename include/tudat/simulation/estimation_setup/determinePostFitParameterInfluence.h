@@ -61,8 +61,8 @@ std::pair< std::shared_ptr< EstimationOutput< StateScalarType > >, Eigen::Vector
     using namespace estimatable_parameters;
 
     // Check input consistency
-    std::shared_ptr< propagators::TranslationalStatePropagatorSettings< StateScalarType > > translationalPropagatorSettings =
-            std::dynamic_pointer_cast< propagators::TranslationalStatePropagatorSettings< StateScalarType > >( propagatorSettings ) ;
+    std::shared_ptr< propagators::TranslationalStatePropagatorSettings< StateScalarType, TimeType > > translationalPropagatorSettings =
+            std::dynamic_pointer_cast< propagators::TranslationalStatePropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ) ;
     if( translationalPropagatorSettings == nullptr )
     {
         throw std::runtime_error(

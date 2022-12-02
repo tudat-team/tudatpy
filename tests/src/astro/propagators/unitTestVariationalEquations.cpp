@@ -141,7 +141,7 @@ executeEarthMoonSimulation(
     initialTranslationalState += initialStateDifference;
 
     // Create propagator settings
-    std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > propagatorSettings;
+    std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType, TimeType > > propagatorSettings;
     TranslationalPropagatorType propagatorType;
     if( propagationType == 0 )
     {
@@ -151,7 +151,7 @@ executeEarthMoonSimulation(
     {
         propagatorType = encke;
     }
-    propagatorSettings =  std::make_shared< TranslationalStatePropagatorSettings< StateScalarType > >
+    propagatorSettings =  std::make_shared< TranslationalStatePropagatorSettings< StateScalarType, TimeType > >
             ( centralBodies, accelerationModelMap, bodiesToIntegrate, initialTranslationalState,
               TimeType( finalEphemerisTime ), propagatorType );
 
@@ -445,8 +445,8 @@ executeOrbiterSimulation(
     initialTranslationalState += initialStateDifference;
 
     // Create propagator settings
-    std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > propagatorSettings =
-            std::make_shared< TranslationalStatePropagatorSettings< StateScalarType > >
+    std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType, TimeType > > propagatorSettings =
+            std::make_shared< TranslationalStatePropagatorSettings< StateScalarType, TimeType > >
             ( centralBodies, accelerationModelMap, bodiesToIntegrate, initialTranslationalState,
               TimeType( finalEphemerisTime ), cowell );
 

@@ -380,10 +380,7 @@ bool isParameterArcWiseInitialStateProperty( const EstimatebleParametersEnum par
     return flag;
 }
 
-//#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
-//template class EstimatableParameter< Eigen::VectorXd >;
-//template class EstimatableParameter< Eigen::Matrix< long double, Eigen::Dynamic, 1 > >;
-//#endif
+
 
 }
 

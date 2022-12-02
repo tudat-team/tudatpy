@@ -470,23 +470,6 @@ extern template class ObservationModel< 2, double, double >;
 extern template class ObservationModel< 3, double, double >;
 extern template class ObservationModel< 6, double, double >;
 
-#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
-extern template class ObservationModel< 1, double, Time >;
-extern template class ObservationModel< 1, long double, double >;
-extern template class ObservationModel< 1, long double, Time >;
-
-extern template class ObservationModel< 2, double, Time >;
-extern template class ObservationModel< 2, long double, double >;
-extern template class ObservationModel< 2, long double, Time >;
-
-extern template class ObservationModel< 3, double, Time >;
-extern template class ObservationModel< 3, long double, double >;
-extern template class ObservationModel< 3, long double, Time >;
-
-extern template class ObservationModel< 6, double, Time >;
-extern template class ObservationModel< 6, long double, double >;
-extern template class ObservationModel< 6, long double, Time >;
-#endif
 
 //! Function to compute an observation of size 1 at double precision, with double precision input
 /*!

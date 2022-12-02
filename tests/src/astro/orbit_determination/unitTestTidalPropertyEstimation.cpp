@@ -159,7 +159,7 @@ BOOST_AUTO_TEST_CASE( test_DissipationParameterEstimation )
                             "Jupiter", "Europa" ) );
         }
         std::shared_ptr< tudat::estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate =
-                createParametersToEstimate< double >( parameterNames, bodies, propagatorSettings );
+                createParametersToEstimate< double, double >( parameterNames, bodies, propagatorSettings );
 
 
         // Define links in simulation.
@@ -418,7 +418,7 @@ BOOST_AUTO_TEST_CASE( test_LoveNumberEstimationFromOrbiterData )
 
     // Create parameters
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate =
-            createParametersToEstimate( parameterNames, bodies );
+            createParametersToEstimate< double, double >( parameterNames, bodies );
 
     // Define observation settings
     std::vector< std::shared_ptr< ObservationModelSettings > > observationSettingsList;
