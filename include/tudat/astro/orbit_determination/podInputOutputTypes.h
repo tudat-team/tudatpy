@@ -153,8 +153,7 @@ public:
         setConstantPerObservableAndLinkEndsWeights( weightPerObservableAndLinkEnds );
     }
 
-//<<<<<<< HEAD
-//=======
+
     void setConstantPerObservableAndLinkEndsWeights(
             const observation_models::ObservableType observableType,
             const observation_models::LinkEnds& linkEnds,
@@ -165,7 +164,6 @@ public:
         setConstantPerObservableAndLinkEndsWeights( weightPerObservableAndLinkEnds );
     }
 
-//>>>>>>> develop
     //! Function to return the total data structure of observations and associated times/link ends/type (by reference)
     /*!
      * Function to return the total data structure of observations and associated times/link ends/type (by reference)
@@ -829,14 +827,6 @@ struct EstimationOutput: public CovarianceAnalysisOutput< ObservationScalarType,
 
 extern template class EstimationInput< double, double >;
 extern template struct EstimationOutput< double >;
-
-#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
-extern template class EstimationInput< long double, double >;
-extern template class EstimationInput< double, Time >;
-extern template class EstimationInput< long double, Time >;
-
-extern template struct EstimationOutput< long double >;
-#endif
 
 }
 

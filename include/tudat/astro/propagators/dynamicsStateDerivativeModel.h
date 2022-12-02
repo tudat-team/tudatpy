@@ -736,13 +736,6 @@ private:
 
 extern template class DynamicsStateDerivativeModel< double, double >;
 
-#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
-extern template class DynamicsStateDerivativeModel< Time, double >;
-extern template class DynamicsStateDerivativeModel< double, long double >;
-extern template class DynamicsStateDerivativeModel< Time, long double >;
-#endif
-
-
 //! Function to retrieve a single given acceleration model from a list of models
 /*!
  *  Function to retrieve a single given acceleration model, determined by

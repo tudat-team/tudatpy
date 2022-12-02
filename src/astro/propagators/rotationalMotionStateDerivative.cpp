@@ -27,12 +27,6 @@ Eigen::Vector3d evaluateRotationalEquationsOfMotion(
 
 template class RotationalMotionStateDerivative< double, double >;
 
-#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
-template class RotationalMotionStateDerivative< long double, double >;
-template class RotationalMotionStateDerivative< double, Time >;
-template class RotationalMotionStateDerivative< long double, Time >;
-#endif
-
 }
 
 }

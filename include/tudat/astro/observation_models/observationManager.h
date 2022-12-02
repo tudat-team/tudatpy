@@ -472,31 +472,6 @@ extern template class ObservationManager< 2, double, double >;
 extern template class ObservationManager< 3, double, double >;
 extern template class ObservationManager< 6, double, double >;
 
-#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
-extern template class ObservationManagerBase< double, Time >;
-extern template class ObservationManagerBase< long double, double >;
-extern template class ObservationManagerBase< long double, Time >;
-
-extern template class ObservationManager< 1, double, Time >;
-extern template class ObservationManager< 1, long double, double >;
-extern template class ObservationManager< 1, long double, Time >;
-
-extern template class ObservationManager< 2, double, Time >;
-extern template class ObservationManager< 2, long double, double >;
-extern template class ObservationManager< 2, long double, Time >;
-
-extern template class ObservationManager< 3, double, double >;
-extern template class ObservationManager< 3, double, Time >;
-extern template class ObservationManager< 3, long double, double >;
-extern template class ObservationManager< 3, long double, Time >;
-
-extern template class ObservationManager< 6, double, double >;
-extern template class ObservationManager< 6, double, Time >;
-extern template class ObservationManager< 6, long double, double >;
-extern template class ObservationManager< 6, long double, Time >;
-
-#endif
-
 }
 
 }

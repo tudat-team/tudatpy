@@ -53,7 +53,7 @@ struct LinkEndId
 {
     LinkEndId( ){ }
 
-    LinkEndId( std::pair< std::string, std::string > linkEnd ):
+    LinkEndId( const std::pair< std::string, std::string >& linkEnd ):
         bodyName_( linkEnd.first ),
         stationName_( linkEnd.second ){ }
 

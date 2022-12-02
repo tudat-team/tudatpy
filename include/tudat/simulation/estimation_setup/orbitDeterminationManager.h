@@ -189,11 +189,11 @@ public:
         bodies_( bodies )
     {
         std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > processedIntegratorSettings;
-        if( std::dynamic_pointer_cast< propagators::SingleArcPropagatorSettings< ObservationScalarType > >( propagatorSettings ) != nullptr )
+        if( std::dynamic_pointer_cast< propagators::SingleArcPropagatorSettings< ObservationScalarType, TimeType > >( propagatorSettings ) != nullptr )
         {
             processedIntegratorSettings = { integratorSettings };
         }
-        else if( std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< ObservationScalarType > >( propagatorSettings ) != nullptr )
+        else if( std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< ObservationScalarType, TimeType > >( propagatorSettings ) != nullptr )
         {
             int numberOfArcs = estimatable_parameters::getMultiArcStateEstimationArcStartTimes(
                         parametersToEstimate, true ).size( );
@@ -204,7 +204,7 @@ public:
                     preprocessDeprecatedIntegratorSettings( parametersToEstimate, unprocessedIntegratorSettings, propagatorSettings );
             std::cout<<"Sizes: "<<unprocessedIntegratorSettings.size( )<<" "<<processedIntegratorSettings.size( )<<" "<<numberOfArcs<<std::endl;
         }
-        else if( std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< ObservationScalarType > >( propagatorSettings ) != nullptr )
+        else if( std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< ObservationScalarType, TimeType > >( propagatorSettings ) != nullptr )
         {
             int numberOfArcs = estimatable_parameters::getMultiArcStateEstimationArcStartTimes(
                         parametersToEstimate, false ).size( );
@@ -216,7 +216,8 @@ public:
         }
 
         initializeOrbitDeterminationManager(
-                    bodies, observationSettingsList, propagators::validateDeprecatePropagatorSettings( processedIntegratorSettings, propagatorSettings ),
+                    bodies, observationSettingsList, propagators::validateDeprecatePropagatorSettings(
+                        processedIntegratorSettings, propagatorSettings ),
                     propagateOnCreation );
     }
 //        parametersToEstimate_( parametersToEstimate )
@@ -1028,7 +1029,7 @@ protected:
         if( integrateAndEstimateOrbit_ )
         {
             variationalEquationsSolver_ =
-                    simulation_setup::createVariationalEquationsSolver(
+                    simulation_setup::createVariationalEquationsSolver< ObservationScalarType, TimeType >(
                         bodies, propagatorSettings, parametersToEstimate_, propagateOnCreation );
         }
 
@@ -1038,7 +1039,7 @@ protected:
         }
         else if( propagatorSettings == nullptr )
         {
-            stateTransitionAndSensitivityMatrixInterface_ = createStateTransitionAndSensitivityMatrixInterface(
+            stateTransitionAndSensitivityMatrixInterface_ = createStateTransitionAndSensitivityMatrixInterface< ObservationScalarType, TimeType >(
                         propagatorSettings, parametersToEstimate_, 0, parametersToEstimate_->getParameterSetSize( ) );
         }
         else
@@ -1123,12 +1124,6 @@ protected:
 };
 
 extern template class OrbitDeterminationManager< double, double >;
-
-#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
-extern template class OrbitDeterminationManager< double, Time >;
-extern template class OrbitDeterminationManager< long double, double >;
-extern template class OrbitDeterminationManager< long double, Time >;
-#endif
 
 
 
