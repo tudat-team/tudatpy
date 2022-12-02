@@ -2198,18 +2198,6 @@ extern template class MassPropagatorSettings< double >;
 extern template class CustomStatePropagatorSettings< double >;
 extern template class MultiTypePropagatorSettings< double >;
 
-#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
-extern template class PropagatorSettings< long double >;
-extern template class SingleArcPropagatorSettings< long double >;
-extern template class MultiArcPropagatorSettings< long double >;
-extern template class TranslationalStatePropagatorSettings< long double >;
-extern template class RotationalStatePropagatorSettings< long double >;
-extern template class MassPropagatorSettings< long double >;
-extern template class MultiTypePropagatorSettings< long double >;
-extern template class CustomStatePropagatorSettings< long double >;
-extern template class CustomStatePropagatorSettings< double, Time >;
-extern template class CustomStatePropagatorSettings< long double, Time >;
-#endif
 
 //! Function to retrieve list of accelerations from propagator settings
 /*!

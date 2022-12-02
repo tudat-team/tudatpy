@@ -620,41 +620,6 @@ createStateDerivativeModels(
     return stateDerivativeModels;
 }
 
-//extern template std::vector< std::shared_ptr< SingleStateTypeDerivative< double, double > > > createStateDerivativeModels< double, double >(
-//        const std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings,
-//        const simulation_setup::SystemOfBodies& bodies,
-//        const double propagationStartTime );
-//extern template std::shared_ptr< SingleStateTypeDerivative< double, double > > createStateDerivativeModel< double, double >(
-//        const std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings,
-//        const simulation_setup::SystemOfBodies& bodies,
-//        const double propagationStartTime );
-
-//#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
-//extern template std::vector< std::shared_ptr< SingleStateTypeDerivative< long double, double > > > createStateDerivativeModels< long double, double >(
-//        const std::shared_ptr< SingleArcPropagatorSettings< long double > > propagatorSettings,
-//        const simulation_setup::SystemOfBodies& bodies,
-//        const double propagationStartTime );
-//extern template std::vector< std::shared_ptr< SingleStateTypeDerivative< double, Time > > > createStateDerivativeModels< double, Time >(
-//        const std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings,
-//        const simulation_setup::SystemOfBodies& bodies,
-//        const Time propagationStartTime );
-//extern template std::vector< std::shared_ptr< SingleStateTypeDerivative< long double, Time > > > createStateDerivativeModels< long double, Time >(
-//        const std::shared_ptr< SingleArcPropagatorSettings< long double > > propagatorSettings,
-//        const simulation_setup::SystemOfBodies& bodies,
-//        const Time propagationStartTime );
-//extern template std::shared_ptr< SingleStateTypeDerivative< long double, double > > createStateDerivativeModel< long double, double >(
-//        const std::shared_ptr< SingleArcPropagatorSettings< long double > > propagatorSettings,
-//        const simulation_setup::SystemOfBodies& bodies,
-//        const double propagationStartTime );
-//extern template std::shared_ptr< SingleStateTypeDerivative< double, Time > > createStateDerivativeModel< double, Time >(
-//        const std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings,
-//        const simulation_setup::SystemOfBodies& bodies,
-//        const Time propagationStartTime );
-//extern template std::shared_ptr< SingleStateTypeDerivative< long double, Time > > createStateDerivativeModel< long double, Time >(
-//        const std::shared_ptr< SingleArcPropagatorSettings< long double > > propagatorSettings,
-//        const simulation_setup::SystemOfBodies& bodies,
-//        const Time propagationStartTime );
-//#endif
 
 //! Function to convert a list of state derivative models to a map sorted by state type
 /*!
