@@ -284,7 +284,7 @@ BOOST_AUTO_TEST_CASE( test_MultiArcStateEstimation )
         {
             for( unsigned int j = 0; j < 3; j++ )
             {
-                BOOST_CHECK_SMALL( std::fabs( parameterError( i * 6 + j ) ), 1E-4 );
+                BOOST_CHECK_SMALL( std::fabs( parameterError( i * 6 + j ) ), 2E-4 );
                 BOOST_CHECK_SMALL( std::fabs( parameterError( i * 6 + j + 3 ) ), 1.0E-10  );
             }
         }

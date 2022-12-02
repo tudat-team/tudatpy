@@ -652,12 +652,6 @@ protected:
 
 extern template class JsonSimulationManager< double, double >;
 
-#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
-extern template class JsonSimulationManager< double, long double >;
-//extern template class JsonSimulationManager< Time, double >;
-//extern template class JsonSimulationManager< Time, long double >;
-#endif
-
 //! Function to create a `json` object from a Simulation object.
 template< typename TimeType, typename StateScalarType >
 void to_json( nlohmann::json& jsonObject,

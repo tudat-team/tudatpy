@@ -154,13 +154,12 @@ double calculateEarthRotationAngleTemplated< Time >(
         const Time currentUt1 )
 {
 
-    int hoursSinceEpoch = currentUt1.getFullPeriods( );
-    int fullDaysSinceEpoch = currentUt1.getFullPeriods( ) / 24;
+    int hoursSinceEpoch = currentUt1.getFullPeriods( ) * 3600 / TIME_NORMALIZATION_INTEGER_TERM;
+    int fullDaysSinceEpoch = currentUt1.getFullPeriods( ) * 3600 / TIME_NORMALIZATION_INTEGER_TERM / 24 ;
     int hoursIntoCurrentDay = hoursSinceEpoch - 24 * fullDaysSinceEpoch;
 
-
-    return calculateEarthRotationAngle( currentUt1.getSecondsIntoFullPeriod( ) + hoursIntoCurrentDay * 3600.0,
-                                        basic_astrodynamics::JULIAN_DAY_ON_J2000 + fullDaysSinceEpoch );
+    return calculateEarthRotationAngle( currentUt1.secondsIntoCurrentDay( ),
+                                        basic_astrodynamics::JULIAN_DAY_ON_J2000 + currentUt1.fullDaysSinceEpoch( ) );
 }
 
 //! Function to compute the rotation matrix from GCRS to J2000 at epoch
