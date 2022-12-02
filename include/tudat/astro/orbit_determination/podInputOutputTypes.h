@@ -674,7 +674,7 @@ struct EstimationOutput: public CovarianceAnalysisOutput< ObservationScalarType,
                const double residualStandardDeviation,
                const int bestIteration,
                const std::vector< Eigen::VectorXd >& residualHistory = std::vector< Eigen::VectorXd >( ),
-               const std::vector< Eigen::VectorXd >& parameterHistory = std::vector< Eigen::VectorXd >( ),
+               const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& parameterHistory = std::vector< Eigen::VectorXd >( ),
                const bool exceptionDuringInversion = false,
                const bool exceptionDuringPropagation = false ):
         CovarianceAnalysisOutput< ObservationScalarType, TimeType >( normalizedDesignMatrix, weightsMatrixDiagonal,
@@ -720,11 +720,13 @@ struct EstimationOutput: public CovarianceAnalysisOutput< ObservationScalarType,
      * pre-estimation values
      * \return Parameter vectors per iteration concatenated into a matrix
      */
-    Eigen::MatrixXd getParameterHistoryMatrix( )
+    Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, Eigen::Dynamic > getParameterHistoryMatrix( )
     {
         if( parameterHistory_.size( ) > 0 )
         {
-            Eigen::MatrixXd parameterHistoryMatrix = Eigen::MatrixXd( parameterHistory_.at( 0 ).rows( ), parameterHistory_.size( ) );
+            Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, Eigen::Dynamic > parameterHistoryMatrix =
+                    Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, Eigen::Dynamic >(
+                        parameterHistory_.at( 0 ).rows( ), parameterHistory_.size( ) );
             for( unsigned int i = 0; i < parameterHistory_.size( ); i++ )
             {
                 parameterHistoryMatrix.block( 0, i, parameterHistory_.at( 0 ).rows( ), 1 ) = parameterHistory_.at( i );
@@ -802,7 +804,7 @@ struct EstimationOutput: public CovarianceAnalysisOutput< ObservationScalarType,
     std::vector< Eigen::VectorXd > residualHistory_;
 
     //! Vector of parameter vectors per iteration (entry 0 is pre-estimation values)
-    std::vector< Eigen::VectorXd > parameterHistory_;
+    std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > parameterHistory_;
 
     //! Boolean denoting whether an exception was caught during inversion of normal equations
     bool exceptionDuringInversion_;

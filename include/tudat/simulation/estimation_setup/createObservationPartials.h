@@ -515,12 +515,12 @@ std::shared_ptr< PositionPartialScaling > > createDifferencedObservablePartials(
 
     std::pair< std::map< std::pair< int, int >, std::shared_ptr< ObservationPartial< ObservationSize > > >, std::shared_ptr< PositionPartialScaling > >
             firstUndifferencedObservablePartials =
-            ObservationPartialCreator<ObservationSize, double, double>::createObservationPartials(
+            ObservationPartialCreator<ObservationSize, ParameterType, TimeType >::createObservationPartials(
                 undifferencedObservationModelFirst, bodies, parametersToEstimate, false );
 
     std::pair< std::map< std::pair< int, int >, std::shared_ptr< ObservationPartial< ObservationSize > > >, std::shared_ptr< PositionPartialScaling > >
             secondUndifferencedObservablePartials =
-            ObservationPartialCreator<ObservationSize, double, double>::createObservationPartials(
+            ObservationPartialCreator<ObservationSize, ParameterType, TimeType >::createObservationPartials(
                 undifferencedObservationModelSecond, bodies, parametersToEstimate, false );
 
     std::map< std::pair< int, int >, std::pair< std::shared_ptr< ObservationPartial< ObservationSize > >, std::shared_ptr< ObservationPartial< ObservationSize > > > >

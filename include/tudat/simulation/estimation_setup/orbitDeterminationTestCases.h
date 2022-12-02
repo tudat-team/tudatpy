@@ -329,7 +329,7 @@ std::pair< std::shared_ptr< EstimationOutput< StateScalarType, TimeType > >, Eig
     std::shared_ptr< EstimationOutput< StateScalarType, TimeType > > estimationOutput = orbitDeterminationManager.estimateParameters(
                 estimationInput );
 
-    parametersToEstimate->resetParameterValues( estimationOutput->parameterHistory_.at( estimationOutput->bestIteration_ ) );
+    parametersToEstimate->template resetParameterValues< StateScalarType >( estimationOutput->parameterHistory_.at( estimationOutput->bestIteration_ ) );
     std::shared_ptr< CovarianceAnalysisOutput< StateScalarType, TimeType > > covarianceOutput = orbitDeterminationManager.computeCovariance(
                 covarianceInput );
 

@@ -93,10 +93,16 @@ public:
      */
     Eigen::Vector3d convertVectorFromInertialToTopocentricFrame( const Eigen::Vector3d& inertialVector, const double time );
 
-    const std::function< Eigen::Quaterniond( const double ) > getRotationFromInertialToBodyFixedFrame( )
+    std::function< Eigen::Quaterniond( const double ) > getRotsationFromInertialToBodyFixedFrame( )
     {
         return rotationFromInertialToBodyFixedFrame_;
     }
+
+    std::function< Eigen::Quaterniond( const double ) > getRotationFromBodyFixedToTopoCentricFrame( )
+    {
+        return rotationFromBodyFixedToTopoCentricFrame_;
+    }
+
 
 private:
 

@@ -586,6 +586,8 @@ public:
         {
             if( estimationInput->getReintegrateEquationsOnFirstIteration( ) )
             {
+                std::cout<<"Resetting (cov)"<<std::setprecision( 19 )<<estimationInput->getReintegrateEquationsOnFirstIteration( )<<std::endl<<
+                           parametersToEstimate_->template getFullParameterValues< ObservationScalarType >( )<<std::endl<<std::endl;
                 resetParameterEstimate(
                             parametersToEstimate_->template getFullParameterValues< ObservationScalarType >( ),
                             estimationInput->getReintegrateVariationalEquations( ) );
@@ -606,7 +608,8 @@ public:
         // Calculate residuals and observation matrix for current parameter estimate.
         Eigen::MatrixXd designMatrix;
         calculateDesignMatrix(
-                    estimationInput->getObservationCollection( ), numberOfEstimatedParameters, totalNumberOfObservations, designMatrix );
+                    estimationInput->getObservationCollection( ),
+                    numberOfEstimatedParameters, totalNumberOfObservations, designMatrix );
 
         Eigen::VectorXd normalizationTerms = normalizeDesignMatrix( designMatrix );
         Eigen::MatrixXd normalizedInverseAprioriCovarianceMatrix = normalizeAprioriCovariance(
@@ -660,7 +663,7 @@ public:
         Eigen::MatrixXd bestInverseNormalizedCovarianceMatrix = Eigen::MatrixXd::Constant( parameterVectorSize, parameterVectorSize, TUDAT_NAN );
 
         std::vector< Eigen::VectorXd > residualHistory;
-        std::vector< Eigen::VectorXd > parameterHistory;
+        std::vector< ParameterVectorType > parameterHistory;
         std::vector< std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > > > simulationResultsPerIteration;
 
         // Declare residual bookkeeping variables
@@ -687,6 +690,8 @@ public:
             {
                 if( ( numberOfIterations > 0 ) || ( estimationInput->getReintegrateEquationsOnFirstIteration( ) ) )
                 {
+                    std::cout<<"Resetting (est)"<<std::setprecision( 19 )<<estimationInput->getReintegrateEquationsOnFirstIteration( )<<std::endl<<
+                               newParameterEstimate.transpose( )<<std::endl<<std::endl;
                     resetParameterEstimate( newParameterEstimate, estimationInput->getReintegrateVariationalEquations( ) );
                 }
 
@@ -739,8 +744,12 @@ public:
             Eigen::VectorXd residuals;
             Eigen::MatrixXd designMatrix;
             calculateDesignMatrixAndResiduals(
-                        estimationInput->getObservationCollection( ), parameterVectorSize, totalNumberOfObservations, designMatrix,
-                        residuals, true );
+                        estimationInput->getObservationCollection( ),
+                        parameterVectorSize,
+                        totalNumberOfObservations,
+                        designMatrix,
+                        residuals,
+                        true );
 
             Eigen::VectorXd normalizationTerms = normalizeDesignMatrix( designMatrix );
             Eigen::MatrixXd normalizedInverseAprioriCovarianceMatrix = normalizeAprioriCovariance(
@@ -797,9 +806,9 @@ public:
                 residualHistory.push_back( residuals );
                 if( numberOfIterations == 0 )
                 {
-                    parameterHistory.push_back( oldParameterEstimate.template cast< double >( ) );
+                    parameterHistory.push_back( oldParameterEstimate );
                 }
-                parameterHistory.push_back( newParameterEstimate.template cast< double >( ) );
+                parameterHistory.push_back( newParameterEstimate );
             }
 
             oldParameterEstimate = newParameterEstimate;

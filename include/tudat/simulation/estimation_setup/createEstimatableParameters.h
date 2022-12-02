@@ -1993,8 +1993,8 @@ void setInitialStateVectorFromParameterSet(
         {
             std::map< propagators::IntegratedStateType, std::map< std::pair< std::string, std::string >, VectorType > > currentArcInitialStates;
 
-            std::shared_ptr< propagators::TranslationalStatePropagatorSettings< InitialStateParameterType > > singleArcTranslationalStatePropagatorSettings
-            = std::dynamic_pointer_cast< propagators::TranslationalStatePropagatorSettings< InitialStateParameterType > >( singleArcSettings.at( i ) );
+            std::shared_ptr< propagators::TranslationalStatePropagatorSettings< InitialStateParameterType, TimeType > > singleArcTranslationalStatePropagatorSettings
+            = std::dynamic_pointer_cast< propagators::TranslationalStatePropagatorSettings< InitialStateParameterType, TimeType > >( singleArcSettings.at( i ) );
 
             if ( singleArcTranslationalStatePropagatorSettings == nullptr )
             {
