@@ -990,7 +990,7 @@ public:
         return variationalEquationsSolution_[ 1];
     }
 
-    const std::map< double, Eigen::VectorXd >& getEquationsOfMotionSolution( )
+    const std::map< double, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& getEquationsOfMotionSolution( )
     {
         return dynamicsSimulator_->getEquationsOfMotionNumericalSolution( );
     }
@@ -1757,7 +1757,7 @@ public:
         for ( int i = 0 ; i < numberOfArcs_ ; i++ )
         {
             Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >  newParametersValues = propagatorSettings_->getSingleArcSettings( ).at( i )->getInitialStates( );
-            Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > arcWiseParametersValues = arcWiseParametersToEstimate_.at( i )->template getFullParameterValues< double >( );
+            Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > arcWiseParametersValues = arcWiseParametersToEstimate_.at( i )->template getFullParameterValues< StateScalarType >( );
             Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > newArcWiseParametersValues = arcWiseParametersValues;
             newArcWiseParametersValues.segment( 0, newParametersValues.size( ) ) = newParametersValues;
             arcWiseParametersToEstimate_.at( i )->template resetParameterValues( newArcWiseParametersValues );
@@ -1917,7 +1917,7 @@ private:
         // Create stare transition matrix interface if needed, reset otherwise.
         if( stateTransitionInterface_ == nullptr )
         {
-            stateTransitionInterface_ = std::make_shared< MultiArcCombinedStateTransitionAndSensitivityMatrixInterface >(
+            stateTransitionInterface_ = std::make_shared< MultiArcCombinedStateTransitionAndSensitivityMatrixInterface< StateScalarType > >(
                         stateTransitionMatrixInterpolators, sensitivityMatrixInterpolators,
                         dynamicsSimulator_->getArcStartTimes( ),
                         arcEndTimes_,
@@ -1927,7 +1927,7 @@ private:
         }
         else
         {
-            std::dynamic_pointer_cast< MultiArcCombinedStateTransitionAndSensitivityMatrixInterface >(
+            std::dynamic_pointer_cast< MultiArcCombinedStateTransitionAndSensitivityMatrixInterface< StateScalarType > >(
                         stateTransitionInterface_ )->updateMatrixInterpolators(
                         stateTransitionMatrixInterpolators, sensitivityMatrixInterpolators,
                         dynamicsSimulator_->getArcStartTimes( ), arcEndTimes_, getArcWiseStatePartialAdditionIndices( ) );
@@ -2271,16 +2271,16 @@ public:
                 throw std::runtime_error( "Error when making hybrid state transition/sensitivity interface, single-arc input is nullptr" );
             }
 
-            if( std::dynamic_pointer_cast< MultiArcCombinedStateTransitionAndSensitivityMatrixInterface >(
+            if( std::dynamic_pointer_cast< MultiArcCombinedStateTransitionAndSensitivityMatrixInterface< StateScalarType > >(
                         multiArcSolver_->getStateTransitionMatrixInterface( ) ) == nullptr )
             {
                 throw std::runtime_error( "Error when making hybrid state transition/sensitivity interface, multi-arc input is nullptr" );
             }
 
-            stateTransitionInterface_ = std::make_shared< HybridArcCombinedStateTransitionAndSensitivityMatrixInterface >(
+            stateTransitionInterface_ = std::make_shared< HybridArcCombinedStateTransitionAndSensitivityMatrixInterface< StateScalarType > >(
                         std::dynamic_pointer_cast< SingleArcCombinedStateTransitionAndSensitivityMatrixInterface >(
                             singleArcSolver_->getStateTransitionMatrixInterface( ) ),
-                        std::dynamic_pointer_cast< MultiArcCombinedStateTransitionAndSensitivityMatrixInterface >(
+                        std::dynamic_pointer_cast< MultiArcCombinedStateTransitionAndSensitivityMatrixInterface< StateScalarType > >(
                             multiArcSolver_->getStateTransitionMatrixInterface( ) ) );
         }
     }
@@ -2356,7 +2356,7 @@ public:
                 propagatorSettings_->getMultiArcPropagatorSettings( )->getInitialStates( );
 //        std::cout << "totalMultiArcInitialState size: " << totalMultiArcInitialState.size( ) << "\n\n";
 
-        Eigen::VectorXd newInitialStatesOriginalPropagatorSettings = originalPopagatorSettings_->getInitialStates( );
+        Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > newInitialStatesOriginalPropagatorSettings = originalPopagatorSettings_->getInitialStates( );
 
         unsigned int counterFullArcWiseIndex = 0;
         unsigned int counterOriginalArcWiseIndex = 0;
@@ -2365,7 +2365,8 @@ public:
 //            std::cout << "counter arc-wise index: " << counterFullArcWiseIndex << "\n\n";
 //            std::cout << "counter total arc-wise index: " << counterOriginalArcWiseIndex << "\n\n";
 //            std::cout << "multi-arc dynamic size: " << originalMultiArcDynamicsSingleArcSize_.at( i ) << "\n\n";
-            totalMultiArcInitialState.segment( counterFullArcWiseIndex, singleArcDynamicsSize_ ) = TUDAT_NAN * Eigen::VectorXd::Ones( singleArcDynamicsSize_ );
+            totalMultiArcInitialState.segment( counterFullArcWiseIndex, singleArcDynamicsSize_ ) =
+                    TUDAT_NAN * Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Ones( singleArcDynamicsSize_ );
             totalMultiArcInitialState.segment(
                     counterFullArcWiseIndex /*i * multiArcDynamicsSingleArcSize_.at( i )*/ + singleArcDynamicsSize_,
                     originalMultiArcDynamicsSingleArcSize_.at( i ) ) =
@@ -2389,8 +2390,8 @@ public:
 //            std::cout << "arc " << i << "\n\n";
 //            std::cout << "test original multi-arc solver parameters before reset: " << originalMultiArcSolver_->getArcWiseParametersToEstimate( ).at( i )
 //            ->template getFullParameterValues< double >( ).transpose( ) << "\n\n";
-            Eigen::VectorXd newParametersValues = originalPopagatorSettings_->getMultiArcPropagatorSettings( )->getSingleArcSettings( ).at( i )->getInitialStates( );
-            Eigen::VectorXd newArcWiseParametersValues = originalMultiArcSolver_->getArcWiseParametersToEstimate( ).at( i )->template getFullParameterValues< double >( );
+            Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > newParametersValues = originalPopagatorSettings_->getMultiArcPropagatorSettings( )->getSingleArcSettings( ).at( i )->getInitialStates( );
+            Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > newArcWiseParametersValues = originalMultiArcSolver_->getArcWiseParametersToEstimate( ).at( i )->template getFullParameterValues< StateScalarType >( );
             newArcWiseParametersValues.segment( 0, newParametersValues.size( ) ) = newParametersValues;
             originalMultiArcSolver_->getArcWiseParametersToEstimate( ).at( i )->template resetParameterValues( newArcWiseParametersValues );
 //            std::cout << "test original multi-arc solver parameters after reset: " << originalMultiArcSolver_->getArcWiseParametersToEstimate( ).at( i )
@@ -2398,8 +2399,8 @@ public:
 
 //            std::cout << "test multi-arc solver parameters before reset: " << multiArcSolver_->getArcWiseParametersToEstimate( ).at( i )
 //                    ->template getFullParameterValues< double >( ).transpose( ) << "\n\n";
-            Eigen::VectorXd newFullParametersValues = propagatorSettings_->getMultiArcPropagatorSettings( )->getSingleArcSettings( ).at( i )->getInitialStates( );
-            Eigen::VectorXd newFullArcWiseParametersValues = multiArcSolver_->getArcWiseParametersToEstimate( ).at( i )->template getFullParameterValues< double >( );
+            Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > newFullParametersValues = propagatorSettings_->getMultiArcPropagatorSettings( )->getSingleArcSettings( ).at( i )->getInitialStates( );
+            Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > newFullArcWiseParametersValues = multiArcSolver_->getArcWiseParametersToEstimate( ).at( i )->template getFullParameterValues< StateScalarType >( );
             newFullArcWiseParametersValues.segment( 0, newFullParametersValues.size( ) ) = newFullParametersValues;
             multiArcSolver_->getArcWiseParametersToEstimate( ).at( i )->template resetParameterValues( newFullArcWiseParametersValues );
 //            std::cout << "test multi-arc solver parameters after reset: " << multiArcSolver_->getArcWiseParametersToEstimate( ).at( i )

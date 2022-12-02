@@ -134,7 +134,7 @@ BOOST_AUTO_TEST_CASE( test_PointingAnglesCalculator )
 
             BOOST_CHECK_CLOSE_FRACTION( pointingAngles.second, testAzimuth, 1.0E-5 );
             BOOST_CHECK_CLOSE_FRACTION( pointingAngles.first, testElevation, 3.0E-2 );
-        }        
+        }
     }
 
     // Check if inertial->topocentric rotation is handled consistently

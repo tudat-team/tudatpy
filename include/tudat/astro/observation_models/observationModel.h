@@ -197,10 +197,10 @@ std::shared_ptr< ObservationAncilliarySimulationSettings< TimeType > > getDefaul
     switch( observableType )
     {
     case observation_models::one_way_differenced_range:
-        ancilliarySettings = getAveragedDopplerAncilliarySettings( 60.0 );
+        ancilliarySettings = getAveragedDopplerAncilliarySettings< TimeType >( 60.0 );
         break;
     case observation_models::n_way_differenced_range:
-        ancilliarySettings = getAveragedDopplerAncilliarySettings( 60.0 );
+        ancilliarySettings = getAveragedDopplerAncilliarySettings< TimeType >( 60.0 );
         break;
     default:
         break;

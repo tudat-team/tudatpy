@@ -155,7 +155,7 @@ std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterfa
     else if( std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ) != nullptr )
     {
         return  std::make_shared<
-                propagators::MultiArcCombinedStateTransitionAndSensitivityMatrixInterface >(
+                propagators::MultiArcCombinedStateTransitionAndSensitivityMatrixInterface< StateScalarType > >(
                     std::vector< std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > >( ),
                     std::vector< std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > >( ),
                     std::vector< double >( ),
