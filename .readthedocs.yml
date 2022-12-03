@@ -13,12 +13,11 @@ sphinx:
 
 # Optionally set the version of Python and requirements required to build your docs
 python:
-  version: 3.7
-  install:
-    - requirements: docs/requirements.txt
   os: "ubuntu-20.04"
   tools:
     python: "mambaforge-4.10"
-
+  install:
+    - requirements: docs/requirements.txt
+	
 conda:
   environment: docs/environment_readthedocs.yaml
