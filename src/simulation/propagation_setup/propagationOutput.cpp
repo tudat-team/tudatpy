@@ -441,6 +441,21 @@ int getDependentVariableSize(
         }
         break;
     }
+    case gravity_field_potential_dependent_variable:
+        variableSize = 1;
+        break;
+    case gravity_field_laplacian_of_potential_dependent_variable:
+        variableSize = 1;
+        break;
+    case total_acceleration_partial_wrt_body_translational_state:
+        variableSize = 18;
+        break;
+    case minimum_constellation_distance:
+        variableSize = 2;
+        break;
+    case minimum_constellation_ground_station_distance:
+        variableSize = 3;
+        break;
     default:
         std::string errorMessage = "Error, did not recognize dependent variable size of type: " +
                 std::to_string( dependentVariableSettings->dependentVariableType_ );
@@ -471,23 +486,68 @@ bool isScalarDependentVariable(
 
 }
 
-template std::pair< std::function< Eigen::VectorXd( ) >, std::map< int, std::string > > createDependentVariableListFunction< double, double >(
-        const std::shared_ptr< DependentVariableSaveSettings > saveSettings,
-        const simulation_setup::SystemOfBodies& bodies,
-        const std::unordered_map< IntegratedStateType,
-        std::vector< std::shared_ptr< SingleStateTypeDerivative< double, double > > > >& stateDerivativeModels );
+Eigen::VectorXd getConstellationMinimumDistance(
+    const std::function< Eigen::Vector3d( ) >& mainBodyPositionFunction,
+    const std::vector< std::function< Eigen::Vector3d( ) > >& bodiesToCheckPositionFunctions )
+{
+    Eigen::VectorXd minimumDistanceValueAndIndex = Eigen::Vector2d::Zero( );
+    minimumDistanceValueAndIndex( 0 ) = std::numeric_limits< double >::infinity( );
+    minimumDistanceValueAndIndex( 1 ) = static_cast< double >( -1 );
+    Eigen::Vector3d mainBodyPosition = mainBodyPositionFunction( );
+    for( unsigned int i = 0; i < bodiesToCheckPositionFunctions.size( ); i++ )
+    {
+        double currentDistance = ( mainBodyPosition - bodiesToCheckPositionFunctions.at( i )( ) ).norm( );
+        if( currentDistance < minimumDistanceValueAndIndex( 0 ) )
+        {
+            minimumDistanceValueAndIndex( 0 ) = currentDistance;
+            minimumDistanceValueAndIndex( 1 ) = static_cast< double >( i );
+        }
+    }
+    if( minimumDistanceValueAndIndex( 0 ) == std::numeric_limits< double >::infinity( ) )
+    {
+        minimumDistanceValueAndIndex( 0 ) = TUDAT_NAN;
+    }
+    return minimumDistanceValueAndIndex;
+}
 
-//template std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariableFunction< double, double >(
-//        const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings,
-//        const simulation_setup::SystemOfBodies& bodies,
-//        const std::unordered_map< IntegratedStateType,
-//        std::vector< std::shared_ptr< SingleStateTypeDerivative< double, double > > > >& stateDerivativeModels );
+Eigen::VectorXd getConstellationMinimumVisibleDistance(
+    const std::function< Eigen::Vector3d( ) >& mainBodyPositionFunction,
+    const std::vector< std::function< Eigen::Vector3d( ) > >& bodiesToCheckPositionFunctions,
+    const std::shared_ptr< ground_stations::PointingAnglesCalculator > stationPointingAngleCalculator,
+    const double limitAngle,
+    const double time )
+{
+    Eigen::VectorXd minimumDistanceValueAndIndex = Eigen::Vector3d::Zero( );
+    minimumDistanceValueAndIndex( 0 ) = std::numeric_limits< double >::infinity( );
+    minimumDistanceValueAndIndex( 1 ) = static_cast< double >( -1 );
+    minimumDistanceValueAndIndex( 2 ) = TUDAT_NAN;
 
-//template std::function< double( ) > getDoubleDependentVariableFunction< double, double >(
-//        const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings,
-//        const simulation_setup::SystemOfBodies& bodies,
-//        const std::unordered_map< IntegratedStateType,
-//        std::vector< std::shared_ptr< SingleStateTypeDerivative< double, double > > > >& stateDerivativeModels );
+    Eigen::Vector3d mainBodyPosition = mainBodyPositionFunction( );
+    for( unsigned int i = 0; i < bodiesToCheckPositionFunctions.size( ); i++ )
+    {
+        Eigen::Vector3d vectorToTarget = bodiesToCheckPositionFunctions.at( i )( ) - mainBodyPosition;
+        double currentElevationAngle = stationPointingAngleCalculator->calculateElevationAngle( vectorToTarget, time );
+        if( currentElevationAngle > limitAngle )
+        {
+            double currentDistance = vectorToTarget.norm( );
+            if( currentDistance < minimumDistanceValueAndIndex( 0 ) )
+            {
+                minimumDistanceValueAndIndex( 0 ) = currentDistance;
+                minimumDistanceValueAndIndex( 1 ) = static_cast< double >( i );
+                minimumDistanceValueAndIndex( 2 ) = currentElevationAngle;
+            }
+        }
+    }
+
+    if( minimumDistanceValueAndIndex( 0 ) == std::numeric_limits< double >::infinity( ) )
+    {
+        minimumDistanceValueAndIndex( 0 ) = TUDAT_NAN;
+    }
+    return minimumDistanceValueAndIndex;
+}
+
+
+
 
 } // namespace propagators
 

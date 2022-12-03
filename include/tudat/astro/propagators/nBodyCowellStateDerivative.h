@@ -105,12 +105,6 @@ public:
 
 extern template class NBodyCowellStateDerivative< double, double >;
 
-#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
-extern template class NBodyCowellStateDerivative< long double, double >;
-extern template class NBodyCowellStateDerivative< double, Time >;
-extern template class NBodyCowellStateDerivative< long double, Time >;
-#endif
-
 } // namespace propagators
 
 } // namespace tudat

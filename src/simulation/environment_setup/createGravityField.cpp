@@ -15,6 +15,7 @@
 #include "tudat/astro/gravitation/triAxialEllipsoidGravity.h"
 #include "tudat/simulation/environment_setup/createGravityField.h"
 #include "tudat/io/basicInputOutput.h"
+#include "tudat/astro/basic_astro/polyhedronFuntions.h"
 
 namespace tudat
 {
@@ -420,6 +421,69 @@ std::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
         }
         break;
     }
+    case polyhedron:
+    {
+        // Check whether settings for polyhedron gravity field model are consistent with its type.
+        std::shared_ptr< PolyhedronGravityFieldSettings > polyhedronFieldSettings =
+                std::dynamic_pointer_cast< PolyhedronGravityFieldSettings >( gravityFieldSettings );
+
+        if( polyhedronFieldSettings == nullptr )
+        {
+            throw std::runtime_error(
+                "Error, expected polyhedron settings when making gravity field model for body " + body);
+        }
+        else if( gravityFieldVariationSettings.size( ) != 0 )
+        {
+            throw std::runtime_error( "Error, requested polyhedron gravity field, but field variations settings are not empty." );
+        }
+        else
+        {
+            std::function< void( ) > inertiaTensorUpdateFunction;
+            if( bodies.count( body ) == 0 )
+            {
+                inertiaTensorUpdateFunction = std::function< void( ) >( );
+            }
+            else
+            {
+                inertiaTensorUpdateFunction =
+                    std::bind( &Body::setBodyInertiaTensorFromGravityFieldAndExistingDensity, bodies.at( body ) );
+                if( !std::isnan( polyhedronFieldSettings->getDensity( ) ) )
+                {
+                    bodies.at( body )->setBodyInertiaTensor( basic_astrodynamics::computePolyhedronInertiaTensor(
+                            polyhedronFieldSettings->getVerticesCoordinates( ),
+                            polyhedronFieldSettings->getVerticesDefiningEachFacet( ),
+                            polyhedronFieldSettings->getDensity( ) )
+                    );
+
+                }
+            }
+
+            std::string associatedReferenceFrame = polyhedronFieldSettings->getAssociatedReferenceFrame( );
+            if( associatedReferenceFrame == "" )
+            {
+                std::shared_ptr< ephemerides::RotationalEphemeris> rotationalEphemeris =
+                        bodies.at( body )->getRotationalEphemeris( );
+                if( rotationalEphemeris == nullptr )
+                {
+                    throw std::runtime_error( "Error when creating polyhedron gravity field for body " + body +
+                                              ", neither a frame ID nor a rotational model for the body have been defined" );
+                }
+                else
+                {
+                    associatedReferenceFrame = rotationalEphemeris->getTargetFrameOrientation( );
+                }
+            }
+
+            // Create and initialize polyhedron gravity field model.
+            gravityFieldModel = std::make_shared< PolyhedronGravityField >(
+                    polyhedronFieldSettings->getGravitationalParameter(),
+                    polyhedronFieldSettings->getVerticesCoordinates(),
+                    polyhedronFieldSettings->getVerticesDefiningEachFacet(),
+                    associatedReferenceFrame,
+                    inertiaTensorUpdateFunction );
+        }
+        break;
+    }
     default:
         throw std::runtime_error(
                     "Error, did not recognize gravity field model settings type " +
@@ -434,11 +498,32 @@ std::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
 std::shared_ptr< SphericalHarmonicsGravityFieldSettings > createHomogeneousTriAxialEllipsoidGravitySettings(
         const double axisA, const double axisB, const double axisC, const double ellipsoidDensity,
         const int maximumDegree, const int maximumOrder,
-        const std::string& associatedReferenceFrame  )
+        const std::string& associatedReferenceFrame,
+        const double gravitationalConstant)
 {
     // Compute reference quantities
     double ellipsoidGravitationalParameter = gravitation::calculateTriAxialEllipsoidVolume(
-                axisA, axisB, axisC ) * ellipsoidDensity * physical_constants::GRAVITATIONAL_CONSTANT;
+                axisA, axisB, axisC ) * ellipsoidDensity * gravitationalConstant;
+    double ellipsoidReferenceRadius = gravitation::calculateTriAxialEllipsoidReferenceRadius(
+                axisA, axisB, axisC );
+
+    // Compute coefficients
+    std::pair< Eigen::MatrixXd, Eigen::MatrixXd > coefficients =
+            gravitation::createTriAxialEllipsoidNormalizedSphericalHarmonicCoefficients(
+                axisA, axisB, axisC, maximumDegree, maximumOrder );
+
+    return std::make_shared< SphericalHarmonicsGravityFieldSettings >(
+                ellipsoidGravitationalParameter, ellipsoidReferenceRadius, coefficients.first,
+                coefficients.second, associatedReferenceFrame );
+}
+
+//! Function to create gravity field settings for a homogeneous triaxial ellipsoid
+std::shared_ptr< SphericalHarmonicsGravityFieldSettings > createHomogeneousTriAxialEllipsoidGravitySettings(
+        const double axisA, const double axisB, const double axisC,
+        const int maximumDegree, const int maximumOrder,
+        const std::string& associatedReferenceFrame, const double ellipsoidGravitationalParameter )
+{
+    // Compute reference quantities
     double ellipsoidReferenceRadius = gravitation::calculateTriAxialEllipsoidReferenceRadius(
                 axisA, axisB, axisC );
 

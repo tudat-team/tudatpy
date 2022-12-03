@@ -145,6 +145,7 @@ Eigen::Quaterniond calculateRotationFromItrsToGcrs(
         const TimeType ut1, const double xPolePosition, const double yPolePosition, const double tioLocator )
 {
     double currentEra = sofa_interface::calculateEarthRotationAngleTemplated< TimeType >( ut1 );
+
     return  calculateRotationFromCirsToGcrs( celestialPoleXPosition, celestialPoleYPosition, cioLocator ) *
             calculateRotationFromTirsToCirs( currentEra ) *
             calculateRotationFromItrsToTirs( xPolePosition, yPolePosition, tioLocator );

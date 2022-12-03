@@ -117,7 +117,7 @@ std::vector< std::string > > createEnvironmentUpdaterSettingsForDependentVariabl
  */
 std::map< propagators::EnvironmentModelsToUpdate,
 std::vector< std::string > > createEnvironmentUpdaterSettings(
-        const std::shared_ptr< DependentVariableSaveSettings > dependentVariableSaveSettings,
+        const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >& dependentVariableList,
         const simulation_setup::SystemOfBodies& bodies );
 
 //! Create environment update settings for termination settings
@@ -142,10 +142,10 @@ std::vector< std::string > > createEnvironmentUpdaterSettings(
 * \param isPartOfMultiTypePropagation Boolean denoting whether propagation uses multiple types of dynamics
 * \return List of updates required when propagating dynamics defined by propagatorSettings.
 */
-template< typename StateScalarType >
+template< typename StateScalarType, typename TimeType >
 std::map< propagators::EnvironmentModelsToUpdate,
 std::vector< std::string > > createEnvironmentUpdaterSettings(
-        const std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > propagatorSettings,
+        const std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > propagatorSettings,
         const simulation_setup::SystemOfBodies& bodies,
         const bool isPartOfMultiTypePropagation = false )
 {
@@ -158,24 +158,21 @@ std::vector< std::string > > createEnvironmentUpdaterSettings(
     case hybrid:
     {
         // Cast to derived type
-        std::shared_ptr< MultiTypePropagatorSettings< StateScalarType > > multiTypePropagatorSettings =
-                std::dynamic_pointer_cast< MultiTypePropagatorSettings< StateScalarType > >( propagatorSettings );
+        std::shared_ptr< MultiTypePropagatorSettings< StateScalarType, TimeType > > multiTypePropagatorSettings =
+                std::dynamic_pointer_cast< MultiTypePropagatorSettings< StateScalarType, TimeType > >( propagatorSettings );
 
         // Iterate over all propagation settings in hybrid model
         std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > singleAccelerationUpdateNeeds;
 
-        for( typename std::map< IntegratedStateType,
-             std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > >::const_iterator
-             typeIterator = multiTypePropagatorSettings->propagatorSettingsMap_.begin( );
-             typeIterator != multiTypePropagatorSettings->propagatorSettingsMap_.end( ); typeIterator++ )
+        for( auto typeIterator : multiTypePropagatorSettings->propagatorSettingsMap_ )
         {
-            for( unsigned int i = 0; i < typeIterator->second.size( ); i++ )
+            for( unsigned int i = 0; i < typeIterator.second.size( ); i++ )
             {
                 // Create current propagation model from settings list (must not be hybrid).
-                if( typeIterator->first != hybrid )
+                if( typeIterator.first != hybrid )
                 {
-                    singleAccelerationUpdateNeeds = createEnvironmentUpdaterSettings< StateScalarType >(
-                                typeIterator->second.at( i ), bodies, true );
+                    singleAccelerationUpdateNeeds = createEnvironmentUpdaterSettings< StateScalarType, TimeType >(
+                                typeIterator.second.at( i ), bodies, true );
 
                     // Add single model environment model update settings to full list
                     addEnvironmentUpdates( environmentModelsToUpdate, singleAccelerationUpdateNeeds );
@@ -194,7 +191,7 @@ std::vector< std::string > > createEnvironmentUpdaterSettings(
     {
         environmentModelsToUpdate = createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                     std::dynamic_pointer_cast<
-                    TranslationalStatePropagatorSettings< StateScalarType > >(
+                    TranslationalStatePropagatorSettings< StateScalarType, TimeType > >(
                         propagatorSettings )->getAccelerationsMap( ),
                     bodies );
         break;
@@ -202,7 +199,7 @@ std::vector< std::string > > createEnvironmentUpdaterSettings(
     case rotational_state:
     {
         environmentModelsToUpdate = createRotationalEquationsOfMotionEnvironmentUpdaterSettings(
-                    std::dynamic_pointer_cast< RotationalStatePropagatorSettings< StateScalarType > >( propagatorSettings )->getTorqueModelsMap( ),
+                    std::dynamic_pointer_cast< RotationalStatePropagatorSettings< StateScalarType, TimeType > >( propagatorSettings )->getTorqueModelsMap( ),
                     bodies );
         break;
     }
@@ -211,7 +208,7 @@ std::vector< std::string > > createEnvironmentUpdaterSettings(
     {
         environmentModelsToUpdate = createMassPropagationEnvironmentUpdaterSettings(
                     std::dynamic_pointer_cast<
-                    MassPropagatorSettings< StateScalarType > >(
+                    MassPropagatorSettings< StateScalarType, TimeType > >(
                         propagatorSettings )->getMassRateModelsMap( ), bodies );
         break;
     }
@@ -273,7 +270,7 @@ std::vector< std::string > > createFullEnvironmentUpdaterSettings(
 template< typename StateScalarType, typename TimeType >
 std::shared_ptr< propagators::EnvironmentUpdater< StateScalarType, TimeType > >
 createEnvironmentUpdaterForDynamicalEquations(
-        const std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > propagatorSettings,
+        const std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > propagatorSettings,
         const simulation_setup::SystemOfBodies& bodies )
 {
     // Create environment update settings.
@@ -290,30 +287,6 @@ createEnvironmentUpdaterForDynamicalEquations(
                 bodies, environmentModelsToUpdate, integratedTypeAndBodyList );
 }
 
-extern template std::shared_ptr< propagators::EnvironmentUpdater< double, double > > createEnvironmentUpdaterForDynamicalEquations< double, double >(
-        const std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings,
-        const simulation_setup::SystemOfBodies& bodies );
-
-extern template std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > createEnvironmentUpdaterSettings< double >(
-        const std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings,
-        const simulation_setup::SystemOfBodies& bodies,
-        const bool isPartOfMultiTypePropagation );
-
-#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
-extern template std::shared_ptr< propagators::EnvironmentUpdater< double, Time > > createEnvironmentUpdaterForDynamicalEquations< double, Time >(
-        const std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings,
-        const simulation_setup::SystemOfBodies& bodies );
-extern template std::shared_ptr< propagators::EnvironmentUpdater< long double, double > > createEnvironmentUpdaterForDynamicalEquations< long double, double >(
-        const std::shared_ptr< SingleArcPropagatorSettings< long double > > propagatorSettings,
-        const simulation_setup::SystemOfBodies& bodies );
-extern template std::shared_ptr< propagators::EnvironmentUpdater< long double, Time > > createEnvironmentUpdaterForDynamicalEquations< long double, Time >(
-        const std::shared_ptr< SingleArcPropagatorSettings< long double > > propagatorSettings,
-        const simulation_setup::SystemOfBodies& bodies );
-extern template std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > createEnvironmentUpdaterSettings< long double >(
-        const std::shared_ptr< SingleArcPropagatorSettings< long double > > propagatorSettings,
-        const simulation_setup::SystemOfBodies& bodies,
-        const bool isPartOfMultiTypePropagation );
-#endif
 } // namespace propagators
 
 } // namespace tudat

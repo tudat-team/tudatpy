@@ -263,11 +263,6 @@ std::shared_ptr< RotationalEphemeris > getTabulatedRotationalEphemeris(
 
 extern template class TabulatedRotationalEphemeris< double, double >;
 
-#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
-extern template class TabulatedRotationalEphemeris< long double, double >;
-extern template class TabulatedRotationalEphemeris< double, Time >;
-extern template class TabulatedRotationalEphemeris< long double, Time >;
-#endif
 
 bool isTabulatedRotationalEphemeris( const std::shared_ptr< RotationalEphemeris > rotationalEphemeris );
 

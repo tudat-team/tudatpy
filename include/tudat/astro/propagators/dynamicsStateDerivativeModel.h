@@ -191,6 +191,7 @@ public:
                         time, std::unordered_map<
                         IntegratedStateType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >( ),
                         integratedStatesFromEnvironment_ );
+
         }
 
         if( evaluateVariationalEquations_ )
@@ -545,6 +546,11 @@ public:
         return conventionalStateTypeStartIndex_;
     }
 
+    std::vector< IntegratedStateType > getIntegratedStateTypes( )
+    {
+        return utilities::createVectorFromMapKeys( conventionalStateTypeStartIndex_ );
+    }
+
     //! Function to retrieve number of calls to the computeStateDerivative function
     /*!
      * Function to retrieve number of calls to the computeStateDerivative function since object creation/last call to
@@ -729,13 +735,6 @@ private:
 };
 
 extern template class DynamicsStateDerivativeModel< double, double >;
-
-#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
-extern template class DynamicsStateDerivativeModel< Time, double >;
-extern template class DynamicsStateDerivativeModel< double, long double >;
-extern template class DynamicsStateDerivativeModel< Time, long double >;
-#endif
-
 
 //! Function to retrieve a single given acceleration model from a list of models
 /*!
@@ -1034,8 +1033,7 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > getAccelerationPar
         const orbit_determination::StateDerivativePartialsMap& accelerationPartials,
         const basic_astrodynamics::AvailableAcceleration accelerationType,
         const std::string& bodyExertingAcceleration,
-        const std::string& bodyUndergoignAcceleration,
-        const std::string& centralBody = "" );
+        const std::string& bodyUndergoignAcceleration );
 #endif
 
 template< typename TimeType = double, typename StateScalarType = double,
