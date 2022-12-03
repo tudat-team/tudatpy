@@ -26,30 +26,6 @@ namespace tudat
 namespace propagators
 {
 
-template< typename StateScalarType >
-void VariationalEquations::getBodyInitialStatePartialMatrix(
-        const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& stateTransitionAndSensitivityMatrices,
-        Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > > currentMatrixDerivative )
-{
-    setBodyStatePartialMatrix( );
-
-    // Add partials of body positions and velocities.
-    currentMatrixDerivative.block( 0, 0, totalDynamicalStateSize_, numberOfParameterValues_ ) =
-            ( variationalMatrix_.template cast< StateScalarType >( ) * stateTransitionAndSensitivityMatrices );
-
-    if( couplingEntriesToSuppress_ > 0 )
-    {
-        int numberOfStaticParameters = numberOfParameterValues_ - totalDynamicalStateSize_;
-        int numberOfUncoupledEntries = totalDynamicalStateSize_ - couplingEntriesToSuppress_;
-
-        currentMatrixDerivative.block( couplingEntriesToSuppress_, totalDynamicalStateSize_, numberOfUncoupledEntries, numberOfStaticParameters ) =
-                variationalMatrix_.template cast< StateScalarType >( ).block(
-                    couplingEntriesToSuppress_, couplingEntriesToSuppress_,
-                    numberOfUncoupledEntries, numberOfUncoupledEntries ) *
-                stateTransitionAndSensitivityMatrices.block(
-                    couplingEntriesToSuppress_, totalDynamicalStateSize_, numberOfUncoupledEntries, numberOfStaticParameters );
-    }
-}
 
 //! Calculates matrix containing partial derivatives of state derivatives w.r.t. body state.
 void VariationalEquations::setBodyStatePartialMatrix( )
@@ -192,16 +168,6 @@ void VariationalEquations::setStatePartialFunctionList( )
     }
 }
 
-
-template void VariationalEquations::getBodyInitialStatePartialMatrix< double >(
-const Eigen::Matrix< double, Eigen::Dynamic, Eigen::Dynamic >& stateTransitionAndSensitivityMatrices,
-Eigen::Block< Eigen::Matrix< double, Eigen::Dynamic, Eigen::Dynamic > > currentMatrixDerivative );
-
-//#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
-template void VariationalEquations::getBodyInitialStatePartialMatrix< long double >(
-const Eigen::Matrix< long double, Eigen::Dynamic, Eigen::Dynamic >& stateTransitionAndSensitivityMatrices,
-Eigen::Block< Eigen::Matrix< long double, Eigen::Dynamic, Eigen::Dynamic > > currentMatrixDerivative );
-//#endif
 
 } // namespace propagators
 

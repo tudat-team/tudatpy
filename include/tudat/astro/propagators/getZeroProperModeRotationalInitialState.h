@@ -134,7 +134,7 @@ template< typename TimeType, typename StateScalarType >
 Eigen::VectorXd getZeroProperModeRotationalState(
         const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
-        const std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > propagatorSettings,
+        const std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > propagatorSettings,
         const double bodyMeanRotationRate,
         const std::vector< double > dissipationTimes,
         std::vector< std::pair< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >,
@@ -152,20 +152,20 @@ Eigen::VectorXd getZeroProperModeRotationalState(
     basic_astrodynamics::TorqueModelMap torqueModelMap;
 
     // Find rotational propagator settings
-    std::shared_ptr< RotationalStatePropagatorSettings< StateScalarType > > rotationPropagationSettings_ =
-            std::dynamic_pointer_cast< RotationalStatePropagatorSettings< StateScalarType > >(
+    std::shared_ptr< RotationalStatePropagatorSettings< StateScalarType, TimeType > > rotationPropagationSettings_ =
+            std::dynamic_pointer_cast< RotationalStatePropagatorSettings< StateScalarType, TimeType > >(
                 propagatorSettings );
     TimeType originalInitialTime = rotationPropagationSettings_->getInitialTime( );
 
     if( rotationPropagationSettings_ == nullptr )
     {
         // Retrieve rotational propagator settings from multi-type settings
-        std::shared_ptr< MultiTypePropagatorSettings< StateScalarType > > multiTypePropagatorSettings =
-                std::dynamic_pointer_cast< MultiTypePropagatorSettings< StateScalarType > >( propagatorSettings );
+        std::shared_ptr< MultiTypePropagatorSettings< StateScalarType, TimeType > > multiTypePropagatorSettings =
+                std::dynamic_pointer_cast< MultiTypePropagatorSettings< StateScalarType, TimeType > >( propagatorSettings );
         if( multiTypePropagatorSettings != nullptr )
         {
             // Retrieve rotational propagator settings
-            std::map< IntegratedStateType, std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > >
+            std::map< IntegratedStateType, std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > > >
                     propagatorSettingsMap = multiTypePropagatorSettings->propagatorSettingsMap_;
             if( propagatorSettingsMap.count( rotational_state ) == 0 )
             {
@@ -177,7 +177,7 @@ Eigen::VectorXd getZeroProperModeRotationalState(
             }
             else
             {
-                rotationPropagationSettings_ = std::dynamic_pointer_cast< RotationalStatePropagatorSettings< StateScalarType > >(
+                rotationPropagationSettings_ = std::dynamic_pointer_cast< RotationalStatePropagatorSettings< StateScalarType, TimeType > >(
                             propagatorSettingsMap.at( rotational_state ).at( 0 ) );
             }
         }
@@ -308,7 +308,7 @@ std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > >
 > getZeroProperModeRotationalState(
         const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
-        const std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > propagatorSettings,
+        const std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > propagatorSettings,
         const double bodyMeanRotationRate,
         const std::vector< double > dissipationTimes,
         const bool propagateNominal = true )
@@ -345,7 +345,7 @@ template< typename TimeType = double, typename StateScalarType = double >
 Eigen::VectorXd getZeroProperModeRotationalState(
         const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
-        const std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > propagatorSettings,
+        const std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > propagatorSettings,
         const double bodyMeanRotationRate,
         const std::vector< double > dissipationTimes )
         //const bool propagateNominal = true )

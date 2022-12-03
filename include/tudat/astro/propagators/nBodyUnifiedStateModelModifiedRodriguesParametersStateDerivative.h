@@ -289,13 +289,6 @@ private:
 
 extern template class NBodyUnifiedStateModelModifiedRodriguesParametersStateDerivative< double, double >;
 
-#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
-extern template class NBodyUnifiedStateModelModifiedRodriguesParametersStateDerivative< long double, double >;
-extern template class NBodyUnifiedStateModelModifiedRodriguesParametersStateDerivative< double, Time >;
-extern template class NBodyUnifiedStateModelModifiedRodriguesParametersStateDerivative< long double, Time >;
-#endif
-
-
 } // namespace propagators
 
 } // namespace tudat

@@ -75,7 +75,7 @@ BOOST_AUTO_TEST_CASE( testEarthOrientationRotationSetupAgainstSofa )
     double ut1FractionOfDay = 0.499999165813831;
 
     double ut1 = ( ut1JulianDay - basic_astrodynamics::JULIAN_DAY_ON_J2000 + ut1FractionOfDay ) * physical_constants::JULIAN_DAY;
-    Time ut1Long = tudat::Time( ( ut1JulianDay - basic_astrodynamics::JULIAN_DAY_ON_J2000 ) * 24,
+    Time ut1Long = tudat::Time( ( ut1JulianDay - basic_astrodynamics::JULIAN_DAY_ON_J2000 ) * 24 * 3600 / TIME_NORMALIZATION_INTEGER_TERM,
                                 ut1FractionOfDay * physical_constants::JULIAN_DAY_LONG );
 
     // Compute TIRS->CIRS rotation matrix in Tudat
@@ -158,14 +158,15 @@ BOOST_AUTO_TEST_CASE( testEarthOrientationAngleFunctionsAgainstSofa )
 
     double terrestrialTimeDaysSinceMjd0 = terrestrialTimeFullDaysSinceMjd0 + terrestrialTimeDayFractionsSinceMjd0;
     double terrestrialTimeSecondsSinceJ2000Inaccruate = ( terrestrialTimeDaysSinceMjd0 -
-                                                ( basic_astrodynamics::JULIAN_DAY_ON_J2000 -
-                                                  basic_astrodynamics::JULIAN_DAY_AT_0_MJD ) ) * physical_constants::JULIAN_DAY;
+                                                          ( basic_astrodynamics::JULIAN_DAY_ON_J2000 -
+                                                            basic_astrodynamics::JULIAN_DAY_AT_0_MJD ) ) * physical_constants::JULIAN_DAY;
 
     double ut1JulianDay = 2454195.5;
     double ut1FractionOfDay = 0.499999165813831;
 
-    Time ut1TimeSecondsSinceJ2000 = tudat::Time( ( ut1JulianDay - basic_astrodynamics::JULIAN_DAY_ON_J2000 ) * 24,
-                                                        ut1FractionOfDay * physical_constants::JULIAN_DAY_LONG );
+    Time ut1TimeSecondsSinceJ2000 = tudat::Time(
+                ( ut1JulianDay - basic_astrodynamics::JULIAN_DAY_ON_J2000 ) * 24 * 3600 / TIME_NORMALIZATION_INTEGER_TERM,
+                ut1FractionOfDay * physical_constants::JULIAN_DAY_LONG );
 
     // Set SOFA values
     double sofaXValue = 0.0007122647295989105;
