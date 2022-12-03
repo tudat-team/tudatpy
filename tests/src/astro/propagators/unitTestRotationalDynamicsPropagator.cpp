@@ -744,10 +744,6 @@ BOOST_AUTO_TEST_CASE( testRotationalAndTranslationalDynamicsPropagation )
                                 total_torque_dependent_variable, "Apollo" ) );
             }
 
-            // Create object with list of dependent variables
-            std::shared_ptr< DependentVariableSaveSettings > dependentVariablesToSave =
-                    std::make_shared< DependentVariableSaveSettings >( dependentVariablesList );
-
             // Define termination conditions
             std::shared_ptr< PropagationTerminationSettings > terminationSettings =
                     std::make_shared< PropagationTimeTerminationSettings >( 250.0 );
@@ -770,7 +766,7 @@ BOOST_AUTO_TEST_CASE( testRotationalAndTranslationalDynamicsPropagation )
 
             std::shared_ptr< PropagatorSettings< double > > propagatorSettings =
                     std::make_shared< MultiTypePropagatorSettings< double > >(
-                        propagatorSettingsList, terminationSettings, dependentVariablesToSave );
+                        propagatorSettingsList, terminationSettings, dependentVariablesList );
 
 
             // Create integrator settings for rotation.

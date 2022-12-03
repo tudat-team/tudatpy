@@ -119,7 +119,7 @@ std::pair< std::shared_ptr< PodOutput< StateScalarType, TimeType > >, Eigen::Vec
     parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Moon", gravitational_parameter ) );
 
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate =
-            createParametersToEstimate< StateScalarType >( parameterNames, bodies );
+            createParametersToEstimate< StateScalarType, TimeType >( parameterNames, bodies );
 
 
     // Define integrator settings.
@@ -128,12 +128,12 @@ std::pair< std::shared_ptr< PodOutput< StateScalarType, TimeType > >, Eigen::Vec
                 rungeKutta4, TimeType( initialEphemerisTime - 4.0 * maximumTimeStep ), 900.0 );
 
 
-    std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > propagatorSettings =
-            std::make_shared< TranslationalStatePropagatorSettings< StateScalarType > >
+    std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType, TimeType > > propagatorSettings =
+            std::make_shared< TranslationalStatePropagatorSettings< StateScalarType, TimeType > >
             ( centralBodies, accelerationModelMap, bodiesToIntegrate,
               getInitialStateVectorOfBodiesToEstimate( parametersToEstimate ),
               TimeType( finalEphemerisTime + 4.0 * maximumTimeStep ),
-              cowell, std::shared_ptr< DependentVariableSaveSettings >( ) );
+              cowell );
 
 
     // Define link ends
@@ -213,13 +213,13 @@ std::pair< std::shared_ptr< PodOutput< StateScalarType, TimeType > >, Eigen::Vec
     if( observableType == 0 )
     {
         measurementSimulationInput.push_back(
-                    std::make_shared< TabulatedObservationSimulationSettings< > >(
+                    std::make_shared< TabulatedObservationSimulationSettings< TimeType > >(
                         position_observable, linkEnds, initialObservationTimes, observed_body ) );
     }
     else if( observableType == 5 )
     {
         measurementSimulationInput.push_back(
-                    std::make_shared< TabulatedObservationSimulationSettings< > >(
+                    std::make_shared< TabulatedObservationSimulationSettings< TimeType > >(
                         velocity_observable, linkEnds, initialObservationTimes, observed_body ) );
     }
     else
@@ -227,37 +227,38 @@ std::pair< std::shared_ptr< PodOutput< StateScalarType, TimeType > >, Eigen::Vec
         if( observableType == 1 )
         {
             measurementSimulationInput.push_back(
-                        std::make_shared< TabulatedObservationSimulationSettings< > >(
+                        std::make_shared< TabulatedObservationSimulationSettings< TimeType > >(
                             one_way_range, linkEnds, initialObservationTimes, transmitter ) );
         }
         else if( observableType == 2 )
         {
             measurementSimulationInput.push_back(
-                        std::make_shared< TabulatedObservationSimulationSettings< > >(
+                        std::make_shared< TabulatedObservationSimulationSettings< TimeType > >(
                             angular_position, linkEnds, initialObservationTimes, transmitter ) );
         }
         else if( observableType == 3 )
         {
             measurementSimulationInput.push_back(
-                        std::make_shared< TabulatedObservationSimulationSettings< > >(
+                        std::make_shared< TabulatedObservationSimulationSettings< TimeType > >(
                             one_way_doppler, linkEnds, initialObservationTimes, transmitter ) );
         }
         else if( observableType == 4 )
         {
             measurementSimulationInput.push_back(
-                        std::make_shared< TabulatedObservationSimulationSettings< > >(
+                        std::make_shared< TabulatedObservationSimulationSettings< TimeType > >(
                             one_way_range, linkEnds, initialObservationTimes, transmitter ) );
             measurementSimulationInput.push_back(
-                        std::make_shared< TabulatedObservationSimulationSettings< > >(
+                        std::make_shared< TabulatedObservationSimulationSettings< TimeType > >(
                             angular_position, linkEnds, initialObservationTimes, transmitter ) );
             measurementSimulationInput.push_back(
-                        std::make_shared< TabulatedObservationSimulationSettings< > >(
+                        std::make_shared< TabulatedObservationSimulationSettings< TimeType > >(
                             one_way_doppler, linkEnds, initialObservationTimes, transmitter ) );
         }
     }
 
     // Simulate observations
-    std::shared_ptr< ObservationCollection< StateScalarType, TimeType > > simulatedObservations = simulateObservations< StateScalarType, TimeType >(
+    std::shared_ptr< ObservationCollection< StateScalarType, TimeType > > simulatedObservations =
+            simulateObservations< StateScalarType, TimeType >(
                 measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
     // Perturb parameter estimate
@@ -308,25 +309,6 @@ extern template std::pair< std::shared_ptr< PodOutput< double > >, Eigen::Vector
         Eigen::VectorXd parameterPerturbation,
         Eigen::MatrixXd inverseAPrioriCovariance,
         const double weight );
-
-#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
-extern template std::pair< std::shared_ptr< PodOutput< long double > >, Eigen::VectorXd > executePlanetaryParameterEstimation< double, long double >(
-        const int observableType,
-        Eigen::VectorXd parameterPerturbation,
-        Eigen::MatrixXd inverseAPrioriCovariance,
-        const double weight );
-extern template std::pair< std::shared_ptr< PodOutput< double, Time > >, Eigen::VectorXd > executePlanetaryParameterEstimation< Time, double >(
-        const int observableType ,
-        Eigen::VectorXd parameterPerturbation,
-        Eigen::MatrixXd inverseAPrioriCovariance,
-        const double weight );
-extern template std::pair< std::shared_ptr< PodOutput< long double, Time > >, Eigen::VectorXd > executePlanetaryParameterEstimation< Time, long double >(
-        const int observableType,
-        Eigen::VectorXd parameterPerturbation,
-        Eigen::MatrixXd inverseAPrioriCovariance,
-        const double weight );
-#endif
-
 
 template< typename TimeType = double, typename StateScalarType = double >
 Eigen::VectorXd executeEarthOrbiterParameterEstimation(
@@ -450,8 +432,8 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation(
                 asterixInitialStateInKeplerianElements, earthGravitationalParameter );
 
     // Create propagator settings
-    std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > propagatorSettings =
-            std::make_shared< TranslationalStatePropagatorSettings< StateScalarType > >
+    std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType, TimeType > > propagatorSettings =
+            std::make_shared< TranslationalStatePropagatorSettings< StateScalarType, TimeType > >
             ( centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState,
               TimeType( finalEphemerisTime ), cowell );
 
@@ -520,7 +502,7 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation(
 
     // Create parameters
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate =
-            createParametersToEstimate( parameterNames, bodies );
+            createParametersToEstimate< StateScalarType, TimeType >( parameterNames, bodies );
 
     printEstimatableParameterEntries( parametersToEstimate );
 
@@ -738,8 +720,8 @@ std::pair< Eigen::VectorXd, bool > executeEarthOrbiterBiasEstimation(
                 asterixInitialStateInKeplerianElements, earthGravitationalParameter );
 
     // Create propagator settings
-    std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > propagatorSettings =
-            std::make_shared< TranslationalStatePropagatorSettings< StateScalarType > >
+    std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType, TimeType > > propagatorSettings =
+            std::make_shared< TranslationalStatePropagatorSettings< StateScalarType, TimeType > >
             ( centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState,
               TimeType( finalEphemerisTime ), cowell );
 
@@ -1028,7 +1010,7 @@ std::pair< Eigen::VectorXd, bool > executeEarthOrbiterBiasEstimation(
 
     // Create parameters
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate =
-            createParametersToEstimate( parameterNames, bodies );
+            createParametersToEstimate< StateScalarType, TimeType >( parameterNames, bodies );
 
     printEstimatableParameterEntries( parametersToEstimate );
 

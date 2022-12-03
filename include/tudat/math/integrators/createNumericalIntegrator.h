@@ -66,14 +66,22 @@ public:
      *  conditions should be evaluated during the intermediate sub-steps of the integrator (`true`) or only at the end of
      *  each integration step (`false`).
      */
-    IntegratorSettings( const AvailableIntegrators integratorType, const IndependentVariableType initialTime,
+    IntegratorSettings( const AvailableIntegrators integratorType,
+                        const IndependentVariableType initialTime,
                         const IndependentVariableType initialTimeStep,
                         const int saveFrequency = 1,
                         const bool assessTerminationOnMinorSteps = false ) :
-        integratorType_( integratorType ), initialTime_( initialTime ),
+        integratorType_( integratorType ), initialTimeDeprecated_( initialTime ),
         initialTimeStep_( initialTimeStep ), saveFrequency_( saveFrequency ),
         assessTerminationOnMinorSteps_( assessTerminationOnMinorSteps )
     { }
+
+    virtual std::shared_ptr< IntegratorSettings > clone( ) const
+    {
+        return std::make_shared< IntegratorSettings >(
+                    integratorType_, initialTimeDeprecated_, initialTimeStep_, saveFrequency_, assessTerminationOnMinorSteps_ );
+    }
+
     
     // Virtual destructor.
     /*
@@ -91,7 +99,7 @@ public:
     /*
      *  Start time (independent variable) of numerical integration.
      */
-    IndependentVariableType initialTime_;
+    IndependentVariableType initialTimeDeprecated_;
 
     // Initial time step used in numerical integration
     /*
@@ -155,6 +163,12 @@ public:
             coefficientSet_(coefficientSet),
             orderToUse_(orderToUse)
     { }
+
+    virtual std::shared_ptr< IntegratorSettings< IndependentVariableType > > clone( ) const
+    {
+        return std::make_shared< RungeKuttaFixedStepSizeSettings< IndependentVariableType > >(
+                    this->initialTimeDeprecated_, this->initialTimeStep_, coefficientSet_, orderToUse_, this->saveFrequency_, this->assessTerminationOnMinorSteps_ );
+    }
 
     // Virtual destructor.
     /*
@@ -221,6 +235,15 @@ public:
         minimumFactorDecreaseForNextStepSize_( minimumFactorDecreaseForNextStepSize ),
         exceptionIfMinimumStepExceeded_( exceptionIfMinimumStepExceeded )
     { }
+
+    virtual std::shared_ptr< IntegratorSettings< IndependentVariableType > > clone( ) const
+    {
+        return std::make_shared< RungeKuttaVariableStepSizeBaseSettings< IndependentVariableType> >(
+                    areTolerancesDefinedAsScalar_, this->initialTimeDeprecated_, this->initialTimeStep_, coefficientSet_,
+                    minimumStepSize_, maximumStepSize_, this->saveFrequency_, this->assessTerminationOnMinorSteps_,
+                    safetyFactorForNextStepSize_, maximumFactorIncreaseForNextStepSize_, minimumFactorDecreaseForNextStepSize_,
+                    exceptionIfMinimumStepExceeded_ );
+    }
 
     // Virtual destructor.
     /*
@@ -305,6 +328,15 @@ public:
         relativeErrorTolerance_( relativeErrorTolerance ), absoluteErrorTolerance_( absoluteErrorTolerance )
     { }
 
+    virtual std::shared_ptr< IntegratorSettings< IndependentVariableType > > clone( ) const
+    {
+        return std::make_shared< RungeKuttaVariableStepSizeSettingsScalarTolerances< IndependentVariableType> >(
+                    this->initialTimeDeprecated_, this->initialTimeStep_, this->coefficientSet_,
+                    this->minimumStepSize_, this->maximumStepSize_, relativeErrorTolerance_, absoluteErrorTolerance_,
+                    this->saveFrequency_, this->assessTerminationOnMinorSteps_,
+                    this->safetyFactorForNextStepSize_, this->maximumFactorIncreaseForNextStepSize_, this->minimumFactorDecreaseForNextStepSize_,
+                    this->exceptionIfMinimumStepExceeded_ );
+    }
     // Constructor.
     /*
      *  Constructor for variable step RK integrator settings with scalar tolerances (also requires the input of the integratorType,
@@ -431,6 +463,16 @@ public:
         relativeErrorTolerance_( relativeErrorTolerance ), absoluteErrorTolerance_( absoluteErrorTolerance )
     { }
 
+    virtual std::shared_ptr< IntegratorSettings< IndependentVariableType > > clone( ) const
+    {
+        return std::make_shared< RungeKuttaVariableStepSizeSettingsVectorTolerances< IndependentVariableType> >(
+                    this->initialTimeDeprecated_, this->initialTimeStep_, this->coefficientSet_,
+                    this->minimumStepSize_, this->maximumStepSize_, relativeErrorTolerance_, absoluteErrorTolerance_,
+                    this->saveFrequency_, this->assessTerminationOnMinorSteps_,
+                    this->safetyFactorForNextStepSize_, this->maximumFactorIncreaseForNextStepSize_, this->minimumFactorDecreaseForNextStepSize_,
+                    this->exceptionIfMinimumStepExceeded_ );
+    }
+
     // Destructor.
     /*
      *  Destructor.
@@ -494,6 +536,15 @@ public:
         safetyFactorForNextStepSize_( safetyFactorForNextStepSize ),
         maximumFactorIncreaseForNextStepSize_( maximumFactorIncreaseForNextStepSize ),
         minimumFactorDecreaseForNextStepSize_( minimumFactorDecreaseForNextStepSize ){ }
+
+    virtual std::shared_ptr< IntegratorSettings< IndependentVariableType > > clone( ) const
+    {
+        return std::make_shared< BulirschStoerIntegratorSettings< IndependentVariableType> >(
+                    this->initialTimeDeprecated_, this->initialTimeStep_, extrapolationSequence_, maximumNumberOfSteps_,
+                    this->minimumStepSize_, this->maximumStepSize_, relativeErrorTolerance_, absoluteErrorTolerance_,
+                    this->saveFrequency_, this->assessTerminationOnMinorSteps_,
+                    this->safetyFactorForNextStepSize_, this->maximumFactorIncreaseForNextStepSize_, this->minimumFactorDecreaseForNextStepSize_ );
+    }
 
     // Destructor.
     /*
@@ -583,6 +634,15 @@ public:
         minimumOrder_( minimumOrder ), maximumOrder_( maximumOrder ),
         bandwidth_( bandwidth ) { }
 
+    virtual std::shared_ptr< IntegratorSettings< IndependentVariableType > > clone( ) const
+    {
+        return std::make_shared< AdamsBashforthMoultonSettings< IndependentVariableType> >(
+                    this->initialTimeDeprecated_, this->initialTimeStep_,
+                    this->minimumStepSize_, this->maximumStepSize_, relativeErrorTolerance_, absoluteErrorTolerance_,
+                    minimumOrder_, maximumOrder_,
+                    this->saveFrequency_, this->assessTerminationOnMinorSteps_, bandwidth_ );
+    }
+
     // Destructor
     /*
      *  Destructor
@@ -616,7 +676,7 @@ public:
 };
 
 template< typename IndependentVariableType = double >
-inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > eulerSettings(
+inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > eulerSettingsDeprecated(
         const IndependentVariableType initialTime,
         const IndependentVariableType initialTimeStep,
         const int saveFrequency = 1,
@@ -627,7 +687,17 @@ inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > eulerSet
 }
 
 template< typename IndependentVariableType = double >
-inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > rungeKutta4Settings(
+inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > eulerSettings(
+        const IndependentVariableType initialTimeStep,
+        const int saveFrequency = 1,
+        const bool assessTerminationOnMinorSteps = false )
+{
+    return std::make_shared< IntegratorSettings< IndependentVariableType > >(
+                euler, TUDAT_NAN, initialTimeStep, saveFrequency, assessTerminationOnMinorSteps );
+}
+
+template< typename IndependentVariableType = double >
+inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > rungeKutta4SettingsDeprecated(
         const IndependentVariableType initialTime,
         const IndependentVariableType initialTimeStep,
         const int saveFrequency = 1,
@@ -638,7 +708,17 @@ inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > rungeKut
 }
 
 template< typename IndependentVariableType = double >
-inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > rungeKuttaFixedStepSettings(
+inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > rungeKutta4Settings(
+        const IndependentVariableType initialTimeStep,
+        const int saveFrequency = 1,
+        const bool assessTerminationOnMinorSteps = false )
+{
+    return std::make_shared< IntegratorSettings< IndependentVariableType > >(
+                rungeKutta4, TUDAT_NAN, initialTimeStep, saveFrequency, assessTerminationOnMinorSteps );
+}
+
+template< typename IndependentVariableType = double >
+inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > rungeKuttaFixedStepSettingsDeprecated(
         const IndependentVariableType initialTime,
         const IndependentVariableType initialTimeStep,
         const numerical_integrators::CoefficientSets coefficientSet,
@@ -651,7 +731,19 @@ inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > rungeKut
 }
 
 template< typename IndependentVariableType = double >
-inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > rungeKuttaVariableStepSettingsScalarTolerances(
+inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > rungeKuttaFixedStepSettings(
+        const IndependentVariableType initialTimeStep,
+        const numerical_integrators::CoefficientSets coefficientSet,
+        const RungeKuttaCoefficients::OrderEstimateToIntegrate orderToUse = RungeKuttaCoefficients::OrderEstimateToIntegrate::lower,
+        const int saveFrequency = 1,
+        const bool assessTerminationOnMinorSteps = false )
+{
+    return std::make_shared< RungeKuttaFixedStepSizeSettings< IndependentVariableType > >(
+                TUDAT_NAN, initialTimeStep, coefficientSet, orderToUse, saveFrequency, assessTerminationOnMinorSteps );
+}
+
+template< typename IndependentVariableType = double >
+inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > rungeKuttaVariableStepSettingsScalarTolerancesDeprecated(
         const IndependentVariableType initialTime,
         const IndependentVariableType initialTimeStep,
         const numerical_integrators::CoefficientSets coefficientSet,
@@ -677,7 +769,33 @@ inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > rungeKut
 }
 
 template< typename IndependentVariableType = double >
-inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > rungeKuttaVariableStepSettingsVectorTolerances(
+inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > rungeKuttaVariableStepSettingsScalarTolerances(
+        const IndependentVariableType initialTimeStep,
+        const numerical_integrators::CoefficientSets coefficientSet,
+        const IndependentVariableType minimumStepSize,
+        const IndependentVariableType maximumStepSize,
+        const IndependentVariableType& relativeErrorTolerance,
+        const IndependentVariableType& absoluteErrorTolerance,
+        const int saveFrequency = 1,
+        const bool assessTerminationOnMinorSteps = false,
+        const IndependentVariableType safetyFactorForNextStepSize = 0.8,
+        const IndependentVariableType maximumFactorIncreaseForNextStepSize = 4.0,
+        const IndependentVariableType minimumFactorDecreaseForNextStepSize = 0.1,
+        const bool exceptionIfMinimumStepExceeded = true )
+{
+    return std::make_shared< RungeKuttaVariableStepSizeSettingsScalarTolerances<
+            IndependentVariableType > >(
+                TUDAT_NAN, initialTimeStep,
+                coefficientSet, minimumStepSize, maximumStepSize,
+                relativeErrorTolerance, absoluteErrorTolerance,
+                saveFrequency, assessTerminationOnMinorSteps, safetyFactorForNextStepSize,
+                maximumFactorIncreaseForNextStepSize, minimumFactorDecreaseForNextStepSize,
+                exceptionIfMinimumStepExceeded );
+}
+
+
+template< typename IndependentVariableType = double >
+inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > rungeKuttaVariableStepSettingsVectorTolerancesDeprecated(
         const IndependentVariableType initialTime,
         const IndependentVariableType initialTimeStep,
         const numerical_integrators::CoefficientSets coefficientSet,
@@ -704,8 +822,36 @@ inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > rungeKut
     return settings;
 }
 
+
 template< typename IndependentVariableType = double >
-inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > bulirschStoerIntegratorSettings(
+inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > rungeKuttaVariableStepSettingsVectorTolerances(
+        const IndependentVariableType initialTimeStep,
+        const numerical_integrators::CoefficientSets coefficientSet,
+        const IndependentVariableType minimumStepSize,
+        const IndependentVariableType maximumStepSize,
+        const Eigen::Matrix< IndependentVariableType, Eigen::Dynamic, Eigen::Dynamic > relativeErrorTolerance,
+        const Eigen::Matrix< IndependentVariableType, Eigen::Dynamic, Eigen::Dynamic > absoluteErrorTolerance,
+        const int saveFrequency = 1,
+        const bool assessTerminationOnMinorSteps = false,
+        const IndependentVariableType safetyFactorForNextStepSize = 0.8,
+        const IndependentVariableType maximumFactorIncreaseForNextStepSize = 4.0,
+        const IndependentVariableType minimumFactorDecreaseForNextStepSize = 0.1,
+        const bool exceptionIfMinimumStepExceeded = true )
+{
+    auto settings = std::make_shared< RungeKuttaVariableStepSizeSettingsVectorTolerances<
+            IndependentVariableType > >(
+                TUDAT_NAN, initialTimeStep,
+                coefficientSet, minimumStepSize, maximumStepSize,
+                relativeErrorTolerance, absoluteErrorTolerance,
+                saveFrequency, assessTerminationOnMinorSteps, safetyFactorForNextStepSize,
+                maximumFactorIncreaseForNextStepSize, minimumFactorDecreaseForNextStepSize,
+                exceptionIfMinimumStepExceeded );
+
+    return settings;
+}
+
+template< typename IndependentVariableType = double >
+inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > bulirschStoerIntegratorSettingsDeprecated(
         const IndependentVariableType initialTime,
         const IndependentVariableType initialTimeStep,
         const ExtrapolationMethodStepSequences extrapolationSequence,
@@ -731,7 +877,32 @@ inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > bulirsch
 }
 
 template< typename IndependentVariableType = double >
-inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > adamsBashforthMoultonSettings(
+inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > bulirschStoerIntegratorSettings(
+        const IndependentVariableType initialTimeStep,
+        const ExtrapolationMethodStepSequences extrapolationSequence,
+        const unsigned int maximumNumberOfSteps,
+        const IndependentVariableType minimumStepSize, const IndependentVariableType maximumStepSize,
+        const IndependentVariableType relativeErrorTolerance = 1.0E-12,
+        const IndependentVariableType absoluteErrorTolerance = 1.0E-12,
+        const int saveFrequency = 1,
+        const bool assessTerminationOnMinorSteps = false,
+        const IndependentVariableType safetyFactorForNextStepSize = 0.7,
+        const IndependentVariableType maximumFactorIncreaseForNextStepSize = 10.0,
+        const IndependentVariableType minimumFactorDecreaseForNextStepSize = 0.1 )
+{
+    return std::make_shared< BulirschStoerIntegratorSettings< IndependentVariableType > >(
+                TUDAT_NAN, initialTimeStep,
+                extrapolationSequence, maximumNumberOfSteps,
+                minimumStepSize, maximumStepSize,
+                relativeErrorTolerance, absoluteErrorTolerance,
+                saveFrequency,  assessTerminationOnMinorSteps,
+                safetyFactorForNextStepSize,
+                maximumFactorIncreaseForNextStepSize,
+                minimumFactorDecreaseForNextStepSize );
+}
+
+template< typename IndependentVariableType = double >
+inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > adamsBashforthMoultonSettingsDeprecated(
         const IndependentVariableType initialTime,
         const IndependentVariableType initialTimeStep,
         const IndependentVariableType minimumStepSize,
@@ -746,6 +917,27 @@ inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > adamsBas
 {
     return std::make_shared< AdamsBashforthMoultonSettings< IndependentVariableType > >(
                 initialTime, initialTimeStep,
+                minimumStepSize, maximumStepSize,
+                relativeErrorTolerance, absoluteErrorTolerance,
+                minimumOrder, maximumOrder,
+                saveFrequency,assessTerminationOnMinorSteps, bandwidth );
+}
+
+template< typename IndependentVariableType = double >
+inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > adamsBashforthMoultonSettings(
+        const IndependentVariableType initialTimeStep,
+        const IndependentVariableType minimumStepSize,
+        const IndependentVariableType maximumStepSize,
+        const IndependentVariableType relativeErrorTolerance = 1.0E-12,
+        const IndependentVariableType absoluteErrorTolerance = 1.0E-12,
+        const int minimumOrder = 6,
+        const int maximumOrder = 11,
+        const int saveFrequency = 1,
+        const bool assessTerminationOnMinorSteps = false,
+        const IndependentVariableType bandwidth = 200. )
+{
+    return std::make_shared< AdamsBashforthMoultonSettings< IndependentVariableType > >(
+                TUDAT_NAN, initialTimeStep,
                 minimumStepSize, maximumStepSize,
                 relativeErrorTolerance, absoluteErrorTolerance,
                 minimumOrder, maximumOrder,
@@ -767,7 +959,8 @@ DependentVariableType, IndependentVariableStepType > > createIntegrator(
         std::function< DependentVariableType(
             const IndependentVariableType, const DependentVariableType& ) > stateDerivativeFunction,
         const DependentVariableType initialState,
-        std::shared_ptr< IntegratorSettings< IndependentVariableType > > integratorSettings )
+        const IndependentVariableType initialTime,
+        const std::shared_ptr< IntegratorSettings< IndependentVariableType > > integratorSettings )
 {
     // Declare eventual output
     std::shared_ptr< NumericalIntegrator
@@ -781,7 +974,7 @@ DependentVariableType, IndependentVariableStepType > > createIntegrator(
         // Create Euler integrator
         integrator = std::make_shared< EulerIntegrator
                 < IndependentVariableType, DependentVariableType, DependentVariableType, IndependentVariableStepType > >
-                ( stateDerivativeFunction, integratorSettings->initialTime_, initialState ) ;
+                ( stateDerivativeFunction, initialTime, initialState ) ;
         break;
     }
     case rungeKutta4:
@@ -789,7 +982,7 @@ DependentVariableType, IndependentVariableStepType > > createIntegrator(
         // Create Runge-Kutta 4 integrator
         integrator = std::make_shared< RungeKutta4Integrator
                 < IndependentVariableType, DependentVariableType, DependentVariableType, IndependentVariableStepType > >
-                ( stateDerivativeFunction, integratorSettings->initialTime_, initialState ) ;
+                ( stateDerivativeFunction, initialTime, initialState ) ;
         break;
     }
     case rungeKuttaFixedStepSize:
@@ -802,7 +995,7 @@ DependentVariableType, IndependentVariableStepType > > createIntegrator(
         // Create Runge-Kutta fixed step integrator
         integrator = std::make_shared< RungeKuttaFixedStepSizeIntegrator
                 < IndependentVariableType, DependentVariableType, DependentVariableType, IndependentVariableStepType > >
-                ( stateDerivativeFunction, fixedStepIntegratorSettings->initialTime_, initialState, fixedStepIntegratorSettings->coefficientSet_, fixedStepIntegratorSettings->orderToUse_) ;
+                ( stateDerivativeFunction, initialTime, initialState, fixedStepIntegratorSettings->coefficientSet_, fixedStepIntegratorSettings->orderToUse_) ;
         break;
     }
     case rungeKuttaVariableStepSize:
@@ -854,7 +1047,7 @@ DependentVariableType, IndependentVariableStepType > > createIntegrator(
             // Create Runge-Kutta integrator with scalar tolerances
             integrator = std::make_shared< RungeKuttaVariableStepSizeIntegrator
                     < IndependentVariableType, DependentVariableType, DependentVariableType, IndependentVariableStepType > >
-                    ( coefficients, stateDerivativeFunction, integratorSettings->initialTime_, initialState,
+                    ( coefficients, stateDerivativeFunction, initialTime, initialState,
                       static_cast< IndependentVariableStepType >( scalarTolerancesIntegratorSettings->minimumStepSize_ ),
                       static_cast< IndependentVariableStepType >( scalarTolerancesIntegratorSettings->maximumStepSize_ ),
                       static_cast< typename DependentVariableType::Scalar >( scalarTolerancesIntegratorSettings->relativeErrorTolerance_ ),
@@ -898,7 +1091,7 @@ DependentVariableType, IndependentVariableStepType > > createIntegrator(
             // Create Runge-Kutta integrator with vector tolerances
             integrator = std::make_shared< RungeKuttaVariableStepSizeIntegrator
                     < IndependentVariableType, DependentVariableType, DependentVariableType, IndependentVariableStepType > >
-                    ( coefficients, stateDerivativeFunction, integratorSettings->initialTime_, initialState,
+                    ( coefficients, stateDerivativeFunction, initialTime, initialState,
                       static_cast< IndependentVariableStepType >( vectorTolerancesIntegratorSettings->minimumStepSize_ ),
                       static_cast< IndependentVariableStepType >( vectorTolerancesIntegratorSettings->maximumStepSize_ ),
                       relativeErrorTolerance, absoluteErrorTolerance,
@@ -943,7 +1136,7 @@ DependentVariableType, IndependentVariableStepType > > createIntegrator(
                     < IndependentVariableType, DependentVariableType, DependentVariableType, IndependentVariableStepType > >
                     ( getBulirschStoerStepSequence( bulirschStoerIntegratorSettings->extrapolationSequence_,
                                                     bulirschStoerIntegratorSettings->maximumNumberOfSteps_ ),
-                      stateDerivativeFunction, integratorSettings->initialTime_, initialState,
+                      stateDerivativeFunction, initialTime, initialState,
                       static_cast< IndependentVariableStepType >( bulirschStoerIntegratorSettings->minimumStepSize_ ),
                       static_cast< IndependentVariableStepType >( bulirschStoerIntegratorSettings->maximumStepSize_ ),
                       bulirschStoerIntegratorSettings->relativeErrorTolerance_,
@@ -986,7 +1179,7 @@ DependentVariableType, IndependentVariableStepType > > createIntegrator(
             // Create integrator
             integrator = std::make_shared< AdamsBashforthMoultonIntegrator
                     < IndependentVariableType, DependentVariableType, DependentVariableType, IndependentVariableStepType > >
-                    ( stateDerivativeFunction, integratorSettings->initialTime_, initialState,
+                    ( stateDerivativeFunction, initialTime, initialState,
                       static_cast< IndependentVariableStepType >( adamsBashforthMoultonIntegratorSettings->minimumStepSize_ ),
                       static_cast< IndependentVariableStepType >( adamsBashforthMoultonIntegratorSettings->maximumStepSize_ ),
                       adamsBashforthMoultonIntegratorSettings->relativeErrorTolerance_,
@@ -1032,27 +1225,28 @@ DependentVariableType, IndependentVariableStepType > > createIntegrator(
 }
 
 
-extern template std::shared_ptr< numerical_integrators::NumericalIntegrator< double, Eigen::VectorXd,
-                                                                             Eigen::VectorXd, double > > createIntegrator< double, Eigen::VectorXd, double >(
-        std::function< Eigen::VectorXd( const double, const Eigen::VectorXd& ) > stateDerivativeFunction,
-        const Eigen::VectorXd initialState, std::shared_ptr< IntegratorSettings< double > > integratorSettings );
+//extern template std::shared_ptr< numerical_integrators::NumericalIntegrator< double, Eigen::VectorXd,
+//                                                                             Eigen::VectorXd, double > > createIntegrator< double, Eigen::VectorXd, double >(
+//        std::function< Eigen::VectorXd( const double, const Eigen::VectorXd& ) > stateDerivativeFunction,
+//        const Eigen::VectorXd initialState, std::shared_ptr< IntegratorSettings< double > > integratorSettings );
 
-extern template std::shared_ptr< numerical_integrators::NumericalIntegrator< double, Eigen::Matrix< long double, Eigen::Dynamic, 1 >,
-                                                                             Eigen::Matrix< long double, Eigen::Dynamic, 1 >, double > > createIntegrator< double, Eigen::Matrix< long double, Eigen::Dynamic, 1 >, double >(
-        std::function< Eigen::Matrix< long double, Eigen::Dynamic, 1 >(
-            const double, const Eigen::Matrix< long double, Eigen::Dynamic, 1 >& ) > stateDerivativeFunction,
-        const Eigen::Matrix< long double, Eigen::Dynamic, 1 > initialState, std::shared_ptr< IntegratorSettings< double > > integratorSettings );
+//extern template std::shared_ptr< numerical_integrators::NumericalIntegrator< double, Eigen::Matrix< long double, Eigen::Dynamic, 1 >,
+//                                                                             Eigen::Matrix< long double, Eigen::Dynamic, 1 >, double > > createIntegrator< double, Eigen::Matrix< long double, Eigen::Dynamic, 1 >, double >(
+//        std::function< Eigen::Matrix< long double, Eigen::Dynamic, 1 >(
+//            const double, const Eigen::Matrix< long double, Eigen::Dynamic, 1 >& ) > stateDerivativeFunction,
+//        const Eigen::Matrix< long double, Eigen::Dynamic, 1 > initialState, std::shared_ptr< IntegratorSettings< double > > integratorSettings );
 
-extern template std::shared_ptr< numerical_integrators::NumericalIntegrator< Time, Eigen::VectorXd,
-                                                                             Eigen::VectorXd, long double > > createIntegrator< Time, Eigen::VectorXd, long double >(
-        std::function< Eigen::VectorXd( const Time, const Eigen::VectorXd& ) > stateDerivativeFunction,
-        const Eigen::VectorXd initialState, std::shared_ptr< IntegratorSettings< Time > > integratorSettings );
+//extern template std::shared_ptr< numerical_integrators::NumericalIntegrator< Time, Eigen::VectorXd,
+//                                                                             Eigen::VectorXd, long double > > createIntegrator< Time, Eigen::VectorXd, long double >(
+//        std::function< Eigen::VectorXd( const Time, const Eigen::VectorXd& ) > stateDerivativeFunction,
+//        const Eigen::VectorXd initialState, std::shared_ptr< IntegratorSettings< Time > > integratorSettings );
 
-extern template std::shared_ptr< numerical_integrators::NumericalIntegrator< Time, Eigen::Matrix< long double, Eigen::Dynamic, 1 >,
-                                                                             Eigen::Matrix< long double, Eigen::Dynamic, 1 >, long double > > createIntegrator< Time, Eigen::Matrix< long double, Eigen::Dynamic, 1 >, long double >(
-        std::function< Eigen::Matrix< long double, Eigen::Dynamic, 1 >(
-            const Time, const Eigen::Matrix< long double, Eigen::Dynamic, 1 >& ) > stateDerivativeFunction,
-        const Eigen::Matrix< long double, Eigen::Dynamic, 1 > initialState, std::shared_ptr< IntegratorSettings< Time > > integratorSettings );
+//extern template std::shared_ptr< numerical_integrators::NumericalIntegrator< Time, Eigen::Matrix< long double, Eigen::Dynamic, 1 >,
+//                                                                             Eigen::Matrix< long double, Eigen::Dynamic, 1 >, long double > > createIntegrator< Time, Eigen::Matrix< long double, Eigen::Dynamic, 1 >, long double >(
+//        std::function< Eigen::Matrix< long double, Eigen::Dynamic, 1 >(
+//            const Time, const Eigen::Matrix< long double, Eigen::Dynamic, 1 >& ) > stateDerivativeFunction,
+//        const Eigen::Matrix< long double, Eigen::Dynamic, 1 > initialState, std::shared_ptr< IntegratorSettings< Time > > integratorSettings );
+
 } // namespace numerical_integrators
 
 } // namespace tudat

@@ -67,7 +67,7 @@ BOOST_AUTO_TEST_CASE( testOtherConstants )
                                 std::numeric_limits< long double >::epsilon( ) );
 
     // Test for astronomical unit.
-    BOOST_CHECK_CLOSE_FRACTION( ASTRONOMICAL_UNIT, 1.49597870691e11,
+    BOOST_CHECK_CLOSE_FRACTION( ASTRONOMICAL_UNIT, 1.49597870700E11,
                                 std::numeric_limits< double >::epsilon( ) );
 
     // Test for molar gas constant.

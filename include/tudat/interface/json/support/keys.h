@@ -526,7 +526,7 @@ struct Keys
     {
         static const std::string notifyOnPropagationStart;
         static const std::string notifyOnPropagationTermination;
-        static const std::string printInterval;
+        static const std::string statePrintInterval;
         static const std::string defaultValueUsedForMissingKey;
         static const std::string unusedKey;
         static const std::string fullSettingsFile;

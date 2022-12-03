@@ -143,22 +143,23 @@ BOOST_AUTO_TEST_CASE( testEmpiricalAccelerations )
                     std::make_shared< SingleAccelerationDependentVariableSaveSettings >(
                         empirical_acceleration, "Asterix", "Earth", 0 ) );
 
-        // Define propagator settings
-        TranslationalPropagatorType propagatorType = encke;
-        std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
-                std::make_shared< TranslationalStatePropagatorSettings< double > >
-                ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, simulationEndEpoch, propagatorType,
-                  std::make_shared< DependentVariableSaveSettings >( dependentVariables ) );
-
         // Define integrator settings
         std::shared_ptr< IntegratorSettings< > > integratorSettings =
                 std::make_shared< RungeKuttaVariableStepSizeSettings< > >
                 ( 0.0, fixedStepSize,
                   rungeKuttaFehlberg78, 1.0E-4, 3600.0, 1.0E-14, 1.0E-14 );
 
+        // Define propagator settings
+        TranslationalPropagatorType propagatorType = encke;
+        std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
+                std::make_shared< TranslationalStatePropagatorSettings< double > >
+                ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, 0.0, integratorSettings,
+                  std::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ), propagatorType,
+                  dependentVariables );
+
         // Create simulation object and propagate dynamics.
         SingleArcDynamicsSimulator< > dynamicsSimulator(
-                    bodies, integratorSettings, propagatorSettings, true, false, false );
+                    bodies, propagatorSettings );
         std::map< double, Eigen::VectorXd > integrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
         std::map< double, Eigen::VectorXd > dependentVariableResult = dynamicsSimulator.getDependentVariableHistory( );
 

@@ -537,11 +537,11 @@ public:
 
     InitialMassEstimatableParameterSettings(
             const std::string& associatedBody,
-            const double initialStateValue ):
+            const InitialStateParameterType initialStateValue ):
         EstimatableParameterSettings( associatedBody, initial_mass_state ),
         initialStateValue_( initialStateValue ){ }
 
-    double initialStateValue_;
+    InitialStateParameterType initialStateValue_;
 };
 
 

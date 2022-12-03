@@ -27,7 +27,7 @@ public:
         : RotationalEphemeris( baseFrameOrientation, targetFrameOrientation ),
           targetToBaseFrameOrientationFunction_( targetToBaseFrameOrientationFunction ),
           numericalDerivativeTimeStep_( numericalDerivativeTimeStep )
-    { std::cout<<"Is null"<<(targetToBaseFrameOrientationFunction_ == nullptr )<<std::endl;}
+    { }
 
     //! Virtual destructor.
     /*!
@@ -38,15 +38,12 @@ public:
     virtual Eigen::Quaterniond getRotationToBaseFrame(
             const double secondsSinceEpoch )
     {
-        std::cout<<"Get rotation to base"<<std::endl;
-
-        return targetToBaseFrameOrientationFunction_( secondsSinceEpoch );
+            return targetToBaseFrameOrientationFunction_( secondsSinceEpoch );
     }
 
     virtual Eigen::Quaterniond getRotationToTargetFrame(
             const double secondsSinceEpoch )
     {
-        std::cout<<"Get rotation to target"<<std::endl;
         return getRotationToBaseFrame( secondsSinceEpoch ).inverse( );
     }
 

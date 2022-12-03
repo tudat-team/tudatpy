@@ -1,4 +1,4 @@
-/* git    Copyright (c) 2010-2019, Delft University of Technology
+/*    Copyright (c) 2010-2019, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -57,7 +57,7 @@ BOOST_AUTO_TEST_SUITE( test_variational_equation_calculation )
 
 
 template< typename TimeType = double , typename StateScalarType  = double >
-        std::pair< std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > >,
+std::pair< std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > >,
 std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > >
 executeMultiArcEarthMoonSimulation(
         const std::vector< std::string > centralBodies,
@@ -182,26 +182,26 @@ executeMultiArcEarthMoonSimulation(
     {
         propagatorType = encke;
     }
-    std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > propagatorSettingsList;
+    std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > > propagatorSettingsList;
 
     for( unsigned int i = 0; i < arcStartTimes.size( ); i++ )
     {
-        propagatorSettingsList.push_back( std::make_shared< TranslationalStatePropagatorSettings< StateScalarType > >
+        propagatorSettingsList.push_back( std::make_shared< TranslationalStatePropagatorSettings< StateScalarType, TimeType > >
                                           ( centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialStates.at( i ),
                                             arcEndTimes.at( i ), propagatorType ) );
     }
-    std::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > multiArcPropagatorSettings;
+    std::shared_ptr< MultiArcPropagatorSettings< StateScalarType, TimeType > > multiArcPropagatorSettings;
 
     if( patchArcsTogether && forcedArcInitialStates.size( ) == 0 )
     {
         multiArcPropagatorSettings =
-                std::make_shared< MultiArcPropagatorSettings< StateScalarType > >(
+                std::make_shared< MultiArcPropagatorSettings< StateScalarType, TimeType > >(
                     propagatorSettingsList, patchArcsTogether );
     }
     else
     {
         multiArcPropagatorSettings =
-                std::make_shared< MultiArcPropagatorSettings< StateScalarType > >(
+                std::make_shared< MultiArcPropagatorSettings< StateScalarType, TimeType > >(
                     propagatorSettingsList );
     }
 
@@ -218,7 +218,7 @@ executeMultiArcEarthMoonSimulation(
 
     // Create parameters
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate =
-            createParametersToEstimate( parameterNames, bodies );
+            createParametersToEstimate< double, double >( parameterNames, bodies );
 
     // Perturb parameters.
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > parameterVector =
@@ -264,10 +264,10 @@ executeMultiArcEarthMoonSimulation(
                 results.second.push_back( multiArcPropagatorSettings->getInitialStateList( ).at( arc ) );
                 Eigen::MatrixXd testMatrixDirect =
                         variationalEquations.getStateTransitionMatrixInterface( )->
-                          getCombinedStateTransitionAndSensitivityMatrix( testEpoch );
+                        getCombinedStateTransitionAndSensitivityMatrix( testEpoch );
                 Eigen::MatrixXd testMatrixFull=
                         variationalEquations.getStateTransitionMatrixInterface( )->
-                          getFullCombinedStateTransitionAndSensitivityMatrix( testEpoch );
+                        getFullCombinedStateTransitionAndSensitivityMatrix( testEpoch );
 
                 TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                             testMatrixDirect.block( 0, 0, 12, 12 ),
@@ -287,6 +287,7 @@ executeMultiArcEarthMoonSimulation(
     }
     return results;
 }
+
 
 BOOST_AUTO_TEST_CASE( testEarthMoonMultiArcVariationalEquationCalculation )
 {

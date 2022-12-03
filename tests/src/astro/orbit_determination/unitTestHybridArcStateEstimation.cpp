@@ -35,6 +35,7 @@ namespace unit_tests
 BOOST_AUTO_TEST_SUITE( test_hybrid_arc_state_estimation )
 
 //Using declarations.
+using namespace tudat;
 using namespace tudat::observation_models;
 using namespace tudat::orbit_determination;
 using namespace tudat::estimatable_parameters;
@@ -238,7 +239,7 @@ Eigen::VectorXd  executeParameterEstimation(
     parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Sun", gravitational_parameter ) );
     parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Mars", gravitational_parameter ) );
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate =
-            createParametersToEstimate< StateScalarType >( parameterNames, bodies );
+            createParametersToEstimate< StateScalarType, TimeType >( parameterNames, bodies );
 
 
     // Define links and observables in simulation.

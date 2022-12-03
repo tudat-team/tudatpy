@@ -398,8 +398,7 @@ void resetMultiArcIntegratedEphemerides(
         std::vector< std::shared_ptr< Ephemeris > > arcEphemerisList;
         for( unsigned int j = 0; j < arcStartTimes.size( ); j++ )
         {
-            std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) >
-                    integrationToEphemerisFrameFunction = nullptr;
+            std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > integrationToEphemerisFrameFunction = nullptr;
             
             // Create transformation function, if needed.
             if( integrationToEphemerisFrameFunctions.count( bodiesToIntegrate.at( bodyIndex ) ) > 0 )
@@ -924,11 +923,10 @@ void checkTranslationalStatesFeasibility(
         const simulation_setup::SystemOfBodies& bodies,
         const bool setIntegratedResult = false );
 
-template< typename StateScalarType >
+template< typename StateScalarType, typename TimeType >
 void checkPropagatedStatesFeasibility(
-        const std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > propagatorSettings,
-        const simulation_setup::SystemOfBodies& bodies,
-        const bool setIntegratedResult = false )
+        const std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > propagatorSettings,
+        const simulation_setup::SystemOfBodies& bodies )
 {
     // Check dynamics type.
     switch( propagatorSettings->getStateType( ) )
@@ -936,25 +934,22 @@ void checkPropagatedStatesFeasibility(
     case hybrid:
     {
         // Check input consistency
-        std::shared_ptr< MultiTypePropagatorSettings< StateScalarType > > multiTypePropagatorSettings =
-                std::dynamic_pointer_cast< MultiTypePropagatorSettings< StateScalarType > >( propagatorSettings );
+        std::shared_ptr< MultiTypePropagatorSettings< StateScalarType, TimeType > > multiTypePropagatorSettings =
+                std::dynamic_pointer_cast< MultiTypePropagatorSettings< StateScalarType, TimeType > >( propagatorSettings );
         if( multiTypePropagatorSettings == nullptr )
         {
             throw std::runtime_error( "Error, multi-type propagator settings are inconsistent when make state processors" );
         }
 
         // Iterate over each propagated state type
-        for( typename std::map< IntegratedStateType,
-             std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > >::const_iterator
-             typeIterator = multiTypePropagatorSettings->propagatorSettingsMap_.begin( );
-             typeIterator != multiTypePropagatorSettings->propagatorSettingsMap_.end( ); typeIterator++ )
+        for( auto typeIterator :  multiTypePropagatorSettings->propagatorSettingsMap_ )
         {
             // Multi-type in multi-type not allowed (yet)
-            if( typeIterator->first != hybrid )
+            if( typeIterator.first != hybrid )
             {
-                for( unsigned int i = 0; i < typeIterator->second.size( ); i++ )
+                for( unsigned int i = 0; i < typeIterator.second.size( ); i++ )
                 {
-                    if(  typeIterator->second.at( i ) == nullptr )
+                    if(  typeIterator.second.at( i ) == nullptr )
                     {
                         std::string errorMessage = "Error in when processing hybrid propagator settings, propagator entry " +
                                 std::to_string( i ) + " is not defined.";
@@ -962,7 +957,7 @@ void checkPropagatedStatesFeasibility(
                     }
 
                     //  Create state processor
-                    checkPropagatedStatesFeasibility( typeIterator->second.at( i ), bodies, setIntegratedResult );
+                    checkPropagatedStatesFeasibility( typeIterator.second.at( i ), bodies );
                 }
             }
             else
@@ -976,37 +971,38 @@ void checkPropagatedStatesFeasibility(
     case translational_state:
     {
         // Check input feasibility
-        std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > >
+        std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType, TimeType > >
                 translationalPropagatorSettings = std::dynamic_pointer_cast
-                < TranslationalStatePropagatorSettings< StateScalarType > >( propagatorSettings );
+                < TranslationalStatePropagatorSettings< StateScalarType, TimeType > >( propagatorSettings );
         if( translationalPropagatorSettings == nullptr )
         {
             throw std::runtime_error( "Error, input type for translational dynamics is inconsistent when checking dynamics feasibility" );
         }
         checkTranslationalStatesFeasibility(
                     translationalPropagatorSettings->bodiesToIntegrate_,
-                    translationalPropagatorSettings->centralBodies_, bodies, setIntegratedResult );
+                    translationalPropagatorSettings->centralBodies_, bodies,
+                    translationalPropagatorSettings->getOutputSettings( )->getSetIntegratedResult( ) );
         break;
     }
     case rotational_state:
     {
-        std::shared_ptr< RotationalStatePropagatorSettings< StateScalarType > > rotationalPropagatorSettings =
-                std::dynamic_pointer_cast< RotationalStatePropagatorSettings< StateScalarType > >( propagatorSettings );
+        std::shared_ptr< RotationalStatePropagatorSettings< StateScalarType, TimeType > > rotationalPropagatorSettings =
+                std::dynamic_pointer_cast< RotationalStatePropagatorSettings< StateScalarType, TimeType > >( propagatorSettings );
         if( rotationalPropagatorSettings == nullptr )
         {
             throw std::runtime_error( "Error, input type for rotational dynamics is inconsistent when checking dynamics feasibility" );
         }
         checkRotationalStatesFeasibility(
                     rotationalPropagatorSettings->bodiesToIntegrate_,
-                    bodies, setIntegratedResult );
+                    bodies, rotationalPropagatorSettings->getOutputSettings( )->getSetIntegratedResult( ) );
         break;
     }
     case body_mass_state:
     {
         // Check input feasibility
-        std::shared_ptr< MassPropagatorSettings< StateScalarType > >
+        std::shared_ptr< MassPropagatorSettings< StateScalarType, TimeType > >
                 massPropagatorSettings = std::dynamic_pointer_cast
-                < MassPropagatorSettings< StateScalarType > >( propagatorSettings );
+                < MassPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings );
         if( massPropagatorSettings == nullptr )
         {
             throw std::runtime_error( "Error, input type for mass dynamics is inconsistent when checking dynamics feasibility" );
@@ -1050,7 +1046,7 @@ template< typename TimeType, typename StateScalarType >
 std::map< IntegratedStateType,
 std::vector< std::shared_ptr< IntegratedStateProcessor< TimeType, StateScalarType > > > >
 createIntegratedStateProcessors(
-        const std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > propagatorSettings,
+        const std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > propagatorSettings,
         const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< ephemerides::ReferenceFrameManager > frameManager,
         const int startIndex = 0 )
@@ -1064,8 +1060,8 @@ createIntegratedStateProcessors(
     case hybrid:
     {
         // Check input consistency
-        std::shared_ptr< MultiTypePropagatorSettings< StateScalarType > > multiTypePropagatorSettings =
-                std::dynamic_pointer_cast< MultiTypePropagatorSettings< StateScalarType > >( propagatorSettings );
+        std::shared_ptr< MultiTypePropagatorSettings< StateScalarType, TimeType > > multiTypePropagatorSettings =
+                std::dynamic_pointer_cast< MultiTypePropagatorSettings< StateScalarType, TimeType > >( propagatorSettings );
         if( multiTypePropagatorSettings == nullptr )
         {
             throw std::runtime_error( "Error, multi-type propagator settings are inconsistent when make state processors" );
@@ -1075,17 +1071,15 @@ createIntegratedStateProcessors(
         std::map< IntegratedStateType, std::vector< std::shared_ptr< IntegratedStateProcessor< TimeType, StateScalarType > > > >
                 singleTypeIntegratedStateProcessors;
         int currentStartIndex = 0;
-        for( typename std::map< IntegratedStateType,
-             std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > >::const_iterator
-             typeIterator = multiTypePropagatorSettings->propagatorSettingsMap_.begin( );
-             typeIterator != multiTypePropagatorSettings->propagatorSettingsMap_.end( ); typeIterator++ )
+        std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > currentPropagatorSettings;
+        for( auto typeIterator : multiTypePropagatorSettings->propagatorSettingsMap_ )
         {
             // Multi-type in multi-type not allowed (yet)
-            if( typeIterator->first != hybrid )
+            if( typeIterator.first != hybrid )
             {
-                for( unsigned int i = 0; i < typeIterator->second.size( ); i++ )
+                for( unsigned int i = 0; i < typeIterator.second.size( ); i++ )
                 {
-                    if(  typeIterator->second.at( i ) == nullptr )
+                    if(  typeIterator.second.at( i ) == nullptr )
                     {
                         std::string errorMessage = "Error in when processing hybrid propagator settings, propagator entry " +
                                 std::to_string( i ) + " is not defined.";
@@ -1093,14 +1087,15 @@ createIntegratedStateProcessors(
                     }
                     
                     //  Create state processor
+                    currentPropagatorSettings = typeIterator.second.at( i );
                     singleTypeIntegratedStateProcessors = createIntegratedStateProcessors< TimeType, StateScalarType >(
-                                typeIterator->second.at( i ), bodies, frameManager, currentStartIndex );
+                                currentPropagatorSettings, bodies, frameManager, currentStartIndex );
                     
                     if( singleTypeIntegratedStateProcessors.size( ) > 1 )
                     {
                         throw std::runtime_error( "Error when making hybrid integrated result processors, multiple types found" );
                     }
-                    else if( ( singleTypeIntegratedStateProcessors.size( ) == 0 ) &&  ( typeIterator->first != custom_state ) )
+                    else if( ( singleTypeIntegratedStateProcessors.size( ) == 0 ) &&  ( typeIterator.first != custom_state ) )
                     {
                         throw std::runtime_error( "Error when making hybrid integrated result processors, no types found" );
                     }
@@ -1118,7 +1113,7 @@ createIntegratedStateProcessors(
                         }
                     }
                     
-                    currentStartIndex += typeIterator->second.at( i )->getConventionalStateSize( );
+                    currentStartIndex += typeIterator.second.at( i )->getConventionalStateSize( );
                 }
             }
             else
@@ -1132,9 +1127,9 @@ createIntegratedStateProcessors(
     case translational_state:
     {
         // Check input feasibility
-        std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > >
+        std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType, TimeType > >
                 translationalPropagatorSettings = std::dynamic_pointer_cast
-                < TranslationalStatePropagatorSettings< StateScalarType > >( propagatorSettings );
+                < TranslationalStatePropagatorSettings< StateScalarType, TimeType > >( propagatorSettings );
         if( translationalPropagatorSettings == nullptr )
         {
             throw std::runtime_error( "Error, input type for translational dynamics is inconsistent in createIntegratedStateProcessors" );
@@ -1149,8 +1144,8 @@ createIntegratedStateProcessors(
     }
     case rotational_state:
     {
-        std::shared_ptr< RotationalStatePropagatorSettings< StateScalarType > > rotationalPropagatorSettings =
-                std::dynamic_pointer_cast< RotationalStatePropagatorSettings< StateScalarType > >( propagatorSettings );
+        std::shared_ptr< RotationalStatePropagatorSettings< StateScalarType, TimeType > > rotationalPropagatorSettings =
+                std::dynamic_pointer_cast< RotationalStatePropagatorSettings< StateScalarType, TimeType > >( propagatorSettings );
         if( rotationalPropagatorSettings == nullptr )
         {
             throw std::runtime_error( "Error, input type for rotational dynamics is inconsistent in createIntegratedStateProcessors" );
@@ -1163,9 +1158,9 @@ createIntegratedStateProcessors(
     case body_mass_state:
     {
         // Check input feasibility
-        std::shared_ptr< MassPropagatorSettings< StateScalarType > >
+        std::shared_ptr< MassPropagatorSettings< StateScalarType, TimeType > >
                 massPropagatorSettings = std::dynamic_pointer_cast
-                < MassPropagatorSettings< StateScalarType > >( propagatorSettings );
+                < MassPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings );
         if( massPropagatorSettings == nullptr )
         {
             throw std::runtime_error( "Error, input type is inconsistent in createIntegratedStateProcessors" );

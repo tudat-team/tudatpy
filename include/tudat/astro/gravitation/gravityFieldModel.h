@@ -79,7 +79,7 @@ public:
      * \param bodyFixedPosition Position at which the gravitational potential is to be evaluated.
      * \return Gravitational potential.
      */
-    double getGravitationalPotential( const Eigen::Vector3d& bodyFixedPosition )
+    virtual double getGravitationalPotential( const Eigen::Vector3d& bodyFixedPosition )
     {
         return gravitationalParameter_ / bodyFixedPosition.norm( );
     }
@@ -93,6 +93,17 @@ public:
     virtual Eigen::Vector3d getGradientOfPotential( const Eigen::Vector3d& bodyFixedPosition )
     {
         return computeGravitationalAcceleration( bodyFixedPosition, gravitationalParameter_ );
+    }
+
+    //! Get the gradient of the laplacian of potential.
+    /*!
+     * Returns the laplacian of the gravitational potential for the gravity field selected.
+     * \param bodyFixedPosition Position at which gradient of potential is to be determined.
+     * \return Laplacian of potential.
+     */
+    virtual double getLaplacianOfPotential ( const Eigen::Vector3d& bodyFixedPosition )
+    {
+        throw std::runtime_error( "Computation of Laplacian of gravity potential not implemented for selected gravity field model." );
     }
 
 protected:

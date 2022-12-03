@@ -61,12 +61,6 @@ Eigen::Vector4d calculateExponentialMapDerivative( const Eigen::Vector4d& curren
 
 template class RotationalMotionExponentialMapStateDerivative< double, double >;
 
-#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
-template class RotationalMotionExponentialMapStateDerivative< long double, double >;
-template class RotationalMotionExponentialMapStateDerivative< double, Time >;
-template class RotationalMotionExponentialMapStateDerivative< long double, Time >;
-#endif
-
 } // namespace propagators
 
 } // namespace tudat

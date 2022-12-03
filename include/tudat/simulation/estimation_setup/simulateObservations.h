@@ -81,7 +81,7 @@ std::tuple< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, bool, Eig
         }
         else
         {
-            calculatedObservation += noiseToAdd;
+            calculatedObservation += noiseToAdd.template cast< ObservationScalarType >( );
         }
     }
 
@@ -163,7 +163,8 @@ simulateObservationsWithCheckAndLinkEndIdOutput(
     std::vector< TimeType >,
     std::vector< Eigen::VectorXd > >
             simulatedObservations =
-            simulateObservationsWithCheck( observationTimes, observationModel, referenceLinkEnd, linkViabilityCalculators, noiseFunction, dependentVariableCalculator );
+            simulateObservationsWithCheck< ObservationSize, ObservationScalarType, TimeType >(
+                observationTimes, observationModel, referenceLinkEnd, linkViabilityCalculators, noiseFunction, dependentVariableCalculator );
 
     return std::make_shared< observation_models::SingleObservationSet< ObservationScalarType, TimeType > >(
                 observationModel->getObservableType( ), observationModel->getLinkEnds( ),
