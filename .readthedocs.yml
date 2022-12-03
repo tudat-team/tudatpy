@@ -19,6 +19,6 @@ python:
   os: "ubuntu-20.04"
   tools:
     python: "mambaforge-4.10"
-	
+
 conda:
   environment: docs/environment_readthedocs.yaml	
