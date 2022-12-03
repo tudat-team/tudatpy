@@ -250,11 +250,6 @@ extern template class LinearInterpolator< double, Eigen::VectorXd >;
 extern template class LinearInterpolator< double, Eigen::Vector6d >;
 extern template class LinearInterpolator< double, Eigen::MatrixXd >;
 
-#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
-extern template class LinearInterpolator< double, Eigen::Matrix< long double, Eigen::Dynamic, 1 > >;
-extern template class LinearInterpolator< double, Eigen::Matrix< long double, Eigen::Dynamic, 6 > >;
-extern template class LinearInterpolator< double, Eigen::Matrix< long double, Eigen::Dynamic,  Eigen::Dynamic > >;
-#endif
 
 //! Typedef for linear interpolator with (in)dependent variable = double.
 typedef LinearInterpolator< double, double > LinearInterpolatorDouble;

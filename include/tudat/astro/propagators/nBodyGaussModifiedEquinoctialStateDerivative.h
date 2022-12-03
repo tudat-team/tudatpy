@@ -222,12 +222,6 @@ private:
 
 extern template class NBodyGaussModifiedEquinictialStateDerivative< double, double >;
 
-#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
-extern template class NBodyGaussModifiedEquinictialStateDerivative< long double, double >;
-extern template class NBodyGaussModifiedEquinictialStateDerivative< double, Time >;
-extern template class NBodyGaussModifiedEquinictialStateDerivative< long double, Time >;
-#endif
-
 } // namespace propagators
 
 } // namespace tudat

@@ -284,11 +284,6 @@ private:
 
 extern template class NBodyUnifiedStateModelQuaternionsStateDerivative< double, double >;
 
-#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
-extern template class NBodyUnifiedStateModelQuaternionsStateDerivative< long double, double >;
-extern template class NBodyUnifiedStateModelQuaternionsStateDerivative< double, Time >;
-extern template class NBodyUnifiedStateModelQuaternionsStateDerivative< long double, Time >;
-#endif
 
 
 } // namespace propagators
