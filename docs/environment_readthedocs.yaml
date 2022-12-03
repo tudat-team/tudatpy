@@ -13,7 +13,7 @@ dependencies:
   # Other doc related
   - jinja2
   - yaml
-  - cmake
+  #- cmake
   - pydantic
   - numpydoc
   - tudatpy
