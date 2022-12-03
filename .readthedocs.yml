@@ -18,6 +18,6 @@ python:
     python: "mambaforge-4.10"
   install:
     - requirements: docs/requirements.txt
-	
+
 conda:
   environment: docs/environment_readthedocs.yaml
