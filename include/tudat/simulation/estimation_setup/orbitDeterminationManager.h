@@ -586,8 +586,6 @@ public:
         {
             if( estimationInput->getReintegrateEquationsOnFirstIteration( ) )
             {
-                std::cout<<"Resetting (cov)"<<std::setprecision( 19 )<<estimationInput->getReintegrateEquationsOnFirstIteration( )<<std::endl<<
-                           parametersToEstimate_->template getFullParameterValues< ObservationScalarType >( )<<std::endl<<std::endl;
                 resetParameterEstimate(
                             parametersToEstimate_->template getFullParameterValues< ObservationScalarType >( ),
                             estimationInput->getReintegrateVariationalEquations( ) );
@@ -690,8 +688,6 @@ public:
             {
                 if( ( numberOfIterations > 0 ) || ( estimationInput->getReintegrateEquationsOnFirstIteration( ) ) )
                 {
-                    std::cout<<"Resetting (est)"<<std::setprecision( 19 )<<estimationInput->getReintegrateEquationsOnFirstIteration( )<<std::endl<<
-                               newParameterEstimate.transpose( )<<std::endl<<std::endl;
                     resetParameterEstimate( newParameterEstimate, estimationInput->getReintegrateVariationalEquations( ) );
                 }
 
