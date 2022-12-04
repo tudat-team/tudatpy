@@ -26,8 +26,6 @@ def test_constant_values():
 
     assert constants.GRAVITATIONAL_CONSTANT == 6.67259e-11
 
-    assert constants.ASTRONOMICAL_UNIT == 149597870691.0
-
     assert constants.MOLAR_GAS_CONSTANT == 8.3144598
 
     assert constants.PLANCK_CONSTANT == 6.62606957e-34

@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef TUDATBUNDLE_EXPOSE_GRAVITY_FIELD_VARIATION_SETUP_H
-#define TUDATBUNDLE_EXPOSE_GRAVITY_FIELD_VARIATION_SETUP_H
+#ifndef TUDATPY_EXPOSE_GRAVITY_FIELD_VARIATION_SETUP_H
+#define TUDATPY_EXPOSE_GRAVITY_FIELD_VARIATION_SETUP_H
 
 #include <pybind11/pybind11.h>
 
@@ -27,4 +27,4 @@ namespace gravity_field_variation {
 }// namespace numerical_simulation
 }// namespace tudatpy
 
-#endif //TUDATBUNDLE_EXPOSE_GRAVITY_FIELD_VARIATION_SETUP_H
+#endif //TUDATPY_EXPOSE_GRAVITY_FIELD_VARIATION_SETUP_H
