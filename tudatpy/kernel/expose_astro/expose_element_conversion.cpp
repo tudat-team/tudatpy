@@ -189,27 +189,31 @@ void expose_element_conversion(py::module &m) {
     m.def("mee_to_keplerian",
           &toec::convertModifiedEquinoctialToKeplerianElements< double >,
           py::arg("modified_equinoctial_elements"),
-          py::arg("singularity_at_zero_inclination") );
+          py::arg("singularity_at_zero_inclination"),
+          get_docstring("mee_to_keplerian").c_str());
 
     m.def("cartesian_to_mee",
           py::overload_cast< const Eigen::Vector6d&, const double >(
               &toec::convertCartesianToModifiedEquinoctialElements< double > ),
           py::arg("cartesian_elements"),
-          py::arg("gravitational_parameter") );
+          py::arg("gravitational_parameter"),
+          get_docstring("cartesian_to_mee").c_str());
 
     m.def("cartesian_to_mee_manual_singularity",
           py::overload_cast< const Eigen::Vector6d&, const double, const bool >(
               &toec::convertCartesianToModifiedEquinoctialElements< double > ),
           py::arg("cartesian_elements"),
           py::arg("gravitational_parameter"),
-          py::arg("singularity_at_zero_inclination") );
+          py::arg("singularity_at_zero_inclination"),
+          get_docstring("cartesian_to_mee_manual_singularity").c_str());
 
     m.def("mee_to_cartesian",
           py::overload_cast< const Eigen::Vector6d&, const double, const bool >(
               &toec::convertModifiedEquinoctialToCartesianElements< double > ),
           py::arg("modified_equinoctial_elements"),
           py::arg("gravitational_parameter"),
-          py::arg("singularity_at_zero_inclination") );
+          py::arg("singularity_at_zero_inclination"),
+          get_docstring("mee_to_cartesian").c_str());
 
     /*!
      **************   SPHERICAL ELEMENTS  ******************
@@ -224,17 +228,20 @@ void expose_element_conversion(py::module &m) {
           py::arg("longitude"),
           py::arg("speed"),
           py::arg("flight_path_angle"),
-          py::arg("heading_angle"));
+          py::arg("heading_angle"),
+          get_docstring("spherical_to_cartesian_elementwise").c_str());
 
     m.def("spherical_to_cartesian",
           py::overload_cast<
           const Eigen::Vector6d& >(
               &toec::convertSphericalOrbitalToCartesianState< double > ),
-          py::arg("spherical_elements"));
+          py::arg("spherical_elements"),
+          get_docstring("spherical_to_cartesian").c_str());
 
     m.def("cartesian_to_spherical",
           &toec::convertCartesianToSphericalOrbitalState,
-          py::arg("cartesian_elements") );
+          py::arg("cartesian_elements"),
+          get_docstring("cartesian_to_spherical").c_str());
 
 
     /*!

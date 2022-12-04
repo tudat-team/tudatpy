@@ -221,6 +221,12 @@ namespace dependent_variable {
                 .value("custom_type",
                        tp::PropagationDependentVariables::custom_dependent_variable,
                        get_docstring("PropagationDependentVariables.custom_type").c_str())
+                .value("gravity_field_potential_type",
+                       tp::PropagationDependentVariables::gravity_field_potential_dependent_variable,
+                       get_docstring("PropagationDependentVariables.gravity_field_potential_type").c_str())
+                .value("gravity_field_laplacian_of_potential_type",
+                       tp::PropagationDependentVariables::gravity_field_laplacian_of_potential_dependent_variable,
+                       get_docstring("PropagationDependentVariables.gravity_field_laplacian_of_potential_type").c_str())
                 .export_values();
 
 
@@ -253,6 +259,7 @@ namespace dependent_variable {
                 tp::SingleDependentVariableSaveSettings>(m, "SingleAccelerationDependentVariableSaveSettings",
                                                          get_docstring(
                                                                  "SingleAccelerationDependentVariableSaveSettings").c_str());
+
 //            .def(py::init<
 //                 const tudat::basic_astrodynamics::AvailableAcceleration,
 //                 const std::string &,
@@ -270,10 +277,10 @@ namespace dependent_variable {
         /// FREE FUNCTIONS ///////////////////////////////////////////////////////////////////
         //////////////////////////////////////////////////////////////////////////////////////
 
-        m.def("create",
-              &tp::createDependentVariableSaveSettings,
-              py::arg("dependent_variable_list"),
-              py::arg("print_variable_indices") = true);
+//        m.def("create",
+//              &tp::createDependentVariableSaveSettings,
+//              py::arg("dependent_variable_list"),
+//              py::arg("print_variable_indices") = true);
 
         m.def("mach_number",
               &tp::machNumberDependentVariable,
@@ -639,6 +646,33 @@ namespace dependent_variable {
               &tp::customDependentVariableDeprecated,
               py::arg("custom_function"),
               py::arg("variable_size"));
+
+
+        m.def("gravity_field_potential",
+              &tp::gravityFieldPotentialDependentVariable,
+              py::arg("body_undergoing_acceleration"),
+              py::arg("body_exerting_acceleration"),
+              get_docstring("gravity_field_potential").c_str());
+
+        m.def("gravity_field_laplacian_of_potential",
+              &tp::gravityFieldLaplacianOfPotentialDependentVariable,
+              py::arg("body_undergoing_acceleration"),
+              py::arg("body_exerting_acceleration"),
+              get_docstring("gravity_field_laplacian_of_potential").c_str());
+
+        m.def("minimum_body_distance",
+              &tp::minimumConstellationDistanceDependentVariableSaveSettings,
+              py::arg("body_name"),
+              py::arg("bodies_to_check"),
+              get_docstring("minimum_body_distance").c_str());
+
+        m.def("minimum_visible_station_body_distances",
+              &tp::minimumConstellationStationDistanceDependentVariableSaveSettings,
+              py::arg("body_name"),
+              py::arg("station_name"),
+              py::arg("bodies_to_check"),
+              py::arg("minimum_elevation_angle"),
+              get_docstring("minimum_visible_station_body_distances").c_str());
 
 
     }

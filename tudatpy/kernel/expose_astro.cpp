@@ -16,6 +16,7 @@
 #include "expose_astro/expose_time_conversion.h"
 #include "expose_astro/expose_two_body_dynamics.h"
 #include "expose_astro/expose_fundamentals.h"
+#include "expose_astro/expose_polyhedron_utilities.h"
 
 #include <pybind11/pybind11.h>
 
@@ -44,6 +45,9 @@ void expose_astro(py::module &m) {
 
     auto fundamentals = m.def_submodule("fundamentals");
     fundamentals::expose_fundamentals(fundamentals);
+
+    auto polyhedron_utilities = m.def_submodule("polyhedron_utilities");
+    polyhedron_utilities::expose_polyhedron_utilities( polyhedron_utilities );
 
 }
 
