@@ -124,6 +124,7 @@ void expose_acceleration_setup(py::module &m) {
             .value("cannonball_radiation_pressure_type", tba::AvailableAcceleration::cannon_ball_radiation_pressure, get_docstring("AvailableAcceleration.cannon_ball_radiation_pressure_type").c_str())
             .value("spherical_harmonic_gravity_type", tba::AvailableAcceleration::spherical_harmonic_gravity, get_docstring("AvailableAcceleration.spherical_harmonic_gravity_type").c_str())
             .value("mutual_spherical_harmonic_gravity_type", tba::AvailableAcceleration::mutual_spherical_harmonic_gravity, get_docstring("AvailableAcceleration.mutual_spherical_harmonic_gravity_type").c_str())
+            .value("polyhedron_gravity_type", tba::AvailableAcceleration::polyhedron_gravity, get_docstring("AvailableAcceleration.polyhedron_gravity_type").c_str())
             .value("thrust_acceleration_type", tba::AvailableAcceleration::thrust_acceleration, get_docstring("AvailableAcceleration.thrust_acceleration_type").c_str())
             .value("relativistic_correction_acceleration_type", tba::AvailableAcceleration::relativistic_correction_acceleration, get_docstring("AvailableAcceleration.relativistic_correction_acceleration_type").c_str())
             .value("empirical_acceleration_type", tba::AvailableAcceleration::empirical_acceleration, get_docstring("AvailableAcceleration.empirical_acceleration_type").c_str())
@@ -225,6 +226,9 @@ void expose_acceleration_setup(py::module &m) {
           py::arg( "maximum_degree_central_body" ) = 0,
           py::arg( "maximum_order_central_body" ) = 0,
           get_docstring("mutual_spherical_harmonic_gravity").c_str());
+
+     m.def("polyhedron_gravity", &tss::polyhedronAcceleration,
+          get_docstring("polyhedron_gravity").c_str());
 
     m.def("relativistic_correction", &tss::relativisticAccelerationCorrection,
           py::arg( "use_schwarzschild" ) = false,
