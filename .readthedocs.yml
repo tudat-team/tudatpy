@@ -11,11 +11,10 @@ sphinx:
   builder: html
   fail_on_warning: false
 
-# Optionally set the version of Python and requirements required to build your docs
-python:
-  version: 3.7
-  install:
-    - requirements: docs/requirements.txt
+build:
+  os: "ubuntu-20.04"
+  tools:
+    python: "mambaforge-4.10"
 
 conda:
   environment: docs/environment_readthedocs.yaml

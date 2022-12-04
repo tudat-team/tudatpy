@@ -17,13 +17,6 @@
 
 #include "expose_propagation.h"
 
-#include <pybind11/chrono.h>
-#include <pybind11/eigen.h>
-#include <pybind11/functional.h>
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
-#include <pybind11/numpy.h>
-
 
 namespace py = pybind11;
 
@@ -198,8 +191,49 @@ void expose_propagation(py::module &m) {
                     &tp::PropagationTerminationDetails::getTerminationOnExactCondition,
                     get_docstring("PropagationTerminationDetails.terminated_on_exact_condition").c_str());
 
+    py::class_<
+            tp::PropagationTerminationDetailsFromHybridCondition,
+            std::shared_ptr<tp::PropagationTerminationDetailsFromHybridCondition>,
+            tp::PropagationTerminationDetails>(
+                    m,
+                    "PropagationTerminationDetailsFromHybridCondition",
+                    get_docstring("PropagationTerminationDetailsFromHybridCondition").c_str())
+            .def_property_readonly(
+                    "was_condition_met_when_stopping",
+                    &tp::PropagationTerminationDetailsFromHybridCondition::getWasConditionMetWhenStopping,
+                    get_docstring("PropagationTerminationDetailsFromHybridCondition.termination_reason").c_str());
 
-
+    py::class_<
+            tp::SingleArcPropagatorResults<double, double>,
+            std::shared_ptr<tp::SingleArcPropagatorResults<double, double>>>(m, "SingleArcPropagatorResults",
+                                                                             get_docstring("SingleArcPropagatorResults").c_str())
+            .def_property_readonly("state_history",
+                                   &tp::SingleArcPropagatorResults<double, double>::getEquationsOfMotionNumericalSolution,
+                                   get_docstring("SingleArcPropagatorResults.state_history").c_str() )
+            .def_property_readonly("unprocessed_state_history",
+                                   &tp::SingleArcPropagatorResults<double, double>::getEquationsOfMotionNumericalSolutionRaw,
+                                   get_docstring("SingleArcPropagatorResults.unprocessed_state_history").c_str() )
+            .def_property_readonly("dependent_variable_history",
+                                   &tp::SingleArcPropagatorResults<double, double>::getDependentVariableHistory,
+                                   get_docstring("SingleArcPropagatorResults.dependent_variable_history").c_str() )
+            .def_property_readonly("cumulative_computation_time_history",
+                                   &tp::SingleArcPropagatorResults<double, double>::getCumulativeComputationTimeHistory,
+                                   get_docstring("SingleArcPropagatorResults.cumulative_computation_time_history").c_str() )
+            .def_property_readonly("cumulative_number_of_function_evaluations",
+                                   &tp::SingleArcPropagatorResults<double, double>::getCumulativeNumberOfFunctionEvaluations,
+                                   get_docstring("SingleArcPropagatorResults.cumulative_number_of_function_evaluations").c_str() )
+            .def_property_readonly("termination_details",
+                                   &tp::SingleArcPropagatorResults<double, double>::getPropagationTerminationReason,
+                                   get_docstring("SingleArcPropagatorResults.termination_details").c_str() )
+            .def_property_readonly("integration_completed_successfully",
+                                   &tp::SingleArcPropagatorResults<double, double>::integrationCompletedSuccessfully,
+                                   get_docstring("SingleArcPropagatorResults.integration_completed_successfully").c_str() )
+            .def_property_readonly("dependent_variable_ids",
+                                   &tp::SingleArcPropagatorResults<double, double>::getDependentVariableId,
+                                   get_docstring("SingleArcPropagatorResults.dependent_variable_ids").c_str() )
+            .def_property_readonly("state_ids",
+                                   &tp::SingleArcPropagatorResults<double, double>::getStateIds,
+                                   get_docstring("SingleArcPropagatorResults.state_ids").c_str() );
 
 
 }
