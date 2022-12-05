@@ -50,11 +50,15 @@ public:
             uplinkDopplerCalculator,
             const std::shared_ptr< observation_models::OneWayDopplerObservationModel< ObservationScalarType, TimeType > >
             downlinkDopplerCalculator,
-            const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr ):
+            const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr,
+            const bool normalizeWithSpeedOfLight = false ):
         ObservationModel< 1, ObservationScalarType, TimeType >( two_way_doppler, linkEnds, observationBiasCalculator ),
        uplinkDopplerCalculator_( uplinkDopplerCalculator ),
        downlinkDopplerCalculator_( downlinkDopplerCalculator )
     {
+        setNormalizeWithSpeedOfLight( normalizeWithSpeedOfLight );
+        uplinkDopplerCalculator_->setNormalizeWithSpeedOfLight( true );
+        downlinkDopplerCalculator_->setNormalizeWithSpeedOfLight( true );
     }
 
 
@@ -79,7 +83,8 @@ public:
             const TimeType time,
             const LinkEndType linkEndAssociatedWithTime,
             std::vector< double >& linkEndTimes,
-            std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates )
+            std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
+            const std::shared_ptr< ObservationAncilliarySimulationSettings< TimeType > > ancilliarySetings = nullptr )
     {
         std::vector< double > uplinkLinkEndTimes;
         std::vector< Eigen::Matrix< double, 6, 1 > > uplinkLinkEndStates;
@@ -134,7 +139,7 @@ public:
         linkEndStates[ 2 ] = downlinkLinkEndStates.at( 0 );
         linkEndStates[ 3 ] = downlinkLinkEndStates.at( 1 );
 
-        return ( Eigen::Matrix< ObservationScalarType, 1, 1 >( ) << downlinkDoppler( 0 ) * uplinkDoppler( 0 ) +
+        return multiplicationTerm_ * ( Eigen::Matrix< ObservationScalarType, 1, 1 >( ) << downlinkDoppler( 0 ) * uplinkDoppler( 0 ) +
                  downlinkDoppler( 0 ) + uplinkDoppler( 0 ) ).finished( );
     }
 
@@ -160,6 +165,12 @@ public:
         return downlinkDopplerCalculator_;
     }
 
+    void setNormalizeWithSpeedOfLight( const bool normalizeWithSpeedOfLight )
+    {
+        multiplicationTerm_ = normalizeWithSpeedOfLight ? mathematical_constants::getFloatingInteger< ObservationScalarType >( 1 ) :
+                                                          physical_constants::getSpeedOfLight< ObservationScalarType >( );
+    }
+
 private:
 
     //! Object that computes the one-way Doppler observable for the uplink
@@ -169,6 +180,8 @@ private:
     //! Object that computes the one-way Doppler observable for the downlink
     std::shared_ptr< observation_models::OneWayDopplerObservationModel< ObservationScalarType, TimeType > >
     downlinkDopplerCalculator_;
+
+    ObservationScalarType multiplicationTerm_;
 
 };
 

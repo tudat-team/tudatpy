@@ -730,6 +730,19 @@ std::map< KeyType, ScalarType > getSingleVectorEntryHistory(
     return extractedMap;
 }
 
+template< typename ValueType >
+std::vector< ValueType > getVectorEntries( const std::vector< ValueType >& fullVector, const std::vector< int > indices )
+{
+    std::vector< ValueType > subVector;
+    subVector.resize( indices.size( ) );
+    for( unsigned int i = 0; i < indices.size( ); i++ )
+    {
+        subVector[ i ] = fullVector.at( indices.at( i ) );
+    }
+    return subVector;
+}
+
+
 template< typename A >
 std::shared_ptr< A > deepcopyPointer(
         const std::shared_ptr< A > originalPointer )

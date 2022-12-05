@@ -264,7 +264,7 @@ getTranslationFunctionsFromIntegrationFrameToEphemerisFrame(
     if( centralBodies.size( ) != bodiesToIntegrate.size( ) )
     {
         throw std::runtime_error(
-         "Error when making translation functrions from integration to ephemeris frame, input vector sizes inconsistent" );
+         "Error when making translation functions from integration to ephemeris frame, input vector sizes inconsistent" );
     }
     else
     {

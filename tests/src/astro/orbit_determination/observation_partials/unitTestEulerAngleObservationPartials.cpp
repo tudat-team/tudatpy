@@ -65,7 +65,7 @@ BOOST_AUTO_TEST_CASE( testEulerAnglePartials )
 
         // Set link ends for observation model
         LinkEnds linkEnds;
-        linkEnds[ observed_body ] = std::make_pair( "Mars", "" );
+        linkEnds[ observed_body ] = std::make_pair< std::string, std::string >( "Mars", "" );
 
         // Generate one-way range model
         std::shared_ptr< ObservationModel< 3 > > eulerAngleModel =

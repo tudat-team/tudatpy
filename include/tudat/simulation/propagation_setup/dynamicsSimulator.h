@@ -288,6 +288,15 @@ void printPropagatedDependentVariableContent (
     std::cout<<std::endl;
 }
 
+template< typename StateScalarType = double, typename TimeType = double >
+class SimulationResults
+{
+public:
+    SimulationResults( ){ }
+
+    virtual ~SimulationResults( ){ }
+
+};
 
 //! Base class for performing full numerical integration of a dynamical system.
 /*!
@@ -392,6 +401,7 @@ public:
      */
     virtual void processNumericalEquationsOfMotionSolution( ) = 0;
 
+    virtual std::shared_ptr< SimulationResults< StateScalarType, TimeType > > getPropagationResults( ) = 0;
 protected:
 
     //!  Map of bodies (with names) of all bodies in integration.
@@ -403,14 +413,16 @@ protected:
 template< typename StateScalarType, typename TimeType >
 class SingleArcDynamicsSimulator;
 
+
 template< typename StateScalarType = double, typename TimeType = double >
-class SingleArcPropagatorResults
+class SingleArcSimulationResults: public SimulationResults< StateScalarType, TimeType >
 {
 public:
 
-    SingleArcPropagatorResults( const std::map< std::pair< int, int >, std::string >& dependentVariableIds,
+    SingleArcSimulationResults( const std::map< std::pair< int, int >, std::string >& dependentVariableIds,
                                 const std::map< std::pair< int, int >, std::string >& stateIds,
                                 const std::shared_ptr< SingleArcPropagatorProcessingSettings >& outputSettings ):
+        SimulationResults< StateScalarType, TimeType >( ),
         dependentVariableIds_( dependentVariableIds ),
         stateIds_( stateIds ),
         outputSettings_( outputSettings ),
@@ -524,6 +536,25 @@ private:
 
     friend class SingleArcDynamicsSimulator< StateScalarType, TimeType >;
 
+};
+
+template< typename StateScalarType = double, typename TimeType = double >
+class MultiArcSimulationResults: public SimulationResults< StateScalarType, TimeType >
+{
+
+public:
+    MultiArcSimulationResults( ){ }
+
+    ~MultiArcSimulationResults( ){ }
+
+};
+
+template< typename StateScalarType = double, typename TimeType = double >
+class HybridArcSimulationResults: public SimulationResults< StateScalarType, TimeType >
+{
+    HybridArcSimulationResults( ){ }
+
+    ~HybridArcSimulationResults( ){ }
 };
 
 
@@ -683,7 +714,7 @@ public:
 
         }
 
-        propagationResults_= std::make_shared< SingleArcPropagatorResults< StateScalarType, TimeType > >(
+        propagationResults_= std::make_shared< SingleArcSimulationResults< StateScalarType, TimeType > >(
                     dependentVariableIds_, stateIds_, propagatorSettings_->getOutputSettingsWithCheck( ) );
 
 
@@ -820,8 +851,10 @@ public:
 
         printPostPropagationMessages( );
 
+
         if( outputSettings_->getSetIntegratedResult( ) )
         {
+//            std::cout << "results integrated for single-arc" << "\n\n";
             processNumericalEquationsOfMotionSolution( );
         }
     }
@@ -961,8 +994,8 @@ public:
      * updating the environment
      * \return List of object (per dynamics type) that process the integrated numerical solution by updating the environment
      */
-    std::map< IntegratedStateType, std::vector< std::shared_ptr<
-    IntegratedStateProcessor< TimeType, StateScalarType > > > > getIntegratedStateProcessors( )
+    std::map< IntegratedStateType,
+    std::shared_ptr< SingleArcIntegratedStateProcessor< TimeType, StateScalarType > > > getIntegratedStateProcessors( )
     {
         return integratedStateProcessors_;
     }
@@ -1022,6 +1055,7 @@ public:
      */
     void processNumericalEquationsOfMotionSolution( )
     {
+//        std::cout << "RESET SOLUTION" << "\n\n";
         try
         {
             // Create and set interpolators for ephemerides
@@ -1065,7 +1099,7 @@ public:
                     propagatorSettings_, bodies_, frameManager_ );
     }
 
-    std::shared_ptr< SingleArcPropagatorResults< StateScalarType, TimeType > > getPropagationResults( )
+    std::shared_ptr< SimulationResults< StateScalarType, TimeType > > getPropagationResults( )
     {
         return propagationResults_;
     }
@@ -1216,8 +1250,8 @@ public:
 protected:
 
     //! List of object (per dynamics type) that process the integrated numerical solution by updating the environment
-    std::map< IntegratedStateType, std::vector< std::shared_ptr<
-    IntegratedStateProcessor< TimeType, StateScalarType > > > > integratedStateProcessors_;
+    std::map< IntegratedStateType,
+            std::shared_ptr< SingleArcIntegratedStateProcessor< TimeType, StateScalarType > > > integratedStateProcessors_;
 
     //! Object responsible for updating the environment based on the current state and time.
     /*!
@@ -1272,7 +1306,7 @@ protected:
 
     std::shared_ptr< SingleArcPropagatorProcessingSettings > outputSettings_;
 
-    std::shared_ptr< SingleArcPropagatorResults< StateScalarType, TimeType > > propagationResults_;
+    std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType > > propagationResults_;
 
 //    //! Initial time of propagation
 //    double initialPropagationTime_;
@@ -1872,10 +1906,35 @@ public:
 
         try
         {
-            // Create and set interpolators for ephemerides
-            resetIntegratedMultiArcStatesWithEqualArcDynamics(
-                        equationsOfMotionNumericalSolution_,
-                        singleArcDynamicsSimulators_.at( 0 )->getIntegratedStateProcessors( ), arcStartTimes_ );
+            std::map< IntegratedStateType, std::vector< std::shared_ptr<
+                    SingleArcIntegratedStateProcessor< TimeType, StateScalarType > > > > singleArcIntegratedStatesProcessors;
+
+            for ( unsigned int i = 0 ; i < arcStartTimes_.size( ) ; i++ )
+            {
+//                std::cout << "arc " << i << "\n\n";
+                std::map< IntegratedStateType, std::shared_ptr<
+                        SingleArcIntegratedStateProcessor< TimeType, StateScalarType > > > currentArcStateProcessors =
+                        singleArcDynamicsSimulators_.at( i )->getIntegratedStateProcessors( );
+
+                for ( auto itr : currentArcStateProcessors )
+                {
+                    singleArcIntegratedStatesProcessors[ itr.first ].push_back( itr.second );
+//                    std::cout << "in processNumericalEquationsOfMotionSolution for multi-arc - arc " << i << "\n\n";
+                    std::vector< std::string > test = itr.second->bodiesToIntegrate_;
+                    for ( unsigned int k = 0 ; k < test.size( ) ; k++ )
+                    {
+//                        std::cout << test[ k ] << "\n\n";
+                    }
+                }
+            }
+
+            std::map< IntegratedStateType,
+                    std::shared_ptr< MultiArcIntegratedStateProcessor< TimeType, StateScalarType > > > multiArcStateProcessors
+                    = createMultiArcIntegratedStateProcessors( bodies_, arcStartTimes_, singleArcIntegratedStatesProcessors );
+            for ( auto itr : multiArcStateProcessors )
+            {
+                itr.second->processIntegratedMultiArcStates( equationsOfMotionNumericalSolution_, arcStartTimes_ );
+            }
         }
         catch( const std::exception& caughtException )
         {
@@ -1883,8 +1942,6 @@ public:
             std::cerr << caughtException.what( ) << std::endl << std::endl;
             std::cerr << "The problem may be that there is an insufficient number of data points (epochs) at which propagation results are produced for one or more arcs"<< std::endl;
         }
-
-
 
         if( multiArcPropagatorSettings_->getOutputSettings( )->getClearNumericalSolutions( ) )
         {
@@ -1894,6 +1951,7 @@ public:
             }
             equationsOfMotionNumericalSolution_.clear( );
         }
+
     }
 
     std::vector< std::shared_ptr< PropagationTerminationDetails > > getPropagationTerminationReasons( )
@@ -1927,6 +1985,11 @@ public:
         }
     }
 
+    std::shared_ptr< SimulationResults< StateScalarType, TimeType > > getPropagationResults( )
+    {
+        return propagationResults_;
+    }
+
 protected:
 
     //! List of maps of state history of numerically integrated states.
@@ -1952,6 +2015,9 @@ protected:
 
     //! Propagator settings used by this objec
     std::shared_ptr< MultiArcPropagatorSettings< StateScalarType, TimeType > > multiArcPropagatorSettings_;
+
+    std::shared_ptr< MultiArcSimulationResults< StateScalarType, TimeType > > propagationResults_;
+
 };
 
 
@@ -2268,6 +2334,11 @@ public:
         }
     }
 
+    std::shared_ptr< SimulationResults< StateScalarType, TimeType > > getPropagationResults( )
+    {
+        return propagationResults_;
+    }
+
 protected:
 
     std::shared_ptr< HybridArcPropagatorSettings< StateScalarType, TimeType > > hybridPropagatorSettings_;
@@ -2283,6 +2354,8 @@ protected:
 
     //! Size of multi-arc concatenated initial state vector
     int multiArcDynamicsSize_;
+
+    std::shared_ptr< HybridArcSimulationResults< StateScalarType, TimeType > > propagationResults_;
 };
 
 

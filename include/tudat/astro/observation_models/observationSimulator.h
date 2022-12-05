@@ -112,13 +112,14 @@ public:
     std::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > getObservationModel(
             const LinkEnds linkEnds )
     {
-        if( observationModels_.count( linkEnds ) == 0 )
+        try
         {
-            throw std::runtime_error(
-                        "Error in observation manager when getting observation model, did not find model for given link ends " +
-                        std::to_string( observationModels_.size( ) ) );
+            return observationModels_.at( linkEnds );
         }
-        return observationModels_.at( linkEnds );
+        catch( const std::runtime_error& )
+        {
+            throw std::runtime_error( "Error in observation manager when getting observation model, did not find model for given link ends " );
+        }
     }
 
     //! Function to get the full list of observation models

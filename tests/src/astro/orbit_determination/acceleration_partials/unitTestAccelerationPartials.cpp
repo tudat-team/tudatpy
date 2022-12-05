@@ -1214,14 +1214,14 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureAccelerationPartials )
     vehicle->setCurrentRotationalStateToLocalFrameFromEphemeris( 0.0 );
 
     // Create links to set and get state functions of bodies.
-    boost::function< void( Eigen::Vector6d ) > sunStateSetFunction =
-            boost::bind( &Body::setState, sun, _1  );
-    boost::function< void( Eigen::Vector6d ) > vehicleStateSetFunction =
-            boost::bind( &Body::setState, vehicle, _1  );
-    boost::function< Eigen::Vector6d( ) > sunStateGetFunction =
-            boost::bind( &Body::getState, sun );
-    boost::function< Eigen::Vector6d( ) > vehicleStateGetFunction =
-            boost::bind( &Body::getState, vehicle );
+    std::function< void( Eigen::Vector6d ) > sunStateSetFunction =
+            std::bind( &Body::setState, sun, std::placeholders::_1  );
+    std::function< void( Eigen::Vector6d ) > vehicleStateSetFunction =
+            std::bind( &Body::setState, vehicle, std::placeholders::_1  );
+    std::function< Eigen::Vector6d( ) > sunStateGetFunction =
+            std::bind( &Body::getState, sun );
+    std::function< Eigen::Vector6d( ) > vehicleStateGetFunction =
+            std::bind( &Body::getState, vehicle );
 
     // Create radiation pressure properties of vehicle
     std::vector< double > areas;
@@ -1287,13 +1287,13 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureAccelerationPartials )
     //    panelIndices.push_back( panelIndices2 );
     //    panelIndices.push_back( panelIndices1 );
 
-    //    boost::shared_ptr< EstimatableParameterSettings > panelEmissivitiesSettings =
-    //            boost::make_shared< PanelRadiationEmissivitiesParameterSettings >( "Vehicle", panelIndices );
-    //    std::vector< boost::shared_ptr< EstimatableParameterSettings > > parameterSettingsVector;
+    //    std::shared_ptr< EstimatableParameterSettings > panelEmissivitiesSettings =
+    //            std::make_shared< PanelRadiationEmissivitiesParameterSettings >( "Vehicle", panelIndices );
+    //    std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterSettingsVector;
     //    parameterSettingsVector.push_back( panelEmissivitiesSettings );
-    //    boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > estimatableParameters = createParametersToEstimate(
+    //    std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > estimatableParameters = createParametersToEstimate(
     //                parameterSettingsVector, bodies );
-    //    boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > panelEmissivitiesParameter =
+    //    std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > panelEmissivitiesParameter =
     //            estimatableParameters->getVectorParameters( ).begin( )->second;
 
     // Calculate analytical partials.

@@ -24,6 +24,7 @@
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/observationBiasParameter.h"
+#include "tudat/astro/observation_models/corrections/lightTimeCorrection.h"
 #include "tudat/math/basic/mathematicalConstants.h"
 
 namespace tudat
@@ -59,6 +60,69 @@ public:
                          const std::vector< double >& times,
                          const observation_models::LinkEndType fixedLinkEnd,
                          const Eigen::VectorXd currentObservation ) = 0;
+
+
+};
+
+template< int ObservationSize >
+class DirectPositionPartialScaling: public PositionPartialScaling
+{
+public:
+
+    DirectPositionPartialScaling( const observation_models::ObservableType observableType ):
+        observableType_( observableType )
+    { }
+
+    virtual ~DirectPositionPartialScaling( ){ }
+
+    virtual observation_models::LinkEndType getCurrentLinkEndType( ) = 0;
+
+    virtual Eigen::Matrix< double, ObservationSize, 3 > getPositionScalingFactor( const observation_models::LinkEndType linkEndType ) = 0;
+
+    virtual Eigen::Matrix< double, ObservationSize, 3 > getVelocityScalingFactor( const observation_models::LinkEndType linkEndType )
+    {
+        return Eigen::MatrixXd::Zero( ObservationSize, 3 );
+    }
+
+    virtual Eigen::Matrix< double, ObservationSize, 1 > getLightTimePartialScalingFactor( ) = 0;
+
+    observation_models::ObservableType getObservableType( )
+    {
+        return observableType_;
+    }
+
+    virtual bool isVelocityScalingNonZero( )
+    {
+        return false;
+    }
+
+    virtual std::vector< std::pair< Eigen::Matrix< double, ObservationSize, Eigen::Dynamic >, double > > getLinkIndependentPartials(
+            const estimatable_parameters::EstimatebleParameterIdentifier parameterType )
+    {
+        if( useLinkIndependentPartials( ) == false )
+        {
+            throw std::runtime_error( "Error when getting link independent partials of observable type " +
+                                      observation_models::getObservableName( observableType_) +
+                                      ", no such model is defined." );
+        }
+        else
+        {
+            throw std::runtime_error( "Error when getting link independent partials of observable type " +
+                                      observation_models::getObservableName( observableType_) +
+                                      ", derived class model is not implemented." );
+        }
+    }
+
+    virtual bool useLinkIndependentPartials( )
+    {
+        return false;
+    }
+
+protected:
+
+    observation_models::ObservableType observableType_;
+
+    bool doesVelocityScalingFactorExist_;
 };
 
 //! Base class of partial derivative of an observable w.r.t. an estimated parameter.
@@ -119,8 +183,6 @@ protected:
 
     //! Parameter id of for specifc parameter of which partial is computed by object.
     estimatable_parameters::EstimatebleParameterIdentifier parameterIdentifier_;
-
-
 };
 
 
@@ -144,7 +206,7 @@ public:
     ObservationPartialWrtConstantAbsoluteBias( const observation_models::ObservableType observableType,
                                                const observation_models::LinkEnds& linkEnds ):
         ObservationPartial< ObservationSize >(
-            std::make_pair( estimatable_parameters::constant_additive_observation_bias, linkEnds.begin( )->second ) ),
+            std::make_pair( estimatable_parameters::constant_additive_observation_bias, linkEnds.begin( )->second.getDualStringLinkEnd( ) ) ),
         observableType_( observableType ), linkEnds_( linkEnds )
     {
         // Compute partial (vector of ObservationSize with 1.0 entries).
@@ -215,7 +277,7 @@ public:
                                                const int linkEndIndex,
                                                const int numberOfArcs ):
         ObservationPartial< ObservationSize >(
-            std::make_pair( estimatable_parameters::arcwise_constant_additive_observation_bias, linkEnds.begin( )->second ) ),
+            std::make_pair( estimatable_parameters::arcwise_constant_additive_observation_bias, linkEnds.begin( )->second.getDualStringLinkEnd( ) ) ),
         observableType_( observableType ), linkEnds_( linkEnds ), arcLookupScheme_( arcLookupScheme ),
         linkEndIndex_( linkEndIndex ), numberOfArcs_( numberOfArcs )
     {
@@ -244,6 +306,10 @@ public:
             const Eigen::Matrix< double, ObservationSize, 1 >& currentObservation =
             Eigen::Matrix< double, ObservationSize, 1 >::Zero( ) )
     {
+//        std::cout << "TEST CALCULATE PARTIALS W.R.T. ARC WISE CONSTANT BIAS" << "\n\n";
+        int currentIndex = arcLookupScheme_->findNearestLowerNeighbour( times.at( linkEndIndex_ ) );
+
+
         totalPartial_.setZero( );
         if( arcLookupScheme_->getMinimumValue( ) <= times.at( linkEndIndex_ ) )
         {
@@ -299,7 +365,7 @@ public:
     ObservationPartialWrtConstantRelativeBias( const observation_models::ObservableType observableType,
                                                const observation_models::LinkEnds& linkEnds ):
         ObservationPartial< ObservationSize >(
-            std::make_pair( estimatable_parameters::constant_additive_observation_bias, linkEnds.begin( )->second ) ),
+            std::make_pair( estimatable_parameters::constant_additive_observation_bias, linkEnds.begin( )->second.getDualStringLinkEnd( ) ) ),
         observableType_( observableType ), linkEnds_( linkEnds )
     {  }
 
@@ -362,7 +428,7 @@ public:
                                                const int linkEndIndex,
                                                const int numberOfArcs ):
         ObservationPartial< ObservationSize >(
-            std::make_pair( estimatable_parameters::arcwise_constant_relative_observation_bias, linkEnds.begin( )->second ) ),
+            std::make_pair( estimatable_parameters::arcwise_constant_relative_observation_bias, linkEnds.begin( )->second.getDualStringLinkEnd( ) ) ),
         observableType_( observableType ), linkEnds_( linkEnds ), arcLookupScheme_( arcLookupScheme ),
         linkEndIndex_( linkEndIndex ), numberOfArcs_( numberOfArcs )
     {
@@ -445,7 +511,7 @@ public:
                                                 const int linkEndIndex,
                                                 const double referenceEpoch ):
             ObservationPartial< ObservationSize >(
-                    std::make_pair( estimatable_parameters::constant_time_drift_observation_bias, linkEnds.begin( )->second ) ),
+                    std::make_pair( estimatable_parameters::constant_time_drift_observation_bias, linkEnds.begin( )->second.getDualStringLinkEnd( )  ) ),
             observableType_( observableType ), linkEnds_( linkEnds ), linkEndIndex_( linkEndIndex ), referenceEpoch_( referenceEpoch )
     {  }
 
@@ -521,7 +587,7 @@ public:
                                           const int linkEndIndex,
                                           const int numberOfArcs,
                                           const std::vector< double > referenceEpochs ):
-            ObservationPartial< ObservationSize >( std::make_pair( estimatable_parameters::arc_wise_time_drift_observation_bias, linkEnds.begin( )->second ) ),
+            ObservationPartial< ObservationSize >( std::make_pair( estimatable_parameters::arc_wise_time_drift_observation_bias, linkEnds.begin( )->second.getDualStringLinkEnd( )  ) ),
             observableType_( observableType ), linkEnds_( linkEnds ), arcLookupScheme_( arcLookupScheme ),
             linkEndIndex_( linkEndIndex ), numberOfArcs_( numberOfArcs ), referenceEpochs_( referenceEpochs )
     {
@@ -588,25 +654,26 @@ private:
 };
 
 
-extern template class ObservationPartial< 1 >;
-extern template class ObservationPartial< 2 >;
-extern template class ObservationPartial< 3 >;
+//extern template class ObservationPartial< 1 >;
+//extern template class ObservationPartial< 2 >;
+//extern template class ObservationPartial< 3 >;
 
-extern template class ObservationPartialWrtConstantAbsoluteBias< 1 >;
-extern template class ObservationPartialWrtConstantAbsoluteBias< 2 >;
-extern template class ObservationPartialWrtConstantAbsoluteBias< 3 >;
+//extern template class ObservationPartialWrtConstantAbsoluteBias< 1 >;
+//extern template class ObservationPartialWrtConstantAbsoluteBias< 2 >;
+//extern template class ObservationPartialWrtConstantAbsoluteBias< 3 >;
 
-extern template class ObservationPartialWrtArcWiseAbsoluteBias< 1 >;
-extern template class ObservationPartialWrtArcWiseAbsoluteBias< 2 >;
-extern template class ObservationPartialWrtArcWiseAbsoluteBias< 3 >;
+//extern template class ObservationPartialWrtArcWiseAbsoluteBias< 1 >;
+//extern template class ObservationPartialWrtArcWiseAbsoluteBias< 2 >;
+//extern template class ObservationPartialWrtArcWiseAbsoluteBias< 3 >;
 
-extern template class ObservationPartialWrtConstantTimeDriftBias< 1 >;
-extern template class ObservationPartialWrtConstantTimeDriftBias< 2 >;
-extern template class ObservationPartialWrtConstantTimeDriftBias< 3 >;
+//extern template class ObservationPartialWrtConstantRelativeBias< 1 >;
+//extern template class ObservationPartialWrtConstantRelativeBias< 2 >;
+//extern template class ObservationPartialWrtConstantRelativeBias< 3 >;
 
-extern template class ObservationPartialWrtArcWiseTimeDriftBias< 1 >;
-extern template class ObservationPartialWrtArcWiseTimeDriftBias< 2 >;
-extern template class ObservationPartialWrtArcWiseTimeDriftBias< 3 >;
+//extern template class ObservationPartialWrtArcWiseRelativeBias< 1 >;
+//extern template class ObservationPartialWrtArcWiseRelativeBias< 2 >;
+//extern template class ObservationPartialWrtArcWiseRelativeBias< 3 >;
+
 
 
 
@@ -655,6 +722,9 @@ std::shared_ptr< ObservationPartial< ObservationSize > > createObservationPartia
         const std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameterToEstimate,
         const bool useBiasPartials = true )
 {
+//    std::cout << "TEST createObservationPartialWrtLinkProperty" << "\n\n";
+//    std::cout << "observableType: " << observableType << "\n\n";
+
     std::shared_ptr< ObservationPartial< ObservationSize > > observationPartial;
 
     // Check parameter type

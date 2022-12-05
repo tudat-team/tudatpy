@@ -21,11 +21,13 @@
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/simulation/estimation_setup/createLightTimeCorrection.h"
 #include "tudat/astro/observation_models/nWayRangeObservationModel.h"
+#include "tudat/astro/observation_models/nWayRangeRateObservationModel.h"
 #include "tudat/astro/observation_models/oneWayRangeObservationModel.h"
 #include "tudat/astro/observation_models/oneWayDopplerObservationModel.h"
 #include "tudat/astro/observation_models/twoWayDopplerObservationModel.h"
 #include "tudat/astro/observation_models/oneWayDifferencedRangeRateObservationModel.h"
 #include "tudat/astro/observation_models/angularPositionObservationModel.h"
+#include "tudat/astro/observation_models/relativeAngularPositionObservationModel.h"
 #include "tudat/astro/observation_models/positionObservationModel.h"
 #include "tudat/astro/observation_models/eulerAngleObservationModel.h"
 #include "tudat/astro/observation_models/velocityObservationModel.h"
@@ -369,7 +371,7 @@ public:
      */
     ObservationModelSettings(
             const observation_models::ObservableType observableType,
-            const LinkEnds linkEnds,
+            const LinkDefinition linkEnds,
             const std::shared_ptr< LightTimeCorrectionSettings > lightTimeCorrections,
             const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr ):
         observableType_( observableType ),
@@ -392,7 +394,7 @@ public:
      */
     ObservationModelSettings(
             const observation_models::ObservableType observableType,
-            const LinkEnds linkEnds,
+            const LinkDefinition linkEnds,
             const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =
             std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
             const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr ):
@@ -407,7 +409,7 @@ public:
     //! Type of observation model that is to be created
     observation_models::ObservableType observableType_;
 
-    LinkEnds linkEnds_;
+    LinkDefinition linkEnds_;
 
     //! List of settings for a single light-time correction that is to be used for the observation model
     std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList_;
@@ -416,7 +418,7 @@ public:
     std::shared_ptr< ObservationBiasSettings > biasSettings_;
 };
 
-std::vector< LinkEnds > getObservationModelListLinkEnds(
+std::vector< LinkDefinition > getObservationModelListLinkEnds(
         const std::vector< std::shared_ptr< ObservationModelSettings > >& observationModelList );
 
 
@@ -482,14 +484,16 @@ public:
      * \param biasSettings Settings for the observation bias model that is to be used (default none: NUL
      */
     OneWayDopplerObservationSettings(
-            const LinkEnds& linkEnds,
+            const LinkDefinition& linkEnds,
             const std::shared_ptr< LightTimeCorrectionSettings > lightTimeCorrections,
             const std::shared_ptr< DopplerProperTimeRateSettings > transmitterProperTimeRateSettings = nullptr,
             const std::shared_ptr< DopplerProperTimeRateSettings > receiverProperTimeRateSettings = nullptr,
-            const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr ):
+            const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
+            const bool normalizeWithSpeedOfLight = false ):
         ObservationModelSettings( one_way_doppler, linkEnds, lightTimeCorrections, biasSettings ),
         transmitterProperTimeRateSettings_( transmitterProperTimeRateSettings ),
-        receiverProperTimeRateSettings_( receiverProperTimeRateSettings ){ }
+        receiverProperTimeRateSettings_( receiverProperTimeRateSettings ),
+    normalizeWithSpeedOfLight_( normalizeWithSpeedOfLight ){ }
 
     //! Constructor
     /*!
@@ -501,15 +505,17 @@ public:
      * \param biasSettings Settings for the observation bias model that is to be used (default none: NUL
      */
     OneWayDopplerObservationSettings(
-            const LinkEnds& linkEnds,
+            const LinkDefinition& linkEnds,
             const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =
             std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
             const std::shared_ptr< DopplerProperTimeRateSettings > transmitterProperTimeRateSettings = nullptr,
             const std::shared_ptr< DopplerProperTimeRateSettings > receiverProperTimeRateSettings = nullptr,
-            const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr ):
+            const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
+            const bool normalizeWithSpeedOfLight = false ):
         ObservationModelSettings( one_way_doppler, linkEnds, lightTimeCorrectionsList, biasSettings ),
         transmitterProperTimeRateSettings_( transmitterProperTimeRateSettings ),
-        receiverProperTimeRateSettings_( receiverProperTimeRateSettings ){ }
+        receiverProperTimeRateSettings_( receiverProperTimeRateSettings ),
+        normalizeWithSpeedOfLight_( normalizeWithSpeedOfLight ){ }
 
     //! Destructor
     ~OneWayDopplerObservationSettings( ){ }
@@ -519,6 +525,8 @@ public:
 
     //! Settings for proper time rate at receiver
     std::shared_ptr< DopplerProperTimeRateSettings > receiverProperTimeRateSettings_;
+
+    bool normalizeWithSpeedOfLight_;
 };
 
 
@@ -545,20 +553,26 @@ public:
         uplinkOneWayDopplerSettings_( uplinkOneWayDopplerSettings ),
         downlinkOneWayDopplerSettings_( downlinkOneWayDopplerSettings )
     {
-
+        if( uplinkOneWayDopplerSettings->normalizeWithSpeedOfLight_ != downlinkOneWayDopplerSettings->normalizeWithSpeedOfLight_ )
+        {
+            throw std::runtime_error( "Error when making two-way Doppler observable; up and downlink normalization not consistent." );
+        }
     }
 
     TwoWayDopplerObservationSettings(
-            const LinkEnds& linkEnds,
+            const LinkDefinition& linkEnds,
             const std::shared_ptr< LightTimeCorrectionSettings > lightTimeCorrections = nullptr,
-            const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr ):
+            const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
+            const bool normalizeWithSpeedOfLight = false ):
         ObservationModelSettings( two_way_doppler, linkEnds,
                                   lightTimeCorrections, biasSettings )
     {
         uplinkOneWayDopplerSettings_ = std::make_shared< OneWayDopplerObservationSettings >(
-                    getUplinkFromTwoWayLinkEnds( linkEnds ), lightTimeCorrections );
+                    getUplinkFromTwoWayLinkEnds( linkEnds ), lightTimeCorrections,
+                    nullptr, nullptr, nullptr, normalizeWithSpeedOfLight );
         downlinkOneWayDopplerSettings_ = std::make_shared< OneWayDopplerObservationSettings >(
-                    getDownlinkFromTwoWayLinkEnds( linkEnds ), lightTimeCorrections );
+                    getDownlinkFromTwoWayLinkEnds( linkEnds ), lightTimeCorrections,
+                    nullptr, nullptr, nullptr, normalizeWithSpeedOfLight );
     }
 
 
@@ -575,51 +589,51 @@ public:
 
 
 
-//! Class to define the settings for one-way differenced range-rate (e.g. closed-loop Doppler) observable
-class OneWayDifferencedRangeRateObservationSettings: public ObservationModelSettings
-{
-public:
+////! Class to define the settings for one-way differenced range-rate (e.g. closed-loop Doppler) observable
+//class OneWayDifferencedRangeRateObservationSettings: public ObservationModelSettings
+//{
+//public:
 
-    //! Constructor
-    /*!
-     * Constructor
-     * \param integrationTimeFunction Function that returns the integration time of observable as a function of time
-     * \param lightTimeCorrections Settings for a single light-time correction that is to be used for the observation model
-     * (nullptr if none)
-     * \param biasSettings Settings for the observation bias model that is to be used (default none: nullptr)
-     */
-    OneWayDifferencedRangeRateObservationSettings(
-            const LinkEnds& linkEnds,
-            const std::function< double( const double ) > integrationTimeFunction,
-            const std::shared_ptr< LightTimeCorrectionSettings > lightTimeCorrections,
-            const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr ):
-        ObservationModelSettings( one_way_differenced_range, linkEnds, lightTimeCorrections, biasSettings ),
-        integrationTimeFunction_( integrationTimeFunction ){ }
+//    //! Constructor
+//    /*!
+//     * Constructor
+//     * \param integrationTimeFunction Function that returns the integration time of observable as a function of time
+//     * \param lightTimeCorrections Settings for a single light-time correction that is to be used for the observation model
+//     * (nullptr if none)
+//     * \param biasSettings Settings for the observation bias model that is to be used (default none: nullptr)
+//     */
+//    OneWayDifferencedRangeRateObservationSettings(
+//            const LinkDefinition& linkEnds,
+//            const std::function< double( const double ) > integrationTimeFunction,
+//            const std::shared_ptr< LightTimeCorrectionSettings > lightTimeCorrections,
+//            const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr ):
+//        ObservationModelSettings( one_way_differenced_range, linkEnds, lightTimeCorrections, biasSettings ),
+//        integrationTimeFunction_( integrationTimeFunction ){ }
 
-    //! Constructor
-    /*!
-     * Constructor
-     * \param integrationTimeFunction Function that returns the integration time of observable as a function of time
-     * \param lightTimeCorrectionsList List of ettings for a single light-time correction that is to be used for the observation model
-     * (empty if none)
-     * \param biasSettings Settings for the observation bias model that is to be used (default none: nullptr)
-     */
-    OneWayDifferencedRangeRateObservationSettings(
-            const LinkEnds& linkEnds,
-            const std::function< double( const double ) > integrationTimeFunction,
-            const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =
-            std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
-            const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr ):
-        ObservationModelSettings( one_way_differenced_range, linkEnds, lightTimeCorrectionsList, biasSettings ),
-        integrationTimeFunction_( integrationTimeFunction ){ }
+//    //! Constructor
+//    /*!
+//     * Constructor
+//     * \param integrationTimeFunction Function that returns the integration time of observable as a function of time
+//     * \param lightTimeCorrectionsList List of ettings for a single light-time correction that is to be used for the observation model
+//     * (empty if none)
+//     * \param biasSettings Settings for the observation bias model that is to be used (default none: nullptr)
+//     */
+//    OneWayDifferencedRangeRateObservationSettings(
+//            const LinkDefinition& linkEnds,
+//            const std::function< double( const double ) > integrationTimeFunction,
+//            const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =
+//            std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
+//            const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr ):
+//        ObservationModelSettings( one_way_differenced_range, linkEnds, lightTimeCorrectionsList, biasSettings ),
+//        integrationTimeFunction_( integrationTimeFunction ){ }
 
-    //! Destructor
-    ~OneWayDifferencedRangeRateObservationSettings( ){ }
+//    //! Destructor
+//    ~OneWayDifferencedRangeRateObservationSettings( ){ }
 
-    //! Function that returns the integration time of observable as a function of time
-    const std::function< double( const double ) > integrationTimeFunction_;
+//    //! Function that returns the integration time of observable as a function of time
+//    const std::function< double( const double ) > integrationTimeFunction_;
 
-};
+//};
 
 
 //! Class to define the settings for one-way differenced range-rate (e.g. closed-loop Doppler) observable
@@ -632,19 +646,14 @@ public:
      * Constructor
      * \param oneWayRangeObsevationSettings List of settings for one-way observables that make up n-way link (each must be for
      * one_way_range_
-     * \param retransmissionTimesFunction Function that returns the retransmission delay time of the signal as a function of
-     * observation timew.
      * \param biasSettings Settings for the observation bias model that is to be used (default none: nullptr)
      */
     NWayRangeObservationSettings(
             const std::vector< std::shared_ptr< ObservationModelSettings > > oneWayRangeObsevationSettings,
-            const std::function< std::vector< double >( const double ) > retransmissionTimesFunction =
-            std::function< std::vector< double >( const double  ) >( ),
             const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr ):
         ObservationModelSettings( n_way_range, mergeOneWayLinkEnds( getObservationModelListLinkEnds( oneWayRangeObsevationSettings ) ),
                                   std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ), biasSettings ),
-        oneWayRangeObsevationSettings_( oneWayRangeObsevationSettings ),
-        retransmissionTimesFunction_( retransmissionTimesFunction ){ }
+        oneWayRangeObsevationSettings_( oneWayRangeObsevationSettings ){ }
 
     //! Constructor
     /*!
@@ -652,24 +661,25 @@ public:
      * \param lightTimeCorrections Settings for a single light-time correction that is to be used for the observation model
      * (nullptr if none)
      * \param numberOfLinkEnds Number of link ends in observable (equal to n+1 for 'n'-way observable)
-     * \param retransmissionTimesFunction Function that returns the retransmission delay time of the signal as a function of
-     * observation timew.
      * \param biasSettings Settings for the observation bias model that is to be used (default none: nullptr)
      */
     NWayRangeObservationSettings(
-            const LinkEnds& linkEnds,
+            const LinkDefinition& linkEnds,
             const std::shared_ptr< LightTimeCorrectionSettings > lightTimeCorrections,
             const int numberOfLinkEnds,
-            const std::function< std::vector< double >( const double ) > retransmissionTimesFunction =
-            std::function< std::vector< double >( const double  ) >( ),
             const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr ):
-        ObservationModelSettings( n_way_range, linkEnds, std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ), biasSettings ),
-        retransmissionTimesFunction_( retransmissionTimesFunction )
+        ObservationModelSettings( n_way_range, linkEnds, std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ), biasSettings )
     {
+        if( static_cast< int >( linkEnds.size( ) ) != numberOfLinkEnds )
+        {
+            throw std::runtime_error( "Error when making n-way range settings, input is incompatible" );
+        }
+
         for( int i = 0; i < numberOfLinkEnds - 1; i++ )
         {
-            oneWayRangeObsevationSettings_.push_back( std::make_shared< ObservationModelSettings >(
-                                                          one_way_range, linkEnds, lightTimeCorrections ) );
+            oneWayRangeObsevationSettings_.push_back(
+                        std::make_shared< ObservationModelSettings >(
+                            one_way_range, getSingleLegLinkEnds( linkEnds.linkEnds_, i ), lightTimeCorrections ) );
         }
     }
 
@@ -678,14 +688,48 @@ public:
 
     std::vector< std::shared_ptr< ObservationModelSettings > > oneWayRangeObsevationSettings_;
 
-    //! Function that returns the integration time of observable as a function of time
-    std::function< std::vector< double >( const double ) > retransmissionTimesFunction_;
+};
+
+class NWayDifferencedRangeObservationSettings: public ObservationModelSettings
+{
+public:
+
+    NWayDifferencedRangeObservationSettings(
+            const LinkDefinition& linkEnds,
+            const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =
+            std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
+            const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr ):
+        ObservationModelSettings( n_way_differenced_range, linkEnds, lightTimeCorrectionsList, biasSettings )
+    {
+        for( unsigned int i = 0; i < linkEnds.size( ) - 1; i++ )
+        {
+            oneWayRangeObsevationSettings_.push_back(
+                        std::make_shared< ObservationModelSettings >(
+                            one_way_range, getSingleLegLinkEnds( linkEnds.linkEnds_, i ), lightTimeCorrectionsList ) );
+        }
+    }
+
+    NWayDifferencedRangeObservationSettings(
+            const std::vector< std::shared_ptr< ObservationModelSettings > > oneWayRangeObsevationSettings,
+            const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr ):
+        ObservationModelSettings( n_way_differenced_range,
+                                  mergeOneWayLinkEnds( getObservationModelListLinkEnds( oneWayRangeObsevationSettings ) ),
+                                  std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ), biasSettings ),
+        oneWayRangeObsevationSettings_( oneWayRangeObsevationSettings ){ }
+
+    std::shared_ptr< ObservationModelSettings > getUndifferencedObservationSettings( )
+    {
+        return std::make_shared< NWayRangeObservationSettings >( oneWayRangeObsevationSettings_ );
+    }
+
+
+    std::vector< std::shared_ptr< ObservationModelSettings > > oneWayRangeObsevationSettings_;
 
 };
 
 
 inline std::shared_ptr< ObservationModelSettings > oneWayRangeSettings(
-        const LinkEnds& linkEnds,
+        const LinkDefinition& linkEnds,
         const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =
         std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
         const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr)
@@ -695,7 +739,7 @@ inline std::shared_ptr< ObservationModelSettings > oneWayRangeSettings(
 }
 
 inline std::shared_ptr< ObservationModelSettings > angularPositionSettings(
-        const LinkEnds& linkEnds,
+        const LinkDefinition& linkEnds,
         const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =
         std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
         const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr)
@@ -704,8 +748,18 @@ inline std::shared_ptr< ObservationModelSettings > angularPositionSettings(
                 angular_position, linkEnds, lightTimeCorrectionsList, biasSettings );
 }
 
+inline std::shared_ptr< ObservationModelSettings > relativeAngularPositionSettings(
+        const LinkDefinition& linkEnds,
+        const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =
+        std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
+        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr)
+{
+    return std::make_shared< ObservationModelSettings >(
+                relative_angular_position, linkEnds, lightTimeCorrectionsList, biasSettings );
+}
+
 inline std::shared_ptr< ObservationModelSettings > positionObservableSettings(
-        const LinkEnds& linkEnds,
+        const LinkDefinition& linkEnds,
         const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr)
 {
     return std::make_shared< ObservationModelSettings >(
@@ -713,7 +767,7 @@ inline std::shared_ptr< ObservationModelSettings > positionObservableSettings(
 }
 
 inline std::shared_ptr< ObservationModelSettings > velocityObservableSettings(
-        const LinkEnds& linkEnds,
+        const LinkDefinition& linkEnds,
         const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr)
 {
     return std::make_shared< ObservationModelSettings >(
@@ -721,7 +775,7 @@ inline std::shared_ptr< ObservationModelSettings > velocityObservableSettings(
 }
 
 inline std::shared_ptr< ObservationModelSettings > eulerAngle313ObservableSettings(
-        const LinkEnds& linkEnds,
+        const LinkDefinition& linkEnds,
         const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr)
 {
     return std::make_shared< ObservationModelSettings >(
@@ -729,16 +783,17 @@ inline std::shared_ptr< ObservationModelSettings > eulerAngle313ObservableSettin
 }
 
 inline std::shared_ptr< ObservationModelSettings > oneWayOpenLoopDoppler(
-        const LinkEnds& linkEnds,
+        const LinkDefinition& linkEnds,
         const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =
         std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
         const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
         const std::shared_ptr< DopplerProperTimeRateSettings > transmitterProperTimeRateSettings = nullptr,
-        const std::shared_ptr< DopplerProperTimeRateSettings > receiverProperTimeRateSettings = nullptr )
+        const std::shared_ptr< DopplerProperTimeRateSettings > receiverProperTimeRateSettings = nullptr,
+        const bool normalizeWithSpeedOfLight = false )
 {
     return std::make_shared< OneWayDopplerObservationSettings >(
                 linkEnds, lightTimeCorrectionsList, transmitterProperTimeRateSettings, receiverProperTimeRateSettings,
-                biasSettings );
+                biasSettings, normalizeWithSpeedOfLight );
 }
 
 inline std::shared_ptr< ObservationModelSettings > twoWayOpenLoopDoppler(
@@ -752,59 +807,118 @@ inline std::shared_ptr< ObservationModelSettings > twoWayOpenLoopDoppler(
 
 
 inline std::shared_ptr< ObservationModelSettings > twoWayOpenLoopDoppler(
-        const LinkEnds& linkEnds,
+        const LinkDefinition& linkEnds,
         const std::shared_ptr< LightTimeCorrectionSettings > lightTimeCorrections = nullptr,
-        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr )
+        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
+        const bool normalizeWithSpeedOfLight = false )
 {
     return std::make_shared< TwoWayDopplerObservationSettings >(
-                linkEnds, lightTimeCorrections, biasSettings );
+                linkEnds, lightTimeCorrections, biasSettings, normalizeWithSpeedOfLight );
 }
 
 
 inline std::shared_ptr< ObservationModelSettings > oneWayClosedLoopDoppler(
-        const LinkEnds& linkEnds,
-        const std::function< double( const double ) > integrationTimeFunction,
+        const LinkDefinition& linkEnds,
         const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =
         std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
         const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr )
 {
-    return std::make_shared< OneWayDifferencedRangeRateObservationSettings >(
-                linkEnds, integrationTimeFunction, lightTimeCorrectionsList, biasSettings );
+    return std::make_shared< ObservationModelSettings >(
+                one_way_differenced_range, linkEnds, lightTimeCorrectionsList, biasSettings );
 }
 
-inline std::shared_ptr< ObservationModelSettings > oneWayClosedLoopDoppler(
-        const LinkEnds& linkEnds,
-        const double integrationTime,
+inline std::shared_ptr< ObservationModelSettings > twoWayDifferencedRangeObservationSettings(
+        const LinkDefinition& linkEnds,
         const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =
         std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
         const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr )
 {
-    return std::make_shared< OneWayDifferencedRangeRateObservationSettings >(
-                linkEnds, [=](const double){ return integrationTime; }, lightTimeCorrectionsList, biasSettings );
+    if( linkEnds.linkEnds_.size( ) != 3 )
+    {
+        throw std::runtime_error( "Error when creating two-way averaged Doppler settings, number of input link ends (" +
+                                  std::to_string( linkEnds.linkEnds_.size( ) ) + ") is incompatible." );
+    }
+    return std::make_shared< NWayDifferencedRangeObservationSettings >(
+                linkEnds, lightTimeCorrectionsList, biasSettings );;
 }
+
+inline std::shared_ptr< ObservationModelSettings > twoWayDifferencedRangeObservationSettings(
+        const std::vector< std::shared_ptr< ObservationModelSettings > > oneWayRangeObsevationSettings,
+        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr )
+{
+    if( oneWayRangeObsevationSettings.size( ) != 2 )
+    {
+        throw std::runtime_error( "Error when creating two-way averaged Doppler settings, number of input one-way links (" +
+                                  std::to_string( oneWayRangeObsevationSettings.size( ) ) + ") is incompatible." );
+    }
+    return std::make_shared< NWayDifferencedRangeObservationSettings >(
+                oneWayRangeObsevationSettings, biasSettings );;
+}
+
+inline std::shared_ptr< ObservationModelSettings > nWayDifferencedRangeObservationSettings(
+        const LinkDefinition& linkEnds,
+        const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =
+        std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
+        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr )
+{
+    return std::make_shared< NWayDifferencedRangeObservationSettings >(
+                linkEnds, lightTimeCorrectionsList, biasSettings );;
+}
+
+inline std::shared_ptr< ObservationModelSettings > nWayDifferencedRangeObservationSettings(
+        const std::vector< std::shared_ptr< ObservationModelSettings > > oneWayRangeObsevationSettings,
+        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr )
+{
+    return std::make_shared< NWayDifferencedRangeObservationSettings >(
+                oneWayRangeObsevationSettings, biasSettings );;
+}
+
+
+inline std::shared_ptr< ObservationModelSettings > twoWayRange(
+        const std::vector< std::shared_ptr< ObservationModelSettings > > oneWayRangeObsevationSettings,
+        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr )
+{
+    if( oneWayRangeObsevationSettings.size( ) != 2 )
+    {
+        throw std::runtime_error( "Error when creating two-way range settings, number of input one-way links (" +
+                                  std::to_string( oneWayRangeObsevationSettings.size( ) ) + ") is incompatible." );
+    }
+    return std::make_shared< NWayRangeObservationSettings >(
+                oneWayRangeObsevationSettings, biasSettings );
+}
+
+
+inline std::shared_ptr< ObservationModelSettings > twoWayRangeSimple(
+        const LinkDefinition& linkEnds,
+        const std::shared_ptr< LightTimeCorrectionSettings > lightTimeCorrections = std::shared_ptr< LightTimeCorrectionSettings > ( ),
+        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr )
+{
+    if( linkEnds.linkEnds_.size( ) != 3 )
+    {
+        throw std::runtime_error( "Error when creating two-way range settings, number of input link ends (" +
+                                  std::to_string( linkEnds.linkEnds_.size( ) ) + ") is incompatible." );
+    }
+    return std::make_shared< NWayRangeObservationSettings >(
+                linkEnds, lightTimeCorrections, linkEnds.size( ), biasSettings );
+}
+
 
 inline std::shared_ptr< ObservationModelSettings > nWayRange(
         const std::vector< std::shared_ptr< ObservationModelSettings > > oneWayRangeObsevationSettings,
-        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
-        const std::function< std::vector< double >( const double ) > retransmissionTimesFunction =
-        std::function< std::vector< double >( const double  ) >( ))
+        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr )
 {
     return std::make_shared< NWayRangeObservationSettings >(
-                oneWayRangeObsevationSettings, retransmissionTimesFunction, biasSettings );
+                oneWayRangeObsevationSettings, biasSettings );
 }
 
 
 inline std::shared_ptr< ObservationModelSettings > nWayRangeSimple(
-        const LinkEnds& linkEnds,
-        const int numberOfLinkEnds,
+        const LinkDefinition& linkEnds,
         const std::shared_ptr< LightTimeCorrectionSettings > lightTimeCorrections = std::shared_ptr< LightTimeCorrectionSettings > ( ),
-        const std::function< std::vector< double >( const double ) > retransmissionTimesFunction =
-        std::function< std::vector< double >( const double  ) >( ),
         const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr )
 {
-    // change order of input args from FF to accomodate default (empty) lightTimeCorrections
     return std::make_shared< NWayRangeObservationSettings >(
-            linkEnds, lightTimeCorrections, numberOfLinkEnds, retransmissionTimesFunction, biasSettings );
+                linkEnds, lightTimeCorrections, linkEnds.size( ), biasSettings );
 }
 
 
@@ -821,10 +935,11 @@ inline std::shared_ptr< ObservationModelSettings > nWayRangeSimple(
 template< typename ObservationScalarType = double, typename TimeType = double >
 std::shared_ptr< DopplerProperTimeRateInterface > createOneWayDopplerProperTimeCalculator(
         std::shared_ptr< DopplerProperTimeRateSettings > properTimeRateSettings,
-        const LinkEnds& linkEnds,
+        const LinkDefinition& linkEndsDefinitions,
         const simulation_setup::SystemOfBodies &bodies,
         const LinkEndType linkEndForCalculator )
 {
+    LinkEnds linkEnds = linkEndsDefinitions.linkEnds_;
     std::shared_ptr< DopplerProperTimeRateInterface > properTimeRateInterface;
 
     // Check tyope of proper time rate model
@@ -862,7 +977,7 @@ std::shared_ptr< DopplerProperTimeRateInterface > createOneWayDopplerProperTimeC
 
                 // Create calculation object.
                 LinkEndId referencePointId =
-                        std::make_pair( directFirstOrderDopplerProperTimeRateSettings->centralBodyName_, "" );
+                        LinkEndId( directFirstOrderDopplerProperTimeRateSettings->centralBodyName_, "" );
                 if( ( linkEnds.at( receiver ) != referencePointId ) && ( linkEnds.at( transmitter ) != referencePointId ) )
                 {
                     properTimeRateInterface = std::make_shared<
@@ -870,7 +985,7 @@ std::shared_ptr< DopplerProperTimeRateInterface > createOneWayDopplerProperTimeC
                                 linkEndForCalculator, gravitationalParameterFunction,
                                 directFirstOrderDopplerProperTimeRateSettings->centralBodyName_, unidentified_link_end,
                                 simulation_setup::getLinkEndCompleteEphemerisFunction< double, double >(
-                                    std::make_pair( directFirstOrderDopplerProperTimeRateSettings->centralBodyName_, ""), bodies ) );
+                                    LinkEndId( directFirstOrderDopplerProperTimeRateSettings->centralBodyName_, ""), bodies ) );
                 }
                 else
                 {
@@ -918,7 +1033,7 @@ std::map< ObservableType, std::vector< std::shared_ptr< ObservationModelSettings
  */
 template< int ObservationSize = 1 >
 std::shared_ptr< ObservationBias< ObservationSize > > createObservationBiasCalculator(
-        const LinkEnds linkEnds,
+        const LinkDefinition linkEnds,
         const ObservableType observableType,
         const std::shared_ptr< ObservationBiasSettings > biasSettings,
         const simulation_setup::SystemOfBodies &bodies )
@@ -1171,7 +1286,7 @@ public:
 
         std::shared_ptr< observation_models::ObservationModel<
                 1, ObservationScalarType, TimeType > > observationModel;
-        LinkEnds linkEnds = observationSettings->linkEnds_;
+        LinkEnds linkEnds = observationSettings->linkEnds_.linkEnds_;
 
         // Check type of observation model.
         switch( observationSettings->observableType_ )
@@ -1249,7 +1364,10 @@ public:
                             createLightTimeCalculator< ObservationScalarType, TimeType >(
                                 linkEnds.at( transmitter ), linkEnds.at( receiver ),
                                 bodies, observationSettings->lightTimeCorrectionsList_ ),
-                            observationBias );
+                            observationBias,
+                            std::function< ObservationScalarType( const TimeType ) >( ),
+                            std::function< ObservationScalarType( const TimeType ) >( ),
+                            false );
             }
             else
             {
@@ -1278,9 +1396,10 @@ public:
                             createLightTimeCalculator< ObservationScalarType, TimeType >(
                                 linkEnds.at( transmitter ), linkEnds.at( receiver ),
                                 bodies, observationSettings->lightTimeCorrectionsList_ ),
-                                transmitterProperTimeRate,
-                                receiverProperTimeRate,
-                            observationBias );
+                            transmitterProperTimeRate,
+                            receiverProperTimeRate,
+                            observationBias,
+                            oneWayDopplerSettings->normalizeWithSpeedOfLight_ );
             }
 
             break;
@@ -1321,11 +1440,11 @@ public:
 
             // Create observation model
 
-            LinkEnds uplinkLinkEnds;
+            LinkDefinition uplinkLinkEnds;
             uplinkLinkEnds[ transmitter ] = linkEnds.at( transmitter );
             uplinkLinkEnds[ receiver ] = linkEnds.at( reflector1 );
 
-            LinkEnds downlinkLinkEnds;
+            LinkDefinition downlinkLinkEnds;
             downlinkLinkEnds[ transmitter ] = linkEnds.at( reflector1 );
             downlinkLinkEnds[ receiver ] = linkEnds.at( receiver );
 
@@ -1354,7 +1473,7 @@ public:
                             linkEnds,
                             std::dynamic_pointer_cast< OneWayDopplerObservationModel< ObservationScalarType, TimeType > >(
                                 ObservationModelCreator< 1, ObservationScalarType, TimeType >::createObservationModel(
-                                     twoWayDopplerSettings->uplinkOneWayDopplerSettings_, bodies ) ),
+                                    twoWayDopplerSettings->uplinkOneWayDopplerSettings_, bodies ) ),
                             std::dynamic_pointer_cast< OneWayDopplerObservationModel< ObservationScalarType, TimeType > >(
                                 ObservationModelCreator< 1, ObservationScalarType, TimeType >::createObservationModel(
                                     twoWayDopplerSettings->downlinkOneWayDopplerSettings_, bodies ) ),
@@ -1366,12 +1485,12 @@ public:
 
         case one_way_differenced_range:
         {
-            std::shared_ptr< OneWayDifferencedRangeRateObservationSettings > rangeRateObservationSettings =
-                    std::dynamic_pointer_cast< OneWayDifferencedRangeRateObservationSettings >( observationSettings );
-            if( rangeRateObservationSettings == nullptr )
-            {
-                throw std::runtime_error( "Error when making differenced one-way range rate, input type is inconsistent" );
-            }
+//            std::shared_ptr< OneWayDifferencedRangeRateObservationSettings > rangeRateObservationSettings =
+//                    std::dynamic_pointer_cast< OneWayDifferencedRangeRateObservationSettings >( observationSettings );
+//            if( rangeRateObservationSettings == nullptr )
+//            {
+//                throw std::runtime_error( "Error when making differenced one-way range rate, input type is inconsistent" );
+//            }
             // Check consistency input.
             if( linkEnds.size( ) != 2 )
             {
@@ -1407,7 +1526,6 @@ public:
                         createLightTimeCalculator< ObservationScalarType, TimeType >(
                             linkEnds.at( transmitter ), linkEnds.at( receiver ),
                             bodies, observationSettings->lightTimeCorrectionsList_ ),
-                        rangeRateObservationSettings->integrationTimeFunction_,
                         observationBias );
 
             break;
@@ -1459,9 +1577,6 @@ public:
             }
 
             std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList;
-
-            std::function< std::vector< double >( const double ) > retransmissionTimesFunction_;
-
             std::shared_ptr< NWayRangeObservationSettings > nWayRangeObservationSettings =
                     std::dynamic_pointer_cast< NWayRangeObservationSettings >( observationSettings );
 
@@ -1472,10 +1587,6 @@ public:
             else if( nWayRangeObservationSettings->oneWayRangeObsevationSettings_.size( ) != linkEnds.size( ) - 1 )
             {
                 throw std::runtime_error( "Error whaen making n-way range, input data is inconsistent" );
-            }
-            else
-            {
-                retransmissionTimesFunction_ = nWayRangeObservationSettings->retransmissionTimesFunction_;
             }
 
             // Define light-time calculator list
@@ -1515,8 +1626,51 @@ public:
             observationModel = std::make_shared< NWayRangeObservationModel<
                     ObservationScalarType, TimeType > >(
                         linkEnds,
-                        lightTimeCalculators, retransmissionTimesFunction_,
+                        lightTimeCalculators,
                         observationBias );
+            break;
+        }
+        case n_way_differenced_range:
+        {
+            std::shared_ptr< NWayDifferencedRangeObservationSettings > nWayDifferencedRangeObservationSettings =
+                    std::dynamic_pointer_cast< NWayDifferencedRangeObservationSettings >( observationSettings );
+            if( nWayDifferencedRangeObservationSettings == nullptr )
+            {
+                throw std::runtime_error( "Error whaen making n-way differenced range observation model, input type inconsistent" );
+            }
+            std::shared_ptr< NWayRangeObservationModel< ObservationScalarType, TimeType > > arcStartObservationModel;
+            std::shared_ptr< NWayRangeObservationModel< ObservationScalarType, TimeType > > arcEndObservationModel;
+            try
+            {
+                std::shared_ptr< ObservationModelSettings > undifferencedObservationSettings =
+                        nWayDifferencedRangeObservationSettings->getUndifferencedObservationSettings( );
+
+                arcStartObservationModel =
+                        std::dynamic_pointer_cast< NWayRangeObservationModel< ObservationScalarType, TimeType > >(
+                            ObservationModelCreator< 1, ObservationScalarType, TimeType >::createObservationModel(
+                                undifferencedObservationSettings, bodies ) );
+                arcEndObservationModel =
+                        std::dynamic_pointer_cast< NWayRangeObservationModel< ObservationScalarType, TimeType > >(
+                            ObservationModelCreator< 1, ObservationScalarType, TimeType >::createObservationModel(
+                                undifferencedObservationSettings, bodies ) );
+            }
+            catch( const std::exception& caughtException )
+            {
+                std::string exceptionText = std::string( caughtException.what( ) );
+                throw std::runtime_error( "Error when creating n-way differenced range observation model, error: " + exceptionText );
+            }
+
+            std::shared_ptr< ObservationBias< 1 > > observationBias;
+            if( observationSettings->biasSettings_ != nullptr )
+            {
+                observationBias =
+                        createObservationBiasCalculator(
+                            linkEnds, observationSettings->observableType_, observationSettings->biasSettings_, bodies );
+            }
+
+            observationModel = std::make_shared< NWayDifferencedRangeObservationModel<
+                    ObservationScalarType, TimeType > >(
+                        linkEnds, arcStartObservationModel, arcEndObservationModel, observationBias );
             break;
         }
 
@@ -1553,7 +1707,7 @@ public:
         using namespace observation_models;
         std::shared_ptr< observation_models::ObservationModel<
                 2, ObservationScalarType, TimeType > > observationModel;
-        LinkEnds linkEnds = observationSettings->linkEnds_;
+        LinkEnds linkEnds = observationSettings->linkEnds_.linkEnds_;
 
         // Check type of observation model.
         switch( observationSettings->observableType_ )
@@ -1597,6 +1751,48 @@ public:
 
             break;
         }
+        case relative_angular_position:
+        {
+            // Check consistency input.
+            if( linkEnds.size( ) != 3 )
+            {
+                std::string errorMessage =
+                        "Error when making angular position model, " +
+                        std::to_string( linkEnds.size( ) ) + " link ends found";
+                throw std::runtime_error( errorMessage );
+            }
+            if( linkEnds.count( receiver ) == 0 )
+            {
+                throw std::runtime_error( "Error when making angular position model, no receiver found" );
+            }
+            if( linkEnds.count( transmitter ) == 0 )
+            {
+                throw std::runtime_error( "Error when making angular position model, no transmitter found" );
+            }
+            if( linkEnds.count( transmitter2 ) == 0 )
+            {
+                throw std::runtime_error( "Error when making angular position model, no second transmitter found" );
+            }
+
+
+            std::shared_ptr< ObservationBias< 2 > > observationBias;
+            if( observationSettings->biasSettings_ != nullptr )
+            {
+                observationBias =
+                        createObservationBiasCalculator< 2 >(
+                            linkEnds, observationSettings->observableType_, observationSettings->biasSettings_,bodies );
+            }
+
+            // Create observation model
+            observationModel = std::make_shared< RelativeAngularPositionObservationModel<
+                    ObservationScalarType, TimeType > >(
+                        linkEnds, createLightTimeCalculator< ObservationScalarType, TimeType >(
+                            linkEnds.at( transmitter ), linkEnds.at( receiver ), bodies, observationSettings->lightTimeCorrectionsList_ ),
+                        createLightTimeCalculator< ObservationScalarType, TimeType >(
+                            linkEnds.at( transmitter2 ), linkEnds.at( receiver ), bodies, observationSettings->lightTimeCorrectionsList_ ), observationBias );
+
+            break;
+        }
         default:
             std::string errorMessage = "Error, observable " + std::to_string(
                         observationSettings->observableType_ ) +
@@ -1633,7 +1829,7 @@ public:
         std::shared_ptr< observation_models::ObservationModel<
                 3, ObservationScalarType, TimeType > > observationModel;
 
-        LinkEnds linkEnds = observationSettings->linkEnds_;
+        LinkEnds linkEnds = observationSettings->linkEnds_.linkEnds_;
 
         // Check type of observation model.
         switch( observationSettings->observableType_ )
@@ -1658,7 +1854,7 @@ public:
             {
                 throw std::runtime_error( "Error when making position observable model, found light time corrections" );
             }
-            if( linkEnds.at( observed_body ).second != "" )
+            if( linkEnds.at( observed_body ).stationName_ != "" )
             {
                 throw std::runtime_error( "Error, cannot yet create position function for reference point" );
             }
@@ -1678,7 +1874,7 @@ public:
                         linkEnds,
                         std::bind( &simulation_setup::Body::getStateInBaseFrameFromEphemeris<
                                    ObservationScalarType, TimeType >,
-                                   bodies.at( linkEnds.at( observed_body ).first ), std::placeholders::_1 ),
+                                   bodies.at( linkEnds.at( observed_body ).bodyName_ ), std::placeholders::_1 ),
                         observationBias );
 
             break;
@@ -1703,7 +1899,7 @@ public:
             {
                 throw std::runtime_error( "Error when making euler angle observable model, found light time corrections" );
             }
-            if( linkEnds.at( observed_body ).second != "" )
+            if( linkEnds.at( observed_body ).stationName_ != "" )
             {
                 throw std::runtime_error( "Error, cannot yet create euler angle function for reference point" );
             }
@@ -1717,7 +1913,7 @@ public:
             }
 
             std::function< Eigen::Quaterniond( const TimeType ) > toBodyFixedFrameFunction;
-            if( bodies.at( linkEnds.at( observed_body ).first )->getRotationalEphemeris( ) == nullptr )
+            if( bodies.at( linkEnds.at( observed_body ).bodyName_ )->getRotationalEphemeris( ) == nullptr )
             {
                 throw std::runtime_error( "Error, cannot euler angle observable; no rotation model found" );
             }
@@ -1725,7 +1921,7 @@ public:
             {
                 toBodyFixedFrameFunction = std::bind(
                             &ephemerides::RotationalEphemeris::getRotationToTargetFrameTemplated< TimeType >,
-                            bodies.at( linkEnds.at( observed_body ).first )->getRotationalEphemeris( ),
+                            bodies.at( linkEnds.at( observed_body ).bodyName_ )->getRotationalEphemeris( ),
                             std::placeholders::_1 );
             }
 
@@ -1758,7 +1954,7 @@ public:
 
                 throw std::runtime_error( "Error when making velocity observable model, found light time corrections" );
             }
-            if( linkEnds.at( observed_body ).second != "" )
+            if( linkEnds.at( observed_body ).stationName_ != "" )
             {
                 throw std::runtime_error( "Error, cannot yet create velocity function for reference point" );
             }
@@ -1778,7 +1974,7 @@ public:
                         linkEnds,
                         std::bind( &simulation_setup::Body::getStateInBaseFrameFromEphemeris<
                                    ObservationScalarType, TimeType >,
-                                   bodies.at( linkEnds.at( observed_body ).first ), std::placeholders::_1 ),
+                                   bodies.at( linkEnds.at( observed_body ).bodyName_ ), std::placeholders::_1 ),
                         observationBias );
 
             break;
@@ -1815,7 +2011,7 @@ std::shared_ptr< ObservationSimulator< ObservationSize, ObservationScalarType, T
     // Iterate over all link ends
     for( unsigned int i = 0; i < settingsList.size( ); i++ )
     {
-        observationModels[ settingsList.at( i )->linkEnds_ ] = ObservationModelCreator<
+        observationModels[ settingsList.at( i )->linkEnds_.linkEnds_ ] = ObservationModelCreator<
                 ObservationSize, ObservationScalarType, TimeType >::createObservationModel(
                     settingsList.at( i ), bodies );
     }
@@ -1851,19 +2047,19 @@ std::vector< std::shared_ptr< ObservationSimulatorBase< ObservationScalarType, T
         case 1:
         {
             observationSimulators.push_back( createObservationSimulator< 1, ObservationScalarType, TimeType >(
-                        observableType, it.second, bodies ) );
+                                                 observableType, it.second, bodies ) );
             break;
         }
         case 2:
         {
             observationSimulators.push_back( createObservationSimulator< 2, ObservationScalarType, TimeType >(
-                        observableType, it.second, bodies ) );
+                                                 observableType, it.second, bodies ) );
             break;
         }
         case 3:
         {
             observationSimulators.push_back( createObservationSimulator< 3, ObservationScalarType, TimeType >(
-                        observableType, it.second, bodies ) );
+                                                 observableType, it.second, bodies ) );
             break;
         }
         default:
@@ -1872,6 +2068,272 @@ std::vector< std::shared_ptr< ObservationSimulatorBase< ObservationScalarType, T
     }
     return observationSimulators;
 }
+
+
+//! Typedef for list of light time corrections for a list of link ends
+typedef std::map< observation_models::LinkEnds,
+std::vector< std::vector< std::shared_ptr< observation_models::LightTimeCorrection > > > >
+PerLinkEndPerLightTimeSolutionCorrections;
+
+template< typename ObservationScalarType, typename TimeType, int ObservationSize  >
+std::vector< std::vector< std::shared_ptr< observation_models::LightTimeCorrection > > > getLightTimeCorrections(
+        const std::shared_ptr< observation_models::ObservationModel<
+        ObservationSize, ObservationScalarType, TimeType> > observationModel )
+{
+    // Clear list, for current link ends.
+    std::vector< std::vector< std::shared_ptr< observation_models::LightTimeCorrection > > > currentLightTimeCorrections;
+
+    std::vector< std::shared_ptr< observation_models::LightTimeCorrection > > singleObservableCorrectionList;
+
+    // Check type of observable
+    switch( observationModel->getObservableType( ) )
+    {
+    case observation_models::one_way_range:
+    {
+        std::shared_ptr< observation_models::OneWayRangeObservationModel
+                < ObservationScalarType, TimeType> > oneWayRangeModel =
+                std::dynamic_pointer_cast< observation_models::OneWayRangeObservationModel
+                < ObservationScalarType, TimeType> >
+                ( observationModel );
+        singleObservableCorrectionList = (
+                    oneWayRangeModel->getLightTimeCalculator( )->getLightTimeCorrection( ) );
+        break;
+    }
+    case observation_models::one_way_doppler:
+    {
+        std::shared_ptr< observation_models::OneWayDopplerObservationModel
+                < ObservationScalarType, TimeType> > oneWayRangeModel =
+                std::dynamic_pointer_cast< observation_models::OneWayDopplerObservationModel
+                < ObservationScalarType, TimeType> >
+                ( observationModel );
+        singleObservableCorrectionList = (
+                    oneWayRangeModel->getLightTimeCalculator( )->getLightTimeCorrection( ) );
+        break;
+    }
+    case observation_models::two_way_doppler:
+    {
+        std::shared_ptr< observation_models::TwoWayDopplerObservationModel
+                < ObservationScalarType, TimeType> > twoWaDopplerModel =
+                std::dynamic_pointer_cast< observation_models::TwoWayDopplerObservationModel
+                < ObservationScalarType, TimeType> >
+                ( observationModel );
+        currentLightTimeCorrections.push_back(
+                    twoWaDopplerModel->getUplinkDopplerCalculator( )->getLightTimeCalculator( )->getLightTimeCorrection( ) );
+        currentLightTimeCorrections.push_back(
+                    twoWaDopplerModel->getDownlinkDopplerCalculator( )->getLightTimeCalculator( )->getLightTimeCorrection( ) );
+        break;
+    }
+    case observation_models::angular_position:
+    {
+        std::shared_ptr< observation_models::AngularPositionObservationModel
+                < ObservationScalarType, TimeType> > angularPositionModel =
+                std::dynamic_pointer_cast< observation_models::AngularPositionObservationModel
+                < ObservationScalarType, TimeType> >
+                ( observationModel );
+        singleObservableCorrectionList = (
+                    angularPositionModel->getLightTimeCalculator( )->getLightTimeCorrection( ) );
+        break;
+    }
+    case observation_models::one_way_differenced_range:
+    {
+        std::shared_ptr< observation_models::OneWayDifferencedRangeObservationModel
+                < ObservationScalarType, TimeType> > oneWayDifferencedRangeObservationModel =
+                std::dynamic_pointer_cast< observation_models::OneWayDifferencedRangeObservationModel
+                < ObservationScalarType, TimeType> >
+                ( observationModel );
+        currentLightTimeCorrections.push_back(
+                    oneWayDifferencedRangeObservationModel->getArcStartLightTimeCalculator( )->
+                    getLightTimeCorrection( ) );
+        currentLightTimeCorrections.push_back(
+                    oneWayDifferencedRangeObservationModel->getArcEndLightTimeCalculator( )->
+                    getLightTimeCorrection( ) );
+
+        break;
+    }
+    case observation_models::n_way_range:
+    {
+        std::shared_ptr< observation_models::NWayRangeObservationModel< ObservationScalarType, TimeType > > nWayRangeObservationModel =
+                std::dynamic_pointer_cast< observation_models::NWayRangeObservationModel< ObservationScalarType, TimeType > >
+                ( observationModel );
+        std::vector< std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > > lightTimeCalculatorList =
+                nWayRangeObservationModel->getLightTimeCalculators( );
+        for( unsigned int i = 0; i < lightTimeCalculatorList.size( ); i++ )
+        {
+            currentLightTimeCorrections.push_back( lightTimeCalculatorList.at( i )->getLightTimeCorrection( ) );
+        }
+        break;
+    }
+    case observation_models::position_observable:
+    {
+        break;
+    }
+    case observation_models::euler_angle_313_observable:
+    {
+        break;
+    }
+    case observation_models::velocity_observable:
+    {
+        break;
+    }
+    case observation_models::relative_angular_position:
+    {
+        std::shared_ptr< observation_models::RelativeAngularPositionObservationModel< ObservationScalarType, TimeType> > relativeAngularPositionModel =
+                std::dynamic_pointer_cast< observation_models::RelativeAngularPositionObservationModel
+                < ObservationScalarType, TimeType> >( observationModel );
+        currentLightTimeCorrections.push_back(
+                    relativeAngularPositionModel->getLightTimeCalculatorFirstTransmitter( )->getLightTimeCorrection( ) );
+        currentLightTimeCorrections.push_back(
+                    relativeAngularPositionModel->getLightTimeCalculatorSecondTransmitter( )->getLightTimeCorrection( ) );
+        break;
+    }
+    default:
+        std::string errorMessage =
+                "Error in light time correction list creation, observable type " +
+                std::to_string( observationModel->getObservableType( ) ) + " not recognized.";
+        throw std::runtime_error( errorMessage );
+    }
+
+    if( singleObservableCorrectionList.size( ) > 0 )
+    {
+        currentLightTimeCorrections.push_back( singleObservableCorrectionList );
+    }
+
+    return currentLightTimeCorrections;
+
+}
+
+//! Function to retrieve a list of light-time corrections per link end from a list of observation models.
+/*!
+ *  Function to retrieve a list of light-time corrections per link end from a list of observation models.
+ *  \param observationModels Map of observation models (may not be of mixed type) with LinkEnds of observable as map key
+ *  \return Map of light-time corrections, with associated link ends as key.
+ */
+template< typename ObservationScalarType, typename TimeType, int ObservationSize  >
+PerLinkEndPerLightTimeSolutionCorrections getLightTimeCorrectionsList(
+        const std::map< observation_models::LinkEnds, std::shared_ptr< observation_models::ObservationModel<
+        ObservationSize, ObservationScalarType, TimeType> > > observationModels )
+{
+    PerLinkEndPerLightTimeSolutionCorrections lightTimeCorrectionsList;
+
+    // Retrieve type of observable
+    observation_models::ObservableType observableType = observationModels.begin( )->second->getObservableType( );
+
+    // Iterate over link ends
+    for( typename  std::map< observation_models::LinkEnds, std::shared_ptr< observation_models::ObservationModel<
+         ObservationSize, ObservationScalarType, TimeType> > >::const_iterator
+         observationModelIterator = observationModels.begin( );
+         observationModelIterator != observationModels.end( ); observationModelIterator++ )
+    {
+        std::vector< std::vector< std::shared_ptr< observation_models::LightTimeCorrection > > > currentLightTimeCorrections =
+                getLightTimeCorrections( observationModelIterator->second );
+
+        // Add light-time corrections for current link ends.
+        if( currentLightTimeCorrections.size( ) > 0 )
+        {
+            lightTimeCorrectionsList[ observationModelIterator->first ] = currentLightTimeCorrections;
+        }
+
+    }
+    return lightTimeCorrectionsList;
+}
+
+template< int ObservationSize >
+class UndifferencedObservationModelExtractor
+{
+public:
+    template< typename ObservationScalarType, typename TimeType >
+    static std::pair< std::shared_ptr< observation_models::ObservationModel< ObservationSize, ObservationScalarType, TimeType > >,
+    std::shared_ptr< observation_models::ObservationModel< ObservationSize, ObservationScalarType, TimeType > > >
+    extract( const std::shared_ptr< observation_models::ObservationModel< ObservationSize, ObservationScalarType, TimeType > > differencedObservationModel );
+};
+
+template< >
+class UndifferencedObservationModelExtractor< 1 >
+{
+public:
+    template< typename ObservationScalarType, typename TimeType >
+    static std::pair< std::shared_ptr< observation_models::ObservationModel< 1, ObservationScalarType, TimeType > >,
+    std::shared_ptr< observation_models::ObservationModel< 1, ObservationScalarType, TimeType > > >
+    extract( const std::shared_ptr< observation_models::ObservationModel< 1, ObservationScalarType, TimeType > > differencedObservationModel )
+    {
+        std::shared_ptr< observation_models::ObservationModel< 1, ObservationScalarType, TimeType > > firstObservationModel;
+        std::shared_ptr< observation_models::ObservationModel< 1, ObservationScalarType, TimeType > > secondObservationModel;
+
+        // Check type of observable
+        switch( differencedObservationModel->getObservableType( ) )
+        {
+        case observation_models::one_way_differenced_range:
+        {
+            std::shared_ptr< observation_models::OneWayDifferencedRangeObservationModel
+                    < ObservationScalarType, TimeType> > oneWayDifferencedRangeObservationModel =
+                    std::dynamic_pointer_cast< observation_models::OneWayDifferencedRangeObservationModel
+                    < ObservationScalarType, TimeType > >( differencedObservationModel );
+            firstObservationModel = std::make_shared< observation_models::OneWayRangeObservationModel< ObservationScalarType, TimeType > >(
+                        oneWayDifferencedRangeObservationModel->getLinkEnds( ),
+                        oneWayDifferencedRangeObservationModel->getArcStartLightTimeCalculator( ) );
+            secondObservationModel = std::make_shared< observation_models::OneWayRangeObservationModel< ObservationScalarType, TimeType > >(
+                        oneWayDifferencedRangeObservationModel->getLinkEnds( ),
+                        oneWayDifferencedRangeObservationModel->getArcEndLightTimeCalculator( ) );
+            break;
+        }
+        case observation_models::n_way_differenced_range:
+        {
+            std::shared_ptr< observation_models::NWayDifferencedRangeObservationModel
+                    < ObservationScalarType, TimeType> > nWayDifferencedRangeObservationModel =
+                    std::dynamic_pointer_cast< observation_models::NWayDifferencedRangeObservationModel
+                    < ObservationScalarType, TimeType > >( differencedObservationModel );
+            firstObservationModel = nWayDifferencedRangeObservationModel->getArcStartObservationModel( );
+            secondObservationModel = nWayDifferencedRangeObservationModel->getArcEndObservationModel( );
+            break;
+        }
+        default:
+            std::string errorMessage =
+                    "Error when getting undifferenced observation models " +
+                    std::to_string( differencedObservationModel->getObservableType( ) ) + " not recognized.";
+            throw std::runtime_error( errorMessage );
+        }
+        return std::make_pair( firstObservationModel, secondObservationModel );
+    }
+};
+
+template< >
+class UndifferencedObservationModelExtractor< 2 >
+{
+public:
+    template< typename ObservationScalarType, typename TimeType >
+    static std::pair< std::shared_ptr< observation_models::ObservationModel< 2, ObservationScalarType, TimeType > >,
+    std::shared_ptr< observation_models::ObservationModel< 2, ObservationScalarType, TimeType > > >
+    extract( const std::shared_ptr< observation_models::ObservationModel< 2, ObservationScalarType, TimeType > > differencedObservationModel )
+    {
+        std::shared_ptr< observation_models::ObservationModel< 2, ObservationScalarType, TimeType > > firstObservationModel;
+        std::shared_ptr< observation_models::ObservationModel< 2, ObservationScalarType, TimeType > > secondObservationModel;
+
+        // Check type of observable
+        switch( differencedObservationModel->getObservableType( ) )
+        {
+        case observation_models::relative_angular_position:
+        {
+            std::shared_ptr< observation_models::RelativeAngularPositionObservationModel
+                    < ObservationScalarType, TimeType> > relativeAngularPositionModel =
+                    std::dynamic_pointer_cast< observation_models::RelativeAngularPositionObservationModel
+                    < ObservationScalarType, TimeType > >( differencedObservationModel );
+            firstObservationModel = std::make_shared< observation_models::AngularPositionObservationModel< ObservationScalarType, TimeType > >(
+                        relativeAngularPositionModel->getFirstLinkEnds( ),
+                        relativeAngularPositionModel->getLightTimeCalculatorFirstTransmitter( ) );
+            secondObservationModel = std::make_shared< observation_models::AngularPositionObservationModel< ObservationScalarType, TimeType > >(
+                        relativeAngularPositionModel->getSecondLinkEnds( ),
+                        relativeAngularPositionModel->getLightTimeCalculatorSecondTransmitter() );
+            break;
+        }
+        default:
+            std::string errorMessage =
+                    "Error when getting undifferenced observation models " +
+                    std::to_string( differencedObservationModel->getObservableType( ) ) + " not recognized.";
+            throw std::runtime_error( errorMessage );
+        }
+        return std::make_pair( firstObservationModel, secondObservationModel );
+    }
+};
 
 
 

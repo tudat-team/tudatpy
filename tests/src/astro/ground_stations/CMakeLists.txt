@@ -14,4 +14,10 @@ TUDAT_ADD_TEST_CASE(GroundStationState
 
 TUDAT_ADD_TEST_CASE(PointingAnglesCalculator
     PRIVATE_LINKS
-    ${Tudat_PROPAGATION_LIBRARIES})
+    ${Tudat_ESTIMATION_LIBRARIES})
+
+TUDAT_ADD_TEST_CASE(Iers2010DeformationModel
+        PRIVATE_LINKS
+        ${Tudat_ESTIMATION_LIBRARIES}
+        )
+

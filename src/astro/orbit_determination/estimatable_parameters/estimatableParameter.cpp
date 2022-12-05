@@ -364,6 +364,23 @@ bool isParameterTidalProperty( const EstimatebleParametersEnum parameterType )
     return flag;
 }
 
+//! Function to determine whether the given parameter represents an arc-wise initial dynamical state.
+bool isParameterArcWiseInitialStateProperty( const EstimatebleParametersEnum parameterType )
+{
+    bool flag;
+    switch( parameterType )
+    {
+        case arc_wise_initial_body_state:
+            flag = true;
+            break;
+        default:
+            flag = false;
+            break;
+    }
+    return flag;
+}
+
+
 
 }
 

@@ -76,13 +76,19 @@ public:
                     const TimeType time,
                     const LinkEndType linkEndAssociatedWithTime,
                     std::vector< double >& linkEndTimes,
-                    std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates )
+                    std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
+            const std::shared_ptr< ObservationAncilliarySimulationSettings< TimeType > > ancilliarySetings = nullptr )
     {
         // Check link end
         if( linkEndAssociatedWithTime != observed_body )
         {
             throw std::runtime_error(
                         "Error when computing position observable, associated link end must be observed_body " );
+        }
+
+        if( ancilliarySetings != nullptr )
+        {
+            throw std::runtime_error( "Error, calling Euler angle observable with ancilliary settings, but none are supported." );
         }
 
         // Set link end times and states.
