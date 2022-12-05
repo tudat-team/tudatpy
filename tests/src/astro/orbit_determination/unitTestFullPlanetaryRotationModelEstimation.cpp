@@ -115,7 +115,7 @@ BOOST_AUTO_TEST_CASE( test_FullPlanetaryRotationalParameters )
                 ( rungeKutta4, initialEphemerisTime, maximumTimeStep );
 
         // Define links in simulation.
-        std::vector< LinkEnds > linkEnds; linkEnds.resize( 1 );
+        std::vector< LinkDefinition > linkEnds; linkEnds.resize( 1 );
         linkEnds[ 0 ][ transmitter ] = grazStation;
         linkEnds[ 0 ][ receiver ] = mslStation;
 
@@ -217,17 +217,19 @@ BOOST_AUTO_TEST_CASE( test_FullPlanetaryRotationalParameters )
         }
 
         // Create estimation input
-        std::shared_ptr< PodInput< double, double > > podInput = std::make_shared< PodInput< double, double > >(
-                    observationsAndTimes, numberOfParameters, inverseAprioriCovariance );
-        podInput->defineEstimationSettings( false, false );
+        std::shared_ptr< EstimationInput< double, double > > estimationInput = std::make_shared< EstimationInput< double, double > >(
+                    observationsAndTimes, inverseAprioriCovariance );
+        estimationInput->defineEstimationSettings( false, false );
+        estimationInput->setConvergenceChecker(
+                    std::make_shared< EstimationConvergenceChecker >( 3 ) );
 
         // Perform state estimation
-        std::shared_ptr< PodOutput< double, double > > podOutput = orbitDeterminationManager.estimateParameters(
-                    podInput, std::make_shared< EstimationConvergenceChecker >( 3 ) );
-
-
+        std::shared_ptr< EstimationOutput< double, double > > estimationOutput = orbitDeterminationManager.estimateParameters(
+                    estimationInput );
+        
+        
         // Retrieve estimated parameter, and compare against true values
-        Eigen::VectorXd parameterError = podOutput->parameterEstimate_ - truthParameters;
+        Eigen::VectorXd parameterError = estimationOutput->parameterEstimate_ - truthParameters;
         if ( testCase == 0 ) {
 
             BOOST_CHECK_SMALL( std::fabs( parameterError( 6 ) ), 1.0E-7 );

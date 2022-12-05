@@ -78,7 +78,7 @@ BOOST_AUTO_TEST_CASE( test_EstimationFromPosition )
                                         }
                                         else
                                         {
-                                            BOOST_CHECK_SMALL( std::fabs( totalError( j ) ), 1.0E-18 );
+                                            BOOST_CHECK_SMALL( std::fabs( totalError( j ) ), 1.0E-10 );
                                         }
                                     }
                                     else if ( !estimateMultiArcBiases )

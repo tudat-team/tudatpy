@@ -26,13 +26,13 @@ std::map< double, Eigen::VectorXd > getTargetAnglesAndRange(
     if( transmittingToTarget )
     {
         linkEnds[ transmitter ] = groundStationId;
-        linkEnds[ receiver ] = std::make_pair( targetBody, "" );
+        linkEnds[ receiver ] = std::pair< std::string, std::string >( std::make_pair( targetBody, "" ) );
         groundStationRole = transmitter;
     }
     else
     {
         linkEnds[ receiver ] = groundStationId;
-        linkEnds[ transmitter ] = std::make_pair( targetBody, "" );
+        linkEnds[ transmitter ] = std::pair< std::string, std::string >( std::make_pair( targetBody, "" ) );
         groundStationRole = receiver;
     }
 
@@ -57,7 +57,7 @@ std::map< double, Eigen::VectorXd > getTargetAnglesAndRange(
             simulateObservations( { observationSimulationSettings }, { observationSimulator}, bodies );
 
     std::shared_ptr< SingleObservationSet< double, double > > singleObservationSet =  observations->getSingleLinkAndTypeObservationSets(
-            one_way_range, linkEnds ).at( 0 );
+            one_way_range, LinkDefinition( linkEnds ) ).at( 0 );
     std::map< double, Eigen::VectorXd > angles = singleObservationSet->getDependentVariableHistory( );
     std::map< double, Eigen::VectorXd > observationValues = singleObservationSet->getObservationsHistory( );
 

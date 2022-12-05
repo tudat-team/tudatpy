@@ -167,8 +167,8 @@ BOOST_AUTO_TEST_CASE( test_ArcwiseEnvironmentParameters )
     ///////////////////////             CREATE OBSERVATION SETTINGS            ////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    LinkEnds linkEnds;
-    linkEnds[ observed_body ] = std::make_pair( "Vehicle", "" );
+    LinkDefinition linkEnds;
+    linkEnds[ observed_body ] = std::make_pair< std::string, std::string >( "Vehicle", "" );
     std::vector< std::shared_ptr< ObservationModelSettings > >  observationSettingsList;
     observationSettingsList.push_back( std::make_shared< ObservationModelSettings >( position_observable, linkEnds ) );
 
@@ -287,20 +287,21 @@ BOOST_AUTO_TEST_CASE( test_ArcwiseEnvironmentParameters )
     parameterPerturbation.segment( 6, 6 ) = Eigen::VectorXd::Constant( 6, 1.0 );
     Eigen::Matrix< double, Eigen::Dynamic, 1 > initialParameterEstimate = truthParameters;
     initialParameterEstimate += parameterPerturbation;
+    parametersToEstimate->resetParameterValues( initialParameterEstimate );
 
 
     // Define estimation input
-    std::shared_ptr< PodInput< double, double > > podInput =
-            std::make_shared< PodInput< double, double > >(
-                observationsAndTimes, initialParameterEstimate.rows( ),
-                Eigen::MatrixXd::Zero( truthParameters.rows( ), truthParameters.rows( ) ),
-                initialParameterEstimate - truthParameters );
-    podInput->defineEstimationSettings( true, true, false, true );
+    std::shared_ptr< EstimationInput< double, double > > estimationInput =
+            std::make_shared< EstimationInput< double, double > >(
+                observationsAndTimes );
+    estimationInput->defineEstimationSettings( true, true, false, true );
+    estimationInput->setConvergenceChecker(
+                std::make_shared< EstimationConvergenceChecker >( 4 ) );
 
     // Perform estimation
-    std::shared_ptr< PodOutput< double > > podOutput = orbitDeterminationManager.estimateParameters(
-                podInput, std::make_shared< EstimationConvergenceChecker >( 4 ) );
-    Eigen::VectorXd parameterEstimate = podOutput->parameterEstimate_ - truthParameters;
+    std::shared_ptr< EstimationOutput< double > > estimationOutput = orbitDeterminationManager.estimateParameters(
+                estimationInput );
+    Eigen::VectorXd parameterEstimate = estimationOutput->parameterEstimate_ - truthParameters;
 
     for( int i = 0; i < 3; i++ )
     {

@@ -42,38 +42,38 @@ DoubleObservationDependentVariableFunction getBodyAvoidanceFunction(
         const SystemOfBodies& bodies,
         const std::shared_ptr< BodyAvoidanceObservationDependentVariableSettings > variableSettings,
         const observation_models::ObservableType observableType,
-        const observation_models::LinkEnds linkEnds );
+        const observation_models::LinkDefinition linkEnds );
 
 DoubleObservationDependentVariableFunction getTargetRangeFunction(
         const SystemOfBodies& bodies,
         const std::shared_ptr< InterlinkObservationDependentVariableSettings > variableSettings,
         const observation_models::ObservableType observableType,
-        const observation_models::LinkEnds linkEnds );
+        const observation_models::LinkDefinition linkEnds );
 
 DoubleObservationDependentVariableFunction getStationObservationAngleFunction(
         const SystemOfBodies& bodies,
         const std::shared_ptr< StationAngleObservationDependentVariableSettings > variableSettings,
         const observation_models::ObservableType observableType,
-        const observation_models::LinkEnds linkEnds );
+        const observation_models::LinkDefinition linkEnds );
 
 DoubleObservationDependentVariableFunction getObservationDoubleDependentVariableFunction(
         const SystemOfBodies& bodies,
         const std::shared_ptr< ObservationDependentVariableSettings > variableSettings,
         const observation_models::ObservableType observableType,
-        const observation_models::LinkEnds linkEnds );
+        const observation_models::LinkDefinition linkEnds );
 
 VectorObservationDependentVariableFunction getObservationVectorDependentVariableFunction(
         const SystemOfBodies& bodies,
         const std::shared_ptr< ObservationDependentVariableSettings > variableSettings,
         const observation_models::ObservableType observableType,
-        const observation_models::LinkEnds linkEnds );
+        const observation_models::LinkDefinition linkEnds );
 
 class ObservationDependentVariableCalculator
 {
 public:
 
     ObservationDependentVariableCalculator( const observation_models::ObservableType observableType,
-                                            const observation_models::LinkEnds& linkEnds ):
+                                            const observation_models::LinkDefinition& linkEnds ):
     observableType_( observableType ), linkEnds_( linkEnds )
     {
         totalDependentVariableSize_ = 0.0;
@@ -99,7 +99,7 @@ private:
 
     observation_models::ObservableType observableType_;
 
-    observation_models::LinkEnds linkEnds_;
+    observation_models::LinkDefinition linkEnds_;
 
     std::vector< std::shared_ptr< ObservationDependentVariableSettings > > settingsList_;
 

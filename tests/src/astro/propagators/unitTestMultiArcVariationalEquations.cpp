@@ -269,15 +269,18 @@ executeMultiArcEarthMoonSimulation(
                         variationalEquations.getStateTransitionMatrixInterface( )->
                         getFullCombinedStateTransitionAndSensitivityMatrix( testEpoch );
 
-                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                            testMatrixDirect.block( 0, 0, 12, 12 ),
-                            testMatrixFull.block( 0, 12 * arc, 12, 12 ),
-                            std::numeric_limits< double >::epsilon( ) );
+                for ( unsigned int j = 0 ; j < bodiesToIntegrate.size( ); j++ )
+                {
+                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                                testMatrixDirect.block( 0, j*6, 12, 6 ),
+                                testMatrixFull.block( 0, j * numberOfArcs * 6 + 6 * arc, 12, 6 ),
+                                std::numeric_limits< double >::epsilon( ) );
 
-                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                            testMatrixDirect.block( 0, 12, 12, 3 ),
-                            testMatrixFull.block( 0, 12 * numberOfArcs, 12, 3 ),
-                            std::numeric_limits< double >::epsilon( ) );
+                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                                testMatrixDirect.block( 0, 12, 12, 3 ),
+                                testMatrixFull.block( 0, 12 * numberOfArcs, 12, 3 ),
+                                std::numeric_limits< double >::epsilon( ) );
+                }
             }
             else
             {

@@ -52,7 +52,7 @@ public:
             const bool biasIsAbsolute ):
         EstimatableParameter< Eigen::VectorXd >(
             biasIsAbsolute ? constant_additive_observation_bias :constant_relative_observation_bias,
-            linkEnds.begin( )->second. first ),
+                                                 linkEnds.begin( )->second.bodyName_ ),
         getCurrentBias_( getCurrentBias ), resetCurrentBias_( resetCurrentBias ),
         linkEnds_( linkEnds ), observableType_( observableType ){ }
     
@@ -219,7 +219,7 @@ public:
             const bool biasIsAbsolute ):
         EstimatableParameter< Eigen::VectorXd >(
             biasIsAbsolute ? arcwise_constant_additive_observation_bias : arcwise_constant_relative_observation_bias,
-            linkEnds.begin( )->second.first ),
+            linkEnds.begin( )->second.bodyName_ ),
         arcStartTimes_( arcStartTimes ), getBiasList_( getBiasList ), resetBiasList_( resetBiasList ),
         linkEndIndex_( linkEndIndex ), linkEnds_( linkEnds ), observableType_( observableType )
     {
@@ -452,7 +452,7 @@ public:
             const observation_models::LinkEnds linkEnds,
             const observation_models::ObservableType observableType,
             const double referenceEpoch ):
-        EstimatableParameter< Eigen::VectorXd >( constant_time_drift_observation_bias, linkEnds.begin( )->second. first ),
+        EstimatableParameter< Eigen::VectorXd >( constant_time_drift_observation_bias, linkEnds.begin( )->second.bodyName_ ),
         getCurrentBias_( getCurrentBias ), resetCurrentBias_( resetCurrentBias ), linkEndIndex_( linkEndIndex ),
         linkEnds_( linkEnds ), observableType_( observableType ), referenceEpoch_( referenceEpoch ){ }
     
@@ -645,7 +645,7 @@ public:
             const observation_models::LinkEnds linkEnds,
             const observation_models::ObservableType observableType,
             const std::vector< double > referenceEpochs ):
-        EstimatableParameter< Eigen::VectorXd >( arc_wise_time_drift_observation_bias, linkEnds.begin( )->second.first ),
+        EstimatableParameter< Eigen::VectorXd >( arc_wise_time_drift_observation_bias, linkEnds.begin( )->second.bodyName_ ),
         arcStartTimes_( arcStartTimes ), getBiasList_( getBiasList ), resetBiasList_( resetBiasList ),
         linkEndIndex_( linkEndIndex ), linkEnds_( linkEnds ), observableType_( observableType ), referenceEpochs_( referenceEpochs )
     {

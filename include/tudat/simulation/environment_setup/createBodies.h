@@ -18,6 +18,7 @@
 #include "tudat/simulation/environment_setup/createEphemeris.h"
 #include "tudat/simulation/environment_setup/createAtmosphereModel.h"
 #include "tudat/simulation/environment_setup/createBodyShapeModel.h"
+#include "tudat/simulation/environment_setup/createBodyDeformationModel.h"
 #include "tudat/simulation/environment_setup/createEphemeris.h"
 #include "tudat/simulation/environment_setup/createGravityField.h"
 #include "tudat/simulation/environment_setup/createGroundStations.h"
@@ -68,7 +69,10 @@ struct BodySettings
     //! Settings for variations of the gravity field of the body.
     std::vector< std::shared_ptr< GravityFieldVariationSettings > > gravityFieldVariationSettings;
 
+    std::vector< std::shared_ptr< BodyDeformationSettings > > bodyDeformationSettings;
+
     std::vector< std::shared_ptr< GroundStationSettings > > groundStationSettings;
+
 
 };
 

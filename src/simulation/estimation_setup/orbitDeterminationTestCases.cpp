@@ -19,29 +19,28 @@ Eigen::VectorXd getDefaultInitialParameterPerturbation( )
     return parameterPerturbations;
 }
 
-template std::pair< std::shared_ptr< PodOutput< double > >, Eigen::VectorXd > executePlanetaryParameterEstimation< double, double >(
-        const int observableType,
-        Eigen::VectorXd parameterPerturbation,
-        Eigen::MatrixXd inverseAPrioriCovariance,
-        const double weight );
+//template std::pair< std::shared_ptr< EstimationOutput< double > >, Eigen::VectorXd > executePlanetaryParameterEstimation< double, double >(
+//        const int observableType,
+//        Eigen::VectorXd parameterPerturbation,
+//        Eigen::MatrixXd inverseAPrioriCovariance,
+//        const double weight );
 
 
-template Eigen::VectorXd executeEarthOrbiterParameterEstimation< double, double >(
-        std::pair< std::shared_ptr< PodOutput< double > > , std::shared_ptr< PodInput< double, double > > >& podData,
-        const double startTime,
-        const int numberOfDaysOfData,
-        const int numberOfIterations,
-        const bool useFullParameterSet );
+//template Eigen::VectorXd executeEarthOrbiterParameterEstimation< double, double >(
+//        std::pair< std::shared_ptr< EstimationOutput< double > > , std::shared_ptr< EstimationInput< double, double > > >& podData,
+//        const double startTime,
+//        const int numberOfDaysOfData,
+//        const int numberOfIterations,
+//        const bool useFullParameterSet );
 
-template std::pair< Eigen::VectorXd, bool > executeEarthOrbiterBiasEstimation< double, double >(
-        const bool estimateRangeBiases,
-        const bool estimateTwoWayBiases,
-        const bool useSingleBiasModel,
-        const bool estimateAbsoluteBiases,
-        const bool omitRangeData,
-        const bool useMultiArcBiases,
-        const bool estimateTimeBiases );
-;
+//template std::pair< Eigen::VectorXd, bool > executeEarthOrbiterBiasEstimation< double, double >(
+//        const bool estimateRangeBiases,
+//        const bool estimateTwoWayBiases,
+//        const bool useSingleBiasModel,
+//        const bool estimateAbsoluteBiases,
+//        const bool omitRangeData,
+//        const bool useMultiArcBiases );
+
 
 }
 

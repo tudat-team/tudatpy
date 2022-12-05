@@ -72,10 +72,11 @@ public:
      *  \return Calculated angular position observable values.
      */
     Eigen::Matrix< ObservationScalarType, 2, 1 > computeIdealObservationsWithLinkEndData(
-                    const TimeType time,
-                    const LinkEndType linkEndAssociatedWithTime,
-                    std::vector< double >& linkEndTimes,
-                    std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates )
+            const TimeType time,
+            const LinkEndType linkEndAssociatedWithTime,
+            std::vector< double >& linkEndTimes,
+            std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
+            const std::shared_ptr< ObservationAncilliarySimulationSettings< TimeType > > ancilliarySetings = nullptr )
 
     {
         // Check link end associated with input time and compute observable
@@ -92,6 +93,11 @@ public:
         {
             isTimeAtReception = -1;
             throw std::runtime_error( "Error when calculating angular position observation, link end is not transmitter or receiver" );
+        }
+
+        if( ancilliarySetings != nullptr )
+        {
+            throw std::runtime_error( "Error, calling angular position observable with ancilliary settings, but none are supported." );
         }
 
         Eigen::Matrix< ObservationScalarType, 6, 1 > receiverState;
