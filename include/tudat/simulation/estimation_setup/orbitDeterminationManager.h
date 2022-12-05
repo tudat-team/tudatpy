@@ -114,12 +114,10 @@ public:
             const std::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > propagatorSettings,
             const int integratorIndexOffset = 0 )
     {
-        std::cout<<"Calling"<<std::endl;
         std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > independentIntegratorSettingsList =
                 utilities::cloneDuplicatePointers( integratorSettings );
         if( std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< ObservationScalarType, TimeType > >( propagatorSettings ) != nullptr )
         {
-            std::cout<<"Multi-arc"<<std::endl;
             std::shared_ptr< propagators::MultiArcPropagatorSettings< ObservationScalarType, TimeType > > multiArcPropagatorSettings =
                     std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< ObservationScalarType, TimeType > >( propagatorSettings );
 
@@ -136,8 +134,6 @@ public:
         }
         else if( std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< ObservationScalarType, TimeType > >( propagatorSettings ) != nullptr )
         {
-            std::cout<<"Hybrid-arc"<<std::endl;
-
             independentIntegratorSettingsList = preprocessDeprecatedIntegratorSettings(
                         parametersToEstimate, integratorSettings,
                         std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< ObservationScalarType, TimeType > >( propagatorSettings )->getMultiArcPropagatorSettings( ),
@@ -202,7 +198,6 @@ public:
                         numberOfArcs, integratorSettings );
             processedIntegratorSettings =
                     preprocessDeprecatedIntegratorSettings( parametersToEstimate, unprocessedIntegratorSettings, propagatorSettings );
-            std::cout<<"Sizes: "<<unprocessedIntegratorSettings.size( )<<" "<<processedIntegratorSettings.size( )<<" "<<numberOfArcs<<std::endl;
         }
         else if( std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< ObservationScalarType, TimeType > >( propagatorSettings ) != nullptr )
         {

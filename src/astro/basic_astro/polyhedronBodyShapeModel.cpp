@@ -77,9 +77,9 @@ double PolyhedronBodyShapeModel::getAltitude( const Eigen::Vector3d& bodyFixedPo
                 // If the edge isn't in the list of edges to test, check whether it should be added to it
                 if ( std::count( facetsToTest.begin(), facetsToTest.end(), facet ) == 0)
                 {
-                    if ( static_cast< unsigned int >( verticesDefiningEachFacet_(facet, 0) == vertex )||
-                         static_cast< unsigned int >( verticesDefiningEachEdge_(facet, 1) == vertex ) ||
-                         static_cast< unsigned int >( verticesDefiningEachFacet_(facet, 2) == vertex ) )
+                    if ( static_cast< unsigned int >( verticesDefiningEachFacet_(facet, 0) ) == vertex ||
+                         static_cast< unsigned int >( verticesDefiningEachEdge_(facet, 1) ) == vertex ||
+                         static_cast< unsigned int >( verticesDefiningEachFacet_(facet, 2) ) == vertex  )
                     {
                         facetsToTest.push_back( facet );
                     }

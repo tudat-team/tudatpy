@@ -429,8 +429,6 @@ public:
             {
                 if( std::dynamic_pointer_cast< DirectObservationPartial< 2 > >( secondPartial ) == nullptr )
                 {
-                    std::cout<<secondPartial<<" "<<
-                               std::dynamic_pointer_cast< DirectObservationPartial< 2 > >( secondPartial )<<std::endl;
                     throw std::runtime_error( "Error when creating relative angular position partial; second input object type is incompatible" );
                 }
                 else if( std::dynamic_pointer_cast< DirectObservationPartial< 2 > >( secondPartial )->getObservableType( ) != angular_position )
