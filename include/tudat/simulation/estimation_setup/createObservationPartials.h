@@ -141,6 +141,7 @@ public:
                         observationModel, bodies, parametersToEstimate, useBiasPartials );
             break;
         case observation_models::two_way_doppler:
+            throw std::runtime_error( "Error, two-way instantaneous Doppler observable currently failing in unit tests, please contact Tudat support" );
             observationPartials = createTwoWayDopplerPartials< ObservationScalarType, TimeType >(
                         observationModel, bodies, parametersToEstimate, useBiasPartials );
             break;
