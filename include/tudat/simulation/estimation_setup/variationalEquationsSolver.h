@@ -990,7 +990,7 @@ public:
         return variationalEquationsSolution_[ 1];
     }
 
-    const std::map< double, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& getEquationsOfMotionSolution( )
+    const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& getEquationsOfMotionSolution( )
     {
         return dynamicsSimulator_->getEquationsOfMotionNumericalSolution( );
     }

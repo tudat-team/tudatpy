@@ -71,7 +71,7 @@ std::shared_ptr< propagators::DynamicsSimulator< StateScalarType, TimeType > > c
     else if( std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< StateScalarType > >( propagatorSettings ) != nullptr )
     {
         return std::make_shared< propagators::HybridArcDynamicsSimulator< StateScalarType, TimeType > >(
-                    bodies, std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< StateScalarType > >( propagatorSettings ),
+                    bodies, std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ),
                     areEquationsOfMotionToBeIntegrated );
     }
     else

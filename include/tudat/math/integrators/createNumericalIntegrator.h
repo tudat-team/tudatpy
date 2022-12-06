@@ -365,8 +365,8 @@ public:
             const IndependentVariableType initialTimeStep,
             const numerical_integrators::CoefficientSets coefficientSet,
             const IndependentVariableType minimumStepSize, const IndependentVariableType maximumStepSize,
-            const IndependentVariableType relativeErrorTolerance = 1.0E-12,
-            const IndependentVariableType absoluteErrorTolerance = 1.0E-12,
+            const double relativeErrorTolerance = 1.0E-12,
+            const double absoluteErrorTolerance = 1.0E-12,
             const int saveFrequency = 1,
             const bool assessTerminationOnMinorSteps = false,
             const IndependentVariableType safetyFactorForNextStepSize = 0.8,
@@ -422,7 +422,7 @@ class RungeKuttaVariableStepSizeSettingsVectorTolerances: public RungeKuttaVaria
 {
 public:
 
-    typedef Eigen::Matrix< IndependentVariableType, Eigen::Dynamic, Eigen::Dynamic > DependentVariableType;
+    typedef Eigen::MatrixXd DependentVariableType;
     // Default constructor.
     /*
      *  Constructor for variable step RK integrator settings with vector tolerances.
@@ -520,8 +520,8 @@ public:
             const ExtrapolationMethodStepSequences extrapolationSequence,
             const unsigned int maximumNumberOfSteps,
             const IndependentVariableType minimumStepSize, const IndependentVariableType maximumStepSize,
-            const IndependentVariableType relativeErrorTolerance = 1.0E-12,
-            const IndependentVariableType absoluteErrorTolerance = 1.0E-12,
+            const double relativeErrorTolerance = 1.0E-12,
+            const double absoluteErrorTolerance = 1.0E-12,
             const int saveFrequency = 1,
             const bool assessTerminationOnMinorSteps = false,
             const IndependentVariableType safetyFactorForNextStepSize = 0.7,
@@ -568,10 +568,10 @@ public:
     const IndependentVariableType maximumStepSize_;
 
     // Relative error tolerance for step size control
-    const IndependentVariableType relativeErrorTolerance_;
+    const double relativeErrorTolerance_;
 
     // Absolute error tolerance for step size control
-    const IndependentVariableType absoluteErrorTolerance_;
+    const double absoluteErrorTolerance_;
 
     // Safety factor for step size control
     const IndependentVariableType safetyFactorForNextStepSize_;
@@ -619,8 +619,8 @@ public:
             const IndependentVariableType initialTimeStep,
             const IndependentVariableType minimumStepSize,
             const IndependentVariableType maximumStepSize,
-            const IndependentVariableType relativeErrorTolerance = 1.0E-12,
-            const IndependentVariableType absoluteErrorTolerance = 1.0E-12,
+            const double relativeErrorTolerance = 1.0E-12,
+            const double absoluteErrorTolerance = 1.0E-12,
             const int minimumOrder = 6,
             const int maximumOrder = 11,
             const int saveFrequency = 1,
@@ -659,10 +659,10 @@ public:
     IndependentVariableType maximumStepSize_;
 
     // Relative error tolerance for step size control
-    IndependentVariableType relativeErrorTolerance_;
+    double relativeErrorTolerance_;
 
     // Absolute error tolerance for step size control
-    IndependentVariableType absoluteErrorTolerance_;
+    double absoluteErrorTolerance_;
 
     // Minimum order of integrator
     const int minimumOrder_;
@@ -749,8 +749,8 @@ inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > rungeKut
         const numerical_integrators::CoefficientSets coefficientSet,
         const IndependentVariableType minimumStepSize,
         const IndependentVariableType maximumStepSize,
-        const IndependentVariableType& relativeErrorTolerance,
-        const IndependentVariableType& absoluteErrorTolerance,
+        const double relativeErrorTolerance,
+        const double absoluteErrorTolerance,
         const int saveFrequency = 1,
         const bool assessTerminationOnMinorSteps = false,
         const IndependentVariableType safetyFactorForNextStepSize = 0.8,
@@ -774,8 +774,8 @@ inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > rungeKut
         const numerical_integrators::CoefficientSets coefficientSet,
         const IndependentVariableType minimumStepSize,
         const IndependentVariableType maximumStepSize,
-        const IndependentVariableType& relativeErrorTolerance,
-        const IndependentVariableType& absoluteErrorTolerance,
+        const double relativeErrorTolerance,
+        const double absoluteErrorTolerance,
         const int saveFrequency = 1,
         const bool assessTerminationOnMinorSteps = false,
         const IndependentVariableType safetyFactorForNextStepSize = 0.8,
@@ -801,8 +801,8 @@ inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > rungeKut
         const numerical_integrators::CoefficientSets coefficientSet,
         const IndependentVariableType minimumStepSize,
         const IndependentVariableType maximumStepSize,
-        const Eigen::Matrix< IndependentVariableType, Eigen::Dynamic, Eigen::Dynamic > relativeErrorTolerance,
-        const Eigen::Matrix< IndependentVariableType, Eigen::Dynamic, Eigen::Dynamic > absoluteErrorTolerance,
+        const Eigen::Matrix< double, Eigen::Dynamic, Eigen::Dynamic > relativeErrorTolerance,
+        const Eigen::Matrix< double, Eigen::Dynamic, Eigen::Dynamic > absoluteErrorTolerance,
         const int saveFrequency = 1,
         const bool assessTerminationOnMinorSteps = false,
         const IndependentVariableType safetyFactorForNextStepSize = 0.8,
@@ -829,8 +829,8 @@ inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > rungeKut
         const numerical_integrators::CoefficientSets coefficientSet,
         const IndependentVariableType minimumStepSize,
         const IndependentVariableType maximumStepSize,
-        const Eigen::Matrix< IndependentVariableType, Eigen::Dynamic, Eigen::Dynamic > relativeErrorTolerance,
-        const Eigen::Matrix< IndependentVariableType, Eigen::Dynamic, Eigen::Dynamic > absoluteErrorTolerance,
+        const Eigen::Matrix< double, Eigen::Dynamic, Eigen::Dynamic > relativeErrorTolerance,
+        const Eigen::Matrix< double, Eigen::Dynamic, Eigen::Dynamic > absoluteErrorTolerance,
         const int saveFrequency = 1,
         const bool assessTerminationOnMinorSteps = false,
         const IndependentVariableType safetyFactorForNextStepSize = 0.8,
@@ -857,8 +857,8 @@ inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > bulirsch
         const ExtrapolationMethodStepSequences extrapolationSequence,
         const unsigned int maximumNumberOfSteps,
         const IndependentVariableType minimumStepSize, const IndependentVariableType maximumStepSize,
-        const IndependentVariableType relativeErrorTolerance = 1.0E-12,
-        const IndependentVariableType absoluteErrorTolerance = 1.0E-12,
+        const double relativeErrorTolerance = 1.0E-12,
+        const double absoluteErrorTolerance = 1.0E-12,
         const int saveFrequency = 1,
         const bool assessTerminationOnMinorSteps = false,
         const IndependentVariableType safetyFactorForNextStepSize = 0.7,
@@ -882,8 +882,8 @@ inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > bulirsch
         const ExtrapolationMethodStepSequences extrapolationSequence,
         const unsigned int maximumNumberOfSteps,
         const IndependentVariableType minimumStepSize, const IndependentVariableType maximumStepSize,
-        const IndependentVariableType relativeErrorTolerance = 1.0E-12,
-        const IndependentVariableType absoluteErrorTolerance = 1.0E-12,
+        const double relativeErrorTolerance = 1.0E-12,
+        const double absoluteErrorTolerance = 1.0E-12,
         const int saveFrequency = 1,
         const bool assessTerminationOnMinorSteps = false,
         const IndependentVariableType safetyFactorForNextStepSize = 0.7,
@@ -907,8 +907,8 @@ inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > adamsBas
         const IndependentVariableType initialTimeStep,
         const IndependentVariableType minimumStepSize,
         const IndependentVariableType maximumStepSize,
-        const IndependentVariableType relativeErrorTolerance = 1.0E-12,
-        const IndependentVariableType absoluteErrorTolerance = 1.0E-12,
+        const double relativeErrorTolerance = 1.0E-12,
+        const double absoluteErrorTolerance = 1.0E-12,
         const int minimumOrder = 6,
         const int maximumOrder = 11,
         const int saveFrequency = 1,
@@ -928,8 +928,8 @@ inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > adamsBas
         const IndependentVariableType initialTimeStep,
         const IndependentVariableType minimumStepSize,
         const IndependentVariableType maximumStepSize,
-        const IndependentVariableType relativeErrorTolerance = 1.0E-12,
-        const IndependentVariableType absoluteErrorTolerance = 1.0E-12,
+        const double relativeErrorTolerance = 1.0E-12,
+        const double absoluteErrorTolerance = 1.0E-12,
         const int minimumOrder = 6,
         const int maximumOrder = 11,
         const int saveFrequency = 1,
