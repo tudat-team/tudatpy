@@ -1054,7 +1054,7 @@ translationalStatePropagatorSettingsDeprecated(
         std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
         const double statePrintInterval = TUDAT_NAN )
 {
-    return std::make_shared< TranslationalStatePropagatorSettings < StateScalarType > >(
+    return std::make_shared< TranslationalStatePropagatorSettings < StateScalarType, TimeType > >(
                 centralBodies, accelerationsMap, bodiesToIntegrate, initialBodyStates,
                 terminationSettings, propagator, dependentVariablesToSave, statePrintInterval );
 }
@@ -1074,7 +1074,7 @@ translationalStatePropagatorSettings(
                     std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
                                                   const std::shared_ptr< SingleArcPropagatorProcessingSettings > outputSettings = std::make_shared< SingleArcPropagatorProcessingSettings >( ) )
 {
-    return std::make_shared< TranslationalStatePropagatorSettings < StateScalarType > >(
+    return std::make_shared< TranslationalStatePropagatorSettings< StateScalarType, TimeType > >(
                 centralBodies, accelerationsMap, bodiesToIntegrate, initialBodyStates, initialTime,
                 integratorSettings, terminationSettings, propagator, dependentVariablesToSave, outputSettings );
 }
@@ -1670,7 +1670,7 @@ customStatePropagatorSettingsDeprecated(
         std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
         const double statePrintInterval = TUDAT_NAN  )
 {
-    return std::make_shared< CustomStatePropagatorSettings < StateScalarType > >(
+    return std::make_shared< CustomStatePropagatorSettings < StateScalarType, TimeType > >(
                 stateDerivativeFunction, initialState, terminationSettings, dependentVariablesToSave, statePrintInterval );
 }
 
@@ -1688,7 +1688,7 @@ customStatePropagatorSettings(
         const std::shared_ptr< SingleArcPropagatorProcessingSettings > outputSettings =
         std::make_shared< SingleArcPropagatorProcessingSettings >( ) )
 {
-    return std::make_shared< CustomStatePropagatorSettings < StateScalarType > >(
+    return std::make_shared< CustomStatePropagatorSettings < StateScalarType, TimeType > >(
                 stateDerivativeFunction, initialState, initialTime, integratorSettings,
                 terminationSettings, dependentVariablesToSave, outputSettings );
 }
@@ -1946,7 +1946,7 @@ public:
             std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
             const double statePrintInterval = TUDAT_NAN ):
         SingleArcPropagatorSettings< StateScalarType, TimeType >(
-            hybrid, createCombinedInitialState< StateScalarType >( propagatorSettingsMap ),
+            hybrid, createCombinedInitialState< StateScalarType, TimeType >( propagatorSettingsMap ),
             terminationSettings, dependentVariablesToSave, statePrintInterval ),
         propagatorSettingsMap_( propagatorSettingsMap )
     {
@@ -1982,7 +1982,7 @@ public:
                         propagatorSettingsVector.at( i ) );
         }
 
-        this->initialStates_ = createCombinedInitialState< StateScalarType >( propagatorSettingsMap_ );
+        this->initialStates_ = createCombinedInitialState< StateScalarType, TimeType >( propagatorSettingsMap_ );
         this->stateSize_ = getMultiTypePropagatorStateSize( propagatorSettingsMap_ );
         makeOutputSettingsConsistent( );
 
@@ -2007,7 +2007,7 @@ public:
                         propagatorSettingsVector.at( i ) );
         }
 
-        this->initialStates_ = createCombinedInitialState< StateScalarType >( propagatorSettingsMap_ );
+        this->initialStates_ = createCombinedInitialState< StateScalarType, TimeType >( propagatorSettingsMap_ );
         this->stateSize_ = getMultiTypePropagatorStateSize( propagatorSettingsMap_ );
         makeOutputSettingsConsistent( );
 
@@ -2061,7 +2061,7 @@ public:
             throw std::runtime_error( errorMessage );
         }
 
-        this->initialStates_ = createCombinedInitialState< StateScalarType >( propagatorSettingsMap_ );
+        this->initialStates_ = createCombinedInitialState< StateScalarType, TimeType >( propagatorSettingsMap_ );
 
     }
 
@@ -2155,7 +2155,7 @@ public:
 
     void recomputeInitialStates( )
     {
-        this->initialStates_ = createCombinedInitialState< StateScalarType >( propagatorSettingsMap_ );
+        this->initialStates_ = createCombinedInitialState< StateScalarType, TimeType >( propagatorSettingsMap_ );
     }
 
 
@@ -2313,7 +2313,7 @@ std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string 
             {
                 for( unsigned int i = 0; i < typeIterator->second.size( ); i++ )
                 {
-                    singleTypeIntegratedStateList = getIntegratedTypeAndBodyList< StateScalarType >(
+                    singleTypeIntegratedStateList = getIntegratedTypeAndBodyList< StateScalarType, TimeType >(
                                 typeIterator->second.at( i ) );
 
                     if( singleTypeIntegratedStateList.begin( )->first != typeIterator->first
@@ -2539,9 +2539,9 @@ void toggleIntegratedResultSettings(
         std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< StateScalarType, TimeType > >(
                     propagatorSettings )->getOutputSettings( )->setIntegratedResult( true );
     }
-    else if( std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< StateScalarType > >( propagatorSettings ) != nullptr )
+    else if( std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ) != nullptr )
     {
-        std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< StateScalarType > >(
+        std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< StateScalarType, TimeType > >(
                     propagatorSettings )->getOutputSettings( )->setIntegratedResult( true );
     }
     else

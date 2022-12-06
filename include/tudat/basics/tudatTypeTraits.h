@@ -87,6 +87,28 @@ struct is_state_scalar_and_time_type {
   static const bool value = ( is_time_type< TimeType >::value && is_state_scalar< StateScalarType >::value );
 };
 
+
+template <typename TimeType>
+struct scalar_type;
+
+template <>
+struct scalar_type< double >
+{
+    using value_type = double;
+};
+
+template <>
+struct scalar_type< long double >
+{
+    using value_type = long double;
+};
+
+template <>
+struct scalar_type< Time >
+{
+    using value_type = long double;
+};
+
 template< typename T >
 struct is_direct_gravity_partial {
     static const bool value = false;

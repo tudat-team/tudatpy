@@ -60,7 +60,7 @@ void integrateForwardWithDissipationAndBackwardsWithout(
 {
     using namespace tudat::numerical_integrators;
 
-    std::shared_ptr< SingleArcPropagatorSettings< TimeType > > propagatorSettings = dynamicsSimulator->getPropagatorSettings( );
+    std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > propagatorSettings = dynamicsSimulator->getPropagatorSettings( );
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1> initialState = propagatorSettings->getInitialStates( );
     std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings =
             dynamicsSimulator->getIntegratorSettings( );
