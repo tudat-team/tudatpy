@@ -55,6 +55,10 @@ std::vector< DependentVariableType > solveTridiagonalMatrixEquation(
 {
     // Check whether input diagonals are correct size.
     unsigned int matrixSize = rightHandSide.size( );
+    if( matrixSize < 2 )
+    {
+        throw std::runtime_error( "Error, RHS must be at least size 2 for tridiagonal matrix solution" );
+    }
     if ( ( diagonal.size( ) < matrixSize ) || ( superDiagonal.size( ) < matrixSize - 1 ) ||
          ( rightHandSide.size( ) < matrixSize - 1 ) )
     {

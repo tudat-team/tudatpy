@@ -49,7 +49,7 @@ enum LagrangeInterpolatorBoundaryHandling
  *  mathematical details.
  */
 template< typename IndependentVariableType, typename DependentVariableType,
-          typename ScalarType = IndependentVariableType >
+          typename ScalarType = typename scalar_type< IndependentVariableType >::value_type >
 class LagrangeInterpolator : public OneDimensionalInterpolator< IndependentVariableType,
         DependentVariableType >
 {
