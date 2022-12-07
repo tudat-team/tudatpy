@@ -12,6 +12,8 @@
 #include <tudat/basics/deprecationWarnings.h>
 
 #include "tudatpy/docstrings.h"
+#include "tudatpy/scalarTypes.h"
+
 #include <tudat/simulation/environment_setup.h>
 #include <tudat/astro/reference_frames/referenceFrameTransformations.h>
 
@@ -213,7 +215,7 @@ namespace ephemeris {
                                        get_docstring("TabulatedEphemerisSettings.body_state_history").c_str());
 
 
-        m.def("create_ephemeris", &tss::createBodyEphemeris,
+        m.def("create_ephemeris", &tss::createBodyEphemeris< double, TIME_TYPE >,
               py::arg("ephemeris_settings"), py::arg("body_name"),
               get_docstring("create_ephemeris").c_str());
 
