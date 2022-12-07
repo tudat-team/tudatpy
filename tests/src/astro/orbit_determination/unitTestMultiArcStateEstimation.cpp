@@ -84,7 +84,7 @@ Eigen::VectorXd  executeParameterEstimation(
                     "ECLIPJ2000", "IAU_Mars", initialEphemerisTime ),
                 initialEphemerisTime, 2.0 * mathematical_constants::PI /
                 ( physical_constants::JULIAN_DAY + 40.0 * 60.0 ) );
-    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+    SystemOfBodies bodies = createSystemOfBodies< ObservationScalarType, TimeType >( bodySettings );
 
     
 

@@ -372,11 +372,6 @@ void testCowellPropagationOfKeplerOrbit( )
             getDefaultBodySettings(
                 bodyNames, initialEphemerisTime - buffer, finalEphemerisTime + buffer,"SSB", "ECLIPJ2000" );
 
-    if( std::is_same< long double, StateScalarType >::value )
-    {
-        std::dynamic_pointer_cast< InterpolatedSpiceEphemerisSettings >(
-                    bodySettings.at( "Moon" )->ephemerisSettings )->setUseLongDoubleStates( 1 );
-    }
 
     // Change ephemeris settings of Moon and Earth to make test results analysis more transparent.
     std::dynamic_pointer_cast< InterpolatedSpiceEphemerisSettings >( bodySettings.at( "Moon" )->ephemerisSettings )->
@@ -384,7 +379,7 @@ void testCowellPropagationOfKeplerOrbit( )
     bodySettings.at( "Earth" )->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
                 Eigen::Vector6d::Zero( ), "SSB", "ECLIPJ2000" );
 
-    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+    SystemOfBodies bodies = createSystemOfBodies< StateScalarType, TimeType >( bodySettings );
 
     // Set accelerations between bodies that are to be taken into account.
     SelectedAccelerationMap accelerationMap;
