@@ -15,6 +15,7 @@
 #include "tudat/simulation/estimation_setup/observationSimulationSettings.h"
 
 #include "tudatpy/docstrings.h"
+#include "tudatpy/scalarTypes.h"
 
 namespace tss = tudat::simulation_setup;
 namespace tom = tudat::observation_models;
@@ -27,116 +28,116 @@ namespace simulation_setup
 
 
 void addNoiseFunctionToObservationSimulationSettingsPy(
-        const std::vector< std::shared_ptr< ObservationSimulationSettings< double > > >& observationSimulationSettings,
+        const std::vector< std::shared_ptr< ObservationSimulationSettings< TIME_TYPE > > >& observationSimulationSettings,
         const std::function< Eigen::VectorXd( const double ) > observationNoiseFunction )
 {
-    tss::addNoiseFunctionToObservationSimulationSettings< double, Eigen::VectorXd >(
+    tss::addNoiseFunctionToObservationSimulationSettings< TIME_TYPE, Eigen::VectorXd >(
                 observationSimulationSettings, observationNoiseFunction );
 }
 
 
 void addNoiseFunctionToObservationSimulationSettingsPy(
-        const std::vector< std::shared_ptr< ObservationSimulationSettings< double > > >& observationSimulationSettings,
+        const std::vector< std::shared_ptr< ObservationSimulationSettings< TIME_TYPE > > >& observationSimulationSettings,
         const std::function< Eigen::VectorXd( const double ) > observationNoiseFunction,
         const tom::ObservableType observableType )
 {
-    tss::addNoiseFunctionToObservationSimulationSettings< double, Eigen::VectorXd, const tom::ObservableType >(
+    tss::addNoiseFunctionToObservationSimulationSettings< TIME_TYPE, Eigen::VectorXd, const tom::ObservableType >(
                 observationSimulationSettings, observationNoiseFunction, observableType );
 }
 
 
 void addNoiseFunctionToObservationSimulationSettingsPy(
-        const std::vector< std::shared_ptr< ObservationSimulationSettings< double > > >& observationSimulationSettings,
+        const std::vector< std::shared_ptr< ObservationSimulationSettings< TIME_TYPE > > >& observationSimulationSettings,
         const std::function< Eigen::VectorXd( const double ) > observationNoiseFunction,
         const tom::ObservableType observableType,
         const tom::LinkDefinition& linkEnds )
 {
-    tss::addNoiseFunctionToObservationSimulationSettings< double, Eigen::VectorXd, const tom::ObservableType, const tom::LinkDefinition& >(
+    tss::addNoiseFunctionToObservationSimulationSettings< TIME_TYPE, Eigen::VectorXd, const tom::ObservableType, const tom::LinkDefinition& >(
                 observationSimulationSettings, observationNoiseFunction, observableType, linkEnds );
 }
 
 void addGaussianNoiseFunctionToObservationSimulationSettingsPy(
-        const std::vector< std::shared_ptr< ObservationSimulationSettings< double > > >& observationSimulationSettings,
+        const std::vector< std::shared_ptr< ObservationSimulationSettings< TIME_TYPE > > >& observationSimulationSettings,
         const double observationNoiseAmplitude )
 {
-    tss::addGaussianNoiseFunctionToObservationSimulationSettings< double >(
+    tss::addGaussianNoiseFunctionToObservationSimulationSettings< TIME_TYPE >(
                 observationSimulationSettings, observationNoiseAmplitude );
 }
 
 
 void addGaussianNoiseFunctionToObservationSimulationSettingsPy(
-        const std::vector< std::shared_ptr< ObservationSimulationSettings< double > > >& observationSimulationSettings,
+        const std::vector< std::shared_ptr< ObservationSimulationSettings< TIME_TYPE > > >& observationSimulationSettings,
         const double observationNoiseAmplitude,
         const tom::ObservableType observableType )
 {
-    tss::addGaussianNoiseFunctionToObservationSimulationSettings< double, const tom::ObservableType >(
+    tss::addGaussianNoiseFunctionToObservationSimulationSettings< TIME_TYPE, const tom::ObservableType >(
                 observationSimulationSettings, observationNoiseAmplitude, observableType );
 }
 
 
 void addGaussianNoiseFunctionToObservationSimulationSettingsPy(
-        const std::vector< std::shared_ptr< ObservationSimulationSettings< double > > >& observationSimulationSettings,
+        const std::vector< std::shared_ptr< ObservationSimulationSettings< TIME_TYPE > > >& observationSimulationSettings,
         const double observationNoiseAmplitude,
         const tom::ObservableType observableType,
         const tom::LinkDefinition& linkEnds )
 {
-    tss::addGaussianNoiseFunctionToObservationSimulationSettings< double, const tom::ObservableType, const tom::LinkDefinition& >(
+    tss::addGaussianNoiseFunctionToObservationSimulationSettings< TIME_TYPE, const tom::ObservableType, const tom::LinkDefinition& >(
                 observationSimulationSettings, observationNoiseAmplitude, observableType, linkEnds );
 }
 
 void addViabilityToObservationSimulationSettingsPy(
-        const std::vector< std::shared_ptr< ObservationSimulationSettings< double > > >& observationSimulationSettings,
+        const std::vector< std::shared_ptr< ObservationSimulationSettings< TIME_TYPE > > >& observationSimulationSettings,
         const std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >& viabilitySettingsList )
 {
-    tss::addViabilityToObservationSimulationSettings< double >( observationSimulationSettings, viabilitySettingsList );
+    tss::addViabilityToObservationSimulationSettings< TIME_TYPE >( observationSimulationSettings, viabilitySettingsList );
 }
 
 void addViabilityToObservationSimulationSettingsPy(
-        const std::vector< std::shared_ptr< ObservationSimulationSettings< double > > >& observationSimulationSettings,
+        const std::vector< std::shared_ptr< ObservationSimulationSettings< TIME_TYPE > > >& observationSimulationSettings,
         const std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >& viabilitySettingsList,
         const tom::ObservableType observableType  )
 {
-    tss::addViabilityToObservationSimulationSettings< double, const tom::ObservableType >(
+    tss::addViabilityToObservationSimulationSettings< TIME_TYPE, const tom::ObservableType >(
                 observationSimulationSettings, viabilitySettingsList, observableType );
 }
 
 void addViabilityToObservationSimulationSettingsPy(
-        const std::vector< std::shared_ptr< ObservationSimulationSettings< double > > >& observationSimulationSettings,
+        const std::vector< std::shared_ptr< ObservationSimulationSettings< TIME_TYPE > > >& observationSimulationSettings,
         const std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >& viabilitySettingsList,
         const tom::ObservableType observableType,
         const tom::LinkDefinition& linkEnds )
 {
-    tss::addViabilityToObservationSimulationSettings< double, const tom::ObservableType, const tom::LinkDefinition& >(
+    tss::addViabilityToObservationSimulationSettings< TIME_TYPE, const tom::ObservableType, const tom::LinkDefinition& >(
                 observationSimulationSettings, viabilitySettingsList, observableType, linkEnds );
 }
 
 void addDependentVariablesToObservationSimulationSettingsPy(
-        const std::vector< std::shared_ptr< ObservationSimulationSettings< double > > >& observationSimulationSettings,
+        const std::vector< std::shared_ptr< ObservationSimulationSettings< TIME_TYPE > > >& observationSimulationSettings,
         const std::vector< std::shared_ptr< ObservationDependentVariableSettings > >& dependentVariableList,
         const SystemOfBodies& bodies )
 {
-    tss::addDependentVariablesToObservationSimulationSettings< double >(
+    tss::addDependentVariablesToObservationSimulationSettings< TIME_TYPE >(
                 observationSimulationSettings, dependentVariableList, bodies );
 }
 
 void addDependentVariablesToObservationSimulationSettingsPy(
-        const std::vector< std::shared_ptr< ObservationSimulationSettings< double > > >& observationSimulationSettings,
+        const std::vector< std::shared_ptr< ObservationSimulationSettings< TIME_TYPE > > >& observationSimulationSettings,
         const std::vector< std::shared_ptr< ObservationDependentVariableSettings > >& dependentVariableList,
         const SystemOfBodies& bodies,
         const tom::ObservableType observableType )
 {
-    tss::addDependentVariablesToObservationSimulationSettings< double, const tom::ObservableType >(
+    tss::addDependentVariablesToObservationSimulationSettings< TIME_TYPE, const tom::ObservableType >(
                 observationSimulationSettings, dependentVariableList, bodies, observableType );
 }
 
 void addDependentVariablesToObservationSimulationSettingsPy(
-        const std::vector< std::shared_ptr< ObservationSimulationSettings< double > > >& observationSimulationSettings,
+        const std::vector< std::shared_ptr< ObservationSimulationSettings< TIME_TYPE > > >& observationSimulationSettings,
         const std::vector< std::shared_ptr< ObservationDependentVariableSettings > >& dependentVariableList,
         const SystemOfBodies& bodies,
         const tom::ObservableType observableType,
         const tom::LinkDefinition& linkEnds )
 {
-    tss::addDependentVariablesToObservationSimulationSettings< double, const tom::ObservableType, const tom::LinkDefinition&  >(
+    tss::addDependentVariablesToObservationSimulationSettings< TIME_TYPE, const tom::ObservableType, const tom::LinkDefinition&  >(
                 observationSimulationSettings, dependentVariableList, bodies, observableType, linkEnds );
 }
 
@@ -615,34 +616,34 @@ void expose_observation_setup(py::module &m) {
 
 
     m.def("doppler_ancilliary_settings",
-          &tom::getAveragedDopplerAncilliarySettings< double >,
+          &tom::getAveragedDopplerAncilliarySettings< TIME_TYPE >,
           py::arg("integration_time") = 60.0,
           get_docstring("doppler_integration_time_settings").c_str() );
 
     m.def("two_way_range_ancilliary_settings",
-          &tom::getTwoWayRangeAncilliarySettings< double >,
+          &tom::getTwoWayRangeAncilliarySettings< TIME_TYPE >,
           py::arg("retransmission_delay") = 0.0,
           get_docstring("two_way_range_ancilliary_settings").c_str() );
 
     m.def("two_way_doppler_ancilliary_settings",
-          &tom::getTwoWayAveragedDopplerAncilliarySettings< double >,
+          &tom::getTwoWayAveragedDopplerAncilliarySettings< TIME_TYPE >,
           py::arg("integration_time") = 60.0,
           py::arg("retransmission_delay") = 0.0,
           get_docstring("two_way_doppler_ancilliary_settings").c_str() );
 
     m.def("n_way_range_ancilliary_settings",
-          &tom::getNWayRangeAncilliarySettings< double >,
+          &tom::getNWayRangeAncilliarySettings< TIME_TYPE >,
           py::arg("retransmission_delays") = std::vector< double >( ),
           get_docstring("n_way_range_ancilliary_settings").c_str() );
 
     m.def("n_way_doppler_ancilliary_settings",
-          &tom::getNWayAveragedDopplerAncilliarySettings< double >,
+          &tom::getNWayAveragedDopplerAncilliarySettings< TIME_TYPE >,
           py::arg("integration_time") = 60.0,
           py::arg("retransmission_delays") = std::vector< double >( ),
           get_docstring("n_way_doppler_ancilliary_settings").c_str() );
 
     m.def("tabulated_simulation_settings",
-          &tss::tabulatedObservationSimulationSettings< double >,
+          &tss::tabulatedObservationSimulationSettings< TIME_TYPE >,
           py::arg("observable_type"),
           py::arg("link_ends" ),
           py::arg("simulation_times" ),
@@ -653,7 +654,7 @@ void expose_observation_setup(py::module &m) {
 
 
     m.def("tabulated_simulation_settings_list",
-          &tss::createTabulatedObservationSimulationSettingsList< double >,
+          &tss::createTabulatedObservationSimulationSettingsList< TIME_TYPE >,
           py::arg("link_ends_per_observable"),
           py::arg("simulation_times" ),
           py::arg("reference_link_end_type" ) = tom::receiver,
@@ -661,7 +662,7 @@ void expose_observation_setup(py::module &m) {
           get_docstring("tabulated_simulation_settings_list").c_str() );
 
     m.def("continuous_arc_simulation_settings",
-          &tss::perArcObservationSimulationSettings< double >,
+          &tss::perArcObservationSimulationSettings< TIME_TYPE >,
           py::arg("observable_type"),
           py::arg("link_ends" ),
           py::arg("start_time" ),
@@ -677,7 +678,7 @@ void expose_observation_setup(py::module &m) {
           get_docstring("continuous_arc_simulation_settings").c_str() );
 
     m.def("continuous_arc_simulation_settings_list",
-          &tss::perArcObservationSimulationSettingsList< double >,
+          &tss::perArcObservationSimulationSettingsList< TIME_TYPE >,
           py::arg("link_ends_per_observable"),
           py::arg("start_time" ),
           py::arg("end_time" ),
@@ -692,7 +693,7 @@ void expose_observation_setup(py::module &m) {
 
     m.def("add_noise_function_to_all",
           py::overload_cast<
-          const std::vector< std::shared_ptr< tss::ObservationSimulationSettings< double > > >&,
+          const std::vector< std::shared_ptr< tss::ObservationSimulationSettings< TIME_TYPE > > >&,
           const std::function< Eigen::VectorXd( const double ) >  >(
               &tss::addNoiseFunctionToObservationSimulationSettingsPy ),
           py::arg("observation_simulation_settings_list"),
@@ -701,7 +702,7 @@ void expose_observation_setup(py::module &m) {
 
     m.def("add_noise_function_to_observable",
           py::overload_cast<
-          const std::vector< std::shared_ptr< tss::ObservationSimulationSettings< double > > >&,
+          const std::vector< std::shared_ptr< tss::ObservationSimulationSettings< TIME_TYPE > > >&,
           const std::function< Eigen::VectorXd( const double ) > ,
           const tom::ObservableType >(
               &tss::addNoiseFunctionToObservationSimulationSettingsPy ),
@@ -713,7 +714,7 @@ void expose_observation_setup(py::module &m) {
 
     m.def("add_noise_function_to_observable_for_link_ends",
           py::overload_cast<
-          const std::vector< std::shared_ptr< tss::ObservationSimulationSettings< double > > >&,
+          const std::vector< std::shared_ptr< tss::ObservationSimulationSettings< TIME_TYPE > > >&,
           const std::function< Eigen::VectorXd( const double ) > ,
           const tom::ObservableType,
           const tom::LinkDefinition& >(
@@ -727,7 +728,7 @@ void expose_observation_setup(py::module &m) {
 
     m.def("add_gaussian_noise_to_all",
           py::overload_cast<
-          const std::vector< std::shared_ptr< tss::ObservationSimulationSettings< double > > >&,
+          const std::vector< std::shared_ptr< tss::ObservationSimulationSettings< TIME_TYPE > > >&,
           const double >(
               &tss::addGaussianNoiseFunctionToObservationSimulationSettingsPy ),
           py::arg("observation_simulation_settings_list"),
@@ -736,7 +737,7 @@ void expose_observation_setup(py::module &m) {
 
     m.def("add_gaussian_noise_to_observable",
           py::overload_cast<
-          const std::vector< std::shared_ptr< tss::ObservationSimulationSettings< double > > >&,
+          const std::vector< std::shared_ptr< tss::ObservationSimulationSettings< TIME_TYPE > > >&,
           const double,
           const tom::ObservableType >(
               &tss::addGaussianNoiseFunctionToObservationSimulationSettingsPy ),
@@ -748,7 +749,7 @@ void expose_observation_setup(py::module &m) {
 
     m.def("add_gaussian_noise_to_observable_for_link_ends",
           py::overload_cast<
-          const std::vector< std::shared_ptr< tss::ObservationSimulationSettings< double > > >&,
+          const std::vector< std::shared_ptr< tss::ObservationSimulationSettings< TIME_TYPE > > >&,
           const double,
           const tom::ObservableType,
           const tom::LinkDefinition& >(
@@ -763,7 +764,7 @@ void expose_observation_setup(py::module &m) {
 
     m.def("add_viability_check_to_all",
           py::overload_cast<
-          const std::vector< std::shared_ptr< tss::ObservationSimulationSettings< double > > >&,
+          const std::vector< std::shared_ptr< tss::ObservationSimulationSettings< TIME_TYPE > > >&,
           const std::vector< std::shared_ptr< tom::ObservationViabilitySettings > >& >(
               &tss::addViabilityToObservationSimulationSettingsPy ),
           py::arg("observation_simulation_settings_list"),
@@ -773,7 +774,7 @@ void expose_observation_setup(py::module &m) {
 
     m.def("add_viability_check_to_observable",
           py::overload_cast<
-          const std::vector< std::shared_ptr< tss::ObservationSimulationSettings< double > > >&,
+          const std::vector< std::shared_ptr< tss::ObservationSimulationSettings< TIME_TYPE > > >&,
           const std::vector< std::shared_ptr< tom::ObservationViabilitySettings > >&,
           const tom::ObservableType >(
               &tss::addViabilityToObservationSimulationSettingsPy ),
@@ -784,7 +785,7 @@ void expose_observation_setup(py::module &m) {
 
     m.def("add_viability_check_to_observable_for_link_ends",
           py::overload_cast<
-          const std::vector< std::shared_ptr< tss::ObservationSimulationSettings< double > > >&,
+          const std::vector< std::shared_ptr< tss::ObservationSimulationSettings< TIME_TYPE > > >&,
           const std::vector< std::shared_ptr< tom::ObservationViabilitySettings > >&,
           const tom::ObservableType,
           const tom::LinkDefinition& >(
@@ -805,7 +806,7 @@ void expose_observation_setup(py::module &m) {
 
     m.def("add_dependent_variables_to_all",
           py::overload_cast<
-          const std::vector< std::shared_ptr< tss::ObservationSimulationSettings< double > > >&,
+          const std::vector< std::shared_ptr< tss::ObservationSimulationSettings< TIME_TYPE > > >&,
           const std::vector< std::shared_ptr< tss::ObservationDependentVariableSettings > >&,
           const tss::SystemOfBodies& >(
               &tss::addDependentVariablesToObservationSimulationSettingsPy ),
@@ -816,7 +817,7 @@ void expose_observation_setup(py::module &m) {
 
     m.def("add_dependent_variables_to_observable",
           py::overload_cast<
-          const std::vector< std::shared_ptr< tss::ObservationSimulationSettings< double > > >&,
+          const std::vector< std::shared_ptr< tss::ObservationSimulationSettings< TIME_TYPE > > >&,
           const std::vector< std::shared_ptr< tss::ObservationDependentVariableSettings > >&,
           const tss::SystemOfBodies&,
           const tom::ObservableType >(
@@ -829,7 +830,7 @@ void expose_observation_setup(py::module &m) {
 
     m.def("add_dependent_variables_to_observable_for_link_ends",
           py::overload_cast<
-          const std::vector< std::shared_ptr< tss::ObservationSimulationSettings< double > > >&,
+          const std::vector< std::shared_ptr< tss::ObservationSimulationSettings< TIME_TYPE > > >&,
           const std::vector< std::shared_ptr< tss::ObservationDependentVariableSettings > >&,
           const tss::SystemOfBodies&,
           const tom::ObservableType,
