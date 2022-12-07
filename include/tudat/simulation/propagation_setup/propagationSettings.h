@@ -1777,8 +1777,8 @@ std::shared_ptr< MultiArcPropagatorSettings< StateScalarType, TimeType > > getEx
             int fullSingleArcSize = 6 * fullCentralBodies.size( );
             int singleArcSize = 6 * singleArcTranslationalSettings->centralBodies_.size( );
 
-            std::cout << "fullSingleArcSize: " << fullSingleArcSize << "\n\n";
-            std::cout << "singleArcSize: " << singleArcSize << "\n\n";
+//            std::cout << "fullSingleArcSize: " << fullSingleArcSize << "\n\n";
+//            std::cout << "singleArcSize: " << singleArcSize << "\n\n";
 
             Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1  > currentArcInitialStates =
                     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1  >::Zero( fullSingleArcSize );
@@ -1798,7 +1798,7 @@ std::shared_ptr< MultiArcPropagatorSettings< StateScalarType, TimeType > > getEx
             currentArcInitialStates.segment( singleArcSize, fullSingleArcSize - singleArcSize ) =
                     multiArcSettings->getSingleArcSettings( ).at( i )->getInitialStates( );
 
-            std::cout << "currentArcInitialStates: " << currentArcInitialStates.transpose( ) << "\n\n";
+//            std::cout << "currentArcInitialStates: " << currentArcInitialStates.transpose( ) << "\n\n";
 
 
             TranslationalPropagatorType propagatorToUse = currentArcTranslationalSettings->propagator_;
@@ -2513,7 +2513,7 @@ void resetSingleArcInitialStates(
             totalInitialState.segment( i * 6, 6 ) =
                     currentArcInitialStates.at( translational_state ).at( std::make_pair( propagatedBodies.at( i ), "" ) );
         }
-        std::cout << "in resetSingleInitialStates: " << totalInitialState.transpose( ) << "\n\n";
+//        std::cout << "in resetSingleInitialStates: " << totalInitialState.transpose( ) << "\n\n";
         translationalStateSettings->resetInitialStates( totalInitialState );
 
         break;

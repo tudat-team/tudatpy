@@ -411,14 +411,14 @@ BOOST_AUTO_TEST_CASE( testNWayRangeModel )
                                                    std::numeric_limits< double >::epsilon( ) );
 
                 TUDAT_CHECK_MATRIX_CLOSE_FRACTION( thirdlinkLinkEndStates.at( 0 ), fourWayLinkEndStates.at( 4 ),
-                                                   ( 10.0 * std::numeric_limits< double >::epsilon( ) ) );
+                                                   ( 25.0 * std::numeric_limits< double >::epsilon( ) ) );
                 TUDAT_CHECK_MATRIX_CLOSE_FRACTION( thirdlinkLinkEndStates.at( 1 ), fourWayLinkEndStates.at( 5 ),
-                                                   ( 10.0 * std::numeric_limits< double >::epsilon( ) ) );
+                                                   ( 25.0 * std::numeric_limits< double >::epsilon( ) ) );
 
                 TUDAT_CHECK_MATRIX_CLOSE_FRACTION( fourthlinkLinkEndStates.at( 0 ), fourWayLinkEndStates.at( 6 ),
-                                                   ( 10.0 * std::numeric_limits< double >::epsilon( ) ) );
+                                                   ( 25.0 * std::numeric_limits< double >::epsilon( ) ) );
                 TUDAT_CHECK_MATRIX_CLOSE_FRACTION( fourthlinkLinkEndStates.at( 1 ), fourWayLinkEndStates.at( 7 ),
-                                                   ( 10.0 * std::numeric_limits< double >::epsilon( ) ) );
+                                                   ( 25.0 * std::numeric_limits< double >::epsilon( ) ) );
 
                 // Check if range observations from 4-way and consituent one-ay are equal
                 BOOST_CHECK_CLOSE_FRACTION(

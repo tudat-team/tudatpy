@@ -2104,7 +2104,7 @@ public:
         {
             originalMultiArcDynamicsSingleArcSize_.push_back(
                     originalPopagatorSettings_->getMultiArcPropagatorSettings( )->getSingleArcSettings( ).at( i )->getConventionalStateSize( ) );
-            std::cout << "arc " << i << " - originalMultiArcDynamicsSingleArcSize_ = " << originalMultiArcDynamicsSingleArcSize_[ i ] << "\n\n";
+//            std::cout << "arc " << i << " - originalMultiArcDynamicsSingleArcSize_ = " << originalMultiArcDynamicsSingleArcSize_[ i ] << "\n\n";
         }
 
 //=======
