@@ -13,6 +13,7 @@
 #include "expose_estimation_setup/expose_observation_setup.h"
 
 #include "tudatpy/docstrings.h"
+#include "tudatpy/scalarTypes.h"
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <pybind11/eigen.h>
@@ -57,7 +58,7 @@ void expose_estimation_setup(py::module &m) {
     // #   Observation Model Settings --> Observation Simulator #
     m.def("create_observation_simulators",
           py::overload_cast< const std::vector< std::shared_ptr< tom::ObservationModelSettings > >&, const tss::SystemOfBodies& >(
-                  &tom::createObservationSimulators< double, double > ),
+                  &tom::createObservationSimulators< double, TIME_TYPE > ),
           py::arg( "observation_settings" ),
           py::arg( "bodies" ),
           get_docstring("create_observation_simulators").c_str() );

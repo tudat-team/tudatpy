@@ -23,6 +23,8 @@
 #include "expose_environment_setup/expose_shape_deformation_setup.h"
 
 #include "tudatpy/docstrings.h"
+#include "tudatpy/scalarTypes.h"
+
 #include <tudat/simulation/environment_setup.h>
 #include <tudat/astro/reference_frames/referenceFrameTransformations.h>
 
@@ -140,7 +142,7 @@ namespace environment_setup {
               get_docstring("add_empty_tabulated_ephemeris").c_str());
 
         m.def("create_tabulated_ephemeris_from_spice",
-                &tss::createTabulatedEphemerisFromSpice<>, py::arg("body"),
+                &tss::createTabulatedEphemerisFromSpice<double, TIME_TYPE >, py::arg("body"),
                 py::arg("initial_time"), py::arg("end_time"), py::arg("time_step"),
                 py::arg("observer_name"), py::arg("reference_frame_name"),
                 py::arg("interpolator_settings") =

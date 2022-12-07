@@ -210,10 +210,7 @@ namespace ephemeris {
 //                 std::string>())
                 .def_property_readonly("body_state_history",
                                        &tss::TabulatedEphemerisSettings::getBodyStateHistory,
-                                       get_docstring("TabulatedEphemerisSettings.body_state_history").c_str())
-                .def_property("use_long_double_states", &tss::TabulatedEphemerisSettings::getUseLongDoubleStates,
-                              &tss::TabulatedEphemerisSettings::setUseLongDoubleStates,
-                              get_docstring("TabulatedEphemerisSettings.use_long_double_states").c_str());
+                                       get_docstring("TabulatedEphemerisSettings.body_state_history").c_str());
 
 
         m.def("create_ephemeris", &tss::createBodyEphemeris,
