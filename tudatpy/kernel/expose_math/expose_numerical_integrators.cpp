@@ -30,21 +30,21 @@ namespace tudatpy {
 
 void expose_numerical_integrators(py::module &m) {
 
-  py::class_<tni::NumericalIntegrator<>>(m, "NumericalIntegrator");
-  //      .def(py::init<>);
-  //
+//  py::class_<tni::NumericalIntegrator<>>(m, "NumericalIntegrator");
+//  //      .def(py::init<>);
+//  //
 
-  //
-//  py::class_<tni::RungeKutta4Integrator < double, Eigen::VectorXd, Eigen::VectorXd >,//      tni::NumericalIntegrator<double, Eigen::VectorXd, Eigen::VectorXd, double>
-//             std::shared_ptr<tni::RungeKutta4Integrator < double, Eigen::VectorXd, Eigen::VectorXd >>
-//             >(m, "RungeKutta4Integrator")
-//      .def(py::init<
-//           const stateDerivativeFunction &,
-//           const double,
-//           const double &>());
+//  //
+////  py::class_<tni::RungeKutta4Integrator < double, Eigen::VectorXd, Eigen::VectorXd >,//      tni::NumericalIntegrator<double, Eigen::VectorXd, Eigen::VectorXd, double>
+////             std::shared_ptr<tni::RungeKutta4Integrator < double, Eigen::VectorXd, Eigen::VectorXd >>
+////             >(m, "RungeKutta4Integrator")
+////      .def(py::init<
+////           const stateDerivativeFunction &,
+////           const double,
+////           const double &>());
 
-  // Alias
-  //  m.def("rk4", m.attr("RungeKutta4Integrator"))
+//  // Alias
+//  //  m.def("rk4", m.attr("RungeKutta4Integrator"))
 }
 
 }// namespace tudatpy
