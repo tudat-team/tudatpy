@@ -11,6 +11,8 @@
 #include "expose_integrator_setup.h"
 
 #include "tudatpy/docstrings.h"
+#include "tudatpy/scalarTypes.h"
+
 #include <tudat/simulation/propagation_setup.h>
 
 #include <pybind11/chrono.h>
@@ -112,8 +114,8 @@ namespace integrator {
 
 // CLASSES
             py::class_<
-                    tni::IntegratorSettings<double>,
-                    std::shared_ptr<tni::IntegratorSettings<double>>>(m, "IntegratorSettings",
+                    tni::IntegratorSettings<TIME_TYPE>,
+                    std::shared_ptr<tni::IntegratorSettings<TIME_TYPE>>>(m, "IntegratorSettings",
                                                                       get_docstring("IntegratorSettings").c_str())
 //                .def(py::init<
 //                             const tni::AvailableIntegrators,
@@ -127,39 +129,39 @@ namespace integrator {
 //                     py::arg("save_frequency") = 1,
 //                        // TODO: Discuss length of this argument: assess_propagation_termination_condition_during_integration_substeps.
 //                     py::arg("assess_propagation_termination_condition_during_integration_substeps") = false)
-                    .def_readwrite("initial_time", &tni::IntegratorSettings<double>::initialTimeDeprecated_);
+                    .def_readwrite("initial_time", &tni::IntegratorSettings<TIME_TYPE>::initialTimeDeprecated_);
 
-            py::class_<tni::RungeKuttaFixedStepSizeSettings<double>,
-                    std::shared_ptr<tni::RungeKuttaFixedStepSizeSettings<double>>,
-                    tni::IntegratorSettings<double>>(m, "RungeKuttaFixedStepSizeSettings",
+            py::class_<tni::RungeKuttaFixedStepSizeSettings<TIME_TYPE>,
+                    std::shared_ptr<tni::RungeKuttaFixedStepSizeSettings<TIME_TYPE>>,
+                    tni::IntegratorSettings<TIME_TYPE>>(m, "RungeKuttaFixedStepSizeSettings",
                                                      get_docstring("RungeKuttaFixedStepSizeSettings").c_str());
 
-            py::class_<tni::RungeKuttaVariableStepSizeBaseSettings<double>,
-                    std::shared_ptr<tni::RungeKuttaVariableStepSizeBaseSettings<double>>,
-                    tni::IntegratorSettings<double>>(m, "RungeKuttaVariableStepSizeBaseSettings",
+            py::class_<tni::RungeKuttaVariableStepSizeBaseSettings<TIME_TYPE>,
+                    std::shared_ptr<tni::RungeKuttaVariableStepSizeBaseSettings<TIME_TYPE>>,
+                    tni::IntegratorSettings<TIME_TYPE>>(m, "RungeKuttaVariableStepSizeBaseSettings",
                                                      get_docstring("RungeKuttaVariableStepSizeBaseSettings").c_str());
 
-            py::class_<tni::RungeKuttaVariableStepSizeSettingsVectorTolerances<double>,
-                    std::shared_ptr<tni::RungeKuttaVariableStepSizeSettingsVectorTolerances<double>>,
-                    tni::RungeKuttaVariableStepSizeBaseSettings<double>>(m,
+            py::class_<tni::RungeKuttaVariableStepSizeSettingsVectorTolerances<TIME_TYPE>,
+                    std::shared_ptr<tni::RungeKuttaVariableStepSizeSettingsVectorTolerances<TIME_TYPE>>,
+                    tni::RungeKuttaVariableStepSizeBaseSettings<TIME_TYPE>>(m,
                                                                          "RungeKuttaVariableStepSizeSettingsVectorTolerances",
                                                                          get_docstring("RungeKuttaVariableStepSizeSettingsVectorTolerances").c_str());
 
-            py::class_<tni::RungeKuttaVariableStepSizeSettingsScalarTolerances<double>,
-                    std::shared_ptr<tni::RungeKuttaVariableStepSizeSettingsScalarTolerances<double>>,
-                    tni::RungeKuttaVariableStepSizeBaseSettings<double>>(m,
+            py::class_<tni::RungeKuttaVariableStepSizeSettingsScalarTolerances<TIME_TYPE>,
+                    std::shared_ptr<tni::RungeKuttaVariableStepSizeSettingsScalarTolerances<TIME_TYPE>>,
+                    tni::RungeKuttaVariableStepSizeBaseSettings<TIME_TYPE>>(m,
                                                                          "RungeKuttaVariableStepSizeSettingsScalarTolerances",
                                                                          get_docstring("RungeKuttaVariableStepSizeSettingsScalarTolerances").c_str());
 
-            py::class_<tni::BulirschStoerIntegratorSettings<double>,
-                    std::shared_ptr<tni::BulirschStoerIntegratorSettings<double>>,
-                    tni::IntegratorSettings<double>>(m, "BulirschStoerIntegratorSettings",
+            py::class_<tni::BulirschStoerIntegratorSettings<TIME_TYPE>,
+                    std::shared_ptr<tni::BulirschStoerIntegratorSettings<TIME_TYPE>>,
+                    tni::IntegratorSettings<TIME_TYPE>>(m, "BulirschStoerIntegratorSettings",
                                                      get_docstring("BulirschStoerIntegratorSettings").c_str());
 
 
-            py::class_<tni::AdamsBashforthMoultonSettings<double>,
-                    std::shared_ptr<tni::AdamsBashforthMoultonSettings<double>>,
-                    tni::IntegratorSettings<double>>(m, "AdamsBashforthMoultonSettings",
+            py::class_<tni::AdamsBashforthMoultonSettings<TIME_TYPE>,
+                    std::shared_ptr<tni::AdamsBashforthMoultonSettings<TIME_TYPE>>,
+                    tni::IntegratorSettings<TIME_TYPE>>(m, "AdamsBashforthMoultonSettings",
                                                      get_docstring("AdamsBashforthMoultonSettings").c_str());
 
 
@@ -169,14 +171,14 @@ namespace integrator {
                   get_docstring("print_butcher_tableau").c_str());
 
             m.def("euler",
-                  &tni::eulerSettingsDeprecated<double>,
+                  &tni::eulerSettingsDeprecated<TIME_TYPE>,
                   py::arg("initial_time"),
                   py::arg("initial_time_step"),
                   py::arg("save_frequency") = 1,
                   py::arg("assess_termination_on_minor_steps") = false );
 
             m.def("euler",
-                  &tni::eulerSettings<double>,
+                  &tni::eulerSettings<TIME_TYPE>,
                   py::arg("initial_time_step"),
                   py::arg("save_frequency") = 1,
                   py::arg("assess_termination_on_minor_steps") = false,
@@ -184,21 +186,21 @@ namespace integrator {
 
 
             m.def("runge_kutta_4",
-                  &tni::rungeKutta4SettingsDeprecated<double>,
+                  &tni::rungeKutta4SettingsDeprecated<TIME_TYPE>,
                   py::arg("initial_time"),
                   py::arg("initial_time_step"),
                   py::arg("save_frequency") = 1,
                   py::arg("assess_termination_on_minor_steps") = false);
 
             m.def("runge_kutta_4",
-                  &tni::rungeKutta4Settings<double>,
+                  &tni::rungeKutta4Settings<TIME_TYPE>,
                   py::arg("initial_time_step"),
                   py::arg("save_frequency") = 1,
                   py::arg("assess_termination_on_minor_steps") = false,
                   get_docstring("runge_kutta_4").c_str());
 
             m.def("runge_kutta_fixed_step_size",
-                  &tni::rungeKuttaFixedStepSettingsDeprecated<double>,
+                  &tni::rungeKuttaFixedStepSettingsDeprecated<TIME_TYPE>,
                   py::arg("initial_time"),
                   py::arg("initial_time_step"),
                   py::arg("coefficient_set"),
@@ -207,7 +209,7 @@ namespace integrator {
                   py::arg("assess_termination_on_minor_steps") = false );
 
             m.def("runge_kutta_fixed_step_size",
-                  &tni::rungeKuttaFixedStepSettings<double>,
+                  &tni::rungeKuttaFixedStepSettings<TIME_TYPE>,
                   py::arg("initial_time_step"),
                   py::arg("coefficient_set"),
                   py::arg("order_to_use") = tni::RungeKuttaCoefficients::OrderEstimateToIntegrate::lower,
@@ -216,7 +218,7 @@ namespace integrator {
                   get_docstring("runge_kutta_fixed_step_size").c_str());
 
             m.def("runge_kutta_variable_step_size",
-                  &tni::rungeKuttaVariableStepSettingsScalarTolerancesDeprecated<double>,
+                  &tni::rungeKuttaVariableStepSettingsScalarTolerancesDeprecated<TIME_TYPE>,
                   py::arg("initial_time"),
                   py::arg("initial_time_step"),
                   py::arg("coefficient_set"),
@@ -232,7 +234,7 @@ namespace integrator {
                   py::arg("throw_exception_if_minimum_step_exceeded") = true);
 
             m.def("runge_kutta_variable_step_size",
-                  &tni::rungeKuttaVariableStepSettingsScalarTolerances<double>,
+                  &tni::rungeKuttaVariableStepSettingsScalarTolerances<TIME_TYPE>,
                   py::arg("initial_time_step"),
                   py::arg("coefficient_set"),
                   py::arg("minimum_step_size"),
@@ -248,7 +250,7 @@ namespace integrator {
                   get_docstring("runge_kutta_variable_step_size").c_str());
 
             m.def("runge_kutta_variable_step_size_vector_tolerances",
-                  &tni::rungeKuttaVariableStepSettingsVectorTolerancesDeprecated<double>,
+                  &tni::rungeKuttaVariableStepSettingsVectorTolerancesDeprecated<TIME_TYPE>,
                   py::arg("initial_time"),
                   py::arg("initial_time_step"),
                   py::arg("coefficient_set"),
@@ -264,7 +266,7 @@ namespace integrator {
                   py::arg("throw_exception_if_minimum_step_exceeded") = true);
 
             m.def("runge_kutta_variable_step_size_vector_tolerances",
-                  &tni::rungeKuttaVariableStepSettingsVectorTolerances<double>,
+                  &tni::rungeKuttaVariableStepSettingsVectorTolerances<TIME_TYPE>,
                   py::arg("initial_time_step"),
                   py::arg("coefficient_set"),
                   py::arg("minimum_step_size"),
@@ -280,7 +282,7 @@ namespace integrator {
                   get_docstring("runge_kutta_variable_step_size_vector_tolerances").c_str());
 
             m.def("bulirsch_stoer",
-                  &tni::bulirschStoerIntegratorSettingsDeprecated<double>,
+                  &tni::bulirschStoerIntegratorSettingsDeprecated<TIME_TYPE>,
                   py::arg("initial_time"),
                   py::arg("initial_time_step"),
                   py::arg("extrapolation_sequence"),
@@ -296,7 +298,7 @@ namespace integrator {
                   py::arg("minimum_factor_increase") = 0.1);
 
             m.def("bulirsch_stoer",
-                  &tni::bulirschStoerIntegratorSettings<double>,
+                  &tni::bulirschStoerIntegratorSettings<TIME_TYPE>,
                   py::arg("initial_time_step"),
                   py::arg("extrapolation_sequence"),
                   py::arg("maximum_number_of_steps"),
@@ -313,7 +315,7 @@ namespace integrator {
 
 
             m.def("adams_bashforth_moulton",
-                  &tni::adamsBashforthMoultonSettingsDeprecated<double>,
+                  &tni::adamsBashforthMoultonSettingsDeprecated<TIME_TYPE>,
                   py::arg("initial_time"),
                   py::arg("initial_time_step"),
                   py::arg("minimum_step_size"),
@@ -327,7 +329,7 @@ namespace integrator {
                   py::arg("bandwidth") = 200.0);
 
             m.def("adams_bashforth_moulton",
-                  &tni::adamsBashforthMoultonSettings<double>,
+                  &tni::adamsBashforthMoultonSettings<TIME_TYPE>,
                   py::arg("initial_time_step"),
                   py::arg("minimum_step_size"),
                   py::arg("maximum_step_size"),

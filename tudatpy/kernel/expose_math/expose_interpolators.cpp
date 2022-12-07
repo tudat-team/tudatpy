@@ -11,6 +11,7 @@
 #include "expose_interpolators.h"
 
 #include "tudatpy/docstrings.h"
+#include "tudatpy/scalarTypes.h"
 
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
@@ -33,7 +34,7 @@ createOneDimensionalInterpolatorBasic(
         const std::vector< DependentVariableType > firstDerivativesOfDataToIntepolate =
         std::vector< DependentVariableType>( ) )
 {
-    return createOneDimensionalInterpolator(
+    return createOneDimensionalInterpolator< IndependentVariableType, DependentVariableType >(
                 dataToInterpolate, interpolatorSettings,
                 std::make_pair( IdentityElement::getAdditionIdentity< DependentVariableType >( ),
                                 IdentityElement::getAdditionIdentity< DependentVariableType >( ) ),
@@ -134,50 +135,50 @@ void expose_interpolators(py::module &m) {
           py::arg( "boundary_interpolation" ) = ti::extrapolate_at_boundary_with_warning );
 
     m.def("create_one_dimensional_scalar_interpolator",
-          &ti::createOneDimensionalInterpolatorBasic< double, double >,
+          &ti::createOneDimensionalInterpolatorBasic<TIME_TYPE, double >,
           py::arg("data_to_interpolate"),
           py::arg("interpolator_settings"),
-          py::arg("data_first_derivatives") = std::vector< double >( ),
+          py::arg("data_first_derivatives") = std::vector< double  >( ),
           get_docstring("create_one_dimensional_scalar_interpolator").c_str( ) );
 
     m.def("create_one_dimensional_vector_interpolator",
-          &ti::createOneDimensionalInterpolatorBasic< double, Eigen::VectorXd >,
+          &ti::createOneDimensionalInterpolatorBasic<TIME_TYPE, Eigen::VectorXd >,
           py::arg("data_to_interpolate"),
           py::arg("interpolator_settings"),
           py::arg("data_first_derivatives") = std::vector< Eigen::VectorXd >( ),
           get_docstring("create_one_dimensional_vector_interpolator").c_str( ) );
 
     m.def("create_one_dimensional_matrix_interpolator",
-          &ti::createOneDimensionalInterpolatorBasic< double, Eigen::MatrixXd >,
+          &ti::createOneDimensionalInterpolatorBasic<TIME_TYPE, Eigen::MatrixXd >,
           py::arg("data_to_interpolate"),
           py::arg("interpolator_settings"),
           py::arg("data_first_derivatives") = std::vector< Eigen::MatrixXd >( ),
           get_docstring("create_one_dimensional_matrix_interpolator").c_str( ) );
 
     py::class_<
-            ti::OneDimensionalInterpolator<double, double>,
-            std::shared_ptr<ti::OneDimensionalInterpolator<double, double>>>(m, "OneDimensionalInterpolatorScalar",
+            ti::OneDimensionalInterpolator<TIME_TYPE, double>,
+            std::shared_ptr<ti::OneDimensionalInterpolator<TIME_TYPE, double>>>(m, "OneDimensionalInterpolatorScalar",
                                                                              get_docstring("OneDimensionalInterpolatorScalar").c_str())
-            .def("interpolate", py::overload_cast< const double >(
-                     &ti::OneDimensionalInterpolator<double, double>::interpolate ),
+            .def("interpolate", py::overload_cast< const TIME_TYPE >(
+                     &ti::OneDimensionalInterpolator<TIME_TYPE, double>::interpolate ),
                  py::arg("independent_variable_value"),
                  get_docstring("OneDimensionalInterpolatorScalar.interpolate").c_str()  );
 
     py::class_<
-            ti::OneDimensionalInterpolator<double, Eigen::VectorXd>,
-            std::shared_ptr<ti::OneDimensionalInterpolator<double, Eigen::VectorXd>>>(m, "OneDimensionalInterpolatorVector",
+            ti::OneDimensionalInterpolator<TIME_TYPE, Eigen::VectorXd>,
+            std::shared_ptr<ti::OneDimensionalInterpolator<TIME_TYPE, Eigen::VectorXd>>>(m, "OneDimensionalInterpolatorVector",
                                                                                       get_docstring("OneDimensionalInterpolatorVector").c_str())
-            .def("interpolate", py::overload_cast< const double >(
-                     &ti::OneDimensionalInterpolator<double, Eigen::VectorXd>::interpolate ),
+            .def("interpolate", py::overload_cast< const TIME_TYPE >(
+                     &ti::OneDimensionalInterpolator<TIME_TYPE, Eigen::VectorXd>::interpolate ),
                  py::arg("independent_variable_value"),
                  get_docstring("OneDimensionalInterpolatorVector.interpolate").c_str() );
 
     py::class_<
-            ti::OneDimensionalInterpolator<double, Eigen::MatrixXd>,
-            std::shared_ptr<ti::OneDimensionalInterpolator<double, Eigen::MatrixXd>>>(m, "OneDimensionalInterpolatorMatrix",
+            ti::OneDimensionalInterpolator<TIME_TYPE, Eigen::MatrixXd>,
+            std::shared_ptr<ti::OneDimensionalInterpolator<TIME_TYPE, Eigen::MatrixXd>>>(m, "OneDimensionalInterpolatorMatrix",
                                                                                       get_docstring("OneDimensionalInterpolatorMatrix").c_str())
-            .def("interpolate", py::overload_cast< const double >(
-                     &ti::OneDimensionalInterpolator<double, Eigen::MatrixXd>::interpolate ),
+            .def("interpolate", py::overload_cast< const TIME_TYPE >(
+                     &ti::OneDimensionalInterpolator<TIME_TYPE, Eigen::MatrixXd>::interpolate ),
                  py::arg("independent_variable_value"),
                  get_docstring("OneDimensionalInterpolatorMatrix.interpolate").c_str() );
 
