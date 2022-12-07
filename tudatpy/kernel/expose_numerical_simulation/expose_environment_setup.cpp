@@ -131,7 +131,7 @@ namespace environment_setup {
               py::arg("initial_time") = 0,
               get_docstring("create_simplified_system_of_bodies").c_str());
 
-        m.def("create_system_of_bodies", &tss::createSystemOfBodies,
+        m.def("create_system_of_bodies", &tss::createSystemOfBodies< double, TIME_TYPE >,
               py::arg("body_settings"),
               get_docstring("create_system_of_bodies").c_str());
 
@@ -149,7 +149,7 @@ namespace environment_setup {
                         std::make_shared<tudat::interpolators::LagrangeInterpolatorSettings>(
                                 8));
 
-        m.def("create_body_ephemeris", &tss::createBodyEphemeris,
+        m.def("create_body_ephemeris", &tss::createBodyEphemeris< double, TIME_TYPE >,
               py::arg("ephemeris_settings"), py::arg("body_name"));
 
         m.def("get_safe_interpolation_interval", &tss::getSafeInterpolationInterval,
