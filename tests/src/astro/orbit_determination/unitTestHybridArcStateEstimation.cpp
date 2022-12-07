@@ -372,12 +372,12 @@ BOOST_AUTO_TEST_CASE( test_HybridArcStateEstimation )
     for( unsigned int j = 0; j < 2; j++ )
     {
         BOOST_CHECK_SMALL( std::fabs( parameterError( j ) ), 5.0 );
-        BOOST_CHECK_SMALL( std::fabs( parameterError( j + 3 ) ), 2.0E-6  );
+        BOOST_CHECK_SMALL( std::fabs( parameterError( j + 3 ) ), 2.5E-6  );
     }
 
-    // Test error range: 1000 m in-plane position and 0.5 mm/s in-plane velocity for Mars (poor values due to short arc)
+    // Test error range: 1000 m in-plane position and 1.0 mm/s in-plane velocity for Mars (poor values due to short arc)
     BOOST_CHECK_SMALL( std::fabs( parameterError( 2 ) ), 1000.0 );
-    BOOST_CHECK_SMALL( std::fabs( parameterError( 5 ) ), 0.5E-3  );
+    BOOST_CHECK_SMALL( std::fabs( parameterError( 5 ) ), 1.0E-3  );
 
     // Test error range: 0.1 m position and 50 micron/s velocity for orbiter
     for( int i = 0; i < numberOfEstimatedArcs; i++ )

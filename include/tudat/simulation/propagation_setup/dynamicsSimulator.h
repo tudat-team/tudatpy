@@ -783,7 +783,7 @@ public:
             const bool clearNumericalSolutions = false,
             const bool setIntegratedResult = false,
             const bool printNumberOfFunctionEvaluations = false,
-            const bool printDependentVariableData = true,
+            const bool printDependentVariableData = false,
             const bool printStateData = false ):
         SingleArcDynamicsSimulator(  bodies, integratorSettings,  propagatorSettings,
                                      PredefinedSingleArcStateDerivativeModels< StateScalarType, TimeType >( ),
