@@ -9,6 +9,7 @@
  */
 
 #include "tudatpy/docstrings.h"
+#include "tudatpy/scalarTypes.h"
 
 #include <tudat/astro/aerodynamics/aerodynamicGuidance.h>
 #include <tudat/astro/basic_astro.h>
@@ -91,8 +92,8 @@ void expose_propagation(py::module &m) {
           py::overload_cast<const std::vector<std::string> &,
           const std::vector<std::string> &,
           const tss::SystemOfBodies &,
-          const double>(
-              &tp::getInitialStatesOfBodies<>),
+          const TIME_TYPE>(
+              &tp::getInitialStatesOfBodies<TIME_TYPE,double>),
           py::arg("bodies_to_propagate"),
           py::arg("central_bodies"),
           py::arg("body_system"),
@@ -104,8 +105,8 @@ void expose_propagation(py::module &m) {
           py::overload_cast<const std::vector<std::string> &,
           const std::vector<std::string> &,
           const tss::SystemOfBodies &,
-          const double>(
-              &tp::getInitialStatesOfBodies<>),
+          const TIME_TYPE>(
+              &tp::getInitialStatesOfBodies<TIME_TYPE,double>),
           py::arg("bodies_to_propagate"),
           py::arg("central_bodies"),
           py::arg("body_system"),
@@ -115,8 +116,8 @@ void expose_propagation(py::module &m) {
           py::overload_cast<const std::string&,
           const std::string&,
           const tss::SystemOfBodies&,
-          const double>(
-              &tp::getInitialStateOfBody<>),
+          const TIME_TYPE>(
+              &tp::getInitialStateOfBody<TIME_TYPE,double>),
           py::arg("body_to_propagate"),
           py::arg("central_body"),
           py::arg("bodies"),
@@ -126,8 +127,8 @@ void expose_propagation(py::module &m) {
           py::overload_cast<const std::string&,
           const std::string&,
           const tss::SystemOfBodies&,
-          const double>(
-              &tp::getInitialRotationalStateOfBody<>),
+          const TIME_TYPE>(
+              &tp::getInitialRotationalStateOfBody<TIME_TYPE,double>),
           py::arg("body_to_propagate"),
           py::arg("base_orientation"),
           py::arg("bodies"),
@@ -136,11 +137,11 @@ void expose_propagation(py::module &m) {
     m.def("get_zero_proper_mode_rotational_state",
           py::overload_cast<
           const tss::SystemOfBodies&,
-          const std::shared_ptr< tni::IntegratorSettings< double > >,
-          const std::shared_ptr< tp::SingleArcPropagatorSettings< double > >,
+          const std::shared_ptr< tni::IntegratorSettings< TIME_TYPE > >,
+          const std::shared_ptr< tp::SingleArcPropagatorSettings< double, TIME_TYPE > >,
           const double,
           const std::vector< double >,
-          const bool >( &tp::getZeroProperModeRotationalState< > ),
+          const bool >( &tp::getZeroProperModeRotationalState< TIME_TYPE, double > ),
           py::arg("bodies"),
           py::arg("integrator_settings"),
           py::arg("propagator_settings"),
@@ -149,7 +150,7 @@ void expose_propagation(py::module &m) {
           py::arg("propagate_undamped") = true );
 
     m.def("combine_initial_states",
-          &tp::createCombinedInitialState<double>,
+          &tp::createCombinedInitialState<double,TIME_TYPE>,
           py::arg("propagator_settings_per_type"),
           get_docstring("combine_initial_states").c_str());
 
@@ -204,35 +205,35 @@ void expose_propagation(py::module &m) {
                     get_docstring("PropagationTerminationDetailsFromHybridCondition.termination_reason").c_str());
 
     py::class_<
-            tp::SingleArcSimulationResults<double, double>,
-            std::shared_ptr<tp::SingleArcSimulationResults<double, double>>>(m, "SingleArcSimulationResults",
+            tp::SingleArcSimulationResults<double, TIME_TYPE>,
+            std::shared_ptr<tp::SingleArcSimulationResults<double, TIME_TYPE>>>(m, "SingleArcSimulationResults",
                                                                              get_docstring("SingleArcSimulationResults").c_str())
             .def_property_readonly("state_history",
-                                   &tp::SingleArcSimulationResults<double, double>::getEquationsOfMotionNumericalSolution,
+                                   &tp::SingleArcSimulationResults<double, TIME_TYPE>::getEquationsOfMotionNumericalSolution,
                                    get_docstring("SingleArcSimulationResults.state_history").c_str() )
             .def_property_readonly("unprocessed_state_history",
-                                   &tp::SingleArcSimulationResults<double, double>::getEquationsOfMotionNumericalSolutionRaw,
+                                   &tp::SingleArcSimulationResults<double, TIME_TYPE>::getEquationsOfMotionNumericalSolutionRaw,
                                    get_docstring("SingleArcSimulationResults.unprocessed_state_history").c_str() )
             .def_property_readonly("dependent_variable_history",
-                                   &tp::SingleArcSimulationResults<double, double>::getDependentVariableHistory,
+                                   &tp::SingleArcSimulationResults<double, TIME_TYPE>::getDependentVariableHistory,
                                    get_docstring("SingleArcSimulationResults.dependent_variable_history").c_str() )
             .def_property_readonly("cumulative_computation_time_history",
-                                   &tp::SingleArcSimulationResults<double, double>::getCumulativeComputationTimeHistory,
+                                   &tp::SingleArcSimulationResults<double, TIME_TYPE>::getCumulativeComputationTimeHistory,
                                    get_docstring("SingleArcSimulationResults.cumulative_computation_time_history").c_str() )
             .def_property_readonly("cumulative_number_of_function_evaluations",
-                                   &tp::SingleArcSimulationResults<double, double>::getCumulativeNumberOfFunctionEvaluations,
+                                   &tp::SingleArcSimulationResults<double, TIME_TYPE>::getCumulativeNumberOfFunctionEvaluations,
                                    get_docstring("SingleArcSimulationResults.cumulative_number_of_function_evaluations").c_str() )
             .def_property_readonly("termination_details",
-                                   &tp::SingleArcSimulationResults<double, double>::getPropagationTerminationReason,
+                                   &tp::SingleArcSimulationResults<double, TIME_TYPE>::getPropagationTerminationReason,
                                    get_docstring("SingleArcSimulationResults.termination_details").c_str() )
             .def_property_readonly("integration_completed_successfully",
-                                   &tp::SingleArcSimulationResults<double, double>::integrationCompletedSuccessfully,
+                                   &tp::SingleArcSimulationResults<double, TIME_TYPE>::integrationCompletedSuccessfully,
                                    get_docstring("SingleArcSimulationResults.integration_completed_successfully").c_str() )
             .def_property_readonly("dependent_variable_ids",
-                                   &tp::SingleArcSimulationResults<double, double>::getDependentVariableId,
+                                   &tp::SingleArcSimulationResults<double, TIME_TYPE>::getDependentVariableId,
                                    get_docstring("SingleArcSimulationResults.dependent_variable_ids").c_str() )
             .def_property_readonly("state_ids",
-                                   &tp::SingleArcSimulationResults<double, double>::getStateIds,
+                                   &tp::SingleArcSimulationResults<double, TIME_TYPE>::getStateIds,
                                    get_docstring("SingleArcSimulationResults.state_ids").c_str() );
 
 
