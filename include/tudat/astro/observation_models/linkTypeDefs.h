@@ -11,6 +11,7 @@
 #ifndef TUDAT_LINKTYPEDEFS_H
 #define TUDAT_LINKTYPEDEFS_H
 
+#include <stdexcept>
 #include <map>
 #include <string>
 #include <vector>
