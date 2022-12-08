@@ -230,7 +230,9 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
                             std::make_shared< observation_models::OneWayDopplerObservationSettings >(
                                 linkEnds,
                                 std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies ),
-                                nullptr, nullptr, nullptr, static_cast< bool >( normalizeObservable ) ), bodies  );
+                                nullptr, nullptr, nullptr,
+                                std::make_shared< LightTimeConvergenceCriteria >( ),
+                                static_cast< bool >( normalizeObservable ) ), bodies  );
             }
             else
             {
@@ -241,7 +243,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
                                    perturbingBodies ),
                                std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Mars" ),
                                std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Earth" ),
-                               nullptr, static_cast< bool >( normalizeObservable ) ), bodies  );
+                               nullptr, std::make_shared< LightTimeConvergenceCriteria >( ), static_cast< bool >( normalizeObservable ) ), bodies  );
             }
 
             // Create parameter objects.
@@ -290,7 +292,9 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
                                 std::make_shared< observation_models::OneWayDopplerObservationSettings >(
                                     linkEnds,
                                     std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies ),
-                                    nullptr, nullptr, nullptr, static_cast< bool >( normalizeObservable ) ), bodies  );
+                                    nullptr, nullptr, nullptr,
+                                    std::make_shared< LightTimeConvergenceCriteria >( ),
+                                    static_cast< bool >( normalizeObservable ) ), bodies  );
                 }
                 else
                 {
@@ -301,7 +305,9 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
                                        perturbingBodies ),
                                    std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Mars" ),
                                    std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Earth" ),
-                                   nullptr, static_cast< bool >( normalizeObservable ) ), bodies  );
+                                   nullptr,
+                                   std::make_shared< LightTimeConvergenceCriteria >( ),
+                                   static_cast< bool >( normalizeObservable ) ), bodies  );
                 }
                 // Create parameter objects.
                 std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet;
@@ -345,6 +351,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
                                std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Earth" ),
                                std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Mars" ),
                                nullptr,
+                               std::make_shared< LightTimeConvergenceCriteria >( ),
                                static_cast< bool >( normalizeObservable ) ), bodies ) );
 
 
@@ -474,6 +481,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
                         observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
                             std::make_shared< observation_models::OneWayDopplerObservationSettings >(
                                 linkEnds, nullptr, nullptr, nullptr, nullptr,
+                                std::make_shared< LightTimeConvergenceCriteria >( ),
                                 static_cast< bool >( normalizeObservable ) ), bodies  ) );
 
             // Create partials for Doppler without proper time rates

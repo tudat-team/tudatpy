@@ -67,7 +67,7 @@ static inline std::string getEphemerisDataFilesPath() {
 }
 
 static inline std::string getEarthDeformationDataFilesPath() {
-  return std::string(get_earth_deformation_path()).c_str();
+  return std::string( get_resources_path()+ "/earth_deformation" );
 }
 
 static inline std::string getEarthOrientationDataFilesPath() {
