@@ -50,31 +50,45 @@ enum LightTimeFailureHandling
     throw_exception
 };
 
-template< typename ObservationScalarType = double >
 struct LightTimeConvergenceCriteria
 {
     LightTimeConvergenceCriteria(
             const bool iterateCorrections = false,
             const int maximumNumberOfIterations = 50,
-            const ObservationScalarType absoluteTolerance = getDefaultLightTimeTolerance< ObservationScalarType >( ),
+            const double absoluteTolerance = TUDAT_NAN,
             const LightTimeFailureHandling failureHandling = accept_without_warning):
         iterateCorrections_( iterateCorrections ),
         maximumNumberOfIterations_( maximumNumberOfIterations ),
-        absoluteTolerance_( absoluteTolerance ),
-        failureHandling_( failureHandling ){ }
+        failureHandling_( failureHandling ),
+        absoluteTolerance_( absoluteTolerance ) { }
 
+    template< typename ScalarType = double >
+    double getAbsoluteTolerance( )
+    {
+        if( absoluteTolerance_ == absoluteTolerance_ )
+        {
+            return absoluteTolerance_;
+        }
+        else
+        {
+            return getDefaultLightTimeTolerance< ScalarType >( );
+        }
+
+    }
     bool iterateCorrections_;
 
     int maximumNumberOfIterations_;
 
+    LightTimeFailureHandling failureHandling_;
+
+protected:
     double absoluteTolerance_;
 
-    LightTimeFailureHandling failureHandling_;
 };
 
 template< typename ObservationScalarType, typename TimeType >
 bool isLightTimeSolutionConverged(
-        const std::shared_ptr< LightTimeConvergenceCriteria< ObservationScalarType> > convergenceCriteria,
+        const std::shared_ptr< LightTimeConvergenceCriteria > convergenceCriteria,
         const ObservationScalarType previousLightTimeCalculation,
         const ObservationScalarType newLightTimeCalculation,
         const int numberOfIterations,
@@ -85,7 +99,7 @@ bool isLightTimeSolutionConverged(
     bool isToleranceReached = false;
     // Check for convergence.
     if( std::fabs( newLightTimeCalculation - previousLightTimeCalculation ) <
-            convergenceCriteria->absoluteTolerance_ )
+            convergenceCriteria->getAbsoluteTolerance< ObservationScalarType >( ) )
     {
         // If convergence reached, but light-time corrections not iterated,
         // perform 1 more iteration to check for change in correction.
@@ -261,8 +275,8 @@ public:
             const std::function< StateType( const TimeType ) > positionFunctionOfReceivingBody,
             const std::vector< std::shared_ptr< LightTimeCorrection > > correctionFunctions =
             std::vector< std::shared_ptr< LightTimeCorrection > >( ),
-            const std::shared_ptr< LightTimeConvergenceCriteria< ObservationScalarType > > lightTimeConvergenceCriteria
-            = std::make_shared< LightTimeConvergenceCriteria< ObservationScalarType > >( ) ):
+            const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria
+            = std::make_shared< LightTimeConvergenceCriteria >( ) ):
         stateFunctionOfTransmittingBody_( positionFunctionOfTransmittingBody ),
         stateFunctionOfReceivingBody_( positionFunctionOfReceivingBody ),
         correctionFunctions_( correctionFunctions ),
@@ -280,8 +294,8 @@ public:
             const std::function< StateType( const TimeType ) > positionFunctionOfTransmittingBody,
             const std::function< StateType( const TimeType ) > positionFunctionOfReceivingBody,
             const std::vector< LightTimeCorrectionFunction > correctionFunctions,
-            const std::shared_ptr< LightTimeConvergenceCriteria< ObservationScalarType > > lightTimeConvergenceCriteria
-            = std::make_shared< LightTimeConvergenceCriteria< ObservationScalarType > >( ) ):
+            const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria
+            = std::make_shared< LightTimeConvergenceCriteria >( ) ):
         stateFunctionOfTransmittingBody_( positionFunctionOfTransmittingBody ),
         stateFunctionOfReceivingBody_( positionFunctionOfReceivingBody ),
         lightTimeConvergenceCriteria_( lightTimeConvergenceCriteria ),
@@ -505,7 +519,7 @@ protected:
      *  another iteration is performed.
      */
 
-    std::shared_ptr< LightTimeConvergenceCriteria< ObservationScalarType > > lightTimeConvergenceCriteria_;
+    std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria_;
 
     //! Current light-time correction.
     double currentCorrection_;
