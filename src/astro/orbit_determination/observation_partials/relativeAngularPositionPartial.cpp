@@ -29,9 +29,9 @@ void RelativeAngularPositionScaling::update( const std::vector< Eigen::Vector6d 
         throw std::runtime_error( "Error when updating a relative angular position scaling object, fixed link end time different from receiver." );
     }
 
-    Eigen::Vector6d firstTransmitterState = linkEndStates[ 0 ];
-    Eigen::Vector6d secondTransmitterState = linkEndStates[ 1 ];
-    Eigen::Vector6d receiverState = linkEndStates[ 2 ];
+//    Eigen::Vector6d firstTransmitterState = linkEndStates[ 0 ];
+//    Eigen::Vector6d secondTransmitterState = linkEndStates[ 1 ];
+//    Eigen::Vector6d receiverState = linkEndStates[ 2 ];
 
     Eigen::Vector3d relativeRangeVectorFirstTransmitter = ( linkEndStates[ 2 ] - linkEndStates[ 0 ] ).segment( 0, 3 );
     Eigen::Vector3d relativeRangeVectorSecondTransmitter = ( linkEndStates[ 2 ] - linkEndStates[ 1 ] ).segment( 0, 3 );

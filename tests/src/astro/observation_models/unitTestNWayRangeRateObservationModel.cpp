@@ -327,7 +327,6 @@ BOOST_AUTO_TEST_CASE( testNWayRateRangeModel )
 
                     for( unsigned int k = 0; k < linkEndIndices.size( ); k++ )
                     {
-                        std::cout<<"4-way "<<i<<" "<<j<<" "<<k<<std::endl;
                         BOOST_CHECK_SMALL( rangeStartTimes.at( k ) - rangeRateTimes.at( k ), 1.0E-9 );
                         BOOST_CHECK_SMALL( rangeEndTimes.at( k ) - rangeRateTimes.at( k + numberOfRangeTimes ), 1.0E-9 );
 

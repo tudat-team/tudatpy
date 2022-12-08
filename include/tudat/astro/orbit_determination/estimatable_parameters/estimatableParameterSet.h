@@ -1271,14 +1271,14 @@ void getParametersToEstimatePerArcTest(
         // Check that each arc has at least one body whose state is to be estimated.
         for ( unsigned int i = 0 ; i < parameterArcStartTimes.size( ) ; i++ )
         {
-            bool detectedArc = false;
+//            bool detectedArc = false;
             int indexDetectedArc = 0;
             for ( unsigned int j = indexDetectedArc ; j < arcStartTimes.size( ) ; j++ )
             {
                 if( std::fabs( arcStartTimes.at( j ) - parameterArcStartTimes.at( i ) ) <
                     std::max( 4.0 * parameterArcStartTimes.at( i ) * std::numeric_limits< double >::epsilon( ), 1.0E-12 ) )
                 {
-                    detectedArc = true;
+//                    detectedArc = true;
                     indexDetectedArc = j;
                     detectedEstimatedStatesPerArc[ j ] = true;
 

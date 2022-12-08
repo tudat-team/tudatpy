@@ -1275,8 +1275,10 @@ public:
 
         arcWiseParametersToEstimate_.clear( );
 //        getParametersToEstimatePerArc( parametersToEstimate, arcWiseParametersToEstimate_, estimatedBodiesPerArc_ );
-        getParametersToEstimatePerArcTest( parametersToEstimate, arcWiseParametersToEstimate_,
-                                           propagatorSettings->getArcStartTimes( ), estimatedBodiesPerArc_, arcIndicesPerBody_ );
+        getParametersToEstimatePerArcTest(
+                    parametersToEstimate, arcWiseParametersToEstimate_,
+                                           propagatorSettings->getArcStartTimes( ),
+                                           estimatedBodiesPerArc_, arcIndicesPerBody_ );
 
 
         parameterVectorSize_ = 0.0; // estimatable_parameters::getSingleArcParameterSetSize( parametersToEstimate );
