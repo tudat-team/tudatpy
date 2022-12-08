@@ -261,11 +261,18 @@ void expose_observation_setup(py::module &m) {
                 m, "OneWayDopplerObservationSettings",
                 get_docstring("OneWayDopplerObservationSettings").c_str() );
 
+    py::class_<tom::LightTimeConvergenceCriteria,
+            std::shared_ptr<tom::LightTimeConvergenceCriteria>,
+            tom::LightTimeConvergenceCriteria >(
+                m, "LightTimeConvergenceCriteria",
+                get_docstring("LightTimeConvergenceCriteria").c_str() );
+
     m.def("one_way_range",
           &tom::oneWayRangeSettings,
           py::arg("link_ends"),
           py::arg("light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
           py::arg("bias_settings") = nullptr,
+          py::arg("light_time_convergence_settings") = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
           get_docstring("one_way_range").c_str() );
 
     m.def("two_way_range",
@@ -273,6 +280,7 @@ void expose_observation_setup(py::module &m) {
           py::arg("link_ends" ),
           py::arg("light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
           py::arg("bias_settings") = nullptr,
+          py::arg("light_time_convergence_settings") = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
           get_docstring("two_way_range").c_str() );
 
     m.def("two_way_range_from_one_way_links",
@@ -286,6 +294,7 @@ void expose_observation_setup(py::module &m) {
           py::arg("link_ends" ),
           py::arg("light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
           py::arg("bias_settings") = nullptr,
+          py::arg("light_time_convergence_settings") = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
           get_docstring("n_way_range").c_str() );
 
     m.def("n_way_range_from_one_way_links",
@@ -299,6 +308,7 @@ void expose_observation_setup(py::module &m) {
           py::arg("link_ends"),
           py::arg("light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
           py::arg("bias_settings") = nullptr,
+          py::arg("light_time_convergence_settings") = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
           get_docstring("angular_position").c_str() );
 
     m.def("relative_angular_position",
@@ -306,6 +316,7 @@ void expose_observation_setup(py::module &m) {
           py::arg("link_ends"),
           py::arg("light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
           py::arg("bias_settings") = nullptr,
+          py::arg("light_time_convergence_settings") = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
           get_docstring("angular_position").c_str() );
 
     m.def("cartesian_position",
@@ -328,12 +339,13 @@ void expose_observation_setup(py::module &m) {
 
 
     m.def("one_way_doppler_instantaneous",
-          &tom::oneWayOpenLoopDoppler,
+          z&tom::oneWayOpenLoopDoppler,
           py::arg("link_ends"),
           py::arg("light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
           py::arg("bias_settings") = nullptr,
           py::arg("transmitter_proper_time_rate_settings") = nullptr,
           py::arg("receiver_proper_time_rate_settings") = nullptr,
+          py::arg("light_time_convergence_settings") = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
           py::arg("normalized_with_speed_of_light") = false,
           get_docstring("one_way_doppler_instantaneous").c_str() );
 
@@ -356,6 +368,7 @@ void expose_observation_setup(py::module &m) {
           py::arg("link_ends" ),
           py::arg("light_time_correction_settings" ) = nullptr,
           py::arg("bias_settings") = nullptr,
+          py::arg("light_time_convergence_settings") = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
           py::arg("normalized_with_speed_of_light") = false,
           get_docstring("two_doppler_instantaneous").c_str());
 
@@ -367,6 +380,7 @@ void expose_observation_setup(py::module &m) {
           py::arg("link_ends" ),
           py::arg("light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
           py::arg("bias_settings") = nullptr,
+          py::arg("light_time_convergence_settings") = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
           get_docstring("one_way_doppler_averaged").c_str() );
 
     m.def("two_way_doppler_averaged",
@@ -377,6 +391,7 @@ void expose_observation_setup(py::module &m) {
           py::arg("link_ends" ),
           py::arg("light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
           py::arg("bias_settings") = nullptr,
+          py::arg("light_time_convergence_settings") = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
           get_docstring("n_way_doppler_averaged").c_str() );
 
     m.def("two_way_doppler_averaged_from_one_way_links",
@@ -395,6 +410,7 @@ void expose_observation_setup(py::module &m) {
           py::arg("link_ends" ),
           py::arg("light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
           py::arg("bias_settings") = nullptr,
+          py::arg("light_time_convergence_settings") = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
           get_docstring("n_way_doppler_averaged").c_str() );
 
     m.def("n_way_doppler_averaged_from_one_way_links",
