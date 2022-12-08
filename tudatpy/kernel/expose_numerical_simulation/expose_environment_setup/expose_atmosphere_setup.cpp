@@ -36,7 +36,6 @@ namespace atmosphere {
     void expose_atmosphere_setup(py::module &m) {
 
 
-
         py::enum_<tss::AtmosphereDependentVariables>(m, "AtmosphereDependentVariables" )
                 .value("tabulated_density", tss::AtmosphereDependentVariables::density_dependent_atmosphere )
                 .value("tabulated_pressure", tss::AtmosphereDependentVariables::pressure_dependent_atmosphere )
@@ -110,7 +109,9 @@ namespace atmosphere {
               &tss::tabulatedAtmosphereSettings,
               py::arg("atmosphere_data_file" ),
               py::arg("dependent_variable_names" ) =
-        { tss::density_dependent_atmosphere, tss::pressure_dependent_atmosphere, tss::temperature_dependent_atmosphere },
+        std::vector< AtmosphereDependentVariables >( { tss::density_dependent_atmosphere,
+                                                       tss::pressure_dependent_atmosphere,
+                                                       tss::temperature_dependent_atmosphere } ),
               py::arg("specific_gas_constant" ) = tp::SPECIFIC_GAS_CONSTANT_AIR,
               py::arg("ratio_of_specific_heats" ) = 1.4 );
 
