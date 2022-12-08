@@ -373,10 +373,13 @@ public:
             const observation_models::ObservableType observableType,
             const LinkDefinition linkEnds,
             const std::shared_ptr< LightTimeCorrectionSettings > lightTimeCorrections,
-            const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr ):
+            const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
+            const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria
+            = std::make_shared< LightTimeConvergenceCriteria >( ) ):
         observableType_( observableType ),
         linkEnds_( linkEnds ),
-        biasSettings_( biasSettings )
+        biasSettings_( biasSettings ),
+        lightTimeConvergenceCriteria_( lightTimeConvergenceCriteria )
     {
         if( lightTimeCorrections != nullptr )
         {
@@ -397,11 +400,14 @@ public:
             const LinkDefinition linkEnds,
             const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =
             std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
-            const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr ):
+            const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
+            const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria
+            = std::make_shared< LightTimeConvergenceCriteria >( ) ):
         observableType_( observableType ),
         linkEnds_( linkEnds ),
         lightTimeCorrectionsList_( lightTimeCorrectionsList ),
-        biasSettings_( biasSettings ){ }
+        biasSettings_( biasSettings ),
+    lightTimeConvergenceCriteria_( lightTimeConvergenceCriteria ){ }
 
     //! Destructor
     virtual ~ObservationModelSettings( ){ }
@@ -416,6 +422,8 @@ public:
 
     //! Settings for the observation bias model that is to be used (default none: nullptr)
     std::shared_ptr< ObservationBiasSettings > biasSettings_;
+
+    std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria_;
 };
 
 std::vector< LinkDefinition > getObservationModelListLinkEnds(
@@ -489,8 +497,11 @@ public:
             const std::shared_ptr< DopplerProperTimeRateSettings > transmitterProperTimeRateSettings = nullptr,
             const std::shared_ptr< DopplerProperTimeRateSettings > receiverProperTimeRateSettings = nullptr,
             const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
+            const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria
+            = std::make_shared< LightTimeConvergenceCriteria >( ),
             const bool normalizeWithSpeedOfLight = false ):
-        ObservationModelSettings( one_way_doppler, linkEnds, lightTimeCorrections, biasSettings ),
+        ObservationModelSettings(
+            one_way_doppler, linkEnds, lightTimeCorrections, biasSettings, lightTimeConvergenceCriteria ),
         transmitterProperTimeRateSettings_( transmitterProperTimeRateSettings ),
         receiverProperTimeRateSettings_( receiverProperTimeRateSettings ),
     normalizeWithSpeedOfLight_( normalizeWithSpeedOfLight ){ }
@@ -511,8 +522,10 @@ public:
             const std::shared_ptr< DopplerProperTimeRateSettings > transmitterProperTimeRateSettings = nullptr,
             const std::shared_ptr< DopplerProperTimeRateSettings > receiverProperTimeRateSettings = nullptr,
             const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
+            const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria
+            = std::make_shared< LightTimeConvergenceCriteria >( ),
             const bool normalizeWithSpeedOfLight = false ):
-        ObservationModelSettings( one_way_doppler, linkEnds, lightTimeCorrectionsList, biasSettings ),
+        ObservationModelSettings( one_way_doppler, linkEnds, lightTimeCorrectionsList, biasSettings, lightTimeConvergenceCriteria ),
         transmitterProperTimeRateSettings_( transmitterProperTimeRateSettings ),
         receiverProperTimeRateSettings_( receiverProperTimeRateSettings ),
         normalizeWithSpeedOfLight_( normalizeWithSpeedOfLight ){ }
@@ -549,7 +562,7 @@ public:
             const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr ):
         ObservationModelSettings( two_way_doppler, mergeUpDownLink(
                                       uplinkOneWayDopplerSettings->linkEnds_, downlinkOneWayDopplerSettings->linkEnds_ ),
-                                  std::shared_ptr< LightTimeCorrectionSettings >( ), biasSettings ),
+                                  std::shared_ptr< LightTimeCorrectionSettings >( ), biasSettings, nullptr ),
         uplinkOneWayDopplerSettings_( uplinkOneWayDopplerSettings ),
         downlinkOneWayDopplerSettings_( downlinkOneWayDopplerSettings )
     {
@@ -563,16 +576,18 @@ public:
             const LinkDefinition& linkEnds,
             const std::shared_ptr< LightTimeCorrectionSettings > lightTimeCorrections = nullptr,
             const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
+            const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria
+            = std::make_shared< LightTimeConvergenceCriteria >( ),
             const bool normalizeWithSpeedOfLight = false ):
         ObservationModelSettings( two_way_doppler, linkEnds,
                                   lightTimeCorrections, biasSettings )
     {
         uplinkOneWayDopplerSettings_ = std::make_shared< OneWayDopplerObservationSettings >(
                     getUplinkFromTwoWayLinkEnds( linkEnds ), lightTimeCorrections,
-                    nullptr, nullptr, nullptr, normalizeWithSpeedOfLight );
+                    nullptr, nullptr, nullptr, lightTimeConvergenceCriteria, normalizeWithSpeedOfLight );
         downlinkOneWayDopplerSettings_ = std::make_shared< OneWayDopplerObservationSettings >(
                     getDownlinkFromTwoWayLinkEnds( linkEnds ), lightTimeCorrections,
-                    nullptr, nullptr, nullptr, normalizeWithSpeedOfLight );
+                    nullptr, nullptr, nullptr, lightTimeConvergenceCriteria, normalizeWithSpeedOfLight );
     }
 
 
@@ -652,7 +667,7 @@ public:
             const std::vector< std::shared_ptr< ObservationModelSettings > > oneWayRangeObsevationSettings,
             const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr ):
         ObservationModelSettings( n_way_range, mergeOneWayLinkEnds( getObservationModelListLinkEnds( oneWayRangeObsevationSettings ) ),
-                                  std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ), biasSettings ),
+                                  std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ), biasSettings, nullptr ),
         oneWayRangeObsevationSettings_( oneWayRangeObsevationSettings ){ }
 
     //! Constructor
@@ -667,7 +682,9 @@ public:
             const LinkDefinition& linkEnds,
             const std::shared_ptr< LightTimeCorrectionSettings > lightTimeCorrections,
             const int numberOfLinkEnds,
-            const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr ):
+            const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
+            const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria
+            = std::make_shared< LightTimeConvergenceCriteria >( ) ):
         ObservationModelSettings( n_way_range, linkEnds, std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ), biasSettings )
     {
         if( static_cast< int >( linkEnds.size( ) ) != numberOfLinkEnds )
@@ -679,7 +696,8 @@ public:
         {
             oneWayRangeObsevationSettings_.push_back(
                         std::make_shared< ObservationModelSettings >(
-                            one_way_range, getSingleLegLinkEnds( linkEnds.linkEnds_, i ), lightTimeCorrections ) );
+                            one_way_range, getSingleLegLinkEnds( linkEnds.linkEnds_, i ), lightTimeCorrections,
+                            nullptr, lightTimeConvergenceCriteria ) );
         }
     }
 
@@ -698,14 +716,17 @@ public:
             const LinkDefinition& linkEnds,
             const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =
             std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
-            const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr ):
+            const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
+            const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria
+            = std::make_shared< LightTimeConvergenceCriteria >( ) ):
         ObservationModelSettings( n_way_differenced_range, linkEnds, lightTimeCorrectionsList, biasSettings )
     {
         for( unsigned int i = 0; i < linkEnds.size( ) - 1; i++ )
         {
             oneWayRangeObsevationSettings_.push_back(
                         std::make_shared< ObservationModelSettings >(
-                            one_way_range, getSingleLegLinkEnds( linkEnds.linkEnds_, i ), lightTimeCorrectionsList ) );
+                            one_way_range, getSingleLegLinkEnds( linkEnds.linkEnds_, i ), lightTimeCorrectionsList, nullptr,
+                            lightTimeConvergenceCriteria ) );
         }
     }
 
@@ -732,27 +753,33 @@ inline std::shared_ptr< ObservationModelSettings > oneWayRangeSettings(
         const LinkDefinition& linkEnds,
         const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =
         std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
-        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr)
+        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
+        const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria
+        = std::make_shared< LightTimeConvergenceCriteria >( ) )
 {
     return std::make_shared< ObservationModelSettings >(
-                one_way_range, linkEnds, lightTimeCorrectionsList, biasSettings );
+                one_way_range, linkEnds, lightTimeCorrectionsList, biasSettings, lightTimeConvergenceCriteria );
 }
 
 inline std::shared_ptr< ObservationModelSettings > angularPositionSettings(
         const LinkDefinition& linkEnds,
         const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =
         std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
-        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr)
+        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
+        const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria
+        = std::make_shared< LightTimeConvergenceCriteria >( ) )
 {
     return std::make_shared< ObservationModelSettings >(
-                angular_position, linkEnds, lightTimeCorrectionsList, biasSettings );
+                angular_position, linkEnds, lightTimeCorrectionsList, biasSettings, lightTimeConvergenceCriteria );
 }
 
 inline std::shared_ptr< ObservationModelSettings > relativeAngularPositionSettings(
         const LinkDefinition& linkEnds,
         const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =
         std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
-        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr)
+        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
+        const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria
+        = std::make_shared< LightTimeConvergenceCriteria >( ) )
 {
     return std::make_shared< ObservationModelSettings >(
                 relative_angular_position, linkEnds, lightTimeCorrectionsList, biasSettings );
@@ -789,11 +816,13 @@ inline std::shared_ptr< ObservationModelSettings > oneWayOpenLoopDoppler(
         const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
         const std::shared_ptr< DopplerProperTimeRateSettings > transmitterProperTimeRateSettings = nullptr,
         const std::shared_ptr< DopplerProperTimeRateSettings > receiverProperTimeRateSettings = nullptr,
+        const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria
+        = std::make_shared< LightTimeConvergenceCriteria >( ),
         const bool normalizeWithSpeedOfLight = false )
 {
     return std::make_shared< OneWayDopplerObservationSettings >(
                 linkEnds, lightTimeCorrectionsList, transmitterProperTimeRateSettings, receiverProperTimeRateSettings,
-                biasSettings, normalizeWithSpeedOfLight );
+                biasSettings, lightTimeConvergenceCriteria, normalizeWithSpeedOfLight );
 }
 
 inline std::shared_ptr< ObservationModelSettings > twoWayOpenLoopDoppler(
@@ -810,10 +839,12 @@ inline std::shared_ptr< ObservationModelSettings > twoWayOpenLoopDoppler(
         const LinkDefinition& linkEnds,
         const std::shared_ptr< LightTimeCorrectionSettings > lightTimeCorrections = nullptr,
         const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
+        const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria
+        = std::make_shared< LightTimeConvergenceCriteria >( ),
         const bool normalizeWithSpeedOfLight = false )
 {
     return std::make_shared< TwoWayDopplerObservationSettings >(
-                linkEnds, lightTimeCorrections, biasSettings, normalizeWithSpeedOfLight );
+                linkEnds, lightTimeCorrections, biasSettings, lightTimeConvergenceCriteria, normalizeWithSpeedOfLight );
 }
 
 
@@ -821,17 +852,21 @@ inline std::shared_ptr< ObservationModelSettings > oneWayClosedLoopDoppler(
         const LinkDefinition& linkEnds,
         const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =
         std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
-        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr )
+        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
+        const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria
+        = std::make_shared< LightTimeConvergenceCriteria >( ) )
 {
     return std::make_shared< ObservationModelSettings >(
-                one_way_differenced_range, linkEnds, lightTimeCorrectionsList, biasSettings );
+                one_way_differenced_range, linkEnds, lightTimeCorrectionsList, biasSettings, lightTimeConvergenceCriteria );
 }
 
 inline std::shared_ptr< ObservationModelSettings > twoWayDifferencedRangeObservationSettings(
         const LinkDefinition& linkEnds,
         const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =
         std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
-        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr )
+        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
+        const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria
+        = std::make_shared< LightTimeConvergenceCriteria >( ) )
 {
     if( linkEnds.linkEnds_.size( ) != 3 )
     {
@@ -839,7 +874,7 @@ inline std::shared_ptr< ObservationModelSettings > twoWayDifferencedRangeObserva
                                   std::to_string( linkEnds.linkEnds_.size( ) ) + ") is incompatible." );
     }
     return std::make_shared< NWayDifferencedRangeObservationSettings >(
-                linkEnds, lightTimeCorrectionsList, biasSettings );;
+                linkEnds, lightTimeCorrectionsList, biasSettings, lightTimeConvergenceCriteria );
 }
 
 inline std::shared_ptr< ObservationModelSettings > twoWayDifferencedRangeObservationSettings(
@@ -852,17 +887,19 @@ inline std::shared_ptr< ObservationModelSettings > twoWayDifferencedRangeObserva
                                   std::to_string( oneWayRangeObsevationSettings.size( ) ) + ") is incompatible." );
     }
     return std::make_shared< NWayDifferencedRangeObservationSettings >(
-                oneWayRangeObsevationSettings, biasSettings );;
+                oneWayRangeObsevationSettings, biasSettings );
 }
 
 inline std::shared_ptr< ObservationModelSettings > nWayDifferencedRangeObservationSettings(
         const LinkDefinition& linkEnds,
         const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =
         std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
-        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr )
+        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
+        const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria
+        = std::make_shared< LightTimeConvergenceCriteria >( ) )
 {
     return std::make_shared< NWayDifferencedRangeObservationSettings >(
-                linkEnds, lightTimeCorrectionsList, biasSettings );;
+                linkEnds, lightTimeCorrectionsList, biasSettings, lightTimeConvergenceCriteria );
 }
 
 inline std::shared_ptr< ObservationModelSettings > nWayDifferencedRangeObservationSettings(
@@ -870,7 +907,7 @@ inline std::shared_ptr< ObservationModelSettings > nWayDifferencedRangeObservati
         const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr )
 {
     return std::make_shared< NWayDifferencedRangeObservationSettings >(
-                oneWayRangeObsevationSettings, biasSettings );;
+                oneWayRangeObsevationSettings, biasSettings );
 }
 
 
@@ -891,7 +928,9 @@ inline std::shared_ptr< ObservationModelSettings > twoWayRange(
 inline std::shared_ptr< ObservationModelSettings > twoWayRangeSimple(
         const LinkDefinition& linkEnds,
         const std::shared_ptr< LightTimeCorrectionSettings > lightTimeCorrections = std::shared_ptr< LightTimeCorrectionSettings > ( ),
-        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr )
+        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
+        const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria
+        = std::make_shared< LightTimeConvergenceCriteria >( ) )
 {
     if( linkEnds.linkEnds_.size( ) != 3 )
     {
@@ -899,7 +938,7 @@ inline std::shared_ptr< ObservationModelSettings > twoWayRangeSimple(
                                   std::to_string( linkEnds.linkEnds_.size( ) ) + ") is incompatible." );
     }
     return std::make_shared< NWayRangeObservationSettings >(
-                linkEnds, lightTimeCorrections, linkEnds.size( ), biasSettings );
+                linkEnds, lightTimeCorrections, linkEnds.size( ), biasSettings, lightTimeConvergenceCriteria );
 }
 
 
@@ -915,10 +954,12 @@ inline std::shared_ptr< ObservationModelSettings > nWayRange(
 inline std::shared_ptr< ObservationModelSettings > nWayRangeSimple(
         const LinkDefinition& linkEnds,
         const std::shared_ptr< LightTimeCorrectionSettings > lightTimeCorrections = std::shared_ptr< LightTimeCorrectionSettings > ( ),
-        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr )
+        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
+        const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria
+        = std::make_shared< LightTimeConvergenceCriteria >( ) )
 {
     return std::make_shared< NWayRangeObservationSettings >(
-                linkEnds, lightTimeCorrections, linkEnds.size( ), biasSettings );
+                linkEnds, lightTimeCorrections, linkEnds.size( ), biasSettings, lightTimeConvergenceCriteria );
 }
 
 

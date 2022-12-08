@@ -766,7 +766,7 @@ public:
             const bool setIntegratedResult = false,
             const bool printNumberOfFunctionEvaluations = false,
             const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ),
-            const bool printDependentVariableData = true,
+            const bool printDependentVariableData = false,
             const bool printStateData = false ):
         SingleArcDynamicsSimulator( bodies, validateDeprecatedSingleArcSettings(
                                         integratorSettings, propagatorSettings,
