@@ -1275,7 +1275,7 @@ public:
 
         arcWiseParametersToEstimate_.clear( );
 //        getParametersToEstimatePerArc( parametersToEstimate, arcWiseParametersToEstimate_, estimatedBodiesPerArc_ );
-        getParametersToEstimatePerArcTest(
+        estimatable_parameters::getParametersToEstimatePerArcTest(
                     parametersToEstimate, arcWiseParametersToEstimate_,
                                            propagatorSettings->getArcStartTimes( ),
                                            estimatedBodiesPerArc_, arcIndicesPerBody_ );

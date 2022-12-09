@@ -282,7 +282,7 @@ public:
         }
         numberOfStateArcs_ = arcStartTimes_.size( );
 
-        getParametersToEstimatePerArcTest( parametersToEstimate, arcWiseParametersToEstimate_, arcStartTimes_, estimatedBodiesPerArc_, arcIndicesPerBody_ );
+        estimatable_parameters::getParametersToEstimatePerArcTest( parametersToEstimate, arcWiseParametersToEstimate_, arcStartTimes_, estimatedBodiesPerArc_, arcIndicesPerBody_ );
         processArcWiseParametersIndices( parametersToEstimate, arcStartTimes_ );
         getArcStartTimesPerBody( );
 
