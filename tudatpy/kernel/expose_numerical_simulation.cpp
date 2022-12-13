@@ -271,16 +271,15 @@ void expose_numerical_simulation(py::module &m) {
             tss::OrbitDeterminationManager<double, TIME_TYPE>,
             std::shared_ptr<tss::OrbitDeterminationManager<double, TIME_TYPE>>>(m, "Estimator",
                                                                              get_docstring("Estimator").c_str() )
-            .def(py::init<const tss::SystemOfBodies&,
+            .def(py::init<
+                 const tss::SystemOfBodies&,
                  const std::shared_ptr< tep::EstimatableParameterSet< double > >,
                  const std::vector< std::shared_ptr< tom::ObservationModelSettings > >&,
-                 const std::shared_ptr< tni::IntegratorSettings< TIME_TYPE > >,
                  const std::shared_ptr< tp::PropagatorSettings< double > >,
                  const bool >( ),
                  py::arg("bodies"),
                  py::arg("estimated_parameters"),
                  py::arg("observation_settings"),
-                 py::arg("integrator_settings"),
                  py::arg("propagator_settings"),
                  py::arg("integrate_on_creation") = true,
                  get_docstring("Estimator.ctor").c_str() )
