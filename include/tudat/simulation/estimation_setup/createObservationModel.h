@@ -962,6 +962,15 @@ inline std::shared_ptr< ObservationModelSettings > nWayRangeSimple(
                 linkEnds, lightTimeCorrections, linkEnds.size( ), biasSettings, lightTimeConvergenceCriteria );
 }
 
+inline std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria(
+        const bool iterateCorrections = false,
+        const int maximumNumberOfIterations = 50,
+        const double absoluteTolerance = TUDAT_NAN,
+        const LightTimeFailureHandling failureHandling = accept_without_warning )
+{
+    return std::make_shared< LightTimeConvergenceCriteria >(
+                iterateCorrections, maximumNumberOfIterations, absoluteTolerance, failureHandling );
+}
 
 
 //! Function to create the proper time rate calculator for use in one-way Doppler
