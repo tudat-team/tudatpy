@@ -411,7 +411,8 @@ public:
                     observationsWithPartials = observationManagers_[ currentObservableType ]->
                             computeObservationsWithPartials(
                                 currentObservations->getObservationTimes( ), currentLinkEnds,
-                                currentObservations->getReferenceLinkEnd( ) );
+                                currentObservations->getReferenceLinkEnd( ),
+                                currentObservations->getAncilliarySettings( ) );
 
                     // Compute residuals for current link ends and observabel type.
                     if( calculateResiduals )
