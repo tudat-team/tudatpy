@@ -90,7 +90,8 @@ public:
     virtual std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, Eigen::MatrixXd >
     computeObservationsWithPartials( const std::vector< TimeType >& times,
                                      const LinkEnds linkEnds,
-                                     const LinkEndType linkEndAssociatedWithTime ) = 0;
+                                     const LinkEndType linkEndAssociatedWithTime,
+                                     const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings < TimeType > > ancilliarySettings ) = 0;
 
     //! Function (ṕure virtual) to return the object used to simulate noise-free observations
     /*!
@@ -229,7 +230,8 @@ public:
     std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, Eigen::MatrixXd >
     computeObservationsWithPartials( const std::vector< TimeType >& times,
                                      const LinkEnds linkEnds,
-                                     const LinkEndType linkEndAssociatedWithTime )
+                                     const LinkEndType linkEndAssociatedWithTime,
+                                     const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings < TimeType > > ancilliarySettings )
     {
         // Initialize return vectors.
         std::map< TimeType, Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > > observations;
@@ -254,7 +256,7 @@ public:
 
             // Compute observation
             currentObservation = selectedObservationModel->computeObservationsWithLinkEndData(
-                        times[ i ], linkEndAssociatedWithTime, vectorOfTimes, vectorOfStates );
+                        times[ i ], linkEndAssociatedWithTime, vectorOfTimes, vectorOfStates, ancilliarySettings );
             observations[ times[ i ] ] = currentObservation;
 
             // Compute observation partial

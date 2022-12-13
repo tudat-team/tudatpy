@@ -235,6 +235,7 @@ simulatePerArcSingleObservationSet(
     std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings < TimeType > > ancilliarySettings =
             observationsToSimulate->getAncilliarySettings( );
 
+
     while( currentObservationTime < observationsToSimulate->endTime_ )
     {
         bool addTimeInterval = true;

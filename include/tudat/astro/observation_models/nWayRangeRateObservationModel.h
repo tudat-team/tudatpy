@@ -78,7 +78,7 @@ public:
     {
         if( ancilliarySetings == nullptr )
         {
-            throw std::runtime_error( "Error when simulating one-way averaged Doppler observable; no ancilliary settings found. Ancilliary settings are requiured for integration time" );
+            throw std::runtime_error( "Error when simulating n-way averaged Doppler observable; no ancilliary settings found. Ancilliary settings are requiured for integration time" );
         }
 
         TimeType integrationTime;

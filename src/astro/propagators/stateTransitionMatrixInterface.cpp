@@ -39,17 +39,13 @@ Eigen::MatrixXd SingleArcCombinedStateTransitionAndSensitivityMatrixInterface::g
 
 
     // Set Phi and S matrices.
-//    std::cout << "before calculating STM: " << "\n\n";
     combinedStateTransitionMatrix_.block( 0, 0, stateTransitionMatrixSize_, stateTransitionMatrixSize_ ) =
             stateTransitionMatrixInterpolator_->interpolate( evaluationTime );
-//    std::cout << "after calculating STM: " << "\n\n";
 
     if( sensitivityMatrixSize_ > 0 )
     {
-//        std::cout << "before calculating SEM: " << "\n\n";
         combinedStateTransitionMatrix_.block( 0, stateTransitionMatrixSize_, stateTransitionMatrixSize_, sensitivityMatrixSize_ ) =
                 sensitivityMatrixInterpolator_->interpolate( evaluationTime );
-//        std::cout << "before calculating SEM: " << "\n\n";
     }
 
     for( unsigned int i = 0; i < statePartialAdditionIndices_.size( ); i++ )
