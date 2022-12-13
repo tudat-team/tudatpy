@@ -266,6 +266,22 @@ void expose_observation_setup(py::module &m) {
                 m, "LightTimeConvergenceCriteria",
                 get_docstring("LightTimeConvergenceCriteria").c_str() );
 
+    py::enum_< tom::LightTimeFailureHandling >(m, "LightTimeFailureHandling",
+                                     get_docstring("LightTimeFailureHandling").c_str() )
+            .value("accept_without_warning", tom::LightTimeFailureHandling::accept_without_warning )
+            .value("print_warning_and_accept", tom::LightTimeFailureHandling::print_warning_and_accept )
+            .value("throw_exception", tom::LightTimeFailureHandling::throw_exception )
+            .export_values();
+
+
+    m.def("light_time_convergence_settings",
+          &tom::lightTimeConvergenceCriteria,
+          py::arg("iterate_corrections") = false,
+          py::arg("maximum_number_of_iterations" ) = 50,
+          py::arg("absolute_tolerance") = TUDAT_NAN,
+          py::arg("failure_handling") = tom::accept_without_warning,
+          get_docstring("one_way_range").c_str() );
+
     m.def("one_way_range",
           &tom::oneWayRangeSettings,
           py::arg("link_ends"),
