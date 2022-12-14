@@ -1580,7 +1580,7 @@ public:
                 // Extract solution of equations of motion.
                 utilities::createVectorBlockMatrixHistory(
                             rawNumericalSolution, currentEquationsOfMotionNumericalSolutionsRaw,
-                            std::make_pair( 0, arcWiseParameterVectorSize_[ i ] ), arcWiseParameterVectorSize_[ i ] );
+                            std::make_pair( 0, arcWiseParameterVectorSize_[ i ] ), arcWiseStateTransitionMatrixSize_[ i ] );
 
 
                 // Transform equations of motion solution to output formulation
