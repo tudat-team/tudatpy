@@ -150,6 +150,11 @@ The following line can also be edited if you wish to build tudatpy with its debu
 -DCMAKE_BUILD_TYPE=RelWithDebInfo
 ````
 
+As building can take a while, you can build using multiple processors by appending `-j4` to the `cmake --build .` command as seen below, where 4 can be any number that you think your machine can handle. Do note that this can take up a few GB of RAM per processor used, so be aware of the other processes on your machine to avoid freezing or crashing. 
+````
+cmake --build . -j4
+````
+
 6. Run the [build.sh](build.sh) script.
 
 ````
