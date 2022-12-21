@@ -16,7 +16,7 @@
 #include <vector>
 
 #include <boost/test/unit_test.hpp>
-#include <boost/make_shared.hpp>
+
 #include <boost/lambda/lambda.hpp>
 
 #include "tudat/basics/testMacros.h"
@@ -115,7 +115,8 @@ BOOST_AUTO_TEST_CASE( testRelativeAngularPositionPartials )
     double receiverObservationTime = ( finalEphemerisTime + initialEphemerisTime ) / 2.0;
     std::vector< double > linkEndTimesRelativeAngularPosition;
     std::vector< Eigen::Vector6d > linkEndStatesRelativeAngularPosition;
-    Eigen::Vector2d relativeAngularObservation = relativeAngularPositionModel->computeObservationsWithLinkEndData(
+    //Eigen::Vector2d relativeAngularObservation =
+    relativeAngularPositionModel->computeObservationsWithLinkEndData(
             receiverObservationTime, receiver, linkEndTimesRelativeAngularPosition, linkEndStatesRelativeAngularPosition );
 
     Eigen::Vector3d positionDifferenceMarsEarth = ( linkEndStatesRelativeAngularPosition[ 0 ] - linkEndStatesRelativeAngularPosition[ 2 ] ).segment( 0, 3 );
@@ -158,10 +159,12 @@ BOOST_AUTO_TEST_CASE( testRelativeAngularPositionPartials )
 
     std::vector< double > linkEndTimesAngularPosition;
     std::vector< Eigen::Vector6d > linkEndStatesAngularPosition;
-    Eigen::Vector2d angularObservation = angularPositionModel->computeObservationsWithLinkEndData(
+    //Eigen::Vector2d angularObservation =
+    angularPositionModel->computeObservationsWithLinkEndData(
             receiverObservationTime, receiver, linkEndTimesAngularPosition, linkEndStatesAngularPosition );
 
-    Eigen::Matrix< double, 2, 3 > partialsAngularPositionWrtPosition = calculatePartialOfAngularPositionWrtLinkEndPosition(
+    //Eigen::Matrix< double, 2, 3 > partialsAngularPositionWrtPosition =
+    calculatePartialOfAngularPositionWrtLinkEndPosition(
             - positionDifferenceMarsEarth,  false );
 
     // Define and create ground stations.

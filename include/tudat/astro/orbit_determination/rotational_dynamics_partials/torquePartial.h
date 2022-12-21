@@ -15,8 +15,8 @@
 #include <map>
 #include <Eigen/Core>
 
-#include <boost/bind/bind.hpp>
-using namespace boost::placeholders;
+
+
 
 #include <boost/assign/list_of.hpp>
 

@@ -14,9 +14,10 @@
 #include <ctime>
 
 #include <functional>
+
 #include <boost/random.hpp>
 #include <boost/random/mersenne_twister.hpp>
-#include <boost/make_shared.hpp>
+
 
 #include "tudat/math/statistics/boostProbabilityDistributions.h"
 

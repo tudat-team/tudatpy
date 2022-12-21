@@ -13,7 +13,7 @@
 
 #include <algorithm>
 
-#include <boost/make_shared.hpp>
+
 
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/math/basic/leastSquaresEstimation.h"

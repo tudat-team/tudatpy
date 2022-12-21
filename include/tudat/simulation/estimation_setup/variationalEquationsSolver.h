@@ -11,7 +11,7 @@
 #ifndef TUDAT_VARIATIONALEQUATIONSSOLVER_H
 #define TUDAT_VARIATIONALEQUATIONSSOLVER_H
 
-#include <boost/make_shared.hpp>
+
 #include <boost/tuple/tuple.hpp>
 #include <boost/tuple/tuple_comparison.hpp>
 #include <boost/tuple/tuple_io.hpp>

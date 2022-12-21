@@ -14,7 +14,7 @@
 #include <map>
 
 #include <functional>
-#include <boost/make_shared.hpp>
+
 
 #include <Eigen/Core>
 

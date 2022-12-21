@@ -8,10 +8,10 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include <boost/make_shared.hpp>
+
 #include <memory>
-#include <boost/bind/bind.hpp>
-using namespace boost::placeholders;
+
+
 
 
 #include "tudat/astro/aerodynamics/aerodynamics.h"

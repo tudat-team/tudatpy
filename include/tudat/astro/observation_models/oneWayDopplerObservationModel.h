@@ -15,7 +15,7 @@
 #include <map>
 
 #include <functional>
-#include <boost/make_shared.hpp>
+
 #include <boost/lambda/lambda.hpp>
 
 #include <Eigen/Core>

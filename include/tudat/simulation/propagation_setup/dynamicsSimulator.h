@@ -15,7 +15,7 @@
 #include <string>
 #include <chrono>
 
-#include <boost/make_shared.hpp>
+
 
 #include "tudat/basics/tudatTypeTraits.h"
 #include "tudat/basics/utilities.h"

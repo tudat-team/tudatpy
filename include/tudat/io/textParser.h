@@ -12,7 +12,7 @@
 #ifndef TUDAT_TEXT_PARSER_H
 #define TUDAT_TEXT_PARSER_H
 
-#include <boost/make_shared.hpp>
+
 
 #include "tudat/io/parser.h"
 

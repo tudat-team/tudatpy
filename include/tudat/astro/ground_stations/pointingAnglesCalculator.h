@@ -13,7 +13,7 @@
 #define TUDAT_POINTINGANGLESCALCULATOR_H
 
 #include <memory>
-#include <boost/bind/bind.hpp>
+
 
 #include <Eigen/Core>
 #include <Eigen/Geometry>
@@ -21,7 +21,7 @@
 #include "tudat/astro/ephemerides/rotationalEphemeris.h"
 #include "tudat/astro/ground_stations/groundStationState.h"
 
-using namespace boost::placeholders;
+
 
 namespace tudat
 {
