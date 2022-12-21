@@ -37,11 +37,11 @@ TUDAT_ADD_TEST_CASE(OneWayDopplerPartials
         ${Tudat_ESTIMATION_LIBRARIES}
         )
 
-#TUDAT_ADD_TEST_CASE(TwoWayDopplerPartials
-#        PRIVATE_LINKS
-#        tudat_test_support
-#        ${Tudat_ESTIMATION_LIBRARIES}
-#        )
+TUDAT_ADD_TEST_CASE(TwoWayDopplerPartials
+        PRIVATE_LINKS
+        tudat_test_support
+        ${Tudat_ESTIMATION_LIBRARIES}
+        )
 
 TUDAT_ADD_TEST_CASE(AngularPositionPartials
         PRIVATE_LINKS

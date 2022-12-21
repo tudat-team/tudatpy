@@ -1885,7 +1885,7 @@ public:
     virtual bool integrationCompletedSuccessfully( ) const
     {
         for ( const std::shared_ptr< SingleArcDynamicsSimulator< StateScalarType, TimeType > >
-              singleArcDynamicsSimulator : singleArcDynamicsSimulators_ )
+              &singleArcDynamicsSimulator : singleArcDynamicsSimulators_ )
         {
             if ( ! singleArcDynamicsSimulator->integrationCompletedSuccessfully( ) )
             {
