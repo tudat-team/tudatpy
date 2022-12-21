@@ -437,6 +437,7 @@ void testObservationPartials(
 
                         TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                                     (currentParameterPartial), (numericalPartialsWrtVectorParameters.at( i )), tolerance);
+
                     }
                 }
             }

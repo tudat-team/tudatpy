@@ -56,6 +56,7 @@ public:
        uplinkDopplerCalculator_( uplinkDopplerCalculator ),
        downlinkDopplerCalculator_( downlinkDopplerCalculator )
     {
+        std::cout<<"Normalize: "<<normalizeWithSpeedOfLight<<std::endl;
         setNormalizeWithSpeedOfLight( normalizeWithSpeedOfLight );
         uplinkDopplerCalculator_->setNormalizeWithSpeedOfLight( true );
         downlinkDopplerCalculator_->setNormalizeWithSpeedOfLight( true );
@@ -167,10 +168,15 @@ public:
 
     void setNormalizeWithSpeedOfLight( const bool normalizeWithSpeedOfLight )
     {
+        normalizeWithSpeedOfLight_ = normalizeWithSpeedOfLight;
         multiplicationTerm_ = normalizeWithSpeedOfLight ? mathematical_constants::getFloatingInteger< ObservationScalarType >( 1 ) :
                                                           physical_constants::getSpeedOfLight< ObservationScalarType >( );
     }
 
+    bool getNormalizeWithSpeedOfLight( )
+    {
+        return normalizeWithSpeedOfLight_;
+    }
 private:
 
     //! Object that computes the one-way Doppler observable for the uplink
@@ -183,6 +189,7 @@ private:
 
     ObservationScalarType multiplicationTerm_;
 
+    bool normalizeWithSpeedOfLight_;
 };
 
 }

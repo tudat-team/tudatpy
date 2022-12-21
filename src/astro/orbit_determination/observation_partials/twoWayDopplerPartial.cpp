@@ -163,7 +163,7 @@ TwoWayDopplerPartial::TwoWayDopplerPartialReturnType TwoWayDopplerPartial::calcu
                 for( unsigned int i = 0; i < currentPartialSet.size( ); i++ )
                 {
                     currentPartialSet[ i ].first *= ( currentPartialMultiplier ) *
-                            twoWayDopplerScaler_->getRelevantOneWayDopplerTimePartial( linkEndOfFixedTime );
+                            twoWayDopplerScaler_->getRelevantOneWayDopplerTimePartial( linkEndOfFixedTime ) / physical_constants::SPEED_OF_LIGHT;
                 }
                 completePartialSet.insert( completePartialSet.end( ), currentPartialSet.begin( ), currentPartialSet.end( ) );
             }

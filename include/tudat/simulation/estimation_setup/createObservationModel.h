@@ -570,6 +570,10 @@ public:
         {
             throw std::runtime_error( "Error when making two-way Doppler observable; up and downlink normalization not consistent." );
         }
+        else
+        {
+            normalizeWithSpeedOfLight_ = uplinkOneWayDopplerSettings->normalizeWithSpeedOfLight_;
+        }
     }
 
     TwoWayDopplerObservationSettings(
@@ -580,7 +584,7 @@ public:
             = std::make_shared< LightTimeConvergenceCriteria >( ),
             const bool normalizeWithSpeedOfLight = false ):
         ObservationModelSettings( two_way_doppler, linkEnds,
-                                  lightTimeCorrections, biasSettings )
+                                  lightTimeCorrections, biasSettings ), normalizeWithSpeedOfLight_( normalizeWithSpeedOfLight )
     {
         uplinkOneWayDopplerSettings_ = std::make_shared< OneWayDopplerObservationSettings >(
                     getUplinkFromTwoWayLinkEnds( linkEnds ), lightTimeCorrections,
@@ -599,6 +603,8 @@ public:
 
     //! Settings for the one-way Doppler model of the downlink
     std::shared_ptr< OneWayDopplerObservationSettings > downlinkOneWayDopplerSettings_;
+
+    bool normalizeWithSpeedOfLight_;
 };
 
 
@@ -1527,7 +1533,7 @@ public:
                             std::dynamic_pointer_cast< OneWayDopplerObservationModel< ObservationScalarType, TimeType > >(
                                 ObservationModelCreator< 1, ObservationScalarType, TimeType >::createObservationModel(
                                     twoWayDopplerSettings->downlinkOneWayDopplerSettings_, bodies ) ),
-                            observationBias );
+                            observationBias, twoWayDopplerSettings->normalizeWithSpeedOfLight_ );
             }
 
             break;
