@@ -11,7 +11,7 @@
 #include <iostream>
 #include <cmath>
 
-#include <boost/make_shared.hpp>
+
 #include <boost/lambda/lambda.hpp>
 
 #include "tudat/math/basic/coordinateConversions.h"

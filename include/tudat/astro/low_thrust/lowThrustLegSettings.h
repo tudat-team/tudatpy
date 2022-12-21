@@ -20,7 +20,7 @@
 
 #include <Eigen/Geometry>
 
-#include <boost/bind/bind.hpp>
+
 #include <functional>
 
 #if( TUDAT_BUILD_WITH_PAGMO )
@@ -30,7 +30,7 @@
 
 #include "tudat/astro/low_thrust/lowThrustLeg.h"
 
-using namespace boost::placeholders;
+
 
 namespace tudat
 {

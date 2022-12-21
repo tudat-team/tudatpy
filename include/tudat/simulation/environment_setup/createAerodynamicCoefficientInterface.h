@@ -12,7 +12,7 @@
 #define TUDAT_CREATEAERODYNAMICCOEFFICIENTINTERFACE_H
 
 #include <memory>
-#include <boost/make_shared.hpp>
+
 
 #include "tudat/astro/aerodynamics/aerodynamicCoefficientInterface.h"
 #include "tudat/astro/aerodynamics/customAerodynamicCoefficientInterface.h"

@@ -15,7 +15,7 @@
 #include <string>
 #include <thread>
 
-#include <boost/make_shared.hpp>
+
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/simulation/simulation.h"

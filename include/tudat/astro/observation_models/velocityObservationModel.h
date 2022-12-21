@@ -11,8 +11,8 @@
 #ifndef TUDAT_VELOCITYOBSERVATIONMODEL_H
 #define TUDAT_VELOCITYOBSERVATIONMODEL_H
 
-#include <boost/bind/bind.hpp>
-using namespace boost::placeholders;
+
+
 
 #include <boost/function.hpp>
 

@@ -23,7 +23,7 @@
 #ifndef TUDAT_GRAVITY_ASSIST_H
 #define TUDAT_GRAVITY_ASSIST_H
 
-#include <boost/make_shared.hpp>
+
 
 #include <Eigen/Core>
 

@@ -3,7 +3,7 @@
 
 #include <iomanip>
 
-#include <boost/make_shared.hpp>
+
 #include <boost/function.hpp>
 #include <boost/test/tools/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>

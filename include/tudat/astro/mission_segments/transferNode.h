@@ -23,7 +23,7 @@
 #ifndef TUDAT_TRANSFER_NODE_H
 #define TUDAT_TRANSFER_NODE_H
 
-#include <boost/make_shared.hpp>
+
 
 #include <Eigen/Core>
 

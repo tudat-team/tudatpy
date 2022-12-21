@@ -11,7 +11,7 @@
 #include <map>
 
 #include <functional>
-#include <boost/make_shared.hpp>
+
 
 
 #include "tudat/simulation/estimation_setup/createObservationViability.h"

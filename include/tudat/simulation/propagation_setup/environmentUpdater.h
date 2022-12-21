@@ -15,8 +15,8 @@
 #include <string>
 #include <map>
 
-#include <boost/bind/bind.hpp>
-using namespace boost::placeholders;
+
+
 
 #include <functional>
 #include <boost/tuple/tuple.hpp>

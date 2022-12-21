@@ -34,14 +34,15 @@
 
 #include <Eigen/Core>
 
-#include <boost/bind/bind.hpp>
-using namespace boost::placeholders;
+
+
 
 #include <boost/circular_buffer.hpp>
 #include <functional>
 #include <memory>
-#include <boost/unordered_map.hpp>
-#include <boost/enable_shared_from_this.hpp>
+#include <vector>
+
+
 
 #include "tudat/math/basic/mathematicalConstants.h"
 

@@ -14,7 +14,7 @@
 #include <map>
 
 #include <functional>
-#include <boost/make_shared.hpp>
+
 
 
 #include "tudat/astro/observation_models/observationModel.h"

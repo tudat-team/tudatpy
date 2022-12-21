@@ -14,7 +14,7 @@
 #include <vector>
 
 #include <memory>
-#include <boost/make_shared.hpp>
+
 
 #include "tudat/io/aerodynamicCoefficientReader.h"
 #include "tudat/astro/aerodynamics/controlSurfaceAerodynamicCoefficientInterface.h"

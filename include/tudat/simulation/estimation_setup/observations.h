@@ -13,7 +13,6 @@
 
 #include <vector>
 
-#include <boost/bind.hpp>
 #include <memory>
 #include <functional>
 

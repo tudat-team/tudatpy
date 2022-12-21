@@ -12,7 +12,7 @@
 #define TUDAT_LIGHT_TIME_SOLUTIONS_H
 
 #include <memory>
-#include <boost/make_shared.hpp>
+
 #include <boost/lexical_cast.hpp>
 #include <functional>
 #include <iostream>

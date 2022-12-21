@@ -16,8 +16,8 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
-#include <boost/bind/bind.hpp>
-using namespace boost::placeholders;
+
+
 
 #include <boost/lambda/lambda.hpp>
 #include <boost/test/unit_test.hpp>
@@ -29,7 +29,7 @@ using namespace boost::placeholders;
 #include "tudat/astro/mission_segments/improvedInversePolynomialWall.h"
 #include "tudat/astro/mission_segments/oscillatingFunctionNovak.h"
 
-using namespace boost::placeholders;
+
 
 namespace tudat
 {

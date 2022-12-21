@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include <boost/bind/bind.hpp>
-using namespace boost::placeholders;
+
+
 
 
 #include "tudat/simulation/environment_setup/createRadiationPressureInterface.h"

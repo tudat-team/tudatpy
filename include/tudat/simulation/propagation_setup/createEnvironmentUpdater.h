@@ -11,7 +11,7 @@
 #ifndef TUDAT_CREATEENVIRONMENTUPDATER_H
 #define TUDAT_CREATEENVIRONMENTUPDATER_H
 
-#include <boost/make_shared.hpp>
+
 
 #include "tudat/simulation/propagation_setup/environmentUpdater.h"
 #include "tudat/astro/basic_astro/accelerationModelTypes.h"

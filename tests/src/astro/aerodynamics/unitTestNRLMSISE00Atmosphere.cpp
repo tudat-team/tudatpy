@@ -21,8 +21,8 @@
 #include <vector>
 #include <utility>
 
-#include <boost/bind/bind.hpp>
-using namespace boost::placeholders;
+
+
 
 #include <boost/test/unit_test.hpp>
 

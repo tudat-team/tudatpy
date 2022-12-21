@@ -17,7 +17,7 @@
 #include "tudat/basics/utilityMacros.h"
 
 #include <boost/test/unit_test.hpp>
-#include <boost/make_shared.hpp>
+
 
 #include "tudat/astro/earth_orientation/earthOrientationCalculator.h"
 #include "tudat/astro/basic_astro/timeConversions.h"

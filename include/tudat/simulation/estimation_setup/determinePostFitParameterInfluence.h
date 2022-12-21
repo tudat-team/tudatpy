@@ -13,7 +13,7 @@
 
 #include <algorithm>
 
-#include <boost/make_shared.hpp>
+
 
 #include "tudat/simulation/estimation_setup/simulateObservations.h"
 #include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"

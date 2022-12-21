@@ -12,7 +12,7 @@
 #define TUDAT_SIMULATEOBSERVATIONS_H
 
 #include <memory>
-#include <boost/bind.hpp>
+
 #include <functional>
 
 #include "tudat/astro/observation_models/observationSimulator.h"

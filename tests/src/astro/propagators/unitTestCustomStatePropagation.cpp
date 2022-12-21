@@ -11,10 +11,10 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
-#include <boost/bind/bind.hpp>
-using namespace boost::placeholders;
 
-#include <boost/make_shared.hpp>
+
+
+
 #include <memory>
 #include <boost/test/unit_test.hpp>
 

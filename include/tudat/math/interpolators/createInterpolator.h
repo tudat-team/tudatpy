@@ -13,7 +13,7 @@
 
 #include <iostream>
 
-#include <boost/make_shared.hpp>
+
 #include <memory>
 
 #include "tudat/math/interpolators/linearInterpolator.h"

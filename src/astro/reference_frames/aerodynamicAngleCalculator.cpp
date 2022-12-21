@@ -10,11 +10,11 @@
 
 #include <iostream>
 
-#include <boost/bind/bind.hpp>
-using namespace boost::placeholders;
+
+
 
 #include <memory>
-#include <boost/make_shared.hpp>
+
 
 #include "tudat/astro/basic_astro/sphericalStateConversions.h"
 #include "tudat/astro/reference_frames/aerodynamicAngleCalculator.h"

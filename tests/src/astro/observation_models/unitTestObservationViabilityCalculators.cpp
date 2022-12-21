@@ -16,7 +16,7 @@
 #include <string>
 
 #include <boost/test/unit_test.hpp>
-#include <boost/make_shared.hpp>
+
 
 #include "tudat/basics/testMacros.h"
 
@@ -82,8 +82,8 @@ BOOST_AUTO_TEST_CASE( testSeparateObservationViabilityCalculators )
     Eigen::Vector3d vectorToTarget;
     Eigen::Vector3d vectorToTestBody;
     Eigen::Vector6d targetState = Eigen::Vector6d::Zero( );
-    Eigen::Vector6d groundStationState = Eigen::Vector6d::Zero( );
-    Eigen::Vector3d localVerticalVector = Eigen::Vector3d::UnitZ( );
+//    Eigen::Vector6d groundStationState = Eigen::Vector6d::Zero( );
+//    Eigen::Vector3d localVerticalVector = Eigen::Vector3d::UnitZ( );
 
     // Run different test cases:
     // 0: one-way uplink
@@ -225,8 +225,8 @@ BOOST_AUTO_TEST_CASE( testStationAngleCalculations )
             getLinkEndCompleteEphemerisFunction( std::make_pair< std::string, std::string >( "Earth", "Station" ), bodies );
 
     // Get Earth-fixed ground station position
-    Eigen::Vector3d earthFixedGroundStationState =
-            bodies.at( "Earth" )->getGroundStation( "Station" )->getNominalStationState( )->getCartesianStateInTime( 0.0 ).segment( 0, 3 );
+//    Eigen::Vector3d earthFixedGroundStationState =
+//            bodies.at( "Earth" )->getGroundStation( "Station" )->getNominalStationState( )->getCartesianStateInTime( 0.0 ).segment( 0, 3 );
 
     // Define limiting elevation angle for test
     double testAngle = 20.0 * mathematical_constants::PI / 180.0;
