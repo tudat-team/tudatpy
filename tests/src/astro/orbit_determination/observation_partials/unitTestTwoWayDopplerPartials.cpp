@@ -116,7 +116,7 @@ BOOST_AUTO_TEST_CASE( testTwoWayDopplerPartials )
                             observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
                                 std::make_shared< observation_models::TwoWayDopplerObservationSettings >(
                                     linkEnds, std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies ),
-                                    nullptr, static_cast< bool >( normalizeObservable ) ), bodies  );
+                                    nullptr, std::make_shared< LightTimeConvergenceCriteria>( ), static_cast< bool >( normalizeObservable ) ), bodies  );
                 }
                 else
                 {
@@ -129,14 +129,14 @@ BOOST_AUTO_TEST_CASE( testTwoWayDopplerPartials )
                                            perturbingBodies ),
                                        std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Mars" ),
                                        std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Earth" ),
-                                       nullptr, static_cast< bool >( normalizeObservable ) ),
+                                       nullptr, std::make_shared< LightTimeConvergenceCriteria>( ), static_cast< bool >( normalizeObservable ) ),
                                    std::make_shared< observation_models::OneWayDopplerObservationSettings >(
                                        getDownlinkFromTwoWayLinkEnds( linkEnds ),
                                        std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
                                            perturbingBodies ),
                                        std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Earth" ),
                                        std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Mars" ),
-                                       nullptr, static_cast< bool >( normalizeObservable ) ) ), bodies );
+                                       nullptr, std::make_shared< LightTimeConvergenceCriteria>( ), static_cast< bool >( normalizeObservable ) ) ), bodies );
                 }
 
                 // Create parameter objects.
@@ -178,7 +178,7 @@ BOOST_AUTO_TEST_CASE( testTwoWayDopplerPartials )
                             observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
                                 std::make_shared< observation_models::TwoWayDopplerObservationSettings >(
                                     linkEnds, std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies ),
-                                    nullptr, static_cast< bool >( normalizeObservable ) ), bodies  );
+                                    nullptr, std::make_shared< LightTimeConvergenceCriteria>( ), static_cast< bool >( normalizeObservable ) ), bodies  );
                 }
                 else
                 {
