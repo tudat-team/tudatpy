@@ -185,7 +185,8 @@ std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialSca
 
     // Create two-way Doppler scaling object
     std::shared_ptr< TwoWayDopplerScaling > twoWayDopplerScaler = std::make_shared< TwoWayDopplerScaling >(
-                oneWayDopplerScalers, oneWayRangeScalings, oneWayDopplerModels );
+                oneWayDopplerScalers, oneWayRangeScalings, oneWayDopplerModels,
+                twoWayObservationModel->getNormalizeWithSpeedOfLight( ) ? 1.0 : physical_constants::SPEED_OF_LIGHT );
 
     // Define return partial list
     SingleLinkObservationPartialList twoWayDopplerPartialList;

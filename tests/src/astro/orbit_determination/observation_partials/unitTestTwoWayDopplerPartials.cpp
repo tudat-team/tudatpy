@@ -103,7 +103,7 @@ BOOST_AUTO_TEST_CASE( testTwoWayDopplerPartials )
             linkEnds[ reflector1 ] = groundStations[ 0 ];
             linkEnds[ receiver ] = groundStations[ 1 ];
 
-            for( unsigned int estimationCase  = 0; estimationCase  < 1; estimationCase ++ )
+            for( unsigned int estimationCase  = 0; estimationCase  < 2; estimationCase ++ )
             {
                 std::cout << "Case A " <<normalizeObservable<<" "<<estimationCase << std::endl;
                 // Generate one-way doppler model
