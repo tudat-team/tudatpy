@@ -73,6 +73,15 @@ namespace tudat
                 propagationTerminationReason_ = propagationTerminationReason;
             }
 
+            void clearSolutionMaps( )
+            {
+                equationsOfMotionNumericalSolution_.clear();
+                equationsOfMotionNumericalSolutionRaw_.clear();
+                dependentVariableHistory_.clear();
+                cumulativeComputationTimeHistory_.clear();
+                cumulativeNumberOfFunctionEvaluations_.clear();
+            }
+
             std::map <TimeType, Eigen::Matrix<StateScalarType, Eigen::Dynamic, 1>> &
             getEquationsOfMotionNumericalSolution() {
                 return equationsOfMotionNumericalSolution_;
@@ -247,12 +256,43 @@ namespace tudat
                 return arcStartTimes_;
             }
 
-            std::vector< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > getConcatenatedEquationsOfMotionResults( )
+            bool integrationCompletedSuccessfully() const
+            {
+                bool isSuccesful = true;
+                for( unsigned int i = 0; i < singleArcResults_.size( ); i++ )
+                {
+                    if( !singleArcResults_.at( i )->integrationCompletedSuccessfully( ) )
+                    {
+                        isSuccesful = false;
+                        break;
+                    }
+                }
+                return isSuccesful;
+            }
+
+            void clearSolutionMaps( )
+            {
+                for( unsigned int i = 0; i < singleArcResults_.size( ); i++ )
+                {
+                    singleArcResults_.at( i )->clearSolutionMaps( );
+                }
+            }
+
+            std::vector< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > getConcatenatedEquationsOfMotionResults(
+                    const bool clearResults = false )
             {
                 std::vector< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > concatenatedResults;
                 for( unsigned int i = 0; i < singleArcResults_.size( ); i++ )
                 {
-                    concatenatedResults.push_back( singleArcResults_.at( i )->getEquationsOfMotionNumericalSolution( ) );
+                    if( clearResults )
+                    {
+                        concatenatedResults.push_back( std::move( singleArcResults_.at( i )->getEquationsOfMotionNumericalSolution( ) ) );
+                        singleArcResults_.at( i )->clearSolutionMaps( );
+                    }
+                    else
+                    {
+                        concatenatedResults.push_back( singleArcResults_.at( i )->getEquationsOfMotionNumericalSolution( ) );
+                    }
                 }
                 return concatenatedResults;
             }

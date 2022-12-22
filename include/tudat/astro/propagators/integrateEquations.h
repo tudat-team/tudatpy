@@ -192,7 +192,7 @@ bool getFinalStateForExactHybridVariableTerminationCondition(
 
     // Iterate over all constituent termination conditions, and determine separate end times/states
     unsigned int minimumTimeIndex = 0, maximumTimeIndex = 0;
-    TimeStepType minimumTimeStep, maximumTimeStep;
+    TimeStepType minimumTimeStep = static_cast< TimeStepType >( std::numeric_limits< double >::max( ) ), maximumTimeStep = static_cast< TimeStepType >( 0.0 );
     bool timesAreSet = false;
     for( unsigned int i = 0; i < terminationConditionList.size( ); i++ )
     {
