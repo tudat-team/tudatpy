@@ -218,11 +218,19 @@ namespace tudat
             {
                 propagationIsPerformed_ = false;
                 arcStartTimes_.clear( );
+                for( unsigned int i = 0; i < singleArcResults_.size( ); i++ )
+                {
+                    singleArcResults_.at( i )->reset( );
+                }
             }
 
             void setPropagationIsPerformed( )
             {
                 propagationIsPerformed_ = true;
+                if( arcStartTimes_.size( ) != 0 )
+                {
+                    throw std::runtime_error( "Error, arc start times not 0 when resetting" );
+                }
                 for( unsigned int i = 0; i < singleArcResults_.size( ); i++ )
                 {
                     arcStartTimes_.push_back( singleArcResults_.at( i )->getEquationsOfMotionNumericalSolution( ).begin( )->first );
@@ -232,6 +240,51 @@ namespace tudat
             std::vector< std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType, NumberOfStateColumns > > > getSingleArcResults( )
             {
                 return singleArcResults_;
+            }
+
+            std::vector< double > getArcStartTimes( )
+            {
+                return arcStartTimes_;
+            }
+
+            std::vector< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > getConcatenatedEquationsOfMotionResults( )
+            {
+                std::vector< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > concatenatedResults;
+                for( unsigned int i = 0; i < singleArcResults_.size( ); i++ )
+                {
+                    concatenatedResults.push_back( singleArcResults_.at( i )->getEquationsOfMotionNumericalSolution( ) );
+                }
+                return concatenatedResults;
+            }
+
+            std::vector< std::map< TimeType, Eigen::VectorXd > > getConcatenatedDependentVariableResults( )
+            {
+                std::vector< std::map< TimeType, Eigen::VectorXd > > concatenatedResults;
+                for( unsigned int i = 0; i < singleArcResults_.size( ); i++ )
+                {
+                    concatenatedResults.push_back( singleArcResults_.at( i )->getDependentVariableHistory( ) );
+                }
+                return concatenatedResults;
+            }
+
+            std::vector< std::map< TimeType, double > > getConcatenatedConcatenatedCumulativeComputationTimeHistory( )
+            {
+                std::vector< std::map< TimeType, double > > concatenatedResults;
+                for( unsigned int i = 0; i < singleArcResults_.size( ); i++ )
+                {
+                    concatenatedResults.push_back( singleArcResults_.at( i )->getCumulativeComputationTimeHistory( ) );
+                }
+                return concatenatedResults;
+            }
+
+            std::vector< std::shared_ptr< PropagationTerminationDetails > > getConcatenatedTerminationReasons( )
+            {
+                std::vector< std::shared_ptr< PropagationTerminationDetails > > concatenatedResults;
+                for( unsigned int i = 0; i < singleArcResults_.size( ); i++ )
+                {
+                    concatenatedResults.push_back( singleArcResults_.at( i )->getPropagationTerminationReason( ) );
+                }
+                return concatenatedResults;
             }
 
         private:
