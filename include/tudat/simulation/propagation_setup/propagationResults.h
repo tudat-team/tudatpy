@@ -17,7 +17,8 @@ namespace tudat
     namespace propagators
     {
         template<typename StateScalarType = double, typename TimeType = double>
-        class SimulationResults {
+        class SimulationResults
+        {
         public:
             SimulationResults() {}
 
@@ -30,8 +31,9 @@ namespace tudat
         class SingleArcDynamicsSimulator;
 
 
-        template<typename StateScalarType = double, typename TimeType = double>
-        class SingleArcSimulationResults : public SimulationResults<StateScalarType, TimeType> {
+        template<typename StateScalarType = double, typename TimeType = double, int NumberOfStateColumns = 1 >
+        class SingleArcSimulationResults : public SimulationResults<StateScalarType, TimeType>
+        {
         public:
 
             SingleArcSimulationResults(const std::map <std::pair<int, int>, std::string> &dependentVariableIds,
@@ -56,12 +58,27 @@ namespace tudat
                 propagationTerminationReason_ = std::make_shared<PropagationTerminationDetails>(propagation_never_run);
             }
 
+            void reset(
+                    const std::map <TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, NumberOfStateColumns >>& equationsOfMotionNumericalSolutionRaw,
+                    const std::map <TimeType, Eigen::VectorXd>& dependentVariableHistory,
+                    const std::map<TimeType, double>& cumulativeComputationTimeHistory,
+                    const std::map<TimeType, unsigned int>& cumulativeNumberOfFunctionEvaluations,
+                    std::shared_ptr <PropagationTerminationDetails> propagationTerminationReason )
+            {
+                reset( );
+                equationsOfMotionNumericalSolutionRaw_ = equationsOfMotionNumericalSolutionRaw;
+                dependentVariableHistory_ = dependentVariableHistory;
+                cumulativeComputationTimeHistory_ = cumulativeComputationTimeHistory;
+                cumulativeNumberOfFunctionEvaluations_ = cumulativeNumberOfFunctionEvaluations;
+                propagationTerminationReason_ = propagationTerminationReason;
+            }
+
             std::map <TimeType, Eigen::Matrix<StateScalarType, Eigen::Dynamic, 1>> &
             getEquationsOfMotionNumericalSolution() {
                 return equationsOfMotionNumericalSolution_;
             }
 
-            std::map <TimeType, Eigen::Matrix<StateScalarType, Eigen::Dynamic, 1>> &
+            std::map <TimeType, Eigen::Matrix<StateScalarType, Eigen::Dynamic, NumberOfStateColumns>> &
             getEquationsOfMotionNumericalSolutionRaw() {
                 return equationsOfMotionNumericalSolutionRaw_;
             }
@@ -77,10 +94,6 @@ namespace tudat
             std::map<TimeType, unsigned int> &getCumulativeNumberOfFunctionEvaluations() {
                 return cumulativeNumberOfFunctionEvaluations_;
             }
-
-//    std::map< std::pair< int, int >, std::string > dependentVariableIds_;
-
-//    std::shared_ptr< SingleArcPropagatorProcessingSettings > outputSettings_;
 
             std::shared_ptr <PropagationTerminationDetails> getPropagationTerminationReason() {
                 return propagationTerminationReason_;
@@ -98,6 +111,11 @@ namespace tudat
 
             std::map <std::pair<int, int>, std::string> getStateIds() {
                 return stateIds_;
+            }
+
+            std::shared_ptr <SingleArcPropagatorProcessingSettings> getOutputSettings( )
+            {
+                return outputSettings_;
             }
 
         private:
@@ -118,7 +136,7 @@ namespace tudat
             * states (order defined by propagatorSettings_).
             *  NOTE: this map is empty if clearNumericalSolutions_ is set to true.
             */
-            std::map <TimeType, Eigen::Matrix<StateScalarType, Eigen::Dynamic, 1>> equationsOfMotionNumericalSolutionRaw_;
+            std::map <TimeType, Eigen::Matrix<StateScalarType, Eigen::Dynamic, NumberOfStateColumns>> equationsOfMotionNumericalSolutionRaw_;
 
             //! Map of dependent variable history that was saved during numerical propagation.
             std::map <TimeType, Eigen::VectorXd> dependentVariableHistory_;
@@ -145,6 +163,35 @@ namespace tudat
             friend class SingleArcDynamicsSimulator<StateScalarType, TimeType>;
 
         };
+
+        template<typename StateScalarType = double, typename TimeType >
+        std::shared_ptr< SingleArcSimulationResults<StateScalarType, TimeType, Eigen::Dynamic > > createVariationalSimulationResults(
+                const std::shared_ptr< SingleArcSimulationResults<StateScalarType, TimeType, 1 > > simulationResults )
+        {
+            return std::make_shared< SingleArcSimulationResults<StateScalarType, TimeType, Eigen::Dynamic > >(
+                    simulationResults->getDependentVariableId( ),
+                    simulationResults->getStateIds(),
+                    simulationResults->getOutputSettings( ) );
+        }
+
+        template<typename StateScalarType = double, typename TimeType >
+        void setSimulationResultsFromVariationalResults(
+                const std::shared_ptr< SingleArcSimulationResults<StateScalarType, TimeType, Eigen::Dynamic > > variationalResults,
+                const std::shared_ptr< SingleArcSimulationResults<StateScalarType, TimeType, 1 > > simulationResults,
+                const int parameterVectorSize_,
+                const int stateTransitionMatrixSize_ )
+        {
+            std::map <TimeType, Eigen::Matrix<StateScalarType, Eigen::Dynamic, 1 >> equationsOfMotionNumericalSolutionRaw_;
+            utilities::createVectorBlockMatrixHistory(
+                    variationalResults->getEquationsOfMotionNumericalSolutionRaw( ), equationsOfMotionNumericalSolutionRaw_,
+                std::make_pair( 0, parameterVectorSize_ ), stateTransitionMatrixSize_ );
+            simulationResults->reset(
+                    equationsOfMotionNumericalSolutionRaw_,
+                    variationalResults->getDependentVariableHistory( ),
+                    variationalResults->getCumulativeComputationTimeHistory(),
+                    variationalResults->getCumulativeNumberOfFunctionEvaluations( ),
+                    variationalResults->getPropagationTerminationReason() );
+        }
 
         template<typename StateScalarType = double, typename TimeType = double>
         class MultiArcSimulationResults : public SimulationResults<StateScalarType, TimeType> {

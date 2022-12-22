@@ -801,6 +801,7 @@ public:
             // Resize solution of variational equations to 2 (state transition and sensitivity matrices)
             variationalEquationsSolution_.resize( 2 );
 
+            variationalPropagationResults_= createVariationalSimulationResults( dynamicsSimulator_->getSingleArcPropagationResults( ) );
             // Integrate variational equations from initial state estimate.
             if( integrateEquationsOnCreation )
             {
@@ -834,7 +835,7 @@ public:
             const bool clearNumericalSolution = true,
             const bool integrateEquationsOnCreation = true,
             const bool setIntegratedResult = true,
-            const bool printDependentVariableData = true):
+            const bool printDependentVariableData = false):
         SingleArcVariationalEquationsSolver( bodies,validateDeprecatedSingleArcSettings(
                                                  integratorSettings, propagatorSettings,
                                                  clearNumericalSolution, setIntegratedResult, false,
@@ -882,47 +883,34 @@ public:
                             initialStateEstimate, propagatorSettings_->getInitialTime( ) ) );
 
             // Integrate variational and state equations.
-            dynamicsStateDerivative_->setPropagationSettings( std::vector< IntegratedStateType >( ), 1, 1 );
+            dynamicsStateDerivative_->setPropagationSettings(
+                    std::vector< IntegratedStateType >( ), 1, 1 );
             dynamicsStateDerivative_->resetFunctionEvaluationCounter( );
 
-            std::map< TimeType, Eigen::VectorXd > dependentVariableHistory;
-            std::map< TimeType, MatrixType > rawNumericalSolution;
-            std::map< TimeType, double > cumulativeComputationTimeHistory;
 
             dynamicsSimulator_->printPrePropagationMessages( );
 
+
             simulation_setup::setAreBodiesInPropagation( bodies_, true );
-            std::shared_ptr< PropagationTerminationDetails > propagationTerminationReason =
-                    EquationIntegrationInterface< MatrixType, TimeType >::integrateEquations(
-                        dynamicsSimulator_->getStateDerivativeFunction( ), rawNumericalSolution,
+            EquationIntegrationInterface< MatrixType, TimeType >::integrateEquations(
+                        dynamicsSimulator_->getStateDerivativeFunction( ),
                         initialVariationalState,
                         propagatorSettings_->getInitialTime( ),
                         propagatorSettings_->getIntegratorSettings( ),
                         dynamicsSimulator_->getPropagationTerminationCondition( ),
-                        dependentVariableHistory,
-                        cumulativeComputationTimeHistory,
+                        variationalPropagationResults_,
                         dynamicsSimulator_->getDependentVariablesFunctions( ),
                         statePostProcessingFunction_,
                         propagatorSettings_->getOutputSettings( )->getPrintSettings( ) );
-            dynamicsSimulator_->setPropagationTerminationReason( propagationTerminationReason );
-            simulation_setup::setAreBodiesInPropagation( bodies_, false );
-            dynamicsSimulator_->printPostPropagationMessages( );
 
-            std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > equationsOfMotionNumericalSolutionRaw;
-            std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > equationsOfMotionNumericalSolution;
-
-            utilities::createVectorBlockMatrixHistory(
-                        rawNumericalSolution, equationsOfMotionNumericalSolutionRaw,
-                        std::make_pair( 0, parameterVectorSize_ ), stateTransitionMatrixSize_ );
-
-            convertNumericalStateSolutionsToOutputSolutions(
-                        equationsOfMotionNumericalSolution, equationsOfMotionNumericalSolutionRaw, dynamicsStateDerivative_ );
-            dynamicsSimulator_->manuallySetAndProcessRawNumericalEquationsOfMotionSolution(
-                        equationsOfMotionNumericalSolution, dependentVariableHistory, dynamicsSimulator_->getSetIntegratedResult( ) );
+            setSimulationResultsFromVariationalResults(
+                    variationalPropagationResults_, dynamicsSimulator_->getSingleArcPropagationResults( ),
+                    parameterVectorSize_, stateTransitionMatrixSize_ );
+            dynamicsSimulator_->performPropagationPostProcessingSteps( );
 
             // Reset solution for state transition and sensitivity matrices.
             setVariationalEquationsSolution< TimeType, StateScalarType >(
-                        rawNumericalSolution, variationalEquationsSolution_,
+                        variationalPropagationResults_->getEquationsOfMotionNumericalSolutionRaw( ), variationalEquationsSolution_,
                         std::make_pair( 0, 0 ), std::make_pair( 0, stateTransitionMatrixSize_ ),
                         stateTransitionMatrixSize_, parameterVectorSize_ );
         }
@@ -937,27 +925,22 @@ public:
             dynamicsStateDerivative_->resetFunctionEvaluationCounter( );
 
             Eigen::MatrixXd initialVariationalState = this->createInitialVariationalEquationsSolution( );
-            std::map< TimeType, Eigen::MatrixXd > rawNumericalSolution;
-            std::map< TimeType, Eigen::VectorXd > dependentVariableHistory;
-            std::map< TimeType, double > cumulativeComputationTimeHistory;
-
             dynamicsSimulator_->printPrePropagationMessages( );
             simulation_setup::setAreBodiesInPropagation( bodies_, true );
 
             EquationIntegrationInterface< Eigen::MatrixXd, TimeType >::integrateEquations(
                         dynamicsSimulator_->getDoubleStateDerivativeFunction( ),
-                        rawNumericalSolution,
                         initialVariationalState,
                         propagatorSettings_->getInitialTime( ),
                         propagatorSettings_->getIntegratorSettings( ),
                         dynamicsSimulator_->getPropagationTerminationCondition( ),
-                        dependentVariableHistory, cumulativeComputationTimeHistory );
+                        variationalPropagationResults_ );
 
             simulation_setup::setAreBodiesInPropagation( bodies_, false );
             dynamicsSimulator_->printPostPropagationMessages( );
 
             setVariationalEquationsSolution< TimeType, double >(
-                        rawNumericalSolution, variationalEquationsSolution_, std::make_pair( 0, 0 ),
+                    variationalPropagationResults_->getEquationsOfMotionNumericalSolutionRaw( ), variationalEquationsSolution_, std::make_pair( 0, 0 ),
                         std::make_pair( 0, stateTransitionMatrixSize_ ),
                         stateTransitionMatrixSize_, parameterVectorSize_ );
 
@@ -1135,6 +1118,9 @@ private:
      *  either full or separate propagation of equations.
      */
     std::shared_ptr< DynamicsStateDerivativeModel< TimeType, StateScalarType > > dynamicsStateDerivative_;
+
+    std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType, Eigen::Dynamic > > variationalPropagationResults_;
+
 };
 
 
@@ -1497,26 +1483,13 @@ public:
             // Integrate equations for all arcs.
             for( int i = 0; i < numberOfArcs_; i++ )
             {
-//<<<<<<< HEAD
-//                std::cout<<"Integrating arc "<< i + 1 << " of " << numberOfArcs_ << std::endl;
-
-//                // Retrieve integrator settings, and ensure correct initial time.
-//                std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings =
-//                        singleArcDynamicsSimulators.at( i )->getIntegratorSettings( );
-//                integratorSettings->initialTime_ = arcStartTimes_.at( i );
-//                std::cout << "arc start times: " << arcStartTimes_.at( i ) << "\n\n";
-//                std::cout << "arc end times: " << std::dynamic_pointer_cast< FixedTimePropagationTerminationCondition >(
-//                        singleArcDynamicsSimulators.at( i )->getPropagationTerminationCondition( ) )->getStopTime( ) << "\n\n";
-//=======
                 // Retrieve integrator settings, and ensure correct initial time.
                 std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings =
                         singleArcDynamicsSimulators.at( i )->getIntegratorSettings( );
-//>>>>>>> feature/consistent_propagation_settings
 
                 // Set state derivative model to propagate both variational equations and equations of motion
                 singleArcDynamicsSimulators.at( i )->getDynamicsStateDerivative( )->setPropagationSettings(
                             std::vector< IntegratedStateType >( ), 1, 1 );
-
 
                 // Get arc initial state. If initial state is NaN, this signals that the initial state is to be taken from
                 // previous arc
@@ -1528,26 +1501,20 @@ public:
                 }
                 else
                 {
-//                    std::cout << "test - call to getArcInitialStateFromPreviousArcResult!" << "\n\n";
                     currentArcInitialState = getArcInitialStateFromPreviousArcResult(
                                 equationsOfMotionNumericalSolutions.at( i - 1 ),
                                 singleArcDynamicsSimulators.at( i )->getInitialPropagationTime( ) );
                     updateInitialStates = true;
                 }
-//                std::cout << "currentArcInitialState: " << currentArcInitialState.transpose( ) << "\n\n";
                 arcInitialStates.push_back( currentArcInitialState );
 
                 // Update state derivative model to (possible) update in state.
                 singleArcDynamicsSimulators.at( i )->getDynamicsStateDerivative( )->
                         updateStateDerivativeModelSettings( currentArcInitialState );
 
-//                std::cout << "test before create initial conditions" << "\n\n";
-
                 // Create initial state for combined variational equations of motion.
                 MatrixType initialVariationalState = this->createInitialConditions(
                             currentArcInitialState, i );
-
-//                std::cout << "test before create variational equations" << "\n\n";
 
                 // Integrate variational and state equations.
                 dynamicsSimulator_->getDynamicsStateDerivative( ).at( i )->resetFunctionEvaluationCounter( );
@@ -1585,8 +1552,6 @@ public:
                 convertNumericalStateSolutionsToOutputSolutions(
                             equationsOfMotionNumericalSolutions[ i ], currentEquationsOfMotionNumericalSolutionsRaw,
                             dynamicsStateDerivatives_.at( i ) );
-
-//                std::cout << "arc start times: " << arcStartTimes_.at( i ) << "\n\n";
 
                 // Save state transition and sensitivity matrix solutions for current arc.
                 setVariationalEquationsSolution(
