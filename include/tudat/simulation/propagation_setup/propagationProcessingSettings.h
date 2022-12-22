@@ -85,6 +85,7 @@ public:
     SingleArcPropagatorProcessingSettings(
             const bool clearNumericalSolutions = false,
             const bool setIntegratedResult = false,
+            const double resultSaveInterval = TUDAT_NAN,
             const std::shared_ptr< PropagationPrintSettings > printSettings =
             std::make_shared< PropagationPrintSettings >( ) ):
         PropagatorProcessingSettings( clearNumericalSolutions, setIntegratedResult ),
@@ -131,11 +132,19 @@ public:
         }
     }
 
+    double getResultSaveInterval( )
+    {
+        return resultSaveInterval_;
+    }
+
+
 protected:
 
     const std::shared_ptr< PropagationPrintSettings > printSettings_;
 
 private:
+
+    double resultSaveInterval_;
 
     void setAsMultiArc( const unsigned int arcIndex, const bool printArcIndex )
     {

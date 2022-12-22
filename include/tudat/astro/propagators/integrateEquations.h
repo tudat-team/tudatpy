@@ -480,10 +480,15 @@ std::shared_ptr< PropagationTerminationDetails > integrateEquationsFromIntegrato
         const std::function< Eigen::VectorXd( ) > dependentVariableFunction = std::function< Eigen::VectorXd( ) >( ),
         const std::function< void( StateType& ) > statePostProcessingFunction = std::function< void( StateType& ) >( ),
         const int saveFrequency = TUDAT_NAN,
-        const TimeType statePrintInterval = TUDAT_NAN,
-        const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ),
-        const bool printInitialAndFinalCondition = false )
+        const std::shared_ptr< PropagationPrintSettings > printSettings = std::make_shared< PropagationPrintSettings >( ) )
+//        const TimeType statePrintInterval = TUDAT_NAN,
+//        const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ),
+//        const bool printInitialAndFinalCondition = false )
 {
+    TimeType statePrintInterval = printSettings->getStatePrintInterval( );
+    std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( );
+    bool printInitialAndFinalCondition = printSettings->getPrintInitialAndFinalConditions( );
+
     std::shared_ptr< PropagationTerminationDetails > propagationTerminationReason;
 
     // Get Initial state and time.
@@ -693,9 +698,7 @@ Eigen::MatrixXd, double, double >(
         const std::function< Eigen::VectorXd( ) > dependentVariableFunction,
         const std::function< void( Eigen::MatrixXd& ) > statePostProcessingFunction,
         const int saveFrequency,
-        const double statePrintInterval,
-        const std::chrono::steady_clock::time_point initialClockTime,
-        const bool printInitialAndFinalCondition );
+        const std::shared_ptr< PropagationPrintSettings > printSettings = std::make_shared< PropagationPrintSettings >( ) );
 
 
 extern template std::shared_ptr< PropagationTerminationDetails > integrateEquationsFromIntegrator<
@@ -709,9 +712,7 @@ Eigen::VectorXd, double, double >(
         const std::function< Eigen::VectorXd( ) > dependentVariableFunction,
         const std::function< void( Eigen::VectorXd& ) > statePostProcessingFunction,
         const int saveFrequency,
-        const double statePrintInterval,
-        const std::chrono::steady_clock::time_point initialClockTime,
-        const bool printInitialAndFinalCondition );
+        const std::shared_ptr< PropagationPrintSettings > printSettings = std::make_shared< PropagationPrintSettings >( ) );
 
 
 //! Interface class for integrating some state derivative function.
@@ -758,9 +759,7 @@ public:
             std::map< TimeType, double >& cumulativeComputationTimeHistory,
             const std::function< Eigen::VectorXd( ) > dependentVariableFunction = std::function< Eigen::VectorXd( ) >( ),
             const std::function< void( StateType& ) > statePostProcessingFunction = std::function< void( StateType& ) >( ),
-            const TimeType statePrintInterval = TUDAT_NAN,
-            const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ),
-            const bool printInitialAndFinalCondition = false );
+            const std::shared_ptr< PropagationPrintSettings > printSettings = std::make_shared< PropagationPrintSettings >( ) );
 
 };
 
@@ -802,9 +801,7 @@ public:
             std::map< double, double >& cumulativeComputationTimeHistory,
             const std::function< Eigen::VectorXd( ) > dependentVariableFunction = std::function< Eigen::VectorXd( ) >( ),
             const std::function< void( StateType& ) > statePostProcessingFunction = std::function< void( StateType& ) >( ),
-            const double statePrintInterval = TUDAT_NAN,
-            const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ),
-            const bool printInitialAndFinalCondition = false  )
+            const std::shared_ptr< PropagationPrintSettings > printSettings = std::make_shared< PropagationPrintSettings >( )  )
     {
         std::function< bool( const double, const double ) > stopPropagationFunction =
                 std::bind( &PropagationTerminationCondition::checkStopCondition, propagationTerminationCondition, std::placeholders::_1, std::placeholders::_2 );
@@ -826,9 +823,7 @@ public:
                     dependentVariableFunction,
                     statePostProcessingFunction,
                     integratorSettings->saveFrequency_,
-                    statePrintInterval,
-                    initialClockTime,
-                    printInitialAndFinalCondition );
+                    printSettings );
     }
 
 };
@@ -871,9 +866,7 @@ public:
             std::map< Time, double >& cumulativeComputationTimeHistory,
             const std::function< Eigen::VectorXd( ) > dependentVariableFunction = std::function< Eigen::VectorXd( ) >( ),
             const std::function< void( StateType& ) > statePostProcessingFunction = std::function< void( StateType& ) >( ),
-            const Time statePrintInterval = TUDAT_NAN,
-            const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ),
-            const bool printInitialAndFinalCondition = false )
+            const std::shared_ptr< PropagationPrintSettings > printSettings = std::make_shared< PropagationPrintSettings >( ) )
     {
         std::function< bool( const double, const double ) > stopPropagationFunction =
                 std::bind( &PropagationTerminationCondition::checkStopCondition, propagationTerminationCondition, std::placeholders::_1, std::placeholders::_2 );
@@ -895,9 +888,7 @@ public:
                     dependentVariableFunction,
                     statePostProcessingFunction,
                     integratorSettings->saveFrequency_,
-                    statePrintInterval,
-                    initialClockTime,
-                    printInitialAndFinalCondition );
+                    printSettings );
     }
 
 };

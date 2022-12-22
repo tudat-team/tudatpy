@@ -17,9 +17,7 @@ Eigen::MatrixXd, double, double >(
         const std::function< Eigen::VectorXd( ) > dependentVariableFunction,
         const std::function< void( Eigen::MatrixXd& ) > statePostProcessingFunction,
         const int saveFrequency,
-        const double statePrintInterval,
-        const std::chrono::steady_clock::time_point initialClockTime,
-        const bool printInitialAndFinalCondition );
+        const std::shared_ptr< PropagationPrintSettings > printSettings );
 
 template std::shared_ptr< PropagationTerminationDetails > integrateEquationsFromIntegrator<
 Eigen::VectorXd, double, double >(
@@ -32,9 +30,7 @@ Eigen::VectorXd, double, double >(
         const std::function< Eigen::VectorXd( ) > dependentVariableFunction,
         const std::function< void( Eigen::VectorXd& ) > statePostProcessingFunction,
         const int saveFrequency,
-        const double statePrintInterval,
-        const std::chrono::steady_clock::time_point initialClockTime,
-        const bool printInitialAndFinalCondition );
+        const std::shared_ptr< PropagationPrintSettings > printSettings );
 
 } // namespace propagators
 
