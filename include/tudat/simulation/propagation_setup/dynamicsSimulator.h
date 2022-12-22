@@ -667,25 +667,27 @@ public:
         // Integrate equations of motion numerically.
         resetPropagationTerminationConditions( );
         simulation_setup::setAreBodiesInPropagation( bodies_, true );
-        propagationResults_->propagationTerminationReason_ =
                 EquationIntegrationInterface< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >, TimeType >::integrateEquations(
                     stateDerivativeFunction_,
-                    propagationResults_->equationsOfMotionNumericalSolutionRaw_,
                     dynamicsStateDerivative_->convertFromOutputSolution( initialStates, propagatorSettings_->getInitialTime( ) ),
                     propagatorSettings_->getInitialTime( ),
                     integratorSettings_,
                     propagationTerminationCondition_,
-                    propagationResults_->dependentVariableHistory_,
-                    propagationResults_->cumulativeComputationTimeHistory_,
+                    propagationResults_,
                     dependentVariablesFunctions_,
                     statePostProcessingFunction_,
                     propagatorSettings_->getOutputSettings( )->getPrintSettings( ) );
         simulation_setup::setAreBodiesInPropagation( bodies_, false );
 
+        performPropagationPostProcessingSteps( );
+    }
+
+    void performPropagationPostProcessingSteps( )
+    {
         // Convert numerical solution to conventional state
         dynamicsStateDerivative_->convertNumericalStateSolutionsToOutputSolutions(
-                    propagationResults_->equationsOfMotionNumericalSolution_,
-                    propagationResults_->equationsOfMotionNumericalSolutionRaw_ );
+                propagationResults_->equationsOfMotionNumericalSolution_,
+                propagationResults_->equationsOfMotionNumericalSolutionRaw_ );
 
         // Retrieve number of cumulative function evaluations
         propagationResults_->cumulativeNumberOfFunctionEvaluations_ = dynamicsStateDerivative_->getCumulativeNumberOfFunctionEvaluations( );
@@ -696,7 +698,6 @@ public:
 
         if( outputSettings_->getSetIntegratedResult( ) )
         {
-//            std::cout << "results integrated for single-arc" << "\n\n";
             processNumericalEquationsOfMotionSolution( );
         }
     }
@@ -946,6 +947,10 @@ public:
         return propagationResults_;
     }
 
+    std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType > > getSingleArcPropagationResults( )
+    {
+        return propagationResults_;
+    }
 
     void printPrePropagationMessages( )
     {
