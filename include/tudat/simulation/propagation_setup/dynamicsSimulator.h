@@ -667,7 +667,7 @@ public:
         // Integrate equations of motion numerically.
         resetPropagationTerminationConditions( );
         simulation_setup::setAreBodiesInPropagation( bodies_, true );
-                EquationIntegrationInterface< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >, TimeType >::integrateEquations(
+                integrateEquations< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >, TimeType >(
                     stateDerivativeFunction_,
                     dynamicsStateDerivative_->convertFromOutputSolution( initialStates, propagatorSettings_->getInitialTime( ) ),
                     propagatorSettings_->getInitialTime( ),
@@ -1405,13 +1405,16 @@ public:
                     multiArcPropagatorSettings_->getSingleArcSettings( );
 
             // Create dynamics simulators
+            std::vector< std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType > > > singleArcResults;
             for( unsigned int i = 0; i < singleArcSettings.size( ); i++ )
             {
                 singleArcDynamicsSimulators_.push_back(
                             std::make_shared< SingleArcDynamicsSimulator< StateScalarType, TimeType > >(
                                 bodies, singleArcSettings.at( i ), false ) );
-                singleArcDynamicsSimulators_[ i ]->createAndSetIntegratedStateProcessors( );
+                singleArcResults.push_back( singleArcDynamicsSimulators_.at( i )->getSingleArcPropagationResults( ) );
+                singleArcDynamicsSimulators_.at( i )->createAndSetIntegratedStateProcessors( );
             }
+            propagationResults_ = std::make_shared< MultiArcSimulationResults< StateScalarType, TimeType > >( singleArcResults );
 
             equationsOfMotionNumericalSolution_.resize( singleArcSettings.size( ) );
             dependentVariableHistory_.resize( singleArcSettings.size( ) );

@@ -767,11 +767,6 @@ void integrateEquationsFromIntegrator(
 //
 //};
 
-//! Interface class for integrating some state derivative function.
-template< typename StateType, typename TimeType = double >
-class EquationIntegrationInterface
-{
-public:
 
     //! Function to numerically integrate a given first order differential equation
     /*!
@@ -794,6 +789,7 @@ public:
      *  By default now(), i.e. the moment at which this function is called.
      *  \return Event that triggered the termination of the propagation
      */
+    template< typename StateType, typename TimeType = double >
     static void integrateEquations(
             std::function< StateType( const TimeType, const StateType& ) > stateDerivativeFunction,
             const StateType initialState,
@@ -827,7 +823,7 @@ public:
                     printSettings );
     }
 
-};
+
 //
 ////! Interface class for integrating some state derivative function.
 //template< typename StateType >

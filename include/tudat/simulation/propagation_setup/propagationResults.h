@@ -118,6 +118,12 @@ namespace tudat
                 return outputSettings_;
             }
 
+            bool getPropagationIsPerformed( )
+            {
+                return propagationIsPerformed_;
+            }
+
+
         private:
 
             //! Map of state history of numerically integrated bodies.
@@ -193,21 +199,63 @@ namespace tudat
                     variationalResults->getPropagationTerminationReason() );
         }
 
-        template<typename StateScalarType = double, typename TimeType = double>
+        template<typename StateScalarType = double, typename TimeType = double, int NumberOfStateColumns = 1 >
         class MultiArcSimulationResults : public SimulationResults<StateScalarType, TimeType> {
 
         public:
-            MultiArcSimulationResults() {}
+            MultiArcSimulationResults(
+                    const std::vector< std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType, NumberOfStateColumns > > > singleArcResults ):
+                    singleArcResults_( singleArcResults ), propagationIsPerformed_( false ){ }
 
             ~MultiArcSimulationResults() {}
 
+            bool getPropagationIsPerformed( )
+            {
+                return propagationIsPerformed_;
+            }
+
+            void restartPropagation( )
+            {
+                propagationIsPerformed_ = false;
+                arcStartTimes_.clear( );
+            }
+
+            void setPropagationIsPerformed( )
+            {
+                propagationIsPerformed_ = true;
+                for( unsigned int i = 0; i < singleArcResults_.size( ); i++ )
+                {
+                    arcStartTimes_.push_back( singleArcResults_.at( i )->getEquationsOfMotionNumericalSolution( ).begin( )->first );
+                }
+            }
+
+            std::vector< std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType, NumberOfStateColumns > > > getSingleArcResults( )
+            {
+                return singleArcResults_;
+            }
+
+        private:
+            const std::vector< std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType, NumberOfStateColumns > > > singleArcResults_;
+
+            bool propagationIsPerformed_;
+
+            //! List of start times of each arc. NOTE: This list is updated after every propagation.
+            std::vector< double > arcStartTimes_;
+
         };
 
-        template<typename StateScalarType = double, typename TimeType = double>
+        template<typename StateScalarType = double, typename TimeType = double, int NumberOfStateColumns = 1 >
         class HybridArcSimulationResults : public SimulationResults<StateScalarType, TimeType> {
-            HybridArcSimulationResults() {}
+            HybridArcSimulationResults(
+                    const std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType, NumberOfStateColumns > > singleArcResults,
+                    const std::shared_ptr< MultiArcSimulationResults< StateScalarType, TimeType, NumberOfStateColumns > > multiArcResults ):
+                    singleArcResults_( singleArcResults ), multiArcResults_( multiArcResults ){ }
 
             ~HybridArcSimulationResults() {}
+
+            std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType, NumberOfStateColumns > > singleArcResults_;
+
+            std::shared_ptr< MultiArcSimulationResults< StateScalarType, TimeType, NumberOfStateColumns > > multiArcResults_;
         };
 
     }

@@ -892,7 +892,7 @@ public:
 
 
             simulation_setup::setAreBodiesInPropagation( bodies_, true );
-            EquationIntegrationInterface< MatrixType, TimeType >::integrateEquations(
+            integrateEquations< MatrixType, TimeType >(
                         dynamicsSimulator_->getStateDerivativeFunction( ),
                         initialVariationalState,
                         propagatorSettings_->getInitialTime( ),
@@ -928,7 +928,7 @@ public:
             dynamicsSimulator_->printPrePropagationMessages( );
             simulation_setup::setAreBodiesInPropagation( bodies_, true );
 
-            EquationIntegrationInterface< Eigen::MatrixXd, TimeType >::integrateEquations(
+            integrateEquations< Eigen::MatrixXd, TimeType >(
                         dynamicsSimulator_->getDoubleStateDerivativeFunction( ),
                         initialVariationalState,
                         propagatorSettings_->getInitialTime( ),
@@ -1466,23 +1466,13 @@ public:
         // Propagate variational equations and equations of motion concurrently
         if( integrateEquationsConcurrently )
         {
-            // Allocate maps that stored numerical solution for equations of motion
-            std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >
-                    currentEquationsOfMotionNumericalSolutionsRaw;
-            std::vector< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > >
-                    equationsOfMotionNumericalSolutions;
-            std::vector< std::map< TimeType, Eigen::Matrix< double, Eigen::Dynamic, 1 > > >
-                    dependentVariableHistorySolutions;
-            std::vector< std::map< TimeType, double > > cumulativeComputationTimeHistorySolutions;
-
-            equationsOfMotionNumericalSolutions.resize( numberOfArcs_ );
-
-            dependentVariableHistorySolutions.resize( numberOfArcs_ );
-            cumulativeComputationTimeHistorySolutions.resize( numberOfArcs_ );
-
             // Integrate equations for all arcs.
             for( int i = 0; i < numberOfArcs_; i++ )
             {
+                // TODO, should this not be a class member (inside a multi-arc results?)
+                std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType, Eigen::Dynamic > > variationalPropagationResults_=
+                        createVariationalSimulationResults( singleArcDynamicsSimulators.at( i )->getSingleArcPropagationResults( ) );
+
                 // Retrieve integrator settings, and ensure correct initial time.
                 std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings =
                         singleArcDynamicsSimulators.at( i )->getIntegratorSettings( );
@@ -1502,7 +1492,7 @@ public:
                 else
                 {
                     currentArcInitialState = getArcInitialStateFromPreviousArcResult(
-                                equationsOfMotionNumericalSolutions.at( i - 1 ),
+                            singleArcDynamicsSimulators.at( i )->getEquationsOfMotionNumericalSolution( ),
                                 singleArcDynamicsSimulators.at( i )->getInitialPropagationTime( ) );
                     updateInitialStates = true;
                 }
@@ -1522,50 +1512,33 @@ public:
                 dynamicsSimulator_->getSingleArcDynamicsSimulators( ).at( i )->printPrePropagationMessages( );
                 simulation_setup::setAreBodiesInPropagation( bodies_, true );
 
-                std::map< TimeType, MatrixType > rawNumericalSolution;
-                std::shared_ptr< PropagationTerminationDetails > propagationTerminationReason =
-                        EquationIntegrationInterface< MatrixType, TimeType >::integrateEquations(
+                integrateEquations< MatrixType, TimeType >(
                             singleArcDynamicsSimulators.at( i )->getStateDerivativeFunction( ),
-                            rawNumericalSolution,
                             initialVariationalState,
                             singleArcDynamicsSimulators.at( i )->getInitialPropagationTime( ),
                             integratorSettings,
                             singleArcDynamicsSimulators.at( i )->getPropagationTerminationCondition( ),
-                            dependentVariableHistorySolutions.at( i ),
-                            cumulativeComputationTimeHistorySolutions.at( i ),
+                            variationalPropagationResults_,
                             singleArcDynamicsSimulators.at( i )->getDependentVariablesFunctions( ),
                             std::bind(
                                 &DynamicsStateDerivativeModel< TimeType, StateScalarType >::postProcessStateAndVariationalEquations,
                                 singleArcDynamicsSimulators.at( i )->getDynamicsStateDerivative( ), std::placeholders::_1 ) );
-                dynamicsSimulator_->setPropagationTerminationReason( propagationTerminationReason, i );
 
-                simulation_setup::setAreBodiesInPropagation( bodies_, false );
-                dynamicsSimulator_->getSingleArcDynamicsSimulators( ).at( i )->printPostPropagationMessages( );
-
-                // Extract solution of equations of motion.
-                utilities::createVectorBlockMatrixHistory(
-                            rawNumericalSolution, currentEquationsOfMotionNumericalSolutionsRaw,
-                            std::make_pair( 0, arcWiseParameterVectorSize_[ i ] ), arcWiseStateTransitionMatrixSize_[ i ] );
-
-
-                // Transform equations of motion solution to output formulation
-                convertNumericalStateSolutionsToOutputSolutions(
-                            equationsOfMotionNumericalSolutions[ i ], currentEquationsOfMotionNumericalSolutionsRaw,
-                            dynamicsStateDerivatives_.at( i ) );
+                dynamicsSimulator_->getSingleArcDynamicsSimulators( ).at( i )->performPropagationPostProcessingSteps( );
 
                 // Save state transition and sensitivity matrix solutions for current arc.
-                setVariationalEquationsSolution(
-                            rawNumericalSolution, variationalEquationsSolution_[ i ],
-                            std::make_pair( 0, 0 ), std::make_pair( 0, arcWiseStateTransitionMatrixSize_[ i ] ),
-                            arcWiseStateTransitionMatrixSize_[ i ], arcWiseParameterVectorSize_[ i ] );
+                setVariationalEquationsSolution< TimeType, StateScalarType >(
+                        variationalPropagationResults_->getEquationsOfMotionNumericalSolutionRaw( ),
+                        variationalEquationsSolution_[ i ],
+                        std::make_pair( 0, 0 ), std::make_pair( 0, arcWiseStateTransitionMatrixSize_[ i ] ),
+                        arcWiseStateTransitionMatrixSize_[ i ], arcWiseParameterVectorSize_[ i ] );
 
             }
 
-            // Process numerical solution of equations of motion
-            dynamicsSimulator_->manuallySetAndProcessRawNumericalEquationsOfMotionSolution(
-                        equationsOfMotionNumericalSolutions, dependentVariableHistorySolutions,
-                        resetMultiArcDynamicsAfterPropagation_ );
-            equationsOfMotionNumericalSolutions.clear( );
+//            // Process numerical solution of equations of motion
+//            dynamicsSimulator_->manuallySetAndProcessRawNumericalEquationsOfMotionSolution(
+//                        equationsOfMotionNumericalSolutions, dependentVariableHistorySolutions,
+//                        resetMultiArcDynamicsAfterPropagation_ );
 
 
             if( updateInitialStates )
@@ -1583,81 +1556,81 @@ public:
                 }
             }
         }
-        else
-        {
-            // Integrate dynamics for each arc
-            for( int i = 0; i < numberOfArcs_; i++ )
-            {
-//                // Get arc initial state. If initial state is NaN, this signals that the initial state is to be taken from
-//                // previous arc
-//                if( ( i == 0 ) || ( !linear_algebra::doesMatrixHaveNanEntries( initialStateEstimate.at( i ) ) ) )
-//                {
-//                    throw std::runtime_error( "Error, arc information transferral not yet supported for separate "
-//                                              "dynamics and variational euations propagation." );
-//                    updateInitialStates = true;
-//                }
-//                else
-//                {
-                    arcInitialStates.push_back( initialStateEstimate.at( i ) );
-//                }
-
-                // Update state derivative model to (possible) update in state.
-                singleArcDynamicsSimulators.at( i )->getDynamicsStateDerivative( )->
-                        updateStateDerivativeModelSettings( arcInitialStates.at( i ) );
-                singleArcDynamicsSimulators.at( i )->getDynamicsStateDerivative( )->setPropagationSettings(
-                            std::vector< IntegratedStateType >( ), 1, 0 );
-            }
-
-            dynamicsSimulator_->integrateEquationsOfMotion( arcInitialStates );
-
-            std::map< TimeType, MatrixType > rawNumericalSolutions;
-            std::map< TimeType, Eigen::Matrix< double, Eigen::Dynamic, 1 > > dummyDependentVariableHistorySolution;
-            std::map< TimeType, double > dummyCumulativeComputationTimeHistorySolution;
-
-            // Integrate variational equarions for each arc
-            for( int i = 0; i < numberOfArcs_; i++ )
-            {
-                // Retrieve integrator settings, and ensure correct initial time.
-                std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings =
-                        singleArcDynamicsSimulators.at( i )->getIntegratorSettings( );
-//                integratorSettings->initialTime_ = arcStartTimes_.at( i );
-
-                // Propagate only variational equations
-                singleArcDynamicsSimulators.at( i )->getDynamicsStateDerivative( )->setPropagationSettings(
-                            singleArcDynamicsSimulators.at( i )->getDynamicsStateDerivative( )->getIntegratedStateTypes( ), 0, 1 );
-
-                // Get initial state for variational equations (single arc)
-                MatrixType initialVariationalState = this->createInitialVariationalEquationsSolution( i ).
-                        template cast< StateScalarType >( );
-
-                // Integrate variational equations for current arc
-
-                dynamicsSimulator_->getDynamicsStateDerivative( ).at( i )->resetFunctionEvaluationCounter( );
-
-                dynamicsSimulator_->getSingleArcDynamicsSimulators( ).at( i )->printPrePropagationMessages( );
-                simulation_setup::setAreBodiesInPropagation( bodies_, true );
-
-                EquationIntegrationInterface< MatrixType, TimeType >::integrateEquations(
-                            singleArcDynamicsSimulators.at( i )->getStateDerivativeFunction( ),
-                            rawNumericalSolutions, initialVariationalState,
-                            singleArcDynamicsSimulators.at( i )->getInitialPropagationTime( ),
-                            singleArcDynamicsSimulators.at( i )->getIntegratorSettings( ),
-                            singleArcDynamicsSimulators.at( i )->getPropagationTerminationCondition( ),
-                            dummyDependentVariableHistorySolution, dummyCumulativeComputationTimeHistorySolution );
-
-                simulation_setup::setAreBodiesInPropagation( bodies_, false );
-                dynamicsSimulator_->getSingleArcDynamicsSimulators( ).at( i )->printPostPropagationMessages( );
-
-                // Save state transition and sensitivity matrix solutions for current arc.
-                setVariationalEquationsSolution(
-                            rawNumericalSolutions, variationalEquationsSolution_[ i ],
-                            std::make_pair( 0, 0 ), std::make_pair( 0, arcWiseStateTransitionMatrixSize_[ i ] ),
-                            arcWiseStateTransitionMatrixSize_[ i ], arcWiseParameterVectorSize_[ i ] );
-
-                rawNumericalSolutions.clear( );
-            }
-
-        }
+//        else
+//        {
+//            // Integrate dynamics for each arc
+//            for( int i = 0; i < numberOfArcs_; i++ )
+//            {
+////                // Get arc initial state. If initial state is NaN, this signals that the initial state is to be taken from
+////                // previous arc
+////                if( ( i == 0 ) || ( !linear_algebra::doesMatrixHaveNanEntries( initialStateEstimate.at( i ) ) ) )
+////                {
+////                    throw std::runtime_error( "Error, arc information transferral not yet supported for separate "
+////                                              "dynamics and variational euations propagation." );
+////                    updateInitialStates = true;
+////                }
+////                else
+////                {
+//                    arcInitialStates.push_back( initialStateEstimate.at( i ) );
+////                }
+//
+//                // Update state derivative model to (possible) update in state.
+//                singleArcDynamicsSimulators.at( i )->getDynamicsStateDerivative( )->
+//                        updateStateDerivativeModelSettings( arcInitialStates.at( i ) );
+//                singleArcDynamicsSimulators.at( i )->getDynamicsStateDerivative( )->setPropagationSettings(
+//                            std::vector< IntegratedStateType >( ), 1, 0 );
+//            }
+//
+//            dynamicsSimulator_->integrateEquationsOfMotion( arcInitialStates );
+//
+//            std::map< TimeType, MatrixType > rawNumericalSolutions;
+//            std::map< TimeType, Eigen::Matrix< double, Eigen::Dynamic, 1 > > dummyDependentVariableHistorySolution;
+//            std::map< TimeType, double > dummyCumulativeComputationTimeHistorySolution;
+//
+//            // Integrate variational equarions for each arc
+//            for( int i = 0; i < numberOfArcs_; i++ )
+//            {
+//                // Retrieve integrator settings, and ensure correct initial time.
+//                std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings =
+//                        singleArcDynamicsSimulators.at( i )->getIntegratorSettings( );
+////                integratorSettings->initialTime_ = arcStartTimes_.at( i );
+//
+//                // Propagate only variational equations
+//                singleArcDynamicsSimulators.at( i )->getDynamicsStateDerivative( )->setPropagationSettings(
+//                            singleArcDynamicsSimulators.at( i )->getDynamicsStateDerivative( )->getIntegratedStateTypes( ), 0, 1 );
+//
+//                // Get initial state for variational equations (single arc)
+//                MatrixType initialVariationalState = this->createInitialVariationalEquationsSolution( i ).
+//                        template cast< StateScalarType >( );
+//
+//                // Integrate variational equations for current arc
+//
+//                dynamicsSimulator_->getDynamicsStateDerivative( ).at( i )->resetFunctionEvaluationCounter( );
+//
+//                dynamicsSimulator_->getSingleArcDynamicsSimulators( ).at( i )->printPrePropagationMessages( );
+//                simulation_setup::setAreBodiesInPropagation( bodies_, true );
+//
+//                integrateEquations< MatrixType, TimeType >(
+//                            singleArcDynamicsSimulators.at( i )->getStateDerivativeFunction( ),
+//                            rawNumericalSolutions, initialVariationalState,
+//                            singleArcDynamicsSimulators.at( i )->getInitialPropagationTime( ),
+//                            singleArcDynamicsSimulators.at( i )->getIntegratorSettings( ),
+//                            singleArcDynamicsSimulators.at( i )->getPropagationTerminationCondition( ),
+//                            dummyDependentVariableHistorySolution, dummyCumulativeComputationTimeHistorySolution );
+//
+//                simulation_setup::setAreBodiesInPropagation( bodies_, false );
+//                dynamicsSimulator_->getSingleArcDynamicsSimulators( ).at( i )->printPostPropagationMessages( );
+//
+//                // Save state transition and sensitivity matrix solutions for current arc.
+//                setVariationalEquationsSolution(
+//                            rawNumericalSolutions, variationalEquationsSolution_[ i ],
+//                            std::make_pair( 0, 0 ), std::make_pair( 0, arcWiseStateTransitionMatrixSize_[ i ] ),
+//                            arcWiseStateTransitionMatrixSize_[ i ], arcWiseParameterVectorSize_[ i ] );
+//
+//                rawNumericalSolutions.clear( );
+//            }
+//
+//        }
 
         if( updateInitialStates )
         {
@@ -2064,18 +2037,11 @@ public:
         // Get input size of single-arc and input multi-arc
         singleArcDynamicsSize_ = originalPopagatorSettings_->getSingleArcPropagatorSettings( )->getConventionalStateSize( );
         originalMultiArcDynamicsSize_ = originalPopagatorSettings_->getMultiArcPropagatorSettings( )->getConventionalStateSize( );
-//<<<<<<< HEAD
         for ( unsigned int i = 0 ; i < arcStartTimes_.size( ) ; i++ )
         {
             originalMultiArcDynamicsSingleArcSize_.push_back(
                     originalPopagatorSettings_->getMultiArcPropagatorSettings( )->getSingleArcSettings( ).at( i )->getConventionalStateSize( ) );
-//            std::cout << "arc " << i << " - originalMultiArcDynamicsSingleArcSize_ = " << originalMultiArcDynamicsSingleArcSize_[ i ] << "\n\n";
         }
-
-//=======
-//        originalMultiArcDynamicsSingleArcSize_ =
-//                originalPopagatorSettings_->getMultiArcPropagatorSettings( )->getConventionalStateSize( ) / numberOfArcs;
-//>>>>>>> feature/consistent_propagation_settings
 
         // Create propagator settings with the single arc settings included (at the beginning) in each arc
         std::shared_ptr< MultiArcPropagatorSettings< StateScalarType, TimeType > > extendedMultiArcSettings =
@@ -2085,21 +2051,13 @@ public:
                     numberOfArcs );
 
         multiArcDynamicsSize_ = extendedMultiArcSettings->getConventionalStateSize( );
-//<<<<<<< HEAD
-//        multiArcDynamicsSingleArcSize_ = extendedMultiArcSettings->getConventionalStateSize( ) / arcStartTimes_.size( );
         for ( unsigned int i = 0 ; i < arcStartTimes_.size( ) ; i++ )
         {
             multiArcDynamicsSingleArcSize_.push_back(
                     extendedMultiArcSettings->getSingleArcSettings( ).at( i )->getConventionalStateSize( ) );
-//            std::cout << "arc " << i << " - multiArcDynamicsSingleArcSize_ = " << multiArcDynamicsSingleArcSize_[ i ] << "\n\n";
-//            extendedMultiArcSettings->getSingleArcSettings( ).at( i )->getConventionalStateSize( ) << "\n\n";
 
         }
-//        std::cout << "multiArcDynamicsSize_: " << multiArcDynamicsSize_ << "\n\n";
-//        std::cout << "multiArcDynamicsSingleArcSize_: " << multiArcDynamicsSingleArcSize_ << "\n\n";
-//=======
-//        multiArcDynamicsSingleArcSize_ = extendedMultiArcSettings->getConventionalStateSize( ) / numberOfArcs;
-//>>>>>>> feature/consistent_propagation_settings
+
         propagatorSettings_ = std::make_shared< HybridArcPropagatorSettings< StateScalarType, TimeType > >(
                     originalPopagatorSettings_->getSingleArcPropagatorSettings( )->clone( ), extendedMultiArcSettings );
 
@@ -2116,15 +2074,8 @@ public:
 
         // Create variational equations solvers for single- and multi-arc
         singleArcSolver_ = std::make_shared< SingleArcVariationalEquationsSolver< StateScalarType, TimeType > >(
-//<<<<<<< HEAD
-//                    bodies, singleArcIntegratorSettings_, propagatorSettings_->getSingleArcPropagatorSettings( ),
-//                    singleArcParametersToEstimate_, integrateDynamicalAndVariationalEquationsConcurrently,
-//                    std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ),
-//                    false, false, true );
-//=======
                     bodies, originalPopagatorSettings_->getSingleArcPropagatorSettings( ),
                     singleArcParametersToEstimate_, false );
-//>>>>>>> feature/consistent_propagation_settings
         multiArcSolver_ = std::make_shared< MultiArcVariationalEquationsSolver< StateScalarType, TimeType > >(
                     bodies, extendedMultiArcSettings,
                     multiArcParametersToEstimate_, false );
@@ -2134,7 +2085,6 @@ public:
             multiArcSolver_->getDynamicsStateDerivatives( ).at( i )->getVariationalEquationsCalculator( )->suppressParameterCoupling(
                         propagatorSettings_->getSingleArcPropagatorSettings( )->getPropagatedStateSize( ) );
         }
-//        std::cout << "suppress parameter coupling: " << propagatorSettings_->getSingleArcPropagatorSettings( )->getPropagatedStateSize( ) << "\n\n";
 
         // Create function to retrieve single-arc initial states for extended multi-arc
         std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType, TimeType > > singleArcPropagationSettings =
@@ -2183,28 +2133,13 @@ public:
     void integrateVariationalAndDynamicalEquations(
             const VectorType& initialStateEstimate, const bool integrateEquationsConcurrently )
     {
-//<<<<<<< HEAD
-
-//        std::cout << "initial state estimate: " << initialStateEstimate.transpose( ) << "\n\n";
-
-//        // Reset initial time and propagate multi-arc equations
-//        singleArcIntegratorSettings_->initialTime_ = singleArcInitialTime_;
-
-//       std::cout<<"Integrating single arc "<<std::endl;
-//=======
-//>>>>>>> feature/consistent_propagation_settings
+        // Reset initial time and propagate multi-arc equations
         singleArcSolver_->integrateVariationalAndDynamicalEquations(
                     initialStateEstimate.block( 0, 0, singleArcDynamicsSize_, 1 ),
                     integrateEquationsConcurrently );
         // Extract single arc state to update multi-arc initial states
-//<<<<<<< HEAD
-//        multiArcIntegratorSettings_->initialTime_ = arcStartTimes_.at( 0 );
-//        std::cout << "getInitialStates - before reset: " << propagatorSettings_->getMultiArcPropagatorSettings( )->getInitialStates( ).transpose( ) << "\n\n";
-//=======
-//>>>>>>> feature/consistent_propagation_settings
         resetMultiArcInitialStates(
                     initialStateEstimate.block( singleArcDynamicsSize_, 0, multiArcDynamicsSize_, 1 ) );
-//        std::cout << "getInitialStates - after reset: " << propagatorSettings_->getMultiArcPropagatorSettings( )->getInitialStates( ).transpose( ) << "\n\n";
 
         // Reset initial time and propagate single-arc equations
         multiArcSolver_->integrateVariationalAndDynamicalEquations(
@@ -2301,25 +2236,14 @@ public:
     void resetParameterEstimate( const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > newParameterEstimate,
                                  const bool areVariationalEquationsToBeIntegrated = true )
     {
-//        std::cout << "CALL TO FUNCTION resetParameterEstimate" << "\n\n";
-//        std::cout << "BEFORE RESET - original propagator settings states: " << originalPopagatorSettings_->getInitialStates( ).transpose( ) << "\n\n";
-//        std::cout << "BEFORE RESET - propagator settings states: " << propagatorSettings_->getInitialStates( ).transpose( ) << "\n\n";
-//        // Reset values of parameters.
+        // Reset values of parameters.
         parametersToEstimate_->template resetParameterValues< StateScalarType >( newParameterEstimate );
-//        std::cout << "getInitialStateVectorOfBodiesToEstimate: " << estimatable_parameters::getInitialStateVectorOfBodiesToEstimate( parametersToEstimate_ ).transpose( ) << "\n\n";
-//        originalPopagatorSettings_->resetInitialStates(
-//                    estimatable_parameters::getInitialStateVectorOfBodiesToEstimate( parametersToEstimate_ ) );
-
-//        std::cout << "test original hybrid propagator: " << originalPopagatorSettings_->getInitialStates( ).transpose( ) << "\n\n";
         simulation_setup::setInitialStateVectorFromParameterSet< StateScalarType >( parametersToEstimate_, originalPopagatorSettings_ );
-//        std::cout << "test set initial state vector hybrid propagator: " << originalPopagatorSettings_->getInitialStates( ).transpose( ) << "\n\n";
 
         propagatorSettings_->getSingleArcPropagatorSettings( )->resetInitialStates(
                     newParameterEstimate.segment( 0, singleArcDynamicsSize_ ) );
-//        std::cout << "single-arc initial state: " << newParameterEstimate.segment( 0, singleArcDynamicsSize_ ).transpose( ) << "\n\n";
         Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > totalMultiArcInitialState =
                 propagatorSettings_->getMultiArcPropagatorSettings( )->getInitialStates( );
-//        std::cout << "totalMultiArcInitialState size: " << totalMultiArcInitialState.size( ) << "\n\n";
 
         Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > newInitialStatesOriginalPropagatorSettings = originalPopagatorSettings_->getInitialStates( );
 
@@ -2327,9 +2251,6 @@ public:
         unsigned int counterOriginalArcWiseIndex = 0;
         for( unsigned int i = 0; i < propagatorSettings_->getMultiArcPropagatorSettings( )->getSingleArcSettings( ).size( ); i++ )
         {
-//            std::cout << "counter arc-wise index: " << counterFullArcWiseIndex << "\n\n";
-//            std::cout << "counter total arc-wise index: " << counterOriginalArcWiseIndex << "\n\n";
-//            std::cout << "multi-arc dynamic size: " << originalMultiArcDynamicsSingleArcSize_.at( i ) << "\n\n";
             totalMultiArcInitialState.segment( counterFullArcWiseIndex, singleArcDynamicsSize_ ) =
                     TUDAT_NAN * Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Ones( singleArcDynamicsSize_ );
             totalMultiArcInitialState.segment(
@@ -2342,7 +2263,6 @@ public:
             counterOriginalArcWiseIndex += originalMultiArcDynamicsSingleArcSize_.at( i );
 
         }
-//        std::cout << "multi-arc initial state: " << totalMultiArcInitialState.transpose( ) << "\n\n";
         propagatorSettings_->getMultiArcPropagatorSettings( )->resetInitialStates( totalMultiArcInitialState );
         propagatorSettings_->setInitialStatesFromConstituents( );
 
