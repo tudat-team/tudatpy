@@ -734,28 +734,28 @@ public:
         return std::vector< std::map< TimeType, double > >( { getCumulativeComputationTimeHistory( ) } );
     }
 
-    //! Function to reset the environment from an externally generated state history.
-    /*!
-     * Function to reset the environment from an externally generated state history, the order of the entries in the
-     * state vectors are proscribed by propagatorSettings
-     * \param equationsOfMotionNumericalSolution Externally generated state history.
-     * \param processSolution True if the new solution is to be immediately processed (default true).
-     * \param dependentVariableHistory Externally generated dependent variable history.
-     */
-    void manuallySetAndProcessRawNumericalEquationsOfMotionSolution(
-            const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >&
-            equationsOfMotionNumericalSolution,
-            const std::map< TimeType, Eigen::VectorXd >& dependentVariableHistory,
-            const bool processSolution = true )
-    {
-        propagationResults_->equationsOfMotionNumericalSolution_ = equationsOfMotionNumericalSolution;
-        if( processSolution )
-        {
-            processNumericalEquationsOfMotionSolution( );
-        }
-
-        propagationResults_->dependentVariableHistory_ = dependentVariableHistory;
-    }
+//    //! Function to reset the environment from an externally generated state history.
+//    /*!
+//     * Function to reset the environment from an externally generated state history, the order of the entries in the
+//     * state vectors are proscribed by propagatorSettings
+//     * \param equationsOfMotionNumericalSolution Externally generated state history.
+//     * \param processSolution True if the new solution is to be immediately processed (default true).
+//     * \param dependentVariableHistory Externally generated dependent variable history.
+//     */
+//    void manuallySetAndProcessRawNumericalEquationsOfMotionSolution(
+//            const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >&
+//            equationsOfMotionNumericalSolution,
+//            const std::map< TimeType, Eigen::VectorXd >& dependentVariableHistory,
+//            const bool processSolution = true )
+//    {
+//        propagationResults_->equationsOfMotionNumericalSolution_ = equationsOfMotionNumericalSolution;
+//        if( processSolution )
+//        {
+//            processNumericalEquationsOfMotionSolution( );
+//        }
+//
+//        propagationResults_->dependentVariableHistory_ = dependentVariableHistory;
+//    }
 
     //! Function to get the settings for the numerical integrator.
     /*!
@@ -915,8 +915,7 @@ public:
         // Clear numerical solution if so required.
         if( propagatorSettings_->getOutputSettings( )->getClearNumericalSolutions( ) )
         {
-            propagationResults_->equationsOfMotionNumericalSolution_.clear( );
-            propagationResults_->equationsOfMotionNumericalSolutionRaw_.clear( );
+            propagationResults_->clearSolutionMaps( );
         }
 
         for( auto bodyIterator : bodies_.getMap( )  )
@@ -1480,6 +1479,33 @@ public:
     //! Destructor
     ~MultiArcDynamicsSimulator( ) { }
 
+
+    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getArcInitialState(
+            const int arcIndex,
+            const std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& initialStatesList,
+            bool& updateInitialStates )
+    {
+        Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > currentArcInitialState;
+
+        // Get arc initial state. If initial state is NaN, this signals that the initial state is to be taken from previous
+        // arc
+        if( ( arcIndex == 0 ) || ( !linear_algebra::doesMatrixHaveNanEntries( initialStatesList.at( arcIndex ) ) ) )
+        {
+            currentArcInitialState = initialStatesList.at( arcIndex );
+        }
+        else
+        {
+            currentArcInitialState = getArcInitialStateFromPreviousArcResult(
+                    propagationResults_->getSingleArcResults( ).at( arcIndex - 1 )->getEquationsOfMotionNumericalSolution( ),
+                    singleArcDynamicsSimulators_.at( arcIndex )->getInitialPropagationTime( ) );
+
+            // If arc initial state is taken from previous arc, this indicates that the initial states in propagator settings
+            // need to be updated.
+            updateInitialStates = true;
+        }
+        return currentArcInitialState;
+    }
+
     //! This function numerically (re-)integrates the equations of motion, using concatenated states for all arcs
     /*!
      *  This function numerically (re-)integrates the equations of motion, using the settings set through the constructor
@@ -1527,32 +1553,17 @@ public:
         std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > arcInitialStateList;
         bool updateInitialStates = false;
 
-        printPrePropagationMessages( );
         propagationResults_->restartPropagation( );
+        printPrePropagationMessages( );
 
         // Propagate dynamics for each arc
         for( unsigned int i = 0; i < singleArcDynamicsSimulators_.size( ); i++ )
         {
-            // Get arc initial state. If initial state is NaN, this signals that the initial state is to be taken from previous
-            // arc
-            if( ( i == 0 ) || ( !linear_algebra::doesMatrixHaveNanEntries( initialStatesList.at( i ) ) ) )
-            {
-                currentArcInitialState = initialStatesList.at( i );
-            }
-            else
-            {
-                currentArcInitialState = getArcInitialStateFromPreviousArcResult(
-                            propagationResults_->getSingleArcResults( ).at( i - 1 )->getEquationsOfMotionNumericalSolution( ),
-                            singleArcDynamicsSimulators_.at( i )->getInitialPropagationTime( ) );
-
-                // If arc initial state is taken from previous arc, this indicates that the initial states in propagator settings
-                // need to be updated.
-                updateInitialStates = true;
-            }
+            currentArcInitialState = getArcInitialState( i, initialStatesList, updateInitialStates );
             arcInitialStateList.push_back( currentArcInitialState );
-
             singleArcDynamicsSimulators_.at( i )->integrateEquationsOfMotion( currentArcInitialState );
         }
+
         printPostPropagationMessages( );
         propagationResults_->setPropagationIsPerformed( );
         if( updateInitialStates )
@@ -1565,7 +1576,144 @@ public:
         {
             processNumericalEquationsOfMotionSolution( );
         }
+        else if( multiArcPropagatorSettings_->getOutputSettings( )->getClearNumericalSolutions( ) )
+        {
+            propagationResults_->clearSolutionMaps( );
+        }
     }
+
+    //! Function to reset the environment using an externally provided list of (numerically integrated) states
+    /*!
+     *  Function to reset the environment using an externally provided list of (numerically integrated) states, for instance
+     *  provided by a variational equations solver.
+     *  \param equationsOfMotionNumericalSolution Vector of state histories
+     *  (externally provided equationsOfMotionNumericalSolution_)
+     *  \param dependentVariableHistory Vector of dependent variable histories
+     *  (externally provided dependentVariableHistory_)
+     *  \param processSolution True if the new solution is to be immediately processed (default true).
+     */
+    void manuallySetAndProcessRawNumericalEquationsOfMotionSolution(
+            const bool processSolution = true )
+    {
+        // Reset environment with new states.
+        if( processSolution )
+        {
+            processNumericalEquationsOfMotionSolution( );
+        }
+    }
+
+    //! Function to get the list of DynamicsStateDerivativeModel objects used for each arc
+    /*!
+     * Function to get the list of DynamicsStateDerivativeModel objects used for each arc
+     * \return List of DynamicsStateDerivativeModel objects used for each arc
+     */
+    std::vector< std::shared_ptr< DynamicsStateDerivativeModel< TimeType, StateScalarType > > > getDynamicsStateDerivative( )
+    {
+        std::vector< std::shared_ptr< DynamicsStateDerivativeModel< TimeType, StateScalarType > > > dynamicsStateDerivatives;
+        for( unsigned int i = 0; i < singleArcDynamicsSimulators_.size( ); i++ )
+        {
+            dynamicsStateDerivatives.push_back( singleArcDynamicsSimulators_.at( i )->getDynamicsStateDerivative( ) );
+        }
+        return dynamicsStateDerivatives;
+    }
+
+    //! Function to get the list of DynamicsSimulator objects used for each arc
+    /*!
+     * Function to get the list of DynamicsSimulator objects used for each arc
+     * \return List of DynamicsSimulator objects used for each arc
+     */
+    std::vector< std::shared_ptr< SingleArcDynamicsSimulator< StateScalarType, TimeType > > > getSingleArcDynamicsSimulators( )
+    {
+        return singleArcDynamicsSimulators_;
+    }
+
+    //! This function updates the environment with the numerical solution of the propagation.
+    /*!
+     *  This function updates the environment with the numerical solution of the propagation. It sets
+     *  the propagated dynamics solution as the new input for e.g., the ephemeris object of the boies that were
+     *  propagated (for translational states).
+     */
+    void processNumericalEquationsOfMotionSolution( )
+    {
+
+        try
+        {
+            std::map< IntegratedStateType, std::vector< std::shared_ptr<
+                    SingleArcIntegratedStateProcessor< TimeType, StateScalarType > > > > singleArcIntegratedStatesProcessors;
+
+            for ( unsigned int i = 0 ; i < singleArcDynamicsSimulators_.size( ) ; i++ )
+            {
+                std::map< IntegratedStateType, std::shared_ptr<
+                        SingleArcIntegratedStateProcessor< TimeType, StateScalarType > > > currentArcStateProcessors =
+                        singleArcDynamicsSimulators_.at( i )->getIntegratedStateProcessors( );
+
+                for ( auto itr : currentArcStateProcessors )
+                {
+                    singleArcIntegratedStatesProcessors[ itr.first ].push_back( itr.second );
+                }
+            }
+
+            std::map< IntegratedStateType,
+                    std::shared_ptr< MultiArcIntegratedStateProcessor< TimeType, StateScalarType > > > multiArcStateProcessors
+                    = createMultiArcIntegratedStateProcessors( bodies_, propagationResults_->getArcStartTimes( ), singleArcIntegratedStatesProcessors );
+            for ( auto itr : multiArcStateProcessors )
+            {
+                itr.second->processIntegratedMultiArcStates(
+                        propagationResults_->getConcatenatedEquationsOfMotionResults( multiArcPropagatorSettings_->getOutputSettings( )->getClearNumericalSolutions( ) ),
+                        propagationResults_->getArcStartTimes( ) );
+            }
+        }
+        catch( const std::exception& caughtException )
+        {
+            std::cerr << "Error occured when post-processing mulyi-arc integration results, and seting integrated states in environment, caught error is: " << std::endl << std::endl;
+            std::cerr << caughtException.what( ) << std::endl << std::endl;
+            std::cerr << "The problem may be that there is an insufficient number of data points (epochs) at which propagation results are produced for one or more arcs"<< std::endl;
+            if( multiArcPropagatorSettings_->getOutputSettings( )->getClearNumericalSolutions( ) )
+            {
+                propagationResults_->clearSolutionMaps( );
+            }
+        }
+    }
+
+    void printPrePropagationMessages( )
+    {
+        if( multiArcPropagatorSettings_->getOutputSettings( )->printAnyOutput( ) )
+        {
+            std::cout<<multiArcPropagatorSettings_->getOutputSettings( )->getPropagationStartHeader( )<<std::endl<<std::endl;
+        }
+    }
+
+    void printPostPropagationMessages( )
+    {
+        if( multiArcPropagatorSettings_->getOutputSettings( )-> printAnyOutput( ) )
+        {
+            std::cout<<multiArcPropagatorSettings_->getOutputSettings( )->getPropagationEndHeader( )<<std::endl<<std::endl;
+        }
+    }
+
+    std::shared_ptr< SimulationResults< StateScalarType, TimeType > > getPropagationResults( )
+    {
+        return propagationResults_;
+    }
+
+
+
+
+///////////////////////////////////////////////////
+//////////////// DEPRECATED ///////////////////////
+///////////////////////////////////////////////////
+
+
+    //! Function to retrieve the current state and end times of the arcs
+    /*!
+     * Function to retrieve the current state and end times of the arcs
+     * \return The current state and end times of the arcs
+     */
+    std::vector< double > getArcStartTimes( )
+    {
+        return propagationResults_->getArcStartTimes( );
+    }
+
 
     //! Function to return the numerical solution to the equations of motion.
     /*!
@@ -1623,60 +1771,6 @@ public:
         return getCumulativeComputationTimeHistory( );
     }
 
-    //! Function to reset the environment using an externally provided list of (numerically integrated) states
-    /*!
-     *  Function to reset the environment using an externally provided list of (numerically integrated) states, for instance
-     *  provided by a variational equations solver.
-     *  \param equationsOfMotionNumericalSolution Vector of state histories
-     *  (externally provided equationsOfMotionNumericalSolution_)
-     *  \param dependentVariableHistory Vector of dependent variable histories
-     *  (externally provided dependentVariableHistory_)
-     *  \param processSolution True if the new solution is to be immediately processed (default true).
-     */
-    void manuallySetAndProcessRawNumericalEquationsOfMotionSolution(
-            const bool processSolution = true )
-    {
-        // Reset environment with new states.
-        if( processSolution )
-        {
-            processNumericalEquationsOfMotionSolution( );
-        }
-    }
-
-    //! Function to get the list of DynamicsStateDerivativeModel objects used for each arc
-    /*!
-     * Function to get the list of DynamicsStateDerivativeModel objects used for each arc
-     * \return List of DynamicsStateDerivativeModel objects used for each arc
-     */
-    std::vector< std::shared_ptr< DynamicsStateDerivativeModel< TimeType, StateScalarType > > > getDynamicsStateDerivative( )
-    {
-        std::vector< std::shared_ptr< DynamicsStateDerivativeModel< TimeType, StateScalarType > > > dynamicsStateDerivatives;
-        for( unsigned int i = 0; i < singleArcDynamicsSimulators_.size( ); i++ )
-        {
-            dynamicsStateDerivatives.push_back( singleArcDynamicsSimulators_.at( i )->getDynamicsStateDerivative( ) );
-        }
-        return dynamicsStateDerivatives;
-    }
-
-    //! Function to get the list of DynamicsSimulator objects used for each arc
-    /*!
-     * Function to get the list of DynamicsSimulator objects used for each arc
-     * \return List of DynamicsSimulator objects used for each arc
-     */
-    std::vector< std::shared_ptr< SingleArcDynamicsSimulator< StateScalarType, TimeType > > > getSingleArcDynamicsSimulators( )
-    {
-        return singleArcDynamicsSimulators_;
-    }
-
-    //! Function to retrieve the current state and end times of the arcs
-    /*!
-     * Function to retrieve the current state and end times of the arcs
-     * \return The current state and end times of the arcs
-     */
-    std::vector< double > getArcStartTimes( )
-    {
-        return propagationResults_->getArcStartTimes( );
-    }
 
     //! Get whether the integration was completed successfully.
     /*!
@@ -1685,63 +1779,7 @@ public:
      */
     virtual bool integrationCompletedSuccessfully( ) const
     {
-        for ( const std::shared_ptr< SingleArcDynamicsSimulator< StateScalarType, TimeType > >
-              &singleArcDynamicsSimulator : singleArcDynamicsSimulators_ )
-        {
-            if ( ! singleArcDynamicsSimulator->integrationCompletedSuccessfully( ) )
-            {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    //! This function updates the environment with the numerical solution of the propagation.
-    /*!
-     *  This function updates the environment with the numerical solution of the propagation. It sets
-     *  the propagated dynamics solution as the new input for e.g., the ephemeris object of the boies that were
-     *  propagated (for translational states).
-     */
-    void processNumericalEquationsOfMotionSolution( )
-    {
-
-        try
-        {
-            std::map< IntegratedStateType, std::vector< std::shared_ptr<
-                    SingleArcIntegratedStateProcessor< TimeType, StateScalarType > > > > singleArcIntegratedStatesProcessors;
-
-            for ( unsigned int i = 0 ; i < singleArcDynamicsSimulators_.size( ) ; i++ )
-            {
-                std::map< IntegratedStateType, std::shared_ptr<
-                        SingleArcIntegratedStateProcessor< TimeType, StateScalarType > > > currentArcStateProcessors =
-                        singleArcDynamicsSimulators_.at( i )->getIntegratedStateProcessors( );
-
-                for ( auto itr : currentArcStateProcessors )
-                {
-                    singleArcIntegratedStatesProcessors[ itr.first ].push_back( itr.second );
-                }
-            }
-
-            std::map< IntegratedStateType,
-                    std::shared_ptr< MultiArcIntegratedStateProcessor< TimeType, StateScalarType > > > multiArcStateProcessors
-                    = createMultiArcIntegratedStateProcessors( bodies_, propagationResults_->getArcStartTimes( ), singleArcIntegratedStatesProcessors );
-            for ( auto itr : multiArcStateProcessors )
-            {
-                itr.second->processIntegratedMultiArcStates( propagationResults_->getConcatenatedEquationsOfMotionResults( ), propagationResults_->getArcStartTimes( ) );
-            }
-        }
-        catch( const std::exception& caughtException )
-        {
-            std::cerr << "Error occured when post-processing mulyi-arc integration results, and seting integrated states in environment, caught error is: " << std::endl << std::endl;
-            std::cerr << caughtException.what( ) << std::endl << std::endl;
-            std::cerr << "The problem may be that there is an insufficient number of data points (epochs) at which propagation results are produced for one or more arcs"<< std::endl;
-        }
-
-        if( multiArcPropagatorSettings_->getOutputSettings( )->getClearNumericalSolutions( ) )
-        {
-            std::cerr<<"Warning, multi-arc solution not cleared!"<<std::endl;
-        }
-
+        return propagationResults_->integrationCompletedSuccessfully( );
     }
 
     std::vector< std::shared_ptr< PropagationTerminationDetails > > getPropagationTerminationReasons( )
@@ -1749,59 +1787,14 @@ public:
         return propagationResults_->getConcatenatedTerminationReasons( );
     }
 
-//    void setPropagationTerminationReason( const std::shared_ptr< PropagationTerminationDetails > propagationTerminationReason,
-//                                          const unsigned int arcIndex )
-//    {
-//        if( arcIndex >= propagationTerminationReasons_.size( ) )
-//        {
-//            throw std::runtime_error( "Error when setting multi-arc termination reason; arc index is incompatible" );
-//        }
-//        propagationTerminationReasons_[ arcIndex ] = propagationTerminationReason;
-//    }
-
-    void printPrePropagationMessages( )
-    {
-        if( multiArcPropagatorSettings_->getOutputSettings( )->printAnyOutput( ) )
-        {
-            std::cout<<multiArcPropagatorSettings_->getOutputSettings( )->getPropagationStartHeader( )<<std::endl<<std::endl;
-        }
-    }
-
-    void printPostPropagationMessages( )
-    {
-        if( multiArcPropagatorSettings_->getOutputSettings( )-> printAnyOutput( ) )
-        {
-            std::cout<<multiArcPropagatorSettings_->getOutputSettings( )->getPropagationEndHeader( )<<std::endl<<std::endl;
-        }
-    }
-
-    std::shared_ptr< SimulationResults< StateScalarType, TimeType > > getPropagationResults( )
-    {
-        return propagationResults_;
-    }
+///////////////////////////////////////////////////
+//////////////// END DEPRECATED ///////////////////
+///////////////////////////////////////////////////
 
 protected:
 
-//    //! List of maps of state history of numerically integrated states.
-//    /*!
-//     *  List of maps of state history of numerically integrated states. Each entry in the list contains data on a single arc.
-//     *  Key of map denotes time, values are concatenated vectors of body states in order of bodiesToIntegrate
-//     */
-//    std::vector< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > equationsOfMotionNumericalSolution_;
-//
-//    //! List of maps of dependent variable history that was saved during numerical propagation.
-//    std::vector< std::map< TimeType, Eigen::VectorXd > > dependentVariableHistory_;
-//
-//    std::vector< std::map< TimeType, double > > cumulativeComputationTimeHistory_;
-
     //! Objects used to compute the dynamics of the sepatrate arcs
     std::vector< std::shared_ptr< SingleArcDynamicsSimulator< StateScalarType, TimeType > > > singleArcDynamicsSimulators_;
-
-//    //! List of start times of each arc. NOTE: This list is updated after every propagation.
-//    std::vector< double > arcStartTimes_;
-//
-//    //! Event that triggered the termination of the propagation
-//    std::vector< std::shared_ptr< PropagationTerminationDetails > > propagationTerminationReasons_;
 
     //! Propagator settings used by this objec
     std::shared_ptr< MultiArcPropagatorSettings< StateScalarType, TimeType > > multiArcPropagatorSettings_;

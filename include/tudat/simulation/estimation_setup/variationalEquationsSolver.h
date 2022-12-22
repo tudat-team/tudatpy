@@ -1492,7 +1492,7 @@ public:
                 else
                 {
                     currentArcInitialState = getArcInitialStateFromPreviousArcResult(
-                            singleArcDynamicsSimulators.at( i )->getEquationsOfMotionNumericalSolution( ),
+                            singleArcDynamicsSimulators.at( i - 1 )->getEquationsOfMotionNumericalSolution( ),
                                 singleArcDynamicsSimulators.at( i )->getInitialPropagationTime( ) );
                     updateInitialStates = true;
                 }
@@ -2160,7 +2160,7 @@ public:
 
         // Reset original multi-arc bodies' dynamicss
         originalMultiArcSolver_->getDynamicsSimulator( )->manuallySetAndProcessRawNumericalEquationsOfMotionSolution(
-                    numericalMultiArcSolution, dependentVariableHistory, originalPopagatorSettings_->getOutputSettings( )->getSetIntegratedResult( ) );
+                    originalPopagatorSettings_->getOutputSettings( )->getSetIntegratedResult( ) );
 
         // Create state transition matrix if not yet created.
         if( stateTransitionInterface_ == nullptr )
@@ -2220,7 +2220,7 @@ public:
 
         // Reset original multi-arc bodies' dynamics
         originalMultiArcSolver_->getDynamicsSimulator( )->manuallySetAndProcessRawNumericalEquationsOfMotionSolution(
-                    numericalMultiArcSolution, dependentVariableHistory,  originalPopagatorSettings_->getOutputSettings( )->getSetIntegratedResult( ) );
+                    originalPopagatorSettings_->getOutputSettings( )->getSetIntegratedResult( ) );
 
     }
 
