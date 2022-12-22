@@ -326,6 +326,8 @@ public:
             const std::vector< double >& arcEndTimes,
             const std::vector< std::vector< std::pair< int, int > > >& statePartialAdditionIndices  )
     {
+        std::cout<<"Constructor "<<arcStartTimes.size( )<<" "<<arcEndTimes.size( )<<" "<<statePartialAdditionIndices.size()<<" "<<
+                 stateTransitionMatrixInterpolators.size( )<<" "<<sensitivityMatrixInterpolators.size( )<<std::endl;
         stateTransitionMatrixInterpolators_ = stateTransitionMatrixInterpolators;
         sensitivityMatrixInterpolators_ = sensitivityMatrixInterpolators;
         arcStartTimes_ =  arcStartTimes;
@@ -724,6 +726,7 @@ protected:
 
         fullStateTransitionMatrixSize_ = 0;
         fullSensitivityMatrixSize_ = 0;
+        std::cout<<"Number of arcs "<<estimatedBodiesPerArc_.size( )<<std::endl;
         for ( unsigned int arc = 0 ; arc < estimatedBodiesPerArc_.size( ) ; arc++ )
         {
             arcWiseStateTransitionMatrixSize_.push_back( getSingleArcInitialDynamicalStateParameterSetSize( arcWiseParametersToEstimate_[ arc ] ) );

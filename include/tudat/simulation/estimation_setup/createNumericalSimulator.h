@@ -111,18 +111,18 @@ createVariationalEquationsSolver(
                     bodies, std::dynamic_pointer_cast< propagators::SingleArcPropagatorSettings< StateScalarType, TimeType > >(
                         propagatorSettings ), parametersToEstimate, integrateEquationsOnCreation );
     }
-//    else if( std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ) != nullptr )
-//    {
-//        return std::make_shared< propagators::MultiArcVariationalEquationsSolver< StateScalarType, TimeType > >(
-//                    bodies, std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< StateScalarType, TimeType > >(
-//                        propagatorSettings ), parametersToEstimate, integrateEquationsOnCreation );
-//    }
-//    else if( std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ) != nullptr )
-//    {
-//        return std::make_shared< propagators::HybridArcVariationalEquationsSolver< StateScalarType, TimeType > >(
-//                    bodies, std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< StateScalarType, TimeType > >(
-//                        propagatorSettings ), parametersToEstimate, integrateEquationsOnCreation );
-//    }
+    else if( std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ) != nullptr )
+    {
+        return std::make_shared< propagators::MultiArcVariationalEquationsSolver< StateScalarType, TimeType > >(
+                    bodies, std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< StateScalarType, TimeType > >(
+                        propagatorSettings ), parametersToEstimate, integrateEquationsOnCreation );
+    }
+    else if( std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ) != nullptr )
+    {
+        return std::make_shared< propagators::HybridArcVariationalEquationsSolver< StateScalarType, TimeType > >(
+                    bodies, std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< StateScalarType, TimeType > >(
+                        propagatorSettings ), parametersToEstimate, integrateEquationsOnCreation );
+    }
     else
     {
         throw std::runtime_error( "Error when creating variational equations solver, dynamics type not recognized" );
