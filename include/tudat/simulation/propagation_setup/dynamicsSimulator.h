@@ -1696,6 +1696,11 @@ public:
         return propagationResults_;
     }
 
+    std::shared_ptr< MultiArcSimulationResults< StateScalarType, TimeType > > getMultiArcPropagationResults( )
+    {
+        return propagationResults_;
+    }
+
 
 
 
@@ -1740,7 +1745,7 @@ public:
 
     std::vector< std::map< TimeType, double > > getCumulativeComputationTimeHistory( )
     {
-        return propagationResults_->getConcatenatedConcatenatedCumulativeComputationTimeHistory( );
+        return propagationResults_->getConcatenatedCumulativeComputationTimeHistory( );
     }
 
     //! Function to return the numerical solution to the equations of motion (base class interface).
@@ -1910,17 +1915,15 @@ public:
 
         if( !addSingleArcBodiesToMultiArcDynamics )
         {
-//            if( !propagatorSettings->get )
-//            {
-//                std::cerr << "Warning in hybrid dynamics simulator, setIntegratedResult is false, but single arc propagation "
-//                             "result will be set in environment for consistency with multi-arc " << std::endl;
-//            }
             singleArcDynamicsSimulator_ = std::make_shared< SingleArcDynamicsSimulator< StateScalarType, TimeType > >(
                         bodies, hybridPropagatorSettings_->getSingleArcPropagatorSettings( ),
                         false );
             multiArcDynamicsSimulator_ = std::make_shared< MultiArcDynamicsSimulator< StateScalarType, TimeType > >(
                         bodies, hybridPropagatorSettings_->getMultiArcPropagatorSettings( ),
                         false );
+            propagationResults_ = std::make_shared< HybridArcSimulationResults< StateScalarType, TimeType > >(
+                    singleArcDynamicsSimulator_->getSingleArcPropagationResults( ),
+                    multiArcDynamicsSimulator_->getMultiArcPropagationResults( ) );
         }
         else
         {
@@ -2041,9 +2044,7 @@ public:
      */
     virtual bool integrationCompletedSuccessfully( ) const
     {
-        return !( singleArcDynamicsSimulator_->integrationCompletedSuccessfully( ) == false ||
-                multiArcDynamicsSimulator_->integrationCompletedSuccessfully( ) == false );
-
+        return propagationResults_->integrationCompletedSuccessfully( );
     }
 
     //! Function to return the numerical solution to the equations of motion (base class interface).
@@ -2056,13 +2057,7 @@ public:
     std::vector< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > >
     getEquationsOfMotionNumericalSolutionBase( )
     {
-        std::vector< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > >
-                numericalSolution = singleArcDynamicsSimulator_->getEquationsOfMotionNumericalSolutionBase( );
-        std::vector< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > >
-                multiArcNumericalSolution = multiArcDynamicsSimulator_->getEquationsOfMotionNumericalSolutionBase( );
-        numericalSolution.insert( numericalSolution.end( ), multiArcNumericalSolution.begin( ), multiArcNumericalSolution.end( ) );
-
-        return numericalSolution;
+        return propagationResults_->getConcatenatedEquationsOfMotionResults( );
     }
 
     //! Function to return the numerical solution to the dependent variables (base class interface).
@@ -2074,13 +2069,7 @@ public:
      */
     std::vector< std::map< TimeType, Eigen::VectorXd > > getDependentVariableNumericalSolutionBase( )
     {
-        std::vector< std::map< TimeType, Eigen::VectorXd > >
-                numericalSolution = singleArcDynamicsSimulator_->getDependentVariableNumericalSolutionBase( );
-        std::vector< std::map< TimeType, Eigen::VectorXd > >
-                multiArcNumericalSolution = multiArcDynamicsSimulator_->getDependentVariableNumericalSolutionBase( );
-        numericalSolution.insert( numericalSolution.end( ), multiArcNumericalSolution.begin( ), multiArcNumericalSolution.end( ) );
-
-        return numericalSolution;
+        return propagationResults_->getConcatenatedDependentVariableResults();
     }
 
     //! Function to return the map of cumulative computation time history that was saved during numerical propagation.
@@ -2092,13 +2081,7 @@ public:
      */
     std::vector< std::map< TimeType, double > > getCumulativeComputationTimeHistoryBase( )
     {
-        std::vector< std::map< TimeType, double > >
-                computationTime = singleArcDynamicsSimulator_->getCumulativeComputationTimeHistoryBase( );
-        std::vector< std::map< TimeType, double > >
-                multiArcComputationTime = multiArcDynamicsSimulator_->getCumulativeComputationTimeHistoryBase( );
-        computationTime.insert( computationTime.end( ), multiArcComputationTime.begin( ), multiArcComputationTime.end( ) );
-
-        return computationTime;
+        return propagationResults_->getConcatenatedCumulativeComputationTimeHistory( );
     }
 
     void printPrePropagationMessages( )
@@ -2118,6 +2101,11 @@ public:
     }
 
     std::shared_ptr< SimulationResults< StateScalarType, TimeType > > getPropagationResults( )
+    {
+        return propagationResults_;
+    }
+
+    std::shared_ptr< HybridArcSimulationResults< StateScalarType, TimeType > > getHybridArcPropagationResults( )
     {
         return propagationResults_;
     }

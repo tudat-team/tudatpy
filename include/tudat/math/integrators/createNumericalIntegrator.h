@@ -164,6 +164,18 @@ public:
             orderToUse_(orderToUse)
     { }
 
+    RungeKuttaFixedStepSizeSettings(
+            const IndependentVariableType initialTimeStep,
+            const numerical_integrators::CoefficientSets coefficientSet,
+            const RungeKuttaCoefficients::OrderEstimateToIntegrate orderToUse = RungeKuttaCoefficients::OrderEstimateToIntegrate::lower,
+            const int saveFrequency = 1,
+            const bool assessTerminationOnMinorSteps = false ):
+            IntegratorSettings< IndependentVariableType >(
+                    rungeKuttaFixedStepSize, TUDAT_NAN, initialTimeStep, saveFrequency,
+                    assessTerminationOnMinorSteps ),
+            coefficientSet_(coefficientSet),
+            orderToUse_(orderToUse)
+    { }
     virtual std::shared_ptr< IntegratorSettings< IndependentVariableType > > clone( ) const
     {
         return std::make_shared< RungeKuttaFixedStepSizeSettings< IndependentVariableType > >(

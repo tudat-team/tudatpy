@@ -44,6 +44,7 @@ namespace tudat
                     stateIds_(stateIds),
                     outputSettings_(outputSettings),
                     propagationIsPerformed_(false),
+                    solutionIsCleared_( false ),
                     propagationTerminationReason_(
                             std::make_shared<PropagationTerminationDetails>(propagation_never_run)) {
             }
@@ -55,6 +56,7 @@ namespace tudat
                 cumulativeComputationTimeHistory_.clear();
                 cumulativeNumberOfFunctionEvaluations_.clear();
                 propagationIsPerformed_ = false;
+                solutionIsCleared_ = false;
                 propagationTerminationReason_ = std::make_shared<PropagationTerminationDetails>(propagation_never_run);
             }
 
@@ -80,6 +82,7 @@ namespace tudat
                 dependentVariableHistory_.clear();
                 cumulativeComputationTimeHistory_.clear();
                 cumulativeNumberOfFunctionEvaluations_.clear();
+                solutionIsCleared_ = true;
             }
 
             std::map <TimeType, Eigen::Matrix<StateScalarType, Eigen::Dynamic, 1>> &
@@ -132,6 +135,11 @@ namespace tudat
                 return propagationIsPerformed_;
             }
 
+            bool getSolutionIsCleared( )
+            {
+                return solutionIsCleared_;
+            }
+
 
         private:
 
@@ -171,6 +179,7 @@ namespace tudat
 
             bool propagationIsPerformed_;
 
+            bool solutionIsCleared_;
 
             //! Event that triggered the termination of the propagation
             std::shared_ptr <PropagationTerminationDetails> propagationTerminationReason_;
@@ -214,7 +223,7 @@ namespace tudat
         public:
             MultiArcSimulationResults(
                     const std::vector< std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType, NumberOfStateColumns > > > singleArcResults ):
-                    singleArcResults_( singleArcResults ), propagationIsPerformed_( false ){ }
+                    singleArcResults_( singleArcResults ), propagationIsPerformed_( false ), solutionIsCleared_( false ){ }
 
             ~MultiArcSimulationResults() {}
 
@@ -226,6 +235,7 @@ namespace tudat
             void restartPropagation( )
             {
                 propagationIsPerformed_ = false;
+                solutionIsCleared_ = false;
                 arcStartTimes_.clear( );
                 for( unsigned int i = 0; i < singleArcResults_.size( ); i++ )
                 {
@@ -256,6 +266,11 @@ namespace tudat
                 return arcStartTimes_;
             }
 
+            bool getSolutionIsCleared( )
+            {
+                return solutionIsCleared_;
+            }
+
             bool integrationCompletedSuccessfully() const
             {
                 bool isSuccesful = true;
@@ -276,22 +291,30 @@ namespace tudat
                 {
                     singleArcResults_.at( i )->clearSolutionMaps( );
                 }
+                solutionIsCleared_ = true;
             }
 
             std::vector< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > getConcatenatedEquationsOfMotionResults(
                     const bool clearResults = false )
             {
                 std::vector< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > concatenatedResults;
-                for( unsigned int i = 0; i < singleArcResults_.size( ); i++ )
+                if( !solutionIsCleared_ )
                 {
+                    for( unsigned int i = 0; i < singleArcResults_.size( ); i++ )
+                    {
+                        if( clearResults )
+                        {
+                            concatenatedResults.push_back( std::move( singleArcResults_.at( i )->getEquationsOfMotionNumericalSolution( ) ) );
+                            singleArcResults_.at( i )->clearSolutionMaps( );
+                        }
+                        else
+                        {
+                            concatenatedResults.push_back( singleArcResults_.at( i )->getEquationsOfMotionNumericalSolution( ) );
+                        }
+                    }
                     if( clearResults )
                     {
-                        concatenatedResults.push_back( std::move( singleArcResults_.at( i )->getEquationsOfMotionNumericalSolution( ) ) );
-                        singleArcResults_.at( i )->clearSolutionMaps( );
-                    }
-                    else
-                    {
-                        concatenatedResults.push_back( singleArcResults_.at( i )->getEquationsOfMotionNumericalSolution( ) );
+                        solutionIsCleared_ = true;
                     }
                 }
                 return concatenatedResults;
@@ -300,19 +323,25 @@ namespace tudat
             std::vector< std::map< TimeType, Eigen::VectorXd > > getConcatenatedDependentVariableResults( )
             {
                 std::vector< std::map< TimeType, Eigen::VectorXd > > concatenatedResults;
-                for( unsigned int i = 0; i < singleArcResults_.size( ); i++ )
+                if( !solutionIsCleared_ )
                 {
-                    concatenatedResults.push_back( singleArcResults_.at( i )->getDependentVariableHistory( ) );
+                    for( unsigned int i = 0; i < singleArcResults_.size( ); i++ )
+                    {
+                        concatenatedResults.push_back( singleArcResults_.at( i )->getDependentVariableHistory( ) );
+                    }
                 }
                 return concatenatedResults;
             }
 
-            std::vector< std::map< TimeType, double > > getConcatenatedConcatenatedCumulativeComputationTimeHistory( )
+            std::vector< std::map< TimeType, double > > getConcatenatedCumulativeComputationTimeHistory( )
             {
                 std::vector< std::map< TimeType, double > > concatenatedResults;
-                for( unsigned int i = 0; i < singleArcResults_.size( ); i++ )
+                if( !solutionIsCleared_ )
                 {
-                    concatenatedResults.push_back( singleArcResults_.at( i )->getCumulativeComputationTimeHistory( ) );
+                    for( unsigned int i = 0; i < singleArcResults_.size( ); i++ )
+                    {
+                        concatenatedResults.push_back( singleArcResults_.at( i )->getCumulativeComputationTimeHistory( ) );
+                    }
                 }
                 return concatenatedResults;
             }
@@ -320,9 +349,12 @@ namespace tudat
             std::vector< std::shared_ptr< PropagationTerminationDetails > > getConcatenatedTerminationReasons( )
             {
                 std::vector< std::shared_ptr< PropagationTerminationDetails > > concatenatedResults;
-                for( unsigned int i = 0; i < singleArcResults_.size( ); i++ )
+                if( !solutionIsCleared_ )
                 {
-                    concatenatedResults.push_back( singleArcResults_.at( i )->getPropagationTerminationReason( ) );
+                    for( unsigned int i = 0; i < singleArcResults_.size( ); i++ )
+                    {
+                        concatenatedResults.push_back( singleArcResults_.at( i )->getPropagationTerminationReason( ) );
+                    }
                 }
                 return concatenatedResults;
             }
@@ -332,13 +364,17 @@ namespace tudat
 
             bool propagationIsPerformed_;
 
+            bool solutionIsCleared_;
+
             //! List of start times of each arc. NOTE: This list is updated after every propagation.
             std::vector< double > arcStartTimes_;
 
         };
 
         template<typename StateScalarType = double, typename TimeType = double, int NumberOfStateColumns = 1 >
-        class HybridArcSimulationResults : public SimulationResults<StateScalarType, TimeType> {
+        class HybridArcSimulationResults : public SimulationResults<StateScalarType, TimeType>
+        {
+        public:
             HybridArcSimulationResults(
                     const std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType, NumberOfStateColumns > > singleArcResults,
                     const std::shared_ptr< MultiArcSimulationResults< StateScalarType, TimeType, NumberOfStateColumns > > multiArcResults ):
@@ -346,6 +382,78 @@ namespace tudat
 
             ~HybridArcSimulationResults() {}
 
+            bool integrationCompletedSuccessfully() const
+            {
+                return singleArcResults_->integrationCompletedSuccessfully( ) && multiArcResults_->integrationCompletedSuccessfully( );
+            }
+
+            std::vector< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > getConcatenatedEquationsOfMotionResults( )
+            {
+                std::vector< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > concatenatedResults;
+                if( singleArcResults_->getSolutionIsCleared( ) != multiArcResults_->getSolutionIsCleared( ) )
+                {
+                    throw std::runtime_error( "Error when getting concatenated hybrid-arc results, constituent results have inconsistent cleared state." );
+                }
+
+                if( singleArcResults_->getPropagationIsPerformed() != multiArcResults_->getPropagationIsPerformed( ) )
+                {
+                    throw std::runtime_error( "Error when getting concatenated hybrid-arc results, constituent results are inconsistently propagated." );
+                }
+                if( !singleArcResults_->getSolutionIsCleared( ) )
+                {
+                    concatenatedResults.push_back( singleArcResults_->getEquationsOfMotionNumericalSolution( ) );
+                    std::vector< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > >
+                            multiArcResults = multiArcResults_->getConcatenatedEquationsOfMotionResults( );
+                    concatenatedResults.insert( concatenatedResults.end( ), multiArcResults.begin( ), multiArcResults.end( ) );
+                }
+                return concatenatedResults;
+            }
+            
+            std::vector< std::map< TimeType, Eigen::VectorXd > > getConcatenatedDependentVariableResults( )
+            {
+                std::vector< std::map< TimeType, Eigen::VectorXd > > concatenatedResults;
+                if( singleArcResults_->getSolutionIsCleared( ) != multiArcResults_->getSolutionIsCleared( ) )
+                {
+                    throw std::runtime_error( "Error when getting concatenated hybrid-arc results, constituent results have inconsistent cleared state." );
+                }
+
+                if( singleArcResults_->getPropagationIsPerformed() != multiArcResults_->getPropagationIsPerformed( ) )
+                {
+                    throw std::runtime_error( "Error when getting concatenated hybrid-arc results, constituent results are inconsistently propagated." );
+                }
+                if( !singleArcResults_->getSolutionIsCleared( ) )
+                {
+                    concatenatedResults.push_back( singleArcResults_->getEquationsOfMotionNumericalSolution( ) );
+                    std::vector< std::map< TimeType, Eigen::VectorXd > >
+                            multiArcResults = multiArcResults_->getConcatenatedEquationsOfMotionResults( );
+                    concatenatedResults.insert( concatenatedResults.end( ), multiArcResults.begin( ), multiArcResults.end( ) );
+                }
+                return concatenatedResults;
+            }
+
+            std::vector< std::map< TimeType, double > > getConcatenatedCumulativeComputationTimeHistory( )
+            {
+                std::vector< std::map< TimeType, double > > concatenatedResults;
+                if( singleArcResults_->getSolutionIsCleared( ) != multiArcResults_->getSolutionIsCleared( ) )
+                {
+                    throw std::runtime_error( "Error when getting concatenated hybrid-arc results, constituent results have inconsistent cleared state." );
+                }
+
+                if( singleArcResults_->getPropagationIsPerformed() != multiArcResults_->getPropagationIsPerformed( ) )
+                {
+                    throw std::runtime_error( "Error when getting concatenated hybrid-arc results, constituent results are inconsistently propagated." );
+                }
+                if( !singleArcResults_->getSolutionIsCleared( ) )
+                {
+                    concatenatedResults.push_back( singleArcResults_->getCumulativeComputationTimeHistory( ) );
+                    std::vector< std::map< TimeType, double > >
+                            multiArcResults = multiArcResults_->getConcatenatedCumulativeComputationTimeHistory( );
+                    concatenatedResults.insert( concatenatedResults.end( ), multiArcResults.begin( ), multiArcResults.end( ) );
+                }
+                return concatenatedResults;
+            }
+            
+        protected:
             std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType, NumberOfStateColumns > > singleArcResults_;
 
             std::shared_ptr< MultiArcSimulationResults< StateScalarType, TimeType, NumberOfStateColumns > > multiArcResults_;
