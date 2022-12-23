@@ -26,7 +26,6 @@
 
 #include "tudat/math/basic/linearAlgebra.h"
 #include "tudat/math/basic/mathematicalConstants.h"
-#include "tudat/math/filters/createFilter.h"
 #include "tudat/math/integrators/createNumericalIntegrator.h"
 #include "tudat/math/interpolators/createInterpolator.h"
 #include "tudat/interface/spice/spiceInterface.h"
