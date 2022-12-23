@@ -276,7 +276,6 @@ public:
         arcEndTimes_( arcEndTimes ),
         statePartialAdditionIndices_( statePartialAdditionIndices )
     {
-        std::cout<<"Interface constructor "<<std::endl;
         if( arcStartTimes_.size( ) != arcEndTimes_.size( ) )
         {
             throw std::runtime_error( "Error when making MultiArcCombinedStateTransitionAndSensitivityMatrixInterface, incompatible time lists" );
@@ -327,8 +326,6 @@ public:
             const std::vector< double >& arcEndTimes,
             const std::vector< std::vector< std::pair< int, int > > >& statePartialAdditionIndices  )
     {
-        std::cout<<"Constructor "<<arcStartTimes.size( )<<" "<<arcEndTimes.size( )<<" "<<statePartialAdditionIndices.size()<<" "<<
-                 stateTransitionMatrixInterpolators.size( )<<" "<<sensitivityMatrixInterpolators.size( )<<std::endl;
         stateTransitionMatrixInterpolators_ = stateTransitionMatrixInterpolators;
         sensitivityMatrixInterpolators_ = sensitivityMatrixInterpolators;
         arcStartTimes_ =  arcStartTimes;
