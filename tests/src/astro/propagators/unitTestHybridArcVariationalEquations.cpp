@@ -137,7 +137,7 @@ executeHybridArcMarsAndOrbiterSensitivitySimulation(
     std::shared_ptr< TranslationalStatePropagatorSettings< > > singleArcPropagatorSettings =
             std::make_shared< TranslationalStatePropagatorSettings< > >(
                     singleArcCentralBodies, singleArcAccelerationModelMap, singleArcBodiesToIntegrate,
-                    singleArcInitialStates, finalEphemerisTime );
+                    singleArcInitialStates, initialEphemerisTime, rungeKutta4Settings( 30.0 ), propagationTimeTerminationSettings( finalEphemerisTime ) );
 
 
     SelectedAccelerationMap multiArcAccelerationMap;
@@ -221,6 +221,8 @@ executeHybridArcMarsAndOrbiterSensitivitySimulation(
         }
     }
 
+    std::shared_ptr< IntegratorSettings< > > multiArcIntegratorSettings = rungeKutta4Settings( 45.0 );
+
     // Create propagation settings for each arc
     std::vector< std::shared_ptr< SingleArcPropagatorSettings< double > > > arcPropagationSettingsList;
     for( unsigned int i = 0; i < numberOfIntegrationArcs; i++ )
@@ -228,7 +230,8 @@ executeHybridArcMarsAndOrbiterSensitivitySimulation(
         arcPropagationSettingsList.push_back(
                 std::make_shared< TranslationalStatePropagatorSettings< double > >
                         ( multiArcCentralBodies, multiArcAccelerationModelMap, multiArcBodiesToIntegrate,
-                          multiArcSystemInitialStates.at( i ), integrationArcEnds.at( i ) ) );
+                          multiArcSystemInitialStates.at( i ), integrationArcStarts.at( i ), multiArcIntegratorSettings,
+                          propagationTimeTerminationSettings( integrationArcEnds.at( i ) ) ) );
     }
 
     std::shared_ptr< MultiArcPropagatorSettings< > > multiArcPropagatorSettings =
@@ -237,15 +240,6 @@ executeHybridArcMarsAndOrbiterSensitivitySimulation(
     std::shared_ptr< HybridArcPropagatorSettings< > > hybridArcPropagatorSettings =
             std::make_shared< HybridArcPropagatorSettings< > >(
                     singleArcPropagatorSettings, multiArcPropagatorSettings );
-
-    std::shared_ptr< IntegratorSettings< > > singleArcIntegratorSettings =
-            std::make_shared< IntegratorSettings< > >
-                    ( rungeKutta4, initialEphemerisTime, 60.0 );
-
-    std::shared_ptr< IntegratorSettings< > > multiArcIntegratorSettings =
-            std::make_shared< IntegratorSettings< > >
-                    ( rungeKutta4, initialEphemerisTime, 45.0 );
-
 
     // Define parameters.
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
@@ -273,10 +267,12 @@ executeHybridArcMarsAndOrbiterSensitivitySimulation(
         // Create dynamics simulator
         hybridArcPropagatorSettings->getOutputSettings( )->setIntegratedResult( true );
 
+        std::cout<<"Creating variational equations solver"<<std::endl;
         HybridArcVariationalEquationsSolver< StateScalarType, TimeType > variationalEquations =
                 HybridArcVariationalEquationsSolver< StateScalarType, TimeType >(
-                        bodies, singleArcIntegratorSettings, multiArcIntegratorSettings,
-                        hybridArcPropagatorSettings, parametersToEstimate, integrationArcStarts );
+                        bodies,
+                        hybridArcPropagatorSettings, parametersToEstimate );
+        std::cout<<"Creation done "<<propagateVariationalEquations<<std::endl;
 
         // Propagate requested equations.
         if( propagateVariationalEquations )
