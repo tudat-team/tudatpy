@@ -413,7 +413,7 @@ protected:
             // If start index is smaller than size of state transition,
             // current partial is w.r.t. to a body to be estimated current state.
             if( currentIndexInfo.first < stateTransitionMatrixSize_ )
-            {
+            {./tes
                 for( unsigned int i = 0; i < singlePartialSet.size( ); i++ )
                 {
 //                    std::cout << "size singlePartialSet: " << singlePartialSet[ i ].first.rows( ) << " & " << singlePartialSet[ i ].first.cols( ) << "\n\n";

@@ -150,7 +150,7 @@ namespace tudat
              *  values are concatenated vectors of integrated body states (order defined by propagatorSettings_).
              *  NOTE: this map is empty if clearNumericalSolutions_ is set to true.
              */
-            std::map <TimeType, Eigen::Matrix<StateScalarType, Eigen::Dynamic, 1>> equationsOfMotionNumericalSolution_;
+            std::map <TimeType, Eigen::Matrix<StateScalarType, Eigen::Dynamic, NumberOfStateColumns > > equationsOfMotionNumericalSolution_;
 
             //! Map of state history of numerically integrated bodies.
             /*!
@@ -197,6 +197,7 @@ namespace tudat
                     simulationResults->getStateIds(),
                     simulationResults->getOutputSettings( ) );
         }
+
 
         template<typename StateScalarType = double, typename TimeType >
         void setSimulationResultsFromVariationalResults(
@@ -252,7 +253,12 @@ namespace tudat
                 }
                 for( unsigned int i = 0; i < singleArcResults_.size( ); i++ )
                 {
-                    arcStartTimes_.push_back( singleArcResults_.at( i )->getEquationsOfMotionNumericalSolution( ).begin( )->first );
+                    if( singleArcResults_.at( i )->getEquationsOfMotionNumericalSolutionRaw( ).size( ) == 0 )
+                    {
+                        throw std::runtime_error( "Error when setting multi-arc initial times from results; results of arc " +
+                            std::to_string( i ) + " are empty." );
+                    }
+                    arcStartTimes_.push_back( singleArcResults_.at( i )->getEquationsOfMotionNumericalSolutionRaw( ).begin( )->first );
                 }
             }
 
@@ -263,6 +269,10 @@ namespace tudat
 
             std::vector< double > getArcStartTimes( )
             {
+                if( !propagationIsPerformed_ )
+                {
+                    throw std::runtime_error( "Error when getting multi-arc initial times; propagation not yet performed" );
+                }
                 return arcStartTimes_;
             }
 
@@ -370,6 +380,22 @@ namespace tudat
             std::vector< double > arcStartTimes_;
 
         };
+
+        template<typename StateScalarType = double, typename TimeType >
+        std::shared_ptr< MultiArcSimulationResults<StateScalarType, TimeType, Eigen::Dynamic > > createVariationalSimulationResults(
+                const std::shared_ptr< MultiArcSimulationResults<StateScalarType, TimeType, 1 > > simulationResults )
+        {
+            std::vector< std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType, 1 > > > singleArcResults =
+                    simulationResults->getSingleArcResults( );
+            std::vector< std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType, Eigen::Dynamic > > > singleArcVariationalResults;
+            for( unsigned int i = 0; i < singleArcResults.size( ); i++ )
+            {
+                singleArcVariationalResults.push_back( createVariationalSimulationResults( singleArcResults.at( i ) ) );
+            }
+
+            return std::make_shared< MultiArcSimulationResults<StateScalarType, TimeType, Eigen::Dynamic > >(
+                    singleArcVariationalResults );
+        }
 
         template<typename StateScalarType = double, typename TimeType = double, int NumberOfStateColumns = 1 >
         class HybridArcSimulationResults : public SimulationResults<StateScalarType, TimeType>
