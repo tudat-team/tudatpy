@@ -724,7 +724,6 @@ protected:
 
         fullStateTransitionMatrixSize_ = 0;
         fullSensitivityMatrixSize_ = 0;
-        std::cout<<"Number of arcs "<<estimatedBodiesPerArc_.size( )<<std::endl;
         for ( unsigned int arc = 0 ; arc < estimatedBodiesPerArc_.size( ) ; arc++ )
         {
             arcWiseStateTransitionMatrixSize_.push_back( getSingleArcInitialDynamicalStateParameterSetSize( arcWiseParametersToEstimate_[ arc ] ) );
