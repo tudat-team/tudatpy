@@ -1222,7 +1222,7 @@ void getParametersToEstimatePerArcTest(
         std::map< int, std::vector< std::string > >& estimatedBodiesPerArc,
         std::map< int, std::map< std::string, int > >& arcIndicesPerBody )
 {
-
+    std::cout<<"Arc start times "<<arcStartTimes.size( )<<std::endl;
     arcWiseParametersToEstimate.clear( );
 
     // Get list of objets and associated bodies to estimate initial arc-wise translational states
@@ -1232,6 +1232,8 @@ void getParametersToEstimatePerArcTest(
             parametersToEstimate );
 
     int numberEstimatedBodies = estimatedBodies.size( );
+
+    std::cout<<"Number of estimated bodies "<<numberEstimatedBodies<<std::endl;
 
     // Check that the arc starting times are provided in correct order.
     for ( unsigned int i = 0 ; i < arcStartTimes.size( ) - 1 ; i++ )
@@ -1259,8 +1261,8 @@ void getParametersToEstimatePerArcTest(
 
     // Iterate over all parameters and check consistency
     unsigned int counterEstimatedBody = 0;
-    for( typename ArcWiseParameterList::const_iterator parameterIterator = estimatedBodies.begin( ); parameterIterator !=
-                                                                                                     estimatedBodies.end( ); parameterIterator++ )
+    for( typename ArcWiseParameterList::const_iterator parameterIterator = estimatedBodies.begin( );
+      parameterIterator != estimatedBodies.end( ); parameterIterator++ )
     {
         // Get arc start times of current parameter
         std::vector< double > parameterArcStartTimes =
@@ -1275,9 +1277,12 @@ void getParametersToEstimatePerArcTest(
             int indexDetectedArc = 0;
             for ( unsigned int j = indexDetectedArc ; j < arcStartTimes.size( ) ; j++ )
             {
+                std::cout<<"Index compare: "<<i<<" "<<j<<" "<<arcStartTimes.at( j )<<" "<<parameterArcStartTimes.at( i )<<std::endl;
+
                 if( std::fabs( arcStartTimes.at( j ) - parameterArcStartTimes.at( i ) ) <
                     std::max( 4.0 * parameterArcStartTimes.at( i ) * std::numeric_limits< double >::epsilon( ), 1.0E-12 ) )
                 {
+                    std::cout<<"Found "<<j<<std::endl;
 //                    detectedArc = true;
                     indexDetectedArc = j;
                     detectedEstimatedStatesPerArc[ j ] = true;
@@ -1291,6 +1296,7 @@ void getParametersToEstimatePerArcTest(
 
         counterEstimatedBody += 1;
     }
+    std::cout<<"Number of estimated bodies per arc "<<estimatedBodiesPerArc.size( )<<std::endl;
 
     std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > >
             initialStatesParameters = parametersToEstimate->getEstimatedInitialStateParameters( );

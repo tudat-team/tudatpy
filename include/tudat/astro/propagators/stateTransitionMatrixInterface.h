@@ -276,6 +276,7 @@ public:
         arcEndTimes_( arcEndTimes ),
         statePartialAdditionIndices_( statePartialAdditionIndices )
     {
+        std::cout<<"Interface constructor "<<std::endl;
         if( arcStartTimes_.size( ) != arcEndTimes_.size( ) )
         {
             throw std::runtime_error( "Error when making MultiArcCombinedStateTransitionAndSensitivityMatrixInterface, incompatible time lists" );
