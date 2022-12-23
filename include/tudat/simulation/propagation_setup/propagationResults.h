@@ -30,6 +30,8 @@ namespace tudat
         template<typename StateScalarType, typename TimeType>
         class SingleArcDynamicsSimulator;
 
+        template<typename StateScalarType, typename TimeType, int NumberOfStateColumns >
+        class MultiArcSimulationResults;
 
         template<typename StateScalarType = double, typename TimeType = double, int NumberOfStateColumns = 1 >
         class SingleArcSimulationResults : public SimulationResults<StateScalarType, TimeType>
@@ -186,6 +188,9 @@ namespace tudat
 
             friend class SingleArcDynamicsSimulator<StateScalarType, TimeType>;
 
+            friend class MultiArcSimulationResults<StateScalarType, TimeType, NumberOfStateColumns >;
+
+
         };
 
         template<typename StateScalarType = double, typename TimeType >
@@ -259,6 +264,26 @@ namespace tudat
                             std::to_string( i ) + " are empty." );
                     }
                     arcStartTimes_.push_back( singleArcResults_.at( i )->getEquationsOfMotionNumericalSolutionRaw( ).begin( )->first );
+                }
+            }
+
+            void setPropagationIsPerformed( const std::vector< double >& arcStartTimes )
+            {
+                propagationIsPerformed_ = true;
+                arcStartTimes_ = arcStartTimes;
+            }
+
+            void manuallySetPropagationResults(
+                    std::vector< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > numericalMultiArcSolution )
+            {
+                for( unsigned int i = 0; i < numericalMultiArcSolution.size( ); i++ )
+                {
+                    singleArcResults_.at( i )->equationsOfMotionNumericalSolution_ = numericalMultiArcSolution.at( i );
+                }
+                propagationIsPerformed_ = true;
+                for( unsigned int i = 0; i < singleArcResults_.size( ); i++ )
+                {
+                    arcStartTimes_.push_back( singleArcResults_.at( i )->getEquationsOfMotionNumericalSolution( ).begin( )->first );
                 }
             }
 

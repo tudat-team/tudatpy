@@ -1233,8 +1233,6 @@ void getParametersToEstimatePerArcTest(
 
     int numberEstimatedBodies = estimatedBodies.size( );
 
-    std::cout<<"Number of estimated bodies "<<numberEstimatedBodies<<std::endl;
-
     // Check that the arc starting times are provided in correct order.
     for ( unsigned int i = 0 ; i < arcStartTimes.size( ) - 1 ; i++ )
     {
@@ -1277,12 +1275,9 @@ void getParametersToEstimatePerArcTest(
             int indexDetectedArc = 0;
             for ( unsigned int j = indexDetectedArc ; j < arcStartTimes.size( ) ; j++ )
             {
-                std::cout<<"Index compare: "<<i<<" "<<j<<" "<<arcStartTimes.at( j )<<" "<<parameterArcStartTimes.at( i )<<std::endl;
-
                 if( std::fabs( arcStartTimes.at( j ) - parameterArcStartTimes.at( i ) ) <
                     std::max( 4.0 * parameterArcStartTimes.at( i ) * std::numeric_limits< double >::epsilon( ), 1.0E-12 ) )
                 {
-                    std::cout<<"Found "<<j<<std::endl;
 //                    detectedArc = true;
                     indexDetectedArc = j;
                     detectedEstimatedStatesPerArc[ j ] = true;
