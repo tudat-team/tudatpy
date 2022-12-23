@@ -1424,18 +1424,14 @@ public:
             // Integrate equations for all arcs.
             for( int i = 0; i < numberOfArcs_; i++ )
             {
-                std::cout<<"Initial state on arc "<<i<<" "<<std::setprecision( 16 )<<initialStateEstimate.at( i ).transpose( )<<std::endl;
+                // Get single-arc variational results to save current loop results in
                 std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType, Eigen::Dynamic > > singleArcVariationalPropagationResults =
                         variationalPropagationResults_->getSingleArcResults( ).at( i );
 
-                // Get arc initial state. If initial state is NaN, this signals that the initial state is to be taken from
-                // previous arc
+                // Get arc initial state.
                 VectorType currentArcInitialState = dynamicsSimulator_->getArcInitialState( i, initialStateEstimate, updateInitialStates );
                 arcInitialStates.push_back( currentArcInitialState );
-
-                // Create initial state for combined variational equations of motion.
-                MatrixType initialVariationalState = this->createInitialConditions(
-                        currentArcInitialState, i );
+                MatrixType initialVariationalState = this->createInitialConditions(currentArcInitialState, i );
 
                 // Perform pre-processing steps
                 singleArcDynamicsSimulators.at( i )->performPropagationPreProcessingSteps( 1, 1,  singleArcVariationalPropagationResults );
@@ -1582,8 +1578,20 @@ public:
             }
         }
 
+        if( resetMultiArcDynamicsAfterPropagation_ )
+        {
+            dynamicsSimulator_->processNumericalEquationsOfMotionSolution( );
+        }
+
         // Reset solution for state transition and sensitivity matrices.
         resetVariationalEquationsInterpolators( );
+//
+//        std::cout<<"STATES: "<<std::endl;
+//        std::cout<<bodies_.at( "Earth" )->getEphemeris( )->getCartesianState( 1.0E7 ).transpose( )<<std::endl;
+//        std::cout<<bodies_.at( "Earth" )->getEphemeris( )->getCartesianState( 1.1E7 ).transpose( )<<std::endl;
+//        std::cout<<bodies_.at( "Earth" )->getEphemeris( )->getCartesianState( 1.2E7 ).transpose( )<<std::endl;
+//        std::cout<<bodies_.at( "Earth" )->getEphemeris( )->getCartesianState( 1.3E7 ).transpose( )<<std::endl;
+//        std::cout<<bodies_.at( "Earth" )->getEphemeris( )->getCartesianState( 1.3E7 ).transpose( )<<std::endl<<std::endl;
 
     }
 
@@ -1621,7 +1629,7 @@ public:
     void resetParameterEstimate( const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > newParameterEstimate,
                                  const bool areVariationalEquationsToBeIntegrated = true )
     {
-        std::cout<<"New parameter estimate "<<std::setprecision( 16 )<<newParameterEstimate.transpose( )<<std::endl;
+//        std::cout<<"New parameter estimate "<<std::setprecision( 16 )<<newParameterEstimate.transpose( )<<std::endl;
         // Reset values of parameters.
         parametersToEstimate_->template resetParameterValues< StateScalarType >( newParameterEstimate );
         simulation_setup::setInitialStateVectorFromParameterSet< StateScalarType, TimeType >( parametersToEstimate_, propagatorSettings_ );
@@ -2074,6 +2082,7 @@ public:
         singleArcSolver_->integrateVariationalAndDynamicalEquations(
                     initialStateEstimate.block( 0, 0, singleArcDynamicsSize_, 1 ),
                     integrateEquationsConcurrently );
+
         // Extract single arc state to update multi-arc initial states
         resetMultiArcInitialStates(
                     initialStateEstimate.block( singleArcDynamicsSize_, 0, multiArcDynamicsSize_, 1 ) );
@@ -2093,7 +2102,7 @@ public:
 
         removeSingleArcBodiesFromMultiArcSolultion( numericalMultiArcSolution );
 
-
+        originalMultiArcSolver_->getDynamicsSimulator( )->getMultiArcPropagationResults( )->restartPropagation();
         // Reset original multi-arc bodies' dynamics
         originalMultiArcSolver_->getDynamicsSimulator( )->getMultiArcPropagationResults( )->manuallySetPropagationResults( numericalMultiArcSolution );
         if( originalPopagatorSettings_->getOutputSettings( )->getSetIntegratedResult( ) )

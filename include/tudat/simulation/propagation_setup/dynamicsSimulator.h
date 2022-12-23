@@ -681,6 +681,7 @@ public:
                 dependentVariablesFunctions_,
                 statePostProcessingFunction,
                 propagatorSettings_->getOutputSettings( )->getPrintSettings( ) );
+//        std::cout<<"Final "<<propagationResults->getEquationsOfMotionNumericalSolutionRaw( ).rbegin( )->second<<std::endl<<std::endl;
         simulation_setup::setAreBodiesInPropagation( bodies_, false );
     }
 
