@@ -1696,9 +1696,9 @@ public:
         }
         catch( const std::exception& caughtException )
         {
-            std::cout << "Error occured when post-processing mulyi-arc integration results, and seting integrated states in environment, caught error is: " << std::endl << std::endl;
-            std::cout << caughtException.what( ) << std::endl << std::endl;
-            std::cout << "The problem may be that there is an insufficient number of data points (epochs) at which propagation results are produced for one or more arcs"<< std::endl;
+            std::cerr << "Error occured when post-processing mulyi-arc integration results, and seting integrated states in environment, caught error is: " << std::endl << std::endl;
+            std::cerr << caughtException.what( ) << std::endl << std::endl;
+            std::cerr << "The problem may be that there is an insufficient number of data points (epochs) at which propagation results are produced for one or more arcs"<< std::endl;
             if( multiArcPropagatorSettings_->getOutputSettings( )->getClearNumericalSolutions( ) )
             {
                 propagationResults_->clearSolutionMaps( );

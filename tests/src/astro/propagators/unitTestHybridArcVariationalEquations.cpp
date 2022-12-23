@@ -267,12 +267,10 @@ executeHybridArcMarsAndOrbiterSensitivitySimulation(
         // Create dynamics simulator
         hybridArcPropagatorSettings->getOutputSettings( )->setIntegratedResult( true );
 
-        std::cout<<"Creating variational equations solver"<<std::endl;
         HybridArcVariationalEquationsSolver< StateScalarType, TimeType > variationalEquations =
                 HybridArcVariationalEquationsSolver< StateScalarType, TimeType >(
                         bodies,
                         hybridArcPropagatorSettings, parametersToEstimate );
-        std::cout<<"Creation done "<<propagateVariationalEquations<<std::endl;
 
         // Propagate requested equations.
         if( propagateVariationalEquations )

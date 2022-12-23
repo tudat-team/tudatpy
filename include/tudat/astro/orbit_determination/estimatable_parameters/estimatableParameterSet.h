@@ -1222,7 +1222,6 @@ void getParametersToEstimatePerArcTest(
         std::map< int, std::vector< std::string > >& estimatedBodiesPerArc,
         std::map< int, std::map< std::string, int > >& arcIndicesPerBody )
 {
-    std::cout<<"Arc start times "<<arcStartTimes.size( )<<std::endl;
     arcWiseParametersToEstimate.clear( );
 
     // Get list of objets and associated bodies to estimate initial arc-wise translational states
@@ -1291,7 +1290,6 @@ void getParametersToEstimatePerArcTest(
 
         counterEstimatedBody += 1;
     }
-    std::cout<<"Number of estimated bodies per arc "<<estimatedBodiesPerArc.size( )<<std::endl;
 
     std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > >
             initialStatesParameters = parametersToEstimate->getEstimatedInitialStateParameters( );
