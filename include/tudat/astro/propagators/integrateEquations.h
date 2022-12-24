@@ -469,12 +469,12 @@ void propagateToExactTerminationCondition(
  *  By default now(), i.e. the moment at which this function is called.
  *  \return Event that triggered the termination of the propagation
  */
-template< typename StateType = Eigen::MatrixXd, typename TimeType = double, typename TimeStepType = TimeType  >
+template< typename SimulationResults, typename StateType = Eigen::MatrixXd, typename TimeType = double, typename TimeStepType = TimeType  >
 void integrateEquationsFromIntegrator(
         const std::shared_ptr< numerical_integrators::NumericalIntegrator< TimeType, StateType, StateType, TimeStepType > > integrator,
         const TimeStepType initialTimeStep,
         const std::shared_ptr< PropagationTerminationCondition > propagationTerminationCondition,
-        std::shared_ptr< SingleArcSimulationResults< typename StateType::Scalar, TimeType, StateType::ColsAtCompileTime > > simulationResults,
+        const std::shared_ptr< SimulationResults > simulationResults,
         const std::function< Eigen::VectorXd( ) > dependentVariableFunction = std::function< Eigen::VectorXd( ) >( ),
         const std::function< void( StateType& ) > statePostProcessingFunction = std::function< void( StateType& ) >( ),
         const int saveFrequency = TUDAT_NAN,
@@ -789,14 +789,14 @@ void integrateEquationsFromIntegrator(
      *  By default now(), i.e. the moment at which this function is called.
      *  \return Event that triggered the termination of the propagation
      */
-    template< typename StateType, typename TimeType = double >
+    template< typename SimulationResults, typename StateType, typename TimeType = double >
     static void integrateEquations(
             std::function< StateType( const TimeType, const StateType& ) > stateDerivativeFunction,
             const StateType initialState,
             const TimeType initialTime,
             const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
             const std::shared_ptr< PropagationTerminationCondition > propagationTerminationCondition,
-            std::shared_ptr< SingleArcSimulationResults< typename StateType::Scalar, TimeType, StateType::ColsAtCompileTime > > simulationResults,
+            std::shared_ptr< SimulationResults > simulationResults,
             const std::function< Eigen::VectorXd( ) > dependentVariableFunction = std::function< Eigen::VectorXd( ) >( ),
             const std::function< void( StateType& ) > statePostProcessingFunction = std::function< void( StateType& ) >( ),
             const std::shared_ptr< PropagationPrintSettings > printSettings = std::make_shared< PropagationPrintSettings >( )  )
@@ -814,7 +814,7 @@ void integrateEquationsFromIntegrator(
             integrator->setPropagationTerminationFunction( stopPropagationFunction );
         }
 
-        integrateEquationsFromIntegrator< StateType, TimeType, typename scalar_type< TimeType >::value_type >(
+        integrateEquationsFromIntegrator< SimulationResults, StateType, TimeType, typename scalar_type< TimeType >::value_type >(
                     integrator, integratorSettings->initialTimeStep_, propagationTerminationCondition,
                     simulationResults,
                     dependentVariableFunction,

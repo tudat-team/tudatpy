@@ -40,11 +40,14 @@ namespace tudat
 
             SingleArcSimulationResults(const std::map <std::pair<int, int>, std::string> &dependentVariableIds,
                                        const std::map <std::pair<int, int>, std::string> &stateIds,
-                                       const std::shared_ptr <SingleArcPropagatorProcessingSettings> &outputSettings) :
+                                       const std::shared_ptr <SingleArcPropagatorProcessingSettings> &outputSettings,
+                                       const std::function< void ( std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >&,
+                                                                   const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& ) > rawSolutionConversionFunction ) :
                     SimulationResults<StateScalarType, TimeType>(),
                     dependentVariableIds_(dependentVariableIds),
                     stateIds_(stateIds),
                     outputSettings_(outputSettings),
+                    rawSolutionConversionFunction_( rawSolutionConversionFunction ),
                     propagationIsPerformed_(false),
                     solutionIsCleared_( false ),
                     propagationTerminationReason_(
@@ -71,11 +74,13 @@ namespace tudat
             {
                 reset( );
                 equationsOfMotionNumericalSolutionRaw_ = equationsOfMotionNumericalSolutionRaw;
+                rawSolutionConversionFunction_( equationsOfMotionNumericalSolution_, equationsOfMotionNumericalSolutionRaw_ );
                 dependentVariableHistory_ = dependentVariableHistory;
                 cumulativeComputationTimeHistory_ = cumulativeComputationTimeHistory;
                 cumulativeNumberOfFunctionEvaluations_ = cumulativeNumberOfFunctionEvaluations;
                 propagationTerminationReason_ = propagationTerminationReason;
             }
+
 
             void clearSolutionMaps( )
             {
@@ -85,6 +90,12 @@ namespace tudat
                 cumulativeComputationTimeHistory_.clear();
                 cumulativeNumberOfFunctionEvaluations_.clear();
                 solutionIsCleared_ = true;
+            }
+
+            void finalizePropagation( const std::map<TimeType, unsigned int> cumulativeNumberOfFunctionEvaluations )
+            {
+                cumulativeNumberOfFunctionEvaluations_ = cumulativeNumberOfFunctionEvaluations;
+                propagationIsPerformed_ = true;
             }
 
             std::map <TimeType, Eigen::Matrix<StateScalarType, Eigen::Dynamic, 1>> &
@@ -179,6 +190,9 @@ namespace tudat
 
             std::shared_ptr <SingleArcPropagatorProcessingSettings> outputSettings_;
 
+            const std::function< void ( std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >&,
+                                        const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& ) > rawSolutionConversionFunction_;
+
             bool propagationIsPerformed_;
 
             bool solutionIsCleared_;
@@ -193,35 +207,87 @@ namespace tudat
 
         };
 
-        template<typename StateScalarType = double, typename TimeType >
-        std::shared_ptr< SingleArcSimulationResults<StateScalarType, TimeType, Eigen::Dynamic > > createVariationalSimulationResults(
-                const std::shared_ptr< SingleArcSimulationResults<StateScalarType, TimeType, 1 > > simulationResults )
+
+        template<typename StateScalarType = double, typename TimeType = double >
+        class SingleArcVariationalSimulationResults
         {
-            return std::make_shared< SingleArcSimulationResults<StateScalarType, TimeType, Eigen::Dynamic > >(
-                    simulationResults->getDependentVariableId( ),
-                    simulationResults->getStateIds(),
-                    simulationResults->getOutputSettings( ) );
-        }
+        public:
+            SingleArcVariationalSimulationResults( const std::shared_ptr <SingleArcSimulationResults<StateScalarType, TimeType>> singleArcDynamicsResults,
+                                                   const int stateTransitionMatrixSize,
+                                                   const int sensitivityMatrixSize ):
+                    singleArcDynamicsResults_( singleArcDynamicsResults ), 
+                    stateTransitionMatrixSize_( stateTransitionMatrixSize ),
+                    sensitivityMatrixSize_( sensitivityMatrixSize ) { }
 
 
-        template<typename StateScalarType = double, typename TimeType >
-        void setSimulationResultsFromVariationalResults(
-                const std::shared_ptr< SingleArcSimulationResults<StateScalarType, TimeType, Eigen::Dynamic > > variationalResults,
-                const std::shared_ptr< SingleArcSimulationResults<StateScalarType, TimeType, 1 > > simulationResults,
-                const int parameterVectorSize_,
-                const int stateTransitionMatrixSize_ )
-        {
-            std::map <TimeType, Eigen::Matrix<StateScalarType, Eigen::Dynamic, 1 >> equationsOfMotionNumericalSolutionRaw_;
-            utilities::createVectorBlockMatrixHistory(
-                    variationalResults->getEquationsOfMotionNumericalSolutionRaw( ), equationsOfMotionNumericalSolutionRaw_,
-                std::make_pair( 0, parameterVectorSize_ ), stateTransitionMatrixSize_ );
-            simulationResults->reset(
-                    equationsOfMotionNumericalSolutionRaw_,
-                    variationalResults->getDependentVariableHistory( ),
-                    variationalResults->getCumulativeComputationTimeHistory(),
-                    variationalResults->getCumulativeNumberOfFunctionEvaluations( ),
-                    variationalResults->getPropagationTerminationReason() );
-        }
+            void reset() {
+                stateTransitionSolution_.clear( );
+                sensitivitySolution_.clear( );
+                singleArcDynamicsResults_->reset( );
+            }
+
+            void reset(
+                    std::map <TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >>& fullSolution,
+                    const std::map <TimeType, Eigen::VectorXd>& dependentVariableHistory,
+                    const std::map<TimeType, double>& cumulativeComputationTimeHistory,
+                    const std::map<TimeType, unsigned int>& cumulativeNumberOfFunctionEvaluations,
+                    std::shared_ptr <PropagationTerminationDetails> propagationTerminationReason )
+            {
+                std::map <TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >> equationsOfMotionNumericalSolutionRaw;
+                splitSolution( fullSolution, equationsOfMotionNumericalSolutionRaw );
+                singleArcDynamicsResults_->reset(
+                        equationsOfMotionNumericalSolutionRaw,
+                        dependentVariableHistory,
+                        cumulativeComputationTimeHistory,
+                        cumulativeNumberOfFunctionEvaluations,
+                        propagationTerminationReason );
+            }
+            
+            void splitSolution(
+                    const std::map <TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >>& fullSolution,
+                    std::map <TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >>& equationsOfMotionNumericalSolutionRaw )
+            {
+                for( auto it : fullSolution )
+                {
+                    stateTransitionSolution_[ static_cast< double >( it.first ) ] = it.second.block( 0, 0, stateTransitionMatrixSize_, stateTransitionMatrixSize_ ).template cast< double >( );
+                    sensitivitySolution_[ static_cast< double >( it.first ) ] = it.second.block( 0, stateTransitionMatrixSize_, stateTransitionMatrixSize_, sensitivityMatrixSize_ ).template cast< double >( );
+                    equationsOfMotionNumericalSolutionRaw[ static_cast< double >( it.first ) ] = it.second.block( 0, stateTransitionMatrixSize_ + sensitivityMatrixSize_, stateTransitionMatrixSize_, 1 ).template cast< double >( );
+                }
+            }
+
+            void clearSolutionMaps( )
+            {
+                singleArcDynamicsResults_->clearSolutionMaps( );
+                stateTransitionSolution_.clear( );
+                sensitivitySolution_.clear( );
+            }
+
+            void finalizePropagation( const std::map<TimeType, unsigned int> cumulativeNumberOfFunctionEvaluations )
+            {
+                singleArcDynamicsResults_->finalizePropagation( cumulativeNumberOfFunctionEvaluations );
+            }
+
+            std::map < double, Eigen::MatrixXd >& getStateTransitionSolution( )
+            {
+                return stateTransitionSolution_;
+            }
+
+            std::map < double, Eigen::MatrixXd >& getSensitivitySolution( )
+            {
+                return sensitivitySolution_;
+            }
+
+        protected:
+            const std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType > > singleArcDynamicsResults_;
+
+            const int stateTransitionMatrixSize_;
+
+            const int sensitivityMatrixSize_;
+
+            std::map < TimeType, Eigen::MatrixXd > stateTransitionSolution_;
+
+            std::map < TimeType, Eigen::MatrixXd > sensitivitySolution_;
+        };
 
         template<typename StateScalarType = double, typename TimeType = double, int NumberOfStateColumns = 1 >
         class MultiArcSimulationResults : public SimulationResults<StateScalarType, TimeType> {
@@ -406,21 +472,21 @@ namespace tudat
 
         };
 
-        template<typename StateScalarType = double, typename TimeType >
-        std::shared_ptr< MultiArcSimulationResults<StateScalarType, TimeType, Eigen::Dynamic > > createVariationalSimulationResults(
-                const std::shared_ptr< MultiArcSimulationResults<StateScalarType, TimeType, 1 > > simulationResults )
-        {
-            std::vector< std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType, 1 > > > singleArcResults =
-                    simulationResults->getSingleArcResults( );
-            std::vector< std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType, Eigen::Dynamic > > > singleArcVariationalResults;
-            for( unsigned int i = 0; i < singleArcResults.size( ); i++ )
-            {
-                singleArcVariationalResults.push_back( createVariationalSimulationResults( singleArcResults.at( i ) ) );
-            }
-
-            return std::make_shared< MultiArcSimulationResults<StateScalarType, TimeType, Eigen::Dynamic > >(
-                    singleArcVariationalResults );
-        }
+//        template<typename StateScalarType = double, typename TimeType >
+//        std::shared_ptr< MultiArcSimulationResults<StateScalarType, TimeType, Eigen::Dynamic > > createVariationalSimulationResults(
+//                const std::shared_ptr< MultiArcSimulationResults<StateScalarType, TimeType, 1 > > simulationResults )
+//        {
+//            std::vector< std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType, 1 > > > singleArcResults =
+//                    simulationResults->getSingleArcResults( );
+//            std::vector< std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType, Eigen::Dynamic > > > singleArcVariationalResults;
+//            for( unsigned int i = 0; i < singleArcResults.size( ); i++ )
+//            {
+//                singleArcVariationalResults.push_back( createVariationalSimulationResults( singleArcResults.at( i ) ) );
+//            }
+//
+//            return std::make_shared< MultiArcSimulationResults<StateScalarType, TimeType, Eigen::Dynamic > >(
+//                    singleArcVariationalResults );
+//        }
 
         template<typename StateScalarType = double, typename TimeType = double, int NumberOfStateColumns = 1 >
         class HybridArcSimulationResults : public SimulationResults<StateScalarType, TimeType>

@@ -35,7 +35,7 @@ namespace propagators
 void createStateTransitionAndSensitivityMatrixInterpolator(
         std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >& stateTransitionMatrixInterpolator,
         std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >& sensitivityMatrixInterpolator,
-        std::vector< std::map< double, Eigen::MatrixXd > >& variationalEquationsSolution,
+        const std::vector< std::map< double, Eigen::MatrixXd > >& variationalEquationsSolution,
         const bool clearRawSolution )
 {
     // Create interpolator for state transition matrix.
@@ -43,10 +43,10 @@ void createStateTransitionAndSensitivityMatrixInterpolator(
             std::make_shared< interpolators::LagrangeInterpolator< double, Eigen::MatrixXd > >(
                 utilities::createVectorFromMapKeys< Eigen::MatrixXd, double >( variationalEquationsSolution[ 0 ] ),
                 utilities::createVectorFromMapValues< Eigen::MatrixXd, double >( variationalEquationsSolution[ 0 ] ), 4 );
-    if( clearRawSolution )
-    {
-        variationalEquationsSolution[ 0 ].clear( );
-    }
+//    if( clearRawSolution )
+//    {
+//        variationalEquationsSolution[ 0 ].clear( );
+//    }
 
     // Create interpolator for sensitivity matrix.
     sensitivityMatrixInterpolator =
@@ -56,8 +56,13 @@ void createStateTransitionAndSensitivityMatrixInterpolator(
 
     if( clearRawSolution )
     {
-        variationalEquationsSolution[ 1 ].clear( );
+        std::cerr<<"Clearing of raw variational equations solution disabled"<<std::endl;
     }
+
+//    if( clearRawSolution )
+//    {
+//        variationalEquationsSolution[ 1 ].clear( );
+//    }
 
 }
 

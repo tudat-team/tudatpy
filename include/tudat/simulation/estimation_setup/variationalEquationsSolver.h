@@ -275,7 +275,7 @@ void createStateTransitionAndSensitivityMatrixInterpolator(
         stateTransitionMatrixInterpolator,
         std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >&
         sensitivityMatrixInterpolator,
-        std::vector< std::map< double, Eigen::MatrixXd > >& variationalEquationsSolution,
+        const std::vector< std::map< double, Eigen::MatrixXd > >& variationalEquationsSolution,
         const bool clearRawSolution = 1 );
 
 //! Function to check the consistency between propagation settings of equations of motion, and estimated parameters.
@@ -796,10 +796,8 @@ public:
                         dynamicsStateDerivative_->getStateTypeStartIndices( ) );
             dynamicsStateDerivative_->addVariationalEquations( variationalEquationsObject_ );
 
-            // Resize solution of variational equations to 2 (state transition and sensitivity matrices)
-            variationalEquationsSolution_.resize( 2 );
-
-            variationalPropagationResults_ = createVariationalSimulationResults( dynamicsSimulator_->getSingleArcPropagationResults( ) );
+            variationalPropagationResults_ = std::make_shared< SingleArcVariationalSimulationResults< StateScalarType, TimeType>>(
+                    dynamicsSimulator_->getSingleArcPropagationResults( ), this->stateTransitionMatrixSize_, this->parameterVectorSize_ - this->stateTransitionMatrixSize_ );
             // Integrate variational equations from initial state estimate.
             if( integrateEquationsOnCreation )
             {
@@ -870,9 +868,6 @@ public:
     void integrateVariationalAndDynamicalEquations(
             const VectorType& initialStateEstimate, const bool integrateEquationsConcurrently )
     {
-        variationalEquationsSolution_[ 0 ].clear( );
-        variationalEquationsSolution_[ 1 ].clear( );
-
         if( integrateEquationsConcurrently )
         {
             // Create initial conditions from new estimate.
@@ -881,49 +876,14 @@ public:
                             initialStateEstimate, propagatorSettings_->getInitialTime( ) ) );
 
             // Perform pre-processing steps
-            dynamicsSimulator_->performPropagationPreProcessingSteps( 1, 1,
-                                                                      variationalPropagationResults_ );
+            dynamicsSimulator_->performPropagationPreProcessingSteps( variationalPropagationResults_, 1, 1 );
+
             // Propagate dynamics and variational equations
             dynamicsSimulator_->propagateDynamics( initialVariationalState, variationalPropagationResults_, statePostProcessingFunction_ );
 
-            // Update propagation results of dynamics-only
-            setSimulationResultsFromVariationalResults(
-                    variationalPropagationResults_, dynamicsSimulator_->getSingleArcPropagationResults( ),
-                    parameterVectorSize_, stateTransitionMatrixSize_ );
-
             // Perform post-processing steps
-            dynamicsSimulator_->performPropagationPostProcessingSteps( dynamicsSimulator_->getSingleArcPropagationResults( ) );
-
-            // Reset solution for state transition and sensitivity matrices.
-            setVariationalEquationsSolution< TimeType, StateScalarType >(
-                        variationalPropagationResults_->getEquationsOfMotionNumericalSolutionRaw( ), variationalEquationsSolution_,
-                        std::make_pair( 0, 0 ), std::make_pair( 0, stateTransitionMatrixSize_ ),
-                        stateTransitionMatrixSize_, parameterVectorSize_ );
+            dynamicsSimulator_->performPropagationPostProcessingSteps( variationalPropagationResults_ );
         }
-//        else
-//        {
-//            std::cout<<"Pre-prop"<<std::endl;
-//            dynamicsSimulator_->integrateEquationsOfMotion( initialStateEstimate );
-//            std::cout<<"Post-prop"<<std::endl;
-//
-//            std::cout<<"Pre-var-prop"<<std::endl;
-//
-//            dynamicsSimulator_->performPropagationPreProcessingSteps( 0, 1,
-//                                                                      variationalPropagationResults_ );
-//            // Propagate dynamics and variational equations
-//            Eigen::MatrixXd initialVariationalState = this->createInitialVariationalEquationsSolution( );
-//            dynamicsSimulator_->propagateDynamics( initialVariationalState, variationalPropagationResults_, statePostProcessingFunction_ );
-//
-//            std::cout<<"Post-var-prop"<<std::endl;
-//
-//            dynamicsSimulator_->performPropagationPostProcessingSteps( dynamicsSimulator_->getSingleArcPropagationResults( ), true );
-//
-//            setVariationalEquationsSolution< TimeType, double >(
-//                    variationalPropagationResults_->getEquationsOfMotionNumericalSolutionRaw( ), variationalEquationsSolution_, std::make_pair( 0, 0 ),
-//                        std::make_pair( 0, stateTransitionMatrixSize_ ),
-//                        stateTransitionMatrixSize_, parameterVectorSize_ );
-//
-//        }
 
         // Reset solution for state transition and sensitivity matrices.
         resetVariationalEquationsInterpolators( );
@@ -935,19 +895,20 @@ public:
      *  \return Vector of mapa of state transition matrix history (first vector entry)
      *  and sensitivity matrix history (second vector entry)
      */
-    std::vector< std::map< double, Eigen::MatrixXd > >& getNumericalVariationalEquationsSolution( )
+    std::vector< std::map< double, Eigen::MatrixXd > > getNumericalVariationalEquationsSolution( )
     {
-        return variationalEquationsSolution_;
+        std::cerr<<"Warning, use of deprecated getNumericalVariationalEquationsSolution is not recommended"<<std::endl;
+        return std::vector< std::map< double, Eigen::MatrixXd > >( { getStateTransitionMatrixSolution( ), getSensitivityMatrixSolution( ) } );
     }
 
     std::map< double, Eigen::MatrixXd >& getStateTransitionMatrixSolution( )
     {
-        return variationalEquationsSolution_[ 0 ];
+        return variationalPropagationResults_->getStateTransitionSolution( );
     }
 
     std::map< double, Eigen::MatrixXd >& getSensitivityMatrixSolution( )
     {
-        return variationalEquationsSolution_[ 1];
+        return variationalPropagationResults_->getSensitivitySolution( );
     }
 
     const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& getEquationsOfMotionSolution( )
@@ -1041,7 +1002,7 @@ private:
         try
         {
             createStateTransitionAndSensitivityMatrixInterpolator(
-                        stateTransitionMatrixInterpolator, sensitivityMatrixInterpolator, variationalEquationsSolution_,
+                        stateTransitionMatrixInterpolator, sensitivityMatrixInterpolator, getNumericalVariationalEquationsSolution( ),
                         this->clearNumericalSolution_ );
 
         }
@@ -1050,7 +1011,7 @@ private:
             std::cerr << "Error occured when post-processing single-arc variational equation integration results, and creating interpolators, caught error is: " << std::endl << std::endl;
             std::cerr << caughtException.what( ) << std::endl << std::endl;
             std::cerr << "The problem may be that there is an insufficient number of data points (epochs) at which propagation results are produced for one or more arcs. Integrated results are given at" +
-                         std::to_string( variationalEquationsSolution_.at( 0 ).size( ) ) + " epochs"<< std::endl;
+                         std::to_string( variationalPropagationResults_->getStateTransitionSolution( ).size( ) ) + " epochs"<< std::endl;
         }
 
 
@@ -1076,13 +1037,13 @@ private:
 
     //!  Object that is used to evaluate the variational equations at the given state and time.
     std::shared_ptr< VariationalEquations > variationalEquationsObject_;
-
-    //! Map of history of numerically integrated variational equations.
-    /*!
-     *  Map of history of numerically integrated variational equations. Key of map denotes time, values are
-     *  state transition matrix Phi (first vector entry) and sensitivity matrix S (second vector entry)
-     */
-    std::vector< std::map< double, Eigen::MatrixXd > > variationalEquationsSolution_;
+//
+//    //! Map of history of numerically integrated variational equations.
+//    /*!
+//     *  Map of history of numerically integrated variational equations. Key of map denotes time, values are
+//     *  state transition matrix Phi (first vector entry) and sensitivity matrix S (second vector entry)
+//     */
+//    std::vector< std::map< double, Eigen::MatrixXd > > variationalEquationsSolution_;
 
     std::function< void( Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& ) > statePostProcessingFunction_;
 
@@ -1098,7 +1059,7 @@ private:
      */
     std::shared_ptr< DynamicsStateDerivativeModel< TimeType, StateScalarType > > dynamicsStateDerivative_;
 
-    std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType, Eigen::Dynamic > > variationalPropagationResults_;
+    std::shared_ptr< SingleArcVariationalSimulationResults< StateScalarType, TimeType > > variationalPropagationResults_;
 
 };
 

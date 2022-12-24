@@ -559,7 +559,10 @@ public:
         }
 
         propagationResults_= std::make_shared< SingleArcSimulationResults< StateScalarType, TimeType > >(
-                    dependentVariableIds_, stateIds_, propagatorSettings_->getOutputSettingsWithCheck( ) );
+                    dependentVariableIds_, stateIds_, propagatorSettings_->getOutputSettingsWithCheck( ),
+                    std::bind( &DynamicsStateDerivativeModel< TimeType, StateScalarType >::convertNumericalStateSolutionsToOutputSolutions,
+                               dynamicsStateDerivative_,
+                               std::placeholders::_1, std::placeholders::_2 ) ) ;
 
 
         stateDerivativeFunction_ =
@@ -655,7 +658,7 @@ public:
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& initialStates )
     {
         // Reset functions
-        performPropagationPreProcessingSteps( );
+        performPropagationPreProcessingSteps( propagationResults_ );
         propagateDynamics( dynamicsStateDerivative_->convertFromOutputSolution(
                 initialStates, propagatorSettings_->getInitialTime( ) ),
                            propagationResults_,
@@ -663,15 +666,15 @@ public:
         performPropagationPostProcessingSteps( propagationResults_ );
     }
 
-    template< int NumberOfColumns >
+    template< typename SimulationResults, int NumberOfColumns >
     void propagateDynamics(
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, NumberOfColumns >& processedInitialState,
-            const std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType, NumberOfColumns > > propagationResults,
+            const std::shared_ptr< SimulationResults > propagationResults,
             const std::function< void( Eigen::Matrix< StateScalarType, Eigen::Dynamic, NumberOfColumns >& ) > statePostProcessingFunction )
     {
         // Integrate equations of motion numerically.
         simulation_setup::setAreBodiesInPropagation( bodies_, true );
-        integrateEquations< Eigen::Matrix< StateScalarType, Eigen::Dynamic, NumberOfColumns >, TimeType >(
+        integrateEquations< SimulationResults, Eigen::Matrix< StateScalarType, Eigen::Dynamic, NumberOfColumns >, TimeType >(
                 stateDerivativeFunction_,
                 processedInitialState ,
                 propagatorSettings_->getInitialTime( ),
@@ -685,10 +688,11 @@ public:
         simulation_setup::setAreBodiesInPropagation( bodies_, false );
     }
 
+    template< typename SimulationResults >
     void performPropagationPreProcessingSteps(
+            const std::shared_ptr< SimulationResults > simulationResults,
             const bool evaluateDynamicsEquations = 1,
-            const bool evaluateVariationalEquations = 0,
-            const std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType, Eigen::Dynamic > > variationalPropagationResults = nullptr )
+            const bool evaluateVariationalEquations = 0 )
     {
         // Reset functions
         dynamicsStateDerivative_->setPropagationSettings( std::vector< IntegratedStateType >( ), evaluateDynamicsEquations, evaluateVariationalEquations );
@@ -696,37 +700,21 @@ public:
         dynamicsStateDerivative_->resetCumulativeFunctionEvaluationCounter( );
 
         // Empty solution maps
-        propagationResults_->reset( );
-        if( variationalPropagationResults != nullptr )
-        {
-            variationalPropagationResults->reset( );
-        }
+        simulationResults->reset( );
 
         printPrePropagationMessages( );
         resetPropagationTerminationConditions( );
 
     }
 
-    template< int NumberOfColumns >
+    template< typename SimulationResults >
     void performPropagationPostProcessingSteps(
-            const std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType, NumberOfColumns > > propagationResults,
+            const std::shared_ptr< SimulationResults > propagationResults,
             const bool isVariationalOnly = false )
     {
-        // Convert numerical solution to conventional state
-        if( !isVariationalOnly )
-        {
-            // TODO, why does this not work with non-1 template arguments???
-            dynamicsStateDerivative_->convertNumericalStateSolutionsToOutputSolutions(
-                    propagationResults->equationsOfMotionNumericalSolution_,
-                    propagationResults->equationsOfMotionNumericalSolutionRaw_);
-        }
-
         // Retrieve number of cumulative function evaluations
-        propagationResults->cumulativeNumberOfFunctionEvaluations_ = dynamicsStateDerivative_->getCumulativeNumberOfFunctionEvaluations( );
-        propagationResults->propagationIsPerformed_ = true;
-
+        propagationResults->finalizePropagation( dynamicsStateDerivative_->getCumulativeNumberOfFunctionEvaluations( ) );
         printPostPropagationMessages( );
-
 
         if( outputSettings_->getSetIntegratedResult( ) && !isVariationalOnly )
         {
