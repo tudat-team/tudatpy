@@ -78,12 +78,14 @@ public:
     RungeKuttaFixedStepSizeIntegrator( const StateDerivativeFunction& stateDerivativeFunction,
                                        const IndependentVariableType intervalStart,
                                        const StateType& initialState,
+                                       const TimeStepType& stepSize,
                                        const CoefficientSets& coefficientsSet,
                                        const RungeKuttaCoefficients::OrderEstimateToIntegrate orderToUse = RungeKuttaCoefficients::OrderEstimateToIntegrate::lower ) :
         ReinitializableNumericalIntegratorBase( stateDerivativeFunction ),
         currentIndependentVariable_( intervalStart ),
         currentState_( initialState ),
         lastIndependentVariable_( intervalStart ),
+        stepSize_( stepSize ),
         coefficientsSet_( coefficientsSet ),
         orderToUse_( orderToUse )
     {
@@ -308,12 +310,6 @@ public:
 
 protected:
 
-    //! Last used step size.
-    /*!
-     * Last used step size, passed to either integrateTo() or performIntegrationStep().
-     */
-    TimeStepType stepSize_;
-
     //! Current independent variable.
     /*!
      * Current independent variable as computed by performIntegrationStep().
@@ -331,6 +327,12 @@ protected:
      * Last independent variable value as computed by performIntegrationStep().
      */
     IndependentVariableType lastIndependentVariable_;
+
+    //! Last used step size.
+    /*!
+     * Last used step size, passed to either integrateTo() or performIntegrationStep().
+     */
+    TimeStepType stepSize_;
 
     //! Last state.
     /*!

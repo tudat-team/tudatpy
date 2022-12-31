@@ -788,6 +788,23 @@ std::vector< std::shared_ptr< A > > cloneDuplicatePointers(
     return noDuplicatePointers;
 }
 
+template< typename A, typename B >
+std::vector< std::pair< A, B > > mergeVectorsIntoVectorOfPairs(
+        const std::vector< A >& firstVector,
+        const std::vector< B >& secondVector )
+{
+    std::vector< std::pair< A, B > > mergedVector;
+    if( firstVector.size( ) != secondVector.size( ) )
+    {
+        throw std::runtime_error( "Error when merging vectors in vector of pairs; size is inconsistent" );
+    }
+    for( unsigned  int i = 0; i < firstVector.size( ); i++ )
+    {
+        mergedVector.push_back( std::make_pair( firstVector.at( i ), secondVector.at( i ) ) );
+    }
+    return mergedVector;
+}
+
 } // namespace utilities
 
 } // namespace tudat
