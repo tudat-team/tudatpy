@@ -20,9 +20,11 @@ namespace tudat
         class SimulationResults
         {
         public:
-            SimulationResults() {}
+            SimulationResults( ) 
+            {}
 
-            virtual ~SimulationResults() {}
+            virtual ~SimulationResults( ) 
+            {}
 
         };
 
@@ -30,13 +32,23 @@ namespace tudat
         template<typename StateScalarType, typename TimeType>
         class SingleArcDynamicsSimulator;
 
-        template<typename StateScalarType, typename TimeType, int NumberOfStateColumns >
+        template <template<class, class> class SingleArcResults, class StateScalarType, class TimeType>
         class MultiArcSimulationResults;
 
-        template<typename StateScalarType = double, typename TimeType = double, int NumberOfStateColumns = 1 >
+        //! Object that holds the numerical results of the propagation of a single-arc propagation of dynamics
+        /*
+         *  Object that holds the numerical results of the propagation of a single-arc propagation of dynamics,
+         *  this object contains the raw (as propagated) results, as well as the processed results (e.g. Cartesian
+         *  elements for translational state), in addition to number of function evaluations, cumulative propagation
+         *  time etc., if requested by user
+         */
+        template<typename StateScalarType = double, typename TimeType = double >
         class SingleArcSimulationResults : public SimulationResults<StateScalarType, TimeType>
         {
         public:
+
+            static const bool is_variational = false;
+            static const int number_of_columns = 1;
 
             SingleArcSimulationResults(const std::map <std::pair<int, int>, std::string> &dependentVariableIds,
                                        const std::map <std::pair<int, int>, std::string> &stateIds,
@@ -50,23 +62,24 @@ namespace tudat
                     rawSolutionConversionFunction_( rawSolutionConversionFunction ),
                     propagationIsPerformed_(false),
                     solutionIsCleared_( false ),
+                    onlyProcessedSolutionSet_( false ),
                     propagationTerminationReason_(
                             std::make_shared<PropagationTerminationDetails>(propagation_never_run)) {
             }
 
-            void reset() {
-                equationsOfMotionNumericalSolution_.clear();
-                equationsOfMotionNumericalSolutionRaw_.clear();
-                dependentVariableHistory_.clear();
-                cumulativeComputationTimeHistory_.clear();
-                cumulativeNumberOfFunctionEvaluations_.clear();
+            //! Function that resets the state of this object, typically to signal that a new propagation is to be performed.
+            void reset( ) 
+            {
+                clearSolutionMaps( );
                 propagationIsPerformed_ = false;
                 solutionIsCleared_ = false;
+                onlyProcessedSolutionSet_ = false;
                 propagationTerminationReason_ = std::make_shared<PropagationTerminationDetails>(propagation_never_run);
             }
 
+            //! Function that sets new numerical results of a propagation, after the propagation of the dynamics
             void reset(
-                    const std::map <TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, NumberOfStateColumns >>& equationsOfMotionNumericalSolutionRaw,
+                    const std::map <TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >>& equationsOfMotionNumericalSolutionRaw,
                     const std::map <TimeType, Eigen::VectorXd>& dependentVariableHistory,
                     const std::map<TimeType, double>& cumulativeComputationTimeHistory,
                     const std::map<TimeType, unsigned int>& cumulativeNumberOfFunctionEvaluations,
@@ -81,7 +94,9 @@ namespace tudat
                 propagationTerminationReason_ = propagationTerminationReason;
             }
 
-
+            //! Function to clear all maps with numerical results, but *not* signal that a new propagation will start,
+            //! this is typically done to save memory usage (and is called using the clearNumericalSolution setting
+            //! of the PropagatorProcessingSettings
             void clearSolutionMaps( )
             {
                 equationsOfMotionNumericalSolution_.clear();
@@ -92,49 +107,103 @@ namespace tudat
                 solutionIsCleared_ = true;
             }
 
+            //! Get initial and final propagation time from raw results
+            std::pair< TimeType, TimeType > getArcInitialAndFinalTime( )
+            {
+                if( equationsOfMotionNumericalSolutionRaw_.size( ) == 0 )
+                {
+                    throw std::runtime_error( "Error when getting single-arc dynamics initial and final times; no results set" );
+                }
+                return std::make_pair( equationsOfMotionNumericalSolutionRaw_.begin( )->first, equationsOfMotionNumericalSolutionRaw_.rbegin( )->first );
+            }
+
+            //! Function to signal that propagation is finished, and add number of function evaluations
             void finalizePropagation( const std::map<TimeType, unsigned int> cumulativeNumberOfFunctionEvaluations )
             {
                 cumulativeNumberOfFunctionEvaluations_ = cumulativeNumberOfFunctionEvaluations;
                 propagationIsPerformed_ = true;
             }
 
+            //! Manually set processed numerical solution, to be used when this object *is not* used in the
+            //! propagation loop, but *is* used to store the numerical results
+            void setEquationsOfMotionNumericalSolution(
+                    const std::map <TimeType, Eigen::Matrix<StateScalarType, Eigen::Dynamic, 1>> & equationsOfMotionNumericalSolution )
+            {
+                onlyProcessedSolutionSet_ = true;
+                equationsOfMotionNumericalSolution_ = equationsOfMotionNumericalSolution;
+            }
+
+            //! Function to check if output map that is requested is available
+            void checkAvailabilityOfSolution( const std::string& dataToRetrieve, const bool checkEomOnly = true )
+            {
+                if( !propagationIsPerformed_ )
+                {
+                    throw std::runtime_error( "Error when retrieving " + dataToRetrieve + ", propagation is not yet performed." );
+                }
+                else if( solutionIsCleared_ )
+                {
+                    throw std::runtime_error( "Error when retrieving " + dataToRetrieve + ", propagation has been performed, but results have been cleared." );
+                }
+                else if( checkEomOnly && onlyProcessedSolutionSet_ )
+                {
+                    throw std::runtime_error( "Error when retrieving " + dataToRetrieve + ", propagation has been performed using other object; current object only holds equations of motion solution." );
+                }
+            }
+
             std::map <TimeType, Eigen::Matrix<StateScalarType, Eigen::Dynamic, 1>> &
-            getEquationsOfMotionNumericalSolution() {
+            getEquationsOfMotionNumericalSolution( )
+            {
+                if( !onlyProcessedSolutionSet_ )
+                {
+                    checkAvailabilityOfSolution( "equations of motion numerical solution", false );
+                }
                 return equationsOfMotionNumericalSolution_;
             }
 
-            std::map <TimeType, Eigen::Matrix<StateScalarType, Eigen::Dynamic, NumberOfStateColumns>> &
-            getEquationsOfMotionNumericalSolutionRaw() {
+            std::map <TimeType, Eigen::Matrix<StateScalarType, Eigen::Dynamic, 1>> &
+            getEquationsOfMotionNumericalSolutionRaw( )
+            {
+                checkAvailabilityOfSolution( "equations of motion unprocessed numerical solution" );
                 return equationsOfMotionNumericalSolutionRaw_;
             }
 
-            std::map <TimeType, Eigen::VectorXd> &getDependentVariableHistory() {
+            std::map <TimeType, Eigen::VectorXd> &getDependentVariableHistory( ) 
+            {
+                checkAvailabilityOfSolution( "dependent variable history" );
                 return dependentVariableHistory_;
             }
 
-            std::map<TimeType, double> &getCumulativeComputationTimeHistory() {
+            std::map<TimeType, double> &getCumulativeComputationTimeHistory( ) 
+            {
+                checkAvailabilityOfSolution( "cumulative computation time history" );
                 return cumulativeComputationTimeHistory_;
             }
 
-            std::map<TimeType, unsigned int> &getCumulativeNumberOfFunctionEvaluations() {
+            std::map<TimeType, unsigned int> &getCumulativeNumberOfFunctionEvaluations( ) 
+            {
+                checkAvailabilityOfSolution( "cumulative number of function evaluations" );
                 return cumulativeNumberOfFunctionEvaluations_;
             }
 
-            std::shared_ptr <PropagationTerminationDetails> getPropagationTerminationReason() {
+            std::shared_ptr <PropagationTerminationDetails> getPropagationTerminationReason( ) 
+            {
                 return propagationTerminationReason_;
             }
 
-            bool integrationCompletedSuccessfully() const {
+            bool integrationCompletedSuccessfully( ) const
+            {
                 return (propagationTerminationReason_->getPropagationTerminationReason() ==
                         termination_condition_reached);
             }
 
 
-            std::map <std::pair<int, int>, std::string> getDependentVariableId() {
+            std::map <std::pair<int, int>, std::string> getDependentVariableId( ) 
+            {
                 return dependentVariableIds_;
             }
 
-            std::map <std::pair<int, int>, std::string> getStateIds() {
+            std::map <std::pair<int, int>, std::string> getStateIds( ) 
+            {
                 return stateIds_;
             }
 
@@ -163,7 +232,7 @@ namespace tudat
              *  values are concatenated vectors of integrated body states (order defined by propagatorSettings_).
              *  NOTE: this map is empty if clearNumericalSolutions_ is set to true.
              */
-            std::map <TimeType, Eigen::Matrix<StateScalarType, Eigen::Dynamic, NumberOfStateColumns > > equationsOfMotionNumericalSolution_;
+            std::map <TimeType, Eigen::Matrix<StateScalarType, Eigen::Dynamic, 1 > > equationsOfMotionNumericalSolution_;
 
             //! Map of state history of numerically integrated bodies.
             /*!
@@ -172,7 +241,7 @@ namespace tudat
             * states (order defined by propagatorSettings_).
             *  NOTE: this map is empty if clearNumericalSolutions_ is set to true.
             */
-            std::map <TimeType, Eigen::Matrix<StateScalarType, Eigen::Dynamic, NumberOfStateColumns>> equationsOfMotionNumericalSolutionRaw_;
+            std::map <TimeType, Eigen::Matrix<StateScalarType, Eigen::Dynamic, 1>> equationsOfMotionNumericalSolutionRaw_;
 
             //! Map of dependent variable history that was saved during numerical propagation.
             std::map <TimeType, Eigen::VectorXd> dependentVariableHistory_;
@@ -190,19 +259,22 @@ namespace tudat
 
             std::shared_ptr <SingleArcPropagatorProcessingSettings> outputSettings_;
 
+            //! Function to convert the propagated solution to conventional solution (see DynamicsStateDerivativeModel::convertToOutputSolution)
             const std::function< void ( std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >&,
                                         const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& ) > rawSolutionConversionFunction_;
 
             bool propagationIsPerformed_;
 
             bool solutionIsCleared_;
+            
+            bool onlyProcessedSolutionSet_;
 
             //! Event that triggered the termination of the propagation
             std::shared_ptr <PropagationTerminationDetails> propagationTerminationReason_;
 
             friend class SingleArcDynamicsSimulator<StateScalarType, TimeType>;
 
-            friend class MultiArcSimulationResults<StateScalarType, TimeType, NumberOfStateColumns >;
+//            friend class MultiArcSimulationResults<StateScalarType, TimeType, NumberOfStateColumns >;
 
 
         };
@@ -212,17 +284,20 @@ namespace tudat
         class SingleArcVariationalSimulationResults
         {
         public:
-            SingleArcVariationalSimulationResults( const std::shared_ptr <SingleArcSimulationResults<StateScalarType, TimeType>> singleArcDynamicsResults,
+
+            static const bool is_variational = true;
+            static const int number_of_columns = Eigen::Dynamic;
+
+            SingleArcVariationalSimulationResults( const std::shared_ptr <SingleArcSimulationResults< StateScalarType, TimeType > >  singleArcDynamicsResults,
                                                    const int stateTransitionMatrixSize,
                                                    const int sensitivityMatrixSize ):
                     singleArcDynamicsResults_( singleArcDynamicsResults ), 
                     stateTransitionMatrixSize_( stateTransitionMatrixSize ),
                     sensitivityMatrixSize_( sensitivityMatrixSize ) { }
 
-
-            void reset() {
-                stateTransitionSolution_.clear( );
-                sensitivitySolution_.clear( );
+            void reset( ) 
+            {
+                clearSolutionMaps( );
                 singleArcDynamicsResults_->reset( );
             }
 
@@ -242,7 +317,8 @@ namespace tudat
                         cumulativeNumberOfFunctionEvaluations,
                         propagationTerminationReason );
             }
-            
+
+            //! Function to split the full numerical solution into the solution for state transition matrix, sensitivity matrix, and unprocessed dynamics solution
             void splitSolution(
                     const std::map <TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >>& fullSolution,
                     std::map <TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >>& equationsOfMotionNumericalSolutionRaw )
@@ -277,6 +353,20 @@ namespace tudat
                 return sensitivitySolution_;
             }
 
+            const std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType > > getDynamicsResults( )
+            {
+                return singleArcDynamicsResults_;
+            }
+
+            std::pair< TimeType, TimeType > getArcInitialAndFinalTime( )
+            {
+                if( stateTransitionSolution_.size( ) == 0 )
+                {
+                    throw std::runtime_error( "Error when getting single-arc variational initial and final times; no results set" );
+                }
+                return std::make_pair( stateTransitionSolution_.begin( )->first, stateTransitionSolution_.rbegin( )->first );
+            }
+
         protected:
             const std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType > > singleArcDynamicsResults_;
 
@@ -284,20 +374,29 @@ namespace tudat
 
             const int sensitivityMatrixSize_;
 
-            std::map < TimeType, Eigen::MatrixXd > stateTransitionSolution_;
+            std::map < double, Eigen::MatrixXd > stateTransitionSolution_;
 
-            std::map < TimeType, Eigen::MatrixXd > sensitivitySolution_;
+            std::map < double, Eigen::MatrixXd > sensitivitySolution_;
         };
 
-        template<typename StateScalarType = double, typename TimeType = double, int NumberOfStateColumns = 1 >
-        class MultiArcSimulationResults : public SimulationResults<StateScalarType, TimeType> {
 
+
+        //! Class that holds numerical results for multi-arc simulations. This class may
+        //! hold results for dynamics-only or variational+dynamics results. For the former,
+        //! the SingleArcResults template argument is SingleArcSimulationResults, for the latter it is
+        //! SingleArcVariationalSimulationResults
+        template <template<class, class> class SingleArcResults, class StateScalarType, class TimeType>
+        class MultiArcSimulationResults : public SimulationResults<StateScalarType, TimeType> {
         public:
+
+            using single_arc_type = SingleArcResults< StateScalarType, TimeType >;
+
             MultiArcSimulationResults(
-                    const std::vector< std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType, NumberOfStateColumns > > > singleArcResults ):
+                    const std::vector< std::shared_ptr< SingleArcResults< StateScalarType, TimeType > > > singleArcResults ):
                     singleArcResults_( singleArcResults ), propagationIsPerformed_( false ), solutionIsCleared_( false ){ }
 
-            ~MultiArcSimulationResults() {}
+            ~MultiArcSimulationResults( ) 
+            {}
 
             bool getPropagationIsPerformed( )
             {
@@ -318,18 +417,11 @@ namespace tudat
             void setPropagationIsPerformed( )
             {
                 propagationIsPerformed_ = true;
-                if( arcStartTimes_.size( ) != 0 )
-                {
-                    throw std::runtime_error( "Error, arc start times not 0 when resetting" );
-                }
+                arcStartTimes_.clear( );
                 for( unsigned int i = 0; i < singleArcResults_.size( ); i++ )
                 {
-                    if( singleArcResults_.at( i )->getEquationsOfMotionNumericalSolutionRaw( ).size( ) == 0 )
-                    {
-                        throw std::runtime_error( "Error when setting multi-arc initial times from results; results of arc " +
-                            std::to_string( i ) + " are empty." );
-                    }
-                    arcStartTimes_.push_back( singleArcResults_.at( i )->getEquationsOfMotionNumericalSolutionRaw( ).begin( )->first );
+                    auto initialAndFinalTime = singleArcResults_.at( i )->getArcInitialAndFinalTime( );
+                    arcStartTimes_.push_back( initialAndFinalTime.first );
                 }
             }
 
@@ -344,16 +436,18 @@ namespace tudat
             {
                 for( unsigned int i = 0; i < numericalMultiArcSolution.size( ); i++ )
                 {
-                    singleArcResults_.at( i )->equationsOfMotionNumericalSolution_ = numericalMultiArcSolution.at( i );
+                    singleArcResults_.at( i )->setEquationsOfMotionNumericalSolution( numericalMultiArcSolution.at( i ) );
                 }
                 propagationIsPerformed_ = true;
+
+                arcStartTimes_.clear( );
                 for( unsigned int i = 0; i < singleArcResults_.size( ); i++ )
                 {
                     arcStartTimes_.push_back( singleArcResults_.at( i )->getEquationsOfMotionNumericalSolution( ).begin( )->first );
                 }
             }
 
-            std::vector< std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType, NumberOfStateColumns > > > getSingleArcResults( )
+            std::vector< std::shared_ptr< SingleArcResults< StateScalarType, TimeType > > > getSingleArcResults( )
             {
                 return singleArcResults_;
             }
@@ -461,7 +555,7 @@ namespace tudat
             }
 
         private:
-            const std::vector< std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType, NumberOfStateColumns > > > singleArcResults_;
+            const std::vector< std::shared_ptr< SingleArcResults< StateScalarType, TimeType > > > singleArcResults_;
 
             bool propagationIsPerformed_;
 
@@ -472,32 +566,18 @@ namespace tudat
 
         };
 
-//        template<typename StateScalarType = double, typename TimeType >
-//        std::shared_ptr< MultiArcSimulationResults<StateScalarType, TimeType, Eigen::Dynamic > > createVariationalSimulationResults(
-//                const std::shared_ptr< MultiArcSimulationResults<StateScalarType, TimeType, 1 > > simulationResults )
-//        {
-//            std::vector< std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType, 1 > > > singleArcResults =
-//                    simulationResults->getSingleArcResults( );
-//            std::vector< std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType, Eigen::Dynamic > > > singleArcVariationalResults;
-//            for( unsigned int i = 0; i < singleArcResults.size( ); i++ )
-//            {
-//                singleArcVariationalResults.push_back( createVariationalSimulationResults( singleArcResults.at( i ) ) );
-//            }
-//
-//            return std::make_shared< MultiArcSimulationResults<StateScalarType, TimeType, Eigen::Dynamic > >(
-//                    singleArcVariationalResults );
-//        }
 
-        template<typename StateScalarType = double, typename TimeType = double, int NumberOfStateColumns = 1 >
+        template <template<class, class> class SingleArcResults, class StateScalarType, class TimeType>
         class HybridArcSimulationResults : public SimulationResults<StateScalarType, TimeType>
         {
         public:
             HybridArcSimulationResults(
-                    const std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType, NumberOfStateColumns > > singleArcResults,
-                    const std::shared_ptr< MultiArcSimulationResults< StateScalarType, TimeType, NumberOfStateColumns > > multiArcResults ):
+                    const std::shared_ptr< SingleArcResults< StateScalarType, TimeType > > singleArcResults,
+                    const std::shared_ptr< MultiArcSimulationResults< SingleArcResults, StateScalarType, TimeType > > multiArcResults ):
                     singleArcResults_( singleArcResults ), multiArcResults_( multiArcResults ){ }
 
-            ~HybridArcSimulationResults() {}
+            ~HybridArcSimulationResults( ) 
+            {}
 
             bool integrationCompletedSuccessfully() const
             {
@@ -571,9 +651,9 @@ namespace tudat
             }
             
         protected:
-            std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType, NumberOfStateColumns > > singleArcResults_;
+            std::shared_ptr< SingleArcResults< StateScalarType, TimeType > > singleArcResults_;
 
-            std::shared_ptr< MultiArcSimulationResults< StateScalarType, TimeType, NumberOfStateColumns > > multiArcResults_;
+            std::shared_ptr< MultiArcSimulationResults< SingleArcResults, StateScalarType, TimeType > > multiArcResults_;
         };
 
     }

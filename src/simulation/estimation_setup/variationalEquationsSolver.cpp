@@ -35,14 +35,15 @@ namespace propagators
 void createStateTransitionAndSensitivityMatrixInterpolator(
         std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >& stateTransitionMatrixInterpolator,
         std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >& sensitivityMatrixInterpolator,
-        const std::vector< std::map< double, Eigen::MatrixXd > >& variationalEquationsSolution,
+        std::map< double, Eigen::MatrixXd >& stateTransitionSolution,
+        std::map< double, Eigen::MatrixXd >& sensitivitySolution,
         const bool clearRawSolution )
 {
     // Create interpolator for state transition matrix.
     stateTransitionMatrixInterpolator=
             std::make_shared< interpolators::LagrangeInterpolator< double, Eigen::MatrixXd > >(
-                utilities::createVectorFromMapKeys< Eigen::MatrixXd, double >( variationalEquationsSolution[ 0 ] ),
-                utilities::createVectorFromMapValues< Eigen::MatrixXd, double >( variationalEquationsSolution[ 0 ] ), 4 );
+                utilities::createVectorFromMapKeys< Eigen::MatrixXd, double >( stateTransitionSolution ),
+                utilities::createVectorFromMapValues< Eigen::MatrixXd, double >( stateTransitionSolution ), 4 );
 //    if( clearRawSolution )
 //    {
 //        variationalEquationsSolution[ 0 ].clear( );
@@ -51,12 +52,13 @@ void createStateTransitionAndSensitivityMatrixInterpolator(
     // Create interpolator for sensitivity matrix.
     sensitivityMatrixInterpolator =
             std::make_shared< interpolators::LagrangeInterpolator< double, Eigen::MatrixXd > >(
-                utilities::createVectorFromMapKeys< Eigen::MatrixXd, double >( variationalEquationsSolution[ 1 ] ),
-                utilities::createVectorFromMapValues< Eigen::MatrixXd, double >( variationalEquationsSolution[ 1 ] ), 4 );
+                utilities::createVectorFromMapKeys< Eigen::MatrixXd, double >( sensitivitySolution ),
+                utilities::createVectorFromMapValues< Eigen::MatrixXd, double >( sensitivitySolution ), 4 );
 
     if( clearRawSolution )
     {
-        std::cerr<<"Clearing of raw variational equations solution disabled"<<std::endl;
+        stateTransitionSolution.clear( );
+        sensitivitySolution.clear( );
     }
 
 //    if( clearRawSolution )

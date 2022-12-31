@@ -472,25 +472,22 @@ void propagateToExactTerminationCondition(
 template< typename SimulationResults, typename StateType = Eigen::MatrixXd, typename TimeType = double, typename TimeStepType = TimeType  >
 void integrateEquationsFromIntegrator(
         const std::shared_ptr< numerical_integrators::NumericalIntegrator< TimeType, StateType, StateType, TimeStepType > > integrator,
-        const TimeStepType initialTimeStep,
         const std::shared_ptr< PropagationTerminationCondition > propagationTerminationCondition,
         const std::shared_ptr< SimulationResults > simulationResults,
         const std::function< Eigen::VectorXd( ) > dependentVariableFunction = std::function< Eigen::VectorXd( ) >( ),
         const std::function< void( StateType& ) > statePostProcessingFunction = std::function< void( StateType& ) >( ),
-        const int saveFrequency = TUDAT_NAN,
-        const std::shared_ptr< PropagationPrintSettings > printSettings = std::make_shared< PropagationPrintSettings >( ) )
-//        const TimeType statePrintInterval = TUDAT_NAN,
-//        const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ),
-//        const bool printInitialAndFinalCondition = false )
+        const std::shared_ptr< SingleArcPropagatorProcessingSettings > processingSettings = std::make_shared< SingleArcPropagatorProcessingSettings >( ) )
 {
+    int saveFrequency = 1;
+
     std::map< TimeType, StateType > solutionHistory;
     std::map< TimeType, Eigen::VectorXd > dependentVariableHistory;
     std::map< TimeType, double > cumulativeComputationTimeHistory;
     std::shared_ptr< PropagationTerminationDetails > terminationDetails;
 
-    TimeType statePrintInterval = printSettings->getStatePrintInterval( );
+    TimeType statePrintInterval = processingSettings->getPrintSettings( )->getStatePrintInterval( );
     std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( );
-    bool printInitialAndFinalCondition = printSettings->getPrintInitialAndFinalConditions( );
+    bool printInitialAndFinalCondition = processingSettings->getPrintSettings( )->getPrintInitialAndFinalConditions( );
 
     std::shared_ptr< PropagationTerminationDetails > propagationTerminationReason;
 
@@ -517,11 +514,12 @@ void integrateEquationsFromIntegrator(
     cumulativeComputationTimeHistory[ currentTime ] = currentCPUTime;
 
     // Set initial time step and total integration time.
-    TimeStepType timeStep = initialTimeStep;
+    TimeStepType timeStep = integrator->getNextStepSize( );
     TimeType previousTime = currentTime;
     TimeType previousPrintTime = TUDAT_NAN;
 
-    int saveIndex = 0;
+    int stepsSinceLastSave = 0;
+    double timeOfLastSave = currentTime;
 
     propagationTerminationReason = std::make_shared< PropagationTerminationDetails >(
                 unknown_propagation_termination_reason );
@@ -599,9 +597,8 @@ void integrateEquationsFromIntegrator(
                 timeStep = integrator->getNextStepSize( );
 
                 // Save integration result in map
-                saveIndex++;
-                saveIndex = saveIndex % saveFrequency;
-                if( saveIndex == 0 )
+                stepsSinceLastSave++;
+                if( processingSettings->saveCurrentStep( stepsSinceLastSave, timeOfLastSave ) )
                 {
                     solutionHistory[ currentTime ] = newState;
 
@@ -610,6 +607,8 @@ void integrateEquationsFromIntegrator(
                         integrator->getStateDerivativeFunction( )( currentTime, newState );
                         dependentVariableHistory[ currentTime ] = dependentVariableFunction( );
                     }
+                    timeOfLastSave = currentTime;
+                    stepsSinceLastSave = 0;
                 }
             }
             else
@@ -799,7 +798,7 @@ void integrateEquationsFromIntegrator(
             std::shared_ptr< SimulationResults > simulationResults,
             const std::function< Eigen::VectorXd( ) > dependentVariableFunction = std::function< Eigen::VectorXd( ) >( ),
             const std::function< void( StateType& ) > statePostProcessingFunction = std::function< void( StateType& ) >( ),
-            const std::shared_ptr< PropagationPrintSettings > printSettings = std::make_shared< PropagationPrintSettings >( )  )
+            const std::shared_ptr< SingleArcPropagatorProcessingSettings > processingSettings = std::make_shared< SingleArcPropagatorProcessingSettings >( ) )
     {
         std::function< bool( const double, const double ) > stopPropagationFunction =
                 std::bind( &PropagationTerminationCondition::checkStopCondition, propagationTerminationCondition, std::placeholders::_1, std::placeholders::_2 );
@@ -815,12 +814,12 @@ void integrateEquationsFromIntegrator(
         }
 
         integrateEquationsFromIntegrator< SimulationResults, StateType, TimeType, typename scalar_type< TimeType >::value_type >(
-                    integrator, integratorSettings->initialTimeStep_, propagationTerminationCondition,
+                    integrator,
+                    propagationTerminationCondition,
                     simulationResults,
                     dependentVariableFunction,
                     statePostProcessingFunction,
-                    integratorSettings->saveFrequency_,
-                    printSettings );
+                    processingSettings );
     }
 
 
