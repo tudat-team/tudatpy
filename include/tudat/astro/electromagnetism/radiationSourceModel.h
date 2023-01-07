@@ -14,6 +14,8 @@
  *          Journal of Geophysical Research: Planets 118. 8(2013): 1676–1698.
  *      Knocke, Philip et al. "Earth radiation pressure effects on satellites."
  *          Astrodynamics Conference. American Institute of Aeronautics and Astronautics, 1988.
+ *      Charles J. Wetterer, et al. "Refining Space Object Radiation Pressure Modeling with Bidirectional Reflectance
+ *          Distribution Functions". Journal of Guidance, Control, and Dynamics 37. 1(2014): 185–196.
  */
 
 #ifndef TUDAT_RADIATIONSOURCEMODEL_H
@@ -39,7 +41,15 @@ namespace electromagnetism
 
 typedef std::vector<std::pair<double, Eigen::Vector3d>> IrradianceWithSourceList;
 
-
+/*!
+ * Class modeling a body that emits electromagnetic radiation, used for radiation pressure calculations.
+ *
+ * A source may consist of multiple sub-sources. For example, in a paneled source, each panel acts as a sub-source, with
+ * the radiation from each sub-source arriving at the target from a (slightly) different direction.
+ *
+ * Parameters to all functions are in local source-fixed coordinates. Proper translation and rotation is ensured by the
+ * RadiationPressureAcceleration class.
+ */
 class RadiationSourceModel
 {
 public:
@@ -47,27 +57,37 @@ public:
 
     virtual ~RadiationSourceModel() = default;
 
+    /*!
+     * Update class members.
+     *
+     * @param currentTime Current simulation time
+     */
     void updateMembers(double currentTime);
 
     /*!
      * Evaluate the irradiance [W/m²] at a certain position due to this source.
+     *
      * @param targetPosition Position where to evaluate the irradiance in local (i.e. source-fixed) coordinates
      * @param originalSourceIrradiance Irradiance from the original source (if applicable)
      * @param originalSourceToSourceDirection Direction of incoming radiation in local (i.e. source-fixed) coordinates
-     * @return A list of irradiances and their source-fixed origin. Every element can be thought of as a ray.
-     * Single element for point sources, multiple elements for paneled sources.
+     * @return List of irradiances at the target position and their source-fixed origin due to all sub-sources.
+     *         Contains a single element for point sources, multiple elements for paneled sources. Each element can be
+     *         thought of as ray from the source to the target.
      */
+     //TODO-DOMINIK move original source params to subclass
     virtual IrradianceWithSourceList evaluateIrradianceAtPosition(
             const Eigen::Vector3d& targetPosition,
             double originalSourceIrradiance,
             const Eigen::Vector3d& originalSourceToSourceDirection) const = 0;
 
     /*!
-     * Evaluate the total irradiance [W/m²] at a certain position due to this source.
+     * Evaluate the total irradiance [W/m²] at a certain position due to this source. Individual rays are merged, as
+     * opposed to evaluateIrradianceAtPosition().
+     *
      * @param targetPosition Position where to evaluate the irradiance in local (i.e. source-fixed) coordinates
      * @param originalSourceIrradiance Irradiance from the original source (if applicable)
      * @param originalSourceToSourceDirection Direction of incoming radiation in local (i.e. source-fixed) coordinates
-     * @return The total irradiance from this source
+     * @return Total irradiance from this source at the target position [W/m²]
      */
     double evaluateTotalIrradianceAtPosition(
             const Eigen::Vector3d& targetPosition,
@@ -84,9 +104,20 @@ protected:
 //   Isotropic point radiation source
 //*********************************************************************************************
 
+/*!
+ * Class modeling a radiation source that emits isotropically in all directions from a single point. The source power
+ * is given by the total luminosity.
+ *
+ * Far-away sources such as the Sun at 1 AU can be modeled as isotropic point source.
+ */
 class IsotropicPointRadiationSourceModel : public RadiationSourceModel
 {
 public:
+    /*!
+     * Constructor.
+     *
+     * @param luminosityModel Luminosity model of this source
+     */
     explicit IsotropicPointRadiationSourceModel(
             const std::shared_ptr<LuminosityModel>& luminosityModel) :
         luminosityModel_(luminosityModel) {}
@@ -96,6 +127,12 @@ public:
             double originalSourceIrradiance,
             const Eigen::Vector3d& originalSourceToSourceDirection) const override;
 
+    /*!
+     * Evaluate the irradiance [W/m²] at a certain position due to this source.
+     *
+     * @param targetPosition Position where to evaluate the irradiance in local (i.e. source-fixed) coordinates
+     * @return Irradiance from this source at the target position [W/m²]
+     */
     double evaluateIrradianceAtPosition(const Eigen::Vector3d& targetPosition) const;
 
     const std::shared_ptr<LuminosityModel>& getLuminosityModel() const
@@ -114,8 +151,15 @@ private:
 //*********************************************************************************************
 
 /*!
- * A source that is discretized into panels, each with its own radiosity model. A radiosity model describes the
- * radiation emitted (thermal) or reflected (albedo) by each panel.
+ * Class modeling a radiation source that is discretized into panels, each with its own radiosity model. A radiosity
+ * model describes the radiation emitted (thermal) or reflected (albedo) by each panel. Since both depend on the
+ * radiation from a third body (referred to as the original source), all irradiance evaluations involve the irradiance
+ * from the original source (for now, always an isotropic point source) at the paneled source center.
+ *
+ * Sources close to the spacecraft with the radiosity depending on a third body, such as Earth and Moon reflecting
+ * solar radiation due to surface albedo and thermal reradiation, can be modeled as a paneled source. For farther away
+ * sources, all radiation can be treated as originating from the same point, which is modeles by a point radiation
+ * source.
  */
 class PaneledRadiationSourceModel : public RadiationSourceModel
 {
@@ -123,44 +167,81 @@ public:
     class Panel;
     class PanelRadiosityModel; // cannot make this nested class of Panel since forward declaration is impossible
 
+    /*!
+     * Constructor for a shape-aware paneled source. The shape model is necessary for automatic panel generation.
+     *
+     * @param sourceBodyShapeModel Shape model of this source
+     * @param radiosityModelFunctions Functions that together create all panel radiosity models for a given polar and
+     *      azimuth angle
+     */
     explicit PaneledRadiationSourceModel(
-            const std::shared_ptr<basic_astrodynamics::BodyShapeModel>& sourceBodyShapeModel) :
-        sourceBodyShapeModel_(sourceBodyShapeModel) {}
+            const std::shared_ptr<basic_astrodynamics::BodyShapeModel>& sourceBodyShapeModel,
+            const std::vector<std::function<std::shared_ptr<PanelRadiosityModel>(double, double)>>& radiosityModelFunctions) :
+        sourceBodyShapeModel_(sourceBodyShapeModel),
+        radiosityModelFunctions_(radiosityModelFunctions){}
 
+    /*!
+     * Constructor for shape-oblivious paneled source. No knowledge of shape necessary if panels are given manually.
+     */
     explicit PaneledRadiationSourceModel() :
-            PaneledRadiationSourceModel(nullptr) {}
+            PaneledRadiationSourceModel(nullptr, {}) {}
 
     IrradianceWithSourceList evaluateIrradianceAtPosition(
             const Eigen::Vector3d& targetPosition,
             double originalSourceIrradiance,
             const Eigen::Vector3d& originalSourceToSourceDirection) const override;
 
+    /*!
+     * Get all panels comprising this paneled source.
+     *
+     * @return Panels comprising this paneled source
+     */
     virtual const std::vector<Panel>& getPanels() const = 0;
 
 protected:
     std::shared_ptr<basic_astrodynamics::BodyShapeModel> sourceBodyShapeModel_;
+    std::vector<std::function<std::shared_ptr<PanelRadiosityModel>(double, double)>> radiosityModelFunctions_;
 };
 
 /*!
- * A paneled source with paneling of the whole body that is constant and generated only once. Panel properties such as
- * albedo and emissivity are constant in time as well.
+ * Class modeling a paneled source with paneling of the whole body that is constant and generated only once. Panel
+ * properties such as albedo and emissivity are constant in time as well. The panels are generated in the first call
+ * of updateMembers().
+ *
+ * Static paneling is easier to implement than dynamic paneling, and possibly costly albedo/emissivity evaluation (e.g.,
+ * if their distributions are given by spherical harmonics) only has to be done once. However, a large portion of the
+ * panels will not be visible, especially for spacecraft in low orbits. Furthermore, for sufficient panels to be visible
+ * for low spacecraft, a large total number of panels is necessary. Both issuesincreasing computational effort
+ * unnecessarily.
  */
 class StaticallyPaneledRadiationSourceModel : public PaneledRadiationSourceModel
 {
 public:
+    /*!
+     * Constructor for given panels.
+     *
+     * @param panels Panels comprising this paneled source
+     */
     explicit StaticallyPaneledRadiationSourceModel(
             const std::vector<Panel>& panels) :
             PaneledRadiationSourceModel(),
             numberOfPanels(panels.size()),
             panels_(panels) {}
 
+    /*!
+     * Constructor for automatic generation of panels.
+     *
+     * @param sourceBodyShapeModel The shape model of this source
+     * @param radiosityModelFunctions Functions that together create all panel radiosity models for a given polar and
+     *      azimuth angle
+     * @param numberOfPanels Number of panels for automatic generation
+     */
     explicit StaticallyPaneledRadiationSourceModel(
             const std::shared_ptr<basic_astrodynamics::BodyShapeModel>& sourceBodyShapeModel,
             const std::vector<std::function<std::shared_ptr<PanelRadiosityModel>(double, double)>>& radiosityModelFunctions,
             int numberOfPanels) :
-            PaneledRadiationSourceModel(sourceBodyShapeModel),
-            numberOfPanels(numberOfPanels),
-            radiosityModelFunctions_(radiosityModelFunctions) {}
+            PaneledRadiationSourceModel(sourceBodyShapeModel, radiosityModelFunctions),
+            numberOfPanels(numberOfPanels) {}
 
     const std::vector<Panel>& getPanels() const override
     {
@@ -169,12 +250,20 @@ public:
 
 private:
     void updateMembers_(double currentTime) override;
+    void generatePanels();
 
     unsigned int numberOfPanels;
-    std::vector<std::function<std::shared_ptr<PanelRadiosityModel>(double, double)>> radiosityModelFunctions_;
     std::vector<Panel> panels_;
 };
 
+///*!
+// * Class modeling a paneled source with paneling created dynamically based on the spacecraft position. Panel
+// * properties such as albedo and emissivity are evaluated anew with every panel generation.
+// *
+// * This is the classic paneling for albedo modeling introduced by Knocke (1998). Panels are only generated for a
+// * spherical cap under the spacecraft, divided into 2 rings and a central panel.
+// */
+//// TODO-DOMINIK figure out how to implement dynamic paneling with support for multiple targets
 //class DynamicallyPaneledRadiationSourceModel : public PaneledRadiationSourceModel
 //{
 //private:
@@ -182,11 +271,27 @@ private:
 //    std::map<std::string, std::vector<Panel>> panels_;
 //};
 
+/*!
+ * Class modeling a single panel on a paneled source.
+ *
+ * A panel can be given manually or automatically generated, and only contains geometric properties. All
+ * radiation-related functionality is delegated to radiosity models. The irradiance at a position due to one panel is
+ * the sum of the contributions of all radiosity models of that panel. A panel can have a single radiosity model (e.g.,
+ * only albedo) or multiple (albedo and thermal).
+ */
 class PaneledRadiationSourceModel::Panel
 {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
+    /*!
+     * Constructor.
+     *
+     * @param area Area of the panel [m²]
+     * @param relativeCenter Center of the panel relative to the source center, in source-fixed coordinates [m]
+     * @param surfaceNormal Surface normal vector of the panel [-]
+     * @param radiosityModels List of radiosity models of the panel
+     */
     explicit Panel(
             double area,
             const Eigen::Vector3d& relativeCenter,
@@ -224,6 +329,11 @@ private:
     double area_;
 };
 
+/*!
+ * Class modeling (part of) the radiosity emitted by a panel of a paneled radiation source.
+ *
+ * @see PaneledRadiationSourceModel::Panel
+ */
 class PaneledRadiationSourceModel::PanelRadiosityModel
 {
 public:
@@ -231,9 +341,11 @@ public:
 
     /*!
      * Evaluate the irradiance [W/m²] at a certain position due to this panel.
-     * @param panel The panel this radiosity model belongs to
-     * @param targetPosition Position where to evaluate the irradiance in local coordinates (source rotation, centered in panel)
-     * @return The irradiance
+     *
+     * @param panel Panel to which this radiosity model belongs
+     * @param targetPosition Position where to evaluate the irradiance in panel-local coordinates (source rotation,
+     *        centered in panel)
+     * @return Irradiance due to this radiosity model for single panel
      */
     virtual double evaluateIrradianceAtPosition(
             const Panel& panel,
@@ -244,13 +356,23 @@ public:
 
 /*!
  * Panel radiosity model for albedo radiation with an arbitrary reflection law. This model was introduced in
- * Knocke (1988) for Earth thermal radiation, but assuming Lambertian reflectance.
+ * Knocke (1988) for Earth thermal radiation, but only assuming Lambertian reflectance.
  *
- * For most cases, albedo radiation with a diffuse-only Lambertian reflectance law is sufficient.
+ * For most cases, albedo radiation with a diffuse-only Lambertian reflection law is sufficient. Only a small fraction
+ * of Earth's albedo is actually specular, since only calm bodies of water are truly specular and specular reflection
+ * occurs mostly at low solar zenith angles where the reflectance is low anyway (Knocke, 1988).
+ *
+ * More sophisticated reflection laws (e.g., SpecularDiffuseMixReflectionLaw, or any BRDF via a custom ReflectionLaw)
+ * can be implemented to take into account surface properties like different vegetation and ground types on Earth.
  */
 class AlbedoPanelRadiosityModel : public PaneledRadiationSourceModel::PanelRadiosityModel
 {
 public:
+    /*!
+     * Constructor.
+     *
+     * @param reflectionLaw Reflection law governing reflection of original source radiation
+     */
     explicit AlbedoPanelRadiosityModel(
             const std::shared_ptr<ReflectionLaw>& reflectionLaw) :
             reflectionLaw_(reflectionLaw) {}
@@ -271,8 +393,12 @@ private:
 };
 
 /*!
- * Panel radiosity model for thermal emissions, based on delayed, isotropic and constant flux. This model was introduced
+ * Panel radiosity model for thermal emissions based on delayed, isotropic and constant flux. This model was introduced
  * in Knocke (1988) for Earth thermal radiation.
+ *
+ * As opposed to instantaneous reradiation, the body is assumed to act as heat buffer, absorbing incoming radiation and
+ * reradiating it in a delayed fashion as longwave infrared radiation. For most bodies, and especially Earth, this is a
+ * good assumption (Knocke, 1988).
  */
 class DelayedThermalPanelRadiosityModel : public PaneledRadiationSourceModel::PanelRadiosityModel
 {
@@ -297,14 +423,25 @@ private:
 };
 
 /*!
- * Panel radiosity model for thermal emissions, based on angle to subsolar point. This model was introduced in
- * Lemoine (2013) for lunar thermal radiation. At the subsolar point, the thermal radiation is due to
- * emissivity-corrected black-body radiation at maxTemperature. At positions away from the sub-solar point, the
- * temperature drops, until it reaches minTemperature on the backside.
+ * Panel radiosity model for thermal emissions based on the angle to sub-solar point and emissivity-corrected
+ * black-body radiation. This model was introduced in Lemoine (2013) for lunar thermal radiation with
+ * minTemperature = 100 K and maxTemperature = 375 K.
+ *
+ * The surface temperature is approximated by interpolation between minTemperature and maxTemperature based on the angle
+ * to the subsolar point. From the surface temperature, the black-body radiation is then calculated and corrected for
+ * emissivity. The radiation is maximum if the target is above the sub-solar point. At positions away from the sub-solar
+ * point, the temperature drops, until it reaches minTemperature on the backside.
  */
 class AngleBasedThermalPanelRadiosityModel : public PaneledRadiationSourceModel::PanelRadiosityModel
 {
 public:
+    /*!
+     * Constructor.
+     *
+     * @param minTemperature Minimum surface temperature (in shade) [K]
+     * @param maxTemperature Maximum surface temperature (at subsolar point) [K]
+     * @param emissivity Function returning the emissivity at a given polar and azimuth angle on the body
+     */
     explicit AngleBasedThermalPanelRadiosityModel(
             double minTemperature,
             double maxTemperature,
@@ -341,10 +478,17 @@ private:
 };
 
 /*!
- * Generate evenly spaced points on a sphere using algorithm from Saff (1997).
+ * Generate evenly spaced points on a sphere using algorithm from Saff (1997). This is used for uniform panel generation
+ * for the statically paneled source.
+ *
  * @param n number of points to generate
  * @return a pair of vectors, first vector are polar angles, second vector are azimuth angles
  */
+// Similar algorithm from Wetterer (2014) did not produce points that were visually uniformly distributed, with more
+// points on the poles. However, the algorithm should be revisited, since the generated points are more staggered with
+// Wetterer's algorithm, while Saff's points are more aligned along zonal and meridional lines. Staggered points should
+// be preferred.
+// TODO-DOMINIK
 std::pair<std::vector<double>, std::vector<double>> generateEvenlySpacedPoints(unsigned int n);
 
 

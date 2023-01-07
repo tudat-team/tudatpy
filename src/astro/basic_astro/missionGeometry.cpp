@@ -90,6 +90,7 @@ double computeShadowFunction( const Eigen::Vector3d& occultedBodyPosition,
     double shadowFunction = 1.0;
 
     // Check which part of shadow satellite is in
+    // Use decision schema from Fig. 5 of (Zhang et al., 2019)
     if ( std::fabs( occultedBodyApparentRadius - occultingBodyApparentRadius ) < apparentSeparation
          && apparentSeparation < occultedBodyApparentRadius + occultingBodyApparentRadius )
     {
@@ -121,6 +122,7 @@ double computeShadowFunction( const Eigen::Vector3d& occultedBodyPosition,
          occultedBodyApparentRadius < occultingBodyApparentRadius )
     {
         // Satellite is in umbra -> total occultation.
+        // Occulted circular disk is inside occulting circular disk.
         shadowFunction = 0.0;
     }
 
@@ -128,6 +130,7 @@ double computeShadowFunction( const Eigen::Vector3d& occultedBodyPosition,
               occultedBodyApparentRadius > occultingBodyApparentRadius )
     {
         //  Satellite is in antumbra (eclipse is annular) -> partial occultation.
+        // Occulting circular disk is inside occulted circular disk.
         const double occultedBodyApparentRadiusSquared = occultedBodyApparentRadius
                                                          * occultedBodyApparentRadius;
         const double occultingBodyApparentRadiusSquared = occultingBodyApparentRadius

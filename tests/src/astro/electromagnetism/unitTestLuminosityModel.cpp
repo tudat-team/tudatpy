@@ -11,8 +11,6 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
-#include <iostream>
-
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/astro/basic_astro/physicalConstants.h"
@@ -43,8 +41,8 @@ BOOST_AUTO_TEST_CASE( testIrradianceBasedLuminosityModel )
 {
     const auto expectedLuminosity = celestial_body_constants::SUN_LUMINOSITY;
 
-    IrradianceBasedLuminosityModel luminosityModel(1360.8, physical_constants::ASTRONOMICAL_UNIT);
-    luminosityModel.updateMembers();
+    IrradianceBasedLuminosityModel luminosityModel([](double) { return 1360.8; }, physical_constants::ASTRONOMICAL_UNIT);
+    luminosityModel.updateMembers(TUDAT_NAN);
     const auto actualLuminosity = luminosityModel.getLuminosity();
 
     BOOST_CHECK_CLOSE(actualLuminosity, expectedLuminosity, 0.1);

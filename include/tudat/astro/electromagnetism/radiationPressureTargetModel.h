@@ -6,6 +6,9 @@
  *    under the terms of the Modified BSD license. You should have received
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
+ *
+ *    References
+ *      Oliver Montenbruck, et al. Satellite Orbits. Springer Berlin Heidelberg, 2000.
  */
 
 #ifndef TUDAT_RADIATIONPRESSURETARGETMODEL_H
@@ -24,7 +27,12 @@ namespace tudat
 namespace electromagnetism
 {
 
-// All calculations in body-fixed frame
+/*!
+ * Class modeling a target that is accelerated by radiation pressure.
+ *
+ * Parameters to all functions are in local target-fixed coordinates. Proper translation and rotation is ensured by the
+ * RadiationPressureAcceleration class.
+ */
 class RadiationPressureTargetModel
 {
 public:
@@ -32,6 +40,13 @@ public:
 
     void updateMembers(double currentTime);
 
+    /*!
+     * Calculate radiation pressure force from incident radiation using geometrical/optical target properties.
+     *
+     * @param sourceIrradiance Incident irradiance magnitude [W/m²]
+     * @param sourceToTargetDirection Direction of incoming radiation in local (i.e. target-fixed) coordinates
+     * @return Radiation pressure force vector in local (i.e. target-fixed) coordinates [N]
+     */
     virtual Eigen::Vector3d evaluateRadiationPressureForce(
             double sourceIrradiance, Eigen::Vector3d sourceToTargetDirection) const = 0;
 
@@ -41,10 +56,19 @@ protected:
     double currentTime_{TUDAT_NAN};
 };
 
-
+/*!
+ * Class modeling a target as sphere ("cannonball"). The sphere has an isotropic radiation pressure coefficient and
+ * the same cross-sectional area from any direction.
+ */
 class CannonballRadiationPressureTargetModel : public RadiationPressureTargetModel
 {
 public:
+    /*!
+     * Constructor.
+     *
+     * @param area Cross-sectional area (i.e. projected area of the sphere)
+     * @param coefficient Radiation pressure coefficient (between 1 [absorption] and 2 [specular reflection])
+     */
     CannonballRadiationPressureTargetModel(double area, double coefficient)
             : area_(area), coefficient_(coefficient) {}
 
@@ -67,7 +91,9 @@ private:
     double coefficient_;
 };
 
-
+/*!
+ * Class modeling a target as collection of panels, e.g., representing the box body and solar panels.
+ */
 class PaneledRadiationPressureTargetModel : public RadiationPressureTargetModel
 {
 public:
@@ -96,6 +122,10 @@ private:
     std::vector<Panel> panels_;
 };
 
+/*!
+ * Class modeling a panel in a paneled radiation pressure target. A panel is defined by its area, orientation and
+ * reflection law.
+ */
 class PaneledRadiationPressureTargetModel::Panel
 {
     friend class PaneledRadiationPressureTargetModel;
@@ -103,6 +133,13 @@ class PaneledRadiationPressureTargetModel::Panel
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
+    /*!
+     * Constructor.
+     *
+     * @param area Area of the panel [m²]
+     * @param surfaceNormalFunction Function returning panel's normal vector in local (i.e. target-fixed) coordinates
+     * @param reflectionLaw Reflection law governing how force magnitude and direction due to radiation
+     */
     explicit Panel(double area,
                    const std::function<Eigen::Vector3d()>& surfaceNormalFunction,
                    const std::shared_ptr<ReflectionLaw>& reflectionLaw) :
@@ -110,6 +147,13 @@ public:
             reflectionLaw_(reflectionLaw),
             area_(area) {}
 
+    /*!
+     * Constructor.
+     *
+     * @param area Area of the panel [m²]
+     * @param surfaceNormal Constant normal vector of the panel in local (i.e. target-fixed) coordinates
+     * @param reflectionLaw Reflection law governing how force magnitude and direction due to radiation
+     */
     explicit Panel(double area,
                    const Eigen::Vector3d& surfaceNormal,
                    const std::shared_ptr<ReflectionLaw>& reflectionLaw) :

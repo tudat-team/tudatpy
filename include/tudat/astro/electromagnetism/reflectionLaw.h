@@ -27,6 +27,10 @@ namespace tudat
 namespace electromagnetism
 {
 
+/*!
+ * Class modeling reflective properties of a surface. The reflection law determines direction and magnitude of reflected
+ * radiation (for sources) as well as the reaction force of the surface (for targets).
+ */
 class ReflectionLaw
 {
 public:
@@ -52,12 +56,13 @@ public:
             const Eigen::Vector3d& observerDirection) const = 0;
 
     /*!
-     * Evaluate direction of reaction force due to incident and reflected radiation. If the incoming vector is incident
-     * on the backside of the surface, the zero vector is returned.
+     * Evaluate direction of reaction force due to incident and reflected radiation. For pure absorption, the force is
+     * along the incoming radiation. For pure specular reflection, the force is normal to the surface. If the incoming
+     * vector is incident on the backside of the surface, the zero vector is returned.
      *
      * @param surfaceNormal Surface normal unit vector
      * @param incomingDirection Incoming radiation unit vector from source to target
-     * @return The vector containing direction and magnitude of reaction due to surface properties [-]
+     * @return Reaction vector
      */
     virtual Eigen::Vector3d evaluateReactionVector(
             const Eigen::Vector3d& surfaceNormal,
@@ -65,11 +70,22 @@ public:
 };
 
 /*!
- * A reflection law for a mix of purely specular and purely diffuse Lambertian reflection.
+ * Reflection law for a mix of purely specular and purely diffuse Lambertian reflection. All radiation that is not
+ * reflected is absorbed. Absorbed radiation can (optionally) be instantaneously diffusely reradiated.
+ *
+ * Model is described by Wetterer (2014) Eq. 3.
  */
 class SpecularDiffuseMixReflectionLaw : public ReflectionLaw
 {
 public:
+    /*!
+     * Constructor.
+     *
+     * @param absorptivity Absorptivity (between 0 and 1)
+     * @param specularReflectivity Specular reflectivity (between 0 and 1)
+     * @param diffuseReflectivity Diffuse reflectivity (between 0 and 1)
+     * @param withInstantaneousLambertianReradiation
+     */
     explicit SpecularDiffuseMixReflectionLaw(
             double absorptivity,
             double specularReflectivity,
@@ -88,6 +104,7 @@ public:
         }
     }
 
+    // TODO-DOMINIK extract from class
     static std::shared_ptr<SpecularDiffuseMixReflectionLaw> fromAbsorptivityAndSpecularReflectivity(
             double absorptivity,
             double specularReflectivity)

@@ -40,25 +40,24 @@ Eigen::Vector3d IsotropicPointSourceRadiationPressureAcceleration::calculateAcce
             sourceRotationFromGlobalToLocalFrame * (targetCenterPositionInGlobalFrame - sourceCenterPositionInGlobalFrame);
     auto occultationFactor = occultationModel_->evaluateReceivedFraction(
             sourceCenterPositionInGlobalFrame, sourceBodyShapeModel_, targetCenterPositionInGlobalFrame);
-    auto sourceIrradiance = isotropicPointSourceModel_->evaluateIrradianceAtPosition(targetCenterPositionInSourceFrame);
+    auto sourceIrradiance = sourceModel_->evaluateIrradianceAtPosition(targetCenterPositionInSourceFrame);
     auto occultedSourceIrradiance = sourceIrradiance * occultationFactor;
 
-    if (occultedSourceIrradiance > 0)
+    if (occultedSourceIrradiance <= 0)
     {
-        // No body is occluding source seen from target
-        Eigen::Vector3d sourceToTargetDirectionInTargetFrame =
-                targetRotationFromGlobalToLocalFrame * (targetCenterPositionInGlobalFrame - sourceCenterPositionInGlobalFrame).normalized();
-        // Calculate radiation pressure force due to source
-        Eigen::Vector3d totalForceInTargetFrame =
-                targetModel_->evaluateRadiationPressureForce(sourceIrradiance, sourceToTargetDirectionInTargetFrame);
-        // Calculate acceleration due to radiation pressure in global frame
-        Eigen::Vector3d acceleration = targetRotationFromLocalToGlobalFrame * totalForceInTargetFrame / targetMassFunction_();
-        return acceleration;
-    }
-    else
-    {
+        // Some body is occluding source seen from target
         return Eigen::Vector3d::Zero();
     }
+
+    // Acceleration points from source to target
+    Eigen::Vector3d sourceToTargetDirectionInTargetFrame =
+            targetRotationFromGlobalToLocalFrame * (targetCenterPositionInGlobalFrame - sourceCenterPositionInGlobalFrame).normalized();
+    // Calculate radiation pressure force due to source
+    Eigen::Vector3d totalForceInTargetFrame =
+            targetModel_->evaluateRadiationPressureForce(sourceIrradiance, sourceToTargetDirectionInTargetFrame);
+    // Calculate acceleration due to radiation pressure in global frame
+    Eigen::Vector3d acceleration = targetRotationFromLocalToGlobalFrame * totalForceInTargetFrame / targetMassFunction_();
+    return acceleration;
 }
 
 Eigen::Vector3d PaneledSourceRadiationPressureAcceleration::calculateAcceleration()
@@ -82,7 +81,7 @@ Eigen::Vector3d PaneledSourceRadiationPressureAcceleration::calculateAcceleratio
     Eigen::Vector3d originalSourceToSourceDirectionInSourceFrame =
             sourceRotationFromGlobalToLocalFrame * (sourceCenterPositionInGlobalFrame - originalSourceCenterPositionInGlobalFrame).normalized();
 
-    // Evaluate irradiances at target position in source frame
+    // Evaluate irradiances from all sub-sources at target position in source frame
     Eigen::Vector3d targetCenterPositionInSourceFrame =
             sourceRotationFromGlobalToLocalFrame * (targetCenterPositionInGlobalFrame - sourceCenterPositionInGlobalFrame);
     auto sourceIrradiancesAndPositions = sourceModel_->evaluateIrradianceAtPosition(
