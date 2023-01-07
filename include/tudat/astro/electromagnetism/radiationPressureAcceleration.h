@@ -27,15 +27,16 @@ namespace tudat
 namespace electromagnetism
 {
 
+/*!
+ * Class modeling radiation pressure acceleration. Radiation pressure accelerates a target due to electromagnetic
+ * radiation from a source.
+ */
 class RadiationPressureAcceleration: public basic_astrodynamics::AccelerationModel3d
 {
 public:
     void updateMembers(double currentTime) override;
 
-    std::shared_ptr<RadiationSourceModel> getSourceModel() const
-    {
-        return sourceModel_;
-    }
+    virtual std::shared_ptr<RadiationSourceModel> getSourceModel() const = 0;
 
     std::shared_ptr<RadiationPressureTargetModel> getTargetModel() const
     {
@@ -43,17 +44,13 @@ public:
     }
 
 protected:
-    RadiationPressureAcceleration(const std::shared_ptr<RadiationSourceModel>& sourceModel,
-                                  const std::function<Eigen::Vector3d()>& sourcePositionFunction,
-                                  const std::function<Eigen::Quaterniond()>& sourceRotationFromLocalToGlobalFrameFunction,
+    RadiationPressureAcceleration(const std::function<Eigen::Vector3d()>& sourcePositionFunction,
                                   const std::shared_ptr<RadiationPressureTargetModel>& targetModel,
                                   const std::function<Eigen::Vector3d()>& targetPositionFunction,
                                   const std::function<Eigen::Quaterniond()>& targetRotationFromLocalToGlobalFrameFunction,
                                   const std::function<double()>& targetMassFunction,
                                   const std::shared_ptr<OccultationModel>& occultationModel) :
-            sourceModel_(sourceModel),
             sourcePositionFunction_(sourcePositionFunction),
-            sourceRotationFromLocalToGlobalFrameFunction_(sourceRotationFromLocalToGlobalFrameFunction),
             targetModel_(targetModel),
             targetPositionFunction_(targetPositionFunction),
             targetRotationFromLocalToGlobalFrameFunction_(targetRotationFromLocalToGlobalFrameFunction),
@@ -62,83 +59,92 @@ protected:
 
     virtual Eigen::Vector3d calculateAcceleration() = 0;
 
-    std::shared_ptr<RadiationSourceModel> sourceModel_;
-
     std::function<Eigen::Vector3d()> sourcePositionFunction_;
-
-    std::function< Eigen::Quaterniond( ) > sourceRotationFromLocalToGlobalFrameFunction_;
-
     std::shared_ptr<RadiationPressureTargetModel> targetModel_;
-
     std::function<Eigen::Vector3d()> targetPositionFunction_;
-
-    std::function< Eigen::Quaterniond( ) > targetRotationFromLocalToGlobalFrameFunction_;
-
+    std::function<Eigen::Quaterniond()> targetRotationFromLocalToGlobalFrameFunction_;
     std::function<double()> targetMassFunction_;
-
     std::shared_ptr<OccultationModel> occultationModel_;
 };
 
+/*!
+ * Class modeling radiation pressure acceleration from an isotropic point source.
+ *
+ * Assumptions:
+ *  - Radiation from a source is evaluated at the target center (i.e. the target extent is neglected for irradiance
+ *    calculations).
+ */
 class IsotropicPointSourceRadiationPressureAcceleration : public RadiationPressureAcceleration
 {
 public:
     /*!
     * Creates a radiation pressure acceleration model with an isotropic point source.
     *
-    * @param sourceModel the radiation source model of the source body
-    * @param sourceBodyShapeModel the body shape model of the source body
-    * @param sourcePositionFunction the position function of the source body
-    * @param sourceRotationFromLocalToGlobalFrameFunction the local-to-global rotation function of the source body
-    * @param targetModel the radiation pressure target model of the target body
-    * @param targetPositionFunction the position function of the target body
-    * @param targetRotationFromLocalToGlobalFrameFunction the local-to-global rotation function of the target body
-    * @param targetMassFunction the mass function of the target body
-    * @param occultationModel the occultation model between original source, source and target
+    * @param sourceModel Radiation source model of the source body
+    * @param sourceBodyShapeModel Body shape model of the source body
+    * @param sourcePositionFunction Position function of the source body
+    * @param targetModel Radiation pressure target model of the target body
+    * @param targetPositionFunction Position function of the target body
+    * @param targetRotationFromLocalToGlobalFrameFunction Local-to-global rotation function of the target body
+    * @param targetMassFunction Mass function of the target body
+    * @param occultationModel Occultation model between original source, source and target
     */
     IsotropicPointSourceRadiationPressureAcceleration(
             const std::shared_ptr<IsotropicPointRadiationSourceModel>& sourceModel,
             const std::shared_ptr<basic_astrodynamics::BodyShapeModel>& sourceBodyShapeModel,
             const std::function<Eigen::Vector3d()>& sourcePositionFunction,
-            const std::function<Eigen::Quaterniond()>& sourceRotationFromLocalToGlobalFrameFunction,
             const std::shared_ptr<RadiationPressureTargetModel>& targetModel,
             const std::function<Eigen::Vector3d()>& targetPositionFunction,
             const std::function<Eigen::Quaterniond()>& targetRotationFromLocalToGlobalFrameFunction,
             const std::function<double()>& targetMassFunction,
             const std::shared_ptr<OccultationModel>& occultationModel)
-            : RadiationPressureAcceleration(sourceModel, sourcePositionFunction,
-                                            sourceRotationFromLocalToGlobalFrameFunction, targetModel,
+            : RadiationPressureAcceleration(sourcePositionFunction, targetModel,
                                             targetPositionFunction, targetRotationFromLocalToGlobalFrameFunction,
                                             targetMassFunction, occultationModel),
-                                            isotropicPointSourceModel_(sourceModel),
+                                            sourceModel_(sourceModel),
                                             sourceBodyShapeModel_(sourceBodyShapeModel) {}
+
+    std::shared_ptr<RadiationSourceModel> getSourceModel() const override
+    {
+        return sourceModel_;
+    }
 
 private:
     Eigen::Vector3d calculateAcceleration() override;
 
-    std::shared_ptr<IsotropicPointRadiationSourceModel> isotropicPointSourceModel_;
-
+    std::shared_ptr<IsotropicPointRadiationSourceModel> sourceModel_;
     std::shared_ptr<basic_astrodynamics::BodyShapeModel> sourceBodyShapeModel_;
 };
 
+/*!
+ * Class modeling radiation pressure acceleration from a paneled point source. An original source illuminates the
+ * source, which emits the radiation that accelerates the target.
+ *
+ * Assumptions:
+ *  - Radiation from the original source is evaluated at the original source center (i.e. the target extent is
+ *    neglected, which is acceptable, e.g., when evaluating solar radiation at Earth).
+ *  - Radiation from a source is evaluated at the target center (i.e. the target extent is neglected for irradiance
+ *    calculations).
+ */
 class PaneledSourceRadiationPressureAcceleration : public RadiationPressureAcceleration
 {
 public:
     /*!
     * Creates a radiation pressure acceleration model with a paneled source.
     *
-    * @param sourceModel the radiation source model of the source body
-    * @param sourcePositionFunction the position function of the source body
-    * @param sourceRotationFromLocalToGlobalFrameFunction the local-to-global rotation function of the source body
-    * @param targetModel the radiation pressure target model of the target body
-    * @param targetPositionFunction the position function of the target body
-    * @param targetRotationFromLocalToGlobalFrameFunction the local-to-global rotation function of the target body
-    * @param targetMassFunction the mass function of the target body
-    * @param originalSourceName the name of the original source body
-    * @param originalSourceModel the radiation source model of the original source body
-    * @param originalSourceBodyShapeModel the body shape model of the original source body
-    * @param originalSourcePositionFunction the position function of the original source body
-    * @param originalSourceRotationFromLocalToGlobalFrameFunction the local-to-global rotation function of the original source body
-    * @param occultationModel the occultation model between original source, source and target
+    * @param sourceModel Radiation source model of the source body
+    * @param sourcePositionFunction Position function of the source body
+    * @param sourceRotationFromLocalToGlobalFrameFunction Local-to-global rotation function of the source body
+    * @param targetModel Radiation pressure target model of the target body
+    * @param targetPositionFunction Position function of the target body
+    * @param targetRotationFromLocalToGlobalFrameFunction Local-to-global rotation function of the target body
+    * @param targetMassFunction Mass function of the target body
+    * @param originalSourceName Mame of the original source body
+    * @param originalSourceModel Radiation source model of the original source body
+    * @param originalSourceBodyShapeModel Body shape model of the original source body
+    * @param originalSourcePositionFunction Position function of the original source body
+    * @param originalSourceRotationFromLocalToGlobalFrameFunction Local-to-global rotation function of the original source body
+    * @param occultationModel Occultation model between original source, source and target
     */
     PaneledSourceRadiationPressureAcceleration(
             const std::shared_ptr<PaneledRadiationSourceModel>& sourceModel,
@@ -155,19 +161,24 @@ public:
             const std::function<Eigen::Quaterniond()>& originalSourceRotationFromLocalToGlobalFrameFunction,
             const std::shared_ptr<OccultationModel>& occultationModel) :
             RadiationPressureAcceleration(
-                    sourceModel,
                     sourcePositionFunction,
-                    sourceRotationFromLocalToGlobalFrameFunction,
                     targetModel,
                     targetPositionFunction,
                     targetRotationFromLocalToGlobalFrameFunction,
                     targetMassFunction,
                     occultationModel),
+            sourceModel_(sourceModel),
+            sourceRotationFromLocalToGlobalFrameFunction_(sourceRotationFromLocalToGlobalFrameFunction),
             originalSourceName_(originalSourceName),
             originalSourceModel_(originalSourceModel),
             originalSourceBodyShapeModel_(originalSourceBodyShapeModel),
             originalSourcePositionFunction_(originalSourcePositionFunction),
             originalSourceRotationFromLocalToGlobalFrameFunction_(originalSourceRotationFromLocalToGlobalFrameFunction) {}
+
+    std::shared_ptr<RadiationSourceModel> getSourceModel() const override
+    {
+        return sourceModel_;
+    }
 
     const std::shared_ptr<IsotropicPointRadiationSourceModel>& getOriginalSourceModel() const
     {
@@ -181,15 +192,13 @@ public:
 private:
     Eigen::Vector3d calculateAcceleration() override;
 
+    std::shared_ptr<PaneledRadiationSourceModel> sourceModel_;
+    std::function<Eigen::Quaterniond()> sourceRotationFromLocalToGlobalFrameFunction_;
     std::string originalSourceName_; // needed for environment updater
-
     std::shared_ptr<IsotropicPointRadiationSourceModel> originalSourceModel_;
-
     std::shared_ptr<basic_astrodynamics::BodyShapeModel> originalSourceBodyShapeModel_;
-
     std::function<Eigen::Vector3d()> originalSourcePositionFunction_;
-
-    std::function< Eigen::Quaterniond( ) > originalSourceRotationFromLocalToGlobalFrameFunction_;
+    std::function<Eigen::Quaterniond()> originalSourceRotationFromLocalToGlobalFrameFunction_;
 };
 
 } // tudat

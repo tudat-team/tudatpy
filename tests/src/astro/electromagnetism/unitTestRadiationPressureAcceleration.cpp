@@ -56,7 +56,7 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_Unity )
 
     // Set distance to speed of light to cancel to unity radiation pressure
     auto luminosityModel = std::make_shared<IrradianceBasedLuminosityModel>(
-            [] () { return physical_constants::SPEED_OF_LIGHT; }, 1);
+            [](double) { return physical_constants::SPEED_OF_LIGHT; }, 1);
     auto sourceModel = std::make_shared<IsotropicPointRadiationSourceModel>(luminosityModel);
     auto targetModel = std::make_shared<CannonballRadiationPressureTargetModel>(
             1, 1);
@@ -64,7 +64,6 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_Unity )
             sourceModel,
             std::make_shared<basic_astrodynamics::SphericalBodyShapeModel>(1),
             []() { return Eigen::Vector3d(1, 0, 0); },
-            []() { return Eigen::Quaterniond::Identity(); },
             targetModel,
             []() { return Eigen::Vector3d(2, 0, 0); },
             []() { return Eigen::Quaterniond::Identity(); },
@@ -86,7 +85,7 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_GOCE )
     const Eigen::Vector3d expectedAcceleration = Eigen::Vector3d(1, 1, 0).normalized() * 5.2e-9;
 
     auto luminosityModel = std::make_shared<IrradianceBasedLuminosityModel>(
-            [] () { return 1371; }, physical_constants::ASTRONOMICAL_UNIT);
+            [](double) { return 1371; }, physical_constants::ASTRONOMICAL_UNIT);
     auto sourceModel = std::make_shared<IsotropicPointRadiationSourceModel>(luminosityModel);
     auto targetModel = std::make_shared<CannonballRadiationPressureTargetModel>(
             1, 1.2);
@@ -94,7 +93,6 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_GOCE )
             sourceModel,
             std::make_shared<basic_astrodynamics::SphericalBodyShapeModel>(1),
             [] () { return Eigen::Vector3d::Zero(); },
-            []() { return Eigen::Quaterniond::Identity(); },
             targetModel,
             []() { return (Eigen::Vector3d(1, 1, 0).normalized() * physical_constants::ASTRONOMICAL_UNIT).eval(); },
             []() { return Eigen::Quaterniond::Identity(); },
@@ -133,7 +131,6 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPoint_Cannonbal
                         sourceModel,
                         std::make_shared<basic_astrodynamics::SphericalBodyShapeModel>(1),
                         [] () { return Eigen::Vector3d::Zero(); },
-                        [=] () { return rotation.inverse(); }, // vary source rotation
                         targetModel,
                         [=] () { return Eigen::Vector3d(0, 1, 1); },
                         [=] () { return rotation; }, // vary target rotation
@@ -162,7 +159,7 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_Paneled_Basic )
 
     // Set distance to speed of light to cancel to unity radiation pressure
     auto luminosityModel = std::make_shared<IrradianceBasedLuminosityModel>(
-            []() { return physical_constants::SPEED_OF_LIGHT; }, 1);
+            [](double) { return physical_constants::SPEED_OF_LIGHT; }, 1);
     auto sourceModel = std::make_shared<IsotropicPointRadiationSourceModel>(luminosityModel);
     std::vector<PaneledRadiationPressureTargetModel::Panel> panels{
             TargetPanel(1, -Eigen::Vector3d::UnitX(),
@@ -183,7 +180,6 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_Paneled_Basic )
                 sourceModel,
                 std::make_shared<basic_astrodynamics::SphericalBodyShapeModel>(1),
                 [] () { return Eigen::Vector3d::Zero(); },
-                [] () { return Eigen::Quaterniond::Identity(); },
                 targetModel,
                 [] () { return Eigen::Vector3d::UnitX(); },
                 [] () { return Eigen::Quaterniond::Identity(); },
@@ -207,7 +203,6 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_Paneled_Basic )
                 sourceModel,
                 std::make_shared<basic_astrodynamics::SphericalBodyShapeModel>(1),
                 [] () { return Eigen::Vector3d::Zero(); },
-                [] () { return Eigen::Quaterniond::Identity(); },
                 targetModel,
                 [] () { return Eigen::Vector3d::UnitX(); },
                 [] () {
@@ -240,7 +235,6 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_Paneled_Basic )
                 sourceModel,
                 std::make_shared<basic_astrodynamics::SphericalBodyShapeModel>(1),
                 [] () { return Eigen::Vector3d::Zero(); },
-                [] () { return Eigen::Quaterniond::Identity(); },
                 targetModel,
                 [] () { return Eigen::Vector3d::UnitX(); },
                 [] () {
