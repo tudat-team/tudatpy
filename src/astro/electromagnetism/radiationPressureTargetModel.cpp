@@ -15,9 +15,19 @@ namespace tudat
 namespace electromagnetism
 {
 
+void RadiationPressureTargetModel::updateMembers(const double currentTime)
+{
+    if(currentTime_ != currentTime)
+    {
+        currentTime_ = currentTime;
+        updateMembers_(currentTime);
+    }
+}
+
 Eigen::Vector3d CannonballRadiationPressureTargetModel::evaluateRadiationPressureForce(double sourceIrradiance,
                                                                                        Eigen::Vector3d sourceToTargetDirection) const
 {
+    // From Montenbruck (2000), Sec. 3.4
     const auto radiationPressure = sourceIrradiance / physical_constants::SPEED_OF_LIGHT;
     const auto forceMagnitude = coefficient_ * area_ * radiationPressure;
     Eigen::Vector3d force = forceMagnitude * sourceToTargetDirection;
@@ -43,15 +53,6 @@ Eigen::Vector3d PaneledRadiationPressureTargetModel::evaluateRadiationPressureFo
         }
     }
     return force;
-}
-
-void RadiationPressureTargetModel::updateMembers(const double currentTime)
-{
-    if(currentTime_ != currentTime)
-    {
-        currentTime_ = currentTime;
-        updateMembers_(currentTime);
-    }
 }
 
 void PaneledRadiationPressureTargetModel::updateMembers_(double currentTime)

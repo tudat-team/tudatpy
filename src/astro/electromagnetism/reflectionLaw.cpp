@@ -33,6 +33,7 @@ double SpecularDiffuseMixReflectionLaw::evaluateReflectedFraction(const Eigen::V
     // Wetterer (2014) Eq. 4
     const auto diffuseReflectance = diffuseReflectivity / mathematical_constants::PI;
 
+    // TODO-DOMINIK only compute if specularReflectivity > 0
     const auto mirrorOfIncomingDirection = computeMirrorlikeReflection(incomingDirection, surfaceNormal);
     if (observerDirection.isApprox(mirrorOfIncomingDirection))
     {

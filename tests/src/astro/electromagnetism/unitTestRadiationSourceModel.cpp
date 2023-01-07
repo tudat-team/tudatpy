@@ -16,7 +16,6 @@
 #include <boost/test/unit_test.hpp>
 
 #include <Eigen/Core>
-#include <Eigen/Geometry>
 
 #include "tudat/basics/testMacros.h"
 #include "tudat/astro/basic_astro/physicalConstants.h"
@@ -46,7 +45,7 @@ BOOST_AUTO_TEST_CASE( testIsotropicPointRadiationSourceModel )
     auto targetPosition = Eigen::Vector3d(physical_constants::ASTRONOMICAL_UNIT, 0, 0);
 
     auto luminosityModel = std::make_shared<IrradianceBasedLuminosityModel>(
-            [=]() { return expectedIrradiance; }, physical_constants::ASTRONOMICAL_UNIT);
+            [=](double) { return expectedIrradiance; }, physical_constants::ASTRONOMICAL_UNIT);
     auto radiationSourceModel = std::make_shared<IsotropicPointRadiationSourceModel>(luminosityModel);
     radiationSourceModel->updateMembers(TUDAT_NAN);
 
