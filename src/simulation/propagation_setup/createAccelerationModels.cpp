@@ -812,18 +812,6 @@ createRadiationPressureAccelerationModel(
             std::dynamic_pointer_cast<electromagnetism::CannonballRadiationPressureTargetModel>(
                     target->getRadiationPressureTargetModel());
 
-    // Get source rotation function
-    std::function<Eigen::Quaterniond()> sourceRotationFromLocalToGlobalFrameFunction;
-    if (isotropicPointRadiationSourceModel != nullptr) {
-        // Isotropic point source is rotation-invariant and can use identity rotation
-        // Enables use of isotropic point source without source body rotation model
-        sourceRotationFromLocalToGlobalFrameFunction = [] () { return Eigen::Quaterniond::Identity(); };
-    }
-    else
-    {
-        sourceRotationFromLocalToGlobalFrameFunction = std::bind( &Body::getCurrentRotationToGlobalFrame, source );
-    }
-
     // Get target rotation function
     std::function<Eigen::Quaterniond()> targetRotationFromLocalToGlobalFrameFunction;
     if (cannonballRadiationPressureTargetModel != nullptr) {
@@ -889,7 +877,6 @@ createRadiationPressureAccelerationModel(
                 isotropicPointRadiationSourceModel,
                 source->getShapeModel(),
                 std::bind( &Body::getPosition, source ),
-                sourceRotationFromLocalToGlobalFrameFunction,
                 target->getRadiationPressureTargetModel(),
                 std::bind( &Body::getPosition, target ),
                 targetRotationFromLocalToGlobalFrameFunction,
@@ -920,7 +907,7 @@ createRadiationPressureAccelerationModel(
         return std::make_shared<PaneledSourceRadiationPressureAcceleration>(
                 paneledRadiationSourceModel,
                 std::bind( &Body::getPosition, source ),
-                sourceRotationFromLocalToGlobalFrameFunction,
+                std::bind( &Body::getCurrentRotationToGlobalFrame, source ),
                 target->getRadiationPressureTargetModel(),
                 std::bind( &Body::getPosition, target ),
                 targetRotationFromLocalToGlobalFrameFunction,

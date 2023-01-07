@@ -28,16 +28,14 @@ void RadiationPressureAcceleration::updateMembers(const double currentTime)
 Eigen::Vector3d IsotropicPointSourceRadiationPressureAcceleration::calculateAcceleration()
 {
     Eigen::Vector3d sourceCenterPositionInGlobalFrame = sourcePositionFunction_(); // position of center of source (e.g. planet)
-    Eigen::Quaterniond sourceRotationFromLocalToGlobalFrame = sourceRotationFromLocalToGlobalFrameFunction_();
-    Eigen::Quaterniond sourceRotationFromGlobalToLocalFrame = sourceRotationFromLocalToGlobalFrame.inverse();
 
     Eigen::Vector3d targetCenterPositionInGlobalFrame = targetPositionFunction_();
     Eigen::Quaterniond targetRotationFromLocalToGlobalFrame = targetRotationFromLocalToGlobalFrameFunction_();
     Eigen::Quaterniond targetRotationFromGlobalToLocalFrame = targetRotationFromLocalToGlobalFrame.inverse();
 
     // Evaluate irradiances at target position in source frame
-    Eigen::Vector3d targetCenterPositionInSourceFrame =
-            sourceRotationFromGlobalToLocalFrame * (targetCenterPositionInGlobalFrame - sourceCenterPositionInGlobalFrame);
+    // No rotation to source frame is necessary because isotropic sources are rotation-invariant
+    Eigen::Vector3d targetCenterPositionInSourceFrame = targetCenterPositionInGlobalFrame - sourceCenterPositionInGlobalFrame;
     auto occultationFactor = occultationModel_->evaluateReceivedFraction(
             sourceCenterPositionInGlobalFrame, sourceBodyShapeModel_, targetCenterPositionInGlobalFrame);
     auto sourceIrradiance = sourceModel_->evaluateIrradianceAtPosition(targetCenterPositionInSourceFrame);
