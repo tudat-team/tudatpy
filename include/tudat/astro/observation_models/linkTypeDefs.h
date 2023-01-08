@@ -11,6 +11,7 @@
 #ifndef TUDAT_LINKTYPEDEFS_H
 #define TUDAT_LINKTYPEDEFS_H
 
+#include <stdexcept>
 #include <map>
 #include <string>
 #include <vector>
@@ -41,14 +42,93 @@ enum LinkEndType
     reflector4 = 4,
     retransmitter4 = reflector4,
     receiver = 5,
-    observed_body = 6
+    observed_body = 6,
+    transmitter2 = 7
 };
 
-//! Typedef for the identifier of a given link-end (body and reference points)
-typedef std::pair< std::string, std::string > LinkEndId;
+////! Typedef for the identifier of a given link-end (body and reference points)
+//typedef std::pair< std::string, std::string > LinkEndId;
 
-//! Typedef for list of link ends, with associated role, used for a single observation (model).
-typedef std::map< LinkEndType, LinkEndId > LinkEnds;
+
+struct LinkEndId
+{
+    LinkEndId( ){ }
+
+    LinkEndId( const std::pair< std::string, std::string >& linkEnd ):
+        bodyName_( linkEnd.first ),
+        stationName_( linkEnd.second ){ }
+
+    LinkEndId( const std::string& bodyName,
+               const std::string& stationName ):
+        bodyName_( bodyName ),
+        stationName_( stationName ){ }
+
+    LinkEndId( const std::string& bodyName ):
+        bodyName_( bodyName ),
+        stationName_( "" ){ }
+
+    std::pair< std::string, std::string > getDualStringLinkEnd( ) const
+    {
+        return std::make_pair( bodyName_, stationName_ );
+    }
+
+    friend bool operator==( const LinkEndId& linkEnd1, const LinkEndId& linkEnd2 )
+    {
+        return ( ( linkEnd1.bodyName_ == linkEnd2.bodyName_ ) && ( linkEnd1.stationName_ == linkEnd2.stationName_ ) );
+    }
+
+    friend bool operator!=( const LinkEndId& linkEnd1, const LinkEndId& linkEnd2 )
+    {
+        return !operator==( linkEnd1, linkEnd2 );
+    }
+
+    friend bool operator< ( const LinkEndId& linkEnd1, const LinkEndId& linkEnd2 )
+    {
+        if( linkEnd1.bodyName_ < linkEnd2.bodyName_ )
+        {
+            return true;
+        }
+        else if( linkEnd1.bodyName_ > linkEnd2.bodyName_ )
+        {
+            return false;
+        }
+        else if( linkEnd1.stationName_ < linkEnd2.stationName_ )
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    std::string bodyName_;
+
+    std::string stationName_;
+
+    std::string getBodyName( )
+    {
+        return bodyName_;
+    }
+
+    std::string getStationName( )
+    {
+        return stationName_;
+    }
+
+};
+
+inline LinkEndId linkEndId( const std::string& bodyName,
+                            const std::string& stationName )
+{
+    return  LinkEndId( bodyName, stationName );
+}
+
+inline LinkEndId linkEndId( const std::string& bodyName )
+{
+    return LinkEndId( bodyName );
+}
+
 
 //! Function to get a string identifier for a link end type
 /*!
@@ -57,6 +137,93 @@ typedef std::map< LinkEndType, LinkEndId > LinkEnds;
  * \return String identifier for a link end type
  */
 std::string getLinkEndTypeString( const LinkEndType linkEndType );
+
+//! Typedef for list of link ends, with associated role, used for a single observation (model).
+typedef std::map< LinkEndType, LinkEndId > LinkEnds;
+
+struct LinkDefinition
+{
+    LinkDefinition( ){ }
+
+    LinkDefinition( const std::map< LinkEndType, LinkEndId >& linkEnds ):
+        linkEnds_( linkEnds ){ }
+
+    LinkDefinition( const std::map< LinkEndType, std::pair< std::string, std::string > >& linkEnds )
+    {
+        for( auto it : linkEnds )
+        {
+            linkEnds_[ it.first ] = LinkEndId( it.second );
+        }
+    }
+
+    LinkEndId at( const LinkEndType linkEndType ) const
+    {
+        if( linkEnds_.count( linkEndType ) == 0 )
+        {
+            throw std::runtime_error( "Error when extracing link end, requested link end type " +
+                                      getLinkEndTypeString( linkEndType ) +
+                                      " not found" );
+        }
+        return linkEnds_.at( linkEndType );
+    }
+
+    LinkEndId &operator[](LinkEndType linkEndType)
+    {
+        return linkEnds_[ linkEndType ];
+    }
+
+    std::map< LinkEndType, LinkEndId > linkEnds_;
+
+    unsigned int size( ) const { return linkEnds_.size( ); }
+
+    friend bool operator==( const LinkDefinition& linkEnds1, const LinkDefinition& linkEnds2 )
+    {
+        bool isEqual = true;
+        std::map< LinkEndType, LinkEndId > firstLinkEnds = linkEnds1.linkEnds_;
+        std::map< LinkEndType, LinkEndId > secondLinkEnds = linkEnds2.linkEnds_;
+
+        std::map< LinkEndType, LinkEndId >::iterator firstLinkEndIterator = firstLinkEnds.begin( );
+        std::map< LinkEndType, LinkEndId >::iterator secondLinkEndIterator = secondLinkEnds.begin( );
+
+        if( firstLinkEnds.size( ) == secondLinkEnds.size( ) )
+        {
+            for( unsigned int i = 0; i < firstLinkEnds.size( ); i++ )
+            {
+                if( ( firstLinkEndIterator->first != secondLinkEndIterator->first ) ||
+                        ( firstLinkEndIterator->second != secondLinkEndIterator->second ) )
+                {
+                    isEqual = false;
+                    break;
+                }
+
+                firstLinkEndIterator++;
+                secondLinkEndIterator++;
+            }
+        }
+        else
+        {
+            isEqual = false;
+        }
+
+        return isEqual;
+    }
+
+//    friend bool operator< ( const LinkEnds& linkEnds1, const LinkEnds& linkEnds2 )
+//    {
+//        return linkEnds1.linkEnds_ < linkEnds2.linkEnds_;
+//    }
+
+    friend bool operator!=( const LinkEnds& linkEnds1, const LinkEnds& linkEnds2 )
+    {
+        return !operator==( linkEnds1, linkEnds2 );
+    }
+
+};
+
+inline LinkDefinition linkDefinition( const std::map< LinkEndType, LinkEndId >& linkEnds )
+{
+    return LinkDefinition( linkEnds );
+}
 
 //! Function to get a string identifier for a set of link ends
 /*!
@@ -88,11 +255,11 @@ LinkEndType getNWayLinkEnumFromIndex( const int linkEndIndex, const int numberOf
 //! Function to get the list of indices in link-end list for n-way observables that match a given link end id.
 /*!
  * Function to get the list of indices in link-end list for n-way observables that match a given link end id.
- * \param linkEndid Link end id for which the link-end indices in linkEnds are to be determined
+ * \param linkEndId Link end id for which the link-end indices in linkEnds are to be determined
  * \param linkEnds N-way link ends
- * \return List of indices (transmitter = 0, receiver = linkEnds.size( ) - 1 ) at which linkEndid occurs in linkEnds.
+ * \return List of indices (transmitter = 0, receiver = linkEnds.size( ) - 1 ) at which linkEndId occurs in linkEnds.
  */
-std::vector< int > getNWayLinkEndIndicesFromLinkEndId( const LinkEndId& linkEndid, const LinkEnds& linkEnds );
+std::vector< int > getNWayLinkEndIndicesFromLinkEndId( const LinkEndId& linkEndId, const LinkEnds& linkEnds );
 
 //! Function to get the list of indices in link-end list for n-way observables that match a list of link-end types.
 /*!
@@ -106,21 +273,31 @@ std::vector< int > getNWayLinkEndIndicesFromLinkEndId( const std::vector< LinkEn
 //! Function to get the list of link end types in link-end list for n-way observables that match a given link end id.
 /*!
  * Function to get the list of link end types in link-end list for n-way observables that match a given link end id.
- * \param linkEndid Link end id for which the link-end indices in linkEnds are to be determined
+ * \param linkEndId Link end id for which the link-end indices in linkEnds are to be determined
  * \param linkEnds N-way link ends
- * \return List of link end type at which linkEndid occurs in linkEnds.
+ * \return List of link end type at which linkEndId occurs in linkEnds.
  */
-std::vector< LinkEndType > getNWayLinkIndicesFromLinkEndId( const LinkEndId& linkEndid, const LinkEnds& linkEnds );
+std::vector< LinkEndType > getNWayLinkIndicesFromLinkEndId( const LinkEndId& linkEndId, const LinkEnds& linkEnds );
 
 LinkEnds mergeUpDownLink( const LinkEnds& uplink, const LinkEnds& downlink );
 
+LinkDefinition mergeUpDownLink( const LinkDefinition& uplink, const LinkDefinition& downlink );
+
 LinkEnds mergeOneWayLinkEnds( const std::vector< LinkEnds >& linkEnds );
+
+LinkDefinition mergeOneWayLinkEnds( const std::vector< LinkDefinition >& linkEnds );
 
 LinkEnds getUplinkFromTwoWayLinkEnds(
         const LinkEnds& twoWayLinkEnds );
 
+LinkDefinition getUplinkFromTwoWayLinkEnds(
+        const LinkDefinition& twoWayLinkEnds );
+
 LinkEnds getDownlinkFromTwoWayLinkEnds(
         const LinkEnds& twoWayLinkEnds );
+
+LinkDefinition getDownlinkFromTwoWayLinkEnds(
+        const LinkDefinition& twoWayLinkEnds );
 
 LinkEnds getSingleLegLinkEnds(
         const LinkEnds& nWayLinkEnds, const unsigned int legIndex );

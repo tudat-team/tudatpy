@@ -59,11 +59,14 @@ public:
             const StateFunction positionOfBodySubjectToAccelerationFunction,
             const double aGravitationalParameter,
             const StateFunction positionOfBodyExertingAccelerationFunction,
-            const bool isMutualAttractionUsed )
+            const bool isMutualAttractionUsed,
+            const bool updateGravitationalPotential = false )
         : subjectPositionFunction( positionOfBodySubjectToAccelerationFunction ),
           gravitationalParameterFunction( [ = ]( ){ return aGravitationalParameter; } ),
           sourcePositionFunction( positionOfBodyExertingAccelerationFunction ),
-          isMutualAttractionUsed_( isMutualAttractionUsed )
+          isMutualAttractionUsed_( isMutualAttractionUsed ),
+          currentPotential_( TUDAT_NAN ),
+          updatePotential_( updateGravitationalPotential )
     { }
 
     //! Default constructor taking position of body subject to acceleration, variable
@@ -89,11 +92,14 @@ public:
             const StateFunction positionOfBodySubjectToAccelerationFunction,
             const std::function< double( ) > aGravitationalParameterFunction,
             const StateFunction positionOfBodyExertingAccelerationFunction,
-            const bool isMutualAttractionUsed )
+            const bool isMutualAttractionUsed,
+            const bool updateGravitationalPotential = false )
         : subjectPositionFunction( positionOfBodySubjectToAccelerationFunction ),
           gravitationalParameterFunction( aGravitationalParameterFunction ),
           sourcePositionFunction( positionOfBodyExertingAccelerationFunction ),
-          isMutualAttractionUsed_( isMutualAttractionUsed )
+          isMutualAttractionUsed_( isMutualAttractionUsed ),
+          currentPotential_( TUDAT_NAN ),
+          updatePotential_( updateGravitationalPotential )
     { }
 
     //! Virtual destructor.
@@ -181,6 +187,18 @@ public:
         return positionOfBodyExertingAcceleration;
     }
 
+    //! Function to return the value of the current gravitational potential.
+    double getCurrentPotential ( )
+    { return currentPotential_; }
+
+    //! Function to return the update potential flag.
+    bool getUpdatePotential ( )
+    { return updatePotential_; }
+
+    //! Function to reset the update potential flag.
+    void resetUpdatePotential ( bool updatePotential )
+    { updatePotential_ = updatePotential; }
+
 
 protected:
 
@@ -230,6 +248,13 @@ protected:
      * if the variable is true.
      */
     bool isMutualAttractionUsed_;
+
+    //! Current gravitational potential acting on the body undergoing acceleration, as computed by last call to
+    //! updateMembers function
+    double currentPotential_;
+
+    //! Flag indicating whether to update the gravitational potential when calling the updateMembers function.
+    bool updatePotential_;
 
 
 private:

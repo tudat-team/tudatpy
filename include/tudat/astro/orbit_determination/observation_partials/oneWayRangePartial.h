@@ -34,9 +34,11 @@ namespace observation_partials
  *  Derived class for scaling three-dimensional position partial to one-way range observable partial. Implementation is taken
  *  from Moyer(2000) and is separately implemented for fixed receiver and transmitter.
  */
-class OneWayRangeScaling: public PositionPartialScaling
+class OneWayRangeScaling: public DirectPositionPartialScaling< 1 >
 {
 public:
+
+    OneWayRangeScaling( ): DirectPositionPartialScaling< 1 >( observation_models::one_way_range ){ }
 
     //! Destructor
     ~OneWayRangeScaling( ){ }
@@ -62,7 +64,7 @@ public:
      * \param linkEndType Link end for which scaling factor is to be returned
      * \return Position partial scaling factor at current link end
      */
-    Eigen::Matrix< double, 1, 3 > getScalingFactor( const observation_models::LinkEndType linkEndType )
+    Eigen::Matrix< double, 1, 3 > getPositionScalingFactor( const observation_models::LinkEndType linkEndType )
     {
         return referenceScalingFactor_ * ( ( linkEndType == observation_models::transmitter ) ? ( -1.0 ) : ( 1.0 ) );
     }
@@ -72,9 +74,9 @@ public:
      * Function to retrieve the factor by which the light-time partials should be scaled in one-way observation partial.
      * \return Factor by which the light-time partials should be scaled in one-way observation partial.
      */
-    double getLightTimePartialScalingFactor( )
+    Eigen::Vector1d getLightTimePartialScalingFactor( )
     {
-       return referenceLightTimeCorrectionScaling_;
+       return ( Eigen::Vector1d( ) << referenceLightTimeCorrectionScaling_ ).finished( );
     }
 
     //! Function to get the fixed link end for last computation of update() function.
@@ -97,116 +99,6 @@ private:
 
     //! Fixed link end for last computation of update() function.
     observation_models::LinkEndType currentLinkEndType_;
-
-};
-
-//! Class to compute the partial derivatives of a one-way range observation partial.
-class OneWayRangePartial: public ObservationPartial< 1 >
-{
-
-public:
-
-    typedef std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > OneWayRangePartialReturnType;
-    typedef std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > SingleOneWayRangePartialReturnType;
-
-    //! Constructor
-    /*!
-     * Constructor
-     * \param oneWayRangeScaler Scaling object used for mapping partials of positions to partials of observable
-     * \param positionPartialList List of position partials per link end.
-     * \param parameterIdentifier Id of parameter for which instance of class computes partial derivatives.
-     * \param lighTimeCorrectionPartials List if light-time correction partial objects.
-     */
-    OneWayRangePartial(
-            const std::shared_ptr< OneWayRangeScaling > oneWayRangeScaler,
-            const std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > >& positionPartialList,
-            const estimatable_parameters::EstimatebleParameterIdentifier parameterIdentifier,
-            const std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > >&
-            lighTimeCorrectionPartials =
-            std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > >( ) ):
-        ObservationPartial< 1 >( parameterIdentifier ), oneWayRangeScaler_( oneWayRangeScaler ),
-        positionPartialList_( positionPartialList )
-    {
-        std::pair< std::function< SingleOneWayRangePartialReturnType(
-                    const std::vector< Eigen::Vector6d >&, const std::vector< double >& ) >,
-                bool > lightTimeCorrectionPartial;
-
-        // Create light time correction partial functions
-        for( unsigned int i = 0; i < lighTimeCorrectionPartials.size( ); i++ )
-        {
-            lightTimeCorrectionPartial = getLightTimeParameterPartialFunction(
-                        parameterIdentifier, lighTimeCorrectionPartials.at( i ) );
-            if( lightTimeCorrectionPartial.second != 0 )
-            {
-                lighTimeCorrectionPartialsFunctions_.push_back( lightTimeCorrectionPartial.first );
-            }
-        }
-    }
-\
-    //! Destructor.
-    ~OneWayRangePartial( ) { }
-
-    //! Function to calculate the observation partial(s) at required time and state
-    /*!
-     *  Function to calculate the observation partial(s) at required time and state. State and time
-     *  are typically obtained from evaluation of observation model.
-     *  \param states Link end states. Index maps to link end for a given ObsevableType through getLinkEndIndex function.
-     *  \param times Link end time.
-     *  \param linkEndOfFixedTime Link end that is kept fixed when computing the observable.
-     *  \param currentObservation Value of the observation for which the partial is to be computed (default NaN for
-     *  compatibility purposes)
-     *  \return Vector of pairs containing partial values and associated times.
-     */
-    virtual OneWayRangePartialReturnType calculatePartial(
-            const std::vector< Eigen::Vector6d >& states,
-            const std::vector< double >& times,
-            const observation_models::LinkEndType linkEndOfFixedTime,
-            const Eigen::Vector1d& currentObservation = Eigen::Vector1d::Constant( TUDAT_NAN ) );
-
-    //! Function to get scaling object used for mapping partials of positions to partials of observable
-    /*!
-     * Function to get scaling object used for mapping partials of positions to partials of observable
-     * \return
-     */
-    std::shared_ptr< OneWayRangeScaling > getOneWayRangeScaler( )
-    {
-        return oneWayRangeScaler_;
-    }
-
-    //! Function to get the number of light-time correction partial functions.
-    /*!
-     * Number of light-time correction partial functions.
-     * \return Number of light-time correction partial functions.
-     */
-    int getNumberOfLighTimeCorrectionPartialsFunctions( )
-    {
-        return lighTimeCorrectionPartialsFunctions_.size( );
-    }
-
-protected:
-
-    //! Scaling object used for mapping partials of positions to partials of observable
-    std::shared_ptr< OneWayRangeScaling > oneWayRangeScaler_;
-
-    //! List of position partials per link end.
-    std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > > positionPartialList_;
-
-    //! Iterator over list of position partials per link end.
-    std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > >::iterator positionPartialIterator_;
-
-    //! List of light-time correction partial functions.
-    std::vector< std::function< SingleOneWayRangePartialReturnType(
-            const std::vector< Eigen::Vector6d >&, const std::vector< double >& ) > >
-    lighTimeCorrectionPartialsFunctions_;
-
-    //! List of light-time correction partial objects.
-    std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > > lighTimeCorrectionPartials_;
-
-    //! Pre-declared state variable to be used in calculatePartial function.
-    Eigen::Vector6d currentState_;
-
-    //! Pre-declared time variable to be used in calculatePartial function.
-    double currentTime_;
 
 };
 

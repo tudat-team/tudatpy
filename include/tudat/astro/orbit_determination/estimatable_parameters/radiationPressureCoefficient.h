@@ -11,9 +11,9 @@
 #ifndef TUDAT_RADIATIONPRESSURECOEFFICIENT_H
 #define TUDAT_RADIATIONPRESSURECOEFFICIENT_H
 
-#include <boost/make_shared.hpp>
-#include <boost/bind/bind.hpp>
-using namespace boost::placeholders;
+
+
+
 
 
 #include <Eigen/Core>

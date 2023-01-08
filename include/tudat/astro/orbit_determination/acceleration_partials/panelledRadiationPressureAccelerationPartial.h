@@ -1,7 +1,7 @@
 #ifndef TUDAT_PANELLEDRADIATIONPRESSUREACCELERATIONPARTIAL_H
 #define TUDAT_PANELLEDRADIATIONPRESSUREACCELERATIONPARTIAL_H
 
-#include <boost/shared_ptr.hpp>
+
 
 #include "tudat/astro/orbit_determination/acceleration_partials/accelerationPartial.h"
 #include "tudat/astro/electromagnetism/panelledRadiationPressure.h"

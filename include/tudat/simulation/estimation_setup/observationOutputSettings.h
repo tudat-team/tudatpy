@@ -76,7 +76,7 @@ public:
 
     std::string getIdentifier( )
     {
-        std::string identifier = "Station: (" + relevantLinkEnd_.first + ", " + relevantLinkEnd_.second + ")";
+        std::string identifier = "Station: (" + relevantLinkEnd_.bodyName_ + ", " + relevantLinkEnd_.stationName_ + ")";
         if( linkEndRole_ != observation_models::unidentified_link_end )
         {
             throw std::runtime_error( "Error, StationAngleObservationDependentVariableSettings ID not yet implemented for link end roles" );

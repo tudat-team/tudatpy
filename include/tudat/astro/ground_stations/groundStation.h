@@ -55,7 +55,7 @@ public:
     Eigen::Matrix< StateScalarType, 6, 1 > getStateInPlanetFixedFrame( const TimeType& time )
     {
         return ( nominalStationState_->getCartesianStateInTime(
-                     static_cast< double >( time ), basic_astrodynamics::JULIAN_DAY_ON_J2000  ) ).
+                     static_cast< double >( time ) ) ).
                 template cast< StateScalarType >( );
     }
 

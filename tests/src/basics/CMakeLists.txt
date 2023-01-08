@@ -8,8 +8,6 @@
 #    http://tudat.tudelft.nl/LICENSE.
 #
 
-if(TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS)
 TUDAT_ADD_TEST_CASE(TimeTypes)
-endif()
 
 TUDAT_ADD_TEST_CASE(TudatTypeTraits PRIVATE_LINKS tudat_basics)

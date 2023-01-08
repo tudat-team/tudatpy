@@ -39,10 +39,6 @@ public:
      *  Constructor,
      *  \param lightTimeCalculators List of objects to compute the light-times (including any corrections w.r.t. Euclidean case)
      *  for each leg of the n-way range. First entry starts at transmitter; last entry is to receiver.
-     *  \param retransmissionDelays Function that returns the list of retransmission delays as a function of observation time.
-     *  The retransmission delays represent the time difference between the reception of a singal by an intermediate link end,
-     *  and the retransmission to the subsequent link end. By default, this function is empty, in which case no retransmission
-     *  delays are used.
      *  \param observationBiasCalculator Object for calculating (system-dependent) errors in the
      *  observable, i.e. deviations from the physically ideal observable between reference points (default none).
      */
@@ -50,11 +46,9 @@ public:
             const LinkEnds& linkEnds,
             const std::vector< std::shared_ptr< observation_models::LightTimeCalculator
             < ObservationScalarType, TimeType > > > lightTimeCalculators,
-            const std::function< std::vector< double >( const double ) > retransmissionDelays =
-            std::function< std::vector< double >( const double ) >( ),
             const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr ):
         ObservationModel< 1, ObservationScalarType, TimeType >( n_way_range, linkEnds, observationBiasCalculator ),
-        lightTimeCalculators_( lightTimeCalculators ), retransmissionDelays_( retransmissionDelays )
+        lightTimeCalculators_( lightTimeCalculators )
     {
         numberOfLinks_ = lightTimeCalculators_.size( );
         numberOfLinkEnds_ = numberOfLinks_ + 1;
@@ -85,8 +79,10 @@ public:
             const TimeType time,
             const LinkEndType linkEndAssociatedWithTime,
             std::vector< double >& linkEndTimes,
-            std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates )
+            std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
+            const std::shared_ptr< ObservationAncilliarySimulationSettings< TimeType > > ancilliarySetings = nullptr  )
     {
+
         // Initialize total light-time/single-leg light-time
         ObservationScalarType totalLightTime =
                 mathematical_constants::getFloatingInteger< ObservationScalarType >( 0 );
@@ -99,16 +95,12 @@ public:
         linkEndTimes.resize( 2 * ( numberOfLinkEnds_ - 1 ) );
         linkEndStates.resize( 2 * ( numberOfLinkEnds_ - 1 ) );
 
-        // Retrieve retransmission delays
-        if( !( retransmissionDelays_ == nullptr ) )
+        currentRetransmissionDelays_.clear( );
+        if( ancilliarySetings != nullptr )
         {
-            currentRetransmissionDelays_ = retransmissionDelays_( time );
-            if( currentRetransmissionDelays_.size( ) != static_cast< unsigned int >( numberOfLinkEnds_ - 2 ) )
-            {
-                throw std::runtime_error( "Error when calculating n-way range, retransmission delay vector size is inconsistent" );
-            }
+            currentRetransmissionDelays_ = ancilliarySetings->getAncilliaryDoubleVectorData( retransmission_delays, false );
         }
-        else
+        if( currentRetransmissionDelays_.size( ) == 0 )
         {
             for( int i = 0; i < numberOfLinkEnds_; i++ )
             {
@@ -203,14 +195,14 @@ private:
     std::vector< std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > >
     lightTimeCalculators_;
 
-    //!  Function that returns the list of retransmission delays as a function of observation time.
-    /*!
-     *  Function that returns the list of retransmission delays as a function of observation time.
-     *  The retransmission delays represent the time difference between the reception of a singal by an intermediate link end,
-     *  and the retransmission to the subsequent link end. By default, this function is empty, in which case no retransmission
-     *  delays are used.
-     */
-    std::function< std::vector< double >( const double ) > retransmissionDelays_;
+//    //!  Function that returns the list of retransmission delays as a function of observation time.
+//    /*!
+//     *  Function that returns the list of retransmission delays as a function of observation time.
+//     *  The retransmission delays represent the time difference between the reception of a singal by an intermediate link end,
+//     *  and the retransmission to the subsequent link end. By default, this function is empty, in which case no retransmission
+//     *  delays are used.
+//     */
+//    std::function< std::vector< double >( const double ) > retransmissionDelays_;
 
     //! List of retransmission delays, as computed by last call to computeIdealObservationsWithLinkEndData.
     std::vector< double > currentRetransmissionDelays_;

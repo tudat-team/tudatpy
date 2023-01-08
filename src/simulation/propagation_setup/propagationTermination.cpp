@@ -73,7 +73,6 @@ bool HybridPropagationTerminationCondition::checkStopCondition( const double tim
                 stopIndex = i;
                 stopPropagation = true;
                 isConditionMetWhenStopping_[ i ] = true;
-                break;
             }
             else
             {
@@ -111,6 +110,22 @@ bool HybridPropagationTerminationCondition::checkStopCondition( const double tim
     }
 
     return stopPropagation;
+}
+
+bool HybridPropagationTerminationCondition::iterateToExactTermination( )
+{
+    bool iterateToExactCondition = 0;
+    if( checkTerminationToExactCondition_ )
+    {
+        for( unsigned int i = 0; i < propagationTerminationCondition_.size( ); i++ )
+        {
+            if( isConditionMetWhenStopping_.at( i ) && propagationTerminationCondition_.at( i )->getcheckTerminationToExactCondition( ) )
+            {
+                iterateToExactCondition = true;
+            }
+        }
+    }
+    return iterateToExactCondition;
 }
 
 } // namespace propagators

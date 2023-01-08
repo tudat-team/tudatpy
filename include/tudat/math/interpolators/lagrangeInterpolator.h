@@ -17,7 +17,7 @@
 
 #include <iostream>
 
-#include <boost/make_shared.hpp>
+
 
 #include "tudat/math/basic/mathematicalConstants.h"
 
@@ -49,7 +49,7 @@ enum LagrangeInterpolatorBoundaryHandling
  *  mathematical details.
  */
 template< typename IndependentVariableType, typename DependentVariableType,
-          typename ScalarType = IndependentVariableType >
+          typename ScalarType = typename scalar_type< IndependentVariableType >::value_type >
 class LagrangeInterpolator : public OneDimensionalInterpolator< IndependentVariableType,
         DependentVariableType >
 {
@@ -508,20 +508,6 @@ private:
 extern template class LagrangeInterpolator< double, Eigen::VectorXd >;
 extern template class LagrangeInterpolator< double, Eigen::Vector6d >;
 extern template class LagrangeInterpolator< double, Eigen::MatrixXd >;
-
-#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
-extern template class LagrangeInterpolator< Time, Eigen::VectorXd, long double >;
-extern template class LagrangeInterpolator< Time, Eigen::Vector6d, long double >;
-extern template class LagrangeInterpolator< Time, Eigen::MatrixXd, long double >;
-
-extern template class LagrangeInterpolator< double, Eigen::Matrix< long double, Eigen::Dynamic, 1 > >;
-extern template class LagrangeInterpolator< double, Eigen::Matrix< long double, Eigen::Dynamic, 6 > >;
-extern template class LagrangeInterpolator< double, Eigen::Matrix< long double, Eigen::Dynamic,  Eigen::Dynamic > >;
-
-extern template class LagrangeInterpolator< Time, Eigen::Matrix< long double, Eigen::Dynamic, 1 >, long double >;
-extern template class LagrangeInterpolator< Time, Eigen::Matrix< long double, Eigen::Dynamic, 6 >, long double >;
-extern template class LagrangeInterpolator< Time, Eigen::Matrix< long double, Eigen::Dynamic,  Eigen::Dynamic >, long double >;
-#endif
 
 //! Typedef for LagrangeInterpolator with double as both its dependent and independent data type.
 typedef LagrangeInterpolator< double, double > LagrangeInterpolatorDouble;

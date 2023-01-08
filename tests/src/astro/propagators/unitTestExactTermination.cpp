@@ -15,7 +15,7 @@
 #include <string>
 #include <thread>
 
-#include <boost/make_shared.hpp>
+
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/astro/basic_astro/unitConversions.h"
@@ -224,7 +224,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
                 std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
                         std::make_shared< TranslationalStatePropagatorSettings< double > >
                         ( centralBodies, accelerationModelMap, bodiesToPropagate, vehicleInitialState, terminationSettings, cowell,
-                          std::make_shared< DependentVariableSaveSettings >( dependentVariables ) );
+                          dependentVariables );
 
                 // Define integrator settings.
                 const double fixedStepSize = 5.0;

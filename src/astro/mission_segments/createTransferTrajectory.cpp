@@ -1065,13 +1065,13 @@ void printTransferParameterDefinition(
             if ( useForwardGravityAssistParameters )
             {
                 currentNodeIds.push_back( "Swingby periapsis" );
-                currentNodeIds.push_back( "Swingby orbit-orientation rotation (with respect to swingby incoming velocity)" );
+                currentNodeIds.push_back( "Swingby orbital plane angle (with respect to the incoming velocity and node velocity)" );
                 currentNodeIds.push_back( "Swingby Delta V" );
             }
             else if ( useBackwardGravityAssistParameters )
             {
                 currentNodeIds.push_back( "Swingby periapsis" );
-                currentNodeIds.push_back( "Swingby orbit-orientation rotation (with respect to swingby outgoing velocity)" );
+                currentNodeIds.push_back( "Swingby orbital plane angle (with respect to the outgoing velocity and node velocity)" );
                 currentNodeIds.push_back( "Swingby Delta V" );
             }
 

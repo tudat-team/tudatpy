@@ -13,7 +13,7 @@
 #define TUDAT_LOOK_UP_SCHEME_H
 
 #include <vector>
-
+#include <iostream>
 #include <memory>
 
 #include "tudat/math/basic/nearestNeighbourSearch.h"
@@ -151,6 +151,7 @@ public:
                  ( previousNearestLowerIndex_, valueToLookup, independentVariableValues_ ) )
             {
                 newNearestLowerIndex = previousNearestLowerIndex_;
+
             }
 
             // Otherwise, perform hunting algorithm.
@@ -160,6 +161,7 @@ public:
                         basic_mathematics::findNearestLeftNeighbourUsingHuntingAlgorithm<
                         IndependentVariableType >
                         (  valueToLookup, previousNearestLowerIndex_, independentVariableValues_ );
+
             }
         }
 

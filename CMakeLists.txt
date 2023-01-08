@@ -79,9 +79,12 @@ option(TUDAT_BUILD_WITH_NRLMSISE00 "Build with nrlmsise-00 atmosphere model." OF
 
 # Build pagmo-dependent code
 option(TUDAT_BUILD_WITH_PAGMO "Build Tudat with pagmo." OFF)
-
-# Build extended precision propagation tools.
-option(TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS "Build tudat with extended precision propagation tools." OFF)
+if(CMAKE_CXX_SIMULATE_ID MATCHES "MSVC")
+    # Build extended precision propagation tools.
+    option(TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS "Build tudat with extended precision propagation tools." OFF)
+else()
+    option(TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS "Build tudat with extended precision propagation tools." OFF)
+endif()
 
 message(STATUS "******************** BUILD CONFIGURATION ********************")
 message(STATUS "TUDAT_BUILD_TESTS                                     ${TUDAT_BUILD_TESTS}")
@@ -344,7 +347,7 @@ add_subdirectory(src/simulation)
 add_subdirectory(src/io)
 add_subdirectory(src/utils)
 add_subdirectory(examples)
-add_subdirectory(apps)
+add_subdirectory(applications)
 
 
 if (TUDAT_BUILD_TESTS)
@@ -450,4 +453,3 @@ unset(RELATIVE_INSTALL_DATA_DIR)
 unset(RELATIVE_INSTALL_MAN_DIR)
 unset(RELATIVE_INSTALL_TESTS_DIR)
 unset(RELATIVE_INSTALL_CMAKE_DIR)
-

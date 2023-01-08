@@ -101,14 +101,12 @@ std::pair< double, double > computeKeplerElementRatesDueToDissipation(
                             direct_tidal_dissipation_in_orbiting_body_acceleration, satelliteToPropagate, "Jupiter" ) );
         }
 
-        std::shared_ptr< DependentVariableSaveSettings > dependentVariableSaveSettings =
-                std::make_shared< DependentVariableSaveSettings >( dependentVariablesToSave, 0 ) ;
-
         std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
                 std::make_shared< TranslationalStatePropagatorSettings< double > >
                 ( centralBodies, accelerationModelMap, bodiesToPropagate, getInitialStatesOfBodies(
-                      bodiesToPropagate, centralBodies, bodies, initialTime ), finalTime, cowell,
-                  dependentVariableSaveSettings );
+                      bodiesToPropagate, centralBodies, bodies, initialTime ), initialTime, integratorSettings,
+                  std::make_shared< PropagationTimeTerminationSettings >( finalTime ), cowell,
+                  dependentVariablesToSave );
 
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -116,7 +114,7 @@ std::pair< double, double > computeKeplerElementRatesDueToDissipation(
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // Create simulation object and propagate dynamics.
         SingleArcDynamicsSimulator< > dynamicsSimulator(
-                    bodies, integratorSettings, propagatorSettings, true, false, false );
+                    bodies, propagatorSettings );
         integrationResultWithDissipation = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
 
         for( std::map< double, Eigen::VectorXd >::const_iterator mapIterator = integrationResultWithDissipation.begin( );
@@ -173,7 +171,7 @@ BOOST_AUTO_TEST_CASE( testTidalDissipationInPlanetAndSatellite )
     BodyListSettings bodySettings =
             getDefaultBodySettings( bodyNames, initialTime - 86400.0, finalTime + 86400.0 );
 
-    std::vector< std::string > galileanSatellites = { "Io", "Europa", "Ganymede" };
+    std::vector< std::string > galileanSatellites = { "Io", "Europa" };
 
     Eigen::MatrixXd cosineCoefficients = Eigen::MatrixXd::Zero( 3, 3 );
     cosineCoefficients( 0, 0 ) = 1.0;

@@ -41,7 +41,8 @@ namespace interpolators
  * This class is used to perform linear interpolation in a single dimension from a set of
  * data in independent and dependent variables.
  */
-template< typename IndependentVariableType, typename DependentVariableType >
+template< typename IndependentVariableType, typename DependentVariableType,
+          typename ScalarType = typename scalar_type< IndependentVariableType >::value_type  >
 class LinearInterpolator
         : public OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >
 {
@@ -233,7 +234,7 @@ public:
         // Perform linear interpolation.
         interpolatedValue = dependentValues_[ newNearestLowerIndex ] +
                 ( independentVariableValue - independentValues_[ newNearestLowerIndex ] ) /
-                ( independentValues_[ newNearestLowerIndex + 1 ] -
+                static_cast< ScalarType >( independentValues_[ newNearestLowerIndex + 1 ] -
                 independentValues_[ newNearestLowerIndex ] ) *
                 ( dependentValues_[ newNearestLowerIndex + 1 ] -
                 dependentValues_[ newNearestLowerIndex ] );
@@ -250,11 +251,6 @@ extern template class LinearInterpolator< double, Eigen::VectorXd >;
 extern template class LinearInterpolator< double, Eigen::Vector6d >;
 extern template class LinearInterpolator< double, Eigen::MatrixXd >;
 
-#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
-extern template class LinearInterpolator< double, Eigen::Matrix< long double, Eigen::Dynamic, 1 > >;
-extern template class LinearInterpolator< double, Eigen::Matrix< long double, Eigen::Dynamic, 6 > >;
-extern template class LinearInterpolator< double, Eigen::Matrix< long double, Eigen::Dynamic,  Eigen::Dynamic > >;
-#endif
 
 //! Typedef for linear interpolator with (in)dependent variable = double.
 typedef LinearInterpolator< double, double > LinearInterpolatorDouble;

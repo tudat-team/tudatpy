@@ -12,7 +12,7 @@
 #define TUDAT_TIMEDEPENDENTSPHERICALHARMONICSGRAVITYFIELD_H
 
 #include <functional>
-#include <boost/make_shared.hpp>
+
 
 #include <vector>
 

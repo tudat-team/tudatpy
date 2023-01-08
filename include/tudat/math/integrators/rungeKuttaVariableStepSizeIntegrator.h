@@ -16,8 +16,8 @@
 #ifndef TUDAT_RUNGE_KUTTA_VARIABLE_STEP_SIZE_INTEGRATOR_H
 #define TUDAT_RUNGE_KUTTA_VARIABLE_STEP_SIZE_INTEGRATOR_H
 
-#include <boost/bind/bind.hpp>
-using namespace boost::placeholders;
+
+
 
 #include <functional>
 #include <memory>
@@ -747,6 +747,8 @@ public:
         std::runtime_error( "Minimum step size exceeded." ),
         minimumStepSize( minimumStepSize_ ), requestedStepSize( requestedStepSize_ )
     { }
+
+    ~MinimumStepSizeExceededError( ){ }
 
     //! The minimum step size allowed by the integrator.
     /*!

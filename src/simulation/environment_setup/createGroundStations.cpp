@@ -31,15 +31,98 @@ void createGroundStation(
                                 groundStationState, pointingAnglesCalculator, groundStationName ) );
 }
 
+std::shared_ptr< ground_stations::StationMotionModel > createGroundStationMotionModels(
+        const std::shared_ptr< Body > body,
+        const std::vector< std::shared_ptr< GroundStationMotionSettings > > stationMotionSettings =
+        std::vector< std::shared_ptr< GroundStationMotionSettings > >( ) )
+{
+    std::shared_ptr< ground_stations::StationMotionModel > bodyDeformationMotionModel =
+            std::make_shared< ground_stations::BodyDeformationStationMotionModel >(
+                std::bind( &Body::getBodyDeformationModelsReference, body ) );
+
+    if( stationMotionSettings.size( ) == 0 )
+    {
+        return bodyDeformationMotionModel;
+    }
+    else
+    {
+        std::vector< std::shared_ptr< ground_stations::StationMotionModel > > stationMotionModelList;
+        stationMotionModelList.push_back( bodyDeformationMotionModel );
+
+        for( unsigned int i = 0; i < stationMotionSettings.size( ); i++ )
+        {
+            std::shared_ptr< ground_stations::StationMotionModel > currentStationMotionModel;
+            switch( stationMotionSettings.at( i )->getModelType( ) )
+            {
+            case linear_station_motion:
+            {
+                std::shared_ptr< LinearGroundStationMotionSettings > linearStationMotionSettings =
+                        std::dynamic_pointer_cast< LinearGroundStationMotionSettings >( stationMotionSettings.at( i ) );
+                if( linearStationMotionSettings == nullptr )
+                {
+                    throw std::runtime_error( "Error when making linear ground station motion model, settings type is incompatible" );
+                }
+                currentStationMotionModel = std::make_shared< ground_stations::LinearStationMotionModel >(
+                            linearStationMotionSettings->linearVelocity_, linearStationMotionSettings->referenceEpoch_ );
+                break;
+            }
+            case piecewise_constant_station_motion:
+            {
+                std::shared_ptr< PiecewiseConstantGroundStationMotionSettings > piecewiseConstantStationMotionSettings =
+                        std::dynamic_pointer_cast< PiecewiseConstantGroundStationMotionSettings >( stationMotionSettings.at( i ) );
+                if( piecewiseConstantStationMotionSettings == nullptr )
+                {
+                    throw std::runtime_error( "Error when making piecewise constant ground station motion model, settings type is incompatible" );
+                }
+                currentStationMotionModel = std::make_shared< ground_stations::PiecewiseConstantStationMotionModel >(
+                            piecewiseConstantStationMotionSettings->displacementList_ );
+                break;
+            }
+            case custom_station_motion:
+            {
+                std::shared_ptr< CustomGroundStationMotionSettings > customStationMotionSettings =
+                        std::dynamic_pointer_cast< CustomGroundStationMotionSettings >( stationMotionSettings.at( i ) );
+                if( customStationMotionSettings == nullptr )
+                {
+                    throw std::runtime_error( "Error when making custom ground station motion model, settings type is incompatible" );
+                }
+                currentStationMotionModel = std::make_shared< ground_stations::CustomStationMotionModel >(
+                            customStationMotionSettings->customDisplacementModel_ );
+                break;
+            }
+            default:
+                throw std::runtime_error( "Error when making ground station motion model, settings type not recognized" );
+
+            }
+            stationMotionModelList.push_back( currentStationMotionModel );
+        }
+        return std::make_shared< ground_stations::CombinedStationMotionModel >( stationMotionModelList );
+    }
+}
+
+std::shared_ptr< ground_stations::GroundStationState > createGroundStationState(
+        const std::shared_ptr< Body > body,
+        const Eigen::Vector3d groundStationPosition,
+        const coordinate_conversions::PositionElementTypes positionElementType,
+        const std::vector< std::shared_ptr< GroundStationMotionSettings > > stationMotionSettings =
+        std::vector< std::shared_ptr< GroundStationMotionSettings > >( ) )
+{
+    std::shared_ptr< ground_stations::StationMotionModel > stationMotionModel =
+            createGroundStationMotionModels( body,  stationMotionSettings );
+    return std::make_shared< ground_stations::GroundStationState >(
+                                 groundStationPosition, positionElementType, body->getShapeModel( ), stationMotionModel );
+}
+
 //! Function to create a ground station and add it to a Body object
 void createGroundStation(
         const std::shared_ptr< Body > body,
         const std::string groundStationName,
         const Eigen::Vector3d groundStationPosition,
-        const coordinate_conversions::PositionElementTypes positionElementType )
+        const coordinate_conversions::PositionElementTypes positionElementType,
+        const std::vector< std::shared_ptr< GroundStationMotionSettings > > stationMotionSettings )
 {
-    createGroundStation( body, groundStationName, std::make_shared< ground_stations::GroundStationState >(
-                             groundStationPosition, positionElementType, body->getShapeModel( ) ) );
+    createGroundStation( body, groundStationName, createGroundStationState(
+                             body, groundStationPosition, positionElementType, stationMotionSettings ) );
 
 }
 
@@ -63,7 +146,6 @@ void createGroundStations(
 
 void createGroundStation(
         const std::shared_ptr< Body > body,
-        const std::string& bodyName,
         const std::shared_ptr< GroundStationSettings > groundStationSettings )
 {
 
@@ -71,13 +153,14 @@ void createGroundStation(
     {
         throw std::runtime_error(
                     "Error when creating ground station " + groundStationSettings->getStationName( ) +
-                    " on body " + bodyName + ", station already exists." );
+                    " on body " + body->getBodyName( ) + ", station already exists." );
     }
     else
     {
         createGroundStation( body, groundStationSettings->getStationName( ),
                              groundStationSettings->getGroundStationPosition( ),
-                             groundStationSettings->getPositionElementType( ) );
+                             groundStationSettings->getPositionElementType( ),
+                             groundStationSettings->getStationMotionSettings( ) );
     }
 }
 

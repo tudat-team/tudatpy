@@ -24,10 +24,10 @@ namespace linear_algebra
 {
 
 //! Function to get condition number of matrix (using SVD decomposition)
-double getConditionNumberOfInformationMatrix( const Eigen::MatrixXd informationMatrix )
+double getConditionNumberOfDesignMatrix( const Eigen::MatrixXd designMatrix )
 {
     return getConditionNumberOfDecomposedMatrix(
-                ( informationMatrix.jacobiSvd( Eigen::ComputeThinU | Eigen::ComputeFullV ) ) );
+                ( designMatrix.jacobiSvd( Eigen::ComputeThinU | Eigen::ComputeFullV ) ) );
 }
 
 //! Function to get condition number of matrix from SVD decomposition
@@ -58,63 +58,32 @@ Eigen::VectorXd solveSystemOfEquationsWithSvd( const Eigen::MatrixXd matrixToInv
 }
 
 //! Function to multiply information matrix by diagonal weights matrix
-Eigen::MatrixXd multiplyInformationMatrixByDiagonalWeightMatrix(
-        const Eigen::MatrixXd& informationMatrix,
+Eigen::MatrixXd multiplyDesignMatrixByDiagonalWeightMatrix(
+        const Eigen::MatrixXd& designMatrix,
         const Eigen::VectorXd& diagonalOfWeightMatrix )
 {
-    Eigen::MatrixXd weightedInformationMatrix = Eigen::MatrixXd::Zero( informationMatrix.rows( ), informationMatrix.cols( ) );
+    Eigen::MatrixXd weightedDesignMatrix = Eigen::MatrixXd::Zero( designMatrix.rows( ), designMatrix.cols( ) );
 
-    for( int i = 0; i < informationMatrix.cols( ); i++ )
+    for( int i = 0; i < designMatrix.cols( ); i++ )
     {
-        weightedInformationMatrix.block( 0, i, informationMatrix.rows( ), 1 ) =
-                informationMatrix.block( 0, i, informationMatrix.rows( ), 1 ).cwiseProduct( diagonalOfWeightMatrix );
+        weightedDesignMatrix.block( 0, i, designMatrix.rows( ), 1 ) =
+                designMatrix.block( 0, i, designMatrix.rows( ), 1 ).cwiseProduct( diagonalOfWeightMatrix );
     }
 
-    return weightedInformationMatrix;
+    return weightedDesignMatrix;
 }
 
-//! Function to compute inverse of covariance matrix at current iteration, including influence of a priori information
 Eigen::MatrixXd calculateInverseOfUpdatedCovarianceMatrix(
-        const Eigen::MatrixXd& informationMatrix,
-        const Eigen::VectorXd& diagonalOfWeightMatrix,
-        const Eigen::MatrixXd& inverseOfAPrioriCovarianceMatrix )
-{
-    return inverseOfAPrioriCovarianceMatrix + informationMatrix.transpose( ) * multiplyInformationMatrixByDiagonalWeightMatrix(
-                informationMatrix, diagonalOfWeightMatrix );
-}
-
-//! Function to compute inverse of covariance matrix at current iteration
-Eigen::MatrixXd calculateInverseOfUpdatedCovarianceMatrix(
-        const Eigen::MatrixXd& informationMatrix,
-        const Eigen::VectorXd& diagonalOfWeightMatrix )
-{
-    return calculateInverseOfUpdatedCovarianceMatrix(
-                informationMatrix, diagonalOfWeightMatrix,
-                Eigen::MatrixXd::Zero( informationMatrix.cols( ), informationMatrix.cols( ) ) );
-}
-
-//! Function to perform an iteration least squares estimation from information matrix, weights and residuals and a priori
-//! information
-std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromInformationMatrix(
-        const Eigen::MatrixXd& informationMatrix,
-        const Eigen::VectorXd& observationResiduals,
+        const Eigen::MatrixXd& designMatrix,
         const Eigen::VectorXd& diagonalOfWeightMatrix,
         const Eigen::MatrixXd& inverseOfAPrioriCovarianceMatrix,
-        const bool checkConditionNumber,
-        const double maximumAllowedConditionNumber,
         const Eigen::MatrixXd& constraintMultiplier,
         const Eigen::VectorXd& constraintRightHandside )
 {
-//    std::cout<<"Residuals "<<observationResiduals.transpose( )<<std::endl;
-//    std::cout<<"Weight diag. "<<diagonalOfWeightMatrix.transpose( )<<std::endl;
-//    std::cout<<"Partials "<<informationMatrix.transpose( )<<std::endl;
-
-    Eigen::VectorXd rightHandSide = informationMatrix.transpose( ) *
-            ( diagonalOfWeightMatrix.cwiseProduct( observationResiduals ) );
-    Eigen::MatrixXd inverseOfCovarianceMatrix = calculateInverseOfUpdatedCovarianceMatrix(
-                informationMatrix, diagonalOfWeightMatrix, inverseOfAPrioriCovarianceMatrix );
-
     // Add constraints to inverse covariance matrix if required
+    Eigen::MatrixXd inverseOfCovarianceMatrix =
+            inverseOfAPrioriCovarianceMatrix + designMatrix.transpose( ) * multiplyDesignMatrixByDiagonalWeightMatrix(
+                designMatrix, diagonalOfWeightMatrix );
     if( constraintMultiplier.rows( ) != 0 )
     {
         if( constraintMultiplier.rows( ) != constraintRightHandside.rows( ) )
@@ -122,7 +91,7 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromI
             throw std::runtime_error( "Error when performing constrained least-squares, constraints are incompatible" );
         }
 
-        if( constraintMultiplier.cols( ) != informationMatrix.cols( ) )
+        if( constraintMultiplier.cols( ) != designMatrix.cols( ) )
         {
             throw std::runtime_error( "Error when performing constrained least-squares, constraints are incompatible with partials" );
         }
@@ -138,13 +107,50 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromI
                constraintMultiplier.transpose( );
         inverseOfCovarianceMatrix.block(
                     numberOfParameters, numberOfParameters, numberOfConstraints, numberOfConstraints ).setZero( );
+    }
+
+    return inverseOfCovarianceMatrix;
+
+}
+
+
+//! Function to compute inverse of covariance matrix at current iteration
+Eigen::MatrixXd calculateInverseOfUpdatedCovarianceMatrix(
+        const Eigen::MatrixXd& designMatrix,
+        const Eigen::VectorXd& diagonalOfWeightMatrix )
+{
+    return calculateInverseOfUpdatedCovarianceMatrix(
+                designMatrix, diagonalOfWeightMatrix,
+                Eigen::MatrixXd::Zero( designMatrix.cols( ), designMatrix.cols( ) ) );
+}
+
+//! Function to perform an iteration least squares estimation from information matrix, weights and residuals and a priori
+//! information
+std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromDesignMatrix(
+        const Eigen::MatrixXd& designMatrix,
+        const Eigen::VectorXd& observationResiduals,
+        const Eigen::VectorXd& diagonalOfWeightMatrix,
+        const Eigen::MatrixXd& inverseOfAPrioriCovarianceMatrix,
+        const bool checkConditionNumber,
+        const double maximumAllowedConditionNumber,
+        const Eigen::MatrixXd& constraintMultiplier,
+        const Eigen::VectorXd& constraintRightHandside )
+{
+    Eigen::VectorXd rightHandSide = designMatrix.transpose( ) *
+            ( diagonalOfWeightMatrix.cwiseProduct( observationResiduals ) );
+    Eigen::MatrixXd inverseOfCovarianceMatrix = calculateInverseOfUpdatedCovarianceMatrix(
+                designMatrix, diagonalOfWeightMatrix, inverseOfAPrioriCovarianceMatrix,
+                constraintMultiplier, constraintRightHandside );
+
+    // Add constraints to inverse covariance matrix if required
+    if( constraintMultiplier.rows( ) != 0 )
+    {
+        int numberOfConstraints = constraintMultiplier.rows( );
+        int numberOfParameters = constraintMultiplier.cols( );
 
         rightHandSide.conservativeResize( numberOfParameters + numberOfConstraints );
         rightHandSide.segment( numberOfParameters, numberOfConstraints ) = constraintRightHandside;
     }
-
-//    std::cout<<"RHS "<<rightHandSide.transpose( )<<std::endl;
-//    std::cout<<"Inv cov "<<inverseOfCovarianceMatrix<<std::endl;
 
     return std::make_pair( solveSystemOfEquationsWithSvd(
                                inverseOfCovarianceMatrix, rightHandSide, checkConditionNumber, maximumAllowedConditionNumber ),
@@ -153,28 +159,28 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromI
 }
 
 //! Function to perform an iteration least squares estimation from information matrix, weights and residuals
-std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromInformationMatrix(
-        const Eigen::MatrixXd& informationMatrix,
+std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromDesignMatrix(
+        const Eigen::MatrixXd& designMatrix,
         const Eigen::VectorXd& observationResiduals,
         const Eigen::VectorXd& diagonalOfWeightMatrix,
         const bool checkConditionNumber,
         const double maximumAllowedConditionNumber )
 {
-    return performLeastSquaresAdjustmentFromInformationMatrix(
-                informationMatrix, observationResiduals, diagonalOfWeightMatrix,
-                Eigen::MatrixXd::Zero( informationMatrix.cols( ), informationMatrix.cols( ) ),
+    return performLeastSquaresAdjustmentFromDesignMatrix(
+                designMatrix, observationResiduals, diagonalOfWeightMatrix,
+                Eigen::MatrixXd::Zero( designMatrix.cols( ), designMatrix.cols( ) ),
                 checkConditionNumber, maximumAllowedConditionNumber );
 }
 
 //! Function to perform an iteration of least squares estimation from information matrix and residuals
-std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromInformationMatrix(
-        const Eigen::MatrixXd& informationMatrix,
+std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromDesignMatrix(
+        const Eigen::MatrixXd& designMatrix,
         const Eigen::VectorXd& observationResiduals,
         const bool checkConditionNumber,
         const double maximumAllowedConditionNumber )
 {
-    return performLeastSquaresAdjustmentFromInformationMatrix(
-                informationMatrix, observationResiduals, Eigen::VectorXd::Constant( observationResiduals.size( ), 1, 1.0 ),
+    return performLeastSquaresAdjustmentFromDesignMatrix(
+                designMatrix, observationResiduals, Eigen::VectorXd::Constant( observationResiduals.size( ), 1, 1.0 ),
                 checkConditionNumber, maximumAllowedConditionNumber );
 }
 
@@ -190,18 +196,18 @@ Eigen::VectorXd getLeastSquaresPolynomialFit(
                                   "variable vectors is not equal." );
     }
 
-    Eigen::MatrixXd informationMatrix = Eigen::MatrixXd::Zero( dependentValues.rows( ), polynomialPowers.size( ) );
+    Eigen::MatrixXd designMatrix = Eigen::MatrixXd::Zero( dependentValues.rows( ), polynomialPowers.size( ) );
 
     // Compute information matrix
     for( int i = 0; i < independentValues.rows( ); i++ )
     {
         for( unsigned int j = 0; j < polynomialPowers.size( ); j++ )
         {
-            informationMatrix( i, j ) = std::pow( independentValues( i ), polynomialPowers.at( j ) );
+            designMatrix( i, j ) = std::pow( independentValues( i ), polynomialPowers.at( j ) );
         }
     }
 
-    return performLeastSquaresAdjustmentFromInformationMatrix( informationMatrix, dependentValues ).first;
+    return performLeastSquaresAdjustmentFromDesignMatrix( designMatrix, dependentValues ).first;
 }
 
 //! Function to fit a univariate polynomial through a set of data
@@ -260,7 +266,7 @@ Eigen::VectorXd nonLinearLeastSquaresFit(
         Eigen::MatrixXd inverseOfAPrioriCovarianceMatrix = levenbergMarquardtDampingParameter *
 //                Eigen::MatrixXd( ( designMatrix.transpose( ) * designMatrix ).diagonal( ).asDiagonal( ) ); // Marquardt’s update
                 Eigen::MatrixXd::Identity( currentEstimate.rows( ), currentEstimate.rows( ) );
-        updateInEstimate = linear_algebra::performLeastSquaresAdjustmentFromInformationMatrix(
+        updateInEstimate = linear_algebra::performLeastSquaresAdjustmentFromDesignMatrix(
                     designMatrix, offsetInObservations, diagonalOfWeightMatrix, inverseOfAPrioriCovarianceMatrix, false ).first;
 
         // Check that update is real

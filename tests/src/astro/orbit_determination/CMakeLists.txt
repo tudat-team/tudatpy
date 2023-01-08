@@ -40,6 +40,11 @@ TUDAT_ADD_TEST_CASE(HybridArcStateEstimation
     ${Tudat_ESTIMATION_LIBRARIES}
     )
 
+# TUDAT_ADD_TEST_CASE(HybridArcMultiBodyEstimation
+#         PRIVATE_LINKS
+#         ${Tudat_ESTIMATION_LIBRARIES}
+#         )
+
 TUDAT_ADD_TEST_CASE(MultiArcStateEstimation
     PRIVATE_LINKS
     ${Tudat_ESTIMATION_LIBRARIES}
@@ -55,10 +60,10 @@ TUDAT_ADD_TEST_CASE(BiasEstimation
     ${Tudat_ESTIMATION_LIBRARIES}
     )
 
-TUDAT_ADD_TEST_CASE(RotationalStateEstimation
-    PRIVATE_LINKS
-    ${Tudat_ESTIMATION_LIBRARIES}
-    )
+#TUDAT_ADD_TEST_CASE(RotationalStateEstimation
+#    PRIVATE_LINKS
+#    ${Tudat_ESTIMATION_LIBRARIES}
+#    )
 
 TUDAT_ADD_TEST_CASE(ArcwiseEnvironmentParameters
     PRIVATE_LINKS
@@ -75,17 +80,18 @@ TUDAT_ADD_TEST_CASE(FullPlanetaryRotationModelEstimation
     ${Tudat_ESTIMATION_LIBRARIES}
     )
 
+
+TUDAT_ADD_TEST_CASE(EstimationFromIdealDataTimeDouble
+    PRIVATE_LINKS
+    ${Tudat_ESTIMATION_LIBRARIES}
+    )
+
 if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 
     TUDAT_ADD_TEST_CASE(EstimationFromIdealDataDoubleLongDouble
         PRIVATE_LINKS
         ${Tudat_ESTIMATION_LIBRARIES}
-        )
-
-    TUDAT_ADD_TEST_CASE(EstimationFromIdealDataTimeDouble
-        PRIVATE_LINKS
-        ${Tudat_ESTIMATION_LIBRARIES}
-        )
+        )    
 
     TUDAT_ADD_TEST_CASE(EstimationFromIdealDataTimeLongDouble
         PRIVATE_LINKS

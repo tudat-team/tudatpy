@@ -39,6 +39,7 @@
 #include "tudat/astro/orbit_determination/estimatable_parameters/freeCoreNutationRate.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/desaturationDeltaV.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/longitudeLibrationAmplitude.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/constantThrust.h"
 #include "tudat/astro/relativity/metric.h"
 #include "tudat/astro/basic_astro/accelerationModelTypes.h"
 #include "tudat/simulation/estimation_setup/estimatableParameterSettings.h"
@@ -61,9 +62,9 @@ namespace simulation_setup
  *  \param parameterSettings Settings for parameter settings for which acceleration models are to be found
  *  \return List of acceleration models that is to be linked to parameter defined by parameterSettings
  */
-template< typename StateScalarType >
+template< typename StateScalarType, typename TimeType >
 std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAccelerationModelsListForParameters(
-        const std::shared_ptr< propagators::SingleArcPropagatorSettings< StateScalarType > > propagatorSettings,
+        const std::shared_ptr< propagators::SingleArcPropagatorSettings< StateScalarType, TimeType > > propagatorSettings,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > parameterSettings )
 {
     using namespace estimatable_parameters;
@@ -202,9 +203,9 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
  *  \param parameterSettings Settings for parameter settings for which acceleration models are to be found
  *  \return List of acceleration models (from all arcs) that is to be linked to parameter defined by parameterSettings
  */
-template< typename StateScalarType >
+template< typename StateScalarType, typename TimeType >
 std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAccelerationModelsListForParameters(
-        const std::shared_ptr< propagators::MultiArcPropagatorSettings< StateScalarType > > propagatorSettings,
+        const std::shared_ptr< propagators::MultiArcPropagatorSettings< StateScalarType, TimeType > > propagatorSettings,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > parameterSettings )
 {
     std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > accelerationModelList;
@@ -229,9 +230,9 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
  *  \param parameterSettings Settings for parameter settings for which acceleration models are to be found
  *  \return List of acceleration models (from all arcs) that is to be linked to parameter defined by parameterSettings
  */
-template< typename StateScalarType >
+template< typename StateScalarType, typename TimeType >
 std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAccelerationModelsListForParameters(
-        const std::shared_ptr< propagators::HybridArcPropagatorSettings< StateScalarType > > propagatorSettings,
+        const std::shared_ptr< propagators::HybridArcPropagatorSettings< StateScalarType, TimeType > > propagatorSettings,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > parameterSettings )
 {
     std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > multiArcAccelerationModelList;
@@ -272,29 +273,29 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
  *  \return List of acceleration models (from all arcs if applicable) that is to be linked to parameter defined by
  *  parameterSettings
  */
-template< typename StateScalarType >
+template< typename StateScalarType, typename TimeType >
 std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAccelerationModelsListForParametersFromBase(
         const std::shared_ptr< propagators::PropagatorSettings< StateScalarType > > propagatorSettings,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > parameterSettings )
 {
     std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > accelerationModelList;
 
-    if( std::dynamic_pointer_cast< propagators::SingleArcPropagatorSettings< StateScalarType > >( propagatorSettings ) != nullptr )
+    if( std::dynamic_pointer_cast< propagators::SingleArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ) != nullptr )
     {
         accelerationModelList = getAccelerationModelsListForParameters(
-                    std::dynamic_pointer_cast< propagators::SingleArcPropagatorSettings< StateScalarType > >( propagatorSettings ),
+                    std::dynamic_pointer_cast< propagators::SingleArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ),
                     parameterSettings );
     }
-    else if( std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< StateScalarType > >( propagatorSettings ) != nullptr )
+    else if( std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ) != nullptr )
     {
         accelerationModelList = getAccelerationModelsListForParameters(
-                    std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< StateScalarType > >( propagatorSettings ),
+                    std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ),
                     parameterSettings );
     }
-    else if( std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< StateScalarType > >( propagatorSettings ) != nullptr )
+    else if( std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ) != nullptr )
     {
         accelerationModelList = getAccelerationModelsListForParameters(
-                    std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< StateScalarType > >( propagatorSettings ),
+                    std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ),
                     parameterSettings );
     }
 
@@ -307,24 +308,25 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
     return accelerationModelList;
 }
 
-template< typename InitialStateParameterType = double >
+template< typename InitialStateParameterType = double, typename TimeType = double >
 std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > getInitialStateParameterSettings(
         const std::shared_ptr< propagators::PropagatorSettings< InitialStateParameterType > > propagatorSettings,
         const SystemOfBodies& bodies,
         const std::vector< double > arcStartTimes = std::vector< double >( ) );
 
-template< typename InitialStateParameterType = double >
+template< typename InitialStateParameterType = double, typename TimeType = double >
 std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > getInitialMultiArcParameterSettings(
-        const std::shared_ptr< propagators::MultiArcPropagatorSettings< InitialStateParameterType > > propagatorSettings,
+        const std::shared_ptr< propagators::MultiArcPropagatorSettings< InitialStateParameterType, TimeType > > propagatorSettings,
         const SystemOfBodies& bodies,
         const std::vector< double > arcStartTimes )
 {
     using namespace estimatable_parameters;
     using namespace propagators;
 
-    std::vector< std::shared_ptr< SingleArcPropagatorSettings< InitialStateParameterType > > > singleArcSettings =
+    std::vector< std::shared_ptr< SingleArcPropagatorSettings< InitialStateParameterType, TimeType > > > singleArcSettings =
             propagatorSettings->getSingleArcSettings( );
-    std::vector< std::shared_ptr< TranslationalStatePropagatorSettings< InitialStateParameterType > > > singleArcTranslationalSettings;
+    std::vector< std::shared_ptr< TranslationalStatePropagatorSettings< InitialStateParameterType, TimeType > > >
+            singleArcTranslationalSettings;
 
     std::vector< std::string > propagatedBodies;
     std::vector< std::vector< std::string > > centralBodiesPerArc;
@@ -333,7 +335,7 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
     for( unsigned int i = 0; i < singleArcSettings.size( ); i++ )
     {
         singleArcTranslationalSettings.push_back(
-                    std::dynamic_pointer_cast< TranslationalStatePropagatorSettings< InitialStateParameterType > >(
+                    std::dynamic_pointer_cast< TranslationalStatePropagatorSettings< InitialStateParameterType, TimeType > >(
                         singleArcSettings.at( i ) ) );
         if( singleArcTranslationalSettings.at( i ) == nullptr )
         {
@@ -395,17 +397,17 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
     return arcwiseInitialStates;
 }
 
-template< typename InitialStateParameterType = double >
+template< typename InitialStateParameterType = double, typename TimeType = double >
 std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > getInitialHybridArcParameterSettings(
-        const std::shared_ptr< propagators::HybridArcPropagatorSettings< InitialStateParameterType > > propagatorSettings,
+        const std::shared_ptr< propagators::HybridArcPropagatorSettings< InitialStateParameterType, TimeType > > propagatorSettings,
         const SystemOfBodies& bodies,
         const std::vector< double > arcStartTimes )
 {
     std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > multiArcParameters =
-            getInitialMultiArcParameterSettings< InitialStateParameterType >(
+            getInitialMultiArcParameterSettings< InitialStateParameterType, TimeType >(
                 propagatorSettings->getMultiArcPropagatorSettings( ), bodies, arcStartTimes );
     std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > singleArcParameters =
-            getInitialStateParameterSettings< InitialStateParameterType >(
+            getInitialStateParameterSettings< InitialStateParameterType, TimeType >(
                 propagatorSettings->getSingleArcPropagatorSettings( ), bodies );
     std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > hybirdArcParameters = multiArcParameters;
 
@@ -414,7 +416,7 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
 }
 
 
-template< typename InitialStateParameterType >
+template< typename InitialStateParameterType, typename TimeType >
 std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > getInitialStateParameterSettings(
         const std::shared_ptr< propagators::PropagatorSettings< InitialStateParameterType > > propagatorSettings,
         const SystemOfBodies& bodies,
@@ -425,26 +427,26 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
     using namespace propagators;
 
     // Process single-arc settings
-    if( std::dynamic_pointer_cast< SingleArcPropagatorSettings< InitialStateParameterType > >( propagatorSettings ) != nullptr )
+    if( std::dynamic_pointer_cast< SingleArcPropagatorSettings< InitialStateParameterType, TimeType > >( propagatorSettings ) != nullptr )
     {
-        std::shared_ptr< SingleArcPropagatorSettings< InitialStateParameterType > > singleArcSettings =
-                std::dynamic_pointer_cast< SingleArcPropagatorSettings< InitialStateParameterType > >( propagatorSettings );
+        std::shared_ptr< SingleArcPropagatorSettings< InitialStateParameterType, TimeType > > singleArcSettings =
+                std::dynamic_pointer_cast< SingleArcPropagatorSettings< InitialStateParameterType, TimeType > >( propagatorSettings );
         switch( singleArcSettings->getStateType( ) )
         {
         case hybrid:
         {
-            std::shared_ptr< MultiTypePropagatorSettings< InitialStateParameterType > > multiTypePropagatorSettings =
-                    std::dynamic_pointer_cast< MultiTypePropagatorSettings< InitialStateParameterType > >( propagatorSettings );
+            std::shared_ptr< MultiTypePropagatorSettings< InitialStateParameterType, TimeType > > multiTypePropagatorSettings =
+                    std::dynamic_pointer_cast< MultiTypePropagatorSettings< InitialStateParameterType, TimeType > >( propagatorSettings );
 
 
-            std::map< IntegratedStateType, std::vector< std::shared_ptr< SingleArcPropagatorSettings< InitialStateParameterType > > > >
+            std::map< IntegratedStateType, std::vector< std::shared_ptr< SingleArcPropagatorSettings< InitialStateParameterType, TimeType > > > >
                     propagatorSettingsMap = multiTypePropagatorSettings->propagatorSettingsMap_;
             for( auto propIterator : propagatorSettingsMap )
             {
                 for( unsigned int i = 0; i < propIterator.second.size( ); i++ )
                 {
                     std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > >
-                            singleTypeinitialStateParameterSettings =  getInitialStateParameterSettings< InitialStateParameterType >(
+                            singleTypeinitialStateParameterSettings =  getInitialStateParameterSettings< InitialStateParameterType, TimeType >(
                                 propIterator.second.at( i ), bodies );
                     initialStateParameterSettings.insert(
                                 initialStateParameterSettings.end( ),
@@ -456,8 +458,8 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
         }
         case translational_state:
         {
-            std::shared_ptr< TranslationalStatePropagatorSettings< InitialStateParameterType > > translationalPropagatorSettings =
-                    std::dynamic_pointer_cast< TranslationalStatePropagatorSettings< InitialStateParameterType > >( propagatorSettings );
+            std::shared_ptr< TranslationalStatePropagatorSettings< InitialStateParameterType, TimeType > > translationalPropagatorSettings =
+                    std::dynamic_pointer_cast< TranslationalStatePropagatorSettings< InitialStateParameterType, TimeType > >( propagatorSettings );
 
             // Retrieve estimated and propagated translational states, and check equality.
             std::vector< std::string > propagatedBodies = translationalPropagatorSettings->bodiesToIntegrate_;
@@ -477,8 +479,8 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
         }
         case rotational_state:
         {
-            std::shared_ptr< RotationalStatePropagatorSettings< InitialStateParameterType > > rotationalPropagatorSettings =
-                    std::dynamic_pointer_cast< RotationalStatePropagatorSettings< InitialStateParameterType > >( propagatorSettings );
+            std::shared_ptr< RotationalStatePropagatorSettings< InitialStateParameterType, TimeType > > rotationalPropagatorSettings =
+                    std::dynamic_pointer_cast< RotationalStatePropagatorSettings< InitialStateParameterType, TimeType > >( propagatorSettings );
 
             // Retrieve estimated and propagated translational states, and check equality.
             std::vector< std::string > propagatedBodies = rotationalPropagatorSettings->bodiesToIntegrate_;
@@ -495,8 +497,8 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
         }
         case body_mass_state:
         {
-            std::shared_ptr< MassPropagatorSettings< InitialStateParameterType > > massPropagatorSettings =
-                    std::dynamic_pointer_cast< MassPropagatorSettings< InitialStateParameterType > >( propagatorSettings );
+            std::shared_ptr< MassPropagatorSettings< InitialStateParameterType, TimeType > > massPropagatorSettings =
+                    std::dynamic_pointer_cast< MassPropagatorSettings< InitialStateParameterType, TimeType > >( propagatorSettings );
 
             std::vector< std::string > propagatedBodies = massPropagatorSettings->bodiesWithMassToPropagate_;
             Eigen::VectorXd initialStates =  massPropagatorSettings->getInitialStates( );
@@ -517,10 +519,10 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
             throw std::runtime_error( "Error, did not recognize single-arc state type when identifying propagator settings for estimatable parameter settings." );
         }
     }
-    else if( std::dynamic_pointer_cast< MultiArcPropagatorSettings< InitialStateParameterType > >( propagatorSettings ) != nullptr )
+    else if( std::dynamic_pointer_cast< MultiArcPropagatorSettings< InitialStateParameterType, TimeType > >( propagatorSettings ) != nullptr )
     {
-        std::shared_ptr< MultiArcPropagatorSettings< InitialStateParameterType > > multiArcSettings =
-                std::dynamic_pointer_cast< MultiArcPropagatorSettings< InitialStateParameterType > >( propagatorSettings ) ;
+        std::shared_ptr< MultiArcPropagatorSettings< InitialStateParameterType, TimeType > > multiArcSettings =
+                std::dynamic_pointer_cast< MultiArcPropagatorSettings< InitialStateParameterType, TimeType > >( propagatorSettings ) ;
         if( arcStartTimes.size( ) == 0 )
         {
             throw std::runtime_error( "Error when parsing propagator settings for estimatable parameter settings; multi-arc settings found, but no arc times" );
@@ -528,10 +530,10 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
         initialStateParameterSettings = getInitialMultiArcParameterSettings(
                     multiArcSettings, bodies, arcStartTimes );
     }
-    else if( std::dynamic_pointer_cast< HybridArcPropagatorSettings< InitialStateParameterType > >( propagatorSettings ) != nullptr )
+    else if( std::dynamic_pointer_cast< HybridArcPropagatorSettings< InitialStateParameterType, TimeType > >( propagatorSettings ) != nullptr )
     {
-        std::shared_ptr< HybridArcPropagatorSettings< InitialStateParameterType > > hybridArcSettings =
-                std::dynamic_pointer_cast< HybridArcPropagatorSettings< InitialStateParameterType > >( propagatorSettings );
+        std::shared_ptr< HybridArcPropagatorSettings< InitialStateParameterType, TimeType > > hybridArcSettings =
+                std::dynamic_pointer_cast< HybridArcPropagatorSettings< InitialStateParameterType, TimeType > >( propagatorSettings );
         if( arcStartTimes.size( ) == 0 )
         {
             throw std::runtime_error( "Error when parsing propagator settings for estimatable parameter settings; hybric-arc settings found, but no arc times" );
@@ -717,11 +719,11 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::Matrix
                         InitialMassEstimatableParameterSettings< InitialStateParameterType > >(
                             parameterSettings );
 
-                double initialMass = initialStateSettings->initialStateValue_;
+                InitialStateParameterType initialMass = initialStateSettings->initialStateValue_;
                 initialStateParameterToEstimate =
                         std::make_shared< InitialMassStateParameter< InitialStateParameterType > >(
                             initialStateSettings->parameterType_.second.first,
-                            ( Eigen::VectorXd( 1 ) << initialMass ).finished( ) );
+                            ( Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >( 1 ) << initialMass ).finished( ) );
             }
             break;
         }
@@ -745,7 +747,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::Matrix
  * selected parameters).
  * \return Interface object for estimating parameter.
  */
-template< typename InitialStateParameterType = double >
+template< typename InitialStateParameterType, typename TimeType >
 std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > createDoubleParameterToEstimate(
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSettings >& doubleParameterName,
         const SystemOfBodies& bodies, const std::shared_ptr< propagators::PropagatorSettings< InitialStateParameterType > > propagatorSettings =
@@ -899,7 +901,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
             else
             {
                 std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > associatedAccelerationModels =
-                        getAccelerationModelsListForParametersFromBase( propagatorSettings, doubleParameterName );
+                        getAccelerationModelsListForParametersFromBase< InitialStateParameterType, TimeType >( propagatorSettings, doubleParameterName );
                 std::vector< std::shared_ptr< DirectTidalDissipationAcceleration > > associatedTidalAccelerationModels;
                 for( unsigned int i = 0; i < associatedAccelerationModels.size( ); i++ )
                 {
@@ -1001,6 +1003,100 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
             }
             break;
         }
+        case constant_thrust_magnitude_parameter:
+        {
+            if( currentBody->getVehicleSystems( ) == nullptr )
+            {
+                throw std::runtime_error( "Error when creating constant thrust magnitude for body " + currentBodyName +
+                                          ", body has no vehicle systems" );
+            }
+            else
+            {
+                if( currentBody->getVehicleSystems( )->getEngineModels( ).count(
+                            doubleParameterName->parameterType_.second.second ) == 0 )
+                {
+                    throw std::runtime_error( "Error when creating constant thrust magnitude for engine " +
+                                              doubleParameterName->parameterType_.second.second + " on body " +
+                                              currentBodyName + ", engine does not exist" );
+                }
+                else
+                {
+                    std::shared_ptr< propulsion::ThrustMagnitudeWrapper > thrustWrapper =
+                            currentBody->getVehicleSystems( )->getEngineModels( ).at(
+                                                       doubleParameterName->parameterType_.second.second )->getThrustMagnitudeWrapper( );
+                    if( thrustWrapper == nullptr )
+                    {
+                        throw std::runtime_error( "Error when creating constant thrust magnitude for engine " +
+                                                  doubleParameterName->parameterType_.second.second + " on body " +
+                                                  currentBodyName + ", engine does not have thrust magnitude model." );
+                    }
+                    else
+                    {
+                        if( std::dynamic_pointer_cast< propulsion::ConstantThrustMagnitudeWrapper >( thrustWrapper ) == nullptr )
+                        {
+                            throw std::runtime_error( "Error when creating constant thrust magnitude for engine " +
+                                                      doubleParameterName->parameterType_.second.second + " on body " +
+                                                      currentBodyName + ", engine thrust magnitude model does not support constant thrust." );
+                        }
+                        else
+                        {
+                            doubleParameterToEstimate = std::make_shared< ConstantThrustMagnitudeParameter >
+                                    ( std::dynamic_pointer_cast< propulsion::ConstantThrustMagnitudeWrapper >( thrustWrapper ),
+                                      currentBodyName, doubleParameterName->parameterType_.second.second );
+                        }
+                    }
+                }
+            }
+
+            break;
+        }
+        case constant_specific_impulse:
+        {
+            if( currentBody->getVehicleSystems( ) == nullptr )
+            {
+                throw std::runtime_error( "Error when creating constant specific impulse for body " + currentBodyName +
+                                          ", body has no vehicle systems" );
+            }
+            else
+            {
+                if( currentBody->getVehicleSystems( )->getEngineModels( ).count(
+                            doubleParameterName->parameterType_.second.second ) == 0 )
+                {
+                    throw std::runtime_error( "Error when creating constant specific impulse for engine " +
+                                              doubleParameterName->parameterType_.second.second + " on body " +
+                                              currentBodyName + ", engine does not exist" );
+                }
+                else
+                {
+                    std::shared_ptr< propulsion::ThrustMagnitudeWrapper > thrustWrapper =
+                            currentBody->getVehicleSystems( )->getEngineModels( ).at(
+                                                       doubleParameterName->parameterType_.second.second )->getThrustMagnitudeWrapper( );
+                    if( thrustWrapper == nullptr )
+                    {
+                        throw std::runtime_error( "Error when creating constant specific impulse for engine " +
+                                                  doubleParameterName->parameterType_.second.second + " on body " +
+                                                  currentBodyName + ", engine does not have thrust magnitude model." );
+                    }
+                    else
+                    {
+                        if( std::dynamic_pointer_cast< propulsion::ConstantThrustMagnitudeWrapper >( thrustWrapper ) == nullptr )
+                        {
+                            throw std::runtime_error( "Error when creating constant specific impulse for engine " +
+                                                      doubleParameterName->parameterType_.second.second + " on body " +
+                                                      currentBodyName + ", engine thrust magnitude model does not support constant thrust." );
+                        }
+                        else
+                        {
+                            doubleParameterToEstimate = std::make_shared< ConstantSpecificImpulseParameter< propulsion::ConstantThrustMagnitudeWrapper  > >
+                                    ( std::dynamic_pointer_cast< propulsion::ConstantThrustMagnitudeWrapper >( thrustWrapper ),
+                                      currentBodyName, doubleParameterName->parameterType_.second.second );
+                        }
+                    }
+                }
+            }
+
+            break;
+        }
         default:
             throw std::runtime_error( "Warning, this double parameter has not yet been implemented when making parameters" );
             break;
@@ -1019,10 +1115,11 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
  * selected parameters).
  * \return Interface object for estimating parameter.
  */
-template< typename InitialStateParameterType = double >
+template< typename InitialStateParameterType, typename TimeType >
 std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > createVectorParameterToEstimate(
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSettings >& vectorParameterName,
-        const SystemOfBodies& bodies, const std::shared_ptr< propagators::PropagatorSettings< InitialStateParameterType > > propagatorSettings =
+        const SystemOfBodies& bodies,
+        const std::shared_ptr< propagators::PropagatorSettings< InitialStateParameterType > > propagatorSettings =
         std::shared_ptr< propagators::PropagatorSettings< InitialStateParameterType > >( ) )
 {
     using namespace simulation_setup;
@@ -1073,7 +1170,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                 vectorParameterToEstimate = std::make_shared< ConstantObservationBiasParameter >(
                             std::function< Eigen::VectorXd( ) >( ),
                             std::function< void( const Eigen::VectorXd& ) >( ),
-                            biasSettings->linkEnds_, biasSettings->observableType_, true );
+                            biasSettings->linkEnds_.linkEnds_, biasSettings->observableType_, true );
             }
             break;
         }
@@ -1090,7 +1187,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                 vectorParameterToEstimate = std::make_shared< ConstantObservationBiasParameter >(
                             std::function< Eigen::VectorXd( ) >( ),
                             std::function< void( const Eigen::VectorXd& ) >( ),
-                            biasSettings->linkEnds_, biasSettings->observableType_, false );
+                            biasSettings->linkEnds_.linkEnds_, biasSettings->observableType_, false );
             }
             break;
         }
@@ -1110,7 +1207,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                             std::function< void( const std::vector< Eigen::VectorXd >& ) >( ),
                             observation_models::getLinkEndIndicesForLinkEndTypeAtObservable(
                                 biasSettings->observableType_, biasSettings->linkEndForTime_, biasSettings->linkEnds_.size( ) ).at( 0 ),
-                            biasSettings->linkEnds_, biasSettings->observableType_, true );
+                            biasSettings->linkEnds_.linkEnds_, biasSettings->observableType_, true );
             }
             break;
         }
@@ -1130,7 +1227,46 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                             std::function< void( const std::vector< Eigen::VectorXd >& ) >( ),
                             observation_models::getLinkEndIndicesForLinkEndTypeAtObservable(
                                 biasSettings->observableType_, biasSettings->linkEndForTime_, biasSettings->linkEnds_.size( ) ).at( 0 ),
-                            biasSettings->linkEnds_, biasSettings->observableType_, false );
+                            biasSettings->linkEnds_.linkEnds_, biasSettings->observableType_, false );
+            }
+            break;
+        }
+        case constant_time_drift_observation_bias:
+        {
+            std::shared_ptr< ConstantTimeDriftBiasEstimatableParameterSettings > biasSettings =
+                    std::dynamic_pointer_cast< ConstantTimeDriftBiasEstimatableParameterSettings >( vectorParameterName );
+            if( biasSettings == nullptr )
+            {
+                throw std::runtime_error( "Error when creating constant time drift bias, input is inconsistent" );
+            }
+            else
+            {
+                vectorParameterToEstimate = std::make_shared< ConstantTimeDriftBiasParameter >(
+                        std::function< Eigen::VectorXd( ) >( ),
+                        std::function< void( const Eigen::VectorXd& ) >( ),
+                        observation_models::getLinkEndIndicesForLinkEndTypeAtObservable(
+                                biasSettings->observableType_, biasSettings->linkEndForTime_, biasSettings->linkEnds_.size( ) ).at( 0 ),
+                        biasSettings->linkEnds_, biasSettings->observableType_, biasSettings->referenceEpoch_ );
+            }
+            break;
+        }
+        case arc_wise_time_drift_observation_bias:
+        {
+            std::shared_ptr< ArcWiseTimeDriftBiasEstimatableParameterSettings > timeBiasSettings =
+                    std::dynamic_pointer_cast< ArcWiseTimeDriftBiasEstimatableParameterSettings >( vectorParameterName );
+            if( timeBiasSettings == nullptr )
+            {
+                throw std::runtime_error( "Error when creating arcwise time drift bias, input is inconsistent" );
+            }
+            else
+            {
+                vectorParameterToEstimate = std::make_shared< ArcWiseTimeDriftBiasParameter >(
+                        timeBiasSettings->arcStartTimes_,
+                        std::function< std::vector< Eigen::VectorXd >( ) >( ),
+                        std::function< void( const std::vector< Eigen::VectorXd >& ) >( ),
+                        observation_models::getLinkEndIndicesForLinkEndTypeAtObservable(
+                                timeBiasSettings->observableType_, timeBiasSettings->linkEndForTime_, timeBiasSettings->linkEnds_.size( ) ).at( 0 ),
+                        timeBiasSettings->linkEnds_, timeBiasSettings->observableType_, timeBiasSettings->referenceEpochs_ );
             }
             break;
         }
@@ -1149,6 +1285,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
 
             }
             break;
+
         case spherical_harmonics_cosine_coefficient_block:
         {
             std::shared_ptr< GravityFieldModel > gravityField = currentBody->getGravityFieldModel( );
@@ -1318,7 +1455,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
             {
 
                 std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > associatedAccelerationModels =
-                        getAccelerationModelsListForParametersFromBase( propagatorSettings, vectorParameterName );
+                        getAccelerationModelsListForParametersFromBase< InitialStateParameterType, TimeType >( propagatorSettings, vectorParameterName );
                 std::vector< std::shared_ptr< basic_astrodynamics::EmpiricalAcceleration > > empiricalAccelerations;
                 for( unsigned int i = 0; i < associatedAccelerationModels.size( ); i++ )
                 {
@@ -1440,7 +1577,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
             {
 
                 std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > associatedAccelerationModels =
-                        getAccelerationModelsListForParametersFromBase( propagatorSettings, vectorParameterName );
+                        getAccelerationModelsListForParametersFromBase< InitialStateParameterType, TimeType >( propagatorSettings, vectorParameterName );
                 std::vector< std::shared_ptr< basic_astrodynamics::EmpiricalAcceleration > > empiricalAccelerations;
                 for( unsigned int i = 0; i < associatedAccelerationModels.size( ); i++ )
                 {
@@ -1589,7 +1726,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
 
             // Retrieve acceleration model.
             std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > > desaturationAccelerationModels =
-                    getAccelerationModelsListForParametersFromBase( propagatorSettings, vectorParameterName );
+                    getAccelerationModelsListForParametersFromBase< InitialStateParameterType, TimeType >( propagatorSettings, vectorParameterName );
 
             if( desaturationAccelerationModels.size( ) == 0 )
             {
@@ -1667,10 +1804,11 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
  * selected parameters).
  *  \return Interface object for estimating a set of parameters.
  */
-template< typename InitialStateParameterType = double >
+template< typename InitialStateParameterType = double, typename TimeType = double >
 std::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialStateParameterType > > createParametersToEstimate(
         const std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > >& parameterNames,
-        const SystemOfBodies& bodies, const std::shared_ptr< propagators::PropagatorSettings< InitialStateParameterType > > propagatorSettings =
+        const SystemOfBodies& bodies,
+        const std::shared_ptr< propagators::PropagatorSettings< InitialStateParameterType > > propagatorSettings =
         std::shared_ptr< propagators::PropagatorSettings< InitialStateParameterType > >( ) )
 
 {
@@ -1697,7 +1835,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialStatePa
         // Create parameters defined by single double value
         else if( isDoubleParameter( parameterNames[ i ]->parameterType_.first ) == true )
         {
-            doubleParametersToEstimate.push_back( createDoubleParameterToEstimate(
+            doubleParametersToEstimate.push_back( createDoubleParameterToEstimate< InitialStateParameterType, TimeType >(
                                                       parameterNames[ i ], bodies, propagatorSettings ) );
             if( vectorParameterIsFound == true && parameterOrderWarningPrinted == false )
             {
@@ -1711,7 +1849,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialStatePa
         // Create parameters defined by list of double values
         else if( isDoubleParameter( parameterNames[ i ]->parameterType_.first ) == false )
         {
-            vectorParametersToEstimate.push_back( createVectorParameterToEstimate(
+            vectorParametersToEstimate.push_back( createVectorParameterToEstimate< InitialStateParameterType, TimeType >(
                                                       parameterNames[ i ], bodies, propagatorSettings ) );
             vectorParameterIsFound = true;
         }
@@ -1805,7 +1943,7 @@ getAssociatedMultiArcParameter(
  *  \param propagatorSettings Object containing propagation settings to be used
  *  \return State vector of estimated dynamics at propagation start time.
  */
-template< typename InitialStateParameterType = double >
+template< typename InitialStateParameterType = double, typename TimeType = double >
 void setInitialStateVectorFromParameterSet(
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialStateParameterType > > estimatableParameters,
         const std::shared_ptr< propagators::PropagatorSettings< InitialStateParameterType > > propagatorSettings )
@@ -1822,7 +1960,7 @@ void setInitialStateVectorFromParameterSet(
             Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >::Zero(
                 estimatableParameters->getInitialDynamicalStateParameterSize( ), 1 );
 
-    if( std::dynamic_pointer_cast< propagators::SingleArcPropagatorSettings< InitialStateParameterType > >( propagatorSettings ) != nullptr )
+    if( std::dynamic_pointer_cast< propagators::SingleArcPropagatorSettings< InitialStateParameterType, TimeType  > >( propagatorSettings ) != nullptr )
     {
         int vectorSize = 0;
         // Iterate over list of bodies of which the partials of the accelerations acting on them are required.
@@ -1839,60 +1977,101 @@ void setInitialStateVectorFromParameterSet(
 
         propagatorSettings->resetInitialStates( initialStateVector.block( 0, 0, vectorSize, 1 ) );
     }
-    else if( std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< InitialStateParameterType > >( propagatorSettings ) )
+    else if( std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< InitialStateParameterType, TimeType > >( propagatorSettings ) )
     {
-        std::shared_ptr< propagators::MultiArcPropagatorSettings< InitialStateParameterType > > multiArcSettings =
-                std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< InitialStateParameterType > >( propagatorSettings );
-        std::vector< std::shared_ptr< propagators::SingleArcPropagatorSettings< InitialStateParameterType > > > singleArcSettings =
-                multiArcSettings->getSingleArcSettings( );
+        std::shared_ptr< propagators::MultiArcPropagatorSettings< InitialStateParameterType, TimeType > > multiArcSettings =
+                std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< InitialStateParameterType, TimeType > >(
+                    propagatorSettings );
+
+        std::vector< std::shared_ptr< propagators::SingleArcPropagatorSettings< InitialStateParameterType, TimeType > > >
+                singleArcSettings = multiArcSettings->getSingleArcSettings( );
         int numberOfArcs = singleArcSettings.size( );
+
+        // Counting in how many arcs each body has already been propagated/estimated.
+        std::map< propagators::IntegratedStateType, std::map< std::string, unsigned int > > initialStatesBodiesCounter;
 
         for( int i = 0; i < numberOfArcs; i++ )
         {
             std::map< propagators::IntegratedStateType, std::map< std::pair< std::string, std::string >, VectorType > > currentArcInitialStates;
 
-            for( unsigned int j = 0; j < initialDynamicalParameters.size( ); j++ )
+            std::shared_ptr< propagators::TranslationalStatePropagatorSettings< InitialStateParameterType, TimeType > > singleArcTranslationalStatePropagatorSettings
+            = std::dynamic_pointer_cast< propagators::TranslationalStatePropagatorSettings< InitialStateParameterType, TimeType > >( singleArcSettings.at( i ) );
+
+            if ( singleArcTranslationalStatePropagatorSettings == nullptr )
             {
-                VectorType currentParameterValue = initialDynamicalParameters.at( j )->getParameterValue( );
-                int currentParameterSize = initialDynamicalParameters.at( j )->getParameterSize( );
-                std::pair< std::string, std::string > bodyIdentifier = initialDynamicalParameters.at( j )->getParameterName( ).second;
+                throw std::runtime_error( "Propagator settings for arc " + std::to_string( i ) + " are not translational state propagator settings. "
+                                                                            " Other propagator settings not supported (yet) for multi-arc propagation." );
+            }
+            else
+            {
 
-                switch( initialDynamicalParameters.at( j )->getParameterName( ).first )
-                {
-                case estimatable_parameters::arc_wise_initial_body_state:
-                {
-                    if( currentParameterSize / numberOfArcs != 6 )
+                for ( unsigned int j = 0; j < initialDynamicalParameters.size( ); j++ ) {
+                    VectorType currentParameterValue = initialDynamicalParameters.at(j)->getParameterValue();
+                    int currentParameterSize = initialDynamicalParameters.at(j)->getParameterSize();
+                    std::pair<std::string, std::string> bodyIdentifier = initialDynamicalParameters.at(j)->getParameterName().second;
+//                    std::cout << "body identifier: " << bodyIdentifier.first << " & " << bodyIdentifier.second << "\n\n";
+
+                    auto itr = std::find( singleArcTranslationalStatePropagatorSettings->bodiesToIntegrate_.begin( ),
+                                                                          singleArcTranslationalStatePropagatorSettings->bodiesToIntegrate_.end( ), bodyIdentifier.first );
+                    if ( itr != singleArcTranslationalStatePropagatorSettings->bodiesToIntegrate_.cend( ) )
                     {
-                        throw std::runtime_error( "Error when moving initial states from parameters to propagator settings. Incompatible multi-arc translational state size found" );
-                    }
+//                        std::cout << "body " << bodyIdentifier.first << " - detected for arc " << i << "\n\n";
 
-                    currentArcInitialStates[ propagators::translational_state ][ bodyIdentifier ] = currentParameterValue.segment( i * 6, 6 );
-                    break;
-                }
-                default:
-                    throw std::runtime_error( "Error when moving initial states from parameters to propagator settings. Multi-arc parameter type not recognized" );
+
+                        switch ( initialDynamicalParameters.at( j )->getParameterName( ).first )
+                        {
+                            case estimatable_parameters::arc_wise_initial_body_state:
+                            {
+//                                std::cout << "current parameter size: " << currentParameterSize << "\n\n";
+
+                                if ( ( initialStatesBodiesCounter.count( propagators::translational_state )  == 0 )
+                                || initialStatesBodiesCounter.at( propagators::translational_state ).count( bodyIdentifier.first ) == 0 )
+                                {
+                                    initialStatesBodiesCounter[ propagators::translational_state ][ bodyIdentifier.first ] = 0;
+                                }
+                                int index = initialStatesBodiesCounter.at( propagators::translational_state ).at( bodyIdentifier.first );
+//                                std::cout << "index: " << index << "\n\n";
+
+
+//                                if ( currentParameterSize / numberOfArcs != 6 )
+//                                {
+//                                    throw std::runtime_error("Error when moving initial states from parameters to propagator settings. Incompatible multi-arc translational state size found");
+//                                }
+//                                std::cout << "full parameters values: " << currentParameterValue.transpose( ) << "\n\n";
+//                                std::cout << "subset parameters values: " << currentParameterValue.segment( index * 6, 6 ).transpose( ) << "\n\n";
+                                currentArcInitialStates[ propagators::translational_state ][ bodyIdentifier ] = currentParameterValue.segment( index * 6, 6 );
+
+                                // update counter of propagated/estimated bodies
+                                initialStatesBodiesCounter.at( propagators::translational_state ).at( bodyIdentifier.first ) ++;
+
+                                break;
+                            }
+                            default:
+                                throw std::runtime_error("Error when moving initial states from parameters to propagator settings. Multi-arc parameter type not recognized");
+                        }
+                    }
                 }
             }
             propagators::resetSingleArcInitialStates( singleArcSettings.at( i ), currentArcInitialStates );
             multiArcSettings->updateInitialStateFromConsituentSettings( );
         }
     }
-    else if( std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< InitialStateParameterType > >( propagatorSettings ) )
+    else if( std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< InitialStateParameterType, TimeType > >( propagatorSettings ) )
     {
-        std::shared_ptr< propagators::HybridArcPropagatorSettings< InitialStateParameterType > > hybridArcSettings =
-                std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< InitialStateParameterType > >( propagatorSettings );
+        std::shared_ptr< propagators::HybridArcPropagatorSettings< InitialStateParameterType, TimeType > > hybridArcSettings =
+                std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< InitialStateParameterType, TimeType > >( propagatorSettings );
 
-        std::shared_ptr< propagators::SingleArcPropagatorSettings< InitialStateParameterType > > singleArcSettings =
+        std::shared_ptr< propagators::SingleArcPropagatorSettings< InitialStateParameterType, TimeType > > singleArcSettings =
                 hybridArcSettings->getSingleArcPropagatorSettings( );
-        std::shared_ptr< propagators::MultiArcPropagatorSettings< InitialStateParameterType > > multiArcSettings =
+        std::shared_ptr< propagators::MultiArcPropagatorSettings< InitialStateParameterType, TimeType > > multiArcSettings =
                 hybridArcSettings->getMultiArcPropagatorSettings( );
 
-        setInitialStateVectorFromParameterSet< InitialStateParameterType >(
+        setInitialStateVectorFromParameterSet< InitialStateParameterType, TimeType >(
                     std::make_shared< estimatable_parameters::EstimatableParameterSet< InitialStateParameterType > >(
                         std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > >( ),
                         std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > >( ),
                         estimatableParameters->getEstimatedSingleArcInitialStateParameters( ) ), singleArcSettings );
-        setInitialStateVectorFromParameterSet< InitialStateParameterType >(
+        setInitialStateVectorFromParameterSet< InitialStateParameterType, TimeType >(
                     std::make_shared< estimatable_parameters::EstimatableParameterSet< InitialStateParameterType > >(
                         std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > >( ),
                         std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > >( ),
@@ -1900,6 +2079,10 @@ void setInitialStateVectorFromParameterSet(
 
         hybridArcSettings->setInitialStatesFromConstituents( );
 
+    }
+    else
+    {
+        throw std::runtime_error( "Error when setting initial state vector from parameter set; type not identified" );
     }
 
 }

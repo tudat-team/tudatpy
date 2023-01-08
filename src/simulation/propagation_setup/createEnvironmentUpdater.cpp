@@ -11,6 +11,7 @@
 #include "tudat/astro/basic_astro/accelerationModelTypes.h"
 #include "tudat/astro/basic_astro/torqueModelTypes.h"
 #include "tudat/simulation/propagation_setup/createEnvironmentUpdater.h"
+#include "tudat/simulation/environment_setup/createFlightConditions.h"
 
 namespace tudat
 {
@@ -62,11 +63,13 @@ void checkValidityOfRequiredEnvironmentUpdates(
                 case body_rotational_state_update:
                 {
                     if( ( bodies.at( updateIterator->second.at( i ) )->
-                          getRotationalEphemeris( ) == nullptr ) &&
-                            ( bodies.at( updateIterator->second.at( i ) )->getDependentOrientationCalculator( ) == nullptr ) )
+                          getRotationalEphemeris( ) == nullptr )
+//                            &&
+//                            ( bodies.at( updateIterator->second.at( i ) )->getDependentOrientationCalculator( ) == nullptr )
+                            )
                     {
                         throw std::runtime_error(
-                                    "Error when making environment model update settings, could not find rotational ephemeris or dependent orientation calculator of body "
+                                    "Error when making environment model update settings, could not find rotational ephemeris of body "
                                     + updateIterator->second.at( i ) );
                     }
                     break;
@@ -411,12 +414,33 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                     break;
                 }
                 case cannon_ball_radiation_pressure:
+                {
                     // RP-OLD
+                    std::shared_ptr< electromagnetism::RadiationPressureInterface > radiationPressureInterface;
+                    try
+                    {
+                        radiationPressureInterface =
+                            bodies.at( acceleratedBodyIterator->first )->getRadiationPressureInterfaces( ).at(
+                                accelerationModelIterator->first );
+                    }
+                    catch( std::runtime_error& caughtException )
+                    {
+                            throw std::runtime_error(
+                                    "Error, could not identify relevant radiation pressure interface when setting environment update settings: "
+                                      + std::string( caughtException.what( ) ) );
+                    }
+
                     singleAccelerationUpdateNeeds[ radiation_pressure_interface_update ].push_back(
                                 acceleratedBodyIterator->first );
                     singleAccelerationUpdateNeeds[ body_mass_update ].push_back(
                                 acceleratedBodyIterator->first );
+                    for( unsigned int i = 0; i < radiationPressureInterface->getOccultingBodies( ).size( ); i++ )
+                    {
+                        singleAccelerationUpdateNeeds[ body_translational_state_update ].push_back(
+                                    radiationPressureInterface->getOccultingBodies( ).at( i ) );
+                    }
                     break;
+                }
                 case panelled_radiation_pressure_acceleration:
                     singleAccelerationUpdateNeeds[ radiation_pressure_interface_update ].push_back(
                                 acceleratedBodyIterator->first );
@@ -440,6 +464,10 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                                 acceleratedBodyIterator->first );
                     singleAccelerationUpdateNeeds[ spherical_harmonic_gravity_field_update ].push_back(
                                 acceleratedBodyIterator->first );
+                    break;
+                case polyhedron_gravity:
+                    singleAccelerationUpdateNeeds[ body_rotational_state_update ].push_back(
+                            accelerationModelIterator->first );
                     break;
                 case third_body_spherical_harmonic_gravity:
                 {
@@ -499,6 +527,31 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                                     std::string( "Error, incompatible input (ThirdBodyMutualSphericalHarmonicsGravitational" ) +
                                     std::string( "AccelerationModel) to createTranslationalEquationsOfMotion ") +
                                     std::string( "EnvironmentUpdaterSettings" ) );
+                    }
+                    break;
+                }
+                case third_body_polyhedron_gravity:
+                {
+                    singleAccelerationUpdateNeeds[ body_rotational_state_update ].push_back(
+                        accelerationModelIterator->first );
+
+                    std::shared_ptr< gravitation::ThirdBodyPolyhedronGravitationalAccelerationModel >
+                        thirdBodyAcceleration = std::dynamic_pointer_cast<
+                            gravitation::ThirdBodyPolyhedronGravitationalAccelerationModel >(
+                                accelerationModelIterator->second.at( i ) );
+
+                    if( thirdBodyAcceleration != nullptr && translationalAccelerationModels.count(
+                                thirdBodyAcceleration->getCentralBodyName( ) ) == 0  )
+                    {
+                        singleAccelerationUpdateNeeds[ body_translational_state_update ].push_back(
+                                    thirdBodyAcceleration->getCentralBodyName( ) );
+                    }
+                    else if( thirdBodyAcceleration == nullptr )
+                    {
+                        throw std::runtime_error(
+                                    std::string( "Error, incompatible input (ThirdBodyPolyhedronGravitational" )
+                                    + std::string( "AccelerationModel) to createTranslationalEquationsOfMotion ")
+                                    + std::string( "EnvironmentUpdaterSettings" ) );
                     }
                     break;
                 }
@@ -892,6 +945,8 @@ std::vector< std::string > > createEnvironmentUpdaterSettingsForDependentVariabl
         break;
     case acceleration_partial_wrt_body_translational_state:
         break;
+    case total_acceleration_partial_wrt_body_translational_state:
+        break;
     case total_spherical_harmonic_cosine_coefficient_variation:
         variablesToUpdate[ spherical_harmonic_gravity_field_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
         break;
@@ -906,6 +961,52 @@ std::vector< std::string > > createEnvironmentUpdaterSettingsForDependentVariabl
         break;
     case custom_dependent_variable:
         break;
+    case gravity_field_potential_dependent_variable:
+        variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
+        variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->secondaryBody_ );
+        break;
+    case gravity_field_laplacian_of_potential_dependent_variable:
+        variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
+        variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->secondaryBody_ );
+        break;
+    case minimum_constellation_distance:
+    {
+        std::shared_ptr< MinimumConstellationDistanceDependentVariableSaveSettings > minimumDistanceDependentVariable =
+                std::dynamic_pointer_cast< MinimumConstellationDistanceDependentVariableSaveSettings >( dependentVariableSaveSettings );
+        if( minimumDistanceDependentVariable == nullptr )
+        {
+            throw std::runtime_error( "Error when getting environment updates for dependent variables, type for minimum_constellation_distance not consistent" );
+        }
+        else
+        {
+            variablesToUpdate[ body_translational_state_update ].push_back( minimumDistanceDependentVariable->associatedBody_ );
+            for( unsigned int i = 0; i < minimumDistanceDependentVariable->bodiesToCheck_.size( ); i++ )
+            {
+                variablesToUpdate[ body_translational_state_update ].push_back( minimumDistanceDependentVariable->bodiesToCheck_.at( i ) );
+            }
+        }
+        break;
+    }
+    case minimum_constellation_ground_station_distance:
+    {
+        std::shared_ptr< MinimumConstellationStationDistanceDependentVariableSaveSettings > minimumDistanceDependentVariable =
+                std::dynamic_pointer_cast< MinimumConstellationStationDistanceDependentVariableSaveSettings >( dependentVariableSaveSettings );
+        if( minimumDistanceDependentVariable == nullptr )
+        {
+            throw std::runtime_error( "Error when getting environment updates for dependent variables, type for minimum_constellation_ground_station_distance not consistent" );
+        }
+        else
+        {
+            variablesToUpdate[ body_translational_state_update ].push_back( minimumDistanceDependentVariable->associatedBody_ );
+            variablesToUpdate[ body_rotational_state_update ].push_back( minimumDistanceDependentVariable->associatedBody_ );
+
+            for( unsigned int i = 0; i < minimumDistanceDependentVariable->bodiesToCheck_.size( ); i++ )
+            {
+                variablesToUpdate[ body_translational_state_update ].push_back( minimumDistanceDependentVariable->bodiesToCheck_.at( i ) );
+            }
+        }
+        break;
+    }
     default:
         throw std::runtime_error( "Error when getting environment updates for dependent variables, parameter " +
                                   std::to_string( dependentVariableSaveSettings->dependentVariableType_ ) + " not found." );
@@ -922,15 +1023,13 @@ std::vector< std::string > > createEnvironmentUpdaterSettingsForDependentVariabl
 
 //! Create environment update settings for dependent variables
 std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > createEnvironmentUpdaterSettings(
-        const std::shared_ptr< DependentVariableSaveSettings > dependentVariableSaveSettings,
+        const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >& dependentVariableList,
         const simulation_setup::SystemOfBodies& bodies )
 {
     std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > environmentModelsToUpdate;
 
-    if( dependentVariableSaveSettings != nullptr )
+    if( dependentVariableList.size( ) > 0 )
     {
-        std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariableList =
-                dependentVariableSaveSettings->dependentVariables_;
         for( unsigned int i = 0; i < dependentVariableList.size( ); i++ )
         {
             std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > currentEnvironmentModelsToUpdate =
@@ -1046,8 +1145,10 @@ std::vector< std::string > > createFullEnvironmentUpdaterSettings(
         }
 
         // If body has rotation model, update rotational state in each time step.;
-        if( ( bodyIterator.second->getRotationalEphemeris( ) != nullptr ) ||
-                ( bodyIterator.second->getDependentOrientationCalculator( ) != nullptr ) )
+        if( ( bodyIterator.second->getRotationalEphemeris( ) != nullptr )
+//                ||
+//                ( bodyIterator.second->getDependentOrientationCalculator( ) != nullptr )
+                )
         {
             singleAccelerationUpdateNeeds[ body_rotational_state_update ].
                     push_back( bodyIterator.first );
@@ -1073,30 +1174,7 @@ std::vector< std::string > > createFullEnvironmentUpdaterSettings(
     }
     return environmentModelsToUpdate;
 }
-template std::shared_ptr< propagators::EnvironmentUpdater< double, double > > createEnvironmentUpdaterForDynamicalEquations< double, double >(
-        const std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings,
-        const simulation_setup::SystemOfBodies& bodies );
 
-template std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > createEnvironmentUpdaterSettings< double >(
-        const std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings,
-        const simulation_setup::SystemOfBodies& bodies,
-        const bool isPartOfMultiTypePropagation );
-
-#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
-template std::shared_ptr< propagators::EnvironmentUpdater< double, Time > > createEnvironmentUpdaterForDynamicalEquations< double, Time >(
-        const std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings,
-        const simulation_setup::SystemOfBodies& bodies );
-template std::shared_ptr< propagators::EnvironmentUpdater< long double, double > > createEnvironmentUpdaterForDynamicalEquations< long double, double >(
-        const std::shared_ptr< SingleArcPropagatorSettings< long double > > propagatorSettings,
-        const simulation_setup::SystemOfBodies& bodies );
-template std::shared_ptr< propagators::EnvironmentUpdater< long double, Time > > createEnvironmentUpdaterForDynamicalEquations< long double, Time >(
-        const std::shared_ptr< SingleArcPropagatorSettings< long double > > propagatorSettings,
-        const simulation_setup::SystemOfBodies& bodies );
-template std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > createEnvironmentUpdaterSettings< long double >(
-        const std::shared_ptr< SingleArcPropagatorSettings< long double > > propagatorSettings,
-        const simulation_setup::SystemOfBodies& bodies,
-        const bool isPartOfMultiTypePropagation );
-#endif
 } // namespace propagators
 
 } // namespace tudat

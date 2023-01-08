@@ -42,6 +42,17 @@ public:
         updateConstantState( constantState );
     }
 
+    ConstantRotationalEphemeris( const Eigen::Quaterniond& constantRotationToGlobalFrame,
+                                 const std::string& baseFrameOrientation = "",
+                                 const std::string& targetFrameOrientation = "" ):
+        RotationalEphemeris( baseFrameOrientation, targetFrameOrientation )
+    {
+        Eigen::Vector7d constantState = Eigen::Vector7d::Zero( );
+        constantState.segment( 0, 4 ) = linear_algebra::convertQuaternionToVectorFormat(
+                    constantRotationToGlobalFrame );
+        updateConstantState( constantState );
+    }
+
 
     //! Get rotation quaternion from target frame to base frame.
     /*!

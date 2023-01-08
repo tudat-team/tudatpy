@@ -23,8 +23,8 @@ namespace observation_models
 std::shared_ptr< LightTimeCorrection > createLightTimeCorrections(
         const std::shared_ptr< LightTimeCorrectionSettings > correctionSettings,
         const simulation_setup::SystemOfBodies& bodies,
-        const std::pair< std::string, std::string >& transmitter,
-        const std::pair< std::string, std::string >& receiver )
+        const LinkEndId& transmitter,
+        const LinkEndId& receiver )
 {
 
     using namespace tudat::ephemerides;
@@ -75,7 +75,7 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections(
             // Create light-time correction function
             lightTimeCorrection = std::make_shared< FirstOrderLightTimeCorrectionCalculator >(
                         perturbingBodyStateFunctions, perturbingBodyGravitationalParameterFunctions, perturbingBodies,
-                        transmitter.first, receiver.first,
+                        transmitter.bodyName_, receiver.bodyName_,
                         std::bind( &relativity::PPNParameterSet::getParameterGamma, relativity::ppnParameterSet ) );
 
         }

@@ -78,6 +78,11 @@ public:
         return projectedRelativeVelocityRatios_.at( linkIndex );
     }
 
+    int getNumberOfLinkEnds( )
+    {
+        return numberOfLinkEnds_;
+    }
+
 private:
 
     //! Map of consitutent one-way range scaling objects, with link index as map key

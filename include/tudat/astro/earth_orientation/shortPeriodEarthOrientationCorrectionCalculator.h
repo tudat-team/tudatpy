@@ -16,8 +16,8 @@
 #include <string>
 
 #include <functional>
-#include <boost/bind/bind.hpp>
-#include <boost/make_shared.hpp>
+
+
 
 #include <Eigen/Core>
 
@@ -30,7 +30,7 @@
 #include "tudat/interface/sofa/fundamentalArguments.h"
 #include "tudat/io/basicInputOutput.h"
 
-using namespace boost::placeholders;
+
 
 namespace tudat
 {

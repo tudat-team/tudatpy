@@ -11,7 +11,7 @@
 #include <cmath>
 
 #include <boost/random.hpp>
-#include <boost/make_shared.hpp>
+
 
 #if USE_GSL
 #include <gsl/gsl_qrng.h>

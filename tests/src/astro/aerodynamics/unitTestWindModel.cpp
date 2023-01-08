@@ -14,7 +14,7 @@
 
 #include <limits>
 
-#include <boost/make_shared.hpp>
+
 #include <memory>
 #include <boost/lambda/lambda.hpp>
 #include <boost/test/tools/floating_point_comparison.hpp>
@@ -125,7 +125,6 @@ BOOST_AUTO_TEST_CASE( testWindModelInPropagation )
                     bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
         // Set variables to save
-        std::shared_ptr< DependentVariableSaveSettings > dependentVariableSaveSettings;
         std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
         dependentVariables.push_back(
                     std::make_shared< SingleDependentVariableSaveSettings >(
@@ -151,22 +150,25 @@ BOOST_AUTO_TEST_CASE( testWindModelInPropagation )
         dependentVariables.push_back(
                     std::make_shared< SingleAccelerationDependentVariableSaveSettings >(
                         aerodynamic, "Vehicle", "Earth", 0 ) );
-        dependentVariableSaveSettings = std::make_shared< DependentVariableSaveSettings >( dependentVariables );
 
         // Set propagation/integration settings
         std::shared_ptr< PropagationTimeTerminationSettings > terminationSettings =
                 std::make_shared< propagators::PropagationTimeTerminationSettings >( 1000.0 );
-        std::shared_ptr< TranslationalStatePropagatorSettings< double > > translationalPropagatorSettings =
-                std::make_shared< TranslationalStatePropagatorSettings< double > >
-                ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, terminationSettings,
-                  cowell, dependentVariableSaveSettings );
         std::shared_ptr< IntegratorSettings< > > integratorSettings =
                 std::make_shared< IntegratorSettings< > >
                 ( rungeKutta4, 0.0, 5.0 );
+        std::shared_ptr< tudat::propagators::TranslationalStatePropagatorSettings< double > > translationalPropagatorSettings =
+                std::make_shared< TranslationalStatePropagatorSettings< double > >
+                ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, 0.0,
+                  integratorSettings, terminationSettings,
+                  cowell, dependentVariables );
+
+        translationalPropagatorSettings->getOutputSettings( )->getPrintSettings( )->enableAllPrinting( );
+
 
         // Create simulation object and propagate dynamics.
         SingleArcDynamicsSimulator< > dynamicsSimulator(
-                    bodies, integratorSettings, translationalPropagatorSettings, true, false, false );
+                    bodies, translationalPropagatorSettings );
 
         // Retrieve numerical solutions for state and dependent variables
         std::map< double, Eigen::VectorXd > numericalSolution =
@@ -190,6 +192,7 @@ BOOST_AUTO_TEST_CASE( testWindModelInPropagation )
         {
             // Update environment
             bodies.at( "Vehicle" )->setState( numericalSolution.at( dataIterator->first ) );
+            bodies.at( "Earth" )->setState( Eigen::Vector6d::Zero( ) );
             bodies.at( "Earth" )->setCurrentRotationalStateToLocalFrameFromEphemeris( dataIterator->first );
             bodies.at( "Vehicle" )->getFlightConditions( )->updateConditions( dataIterator->first );
 

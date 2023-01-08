@@ -13,7 +13,7 @@
 #define TUDAT_TABULATEDEPHEMERIS_H
 
 #include <map>
-#include <boost/make_shared.hpp>
+
 
 #include <Eigen/Core>
 
