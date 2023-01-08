@@ -27,6 +27,7 @@
 #include "observation_models/positionObservationModel.h"
 #include "observation_models/twoWayDopplerObservationModel.h"
 #include "observation_models/velocityObservationModel.h"
+#include "observation_models/relativeAngularPositionObservationModel.h"
 #include "observation_models/corrections/lightTimeCorrection.h"
 #include "observation_models/corrections/firstOrderRelativisticCorrection.h"
 

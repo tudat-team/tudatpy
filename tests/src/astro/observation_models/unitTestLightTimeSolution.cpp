@@ -11,10 +11,10 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
-#include <boost/bind/bind.hpp>
-using namespace boost::placeholders;
 
-#include <boost/make_shared.hpp>
+
+
+
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/astro/observation_models/lightTimeSolution.h"
@@ -157,7 +157,7 @@ BOOST_AUTO_TEST_CASE( testLightWithSpice )
             std::make_shared< LightTimeCalculator< > >
             ( std::bind( &Ephemeris::getCartesianState, earthEphemeris, std::placeholders::_1 ),
               std::bind( &Ephemeris::getCartesianState, moonEphemeris, std::placeholders::_1 ),
-              lightTimeCorrections, true );
+              lightTimeCorrections, std::make_shared< LightTimeConvergenceCriteria >( true ) );
 
     // Calculate newtonian light time.
     double newtonianLightTime = lightTimeEarthToMoonWithCorrection->calculateRelativeRangeVector(
@@ -181,7 +181,7 @@ BOOST_AUTO_TEST_CASE( testLightWithSpice )
             std::make_shared< LightTimeCalculator< > >
             ( std::bind( &Ephemeris::getCartesianState, earthEphemeris, std::placeholders::_1 ),
               std::bind( &Ephemeris::getCartesianState, moonEphemeris, std::placeholders::_1 ),
-              lightTimeCorrections, false );
+              lightTimeCorrections, std::make_shared< LightTimeConvergenceCriteria >( false ) );
 
     // Calculate newtonian light time.
     newtonianLightTime = lightTimeEarthToMoonWithCorrection->calculateRelativeRangeVector(
@@ -209,7 +209,7 @@ BOOST_AUTO_TEST_CASE( testLightWithSpice )
             std::make_shared< LightTimeCalculator< > >
             ( std::bind( &Ephemeris::getCartesianState, earthEphemeris, std::placeholders::_1 ),
               std::bind( &Ephemeris::getCartesianState, moonEphemeris, std::placeholders::_1 ),
-              lightTimeCorrections, true );
+              lightTimeCorrections, std::make_shared< LightTimeConvergenceCriteria >( true ) );
 
     // Calculate newtonian light time.
     newtonianLightTime = lightTimeEarthToMoonWithCorrection->calculateRelativeRangeVector(

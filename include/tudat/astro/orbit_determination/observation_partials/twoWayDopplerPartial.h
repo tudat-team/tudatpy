@@ -47,7 +47,8 @@ public:
     TwoWayDopplerScaling( const std::vector< std::shared_ptr< OneWayDopplerScaling > > dopplerScalings,
                           const std::vector< std::shared_ptr< OneWayRangeScaling > > rangeScalings,
                           const std::vector< std::function< double( const double, const observation_models::LinkEndType ) > >
-                          oneWayDopplerModels )
+                          oneWayDopplerModels,
+                          const double multiplicationTerm ): multiplicationTerm_( multiplicationTerm )
     {
         if( dopplerScalings.size( ) != 2 )
         {
@@ -119,10 +120,12 @@ public:
      */
     double getProjectedRelativeVelocityRatio( const int linkIndex )
     {
-        return projectedRelativeVelocityRatios_.at( linkIndex );
+        return projectedRelativeVelocityRatios_.at( linkIndex ) * multiplicationTerm_;
     }
 
 private:
+
+    double multiplicationTerm_;
 
     //! One-way Doppler partial scaling object for uplink
     std::shared_ptr< OneWayDopplerScaling > uplinkDopplerScaling_;

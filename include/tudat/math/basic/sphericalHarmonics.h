@@ -14,7 +14,7 @@
 
 #include <Eigen/Core>
 
-#include <boost/make_shared.hpp>
+
 
 #include "tudat/math/basic/legendrePolynomials.h"
 

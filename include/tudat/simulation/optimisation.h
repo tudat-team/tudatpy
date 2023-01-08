@@ -19,8 +19,8 @@
 #define TUDAT_OPTIMISATION_SETTINGS_H
 
 #include <Eigen/Geometry>
-#include <boost/bind/bind.hpp>
-using namespace boost::placeholders;
+
+
 
 #include <functional>
 #include "tudat/astro/low_thrust/lowThrustLeg.h"

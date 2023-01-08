@@ -130,6 +130,9 @@ void HodographicShapingLeg::satisfyBoundaryConditions( )
     Eigen::Vector6d initialCylindricalState = coordinate_conversions::convertCartesianToCylindricalState( initialCartesianState );
     Eigen::Vector6d finalCylindricalState = coordinate_conversions::convertCartesianToCylindricalState( finalCartesianState );
 
+    // Set initial polar angle
+    initialPolarAngle_ = initialCylindricalState[ 1 ];
+
     // Set boundary conditions in the radial direction.
     radialBoundaryConditions_.clear( );
     radialBoundaryConditions_.push_back( initialCylindricalState[ 0 ] );
@@ -465,8 +468,15 @@ double HodographicShapingLeg::evaluateDerivativePolarAngleWrtTime( const double 
 double HodographicShapingLeg::computeCurrentRadialDistance( const double timeSinceDeparture )
 {
     // Compute radial distance from the central body.
-    return radialVelocityFunction_->evaluateCompositeFunctionIntegralCurrentValue(timeSinceDeparture)
+    double radialDistance = radialVelocityFunction_->evaluateCompositeFunctionIntegralCurrentValue(timeSinceDeparture)
            - radialVelocityFunction_->evaluateCompositeFunctionIntegralCurrentValue(0.0) + radialBoundaryConditions_[0];
+    // Check if computed radial distance is valid
+    if ( radialDistance < 0 )
+    {
+        throw std::runtime_error( "Error when computing radial distance in hodographic shaping: computed distance is negative." );
+    }
+        
+    return radialDistance;
 }
 
 //! Compute current polar angle.
@@ -480,7 +490,7 @@ double HodographicShapingLeg::computeCurrentPolarAngle( const double timeSinceDe
     std::shared_ptr< numerical_quadrature::NumericalQuadrature< double, double > > quadrature =
             numerical_quadrature::createQuadrature( derivativeFunctionPolarAngle, quadratureSettings_, timeSinceDeparture );
 
-    double currentPolarAngle = quadrature->getQuadrature( ) + radialBoundaryConditions_[ 1 ];
+    double currentPolarAngle = quadrature->getQuadrature( ) + initialPolarAngle_;
 
     return currentPolarAngle;
 

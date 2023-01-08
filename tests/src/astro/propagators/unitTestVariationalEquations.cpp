@@ -15,7 +15,7 @@
 #include <thread>
 
 #include <boost/test/unit_test.hpp>
-#include <boost/make_shared.hpp>
+
 
 #include "tudat/basics/testMacros.h"
 #include "tudat/math/basic/linearAlgebra.h"
@@ -32,6 +32,7 @@
 #include "tudat/simulation/estimation_setup/variationalEquationsSolver.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
 #include "tudat/simulation/environment_setup/createBodies.h"
+#include "tudat/simulation/environment_setup/createSystemModel.h"
 #include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
 #include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
 
@@ -140,7 +141,7 @@ executeEarthMoonSimulation(
     initialTranslationalState += initialStateDifference;
 
     // Create propagator settings
-    std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > propagatorSettings;
+    std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType, TimeType > > propagatorSettings;
     TranslationalPropagatorType propagatorType;
     if( propagationType == 0 )
     {
@@ -150,7 +151,7 @@ executeEarthMoonSimulation(
     {
         propagatorType = encke;
     }
-    propagatorSettings =  std::make_shared< TranslationalStatePropagatorSettings< StateScalarType > >
+    propagatorSettings =  std::make_shared< TranslationalStatePropagatorSettings< StateScalarType, TimeType > >
             ( centralBodies, accelerationModelMap, bodiesToIntegrate, initialTranslationalState,
               TimeType( finalEphemerisTime ), propagatorType );
 
@@ -444,8 +445,8 @@ executeOrbiterSimulation(
     initialTranslationalState += initialStateDifference;
 
     // Create propagator settings
-    std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > propagatorSettings =
-            std::make_shared< TranslationalStatePropagatorSettings< StateScalarType > >
+    std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType, TimeType > > propagatorSettings =
+            std::make_shared< TranslationalStatePropagatorSettings< StateScalarType, TimeType > >
             ( centralBodies, accelerationModelMap, bodiesToIntegrate, initialTranslationalState,
               TimeType( finalEphemerisTime ), cowell );
 
@@ -1068,13 +1069,17 @@ BOOST_AUTO_TEST_CASE( testMassRateVariationalEquations )
     bodies.createEmptyBody( "Asterix" );
     double initialBodyMass = 2000.0;
     bodies.getBody( "Asterix" )->setConstantBodyMass( initialBodyMass );
+    bodies.getBody( "Asterix" )->setRotationalEphemeris(
+                createRotationModel(
+                    std::make_shared< OrbitalStateBasedRotationSettings >(
+                        "Earth", true, false, "J2000", "BodyFixed" ),
+                    "Asterix", bodies ) );
 
     Eigen::MatrixXd finalStateTransitionTranslationalOnly;
     Eigen::MatrixXd finalStateTransitionCoupled;
 
     for( int test = 0; test < 2; test++ )
     {
-        std::cout<<"Test "<<test<<std::endl;
         // Define propagator settings variables.
         SelectedAccelerationMap accelerationMap;
         std::vector< std::string > bodiesToPropagate;
@@ -1084,11 +1089,14 @@ BOOST_AUTO_TEST_CASE( testMassRateVariationalEquations )
         std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfAsterix;
         accelerationsOfAsterix[ "Earth" ].push_back( std::make_shared< AccelerationSettings >(
                                                          basic_astrodynamics::point_mass_gravity ) );
-        accelerationsOfAsterix[ "Asterix" ].push_back( std::make_shared< ThrustAccelerationSettings >(
-                                                           std::make_shared< ThrustDirectionFromStateGuidanceSettings >(
-                                                               "Earth", true, false  ),
-                                                           std::make_shared< ConstantThrustMagnitudeSettings >(
-                                                               1.0E-4, 300.0 ) ) );
+        addEngineModel(
+                    "Asterix", "MainEngine",
+                    std::make_shared< ConstantThrustMagnitudeSettings >(
+                        1.0E-4, 300.0 ),
+                    bodies );
+
+
+        accelerationsOfAsterix[ "Asterix" ].push_back( std::make_shared< ThrustAccelerationSettings >( "MainEngine" ) );
 
         accelerationMap[ "Asterix" ] = accelerationsOfAsterix;
         bodiesToPropagate.push_back( "Asterix" );
@@ -1116,6 +1124,7 @@ BOOST_AUTO_TEST_CASE( testMassRateVariationalEquations )
         std::shared_ptr< SingleArcPropagatorSettings< double > > translationalPropagatorSettings =
                 std::make_shared< TranslationalStatePropagatorSettings< double > >(
                     centralBodies, accelerationModelMap, bodiesToPropagate, asterixInitialState, simulationEndEpoch );
+        std::shared_ptr< SingleArcPropagatorSettings< double > > massPropagatorSettings;
         if( test == 0 )
         {
             propagatorSettings = translationalPropagatorSettings;
@@ -1126,7 +1135,7 @@ BOOST_AUTO_TEST_CASE( testMassRateVariationalEquations )
             massRateModels[ "Asterix" ] = createMassRateModel(
                         "Asterix", std::make_shared< FromThrustMassRateSettings >( 1 ),
                         bodies, accelerationModelMap );
-            std::shared_ptr< SingleArcPropagatorSettings< double > > massPropagatorSettings =
+            massPropagatorSettings =
                     std::make_shared< MassPropagatorSettings< double > >(
                         std::vector< std::string >{ "Asterix" }, massRateModels,
                         ( Eigen::VectorXd( 1 ) << initialBodyMass ).finished( ),
@@ -1178,6 +1187,11 @@ BOOST_AUTO_TEST_CASE( testMassRateVariationalEquations )
         else
         {
             finalStateTransitionCoupled = stateTransitionResult.rbegin( )->second;
+            for( int i = 0; i < 6; i++ )
+            {
+                BOOST_CHECK_EQUAL( finalStateTransitionCoupled( 6, i ), 0.0 );
+            }
+            BOOST_CHECK_EQUAL( finalStateTransitionCoupled( 6, 6 ), 1.0 );
         }
 
         Eigen::MatrixXd initialStateTransition = stateTransitionResult.begin( )->second;
@@ -1196,15 +1210,43 @@ BOOST_AUTO_TEST_CASE( testMassRateVariationalEquations )
                     BOOST_CHECK_EQUAL( initialStateTransition( i, j ), 0.0 );
                 }
             }
+        }
 
+        if( test == 1 )
+        {
+            Eigen::VectorXd upPerturbedInitialState, downPerturbedInitialState;
+            double massPerturbation = 1.0;
+            Eigen::VectorXd perturbedInitialMass = Eigen::VectorXd::Zero( 1 );
+            {
+                perturbedInitialMass( 0 ) = initialBodyMass + massPerturbation;
+                bodies.getBody( "Asterix" )->setConstantBodyMass( perturbedInitialMass( 0 ) );
+                massPropagatorSettings->resetInitialStates( perturbedInitialMass );
+                std::dynamic_pointer_cast< MultiTypePropagatorSettings< double > >( propagatorSettings )->recomputeInitialStates( );
+                SingleArcDynamicsSimulator< > dynamicsSimulator(
+                            bodies, integratorSettings, propagatorSettings );
+                upPerturbedInitialState = dynamicsSimulator.getEquationsOfMotionNumericalSolution( ).rbegin( )->second;
+            }
+
+            {
+                perturbedInitialMass( 0 ) = initialBodyMass - massPerturbation;
+                bodies.getBody( "Asterix" )->setConstantBodyMass( perturbedInitialMass( 0 ) );
+                massPropagatorSettings->resetInitialStates( perturbedInitialMass );
+                std::dynamic_pointer_cast< MultiTypePropagatorSettings< double > >( propagatorSettings )->recomputeInitialStates( );
+                SingleArcDynamicsSimulator< > dynamicsSimulator(
+                            bodies, integratorSettings, propagatorSettings );
+                downPerturbedInitialState = dynamicsSimulator.getEquationsOfMotionNumericalSolution( ).rbegin( )->second;
+            }
+            Eigen::VectorXd numericalStatePartialWrtMass = ( ( upPerturbedInitialState - downPerturbedInitialState ) / ( 2.0 * massPerturbation ) ).block( 0, 0, 6, 1 );
+            Eigen::VectorXd analyticalStatePartialWrtMass = finalStateTransitionCoupled.block( 0, 6, 6, 1 );
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalStatePartialWrtMass, analyticalStatePartialWrtMass, 1.0E-4 );
         }
     }
+
 
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                 finalStateTransitionCoupled.block( 0, 0, 6, 6 ), finalStateTransitionTranslationalOnly, 1.0E-6 );
 
 }
-
 
 BOOST_AUTO_TEST_SUITE_END( )
 

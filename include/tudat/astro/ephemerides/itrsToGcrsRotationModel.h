@@ -12,16 +12,16 @@
 #ifndef TUDAT_GCRSTOITRSROTATIONMODEL_H
 #define TUDAT_GCRSTOITRSROTATIONMODEL_H
 
-#if TUDAT_BUILD_WITH_SOFA_INTERFACE
+//#if TUDAT_BUILD_WITH_SOFA_INTERFACE
 
-#include <boost/bind/bind.hpp>
+
 
 #include "tudat/math/basic/linearAlgebra.h"
 #include "tudat/math/interpolators/interpolator.h"
 #include "tudat/astro/ephemerides/rotationalEphemeris.h"
 #include "tudat/astro/earth_orientation/earthOrientationCalculator.h"
 
-using namespace boost::placeholders;
+
 
 namespace tudat
 {
@@ -216,6 +216,6 @@ private:
 
 }
 
-#endif
+//#endif
 
 #endif // TUDAT_GCRSTOITRSROTATIONMODEL_H

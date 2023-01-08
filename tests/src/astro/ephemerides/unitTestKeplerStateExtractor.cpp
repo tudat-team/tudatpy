@@ -20,7 +20,7 @@
 #include <utility>
 
 #include <boost/test/unit_test.hpp>
-#include <boost/make_shared.hpp>
+
 
 #include "tudat/math/basic/coordinateConversions.h"
 

@@ -11,8 +11,8 @@
 #ifndef TUDAT_VELOCITYOBSERVATIONMODEL_H
 #define TUDAT_VELOCITYOBSERVATIONMODEL_H
 
-#include <boost/bind/bind.hpp>
-using namespace boost::placeholders;
+
+
 
 #include <boost/function.hpp>
 
@@ -68,7 +68,8 @@ public:
                 const TimeType time,
                 const LinkEndType linkEndAssociatedWithTime,
                 std::vector< double >& linkEndTimes,
-                std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates )
+                std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
+            const std::shared_ptr< ObservationAncilliarySimulationSettings< TimeType > > ancilliarySetings = nullptr )
     {
         // Check link end
         if( linkEndAssociatedWithTime != observed_body )

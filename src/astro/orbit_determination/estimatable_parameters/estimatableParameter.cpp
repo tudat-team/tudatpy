@@ -120,6 +120,18 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
     case scaled_longitude_libration_amplitude:
         parameterDescription = " scaled longitude libration amplitude ";
         break;
+    case constant_thrust_magnitude_parameter:
+        parameterDescription = " constant thrust magnitude ";
+        break;
+    case constant_specific_impulse:
+        parameterDescription = " constant specific impulse ";
+        break;
+    case constant_time_drift_observation_bias:
+        parameterDescription = "time drift observation bias ";
+        break;
+    case arc_wise_time_drift_observation_bias:
+        parameterDescription = "arc-wise time drift observation bias ";
+        break;
     default:
         std::string errorMessage = "Error when getting parameter string, did not recognize parameter " +
                 std::to_string( parameterType );
@@ -246,6 +258,18 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
     case scaled_longitude_libration_amplitude:
         isDoubleParameter = true;
         break;
+    case constant_thrust_magnitude_parameter:
+        isDoubleParameter = true;
+        break;
+    case constant_specific_impulse:
+        isDoubleParameter = true;
+        break;
+    case constant_time_drift_observation_bias:
+        isDoubleParameter = false;
+        break;
+    case arc_wise_time_drift_observation_bias:
+        isDoubleParameter = false;
+        break;
     default:
         throw std::runtime_error( "Error, parameter type " + std::to_string( parameterType ) +
                                   " not found when getting parameter type" );
@@ -308,6 +332,12 @@ bool isParameterObservationLinkProperty( const EstimatebleParametersEnum paramet
     case arcwise_constant_relative_observation_bias:
         flag = true;
         break;
+    case constant_time_drift_observation_bias:
+        flag = true;
+        break;
+    case arc_wise_time_drift_observation_bias:
+        flag = true;
+        break;
     default:
         flag = false;
         break;
@@ -334,16 +364,23 @@ bool isParameterTidalProperty( const EstimatebleParametersEnum parameterType )
     return flag;
 }
 
-//#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
-//template class EstimatableParameter< Eigen::VectorXd >;
-//template class EstimatableParameter< Eigen::Matrix< long double, Eigen::Dynamic, 1 > >;
-//#endif
+//! Function to determine whether the given parameter represents an arc-wise initial dynamical state.
+bool isParameterArcWiseInitialStateProperty( const EstimatebleParametersEnum parameterType )
+{
+    bool flag;
+    switch( parameterType )
+    {
+        case arc_wise_initial_body_state:
+            flag = true;
+            break;
+        default:
+            flag = false;
+            break;
+    }
+    return flag;
+}
 
-//template class EstimatableParameterSet< double >;
 
-//#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
-//template class EstimatableParameterSet< long double >;
-//#endif
 
 }
 

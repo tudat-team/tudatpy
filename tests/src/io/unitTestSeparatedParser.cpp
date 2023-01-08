@@ -298,7 +298,7 @@ BOOST_AUTO_TEST_CASE( testSeparatedParserFieldTransform )
                        ( "2011542" ) );
     BOOST_CHECK_EQUAL( testLineData->find(
                            field_types::state::semiMajorAxis )->second->getTransformed( ),
-                       ( "590933550196.867432" ) );
+                       ( "590933550232.418823" ) );
     BOOST_CHECK_EQUAL( testLineData->find(
                            field_types::state::eccentricity )->second->getTransformed( ),
                        ( "0.2391642" ) );

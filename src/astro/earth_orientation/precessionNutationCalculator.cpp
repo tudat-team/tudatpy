@@ -9,8 +9,8 @@
  *
  */
 
-#include <boost/bind/bind.hpp>
-using namespace boost::placeholders;
+
+
 
 
 #include "tudat/astro/basic_astro/physicalConstants.h"

@@ -12,8 +12,8 @@
 #define TUDAT_FULLPROPAGATIONLAMBERTTARGETER_H
 
 #include <string>
-#include <boost/bind/bind.hpp>
-using namespace boost::placeholders;
+
+
 
 
 #include "tudat/astro/basic_astro/orbitalElementConversions.h"

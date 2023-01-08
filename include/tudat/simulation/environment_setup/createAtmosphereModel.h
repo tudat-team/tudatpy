@@ -979,6 +979,18 @@ inline std::shared_ptr< AtmosphereSettings > scaledAtmosphereSettings(
     return std::make_shared< ScaledAtmosphereSettings >( baseSettings, scaling, isScalingAbsolute );
 }
 
+inline std::shared_ptr< AtmosphereSettings > tabulatedAtmosphereSettings(
+        const std::string& atmosphereTableFile,
+        const std::vector< AtmosphereDependentVariables >& dependentVariablesNames = { density_dependent_atmosphere,
+        pressure_dependent_atmosphere, temperature_dependent_atmosphere },
+        const double specificGasConstant = physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
+        const double ratioOfSpecificHeats = 1.4 )
+{
+    return std::make_shared< TabulatedAtmosphereSettings >(
+                atmosphereTableFile, dependentVariablesNames, specificGasConstant, ratioOfSpecificHeats,
+                interpolators::throw_exception_at_boundary );
+}
+
 
 //! @get_docstring(customWindModelSettings)
 inline std::shared_ptr< WindModelSettings > customWindModelSettings(
@@ -995,6 +1007,9 @@ inline std::shared_ptr< WindModelSettings > constantWindModelSettings(
 {
     return std::make_shared< ConstantWindModelSettings >( constantWindVelocity, associatedFrame );
 }
+
+
+
 
 //  Function to create a wind model.
 /* 

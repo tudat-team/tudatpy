@@ -15,7 +15,7 @@
 #include <string>
 
 #include <boost/test/unit_test.hpp>
-#include <boost/make_shared.hpp>
+
 
 #include "tudat/basics/testMacros.h"
 
@@ -74,12 +74,12 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
 
     // Define link ends for observations.
     LinkEnds linkEnds;
-    linkEnds[ transmitter ] = std::make_pair( "Earth" , ""  );
-    linkEnds[ receiver ] = std::make_pair( "Mars" , ""  );
+    linkEnds[ transmitter ] = std::make_pair< std::string, std::string >( "Earth" , ""  );
+    linkEnds[ receiver ] = std::make_pair< std::string, std::string >( "Mars" , ""  );
 
     // Create range rate observation settings and model
     std::shared_ptr< ObservationModelSettings > rangeRateObservableSettings = std::make_shared<
-            OneWayDifferencedRangeRateObservationSettings >( linkEnds, std::bind( &integrationTimeFunction, std::placeholders::_1 ) );
+            ObservationModelSettings >( one_way_differenced_range, linkEnds );
     std::shared_ptr< ObservationModel< 1, double, double> > rangeRateObservationModel =
             ObservationModelCreator< 1, double, double>::createObservationModel(
                 rangeRateObservableSettings, bodies );
@@ -123,7 +123,8 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
 
             // Compute observable
             double rangeRateObservable = rangeRateObservationModel->computeObservationsWithLinkEndData(
-                        observationTime, referenceLinkEnd, rangeRateLinkEndTimes, rangeRateLinkEndStates )( 0 );
+                        observationTime, referenceLinkEnd, rangeRateLinkEndTimes, rangeRateLinkEndStates,
+                        getAveragedDopplerAncilliarySettings( dopplerCountInterval ) )( 0 );
 
             double arcEndRange = rangeObservationModel->computeObservationsWithLinkEndData(
                         arcEndObservationTime, referenceLinkEnd, rangeEndLinkEndTimes, rangeEndLinkEndStates )( 0 );

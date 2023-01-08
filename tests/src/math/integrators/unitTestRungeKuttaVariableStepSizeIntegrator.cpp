@@ -157,7 +157,7 @@ BOOST_AUTO_TEST_CASE( testMinimumStepSizeRuntimeError )
         }
 
         // Catch the expected runtime error, and set the boolean flag to true.
-        catch ( RungeKuttaVariableStepSizeIntegratorXd::MinimumStepSizeExceededError
+        catch ( RungeKuttaVariableStepSizeIntegratorXd::MinimumStepSizeExceededError&
                 minimumStepSizeExceededError )
         {
             isMinimumStepSizeExceededForIntegrateTo = true;
@@ -182,7 +182,7 @@ BOOST_AUTO_TEST_CASE( testMinimumStepSizeRuntimeError )
         }
 
         // Catch the expected runtime error, and set the boolean flag to true.
-        catch ( RungeKuttaVariableStepSizeIntegratorXd::MinimumStepSizeExceededError
+        catch ( RungeKuttaVariableStepSizeIntegratorXd::MinimumStepSizeExceededError&
                 minimumStepSizeExceededError )
         {
             isMinimumStepSizeExceededForPerformIntegrationStep = true;

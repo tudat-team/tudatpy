@@ -131,6 +131,13 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientsFromFile )
 
         bodies.at( "SpacePlane" )->setConstantBodyMass( 50.0E3 );
 
+        std::shared_ptr< ephemerides::RotationalEphemeris > vehicleRotationModel =
+                createRotationModel(
+                    std::make_shared< PitchTrimRotationSettings >( "Earth", "J2000", "VehicleFixed" ),
+                    "SpacePlane", bodies );
+
+        bodies.at( "SpacePlane" )->setRotationalEphemeris( vehicleRotationModel  );
+
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ///////////////////////             CREATE ACCELERATIONS            ///////////////////////////////////////////////////
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -162,6 +169,12 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientsFromFile )
                 std::make_shared< interpolators::MultiLinearInterpolator< double, double, 2 > >(
                     specificImpulseValues.second, specificImpulseValues.first );
 
+        addEngineModel(
+                    "SpacePlane", "MainEngine",
+                    std::make_shared< ParameterizedThrustMagnitudeSettings >(
+                        thrustMagnitudeInterpolator, thrustDependencies,
+                        specificImpulseInterpolator, thrustDependencies ), bodies );
+
         //////////////////////////////////////// End Variable thrust calculations /////////////////////////////////////////////
 
 
@@ -171,11 +184,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientsFromFile )
         accelerationsOfSpacePlane[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( aerodynamic ) );
 
         accelerationsOfSpacePlane[ "SpacePlane" ].push_back( std::make_shared< ThrustAccelerationSettings >(
-                                                                 std::make_shared< ThrustDirectionSettings >(
-                                                                     thrust_direction_from_existing_body_orientation, "Earth" ),
-                                                                 std::make_shared< ParameterizedThrustMagnitudeSettings >(
-                                                                     thrustMagnitudeInterpolator, thrustDependencies,
-                                                                     specificImpulseInterpolator, thrustDependencies ) ) );
+                                                                  "MainEngine" ) );
 
         accelerationMap[ "SpacePlane" ] = accelerationsOfSpacePlane;
 
@@ -185,8 +194,6 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientsFromFile )
         // Create acceleration models
         basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
                     bodies, accelerationMap, bodiesToPropagate, centralBodies );
-        setTrimmedConditions( bodies.at( "SpacePlane" ) );
-
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ///////////////////////             CREATE PROPAGATION SETTINGS            ////////////////////////////////////////////
@@ -252,14 +259,16 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientsFromFile )
                     propagationTerminationSettingsList, true );
 
         // Create propagation settings.
-        std::shared_ptr< TranslationalStatePropagatorSettings < double > > propagatorSettings =
-                std::make_shared< TranslationalStatePropagatorSettings< double > >
-                ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, propagationTerminationSettings,
-                  cowell, std::make_shared< DependentVariableSaveSettings >( dependentVariables ) );
-
         std::shared_ptr< IntegratorSettings< > > integratorSettings =
                 std::make_shared< IntegratorSettings< > >
                 ( rungeKutta4, simulationStartEpoch, fixedStepSize );
+        std::shared_ptr< TranslationalStatePropagatorSettings < double > > propagatorSettings =
+                std::make_shared< TranslationalStatePropagatorSettings< double > >
+                ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, simulationStartEpoch,
+                  integratorSettings, propagationTerminationSettings,
+                  cowell, dependentVariables );
+
+
 
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -269,7 +278,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientsFromFile )
 
         // Create simulation object and propagate dynamics.
         SingleArcDynamicsSimulator< > dynamicsSimulator(
-                    bodies, integratorSettings, propagatorSettings, true, false, false );
+                    bodies, propagatorSettings );
 
         // Retrieve numerical solutions for state and dependent variables
         std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > numericalSolution =
@@ -322,11 +331,14 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientsFromFile )
             double angleOfAttack = variableIterator->second( 1 );
             double sideslipAngle = variableIterator->second( 2 );
             double bankAngle = variableIterator->second( 3 );
+//            std::cout<<"AoA "<<angleOfAttack<<std::endl;
 
             double controlSurfaceDeflection  = 0.0;
             if( i > 0 )
             {
                 controlSurfaceDeflection = variableIterator->second( 4 );
+//                std::cout<<"CSD "<<controlSurfaceDeflection<<std::endl;
+
             }
 
             Eigen::Vector3d momentCoefficients = variableIterator->second.segment( 4 + parameterAddition, 3 );

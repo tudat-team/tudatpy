@@ -19,7 +19,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/assign.hpp>
 #include <boost/iostreams/filtering_stream.hpp>
-#include <boost/make_shared.hpp>
+
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/astro/basic_astro/unitConversions.h"

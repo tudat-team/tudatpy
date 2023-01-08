@@ -29,7 +29,7 @@ void updateInverseAPrioriCovarianceFromJSON(
 template< typename ObservationScalarType = double, typename TimeType = double >
 void updatePodSettingsFromJSON(
         const nlohmann::json& jsonObject,
-        std::shared_ptr< simulation_setup::PodInput< ObservationScalarType, TimeType > > estimationInput,
+        std::shared_ptr< simulation_setup::EstimationInput< ObservationScalarType, TimeType > > estimationInput,
         std::shared_ptr< simulation_setup::EstimationConvergenceChecker > convergenceChecker,
         const int numberOfEstimatedParameters )
 {
@@ -40,8 +40,8 @@ void updatePodSettingsFromJSON(
             getValue< bool >( jsonObject, K::reintegrateEquationsOnFirstIteration, true );
     const bool reintegrateVariationalEquations =
             getValue< bool >( jsonObject, K::reintegrateVariationalEquations, true );
-    const bool saveInformationMatrix =
-            getValue< bool >( jsonObject, K::saveInformationMatrix, true );
+    const bool saveDesignMatrix =
+            getValue< bool >( jsonObject, K::saveDesignMatrix, true );
     const bool printOutput =
             getValue< bool >( jsonObject, K::printOutput, true );
     const bool saveResidualsAndParametersFromEachIteration =
@@ -63,12 +63,12 @@ void updatePodSettingsFromJSON(
     updateInverseAPrioriCovarianceFromJSON(
                 jsonObject, numberOfEstimatedParameters, inverseAprioriCovariance );
 
-    estimationInput = std::make_shared< PodInput< ObservationScalarType, TimeType > >(
-                typename PodInput< ObservationScalarType, TimeType >::PodInputDataType( ),
+    estimationInput = std::make_shared< EstimationInput< ObservationScalarType, TimeType > >(
+                typename EstimationInput< ObservationScalarType, TimeType >::EstimationInputDataType( ),
                 numberOfEstimatedParameters, inverseAprioriCovariance, Eigen::VectorXd::Zero( numberOfEstimatedParameters ) );
 
     estimationInput->defineEstimationSettings(
-                reintegrateEquationsOnFirstIteration, reintegrateVariationalEquations, saveInformationMatrix,
+                reintegrateEquationsOnFirstIteration, reintegrateVariationalEquations, saveDesignMatrix,
                 printOutput, saveResidualsAndParametersFromEachIteration, saveStateHistoryForEachIteration );
 
     convergenceChecker = std::make_shared< EstimationConvergenceChecker >(

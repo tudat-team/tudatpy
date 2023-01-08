@@ -15,7 +15,7 @@
 #include <map>
 
 #include <functional>
-#include <boost/make_shared.hpp>
+
 #include <boost/lambda/lambda.hpp>
 
 #include <Eigen/Core>
@@ -463,7 +463,8 @@ public:
             const std::function< ObservationScalarType( const TimeType ) > transmitterProperTimeRateFunction
             = std::function< ObservationScalarType( const TimeType ) >( ),
             const std::function< ObservationScalarType( const TimeType ) > receiverProperTimeRateFunction
-            = std::function< ObservationScalarType( const TimeType ) >( ) ):
+            = std::function< ObservationScalarType( const TimeType ) >( ),
+            const bool normalizeWithSpeedOfLight = false ):
         ObservationModel< 1, ObservationScalarType, TimeType >( one_way_doppler, linkEnds, observationBiasCalculator ),
         lightTimeCalculator_( lightTimeCalculator ),
         transmitterProperTimeRateCalculator_(
@@ -476,6 +477,7 @@ public:
                 receiver, receiverProperTimeRateFunction ) )
     {
         one_ = mathematical_constants::getFloatingInteger< ObservationScalarType >( 1 );
+        setNormalizeWithSpeedOfLight( normalizeWithSpeedOfLight );
         taylorSeriesExpansionOrder_ = 3;
     }
 
@@ -496,18 +498,15 @@ public:
             lightTimeCalculator,
             const std::shared_ptr< DopplerProperTimeRateInterface > transmitterProperTimeRateCalculator,
             const std::shared_ptr< DopplerProperTimeRateInterface > receiverProperTimeRateFunction,
-            const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr ):
+            const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr,
+            const bool normalizeWithSpeedOfLight = false ):
         ObservationModel< 1, ObservationScalarType, TimeType >( one_way_doppler, linkEnds, observationBiasCalculator ),
         lightTimeCalculator_( lightTimeCalculator ),
         transmitterProperTimeRateCalculator_( transmitterProperTimeRateCalculator ),
         receiverProperTimeRateCalculator_( receiverProperTimeRateFunction )
     {
-        if( ( transmitterProperTimeRateCalculator == nullptr ) || (
-                    receiverProperTimeRateFunction == nullptr ) )
-//        {
-//            throw std::runtime_error( "Error when making one-way Doppler model, input proper time rates are zero" );
-//        }
         one_ = mathematical_constants::getFloatingInteger< ObservationScalarType >( 1 );
+        setNormalizeWithSpeedOfLight( normalizeWithSpeedOfLight );
         taylorSeriesExpansionOrder_ = 3;
     }
 
@@ -533,7 +532,8 @@ public:
             const TimeType time,
             const LinkEndType linkEndAssociatedWithTime,
             std::vector< double >& linkEndTimes,
-            std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates )
+            std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
+            const std::shared_ptr< ObservationAncilliarySimulationSettings< TimeType > > ancilliarySetings = nullptr  )
     {
         ObservationScalarType lightTime = TUDAT_NAN;
         TimeType transmissionTime = TUDAT_NAN, receptionTime = TUDAT_NAN;
@@ -557,6 +557,11 @@ public:
         default:
             throw std::runtime_error(
                         "Error when calculating one way Doppler observation, link end is not transmitter or receiver" );
+        }
+
+        if( ancilliarySetings != nullptr )
+        {
+            throw std::runtime_error( "Error, calling one-way Doppler observable with ancilliary settings, but none are supported." );
         }
 
         linkEndTimes.clear( );
@@ -610,7 +615,7 @@ public:
         ObservationScalarType totalDopplerObservable = firstOrderDopplerObservable *
                 ( mathematical_constants::getFloatingInteger< ObservationScalarType >( 1 ) + properTimeCorrectionTerm ) +
                 properTimeCorrectionTerm;
-        return ( Eigen::Matrix<  ObservationScalarType, 1, 1  >( ) << totalDopplerObservable ).finished( );
+        return ( Eigen::Matrix<  ObservationScalarType, 1, 1  >( ) << multiplicationTerm_ * totalDopplerObservable ).finished( );
     }
 
     //! Function to return the object to calculate light time.
@@ -643,7 +648,21 @@ public:
         return receiverProperTimeRateCalculator_;
     }
 
+    void setNormalizeWithSpeedOfLight( const bool normalizeWithSpeedOfLight )
+    {
+        normalizeWithSpeedOfLight_ = normalizeWithSpeedOfLight;
+        multiplicationTerm_ = normalizeWithSpeedOfLight ? one_ : physical_constants::getSpeedOfLight< ObservationScalarType >( );
+    }
 
+    ObservationScalarType getMultiplicationTerm( )
+    {
+        return multiplicationTerm_;
+    }
+
+    bool getNormalizeWithSpeedOfLight( )
+    {
+        return normalizeWithSpeedOfLight_;
+    }
 
 private:
 
@@ -674,6 +693,9 @@ private:
     //! Pre-declared light-time partial w.r.t. transmitter sensitivity (used fopr first-order Doppler)
     Eigen::Matrix< ObservationScalarType, 1, 3 > lightTimePartialWrtTransmitterPosition_;
 
+    bool normalizeWithSpeedOfLight_;
+
+    ObservationScalarType multiplicationTerm_;
 };
 
 }

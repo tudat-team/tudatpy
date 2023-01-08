@@ -145,8 +145,8 @@ constexpr long double getSpeedOfLight< long double >( )
 //! Gravitational constant in meter^3 per kilogram per second^2, (Standish, 1995).
 constexpr static double GRAVITATIONAL_CONSTANT = 6.67259e-11;
 
-//! Astronomical Unit in meters (Standish, 1998).
-constexpr static double ASTRONOMICAL_UNIT = 1.49597870691e11;
+//! Astronomical Unit in meters (IAU 2012, Resolution B2).
+constexpr static double ASTRONOMICAL_UNIT = 1.49597870700E11;
 
 //! The specific gas constant of air in J per kg Kelvin (J/(kg K)) (Anderson, 2006).
 constexpr static double SPECIFIC_GAS_CONSTANT_AIR = 2.87e2;

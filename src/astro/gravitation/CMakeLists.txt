@@ -34,6 +34,8 @@ set(gravitation_SOURCES
         "secondDegreeGravitationalTorque.cpp"
         "directTidalDissipationAcceleration.cpp"
         "periodicGravityFieldVariations.cpp"
+        "polyhedronGravityField.cpp"
+        "polyhedronGravityModel.cpp"
         )
 
 # Set the header files.
@@ -60,6 +62,8 @@ set(gravitation_HEADERS
         "directTidalDissipationAcceleration.h"
         "sphericalHarmonicGravitationalTorque.h"
         "periodicGravityFieldVariations.h"
+        "polyhedronGravityField.h"
+        "polyhedronGravityModel.h"
         )
 
 TUDAT_ADD_LIBRARY("gravitation"

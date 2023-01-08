@@ -15,7 +15,7 @@
 #include <string>
 
 #include <boost/test/unit_test.hpp>
-#include <boost/make_shared.hpp>
+
 
 #include "tudat/basics/testMacros.h"
 
@@ -67,7 +67,7 @@ BOOST_AUTO_TEST_CASE( testPositionObsevableModel )
 
     // Define link ends for observations.
     LinkEnds linkEnds;
-    linkEnds[ observed_body ] = std::make_pair( "Earth" , ""  );
+    linkEnds[ observed_body ] = std::make_pair< std::string, std::string >( "Earth" , ""  );
 
 
     // Create observation settings

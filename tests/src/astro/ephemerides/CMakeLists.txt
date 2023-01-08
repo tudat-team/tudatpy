@@ -108,6 +108,11 @@ TUDAT_ADD_TEST_CASE(SynchronousRotationalEphemeris
         ${Tudat_PROPAGATION_LIBRARIES}
         )
 
+TUDAT_ADD_TEST_CASE(CustomRotationalEphemeris
+        PRIVATE_LINKS
+        ${Tudat_PROPAGATION_LIBRARIES}
+        )
+
 TUDAT_ADD_TEST_CASE(TwoLineElementsEphemeris
         PRIVATE_LINKS
        ${Tudat_PROPAGATION_LIBRARIES}

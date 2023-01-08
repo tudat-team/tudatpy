@@ -23,7 +23,7 @@
 #ifndef TUDAT_TRANSFER_LEG_H
 #define TUDAT_TRANSFER_LEG_H
 
-#include <boost/make_shared.hpp>
+
 
 #include <Eigen/Core>
 
@@ -118,6 +118,12 @@ public:
     {
         return arrivalTime_ - departureTime_;
     }
+
+    double getLegDepartureTime( )
+    { return departureTime_; }
+
+    double getLegArrivalTime( )
+    { return arrivalTime_; }
 
     virtual void getStateAlongTrajectory( Eigen::Vector6d& stateAlongTrajectory,
                                           const double time ) = 0;

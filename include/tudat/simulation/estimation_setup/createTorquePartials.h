@@ -11,7 +11,7 @@
 #ifndef TUDAT_CREATETORQUEPARTIALS_H
 #define TUDAT_CREATETORQUEPARTIALS_H
 
-#include <boost/make_shared.hpp>
+
 
 #include "tudat/astro/basic_astro/torqueModel.h"
 #include "tudat/simulation/environment_setup/body.h"

@@ -315,11 +315,11 @@ public:
 protected:
 
     //! Function to reset the relevant member objects to the current time.
-    void resetTimeOfMemberObjects( )
+    void resetCurrentTimeOfMemberObjects( )
     {
         for( unsigned int i = 0; i < tidalLoveNumberPartialInterfaces_.size( ); i++ )
         {
-            tidalLoveNumberPartialInterfaces_.at( i )->resetTime( currentTime_ );
+            tidalLoveNumberPartialInterfaces_.at( i )->resetCurrentTime( );
         }
     }
 

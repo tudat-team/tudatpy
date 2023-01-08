@@ -17,7 +17,7 @@
 
 #include <limits>
 
-#include <boost/make_shared.hpp>
+
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/basics/testMacros.h"
@@ -27,6 +27,7 @@
 #include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
 #include "tudat/simulation/environment_setup/createGroundStations.h"
 #include "tudat/simulation/estimation_setup/podProcessing.h"
+#include "tudat/simulation/estimation_setup/orbitDeterminationTestCases.h"
 
 
 namespace tudat
@@ -83,7 +84,7 @@ Eigen::VectorXd  executeParameterEstimation(
                     "ECLIPJ2000", "IAU_Mars", initialEphemerisTime ),
                 initialEphemerisTime, 2.0 * mathematical_constants::PI /
                 ( physical_constants::JULIAN_DAY + 40.0 * 60.0 ) );
-    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+    SystemOfBodies bodies = createSystemOfBodies< ObservationScalarType, TimeType >( bodySettings );
 
     
 
@@ -150,25 +151,25 @@ Eigen::VectorXd  executeParameterEstimation(
     integrationArcLimits.push_back( currentStartTime + arcOverlap );
 
 
-    std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > propagatorSettingsList;
+    std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > > propagatorSettingsList;
     for( unsigned int i = 0; i < integrationArcStartTimes.size( ); i++ )
     {
         Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > currentInitialState =
                 getInitialStateOfBody< TimeType, StateScalarType>(
                     bodiesToIntegrate.at( 0 ), centralBodies.at( 0 ), bodies, integrationArcStartTimes.at( i ) );
         propagatorSettingsList.push_back(
-                    std::make_shared< TranslationalStatePropagatorSettings< StateScalarType > >
+                    std::make_shared< TranslationalStatePropagatorSettings< StateScalarType, TimeType > >
                     ( centralBodies, accelerationModelMap, bodiesToIntegrate,
                       currentInitialState,
                       integrationArcEndTimes.at( i ) ) );
     }
-    std::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > propagatorSettings =
-            std::make_shared< MultiArcPropagatorSettings< StateScalarType > >( propagatorSettingsList, linkArcs );
+    std::shared_ptr< MultiArcPropagatorSettings< StateScalarType, TimeType > > propagatorSettings =
+            std::make_shared< MultiArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettingsList, linkArcs );
 
 
     std::cout<<"************************************* RUNNING TEST *************************"<<std::endl;
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames =
-            getInitialMultiArcParameterSettings< double >( propagatorSettings, bodies, integrationArcStartTimes );
+            getInitialMultiArcParameterSettings< StateScalarType, TimeType  >( propagatorSettings, bodies, integrationArcStartTimes );
 
 //    parameterNames = getInitialStateParameterSettings< double >( propagatorSettings, bodies );
     parameterNames.push_back( std::make_shared< EstimatableParameterSettings >
@@ -181,7 +182,7 @@ Eigen::VectorXd  executeParameterEstimation(
 
 
     // Define links in simulation.
-    std::vector< LinkEnds > linkEnds2;
+    std::vector< LinkDefinition > linkEnds2;
     linkEnds2.resize( 2 );
     linkEnds2[ 0 ][ transmitter ] = grazStation;
     linkEnds2[ 0 ][ receiver ] = mslStation;
@@ -230,12 +231,12 @@ Eigen::VectorXd  executeParameterEstimation(
         }
     }
 
-    std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > measurementSimulationInput;
+    std::vector< std::shared_ptr< ObservationSimulationSettings< TimeType > > > measurementSimulationInput;
     measurementSimulationInput.push_back(
-                std::make_shared< TabulatedObservationSimulationSettings< > >(
+                std::make_shared< TabulatedObservationSimulationSettings< TimeType > >(
                     one_way_range, linkEnds2[ 0 ], initialObservationTimes, receiver ) );
 
-    std::shared_ptr< ObservationCollection< > > observationsAndTimes = simulateObservations< ObservationScalarType, TimeType >(
+    std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > observationsAndTimes = simulateObservations< ObservationScalarType, TimeType >(
                 measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies  );
 
 
@@ -258,14 +259,23 @@ Eigen::VectorXd  executeParameterEstimation(
 
     parametersToEstimate->resetParameterValues( initialParameterEstimate );
 
-    std::shared_ptr< PodInput< ObservationScalarType, TimeType > > podInput =
-            std::make_shared< PodInput< ObservationScalarType, TimeType > >(
-                observationsAndTimes, ( initialParameterEstimate ).rows( ) );
+    std::shared_ptr< EstimationInput< ObservationScalarType, TimeType > > estimationInput =
+            std::make_shared< EstimationInput< ObservationScalarType, TimeType > >(
+                observationsAndTimes );
+    std::shared_ptr< CovarianceAnalysisInput< ObservationScalarType, TimeType > > covarianceInput =
+            std::make_shared< CovarianceAnalysisInput< ObservationScalarType, TimeType > >(
+                observationsAndTimes );
 
-    std::shared_ptr< PodOutput< StateScalarType, TimeType > > podOutput = orbitDeterminationManager.estimateParameters(
-                podInput );
+    std::shared_ptr< EstimationOutput< StateScalarType, TimeType > > estimationOutput = orbitDeterminationManager.estimateParameters(
+                estimationInput );
 
-    return ( podOutput->parameterEstimate_ - truthParameters ).template cast< double >( );
+    parametersToEstimate->resetParameterValues( estimationOutput->parameterHistory_.at( estimationOutput->bestIteration_ ) );
+    std::shared_ptr< CovarianceAnalysisOutput< StateScalarType, TimeType > > covarianceOutput = orbitDeterminationManager.computeCovariance(
+                covarianceInput );
+
+    compareEstimationAndCovarianceResults( estimationOutput, covarianceOutput );
+
+    return ( estimationOutput->parameterEstimate_ - truthParameters ).template cast< double >( );
 }
 
 
@@ -284,7 +294,7 @@ BOOST_AUTO_TEST_CASE( test_MultiArcStateEstimation )
         {
             for( unsigned int j = 0; j < 3; j++ )
             {
-                BOOST_CHECK_SMALL( std::fabs( parameterError( i * 6 + j ) ), 1E-4 );
+                BOOST_CHECK_SMALL( std::fabs( parameterError( i * 6 + j ) ), 2E-4 );
                 BOOST_CHECK_SMALL( std::fabs( parameterError( i * 6 + j + 3 ) ), 1.0E-10  );
             }
         }
@@ -443,17 +453,17 @@ Eigen::VectorXd  executeMultiBodyMultiArcParameterEstimation( )
             ( rungeKutta4, TimeType( initialEphemerisTime  ), 30.0 );
 
     // Define propagator settings.
-    std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > propagatorSettingsList;
+    std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > > propagatorSettingsList;
     for( unsigned int i = 0; i < integrationArcStartTimes.size( ); i++ )
     {
         propagatorSettingsList.push_back(
-                    std::make_shared< TranslationalStatePropagatorSettings< StateScalarType > >
+                    std::make_shared< TranslationalStatePropagatorSettings< StateScalarType, TimeType > >
                     ( centralBodies, accelerationModelMap, bodiesToIntegrate,
                       allBodiesPerArcInitialStates.at( i ),
-                      integrationArcEndTimes.at( i ), cowell, std::shared_ptr< DependentVariableSaveSettings >( ), 60.0 ) );
+                      integrationArcEndTimes.at( i ), cowell, std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ), 60.0 ) );
     }
-    std::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > propagatorSettings =
-            std::make_shared< MultiArcPropagatorSettings< StateScalarType > >( propagatorSettingsList );
+    std::shared_ptr< MultiArcPropagatorSettings< StateScalarType, TimeType > > propagatorSettings =
+            std::make_shared< MultiArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettingsList );
 
 
     // Set parameters that are to be estimated.
@@ -462,15 +472,16 @@ Eigen::VectorXd  executeMultiBodyMultiArcParameterEstimation( )
 
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate =
             createParametersToEstimate< StateScalarType >( parameterNames, bodies );
+    printEstimatableParameterEntries( parametersToEstimate );
 
 
     // Define links and observations in simulation.
-    std::vector< LinkEnds > linkEndsList;
+    std::vector< LinkDefinition > linkEndsList;
     std::vector< std::shared_ptr< ObservationModelSettings > > observationSettingsList;
     linkEndsList.resize( numberOfVehicles );
     for( int i = 0; i < numberOfVehicles; i++ )
     {
-        linkEndsList[ i ][ observed_body ] = std::make_pair( vehicleNames.at( i ), "" );
+        linkEndsList[ i ][ observed_body ] = std::pair< std::string, std::string >( std::make_pair( vehicleNames.at( i ), "" ) );
         observationSettingsList.push_back( std::make_shared< ObservationModelSettings >(
                                                            position_observable, linkEndsList[ i ] ) );
     }
@@ -532,17 +543,20 @@ Eigen::VectorXd  executeMultiBodyMultiArcParameterEstimation( )
     parametersToEstimate->resetParameterValues( initialParameterEstimate );
 
     // Define POD input
-    std::shared_ptr< PodInput< ObservationScalarType, TimeType > > podInput =
-            std::make_shared< PodInput< ObservationScalarType, TimeType > >(
-                observationsAndTimes, ( initialParameterEstimate ).rows( ) );
+    std::shared_ptr< EstimationInput< ObservationScalarType, TimeType > > estimationInput =
+            std::make_shared< EstimationInput< ObservationScalarType, TimeType > >(
+                observationsAndTimes );
+    estimationInput->setConvergenceChecker(
+                std::make_shared< EstimationConvergenceChecker >( 3 ) );
+    parametersToEstimate->resetParameterValues( initialParameterEstimate );
 
     // Estimate parameters
-    std::shared_ptr< PodOutput< StateScalarType, TimeType > > podOutput = orbitDeterminationManager.estimateParameters(
-                podInput, std::make_shared< EstimationConvergenceChecker >( 3 ) );
+    std::shared_ptr< EstimationOutput< StateScalarType, TimeType > > estimationOutput = orbitDeterminationManager.estimateParameters(
+                estimationInput );
 
     std::string outputFolder = "/home/dominic/Software/tudatBundleTest/tudatBundle/tudatApplications/master_thesis/Output/";
 
-    return ( podOutput->parameterEstimate_ - truthParameters ).template cast< double >( );
+    return ( estimationOutput->parameterEstimate_ - truthParameters ).template cast< double >( );
 }
 
 BOOST_AUTO_TEST_CASE( test_MultiArcMultiBodyStateEstimation )

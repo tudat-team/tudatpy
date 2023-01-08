@@ -69,6 +69,12 @@ bool isObservableOfIntegratedType( const ObservableType observableType )
     case velocity_observable:
         isIntegratedType = false;
         break;
+    case relative_angular_position:
+        isIntegratedType = false;
+        break;
+    case n_way_differenced_range:
+        isIntegratedType = true;
+        break;
     default:
         throw std::runtime_error( "Error when determining if observable type is integrated; observable " +
                                   getObservableName( observableType ) + " not found" );
@@ -76,46 +82,79 @@ bool isObservableOfIntegratedType( const ObservableType observableType )
     return isIntegratedType;
 }
 
-bool areObservableLinksContinuous( const ObservableType observableType )
+//bool areObservableLinksContinuous( const ObservableType observableType )
+//{
+//    bool isTypeContinuous = true;
+//    switch( observableType )
+//    {
+//    case one_way_range:
+//        isTypeContinuous = true;
+//        break;
+//    case angular_position:
+//        isTypeContinuous = true;
+//        break;
+//    case position_observable:
+//        isTypeContinuous = true;
+//        break;
+//    case one_way_doppler:
+//        isTypeContinuous = true;
+//        break;
+//    case one_way_differenced_range:
+//        isTypeContinuous = true;
+//        break;
+//    case n_way_range:
+//        isTypeContinuous = true;
+//        break;
+//    case two_way_doppler:
+//        isTypeContinuous = true;
+//        break;
+//    case euler_angle_313_observable:
+//        isTypeContinuous = true;
+//        break;
+//    case velocity_observable:
+//        isTypeContinuous = true;
+//        break;
+//    case relative_angular_position:
+//        isTypeContinuous = true;
+//        break;
+//    case n_way_differenced_range:
+//        isIntegratedType = true;
+//        break;
+//    default:
+//        throw std::runtime_error( "Error when determining if observable type is continuous; observable " +
+//                                  getObservableName( observableType ) + " not found" );
+//    }
+//    return isTypeContinuous;
+//}
+
+std::string getNWayString( const int numberOfLinkEnds )
 {
-    bool isTypeContinuous = true;
-    switch( observableType )
+    std::string numberOfWays = "";
+    switch( numberOfLinkEnds )
     {
-    case one_way_range:
-        isTypeContinuous = true;
+    case 2:
+        numberOfWays = "One";
         break;
-    case angular_position:
-        isTypeContinuous = true;
+    case 3:
+        numberOfWays = "Two";
         break;
-    case position_observable:
-        isTypeContinuous = true;
+    case 4:
+        numberOfWays = "Three";
         break;
-    case one_way_doppler:
-        isTypeContinuous = true;
+    case 5:
+        numberOfWays = "Four";
         break;
-    case one_way_differenced_range:
-        isTypeContinuous = true;
+    case 6:
+        numberOfWays = "Five";
         break;
-    case n_way_range:
-        isTypeContinuous = true;
-        break;
-    case two_way_doppler:
-        isTypeContinuous = true;
-        break;
-    case euler_angle_313_observable:
-        isTypeContinuous = true;
-        break;
-    case velocity_observable:
-        isTypeContinuous = true;
+    case 7:
+        numberOfWays = "Six";
         break;
     default:
-        throw std::runtime_error( "Error when determining if observable type is continuous; observable " +
-                                  getObservableName( observableType ) + " not found" );
+        numberOfWays = "N";
     }
-    return isTypeContinuous;
+    return numberOfWays;
 }
-
-
 
 //! Function to get the name (string) associated with a given observable type.
 std::string getObservableName( const ObservableType observableType, const int numberOfLinkEnds )
@@ -146,42 +185,25 @@ std::string getObservableName( const ObservableType observableType, const int nu
         break;
     case n_way_range:
     {
-        std::string numberOfWays = "N";
-        switch( numberOfLinkEnds )
-        {
-        case 2:
-            numberOfWays = "One";
-            break;
-        case 3:
-            numberOfWays = "Two";
-            break;
-        case 4:
-            numberOfWays = "Three";
-            break;
-        case 5:
-            numberOfWays = "Four";
-            break;
-        case 6:
-            numberOfWays = "Five";
-            break;
-        case 7:
-            numberOfWays = "Six";
-            break;
-        default:
-            numberOfWays = "N";
-        }
-
-        observableName = numberOfWays + "WayRange";
+        observableName = getNWayString( numberOfLinkEnds ) + "WayRange";
         break;
     }
     case euler_angle_313_observable:
         observableName = "EulerAngle313";
         break;
+    case relative_angular_position:
+        observableName = "RelativeAngularPosition";
+        break;
+    case n_way_differenced_range:
+        observableName = getNWayString( numberOfLinkEnds ) + "WayDifferencedRange";
+        break;
     default:
         std::string errorMessage =
                 "Error, could not find observable type " + std::to_string( observableType ) +
                 " when getting name from type";
-        throw std::runtime_error( errorMessage );
+        std::cerr<<errorMessage<<std::endl;
+
+//        throw std::runtime_error( errorMessage );
     }
 
     return observableName;
@@ -224,6 +246,10 @@ ObservableType getObservableType( const std::string& observableName )
     {
         observableType = euler_angle_313_observable;
     }
+    else if( observableName == "RelativeAngularPosition" )
+    {
+        observableType = relative_angular_position;
+    }
     else
     {
         std::string errorMessage =
@@ -234,6 +260,85 @@ ObservableType getObservableType( const std::string& observableName )
 
     return observableType;
 }
+
+ObservableType getUndifferencedObservableType( const ObservableType differencedObservableType )
+{
+    ObservableType undifferencedObservableType = undefined_observation_model;
+    switch( differencedObservableType )
+    {
+    case one_way_differenced_range:
+        undifferencedObservableType = one_way_range;
+        break;
+    case n_way_differenced_range:
+        undifferencedObservableType = n_way_range;
+        break;
+    case relative_angular_position:
+        undifferencedObservableType = angular_position;
+        break;
+    default:
+        throw std::runtime_error( "Error when getting undifferenced observable type for " + getObservableName(
+                                      differencedObservableType ) + ", no such type exists" );
+
+    }
+    return undifferencedObservableType;
+}
+
+ObservableType getDifferencedObservableType( const ObservableType undifferencedObservableType )
+{
+    ObservableType differencedObservableType = undefined_observation_model;
+    switch( undifferencedObservableType )
+    {
+    case one_way_range:
+        differencedObservableType = one_way_differenced_range;
+        break;
+    case n_way_range:
+        differencedObservableType = n_way_differenced_range;
+        break;
+    case angular_position:
+        differencedObservableType = relative_angular_position;
+        break;
+    default:
+        throw std::runtime_error( "Error when getting differenced observable type for " + getObservableName(
+                                      undifferencedObservableType ) + ", no such type exists" );
+
+    }
+    return differencedObservableType;
+}
+
+std::pair< std::vector< int >, std::vector< int > > getUndifferencedTimeAndStateIndices(
+        const ObservableType differencedObservableType,
+        const int numberOfLinkEnds )
+{
+    std::vector< int > firstIndices;
+    std::vector< int > secondIndices;
+
+    switch( differencedObservableType )
+    {
+    case one_way_differenced_range:
+        firstIndices = { 0, 1 };
+        secondIndices = { 2, 3 };
+        break;
+    case n_way_differenced_range:
+    {
+        int numberOfLinkEndTimesStates = 2 + ( numberOfLinkEnds - 2 ) * 2;
+        for( int i = 0; i < numberOfLinkEndTimesStates; i++ )
+        {
+           firstIndices.push_back( i );
+           secondIndices.push_back( i + numberOfLinkEndTimesStates );
+        }
+        break;
+    }
+    case relative_angular_position:
+        firstIndices = { 0, 2 };
+        secondIndices = { 1, 2 };
+        break;
+    default:
+        throw std::runtime_error( "Error when getting undifferenced time and state entries for: " + getObservableName(
+                                      differencedObservableType ) + ", no such type found" );
+    }
+    return std::make_pair( firstIndices, secondIndices );
+}
+
 
 //! Function to get the size of an observable of a given type.
 int getObservableSize( const ObservableType observableType )
@@ -267,6 +372,12 @@ int getObservableSize( const ObservableType observableType )
         break;
     case euler_angle_313_observable:
         observableSize = 3;
+        break;
+    case relative_angular_position:
+        observableSize = 2;
+        break;
+    case n_way_differenced_range:
+        observableSize = 1;
         break;
     default:
        std::string errorMessage = "Error, did not recognize observable " + std::to_string( observableType )
@@ -419,7 +530,7 @@ std::vector< int > getLinkEndIndicesForLinkEndTypeAtObservable(
     case n_way_range:
         if( numberOfLinkEnds < 2 )
         {
-            throw std::runtime_error( "Error when getting n way range link end indices, not enough link ends" );
+            throw std::runtime_error( "Error when getting n way differenced range link end indices, not enough link ends" );
         }
         if( linkEndType == transmitter )
         {
@@ -436,7 +547,51 @@ std::vector< int > getLinkEndIndicesForLinkEndTypeAtObservable(
             linkEndIndices.push_back( 2 * linkEndIndex );
         }
         break;
+    case n_way_differenced_range:
+        if( numberOfLinkEnds < 2 )
+        {
+            throw std::runtime_error( "Error when getting n way range link end indices, not enough link ends" );
+        }
+        if( linkEndType == transmitter )
+        {
+            linkEndIndices.push_back( 0 );
+            linkEndIndices.push_back( 2 * ( numberOfLinkEnds - 1 ) );
 
+        }
+        else if( linkEndType == receiver )
+        {
+            linkEndIndices.push_back( 2 * ( numberOfLinkEnds - 1 ) - 1 );
+            linkEndIndices.push_back( 4 * ( numberOfLinkEnds - 1 ) - 1 );
+        }
+        else
+        {
+            int linkEndIndex = getNWayLinkIndexFromLinkEndType( linkEndType, numberOfLinkEnds );
+            linkEndIndices.push_back( 2 * linkEndIndex - 1 );
+            linkEndIndices.push_back( 2 * linkEndIndex );
+            linkEndIndices.push_back( 2 * ( ( numberOfLinkEnds - 1 ) + linkEndIndex ) - 1 );
+            linkEndIndices.push_back( 2 * ( ( numberOfLinkEnds - 1 ) + linkEndIndex ) );
+        }
+        break;
+    case relative_angular_position:
+        switch( linkEndType )
+        {
+            case transmitter:
+                linkEndIndices.push_back( 0 );
+                break;
+            case transmitter2:
+                linkEndIndices.push_back( 1 );
+                break;
+            case receiver:
+                linkEndIndices.push_back( 2 );
+                break;
+            default:
+                std::string errorMessage =
+                        "Error, could not find link end type index for link end " +
+                        std::to_string( linkEndType ) + " of observable " +
+                        std::to_string( observableType );
+                throw std::runtime_error( errorMessage );
+        }
+        break;
     default:
         std::string errorMessage =
                 "Error, could not find link end type index for link end types of observable " +
@@ -481,6 +636,12 @@ LinkEndType getDefaultReferenceLinkEndType(
     case euler_angle_313_observable:
         referenceLinkEndType = observed_body;
         break;
+    case relative_angular_position:
+        referenceLinkEndType = receiver;
+        break;
+    case n_way_differenced_range:
+        referenceLinkEndType = receiver;
+        break;
     default:
         throw std::runtime_error( "Error, default reference link end not defined for observable " +
                                   std::to_string( observableType ) );
@@ -513,6 +674,13 @@ int getNumberOfLinksInObservable(
         }
         numberOfLinks = numberOfLinkEnds - 1;
         break;
+    case n_way_differenced_range:
+        if( numberOfLinkEnds < 0 )
+        {
+            throw std::runtime_error( "Error when determining number of links for n-way differenced range: number of link ends not provided" );
+        }
+        numberOfLinks = numberOfLinkEnds - 1;
+        break;
     case two_way_doppler:
         numberOfLinks = 2;
         break;
@@ -524,6 +692,9 @@ int getNumberOfLinksInObservable(
         break;
     case euler_angle_313_observable:
         numberOfLinks = 0;
+        break;
+    case relative_angular_position:
+        numberOfLinks = 3;
         break;
     default:
         throw std::runtime_error( "Error, number of links not defined for observable " +
@@ -551,7 +722,7 @@ void checkObservationResidualDiscontinuities(
         Eigen::Block< Eigen::VectorXd > observationResidualBlock,
         const ObservableType observableType )
 {
-    if( observableType == angular_position || observableType == euler_angle_313_observable )
+    if( observableType == angular_position || observableType == euler_angle_313_observable || observableType == relative_angular_position )
     {
         for( int i = 1; i < observationResidualBlock.rows( ); i++ )
         {
@@ -586,12 +757,12 @@ std::vector< std::pair< int, int > > getLinkStateAndTimeIndicesForLinkEnd(
     {
     case one_way_range:
         if( ( linkEnds.at( transmitter ) == linkEndToCheck ) ||
-                ( ( linkEnds.at( transmitter ).first == linkEndToCheck.first ) && ( linkEndToCheck.second == "" ) ) )
+                ( ( linkEnds.at( transmitter ).stationName_ == linkEndToCheck.bodyName_ ) && ( linkEndToCheck.stationName_ == "" ) ) )
         {
             linkEndIndices.push_back( std::make_pair( 0, 1 ) );
         }
-        else if( linkEnds.at( receiver ) == linkEndToCheck || ( ( linkEnds.at( receiver ).first == linkEndToCheck.first ) &&
-                                                                linkEndToCheck.second == "" ) )
+        else if( linkEnds.at( receiver ) == linkEndToCheck || ( ( linkEnds.at( receiver ).stationName_ == linkEndToCheck.bodyName_ ) &&
+                                                                linkEndToCheck.stationName_ == "" ) )
         {
             linkEndIndices.push_back( std::make_pair( 1, 0 ) );
         }
@@ -601,13 +772,13 @@ std::vector< std::pair< int, int > > getLinkStateAndTimeIndicesForLinkEnd(
         }
         break;
     case one_way_doppler:
-        if( ( linkEnds.at( transmitter ) == linkEndToCheck ) || ( ( linkEnds.at( transmitter ).first == linkEndToCheck.first ) &&
-                                                                  ( linkEndToCheck.second == "" ) ) )
+        if( ( linkEnds.at( transmitter ) == linkEndToCheck ) || ( ( linkEnds.at( transmitter ).stationName_ == linkEndToCheck.bodyName_ ) &&
+                                                                  ( linkEndToCheck.stationName_ == "" ) ) )
         {
             linkEndIndices.push_back( std::make_pair( 0, 1 ) );
         }
-        else if( linkEnds.at( receiver ) == linkEndToCheck || ( ( linkEnds.at( receiver ).first == linkEndToCheck.first ) &&
-                                                                linkEndToCheck.second == "" ) )
+        else if( linkEnds.at( receiver ) == linkEndToCheck || ( ( linkEnds.at( receiver ).stationName_ == linkEndToCheck.bodyName_ ) &&
+                                                                linkEndToCheck.stationName_ == "" ) )
         {
             linkEndIndices.push_back( std::make_pair( 1, 0 ) );
         }
@@ -617,21 +788,21 @@ std::vector< std::pair< int, int > > getLinkStateAndTimeIndicesForLinkEnd(
         }
         break;
     case two_way_doppler:
-        if( ( linkEnds.at( transmitter ) == linkEndToCheck ) || ( ( linkEnds.at( transmitter ).first == linkEndToCheck.first ) &&
-                                                                  ( linkEndToCheck.second == "" ) ) )
+        if( ( linkEnds.at( transmitter ) == linkEndToCheck ) || ( ( linkEnds.at( transmitter ).stationName_ == linkEndToCheck.bodyName_ ) &&
+                                                                  ( linkEndToCheck.stationName_ == "" ) ) )
         {
             linkEndIndices.push_back( std::make_pair( 0, 1 ) );
         }
 
-        if( linkEnds.at( reflector1 ) == linkEndToCheck || ( ( linkEnds.at( reflector1 ).first == linkEndToCheck.first ) &&
-                                                                linkEndToCheck.second == "" ) )
+        if( linkEnds.at( reflector1 ) == linkEndToCheck || ( ( linkEnds.at( reflector1 ).stationName_ == linkEndToCheck.bodyName_ ) &&
+                                                                linkEndToCheck.stationName_ == "" ) )
         {
             linkEndIndices.push_back( std::make_pair( 2, 3 ) );
             linkEndIndices.push_back( std::make_pair( 1, 0 ) );
         }
 
-        if( linkEnds.at( receiver ) == linkEndToCheck || ( ( linkEnds.at( receiver ).first == linkEndToCheck.first ) &&
-                                                                linkEndToCheck.second == "" ) )
+        if( linkEnds.at( receiver ) == linkEndToCheck || ( ( linkEnds.at( receiver ).stationName_ == linkEndToCheck.bodyName_ ) &&
+                                                                linkEndToCheck.stationName_ == "" ) )
         {
             linkEndIndices.push_back( std::make_pair( 3, 2 ) );
         }
@@ -642,14 +813,14 @@ std::vector< std::pair< int, int > > getLinkStateAndTimeIndicesForLinkEnd(
         }
         break;
     case one_way_differenced_range:
-        if( linkEnds.at( transmitter ) == linkEndToCheck || ( ( linkEnds.at( transmitter ).first == linkEndToCheck.first ) &&
-                                                              linkEndToCheck.second == "" ) )
+        if( linkEnds.at( transmitter ) == linkEndToCheck || ( ( linkEnds.at( transmitter ).stationName_ == linkEndToCheck.bodyName_ ) &&
+                                                              linkEndToCheck.stationName_ == "" ) )
         {
             linkEndIndices.push_back( std::make_pair( 0, 1 ) );
             linkEndIndices.push_back( std::make_pair( 2, 3 ) );
         }
-        else if( linkEnds.at( receiver ) == linkEndToCheck || ( ( linkEnds.at( receiver ).first == linkEndToCheck.first ) &&
-                                                                linkEndToCheck.second == "" ) )
+        else if( linkEnds.at( receiver ) == linkEndToCheck || ( ( linkEnds.at( receiver ).stationName_ == linkEndToCheck.bodyName_ ) &&
+                                                                linkEndToCheck.stationName_ == "" ) )
         {
             linkEndIndices.push_back( std::make_pair( 1, 0 ) );
             linkEndIndices.push_back( std::make_pair( 3, 2 ) );
@@ -692,14 +863,58 @@ std::vector< std::pair< int, int > > getLinkStateAndTimeIndicesForLinkEnd(
         }
         break;
     }
+    case n_way_differenced_range:
+    {
+        int undifferenceNumberOfEntries = 2 * ( linkEnds.size( ) - 1 );
+        std::vector< int > matchingLinkEndIndices = getNWayLinkEndIndicesFromLinkEndId( linkEndToCheck, linkEnds );
+        if( matchingLinkEndIndices.size( ) > 0 )
+        {
+            for( unsigned int i = 0; i < matchingLinkEndIndices.size( ); i++ )
+            {
+                if( matchingLinkEndIndices.at( i ) == 0 )
+                {
+                    linkEndIndices.push_back( std::make_pair( 0, 1 ) );
+                    linkEndIndices.push_back( std::make_pair( undifferenceNumberOfEntries, undifferenceNumberOfEntries + 1 ) );
+
+                }
+                else if( matchingLinkEndIndices.at( i ) == static_cast< int >( linkEnds.size( ) )  - 1 )
+                {
+                    linkEndIndices.push_back( std::make_pair( 2 * ( linkEnds.size( ) - 1 ) - 1,
+                                                              2 * ( linkEnds.size( ) - 1 ) - 2 ) );
+                    linkEndIndices.push_back( std::make_pair( undifferenceNumberOfEntries + 2 * ( linkEnds.size( ) - 1 ) - 1,
+                                                              undifferenceNumberOfEntries + 2 * ( linkEnds.size( ) - 1 ) - 2 ) );
+                }
+                else
+                {
+                    linkEndIndices.push_back( std::make_pair(
+                                                  2 * matchingLinkEndIndices.at( i ),
+                                                  2 * matchingLinkEndIndices.at( i ) + 1 ) );
+                    linkEndIndices.push_back( std::make_pair(
+                                                  2 * matchingLinkEndIndices.at( i ) - 1,
+                                                  2 * matchingLinkEndIndices.at( i ) - 2 ) );
+                    linkEndIndices.push_back( std::make_pair(
+                                                  undifferenceNumberOfEntries + 2 * matchingLinkEndIndices.at( i ),
+                                                  undifferenceNumberOfEntries + 2 * matchingLinkEndIndices.at( i ) + 1 ) );
+                    linkEndIndices.push_back( std::make_pair(
+                                                  undifferenceNumberOfEntries + 2 * matchingLinkEndIndices.at( i ) - 1,
+                                                  undifferenceNumberOfEntries + 2 * matchingLinkEndIndices.at( i ) - 2 ) );
+                }
+            }
+        }
+        else
+        {
+            throw std::runtime_error( "Error, parsed irrelevant n-way differenced range link end types for link end indices" );
+        }
+        break;
+    }
     case angular_position:
-        if( ( linkEnds.at( transmitter ) == linkEndToCheck ) || ( ( linkEnds.at( transmitter ).first == linkEndToCheck.first ) &&
-                                                                  ( linkEndToCheck.second == "" ) ) )
+        if( ( linkEnds.at( transmitter ) == linkEndToCheck ) || ( ( linkEnds.at( transmitter ).stationName_ == linkEndToCheck.bodyName_ ) &&
+                                                                  ( linkEndToCheck.stationName_ == "" ) ) )
         {
             linkEndIndices.push_back( std::make_pair( 0, 1 ) );
         }
-        else if( linkEnds.at( receiver ) == linkEndToCheck || ( ( linkEnds.at( receiver ).first == linkEndToCheck.first ) &&
-                                                                linkEndToCheck.second == "" ) )
+        else if( linkEnds.at( receiver ) == linkEndToCheck || ( ( linkEnds.at( receiver ).stationName_ == linkEndToCheck.bodyName_ ) &&
+                                                                linkEndToCheck.stationName_ == "" ) )
         {
             linkEndIndices.push_back( std::make_pair( 1, 0 ) );
         }
@@ -720,13 +935,59 @@ std::vector< std::pair< int, int > > getLinkStateAndTimeIndicesForLinkEnd(
 
         throw std::runtime_error( "Error, parsed irrelevant position observable link end types for link end indices" );
         break;
+    case relative_angular_position:
+        if( ( linkEnds.at( transmitter ) == linkEndToCheck ) || ( ( linkEnds.at( transmitter ).bodyName_ == linkEndToCheck.bodyName_ ) &&
+                                                                  ( linkEndToCheck.stationName_ == "" ) ) )
+        {
+            linkEndIndices.push_back( std::make_pair( 0, 2 ) );
+        }
+        else if( ( linkEnds.at( transmitter2 ) == linkEndToCheck ) || ( ( linkEnds.at( transmitter2 ).bodyName_ == linkEndToCheck.bodyName_ ) &&
+                                                                  ( linkEndToCheck.stationName_ == "" ) ) )
+        {
+            linkEndIndices.push_back( std::make_pair( 1, 2 ) );
+        }
+        else if( linkEnds.at( receiver ) == linkEndToCheck || ( ( linkEnds.at( receiver ).bodyName_ == linkEndToCheck.bodyName_ ) &&
+                                                                linkEndToCheck.stationName_ == "" ) )
+        {
+            linkEndIndices.push_back( std::make_pair( 2, 0 ) );
+            linkEndIndices.push_back( std::make_pair( 2, 1 ) );
+        }
+        else
+        {
+            throw std::runtime_error( "Error, parsed irrelevant angular position link end types for link end indices" );
+        }
+        break;
     default:
+
         throw std::runtime_error( "Error, observable type " + std::to_string(
                                       observableType ) + " not recognized when making viability link ends" );
 
     }
 
     return linkEndIndices;
+}
+
+std::map< LinkEndType, int > getSingleLinkStateEntryIndices( const ObservableType observableType )
+{
+    std::map< LinkEndType, int > singleLinkStateEntries;
+    if( observableType == one_way_range ||
+            observableType == angular_position ||
+            observableType == one_way_doppler )
+    {
+        singleLinkStateEntries = oneWayLinkStateEntries;
+    }
+    else if( observableType == position_observable ||
+             observableType == velocity_observable ||
+             observableType == euler_angle_313_observable )
+    {
+        singleLinkStateEntries = observedBodyLinkStateEntries;
+    }
+    else
+    {
+        throw std::runtime_error( "Error when getting single link state entries, observable type " +
+                                  getObservableName( observableType ) + " not recognized." );
+    }
+    return singleLinkStateEntries;
 }
 
 

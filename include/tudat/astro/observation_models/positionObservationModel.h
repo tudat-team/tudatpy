@@ -11,7 +11,7 @@
 #ifndef TUDAT_POSITIONOBSERVATIONMODEL_H
 #define TUDAT_POSITIONOBSERVATIONMODEL_H
 
-#include <boost/bind/bind.hpp>
+
 #include <functional>
 
 #include "tudat/astro/ephemerides/ephemeris.h"
@@ -66,7 +66,8 @@ public:
                 const TimeType time,
                 const LinkEndType linkEndAssociatedWithTime,
                 std::vector< double >& linkEndTimes,
-                std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates )
+                std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
+            const std::shared_ptr< ObservationAncilliarySimulationSettings< TimeType > > ancilliarySetings = nullptr )
     {
         // Check link end
         if( linkEndAssociatedWithTime != observed_body )
