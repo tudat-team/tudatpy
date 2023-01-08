@@ -118,7 +118,8 @@ private:
 
 /*!
  * Class modeling radiation pressure acceleration from a paneled point source. An original source illuminates the
- * source, which emits the radiation that accelerates the target.
+ * source, which emits the radiation that accelerates the target. Only isotropic point sources are supported as
+ * original sources for now.
  *
  * Assumptions:
  *  - Radiation from the original source is evaluated at the original source center (i.e. the target extent is
@@ -126,6 +127,8 @@ private:
  *  - Radiation from a source is evaluated at the target center (i.e. the target extent is neglected for irradiance
  *    calculations).
  */
+ // If other original source types are to be supported in the future, add the rotational state update to
+ // createEnvironmentUpdater.cpp under case radiation_pressure_acceleration
 class PaneledSourceRadiationPressureAcceleration : public RadiationPressureAcceleration
 {
 public:

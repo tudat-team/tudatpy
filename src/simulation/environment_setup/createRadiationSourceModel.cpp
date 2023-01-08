@@ -1,3 +1,13 @@
+/*    Copyright (c) 2010-2022, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
+
 #include "tudat/simulation/environment_setup/createRadiationSourceModel.h"
 
 namespace tudat
@@ -75,6 +85,8 @@ std::function<std::shared_ptr<PaneledRadiationSourceModel::PanelRadiosityModel>(
                         "Error, expected albedo panel radiosity model for body " + body );
             }
 
+            // Create function returning albedo radiosity model for panel at given polar and azimuth angle
+            // Radiosity model uses Lambertian reflectance with given albedo as diffuse reflectivity coefficient
             panelRadiosityModelFunction = [=] (double polarAngle, double azimuthAngle) {
                 const auto albedoDistribution = albedoPanelRadiosityModelSettings->getAlbedoDistribution();
                 const auto albedo = albedoDistribution(polarAngle, azimuthAngle);
@@ -93,6 +105,7 @@ std::function<std::shared_ptr<PaneledRadiationSourceModel::PanelRadiosityModel>(
                         "Error, expected delayed thermal panel radiosity model for body " + body );
             }
 
+            // Create function returning delayed thermal radiosity model for panel at given polar and azimuth angle
             panelRadiosityModelFunction = [=] (double polarAngle, double azimuthAngle) {
                 const auto emissivityDistribution = delayedThermalPanelRadiosityModelSettings->getEmissivityDistribution();
                 const auto emissivity = emissivityDistribution(polarAngle, azimuthAngle);
@@ -110,6 +123,7 @@ std::function<std::shared_ptr<PaneledRadiationSourceModel::PanelRadiosityModel>(
                         "Error, expected angle-based thermal panel radiosity model for body " + body );
             }
 
+            // Create function returning angle-based radiosity model for panel at given polar and azimuth angle
             panelRadiosityModelFunction = [=] (double polarAngle, double azimuthAngle) {
                 const auto emissivityDistribution = angleBasedThermalPanelRadiosityModelSettings->getEmissivityDistribution();
                 const auto emissivity = emissivityDistribution(polarAngle, azimuthAngle);
@@ -182,6 +196,8 @@ std::shared_ptr<RadiationSourceModel> createRadiationSourceModel(
         }
 
         auto sourceBody = bodies.getBody(body);
+
+        // Create list of functions, together returning all panel radiosity models at a given point on body
         std::vector<std::function<std::shared_ptr<PaneledRadiationSourceModel::PanelRadiosityModel>(double, double)>> radiosityModelFunctions;
         for (auto& radiosityModelSetting : paneledModelSettings->getPanelRadiosityModelSettings())
         {

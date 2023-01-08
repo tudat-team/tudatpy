@@ -1,5 +1,14 @@
-#include "tudat/simulation/environment_setup/createRadiationPressureTargetModel.h"
+/*    Copyright (c) 2010-2022, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
 
+#include "tudat/simulation/environment_setup/createRadiationPressureTargetModel.h"
 
 namespace tudat
 {
@@ -45,16 +54,17 @@ std::shared_ptr<electromagnetism::RadiationPressureTargetModel> createRadiationP
                         "Error, expected paneled radiation pressure target for body " + body );
             }
 
+            // Create panels from panel settings
             std::vector<PaneledRadiationPressureTargetModel::Panel> panels;
             for (auto& panel : paneledTargetModelSettings->getPanels())
             {
                 std::function<Eigen::Vector3d()> surfaceNormalFunction;
-                if((panel.getSurfaceNormalFunction() && !panel.getBodyToTrack().empty()) ||
-                        (!panel.getSurfaceNormalFunction() && panel.getBodyToTrack().empty()))
+                if((panel.getSurfaceNormalFunction() && !panel.getBodyToTrack().empty()) || // both given
+                        (!panel.getSurfaceNormalFunction() && panel.getBodyToTrack().empty())) // none given
                 {
                     throw std::runtime_error(
                             "Error, must specify either surface normal or body to track for all "
-                            "paneled radiation pressure target panel for body " + body );
+                            "paneled radiation pressure target panels for body " + body );
                 }
                 else if (panel.getSurfaceNormalFunction())
                 {
@@ -65,6 +75,8 @@ std::shared_ptr<electromagnetism::RadiationPressureTargetModel> createRadiationP
                     const auto bodyToTrack = bodies.at(panel.getBodyToTrack());
                     const auto targetBody = bodies.at(body);
                     const auto sign = panel.isTowardsTrackedBody() ? +1 : -1;
+
+                    // Construct surface normal function always pointing towards/away from tracked body
                     surfaceNormalFunction = [=] () {
                         const Eigen::Quaterniond rotationFromPropagationToLocalFrame =
                                 targetBody->getCurrentRotationToLocalFrame();
@@ -77,6 +89,7 @@ std::shared_ptr<electromagnetism::RadiationPressureTargetModel> createRadiationP
                     };
                 }
 
+                // Create panel with specular/diffuse-mix reflection law
                 panels.emplace_back(
                         panel.getArea(),
                         surfaceNormalFunction,
