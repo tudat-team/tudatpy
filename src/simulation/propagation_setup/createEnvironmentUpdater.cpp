@@ -396,8 +396,8 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                                 originalSourceName );
                         singleAccelerationUpdateNeeds[ body_translational_state_update ].push_back(
                                 originalSourceName );
-                        singleAccelerationUpdateNeeds[ body_rotational_state_update ].push_back(
-                                originalSourceName );
+                        // No original source rotational state update necessary because only isotropic point sources
+                        // are supported
                     }
 
                     auto paneledRadiationPressureTargetModel =
