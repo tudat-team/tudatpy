@@ -14,7 +14,7 @@
 #include <map>
 
 #include <functional>
-#include <boost/make_shared.hpp>
+
 
 #include <Eigen/Core>
 
@@ -27,6 +27,27 @@ namespace tudat
 
 namespace observation_models
 {
+
+inline double getDifferencedOneWayRangeScalingFactor(
+        const std::vector< double >& linkEndTimes,
+        const observation_models::LinkEndType referenceLinkEnd )
+{
+    double arcDuration = TUDAT_NAN;
+    if ( referenceLinkEnd == observation_models::transmitter )
+    {
+        arcDuration = linkEndTimes[ 2 ] - linkEndTimes[ 0 ];
+    }
+    else if ( referenceLinkEnd == observation_models::receiver )
+    {
+        arcDuration = linkEndTimes[ 3 ] - linkEndTimes[ 1 ];
+    }
+    else
+    {
+        throw std::runtime_error( "Error when getting differenced one-way range scaling factor; link end " +
+                                  getLinkEndTypeString( referenceLinkEnd ) + " not recognized." );
+    }
+    return 1.0 / arcDuration;
+}
 
 //! Class for simulating one-way differenced range (e.g. closed-loop Doppler) observable
 /*!
@@ -60,11 +81,9 @@ public:
             arcStartLightTimeCalculator,
             const std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > >
             arcEndLightTimeCalculator,
-            std::function< double( const double ) > integrationTimeFunction,
             const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr ):
         ObservationModel< 1, ObservationScalarType, TimeType >( one_way_differenced_range, linkEnds, observationBiasCalculator ),
-        arcStartLightTimeCalculator_( arcStartLightTimeCalculator ), arcEndLightTimeCalculator_( arcEndLightTimeCalculator ),
-        integrationTimeFunction_( integrationTimeFunction )
+        arcStartLightTimeCalculator_( arcStartLightTimeCalculator ), arcEndLightTimeCalculator_( arcEndLightTimeCalculator )
     {
 
     }
@@ -90,11 +109,25 @@ public:
             const TimeType time,
             const LinkEndType linkEndAssociatedWithTime,
             std::vector< double >& linkEndTimes,
-            std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates )
+            std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
+            const std::shared_ptr< ObservationAncilliarySimulationSettings< TimeType > > ancilliarySetings = nullptr )
     {
         ObservationScalarType lightTimeAtStartInterval;
         ObservationScalarType lightTimeAtEndInterval;
-        TimeType currentIntegrationTime = integrationTimeFunction_( time );
+        if( ancilliarySetings == nullptr )
+        {
+            throw std::runtime_error( "Error when simulating one-way averaged Doppler observable; no ancilliary settings found. Ancilliary settings are requiured for integration time" );
+        }
+        TimeType currentIntegrationTime;
+        try
+        {
+            currentIntegrationTime = ancilliarySetings->getAncilliaryDoubleData( doppler_integration_time, true );
+        }
+        catch( std::runtime_error& caughtException )
+        {
+            throw std::runtime_error( "Error when retrieving integration time for one-way averaged Doppler observable: " +
+                            std::string( caughtException.what( ) ) );
+        }
 
         linkEndTimes.resize( 4 );
         linkEndStates.resize( 4 );
@@ -172,10 +205,6 @@ private:
     //! Light time calculator to compute light time at the end of the integration time
     std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > >
     arcEndLightTimeCalculator_;
-
-    //! Function returning the integration time of the observable as a function of the current observation time.
-    std::function< double( const double ) > integrationTimeFunction_;
-
 };
 
 }

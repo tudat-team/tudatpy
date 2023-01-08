@@ -13,9 +13,9 @@
 
 #include <vector>
 
-#include <boost/bind/bind.hpp>
+
 #include <memory>
-#include <boost/make_shared.hpp>
+
 
 #include <Eigen/Core>
 
@@ -24,7 +24,7 @@
 #include "tudat/astro/ephemerides/rotationalEphemeris.h"
 #include "tudat/astro/ephemerides/constantEphemeris.h"
 
-using namespace boost::placeholders;
+
 
 namespace tudat
 {
@@ -397,11 +397,6 @@ std::shared_ptr< Ephemeris > createReferencePointEphemeris(
 
 extern template class CompositeEphemeris< double, double >;
 
-#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
-extern template class CompositeEphemeris< Time, long double >;
-extern template class CompositeEphemeris< double, double >;
-extern template class CompositeEphemeris< Time, long double >;
-#endif
 } // namespace ephemerides
 
 } // namespace tudat

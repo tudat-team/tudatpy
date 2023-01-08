@@ -147,7 +147,8 @@ BOOST_AUTO_TEST_CASE( testSofaEarthRotation )
     BOOST_CHECK_SMALL( std::fabs( expectedEarthRotationAngle - earthRotationAngle ), 1.0E-7 );
 
     earthRotationAngle = calculateEarthRotationAngleTemplated< Time >(
-                    tudat::Time( ( testUt1 - basic_astrodynamics::JULIAN_DAY_ON_J2000 ) * 24,
+                    tudat::Time( ( testUt1 - basic_astrodynamics::JULIAN_DAY_ON_J2000 ) * 24 *
+                                 3600 / TIME_NORMALIZATION_INTEGER_TERM ,
                                  static_cast< long double >( testUt2 ) * physical_constants::JULIAN_DAY_LONG ) ) *
             180.0 / mathematical_constants::PI;
     BOOST_CHECK_SMALL( std::fabs( expectedEarthRotationAngle - earthRotationAngle ), 1.0E-12 );
@@ -165,7 +166,8 @@ BOOST_AUTO_TEST_CASE( testSofaEarthRotation )
     BOOST_CHECK_SMALL( std::fabs( directEarthRotationAngle - earthRotationAngle ), 1.0E-7 );
 
     earthRotationAngle = calculateEarthRotationAngleTemplated< Time >(
-                    tudat::Time( ( testUt1 - basic_astrodynamics::JULIAN_DAY_ON_J2000 ) * 24,
+                    tudat::Time( ( testUt1 - basic_astrodynamics::JULIAN_DAY_ON_J2000 ) * 24 *
+                                 3600 / TIME_NORMALIZATION_INTEGER_TERM,
                                  static_cast< long double >( testUt2 ) * physical_constants::JULIAN_DAY_LONG ) ) *
             180.0 / mathematical_constants::PI;
     BOOST_CHECK_SMALL( std::fabs( directEarthRotationAngle - earthRotationAngle ), 1.0E-12 );

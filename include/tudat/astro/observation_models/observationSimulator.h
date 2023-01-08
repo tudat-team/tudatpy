@@ -112,13 +112,14 @@ public:
     std::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > getObservationModel(
             const LinkEnds linkEnds )
     {
-        if( observationModels_.count( linkEnds ) == 0 )
+        try
         {
-            throw std::runtime_error(
-                        "Error in observation manager when getting observation model, did not find model for given link ends " +
-                        std::to_string( observationModels_.size( ) ) );
+            return observationModels_.at( linkEnds );
         }
-        return observationModels_.at( linkEnds );
+        catch( const std::runtime_error& )
+        {
+            throw std::runtime_error( "Error in observation manager when getting observation model, did not find model for given link ends " );
+        }
     }
 
     //! Function to get the full list of observation models
@@ -178,33 +179,6 @@ getObservationSimulatorOfType(
     return observationSimulator;
 }
 
-//extern template class ObservationSimulatorBase< double, double >;
-//extern template class ObservationSimulator< 1, double, double >;
-//extern template class ObservationSimulator< 2, double, double >;
-//extern template class ObservationSimulator< 3, double, double >;
-//extern template class ObservationSimulator< 6, double, double >;
-
-#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
-extern template class ObservationSimulatorBase< double, Time >;
-extern template class ObservationSimulatorBase< long double, double >;
-extern template class ObservationSimulatorBase< long double, Time >;
-
-extern template class ObservationSimulator< 1, double, Time >;
-extern template class ObservationSimulator< 1, long double, double >;
-extern template class ObservationSimulator< 1, long double, Time >;
-
-extern template class ObservationSimulator< 2, double, Time >;
-extern template class ObservationSimulator< 2, long double, double >;
-extern template class ObservationSimulator< 2, long double, Time >;
-
-extern template class ObservationSimulator< 3, double, Time >;
-extern template class ObservationSimulator< 3, long double, double >;
-extern template class ObservationSimulator< 3, long double, Time >;
-
-extern template class ObservationSimulator< 6, double, Time >;
-extern template class ObservationSimulator< 6, long double, double >;
-extern template class ObservationSimulator< 6, long double, Time >;
-#endif
 
 }
 

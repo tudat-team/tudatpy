@@ -100,6 +100,7 @@ BOOST_AUTO_TEST_CASE( testCR3BPPropagation )
         std::map< double, Eigen::Vector6d > stateHistory = performCR3BPIntegration(
                     integratorSettings, massParameter,
                     massLessBodyInitialCartesianState,
+                    simulationStartEpoch,
                     simulationEndEpoch );
 
         // Retrieve dynamics and set iterator at final time

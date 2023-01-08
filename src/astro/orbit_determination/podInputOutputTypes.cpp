@@ -6,27 +6,20 @@ namespace tudat
 namespace simulation_setup
 {
 
-void scaleInformationMatrixWithWeights(
-        Eigen::MatrixXd& informationMatrix,
+void scaleDesignMatrixWithWeights(
+        Eigen::MatrixXd& designMatrix,
         const Eigen::VectorXd& weightsDiagonal )
 {
-    int numberOfParameters = informationMatrix.cols( );
+    int numberOfParameters = designMatrix.cols( );
     for( int i = 0; i < weightsDiagonal.rows( ); i++ )
     {
-        informationMatrix.block( i, 0, 1, numberOfParameters ) *= std::sqrt( weightsDiagonal( i ) );
+        designMatrix.block( i, 0, 1, numberOfParameters ) *= std::sqrt( weightsDiagonal( i ) );
     }
 }
 
 
-template class PodInput< double, double >;
-template struct PodOutput< double >;
-
-#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
-template class PodInput< long double, double >;
-template class PodInput< double, Time >;
-template class PodInput< long double, Time >;
-template struct PodOutput< long double >;
-#endif
+template class EstimationInput< double, double >;
+template struct EstimationOutput< double >;
 
 }
 

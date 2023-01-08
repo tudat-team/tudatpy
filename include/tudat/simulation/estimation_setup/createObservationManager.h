@@ -221,6 +221,78 @@ void performObservationParameterEstimationClosureForSingleModelSet(
             }
             break;
         }
+        case estimatable_parameters::constant_time_drift_observation_bias:
+        {
+            // Test input consistency
+            std::shared_ptr< estimatable_parameters::ConstantTimeDriftBiasParameter > biasParameter =
+                    std::dynamic_pointer_cast< estimatable_parameters::ConstantTimeDriftBiasParameter >( parameter );
+            if( biasParameter == nullptr )
+            {
+                throw std::runtime_error( "Error, cannot perform bias closure for time drift bias, inconsistent bias types" );
+            }
+
+            // Check if bias object is of same type as estimated parameter
+            std::shared_ptr< ConstantTimeDriftBias< ObservationSize > > timeBiasObject =
+                    std::dynamic_pointer_cast< ConstantTimeDriftBias< ObservationSize > >( observationBias );
+            if ( timeBiasObject != nullptr )
+            {
+                // Check if bias and parameter link properties are equal
+                if ( linkEnds == biasParameter->getLinkEnds( ) && observableType == biasParameter->getObservableType( ) )
+                {
+                    biasParameter->setObservationBiasFunctions(
+                            std::bind( &ConstantTimeDriftBias< ObservationSize >::getTemplateFreeConstantObservationBias,
+                                       timeBiasObject ),
+                            std::bind( &ConstantTimeDriftBias< ObservationSize >::resetConstantObservationBiasTemplateFree,
+                                       timeBiasObject, std::placeholders::_1 ) );
+                }
+            }
+            break;
+        }
+        case estimatable_parameters::arc_wise_time_drift_observation_bias:
+        {
+            // Test input consistency
+            std::shared_ptr< estimatable_parameters::ArcWiseTimeDriftBiasParameter > timeBiasParameter =
+                    std::dynamic_pointer_cast< estimatable_parameters::ArcWiseTimeDriftBiasParameter >( parameter );
+
+            if ( timeBiasParameter == nullptr )
+            {
+                throw std::runtime_error( "Error, cannot perform bias closure for arc-wise time drift biases, inconsistent bias types" );
+            }
+
+            // Check if bias object is of same type as estimated parameter
+            std::shared_ptr< ArcWiseTimeDriftBias< ObservationSize > > timeBiasObject =
+                    std::dynamic_pointer_cast< ArcWiseTimeDriftBias< ObservationSize > >( observationBias );
+            if( timeBiasObject != nullptr )
+            {
+                // Check if bias and parameter link properties are equal
+                if ( ( linkEnds == timeBiasParameter->getLinkEnds( ) ) && ( observableType == timeBiasParameter->getObservableType( ) ) &&
+                     ( timeBiasObject->getLinkEndIndexForTime( ) == timeBiasParameter->getLinkEndIndex( ) ) &&
+                     ( timeBiasObject->getArcStartTimes( ).size( ) == timeBiasParameter->getArcStartTimes( ).size( ) ) )
+                {
+                    bool doTimesMatch = true;
+                    for( unsigned int i = 0 ; i < timeBiasObject->getArcStartTimes( ).size( ) ; i++ )
+                    {
+                        if ( std::fabs( timeBiasObject->getArcStartTimes( ).at( i ) - timeBiasParameter->getArcStartTimes( ).at( i ) ) >
+                             std::max( 1.0E-15 * std::fabs( timeBiasObject->getArcStartTimes( ).at( i ) ),
+                                       1.0E-15 * std::fabs( timeBiasParameter->getArcStartTimes( ).at( i ) ) ) )
+                        {
+                            doTimesMatch = false;
+                        }
+                    }
+
+                    if( doTimesMatch == true )
+                    {
+                        timeBiasParameter->setObservationBiasFunctions(
+                                std::bind( &ArcWiseTimeDriftBias< ObservationSize >::getTemplateFreeConstantObservationBias,
+                                           timeBiasObject ),
+                                std::bind( &ArcWiseTimeDriftBias< ObservationSize >::resetConstantObservationBiasTemplateFree,
+                                           timeBiasObject, std::placeholders::_1 ) );
+                        timeBiasParameter->setLookupScheme( timeBiasObject->getLookupScheme( ) );
+                    }
+                }
+            }
+            break;
+        }
         default:
             std::string errorMessage = "Error when closing observation bias/estimation loop, did not recognize bias type " +
                     std::to_string( parameter->getParameterName( ).first );
@@ -311,16 +383,14 @@ std::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > cre
                 observationSimulator, parametersToEstimate );
 
     // Create observation partials for all link ends/parameters
-    std::shared_ptr< ObservationPartialCreator< ObservationSize, ObservationScalarType, TimeType > > observationPartialCreator =
-            std::make_shared< ObservationPartialCreator< ObservationSize, ObservationScalarType, TimeType > >( );
     std::map< LinkEnds, std::pair< std::map< std::pair< int, int >,
             std::shared_ptr< ObservationPartial< ObservationSize > > >,
             std::shared_ptr< PositionPartialScaling > > > observationPartialsAndScaler;
     if( parametersToEstimate != nullptr )
     {
         observationPartialsAndScaler =
-                observationPartialCreator->createObservationPartials(
-                    observableType, observationSimulator->getObservationModels( ), bodies, parametersToEstimate );
+                createObservablePartialsList(
+                    observationSimulator->getObservationModels( ), bodies, parametersToEstimate );
     }
 
     // Split position partial scaling and observation partial objects.
@@ -402,6 +472,11 @@ std::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > cre
         observationManager = createObservationManager< 3, ObservationScalarType, TimeType >(
                     observableType, observationModelSettingsList, bodies, parametersToEstimate,
                     stateTransitionMatrixInterface );
+        break;
+    case relative_angular_position:
+        observationManager = createObservationManager< 2, ObservationScalarType, TimeType >(
+                observableType, observationModelSettingsList, bodies, parametersToEstimate,
+                        stateTransitionMatrixInterface );
         break;
     default:
         throw std::runtime_error(

@@ -30,8 +30,8 @@ void checkObservationDependentVariableEnvironment(
         //                                      ", only one input link end can be processed" );
         //        }
 
-        std::string bodyName = variableSettings->relevantLinkEnd_.first;
-        std::string stationName = variableSettings->relevantLinkEnd_.second;
+        std::string bodyName = variableSettings->relevantLinkEnd_.bodyName_;
+        std::string stationName = variableSettings->relevantLinkEnd_.stationName_;
 
         if( bodies.count( bodyName ) == 0 )
         {
@@ -61,7 +61,7 @@ DoubleObservationDependentVariableFunction getBodyAvoidanceFunction(
         const SystemOfBodies& bodies,
         const std::shared_ptr< BodyAvoidanceObservationDependentVariableSettings > variableSettings,
         const observation_models::ObservableType observableType,
-        const observation_models::LinkEnds linkEnds )
+        const observation_models::LinkDefinition linkEnds )
 {
     // Check if observation is integrated
     bool isObservableIntegrated = observation_models::isObservableOfIntegratedType( observableType );
@@ -99,7 +99,7 @@ DoubleObservationDependentVariableFunction getBodyAvoidanceFunction(
 DoubleObservationDependentVariableFunction getTargetRangeFunction(
         const std::shared_ptr< InterlinkObservationDependentVariableSettings > variableSettings,
         const observation_models::ObservableType observableType,
-        const observation_models::LinkEnds linkEnds )
+        const observation_models::LinkDefinition linkEnds )
 {
     // Check if observation is integrated
     bool isObservableIntegrated = observation_models::isObservableOfIntegratedType( observableType );
@@ -131,13 +131,13 @@ DoubleObservationDependentVariableFunction getStationObservationAngleFunction(
         const SystemOfBodies& bodies,
         const std::shared_ptr< StationAngleObservationDependentVariableSettings > variableSettings,
         const observation_models::ObservableType observableType,
-        const observation_models::LinkEnds linkEnds )
+        const observation_models::LinkDefinition linkEnds )
 {
     checkObservationDependentVariableEnvironment( bodies, variableSettings );
 
     // Retrieve link-end ID for station
-    std::string bodyName = variableSettings->relevantLinkEnd_.first;
-    std::string stationName = variableSettings->relevantLinkEnd_.second;
+    std::string bodyName = variableSettings->relevantLinkEnd_.bodyName_;
+    std::string stationName = variableSettings->relevantLinkEnd_.stationName_;
 
     // Check if observation is integrated
     bool isObservableIntegrated = observation_models::isObservableOfIntegratedType( observableType );
@@ -151,13 +151,13 @@ DoubleObservationDependentVariableFunction getStationObservationAngleFunction(
     // Get link-end indices consistent with settings
     std::vector< std::pair< int, int > > stateTimeIndex =
             observation_models::getLinkStateAndTimeIndicesForLinkEnd(
-                linkEnds, observableType, variableSettings->relevantLinkEnd_ );
+                linkEnds.linkEnds_, observableType, variableSettings->relevantLinkEnd_ );
     if( stateTimeIndex.size( ) == 0 )
     {
         throw std::runtime_error( "Error in station-angle observation dependent variables for " +
                                   getObservationDependentVariableId( variableSettings ) +
-                                  " Could not find link end: (" + variableSettings->relevantLinkEnd_.first + ", " +
-                                  variableSettings->relevantLinkEnd_.second + ")" );
+                                  " Could not find link end: (" + variableSettings->relevantLinkEnd_.bodyName_ + ", " +
+                                  variableSettings->relevantLinkEnd_.stationName_ + ")" );
     }
 
     std::pair< int, int > linkEndIndicesToUse;
@@ -201,7 +201,7 @@ DoubleObservationDependentVariableFunction getObservationDoubleDependentVariable
         const SystemOfBodies& bodies,
         const std::shared_ptr< ObservationDependentVariableSettings > variableSettings,
         const observation_models::ObservableType observableType,
-        const observation_models::LinkEnds linkEnds )
+        const observation_models::LinkDefinition linkEnds )
 {
 
     DoubleObservationDependentVariableFunction outputFunction;
@@ -249,7 +249,7 @@ VectorObservationDependentVariableFunction getObservationVectorDependentVariable
         const SystemOfBodies& bodies,
         const std::shared_ptr< ObservationDependentVariableSettings > variableSettings,
         const observation_models::ObservableType observableType,
-        const observation_models::LinkEnds linkEnds )
+        const observation_models::LinkDefinition linkEnds )
 {
     VectorObservationDependentVariableFunction outputFunction;
     switch( variableSettings->variableType_ )
@@ -267,7 +267,7 @@ void ObservationDependentVariableCalculator::addDependentVariable(
         const SystemOfBodies& bodies )
 {
     if( checkObservationDependentVariableForGivenLink(
-                observableType_, linkEnds_, variableSettings ) )
+                observableType_, linkEnds_.linkEnds_, variableSettings ) )
     {
         ObservationDependentVariableAddFunction dependentVariableAddFunction;
 

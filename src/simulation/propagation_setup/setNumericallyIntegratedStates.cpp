@@ -41,7 +41,7 @@ void checkTranslationalStatesFeasibility(
                 if( std::find( bodiesToIntegrate.begin( ), bodiesToIntegrate.end( ), ephemerisOrigin )
                         != bodiesToIntegrate.end( ) )
                 {
-                    std::cerr << "Warning, found non-integrated body with an integrated body as ephemeris origin" +
+                    std::cerr << "Warning, found non-integrated body with an integrated body as ephemeris origin " +
                                  bodyIterator.second->getEphemeris( )->getReferenceFrameOrigin( ) + " " +
                                  bodyIterator.first << std::endl;
                 }
@@ -75,6 +75,12 @@ void checkTranslationalStatesFeasibility(
                                               bodyToIntegrate + " ephemeris exists, but is not tabulated." );
                 }
             }
+        }
+
+        if( bodiesToIntegrate.at( i ) ==  bodies.getFrameOrigin( ) )
+        {
+            throw std::runtime_error( "Error when propagating translational dynamics, cannnot propagate " + bodiesToIntegrate.at( i ) +
+                                      ", as it is the global origin" );
         }
     }
 }
@@ -120,8 +126,11 @@ template< >
 std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Matrix< double, 6, 1 > > >
 createStateInterpolator( const std::map< double, Eigen::Matrix< double, 6, 1 > >& stateMap )
 {
+
     return std::make_shared<
-            interpolators::LagrangeInterpolator< double, Eigen::Matrix< double, 6, 1 > > >( stateMap, 6 );
+            interpolators::LagrangeInterpolator< double, Eigen::Matrix< double, 6, 1 > > >(
+                stateMap, 6, interpolators::huntingAlgorithm, interpolators::lagrange_cubic_spline_boundary_interpolation,
+                interpolators::throw_exception_at_boundary );
 
 }
 
@@ -131,7 +140,9 @@ std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Matri
 createStateInterpolator( const std::map< double, Eigen::Matrix< long double, 6, 1 > >& stateMap )
 {
     return std::make_shared<
-            interpolators::LagrangeInterpolator< double, Eigen::Matrix< long double, 6, 1 > > >( stateMap, 6 );
+            interpolators::LagrangeInterpolator< double, Eigen::Matrix< long double, 6, 1 > > >(
+                stateMap, 6, interpolators::huntingAlgorithm, interpolators::lagrange_cubic_spline_boundary_interpolation,
+                interpolators::throw_exception_at_boundary );
 }
 
 //! Function to create an interpolator for the new translational state of a body.
@@ -140,7 +151,9 @@ std::shared_ptr< interpolators::OneDimensionalInterpolator< Time, Eigen::Matrix<
 createStateInterpolator( const std::map< Time, Eigen::Matrix< long double, 6, 1 > >& stateMap )
 {
     return std::make_shared<
-            interpolators::LagrangeInterpolator< Time, Eigen::Matrix< long double, 6, 1 >, long double > >( stateMap, 6 );
+            interpolators::LagrangeInterpolator< Time, Eigen::Matrix< long double, 6, 1 >, long double > >(
+                stateMap, 6, interpolators::huntingAlgorithm, interpolators::lagrange_cubic_spline_boundary_interpolation,
+                interpolators::throw_exception_at_boundary );
 }
 
 
@@ -150,7 +163,9 @@ std::shared_ptr< interpolators::OneDimensionalInterpolator< Time, Eigen::Matrix<
 createStateInterpolator( const std::map< Time, Eigen::Matrix< double, 6, 1 > >& stateMap )
 {
     return std::make_shared<
-            interpolators::LagrangeInterpolator< Time, Eigen::Matrix< double, 6, 1 >, long double > >( stateMap, 6 );
+            interpolators::LagrangeInterpolator< Time, Eigen::Matrix< double, 6, 1 >, long double > >(
+                stateMap, 6, interpolators::huntingAlgorithm, interpolators::lagrange_cubic_spline_boundary_interpolation,
+                interpolators::throw_exception_at_boundary );
 }
 
 
@@ -158,28 +173,36 @@ template< >
 std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Matrix< double, 7, 1 > > >
 createRotationalStateInterpolator( const std::map< double, Eigen::Matrix< double, 7, 1 > >& stateMap )
 {
-    return std::make_shared< interpolators::LagrangeInterpolator< double, Eigen::Matrix< double, 7, 1 > > >( stateMap, 6 );
+    return std::make_shared< interpolators::LagrangeInterpolator< double, Eigen::Matrix< double, 7, 1 > > >(
+                stateMap, 6, interpolators::huntingAlgorithm, interpolators::lagrange_cubic_spline_boundary_interpolation,
+                interpolators::throw_exception_at_boundary );
 }
 
 template< >
 std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Matrix< long double, 7, 1 > > >
 createRotationalStateInterpolator( const std::map< double, Eigen::Matrix< long double, 7, 1 > >& stateMap )
 {
-    return std::make_shared< interpolators::LagrangeInterpolator< double, Eigen::Matrix< long double, 7, 1 > > >( stateMap, 6 );
+    return std::make_shared< interpolators::LagrangeInterpolator< double, Eigen::Matrix< long double, 7, 1 > > >(
+                stateMap, 6, interpolators::huntingAlgorithm, interpolators::lagrange_cubic_spline_boundary_interpolation,
+                interpolators::throw_exception_at_boundary );
 }
 
 template< >
 std::shared_ptr< interpolators::OneDimensionalInterpolator< Time, Eigen::Matrix< double, 7, 1 > > >
 createRotationalStateInterpolator( const std::map< Time, Eigen::Matrix< double, 7, 1 > >& stateMap )
 {
-    return std::make_shared< interpolators::LagrangeInterpolator< Time, Eigen::Matrix< double, 7, 1 >, long double > >( stateMap, 6 );
+    return std::make_shared< interpolators::LagrangeInterpolator< Time, Eigen::Matrix< double, 7, 1 >, long double > >(
+                stateMap, 6, interpolators::huntingAlgorithm, interpolators::lagrange_cubic_spline_boundary_interpolation,
+                interpolators::throw_exception_at_boundary );
 }
 
 template< >
 std::shared_ptr< interpolators::OneDimensionalInterpolator< Time, Eigen::Matrix< long double, 7, 1 > > >
 createRotationalStateInterpolator( const std::map< Time, Eigen::Matrix< long double, 7, 1 > >& stateMap )
 {
-    return std::make_shared< interpolators::LagrangeInterpolator< Time, Eigen::Matrix< long double, 7, 1 >, long double > >( stateMap, 6 );
+    return std::make_shared< interpolators::LagrangeInterpolator< Time, Eigen::Matrix< long double, 7, 1 >, long double > >(
+                stateMap, 6, interpolators::huntingAlgorithm, interpolators::lagrange_cubic_spline_boundary_interpolation,
+                interpolators::throw_exception_at_boundary );
 }
 
 } // namespace propagators

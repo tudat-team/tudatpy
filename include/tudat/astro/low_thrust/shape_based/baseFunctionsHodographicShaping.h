@@ -14,7 +14,7 @@
 
 #include <vector>
 #include <cmath>
-#include <boost/make_shared.hpp>
+#include <memory>
 
 namespace tudat
 {

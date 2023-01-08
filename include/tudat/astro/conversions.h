@@ -23,5 +23,6 @@
 #include "basic_astro/unifiedStateModelModifiedRodriguesParameterElementConversions.h"
 #include "basic_astro/unifiedStateModelQuaternionElementConversions.h"
 #include "basic_astro/unitConversions.h"
+#include "basic_astro/tleElementsConversions.h"
 
 #endif//TUDAT_CONVERSIONS_H

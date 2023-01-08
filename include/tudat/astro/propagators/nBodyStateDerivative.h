@@ -173,14 +173,14 @@ public:
     {
         for( unsigned int i = 0; i < accelerationModelList_.size( ); i++ )
         {
-            accelerationModelList_.at( i )->resetTime( TUDAT_NAN );
+            accelerationModelList_.at( i )->resetCurrentTime( );
         }        
 
         for( unsigned int i = 0; i < updateRemovedAccelerations_.size( ); i++ )
         {
             if( removedCentralAccelerations_.count( updateRemovedAccelerations_.at( i  ) ) > 0 )
             {
-                removedCentralAccelerations_[ updateRemovedAccelerations_.at( i ) ]->resetTime( TUDAT_NAN );
+                removedCentralAccelerations_[ updateRemovedAccelerations_.at( i ) ]->resetCurrentTime( );
             }
         }
     }
@@ -545,12 +545,6 @@ protected:
 };
 
 extern template class NBodyStateDerivative< double, double >;
-
-#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
-extern template class NBodyStateDerivative< long double, double >;
-extern template class NBodyStateDerivative< double, Time >;
-extern template class NBodyStateDerivative< long double, Time >;
-#endif
 
 } // namespace propagators
 

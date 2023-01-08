@@ -19,6 +19,7 @@ set(environment_HEADERS
         defaultBodies.h
         createBodies.h
         createGroundStations.h
+        createBodyDeformationModel.h
         body.h
         createRadiationPressureInterface.h
         createGravityFieldVariations.h
@@ -26,6 +27,9 @@ set(environment_HEADERS
         createFlightConditions.h
         createRadiationSourceModel.h
         createRadiationPressureTargetModel.h
+        createSystemModel.h
+        createThrustModelGuidance.h
+        thrustSettings.h
         )
 
 # Add header files.
@@ -37,6 +41,7 @@ set(environment_SOURCES
         createBodies.cpp
         createGravityField.cpp
         createBodyShapeModel.cpp
+        createBodyDeformationModel.cpp
         createFlightConditions.cpp
         createGroundStations.cpp
         createAerodynamicCoefficientInterface.cpp
@@ -44,6 +49,9 @@ set(environment_SOURCES
         defaultBodies.cpp
         body.cpp
         createAtmosphereModel.cpp
+        createSystemModel.cpp
+        createThrustModelGuidance.cpp
+        thrustSettings.cpp
         createRadiationSourceModel.cpp
         createRadiationPressureTargetModel.cpp
         )

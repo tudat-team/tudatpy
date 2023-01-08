@@ -40,11 +40,13 @@ enum TimeScales
     local_proper_time_scale = 7
 };
 
+const static double JULIAN_DAY_ON_J2000_INT = 2451545;
+
 //! Julian day at J2000, i.e. 01-01-2000, at 12:00 (in TT).
-const static double JULIAN_DAY_ON_J2000 = 2451545.0;
+const static double JULIAN_DAY_ON_J2000 = mathematical_constants::getFloatingInteger< double >( JULIAN_DAY_ON_J2000_INT );
 
 //! Julian day at J2000, i.e. 01-01-2000, at 12:00 (in TT),  in long double precision.
-const static long double JULIAN_DAY_ON_J2000_LONG = 2451545.0L;
+const static long double JULIAN_DAY_ON_J2000_LONG = mathematical_constants::getFloatingInteger< long double >( JULIAN_DAY_ON_J2000_INT );
 
 //! Function to get the Julian day on J2000
 /*!

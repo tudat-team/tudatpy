@@ -14,14 +14,26 @@
 #include <cmath>
 #include <algorithm>
 
+#include <boost/algorithm/string/trim.hpp>
+#include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string/split.hpp>
+#include <boost/date_time/gregorian/gregorian.hpp>
+
 #include <Eigen/Core>
 
+#include "tudat/astro/basic_astro/timeConversions.h"
+
+#include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/math/basic/basicMathematicsFunctions.h"
 
 namespace tudat
 {
 
-static const long double TIME_NORMALIZATION_TERM = 3600.0L;
+static constexpr int TIME_NORMALIZATION_INTEGER_TERM = 60;
+
+static constexpr long double TIME_NORMALIZATION_TERM = mathematical_constants::getFloatingInteger< long double >( TIME_NORMALIZATION_INTEGER_TERM );
+
+static constexpr int TIME_NORMALIZATION_TERMS_PER_DAY = 86400 / TIME_NORMALIZATION_INTEGER_TERM;
 
 //! Class for defining time with a resolution that is sub-fs for very long periods of time.
 /*!
@@ -39,6 +51,49 @@ public:
 
     //! Constructor, initialize time to 0
     Time( ):fullPeriods_( 0 ), secondsIntoFullPeriod_( 0.0L ){ }
+
+    Time( const std::string isoTime )
+    {
+//        '1999-01-01T00:00:00.123456789'
+
+        // Get year and month
+        std::vector< std::string > splitTime;
+        boost::algorithm::split( splitTime, isoTime,
+                                 boost::is_any_of( "-" ),
+                                 boost::algorithm::token_compress_on );
+        int year = boost::lexical_cast< int >( splitTime.at( 0 ) );
+        int month = boost::lexical_cast< int >( splitTime.at( 1 ) );
+
+        // Get day
+        std::string remainingString = splitTime.at( 2 );
+        splitTime.clear( );
+        boost::algorithm::split( splitTime, remainingString,
+                                 boost::is_any_of( "T" ),
+                                 boost::algorithm::token_compress_on );
+        int days = boost::lexical_cast< int >( splitTime.at( 0 ) );
+        boost::gregorian::date currentDate( year, month, days );
+        int daysSinceJ2000 = currentDate.julian_day( ) - basic_astrodynamics::JULIAN_DAY_ON_J2000_INT;
+
+        // Get hours, minutes, seconds
+        remainingString = splitTime.at( 1 );
+        splitTime.clear( );
+        boost::algorithm::split( splitTime, remainingString,
+                                 boost::is_any_of( "T" ),
+                                 boost::algorithm::token_compress_on );
+        int hours = boost::lexical_cast< int >( splitTime.at( 0 ) );
+        int minutes = boost::lexical_cast< int >( splitTime.at( 1 ) );
+        long double seconds = boost::lexical_cast< long double >( splitTime.at( 2 ) );
+
+        long double secondsSinceNoon =
+                static_cast< long double >( hours - 12 ) * 3600.0L +
+                static_cast< long double >( minutes ) * 60.0L +
+                seconds;
+
+        fullPeriods_ = daysSinceJ2000 * TIME_NORMALIZATION_TERMS_PER_DAY;
+        secondsIntoFullPeriod_ = secondsSinceNoon;
+        normalizeMembers( );
+    }
+
 
     //! Constructor, sets current hour and time into current hour directly
     /*!
@@ -990,6 +1045,21 @@ public:
     long double getSecondsIntoFullPeriod( ) const
     {
         return secondsIntoFullPeriod_;
+    }
+
+    int fullDaysSinceEpoch( ) const
+    {
+        return fullPeriods_ / TIME_NORMALIZATION_TERMS_PER_DAY;
+    }
+
+    int fullPeriodsIntoCurrentDay( ) const
+    {
+        return fullPeriods_ - fullDaysSinceEpoch( ) * TIME_NORMALIZATION_TERMS_PER_DAY;
+    }
+
+    long double secondsIntoCurrentDay( ) const
+    {
+        return static_cast< long double >( fullPeriodsIntoCurrentDay( ) * TIME_NORMALIZATION_TERM ) + secondsIntoFullPeriod_;
     }
 
 protected:

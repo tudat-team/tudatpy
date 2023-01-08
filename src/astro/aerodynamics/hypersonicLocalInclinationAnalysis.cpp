@@ -15,12 +15,12 @@
 
 #include <string>
 
-#include <boost/bind/bind.hpp>
-using namespace boost::placeholders;
+
+
 
 #include <functional>
 #include <boost/lambda/lambda.hpp>
-#include <boost/make_shared.hpp>
+
 #include <boost/pointer_cast.hpp>
 #include <memory>
 

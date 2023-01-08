@@ -22,6 +22,7 @@
 #include "tudat/astro/gravitation/centralGravityModel.h"
 #include "tudat/astro/gravitation/sphericalHarmonicsGravityModel.h"
 #include "tudat/astro/gravitation/mutualSphericalHarmonicGravityModel.h"
+#include "tudat/astro/gravitation/polyhedronGravityModel.h"
 
 namespace tudat
 {
@@ -100,7 +101,8 @@ public:
         accelerationModelForBodyUndergoingAcceleration_(
             accelerationModelForBodyUndergoingAcceleration ),
         accelerationModelForCentralBody_( accelerationModelForCentralBody ),
-        centralBodyName_( centralBodyName ){ }
+        centralBodyName_( centralBodyName )
+    { }
 
     //! Update member variables to current state.
     /*!
@@ -124,10 +126,10 @@ public:
      * Function to reset the current time of the acceleration model.
      * \param currentTime Current time (default NaN).
      */
-    void resetTime( const double currentTime = TUDAT_NAN )
+    void resetCurrentTime( )
     {
-        accelerationModelForBodyUndergoingAcceleration_->resetTime( currentTime );
-        accelerationModelForCentralBody_->resetTime( currentTime );
+        accelerationModelForBodyUndergoingAcceleration_->resetCurrentTime( );
+        accelerationModelForCentralBody_->resetCurrentTime( );
     }
 
     //! Function to return the direct acceleration model on body undergoing acceleration.
@@ -195,6 +197,9 @@ ThirdBodySphericalHarmonicsGravitationalAccelerationModel;
 typedef ThirdBodyAcceleration< MutualSphericalHarmonicsGravitationalAccelerationModel >
 ThirdBodyMutualSphericalHarmonicsGravitationalAccelerationModel;
 
+//! Typedef for third body polyhedron gravity acceleration.
+typedef ThirdBodyAcceleration< PolyhedronGravitationalAccelerationModel >
+ThirdBodyPolyhedronGravitationalAccelerationModel;
 
 } // namespace gravitation
 

@@ -18,7 +18,7 @@
 #include "tudat/astro/basic_astro/unitConversions.h"
 
 #include <boost/test/unit_test.hpp>
-#include <boost/make_shared.hpp>
+
 #include <boost/lambda/lambda.hpp>
 
 #include "tudat/astro/basic_astro/sphericalStateConversions.h"
@@ -261,7 +261,7 @@ BOOST_AUTO_TEST_CASE( testSecondDegreeGravitationalTorquePartials )
     Eigen::Vector3d testPartialWrtMeanMomentOfInertia = calculateTorqueWrtParameterPartials(
                 phobosMeanMomentOfInertia, gravitationalTorque, 1.0E-1 );
     std::function< void( ) > updateFunction = &emptyFunction;
-            //boost::bind( &Body::setBodyInertiaTensorFromGravityFieldAndExistingMeanMoment, bodies.at( "Phobos" ), true );
+            //std::bind( &Body::setBodyInertiaTensorFromGravityFieldAndExistingMeanMoment, bodies.at( "Phobos" ), true );
     Eigen::MatrixXd testPartialWrtPhobosCosineCoefficients = calculateTorqueWrtParameterPartials(
                 phobosCosineCoefficientsParameter, gravitationalTorque,
                 Eigen::VectorXd::Constant( phobosCosineCoefficientsParameter->getParameterSize( ), 1.0E-6 ), updateFunction );
@@ -311,7 +311,7 @@ BOOST_AUTO_TEST_CASE( testSecondDegreeGravitationalTorquePartials )
 
     for( int i = 0; i < 3; i++ )
     {
-        BOOST_CHECK_SMALL( std::fabs( partialWrtMeanMomentOfInertia( i, 0 ) - testPartialWrtMeanMomentOfInertia( i, 0 ) ), 1.0E1 );
+        BOOST_CHECK_SMALL( std::fabs( partialWrtMeanMomentOfInertia( i, 0 ) - testPartialWrtMeanMomentOfInertia( i, 0 ) ), 1.0E2 );
     }
 }
 

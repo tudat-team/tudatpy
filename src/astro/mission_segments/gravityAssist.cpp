@@ -38,8 +38,8 @@
 
 #include <cmath>
 
-#include <boost/bind/bind.hpp>
-using namespace boost::placeholders;
+
+
 
 
 #include <Eigen/Dense>

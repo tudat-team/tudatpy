@@ -14,7 +14,7 @@
 #include <limits>
 
 #include <boost/test/unit_test.hpp>
-#include <boost/make_shared.hpp>
+
 
 #include <Eigen/Core>
 
@@ -293,6 +293,127 @@ BOOST_AUTO_TEST_CASE( test_shGravityModelSetup )
 
 }
 
+//! Test set up of polyhedron gravitational accelerations.
+BOOST_AUTO_TEST_CASE( test_polyhedronGravityModelSetup )
+{
+
+    // Create system of bodies
+    SystemOfBodies bodies;
+    bodies.createEmptyBody( "Earth" );
+    bodies.createEmptyBody( "Vehicle" );
+
+    // Set constant state for Earth and Vehicle
+    Eigen::Vector6d dummyEarthState =
+            ( Eigen::Vector6d ( ) << 1.1E11, 0.5E11, 0.01E11, 0.0, 0.0, 0.0
+              ).finished( );
+    Eigen::Vector7d unitRotationalState = Eigen::Vector7d::Zero( );
+    unitRotationalState.segment( 0, 4 ) = linear_algebra::convertQuaternionToVectorFormat(
+                Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ) );
+    bodies.at( "Earth" )->setState( dummyEarthState );
+    bodies.at( "Vehicle" )->setState(
+                ( Eigen::Vector6d ( ) << 7.0e6, 8.0e6, 9.0e6, 0.0, 0.0, 0.0
+                  ).finished( ) + dummyEarthState );
+    bodies.at( "Earth" )->setCurrentRotationalStateToLocalFrame( unitRotationalState );
+
+    // Define Earth gravity field.
+    const double gravitationalParameter = 3.986004418e14;
+
+    // Define cuboid polyhedron dimensions
+    const double w = 6378137.0 / 2; // width
+    const double h = 6378137.0 / 2; // height
+    const double l = 6378137.0 / 2; // length
+    const double volume = w * h * l;
+    // Define cuboid
+    Eigen::MatrixXd verticesCoordinates(8,3);
+    verticesCoordinates <<
+        0.0, 0.0, 0.0,
+        l, 0.0, 0.0,
+        0.0, w, 0.0,
+        l, w, 0.0,
+        0.0, 0.0, h,
+        l, 0.0, h,
+        0.0, w, h,
+        l, w, h;
+    Eigen::MatrixXi verticesDefiningEachFacet(12,3);
+    verticesDefiningEachFacet <<
+        2, 1, 0,
+        1, 2, 3,
+        4, 2, 0,
+        2, 4, 6,
+        1, 4, 0,
+        4, 1, 5,
+        6, 5, 7,
+        5, 6, 4,
+        3, 6, 7,
+        6, 3, 2,
+        5, 3, 7,
+        3, 5, 1;
+
+    bodies.at( "Earth" )->setGravityFieldModel(
+            std::make_shared< gravitation::PolyhedronGravityField >(
+                    gravitationalParameter, verticesCoordinates,
+                    verticesDefiningEachFacet, "IAU_Earth" ) );
+    bodies.at( "Earth" )->setRotationalEphemeris(
+            std::make_shared< ephemerides::SpiceRotationalEphemeris >( "ECLIPJ2000", "IAU_Earth" ) );
+
+
+    // Define settings for acceleration model (spherical harmonic due to Earth up to degree and
+    // order 5.
+    SelectedAccelerationMap accelerationSettingsMap;
+    accelerationSettingsMap[ "Vehicle" ][ "Earth" ].push_back( polyhedronAcceleration() );
+
+    // Set accelerations to be calculated w.r.t. the Earth.
+    std::map< std::string, std::string > centralBodies;
+    centralBodies[ "Vehicle" ] = "Earth";
+
+    // Create and retrieve acceleration.
+    AccelerationMap accelerationsMap = createAccelerationModelsMap( bodies, accelerationSettingsMap, centralBodies );
+    std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > directAcceleration =
+            accelerationsMap[ "Vehicle" ][ "Earth" ][ 0 ];
+
+    // Manually create acceleration model.
+    gravitation::PolyhedronGravityField manualGravityField = gravitation::PolyhedronGravityField(
+            gravitationalParameter, verticesCoordinates, verticesDefiningEachFacet);
+
+    std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > manualAcceleration =
+            std::make_shared< gravitation::PolyhedronGravitationalAccelerationModel >(
+                    std::bind( &Body::getPositionByReference, bodies.at( "Vehicle" ), std::placeholders::_1 ),
+                    gravitationalParameter, volume, verticesCoordinates,
+                    verticesDefiningEachFacet, manualGravityField.getVerticesDefiningEachEdge(),
+                    manualGravityField.getFacetDyads(), manualGravityField.getEdgeDyads(),
+                    std::bind( &Body::getPositionByReference, bodies.at( "Earth" ), std::placeholders::_1 ));
+
+    // Test equivalence of two acceleration models.
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                ( basic_astrodynamics::updateAndGetAcceleration( manualAcceleration ) ),
+                ( basic_astrodynamics::updateAndGetAcceleration( directAcceleration ) ),
+                std::numeric_limits< double >::epsilon( ) );
+
+    // Set (unrealistically) a gravity field model on the Vehicle, to test its influence on acceleration.
+    bodies.at( "Vehicle" )->setGravityFieldModel(
+            std::make_shared< gravitation::GravityFieldModel >( 0.1 * gravitationalParameter ) );
+
+    // Recreate and retrieve acceleration.
+    accelerationsMap = createAccelerationModelsMap( bodies, accelerationSettingsMap, centralBodies );
+    directAcceleration = accelerationsMap[ "Vehicle" ][ "Earth" ][ 0 ];
+
+    // Manually create acceleration.
+    manualAcceleration = std::make_shared< gravitation::PolyhedronGravitationalAccelerationModel >(
+            std::bind( &Body::getPositionByReference, bodies.at( "Vehicle" ), std::placeholders::_1 ),
+            gravitationalParameter * 1.1, volume, verticesCoordinates,
+            verticesDefiningEachFacet, manualGravityField.getVerticesDefiningEachEdge(),
+            manualGravityField.getFacetDyads(), manualGravityField.getEdgeDyads(),
+            std::bind( &Body::getPositionByReference, bodies.at( "Earth" ), std::placeholders::_1 ) );
+
+    // Test equivalence of two acceleration models.
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                ( basic_astrodynamics::updateAndGetAcceleration( manualAcceleration ) ),
+                ( basic_astrodynamics::updateAndGetAcceleration( directAcceleration ) ),
+                std::numeric_limits< double >::epsilon( ) );
+
+}
+
+
 //! Test radiation pressure acceleration
 BOOST_AUTO_TEST_CASE( test_radiationPressureAcceleration )
 {
@@ -420,6 +541,19 @@ BOOST_AUTO_TEST_CASE( test_aerodynamicAccelerationModelSetup )
         // Create body objects.
         SystemOfBodies bodies = createSystemOfBodies( bodySettings );
         
+        double angleOfAttack = 1.232;
+        double angleOfSideslip = -0.00322;
+        double bankAngle = 2.323432;
+
+        std::shared_ptr< ephemerides::AerodynamicAngleRotationalEphemeris > vehicleRotationModel =
+                createAerodynamicAngleBasedRotationModel(
+                                "Vehicle", "Earth", bodies,
+                                "ECLIPJ2000", "VehicleFixed" );
+        vehicleRotationModel->setAerodynamicAngleFunction(
+                    [=]( const double ){ return ( Eigen::Vector3d( ) << angleOfAttack, angleOfSideslip, bankAngle ).finished( ); } );
+        bodies.at( "Vehicle" )->setRotationalEphemeris( vehicleRotationModel );
+
+
 
         // Define settings for accelerations
         SelectedAccelerationMap accelerationSettingsMap;
@@ -441,16 +575,6 @@ BOOST_AUTO_TEST_CASE( test_aerodynamicAccelerationModelSetup )
         double testLatitude = -0.385027359562548;
         double testLongitude = -1.849449608688977;
 
-        double angleOfAttack = 1.232;
-        double angleOfSideslip = -0.00322;
-        double bankAngle = 2.323432;
-
-        // Retrieve flight conditions and define orientation angles.
-        setAerodynamicOrientationFunctions(
-                    bodies.at( "Vehicle" ),
-                    [ & ]( ){ return angleOfAttack; },
-        [ & ]( ){ return angleOfSideslip; },
-        [ & ]( ){ return bankAngle; } );
 
         // Set vehicle body-fixed state (see testAerodynamicAngleCalculator)
         Eigen::Vector6d vehicleBodyFixedState =
@@ -467,6 +591,7 @@ BOOST_AUTO_TEST_CASE( test_aerodynamicAccelerationModelSetup )
                     bodies.at( "Earth" )->getRotationalEphemeris( )->getDerivativeOfRotationToBaseFrame( testTime ) );
 
         // Set states in environment.
+        vehicleRotationModel->setIsBodyInPropagation( true );
         bodies.at( "Earth" )->setState( Eigen::Vector6d::Zero( ) );
         bodies.at( "Earth" )->setCurrentRotationalStateToLocalFrameFromEphemeris( testTime );
         bodies.at( "Vehicle" )->setState( vehicleInertialState );
@@ -603,10 +728,16 @@ BOOST_AUTO_TEST_CASE( test_aerodynamicAccelerationModelSetupWithCoefficientIndep
     double angleOfAttack = 1.232;
     double angleOfSideslip = -0.00322;
     double bankAngle = 2.323432;
-    vehicleFlightConditions->getAerodynamicAngleCalculator( )->setOrientationAngleFunctions(
-                [ & ]( ){ return angleOfAttack; },
-    [ & ]( ){ return angleOfSideslip; },
-    [ & ]( ){ return bankAngle; } );
+
+
+    std::shared_ptr< ephemerides::AerodynamicAngleRotationalEphemeris > vehicleRotationModel =
+            createAerodynamicAngleBasedRotationModel(
+                            "Vehicle", "Earth", bodies,
+                            "ECLIPJ2000", "VehicleFixed" );
+    vehicleRotationModel->setAerodynamicAngleFunction(
+                [=]( const double ){ return ( Eigen::Vector3d( ) << angleOfAttack, angleOfSideslip, bankAngle ).finished( ); } );
+    bodies.at( "Vehicle" )->setRotationalEphemeris( vehicleRotationModel );
+
 
     // Update environment to current time.
     double testTime = 0.5E7;
@@ -647,13 +778,14 @@ BOOST_AUTO_TEST_CASE( test_aerodynamicAccelerationModelSetupWithCoefficientIndep
         {
             angleOfSideslip += 0.00123;
         }
-        vehicleFlightConditions->getAerodynamicAngleCalculator( )->setOrientationAngleFunctions(
-                    [ & ]( ){ return angleOfAttack; },
-        [ & ]( ){ return angleOfSideslip; },
-        [ & ]( ){ return bankAngle; } );
+
+        vehicleRotationModel->setIsBodyInPropagation( true );
+        vehicleRotationModel->resetCurrentTime( );
+        vehicleRotationModel->setAerodynamicAngleFunction(
+                    [=]( const double ){ return ( Eigen::Vector3d( ) << angleOfAttack, angleOfSideslip, bankAngle ).finished( ); } );
 
         // Update flight conditions
-        vehicleFlightConditions->resetCurrentTime( TUDAT_NAN );
+        vehicleFlightConditions->resetCurrentTime( );
         vehicleFlightConditions->updateConditions( testTime );
 
         // Calculate Mach number
