@@ -812,18 +812,6 @@ inline std::shared_ptr< AccelerationSettings > radiationPressureAcceleration(
             originalSourceBody);
 }
 
-//! @get_docstring(momentumWheelDesaturationAcceleration)
-inline std::shared_ptr< AccelerationSettings > radiationPressureAcceleration(
-        const std::vector< double > thrustMidTimes,
-        const std::vector< Eigen::Vector3d > deltaVValues,
-        const double totalManeuverTime,
-        const double maneuverRiseTime
-)
-{
-    return std::make_shared< MomentumWheelDesaturationAccelerationSettings >( thrustMidTimes, deltaVValues,
-                                                                              totalManeuverTime, maneuverRiseTime);
-}
-
 // Typedef defining a list of acceleration settings, set up in the same manner as the
 // AccelerationMap typedef.
 typedef std::map< std::string, std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > >
