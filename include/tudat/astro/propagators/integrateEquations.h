@@ -485,7 +485,6 @@ void integrateEquationsFromIntegrator(
     std::map< TimeType, double > cumulativeComputationTimeHistory;
     std::shared_ptr< PropagationTerminationDetails > terminationDetails;
 
-    TimeType statePrintInterval = processingSettings->getPrintSettings( )->getStatePrintInterval( );
     std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( );
     bool printInitialAndFinalCondition = processingSettings->getPrintSettings( )->getPrintInitialAndFinalConditions( );
 
@@ -516,9 +515,11 @@ void integrateEquationsFromIntegrator(
     // Set initial time step and total integration time.
     TimeStepType timeStep = integrator->getNextStepSize( );
     TimeType previousTime = currentTime;
-    TimeType previousPrintTime = TUDAT_NAN;
 
-    int stepsSinceLastSave = 0;
+    int stepsSinceLastPrint = 1;
+    double timeOfLastPrint = TUDAT_NAN;
+
+    int stepsSinceLastSave = 1;
     double timeOfLastSave = currentTime;
 
     propagationTerminationReason = std::make_shared< PropagationTerminationDetails >(
@@ -538,7 +539,8 @@ void integrateEquationsFromIntegrator(
         {
             std::cout << "   Initial state: "<<std::endl<<newState <<std::endl<<std::endl;
         }
-        previousPrintTime = currentTime;
+        timeOfLastPrint = currentTime;
+        stepsSinceLastPrint = 0;
     }
 
     // Perform numerical integration steps until end time reached.
@@ -549,24 +551,22 @@ void integrateEquationsFromIntegrator(
             if( ( newState.allFinite( ) == true ) && ( !newState.hasNaN( ) ) )
             {
                 // Print solutions
-                if( statePrintInterval == statePrintInterval )
+                if( processingSettings->getPrintSettings( )->printCurrentStep( stepsSinceLastPrint, std::fabs(
+                        static_cast< double >( currentTime ) - timeOfLastPrint ) ) )
                 {
-                    if( !( previousPrintTime == previousPrintTime ) ||
-                            std::fabs( static_cast< double >( currentTime - previousPrintTime ) ) >= statePrintInterval )
-                    {
-                        previousPrintTime = currentTime;
-                        std::cout << "PRINTING STATE DURING PROPAGATION"<<std::endl;
-                        std::cout << "   Clock time since propagation start: "<<currentCPUTime<<std::endl;
-                        std::cout << "   Time since initial epoch: "<<currentTime - initialTime<<std::endl;
+                    stepsSinceLastPrint = 0;
+                    timeOfLastPrint = currentTime;
+                    std::cout << "PRINTING STATE DURING PROPAGATION"<<std::endl;
+                    std::cout << "   Clock time since propagation start: "<<currentCPUTime<<std::endl;
+                    std::cout << "   Time since initial epoch: "<<currentTime - initialTime<<std::endl;
 
-                        if( newState.cols( ) == 1 )
-                        {
-                            std::cout << "   Current state (transpose): "<<std::endl<<newState.transpose( ) <<std::endl<<std::endl;
-                        }
-                        else
-                        {
-                            std::cout << "   Current state: "<<std::endl<<newState <<std::endl<<std::endl;
-                        }
+                    if( newState.cols( ) == 1 )
+                    {
+                        std::cout << "   Current state (transpose): "<<std::endl<<newState.transpose( ) <<std::endl<<std::endl;
+                    }
+                    else
+                    {
+                        std::cout << "   Current state: "<<std::endl<<newState <<std::endl<<std::endl;
                     }
                 }
 
@@ -597,8 +597,8 @@ void integrateEquationsFromIntegrator(
                 timeStep = integrator->getNextStepSize( );
 
                 // Save integration result in map
-                stepsSinceLastSave++;
-                if( processingSettings->saveCurrentStep( stepsSinceLastSave, timeOfLastSave ) )
+                if( processingSettings->saveCurrentStep( stepsSinceLastSave, std::fabs(
+                        static_cast< double >( currentTime ) - timeOfLastSave ) ) )
                 {
                     solutionHistory[ currentTime ] = newState;
 
@@ -610,6 +610,10 @@ void integrateEquationsFromIntegrator(
                     timeOfLastSave = currentTime;
                     stepsSinceLastSave = 0;
                 }
+
+                stepsSinceLastPrint++;
+                stepsSinceLastSave++;
+
             }
             else
             {
@@ -684,7 +688,7 @@ void integrateEquationsFromIntegrator(
         {
             std::cout << "   Final state: "<<std::endl<<newState <<std::endl<<std::endl;
         }
-        previousPrintTime = currentTime;
+        timeOfLastPrint = currentTime;
     }
 
 

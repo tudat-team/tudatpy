@@ -179,10 +179,24 @@ namespace tudat
                 return cumulativeComputationTimeHistory_;
             }
 
+            double getTotalComputationRuntime( )
+            {
+                checkAvailabilityOfSolution( "cumulative computation time history" );
+                return std::fabs( cumulativeComputationTimeHistory_.begin( )->second -
+                                  cumulativeComputationTimeHistory_.rbegin( )->second );
+            }
+
             std::map<TimeType, unsigned int> &getCumulativeNumberOfFunctionEvaluations( ) 
             {
                 checkAvailabilityOfSolution( "cumulative number of function evaluations" );
                 return cumulativeNumberOfFunctionEvaluations_;
+            }
+
+            double getTotalNumberOfFunctionEvaluations( )
+            {
+                checkAvailabilityOfSolution( "cumulative number of function evaluations" );
+                return std::max( cumulativeNumberOfFunctionEvaluations_.begin( )->second,
+                                 cumulativeNumberOfFunctionEvaluations_.rbegin( )->second );
             }
 
             std::shared_ptr <PropagationTerminationDetails> getPropagationTerminationReason( ) 
