@@ -805,6 +805,17 @@ std::vector< std::pair< A, B > > mergeVectorsIntoVectorOfPairs(
     return mergedVector;
 }
 
+template< typename A, typename... ArgTypes >
+std::vector< A > getFirstTupleEntryVector( const std::vector< std::tuple< A, ArgTypes... > >& tupleVector )
+{
+    std::vector< A > vectorOfFirstEntries;
+    for( unsigned int i = 0; i < tupleVector.size( ); i++ )
+    {
+        vectorOfFirstEntries.push_back( std::get< 0 >( tupleVector.at( i ) ) );
+    }
+    return vectorOfFirstEntries;
+}
+
 } // namespace utilities
 
 } // namespace tudat

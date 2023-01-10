@@ -147,6 +147,20 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
     std::shared_ptr< SingleArcPropagatorProcessingSettings > outputSettings =
             std::make_shared< SingleArcPropagatorProcessingSettings >( );
     outputSettings->setIntegratedResult( true );
+
+    // Toggle all output for test purposes
+    outputSettings->getPrintSettings( )->reset(
+            true,
+            true,
+            true,
+            0.5E7,
+            0,
+            true,
+            true,
+            true,
+            true,
+            true );
+
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
             std::make_shared< TranslationalStatePropagatorSettings< double > >
             ( centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState, initialEphemerisTime, integratorSettings,

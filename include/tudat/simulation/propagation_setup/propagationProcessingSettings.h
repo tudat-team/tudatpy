@@ -140,9 +140,7 @@ public:
 
     bool printAnyOutput( )
     {
-        return ( printSettings_->printPostPropagation( ) ||
-                 printSettings_->printDuringPropagation( ) ||
-                 printSettings_->printBeforePropagation( ) );
+        return printSettings_->printAnyOutput( );
     }
 
 

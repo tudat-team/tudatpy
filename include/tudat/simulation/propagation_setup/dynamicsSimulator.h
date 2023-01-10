@@ -289,6 +289,57 @@ void printPropagatedDependentVariableContent (
     std::cout<<std::endl;
 }
 
+template< typename StateScalarType = double, typename TimeType = double >
+inline void printSingleArcPrePropagationMessages(
+    const std::shared_ptr< PropagationPrintSettings > printSettings,
+    const std::string& propagationStartHeader,
+    const std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType > > propagationResults )
+{
+    if( printSettings->printAnyOutput( ) )
+    {
+        std::cout<<propagationStartHeader<<std::endl<<std::endl;
+    }
+    if( printSettings->getPrintStateData( ) )
+    {
+        printPropagatedStateVectorContent( propagationResults->getStateIds( ) );
+    }
+    if( printSettings->getPrintDependentVariableData( ) )
+    {
+        printPropagatedDependentVariableContent( propagationResults->getDependentVariableId( ) );
+    }
+}
+
+template< typename StateScalarType = double, typename TimeType = double >
+void printSingleArcPostPropagationMessages(
+        const std::shared_ptr< PropagationPrintSettings > printSettings,
+        const std::string& propagationEndHeader,
+        const std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType > > propagationResults )
+{
+    // Retrieve and print number of total function evaluations
+    if ( printSettings->printPostPropagation( ) )
+    {
+        std::cout << "PROPAGATION FINISHED."<<std::endl;
+        if( printSettings->getPrintNumberOfFunctionEvaluations( ) )
+        {
+            std::cout << "Total Number of Function Evaluations: "
+                      << propagationResults->getTotalNumberOfFunctionEvaluations( ) << std::endl;
+        }
+        if( printSettings->getPrintPropagationTime( ) )
+        {
+            std::cout << "Total propagation clock time: "
+                      << propagationResults->getTotalComputationRuntime( )<<" seconds"<<std::endl;
+        }
+        if( printSettings->getPrintTerminationReason( ) )
+        {
+            std::cout << "Termination reason: "<<propagationResults->getPropagationTerminationReason()->getTerminationReasonString( )<<std::endl;
+        }
+        std::cout<<std::endl;
+    }
+    if( printSettings->printAnyOutput( ) )
+    {
+        std::cout<<propagationEndHeader<<std::endl<<std::endl;
+    }
+}
 
 //! Base class for performing full numerical integration of a dynamical system.
 /*!
@@ -438,7 +489,7 @@ std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > vali
         singleArcPropagatorSettings->getOutputSettings( )->setIntegratedResult( setIntegratedResult );
         singleArcPropagatorSettings->getOutputSettings( )->getPrintSettings( )->reset(
                     printNumberOfFunctionEvaluations, printDependentVariableData, printStateData,
-                    singleArcPropagatorSettings->getOutputSettings( )->getPrintSettings( )->getStatePrintInterval( ),
+                    singleArcPropagatorSettings->getOutputSettings( )->getPrintSettings( )->getResultsPrintFrequencyInSeconds( ), 0,
                     false, false, false, false, false );
 
         singleArcPropagatorSettings->setIntegratorSettings( integratorSettings );
@@ -922,53 +973,6 @@ public:
         return propagationResults_;
     }
 
-    void printPrePropagationMessages( )
-    {
-        if( outputSettings_->printAnyOutput( ) )
-        {
-            std::cout<<outputSettings_->getPropagationStartHeader( )<<std::endl<<std::endl;
-        }
-
-        if( outputSettings_->getPrintSettings( )->getPrintStateData( ) )
-        {
-            printPropagatedStateVectorContent( stateIds_ );
-        }
-
-        if( outputSettings_->getPrintSettings( )->getPrintDependentVariableData( ) )
-        {
-            printPropagatedDependentVariableContent( dependentVariableIds_ );
-        }
-    }
-
-    void printPostPropagationMessages( )
-    {
-        // Retrieve and print number of total function evaluations
-        if ( outputSettings_->getPrintSettings( )->printPostPropagation( ) )
-        {
-            std::cout << "PROPAGATION FINISHED."<<std::endl;
-            if( outputSettings_->getPrintSettings( )->getPrintNumberOfFunctionEvaluations( ) )
-            {
-                std::cout << "Total Number of Function Evaluations: "
-                      << dynamicsStateDerivative_->getNumberOfFunctionEvaluations( ) << std::endl;
-            }
-            if( outputSettings_->getPrintSettings( )->getPrintPropagationTime( ) )
-            {
-                std::cout << "Total propagation clock time: "
-                      << std::fabs( propagationResults_->cumulativeComputationTimeHistory_.begin( )->second -
-                                    propagationResults_->cumulativeComputationTimeHistory_.rbegin( )->second )<<" seconds"<<std::endl;
-            }
-            if( outputSettings_->getPrintSettings( )->getPrintTerminationReason( ) )
-            {
-                std::cout << "Termination reason: "<<propagationResults_->propagationTerminationReason_->getTerminationReasonString( )<<std::endl;
-            }
-            std::cout<<std::endl;
-        }
-
-        if( outputSettings_->printAnyOutput( ) )
-        {
-            std::cout<<outputSettings_->getPropagationEndHeader( )<<std::endl<<std::endl;
-        }
-    }
 ///////////////////////////////////////////////////
 //////////////// DEPRECATED ///////////////////////
 ///////////////////////////////////////////////////
@@ -1170,7 +1174,9 @@ private:
         // Empty solution maps
         simulationResults->reset( );
 
-        printPrePropagationMessages( );
+        printSingleArcPrePropagationMessages( outputSettings_->getPrintSettings( ),
+                                     outputSettings_->getPropagationStartHeader( ),
+                                     propagationResults_ );
 
     }
 
@@ -1188,7 +1194,9 @@ private:
     {
         // Retrieve number of cumulative function evaluations
         propagationResults->finalizePropagation( dynamicsStateDerivative_->getCumulativeNumberOfFunctionEvaluations( ) );
-        printPostPropagationMessages( );
+        printSingleArcPostPropagationMessages( outputSettings_->getPrintSettings( ),
+                                      outputSettings_->getPropagationEndHeader( ),
+                                      propagationResults_ );
         processNumericalEquationsOfMotionSolution( );
     }
 };

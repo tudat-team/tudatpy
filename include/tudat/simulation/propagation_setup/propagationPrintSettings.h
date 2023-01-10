@@ -31,7 +31,8 @@ public:
             const bool printNumberOfFunctionEvaluations = false,
             const bool printDependentVariableData = false,
             const bool printStateData = false,
-            const double statePrintInterval = TUDAT_NAN,
+            const double resultsPrintFrequencyInSeconds = TUDAT_NAN,
+            const int resultsPrintFrequencyInSteps = 0,
             const bool printTerminationReason = false,
             const bool printPropagationTime = false,
             const bool printPropagatedStateData = false,
@@ -39,7 +40,7 @@ public:
             const bool printDependentVariableDuringPropagation = false ): printArcIndex_( false )
     {
         reset( printNumberOfFunctionEvaluations,
-               printDependentVariableData, printStateData, statePrintInterval,
+               printDependentVariableData, printStateData, resultsPrintFrequencyInSeconds, resultsPrintFrequencyInSteps,
                printTerminationReason, printPropagationTime, printPropagatedStateData,
                printInitialAndFinalConditions, printDependentVariableDuringPropagation );
     }
@@ -55,31 +56,41 @@ public:
     void setPrintDependentVariableData( const bool printDependentVariableData )
     {  printDependentVariableData_ = printDependentVariableData; }
 
+    
     bool getPrintStateData( ) { return printStateData_; }
 
-    void setPrintStateData( const bool printStateData ) { printStateData_ = printStateData; }
+    void setPrintStateData( const bool printStateData ) 
+    { printStateData_ = printStateData; }
 
 
     bool getPrintPropagatedStateData( ){ return printPropagatedStateData_; }
 
     void setPrintPropagatedStateData( const bool printPropagatedStateData )
     { printPropagatedStateData_ = printPropagatedStateData; }
+    
 
-    double getStatePrintInterval( ){ return statePrintInterval_; }
+    double getResultsPrintFrequencyInSeconds( ){ return resultsPrintFrequencyInSeconds_; }
 
-    void setStatePrintInterval( const double statePrintInterval )
-    { statePrintInterval_ = statePrintInterval; }
+    void setResultsPrintFrequencyInSeconds( const double resultsPrintFrequencyInSeconds )
+    { resultsPrintFrequencyInSeconds_ = resultsPrintFrequencyInSeconds; }
+
+
+    double getResultsPrintFrequencyInSteps( ){ return resultsPrintFrequencyInSteps_; }
+
+    void setResultsPrintFrequencyInSteps( const double resultsPrintFrequencyInSteps )
+    { resultsPrintFrequencyInSteps_ = resultsPrintFrequencyInSteps; }
 
 
     bool getPrintTerminationReason( ) { return printTerminationReason_;  }
 
-    void setPrintTerminationReason( const bool printTerminationReason ) { printTerminationReason_ = printTerminationReason; }
-
+    void setPrintTerminationReason( const bool printTerminationReason ) 
+    { printTerminationReason_ = printTerminationReason; }
 
 
     bool getPrintPropagationTime( ) { return printPropagationTime_; }
 
-    void setPrintPropagationTime( const bool printPropagationTime ) { printPropagationTime_ = printPropagationTime; }
+    void setPrintPropagationTime( const bool printPropagationTime ) 
+    { printPropagationTime_ = printPropagationTime; }
 
 
     bool getPrintInitialAndFinalConditions( ){ return printInitialAndFinalConditions_; }
@@ -94,8 +105,27 @@ public:
     { printDependentVariableDuringPropagation_ = printDependentVariableDuringPropagation; }
 
 
-
-
+    bool printCurrentStep(
+            const int stepsSinceLastPrint, const double timeSinceLastPrint )
+    {
+        bool printCurrentStep = false;
+//        std::cout<<"Settings: "<<resultsPrintFrequencyInSeconds_<<" "<<resultsPrintFrequencyInSteps_<<std::endl;
+//        std::cout<<"Input: "<<timeSinceLastPrint<<" "<<stepsSinceLastPrint<<std::endl;
+        if( stepsSinceLastPrint >= resultsPrintFrequencyInSteps_ && resultsPrintFrequencyInSteps_ > 0 )
+        {
+            printCurrentStep = true;
+        }
+        else if( timeSinceLastPrint >= resultsPrintFrequencyInSeconds_ )
+        {
+            printCurrentStep = true;
+        }
+        else if( resultsPrintFrequencyInSeconds_ == resultsPrintFrequencyInSteps_ && !( timeSinceLastPrint == timeSinceLastPrint ) )
+        {
+            printCurrentStep = true;
+        }
+        return printCurrentStep;
+    }
+    
     void setPrintArcIndex( const bool printArcIndex )
     {
         printArcIndex_ = printArcIndex;
@@ -110,7 +140,7 @@ public:
     // Check if any output is to be printed during propagation
     bool printDuringPropagation( )
     {
-        return ( ( statePrintInterval_ == statePrintInterval_ ) );
+        return ( ( resultsPrintFrequencyInSeconds_ == resultsPrintFrequencyInSeconds_ ) );
     }
 
     // Check if any output is to be printed after propagation
@@ -119,10 +149,18 @@ public:
         return ( printStateData_ || printPropagatedStateData_ || printDependentVariableData_ || printArcIndex_ );
     }
 
+    bool printAnyOutput( )
+    {
+        return ( printPostPropagation( ) ||
+                 printDuringPropagation( ) ||
+                 printBeforePropagation( ) );
+    }
+
     void reset( const bool printNumberOfFunctionEvaluations,
                 const bool printDependentVariableData,
                 const bool printStateData,
-                const double statePrintInterval,
+                const double resultsPrintFrequencyInSeconds,
+                const int resultsPrintFrequencyInSteps,
                 const bool printTerminationReason,
                 const bool printPropagationTime,
                 const bool printPropagatedStateData,
@@ -132,7 +170,8 @@ public:
         printNumberOfFunctionEvaluations_ =  printNumberOfFunctionEvaluations;
         printDependentVariableData_ =  printDependentVariableData;
         printStateData_ = printStateData;
-        statePrintInterval_ = statePrintInterval;
+        resultsPrintFrequencyInSeconds_ = resultsPrintFrequencyInSeconds;
+        resultsPrintFrequencyInSteps_ = resultsPrintFrequencyInSteps;
         printTerminationReason_ = printTerminationReason;
         printPropagationTime_ = printPropagationTime;
         printPropagatedStateData_ = printPropagatedStateData;
@@ -146,7 +185,8 @@ public:
         printNumberOfFunctionEvaluations_ =  printSettings->getPrintNumberOfFunctionEvaluations( );
         printDependentVariableData_ =  printSettings->getPrintDependentVariableData( );
         printStateData_ = printSettings->getPrintStateData( );
-        statePrintInterval_ = printSettings->getStatePrintInterval( );
+        resultsPrintFrequencyInSeconds_ = printSettings->getResultsPrintFrequencyInSeconds( );
+        resultsPrintFrequencyInSteps_ = printSettings->getResultsPrintFrequencyInSteps( );
         printTerminationReason_ = printSettings->getPrintTerminationReason( );
         printPropagationTime_ = printSettings->getPrintPropagationTime( );
         printPropagatedStateData_ = printSettings->getPrintPropagatedStateData( );
@@ -157,19 +197,19 @@ public:
     // Print nothing
     void disableAllPrinting( )
     {
-        reset( false, false, false, TUDAT_NAN, false, false, false, false, false );
+        reset( false, false, false, TUDAT_NAN, 0, false, false, false, false, false );
     }
 
     // Print everything, but keep print interval during propagation the same
     void enableAllPrinting( )
     {
-        reset( true, true, true, statePrintInterval_, true, true, true, true, true );
+        reset( true, true, true, resultsPrintFrequencyInSeconds_, resultsPrintFrequencyInSteps_, true, true, true, true, true );
     }
 
     // Print everything, and reset print interval during propagation
-    void enableAllPrinting( const double statePrintInterval )
+    void enableAllPrinting( const double resultsPrintFrequencyInSeconds, const int resultsPrintFrequencyInSteps )
     {
-        reset( true, true, true, statePrintInterval, true, true, true, true, true );
+        reset( true, true, true, resultsPrintFrequencyInSeconds, resultsPrintFrequencyInSteps, true, true, true, true, true );
     }
 
 private:
@@ -177,7 +217,8 @@ private:
     bool printNumberOfFunctionEvaluations_;
     bool printDependentVariableData_;
     bool printStateData_;
-    double statePrintInterval_;
+    double resultsPrintFrequencyInSeconds_;
+    int resultsPrintFrequencyInSteps_;
     bool printTerminationReason_;
     bool printPropagationTime_;
     bool printPropagatedStateData_;
