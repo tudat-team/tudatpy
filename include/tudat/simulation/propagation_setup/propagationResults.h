@@ -51,13 +51,15 @@ namespace tudat
             static const int number_of_columns = 1;
 
             SingleArcSimulationResults(const std::map <std::pair<int, int>, std::string> &dependentVariableIds,
-                                       const std::map <std::pair<int, int>, std::string> &stateIds,
+                                       const std::map <std::pair<int, int>, std::string> &propagatedStateIds,
+                                       const std::map <std::pair<int, int>, std::string> &processedStateIds,
                                        const std::shared_ptr <SingleArcPropagatorProcessingSettings> &outputSettings,
                                        const std::function< void ( std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >&,
                                                                    const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& ) > rawSolutionConversionFunction ) :
                     SimulationResults<StateScalarType, TimeType>(),
                     dependentVariableIds_(dependentVariableIds),
-                    stateIds_(stateIds),
+                    processedStateIds_(processedStateIds),
+                    propagatedStateIds_( propagatedStateIds ),
                     outputSettings_(outputSettings),
                     rawSolutionConversionFunction_( rawSolutionConversionFunction ),
                     propagationIsPerformed_(false),
@@ -216,9 +218,14 @@ namespace tudat
                 return dependentVariableIds_;
             }
 
-            std::map <std::pair<int, int>, std::string> getStateIds( ) 
+            std::map <std::pair<int, int>, std::string> getProcessedStateIds( )
             {
-                return stateIds_;
+                return processedStateIds_;
+            }
+
+            std::map <std::pair<int, int>, std::string> getPropagatedStateIds( )
+            {
+                return propagatedStateIds_;
             }
 
             std::shared_ptr <SingleArcPropagatorProcessingSettings> getOutputSettings( )
@@ -269,7 +276,9 @@ namespace tudat
             //! Map listing starting entry of dependent variables in output vector, along with associated ID.
             std::map <std::pair<int, int>, std::string> dependentVariableIds_;
 
-            std::map <std::pair<int, int>, std::string> stateIds_;
+            std::map <std::pair<int, int>, std::string> processedStateIds_;
+
+            std::map <std::pair<int, int>, std::string> propagatedStateIds_;
 
             std::shared_ptr <SingleArcPropagatorProcessingSettings> outputSettings_;
 

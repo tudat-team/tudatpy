@@ -229,10 +229,11 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialArcWiseStateOfBody
 
 //! Function to print what is inside the propagated state vector
 template< typename StateScalarType = double >
-void printPropagatedStateVectorContent(
-        const std::map< std::pair< int, int >, std::string > stateDescriptions )
+void printStateVectorContent(
+        const std::map< std::pair< int, int >, std::string > stateDescriptions,
+        const std::string statePrefix )
 {
-    std::cout << "PROCESSED STATE VECTOR CONTENTS: " << std::endl
+    std::cout << statePrefix <<" STATE VECTOR CONTENTS: " << std::endl
               << "[Vector entries], content description" << std::endl;
     
     // Loop trough propagated state types and body names
@@ -301,7 +302,7 @@ inline void printSingleArcPrePropagationMessages(
     }
     if( printSettings->getPrintStateData( ) )
     {
-        printPropagatedStateVectorContent( propagationResults->getStateIds( ) );
+        printStateVectorContent( propagationResults->getPropagatedStateIds( ),"PROPAGATED" );
     }
     if( printSettings->getPrintDependentVariableData( ) )
     {
@@ -332,6 +333,10 @@ void printSingleArcPostPropagationMessages(
         if( printSettings->getPrintTerminationReason( ) )
         {
             std::cout << "Termination reason: "<<propagationResults->getPropagationTerminationReason()->getTerminationReasonString( )<<std::endl;
+        }
+        if( printSettings->getPrintProcessedStateData( ) )
+        {
+            printStateVectorContent( propagationResults->getProcessedStateIds( ),"PROCESSED" );
         }
         std::cout<<std::endl;
     }
@@ -490,7 +495,7 @@ std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > vali
         singleArcPropagatorSettings->getOutputSettings( )->getPrintSettings( )->reset(
                     printNumberOfFunctionEvaluations, printDependentVariableData, printStateData,
                     singleArcPropagatorSettings->getOutputSettings( )->getPrintSettings( )->getResultsPrintFrequencyInSeconds( ), 0,
-                    false, false, false, false, false );
+                    false, false, false, false, false, false );
 
         singleArcPropagatorSettings->setIntegratorSettings( integratorSettings );
     }
@@ -637,7 +642,9 @@ public:
                     integratorSettings_->initialTimeStep_, dynamicsStateDerivative_->getStateDerivativeModels( ),
                     predefinedStateDerivativeModels.stateDerivativePartials_ );
 
-        stateIds_ = getProcessedStateStrings(getIntegratedTypeAndBodyList( propagatorSettings_ ) );
+        processedStateIds_ = getProcessedStateStrings(getIntegratedTypeAndBodyList( propagatorSettings_ ) );
+        propagatedStateIds_ = getPropagatedStateStrings(getIntegratedTypeAndBodyList( propagatorSettings_ ) );
+
         // Create functions that compute the dependent variables
         if( propagatorSettings_->getDependentVariablesToSave( ).size( ) > 0 )
         {
@@ -652,7 +659,7 @@ public:
 
         // Create object that will contain and process the propagation results
         propagationResults_= std::make_shared< SingleArcSimulationResults< StateScalarType, TimeType > >(
-                    dependentVariableIds_, stateIds_, propagatorSettings_->getOutputSettingsWithCheck( ),
+                    dependentVariableIds_, propagatedStateIds_, processedStateIds_, propagatorSettings_->getOutputSettingsWithCheck( ),
                     std::bind( &DynamicsStateDerivativeModel< TimeType, StateScalarType >::convertNumericalStateSolutionsToOutputSolutions,
                                dynamicsStateDerivative_,
                                std::placeholders::_1, std::placeholders::_2 ) ) ;
@@ -1108,7 +1115,9 @@ protected:
 
     std::map< std::pair< int, int >, std::string > dependentVariableIds_;
 
-    std::map< std::pair< int, int >, std::string > stateIds_;
+    std::map< std::pair< int, int >, std::string > processedStateIds_;
+
+    std::map< std::pair< int, int >, std::string > propagatedStateIds_;
 
     //! Object for retrieving ephemerides for transformation of reference frame (origins)
     std::shared_ptr< ephemerides::ReferenceFrameManager > frameManager_;
