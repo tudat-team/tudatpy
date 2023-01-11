@@ -37,12 +37,13 @@ public:
             const bool printPropagationTime = false,
             const bool printPropagatedStateData = false,
             const bool printInitialAndFinalConditions = false,
-            const bool printDependentVariableDuringPropagation = false ): printArcIndex_( false )
+            const bool printDependentVariableDuringPropagation = false,
+            const bool printProcessedStateData = false ): printArcIndex_( false )
     {
         reset( printNumberOfFunctionEvaluations,
                printDependentVariableData, printStateData, resultsPrintFrequencyInSeconds, resultsPrintFrequencyInSteps,
                printTerminationReason, printPropagationTime, printPropagatedStateData,
-               printInitialAndFinalConditions, printDependentVariableDuringPropagation );
+               printInitialAndFinalConditions, printDependentVariableDuringPropagation, printProcessedStateData );
     }
 
     bool getPrintNumberOfFunctionEvaluations( ) { return printNumberOfFunctionEvaluations_; }
@@ -56,7 +57,13 @@ public:
     void setPrintDependentVariableData( const bool printDependentVariableData )
     {  printDependentVariableData_ = printDependentVariableData; }
 
-    
+
+    bool getPrintProcessedStateData( ) {  return printProcessedStateData_;  }
+
+    void setPrintProcessedStateData( const bool printProcessedStateData )
+    {  printProcessedStateData_ = printProcessedStateData; }
+
+
     bool getPrintStateData( ) { return printStateData_; }
 
     void setPrintStateData( const bool printStateData ) 
@@ -134,13 +141,13 @@ public:
     // Check if any output is to be printed before propagation
     bool printPostPropagation( )
     {
-        return ( printNumberOfFunctionEvaluations_ || printTerminationReason_ || printPropagationTime_ || printInitialAndFinalConditions_ );
+        return ( printNumberOfFunctionEvaluations_ || printTerminationReason_ || printPropagationTime_ || printInitialAndFinalConditions_ || printProcessedStateData_ );
     }
 
     // Check if any output is to be printed during propagation
     bool printDuringPropagation( )
     {
-        return ( ( resultsPrintFrequencyInSeconds_ == resultsPrintFrequencyInSeconds_ ) );
+        return ( ( resultsPrintFrequencyInSeconds_ == resultsPrintFrequencyInSeconds_ ) || ( resultsPrintFrequencyInSteps_ > 0 ) );
     }
 
     // Check if any output is to be printed after propagation
@@ -165,7 +172,8 @@ public:
                 const bool printPropagationTime,
                 const bool printPropagatedStateData,
                 const bool printInitialAndFinalConditions,
-                const bool printDependentVariableDuringPropagation )
+                const bool printDependentVariableDuringPropagation,
+                const bool printProcessedStateData )
     {
         printNumberOfFunctionEvaluations_ =  printNumberOfFunctionEvaluations;
         printDependentVariableData_ =  printDependentVariableData;
@@ -177,6 +185,7 @@ public:
         printPropagatedStateData_ = printPropagatedStateData;
         printInitialAndFinalConditions_ = printInitialAndFinalConditions;
         printDependentVariableDuringPropagation_ = printDependentVariableDuringPropagation;
+        printProcessedStateData_ = printProcessedStateData;
 
     }
 
@@ -191,25 +200,26 @@ public:
         printPropagationTime_ = printSettings->getPrintPropagationTime( );
         printPropagatedStateData_ = printSettings->getPrintPropagatedStateData( );
         printInitialAndFinalConditions_ = printSettings->getPrintInitialAndFinalConditions( );
+        printProcessedStateData_ = printSettings->getPrintProcessedStateData( );
 
     }
 
     // Print nothing
     void disableAllPrinting( )
     {
-        reset( false, false, false, TUDAT_NAN, 0, false, false, false, false, false );
+        reset( false, false, false, TUDAT_NAN, 0, false, false, false, false, false, false );
     }
 
     // Print everything, but keep print interval during propagation the same
     void enableAllPrinting( )
     {
-        reset( true, true, true, resultsPrintFrequencyInSeconds_, resultsPrintFrequencyInSteps_, true, true, true, true, true );
+        reset( true, true, true, resultsPrintFrequencyInSeconds_, resultsPrintFrequencyInSteps_, true, true, true, true, true, true );
     }
 
     // Print everything, and reset print interval during propagation
     void enableAllPrinting( const double resultsPrintFrequencyInSeconds, const int resultsPrintFrequencyInSteps )
     {
-        reset( true, true, true, resultsPrintFrequencyInSeconds, resultsPrintFrequencyInSteps, true, true, true, true, true );
+        reset( true, true, true, resultsPrintFrequencyInSeconds, resultsPrintFrequencyInSteps, true, true, true, true, true, true );
     }
 
 private:
@@ -224,6 +234,7 @@ private:
     bool printPropagatedStateData_;
     bool printInitialAndFinalConditions_;
     bool printDependentVariableDuringPropagation_;
+    bool printProcessedStateData_;
 
     bool printArcIndex_;
 

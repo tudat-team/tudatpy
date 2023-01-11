@@ -52,9 +52,13 @@ struct PropagatorType
     PropagatorType( ):
             otherPropagator_( true ){ }
 
+    PropagatorType( const int customStateSize ):
+            customStateSize_( customStateSize ){ }
+
     TranslationalPropagatorType translationalPropagatorType_ = undefined_translational_propagator;
     RotationalPropagatorType rotationalPropagatorType_ = undefined_rotational_propagator;
     bool otherPropagator_ = false;
+    int customStateSize_ = 0;
 };
 
 //! Base class for defining propagation settings, derived classes split into settings for single- and multi-arc dynamics
@@ -2421,8 +2425,16 @@ std::map< IntegratedStateType, std::vector< std::tuple< std::string, std::string
     }
     case custom_state:
     {
+        std::shared_ptr< CustomStatePropagatorSettings< StateScalarType, TimeType > >
+                customPropagatorSettings = std::dynamic_pointer_cast<
+                CustomStatePropagatorSettings< StateScalarType, TimeType > >( propagatorSettings );
+        if( customPropagatorSettings == nullptr )
+        {
+            throw std::runtime_error( "Error getting integrated state type list, custom state input inconsistent" );
+        }
+
         std::vector< std::tuple< std::string, std::string, PropagatorType > > customList;
-        customList.push_back( std::make_tuple( "", "", PropagatorType( ) ) );
+        customList.push_back( std::make_tuple( "", "", PropagatorType( customPropagatorSettings->stateSize_ ) ) );
         integratedStateList[ custom_state ] = customList;
         break;
     }
@@ -2446,7 +2458,7 @@ inline std::map< std::pair< int, int >, std::string > getProcessedStateStrings(
         IntegratedStateType stateType = integratedTypeAndBody.first;
         std::vector< std::tuple< std::string, std::string, PropagatorType > > bodyList = integratedTypeAndBody.second;
 
-        int stateSize = getSingleIntegrationSize( stateType );
+        int stateSize = -1;
 
         // Loop trough list of body names
         for(unsigned int i = 0; i < bodyList.size (); i++)
@@ -2455,16 +2467,26 @@ inline std::map< std::pair< int, int >, std::string > getProcessedStateStrings(
             switch( stateType )
             {
             case translational_state:
+                stateSize = getSingleIntegrationSize( stateType );
                 currentString += " of body " + std::get< 0 >( bodyList.at( i ) ) + " w.r.t. " + std::get< 1 >( bodyList.at( i ) );
                 break;
             case rotational_state:
+                stateSize = getSingleIntegrationSize( stateType );
                 currentString += " of body " + std::get< 0 >( bodyList.at( i ) );
                 break;
             case body_mass_state:
+                stateSize = getSingleIntegrationSize( stateType );
                 currentString += " of body " + std::get< 0 >( bodyList.at( i ) );
                 break;
             case custom_state:
+            {
+                stateSize = std::get< 2 >( bodyList.at( i ) ).customStateSize_;
+                if( stateSize <= 0 )
+                {
+                    throw std::runtime_error( "Error when getting custom state size; size is <= 0" );
+                }
                 break;
+            }
             default:
                 throw std::runtime_error( "Error when getting processed state strings, type not recognized" );
             }
@@ -2475,48 +2497,66 @@ inline std::map< std::pair< int, int >, std::string > getProcessedStateStrings(
     }
     return stringPerIndex;
 }
-//
-//inline std::map< std::pair< int, int >, std::string > getPropagatedStateStrings(
-//        const std::map< IntegratedStateType, std::vector< std::tuple< std::string, std::string, PropagatorType > > > integratedTypeAndBodyList )
-//{
-//    unsigned int stateVectorIndex = 0;
-//    std::map< std::pair< int, int >, std::string > stringPerIndex;
-//
-//    for ( auto integratedTypeAndBody : integratedTypeAndBodyList)
-//    {
-//        // Extract state type and list of body names
-//        IntegratedStateType stateType = integratedTypeAndBody.first;
-//        std::vector< std::tuple< std::string, std::string, PropagatorType > > bodyList = integratedTypeAndBody.second;
-//
-//        int stateSize = getSingleIntegrationSize( stateType );
-//
-//        // Loop trough list of body names
-//        for(unsigned int i = 0; i < bodyList.size (); i++)
-//        {
-//            std::string currentString = getIntegratedStateTypString( stateType );
-//            switch( stateType )
-//            {
-//            case translational_state:
-//                currentString += " of body " + std::get< 0 >( bodyList.at( i ) ) + " w.r.t. " + std::get< 1 >( bodyList.at( i ) );
-//                break;
-//            case rotational_state:
-//                currentString += " of body " + std::get< 0 >( bodyList.at( i ) );
-//                break;
-//            case body_mass_state:
-//                currentString += " of body " + std::get< 0 >( bodyList.at( i ) );
-//                break;
-//            case custom_state:
-//                break;
-//            default:
-//                throw std::runtime_error( "Error when getting processed state strings, type not recognized" );
-//            }
-//            stringPerIndex[std::make_pair( stateVectorIndex, stateSize ) ] = currentString;
-//            // Remember where we are at trough the state vector
-//            stateVectorIndex += stateSize;
-//        }
-//    }
-//    return stringPerIndex;
-//}
+
+inline std::map< std::pair< int, int >, std::string > getPropagatedStateStrings(
+        const std::map< IntegratedStateType, std::vector< std::tuple< std::string, std::string, PropagatorType > > > integratedTypeAndBodyList )
+{
+    unsigned int stateVectorIndex = 0;
+    std::map< std::pair< int, int >, std::string > stringPerIndex;
+
+    for ( auto integratedTypeAndBody : integratedTypeAndBodyList)
+    {
+        // Extract state type and list of body names
+        IntegratedStateType stateType = integratedTypeAndBody.first;
+        std::vector< std::tuple< std::string, std::string, PropagatorType > > bodyList = integratedTypeAndBody.second;
+
+        int stateSize = -1;
+
+        // Loop trough list of body names
+        for(unsigned int i = 0; i < bodyList.size (); i++)
+        {
+            std::string currentString = getIntegratedStateTypString( stateType );
+            switch( stateType )
+            {
+                case translational_state:
+                {
+                    TranslationalPropagatorType propagatorType = std::get< 2 >( bodyList.at( i ) ).translationalPropagatorType_;
+                    stateSize = getTranslationalStateSize( propagatorType );
+                    currentString += " (" + getTranslationalPropagatorName( propagatorType ) + " formulation)";
+                    currentString += " of body " + std::get< 0 >( bodyList.at( i ) ) + " w.r.t. " + std::get< 1 >( bodyList.at( i ) );
+                    break;
+                }
+                case rotational_state:
+                {
+                    RotationalPropagatorType propagatorType = std::get< 2 >( bodyList.at( i ) ).rotationalPropagatorType_;
+                    stateSize = getRotationalStateSize( propagatorType );
+                    currentString += " (" + getRotationalPropagatorName( propagatorType ) + " formulation)";
+                    currentString += " of body " + std::get< 0 >( bodyList.at( i ) );
+                    break;
+                }
+                case body_mass_state:
+                    stateSize = getSingleIntegrationSize( stateType );
+                    currentString += " of body " + std::get< 0 >( bodyList.at( i ) );
+                    break;
+                case custom_state:
+                {
+                    stateSize = std::get< 2 >( bodyList.at( i ) ).customStateSize_;
+                    if( stateSize <= 0 )
+                    {
+                        throw std::runtime_error( "Error when getting custom state size; size is <= 0" );
+                    }
+                    break;
+                }
+                default:
+                    throw std::runtime_error( "Error when getting processed state strings, type not recognized" );
+            }
+            stringPerIndex[std::make_pair( stateVectorIndex, stateSize ) ] = currentString;
+            // Remember where we are at trough the state vector
+            stateVectorIndex += stateSize;
+        }
+    }
+    return stringPerIndex;
+}
 
 // addition for thesis work (Jonas Hener), considered generally useful
 template< typename StateScalarType = double, typename TimeType = double >

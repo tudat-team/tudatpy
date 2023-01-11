@@ -16,6 +16,73 @@ namespace tudat
 namespace propagators
 {
 
+std::string getTranslationalPropagatorName( const TranslationalPropagatorType propagatorType )
+{
+    std::string propagatorName;
+    switch( propagatorType )
+    {
+        case cowell:
+            propagatorName = "Cowell";
+            break;
+        case encke:
+            propagatorName = "Encke";
+            break;
+        case gauss_keplerian:
+            propagatorName = "Kepler elements";
+            break;
+        case gauss_modified_equinoctial:
+            propagatorName = "Modified equinoctial elements";
+            break;
+        case unified_state_model_quaternions:
+            propagatorName = "USM/quaternions";
+            break;
+        case unified_state_model_modified_rodrigues_parameters:
+            propagatorName = "USM/modified Rodrigues parameters";
+            break;
+        case unified_state_model_exponential_map:
+            propagatorName = "USM/exponential map";
+            break;
+        default:
+            throw std::runtime_error( "Error when getting translational propagator name, " + std::to_string( static_cast< int >( propagatorType ) ) + " not found" );
+            break;
+    }
+    return propagatorName;
+}
+
+int getTranslationalStateSize( const TranslationalPropagatorType propagatorType )
+{
+    int stateSize;
+    switch( propagatorType )
+    {
+        case cowell:
+            stateSize = 6;
+            break;
+        case encke:
+            stateSize = 6;
+            break;
+        case gauss_keplerian:
+            stateSize = 6;
+            break;
+        case gauss_modified_equinoctial:
+            stateSize = 6;
+            break;
+        case unified_state_model_quaternions:
+            stateSize = 7;
+            break;
+        case unified_state_model_modified_rodrigues_parameters:
+            stateSize = 7;
+            break;
+        case unified_state_model_exponential_map:
+            stateSize = 7;
+            break;
+        default:
+            throw std::runtime_error( "Error when getting translational propagator size, " + std::to_string( static_cast< int >( propagatorType ) ) + " not found" );
+            break;
+    }
+    return stateSize;
+}
+
+
 //! Function to remove the central gravity acceleration from an AccelerationMap
 std::vector< std::function< double( ) > > removeCentralGravityAccelerations(
         const std::vector< std::string >& centralBodies, const std::vector< std::string >& bodiesToIntegrate,
