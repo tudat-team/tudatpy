@@ -1092,7 +1092,6 @@ createRadiationPressureAccelerationModel(
                 originalIsotropicPointRadiationSourceModel,
                 originalSource->getShapeModel(),
                 std::bind( &Body::getPosition, originalSource ),
-                std::bind( &Body::getCurrentRotationToGlobalFrame, originalSource ),
                 occultationModel);
     }
     else

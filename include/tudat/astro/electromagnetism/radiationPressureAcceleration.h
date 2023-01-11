@@ -146,7 +146,6 @@ public:
     * @param originalSourceModel Radiation source model of the original source body
     * @param originalSourceBodyShapeModel Body shape model of the original source body
     * @param originalSourcePositionFunction Position function of the original source body
-    * @param originalSourceRotationFromLocalToGlobalFrameFunction Local-to-global rotation function of the original source body
     * @param occultationModel Occultation model between original source, source and target
     */
     PaneledSourceRadiationPressureAcceleration(
@@ -161,7 +160,6 @@ public:
             const std::shared_ptr<IsotropicPointRadiationSourceModel>& originalSourceModel,
             const std::shared_ptr<basic_astrodynamics::BodyShapeModel>& originalSourceBodyShapeModel,
             const std::function<Eigen::Vector3d()>& originalSourcePositionFunction,
-            const std::function<Eigen::Quaterniond()>& originalSourceRotationFromLocalToGlobalFrameFunction,
             const std::shared_ptr<OccultationModel>& occultationModel) :
             RadiationPressureAcceleration(
                     sourcePositionFunction,
@@ -175,8 +173,7 @@ public:
             originalSourceName_(originalSourceName),
             originalSourceModel_(originalSourceModel),
             originalSourceBodyShapeModel_(originalSourceBodyShapeModel),
-            originalSourcePositionFunction_(originalSourcePositionFunction),
-            originalSourceRotationFromLocalToGlobalFrameFunction_(originalSourceRotationFromLocalToGlobalFrameFunction) {}
+            originalSourcePositionFunction_(originalSourcePositionFunction) {}
 
     std::shared_ptr<RadiationSourceModel> getSourceModel() const override
     {
@@ -201,7 +198,6 @@ private:
     std::shared_ptr<IsotropicPointRadiationSourceModel> originalSourceModel_;
     std::shared_ptr<basic_astrodynamics::BodyShapeModel> originalSourceBodyShapeModel_;
     std::function<Eigen::Vector3d()> originalSourcePositionFunction_;
-    std::function<Eigen::Quaterniond()> originalSourceRotationFromLocalToGlobalFrameFunction_;
 };
 
 } // tudat

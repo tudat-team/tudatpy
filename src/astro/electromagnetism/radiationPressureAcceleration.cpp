@@ -69,12 +69,10 @@ Eigen::Vector3d PaneledSourceRadiationPressureAcceleration::calculateAcceleratio
     Eigen::Quaterniond targetRotationFromGlobalToLocalFrame = targetRotationFromLocalToGlobalFrame.inverse();
 
     Eigen::Vector3d originalSourceCenterPositionInGlobalFrame = originalSourcePositionFunction_();
-    Eigen::Quaterniond originalSourceRotationFromLocalToGlobalFrame = originalSourceRotationFromLocalToGlobalFrameFunction_();
-    Eigen::Quaterniond originalSourceRotationFromGlobalToLocalFrame = originalSourceRotationFromLocalToGlobalFrame.inverse();
 
     // Evaluate irradiances from original source at source position in original source frame (for albedo-reflected radiation)
-    Eigen::Vector3d sourceCenterPositionInOriginalSourceFrame =
-            originalSourceRotationFromGlobalToLocalFrame * (sourceCenterPositionInGlobalFrame - originalSourceCenterPositionInGlobalFrame);
+    // If other types than isotropic point sources are supported as original source, rotate to original source frame here
+    Eigen::Vector3d sourceCenterPositionInOriginalSourceFrame = sourceCenterPositionInGlobalFrame - originalSourceCenterPositionInGlobalFrame;
     auto originalSourceIrradiance = originalSourceModel_->evaluateIrradianceAtPosition(sourceCenterPositionInOriginalSourceFrame);
     Eigen::Vector3d originalSourceToSourceDirectionInSourceFrame =
             sourceRotationFromGlobalToLocalFrame * (sourceCenterPositionInGlobalFrame - originalSourceCenterPositionInGlobalFrame).normalized();
