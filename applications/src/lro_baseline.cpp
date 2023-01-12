@@ -24,13 +24,13 @@ void loadLROSpiceKernels();
 SystemOfBodies createSimulationBodies();
 AccelerationMap createSimulationAccelerations(const SystemOfBodies&);
 Eigen::VectorXd createSimulationInitialState();
-SingleArcDynamicsSimulator<> createAndRunSimulation(const SystemOfBodies&, const AccelerationMap&, const Eigen::VectorXd&);
-void saveSimulationResults(SingleArcDynamicsSimulator<>& dynamicsSimulator);
+std::shared_ptr< propagators::SingleArcDynamicsSimulator<>> createAndRunSimulation(const SystemOfBodies&, const AccelerationMap&, const Eigen::VectorXd&);
+void saveSimulationResults(const std::shared_ptr<SingleArcDynamicsSimulator<>>& dynamicsSimulator);
 
 
 namespace simulation_constants
 {
-    const auto outputFolder = "/home/dominik/dev/tudat-bundle/output/lro/baseline";
+    const auto resultsFolder = "results/baseline";
     const auto simulationDuration = 5 * 113 * 60;  // 565 min, about 5 orbital revolutions
 //    const auto simulationDuration = 500;
     const auto simulationStart = "2010 JUN 26 06:00:00";
@@ -70,11 +70,11 @@ void loadLROSpiceKernels()
 {
     using namespace tudat::spice_interface;
 
-    std::string path = "/home/dominik/dev/tudat-bundle/spice/lro/data";
+    std::string path = "spice/lro/data";
 
     // Leap seconds
     loadSpiceKernelInTudat(path + "/lsk/naif0012.tls");
-    // Planetary shapes
+    // Planetary orientation shapes
     loadSpiceKernelInTudat(path + "/pck/pck00010.tpc");
     // Planetary gravitational parameters
     loadSpiceKernelInTudat(path + "/pck/gm_de431.tpc");
@@ -174,10 +174,10 @@ Eigen::VectorXd createSimulationInitialState()
     return initialState;
 }
 
-SingleArcDynamicsSimulator<> createAndRunSimulation(
+std::shared_ptr<propagators::SingleArcDynamicsSimulator<>> createAndRunSimulation(
         const SystemOfBodies& bodies, const AccelerationMap& accelerations, const Eigen::VectorXd& initialState)
 {
-    std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesList
+    std::vector<std::shared_ptr<SingleDependentVariableSaveSettings>> dependentVariablesList
             {
                     relativePositionDependentVariable("LRO", "Moon"),
                     relativeVelocityDependentVariable("LRO", "Moon"),
@@ -190,37 +190,56 @@ SingleArcDynamicsSimulator<> createAndRunSimulation(
                     singleAccelerationDependentVariable(radiation_pressure_acceleration, "LRO", "Moon"),
             };
 
-    auto propagatorSettings =  translationalStatePropagatorSettings (
-            centralBodies, accelerations, bodiesToPropagate, initialState, simulationEndEpoch, cowell,
-            createDependentVariableSaveSettings(dependentVariablesList), printInterval);
+    auto integratorSettings = rungeKuttaVariableStepSettingsScalarTolerances(
+            fixedStepSize,
+            rungeKuttaFehlberg78,
+            fixedStepSize,
+            fixedStepSize,
+            std::numeric_limits<double>::infinity(),
+            std::numeric_limits<double>::infinity());
 
-    auto integratorSettings = adamsBashforthMoultonSettings(
-            simulationStartEpoch, fixedStepSize, fixedStepSize, fixedStepSize);
+    auto outputProcessingSettings = std::make_shared<SingleArcPropagatorProcessingSettings>(
+            false,
+            false,
+            std::make_shared<PropagationPrintSettings>(
+                    true, false, false, printInterval));
 
-    SingleArcDynamicsSimulator< > dynamicsSimulator(
-            bodies, integratorSettings, propagatorSettings, true, false, false );
-    return dynamicsSimulator;
+    auto propagatorSettings =  translationalStatePropagatorSettings(
+            centralBodies,
+            accelerations,
+            bodiesToPropagate,
+            initialState,
+            simulationStartEpoch,
+            integratorSettings,
+            propagationTimeTerminationSettings(simulationEndEpoch),
+            cowell,
+            dependentVariablesList,
+            outputProcessingSettings);
+
+    auto dynamicsSimulator = createDynamicsSimulator<double, double>(
+            bodies, propagatorSettings);
+    return std::dynamic_pointer_cast<SingleArcDynamicsSimulator<double, double>>(dynamicsSimulator);
 }
 
-void saveSimulationResults(SingleArcDynamicsSimulator<>& dynamicsSimulator)
+void saveSimulationResults(const std::shared_ptr<SingleArcDynamicsSimulator<>>& dynamicsSimulator)
 {
-    auto integrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution();
-    auto dependentVariableResult = dynamicsSimulator.getDependentVariableHistory();
+    auto integrationResult = dynamicsSimulator->getEquationsOfMotionNumericalSolution();
+    auto dependentVariableResult = dynamicsSimulator->getDependentVariableHistory();
 
     // Write perturbed satellite propagation history to file.
-    input_output::writeDataMapToTextFile( integrationResult,
-                                          "lro_propagation_history.dat",
-                                          outputFolder,
-                                          "",
-                                          std::numeric_limits< double >::digits10,
-                                          std::numeric_limits< double >::digits10,
-                                          ",");
+    input_output::writeDataMapToTextFile(integrationResult,
+                                         "lro_propagation_history.dat",
+                                         resultsFolder,
+                                         "",
+                                         std::numeric_limits< double >::digits10,
+                                         std::numeric_limits< double >::digits10,
+                                         ",");
 
-    input_output::writeDataMapToTextFile( dependentVariableResult,
-                                          "lro_dependent_variable_history.dat",
-                                          outputFolder,
-                                          "",
-                                          std::numeric_limits< double >::digits10,
-                                          std::numeric_limits< double >::digits10,
-                                          ",");
+    input_output::writeDataMapToTextFile(dependentVariableResult,
+                                         "lro_dependent_variable_history.dat",
+                                         resultsFolder,
+                                         "",
+                                         std::numeric_limits< double >::digits10,
+                                         std::numeric_limits< double >::digits10,
+                                         ",");
 }
