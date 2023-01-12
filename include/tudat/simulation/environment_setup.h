@@ -23,8 +23,8 @@
 #include "environment_setup/createGravityFieldVariations.h"
 #include "environment_setup/createGroundStations.h"
 #include "environment_setup/createRadiationPressureInterface.h"
-#include "environment_setup/createRadiationSourceModel.h
-#include "environment_setup/createRadiationPressureTargetModel.h
+#include "environment_setup/createRadiationSourceModel.h"
+#include "environment_setup/createRadiationPressureTargetModel.h"
 #include "environment_setup/createSystemModel.h"
 #include "environment_setup/createRotationModel.h"
 #include "environment_setup/defaultBodies.h"
