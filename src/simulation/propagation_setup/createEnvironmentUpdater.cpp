@@ -394,7 +394,7 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                                         accelerationModelIterator->second.at(i));
 
                         std::string originalSourceName =
-                                paneledSourceRadiationPressureAcceleration->getOriginalSourceName();
+                                paneledRadiationSourceModel->getOriginalSourceName();
                         singleAccelerationUpdateNeeds[ radiation_source_model_update ].push_back(
                                 originalSourceName );
                         singleAccelerationUpdateNeeds[ body_translational_state_update ].push_back(
