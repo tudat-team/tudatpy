@@ -83,6 +83,20 @@ BOOST_AUTO_TEST_CASE( testSpecularDiffuseMix_ReflectedFraction_PurelyAbsorbing )
     BOOST_CHECK_CLOSE(actualReflectedFraction, expectedReflectedFraction, 1e-15);
 }
 
+BOOST_AUTO_TEST_CASE( testSpecularDiffuseMix_ReflectedFraction_PurelyAbsorbing_InstantaneousReradiation )
+{
+    const auto expectedReflectedFraction = 1 / mathematical_constants::PI;
+
+    const auto normal = Vector(0, 0, 1);
+    const auto incomingDirection = Vector(1, 1, -1).normalized();
+    const auto observerDirection = Vector(1, 1, 1).normalized();
+    SpecularDiffuseMixReflectionLaw reflectionLaw(1, 0, 0, true);
+    const auto actualReflectedFraction =
+            reflectionLaw.evaluateReflectedFraction(normal, incomingDirection, observerDirection);
+
+    BOOST_CHECK_CLOSE(actualReflectedFraction, expectedReflectedFraction, 1e-15);
+}
+
 BOOST_AUTO_TEST_CASE( testSpecularDiffuseMix_ReflectedFraction_LambertianReflection )
 {
     const auto normal = Vector(0, 0, 1);
@@ -204,7 +218,7 @@ BOOST_AUTO_TEST_CASE( testLambertian_ReflectedFraction )
     BOOST_CHECK_CLOSE(actualReflectedFraction, expectedReflectedFraction, 1e-15);
 }
 
-BOOST_AUTO_TEST_CASE( testSpecularDiffuseMix_Reaction )
+BOOST_AUTO_TEST_CASE( testLambertian_Reaction )
 {
     // Similar to testSpecularDiffuseMix_Reaction_PurelyDiffuseReflection
     const auto expectedReaction = Vector(0, 0, -(1 + 2./3));
