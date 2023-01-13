@@ -101,12 +101,12 @@ public:
         return printSettings_;
     }
 
-    void getResultsSaveFrequencyInSteps( const int resultsSaveFrequencyInSteps )
+    void setResultsSaveFrequencyInSteps( const int resultsSaveFrequencyInSteps )
     {
         resultsSaveFrequencyInSteps_ = resultsSaveFrequencyInSteps;
     }
 
-    void getResultsSaveFrequencyInSeconds( const double resultsSaveFrequencyInSeconds )
+    void setResultsSaveFrequencyInSeconds( const double resultsSaveFrequencyInSeconds )
     {
         resultsSaveFrequencyInSeconds_ = resultsSaveFrequencyInSeconds;
     }
@@ -125,7 +125,7 @@ public:
             const int stepsSinceLastSave, const double timeSinceLastSave )
     {
         bool saveCurrentStep = false;
-        if( stepsSinceLastSave >=  resultsSaveFrequencyInSteps_ )
+        if( stepsSinceLastSave >= resultsSaveFrequencyInSteps_ && resultsSaveFrequencyInSteps_ > 0 )
         {
             saveCurrentStep = true;
         }
@@ -133,6 +133,8 @@ public:
         {
             saveCurrentStep = true;
         }
+        std::cout<<timeSinceLastSave<<" "<<stepsSinceLastSave<<" "<<saveCurrentStep<<std::endl;
+
         return saveCurrentStep;
     }
 

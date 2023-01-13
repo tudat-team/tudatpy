@@ -14,6 +14,23 @@
 namespace tudat
 {
 
+    template<typename A, typename TimeType = double>
+    std::map <TimeType, TimeType > getTimeStepHistory( const std::map< TimeType, A > stateHistory )
+    {
+        std::map <TimeType, TimeType > timeStepHistory;
+        auto it_pre = stateHistory.begin( );
+        auto it_post = stateHistory.begin( );
+        it_post++;
+
+        while( it_post != stateHistory.end() )
+        {
+            timeStepHistory[ it_pre->first ] = it_post->first - it_pre->first;
+            it_pre++;
+            it_post++;
+        }
+        return timeStepHistory;
+    }
+
     namespace propagators
     {
         template<typename StateScalarType = double, typename TimeType = double>
