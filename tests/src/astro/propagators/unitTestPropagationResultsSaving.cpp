@@ -28,7 +28,7 @@ namespace tudat
 {
     namespace unit_tests
     {
-        BOOST_AUTO_TEST_SUITE( test_arcwise_environment )
+        BOOST_AUTO_TEST_SUITE( test_state_saving )
 
 //Using declarations.
             using namespace tudat::observation_models;
@@ -48,7 +48,7 @@ namespace tudat
 
 
 //! Unit test to check if tidal time lag parameters are estimated correctly
-            BOOST_AUTO_TEST_CASE( test_ArcwiseEnvironmentParameters )
+            BOOST_AUTO_TEST_CASE( test_StateSaveEpochs )
             {
                 //Load spice kernels.
                 spice_interface::loadStandardSpiceKernels( );
@@ -156,6 +156,7 @@ namespace tudat
                     std::map< double, double > timeStepHistory = getTimeStepHistory( numericalResults );
                 }
 
+                // Check that every other epoch is saved for case 1
                 {
                     auto nominalIterator = numericalResultsVector.at( 0 ).begin( );
                     auto halfFrequencyIterator = numericalResultsVector.at( 1 ).begin( );
@@ -170,63 +171,36 @@ namespace tudat
 
                 }
 
+                // Check that every 60 s, the state is saved for case 2
+                // Check that every 60 s, or every second epoch (whichever comes first) the state is saved for case 3
+                for( unsigned int i = 2; i < 4; i++ )
                 {
-                    auto nominalIterator = numericalResultsVector.at( 0 ).begin( );
-                    double previousOutputTime = nominalIterator->first;
-                    nominalIterator++;
-                    auto perMinuteIterator = numericalResultsVector.at( 2 ).begin( );
-                    perMinuteIterator++;
+                    int stepsToCheck = i == 2 ? std::numeric_limits< double >::infinity( ) : 2;
 
-                    while( nominalIterator != numericalResultsVector.at( 0 ).end( ) && perMinuteIterator != numericalResultsVector.at( 2 ).end( ) )
-                    {
-
-                        if( nominalIterator->first - previousOutputTime < 60.0 )
-                        {
-                            nominalIterator++;
-                        }
-                        else
-                        {
-                            BOOST_CHECK_EQUAL( nominalIterator->first, perMinuteIterator->first );
-
-                            previousOutputTime = nominalIterator->first;
-                            nominalIterator++;
-                            perMinuteIterator++;
-                        }
-                    }
-
-                }
-
-                {
                     auto nominalIterator = numericalResultsVector.at( 0 ).begin( );
                     double previousOutputTime = nominalIterator->first;
                     nominalIterator++;
                     int stepsSinceLastSave = 1;
-                    auto perMinuteIterator = numericalResultsVector.at( 3 ).begin( );
-                    perMinuteIterator++;
 
-                    while( nominalIterator != numericalResultsVector.at( 0 ).end( ) && perMinuteIterator != numericalResultsVector.at( 3 ).end( ) )
+                    auto offNominalIterator = numericalResultsVector.at( i ).begin( );
+                    offNominalIterator++;
+
+                    while( nominalIterator != numericalResultsVector.at( 0 ).end( ) && offNominalIterator != numericalResultsVector.at( i ).end( ) )
                     {
 
-                        if( nominalIterator->first - previousOutputTime < 60.0 && stepsSinceLastSave < 2 )
+                        if( !( nominalIterator->first - previousOutputTime < 60.0 && stepsSinceLastSave < stepsToCheck ) )
                         {
-                            nominalIterator++;
-                        }
-                        else
-                        {
-                            BOOST_CHECK_EQUAL( nominalIterator->first, perMinuteIterator->first );
+                            BOOST_CHECK_EQUAL( nominalIterator->first, offNominalIterator->first );
 
                             previousOutputTime = nominalIterator->first;
                             stepsSinceLastSave = 0;
-                            nominalIterator++;
-                            perMinuteIterator++;
+                            offNominalIterator++;
                         }
+                        nominalIterator++;
                         stepsSinceLastSave++;
                     }
-
                 }
             }
-
-
 
         BOOST_AUTO_TEST_SUITE_END( )
 

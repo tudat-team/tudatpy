@@ -133,8 +133,6 @@ public:
         {
             saveCurrentStep = true;
         }
-        std::cout<<timeSinceLastSave<<" "<<stepsSinceLastSave<<" "<<saveCurrentStep<<std::endl;
-
         return saveCurrentStep;
     }
 
