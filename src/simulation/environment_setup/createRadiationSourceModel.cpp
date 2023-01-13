@@ -91,7 +91,9 @@ std::function<std::shared_ptr<PaneledRadiationSourceModel::PanelRadiosityModel>(
                 const auto albedoDistribution = albedoPanelRadiosityModelSettings->getAlbedoDistribution();
                 const auto albedo = albedoDistribution(polarAngle, azimuthAngle);
                 return std::make_shared<AlbedoPanelRadiosityModel>(
-                        std::make_shared<LambertianReflectionLaw>(albedo));
+                        std::make_shared<LambertianReflectionLaw>(
+                            albedo,
+                            albedoPanelRadiosityModelSettings->getWithInstantaneousReradiation()));
             };
             break;
         }
