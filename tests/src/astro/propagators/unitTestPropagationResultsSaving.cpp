@@ -201,10 +201,10 @@ namespace tudat
                     double previousOutputTime = nominalIterator->first;
                     nominalIterator++;
                     int stepsSinceLastSave = 1;
-                    auto perMinuteIterator = numericalResultsVector.at( 2 ).begin( );
+                    auto perMinuteIterator = numericalResultsVector.at( 3 ).begin( );
                     perMinuteIterator++;
 
-                    while( nominalIterator != numericalResultsVector.at( 0 ).end( ) && perMinuteIterator != numericalResultsVector.at( 2 ).end( ) )
+                    while( nominalIterator != numericalResultsVector.at( 0 ).end( ) && perMinuteIterator != numericalResultsVector.at( 3 ).end( ) )
                     {
 
                         if( nominalIterator->first - previousOutputTime < 60.0 && stepsSinceLastSave < 2 )
@@ -225,6 +225,8 @@ namespace tudat
 
                 }
             }
+
+
 
         BOOST_AUTO_TEST_SUITE_END( )
 
