@@ -231,10 +231,9 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialArcWiseStateOfBody
 template< typename StateScalarType = double >
 void printStateVectorContent(
         const std::map< std::pair< int, int >, std::string > stateDescriptions,
-        const std::string statePrefix )
+        const std::string stateDescription )
 {
-    std::cout << statePrefix <<" STATE VECTOR CONTENTS: " << std::endl
-              << "[Vector entries], content description" << std::endl;
+    std::cout <<"["<<stateDescription<<" entries], content description" << std::endl;
     
     // Loop trough propagated state types and body names
     for ( auto it : stateDescriptions )
@@ -290,61 +289,153 @@ void printPropagatedDependentVariableContent (
     std::cout<<std::endl;
 }
 
-template< typename StateScalarType = double, typename TimeType = double >
-inline void printSingleArcPrePropagationMessages(
-    const std::shared_ptr< PropagationPrintSettings > printSettings,
-    const std::string& propagationStartHeader,
-    const std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType > > propagationResults )
-{
-    if( printSettings->printAnyOutput( ) )
-    {
-        std::cout<<propagationStartHeader<<std::endl<<std::endl;
-    }
-    if( printSettings->getPrintStateData( ) )
-    {
-        printStateVectorContent( propagationResults->getPropagatedStateIds( ),"PROPAGATED" );
-    }
-    if( printSettings->getPrintDependentVariableData( ) )
-    {
-        printPropagatedDependentVariableContent( propagationResults->getDependentVariableId( ) );
-    }
-}
+        template< typename StateScalarType = double, typename TimeType = double >
+        static void printGenericSingleArcPostPropagationMessages(
+                const std::shared_ptr< PropagationPrintSettings > printSettings,
+                const std::string& propagationEndHeader,
+                const std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType > > propagationResults )
+        {
+            // Retrieve and print number of total function evaluations
+            if ( printSettings->printPostPropagation( ) )
+            {
+                std::cout << "PROPAGATION FINISHED."<<std::endl;
+                if( printSettings->getPrintNumberOfFunctionEvaluations( ) )
+                {
+                    std::cout << "Total Number of Function Evaluations: "
+                              << propagationResults->getTotalNumberOfFunctionEvaluations( ) << std::endl;
+                }
+                if( printSettings->getPrintPropagationTime( ) )
+                {
+                    std::cout << "Total propagation clock time: "
+                              << propagationResults->getTotalComputationRuntime( )<<" seconds"<<std::endl;
+                }
+                if( printSettings->getPrintTerminationReason( ) )
+                {
+                    std::cout << "Termination reason: "<<propagationResults->getPropagationTerminationReason()->getTerminationReasonString( )<<std::endl;
+                }
+                if( printSettings->getPrintProcessedStateData( ) )
+                {
+                    if( propagationResults->isPropagatedAndProcessedStateEqual( ) )
+                    {
+                        std::cout<<"Processed state: all state entries are propagated using default propagators, and the processed and propagated states are identical."<<std::endl;
+                    }
+                    else
+                    {
+                        std::cout<<"Processed state: one or more state blocks are propagated using non-default propagators, the processed state is:"<<std::endl;
 
-template< typename StateScalarType = double, typename TimeType = double >
-void printSingleArcPostPropagationMessages(
-        const std::shared_ptr< PropagationPrintSettings > printSettings,
-        const std::string& propagationEndHeader,
-        const std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType > > propagationResults )
-{
-    // Retrieve and print number of total function evaluations
-    if ( printSettings->printPostPropagation( ) )
-    {
-        std::cout << "PROPAGATION FINISHED."<<std::endl;
-        if( printSettings->getPrintNumberOfFunctionEvaluations( ) )
-        {
-            std::cout << "Total Number of Function Evaluations: "
-                      << propagationResults->getTotalNumberOfFunctionEvaluations( ) << std::endl;
+                    }
+                    printStateVectorContent( propagationResults->getProcessedStateIds( ),"Processed state vector" );
+                }
+                std::cout<<std::endl;
+            }
+            if( printSettings->printAnyOutput( ) )
+            {
+                std::cout<<propagationEndHeader<<std::endl<<std::endl;
+            }
         }
-        if( printSettings->getPrintPropagationTime( ) )
+
+        template< typename SimulationResults, typename StateScalarType = double, typename TimeType = double >
+        class PropagationPrintingInterface
         {
-            std::cout << "Total propagation clock time: "
-                      << propagationResults->getTotalComputationRuntime( )<<" seconds"<<std::endl;
-        }
-        if( printSettings->getPrintTerminationReason( ) )
+        public:
+
+            static void printSingleArcPrePropagationMessages(
+                    const std::shared_ptr< PropagationPrintSettings > printSettings,
+                    const std::string& propagationStartHeader,
+                    const std::shared_ptr< SimulationResults > propagationResults );
+
+
+            static void printSingleArcPostPropagationMessages(
+                    const std::shared_ptr< PropagationPrintSettings > printSettings,
+                    const std::string& propagationEndHeader,
+                    const std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType > > propagationResults );
+        };
+
+        template< typename StateScalarType, typename TimeType >
+        class PropagationPrintingInterface< SingleArcSimulationResults< StateScalarType, TimeType >, StateScalarType, TimeType >
         {
-            std::cout << "Termination reason: "<<propagationResults->getPropagationTerminationReason()->getTerminationReasonString( )<<std::endl;
-        }
-        if( printSettings->getPrintProcessedStateData( ) )
+        public:
+
+            static void printSingleArcPrePropagationMessages(
+                    const std::shared_ptr< PropagationPrintSettings > printSettings,
+                    const std::string& propagationStartHeader,
+                    const std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType > > propagationResults )
+            {
+                if( printSettings->printAnyOutput( ) )
+                {
+                    std::cout<<propagationStartHeader<<std::endl<<std::endl;
+                }
+                if( printSettings->getPrintStateData( ) )
+                {
+                    std::cout<<"PROPAGATED STATE DETAILS:"<<std::endl;
+                    std::cout<<"Propagating state vector y only, size ["<<std::to_string( propagationResults->getPropagatedStateSize( ) )<<" x 1]"<<std::endl<<std::endl;
+                    printStateVectorContent( propagationResults->getPropagatedStateIds( ),"Propagated state" );
+                }
+                if( printSettings->getPrintDependentVariableData( ) )
+                {
+                    printPropagatedDependentVariableContent( propagationResults->getDependentVariableId( ) );
+                }
+            }
+
+            static void printSingleArcPostPropagationMessages(
+                    const std::shared_ptr< PropagationPrintSettings > printSettings,
+                    const std::string& propagationEndHeader,
+                    const std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType > > propagationResults )
+            {
+                printGenericSingleArcPostPropagationMessages( printSettings, propagationEndHeader, propagationResults );
+            }
+
+        };
+
+        template< typename StateScalarType, typename TimeType >
+        class PropagationPrintingInterface< SingleArcVariationalSimulationResults< StateScalarType, TimeType >, StateScalarType, TimeType >
         {
-            printStateVectorContent( propagationResults->getProcessedStateIds( ),"PROCESSED" );
-        }
-        std::cout<<std::endl;
-    }
-    if( printSettings->printAnyOutput( ) )
-    {
-        std::cout<<propagationEndHeader<<std::endl<<std::endl;
-    }
-}
+        public:
+
+            static void printSingleArcPrePropagationMessages(
+                    const std::shared_ptr< PropagationPrintSettings > printSettings,
+                    const std::string& propagationStartHeader,
+                    const std::shared_ptr< SingleArcVariationalSimulationResults< StateScalarType, TimeType > > propagationResults )
+            {
+
+                if( printSettings->printAnyOutput( ) )
+                {
+                    std::cout<<propagationStartHeader<<std::endl<<std::endl;
+                }
+                if( printSettings->getPrintStateData( ) )
+                {
+                    int totalNumberOfColumns = propagationResults->getStateTransitionMatrixSize( ) + propagationResults->getSensitivityMatrixSize( ) + 1;
+                    std::cout<<"PROPAGATED STATE DETAILS:"<<std::endl;
+                    std::cout<<"Propagating state transition matrix Phi(=dx/dx0), Sensitivity matrix S(=dx/dp), and state vector y as single matrix [Phi┊S┊y]], total size ["<<
+                        std::to_string( propagationResults->getDynamicsResults( )->getPropagatedStateSize( ) )<<" x "<<std::to_string( totalNumberOfColumns )<< "], "<<std::endl;
+                    if( propagationResults->getDynamicsResults( )->isPropagatedAndProcessedStateEqual( ) )
+                    {
+                        std::cout<<"all state entries are propagated using default propagators, and the vectors x and y are identical in your propagation."<<std::endl;
+                    }
+                    else
+                    {
+                        std::cout<<"note that one or more state blocks of y are propagated using non-default propagators, and the vectors x (default formulation) and y (propagated formulation) are different in your propagation."<<std::endl;
+                    }
+                    printStateVectorContent( propagationResults->getDynamicsResults( )->getPropagatedStateIds( ),"State vector y" );
+                }
+                if( printSettings->getPrintDependentVariableData( ) )
+                {
+                    printPropagatedDependentVariableContent( propagationResults->getDynamicsResults( )->getDependentVariableId( ) );
+                }
+            }
+
+            static void printSingleArcPostPropagationMessages(
+                    const std::shared_ptr< PropagationPrintSettings > printSettings,
+                    const std::string& propagationEndHeader,
+                    const std::shared_ptr< SingleArcVariationalSimulationResults< StateScalarType, TimeType > > propagationResults )
+            {
+                printGenericSingleArcPostPropagationMessages(
+                        printSettings, propagationEndHeader,
+                        SingleArcResultsRetriever< SingleArcVariationalSimulationResults< StateScalarType, TimeType >, StateScalarType, TimeType >::getSingleArcSimulationResults( propagationResults )  );
+            }
+        };
+
+
 
 //! Base class for performing full numerical integration of a dynamical system.
 /*!
@@ -642,9 +733,10 @@ public:
                     integratorSettings_->initialTimeStep_, dynamicsStateDerivative_->getStateDerivativeModels( ),
                     predefinedStateDerivativeModels.stateDerivativePartials_ );
 
-        processedStateIds_ = getProcessedStateStrings(getIntegratedTypeAndBodyList( propagatorSettings_ ) );
-        propagatedStateIds_ = getPropagatedStateStrings(getIntegratedTypeAndBodyList( propagatorSettings_ ) );
+        std::map< IntegratedStateType, std::vector< std::tuple< std::string, std::string, PropagatorType > > > integratedStateAndBodyList =
+                getIntegratedTypeAndBodyList( propagatorSettings_ );
 
+        std::map< std::pair< int, int >, std::string > dependentVariableIds_;
         // Create functions that compute the dependent variables
         if( propagatorSettings_->getDependentVariablesToSave( ).size( ) > 0 )
         {
@@ -659,7 +751,7 @@ public:
 
         // Create object that will contain and process the propagation results
         propagationResults_= std::make_shared< SingleArcSimulationResults< StateScalarType, TimeType > >(
-                    dependentVariableIds_, propagatedStateIds_, processedStateIds_, propagatorSettings_->getOutputSettingsWithCheck( ),
+                    dependentVariableIds_, integratedStateAndBodyList, propagatorSettings_->getOutputSettingsWithCheck( ),
                     std::bind( &DynamicsStateDerivativeModel< TimeType, StateScalarType >::convertNumericalStateSolutionsToOutputSolutions,
                                dynamicsStateDerivative_,
                                std::placeholders::_1, std::placeholders::_2 ) ) ;
@@ -1113,11 +1205,11 @@ protected:
     //! Function returning dependent variables (during numerical propagation)
     std::function< Eigen::VectorXd( ) > dependentVariablesFunctions_;
 
-    std::map< std::pair< int, int >, std::string > dependentVariableIds_;
-
-    std::map< std::pair< int, int >, std::string > processedStateIds_;
-
-    std::map< std::pair< int, int >, std::string > propagatedStateIds_;
+//    std::map< std::pair< int, int >, std::string > dependentVariableIds_;
+//
+//    std::map< std::pair< int, int >, std::string > processedStateIds_;
+//
+//    std::map< std::pair< int, int >, std::string > propagatedStateIds_;
 
     //! Object for retrieving ephemerides for transformation of reference frame (origins)
     std::shared_ptr< ephemerides::ReferenceFrameManager > frameManager_;
@@ -1172,7 +1264,7 @@ private:
      */
     template< typename SimulationResults >
     void performPropagationPreProcessingSteps(
-            const std::shared_ptr< SimulationResults > simulationResults )
+            const std::shared_ptr< SimulationResults > propagationResults )
     {
         // Reset functions
         dynamicsStateDerivative_->setPropagationSettings( std::vector< IntegratedStateType >( ), true, SimulationResults::is_variational );
@@ -1181,11 +1273,14 @@ private:
         resetPropagationTerminationConditions( );
 
         // Empty solution maps
-        simulationResults->reset( );
+        propagationResults->reset( );
 
-        printSingleArcPrePropagationMessages( outputSettings_->getPrintSettings( ),
-                                     outputSettings_->getPropagationStartHeader( ),
-                                     propagationResults_ );
+        PropagationPrintingInterface< SimulationResults, StateScalarType, TimeType >::printSingleArcPrePropagationMessages(
+                outputSettings_->getPrintSettings( ),
+                outputSettings_->getPropagationStartHeader( ),
+                propagationResults );
+
+
 
     }
 
@@ -1203,9 +1298,10 @@ private:
     {
         // Retrieve number of cumulative function evaluations
         propagationResults->finalizePropagation( dynamicsStateDerivative_->getCumulativeNumberOfFunctionEvaluations( ) );
-        printSingleArcPostPropagationMessages( outputSettings_->getPrintSettings( ),
-                                      outputSettings_->getPropagationEndHeader( ),
-                                      propagationResults_ );
+        PropagationPrintingInterface< SimulationResults, StateScalarType, TimeType >::printSingleArcPostPropagationMessages(
+                outputSettings_->getPrintSettings( ),
+                                               outputSettings_->getPropagationEndHeader( ),
+                                               propagationResults );
         processNumericalEquationsOfMotionSolution( );
     }
 };

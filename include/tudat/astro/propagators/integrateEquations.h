@@ -695,80 +695,6 @@ void integrateEquationsFromIntegrator(
     simulationResults->reset( solutionHistory, dependentVariableHistory, cumulativeComputationTimeHistory,
                               std::map<TimeType, unsigned int>( ), propagationTerminationReason );
 }
-//
-//extern template std::shared_ptr< PropagationTerminationDetails > integrateEquationsFromIntegrator<
-//Eigen::MatrixXd, double, double >(
-//        const std::shared_ptr< numerical_integrators::NumericalIntegrator< double, Eigen::MatrixXd, Eigen::MatrixXd, double > > integrator,
-//        const double initialTimeStep,
-//        const std::shared_ptr< PropagationTerminationCondition > propagationTerminationCondition,
-//        std::map< double, Eigen::MatrixXd >& solutionHistory,
-//        std::map< double, Eigen::VectorXd >& dependentVariableHistory,
-//        std::map< double, double >& cumulativeComputationTimeHistory,
-//        const std::function< Eigen::VectorXd( ) > dependentVariableFunction,
-//        const std::function< void( Eigen::MatrixXd& ) > statePostProcessingFunction,
-//        const int saveFrequency,
-//        const std::shared_ptr< PropagationPrintSettings > printSettings = std::make_shared< PropagationPrintSettings >( ) );
-//
-//
-//extern template std::shared_ptr< PropagationTerminationDetails > integrateEquationsFromIntegrator<
-//Eigen::VectorXd, double, double >(
-//        const std::shared_ptr< numerical_integrators::NumericalIntegrator< double, Eigen::VectorXd, Eigen::VectorXd, double > > integrator,
-//        const double initialTimeStep,
-//        const std::shared_ptr< PropagationTerminationCondition > propagationTerminationCondition,
-//        std::map< double, Eigen::VectorXd >& solutionHistory,
-//        std::map< double, Eigen::VectorXd >& dependentVariableHistory,
-//        std::map< double, double >& cumulativeComputationTimeHistory,
-//        const std::function< Eigen::VectorXd( ) > dependentVariableFunction,
-//        const std::function< void( Eigen::VectorXd& ) > statePostProcessingFunction,
-//        const int saveFrequency,
-//        const std::shared_ptr< PropagationPrintSettings > printSettings = std::make_shared< PropagationPrintSettings >( ) );
-
-//
-////! Interface class for integrating some state derivative function.
-///*!
-// *  Interface class for integrating some state derivative function.. This class is used instead of a single templated free
-// *  function to allow ObservationModel the integrator etc. to adapt its time step variable to long double if the Time
-// *  object is used as TimeType. This class has template specializations for double/Time TimeType, and contains a single
-// *  integrateEquations function that performs the required operation.
-// */
-//template< typename StateType = Eigen::MatrixXd, typename TimeType = double >
-//class EquationIntegrationInterface
-//{
-//public:
-//
-//    //! Function to numerically integrate a given first order differential equation
-//    /*!
-//     *  Function to numerically integrate a given first order differential equation, with the state derivative a function of
-//     *  a single independent variable and the current state
-//     *  \param stateDerivativeFunction Function returning the state derivative from current time and state.
-//     *  \param solutionHistory History of numerical states given as map (time as key; returned by reference)
-//     *  \param initialState Initial state
-//     *  \param integratorSettings Settings for numerical integrator.
-//     *  \param propagationTerminationCondition Object to determine when/how the propagation is to be stopped at the current time.
-//     *  \param dependentVariableHistory History of dependent variables that are to be saved given as map
-//     *  (time as key; returned by reference)
-//     *  \param cumulativeComputationTimeHistory History of cumulative computation times that are to be saved given
-//     *  as map (time as key; returned by reference)
-//     *  \param dependentVariableFunction Function returning dependent variables (obtained from environment and state
-//     *  derivative model).
-//     *  \param statePostProcessingFunction Function to post-process state after numerical integration (obtained from state derivative model).
-//     *  \param statePrintInterval Frequency with which to print progress to console (nan = never).
-//     *  \param initialClockTime Initial clock time from which to determine cumulative computation time.
-//     *  By default now(), i.e. the moment at which this function is called.
-//     *  \return Event that triggered the termination of the propagation
-//     */
-//    static void integrateEquations(
-//            std::function< StateType( const TimeType, const StateType& ) > stateDerivativeFunction,
-//            const StateType initialState,
-//            const TimeType initialTime,
-//            const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
-//            const std::shared_ptr< PropagationTerminationCondition > propagationTerminationCondition,
-//            const std::shared_ptr< SingleArcSimulationResults< typename StateType::Scalar, double > > simulationResults,
-//            const std::function< Eigen::VectorXd( ) > dependentVariableFunction = std::function< Eigen::VectorXd( ) >( ),
-//            const std::function< void( StateType& ) > statePostProcessingFunction = std::function< void( StateType& ) >( ),
-//            const std::shared_ptr< PropagationPrintSettings > printSettings = std::make_shared< PropagationPrintSettings >( ) );
-//
-//};
 
 
     //! Function to numerically integrate a given first order differential equation
@@ -793,7 +719,7 @@ void integrateEquationsFromIntegrator(
      *  \return Event that triggered the termination of the propagation
      */
     template< typename SimulationResults, typename StateType, typename TimeType = double >
-    static void integrateEquations(
+    void integrateEquations(
             std::function< StateType( const TimeType, const StateType& ) > stateDerivativeFunction,
             const StateType initialState,
             const TimeType initialTime,
@@ -827,68 +753,6 @@ void integrateEquationsFromIntegrator(
     }
 
 
-//
-////! Interface class for integrating some state derivative function.
-//template< typename StateType >
-//class EquationIntegrationInterface< StateType, Time >
-//{
-//public:
-//
-//    //! Function to numerically integrate a given first order differential equation
-//    /*!
-//     *  Function to numerically integrate a given first order differential equation, with the state derivative a function of
-//     *  a single independent variable and the current state
-//     *  \param stateDerivativeFunction Function returning the state derivative from current time and state.
-//     *  \param solutionHistory History of numerical states given as map (time as key; returned by reference)
-//     *  \param initialState Initial state
-//     *  \param integratorSettings Settings for numerical integrator.
-//     *  \param propagationTerminationCondition Object to determine when/how the propagation is to be stopped at the current time.
-//     *  \param dependentVariableHistory History of dependent variables that are to be saved given as map
-//     *  (time as key; returned by reference)
-//     *  \param cumulativeComputationTimeHistory History of cumulative computation times that are to be saved given
-//     *  as map (time as key; returned by reference)
-//     *  \param dependentVariableFunction Function returning dependent variables (obtained from environment and state
-//     *  derivative model).
-//     *  \param statePostProcessingFunction Function to post-process state after numerical integration (obtained from state derivative model).
-//     *  \param statePrintInterval Frequency with which to print progress to console (nan = never).
-//     *  \param initialClockTime Initial clock time from which to determine cumulative computation time.
-//     *  By default now(), i.e. the moment at which this function is called.
-//     *  \return Event that triggered the termination of the propagation
-//     */
-//    static void integrateEquations(
-//            std::function< StateType( const Time, const StateType& ) > stateDerivativeFunction,
-//            const StateType initialState,
-//            const Time initialTime,
-//            const std::shared_ptr< numerical_integrators::IntegratorSettings< Time > > integratorSettings,
-//            const std::shared_ptr< PropagationTerminationCondition > propagationTerminationCondition,
-//            const std::shared_ptr< SingleArcSimulationResults< typename StateType::Scalar, Time > > simulationResults,
-//            const std::function< Eigen::VectorXd( ) > dependentVariableFunction = std::function< Eigen::VectorXd( ) >( ),
-//            const std::function< void( StateType& ) > statePostProcessingFunction = std::function< void( StateType& ) >( ),
-//            const std::shared_ptr< PropagationPrintSettings > printSettings = std::make_shared< PropagationPrintSettings >( ) )
-//    {
-//        std::function< bool( const double, const double ) > stopPropagationFunction =
-//                std::bind( &PropagationTerminationCondition::checkStopCondition, propagationTerminationCondition, std::placeholders::_1, std::placeholders::_2 );
-//
-//        // Create numerical integrator.
-//        std::shared_ptr< numerical_integrators::NumericalIntegrator< Time, StateType, StateType, long double > > integrator =
-//                numerical_integrators::createIntegrator< Time, StateType, long double  >(
-//                    stateDerivativeFunction, initialState, initialTime, integratorSettings );
-//
-//        if( integratorSettings->assessTerminationOnMinorSteps_ )
-//        {
-//            integrator->setPropagationTerminationFunction( stopPropagationFunction );
-//        }
-//
-//        integrateEquationsFromIntegrator< StateType, Time, long double >(
-//                    integrator, integratorSettings->initialTimeStep_, propagationTerminationCondition,
-//                    simulationResults,
-//                    dependentVariableFunction,
-//                    statePostProcessingFunction,
-//                    integratorSettings->saveFrequency_,
-//                    printSettings );
-//    }
-//
-//};
 
 } // namespace propagators
 

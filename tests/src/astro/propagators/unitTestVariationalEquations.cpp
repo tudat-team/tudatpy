@@ -188,6 +188,7 @@ executeEarthMoonSimulation(
         // Propagate requested equations.
         if( propagateVariationalEquations )
         {
+            propagatorSettings->getOutputSettings( )->getPrintSettings( )->enableAllPrinting( );
             dynamicsSimulator.integrateVariationalAndDynamicalEquations( propagatorSettings->getInitialStates( ), 1 );
         }
         else
