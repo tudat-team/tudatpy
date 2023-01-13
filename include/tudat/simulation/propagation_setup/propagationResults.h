@@ -47,19 +47,20 @@ namespace tudat
         {
         public:
 
+
             static const bool is_variational = false;
             static const int number_of_columns = 1;
 
             SingleArcSimulationResults(const std::map <std::pair<int, int>, std::string> &dependentVariableIds,
-                                       const std::map <std::pair<int, int>, std::string> &propagatedStateIds,
-                                       const std::map <std::pair<int, int>, std::string> &processedStateIds,
+                                       const std::map< IntegratedStateType, std::vector< std::tuple< std::string, std::string, PropagatorType > > > integratedStateAndBodyList,
                                        const std::shared_ptr <SingleArcPropagatorProcessingSettings> &outputSettings,
                                        const std::function< void ( std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >&,
                                                                    const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& ) > rawSolutionConversionFunction ) :
                     SimulationResults<StateScalarType, TimeType>(),
                     dependentVariableIds_(dependentVariableIds),
-                    processedStateIds_(processedStateIds),
-                    propagatedStateIds_( propagatedStateIds ),
+                    processedStateIds_(getProcessedStateStrings( integratedStateAndBodyList ) ),
+                    propagatedStateIds_( getPropagatedStateStrings( integratedStateAndBodyList ) ),
+                    integratedStateAndBodyList_( integratedStateAndBodyList ),
                     outputSettings_(outputSettings),
                     rawSolutionConversionFunction_( rawSolutionConversionFunction ),
                     propagationIsPerformed_(false),
@@ -228,6 +229,11 @@ namespace tudat
                 return propagatedStateIds_;
             }
 
+            int getPropagatedStateSize( )
+            {
+                return propagatedStateIds_.rbegin( )->first.first + propagatedStateIds_.rbegin( )->first.second;
+            }
+
             std::shared_ptr <SingleArcPropagatorProcessingSettings> getOutputSettings( )
             {
                 return outputSettings_;
@@ -243,6 +249,25 @@ namespace tudat
                 return solutionIsCleared_;
             }
 
+            bool isPropagatedAndProcessedStateEqual( )
+            {
+                bool areEqual = true;
+                for( auto it : integratedStateAndBodyList_ )
+                {
+                    for( unsigned int i = 0; i < it.second.size( ); i++ )
+                    {
+                        if( it.first == translational_state && std::get< 2 >( it.second.at( i ) ).translationalPropagatorType_ != cowell )
+                        {
+                            areEqual = false;
+                        }
+                        else if( it.first == rotational_state && std::get< 2 >( it.second.at( i ) ).rotationalPropagatorType_ != quaternions )
+                        {
+                            areEqual = false;
+                        }
+                    }
+                }
+                return areEqual;
+            }
 
         private:
 
@@ -279,6 +304,8 @@ namespace tudat
             std::map <std::pair<int, int>, std::string> processedStateIds_;
 
             std::map <std::pair<int, int>, std::string> propagatedStateIds_;
+
+            std::map< IntegratedStateType, std::vector< std::tuple< std::string, std::string, PropagatorType > > > integratedStateAndBodyList_;
 
             std::shared_ptr <SingleArcPropagatorProcessingSettings> outputSettings_;
 
@@ -390,6 +417,16 @@ namespace tudat
                 return std::make_pair( stateTransitionSolution_.begin( )->first, stateTransitionSolution_.rbegin( )->first );
             }
 
+            int getStateTransitionMatrixSize( )
+            {
+                return stateTransitionMatrixSize_;
+            }
+
+            int getSensitivityMatrixSize( )
+            {
+                return sensitivityMatrixSize_;
+            }
+
         protected:
             const std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType > > singleArcDynamicsResults_;
 
@@ -402,8 +439,41 @@ namespace tudat
             std::map < double, Eigen::MatrixXd > sensitivitySolution_;
         };
 
+        template< typename SimulationResults, typename StateScalarType = double, typename TimeType = double >
+        class SingleArcResultsRetriever
+        {
+        public:
 
+            static std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType > > getSingleArcSimulationResults(
+                    const std::shared_ptr< SimulationResults > simulationResults );
 
+        };
+
+        template< typename StateScalarType, typename TimeType >
+        class SingleArcResultsRetriever< SingleArcSimulationResults< StateScalarType, TimeType >, StateScalarType, TimeType >
+        {
+        public:
+
+            static std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType > > getSingleArcSimulationResults(
+                    const std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType > > simulationResults )
+            {
+                return simulationResults;
+            }
+
+        };
+
+        template< typename StateScalarType, typename TimeType >
+        class SingleArcResultsRetriever< SingleArcVariationalSimulationResults< StateScalarType, TimeType >, StateScalarType, TimeType >
+        {
+        public:
+
+            static std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType > > getSingleArcSimulationResults(
+                    const std::shared_ptr< SingleArcVariationalSimulationResults< StateScalarType, TimeType > > simulationResults )
+            {
+                return simulationResults->getDynamicsResults( );
+            }
+
+        };
         //! Class that holds numerical results for multi-arc simulations. This class may
         //! hold results for dynamics-only or variational+dynamics results. For the former,
         //! the SingleArcResults template argument is SingleArcSimulationResults, for the latter it is

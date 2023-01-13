@@ -2468,11 +2468,11 @@ inline std::map< std::pair< int, int >, std::string > getProcessedStateStrings(
             {
             case translational_state:
                 stateSize = getSingleIntegrationSize( stateType );
-                currentString += " of body " + std::get< 0 >( bodyList.at( i ) ) + " w.r.t. " + std::get< 1 >( bodyList.at( i ) );
+                currentString += ", in Cartesian elements, of body " + std::get< 0 >( bodyList.at( i ) ) + " w.r.t. " + std::get< 1 >( bodyList.at( i ) );
                 break;
             case rotational_state:
                 stateSize = getSingleIntegrationSize( stateType );
-                currentString += " of body " + std::get< 0 >( bodyList.at( i ) );
+                currentString += ", in quaternions and body-fixed angular velocity, of body " + std::get< 0 >( bodyList.at( i ) );
                 break;
             case body_mass_state:
                 stateSize = getSingleIntegrationSize( stateType );
