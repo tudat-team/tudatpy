@@ -8,10 +8,12 @@
  *    http://tudat.tudelft.nl/LICENSE.
  *
  *    References:
- *      Charles J. Wetterer, et al. "Refining Space Object Radiation Pressure Modeling with Bidirectional Reflectance
- *          Distribution Functions". Journal of Guidance, Control, and Dynamics 37. 1(2014): 185–196.
  *      O. Montenbruck, et al. "Enhanced solar radiation pressure modeling for Galileo satellites".
  *          Journal of Geodesy 89. 3(2014): 283–297.
+ *      Kristin Vielberg, et al. "Extended forward and inverse modeling of radiation pressure accelerations for
+ *          LEO satellites". Journal of Geodesy 94. 4(2020).
+ *      Charles J. Wetterer, et al. "Refining Space Object Radiation Pressure Modeling with Bidirectional Reflectance
+ *          Distribution Functions". Journal of Guidance, Control, and Dynamics 37. 1(2014): 185–196.
  */
 
 #ifndef TUDAT_REFLECTIONLAW_H
@@ -48,7 +50,7 @@ public:
      * @param surfaceNormal Surface normal unit vector
      * @param incomingDirection Incoming radiation unit vector from source to target
      * @param observerDirection Unit vector from surface in direction of observer
-     * @return The reflected fraction of radiation per steradian [1/sr]
+     * @return Reflected fraction of radiation per steradian [1/sr]
      */
     virtual double evaluateReflectedFraction(
             const Eigen::Vector3d& surfaceNormal,
@@ -71,7 +73,8 @@ public:
 
 /*!
  * Reflection law for a mix of purely specular and purely diffuse Lambertian reflection. All radiation that is not
- * reflected is absorbed. Absorbed radiation can (optionally) be instantaneously diffusely reradiated.
+ * reflected is absorbed. Absorbed radiation can (optionally) be instantaneously diffusely reradiated, e.g., as
+ * simplified model of a satellite's own thermal radiation (Vielberg, 2020)
  *
  * Model is described by Wetterer (2014) Eq. 3.
  */
@@ -84,7 +87,7 @@ public:
      * @param absorptivity Absorptivity (between 0 and 1)
      * @param specularReflectivity Specular reflectivity (between 0 and 1)
      * @param diffuseReflectivity Diffuse reflectivity (between 0 and 1)
-     * @param withInstantaneousLambertianReradiation
+     * @param withInstantaneousLambertianReradiation Whether to instantaneously reradiate absorbed radiation
      */
     explicit SpecularDiffuseMixReflectionLaw(
             double absorptivity,
@@ -162,6 +165,11 @@ public:
         return diffuseReflectivity;
     }
 
+    bool getWithInstantaneousLambertianReradiation() const
+    {
+        return withInstantaneousLambertianReradiation_;
+    }
+
 private:
     double absorptivity_;
 
@@ -178,9 +186,20 @@ private:
 class LambertianReflectionLaw : public SpecularDiffuseMixReflectionLaw
 {
 public:
+    /*!
+     * Constructor.
+
+     * @param diffuseReflectivity Diffuse reflectivity, e.g., albedo (between 0 and 1)
+     * @param withInstantaneousLambertianReradiation Whether to instantaneously reradiate absorbed radiation
+     */
     explicit LambertianReflectionLaw(
-            double diffuseReflectivity) :
-        SpecularDiffuseMixReflectionLaw(1-diffuseReflectivity, 0, diffuseReflectivity) {}
+            double diffuseReflectivity,
+            bool withInstantaneousLambertianReradiation = false) :
+        SpecularDiffuseMixReflectionLaw(
+            1-diffuseReflectivity,
+            0,
+            diffuseReflectivity,
+            withInstantaneousLambertianReradiation) {}
 };
 
 /*!

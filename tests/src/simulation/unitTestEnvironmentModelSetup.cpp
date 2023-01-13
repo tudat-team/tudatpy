@@ -1502,13 +1502,14 @@ BOOST_AUTO_TEST_CASE( test_radiationSourceModelSetup_StaticallyPaneled )
 
     const auto expectedNumberOfPanels = 42;
     const auto expectedAlbedo = 0.42;
+    const auto expectedWithInstantaneousReradiation = true;
     const auto expectedEmissivity = 0.32;
     const auto expectedMinTemperature = 100;
     const auto expectedMaxTemperature = 200;
 
     auto staticallyPaneledSourceModelSettings =
             staticallyPaneledRadiationSourceModelSettings({
-                albedoPanelRadiosityModelSettings(expectedAlbedo),
+                albedoPanelRadiosityModelSettings(expectedAlbedo, expectedWithInstantaneousReradiation),
                 angleBasedThermalPanelRadiosityModelSettings(
                         expectedMinTemperature, expectedMaxTemperature, expectedEmissivity)
             }, expectedNumberOfPanels);
@@ -1532,11 +1533,13 @@ BOOST_AUTO_TEST_CASE( test_radiationSourceModelSetup_StaticallyPaneled )
             std::dynamic_pointer_cast<electromagnetism::AngleBasedThermalPanelRadiosityModel>(panel.getRadiosityModels()[1]);
 
     const auto actualAlbedo = reflectionLaw->getDiffuseReflectivity();
+    const auto actualWithInstantaneousReradiation = reflectionLaw->getWithInstantaneousLambertianReradiation();
     const auto actualEmissivity = thermalModel->getEmissivity();
     const auto actualMinTemperature = thermalModel->getMinTemperature();
     const auto actualMaxTemperature = thermalModel->getMaxTemperature();
 
     BOOST_CHECK_EQUAL(actualAlbedo, expectedAlbedo);
+    BOOST_CHECK_EQUAL(actualWithInstantaneousReradiation, expectedWithInstantaneousReradiation);
     BOOST_CHECK_EQUAL(actualEmissivity, expectedEmissivity);
     BOOST_CHECK_EQUAL(actualMinTemperature, expectedMinTemperature);
     BOOST_CHECK_EQUAL(actualMaxTemperature, expectedMaxTemperature);

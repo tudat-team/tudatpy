@@ -266,19 +266,28 @@ public:
      * Constructor.
      *
      * @param albedoDistribution Function returning the albedo at a given polar and azimuth angle on the body
+     * @param withInstantaneousReradiation Whether to instantaneously reradiate absorbed radiation
      */
     explicit AlbedoPanelRadiosityModelSettings(
-            const std::function<double(double,double)>& albedoDistribution) :
+            const std::function<double(double,double)>& albedoDistribution,
+            bool withInstantaneousReradiation) :
             PanelRadiosityModelSettings(albedo),
-            albedoDistribution_(albedoDistribution) {}
+            albedoDistribution_(albedoDistribution),
+            withInstantaneousReradiation_(withInstantaneousReradiation) {}
 
     const std::function<double(double,double)>& getAlbedoDistribution() const
     {
         return albedoDistribution_;
     }
 
+    bool getWithInstantaneousReradiation() const
+    {
+        return withInstantaneousReradiation_;
+    }
+
 private:
     std::function<double(double, double)> albedoDistribution_;
+    bool withInstantaneousReradiation_;
 };
 
 /*!
@@ -393,12 +402,14 @@ private:
  * Create settings for an albedo panel radiosity model with same albedo at any point on surface.
  *
  * @param albedo Constant albedo
+ * @param withInstantaneousReradiation Whether to instantaneously reradiate absorbed radiation
  * @return Shared pointer to settings for an albedo panel radiosity model
  */
 inline std::shared_ptr<AlbedoPanelRadiosityModelSettings>
-albedoPanelRadiosityModelSettings(double albedo)
+albedoPanelRadiosityModelSettings(double albedo, bool withInstantaneousReradiation = false)
 {
-    return std::make_shared< AlbedoPanelRadiosityModelSettings >([=] (double, double) { return albedo; });
+    return std::make_shared< AlbedoPanelRadiosityModelSettings >(
+        [=] (double, double) { return albedo; }, withInstantaneousReradiation);
 
 }
 
