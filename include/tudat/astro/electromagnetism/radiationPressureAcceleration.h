@@ -142,7 +142,6 @@ public:
     * @param targetPositionFunction Position function of the target body
     * @param targetRotationFromLocalToGlobalFrameFunction Local-to-global rotation function of the target body
     * @param targetMassFunction Mass function of the target body
-    * @param originalSourceName Mame of the original source body
     * @param originalSourceModel Radiation source model of the original source body
     * @param originalSourceBodyShapeModel Body shape model of the original source body
     * @param originalSourcePositionFunction Position function of the original source body
@@ -156,7 +155,6 @@ public:
             const std::function<Eigen::Vector3d()>& targetPositionFunction,
             const std::function<Eigen::Quaterniond()>& targetRotationFromLocalToGlobalFrameFunction,
             const std::function<double()>& targetMassFunction,
-            const std::string& originalSourceName,
             const std::shared_ptr<IsotropicPointRadiationSourceModel>& originalSourceModel,
             const std::shared_ptr<basic_astrodynamics::BodyShapeModel>& originalSourceBodyShapeModel,
             const std::function<Eigen::Vector3d()>& originalSourcePositionFunction,
@@ -170,7 +168,6 @@ public:
                     occultationModel),
             sourceModel_(sourceModel),
             sourceRotationFromLocalToGlobalFrameFunction_(sourceRotationFromLocalToGlobalFrameFunction),
-            originalSourceName_(originalSourceName),
             originalSourceModel_(originalSourceModel),
             originalSourceBodyShapeModel_(originalSourceBodyShapeModel),
             originalSourcePositionFunction_(originalSourcePositionFunction) {}
@@ -185,16 +182,11 @@ public:
         return originalSourceModel_;
     }
 
-    const std::string& getOriginalSourceName() const
-    {
-        return originalSourceName_;
-    }
 private:
     Eigen::Vector3d calculateAcceleration() override;
 
     std::shared_ptr<PaneledRadiationSourceModel> sourceModel_;
     std::function<Eigen::Quaterniond()> sourceRotationFromLocalToGlobalFrameFunction_;
-    std::string originalSourceName_; // needed for environment updater
     std::shared_ptr<IsotropicPointRadiationSourceModel> originalSourceModel_;
     std::shared_ptr<basic_astrodynamics::BodyShapeModel> originalSourceBodyShapeModel_;
     std::function<Eigen::Vector3d()> originalSourcePositionFunction_;

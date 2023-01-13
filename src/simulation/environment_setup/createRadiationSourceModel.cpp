@@ -186,6 +186,11 @@ std::shared_ptr<RadiationSourceModel> createRadiationSourceModel(
             throw std::runtime_error(
                     "Error, expected statically paneled radiation source for body " + body );
         }
+        if( paneledModelSettings->getOriginalSourceName().empty() )
+        {
+            throw std::runtime_error(
+                    "Error, expected statically paneled radiation source to have an original source for body " + body);
+        }
         if(paneledModelSettings->getNumberOfPanels() == 0)
         {
             throw std::runtime_error(
@@ -207,6 +212,7 @@ std::shared_ptr<RadiationSourceModel> createRadiationSourceModel(
         }
 
         radiationSourceModel = std::make_shared<StaticallyPaneledRadiationSourceModel>(
+                paneledModelSettings->getOriginalSourceName(),
                 sourceBody->getShapeModel(),
                 radiosityModelFunctions,
                 paneledModelSettings->getNumberOfPanels());

@@ -960,7 +960,6 @@ createRadiationPressureAccelerationModel(
     // Create references to bodies in radiation pressure terms
     const auto& sourceName = nameOfBodyExertingAcceleration;
     const auto& targetName = nameOfBodyUndergoingAcceleration;
-    const auto& originalSourceName = radiationPressureAccelerationSettings->originalSourceBody_;
     const auto& source = bodyExertingAcceleration;
     const auto& target = bodyUndergoingAcceleration;
 
@@ -987,6 +986,12 @@ createRadiationPressureAccelerationModel(
     auto cannonballRadiationPressureTargetModel =
             std::dynamic_pointer_cast<electromagnetism::CannonballRadiationPressureTargetModel>(
                     target->getRadiationPressureTargetModel());
+    
+    std::string originalSourceName = "";
+    if (paneledRadiationSourceModel != nullptr)
+    {
+        originalSourceName = paneledRadiationSourceModel->getOriginalSourceName();
+    }
 
     // Get target rotation function
     std::function<Eigen::Quaterniond()> targetRotationFromLocalToGlobalFrameFunction;
@@ -1013,7 +1018,7 @@ createRadiationPressureAccelerationModel(
             throw std::runtime_error( "Error when making radiation pressure acceleration, target body cannot "
                                       "act as occulting body.");
         }
-        if (occultingBodyName == originalSourceName)
+        if (paneledRadiationSourceModel != nullptr && occultingBodyName == originalSourceName)
         {
             throw std::runtime_error( "Error when making radiation pressure acceleration, original source body cannot "
                                       "act as occulting body.");
@@ -1061,13 +1066,6 @@ createRadiationPressureAccelerationModel(
     }
     else if (paneledRadiationSourceModel != nullptr)
     {
-        if( originalSourceName.empty() )
-        {
-            throw std::runtime_error( "Error when making radiation pressure acceleration, paneled radiation source model "
-                                      "for body " + sourceName +
-                                      " requires an original source body with isotropic point radiation source model." );
-        }
-
         const auto& originalSource = bodies.at(originalSourceName);
         auto originalIsotropicPointRadiationSourceModel =
                 std::dynamic_pointer_cast<electromagnetism::IsotropicPointRadiationSourceModel>(
@@ -1088,7 +1086,6 @@ createRadiationPressureAccelerationModel(
                 std::bind( &Body::getPosition, target ),
                 targetRotationFromLocalToGlobalFrameFunction,
                 std::bind( &Body::getBodyMass, target ),
-                originalSourceName,
                 originalIsotropicPointRadiationSourceModel,
                 originalSource->getShapeModel(),
                 std::bind( &Body::getPosition, originalSource ),

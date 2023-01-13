@@ -714,23 +714,18 @@ class RadiationPressureAccelerationSettings: public AccelerationSettings
 {
 public:
     explicit RadiationPressureAccelerationSettings(
-            const std::vector<std::string>& occultingBodies = {},
-            const std::string& originalSourceBody = "") :
+            const std::vector<std::string>& occultingBodies = {}) :
             AccelerationSettings(basic_astrodynamics::radiation_pressure_acceleration),
-            originalSourceBody_(originalSourceBody),
             occultingBodies_(occultingBodies) {}
 
-    std::string originalSourceBody_;
     std::vector<std::string> occultingBodies_;
 };
 
 inline std::shared_ptr< AccelerationSettings > radiationPressureAcceleration(
-        std::initializer_list<std::string> occultingBodies = {},
-        const std::string& originalSourceBody = "")
+        std::initializer_list<std::string> occultingBodies = {})
 {
     return std::make_shared< RadiationPressureAccelerationSettings >(
-            occultingBodies,
-            originalSourceBody);
+            occultingBodies);
 }
 
 // Typedef defining a list of acceleration settings, set up in the same manner as the

@@ -82,7 +82,7 @@ void analyzeIrradianceAtLRO()
         // Create planets
         auto bodySettings = getDefaultBodySettings({"Sun", "Earth", "Moon"}, globalFrameOrigin, globalFrameOrientation);
         bodySettings.at("Moon")->radiationSourceModelSettings =
-                staticallyPaneledRadiationSourceModelSettings({radiosityModel}, 25000);
+                staticallyPaneledRadiationSourceModelSettings("Sun", {radiosityModel}, 25000);
 
         auto bodies = createSystemOfBodies(bodySettings);
         setGlobalFrameBodyEphemerides(bodies.getMap(), globalFrameOrigin, globalFrameOrientation);
@@ -127,7 +127,7 @@ void analyzeVariationOfIrradianceWithSubsolarAngle()
     // Create planets
     auto bodySettings = getDefaultBodySettings({"Sun", "Earth", "Moon"}, globalFrameOrigin, globalFrameOrientation);
     bodySettings.at("Moon")->radiationSourceModelSettings =
-            staticallyPaneledRadiationSourceModelSettings({
+            staticallyPaneledRadiationSourceModelSettings("Sun", {
                 albedoPanelRadiosityModelSettings(0.12),
                 angleBasedThermalPanelRadiosityModelSettings(100, 375, 0.95),
 //                delayedThermalPanelRadiosityModelSettings(0.95)
@@ -177,7 +177,7 @@ void analyzeVariationOfIrradianceWithNumberOfPanels()
         // Create planets
         auto bodySettings = getDefaultBodySettings({"Sun", "Earth", "Moon"}, globalFrameOrigin, globalFrameOrientation);
         bodySettings.at("Moon")->radiationSourceModelSettings =
-                staticallyPaneledRadiationSourceModelSettings({
+                staticallyPaneledRadiationSourceModelSettings("Sun", {
                     albedoPanelRadiosityModelSettings(0.12),
                     angleBasedThermalPanelRadiosityModelSettings(100, 375, 0.95),
     //                delayedThermalPanelRadiosityModelSettings(0.95)
