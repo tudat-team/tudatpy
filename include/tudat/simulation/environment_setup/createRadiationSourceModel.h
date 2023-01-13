@@ -371,15 +371,23 @@ public:
     /*!
      * Constructor.
      *
+     * @param originalSourceName Name of the original source body
      * @param panelRadiosityModelSettings Vector of settings for radiosity model of all panels
      * @param numberOfPanels Number of panels for automatic source discretization
      */
     explicit StaticallyPaneledRadiationSourceModelSettings(
+            const std::string& originalSourceName,
             const std::vector<std::shared_ptr<PanelRadiosityModelSettings>>& panelRadiosityModelSettings,
             unsigned int numberOfPanels) :
             RadiationSourceModelSettings(statically_paneled_source),
+            originalSourceName_(originalSourceName),
             panelRadiosityModelSettings_(panelRadiosityModelSettings),
             numberOfPanels_(numberOfPanels) {}
+
+    std::string getOriginalSourceName() const
+    {
+        return originalSourceName_;
+    }
 
     unsigned int getNumberOfPanels() const
     {
@@ -392,6 +400,7 @@ public:
     }
 
 private:
+    std::string originalSourceName_;
     std::vector<std::shared_ptr<PanelRadiosityModelSettings>> panelRadiosityModelSettings_;
     unsigned int numberOfPanels_;
 };
@@ -447,16 +456,19 @@ angleBasedThermalPanelRadiosityModelSettings(double minTemperature,
 /*!
  * Create settings for a statically paneled radiation source model.
  *
+ * @param originalSourceName Name of the original source body
  * @param panelRadiosityModels List of settings for radiosity models of all panels
  * @param numberOfPanels Number of panels for automatic source discretization
  * @return Shared pointer to settings for a statically paneled radiation source model
  */
 inline std::shared_ptr<StaticallyPaneledRadiationSourceModelSettings>
 staticallyPaneledRadiationSourceModelSettings(
+        const std::string& originalSourceName,
         std::initializer_list<std::shared_ptr<PanelRadiosityModelSettings>> panelRadiosityModels,
         int numberOfPanels)
 {
     return std::make_shared< StaticallyPaneledRadiationSourceModelSettings >(
+            originalSourceName,
             std::vector<std::shared_ptr<PanelRadiosityModelSettings>>(panelRadiosityModels),
             numberOfPanels);
 }

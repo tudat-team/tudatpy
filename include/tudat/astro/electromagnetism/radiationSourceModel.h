@@ -170,21 +170,26 @@ public:
     /*!
      * Constructor for a shape-aware paneled source. The shape model is necessary for automatic panel generation.
      *
+     * @param originalSourceName Name of the original source body
      * @param sourceBodyShapeModel Shape model of this source
      * @param radiosityModelFunctions Functions that together create all panel radiosity models for a given polar and
      *      azimuth angle
      */
     explicit PaneledRadiationSourceModel(
+            const std::string& originalSourceName,
             const std::shared_ptr<basic_astrodynamics::BodyShapeModel>& sourceBodyShapeModel,
             const std::vector<std::function<std::shared_ptr<PanelRadiosityModel>(double, double)>>& radiosityModelFunctions) :
+        originalSourceName_(originalSourceName),
         sourceBodyShapeModel_(sourceBodyShapeModel),
         radiosityModelFunctions_(radiosityModelFunctions){}
 
     /*!
      * Constructor for shape-oblivious paneled source. No knowledge of shape necessary if panels are given manually.
+     *
+     * @param originalSourceName Name of the original source body
      */
-    explicit PaneledRadiationSourceModel() :
-            PaneledRadiationSourceModel(nullptr, {}) {}
+    explicit PaneledRadiationSourceModel(const std::string& originalSourceName) :
+            PaneledRadiationSourceModel(originalSourceName, nullptr, {}) {}
 
     IrradianceWithSourceList evaluateIrradianceAtPosition(
             const Eigen::Vector3d& targetPosition,
@@ -198,7 +203,13 @@ public:
      */
     virtual const std::vector<Panel>& getPanels() const = 0;
 
+    const std::string& getOriginalSourceName() const
+    {
+        return originalSourceName_;
+    }
+
 protected:
+    std::string originalSourceName_; // needed for environment updater setup
     std::shared_ptr<basic_astrodynamics::BodyShapeModel> sourceBodyShapeModel_;
     std::vector<std::function<std::shared_ptr<PanelRadiosityModel>(double, double)>> radiosityModelFunctions_;
 };
@@ -220,27 +231,31 @@ public:
     /*!
      * Constructor for given panels.
      *
+     * @param originalSourceName Name of the original source body
      * @param panels Panels comprising this paneled source
      */
     explicit StaticallyPaneledRadiationSourceModel(
+            const std::string& originalSourceName,
             const std::vector<Panel>& panels) :
-            PaneledRadiationSourceModel(),
+            PaneledRadiationSourceModel(originalSourceName),
             numberOfPanels(panels.size()),
             panels_(panels) {}
 
     /*!
      * Constructor for automatic generation of panels.
      *
-     * @param sourceBodyShapeModel The shape model of this source
+     * @param originalSourceName Name of the original source body
+     * @param sourceBodyShapeModel Shape model of this source
      * @param radiosityModelFunctions Functions that together create all panel radiosity models for a given polar and
      *      azimuth angle
      * @param numberOfPanels Number of panels for automatic generation
      */
     explicit StaticallyPaneledRadiationSourceModel(
+            const std::string& originalSourceName,
             const std::shared_ptr<basic_astrodynamics::BodyShapeModel>& sourceBodyShapeModel,
             const std::vector<std::function<std::shared_ptr<PanelRadiosityModel>(double, double)>>& radiosityModelFunctions,
             int numberOfPanels) :
-            PaneledRadiationSourceModel(sourceBodyShapeModel, radiosityModelFunctions),
+            PaneledRadiationSourceModel(originalSourceName, sourceBodyShapeModel, radiosityModelFunctions),
             numberOfPanels(numberOfPanels) {}
 
     const std::vector<Panel>& getPanels() const override

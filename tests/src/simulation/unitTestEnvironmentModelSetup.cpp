@@ -1500,6 +1500,7 @@ BOOST_AUTO_TEST_CASE( test_radiationSourceModelSetup_StaticallyPaneled )
 
     SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
+    const auto expectedOriginalSourceName = "Sun";
     const auto expectedNumberOfPanels = 42;
     const auto expectedAlbedo = 0.42;
     const auto expectedWithInstantaneousReradiation = true;
@@ -1508,11 +1509,12 @@ BOOST_AUTO_TEST_CASE( test_radiationSourceModelSetup_StaticallyPaneled )
     const auto expectedMaxTemperature = 200;
 
     auto staticallyPaneledSourceModelSettings =
-            staticallyPaneledRadiationSourceModelSettings({
-                albedoPanelRadiosityModelSettings(expectedAlbedo, expectedWithInstantaneousReradiation),
-                angleBasedThermalPanelRadiosityModelSettings(
-                        expectedMinTemperature, expectedMaxTemperature, expectedEmissivity)
-            }, expectedNumberOfPanels);
+            staticallyPaneledRadiationSourceModelSettings(
+                expectedOriginalSourceName, {
+                    albedoPanelRadiosityModelSettings(expectedAlbedo, expectedWithInstantaneousReradiation),
+                    angleBasedThermalPanelRadiosityModelSettings(
+                            expectedMinTemperature, expectedMaxTemperature, expectedEmissivity)
+                }, expectedNumberOfPanels);
     auto staticallyPaneledSourceModel =
             std::dynamic_pointer_cast<electromagnetism::StaticallyPaneledRadiationSourceModel>(
                     createRadiationSourceModel(
@@ -1532,12 +1534,14 @@ BOOST_AUTO_TEST_CASE( test_radiationSourceModelSetup_StaticallyPaneled )
     const auto thermalModel =
             std::dynamic_pointer_cast<electromagnetism::AngleBasedThermalPanelRadiosityModel>(panel.getRadiosityModels()[1]);
 
+    const auto actualOriginalSourceName = staticallyPaneledSourceModel->getOriginalSourceName();
     const auto actualAlbedo = reflectionLaw->getDiffuseReflectivity();
     const auto actualWithInstantaneousReradiation = reflectionLaw->getWithInstantaneousLambertianReradiation();
     const auto actualEmissivity = thermalModel->getEmissivity();
     const auto actualMinTemperature = thermalModel->getMinTemperature();
     const auto actualMaxTemperature = thermalModel->getMaxTemperature();
 
+    BOOST_CHECK_EQUAL(actualOriginalSourceName, expectedOriginalSourceName);
     BOOST_CHECK_EQUAL(actualAlbedo, expectedAlbedo);
     BOOST_CHECK_EQUAL(actualWithInstantaneousReradiation, expectedWithInstantaneousReradiation);
     BOOST_CHECK_EQUAL(actualEmissivity, expectedEmissivity);

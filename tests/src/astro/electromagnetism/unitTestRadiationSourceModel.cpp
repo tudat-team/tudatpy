@@ -104,6 +104,7 @@ BOOST_AUTO_TEST_CASE( testStaticallyPaneledRadiationSourceModel_Generation )
         radiosityModelFunctions{};
 
     StaticallyPaneledRadiationSourceModel radiationSourceModel(
+            "",
             std::make_shared<basic_astrodynamics::SphericalBodyShapeModel>(radius),
             radiosityModelFunctions,
             n);
@@ -146,7 +147,7 @@ BOOST_AUTO_TEST_CASE( testStaticallyPaneledRadiationSourceModel_Albedo )
         const auto expectedIrradiance = 1 / mathematical_constants::PI;
         const auto expectedSourcePosition = Eigen::Vector3d(1, 0, 0);
 
-        StaticallyPaneledRadiationSourceModel radiationSourceModel({
+        StaticallyPaneledRadiationSourceModel radiationSourceModel("", {
             PaneledRadiationSourceModel::Panel(
                 1,
                 expectedSourcePosition,
@@ -172,7 +173,7 @@ BOOST_AUTO_TEST_CASE( testStaticallyPaneledRadiationSourceModel_Albedo )
         const auto expectedIrradiance = 1 / (mathematical_constants::PI * sqrt(2));
         const auto expectedSourcePosition = Eigen::Vector3d(-1, 0, 0);
 
-        StaticallyPaneledRadiationSourceModel radiationSourceModel({
+        StaticallyPaneledRadiationSourceModel radiationSourceModel("", {
             PaneledRadiationSourceModel::Panel(
                 1,
                 expectedSourcePosition,
@@ -208,7 +209,7 @@ BOOST_AUTO_TEST_CASE( testStaticallyPaneledRadiationSourceModel_Albedo )
         const auto expectedSourcePositionPanel3 = Eigen::Vector3d(-1, 0, -1);
         const auto expectedSourcePositionPanel4 = Eigen::Vector3d(0, -1, -1);
 
-        StaticallyPaneledRadiationSourceModel radiationSourceModel({
+        StaticallyPaneledRadiationSourceModel radiationSourceModel("", {
             PaneledRadiationSourceModel::Panel(
                 1,
                 expectedSourcePositionPanel1,

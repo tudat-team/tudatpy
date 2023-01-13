@@ -116,7 +116,7 @@ SystemOfBodies createSimulationBodies()
     std::dynamic_pointer_cast<SphericalHarmonicsGravityFieldSettings>(
             bodySettings.at("Moon")->gravityFieldSettings)->resetAssociatedReferenceFrame(moonFrame);
     bodySettings.at("Moon")->radiationSourceModelSettings =
-            staticallyPaneledRadiationSourceModelSettings({
+            staticallyPaneledRadiationSourceModelSettings("Sun", {
                 albedoPanelRadiosityModelSettings(0.12),
                 angleBasedThermalPanelRadiosityModelSettings(100, 375, 0.95)
             }, 2000);
@@ -152,7 +152,7 @@ AccelerationMap createSimulationAccelerations(const SystemOfBodies& bodies)
             {"LRO", {
                 {"Moon", {
                         sphericalHarmonicAcceleration(100, 100),
-                        radiationPressureAcceleration({}, "Sun")
+                        radiationPressureAcceleration({})
                 }},
                 {"Earth", {
                         sphericalHarmonicAcceleration(50, 50)
