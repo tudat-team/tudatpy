@@ -33,18 +33,25 @@ double SpecularDiffuseMixReflectionLaw::evaluateReflectedFraction(const Eigen::V
     // Wetterer (2014) Eq. 4
     const auto diffuseReflectance = diffuseReflectivity / mathematical_constants::PI;
 
-    // TODO-DOMINIK only compute if specularReflectivity > 0
-    const auto mirrorOfIncomingDirection = computeMirrorlikeReflection(incomingDirection, surfaceNormal);
-    if (observerDirection.isApprox(mirrorOfIncomingDirection))
+    // TODO-DOMINIK is this correct? Should follow from Montenbruck (2014)
+    double instantaneousReradiationReflectance = 0;
+    if (withInstantaneousLambertianReradiation_)
     {
-        // Observer only receives specular reflection if it is in mirrored path of incident radiation
-        const auto specularReflectance = specularReflectivity_ / cosBetweenNormalAndIncoming;
-        return diffuseReflectance + specularReflectance;
+        instantaneousReradiationReflectance = absorptivity_ / mathematical_constants::PI;
     }
-    else
-    {
-        return diffuseReflectance;
+
+    double specularReflectance = 0;
+    if (specularReflectivity_ > 0) {
+        const auto mirrorOfIncomingDirection = computeMirrorlikeReflection(incomingDirection, surfaceNormal);
+        if (observerDirection.isApprox(mirrorOfIncomingDirection))
+        {
+            // Observer only receives specular reflection if it is in mirrored path of incident radiation
+            // Wetterer (2014) Eq. 4
+            specularReflectance = specularReflectivity_ / cosBetweenNormalAndIncoming;
+        }
     }
+    
+    return diffuseReflectance + specularReflectance + instantaneousReradiationReflectance;
 }
 
 Eigen::Vector3d SpecularDiffuseMixReflectionLaw::evaluateReactionVector(const Eigen::Vector3d& surfaceNormal,
@@ -61,11 +68,12 @@ Eigen::Vector3d SpecularDiffuseMixReflectionLaw::evaluateReactionVector(const Ei
     const Eigen::Vector3d reactionFromIncidence = (absorptivity_ + diffuseReflectivity) * incomingDirection;
     const Eigen::Vector3d reactionFromReflection =
             -(2. / 3 * diffuseReflectivity + 2 * specularReflectivity_ * cosBetweenNormalAndIncoming) * surfaceNormal;
+
     Eigen::Vector3d reactionFromInstantaneousReradiation;
     if (withInstantaneousLambertianReradiation_)
     {
         // Montenbruck (2014) Eq. 6
-        // Instantaneous Lambertian reradiation behaves similarly to diffuse Lambertian reflection
+        // Instantaneous Lambertian reradiation behaves like diffuse Lambertian reflection
         reactionFromInstantaneousReradiation = -(2. / 3 * absorptivity_) * surfaceNormal;
     }
     else
