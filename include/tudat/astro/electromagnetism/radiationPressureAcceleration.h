@@ -49,13 +49,13 @@ protected:
                                   const std::function<Eigen::Vector3d()>& targetPositionFunction,
                                   const std::function<Eigen::Quaterniond()>& targetRotationFromLocalToGlobalFrameFunction,
                                   const std::function<double()>& targetMassFunction,
-                                  const std::shared_ptr<OccultationModel>& occultationModel) :
+                                  const std::shared_ptr<OccultationModel>& sourceToTargetOccultationModel) :
             sourcePositionFunction_(sourcePositionFunction),
             targetModel_(targetModel),
             targetPositionFunction_(targetPositionFunction),
             targetRotationFromLocalToGlobalFrameFunction_(targetRotationFromLocalToGlobalFrameFunction),
             targetMassFunction_(targetMassFunction),
-            occultationModel_(occultationModel) {}
+            sourceToTargetOccultationModel_(sourceToTargetOccultationModel) {}
 
     virtual Eigen::Vector3d calculateAcceleration() = 0;
 
@@ -64,7 +64,7 @@ protected:
     std::function<Eigen::Vector3d()> targetPositionFunction_;
     std::function<Eigen::Quaterniond()> targetRotationFromLocalToGlobalFrameFunction_;
     std::function<double()> targetMassFunction_;
-    std::shared_ptr<OccultationModel> occultationModel_;
+    std::shared_ptr<OccultationModel> sourceToTargetOccultationModel_;
 };
 
 /*!
@@ -87,7 +87,7 @@ public:
     * @param targetPositionFunction Position function of the target body
     * @param targetRotationFromLocalToGlobalFrameFunction Local-to-global rotation function of the target body
     * @param targetMassFunction Mass function of the target body
-    * @param occultationModel Occultation model between original source, source and target
+    * @param sourceToTargetOccultationModel Occultation model between source and target
     */
     IsotropicPointSourceRadiationPressureAcceleration(
             const std::shared_ptr<IsotropicPointRadiationSourceModel>& sourceModel,
@@ -97,10 +97,10 @@ public:
             const std::function<Eigen::Vector3d()>& targetPositionFunction,
             const std::function<Eigen::Quaterniond()>& targetRotationFromLocalToGlobalFrameFunction,
             const std::function<double()>& targetMassFunction,
-            const std::shared_ptr<OccultationModel>& occultationModel)
+            const std::shared_ptr<OccultationModel>& sourceToTargetOccultationModel)
             : RadiationPressureAcceleration(sourcePositionFunction, targetModel,
                                             targetPositionFunction, targetRotationFromLocalToGlobalFrameFunction,
-                                            targetMassFunction, occultationModel),
+                                            targetMassFunction, sourceToTargetOccultationModel),
                                             sourceModel_(sourceModel),
                                             sourceBodyShapeModel_(sourceBodyShapeModel) {}
 
@@ -145,7 +145,8 @@ public:
     * @param originalSourceModel Radiation source model of the original source body
     * @param originalSourceBodyShapeModel Body shape model of the original source body
     * @param originalSourcePositionFunction Position function of the original source body
-    * @param occultationModel Occultation model between original source, source and target
+    * @param sourceToTargetOccultationModel Occultation model between source and target
+    * @param originalSourceToSourceOccultationModel Occultation model between original source and source
     */
     PaneledSourceRadiationPressureAcceleration(
             const std::shared_ptr<PaneledRadiationSourceModel>& sourceModel,
@@ -158,19 +159,21 @@ public:
             const std::shared_ptr<IsotropicPointRadiationSourceModel>& originalSourceModel,
             const std::shared_ptr<basic_astrodynamics::BodyShapeModel>& originalSourceBodyShapeModel,
             const std::function<Eigen::Vector3d()>& originalSourcePositionFunction,
-            const std::shared_ptr<OccultationModel>& occultationModel) :
+            const std::shared_ptr<OccultationModel>& sourceToTargetOccultationModel,
+            const std::shared_ptr<OccultationModel>& originalSourceToSourceOccultationModel) :
             RadiationPressureAcceleration(
                     sourcePositionFunction,
                     targetModel,
                     targetPositionFunction,
                     targetRotationFromLocalToGlobalFrameFunction,
                     targetMassFunction,
-                    occultationModel),
+                    sourceToTargetOccultationModel),
             sourceModel_(sourceModel),
             sourceRotationFromLocalToGlobalFrameFunction_(sourceRotationFromLocalToGlobalFrameFunction),
             originalSourceModel_(originalSourceModel),
             originalSourceBodyShapeModel_(originalSourceBodyShapeModel),
-            originalSourcePositionFunction_(originalSourcePositionFunction) {}
+            originalSourcePositionFunction_(originalSourcePositionFunction),
+            originalSourceToSourceOccultationModel_(originalSourceToSourceOccultationModel) {}
 
     std::shared_ptr<RadiationSourceModel> getSourceModel() const override
     {
@@ -190,6 +193,7 @@ private:
     std::shared_ptr<IsotropicPointRadiationSourceModel> originalSourceModel_;
     std::shared_ptr<basic_astrodynamics::BodyShapeModel> originalSourceBodyShapeModel_;
     std::function<Eigen::Vector3d()> originalSourcePositionFunction_;
+    std::shared_ptr<OccultationModel> originalSourceToSourceOccultationModel_;
 };
 
 } // tudat

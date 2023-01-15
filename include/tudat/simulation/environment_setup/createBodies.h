@@ -26,6 +26,7 @@
 #include "tudat/simulation/environment_setup/createRadiationPressureInterface.h"
 #include "tudat/simulation/environment_setup/createRadiationSourceModel.h"
 #include "tudat/simulation/environment_setup/createRadiationPressureTargetModel.h"
+#include "tudat/simulation/environment_setup/createOccultationModel.h"
 #include "tudat/simulation/environment_setup/createFlightConditions.h"
 #include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
 
@@ -71,6 +72,9 @@ struct BodySettings
 
     //! Settings for the radiation pressure target model that the body is to contain.
     std::shared_ptr< RadiationPressureTargetModelSettings > radiationPressureTargetModelSettings;
+
+    //! Settings for the occultation model that the body is to contain.
+    std::shared_ptr< OccultationModelSettings > occultationModelSettings;
 
     //! Settings for the aerodynamic coefficients that the body is to contain.
     std::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings;
@@ -339,6 +343,18 @@ SystemOfBodies createSystemOfBodies(
             bodyList.at( orderedBodySettings.at( i ).first )->setRadiationPressureTargetModel(
                         createRadiationPressureTargetModel(
                             orderedBodySettings.at( i ).second->radiationPressureTargetModelSettings,
+                            orderedBodySettings.at( i ).first, bodyList ) );
+        }
+    }
+
+    // Create occultation model objects for each body (if required).
+    for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
+    {
+        if( orderedBodySettings.at( i ).second->occultationModelSettings != nullptr )
+        {
+            bodyList.at( orderedBodySettings.at( i ).first )->setOccultationModel(
+                        createOccultationModel(
+                            orderedBodySettings.at( i ).second->occultationModelSettings,
                             orderedBodySettings.at( i ).first, bodyList ) );
         }
     }

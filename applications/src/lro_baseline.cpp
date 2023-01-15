@@ -108,9 +108,14 @@ SystemOfBodies createSimulationBodies()
 {
     // Create planets
     auto bodySettings = getDefaultBodySettings({"Sun", "Earth", "Moon"}, globalFrameOrigin, globalFrameOrientation);
+
 //    bodySettings.at("Sun")->radiationSourceModelSettings =
 //            isotropicPointRadiationSourceModelSettings(
 //                    constantLuminosityModelSettings(1e33));
+
+    // For occultation of Earth albedo/thermal by Moon
+    bodySettings.at("Earth")->occultationModelSettings = occultationModelSettings({"Moon"});
+
     bodySettings.at("Moon")->rotationModelSettings =
             spiceRotationModelSettings(globalFrameOrientation, moonFrame);
     std::dynamic_pointer_cast<SphericalHarmonicsGravityFieldSettings>(
@@ -120,14 +125,16 @@ SystemOfBodies createSimulationBodies()
                 albedoPanelRadiosityModelSettings(0.12),
                 angleBasedThermalPanelRadiosityModelSettings(100, 375, 0.95)
             }, 2000);
+    // For occultation of Moon albedo/thermal by Earth
+    bodySettings.at("Moon")->occultationModelSettings = occultationModelSettings({"Earth"});
 
     // Create LRO
     bodySettings.addSettings("LRO");
-    bodySettings.get("LRO")->constantMass = 1208.0;
-    bodySettings.get("LRO")->rotationModelSettings = spiceRotationModelSettings(globalFrameOrientation, "LRO_SC_BUS");
-//    bodySettings.get("LRO")->radiationPressureTargetModelSettings =
+    bodySettings.at("LRO")->constantMass = 1208.0;
+    bodySettings.at("LRO")->rotationModelSettings = spiceRotationModelSettings(globalFrameOrientation, "LRO_SC_BUS");
+//    bodySettings.at("LRO")->radiationPressureTargetModelSettings =
 //            cannonballRadiationPressureTargetModelSettings(15.38, 1.41);
-    bodySettings.get("LRO")->radiationPressureTargetModelSettings = paneledRadiationPressureTargetModelSettings({
+    bodySettings.at("LRO")->radiationPressureTargetModelSettings = paneledRadiationPressureTargetModelSettings({
             TargetPanelSettings(2.82, 0.29, 0.22, Eigen::Vector3d::UnitX()),
             TargetPanelSettings(2.82, 0.39, 0.19, -Eigen::Vector3d::UnitX()),
             TargetPanelSettings(3.69, 0.32, 0.23, Eigen::Vector3d::UnitY()),
@@ -139,6 +146,8 @@ SystemOfBodies createSimulationBodies()
             TargetPanelSettings(1.0, 0.18, 0.28, "Earth"),
             TargetPanelSettings(1.0, 0.019, 0.0495, "Earth", false),
     });
+    // For occultation of Moon albedo/thermal by Earth
+    bodySettings.at("LRO")->occultationModelSettings = occultationModelSettings({"Earth"});
 
     auto bodies = createSystemOfBodies(bodySettings);
     setGlobalFrameBodyEphemerides(bodies.getMap(), globalFrameOrigin, globalFrameOrientation);
@@ -152,14 +161,14 @@ AccelerationMap createSimulationAccelerations(const SystemOfBodies& bodies)
             {"LRO", {
                 {"Moon", {
                         sphericalHarmonicAcceleration(100, 100),
-                        radiationPressureAcceleration({})
+                        radiationPressureAcceleration()
                 }},
                 {"Earth", {
                         sphericalHarmonicAcceleration(50, 50)
                 }},
                 {"Sun", {
                         pointMassGravityAcceleration(),
-                        radiationPressureAcceleration({})
+                        radiationPressureAcceleration()
                 }},
             }}
     };
