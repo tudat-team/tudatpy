@@ -414,7 +414,6 @@ BOOST_AUTO_TEST_CASE( test_polyhedronGravityModelSetup )
 
 }
 
-
 //! Test radiation pressure acceleration
 BOOST_AUTO_TEST_CASE( test_radiationPressureAcceleration )
 {
@@ -885,6 +884,7 @@ BOOST_AUTO_TEST_CASE( test_aerodynamicAccelerationModelSetupWithCoefficientIndep
 }
 
 //! Test panelled radiation pressure acceleration
+// RP-OLD
 BOOST_AUTO_TEST_CASE( test_panelledRadiationPressureAcceleration )
 {
     using namespace tudat::simulation_setup;
