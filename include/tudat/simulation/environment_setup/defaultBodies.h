@@ -52,6 +52,22 @@ std::shared_ptr< RadiationSourceModelSettings > getDefaultRadiationSourceModelSe
         const double initialTime,
         const double finalTime );
 
+//! Function to create default settings for a body's occultation model.
+/*!
+ *  Function to create default settings for a body's occultation model. Currently set to no
+ *  source, except for the Sun.
+ *  \param bodyName Name of body for which default occultation model settings are to be retrieved.
+ *  \param initialTime Start time at which environment models in body are to be created
+ *  (not currently used by this function, but included for consistency).
+ *  \param finalTime End time up to which environment models in body are to be created
+ *  (not currently used by this function, but included for consistency).
+ *  \return Default settings for a body's occultation model.
+ */
+std::shared_ptr< OccultationModelSettings > getDefaultOccultationModelSettings(
+        const std::string& bodyName,
+        const double initialTime,
+        const double finalTime );
+
 //! Function to create default settings for a body's ephemeris.
 /*!
  *  Function to create default settings for a body's ephemeris without a limitation on the time interval.
