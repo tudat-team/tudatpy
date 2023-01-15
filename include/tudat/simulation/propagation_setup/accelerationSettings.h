@@ -83,7 +83,11 @@ inline std::shared_ptr< AccelerationSettings > aerodynamicAcceleration( )
 inline std::shared_ptr< AccelerationSettings > cannonBallRadiationPressureAcceleration( )
 {
     return std::make_shared< AccelerationSettings >( basic_astrodynamics::cannon_ball_radiation_pressure );
+}
 
+inline std::shared_ptr< AccelerationSettings > radiationPressureAcceleration()
+{
+    return std::make_shared< AccelerationSettings >( basic_astrodynamics::radiation_pressure_acceleration );
 }
 
 
@@ -707,25 +711,6 @@ inline std::shared_ptr< AccelerationSettings > momentumWheelDesaturationAccelera
 {
 	return std::make_shared< MomentumWheelDesaturationAccelerationSettings >( thrustMidTimes, deltaVValues,
 																		   totalManeuverTime, maneuverRiseTime);
-}
-
-// Class for providing acceleration settings for a radiation pressure acceleration model.
-class RadiationPressureAccelerationSettings: public AccelerationSettings
-{
-public:
-    explicit RadiationPressureAccelerationSettings(
-            const std::vector<std::string>& occultingBodies = {}) :
-            AccelerationSettings(basic_astrodynamics::radiation_pressure_acceleration),
-            occultingBodies_(occultingBodies) {}
-
-    std::vector<std::string> occultingBodies_;
-};
-
-inline std::shared_ptr< AccelerationSettings > radiationPressureAcceleration(
-        std::initializer_list<std::string> occultingBodies = {})
-{
-    return std::make_shared< RadiationPressureAccelerationSettings >(
-            occultingBodies);
 }
 
 // Typedef defining a list of acceleration settings, set up in the same manner as the

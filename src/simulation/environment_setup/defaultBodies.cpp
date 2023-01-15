@@ -62,6 +62,18 @@ std::shared_ptr<RadiationSourceModelSettings> getDefaultRadiationSourceModelSett
     return radiationSourceModelSettings;
 }
 
+//! Function to create default settings for a body's occultation model.
+std::shared_ptr<OccultationModelSettings> getDefaultOccultationModelSettings(
+        const std::string &bodyName,
+        const double initialTime,
+        const double finalTime)
+{
+    std::shared_ptr<OccultationModelSettings> occultationModelSettings;
+
+    // By default, a body observes no occultation
+    return std::make_shared<OccultationModelSettings>({});
+}
+
 //! Function to create default settings for a body's ephemeris.
 std::shared_ptr< EphemerisSettings > getDefaultEphemerisSettings(
         const std::string& bodyName,
@@ -326,6 +338,8 @@ std::shared_ptr< BodySettings > getDefaultSingleBodySettings(
     singleBodySettings->atmosphereSettings = getDefaultAtmosphereModelSettings(
                 bodyName, initialTime, finalTime );
     singleBodySettings->radiationSourceModelSettings = getDefaultRadiationSourceModelSettings(
+                bodyName, initialTime, finalTime );
+    singleBodySettings->occultationModelSettings = getDefaultOccultationModelSettings(
                 bodyName, initialTime, finalTime );
     singleBodySettings->rotationModelSettings = getDefaultRotationModelSettings(
                 bodyName, initialTime, finalTime, baseFrameOrientation );

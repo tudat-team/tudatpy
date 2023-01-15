@@ -36,7 +36,7 @@ Eigen::Vector3d IsotropicPointSourceRadiationPressureAcceleration::calculateAcce
     // Evaluate irradiances at target position in source frame
     // No rotation to source frame is necessary because isotropic sources are rotation-invariant
     Eigen::Vector3d targetCenterPositionInSourceFrame = targetCenterPositionInGlobalFrame - sourceCenterPositionInGlobalFrame;
-    auto occultationFactor = occultationModel_->evaluateReceivedFraction(
+    auto occultationFactor = sourceToTargetOccultationModel_->evaluateReceivedFraction(
             sourceCenterPositionInGlobalFrame, sourceBodyShapeModel_, targetCenterPositionInGlobalFrame);
     auto sourceIrradiance = sourceModel_->evaluateIrradianceAtPosition(targetCenterPositionInSourceFrame);
     auto occultedSourceIrradiance = sourceIrradiance * occultationFactor;
@@ -94,10 +94,10 @@ Eigen::Vector3d PaneledSourceRadiationPressureAcceleration::calculateAcceleratio
         Eigen::Vector3d sourcePositionInGlobalFrame =
                 sourceCenterPositionInGlobalFrame + sourceRotationFromLocalToGlobalFrame * sourcePositionInSourceFrame;
 
-        auto originalSourceToSourceOccultationFactor = occultationModel_->evaluateReceivedFraction(
+        auto originalSourceToSourceOccultationFactor = originalSourceToSourceOccultationModel_->evaluateReceivedFraction(
                 originalSourceCenterPositionInGlobalFrame, originalSourceBodyShapeModel_, targetCenterPositionInGlobalFrame);
         auto sourceToTargetOccultationFactor = static_cast<double>(
-                occultationModel_->evaluateVisibility(sourcePositionInSourceFrame, targetCenterPositionInGlobalFrame));
+                sourceToTargetOccultationModel_->evaluateVisibility(sourcePositionInSourceFrame, targetCenterPositionInGlobalFrame));
         auto occultedSourceIrradiance =
                 sourceIrradiance * originalSourceToSourceOccultationFactor * sourceToTargetOccultationFactor;
 

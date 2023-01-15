@@ -30,7 +30,13 @@ namespace electromagnetism
 class OccultationModel
 {
 public:
-    explicit OccultationModel() = default;
+    /*!
+    * Constructor.
+    *
+    * @param occultingBodyNames Names of the bodies that are occulting
+    */
+    explicit OccultationModel(const std::vector<std::string>& occultingBodyNames) :
+        occultingBodyNames_(occultingBodyNames) {}
 
     virtual ~OccultationModel() = default;
 
@@ -60,10 +66,16 @@ public:
             const Eigen::Vector3d& sourcePosition,
             const Eigen::Vector3d& targetPosition) = 0;
 
+    std::vector<std::string> getOccultingBodyNames() const
+    {
+        return occultingBodyNames_;
+    }
+
 private:
     virtual void updateMembers_(double currentTime) {}
 
     double currentTime_{TUDAT_NAN};
+    std::vector<std::string> occultingBodyNames_;
 };
 
 /*!
@@ -72,6 +84,9 @@ private:
 class NoOccultingBodyOccultationModel : public OccultationModel
 {
 public:
+    explicit NoOccultingBodyOccultationModel(const std::vector<std::string>& occultingBodyNames) :
+            OccultationModel(occultingBodyNames) {}
+
     double evaluateReceivedFraction(
             const Eigen::Vector3d& occultedSourcePosition,
             const std::shared_ptr<basic_astrodynamics::BodyShapeModel>& occultedSourceShapeModel,
@@ -95,8 +110,10 @@ class SingleOccultingBodyOccultationModel : public OccultationModel
 {
 public:
     SingleOccultingBodyOccultationModel(
+            const std::vector<std::string>& occultingBodyNames,
             const std::function<Eigen::Vector3d()>& occultingBodyPositionFunction,
             const std::shared_ptr<basic_astrodynamics::BodyShapeModel>& occultingBodyShapeModel) :
+            OccultationModel(occultingBodyNames),
             occultingBodyPositionFunction_(occultingBodyPositionFunction),
             occultingBodyShapeModel_(occultingBodyShapeModel) {}
 
