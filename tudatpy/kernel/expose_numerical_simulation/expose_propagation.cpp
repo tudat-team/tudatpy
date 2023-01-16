@@ -232,8 +232,11 @@ void expose_propagation(py::module &m) {
             .def_property_readonly("dependent_variable_ids",
                                    &tp::SingleArcSimulationResults<double, TIME_TYPE>::getDependentVariableId,
                                    get_docstring("SingleArcSimulationResults.dependent_variable_ids").c_str() )
-            .def_property_readonly("state_ids",
-                                   &tp::SingleArcSimulationResults<double, TIME_TYPE>::getStateIds,
+            .def_property_readonly("processed_state_ids",
+                                   &tp::SingleArcSimulationResults<double, TIME_TYPE>::getProcessedStateIds,
+                                   get_docstring("SingleArcSimulationResults.state_ids").c_str() )
+            .def_property_readonly("propagated_state_ids",
+                                   &tp::SingleArcSimulationResults<double, TIME_TYPE>::getPropagatedStateIds,
                                    get_docstring("SingleArcSimulationResults.state_ids").c_str() );
 
 

@@ -67,8 +67,8 @@ void expose_propagator_setup(py::module &m) {
                           &tp::PropagationPrintSettings::setPrintTerminationReason,
                           get_docstring("PropagationPrintSettings.print_termination_reason").c_str() )
             .def_property("state_print_interval",
-                          &tp::PropagationPrintSettings::getStatePrintInterval,
-                          &tp::PropagationPrintSettings::setStatePrintInterval,
+                          &tp::PropagationPrintSettings::getResultsPrintFrequencyInSteps,
+                          &tp::PropagationPrintSettings::setResultsPrintFrequencyInSteps,
                           get_docstring("PropagationPrintSettings.state_print_interval").c_str() )
             .def_property("print_initial_and_final_conditions",
                           &tp::PropagationPrintSettings::getPrintInitialAndFinalConditions,
