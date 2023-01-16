@@ -451,23 +451,10 @@ void propagateToExactTerminationCondition(
  *  Function to numerically integrate a given first order differential equation, with the state derivative a function of
  *  a single independent variable and the current state
  *  \param integrator Numerical integrator used for propagation
- *  \param initialTimeStep Time step to use for first step of numerical integration
- *  \param propagationTerminationCondition Object to determine when/how the propagation is to be stopped at the current time.
- *  \param solutionHistory History of state variables that are to be saved given as map
- *  (time as key; returned by reference)
- *  \param dependentVariableHistory History of dependent variables that are to be saved given as map
- *  (time as key; returned by reference)
- *  \param cumulativeComputationTimeHistory History of cumulative computation times that are to be saved given
- *  as map (time as key; returned by reference)
+ *  \param propagationTerminationCondition Object to determine when/how the propagation is to be stopped at the current time
  *  \param dependentVariableFunction Function returning dependent variables (obtained from environment and state
  *  derivative model).
  *  \param statePostProcessingFunction Function to post-process state after numerical integration (obtained from state derivative model).
- *  \param saveFrequency Frequency at which to save the numerical integrated states (in units of i.e. per n integration time
- *  steps, with n = saveFrequency).
- *  \param statePrintInterval Frequency with which to print progress to console (nan = never).
- *  \param initialClockTime Initial clock time from which to determine cumulative computation time.
- *  By default now(), i.e. the moment at which this function is called.
- *  \return Event that triggered the termination of the propagation
  */
 template< typename SimulationResults, typename StateType = Eigen::MatrixXd, typename TimeType = double, typename TimeStepType = TimeType  >
 void integrateEquationsFromIntegrator(
@@ -480,52 +467,54 @@ void integrateEquationsFromIntegrator(
 {
     int saveFrequency = 1;
 
+    // Define structures that will contain with numerical results
     std::map< TimeType, StateType > solutionHistory;
     std::map< TimeType, Eigen::VectorXd > dependentVariableHistory;
     std::map< TimeType, double > cumulativeComputationTimeHistory;
     std::shared_ptr< PropagationTerminationDetails > terminationDetails;
 
+    // Initialize timer.
     std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( );
-    bool printInitialAndFinalCondition = processingSettings->getPrintSettings( )->getPrintInitialAndFinalConditions( );
 
-    std::shared_ptr< PropagationTerminationDetails > propagationTerminationReason;
+    std::shared_ptr< PropagationTerminationDetails > propagationTerminationReason = std::make_shared< PropagationTerminationDetails >(
+            unknown_propagation_termination_reason );
 
     // Get Initial state and time.
     TimeType currentTime = integrator->getCurrentIndependentVariable( );
     TimeType initialTime = currentTime;
     StateType newState = integrator->getCurrentState( );
 
-    // Initialization of numerical solutions for variational equations
+    // Add results at initial state
     solutionHistory.clear( );
     solutionHistory[ currentTime ] = newState;
-
     dependentVariableHistory.clear( );
     if( !( dependentVariableFunction == nullptr ) )
     {
+        // If dependent variables are to be used, updated state derivative model and compute
         integrator->getStateDerivativeFunction( )( currentTime, newState );
         dependentVariableHistory[ currentTime ] = dependentVariableFunction( );
     }
 
-    // CPU time
+    // Add CPU time after first saving step
     cumulativeComputationTimeHistory.clear( );
     double currentCPUTime = std::chrono::duration_cast< std::chrono::nanoseconds >(
                 std::chrono::steady_clock::now( ) - initialClockTime ).count( ) * 1.0e-9;
     cumulativeComputationTimeHistory[ currentTime ] = currentCPUTime;
 
-    // Set initial time step and total integration time.
+    // Set initial time step
     TimeStepType timeStep = integrator->getNextStepSize( );
     TimeType previousTime = currentTime;
 
-    int stepsSinceLastPrint = 1;
-    double timeOfLastPrint = TUDAT_NAN;
-
+    // Initialize steps since last save (to output maps) and print (to terminal)
     int stepsSinceLastSave = 1;
     double timeOfLastSave = currentTime;
 
-    propagationTerminationReason = std::make_shared< PropagationTerminationDetails >(
-                unknown_propagation_termination_reason );
+    int stepsSinceLastPrint = 1;
+    double timeOfLastPrint = TUDAT_NAN;
     bool breakPropagation = 0;
 
+    // Print initial state, if required
+    bool printInitialAndFinalCondition = processingSettings->getPrintSettings( )->getPrintInitialAndFinalConditions( );
     if( printInitialAndFinalCondition )
     {
         std::cout << "PRINTING INITIAL CONDITIONS"<<std::endl;
