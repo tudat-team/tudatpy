@@ -82,6 +82,7 @@ protected:
 class SingleArcPropagatorProcessingSettings: public PropagatorProcessingSettings
 {
 public:
+
     SingleArcPropagatorProcessingSettings(
             const bool clearNumericalSolutions = false,
             const bool setIntegratedResult = false,
