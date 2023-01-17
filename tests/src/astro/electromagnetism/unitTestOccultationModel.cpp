@@ -27,6 +27,8 @@ using namespace tudat::electromagnetism;
 
 BOOST_AUTO_TEST_SUITE(test_luminosity_model)
 
+// No need to test shadow functions since they are already tested in mission geometry tests
+
 // Test visibility with simple geometric cases
 BOOST_AUTO_TEST_CASE( testEvaluateVisibilityWithOccultation )
 {

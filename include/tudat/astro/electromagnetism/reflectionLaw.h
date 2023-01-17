@@ -74,8 +74,11 @@ public:
 /*!
  * Reflection law for a mix of purely specular and purely diffuse Lambertian reflection. All radiation that is not
  * reflected is absorbed. Absorbed radiation can (optionally) be instantaneously diffusely reradiated, e.g., as
- * simplified model of a satellite's own thermal radiation (Vielberg, 2020)
- *
+ * simplified model of a satellite's own thermal radiation (Vielberg, 2020).
+ * 
+ * Note that, to receive any specular reflection in evaluateReflectedFraction(), the observer has to be exactly
+ * in the mirror-like reflection of the incoming ray, which is unlikely.
+ * 
  * Model is described by Wetterer (2014) Eq. 3.
  */
 class SpecularDiffuseMixReflectionLaw : public ReflectionLaw
@@ -172,11 +175,8 @@ public:
 
 private:
     double absorptivity_;
-
     double specularReflectivity_;
-
     double diffuseReflectivity;
-
     bool withInstantaneousLambertianReradiation_;
 };
 
