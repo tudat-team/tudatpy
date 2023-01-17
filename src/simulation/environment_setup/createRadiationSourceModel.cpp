@@ -15,9 +15,7 @@ namespace tudat
 namespace simulation_setup
 {
 
-using namespace electromagnetism;
-
-std::shared_ptr<LuminosityModel> createLuminosityModel(
+std::shared_ptr<electromagnetism::LuminosityModel> createLuminosityModel(
         const std::shared_ptr<LuminosityModelSettings>& modelSettings,
         const std::string &body)
 {
@@ -65,8 +63,8 @@ std::shared_ptr<LuminosityModel> createLuminosityModel(
     return luminosityModel;
 }
 
-std::function<std::shared_ptr<PaneledRadiationSourceModel::PanelRadiosityModel>(double, double)> createPanelRadiosityModelFunction(
-        const std::shared_ptr< PanelRadiosityModelSettings >& modelSettings,
+std::function<std::shared_ptr<electromagnetism::PaneledRadiationSourceModel::PanelRadiosityModel>(double, double)> createPanelRadiosityModelFunction(
+        const std::shared_ptr<PanelRadiosityModelSettings>& modelSettings,
         const std::string& body)
 {
     using namespace tudat::electromagnetism;
@@ -143,7 +141,7 @@ std::function<std::shared_ptr<PaneledRadiationSourceModel::PanelRadiosityModel>(
     return panelRadiosityModelFunction;
 }
 
-std::shared_ptr<RadiationSourceModel> createRadiationSourceModel(
+std::shared_ptr<electromagnetism::RadiationSourceModel> createRadiationSourceModel(
         const std::shared_ptr<RadiationSourceModelSettings>& modelSettings,
         const std::string& body,
         const SystemOfBodies& bodies)
@@ -215,7 +213,8 @@ std::shared_ptr<RadiationSourceModel> createRadiationSourceModel(
                 paneledModelSettings->getOriginalSourceName(),
                 sourceBody->getShapeModel(),
                 radiosityModelFunctions,
-                paneledModelSettings->getNumberOfPanels());
+                paneledModelSettings->getNumberOfPanels(),
+                paneledModelSettings->getOriginalSourceToSourceOccultingBodies());
         break;
     }
     default:

@@ -9,6 +9,7 @@
  */
 
 #include "tudat/astro/electromagnetism/radiationPressureAcceleration.h"
+#include <iostream>
 
 namespace tudat
 {
@@ -20,6 +21,10 @@ void RadiationPressureAcceleration::updateMembers(const double currentTime)
     if(currentTime_ != currentTime)
     {
         currentTime_ = currentTime;
+
+        sourceToTargetOccultationModel_->updateMembers(currentTime);
+        updateMembers_(currentTime);
+
         // TODO-DOMINIK for dynamic paneling, set target position here
         currentAcceleration_ = calculateAcceleration();
     }
@@ -97,7 +102,7 @@ Eigen::Vector3d PaneledSourceRadiationPressureAcceleration::calculateAcceleratio
                 sourceCenterPositionInGlobalFrame + sourceRotationFromLocalToGlobalFrame * sourcePositionInSourceFrame;
 
         auto originalSourceToSourceOccultationFactor = originalSourceToSourceOccultationModel_->evaluateReceivedFraction(
-                originalSourceCenterPositionInGlobalFrame, originalSourceBodyShapeModel_, targetCenterPositionInGlobalFrame);
+                originalSourceCenterPositionInGlobalFrame, originalSourceBodyShapeModel_, sourcePositionInGlobalFrame);
         auto sourceToTargetOccultationFactor = static_cast<double>(
                 sourceToTargetOccultationModel_->evaluateVisibility(sourcePositionInSourceFrame, targetCenterPositionInGlobalFrame));
         auto occultedSourceIrradiance =
@@ -117,5 +122,11 @@ Eigen::Vector3d PaneledSourceRadiationPressureAcceleration::calculateAcceleratio
     Eigen::Vector3d acceleration = targetRotationFromLocalToGlobalFrame * totalForceInTargetFrame / targetMassFunction_();
     return acceleration;
 }
+
+void PaneledSourceRadiationPressureAcceleration::updateMembers_(double currentTime)
+{
+    originalSourceToSourceOccultationModel_->updateMembers(currentTime);
+}
+
 } // tudat
 } // electromagnetism

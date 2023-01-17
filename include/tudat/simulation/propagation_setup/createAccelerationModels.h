@@ -358,6 +358,20 @@ createRadiationPressureAccelerationModel(
         const std::string& nameOfBodyUndergoingAcceleration,
         const std::string& nameOfBodyExertingAcceleration );
 
+//! Function to create occultation model from a list of occulting bodies.
+/*!
+ * Function to create occultation model from a list of occulting bodies.
+ *
+ * \param occultingBodies Names of bodies to occult a source as seen from an observer
+ * \param body Body to which the radiation source model belongs
+ * \param bodies System of bodies
+ * \return Shared pointer to radiation source model
+ */
+std::shared_ptr<electromagnetism::OccultationModel> createOccultationModel(
+        const std::vector<std::string>& occultingBodies,
+        const std::string& body,
+        const SystemOfBodies& bodies);
+
 //! Function to create a cannonball radiation pressure acceleration model.
 /*!
  *  Function to create a cannonball radiation pressure automatically creates all required

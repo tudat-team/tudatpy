@@ -11,9 +11,12 @@
 #ifndef TUDAT_CREATERADIATIONPRESSURETARGETMODEL_H
 #define TUDAT_CREATERADIATIONPRESSURETARGETMODEL_H
 
+#include <map>
 #include <memory>
+#include <vector>
 
 #include "tudat/astro/electromagnetism/radiationPressureTargetModel.h"
+#include "tudat/astro/electromagnetism/occultationModel.h"
 #include "tudat/simulation/environment_setup/body.h"
 
 namespace tudat
@@ -39,8 +42,10 @@ class RadiationPressureTargetModelSettings
 {
 public:
     explicit RadiationPressureTargetModelSettings(
-            RadiationPressureTargetModelType radiationPressureTargetModelType) :
-            radiationPressureTargetModelType_(radiationPressureTargetModelType) {}
+            RadiationPressureTargetModelType radiationPressureTargetModelType,
+            const std::map<std::string, std::vector<std::string>>& sourceToTargetOccultingBodies = {}) :
+            radiationPressureTargetModelType_(radiationPressureTargetModelType),
+            sourceToTargetOccultingBodies_(sourceToTargetOccultingBodies) {}
 
     virtual ~RadiationPressureTargetModelSettings() = default;
 
@@ -49,8 +54,17 @@ public:
         return radiationPressureTargetModelType_;
     }
 
+    std::map<std::string, std::vector<std::string>> getSourceToTargetOccultingBodies() const
+    {
+        return sourceToTargetOccultingBodies_;
+    }
+
 private:
     RadiationPressureTargetModelType radiationPressureTargetModelType_;
+    // Map (source name -> list of occulting body names) of bodies to occult sources as seen from this target
+    // If the same occulting bodies are to be used for all sources, there will be a single entry
+    // with an emptry string as key
+    std::map<std::string, std::vector<std::string>> sourceToTargetOccultingBodies_;
 };
 
 /*!
@@ -66,11 +80,13 @@ public:
      *
      * @param area Cross-sectional area of cannonball [m²]
      * @param coefficient Radiation pressure coefficient [-]
+     * @param sourceToTargetOccultingBodies Map (source name -> list of occulting body names) of bodies
+     *      to occult sources as seen from this target
      */
     explicit CannonballRadiationPressureTargetModelSettings(
-            double area,
-            double coefficient) :
-            RadiationPressureTargetModelSettings(cannonball_target),
+            double area, double coefficient,
+            const std::map<std::string, std::vector<std::string>>& sourceToTargetOccultingBodies = {}) :
+            RadiationPressureTargetModelSettings(cannonball_target, sourceToTargetOccultingBodies),
             area_(area),
             coefficient_(coefficient) {}
 
@@ -104,10 +120,13 @@ public:
      * Constructor.
      *
      * @param panels Vector of settings for panels comprising the paneled target
+     * @param sourceToTargetOccultingBodies Map (source name -> list of occulting body names) of bodies
+     *      to occult sources as seen from this target
      */
     explicit PaneledRadiationPressureTargetModelSettings(
-            const std::vector<Panel>& panels) :
-            RadiationPressureTargetModelSettings(paneled_target),
+            const std::vector<Panel>& panels,
+            const std::map<std::string, std::vector<std::string>>& sourceToTargetOccultingBodies) :
+            RadiationPressureTargetModelSettings(paneled_target, sourceToTargetOccultingBodies),
             panels_(panels) {}
 
     const std::vector<Panel>& getPanels() const
@@ -220,30 +239,82 @@ private:
     bool towardsTrackedBody_{true};
 };
 
+typedef PaneledRadiationPressureTargetModelSettings::Panel TargetPanelSettings;
+
 /*!
- * Create settings for a cannonball radiation pressure target model.
+ * Create settings for a cannonball radiation pressure target model. Each source can have its own set
+ * of occulting bodies.
  *
  * @param area Cross-sectional area of cannonball [m²]
  * @param coefficient Radiation pressure coefficient [-]
+ * @param sourceToTargetOccultingBodies Map (source name -> list of occulting body names) of bodies
+ *      to occult sources as seen from this target
  * @return Shared pointer to settings for a cannonball radiation pressure target model
  */
 inline std::shared_ptr<CannonballRadiationPressureTargetModelSettings>
-        cannonballRadiationPressureTargetModelSettings(double area, double coefficient)
+        cannonballRadiationPressureTargetModelSettingsWithOccultationMap(
+            double area, double coefficient,
+            const std::map<std::string, std::vector<std::string>>& sourceToTargetOccultingBodies)
 {
-    return std::make_shared< CannonballRadiationPressureTargetModelSettings >(area, coefficient);
+    return std::make_shared<CannonballRadiationPressureTargetModelSettings>(
+        area, coefficient, sourceToTargetOccultingBodies);
 }
 
 /*!
- * Create settings for a paneled radiation pressure target model.
+ * Create settings for a cannonball radiation pressure target model. All sources are occulted by the
+ * same set of bodies.
+ *
+ * @param area Cross-sectional area of cannonball [m²]
+ * @param coefficient Radiation pressure coefficient [-]
+ * @param sourceToTargetOccultingBodies Names of bodies to occult the source as seen from this target
+ * @return Shared pointer to settings for a cannonball radiation pressure target model
+ */
+inline std::shared_ptr<CannonballRadiationPressureTargetModelSettings>
+        cannonballRadiationPressureTargetModelSettings(
+            double area, double coefficient,
+            const std::vector<std::string>& sourceToTargetOccultingBodies = {})
+{
+    const std::map<std::string, std::vector<std::string>> occultingBodiesMap {{"", sourceToTargetOccultingBodies}};
+    return cannonballRadiationPressureTargetModelSettingsWithOccultationMap(
+        area, coefficient, occultingBodiesMap);
+}
+
+/*!
+ * Create settings for a paneled radiation pressure target model. Each source can have its own set
+ * of occulting bodies.
  *
  * @param panels List of settings for panels comprising the paneled target
+ * @param sourceToTargetOccultingBodies Names of bodies to occult the source as seen from the target
+ * @param sourceToTargetOccultingBodies Map (source name -> list of occulting body names) of bodies
+ *      to occult sources as seen from this target
  * @return Shared pointer to settings for a paneled radiation pressure target model
  */
 inline std::shared_ptr<PaneledRadiationPressureTargetModelSettings>
-        paneledRadiationPressureTargetModelSettings(std::initializer_list<PaneledRadiationPressureTargetModelSettings::Panel> panels)
+        paneledRadiationPressureTargetModelSettingsWithOccultationMap(
+            std::initializer_list<PaneledRadiationPressureTargetModelSettings::Panel> panels,
+            const std::map<std::string, std::vector<std::string>>& sourceToTargetOccultingBodies)
 {
-    return std::make_shared< PaneledRadiationPressureTargetModelSettings >(
-            std::vector<PaneledRadiationPressureTargetModelSettings::Panel>(panels));
+    return std::make_shared<PaneledRadiationPressureTargetModelSettings>(
+            std::vector<PaneledRadiationPressureTargetModelSettings::Panel>(panels),
+            sourceToTargetOccultingBodies);
+}
+
+/*!
+ * Create settings for a paneled radiation pressure target model. All sources are occulted by the
+ * same set of bodies.
+ *
+ * @param panels List of settings for panels comprising the paneled target
+ * @param sourceToTargetOccultingBodies Names of bodies to occult the source as seen from the target
+ * @param originalSourceToSourceOccultingBodies Names of bodies to occult the source as seen from this target
+ * @return Shared pointer to settings for a paneled radiation pressure target model
+ */
+inline std::shared_ptr<PaneledRadiationPressureTargetModelSettings>
+        paneledRadiationPressureTargetModelSettings(
+            std::initializer_list<PaneledRadiationPressureTargetModelSettings::Panel> panels,
+            const std::vector<std::string>& sourceToTargetOccultingBodies = {})
+{
+    const std::map<std::string, std::vector<std::string>> occultingBodiesMap {{"", sourceToTargetOccultingBodies}};
+    return paneledRadiationPressureTargetModelSettingsWithOccultationMap(panels, occultingBodiesMap);
 }
 
 /*!
@@ -258,8 +329,6 @@ std::shared_ptr<electromagnetism::RadiationPressureTargetModel> createRadiationP
         const std::shared_ptr< RadiationPressureTargetModelSettings >& modelSettings,
         const std::string& body,
         const SystemOfBodies& bodies);
-
-typedef PaneledRadiationPressureTargetModelSettings::Panel TargetPanelSettings;
 
 } // tudat
 } // simulation_setup

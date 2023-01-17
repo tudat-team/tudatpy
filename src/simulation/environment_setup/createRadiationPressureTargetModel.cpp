@@ -24,6 +24,15 @@ std::shared_ptr<electromagnetism::RadiationPressureTargetModel> createRadiationP
 
     std::shared_ptr<electromagnetism::RadiationPressureTargetModel> radiationPressureTargetModel;
 
+    // Validate occulting bodies map: can either have
+    //  - multiple entries with source body names as keys
+    //  - a single entry with the empty string as key (use same occulting bodies for all sources)
+    auto sourceToTargetOccultingBodies = modelSettings->getSourceToTargetOccultingBodies();
+    if (sourceToTargetOccultingBodies.count("") > 0 && sourceToTargetOccultingBodies.size() > 1)
+    {
+        throw std::runtime_error("Error, invalid occulting bodies map for " + body );
+    }
+
     switch(modelSettings->getRadiationPressureTargetModelType())
     {
         case cannonball_target:
@@ -39,8 +48,8 @@ std::shared_ptr<electromagnetism::RadiationPressureTargetModel> createRadiationP
 
             radiationPressureTargetModel = std::make_shared<CannonballRadiationPressureTargetModel>(
                     cannonballTargetModelSettings->getArea(),
-                    cannonballTargetModelSettings->getCoefficient()
-            );
+                    cannonballTargetModelSettings->getCoefficient(),
+                    sourceToTargetOccultingBodies);
             break;
         }
         case paneled_target:
@@ -98,7 +107,8 @@ std::shared_ptr<electromagnetism::RadiationPressureTargetModel> createRadiationP
                                 panel.getDiffuseReflectivity()));
             }
 
-            radiationPressureTargetModel = std::make_shared<PaneledRadiationPressureTargetModel>(panels);
+            radiationPressureTargetModel = std::make_shared<PaneledRadiationPressureTargetModel>(
+                panels, sourceToTargetOccultingBodies);
             break;
         }
         default:
@@ -107,5 +117,6 @@ std::shared_ptr<electromagnetism::RadiationPressureTargetModel> createRadiationP
 
     return radiationPressureTargetModel;
 }
+
 } // tudat
 } // electromagnetism
