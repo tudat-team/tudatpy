@@ -445,7 +445,7 @@ BOOST_AUTO_TEST_CASE( test_radiationPressureAcceleration )
 
     // Define settings for accelerations
     SelectedAccelerationMap accelerationSettingsMap;
-    accelerationSettingsMap[ "Vehicle" ][ "Sun" ].push_back(radiationPressureAcceleration({}));
+    accelerationSettingsMap[ "Vehicle" ][ "Sun" ].push_back(radiationPressureAcceleration());
 
     // Define origin of integration
     std::map< std::string, std::string > centralBodies;

@@ -154,6 +154,73 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPointSource_Can
             [&] (Eigen::Vector3d const &e) { return e.isApprox(actualAccelerations.front()); }));
 }
 
+//! Test occultation for cannonball target acceleration with isotropic point source
+BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPointSource_CannonballTarget_Occultation )
+{
+    auto sourceModel = std::make_shared<IsotropicPointRadiationSourceModel>(
+        std::make_shared<ConstantLuminosityModel>(1));
+
+    const auto targetPosition = Eigen::Vector3d(10, 0, 0);
+    auto targetModel = std::make_shared<CannonballRadiationPressureTargetModel>(1, 1);
+
+    std::vector<std::string> emptyBodyList {};
+
+    // Source and target keep their position, occulting body moves between tests
+    {
+        // Occulting body not interfering
+        const auto occultingBodyPosition = Eigen::Vector3d(5, 5, 0);
+
+        auto sourceToTargetOccultationModel = std::make_shared<SingleOccultingBodyOccultationModel>(
+            emptyBodyList, [=] () { return occultingBodyPosition; },
+            std::make_shared<basic_astrodynamics::SphericalBodyShapeModel>(1));
+
+        IsotropicPointSourceRadiationPressureAcceleration accelerationModel(
+                sourceModel,
+                std::make_shared<basic_astrodynamics::SphericalBodyShapeModel>(1),
+                [] () { return Eigen::Vector3d::Zero(); },
+                targetModel,
+                [=] () { return targetPosition; },
+                [] () { return Eigen::Quaterniond::Identity(); },
+                [] () { return 1; },
+                sourceToTargetOccultationModel);
+
+        sourceModel->updateMembers(TUDAT_NAN);
+        targetModel->updateMembers(TUDAT_NAN);
+        accelerationModel.updateMembers(TUDAT_NAN);
+
+        const auto actualAcceleration = accelerationModel.getAcceleration().norm();
+
+        BOOST_CHECK(actualAcceleration > 0);
+    }
+
+    {
+        // Occulting body interfering with source -> target
+        const auto occultingBodyPosition = Eigen::Vector3d(5, 0, 0);
+
+        auto sourceToTargetOccultationModel = std::make_shared<SingleOccultingBodyOccultationModel>(
+            emptyBodyList, [=] () { return occultingBodyPosition; },
+            std::make_shared<basic_astrodynamics::SphericalBodyShapeModel>(1));
+
+        IsotropicPointSourceRadiationPressureAcceleration accelerationModel(
+                sourceModel,
+                std::make_shared<basic_astrodynamics::SphericalBodyShapeModel>(1),
+                [] () { return Eigen::Vector3d::Zero(); },
+                targetModel,
+                [=] () { return targetPosition; },
+                [] () { return Eigen::Quaterniond::Identity(); },
+                [] () { return 1; },
+                sourceToTargetOccultationModel);
+
+        sourceModel->updateMembers(TUDAT_NAN);
+        targetModel->updateMembers(TUDAT_NAN);
+        accelerationModel.updateMembers(TUDAT_NAN);
+
+        const auto actualAcceleration = accelerationModel.getAcceleration().norm();
+
+        BOOST_CHECK_CLOSE_FRACTION(actualAcceleration, 0, 1e-15);
+    }
+}
+
 //! Test basic cases for paneled target acceleration with isotropic point source
 BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPointSource_PaneledTarget_Basic )
 {
@@ -255,7 +322,7 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPointSource_Pan
 }
 
 //! Test radiation acceleration model for a paneled spacecraft in various orbits with respect to the Sun.
-BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_PaneledTarget_IsotropicPointSource_Realistic )
+BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPointSource_PaneledTarget_Realistic )
 {
     // Box-and-wings model is partially obtained from Oliver Montenbruck, et al.
     //     "Semi-analytical solar radiation pressure modeling for QZS-1 orbit-normal and yaw-steering attitude".
@@ -661,6 +728,7 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_PaneledSource_PaneledTar
             originalSourceModel,
             std::make_shared<basic_astrodynamics::SphericalBodyShapeModel>(1),
             [] () { return Eigen::Vector3d::UnitX(); },
+            std::make_shared<NoOccultingBodyOccultationModel>(),
             std::make_shared<NoOccultingBodyOccultationModel>());
 
     originalSourceModel->updateMembers(TUDAT_NAN);
@@ -671,6 +739,131 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_PaneledSource_PaneledTar
     const auto actualAcceleration = accelerationModel.getAcceleration();
 
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(actualAcceleration, expectedAcceleration, 1e-15);
+}
+
+//! Test occultation for cannonball target acceleration with paneled source
+BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_PaneledSource_CannonballTarget_Occultation )
+{
+    const auto originalSourcePosition = Eigen::Vector3d(10, 0, 0);
+    auto originalSourceModel = std::make_shared<IsotropicPointRadiationSourceModel>(
+        std::make_shared<ConstantLuminosityModel>(1));
+
+    // Source is a single panel pointing in +X
+    std::vector<SourcePanel> sourcePanels{SourcePanel(
+            1, Eigen::Vector3d::Zero(), Eigen::Vector3d::UnitX(), {
+                std::make_shared<AngleBasedThermalPanelRadiosityModel>(1000, 1000, 1)})};
+    auto sourceModel = std::make_shared<StaticallyPaneledRadiationSourceModel>("", sourcePanels);
+
+    const auto targetPosition = Eigen::Vector3d(10, 10, 0);
+    auto targetModel = std::make_shared<CannonballRadiationPressureTargetModel>(1, 1);
+
+    std::vector<std::string> emptyBodyList {};
+
+    // Original source, source and target keep their position, occulting bodies move between tests
+    {
+        // Two occulting bodies but not interfering with radiation
+        const auto originalSourceToSourceOccultingBodyPosition = Eigen::Vector3d(-5, 0, 0);
+        const auto sourceToTargetOccultingBodyPosition = Eigen::Vector3d(5, -5, 0);
+
+        auto sourceToTargetOccultationModel = std::make_shared<SingleOccultingBodyOccultationModel>(
+            emptyBodyList, [=] () { return sourceToTargetOccultingBodyPosition; },
+            std::make_shared<basic_astrodynamics::SphericalBodyShapeModel>(1));
+        auto originalSourceToSourceOccultationModel = std::make_shared<SingleOccultingBodyOccultationModel>(
+            emptyBodyList, [=] () { return originalSourceToSourceOccultingBodyPosition; },
+            std::make_shared<basic_astrodynamics::SphericalBodyShapeModel>(1));
+
+        PaneledSourceRadiationPressureAcceleration accelerationModel(
+                sourceModel,
+                [] () { return Eigen::Vector3d::Zero(); },
+                [] () { return Eigen::Quaterniond::Identity(); },
+                targetModel,
+                [=] () { return targetPosition; },
+                [] () { return Eigen::Quaterniond::Identity(); },
+                [] () { return 1; },
+                originalSourceModel,
+                std::make_shared<basic_astrodynamics::SphericalBodyShapeModel>(1),
+                [=] () { return originalSourcePosition; },
+                sourceToTargetOccultationModel, originalSourceToSourceOccultationModel);
+
+        originalSourceModel->updateMembers(TUDAT_NAN);
+        sourceModel->updateMembers(TUDAT_NAN);
+        targetModel->updateMembers(TUDAT_NAN);
+        accelerationModel.updateMembers(TUDAT_NAN);
+
+        const auto actualAcceleration = accelerationModel.getAcceleration().norm();
+
+        BOOST_CHECK(actualAcceleration > 0);
+    }
+
+    {
+        // Occulting body only interfering with original source -> source
+        const auto originalSourceToSourceOccultingBodyPosition = Eigen::Vector3d(5, 0, 0);
+        const auto sourceToTargetOccultingBodyPosition = Eigen::Vector3d(5, -5, 0);
+
+        auto sourceToTargetOccultationModel = std::make_shared<SingleOccultingBodyOccultationModel>(
+            emptyBodyList, [=] () { return sourceToTargetOccultingBodyPosition; },
+            std::make_shared<basic_astrodynamics::SphericalBodyShapeModel>(1));
+        auto originalSourceToSourceOccultationModel = std::make_shared<SingleOccultingBodyOccultationModel>(
+            emptyBodyList, [=] () { return originalSourceToSourceOccultingBodyPosition; },
+            std::make_shared<basic_astrodynamics::SphericalBodyShapeModel>(1));
+
+        PaneledSourceRadiationPressureAcceleration accelerationModel(
+                sourceModel,
+                [] () { return Eigen::Vector3d::Zero(); },
+                [] () { return Eigen::Quaterniond::Identity(); },
+                targetModel,
+                [=] () { return targetPosition; },
+                [] () { return Eigen::Quaterniond::Identity(); },
+                [] () { return 1; },
+                originalSourceModel,
+                std::make_shared<basic_astrodynamics::SphericalBodyShapeModel>(1),
+                [=] () { return originalSourcePosition; },
+                sourceToTargetOccultationModel, originalSourceToSourceOccultationModel);
+
+        originalSourceModel->updateMembers(TUDAT_NAN);
+        sourceModel->updateMembers(TUDAT_NAN);
+        targetModel->updateMembers(TUDAT_NAN);
+        accelerationModel.updateMembers(TUDAT_NAN);
+
+        const auto actualAcceleration = accelerationModel.getAcceleration().norm();
+
+        BOOST_CHECK_CLOSE_FRACTION(actualAcceleration, 0, 1e-15);
+    }
+
+    {
+        // Occulting body only interfering with source -> target
+        const auto originalSourceToSourceOccultingBodyPosition = Eigen::Vector3d(-5, 0, 0);
+        const auto sourceToTargetOccultingBodyPosition = Eigen::Vector3d(5, 5, 0);
+
+        auto sourceToTargetOccultationModel = std::make_shared<SingleOccultingBodyOccultationModel>(
+            emptyBodyList, [=] () { return sourceToTargetOccultingBodyPosition; },
+            std::make_shared<basic_astrodynamics::SphericalBodyShapeModel>(1));
+        auto originalSourceToSourceOccultationModel = std::make_shared<SingleOccultingBodyOccultationModel>(
+            emptyBodyList, [=] () { return originalSourceToSourceOccultingBodyPosition; },
+            std::make_shared<basic_astrodynamics::SphericalBodyShapeModel>(1));
+
+        PaneledSourceRadiationPressureAcceleration accelerationModel(
+                sourceModel,
+                [] () { return Eigen::Vector3d::Zero(); },
+                [] () { return Eigen::Quaterniond::Identity(); },
+                targetModel,
+                [=] () { return targetPosition; },
+                [] () { return Eigen::Quaterniond::Identity(); },
+                [] () { return 1; },
+                originalSourceModel,
+                std::make_shared<basic_astrodynamics::SphericalBodyShapeModel>(1),
+                [=] () { return originalSourcePosition; },
+                sourceToTargetOccultationModel, originalSourceToSourceOccultationModel);
+
+        originalSourceModel->updateMembers(TUDAT_NAN);
+        sourceModel->updateMembers(TUDAT_NAN);
+        targetModel->updateMembers(TUDAT_NAN);
+        accelerationModel.updateMembers(TUDAT_NAN);
+
+        const auto actualAcceleration = accelerationModel.getAcceleration().norm();
+
+        BOOST_CHECK_CLOSE_FRACTION(actualAcceleration, 0, 1e-15);
+    }
 }
 
 

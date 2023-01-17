@@ -1025,17 +1025,6 @@ public:
         radiationPressureTargetModel_ = radiationPressureTargetModel;
     }
 
-    //! Function to set the occultation model of the body.
-    /*!
-     *  Function to set the occultation model of the body.
-     *  \param occultationModel occultation model of the body.
-     */
-    void setOccultationModel(
-            const std::shared_ptr<electromagnetism::OccultationModel> occultationModel)
-    {
-        occultationModel_ = occultationModel;
-    }
-
     //! Function to set object containing all variations in the gravity field of this body.
     /*!
      * Function to set object containing all variations in the gravity field of this body.
@@ -1161,16 +1150,6 @@ public:
     const std::shared_ptr<electromagnetism::RadiationPressureTargetModel> getRadiationPressureTargetModel() const
     {
         return radiationPressureTargetModel_;
-    }
-
-    //! Function to retrieve the occultation model of the body.
-    /*!
-     *  Function to retrieve the occultation model of the body.
-     *  \return Occultation model of the body.
-     */
-    const std::shared_ptr<electromagnetism::OccultationModel> getOccultationModel() const
-    {
-        return occultationModel_;
     }
 
     //! Function to retrieve a single object describing variation in the gravity field of this body.
@@ -1593,9 +1572,6 @@ private:
 
     //! Radiation pressure target model of the body.
     std::shared_ptr<electromagnetism::RadiationPressureTargetModel> radiationPressureTargetModel_;
-
-    //! Occultation model of the body.
-    std::shared_ptr<electromagnetism::OccultationModel> occultationModel_;
 
     //! List of ground station objects on Body
     std::map<std::string, std::shared_ptr<ground_stations::GroundStation>> groundStationMap;

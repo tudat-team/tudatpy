@@ -30,7 +30,6 @@
 #include "tudat/astro/basic_astro/geodeticCoordinateConversions.h"
 #include "tudat/astro/electromagnetism/radiationSourceModel.h"
 #include "tudat/astro/electromagnetism/radiationPressureTargetModel.h"
-#include "tudat/astro/electromagnetism/radiationSourceModel.h"
 #include "tudat/astro/electromagnetism/reflectionLaw.h"
 #include "tudat/astro/ephemerides/approximatePlanetPositions.h"
 #include "tudat/astro/ephemerides/tabulatedEphemeris.h"
@@ -1507,6 +1506,7 @@ BOOST_AUTO_TEST_CASE( test_radiationSourceModelSetup_StaticallyPaneled )
     const auto expectedEmissivity = 0.32;
     const auto expectedMinTemperature = 100;
     const auto expectedMaxTemperature = 200;
+    const std::vector<std::string> expectedOccultingBodies {"Moon"};
 
     auto staticallyPaneledSourceModelSettings =
             staticallyPaneledRadiationSourceModelSettings(
@@ -1514,7 +1514,7 @@ BOOST_AUTO_TEST_CASE( test_radiationSourceModelSetup_StaticallyPaneled )
                     albedoPanelRadiosityModelSettings(expectedAlbedo, expectedWithInstantaneousReradiation),
                     angleBasedThermalPanelRadiosityModelSettings(
                             expectedMinTemperature, expectedMaxTemperature, expectedEmissivity)
-                }, expectedNumberOfPanels);
+                }, expectedNumberOfPanels, expectedOccultingBodies);
     auto staticallyPaneledSourceModel =
             std::dynamic_pointer_cast<electromagnetism::StaticallyPaneledRadiationSourceModel>(
                     createRadiationSourceModel(
@@ -1535,27 +1535,35 @@ BOOST_AUTO_TEST_CASE( test_radiationSourceModelSetup_StaticallyPaneled )
             std::dynamic_pointer_cast<electromagnetism::AngleBasedThermalPanelRadiosityModel>(panel.getRadiosityModels()[1]);
 
     const auto actualOriginalSourceName = staticallyPaneledSourceModel->getOriginalSourceName();
+    const auto actualNumberOfPanels = staticallyPaneledSourceModel->getNumberOfPanels();
     const auto actualAlbedo = reflectionLaw->getDiffuseReflectivity();
     const auto actualWithInstantaneousReradiation = reflectionLaw->getWithInstantaneousLambertianReradiation();
     const auto actualEmissivity = thermalModel->getEmissivity();
     const auto actualMinTemperature = thermalModel->getMinTemperature();
     const auto actualMaxTemperature = thermalModel->getMaxTemperature();
+    const auto actualOccultingBodies = staticallyPaneledSourceModel->getOriginalSourceToSourceOccultingBodies();
 
     BOOST_CHECK_EQUAL(actualOriginalSourceName, expectedOriginalSourceName);
+    BOOST_CHECK_EQUAL(actualNumberOfPanels, expectedNumberOfPanels);
     BOOST_CHECK_EQUAL(actualAlbedo, expectedAlbedo);
     BOOST_CHECK_EQUAL(actualWithInstantaneousReradiation, expectedWithInstantaneousReradiation);
     BOOST_CHECK_EQUAL(actualEmissivity, expectedEmissivity);
     BOOST_CHECK_EQUAL(actualMinTemperature, expectedMinTemperature);
     BOOST_CHECK_EQUAL(actualMaxTemperature, expectedMaxTemperature);
+    BOOST_CHECK_EQUAL_COLLECTIONS(
+        actualOccultingBodies.begin(), actualOccultingBodies.end(),
+        expectedOccultingBodies.begin(), expectedOccultingBodies.end());
 }
 
 BOOST_AUTO_TEST_CASE( test_radiationPressureTargetModelSetup_CannonballTarget )
 {
     const auto expectedArea = 42;
     const auto expectedCoefficient = 1.42;
+    const std::vector<std::string> expectedOccultingBodies {"Moon"};
+    const std::map<std::string, std::vector<std::string>> expectedOccultingBodiesMap {{"", {"Moon"}}};
 
     auto cannonballRadiationPressureTargetSettings =
-            cannonballRadiationPressureTargetModelSettings(expectedArea, expectedCoefficient);
+            cannonballRadiationPressureTargetModelSettings(expectedArea, expectedCoefficient, expectedOccultingBodies);
     auto cannonballRadiationPressureTarget =
             std::dynamic_pointer_cast<electromagnetism::CannonballRadiationPressureTargetModel>(
                     createRadiationPressureTargetModel(
@@ -1563,9 +1571,15 @@ BOOST_AUTO_TEST_CASE( test_radiationPressureTargetModelSetup_CannonballTarget )
 
     const auto actualArea = cannonballRadiationPressureTarget->getArea();
     const auto actualCoefficient = cannonballRadiationPressureTarget->getCoefficient();
+    const auto actualOccultingBodiesMap = cannonballRadiationPressureTarget->getSourceToTargetOccultingBodies();
+    const auto actualOccultingBodies = actualOccultingBodiesMap.at("");
 
     BOOST_CHECK_EQUAL(actualArea, expectedArea);
     BOOST_CHECK_EQUAL(actualCoefficient, expectedCoefficient);
+    BOOST_CHECK_EQUAL(actualOccultingBodiesMap.size(), 1);
+    BOOST_CHECK_EQUAL_COLLECTIONS(
+        actualOccultingBodies.begin(), actualOccultingBodies.end(),
+        expectedOccultingBodies.begin(), expectedOccultingBodies.end());
 }
 
 BOOST_AUTO_TEST_CASE( test_radiationPressureTargetModelSetup_PaneledTarget )

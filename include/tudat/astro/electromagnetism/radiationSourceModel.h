@@ -174,22 +174,27 @@ public:
      * @param sourceBodyShapeModel Shape model of this source
      * @param radiosityModelFunctions Functions that together create all panel radiosity models for a given polar and
      *      azimuth angle
+     * @param originalSourceToSourceOccultingBodies Names of bodies to occult the original source as seen from this source
      */
     explicit PaneledRadiationSourceModel(
             const std::string& originalSourceName,
             const std::shared_ptr<basic_astrodynamics::BodyShapeModel>& sourceBodyShapeModel,
-            const std::vector<std::function<std::shared_ptr<PanelRadiosityModel>(double, double)>>& radiosityModelFunctions) :
+            const std::vector<std::function<std::shared_ptr<PanelRadiosityModel>(double, double)>>& radiosityModelFunctions,
+            const std::vector<std::string>& originalSourceToSourceOccultingBodies) :
         originalSourceName_(originalSourceName),
         sourceBodyShapeModel_(sourceBodyShapeModel),
-        radiosityModelFunctions_(radiosityModelFunctions){}
+        radiosityModelFunctions_(radiosityModelFunctions),
+        originalSourceToSourceOccultingBodies_(originalSourceToSourceOccultingBodies) {}
 
     /*!
      * Constructor for shape-oblivious paneled source. No knowledge of shape necessary if panels are given manually.
      *
      * @param originalSourceName Name of the original source body
      */
-    explicit PaneledRadiationSourceModel(const std::string& originalSourceName) :
-            PaneledRadiationSourceModel(originalSourceName, nullptr, {}) {}
+    explicit PaneledRadiationSourceModel(
+        const std::string& originalSourceName,
+        const std::vector<std::string>& originalSourceToSourceOccultingBodies = {}) :
+            PaneledRadiationSourceModel(originalSourceName, nullptr, {}, originalSourceToSourceOccultingBodies) {}
 
     IrradianceWithSourceList evaluateIrradianceAtPosition(
             const Eigen::Vector3d& targetPosition,
@@ -208,10 +213,23 @@ public:
         return originalSourceName_;
     }
 
+    std::vector<std::string> getOriginalSourceToSourceOccultingBodies() const
+    {
+        return originalSourceToSourceOccultingBodies_;
+    }
+
+    /*!
+    * Get the number of panels comprising this paneled source. For dynamically generated paneling, this may be
+    * the target number, not the currently existing one.
+    */
+    virtual unsigned int getNumberOfPanels() const = 0;
+
 protected:
     std::string originalSourceName_; // needed for environment updater setup
     std::shared_ptr<basic_astrodynamics::BodyShapeModel> sourceBodyShapeModel_;
     std::vector<std::function<std::shared_ptr<PanelRadiosityModel>(double, double)>> radiosityModelFunctions_;
+    // Only needed to transfer occultation settings from body setup to acceleration setup
+    std::vector<std::string> originalSourceToSourceOccultingBodies_;
 };
 
 /*!
@@ -233,11 +251,13 @@ public:
      *
      * @param originalSourceName Name of the original source body
      * @param panels Panels comprising this paneled source
+     * @param originalSourceToSourceOccultingBodies Names of bodies to occult the original source as seen from this source
      */
     explicit StaticallyPaneledRadiationSourceModel(
             const std::string& originalSourceName,
-            const std::vector<Panel>& panels) :
-            PaneledRadiationSourceModel(originalSourceName),
+            const std::vector<Panel>& panels,
+            const std::vector<std::string>& originalSourceToSourceOccultingBodies = {}) :
+            PaneledRadiationSourceModel(originalSourceName, originalSourceToSourceOccultingBodies),
             numberOfPanels(panels.size()),
             panels_(panels) {}
 
@@ -249,18 +269,26 @@ public:
      * @param radiosityModelFunctions Functions that together create all panel radiosity models for a given polar and
      *      azimuth angle
      * @param numberOfPanels Number of panels for automatic generation
+     * @param originalSourceToSourceOccultingBodies Names of bodies to occult the original source as seen from this source
      */
     explicit StaticallyPaneledRadiationSourceModel(
             const std::string& originalSourceName,
             const std::shared_ptr<basic_astrodynamics::BodyShapeModel>& sourceBodyShapeModel,
             const std::vector<std::function<std::shared_ptr<PanelRadiosityModel>(double, double)>>& radiosityModelFunctions,
-            int numberOfPanels) :
-            PaneledRadiationSourceModel(originalSourceName, sourceBodyShapeModel, radiosityModelFunctions),
+            int numberOfPanels,
+            const std::vector<std::string>& originalSourceToSourceOccultingBodies = {}) :
+            PaneledRadiationSourceModel(
+                originalSourceName, sourceBodyShapeModel, radiosityModelFunctions, originalSourceToSourceOccultingBodies),
             numberOfPanels(numberOfPanels) {}
 
     const std::vector<Panel>& getPanels() const override
     {
         return panels_;
+    }
+
+    unsigned int getNumberOfPanels() const override
+    {
+        return numberOfPanels;
     }
 
 private:

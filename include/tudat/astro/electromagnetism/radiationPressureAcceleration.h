@@ -34,6 +34,11 @@ namespace electromagnetism
 class RadiationPressureAcceleration: public basic_astrodynamics::AccelerationModel3d
 {
 public:
+    /*!
+     * Update class members.
+     *
+     * @param currentTime Current simulation time
+     */
     void updateMembers(double currentTime) override;
 
     virtual std::shared_ptr<RadiationSourceModel> getSourceModel() const = 0;
@@ -59,6 +64,8 @@ protected:
 
     virtual Eigen::Vector3d calculateAcceleration() = 0;
 
+    virtual void updateMembers_(const double currentTime) {};
+
     std::function<Eigen::Vector3d()> sourcePositionFunction_;
     std::shared_ptr<RadiationPressureTargetModel> targetModel_;
     std::function<Eigen::Vector3d()> targetPositionFunction_;
@@ -71,8 +78,9 @@ protected:
  * Class modeling radiation pressure acceleration from an isotropic point source.
  *
  * Assumptions:
- *  - Radiation from a source is evaluated at the target center (i.e. the target extent is neglected for irradiance
- *    calculations).
+ *  - Radiation from the source is evaluated at the target center (i.e. the target extent is neglected,
+ *    which is acceptable, e.g., when evaluating solar radiation at Earth since rays are
+ *    essentially parallel and the target extent vanishes compared to the 1 AU distance).
  */
 class IsotropicPointSourceRadiationPressureAcceleration : public RadiationPressureAcceleration
 {
@@ -119,13 +127,15 @@ private:
 /*!
  * Class modeling radiation pressure acceleration from a paneled point source. An original source illuminates the
  * source, which emits the radiation that accelerates the target. Only isotropic point sources are supported as
- * original sources for now.
+ * original sources for now. For occultation, panel-center-to-target-center visibility is used for each panel instead
+ * of a shadow function.
  *
  * Assumptions:
- *  - Radiation from the original source is evaluated at the original source center (i.e. the target extent is
- *    neglected, which is acceptable, e.g., when evaluating solar radiation at Earth).
- *  - Radiation from a source is evaluated at the target center (i.e. the target extent is neglected for irradiance
- *    calculations).
+ *  - Radiation from the original source is evaluated at the source center (i.e. the source extent is
+ *    neglected, which is acceptable, e.g., when evaluating solar radiation at Earth for albedo). Occultation using
+ *    the shadow function is done for each panel at the panel center, however.
+ *  - Radiation from each panel/subsource of the paneled source is evaluated at the target center (i.e. the target
+ *    extent is neglected). This also applies for occultation calculations.
  */
  // If other original source types are to be supported in the future, add the rotational state update to
  // createEnvironmentUpdater.cpp under case radiation_pressure_acceleration
@@ -187,6 +197,8 @@ public:
 
 private:
     Eigen::Vector3d calculateAcceleration() override;
+
+    void updateMembers_(double currentTime) override;
 
     std::shared_ptr<PaneledRadiationSourceModel> sourceModel_;
     std::function<Eigen::Quaterniond()> sourceRotationFromLocalToGlobalFrameFunction_;
