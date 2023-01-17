@@ -136,6 +136,7 @@ public:
      */
     virtual std::shared_ptr< DynamicsSimulator< StateScalarType, TimeType > > getDynamicsSimulatorBase( ) = 0;
 
+    virtual std::shared_ptr< SimulationResults< StateScalarType, TimeType > > getVariationalPropagationResults( ) = 0;
 
 
 protected:
@@ -959,6 +960,17 @@ public:
         }
     }
 
+    std::shared_ptr< SingleArcVariationalSimulationResults< StateScalarType, TimeType > > getSingleArcVariationalPropagationResults( )
+    {
+        return variationalPropagationResults_;
+    }
+
+    std::shared_ptr< SimulationResults< StateScalarType, TimeType > > getVariationalPropagationResults( )
+    {
+        return getSingleArcVariationalPropagationResults( );
+    }
+
+
 protected:
 
 private:
@@ -1441,10 +1453,17 @@ public:
     }
 
 
-   std::shared_ptr< MultiArcVariationalResults > getVariationalPropagationResults( )
+   std::shared_ptr< MultiArcVariationalResults > getMultiArcVariationalPropagationResults()
    {
        return variationalPropagationResults_;
    }
+
+
+   std::shared_ptr< SimulationResults< StateScalarType, TimeType > > getVariationalPropagationResults( )
+   {
+      return getMultiArcVariationalPropagationResults( );
+   }
+
 protected:
 
 private:
@@ -1599,6 +1618,7 @@ public:
 
     typedef Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > MatrixType;
     typedef Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > VectorType;
+    typedef HybridArcSimulationResults< SingleArcVariationalSimulationResults, StateScalarType, TimeType > HybridArcResults;
 
     using VariationalEquationsSolver< StateScalarType, TimeType >::parametersToEstimate_;
     using VariationalEquationsSolver< StateScalarType, TimeType >::bodies_;
@@ -1747,6 +1767,9 @@ public:
             throw std::runtime_error( "Error when making HybridArcVariationalEquationsSolver, input single arc is not translational" );
         }
 
+        variationalPropagationResults_ = std::make_shared< HybridArcResults >(
+                singleArcSolver_->getSingleArcVariationalPropagationResults( ),
+                originalMultiArcSolver_->getMultiArcVariationalPropagationResults( ) );
         initialStatesFromSingleArcPropagation_ = std::bind(
                     &getInitialStatesOfBodiesFromFrameManager< TimeType, StateScalarType >,
                     singleArcPropagationSettings->bodiesToIntegrate_,
@@ -1976,6 +1999,16 @@ public:
         return singleArcSolver_;
     }
 
+    std::shared_ptr< HybridArcResults > getHybridArcVariationalPropagationResults()
+    {
+        return variationalPropagationResults_;
+    }
+
+    std::shared_ptr< SimulationResults< StateScalarType, TimeType > > getVariationalPropagationResults( )
+    {
+        return getHybridArcVariationalPropagationResults( );
+    }
+
 protected:
 
     //! Function to set and process the arc start times of the multi-arc propagation
@@ -2142,6 +2175,8 @@ protected:
 
     //! Estimated parameter set with extended multi-arc dynamical parameters only
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > multiArcParametersToEstimate_ ;
+
+    std::shared_ptr< HybridArcResults > variationalPropagationResults_;
 
     //! Times at which arcs for multi-arc solution start
     std::vector< double > arcStartTimes_;

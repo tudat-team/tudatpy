@@ -842,6 +842,12 @@ public:
                 propagationResults_ );
     }
 
+    void integrate(
+            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& initialStates )
+    {
+        integrateEquationsOfMotion( initialStates );
+    }
+
     template< typename SimulationResults >
     void integrateEquationsOfMotion(
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& processedInitialState,

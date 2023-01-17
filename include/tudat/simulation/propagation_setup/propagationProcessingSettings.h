@@ -230,15 +230,15 @@ public:
 
     virtual ~MultiArcPropagatorProcessingSettings( ){ }
 
-    virtual void setClearNumericalSolutions( const bool clearNumericalSolutions )
-    {
-        this->clearNumericalSolutions_ = clearNumericalSolutions;
-    }
-
-    virtual void setIntegratedResult( const bool setIntegratedResult )
-    {
-        this->setIntegratedResult_ = setIntegratedResult;
-    }
+//    virtual void setClearNumericalSolutions( const bool clearNumericalSolutions )
+//    {
+//        this->clearNumericalSolutions_ = clearNumericalSolutions;
+//    }
+//
+//    virtual void setIntegratedResult( const bool setIntegratedResult )
+//    {
+//        this->setIntegratedResult_ = setIntegratedResult;
+//    }
 
     void resetSingleArcSettings( const bool printWarning = false )
     {
@@ -357,8 +357,13 @@ public:
         printFirstArcOnly_ = printFirstArcOnly;
     }
 
+    std::vector< std::shared_ptr< SingleArcPropagatorProcessingSettings > > getSingleArcSettings( )
+    {
+        return singleArcSettings_;
+    }
 
-protected:
+
+    protected:
 
     std::shared_ptr< PropagationPrintSettings > consistentSingleArcPrintSettings_;
 
