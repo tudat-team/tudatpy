@@ -689,32 +689,7 @@ public:
 
                 if( estimationInput->getSaveStateHistoryForEachIteration( ) )
                 {
-                    if( std::dynamic_pointer_cast< propagators::HybridArcVariationalEquationsSolver< ObservationScalarType, TimeType > >(  variationalEquationsSolver_) != nullptr )
-                    {
-
-                        throw std::runtime_error( "Error, hybrid arc per-iteration state saving not yet implemented" );
-//                        std::shared_ptr< propagators::HybridArcVariationalEquationsSolver< ObservationScalarType, TimeType > > hybridArcSolver =
-//                                std::dynamic_pointer_cast< propagators::HybridArcVariationalEquationsSolver< ObservationScalarType, TimeType > >(  variationalEquationsSolver_);
-
-//                        std::vector< std::map< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > >  currentStateHistories;
-//                        currentStateHistories = hybridArcSolver->getMultiArcSolver( )->getDynamicsSimulatorBase( )->getEquationsOfMotionNumericalSolutionBase( );
-//                        currentStateHistories.insert(
-//                                    currentStateHistories.begin(),
-//                                    hybridArcSolver->getSingleArcSolver( )->getDynamicsSimulatorBase( )->getEquationsOfMotionNumericalSolutionBase( ).at( 0 ) );
-//                        dynamicsHistoryPerIteration.push_back( currentStateHistories );
-
-//                        std::vector< std::map< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > >  currentDependentVariableHistories;
-//                        currentDependentVariableHistories = hybridArcSolver->getMultiArcSolver( )->getDynamicsSimulatorBase( )->getDependentVariableNumericalSolutionBase( );
-//                        currentDependentVariableHistories.insert(
-//                                    currentDependentVariableHistories.begin(),
-//                                    hybridArcSolver->getSingleArcSolver( )->getDynamicsSimulatorBase( )->getDependentVariableNumericalSolutionBase( ).at( 0 ) );
-//                        dependentVariableHistoryPerIteration.push_back( currentDependentVariableHistories );
-                    }
-                    else
-                    {
-                        simulationResultsPerIteration.push_back(
-                                variationalEquationsSolver_->getDynamicsSimulatorBase( )->getPropagationResults( ) );
-                    }
+                    simulationResultsPerIteration.push_back( variationalEquationsSolver_->getVariationalPropagationResults( ) );
                 }
             }
             catch( std::runtime_error& error )
@@ -1124,7 +1099,7 @@ protected:
 
 };
 
-extern template class OrbitDeterminationManager< double, double >;
+//extern template class OrbitDeterminationManager< double, double >;
 
 
 

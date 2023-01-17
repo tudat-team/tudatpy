@@ -666,7 +666,7 @@ BOOST_AUTO_TEST_CASE( testVaryingCentralBodyHybridArcVariationalEquations )
 
 //    std::vector< std::vector< std::map< double, Eigen::MatrixXd > > > fullMultiArcVariationalSolution =
 //            variationalEquations.getMultiArcSolver( )->getNumericalVariationalEquationsSolution( );
-    auto fullMultiArcVariationalResults = variationalEquations.getMultiArcSolver( )->getVariationalPropagationResults( );
+    auto fullMultiArcVariationalResults = variationalEquations.getMultiArcSolver( )->getMultiArcVariationalPropagationResults( );
     std::vector< std::map< double, Eigen::VectorXd > > fullMultiArcStateSolution =
             variationalEquations.getMultiArcSolver( )->getDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
 
@@ -702,7 +702,7 @@ BOOST_AUTO_TEST_CASE( testVaryingCentralBodyHybridArcVariationalEquations )
 
 //        std::vector< std::vector< std::map< double, Eigen::MatrixXd > > > perBodyMultiArcVariationalSolution =
 //                perCentralBodyVariationalEquations.getMultiArcSolver( )->getNumericalVariationalEquationsSolution( );
-        auto perBodyMultiArcVariationalResults = perCentralBodyVariationalEquations.getMultiArcSolver( )->getVariationalPropagationResults( );
+        auto perBodyMultiArcVariationalResults = perCentralBodyVariationalEquations.getMultiArcSolver( )->getMultiArcVariationalPropagationResults( );
 
         std::vector< std::map< double, Eigen::VectorXd > > perBodyMultiArcStateSolution =
                 perCentralBodyVariationalEquations.getMultiArcSolver( )->getDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );

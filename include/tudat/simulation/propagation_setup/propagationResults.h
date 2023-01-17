@@ -348,7 +348,7 @@ namespace tudat
 
 
         template<typename StateScalarType = double, typename TimeType = double >
-        class SingleArcVariationalSimulationResults
+        class SingleArcVariationalSimulationResults: public SimulationResults< StateScalarType, TimeType >
         {
         public:
 
