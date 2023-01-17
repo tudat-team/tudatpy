@@ -100,7 +100,7 @@ BOOST_AUTO_TEST_CASE( testConstantTimeBias )
     std::vector< Eigen::Vector6d > unbiasedLinkEndStates, biasedLinkEndStates, linkEndStatesBiasedTime;
 
     Eigen::Vector2d biasedObservation = biasedObservationModel->computeObservationsWithLinkEndData( obsTime, receiver, biasedLinkEndTimes, biasedLinkEndStates );
-    Eigen::Vector2d unbiasedObservation = idealObservationModel->computeObservationsWithLinkEndData( obsTime, receiver, unbiasedLinkEndTimes, unbiasedLinkEndStates );
+    idealObservationModel->computeObservationsWithLinkEndData( obsTime, receiver, unbiasedLinkEndTimes, unbiasedLinkEndStates );
     Eigen::Vector2d observationAtBiasedTime = idealObservationModel->computeObservationsWithLinkEndData( obsTime - timeBias, receiver, linkEndTimesBiasedTime, linkEndStatesBiasedTime );
 
 
@@ -202,7 +202,7 @@ BOOST_AUTO_TEST_CASE( testArcWiseTimeBias )
         std::vector< Eigen::Vector6d > unbiasedLinkEndStates, biasedLinkEndStates, linkEndStatesBiasedTime;
 
         Eigen::Vector2d biasedObservation = biasedObservationModel->computeObservationsWithLinkEndData( obsTimes[ j ], receiver, biasedLinkEndTimes, biasedLinkEndStates );
-        Eigen::Vector2d unbiasedObservation = idealObservationModel->computeObservationsWithLinkEndData( obsTimes[ j ], receiver, unbiasedLinkEndTimes, unbiasedLinkEndStates );
+        idealObservationModel->computeObservationsWithLinkEndData( obsTimes[ j ], receiver, unbiasedLinkEndTimes, unbiasedLinkEndStates );
         Eigen::Vector2d observationAtBiasedTime = idealObservationModel->computeObservationsWithLinkEndData(
                 obsTimes[ j ] - timeBiases[ j ], receiver, linkEndTimesBiasedTime, linkEndStatesBiasedTime );
 

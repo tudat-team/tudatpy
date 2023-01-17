@@ -463,7 +463,7 @@ protected:
                                 for( unsigned int j = 0; j < linkEndStatePartialSet.size( ); j++ )
                                 {
                                     std::string nameBody = itr.second->getParameterIdentifier( ).second.first;
-                                    int indexLinkEndType;
+                                    int indexLinkEndType = -1;
                                     for ( auto itrLinkEnds : linkEnds )
                                     {
                                         if ( itrLinkEnds.second.bodyName_ == nameBody )
@@ -471,9 +471,18 @@ protected:
                                             indexLinkEndType = getLinkEndIndicesForLinkEndTypeAtObservable( this->observableType_, itrLinkEnds.first, linkEnds.size( ) ).at( 0 );
                                         }
                                     }
+
+                                    if( indexLinkEndType < 0 )
+                                    {
+                                        throw std::runtime_error( "Error when retrieving partial for time bias; could not find associated link end index.");
+                                    }
                                     std::shared_ptr< propagators::SingleDependentVariableSaveSettings > totalAccelerationVariable
                                             = std::make_shared< propagators::SingleDependentVariableSaveSettings >( propagators::total_acceleration_dependent_variable, nameBody );
 
+                                    if( dependentVariablesInterface_ == nullptr )
+                                    {
+                                        throw std::runtime_error( "Error, required dependent variable interfaces, but none found when computing partials." );
+                                    }
                                     Eigen::VectorXd acceleration = dependentVariablesInterface_->getSingleDependentVariable( totalAccelerationVariable, times.at( indexLinkEndType ) );
                                     Eigen::Vector6d stateDerivativeVector = Eigen::Vector6d::Zero( );
                                     stateDerivativeVector.segment( 0, 3 ) = states.at( indexLinkEndType ).segment( 3, 3 );
