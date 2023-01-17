@@ -258,7 +258,6 @@ public:
             arcStartTimes_( arcStartTimes ),
             arcEndTimes_( arcEndTimes )
     {
-        std::cout << "CONSTRUCTOR MULTI-ARC INTERFACE" << "\n\n";
         if( arcStartTimes_.size( ) != arcEndTimes_.size( ) )
         {
             throw std::runtime_error( "Error when making MultiArcDependentVariablesInterface, incompatible time lists" );
@@ -285,8 +284,6 @@ public:
             const std::vector< double >& arcStartTimes,
             const std::vector< double >& arcEndTimes  )
     {
-        std::cout << "reset dependent variables interpolators" << "\n\n";
-
         dependentVariablesInterpolators_ = dependentVariablesInterpolators;
         arcStartTimes_ = arcStartTimes;
         arcEndTimes_ = arcEndTimes;
@@ -315,7 +312,6 @@ public:
      */
     Eigen::VectorXd getDependentVariables( const TimeType evaluationTime )
     {
-        std::cout << "START getDependentVariables" << "\n\n";
         Eigen::VectorXd dependentVariables = Eigen::VectorXd::Zero( dependentVariablesSize_ );
 
         int currentArc = getCurrentArc( evaluationTime ).first;
@@ -325,8 +321,6 @@ public:
         {
             dependentVariables.segment( 0, dependentVariablesSize_) = dependentVariablesInterpolators_.at( currentArc )->interpolate( evaluationTime );
         }
-
-        std::cout << "END getDependentVariables" << "\n\n";
 
         return dependentVariables;
     }
@@ -405,9 +399,6 @@ public:
             DependentVariablesInterface< TimeType >( multiArcInterface->getDependentVariablesSettings( ) ),
             singleArcInterface_( singleArcInterface ), multiArcInterface_( multiArcInterface )
     {
-
-        std::cout << "IN CONSTRUCTOR HYBRID ARC DEPENDENT VARIABLES INTERFACE" << "\n\n";
-
         singleArcDependentVariablesSize_ = 0;
         multiArcDependentVariablesSize_ = 0;
         numberArcs_ = 0;
