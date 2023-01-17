@@ -751,11 +751,13 @@ public:
             const std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > propagatorSettings,
             const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate,
             const bool integrateDynamicalAndVariationalEquationsConcurrently = true,
-            const bool integrateEquationsOnCreation = true ):
+            const bool integrateEquationsOnCreation = true,
+            const bool setDependentVariablesInterface = false ):
         VariationalEquationsSolver< StateScalarType, TimeType >(
             bodies, parametersToEstimate, propagatorSettings != nullptr ?
                 propagatorSettings->getOutputSettingsWithCheck( )->getClearNumericalSolutions( ) : false ),
-        propagatorSettings_( std::dynamic_pointer_cast< SingleArcPropagatorSettings< StateScalarType, TimeType > >(propagatorSettings ) )
+        propagatorSettings_( std::dynamic_pointer_cast< SingleArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ) ),
+        setDependentVariablesInterface_( setDependentVariablesInterface )
     {
         if( std::dynamic_pointer_cast< SingleArcPropagatorSettings< StateScalarType, TimeType >  >( propagatorSettings ) == nullptr )
         {
@@ -784,7 +786,7 @@ public:
 
             dynamicsSimulator_ = std::make_shared< SingleArcDynamicsSimulator< StateScalarType, TimeType > >(
                         bodies, propagatorSettings_, false,
-                        PredefinedSingleArcStateDerivativeModels< StateScalarType, TimeType >( stateDerivativeModels, stateDerivativePartials ) );
+                        PredefinedSingleArcStateDerivativeModels< StateScalarType, TimeType >( stateDerivativeModels, stateDerivativePartials ), setDependentVariablesInterface_ );
 
             dynamicsStateDerivative_ = dynamicsSimulator_->getDynamicsStateDerivative( );
             statePostProcessingFunction_ = std::bind(
@@ -834,12 +836,13 @@ public:
             const bool clearNumericalSolution = true,
             const bool integrateEquationsOnCreation = true,
             const bool setIntegratedResult = true,
-            const bool printDependentVariableData = true):
+            const bool printDependentVariableData = true,
+            const bool setDependentVariablesInterface = false ):
         SingleArcVariationalEquationsSolver( bodies,validateDeprecatedSingleArcSettings(
                                                  integratorSettings, propagatorSettings,
                                                  clearNumericalSolution, setIntegratedResult, false,
                                                  printDependentVariableData, false ), parametersToEstimate,
-                                             integrateDynamicalAndVariationalEquationsConcurrently, integrateEquationsOnCreation ){ }
+                                             integrateDynamicalAndVariationalEquationsConcurrently, integrateEquationsOnCreation, setDependentVariablesInterface ){ }
 
     //! Destructor
     ~SingleArcVariationalEquationsSolver( ){ }
@@ -927,6 +930,7 @@ public:
                         rawNumericalSolution, variationalEquationsSolution_,
                         std::make_pair( 0, 0 ), std::make_pair( 0, stateTransitionMatrixSize_ ),
                         stateTransitionMatrixSize_, parameterVectorSize_ );
+
         }
         else
         {
@@ -1137,6 +1141,9 @@ private:
      *  either full or separate propagation of equations.
      */
     std::shared_ptr< DynamicsStateDerivativeModel< TimeType, StateScalarType > > dynamicsStateDerivative_;
+
+    //! Boolean denoting whether the dependent variables interface should be created.
+    bool setDependentVariablesInterface_;
 };
 
 
@@ -1247,13 +1254,15 @@ public:
             const simulation_setup::SystemOfBodies& bodies,
             const std::shared_ptr< MultiArcPropagatorSettings< StateScalarType, TimeType > > propagatorSettings,
             const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate,
-            const bool integrateEquationsOnCreation = false ):
+            const bool integrateEquationsOnCreation = false,
+            const bool setDependentVariablesInterface = false ):
         VariationalEquationsSolver< StateScalarType, TimeType >(
             bodies, parametersToEstimate, propagatorSettings != nullptr ?
                 propagatorSettings->getOutputSettingsWithCheck( )->getClearNumericalSolutions( ) : false  ),
         propagatorSettings_( propagatorSettings ),
         resetMultiArcDynamicsAfterPropagation_( propagatorSettings != nullptr ?
-                propagatorSettings->getOutputSettingsWithCheck( )->getSetIntegratedResult( ) : false )
+                propagatorSettings->getOutputSettingsWithCheck( )->getSetIntegratedResult( ) : false ),
+        setDependentVariablesInterface_( setDependentVariablesInterface )
     {
         if(  std::dynamic_pointer_cast< MultiArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ) == nullptr )
         {
@@ -1298,7 +1307,7 @@ public:
         }
 
         dynamicsSimulator_ =  std::make_shared< MultiArcDynamicsSimulator< StateScalarType, TimeType > >(
-                    bodies, propagatorSettings, false );
+                    bodies, propagatorSettings, false, setDependentVariablesInterface );
 
 
         std::vector< std::shared_ptr< SingleArcDynamicsSimulator< StateScalarType, TimeType > > > singleArcDynamicsSimulators =
@@ -1365,12 +1374,13 @@ public:
             std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ),
             const bool clearNumericalSolution = true,
             const bool integrateEquationsOnCreation = false,
-            const bool resetMultiArcDynamicsAfterPropagation = true ):
+            const bool resetMultiArcDynamicsAfterPropagation = true,
+            const bool setDependentVariablesInterface = false ):
         MultiArcVariationalEquationsSolver( bodies, validateDeprecatedMultiArcSettings(
                                         integratorSettings, propagatorSettings, arcStartTimes,
                                         clearNumericalSolution, resetMultiArcDynamicsAfterPropagation ),
                                             parametersToEstimate,
-                                    integrateEquationsOnCreation ){ }
+                                    integrateEquationsOnCreation, setDependentVariablesInterface ){ }
 
 
     //! Destructor
@@ -1995,6 +2005,9 @@ private:
     //! Boolean denoting whether the estimated bodies are different from one arc to another.
     bool areEstimatedBodiesDifferentPerArc_;
 
+    //! Boolean denoting whether the dependent variables interface should be created.
+    bool setDependentVariablesInterface_;
+
 };
 
 //! Class to manage and execute the numerical integration of variational equations of a dynamical system in a combination
@@ -2023,10 +2036,12 @@ public:
             const std::shared_ptr< HybridArcPropagatorSettings< StateScalarType, TimeType > > propagatorSettings,
             const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate,
             const bool integrateEquationsOnCreation = false,
-            const bool integrateDynamicalAndVariationalEquationsConcurrently = true ):
+            const bool integrateDynamicalAndVariationalEquationsConcurrently = true,
+            const bool setDependentVariablesInterface = false ):
         VariationalEquationsSolver< StateScalarType, TimeType >(
             bodies, parametersToEstimate, propagatorSettings != nullptr ?
-                propagatorSettings->getOutputSettingsWithCheck( )->getClearNumericalSolutions( ) : false  )
+                propagatorSettings->getOutputSettingsWithCheck( )->getClearNumericalSolutions( ) : false ),
+        setDependentVariablesInterface_( setDependentVariablesInterface )
     {
 //        propagatorSettings->getOutputSettingsWithCheck( )->setIntegratedResult( false );
         initializeHybridArcVariationalEquationsSolver(
@@ -2056,11 +2071,12 @@ public:
             const std::vector< double > arcStartTimes,
             const bool integrateDynamicalAndVariationalEquationsConcurrently = true,
             const bool clearNumericalSolution = false,
-            const bool integrateEquationsOnCreation = false ):
+            const bool integrateEquationsOnCreation = false,
+            const bool setDependentVariablesInterface = false ):
         HybridArcVariationalEquationsSolver< StateScalarType, TimeType >(
             bodies,  validateDeprecatedHybridArcSettings< StateScalarType, TimeType >(
                 integratorSettings,  propagatorSettings,  arcStartTimes, clearNumericalSolution, true ),
-            parametersToEstimate, integrateEquationsOnCreation, integrateDynamicalAndVariationalEquationsConcurrently ){ }
+            parametersToEstimate, integrateEquationsOnCreation, integrateDynamicalAndVariationalEquationsConcurrently, setDependentVariablesInterface ){ }
 
     HybridArcVariationalEquationsSolver(
             const simulation_setup::SystemOfBodies& bodies,
@@ -2071,11 +2087,12 @@ public:
             const std::vector< double > arcStartTimes,
             const bool integrateDynamicalAndVariationalEquationsConcurrently = true,
             const bool clearNumericalSolution = false,
-            const bool integrateEquationsOnCreation = false ):
+            const bool integrateEquationsOnCreation = false,
+            const bool setDependentVariablesInterface = false ):
         HybridArcVariationalEquationsSolver< StateScalarType, TimeType >(
             bodies, validateDeprecatedHybridArcSettings< StateScalarType, TimeType >(
                 singleArcIntegratorSettings,  multiArcIntegratorSettings, propagatorSettings,  arcStartTimes, clearNumericalSolution, true ),
-            parametersToEstimate, integrateEquationsOnCreation, integrateDynamicalAndVariationalEquationsConcurrently ){ }
+            parametersToEstimate, integrateEquationsOnCreation, integrateDynamicalAndVariationalEquationsConcurrently, setDependentVariablesInterface ){ }
 
     void initializeHybridArcVariationalEquationsSolver(
             const simulation_setup::SystemOfBodies& bodies,
@@ -2149,7 +2166,7 @@ public:
 
         originalMultiArcSolver_ = std::make_shared< MultiArcVariationalEquationsSolver< StateScalarType, TimeType > >(
                     bodies, originalPopagatorSettings_->getMultiArcPropagatorSettings( ),
-                    originalMultiArcParametersToEstimate_, false );
+                    originalMultiArcParametersToEstimate_, false, setDependentVariablesInterface_ );
 
         // Create variational equations solvers for single- and multi-arc
         singleArcSolver_ = std::make_shared< SingleArcVariationalEquationsSolver< StateScalarType, TimeType > >(
@@ -2160,11 +2177,11 @@ public:
 //                    false, false, true );
 //=======
                     bodies, originalPopagatorSettings_->getSingleArcPropagatorSettings( ),
-                    singleArcParametersToEstimate_, false );
+                    singleArcParametersToEstimate_, false, true, setDependentVariablesInterface_ );
 //>>>>>>> feature/consistent_propagation_settings
         multiArcSolver_ = std::make_shared< MultiArcVariationalEquationsSolver< StateScalarType, TimeType > >(
                     bodies, extendedMultiArcSettings,
-                    multiArcParametersToEstimate_, false );
+                    multiArcParametersToEstimate_, false, setDependentVariablesInterface_ );
 
         for( unsigned int i = 0; i < multiArcSolver_->getDynamicsStateDerivatives( ).size( ); i++ )
         {
@@ -2632,6 +2649,9 @@ protected:
     std::function< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >( const double ) >initialStatesFromSingleArcPropagation_;
 
     double singleArcInitialTime_;
+
+    //! Boolean denoting whether the dependent variables interface should be created.
+    bool setDependentVariablesInterface_;
 
 };
 
