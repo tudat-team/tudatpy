@@ -46,6 +46,7 @@ namespace unit_tests
 
 using namespace tudat::electromagnetism;
 using TargetPanel = PaneledRadiationPressureTargetModel::Panel;
+using SourcePanel = PaneledRadiationSourceModel::Panel;
 
 BOOST_AUTO_TEST_SUITE(test_radiation_pressure_acceleration)
 
@@ -109,7 +110,7 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_GOCE )
 }
 
 //! Test that acceleration of cannonball target with isotropic point source is invariant under rotation
-BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPoint_Cannonball_RotationInvariance )
+BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPointSource_CannonballTarget_RotationInvariance )
 {
     using mathematical_constants::PI;
 
@@ -153,10 +154,9 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPoint_Cannonbal
             [&] (Eigen::Vector3d const &e) { return e.isApprox(actualAccelerations.front()); }));
 }
 
-//! Test basic cases for paneled acceleration
-BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_Paneled_Basic )
+//! Test basic cases for paneled target acceleration with isotropic point source
+BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPointSource_PaneledTarget_Basic )
 {
-
     // Set distance to speed of light to cancel to unity radiation pressure
     auto luminosityModel = std::make_shared<IrradianceBasedLuminosityModel>(
             [](double) { return physical_constants::SPEED_OF_LIGHT; }, 1);
@@ -254,8 +254,8 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_Paneled_Basic )
     }
 }
 
-//! Test paneled radiation acceleration model for a spacecraft in various orbits with respect to the Sun.
-BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_Paneled_Realistic )
+//! Test radiation acceleration model for a paneled spacecraft in various orbits with respect to the Sun.
+BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_PaneledTarget_IsotropicPointSource_Realistic )
 {
     // Box-and-wings model is partially obtained from Oliver Montenbruck, et al.
     //     "Semi-analytical solar radiation pressure modeling for QZS-1 orbit-normal and yaw-steering attitude".
@@ -623,6 +623,56 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_Paneled_Realistic )
     }
 
 }
+
+//! Test basic case for paneled target acceleration with paneled source
+BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_PaneledSource_PaneledTarget_Basic )
+{
+    // Set distance to speed of light to cancel to unity radiation pressure
+    auto luminosityModel = std::make_shared<IrradianceBasedLuminosityModel>(
+            [](double) { return physical_constants::SPEED_OF_LIGHT; }, 1);
+    auto originalSourceModel = std::make_shared<IsotropicPointRadiationSourceModel>(luminosityModel);
+
+    // Source is a single panel pointing in +X with purely diffuse reflection
+    std::vector<SourcePanel> sourcePanels{SourcePanel(
+            2, Eigen::Vector3d::Zero(), Eigen::Vector3d::UnitX(), {
+                std::make_shared<AlbedoPanelRadiosityModel>(
+                    std::make_shared<LambertianReflectionLaw>(1.))})};
+    auto sourceModel = std::make_shared<StaticallyPaneledRadiationSourceModel>("", sourcePanels);
+
+    std::vector<TargetPanel> targetPanels{
+            TargetPanel(1, -Eigen::Vector3d::UnitX(),
+                        SpecularDiffuseMixReflectionLaw::fromAbsorptivityAndDiffuseReflectivity(1, 0)),
+            TargetPanel(3, Eigen::Vector3d::UnitX(), // never pointing towards source in these tests
+                        SpecularDiffuseMixReflectionLaw::fromAbsorptivityAndDiffuseReflectivity(0.3, 0.4))
+    };
+    auto targetModel = std::make_shared<PaneledRadiationPressureTargetModel>(targetPanels);
+
+    // Only panel 1 towards source
+    // Magnitude 2/pi because target area 1, source area 2, for target only absorption, pi due to diffuse albedo of source
+    const Eigen::Vector3d expectedAcceleration = 2 * Eigen::Vector3d::UnitX() / mathematical_constants::PI;
+    PaneledSourceRadiationPressureAcceleration accelerationModel(
+            sourceModel,
+            [] () { return Eigen::Vector3d::Zero(); },
+            [] () { return Eigen::Quaterniond::Identity(); },
+            targetModel,
+            [] () { return Eigen::Vector3d::UnitX(); },
+            [] () { return Eigen::Quaterniond::Identity(); },
+            [] () { return 1; },
+            originalSourceModel,
+            std::make_shared<basic_astrodynamics::SphericalBodyShapeModel>(1),
+            [] () { return Eigen::Vector3d::UnitX(); },
+            std::make_shared<NoOccultingBodyOccultationModel>());
+
+    originalSourceModel->updateMembers(TUDAT_NAN);
+    sourceModel->updateMembers(TUDAT_NAN);
+    targetModel->updateMembers(TUDAT_NAN);
+    accelerationModel.updateMembers(TUDAT_NAN);
+
+    const auto actualAcceleration = accelerationModel.getAcceleration();
+
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(actualAcceleration, expectedAcceleration, 1e-15);
+}
+
 
 BOOST_AUTO_TEST_SUITE_END()
 

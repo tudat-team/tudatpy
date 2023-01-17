@@ -60,6 +60,8 @@ Eigen::Vector3d IsotropicPointSourceRadiationPressureAcceleration::calculateAcce
 
 Eigen::Vector3d PaneledSourceRadiationPressureAcceleration::calculateAcceleration()
 {
+    // Could use class member to avoid allocation every call, but profiling shows allocation is by far
+    // dominated by algebraic operations
     Eigen::Vector3d sourceCenterPositionInGlobalFrame = sourcePositionFunction_(); // position of center of source (e.g. planet)
     Eigen::Quaterniond sourceRotationFromLocalToGlobalFrame = sourceRotationFromLocalToGlobalFrameFunction_();
     Eigen::Quaterniond sourceRotationFromGlobalToLocalFrame = sourceRotationFromLocalToGlobalFrame.inverse();
