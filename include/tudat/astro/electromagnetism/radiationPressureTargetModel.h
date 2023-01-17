@@ -67,7 +67,7 @@ public:
      * Constructor.
      *
      * @param area Cross-sectional area (i.e. projected area of the sphere)
-     * @param coefficient Radiation pressure coefficient (between 1 [absorption] and 2 [specular reflection])
+     * @param coefficient Radiation pressure coefficient (between 1 [pure absorption] and 2 [pure specular reflection])
      */
     CannonballRadiationPressureTargetModel(double area, double coefficient)
             : area_(area), coefficient_(coefficient) {}

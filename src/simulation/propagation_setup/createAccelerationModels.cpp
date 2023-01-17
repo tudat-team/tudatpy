@@ -990,6 +990,7 @@ createRadiationPressureAccelerationModel(
     std::string originalSourceName = "";
     if (paneledRadiationSourceModel != nullptr)
     {
+        // If originalSourceName is empty has already been checked in createRadiationSourceModel
         originalSourceName = paneledRadiationSourceModel->getOriginalSourceName();
     }
 
@@ -998,6 +999,7 @@ createRadiationPressureAccelerationModel(
     if (cannonballRadiationPressureTargetModel != nullptr) {
         // Cannonball target is rotation-invariant and can use identity rotation
         // Enables use of cannonball target without target body rotation model
+        // TODO-DOMINIK maybe move to RP acceleration subclass so that cannonball does not need target rotation, then move into if below
         targetRotationFromLocalToGlobalFrameFunction = [] () { return Eigen::Quaterniond::Identity(); };
     }
     else
