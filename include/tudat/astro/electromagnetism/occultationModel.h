@@ -14,7 +14,10 @@
 #ifndef TUDAT_OCCULTATIONMODEL_H
 #define TUDAT_OCCULTATIONMODEL_H
 
+#include <vector>
+
 #include <Eigen/Core>
+
 #include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/astro/basic_astro/bodyShapeModel.h"
 
@@ -84,8 +87,8 @@ private:
 class NoOccultingBodyOccultationModel : public OccultationModel
 {
 public:
-    explicit NoOccultingBodyOccultationModel(const std::vector<std::string>& occultingBodyNames) :
-            OccultationModel(occultingBodyNames) {}
+    explicit NoOccultingBodyOccultationModel() :
+            OccultationModel({}) {}
 
     double evaluateReceivedFraction(
             const Eigen::Vector3d& occultedSourcePosition,

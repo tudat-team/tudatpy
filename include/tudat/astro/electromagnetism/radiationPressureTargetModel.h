@@ -14,8 +14,9 @@
 #ifndef TUDAT_RADIATIONPRESSURETARGETMODEL_H
 #define TUDAT_RADIATIONPRESSURETARGETMODEL_H
 
-#include <vector>
+#include <map>
 #include <memory>
+#include <vector>
 
 #include <Eigen/Core>
 
@@ -36,6 +37,10 @@ namespace electromagnetism
 class RadiationPressureTargetModel
 {
 public:
+    explicit RadiationPressureTargetModel(
+        const std::map<std::string, std::vector<std::string>>& sourceToTargetOccultingBodies = {}) :
+        sourceToTargetOccultingBodies_(sourceToTargetOccultingBodies) {}
+
     virtual ~RadiationPressureTargetModel() = default;
 
     void updateMembers(double currentTime);
@@ -49,11 +54,18 @@ public:
      */
     virtual Eigen::Vector3d evaluateRadiationPressureForce(
             double sourceIrradiance, Eigen::Vector3d sourceToTargetDirection) const = 0;
+    
+    std::map<std::string, std::vector<std::string>> getSourceToTargetOccultingBodies() const
+    {
+        return sourceToTargetOccultingBodies_;
+    }
 
 protected:
     virtual void updateMembers_(const double currentTime) {};
 
     double currentTime_{TUDAT_NAN};
+    // Only needed to transfer occultation settings from body setup to acceleration setup
+    std::map<std::string, std::vector<std::string>> sourceToTargetOccultingBodies_;
 };
 
 /*!
@@ -68,9 +80,14 @@ public:
      *
      * @param area Cross-sectional area (i.e. projected area of the sphere)
      * @param coefficient Radiation pressure coefficient (between 1 [pure absorption] and 2 [pure specular reflection])
+     * @param sourceToTargetOccultingBodies Map (source name -> list of occulting body names) of bodies
+     *      to occult sources as seen from this target
      */
-    CannonballRadiationPressureTargetModel(double area, double coefficient)
-            : area_(area), coefficient_(coefficient) {}
+    CannonballRadiationPressureTargetModel(
+        double area, double coefficient,
+        const std::map<std::string, std::vector<std::string>>& sourceToTargetOccultingBodies = {}) :
+        RadiationPressureTargetModel(sourceToTargetOccultingBodies),
+        area_(area), coefficient_(coefficient) {}
 
     Eigen::Vector3d evaluateRadiationPressureForce(
             double sourceIrradiance,
@@ -99,13 +116,29 @@ class PaneledRadiationPressureTargetModel : public RadiationPressureTargetModel
 public:
     class Panel;
 
+    /*!
+     * Constructor.
+     *
+     * @param panels Panels comprising this paneled target
+     * @param sourceToTargetOccultingBodies Map (source name -> list of occulting body names) of bodies
+     *      to occult sources as seen from this target
+     */
     explicit PaneledRadiationPressureTargetModel(
-            const std::vector<Panel>& panels)
-            : panels_(panels) {}
+            const std::vector<Panel>& panels,
+            const std::map<std::string, std::vector<std::string>>& sourceToTargetOccultingBodies = {}) :
+            RadiationPressureTargetModel(sourceToTargetOccultingBodies), panels_(panels) {}
 
+    /*!
+     * Constructor.
+     *
+     * @param panels Panels comprising this paneled target
+     * @param sourceToTargetOccultingBodies Map (source name -> list of occulting body names) of bodies
+     *      to occult sources as seen from this target
+     */
     PaneledRadiationPressureTargetModel(
-            std::initializer_list<Panel> panels)
-            : panels_(panels) {}
+            std::initializer_list<Panel> panels,
+            const std::map<std::string, std::vector<std::string>>& sourceToTargetOccultingBodies = {}) :
+            RadiationPressureTargetModel(sourceToTargetOccultingBodies), panels_(panels) {}
 
     Eigen::Vector3d evaluateRadiationPressureForce(
             double sourceIrradiance,

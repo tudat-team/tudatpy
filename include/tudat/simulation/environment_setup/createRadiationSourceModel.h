@@ -374,15 +374,18 @@ public:
      * @param originalSourceName Name of the original source body
      * @param panelRadiosityModelSettings Vector of settings for radiosity model of all panels
      * @param numberOfPanels Number of panels for automatic source discretization
+     * @param originalSourceToSourceOccultingBodies Names of bodies to occult the original source as seen from this source
      */
     explicit StaticallyPaneledRadiationSourceModelSettings(
             const std::string& originalSourceName,
             const std::vector<std::shared_ptr<PanelRadiosityModelSettings>>& panelRadiosityModelSettings,
-            unsigned int numberOfPanels) :
+            unsigned int numberOfPanels,
+            const std::vector<std::string>& originalSourceToSourceOccultingBodies = {}) :
             RadiationSourceModelSettings(statically_paneled_source),
             originalSourceName_(originalSourceName),
             panelRadiosityModelSettings_(panelRadiosityModelSettings),
-            numberOfPanels_(numberOfPanels) {}
+            numberOfPanels_(numberOfPanels),
+            originalSourceToSourceOccultingBodies_(originalSourceToSourceOccultingBodies) {}
 
     std::string getOriginalSourceName() const
     {
@@ -399,10 +402,16 @@ public:
         return panelRadiosityModelSettings_;
     }
 
+    std::vector<std::string> getOriginalSourceToSourceOccultingBodies() const
+    {
+        return originalSourceToSourceOccultingBodies_;
+    }
+
 private:
     std::string originalSourceName_;
     std::vector<std::shared_ptr<PanelRadiosityModelSettings>> panelRadiosityModelSettings_;
     unsigned int numberOfPanels_;
+    std::vector<std::string> originalSourceToSourceOccultingBodies_;
 };
 
 // TODO-DOMINIK provide convenience functions for SH albedo/emissivity distributions
@@ -459,18 +468,20 @@ angleBasedThermalPanelRadiosityModelSettings(double minTemperature,
  * @param originalSourceName Name of the original source body
  * @param panelRadiosityModels List of settings for radiosity models of all panels
  * @param numberOfPanels Number of panels for automatic source discretization
+ * @param originalSourceToSourceOccultingBodies Names of bodies to occult the original source as seen from this source
  * @return Shared pointer to settings for a statically paneled radiation source model
  */
 inline std::shared_ptr<StaticallyPaneledRadiationSourceModelSettings>
 staticallyPaneledRadiationSourceModelSettings(
         const std::string& originalSourceName,
         std::initializer_list<std::shared_ptr<PanelRadiosityModelSettings>> panelRadiosityModels,
-        int numberOfPanels)
+        int numberOfPanels,
+        const std::vector<std::string>& originalSourceToSourceOccultingBodies = {})
 {
     return std::make_shared< StaticallyPaneledRadiationSourceModelSettings >(
             originalSourceName,
             std::vector<std::shared_ptr<PanelRadiosityModelSettings>>(panelRadiosityModels),
-            numberOfPanels);
+            numberOfPanels, originalSourceToSourceOccultingBodies);
 }
 
 /*!
@@ -481,7 +492,7 @@ staticallyPaneledRadiationSourceModelSettings(
  * @return Shared pointer to luminosity model
  */
 std::shared_ptr<electromagnetism::LuminosityModel> createLuminosityModel(
-        const std::shared_ptr< LuminosityModelSettings >& modelSettings,
+        const std::shared_ptr<LuminosityModelSettings>& modelSettings,
         const std::string& body);
 
 /*!
@@ -493,7 +504,7 @@ std::shared_ptr<electromagnetism::LuminosityModel> createLuminosityModel(
  */
 std::function<std::shared_ptr<electromagnetism::PaneledRadiationSourceModel::PanelRadiosityModel>(double, double)>
         createPanelRadiosityModel(
-        const std::shared_ptr< PanelRadiosityModelSettings >& modelSettings,
+        const std::shared_ptr<PanelRadiosityModelSettings>& modelSettings,
         const std::string& body);
 
 /*!
@@ -505,7 +516,7 @@ std::function<std::shared_ptr<electromagnetism::PaneledRadiationSourceModel::Pan
  * @return Shared pointer to radiation source model
  */
 std::shared_ptr<electromagnetism::RadiationSourceModel> createRadiationSourceModel(
-        const std::shared_ptr< RadiationSourceModelSettings >& modelSettings,
+        const std::shared_ptr<RadiationSourceModelSettings >& modelSettings,
         const std::string& body,
         const SystemOfBodies& bodies);
 
