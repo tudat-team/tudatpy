@@ -1490,17 +1490,20 @@ private:
         sensitivityMatrixInterpolators.resize( variationalPropagationResults_->getSingleArcResults( ).size( ) );
 
         // Create interpolators.
-        arcEndTimes_.resize( variationalPropagationResults_->getSingleArcResults( ).size( ) );
+        std::vector< double > arcStartTimesToUse;
+        std::vector< double > arcEndTimesToUse;
+
         for( unsigned int i = 0; i < variationalPropagationResults_->getSingleArcResults( ).size( ); i++ )
         {
-            // TODO: why invert the arc end times?
             if( dynamicsSimulator_->getSingleArcDynamicsSimulators( ).at( i )->getIntegratorSettings( )->initialTimeStep_ > 0.0 )
             {
-                arcEndTimes_[ i ] = variationalPropagationResults_->getSingleArcResults( ).at( i )->getStateTransitionSolution( ).rbegin( )->first;
+                arcStartTimesToUse.push_back( dynamicsSimulator_->getArcStartTimes( ).at( i ) );
+                arcEndTimesToUse.push_back( dynamicsSimulator_->getArcEndTimes( ).at( i ) );
             }
             else
             {
-                arcEndTimes_[ i ] = variationalPropagationResults_->getSingleArcResults( ).at( i )->getStateTransitionSolution( ).begin( )->first;
+                arcStartTimesToUse.push_back( dynamicsSimulator_->getArcEndTimes( ).at( i ) );
+                arcEndTimesToUse.push_back( dynamicsSimulator_->getArcStartTimes( ).at( i ) );
             }
 
             try
@@ -1528,8 +1531,8 @@ private:
         {
             stateTransitionInterface_ = std::make_shared< MultiArcCombinedStateTransitionAndSensitivityMatrixInterface< StateScalarType > >(
                         stateTransitionMatrixInterpolators, sensitivityMatrixInterpolators,
-                        dynamicsSimulator_->getArcStartTimes( ),
-                        arcEndTimes_,
+                        arcStartTimesToUse,
+                        arcEndTimesToUse,
                         parametersToEstimate_,
                         propagatorSettings_->getSingleArcSettings( ).at( 0 )->getConventionalStateSize( ),
                         parametersToEstimate_->getParameterSetSize( ), getArcWiseStatePartialAdditionIndices( ) );
@@ -1539,7 +1542,8 @@ private:
             std::dynamic_pointer_cast< MultiArcCombinedStateTransitionAndSensitivityMatrixInterface< StateScalarType > >(
                         stateTransitionInterface_ )->updateMatrixInterpolators(
                         stateTransitionMatrixInterpolators, sensitivityMatrixInterpolators,
-                        dynamicsSimulator_->getArcStartTimes( ), arcEndTimes_, getArcWiseStatePartialAdditionIndices( ) );
+                        arcStartTimesToUse,
+                        arcEndTimesToUse, getArcWiseStatePartialAdditionIndices( ) );
         }
     }
 
@@ -1569,7 +1573,7 @@ private:
 //    //! List of start times of each arc. NOTE: This list is updated after every propagation.
 //    std::vector< double > arcStartTimes_;
 
-    std::vector< double > arcEndTimes_;
+//    std::vector< double > arcEndTimes_;
 
     //! Settings for propagation of equations of motion.
     std::shared_ptr< MultiArcPropagatorSettings< StateScalarType, TimeType > > propagatorSettings_;

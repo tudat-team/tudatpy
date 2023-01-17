@@ -1075,7 +1075,7 @@ public:
         {
             propagationResults_->clearSolutionMaps( );
         }
-        propagationResults_->processDependentVariableData( );
+        propagationResults_->updateDependentVariableInterface( );
     }
 
     void suppressDependentVariableDataPrinting( )
@@ -1684,7 +1684,8 @@ public:
             propagationResults_ = std::make_shared<MultiArcResults>( singleArcResults, dependentVariableInterface );
 
             // Integrate equations of motion if required.
-            if ( areEquationsOfMotionToBeIntegrated ) {
+            if ( areEquationsOfMotionToBeIntegrated )
+            {
                 integrateEquationsOfMotion( multiArcPropagatorSettings_->getInitialStates( ));
             }
         }
@@ -1942,7 +1943,7 @@ public:
         }
 
         // Reset dependent variables interface
-        updateMultiArcDependentVariablesInterface( );
+        propagationResults_->updateDependentVariableInterface( );
 
     }
 
@@ -1988,6 +1989,11 @@ public:
     std::vector< double > getArcStartTimes( )
     {
         return propagationResults_->getArcStartTimes( );
+    }
+
+    std::vector< double > getArcEndTimes( )
+    {
+        return propagationResults_->getArcEndTimes( );
     }
 
 
@@ -2067,39 +2073,6 @@ public:
 //////////////// END DEPRECATED ///////////////////
 ///////////////////////////////////////////////////
 
-    void updateMultiArcDependentVariablesInterface( )
-    {
-//        if ( setDependentVariablesInterface_ )
-//        {
-//            std::vector< std::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, Eigen::VectorXd > > > dependentVariablesInterpolators;
-//            for ( unsigned int i = 0 ; i < arcStartTimes_.size( ) ; i++ )
-//            {
-//                if ( multiArcPropagatorSettings_->getSingleArcSettings( ).at( i )->getDependentVariablesToSave( ).size( ) > 0 )
-//                {
-//                    std::shared_ptr< interpolators::LagrangeInterpolator< TimeType, Eigen::VectorXd > > dependentVariablesInterpolator =
-//                            std::make_shared< interpolators::LagrangeInterpolator< TimeType, Eigen::VectorXd > >(
-//                                    utilities::createVectorFromMapKeys< Eigen::VectorXd, TimeType >( dependentVariableHistory_.at( i ) ),
-//                                    utilities::createVectorFromMapValues< Eigen::VectorXd, TimeType >( dependentVariableHistory_.at( i ) ), 8 );
-//                    dependentVariablesInterpolators.push_back( dependentVariablesInterpolator );
-//                }
-//                else
-//                {
-//                    dependentVariablesInterpolators.push_back( std::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, Eigen::VectorXd > >( ) );
-//                }
-//            }
-//
-//            // Update arc end times
-//            arcEndTimes_.clear( );
-//            for ( unsigned int i = 0 ; i < arcStartTimes_.size( ) - 1 ; i++ )
-//            {
-//                arcEndTimes_.push_back( arcStartTimes_.at( i+1 ) );
-//            }
-//            arcEndTimes_.push_back( std::numeric_limits< double >::infinity( ) );
-//
-//            std::dynamic_pointer_cast< MultiArcDependentVariablesInterface< TimeType > >( dependentVariablesInterface_ )->updateDependentVariablesInterpolators(
-//                    dependentVariablesInterpolators, arcStartTimes_, arcEndTimes_ );
-//        }
-    }
 
 protected:
 
@@ -2233,7 +2206,8 @@ public:
                         false );
             propagationResults_ = std::make_shared< HybridArcResults >(
                     singleArcDynamicsSimulator_->getSingleArcPropagationResults( ),
-                    multiArcDynamicsSimulator_->getMultiArcPropagationResults( ) );
+                    multiArcDynamicsSimulator_->getMultiArcPropagationResults( ),
+                    hybridPropagatorSettings_->getOutputSettings( )->getCreateDependentVariablesInterface( ) );
         }
         else
         {
@@ -2314,13 +2288,6 @@ public:
         multiArcDynamicsSimulator_->integrateEquationsOfMotion(
                     initialGlobalStates.block( singleArcDynamicsSize_, 0, multiArcDynamicsSize_, 1 ) );
         printPostPropagationMessages( );
-
-//        if ( setDependentVariablesInterface_ )
-//        {
-//            dependentVariablesInterface_ = std::make_shared< HybridArcDependentVariablesInterface< TimeType > >(
-//                    std::dynamic_pointer_cast< SingleArcDependentVariablesInterface< TimeType > >( singleArcDynamicsSimulator_->getDependentVariablesInterface( ) ),
-//                    std::dynamic_pointer_cast< MultiArcDependentVariablesInterface< TimeType > >( multiArcDynamicsSimulator_->getDependentVariablesInterface( ) ) );
-//        }
     }
 
     //! This function updates the environment with the numerical solution of the propagation
@@ -2333,6 +2300,7 @@ public:
     {
         singleArcDynamicsSimulator_->processNumericalEquationsOfMotionSolution( );
         multiArcDynamicsSimulator_->processNumericalEquationsOfMotionSolution( );
+        propagationResults_->updateDependentVariableInterface( );
     }
 
     //! Function to retrieve the single-arc dynamics simulator
