@@ -81,4 +81,6 @@ TUDAT_ADD_TEST_CASE(HybridArcVariationalEquations PRIVATE_LINKS ${Tudat_ESTIMATI
 
 TUDAT_ADD_TEST_CASE(DependentVariableOutput PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
 
+TUDAT_ADD_TEST_CASE(DependentVariablesInterface PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
+
 endif( )

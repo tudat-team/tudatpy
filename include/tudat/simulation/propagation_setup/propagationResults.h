@@ -10,6 +10,7 @@
 
 #include "tudat/simulation/propagation_setup/propagationProcessingSettings.h"
 #include "tudat/simulation/propagation_setup/propagationTermination.h"
+#include "tudat/simulation/propagation_setup/dependentVariablesInterface.h"
 
 namespace tudat
 {
@@ -43,6 +44,8 @@ namespace tudat
             virtual ~SimulationResults( ) 
             {}
 
+            virtual std::shared_ptr< DependentVariablesInterface< TimeType > > getDependentVariablesInterface( ) = 0;
+
         };
 
 
@@ -72,19 +75,30 @@ namespace tudat
                                        const std::map< IntegratedStateType, std::vector< std::tuple< std::string, std::string, PropagatorType > > > integratedStateAndBodyList,
                                        const std::shared_ptr <SingleArcPropagatorProcessingSettings> &outputSettings,
                                        const std::function< void ( std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >&,
-                                                                   const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& ) > rawSolutionConversionFunction ) :
+                                                                   const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& ) > rawSolutionConversionFunction,
+                                       const std::shared_ptr< SingleArcDependentVariablesInterface< TimeType > > dependentVariableInterface = nullptr ) :
                     SimulationResults<StateScalarType, TimeType>(),
                     dependentVariableIds_(dependentVariableIds),
                     processedStateIds_(getProcessedStateStrings( integratedStateAndBodyList ) ),
                     propagatedStateIds_( getPropagatedStateStrings( integratedStateAndBodyList ) ),
                     integratedStateAndBodyList_( integratedStateAndBodyList ),
                     outputSettings_(outputSettings),
+                    dependentVariableInterface_( dependentVariableInterface ),
                     rawSolutionConversionFunction_( rawSolutionConversionFunction ),
                     propagationIsPerformed_(false),
                     solutionIsCleared_( false ),
                     onlyProcessedSolutionSet_( false ),
                     propagationTerminationReason_(
-                            std::make_shared<PropagationTerminationDetails>(propagation_never_run)) {
+                            std::make_shared<PropagationTerminationDetails>(propagation_never_run))
+            {
+                if( outputSettings->getCreateDependentVariablesInterface( ) && ( dependentVariableInterface == nullptr ) )
+                {
+                    throw std::runtime_error( "Error, inconsistent dependent variable settings interface input (pointer is null) for single-arc results" );
+                }
+                else if( !outputSettings->getCreateDependentVariablesInterface( ) && ( dependentVariableInterface != nullptr ) )
+                {
+                    throw std::runtime_error( "Error, inconsistent dependent variable settings interface input (pointer is not null) for single-arc results" );
+                }
             }
 
             //! Function that resets the state of this object, typically to signal that a new propagation is to be performed.
@@ -286,6 +300,29 @@ namespace tudat
                 return areEqual;
             }
 
+            void processDependentVariableData( )
+            {
+                if( dependentVariableHistory_.size( ) > 0 && dependentVariableInterface_ != nullptr )
+                {
+                    std::shared_ptr< interpolators::LagrangeInterpolator< TimeType, Eigen::VectorXd > > dependentVariablesInterpolator =
+                            std::make_shared< interpolators::LagrangeInterpolator< TimeType, Eigen::VectorXd > >(
+                                    utilities::createVectorFromMapKeys< Eigen::VectorXd, TimeType >( dependentVariableHistory_ ),
+                                    utilities::createVectorFromMapValues< Eigen::VectorXd, TimeType >( dependentVariableHistory_ ), 8 );
+                    dependentVariableInterface_->updateDependentVariablesInterpolator( dependentVariablesInterpolator );
+                }
+            }
+
+            std::shared_ptr< SingleArcDependentVariablesInterface< TimeType > > getSingleArcDependentVariablesInterface( )
+            {
+                return dependentVariableInterface_;
+            }
+
+            std::shared_ptr< DependentVariablesInterface< TimeType > > getDependentVariablesInterface( )
+            {
+                return getSingleArcDependentVariablesInterface( );
+            }
+
+
         private:
 
             //! Map of state history of numerically integrated bodies.
@@ -325,6 +362,8 @@ namespace tudat
             std::map< IntegratedStateType, std::vector< std::tuple< std::string, std::string, PropagatorType > > > integratedStateAndBodyList_;
 
             std::shared_ptr <SingleArcPropagatorProcessingSettings> outputSettings_;
+
+            std::shared_ptr< SingleArcDependentVariablesInterface< TimeType > > dependentVariableInterface_;
 
             //! Function to convert the propagated solution to conventional solution (see DynamicsStateDerivativeModel::convertToOutputSolution)
             const std::function< void ( std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >&,
@@ -444,6 +483,12 @@ namespace tudat
                 return sensitivityMatrixSize_;
             }
 
+            std::shared_ptr< DependentVariablesInterface< TimeType > > getDependentVariablesInterface( )
+            {
+                return singleArcDynamicsResults_->getDependentVariablesInterface( );
+            }
+
+
         protected:
             const std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType > > singleArcDynamicsResults_;
 
@@ -502,8 +547,10 @@ namespace tudat
             using single_arc_type = SingleArcResults< StateScalarType, TimeType >;
 
             MultiArcSimulationResults(
-                    const std::vector< std::shared_ptr< SingleArcResults< StateScalarType, TimeType > > > singleArcResults ):
-                    singleArcResults_( singleArcResults ), propagationIsPerformed_( false ), solutionIsCleared_( false ){ }
+                    const std::vector< std::shared_ptr< SingleArcResults< StateScalarType, TimeType > > > singleArcResults,
+                    const std::shared_ptr< MultiArcDependentVariablesInterface< TimeType > > dependentVariableInterface = nullptr ):
+                    singleArcResults_( singleArcResults ), propagationIsPerformed_( false ), solutionIsCleared_( false ),
+                    dependentVariableInterface_( dependentVariableInterface ){ }
 
             ~MultiArcSimulationResults( ) 
             {}
@@ -664,6 +711,16 @@ namespace tudat
                 return concatenatedResults;
             }
 
+            std::shared_ptr< MultiArcDependentVariablesInterface< TimeType > > getMultiArcDependentVariablesInterface( )
+            {
+                return dependentVariableInterface_;
+            }
+
+            std::shared_ptr< DependentVariablesInterface< TimeType > > getDependentVariablesInterface( )
+            {
+                return getMultiArcDependentVariablesInterface( );
+            }
+
         private:
             const std::vector< std::shared_ptr< SingleArcResults< StateScalarType, TimeType > > > singleArcResults_;
 
@@ -673,6 +730,9 @@ namespace tudat
 
             //! List of start times of each arc. NOTE: This list is updated after every propagation.
             std::vector< double > arcStartTimes_;
+
+            std::shared_ptr< MultiArcDependentVariablesInterface< TimeType > > dependentVariableInterface_;
+
 
         };
 
@@ -759,11 +819,22 @@ namespace tudat
                 }
                 return concatenatedResults;
             }
-            
+
+            std::shared_ptr< HybridArcDependentVariablesInterface< TimeType > > getHybridArcDependentVariablesInterface( )
+            {
+                return dependentVariableInterface_;
+            }
+
+            std::shared_ptr< DependentVariablesInterface< TimeType > > getDependentVariablesInterface( )
+            {
+                return getHybridArcDependentVariablesInterface( );
+            }
         protected:
             std::shared_ptr< SingleArcResults< StateScalarType, TimeType > > singleArcResults_;
 
             std::shared_ptr< MultiArcSimulationResults< SingleArcResults, StateScalarType, TimeType > > multiArcResults_;
+
+            std::shared_ptr< HybridArcDependentVariablesInterface< TimeType > > dependentVariableInterface_;
         };
 
     }
