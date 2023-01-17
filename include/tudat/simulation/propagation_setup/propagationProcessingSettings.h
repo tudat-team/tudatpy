@@ -54,6 +54,11 @@ public:
         return setIntegratedResult_;
     }
 
+    bool getCreateDependentVariablesInterface( )
+    {
+        return createDependentVariablesInterface_;
+    }
+
     virtual void setClearNumericalSolutions( const bool clearNumericalSolutions )
     {
         clearNumericalSolutions_ = clearNumericalSolutions;
@@ -62,6 +67,11 @@ public:
     virtual void setIntegratedResult( const bool setIntegratedResult )
     {
         setIntegratedResult_ = setIntegratedResult;
+    }
+
+    virtual void setCreateDependentVariablesInterface( const bool createDependentVariablesInterface )
+    {
+         createDependentVariablesInterface_ = createDependentVariablesInterface;
     }
 
     virtual bool printAnyOutput( ) = 0;
@@ -74,6 +84,7 @@ protected:
 
     bool clearNumericalSolutions_;
     bool setIntegratedResult_;
+    bool createDependentVariablesInterface_;
 };
 
 //! Base class for defining output and processing settings for single-arc propagation.

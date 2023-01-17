@@ -757,7 +757,7 @@ public:
         VariationalEquationsSolver< StateScalarType, TimeType >(
             bodies, parametersToEstimate, propagatorSettings != nullptr ?
                 propagatorSettings->getOutputSettingsWithCheck( )->getClearNumericalSolutions( ) : false ),
-        propagatorSettings_( std::dynamic_pointer_cast< SingleArcPropagatorSettings< StateScalarType, TimeType > >(propagatorSettings ) )
+        propagatorSettings_( std::dynamic_pointer_cast< SingleArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ) )
     {
         // Check input consistency
         if( std::dynamic_pointer_cast< SingleArcPropagatorSettings< StateScalarType, TimeType >  >( propagatorSettings ) == nullptr )
@@ -829,11 +829,12 @@ public:
             const bool clearNumericalSolution = true,
             const bool integrateEquationsOnCreation = true,
             const bool setIntegratedResult = true,
-            const bool printDependentVariableData = false):
+            const bool printDependentVariableData = true,
+            const bool setDependentVariablesInterface = false ):
         SingleArcVariationalEquationsSolver( bodies,validateDeprecatedSingleArcSettings(
                                                  integratorSettings, propagatorSettings,
                                                  clearNumericalSolution, setIntegratedResult, false,
-                                                 printDependentVariableData, false ), parametersToEstimate,
+                                                 printDependentVariableData, false, setDependentVariablesInterface ), parametersToEstimate,
                                              integrateDynamicalAndVariationalEquationsConcurrently, integrateEquationsOnCreation ){ }
 
     //! Destructor
@@ -1190,6 +1191,7 @@ public:
 
         dynamicsSimulator_ =  std::make_shared< MultiArcDynamicsSimulator< StateScalarType, TimeType > >(
                     bodies, propagatorSettings, false );
+
         std::vector< std::shared_ptr< SingleArcDynamicsSimulator< StateScalarType, TimeType > > > singleArcDynamicsSimulators =
                 dynamicsSimulator_->getSingleArcDynamicsSimulators( );
 
@@ -1241,10 +1243,11 @@ public:
             std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ),
             const bool clearNumericalSolution = true,
             const bool integrateEquationsOnCreation = false,
-            const bool resetMultiArcDynamicsAfterPropagation = true ):
+            const bool resetMultiArcDynamicsAfterPropagation = true,
+            const bool setDependentVariablesInterface = false ):
         MultiArcVariationalEquationsSolver( bodies, validateDeprecatedMultiArcSettings(
                                         integratorSettings, propagatorSettings, arcStartTimes,
-                                        clearNumericalSolution, resetMultiArcDynamicsAfterPropagation ),
+                                        clearNumericalSolution, resetMultiArcDynamicsAfterPropagation, setDependentVariablesInterface ),
                                             parametersToEstimate,
                                     integrateEquationsOnCreation ){ }
 
@@ -1630,15 +1633,13 @@ public:
             const simulation_setup::SystemOfBodies& bodies,
             const std::shared_ptr< HybridArcPropagatorSettings< StateScalarType, TimeType > > propagatorSettings,
             const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate,
-            const bool integrateEquationsOnCreation = false,
-            const bool integrateDynamicalAndVariationalEquationsConcurrently = true ):
+            const bool integrateEquationsOnCreation = false ):
         VariationalEquationsSolver< StateScalarType, TimeType >(
             bodies, parametersToEstimate, propagatorSettings != nullptr ?
-                propagatorSettings->getOutputSettingsWithCheck( )->getClearNumericalSolutions( ) : false  )
+                propagatorSettings->getOutputSettingsWithCheck( )->getClearNumericalSolutions( ) : false )
     {
-//        propagatorSettings->getOutputSettingsWithCheck( )->setIntegratedResult( false );
         initializeHybridArcVariationalEquationsSolver(
-                    bodies, propagatorSettings, true, integrateEquationsOnCreation );
+                    bodies, propagatorSettings, integrateEquationsOnCreation );
     }
 
     //! Constructor
@@ -1664,11 +1665,12 @@ public:
             const std::vector< double > arcStartTimes,
             const bool integrateDynamicalAndVariationalEquationsConcurrently = true,
             const bool clearNumericalSolution = false,
-            const bool integrateEquationsOnCreation = false ):
+            const bool integrateEquationsOnCreation = false,
+            const bool setDependentVariablesInterface = false ):
         HybridArcVariationalEquationsSolver< StateScalarType, TimeType >(
             bodies,  validateDeprecatedHybridArcSettings< StateScalarType, TimeType >(
-                integratorSettings,  propagatorSettings,  arcStartTimes, clearNumericalSolution, true ),
-            parametersToEstimate, integrateEquationsOnCreation, integrateDynamicalAndVariationalEquationsConcurrently ){ }
+                integratorSettings,  propagatorSettings,  arcStartTimes, clearNumericalSolution, true, setDependentVariablesInterface ),
+            parametersToEstimate, integrateEquationsOnCreation ){ }
 
     HybridArcVariationalEquationsSolver(
             const simulation_setup::SystemOfBodies& bodies,
@@ -1679,16 +1681,16 @@ public:
             const std::vector< double > arcStartTimes,
             const bool integrateDynamicalAndVariationalEquationsConcurrently = true,
             const bool clearNumericalSolution = false,
-            const bool integrateEquationsOnCreation = false ):
+            const bool integrateEquationsOnCreation = false,
+            const bool setDependentVariablesInterface = false ):
         HybridArcVariationalEquationsSolver< StateScalarType, TimeType >(
             bodies, validateDeprecatedHybridArcSettings< StateScalarType, TimeType >(
-                singleArcIntegratorSettings,  multiArcIntegratorSettings, propagatorSettings,  arcStartTimes, clearNumericalSolution, true ),
-            parametersToEstimate, integrateEquationsOnCreation, integrateDynamicalAndVariationalEquationsConcurrently ){ }
+                singleArcIntegratorSettings,  multiArcIntegratorSettings, propagatorSettings,  arcStartTimes, clearNumericalSolution, true, setDependentVariablesInterface ),
+            parametersToEstimate, integrateEquationsOnCreation ){ }
 
     void initializeHybridArcVariationalEquationsSolver(
             const simulation_setup::SystemOfBodies& bodies,
             const std::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
-            const bool integrateDynamicalAndVariationalEquationsConcurrently,
             const bool integrateEquationsOnCreation )
     {
         // Cast propagator settings to correct type and check validity
@@ -1758,6 +1760,7 @@ public:
                         propagatorSettings_->getSingleArcPropagatorSettings( )->getPropagatedStateSize( ) );
         }
 
+
         // Create function to retrieve single-arc initial states for extended multi-arc
         std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType, TimeType > > singleArcPropagationSettings =
                 std::dynamic_pointer_cast< TranslationalStatePropagatorSettings< StateScalarType, TimeType > >(
@@ -1780,14 +1783,7 @@ public:
         // Propagate dynamical equations if requested
         if( integrateEquationsOnCreation )
         {
-            if( integrateDynamicalAndVariationalEquationsConcurrently )
-            {
-                integrateVariationalAndDynamicalEquations( propagatorSettings_->getInitialStates( ) , 1 );
-            }
-            else
-            {
-                integrateVariationalAndDynamicalEquations( propagatorSettings_->getInitialStates( ), 0 );
-            }
+            integrateVariationalAndDynamicalEquations( propagatorSettings_->getInitialStates( ) , 1 );
         }
     }
 
@@ -2189,6 +2185,7 @@ protected:
     std::function< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >( const double ) >initialStatesFromSingleArcPropagation_;
 
     double singleArcInitialTime_;
+
 
 };
 

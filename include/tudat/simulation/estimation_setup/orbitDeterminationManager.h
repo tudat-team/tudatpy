@@ -23,6 +23,7 @@
 #include "tudat/simulation/estimation_setup/variationalEquationsSolver.h"
 #include "tudat/simulation/estimation_setup/createObservationManager.h"
 #include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
+#include "tudat/simulation/propagation_setup/dependentVariablesInterface.h"
 
 namespace tudat
 {
@@ -1002,6 +1003,7 @@ protected:
             integrateAndEstimateOrbit_ = false;
         }
 
+        propagatorSettings->getOutputSettingsBase( )->setCreateDependentVariablesInterface( true );
         if( integrateAndEstimateOrbit_ )
         {
             variationalEquationsSolver_ =
@@ -1023,6 +1025,13 @@ protected:
             throw std::runtime_error( "Error, cannot parse propagator settings without estimating dynamics in OrbitDeterminationManager" );
         }
 
+        // TODO correct this when moving dependent variable interface into results object
+        if( std::dynamic_pointer_cast< propagators::HybridArcVariationalEquationsSolver< ObservationScalarType, TimeType > >( variationalEquationsSolver_ ) == nullptr )
+        {
+            dependentVariablesInterface_ = variationalEquationsSolver_->getDynamicsSimulatorBase( )->getDependentVariablesInterface( );
+        }
+
+
         // Iterate over all observables and create observation managers.
         std::map< ObservableType, std::vector< std::shared_ptr< ObservationModelSettings > > > sortedObservationSettingsList =
                 sortObservationModelSettingsByType( observationSettingsList );
@@ -1037,7 +1046,7 @@ protected:
                         observableType,
                         it.second,
                         bodies, parametersToEstimate_,
-                        stateTransitionAndSensitivityMatrixInterface_ );
+                        stateTransitionAndSensitivityMatrixInterface_, dependentVariablesInterface_ );
         }
 
         // Set current parameter estimate from body initial states and parameter set.
@@ -1096,6 +1105,9 @@ protected:
     //! Object used to interpolate the numerically integrated result of the state transition/sensitivity matrices.
     std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface >
     stateTransitionAndSensitivityMatrixInterface_;
+
+    //! Object used to interpolate the numerically integrated result of the dependent variables.
+    std::shared_ptr< propagators::DependentVariablesInterface< TimeType > > dependentVariablesInterface_;
 
 };
 
