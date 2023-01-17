@@ -69,7 +69,9 @@ enum EstimatebleParametersEnum
     constant_thrust_magnitude_parameter,
     constant_specific_impulse,
     constant_time_drift_observation_bias,
-    arc_wise_time_drift_observation_bias
+    arc_wise_time_drift_observation_bias,
+    constant_time_observation_bias,
+    arc_wise_time_observation_bias
 };
 
 std::string getParameterTypeString( const EstimatebleParametersEnum parameterType );
@@ -106,6 +108,14 @@ bool isParameterRotationMatrixProperty( const EstimatebleParametersEnum paramete
  * \return True if parameter is a property of an observation link
  */
 bool isParameterObservationLinkProperty( const EstimatebleParametersEnum parameterType );
+
+//! Function to determine whether the given parameter influences an observation time directly
+/*!
+ * Function to determine whether the given parameter influences an observation time directly, such as clock parameters
+ * \param parameterType Parameter identifier.
+ * \return True if parameter is a time property of an observation link
+ */
+bool isParameterObservationLinkTimeProperty( const EstimatebleParametersEnum parameterType );
 
 //! Function to determine whether the given parameter influences a body's tidal gravity field variations.
 /*!
