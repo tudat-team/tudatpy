@@ -216,8 +216,8 @@ namespace tudat
             double getTotalComputationRuntime( )
             {
                 checkAvailabilityOfSolution( "cumulative computation time history" );
-                return std::fabs( cumulativeComputationTimeHistory_.begin( )->second -
-                                  cumulativeComputationTimeHistory_.rbegin( )->second );
+                return std::max( cumulativeComputationTimeHistory_.begin( )->second,
+                                 cumulativeComputationTimeHistory_.rbegin( )->second );
             }
 
             std::map<TimeType, unsigned int> &getCumulativeNumberOfFunctionEvaluations( ) 
@@ -809,6 +809,16 @@ namespace tudat
 
             ~HybridArcSimulationResults( ) 
             {}
+
+            std::shared_ptr< SingleArcResults< StateScalarType, TimeType > > getSingleArcResults( )
+            {
+                return singleArcResults_;
+            }
+
+            std::shared_ptr< MultiArcSimulationResults< SingleArcResults, StateScalarType, TimeType > > getMultiArcResults( )
+            {
+                return multiArcResults_;
+            }
 
             bool integrationCompletedSuccessfully() const
             {

@@ -159,7 +159,7 @@ BOOST_AUTO_TEST_CASE( testUnifiedStateModelPopagatorForPointMassCentralBodies )
                 std::make_shared< TranslationalStatePropagatorSettings< double > >
                 ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, initialEphemerisTime,
                   integratorSettings, std::make_shared< PropagationTimeTerminationSettings >( finalEphemerisTime ) );
-        propagatorSettings->getOutputSettings()->getPrintSettings()->setPrintStateData( true );
+        propagatorSettings->getOutputSettings()->getPrintSettings()->setPrintPropagatedStateData( true );
         propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
 
         // Propagate orbit with Cowell method
@@ -209,7 +209,7 @@ BOOST_AUTO_TEST_CASE( testUnifiedStateModelPopagatorForPointMassCentralBodies )
                 ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, initialEphemerisTime,
                   integratorSettings, std::make_shared< PropagationTimeTerminationSettings >( finalEphemerisTime ),
                   translationalPropagatorType );
-        propagatorSettings->getOutputSettings()->getPrintSettings()->setPrintStateData( true );
+        propagatorSettings->getOutputSettings()->getPrintSettings()->setPrintPropagatedStateData( true );
         propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
         // Propagate orbit with USM EOM
         SingleArcDynamicsSimulator< double > dynamicsSimulator(

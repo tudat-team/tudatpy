@@ -42,37 +42,35 @@ std::shared_ptr< propagators::SingleArcDynamicsSimulator< StateScalarType, TimeT
         const std::shared_ptr< propagators::PropagatorSettings< StateScalarType > > propagatorSettings,
         const bool areEquationsOfMotionToBeIntegrated = true,
         const bool clearNumericalSolutions = true,
-        const bool setIntegratedResult = true,
-        const bool setDependentVariablesInterface = false )
+        const bool setIntegratedResult = true )
 {
     return std::make_shared< propagators::SingleArcDynamicsSimulator< StateScalarType, TimeType > >(
-                bodies,propagatorSettings, areEquationsOfMotionToBeIntegrated, propagators::PredefinedSingleArcStateDerivativeModels< StateScalarType, TimeType >( ), setDependentVariablesInterface );
+                bodies,propagatorSettings, areEquationsOfMotionToBeIntegrated, propagators::PredefinedSingleArcStateDerivativeModels< StateScalarType, TimeType >( ) );
 }
 
 template< typename StateScalarType = double, typename TimeType = double >
 std::shared_ptr< propagators::DynamicsSimulator< StateScalarType, TimeType > > createDynamicsSimulator(
         const  simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< propagators::PropagatorSettings< StateScalarType > > propagatorSettings,
-        const bool areEquationsOfMotionToBeIntegrated = true,
-        const bool setDependentVariablesInterface = false )
+        const bool areEquationsOfMotionToBeIntegrated = true )
 {
     if( std::dynamic_pointer_cast< propagators::SingleArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ) != nullptr )
     {
         return std::make_shared< propagators::SingleArcDynamicsSimulator< StateScalarType, TimeType > >(
                     bodies, std::dynamic_pointer_cast< propagators::SingleArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ),
-                    areEquationsOfMotionToBeIntegrated, propagators::PredefinedSingleArcStateDerivativeModels< StateScalarType, TimeType >( ), setDependentVariablesInterface );
+                    areEquationsOfMotionToBeIntegrated, propagators::PredefinedSingleArcStateDerivativeModels< StateScalarType, TimeType >( ) );
     }
     else if( std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ) != nullptr )
     {
         return std::make_shared< propagators::MultiArcDynamicsSimulator< StateScalarType, TimeType > >(
                     bodies, std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ),
-                    areEquationsOfMotionToBeIntegrated, setDependentVariablesInterface );
+                    areEquationsOfMotionToBeIntegrated );
     }
     else if( std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< StateScalarType > >( propagatorSettings ) != nullptr )
     {
         return std::make_shared< propagators::HybridArcDynamicsSimulator< StateScalarType, TimeType > >(
                     bodies, std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ),
-                    areEquationsOfMotionToBeIntegrated, false, setDependentVariablesInterface );
+                    areEquationsOfMotionToBeIntegrated, false );
     }
     else
     {

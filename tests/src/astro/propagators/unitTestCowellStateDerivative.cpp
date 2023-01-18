@@ -150,7 +150,7 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
 
     // Toggle all output for test purposes
     outputSettings->getPrintSettings( )->reset(
-            true, true, true,
+            true, true,
             0.5E7, 0,
             true, true,  true,
             true, true, true );
