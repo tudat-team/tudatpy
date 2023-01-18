@@ -115,7 +115,7 @@ void expose_numerical_simulation(py::module &m) {
             .def(py::self >= double());
 
     m.def("create_variational_equations_solver",
-          &tss::createVariationalEquationsSolver<double,double>,
+          &tss::createVariationalEquationsSolver<double,TIME_TYPE>,
           py::arg("bodies"),
           py::arg("propagator_settings"),
           py::arg("parameters_to_estimate"),
