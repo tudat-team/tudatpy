@@ -366,7 +366,7 @@ void printPropagatedDependentVariableContent (
                 {
                     std::cout<<propagationStartHeader<<std::endl<<std::endl;
                 }
-                if( printSettings->getPrintStateData( ) )
+                if( printSettings->getPrintPropagatedStateData( ) )
                 {
                     std::cout<<"PROPAGATED STATE DETAILS:"<<std::endl;
                     std::cout<<"Propagating state vector y only, size ["<<std::to_string( propagationResults->getPropagatedStateSize( ) )<<" x 1]"<<std::endl<<std::endl;
@@ -403,7 +403,7 @@ void printPropagatedDependentVariableContent (
                 {
                     std::cout<<propagationStartHeader<<std::endl<<std::endl;
                 }
-                if( printSettings->getPrintStateData( ) )
+                if( printSettings->getPrintPropagatedStateData( ) )
                 {
                     int totalNumberOfColumns = propagationResults->getStateTransitionMatrixSize( ) + propagationResults->getSensitivityMatrixSize( ) + 1;
                     std::cout<<"PROPAGATED STATE DETAILS:"<<std::endl;
@@ -594,9 +594,9 @@ std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > vali
         singleArcPropagatorSettings->getOutputSettings( )->setIntegratedResult( setIntegratedResult );
         singleArcPropagatorSettings->getOutputSettings( )->setCreateDependentVariablesInterface( setDependentVariablesInterface );
         singleArcPropagatorSettings->getOutputSettings( )->getPrintSettings( )->reset(
-                    printNumberOfFunctionEvaluations, printDependentVariableData, printStateData,
+                    printNumberOfFunctionEvaluations, printDependentVariableData,
                     singleArcPropagatorSettings->getOutputSettings( )->getPrintSettings( )->getResultsPrintFrequencyInSeconds( ), 0,
-                    false, false, false, false, false, false );
+                    false, false, printStateData, false, false, false );
 
         singleArcPropagatorSettings->setIntegratorSettings( integratorSettings );
     }

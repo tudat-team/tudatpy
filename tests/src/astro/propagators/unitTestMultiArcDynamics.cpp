@@ -152,7 +152,7 @@ BOOST_AUTO_TEST_CASE( testKeplerMultiArcDynamics )
             std::shared_ptr< PropagationPrintSettings > multiArcPrintSettings =
                     std::make_shared< PropagationPrintSettings >( );
             multiArcPrintSettings->reset(
-                        true, true, true, TUDAT_NAN, 0, true, true, true, true, true, true );
+                        true, true, TUDAT_NAN, 0, true, true, true, true, true, true );
 
             multiArcPropagatorSettings->getOutputSettings( )->resetAndApplyConsistentSingleArcPrintSettings(
                         multiArcPrintSettings );

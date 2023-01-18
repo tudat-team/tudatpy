@@ -241,15 +241,6 @@ public:
 
     virtual ~MultiArcPropagatorProcessingSettings( ){ }
 
-//    virtual void setClearNumericalSolutions( const bool clearNumericalSolutions )
-//    {
-//        this->clearNumericalSolutions_ = clearNumericalSolutions;
-//    }
-//
-//    virtual void setIntegratedResult( const bool setIntegratedResult )
-//    {
-//        this->setIntegratedResult_ = setIntegratedResult;
-//    }
 
     void resetSingleArcSettings( const bool printWarning = false )
     {
@@ -374,7 +365,7 @@ public:
     }
 
 
-    protected:
+protected:
 
     std::shared_ptr< PropagationPrintSettings > consistentSingleArcPrintSettings_;
 
@@ -515,9 +506,27 @@ public:
         return multiArcSettings_;
     }
 
+    void resetConsistentPrintSettings(
+            const std::shared_ptr< PropagationPrintSettings > consistentArcPrintSettings )
+    {
+        if( useIdenticalSettings_ )
+        {
+            consistentArcPrintSettings_ = consistentArcPrintSettings;
+            multiArcSettings_->resetSingleArcSettings( );
+            singleArcSettings_->getPrintSettings( )->reset( consistentArcPrintSettings );
+        }
+    }
+
+    void resetAndApplyConsistentPrintSettings(
+            const std::shared_ptr< PropagationPrintSettings > consistentArcPrintSettings )
+    {
+        useIdenticalSettings_ = true;
+        resetConsistentPrintSettings( consistentArcPrintSettings );
+    }
+
 protected:
 
-    const std::shared_ptr< PropagationPrintSettings > consistentArcPrintSettings_;
+    std::shared_ptr< PropagationPrintSettings > consistentArcPrintSettings_;
 
     bool useIdenticalSettings_;
 
