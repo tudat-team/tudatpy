@@ -30,6 +30,7 @@
 #include "tudat/simulation/propagation_setup/propagationTermination.h"
 #include "tudat/astro/propagators/dynamicsStateDerivativeModel.h"
 #include "tudat/math/interpolators/lagrangeInterpolator.h"
+#include "tudat/simulation/propagation_setup/dependentVariablesInterface.h"
 
 namespace tudat
 {
@@ -541,12 +542,19 @@ public:
     virtual void processNumericalEquationsOfMotionSolution( ) = 0;
 
     virtual std::shared_ptr< SimulationResults< StateScalarType, TimeType > > getPropagationResults( ) = 0;
+
+    std::shared_ptr< DependentVariablesInterface< TimeType > > getDependentVariablesInterface( )
+    {
+        return getPropagationResults( )->getDependentVariablesInterface( );
+    }
+
 protected:
 
     //!  Map of bodies (with names) of all bodies in integration.
     simulation_setup::SystemOfBodies bodies_;
 
     std::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettingsBase_;
+
 };
 
 template< typename StateScalarType = double, typename TimeType = double >
@@ -557,7 +565,8 @@ std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > vali
         const bool setIntegratedResult = false,
         const bool printNumberOfFunctionEvaluations = false,
         const bool printDependentVariableData = false,
-        const bool printStateData = false )
+        const bool printStateData = false,
+        const bool setDependentVariablesInterface = false )
 {
     std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > singleArcPropagatorSettings =
             std::dynamic_pointer_cast< SingleArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings );
@@ -583,6 +592,7 @@ std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > vali
 
         singleArcPropagatorSettings->getOutputSettings( )->setClearNumericalSolutions( clearNumericalSolutions );
         singleArcPropagatorSettings->getOutputSettings( )->setIntegratedResult( setIntegratedResult );
+        singleArcPropagatorSettings->getOutputSettings( )->setCreateDependentVariablesInterface( setDependentVariablesInterface );
         singleArcPropagatorSettings->getOutputSettings( )->getPrintSettings( )->reset(
                     printNumberOfFunctionEvaluations, printDependentVariableData, printStateData,
                     singleArcPropagatorSettings->getOutputSettings( )->getPrintSettings( )->getResultsPrintFrequencyInSeconds( ), 0,
@@ -658,6 +668,7 @@ template< typename StateScalarType = double, typename TimeType = double >
 class SingleArcDynamicsSimulator: public DynamicsSimulator< StateScalarType, TimeType >
 {
 public:
+
 
     SingleArcDynamicsSimulator(
             const simulation_setup::SystemOfBodies& bodies,
@@ -750,11 +761,23 @@ public:
         }
 
         // Create object that will contain and process the propagation results
+        std::shared_ptr< SingleArcDependentVariablesInterface< TimeType > > dependentVariableInterface = nullptr;
+        if ( propagatorSettings_->getOutputSettings( )->getCreateDependentVariablesInterface( ) )
+        {
+            dependentVariableInterface = std::make_shared< SingleArcDependentVariablesInterface< TimeType > >(
+                    std::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, Eigen::VectorXd > >( ),
+                    propagatorSettings_->getDependentVariablesToSave( ) );
+        }
         propagationResults_= std::make_shared< SingleArcSimulationResults< StateScalarType, TimeType > >(
                     dependentVariableIds_, integratedStateAndBodyList, propagatorSettings_->getOutputSettingsWithCheck( ),
                     std::bind( &DynamicsStateDerivativeModel< TimeType, StateScalarType >::convertNumericalStateSolutionsToOutputSolutions,
                                dynamicsStateDerivative_,
-                               std::placeholders::_1, std::placeholders::_2 ) ) ;
+                               std::placeholders::_1, std::placeholders::_2 ), dependentVariableInterface ) ;
+
+
+
+
+
 
         // Integrate equations of motion if required.
         if( areEquationsOfMotionToBeIntegrated )
@@ -794,13 +817,14 @@ public:
             const bool printNumberOfFunctionEvaluations = false,
             const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ),
             const bool printDependentVariableData = false,
-            const bool printStateData = false ):
+            const bool printStateData = false,
+            const bool setDependentVariablesInterface = false ):
         SingleArcDynamicsSimulator( bodies, validateDeprecatedSingleArcSettings(
                                         integratorSettings, propagatorSettings,
                                         clearNumericalSolutions, setIntegratedResult, printNumberOfFunctionEvaluations,
-                                        printDependentVariableData, printStateData ),
+                                        printDependentVariableData, printStateData, setDependentVariablesInterface ),
                                     areEquationsOfMotionToBeIntegrated,
-                                    predefinedStateDerivativeModels){ }
+                                    predefinedStateDerivativeModels ){ }
 
     SingleArcDynamicsSimulator(
             const simulation_setup::SystemOfBodies& bodies,
@@ -811,7 +835,8 @@ public:
             const bool setIntegratedResult = false,
             const bool printNumberOfFunctionEvaluations = false,
             const bool printDependentVariableData = false,
-            const bool printStateData = false ):
+            const bool printStateData = false,
+            const bool setDependentVariablesInterface = false ):
         SingleArcDynamicsSimulator(  bodies, integratorSettings,  propagatorSettings,
                                      PredefinedSingleArcStateDerivativeModels< StateScalarType, TimeType >( ),
                                      areEquationsOfMotionToBeIntegrated,
@@ -820,7 +845,8 @@ public:
                                      printNumberOfFunctionEvaluations,
                                      std::chrono::steady_clock::now( ),
                                      printDependentVariableData,
-                                     printStateData ){ }
+                                     printStateData,
+                                     setDependentVariablesInterface ){ }
 
     //! Destructor
     ~SingleArcDynamicsSimulator( ) { }
@@ -840,6 +866,12 @@ public:
         integrateEquationsOfMotion< SingleArcSimulationResults< StateScalarType, TimeType > >(
             dynamicsStateDerivative_->convertFromOutputSolution(initialStates, propagatorSettings_->getInitialTime( ) ),
                 propagationResults_ );
+    }
+
+    void integrate(
+            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& initialStates )
+    {
+        integrateEquationsOfMotion( initialStates );
     }
 
     template< typename SimulationResults >
@@ -1043,6 +1075,7 @@ public:
         {
             propagationResults_->clearSolutionMaps( );
         }
+        propagationResults_->updateDependentVariableInterface( );
     }
 
     void suppressDependentVariableDataPrinting( )
@@ -1157,10 +1190,11 @@ public:
      * Function to retrieve the dependent variables IDs
      * \return Map listing starting entry of dependent variables in output vector, along with associated ID
      */
-    std::map< int, std::string > getDependentVariableIds( )
+    std::map< std::pair< int, int >, std::string > getDependentVariableIds( )
     {
         return propagationResults_->dependentVariableIds_;
     }
+
 
 ///////////////////////////////////////////////////
 //////////////// END DEPRECATED ///////////////////
@@ -1217,6 +1251,7 @@ protected:
     std::shared_ptr< SingleArcPropagatorProcessingSettings > outputSettings_;
 
     std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType > > propagationResults_;
+
 
 private:
 
@@ -1279,9 +1314,6 @@ private:
                 outputSettings_->getPrintSettings( ),
                 outputSettings_->getPropagationStartHeader( ),
                 propagationResults );
-
-
-
     }
 
     //! Function to perform steps necessary to finalize the propagation
@@ -1393,7 +1425,8 @@ std::shared_ptr< MultiArcPropagatorSettings< StateScalarType, TimeType > > valid
         const std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > integratorSettings,
         const std::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
         const bool clearNumericalSolutions = true,
-        const bool setIntegratedResult = true  )
+        const bool setIntegratedResult = true,
+        const bool setDependentVariablesInterface = false  )
 {
     std::shared_ptr< MultiArcPropagatorSettings< StateScalarType, TimeType > > multiArcPropagatorSettings =
             std::dynamic_pointer_cast< MultiArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings );
@@ -1441,6 +1474,7 @@ std::shared_ptr< MultiArcPropagatorSettings< StateScalarType, TimeType > > valid
     }
     multiArcPropagatorSettings->getOutputSettings( )->setClearNumericalSolutions( clearNumericalSolutions );
     multiArcPropagatorSettings->getOutputSettings( )->setIntegratedResult( setIntegratedResult );
+    multiArcPropagatorSettings->getOutputSettings( )->setCreateDependentVariablesInterface( setDependentVariablesInterface );
 
     return multiArcPropagatorSettings;
 }
@@ -1451,7 +1485,8 @@ std::shared_ptr< MultiArcPropagatorSettings< StateScalarType, TimeType > > valid
         const std::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
         const std::vector< double > arcStartTimes,
         const bool clearNumericalSolutions = true,
-        const bool setIntegratedResult = true  )
+        const bool setIntegratedResult = true,
+        const bool setDependentVariablesInterface = false )
 {
     std::shared_ptr< MultiArcPropagatorSettings< StateScalarType, TimeType > > multiArcPropagatorSettings =
             std::dynamic_pointer_cast< MultiArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings );
@@ -1473,7 +1508,7 @@ std::shared_ptr< MultiArcPropagatorSettings< StateScalarType, TimeType > > valid
     }
 
     return validateDeprecatedMultiArcSettings(
-                independentIntegratorSettingsList, propagatorSettings, clearNumericalSolutions, setIntegratedResult );
+                independentIntegratorSettingsList, propagatorSettings, clearNumericalSolutions, setIntegratedResult, setDependentVariablesInterface );
 }
 
 template< typename StateScalarType = double >
@@ -1605,7 +1640,6 @@ public:
     typedef MultiArcSimulationResults<SingleArcSimulationResults, StateScalarType, TimeType> MultiArcResults;
     using DynamicsSimulator<StateScalarType, TimeType>::bodies_;
 
-
     MultiArcDynamicsSimulator(
             const simulation_setup::SystemOfBodies &bodies,
             const std::shared_ptr<MultiArcPropagatorSettings<StateScalarType, TimeType> > propagatorSettings,
@@ -1633,10 +1667,25 @@ public:
                 singleArcResults.push_back( singleArcDynamicsSimulators_.at( i )->getSingleArcPropagationResults( ));
                 singleArcDynamicsSimulators_.at( i )->createAndSetIntegratedStateProcessors( );
             }
-            propagationResults_ = std::make_shared<MultiArcResults>( singleArcResults );
+
+            std::shared_ptr< MultiArcDependentVariablesInterface< TimeType > > dependentVariableInterface = nullptr;
+            if ( multiArcPropagatorSettings_->getOutputSettings( )->getCreateDependentVariablesInterface( ) )
+            {
+                std::vector< std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > > dependentVariablesSettings;
+                for ( unsigned int i = 0 ; i < singleArcSettings.size( ) ; i++ )
+                {
+                    dependentVariablesSettings.push_back( multiArcPropagatorSettings_->getSingleArcSettings( ).at( i )->getDependentVariablesToSave( ) );
+                }
+
+                dependentVariableInterface = std::make_shared< MultiArcDependentVariablesInterface< TimeType > >(
+                        std::vector< std::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, Eigen::VectorXd > > >( ),
+                        dependentVariablesSettings, std::vector< double >( ), std::vector< double >( ) );
+            }
+            propagationResults_ = std::make_shared<MultiArcResults>( singleArcResults, dependentVariableInterface );
 
             // Integrate equations of motion if required.
-            if ( areEquationsOfMotionToBeIntegrated ) {
+            if ( areEquationsOfMotionToBeIntegrated )
+            {
                 integrateEquationsOfMotion( multiArcPropagatorSettings_->getInitialStates( ));
             }
         }
@@ -1664,11 +1713,12 @@ public:
             const std::vector<double> arcStartTimes,
             const bool areEquationsOfMotionToBeIntegrated = true,
             const bool clearNumericalSolutions = true,
-            const bool setIntegratedResult = true ) :
-            MultiArcDynamicsSimulator( bodies, validateDeprecatedMultiArcSettings(
-                                               integratorSettings, propagatorSettings, arcStartTimes,
-                                               clearNumericalSolutions, setIntegratedResult ),
-                                       areEquationsOfMotionToBeIntegrated ) { }
+            const bool setIntegratedResult = true,
+            const bool setDependentVariablesInterface = false ):
+        MultiArcDynamicsSimulator( bodies, validateDeprecatedMultiArcSettings(
+                                        integratorSettings, propagatorSettings, arcStartTimes,
+                                        clearNumericalSolutions, setIntegratedResult, setDependentVariablesInterface ),
+                                    areEquationsOfMotionToBeIntegrated ){ }
 
 
     //! Constructor of multi-arc simulator for different integration settings per arc.
@@ -1690,11 +1740,12 @@ public:
             const std::shared_ptr<PropagatorSettings<StateScalarType> > propagatorSettings,
             const bool areEquationsOfMotionToBeIntegrated = true,
             const bool clearNumericalSolutions = true,
-            const bool setIntegratedResult = true ) :
-            MultiArcDynamicsSimulator( bodies, validateDeprecatedMultiArcSettings(
-                                               integratorSettings, propagatorSettings,
-                                               clearNumericalSolutions, setIntegratedResult ),
-                                       areEquationsOfMotionToBeIntegrated ) { }
+            const bool setIntegratedResult = true,
+            const bool setDependentVariablesInterface = false ):
+        MultiArcDynamicsSimulator( bodies, validateDeprecatedMultiArcSettings(
+                                        integratorSettings, propagatorSettings,
+                                        clearNumericalSolutions, setIntegratedResult, setDependentVariablesInterface ),
+                                    areEquationsOfMotionToBeIntegrated ){ }
 
     //! Destructor
     ~MultiArcDynamicsSimulator( ) { }
@@ -1890,6 +1941,10 @@ public:
         {
             propagationResults_->clearSolutionMaps( );
         }
+
+        // Reset dependent variables interface
+        propagationResults_->updateDependentVariableInterface( );
+
     }
 
     void printPrePropagationMessages( )
@@ -1934,6 +1989,11 @@ public:
     std::vector< double > getArcStartTimes( )
     {
         return propagationResults_->getArcStartTimes( );
+    }
+
+    std::vector< double > getArcEndTimes( )
+    {
+        return propagationResults_->getArcEndTimes( );
     }
 
 
@@ -2013,6 +2073,7 @@ public:
 //////////////// END DEPRECATED ///////////////////
 ///////////////////////////////////////////////////
 
+
 protected:
 
     //! Objects used to compute the dynamics of the sepatrate arcs
@@ -2032,7 +2093,8 @@ std::shared_ptr< HybridArcPropagatorSettings< StateScalarType, TimeType > > vali
         const std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > multiArcIntegratorSettings,
         const std::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
         const bool clearNumericalSolutions = true,
-        const bool setIntegratedResult = true  )
+        const bool setIntegratedResult = true,
+        const bool setDependentVariablesInterface = false )
 {
     std::shared_ptr< HybridArcPropagatorSettings< StateScalarType, TimeType > > hybridArcPropagatorSettings =
             std::dynamic_pointer_cast< HybridArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings );
@@ -2045,7 +2107,7 @@ std::shared_ptr< HybridArcPropagatorSettings< StateScalarType, TimeType > > vali
                 singleArcIntegratorSettings, hybridArcPropagatorSettings->getSingleArcPropagatorSettings( ) );
     validateDeprecatedMultiArcSettings< StateScalarType, TimeType >(
                 multiArcIntegratorSettings, hybridArcPropagatorSettings->getMultiArcPropagatorSettings( ),
-                clearNumericalSolutions, setIntegratedResult );
+                clearNumericalSolutions, setIntegratedResult, setDependentVariablesInterface );
 
     hybridArcPropagatorSettings->getOutputSettingsWithCheck( )->setClearNumericalSolutions( clearNumericalSolutions );
     hybridArcPropagatorSettings->getOutputSettingsWithCheck( )->setIntegratedResult( setIntegratedResult );
@@ -2060,7 +2122,8 @@ std::shared_ptr< HybridArcPropagatorSettings< StateScalarType, TimeType > > vali
         const std::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
         const std::vector< double > arcStartTimes,
         const bool clearNumericalSolutions = true,
-        const bool setIntegratedResult = true  )
+        const bool setIntegratedResult = true,
+        const bool setDependentVariablesInterface = false  )
 {
     std::shared_ptr< HybridArcPropagatorSettings< StateScalarType, TimeType > > hybridArcPropagatorSettings =
             std::dynamic_pointer_cast< HybridArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings );
@@ -2080,7 +2143,7 @@ std::shared_ptr< HybridArcPropagatorSettings< StateScalarType, TimeType > > vali
     }
     hybridArcPropagatorSettings->getSingleArcPropagatorSettings( )->resetInitialTime( singleArcIntegratorSettings->initialTimeDeprecated_ );
     return validateDeprecatedHybridArcSettings( singleArcIntegratorSettings, independentIntegratorSettingsList,
-                                                propagatorSettings, clearNumericalSolutions, setIntegratedResult );
+                                                propagatorSettings, clearNumericalSolutions, setIntegratedResult, setDependentVariablesInterface );
 }
 
 template< typename StateScalarType = double, typename TimeType = double >
@@ -2089,11 +2152,12 @@ std::shared_ptr< HybridArcPropagatorSettings< StateScalarType, TimeType > > vali
         const std::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
         const std::vector< double > arcStartTimes,
         const bool clearNumericalSolutions = true,
-        const bool setIntegratedResult = true  )
+        const bool setIntegratedResult = true,
+        const bool setDependentVariablesInterface = false )
 {
     return validateDeprecatedHybridArcSettings(
                 integratorSettings, utilities::deepcopyPointer( integratorSettings ), propagatorSettings,
-                arcStartTimes, clearNumericalSolutions, setIntegratedResult );
+                arcStartTimes, clearNumericalSolutions, setIntegratedResult, setDependentVariablesInterface );
 }
 
 
@@ -2136,13 +2200,14 @@ public:
         {
             singleArcDynamicsSimulator_ = std::make_shared< SingleArcDynamicsSimulator< StateScalarType, TimeType > >(
                         bodies, hybridPropagatorSettings_->getSingleArcPropagatorSettings( ),
-                        false );
+                        false, PredefinedSingleArcStateDerivativeModels< StateScalarType, TimeType >( ) );
             multiArcDynamicsSimulator_ = std::make_shared< MultiArcDynamicsSimulator< StateScalarType, TimeType > >(
                         bodies, hybridPropagatorSettings_->getMultiArcPropagatorSettings( ),
                         false );
             propagationResults_ = std::make_shared< HybridArcResults >(
                     singleArcDynamicsSimulator_->getSingleArcPropagationResults( ),
-                    multiArcDynamicsSimulator_->getMultiArcPropagationResults( ) );
+                    multiArcDynamicsSimulator_->getMultiArcPropagationResults( ),
+                    hybridPropagatorSettings_->getOutputSettings( )->getCreateDependentVariablesInterface( ) );
         }
         else
         {
@@ -2179,10 +2244,11 @@ public:
             const bool areEquationsOfMotionToBeIntegrated = true,
             const bool clearNumericalSolutions = true,
             const bool setIntegratedResult = true,
-            const bool addSingleArcBodiesToMultiArcDynamics = false ):
+            const bool addSingleArcBodiesToMultiArcDynamics = false,
+            const bool setDependentVariablesInterface = false ):
                 HybridArcDynamicsSimulator( bodies, validateDeprecatedHybridArcSettings(
                                                 integratorSettings, propagatorSettings, arcStartTimes,
-                                                clearNumericalSolutions, setIntegratedResult ),
+                                                clearNumericalSolutions, setIntegratedResult, setDependentVariablesInterface ),
                                             areEquationsOfMotionToBeIntegrated, addSingleArcBodiesToMultiArcDynamics ){ }
 
 
@@ -2195,11 +2261,12 @@ public:
             const bool areEquationsOfMotionToBeIntegrated = true,
             const bool clearNumericalSolutions = true,
             const bool setIntegratedResult = true,
-            const bool addSingleArcBodiesToMultiArcDynamics = false ):
+            const bool addSingleArcBodiesToMultiArcDynamics = false,
+            const bool setDependentVariablesInterface = false ):
         HybridArcDynamicsSimulator( bodies, validateDeprecatedHybridArcSettings(
                                         singleArcIntegratorSettings, multiArcIntegratorSettings, propagatorSettings, arcStartTimes,
                                         clearNumericalSolutions, setIntegratedResult ),
-                                    areEquationsOfMotionToBeIntegrated, addSingleArcBodiesToMultiArcDynamics ){ }
+                                    areEquationsOfMotionToBeIntegrated, addSingleArcBodiesToMultiArcDynamics, setDependentVariablesInterface ){ }
     //! Destructor
     ~HybridArcDynamicsSimulator( ){ }
 
@@ -2221,7 +2288,6 @@ public:
         multiArcDynamicsSimulator_->integrateEquationsOfMotion(
                     initialGlobalStates.block( singleArcDynamicsSize_, 0, multiArcDynamicsSize_, 1 ) );
         printPostPropagationMessages( );
-
     }
 
     //! This function updates the environment with the numerical solution of the propagation
@@ -2234,6 +2300,7 @@ public:
     {
         singleArcDynamicsSimulator_->processNumericalEquationsOfMotionSolution( );
         multiArcDynamicsSimulator_->processNumericalEquationsOfMotionSolution( );
+        propagationResults_->updateDependentVariableInterface( );
     }
 
     //! Function to retrieve the single-arc dynamics simulator
@@ -2346,6 +2413,7 @@ protected:
     int multiArcDynamicsSize_;
 
     std::shared_ptr< HybridArcResults > propagationResults_;
+
 };
 
 
