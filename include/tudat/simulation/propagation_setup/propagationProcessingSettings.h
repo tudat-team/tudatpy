@@ -54,6 +54,11 @@ public:
         return setIntegratedResult_;
     }
 
+    bool getCreateDependentVariablesInterface( )
+    {
+        return createDependentVariablesInterface_;
+    }
+
     virtual void setClearNumericalSolutions( const bool clearNumericalSolutions )
     {
         clearNumericalSolutions_ = clearNumericalSolutions;
@@ -62,6 +67,11 @@ public:
     virtual void setIntegratedResult( const bool setIntegratedResult )
     {
         setIntegratedResult_ = setIntegratedResult;
+    }
+
+    virtual void setCreateDependentVariablesInterface( const bool createDependentVariablesInterface )
+    {
+         createDependentVariablesInterface_ = createDependentVariablesInterface;
     }
 
     virtual bool printAnyOutput( ) = 0;
@@ -74,6 +84,7 @@ protected:
 
     bool clearNumericalSolutions_;
     bool setIntegratedResult_;
+    bool createDependentVariablesInterface_;
 };
 
 //! Base class for defining output and processing settings for single-arc propagation.
@@ -82,6 +93,7 @@ protected:
 class SingleArcPropagatorProcessingSettings: public PropagatorProcessingSettings
 {
 public:
+
     SingleArcPropagatorProcessingSettings(
             const bool clearNumericalSolutions = false,
             const bool setIntegratedResult = false,
@@ -229,15 +241,15 @@ public:
 
     virtual ~MultiArcPropagatorProcessingSettings( ){ }
 
-    virtual void setClearNumericalSolutions( const bool clearNumericalSolutions )
-    {
-        this->clearNumericalSolutions_ = clearNumericalSolutions;
-    }
-
-    virtual void setIntegratedResult( const bool setIntegratedResult )
-    {
-        this->setIntegratedResult_ = setIntegratedResult;
-    }
+//    virtual void setClearNumericalSolutions( const bool clearNumericalSolutions )
+//    {
+//        this->clearNumericalSolutions_ = clearNumericalSolutions;
+//    }
+//
+//    virtual void setIntegratedResult( const bool setIntegratedResult )
+//    {
+//        this->setIntegratedResult_ = setIntegratedResult;
+//    }
 
     void resetSingleArcSettings( const bool printWarning = false )
     {
@@ -356,8 +368,13 @@ public:
         printFirstArcOnly_ = printFirstArcOnly;
     }
 
+    std::vector< std::shared_ptr< SingleArcPropagatorProcessingSettings > > getSingleArcSettings( )
+    {
+        return singleArcSettings_;
+    }
 
-protected:
+
+    protected:
 
     std::shared_ptr< PropagationPrintSettings > consistentSingleArcPrintSettings_;
 

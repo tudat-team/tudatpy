@@ -13,7 +13,6 @@
 
 #include "estimation_setup/createAccelerationPartials.h"
 #include "estimation_setup/createCartesianStatePartials.h"
-//#include "estimation_setup/createdifferencedObservationPartials.h"
 #include "estimation_setup/createDopplerPartials.h"
 #include "estimation_setup/createEstimatableParameters.h"
 #include "estimation_setup/createEulerAngleObservationPartials.h"
