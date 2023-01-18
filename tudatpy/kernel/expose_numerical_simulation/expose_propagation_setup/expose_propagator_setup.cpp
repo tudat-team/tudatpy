@@ -99,12 +99,31 @@ void expose_propagator_setup(py::module &m) {
                                            get_docstring("SingleArcPropagatorProcessingSettings").c_str())
             .def_property_readonly("print_settings",
                                    &tp::SingleArcPropagatorProcessingSettings::getPrintSettings,
-                                   get_docstring("SingleArcPropagatorProcessingSettings.print_settings").c_str() );
+                                   get_docstring("SingleArcPropagatorProcessingSettings.print_settings").c_str() )
+            .def_property("results_save_frequency_in_steps",
+                          &tp::SingleArcPropagatorProcessingSettings::getResultsSaveFrequencyInSteps,
+                          &tp::SingleArcPropagatorProcessingSettings::setResultsSaveFrequencyInSteps,
+                          get_docstring("SingleArcPropagatorProcessingSettings.results_save_frequency_in_steps").c_str() )
+            .def_property("results_save_frequency_in_seconds",
+                          &tp::SingleArcPropagatorProcessingSettings::getResultsSaveFrequencyInSeconds,
+                          &tp::SingleArcPropagatorProcessingSettings::setResultsSaveFrequencyInSeconds,
+                          get_docstring("SingleArcPropagatorProcessingSettings.results_save_frequency_in_seconds").c_str() );
 
     py::class_<tp::MultiArcPropagatorProcessingSettings,
             std::shared_ptr<tp::MultiArcPropagatorProcessingSettings>,
             tp::PropagatorProcessingSettings >(m, "MultiArcPropagatorProcessingSettings",
-                                           get_docstring("MultiArcPropagatorProcessingSettings").c_str());
+                                           get_docstring("MultiArcPropagatorProcessingSettings").c_str())
+            .def("set_print_settings_for_all_arcs",
+                 &tp::MultiArcPropagatorProcessingSettings::resetAndApplyConsistentSingleArcPrintSettings,
+                 get_docstring("MultiArcPropagatorProcessingSettings.disable_all_printing").c_str() )
+            .def_property("print_output_on_first_arc_only",
+                 &tp::MultiArcPropagatorProcessingSettings::getPrintFirstArcOnly,
+                 &tp::MultiArcPropagatorProcessingSettings::resetPrintFirstArcOnly,
+                 get_docstring("MultiArcPropagatorProcessingSettings.print_output_on_first_arc_only").c_str() )
+            .def_property_readonly("single_arc_settings",
+                          &tp::MultiArcPropagatorProcessingSettings::getSingleArcSettings,
+                          get_docstring("MultiArcPropagatorProcessingSettings.single_arc_settings").c_str() );
+
 
     py::class_<tp::HybridArcPropagatorProcessingSettings,
             std::shared_ptr<tp::HybridArcPropagatorProcessingSettings>,
