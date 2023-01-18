@@ -76,11 +76,11 @@ BOOST_AUTO_TEST_CASE( testConstantTimeBias )
     // Create observation settings
     std::shared_ptr< ObservationModelSettings > idealObservableSettings = std::make_shared< ObservationModelSettings >
             ( angular_position, linkEnds, lightTimeCorrectionSettings,
-              std::make_shared< ConstantTimeBiasSettings >( ( Eigen::Vector1d( ) << 0.0 ).finished( ), receiver ) );
+              std::make_shared< ConstantTimeBiasSettings >( 0.0, receiver ) );
 
     double timeBias = 2.0;
     std::vector< std::shared_ptr< ObservationBiasSettings > > biasSettingsList;
-    biasSettingsList.push_back( std::make_shared< ConstantTimeBiasSettings >( ( Eigen::Vector1d( ) << timeBias ).finished( ), receiver ) );
+    biasSettingsList.push_back( std::make_shared< ConstantTimeBiasSettings >( timeBias, receiver ) );
     biasSettingsList.push_back( std::make_shared< ConstantObservationBiasSettings >( ( Eigen::Vector2d( ) << 0.0, 0.0 ).finished( ), true ) );
     std::shared_ptr< MultipleObservationBiasSettings > biasSettings = std::make_shared< MultipleObservationBiasSettings >( biasSettingsList );
 
@@ -141,16 +141,8 @@ BOOST_AUTO_TEST_CASE( testArcWiseTimeBias )
     arcs.push_back( initialTime + 6.0 * 86400.0 );
 
     // Define arc-wise time biases
-    std::vector< Eigen::VectorXd > zeroBiasesPerArc;
-    zeroBiasesPerArc.push_back( Eigen::Vector1d::Zero( ) );
-    zeroBiasesPerArc.push_back( Eigen::Vector1d::Zero( ) );
-    zeroBiasesPerArc.push_back( Eigen::Vector1d::Zero( ) );
-
-    std::vector< double > timeBiases = { 2.0, 5.0, 10.0 };
-    std::vector< Eigen::VectorXd > biasesPerArc;
-    biasesPerArc.push_back( ( Eigen::Vector1d( ) << timeBiases[ 0 ] ).finished( ) );
-    biasesPerArc.push_back( ( Eigen::Vector1d( ) << timeBiases[ 1 ] ).finished( ) );
-    biasesPerArc.push_back( ( Eigen::Vector1d( ) << timeBiases[ 2 ] ).finished( ) );
+    std::vector< double > zeroBiasesPerArc = { 0.0, 0.0, 0.0 };
+    std::vector< double > biasesPerArc = { 2.0, 5.0, 10.0 };
 
     // Create bodies settings needed in simulation
     BodyListSettings defaultBodySettings = getDefaultBodySettings( bodiesToCreate, initialTime - buffer, finalTime + buffer );
@@ -204,10 +196,10 @@ BOOST_AUTO_TEST_CASE( testArcWiseTimeBias )
         Eigen::Vector2d biasedObservation = biasedObservationModel->computeObservationsWithLinkEndData( obsTimes[ j ], receiver, biasedLinkEndTimes, biasedLinkEndStates );
         Eigen::Vector2d unbiasedObservation = idealObservationModel->computeObservationsWithLinkEndData( obsTimes[ j ], receiver, unbiasedLinkEndTimes, unbiasedLinkEndStates );
         Eigen::Vector2d observationAtBiasedTime = idealObservationModel->computeObservationsWithLinkEndData(
-                obsTimes[ j ] - timeBiases[ j ], receiver, linkEndTimesBiasedTime, linkEndStatesBiasedTime );
+                obsTimes[ j ] - biasesPerArc[ j ], receiver, linkEndTimesBiasedTime, linkEndStatesBiasedTime );
 
         // Check link end times
-        BOOST_CHECK_CLOSE_FRACTION( static_cast< double >( unbiasedLinkEndTimes[ 1 ] - biasedLinkEndTimes[ 1 ] ), timeBiases[ j ], std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_CLOSE_FRACTION( static_cast< double >( unbiasedLinkEndTimes[ 1 ] - biasedLinkEndTimes[ 1 ] ), biasesPerArc[ j ], std::numeric_limits< double >::epsilon( ) );
 
         // Check link end states
         for ( unsigned int i = 0 ; i < biasedLinkEndStates.size( ) ; i++ )

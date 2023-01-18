@@ -44,6 +44,8 @@ BOOST_AUTO_TEST_CASE( test_EstimationTimeBias )
     arcs.push_back( initialTime + 8.0 * 3600.0 );
     arcs.push_back( initialTime + 16.0 * 3600.0 );
 
+    std::vector< double > timeBiasesPerArc = { 0.0, 0.0, 0.0 };
+
     std::vector< Eigen::VectorXd > biasesPerArc;
     biasesPerArc.push_back( Eigen::Vector1d::Zero( ) );
     biasesPerArc.push_back( Eigen::Vector1d::Zero( ) );
@@ -158,14 +160,14 @@ BOOST_AUTO_TEST_CASE( test_EstimationTimeBias )
                 if ( !multiArcBiases )
                 {
                     std::vector< std::shared_ptr< ObservationBiasSettings > > biasSettingsList;
-                    biasSettingsList.push_back( std::make_shared< ConstantTimeBiasSettings >( Eigen::Vector1d::Zero( ), receiver ) );
+                    biasSettingsList.push_back( std::make_shared< ConstantTimeBiasSettings >( 0.0, receiver ) );
                     biasSettingsList.push_back( std::make_shared< ConstantObservationBiasSettings >( Eigen::Vector1d::Zero( ), true ) );
                     biasSettings = std::make_shared< MultipleObservationBiasSettings >( biasSettingsList );
                 }
                 else
                 {
                     std::vector< std::shared_ptr< ObservationBiasSettings > > biasSettingsList;
-                    biasSettingsList.push_back( std::make_shared< ArcWiseTimeBiasSettings >( arcs, biasesPerArc, receiver ) );
+                    biasSettingsList.push_back( std::make_shared< ArcWiseTimeBiasSettings >( arcs, timeBiasesPerArc, receiver ) );
                     biasSettingsList.push_back( std::make_shared< ArcWiseConstantObservationBiasSettings >( arcs, biasesPerArc, receiver, true ) );
                     biasSettings = std::make_shared< MultipleObservationBiasSettings >( biasSettingsList );
                 }
