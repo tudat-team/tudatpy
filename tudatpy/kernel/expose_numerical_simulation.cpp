@@ -72,7 +72,6 @@ void expose_numerical_simulation(py::module &m) {
           py::arg("simulate_dynamics_on_creation") = true,
           get_docstring("create_dynamics_simulator").c_str() );
 
-
     py::class_<
             tudat::Time >(
                 m,"Time", get_docstring("Time").c_str())
@@ -114,6 +113,14 @@ void expose_numerical_simulation(py::module &m) {
             .def(py::self >= py::self)
             .def(double() >= py::self)
             .def(py::self >= double());
+
+    m.def("create_variational_equations_solver",
+          &tss::createVariationalEquationsSolver<double,double>,
+          py::arg("bodies"),
+          py::arg("propagator_settings"),
+          py::arg("parameters_to_estimate"),
+          py::arg("simulate_dynamics_on_creation") = true,
+          get_docstring("create_dynamics_simulator").c_str() );
 
 
     py::class_<
