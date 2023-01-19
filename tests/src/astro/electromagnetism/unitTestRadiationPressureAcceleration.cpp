@@ -59,8 +59,7 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_Unity )
     auto luminosityModel = std::make_shared<IrradianceBasedLuminosityModel>(
             [](double) { return physical_constants::SPEED_OF_LIGHT; }, 1);
     auto sourceModel = std::make_shared<IsotropicPointRadiationSourceModel>(luminosityModel);
-    auto targetModel = std::make_shared<CannonballRadiationPressureTargetModel>(
-            1, 1);
+    auto targetModel = std::make_shared<CannonballRadiationPressureTargetModel>(1, 1);
     IsotropicPointSourceRadiationPressureAcceleration accelerationModel(
             sourceModel,
             std::make_shared<basic_astrodynamics::SphericalBodyShapeModel>(1),
@@ -83,13 +82,13 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_Unity )
 //! Test acceleration for idealized GOCE spacecraft (Noomen 2022)
 BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_GOCE )
 {
+    const double expectedReceivedIrradiance = 1371;
     const Eigen::Vector3d expectedAcceleration = Eigen::Vector3d(1, 1, 0).normalized() * 5.2e-9;
 
     auto luminosityModel = std::make_shared<IrradianceBasedLuminosityModel>(
             [](double) { return 1371; }, physical_constants::ASTRONOMICAL_UNIT);
     auto sourceModel = std::make_shared<IsotropicPointRadiationSourceModel>(luminosityModel);
-    auto targetModel = std::make_shared<CannonballRadiationPressureTargetModel>(
-            1, 1.2);
+    auto targetModel = std::make_shared<CannonballRadiationPressureTargetModel>(1, 1.2);
     IsotropicPointSourceRadiationPressureAcceleration accelerationModel(
             sourceModel,
             std::make_shared<basic_astrodynamics::SphericalBodyShapeModel>(1),
@@ -104,8 +103,10 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_GOCE )
     targetModel->updateMembers(TUDAT_NAN);
     accelerationModel.updateMembers(TUDAT_NAN);
 
+    const auto actualReceivedIrradiance = accelerationModel.getReceivedIrradiance();
     const auto actualAcceleration = accelerationModel.getAcceleration();
 
+    BOOST_CHECK_CLOSE_FRACTION(actualReceivedIrradiance, expectedReceivedIrradiance, 1e-15);
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(actualAcceleration, expectedAcceleration, 1e-2);
 }
 

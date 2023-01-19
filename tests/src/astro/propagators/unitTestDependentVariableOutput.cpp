@@ -786,6 +786,13 @@ BOOST_AUTO_TEST_CASE( testDependentVariableEnvironmentUpdate )
     // Create bodies needed in simulation
     BodyListSettings bodySettings =
             getDefaultBodySettings( bodyNames );
+    bodySettings.at("Sun")->radiationSourceModelSettings =
+            isotropicPointRadiationSourceModelSettings(
+                    irradianceBasedLuminosityModelSettings(1371, physical_constants::ASTRONOMICAL_UNIT));
+    auto earthRadius = spice_interface::getAverageRadius("Earth");
+    bodySettings.at("Earth")->radiationPressureTargetModelSettings =
+            cannonballRadiationPressureTargetModelSettings(
+                    4 * mathematical_constants::PI * earthRadius * earthRadius, 1.5);
     SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
 
@@ -794,6 +801,8 @@ BOOST_AUTO_TEST_CASE( testDependentVariableEnvironmentUpdate )
                 std::make_shared< AccelerationSettings >( point_mass_gravity ) );
     accelerationMap[ "Earth" ][ "Sun" ].push_back(
                 std::make_shared< AccelerationSettings >( point_mass_gravity ) );
+    accelerationMap[ "Earth" ][ "Sun" ].push_back(
+                std::make_shared< AccelerationSettings >( radiation_pressure ) );
 
     std::vector< std::string > bodiesToPropagate;
     bodiesToPropagate.push_back( "Earth" );
@@ -830,6 +839,13 @@ BOOST_AUTO_TEST_CASE( testDependentVariableEnvironmentUpdate )
     dependentVariables.push_back(
                 std::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
                     "Moon", reference_frames::flight_path_angle, "Earth" ) );
+    // Earth-Sun distance is not tested, only used to calculate expected received irradiance
+    dependentVariables.push_back(
+                std::make_shared< SingleDependentVariableSaveSettings >(
+                    relative_distance_dependent_variable, "Earth", "Sun" ) );
+    dependentVariables.push_back(
+                std::make_shared< SingleDependentVariableSaveSettings >(
+                    received_irradiance, "Earth", "Sun" ) );
     dependentVariables.push_back(
                 std::make_shared< CustomDependentVariableSaveSettings >(
                     [=]( ){ return getCustomDependentVariable( bodies ); }, 6 ) );
@@ -901,10 +917,17 @@ BOOST_AUTO_TEST_CASE( testDependentVariableEnvironmentUpdate )
                     std::fabs( currentDependentVariables( 6 ) - moonRelativeSphericalState(
                                    orbital_element_conversions::flightPathIndex ) ), 1.0E-14 );
 
+        double earthSunDistance = currentDependentVariables ( 7 );
+        double expectedReceivedIrradiance =
+                1371 * physical_constants::ASTRONOMICAL_UNIT * physical_constants::ASTRONOMICAL_UNIT
+                / (earthSunDistance * earthSunDistance);
+        double computedReceivedIrradiance = currentDependentVariables ( 8 );
+        BOOST_CHECK_SMALL(std::fabs( expectedReceivedIrradiance - computedReceivedIrradiance ), 1.0E-10 );
+
         Eigen::Vector6d sunState = bodies.at( "Sun" )->getStateInBaseFrameFromEphemeris( variableIterator->first );
         Eigen::Vector6d moonState = bodies.at( "Moon" )->getStateInBaseFrameFromEphemeris(variableIterator->first  );
         Eigen::Vector6d customDependentVariable = sunState.cwiseQuotient( moonState );
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( customDependentVariable, ( currentDependentVariables.segment( 7, 6 ) ), 1.0E-14 );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( customDependentVariable, ( currentDependentVariables.segment( 9, 6 ) ), 1.0E-14 );
     }
 }
 

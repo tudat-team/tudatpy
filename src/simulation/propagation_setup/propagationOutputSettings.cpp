@@ -277,6 +277,9 @@ std::string getDependentVariableName(
     case minimum_constellation_ground_station_distance:
         variableName = "Minimum instantaneous ground station visible constellation distance";
         break;
+    case received_irradiance:
+        variableName = "Received irradiance";
+        break;
     default:
         std::string errorMessage = "Error, dependent variable " +
                 std::to_string( propagationDependentVariables ) +

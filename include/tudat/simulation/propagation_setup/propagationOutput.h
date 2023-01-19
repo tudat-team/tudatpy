@@ -2237,6 +2237,30 @@ std::function< double( ) > getDoubleDependentVariableFunction(
 
             break;
         }
+        case received_irradiance:
+        {
+            auto radiationPressureAccelerationList = getAccelerationBetweenBodies(
+                dependentVariableSettings->associatedBody_,
+                dependentVariableSettings->secondaryBody_,
+                stateDerivativeModels, basic_astrodynamics::radiation_pressure );
+
+            if (radiationPressureAccelerationList.empty())
+            {
+                std::string errorMessage = "Error, radiation pressure acceleration with target " +
+                        dependentVariableSettings->associatedBody_ + " and source " +
+                        dependentVariableSettings->secondaryBody_  +
+                       " not found";
+                throw std::runtime_error(errorMessage);
+            }
+
+            auto radiationPressureAcceleration =
+                    std::dynamic_pointer_cast<electromagnetism::RadiationPressureAcceleration>(
+                            radiationPressureAccelerationList.front());
+
+            variableFunction = [=] () { return radiationPressureAcceleration->getReceivedIrradiance(); };
+
+            break;
+        }
         default:
             std::string errorMessage =
                     "Error, did not recognize double dependent variable type when making variable function: " +

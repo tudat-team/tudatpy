@@ -454,7 +454,9 @@ BOOST_AUTO_TEST_CASE( test_radiationPressureAcceleration )
     // Create accelerations
     AccelerationMap accelerationsMap = createAccelerationModelsMap(
                 bodies, accelerationSettingsMap, centralBodies );
-    std::shared_ptr< AccelerationModel3d > radiationPressureAcceleration = accelerationsMap[ "Vehicle" ][ "Sun" ][ 0 ];
+    auto radiationPressureAcceleration =
+            std::dynamic_pointer_cast<electromagnetism::RadiationPressureAcceleration>(
+                    accelerationsMap[ "Vehicle" ][ "Sun" ][ 0 ]);
 
     // Set (arbitrary) test time.
     double testTime = 5.0 * 86400.0;
@@ -470,24 +472,27 @@ BOOST_AUTO_TEST_CASE( test_radiationPressureAcceleration )
     bodies.at( "Vehicle" )->setStateFromEphemeris< double, double >( testTime );
     bodies.at("Sun")->getRadiationSourceModel()->updateMembers(testTime);
     bodies.at( "Vehicle" )->getRadiationPressureTargetModel()->updateMembers(testTime);
-
+    radiationPressureAcceleration->updateMembers(testTime);
 
     // Get acceleration
-    Eigen::Vector3d calculatedAcceleration = updateAndGetAcceleration(radiationPressureAcceleration );
+    Eigen::Vector3d calculatedAcceleration = radiationPressureAcceleration->getAcceleration();
+    double calculatedReceivedIrradiance = radiationPressureAcceleration->getReceivedIrradiance();
 
     // Manually calculate acceleration
-    Eigen::Vector3d expectedForceDirection =
+    Eigen::Vector3d sourceTargetRelativePosition =
             ( bodies.at( "Vehicle" )->getState() -  bodies.at( "Sun" )->getState() ).segment( 0, 3 );
-    auto sourceDistance = expectedForceDirection.norm();
+    auto sourceDistance = sourceTargetRelativePosition.norm();
     auto irradiance =
                 celestial_body_constants::SUN_LUMINOSITY / (4 * mathematical_constants::PI * sourceDistance * sourceDistance);
     auto radiationPressure = irradiance / physical_constants::SPEED_OF_LIGHT;
     auto expectedForceMagnitude = radiationPressure * area * coefficient;
-    Eigen::Vector3d expectedAcceleration = expectedForceDirection.normalized() * expectedForceMagnitude / bodyMass;
+    auto expectedForceDirection = sourceTargetRelativePosition.normalized();
+    Eigen::Vector3d expectedAcceleration = expectedForceDirection * expectedForceMagnitude / bodyMass;
 
     // Compare results
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                 expectedAcceleration, calculatedAcceleration, ( 2.0 * std::numeric_limits< double >::epsilon( ) ) );
+    BOOST_CHECK_CLOSE(irradiance, calculatedReceivedIrradiance, 1e-15);
 }
 
 //! Test cannonball radiation pressure acceleration
