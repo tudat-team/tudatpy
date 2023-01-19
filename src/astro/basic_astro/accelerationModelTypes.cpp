@@ -69,7 +69,7 @@ std::string getAccelerationModelName( const AvailableAcceleration accelerationTy
     case direct_tidal_dissipation_in_orbiting_body_acceleration:
         accelerationName  = "direct tidal dissipation in orbiting body ";
         break;
-    case radiation_pressure_acceleration:
+    case radiation_pressure:
         accelerationName  = "radiation pressure acceleration ";
         break;
     case panelled_radiation_pressure_acceleration:
@@ -188,7 +188,7 @@ AvailableAcceleration getAccelerationModelType(
     }
     else if( std::dynamic_pointer_cast< RadiationPressureAcceleration >( accelerationModel ) != NULL )
     {
-        accelerationType = radiation_pressure_acceleration;
+        accelerationType = radiation_pressure;
     }
     else if( std::dynamic_pointer_cast< PanelledRadiationPressureAcceleration >( accelerationModel ) != NULL )
     {

@@ -138,7 +138,7 @@ private:
  *    extent is neglected). This also applies for occultation calculations.
  */
  // If other original source types are to be supported in the future, add the rotational state update to
- // createEnvironmentUpdater.cpp under case radiation_pressure_acceleration
+ // createEnvironmentUpdater.cpp under case radiation_pressure
 class PaneledSourceRadiationPressureAcceleration : public RadiationPressureAcceleration
 {
 public:

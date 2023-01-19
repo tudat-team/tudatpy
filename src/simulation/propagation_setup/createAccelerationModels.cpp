@@ -1724,7 +1724,7 @@ std::shared_ptr< AccelerationModel< Eigen::Vector3d > > createAccelerationModel(
                     nameOfBodyUndergoingAcceleration,
                     nameOfBodyExertingAcceleration );
         break;
-    case radiation_pressure_acceleration:
+    case radiation_pressure:
         accelerationModelPointer = createRadiationPressureAccelerationModel(
                     bodyUndergoingAcceleration,
                     bodyExertingAcceleration,
