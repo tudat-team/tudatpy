@@ -36,10 +36,10 @@ int main()
     occultationModel.updateMembers(TUDAT_NAN);
 
     std::cout << "Actual shadow function: "
-            << occultationModel.evaluateReceivedFraction(
-            sourcePosition,
-            sourceShape,
-            targetPosition) << std::endl;
+            << occultationModel.evaluateReceivedFractionFromExtendedSource(
+                    sourcePosition,
+                    sourceShape,
+                    targetPosition) << std::endl;
 
     std::cout << "Estimated shadow function: "
             << estimateShadowFunction(occultationModel) << std::endl;
@@ -53,7 +53,7 @@ double estimateShadowFunction(OccultationModel& occultationModel)
     for (int i = 0; i < nSamples; ++i)
     {
         auto pointOnSource = generatePointOnSource();
-        if (occultationModel.evaluateVisibility(pointOnSource, targetPosition))
+        if (occultationModel.evaluateReceivedFractionFromPointSource(pointOnSource, targetPosition))
         {
             nVisible++;
         }
