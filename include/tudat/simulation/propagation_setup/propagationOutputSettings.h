@@ -126,7 +126,8 @@ enum PropagationDependentVariables
     gravity_field_laplacian_of_potential_dependent_variable = 53,
     total_acceleration_partial_wrt_body_translational_state = 54,
     minimum_constellation_distance = 55,
-    minimum_constellation_ground_station_distance = 56
+    minimum_constellation_ground_station_distance = 56,
+    received_irradiance = 57
 };
 
 // Functional base class for defining settings for dependent variables that are to be saved during propagation
@@ -1281,6 +1282,15 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > minimumConstellati
 {
     return std::make_shared< MinimumConstellationStationDistanceDependentVariableSaveSettings >(
                bodyName, stationName, bodiesToCheck, elevationAngleLimit );
+}
+
+// TODO-DOMINIK add docstring
+inline std::shared_ptr< SingleDependentVariableSaveSettings > receivedIrradianceDependentVariable(
+        const std::string& targetBody,
+        const std::string& sourceBody )
+{
+    return std::make_shared< SingleDependentVariableSaveSettings >(
+            received_irradiance, targetBody, sourceBody );
 }
 
 } // namespace propagators

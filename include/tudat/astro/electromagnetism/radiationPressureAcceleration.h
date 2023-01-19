@@ -48,6 +48,11 @@ public:
         return targetModel_;
     }
 
+    double getReceivedIrradiance() const
+    {
+        return receivedIrradiance;
+    }
+
 protected:
     RadiationPressureAcceleration(const std::function<Eigen::Vector3d()>& sourcePositionFunction,
                                   const std::shared_ptr<RadiationPressureTargetModel>& targetModel,
@@ -60,7 +65,8 @@ protected:
             targetPositionFunction_(targetPositionFunction),
             targetRotationFromLocalToGlobalFrameFunction_(targetRotationFromLocalToGlobalFrameFunction),
             targetMassFunction_(targetMassFunction),
-            sourceToTargetOccultationModel_(sourceToTargetOccultationModel) {}
+            sourceToTargetOccultationModel_(sourceToTargetOccultationModel),
+            receivedIrradiance(TUDAT_NAN) {}
 
     virtual Eigen::Vector3d calculateAcceleration() = 0;
 
@@ -72,6 +78,9 @@ protected:
     std::function<Eigen::Quaterniond()> targetRotationFromLocalToGlobalFrameFunction_;
     std::function<double()> targetMassFunction_;
     std::shared_ptr<OccultationModel> sourceToTargetOccultationModel_;
+
+    // For dependent variable
+    double receivedIrradiance;
 };
 
 /*!
