@@ -41,7 +41,7 @@ Eigen::Vector3d IsotropicPointSourceRadiationPressureAcceleration::calculateAcce
     // Evaluate irradiances at target position in source frame
     // No rotation to source frame is necessary because isotropic sources are rotation-invariant
     Eigen::Vector3d targetCenterPositionInSourceFrame = targetCenterPositionInGlobalFrame - sourceCenterPositionInGlobalFrame;
-    auto occultationFactor = sourceToTargetOccultationModel_->evaluateReceivedFraction(
+    auto occultationFactor = sourceToTargetOccultationModel_->evaluateReceivedFractionFromExtendedSource(
             sourceCenterPositionInGlobalFrame, sourceBodyShapeModel_, targetCenterPositionInGlobalFrame);
     auto sourceIrradiance = sourceModel_->evaluateIrradianceAtPosition(targetCenterPositionInSourceFrame);
     auto occultedSourceIrradiance = sourceIrradiance * occultationFactor;
@@ -105,10 +105,12 @@ Eigen::Vector3d PaneledSourceRadiationPressureAcceleration::calculateAcceleratio
         Eigen::Vector3d sourcePositionInGlobalFrame =
                 sourceCenterPositionInGlobalFrame + sourceRotationFromLocalToGlobalFrame * sourcePositionInSourceFrame;
 
-        auto originalSourceToSourceOccultationFactor = originalSourceToSourceOccultationModel_->evaluateReceivedFraction(
+        auto originalSourceToSourceOccultationFactor =
+                originalSourceToSourceOccultationModel_->evaluateReceivedFractionFromExtendedSource(
                 originalSourceCenterPositionInGlobalFrame, originalSourceBodyShapeModel_, sourcePositionInGlobalFrame);
-        auto sourceToTargetOccultationFactor = static_cast<double>(
-                sourceToTargetOccultationModel_->evaluateVisibility(sourcePositionInSourceFrame, targetCenterPositionInGlobalFrame));
+        auto sourceToTargetOccultationFactor =
+                sourceToTargetOccultationModel_->evaluateReceivedFractionFromPointSource(sourcePositionInSourceFrame,
+                                                                                         targetCenterPositionInGlobalFrame);
         auto occultedSourceIrradiance =
                 sourceIrradiance * originalSourceToSourceOccultationFactor * sourceToTargetOccultationFactor;
 

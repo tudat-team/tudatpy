@@ -26,7 +26,7 @@ void OccultationModel::updateMembers(const double currentTime)
     }
 }
 
-double SingleOccultingBodyOccultationModel::evaluateReceivedFraction(
+double SingleOccultingBodyOccultationModel::evaluateReceivedFractionFromExtendedSource(
         const Eigen::Vector3d& occultedSourcePosition,
         const std::shared_ptr<basic_astrodynamics::BodyShapeModel>& occultedSourceShapeModel,
         const Eigen::Vector3d& targetPosition)
@@ -40,15 +40,16 @@ double SingleOccultingBodyOccultationModel::evaluateReceivedFraction(
     return shadowFunction;
 }
 
-bool SingleOccultingBodyOccultationModel::evaluateVisibility(
+double SingleOccultingBodyOccultationModel::evaluateReceivedFractionFromPointSource(
         const Eigen::Vector3d& sourcePosition,
         const Eigen::Vector3d& targetPosition)
 {
-    return evaluateVisibilityWithOccultation(
+    auto isVisible = evaluatePointToPointVisibilityWithOccultation(
             sourcePosition,
             occultingBodyPosition,
             occultingBodyShapeModel_->getAverageRadius(),
             targetPosition);
+    return static_cast<double>(isVisible);
 }
 
 void SingleOccultingBodyOccultationModel::updateMembers_(double currentTime)
@@ -56,7 +57,7 @@ void SingleOccultingBodyOccultationModel::updateMembers_(double currentTime)
     occultingBodyPosition = occultingBodyPositionFunction_();
 }
 
-bool evaluateVisibilityWithOccultation(
+bool evaluatePointToPointVisibilityWithOccultation(
         const Eigen::Vector3d& sourcePosition,
         const Eigen::Vector3d& occultingBodyPosition,
         double occultingBodyRadius,
