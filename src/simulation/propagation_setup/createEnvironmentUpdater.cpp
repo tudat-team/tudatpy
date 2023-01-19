@@ -368,7 +368,7 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                     singleAccelerationUpdateNeeds[ body_mass_update ].push_back(
                                 acceleratedBodyIterator->first );
                     break;
-                case radiation_pressure_acceleration:
+                case radiation_pressure:
                 {
                     singleAccelerationUpdateNeeds[ body_mass_update ].push_back(
                             acceleratedBodyIterator->first );

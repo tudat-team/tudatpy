@@ -87,7 +87,7 @@ inline std::shared_ptr< AccelerationSettings > cannonBallRadiationPressureAccele
 
 inline std::shared_ptr< AccelerationSettings > radiationPressureAcceleration()
 {
-    return std::make_shared< AccelerationSettings >( basic_astrodynamics::radiation_pressure_acceleration );
+    return std::make_shared< AccelerationSettings >( basic_astrodynamics::radiation_pressure );
 }
 
 

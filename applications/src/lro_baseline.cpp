@@ -190,8 +190,8 @@ std::shared_ptr<propagators::SingleArcDynamicsSimulator<>> createAndRunSimulatio
                     singleAccelerationDependentVariable(spherical_harmonic_gravity, "LRO", "Moon"),
                     singleAccelerationDependentVariable(spherical_harmonic_gravity, "LRO", "Earth"),
                     singleAccelerationDependentVariable(point_mass_gravity, "LRO", "Sun"),
-                    singleAccelerationDependentVariable(radiation_pressure_acceleration, "LRO", "Sun"),
-                    singleAccelerationDependentVariable(radiation_pressure_acceleration, "LRO", "Moon"),
+                    singleAccelerationDependentVariable(radiation_pressure, "LRO", "Sun"),
+                    singleAccelerationDependentVariable(radiation_pressure, "LRO", "Moon"),
             };
 
     auto integratorSettings = rungeKuttaVariableStepSettingsScalarTolerances(
