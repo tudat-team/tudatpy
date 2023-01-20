@@ -114,16 +114,22 @@ public:
             const std::function<Eigen::Vector3d()>& targetPositionFunction,
             const std::function<Eigen::Quaterniond()>& targetRotationFromLocalToGlobalFrameFunction,
             const std::function<double()>& targetMassFunction,
-            const std::shared_ptr<OccultationModel>& sourceToTargetOccultationModel)
-            : RadiationPressureAcceleration(sourcePositionFunction, targetModel,
-                                            targetPositionFunction, targetRotationFromLocalToGlobalFrameFunction,
-                                            targetMassFunction, sourceToTargetOccultationModel),
-                                            sourceModel_(sourceModel),
-                                            sourceBodyShapeModel_(sourceBodyShapeModel) {}
+            const std::shared_ptr<OccultationModel>& sourceToTargetOccultationModel) :
+            RadiationPressureAcceleration(sourcePositionFunction, targetModel,
+                                          targetPositionFunction, targetRotationFromLocalToGlobalFrameFunction,
+                                          targetMassFunction, sourceToTargetOccultationModel),
+                                          sourceModel_(sourceModel),
+                                          sourceBodyShapeModel_(sourceBodyShapeModel),
+            sourceToTargetReceivedFraction(TUDAT_NAN) {}
 
     std::shared_ptr<RadiationSourceModel> getSourceModel() const override
     {
         return sourceModel_;
+    }
+
+    double getSourceToTargetReceivedFraction() const
+    {
+        return sourceToTargetReceivedFraction;
     }
 
 private:
@@ -131,10 +137,13 @@ private:
 
     std::shared_ptr<IsotropicPointRadiationSourceModel> sourceModel_;
     std::shared_ptr<basic_astrodynamics::BodyShapeModel> sourceBodyShapeModel_;
+
+    // For dependent variable
+    double sourceToTargetReceivedFraction;
 };
 
 /*!
- * Class modeling radiation pressure acceleration from a paneled point source. An original source illuminates the
+ * Class modeling radiation pressure acceleration from a paneled source. An original source illuminates the
  * source, which emits the radiation that accelerates the target. Only isotropic point sources are supported as
  * original sources for now. For occultation, panel-center-to-target-center visibility is used for each panel instead
  * of a shadow function.
@@ -192,7 +201,10 @@ public:
             originalSourceModel_(originalSourceModel),
             originalSourceBodyShapeModel_(originalSourceBodyShapeModel),
             originalSourcePositionFunction_(originalSourcePositionFunction),
-            originalSourceToSourceOccultationModel_(originalSourceToSourceOccultationModel) {}
+            originalSourceToSourceOccultationModel_(originalSourceToSourceOccultationModel),
+            visibleSourcePanelCount(-1),
+            illuminatedSourcePanelCount(-1),
+            visibleAndIlluminatedSourcePanelCount(-1) {}
 
     std::shared_ptr<RadiationSourceModel> getSourceModel() const override
     {
@@ -202,6 +214,21 @@ public:
     const std::shared_ptr<IsotropicPointRadiationSourceModel>& getOriginalSourceModel() const
     {
         return originalSourceModel_;
+    }
+
+    unsigned int getVisibleSourcePanelCount() const
+    {
+        return visibleSourcePanelCount;
+    }
+
+    unsigned int getIlluminatedSourcePanelCount() const
+    {
+        return illuminatedSourcePanelCount;
+    }
+
+    unsigned int getVisibleAndIlluminatedSourcePanelCount() const
+    {
+        return visibleAndIlluminatedSourcePanelCount;
     }
 
 private:
@@ -215,6 +242,11 @@ private:
     std::shared_ptr<basic_astrodynamics::BodyShapeModel> originalSourceBodyShapeModel_;
     std::function<Eigen::Vector3d()> originalSourcePositionFunction_;
     std::shared_ptr<OccultationModel> originalSourceToSourceOccultationModel_;
+
+    // For dependent variables
+    unsigned int visibleSourcePanelCount;
+    unsigned int illuminatedSourcePanelCount;
+    unsigned int visibleAndIlluminatedSourcePanelCount;
 };
 
 } // tudat

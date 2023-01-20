@@ -280,6 +280,18 @@ std::string getDependentVariableName(
     case received_irradiance:
         variableName = "Received irradiance";
         break;
+    case received_fraction:
+        variableName = "Received fraction of irradiance";
+        break;
+    case visible_source_panel_count:
+        variableName = "Number of visible source panels";
+        break;
+    case illuminated_source_panel_count:
+        variableName = "Number of illuminated source panels";
+        break;
+    case visible_and_illuminated_source_panel_count:
+        variableName = "Number of visible and illuminated source panels";
+        break;
     default:
         std::string errorMessage = "Error, dependent variable " +
                 std::to_string( propagationDependentVariables ) +

@@ -194,6 +194,10 @@ std::shared_ptr<propagators::SingleArcDynamicsSimulator<>> createAndRunSimulatio
                     singleAccelerationDependentVariable(radiation_pressure, "LRO", "Moon"),
                     receivedIrradianceDependentVariable("LRO", "Sun"),
                     receivedIrradianceDependentVariable("LRO", "Moon"),
+                    receivedFractionDependentVariable("LRO", "Sun"),
+                    visibleSourcePanelDependentVariable("LRO", "Moon"),
+                    illuminatedSourcePanelDependentVariable("LRO", "Moon"),
+                    visibleAndIlluminatedSourcePanelDependentVariable("LRO", "Moon"),
             };
 
     auto integratorSettings = rungeKuttaVariableStepSettingsScalarTolerances(

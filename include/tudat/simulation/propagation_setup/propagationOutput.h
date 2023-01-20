@@ -2261,6 +2261,81 @@ std::function< double( ) > getDoubleDependentVariableFunction(
 
             break;
         }
+        case received_fraction:
+        {
+            auto radiationPressureAccelerationList = getAccelerationBetweenBodies(
+                dependentVariableSettings->associatedBody_,
+                dependentVariableSettings->secondaryBody_,
+                stateDerivativeModels, basic_astrodynamics::radiation_pressure );
+
+            if (radiationPressureAccelerationList.empty())
+            {
+                std::string errorMessage = "Error, radiation pressure acceleration with target " +
+                        dependentVariableSettings->associatedBody_ + " and source " +
+                        dependentVariableSettings->secondaryBody_  +
+                       " not found";
+                throw std::runtime_error(errorMessage);
+            }
+
+            auto radiationPressureAcceleration =
+                    std::dynamic_pointer_cast<electromagnetism::IsotropicPointSourceRadiationPressureAcceleration>(
+                            radiationPressureAccelerationList.front());
+            if (radiationPressureAcceleration == nullptr)
+            {
+                throw std::runtime_error("Error, source body " + dependentVariableSettings->secondaryBody_ +
+                    " does not have an isotropic point source, which is required for the received fraction dependent " +
+                    "variable");
+            }
+
+            variableFunction = [=] () { return radiationPressureAcceleration->getSourceToTargetReceivedFraction(); };
+
+            break;
+        }
+        case visible_source_panel_count:
+        case illuminated_source_panel_count:
+        case visible_and_illuminated_source_panel_count:
+        {
+            auto radiationPressureAccelerationList = getAccelerationBetweenBodies(
+                dependentVariableSettings->associatedBody_,
+                dependentVariableSettings->secondaryBody_,
+                stateDerivativeModels, basic_astrodynamics::radiation_pressure );
+
+            if (radiationPressureAccelerationList.empty())
+            {
+                std::string errorMessage = "Error, radiation pressure acceleration with target " +
+                        dependentVariableSettings->associatedBody_ + " and source " +
+                        dependentVariableSettings->secondaryBody_  +
+                       " not found";
+                throw std::runtime_error(errorMessage);
+            }
+
+            auto radiationPressureAcceleration =
+                    std::dynamic_pointer_cast<electromagnetism::PaneledSourceRadiationPressureAcceleration>(
+                            radiationPressureAccelerationList.front());
+            if (radiationPressureAcceleration == nullptr)
+            {
+                throw std::runtime_error("Error, source body " + dependentVariableSettings->secondaryBody_ +
+                     " does not have a paneled source, which is required for the visible/illuminated source "+
+                     "panel count dependent variable");
+            }
+
+            switch (dependentVariable)
+            {
+                case visible_source_panel_count:
+                    variableFunction = [=] () { return radiationPressureAcceleration->getVisibleSourcePanelCount(); };
+                    break;
+                case illuminated_source_panel_count:
+                    variableFunction = [=] () { return radiationPressureAcceleration->getIlluminatedSourcePanelCount(); };
+                    break;
+                case visible_and_illuminated_source_panel_count:
+                    variableFunction = [=] () { return radiationPressureAcceleration->getVisibleAndIlluminatedSourcePanelCount(); };
+                    break;
+                default:
+                    break;
+            }
+
+            break;
+        }
         default:
             std::string errorMessage =
                     "Error, did not recognize double dependent variable type when making variable function: " +

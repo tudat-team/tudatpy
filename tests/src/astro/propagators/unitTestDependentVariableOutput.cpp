@@ -847,6 +847,9 @@ BOOST_AUTO_TEST_CASE( testDependentVariableEnvironmentUpdate )
                 std::make_shared< SingleDependentVariableSaveSettings >(
                     received_irradiance, "Earth", "Sun" ) );
     dependentVariables.push_back(
+                std::make_shared< SingleDependentVariableSaveSettings >(
+                    received_fraction, "Earth", "Sun" ) );
+    dependentVariables.push_back(
                 std::make_shared< CustomDependentVariableSaveSettings >(
                     [=]( ){ return getCustomDependentVariable( bodies ); }, 6 ) );
 
@@ -924,10 +927,14 @@ BOOST_AUTO_TEST_CASE( testDependentVariableEnvironmentUpdate )
         double computedReceivedIrradiance = currentDependentVariables ( 8 );
         BOOST_CHECK_SMALL(std::fabs( expectedReceivedIrradiance - computedReceivedIrradiance ), 1.0E-10 );
 
+        douvle expectedReceivedFraction = 1.0;
+        double computedReceivedFraction = currentDependentVariables ( 9 );
+        BOOST_CHECK_SMALL(std::fabs( expectedReceivedFraction - computedReceivedFraction ), 1.0E-10 );
+
         Eigen::Vector6d sunState = bodies.at( "Sun" )->getStateInBaseFrameFromEphemeris( variableIterator->first );
         Eigen::Vector6d moonState = bodies.at( "Moon" )->getStateInBaseFrameFromEphemeris(variableIterator->first  );
         Eigen::Vector6d customDependentVariable = sunState.cwiseQuotient( moonState );
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( customDependentVariable, ( currentDependentVariables.segment( 9, 6 ) ), 1.0E-14 );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( customDependentVariable, ( currentDependentVariables.segment( 10, 6 ) ), 1.0E-14 );
     }
 }
 
