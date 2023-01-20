@@ -127,7 +127,11 @@ enum PropagationDependentVariables
     total_acceleration_partial_wrt_body_translational_state = 54,
     minimum_constellation_distance = 55,
     minimum_constellation_ground_station_distance = 56,
-    received_irradiance = 57
+    received_irradiance = 57,
+    received_fraction = 58,
+    visible_source_panel_count = 59,
+    illuminated_source_panel_count = 60,
+    visible_and_illuminated_source_panel_count = 61,
 };
 
 // Functional base class for defining settings for dependent variables that are to be saved during propagation
@@ -1291,6 +1295,40 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > receivedIrradiance
 {
     return std::make_shared< SingleDependentVariableSaveSettings >(
             received_irradiance, targetBody, sourceBody );
+
+
+}
+inline std::shared_ptr< SingleDependentVariableSaveSettings > receivedFractionDependentVariable(
+        const std::string& targetBody,
+        const std::string& sourceBody )
+{
+    return std::make_shared< SingleDependentVariableSaveSettings >(
+            received_fraction, targetBody, sourceBody );
+
+}
+
+inline std::shared_ptr< SingleDependentVariableSaveSettings > visibleSourcePanelDependentVariable(
+        const std::string& targetBody,
+        const std::string& sourceBody)
+{
+    return std::make_shared< SingleDependentVariableSaveSettings >(
+            visible_source_panel_count, targetBody, sourceBody);
+}
+
+inline std::shared_ptr< SingleDependentVariableSaveSettings > illuminatedSourcePanelDependentVariable(
+        const std::string& targetBody,
+        const std::string& sourceBody)
+{
+    return std::make_shared< SingleDependentVariableSaveSettings >(
+            illuminated_source_panel_count, targetBody, sourceBody);
+}
+
+inline std::shared_ptr< SingleDependentVariableSaveSettings > visibleAndIlluminatedSourcePanelDependentVariable(
+        const std::string& targetBody,
+        const std::string& sourceBody)
+{
+    return std::make_shared< SingleDependentVariableSaveSettings >(
+            visible_and_illuminated_source_panel_count, targetBody, sourceBody);
 }
 
 } // namespace propagators

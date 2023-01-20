@@ -84,6 +84,7 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_GOCE )
 {
     const double expectedReceivedIrradiance = 1371;
     const Eigen::Vector3d expectedAcceleration = Eigen::Vector3d(1, 1, 0).normalized() * 5.2e-9;
+    const double expectedReceivedFraction = 1.0;
 
     auto luminosityModel = std::make_shared<IrradianceBasedLuminosityModel>(
             [](double) { return 1371; }, physical_constants::ASTRONOMICAL_UNIT);
@@ -105,9 +106,11 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_GOCE )
 
     const auto actualReceivedIrradiance = accelerationModel.getReceivedIrradiance();
     const auto actualAcceleration = accelerationModel.getAcceleration();
+    const auto actualReceivedFraction = accelerationModel.getSourceToTargetReceivedFraction();
 
     BOOST_CHECK_CLOSE_FRACTION(actualReceivedIrradiance, expectedReceivedIrradiance, 1e-15);
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(actualAcceleration, expectedAcceleration, 1e-2);
+    BOOST_CHECK_CLOSE_FRACTION(actualReceivedFraction, expectedReceivedFraction, 1e-15);
 }
 
 //! Test that acceleration of cannonball target with isotropic point source is invariant under rotation
@@ -169,6 +172,8 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPointSource_Can
     // Source and target keep their position, occulting body moves between tests
     {
         // Occulting body not interfering
+        const double expectedReceivedFraction = 1.0;
+
         const auto occultingBodyPosition = Eigen::Vector3d(5, 5, 0);
 
         auto sourceToTargetOccultationModel = std::make_shared<SingleOccultingBodyOccultationModel>(
@@ -190,12 +195,16 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPointSource_Can
         accelerationModel.updateMembers(TUDAT_NAN);
 
         const auto actualAcceleration = accelerationModel.getAcceleration().norm();
+        const auto actualReceivedFraction = accelerationModel.getSourceToTargetReceivedFraction();
 
         BOOST_CHECK(actualAcceleration > 0);
+        BOOST_CHECK_CLOSE_FRACTION(actualReceivedFraction, expectedReceivedFraction, 1e-15);
     }
 
     {
         // Occulting body interfering with source -> target
+        const double expectedReceivedFraction = 0.0;
+
         const auto occultingBodyPosition = Eigen::Vector3d(5, 0, 0);
 
         auto sourceToTargetOccultationModel = std::make_shared<SingleOccultingBodyOccultationModel>(
@@ -217,8 +226,10 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPointSource_Can
         accelerationModel.updateMembers(TUDAT_NAN);
 
         const auto actualAcceleration = accelerationModel.getAcceleration().norm();
+        const auto actualReceivedFraction = accelerationModel.getSourceToTargetReceivedFraction();
 
         BOOST_CHECK_CLOSE_FRACTION(actualAcceleration, 0, 1e-15);
+        BOOST_CHECK_CLOSE_FRACTION(actualReceivedFraction, expectedReceivedFraction, 1e-15);
     }
 }
 
@@ -763,6 +774,10 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_PaneledSource_Cannonball
     // Original source, source and target keep their position, occulting bodies move between tests
     {
         // Two occulting bodies but not interfering with radiation
+        const unsigned int expectedVisibleSourcePanelCount = 1;
+        const unsigned int expectedIlluminatedSourcePanelCount = 1;
+        const unsigned int expectedVisibleAndIlluminatedSourcePanelCount = 1;
+
         const auto originalSourceToSourceOccultingBodyPosition = Eigen::Vector3d(-5, 0, 0);
         const auto sourceToTargetOccultingBodyPosition = Eigen::Vector3d(5, -5, 0);
 
@@ -792,12 +807,22 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_PaneledSource_Cannonball
         accelerationModel.updateMembers(TUDAT_NAN);
 
         const auto actualAcceleration = accelerationModel.getAcceleration().norm();
+        const auto actualVisibleSourcePanelCount = accelerationModel.getVisibleSourcePanelCount();
+        const auto actualIlluminatedSourcePanelCount = accelerationModel.getIlluminatedSourcePanelCount();
+        const auto actualVisibleAndIlluminatedSourcePanelCount = accelerationModel.getVisibleAndIlluminatedSourcePanelCount();
 
         BOOST_CHECK(actualAcceleration > 0);
+        BOOST_CHECK(actualVisibleSourcePanelCount == expectedVisibleSourcePanelCount);
+        BOOST_CHECK(actualIlluminatedSourcePanelCount == expectedIlluminatedSourcePanelCount);
+        BOOST_CHECK(actualVisibleAndIlluminatedSourcePanelCount == expectedVisibleAndIlluminatedSourcePanelCount);
     }
 
     {
         // Occulting body only interfering with original source -> source
+        const unsigned int expectedVisibleSourcePanelCount = 1;
+        const unsigned int expectedIlluminatedSourcePanelCount = 0;
+        const unsigned int expectedVisibleAndIlluminatedSourcePanelCount = 0;
+
         const auto originalSourceToSourceOccultingBodyPosition = Eigen::Vector3d(5, 0, 0);
         const auto sourceToTargetOccultingBodyPosition = Eigen::Vector3d(5, -5, 0);
 
@@ -827,12 +852,22 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_PaneledSource_Cannonball
         accelerationModel.updateMembers(TUDAT_NAN);
 
         const auto actualAcceleration = accelerationModel.getAcceleration().norm();
+        const auto actualVisibleSourcePanelCount = accelerationModel.getVisibleSourcePanelCount();
+        const auto actualIlluminatedSourcePanelCount = accelerationModel.getIlluminatedSourcePanelCount();
+        const auto actualVisibleAndIlluminatedSourcePanelCount = accelerationModel.getVisibleAndIlluminatedSourcePanelCount();
 
         BOOST_CHECK_CLOSE_FRACTION(actualAcceleration, 0, 1e-15);
+        BOOST_CHECK(actualVisibleSourcePanelCount == expectedVisibleSourcePanelCount);
+        BOOST_CHECK(actualIlluminatedSourcePanelCount == expectedIlluminatedSourcePanelCount);
+        BOOST_CHECK(actualVisibleAndIlluminatedSourcePanelCount == expectedVisibleAndIlluminatedSourcePanelCount);
     }
 
     {
         // Occulting body only interfering with source -> target
+        const unsigned int expectedVisibleSourcePanelCount = 0;
+        const unsigned int expectedIlluminatedSourcePanelCount = 1;
+        const unsigned int expectedVisibleAndIlluminatedSourcePanelCount = 0;
+
         const auto originalSourceToSourceOccultingBodyPosition = Eigen::Vector3d(-5, 0, 0);
         const auto sourceToTargetOccultingBodyPosition = Eigen::Vector3d(5, 5, 0);
 
@@ -862,8 +897,59 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_PaneledSource_Cannonball
         accelerationModel.updateMembers(TUDAT_NAN);
 
         const auto actualAcceleration = accelerationModel.getAcceleration().norm();
+        const auto actualVisibleSourcePanelCount = accelerationModel.getVisibleSourcePanelCount();
+        const auto actualIlluminatedSourcePanelCount = accelerationModel.getIlluminatedSourcePanelCount();
+        const auto actualVisibleAndIlluminatedSourcePanelCount = accelerationModel.getVisibleAndIlluminatedSourcePanelCount();
 
         BOOST_CHECK_CLOSE_FRACTION(actualAcceleration, 0, 1e-15);
+        BOOST_CHECK(actualVisibleSourcePanelCount == expectedVisibleSourcePanelCount);
+        BOOST_CHECK(actualIlluminatedSourcePanelCount == expectedIlluminatedSourcePanelCount);
+        BOOST_CHECK(actualVisibleAndIlluminatedSourcePanelCount == expectedVisibleAndIlluminatedSourcePanelCount);
+    }
+
+    {
+        // Occulting bodies interfering with both original source -> source and source -> target
+        const unsigned int expectedVisibleSourcePanelCount = 0;
+        const unsigned int expectedIlluminatedSourcePanelCount = 0;
+        const unsigned int expectedVisibleAndIlluminatedSourcePanelCount = 0;
+
+        const auto originalSourceToSourceOccultingBodyPosition = Eigen::Vector3d(5, 0, 0);
+        const auto sourceToTargetOccultingBodyPosition = Eigen::Vector3d(5, 5, 0);
+
+        auto sourceToTargetOccultationModel = std::make_shared<SingleOccultingBodyOccultationModel>(
+            emptyBodyList, [=] () { return sourceToTargetOccultingBodyPosition; },
+            std::make_shared<basic_astrodynamics::SphericalBodyShapeModel>(1));
+        auto originalSourceToSourceOccultationModel = std::make_shared<SingleOccultingBodyOccultationModel>(
+            emptyBodyList, [=] () { return originalSourceToSourceOccultingBodyPosition; },
+            std::make_shared<basic_astrodynamics::SphericalBodyShapeModel>(1));
+
+        PaneledSourceRadiationPressureAcceleration accelerationModel(
+                sourceModel,
+                [] () { return Eigen::Vector3d::Zero(); },
+                [] () { return Eigen::Quaterniond::Identity(); },
+                targetModel,
+                [=] () { return targetPosition; },
+                [] () { return Eigen::Quaterniond::Identity(); },
+                [] () { return 1; },
+                originalSourceModel,
+                std::make_shared<basic_astrodynamics::SphericalBodyShapeModel>(1),
+                [=] () { return originalSourcePosition; },
+                sourceToTargetOccultationModel, originalSourceToSourceOccultationModel);
+
+        originalSourceModel->updateMembers(TUDAT_NAN);
+        sourceModel->updateMembers(TUDAT_NAN);
+        targetModel->updateMembers(TUDAT_NAN);
+        accelerationModel.updateMembers(TUDAT_NAN);
+
+        const auto actualAcceleration = accelerationModel.getAcceleration().norm();
+        const auto actualVisibleSourcePanelCount = accelerationModel.getVisibleSourcePanelCount();
+        const auto actualIlluminatedSourcePanelCount = accelerationModel.getIlluminatedSourcePanelCount();
+        const auto actualVisibleAndIlluminatedSourcePanelCount = accelerationModel.getVisibleAndIlluminatedSourcePanelCount();
+
+        BOOST_CHECK_CLOSE_FRACTION(actualAcceleration, 0, 1e-15);
+        BOOST_CHECK(actualVisibleSourcePanelCount == expectedVisibleSourcePanelCount);
+        BOOST_CHECK(actualIlluminatedSourcePanelCount == expectedIlluminatedSourcePanelCount);
+        BOOST_CHECK(actualVisibleAndIlluminatedSourcePanelCount == expectedVisibleAndIlluminatedSourcePanelCount);
     }
 }
 
