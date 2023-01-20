@@ -31,8 +31,7 @@ int main()
     auto occultingBodyShape = std::make_shared<tudat::basic_astrodynamics::SphericalBodyShapeModel>(occultingBodyRadius);
 
     SingleOccultingBodyOccultationModel occultationModel(
-            [=]() { return occultingBodyPosition; },
-            occultingBodyShape);
+            {}, [=]() { return occultingBodyPosition; }, occultingBodyShape);
     occultationModel.updateMembers(TUDAT_NAN);
 
     std::cout << "Actual shadow function: "
