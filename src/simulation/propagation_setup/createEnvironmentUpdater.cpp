@@ -1009,8 +1009,28 @@ std::vector< std::string > > createEnvironmentUpdaterSettingsForDependentVariabl
     }
     case received_irradiance:
     {
-        variablesToUpdate[ radiation_pressure_target_model_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
-        variablesToUpdate[ radiation_source_model_update ].push_back( dependentVariableSaveSettings->secondaryBody_ );
+        // TODO-DOMINIK will this update the correcponding acceleration models and also the environment models specified
+        //  in acceleration update for the associated body? (e.g., the radiation source model)
+        variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
+        break;
+    }
+    case received_fraction:
+    {
+        variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
+        break;
+    }
+    case visible_source_panel_count:
+    {
+        variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
+        break;
+    }
+    case illuminated_source_panel_count:
+    {
+        variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
+        break;
+    }
+    case visible_and_illuminated_source_panel_count:
+    {
         variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
         break;
     }

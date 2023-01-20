@@ -455,7 +455,7 @@ BOOST_AUTO_TEST_CASE( test_radiationPressureAcceleration )
     AccelerationMap accelerationsMap = createAccelerationModelsMap(
                 bodies, accelerationSettingsMap, centralBodies );
     auto radiationPressureAcceleration =
-            std::dynamic_pointer_cast<electromagnetism::RadiationPressureAcceleration>(
+            std::dynamic_pointer_cast<electromagnetism::IsotropicPointSourceRadiationPressureAcceleration>(
                     accelerationsMap[ "Vehicle" ][ "Sun" ][ 0 ]);
 
     // Set (arbitrary) test time.
@@ -477,6 +477,7 @@ BOOST_AUTO_TEST_CASE( test_radiationPressureAcceleration )
     // Get acceleration
     Eigen::Vector3d calculatedAcceleration = radiationPressureAcceleration->getAcceleration();
     double calculatedReceivedIrradiance = radiationPressureAcceleration->getReceivedIrradiance();
+    double calculatedReceivedFraction = radiationPressureAcceleration->getSourceToTargetReceivedFraction();
 
     // Manually calculate acceleration
     Eigen::Vector3d sourceTargetRelativePosition =
@@ -493,6 +494,7 @@ BOOST_AUTO_TEST_CASE( test_radiationPressureAcceleration )
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                 expectedAcceleration, calculatedAcceleration, ( 2.0 * std::numeric_limits< double >::epsilon( ) ) );
     BOOST_CHECK_CLOSE(irradiance, calculatedReceivedIrradiance, 1e-15);
+    BOOST_CHECK_CLOSE(1.0, calculatedReceivedFraction, 1e-15);
 }
 
 //! Test cannonball radiation pressure acceleration

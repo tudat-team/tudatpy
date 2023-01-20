@@ -41,10 +41,10 @@ Eigen::Vector3d IsotropicPointSourceRadiationPressureAcceleration::calculateAcce
     // Evaluate irradiances at target position in source frame
     // No rotation to source frame is necessary because isotropic sources are rotation-invariant
     Eigen::Vector3d targetCenterPositionInSourceFrame = targetCenterPositionInGlobalFrame - sourceCenterPositionInGlobalFrame;
-    auto occultationFactor = sourceToTargetOccultationModel_->evaluateReceivedFractionFromExtendedSource(
+    sourceToTargetReceivedFraction = sourceToTargetOccultationModel_->evaluateReceivedFractionFromExtendedSource(
             sourceCenterPositionInGlobalFrame, sourceBodyShapeModel_, targetCenterPositionInGlobalFrame);
     auto sourceIrradiance = sourceModel_->evaluateIrradianceAtPosition(targetCenterPositionInSourceFrame);
-    auto occultedSourceIrradiance = sourceIrradiance * occultationFactor;
+    auto occultedSourceIrradiance = sourceIrradiance * sourceToTargetReceivedFraction;
 
     // Update dependent variable
     receivedIrradiance = occultedSourceIrradiance;
@@ -95,9 +95,14 @@ Eigen::Vector3d PaneledSourceRadiationPressureAcceleration::calculateAcceleratio
             originalSourceIrradiance,
             originalSourceToSourceDirectionInSourceFrame);
 
+    // For dependent variables
+    double totalReceivedIrradiance = 0;
+    unsigned int visibleSourcePanelCounter = 0;
+    unsigned int illuminatedSourcePanelCounter = 0;
+    unsigned int visibleAndIlluminatedSourcePanelCounter = 0;
+
     // Calculate radiation pressure force due to all sub-sources in target frame
     Eigen::Vector3d totalForceInTargetFrame = Eigen::Vector3d::Zero();
-    double totalReceivedIrradiance = 0;
     for (auto sourceIrradianceAndPosition : sourceIrradiancesAndPositions) {
         auto sourceIrradiance = std::get<0>(sourceIrradianceAndPosition);
         Eigen::Vector3d sourcePositionInSourceFrame =
@@ -105,16 +110,14 @@ Eigen::Vector3d PaneledSourceRadiationPressureAcceleration::calculateAcceleratio
         Eigen::Vector3d sourcePositionInGlobalFrame =
                 sourceCenterPositionInGlobalFrame + sourceRotationFromLocalToGlobalFrame * sourcePositionInSourceFrame;
 
-        auto originalSourceToSourceOccultationFactor =
+        auto originalSourceToSourceReceivedFraction =
                 originalSourceToSourceOccultationModel_->evaluateReceivedFractionFromExtendedSource(
                 originalSourceCenterPositionInGlobalFrame, originalSourceBodyShapeModel_, sourcePositionInGlobalFrame);
-        auto sourceToTargetOccultationFactor =
+        auto sourceToTargetReceivedFraction =
                 sourceToTargetOccultationModel_->evaluateReceivedFractionFromPointSource(sourcePositionInSourceFrame,
                                                                                          targetCenterPositionInGlobalFrame);
         auto occultedSourceIrradiance =
-                sourceIrradiance * originalSourceToSourceOccultationFactor * sourceToTargetOccultationFactor;
-
-        totalReceivedIrradiance += occultedSourceIrradiance;
+                sourceIrradiance * originalSourceToSourceReceivedFraction * sourceToTargetReceivedFraction;
 
         if (occultedSourceIrradiance > 0)
         {
@@ -124,9 +127,27 @@ Eigen::Vector3d PaneledSourceRadiationPressureAcceleration::calculateAcceleratio
             totalForceInTargetFrame +=
                     targetModel_->evaluateRadiationPressureForce(occultedSourceIrradiance, sourceToTargetDirectionInTargetFrame);
         }
+
+        totalReceivedIrradiance += occultedSourceIrradiance;
+        if (sourceToTargetReceivedFraction > 0)
+        {
+            visibleSourcePanelCounter += 1;
+        }
+        if (originalSourceToSourceReceivedFraction > 0)
+        {
+            illuminatedSourcePanelCounter += 1;
+        }
+        if (sourceToTargetReceivedFraction > 0 && originalSourceToSourceReceivedFraction > 0)
+        {
+            visibleAndIlluminatedSourcePanelCounter += 1;
+        }
     }
-    // Update dependent variable
+
+    // Update dependent variables
     receivedIrradiance = totalReceivedIrradiance;
+    visibleSourcePanelCount = visibleSourcePanelCounter;
+    illuminatedSourcePanelCount = illuminatedSourcePanelCounter;
+    visibleAndIlluminatedSourcePanelCount = visibleAndIlluminatedSourcePanelCounter;
 
     // Calculate acceleration due to radiation pressure in global frame
     Eigen::Vector3d acceleration = targetRotationFromLocalToGlobalFrame * totalForceInTargetFrame / targetMassFunction_();
