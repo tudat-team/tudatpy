@@ -93,10 +93,6 @@ BOOST_AUTO_TEST_CASE( testIsotropicPointRadiationSourceModelPositionInvariance )
 //! Test generation of evenly spaced points on sphere by comparison with Python implementation
 BOOST_AUTO_TEST_CASE( testStaticallyPaneledRadiationSourceModel_Generation )
 {
-    // First panel is South pole, last panel is North pole
-    const auto expectedSurfaceNormalFirstPanel = -Eigen::Vector3d::UnitZ();
-    const auto expectedSurfaceNormalLastPanel = Eigen::Vector3d::UnitZ();
-
     const auto n = 10;
     const auto radius = 1000;
 
@@ -113,20 +109,13 @@ BOOST_AUTO_TEST_CASE( testStaticallyPaneledRadiationSourceModel_Generation )
 
     BOOST_CHECK_EQUAL(panels.size(), n);
 
-    // Check orientation of first and last panel
-    const auto actualSurfaceNormalFirstPanel = panels.front().getSurfaceNormal();
-    const auto actualSurfaceNormalLastPanel = panels.back().getSurfaceNormal();
-
-    for (int i = 0; i < 3; ++i)
-    {
-        BOOST_CHECK_SMALL(actualSurfaceNormalFirstPanel[i] - expectedSurfaceNormalFirstPanel[i], 1.0e-15);
-        BOOST_CHECK_SMALL(actualSurfaceNormalLastPanel[i] - expectedSurfaceNormalLastPanel[i], 1.0e-15);
-    }
-
-    // Check radial position of all panels
+    // Check radial position and normal of all panels
     for (auto& panel : panels)
     {
         BOOST_CHECK_CLOSE(panel.getRelativeCenter().norm(), radius, 1.0e-10);
+
+        Eigen::Vector3d expectedNormal = panel.getRelativeCenter().normalized();
+        TUDAT_CHECK_MATRIX_CLOSE(panel.getSurfaceNormal(), expectedNormal, 1.0e-10);
     }
 }
 
@@ -432,12 +421,12 @@ BOOST_AUTO_TEST_CASE( testAngleBasedThermalPanelRadiosityModel )
     }
 }
 
-//! Test generation of evenly spaced points on sphere by comparison with Python implementation
-// https://github.com/DominikStiller/tudelft-hpb-project/blob/45736644a5b94491359ab7d06fd4a6212742870c/analysis/paneling.ipynb
-BOOST_AUTO_TEST_CASE( testGenerateEvenlySpacedPoints_Values )
+//! Test generation of evenly spaced points on sphere with Saff's algorithm by comparison with Python implementation
+// https://github.com/DominikStiller/tudelft-hpb-project/blob/7d27bd188fba6033e5a52c1e95c710d45ea6c09b/analysis/paneling.ipynb
+BOOST_AUTO_TEST_CASE( testGenerateEvenlySpacedPoints_Spiraling_Values )
 {
     auto n = 10;
-    const auto pairOfAngleVectors = generateEvenlySpacedPoints(n);
+    const auto pairOfAngleVectors = generateEvenlySpacedPoints_Spiraling(n);
     const auto polarAngles = std::get<0>(pairOfAngleVectors);
     const auto azimuthAngles = std::get<1>(pairOfAngleVectors);
 
@@ -477,11 +466,11 @@ BOOST_AUTO_TEST_CASE( testGenerateEvenlySpacedPoints_Values )
     }
 }
 
-//! Test generation of evenly spaced points on sphere by checking bounds
-BOOST_AUTO_TEST_CASE( testGenerateEvenlySpacedPoints_Bounds )
+//! Test generation of evenly spaced points with Saff's algorithm on sphere by checking bounds
+BOOST_AUTO_TEST_CASE( testGenerateEvenlySpacedPoints_Spiraling_Validity )
 {
     auto n = 100;
-    const auto pairOfAngleVectors = generateEvenlySpacedPoints(n);
+    const auto pairOfAngleVectors = generateEvenlySpacedPoints_Spiraling(n);
     const auto polarAngles = std::get<0>(pairOfAngleVectors);
     const auto azimuthAngles = std::get<1>(pairOfAngleVectors);
 
@@ -501,6 +490,73 @@ BOOST_AUTO_TEST_CASE( testGenerateEvenlySpacedPoints_Bounds )
     // Check if first and last point are poles
     BOOST_CHECK_CLOSE(polarAngles.front(), mathematical_constants::PI, 1e-15);
     BOOST_CHECK_CLOSE(polarAngles.back(), 0, 1e-15);
+}
+
+//! Test generation of evenly spaced points on sphere with Wetterer's algorithm by comparison with Python implementation
+// https://github.com/DominikStiller/tudelft-hpb-project/blob/7d27bd188fba6033e5a52c1e95c710d45ea6c09b/analysis/paneling.ipynb
+BOOST_AUTO_TEST_CASE( testGenerateEvenlySpacedPoints_Staggered_Values )
+{
+    auto n = 10;
+    const auto pairOfAngleVectors = generateEvenlySpacedPoints_Staggered(n);
+    const auto polarAngles = std::get<0>(pairOfAngleVectors);
+    const auto azimuthAngles = std::get<1>(pairOfAngleVectors);
+
+    BOOST_CHECK_EQUAL(polarAngles.size(), n);
+    BOOST_CHECK_EQUAL(azimuthAngles.size(), n);
+
+    // Generated with Python script with visually verified results
+    const std::vector<double> actualPolarAngles{
+        2.6905658417935308,
+        2.34619382340565,
+        2.0943951023931953,
+        1.8754889808102941,
+        1.6709637479564563,
+        1.4706289056333366,
+        1.266103672779499,
+        1.0471975511965974,
+        0.7953988301841433,
+        0.4510268117962619
+    };
+    const std::vector<double> actualAzimuthAngles{
+        0.0,
+        2.399963229728653,
+        4.799926459457306,
+        0.9167043820063725,
+        3.3166676117350256,
+        5.716630841463679,
+        1.833408764012745,
+        4.2333719937413985,
+        0.35014991629046577,
+        2.750113146019119
+    };
+
+    for (int i = 0; i < n; ++i)
+    {
+        BOOST_CHECK_CLOSE(polarAngles[i], actualPolarAngles[i], 1e-15);
+        BOOST_CHECK_CLOSE(azimuthAngles[i], actualAzimuthAngles[i], 1e-15);
+    }
+}
+
+//! Test generation of evenly spaced points with Wetterer's algorithm on sphere by checking bounds
+BOOST_AUTO_TEST_CASE( testGenerateEvenlySpacedPoints_Staggered_Validity )
+{
+    auto n = 100;
+    const auto pairOfAngleVectors = generateEvenlySpacedPoints_Staggered(n);
+    const auto polarAngles = std::get<0>(pairOfAngleVectors);
+    const auto azimuthAngles = std::get<1>(pairOfAngleVectors);
+
+    BOOST_CHECK_EQUAL(polarAngles.size(), n);
+    BOOST_CHECK_EQUAL(azimuthAngles.size(), n);
+
+    // Check if polar and azimuth angles are valid spherical coordinates
+    for (int i = 0; i < n; ++i)
+    {
+        BOOST_CHECK_GE(polarAngles[i], 0);
+        BOOST_CHECK_LE(polarAngles[i], mathematical_constants::PI);
+
+        BOOST_CHECK_GE(azimuthAngles[i], 0);
+        BOOST_CHECK_LE(azimuthAngles[i], 2*mathematical_constants::PI);
+    }
 }
 
 BOOST_AUTO_TEST_SUITE_END()
