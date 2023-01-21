@@ -522,17 +522,27 @@ private:
 
 /*!
  * Generate evenly spaced points on a sphere using algorithm from Saff (1997). This is used for uniform panel generation
- * for the statically paneled source.
+ * for the statically paneled source. Points are given from southmost to northmost. The poles are included.
+ *
+ * The generated points are more staggered with Wetterer's algorithm, while Saff's points are more aligned along zonal
+ * and meridional lines (spiraling). Staggered points should be preferred.
  *
  * @param n number of points to generate
  * @return a pair of vectors, first vector are polar angles, second vector are azimuth angles
  */
-// Similar algorithm from Wetterer (2014) did not produce points that were visually uniformly distributed, with more
-// points on the poles. However, the algorithm should be revisited, since the generated points are more staggered with
-// Wetterer's algorithm, while Saff's points are more aligned along zonal and meridional lines. Staggered points should
-// be preferred.
-// TODO-DOMINIK
-std::pair<std::vector<double>, std::vector<double>> generateEvenlySpacedPoints(unsigned int n);
+std::pair<std::vector<double>, std::vector<double>> generateEvenlySpacedPoints_Spiraling(unsigned int n);
+
+/*!
+ * Generate evenly spaced points on a sphere using algorithm from Wetterer (2014). This is used for uniform panel
+ * generation for the statically paneled source. Points are given from southmost to northmost. The poles are not included.
+ *
+ * The generated points are more staggered with Wetterer's algorithm, while Saff's points are more aligned along zonal
+ * and meridional lines (spiraling). Staggered points should be preferred.
+ *
+ * @param n number of points to generate
+ * @return a pair of vectors, first vector are polar angles, second vector are azimuth angles
+ */
+std::pair<std::vector<double>, std::vector<double>> generateEvenlySpacedPoints_Staggered(unsigned int n);
 
 
 } // tudat

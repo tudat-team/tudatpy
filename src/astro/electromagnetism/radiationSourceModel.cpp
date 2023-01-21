@@ -101,7 +101,7 @@ void StaticallyPaneledRadiationSourceModel::generatePanels()
     const auto panelArea = totalBodySurfaceArea / numberOfPanels;
 
     // Generate center points of panels in spherical coordinates
-    const auto pairOfAngleVectors = generateEvenlySpacedPoints(numberOfPanels);
+    const auto pairOfAngleVectors = generateEvenlySpacedPoints_Staggered(numberOfPanels);
     const auto polarAngles = std::get<0>(pairOfAngleVectors);
     const auto azimuthAngles = std::get<1>(pairOfAngleVectors);
 
@@ -259,7 +259,7 @@ double AngleBasedThermalPanelRadiosityModel::evaluateIrradianceAtPosition(
     return thermalIrradiance;
 }
 
-std::pair<std::vector<double>, std::vector<double>> generateEvenlySpacedPoints(unsigned int n)
+std::pair<std::vector<double>, std::vector<double>> generateEvenlySpacedPoints_Spiraling(unsigned int n)
 {
     std::vector<double> polarAngles;
     std::vector<double> azimuthAngles;
@@ -284,6 +284,43 @@ std::pair<std::vector<double>, std::vector<double>> generateEvenlySpacedPoints(u
         azimuthAngles.push_back(azimuthAngle);
 
         previousAzimuthAngle = azimuthAngle;
+    }
+
+    return std::make_pair(polarAngles, azimuthAngles);
+}
+
+std::pair<std::vector<double>, std::vector<double>> generateEvenlySpacedPoints_Staggered(unsigned int n)
+{
+    std::vector<double> polarAngles;
+    std::vector<double> azimuthAngles;
+
+    double azimuthStep = PI * (3 - sqrt(5));
+
+    // Wetterer (2014) Eqs. 34 + 35
+    double previousAzimuthAngle{};
+    double z = -1 + 1./n;
+    for (unsigned int j = 1; j <= n; ++j)
+    {
+        // Numerator and denominator of the atan argument seem to be switched in the given equation, which produced
+        // points that are skewed towards the poles
+        double polarAngle = M_PI_2 - atan(z / sqrt(1 - z*z));
+        double azimuthAngle;
+        if (j == 1)
+        {
+            azimuthAngle = 0.;
+        }
+        else
+        {
+            azimuthAngle = fmod(previousAzimuthAngle + azimuthStep, 2 * PI);
+        }
+
+        polarAngles.push_back(polarAngle);
+        azimuthAngles.push_back(azimuthAngle);
+
+        previousAzimuthAngle = azimuthAngle;
+        // We use increasing z instead of decreasing z as in the given equation to produce points from southmost to
+        // northmost, which is consistent with Saff's algorithm
+        z += 2./n;
     }
 
     return std::make_pair(polarAngles, azimuthAngles);
