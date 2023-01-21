@@ -113,7 +113,7 @@ void StaticallyPaneledRadiationSourceModel::generatePanels()
         const auto distanceFromSourceCenter = sourceBodyShapeModel_->getAverageRadius();
 
         // Calculate panel center relative to source center and surface normal in Cartesian coordinates
-        // Surface normal is just vector from source center to panel center
+        // Surface normal is just vector from source center to panel center for sphere
         const Eigen::Vector3d relativeCenter = coordinate_conversions::convertSphericalToCartesian(
                 Eigen::Vector3d(distanceFromSourceCenter, polarAngle, azimuthAngle));
         const Eigen::Vector3d surfaceNormal = relativeCenter.normalized();
