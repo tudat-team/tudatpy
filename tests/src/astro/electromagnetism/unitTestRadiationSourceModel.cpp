@@ -433,6 +433,7 @@ BOOST_AUTO_TEST_CASE( testAngleBasedThermalPanelRadiosityModel )
 }
 
 //! Test generation of evenly spaced points on sphere by comparison with Python implementation
+// https://github.com/DominikStiller/tudelft-hpb-project/blob/45736644a5b94491359ab7d06fd4a6212742870c/analysis/paneling.ipynb
 BOOST_AUTO_TEST_CASE( testGenerateEvenlySpacedPoints_Values )
 {
     auto n = 10;

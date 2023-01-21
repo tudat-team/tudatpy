@@ -114,7 +114,7 @@ Eigen::Vector3d PaneledSourceRadiationPressureAcceleration::calculateAcceleratio
                 originalSourceToSourceOccultationModel_->evaluateReceivedFractionFromExtendedSource(
                 originalSourceCenterPositionInGlobalFrame, originalSourceBodyShapeModel_, sourcePositionInGlobalFrame);
         auto sourceToTargetReceivedFraction =
-                sourceToTargetOccultationModel_->evaluateReceivedFractionFromPointSource(sourcePositionInSourceFrame,
+                sourceToTargetOccultationModel_->evaluateReceivedFractionFromPointSource(sourcePositionInGlobalFrame,
                                                                                          targetCenterPositionInGlobalFrame);
         auto occultedSourceIrradiance =
                 sourceIrradiance * originalSourceToSourceReceivedFraction * sourceToTargetReceivedFraction;
