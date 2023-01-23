@@ -70,10 +70,6 @@ void expose_propagator_setup(py::module &m) {
                           &tp::PropagationPrintSettings::getPrintTerminationReason,
                           &tp::PropagationPrintSettings::setPrintTerminationReason,
                           get_docstring("PropagationPrintSettings.print_termination_reason").c_str() )
-            .def_property("state_print_interval",
-                          &tp::PropagationPrintSettings::getResultsPrintFrequencyInSteps,
-                          &tp::PropagationPrintSettings::setResultsPrintFrequencyInSteps,
-                          get_docstring("PropagationPrintSettings.state_print_interval").c_str() )
             .def_property("print_initial_and_final_conditions",
                           &tp::PropagationPrintSettings::getPrintInitialAndFinalConditions,
                           &tp::PropagationPrintSettings::setPrintInitialAndFinalConditions,
@@ -160,12 +156,10 @@ void expose_propagator_setup(py::module &m) {
                                            get_docstring("HybridArcPropagatorProcessingSettings").c_str())
             .def_property("set_integrated_result",
                           &tp::HybridArcPropagatorProcessingSettings::getSetIntegratedResult,
-                          &tp::HybridArcPropagatorProcessingSettings::setIntegratedResult,
-                          get_docstring("HybridArcPropagatorProcessingSettings.set_integrated_result").c_str() )
+                          &tp::HybridArcPropagatorProcessingSettings::setIntegratedResult )
             .def_property("clear_numerical_solution",
                           &tp::HybridArcPropagatorProcessingSettings::getClearNumericalSolutions,
-                          &tp::HybridArcPropagatorProcessingSettings::setClearNumericalSolutions,
-                          get_docstring("HybridArcPropagatorProcessingSettings.clear_numerical_solution").c_str() )
+                          &tp::HybridArcPropagatorProcessingSettings::setClearNumericalSolutions )
             .def("set_print_settings_for_all_arcs",
                  &tp::HybridArcPropagatorProcessingSettings::resetAndApplyConsistentPrintSettings,
                  py::arg( "print_settings" ),
@@ -280,13 +274,19 @@ void expose_propagator_setup(py::module &m) {
             tp::MultiArcPropagatorSettings<double,TIME_TYPE>,
             std::shared_ptr<tp::MultiArcPropagatorSettings<double,TIME_TYPE>>,
             tp::PropagatorSettings<double>>(m, "MultiArcPropagatorSettings",
-                                            get_docstring("MultiArcPropagatorSettings").c_str());
+                                            get_docstring("MultiArcPropagatorSettings").c_str())
+            .def_property_readonly("processing_settings",
+                                   &tp::MultiArcPropagatorSettings<double,TIME_TYPE>::getOutputSettings,
+                                   get_docstring("MultiArcPropagatorSettings.print_settings").c_str() );
 
     py::class_<
             tp::HybridArcPropagatorSettings<double,TIME_TYPE>,
             std::shared_ptr<tp::HybridArcPropagatorSettings<double,TIME_TYPE>>,
             tp::PropagatorSettings<double>>(m, "HybridArcPropagatorSettings",
-                                            get_docstring("HybridArcPropagatorSettings").c_str());
+                                            get_docstring("HybridArcPropagatorSettings").c_str())
+            .def_property_readonly("processing_settings",
+                                   &tp::HybridArcPropagatorSettings<double,TIME_TYPE>::getOutputSettings,
+                                   get_docstring("HybridArcPropagatorSettings.print_settings").c_str() );
 
     py::class_<
             tp::SingleArcPropagatorSettings<double,TIME_TYPE>,
@@ -298,9 +298,11 @@ void expose_propagator_setup(py::module &m) {
                           &tp::SingleArcPropagatorSettings<double,TIME_TYPE>::resetTerminationSettings,
                           get_docstring("SingleArcPropagatorSettings.termination_settings").c_str() )
             .def_property_readonly("processing_settings",
-                                   &tp::SingleArcPropagatorSettings<double,TIME_TYPE>::getOutputSettings )
+                                   &tp::SingleArcPropagatorSettings<double,TIME_TYPE>::getOutputSettings,
+                                   get_docstring("SingleArcPropagatorSettings.processing_settings").c_str() )
             .def_property_readonly("print_settings",
-                                   &tp::SingleArcPropagatorSettings<double,TIME_TYPE>::getPrintSettings );
+                                   &tp::SingleArcPropagatorSettings<double,TIME_TYPE>::getPrintSettings,
+                                   get_docstring("SingleArcPropagatorSettings.print_settings").c_str() );
 
 
     py::class_<
