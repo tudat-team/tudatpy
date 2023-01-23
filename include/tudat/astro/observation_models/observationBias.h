@@ -928,7 +928,7 @@ public:
      * \param timeBias Constant (entry-wise) time bias.
      * \param linkEndIndexForTime Link end index from which the 'current time' is determined
      */
-    ConstantTimeBias( const Eigen::Matrix< double, ObservationSize, 1 > timeBias,
+    ConstantTimeBias( const double timeBias,
                       const int linkEndIndexForTime ):
             timeBias_( timeBias ), linkEndIndexForTime_( linkEndIndexForTime ){ }
 
@@ -958,7 +958,7 @@ public:
      * Function retrieve the constant (entry-wise) time bias.
      * \return The constant (entry-wise) time bias.
      */
-    Eigen::Matrix< double, ObservationSize, 1 > getConstantTimeBias( )
+    double getConstantTimeBias( const double time ) const
     {
         return timeBias_;
     }
@@ -968,7 +968,7 @@ public:
      * Function to reset the constant (entry-wise) time bias.
      * \param observationTimeBias The new constant (entry-wise) time bias.
      */
-    void resetConstantObservationBias( const Eigen::Matrix< double, ObservationSize, 1 >& timeBias )
+    void resetConstantObservationBias( const double timeBias )
     {
         timeBias_ = timeBias;
     }
@@ -980,7 +980,12 @@ public:
      */
     Eigen::VectorXd getTemplateFreeConstantObservationBias( )
     {
-        return timeBias_;
+        Eigen::VectorXd bias = Eigen::VectorXd( ObservationSize );
+        for ( unsigned int j = 0 ; j < bias.size( ) ; j++ )
+        {
+            bias[ j ] = timeBias_;
+        }
+        return bias;
     }
 
     //! Function to reset the constant (entry-wise) time bias with variable-size input.
@@ -991,14 +996,7 @@ public:
      */
     void resetConstantObservationBiasTemplateFree( const Eigen::VectorXd& timeBias )
     {
-        if( timeBias.rows( ) == ObservationSize )
-        {
-            timeBias_ = timeBias;
-        }
-        else
-        {
-            throw std::runtime_error( "Error when resetting time bias, size is inconsistent" );
-        }
+        timeBias_ = timeBias[ 0 ];
     }
 
     int getLinkEndIndexForTime( ) const
@@ -1009,7 +1007,7 @@ public:
 private:
 
     //! Constant (entry-wise) time bias.
-    Eigen::Matrix< double, ObservationSize, 1 > timeBias_;
+    double timeBias_;
 
     //! Link end index from which the 'current time' is determined (e.g. entry from linkEndTimes used in getObservationBias
     //! function.
@@ -1039,7 +1037,7 @@ public:
      */
     ArcWiseTimeBias(
             const std::vector< double >& arcStartTimes,
-            const std::vector< Eigen::Matrix< double, ObservationSize, 1 > >& timeBiases,
+            const std::vector< double >& timeBiases,
             const int linkEndIndexForTime ):
             arcStartTimes_( arcStartTimes ), timeBiases_( timeBiases ), linkEndIndexForTime_( linkEndIndexForTime )
     {
@@ -1080,7 +1078,7 @@ public:
      * Function retrieve the current time observation bias.
      * \return Arc-wise time observation bias.
      */
-    Eigen::Matrix< double, ObservationSize, 1 > getArcWiseTimeBias( const double time )
+    double getArcWiseTimeBias( const double time ) const
     {
         return timeBiases_.at( lookupScheme_->findNearestLowerNeighbour( time ) );
     }
@@ -1095,7 +1093,12 @@ public:
         std::vector< Eigen::VectorXd > templateFreeObservationBiases;
         for( unsigned int i = 0; i < timeBiases_.size( ); i++ )
         {
-            templateFreeObservationBiases.push_back( timeBiases_.at( i ) );
+            Eigen::VectorXd biases = Eigen::VectorXd( ObservationSize );
+            for ( unsigned int j = 0 ; j < ObservationSize ; j++ )
+            {
+                biases[ j ] = timeBiases_.at( i );
+            }
+            templateFreeObservationBiases.push_back( biases );
         }
         return templateFreeObservationBiases;
     }
@@ -1119,7 +1122,7 @@ public:
                 }
                 else
                 {
-                    timeBiases_[ i ] = timeBiases.at( i );
+                    timeBiases_[ i ] = timeBiases.at( i )[ 0 ];
                 }
             }
         }
@@ -1165,7 +1168,7 @@ private:
     std::vector< double > arcStartTimes_;
 
     //! Time biases, constant per arc
-    std::vector< Eigen::Matrix< double, ObservationSize, 1 > > timeBiases_;
+    std::vector< double > timeBiases_;
 
     //! Link end index from which the 'current time' is determined (e.g. entry from linkEndTimes used in getObservationBias
     //! function.
