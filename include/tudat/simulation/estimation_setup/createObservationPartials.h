@@ -18,6 +18,7 @@
 #include "tudat/simulation/estimation_setup/createNWayRangePartials.h"
 #include "tudat/simulation/estimation_setup/createEulerAngleObservationPartials.h"
 #include "tudat/simulation/estimation_setup/createDirectObservationPartials.h"
+#include "tudat/simulation/propagation_setup/dependentVariablesInterface.h"
 
 namespace tudat
 {
@@ -98,7 +99,9 @@ public:
             const std::shared_ptr< observation_models::ObservationModel< ObservationSize, ObservationScalarType, TimeType > > observationModel,
             const simulation_setup::SystemOfBodies& bodies,
             const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > > parametersToEstimate,
-            const bool useBiasPartials = true );
+            const bool useBiasPartials = true,
+            const std::shared_ptr< propagators::DependentVariablesInterface< TimeType > > dependentVariablesInterface =
+                    std::shared_ptr< propagators::DependentVariablesInterface< TimeType > >( ) );
 };
 
 //! Interface class for creating observation partials for observables of size 1.
@@ -126,7 +129,9 @@ public:
             const std::shared_ptr< observation_models::ObservationModel< 1, ObservationScalarType, TimeType > > observationModel,
             const simulation_setup::SystemOfBodies& bodies,
             const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > > parametersToEstimate,
-            const bool useBiasPartials = true )
+            const bool useBiasPartials = true,
+            const std::shared_ptr< propagators::DependentVariablesInterface< TimeType > > dependentVariablesInterface =
+                    std::shared_ptr< propagators::DependentVariablesInterface< TimeType > >( ) )
     {
         std::pair< std::map< std::pair< int, int >,
                 std::shared_ptr< ObservationPartial< 1 > > >, std::shared_ptr< PositionPartialScaling > > observationPartials;
@@ -193,7 +198,9 @@ public:
             const std::shared_ptr< observation_models::ObservationModel< 2, ObservationScalarType, TimeType > > observationModel,
             const simulation_setup::SystemOfBodies& bodies,
             const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > > parametersToEstimate,
-            const bool useBiasPartials = true )
+            const bool useBiasPartials = true,
+            const std::shared_ptr< propagators::DependentVariablesInterface< TimeType > > dependentVariablesInterface =
+                    std::shared_ptr< propagators::DependentVariablesInterface< TimeType > > ( ) )
     {
         std::pair< std::map< std::pair< int, int >,
                 std::shared_ptr< ObservationPartial< 2 > > >, std::shared_ptr< PositionPartialScaling > > observationPartials;
@@ -244,7 +251,9 @@ public:
             const std::shared_ptr< observation_models::ObservationModel< 3, ObservationScalarType, TimeType > > observationModel,
             const simulation_setup::SystemOfBodies& bodies,
             const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > > parametersToEstimate,
-            const bool useBiasPartials = true )
+            const bool useBiasPartials = true,
+            const std::shared_ptr< propagators::DependentVariablesInterface< TimeType > > dependentVariablesInterface =
+                    std::shared_ptr< propagators::DependentVariablesInterface< TimeType > >( ) )
     {
         std::pair< std::map< std::pair< int, int >,
                 std::shared_ptr< ObservationPartial< 3 > > >, std::shared_ptr< PositionPartialScaling > > observationPartials;
@@ -284,7 +293,9 @@ std::shared_ptr< PositionPartialScaling > > > createObservablePartialsList(
         std::shared_ptr< observation_models::ObservationModel< ObservationSize, ObservationScalarType, TimeType > > > observationModelList,
         const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > > parametersToEstimate,
-        const bool useBiasPartials = true )
+        const bool useBiasPartials = true,
+        const std::shared_ptr< propagators::DependentVariablesInterface< TimeType > > dependentVariablesInterface =
+                std::shared_ptr< propagators::DependentVariablesInterface< TimeType > >( ) )
 {
     std::map< observation_models::LinkEnds,
     std::pair< std::map< std::pair< int, int >, std::shared_ptr< ObservationPartial< ObservationSize > > > ,
@@ -302,7 +313,7 @@ std::shared_ptr< PositionPartialScaling > > > createObservablePartialsList(
             throw std::runtime_error( "Error when creating differenced observation partials, input models are inconsistent" );
         }
         partialsList[ it.first ] =  ObservationPartialCreator< ObservationSize, ObservationScalarType, TimeType >::createObservationPartials(
-                    it.second, bodies, parametersToEstimate, useBiasPartials );
+                    it.second, bodies, parametersToEstimate, useBiasPartials, dependentVariablesInterface );
     }
 
     return partialsList;

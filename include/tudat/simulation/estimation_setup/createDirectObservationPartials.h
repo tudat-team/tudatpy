@@ -318,10 +318,9 @@ createSingleLinkObservationPartials(
             vectorParametersToEstimate =
             parametersToEstimate->getVectorParameters( );
     for( std::map< int, std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd  > > >::iterator
-         parameterIterator =
-         vectorParametersToEstimate.begin( ); parameterIterator != vectorParametersToEstimate.end( ); parameterIterator++ )
+         parameterIterator = vectorParametersToEstimate.begin( ); parameterIterator != vectorParametersToEstimate.end( ); parameterIterator++ )
     {
-        // Create observation partial for current parameter
+       // Create observation partial for current parameter
         std::shared_ptr< ObservationPartial< ObservationSize > > currentObservationPartial;
 
         if( !isParameterObservationLinkProperty( parameterIterator->second->getParameterName( ).first ) )

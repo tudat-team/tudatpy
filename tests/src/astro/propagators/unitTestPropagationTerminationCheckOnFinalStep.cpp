@@ -162,7 +162,7 @@ BOOST_AUTO_TEST_CASE( testassessTerminationOnMinorStepsRKFixedStepSize )
 
         const double fixedStepSize = 50.0;
         std::shared_ptr< IntegratorSettings< > > integratorSettings =
-                std::make_shared< IntegratorSettings< > >( rungeKutta4, 0.0, fixedStepSize, 1, assessDuringSubsteps );
+                std::make_shared< IntegratorSettings< > >( rungeKutta4, 0.0, fixedStepSize, assessDuringSubsteps );
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ///////////////////////             PROPAGATE ORBIT            /////////////////////////////////////////////
@@ -357,7 +357,7 @@ BOOST_AUTO_TEST_CASE( testassessTerminationOnMinorStepsRKVariableStepSize )
         std::shared_ptr< IntegratorSettings< > > integratorSettings =
                 std::make_shared< RungeKuttaVariableStepSizeSettings< > >
                 ( simulationStartEpoch, initialStepSize,
-                  rungeKuttaFehlberg78, minStepSize, maxStepSize, tolerance, tolerance, 1,
+                  rungeKuttaFehlberg78, minStepSize, maxStepSize, tolerance, tolerance,
                   assessDuringSubsteps );
 
 

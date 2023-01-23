@@ -64,6 +64,7 @@ BOOST_AUTO_TEST_CASE( testCompilerErrors )
                     Eigen::Vector3d::Zero( ),
                     0.01,
                     std::numeric_limits< double >::infinity( ),
+                    0.1,
                     10.0 * std::numeric_limits< double >::epsilon( ),
                     10.0 * std::numeric_limits< double >::epsilon( ) );
 
@@ -94,6 +95,7 @@ BOOST_AUTO_TEST_CASE( testCompilerErrors )
                             Eigen::Vector3d::Zero( ),
                             0.01,
                             std::numeric_limits< double >::infinity( ),
+                            0.1,
                             10.0 * std::numeric_limits< double >::epsilon( ),
                             10.0 * std::numeric_limits< double >::epsilon( ) );
 
@@ -117,6 +119,7 @@ BOOST_AUTO_TEST_CASE( testCompilerErrors )
                             Eigen::Vector3d::Zero( ),
                             0.01,
                             std::numeric_limits< double >::infinity( ),
+                            0.1,
                             10.0 * std::numeric_limits< double >::epsilon( ),
                             10.0 * std::numeric_limits< double >::epsilon( ) );
 
@@ -141,6 +144,7 @@ BOOST_AUTO_TEST_CASE( testMinimumStepSizeRuntimeError )
                 Eigen::Vector3d::Zero( ),
                 100.0,
                 std::numeric_limits< double >::infinity( ),
+                0.1,
                 std::numeric_limits< double >::epsilon( ),
                 std::numeric_limits< double >::epsilon( ) );
 
@@ -212,7 +216,7 @@ BOOST_AUTO_TEST_CASE( testStateDerivativeRetrievalFunction )
                 &computeVanDerPolStateDerivative,
                 0.0,
                 ( Eigen::VectorXd( 2 ) << 1.0, 2.0 ).finished( ),
-                0.0, 10.0, 1.0E-8, 1.0E-8 );
+                0.0, 10.0, 0.1, 1.0E-8, 1.0E-8 );
 
     // Perform first integration step.
     integrator.performIntegrationStep( 1.0 );
@@ -283,7 +287,7 @@ BOOST_AUTO_TEST_CASE( testVariableStepIntegrateToFunction )
                 &computeSecondNonAutonomousModelStateDerivative,
                 0.0,
                 ( Eigen::VectorXd( 1 ) << 1.0 ).finished( ),
-                0.0, 10.0, 1.0E-10, 1.0E-10 );
+                0.0, 10.0, 1.0, 1.0E-10, 1.0E-10 );
 
     // Use integrateTo function
     Eigen::VectorXd integratedValue = integrator.integrateTo( 0.5, 1.0 );
@@ -299,7 +303,7 @@ BOOST_AUTO_TEST_CASE( testVariableStepIntegrateToFunction )
                 &computeSecondNonAutonomousModelStateDerivative,
                 0.0,
                 ( Eigen::VectorXd( 1 ) << 1.0 ).finished( ),
-                0.0, 10.0, 1.0E-10, 1.0E-10 );
+                0.0, 10.0, 0.5, 1.0E-10, 1.0E-10 );
 
     // Check if single step size of 0.5 will be adapted.
     verificationIntegrator.performIntegrationStep( 0.5 );
@@ -309,7 +313,7 @@ BOOST_AUTO_TEST_CASE( testVariableStepIntegrateToFunction )
     // Use a fixed step size integrator to check the original result of integrateTo
     RungeKutta4IntegratorXd fixedStepSizeIntegrator(
                 &computeSecondNonAutonomousModelStateDerivative,0.0,
-                ( Eigen::VectorXd( 1 ) << 1.0 ).finished( ) );
+                ( Eigen::VectorXd( 1 ) << 1.0 ).finished( ), 0.01 );
     Eigen::VectorXd fixedStepIntegratedValue = integrator.integrateTo( 0.5, 0.01 );
     BOOST_CHECK_CLOSE_FRACTION( fixedStepIntegratedValue.x( ), integratedValue.x( ), 1.0E-10 );
 }

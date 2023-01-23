@@ -1393,7 +1393,8 @@ createMultiArcIntegratedStateProcessors(
         // Check input consistency
         if ( arcStartTimes.size( ) != stateTypeItr.second.size( ) )
         {
-            throw std::runtime_error( "Error when creating multi-arc integrated state processors, input sizes are inconsistent." );
+            throw std::runtime_error( "Error when creating multi-arc integrated state processors, input sizes are inconsistent." +
+            std::to_string( arcStartTimes.size( ) ) + "_" + std::to_string( stateTypeItr.second.size( )) );
         }
 
         // Check dynamics type.

@@ -269,6 +269,84 @@ public:
     std::vector< double > referenceEpochs_;
 };
 
+//! Class for defining settings for the creation of a constant time bias
+class ConstantTimeBiasSettings: public ObservationBiasSettings
+{
+public:
+
+    //! Constuctor
+    /*!
+     * Constuctor
+     * \param timeBias Constant time bias that is to be considered for the observation time. The size of this vector must be equal to the
+     * size of the observable to which it is assigned.
+     * \param linkEndForTime Link end at which time is to be evaluated to determine current time
+     */
+    ConstantTimeBiasSettings(
+            const double timeBias,
+            const LinkEndType linkEndForTime ):
+            ObservationBiasSettings( constant_time_bias ),
+            timeBias_( timeBias ), linkEndForTime_( linkEndForTime ){ }
+
+    //! Destructor
+    ~ConstantTimeBiasSettings( ){ }
+
+    //! Constant time bias that is to be considered for the observation time.
+    /*!
+     *  Constant time bias that is to be considered for the observation time.
+     */
+    double timeBias_;
+
+    //! Link end at which time is to be evaluated to determine current time (and current arc)
+    LinkEndType linkEndForTime_;
+
+};
+
+//! Class for defining settings for the creation of an arc-wise time bias model
+class ArcWiseTimeBiasSettings: public ObservationBiasSettings
+{
+public:
+
+    //! Constuctor
+    /*!
+     * Constuctor
+     * \param arcStartTimes Start times for arcs in which biases (timeBiases) are used
+     * \param timeBiases List of time biases per arc
+     * \param linkEndForTime Link end at which time is to be evaluated to determine current time (and current arc)
+     */
+    ArcWiseTimeBiasSettings(
+            const std::vector< double >& arcStartTimes,
+            const std::vector< double >& timeBiases,
+            const LinkEndType linkEndForTime ):
+            ObservationBiasSettings( arc_wise_time_bias ),
+            arcStartTimes_( arcStartTimes ), timeBiases_( timeBiases ), linkEndForTime_( linkEndForTime ){ }
+
+    //! Constuctor
+    /*!
+     * Constuctor
+     * \param timeBiases Map of observation biases per arc, with bias as map value, and arc start time as map key
+     * \param linkEndForTime Link end at which time is to be evaluated to determine current time (and current arc)
+     */
+    ArcWiseTimeBiasSettings(
+            const std::map< double, double >& timeBiases,
+            const LinkEndType linkEndForTime ):
+            ObservationBiasSettings( arc_wise_time_bias ),
+            arcStartTimes_( utilities::createVectorFromMapKeys( timeBiases ) ),
+            timeBiases_( utilities::createVectorFromMapValues( timeBiases ) ), linkEndForTime_( linkEndForTime ){ }
+
+    //! Destructor
+    ~ArcWiseTimeBiasSettings( ){ }
+
+    //! Start times for arcs in which biases (observationBiases) are used
+    std::vector< double > arcStartTimes_;
+
+    //! List of time biases per arc
+    std::vector< double > timeBiases_;
+
+    //! Link end at which time is to be evaluated to determine current time (and current arc)
+    LinkEndType linkEndForTime_;
+
+};
+
 inline std::shared_ptr< ObservationBiasSettings > constantAbsoluteBias(
         const Eigen::VectorXd& observationBias )
 {
@@ -348,6 +426,28 @@ inline std::shared_ptr< ObservationBiasSettings > arcWiseTimeDriftBias(
         const std::vector< double > referenceEpochs )
 {
     return std::make_shared< ArcWiseTimeDriftBiasSettings >( timeDriftBiases, linkEndForTime, referenceEpochs );
+}
+
+inline std::shared_ptr< ObservationBiasSettings > constantTimeBias(
+        const double timeBias,
+        const LinkEndType linkEndForTime )
+{
+    return std::make_shared< ConstantTimeBiasSettings >( timeBias, linkEndForTime );
+}
+
+inline std::shared_ptr< ObservationBiasSettings > arcWiseTimeBias(
+        const std::vector< double >& timeBiases,
+        const std::vector< double >& arcStartTimes,
+        const LinkEndType linkEndForTime )
+{
+    return std::make_shared< ArcWiseTimeBiasSettings >( arcStartTimes, timeBiases, linkEndForTime );
+}
+
+inline std::shared_ptr< ObservationBiasSettings > arcWiseTimeBias(
+        const std::map< double, double >& timeBiases,
+        const LinkEndType linkEndForTime )
+{
+    return std::make_shared< ArcWiseTimeBiasSettings >( timeBiases, linkEndForTime );
 }
 
 //! Class used for defining the settings for an observation model that is to be created.
@@ -1258,6 +1358,36 @@ std::shared_ptr< ObservationBias< ObservationSize > > createObservationBiasCalcu
                 arcwiseBiasSettings->arcStartTimes_, observationBiases,
                 observation_models::getLinkEndIndicesForLinkEndTypeAtObservable(
                         observableType, arcwiseBiasSettings->linkEndForTime_, linkEnds.size( ) ).at( 0 ), arcwiseBiasSettings->referenceEpochs_ );
+        break;
+    }
+    case constant_time_bias:
+    {
+        // Check input consistency
+        std::shared_ptr< ConstantTimeBiasSettings > constantTimeBiasSettings = std::dynamic_pointer_cast< ConstantTimeBiasSettings >( biasSettings );
+        if( constantTimeBiasSettings == nullptr )
+        {
+            throw std::runtime_error( "Error when making constant time observation bias, settings are inconsistent" );
+        }
+
+        observationBias = std::make_shared< ConstantTimeBias< ObservationSize > >(
+                constantTimeBiasSettings->timeBias_, observation_models::getLinkEndIndicesForLinkEndTypeAtObservable(
+                        observableType, constantTimeBiasSettings->linkEndForTime_, linkEnds.size( ) ).at( 0 ) );
+        break;
+    }
+    case arc_wise_time_bias:
+    {
+        // Check input consistency
+        std::shared_ptr< ArcWiseTimeBiasSettings > arcwiseBiasSettings = std::dynamic_pointer_cast<
+                ArcWiseTimeBiasSettings >( biasSettings );
+        if( arcwiseBiasSettings == nullptr )
+        {
+            throw std::runtime_error( "Error when making arc-wise time bias, settings are inconsistent" );
+        }
+
+        observationBias = std::make_shared< ArcWiseTimeBias< ObservationSize > >(
+                arcwiseBiasSettings->arcStartTimes_, arcwiseBiasSettings->timeBiases_,
+                observation_models::getLinkEndIndicesForLinkEndTypeAtObservable(
+                        observableType, arcwiseBiasSettings->linkEndForTime_, linkEnds.size( ) ).at( 0 ) );
         break;
     }
     case multiple_observation_biases:

@@ -1269,6 +1269,45 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
             }
             break;
         }
+        case constant_time_observation_bias:
+        {
+            std::shared_ptr< ConstantTimeBiasEstimatableParameterSettings > biasSettings =
+                    std::dynamic_pointer_cast< ConstantTimeBiasEstimatableParameterSettings >( vectorParameterName );
+            if( biasSettings == nullptr )
+            {
+                throw std::runtime_error( "Error when creating constant time bias, input is inconsistent" );
+            }
+            else
+            {
+                vectorParameterToEstimate = std::make_shared< ConstantTimeBiasParameter >(
+                        std::function< Eigen::VectorXd( ) >( ),
+                        std::function< void( const Eigen::VectorXd& ) >( ),
+                        observation_models::getLinkEndIndicesForLinkEndTypeAtObservable(
+                                biasSettings->observableType_, biasSettings->linkEndForTime_, biasSettings->linkEnds_.size( ) ).at( 0 ),
+                        biasSettings->linkEnds_, biasSettings->observableType_ );
+            }
+            break;
+        }
+        case arc_wise_time_observation_bias:
+        {
+            std::shared_ptr< ArcWiseTimeBiasEstimatableParameterSettings > timeBiasSettings =
+                    std::dynamic_pointer_cast< ArcWiseTimeBiasEstimatableParameterSettings >( vectorParameterName );
+            if( timeBiasSettings == nullptr )
+            {
+                throw std::runtime_error( "Error when creating arcwise time bias, input is inconsistent" );
+            }
+            else
+            {
+                vectorParameterToEstimate = std::make_shared< ArcWiseTimeBiasParameter >(
+                        timeBiasSettings->arcStartTimes_,
+                        std::function< std::vector< Eigen::VectorXd >( ) >( ),
+                        std::function< void( const std::vector< Eigen::VectorXd >& ) >( ),
+                        observation_models::getLinkEndIndicesForLinkEndTypeAtObservable(
+                                timeBiasSettings->observableType_, timeBiasSettings->linkEndForTime_, timeBiasSettings->linkEnds_.size( ) ).at( 0 ),
+                        timeBiasSettings->linkEnds_, timeBiasSettings->observableType_ );
+            }
+            break;
+        }
         case rotation_pole_position:
             if( std::dynamic_pointer_cast< SimpleRotationalEphemeris >( currentBody->getRotationalEphemeris( ) ) == nullptr )
             {

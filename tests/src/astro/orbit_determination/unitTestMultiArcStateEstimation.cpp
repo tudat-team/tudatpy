@@ -150,6 +150,9 @@ Eigen::VectorXd  executeParameterEstimation(
     while( currentEndTime < integrationEndTime );
     integrationArcLimits.push_back( currentStartTime + arcOverlap );
 
+    // Define integrator settings.
+    std::shared_ptr< IntegratorSettings< TimeType > > integratorSettings =
+        rungeKutta4Settings( 3600.0 );
 
     std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > > propagatorSettingsList;
     for( unsigned int i = 0; i < integrationArcStartTimes.size( ); i++ )
@@ -161,7 +164,9 @@ Eigen::VectorXd  executeParameterEstimation(
                     std::make_shared< TranslationalStatePropagatorSettings< StateScalarType, TimeType > >
                     ( centralBodies, accelerationModelMap, bodiesToIntegrate,
                       currentInitialState,
-                      integrationArcEndTimes.at( i ) ) );
+                      integrationArcStartTimes.at( i ),
+                      integratorSettings,
+                      propagationTimeTerminationSettings( integrationArcEndTimes.at( i ) ) ) );
     }
     std::shared_ptr< MultiArcPropagatorSettings< StateScalarType, TimeType > > propagatorSettings =
             std::make_shared< MultiArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettingsList, linkArcs );
@@ -196,16 +201,12 @@ Eigen::VectorXd  executeParameterEstimation(
     observationSettingsList.push_back( std::make_shared< ObservationModelSettings >(
                                        one_way_range, linkEnds2[ 1 ] ) );
 
-    // Define integrator settings.
-    std::shared_ptr< IntegratorSettings< TimeType > > integratorSettings =
-            std::make_shared< IntegratorSettings< TimeType > >
-            ( rungeKutta4, TimeType( initialEphemerisTime - 4.0 * maximumTimeStep ), 3600.0 );
 
     // Create orbit determination object.
     OrbitDeterminationManager< ObservationScalarType, TimeType > orbitDeterminationManager =
             OrbitDeterminationManager< ObservationScalarType, TimeType >(
                 bodies, parametersToEstimate,
-                observationSettingsList, integratorSettings, propagatorSettings );
+                observationSettingsList, propagatorSettings );
 
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialParameterEstimate =
             parametersToEstimate->template getFullParameterValues< StateScalarType >( );
