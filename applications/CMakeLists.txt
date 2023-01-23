@@ -5,6 +5,11 @@ TUDAT_ADD_EXECUTABLE(application_lro_baseline
         ${Tudat_PROPAGATION_LIBRARIES}
         )
 
+TUDAT_ADD_EXECUTABLE(application_lro_json
+        "src/lro_json.cpp"
+        ${Tudat_PROPAGATION_LIBRARIES}
+        )
+
 TUDAT_ADD_EXECUTABLE(application_lro_analysis
         "src/lro_analysis.cpp"
         ${Tudat_PROPAGATION_LIBRARIES}
