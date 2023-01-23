@@ -37,9 +37,11 @@ class PropagatorProcessingSettings
 public:
     PropagatorProcessingSettings(
             const bool clearNumericalSolutions = false,
-            const bool setIntegratedResult = false ):
+            const bool setIntegratedResult = false,
+            const bool createDependentVariablesInterface = false ):
         clearNumericalSolutions_( clearNumericalSolutions ),
-        setIntegratedResult_( setIntegratedResult )
+        setIntegratedResult_( setIntegratedResult ),
+        createDependentVariablesInterface_( createDependentVariablesInterface )
     { }
 
     virtual ~PropagatorProcessingSettings( ){ }
@@ -100,8 +102,9 @@ public:
             const int resultsSaveFrequencyInSteps = 1,
             const double resultsSaveFrequencyInSeconds = TUDAT_NAN,
             const std::shared_ptr< PropagationPrintSettings > printSettings =
-            std::make_shared< PropagationPrintSettings >( ) ):
-            PropagatorProcessingSettings( clearNumericalSolutions, setIntegratedResult ),
+            std::make_shared< PropagationPrintSettings >( ),
+            const bool createDependentVariablesInterface = false ):
+            PropagatorProcessingSettings( clearNumericalSolutions, setIntegratedResult, createDependentVariablesInterface ),
             resultsSaveFrequencyInSteps_( resultsSaveFrequencyInSteps ),
             resultsSaveFrequencyInSeconds_( resultsSaveFrequencyInSeconds ),
             printSettings_( printSettings ),
@@ -213,8 +216,9 @@ public:
             const bool clearNumericalSolutions = false,
             const bool setIntegratedResult = false,
             const bool printFirstArcOnly = false,
-            const bool printCurrentArcIndex = false ):
-        PropagatorProcessingSettings( clearNumericalSolutions, setIntegratedResult ),
+            const bool printCurrentArcIndex = false,
+            const bool createDependentVariablesInterface = false ):
+        PropagatorProcessingSettings( clearNumericalSolutions, setIntegratedResult, createDependentVariablesInterface ),
         consistentSingleArcPrintSettings_( consistentSingleArcPrintSettings ),
         useIdenticalSettings_( true ),
         printFirstArcOnly_( printFirstArcOnly ),
@@ -228,8 +232,9 @@ public:
             const bool clearNumericalSolutions = false,
             const bool setIntegratedResult = false,
             const bool printFirstArcOnly = false,
-            const bool printCurrentArcIndex = false ):
-        PropagatorProcessingSettings( clearNumericalSolutions, setIntegratedResult ),
+            const bool printCurrentArcIndex = false,
+            const bool createDependentVariablesInterface = false ):
+        PropagatorProcessingSettings( clearNumericalSolutions, setIntegratedResult, createDependentVariablesInterface ),
         consistentSingleArcPrintSettings_( nullptr ),
         useIdenticalSettings_( false ),
         printFirstArcOnly_( printFirstArcOnly ),
@@ -421,8 +426,9 @@ public:
             const std::shared_ptr< PropagationPrintSettings > consistentArcPrintSettings,
             const bool clearNumericalSolutions = false,
             const bool setIntegratedResult = false,
-            const bool printStateTypeStart = false ):
-        PropagatorProcessingSettings( clearNumericalSolutions, setIntegratedResult ),
+            const bool printStateTypeStart = false,
+            const bool createDependentVariablesInterface = false ):
+        PropagatorProcessingSettings( clearNumericalSolutions, setIntegratedResult, createDependentVariablesInterface ),
         consistentArcPrintSettings_( consistentArcPrintSettings ),
         useIdenticalSettings_( true ),
         printStateTypeStart_( printStateTypeStart ){ }
@@ -430,8 +436,9 @@ public:
     HybridArcPropagatorProcessingSettings(
             const bool clearNumericalSolutions = false,
             const bool setIntegratedResult = false,
-            const bool printStateTypeStart = false ):
-        PropagatorProcessingSettings( clearNumericalSolutions, setIntegratedResult ),
+            const bool printStateTypeStart = false,
+            const bool createDependentVariablesInterface = false ):
+        PropagatorProcessingSettings( clearNumericalSolutions, setIntegratedResult, createDependentVariablesInterface ),
         useIdenticalSettings_( false ),
         printStateTypeStart_( printStateTypeStart ){ }
 

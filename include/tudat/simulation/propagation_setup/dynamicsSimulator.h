@@ -762,7 +762,7 @@ public:
 
         // Create object that will contain and process the propagation results
         std::shared_ptr< SingleArcDependentVariablesInterface< TimeType > > dependentVariableInterface = nullptr;
-        if ( propagatorSettings_->getOutputSettings( )->getCreateDependentVariablesInterface( ) )
+        if ( propagatorSettings_->getOutputSettingsWithCheck( )->getCreateDependentVariablesInterface( ) )
         {
             dependentVariableInterface = std::make_shared< SingleArcDependentVariablesInterface< TimeType > >(
                     std::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, Eigen::VectorXd > >( ),
