@@ -12,9 +12,11 @@
 #define TUDAT_CREATERADIATIONSOURCEMODEL_H
 
 #include <memory>
+#include <vector>
 
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/astro/electromagnetism/radiationSourceModel.h"
+
 
 namespace tudat
 {

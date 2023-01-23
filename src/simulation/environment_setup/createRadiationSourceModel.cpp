@@ -10,6 +10,9 @@
 
 #include "tudat/simulation/environment_setup/createRadiationSourceModel.h"
 
+#include <memory>
+
+
 namespace tudat
 {
 namespace simulation_setup

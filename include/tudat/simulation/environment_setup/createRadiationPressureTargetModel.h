@@ -15,9 +15,11 @@
 #include <memory>
 #include <vector>
 
+#include <Eigen/Core>
+
 #include "tudat/astro/electromagnetism/radiationPressureTargetModel.h"
-#include "tudat/astro/electromagnetism/occultationModel.h"
 #include "tudat/simulation/environment_setup/body.h"
+
 
 namespace tudat
 {

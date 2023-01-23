@@ -13,6 +13,9 @@
 
 #include "tudat/astro/electromagnetism/luminosityModel.h"
 
+#include "tudat/math/basic/mathematicalConstants.h"
+
+
 namespace tudat
 {
 namespace electromagnetism

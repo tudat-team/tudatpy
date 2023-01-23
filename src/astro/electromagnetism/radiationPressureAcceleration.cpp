@@ -9,7 +9,12 @@
  */
 
 #include "tudat/astro/electromagnetism/radiationPressureAcceleration.h"
-#include <iostream>
+
+#include <functional>
+
+#include <Eigen/Core>
+#include <Eigen/Geometry>
+
 
 namespace tudat
 {
