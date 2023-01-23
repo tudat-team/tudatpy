@@ -34,6 +34,7 @@
 #include "tudat/astro/electromagnetism/reflectionLaw.h"
 #include "tudat/astro/basic_astro/bodyShapeModel.h"
 
+
 namespace tudat
 {
 namespace electromagnetism

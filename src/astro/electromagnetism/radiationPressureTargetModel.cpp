@@ -10,6 +10,11 @@
 
 #include "tudat/astro/electromagnetism/radiationPressureTargetModel.h"
 
+#include <Eigen/Core>
+
+#include "tudat/astro/basic_astro/physicalConstants.h"
+
+
 namespace tudat
 {
 namespace electromagnetism

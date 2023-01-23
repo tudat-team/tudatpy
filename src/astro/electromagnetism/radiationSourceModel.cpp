@@ -9,8 +9,17 @@
  */
 
 #include "tudat/astro/electromagnetism/radiationSourceModel.h"
+
+#include <vector>
+#include <utility>
+#include <functional>
+#include <memory>
+
+#include <Eigen/Core>
+
 #include "tudat/math/basic/coordinateConversions.h"
 #include "tudat/astro/basic_astro/physicalConstants.h"
+
 
 namespace tudat
 {

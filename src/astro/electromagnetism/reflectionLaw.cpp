@@ -9,8 +9,12 @@
  */
 
 #include "tudat/astro/electromagnetism/reflectionLaw.h"
+
+#include <Eigen/Core>
+
 #include "tudat/math/basic/linearAlgebra.h"
 #include "tudat/math/basic/mathematicalConstants.h"
+
 
 namespace tudat
 {
