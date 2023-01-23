@@ -23,6 +23,7 @@
 #include "tudat/simulation/estimation_setup/variationalEquationsSolver.h"
 #include "tudat/simulation/estimation_setup/createObservationManager.h"
 #include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
+#include "tudat/simulation/propagation_setup/dependentVariablesInterface.h"
 
 namespace tudat
 {
@@ -689,32 +690,7 @@ public:
 
                 if( estimationInput->getSaveStateHistoryForEachIteration( ) )
                 {
-                    if( std::dynamic_pointer_cast< propagators::HybridArcVariationalEquationsSolver< ObservationScalarType, TimeType > >(  variationalEquationsSolver_) != nullptr )
-                    {
-
-                        throw std::runtime_error( "Error, hybrid arc per-iteration state saving not yet implemented" );
-//                        std::shared_ptr< propagators::HybridArcVariationalEquationsSolver< ObservationScalarType, TimeType > > hybridArcSolver =
-//                                std::dynamic_pointer_cast< propagators::HybridArcVariationalEquationsSolver< ObservationScalarType, TimeType > >(  variationalEquationsSolver_);
-
-//                        std::vector< std::map< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > >  currentStateHistories;
-//                        currentStateHistories = hybridArcSolver->getMultiArcSolver( )->getDynamicsSimulatorBase( )->getEquationsOfMotionNumericalSolutionBase( );
-//                        currentStateHistories.insert(
-//                                    currentStateHistories.begin(),
-//                                    hybridArcSolver->getSingleArcSolver( )->getDynamicsSimulatorBase( )->getEquationsOfMotionNumericalSolutionBase( ).at( 0 ) );
-//                        dynamicsHistoryPerIteration.push_back( currentStateHistories );
-
-//                        std::vector< std::map< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > >  currentDependentVariableHistories;
-//                        currentDependentVariableHistories = hybridArcSolver->getMultiArcSolver( )->getDynamicsSimulatorBase( )->getDependentVariableNumericalSolutionBase( );
-//                        currentDependentVariableHistories.insert(
-//                                    currentDependentVariableHistories.begin(),
-//                                    hybridArcSolver->getSingleArcSolver( )->getDynamicsSimulatorBase( )->getDependentVariableNumericalSolutionBase( ).at( 0 ) );
-//                        dependentVariableHistoryPerIteration.push_back( currentDependentVariableHistories );
-                    }
-                    else
-                    {
-                        simulationResultsPerIteration.push_back(
-                                variationalEquationsSolver_->getDynamicsSimulatorBase( )->getPropagationResults( ) );
-                    }
+                    simulationResultsPerIteration.push_back( variationalEquationsSolver_->getVariationalPropagationResults( ) );
                 }
             }
             catch( std::runtime_error& error )
@@ -1027,6 +1003,7 @@ protected:
             integrateAndEstimateOrbit_ = false;
         }
 
+        propagatorSettings->getOutputSettingsBase( )->setCreateDependentVariablesInterface( true );
         if( integrateAndEstimateOrbit_ )
         {
             variationalEquationsSolver_ =
@@ -1048,6 +1025,13 @@ protected:
             throw std::runtime_error( "Error, cannot parse propagator settings without estimating dynamics in OrbitDeterminationManager" );
         }
 
+        // TODO correct this when moving dependent variable interface into results object
+        if( std::dynamic_pointer_cast< propagators::HybridArcVariationalEquationsSolver< ObservationScalarType, TimeType > >( variationalEquationsSolver_ ) == nullptr )
+        {
+            dependentVariablesInterface_ = variationalEquationsSolver_->getDynamicsSimulatorBase( )->getDependentVariablesInterface( );
+        }
+
+
         // Iterate over all observables and create observation managers.
         std::map< ObservableType, std::vector< std::shared_ptr< ObservationModelSettings > > > sortedObservationSettingsList =
                 sortObservationModelSettingsByType( observationSettingsList );
@@ -1062,7 +1046,7 @@ protected:
                         observableType,
                         it.second,
                         bodies, parametersToEstimate_,
-                        stateTransitionAndSensitivityMatrixInterface_ );
+                        stateTransitionAndSensitivityMatrixInterface_, dependentVariablesInterface_ );
         }
 
         // Set current parameter estimate from body initial states and parameter set.
@@ -1122,9 +1106,12 @@ protected:
     std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface >
     stateTransitionAndSensitivityMatrixInterface_;
 
+    //! Object used to interpolate the numerically integrated result of the dependent variables.
+    std::shared_ptr< propagators::DependentVariablesInterface< TimeType > > dependentVariablesInterface_;
+
 };
 
-extern template class OrbitDeterminationManager< double, double >;
+//extern template class OrbitDeterminationManager< double, double >;
 
 
 

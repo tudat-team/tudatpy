@@ -75,8 +75,9 @@ public:
      */
     RungeKutta4Integrator( const StateDerivativeFunction& stateDerivativeFunction,
                            const IndependentVariableType intervalStart,
-                           const StateType& initialState )
-        : RungeKuttaFixedStepSizeIntegratorBase( stateDerivativeFunction, intervalStart, initialState, rungeKutta4Classic )
+                           const StateType& initialState,
+                           const TimeStepType& stepSize )
+        : RungeKuttaFixedStepSizeIntegratorBase( stateDerivativeFunction, intervalStart, initialState, stepSize, rungeKutta4Classic )
     {
     }
 

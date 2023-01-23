@@ -1222,7 +1222,6 @@ void getParametersToEstimatePerArcTest(
         std::map< int, std::vector< std::string > >& estimatedBodiesPerArc,
         std::map< int, std::map< std::string, int > >& arcIndicesPerBody )
 {
-
     arcWiseParametersToEstimate.clear( );
 
     // Get list of objets and associated bodies to estimate initial arc-wise translational states
@@ -1259,8 +1258,8 @@ void getParametersToEstimatePerArcTest(
 
     // Iterate over all parameters and check consistency
     unsigned int counterEstimatedBody = 0;
-    for( typename ArcWiseParameterList::const_iterator parameterIterator = estimatedBodies.begin( ); parameterIterator !=
-                                                                                                     estimatedBodies.end( ); parameterIterator++ )
+    for( typename ArcWiseParameterList::const_iterator parameterIterator = estimatedBodies.begin( );
+      parameterIterator != estimatedBodies.end( ); parameterIterator++ )
     {
         // Get arc start times of current parameter
         std::vector< double > parameterArcStartTimes =

@@ -40,6 +40,10 @@ enum RotationalPropagatorType
     exponential_map = 2
 };
 
+std::string getRotationalPropagatorName( const RotationalPropagatorType propagatorType );
+
+int getRotationalStateSize( const RotationalPropagatorType propagatorType );
+
 // Function to evaluated the classical rotational equations of motion (Euler equations)
 /*
  * Function to evaluated the classical rotational equations of motion (Euler equations). The function returns the time-derivative

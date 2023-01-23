@@ -87,7 +87,7 @@ BOOST_AUTO_TEST_CASE( test_RungeKuttaFehlberg78_Integrator_Fehlberg_Benchmark )
     numerical_integrators::RungeKuttaVariableStepSizeIntegratorXd integrator78(
                 coeff78, computeFehlbergLogirithmicTestODEStateDerivative,
                 initialTime, initialState, minimumStepSize,
-                maximumStepSize, relativeTolerance, absoluteTolerance );
+                maximumStepSize, initialStepSize, relativeTolerance, absoluteTolerance );
 
 
     // Obtain numerical solution
@@ -147,6 +147,7 @@ BOOST_AUTO_TEST_CASE( testRungeKuttaFehlberg78IntegratorUsingMatlabData )
                                                        STATE_COLUMN_INDEX ) ).finished( ),
                     zeroMinimumStepSize,
                     infiniteMaximumStepSize,
+                    TUDAT_NAN,
                     infiniteRelativeErrorTolerance,
                     infiniteAbsoluteErrorTolerance );
 
@@ -167,6 +168,7 @@ BOOST_AUTO_TEST_CASE( testRungeKuttaFehlberg78IntegratorUsingMatlabData )
                                                        STATE_COLUMN_INDEX ) ).finished( ),
                     zeroMinimumStepSize,
                     infiniteMaximumStepSize,
+                    TUDAT_NAN,
                     infiniteRelativeErrorTolerance,
                     infiniteAbsoluteErrorTolerance );
 
@@ -188,6 +190,7 @@ BOOST_AUTO_TEST_CASE( testRungeKuttaFehlberg78IntegratorUsingMatlabData )
                                                         STATE_COLUMN_INDEX ) ).finished( ),
                     zeroMinimumStepSize,
                     infiniteMaximumStepSize,
+                    TUDAT_NAN,
                     infiniteRelativeErrorTolerance,
                     infiniteAbsoluteErrorTolerance );
 
@@ -215,6 +218,7 @@ BOOST_AUTO_TEST_CASE( testRungeKuttaFehlberg78IntegratorUsingMatlabData )
                                                        STATE_COLUMN_INDEX ) ).finished( ),
                     zeroMinimumStepSize,
                     infiniteMaximumStepSize,
+                    TUDAT_NAN,
                     relativeErrorTolerance,
                     absoluteErrorTolerance * 10.0 );
 
@@ -238,6 +242,7 @@ BOOST_AUTO_TEST_CASE( testRungeKuttaFehlberg78IntegratorUsingMatlabData )
                                                        STATE_COLUMN_INDEX ) ).finished( ),
                     zeroMinimumStepSize,
                     infiniteMaximumStepSize,
+                    TUDAT_NAN,
                     infiniteRelativeErrorTolerance,
                     infiniteAbsoluteErrorTolerance );
 

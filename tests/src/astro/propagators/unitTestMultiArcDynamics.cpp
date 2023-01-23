@@ -25,8 +25,9 @@
 #include "tudat/math/integrators/rungeKuttaCoefficients.h"
 #include "tudat/astro/basic_astro/accelerationModel.h"
 #include "tudat/astro/basic_astro/keplerPropagator.h"
-#include "tudat/simulation/simulation.h"
 #include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
+#include "tudat/simulation/environment_setup/createBodies.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
 
 namespace tudat
 {
@@ -151,7 +152,7 @@ BOOST_AUTO_TEST_CASE( testKeplerMultiArcDynamics )
             std::shared_ptr< PropagationPrintSettings > multiArcPrintSettings =
                     std::make_shared< PropagationPrintSettings >( );
             multiArcPrintSettings->reset(
-                        true, true, true, TUDAT_NAN, true, true, true, true, true );
+                        true, true, TUDAT_NAN, 0, true, true, true, true, true, true );
 
             multiArcPropagatorSettings->getOutputSettings( )->resetAndApplyConsistentSingleArcPrintSettings(
                         multiArcPrintSettings );

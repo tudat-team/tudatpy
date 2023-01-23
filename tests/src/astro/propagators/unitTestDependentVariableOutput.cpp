@@ -1309,7 +1309,7 @@ BOOST_AUTO_TEST_CASE( test_AccelerationPartialSaving )
 
         // Retrieve numerical solutions for state and dependent variables
         std::map< double, Eigen::MatrixXd > numericalSolution =
-                variationalEquationsSimulator.getNumericalVariationalEquationsSolution( ).at( 0 );
+                variationalEquationsSimulator.getStateTransitionMatrixSolution( );
         std::map< double, Eigen::VectorXd > dependentVariableSolution =
                 variationalEquationsSimulator.getDynamicsSimulator( )->getDependentVariableHistory( );
 
