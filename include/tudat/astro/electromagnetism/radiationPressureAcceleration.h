@@ -18,9 +18,10 @@
 #include <Eigen/Geometry>
 
 #include "tudat/astro/basic_astro/accelerationModel.h"
-#include "radiationSourceModel.h"
-#include "radiationPressureTargetModel.h"
-#include "occultationModel.h"
+#include "tudat/astro/electromagnetism/radiationSourceModel.h"
+#include "tudat/astro/electromagnetism/radiationPressureTargetModel.h"
+#include "tudat/astro/electromagnetism/occultationModel.h"
+
 
 namespace tudat
 {

@@ -21,6 +21,7 @@
 #include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/astro/basic_astro/bodyShapeModel.h"
 
+
 namespace tudat
 {
 namespace electromagnetism

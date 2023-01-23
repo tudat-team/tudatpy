@@ -9,8 +9,12 @@
  */
 
 #include "tudat/astro/electromagnetism/occultationModel.h"
+
+#include <Eigen/Core>
+
 #include "tudat/astro/basic_astro/missionGeometry.h"
 #include "tudat/math/basic/linearAlgebra.h"
+
 
 namespace tudat
 {

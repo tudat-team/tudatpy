@@ -24,6 +24,7 @@
 
 #include <Eigen/Core>
 
+
 namespace tudat
 {
 namespace electromagnetism
