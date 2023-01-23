@@ -282,7 +282,7 @@ public:
      * \param linkEndForTime Link end at which time is to be evaluated to determine current time
      */
     ConstantTimeBiasSettings(
-            const Eigen::VectorXd& timeBias,
+            const double timeBias,
             const LinkEndType linkEndForTime ):
             ObservationBiasSettings( constant_time_bias ),
             timeBias_( timeBias ), linkEndForTime_( linkEndForTime ){ }
@@ -292,10 +292,9 @@ public:
 
     //! Constant time bias that is to be considered for the observation time.
     /*!
-     *  Constant time bias that is to be considered for the observation time. The size of this vector must be equal to the
-     *  size of the observable to which it is assigned.
+     *  Constant time bias that is to be considered for the observation time.
      */
-    Eigen::VectorXd timeBias_;
+    double timeBias_;
 
     //! Link end at which time is to be evaluated to determine current time (and current arc)
     LinkEndType linkEndForTime_;
@@ -316,7 +315,7 @@ public:
      */
     ArcWiseTimeBiasSettings(
             const std::vector< double >& arcStartTimes,
-            const std::vector< Eigen::VectorXd >& timeBiases,
+            const std::vector< double >& timeBiases,
             const LinkEndType linkEndForTime ):
             ObservationBiasSettings( arc_wise_time_bias ),
             arcStartTimes_( arcStartTimes ), timeBiases_( timeBiases ), linkEndForTime_( linkEndForTime ){ }
@@ -328,7 +327,7 @@ public:
      * \param linkEndForTime Link end at which time is to be evaluated to determine current time (and current arc)
      */
     ArcWiseTimeBiasSettings(
-            const std::map< double, Eigen::VectorXd >& timeBiases,
+            const std::map< double, double >& timeBiases,
             const LinkEndType linkEndForTime ):
             ObservationBiasSettings( arc_wise_time_bias ),
             arcStartTimes_( utilities::createVectorFromMapKeys( timeBiases ) ),
@@ -341,7 +340,7 @@ public:
     std::vector< double > arcStartTimes_;
 
     //! List of time biases per arc
-    std::vector< Eigen::VectorXd > timeBiases_;
+    std::vector< double > timeBiases_;
 
     //! Link end at which time is to be evaluated to determine current time (and current arc)
     LinkEndType linkEndForTime_;
@@ -430,14 +429,14 @@ inline std::shared_ptr< ObservationBiasSettings > arcWiseTimeDriftBias(
 }
 
 inline std::shared_ptr< ObservationBiasSettings > constantTimeBias(
-        const Eigen::VectorXd& timeBias,
+        const double timeBias,
         const LinkEndType linkEndForTime )
 {
     return std::make_shared< ConstantTimeBiasSettings >( timeBias, linkEndForTime );
 }
 
 inline std::shared_ptr< ObservationBiasSettings > arcWiseTimeBias(
-        const std::vector< Eigen::VectorXd >& timeBiases,
+        const std::vector< double >& timeBiases,
         const std::vector< double >& arcStartTimes,
         const LinkEndType linkEndForTime )
 {
@@ -445,7 +444,7 @@ inline std::shared_ptr< ObservationBiasSettings > arcWiseTimeBias(
 }
 
 inline std::shared_ptr< ObservationBiasSettings > arcWiseTimeBias(
-        const std::map< double, Eigen::VectorXd >& timeBiases,
+        const std::map< double, double >& timeBiases,
         const LinkEndType linkEndForTime )
 {
     return std::make_shared< ArcWiseTimeBiasSettings >( timeBiases, linkEndForTime );
@@ -1364,18 +1363,12 @@ std::shared_ptr< ObservationBias< ObservationSize > > createObservationBiasCalcu
     case constant_time_bias:
     {
         // Check input consistency
-        std::shared_ptr< ConstantTimeBiasSettings > constantTimeBiasSettings = std::dynamic_pointer_cast<
-                ConstantTimeBiasSettings >( biasSettings );
+        std::shared_ptr< ConstantTimeBiasSettings > constantTimeBiasSettings = std::dynamic_pointer_cast< ConstantTimeBiasSettings >( biasSettings );
         if( constantTimeBiasSettings == nullptr )
         {
             throw std::runtime_error( "Error when making constant time observation bias, settings are inconsistent" );
         }
 
-        // Check if size of bias is consistent with requested observable size
-        if( constantTimeBiasSettings->timeBias_.rows( ) != 1 )
-        {
-            throw std::runtime_error( "Error when making constant observation time bias, bias size is inconsistent" );
-        }
         observationBias = std::make_shared< ConstantTimeBias< ObservationSize > >(
                 constantTimeBiasSettings->timeBias_, observation_models::getLinkEndIndicesForLinkEndTypeAtObservable(
                         observableType, constantTimeBiasSettings->linkEndForTime_, linkEnds.size( ) ).at( 0 ) );
@@ -1391,21 +1384,8 @@ std::shared_ptr< ObservationBias< ObservationSize > > createObservationBiasCalcu
             throw std::runtime_error( "Error when making arc-wise time bias, settings are inconsistent" );
         }
 
-        std::vector< Eigen::Matrix< double, ObservationSize, 1 > > observationBiases;
-        for( unsigned int i = 0; i < arcwiseBiasSettings->timeBiases_.size( ); i++ )
-        {
-            // Check if size of bias is consistent with requested observable size
-            if( arcwiseBiasSettings->timeBiases_.at( i ).rows( ) != 1 )
-            {
-                throw std::runtime_error( "Error when making arc-wise time bias, bias size is inconsistent" );
-            }
-            else
-            {
-                observationBiases.push_back( arcwiseBiasSettings->timeBiases_.at( i ) );
-            }
-        }
         observationBias = std::make_shared< ArcWiseTimeBias< ObservationSize > >(
-                arcwiseBiasSettings->arcStartTimes_, observationBiases,
+                arcwiseBiasSettings->arcStartTimes_, arcwiseBiasSettings->timeBiases_,
                 observation_models::getLinkEndIndicesForLinkEndTypeAtObservable(
                         observableType, arcwiseBiasSettings->linkEndForTime_, linkEnds.size( ) ).at( 0 ) );
         break;
