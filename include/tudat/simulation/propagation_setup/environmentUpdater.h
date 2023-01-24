@@ -66,7 +66,7 @@ public:
             const std::map< IntegratedStateType,
             std::vector< std::tuple< std::string, std::string, PropagatorType > > >& integratedStates =
             ( std::map< IntegratedStateType,
-              std::vector< std::pair< std::string, std::string > > >( ) ) ):
+            std::vector< std::tuple< std::string, std::string, PropagatorType > > >( ) ):
         bodyList_( bodyList ), integratedStates_( integratedStates )
     {
         // Set update function to be evaluated as dependent variables of state and time during each
@@ -80,7 +80,7 @@ public:
      * dependent variable functions set by the setUpdateFunctions function. By default, the
      * numerically integrated states are set in the environment first. This may be overridden by
      * using the setIntegratedStatesFromEnvironment variable, which forces the function to ignore
-     * specific integrated states and update them from the existing environment models instead.
+     * specific integrated states and update them from the existing environment modelsad.
      * \param currentTime Current time.
      * \param integratedStatesToSet Current list of integrated states, with specific integrated
      * states defined by integratedStates_ member variable. Note that these states must have been
