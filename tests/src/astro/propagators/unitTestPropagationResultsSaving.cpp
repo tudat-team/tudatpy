@@ -157,18 +157,33 @@ namespace tudat
                 }
 
                 // Check that every other epoch is saved for case 1
+                int counter = 0;
+                int counter2 = 0;
+                try
                 {
                     auto nominalIterator = numericalResultsVector.at( 0 ).begin( );
                     auto halfFrequencyIterator = numericalResultsVector.at( 1 ).begin( );
 
-                    while( halfFrequencyIterator != numericalResultsVector.at( 1 ).end( ) )
+                    while( halfFrequencyIterator != numericalResultsVector.at( 1 ).end( ) && nominalIterator != numericalResultsVector.at( 0 ).end( ) )
                     {
                         BOOST_CHECK_EQUAL( nominalIterator->first, halfFrequencyIterator->first );
                         nominalIterator++;
-                        nominalIterator++;
+                        counter2++;
+                        if( nominalIterator != numericalResultsVector.at( 0 ).end( ) )
+                        {
+                            nominalIterator++;
+                            counter2++;
+                        }
                         halfFrequencyIterator++;
+                        counter++;
                     }
-
+                }
+                catch( const std::exception& )
+                {
+                    std::cout << "Failing on" << counter << " " << counter2 << " "
+                              << numericalResultsVector.at( 0 ).size( ) << " " <<
+                              numericalResultsVector.at( 1 ).size( ) << std::endl;
+                    BOOST_CHECK_EQUAL( true, false );
                 }
 
                 // Check that every 60 s, the state is saved for case 2
@@ -185,11 +200,14 @@ namespace tudat
                     auto offNominalIterator = numericalResultsVector.at( i ).begin( );
                     offNominalIterator++;
 
+                    std::cout<<"Results size "<<i<<" "<<numericalResultsVector.at( 0 ).size( )<<" "<<numericalResultsVector.at( 1 ).size( )<<std::endl;
                     while( nominalIterator != numericalResultsVector.at( 0 ).end( ) && offNominalIterator != numericalResultsVector.at( i ).end( ) )
                     {
-
+                        std::cout<<"Pre-check "<<i<<" "<<nominalIterator->first - initialEphemerisTime<<" "<<offNominalIterator->first - initialEphemerisTime<<" "<<
+                            nominalIterator->first - previousOutputTime<<" "<<stepsSinceLastSave<<std::endl;
                         if( !( nominalIterator->first - previousOutputTime < 60.0 && stepsSinceLastSave < stepsToCheck ) )
                         {
+                            std::cout<<"Performing test"<<nominalIterator->first  - offNominalIterator->first<<std::endl;
                             BOOST_CHECK_EQUAL( nominalIterator->first, offNominalIterator->first );
 
                             previousOutputTime = nominalIterator->first;
