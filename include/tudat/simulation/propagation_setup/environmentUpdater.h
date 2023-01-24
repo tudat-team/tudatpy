@@ -66,7 +66,7 @@ public:
             const std::map< IntegratedStateType,
             std::vector< std::tuple< std::string, std::string, PropagatorType > > >& integratedStates =
             ( std::map< IntegratedStateType,
-            std::vector< std::tuple< std::string, std::string, PropagatorType > > >( ) ):
+            std::vector< std::tuple< std::string, std::string, PropagatorType > > >( ) ) ):
         bodyList_( bodyList ), integratedStates_( integratedStates )
     {
         // Set update function to be evaluated as dependent variables of state and time during each
