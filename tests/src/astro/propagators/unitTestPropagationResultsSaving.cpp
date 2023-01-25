@@ -190,7 +190,7 @@ namespace tudat
                 // Check that every 60 s, or every second epoch (whichever comes first) the state is saved for case 3
                 for( unsigned int i = 2; i < 4; i++ )
                 {
-                    int stepsToCheck = i == 2 ? std::numeric_limits< double >::max( ) : 2;
+                    int stepsToCheck = i == 2 ? std::numeric_limits< int >::max( ) : 2;
 
                     auto nominalIterator = numericalResultsVector.at( 0 ).begin( );
                     double previousOutputTime = nominalIterator->first;
