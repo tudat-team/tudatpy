@@ -103,6 +103,11 @@ public:
 
     std::shared_ptr< BodySettings > at( const std::string& bodyName ) const
     {
+        if( bodySettings_.count( bodyName ) == 0 )
+        {
+            throw std::runtime_error( "Error when retrieving body settings for " + bodyName + ", no such body exist in this object." );
+        }
+
         return bodySettings_.at( bodyName );
     }
 
