@@ -30,11 +30,10 @@ basic_astrodynamics::AccelerationMap createSimulationAccelerations(const simulat
 
 Eigen::VectorXd createSimulationInitialState();
 
-std::shared_ptr< propagators::SingleArcDynamicsSimulator<>> createAndRunSimulation(
+std::shared_ptr< propagators::SingleArcSimulationResults<>> createAndRunSimulation(
         const simulation_setup::SystemOfBodies&, const basic_astrodynamics::AccelerationMap&, const Eigen::VectorXd&);
 
-void saveSimulationResults(const std::shared_ptr<propagators::SingleArcDynamicsSimulator<>>& dynamicsSimulator);
-
+void saveSimulationResults(const std::shared_ptr<propagators::SingleArcSimulationResults<>>& propagationResults);
 
 
 
@@ -50,8 +49,11 @@ struct Settings
     double simulationEndEpoch{};
     double printInterval{};
     std::string targetType{};
+    bool useOccultation{};
     bool useMoonRadiation{};
     unsigned int numberOfPanelsMoon{};
+    std::string thermalType{};
+    bool useInstantaneousReradiation{};
     double stepSize{};
 };
 
@@ -72,8 +74,11 @@ Settings loadSettings(char* path)
     settings.printInterval = settings.simulationDuration / 10;
 
     settings.targetType = settings_["target_type"];
+    settings.useOccultation = settings_["use_occultation"];
     settings.useMoonRadiation = settings_["use_moon_radiation"];
     settings.numberOfPanelsMoon = settings_["number_of_panels_moon"];
+    settings.thermalType = settings_["thermal_type"];
+    settings.useInstantaneousReradiation = settings_["use_instantaneous_reradiation"];
 
     settings.stepSize = settings_["step_size"];
 
@@ -93,8 +98,11 @@ std::ostream& operator<<(std::ostream& os, const Settings& settings)
             << " - Simulation duration: " << (settings.simulationDuration / 60) << " min" << std::endl
             << " - Simulation end: " << formatEphemerisTime(settings.simulationEndEpoch) << std::endl
             << " - Target type: " << settings.targetType << std::endl
+            << " - Use occultation: " << settings.useOccultation << std::endl
             << " - Use moon radiation: " << settings.useMoonRadiation << std::endl
             << " - Number of panels (Moon): " << settings.numberOfPanelsMoon << std::endl
+            << " - Thermal type: " << settings.thermalType << std::endl
+            << " - Use instantaneous reradiation: " << settings.useInstantaneousReradiation << std::endl
             << " - Step size: " << settings.stepSize << " s" << std::endl;
     os << std::noboolalpha;
 }
