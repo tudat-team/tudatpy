@@ -115,7 +115,7 @@ void expose_numerical_simulation(py::module &m) {
             .def(py::self >= double());
 
     m.def("create_variational_equations_solver",
-          &tss::createVariationalEquationsSolver<double,double>,
+          &tss::createVariationalEquationsSolver<double,TIME_TYPE>,
           py::arg("bodies"),
           py::arg("propagator_settings"),
           py::arg("parameters_to_estimate"),
@@ -144,12 +144,13 @@ void expose_numerical_simulation(py::module &m) {
                  py::arg("clear_numerical_solutions") = false,
                  py::arg("set_integrated_result") = false,
                  py::arg("print_number_of_function_evaluations") = false,
-                 py::arg("print_dependent_variable_data") = true,
+                 py::arg("print_dependent_            .def(\"integrate_equations_of_motion\",\n"
+                         "                 static_cast<void (tp::SingleArcDynamicsSimulator<double, TIME_TYPE>::*)(const Eigen::MatrixXd&)>(\n"
+                         "                 &tp::SingleArcDynamicsSimulator<double, TIME_TYPE>::integrate ),\n"
+                         "                 py::arg(\"initial_states\"),\n"
+                         "                 get_docstring(\"SingleArcSimulator.integrate_equations_of_motion\").c_str())variable_data") = true,
                  py::arg("print_state_data") = true)
-            .def("integrate_equations_of_motion",
-                 &tp::SingleArcDynamicsSimulator<double, TIME_TYPE>::integrateEquationsOfMotion,
-                 py::arg("initial_states"),
-                 get_docstring("SingleArcSimulator.integrate_equations_of_motion").c_str())
+
             .def_property_readonly("state_history",
                                    &tp::SingleArcDynamicsSimulator<double, TIME_TYPE>::getEquationsOfMotionNumericalSolution)
             .def_property_readonly("unprocessed_state_history",
