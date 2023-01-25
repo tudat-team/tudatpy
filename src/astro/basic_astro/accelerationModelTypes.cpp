@@ -70,7 +70,7 @@ std::string getAccelerationModelName( const AvailableAcceleration accelerationTy
         accelerationName  = "direct tidal dissipation in orbiting body ";
         break;
     case radiation_pressure:
-        accelerationName  = "radiation pressure acceleration ";
+        accelerationName  = "radiation pressure acceleration";
         break;
     case panelled_radiation_pressure_acceleration:
         accelerationName  = "panelled radiation pressure acceleration ";
