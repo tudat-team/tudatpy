@@ -94,11 +94,31 @@ SystemOfBodies createSimulationBodies()
             bodySettings.at("Moon")->gravityFieldSettings)->resetAssociatedReferenceFrame(moonFrame);
 
     if (settings.useMoonRadiation) {
+        std::vector<std::shared_ptr<PanelRadiosityModelSettings>> panelRadiosityModels;
+        panelRadiosityModels.push_back(albedoPanelRadiosityModelSettings(0.12, settings.useInstantaneousReradiation));
+
+        if (settings.thermalType == "Delayed")
+        {
+            panelRadiosityModels.push_back(delayedThermalPanelRadiosityModelSettings(0.95));
+        }
+        else if (settings.thermalType == "AngleBased")
+        {
+            panelRadiosityModels.push_back(angleBasedThermalPanelRadiosityModelSettings(100, 375, 0.95));
+        }
+        else
+        {
+            throw std::runtime_error("Invalid thermal_type");
+        }
+
+        std::vector<std::string> occultingBodiesForMoon{};
+        if (settings.useOccultation)
+        {
+            occultingBodiesForMoon = {"Earth"};
+        }
+
         bodySettings.at("Moon")->radiationSourceModelSettings =
-                staticallyPaneledRadiationSourceModelSettings("Sun", {
-                    albedoPanelRadiosityModelSettings(0.12),
-                    angleBasedThermalPanelRadiosityModelSettings(100, 375, 0.95)
-                }, settings.numberOfPanelsMoon, {"Earth"});
+                std::make_shared<StaticallyPaneledRadiationSourceModelSettings>(
+                        "Sun", panelRadiosityModels, settings.numberOfPanelsMoon, occultingBodiesForMoon);
     }
 
     // Create LRO
@@ -111,6 +131,13 @@ SystemOfBodies createSimulationBodies()
     }
     else if (settings.targetType == "Paneled")
     {
+        std::map<std::string, std::vector<std::string>> occultingBodiesForLRO{};
+        if (settings.useOccultation)
+        {
+            // TODO once multiple occultation is supported, add occultation by Earth as well
+            occultingBodiesForLRO = {{"Sun", {"Moon"}}};
+        }
+
         bodySettings.at("LRO")->radiationPressureTargetModelSettings = paneledRadiationPressureTargetModelSettingsWithOccultationMap({
                 TargetPanelSettings(2.82, 0.29, 0.22, Eigen::Vector3d::UnitX()),
                 TargetPanelSettings(2.82, 0.39, 0.19, -Eigen::Vector3d::UnitX()),
@@ -122,9 +149,7 @@ SystemOfBodies createSimulationBodies()
                 TargetPanelSettings(11.0, 0.05, 0.05, "Sun", false),  // not officially given
                 TargetPanelSettings(1.0, 0.18, 0.28, "Earth"),
                 TargetPanelSettings(1.0, 0.019, 0.0495, "Earth", false),
-        }, {
-            {"Sun", {"Moon"}}
-        }); // TODO once multiple occultation is supported, add occultation by Earth as well
+        }, occultingBodiesForLRO);
     }
     else
     {
@@ -156,7 +181,7 @@ AccelerationMap createSimulationAccelerations(const SystemOfBodies& bodies)
 
     if (settings.useMoonRadiation)
     {
-        accelerationMap["LRO"]["Moon"].emplace_back(radiationPressureAcceleration());
+        accelerationMap["LRO"]["Moon"].push_back(radiationPressureAcceleration());
     }
 
     return createAccelerationModelsMap(bodies, accelerationMap, bodiesToPropagate, centralBodies);
@@ -170,7 +195,7 @@ Eigen::VectorXd createSimulationInitialState()
     return initialState;
 }
 
-std::shared_ptr<propagators::SingleArcDynamicsSimulator<>> createAndRunSimulation(
+std::shared_ptr<propagators::SingleArcSimulationResults<>> createAndRunSimulation(
         const SystemOfBodies& bodies, const AccelerationMap& accelerations, const Eigen::VectorXd& initialState)
 {
     std::vector<std::shared_ptr<SingleDependentVariableSaveSettings>> dependentVariablesList
@@ -184,13 +209,13 @@ std::shared_ptr<propagators::SingleArcDynamicsSimulator<>> createAndRunSimulatio
                     singleAccelerationDependentVariable(point_mass_gravity, "LRO", "Sun"),
                     singleAccelerationDependentVariable(radiation_pressure, "LRO", "Sun"),
                     receivedIrradianceDependentVariable("LRO", "Sun"),
+                    receivedFractionDependentVariable("LRO", "Sun"),
             };
     if (settings.useMoonRadiation)
     {
         dependentVariablesList.insert(dependentVariablesList.end(), {
                 singleAccelerationDependentVariable(radiation_pressure, "LRO", "Moon"),
                 receivedIrradianceDependentVariable("LRO", "Moon"),
-                receivedFractionDependentVariable("LRO", "Sun"),
                 visibleSourcePanelDependentVariable("LRO", "Moon"),
                 illuminatedSourcePanelDependentVariable("LRO", "Moon"),
                 visibleAndIlluminatedSourcePanelDependentVariable("LRO", "Moon"),
@@ -223,20 +248,24 @@ std::shared_ptr<propagators::SingleArcDynamicsSimulator<>> createAndRunSimulatio
             dependentVariablesList,
             outputProcessingSettings);
 
+    // Create and run simulation
     auto dynamicsSimulator = createDynamicsSimulator<double, double>(
             bodies, propagatorSettings);
-    return std::dynamic_pointer_cast<SingleArcDynamicsSimulator<double, double>>(dynamicsSimulator);
+
+    auto propagationResults = dynamicsSimulator->getPropagationResults();
+    return std::dynamic_pointer_cast<SingleArcSimulationResults<double, double>>(propagationResults);
 }
 
-void saveSimulationResults(const std::shared_ptr<SingleArcDynamicsSimulator<>>& dynamicsSimulator)
+void saveSimulationResults(const std::shared_ptr<SingleArcSimulationResults<>>& propagationResults)
 {
-    auto integrationHistory = dynamicsSimulator->getEquationsOfMotionNumericalSolution();
-    auto dependentVariableHistory = dynamicsSimulator->getDependentVariableHistory();
-    auto cpuTimeHistory = dynamicsSimulator->getCumulativeComputationTimeHistory();
+    auto stateHistory = propagationResults->getEquationsOfMotionNumericalSolution();
+    auto dependentVariableHistory = propagationResults->getDependentVariableHistory();
+    auto cpuTimeHistory = propagationResults->getCumulativeComputationTimeHistory();
+    auto dependentVariableNames = propagationResults->getDependentVariableId();
+    auto stateNames = propagationResults->getStateIds();
 
-    // Write perturbed satellite propagation history to file.
-    input_output::writeDataMapToTextFile(integrationHistory,
-                                         "lro_propagation_history.csv",
+    input_output::writeDataMapToTextFile(stateHistory,
+                                         "state_history.csv",
                                          settings.saveDir,
                                          "",
                                          std::numeric_limits< double >::digits10,
@@ -244,7 +273,7 @@ void saveSimulationResults(const std::shared_ptr<SingleArcDynamicsSimulator<>>& 
                                          ",");
 
     input_output::writeDataMapToTextFile(dependentVariableHistory,
-                                         "lro_dependent_variable_history.csv",
+                                         "dependent_variable_history.csv",
                                          settings.saveDir,
                                          "",
                                          std::numeric_limits< double >::digits10,
@@ -252,10 +281,20 @@ void saveSimulationResults(const std::shared_ptr<SingleArcDynamicsSimulator<>>& 
                                          ",");
 
     input_output::writeDataMapToTextFile(cpuTimeHistory,
-                                         "lro_cpu_time.csv",
+                                         "cpu_time.csv",
                                          settings.saveDir,
                                          "",
                                          std::numeric_limits< double >::digits10,
                                          std::numeric_limits< double >::digits10,
                                          ",");
+
+    input_output::writeIdMapToTextFile(dependentVariableNames,
+                                       "dependent_variable_names.csv",
+                                       settings.saveDir,
+                                       ",");
+
+    input_output::writeIdMapToTextFile(stateNames,
+                                       "state_names.csv",
+                                       settings.saveDir,
+                                       ",");
 }
