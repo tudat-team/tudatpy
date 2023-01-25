@@ -125,5 +125,42 @@ std::vector< boost::filesystem::path > listAllFilesInDirectory(
     return listOfFileNamesWithPath_;
 }
 
+void writeIdMapToTextFile(
+        const std::map<std::pair<int, int>, std::string>& idMap,
+        const std::string& outputFilename,
+        const boost::filesystem::path& outputDirectory,
+        const std::string& delimiter)
+{
+// Check if output directory exists; create it if it doesn't.
+    if (!boost::filesystem::exists(outputDirectory)) {
+        boost::filesystem::create_directories(outputDirectory);
+    }
+
+    // Open output file.
+    std::string outputDirectoryAndFilename =
+            outputDirectory.string() + "/" + outputFilename;
+    std::ofstream outputFile_(outputDirectoryAndFilename.c_str());
+
+    // Write file header to file.
+    outputFile_ << "StartIndex" << delimiter
+                << "Size" << delimiter
+                << "ID" << std::endl;
+
+    // Loop over map of propagation history.
+    for (auto const& row : idMap) {
+        auto startIndex = row.first.first;
+        auto size = row.first.second;
+        auto id = row.second;
+
+        // Print map data to output file.
+        outputFile_ << startIndex << delimiter
+                    << size << delimiter
+                    << id << std::endl;
+    }
+
+    // Close output file.
+    outputFile_.close();
+}
+
 } // namespace input_output
 } // namespace tudat
