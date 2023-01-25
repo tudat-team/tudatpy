@@ -380,6 +380,19 @@ std::string getDependentVariableId(
             variableId += ", exerted by " + dependentVariableSettings->secondaryBody_;
         }
     }
+    else if ((dependentVariableSettings->dependentVariableType_ == visible_source_panel_count) ||
+            (dependentVariableSettings->dependentVariableType_ == illuminated_source_panel_count) ||
+            (dependentVariableSettings->dependentVariableType_ == visible_and_illuminated_source_panel_count))
+    {
+        variableId += " of " + dependentVariableSettings->secondaryBody_
+                + " as seen from " + dependentVariableSettings->associatedBody_;
+    }
+    else if ((dependentVariableSettings->dependentVariableType_ == received_irradiance) ||
+            (dependentVariableSettings->dependentVariableType_ == received_fraction))
+    {
+        variableId += " at " + dependentVariableSettings->associatedBody_
+                + " due to " + dependentVariableSettings->secondaryBody_;
+    }
     else
     {
         variableId += "of " + dependentVariableSettings->associatedBody_;
