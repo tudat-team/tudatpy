@@ -1117,14 +1117,24 @@ std::shared_ptr<electromagnetism::OccultationModel> createOccultationModel(
             auto occultingBodyName = occultingBodies.front();
             auto occultingBody = bodies.at(occultingBodyName);
             occultationModel = std::make_shared<SingleOccultingBodyOccultationModel>(
-                    occultingBodies,
+                    occultingBodyName,
                     std::bind( &Body::getPosition, occultingBody),
                     occultingBody->getShapeModel());
             break;
         }
         default:
         {
-            throw std::runtime_error( "Error, only a single occulting body is supported for any body, including " + targetName);
+            std::vector<std::function<Eigen::Vector3d()>> occultingBodyPositionFunctions{};
+            std::vector<std::shared_ptr<basic_astrodynamics::BodyShapeModel>> occultingBodyShapeModels;
+            for (const auto& occultingBodyName : occultingBodies)
+            {
+                auto occultingBody = bodies.at(occultingBodyName);
+                occultingBodyPositionFunctions.emplace_back(std::bind( &Body::getPosition, occultingBody));
+                occultingBodyShapeModels.push_back(occultingBody->getShapeModel());
+            }
+            occultationModel = std::make_shared<SimpleMultipleOccultingBodyOccultationModel>(
+                    occultingBodies, occultingBodyPositionFunctions, occultingBodyShapeModels);
+            break;
         }
     }
 
