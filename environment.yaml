@@ -1,15 +1,15 @@
-name: tudat-bundle
+name: tudat-bundle-sandbox
 channels:
   - conda-forge
   - tudat-team
 dependencies:
-  - eigen=3.3.7
-  - boost-cpp=1.72
+  - eigen
+  - boost-cpp
   - tudat-resources
   - sofa-cmake
   - nrlmsise-00
   - cspice-cmake
-  - python=3.8
+  - python
   - pybind11
   - pybind11-abi
   - numpy
