@@ -477,7 +477,7 @@ inline std::shared_ptr<StaticallyPaneledRadiationSourceModelSettings>
 staticallyPaneledRadiationSourceModelSettings(
         const std::string& originalSourceName,
         std::initializer_list<std::shared_ptr<PanelRadiosityModelSettings>> panelRadiosityModels,
-        int numberOfPanels,
+        unsigned int numberOfPanels,
         const std::vector<std::string>& originalSourceToSourceOccultingBodies = {})
 {
     return std::make_shared< StaticallyPaneledRadiationSourceModelSettings >(

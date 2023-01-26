@@ -414,7 +414,8 @@ void writeMatrixToFile(
 /*!
  * Write state/dependent variable IDs from a map to text file. Such a map is, for example,
  * stored in propagation results and also contains variable start index and length (for vector-
- * valued variables).
+ * valued variables). Note that variable names can include commas, making them unsuitable
+ * as delimiters.
  *
  * \param idMap Map with data.
  * \param outputFilename Output filename.
