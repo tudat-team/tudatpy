@@ -10,6 +10,8 @@
 
 #include "tudat/astro/electromagnetism/occultationModel.h"
 
+#include <iostream>
+
 #include <Eigen/Core>
 
 #include "tudat/astro/basic_astro/missionGeometry.h"
@@ -33,7 +35,7 @@ void OccultationModel::updateMembers(const double currentTime)
 double SingleOccultingBodyOccultationModel::evaluateReceivedFractionFromExtendedSource(
         const Eigen::Vector3d& occultedSourcePosition,
         const std::shared_ptr<basic_astrodynamics::BodyShapeModel>& occultedSourceShapeModel,
-        const Eigen::Vector3d& targetPosition)
+        const Eigen::Vector3d& targetPosition) const
 {
     const auto shadowFunction = mission_geometry::computeShadowFunction(
             occultedSourcePosition,
@@ -45,11 +47,11 @@ double SingleOccultingBodyOccultationModel::evaluateReceivedFractionFromExtended
 }
 
 double SingleOccultingBodyOccultationModel::evaluateReceivedFractionFromPointSource(
-        const Eigen::Vector3d& sourcePosition,
-        const Eigen::Vector3d& targetPosition)
+        const Eigen::Vector3d& occultedSourcePosition,
+        const Eigen::Vector3d& targetPosition) const
 {
     auto isVisible = evaluatePointToPointVisibilityWithOccultation(
-            sourcePosition,
+            occultedSourcePosition,
             occultingBodyPosition,
             occultingBodyShapeModel_->getAverageRadius(),
             targetPosition);
@@ -61,22 +63,80 @@ void SingleOccultingBodyOccultationModel::updateMembers_(double currentTime)
     occultingBodyPosition = occultingBodyPositionFunction_();
 }
 
+double SimpleMultipleOccultingBodyOccultationModel::evaluateReceivedFractionFromExtendedSource(
+        const Eigen::Vector3d& occultedSourcePosition,
+        const std::shared_ptr<basic_astrodynamics::BodyShapeModel>& occultedSourceShapeModel,
+        const Eigen::Vector3d& targetPosition) const
+{
+    double totalShadowFunction = 1.0;
+    double shadowFunctionOfBody;
+    unsigned int numberOfCurrentlyOccultingBodies = 0;
+    for (unsigned int i = 0; i < getNumberOfOccultingBodies(); i++)
+    {
+        shadowFunctionOfBody = mission_geometry::computeShadowFunction(
+                occultedSourcePosition,
+                occultedSourceShapeModel->getAverageRadius(),
+                occultingBodyPositions[i],
+                occultingBodyShapeModels_[i]->getAverageRadius(),
+                targetPosition);
+        totalShadowFunction *= shadowFunctionOfBody;
+
+        if (shadowFunctionOfBody < 1.0)
+        {
+            numberOfCurrentlyOccultingBodies++;
+        }
+    }
+
+    if (numberOfCurrentlyOccultingBodies > 1)
+    {
+        std::cerr << "Warning, multiple occultation occurred, radiation pressure may be slightly underestimated" << std::endl;
+    }
+
+    return totalShadowFunction;
+}
+
+double SimpleMultipleOccultingBodyOccultationModel::evaluateReceivedFractionFromPointSource(
+        const Eigen::Vector3d& occultedSourcePosition,
+        const Eigen::Vector3d& targetPosition) const
+{
+    bool isVisible = true;
+    for (unsigned int i = 0; i < getNumberOfOccultingBodies(); i++)
+    {
+        // Visibility for multiple occulting bodies is just the logical conjunction (AND-ing) of the individual
+        // visibilities
+        isVisible = isVisible && evaluatePointToPointVisibilityWithOccultation(
+                occultedSourcePosition,
+                occultingBodyPositions[i],
+                occultingBodyShapeModels_[i]->getAverageRadius(),
+                targetPosition);
+    }
+    return static_cast<double>(isVisible);
+}
+
+void SimpleMultipleOccultingBodyOccultationModel::updateMembers_(double currentTime)
+{
+    for (unsigned int i = 0; i < getNumberOfOccultingBodies(); i++)
+    {
+        occultingBodyPositions[i] = occultingBodyPositionFunctions_[i]();
+    }
+}
+
 bool evaluatePointToPointVisibilityWithOccultation(
-        const Eigen::Vector3d& sourcePosition,
+        const Eigen::Vector3d& occultedSourcePosition,
         const Eigen::Vector3d& occultingBodyPosition,
         double occultingBodyRadius,
         const Eigen::Vector3d& targetPosition)
 {
     // Geometry between source and occulting body as seen from target
     const Eigen::Vector3d occultingBodyToTargetVector = occultingBodyPosition - targetPosition;
-    const Eigen::Vector3d sourceToTargetVector = sourcePosition - targetPosition;
+    const Eigen::Vector3d sourceToTargetVector = occultedSourcePosition - targetPosition;
     const double cosAngleBetweenOccultingBodyAndSource =
             linear_algebra::computeCosineOfAngleBetweenVectors(sourceToTargetVector, occultingBodyToTargetVector);
     const double angleBetweenOccultingBodyAndSource = acos(cosAngleBetweenOccultingBodyAndSource);
     const double apparentSeparation = occultingBodyToTargetVector.norm() * sin(angleBetweenOccultingBodyAndSource);
 
     // Geometry between source and target as seen from occulting body
-    const Eigen::Vector3d sourceToOccultingBodyVector = sourcePosition - occultingBodyPosition;
+    const Eigen::Vector3d sourceToOccultingBodyVector = occultedSourcePosition - occultingBodyPosition;
     const Eigen::Vector3d targetToOccultingBodyVector = targetPosition - occultingBodyPosition;
     const double cosAngleBetweenSourceAndTarget =
             linear_algebra::computeCosineOfAngleBetweenVectors(sourceToOccultingBodyVector, targetToOccultingBodyVector);
