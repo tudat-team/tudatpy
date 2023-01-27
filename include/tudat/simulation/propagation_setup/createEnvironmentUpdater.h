@@ -46,7 +46,7 @@ void checkValidityOfRequiredEnvironmentUpdates(
  */
 void removePropagatedStatesFomEnvironmentUpdates(
         std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >& environmentModelsToUpdate,
-        const std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string > > >& integratedStateList );
+        const std::map< IntegratedStateType, std::vector< std::tuple< std::string, std::string, PropagatorType > > >& integratedStateList );
 
 //! Get list of required environment model update settings from torque models.
 /*!
@@ -275,7 +275,7 @@ createEnvironmentUpdaterForDynamicalEquations(
 {
     // Create environment update settings.
     std::map< IntegratedStateType,
-            std::vector< std::pair< std::string, std::string > > > integratedTypeAndBodyList =
+            std::vector< std::tuple< std::string, std::string, PropagatorType > > > integratedTypeAndBodyList =
             getIntegratedTypeAndBodyList< StateScalarType >( propagatorSettings );
 
     std::map< propagators::EnvironmentModelsToUpdate,

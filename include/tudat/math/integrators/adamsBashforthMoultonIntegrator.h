@@ -99,6 +99,7 @@ public:
             const StateType& initialState,
             const TimeStepType minimumStepSize,
             const TimeStepType maximumStepSize,
+            const TimeStepType& initialStepSize,
             const StateType& relativeErrorTolerance,
             const StateType& absoluteErrorTolerance,
             const TimeStepType bandwidth = 200. )
@@ -108,6 +109,7 @@ public:
           lastIndependentVariable_( intervalStart ),
           minimumStepSize_( std::fabs( static_cast< double >( minimumStepSize ) ) ),
           maximumStepSize_( std::fabs( static_cast< double >( maximumStepSize ) ) ),
+          stepSize_( initialStepSize ),
           relativeErrorTolerance_( relativeErrorTolerance.array( ).abs( ) ),
           absoluteErrorTolerance_( absoluteErrorTolerance.array( ).abs( ) ),
           bandwidth_( std::fabs( static_cast< double >( bandwidth ) ) )
@@ -165,6 +167,7 @@ public:
             const StateType& initialState,
             const TimeStepType minimumStepSize,
             const TimeStepType maximumStepSize,
+            const TimeStepType& initialStepSize,
             const typename StateType::Scalar relativeErrorTolerance,
             const typename StateType::Scalar absoluteErrorTolerance,
             const TimeStepType bandwidth = 200. )
@@ -174,6 +177,7 @@ public:
               initialState,
               minimumStepSize,
               maximumStepSize,
+              initialStepSize,
               StateType::Constant( initialState.rows( ), initialState.cols( ), std::fabs( relativeErrorTolerance ) ),
               StateType::Constant( initialState.rows( ), initialState.cols( ), std::fabs( absoluteErrorTolerance ) ),
               bandwidth ) { }
@@ -684,6 +688,13 @@ protected:
      */
     TimeStepType maximumStepSize_;
 
+
+    //! Last used step size.
+    /*!
+     * Last used step size, passed to either integrateTo( ) or performIntegrationStep( ).
+     */
+    TimeStepType stepSize_;
+
     //! Maximum relative error.
     /*!
      * Parameter that limits the truncation error. Which drives stepsize control.
@@ -813,14 +824,14 @@ protected:
                 singleFixedStepIntegrator_( RungeKuttaCoefficients::get(
                                                 rungeKutta87DormandPrince ),
                                             this->stateDerivativeFunction_, currentIndependentVariable_, currentState_,
-                                            stepSize_, stepSize_, maximumTolerance, maximumTolerance );
+                                            stepSize_, stepSize_, stepSize_, maximumTolerance, maximumTolerance );
         
         // Single step integrator with variable stepsize and error control
         RungeKuttaVariableStepSizeIntegrator< IndependentVariableType, StateType, StateType, TimeStepType >
                 singleVariableStepIntegrator_(
                     RungeKuttaCoefficients::get( CoefficientSets::rungeKutta87DormandPrince ),
                     this->stateDerivativeFunction_, currentIndependentVariable_, currentState_,
-                    minimumStepSize_, maximumStepSize_, relativeErrorTolerance_, absoluteErrorTolerance_ );
+                    minimumStepSize_, maximumStepSize_, stepSize_, relativeErrorTolerance_, absoluteErrorTolerance_ );
         
         StateType currentState;
         if( fixedSingleStep_ )
@@ -999,11 +1010,6 @@ protected:
     }
 
 
-    //! Last used step size.
-    /*!
-     * Last used step size, passed to either integrateTo( ) or performIntegrationStep( ).
-     */
-    TimeStepType stepSize_;
 
     //! Predicted derivative state.
     /*!

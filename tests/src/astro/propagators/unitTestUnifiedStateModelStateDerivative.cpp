@@ -152,17 +152,19 @@ BOOST_AUTO_TEST_CASE( testUnifiedStateModelPopagatorForPointMassCentralBodies )
         // Create integrator settings.
         std::shared_ptr< IntegratorSettings< > > integratorSettings =
                 std::make_shared< IntegratorSettings< > >
-                ( rungeKutta4,
-                  initialEphemerisTime, 250.0 );
+                ( rungeKutta4, initialEphemerisTime, 250.0 );
 
         // Create propagation settings (Cowell)
         std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
                 std::make_shared< TranslationalStatePropagatorSettings< double > >
-                ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, finalEphemerisTime );
+                ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, initialEphemerisTime,
+                  integratorSettings, std::make_shared< PropagationTimeTerminationSettings >( finalEphemerisTime ) );
+        propagatorSettings->getOutputSettings()->getPrintSettings()->setPrintPropagatedStateData( true );
+        propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
 
         // Propagate orbit with Cowell method
         SingleArcDynamicsSimulator< double > dynamicsSimulator2(
-                    bodies, integratorSettings, propagatorSettings, true, false, true );
+                    bodies, propagatorSettings );
 
         // Define ephemeris interrogation settings.
         double initialTestTime = initialEphemerisTime;
@@ -204,12 +206,14 @@ BOOST_AUTO_TEST_CASE( testUnifiedStateModelPopagatorForPointMassCentralBodies )
 
         // Create propagation settings
         propagatorSettings = std::make_shared< TranslationalStatePropagatorSettings< double > >
-                ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, finalEphemerisTime,
+                ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, initialEphemerisTime,
+                  integratorSettings, std::make_shared< PropagationTimeTerminationSettings >( finalEphemerisTime ),
                   translationalPropagatorType );
-
+        propagatorSettings->getOutputSettings()->getPrintSettings()->setPrintPropagatedStateData( true );
+        propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
         // Propagate orbit with USM EOM
         SingleArcDynamicsSimulator< double > dynamicsSimulator(
-                    bodies, integratorSettings, propagatorSettings, true, false, true );
+                    bodies, propagatorSettings );
 
         // Get resutls of EOM integration at given times.
         currentTestTime = initialTestTime;

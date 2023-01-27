@@ -111,6 +111,7 @@ BOOST_AUTO_TEST_CASE( testRungeKuttaFehlberg45IntegratorUsingBurdenAndFairesData
                     initialState,
                     minimumStepSize,
                     maximumStepSize,
+                    initialStepSize,
                     relativeErrorTolerance,
                     absoluteErrorTolerance,
                     safetyFactorForNextStepSize,
@@ -165,6 +166,7 @@ BOOST_AUTO_TEST_CASE( testRungeKuttaFehlberg45IntegratorUsingBurdenAndFairesData
                     initialState,
                     minimumStepSize,
                     maximumStepSize,
+                    initialStepSize,
                     relativeErrorTolerance,
                     absoluteErrorTolerance,
                     safetyFactorForNextStepSize,
@@ -310,6 +312,7 @@ BOOST_AUTO_TEST_CASE( testRungeKuttaFehlberg45IntegratorUsingMatlabData )
                                                        STATE_COLUMN_INDEX ) ).finished( ),
                     zeroMinimumStepSize,
                     infiniteMaximumStepSize,
+                    TUDAT_NAN,
                     infiniteRelativeErrorTolerance,
                     infiniteAbsoluteErrorTolerance );
 
@@ -330,6 +333,7 @@ BOOST_AUTO_TEST_CASE( testRungeKuttaFehlberg45IntegratorUsingMatlabData )
                                                        STATE_COLUMN_INDEX ) ).finished( ),
                     zeroMinimumStepSize,
                     infiniteMaximumStepSize,
+                    TUDAT_NAN,
                     infiniteRelativeErrorTolerance,
                     infiniteAbsoluteErrorTolerance );
 
@@ -351,6 +355,7 @@ BOOST_AUTO_TEST_CASE( testRungeKuttaFehlberg45IntegratorUsingMatlabData )
                                                         STATE_COLUMN_INDEX ) ).finished( ),
                     zeroMinimumStepSize,
                     infiniteMaximumStepSize,
+                    TUDAT_NAN,
                     infiniteRelativeErrorTolerance,
                     infiniteAbsoluteErrorTolerance );
 
@@ -371,6 +376,7 @@ BOOST_AUTO_TEST_CASE( testRungeKuttaFehlberg45IntegratorUsingMatlabData )
                                                        STATE_COLUMN_INDEX ) ).finished( ),
                     zeroMinimumStepSize,
                     infiniteMaximumStepSize,
+                    TUDAT_NAN,
                     relativeErrorTolerance,
                     absoluteErrorTolerance );
 
@@ -394,6 +400,7 @@ BOOST_AUTO_TEST_CASE( testRungeKuttaFehlberg45IntegratorUsingMatlabData )
                                                              STATE_COLUMN_INDEX ) ).finished( ),
                     zeroMinimumStepSize,
                     infiniteMaximumStepSize,
+                    TUDAT_NAN,
                     infiniteRelativeErrorTolerance,
                     infiniteAbsoluteErrorTolerance );
 
