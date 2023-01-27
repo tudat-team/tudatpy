@@ -236,12 +236,12 @@ protected:
 /*!
  * Class modeling a paneled source with paneling of the whole body that is constant and generated only once. Panel
  * properties such as albedo and emissivity are constant in time as well. The panels are generated in the first call
- * of updateMembers().
+ * of updateMembers() using the staggered method.
  *
- * Static paneling is easier to implement than dynamic paneling, and possibly costly albedo/emissivity evaluation (e.g.,
- * if their distributions are given by spherical harmonics) only has to be done once. However, a large portion of the
+ * Static paneling is easier to implement than dynamic paneling, and possibly costly albedo/emissivity evaluations (e.g.,
+ * if their distributions are given by spherical harmonics) only have to be done once. However, a large portion of the
  * panels will not be visible, especially for spacecraft in low orbits. Furthermore, for sufficient panels to be visible
- * for low spacecraft, a large total number of panels is necessary. Both issuesincreasing computational effort
+ * for low spacecraft, a large total number of panels is necessary. Both issues increase computational effort
  * unnecessarily.
  */
 class StaticallyPaneledRadiationSourceModel : public PaneledRadiationSourceModel
