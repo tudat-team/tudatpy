@@ -82,7 +82,7 @@ BOOST_AUTO_TEST_CASE( testStateDerivativeCircularRestrictedThreeBodyProblem )
                     std::bind(
                         &StateDerivativeCircularRestrictedThreeBodyProblem::computeStateDerivative,
                         &stateDerivative, std::placeholders::_1, std::placeholders::_2 ),
-                    0.0, initialStateOnHaloOrbit );
+                    0.0, initialStateOnHaloOrbit, 0.1 );
 
         // Integrate Halo orbit over one period.
         Eigen::VectorXd finalStateOnHaloOrbit = rungeKutta4Integrator.integrateTo(

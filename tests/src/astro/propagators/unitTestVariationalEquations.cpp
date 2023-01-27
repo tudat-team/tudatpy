@@ -188,6 +188,7 @@ executeEarthMoonSimulation(
         // Propagate requested equations.
         if( propagateVariationalEquations )
         {
+            propagatorSettings->getOutputSettings( )->getPrintSettings( )->enableAllPrinting( );
             dynamicsSimulator.integrateVariationalAndDynamicalEquations( propagatorSettings->getInitialStates( ), 1 );
         }
         else
@@ -1174,9 +1175,9 @@ BOOST_AUTO_TEST_CASE( testMassRateVariationalEquations )
                     std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ), false, true );
 
         std::map< double, Eigen::MatrixXd > stateTransitionResult =
-                variationalEquationsSimulator.getNumericalVariationalEquationsSolution( ).at( 0 );
+                variationalEquationsSimulator.getStateTransitionMatrixSolution( );
         std::map< double, Eigen::MatrixXd > sensitivityResult =
-                variationalEquationsSimulator.getNumericalVariationalEquationsSolution( ).at( 1 );
+                variationalEquationsSimulator.getSensitivityMatrixSolution( );
         std::map< double, Eigen::VectorXd > integrationResult =
                 variationalEquationsSimulator.getDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
 

@@ -71,7 +71,8 @@ int getSingleIntegrationSize( const IntegratedStateType stateType )
     return singleStateSize;
 }
 
-//! Get order of differential equation for governing equations of dynamics of given type.
+
+//!Get order of differential equation for governing equations of dynamics of given type.
 int getSingleIntegrationDifferentialEquationOrder( const IntegratedStateType stateType )
 {
     int singleStateSize = 0;

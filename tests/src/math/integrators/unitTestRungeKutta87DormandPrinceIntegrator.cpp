@@ -108,6 +108,7 @@ BOOST_AUTO_TEST_CASE( testRungeKutta87DormandAndPrinceIntegratorUsingMatlabData 
                                                        STATE_COLUMN_INDEX ) ).finished( ),
                     zeroMinimumStepSize,
                     infiniteMaximumStepSize,
+                    TUDAT_NAN,
                     infiniteRelativeErrorTolerance,
                     infiniteAbsoluteErrorTolerance );
 
@@ -128,6 +129,7 @@ BOOST_AUTO_TEST_CASE( testRungeKutta87DormandAndPrinceIntegratorUsingMatlabData 
                                                        STATE_COLUMN_INDEX ) ).finished( ),
                     zeroMinimumStepSize,
                     infiniteMaximumStepSize,
+                    TUDAT_NAN,
                     infiniteRelativeErrorTolerance,
                     infiniteAbsoluteErrorTolerance );
 
@@ -149,6 +151,7 @@ BOOST_AUTO_TEST_CASE( testRungeKutta87DormandAndPrinceIntegratorUsingMatlabData 
                                                         STATE_COLUMN_INDEX ) ).finished( ),
                     zeroMinimumStepSize,
                     infiniteMaximumStepSize,
+                    TUDAT_NAN,
                     infiniteRelativeErrorTolerance,
                     infiniteAbsoluteErrorTolerance );
 
@@ -176,6 +179,7 @@ BOOST_AUTO_TEST_CASE( testRungeKutta87DormandAndPrinceIntegratorUsingMatlabData 
                                                        STATE_COLUMN_INDEX ) ).finished( ),
                     zeroMinimumStepSize,
                     infiniteMaximumStepSize,
+                    TUDAT_NAN,
                     relativeErrorTolerance,
                     absoluteErrorTolerance * 10.0 );
 
@@ -199,6 +203,7 @@ BOOST_AUTO_TEST_CASE( testRungeKutta87DormandAndPrinceIntegratorUsingMatlabData 
                                                        STATE_COLUMN_INDEX ) ).finished( ),
                     zeroMinimumStepSize,
                     infiniteMaximumStepSize,
+                    TUDAT_NAN,
                     infiniteRelativeErrorTolerance,
                     infiniteAbsoluteErrorTolerance );
 
