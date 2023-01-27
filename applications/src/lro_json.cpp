@@ -26,7 +26,6 @@ using namespace tudat::numerical_integrators;
 using namespace simulation_constants;
 
 
-
 static Settings settings;
 
 
@@ -134,8 +133,8 @@ SystemOfBodies createSimulationBodies()
         std::map<std::string, std::vector<std::string>> occultingBodiesForLRO{};
         if (settings.useOccultation)
         {
-            // TODO once multiple occultation is supported, add occultation by Earth as well
-            occultingBodiesForLRO = {{"Sun", {"Moon"}}};
+            // Moon is never occulted as seen from LRO
+            occultingBodiesForLRO = {{"Sun", {"Earth", "Moon"}}};
         }
 
         bodySettings.at("LRO")->radiationPressureTargetModelSettings = paneledRadiationPressureTargetModelSettingsWithOccultationMap({
@@ -231,10 +230,9 @@ std::shared_ptr<propagators::SingleArcSimulationResults<>> createAndRunSimulatio
             std::numeric_limits<double>::infinity());
 
     auto outputProcessingSettings = std::make_shared<SingleArcPropagatorProcessingSettings>(
-            false,
-            false,
+            false, false, 1, TUDAT_NAN,
             std::make_shared<PropagationPrintSettings>(
-                    true, false, false, settings.printInterval));
+                    true, false, settings.printInterval, 0, false, false, false, true));
 
     auto propagatorSettings =  translationalStatePropagatorSettings(
             centralBodies,
@@ -262,7 +260,7 @@ void saveSimulationResults(const std::shared_ptr<SingleArcSimulationResults<>>& 
     auto dependentVariableHistory = propagationResults->getDependentVariableHistory();
     auto cpuTimeHistory = propagationResults->getCumulativeComputationTimeHistory();
     auto dependentVariableNames = propagationResults->getDependentVariableId();
-    auto stateNames = propagationResults->getStateIds();
+    auto stateNames = propagationResults->getProcessedStateIds();
 
     input_output::writeDataMapToTextFile(stateHistory,
                                          "state_history.csv",
@@ -291,10 +289,10 @@ void saveSimulationResults(const std::shared_ptr<SingleArcSimulationResults<>>& 
     input_output::writeIdMapToTextFile(dependentVariableNames,
                                        "dependent_variable_names.csv",
                                        settings.saveDir,
-                                       ",");
+                                       ";");
 
     input_output::writeIdMapToTextFile(stateNames,
                                        "state_names.csv",
                                        settings.saveDir,
-                                       ",");
+                                       ";");
 }

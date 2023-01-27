@@ -24,8 +24,8 @@ void loadLROSpiceKernels();
 SystemOfBodies createSimulationBodies();
 AccelerationMap createSimulationAccelerations(const SystemOfBodies&);
 Eigen::VectorXd createSimulationInitialState();
-std::shared_ptr< propagators::SingleArcDynamicsSimulator<>> createAndRunSimulation(const SystemOfBodies&, const AccelerationMap&, const Eigen::VectorXd&);
-void saveSimulationResults(const std::shared_ptr<SingleArcDynamicsSimulator<>>& dynamicsSimulator);
+std::shared_ptr< propagators::SingleArcSimulationResults<>> createAndRunSimulation(const SystemOfBodies&, const AccelerationMap&, const Eigen::VectorXd&);
+void saveSimulationResults(const std::shared_ptr<propagators::SingleArcSimulationResults<>>& propagationResults);
 
 
 namespace simulation_constants
@@ -37,7 +37,7 @@ namespace simulation_constants
     double simulationStartEpoch;
     double simulationEndEpoch;
     const auto printInterval = simulationDuration / 10;
-    const auto fixedStepSize = 10.0;
+    const auto stepSize = 10.0;
 
     const auto globalFrameOrigin = "Moon";
     const auto globalFrameOrientation = "ECLIPJ2000";
@@ -141,8 +141,9 @@ SystemOfBodies createSimulationBodies()
             TargetPanelSettings(1.0, 0.18, 0.28, "Earth"),
             TargetPanelSettings(1.0, 0.019, 0.0495, "Earth", false),
     }, {
-        {"Sun", {"Moon"}}
-    }); // TODO once multiple occultation is supported, add occultation by Earth as well
+        // Moon is never occulted as seen from LRO
+        {"Sun", {"Earth", "Moon"}}
+    });
 
     auto bodies = createSystemOfBodies(bodySettings);
     setGlobalFrameBodyEphemerides(bodies.getMap(), globalFrameOrigin, globalFrameOrientation);
@@ -178,7 +179,7 @@ Eigen::VectorXd createSimulationInitialState()
     return initialState;
 }
 
-std::shared_ptr<propagators::SingleArcDynamicsSimulator<>> createAndRunSimulation(
+std::shared_ptr<propagators::SingleArcSimulationResults<>> createAndRunSimulation(
         const SystemOfBodies& bodies, const AccelerationMap& accelerations, const Eigen::VectorXd& initialState)
 {
     std::vector<std::shared_ptr<SingleDependentVariableSaveSettings>> dependentVariablesList
@@ -201,20 +202,19 @@ std::shared_ptr<propagators::SingleArcDynamicsSimulator<>> createAndRunSimulatio
             };
 
     auto integratorSettings = rungeKuttaVariableStepSettingsScalarTolerances(
-            fixedStepSize,
+            stepSize,
             rungeKuttaFehlberg78,
-            fixedStepSize,
-            fixedStepSize,
+            stepSize,
+            stepSize,
             std::numeric_limits<double>::infinity(),
             std::numeric_limits<double>::infinity());
 
     auto outputProcessingSettings = std::make_shared<SingleArcPropagatorProcessingSettings>(
-            false,
-            false,
+            false, false, 1, TUDAT_NAN,
             std::make_shared<PropagationPrintSettings>(
-                    true, false, false, printInterval));
+                    true, false, printInterval, 0, false, false, false, true));
 
-    auto propagatorSettings =  translationalStatePropagatorSettings(
+    auto propagatorSettings = translationalStatePropagatorSettings(
             centralBodies,
             accelerations,
             bodiesToPropagate,
@@ -226,30 +226,53 @@ std::shared_ptr<propagators::SingleArcDynamicsSimulator<>> createAndRunSimulatio
             dependentVariablesList,
             outputProcessingSettings);
 
+    // Create and run simulation
     auto dynamicsSimulator = createDynamicsSimulator<double, double>(
             bodies, propagatorSettings);
-    return std::dynamic_pointer_cast<SingleArcDynamicsSimulator<double, double>>(dynamicsSimulator);
+
+    auto propagationResults = dynamicsSimulator->getPropagationResults();
+    return std::dynamic_pointer_cast<SingleArcSimulationResults<double, double>>(propagationResults);
 }
 
-void saveSimulationResults(const std::shared_ptr<SingleArcDynamicsSimulator<>>& dynamicsSimulator)
+void saveSimulationResults(const std::shared_ptr<SingleArcSimulationResults<>>& propagationResults)
 {
-    auto integrationResult = dynamicsSimulator->getEquationsOfMotionNumericalSolution();
-    auto dependentVariableResult = dynamicsSimulator->getDependentVariableHistory();
+    auto stateHistory = propagationResults->getEquationsOfMotionNumericalSolution();
+    auto dependentVariableHistory = propagationResults->getDependentVariableHistory();
+    auto cpuTimeHistory = propagationResults->getCumulativeComputationTimeHistory();
+    auto dependentVariableNames = propagationResults->getDependentVariableId();
+    auto stateNames = propagationResults->getProcessedStateIds();
 
-    // Write perturbed satellite propagation history to file.
-    input_output::writeDataMapToTextFile(integrationResult,
-                                         "lro_propagation_history.dat",
+    input_output::writeDataMapToTextFile(stateHistory,
+                                         "state_history.csv",
                                          resultsFolder,
                                          "",
                                          std::numeric_limits< double >::digits10,
                                          std::numeric_limits< double >::digits10,
                                          ",");
 
-    input_output::writeDataMapToTextFile(dependentVariableResult,
-                                         "lro_dependent_variable_history.dat",
+    input_output::writeDataMapToTextFile(dependentVariableHistory,
+                                         "dependent_variable_history.csv",
                                          resultsFolder,
                                          "",
                                          std::numeric_limits< double >::digits10,
                                          std::numeric_limits< double >::digits10,
                                          ",");
+
+    input_output::writeDataMapToTextFile(cpuTimeHistory,
+                                         "cpu_time.csv",
+                                         resultsFolder,
+                                         "",
+                                         std::numeric_limits< double >::digits10,
+                                         std::numeric_limits< double >::digits10,
+                                         ",");
+
+    input_output::writeIdMapToTextFile(dependentVariableNames,
+                                       "dependent_variable_names.csv",
+                                       resultsFolder,
+                                       ";");
+
+    input_output::writeIdMapToTextFile(stateNames,
+                                       "state_names.csv",
+                                       resultsFolder,
+                                       ";");
 }

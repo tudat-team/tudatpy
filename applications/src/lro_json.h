@@ -111,7 +111,6 @@ std::string formatEphemerisTime(double et)
 {
     SpiceChar out[65];
     timout_c(et, "YYYY-MM-DD HR:MN:SC UTC ::UTC", 65, out);
-    std::string out_str(out);
     return out;
 }
 
