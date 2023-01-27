@@ -304,8 +304,20 @@ public:
             const std::map< std::string, std::shared_ptr< ControlSurfaceIncrementAerodynamicInterface > >
             controlSurfaceIncrementInterfaces )
     {
+        if( controlSurfaceIncrementInterfaces_.size( ) != 0 )
+        {
+            std::cerr<<"Warning, overwriting existing control surface increments"<<std::endl;
+        }
         controlSurfaceIncrementInterfaces_ = controlSurfaceIncrementInterfaces;
         controlSurfaceNames_ = utilities::createVectorFromMapKeys( controlSurfaceIncrementInterfaces_ );
+    }
+
+    void addControlSurface(
+            const std::string& controlSurfaceName,
+            const std::shared_ptr< ControlSurfaceIncrementAerodynamicInterface > controlSurfaceIncrementInterface )
+    {
+        controlSurfaceNames_.push_back( controlSurfaceName );
+        controlSurfaceIncrementInterfaces_[ controlSurfaceName ] = controlSurfaceIncrementInterface;
     }
 
     //! Function to get control surface name at given index in list of control surfaces
@@ -317,6 +329,11 @@ public:
     std::string getControlSurfaceName( const int index )
     {
         return controlSurfaceNames_.at( index );
+    }
+
+    std::vector< std::string > getControlSurfaceNames( )
+    {
+        return controlSurfaceNames_;
     }
 
     //! Function to return the number of control surfaces in current coefficient interface.
