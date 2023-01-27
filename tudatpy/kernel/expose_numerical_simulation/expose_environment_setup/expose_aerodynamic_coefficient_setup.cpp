@@ -70,32 +70,24 @@ namespace aerodynamic_coefficients {
         /////////////////////////////////////////////////////////////////////////////
         py::class_<tss::AerodynamicCoefficientSettings,
                 std::shared_ptr<tss::AerodynamicCoefficientSettings>>(
-                    m, "AerodynamicCoefficientSettings",
-                                                get_docstring("AerodynamicCoefficientSettings").c_str());
+                m, "AerodynamicCoefficientSettings",
+                get_docstring("AerodynamicCoefficientSettings").c_str())
+                .def("add_single_control_surface",
+                     &tss::AerodynamicCoefficientSettings::addControlSurfaceSettings,
+                     py::arg( "control_surface_settings" ),
+                     py::arg( "control_surface_name" ),
+                     get_docstring("AerodynamicCoefficientSettings.add_single_control_surface").c_str());
 
         py::class_<tss::ConstantAerodynamicCoefficientSettings,
                 std::shared_ptr<tss::ConstantAerodynamicCoefficientSettings>,
                 tss::AerodynamicCoefficientSettings>(
                         m, "ConstantAerodynamicCoefficientSettings",
                         get_docstring("ConstantAerodynamicCoefficientSettings").c_str());
-//            .def(py::init<const double, const double, const double,
-//                 const Eigen::Vector3d &, const Eigen::Vector3d &,
-//                 const Eigen::Vector3d &, const bool, const bool,
-//                 const std::shared_ptr<ti::InterpolatorSettings>>(),
-//                 py::arg("reference_length"), py::arg("reference_area"),
-//                 py::arg("lateral_reference_length"),
-//                 py::arg("moment_reference_point"),
-//                 py::arg("constant_force_coefficient"),
-//                 py::arg("constant_moment_coefficient") = Eigen::Vector3d::Zero(),
-//                 py::arg("are_coefficients_in_aerodynamic_frame") = true,
-//                 py::arg("are_coefficients_in_negative_axis_direction") = true,
-//                 py::arg("interpolator_settings") = nullptr)
-//            .def(py::init<const double, const Eigen::Vector3d &, const bool,
-//                 const bool>(),
-//                 py::arg("reference_area"),
-//                 py::arg("constant_force_coefficient"),
-//                 py::arg("are_coefficients_in_aerodynamic_frame") = true,
-//                 py::arg("are_coefficients_in_negative_axis_direction") = true);
+
+        py::class_<tss::ControlSurfaceIncrementAerodynamicCoefficientSettings,
+                std::shared_ptr<tss::ControlSurfaceIncrementAerodynamicCoefficientSettings>>(
+                m, "ControlSurfaceIncrementAerodynamicCoefficientSettings",
+                get_docstring("ControlSurfaceIncrementAerodynamicCoefficientSettings").c_str());
 
         m.def("constant",
               py::overload_cast<const double, const Eigen::Vector3d &, const bool,
@@ -268,6 +260,12 @@ namespace aerodynamic_coefficients {
               py::arg("moment_scaling_vector_function"),
               py::arg("is_scaling_absolute") = false,
               get_docstring("scaled_by_vector_function").c_str());
+
+        m.def("custom_control_surface",
+              &tss::customControlSurfaceIncrementAerodynamicCoefficientSettings,
+              py::arg("force_and_moment_coefficient_function"),
+              py::arg("independent_variable_names"),
+              get_docstring("custom_control_surface").c_str());
 
     }
 
