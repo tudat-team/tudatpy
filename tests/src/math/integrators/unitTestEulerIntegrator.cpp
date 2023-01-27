@@ -76,7 +76,7 @@ BOOST_AUTO_TEST_CASE( testEulerIntegratorUsingMatlabData )
                     matlabForwardIntegrationData( FIRST_ROW, TIME_COLUMN_INDEX ),
                     ( Eigen::VectorXd( 1 )
                       << matlabForwardIntegrationData( FIRST_ROW,
-                                                       STATE_COLUMN_INDEX ) ).finished( ) );
+                                                       STATE_COLUMN_INDEX ) ).finished( ), TUDAT_NAN );
 
         executeOneIntegrateToStep( matlabForwardIntegrationData, 1.0e-15, integrator );
     }
@@ -91,7 +91,7 @@ BOOST_AUTO_TEST_CASE( testEulerIntegratorUsingMatlabData )
                     matlabForwardIntegrationData( FIRST_ROW, TIME_COLUMN_INDEX ),
                     ( Eigen::VectorXd( 1 )
                       << matlabForwardIntegrationData( FIRST_ROW,
-                                                       STATE_COLUMN_INDEX ) ).finished( ) );
+                                                       STATE_COLUMN_INDEX ) ).finished( ), TUDAT_NAN );
 
         performIntegrationStepToSpecifiedTime( matlabForwardIntegrationData,
                                                1.0e-15,  1.0e-14, integrator );
@@ -107,7 +107,7 @@ BOOST_AUTO_TEST_CASE( testEulerIntegratorUsingMatlabData )
                     matlabBackwardIntegrationData( FIRST_ROW, TIME_COLUMN_INDEX ),
                     ( Eigen::VectorXd( 1 )
                       << matlabBackwardIntegrationData( FIRST_ROW,
-                                                        STATE_COLUMN_INDEX ) ).finished( ) );
+                                                        STATE_COLUMN_INDEX ) ).finished( ), TUDAT_NAN );
 
         performIntegrationStepToSpecifiedTime( matlabBackwardIntegrationData,
                                                1.0e-15, 1.0e-14, integrator );
@@ -122,7 +122,7 @@ BOOST_AUTO_TEST_CASE( testEulerIntegratorUsingMatlabData )
                     matlabForwardIntegrationData( FIRST_ROW, TIME_COLUMN_INDEX ),
                     ( Eigen::VectorXd( 1 )
                       << matlabForwardIntegrationData( FIRST_ROW,
-                                                       STATE_COLUMN_INDEX ) ).finished( ) );
+                                                       STATE_COLUMN_INDEX ) ).finished( ), TUDAT_NAN );
 
         executeIntegrateToToSpecifiedTime( matlabForwardIntegrationData, 1.0e-14, integrator,
                                            matlabForwardIntegrationData(
@@ -140,7 +140,7 @@ BOOST_AUTO_TEST_CASE( testEulerIntegratorUsingMatlabData )
                     matlabDiscreteEventIntegrationData( FIRST_ROW, TIME_COLUMN_INDEX ),
                     ( Eigen::VectorXd( 1 )
                       << matlabDiscreteEventIntegrationData( FIRST_ROW,
-                                                             STATE_COLUMN_INDEX ) ).finished( ) );
+                                                             STATE_COLUMN_INDEX ) ).finished( ), TUDAT_NAN );
 
         performIntegrationStepToSpecifiedTimeWithEvents( matlabDiscreteEventIntegrationData,
                                                          1.0e-15, 1.0e-13, integrator );

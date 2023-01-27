@@ -68,8 +68,9 @@ public:
      */
     EulerIntegrator( const StateDerivativeFunction& stateDerivativeFunction,
                      const IndependentVariableType intervalStart,
-                     const StateType& initialState )
-        : RungeKuttaFixedStepSizeIntegratorBase( stateDerivativeFunction, intervalStart, initialState, forwardEuler )
+                     const StateType& initialState,
+                     const TimeStepType& stepSize )
+        : RungeKuttaFixedStepSizeIntegratorBase( stateDerivativeFunction, intervalStart, initialState, stepSize, forwardEuler )
     {
     }
 

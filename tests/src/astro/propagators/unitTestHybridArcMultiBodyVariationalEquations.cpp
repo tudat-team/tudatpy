@@ -807,7 +807,7 @@ BOOST_AUTO_TEST_CASE( testHybridArcMultiBodyVariationalEquationCalculation1 )
         std::shared_ptr< SingleArcVariationalEquationsSolver< double, double > > singleArcVariationalEquationsSolver =
                 hybridArcVariationalEquationsSolver.getSingleArcSolver( );
 
-        std::map< double, Eigen::MatrixXd > singleArcSTM = singleArcVariationalEquationsSolver->getNumericalVariationalEquationsSolution( )[ 0 ];
+        std::map< double, Eigen::MatrixXd > singleArcSTM = singleArcVariationalEquationsSolver->z( )[ 0 ];
 
 
         std::shared_ptr< MultiArcVariationalEquationsSolver< double, double > > multiArcVariationalEquationsSolver =
