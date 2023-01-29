@@ -110,7 +110,7 @@ std::shared_ptr<electromagnetism::RadiationPressureTargetModel> createRadiationP
                 panels.emplace_back(
                         panel.getArea(),
                         surfaceNormalFunction,
-                        SpecularDiffuseMixReflectionLaw::fromSpecularAndDiffuseReflectivity(
+                        reflectionLawFromSpecularAndDiffuseReflectivity(
                                 panel.getSpecularReflectivity(),
                                 panel.getDiffuseReflectivity()));
             }

@@ -35,7 +35,7 @@ double SpecularDiffuseMixReflectionLaw::evaluateReflectedFraction(const Eigen::V
     }
 
     // Wetterer (2014) Eq. 4
-    const auto diffuseReflectance = diffuseReflectivity / mathematical_constants::PI;
+    const auto diffuseReflectance = diffuseReflectivity_ / mathematical_constants::PI;
 
     // TODO-DOMINIK is this correct? Should follow from Montenbruck (2014)
     double instantaneousReradiationReflectance = 0;
@@ -69,9 +69,9 @@ Eigen::Vector3d SpecularDiffuseMixReflectionLaw::evaluateReactionVector(const Ei
     }
 
     // Montenbruck (2014) Eq. 5
-    const Eigen::Vector3d reactionFromIncidence = (absorptivity_ + diffuseReflectivity) * incomingDirection;
+    const Eigen::Vector3d reactionFromIncidence = (absorptivity_ + diffuseReflectivity_) * incomingDirection;
     const Eigen::Vector3d reactionFromReflection =
-            -(2. / 3 * diffuseReflectivity + 2 * specularReflectivity_ * cosBetweenNormalAndIncoming) * surfaceNormal;
+            -(2. / 3 * diffuseReflectivity_ + 2 * specularReflectivity_ * cosBetweenNormalAndIncoming) * surfaceNormal;
 
     Eigen::Vector3d reactionFromInstantaneousReradiation;
     if (withInstantaneousLambertianReradiation_)
@@ -86,6 +86,16 @@ Eigen::Vector3d SpecularDiffuseMixReflectionLaw::evaluateReactionVector(const Ei
     }
 
     return reactionFromIncidence + reactionFromReflection + reactionFromInstantaneousReradiation;
+}
+
+void SpecularDiffuseMixReflectionLaw::validateCoefficients() const
+{
+    auto sumOfCoeffs = absorptivity_ + specularReflectivity_ + diffuseReflectivity_;
+    if (std::fabs(1 - sumOfCoeffs) >= 20 * std::numeric_limits<double>::epsilon())
+    {
+        std::cerr << "Warning, coefficients of specular-diffuse-mix reflection law, " <<
+                "should sum to 1" << std::endl;
+    }
 }
 
 Eigen::Vector3d computeMirrorlikeReflection(
