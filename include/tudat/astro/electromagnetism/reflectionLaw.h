@@ -98,51 +98,12 @@ public:
             double specularReflectivity,
             double diffuseReflectivity,
             bool withInstantaneousLambertianReradiation = false) :
-        absorptivity_(absorptivity),
-        specularReflectivity_(specularReflectivity),
-        diffuseReflectivity(diffuseReflectivity),
-        withInstantaneousLambertianReradiation_(withInstantaneousLambertianReradiation)
+            absorptivity_(absorptivity),
+            specularReflectivity_(specularReflectivity),
+            diffuseReflectivity_(diffuseReflectivity),
+            withInstantaneousLambertianReradiation_(withInstantaneousLambertianReradiation)
     {
-        auto sumOfCoeffs = absorptivity + specularReflectivity + diffuseReflectivity;
-        if (std::fabs(1 - sumOfCoeffs) >= 20 * std::numeric_limits<double>::epsilon())
-        {
-            std::cerr << "Warning when creating specular-diffuse-mix reflection law, " <<
-                         "coefficients should sum to 1" << std::endl;
-        }
-    }
-
-    // TODO-DOMINIK extract from class
-    static std::shared_ptr<SpecularDiffuseMixReflectionLaw> fromAbsorptivityAndSpecularReflectivity(
-            double absorptivity,
-            double specularReflectivity)
-    {
-        const auto diffuseReflectivity = 1 - absorptivity - specularReflectivity;
-        return std::make_shared<SpecularDiffuseMixReflectionLaw>(
-                absorptivity,
-                specularReflectivity,
-                diffuseReflectivity);
-    }
-
-    static std::shared_ptr<SpecularDiffuseMixReflectionLaw> fromAbsorptivityAndDiffuseReflectivity(
-            double absorptivity,
-            double diffuseReflectivity)
-    {
-        const auto specularReflectivity = 1 - absorptivity - diffuseReflectivity;
-        return std::make_shared<SpecularDiffuseMixReflectionLaw>(
-                absorptivity,
-                specularReflectivity,
-                diffuseReflectivity);
-    }
-
-    static std::shared_ptr<SpecularDiffuseMixReflectionLaw> fromSpecularAndDiffuseReflectivity(
-            double specularReflectivity,
-            double diffuseReflectivity)
-    {
-        const auto absorptivity = 1 - specularReflectivity - diffuseReflectivity;
-        return std::make_shared<SpecularDiffuseMixReflectionLaw>(
-                absorptivity,
-                specularReflectivity,
-                diffuseReflectivity);
+        validateCoefficients();
     }
 
     double evaluateReflectedFraction(
@@ -166,7 +127,7 @@ public:
 
     double getDiffuseReflectivity() const
     {
-        return diffuseReflectivity;
+        return diffuseReflectivity_;
     }
 
     bool getWithInstantaneousLambertianReradiation() const
@@ -175,9 +136,11 @@ public:
     }
 
 private:
+    void validateCoefficients() const;
+
     double absorptivity_;
     double specularReflectivity_;
-    double diffuseReflectivity;
+    double diffuseReflectivity_;
     bool withInstantaneousLambertianReradiation_;
 };
 
@@ -214,6 +177,41 @@ public:
 Eigen::Vector3d computeMirrorlikeReflection(
         const Eigen::Vector3d& vectorToMirror,
         const Eigen::Vector3d& surfaceNormal);
+
+
+inline std::shared_ptr<SpecularDiffuseMixReflectionLaw> reflectionLawFromAbsorptivityAndSpecularReflectivity(
+        double absorptivity,
+        double specularReflectivity)
+{
+    const auto diffuseReflectivity = 1 - absorptivity - specularReflectivity;
+    return std::make_shared<SpecularDiffuseMixReflectionLaw>(
+            absorptivity,
+            specularReflectivity,
+            diffuseReflectivity);
+}
+
+inline std::shared_ptr<SpecularDiffuseMixReflectionLaw> reflectionLawFromAbsorptivityAndDiffuseReflectivity(
+        double absorptivity,
+        double diffuseReflectivity)
+{
+    const auto specularReflectivity = 1 - absorptivity - diffuseReflectivity;
+    return std::make_shared<SpecularDiffuseMixReflectionLaw>(
+            absorptivity,
+            specularReflectivity,
+            diffuseReflectivity);
+}
+
+inline std::shared_ptr<SpecularDiffuseMixReflectionLaw> reflectionLawFromSpecularAndDiffuseReflectivity(
+        double specularReflectivity,
+        double diffuseReflectivity)
+{
+    const auto absorptivity = 1 - specularReflectivity - diffuseReflectivity;
+    return std::make_shared<SpecularDiffuseMixReflectionLaw>(
+            absorptivity,
+            specularReflectivity,
+            diffuseReflectivity);
+}
+
 
 } // tudat
 } // electromagnetism
