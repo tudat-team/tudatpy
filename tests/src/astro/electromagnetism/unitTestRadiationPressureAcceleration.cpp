@@ -167,8 +167,6 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPointSource_Can
     const auto targetPosition = Eigen::Vector3d(10, 0, 0);
     auto targetModel = std::make_shared<CannonballRadiationPressureTargetModel>(1, 1);
 
-    std::vector<std::string> emptyBodyList {};
-
     // Source and target keep their position, occulting body moves between tests
     {
         // Occulting body not interfering
@@ -177,7 +175,7 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPointSource_Can
         const auto occultingBodyPosition = Eigen::Vector3d(5, 5, 0);
 
         auto sourceToTargetOccultationModel = std::make_shared<SingleOccultingBodyOccultationModel>(
-            emptyBodyList, [=] () { return occultingBodyPosition; },
+            "", [=] () { return occultingBodyPosition; },
             std::make_shared<basic_astrodynamics::SphericalBodyShapeModel>(1));
 
         IsotropicPointSourceRadiationPressureAcceleration accelerationModel(
@@ -208,7 +206,7 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPointSource_Can
         const auto occultingBodyPosition = Eigen::Vector3d(5, 0, 0);
 
         auto sourceToTargetOccultationModel = std::make_shared<SingleOccultingBodyOccultationModel>(
-            emptyBodyList, [=] () { return occultingBodyPosition; },
+            "", [=] () { return occultingBodyPosition; },
             std::make_shared<basic_astrodynamics::SphericalBodyShapeModel>(1));
 
         IsotropicPointSourceRadiationPressureAcceleration accelerationModel(
@@ -242,11 +240,11 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPointSource_Pan
     auto sourceModel = std::make_shared<IsotropicPointRadiationSourceModel>(luminosityModel);
     std::vector<PaneledRadiationPressureTargetModel::Panel> panels{
             TargetPanel(1, -Eigen::Vector3d::UnitX(),
-                        SpecularDiffuseMixReflectionLaw::fromAbsorptivityAndDiffuseReflectivity(1, 0)),
+                        reflectionLawFromAbsorptivityAndDiffuseReflectivity(1, 0)),
             TargetPanel(2, -Eigen::Vector3d::UnitY(),
-                        SpecularDiffuseMixReflectionLaw::fromSpecularAndDiffuseReflectivity(0, 1)),
+                        reflectionLawFromSpecularAndDiffuseReflectivity(0, 1)),
             TargetPanel(3, Eigen::Vector3d::UnitX(), // never pointing towards source in these tests
-                        SpecularDiffuseMixReflectionLaw::fromAbsorptivityAndDiffuseReflectivity(0.3, 0.4))
+                        reflectionLawFromAbsorptivityAndDiffuseReflectivity(0.3, 0.4))
     };
     auto targetModel = std::make_shared<PaneledRadiationPressureTargetModel>(panels);
 
@@ -413,27 +411,27 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPointSource_Pan
             // Define panels properties for test cases with constant rotational model.
             panels = {
                     TargetPanel(2.0, Eigen::Vector3d::UnitZ(),
-                                SpecularDiffuseMixReflectionLaw::fromSpecularAndDiffuseReflectivity(0.0, 0.06)),
+                                reflectionLawFromSpecularAndDiffuseReflectivity(0.0, 0.06)),
                     TargetPanel(4.0, Eigen::Vector3d::UnitZ(),
-                                SpecularDiffuseMixReflectionLaw::fromSpecularAndDiffuseReflectivity(0.1, 0.46)),
+                                reflectionLawFromSpecularAndDiffuseReflectivity(0.1, 0.46)),
                     TargetPanel(6.0, -Eigen::Vector3d::UnitZ(),
-                                SpecularDiffuseMixReflectionLaw::fromSpecularAndDiffuseReflectivity(0.0, 0.06)),
+                                reflectionLawFromSpecularAndDiffuseReflectivity(0.0, 0.06)),
                     TargetPanel(9.9, Eigen::Vector3d::UnitX(),
-                                SpecularDiffuseMixReflectionLaw::fromSpecularAndDiffuseReflectivity(0.0, 0.06)),
+                                reflectionLawFromSpecularAndDiffuseReflectivity(0.0, 0.06)),
                     TargetPanel(2.3, Eigen::Vector3d::UnitX(),
-                                SpecularDiffuseMixReflectionLaw::fromSpecularAndDiffuseReflectivity(0.1, 0.46)),
+                                reflectionLawFromSpecularAndDiffuseReflectivity(0.1, 0.46)),
                     TargetPanel(9.9, -Eigen::Vector3d::UnitX(),
-                                SpecularDiffuseMixReflectionLaw::fromSpecularAndDiffuseReflectivity(0.0, 0.06)),
+                                reflectionLawFromSpecularAndDiffuseReflectivity(0.0, 0.06)),
                     TargetPanel(2.3, -Eigen::Vector3d::UnitX(),
-                                SpecularDiffuseMixReflectionLaw::fromSpecularAndDiffuseReflectivity(0.1, 0.46)),
+                                reflectionLawFromSpecularAndDiffuseReflectivity(0.1, 0.46)),
                     TargetPanel(4.6, Eigen::Vector3d::UnitY(),
-                                SpecularDiffuseMixReflectionLaw::fromSpecularAndDiffuseReflectivity(0.0, 0.06)),
+                                reflectionLawFromSpecularAndDiffuseReflectivity(0.0, 0.06)),
                     TargetPanel(2.7, Eigen::Vector3d::UnitY(),
-                                SpecularDiffuseMixReflectionLaw::fromSpecularAndDiffuseReflectivity(0.1, 0.46)),
+                                reflectionLawFromSpecularAndDiffuseReflectivity(0.1, 0.46)),
                     TargetPanel(5.8, -Eigen::Vector3d::UnitY(),
-                                SpecularDiffuseMixReflectionLaw::fromSpecularAndDiffuseReflectivity(0.0, 0.06)),
+                                reflectionLawFromSpecularAndDiffuseReflectivity(0.0, 0.06)),
                     TargetPanel(2.7, -Eigen::Vector3d::UnitY(),
-                                SpecularDiffuseMixReflectionLaw::fromSpecularAndDiffuseReflectivity(0.1, 0.46)),
+                                reflectionLawFromSpecularAndDiffuseReflectivity(0.1, 0.46)),
             };
         }
         else if ( testCase == 3 )
@@ -441,13 +439,13 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPointSource_Pan
             // Define panels properties for test cases with constant rotational model (simpler boxes-and-wings model).
             panels = {
                     TargetPanel(9.9, Eigen::Vector3d::UnitX(),
-                                SpecularDiffuseMixReflectionLaw::fromSpecularAndDiffuseReflectivity(0.0, 0.06)),
+                                reflectionLawFromSpecularAndDiffuseReflectivity(0.0, 0.06)),
                     TargetPanel(2.3, Eigen::Vector3d::UnitX(),
-                                SpecularDiffuseMixReflectionLaw::fromSpecularAndDiffuseReflectivity(0.1, 0.46)),
+                                reflectionLawFromSpecularAndDiffuseReflectivity(0.1, 0.46)),
                     TargetPanel(9.9, -Eigen::Vector3d::UnitX(),
-                                SpecularDiffuseMixReflectionLaw::fromSpecularAndDiffuseReflectivity(0.0, 0.06)),
+                                reflectionLawFromSpecularAndDiffuseReflectivity(0.0, 0.06)),
                     TargetPanel(2.3, -Eigen::Vector3d::UnitX(),
-                                SpecularDiffuseMixReflectionLaw::fromSpecularAndDiffuseReflectivity(0.1, 0.46)),
+                                reflectionLawFromSpecularAndDiffuseReflectivity(0.1, 0.46)),
             };
         }
         bodies.at( "Vehicle" )->setRadiationPressureTargetModel(
@@ -720,9 +718,9 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_PaneledSource_PaneledTar
 
     std::vector<TargetPanel> targetPanels{
             TargetPanel(1, -Eigen::Vector3d::UnitX(),
-                        SpecularDiffuseMixReflectionLaw::fromAbsorptivityAndDiffuseReflectivity(1, 0)),
+                        reflectionLawFromAbsorptivityAndDiffuseReflectivity(1, 0)),
             TargetPanel(3, Eigen::Vector3d::UnitX(), // never pointing towards source in these tests
-                        SpecularDiffuseMixReflectionLaw::fromAbsorptivityAndDiffuseReflectivity(0.3, 0.4))
+                        reflectionLawFromAbsorptivityAndDiffuseReflectivity(0.3, 0.4))
     };
     auto targetModel = std::make_shared<PaneledRadiationPressureTargetModel>(targetPanels);
 
@@ -769,8 +767,6 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_PaneledSource_Cannonball
     const auto targetPosition = Eigen::Vector3d(10, 10, 0);
     auto targetModel = std::make_shared<CannonballRadiationPressureTargetModel>(1, 1);
 
-    std::vector<std::string> emptyBodyList {};
-
     // Original source, source and target keep their position, occulting bodies move between tests
     {
         // Two occulting bodies but not interfering with radiation
@@ -782,10 +778,10 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_PaneledSource_Cannonball
         const auto sourceToTargetOccultingBodyPosition = Eigen::Vector3d(5, -5, 0);
 
         auto sourceToTargetOccultationModel = std::make_shared<SingleOccultingBodyOccultationModel>(
-            emptyBodyList, [=] () { return sourceToTargetOccultingBodyPosition; },
+            "", [=] () { return sourceToTargetOccultingBodyPosition; },
             std::make_shared<basic_astrodynamics::SphericalBodyShapeModel>(1));
         auto originalSourceToSourceOccultationModel = std::make_shared<SingleOccultingBodyOccultationModel>(
-            emptyBodyList, [=] () { return originalSourceToSourceOccultingBodyPosition; },
+            "", [=] () { return originalSourceToSourceOccultingBodyPosition; },
             std::make_shared<basic_astrodynamics::SphericalBodyShapeModel>(1));
 
         PaneledSourceRadiationPressureAcceleration accelerationModel(
@@ -827,10 +823,10 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_PaneledSource_Cannonball
         const auto sourceToTargetOccultingBodyPosition = Eigen::Vector3d(5, -5, 0);
 
         auto sourceToTargetOccultationModel = std::make_shared<SingleOccultingBodyOccultationModel>(
-            emptyBodyList, [=] () { return sourceToTargetOccultingBodyPosition; },
+            "", [=] () { return sourceToTargetOccultingBodyPosition; },
             std::make_shared<basic_astrodynamics::SphericalBodyShapeModel>(1));
         auto originalSourceToSourceOccultationModel = std::make_shared<SingleOccultingBodyOccultationModel>(
-            emptyBodyList, [=] () { return originalSourceToSourceOccultingBodyPosition; },
+            "", [=] () { return originalSourceToSourceOccultingBodyPosition; },
             std::make_shared<basic_astrodynamics::SphericalBodyShapeModel>(1));
 
         PaneledSourceRadiationPressureAcceleration accelerationModel(
@@ -872,10 +868,10 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_PaneledSource_Cannonball
         const auto sourceToTargetOccultingBodyPosition = Eigen::Vector3d(5, 5, 0);
 
         auto sourceToTargetOccultationModel = std::make_shared<SingleOccultingBodyOccultationModel>(
-            emptyBodyList, [=] () { return sourceToTargetOccultingBodyPosition; },
+            "", [=] () { return sourceToTargetOccultingBodyPosition; },
             std::make_shared<basic_astrodynamics::SphericalBodyShapeModel>(1));
         auto originalSourceToSourceOccultationModel = std::make_shared<SingleOccultingBodyOccultationModel>(
-            emptyBodyList, [=] () { return originalSourceToSourceOccultingBodyPosition; },
+            "", [=] () { return originalSourceToSourceOccultingBodyPosition; },
             std::make_shared<basic_astrodynamics::SphericalBodyShapeModel>(1));
 
         PaneledSourceRadiationPressureAcceleration accelerationModel(
@@ -917,10 +913,10 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_PaneledSource_Cannonball
         const auto sourceToTargetOccultingBodyPosition = Eigen::Vector3d(5, 5, 0);
 
         auto sourceToTargetOccultationModel = std::make_shared<SingleOccultingBodyOccultationModel>(
-            emptyBodyList, [=] () { return sourceToTargetOccultingBodyPosition; },
+            "", [=] () { return sourceToTargetOccultingBodyPosition; },
             std::make_shared<basic_astrodynamics::SphericalBodyShapeModel>(1));
         auto originalSourceToSourceOccultationModel = std::make_shared<SingleOccultingBodyOccultationModel>(
-            emptyBodyList, [=] () { return originalSourceToSourceOccultingBodyPosition; },
+            "", [=] () { return originalSourceToSourceOccultingBodyPosition; },
             std::make_shared<basic_astrodynamics::SphericalBodyShapeModel>(1));
 
         PaneledSourceRadiationPressureAcceleration accelerationModel(
