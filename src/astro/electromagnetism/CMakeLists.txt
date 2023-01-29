@@ -25,6 +25,7 @@ set(electromagnetism_HEADERS
         "radiationPressureAcceleration.h"
         "reflectionLaw.h"
         "occultationModel.h"
+        "surfacePropertyDistribution.h"
         )
 
 # Set the header files.
@@ -43,6 +44,7 @@ set(electromagnetism_SOURCES
         "radiationPressureAcceleration.cpp"
         "reflectionLaw.cpp"
         "occultationModel.cpp"
+        "surfacePropertyDistribution.cpp"
         )
 
 # Add tests.

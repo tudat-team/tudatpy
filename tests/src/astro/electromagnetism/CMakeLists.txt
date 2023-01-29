@@ -71,3 +71,9 @@ TUDAT_ADD_TEST_CASE(OccultationModel
         tudat_basic_mathematics
         tudat_basic_astrodynamics
         )
+
+TUDAT_ADD_TEST_CASE(SurfacePropertyDistribution
+        PRIVATE_LINKS
+        tudat_electromagnetism
+        tudat_basic_mathematics
+        )
