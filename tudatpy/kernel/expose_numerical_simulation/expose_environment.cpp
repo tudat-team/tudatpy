@@ -463,6 +463,13 @@ void expose_environment(py::module &m) {
                           &te::SynchronousRotationalEphemeris::getLongitudeLibrationCalculator,
                           &te::SynchronousRotationalEphemeris::setLibrationCalculation);
 
+    py::class_<te::AerodynamicAngleRotationalEphemeris,
+            std::shared_ptr<te::AerodynamicAngleRotationalEphemeris>,
+            te::RotationalEphemeris>(
+            m, "AerodynamicAngleRotationalEphemeris")
+            .def("reset_aerodynamic_angle_function",
+                          &te::AerodynamicAngleRotationalEphemeris::setAerodynamicAngleFunction );
+
     py::class_<te::GcrsToItrsRotationModel,
             std::shared_ptr<te::GcrsToItrsRotationModel>,
             te::RotationalEphemeris>(
