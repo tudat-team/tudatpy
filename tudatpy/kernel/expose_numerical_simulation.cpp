@@ -144,11 +144,7 @@ void expose_numerical_simulation(py::module &m) {
                  py::arg("clear_numerical_solutions") = false,
                  py::arg("set_integrated_result") = false,
                  py::arg("print_number_of_function_evaluations") = false,
-                 py::arg("print_dependent_            .def(\"integrate_equations_of_motion\",\n"
-                         "                 static_cast<void (tp::SingleArcDynamicsSimulator<double, TIME_TYPE>::*)(const Eigen::MatrixXd&)>(\n"
-                         "                 &tp::SingleArcDynamicsSimulator<double, TIME_TYPE>::integrate ),\n"
-                         "                 py::arg(\"initial_states\"),\n"
-                         "                 get_docstring(\"SingleArcSimulator.integrate_equations_of_motion\").c_str())variable_data") = true,
+                 py::arg("print_dependent_variable_data") = true,
                  py::arg("print_state_data") = true)
 
             .def_property_readonly("state_history",
