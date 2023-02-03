@@ -51,6 +51,7 @@ struct Settings
     std::string targetType{};
     bool useOccultation{};
     bool useMoonRadiation{};
+    std::string albedoDistributionMoon{};
     unsigned int numberOfPanelsMoon{};
     std::string thermalType{};
     bool useInstantaneousReradiation{};
@@ -76,6 +77,7 @@ Settings loadSettings(char* path)
     settings.targetType = settings_["target_type"];
     settings.useOccultation = settings_["use_occultation"];
     settings.useMoonRadiation = settings_["use_moon_radiation"];
+    settings.albedoDistributionMoon = settings_["albedo_distribution_moon"];
     settings.numberOfPanelsMoon = settings_["number_of_panels_moon"];
     settings.thermalType = settings_["thermal_type"];
     settings.useInstantaneousReradiation = settings_["use_instantaneous_reradiation"];
@@ -100,6 +102,7 @@ std::ostream& operator<<(std::ostream& os, const Settings& settings)
             << " - Target type: " << settings.targetType << std::endl
             << " - Use occultation: " << settings.useOccultation << std::endl
             << " - Use moon radiation: " << settings.useMoonRadiation << std::endl
+            << " - Albedo distribution (Moon): " << settings.albedoDistributionMoon << std::endl
             << " - Number of panels (Moon): " << settings.numberOfPanelsMoon << std::endl
             << " - Thermal type: " << settings.thermalType << std::endl
             << " - Use instantaneous reradiation: " << settings.useInstantaneousReradiation << std::endl
