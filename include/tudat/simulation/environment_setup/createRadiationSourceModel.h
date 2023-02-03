@@ -16,6 +16,8 @@
 
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/astro/electromagnetism/radiationSourceModel.h"
+#include "tudat/astro/electromagnetism/luminosityModel.h"
+#include "tudat/astro/electromagnetism/surfacePropertyDistribution.h"
 
 
 namespace tudat
@@ -182,7 +184,7 @@ private:
  * @return Shared pointer to settings for a constant luminosity model.
  */
 inline std::shared_ptr<ConstantLuminosityModelSettings>
-constantLuminosityModelSettings(double luminosity)
+        constantLuminosityModelSettings(double luminosity)
 {
     return std::make_shared< ConstantLuminosityModelSettings >(luminosity);
 }
@@ -195,8 +197,7 @@ constantLuminosityModelSettings(double luminosity)
  * @return Shared pointer to settings for an irradiance-based luminosity model.
  */
 inline std::shared_ptr<IrradianceBasedLuminosityModelSettings>
-irradianceBasedLuminosityModelSettings(double irradianceAtDistance,
-                                       double distance)
+        irradianceBasedLuminosityModelSettings(double irradianceAtDistance, double distance)
 {
     return std::make_shared< IrradianceBasedLuminosityModelSettings >(
             [=] (double) { return irradianceAtDistance; },
@@ -210,7 +211,7 @@ irradianceBasedLuminosityModelSettings(double irradianceAtDistance,
  * @return Shared pointer to settings for an isotropic point radiation source model.
  */
 inline std::shared_ptr<IsotropicPointRadiationSourceModelSettings>
-isotropicPointRadiationSourceModelSettings(const std::shared_ptr<LuminosityModelSettings>& luminosityModel)
+        isotropicPointRadiationSourceModelSettings(const std::shared_ptr<LuminosityModelSettings>& luminosityModel)
 {
     return std::make_shared< IsotropicPointRadiationSourceModelSettings >(luminosityModel);
 }
@@ -218,6 +219,122 @@ isotropicPointRadiationSourceModelSettings(const std::shared_ptr<LuminosityModel
 //*********************************************************************************************
 //   Paneled radiation source
 //*********************************************************************************************
+
+/*!
+ * Types of surface property distributions.
+ */
+enum SurfacePropertyDistributionType
+{
+    constant,
+    spherical_harmonics
+};
+
+/*!
+ * Settings for distribution of a property on the surface of a sphere such as albedo or emissivity.
+ *
+ * @see SurfacePropertyDistribution
+ */
+class SurfacePropertyDistributionSettings
+{
+public:
+    explicit SurfacePropertyDistributionSettings(
+            const SurfacePropertyDistributionType surfacePropertyDistributionType) :
+            surfacePropertyDistributionType_(surfacePropertyDistributionType) {}
+
+    virtual ~SurfacePropertyDistributionSettings() = default;
+
+    SurfacePropertyDistributionType getSurfacePropertyDistributionType() const
+    {
+        return surfacePropertyDistributionType_;
+    }
+
+private:
+    SurfacePropertyDistributionType surfacePropertyDistributionType_;
+};
+
+/*!
+ * Settings for a constant surface property distribution.
+ *
+ * @see ConstantSurfacePropertyDistribution
+ */
+class ConstantSurfacePropertyDistributionSettings : public SurfacePropertyDistributionSettings
+{
+public:
+    /*!
+     * Constructor.
+     *
+     * @param constantValue Constant value
+     */
+    explicit ConstantSurfacePropertyDistributionSettings(
+            const double constantValue) :
+            SurfacePropertyDistributionSettings(constant),
+            constantValue_(constantValue) {}
+
+    double getConstantValue() const
+    {
+        return constantValue_;
+    }
+
+private:
+    double constantValue_;
+};
+
+enum SphericalHarmonicsSurfacePropertyDistributionModel
+{
+    custom,
+    albedo_dlam1 /**< DLAM-1 lunar albedo model: Floberghagen, R. et al. "Lunar Albedo Force Modeling and its Effect on Low Lunar Orbit and Gravity Field Determination". ASR 23. 4(1999): 733-738. */
+};
+
+/*!
+ * Settings for a surface property distribution described by a spherical harmonics expansion. The reference frame of the
+ * body and spherical harmonics must be identical.
+ *
+ * @see SphericalHarmonicsSurfacePropertyDistribution
+ */
+class SphericalHarmonicsSurfacePropertyDistributionSettings : public SurfacePropertyDistributionSettings
+{
+public:
+    /*!
+     * Constructor with custom model.
+     *
+     * @param cosineCoefficients Cosine spherical harmonic coefficients (not normalized)
+     * @param sineCoefficients Sine spherical harmonic coefficients (not normalized)
+     */
+    explicit SphericalHarmonicsSurfacePropertyDistributionSettings(
+            const Eigen::MatrixXd& cosineCoefficients,
+            const Eigen::MatrixXd& sineCoefficients) :
+            SurfacePropertyDistributionSettings(spherical_harmonics),
+            model_(custom),
+            cosineCoefficients_(cosineCoefficients),
+            sineCoefficients_(sineCoefficients) {}
+
+    /*!
+    * Constructor with model included in Tudat.
+    *
+    * @param model Spherical harmonics model to be used
+    */
+    explicit SphericalHarmonicsSurfacePropertyDistributionSettings(
+            SphericalHarmonicsSurfacePropertyDistributionModel model);
+
+    const Eigen::MatrixXd& getCosineCoefficients() const
+    {
+        return cosineCoefficients_;
+    }
+
+    const Eigen::MatrixXd& getSineCoefficients() const
+    {
+        return sineCoefficients_;
+    }
+
+private:
+    SphericalHarmonicsSurfacePropertyDistributionModel model_;
+
+    // Cosine spherical harmonic coefficients (not normalized)
+    Eigen::MatrixXd cosineCoefficients_;
+
+    // Sine spherical harmonic coefficients (not normalized)
+    Eigen::MatrixXd sineCoefficients_;
+};
 
 /*!
  * Types of panel radiosity models.
@@ -267,17 +384,17 @@ public:
     /*!
      * Constructor.
      *
-     * @param albedoDistribution Function returning the albedo at a given polar and azimuth angle on the body
+     * @param albedoDistribution Albedo distribution
      * @param withInstantaneousReradiation Whether to instantaneously reradiate absorbed radiation
      */
     explicit AlbedoPanelRadiosityModelSettings(
-            const std::function<double(double,double)>& albedoDistribution,
+            const std::shared_ptr<SurfacePropertyDistributionSettings>& albedoDistribution,
             bool withInstantaneousReradiation) :
             PanelRadiosityModelSettings(albedo),
             albedoDistribution_(albedoDistribution),
             withInstantaneousReradiation_(withInstantaneousReradiation) {}
 
-    const std::function<double(double,double)>& getAlbedoDistribution() const
+    const std::shared_ptr<SurfacePropertyDistributionSettings>& getAlbedoDistribution() const
     {
         return albedoDistribution_;
     }
@@ -288,7 +405,7 @@ public:
     }
 
 private:
-    std::function<double(double, double)> albedoDistribution_;
+    std::shared_ptr<SurfacePropertyDistributionSettings> albedoDistribution_;
     bool withInstantaneousReradiation_;
 };
 
@@ -303,20 +420,20 @@ public:
     /*!
      * Constructor.
      *
-     * @param emissivityDistribution Function returning the emissivity at a given polar and azimuth angle on the body
+     * @param emissivityDistribution Emissivity distribution
      */
     explicit DelayedThermalPanelRadiosityModelSettings(
-            const std::function<double(double,double)>& emissivityDistribution) :
+            const std::shared_ptr<SurfacePropertyDistributionSettings>& emissivityDistribution) :
             PanelRadiosityModelSettings(thermal_delayed),
             emissivityDistribution_(emissivityDistribution) {}
 
-    const std::function<double(double,double)>& getEmissivityDistribution() const
+    const std::shared_ptr<SurfacePropertyDistributionSettings>& getEmissivityDistribution() const
     {
         return emissivityDistribution_;
     }
 
 private:
-    std::function<double(double, double)> emissivityDistribution_;
+    std::shared_ptr<SurfacePropertyDistributionSettings> emissivityDistribution_;
 };
 
 /*!
@@ -332,12 +449,12 @@ public:
      *
      * @param minTemperature Minimum surface temperature (in shade) [K]
      * @param maxTemperature Maximum surface temperature (at subsolar point) [K]
-     * @param emissivityDistribution Function returning the emissivity at a given polar and azimuth angle on the body
+     * @param emissivityDistribution Emissivity distribution
      */
     explicit AngleBasedThermalPanelRadiosityModelSettings(
             double minTemperature,
             double maxTemperature,
-            const std::function<double(double,double)>& emissivityDistribution) :
+            const std::shared_ptr<SurfacePropertyDistributionSettings>& emissivityDistribution) :
             PanelRadiosityModelSettings(thermal_angle_based),
             minTemperature_(minTemperature),
             maxTemperature_(maxTemperature),
@@ -353,7 +470,7 @@ public:
         return maxTemperature_;
     }
 
-    const std::function<double(double,double)>& getEmissivityDistribution() const
+    const std::shared_ptr<SurfacePropertyDistributionSettings>& getEmissivityDistribution() const
     {
         return emissivityDistribution_;
     }
@@ -361,7 +478,7 @@ public:
 private:
     double minTemperature_;
     double maxTemperature_;
-    std::function<double(double, double)> emissivityDistribution_;
+    std::shared_ptr<SurfacePropertyDistributionSettings> emissivityDistribution_;
 };
 
 /*!
@@ -416,7 +533,46 @@ private:
     std::vector<std::string> originalSourceToSourceOccultingBodies_;
 };
 
-// TODO-DOMINIK provide convenience functions for SH albedo/emissivity distributions
+/*!
+ * Create settings for constant surface property distribution.
+ *
+ * @param constantValue Constant value
+ * @return Shared pointer to settings for a constant surface property distribution.
+ */
+inline std::shared_ptr<ConstantSurfacePropertyDistributionSettings>
+        constantSurfacePropertyDistributionSettings(double constantValue)
+{
+    return std::make_shared< ConstantSurfacePropertyDistributionSettings >(constantValue);
+}
+
+/*!
+ * Create settings for constant surface property distribution from coefficients.
+ *
+ * @param cosineCoefficients Cosine spherical harmonic coefficients (not normalized)
+ * @param sineCoefficients Sine spherical harmonic coefficients (not normalized)
+ * @return Shared pointer to settings for a spherical harmonics surface property distribution.
+ */
+inline std::shared_ptr<SphericalHarmonicsSurfacePropertyDistributionSettings>
+        sphericalHarmonicsSurfacePropertyDistributionSettings(
+                const Eigen::MatrixXd& cosineCoefficients,
+                const Eigen::MatrixXd& sineCoefficients)
+{
+    return std::make_shared< SphericalHarmonicsSurfacePropertyDistributionSettings >(
+            cosineCoefficients, sineCoefficients);
+}
+
+/*!
+ * Create settings for constant surface property distribution from model included in Tudat.
+ *
+ * @param model Spherical harmonics model to be used
+ * @return Shared pointer to settings for a spherical harmonics surface property distribution.
+ */
+inline std::shared_ptr<SphericalHarmonicsSurfacePropertyDistributionSettings>
+        sphericalHarmonicsSurfacePropertyDistributionSettings(
+                SphericalHarmonicsSurfacePropertyDistributionModel model)
+{
+    return std::make_shared< SphericalHarmonicsSurfacePropertyDistributionSettings >(model);
+}
 
 /*!
  * Create settings for an albedo panel radiosity model with same albedo at any point on surface.
@@ -426,10 +582,27 @@ private:
  * @return Shared pointer to settings for an albedo panel radiosity model
  */
 inline std::shared_ptr<AlbedoPanelRadiosityModelSettings>
-albedoPanelRadiosityModelSettings(double albedo, bool withInstantaneousReradiation = false)
+        albedoPanelRadiosityModelSettings(double albedo, bool withInstantaneousReradiation = false)
 {
     return std::make_shared< AlbedoPanelRadiosityModelSettings >(
-        [=] (double, double) { return albedo; }, withInstantaneousReradiation);
+        constantSurfacePropertyDistributionSettings(albedo), withInstantaneousReradiation);
+
+}
+
+/*!
+ * Create settings for an albedo panel radiosity model with spherical harmonics albedo.
+ *
+ * @param albedo Constant albedo
+ * @param withInstantaneousReradiation Whether to instantaneously reradiate absorbed radiation
+ * @return Shared pointer to settings for an albedo panel radiosity model
+ */
+inline std::shared_ptr<AlbedoPanelRadiosityModelSettings>
+        albedoPanelRadiosityModelSettings(
+                SphericalHarmonicsSurfacePropertyDistributionModel albedoModel,
+                bool withInstantaneousReradiation = false)
+{
+    return std::make_shared< AlbedoPanelRadiosityModelSettings >(
+            sphericalHarmonicsSurfacePropertyDistributionSettings(albedoModel), withInstantaneousReradiation);
 
 }
 
@@ -440,9 +613,10 @@ albedoPanelRadiosityModelSettings(double albedo, bool withInstantaneousReradiati
  * @return Shared pointer to settings for a delayed thermal panel radiosity model
  */
 inline std::shared_ptr<DelayedThermalPanelRadiosityModelSettings>
-delayedThermalPanelRadiosityModelSettings(double emissivity)
+        delayedThermalPanelRadiosityModelSettings(double emissivity)
 {
-    return std::make_shared< DelayedThermalPanelRadiosityModelSettings >([=] (double, double) { return emissivity; });
+    return std::make_shared< DelayedThermalPanelRadiosityModelSettings >(
+            constantSurfacePropertyDistributionSettings(emissivity));
 }
 
 /*!
@@ -454,14 +628,14 @@ delayedThermalPanelRadiosityModelSettings(double emissivity)
  * @return Shared pointer to settings for an angle-based panel radiosity model
  */
 inline std::shared_ptr<AngleBasedThermalPanelRadiosityModelSettings>
-angleBasedThermalPanelRadiosityModelSettings(double minTemperature,
+        angleBasedThermalPanelRadiosityModelSettings(double minTemperature,
                                              double maxTemperature,
                                              double emissivity)
 {
     return std::make_shared< AngleBasedThermalPanelRadiosityModelSettings >(
             minTemperature,
             maxTemperature,
-            [=] (double, double) { return emissivity; } );
+            constantSurfacePropertyDistributionSettings(emissivity));
 }
 
 /*!
@@ -474,11 +648,11 @@ angleBasedThermalPanelRadiosityModelSettings(double minTemperature,
  * @return Shared pointer to settings for a statically paneled radiation source model
  */
 inline std::shared_ptr<StaticallyPaneledRadiationSourceModelSettings>
-staticallyPaneledRadiationSourceModelSettings(
-        const std::string& originalSourceName,
-        std::initializer_list<std::shared_ptr<PanelRadiosityModelSettings>> panelRadiosityModels,
-        unsigned int numberOfPanels,
-        const std::vector<std::string>& originalSourceToSourceOccultingBodies = {})
+        staticallyPaneledRadiationSourceModelSettings(
+                const std::string& originalSourceName,
+                std::initializer_list<std::shared_ptr<PanelRadiosityModelSettings>> panelRadiosityModels,
+                unsigned int numberOfPanels,
+                const std::vector<std::string>& originalSourceToSourceOccultingBodies = {})
 {
     return std::make_shared< StaticallyPaneledRadiationSourceModelSettings >(
             originalSourceName,
@@ -498,13 +672,24 @@ std::shared_ptr<electromagnetism::LuminosityModel> createLuminosityModel(
         const std::string& body);
 
 /*!
+ * Create surface property distribution from its settings.
+ *
+ * @param distributionSettings Settings of the surface property distribution
+ * @param body Body to which the surface property distribution belongs
+ * @return Shared pointer to surface property distribution
+ */
+std::shared_ptr<electromagnetism::SurfacePropertyDistribution> createSurfacePropertyDistribution(
+        const std::shared_ptr<SurfacePropertyDistributionSettings>& distributionSettings,
+        const std::string& body);
+
+/*!
  * Create function returning panel radiosity model at a given polar and azimuth angle from its settings.
  *
  * @param modelSettings Settings of the panel radiosity model
  * @param body Body to which the panel radiosity model belongs
- * @return Function returning panel radiosity model at a given polar and azimuth angle
+ * @return Panel radiosity model
  */
-std::function<std::shared_ptr<electromagnetism::PaneledRadiationSourceModel::PanelRadiosityModel>(double, double)>
+std::unique_ptr<electromagnetism::PaneledRadiationSourceModel::PanelRadiosityModel>
         createPanelRadiosityModel(
         const std::shared_ptr<PanelRadiosityModelSettings>& modelSettings,
         const std::string& body);
