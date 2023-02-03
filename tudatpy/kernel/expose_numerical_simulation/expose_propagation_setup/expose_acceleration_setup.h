@@ -50,6 +50,7 @@ enum ThrustFrames
 };
 
 }
+
 }
 
 namespace tudatpy {

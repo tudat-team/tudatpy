@@ -17,10 +17,14 @@
 #include "expose_environment_setup/expose_gravity_field_setup.h"
 #include "expose_environment_setup/expose_gravity_field_variation_setup.h"
 #include "expose_environment_setup/expose_radiation_pressure_setup.h"
+#include "expose_environment_setup/expose_ground_station_setup.h"
 #include "expose_environment_setup/expose_rotation_model_setup.h"
 #include "expose_environment_setup/expose_shape_setup.h"
+#include "expose_environment_setup/expose_shape_deformation_setup.h"
 
 #include "tudatpy/docstrings.h"
+#include "tudatpy/scalarTypes.h"
+
 #include <tudat/simulation/environment_setup.h>
 #include <tudat/astro/reference_frames/referenceFrameTransformations.h>
 
@@ -65,7 +69,10 @@ namespace environment_setup {
                 .def_readwrite("shape_settings", &tss::BodySettings::shapeModelSettings, get_docstring("BodySettings.shape_settings").c_str())
                 .def_readwrite("radiation_pressure_settings", &tss::BodySettings::radiationPressureSettings, get_docstring("BodySettings.radiation_pressure_settings").c_str())
                 .def_readwrite("aerodynamic_coefficient_settings", &tss::BodySettings::aerodynamicCoefficientSettings, get_docstring("BodySettings.aerodynamic_coefficient_settings").c_str())
-                .def_readwrite("gravity_field_variation_settings", &tss::BodySettings::gravityFieldVariationSettings, get_docstring("BodySettings.gravity_field_variation_settings").c_str());
+                .def_readwrite("gravity_field_variation_settings", &tss::BodySettings::gravityFieldVariationSettings, get_docstring("BodySettings.gravity_field_variation_settings").c_str())
+                .def_readwrite("shape_deformation_settings", &tss::BodySettings::bodyDeformationSettings, get_docstring("BodySettings.shape_deformation_settings").c_str())
+                .def_readwrite("ground_station_settings", &tss::BodySettings::groundStationSettings, get_docstring("BodySettings.ground_station_settings").c_str());
+
 
         py::class_<tss::BodyListSettings,
                 std::shared_ptr<tss::BodyListSettings> >(m, "BodyListSettings", get_docstring("BodyListSettings").c_str())
@@ -124,7 +131,7 @@ namespace environment_setup {
               py::arg("initial_time") = 0,
               get_docstring("create_simplified_system_of_bodies").c_str());
 
-        m.def("create_system_of_bodies", &tss::createSystemOfBodies,
+        m.def("create_system_of_bodies", &tss::createSystemOfBodies< double, TIME_TYPE >,
               py::arg("body_settings"),
               get_docstring("create_system_of_bodies").c_str());
 
@@ -135,14 +142,14 @@ namespace environment_setup {
               get_docstring("add_empty_tabulated_ephemeris").c_str());
 
         m.def("create_tabulated_ephemeris_from_spice",
-                &tss::createTabulatedEphemerisFromSpice<>, py::arg("body"),
+                &tss::createTabulatedEphemerisFromSpice<double, TIME_TYPE >, py::arg("body"),
                 py::arg("initial_time"), py::arg("end_time"), py::arg("time_step"),
                 py::arg("observer_name"), py::arg("reference_frame_name"),
                 py::arg("interpolator_settings") =
                         std::make_shared<tudat::interpolators::LagrangeInterpolatorSettings>(
                                 8));
 
-        m.def("create_body_ephemeris", &tss::createBodyEphemeris,
+        m.def("create_body_ephemeris", &tss::createBodyEphemeris< double, TIME_TYPE >,
               py::arg("ephemeris_settings"), py::arg("body_name"));
 
         m.def("get_safe_interpolation_interval", &tss::getSafeInterpolationInterval,
@@ -199,11 +206,20 @@ namespace environment_setup {
                       const std::shared_ptr<tss::Body>,
                       const std::string,
                       const Eigen::Vector3d,
-                      const tcc::PositionElementTypes>(&tss::createGroundStation),
+                      const tcc::PositionElementTypes,
+                      const std::vector< std::shared_ptr< tss::GroundStationMotionSettings > > >(&tss::createGroundStation),
               py::arg("body"),
               py::arg("ground_station_name"),
               py::arg("ground_station_position"),
               py::arg("position_type") = tcc::cartesian_position,
+              py::arg("station_motion_settings") = std::vector< std::shared_ptr< tss::GroundStationMotionSettings > >( ));
+
+        m.def("add_ground_station",
+              py::overload_cast<
+              const std::shared_ptr< tss::Body >,
+              const std::shared_ptr< tss::GroundStationSettings > >(&tss::createGroundStation),
+              py::arg("body"),
+              py::arg("ground_station_settings"),
               get_docstring("add_ground_station").c_str());
 
         m.def("create_radiation_pressure_interface",
@@ -245,6 +261,12 @@ namespace environment_setup {
 
         auto gravity_variation_setup = m.def_submodule("gravity_field_variation");
         gravity_field_variation::expose_gravity_field_variation_setup(gravity_variation_setup);
+
+        auto shape_deformation_setup = m.def_submodule("shape_deformation");
+        shape_deformation::expose_shape_deformation_setup(shape_deformation_setup);
+
+        auto ground_station_setup = m.def_submodule("ground_station");
+        ground_station::expose_ground_station_setup(ground_station_setup);
 
 //        auto system_model_setup = m.def_submodule("system_models");
 //        gravity_field_variation::expose_system_model_setup(system_model_setup);
