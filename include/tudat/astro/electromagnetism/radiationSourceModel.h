@@ -31,8 +31,7 @@
 #include <Eigen/Geometry>
 
 #include "tudat/astro/electromagnetism/luminosityModel.h"
-#include "tudat/astro/electromagnetism/reflectionLaw.h"
-#include "tudat/astro/electromagnetism/surfacePropertyDistribution.h"
+#include "tudat/astro/electromagnetism/sourcePanelRadiosityModel.h"
 #include "tudat/astro/basic_astro/bodyShapeModel.h"
 #include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/math/basic/coordinateConversions.h"
@@ -169,7 +168,6 @@ class PaneledRadiationSourceModel : public RadiationSourceModel
 {
 public:
     class Panel;
-    class PanelRadiosityModel; // cannot make this nested class of Panel since forward declaration is impossible
 
     /*!
      * Constructor for a shape-aware paneled source. The shape model is necessary for automatic panel generation.
@@ -274,7 +272,7 @@ public:
     explicit StaticallyPaneledRadiationSourceModel(
             const std::string& originalSourceName,
             const std::shared_ptr<basic_astrodynamics::BodyShapeModel>& sourceBodyShapeModel,
-            const std::vector<std::unique_ptr<PanelRadiosityModel>>& baseRadiosityModels,
+            const std::vector<std::unique_ptr<SourcePanelRadiosityModel>>& baseRadiosityModels,
             int numberOfPanels,
             const std::vector<std::string>& originalSourceToSourceOccultingBodies = {}) :
             PaneledRadiationSourceModel(
@@ -297,7 +295,7 @@ public:
 private:
     void updateMembers_(double currentTime) override;
 
-    void generatePanels(const std::vector<std::unique_ptr<PanelRadiosityModel>>& baseRadiosityModels);
+    void generatePanels(const std::vector<std::unique_ptr<SourcePanelRadiosityModel>>& baseRadiosityModels);
 
 
     unsigned int numberOfPanels;
@@ -345,7 +343,7 @@ public:
             double area,
             const Eigen::Vector3d& relativeCenter,
             const Eigen::Vector3d& surfaceNormal,
-            std::vector<std::unique_ptr<PanelRadiosityModel>> radiosityModels) :
+            std::vector<std::unique_ptr<SourcePanelRadiosityModel>> radiosityModels) :
             area_(area),
             relativeCenter_(relativeCenter),
             surfaceNormal_(surfaceNormal),
@@ -389,7 +387,7 @@ public:
         return surfaceNormal_;
     }
 
-    const std::vector<std::unique_ptr<PanelRadiosityModel>>& getRadiosityModels() const
+    const std::vector<std::unique_ptr<SourcePanelRadiosityModel>>& getRadiosityModels() const
     {
         return radiosityModels_;
     }
@@ -400,255 +398,7 @@ private:
     double longitude_;
     Eigen::Vector3d relativeCenter_;
     Eigen::Vector3d surfaceNormal_;
-    std::vector<std::unique_ptr<PanelRadiosityModel>> radiosityModels_;
-};
-
-/*!
- * Class modeling the radiosity emitted by a panel of a paneled radiation source.
- *
- * @see PaneledRadiationSourceModel::Panel
- */
-class PaneledRadiationSourceModel::PanelRadiosityModel
-{
-public:
-    virtual ~PanelRadiosityModel() = default;
-
-    /*!
-     * Evaluate the irradiance [W/m²] at a certain position due to this panel.
-     *
-     * @param targetPosition Position where to evaluate the irradiance in panel-local coordinates (source rotation,
-     *        centered in panel)
-     * @return Irradiance due to this radiosity model for single panel
-     */
-    virtual double evaluateIrradianceAtPosition(
-            double panelArea,
-            const Eigen::Vector3d& panelSurfaceNormal,
-            const Eigen::Vector3d& targetPosition,
-            double originalSourceIrradiance,
-            const Eigen::Vector3d& originalSourceToSourceDirection) const = 0;
-
-    /*!
-     * Update class members.
-     *
-     * @param panelLatitude Latitude of the panel this radiosity model belongs to
-     * @param panelLongitude Longitude of the panel this radiosity model belongs to
-     * @param currentTime Current simulation time
-     */
-    void updateMembers(
-            const double panelLatitude,
-            const double panelLongitude,
-            const double currentTime);
-
-    /*!
-     * Clone this object.
-     *
-     * @return A clone of this object
-     */
-    virtual std::unique_ptr<PanelRadiosityModel> clone() const = 0;
-
-protected:
-    virtual void updateMembers_(
-            const double panelLatitude,
-            const double panelLongitude,
-            const double currentTime) {};
-
-    /*!
-     * Whether the radiosity model is invariant with time. If yes, its members will not be updated even if the time
-     * changed, it will only be updated when the latitude/longitude change. The time invariance is usually determined
-     * by the albedo/emissivity distribution.
-     *
-     * @return Whether the radiosity model is invariant with time
-     */
-    virtual bool isTimeInvariant() = 0;
-
-    double currentTime_{TUDAT_NAN};
-    double panelLatitude_{TUDAT_NAN};
-    double panelLongitude_{TUDAT_NAN};
-};
-
-/*!
- * Panel radiosity model for albedo radiation with an arbitrary reflection law. This model was introduced in
- * Knocke (1988) for Earth thermal radiation, but only assuming Lambertian reflectance.
- *
- * For most cases, albedo radiation with a diffuse-only Lambertian reflection law is sufficient. Only a small fraction
- * of Earth's albedo is actually specular, since only calm bodies of water are truly specular and specular reflection
- * occurs mostly at low solar zenith angles where the reflectance is low anyway (Knocke, 1988).
- *
- * More sophisticated reflection laws (e.g., SpecularDiffuseMixReflectionLaw, or any BRDF via a custom ReflectionLaw)
- * can be implemented to take into account surface properties like different vegetation and ground types on Earth.
- */
-class AlbedoPanelRadiosityModel : public PaneledRadiationSourceModel::PanelRadiosityModel
-{
-public:
-    /*!
-     * Constructor.
-     *
-     * @param albedoDistribution Albedo distribution
-     * @param withInstantaneousReradiation Whether to instantaneously reradiate absorbed radiation
-     */
-    explicit AlbedoPanelRadiosityModel(
-            const std::shared_ptr<SurfacePropertyDistribution>& albedoDistribution,
-            bool withInstantaneousReradiation = false) :
-            albedoDistribution_(albedoDistribution),
-            reflectionLaw_(std::make_shared<LambertianReflectionLaw>(TUDAT_NAN, withInstantaneousReradiation)) {}
-
-    double evaluateIrradianceAtPosition(
-            double panelArea,
-            const Eigen::Vector3d& panelSurfaceNormal,
-            const Eigen::Vector3d& targetPosition,
-            double originalSourceIrradiance,
-            const Eigen::Vector3d& originalSourceToSourceDirection) const override;
-
-    std::unique_ptr<PanelRadiosityModel> clone() const override
-    {
-        return std::make_unique<AlbedoPanelRadiosityModel>(*this);
-    }
-
-    const std::shared_ptr<LambertianReflectionLaw>& getReflectionLaw() const
-    {
-        return reflectionLaw_;
-    }
-
-private:
-    void updateMembers_(
-            double panelLatitude,
-            double panelLongitude,
-            double currentTime) override;
-
-    bool isTimeInvariant() override
-    {
-        return albedoDistribution_->isTimeInvariant();
-    }
-
-    std::shared_ptr<SurfacePropertyDistribution> albedoDistribution_;
-
-    // Reflection law governing reflection of original source radiation
-    std::shared_ptr<LambertianReflectionLaw> reflectionLaw_;
-};
-
-/*!
- * Panel radiosity model for thermal emissions based on delayed, isotropic and constant flux. This model was introduced
- * in Knocke (1988) for Earth thermal radiation.
- *
- * As opposed to instantaneous reradiation, the body is assumed to act as heat buffer, absorbing incoming radiation and
- * reradiating it in a delayed fashion as longwave infrared radiation. For most bodies, and especially Earth, this is a
- * good assumption (Knocke, 1988).
- */
-class DelayedThermalPanelRadiosityModel : public PaneledRadiationSourceModel::PanelRadiosityModel
-{
-public:
-    /*!
-     * Constructor.
-     *
-     * @param emissivityDistribution Emissivity distribution
-     */
-    explicit DelayedThermalPanelRadiosityModel(
-            const std::shared_ptr<SurfacePropertyDistribution>& emissivityDistribution) :
-            emissivityDistribution_(emissivityDistribution) {}
-
-    double evaluateIrradianceAtPosition(
-            double panelArea,
-            const Eigen::Vector3d& panelSurfaceNormal,
-            const Eigen::Vector3d& targetPosition,
-            double originalSourceIrradiance,
-            const Eigen::Vector3d& originalSourceToSourceDirection) const override;
-
-    std::unique_ptr<PanelRadiosityModel> clone() const override
-    {
-        return std::make_unique<DelayedThermalPanelRadiosityModel>(*this);
-    }
-
-    double getEmissivity() const
-    {
-        return emissivity;
-    }
-
-private:
-    void updateMembers_(
-            double panelLatitude,
-            double panelLongitude,
-            double currentTime) override;
-
-    bool isTimeInvariant() override
-    {
-        return emissivityDistribution_->isTimeInvariant();
-    }
-
-    std::shared_ptr<SurfacePropertyDistribution> emissivityDistribution_;
-    double emissivity{TUDAT_NAN};
-};
-
-/*!
- * Panel radiosity model for thermal emissions based on the angle to sub-solar point and emissivity-corrected
- * black-body radiation. This model was introduced in Lemoine (2013) for lunar thermal radiation with
- * minTemperature = 100 K and maxTemperature = 375 K.
- *
- * The surface temperature is approximated by interpolation between minTemperature and maxTemperature based on the angle
- * to the subsolar point. From the surface temperature, the black-body radiation is then calculated and corrected for
- * emissivity. The radiation is maximum if the target is above the sub-solar point. At positions away from the sub-solar
- * point, the temperature drops, until it reaches minTemperature on the backside.
- */
-class AngleBasedThermalPanelRadiosityModel : public PaneledRadiationSourceModel::PanelRadiosityModel
-{
-public:
-    /*!
-     * Constructor.
-     *
-     * @param minTemperature Minimum surface temperature (in shade) [K]
-     * @param maxTemperature Maximum surface temperature (at subsolar point) [K]
-     * @param emissivityDistribution Emissivity distribution
-     */
-    explicit AngleBasedThermalPanelRadiosityModel(
-            double minTemperature,
-            double maxTemperature,
-            const std::shared_ptr<SurfacePropertyDistribution>& emissivityDistribution) :
-            minTemperature_(minTemperature),
-            maxTemperature_(maxTemperature),
-            emissivityDistribution_(emissivityDistribution) {}
-
-    double evaluateIrradianceAtPosition(
-            double panelArea,
-            const Eigen::Vector3d& panelSurfaceNormal,
-            const Eigen::Vector3d& targetPosition,
-            double originalSourceIrradiance,
-            const Eigen::Vector3d& originalSourceToSourceDirection) const override;
-
-
-    std::unique_ptr<PanelRadiosityModel> clone() const override
-    {
-        return std::make_unique<AngleBasedThermalPanelRadiosityModel>(*this);
-    }
-
-    double getMinTemperature() const
-    {
-        return minTemperature_;
-    }
-
-    double getMaxTemperature() const
-    {
-        return maxTemperature_;
-    }
-
-    double getEmissivity() const
-    {
-        return emissivity;
-    }
-
-private:
-    void updateMembers_(
-            double panelLatitude,
-            double panelLongitude,
-            double currentTime) override;
-
-    bool isTimeInvariant() override
-    {
-        return emissivityDistribution_->isTimeInvariant();
-    }
-
-    double minTemperature_;
-    double maxTemperature_;
-    std::shared_ptr<SurfacePropertyDistribution> emissivityDistribution_;
-    double emissivity{TUDAT_NAN};
+    std::vector<std::unique_ptr<SourcePanelRadiosityModel>> radiosityModels_;
 };
 
 /*!

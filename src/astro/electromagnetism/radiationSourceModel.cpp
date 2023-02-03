@@ -12,7 +12,6 @@
 
 #include <vector>
 #include <utility>
-#include <functional>
 #include <memory>
 
 #include <Eigen/Core>
@@ -101,7 +100,7 @@ void StaticallyPaneledRadiationSourceModel::updateMembers_(double currentTime)
 }
 
 void StaticallyPaneledRadiationSourceModel::generatePanels(
-        const std::vector<std::unique_ptr<PanelRadiosityModel>>& baseRadiosityModels)
+        const std::vector<std::unique_ptr<SourcePanelRadiosityModel>>& baseRadiosityModels)
 {
     panels_.clear();
 
@@ -129,7 +128,7 @@ void StaticallyPaneledRadiationSourceModel::generatePanels(
         const Eigen::Vector3d surfaceNormal = relativeCenter.normalized();
 
         // Create radiosity models for panel
-        std::vector<std::unique_ptr<PanelRadiosityModel>> radiosityModels;
+        std::vector<std::unique_ptr<SourcePanelRadiosityModel>> radiosityModels;
         for (auto& baseRadiosityModel: baseRadiosityModels)
         {
             // Radiosity models are cloned such that they share their albedo/emissivity distribution
@@ -192,139 +191,6 @@ void PaneledRadiationSourceModel::Panel::updateMembers(double currentTime)
     {
         radiosityModel->updateMembers(latitude_, longitude_, currentTime);
     }
-}
-
-void PaneledRadiationSourceModel::PanelRadiosityModel::updateMembers(
-        const double panelLatitude,
-        const double panelLongitude,
-        const double currentTime)
-{
-    if (
-        // New location
-        (panelLatitude_ != panelLatitude || panelLongitude_ != panelLongitude) ||
-        // New time and not time-invariant
-        (!isTimeInvariant() && currentTime_ != currentTime))
-    {
-        panelLatitude_ = panelLatitude;
-        panelLongitude_ = panelLongitude;
-        currentTime_ = currentTime;
-
-        updateMembers_(panelLatitude, panelLongitude, currentTime);
-    }
-}
-
-double AlbedoPanelRadiosityModel::evaluateIrradianceAtPosition(
-        double panelArea,
-        const Eigen::Vector3d& panelSurfaceNormal,
-        const Eigen::Vector3d& targetPosition,
-        double originalSourceIrradiance,
-        const Eigen::Vector3d& originalSourceToSourceDirection) const
-{
-    const Eigen::Vector3d targetDirection = targetPosition.normalized();
-    const double cosBetweenNormalAndOriginalSource = panelSurfaceNormal.dot(-originalSourceToSourceDirection);
-    const double cosBetweenNormalAndTarget = panelSurfaceNormal.dot(targetDirection);
-    if (cosBetweenNormalAndOriginalSource <= 0 || cosBetweenNormalAndTarget <= 0)
-    {
-        // Target or original source are on backside of panel
-        // This is checked by evaluateReflectedFraction as well, but check here to avoid unnecessary calculations/calls
-        return 0;
-    }
-
-    const auto receivedIrradiance = cosBetweenNormalAndOriginalSource * originalSourceIrradiance;
-
-    // Reflected fraction is given in [1/sr] (i.e. per solid angle)
-    const auto reflectedFraction =
-            reflectionLaw_->evaluateReflectedFraction(panelSurfaceNormal, originalSourceToSourceDirection, targetDirection);
-
-    // Determine irradiance from reflected radiosity based on source-to-target distance and emitting panel area
-    const double distanceSourceToTargetSquared = targetPosition.squaredNorm();
-    const auto effectiveEmittingArea = cosBetweenNormalAndTarget * panelArea;
-    const auto albedoIrradiance =
-            receivedIrradiance * reflectedFraction * effectiveEmittingArea / distanceSourceToTargetSquared;
-    return albedoIrradiance;
-}
-
-void AlbedoPanelRadiosityModel::updateMembers_(
-        double panelLatitude,
-        double panelLongitude,
-        double currentTime)
-{
-    albedoDistribution_->updateMembers(currentTime);
-    const auto albedo = albedoDistribution_->getValue(panelLatitude, panelLongitude);
-    reflectionLaw_->setDiffuseReflectivity(albedo);
-}
-
-double DelayedThermalPanelRadiosityModel::evaluateIrradianceAtPosition(
-        double panelArea,
-        const Eigen::Vector3d& panelSurfaceNormal,
-        const Eigen::Vector3d& targetPosition,
-        double originalSourceIrradiance,
-        const Eigen::Vector3d& originalSourceToSourceDirection) const
-{
-    const double cosBetweenNormalAndTarget = panelSurfaceNormal.dot(targetPosition.normalized());
-    if (cosBetweenNormalAndTarget <= 0)
-    {
-        // Target is on backside of panel
-        return 0;
-    }
-
-    // Exitance is only one quarter of original irradiance due to ratio of absorbing to emitting area (1:4)
-    const auto emittedExitance = emissivity * originalSourceIrradiance / 4;
-
-    // Determine irradiance from exitance based on source-to-target distance and emitting panel area
-    const double distanceSourceToTargetSquared = targetPosition.squaredNorm();
-    const auto effectiveEmittingArea = cosBetweenNormalAndTarget * panelArea;
-    const auto thermalIrradiance = emittedExitance * effectiveEmittingArea / (PI * distanceSourceToTargetSquared);
-    return thermalIrradiance;
-}
-
-void DelayedThermalPanelRadiosityModel::updateMembers_(
-        double panelLatitude,
-        double panelLongitude,
-        double currentTime)
-{
-    emissivityDistribution_->updateMembers(currentTime);
-    emissivity = emissivityDistribution_->getValue(panelLatitude, panelLongitude);
-}
-
-double AngleBasedThermalPanelRadiosityModel::evaluateIrradianceAtPosition(
-        double panelArea,
-        const Eigen::Vector3d& panelSurfaceNormal,
-        const Eigen::Vector3d& targetPosition,
-        double originalSourceIrradiance,
-        const Eigen::Vector3d& originalSourceToSourceDirection) const
-{
-    const double cosBetweenNormalAndTarget = panelSurfaceNormal.dot(targetPosition.normalized());
-    if (cosBetweenNormalAndTarget <= 0)
-    {
-        // Target is on backside of panel
-        return 0;
-    }
-
-    const double cosBetweenNormalAndOriginalSource = panelSurfaceNormal.dot(-originalSourceToSourceDirection);
-    const double positiveCosBetweenNormalAndOriginalSource = std::max(cosBetweenNormalAndOriginalSource, 0.);
-
-    // Interpolate temperature using Lemoine (2013) Eq. 3
-    const auto temperature = std::max(
-            maxTemperature_ * pow(positiveCosBetweenNormalAndOriginalSource, 1./4),
-            minTemperature_);
-    // Calculate emissivity-corrected black-body radiation using Stefan-Boltzmann law
-    const auto emittedExitance = emissivity * physical_constants::STEFAN_BOLTZMANN_CONSTANT * pow(temperature, 4);
-
-    // Determine irradiance from exitance based on source-to-target distance and emitting panel area
-    const double distanceSourceToTargetSquared = targetPosition.squaredNorm();
-    const auto effectiveEmittingArea = cosBetweenNormalAndTarget * panelArea;
-    const auto thermalIrradiance = emittedExitance * effectiveEmittingArea / (PI * distanceSourceToTargetSquared);
-    return thermalIrradiance;
-}
-
-void AngleBasedThermalPanelRadiosityModel::updateMembers_(
-        double panelLatitude,
-        double panelLongitude,
-        double currentTime)
-{
-    emissivityDistribution_->updateMembers(currentTime);
-    emissivity = emissivityDistribution_->getValue(panelLatitude, panelLongitude);
 }
 
 std::pair<std::vector<double>, std::vector<double>> generateEvenlySpacedPoints_Spiraling(unsigned int n)
