@@ -13,6 +13,7 @@
 #include "expose_estimation_setup/expose_observation_setup.h"
 
 #include "tudatpy/docstrings.h"
+#include "tudatpy/scalarTypes.h"
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <pybind11/eigen.h>
@@ -35,9 +36,6 @@ void expose_estimation_setup(py::module &m) {
 
     // *************** PARAMETER ***************
 
-    auto parameter_setup = m.def_submodule("parameter");
-    parameter::expose_estimated_parameter_setup(parameter_setup);
-
     m.def("print_parameter_names",
           &tep::printEstimatableParameterEntries< double >,
           py::arg("parameter_set") );
@@ -55,26 +53,34 @@ void expose_estimation_setup(py::module &m) {
 
     // ************** OBSERVATION ***************
 
-    auto observation_setup = m.def_submodule("observation");
-    observation::expose_observation_setup(observation_setup);
+
 
     // #   Observation Model Settings --> Observation Simulator #
     m.def("create_observation_simulators",
           py::overload_cast< const std::vector< std::shared_ptr< tom::ObservationModelSettings > >&, const tss::SystemOfBodies& >(
-                  &tom::createObservationSimulators< double, double > ),
+                  &tom::createObservationSimulators< double, TIME_TYPE > ),
           py::arg( "observation_settings" ),
           py::arg( "bodies" ),
           get_docstring("create_observation_simulators").c_str() );
 
 
-    m.def("single_type_observation_collection",
-          &tom::createManualObservationCollection< >,
-          py::arg("observable_type"),
-          py::arg("link_ends"),
-          py::arg("observations_list"),
-          py::arg("times_list"),
-          py::arg("reference_link_end" ),
-          get_docstring("single_type_observaion_collection").c_str() );
+//    m.def("single_type_observation_collection",
+//          &tom::createManualObservationCollection< >,
+//          py::arg("observable_type"),
+//          py::arg("link_ends"),
+//          py::arg("observations_list"),
+//          py::arg("times_list"),
+//          py::arg("reference_link_end" ),
+//          py::arg("ancilliary_settings" ) = nullptr,
+//          get_docstring("single_type_observaion_collection").c_str() );
+
+    // ************** Modules ***************
+
+    auto parameter_setup = m.def_submodule("parameter");
+    parameter::expose_estimated_parameter_setup(parameter_setup);
+
+    auto observation_setup = m.def_submodule("observation");
+    observation::expose_observation_setup(observation_setup);
 }
 
 }
