@@ -597,7 +597,8 @@ inline std::shared_ptr<AlbedoPanelRadiosityModelSettings>
  * @return Shared pointer to settings for an albedo panel radiosity model
  */
 inline std::shared_ptr<AlbedoPanelRadiosityModelSettings>
-        albedoPanelRadiosityModelSettings(
+
+albedoPanelRadiosityModelSettings(
                 SphericalHarmonicsSurfacePropertyDistributionModel albedoModel,
                 bool withInstantaneousReradiation = false)
 {
@@ -689,7 +690,7 @@ std::shared_ptr<electromagnetism::SurfacePropertyDistribution> createSurfaceProp
  * @param body Body to which the panel radiosity model belongs
  * @return Panel radiosity model
  */
-std::unique_ptr<electromagnetism::PaneledRadiationSourceModel::PanelRadiosityModel>
+std::unique_ptr<electromagnetism::SourcePanelRadiosityModel>
         createPanelRadiosityModel(
         const std::shared_ptr<PanelRadiosityModelSettings>& modelSettings,
         const std::string& body);
