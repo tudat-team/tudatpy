@@ -16,8 +16,8 @@
 #ifndef TUDAT_RUNGE_KUTTA_VARIABLE_STEP_SIZE_INTEGRATOR_H
 #define TUDAT_RUNGE_KUTTA_VARIABLE_STEP_SIZE_INTEGRATOR_H
 
-#include <boost/bind/bind.hpp>
-using namespace boost::placeholders;
+
+
 
 #include <functional>
 #include <memory>
@@ -119,6 +119,7 @@ public:
             const StateType& initialState,
             const IndependentVariableType minimumStepSize,
             const IndependentVariableType maximumStepSize,
+            const TimeStepType& initialStepSize,
             const StateType& relativeErrorTolerance,
             const StateType& absoluteErrorTolerance,
             const TimeStepType safetyFactorForNextStepSize = 0.8,
@@ -133,6 +134,7 @@ public:
         coefficients_( coefficients ),
         minimumStepSize_( std::fabs( static_cast< double >( minimumStepSize ) ) ),
         maximumStepSize_( std::fabs( static_cast< double >( maximumStepSize ) ) ),
+        stepSize_( initialStepSize ),
         relativeErrorTolerance_( relativeErrorTolerance.array( ).abs( ) ),
         absoluteErrorTolerance_( absoluteErrorTolerance.array( ).abs( ) ),
         safetyFactorForNextStepSize_( std::fabs( static_cast< double >( safetyFactorForNextStepSize ) ) ),
@@ -194,6 +196,7 @@ public:
             const StateType& initialState,
             const TimeStepType minimumStepSize,
             const TimeStepType maximumStepSize,
+            const TimeStepType& initialStepSize,
             const typename StateType::Scalar relativeErrorTolerance,
             const typename StateType::Scalar absoluteErrorTolerance,
             const TimeStepType safetyFactorForNextStepSize = 0.8,
@@ -208,6 +211,7 @@ public:
         coefficients_( coefficients ),
         minimumStepSize_( std::fabs( static_cast< double >( minimumStepSize ) ) ),
         maximumStepSize_( std::fabs( static_cast< double >( maximumStepSize ) ) ),
+        stepSize_( initialStepSize ),
         relativeErrorTolerance_( StateType::Constant( initialState.rows( ), initialState.cols( ),
                                                       std::fabs( relativeErrorTolerance ) ) ),
         absoluteErrorTolerance_( StateType::Constant( initialState.rows( ), initialState.cols( ),
@@ -408,11 +412,6 @@ protected:
             const StateType& relativeErrorTolerance, const StateType& absoluteErrorTolerance,
             const StateType& lowerOrderEstimate, const StateType& higherOrderEstimate );
 
-    //! Last used step size.
-    /*!
-     * Last used step size, passed to either integrateTo( ) or performIntegrationStep( ).
-     */
-    TimeStepType stepSize_;
 
     //! Current independent variable.
     /*!
@@ -455,6 +454,12 @@ protected:
      * Maximum step size.
      */
     TimeStepType maximumStepSize_;
+
+    //! Last used step size.
+    /*!
+     * Last used step size, passed to either integrateTo( ) or performIntegrationStep( ).
+     */
+    TimeStepType stepSize_;
 
     //! Relative error tolerance.
     /*!

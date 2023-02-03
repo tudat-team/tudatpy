@@ -12,10 +12,10 @@
 #define BOOST_TEST_MAIN
 
 #include <boost/test/unit_test.hpp>
-#include <boost/bind/bind.hpp>
-using namespace boost::placeholders;
 
-#include <boost/make_shared.hpp>
+
+
+
 #include <memory>
 
 #include "tudat/astro/aerodynamics/testApolloCapsuleCoefficients.h"
@@ -797,15 +797,6 @@ BOOST_AUTO_TEST_CASE( testRadialAndVelocityThrustAcceleration )
             for( std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > >::const_iterator outputIterator =
                  numericalSolution.begin( ); outputIterator != numericalSolution.end( ); outputIterator++ )
             {
-                Eigen::Vector3d vectorDifference =
-                        ( -1.0 * thrustMagnitude1 / vehicleMass * outputIterator->second.segment( 3, 3 ).normalized( ) ) -
-                        ( dependentVariableSolution.at( outputIterator->first ).normalized( ) );
-
-//                for( int j = 0; j < 3; j++ )
-//                {
-//                    BOOST_CHECK_SMALL(
-//                                std::fabs( vectorDifference( j ) ) / dependentVariableSolution.at( outputIterator->first ).norm( ), 1.0E-14 );
-//                }
 
                 // Check if the thrust acceleration is of the correct magnitude, and in the same direction as the velocity.
                 TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
@@ -2366,8 +2357,8 @@ BOOST_AUTO_TEST_CASE( testMomentumWheelDesaturationThrust )
     auto stateHistory = dynamicsSimulator.getDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
     auto dependentVariableResult = dynamicsSimulator.getDynamicsSimulator( )->getDependentVariableHistory( );
 
-    auto stateTransitionHistory = dynamicsSimulator.getNumericalVariationalEquationsSolution( )[ 0 ];
-    auto sensitivityHistory = dynamicsSimulator.getNumericalVariationalEquationsSolution( )[ 1 ];
+    auto stateTransitionHistory = dynamicsSimulator.getStateTransitionMatrixSolution( );
+    auto sensitivityHistory = dynamicsSimulator.getSensitivityMatrixSolution( );
 
     // Compute thrust start times from maneuvers mid-times.
     std::vector< double > thrustStartTimes;

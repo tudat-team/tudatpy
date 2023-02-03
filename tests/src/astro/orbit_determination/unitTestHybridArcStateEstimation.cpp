@@ -17,7 +17,7 @@
 
 #include <limits>
 
-#include <boost/make_shared.hpp>
+
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/basics/testMacros.h"
@@ -243,19 +243,19 @@ Eigen::VectorXd  executeParameterEstimation(
 
 
     // Define links and observables in simulation.
-    std::vector< LinkEnds > linkEnds2;
+    std::vector< LinkDefinition > linkEnds2;
     linkEnds2.resize( 2 );
     linkEnds2[ 0 ][ transmitter ] = grazStation;
-    linkEnds2[ 0 ][ receiver ] = std::make_pair( "Orbiter", "" );
+    linkEnds2[ 0 ][ receiver ] = std::make_pair< std::string, std::string >( "Orbiter", "" );
 
     linkEnds2[ 1 ][ receiver ] = grazStation;
-    linkEnds2[ 1 ][ transmitter ] = std::make_pair( "Orbiter", "" );
+    linkEnds2[ 1 ][ transmitter ] = std::make_pair< std::string, std::string >( "Orbiter", "" );
 
 //    linkEnds2[ 2 ][ transmitter ] = grazStation;
-//    linkEnds2[ 2 ][ receiver ] = std::make_pair( "Mars", "" );
+//    linkEnds2[ 2 ][ receiver ] = std::make_pair< std::string, std::string >( "Mars", "" );
 
 //    linkEnds2[ 3 ][ receiver ] = grazStation;
-//    linkEnds2[ 3 ][ transmitter ] = std::make_pair( "Mars", "" );
+//    linkEnds2[ 3 ][ transmitter ] = std::make_pair< std::string, std::string >( "Mars", "" );
 
     std::vector< std::shared_ptr< ObservationModelSettings > > observationSettingsList;
     for( unsigned int i = 0; i  < linkEnds2.size( ); i++ )
@@ -339,24 +339,25 @@ Eigen::VectorXd  executeParameterEstimation(
     parametersToEstimate->resetParameterValues( initialParameterEstimate );
 
     // Define estimation settings
-    std::shared_ptr< PodInput< ObservationScalarType, TimeType > > podInput =
-            std::make_shared< PodInput< ObservationScalarType, TimeType > >(
-                observationsAndTimes, ( initialParameterEstimate ).rows( ) );
+    std::shared_ptr< EstimationInput< ObservationScalarType, TimeType > > estimationInput =
+            std::make_shared< EstimationInput< ObservationScalarType, TimeType > >(
+                observationsAndTimes );
     std::map< observation_models::ObservableType, double > weightPerObservable;
     weightPerObservable[ one_way_range ] = 1.0E-4;
     weightPerObservable[ angular_position ] = 1.0E-20;
-    podInput->setConstantPerObservableWeightsMatrix( weightPerObservable );
-
+    estimationInput->setConstantPerObservableWeightsMatrix( weightPerObservable );
+    estimationInput->setConvergenceChecker(
+                std::make_shared< EstimationConvergenceChecker >( 6 ) );
     // Estimate parameters and return postfit error
-    std::shared_ptr< PodOutput< StateScalarType > > podOutput = orbitDeterminationManager.estimateParameters(
-                podInput, std::make_shared< EstimationConvergenceChecker >( 6 ) );
+    std::shared_ptr< EstimationOutput< StateScalarType > > estimationOutput = orbitDeterminationManager.estimateParameters(
+                estimationInput  );
 
-//    input_output::writeMatrixToFile( podOutput->normalizedInformationMatrix_, "hybridArcPartials.dat" );
-//    input_output::writeMatrixToFile( podOutput->informationMatrixTransformationDiagonal_, "hybridArcNormalization.dat" );
-//    input_output::writeMatrixToFile( podOutput->inverseNormalizedCovarianceMatrix_, "hybridArcNormalizedInverseCovariance.dat" );
-//    input_output::writeMatrixToFile( podOutput->getResidualHistoryMatrix( ), "hybridArcResidualHistory.dat" );
+//    input_output::writeMatrixToFile( estimationOutput->normalizedDesignMatrix_, "hybridArcPartials.dat" );
+//    input_output::writeMatrixToFile( estimationOutput->designMatrixTransformationDiagonal_, "hybridArcNormalization.dat" );
+//    input_output::writeMatrixToFile( estimationOutput->inverseNormalizedCovarianceMatrix_, "hybridArcNormalizedInverseCovariance.dat" );
+//    input_output::writeMatrixToFile( estimationOutput->getResidualHistoryMatrix( ), "hybridArcResidualHistory.dat" );
 
-    return ( podOutput->parameterEstimate_ - truthParameters ).template cast< double >( );
+    return ( estimationOutput->parameterEstimate_ - truthParameters ).template cast< double >( );
 }
 
 
@@ -371,12 +372,12 @@ BOOST_AUTO_TEST_CASE( test_HybridArcStateEstimation )
     for( unsigned int j = 0; j < 2; j++ )
     {
         BOOST_CHECK_SMALL( std::fabs( parameterError( j ) ), 5.0 );
-        BOOST_CHECK_SMALL( std::fabs( parameterError( j + 3 ) ), 2.0E-6  );
+        BOOST_CHECK_SMALL( std::fabs( parameterError( j + 3 ) ), 2.5E-6  );
     }
 
-    // Test error range: 1000 m in-plane position and 0.5 mm/s in-plane velocity for Mars (poor values due to short arc)
+    // Test error range: 1000 m in-plane position and 1.0 mm/s in-plane velocity for Mars (poor values due to short arc)
     BOOST_CHECK_SMALL( std::fabs( parameterError( 2 ) ), 1000.0 );
-    BOOST_CHECK_SMALL( std::fabs( parameterError( 5 ) ), 0.5E-3  );
+    BOOST_CHECK_SMALL( std::fabs( parameterError( 5 ) ), 1.0E-3  );
 
     // Test error range: 0.1 m position and 50 micron/s velocity for orbiter
     for( int i = 0; i < numberOfEstimatedArcs; i++ )

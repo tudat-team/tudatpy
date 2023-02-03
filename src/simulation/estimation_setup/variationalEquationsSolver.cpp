@@ -35,34 +35,36 @@ namespace propagators
 void createStateTransitionAndSensitivityMatrixInterpolator(
         std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >& stateTransitionMatrixInterpolator,
         std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >& sensitivityMatrixInterpolator,
-        std::vector< std::map< double, Eigen::MatrixXd > >& variationalEquationsSolution,
+        std::map< double, Eigen::MatrixXd >& stateTransitionSolution,
+        std::map< double, Eigen::MatrixXd >& sensitivitySolution,
         const bool clearRawSolution )
 {
     // Create interpolator for state transition matrix.
     stateTransitionMatrixInterpolator=
             std::make_shared< interpolators::LagrangeInterpolator< double, Eigen::MatrixXd > >(
-                utilities::createVectorFromMapKeys< Eigen::MatrixXd, double >( variationalEquationsSolution[ 0 ] ),
-                utilities::createVectorFromMapValues< Eigen::MatrixXd, double >( variationalEquationsSolution[ 0 ] ), 4 );
-    if( clearRawSolution )
-    {
-        variationalEquationsSolution[ 0 ].clear( );
-    }
-
-//    std::cout<<"State trans. size "<<variationalEquationsSolution[ 0 ].size( )<<std::endl;
-//    std::cout<<"State trans. matrix "<<variationalEquationsSolution[ 0 ].begin( )->second<<std::endl;
+                utilities::createVectorFromMapKeys< Eigen::MatrixXd, double >( stateTransitionSolution ),
+                utilities::createVectorFromMapValues< Eigen::MatrixXd, double >( stateTransitionSolution ), 4 );
+//    if( clearRawSolution )
+//    {
+//        variationalEquationsSolution[ 0 ].clear( );
+//    }
 
     // Create interpolator for sensitivity matrix.
     sensitivityMatrixInterpolator =
             std::make_shared< interpolators::LagrangeInterpolator< double, Eigen::MatrixXd > >(
-                utilities::createVectorFromMapKeys< Eigen::MatrixXd, double >( variationalEquationsSolution[ 1 ] ),
-                utilities::createVectorFromMapValues< Eigen::MatrixXd, double >( variationalEquationsSolution[ 1 ] ), 4 );
-
-    //std::cout<<"State trans "<<stateTransitionMatrixInterpolator->interpolate( 20000.0 )<<std::endl;
+                utilities::createVectorFromMapKeys< Eigen::MatrixXd, double >( sensitivitySolution ),
+                utilities::createVectorFromMapValues< Eigen::MatrixXd, double >( sensitivitySolution ), 4 );
 
     if( clearRawSolution )
     {
-        variationalEquationsSolution[ 1 ].clear( );
+        stateTransitionSolution.clear( );
+        sensitivitySolution.clear( );
     }
+
+//    if( clearRawSolution )
+//    {
+//        variationalEquationsSolution[ 1 ].clear( );
+//    }
 
 }
 

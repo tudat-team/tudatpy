@@ -15,7 +15,7 @@
 #include <string>
 
 #include <boost/test/unit_test.hpp>
-#include <boost/make_shared.hpp>
+
 
 #include "tudat/simulation/estimation.h"
 
@@ -88,26 +88,19 @@ int main( )
     // Define parameters.
     std::vector< LinkEnds > stationReceiverLinkEnds;
     std::vector< LinkEnds > stationTransmitterLinkEnds;
-    std::vector< LinkEnds > twoWayLinkEnds;
 
     // Define link ends to/from ground stations to Moon
     for( unsigned int i = 0; i < groundStationNames.size( ); i++ )
     {
         LinkEnds linkEnds;
-        linkEnds[ transmitter ] = std::make_pair( "Earth", groundStationNames.at( i ) );
-        linkEnds[ receiver ] = std::make_pair( "Moon", "" );
+        linkEnds[ transmitter ] = LinkEndId( std::make_pair( "Earth", groundStationNames.at( i ) ) );
+        linkEnds[ receiver ] = LinkEndId( std::make_pair( "Moon", "" ) );
         stationTransmitterLinkEnds.push_back( linkEnds );
 
         linkEnds.clear( );
-        linkEnds[ receiver ] = std::make_pair( "Earth", groundStationNames.at( i ) );
-        linkEnds[ transmitter ] = std::make_pair( "Moon", "" );
+        linkEnds[ receiver ] = LinkEndId( std::make_pair( "Earth", groundStationNames.at( i ) ) );
+        linkEnds[ transmitter ] = LinkEndId( std::make_pair( "Moon", "" ) );
         stationReceiverLinkEnds.push_back( linkEnds );
-
-        twoWayLinkEnds.clear( );
-        linkEnds[ receiver ] = std::make_pair( "Earth", groundStationNames.at( i ) );
-        linkEnds[ retransmitter ] = std::make_pair( "Moon", "" );
-        linkEnds[ transmitter ] = std::make_pair( "Earth", groundStationNames.at( i ) );
-        twoWayLinkEnds.push_back( linkEnds );
     }
 
     // Define (arbitrary) link ends for each observable
@@ -180,10 +173,10 @@ int main( )
 
     std::shared_ptr< ObservationDependentVariableSettings > elevationAngleSettings1 =
             std::make_shared< StationAngleObservationDependentVariableSettings >(
-                station_elevation_angle, std::make_pair( "Earth", "Station1" ) );
+                station_elevation_angle, LinkEndId( std::make_pair( "Earth", "Station1" ) ) );
     std::shared_ptr< ObservationDependentVariableSettings > azimuthAngleSettings1 =
             std::make_shared< StationAngleObservationDependentVariableSettings >(
-                station_azimuth_angle, std::make_pair( "Earth", "Station1" ) );
+                station_azimuth_angle, LinkEndId( std::make_pair( "Earth", "Station1" ) ) );
 
 //    std::shared_ptr< ObservationDependentVariableSettings > elevationAngleSettings2 =
 //            std::make_shared< StationAngleObservationDependentVariableSettings >(
@@ -207,16 +200,14 @@ int main( )
 
     std::cout<<"Getting elevation angle"<<std::endl;
     elevationAngles = getDependentVariableResultList(
-                idealObservationsAndTimes, elevationAngleSettings1,
-                one_way_range );
+                idealObservationsAndTimes, elevationAngleSettings1, one_way_range );
     input_output::writeDataMapToTextFile( elevationAngles,
                                           "elevationAngles1_range.dat",
                                           "/home/dominic/Software/Tudat30Bundle/test-output/" );
 
     std::cout<<"Getting azimuth angle"<<std::endl;
     azimuthAngles = getDependentVariableResultList(
-                idealObservationsAndTimes, azimuthAngleSettings1,
-                one_way_range );
+                idealObservationsAndTimes, azimuthAngleSettings1, one_way_range );
     input_output::writeDataMapToTextFile( azimuthAngles,
                                           "azimuthAngles1_range.dat",
                                           "/home/dominic/Software/Tudat30Bundle/test-output/" );

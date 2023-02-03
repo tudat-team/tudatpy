@@ -44,6 +44,10 @@ enum TranslationalPropagatorType
     unified_state_model_exponential_map = 6
 };
 
+std::string getTranslationalPropagatorName( const TranslationalPropagatorType propagatorType );
+
+int getTranslationalStateSize( const TranslationalPropagatorType propagatorType );
+
 // Function to remove the central gravity acceleration from an AccelerationMap
 /*
  * Function to remove the central gravity acceleration from an AccelerationMap. This is crucial for propagation methods in

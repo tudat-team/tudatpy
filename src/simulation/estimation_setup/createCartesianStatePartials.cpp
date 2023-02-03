@@ -35,7 +35,7 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
          linkEndIterator != linkEnds.end( ); linkEndIterator++ )
     {
         // Check if current link end is on body that is requested.
-        currentBodyName = linkEndIterator->second.first;
+        currentBodyName = linkEndIterator->second.bodyName_;
         if( bodyToEstimate == currentBodyName )
         {
             // Create partial
@@ -64,23 +64,23 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
          linkEndIterator != linkEnds.end( ); linkEndIterator++ )
     {
         // Check if current link end is on body that is requested.
-        currentBodyName = linkEndIterator->second.first;
+        currentBodyName = linkEndIterator->second.bodyName_;
         if( bodyToEstimate == currentBodyName )
         {
             std::shared_ptr< simulation_setup::Body > currentBody = bodies.at( currentBodyName );
 
-            if( currentBody->getGroundStationMap( ).count( linkEndIterator->second.second ) == 0 )
+            if( currentBody->getGroundStationMap( ).count( linkEndIterator->second.stationName_ ) == 0 )
             {
                 throw std::runtime_error(
                             "Error when making cartesian state partial w.r.t. rotation parameter, ground station " +
-                            linkEndIterator->second.second + " not found on body " + linkEndIterator->second.first );
+                            linkEndIterator->second.stationName_ + " not found on body " + linkEndIterator->second.bodyName_ );
             }
 
             // Set ground station position function
             std::function< Eigen::Vector3d( const double ) > groundStationPositionFunction =
                     std::bind( &ground_stations::GroundStationState::getCartesianPositionInTime,
-                                 currentBody->getGroundStation( linkEndIterator->second.second )->getNominalStationState( ),
-                                 std::placeholders::_1, basic_astrodynamics::JULIAN_DAY_ON_J2000 );
+                                 currentBody->getGroundStation( linkEndIterator->second.stationName_ )->getNominalStationState( ),
+                                 std::placeholders::_1 );
 
             // Create partial
             partialMap[ linkEndIterator->first ] = std::make_shared< CartesianStatePartialWrtRotationMatrixParameter >(
@@ -113,11 +113,11 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
          linkEndIterator != linkEnds.end( ); linkEndIterator++ )
     {
         // Check if current link end body corresponds to body with property to estimate.
-        if( ( linkEndIterator->second.first == parameterToEstimate->getParameterName( ).second.first ) &&
-                ( linkEndIterator->second.second != "" ) )
+        if( ( linkEndIterator->second.bodyName_ == parameterToEstimate->getParameterName( ).second.first ) &&
+                ( linkEndIterator->second.stationName_ != "" ) )
         {
             // Set current body name and object.
-            currentBodyName = linkEndIterator->second.first;
+            currentBodyName = linkEndIterator->second.bodyName_;
             currentBody = bodies.at( currentBodyName );
 
             // Check if parameter is a rotation model property, in which case a CartesianStatePartialWrtRotationMatrixParameter,
@@ -127,8 +127,8 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
                 // Set ground station position function
                 std::function< Eigen::Vector3d( const double ) > groundStationPositionFunction =
                         std::bind( &ground_stations::GroundStationState::getCartesianPositionInTime,
-                                     ( currentBody )->getGroundStation( linkEndIterator->second.second )
-                                     ->getNominalStationState( ), std::placeholders::_1, basic_astrodynamics::JULIAN_DAY_ON_J2000 );
+                                     ( currentBody )->getGroundStation( linkEndIterator->second.stationName_ )
+                                     ->getNominalStationState( ), std::placeholders::_1  );
 
                 // Create parameter partial object.
                 partialMap[ linkEndIterator->first ] = std::make_shared< CartesianStatePartialWrtRotationMatrixParameter >(
@@ -193,29 +193,29 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
          linkEndIterator != linkEnds.end( ); linkEndIterator++ )
     {
         // Check if current link end body corresponds to body with property to estimate.
-        if( linkEndIterator->second.first == parameterToEstimate->getParameterName( ).second.first &&
-                linkEndIterator->second.second != "" )
+        if( linkEndIterator->second.bodyName_ == parameterToEstimate->getParameterName( ).second.first &&
+                linkEndIterator->second.stationName_ != "" )
         {
             // Set current body name and object.
-            currentBodyName = linkEndIterator->second.first;
+            currentBodyName = linkEndIterator->second.bodyName_;
             currentBody = bodies.at( currentBodyName );
 
             // Check if parameter is a rotation model property, in which case a CartesianStatePartialWrtRotationMatrixParameter,
             // with the rotation matrix partial created from createRotationMatrixPartialsWrtParameter function.
             if( estimatable_parameters::isParameterRotationMatrixProperty( parameterToEstimate->getParameterName( ).first ) )
             {
-                if( currentBody->getGroundStationMap( ).count( linkEndIterator->second.second ) == 0 )
+                if( currentBody->getGroundStationMap( ).count( linkEndIterator->second.stationName_ ) == 0 )
                 {
                     throw std::runtime_error(
                                 "Error when making cartesian state partial w.r.t. rotation parameter, ground station " +
-                                linkEndIterator->second.second + " not found on body " + linkEndIterator->second.first );
+                                linkEndIterator->second.stationName_ + " not found on body " + linkEndIterator->second.bodyName_ );
                 }
 
                 // Set ground station position function
                 std::function< Eigen::Vector3d( const double ) > groundStationPositionFunction =
                         std::bind( &ground_stations::GroundStationState::getCartesianPositionInTime,
-                                     currentBody->getGroundStation( linkEndIterator->second.second )
-                                     ->getNominalStationState( ), std::placeholders::_1, basic_astrodynamics::JULIAN_DAY_ON_J2000 );
+                                     currentBody->getGroundStation( linkEndIterator->second.stationName_ )
+                                     ->getNominalStationState( ), std::placeholders::_1 );
 
                 // Create parameter partial object.
                 partialMap[ linkEndIterator->first ] = std::make_shared< CartesianStatePartialWrtRotationMatrixParameter >(
@@ -255,16 +255,16 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
                 case estimatable_parameters::ground_station_position:
 
                     // Check if current link end station is same station as that of which position is to be estimated.
-                    if( linkEndIterator->second.second == parameterToEstimate->getParameterName( ).second.second )
+                    if( linkEndIterator->second.stationName_ == parameterToEstimate->getParameterName( ).second.second )
                     {
                         if( currentBody->getRotationalEphemeris( ) == nullptr )
                         {
                             throw std::runtime_error(
                                         "Warning, body's rotation model is not found when making position w.r.t. ground station position position partial" );
                         }
-                        if( currentBody->getGroundStationMap( ).count( linkEndIterator->second.second ) == 0 )
+                        if( currentBody->getGroundStationMap( ).count( linkEndIterator->second.stationName_ ) == 0 )
                         {
-                                std::runtime_error( "Warning, ground station " + linkEndIterator->second.second +
+                                std::runtime_error( "Warning, ground station " + linkEndIterator->second.stationName_ +
                                            "not found when making ground station position position partial" );
                         }
 
@@ -276,6 +276,10 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
                 case estimatable_parameters::constant_time_drift_observation_bias:
                     break;
                 case estimatable_parameters::arc_wise_time_drift_observation_bias:
+                    break;
+                case estimatable_parameters::constant_time_observation_bias:
+                    break;
+                case estimatable_parameters::arc_wise_time_observation_bias:
                     break;
                 default:
                     std::string errorMessage =
@@ -479,49 +483,6 @@ std::shared_ptr< RotationMatrixPartial > createRotationMatrixPartialsWrtParamete
 
 }
 
-//! Function to create an objects that computes the partial derivatives of a three-dimensional position observable w.r.t.
-//! the position of a body.
-std::shared_ptr< PositionObervationPartial > createPositionObservablePartialWrtPosition(
-        const  observation_models::LinkEnds linkEnds,
-        const simulation_setup::SystemOfBodies& bodies,
-        const std::string bodyToEstimate,
-        const std::shared_ptr< PositionObservationScaling > positionObservableScaler )
-{
-    std::map<  observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > > positionPartials =
-            createCartesianStatePartialsWrtBodyState( linkEnds, bodies, bodyToEstimate );
-    std::shared_ptr< PositionObervationPartial > positionObervationPartial;
-
-    if( positionPartials.size( ) > 0 )
-    {
-        positionObervationPartial = std::make_shared< PositionObervationPartial >(
-                    positionObservableScaler, positionPartials, std::make_pair(
-                        estimatable_parameters::initial_body_state, std::make_pair( bodyToEstimate, "") ) );
-    }
-
-    return positionObervationPartial;
-}
-
-//! Function to create an objects that computes the partial derivatives of a three-dimensional position observable w.r.t.
-//! the Velocity of a body.
-std::shared_ptr< VelocityObervationPartial > createVelocityObservablePartialWrtVelocity(
-        const  observation_models::LinkEnds linkEnds,
-        const simulation_setup::SystemOfBodies& bodies,
-        const std::string bodyToEstimate,
-        const std::shared_ptr< VelocityObservationScaling > velocityObservableScaler )
-{
-    std::map<  observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > > velocityPartials =
-            createCartesianStatePartialsWrtBodyState( linkEnds, bodies, bodyToEstimate );
-    std::shared_ptr< VelocityObervationPartial > velocityObervationPartial;
-
-    if( velocityPartials.size( ) > 0 )
-    {
-        velocityObervationPartial = std::make_shared< VelocityObervationPartial >(
-                    velocityObservableScaler, velocityPartials, std::make_pair(
-                        estimatable_parameters::initial_body_state, std::make_pair( bodyToEstimate, "") ) );
-    }
-
-    return velocityObervationPartial;
-}
 
 }
 

@@ -394,6 +394,7 @@ void loadStandardSpiceKernels(const std::vector<std::string> alternativeEphemeri
         loadSpiceKernelInTudat(kernelPath + "/NOE-4-2020.bsp");
         loadSpiceKernelInTudat(kernelPath + "/NOE-5-2021.bsp");
         loadSpiceKernelInTudat(kernelPath + "/NOE-6-2018-MAIN-v2.bsp");
+        loadSpiceKernelInTudat(kernelPath + "/juice_mat_crema_4_0_20220601_20330626_v01.bsp");
 
     }
     else

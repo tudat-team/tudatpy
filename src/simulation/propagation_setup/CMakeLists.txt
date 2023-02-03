@@ -27,6 +27,7 @@ set(propagation_HEADERS
         propagationOutputSettings.h
         setNumericallyIntegratedStates.h
         environmentUpdater.h
+        dependentVariablesInterface.h
         )
 
 # Add header files.
@@ -43,7 +44,7 @@ set(propagation_SOURCES
         propagationTermination.cpp
         propagationOutput.cpp
         environmentUpdater.cpp
-
+        dependentVariablesInterface.cpp
         )
 
 # Add library.

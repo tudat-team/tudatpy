@@ -76,6 +76,12 @@ void checkTranslationalStatesFeasibility(
                 }
             }
         }
+
+        if( bodiesToIntegrate.at( i ) ==  bodies.getFrameOrigin( ) )
+        {
+            throw std::runtime_error( "Error when propagating translational dynamics, cannnot propagate " + bodiesToIntegrate.at( i ) +
+                                      ", as it is the global origin" );
+        }
     }
 }
 

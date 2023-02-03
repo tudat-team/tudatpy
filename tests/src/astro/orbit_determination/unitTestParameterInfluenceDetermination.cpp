@@ -176,7 +176,7 @@ BOOST_AUTO_TEST_CASE( test_ParameterPostFitResiduals )
                         2, 0, 2, 0, "Sun", spherical_harmonics_cosine_coefficient_block ) );
 
         // Generate fit for observations with J2 to model without J2
-        std::pair< std::shared_ptr< PodOutput< double > >, Eigen::VectorXd > estimationOutput =
+        std::pair< std::shared_ptr< EstimationOutput< double > >, Eigen::VectorXd > estimationOutput =
                 determinePostfitParameterInfluence(
                     bodies, integratorSettings, propagatorSettings, perturbedParameterSettings,
                     6.0 * 3600.0, { -sunNormalizedJ2 }, { 0 } );
@@ -354,7 +354,7 @@ BOOST_AUTO_TEST_CASE( test_ParameterPostFitResidualsApollo )
 
 
     // Generate fit for observations with J2 to model without J2
-    std::pair< std::shared_ptr< PodOutput< double > >, Eigen::VectorXd > estimationOutput =
+    std::pair< std::shared_ptr< EstimationOutput< double > >, Eigen::VectorXd > estimationOutput =
             determinePostfitParameterInfluence(
                 bodies, integratorSettings, propagatorSettings, perturbedParameterSettings,
                 1.0, { -earthC20 }, { 0 } );

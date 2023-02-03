@@ -41,6 +41,25 @@ namespace tudat
 namespace propagators
 {
 
+struct PropagatorType
+{
+    PropagatorType( const TranslationalPropagatorType translationalPropagatorType ):
+        translationalPropagatorType_( translationalPropagatorType ){ }
+
+    PropagatorType( const RotationalPropagatorType rotationalPropagatorType ):
+            rotationalPropagatorType_( rotationalPropagatorType ){ }
+
+    PropagatorType( ):
+            otherPropagator_( true ){ }
+
+    PropagatorType( const int customStateSize ):
+            customStateSize_( customStateSize ){ }
+
+    TranslationalPropagatorType translationalPropagatorType_ = undefined_translational_propagator;
+    RotationalPropagatorType rotationalPropagatorType_ = undefined_rotational_propagator;
+    bool otherPropagator_ = false;
+    int customStateSize_ = 0;
+};
 
 //! Base class for defining propagation settings, derived classes split into settings for single- and multi-arc dynamics
 template< typename StateScalarType = double >
@@ -470,6 +489,17 @@ public:
     {
         return singleArcSettings_;
     }
+
+    std::vector< double > getArcStartTimes( )
+    {
+        std::vector< double > arcStartTimes;
+        for( unsigned int i = 0; i < singleArcSettings_.size( ); i++ )
+        {
+            arcStartTimes.push_back( singleArcSettings_.at( i )->getInitialTime( ) );
+        }
+        return arcStartTimes;
+    }
+
 
     //! Function to retrieve the number of arcs
     /*!
@@ -1043,7 +1073,7 @@ translationalStatePropagatorSettingsDeprecated(
         std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
         const double statePrintInterval = TUDAT_NAN )
 {
-    return std::make_shared< TranslationalStatePropagatorSettings < StateScalarType > >(
+    return std::make_shared< TranslationalStatePropagatorSettings < StateScalarType, TimeType > >(
                 centralBodies, accelerationsMap, bodiesToIntegrate, initialBodyStates,
                 terminationSettings, propagator, dependentVariablesToSave, statePrintInterval );
 }
@@ -1063,7 +1093,7 @@ translationalStatePropagatorSettings(
                     std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
                                                   const std::shared_ptr< SingleArcPropagatorProcessingSettings > outputSettings = std::make_shared< SingleArcPropagatorProcessingSettings >( ) )
 {
-    return std::make_shared< TranslationalStatePropagatorSettings < StateScalarType > >(
+    return std::make_shared< TranslationalStatePropagatorSettings< StateScalarType, TimeType > >(
                 centralBodies, accelerationsMap, bodiesToIntegrate, initialBodyStates, initialTime,
                 integratorSettings, terminationSettings, propagator, dependentVariablesToSave, outputSettings );
 }
@@ -1659,7 +1689,7 @@ customStatePropagatorSettingsDeprecated(
         std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
         const double statePrintInterval = TUDAT_NAN  )
 {
-    return std::make_shared< CustomStatePropagatorSettings < StateScalarType > >(
+    return std::make_shared< CustomStatePropagatorSettings < StateScalarType, TimeType > >(
                 stateDerivativeFunction, initialState, terminationSettings, dependentVariablesToSave, statePrintInterval );
 }
 
@@ -1677,7 +1707,7 @@ customStatePropagatorSettings(
         const std::shared_ptr< SingleArcPropagatorProcessingSettings > outputSettings =
         std::make_shared< SingleArcPropagatorProcessingSettings >( ) )
 {
-    return std::make_shared< CustomStatePropagatorSettings < StateScalarType > >(
+    return std::make_shared< CustomStatePropagatorSettings < StateScalarType, TimeType > >(
                 stateDerivativeFunction, initialState, initialTime, integratorSettings,
                 terminationSettings, dependentVariablesToSave, outputSettings );
 }
@@ -1747,9 +1777,27 @@ std::shared_ptr< MultiArcPropagatorSettings< StateScalarType, TimeType > > getEx
             std::vector< std::string > fullBodiesToIntegrate = singleArcTranslationalSettings->bodiesToIntegrate_;
             fullBodiesToIntegrate.insert( fullBodiesToIntegrate.end( ), multiArcBodiesToIntegrate.begin( ), multiArcBodiesToIntegrate.end( ) );
 
+//            std::cout << "arc " << i << " - full bodies to propagate: " << "\n\n";
+//            for ( unsigned int k = 0 ; k < fullBodiesToIntegrate.size( ) ; k++ )
+//            {
+//                std::cout << fullBodiesToIntegrate[ k ] << " ";
+//            }
+//            std::cout << "\n\n";
+
+//            std::cout << "arc " << i << " - central bodies: " << "\n\n";
+//            for ( unsigned int k = 0 ; k < fullCentralBodies.size( ) ; k++ )
+//            {
+//                std::cout << fullCentralBodies[ k ] << " ";
+//            }
+//            std::cout << "\n\n";
+
+
             // Create full initial state list
             int fullSingleArcSize = 6 * fullCentralBodies.size( );
             int singleArcSize = 6 * singleArcTranslationalSettings->centralBodies_.size( );
+
+//            std::cout << "fullSingleArcSize: " << fullSingleArcSize << "\n\n";
+//            std::cout << "singleArcSize: " << singleArcSize << "\n\n";
 
             Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1  > currentArcInitialStates =
                     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1  >::Zero( fullSingleArcSize );
@@ -1768,6 +1816,8 @@ std::shared_ptr< MultiArcPropagatorSettings< StateScalarType, TimeType > > getEx
             // Get existing multi-arc initial states
             currentArcInitialStates.segment( singleArcSize, fullSingleArcSize - singleArcSize ) =
                     multiArcSettings->getSingleArcSettings( ).at( i )->getInitialStates( );
+
+//            std::cout << "currentArcInitialStates: " << currentArcInitialStates.transpose( ) << "\n\n";
 
 
             TranslationalPropagatorType propagatorToUse = currentArcTranslationalSettings->propagator_;
@@ -1915,7 +1965,7 @@ public:
             std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
             const double statePrintInterval = TUDAT_NAN ):
         SingleArcPropagatorSettings< StateScalarType, TimeType >(
-            hybrid, createCombinedInitialState< StateScalarType >( propagatorSettingsMap ),
+            hybrid, createCombinedInitialState< StateScalarType, TimeType >( propagatorSettingsMap ),
             terminationSettings, dependentVariablesToSave, statePrintInterval ),
         propagatorSettingsMap_( propagatorSettingsMap )
     {
@@ -1951,7 +2001,7 @@ public:
                         propagatorSettingsVector.at( i ) );
         }
 
-        this->initialStates_ = createCombinedInitialState< StateScalarType >( propagatorSettingsMap_ );
+        this->initialStates_ = createCombinedInitialState< StateScalarType, TimeType >( propagatorSettingsMap_ );
         this->stateSize_ = getMultiTypePropagatorStateSize( propagatorSettingsMap_ );
         makeOutputSettingsConsistent( );
 
@@ -1976,7 +2026,7 @@ public:
                         propagatorSettingsVector.at( i ) );
         }
 
-        this->initialStates_ = createCombinedInitialState< StateScalarType >( propagatorSettingsMap_ );
+        this->initialStates_ = createCombinedInitialState< StateScalarType, TimeType >( propagatorSettingsMap_ );
         this->stateSize_ = getMultiTypePropagatorStateSize( propagatorSettingsMap_ );
         makeOutputSettingsConsistent( );
 
@@ -2030,7 +2080,7 @@ public:
             throw std::runtime_error( errorMessage );
         }
 
-        this->initialStates_ = createCombinedInitialState< StateScalarType >( propagatorSettingsMap_ );
+        this->initialStates_ = createCombinedInitialState< StateScalarType, TimeType >( propagatorSettingsMap_ );
 
     }
 
@@ -2124,7 +2174,7 @@ public:
 
     void recomputeInitialStates( )
     {
-        this->initialStates_ = createCombinedInitialState< StateScalarType >( propagatorSettingsMap_ );
+        this->initialStates_ = createCombinedInitialState< StateScalarType, TimeType >( propagatorSettingsMap_ );
     }
 
 
@@ -2257,10 +2307,10 @@ basic_astrodynamics::AccelerationMap getAccelerationMapFromPropagatorSettings(
 * \return List of integrated state types and reference ids
 */
 template< typename StateScalarType = double, typename TimeType = double >
-std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string > > > getIntegratedTypeAndBodyList(
+std::map< IntegratedStateType, std::vector< std::tuple< std::string, std::string, PropagatorType > > > getIntegratedTypeAndBodyList(
         const std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > propagatorSettings )
 {
-    std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string > > > integratedStateList;
+    std::map< IntegratedStateType, std::vector< std::tuple< std::string, std::string, PropagatorType > > > integratedStateList;
 
     // Identify propagator type
     switch( propagatorSettings->getStateType( ) )
@@ -2270,7 +2320,7 @@ std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string 
         std::shared_ptr< MultiTypePropagatorSettings< StateScalarType, TimeType > > multiTypePropagatorSettings =
                 std::dynamic_pointer_cast< MultiTypePropagatorSettings< StateScalarType, TimeType > >( propagatorSettings );
 
-        std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string > > > singleTypeIntegratedStateList;
+        std::map< IntegratedStateType, std::vector< std::tuple< std::string, std::string, PropagatorType > > > singleTypeIntegratedStateList;
 
 
         for( typename std::map< IntegratedStateType,
@@ -2282,7 +2332,7 @@ std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string 
             {
                 for( unsigned int i = 0; i < typeIterator->second.size( ); i++ )
                 {
-                    singleTypeIntegratedStateList = getIntegratedTypeAndBodyList< StateScalarType >(
+                    singleTypeIntegratedStateList = getIntegratedTypeAndBodyList< StateScalarType, TimeType >(
                                 typeIterator->second.at( i ) );
 
                     if( singleTypeIntegratedStateList.begin( )->first != typeIterator->first
@@ -2325,11 +2375,12 @@ std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string 
         }
 
         // Retrieve list of integrated bodies in correct formatting.
-        std::vector< std::pair< std::string, std::string > > integratedBodies;
+        std::vector< std::tuple< std::string, std::string, PropagatorType > > integratedBodies;
         for( unsigned int i = 0; i < translationalPropagatorSettings->bodiesToIntegrate_.size( ); i++ )
         {
-            integratedBodies.push_back( std::make_pair( translationalPropagatorSettings->bodiesToIntegrate_.at( i ),
-                                                        translationalPropagatorSettings->centralBodies_.at( i ) ) );
+            integratedBodies.push_back( std::make_tuple( translationalPropagatorSettings->bodiesToIntegrate_.at( i ),
+                                                        translationalPropagatorSettings->centralBodies_.at( i ),
+                                                        PropagatorType( translationalPropagatorSettings->propagator_ ) ) );
         }
         integratedStateList[ translational_state ] = integratedBodies;
 
@@ -2340,10 +2391,11 @@ std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string 
         std::shared_ptr< RotationalStatePropagatorSettings< StateScalarType, TimeType > > rotationalPropagatorSettings =
                 std::dynamic_pointer_cast< RotationalStatePropagatorSettings< StateScalarType, TimeType > >( propagatorSettings );
 
-        std::vector< std::pair< std::string, std::string > > integratedBodies;
+        std::vector< std::tuple< std::string, std::string, PropagatorType > > integratedBodies;
         for( unsigned int i = 0; i < rotationalPropagatorSettings->bodiesToIntegrate_.size( ); i++ )
         {
-            integratedBodies.push_back( std::make_pair( rotationalPropagatorSettings->bodiesToIntegrate_.at( i ), "" ) );
+            integratedBodies.push_back( std::make_tuple( rotationalPropagatorSettings->bodiesToIntegrate_.at( i ), "",
+                                                        PropagatorType( rotationalPropagatorSettings->propagator_ ) ) );
         }
 
         integratedStateList[ rotational_state ] = integratedBodies;
@@ -2361,11 +2413,11 @@ std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string 
         }
 
         // Retrieve list of integrated bodies in correct formatting.
-        std::vector< std::pair< std::string, std::string > > integratedBodies;
+        std::vector< std::tuple< std::string, std::string, PropagatorType > > integratedBodies;
         for( unsigned int i = 0; i < massPropagatorSettings->bodiesWithMassToPropagate_.size( ); i++ )
         {
-            integratedBodies.push_back( std::make_pair(
-                                            massPropagatorSettings->bodiesWithMassToPropagate_.at( i ), "" ) );
+            integratedBodies.push_back( std::make_tuple(
+                                            massPropagatorSettings->bodiesWithMassToPropagate_.at( i ), "", PropagatorType( ) ) );
         }
         integratedStateList[ body_mass_state ] = integratedBodies;
 
@@ -2373,8 +2425,16 @@ std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string 
     }
     case custom_state:
     {
-        std::vector< std::pair< std::string, std::string > > customList;
-        customList.push_back( std::make_pair( "", "" ) );
+        std::shared_ptr< CustomStatePropagatorSettings< StateScalarType, TimeType > >
+                customPropagatorSettings = std::dynamic_pointer_cast<
+                CustomStatePropagatorSettings< StateScalarType, TimeType > >( propagatorSettings );
+        if( customPropagatorSettings == nullptr )
+        {
+            throw std::runtime_error( "Error getting integrated state type list, custom state input inconsistent" );
+        }
+
+        std::vector< std::tuple< std::string, std::string, PropagatorType > > customList;
+        customList.push_back( std::make_tuple( "", "", PropagatorType( customPropagatorSettings->stateSize_ ) ) );
         integratedStateList[ custom_state ] = customList;
         break;
     }
@@ -2387,7 +2447,7 @@ std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string 
 }
 
 inline std::map< std::pair< int, int >, std::string > getProcessedStateStrings(
-        const std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string > > > integratedTypeAndBodyList )
+        const std::map< IntegratedStateType, std::vector< std::tuple< std::string, std::string, PropagatorType > > > integratedTypeAndBodyList )
 {
     unsigned int stateVectorIndex = 0;
     std::map< std::pair< int, int >, std::string > stringPerIndex;
@@ -2396,9 +2456,9 @@ inline std::map< std::pair< int, int >, std::string > getProcessedStateStrings(
     {
         // Extract state type and list of body names
         IntegratedStateType stateType = integratedTypeAndBody.first;
-        std::vector< std::pair< std::string, std::string > > bodyList = integratedTypeAndBody.second;
+        std::vector< std::tuple< std::string, std::string, PropagatorType > > bodyList = integratedTypeAndBody.second;
 
-        int stateSize = getSingleIntegrationSize( stateType );
+        int stateSize = -1;
 
         // Loop trough list of body names
         for(unsigned int i = 0; i < bodyList.size (); i++)
@@ -2407,16 +2467,26 @@ inline std::map< std::pair< int, int >, std::string > getProcessedStateStrings(
             switch( stateType )
             {
             case translational_state:
-                currentString += " of body " + bodyList.at( i ).first + " w.r.t. " + bodyList.at( i ).second;
+                stateSize = getSingleIntegrationSize( stateType );
+                currentString += ", in Cartesian elements, of body " + std::get< 0 >( bodyList.at( i ) ) + " w.r.t. " + std::get< 1 >( bodyList.at( i ) );
                 break;
             case rotational_state:
-                currentString += " of body " + bodyList.at( i ).first;
+                stateSize = getSingleIntegrationSize( stateType );
+                currentString += ", in quaternions and body-fixed angular velocity, of body " + std::get< 0 >( bodyList.at( i ) );
                 break;
             case body_mass_state:
-                currentString += " of body " + bodyList.at( i ).first;
+                stateSize = getSingleIntegrationSize( stateType );
+                currentString += " of body " + std::get< 0 >( bodyList.at( i ) );
                 break;
             case custom_state:
+            {
+                stateSize = std::get< 2 >( bodyList.at( i ) ).customStateSize_;
+                if( stateSize <= 0 )
+                {
+                    throw std::runtime_error( "Error when getting custom state size; size is <= 0" );
+                }
                 break;
+            }
             default:
                 throw std::runtime_error( "Error when getting processed state strings, type not recognized" );
             }
@@ -2428,6 +2498,65 @@ inline std::map< std::pair< int, int >, std::string > getProcessedStateStrings(
     return stringPerIndex;
 }
 
+inline std::map< std::pair< int, int >, std::string > getPropagatedStateStrings(
+        const std::map< IntegratedStateType, std::vector< std::tuple< std::string, std::string, PropagatorType > > > integratedTypeAndBodyList )
+{
+    unsigned int stateVectorIndex = 0;
+    std::map< std::pair< int, int >, std::string > stringPerIndex;
+
+    for ( auto integratedTypeAndBody : integratedTypeAndBodyList)
+    {
+        // Extract state type and list of body names
+        IntegratedStateType stateType = integratedTypeAndBody.first;
+        std::vector< std::tuple< std::string, std::string, PropagatorType > > bodyList = integratedTypeAndBody.second;
+
+        int stateSize = -1;
+
+        // Loop trough list of body names
+        for(unsigned int i = 0; i < bodyList.size (); i++)
+        {
+            std::string currentString = getIntegratedStateTypString( stateType );
+            switch( stateType )
+            {
+                case translational_state:
+                {
+                    TranslationalPropagatorType propagatorType = std::get< 2 >( bodyList.at( i ) ).translationalPropagatorType_;
+                    stateSize = getTranslationalStateSize( propagatorType );
+                    currentString += " (" + getTranslationalPropagatorName( propagatorType ) + " formulation)";
+                    currentString += " of body " + std::get< 0 >( bodyList.at( i ) ) + " w.r.t. " + std::get< 1 >( bodyList.at( i ) );
+                    break;
+                }
+                case rotational_state:
+                {
+                    RotationalPropagatorType propagatorType = std::get< 2 >( bodyList.at( i ) ).rotationalPropagatorType_;
+                    stateSize = getRotationalStateSize( propagatorType );
+                    currentString += " (" + getRotationalPropagatorName( propagatorType ) + " formulation)";
+                    currentString += " of body " + std::get< 0 >( bodyList.at( i ) );
+                    break;
+                }
+                case body_mass_state:
+                    stateSize = getSingleIntegrationSize( stateType );
+                    currentString += " of body " + std::get< 0 >( bodyList.at( i ) );
+                    break;
+                case custom_state:
+                {
+                    stateSize = std::get< 2 >( bodyList.at( i ) ).customStateSize_;
+                    if( stateSize <= 0 )
+                    {
+                        throw std::runtime_error( "Error when getting custom state size; size is <= 0" );
+                    }
+                    break;
+                }
+                default:
+                    throw std::runtime_error( "Error when getting processed state strings, type not recognized" );
+            }
+            stringPerIndex[std::make_pair( stateVectorIndex, stateSize ) ] = currentString;
+            // Remember where we are at trough the state vector
+            stateVectorIndex += stateSize;
+        }
+    }
+    return stringPerIndex;
+}
 
 // addition for thesis work (Jonas Hener), considered generally useful
 template< typename StateScalarType = double, typename TimeType = double >
@@ -2482,6 +2611,7 @@ void resetSingleArcInitialStates(
             totalInitialState.segment( i * 6, 6 ) =
                     currentArcInitialStates.at( translational_state ).at( std::make_pair( propagatedBodies.at( i ), "" ) );
         }
+//        std::cout << "in resetSingleInitialStates: " << totalInitialState.transpose( ) << "\n\n";
         translationalStateSettings->resetInitialStates( totalInitialState );
 
         break;
@@ -2507,9 +2637,9 @@ void toggleIntegratedResultSettings(
         std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< StateScalarType, TimeType > >(
                     propagatorSettings )->getOutputSettings( )->setIntegratedResult( true );
     }
-    else if( std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< StateScalarType > >( propagatorSettings ) != nullptr )
+    else if( std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ) != nullptr )
     {
-        std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< StateScalarType > >(
+        std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< StateScalarType, TimeType > >(
                     propagatorSettings )->getOutputSettings( )->setIntegratedResult( true );
     }
     else

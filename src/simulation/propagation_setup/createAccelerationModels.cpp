@@ -12,9 +12,9 @@
 #include <functional>
 #include <memory>
 
-#include <boost/make_shared.hpp>
-#include <boost/bind/bind.hpp>
-using namespace boost::placeholders;
+
+
+
 
 #include "tudat/astro/aerodynamics/flightConditions.h"
 #include "tudat/astro/ephemerides/frameManager.h"

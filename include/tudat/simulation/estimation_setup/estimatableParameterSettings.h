@@ -175,19 +175,19 @@ public:
      * \param isBiasAdditive True if bias is absolute, false if it is relative
      */
     ConstantObservationBiasEstimatableParameterSettings(
-            const observation_models::LinkEnds& linkEnds,
+            const observation_models::LinkDefinition& linkEnds,
             const observation_models::ObservableType observableType,
             const bool isBiasAdditive ):
         EstimatableParameterSettings(
-            linkEnds.begin( )->second.first,
+            linkEnds.linkEnds_.begin( )->second.bodyName_,
             isBiasAdditive ? constant_additive_observation_bias : constant_relative_observation_bias,
-            linkEnds.begin( )->second.second ), linkEnds_( linkEnds ), observableType_( observableType ){ }
+            linkEnds.linkEnds_.begin( )->second.stationName_ ), linkEnds_( linkEnds ), observableType_( observableType ){ }
 
     //! Destructor
     ~ConstantObservationBiasEstimatableParameterSettings( ){ }
 
     //! Observation link ends for which the bias is to be estimated.
-    observation_models::LinkEnds linkEnds_;
+    observation_models::LinkDefinition linkEnds_;
 
     //! Observable type for which the bias is to be estimated.
     observation_models::ObservableType observableType_;
@@ -208,22 +208,22 @@ public:
      * \param isBiasAdditive True if bias is absolute, false if it is relative
      */
     ArcWiseConstantObservationBiasEstimatableParameterSettings(
-            const observation_models::LinkEnds& linkEnds,
+            const observation_models::LinkDefinition& linkEnds,
             const observation_models::ObservableType observableType,
             const std::vector< double > arcStartTimes,
             const observation_models::LinkEndType linkEndForTime,
             const bool isBiasAdditive ):
         EstimatableParameterSettings(
-            linkEnds.begin( )->second.first,
+            linkEnds.linkEnds_.begin( )->second.bodyName_,
             isBiasAdditive ? arcwise_constant_additive_observation_bias : arcwise_constant_relative_observation_bias,
-            linkEnds.begin( )->second.second ), linkEnds_( linkEnds ), observableType_( observableType ),
+            linkEnds.linkEnds_.begin( )->second.stationName_ ), linkEnds_( linkEnds ), observableType_( observableType ),
         arcStartTimes_( arcStartTimes ), linkEndForTime_( linkEndForTime ){ }
 
     //! Destructor
     ~ArcWiseConstantObservationBiasEstimatableParameterSettings( ){ }
 
     //! Observation link ends for which the bias is to be estimated.
-    observation_models::LinkEnds linkEnds_;
+    observation_models::LinkDefinition linkEnds_;
 
     //! Observable type for which the bias is to be estimated.
     observation_models::ObservableType observableType_;
@@ -254,8 +254,8 @@ public:
             const observation_models::ObservableType observableType,
             const observation_models::LinkEndType linkEndForTime,
             const double referenceEpoch ):
-            EstimatableParameterSettings( linkEnds.begin( )->second.first, constant_time_drift_observation_bias,
-                                          linkEnds.begin( )->second.second ), linkEnds_( linkEnds ),
+            EstimatableParameterSettings( linkEnds.begin( )->second.bodyName_, constant_time_drift_observation_bias,
+                                          linkEnds.begin( )->second.stationName_ ), linkEnds_( linkEnds ),
             observableType_( observableType ), linkEndForTime_( linkEndForTime ), referenceEpoch_( referenceEpoch ){ }
 
     //! Destructor
@@ -297,8 +297,8 @@ public:
             const observation_models::LinkEndType linkEndForTime,
             const std::vector< double > referenceEpochs ):
             EstimatableParameterSettings(
-                    linkEnds.begin( )->second.first, arc_wise_time_drift_observation_bias,
-                    linkEnds.begin( )->second.second ), linkEnds_( linkEnds ), observableType_( observableType ),
+                    linkEnds.begin( )->second.bodyName_, arc_wise_time_drift_observation_bias,
+                    linkEnds.begin( )->second.stationName_ ), linkEnds_( linkEnds ), observableType_( observableType ),
             arcStartTimes_( arcStartTimes ), linkEndForTime_( linkEndForTime ), referenceEpochs_( referenceEpochs ){ }
 
     //! Destructor
@@ -319,6 +319,80 @@ public:
     //! Reference epochs at which the time drifts are initialised.
     std::vector< double > referenceEpochs_;
 
+};
+
+//! Class to define settings for estimation of constant time biases
+class ConstantTimeBiasEstimatableParameterSettings: public EstimatableParameterSettings
+{
+public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param linkEnds Observation link ends for which the bias is to be estimated.
+     * \param observableType Observable type for which the bias is to be estimated.
+     * \param linkEndForTime Link end index from which the 'current time' is determined
+     */
+    ConstantTimeBiasEstimatableParameterSettings(
+            const observation_models::LinkEnds& linkEnds,
+            const observation_models::ObservableType observableType,
+            const observation_models::LinkEndType linkEndForTime ):
+            EstimatableParameterSettings( linkEnds.begin( )->second.bodyName_, constant_time_observation_bias,
+                                          linkEnds.begin( )->second.stationName_ ), linkEnds_( linkEnds ),
+            observableType_( observableType ), linkEndForTime_( linkEndForTime ){ }
+
+    //! Destructor
+    ~ConstantTimeBiasEstimatableParameterSettings( ){ }
+
+    //! Observation link ends for which the bias is to be estimated.
+    observation_models::LinkEnds linkEnds_;
+
+    //! Observable type for which the bias is to be estimated.
+    observation_models::ObservableType observableType_;
+
+    //! Link end index from which the 'current time' is determined
+    observation_models::LinkEndType linkEndForTime_;
+};
+
+
+//! Class to define settings for estimation of arc-wise time biases
+class ArcWiseTimeBiasEstimatableParameterSettings: public EstimatableParameterSettings
+{
+public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param linkEnds Observation link ends for which the bias is to be estimated.
+     * \param observableType Observable type for which the bias is to be estimated.
+     * \param arcStartTimes Start times for arcs in which biases are defined
+     * \param linkEndForTime Link end index from which the 'current time' is determined
+     * \param referenceEpochs Reference epochs (per arc) at which the time drifts are initialised
+     */
+    ArcWiseTimeBiasEstimatableParameterSettings(
+            const observation_models::LinkEnds& linkEnds,
+            const observation_models::ObservableType observableType,
+            const std::vector< double > arcStartTimes,
+            const observation_models::LinkEndType linkEndForTime ):
+            EstimatableParameterSettings(
+                    linkEnds.begin( )->second.bodyName_, arc_wise_time_observation_bias,
+                    linkEnds.begin( )->second.stationName_ ), linkEnds_( linkEnds ), observableType_( observableType ),
+            arcStartTimes_( arcStartTimes ), linkEndForTime_( linkEndForTime ){ }
+
+    //! Destructor
+    ~ArcWiseTimeBiasEstimatableParameterSettings( ){ }
+
+    //! Observation link ends for which the bias is to be estimated.
+    observation_models::LinkEnds linkEnds_;
+
+    //! Observable type for which the bias is to be estimated.
+    observation_models::ObservableType observableType_;
+
+    //! Start times for arcs in which biases are defined
+    std::vector< double > arcStartTimes_;
+
+    //! Link end index from which the 'current time' is determined
+    observation_models::LinkEndType linkEndForTime_;
 };
 
 //! Class to define settings for estimating an initial translational state.
@@ -905,7 +979,7 @@ inline std::shared_ptr< EstimatableParameterSettings > rotationPolePosition(
 }
 
 inline std::shared_ptr< EstimatableParameterSettings > observationBias(
-        const observation_models::LinkEnds& linkEnds,
+        const observation_models::LinkDefinition& linkEnds,
         const observation_models::ObservableType observableType )
 {
     return std::make_shared< ConstantObservationBiasEstimatableParameterSettings >(
@@ -913,7 +987,7 @@ inline std::shared_ptr< EstimatableParameterSettings > observationBias(
 }
 
 inline std::shared_ptr< EstimatableParameterSettings > relativeObservationBias(
-        const observation_models::LinkEnds& linkEnds,
+        const observation_models::LinkDefinition& linkEnds,
         const observation_models::ObservableType observableType )
 {
     return std::make_shared< ConstantObservationBiasEstimatableParameterSettings >(
@@ -921,7 +995,7 @@ inline std::shared_ptr< EstimatableParameterSettings > relativeObservationBias(
 }
 
 inline std::shared_ptr< EstimatableParameterSettings > arcwiseObservationBias(
-        const observation_models::LinkEnds& linkEnds,
+        const observation_models::LinkDefinition& linkEnds,
         const observation_models::ObservableType observableType,
         const std::vector< double > arcStartTimes,
         const observation_models::LinkEndType linkEndForTime = observation_models::receiver )
@@ -931,7 +1005,7 @@ inline std::shared_ptr< EstimatableParameterSettings > arcwiseObservationBias(
 }
 
 inline std::shared_ptr< EstimatableParameterSettings > arcwiseRelativeObservationBias(
-        const observation_models::LinkEnds& linkEnds,
+        const observation_models::LinkDefinition& linkEnds,
         const observation_models::ObservableType observableType,
         const std::vector< double > arcStartTimes,
         const observation_models::LinkEndType linkEndForTime = observation_models::receiver )
@@ -959,6 +1033,25 @@ inline std::shared_ptr< EstimatableParameterSettings > arcwiseTimeDriftObservati
 {
     return std::make_shared< ArcWiseTimeDriftBiasEstimatableParameterSettings >(
             linkEnds, observableType, arcStartTimes, linkEndForTime, referenceEpochs );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > timeObservationBias(
+        const observation_models::LinkEnds& linkEnds,
+        const observation_models::ObservableType observableType,
+        const observation_models::LinkEndType linkEndForTime = observation_models::receiver )
+{
+    return std::make_shared< ConstantTimeBiasEstimatableParameterSettings >(
+            linkEnds, observableType, linkEndForTime );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > arcwiseTimeObservationBias(
+        const observation_models::LinkEnds& linkEnds,
+        const observation_models::ObservableType observableType,
+        const std::vector< double > arcStartTimes,
+        const observation_models::LinkEndType linkEndForTime = observation_models::receiver )
+{
+    return std::make_shared< ArcWiseTimeBiasEstimatableParameterSettings >(
+            linkEnds, observableType, arcStartTimes, linkEndForTime );
 }
 
 inline std::shared_ptr< EstimatableParameterSettings > constantEmpiricalAccelerationMagnitudes(

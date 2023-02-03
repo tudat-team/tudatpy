@@ -37,9 +37,11 @@ class PropagatorProcessingSettings
 public:
     PropagatorProcessingSettings(
             const bool clearNumericalSolutions = false,
-            const bool setIntegratedResult = false ):
+            const bool setIntegratedResult = false,
+            const bool createDependentVariablesInterface = false ):
         clearNumericalSolutions_( clearNumericalSolutions ),
-        setIntegratedResult_( setIntegratedResult )
+        setIntegratedResult_( setIntegratedResult ),
+        createDependentVariablesInterface_( createDependentVariablesInterface )
     { }
 
     virtual ~PropagatorProcessingSettings( ){ }
@@ -54,6 +56,11 @@ public:
         return setIntegratedResult_;
     }
 
+    bool getCreateDependentVariablesInterface( )
+    {
+        return createDependentVariablesInterface_;
+    }
+
     virtual void setClearNumericalSolutions( const bool clearNumericalSolutions )
     {
         clearNumericalSolutions_ = clearNumericalSolutions;
@@ -62,6 +69,11 @@ public:
     virtual void setIntegratedResult( const bool setIntegratedResult )
     {
         setIntegratedResult_ = setIntegratedResult;
+    }
+
+    virtual void setCreateDependentVariablesInterface( const bool createDependentVariablesInterface )
+    {
+         createDependentVariablesInterface_ = createDependentVariablesInterface;
     }
 
     virtual bool printAnyOutput( ) = 0;
@@ -74,6 +86,7 @@ protected:
 
     bool clearNumericalSolutions_;
     bool setIntegratedResult_;
+    bool createDependentVariablesInterface_;
 };
 
 //! Base class for defining output and processing settings for single-arc propagation.
@@ -82,15 +95,20 @@ protected:
 class SingleArcPropagatorProcessingSettings: public PropagatorProcessingSettings
 {
 public:
+
     SingleArcPropagatorProcessingSettings(
             const bool clearNumericalSolutions = false,
             const bool setIntegratedResult = false,
+            const int resultsSaveFrequencyInSteps = 1,
+            const double resultsSaveFrequencyInSeconds = TUDAT_NAN,
             const std::shared_ptr< PropagationPrintSettings > printSettings =
-            std::make_shared< PropagationPrintSettings >( ) ):
-        PropagatorProcessingSettings( clearNumericalSolutions, setIntegratedResult ),
-        printSettings_( printSettings ),
+            std::make_shared< PropagationPrintSettings >( ),
+            const bool createDependentVariablesInterface = false ):
+            PropagatorProcessingSettings( clearNumericalSolutions, setIntegratedResult, createDependentVariablesInterface ),
+            resultsSaveFrequencyInSteps_( resultsSaveFrequencyInSteps ),
+            resultsSaveFrequencyInSeconds_( resultsSaveFrequencyInSeconds ),
+            printSettings_( printSettings ),
         isPartOfMultiArc_( false ), arcIndex_( -1 ){ }
-
     virtual ~SingleArcPropagatorProcessingSettings( ){ }
 
     std::shared_ptr< PropagationPrintSettings > getPrintSettings( )
@@ -98,12 +116,46 @@ public:
         return printSettings_;
     }
 
+    void setResultsSaveFrequencyInSteps( const int resultsSaveFrequencyInSteps )
+    {
+        resultsSaveFrequencyInSteps_ = resultsSaveFrequencyInSteps;
+    }
+
+    void setResultsSaveFrequencyInSeconds( const double resultsSaveFrequencyInSeconds )
+    {
+        resultsSaveFrequencyInSeconds_ = resultsSaveFrequencyInSeconds;
+    }
+
+    int getResultsSaveFrequencyInSteps( )
+    {
+        return resultsSaveFrequencyInSteps_;
+    }
+
+    double getResultsSaveFrequencyInSeconds( )
+    {
+        return resultsSaveFrequencyInSeconds_;
+    }
+
+    bool saveCurrentStep(
+            const int stepsSinceLastSave, const double timeSinceLastSave )
+    {
+        bool saveCurrentStep = false;
+        if( stepsSinceLastSave >= resultsSaveFrequencyInSteps_ && resultsSaveFrequencyInSteps_ > 0 )
+        {
+            saveCurrentStep = true;
+        }
+        else if( timeSinceLastSave >= resultsSaveFrequencyInSeconds_ )
+        {
+            saveCurrentStep = true;
+        }
+        return saveCurrentStep;
+    }
+
+
 
     bool printAnyOutput( )
     {
-        return ( printSettings_->printPostPropagation( ) ||
-                 printSettings_->printDuringPropagation( ) ||
-                 printSettings_->printBeforePropagation( ) );
+        return printSettings_->printAnyOutput( );
     }
 
 
@@ -131,11 +183,14 @@ public:
         }
     }
 
-protected:
-
-    const std::shared_ptr< PropagationPrintSettings > printSettings_;
 
 private:
+
+    int resultsSaveFrequencyInSteps_;
+
+    double resultsSaveFrequencyInSeconds_;
+
+    const std::shared_ptr< PropagationPrintSettings > printSettings_;
 
     void setAsMultiArc( const unsigned int arcIndex, const bool printArcIndex )
     {
@@ -161,8 +216,9 @@ public:
             const bool clearNumericalSolutions = false,
             const bool setIntegratedResult = false,
             const bool printFirstArcOnly = false,
-            const bool printCurrentArcIndex = false ):
-        PropagatorProcessingSettings( clearNumericalSolutions, setIntegratedResult ),
+            const bool printCurrentArcIndex = false,
+            const bool createDependentVariablesInterface = false ):
+        PropagatorProcessingSettings( clearNumericalSolutions, setIntegratedResult, createDependentVariablesInterface ),
         consistentSingleArcPrintSettings_( consistentSingleArcPrintSettings ),
         useIdenticalSettings_( true ),
         printFirstArcOnly_( printFirstArcOnly ),
@@ -176,8 +232,9 @@ public:
             const bool clearNumericalSolutions = false,
             const bool setIntegratedResult = false,
             const bool printFirstArcOnly = false,
-            const bool printCurrentArcIndex = false ):
-        PropagatorProcessingSettings( clearNumericalSolutions, setIntegratedResult ),
+            const bool printCurrentArcIndex = false,
+            const bool createDependentVariablesInterface = false ):
+        PropagatorProcessingSettings( clearNumericalSolutions, setIntegratedResult, createDependentVariablesInterface ),
         consistentSingleArcPrintSettings_( nullptr ),
         useIdenticalSettings_( false ),
         printFirstArcOnly_( printFirstArcOnly ),
@@ -189,24 +246,6 @@ public:
 
     virtual ~MultiArcPropagatorProcessingSettings( ){ }
 
-    virtual void setClearNumericalSolutions( const bool clearNumericalSolutions )
-    {
-        this->clearNumericalSolutions_ = clearNumericalSolutions;
-        for( unsigned int i = 0; i < singleArcSettings_.size( ); i++ )
-        {
-            singleArcSettings_.at( i )->setClearNumericalSolutions( clearNumericalSolutions );
-        }
-    }
-
-    virtual void setIntegratedResult( const bool setIntegratedResult )
-    {
-        this->setIntegratedResult_ = setIntegratedResult;
-        for( unsigned int i = 0; i < singleArcSettings_.size( ); i++ )
-        {
-            // Results should never be set during a single arc of the multi-arc
-            singleArcSettings_.at( i )->setIntegratedResult( false );
-        }
-    }
 
     void resetSingleArcSettings( const bool printWarning = false )
     {
@@ -217,7 +256,7 @@ public:
 
         for( unsigned int i = 0; i < singleArcSettings_.size( ); i++ )
         {
-            singleArcSettings_.at( i )->setClearNumericalSolutions( clearNumericalSolutions_ );
+            singleArcSettings_.at( i )->setClearNumericalSolutions( false );
             singleArcSettings_.at( i )->setIntegratedResult( false );
             singleArcSettings_.at( i )->setAsMultiArc( i, printCurrentArcIndex_ );
 
@@ -325,6 +364,11 @@ public:
         printFirstArcOnly_ = printFirstArcOnly;
     }
 
+    std::vector< std::shared_ptr< SingleArcPropagatorProcessingSettings > > getSingleArcSettings( )
+    {
+        return singleArcSettings_;
+    }
+
 
 protected:
 
@@ -382,8 +426,9 @@ public:
             const std::shared_ptr< PropagationPrintSettings > consistentArcPrintSettings,
             const bool clearNumericalSolutions = false,
             const bool setIntegratedResult = false,
-            const bool printStateTypeStart = false ):
-        PropagatorProcessingSettings( clearNumericalSolutions, setIntegratedResult ),
+            const bool printStateTypeStart = false,
+            const bool createDependentVariablesInterface = false ):
+        PropagatorProcessingSettings( clearNumericalSolutions, setIntegratedResult, createDependentVariablesInterface ),
         consistentArcPrintSettings_( consistentArcPrintSettings ),
         useIdenticalSettings_( true ),
         printStateTypeStart_( printStateTypeStart ){ }
@@ -391,8 +436,9 @@ public:
     HybridArcPropagatorProcessingSettings(
             const bool clearNumericalSolutions = false,
             const bool setIntegratedResult = false,
-            const bool printStateTypeStart = false ):
-        PropagatorProcessingSettings( clearNumericalSolutions, setIntegratedResult ),
+            const bool printStateTypeStart = false,
+            const bool createDependentVariablesInterface = false ):
+        PropagatorProcessingSettings( clearNumericalSolutions, setIntegratedResult, createDependentVariablesInterface ),
         useIdenticalSettings_( false ),
         printStateTypeStart_( printStateTypeStart ){ }
 
@@ -467,9 +513,27 @@ public:
         return multiArcSettings_;
     }
 
+    void resetConsistentPrintSettings(
+            const std::shared_ptr< PropagationPrintSettings > consistentArcPrintSettings )
+    {
+        if( useIdenticalSettings_ )
+        {
+            consistentArcPrintSettings_ = consistentArcPrintSettings;
+            multiArcSettings_->resetSingleArcSettings( );
+            singleArcSettings_->getPrintSettings( )->reset( consistentArcPrintSettings );
+        }
+    }
+
+    void resetAndApplyConsistentPrintSettings(
+            const std::shared_ptr< PropagationPrintSettings > consistentArcPrintSettings )
+    {
+        useIdenticalSettings_ = true;
+        resetConsistentPrintSettings( consistentArcPrintSettings );
+    }
+
 protected:
 
-    const std::shared_ptr< PropagationPrintSettings > consistentArcPrintSettings_;
+    std::shared_ptr< PropagationPrintSettings > consistentArcPrintSettings_;
 
     bool useIdenticalSettings_;
 

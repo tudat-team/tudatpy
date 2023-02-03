@@ -45,6 +45,9 @@ std::string getLinkEndTypeString( const LinkEndType linkEndType )
     case observed_body:
         linkEndString = "observed body";
         break;
+    case transmitter2:
+        linkEndString = "transmitter_2";
+        break;
     default:
         std::string errorMessage = "Error when getting link end string for type " +
                 std::to_string( linkEndType ) + ", type not found.";
@@ -60,14 +63,14 @@ std::string getLinkEndsString( const LinkEnds linkEnds )
     for( LinkEnds::const_iterator linkEndIterator = linkEnds.begin( ); linkEndIterator != linkEnds.end( );
          linkEndIterator++ )
     {
-        linkEndsString += getLinkEndTypeString( linkEndIterator->first ) + ": (" + linkEndIterator->second.first;
-        if( linkEndIterator->second.second == "" )
+        linkEndsString += getLinkEndTypeString( linkEndIterator->first ) + ": (" + linkEndIterator->second.bodyName_;
+        if( linkEndIterator->second.stationName_ == "" )
         {
             linkEndsString +=  ")";
         }
         else
         {
-            linkEndsString += ", " + linkEndIterator->second.second +  ")";
+            linkEndsString += ", " + linkEndIterator->second.stationName_ +  ")";
         }
 
         if( linkEndIterator != (--linkEnds.end( ) ) )
@@ -133,10 +136,10 @@ LinkEndType getNWayLinkEnumFromIndex( const int linkEndIndex, const int numberOf
 }
 
 //! Function to get the list of indices in link-end list for n-way observables that matches a given link end id.
-std::vector< int > getNWayLinkEndIndicesFromLinkEndId( const LinkEndId& linkEndid, const LinkEnds& linkEnds )
+std::vector< int > getNWayLinkEndIndicesFromLinkEndId( const LinkEndId& linkEndId, const LinkEnds& linkEnds )
 {
     std::vector< LinkEndType >  matchingLinkEndTypes = getNWayLinkIndicesFromLinkEndId(
-                linkEndid, linkEnds );
+                linkEndId, linkEnds );
     return getNWayLinkEndIndicesFromLinkEndId( matchingLinkEndTypes, linkEnds );
 }
 
@@ -152,20 +155,21 @@ std::vector< int > getNWayLinkEndIndicesFromLinkEndId( const std::vector< LinkEn
 }
 
 //! Function to get the list of link end types in link-end list for n-way observables that match a given link end id.
-std::vector< LinkEndType > getNWayLinkIndicesFromLinkEndId( const LinkEndId& linkEndid, const LinkEnds& linkEnds )
+std::vector< LinkEndType > getNWayLinkIndicesFromLinkEndId( const LinkEndId& linkEndId, const LinkEnds& linkEnds )
 {
     std::vector< LinkEndType > matchingLinkEndTypes;
 
     for( LinkEnds::const_iterator linkEndIterator = linkEnds.begin( ); linkEndIterator != linkEnds.end( ); linkEndIterator++ )
     {
-        if( linkEndIterator->second == linkEndid || ( ( linkEndIterator->second.first == linkEndid.first ) &&
-                                                                        linkEndid.second == "" ) )
+        if( linkEndIterator->second == linkEndId || ( ( linkEndIterator->second.bodyName_ == linkEndId.bodyName_ ) &&
+                                                                        linkEndId.stationName_ == "" ) )
         {
             matchingLinkEndTypes.push_back( linkEndIterator->first );
         }
     }
     return matchingLinkEndTypes;
 }
+
 
 LinkEnds mergeUpDownLink( const LinkEnds& uplink, const LinkEnds& downlink )
 {
@@ -178,6 +182,12 @@ LinkEnds mergeUpDownLink( const LinkEnds& uplink, const LinkEnds& downlink )
     twoWayLinkEnds[ retransmitter ] = downlink.at( transmitter );
     twoWayLinkEnds[ receiver ] = downlink.at( receiver );
     return twoWayLinkEnds;
+}
+
+
+LinkDefinition mergeUpDownLink( const LinkDefinition& uplink, const LinkDefinition& downlink )
+{
+    return LinkDefinition( mergeUpDownLink( uplink.linkEnds_, downlink.linkEnds_ ) );
 }
 
 LinkEnds mergeOneWayLinkEnds( const std::vector< LinkEnds >& linkEnds )
@@ -196,6 +206,17 @@ LinkEnds mergeOneWayLinkEnds( const std::vector< LinkEnds >& linkEnds )
     return nWayLinkEnds;
 }
 
+LinkDefinition mergeOneWayLinkEnds( const std::vector< LinkDefinition >& linkEndsDefinitions )
+{
+    std::vector< LinkEnds > linkEnds;
+    for( unsigned int i = 0; i < linkEndsDefinitions.size( ); i++ )
+    {
+        linkEnds.push_back( linkEndsDefinitions.at( i ).linkEnds_ );
+    }
+    return LinkDefinition( mergeOneWayLinkEnds( linkEnds ) );
+
+}
+
 LinkEnds getUplinkFromTwoWayLinkEnds(
         const LinkEnds& twoWayLinkEnds )
 {
@@ -203,6 +224,12 @@ LinkEnds getUplinkFromTwoWayLinkEnds(
     uplink[ transmitter ] = twoWayLinkEnds.at( transmitter );
     uplink[ receiver ] = twoWayLinkEnds.at( retransmitter );
     return uplink;
+}
+
+LinkDefinition getUplinkFromTwoWayLinkEnds(
+        const LinkDefinition& twoWayLinkEnds )
+{
+    return LinkDefinition( getUplinkFromTwoWayLinkEnds( twoWayLinkEnds.linkEnds_ ) );
 }
 
 LinkEnds getDownlinkFromTwoWayLinkEnds(
@@ -214,6 +241,11 @@ LinkEnds getDownlinkFromTwoWayLinkEnds(
     return downlink;
 }
 
+LinkDefinition getDownlinkFromTwoWayLinkEnds(
+        const LinkDefinition& twoWayLinkEnds )
+{
+    return LinkDefinition( getDownlinkFromTwoWayLinkEnds( twoWayLinkEnds.linkEnds_ ) );
+}
 
 LinkEnds getSingleLegLinkEnds(
         const LinkEnds& nWayLinkEnds, const unsigned int legIndex )

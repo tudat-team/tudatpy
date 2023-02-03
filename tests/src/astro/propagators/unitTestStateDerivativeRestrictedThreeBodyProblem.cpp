@@ -17,7 +17,7 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
-#include <boost/bind/bind.hpp>
+
 #include <boost/test/tools/floating_point_comparison.hpp> 
 #include <boost/test/unit_test.hpp>
 
@@ -82,7 +82,7 @@ BOOST_AUTO_TEST_CASE( testStateDerivativeCircularRestrictedThreeBodyProblem )
                     std::bind(
                         &StateDerivativeCircularRestrictedThreeBodyProblem::computeStateDerivative,
                         &stateDerivative, std::placeholders::_1, std::placeholders::_2 ),
-                    0.0, initialStateOnHaloOrbit );
+                    0.0, initialStateOnHaloOrbit, 0.1 );
 
         // Integrate Halo orbit over one period.
         Eigen::VectorXd finalStateOnHaloOrbit = rungeKutta4Integrator.integrateTo(

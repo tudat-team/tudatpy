@@ -11,7 +11,7 @@
 
 #include <sstream>
 
-#include <boost/make_shared.hpp>
+
 
 #include "tudat/io/dictionaryTools.h"
 

@@ -45,7 +45,8 @@ namespace interpolators
  *  \param rightHandSide Right-hand-side of matrix equation.
  *  \return Solution to matrix equation.
  */
-template< typename IndependentVariableType, typename DependentVariableType >
+template< typename IndependentVariableType, typename DependentVariableType,
+          typename ScalarType = typename scalar_type< IndependentVariableType >::value_type >
 std::vector< DependentVariableType > solveTridiagonalMatrixEquation(
         const std::vector< IndependentVariableType >& subDiagonal,
         const std::vector< IndependentVariableType >& diagonal,
@@ -54,6 +55,10 @@ std::vector< DependentVariableType > solveTridiagonalMatrixEquation(
 {
     // Check whether input diagonals are correct size.
     unsigned int matrixSize = rightHandSide.size( );
+    if( matrixSize < 2 )
+    {
+        throw std::runtime_error( "Error, RHS must be at least size 2 for tridiagonal matrix solution" );
+    }
     if ( ( diagonal.size( ) < matrixSize ) || ( superDiagonal.size( ) < matrixSize - 1 ) ||
          ( rightHandSide.size( ) < matrixSize - 1 ) )
     {
@@ -66,17 +71,17 @@ std::vector< DependentVariableType > solveTridiagonalMatrixEquation(
         throw std::runtime_error( "Error when inverting tridiagonal system, first entry of diagonal is zero" );
     }
 
-    std::vector< IndependentVariableType > intermediateVector( matrixSize );
+    std::vector< ScalarType > intermediateVector( matrixSize );
     std::vector< DependentVariableType > solution( matrixSize );
 
     // Perform solution algorithm, from (Press W.H., et al., 2002).
-    double scalingFactor = diagonal[ 0 ];
-    solution[ 0 ] = rightHandSide[ 0 ] / scalingFactor;
+    ScalarType scalingFactor = static_cast< ScalarType >( diagonal[ 0 ] );
+    solution[ 0 ] = rightHandSide[ 0 ] / static_cast< ScalarType >( scalingFactor );
 
     for ( unsigned int j = 1; j < matrixSize; j++ )
     {
-        intermediateVector[ j ] = superDiagonal[ j - 1 ] / scalingFactor;
-        scalingFactor = diagonal[ j ] - subDiagonal[ j - 1 ] * intermediateVector[ j ];
+        intermediateVector[ j ] = static_cast< ScalarType >( superDiagonal[ j - 1 ] ) / scalingFactor;
+        scalingFactor = diagonal[ j ] - static_cast< ScalarType >( subDiagonal[ j - 1 ] ) * intermediateVector[ j ];
 
         // Check whether solution will not be singular.
         if ( scalingFactor == 0.0 )
@@ -103,7 +108,8 @@ std::vector< DependentVariableType > solveTridiagonalMatrixEquation(
  *  \tparam IndependentVariableType Type of independent variables.
  *  \tparam DependentVariableType Type of dependent variables.
  */
-template< typename IndependentVariableType, typename DependentVariableType, typename ScalarType = IndependentVariableType >
+template< typename IndependentVariableType, typename DependentVariableType,
+          typename ScalarType = typename scalar_type< IndependentVariableType >::value_type >
 class CubicSplineInterpolator :
         public OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >
 {

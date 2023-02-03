@@ -12,10 +12,10 @@
 #ifndef TUDAT_NEWTON_RAPHSON_H
 #define TUDAT_NEWTON_RAPHSON_H
 
-#include <boost/bind/bind.hpp>
-using namespace boost::placeholders;
 
-#include <boost/make_shared.hpp>
+
+
+
 #include <memory>
 
 #include "tudat/math/root_finders/rootFinder.h"

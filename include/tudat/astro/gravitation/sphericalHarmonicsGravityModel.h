@@ -19,7 +19,7 @@
 #include <functional>
 #include <boost/lambda/lambda.hpp>
 #include <memory>
-#include <boost/make_shared.hpp>
+
 
 #include <Eigen/Core>
 #include <Eigen/Geometry>

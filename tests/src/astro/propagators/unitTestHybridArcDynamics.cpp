@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include <boost/make_shared.hpp>
+
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/math/basic/linearAlgebra.h"
@@ -13,7 +13,6 @@
 #include "tudat/interface/spice/spiceInterface.h"
 #include "tudat/math/integrators/rungeKuttaCoefficients.h"
 #include "tudat/astro/basic_astro/accelerationModel.h"
-#include "tudat/astro/basic_astro/keplerPropagator.h"
 #include "tudat/simulation/simulation.h"
 #include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
 
@@ -101,6 +100,19 @@ BOOST_AUTO_TEST_CASE( testHybridArcDynamics )
                         "Sun", createRadiationPressureInterface(
                             orbiterRadiationPressureSettings, "Orbiter", bodies ) );
 
+            std::shared_ptr< IntegratorSettings< > > singleArcIntegratorSettings;
+            std::shared_ptr< IntegratorSettings< > > multiArcIntegratorSettings;
+
+            if( testCase == 0 )
+            {
+                singleArcIntegratorSettings = rungeKutta4Settings( 120.0 );
+                multiArcIntegratorSettings = rungeKutta4Settings( 120.0 );
+            }
+            else if ( testCase == 1 )
+            {
+                singleArcIntegratorSettings = rungeKutta4Settings( 120.0 );
+                multiArcIntegratorSettings = rungeKutta4Settings( 240.0 );
+            }
 
 
 
@@ -126,7 +138,7 @@ BOOST_AUTO_TEST_CASE( testHybridArcDynamics )
             std::shared_ptr< TranslationalStatePropagatorSettings< > > singleArcPropagatorSettings =
                     std::make_shared< TranslationalStatePropagatorSettings< > >(
                         singleArcCentralBodies, singleArcAccelerationModelMap, singleArcBodiesToIntegrate,
-                        singleArcInitialStates, finalEphemerisTime );
+                        singleArcInitialStates, initialEphemerisTime, singleArcIntegratorSettings, propagationTimeTerminationSettings( finalEphemerisTime ) );
 
             // Set accelerations for Orbiter
             SelectedAccelerationMap multiArcAccelerationMap;
@@ -213,34 +225,19 @@ BOOST_AUTO_TEST_CASE( testHybridArcDynamics )
                 arcPropagationSettingsList.push_back(
                             std::make_shared< TranslationalStatePropagatorSettings< double > >
                             ( multiArcCentralBodies, multiArcAccelerationModelMap, multiArcBodiesToIntegrate,
-                              multiArcSystemInitialStates.at( i ), integrationArcEnds.at( i ) ) );
+                              multiArcSystemInitialStates.at( i ), integrationArcStarts.at( i ), multiArcIntegratorSettings,
+                              propagationTimeTerminationSettings( integrationArcEnds.at( i ) ) ) );
             }
             std::shared_ptr< MultiArcPropagatorSettings< > > multiArcPropagatorSettings =
                     std::make_shared< MultiArcPropagatorSettings< > >( arcPropagationSettingsList );
 
-            std::shared_ptr< IntegratorSettings< > > singleArcIntegratorSettings;
-            std::shared_ptr< IntegratorSettings< > > multiArcIntegratorSettings;
 
-            if( testCase == 0 )
-            {
-                singleArcIntegratorSettings = std::make_shared< IntegratorSettings< > >
-                        ( rungeKutta4, initialEphemerisTime, 120.0 );
-                multiArcIntegratorSettings = std::make_shared< IntegratorSettings< > >
-                        ( rungeKutta4, initialEphemerisTime, 120.0 );
-            }
-            else if ( testCase == 1 )
-            {
-                singleArcIntegratorSettings = std::make_shared< IntegratorSettings< > >
-                        ( rungeKutta4, initialEphemerisTime, 120.0 );
-                multiArcIntegratorSettings = std::make_shared< IntegratorSettings< > >
-                        ( rungeKutta4, initialEphemerisTime - 3600.0, 240.0 );
-            }
 
             // Perform separate single-arc propagation
             std::map< double, Eigen::VectorXd > singleArcSolution;
             {
                 SingleArcDynamicsSimulator< > singleArcDynamicsSimulator(
-                            bodies, singleArcIntegratorSettings, singleArcPropagatorSettings, true, false, false );
+                            bodies, singleArcPropagatorSettings );//, true, false, false );
                 singleArcSolution = singleArcDynamicsSimulator.getEquationsOfMotionNumericalSolution( );
             }
 
@@ -248,7 +245,7 @@ BOOST_AUTO_TEST_CASE( testHybridArcDynamics )
             std::vector< std::map< double, Eigen::VectorXd > > multiArcSolution;
             {
                 MultiArcDynamicsSimulator< > multiArcDynamicsSimulator(
-                            bodies, multiArcIntegratorSettings, multiArcPropagatorSettings, integrationArcStarts, true, false, false );
+                            bodies, multiArcPropagatorSettings );//, true, false, false );
                 multiArcSolution = multiArcDynamicsSimulator.getEquationsOfMotionNumericalSolution( );
             }
 
@@ -272,10 +269,8 @@ BOOST_AUTO_TEST_CASE( testHybridArcDynamics )
             std::map< double, Eigen::VectorXd > singleArcSolutionFromHybrid;
             std::vector< std::map< double, Eigen::VectorXd > > multiArcSolutionFromHybrid;
             {
-                singleArcIntegratorSettings->initialTimeDeprecated_ = initialEphemerisTime;
-
                 HybridArcDynamicsSimulator< > hybridArcDynamicsSimulator(
-                            bodies, singleArcIntegratorSettings, multiArcIntegratorSettings, hybridArcPropagatorSettings, integrationArcStarts, true, clearNumericalSolution, setIntegratedResults );
+                            bodies,hybridArcPropagatorSettings );//, true, clearNumericalSolution, setIntegratedResults );
 
                 BOOST_CHECK_EQUAL( hybridArcPropagatorSettings->getOutputSettings( )->getSetIntegratedResult( ), setIntegratedResults );
                 BOOST_CHECK_EQUAL( singleArcPropagatorSettings->getOutputSettings( )->getSetIntegratedResult( ), setIntegratedResults );

@@ -343,12 +343,6 @@ createInterpolatorsForItrsToGcrsAngles(
     std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Matrix< double, 5, 1 > > > anglesInterpolator =
             interpolators::createOneDimensionalInterpolator( anglesMap, interpolatorSettings );
 
-    // Update UT1 interpolation time step scalar
-    if( sizeof( UT1ScalarType ) == 8 )
-    {
-        interpolatorSettings->resetUseLongDoubleTimeStep( true );
-    }
-
     // Create interpolator for UT1
     std::shared_ptr< interpolators::OneDimensionalInterpolator< double, UT1ScalarType > > ut1Interpolator =
             interpolators::createOneDimensionalInterpolator( ut1Map, interpolatorSettings );

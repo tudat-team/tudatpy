@@ -13,7 +13,7 @@
 
 #include <algorithm>
 
-#include <boost/make_shared.hpp>
+
 
 #include "tudat/simulation/estimation_setup/simulateObservations.h"
 #include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
@@ -47,7 +47,7 @@ namespace simulation_setup
  *  \return Pair of estimation output (first) and adjustment to initial state vectors (second)
  */
 template< typename TimeType = double, typename StateScalarType = double >
-std::pair< std::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > determinePostfitParameterInfluence(
+std::pair< std::shared_ptr< EstimationOutput< StateScalarType > >, Eigen::VectorXd > determinePostfitParameterInfluence(
         const SystemOfBodies& bodies,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
         const std::shared_ptr< propagators::PropagatorSettings< StateScalarType > > propagatorSettings,
@@ -80,7 +80,7 @@ std::pair< std::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > de
     {
         // Add current body to list of observed bodies
         LinkEnds observationLinkEnds;
-        observationLinkEnds[ observed_body ] = std::make_pair( observedBodies.at( i ), "" );
+        observationLinkEnds[ observed_body ] = std::pair< std::string, std::string >( std::make_pair( observedBodies.at( i ), "" ) );
         linkEndsList.push_back( observationLinkEnds );
         observationSettingsList.push_back( std::make_shared< ObservationModelSettings >(
                                         position_observable, observationLinkEnds ) );
@@ -132,10 +132,12 @@ std::pair< std::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > de
     //input_output::writeMatrixToFile( observationsAndTimes.begin( )->second.begin( )->second.first, "preFitObservations.dat" );
 
     // Define estimation input
-    std::shared_ptr< PodInput< StateScalarType, TimeType > > podInput =
-            std::make_shared< PodInput< StateScalarType, TimeType > >(
-                observationsAndTimes, initialStateParametersToEstimate->getParameterSetSize( ) );
-    podInput->defineEstimationSettings( true, true, false, true, true );
+    std::shared_ptr< EstimationInput< StateScalarType, TimeType > > estimationInput =
+            std::make_shared< EstimationInput< StateScalarType, TimeType > >(
+                observationsAndTimes );
+    estimationInput->defineEstimationSettings( true, true, false, true, true );
+    estimationInput->setConvergenceChecker(
+                std::make_shared< EstimationConvergenceChecker >( numberOfIterations ) );
 
     // Create parameters that are to be perturbed
     std::vector< std::shared_ptr< EstimatableParameterSettings > > perturbedParameterSettingsList;
@@ -160,14 +162,14 @@ std::pair< std::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > de
     perturbedParameters->resetParameterValues( parameterVectorToPerturb );
 
     // Fit nominal dynamics to pertrubed dynamical model
-    std::shared_ptr< PodOutput< StateScalarType > > podOutput = orbitDeterminationManager.estimateParameters(
-                podInput, std::make_shared< EstimationConvergenceChecker >( numberOfIterations ) );
+    std::shared_ptr< EstimationOutput< StateScalarType > > estimationOutput = orbitDeterminationManager.estimateParameters(
+                estimationInput );
 
     // Reset parameter to nominal value
     perturbedParameters->resetParameterValues( unperturbedParameterVector );
 
     return std::make_pair(
-                podOutput, initialStateParametersToEstimate->template getFullParameterValues< double >( ) - nominalBodyStates );
+                estimationOutput, initialStateParametersToEstimate->template getFullParameterValues< double >( ) - nominalBodyStates );
 
 
 

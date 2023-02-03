@@ -1169,7 +1169,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                 vectorParameterToEstimate = std::make_shared< ConstantObservationBiasParameter >(
                             std::function< Eigen::VectorXd( ) >( ),
                             std::function< void( const Eigen::VectorXd& ) >( ),
-                            biasSettings->linkEnds_, biasSettings->observableType_, true );
+                            biasSettings->linkEnds_.linkEnds_, biasSettings->observableType_, true );
             }
             break;
         }
@@ -1186,7 +1186,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                 vectorParameterToEstimate = std::make_shared< ConstantObservationBiasParameter >(
                             std::function< Eigen::VectorXd( ) >( ),
                             std::function< void( const Eigen::VectorXd& ) >( ),
-                            biasSettings->linkEnds_, biasSettings->observableType_, false );
+                            biasSettings->linkEnds_.linkEnds_, biasSettings->observableType_, false );
             }
             break;
         }
@@ -1206,7 +1206,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                             std::function< void( const std::vector< Eigen::VectorXd >& ) >( ),
                             observation_models::getLinkEndIndicesForLinkEndTypeAtObservable(
                                 biasSettings->observableType_, biasSettings->linkEndForTime_, biasSettings->linkEnds_.size( ) ).at( 0 ),
-                            biasSettings->linkEnds_, biasSettings->observableType_, true );
+                            biasSettings->linkEnds_.linkEnds_, biasSettings->observableType_, true );
             }
             break;
         }
@@ -1226,7 +1226,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                             std::function< void( const std::vector< Eigen::VectorXd >& ) >( ),
                             observation_models::getLinkEndIndicesForLinkEndTypeAtObservable(
                                 biasSettings->observableType_, biasSettings->linkEndForTime_, biasSettings->linkEnds_.size( ) ).at( 0 ),
-                            biasSettings->linkEnds_, biasSettings->observableType_, false );
+                            biasSettings->linkEnds_.linkEnds_, biasSettings->observableType_, false );
             }
             break;
         }
@@ -1266,6 +1266,45 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                         observation_models::getLinkEndIndicesForLinkEndTypeAtObservable(
                                 timeBiasSettings->observableType_, timeBiasSettings->linkEndForTime_, timeBiasSettings->linkEnds_.size( ) ).at( 0 ),
                         timeBiasSettings->linkEnds_, timeBiasSettings->observableType_, timeBiasSettings->referenceEpochs_ );
+            }
+            break;
+        }
+        case constant_time_observation_bias:
+        {
+            std::shared_ptr< ConstantTimeBiasEstimatableParameterSettings > biasSettings =
+                    std::dynamic_pointer_cast< ConstantTimeBiasEstimatableParameterSettings >( vectorParameterName );
+            if( biasSettings == nullptr )
+            {
+                throw std::runtime_error( "Error when creating constant time bias, input is inconsistent" );
+            }
+            else
+            {
+                vectorParameterToEstimate = std::make_shared< ConstantTimeBiasParameter >(
+                        std::function< Eigen::VectorXd( ) >( ),
+                        std::function< void( const Eigen::VectorXd& ) >( ),
+                        observation_models::getLinkEndIndicesForLinkEndTypeAtObservable(
+                                biasSettings->observableType_, biasSettings->linkEndForTime_, biasSettings->linkEnds_.size( ) ).at( 0 ),
+                        biasSettings->linkEnds_, biasSettings->observableType_ );
+            }
+            break;
+        }
+        case arc_wise_time_observation_bias:
+        {
+            std::shared_ptr< ArcWiseTimeBiasEstimatableParameterSettings > timeBiasSettings =
+                    std::dynamic_pointer_cast< ArcWiseTimeBiasEstimatableParameterSettings >( vectorParameterName );
+            if( timeBiasSettings == nullptr )
+            {
+                throw std::runtime_error( "Error when creating arcwise time bias, input is inconsistent" );
+            }
+            else
+            {
+                vectorParameterToEstimate = std::make_shared< ArcWiseTimeBiasParameter >(
+                        timeBiasSettings->arcStartTimes_,
+                        std::function< std::vector< Eigen::VectorXd >( ) >( ),
+                        std::function< void( const std::vector< Eigen::VectorXd >& ) >( ),
+                        observation_models::getLinkEndIndicesForLinkEndTypeAtObservable(
+                                timeBiasSettings->observableType_, timeBiasSettings->linkEndForTime_, timeBiasSettings->linkEnds_.size( ) ).at( 0 ),
+                        timeBiasSettings->linkEnds_, timeBiasSettings->observableType_ );
             }
             break;
         }
@@ -1979,35 +2018,76 @@ void setInitialStateVectorFromParameterSet(
     else if( std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< InitialStateParameterType, TimeType > >( propagatorSettings ) )
     {
         std::shared_ptr< propagators::MultiArcPropagatorSettings< InitialStateParameterType, TimeType > > multiArcSettings =
-                std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< InitialStateParameterType, TimeType > >( propagatorSettings );
-        std::vector< std::shared_ptr< propagators::SingleArcPropagatorSettings< InitialStateParameterType, TimeType > > > singleArcSettings =
-                multiArcSettings->getSingleArcSettings( );
+                std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< InitialStateParameterType, TimeType > >(
+                    propagatorSettings );
+
+        std::vector< std::shared_ptr< propagators::SingleArcPropagatorSettings< InitialStateParameterType, TimeType > > >
+                singleArcSettings = multiArcSettings->getSingleArcSettings( );
         int numberOfArcs = singleArcSettings.size( );
+
+        // Counting in how many arcs each body has already been propagated/estimated.
+        std::map< propagators::IntegratedStateType, std::map< std::string, unsigned int > > initialStatesBodiesCounter;
 
         for( int i = 0; i < numberOfArcs; i++ )
         {
             std::map< propagators::IntegratedStateType, std::map< std::pair< std::string, std::string >, VectorType > > currentArcInitialStates;
 
-            for( unsigned int j = 0; j < initialDynamicalParameters.size( ); j++ )
+            std::shared_ptr< propagators::TranslationalStatePropagatorSettings< InitialStateParameterType, TimeType > > singleArcTranslationalStatePropagatorSettings
+            = std::dynamic_pointer_cast< propagators::TranslationalStatePropagatorSettings< InitialStateParameterType, TimeType > >( singleArcSettings.at( i ) );
+
+            if ( singleArcTranslationalStatePropagatorSettings == nullptr )
             {
-                VectorType currentParameterValue = initialDynamicalParameters.at( j )->getParameterValue( );
-                int currentParameterSize = initialDynamicalParameters.at( j )->getParameterSize( );
-                std::pair< std::string, std::string > bodyIdentifier = initialDynamicalParameters.at( j )->getParameterName( ).second;
+                throw std::runtime_error( "Propagator settings for arc " + std::to_string( i ) + " are not translational state propagator settings. "
+                                                                            " Other propagator settings not supported (yet) for multi-arc propagation." );
+            }
+            else
+            {
 
-                switch( initialDynamicalParameters.at( j )->getParameterName( ).first )
-                {
-                case estimatable_parameters::arc_wise_initial_body_state:
-                {
-                    if( currentParameterSize / numberOfArcs != 6 )
+                for ( unsigned int j = 0; j < initialDynamicalParameters.size( ); j++ ) {
+                    VectorType currentParameterValue = initialDynamicalParameters.at(j)->getParameterValue();
+                    int currentParameterSize = initialDynamicalParameters.at(j)->getParameterSize();
+                    std::pair<std::string, std::string> bodyIdentifier = initialDynamicalParameters.at(j)->getParameterName().second;
+//                    std::cout << "body identifier: " << bodyIdentifier.first << " & " << bodyIdentifier.second << "\n\n";
+
+                    auto itr = std::find( singleArcTranslationalStatePropagatorSettings->bodiesToIntegrate_.begin( ),
+                                                                          singleArcTranslationalStatePropagatorSettings->bodiesToIntegrate_.end( ), bodyIdentifier.first );
+                    if ( itr != singleArcTranslationalStatePropagatorSettings->bodiesToIntegrate_.cend( ) )
                     {
-                        throw std::runtime_error( "Error when moving initial states from parameters to propagator settings. Incompatible multi-arc translational state size found" );
-                    }
+//                        std::cout << "body " << bodyIdentifier.first << " - detected for arc " << i << "\n\n";
 
-                    currentArcInitialStates[ propagators::translational_state ][ bodyIdentifier ] = currentParameterValue.segment( i * 6, 6 );
-                    break;
-                }
-                default:
-                    throw std::runtime_error( "Error when moving initial states from parameters to propagator settings. Multi-arc parameter type not recognized" );
+
+                        switch ( initialDynamicalParameters.at( j )->getParameterName( ).first )
+                        {
+                            case estimatable_parameters::arc_wise_initial_body_state:
+                            {
+//                                std::cout << "current parameter size: " << currentParameterSize << "\n\n";
+
+                                if ( ( initialStatesBodiesCounter.count( propagators::translational_state )  == 0 )
+                                || initialStatesBodiesCounter.at( propagators::translational_state ).count( bodyIdentifier.first ) == 0 )
+                                {
+                                    initialStatesBodiesCounter[ propagators::translational_state ][ bodyIdentifier.first ] = 0;
+                                }
+                                int index = initialStatesBodiesCounter.at( propagators::translational_state ).at( bodyIdentifier.first );
+//                                std::cout << "index: " << index << "\n\n";
+
+
+//                                if ( currentParameterSize / numberOfArcs != 6 )
+//                                {
+//                                    throw std::runtime_error("Error when moving initial states from parameters to propagator settings. Incompatible multi-arc translational state size found");
+//                                }
+//                                std::cout << "full parameters values: " << currentParameterValue.transpose( ) << "\n\n";
+//                                std::cout << "subset parameters values: " << currentParameterValue.segment( index * 6, 6 ).transpose( ) << "\n\n";
+                                currentArcInitialStates[ propagators::translational_state ][ bodyIdentifier ] = currentParameterValue.segment( index * 6, 6 );
+
+                                // update counter of propagated/estimated bodies
+                                initialStatesBodiesCounter.at( propagators::translational_state ).at( bodyIdentifier.first ) ++;
+
+                                break;
+                            }
+                            default:
+                                throw std::runtime_error("Error when moving initial states from parameters to propagator settings. Multi-arc parameter type not recognized");
+                        }
+                    }
                 }
             }
             propagators::resetSingleArcInitialStates( singleArcSettings.at( i ), currentArcInitialStates );

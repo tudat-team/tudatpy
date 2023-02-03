@@ -102,6 +102,7 @@ public:
             const IndependentVariableType intervalStart,  const StateType& initialState,
             const TimeStepType minimumStepSize,
             const TimeStepType maximumStepSize,
+            const TimeStepType initialStepSize,
             const StateType& relativeErrorTolerance,
             const StateType& absoluteErrorTolerance,
             const TimeStepType safetyFactorForNextStepSize = 0.6,
@@ -110,6 +111,7 @@ public:
         Base( stateDerivativeFunction ), currentIndependentVariable_( intervalStart ),
         currentState_( initialState ), lastIndependentVariable_( intervalStart ),
         sequence_( sequence ), minimumStepSize_( minimumStepSize ), maximumStepSize_( maximumStepSize ),
+        stepSize_( initialStepSize ),
         relativeErrorTolerance_( relativeErrorTolerance ),
         absoluteErrorTolerance_( absoluteErrorTolerance ),
         safetyFactorForNextStepSize_( safetyFactorForNextStepSize ),
@@ -153,6 +155,7 @@ public:
             const IndependentVariableType intervalStart, const StateType& initialState,
             const TimeStepType minimumStepSize,
             const TimeStepType maximumStepSize,
+            const TimeStepType stepSize,
             const typename StateType::Scalar relativeErrorTolerance = 1.0e-12,
             const typename StateType::Scalar absoluteErrorTolerance = 1.0e-12,
             const TimeStepType safetyFactorForNextStepSize = 0.75,
@@ -160,7 +163,7 @@ public:
             const TimeStepType minimumFactorDecreaseForNextStepSize = 0.1 ):
         Base( stateDerivativeFunction ), currentIndependentVariable_( intervalStart ),
         currentState_( initialState ), lastIndependentVariable_( intervalStart ),
-        sequence_( sequence ), minimumStepSize_( minimumStepSize ),  maximumStepSize_( maximumStepSize ),
+        sequence_( sequence ), minimumStepSize_( minimumStepSize ),  maximumStepSize_( maximumStepSize ), stepSize_( stepSize ),
         relativeErrorTolerance_( StateType::Constant( initialState.rows( ), initialState.cols( ),
                                                       relativeErrorTolerance ) ),
         absoluteErrorTolerance_( StateType::Constant( initialState.rows( ), initialState.cols( ),
@@ -393,12 +396,6 @@ public:
 
 private:
 
-    // Last used step size.
-    /*
-     * Last used step size, passed to either integrateTo( ) or performIntegrationStep( ).
-     */
-    TimeStepType stepSize_;
-
     // Current independent variable.
     /*
      * Current independent variable as computed by performIntegrationStep().
@@ -440,6 +437,13 @@ private:
      * Maximum step size.
      */
     TimeStepType maximumStepSize_;
+
+
+    // Last used step size.
+    /*
+     * Last used step size, passed to either integrateTo( ) or performIntegrationStep( ).
+     */
+    TimeStepType stepSize_;
 
     // Relative error tolerance.
     /*

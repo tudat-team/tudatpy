@@ -15,8 +15,8 @@
 #include <utility>
 #include <limits>
 
-#include <boost/make_shared.hpp>
-#include <boost/shared_ptr.hpp>
+
+
 
 #include <tudat/astro/basic_astro/physicalConstants.h>
 #include <tudat/basics/testMacros.h>

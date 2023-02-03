@@ -37,6 +37,7 @@
 #include "tudat/astro/gravitation/polyhedronGravityField.h"
 #include "tudat/astro/basic_astro/polyhedronFuntions.h"
 #include "tudat/astro/ground_stations/groundStation.h"
+#include "tudat/astro/ground_stations/bodyDeformationModel.h"
 #include "tudat/astro/propulsion/thrustGuidance.h"
 //#include "tudat/astro/reference_frames/dependentOrientationCalculator.h"
 #include "tudat/astro/system_models/vehicleSystems.h"
@@ -972,6 +973,20 @@ public:
         }
     }
 
+    std::vector< std::shared_ptr< basic_astrodynamics::BodyDeformationModel > > getBodyDeformationModels( )
+    {
+        return bodyDeformationModels_;
+    }
+
+    std::vector< std::shared_ptr< basic_astrodynamics::BodyDeformationModel > >& getBodyDeformationModelsReference( )
+    {
+        return bodyDeformationModels_;
+    }
+
+    void addBodyDeformationModel( const std::shared_ptr< basic_astrodynamics::BodyDeformationModel > deformationModel )
+    {
+        bodyDeformationModels_.push_back( deformationModel );
+    }
     //! Function to set the radiation pressure interface of the body, for a single radiation source.
     /*!
      *  Function to set the radiation pressure interface of the body, for a single radiation source
@@ -1499,8 +1514,7 @@ private:
     //! Rotation model of body.
     std::shared_ptr<ephemerides::RotationalEphemeris> rotationalEphemeris_;
 
-//    //! Model to compute the rotation of the body based on the current state of the environment, only valid during propagation.
-//    std::shared_ptr<reference_frames::DependentOrientationCalculator> dependentOrientationCalculator_;
+    std::vector< std::shared_ptr< basic_astrodynamics::BodyDeformationModel > > bodyDeformationModels_;
 
     //! List of radiation pressure models for the body, with the sources bodies as key
     std::map<std::string, std::shared_ptr<electromagnetism::RadiationPressureInterface>>

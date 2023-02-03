@@ -132,6 +132,12 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
     case arc_wise_time_drift_observation_bias:
         parameterDescription = "arc-wise time drift observation bias ";
         break;
+    case constant_time_observation_bias:
+        parameterDescription = "time observation bias ";
+        break;
+    case arc_wise_time_observation_bias:
+        parameterDescription = "arc-wise time observation bias ";
+        break;
     default:
         std::string errorMessage = "Error when getting parameter string, did not recognize parameter " +
                 std::to_string( parameterType );
@@ -270,6 +276,12 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
     case arc_wise_time_drift_observation_bias:
         isDoubleParameter = false;
         break;
+    case constant_time_observation_bias:
+        isDoubleParameter = false;
+        break;
+    case arc_wise_time_observation_bias:
+        isDoubleParameter = false;
+        break;
     default:
         throw std::runtime_error( "Error, parameter type " + std::to_string( parameterType ) +
                                   " not found when getting parameter type" );
@@ -338,9 +350,34 @@ bool isParameterObservationLinkProperty( const EstimatebleParametersEnum paramet
     case arc_wise_time_drift_observation_bias:
         flag = true;
         break;
+    case constant_time_observation_bias:
+        flag = true;
+        break;
+    case arc_wise_time_observation_bias:
+        flag = true;
+        break;
     default:
         flag = false;
         break;
+    }
+    return flag;
+}
+
+//! Function to determine whether the given parameter influences an observation link directly
+bool isParameterObservationLinkTimeProperty( const EstimatebleParametersEnum parameterType )
+{
+    bool flag;
+    switch( parameterType )
+    {
+        case constant_time_observation_bias:
+            flag = true;
+            break;
+        case arc_wise_time_observation_bias:
+            flag = true;
+            break;
+        default:
+            flag = false;
+            break;
     }
     return flag;
 }
@@ -363,6 +400,23 @@ bool isParameterTidalProperty( const EstimatebleParametersEnum parameterType )
     }
     return flag;
 }
+
+//! Function to determine whether the given parameter represents an arc-wise initial dynamical state.
+bool isParameterArcWiseInitialStateProperty( const EstimatebleParametersEnum parameterType )
+{
+    bool flag;
+    switch( parameterType )
+    {
+        case arc_wise_initial_body_state:
+            flag = true;
+            break;
+        default:
+            flag = false;
+            break;
+    }
+    return flag;
+}
+
 
 
 }

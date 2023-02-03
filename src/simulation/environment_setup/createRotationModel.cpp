@@ -8,7 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include <boost/make_shared.hpp>
+
 #include "tudat/astro/ephemerides/simpleRotationalEphemeris.h"
 #include "tudat/astro/ephemerides/fullPlanetaryRotationModel.h"
 #include "tudat/astro/ephemerides/tabulatedRotationalEphemeris.h"

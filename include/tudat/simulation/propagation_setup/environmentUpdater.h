@@ -15,8 +15,8 @@
 #include <string>
 #include <map>
 
-#include <boost/bind/bind.hpp>
-using namespace boost::placeholders;
+
+
 
 #include <functional>
 #include <boost/tuple/tuple.hpp>
@@ -64,9 +64,9 @@ public:
             const simulation_setup::SystemOfBodies& bodyList,
             const std::map< EnvironmentModelsToUpdate, std::vector< std::string > >& updateSettings,
             const std::map< IntegratedStateType,
-            std::vector< std::pair< std::string, std::string > > >& integratedStates =
+            std::vector< std::tuple< std::string, std::string, PropagatorType > > >& integratedStates =
             ( std::map< IntegratedStateType,
-              std::vector< std::pair< std::string, std::string > > >( ) ) ):
+            std::vector< std::tuple< std::string, std::string, PropagatorType > > >( ) ) ):
         bodyList_( bodyList ), integratedStates_( integratedStates )
     {
         // Set update function to be evaluated as dependent variables of state and time during each
@@ -80,7 +80,7 @@ public:
      * dependent variable functions set by the setUpdateFunctions function. By default, the
      * numerically integrated states are set in the environment first. This may be overridden by
      * using the setIntegratedStatesFromEnvironment variable, which forces the function to ignore
-     * specific integrated states and update them from the existing environment models instead.
+     * specific integrated states and update them from the existing environment modelsad.
      * \param currentTime Current time.
      * \param integratedStatesToSet Current list of integrated states, with specific integrated
      * states defined by integratedStates_ member variable. Note that these states must have been
@@ -150,7 +150,7 @@ private:
                 // Set translational states for bodies provided as input.
                 for( unsigned int i = 0; i < integratedStates_[ translational_state ].size( ); i++ )
                 {
-                    bodyList_.at( integratedStates_[ translational_state ][ i ].first )->template
+                    bodyList_.at( std::get< 0 >( integratedStates_[ translational_state ][ i ] ) )->template
                             setTemplatedState< StateScalarType >(
                                 integratedStateIterator_->second.segment( i * 6, 6 ) );
                 }
@@ -158,11 +158,11 @@ private:
             }
             case rotational_state:
             {
-                std::vector< std::pair< std::string, std::string > > bodiesWithIntegratedStates =
+                std::vector< std::tuple< std::string, std::string, PropagatorType > > bodiesWithIntegratedStates =
                         integratedStates_.at( rotational_state );
                 for( unsigned int i = 0; i < bodiesWithIntegratedStates.size( ); i++ )
                 {
-                    bodyList_.at( bodiesWithIntegratedStates[ i ].first )->setCurrentRotationalStateToLocalFrame(
+                    bodyList_.at( std::get< 0 >( bodiesWithIntegratedStates[ i ] ) )->setCurrentRotationalStateToLocalFrame(
                                 integratedStateIterator_->second.segment( i * 7, 7 ).template cast< double >( ) );
                 }
                 break;
@@ -170,12 +170,12 @@ private:
             case body_mass_state:
             {
                 // Set mass for bodies provided as input.
-                std::vector< std::pair< std::string, std::string > > bodiesWithIntegratedMass =
+                std::vector< std::tuple< std::string, std::string, PropagatorType > > bodiesWithIntegratedMass =
                         integratedStates_.at( body_mass_state );
                 
                 for( unsigned int i = 0; i < bodiesWithIntegratedMass.size( ); i++ )
                 {
-                    bodyList_.at( bodiesWithIntegratedMass[ i ].first )
+                    bodyList_.at( std::get< 0 >( bodiesWithIntegratedMass[ i ] ) )
                             ->setConstantBodyMass( integratedStateIterator_->second( i ) );
                 }
                 break;
@@ -210,11 +210,11 @@ private:
             case translational_state:
             {
                 // Iterate over all integrated translational states.
-                std::vector< std::pair< std::string, std::string > > bodiesWithIntegratedStates =
+                std::vector< std::tuple< std::string, std::string, PropagatorType > > bodiesWithIntegratedStates =
                         integratedStates_[ translational_state ];
                 for( unsigned int i = 0; i < bodiesWithIntegratedStates.size( ); i++ )
                 {
-                    bodyList_.at( bodiesWithIntegratedStates[ i ].first )->
+                    bodyList_.at( std::get< 0 >( bodiesWithIntegratedStates[ i ] ) )->
                             template setStateFromEphemeris< StateScalarType, TimeType >( currentTime );
                     
                 }
@@ -222,11 +222,11 @@ private:
             }
             case rotational_state:
             {
-                std::vector< std::pair< std::string, std::string > > bodiesWithIntegratedStates =
+                std::vector< std::tuple< std::string, std::string, PropagatorType > > bodiesWithIntegratedStates =
                         integratedStates_.at( rotational_state );
                 for( unsigned int i = 0; i < bodiesWithIntegratedStates.size( ); i++ )
                 {
-                    bodyList_.at( bodiesWithIntegratedStates[ i ].first )->template setCurrentRotationalStateToLocalFrameFromEphemeris< TimeType >(
+                    bodyList_.at( std::get< 0 >( bodiesWithIntegratedStates[ i ] ) )->template setCurrentRotationalStateToLocalFrameFromEphemeris< TimeType >(
                                 currentTime );
                 }
                 break;
@@ -234,11 +234,11 @@ private:
             case body_mass_state:
             {
                 // Iterate over all integrated masses.
-                std::vector< std::pair< std::string, std::string > > bodiesWithIntegratedStates =
+                std::vector< std::tuple< std::string, std::string, PropagatorType > > bodiesWithIntegratedStates =
                         integratedStates_.at( body_mass_state );
                 for( unsigned int i = 0; i < bodiesWithIntegratedStates.size( ); i++ )
                 {
-                    bodyList_.at( bodiesWithIntegratedStates[ i ].first )->
+                    bodyList_.at( std::get< 0 >( bodiesWithIntegratedStates[ i ] ) )->
                             updateMass( currentTime );
                     
                 }
@@ -536,10 +536,9 @@ private:
                         if( integratedStates_.count( translational_state ) > 0 )
                         {
                             // Check if current body is propagated
-                            std::pair< std::string, std::string > bodyToCheck
-                                    = std::make_pair( currentBodies.at( i ), "" );
-                            std::vector< std::pair< std::string, std::string > > integratedTranslationalStates
-                                    = integratedStates_.at( translational_state );
+                            std::string bodyToCheck = currentBodies.at( i );
+                            std::vector< std::string > integratedTranslationalStates =
+                                    utilities::getFirstTupleEntryVector( integratedStates_.at( translational_state ) );
                             if( std::find( integratedTranslationalStates.begin( ),
                                            integratedTranslationalStates.end( ),
                                            bodyToCheck ) != integratedTranslationalStates.end( ) )
@@ -574,9 +573,9 @@ private:
                         bool addUpdate = 1;
                         if( integratedStates_.count( rotational_state ) > 0 )
                         {
-                            std::pair< std::string, std::string > bodyToCheck = std::make_pair( currentBodies.at( i ), "" );
-                            std::vector< std::pair< std::string, std::string > > integratedRotationalStates =
-                                    integratedStates_.at( rotational_state );
+                            std::string bodyToCheck = currentBodies.at( i );
+                            std::vector< std::string > integratedRotationalStates =
+                                    utilities::getFirstTupleEntryVector( integratedStates_.at( rotational_state ) );
                             if( std::find( integratedRotationalStates.begin( ), integratedRotationalStates.end( ), bodyToCheck ) !=
                                     integratedRotationalStates.end( ) )
                             {
@@ -638,10 +637,9 @@ private:
                         if( integratedStates_.count( body_mass_state ) > 0 )
                         {
                             // Check if current body is propagated
-                            std::pair< std::string, std::string > bodyToCheck
-                                    = std::make_pair( currentBodies.at( i ), "" );
-                            std::vector< std::pair< std::string, std::string > > integratedBodyMasses
-                                    = integratedStates_.at( body_mass_state );
+                            std::string bodyToCheck = currentBodies.at( i );
+                            std::vector< std::string > integratedBodyMasses =
+                                    utilities::getFirstTupleEntryVector( integratedStates_.at( body_mass_state ) );
                             if( std::find( integratedBodyMasses.begin( ),
                                            integratedBodyMasses.end( ),
                                            bodyToCheck ) != integratedBodyMasses.end( ) )
@@ -787,7 +785,7 @@ private:
      * in the pair will have a second entry that is empty (""), with the first entry defining
      * the body that is integrated.
      */
-    std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string > > >
+    std::map< IntegratedStateType, std::vector< std::tuple< std::string, std::string, PropagatorType > > >
     integratedStates_;
     
     //! List of time-dependent functions to call to update the environment.

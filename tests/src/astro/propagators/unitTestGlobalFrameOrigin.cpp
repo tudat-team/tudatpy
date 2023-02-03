@@ -13,7 +13,7 @@
 
 #include <string>
 
-#include <boost/make_shared.hpp>
+
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/math/basic/linearAlgebra.h"
@@ -86,12 +86,6 @@ Eigen::Matrix< StateScalarType, 6, 1 > testGlobalFrameOrigin(
             getDefaultBodySettings( bodyNames, initialEphemerisTime - buffer, finalEphemerisTime + buffer,
                                     globalFrameOrigin, "ECLIPJ2000" );
 
-    if( std::is_same< long double, StateScalarType >::value )
-    {
-        std::dynamic_pointer_cast< InterpolatedSpiceEphemerisSettings >(
-                    bodySettings.at( "Moon" )->ephemerisSettings )->setUseLongDoubleStates( 1 );
-    }
-
     // Change ephemeris origins to test full functionality
     std::dynamic_pointer_cast< InterpolatedSpiceEphemerisSettings >( bodySettings.at( "Moon" )->ephemerisSettings )->
             resetFrameOrigin( moonEphemerisOrigin );
@@ -102,7 +96,7 @@ Eigen::Matrix< StateScalarType, 6, 1 > testGlobalFrameOrigin(
     std::dynamic_pointer_cast< InterpolatedSpiceEphemerisSettings >( bodySettings.at( "Venus" )->ephemerisSettings )->
             resetFrameOrigin( "SSB" );
 
-    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+    SystemOfBodies bodies = createSystemOfBodies< StateScalarType, TimeType >( bodySettings );
 
     // Set accelerations between bodies that are to be taken into account.
     SelectedAccelerationMap accelerationMap;
