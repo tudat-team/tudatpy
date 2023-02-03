@@ -194,6 +194,25 @@ void PaneledRadiationSourceModel::Panel::updateMembers(double currentTime)
     }
 }
 
+void PaneledRadiationSourceModel::PanelRadiosityModel::updateMembers(
+        const double panelLatitude,
+        const double panelLongitude,
+        const double currentTime)
+{
+    if (
+        // New location
+        (panelLatitude_ != panelLatitude || panelLongitude_ != panelLongitude) ||
+        // New time and not time-invariant
+        (!isTimeInvariant() && currentTime_ != currentTime))
+    {
+        panelLatitude_ = panelLatitude;
+        panelLongitude_ = panelLongitude;
+        currentTime_ = currentTime;
+
+        updateMembers_(panelLatitude, panelLongitude, currentTime);
+    }
+}
+
 double AlbedoPanelRadiosityModel::evaluateIrradianceAtPosition(
         double panelArea,
         const Eigen::Vector3d& panelSurfaceNormal,
@@ -225,7 +244,7 @@ double AlbedoPanelRadiosityModel::evaluateIrradianceAtPosition(
     return albedoIrradiance;
 }
 
-void AlbedoPanelRadiosityModel::updateMembers(
+void AlbedoPanelRadiosityModel::updateMembers_(
         double panelLatitude,
         double panelLongitude,
         double currentTime)
@@ -259,7 +278,7 @@ double DelayedThermalPanelRadiosityModel::evaluateIrradianceAtPosition(
     return thermalIrradiance;
 }
 
-void DelayedThermalPanelRadiosityModel::updateMembers(
+void DelayedThermalPanelRadiosityModel::updateMembers_(
         double panelLatitude,
         double panelLongitude,
         double currentTime)
@@ -299,7 +318,7 @@ double AngleBasedThermalPanelRadiosityModel::evaluateIrradianceAtPosition(
     return thermalIrradiance;
 }
 
-void AngleBasedThermalPanelRadiosityModel::updateMembers(
+void AngleBasedThermalPanelRadiosityModel::updateMembers_(
         double panelLatitude,
         double panelLongitude,
         double currentTime)
