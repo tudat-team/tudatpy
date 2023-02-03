@@ -119,7 +119,7 @@ SystemOfBodies createSimulationBodies()
             bodySettings.at("Moon")->gravityFieldSettings)->resetAssociatedReferenceFrame(moonFrame);
     bodySettings.at("Moon")->radiationSourceModelSettings =
             staticallyPaneledRadiationSourceModelSettings("Sun", {
-                albedoPanelRadiosityModelSettings(0.12),
+                albedoPanelRadiosityModelSettings(albedo_dlam1),
                 angleBasedThermalPanelRadiosityModelSettings(100, 375, 0.95)
             }, 2000, {"Earth"});
 
