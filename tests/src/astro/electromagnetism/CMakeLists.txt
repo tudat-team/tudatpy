@@ -37,12 +37,18 @@ TUDAT_ADD_TEST_CASE(SolarSailAccelerationAndForce
         tudat_basic_astrodynamics
         )
 
+TUDAT_ADD_TEST_CASE(RadiationSourceModel
+        PRIVATE_LINKS
+        tudat_electromagnetism
+        tudat_basic_mathematics
+        )
+
 TUDAT_ADD_TEST_CASE(LuminosityModel
         PRIVATE_LINKS
         tudat_electromagnetism
         )
 
-TUDAT_ADD_TEST_CASE(RadiationSourceModel
+TUDAT_ADD_TEST_CASE(SourcePanelRadiosityModel
         PRIVATE_LINKS
         tudat_electromagnetism
         tudat_basic_mathematics

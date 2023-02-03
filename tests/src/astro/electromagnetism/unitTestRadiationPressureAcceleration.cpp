@@ -709,8 +709,8 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_PaneledSource_PaneledTar
             [](double) { return physical_constants::SPEED_OF_LIGHT; }, 1);
     auto originalSourceModel = std::make_shared<IsotropicPointRadiationSourceModel>(luminosityModel);
 
-    std::vector<std::unique_ptr<PaneledRadiationSourceModel::PanelRadiosityModel>> radiosityModels;
-    radiosityModels.push_back(std::make_unique<AlbedoPanelRadiosityModel>(
+    std::vector<std::unique_ptr<SourcePanelRadiosityModel>> radiosityModels;
+    radiosityModels.push_back(std::make_unique<AlbedoSourcePanelRadiosityModel>(
             std::make_shared<ConstantSurfacePropertyDistribution>(1)));
 
     // Source is a single panel pointing in +X with purely diffuse reflection
@@ -761,8 +761,8 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_PaneledSource_Cannonball
     auto originalSourceModel = std::make_shared<IsotropicPointRadiationSourceModel>(
         std::make_shared<ConstantLuminosityModel>(1));
 
-    std::vector<std::unique_ptr<PaneledRadiationSourceModel::PanelRadiosityModel>> radiosityModels;
-    radiosityModels.push_back(std::make_unique<AngleBasedThermalPanelRadiosityModel>(
+    std::vector<std::unique_ptr<SourcePanelRadiosityModel>> radiosityModels;
+    radiosityModels.push_back(std::make_unique<AngleBasedThermalSourcePanelRadiosityModel>(
             1000, 1000, std::make_shared<ConstantSurfacePropertyDistribution>(1)));
 
     // Source is a single panel pointing in +X

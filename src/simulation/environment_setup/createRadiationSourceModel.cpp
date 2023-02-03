@@ -169,13 +169,13 @@ std::shared_ptr<electromagnetism::SurfacePropertyDistribution> createSurfaceProp
     return surfacePropertyDistribution;
 }
 
-std::unique_ptr<electromagnetism::PaneledRadiationSourceModel::PanelRadiosityModel> createPanelRadiosityModel(
+std::unique_ptr<electromagnetism::SourcePanelRadiosityModel> createPanelRadiosityModel(
         const std::shared_ptr<PanelRadiosityModelSettings>& modelSettings,
         const std::string& body)
 {
     using namespace tudat::electromagnetism;
 
-    std::unique_ptr<PaneledRadiationSourceModel::PanelRadiosityModel> panelRadiosityModel;
+    std::unique_ptr<SourcePanelRadiosityModel> panelRadiosityModel;
 
     switch(modelSettings->getPanelRadiosityModelType())
     {
@@ -189,7 +189,7 @@ std::unique_ptr<electromagnetism::PaneledRadiationSourceModel::PanelRadiosityMod
                         "Error, expected albedo panel radiosity model for body " + body );
             }
 
-            panelRadiosityModel = std::make_unique<AlbedoPanelRadiosityModel>(
+            panelRadiosityModel = std::make_unique<AlbedoSourcePanelRadiosityModel>(
                     createSurfacePropertyDistribution(
                             albedoPanelRadiosityModelSettings->getAlbedoDistribution(), body),
                     albedoPanelRadiosityModelSettings->getWithInstantaneousReradiation());
@@ -205,7 +205,7 @@ std::unique_ptr<electromagnetism::PaneledRadiationSourceModel::PanelRadiosityMod
                         "Error, expected delayed thermal panel radiosity model for body " + body );
             }
 
-            panelRadiosityModel = std::make_unique<DelayedThermalPanelRadiosityModel>(
+            panelRadiosityModel = std::make_unique<DelayedThermalSourcePanelRadiosityModel>(
                     createSurfacePropertyDistribution(
                             delayedThermalPanelRadiosityModelSettings->getEmissivityDistribution(), body));
             break;
@@ -220,7 +220,7 @@ std::unique_ptr<electromagnetism::PaneledRadiationSourceModel::PanelRadiosityMod
                         "Error, expected angle-based thermal panel radiosity model for body " + body );
             }
 
-            panelRadiosityModel = std::make_unique<AngleBasedThermalPanelRadiosityModel>(
+            panelRadiosityModel = std::make_unique<AngleBasedThermalSourcePanelRadiosityModel>(
                     angleBasedThermalPanelRadiosityModelSettings->getMinTemperature(),
                     angleBasedThermalPanelRadiosityModelSettings->getMaxTemperature(),
                     createSurfacePropertyDistribution(
@@ -295,7 +295,7 @@ std::shared_ptr<electromagnetism::RadiationSourceModel> createRadiationSourceMod
 
         auto sourceBody = bodies.getBody(body);
 
-        std::vector<std::unique_ptr<PaneledRadiationSourceModel::PanelRadiosityModel>> radiosityModels;
+        std::vector<std::unique_ptr<SourcePanelRadiosityModel>> radiosityModels;
         for (auto& radiosityModelSetting : paneledModelSettings->getPanelRadiosityModelSettings())
         {
             radiosityModels.push_back(createPanelRadiosityModel(radiosityModelSetting, body));

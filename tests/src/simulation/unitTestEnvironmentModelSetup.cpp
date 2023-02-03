@@ -1530,12 +1530,12 @@ BOOST_AUTO_TEST_CASE( test_radiationSourceModelSetup_StaticallyPaneled )
     BOOST_CHECK_EQUAL(panel.getRadiosityModels().size(), expectedNumberOfRadiosityModels);
 
     const auto albedoModel =
-            dynamic_cast<electromagnetism::AlbedoPanelRadiosityModel&>(*panel.getRadiosityModels()[0]);
+            dynamic_cast<electromagnetism::AlbedoSourcePanelRadiosityModel&>(*panel.getRadiosityModels()[0]);
     const auto reflectionLaw = albedoModel.getReflectionLaw();
     const auto delayedThermalModel =
-            dynamic_cast<electromagnetism::DelayedThermalPanelRadiosityModel&>(*panel.getRadiosityModels()[1]);
+            dynamic_cast<electromagnetism::DelayedThermalSourcePanelRadiosityModel&>(*panel.getRadiosityModels()[1]);
     const auto angleBasedThermalModel =
-            dynamic_cast<electromagnetism::AngleBasedThermalPanelRadiosityModel&>(*panel.getRadiosityModels()[2]);
+            dynamic_cast<electromagnetism::AngleBasedThermalSourcePanelRadiosityModel&>(*panel.getRadiosityModels()[2]);
 
     const auto actualOriginalSourceName = staticallyPaneledSourceModel->getOriginalSourceName();
     const auto actualNumberOfPanels = staticallyPaneledSourceModel->getNumberOfPanels();

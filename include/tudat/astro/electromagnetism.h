@@ -21,8 +21,9 @@
 #include "electromagnetism/solarSailAcceleration.h"
 #include "electromagnetism/solarSailForce.h"
 
-#include "electromagnetism/luminosityModel.h"
 #include "electromagnetism/radiationSourceModel.h"
+#include "electromagnetism/luminosityModel.h"
+#include "electromagnetism/sourcePanelRadiosityModel.h"
 #include "electromagnetism/radiationPressureTargetModel.h"
 #include "electromagnetism/radiationPressureAcceleration.h"
 #include "electromagnetism/reflectionLaw.h"
