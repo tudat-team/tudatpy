@@ -121,7 +121,7 @@ SystemOfBodies createSimulationBodies()
             staticallyPaneledRadiationSourceModelSettings("Sun", {
                 albedoPanelRadiosityModelSettings(albedo_dlam1),
                 angleBasedThermalPanelRadiosityModelSettings(100, 375, 0.95)
-            }, 2000, {"Earth"});
+            }, 1, {"Earth"});
 
     // Create LRO
     bodySettings.addSettings("LRO");

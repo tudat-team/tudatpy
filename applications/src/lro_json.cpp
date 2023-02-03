@@ -94,7 +94,21 @@ SystemOfBodies createSimulationBodies()
 
     if (settings.useMoonRadiation) {
         std::vector<std::shared_ptr<PanelRadiosityModelSettings>> panelRadiosityModels;
-        panelRadiosityModels.push_back(albedoPanelRadiosityModelSettings(0.12, settings.useInstantaneousReradiation));
+
+        if (settings.albedoDistributionMoon == "Constant")
+        {
+            panelRadiosityModels.push_back(
+                    albedoPanelRadiosityModelSettings(0.12, settings.useInstantaneousReradiation));
+        }
+        else if (settings.albedoDistributionMoon == "DLAM1")
+        {
+            panelRadiosityModels.push_back(
+                    albedoPanelRadiosityModelSettings(albedo_dlam1, settings.useInstantaneousReradiation));
+        }
+        else
+        {
+            throw std::runtime_error("Invalid albedo_distribution_moon");
+        }
 
         if (settings.thermalType == "Delayed")
         {
