@@ -25,6 +25,8 @@
 namespace py = pybind11;
 namespace tss = tudat::simulation_setup;
 namespace trf = tudat::reference_frames;
+namespace tp = tudat::physical_constants;
+namespace ta = tudat::aerodynamics;
 
 
 namespace tudatpy {
@@ -33,6 +35,16 @@ namespace environment_setup {
 namespace atmosphere {
 
     void expose_atmosphere_setup(py::module &m) {
+
+
+        py::enum_<tss::AtmosphereDependentVariables>(m, "AtmosphereDependentVariables" )
+                .value("tabulated_density", tss::AtmosphereDependentVariables::density_dependent_atmosphere )
+                .value("tabulated_pressure", tss::AtmosphereDependentVariables::pressure_dependent_atmosphere )
+                .value("tabulated_temperature", tss::AtmosphereDependentVariables::temperature_dependent_atmosphere )
+                .value("tabulated_gas_constant", tss::AtmosphereDependentVariables::gas_constant_dependent_atmosphere )
+                .value("tabulated_specific_heat_ratio", tss::AtmosphereDependentVariables::specific_heat_ratio_dependent_atmosphere )
+                .value("tabulated_molar_mass", tss::AtmosphereDependentVariables::molar_mass_dependent_atmosphere )
+                .export_values();
 
         /////////////////////////////////////////////////////////////////////////////
         py::class_<tss::WindModelSettings,
@@ -94,7 +106,15 @@ namespace atmosphere {
               py::arg("space_weather_file" ) = tudat::paths::getSpaceWeatherDataPath( ) + "/sw19571001.txt",
               get_docstring("nrlmsise00").c_str());
 
-
+        m.def("tabulated",
+              &tss::tabulatedAtmosphereSettings,
+              py::arg("atmosphere_data_file" ),
+              py::arg("dependent_variable_names" ) =
+        std::vector< ta::AtmosphereDependentVariables >( { tss::density_dependent_atmosphere,
+                                                       tss::pressure_dependent_atmosphere,
+                                                       tss::temperature_dependent_atmosphere } ),
+              py::arg("specific_gas_constant" ) = tp::SPECIFIC_GAS_CONSTANT_AIR,
+              py::arg("ratio_of_specific_heats" ) = 1.4 );
 
         m.def("custom_constant_temperature",
               py::overload_cast<const std::function<double(const double)>,

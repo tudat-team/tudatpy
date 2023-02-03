@@ -99,8 +99,10 @@ YACMA_PYTHON_MODULE(kernel
         kernel/expose_numerical_simulation/expose_environment_setup/expose_gravity_field_setup.cpp
         kernel/expose_numerical_simulation/expose_environment_setup/expose_gravity_field_variation_setup.cpp
         kernel/expose_numerical_simulation/expose_environment_setup/expose_radiation_pressure_setup.cpp
+        kernel/expose_numerical_simulation/expose_environment_setup/expose_shape_deformation_setup.cpp
         kernel/expose_numerical_simulation/expose_environment_setup/expose_rotation_model_setup.cpp
         kernel/expose_numerical_simulation/expose_environment_setup/expose_shape_setup.cpp
+        kernel/expose_numerical_simulation/expose_environment_setup/expose_ground_station_setup.cpp
 
 
         kernel/expose_numerical_simulation/expose_propagation_setup.cpp
