@@ -42,6 +42,8 @@ public:
 
     virtual double getValue(double latitude, double longitude) = 0;
 
+    virtual bool isTimeInvariant() = 0;
+
 protected:
     virtual void updateMembers_(const double currentTime) {};
 
@@ -63,6 +65,11 @@ public:
         return constantValue_;
     }
 
+    bool isTimeInvariant() override
+    {
+        return true;
+    }
+
 private:
     double constantValue_;
 };
@@ -71,10 +78,6 @@ private:
  * Class modeling the distribution of a property on the surface of a sphere, such as albedo or emissivity. The
  * distribution is constant with respect to time. Spatial variations are given by a spherical harmonics expansion.
  */
- // TODO-DOMINIK
- // A single distribution per paneled source -> shared between all panels
- // source updateMembers calls distribution update members
- // in panelradiosity model updateMembers (base class), check if new time, lat and long, if not don't update
 class SphericalHarmonicsSurfacePropertyDistribution : public SurfacePropertyDistribution
 {
 public:
@@ -103,6 +106,11 @@ public:
             }
 
     double getValue(double latitude, double longitude) override;
+
+    bool isTimeInvariant() override
+    {
+        return true;
+    }
 
     const Eigen::MatrixXd& getCosineCoefficients() const
     {

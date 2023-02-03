@@ -430,12 +430,14 @@ public:
     /*!
      * Update class members.
      *
+     * @param panelLatitude Latitude of the panel this radiosity model belongs to
+     * @param panelLongitude Longitude of the panel this radiosity model belongs to
      * @param currentTime Current simulation time
      */
-    virtual void updateMembers(
-            double panelLatitude,
-            double panelLongitude,
-            double currentTime) {};
+    void updateMembers(
+            const double panelLatitude,
+            const double panelLongitude,
+            const double currentTime);
 
     /*!
      * Clone this object.
@@ -443,6 +445,25 @@ public:
      * @return A clone of this object
      */
     virtual std::unique_ptr<PanelRadiosityModel> clone() const = 0;
+
+protected:
+    virtual void updateMembers_(
+            const double panelLatitude,
+            const double panelLongitude,
+            const double currentTime) {};
+
+    /*!
+     * Whether the radiosity model is invariant with time. If yes, its members will not be updated even if the time
+     * changed, it will only be updated when the latitude/longitude change. The time invariance is usually determined
+     * by the albedo/emissivity distribution.
+     *
+     * @return Whether the radiosity model is invariant with time
+     */
+    virtual bool isTimeInvariant() = 0;
+
+    double currentTime_{TUDAT_NAN};
+    double panelLatitude_{TUDAT_NAN};
+    double panelLongitude_{TUDAT_NAN};
 };
 
 /*!
@@ -478,11 +499,6 @@ public:
             double originalSourceIrradiance,
             const Eigen::Vector3d& originalSourceToSourceDirection) const override;
 
-    void updateMembers(
-            double panelLatitude,
-            double panelLongitude,
-            double currentTime) override;
-
     std::unique_ptr<PanelRadiosityModel> clone() const override
     {
         return std::make_unique<AlbedoPanelRadiosityModel>(*this);
@@ -494,6 +510,16 @@ public:
     }
 
 private:
+    void updateMembers_(
+            double panelLatitude,
+            double panelLongitude,
+            double currentTime) override;
+
+    bool isTimeInvariant() override
+    {
+        return albedoDistribution_->isTimeInvariant();
+    }
+
     std::shared_ptr<SurfacePropertyDistribution> albedoDistribution_;
 
     // Reflection law governing reflection of original source radiation
@@ -527,11 +553,6 @@ public:
             double originalSourceIrradiance,
             const Eigen::Vector3d& originalSourceToSourceDirection) const override;
 
-    void updateMembers(
-            double panelLatitude,
-            double panelLongitude,
-            double currentTime) override;
-
     std::unique_ptr<PanelRadiosityModel> clone() const override
     {
         return std::make_unique<DelayedThermalPanelRadiosityModel>(*this);
@@ -543,6 +564,16 @@ public:
     }
 
 private:
+    void updateMembers_(
+            double panelLatitude,
+            double panelLongitude,
+            double currentTime) override;
+
+    bool isTimeInvariant() override
+    {
+        return emissivityDistribution_->isTimeInvariant();
+    }
+
     std::shared_ptr<SurfacePropertyDistribution> emissivityDistribution_;
     double emissivity{TUDAT_NAN};
 };
@@ -582,10 +613,6 @@ public:
             double originalSourceIrradiance,
             const Eigen::Vector3d& originalSourceToSourceDirection) const override;
 
-    void updateMembers(
-            double panelLatitude,
-            double panelLongitude,
-            double currentTime) override;
 
     std::unique_ptr<PanelRadiosityModel> clone() const override
     {
@@ -608,6 +635,16 @@ public:
     }
 
 private:
+    void updateMembers_(
+            double panelLatitude,
+            double panelLongitude,
+            double currentTime) override;
+
+    bool isTimeInvariant() override
+    {
+        return emissivityDistribution_->isTimeInvariant();
+    }
+
     double minTemperature_;
     double maxTemperature_;
     std::shared_ptr<SurfacePropertyDistribution> emissivityDistribution_;
