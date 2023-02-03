@@ -13,8 +13,8 @@
 #include <map>
 #include <vector>
 
-#include <boost/make_shared.hpp>
-#include <boost/bind/bind.hpp>
+
+
 
 #include "tudat/math/basic/mathematicalConstants.h"
 
@@ -23,7 +23,7 @@
 #include "tudat/astro/ephemerides/compositeEphemeris.h"
 #include "tudat/astro/ephemerides/constantEphemeris.h"
 
-using namespace boost::placeholders;
+
 
 namespace tudat
 {
@@ -264,7 +264,7 @@ getTranslationFunctionsFromIntegrationFrameToEphemerisFrame(
     if( centralBodies.size( ) != bodiesToIntegrate.size( ) )
     {
         throw std::runtime_error(
-         "Error when making translation functrions from integration to ephemeris frame, input vector sizes inconsistent" );
+         "Error when making translation functions from integration to ephemeris frame, input vector sizes inconsistent" );
     }
     else
     {

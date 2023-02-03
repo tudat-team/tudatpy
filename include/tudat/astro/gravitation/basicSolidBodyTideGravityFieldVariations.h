@@ -13,7 +13,7 @@
 
 #include <functional>
 #include <boost/multi_array.hpp>
-#include <boost/bind/bind.hpp>
+
 
 #include <Eigen/Core>
 #include <Eigen/Geometry>
@@ -27,7 +27,7 @@
 #include "tudat/math/basic/legendrePolynomials.h"
 #include "tudat/astro/gravitation/gravityFieldVariations.h"
 
-using namespace boost::placeholders;
+
 
 namespace tudat
 {

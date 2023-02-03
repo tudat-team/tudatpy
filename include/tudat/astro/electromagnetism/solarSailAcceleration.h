@@ -20,7 +20,7 @@
 #include <functional>
 #include <memory>
 #include <boost/lambda/lambda.hpp>
-#include <boost/shared_ptr.hpp>
+
 #include <iostream>
 
 #include <Eigen/Core>

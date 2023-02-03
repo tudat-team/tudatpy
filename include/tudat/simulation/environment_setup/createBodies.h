@@ -18,6 +18,7 @@
 #include "tudat/simulation/environment_setup/createEphemeris.h"
 #include "tudat/simulation/environment_setup/createAtmosphereModel.h"
 #include "tudat/simulation/environment_setup/createBodyShapeModel.h"
+#include "tudat/simulation/environment_setup/createBodyDeformationModel.h"
 #include "tudat/simulation/environment_setup/createEphemeris.h"
 #include "tudat/simulation/environment_setup/createGravityField.h"
 #include "tudat/simulation/environment_setup/createGroundStations.h"
@@ -68,7 +69,10 @@ struct BodySettings
     //! Settings for variations of the gravity field of the body.
     std::vector< std::shared_ptr< GravityFieldVariationSettings > > gravityFieldVariationSettings;
 
+    std::vector< std::shared_ptr< BodyDeformationSettings > > bodyDeformationSettings;
+
     std::vector< std::shared_ptr< GroundStationSettings > > groundStationSettings;
+
 
 };
 
@@ -99,6 +103,11 @@ public:
 
     std::shared_ptr< BodySettings > at( const std::string& bodyName ) const
     {
+        if( bodySettings_.count( bodyName ) == 0 )
+        {
+            throw std::runtime_error( "Error when retrieving body settings for " + bodyName + ", no such body exist in this object." );
+        }
+
         return bodySettings_.at( bodyName );
     }
 
@@ -176,8 +185,163 @@ std::vector< std::pair< std::string, std::shared_ptr< BodySettings > > > determi
  *  pointers to an object of class BodySettings
  *  \return List of bodies created according to settings in bodySettings.
  */
+template< typename StateScalarType = double , typename TimeType = double >
 SystemOfBodies createSystemOfBodies(
-        const BodyListSettings& bodySettings );
+        const BodyListSettings& bodySettings )
+{
+    std::vector< std::pair< std::string, std::shared_ptr< BodySettings > > > orderedBodySettings
+            = determineBodyCreationOrder( bodySettings.getMap( ) );
+
+    // Declare map of bodies that is to be returned.
+    SystemOfBodies bodyList = SystemOfBodies(
+                bodySettings.getFrameOrigin( ), bodySettings.getFrameOrientation( ) );
+
+    // Create empty body objects.
+    for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
+    {
+        bodyList.createEmptyBody( orderedBodySettings.at( i ).first, false );
+    }
+
+    // Define constant mass for each body (if required).
+    for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
+    {
+        const double constantMass = orderedBodySettings.at( i ).second->constantMass;
+        if ( constantMass == constantMass )
+        {
+            bodyList.at( orderedBodySettings.at( i ).first )->setConstantBodyMass( constantMass );
+        }
+    }
+
+    // Create ephemeris objects for each body (if required).
+    for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
+    {
+        if( orderedBodySettings.at( i ).second->ephemerisSettings != nullptr )
+        {
+            bodyList.at( orderedBodySettings.at( i ).first )->setEphemeris(
+                        createBodyEphemeris< StateScalarType, TimeType >(
+                            orderedBodySettings.at( i ).second->ephemerisSettings,
+                                             orderedBodySettings.at( i ).first ) );
+        }
+    }
+
+    // Create atmosphere model objects for each body (if required).
+    for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
+    {
+        if( orderedBodySettings.at( i ).second->atmosphereSettings != nullptr )
+        {
+            bodyList.at( orderedBodySettings.at( i ).first )->setAtmosphereModel(
+                        createAtmosphereModel( orderedBodySettings.at( i ).second->atmosphereSettings,
+                                               orderedBodySettings.at( i ).first ) );
+        }
+    }
+
+    // Create body shape model objects for each body (if required).
+    for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
+    {
+        if( orderedBodySettings.at( i ).second->shapeModelSettings != nullptr )
+        {
+            bodyList.at( orderedBodySettings.at( i ).first )->setShapeModel(
+                        createBodyShapeModel( orderedBodySettings.at( i ).second->shapeModelSettings,
+                                              orderedBodySettings.at( i ).first ) );
+        }
+    }
+
+    // Create rotation model objects for each body (if required).
+    for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
+    {
+        if( orderedBodySettings.at( i ).second->rotationModelSettings != nullptr )
+        {
+            bodyList.at( orderedBodySettings.at( i ).first )->setRotationalEphemeris(
+                        createRotationModel( orderedBodySettings.at( i ).second->rotationModelSettings,
+                                             orderedBodySettings.at( i ).first, bodyList ) );
+        }
+    }
+
+    // Create gravity field model objects for each body (if required).
+    for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
+    {
+        if( orderedBodySettings.at( i ).second->gravityFieldSettings != nullptr )
+        {
+            bodyList.at( orderedBodySettings.at( i ).first )->setGravityFieldModel(
+                        createGravityFieldModel( orderedBodySettings.at( i ).second->gravityFieldSettings,
+                                                 orderedBodySettings.at( i ).first, bodyList,
+                                                 orderedBodySettings.at( i ).second->gravityFieldVariationSettings ) );
+        }
+    }
+
+    for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
+    {
+        if( orderedBodySettings.at( i ).second->gravityFieldVariationSettings.size( ) > 0 )
+        {
+            bodyList.at( orderedBodySettings.at( i ).first )->setGravityFieldVariationSet(
+                        createGravityFieldModelVariationsSet(
+                            orderedBodySettings.at( i ).first, bodyList,
+                            orderedBodySettings.at( i ).second->gravityFieldVariationSettings ) );
+        }
+    }
+
+    // Create aerodynamic coefficient interface objects for each body (if required).
+    for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
+    {
+        if( orderedBodySettings.at( i ).second->aerodynamicCoefficientSettings != nullptr )
+        {
+            bodyList.at( orderedBodySettings.at( i ).first )->setAerodynamicCoefficientInterface(
+                        createAerodynamicCoefficientInterface(
+                            orderedBodySettings.at( i ).second->aerodynamicCoefficientSettings,
+                            orderedBodySettings.at( i ).first ) );
+        }
+    }
+
+
+    // Create radiation pressure coefficient objects for each body (if required).
+    for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
+    {
+        std::map< std::string, std::shared_ptr< RadiationPressureInterfaceSettings > >
+                radiationPressureSettings
+                = orderedBodySettings.at( i ).second->radiationPressureSettings;
+        for( std::map< std::string, std::shared_ptr< RadiationPressureInterfaceSettings > >::iterator
+             radiationPressureSettingsIterator = radiationPressureSettings.begin( );
+             radiationPressureSettingsIterator != radiationPressureSettings.end( );
+             radiationPressureSettingsIterator++ )
+        {
+            bodyList.at( orderedBodySettings.at( i ).first )->setRadiationPressureInterface(
+                        radiationPressureSettingsIterator->first,
+                        createRadiationPressureInterface(
+                            radiationPressureSettingsIterator->second,
+                            orderedBodySettings.at( i ).first, bodyList ) );
+        }
+
+    }
+
+    for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
+    {
+        if( orderedBodySettings.at( i ).second->bodyDeformationSettings.size( ) > 0 )
+        {
+            for( unsigned int j = 0; j < orderedBodySettings.at( i ).second->bodyDeformationSettings.size( ); j++ )
+            {
+                bodyList.at( orderedBodySettings.at( i ).first )->addBodyDeformationModel(
+                            createBodyDeformationModel(
+                                orderedBodySettings.at( i ).second->bodyDeformationSettings.at( j ),
+                                orderedBodySettings.at( i ).first, bodyList ) );
+            }
+        }
+    }
+
+
+    for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
+    {
+        for( unsigned int j = 0; j < orderedBodySettings.at( i ).second->groundStationSettings.size( ); j++ )
+        {
+            createGroundStation( bodyList.at( orderedBodySettings.at( i ).first ),
+                     orderedBodySettings.at( i ).second->groundStationSettings.at( j ) );
+        }
+    }
+
+    bodyList.processBodyFrameDefinitions( );
+
+    return bodyList;
+
+}
 
 //! Function to create a simplified system of bodies
 /*!

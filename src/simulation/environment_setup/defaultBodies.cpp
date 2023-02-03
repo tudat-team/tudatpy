@@ -379,6 +379,62 @@ BodyListSettings getDefaultBodySettings(
     return BodyListSettings( settingsMap, baseFrameOrigin, baseFrameOrientation );
 }
 
+std::vector< std::shared_ptr< GroundStationSettings > > getDsnStationSettings( )
+{
+    std::map< std::string, Eigen::Vector3d > dsnStationPositions = {
+        { "DSS-13", ( Eigen::Vector3d( )<< -2351112.659, -4655530.636, +3660912.728 ).finished( ) },
+        { "DSS-14", ( Eigen::Vector3d( )<< -2353621.420, -4641341.472, +3677052.318 ).finished( ) },
+        { "DSS-15", ( Eigen::Vector3d( )<< -2353538.958, -4641649.429, +3676669.984 ).finished( ) },
+        { "DSS-24", ( Eigen::Vector3d( )<< -2354906.711, -4646840.095, +3669242.325 ).finished( ) },
+        { "DSS-25", ( Eigen::Vector3d( )<< -2355022.014, -4646953.204, +3669040.567 ).finished( ) },
+        { "DSS-26", ( Eigen::Vector3d( )<< -2354890.797, -4647166.328, +3668871.755 ).finished( ) },
+        { "DSS-34", ( Eigen::Vector3d( )<< -4461147.093, +2682439.239, -3674393.133 ).finished( ) },
+        { "DSS-35", ( Eigen::Vector3d( )<< -4461273.090, +2682568.925, -3674152.093 ).finished( ) },
+        { "DSS-36", ( Eigen::Vector3d( )<< -4461168.415, +2682814.657, -3674083.901 ).finished( ) },
+        { "DSS-43", ( Eigen::Vector3d( )<< -4460894.917, +2682361.507, -3674748.152 ).finished( ) },
+        { "DSS-45", ( Eigen::Vector3d( )<< -4460935.578, +2682765.661, -3674380.982 ).finished( ) },
+        { "DSS-54", ( Eigen::Vector3d( )<< +4849434.488, -360723.8999, +4114618.835 ).finished( ) },
+        { "DSS-55", ( Eigen::Vector3d( )<< +4849525.256, -360606.0932, +4114495.084 ).finished( ) },
+        { "DSS-63", ( Eigen::Vector3d( )<< +4849092.518, -360180.3480, +4115109.251 ).finished( ) },
+        { "DSS-65", ( Eigen::Vector3d( )<< +4849339.634, -360427.6630, +4114750.733 ).finished( ) } };
+
+    std::shared_ptr< GroundStationMotionSettings > goldstoneStationMotion =
+            std::make_shared< LinearGroundStationMotionSettings >(
+                ( Eigen::Vector3d( )<< -0.0180, 0.0065, -0.0038 ).finished( ) / physical_constants::JULIAN_YEAR,
+                3.0 * physical_constants::JULIAN_YEAR );
+    std::shared_ptr< GroundStationMotionSettings > canberraStationMotion =
+            std::make_shared< LinearGroundStationMotionSettings >(
+                ( Eigen::Vector3d( )<< -0.0335, -0.0041, 0.0392 ).finished( ) / physical_constants::JULIAN_YEAR,
+                3.0 * physical_constants::JULIAN_YEAR );
+    std::shared_ptr< GroundStationMotionSettings > madridStationMotion =
+            std::make_shared< LinearGroundStationMotionSettings >(
+                ( Eigen::Vector3d( )<< -0.0100, -0.0242, 0.0156  ).finished( ) / physical_constants::JULIAN_YEAR,
+                3.0 * physical_constants::JULIAN_YEAR );
+    std::vector< std::shared_ptr< GroundStationSettings > > stationSettingsList;
+
+    for( auto it : dsnStationPositions )
+    {
+        std::shared_ptr< GroundStationSettings > stationSettings  =
+                std::make_shared< GroundStationSettings >( it.first, it.second );
+        if( it.first[ 4 ] == '1' || it.first[ 4 ] == '2' )
+        {
+            stationSettings->addStationMotionSettings( goldstoneStationMotion );
+        }
+        else if( it.first[ 4 ] == '3' || it.first[ 4 ] == '4' )
+        {
+            stationSettings->addStationMotionSettings( canberraStationMotion );
+        }
+        else if( it.first[ 4 ] == '5' || it.first[ 4 ] == '6' )
+        {
+            stationSettings->addStationMotionSettings( madridStationMotion );
+        }
+        stationSettingsList.push_back( stationSettings );
+    }
+
+    return stationSettingsList;
+}
+
+
 } // namespace simulation_setup
 
 } // namespace tudat

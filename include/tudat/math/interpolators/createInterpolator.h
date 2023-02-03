@@ -13,7 +13,7 @@
 
 #include <iostream>
 
-#include <boost/make_shared.hpp>
+
 #include <memory>
 
 #include "tudat/math/interpolators/linearInterpolator.h"
@@ -58,7 +58,7 @@ public:
                           const bool useLongDoubleTimeStep = false,
                           const std::vector< BoundaryInterpolationType >& boundaryHandling = std::vector< BoundaryInterpolationType >( ) ) :
         interpolatorType_( interpolatorType ), selectedLookupScheme_( selectedLookupScheme ),
-        useLongDoubleTimeStep_( useLongDoubleTimeStep ), boundaryHandling_( boundaryHandling )
+        boundaryHandling_( boundaryHandling )
     {
         // Check that if interpolator type matches with number of dimensions
         std::vector< bool > isMethodOneDimensional = std::vector< bool >( 6, true );
@@ -117,26 +117,6 @@ public:
         return selectedLookupScheme_;
     }
 
-    //! Function to reset the use of long double type for time step.
-    /*!
-     * Function to reset the use of long double type for time step.
-     * \param useLongDoubleTimeStep Boolean denoting whether time step is to be a long double.
-     */
-    void resetUseLongDoubleTimeStep( const bool useLongDoubleTimeStep )
-    {
-        useLongDoubleTimeStep_ = useLongDoubleTimeStep;
-    }
-
-    //! Function to get a boolean denoting whether time step is to be a long double.
-    /*!
-     * Function to get a boolean denoting whether time step is to be a long double.
-     * \return Boolean denoting whether time step is to be a long double.
-     */
-    bool getUseLongDoubleTimeStep( )
-    {
-        return useLongDoubleTimeStep_;
-    }
-
     //! Function to retrieve boundary handling method.
     /*!
      * Function to retrieve boundary handling method.
@@ -154,9 +134,6 @@ protected:
 
     //! Selected type of lookup scheme for independent variables.
     AvailableLookupScheme selectedLookupScheme_;
-
-    //! Boolean denoting whether time step is to be a long double.
-    bool useLongDoubleTimeStep_;
 
     //! Boundary handling method.
     std::vector< BoundaryInterpolationType > boundaryHandling_;
@@ -512,20 +489,10 @@ createOneDimensionalInterpolator(
         break;
     case cubic_spline_interpolator:
     {
-        if( !interpolatorSettings->getUseLongDoubleTimeStep( ) )
-        {
             createdInterpolator = std::make_shared< CubicSplineInterpolator
                     < IndependentVariableType, DependentVariableType > >(
                         dataToInterpolate, interpolatorSettings->getSelectedLookupScheme( ),
                         interpolatorSettings->getBoundaryHandling( ).at( 0 ) );
-        }
-        else
-        {
-            createdInterpolator = std::make_shared< CubicSplineInterpolator
-                    < IndependentVariableType, DependentVariableType, long double > >(
-                        dataToInterpolate, interpolatorSettings->getSelectedLookupScheme( ),
-                        interpolatorSettings->getBoundaryHandling( ).at( 0 ), defaultExtrapolationValue );
-        }
         break;
     }
     case lagrange_interpolator:
@@ -535,25 +502,13 @@ createOneDimensionalInterpolator(
                 std::dynamic_pointer_cast< LagrangeInterpolatorSettings >( interpolatorSettings );
         if( lagrangeInterpolatorSettings != nullptr )
         {
-            // Create Lagrange interpolator with requested time step type
-            if( !lagrangeInterpolatorSettings->getUseLongDoubleTimeStep( ) )
-            {
                 createdInterpolator = std::make_shared< LagrangeInterpolator
                         < IndependentVariableType, DependentVariableType, double > >(
                             dataToInterpolate, lagrangeInterpolatorSettings->getInterpolatorOrder( ),
                             interpolatorSettings->getSelectedLookupScheme( ),
                             lagrangeInterpolatorSettings->getLagrangeBoundaryHandling( ),
                             interpolatorSettings->getBoundaryHandling( ).at( 0 ), defaultExtrapolationValue );
-            }
-            else
-            {
-                createdInterpolator = std::make_shared< LagrangeInterpolator
-                        < IndependentVariableType, DependentVariableType, long double > >(
-                            dataToInterpolate, lagrangeInterpolatorSettings->getInterpolatorOrder( ),
-                            interpolatorSettings->getSelectedLookupScheme( ),
-                            lagrangeInterpolatorSettings->getLagrangeBoundaryHandling( ),
-                            interpolatorSettings->getBoundaryHandling( ).at( 0 ), defaultExtrapolationValue );
-            }
+
         }
         else
         {

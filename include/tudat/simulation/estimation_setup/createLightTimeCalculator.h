@@ -44,7 +44,9 @@ createLightTimeCalculator(
         const simulation_setup::SystemOfBodies& bodies,
         const std::vector< std::shared_ptr< LightTimeCorrectionSettings > >& lightTimeCorrections,
         const LinkEndId& transmittingLinkEnd,
-        const LinkEndId& receivingLinkEnd )
+        const LinkEndId& receivingLinkEnd,
+        const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria
+        = std::make_shared< LightTimeConvergenceCriteria >( )  )
 {
     std::vector< std::shared_ptr< LightTimeCorrection > > lightTimeCorrectionFunctions;
 
@@ -59,7 +61,8 @@ createLightTimeCalculator(
 
     // Create light time calculator.
     return std::make_shared< LightTimeCalculator< ObservationScalarType, TimeType > >
-            ( transmitterCompleteEphemeris, receiverCompleteEphemeris, lightTimeCorrectionFunctions );
+            ( transmitterCompleteEphemeris, receiverCompleteEphemeris, lightTimeCorrectionFunctions,
+              lightTimeConvergenceCriteria );
 }
 
 //! Function to create a light-time calculation object
@@ -79,7 +82,9 @@ createLightTimeCalculator(
         const LinkEndId& receivingLinkEnd,
         const simulation_setup::SystemOfBodies& bodies,
         const std::vector< std::shared_ptr< LightTimeCorrectionSettings > >& lightTimeCorrections =
-        std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ) )
+        std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
+        const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria
+        = std::make_shared< LightTimeConvergenceCriteria >( ) )
 {
 
     // Get link end state functions and create light time calculator.
@@ -88,7 +93,7 @@ createLightTimeCalculator(
                     transmittingLinkEnd, bodies ),
                 simulation_setup::getLinkEndCompleteEphemerisFunction< TimeType, ObservationScalarType >(
                     receivingLinkEnd, bodies ),
-                bodies, lightTimeCorrections, transmittingLinkEnd, receivingLinkEnd );
+                bodies, lightTimeCorrections, transmittingLinkEnd, receivingLinkEnd, lightTimeConvergenceCriteria );
 }
 
 } // namespace observation_models

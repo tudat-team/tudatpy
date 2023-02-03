@@ -16,7 +16,7 @@
 #include <thread>
 
 
-#include <boost/make_shared.hpp>
+
 #include <boost/test/unit_test.hpp>
 
 #include <Eigen/Geometry>

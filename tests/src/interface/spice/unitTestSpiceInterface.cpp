@@ -26,9 +26,9 @@
 #define BOOST_TEST_MAIN
 
 #include <boost/test/unit_test.hpp>
-#include <boost/make_shared.hpp>
-#include <boost/bind/bind.hpp>
-using namespace boost::placeholders;
+
+
+
 
 #include <functional>
 #include <memory>
@@ -477,7 +477,7 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_7 )
     spiceKernelsLoaded = getTotalCountOfKernelsLoaded( );
 
     // Loaded kernels should be 4.
-    BOOST_CHECK_EQUAL( spiceKernelsLoaded, 11 );
+    BOOST_CHECK_EQUAL( spiceKernelsLoaded, 12 );
 
     // Clear all Spice kernels.
     clearSpiceKernels( );

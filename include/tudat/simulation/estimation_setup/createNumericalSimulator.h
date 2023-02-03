@@ -45,9 +45,7 @@ std::shared_ptr< propagators::SingleArcDynamicsSimulator< StateScalarType, TimeT
         const bool setIntegratedResult = true )
 {
     return std::make_shared< propagators::SingleArcDynamicsSimulator< StateScalarType, TimeType > >(
-                bodies,
-                propagatorSettings, areEquationsOfMotionToBeIntegrated, clearNumericalSolutions,
-                setIntegratedResult );
+                bodies,propagatorSettings, areEquationsOfMotionToBeIntegrated, propagators::PredefinedSingleArcStateDerivativeModels< StateScalarType, TimeType >( ) );
 }
 
 template< typename StateScalarType = double, typename TimeType = double >
@@ -60,7 +58,7 @@ std::shared_ptr< propagators::DynamicsSimulator< StateScalarType, TimeType > > c
     {
         return std::make_shared< propagators::SingleArcDynamicsSimulator< StateScalarType, TimeType > >(
                     bodies, std::dynamic_pointer_cast< propagators::SingleArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ),
-                    areEquationsOfMotionToBeIntegrated );
+                    areEquationsOfMotionToBeIntegrated, propagators::PredefinedSingleArcStateDerivativeModels< StateScalarType, TimeType >( ) );
     }
     else if( std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ) != nullptr )
     {
@@ -71,8 +69,8 @@ std::shared_ptr< propagators::DynamicsSimulator< StateScalarType, TimeType > > c
     else if( std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< StateScalarType > >( propagatorSettings ) != nullptr )
     {
         return std::make_shared< propagators::HybridArcDynamicsSimulator< StateScalarType, TimeType > >(
-                    bodies, std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< StateScalarType > >( propagatorSettings ),
-                    areEquationsOfMotionToBeIntegrated );
+                    bodies, std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ),
+                    areEquationsOfMotionToBeIntegrated, false );
     }
     else
     {
@@ -109,7 +107,7 @@ createVariationalEquationsSolver(
     {
         return std::make_shared< propagators::SingleArcVariationalEquationsSolver< StateScalarType, TimeType > >(
                     bodies, std::dynamic_pointer_cast< propagators::SingleArcPropagatorSettings< StateScalarType, TimeType > >(
-                        propagatorSettings ), parametersToEstimate, integrateEquationsOnCreation );
+                        propagatorSettings ), parametersToEstimate, true, integrateEquationsOnCreation );
     }
     else if( std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ) != nullptr )
     {
@@ -140,6 +138,7 @@ createVariationalEquationsSolver(
 template< typename StateScalarType, typename TimeType >
 std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > createStateTransitionAndSensitivityMatrixInterface(
         const std::shared_ptr< propagators::PropagatorSettings< StateScalarType > > propagatorSettings,
+        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate,
         const int dynamicalStateSize,
         const int totalParameterSize )
 {
@@ -154,11 +153,12 @@ std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterfa
     else if( std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ) != nullptr )
     {
         return  std::make_shared<
-                propagators::MultiArcCombinedStateTransitionAndSensitivityMatrixInterface >(
+                propagators::MultiArcCombinedStateTransitionAndSensitivityMatrixInterface< StateScalarType > >(
                     std::vector< std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > >( ),
                     std::vector< std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > >( ),
                     std::vector< double >( ),
                     std::vector< double >( ),
+                    parametersToEstimate,
                     dynamicalStateSize, totalParameterSize,
                     std::vector< std::vector< std::pair< int, int > > >( ));
     }

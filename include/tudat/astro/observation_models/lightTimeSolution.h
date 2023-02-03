@@ -12,7 +12,7 @@
 #define TUDAT_LIGHT_TIME_SOLUTIONS_H
 
 #include <memory>
-#include <boost/make_shared.hpp>
+
 #include <boost/lexical_cast.hpp>
 #include <functional>
 #include <iostream>
@@ -42,6 +42,107 @@ ObservationScalarType getDefaultLightTimeTolerance( );
 typedef std::function< double(
         const Eigen::Vector6d&, const Eigen::Vector6d&,
         const double, const double ) > LightTimeCorrectionFunction;
+
+enum LightTimeFailureHandling
+{
+    accept_without_warning,
+    print_warning_and_accept,
+    throw_exception
+};
+
+struct LightTimeConvergenceCriteria
+{
+    LightTimeConvergenceCriteria(
+            const bool iterateCorrections = false,
+            const int maximumNumberOfIterations = 50,
+            const double absoluteTolerance = TUDAT_NAN,
+            const LightTimeFailureHandling failureHandling = accept_without_warning):
+        iterateCorrections_( iterateCorrections ),
+        maximumNumberOfIterations_( maximumNumberOfIterations ),
+        failureHandling_( failureHandling ),
+        absoluteTolerance_( absoluteTolerance ) { }
+
+    template< typename ScalarType = double >
+    double getAbsoluteTolerance( )
+    {
+        if( absoluteTolerance_ == absoluteTolerance_ )
+        {
+            return absoluteTolerance_;
+        }
+        else
+        {
+            return getDefaultLightTimeTolerance< ScalarType >( );
+        }
+
+    }
+    bool iterateCorrections_;
+
+    int maximumNumberOfIterations_;
+
+    LightTimeFailureHandling failureHandling_;
+
+protected:
+    double absoluteTolerance_;
+
+};
+
+template< typename ObservationScalarType, typename TimeType >
+bool isLightTimeSolutionConverged(
+        const std::shared_ptr< LightTimeConvergenceCriteria > convergenceCriteria,
+        const ObservationScalarType previousLightTimeCalculation,
+        const ObservationScalarType newLightTimeCalculation,
+        const int numberOfIterations,
+        const double currentCorrection,
+        const TimeType& currentTime,
+        bool& updateLightTimeCorrections )
+{
+    bool isToleranceReached = false;
+    // Check for convergence.
+    if( std::fabs( newLightTimeCalculation - previousLightTimeCalculation ) <
+            convergenceCriteria->getAbsoluteTolerance< ObservationScalarType >( ) )
+    {
+        // If convergence reached, but light-time corrections not iterated,
+        // perform 1 more iteration to check for change in correction.
+        if( !updateLightTimeCorrections )
+        {
+            updateLightTimeCorrections = true;
+        }
+        else
+        {
+            isToleranceReached = true;
+        }
+    }
+    else
+    {
+        // Get out of infinite loop (for instance due to low accuracy state functions,
+        // to stringent tolerance or limit case for trop. corrections).
+        if( numberOfIterations == convergenceCriteria->maximumNumberOfIterations_ )
+        {
+            std::string errorMessage  =
+                    "light time unconverged at level " +
+                    boost::lexical_cast< std::string >(
+                        std::fabs( newLightTimeCalculation - previousLightTimeCalculation ) ) +
+                    "; current light-time corrections are: "  +
+                    std::to_string( currentCorrection ) + " and current time was " +
+                    std::to_string( static_cast< double >( currentTime ) );
+            switch( convergenceCriteria->failureHandling_ )
+            {
+            case accept_without_warning:
+                isToleranceReached = true;
+                break;
+            case print_warning_and_accept:
+                std::cerr<<"Warning, "<<errorMessage<<std::endl;
+                break;
+            case throw_exception:
+                throw std::runtime_error( "Error, " + errorMessage );
+                break;
+            default:
+                throw std::runtime_error( "Error, did not recognize light ime failure handling; " + errorMessage );
+            }
+        }
+    }
+    return isToleranceReached;
+}
 
 //! Class for wrapping a custom light-time correction function
 class LightTimeCorrectionFunctionWrapper: public LightTimeCorrection
@@ -168,19 +269,18 @@ public:
      *  \param positionFunctionOfTransmittingBody State function of transmitter.
      *  \param positionFunctionOfReceivingBody State function of receiver.
      *  \param correctionFunctions List of light-time correction objects.
-     *  \param iterateCorrections Boolean determining whether to recalculate the light-time
-     *  correction during each iteration.
      */
     LightTimeCalculator(
             const std::function< StateType( const TimeType ) > positionFunctionOfTransmittingBody,
             const std::function< StateType( const TimeType ) > positionFunctionOfReceivingBody,
             const std::vector< std::shared_ptr< LightTimeCorrection > > correctionFunctions =
             std::vector< std::shared_ptr< LightTimeCorrection > >( ),
-            const bool iterateCorrections = false ):
+            const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria
+            = std::make_shared< LightTimeConvergenceCriteria >( ) ):
         stateFunctionOfTransmittingBody_( positionFunctionOfTransmittingBody ),
         stateFunctionOfReceivingBody_( positionFunctionOfReceivingBody ),
         correctionFunctions_( correctionFunctions ),
-        iterateCorrections_( iterateCorrections ),
+        lightTimeConvergenceCriteria_( lightTimeConvergenceCriteria ),
         currentCorrection_( 0.0 ){ }
 
     //! Class constructor.
@@ -189,24 +289,23 @@ public:
      *  \param positionFunctionOfTransmittingBody State function of transmitter.
      *  \param positionFunctionOfReceivingBody State function of receiver.
      *  \param correctionFunctions List of light-time correction functions.
-     *  \param iterateCorrections Boolean determining whether to recalculate the light-time
-     *  correction during each iteration.
      */
     LightTimeCalculator(
             const std::function< StateType( const TimeType ) > positionFunctionOfTransmittingBody,
             const std::function< StateType( const TimeType ) > positionFunctionOfReceivingBody,
             const std::vector< LightTimeCorrectionFunction > correctionFunctions,
-            const bool iterateCorrections = false ):
+            const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria
+            = std::make_shared< LightTimeConvergenceCriteria >( ) ):
         stateFunctionOfTransmittingBody_( positionFunctionOfTransmittingBody ),
         stateFunctionOfReceivingBody_( positionFunctionOfReceivingBody ),
-        iterateCorrections_( iterateCorrections ),
+        lightTimeConvergenceCriteria_( lightTimeConvergenceCriteria ),
         currentCorrection_( 0.0 )
     {
         for( unsigned int i = 0; i < correctionFunctions.size( ); i++ )
         {
             correctionFunctions_.push_back(
                         std::make_shared< LightTimeCorrectionFunctionWrapper >(
-                                                correctionFunctions.at( i ) ) );
+                            correctionFunctions.at( i ) ) );
         }
     }
 
@@ -306,7 +405,7 @@ public:
 
         // Set variable determining whether to update the light time each iteration.
         bool updateLightTimeCorrections = false;
-        if( iterateCorrections_ )
+        if( lightTimeConvergenceCriteria_->iterateCorrections_ )
         {
             updateLightTimeCorrections = true;
         }
@@ -335,42 +434,12 @@ public:
                 receiverState = ( stateFunctionOfReceivingBody_( receptionTime ) );
             }
             newLightTimeCalculation = calculateNewLightTimeEstime( receiverState, transmitterState );
+            isToleranceReached = isLightTimeSolutionConverged(
+                        lightTimeConvergenceCriteria_, previousLightTimeCalculation, newLightTimeCalculation, counter,
+                        currentCorrection_, time, updateLightTimeCorrections );
 
-            // Check for convergence.
-            if( std::fabs( newLightTimeCalculation - previousLightTimeCalculation ) < tolerance )
-            {
-                // If convergence reached, but light-time corrections not iterated,
-                // perform 1 more iteration to check for change in correction.
-                if( !updateLightTimeCorrections )
-                {
-                    updateLightTimeCorrections = true;
-                }
-                else
-                {
-                    isToleranceReached = true;
-                }
-            }
-            else
-            {
-                // Get out of infinite loop (for instance due to low accuracy state functions,
-                // to stringent tolerance or limit case for trop. corrections).
-                if( counter == 50 )
-                {
-                    isToleranceReached = true;
-//                    std::string errorMessage  =
-//                            "Warning, light time unconverged at level " +
-//                            boost::lexical_cast< std::string >(
-//                                std::fabs( newLightTimeCalculation - previousLightTimeCalculation ) ) +
-//                            "; current light-time corrections are: "  +
-//                            std::to_string( currentCorrection_ ) + " and input time was " +
-//                            std::to_string( static_cast< double >( time ) );
-//                   std::cerr << errorMessage << std::endl;
-                }
-
-                // Update light time for new iteration.
-                previousLightTimeCalculation = newLightTimeCalculation;
-            }
-
+            // Update light time for new iteration.
+            previousLightTimeCalculation = newLightTimeCalculation;
             counter++;
         }
 
@@ -449,7 +518,8 @@ protected:
      *  whether the light time with new correction violates the convergence. If so,
      *  another iteration is performed.
      */
-    bool iterateCorrections_;
+
+    std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria_;
 
     //! Current light-time correction.
     double currentCorrection_;

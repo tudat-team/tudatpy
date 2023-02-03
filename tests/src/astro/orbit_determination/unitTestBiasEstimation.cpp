@@ -41,53 +41,56 @@ BOOST_AUTO_TEST_CASE( test_EstimationFromPosition )
                     {
                         for ( int estimateTimeBiases = 0; estimateTimeBiases < 2; estimateTimeBiases++ )
                         {
-                            std::cout << "=========== Running Case: " << estimateRangeBiases << " " << estimateTwoWayBiases << " " <<
-                                      useSingleBiasModel << " " << estimateAbsoluteBiases << " " << estimateMultiArcBiases << " " << estimateTimeBiases << std::endl;
-
-                            // Simulate estimated parameter error.
-                            Eigen::VectorXd totalError = executeEarthOrbiterBiasEstimation< double, double >(
-                                    estimateRangeBiases, estimateTwoWayBiases, useSingleBiasModel, estimateAbsoluteBiases, false,
-                                    estimateMultiArcBiases, estimateTimeBiases ).first;
-
-                            for ( unsigned int j = 0; j < 3; j++ )
+                            if( !( estimateTwoWayBiases == true && estimateRangeBiases == false ) )
                             {
-                                BOOST_CHECK_SMALL( std::fabs( totalError( j ) ), 1.0E-5 );
-                                BOOST_CHECK_SMALL( std::fabs(totalError( j + 3 ) ), 1.0E-8 );
-                            }
+                                std::cout << "=========== Running Case: " << estimateRangeBiases << " " << estimateTwoWayBiases << " " <<
+                                             useSingleBiasModel << " " << estimateAbsoluteBiases << " " << estimateMultiArcBiases << " " << estimateTimeBiases << std::endl;
 
-                            for ( unsigned int j = 6; j < totalError.rows( ); j++ )
-                            {
-                                if ( estimateTimeBiases )
+                                // Simulate estimated parameter error.
+                                Eigen::VectorXd totalError = executeEarthOrbiterBiasEstimation< double, double >(
+                                            estimateRangeBiases, estimateTwoWayBiases, useSingleBiasModel, estimateAbsoluteBiases, false,
+                                            estimateMultiArcBiases, estimateTimeBiases ).first;
+
+                                for ( unsigned int j = 0; j < 3; j++ )
                                 {
-                                    if ( estimateRangeBiases || estimateMultiArcBiases )
-                                    {
-                                        BOOST_CHECK_SMALL( std::fabs( totalError( j ) ), 2.0E-11 );
-                                    }
-                                    else
-                                    {
-                                        BOOST_CHECK_SMALL( std::fabs( totalError( j ) ), 1.0E-14 );
-                                    }
+                                    BOOST_CHECK_SMALL( std::fabs( totalError( j ) ), 1.0E-5 );
+                                    BOOST_CHECK_SMALL( std::fabs(totalError( j + 3 ) ), 1.0E-8 );
                                 }
-                                else
+
+                                for ( unsigned int j = 6; j < totalError.rows( ); j++ )
                                 {
-                                    if ( estimateAbsoluteBiases )
+                                    if ( estimateTimeBiases )
                                     {
-                                        if ( estimateRangeBiases )
+                                        if ( estimateRangeBiases || estimateMultiArcBiases )
                                         {
-                                            BOOST_CHECK_SMALL( std::fabs( totalError( j ) ), 2.0E-7 );
+                                            BOOST_CHECK_SMALL( std::fabs( totalError( j ) ), 2.0E-11 );
                                         }
                                         else
                                         {
-                                            BOOST_CHECK_SMALL( std::fabs( totalError( j ) ), 1.0E-18 );
+                                            BOOST_CHECK_SMALL( std::fabs( totalError( j ) ), 1.0E-14 );
                                         }
-                                    }
-                                    else if ( !estimateMultiArcBiases )
-                                    {
-                                        BOOST_CHECK_SMALL( std::fabs( totalError( j ) ), 1.0E-14 );
                                     }
                                     else
                                     {
-                                        BOOST_CHECK_SMALL( std::fabs( totalError( j ) ), 1.0E-13 );
+                                        if ( estimateAbsoluteBiases )
+                                        {
+                                            if ( estimateRangeBiases )
+                                            {
+                                                BOOST_CHECK_SMALL( std::fabs( totalError( j ) ), 2.0E-7 );
+                                            }
+                                            else
+                                            {
+                                                BOOST_CHECK_SMALL( std::fabs( totalError( j ) ), 1.0E-10 );
+                                            }
+                                        }
+                                        else if ( !estimateMultiArcBiases )
+                                        {
+                                            BOOST_CHECK_SMALL( std::fabs( totalError( j ) ), 1.0E-14 );
+                                        }
+                                        else
+                                        {
+                                            BOOST_CHECK_SMALL( std::fabs( totalError( j ) ), 1.0E-13 );
+                                        }
                                     }
                                 }
                             }

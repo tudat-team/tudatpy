@@ -17,6 +17,7 @@
 #include "tudat/astro/observation_models/observationSimulator.h"
 #include "tudat/astro/orbit_determination/observation_partials/observationPartial.h"
 #include "tudat/astro/propagators/stateTransitionMatrixInterface.h"
+#include "tudat/simulation/propagation_setup/dependentVariablesInterface.h"
 
 namespace tudat
 {
@@ -57,6 +58,7 @@ public:
         if( stateTransitionMatrixInterface_ != nullptr )
         {
             stateTransitionMatrixSize_ = stateTransitionMatrixInterface_->getStateTransitionMatrixSize( );
+//            std::cout << "in observation manager, STM size: " << stateTransitionMatrixSize_ << "\n\n";
         }
         else
         {
@@ -89,7 +91,8 @@ public:
     virtual std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, Eigen::MatrixXd >
     computeObservationsWithPartials( const std::vector< TimeType >& times,
                                      const LinkEnds linkEnds,
-                                     const LinkEndType linkEndAssociatedWithTime ) = 0;
+                                     const LinkEndType linkEndAssociatedWithTime,
+                                     const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings < TimeType > > ancilliarySettings ) = 0;
 
     //! Function (ṕure virtual) to return the object used to simulate noise-free observations
     /*!
@@ -107,9 +110,10 @@ protected:
      *  \param evaluationTime Time at which matrices are to be evaluated
      *  \return Concatenated state transition and sensitivity matrices at given time.
      */
-    Eigen::MatrixXd getCombinedStateTransitionAndSensitivityMatrix( const double evaluationTime )
+    Eigen::MatrixXd getCombinedStateTransitionAndSensitivityMatrix( const double evaluationTime,
+                                                                    const std::vector< std::string >& arcDefiningBodies = std::vector< std::string >( ) )
     {
-        return stateTransitionMatrixInterface_->getFullCombinedStateTransitionAndSensitivityMatrix( evaluationTime );
+        return stateTransitionMatrixInterface_->getFullCombinedStateTransitionAndSensitivityMatrix( evaluationTime, arcDefiningBodies );
     }
 
 
@@ -173,10 +177,12 @@ public:
             const std::map< LinkEnds, std::shared_ptr< observation_partials::PositionPartialScaling  > >
             observationPartialScalers,
             const std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface >
-            stateTransitionMatrixInterface ):
+            stateTransitionMatrixInterface,
+            const std::shared_ptr< propagators::DependentVariablesInterface< TimeType > > dependentVariablesInterface =
+                    std::shared_ptr< propagators::DependentVariablesInterface< TimeType > >( ) ):
         ObservationManagerBase< ObservationScalarType, TimeType >(
             observableType, stateTransitionMatrixInterface, observationPartialScalers ),
-        observationSimulator_( observationSimulator ), observationPartials_( observationPartials ){ }
+        observationSimulator_( observationSimulator ), observationPartials_( observationPartials ), dependentVariablesInterface_( dependentVariablesInterface ){ }
 
     //! Virtual destructor
     virtual ~ObservationManager( ){ }
@@ -227,7 +233,8 @@ public:
     std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, Eigen::MatrixXd >
     computeObservationsWithPartials( const std::vector< TimeType >& times,
                                      const LinkEnds linkEnds,
-                                     const LinkEndType linkEndAssociatedWithTime )
+                                     const LinkEndType linkEndAssociatedWithTime,
+                                     const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings < TimeType > > ancilliarySettings )
     {
         // Initialize return vectors.
         std::map< TimeType, Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > > observations;
@@ -252,16 +259,20 @@ public:
 
             // Compute observation
             currentObservation = selectedObservationModel->computeObservationsWithLinkEndData(
-                        times[ i ], linkEndAssociatedWithTime, vectorOfTimes, vectorOfStates );
+                        times[ i ], linkEndAssociatedWithTime, vectorOfTimes, vectorOfStates, ancilliarySettings );
             observations[ times[ i ] ] = currentObservation;
 
             // Compute observation partial
             currentObservationSize = currentObservation.rows( );
+//            std::cout << "before call to determineObservationPartialMatrix" << "\n\n";
             observationMatrices[ times[ i ] ] = determineObservationPartialMatrix(
                         currentObservationSize, vectorOfStates, vectorOfTimes, linkEnds, currentObservation,
                         linkEndAssociatedWithTime );
+//            std::cout << "after call to determineObservationPartialMatrix" << "\n\n";
 
         }
+
+//        std::cout << "end computeObservationsWithPartials" << "\n\n";
 
         return std::make_pair( utilities::createConcatenatedEigenMatrixFromMapValues( observations ),
                                utilities::createConcatenatedEigenMatrixFromMapValues( observationMatrices ) );
@@ -338,6 +349,8 @@ protected:
             const Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > currentObservation,
             const LinkEndType linkEndAssociatedWithTime )
     {
+//        std::cout << "link end associated with time: " << linkEndAssociatedWithTime << "\n\n";
+
         // Initialize partial vector of observation w.r.t. all parameter.
         int fullParameterVector = stateTransitionMatrixInterface_->getFullParameterVectorSize( );
 
@@ -347,10 +360,22 @@ protected:
         // Initialize list of [Phi;S] matrices at times required by calculation (key)
         std::map< double, Eigen::MatrixXd > combinedStateTransitionMatrices;
 
+//        std::cout << "before update partials" << "\n\n";
         // Perform updates of dependent variables used by (subset of) observation partials.
         updatePartials( states, times, linkEnds, linkEndAssociatedWithTime, currentObservation );
 
         currentLinkEndPartials = observationPartials_[ linkEnds ];
+
+        // Get list of bodies involved in linkEnds
+        std::vector< std::string > bodiesInLinkEnds;
+        for ( auto itr : linkEnds )
+        {
+            if ( std::count( bodiesInLinkEnds.begin( ), bodiesInLinkEnds.end( ), itr.second.bodyName_  ) == 0 )
+            {
+//                std::cout << "BODY INCLUDED IN LINK END: " << itr.second.bodyName_ << "\n\n";
+                bodiesInLinkEnds.push_back( itr.second.bodyName_ );
+            }
+        }
 
         // Iterate over all observation partials associated with given link ends.
         for( typename std::map< std::pair< int, int >, std::shared_ptr<
@@ -358,13 +383,32 @@ protected:
              partialIterator = currentLinkEndPartials.begin( );
              partialIterator != currentLinkEndPartials.end( ); partialIterator++ )
         {
-            // Get Observation partial start and size indices in parameter veector.
+            // Get Observation partial start and size indices in parameter vector.
             std::pair< int, int > currentIndexInfo = partialIterator->first;
+//            std::cout << "current index info: " << currentIndexInfo.first << " & " << currentIndexInfo.second << "\n\n";
+//            std::cout << "block STM: " << currentIndexInfo.first << " - " << 0 << " & " << currentIndexInfo.second << " - " <<  fullParameterVector << "\n\n";
+//            std::cout << "stateTransitionMatrixSize_: " << stateTransitionMatrixSize_ << "\n\n";
+
+//            std::cout << "param identifier: " << partialIterator->second->getParameterIdentifier( ).second.first << "\n\n";
+            std::vector< std::string > bodiesOfInterestInLinkEnds;
+            for ( unsigned int k = 0  ; k < bodiesInLinkEnds.size( ) ; k++ )
+            {
+                if ( partialIterator->second->getParameterIdentifier( ).second.first == bodiesInLinkEnds.at( k ) )
+                {
+                    bodiesOfInterestInLinkEnds.push_back( bodiesInLinkEnds.at( k ) );
+                }
+            }
+            if ( bodiesOfInterestInLinkEnds.size( ) == 0 )
+            {
+                bodiesOfInterestInLinkEnds = bodiesInLinkEnds;
+            }
 
             // Calculate partials of observation w.r.t. parameters, with associated observation times (single partial
             // can consist of multiple partial matrices, associated at different times)
             std::vector< std::pair< Eigen::Matrix< double, ObservationSize, Eigen::Dynamic >, double > > singlePartialSet =
                     partialIterator->second->calculatePartial( states, times, linkEndAssociatedWithTime, currentObservation.template cast< double >( ) );
+//            std::cout << "size time entry: " << times.size( ) << "\n\n";
+//            std::cout << "first time entry: " << times.at( 0 ) << "\n\n";
 
             //            std::cout<<"Obs. "<<currentObservation.transpose( )<<std::endl;
             //            std::cout<<"Partial "<<singlePartialSet.at( 0 ).first<<std::endl<<std::endl;
@@ -375,27 +419,92 @@ protected:
             {
                 for( unsigned int i = 0; i < singlePartialSet.size( ); i++ )
                 {
+//                    std::cout << "size singlePartialSet: " << singlePartialSet[ i ].first.rows( ) << " & " << singlePartialSet[ i ].first.cols( ) << "\n\n";
+
                     // Evaluate [Phi;S] matrix at each time instant associated with partial, if not yet evaluated.
                     if( combinedStateTransitionMatrices.count( singlePartialSet[ i ].second ) == 0 )
                     {
                         combinedStateTransitionMatrices[ singlePartialSet[ i ].second ] =
-                                this->getCombinedStateTransitionAndSensitivityMatrix( singlePartialSet[ i ].second );
+                                this->getCombinedStateTransitionAndSensitivityMatrix( singlePartialSet[ i ].second, bodiesOfInterestInLinkEnds /*bodiesInLinkEnds*/ );
                     }
 
                     // Add partial of observation h w.r.t. initial state x_{0} (dh/dx_{0}=dh/dx*dx/dx_{0})
                     partialMatrix += ( singlePartialSet[ i ].first ) *
                             combinedStateTransitionMatrices[ singlePartialSet[ i ].second ].block
                             ( currentIndexInfo.first, 0, currentIndexInfo.second, fullParameterVector );
+
+//                    std::cout << "end single partial set" << "\n\n";
                 }
             }
             else
             {
+//                std::cout << "index larger than size STM detected" << "\n\n";
                 for( unsigned int i = 0; i < singlePartialSet.size( ); i++ )
                 {
-                    // Add direct partial of observation w.r.t. parameter.
-                    partialMatrix.block( 0, currentIndexInfo.first, observationSize, currentIndexInfo.second ) +=
-                            singlePartialSet[ i ].first;
+                    // Partial w.r.t. observation time property
+                    if ( isParameterObservationLinkTimeProperty( partialIterator->second->getParameterIdentifier( ).first ) )
+                    {
+//                        partialMatrix.block( 0, currentIndexInfo.first, observationSize, currentIndexInfo.second ) +=
+//                                observationPartialWrtTimeProperty * singlePartialSet[ i ].first;
+
+                        // Iterate (again) over all observation partials to retrieve those associated with given link ends states.
+                        for( auto itr : currentLinkEndPartials )
+                        {
+                            // Get observation partial start and size indices in parameter vector.
+                            std::pair< int, int > indexInfo = itr.first;
+
+                            if( indexInfo.first < stateTransitionMatrixSize_ )
+                            {
+                                // Calculate partials of observation w.r.t. link end states, with associated observation times
+                                // (single partial can consist of multiple partial matrices, associated at different times)
+                                std::vector< std::pair< Eigen::Matrix< double, ObservationSize, Eigen::Dynamic >, double > > linkEndStatePartialSet =
+                                        itr.second->calculatePartial( states, times, linkEndAssociatedWithTime, currentObservation.template cast< double >( ) );
+
+                                for( unsigned int j = 0; j < linkEndStatePartialSet.size( ); j++ )
+                                {
+                                    std::string nameBody = itr.second->getParameterIdentifier( ).second.first;
+                                    int indexLinkEndType = -1;
+                                    for ( auto itrLinkEnds : linkEnds )
+                                    {
+                                        if ( itrLinkEnds.second.bodyName_ == nameBody )
+                                        {
+                                            indexLinkEndType = getLinkEndIndicesForLinkEndTypeAtObservable( this->observableType_, itrLinkEnds.first, linkEnds.size( ) ).at( 0 );
+                                        }
+                                    }
+
+                                    if( indexLinkEndType < 0 )
+                                    {
+                                        throw std::runtime_error( "Error when retrieving partial for time bias; could not find associated link end index.");
+                                    }
+                                    std::shared_ptr< propagators::SingleDependentVariableSaveSettings > totalAccelerationVariable
+                                            = std::make_shared< propagators::SingleDependentVariableSaveSettings >( propagators::total_acceleration_dependent_variable, nameBody );
+
+                                    if( dependentVariablesInterface_ == nullptr )
+                                    {
+                                        throw std::runtime_error( "Error, required dependent variable interfaces, but none found when computing partials." );
+                                    }
+                                    Eigen::VectorXd acceleration = dependentVariablesInterface_->getSingleDependentVariable( totalAccelerationVariable, times.at( indexLinkEndType ) );
+                                    Eigen::Vector6d stateDerivativeVector = Eigen::Vector6d::Zero( );
+                                    stateDerivativeVector.segment( 0, 3 ) = states.at( indexLinkEndType ).segment( 3, 3 );
+                                    stateDerivativeVector.segment( 3, 3 ) = acceleration;
+
+                                    Eigen::MatrixXd partialWrtStateDerivative = ( linkEndStatePartialSet[ j ].first ) * stateDerivativeVector;
+                                    partialMatrix.block( 0, currentIndexInfo.first, observationSize, currentIndexInfo.second ) +=
+                                            partialWrtStateDerivative * singlePartialSet[ i ].first;
+                                }
+                            }
+                        }
+                    }
+
+                    // Partial w.r.t. observation bias
+                    else
+                    {
+                        // Add direct partial of observation w.r.t. parameter.
+                        partialMatrix.block( 0, currentIndexInfo.first, observationSize, currentIndexInfo.second ) +=
+                                singlePartialSet[ i ].first;
+                    }
                 }
+//                std::cout << "end code for index larger than size STM" << "\n\n";
             }
         }
         return partialMatrix;
@@ -417,6 +526,8 @@ protected:
     //! Pre-declared map used in computation of partials.
     std::map< std::pair< int, int >, std::shared_ptr< observation_partials::ObservationPartial< ObservationSize > > >
     currentLinkEndPartials;
+
+    std::shared_ptr< propagators::DependentVariablesInterface< TimeType > > dependentVariablesInterface_;
 
 };
 

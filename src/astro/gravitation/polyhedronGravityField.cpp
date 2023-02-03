@@ -150,8 +150,8 @@ void PolyhedronGravityField::computeEdgeDyads ( )
         edgeNormalFacetB.normalize();
 
         // Check order of vertices for the facet associated with edgeNormalA, and correct the edge normal directions based on that
-        unsigned int vertex0FacetAIndex = TUDAT_NAN, vertex1FacetAIndex = TUDAT_NAN;
-        for (unsigned int facetVertex = 0; facetVertex < 3; ++facetVertex )
+        int vertex0FacetAIndex = -1, vertex1FacetAIndex = -1;
+        for (int facetVertex = 0; facetVertex < 3; ++facetVertex )
         {
             if ( verticesDefiningEachFacet_(facetsDefiningEachEdge_(edge,0), facetVertex) == verticesDefiningEachEdge_(edge, 0) )
             {
@@ -162,6 +162,12 @@ void PolyhedronGravityField::computeEdgeDyads ( )
                 vertex1FacetAIndex = facetVertex;
             }
         }
+
+        if( vertex0FacetAIndex < 0 || vertex1FacetAIndex < 0 )
+        {
+            throw std::runtime_error( "Error when computing edge dyads in polyhedron gravity field; could not identify vertices" );
+        }
+
 
         if (( vertex0FacetAIndex == vertex1FacetAIndex + 1) || ( vertex0FacetAIndex == 0 && vertex1FacetAIndex == 2 ) )
         {

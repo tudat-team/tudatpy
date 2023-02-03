@@ -21,6 +21,7 @@
 #include <functional>
 #include <memory>
 
+//#include "tudat/astro/basic_astro/bodyDeformationModel.h"
 
 namespace tudat
 {
@@ -66,7 +67,7 @@ protected:
 
 };
 
-//! Function to calculate the altitude of a point over a central body from positions of both the
+    //! Function to calculate the altitude of a point over a central body from positions of both the
 //! point and the body (in any frame)
 /*!
  *  Function to calculate the altitude of a point over a central body from positions of both the

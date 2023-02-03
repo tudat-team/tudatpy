@@ -131,7 +131,7 @@ void checkValidityOfRequiredEnvironmentUpdates(
 //! Function that removes propagated states from the updated environment variables
 void removePropagatedStatesFomEnvironmentUpdates(
         std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >& environmentModelsToUpdate,
-        const std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string > > >& integratedStateList )
+        const std::map< IntegratedStateType, std::vector< std::tuple< std::string, std::string, PropagatorType > > >& integratedStateList )
 {
     // Iterate over all propagated states
     for( auto it = integratedStateList.begin( ); it != integratedStateList.end( ); it++ )
@@ -147,7 +147,7 @@ void removePropagatedStatesFomEnvironmentUpdates(
                 {
                     std::vector< std::string > bodiesToUpdate = environmentModelsToUpdate.at( body_translational_state_update );
                     std::vector< std::string >::iterator findIterator =
-                            std::find( bodiesToUpdate.begin( ), bodiesToUpdate.end( ), it->second.at( i ).first );
+                            std::find( bodiesToUpdate.begin( ), bodiesToUpdate.end( ), std::get< 0 >( it->second.at( i ) ) );
 
                     if( findIterator != bodiesToUpdate.end( ) )
                     {
@@ -163,7 +163,7 @@ void removePropagatedStatesFomEnvironmentUpdates(
                 {
                     std::vector< std::string > bodiesToUpdate = environmentModelsToUpdate.at( body_rotational_state_update );
                     std::vector< std::string >::iterator findIterator =
-                            std::find( bodiesToUpdate.begin( ), bodiesToUpdate.end( ), it->second.at( i ).first );
+                            std::find( bodiesToUpdate.begin( ), bodiesToUpdate.end( ), std::get< 0 >( it->second.at( i ) ) );
 
                     if( findIterator != bodiesToUpdate.end( ) )
                     {
@@ -179,7 +179,7 @@ void removePropagatedStatesFomEnvironmentUpdates(
                 {
                     std::vector< std::string > bodiesToUpdate = environmentModelsToUpdate.at( body_mass_update );
                     std::vector< std::string >::iterator findIterator =
-                            std::find( bodiesToUpdate.begin( ), bodiesToUpdate.end( ), it->second.at( i ).first );
+                            std::find( bodiesToUpdate.begin( ), bodiesToUpdate.end( ), std::get< 0 >( it->second.at( i ) ) );
 
                     if( findIterator != bodiesToUpdate.end( ) )
                     {

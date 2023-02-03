@@ -12,7 +12,7 @@
 #ifndef TUDAT_KEPLER_PROPAGATOR_H
 #define TUDAT_KEPLER_PROPAGATOR_H
 
-#include <boost/make_shared.hpp>
+
 
 #include <Eigen/Core>
 

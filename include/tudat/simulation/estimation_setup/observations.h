@@ -13,7 +13,6 @@
 
 #include <vector>
 
-#include <boost/bind.hpp>
 #include <memory>
 #include <functional>
 
@@ -41,13 +40,14 @@ class SingleObservationSet
 public:
     SingleObservationSet(
             const ObservableType observableType,
-            const LinkEnds& linkEnds,
+            const LinkDefinition& linkEnds,
             const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations,
             const std::vector< TimeType > observationTimes,
             const LinkEndType referenceLinkEnd,
             const std::vector< Eigen::VectorXd >& observationsDependentVariables =
             std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >( ),
-            const std::shared_ptr< simulation_setup::ObservationDependentVariableCalculator > dependentVariableCalculator = nullptr ):
+            const std::shared_ptr< simulation_setup::ObservationDependentVariableCalculator > dependentVariableCalculator = nullptr,
+            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings < TimeType > > ancilliarySettings = nullptr ):
         observableType_( observableType ),
         linkEnds_( linkEnds ),
         observations_( observations ),
@@ -55,6 +55,7 @@ public:
         referenceLinkEnd_( referenceLinkEnd ),
         observationsDependentVariables_( observationsDependentVariables ),
         dependentVariableCalculator_( dependentVariableCalculator ),
+        ancilliarySettings_( ancilliarySettings ),
         numberOfObservations_( observations_.size( ) )
     {
         if( observations_.size( ) != observationTimes_.size( ) )
@@ -76,7 +77,7 @@ public:
         return observableType_;
     }
 
-    LinkEnds getLinkEnds( )
+    LinkDefinition getLinkEnds( )
     {
         return linkEnds_;
     }
@@ -144,13 +145,18 @@ public:
                     observationTimes_, observationsDependentVariables_ );
     }
 
+    std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings < TimeType > > getAncilliarySettings( )
+    {
+        return ancilliarySettings_;
+    }
+
 
 
 private:
 
     const ObservableType observableType_;
 
-    const LinkEnds linkEnds_;
+    const LinkDefinition linkEnds_;
 
     const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observations_;
 
@@ -162,9 +168,26 @@ private:
 
     const std::shared_ptr< simulation_setup::ObservationDependentVariableCalculator > dependentVariableCalculator_;
 
+    const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings < TimeType > > ancilliarySettings_;
+
     const int numberOfObservations_;
 
 };
+
+template< typename ObservationScalarType = double, typename TimeType = double,
+          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
+std::map< ObservableType, std::map< LinkEnds, std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > > >
+createSortedObservationSetList( const std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > observationSetList )
+{
+   std::map< ObservableType, std::map< LinkEnds, std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > > > sortedObservations;
+   for( unsigned int i = 0; i < observationSetList; i++ )
+   {
+
+       sortedObservations[ observationSetList.at( i )->getObservableType( ) ][ observationSetList.at( i )->getLinkEnds( ).linkEnds_ ] =
+               observationSetList.at( i );
+   }
+   return sortedObservations;
+}
 
 
 template< typename ObservationScalarType = double, typename TimeType = double,
@@ -178,6 +201,14 @@ public:
     ObservationCollection(
             const SortedObservationSets& observationSetList = SortedObservationSets( ) ):
         observationSetList_( observationSetList )
+    {
+        setObservationSetIndices( );
+        setConcatenatedObservationsAndTimes( );
+    }
+
+    ObservationCollection(
+            const std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > observationSetList ):
+        observationSetList_( createSortedObservationSetList< ObservationScalarType, TimeType >( observationSetList ) )
     {
         setObservationSetIndices( );
         setConcatenatedObservationsAndTimes( );
@@ -203,12 +234,26 @@ public:
         return linkEndIds_;
     }
 
+    std::map< int, observation_models::LinkEnds > getInverseLinkEndIdentifierMap( )
+    {
+        return inverseLinkEndIds_;
+    }
+
+
+
 
 
     std::map< ObservableType, std::map< LinkEnds, std::vector< std::pair< int, int > > > > getObservationSetStartAndSize( )
     {
         return observationSetStartAndSize_;
     }
+
+    std::map< ObservableType, std::map< int, std::vector< std::pair< int, int > > > > getObservationSetStartAndSizePerLinkEndIndex( )
+    {
+        return observationSetStartAndSizePerLinkEndIndex_;
+    }
+
+
 
     std::map< ObservableType, std::pair< int, int > > getObservationTypeStartAndSize( )
     {
@@ -227,14 +272,26 @@ public:
 
     std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > getSingleLinkAndTypeObservationSets(
             const ObservableType observableType,
-            const LinkEnds linkEnds )
+            const LinkDefinition linkEnds )
     {
-        return observationSetList_.at( observableType ).at( linkEnds );
+        if( observationSetList_.count( observableType ) == 0 )
+        {
+            throw std::runtime_error( "Error when retrieving observable of type " + observation_models::getObservableName( observableType ) +
+                                      " from observation collection, no such observable exists" );
+        }
+        else if( observationSetList_.at( observableType ).count( linkEnds.linkEnds_ ) == 0 )
+        {
+            throw std::runtime_error( "Error when retrieving observable of type " + observation_models::getObservableName( observableType ) +
+                                      " and link ends " + observation_models::getLinkEndsString( linkEnds.linkEnds_ ) +
+                                      " from observation collection, no such link ends found for observable" );
+        }
+
+        return observationSetList_.at( observableType ).at( linkEnds.linkEnds_ );
     }
 
     Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > getSingleLinkObservations(
             const ObservableType observableType,
-            const LinkEnds& linkEnds )
+            const LinkDefinition& linkEnds )
     {
         if( observationSetStartAndSize_.count( observableType ) == 0 )
         {
@@ -243,7 +300,7 @@ public:
         }
         else
         {
-            if( observationSetStartAndSize_.at( observableType ).count( linkEnds ) == 0 )
+            if( observationSetStartAndSize_.at( observableType ).count( linkEnds.linkEnds_ ) == 0 )
             {
                 throw std::runtime_error( " Error when getting single link observations, not observations of type "
                                           + std::to_string( observableType ) + " for given link ends." );
@@ -251,7 +308,7 @@ public:
             else
             {
                 std::vector< std::pair< int, int > > combinedIndices =
-                        observationSetStartAndSize_.at( observableType ).at( linkEnds );
+                        observationSetStartAndSize_.at( observableType ).at( linkEnds.linkEnds_ );
                 int startIndex = combinedIndices.at( 0 ).first;
                 int finalEntry = combinedIndices.size( ) - 1;
 
@@ -264,7 +321,7 @@ public:
 
     std::vector< TimeType > getSingleLinkTimes(
             const ObservableType observableType,
-            const LinkEnds& linkEnds )
+            const LinkDefinition& linkEnds )
     {
         if( observationSetStartAndSize_.count( observableType ) == 0 )
         {
@@ -273,7 +330,7 @@ public:
         }
         else
         {
-            if( observationSetStartAndSize_.at( observableType ).count( linkEnds ) == 0 )
+            if( observationSetStartAndSize_.at( observableType ).count( linkEnds.linkEnds_ ) == 0 )
             {
                 throw std::runtime_error( " Error when getting single link observations, not observations of type "
                                           + std::to_string( observableType ) + " for given link ends." );
@@ -281,7 +338,7 @@ public:
             else
             {
                 std::vector< std::pair< int, int > > combinedIndices =
-                        observationSetStartAndSize_.at( observableType ).at( linkEnds );
+                        observationSetStartAndSize_.at( observableType ).at( linkEnds.linkEnds_ );
                 int startIndex = combinedIndices.at( 0 ).first;
                 int finalEntry = combinedIndices.size( ) - 1;
 
@@ -295,7 +352,7 @@ public:
 
     std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, std::vector< TimeType > > getSingleLinkObservationsAndTimes(
             const ObservableType observableType,
-            const LinkEnds& linkEnds )
+            const LinkDefinition& linkEnds )
     {
         return std::make_pair( getSingleLinkObservations( observableType, linkEnds ),
                                getSingleLinkTimes( observableType, linkEnds ) );
@@ -304,6 +361,20 @@ public:
     std::vector< LinkEnds > getConcatenatedLinkEndIdNames( )
     {
         return concatenatedLinkEndIdNames_;
+    }
+
+
+    std::map< ObservableType, std::map< int, std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > > > getSortedObservationSets( )
+    {
+        std::map< ObservableType, std::map< int, std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > > > observationSetListIndexSorted;
+        for( auto it1 : observationSetList_ )
+        {
+            for( auto it2 : it1.second )
+            {
+                observationSetListIndexSorted[ it1.first ][ linkEndIds_[ it2.first ] ] = it2.second;
+            }
+        }
+        return observationSetListIndexSorted;
     }
 
 
@@ -370,6 +441,7 @@ private:
                 if( linkEndIds_.count( currentLinkEnds ) == 0 )
                 {
                     linkEndIds_[ currentLinkEnds ] = maximumStationId;
+                    inverseLinkEndIds_[ maximumStationId ] = currentLinkEnds;
                     currentStationId = maximumStationId;
                     maximumStationId++;
                 }
@@ -404,6 +476,14 @@ private:
                 }
             }
         }
+
+        for( auto it1 : observationSetStartAndSize_ )
+        {
+            for( auto it2 : it1.second )
+            {
+                observationSetStartAndSizePerLinkEndIndex_[ it1.first ][ linkEndIds_[ it2.first ] ] = it2.second;
+            }
+        }
     }
 
     const SortedObservationSets observationSetList_;
@@ -418,7 +498,11 @@ private:
 
     std::map< observation_models::LinkEnds, int > linkEndIds_;
 
+    std::map< int, observation_models::LinkEnds > inverseLinkEndIds_;
+
     std::map< ObservableType, std::map< LinkEnds, std::vector< std::pair< int, int > > > > observationSetStartAndSize_;
+
+    std::map< ObservableType, std::map< int, std::vector< std::pair< int, int > > > > observationSetStartAndSizePerLinkEndIndex_;
 
     std::map< ObservableType, std::pair< int, int > > observationTypeStartAndSize_;
 
@@ -550,12 +634,14 @@ template< typename ObservationScalarType = double, typename TimeType = double,
 inline std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > createSingleObservationSet(
         const ObservableType observableType,
         const LinkEnds& linkEnds,
-        const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations,
+        const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >&  observations,
         const std::vector< TimeType > observationTimes,
-        const LinkEndType referenceLinkEnd )
+        const LinkEndType referenceLinkEnd,
+        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings < TimeType > > ancilliarySettings )
 {
     return std::make_shared< SingleObservationSet< ObservationScalarType, TimeType > >(
-                observableType, linkEnds, observations, observationTimes, referenceLinkEnd );
+                observableType, linkEnds, observations, observationTimes, referenceLinkEnd,
+                std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >( ), nullptr, ancilliarySettings );
 }
 
 //template< typename ObservationScalarType = double, typename TimeType = double,
@@ -579,19 +665,27 @@ inline std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > 
 template< typename ObservationScalarType = double, typename TimeType = double >
 inline std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > >  createManualObservationCollection(
         const ObservableType observableType,
-        const LinkEnds& linkEnds,
+        const LinkDefinition& linkEnds,
         const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations,
         const std::vector< TimeType > observationTimes,
-        const LinkEndType referenceLinkEnd )
+        const LinkEndType referenceLinkEnd,
+        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings < TimeType > > ancilliarySettings = nullptr )
 {
     std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > singleObservationSet =
-            createSingleObservationSet( observableType, linkEnds, observations, observationTimes, referenceLinkEnd );
+            createSingleObservationSet( observableType, linkEnds.linkEnds_, observations, observationTimes, referenceLinkEnd,
+                                        ancilliarySettings );
 
     std::map< ObservableType, std::map< LinkEnds, std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > > > observationSetList;
-    observationSetList[ observableType ][ linkEnds ].push_back( singleObservationSet );
+    observationSetList[ observableType ][ linkEnds.linkEnds_ ].push_back( singleObservationSet );
     return std::make_shared< ObservationCollection< ObservationScalarType, TimeType > >( observationSetList );
 }
 
+template< typename ObservationScalarType = double, typename TimeType = double >
+inline std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > >  createManualObservationCollection(
+        std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > singleObservationSets )
+{
+    return std::make_shared< ObservationCollection< ObservationScalarType, TimeType > >( singleObservationSets );
+}
 
 
 } // namespace observation_models

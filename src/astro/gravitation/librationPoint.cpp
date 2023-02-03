@@ -22,8 +22,8 @@
 #include <cmath>
 #include <stdexcept>
 
-#include <boost/bind/bind.hpp>
-using namespace boost::placeholders;
+
+
 
 
 #include "tudat/astro/gravitation/librationPoint.h"

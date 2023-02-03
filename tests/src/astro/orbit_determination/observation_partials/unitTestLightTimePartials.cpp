@@ -22,6 +22,7 @@
 #include "tudat/simulation/estimation_setup/createObservationModel.h"
 #include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
 #include "tudat/simulation/estimation_setup/createLightTimeCorrectionPartials.h"
+#include "tudat/simulation/estimation_setup/createDirectObservationPartials.h"
 #include "tudat/astro/orbit_determination/observation_partials/firstOrderRelativisticPartial.h"
 #include "tudat/support/observationPartialTestFunctions.h"
 
@@ -94,8 +95,8 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartialsWrtLightTimeParameters )
 
         // Create partial objects.
         std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialScaling > > partialList =
-                createOneWayRangePartials( linkEnds, bodies, parametersToEstimate,
-                                           oneWayRangeModel->getLightTimeCalculator( )->getLightTimeCorrection( ) );
+                createSingleLinkObservationPartials< double, 1, double >(
+                    oneWayRangeModel, bodies, parametersToEstimate );
         std::shared_ptr< PositionPartialScaling > positionPartialScaler = partialList.second;
 
         // Compute current observation and link end times/states
@@ -115,7 +116,8 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartialsWrtLightTimeParameters )
 
         // Compute numerical partials for each parameter and compare to analytical result.
         std::function< double( const double ) > observationFunction = std::bind(
-                    &ObservationModel< 1, double, double >::computeObservationEntry, oneWayRangeModel, std::placeholders::_1, transmitter, 0 );
+                    &ObservationModel< 1, double, double >::computeObservationEntry,
+                    oneWayRangeModel, std::placeholders::_1, transmitter, 0, nullptr );
         for( SingleLinkObservationPartialList::iterator partialIterator = partialList.first.begin( ); partialIterator != partialList.first.end( );
              partialIterator++ )
         {
@@ -165,9 +167,6 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartialsWrtLightTimeParameters )
                 observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
                     observationSettings, bodies  );
 
-        std::map< LinkEnds, std::shared_ptr< ObservationModel< 1 > > > oneWayRangeModelMap;
-        oneWayRangeModelMap[ linkEnds ] = oneWayRangeModel;
-
         // Create parameter objects.
         std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
         parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Sun", gravitational_parameter ) );
@@ -181,12 +180,12 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartialsWrtLightTimeParameters )
                 parametersToEstimate->getEstimatedDoubleParameters( );
 
         // Create observation partials.
-        std::shared_ptr< ObservationPartialCreator< 1, double, double > > observationPartialCreator =
-                std::make_shared< ObservationPartialCreator< 1, double, double > >( );
         std::pair< std::map< std::pair< int, int >, std::shared_ptr< ObservationPartial< 1 > > >,
                 std::shared_ptr< PositionPartialScaling > > fullAnalyticalPartialSet =
-                observationPartialCreator->createObservationPartials(
-                    one_way_range, oneWayRangeModelMap, bodies, parametersToEstimate ).begin( )->second;
+                ObservationPartialCreator<1, double, double>::createObservationPartials(
+                     oneWayRangeModel, bodies, parametersToEstimate );
+
+
 
         std::shared_ptr< PositionPartialScaling > positionPartialScaler = fullAnalyticalPartialSet.second;
 
@@ -224,7 +223,7 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartialsWrtLightTimeParameters )
             // Settings for body state partials
             std::function< Eigen::VectorXd( const double ) > observationFunction = std::bind(
                         &ObservationModel< 1, double, double >::computeObservations, oneWayRangeModel, std::placeholders::_1,
-                        linkEndIterator->first );
+                        linkEndIterator->first, nullptr );
 
             // Settings for parameter partial functions.
             std::vector< double > parameterPerturbations = { 1.0E19, 1.0E16, 1.0E15, 1.0E8 };

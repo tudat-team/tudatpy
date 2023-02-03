@@ -14,7 +14,7 @@
 #include <limits>
 
 #include <boost/test/unit_test.hpp>
-#include <boost/make_shared.hpp>
+
 
 #include <Eigen/Core>
 
@@ -308,13 +308,14 @@ BOOST_AUTO_TEST_CASE( test_ephemerisSetup )
             currentTime += 600.0;
         }
 
+        std::cout<<"Size "<<tabulatedStates.size( )<<std::endl;
         // Create tabulated ephemeris.
         std::shared_ptr< EphemerisSettings > tabulatedEphemerisSettings =
                 std::make_shared< TabulatedEphemerisSettings >(
                     tabulatedStates, "Earth", "J2000" );
         std::shared_ptr< ephemerides::Ephemeris > tabulatedEphemeris =
                 createBodyEphemeris( tabulatedEphemerisSettings, "Moon" );
-
+        std::cout<<"Created"<<std::endl;
         // Manually create tabulated ephemeris.
         std::shared_ptr< ephemerides::Ephemeris > manualTabulatedEphemeris =
                 std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(

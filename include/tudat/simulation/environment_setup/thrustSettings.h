@@ -20,8 +20,8 @@
 
 #include <Eigen/Geometry>
 
-#include <boost/bind/bind.hpp>
-using namespace boost::placeholders;
+
+
 
 #include <functional>
 

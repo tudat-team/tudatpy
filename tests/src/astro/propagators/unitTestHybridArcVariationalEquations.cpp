@@ -1,12 +1,12 @@
 /* Copyright (c) 2010-2019, Delft University of Technology
- *    All rigths reserved
- *
- *    This file is part of the Tudat. Redistribution and use in source and
- *    binary forms, with or without modification, are permitted exclusively
- *    under the terms of the Modified BSD license. You should have received
- *    a copy of the license with this file. If not, please or visit:
- *    http://tudat.tudelft.nl/LICENSE.
- */
+*    All rigths reserved
+*
+*    This file is part of the Tudat. Redistribution and use in source and
+*    binary forms, with or without modification, are permitted exclusively
+*    under the terms of the Modified BSD license. You should have received
+*    a copy of the license with this file. If not, please or visit:
+*    http://tudat.tudelft.nl/LICENSE.
+*/
 
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
@@ -15,7 +15,7 @@
 #include <thread>
 
 #include <boost/test/unit_test.hpp>
-#include <boost/make_shared.hpp>
+
 
 #include "tudat/basics/testMacros.h"
 #include "tudat/math/basic/linearAlgebra.h"
@@ -58,8 +58,8 @@ BOOST_AUTO_TEST_SUITE( test_hybrid_arc_variational_equation_calculation )
 
 
 template< typename TimeType = double , typename StateScalarType  = double >
-        std::pair< std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > >,
-std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > >
+std::pair< std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > >,
+        std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > >
 executeHybridArcMarsAndOrbiterSensitivitySimulation(
         const Eigen::Matrix< StateScalarType, 12, 1 > initialStateDifference = Eigen::Matrix< StateScalarType, 12, 1 >::Zero( ),
         const Eigen::VectorXd parameterPerturbation = Eigen::VectorXd::Zero( 2 ),
@@ -95,8 +95,8 @@ executeHybridArcMarsAndOrbiterSensitivitySimulation(
     bodies.createEmptyBody( "Orbiter" );
     bodies.at( "Orbiter" )->setConstantBodyMass( 5.0E3 );
     bodies.at( "Orbiter" )->setEphemeris( std::make_shared< MultiArcEphemeris >(
-                                            std::map< double, std::shared_ptr< Ephemeris > >( ),
-                                            "Mars", "ECLIPJ2000" ) );
+            std::map< double, std::shared_ptr< Ephemeris > >( ),
+            "Mars", "ECLIPJ2000" ) );
     bodies.processBodyFrameDefinitions( );
 
     double referenceAreaRadiation = 4.0;
@@ -105,16 +105,13 @@ executeHybridArcMarsAndOrbiterSensitivitySimulation(
     occultingBodies.push_back( "Earth" );
     std::shared_ptr< RadiationPressureInterfaceSettings > orbiterRadiationPressureSettings =
             std::make_shared< CannonBallRadiationPressureInterfaceSettings >(
-                "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
+                    "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
 
     // Create and set radiation pressure settings
     bodies.at( "Orbiter" )->setRadiationPressureInterface(
-                "Sun", createRadiationPressureInterface(
+            "Sun", createRadiationPressureInterface(
                     orbiterRadiationPressureSettings, "Orbiter", bodies ) );
 
-
-
-    
 
 
     // Set accelerations between bodies that are to be taken into account.
@@ -130,17 +127,17 @@ executeHybridArcMarsAndOrbiterSensitivitySimulation(
     singleArcCentralBodies.push_back( "SSB" );
 
     AccelerationMap singleArcAccelerationModelMap = createAccelerationModelsMap(
-                bodies, singleArcAccelerationMap, singleArcBodiesToIntegrate, singleArcCentralBodies );
+            bodies, singleArcAccelerationMap, singleArcBodiesToIntegrate, singleArcCentralBodies );
     Eigen::VectorXd singleArcInitialStates = getInitialStatesOfBodies(
-                singleArcBodiesToIntegrate, singleArcCentralBodies, bodies, initialEphemerisTime );
+            singleArcBodiesToIntegrate, singleArcCentralBodies, bodies, initialEphemerisTime );
 
     singleArcInitialStates += initialStateDifference.segment(
-                0, singleArcInitialStates.rows( ) );
+            0, singleArcInitialStates.rows( ) );
 
     std::shared_ptr< TranslationalStatePropagatorSettings< > > singleArcPropagatorSettings =
             std::make_shared< TranslationalStatePropagatorSettings< > >(
-                singleArcCentralBodies, singleArcAccelerationModelMap, singleArcBodiesToIntegrate,
-                singleArcInitialStates, finalEphemerisTime );
+                    singleArcCentralBodies, singleArcAccelerationModelMap, singleArcBodiesToIntegrate,
+                    singleArcInitialStates, initialEphemerisTime, rungeKutta4Settings( 30.0 ), propagationTimeTerminationSettings( finalEphemerisTime ) );
 
 
     SelectedAccelerationMap multiArcAccelerationMap;
@@ -156,7 +153,7 @@ executeHybridArcMarsAndOrbiterSensitivitySimulation(
     multiArcCentralBodies.push_back( "Mars" );
 
     AccelerationMap multiArcAccelerationModelMap = createAccelerationModelsMap(
-                bodies, multiArcAccelerationMap, multiArcBodiesToIntegrate, multiArcCentralBodies );
+            bodies, multiArcAccelerationMap, multiArcBodiesToIntegrate, multiArcCentralBodies );
 
     // Creater arc times
     std::vector< double > integrationArcStarts, integrationArcEnds;
@@ -210,9 +207,9 @@ executeHybridArcMarsAndOrbiterSensitivitySimulation(
 
             // Convert state from Keplerian elements to Cartesian elements.
             multiArcSystemInitialStates[ j ]  = convertKeplerianToCartesianElements(
-                        orbiterInitialStateInKeplerianElements,
-                        marsGravitationalParameter ) + initialStateDifference.segment(
-                        singleArcInitialStates.rows( ), 6 );
+                    orbiterInitialStateInKeplerianElements,
+                    marsGravitationalParameter ) + initialStateDifference.segment(
+                    singleArcInitialStates.rows( ), 6 );
         }
     }
     else
@@ -220,18 +217,21 @@ executeHybridArcMarsAndOrbiterSensitivitySimulation(
         for( unsigned int j = 0; j < numberOfIntegrationArcs; j++ )
         {
             multiArcSystemInitialStates[ j ] = forcedMultiArcInitialStates.at( j ) + initialStateDifference.segment(
-                        singleArcInitialStates.rows( ), 6 );
+                    singleArcInitialStates.rows( ), 6 );
         }
     }
+
+    std::shared_ptr< IntegratorSettings< > > multiArcIntegratorSettings = rungeKutta4Settings( 45.0 );
 
     // Create propagation settings for each arc
     std::vector< std::shared_ptr< SingleArcPropagatorSettings< double > > > arcPropagationSettingsList;
     for( unsigned int i = 0; i < numberOfIntegrationArcs; i++ )
     {
         arcPropagationSettingsList.push_back(
-                    std::make_shared< TranslationalStatePropagatorSettings< double > >
-                    ( multiArcCentralBodies, multiArcAccelerationModelMap, multiArcBodiesToIntegrate,
-                      multiArcSystemInitialStates.at( i ), integrationArcEnds.at( i ) ) );
+                std::make_shared< TranslationalStatePropagatorSettings< double > >
+                        ( multiArcCentralBodies, multiArcAccelerationModelMap, multiArcBodiesToIntegrate,
+                          multiArcSystemInitialStates.at( i ), integrationArcStarts.at( i ), multiArcIntegratorSettings,
+                          propagationTimeTerminationSettings( integrationArcEnds.at( i ) ) ) );
     }
 
     std::shared_ptr< MultiArcPropagatorSettings< > > multiArcPropagatorSettings =
@@ -239,16 +239,7 @@ executeHybridArcMarsAndOrbiterSensitivitySimulation(
 
     std::shared_ptr< HybridArcPropagatorSettings< > > hybridArcPropagatorSettings =
             std::make_shared< HybridArcPropagatorSettings< > >(
-                singleArcPropagatorSettings, multiArcPropagatorSettings );
-
-    std::shared_ptr< IntegratorSettings< > > singleArcIntegratorSettings =
-            std::make_shared< IntegratorSettings< > >
-            ( rungeKutta4, initialEphemerisTime, 60.0 );
-
-    std::shared_ptr< IntegratorSettings< > > multiArcIntegratorSettings =
-            std::make_shared< IntegratorSettings< > >
-            ( rungeKutta4, initialEphemerisTime, 45.0 );
-
+                    singleArcPropagatorSettings, multiArcPropagatorSettings );
 
     // Define parameters.
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
@@ -278,19 +269,19 @@ executeHybridArcMarsAndOrbiterSensitivitySimulation(
 
         HybridArcVariationalEquationsSolver< StateScalarType, TimeType > variationalEquations =
                 HybridArcVariationalEquationsSolver< StateScalarType, TimeType >(
-                    bodies, singleArcIntegratorSettings, multiArcIntegratorSettings,
-                    hybridArcPropagatorSettings, parametersToEstimate, integrationArcStarts );
+                        bodies,
+                        hybridArcPropagatorSettings, parametersToEstimate );
 
         // Propagate requested equations.
         if( propagateVariationalEquations )
         {
             variationalEquations.integrateVariationalAndDynamicalEquations(
-                        variationalEquations.getPropagatorSettings( )->getInitialStates( ), 1 );
+                    variationalEquations.getPropagatorSettings( )->getInitialStates( ), 1 );
         }
         else
         {
             variationalEquations.integrateDynamicalEquationsOfMotionOnly(
-                        variationalEquations.getPropagatorSettings( )->getInitialStates( ) );
+                    variationalEquations.getPropagatorSettings( )->getInitialStates( ) );
         }
 
 
@@ -302,35 +293,35 @@ executeHybridArcMarsAndOrbiterSensitivitySimulation(
                     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( 12 );
             testStates.block( 0, 0, 6, 1 ) = bodies.at( "Mars" )->getStateInBaseFrameFromEphemeris( testEpoch );
             testStates.block( 6, 0, 6, 1 ) = bodies.at( "Orbiter" )->getStateInBaseFrameFromEphemeris( testEpoch );/* -
-                    testStates.block( 0, 0, 6, 1 );*/
+        testStates.block( 0, 0, 6, 1 );*/
 
             if( propagateVariationalEquations )
             {
                 results.first.push_back( variationalEquations.getStateTransitionMatrixInterface( )->
-                                         getCombinedStateTransitionAndSensitivityMatrix( testEpoch ) );
+                        getCombinedStateTransitionAndSensitivityMatrix( testEpoch ) );
                 results.second.push_back( hybridArcPropagatorSettings->getMultiArcPropagatorSettings( )->getInitialStateList( ).at( arc ) );
 
                 Eigen::MatrixXd testMatrixDirect =
                         variationalEquations.getStateTransitionMatrixInterface( )->
-                          getCombinedStateTransitionAndSensitivityMatrix( testEpoch );
+                                getCombinedStateTransitionAndSensitivityMatrix( testEpoch );
                 Eigen::MatrixXd testMatrixFull=
                         variationalEquations.getStateTransitionMatrixInterface( )->
-                          getFullCombinedStateTransitionAndSensitivityMatrix( testEpoch );
+                                getFullCombinedStateTransitionAndSensitivityMatrix( testEpoch );
 
                 TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                            testMatrixDirect.block( 0, 0, 12, 6 ),
-                            testMatrixFull.block( 0, 0, 12, 6 ),
-                            std::numeric_limits< double >::epsilon( ) );
+                        testMatrixDirect.block( 0, 0, 12, 6 ),
+                        testMatrixFull.block( 0, 0, 12, 6 ),
+                        std::numeric_limits< double >::epsilon( ) );
 
                 TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                            testMatrixDirect.block( 0, 6, 12, 6 ),
-                            testMatrixFull.block( 0, 6 * ( arc + 1 ), 12, 6 ),
-                            std::numeric_limits< double >::epsilon( ) );
+                        testMatrixDirect.block( 0, 6, 12, 6 ),
+                        testMatrixFull.block( 0, 6 * ( arc + 1 ), 12, 6 ),
+                        std::numeric_limits< double >::epsilon( ) );
 
                 TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                            testMatrixDirect.block( 0, 12, 12, 2 ),
-                            testMatrixFull.block( 0, 18, 12, 2 ),
-                            std::numeric_limits< double >::epsilon( ) );
+                        testMatrixDirect.block( 0, 12, 12, 2 ),
+                        testMatrixFull.block( 0, 18, 12, 2 ),
+                        std::numeric_limits< double >::epsilon( ) );
             }
             else
             {
@@ -356,8 +347,8 @@ BOOST_AUTO_TEST_CASE( testMarsAndOrbiterHybridArcVariationalEquationCalculation 
     // Define parameter perturbation
     parameterPerturbation  = ( Eigen::VectorXd( 2 ) << 1.0E20, 1.0E10 ).finished( );
     statePerturbation = ( Eigen::Matrix< double, 12, 1>( )<<
-                              1.0E10, 1.0E10, 1.0E10, 5.0E4, 5.0E4, 10.0E4,
-                              10.0, 10.0, 10.0, 0.1, 0.1, 0.1 ).finished( );
+                                                          1.0E10, 1.0E10, 1.0E10, 5.0E4, 5.0E4, 10.0E4,
+            10.0, 10.0, 10.0, 0.1, 0.1, 0.1 ).finished( );
 
     for( unsigned int patchArcs = 0; patchArcs < 1; patchArcs++ )
     {
@@ -367,7 +358,7 @@ BOOST_AUTO_TEST_CASE( testMarsAndOrbiterHybridArcVariationalEquationCalculation 
             std::cout<<"Propagating state transition: "<<patchArcs<<" "<<" "<<k<<std::endl;
             // Compute state transition and sensitivity matrices
             currentOutput = executeHybridArcMarsAndOrbiterSensitivitySimulation < double, double >(
-                        Eigen::Matrix< double, 12, 1 >::Zero( ), Eigen::VectorXd::Zero( 2 ), true, patchArcs );
+                    Eigen::Matrix< double, 12, 1 >::Zero( ), Eigen::VectorXd::Zero( 2 ), true, patchArcs );
             std::vector< Eigen::MatrixXd > stateTransitionAndSensitivityMatrixAtEpoch = currentOutput.first;
 
             std::vector< Eigen::VectorXd > nominalArcStartStates;
@@ -391,23 +382,23 @@ BOOST_AUTO_TEST_CASE( testMarsAndOrbiterHybridArcVariationalEquationCalculation 
                 perturbedState.setZero( );
                 perturbedState( j ) += statePerturbation( j );
                 upPerturbedState = executeHybridArcMarsAndOrbiterSensitivitySimulation< double, double >(
-                            perturbedState, Eigen::VectorXd::Zero( 2 ), false, false, nominalArcStartStates ).second;
+                        perturbedState, Eigen::VectorXd::Zero( 2 ), false, false, nominalArcStartStates ).second;
 
                 perturbedState.setZero( );
                 perturbedState( j ) += 0.5 * statePerturbation( j );
                 upPerturbedState2 = executeHybridArcMarsAndOrbiterSensitivitySimulation< double, double >(
-                            perturbedState, Eigen::VectorXd::Zero( 2 ), false, false, nominalArcStartStates ).second;
+                        perturbedState, Eigen::VectorXd::Zero( 2 ), false, false, nominalArcStartStates ).second;
 
                 perturbedState.setZero( );
                 perturbedState( j ) -= 0.5 * statePerturbation( j );
                 downPerturbedState2 = executeHybridArcMarsAndOrbiterSensitivitySimulation< double, double >(
-                            perturbedState, Eigen::VectorXd::Zero( 2 ), false, false, nominalArcStartStates ).second;
+                        perturbedState, Eigen::VectorXd::Zero( 2 ), false, false, nominalArcStartStates ).second;
 
 
                 perturbedState.setZero( );
                 perturbedState( j ) -= statePerturbation( j );
                 downPerturbedState = executeHybridArcMarsAndOrbiterSensitivitySimulation< double, double >(
-                            perturbedState, Eigen::VectorXd::Zero( 2 ), false, false, nominalArcStartStates ).second;
+                        perturbedState, Eigen::VectorXd::Zero( 2 ), false, false, nominalArcStartStates ).second;
 
                 for( unsigned int arc = 0; arc < upPerturbedState.size( ); arc++ )
                 {
@@ -427,22 +418,22 @@ BOOST_AUTO_TEST_CASE( testMarsAndOrbiterHybridArcVariationalEquationCalculation 
                 perturbedParameter.setZero( );
                 perturbedParameter( j ) += parameterPerturbation( j );
                 upPerturbedState = executeHybridArcMarsAndOrbiterSensitivitySimulation< double, double >(
-                            perturbedState, perturbedParameter, false, false, nominalArcStartStates).second;
+                        perturbedState, perturbedParameter, false, false, nominalArcStartStates).second;
 
                 perturbedParameter.setZero( );
                 perturbedParameter( j ) += 0.5 * parameterPerturbation( j );
                 upPerturbedState2 = executeHybridArcMarsAndOrbiterSensitivitySimulation< double, double >(
-                            perturbedState, perturbedParameter, false, false, nominalArcStartStates ).second;
+                        perturbedState, perturbedParameter, false, false, nominalArcStartStates ).second;
 
                 perturbedParameter.setZero( );
                 perturbedParameter( j ) -= 0.5 * parameterPerturbation( j );
                 downPerturbedState2 = executeHybridArcMarsAndOrbiterSensitivitySimulation< double, double >(
-                            perturbedState, perturbedParameter, false, false, nominalArcStartStates ).second;
+                        perturbedState, perturbedParameter, false, false, nominalArcStartStates ).second;
 
                 perturbedParameter.setZero( );
                 perturbedParameter( j ) -= parameterPerturbation( j );
                 downPerturbedState = executeHybridArcMarsAndOrbiterSensitivitySimulation< double, double >(
-                            perturbedState, perturbedParameter, false, false, nominalArcStartStates ).second;
+                        perturbedState, perturbedParameter, false, false, nominalArcStartStates ).second;
 
                 for( unsigned int arc = 0; arc < upPerturbedState.size( ); arc++ )
                 {
@@ -458,18 +449,11 @@ BOOST_AUTO_TEST_CASE( testMarsAndOrbiterHybridArcVariationalEquationCalculation 
             for( unsigned int arc = 0; arc < manualPartial.size( ); arc++ )
             {
                 TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                            stateTransitionAndSensitivityMatrixAtEpoch.at( arc ).block( 0, 0, 6, 6 ),
-                            manualPartial.at( arc ).block( 0, 0, 6, 6 ), 5.0E-5 );
+                        stateTransitionAndSensitivityMatrixAtEpoch.at( arc ).block( 0, 0, 6, 6 ),
+                        manualPartial.at( arc ).block( 0, 0, 6, 6 ), 5.0E-5 );
                 TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                            stateTransitionAndSensitivityMatrixAtEpoch.at( arc ).block( 6, 6, 6, 6 ),
-                            manualPartial.at( arc ).block( 6, 6, 6, 6 ), 5.0E-5 );
-                std::cout<<"New arc: "<<std::endl;
-                std::cout<<stateTransitionAndSensitivityMatrixAtEpoch.at( arc ).block( 0, 0, 6, 6 ).transpose( )<<std::endl;
-                std::cout<<manualPartial.at( arc ).block( 0, 0, 6, 6 ).transpose( )<<std::endl<<std::endl;
-
-                std::cout<<stateTransitionAndSensitivityMatrixAtEpoch.at( arc ).block( 6, 6, 6, 6 ).transpose( )<<std::endl;
-                std::cout<<manualPartial.at( arc ).block( 6, 6, 6, 6 ).transpose( )<<std::endl<<std::endl;
-
+                        stateTransitionAndSensitivityMatrixAtEpoch.at( arc ).block( 6, 6, 6, 6 ),
+                        manualPartial.at( arc ).block( 6, 6, 6, 6 ), 5.0E-5 );
 
                 double couplingTolerance;
                 if( arc == 0 )
@@ -494,22 +478,23 @@ BOOST_AUTO_TEST_CASE( testMarsAndOrbiterHybridArcVariationalEquationCalculation 
                 }
 
                 TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                            stateTransitionAndSensitivityMatrixAtEpoch.at( arc ).block( 6, 0, 6, 6 ),
-                            manualPartial.at( arc ).block( 6, 0, 6, 6 ), couplingTolerance );
+                        stateTransitionAndSensitivityMatrixAtEpoch.at( arc ).block( 6, 0, 6, 6 ),
+                        manualPartial.at( arc ).block( 6, 0, 6, 6 ), couplingTolerance );
                 TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                            stateTransitionAndSensitivityMatrixAtEpoch.at( arc ).block( 0, 12, 6, 1 ),
-                            manualPartial.at( arc ).block( 0, 12, 6, 1 ), 5.0E-5 );
+                        stateTransitionAndSensitivityMatrixAtEpoch.at( arc ).block( 0, 12, 6, 1 ),
+                        manualPartial.at( arc ).block( 0, 12, 6, 1 ), 5.0E-5 );
                 TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                            stateTransitionAndSensitivityMatrixAtEpoch.at( arc ).block( 6, 12, 6, 1 ),
-                            manualPartial.at( arc ).block( 6, 12, 6, 1 ), 5.0E-3 );
+                        stateTransitionAndSensitivityMatrixAtEpoch.at( arc ).block( 6, 12, 6, 1 ),
+                        manualPartial.at( arc ).block( 6, 12, 6, 1 ), 5.0E-3 );
                 TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                            stateTransitionAndSensitivityMatrixAtEpoch.at( arc ).block( 6, 13, 6, 1 ),
-                            manualPartial.at( arc ).block( 6, 13, 6, 1 ), 5.0E-5 );
+                        stateTransitionAndSensitivityMatrixAtEpoch.at( arc ).block( 6, 13, 6, 1 ),
+                        manualPartial.at( arc ).block( 6, 13, 6, 1 ), 5.0E-5 );
 
                 //                    std::cout<<"Arc: "<<arc<<std::endl<<stateTransitionAndSensitivityMatrixAtEpoch.at( arc ).block( 6, 0, 6, 6 )<<std::endl<<std::endl<<
                 //                               manualPartial.at( arc ).block( 6, 0, 6, 6 )<<std::endl<<std::endl<<
                 //                               ( stateTransitionAndSensitivityMatrixAtEpoch.at( arc ) - manualPartial.at( arc ) ).block( 6, 0, 6, 6 ).cwiseQuotient(
                 //                                manualPartial.at( arc ).block( 6, 0, 6, 6 ) )<<std::endl<<std::endl;
+
 //                std::cout<<"Arc: "<<arc<<std::endl<<stateTransitionAndSensitivityMatrixAtEpoch.at( arc ).block( 0, 12, 12, 2 )<<std::endl<<std::endl<<
 //                           manualPartial.at( arc ).block( 0, 12, 12, 2 )<<std::endl<<std::endl<<
 //                           ( stateTransitionAndSensitivityMatrixAtEpoch.at( arc ) - manualPartial.at( arc ) ).block( 0, 12, 12, 2 ).cwiseQuotient(
@@ -546,7 +531,7 @@ BOOST_AUTO_TEST_CASE( testVaryingCentralBodyHybridArcVariationalEquations )
     SystemOfBodies bodies = createSystemOfBodies( bodySettings );
     bodies.createEmptyBody( "Spacecraft" );
     bodies.at( "Spacecraft" )->setEphemeris( std::make_shared< MultiArcEphemeris >(
-                                               std::map< double, std::shared_ptr< Ephemeris > >( ), "Jupiter", "ECLIPJ2000" ) );
+            std::map< double, std::shared_ptr< Ephemeris > >( ), "Jupiter", "ECLIPJ2000" ) );
     bodies.processBodyFrameDefinitions( );
 
     SelectedAccelerationMap singleArcAccelerationMap;
@@ -569,23 +554,23 @@ BOOST_AUTO_TEST_CASE( testVaryingCentralBodyHybridArcVariationalEquations )
     }
 
     basic_astrodynamics::AccelerationMap singleArcAccelerationModelMap = createAccelerationModelsMap(
-                bodies, singleArcAccelerationMap, singleArcBodiesToPropagate, singleArcCentralBodies );
+            bodies, singleArcAccelerationMap, singleArcBodiesToPropagate, singleArcCentralBodies );
 
     Eigen::VectorXd singleArcInitialState = getInitialStatesOfBodies(
-                singleArcBodiesToPropagate, singleArcCentralBodies, bodies, initialTime );
+            singleArcBodiesToPropagate, singleArcCentralBodies, bodies, initialTime );
 
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > singleArcPropagatorSettings =
             std::make_shared< TranslationalStatePropagatorSettings< double > >
-            ( singleArcCentralBodies, singleArcAccelerationModelMap, singleArcBodiesToPropagate,singleArcInitialState, finalTime );
+                    ( singleArcCentralBodies, singleArcAccelerationModelMap, singleArcBodiesToPropagate,singleArcInitialState, finalTime );
 
     std::vector< std::string > multiArcBodiesToPropagate =
-    { "Spacecraft", "Spacecraft", "Spacecraft", "Spacecraft", "Spacecraft", "Spacecraft" };
+            { "Spacecraft", "Spacecraft", "Spacecraft", "Spacecraft", "Spacecraft", "Spacecraft" };
 
     std::vector< std::string > multiArcCentralBodies =
-    { "Io", "Ganymede", "Europa", "Ganymede", "Io", "Europa" };
+            { "Io", "Ganymede", "Europa", "Ganymede", "Io", "Europa" };
 
     std::vector< double > arcStartTimes =
-    { 3600.0, 3.0 * 3600, 5.0 * 3600.0, 7.0 * 3600.0, 9.0 * 3600.0, 11.0 * 3600.0 };
+            { 3600.0, 3.0 * 3600, 5.0 * 3600.0, 7.0 * 3600.0, 9.0 * 3600.0, 11.0 * 3600.0 };
     std::map< std::string, std::vector< double > > arcStartTimesPerBody;
 
     for( unsigned int i = 0; i < arcStartTimes.size( ); i++ )
@@ -607,16 +592,16 @@ BOOST_AUTO_TEST_CASE( testVaryingCentralBodyHybridArcVariationalEquations )
         spacecraftInitialStateInKeplerianElements( semiMajorAxisIndex ) = 3500.0E3;
         spacecraftInitialStateInKeplerianElements( eccentricityIndex ) = 0.1;
         spacecraftInitialStateInKeplerianElements( inclinationIndex ) = unit_conversions::convertDegreesToRadians(
-                    static_cast< double >( i * 30 ) );
+                static_cast< double >( i * 30 ) );
         spacecraftInitialStateInKeplerianElements( argumentOfPeriapsisIndex ) = unit_conversions::convertDegreesToRadians(
-                    static_cast< double >( i * 30 ) );
+                static_cast< double >( i * 30 ) );
         spacecraftInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex ) = unit_conversions::convertDegreesToRadians(
-                    static_cast< double >( i * 30 ) );
+                static_cast< double >( i * 30 ) );
         spacecraftInitialStateInKeplerianElements( trueAnomalyIndex ) = unit_conversions::convertDegreesToRadians(
-                    static_cast< double >( i * 30 ) );
+                static_cast< double >( i * 30 ) );
         double centralBodyGravitationalParameter = bodies.at( multiArcCentralBodies.at( i ) )->getGravityFieldModel( )->getGravitationalParameter( );
         multiArcSystemInitialStates.push_back( convertKeplerianToCartesianElements(
-                                                   spacecraftInitialStateInKeplerianElements, centralBodyGravitationalParameter ) );
+                spacecraftInitialStateInKeplerianElements, centralBodyGravitationalParameter ) );
 
         SelectedAccelerationMap multiArcAccelerationMap;
 
@@ -630,19 +615,19 @@ BOOST_AUTO_TEST_CASE( testVaryingCentralBodyHybridArcVariationalEquations )
         }
 
         basic_astrodynamics::AccelerationMap multiArcAccelerationModelMap = createAccelerationModelsMap(
-                    bodies, multiArcAccelerationMap, { multiArcBodiesToPropagate.at( i ) }, { multiArcCentralBodies.at( i ) } );
+                bodies, multiArcAccelerationMap, { multiArcBodiesToPropagate.at( i ) }, { multiArcCentralBodies.at( i ) } );
 
         multiArcPropagationSettingsList.push_back(
-                    std::make_shared< TranslationalStatePropagatorSettings< double > >
-                    ( std::vector< std::string >{ multiArcCentralBodies.at( i ) }, multiArcAccelerationModelMap,
-                      std::vector< std::string >{ multiArcBodiesToPropagate.at( i ) },
-                      multiArcSystemInitialStates.at( i ), arcStartTimes.at( i ) + arcDuration ) );
+                std::make_shared< TranslationalStatePropagatorSettings< double > >
+                        ( std::vector< std::string >{ multiArcCentralBodies.at( i ) }, multiArcAccelerationModelMap,
+                          std::vector< std::string >{ multiArcBodiesToPropagate.at( i ) },
+                          multiArcSystemInitialStates.at( i ), arcStartTimes.at( i ) + arcDuration ) );
         multiArcPropagationSettingsListPerCentralBody[
                 multiArcCentralBodies.at( i ) ].push_back(
-                    std::make_shared< TranslationalStatePropagatorSettings< double > >
-                    ( std::vector< std::string >{ multiArcCentralBodies.at( i ) }, multiArcAccelerationModelMap,
-                      std::vector< std::string >{ multiArcBodiesToPropagate.at( i ) },
-                      multiArcSystemInitialStates.at( i ), arcStartTimes.at( i ) + arcDuration ) );
+                std::make_shared< TranslationalStatePropagatorSettings< double > >
+                        ( std::vector< std::string >{ multiArcCentralBodies.at( i ) }, multiArcAccelerationModelMap,
+                          std::vector< std::string >{ multiArcBodiesToPropagate.at( i ) },
+                          multiArcSystemInitialStates.at( i ), arcStartTimes.at( i ) + arcDuration ) );
         perBodyIndicesInFullPropagation[ multiArcCentralBodies.at( i ) ].push_back( i );
 
     }
@@ -658,7 +643,7 @@ BOOST_AUTO_TEST_CASE( testVaryingCentralBodyHybridArcVariationalEquations )
     for( unsigned int i = 0; i < singleArcBodiesToPropagate.size( ); i++ )
     {
         parameterNames.push_back( std::make_shared< EstimatableParameterSettings >(
-                                      singleArcBodiesToPropagate.at( i ), gravitational_parameter ) );
+                singleArcBodiesToPropagate.at( i ), gravitational_parameter ) );
     }
 
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate =
@@ -667,20 +652,21 @@ BOOST_AUTO_TEST_CASE( testVaryingCentralBodyHybridArcVariationalEquations )
 
     std::shared_ptr< IntegratorSettings< > > singleArcIntegratorSettings =
             std::make_shared< IntegratorSettings< > >
-            ( rungeKutta4, initialTime, 60.0 );
+                    ( rungeKutta4, initialTime, 60.0 );
 
     std::shared_ptr< IntegratorSettings< > > multiArcIntegratorSettings =
             std::make_shared< IntegratorSettings< > >
-            ( rungeKutta4, TUDAT_NAN, 15.0 );
+                    ( rungeKutta4, TUDAT_NAN, 15.0 );
 
     // Create dynamics simulator
     HybridArcVariationalEquationsSolver< > variationalEquations =
             HybridArcVariationalEquationsSolver< >(
-                bodies, singleArcIntegratorSettings, multiArcIntegratorSettings,
-                hybridArcPropagatorSettings, parametersToEstimate, arcStartTimes, true, false, true );
+                    bodies, singleArcIntegratorSettings, multiArcIntegratorSettings,
+                    hybridArcPropagatorSettings, parametersToEstimate, arcStartTimes, true, false, true );
 
-    std::vector< std::vector< std::map< double, Eigen::MatrixXd > > > fullMultiArcVariationalSolution =
-            variationalEquations.getMultiArcSolver( )->getNumericalVariationalEquationsSolution( );
+//    std::vector< std::vector< std::map< double, Eigen::MatrixXd > > > fullMultiArcVariationalSolution =
+//            variationalEquations.getMultiArcSolver( )->getNumericalVariationalEquationsSolution( );
+    auto fullMultiArcVariationalResults = variationalEquations.getMultiArcSolver( )->getMultiArcVariationalPropagationResults( );
     std::vector< std::map< double, Eigen::VectorXd > > fullMultiArcStateSolution =
             variationalEquations.getMultiArcSolver( )->getDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
 
@@ -688,20 +674,20 @@ BOOST_AUTO_TEST_CASE( testVaryingCentralBodyHybridArcVariationalEquations )
     {
         std::shared_ptr< MultiArcPropagatorSettings< > > multiArcPerBodyPropagationSettings =
                 std::make_shared< MultiArcPropagatorSettings< > >( multiArcPropagationSettingsListPerCentralBody.at(
-                                                                       singleArcBodiesToPropagate.at( i ) ) );
+                        singleArcBodiesToPropagate.at( i ) ) );
         std::shared_ptr< HybridArcPropagatorSettings< > > hybridArcPerBodyPropagatorSettings =
                 std::make_shared< HybridArcPropagatorSettings< > >(
-                    singleArcPropagatorSettings, multiArcPerBodyPropagationSettings );
+                        singleArcPropagatorSettings, multiArcPerBodyPropagationSettings );
 
         std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNamesPerBody;
 
         parameterNamesPerBody = getInitialHybridArcParameterSettings< >(
-                    hybridArcPerBodyPropagatorSettings, bodies, arcStartTimesPerBody.at( singleArcBodiesToPropagate.at( i ) ) );
+                hybridArcPerBodyPropagatorSettings, bodies, arcStartTimesPerBody.at( singleArcBodiesToPropagate.at( i ) ) );
 
         for( unsigned int j = 0; j < singleArcBodiesToPropagate.size( ); j++ )
         {
             parameterNamesPerBody.push_back( std::make_shared< EstimatableParameterSettings >(
-                                                 singleArcBodiesToPropagate.at( j ), gravitational_parameter ) );
+                    singleArcBodiesToPropagate.at( j ), gravitational_parameter ) );
         }
 
         std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimatePerBody =
@@ -710,12 +696,14 @@ BOOST_AUTO_TEST_CASE( testVaryingCentralBodyHybridArcVariationalEquations )
 
         HybridArcVariationalEquationsSolver< > perCentralBodyVariationalEquations =
                 HybridArcVariationalEquationsSolver< >(
-                    bodies, singleArcIntegratorSettings, multiArcIntegratorSettings,
-                    hybridArcPerBodyPropagatorSettings, parametersToEstimatePerBody, arcStartTimesPerBody.at(
-                        singleArcBodiesToPropagate.at( i ) ), true, false, true );
+                        bodies, singleArcIntegratorSettings, multiArcIntegratorSettings,
+                        hybridArcPerBodyPropagatorSettings, parametersToEstimatePerBody, arcStartTimesPerBody.at(
+                                singleArcBodiesToPropagate.at( i ) ), true, false, true );
 
-        std::vector< std::vector< std::map< double, Eigen::MatrixXd > > > perBodyMultiArcVariationalSolution =
-                perCentralBodyVariationalEquations.getMultiArcSolver( )->getNumericalVariationalEquationsSolution( );
+//        std::vector< std::vector< std::map< double, Eigen::MatrixXd > > > perBodyMultiArcVariationalSolution =
+//                perCentralBodyVariationalEquations.getMultiArcSolver( )->getNumericalVariationalEquationsSolution( );
+        auto perBodyMultiArcVariationalResults = perCentralBodyVariationalEquations.getMultiArcSolver( )->getMultiArcVariationalPropagationResults( );
+
         std::vector< std::map< double, Eigen::VectorXd > > perBodyMultiArcStateSolution =
                 perCentralBodyVariationalEquations.getMultiArcSolver( )->getDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
 
@@ -723,9 +711,16 @@ BOOST_AUTO_TEST_CASE( testVaryingCentralBodyHybridArcVariationalEquations )
         {
             for( unsigned int k = 0; k < 2; k++ )
             {
-                std::map< double, Eigen::MatrixXd > fullMultiArcMatrixHistory = fullMultiArcVariationalSolution.at(
-                            perBodyIndicesInFullPropagation.at( singleArcBodiesToPropagate.at( i ) ).at( j ) ).at( k );
-                std::map< double, Eigen::MatrixXd > perBodyMultiMatrixHistory = perBodyMultiArcVariationalSolution.at( j ).at( k );
+                int currentArc = perBodyIndicesInFullPropagation.at( singleArcBodiesToPropagate.at( i ) ).at( j );
+                std::map< double, Eigen::MatrixXd > fullMultiArcMatrixHistory =
+                    k == 0 ? fullMultiArcVariationalResults->getSingleArcResults( ).at( currentArc )->getStateTransitionSolution( ) :
+                             fullMultiArcVariationalResults->getSingleArcResults( ).at( currentArc )->getSensitivitySolution( );
+//                        fullMultiArcVariationalSolution.at(currentArc ).at( k );
+
+                std::map< double, Eigen::MatrixXd > perBodyMultiMatrixHistory =
+                        k == 0 ? perBodyMultiArcVariationalResults->getSingleArcResults( ).at( j )->getStateTransitionSolution( ) :
+                        perBodyMultiArcVariationalResults->getSingleArcResults( ).at( j )->getSensitivitySolution( );
+//                        perBodyMultiArcVariationalSolution.at( j ).at( k );
 
                 auto fullIterator = fullMultiArcMatrixHistory.begin( );
                 auto perBodyIterator = perBodyMultiMatrixHistory.begin( );
@@ -750,4 +745,3 @@ BOOST_AUTO_TEST_SUITE_END( )
 }
 
 }
-
