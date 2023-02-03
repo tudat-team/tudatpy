@@ -210,9 +210,18 @@ BOOST_AUTO_TEST_CASE( testLambertian_ReflectedFraction )
     const auto incomingDirection = Vector(1, 1, -1).normalized();
     LambertianReflectionLaw reflectionLaw(0.5);
 
-    const auto expectedReflectedFraction = 0.5 / mathematical_constants::PI;
     const auto observerDirection = Vector(0, 0, 1).normalized();
-    const auto actualReflectedFraction =
+
+    auto expectedReflectedFraction = 0.5 / mathematical_constants::PI;
+    auto actualReflectedFraction =
+            reflectionLaw.evaluateReflectedFraction(normal, incomingDirection, observerDirection);
+
+    BOOST_CHECK_CLOSE(actualReflectedFraction, expectedReflectedFraction, 1e-15);
+
+    reflectionLaw.setDiffuseReflectivity(0.8);
+
+    expectedReflectedFraction = 0.8 / mathematical_constants::PI;
+    actualReflectedFraction =
             reflectionLaw.evaluateReflectedFraction(normal, incomingDirection, observerDirection);
 
     BOOST_CHECK_CLOSE(actualReflectedFraction, expectedReflectedFraction, 1e-15);

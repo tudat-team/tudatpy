@@ -27,5 +27,6 @@
 #include "electromagnetism/radiationPressureAcceleration.h"
 #include "electromagnetism/reflectionLaw.h"
 #include "electromagnetism/occultationModel.h"
+#include "electromagnetism/surfacePropertyDistribution.h"
 
 #endif // TUDAT_ELECTROMAGNETISM_H

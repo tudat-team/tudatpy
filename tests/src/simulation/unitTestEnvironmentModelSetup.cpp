@@ -1501,6 +1501,7 @@ BOOST_AUTO_TEST_CASE( test_radiationSourceModelSetup_StaticallyPaneled )
 
     const auto expectedOriginalSourceName = "Sun";
     const auto expectedNumberOfPanels = 42;
+    const auto expectedNumberOfRadiosityModels = 3;
     const auto expectedAlbedo = 0.42;
     const auto expectedWithInstantaneousReradiation = true;
     const auto expectedEmissivity = 0.32;
@@ -1512,6 +1513,7 @@ BOOST_AUTO_TEST_CASE( test_radiationSourceModelSetup_StaticallyPaneled )
             staticallyPaneledRadiationSourceModelSettings(
                 expectedOriginalSourceName, {
                     albedoPanelRadiosityModelSettings(expectedAlbedo, expectedWithInstantaneousReradiation),
+                    delayedThermalPanelRadiosityModelSettings(expectedEmissivity),
                     angleBasedThermalPanelRadiosityModelSettings(
                             expectedMinTemperature, expectedMaxTemperature, expectedEmissivity)
                 }, expectedNumberOfPanels, expectedOccultingBodies);
@@ -1523,36 +1525,68 @@ BOOST_AUTO_TEST_CASE( test_radiationSourceModelSetup_StaticallyPaneled )
 
     BOOST_CHECK_EQUAL(staticallyPaneledSourceModel->getPanels().size(), expectedNumberOfPanels);
 
-    const auto panel = staticallyPaneledSourceModel->getPanels().front();
+    const auto& panel = staticallyPaneledSourceModel->getPanels().front();
 
-    BOOST_CHECK_EQUAL(panel.getRadiosityModels().size(), 2);
+    BOOST_CHECK_EQUAL(panel.getRadiosityModels().size(), expectedNumberOfRadiosityModels);
 
     const auto albedoModel =
-            std::dynamic_pointer_cast<electromagnetism::AlbedoPanelRadiosityModel>(panel.getRadiosityModels()[0]);
-    const auto reflectionLaw =
-            std::dynamic_pointer_cast<electromagnetism::LambertianReflectionLaw>(albedoModel->getReflectionLaw());
-    const auto thermalModel =
-            std::dynamic_pointer_cast<electromagnetism::AngleBasedThermalPanelRadiosityModel>(panel.getRadiosityModels()[1]);
+            dynamic_cast<electromagnetism::AlbedoPanelRadiosityModel&>(*panel.getRadiosityModels()[0]);
+    const auto reflectionLaw = albedoModel.getReflectionLaw();
+    const auto delayedThermalModel =
+            dynamic_cast<electromagnetism::DelayedThermalPanelRadiosityModel&>(*panel.getRadiosityModels()[1]);
+    const auto angleBasedThermalModel =
+            dynamic_cast<electromagnetism::AngleBasedThermalPanelRadiosityModel&>(*panel.getRadiosityModels()[2]);
 
     const auto actualOriginalSourceName = staticallyPaneledSourceModel->getOriginalSourceName();
     const auto actualNumberOfPanels = staticallyPaneledSourceModel->getNumberOfPanels();
     const auto actualAlbedo = reflectionLaw->getDiffuseReflectivity();
     const auto actualWithInstantaneousReradiation = reflectionLaw->getWithInstantaneousLambertianReradiation();
-    const auto actualEmissivity = thermalModel->getEmissivity();
-    const auto actualMinTemperature = thermalModel->getMinTemperature();
-    const auto actualMaxTemperature = thermalModel->getMaxTemperature();
+    const auto actualEmissivityDelayed = delayedThermalModel.getEmissivity();
+    const auto actualEmissivityAngleBased = angleBasedThermalModel.getEmissivity();
+    const auto actualMinTemperature = angleBasedThermalModel.getMinTemperature();
+    const auto actualMaxTemperature = angleBasedThermalModel.getMaxTemperature();
     const auto actualOccultingBodies = staticallyPaneledSourceModel->getOriginalSourceToSourceOccultingBodies();
 
     BOOST_CHECK_EQUAL(actualOriginalSourceName, expectedOriginalSourceName);
     BOOST_CHECK_EQUAL(actualNumberOfPanels, expectedNumberOfPanels);
     BOOST_CHECK_EQUAL(actualAlbedo, expectedAlbedo);
     BOOST_CHECK_EQUAL(actualWithInstantaneousReradiation, expectedWithInstantaneousReradiation);
-    BOOST_CHECK_EQUAL(actualEmissivity, expectedEmissivity);
+    BOOST_CHECK_EQUAL(actualEmissivityDelayed, expectedEmissivity);
+    BOOST_CHECK_EQUAL(actualEmissivityAngleBased, expectedEmissivity);
     BOOST_CHECK_EQUAL(actualMinTemperature, expectedMinTemperature);
     BOOST_CHECK_EQUAL(actualMaxTemperature, expectedMaxTemperature);
     BOOST_CHECK_EQUAL_COLLECTIONS(
         actualOccultingBodies.begin(), actualOccultingBodies.end(),
         expectedOccultingBodies.begin(), expectedOccultingBodies.end());
+}
+
+BOOST_AUTO_TEST_CASE( test_surfacePropertyDistributionSetup_SphericalHarmonics_DLAM1 )
+{
+    using namespace tudat::electromagnetism;
+
+    auto surfacePropertyDistributionSettings = sphericalHarmonicsSurfacePropertyDistributionSettings(albedo_dlam1);
+    auto surfacePropertyDistribution =
+            std::dynamic_pointer_cast<SphericalHarmonicsSurfacePropertyDistribution>(
+                    createSurfacePropertyDistribution(surfacePropertyDistributionSettings, ""));
+
+    BOOST_CHECK(surfacePropertyDistribution->getMaximumDegree() == 15);
+    BOOST_CHECK(surfacePropertyDistribution->getMaximumOrder() == 15);
+
+    const auto expectedCosCoeff = -5.2535643e-08;
+    const auto actualCosCoeff = surfacePropertyDistribution->getCosineCoefficients()(7, 6);
+    BOOST_CHECK_CLOSE(actualCosCoeff, expectedCosCoeff, 1e-15);
+    
+    const auto expectedSinCoeff = 6.4835704e-06;
+    const auto actualSinCoeff = surfacePropertyDistribution->getSineCoefficients()(10, 3);
+    BOOST_CHECK_CLOSE(actualSinCoeff, expectedSinCoeff, 1e-15);
+
+    const auto expectedValue1 = 0.18141667202246156;
+    const auto actualValue1 = surfacePropertyDistribution->getValue(0.7, 0.42);
+    BOOST_CHECK_CLOSE(actualValue1, expectedValue1, 1e-13);
+
+    const auto expectedValue2 = 0.2001460910686691;
+    const auto actualValue2 = surfacePropertyDistribution->getValue(-1.5, 0.9);
+    BOOST_CHECK_CLOSE(actualValue2, expectedValue2, 1e-15);
 }
 
 BOOST_AUTO_TEST_CASE( test_radiationPressureTargetModelSetup_CannonballTarget )

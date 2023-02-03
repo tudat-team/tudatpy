@@ -709,12 +709,15 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_PaneledSource_PaneledTar
             [](double) { return physical_constants::SPEED_OF_LIGHT; }, 1);
     auto originalSourceModel = std::make_shared<IsotropicPointRadiationSourceModel>(luminosityModel);
 
+    std::vector<std::unique_ptr<PaneledRadiationSourceModel::PanelRadiosityModel>> radiosityModels;
+    radiosityModels.push_back(std::make_unique<AlbedoPanelRadiosityModel>(
+            std::make_shared<ConstantSurfacePropertyDistribution>(1)));
+
     // Source is a single panel pointing in +X with purely diffuse reflection
-    std::vector<SourcePanel> sourcePanels{SourcePanel(
-            2, Eigen::Vector3d::Zero(), Eigen::Vector3d::UnitX(), {
-                std::make_shared<AlbedoPanelRadiosityModel>(
-                    std::make_shared<LambertianReflectionLaw>(1.))})};
-    auto sourceModel = std::make_shared<StaticallyPaneledRadiationSourceModel>("", sourcePanels);
+    std::vector<SourcePanel> panels;
+    panels.emplace_back(
+            2, Eigen::Vector3d::Zero(), Eigen::Vector3d::UnitX(), std::move(radiosityModels));
+    auto sourceModel = std::make_shared<StaticallyPaneledRadiationSourceModel>("", std::move(panels));
 
     std::vector<TargetPanel> targetPanels{
             TargetPanel(1, -Eigen::Vector3d::UnitX(),
@@ -758,11 +761,15 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_PaneledSource_Cannonball
     auto originalSourceModel = std::make_shared<IsotropicPointRadiationSourceModel>(
         std::make_shared<ConstantLuminosityModel>(1));
 
+    std::vector<std::unique_ptr<PaneledRadiationSourceModel::PanelRadiosityModel>> radiosityModels;
+    radiosityModels.push_back(std::make_unique<AngleBasedThermalPanelRadiosityModel>(
+            1000, 1000, std::make_shared<ConstantSurfacePropertyDistribution>(1)));
+
     // Source is a single panel pointing in +X
-    std::vector<SourcePanel> sourcePanels{SourcePanel(
-            1, Eigen::Vector3d::Zero(), Eigen::Vector3d::UnitX(), {
-                std::make_shared<AngleBasedThermalPanelRadiosityModel>(1000, 1000, 1)})};
-    auto sourceModel = std::make_shared<StaticallyPaneledRadiationSourceModel>("", sourcePanels);
+    std::vector<SourcePanel> panels;
+    panels.emplace_back(
+            1, Eigen::Vector3d::Zero(), Eigen::Vector3d::UnitX(), std::move(radiosityModels));
+    auto sourceModel = std::make_shared<StaticallyPaneledRadiationSourceModel>("", std::move(panels));
 
     const auto targetPosition = Eigen::Vector3d(10, 10, 0);
     auto targetModel = std::make_shared<CannonballRadiationPressureTargetModel>(1, 1);

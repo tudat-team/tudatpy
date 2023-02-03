@@ -135,7 +135,7 @@ public:
         return withInstantaneousLambertianReradiation_;
     }
 
-private:
+protected:
     void validateCoefficients() const;
 
     double absorptivity_;
@@ -164,6 +164,12 @@ public:
             0,
             diffuseReflectivity,
             withInstantaneousLambertianReradiation) {}
+
+    void setDiffuseReflectivity(double diffuseReflectivity)
+    {
+        absorptivity_ = 1 - diffuseReflectivity;
+        diffuseReflectivity_ = diffuseReflectivity;
+    }
 };
 
 /*!

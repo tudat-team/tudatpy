@@ -32,24 +32,22 @@ double SphericalHarmonicsSurfacePropertyDistribution::getValue(
     auto sinOfLat = std::sin(latitude);
     sphericalHarmonicsCache_.update(TUDAT_NAN, sinOfLat, longitude, TUDAT_NAN);
 
-    auto legendreCache = *sphericalHarmonicsCache_.getLegendreCache();
-
-    double property = 0;
+    double value = 0;
     double legendrePolynomial;
     for( int degree = 0; degree <= maximumDegree_; degree++ )
     {
         for( int order = 0; order <= degree; order++ )
         {
             legendrePolynomial = basic_mathematics::computeLegendrePolynomialFromCache(
-                    degree, order, legendreCache);
-            property += legendrePolynomial * (
+                    degree, order, legendreCache_);
+            value += legendrePolynomial * (
                     cosineCoefficients_(degree, order) * sphericalHarmonicsCache_.getCosineOfMultipleLongitude(order) +
                     sineCoefficients_(degree, order) * sphericalHarmonicsCache_.getSineOfMultipleLongitude(order)
             );
         }
     }
 
-    return property;
+    return value;
 }
 
 } // tudat

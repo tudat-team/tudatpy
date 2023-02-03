@@ -23,7 +23,7 @@ namespace electromagnetism
 {
 
 /*!
- * Class modeling the distribution of a property on the surface of a sphere, such as albedo or emissivity. The
+ * Class modeling the distribution of a property on the surface of a sphere such as albedo or emissivity. The
  * distribution can vary with latitude, longitude and time.
  */
 class SurfacePropertyDistribution
@@ -69,11 +69,12 @@ private:
 
 /*!
  * Class modeling the distribution of a property on the surface of a sphere, such as albedo or emissivity. The
- * distribution is constant with respect to time. Spatial variations are given by spherical harmonics.
+ * distribution is constant with respect to time. Spatial variations are given by a spherical harmonics expansion.
  */
+ // TODO-DOMINIK
  // A single distribution per paneled source -> shared between all panels
  // source updateMembers calls distribution update members
- // property is queried every time step -> store in map with lat/lon std::pair as key
+ // in panelradiosity model updateMembers (base class), check if new time, lat and long, if not don't update
 class SphericalHarmonicsSurfacePropertyDistribution : public SurfacePropertyDistribution
 {
 public:
@@ -89,18 +90,29 @@ public:
             cosineCoefficients_(cosineCoefficients),
             sineCoefficients_(sineCoefficients),
             maximumDegree_(cosineCoefficients.rows() - 1),
-            maximumOrder_( cosineCoefficients.cols() - 1)
+            maximumOrder_( cosineCoefficients.cols() - 1),
+            sphericalHarmonicsCache_(maximumDegree_, maximumOrder_, false),
+            legendreCache_(*sphericalHarmonicsCache_.getLegendreCache())
             {
                 if((cosineCoefficients.rows() != sineCoefficients.rows()) ||
                     (cosineCoefficients.cols() != sineCoefficients.cols()))
                 {
-                    throw std::runtime_error( "Error when creating spherical harmonics gravity field; sine and cosine sizes are incompatible" );
+                    throw std::runtime_error(
+                            "Error when creating spherical harmonics surface property distribution; sine and cosine sizes are incompatible" );
                 }
-
-                sphericalHarmonicsCache_.resetMaximumDegreeAndOrder(maximumDegree_ + 2, maximumOrder_ + 2);
             }
 
     double getValue(double latitude, double longitude) override;
+
+    const Eigen::MatrixXd& getCosineCoefficients() const
+    {
+        return cosineCoefficients_;
+    }
+
+    const Eigen::MatrixXd& getSineCoefficients() const
+    {
+        return sineCoefficients_;
+    }
 
     int getMaximumDegree() const
     {
@@ -123,7 +135,9 @@ private:
 
     const int maximumOrder_;
 
-    basic_mathematics::SphericalHarmonicsCache sphericalHarmonicsCache_{false};
+    basic_mathematics::SphericalHarmonicsCache sphericalHarmonicsCache_;
+
+    basic_mathematics::LegendreCache& legendreCache_;
 };
 
 } // tudat

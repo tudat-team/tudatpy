@@ -21,10 +21,10 @@
 #ifndef TUDAT_RADIATIONSOURCEMODEL_H
 #define TUDAT_RADIATIONSOURCEMODEL_H
 
+#include <utility>
 #include <vector>
 #include <map>
 #include <utility>
-#include <functional>
 #include <memory>
 
 #include <Eigen/Core>
@@ -32,7 +32,10 @@
 
 #include "tudat/astro/electromagnetism/luminosityModel.h"
 #include "tudat/astro/electromagnetism/reflectionLaw.h"
+#include "tudat/astro/electromagnetism/surfacePropertyDistribution.h"
 #include "tudat/astro/basic_astro/bodyShapeModel.h"
+#include "tudat/math/basic/mathematicalConstants.h"
+#include "tudat/math/basic/coordinateConversions.h"
 
 
 namespace tudat
@@ -151,7 +154,7 @@ private:
 //   Paneled radiation source
 //*********************************************************************************************
 
-/*!
+/*!F
  * Class modeling a radiation source that is discretized into panels, each with its own radiosity model. A radiosity
  * model describes the radiation emitted (thermal) or reflected (albedo) by each panel. Since both depend on the
  * radiation from a third body (referred to as the original source), all irradiance evaluations involve the irradiance
@@ -173,18 +176,14 @@ public:
      *
      * @param originalSourceName Name of the original source body
      * @param sourceBodyShapeModel Shape model of this source
-     * @param radiosityModelFunctions Functions that together create all panel radiosity models for a given polar and
-     *      azimuth angle
      * @param originalSourceToSourceOccultingBodies Names of bodies to occult the original source as seen from this source
      */
     explicit PaneledRadiationSourceModel(
             const std::string& originalSourceName,
             const std::shared_ptr<basic_astrodynamics::BodyShapeModel>& sourceBodyShapeModel,
-            const std::vector<std::function<std::shared_ptr<PanelRadiosityModel>(double, double)>>& radiosityModelFunctions,
             const std::vector<std::string>& originalSourceToSourceOccultingBodies) :
         originalSourceName_(originalSourceName),
         sourceBodyShapeModel_(sourceBodyShapeModel),
-        radiosityModelFunctions_(radiosityModelFunctions),
         originalSourceToSourceOccultingBodies_(originalSourceToSourceOccultingBodies) {}
 
     /*!
@@ -195,7 +194,7 @@ public:
     explicit PaneledRadiationSourceModel(
         const std::string& originalSourceName,
         const std::vector<std::string>& originalSourceToSourceOccultingBodies = {}) :
-            PaneledRadiationSourceModel(originalSourceName, nullptr, {}, originalSourceToSourceOccultingBodies) {}
+            PaneledRadiationSourceModel(originalSourceName, nullptr, originalSourceToSourceOccultingBodies) {}
 
     IrradianceWithSourceList evaluateIrradianceAtPosition(
             const Eigen::Vector3d& targetPosition,
@@ -227,8 +226,9 @@ public:
 
 protected:
     std::string originalSourceName_; // needed for environment updater setup
+
     std::shared_ptr<basic_astrodynamics::BodyShapeModel> sourceBodyShapeModel_;
-    std::vector<std::function<std::shared_ptr<PanelRadiosityModel>(double, double)>> radiosityModelFunctions_;
+
     // Only needed to transfer occultation settings from body setup to acceleration setup
     std::vector<std::string> originalSourceToSourceOccultingBodies_;
 };
@@ -256,31 +256,33 @@ public:
      */
     explicit StaticallyPaneledRadiationSourceModel(
             const std::string& originalSourceName,
-            const std::vector<Panel>& panels,
+            std::vector<Panel> panels,
             const std::vector<std::string>& originalSourceToSourceOccultingBodies = {}) :
             PaneledRadiationSourceModel(originalSourceName, originalSourceToSourceOccultingBodies),
             numberOfPanels(panels.size()),
-            panels_(panels) {}
+            panels_(std::move(panels)) {}
 
     /*!
      * Constructor for automatic generation of panels.
      *
      * @param originalSourceName Name of the original source body
      * @param sourceBodyShapeModel Shape model of this source
-     * @param radiosityModelFunctions Functions that together create all panel radiosity models for a given polar and
-     *      azimuth angle
+     * @param baseRadiosityModels Radiosity models that will be copied for each panel
      * @param numberOfPanels Number of panels for automatic generation
      * @param originalSourceToSourceOccultingBodies Names of bodies to occult the original source as seen from this source
      */
     explicit StaticallyPaneledRadiationSourceModel(
             const std::string& originalSourceName,
             const std::shared_ptr<basic_astrodynamics::BodyShapeModel>& sourceBodyShapeModel,
-            const std::vector<std::function<std::shared_ptr<PanelRadiosityModel>(double, double)>>& radiosityModelFunctions,
+            const std::vector<std::unique_ptr<PanelRadiosityModel>>& baseRadiosityModels,
             int numberOfPanels,
             const std::vector<std::string>& originalSourceToSourceOccultingBodies = {}) :
             PaneledRadiationSourceModel(
-                originalSourceName, sourceBodyShapeModel, radiosityModelFunctions, originalSourceToSourceOccultingBodies),
-            numberOfPanels(numberOfPanels) {}
+                originalSourceName, sourceBodyShapeModel, originalSourceToSourceOccultingBodies),
+            numberOfPanels(numberOfPanels)
+    {
+        generatePanels(baseRadiosityModels);
+    }
 
     const std::vector<Panel>& getPanels() const override
     {
@@ -294,9 +296,12 @@ public:
 
 private:
     void updateMembers_(double currentTime) override;
-    void generatePanels();
+
+    void generatePanels(const std::vector<std::unique_ptr<PanelRadiosityModel>>& baseRadiosityModels);
+
 
     unsigned int numberOfPanels;
+
     std::vector<Panel> panels_;
 };
 
@@ -332,7 +337,7 @@ public:
      * Constructor.
      *
      * @param area Area of the panel [m²]
-     * @param relativeCenter Center of the panel relative to the source center, in source-fixed coordinates [m]
+     * @param relativeCenter Center of the panel relative to the source center, in source-fixed Cartesian coordinates [m]
      * @param surfaceNormal Surface normal vector of the panel [-]
      * @param radiosityModels List of radiosity models of the panel
      */
@@ -340,15 +345,38 @@ public:
             double area,
             const Eigen::Vector3d& relativeCenter,
             const Eigen::Vector3d& surfaceNormal,
-            const std::vector<std::shared_ptr<PanelRadiosityModel>>& radiosityModels) :
-        relativeCenter_(relativeCenter),
-        surfaceNormal_(surfaceNormal),
-        radiosityModels_(radiosityModels),
-        area_(area) {}
+            std::vector<std::unique_ptr<PanelRadiosityModel>> radiosityModels) :
+            area_(area),
+            relativeCenter_(relativeCenter),
+            surfaceNormal_(surfaceNormal),
+            radiosityModels_(std::move(radiosityModels))
+    {
+        Eigen::Vector3d relativeCenterInSphericalCoords =
+                coordinate_conversions::convertCartesianToSpherical(relativeCenter);
+        latitude_ = M_PI_2 - relativeCenterInSphericalCoords[1];
+        longitude_ = relativeCenterInSphericalCoords[2];
+    }
+
+    /*!
+    * Update class members.
+    *
+    * @param currentTime Current simulation time
+    */
+    void updateMembers(double currentTime);
 
     double getArea() const
     {
         return area_;
+    }
+
+    double getLatitude() const
+    {
+        return latitude_;
+    }
+
+    double getLongitude() const
+    {
+        return longitude_;
     }
 
     const Eigen::Vector3d& getRelativeCenter() const
@@ -361,20 +389,22 @@ public:
         return surfaceNormal_;
     }
 
-    const std::vector<std::shared_ptr<PanelRadiosityModel>>& getRadiosityModels() const
+    const std::vector<std::unique_ptr<PanelRadiosityModel>>& getRadiosityModels() const
     {
         return radiosityModels_;
     }
 
 private:
+    double area_;
+    double latitude_;
+    double longitude_;
     Eigen::Vector3d relativeCenter_;
     Eigen::Vector3d surfaceNormal_;
-    std::vector<std::shared_ptr<PanelRadiosityModel>> radiosityModels_;
-    double area_;
+    std::vector<std::unique_ptr<PanelRadiosityModel>> radiosityModels_;
 };
 
 /*!
- * Class modeling (part of) the radiosity emitted by a panel of a paneled radiation source.
+ * Class modeling the radiosity emitted by a panel of a paneled radiation source.
  *
  * @see PaneledRadiationSourceModel::Panel
  */
@@ -386,16 +416,33 @@ public:
     /*!
      * Evaluate the irradiance [W/m²] at a certain position due to this panel.
      *
-     * @param panel Panel to which this radiosity model belongs
      * @param targetPosition Position where to evaluate the irradiance in panel-local coordinates (source rotation,
      *        centered in panel)
      * @return Irradiance due to this radiosity model for single panel
      */
     virtual double evaluateIrradianceAtPosition(
-            const Panel& panel,
+            double panelArea,
+            const Eigen::Vector3d& panelSurfaceNormal,
             const Eigen::Vector3d& targetPosition,
             double originalSourceIrradiance,
             const Eigen::Vector3d& originalSourceToSourceDirection) const = 0;
+
+    /*!
+     * Update class members.
+     *
+     * @param currentTime Current simulation time
+     */
+    virtual void updateMembers(
+            double panelLatitude,
+            double panelLongitude,
+            double currentTime) {};
+
+    /*!
+     * Clone this object.
+     *
+     * @return A clone of this object
+     */
+    virtual std::unique_ptr<PanelRadiosityModel> clone() const = 0;
 };
 
 /*!
@@ -415,25 +462,42 @@ public:
     /*!
      * Constructor.
      *
-     * @param reflectionLaw Reflection law governing reflection of original source radiation
+     * @param albedoDistribution Albedo distribution
+     * @param withInstantaneousReradiation Whether to instantaneously reradiate absorbed radiation
      */
     explicit AlbedoPanelRadiosityModel(
-            const std::shared_ptr<ReflectionLaw>& reflectionLaw) :
-            reflectionLaw_(reflectionLaw) {}
+            const std::shared_ptr<SurfacePropertyDistribution>& albedoDistribution,
+            bool withInstantaneousReradiation = false) :
+            albedoDistribution_(albedoDistribution),
+            reflectionLaw_(std::make_shared<LambertianReflectionLaw>(TUDAT_NAN, withInstantaneousReradiation)) {}
 
     double evaluateIrradianceAtPosition(
-            const PaneledRadiationSourceModel::Panel& panel,
+            double panelArea,
+            const Eigen::Vector3d& panelSurfaceNormal,
             const Eigen::Vector3d& targetPosition,
             double originalSourceIrradiance,
             const Eigen::Vector3d& originalSourceToSourceDirection) const override;
 
-    const std::shared_ptr<ReflectionLaw>& getReflectionLaw() const
+    void updateMembers(
+            double panelLatitude,
+            double panelLongitude,
+            double currentTime) override;
+
+    std::unique_ptr<PanelRadiosityModel> clone() const override
+    {
+        return std::make_unique<AlbedoPanelRadiosityModel>(*this);
+    }
+
+    const std::shared_ptr<LambertianReflectionLaw>& getReflectionLaw() const
     {
         return reflectionLaw_;
     }
 
 private:
-    std::shared_ptr<ReflectionLaw> reflectionLaw_;
+    std::shared_ptr<SurfacePropertyDistribution> albedoDistribution_;
+
+    // Reflection law governing reflection of original source radiation
+    std::shared_ptr<LambertianReflectionLaw> reflectionLaw_;
 };
 
 /*!
@@ -447,23 +511,40 @@ private:
 class DelayedThermalPanelRadiosityModel : public PaneledRadiationSourceModel::PanelRadiosityModel
 {
 public:
+    /*!
+     * Constructor.
+     *
+     * @param emissivityDistribution Emissivity distribution
+     */
     explicit DelayedThermalPanelRadiosityModel(
-            double emissivity) :
-            emissivity_(emissivity) {}
+            const std::shared_ptr<SurfacePropertyDistribution>& emissivityDistribution) :
+            emissivityDistribution_(emissivityDistribution) {}
 
     double evaluateIrradianceAtPosition(
-            const PaneledRadiationSourceModel::Panel& panel,
+            double panelArea,
+            const Eigen::Vector3d& panelSurfaceNormal,
             const Eigen::Vector3d& targetPosition,
             double originalSourceIrradiance,
             const Eigen::Vector3d& originalSourceToSourceDirection) const override;
 
+    void updateMembers(
+            double panelLatitude,
+            double panelLongitude,
+            double currentTime) override;
+
+    std::unique_ptr<PanelRadiosityModel> clone() const override
+    {
+        return std::make_unique<DelayedThermalPanelRadiosityModel>(*this);
+    }
+
     double getEmissivity() const
     {
-        return emissivity_;
+        return emissivity;
     }
 
 private:
-    double emissivity_;
+    std::shared_ptr<SurfacePropertyDistribution> emissivityDistribution_;
+    double emissivity{TUDAT_NAN};
 };
 
 /*!
@@ -484,21 +565,32 @@ public:
      *
      * @param minTemperature Minimum surface temperature (in shade) [K]
      * @param maxTemperature Maximum surface temperature (at subsolar point) [K]
-     * @param emissivity Function returning the emissivity at a given polar and azimuth angle on the body
+     * @param emissivityDistribution Emissivity distribution
      */
     explicit AngleBasedThermalPanelRadiosityModel(
             double minTemperature,
             double maxTemperature,
-            double emissivity) :
+            const std::shared_ptr<SurfacePropertyDistribution>& emissivityDistribution) :
             minTemperature_(minTemperature),
             maxTemperature_(maxTemperature),
-            emissivity_(emissivity) {}
+            emissivityDistribution_(emissivityDistribution) {}
 
     double evaluateIrradianceAtPosition(
-            const PaneledRadiationSourceModel::Panel& panel,
+            double panelArea,
+            const Eigen::Vector3d& panelSurfaceNormal,
             const Eigen::Vector3d& targetPosition,
             double originalSourceIrradiance,
             const Eigen::Vector3d& originalSourceToSourceDirection) const override;
+
+    void updateMembers(
+            double panelLatitude,
+            double panelLongitude,
+            double currentTime) override;
+
+    std::unique_ptr<PanelRadiosityModel> clone() const override
+    {
+        return std::make_unique<AngleBasedThermalPanelRadiosityModel>(*this);
+    }
 
     double getMinTemperature() const
     {
@@ -512,13 +604,14 @@ public:
 
     double getEmissivity() const
     {
-        return emissivity_;
+        return emissivity;
     }
 
 private:
     double minTemperature_;
     double maxTemperature_;
-    double emissivity_;
+    std::shared_ptr<SurfacePropertyDistribution> emissivityDistribution_;
+    double emissivity{TUDAT_NAN};
 };
 
 /*!
@@ -529,7 +622,7 @@ private:
  * and meridional lines (spiraling). Staggered points should be preferred.
  *
  * @param n number of points to generate
- * @return a pair of vectors, first vector are polar angles, second vector are azimuth angles
+ * @return a pair of vectors, first vector are polar angles, second vector are azimuth angles (both in radians)
  */
 std::pair<std::vector<double>, std::vector<double>> generateEvenlySpacedPoints_Spiraling(unsigned int n);
 
@@ -541,7 +634,7 @@ std::pair<std::vector<double>, std::vector<double>> generateEvenlySpacedPoints_S
  * and meridional lines (spiraling). Staggered points should be preferred.
  *
  * @param n number of points to generate
- * @return a pair of vectors, first vector are polar angles, second vector are azimuth angles
+ * @return a pair of vectors, first vector are polar angles, second vector are azimuth angles (both in radians)
  */
 std::pair<std::vector<double>, std::vector<double>> generateEvenlySpacedPoints_Staggered(unsigned int n);
 
