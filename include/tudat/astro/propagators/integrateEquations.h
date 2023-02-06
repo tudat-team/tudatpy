@@ -607,7 +607,8 @@ void integrateEquationsFromIntegrator(
             else
             {
                 std::cerr << "Error, propagation terminated at t=" + std::to_string( static_cast< double >( currentTime ) ) +
-                             ", found NaN/Inf entry, returning propagation data up to current time" << std::endl;
+                             ", found NaN/Inf entry, returning propagation data up to current time. Current state (transposed) is: " <<
+                             newState.transpose( )<<std::endl;
                 breakPropagation = true;
                 propagationTerminationReason = std::make_shared< PropagationTerminationDetails >(
                             nan_or_inf_detected_in_state );
