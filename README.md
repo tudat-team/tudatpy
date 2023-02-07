@@ -51,13 +51,13 @@ cd tudat-bundle
 git submodule update --init --recursive
 ````
 
-3. [Optional] Switch `tudat` & `tudatpy` to their desired branches using
+3. Switch `tudat` & `tudatpy` to their desired branches using
 
 ````
 cd <tudat/tudatpy>
 git checkout <branch-name>
 ````
-Be advised that the branch from with the Conda packages are built, and that is being maintained the most, is `develop`.
+Be advised that the branch from with the Conda packages are built, and that is being maintained the most, is `develop` (and you will likely want to use this one for both tudat and tudatpy).
 See [here](https://github.com/tudat-team/tudatpy/tree/develop) for tudatpy develop branch, and [here](https://github.com/tudat-team/tudat/tree/develop) for tudat develop branch.
 
 It is then recommended to switch to the `develop` branch using the commands above.
