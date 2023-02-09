@@ -43,7 +43,7 @@ std::shared_ptr<electromagnetism::RadiationPressureTargetModel> createRadiationP
 
     switch(modelSettings->getRadiationPressureTargetModelType())
     {
-        case cannonball_target:
+        case RadiationPressureTargetModelType::cannonball_target:
         {
             auto cannonballTargetModelSettings =
                     std::dynamic_pointer_cast< CannonballRadiationPressureTargetModelSettings >(modelSettings);
@@ -60,7 +60,7 @@ std::shared_ptr<electromagnetism::RadiationPressureTargetModel> createRadiationP
                     sourceToTargetOccultingBodies);
             break;
         }
-        case paneled_target:
+        case RadiationPressureTargetModelType::paneled_target:
         {
             auto paneledTargetModelSettings =
                     std::dynamic_pointer_cast< PaneledRadiationPressureTargetModelSettings >(modelSettings);

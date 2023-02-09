@@ -29,7 +29,7 @@ namespace simulation_setup
 /*!
  * Types of radiation pressure target models.
  */
-enum RadiationPressureTargetModelType
+enum class RadiationPressureTargetModelType
 {
     cannonball_target,
     paneled_target
@@ -88,7 +88,8 @@ public:
     explicit CannonballRadiationPressureTargetModelSettings(
             double area, double coefficient,
             const std::map<std::string, std::vector<std::string>>& sourceToTargetOccultingBodies = {}) :
-            RadiationPressureTargetModelSettings(cannonball_target, sourceToTargetOccultingBodies),
+            RadiationPressureTargetModelSettings(
+                    RadiationPressureTargetModelType::cannonball_target, sourceToTargetOccultingBodies),
             area_(area),
             coefficient_(coefficient) {}
 
@@ -128,7 +129,8 @@ public:
     explicit PaneledRadiationPressureTargetModelSettings(
             const std::vector<Panel>& panels,
             const std::map<std::string, std::vector<std::string>>& sourceToTargetOccultingBodies) :
-            RadiationPressureTargetModelSettings(paneled_target, sourceToTargetOccultingBodies),
+            RadiationPressureTargetModelSettings(
+                    RadiationPressureTargetModelType::paneled_target, sourceToTargetOccultingBodies),
             panels_(panels) {}
 
     const std::vector<Panel>& getPanels() const
