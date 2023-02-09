@@ -599,6 +599,10 @@ std::shared_ptr< ephemerides::RotationalEphemeris > createRotationModel(
                 throw std::runtime_error( "Error, when making synchronous rotation model for " + body + ", central body " +
                                           synchronousRotationSettings->getCentralBodyName( ) + " not found." );
             }
+            if( bodies.at( body )->getEphemeris( ) == nullptr )
+            {
+                throw std::runtime_error( "Error, when making synchronous rotation model for " + body + ", central body, no ephemeris found." );
+            }
             if( bodies.at( body )->getEphemeris( )->getReferenceFrameOrigin( ) == synchronousRotationSettings->getCentralBodyName( ) )
             {
                 if( bodies.at( body )->getEphemeris( )->getReferenceFrameOrientation( ) !=

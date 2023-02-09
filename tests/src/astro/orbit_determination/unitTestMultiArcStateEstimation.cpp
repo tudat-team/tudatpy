@@ -152,7 +152,7 @@ Eigen::VectorXd  executeParameterEstimation(
 
     // Define integrator settings.
     std::shared_ptr< IntegratorSettings< TimeType > > integratorSettings =
-        rungeKutta4Settings( 3600.0 );
+        rungeKutta4Settings< TimeType >( 3600.0 );
 
     std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > > propagatorSettingsList;
     for( unsigned int i = 0; i < integrationArcStartTimes.size( ); i++ )

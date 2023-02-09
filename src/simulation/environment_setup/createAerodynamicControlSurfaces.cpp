@@ -105,6 +105,20 @@ createControlSurfaceIncrementAerodynamicCoefficientInterface(
     // Check type of interface that is to be created.
     switch( coefficientSettings->getAerodynamicCoefficientType( ) )
     {
+    case custom_aerodynamic_coefficients:
+    {
+        std::shared_ptr< CustomControlSurfaceIncrementAerodynamicCoefficientSettings > customSettings =
+                std::dynamic_pointer_cast< CustomControlSurfaceIncrementAerodynamicCoefficientSettings >(
+                        coefficientSettings );
+        if( coefficientSettings == nullptr )
+        {
+            throw std::runtime_error( "Error when creating custom aerodynamic coefficient settings; input type is inconsistent" );
+        }
+        coefficientInterface = std::make_shared< aerodynamics::CustomControlSurfaceIncrementAerodynamicInterface >(
+                customSettings->getCoefficientFunction( ),
+                customSettings->getIndependentVariableNames( ) );
+        break;
+    }
     case tabulated_coefficients:
     {
         // Check number of dimensions of tabulated coefficients.
