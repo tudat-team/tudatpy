@@ -426,12 +426,14 @@ BOOST_AUTO_TEST_CASE( test_radiationPressureAcceleration )
     // Get settings for celestial bodies
     BodyListSettings bodySettings;
     bodySettings.addSettings( getDefaultSingleBodySettings( "Earth", 0.0, 10.0 * 86400.0 ), "Earth" );
-    bodySettings.addSettings( getDefaultSingleBodySettings( "Sun", 0.0,10.0 * 86400.0 ), "Sun" );
+    bodySettings.addSettings( getDefaultSingleBodySettings( "Sun", 0.0, 10.0 * 86400.0 ), "Sun" );
 
     // Get settings for vehicle
     double area = 2.34;
     double coefficient = 1.2;
+    double bodyMass = 500.0;
     bodySettings.addSettings( "Vehicle" );
+    bodySettings.at("Vehicle")->constantMass = bodyMass;
     bodySettings.at( "Vehicle" )->radiationPressureTargetModelSettings =
             std::make_shared<CannonballRadiationPressureTargetModelSettings>(area, coefficient);
     bodySettings.at( "Vehicle" )->ephemerisSettings =
@@ -460,11 +462,6 @@ BOOST_AUTO_TEST_CASE( test_radiationPressureAcceleration )
 
     // Set (arbitrary) test time.
     double testTime = 5.0 * 86400.0;
-
-    // Set vehicle mass
-    double bodyMass = 500.0;
-    bodies.at( "Vehicle" )->setBodyMassFunction( [ & ]( const double ){ return bodyMass; } );
-    bodies.at( "Vehicle" )->updateMass( testTime );
 
     // Update environment to current time.
     bodies.at( "Sun" )->setStateFromEphemeris< double, double >( testTime );

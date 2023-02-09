@@ -263,15 +263,14 @@ BOOST_AUTO_TEST_CASE( testStaticallyPaneledRadiationSourceModel_Albedo )
     }
 }
 
-//! Test latitude/longitude conversion in constructor
+//! Test polar/azimuth angle to latitude/longitude conversion in constructor
 BOOST_AUTO_TEST_CASE( testPaneledRadiationSourceModelPanel )
 {
-    std::vector<std::unique_ptr<SourcePanelRadiosityModel>> emptyRadiosityModels {};
-
     {
         // North pole
         const auto expectedLatitude = PI / 2;
 
+        std::vector<std::unique_ptr<SourcePanelRadiosityModel>> emptyRadiosityModels {};
         const auto panel = PaneledRadiationSourceModel::Panel(
                 1,
                 Eigen::Vector3d(0, 0, 100),
@@ -287,6 +286,7 @@ BOOST_AUTO_TEST_CASE( testPaneledRadiationSourceModelPanel )
         // South pole
         const auto expectedLatitude = -PI / 2;
 
+        std::vector<std::unique_ptr<SourcePanelRadiosityModel>> emptyRadiosityModels {};
         const auto panel = PaneledRadiationSourceModel::Panel(
                 1,
                 Eigen::Vector3d(0, 0, -100),
@@ -303,6 +303,7 @@ BOOST_AUTO_TEST_CASE( testPaneledRadiationSourceModelPanel )
         const auto expectedLatitude = 0;
         const auto expectedLongitude = -PI / 4;
 
+        std::vector<std::unique_ptr<SourcePanelRadiosityModel>> emptyRadiosityModels {};
         const auto panel = PaneledRadiationSourceModel::Panel(
                 1,
                 Eigen::Vector3d(100, -100, 0),
@@ -395,14 +396,14 @@ BOOST_AUTO_TEST_CASE( testGenerateEvenlySpacedPoints_Staggered_Values )
 {
     auto n = 10;
     const auto pairOfAngleVectors = generateEvenlySpacedPoints_Staggered(n);
-    const auto polarAngles = std::get<0>(pairOfAngleVectors);
-    const auto azimuthAngles = std::get<1>(pairOfAngleVectors);
+    const auto actualPolarAngles = std::get<0>(pairOfAngleVectors);
+    const auto actualAzimuthAngles = std::get<1>(pairOfAngleVectors);
 
-    BOOST_CHECK_EQUAL(polarAngles.size(), n);
-    BOOST_CHECK_EQUAL(azimuthAngles.size(), n);
+    BOOST_CHECK_EQUAL(actualPolarAngles.size(), n);
+    BOOST_CHECK_EQUAL(actualAzimuthAngles.size(), n);
 
     // Generated with Python script with visually verified results
-    const std::vector<double> actualPolarAngles{
+    const std::vector<double> expectedPolarAngles{
         2.6905658417935308,
         2.34619382340565,
         2.0943951023931953,
@@ -414,7 +415,7 @@ BOOST_AUTO_TEST_CASE( testGenerateEvenlySpacedPoints_Staggered_Values )
         0.7953988301841433,
         0.4510268117962619
     };
-    const std::vector<double> actualAzimuthAngles{
+    const std::vector<double> expectedAzimuthAngles{
         0.0,
         2.399963229728653,
         4.799926459457306,
@@ -429,8 +430,8 @@ BOOST_AUTO_TEST_CASE( testGenerateEvenlySpacedPoints_Staggered_Values )
 
     for (int i = 0; i < n; ++i)
     {
-        BOOST_CHECK_CLOSE(polarAngles[i], actualPolarAngles[i], 1e-15);
-        BOOST_CHECK_CLOSE(azimuthAngles[i], actualAzimuthAngles[i], 1e-15);
+        BOOST_CHECK_CLOSE(actualPolarAngles[i], expectedPolarAngles[i], 1e-15);
+        BOOST_CHECK_CLOSE(actualAzimuthAngles[i], expectedAzimuthAngles[i], 1e-15);
     }
 }
 
