@@ -1565,7 +1565,8 @@ BOOST_AUTO_TEST_CASE( test_surfacePropertyDistributionSetup_SphericalHarmonics_D
 {
     using namespace tudat::electromagnetism;
 
-    auto surfacePropertyDistributionSettings = sphericalHarmonicsSurfacePropertyDistributionSettings(albedo_dlam1);
+    auto surfacePropertyDistributionSettings = sphericalHarmonicsSurfacePropertyDistributionSettings(
+            SphericalHarmonicsSurfacePropertyDistributionModel::albedo_dlam1);
     auto surfacePropertyDistribution =
             std::dynamic_pointer_cast<SphericalHarmonicsSurfacePropertyDistribution>(
                     createSurfacePropertyDistribution(surfacePropertyDistributionSettings, ""));
