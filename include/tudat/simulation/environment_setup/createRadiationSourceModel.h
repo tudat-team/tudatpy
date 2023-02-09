@@ -487,28 +487,19 @@ public:
      * Constructor.
      *
      * @param albedoDistribution Albedo distribution
-     * @param withInstantaneousReradiation Whether to instantaneously reradiate absorbed radiation
      */
     explicit AlbedoPanelRadiosityModelSettings(
-            const std::shared_ptr<SurfacePropertyDistributionSettings>& albedoDistribution,
-            bool withInstantaneousReradiation) :
+            const std::shared_ptr<SurfacePropertyDistributionSettings>& albedoDistribution) :
             PanelRadiosityModelSettings(PanelRadiosityModelType::albedo),
-            albedoDistribution_(albedoDistribution),
-            withInstantaneousReradiation_(withInstantaneousReradiation) {}
+            albedoDistribution_(albedoDistribution) {}
 
     const std::shared_ptr<SurfacePropertyDistributionSettings>& getAlbedoDistribution() const
     {
         return albedoDistribution_;
     }
 
-    bool getWithInstantaneousReradiation() const
-    {
-        return withInstantaneousReradiation_;
-    }
-
 private:
     std::shared_ptr<SurfacePropertyDistributionSettings> albedoDistribution_;
-    bool withInstantaneousReradiation_;
 };
 
 /*!
@@ -749,30 +740,25 @@ inline std::shared_ptr<SecondDegreeZonalPeriodicSurfacePropertyDistributionSetti
  * Create settings for an albedo panel radiosity model with same albedo at any point on surface.
  *
  * @param albedo Constant albedo
- * @param withInstantaneousReradiation Whether to instantaneously reradiate absorbed radiation
  * @return Shared pointer to settings for an albedo panel radiosity model
  */
-inline std::shared_ptr<AlbedoPanelRadiosityModelSettings>
-        albedoPanelRadiosityModelSettings(double albedo, bool withInstantaneousReradiation = false)
+inline std::shared_ptr<AlbedoPanelRadiosityModelSettings> albedoPanelRadiosityModelSettings(double albedo)
 {
-    return std::make_shared< AlbedoPanelRadiosityModelSettings >(
-        constantSurfacePropertyDistributionSettings(albedo), withInstantaneousReradiation);
+    return std::make_shared< AlbedoPanelRadiosityModelSettings >(constantSurfacePropertyDistributionSettings(albedo));
 }
 
 /*!
  * Create settings for an albedo panel radiosity model with spherical harmonics albedo from model included in Tudat.
  *
  * @param albedoModel Spherical harmonics model to be used
- * @param withInstantaneousReradiation Whether to instantaneously reradiate absorbed radiation
  * @return Shared pointer to settings for an albedo panel radiosity model
  */
 inline std::shared_ptr<AlbedoPanelRadiosityModelSettings>
         albedoPanelRadiosityModelSettings(
-                SphericalHarmonicsSurfacePropertyDistributionModel albedoModel,
-                bool withInstantaneousReradiation = false)
+                SphericalHarmonicsSurfacePropertyDistributionModel albedoModel)
 {
     return std::make_shared< AlbedoPanelRadiosityModelSettings >(
-            sphericalHarmonicsSurfacePropertyDistributionSettings(albedoModel), withInstantaneousReradiation);
+            sphericalHarmonicsSurfacePropertyDistributionSettings(albedoModel));
 }
 
 /*!
@@ -780,16 +766,14 @@ inline std::shared_ptr<AlbedoPanelRadiosityModelSettings>
  * from model included in Tudat.
  *
  * @param albedoModel Model to be used
- * @param withInstantaneousReradiation Whether to instantaneously reradiate absorbed radiation
  * @return Shared pointer to settings for an albedo panel radiosity model
  */
 inline std::shared_ptr<AlbedoPanelRadiosityModelSettings>
         albedoPanelRadiosityModelSettings(
-                SecondDegreeZonalPeriodicSurfacePropertyDistributionModel albedoModel,
-                bool withInstantaneousReradiation = false)
+                SecondDegreeZonalPeriodicSurfacePropertyDistributionModel albedoModel)
 {
     return std::make_shared< AlbedoPanelRadiosityModelSettings >(
-            secondDegreeZonalPeriodicSurfacePropertyDistributionSettings(albedoModel), withInstantaneousReradiation);
+            secondDegreeZonalPeriodicSurfacePropertyDistributionSettings(albedoModel));
 }
 
 /*!
@@ -810,7 +794,6 @@ inline std::shared_ptr<DelayedThermalPanelRadiosityModelSettings>
  * emissivity from model included in Tudat.
  *
  * @param emissivityModel Model to be used
- * @param withInstantaneousReradiation Whether to instantaneously reradiate absorbed radiation
  * @return Shared pointer to settings for a delayed thermal panel radiosity model
  */
 inline std::shared_ptr<DelayedThermalPanelRadiosityModelSettings>

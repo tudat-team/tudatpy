@@ -24,8 +24,6 @@ Eigen::Vector3d computeSinglePanelNormalizedRadiationPressureForce(
     if( cosineOfPanelInclination > 0.0 )
     {
         // Evaluate Eq. (3.72) of Montenbruck & Gill (2000)
-        // TODO-DOMINIK seems rather like Eq. (5) of Montenbruck (2014), which also includes diffuse reflection
-        //    but disregards instantaneous Lambertian reradiation
         panelRadiationPressureForce = -cosineOfPanelInclination * panelArea * (
                     ( 1.0 - panelEmissivitty ) * normalizedVectorToSource + 2.0 * (
                         panelEmissivitty * cosineOfPanelInclination + panelDiffuseReflectionCoefficient / 3.0 ) * panelSurfaceNormal );
@@ -66,4 +64,3 @@ PanelledRadiationPressureAcceleration::PanelledRadiationPressureAcceleration(
 }
 
 }
-
