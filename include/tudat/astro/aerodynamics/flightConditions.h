@@ -531,6 +531,11 @@ public:
         controlSurfaceAerodynamicCoefficientIndependentVariables_.clear( );
     }
 
+    void resetAerodynamicCoefficientInterface( const std::shared_ptr< AerodynamicCoefficientInterface > coefficientInterface )
+    {
+        aerodynamicCoefficientInterface_ = coefficientInterface;
+    }
+
 private:
 
     //! Function to (compute and) retrieve the value of an independent variable of aerodynamic coefficients
