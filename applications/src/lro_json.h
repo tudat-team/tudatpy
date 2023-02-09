@@ -4,6 +4,9 @@
 #include <iostream>
 #include <fstream>
 #include <memory>
+#include <vector>
+#include <algorithm>
+#include <iterator>
 
 #include <nlohmann/json.hpp>
 
@@ -51,10 +54,11 @@ struct Settings
     std::string targetType{};
     bool useOccultation{};
     bool useMoonRadiation{};
+    std::string panelingMoon{};
     std::string albedoDistributionMoon{};
     unsigned int numberOfPanelsMoon{};
-    std::string thermalType{};
-    bool useInstantaneousReradiation{};
+    std::vector<int> numberOfPanelsPerRingMoon{};
+    std::string thermalTypeMoon{};
     double stepSize{};
 };
 
@@ -77,10 +81,11 @@ Settings loadSettings(char* path)
     settings.targetType = settings_["target_type"];
     settings.useOccultation = settings_["use_occultation"];
     settings.useMoonRadiation = settings_["use_moon_radiation"];
+    settings.panelingMoon = settings_["paneling_moon"];
     settings.albedoDistributionMoon = settings_["albedo_distribution_moon"];
     settings.numberOfPanelsMoon = settings_["number_of_panels_moon"];
-    settings.thermalType = settings_["thermal_type"];
-    settings.useInstantaneousReradiation = settings_["use_instantaneous_reradiation"];
+    settings.numberOfPanelsPerRingMoon = settings_["number_of_panels_per_ring_moon"].get<std::vector<int>>();
+    settings.thermalTypeMoon = settings_["thermal_type_moon"];
 
     settings.stepSize = settings_["step_size"];
 
@@ -92,22 +97,28 @@ Settings loadSettings(char* path)
 std::ostream& operator<<(std::ostream& os, const Settings& settings)
 {
     os << std::boolalpha;
-    return os
-            << "Settings:" << std::endl
-            << " - ID: " << settings.id << std::endl
-            << " - Save directory: " << settings.saveDir << std::endl
-            << " - Simulation start: " << formatEphemerisTime(settings.simulationStartEpoch) << std::endl
-            << " - Simulation duration: " << (settings.simulationDuration / 60) << " min" << std::endl
-            << " - Simulation end: " << formatEphemerisTime(settings.simulationEndEpoch) << std::endl
-            << " - Target type: " << settings.targetType << std::endl
-            << " - Use occultation: " << settings.useOccultation << std::endl
-            << " - Use moon radiation: " << settings.useMoonRadiation << std::endl
-            << " - Albedo distribution (Moon): " << settings.albedoDistributionMoon << std::endl
-            << " - Number of panels (Moon): " << settings.numberOfPanelsMoon << std::endl
-            << " - Thermal type: " << settings.thermalType << std::endl
-            << " - Use instantaneous reradiation: " << settings.useInstantaneousReradiation << std::endl
-            << " - Step size: " << settings.stepSize << " s" << std::endl;
+    os
+        << "Settings:" << std::endl
+        << " - ID: " << settings.id << std::endl
+        << " - Save directory: "<<settings.saveDir<<std::endl
+        << " - Simulation start: "<<formatEphemerisTime(settings.simulationStartEpoch)<<std::endl
+        << " - Simulation duration: "<<(settings.simulationDuration / 60)<<" min"<<std::endl
+        << " - Simulation end: "<<formatEphemerisTime(settings.simulationEndEpoch)<<std::endl
+        << " - Target type: "<<settings.targetType<<std::endl
+        << " - Use occultation: "<<settings.useOccultation<<std::endl
+        << " - Use moon radiation: "<<settings.useMoonRadiation<<std::endl
+        << " - Paneling type (Moon): "<<settings.panelingMoon<<std::endl
+        << " - Albedo distribution (Moon): "<<settings.albedoDistributionMoon<<std::endl
+        << " - Number of panels (Moon): "<<settings.numberOfPanelsMoon<<std::endl
+        << " - Number of panels per ring (Moon): ";
+    std::copy(settings.numberOfPanelsPerRingMoon.begin(), settings.numberOfPanelsPerRingMoon.end(),
+              std::ostream_iterator<int>(os, ", "));
+    os
+        << std::endl
+        << " - Thermal type (moon): "<<settings.thermalTypeMoon<<std::endl
+        << " - Step size: " << settings.stepSize << " s" << std::endl;
     os << std::noboolalpha;
+    return os;
 }
 
 std::string formatEphemerisTime(double et)
