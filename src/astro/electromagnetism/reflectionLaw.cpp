@@ -39,7 +39,7 @@ double SpecularDiffuseMixReflectionLaw::evaluateReflectedFraction(const Eigen::V
 
     // TODO-DOMINIK is this correct? Should follow from Montenbruck (2014)
     double instantaneousReradiationReflectance = 0;
-    if (withInstantaneousLambertianReradiation_)
+    if (withInstantaneousReradiation_)
     {
         instantaneousReradiationReflectance = absorptivity_ / mathematical_constants::PI;
     }
@@ -74,7 +74,7 @@ Eigen::Vector3d SpecularDiffuseMixReflectionLaw::evaluateReactionVector(const Ei
             -(2. / 3 * diffuseReflectivity_ + 2 * specularReflectivity_ * cosBetweenNormalAndIncoming) * surfaceNormal;
 
     Eigen::Vector3d reactionFromInstantaneousReradiation;
-    if (withInstantaneousLambertianReradiation_)
+    if (withInstantaneousReradiation_)
     {
         // Montenbruck (2014) Eq. 6
         // Instantaneous Lambertian reradiation behaves like diffuse Lambertian reflection
