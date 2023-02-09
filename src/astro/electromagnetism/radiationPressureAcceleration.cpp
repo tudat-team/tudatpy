@@ -30,7 +30,6 @@ void RadiationPressureAcceleration::updateMembers(const double currentTime)
         sourceToTargetOccultationModel_->updateMembers(currentTime);
         updateMembers_(currentTime);
 
-        // TODO-DOMINIK for dynamic paneling, set target position here
         currentAcceleration_ = calculateAcceleration();
     }
 }
