@@ -941,8 +941,14 @@ public:
      */
     void setAerodynamicCoefficientInterface(
             const std::shared_ptr<aerodynamics::AerodynamicCoefficientInterface>
-            aerodynamicCoefficientInterface) {
+            aerodynamicCoefficientInterface)
+    {
         aerodynamicCoefficientInterface_ = aerodynamicCoefficientInterface;
+
+        if( std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >( aerodynamicFlightConditions_ ) != nullptr )
+        {
+            std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >( aerodynamicFlightConditions_ )->resetAerodynamicCoefficientInterface( aerodynamicCoefficientInterface_ );
+        }
     }
 
     //! Function to set the body flight conditions
