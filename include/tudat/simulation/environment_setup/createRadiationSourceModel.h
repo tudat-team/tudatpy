@@ -584,6 +584,8 @@ private:
 
 /*!
  * Settings for a statically paneled radiation source model.
+ *
+ * @see StaticallyPaneledRadiationSourceModel
  */
 class StaticallyPaneledRadiationSourceModelSettings : public RadiationSourceModelSettings
 {
@@ -647,7 +649,7 @@ inline std::shared_ptr<ConstantSurfacePropertyDistributionSettings>
 }
 
 /*!
- * Create settings for constant surface property distribution from coefficients.
+ * Create settings for spherical harmonics surface property distribution from coefficients.
  *
  * @param cosineCoefficients Cosine spherical harmonic coefficients (not normalized)
  * @param sineCoefficients Sine spherical harmonic coefficients (not normalized)
@@ -663,7 +665,7 @@ inline std::shared_ptr<SphericalHarmonicsSurfacePropertyDistributionSettings>
 }
 
 /*!
- * Create settings for constant surface property distribution from model included in Tudat.
+ * Create settings for spherical harmonics surface property distribution from model included in Tudat.
  *
  * @param model Spherical harmonics model to be used
  * @return Shared pointer to settings for a spherical harmonics surface property distribution.
@@ -700,24 +702,23 @@ inline std::shared_ptr<AlbedoPanelRadiosityModelSettings>
 {
     return std::make_shared< AlbedoPanelRadiosityModelSettings >(
         constantSurfacePropertyDistributionSettings(albedo), withInstantaneousReradiation);
-
 }
 
 /*!
- * Create settings for an albedo panel radiosity model with spherical harmonics albedo.
+ * Create settings for an albedo panel radiosity model with spherical harmonics albedo from model included in Tudat.
  *
- * @param albedo Constant albedo
+ * @param albedoModel Spherical harmonics model to be used
  * @param withInstantaneousReradiation Whether to instantaneously reradiate absorbed radiation
  * @return Shared pointer to settings for an albedo panel radiosity model
  */
 inline std::shared_ptr<AlbedoPanelRadiosityModelSettings>
-
-albedoPanelRadiosityModelSettings(
+        albedoPanelRadiosityModelSettings(
                 SphericalHarmonicsSurfacePropertyDistributionModel albedoModel,
                 bool withInstantaneousReradiation = false)
 {
     return std::make_shared< AlbedoPanelRadiosityModelSettings >(
             sphericalHarmonicsSurfacePropertyDistributionSettings(albedoModel), withInstantaneousReradiation);
+}
 
 /*!
  * Create settings for an albedo panel radiosity model with second-degree zonal periodic spherical harmonics albedo
@@ -750,6 +751,22 @@ inline std::shared_ptr<DelayedThermalPanelRadiosityModelSettings>
 }
 
 /*!
+ * Create settings for a delayed thermal panel radiosity model with second-degree zonal periodic spherical harmonics
+ * emissivity from model included in Tudat.
+ *
+ * @param emissivityModel Model to be used
+ * @param withInstantaneousReradiation Whether to instantaneously reradiate absorbed radiation
+ * @return Shared pointer to settings for a delayed thermal panel radiosity model
+ */
+inline std::shared_ptr<DelayedThermalPanelRadiosityModelSettings>
+        delayedThermalPanelRadiosityModelSettings(
+                SecondDegreeZonalPeriodicSurfacePropertyDistributionModel emissivityModel)
+{
+    return std::make_shared< DelayedThermalPanelRadiosityModelSettings >(
+            secondDegreeZonalPeriodicSurfacePropertyDistributionSettings(emissivityModel));
+}
+
+/*!
  * Create settings for an angle-based thermal panel radiosity model with same emissivity at any point on surface.
  *
  * @param minTemperature Minimum surface temperature (in shade) [K]
@@ -758,9 +775,10 @@ inline std::shared_ptr<DelayedThermalPanelRadiosityModelSettings>
  * @return Shared pointer to settings for an angle-based panel radiosity model
  */
 inline std::shared_ptr<AngleBasedThermalPanelRadiosityModelSettings>
-        angleBasedThermalPanelRadiosityModelSettings(double minTemperature,
-                                             double maxTemperature,
-                                             double emissivity)
+        angleBasedThermalPanelRadiosityModelSettings(
+                double minTemperature,
+                double maxTemperature,
+                double emissivity)
 {
     return std::make_shared< AngleBasedThermalPanelRadiosityModelSettings >(
             minTemperature,
