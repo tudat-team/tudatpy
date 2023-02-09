@@ -81,7 +81,7 @@ public:
     virtual IrradianceWithSourceList evaluateIrradianceAtPosition(
             const Eigen::Vector3d& targetPosition,
             double originalSourceIrradiance,
-            const Eigen::Vector3d& originalSourceToSourceDirection) const = 0;
+            const Eigen::Vector3d& originalSourceToSourceDirection) = 0;
 
     /*!
      * Evaluate the total irradiance [W/m²] at a certain position due to this source. Individual rays are merged, as
@@ -95,7 +95,7 @@ public:
     double evaluateTotalIrradianceAtPosition(
             const Eigen::Vector3d& targetPosition,
             double originalSourceIrradiance,
-            const Eigen::Vector3d& originalSourceToSourceDirection) const;
+            const Eigen::Vector3d& originalSourceToSourceDirection);
 
 protected:
     virtual void updateMembers_(const double currentTime) {};
@@ -128,7 +128,7 @@ public:
     IrradianceWithSourceList evaluateIrradianceAtPosition(
             const Eigen::Vector3d& targetPosition,
             double originalSourceIrradiance,
-            const Eigen::Vector3d& originalSourceToSourceDirection) const override;
+            const Eigen::Vector3d& originalSourceToSourceDirection) override;
 
     /*!
      * Evaluate the irradiance [W/m²] at a certain position due to this source.
@@ -197,7 +197,7 @@ public:
     IrradianceWithSourceList evaluateIrradianceAtPosition(
             const Eigen::Vector3d& targetPosition,
             double originalSourceIrradiance,
-            const Eigen::Vector3d& originalSourceToSourceDirection) const override;
+            const Eigen::Vector3d& originalSourceToSourceDirection) override;
 
     /*!
      * Get all panels comprising this paneled source.
@@ -303,20 +303,55 @@ private:
     std::vector<Panel> panels_;
 };
 
-///*!
-// * Class modeling a paneled source with paneling created dynamically based on the spacecraft position. Panel
-// * properties such as albedo and emissivity are evaluated anew with every panel generation.
-// *
-// * This is the classic paneling for albedo modeling introduced by Knocke (1998). Panels are only generated for a
-// * spherical cap under the spacecraft, divided into 2 rings and a central panel.
-// */
-//// TODO-DOMINIK figure out how to implement dynamic paneling with support for multiple targets
-//class DynamicallyPaneledRadiationSourceModel : public PaneledRadiationSourceModel
-//{
-//private:
-//    // keep target-specific panel lists, otherwise may have to regenerate a lot
-//    std::map<std::string, std::vector<Panel>> panels_;
-//};
+/*!
+ * Class modeling a paneled source with paneling created dynamically based on the spacecraft position. Panel
+ * properties such as albedo and emissivity are evaluated anew with every panel generation.
+ *
+ * This is the classic paneling for albedo modeling introduced by Knocke (1988). Panels are generated for the
+ * the spherical cap of the source body that is visible from the target. The spherical cap is divided into
+ * a central cap centered around the subsatellite point and a number of rings divided into panels.
+ */
+class DynamicallyPaneledRadiationSourceModel : public PaneledRadiationSourceModel
+{
+public:
+    /*!
+     * Constructor.
+     *
+     * @param originalSourceName Name of the original source body
+     * @param sourceBodyShapeModel Shape model of this source
+     * @param baseRadiosityModels Radiosity models that will be copied for each panel
+     * @param numberOfPanelsPerRing Number of panels for each ring, excluding the central cap
+     * @param originalSourceToSourceOccultingBodies Names of bodies to occult the original source as seen from this source
+     */
+    explicit DynamicallyPaneledRadiationSourceModel(
+            const std::string& originalSourceName,
+            const std::shared_ptr<basic_astrodynamics::BodyShapeModel>& sourceBodyShapeModel,
+            const std::vector<std::unique_ptr<SourcePanelRadiosityModel>>& baseRadiosityModels,
+            const std::vector<int>& numberOfPanelsPerRing,
+            const std::vector<std::string>& originalSourceToSourceOccultingBodies = {});
+
+    IrradianceWithSourceList evaluateIrradianceAtPosition(
+            const Eigen::Vector3d& targetPosition,
+            double originalSourceIrradiance,
+            const Eigen::Vector3d& originalSourceToSourceDirection) override;
+
+    const std::vector<Panel>& getPanels() const override
+    {
+        return panels_;
+    }
+
+    unsigned int getNumberOfPanels() const override
+    {
+        return numberOfPanels;
+    }
+
+private:
+    unsigned int numberOfPanels;
+
+    const std::vector<int> numberOfPanelsPerRing_;
+
+    std::vector<Panel> panels_;
+};
 
 /*!
  * Class modeling a single panel on a paneled source.
@@ -367,6 +402,39 @@ public:
         return area_;
     }
 
+    void setArea(double area)
+    {
+        area_ = area;
+    }
+
+    const Eigen::Vector3d& getRelativeCenter() const
+    {
+        return relativeCenter_;
+    }
+
+    /*!
+     * Set relative center with pre-computed polar/azimuth angles.
+     */
+    void setRelativeCenter(
+            const Eigen::Vector3d& relativeCenter,
+            const double polarAngle,
+            const double azimuthAngle)
+    {
+        relativeCenter_ = relativeCenter;
+        latitude_ = M_PI_2 - polarAngle;
+        longitude_ = azimuthAngle;
+    }
+
+    const Eigen::Vector3d& getSurfaceNormal() const
+    {
+        return surfaceNormal_;
+    }
+
+    void setSurfaceNormal(const Eigen::Vector3d& surfaceNormal)
+    {
+        surfaceNormal_ = surfaceNormal;
+    }
+
     double getLatitude() const
     {
         return latitude_;
@@ -377,16 +445,6 @@ public:
         return longitude_;
     }
 
-    const Eigen::Vector3d& getRelativeCenter() const
-    {
-        return relativeCenter_;
-    }
-
-    const Eigen::Vector3d& getSurfaceNormal() const
-    {
-        return surfaceNormal_;
-    }
-
     const std::vector<std::unique_ptr<SourcePanelRadiosityModel>>& getRadiosityModels() const
     {
         return radiosityModels_;
@@ -394,8 +452,8 @@ public:
 
 private:
     double area_;
-    double latitude_;
-    double longitude_;
+    double latitude_{};
+    double longitude_{};
     Eigen::Vector3d relativeCenter_;
     Eigen::Vector3d surfaceNormal_;
     std::vector<std::unique_ptr<SourcePanelRadiosityModel>> radiosityModels_;
@@ -409,7 +467,7 @@ private:
  * and meridional lines (spiraling). Staggered points should be preferred.
  *
  * @param n number of points to generate
- * @return a pair of vectors, first vector are polar angles, second vector are azimuth angles (both in radians)
+ * @return a pair of vectors of polar angles (between 0 and π) and azimuth angles (between 0 and 2π)
  */
 std::pair<std::vector<double>, std::vector<double>> generateEvenlySpacedPoints_Spiraling(unsigned int n);
 
@@ -421,9 +479,26 @@ std::pair<std::vector<double>, std::vector<double>> generateEvenlySpacedPoints_S
  * and meridional lines (spiraling). Staggered points should be preferred.
  *
  * @param n number of points to generate
- * @return a pair of vectors, first vector are polar angles, second vector are azimuth angles (both in radians)
+ * @return a pair of vectors of polar angles (between 0 and π) and azimuth angles (between 0 and 2π)
  */
 std::pair<std::vector<double>, std::vector<double>> generateEvenlySpacedPoints_Staggered(unsigned int n);
+
+/*!
+ * Generate panels for the spherical cap of the source body that is visible from the target as in Knocke (1988). The
+ * spherical cap is divided into a central cap centered around the subsatellite point and a number of rings divided into
+ * panels.
+ *
+ * @param targetPosition Position of the target in local frame
+ * @param numberOfPanelsPerRing Number of panels for each ring, excluding the central cap
+ * @param radius Radius of the body
+ * @return a tuple of vectors of Cartesian panel centers, the respective polar angles (between 0 and π) and azimuth angles
+ *      (between 0 and 2π), and areas
+ */
+std::tuple<std::vector<Eigen::Vector3d>, std::vector<double>, std::vector<double>, std::vector<double>>
+generatePaneledSphericalCap(
+        const Eigen::Vector3d& targetPosition,
+        const std::vector<int>& numberOfPanelsPerRing,
+        double radius);
 
 
 } // tudat

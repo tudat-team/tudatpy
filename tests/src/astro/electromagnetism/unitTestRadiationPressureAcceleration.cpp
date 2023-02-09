@@ -702,7 +702,7 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPointSource_Pan
 }
 
 //! Test basic case for paneled target acceleration with paneled source
-BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_PaneledSource_PaneledTarget_Basic )
+BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_StaticallyPaneledSource_PaneledTarget_Basic )
 {
     // Set distance to speed of light to cancel to unity radiation pressure
     auto luminosityModel = std::make_shared<IrradianceBasedLuminosityModel>(
@@ -755,7 +755,7 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_PaneledSource_PaneledTar
 }
 
 //! Test occultation for cannonball target acceleration with paneled source
-BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_PaneledSource_CannonballTarget_Occultation )
+BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_StaticallyPaneledSource_CannonballTarget_Occultation )
 {
     const auto originalSourcePosition = Eigen::Vector3d(10, 0, 0);
     auto originalSourceModel = std::make_shared<IsotropicPointRadiationSourceModel>(
