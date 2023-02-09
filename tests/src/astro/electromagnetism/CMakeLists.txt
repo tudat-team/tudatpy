@@ -82,4 +82,6 @@ TUDAT_ADD_TEST_CASE(SurfacePropertyDistribution
         PRIVATE_LINKS
         tudat_electromagnetism
         tudat_basic_mathematics
+        tudat_basic_astrodynamics
+        tudat_spice_interface
         )

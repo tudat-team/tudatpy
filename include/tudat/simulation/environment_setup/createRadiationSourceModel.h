@@ -223,10 +223,11 @@ inline std::shared_ptr<IsotropicPointRadiationSourceModelSettings>
 /*!
  * Types of surface property distributions.
  */
-enum SurfacePropertyDistributionType
+enum class SurfacePropertyDistributionType
 {
     constant,
-    spherical_harmonics
+    spherical_harmonics,
+    second_degree_zonal_periodic
 };
 
 /*!
@@ -267,7 +268,7 @@ public:
      */
     explicit ConstantSurfacePropertyDistributionSettings(
             const double constantValue) :
-            SurfacePropertyDistributionSettings(constant),
+            SurfacePropertyDistributionSettings(SurfacePropertyDistributionType::constant),
             constantValue_(constantValue) {}
 
     double getConstantValue() const
@@ -279,7 +280,7 @@ private:
     double constantValue_;
 };
 
-enum SphericalHarmonicsSurfacePropertyDistributionModel
+enum class SphericalHarmonicsSurfacePropertyDistributionModel
 {
     custom,
     albedo_dlam1 /**< DLAM-1 lunar albedo model: Floberghagen, R. et al. "Lunar Albedo Force Modeling and its Effect on Low Lunar Orbit and Gravity Field Determination". ASR 23. 4(1999): 733-738. */
@@ -303,8 +304,8 @@ public:
     explicit SphericalHarmonicsSurfacePropertyDistributionSettings(
             const Eigen::MatrixXd& cosineCoefficients,
             const Eigen::MatrixXd& sineCoefficients) :
-            SurfacePropertyDistributionSettings(spherical_harmonics),
-            model_(custom),
+            SurfacePropertyDistributionSettings(SurfacePropertyDistributionType::spherical_harmonics),
+            model_(SphericalHarmonicsSurfacePropertyDistributionModel::custom),
             cosineCoefficients_(cosineCoefficients),
             sineCoefficients_(sineCoefficients) {}
 
@@ -334,6 +335,106 @@ private:
 
     // Sine spherical harmonic coefficients (not normalized)
     Eigen::MatrixXd sineCoefficients_;
+};
+
+enum class SecondDegreeZonalPeriodicSurfacePropertyDistributionModel
+{
+    custom,
+    albedo_knocke, /**< Knocke Earth albedo model: Knocke, Philip et al. "Earth radiation pressure effects on satellites." Astrodynamics Conference. American Institute of Aeronautics and Astronautics, 1988. */
+    emissivity_knocke /**< Knocke Earth emissivity model: Knocke, Philip et al. "Earth radiation pressure effects on satellites." Astrodynamics Conference. American Institute of Aeronautics and Astronautics, 1988. */
+};
+
+/*!
+ * Settings for a surface property distribution described by a second-degree zonal periodic spherical harmonics expansion. The
+ * reference frame of the body and spherical harmonics must be identical.
+ *
+ * @see SphericalHarmonicsSurfacePropertyDistribution
+ */
+class SecondDegreeZonalPeriodicSurfacePropertyDistributionSettings : public SurfacePropertyDistributionSettings
+{
+public:
+    /*!
+     * Constructor with custom model.
+     *
+     * @param a0 Zeroeth-degree coefficient
+     * @param c0 Constant term of first-degree zonal coefficient
+     * @param c1 Cosine coefficient of first-degree zonal coefficient
+     * @param c2 Sine coefficient of first-degree zonal coefficient
+     * @param a2 Second-degree zonal coefficient
+     * @param referenceEpoch Reference epoch for periodicity [seconds]
+     * @param period Period of periodicity [days]
+     */
+    explicit SecondDegreeZonalPeriodicSurfacePropertyDistributionSettings(
+            const double a0,
+            const double c0,
+            const double c1,
+            const double c2,
+            const double a2,
+            const double referenceEpoch,
+            const double period) :
+            SurfacePropertyDistributionSettings(SurfacePropertyDistributionType::second_degree_zonal_periodic),
+            model_(SecondDegreeZonalPeriodicSurfacePropertyDistributionModel::custom),
+            a0(a0),
+            c0(c0),
+            c1(c1),
+            c2(c2),
+            a2(a2),
+            referenceEpoch(referenceEpoch),
+            period(period) {}
+
+    /*!
+    * Constructor with model included in Tudat.
+    *
+    * @param model Model to be used
+    */
+    explicit SecondDegreeZonalPeriodicSurfacePropertyDistributionSettings(
+            SecondDegreeZonalPeriodicSurfacePropertyDistributionModel model);
+
+    double getA0() const
+    {
+        return a0;
+    }
+
+    double getC0() const
+    {
+        return c0;
+    }
+
+    double getC1() const
+    {
+        return c1;
+    }
+
+    double getC2() const
+    {
+        return c2;
+    }
+
+    double getA2() const
+    {
+        return a2;
+    }
+
+    double getReferenceEpoch() const
+    {
+        return referenceEpoch;
+    }
+
+    double getPeriod() const
+    {
+        return period;
+    }
+
+private:
+    SecondDegreeZonalPeriodicSurfacePropertyDistributionModel model_;
+
+    double a0;
+    double c0;
+    double c1;
+    double c2;
+    double a2;
+    double referenceEpoch;
+    double period;
 };
 
 /*!
@@ -575,6 +676,19 @@ inline std::shared_ptr<SphericalHarmonicsSurfacePropertyDistributionSettings>
 }
 
 /*!
+ * Create settings for second-degree zonal surface property distribution from model included in Tudat.
+ *
+ * @param model Model to be used
+ * @return Shared pointer to settings for a second-degree zonal surface property distribution.
+ */
+inline std::shared_ptr<SecondDegreeZonalPeriodicSurfacePropertyDistributionSettings>
+        secondDegreeZonalPeriodicSurfacePropertyDistributionSettings(
+                SecondDegreeZonalPeriodicSurfacePropertyDistributionModel model)
+{
+    return std::make_shared< SecondDegreeZonalPeriodicSurfacePropertyDistributionSettings >(model);
+}
+
+/*!
  * Create settings for an albedo panel radiosity model with same albedo at any point on surface.
  *
  * @param albedo Constant albedo
@@ -605,6 +719,21 @@ albedoPanelRadiosityModelSettings(
     return std::make_shared< AlbedoPanelRadiosityModelSettings >(
             sphericalHarmonicsSurfacePropertyDistributionSettings(albedoModel), withInstantaneousReradiation);
 
+/*!
+ * Create settings for an albedo panel radiosity model with second-degree zonal periodic spherical harmonics albedo
+ * from model included in Tudat.
+ *
+ * @param albedoModel Model to be used
+ * @param withInstantaneousReradiation Whether to instantaneously reradiate absorbed radiation
+ * @return Shared pointer to settings for an albedo panel radiosity model
+ */
+inline std::shared_ptr<AlbedoPanelRadiosityModelSettings>
+        albedoPanelRadiosityModelSettings(
+                SecondDegreeZonalPeriodicSurfacePropertyDistributionModel albedoModel,
+                bool withInstantaneousReradiation = false)
+{
+    return std::make_shared< AlbedoPanelRadiosityModelSettings >(
+            secondDegreeZonalPeriodicSurfacePropertyDistributionSettings(albedoModel), withInstantaneousReradiation);
 }
 
 /*!

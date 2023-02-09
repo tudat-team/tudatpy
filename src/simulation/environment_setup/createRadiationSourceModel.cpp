@@ -12,6 +12,9 @@
 
 #include <memory>
 
+#include "tudat/interface/spice/spiceInterface.h"
+#include "tudat/astro/basic_astro/physicalConstants.h"
+
 
 namespace tudat
 {
@@ -75,6 +78,45 @@ SphericalHarmonicsSurfacePropertyDistributionSettings::SphericalHarmonicsSurface
     }
 }
 
+SecondDegreeZonalPeriodicSurfacePropertyDistributionSettings::SecondDegreeZonalPeriodicSurfacePropertyDistributionSettings(
+        SecondDegreeZonalPeriodicSurfacePropertyDistributionModel model) :
+        SecondDegreeZonalPeriodicSurfacePropertyDistributionSettings(TUDAT_NAN, TUDAT_NAN, TUDAT_NAN, TUDAT_NAN, TUDAT_NAN, TUDAT_NAN, TUDAT_NAN)
+{
+    model_ = model;
+
+    switch(model)
+    {
+        case SecondDegreeZonalPeriodicSurfacePropertyDistributionModel::albedo_knocke:
+        {
+            // Knocke Earth albedo model: Knocke, Philip et al. "Earth radiation pressure effects on satellites." Astrodynamics Conference. American Institute of Aeronautics and Astronautics, 1988.
+            a0 = 0.34;
+            c0 = 0;
+            c1 = 0.1;
+            c2 = 0;
+            a2 = 0.29;
+            referenceEpoch = spice_interface::convertDateStringToEphemerisTime("1981 DEC 22");
+            period = physical_constants::JULIAN_YEAR_IN_DAYS;
+
+            break;
+        }
+        case SecondDegreeZonalPeriodicSurfacePropertyDistributionModel::emissivity_knocke:
+        {
+            // Knocke Earth emissivity model: Knocke, Philip et al. "Earth radiation pressure effects on satellites." Astrodynamics Conference. American Institute of Aeronautics and Astronautics, 1988.
+            a0 = 0.68;
+            c0 = 0;
+            c1 = -0.07;
+            c2 = 0;
+            a2 = -0.18;
+            referenceEpoch = spice_interface::convertDateStringToEphemerisTime("1981 DEC 22");
+            period = physical_constants::JULIAN_YEAR_IN_DAYS;
+
+            break;
+        }
+        default:
+            throw std::runtime_error( "Error, do not recognize second-degree zonal periodic surface distribution model");
+    }
+}
+
 std::shared_ptr<electromagnetism::LuminosityModel> createLuminosityModel(
         const std::shared_ptr<LuminosityModelSettings>& modelSettings,
         const std::string &body)
@@ -133,7 +175,7 @@ std::shared_ptr<electromagnetism::SurfacePropertyDistribution> createSurfaceProp
 
     switch(distributionSettings->getSurfacePropertyDistributionType())
     {
-        case constant:
+        case SurfacePropertyDistributionType::constant:
         {
             auto constantSurfacePropertyDistributionSettings =
                     std::dynamic_pointer_cast<ConstantSurfacePropertyDistributionSettings>(distributionSettings);
@@ -147,7 +189,7 @@ std::shared_ptr<electromagnetism::SurfacePropertyDistribution> createSurfaceProp
                     constantSurfacePropertyDistributionSettings->getConstantValue());
             break;
         }
-        case spherical_harmonics:
+        case SurfacePropertyDistributionType::spherical_harmonics:
         {
             auto sphericalHarmonicsSurfacePropertyDistributionSettings =
                     std::dynamic_pointer_cast<SphericalHarmonicsSurfacePropertyDistributionSettings>(distributionSettings);
@@ -160,6 +202,26 @@ std::shared_ptr<electromagnetism::SurfacePropertyDistribution> createSurfaceProp
             surfacePropertyDistribution = std::make_shared<SphericalHarmonicsSurfacePropertyDistribution>(
                     sphericalHarmonicsSurfacePropertyDistributionSettings->getCosineCoefficients(),
                     sphericalHarmonicsSurfacePropertyDistributionSettings->getSineCoefficients());
+            break;
+        }
+        case SurfacePropertyDistributionType::second_degree_zonal_periodic:
+        {
+            auto secondDegreeZonalPeriodicSurfacePropertyDistributionSettings =
+                    std::dynamic_pointer_cast<SecondDegreeZonalPeriodicSurfacePropertyDistributionSettings>(distributionSettings);
+            if(secondDegreeZonalPeriodicSurfacePropertyDistributionSettings == nullptr)
+            {
+                throw std::runtime_error(
+                        "Error, expected second-degree zonal periodic surface property distribution for body " + body );
+            }
+
+            surfacePropertyDistribution = std::make_shared<SecondDegreeZonalPeriodicSurfacePropertyDistribution>(
+                    secondDegreeZonalPeriodicSurfacePropertyDistributionSettings->getA0(),
+                    secondDegreeZonalPeriodicSurfacePropertyDistributionSettings->getC0(),
+                    secondDegreeZonalPeriodicSurfacePropertyDistributionSettings->getC1(),
+                    secondDegreeZonalPeriodicSurfacePropertyDistributionSettings->getC2(),
+                    secondDegreeZonalPeriodicSurfacePropertyDistributionSettings->getA2(),
+                    secondDegreeZonalPeriodicSurfacePropertyDistributionSettings->getReferenceEpoch(),
+                    secondDegreeZonalPeriodicSurfacePropertyDistributionSettings->getPeriod());
             break;
         }
         default:

@@ -6,6 +6,10 @@
  *    under the terms of the Modified BSD license. You should have received
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
+ *
+ *    References
+ *      Knocke, Philip et al. "Earth radiation pressure effects on satellites."
+ *          Astrodynamics Conference. American Institute of Aeronautics and Astronautics, 1988.
  */
 
 #ifndef TUDAT_SURFACEPROPERTYDISTRIBUTION_H
@@ -21,6 +25,8 @@ namespace tudat
 {
 namespace electromagnetism
 {
+
+using mathematical_constants::PI;
 
 /*!
  * Class modeling the distribution of a property on the surface of a sphere such as albedo or emissivity. The
@@ -146,6 +152,69 @@ private:
     basic_mathematics::SphericalHarmonicsCache sphericalHarmonicsCache_;
 
     basic_mathematics::LegendreCache& legendreCache_;
+};
+
+/*!
+ * Class modeling the distribution of a property on the surface of a sphere, such as albedo or emissivity. The
+ * distribution is periodic. Spatial variations are given by a second-degree zonal spherical harmonics expansion (i.e.
+ * the distribution is constant w.r.t. longitude). This model corresponds to the albedo and emissivity for Earth in
+ * Knocke (1988).
+ *
+ * Only the first-degree zonal coefficient varies with time.
+ */
+class SecondDegreeZonalPeriodicSurfacePropertyDistribution : public SurfacePropertyDistribution
+{
+public:
+    /*!
+     * Constructor.
+     *
+     * @param a0 Zeroeth-degree coefficient
+     * @param c0 Constant term of first-degree zonal coefficient
+     * @param c1 Cosine coefficient of first-degree zonal coefficient
+     * @param c2 Sine coefficient of first-degree zonal coefficient
+     * @param a2 Second-degree zonal coefficient
+     * @param referenceEpoch Reference epoch for periodicity [seconds]
+     * @param period Period of periodicity [days]
+     */
+    explicit SecondDegreeZonalPeriodicSurfacePropertyDistribution(
+            const double a0,
+            const double c0,
+            const double c1,
+            const double c2,
+            const double a2,
+            const double referenceEpoch,
+            const double period) :
+            a0(a0),
+            c0(c0),
+            c1(c1),
+            c2(c2),
+            a2(a2),
+            referenceEpoch(referenceEpoch),
+            angularFrequency(2 * PI / period) {}
+
+    double getValue(double latitude, double longitude) override
+    {
+        return getValue(latitude);
+    };
+
+    double getValue(double latitude) const;
+
+    bool isTimeInvariant() override
+    {
+        return false;
+    };
+
+private:
+    void updateMembers_(double currentTime) override;
+
+    const double a0;
+    double a1{TUDAT_NAN};
+    const double c0;
+    const double c1;
+    const double c2;
+    const double a2;
+    const double referenceEpoch;
+    const double angularFrequency;
 };
 
 } // tudat

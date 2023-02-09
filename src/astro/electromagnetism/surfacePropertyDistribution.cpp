@@ -10,6 +10,9 @@
 
 #include "tudat/astro/electromagnetism/surfacePropertyDistribution.h"
 
+#include "tudat/math/basic/legendrePolynomials.h"
+#include "tudat/astro/basic_astro/physicalConstants.h"
+
 
 namespace tudat
 {
@@ -48,6 +51,25 @@ double SphericalHarmonicsSurfacePropertyDistribution::getValue(
     }
 
     return value;
+}
+
+double SecondDegreeZonalPeriodicSurfacePropertyDistribution::getValue(double latitude) const
+{
+    const auto sinOfLatitude = sin(latitude);
+
+    // Compute first-degree and second-degree zonal Legendre polynomials
+    const double P1 = sinOfLatitude;
+    const double P2 = (3 * sinOfLatitude * sinOfLatitude - 1) / 2;
+
+    const double value = a0 + a1 * P1 + a2 * P2;
+
+    return value;
+}
+
+void SecondDegreeZonalPeriodicSurfacePropertyDistribution::updateMembers_(const double currentTime)
+{
+    const double daysSinceReferenceEpoch = (currentTime - referenceEpoch) / physical_constants::JULIAN_DAY;
+    a1 = c0 + c1 * cos(angularFrequency * daysSinceReferenceEpoch) + c2 * sin(angularFrequency * daysSinceReferenceEpoch);
 }
 
 } // tudat
