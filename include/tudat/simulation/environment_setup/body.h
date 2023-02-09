@@ -947,10 +947,15 @@ public:
         std::vector< std::string > controlSurfaceList = aerodynamicCoefficientInterface->getControlSurfaceNames( );
         for( unsigned int i = 0; i < controlSurfaceList.size( ); i++ )
         {
-            if( getVehicleSystems( )->doesControlSurfaceExist( controlSurfaceList.at( i ) ) == 0 )
+            if ( getVehicleSystems( )->doesControlSurfaceExist( controlSurfaceList.at( i )) == 0 )
             {
                 vehicleSystems_->setCurrentControlSurfaceDeflection( controlSurfaceList.at( i ), 0.0 );
             }
+        }
+
+        if( std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >( aerodynamicFlightConditions_ ) != nullptr )
+        {
+            std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >( aerodynamicFlightConditions_ )->resetAerodynamicCoefficientInterface( aerodynamicCoefficientInterface_ );
         }
     }
 
