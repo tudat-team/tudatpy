@@ -75,7 +75,8 @@ public:
 /*!
  * Reflection law for a mix of purely specular and purely diffuse Lambertian reflection. All radiation that is not
  * reflected is absorbed. Absorbed radiation can (optionally) be instantaneously diffusely reradiated, e.g., as
- * simplified model of a satellite's own thermal radiation (Vielberg, 2020).
+ * simplified model of a satellite's own thermal radiation (Vielberg, 2020). Instantaneous reradiation only makes
+ * sense for targets, for sources use the dedicated thermal panel radiosity models.
  * 
  * Note that, to receive any specular reflection in evaluateReflectedFraction(), the observer has to be exactly
  * in the mirror-like reflection of the incoming ray, which is unlikely.
@@ -91,17 +92,17 @@ public:
      * @param absorptivity Absorptivity (between 0 and 1)
      * @param specularReflectivity Specular reflectivity (between 0 and 1)
      * @param diffuseReflectivity Diffuse reflectivity (between 0 and 1)
-     * @param withInstantaneousLambertianReradiation Whether to instantaneously reradiate absorbed radiation
+     * @param withInstantaneousReradiation Whether to instantaneously reradiate absorbed radiation
      */
     explicit SpecularDiffuseMixReflectionLaw(
             double absorptivity,
             double specularReflectivity,
             double diffuseReflectivity,
-            bool withInstantaneousLambertianReradiation = false) :
+            bool withInstantaneousReradiation = false) :
             absorptivity_(absorptivity),
             specularReflectivity_(specularReflectivity),
             diffuseReflectivity_(diffuseReflectivity),
-            withInstantaneousLambertianReradiation_(withInstantaneousLambertianReradiation)
+            withInstantaneousReradiation_(withInstantaneousReradiation)
     {
         validateCoefficients();
     }
@@ -130,9 +131,9 @@ public:
         return diffuseReflectivity_;
     }
 
-    bool getWithInstantaneousLambertianReradiation() const
+    bool isWithInstantaneousReradiation() const
     {
-        return withInstantaneousLambertianReradiation_;
+        return withInstantaneousReradiation_;
     }
 
 protected:
@@ -141,7 +142,7 @@ protected:
     double absorptivity_;
     double specularReflectivity_;
     double diffuseReflectivity_;
-    bool withInstantaneousLambertianReradiation_;
+    bool withInstantaneousReradiation_;
 };
 
 /*!
@@ -154,16 +155,14 @@ public:
      * Constructor.
 
      * @param diffuseReflectivity Diffuse reflectivity, e.g., albedo (between 0 and 1)
-     * @param withInstantaneousLambertianReradiation Whether to instantaneously reradiate absorbed radiation
      */
     explicit LambertianReflectionLaw(
-            double diffuseReflectivity,
-            bool withInstantaneousLambertianReradiation = false) :
+            double diffuseReflectivity) :
         SpecularDiffuseMixReflectionLaw(
             1-diffuseReflectivity,
             0,
             diffuseReflectivity,
-            withInstantaneousLambertianReradiation) {}
+            false) {}
 
     void setDiffuseReflectivity(double diffuseReflectivity)
     {
@@ -187,35 +186,41 @@ Eigen::Vector3d computeMirrorlikeReflection(
 
 inline std::shared_ptr<SpecularDiffuseMixReflectionLaw> reflectionLawFromAbsorptivityAndSpecularReflectivity(
         double absorptivity,
-        double specularReflectivity)
+        double specularReflectivity,
+        bool withInstantaneousReradiation = false)
 {
     const auto diffuseReflectivity = 1 - absorptivity - specularReflectivity;
     return std::make_shared<SpecularDiffuseMixReflectionLaw>(
             absorptivity,
             specularReflectivity,
-            diffuseReflectivity);
+            diffuseReflectivity,
+            withInstantaneousReradiation);
 }
 
 inline std::shared_ptr<SpecularDiffuseMixReflectionLaw> reflectionLawFromAbsorptivityAndDiffuseReflectivity(
         double absorptivity,
-        double diffuseReflectivity)
+        double diffuseReflectivity,
+        bool withInstantaneousReradiation = false)
 {
     const auto specularReflectivity = 1 - absorptivity - diffuseReflectivity;
     return std::make_shared<SpecularDiffuseMixReflectionLaw>(
             absorptivity,
             specularReflectivity,
-            diffuseReflectivity);
+            diffuseReflectivity,
+            withInstantaneousReradiation);
 }
 
 inline std::shared_ptr<SpecularDiffuseMixReflectionLaw> reflectionLawFromSpecularAndDiffuseReflectivity(
         double specularReflectivity,
-        double diffuseReflectivity)
+        double diffuseReflectivity,
+        bool withInstantaneousReradiation = false)
 {
     const auto absorptivity = 1 - specularReflectivity - diffuseReflectivity;
     return std::make_shared<SpecularDiffuseMixReflectionLaw>(
             absorptivity,
             specularReflectivity,
-            diffuseReflectivity);
+            diffuseReflectivity,
+            withInstantaneousReradiation);
 }
 
 

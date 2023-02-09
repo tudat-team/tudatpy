@@ -253,8 +253,7 @@ std::unique_ptr<electromagnetism::SourcePanelRadiosityModel> createPanelRadiosit
 
             panelRadiosityModel = std::make_unique<AlbedoSourcePanelRadiosityModel>(
                     createSurfacePropertyDistribution(
-                            albedoPanelRadiosityModelSettings->getAlbedoDistribution(), body),
-                    albedoPanelRadiosityModelSettings->getWithInstantaneousReradiation());
+                            albedoPanelRadiosityModelSettings->getAlbedoDistribution(), body));
             break;
         }
         case PanelRadiosityModelType::thermal_delayed:

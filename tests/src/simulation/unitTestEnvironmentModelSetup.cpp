@@ -1504,7 +1504,6 @@ BOOST_AUTO_TEST_CASE( test_radiationSourceModelSetup_StaticallyPaneled )
     const auto expectedNumberOfPanels = 42;
     const auto expectedNumberOfRadiosityModels = 3;
     const auto expectedAlbedo = 0.42;
-    const auto expectedWithInstantaneousReradiation = true;
     const auto expectedEmissivity = 0.32;
     const auto expectedMinTemperature = 100;
     const auto expectedMaxTemperature = 200;
@@ -1513,7 +1512,7 @@ BOOST_AUTO_TEST_CASE( test_radiationSourceModelSetup_StaticallyPaneled )
     auto staticallyPaneledSourceModelSettings =
             staticallyPaneledRadiationSourceModelSettings(
                 expectedOriginalSourceName, {
-                    albedoPanelRadiosityModelSettings(expectedAlbedo, expectedWithInstantaneousReradiation),
+                    albedoPanelRadiosityModelSettings(expectedAlbedo),
                     delayedThermalPanelRadiosityModelSettings(expectedEmissivity),
                     angleBasedThermalPanelRadiosityModelSettings(
                             expectedMinTemperature, expectedMaxTemperature, expectedEmissivity)
@@ -1541,7 +1540,6 @@ BOOST_AUTO_TEST_CASE( test_radiationSourceModelSetup_StaticallyPaneled )
     const auto actualOriginalSourceName = staticallyPaneledSourceModel->getOriginalSourceName();
     const auto actualNumberOfPanels = staticallyPaneledSourceModel->getNumberOfPanels();
     const auto actualAlbedo = reflectionLaw->getDiffuseReflectivity();
-    const auto actualWithInstantaneousReradiation = reflectionLaw->getWithInstantaneousLambertianReradiation();
     const auto actualEmissivityDelayed = delayedThermalModel.getEmissivity();
     const auto actualEmissivityAngleBased = angleBasedThermalModel.getEmissivity();
     const auto actualMinTemperature = angleBasedThermalModel.getMinTemperature();
@@ -1551,7 +1549,6 @@ BOOST_AUTO_TEST_CASE( test_radiationSourceModelSetup_StaticallyPaneled )
     BOOST_CHECK_EQUAL(actualOriginalSourceName, expectedOriginalSourceName);
     BOOST_CHECK_EQUAL(actualNumberOfPanels, expectedNumberOfPanels);
     BOOST_CHECK_EQUAL(actualAlbedo, expectedAlbedo);
-    BOOST_CHECK_EQUAL(actualWithInstantaneousReradiation, expectedWithInstantaneousReradiation);
     BOOST_CHECK_EQUAL(actualEmissivityDelayed, expectedEmissivity);
     BOOST_CHECK_EQUAL(actualEmissivityAngleBased, expectedEmissivity);
     BOOST_CHECK_EQUAL(actualMinTemperature, expectedMinTemperature);
@@ -1650,6 +1647,8 @@ BOOST_AUTO_TEST_CASE( test_radiationPressureTargetModelSetup_PaneledTarget )
     const auto expectedDiffuseReflectivityPanel2 = 0.4;
     const auto expectedAbsorptivityPanel1 = 0.6;
     const auto expectedAbsorptivityPanel2 = 0.4;
+    const auto expectedWithInstantaneousReradiationPanel1 = true;
+    const auto expectedWithInstantaneousReradiationPanel2 = false;
     const Eigen::Vector3d expectedSurfaceNormalPanel1 = Eigen::Vector3d::UnitX();
     const Eigen::Vector3d expectedSurfaceNormalPanel2 = Eigen::Vector3d::UnitY();
     const Eigen::Vector3d expectedSurfaceNormalPanel3 = Eigen::Vector3d(-1, -1, 0).normalized(); // towards Sun
@@ -1673,21 +1672,25 @@ BOOST_AUTO_TEST_CASE( test_radiationPressureTargetModelSetup_PaneledTarget )
                             expectedAreaPanel1,
                             expectedSpecularReflectivityPanel1,
                             expectedDiffuseReflectivityPanel1,
+                            expectedWithInstantaneousReradiationPanel1,
                             expectedSurfaceNormalPanel1),
                     TargetPanelSettings(
                             expectedAreaPanel2,
                             expectedSpecularReflectivityPanel2,
                             expectedDiffuseReflectivityPanel2,
+                            expectedWithInstantaneousReradiationPanel2,
                             2 * expectedSurfaceNormalPanel2), // setup should normalize this vector
                     TargetPanelSettings(
                             expectedAreaPanel2,
                             expectedSpecularReflectivityPanel2,
                             expectedDiffuseReflectivityPanel2,
+                            expectedWithInstantaneousReradiationPanel2,
                             "Sun"), // towards Sun
                     TargetPanelSettings(
                             expectedAreaPanel2,
                             expectedSpecularReflectivityPanel2,
                             expectedDiffuseReflectivityPanel2,
+                            expectedWithInstantaneousReradiationPanel2,
                             "Sun", // away from Sun
                             false)});
     auto paneledRadiationPressureTarget =
@@ -1719,6 +1722,8 @@ BOOST_AUTO_TEST_CASE( test_radiationPressureTargetModelSetup_PaneledTarget )
     BOOST_CHECK_CLOSE(panel2ReflectionLaw->getDiffuseReflectivity(), expectedDiffuseReflectivityPanel2, 1e-10);
     BOOST_CHECK_CLOSE(panel1ReflectionLaw->getAbsorptivity(), expectedAbsorptivityPanel1, 1e-10);
     BOOST_CHECK_CLOSE(panel2ReflectionLaw->getAbsorptivity(), expectedAbsorptivityPanel2, 1e-10);
+    BOOST_CHECK(panel1ReflectionLaw->isWithInstantaneousReradiation() == expectedWithInstantaneousReradiationPanel1);
+    BOOST_CHECK(panel2ReflectionLaw->isWithInstantaneousReradiation() == expectedWithInstantaneousReradiationPanel2);
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(panel1.getSurfaceNormal(), expectedSurfaceNormalPanel1, 1e-10);
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(panel2.getSurfaceNormal(), expectedSurfaceNormalPanel2, 1e-10);
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(panel3.getSurfaceNormal(), expectedSurfaceNormalPanel3, 1e-10);
@@ -2274,4 +2279,3 @@ BOOST_AUTO_TEST_SUITE_END( )
 
 } // namespace unit_tests
 } // namespace tudat
-

@@ -112,7 +112,8 @@ std::shared_ptr<electromagnetism::RadiationPressureTargetModel> createRadiationP
                         surfaceNormalFunction,
                         reflectionLawFromSpecularAndDiffuseReflectivity(
                                 panel.getSpecularReflectivity(),
-                                panel.getDiffuseReflectivity()));
+                                panel.getDiffuseReflectivity(),
+                                panel.isWithInstantaneousReradiation()));
             }
 
             radiationPressureTargetModel = std::make_shared<PaneledRadiationPressureTargetModel>(

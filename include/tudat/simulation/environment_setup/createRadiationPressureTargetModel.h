@@ -156,32 +156,38 @@ public:
      * @param area Area of the panel [m²]
      * @param specularReflectivity Specular reflectivity coefficient of the panel [-]
      * @param diffuseReflectivity Diffuse reflectivity coefficient of the panel [-]
+     * @param withInstantaneousReradiation Whether to instantaneously reradiate absorbed radiation
      * @param surfaceNormalFunction Function returning the surface normal vector of the panel [-]
      */
     explicit Panel(double area,
                    double specularReflectivity,
                    double diffuseReflectivity,
+                   bool withInstantaneousReradiation,
                    const std::function<Eigen::Vector3d()>& surfaceNormalFunction) :
             area_(area),
             specularReflectivity_(specularReflectivity),
             diffuseReflectivity_(diffuseReflectivity),
+            withInstantaneousReradiation_(withInstantaneousReradiation),
             surfaceNormalFunction_(surfaceNormalFunction)  {}
 
     /*!
     * Constructor for a panel with a given surface normal vector.
-     *
+    *
     * @param area Area of the panel [m²]
     * @param specularReflectivity Specular reflectivity coefficient of the panel [-]
     * @param diffuseReflectivity Diffuse reflectivity coefficient of the panel [-]
+    * @param withInstantaneousReradiation Whether to instantaneously reradiate absorbed radiation
     * @param surfaceNormal Surface normal vector of the panel [-]
     */
     explicit Panel(double area,
                    double specularReflectivity,
                    double diffuseReflectivity,
+                   bool withInstantaneousReradiation,
                    const Eigen::Vector3d& surfaceNormal) :
             Panel(area,
                   specularReflectivity,
                   diffuseReflectivity,
+                  withInstantaneousReradiation,
                   [=] () { return surfaceNormal; }) {}
 
     /*!
@@ -190,17 +196,20 @@ public:
     * @param area Area of the panel [m²]
     * @param specularReflectivity Specular reflectivity coefficient of the panel [-]
     * @param diffuseReflectivity Diffuse reflectivity coefficient of the panel [-]
+    * @param withInstantaneousReradiation Whether to instantaneously reradiate absorbed radiation
     * @param bodyToTrack Name of the body to track
     * @param towardsTrackedBody Whether the panel points towards or away from tracked body
     */
     explicit Panel(double area,
                    double specularReflectivity,
                    double diffuseReflectivity,
+                   bool withInstantaneousReradiation,
                    const std::string& bodyToTrack,
                    const bool towardsTrackedBody = true) :
             area_(area),
             specularReflectivity_(specularReflectivity),
             diffuseReflectivity_(diffuseReflectivity),
+            withInstantaneousReradiation_(withInstantaneousReradiation),
             bodyToTrack_(bodyToTrack),
             towardsTrackedBody_(towardsTrackedBody) {}
 
@@ -224,6 +233,11 @@ public:
         return diffuseReflectivity_;
     }
 
+    bool isWithInstantaneousReradiation() const
+    {
+        return withInstantaneousReradiation_;
+    }
+
     const std::string &getBodyToTrack() const
     {
         return bodyToTrack_;
@@ -238,6 +252,7 @@ private:
     double area_;
     double specularReflectivity_;
     double diffuseReflectivity_;
+    bool withInstantaneousReradiation_;
     std::function<Eigen::Vector3d()> surfaceNormalFunction_;
     std::string bodyToTrack_;
     bool towardsTrackedBody_{true};

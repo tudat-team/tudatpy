@@ -90,8 +90,8 @@ protected:
 };
 
 /*!
- * Panel radiosity model for albedo radiation with an arbitrary reflection law. This model was introduced in
- * Knocke (1988) for Earth thermal radiation, but only assuming Lambertian reflectance.
+ * Panel radiosity model for albedo radiation. This model was introduced in Knocke (1988) for Earth thermal radiation,
+ * assuming Lambertian reflectance.
  *
  * For most cases, albedo radiation with a diffuse-only Lambertian reflection law is sufficient. Only a small fraction
  * of Earth's albedo is actually specular, since only calm bodies of water are truly specular and specular reflection
@@ -99,6 +99,7 @@ protected:
  *
  * More sophisticated reflection laws (e.g., SpecularDiffuseMixReflectionLaw, or any BRDF via a custom ReflectionLaw)
  * can be implemented to take into account surface properties like different vegetation and ground types on Earth.
+ * A separate panel radiosity model has to be created for these laws.
  */
 class AlbedoSourcePanelRadiosityModel : public SourcePanelRadiosityModel
 {
@@ -107,13 +108,11 @@ public:
      * Constructor.
      *
      * @param albedoDistribution Albedo distribution
-     * @param withInstantaneousReradiation Whether to instantaneously reradiate absorbed radiation
      */
     explicit AlbedoSourcePanelRadiosityModel(
-            const std::shared_ptr<SurfacePropertyDistribution>& albedoDistribution,
-            bool withInstantaneousReradiation = false) :
+            const std::shared_ptr<SurfacePropertyDistribution>& albedoDistribution) :
             albedoDistribution_(albedoDistribution),
-            reflectionLaw_(std::make_shared<LambertianReflectionLaw>(TUDAT_NAN, withInstantaneousReradiation)) {}
+            reflectionLaw_(std::make_shared<LambertianReflectionLaw>(TUDAT_NAN)) {}
 
     double evaluateIrradianceAtPosition(
             double panelArea,
