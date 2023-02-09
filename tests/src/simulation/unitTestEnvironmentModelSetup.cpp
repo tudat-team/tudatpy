@@ -42,6 +42,7 @@
 #include "tudat/astro/ephemerides/synchronousRotationalEphemeris.h"
 
 #include "tudat/interface/spice/spiceEphemeris.h"
+#include "tudat/interface/spice/spiceInterface.h"
 #include "tudat/astro/gravitation/triAxialEllipsoidGravity.h"
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/io/matrixTextFileReader.h"
@@ -1587,6 +1588,28 @@ BOOST_AUTO_TEST_CASE( test_surfacePropertyDistributionSetup_SphericalHarmonics_D
     const auto expectedValue2 = 0.2001460910686691;
     const auto actualValue2 = surfacePropertyDistribution->getValue(-1.5, 0.9);
     BOOST_CHECK_CLOSE(actualValue2, expectedValue2, 1e-15);
+}
+
+BOOST_AUTO_TEST_CASE( test_surfacePropertyDistributionSetup_SecondDegreeZonalPeriodic_KnockeAlbedo )
+{
+    using namespace tudat::electromagnetism;
+
+    spice_interface::loadStandardSpiceKernels();
+
+    auto surfacePropertyDistributionSettings = secondDegreeZonalPeriodicSurfacePropertyDistributionSettings(
+            SecondDegreeZonalPeriodicSurfacePropertyDistributionModel::albedo_knocke);
+    auto surfacePropertyDistribution =
+            std::dynamic_pointer_cast<SecondDegreeZonalPeriodicSurfacePropertyDistribution>(
+                    createSurfacePropertyDistribution(surfacePropertyDistributionSettings, ""));
+
+    // Identical values to testSecondDegreeZonalPeriodicSurfacePropertyDistribution_Albedo in unitTestSurfacePropertyDistribution
+    surfacePropertyDistribution->updateMembers(spice_interface::convertDateStringToEphemerisTime("2005 AUG 19 13:46:17"));
+    double actualValue = surfacePropertyDistribution->getValue(unit_conversions::convertDegreesToRadians(29.73));
+    BOOST_CHECK_CLOSE(actualValue, 0.2752338314886392, 1e-13);
+
+    surfacePropertyDistribution->updateMembers(spice_interface::convertDateStringToEphemerisTime("2012 DEC 21 17:26:17"));
+    actualValue = surfacePropertyDistribution->getValue(unit_conversions::convertDegreesToRadians(81.43));
+    BOOST_CHECK_CLOSE(actualValue, 0.7192237282075249, 1e-13);
 }
 
 BOOST_AUTO_TEST_CASE( test_radiationPressureTargetModelSetup_CannonballTarget )
