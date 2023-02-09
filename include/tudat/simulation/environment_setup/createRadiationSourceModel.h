@@ -28,7 +28,7 @@ namespace simulation_setup
 /*!
  * Types of radiation source models.
  */
-enum RadiationSourceModelType
+enum class RadiationSourceModelType
 {
     isotropic_point_source,
     statically_paneled_source
@@ -62,7 +62,7 @@ private:
 /*!
  * Types of luminosity models.
  */
-enum LuminosityModelType
+enum class LuminosityModelType
 {
     constant_radiant_power,
     irradiance_based_radiant_power
@@ -104,7 +104,7 @@ public:
      */
     explicit ConstantLuminosityModelSettings(
             const double luminosity) :
-            LuminosityModelSettings(constant_radiant_power),
+            LuminosityModelSettings(LuminosityModelType::constant_radiant_power),
             luminosity_(luminosity) {}
 
     double getLuminosity() const
@@ -133,7 +133,7 @@ public:
     explicit IrradianceBasedLuminosityModelSettings(
             const std::function<double(double)>& irradianceAtDistanceFunction,
             const double distance) :
-            LuminosityModelSettings(irradiance_based_radiant_power),
+            LuminosityModelSettings(LuminosityModelType::irradiance_based_radiant_power),
             irradianceAtDistanceFunction_(irradianceAtDistanceFunction),
             distance_(distance) {}
 
@@ -165,7 +165,7 @@ public:
      */
     explicit IsotropicPointRadiationSourceModelSettings(
             const std::shared_ptr<LuminosityModelSettings>& luminosityModelSettings) :
-            RadiationSourceModelSettings(isotropic_point_source),
+            RadiationSourceModelSettings(RadiationSourceModelType::isotropic_point_source),
             luminosityModelSettings_(luminosityModelSettings) {}
 
     const std::shared_ptr<LuminosityModelSettings>& getLuminosityModelSettings() const
@@ -440,7 +440,7 @@ private:
 /*!
  * Types of panel radiosity models.
  */
-enum PanelRadiosityModelType
+enum class PanelRadiosityModelType
 {
     albedo,
     thermal_delayed,
@@ -491,7 +491,7 @@ public:
     explicit AlbedoPanelRadiosityModelSettings(
             const std::shared_ptr<SurfacePropertyDistributionSettings>& albedoDistribution,
             bool withInstantaneousReradiation) :
-            PanelRadiosityModelSettings(albedo),
+            PanelRadiosityModelSettings(PanelRadiosityModelType::albedo),
             albedoDistribution_(albedoDistribution),
             withInstantaneousReradiation_(withInstantaneousReradiation) {}
 
@@ -525,7 +525,7 @@ public:
      */
     explicit DelayedThermalPanelRadiosityModelSettings(
             const std::shared_ptr<SurfacePropertyDistributionSettings>& emissivityDistribution) :
-            PanelRadiosityModelSettings(thermal_delayed),
+            PanelRadiosityModelSettings(PanelRadiosityModelType::thermal_delayed),
             emissivityDistribution_(emissivityDistribution) {}
 
     const std::shared_ptr<SurfacePropertyDistributionSettings>& getEmissivityDistribution() const
@@ -556,7 +556,7 @@ public:
             double minTemperature,
             double maxTemperature,
             const std::shared_ptr<SurfacePropertyDistributionSettings>& emissivityDistribution) :
-            PanelRadiosityModelSettings(thermal_angle_based),
+            PanelRadiosityModelSettings(PanelRadiosityModelType::thermal_angle_based),
             minTemperature_(minTemperature),
             maxTemperature_(maxTemperature),
             emissivityDistribution_(emissivityDistribution) {}
@@ -601,7 +601,7 @@ public:
             const std::vector<std::shared_ptr<PanelRadiosityModelSettings>>& panelRadiosityModelSettings,
             unsigned int numberOfPanels,
             const std::vector<std::string>& originalSourceToSourceOccultingBodies = {}) :
-            RadiationSourceModelSettings(statically_paneled_source),
+            RadiationSourceModelSettings(RadiationSourceModelType::statically_paneled_source),
             originalSourceName_(originalSourceName),
             panelRadiosityModelSettings_(panelRadiosityModelSettings),
             numberOfPanels_(numberOfPanels),

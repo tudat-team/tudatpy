@@ -29,7 +29,7 @@ SphericalHarmonicsSurfacePropertyDistributionSettings::SphericalHarmonicsSurface
 
     switch(model)
     {
-        case albedo_dlam1:
+        case SphericalHarmonicsSurfacePropertyDistributionModel::albedo_dlam1:
         {
             // DLAM-1 lunar albedo model: Floberghagen, R. et al. "Lunar Albedo Force Modeling and its Effect on Low Lunar Orbit and Gravity Field Determination". ASR 23. 4(1999): 733-738.
             auto maximumDegree = 15;
@@ -127,7 +127,7 @@ std::shared_ptr<electromagnetism::LuminosityModel> createLuminosityModel(
 
     switch(modelSettings->getLuminosityModelType())
     {
-        case constant_radiant_power:
+        case LuminosityModelType::constant_radiant_power:
         {
             auto constantLuminosityModelSettings =
                     std::dynamic_pointer_cast< ConstantLuminosityModelSettings >(modelSettings);
@@ -142,7 +142,7 @@ std::shared_ptr<electromagnetism::LuminosityModel> createLuminosityModel(
             );
             break;
         }
-        case irradiance_based_radiant_power:
+        case LuminosityModelType::irradiance_based_radiant_power:
         {
             auto irradianceBasedLuminosityModelSettings =
                     std::dynamic_pointer_cast< IrradianceBasedLuminosityModelSettings >(modelSettings);
@@ -241,7 +241,7 @@ std::unique_ptr<electromagnetism::SourcePanelRadiosityModel> createPanelRadiosit
 
     switch(modelSettings->getPanelRadiosityModelType())
     {
-        case albedo:
+        case PanelRadiosityModelType::albedo:
         {
             auto albedoPanelRadiosityModelSettings =
                     std::dynamic_pointer_cast< AlbedoPanelRadiosityModelSettings >(modelSettings);
@@ -257,7 +257,7 @@ std::unique_ptr<electromagnetism::SourcePanelRadiosityModel> createPanelRadiosit
                     albedoPanelRadiosityModelSettings->getWithInstantaneousReradiation());
             break;
         }
-        case thermal_delayed:
+        case PanelRadiosityModelType::thermal_delayed:
         {
             auto delayedThermalPanelRadiosityModelSettings =
                     std::dynamic_pointer_cast< DelayedThermalPanelRadiosityModelSettings >(modelSettings);
@@ -272,7 +272,7 @@ std::unique_ptr<electromagnetism::SourcePanelRadiosityModel> createPanelRadiosit
                             delayedThermalPanelRadiosityModelSettings->getEmissivityDistribution(), body));
             break;
         }
-        case thermal_angle_based:
+        case PanelRadiosityModelType::thermal_angle_based:
         {
             auto angleBasedThermalPanelRadiosityModelSettings =
                     std::dynamic_pointer_cast< AngleBasedThermalPanelRadiosityModelSettings >(modelSettings);
@@ -307,7 +307,7 @@ std::shared_ptr<electromagnetism::RadiationSourceModel> createRadiationSourceMod
 
     switch(modelSettings->getRadiationSourceModelType())
     {
-    case isotropic_point_source:
+    case RadiationSourceModelType::isotropic_point_source:
     {
         auto isotropicPointModelSettings =
                 std::dynamic_pointer_cast< IsotropicPointRadiationSourceModelSettings >(modelSettings);
@@ -329,7 +329,7 @@ std::shared_ptr<electromagnetism::RadiationSourceModel> createRadiationSourceMod
         radiationSourceModel = std::make_shared<IsotropicPointRadiationSourceModel>(luminosityModel);
         break;
     }
-    case statically_paneled_source:
+    case RadiationSourceModelType::statically_paneled_source:
     {
         auto paneledModelSettings =
                 std::dynamic_pointer_cast< StaticallyPaneledRadiationSourceModelSettings >(modelSettings);
