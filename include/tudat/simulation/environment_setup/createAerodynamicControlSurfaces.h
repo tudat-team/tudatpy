@@ -233,6 +233,34 @@ protected:
     boost::multi_array< Eigen::Vector3d, static_cast< size_t >( NumberOfDimensions ) > momentCoefficients_;
 };
 
+class CustomControlSurfaceIncrementAerodynamicCoefficientSettings:
+        public ControlSurfaceIncrementAerodynamicCoefficientSettings
+{
+public:
+
+    CustomControlSurfaceIncrementAerodynamicCoefficientSettings(
+            const std::function< Eigen::Vector6d( const std::vector< double >& ) > coefficientFunction,
+            const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables >& independentVariableNames ):
+            ControlSurfaceIncrementAerodynamicCoefficientSettings( custom_aerodynamic_coefficients, independentVariableNames ),
+            coefficientFunction_( coefficientFunction )
+    { }
+
+    std::function< Eigen::Vector6d( const std::vector< double >& ) > getCoefficientFunction( )
+    {
+        return coefficientFunction_;
+    }
+
+protected:
+    std::function< Eigen::Vector6d( const std::vector< double >& ) > coefficientFunction_;
+
+};
+
+inline std::shared_ptr< CustomControlSurfaceIncrementAerodynamicCoefficientSettings > customControlSurfaceIncrementAerodynamicCoefficientSettings(
+        const std::function< Eigen::Vector6d( const std::vector< double >& ) > coefficientFunction,
+        const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables >& independentVariableNames )
+{
+    return std::make_shared< CustomControlSurfaceIncrementAerodynamicCoefficientSettings >( coefficientFunction, independentVariableNames );
+}
 //! Function to create control surface aerodynamic coefficient settings fom coefficients stored in data files
 /*!
  *  Function to create control surface aerodynamic coefficient settings fom coefficients stored in data files.

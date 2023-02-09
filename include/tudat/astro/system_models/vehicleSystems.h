@@ -95,6 +95,11 @@ public:
         currentControlSurfaceDeflections_[ controlSurfaceId ] =  deflectionAngle;
     }
 
+    bool doesControlSurfaceExist( const std::string& controlSurfaceName )
+    {
+        return ( currentControlSurfaceDeflections_.count( controlSurfaceName ) > 0 );
+    }
+
     //! Function to retrieve the current deflection of a single control surface
     /*!
      * Function to retrieve the current deflection of a single control surface
@@ -104,6 +109,11 @@ public:
     double getCurrentControlSurfaceDeflection(
             const std::string& controlSurfaceId )
     {
+        if( currentControlSurfaceDeflections_.count( controlSurfaceId ) == 0 )
+        {
+            throw std::runtime_error( "Error when retrieving control surface deflection of control surface " + controlSurfaceId +
+                ", control surface not yet created" );
+        }
         return currentControlSurfaceDeflections_.at( controlSurfaceId );
     }
 
