@@ -97,30 +97,29 @@ SystemOfBodies createSimulationBodies()
 
         if (settings.albedoDistributionMoon == "Constant")
         {
-            panelRadiosityModels.push_back(
-                    albedoPanelRadiosityModelSettings(0.12, settings.useInstantaneousReradiation));
+            panelRadiosityModels.push_back(albedoPanelRadiosityModelSettings(0.12));
         }
         else if (settings.albedoDistributionMoon == "DLAM1")
         {
             panelRadiosityModels.push_back(
-                    albedoPanelRadiosityModelSettings(albedo_dlam1, settings.useInstantaneousReradiation));
+                    albedoPanelRadiosityModelSettings(SphericalHarmonicsSurfacePropertyDistributionModel::albedo_dlam1));
         }
         else
         {
             throw std::runtime_error("Invalid albedo_distribution_moon");
         }
 
-        if (settings.thermalType == "Delayed")
+        if (settings.thermalTypeMoon == "Delayed")
         {
             panelRadiosityModels.push_back(delayedThermalPanelRadiosityModelSettings(0.95));
         }
-        else if (settings.thermalType == "AngleBased")
+        else if (settings.thermalTypeMoon == "AngleBased")
         {
             panelRadiosityModels.push_back(angleBasedThermalPanelRadiosityModelSettings(100, 375, 0.95));
         }
         else
         {
-            throw std::runtime_error("Invalid thermal_type");
+            throw std::runtime_error("Invalid thermal_type_moon");
         }
 
         std::vector<std::string> occultingBodiesForMoon{};
@@ -129,9 +128,22 @@ SystemOfBodies createSimulationBodies()
             occultingBodiesForMoon = {"Earth"};
         }
 
-        bodySettings.at("Moon")->radiationSourceModelSettings =
-                std::make_shared<StaticallyPaneledRadiationSourceModelSettings>(
-                        "Sun", panelRadiosityModels, settings.numberOfPanelsMoon, occultingBodiesForMoon);
+        if (settings.panelingMoon == "Static")
+        {
+            bodySettings.at("Moon")->radiationSourceModelSettings =
+                    std::make_shared<StaticallyPaneledRadiationSourceModelSettings>(
+                            "Sun", panelRadiosityModels, settings.numberOfPanelsMoon, occultingBodiesForMoon);
+        }
+        else if (settings.panelingMoon == "Dynamic")
+        {
+            bodySettings.at("Moon")->radiationSourceModelSettings =
+                    std::make_shared<DynamicallyPaneledRadiationSourceModelSettings>(
+                            "Sun", panelRadiosityModels, settings.numberOfPanelsPerRingMoon, occultingBodiesForMoon);
+        }
+        else
+        {
+            throw std::runtime_error("Invalid paneling_moon");
+        }
     }
 
     // Create LRO
