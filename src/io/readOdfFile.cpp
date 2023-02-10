@@ -89,7 +89,13 @@ std::shared_ptr< OdfDopplerDataBlock > parseDopplerOrbitData( std::bitset< 128 >
             dopplerDataBlock->compressionTime,
             dopplerDataBlock->transmittingStationUplinkDelay );
 
-    dopplerDataBlock->printContents();
+    std::cout<< dopplerDataBlock->receiverChannel<<" "<<
+                dopplerDataBlock->spacecraftId<<" "<<
+                dopplerDataBlock->receiverExciterFlag<<" "<<
+                std::fixed << dopplerDataBlock->getReferenceFrequency()<<" "<<
+                dopplerDataBlock->reservedSegment<<" "<<
+                dopplerDataBlock->compressionTime<<" "<<
+                dopplerDataBlock->transmittingStationUplinkDelay<<std::endl;
 
     return dopplerDataBlock;
 }
@@ -120,6 +126,14 @@ std::shared_ptr< OdfSequentialRangeDataBlock > parseSequentialRangeData( std::bi
             rangeDataBlock->coderInPhaseTimeOffset,
             rangeDataBlock->compositeTwo,
             rangeDataBlock->transmittingStationUplinkDelay );
+
+    std::cout<< rangeDataBlock->lowestRangingComponent<<" "<<
+            rangeDataBlock->spacecraftId<<" "<<
+            rangeDataBlock->reservedBlock<<" "<<
+            std::fixed << rangeDataBlock->getReferenceFrequency()<<" "<<
+            rangeDataBlock->coderInPhaseTimeOffset<<" "<<
+            rangeDataBlock->compositeTwo<<" "<<
+            rangeDataBlock->transmittingStationUplinkDelay<<std::endl;
 
     return rangeDataBlock;
 }
@@ -172,16 +186,20 @@ std::shared_ptr< OdfDataBlock > parseOrbitData( std::bitset< 288 > dataBits )
             commonDataBlock->referenceBand,
             commonDataBlock->validity );
 
-//            std::cout<<commonDataBlock->integerObservable<<" "<<
-//                       commonDataBlock->downlinkBand<<" "<<
-//                       commonDataBlock->uplinkBand<<" "<<
-//                       commonDataBlock->referenceBand<<" "<<
-//                       commonDataBlock->validity<<" "<<
-//                       commonDataBlock->formatId<<" "<<
-//                       commonDataBlock->transmittingStationNetworkId<<" "<<
-//                       commonDataBlock->receivingStation<<" "<<
-//                       commonDataBlock->transmittingStation<<" "<<
-//                       commonDataBlock->receivingStationDownlinkDelay<<" ";
+//            std::cout<< commonDataBlock->integerTimeTag<<" "<<
+//                        commonDataBlock->fractionalTimeTag<<" "<<
+//                        commonDataBlock->receivingStationDownlinkDelay<<" "<<
+//                        commonDataBlock->integerObservable<<" "<<
+//                        commonDataBlock->fractionalObservable<<" "<<
+//                        commonDataBlock->formatId<<" "<<
+//                        commonDataBlock->receivingStation<<" "<<
+//                        commonDataBlock->transmittingStation<<" "<<
+//                        commonDataBlock->transmittingStationNetworkId<<" "<<
+//                        dataType<<" "<<
+//                        commonDataBlock->downlinkBand<<" "<<
+//                        commonDataBlock->uplinkBand<<" "<<
+//                        commonDataBlock->referenceBand<<" "<<
+//                        commonDataBlock->validity<<std::endl;
 
     // Read data type specific data
     std::bitset< 128 > specificDataBits = getBitsetSegment< 128, 288 >( dataBits, 160 );
@@ -190,10 +208,10 @@ std::shared_ptr< OdfDataBlock > parseOrbitData( std::bitset< 288 > dataBits )
     {
         dataBlock->observableSpecificDataBlock = parseDopplerOrbitData( specificDataBits, dataType );
     }
-//    else if(  dataType == 37 )
-//    {
-//        dataBlock->observableSpecificDataBlock = parseSequentialRangeData( fileBlock, dataType );
-//    }
+    else if(  dataType == 37 )
+    {
+        dataBlock->observableSpecificDataBlock = parseSequentialRangeData( specificDataBits );
+    }
     else
     {
         throw std::runtime_error( "Error, ODF data type " + std::to_string( dataType ) + " not recognized." );
@@ -307,53 +325,27 @@ void parseIdentifierData( std::bitset< 288 > dataBits,
     }
 }
 
-int currentBlockIsHeader( std::bitset< 288 > dataBits,
-                          unsigned int& secondaryKeyInt )
+bool currentBlockIsHeader( std::bitset< 288 > dataBits,
+                          int& primaryKey,
+                          unsigned int& secondaryKey,
+                          unsigned int& logicalRecordLength,
+                          unsigned int& groupStartPacketNumber )
 {
-    int headerType = -2;
-
-    int32_t primaryKey;
-    uint32_t secondaryKey;
-    uint32_t logicalrecordLength;
-    uint32_t groupStartPacketNumber;
+    bool blockIsHeader;
 
     // Try reading current block as a header, if an exception is caught, block is not a header.
     try
     {
-        parseHeader( dataBits, primaryKey, secondaryKey, logicalrecordLength, groupStartPacketNumber );
+        parseHeader( dataBits, primaryKey, secondaryKey, logicalRecordLength,
+                     groupStartPacketNumber );
 
-        // If block is a header, retrieve secondary key and header type
-        secondaryKeyInt = secondaryKey;
-        if( primaryKey ==  101 )
-        {
-            headerType = 1;
-        }
-        else if( primaryKey == 107 )
-        {
-            headerType = 2;
-        }
-        else if( primaryKey == 109 )
-        {
-            headerType = 3;
-        }
-        else if( primaryKey == 2030 )
-        {
-            headerType = 4;
-        }
-        else if( primaryKey == 2040 )
-        {
-            headerType = 5;
-        }
-        else if( primaryKey == -1 )
-        {
-            headerType = -1;
-        }
+        blockIsHeader =  true;
     }
     catch( std::runtime_error )
     {
-        headerType = 0;
+        blockIsHeader =  false;
     }
-    return headerType;
+    return blockIsHeader;
 }
 
 std::shared_ptr< OdfDopplerDataBlock > parseDopplerOrbitData( char fileBlock[ 9 ][ 4 ], const int dopplerType )
@@ -656,8 +648,8 @@ std::shared_ptr< OdfRawFileContents > readOdfFile(
     // Declare used variables
     std::bitset< 36 * 8 > currentFileBlock;
     // Variables to parse headers
-    int32_t primaryKey;
-    uint32_t secondaryKey, logicalRecordLength, groupStartPacketNumber;
+    int primaryKey;
+    unsigned int secondaryKey, logicalRecordLength, groupStartPacketNumber;
 
     // Parse file label header
     readOdfFileBlock( dataFile, currentFileBlock );
@@ -716,22 +708,66 @@ std::shared_ptr< OdfRawFileContents > readOdfFile(
     std::vector< std::shared_ptr< OdfDataBlock > > unsortedOdfDataBlocks;
     std::map< int, std::vector< OdfRampBlock > > odfRampBlocks;
 
-//    bool continueFileRead = true;
-//    int counter = 0;
-//    int currentRampStation = -1;
-//    int dataBlockType = 3; // 1: Orbit Data, 2: Ramp Data, 3: Clock Offset
-//
-//    // Read file until end
-//    while( continueFileRead && !dataFile.eof( ) )
-//    {
-//        // Read current block
-//        readOdfFileBlock( currentFileBlock, dataFile );
-//
-//        // Check if block is a header file
-//        int blockIsHeader = currentBlockIsHeader( currentFileBlock, secondaryKey );
-//
-//        // If not a  header, read associated block
-//        if( blockIsHeader == 0 && dataBlockType == 3 )
+    bool continueFileRead = true;
+    int currentRampStation = -1;
+    int currentBlockType = 109;
+
+    // Read file until end
+    while( continueFileRead && !dataFile.eof( ) )
+    {
+        // Read current block
+        readOdfFileBlock( dataFile, currentFileBlock );
+
+        // Check if block is a header file
+        bool blockIsHeader = currentBlockIsHeader(
+                currentFileBlock, primaryKey, secondaryKey, logicalRecordLength, groupStartPacketNumber );
+
+        // If block is header
+        if ( blockIsHeader )
+        {
+            throw std::runtime_error( "DUMMY Error when reading ODF group, invalid block type." );
+            // Ramp group header
+            if ( primaryKey == 2030 )
+            {
+                if( secondaryKey < 0 || secondaryKey > 99 || logicalRecordLength != 1 )
+                {
+                    throw std::runtime_error( "Error when reading ODF file, ramp header invalid: primary key " +
+                    std::to_string( primaryKey ) + ", secondary key " + std::to_string( secondaryKey ) +
+                    ", logical record length " + std::to_string( logicalRecordLength ) + "." );
+                }
+                currentRampStation = secondaryKey;
+                currentBlockType = primaryKey;
+            }
+            // Clock offset, summary, or EOF file header: exit loop
+            else
+            {
+                break;
+            }
+        }
+        // If not a  header, read associated block
+        else
+        {
+            // Read orbit data
+            if ( currentBlockType == 109 )
+            {
+                std::shared_ptr< OdfDataBlock > currentDataBlock = parseOrbitData( currentFileBlock );
+                if( currentDataBlock != nullptr )
+                {
+                    unsortedOdfDataBlocks.push_back( currentDataBlock );
+                }
+            }
+            // Read ramp data
+            else if ( currentBlockType == 2030 )
+            {
+
+            }
+            else
+            {
+                throw std::runtime_error( "Error when reading ODF group, invalid block type." );
+            }
+        }
+
+//        if( blockIsHeader == 0 && currentBlockType == 3 )
 //        {
 //            std::shared_ptr< OdfDataBlock > currentDataBlock = parseOrbitData( currentFileBlock );
 //            if( currentDataBlock != NULL )
@@ -739,19 +775,19 @@ std::shared_ptr< OdfRawFileContents > readOdfFile(
 //                unsortedOdfDataBlocks.push_back( currentDataBlock );
 //            }
 //        }
-//        else if( blockIsHeader == 0 && dataBlockType == 4 )
+//        else if( blockIsHeader == 0 && currentBlockType == 4 )
 //        {
 //            odfRampBlocks[ currentRampStation ].push_back( parseRampData( currentFileBlock ) );
 //        }
 //        // If block is a header, set current data block type accordingly.
 //        else if( blockIsHeader != 0 )
 //        {
-//            dataBlockType = blockIsHeader;
-//            if( dataBlockType == 4 )
+//            currentBlockType = blockIsHeader;
+//            if( currentBlockType == 4 )
 //            {
 //                currentRampStation = secondaryKey;
 //            }
-//            if( dataBlockType == -1 )
+//            if( currentBlockType == -1 )
 //            {
 //                continueFileRead = 0;
 //            }
@@ -760,13 +796,13 @@ std::shared_ptr< OdfRawFileContents > readOdfFile(
 //        {
 //            throw std::runtime_error( "Error, did not recognized header ODF block" );
 //        }
-//        counter++;
-//    }
-//
-//    // Set file contents
-//    odfFileContents->dataBlocks = unsortedOdfDataBlocks;
-//    odfFileContents->odfRampBlocks = odfRampBlocks;
-//
+    }
+
+    // Set file contents
+    odfFileContents->dataBlocks = unsortedOdfDataBlocks;
+    odfFileContents->odfRampBlocks = odfRampBlocks;
+
+
 //    if( continueFileRead == 1 )
 //    {
 //        odfFileContents->eofHeaderFound = false;

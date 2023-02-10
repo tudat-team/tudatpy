@@ -286,6 +286,11 @@ public:
     int compositeTwo;
     int transmittingStationUplinkDelay;
 
+    double getReferenceFrequency( )
+    {
+        return std::pow( 2.0, 24 )  / 1.0E3 * referenceFrequencyHighPart + referenceFrequencyLowPart / 1.0E3;
+    }
+
 };
 
 class OdfDopplerDataBlock: public OdfDataSpecificBlock
@@ -444,8 +449,16 @@ uint32_t& secondaryKey,
 uint32_t& logicalrecordLength,
 uint32_t& groupStartPacketNumber );
 
+void parseHeader(
+        std::bitset< 288 > dataBits, int32_t& primaryKey, uint32_t& secondaryKey, uint32_t& logicalRecordLength,
+        uint32_t& groupStartPacketNumber);
+
 //! Function to check if the current ODF data block is a header.
 int currentBlockIsHeader(  unsigned char fileBlock[ 9 ][ 4 ], unsigned int& secondaryKeyInt );
+
+bool currentBlockIsHeader(
+        std::bitset< 288 > dataBits, int& primaryKey, unsigned int& secondaryKey,
+        unsigned int& logicalRecordLength, unsigned int& groupStartPacketNumber );
 
 //! Function to read a single 36 byte block from ODF file
 void readOdfFileBlock(
