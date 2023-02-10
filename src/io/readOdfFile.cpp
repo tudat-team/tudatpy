@@ -89,13 +89,13 @@ std::shared_ptr< OdfDopplerDataBlock > parseDopplerOrbitData( std::bitset< 128 >
             dopplerDataBlock->compressionTime,
             dopplerDataBlock->transmittingStationUplinkDelay );
 
-    std::cout<< dopplerDataBlock->receiverChannel<<" "<<
-                dopplerDataBlock->spacecraftId<<" "<<
-                dopplerDataBlock->receiverExciterFlag<<" "<<
-                std::fixed << dopplerDataBlock->getReferenceFrequency()<<" "<<
-                dopplerDataBlock->reservedSegment<<" "<<
-                dopplerDataBlock->compressionTime<<" "<<
-                dopplerDataBlock->transmittingStationUplinkDelay<<std::endl;
+//    std::cout<< dopplerDataBlock->receiverChannel<<" "<<
+//                dopplerDataBlock->spacecraftId<<" "<<
+//                dopplerDataBlock->receiverExciterFlag<<" "<<
+//                std::fixed << dopplerDataBlock->getReferenceFrequency()<<" "<<
+//                dopplerDataBlock->reservedSegment<<" "<<
+//                dopplerDataBlock->compressionTime<<" "<<
+//                dopplerDataBlock->transmittingStationUplinkDelay<<std::endl;
 
     return dopplerDataBlock;
 }
@@ -127,13 +127,13 @@ std::shared_ptr< OdfSequentialRangeDataBlock > parseSequentialRangeData( std::bi
             rangeDataBlock->compositeTwo,
             rangeDataBlock->transmittingStationUplinkDelay );
 
-    std::cout<< rangeDataBlock->lowestRangingComponent<<" "<<
-            rangeDataBlock->spacecraftId<<" "<<
-            rangeDataBlock->reservedBlock<<" "<<
-            std::fixed << rangeDataBlock->getReferenceFrequency()<<" "<<
-            rangeDataBlock->coderInPhaseTimeOffset<<" "<<
-            rangeDataBlock->compositeTwo<<" "<<
-            rangeDataBlock->transmittingStationUplinkDelay<<std::endl;
+//    std::cout<< rangeDataBlock->lowestRangingComponent<<" "<<
+//            rangeDataBlock->spacecraftId<<" "<<
+//            rangeDataBlock->reservedBlock<<" "<<
+//            std::fixed << rangeDataBlock->getReferenceFrequency()<<" "<<
+//            rangeDataBlock->coderInPhaseTimeOffset<<" "<<
+//            rangeDataBlock->compositeTwo<<" "<<
+//            rangeDataBlock->transmittingStationUplinkDelay<<std::endl;
 
     return rangeDataBlock;
 }
@@ -218,6 +218,51 @@ std::shared_ptr< OdfDataBlock > parseOrbitData( std::bitset< 288 > dataBits )
     }
 
     return dataBlock;
+}
+
+std::shared_ptr< OdfRampBlock > parseRampData( std::bitset< 288 > dataBits )
+{
+
+    std::shared_ptr< OdfRampBlock > rampBlock = std::make_shared< OdfRampBlock >( );
+
+    // Data to parse
+    // integerRampStartTime: uint32
+    // fractionalRampStartTime: uint32
+    // integerRampRate: int32
+    // fractionalRampRate: int32
+    // integerRampStartFrequency: uint22
+    // transmittingStationId: uint10
+    // integerRampStartFrequencyModulo: uint32
+    // fractionalRampStartFrequency: uint32
+    // integerRampEndTime: uint32
+    // fractionalRampEndTime: uint32
+
+    std::vector< bool > unsignedCommonItemFlag ( 10, true );
+    unsignedCommonItemFlag.at( 2 ) = false;
+    unsignedCommonItemFlag.at( 3 ) = false;
+
+    parseDataBlock< 288, 32, 32, 32, 32, 22, 10, 32, 32, 32, 32 >(
+            dataBits, unsignedCommonItemFlag, 0, 0,
+            rampBlock->integerRampStartTime,
+            rampBlock->fractionalRampStartTime,
+            rampBlock->integerRampRate,
+            rampBlock->fractionalRampRate,
+            rampBlock->integerRampStartFrequency,
+            rampBlock->transmittingStationId,
+            rampBlock->integerRampStartFrequencyModulo,
+            rampBlock->fractionalRampStartFrequency,
+            rampBlock->integerRampEndTime,
+            rampBlock->fractionalRampEndTime );
+
+//    std::cout<< rampBlock->transmittingStationId<<" "<<
+//                std::fixed<<rampBlock->getRampStartTime()<<" "<<
+//                std::fixed<<rampBlock->getRampRate()<<" "<<
+//                std::fixed<<rampBlock->getRampStartFrequency()<<" "<<
+//                std::fixed<<rampBlock->getRampEndTime()<<std::endl;
+//    std::cout <<rampBlock->integerRampStartTime<<" "<<
+//                rampBlock->fractionalRampStartTime<<std::endl;
+
+    return rampBlock;
 }
 
 void parseHeader( std::bitset< 288 > dataBits,
@@ -691,8 +736,8 @@ std::shared_ptr< OdfRawFileContents > readOdfFile(
             currentFileBlock, odfFileContents->identifierGroupStringA, odfFileContents->identifierGroupStringB,
             odfFileContents->identifierGroupStringC );
 
-    std::cout<< odfFileContents->identifierGroupStringA << " " << odfFileContents->identifierGroupStringB << " " <<
-        odfFileContents->identifierGroupStringC << std::endl;
+//    std::cout<< odfFileContents->identifierGroupStringA << " " << odfFileContents->identifierGroupStringB << " " <<
+//        odfFileContents->identifierGroupStringC << std::endl;
 
     // Parse orbit data header
     readOdfFileBlock( dataFile, currentFileBlock );
@@ -706,7 +751,7 @@ std::shared_ptr< OdfRawFileContents > readOdfFile(
 
     // Define output of data blocks and ramp blocks
     std::vector< std::shared_ptr< OdfDataBlock > > unsortedOdfDataBlocks;
-    std::map< int, std::vector< OdfRampBlock > > odfRampBlocks;
+    std::map< int, std::vector< std::shared_ptr< OdfRampBlock > > > odfRampBlocks;
 
     bool continueFileRead = true;
     int currentRampStation = -1;
@@ -725,10 +770,10 @@ std::shared_ptr< OdfRawFileContents > readOdfFile(
         // If block is header
         if ( blockIsHeader )
         {
-            throw std::runtime_error( "DUMMY Error when reading ODF group, invalid block type." );
             // Ramp group header
             if ( primaryKey == 2030 )
             {
+//                std::cout<<primaryKey<<" "<<secondaryKey<<" "<<logicalRecordLength<<" "<<groupStartPacketNumber<<std::endl;
                 if( secondaryKey < 0 || secondaryKey > 99 || logicalRecordLength != 1 )
                 {
                     throw std::runtime_error( "Error when reading ODF file, ramp header invalid: primary key " +
@@ -741,6 +786,7 @@ std::shared_ptr< OdfRawFileContents > readOdfFile(
             // Clock offset, summary, or EOF file header: exit loop
             else
             {
+                throw std::runtime_error( "END OF LOOP." );
                 break;
             }
         }
@@ -759,7 +805,11 @@ std::shared_ptr< OdfRawFileContents > readOdfFile(
             // Read ramp data
             else if ( currentBlockType == 2030 )
             {
-
+                std::shared_ptr< OdfRampBlock > currentDataBlock = parseRampData( currentFileBlock );
+                if( currentDataBlock != nullptr )
+                {
+                    odfRampBlocks[ currentRampStation ].push_back( currentDataBlock );
+                }
             }
             else
             {
