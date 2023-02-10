@@ -202,7 +202,7 @@ void addOdfDataBlockToParsedData(
         odfParsedDopplerDataBlock->rampingFlag.push_back( odfDopplerDataBlock->receiverExciterFlag );
         odfParsedDopplerDataBlock->referenceFrequency.push_back( odfDopplerDataBlock->getReferenceFrequency( ) );
         odfParsedDopplerDataBlock->reservedData.push_back( odfDopplerDataBlock->reservedSegment );
-        odfParsedDopplerDataBlock->uplinkDelays.push_back( odfDopplerDataBlock->transmittingStationDelay );
+        odfParsedDopplerDataBlock->uplinkDelays.push_back( odfDopplerDataBlock->transmittingStationUplinkDelay );
     }
 }
 
@@ -230,7 +230,7 @@ std::shared_ptr< ProcessedOdfFileContents > parseOdfFileContents(
     for( unsigned int i = 0; i < rawDataBlocks.size( ); i++ )
     {
         // Retrieve observable type and link end names
-        currentObservableId = rawDataBlocks.at( i )->observableSpecificDataBlock->dataType;
+        currentObservableId = rawDataBlocks.at( i )->observableSpecificDataBlock->dataType_;
         currentObservableType = getObservableTypeForOdfId( currentObservableId );
         int appendedTransmittingStationId =
                 rawDataBlocks.at( i )->commonDataBlock->transmittingStation + 100 *
