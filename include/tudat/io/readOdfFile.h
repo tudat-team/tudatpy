@@ -57,6 +57,13 @@ std::bitset< OutputBits > getBitsetSegment(
         const int startIndex )
 {
     std::bitset< OutputBits > outputBits;
+
+    // Check if final bit is valid
+    if ( startIndex + OutputBits > InputBits )
+    {
+        throw std::runtime_error( "Error, when getting bit segment: requested bits are not part of the provided bitset." );
+    }
+
     for( unsigned int i = 0; i < OutputBits; i++ )
     {
         outputBits[ i ] = inputBits[ InputBits - OutputBits - startIndex + i  ];
@@ -75,6 +82,117 @@ int getSignedNBitInteger(
         outputInteger += inputBits[ i ] * std::pow( 2.0, i );
     }
     return outputInteger;
+}
+
+template < int NumberOfBytes >
+void readBinaryFileBlock( std::istream& file,
+                          std::bitset< NumberOfBytes * 8 >& dataBits )
+{
+    int numberOfBits = NumberOfBytes * 8;
+
+    // TODO: Not being able to use read() with char dataChar [NumberOfBytes]... why?!
+    char dataChar [NumberOfBytes][1];
+    file.read( (char*)dataChar[0], NumberOfBytes );
+
+    if ( !file.good( ) )
+    {
+        throw std::runtime_error( "Error when reading data block from ODF file." );
+    }
+
+    // Convert to bitset
+    for ( int i = 0, bitCounter = 0; i < NumberOfBytes; ++i)
+    {
+        // Extract byte
+        uint8_t byte = dataChar[0][i];
+        for ( int j = 0; j < 8; ++j)
+        {
+            // Right shift byte to determine value of desired bit and save it to the bitset
+            // Indexing of the byte and bitset starts from the right (i.e. the 0th bit is the rightmost one)
+            dataBits[ numberOfBits - bitCounter - 1 ] = (byte >> ( 8 - 1 - j) ) & 1;
+            ++bitCounter;
+        }
+    }
+}
+
+template< unsigned int NumberOfBits >
+long convertBitsetToLong(const std::bitset< NumberOfBits >& bits) {
+    if ( NumberOfBits > 32 )
+    {
+        throw std::runtime_error( "Error when converting bitset to long: specified number of bits (" +
+            std::to_string(NumberOfBits) + "is larger than it is possible to represent with long (32).");
+    }
+
+    // Declare struct and create object s
+    struct {
+        // x with bit field of size numberOfBits
+        // Sign extension is done automatically
+        long x: NumberOfBits;
+    } s;
+
+    // Convert bitset to UNSIGNED long represented by numberOfBits bits. The remaining bits are determined by sign
+    // extension, hence representing a SIGNED long.
+    s.x = bits.to_ulong();
+    return s.x;
+}
+
+template< unsigned int NumberBlockBits, unsigned int NumberItemBits, typename T >
+void parseDataBlock (std::bitset< NumberBlockBits > dataBits,
+                     const std::vector< bool >& unsignedItemFlag,
+                     unsigned int argumentCounter,
+                     unsigned int startBitCounter,
+                     T& arg)
+{
+    if ( unsignedItemFlag.at( argumentCounter ) )
+    {
+        arg = getBitsetSegment< NumberItemBits, NumberBlockBits >( dataBits, startBitCounter ).to_ulong( );
+    }
+    else
+    {
+        arg = convertBitsetToLong< NumberItemBits >(
+                getBitsetSegment< NumberItemBits, NumberBlockBits >( dataBits, startBitCounter ) );
+    }
+
+    ++argumentCounter;
+    startBitCounter += NumberItemBits;
+
+    if ( startBitCounter != NumberBlockBits )
+    {
+        throw std::runtime_error(
+                "Error when parsing ODF file: block size (" + std::to_string( NumberBlockBits ) +
+                " bits) and total item size (" + std::to_string(startBitCounter) + "bits ) are not consistent." );
+    }
+    else if ( argumentCounter != unsignedItemFlag.size() )
+    {
+        throw std::runtime_error(
+                "Error when parsing ODF file: numbers of items (" + std::to_string( argumentCounter ) +
+                ") and size of unsigned flag vector (" + std::to_string( unsignedItemFlag.size() ) +
+                ") are not consistent." );
+    }
+}
+
+template< unsigned int NumberBlockBits, unsigned int NumberItemBits, unsigned int... NumberItemBitsN,
+        typename T, typename... TN >
+void parseDataBlock (std::bitset< NumberBlockBits > dataBits,
+                     const std::vector< bool >& unsignedItemFlag,
+                     unsigned int argumentCounter,
+                     unsigned int startBitCounter,
+                     T& arg, TN&... args)
+{
+    if ( unsignedItemFlag.at( argumentCounter ) )
+    {
+        arg = getBitsetSegment< NumberItemBits, NumberBlockBits >( dataBits, startBitCounter ).to_ulong( );
+    }
+    else
+    {
+        arg = convertBitsetToLong< NumberItemBits >(
+                getBitsetSegment< NumberItemBits, NumberBlockBits >( dataBits, startBitCounter ) );
+    }
+
+    ++argumentCounter;
+    startBitCounter += NumberItemBits;
+
+    parseDataBlock< NumberBlockBits, NumberItemBitsN ... >( dataBits, unsignedItemFlag, argumentCounter,
+                                                            startBitCounter, args ...);
 }
 
 uint32_t convertCharactersToUnsignedInt32(
@@ -141,11 +259,11 @@ public:
 class OdfDataSpecificBlock
 {
 public:
-    OdfDataSpecificBlock( int dataType_ ): dataType( dataType_ ){ }
+    OdfDataSpecificBlock( int dataType_ ): dataType_( dataType_ ){ }
 
     virtual ~OdfDataSpecificBlock( ){ }
 
-    int dataType;
+    int dataType_;
 };
 
 class OdfSequentialRangeDataBlock: public OdfDataSpecificBlock
@@ -187,7 +305,7 @@ public:
     int reservedSegment;
     int compressionTime;
 
-    int transmittingStationDelay;
+    int transmittingStationUplinkDelay;
 
     double getReferenceFrequency( )
     {
@@ -202,7 +320,7 @@ public:
 
         std::cout<<"Reserved: "<<reservedSegment<<std::endl;
         std::cout<<"Compression time: "<<compressionTime<<std::endl;
-        std::cout<<"Transmission delay: "<<transmittingStationDelay<<std::endl<<std::endl;;
+        std::cout << "Transmission delay: " << transmittingStationUplinkDelay << std::endl << std::endl;;
 
     }
 
@@ -211,11 +329,6 @@ public:
 class OdfCommonDataBlock
 {
 public:
-    int integerTimeTag;
-    int fractionalTimeTag;
-
-    int integerObservable;
-    int fractionalObservable;
 
     double getObservableValue( )
     {
@@ -228,7 +341,13 @@ public:
         return static_cast< double >( integerTimeTag ) + static_cast< double >( fractionalTimeTag ) / 1000.0;
     }
 
+    uint32_t integerTimeTag;
+    int fractionalTimeTag;
     int receivingStationDownlinkDelay;
+
+    int integerObservable;
+    int fractionalObservable;
+
     int formatId;
     int receivingStation;
     int transmittingStation;
@@ -267,8 +386,8 @@ public:
     std::string programId;
     uint32_t spacecraftId;
 
-    std::string fileCreationDate;
-    std::string fileCreationTime;
+    uint32_t fileCreationDate;
+    uint32_t fileCreationTime;
 
     uint32_t fileReferenceDate;
     uint32_t fileReferenceTime;
@@ -289,11 +408,17 @@ public:
 //! Function to parse the contents of an ODF orbit data block, specific for sequenctial range data.
 std::shared_ptr< OdfSequentialRangeDataBlock > parseSequentialRangeData( unsigned char fileBlock[ 9 ][ 4 ], const int dopplerType );
 
+std::shared_ptr< OdfSequentialRangeDataBlock > parseSequentialRangeData( std::bitset< 128 > dataBits );
+
 //! Function to parse the contents of an ODF orbit data block, specific for Doppler data.
 std::shared_ptr< OdfDopplerDataBlock > parseDopplerOrbitData( unsigned char fileBlock[ 9 ][ 4 ], const int dopplerType );
 
+std::shared_ptr< OdfDopplerDataBlock > parseDopplerOrbitData( std::bitset< 128 > dataBits, const int dopplerType );
+
 //! Function to parse the contents of an ODF orbit data block
 std::shared_ptr< OdfDataBlock > parseOrbitData( unsigned char fileBlock[ 9 ][ 4 ] );
+
+std::shared_ptr< OdfDataBlock > parseOrbitData( std::bitset< 288 > dataBits );
 
 //! Function to parse the contents of an ODF ramp data block
 OdfRampBlock parseRampData( unsigned char fileBlock[ 9 ][ 4 ] );
@@ -302,6 +427,15 @@ OdfRampBlock parseRampData( unsigned char fileBlock[ 9 ][ 4 ] );
 void parseFileLabel( unsigned char fileBlock[ 9 ][ 4 ],
 std::string& systemId, std::string& programId, std::string& fileCreationDate, std::string& fileCreationTme,
 uint32_t& spacecraftIdNumber, uint32_t& fileReferenceDate, uint32_t& fileReferenceTime );
+
+void parseFileLabelData(
+        std::bitset< 288 > dataBits, std::string& systemId, std::string& programId, uint32_t& spacecraftId,
+        uint32_t& fileCreationDate, uint32_t& fileCreationTime, uint32_t& fileReferenceDate,
+        uint32_t& fileReferenceTime );
+
+void parseIdentifierData(
+        std::bitset< 288 > dataBits, std::string& identifierGroupStringA, std::string&identifierGroupStringB,
+        std::string& identifierGroupStringC );
 
 //! Function to parse the contents of an ODF file header block
 void parseHeader( unsigned char fileBlock[ 9 ][ 4 ],
@@ -316,6 +450,8 @@ int currentBlockIsHeader(  unsigned char fileBlock[ 9 ][ 4 ], unsigned int& seco
 //! Function to read a single 36 byte block from ODF file
 void readOdfFileBlock(
         unsigned char fileBlock[ 9 ][ 4 ], std::istream& file );
+
+void readOdfFileBlock( std::istream& file, std::bitset< 36 * 8 >& dataBits );
 
 //! Function to read the contents of an ODF file into an OdfRawFileContents object
 /*!
