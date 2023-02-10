@@ -5,63 +5,6 @@ namespace tudat
 namespace input_output
 {
 
-uint32_t convertCharactersToUnsignedInt32(
-        char data[ 4 ] )
-{
-    uint8_t bytes[4];
-    bytes[ 0 ] = data[ 0 ];
-    bytes[ 1 ] = data[ 1 ];
-    bytes[ 2 ] = data[ 2 ];
-    bytes[ 3 ] = data[ 3 ];
-
-    return bytes[0] << 24| (bytes[1] << 16) | (bytes[2] << 8) | (bytes[3]);
-}
-
-int32_t convertCharactersToSignedInt32(
-        char data[ 4 ] )
-{
-    uint8_t bytes[4];
-    bytes[ 0 ] = data[ 0 ];
-    bytes[ 1 ] = data[ 1 ];
-    bytes[ 2 ] = data[ 2 ];
-    bytes[ 3 ] = data[ 3 ];
-
-    int32_t returnData = bytes[0] << 24| (bytes[1] << 16) | (bytes[2] << 8) | (bytes[3]);
-    return returnData;
-}
-
-
-std::shared_ptr< OdfSequentialRangeDataBlock > parseSequentialRangeData( char fileBlock[ 9 ][ 4 ], const int dopplerType )
-{
-    std::shared_ptr< OdfSequentialRangeDataBlock > rangeDataBlock =
-            std::make_shared< OdfSequentialRangeDataBlock >( );
-
-    std::bitset< 32 > dataBits = std::bitset< 32 >( convertCharactersToUnsignedInt32( fileBlock[ 5 ] ) );
-
-    rangeDataBlock->lowestRangingComponent = getBitsetSegment< 7, 32 >( dataBits, 0 ).to_ulong( );
-    rangeDataBlock->spacecraftId = getBitsetSegment< 10, 32 >( dataBits, 7 ).to_ulong( );
-    rangeDataBlock->reservedBlock = getBitsetSegment< 1, 32 >( dataBits, 17 ).to_ulong( );
-
-    std::bitset< 14 > referenceFrequencyHighPartBitsA = getBitsetSegment< 14, 32 >( dataBits, 18 );
-    dataBits = std::bitset< 32 >( convertCharactersToUnsignedInt32( fileBlock[ 6 ] ) );
-    std::bitset< 8 > referenceFrequencyHighPartBitsB = getBitsetSegment< 8, 32 >( dataBits, 0 );
-    rangeDataBlock->referenceFrequencyHighPart = mergeBitsets< 14, 8 >(
-                referenceFrequencyHighPartBitsA, referenceFrequencyHighPartBitsB ).to_ulong();
-    rangeDataBlock->referenceFrequencyLowPart = getBitsetSegment< 24, 32 >( dataBits, 8 ).to_ulong( );
-
-    dataBits = std::bitset< 32 >( convertCharactersToUnsignedInt32( fileBlock[ 7 ] ) );
-    rangeDataBlock->coderInPhaseTimeOffset = getSignedNBitInteger< 20 >( getBitsetSegment< 20, 32 >( dataBits, 0 ) );
-
-    std::bitset< 12 > compositeTwoPartA = getBitsetSegment< 12, 32 >( dataBits, 20 );
-    dataBits = std::bitset< 32 >( convertCharactersToUnsignedInt32( fileBlock[ 8 ] ) );
-    std::bitset< 10 > compositeTwoPartB = getBitsetSegment< 10, 32 >( dataBits, 0 );
-    rangeDataBlock->compositeTwo = mergeBitsets< 12, 10 >(
-                compositeTwoPartA, compositeTwoPartB ).to_ulong();
-    rangeDataBlock->transmittingStationUplinkDelay = getBitsetSegment< 22, 32 >( dataBits, 10 ).to_ulong( );
-
-    return rangeDataBlock;
-}
-
 // TODO: test
 std::shared_ptr< OdfClockOffsetBlock > parseClockOffsetData( std::bitset< 288 > dataBits )
 {
@@ -125,13 +68,13 @@ std::shared_ptr< OdfDopplerDataBlock > parseDopplerOrbitData( std::bitset< 128 >
             dopplerDataBlock->compressionTime,
             dopplerDataBlock->transmittingStationUplinkDelay );
 
-//    std::cout<< dopplerDataBlock->receiverChannel<<" "<<
-//                dopplerDataBlock->spacecraftId<<" "<<
-//                dopplerDataBlock->receiverExciterFlag<<" "<<
-//                std::fixed << dopplerDataBlock->getReferenceFrequency()<<" "<<
-//                dopplerDataBlock->reservedSegment<<" "<<
-//                dopplerDataBlock->compressionTime<<" "<<
-//                dopplerDataBlock->transmittingStationUplinkDelay<<std::endl;
+    std::cout<< dopplerDataBlock->receiverChannel<<" "<<
+                dopplerDataBlock->spacecraftId<<" "<<
+                dopplerDataBlock->receiverExciterFlag<<" "<<
+                std::fixed << dopplerDataBlock->getReferenceFrequency()<<" "<<
+                dopplerDataBlock->reservedSegment<<" "<<
+                dopplerDataBlock->compressionTime<<" "<<
+                dopplerDataBlock->transmittingStationUplinkDelay<<std::endl;
 
     return dopplerDataBlock;
 }
@@ -163,13 +106,13 @@ std::shared_ptr< OdfSequentialRangeDataBlock > parseSequentialRangeData( std::bi
             rangeDataBlock->compositeTwo,
             rangeDataBlock->transmittingStationUplinkDelay );
 
-//    std::cout<< rangeDataBlock->lowestRangingComponent<<" "<<
-//            rangeDataBlock->spacecraftId<<" "<<
-//            rangeDataBlock->reservedBlock<<" "<<
-//            std::fixed << rangeDataBlock->getReferenceFrequency()<<" "<<
-//            rangeDataBlock->coderInPhaseTimeOffset<<" "<<
-//            rangeDataBlock->compositeTwo<<" "<<
-//            rangeDataBlock->transmittingStationUplinkDelay<<std::endl;
+    std::cout<< rangeDataBlock->lowestRangingComponent<<" "<<
+            rangeDataBlock->spacecraftId<<" "<<
+            rangeDataBlock->reservedBlock<<" "<<
+            std::fixed << rangeDataBlock->getReferenceFrequency()<<" "<<
+            rangeDataBlock->coderInPhaseTimeOffset<<" "<<
+            rangeDataBlock->compositeTwo<<" "<<
+            rangeDataBlock->transmittingStationUplinkDelay<<std::endl;
 
     return rangeDataBlock;
 }
@@ -222,20 +165,20 @@ std::shared_ptr< OdfDataBlock > parseOrbitData( std::bitset< 288 > dataBits )
             commonDataBlock->referenceBand,
             commonDataBlock->validity );
 
-//            std::cout<< commonDataBlock->integerTimeTag<<" "<<
-//                        commonDataBlock->fractionalTimeTag<<" "<<
-//                        commonDataBlock->receivingStationDownlinkDelay<<" "<<
-//                        commonDataBlock->integerObservable<<" "<<
-//                        commonDataBlock->fractionalObservable<<" "<<
-//                        commonDataBlock->formatId<<" "<<
-//                        commonDataBlock->receivingStation<<" "<<
-//                        commonDataBlock->transmittingStation<<" "<<
-//                        commonDataBlock->transmittingStationNetworkId<<" "<<
-//                        dataType<<" "<<
-//                        commonDataBlock->downlinkBand<<" "<<
-//                        commonDataBlock->uplinkBand<<" "<<
-//                        commonDataBlock->referenceBand<<" "<<
-//                        commonDataBlock->validity<<std::endl;
+            std::cout<< commonDataBlock->integerTimeTag<<" "<<
+                        commonDataBlock->fractionalTimeTag<<" "<<
+                        commonDataBlock->receivingStationDownlinkDelay<<" "<<
+                        commonDataBlock->integerObservable<<" "<<
+                        commonDataBlock->fractionalObservable<<" "<<
+                        commonDataBlock->formatId<<" "<<
+                        commonDataBlock->receivingStation<<" "<<
+                        commonDataBlock->transmittingStation<<" "<<
+                        commonDataBlock->transmittingStationNetworkId<<" "<<
+                        dataType<<" "<<
+                        commonDataBlock->downlinkBand<<" "<<
+                        commonDataBlock->uplinkBand<<" "<<
+                        commonDataBlock->referenceBand<<" "<<
+                        commonDataBlock->validity<<std::endl;
 
     // Read data type specific data
     std::bitset< 128 > specificDataBits = getBitsetSegment< 128, 288 >( dataBits, 160 );
@@ -427,282 +370,6 @@ bool currentBlockIsHeader( std::bitset< 288 > dataBits,
         blockIsHeader =  false;
     }
     return blockIsHeader;
-}
-
-std::shared_ptr< OdfDopplerDataBlock > parseDopplerOrbitData( char fileBlock[ 9 ][ 4 ], const int dopplerType )
-{
-    std::shared_ptr< OdfDopplerDataBlock > dopplerDataBlock =
-            std::make_shared< OdfDopplerDataBlock >( dopplerType );
-
-    std::bitset< 32 > dataBits = std::bitset< 32 >( convertCharactersToUnsignedInt32( fileBlock[ 5 ] ) );
-
-    dopplerDataBlock->receiverChannel = getBitsetSegment< 7, 32 >( dataBits, 0 ).to_ulong( );
-    dopplerDataBlock->spacecraftId = getBitsetSegment< 10, 32 >( dataBits, 7 ).to_ulong( );
-    dopplerDataBlock->receiverExciterFlag = getBitsetSegment< 1, 32 >( dataBits, 17 ).to_ulong( );
-
-    std::bitset< 14 > referenceFrequencyHighPartBitsA = getBitsetSegment< 14, 32 >( dataBits, 18 );
-    dataBits = std::bitset< 32 >( convertCharactersToUnsignedInt32( fileBlock[ 6 ] ) );
-    std::bitset< 8 > referenceFrequencyHighPartBitsB = getBitsetSegment< 8, 32 >( dataBits, 0 );
-    dopplerDataBlock->referenceFrequencyHighPart = mergeBitsets< 14, 8 >(
-                referenceFrequencyHighPartBitsA, referenceFrequencyHighPartBitsB ).to_ulong();
-    dopplerDataBlock->referenceFrequencyLowPart = getBitsetSegment< 24, 32 >( dataBits, 8 ).to_ulong( );
-
-    dataBits = std::bitset< 32 >( convertCharactersToUnsignedInt32( fileBlock[ 7 ] ) );
-
-    dopplerDataBlock->reservedSegment = getBitsetSegment< 20, 32 >( dataBits, 0 ).to_ulong( );
-    std::bitset< 12 > compressionTimeABits = getBitsetSegment< 12, 32 >( dataBits, 20 );
-    dataBits = std::bitset< 32 >( convertCharactersToUnsignedInt32( fileBlock[ 8 ] ) );
-    std::bitset< 10 > compressionTimeBBits = getBitsetSegment< 10, 32 >( dataBits, 0 );
-    dopplerDataBlock->compressionTime = mergeBitsets< 12, 10 >(
-                compressionTimeABits, compressionTimeBBits ).to_ulong( );
-    dopplerDataBlock->transmittingStationUplinkDelay = getBitsetSegment< 22, 32 >( dataBits, 10 ).to_ulong( );
-
-    dopplerDataBlock->printContents();
-
-//    std::cout<<dopplerDataBlock->referenceFrequencyHighPart<<" "<<
-//               dopplerDataBlock->transmittingStationDelay<<" "<<dopplerDataBlock->receiverChannel<<" "<<
-//               dopplerDataBlock->receiverExciterFlag<<" "<< dopplerDataBlock->reservedSegment <<std::endl;
-
-    return dopplerDataBlock;
-}
-
-std::shared_ptr< OdfDataBlock > parseOrbitData( char fileBlock[ 9 ][ 4 ] )
-{
-    std::shared_ptr< OdfCommonDataBlock > commonDataBlock =
-            std::make_shared< OdfCommonDataBlock >( );
-
-    commonDataBlock->integerTimeTag = convertCharactersToUnsignedInt32( fileBlock[ 0 ] );
-
-    std::bitset< 32 > dataBits = std::bitset< 32 >( convertCharactersToUnsignedInt32( fileBlock[ 1 ] ) );
-    commonDataBlock->fractionalTimeTag = getBitsetSegment< 10, 32 >(
-                dataBits, 0 ).to_ulong( );
-    commonDataBlock->receivingStationDownlinkDelay = getBitsetSegment< 22, 32 >(
-                dataBits, 10 ).to_ulong( );
-
-    commonDataBlock->integerObservable = convertCharactersToSignedInt32( fileBlock[ 2 ] );
-    commonDataBlock->fractionalObservable = convertCharactersToSignedInt32( fileBlock[ 3 ] );
-
-
-    dataBits = std::bitset< 32 >( convertCharactersToUnsignedInt32( fileBlock[ 4 ] ) );
-
-
-    commonDataBlock->formatId = getBitsetSegment< 3, 32 >( dataBits, 0 ).to_ulong( );
-    commonDataBlock->receivingStation = getBitsetSegment< 7, 32 >( dataBits, 3 ).to_ulong( );
-    commonDataBlock->transmittingStation = getBitsetSegment< 7, 32 >( dataBits, 10 ).to_ulong( );
-
-    commonDataBlock->transmittingStationNetworkId = getBitsetSegment< 2, 32 >( dataBits, 17 ).to_ulong( );
-    int dataType =  getBitsetSegment< 6, 32 >( dataBits, 19 ).to_ulong( );
-
-    commonDataBlock->downlinkBand = getBitsetSegment< 2, 32 >( dataBits, 25 ).to_ulong( );
-    commonDataBlock->uplinkBand = getBitsetSegment< 2, 32 >( dataBits, 27 ).to_ulong( );
-    commonDataBlock->referenceBand = getBitsetSegment< 2, 32 >( dataBits, 29 ).to_ulong( );
-    commonDataBlock->validity = getBitsetSegment< 1, 32 >( dataBits, 31 ).to_ulong( );
-
-    std::shared_ptr< OdfDataBlock > dataBlock = std::make_shared< OdfDataBlock >( );
-
-
-    dataBlock->commonDataBlock = commonDataBlock;
-    if(  dataType == 11 || dataType == 12 || dataType == 13 )
-    {
-        if( dataType != 11 )
-        {
-//            std::cout<<commonDataBlock->integerObservable<<" "<<
-//                       commonDataBlock->downlinkBand<<" "<<
-//                       commonDataBlock->uplinkBand<<" "<<
-//                       commonDataBlock->referenceBand<<" "<<
-//                       commonDataBlock->validity<<" "<<
-//                       commonDataBlock->formatId<<" "<<
-//                       commonDataBlock->transmittingStationNetworkId<<" "<<
-//                       commonDataBlock->receivingStation<<" "<<
-//                       commonDataBlock->transmittingStation<<" "<<
-//                       commonDataBlock->receivingStationDownlinkDelay<<" ";
-        }
-        std::bitset< 32 > dataBits1 = std::bitset< 32 >( convertCharactersToUnsignedInt32( fileBlock[ 5 ] ) );
-        std::bitset< 32 > dataBits2 = std::bitset< 32 >( convertCharactersToUnsignedInt32( fileBlock[ 6 ] ) );
-        std::bitset< 32 > dataBits3 = std::bitset< 32 >( convertCharactersToUnsignedInt32( fileBlock[ 7 ] ) );
-        std::bitset< 32 > dataBits4 = std::bitset< 32 >( convertCharactersToUnsignedInt32( fileBlock[ 8 ] ) );
-        std::bitset< 128 > dataBits5 = mergeBitsets<96, 32>( mergeBitsets<64, 32>(
-                mergeBitsets<32, 32>(dataBits1, dataBits2), dataBits3 ), dataBits4 );
-
-        dataBlock->observableSpecificDataBlock = parseDopplerOrbitData( dataBits5, dataType );
-
-//        dataBlock->observableSpecificDataBlock = parseDopplerOrbitData( fileBlock, dataType );
-    }
-//    else if(  dataType == 37 )
-//    {
-//        dataBlock->observableSpecificDataBlock = parseSequentialRangeData( fileBlock, dataType );
-//    }
-    else
-    {
-        //std::cerr<<"Data type "<<dataType<<std::endl;
-        dataBlock = nullptr;
-        //throw std::runtime_error( "Error, ODF data type " + std::to_string( dataType ) + " not recognized" );
-
-    }
-    return dataBlock;
-}
-
-OdfRampBlock parseRampData( char fileBlock[ 9 ][ 4 ] )
-{
-
-    OdfRampBlock rampBlock;
-    rampBlock.integerRampStartTime = convertCharactersToUnsignedInt32( fileBlock[ 0 ] );
-    rampBlock.fractionalRampStartTime = convertCharactersToUnsignedInt32( fileBlock[ 1 ] );
-
-    rampBlock.integerRampRate = convertCharactersToSignedInt32( fileBlock[ 2 ] );
-    rampBlock.fractionalRampRate = convertCharactersToSignedInt32( fileBlock[ 3 ] );
-
-    std::bitset< 32 > dataBits = std::bitset< 32 >( convertCharactersToUnsignedInt32( fileBlock[ 4 ] ) );
-    rampBlock.transmittingStationId = getBitsetSegment< 10, 32 >( dataBits, 22 ).to_ulong( );
-    rampBlock.integerRampStartFrequency = getBitsetSegment< 22, 32 >( dataBits, 0 ).to_ulong( );
-
-    rampBlock.integerRampStartFrequencyModulo = convertCharactersToSignedInt32( fileBlock[ 5 ] );
-    rampBlock.fractionalRampStartFrequency = convertCharactersToSignedInt32( fileBlock[ 6 ] );
-
-    rampBlock.integerRampEndTime = convertCharactersToSignedInt32( fileBlock[ 7 ] );
-    rampBlock.fractionalRampEndTime = convertCharactersToSignedInt32( fileBlock[ 8 ] );
-
-
-    return rampBlock;
-}
-
-void parseFileLabel( char fileBlock[ 9 ][ 4 ],
-std::string& systemId, std::string& programId, std::string& fileCreationDate, std::string& fileCreationTme,
-uint32_t& spacecraftIdNumber, uint32_t& fileReferenceDate, uint32_t& fileReferenceTime )
-{
-    systemId.resize( 8 );
-    programId.resize( 8 );
-
-    fileCreationDate.resize( 4 );
-    fileCreationTme.resize( 4 );
-
-    // Read strong contents of data block
-    for( unsigned int i = 0; i < 4; i++ )
-    {
-        systemId[ i ] = fileBlock[ 0 ][ i ];
-        systemId[ i + 4 ] = fileBlock[ 1 ][ i ];
-
-        programId[ i ] = fileBlock[ 2 ][ i ];
-        programId[ i + 4 ] = fileBlock[ 3 ][ i ];
-
-        fileCreationDate[ i ] = fileBlock[ 5 ][ i ];
-        fileCreationTme[ i ] = fileBlock[ 6 ][ i ];
-    }
-
-    // Retrieve numeral contents of data block
-    spacecraftIdNumber = convertCharactersToUnsignedInt32( fileBlock[ 4 ] );
-    fileReferenceDate = convertCharactersToUnsignedInt32( fileBlock[ 7 ] );
-    fileReferenceTime = convertCharactersToUnsignedInt32( fileBlock[ 8 ] );
-}
-
-void parseHeader( char fileBlock[ 9 ][ 4 ],
-int32_t& primaryKey,
-uint32_t& secondaryKey,
-uint32_t& logicalrecordLength,
-uint32_t& groupStartPacketNumber )
-{
-    // Read data from header file
-    primaryKey = convertCharactersToSignedInt32( fileBlock[ 0 ] );
-    secondaryKey = convertCharactersToUnsignedInt32( fileBlock[ 1 ] );
-    logicalrecordLength = convertCharactersToUnsignedInt32( fileBlock[ 2 ] );
-    groupStartPacketNumber = convertCharactersToUnsignedInt32( fileBlock[ 3 ] );
-
-    // Check if subsequent data contains only zeroes
-    uint32_t testInteger;
-    for( int i = 0; i < 5; i++ )
-    {
-        testInteger = convertCharactersToUnsignedInt32( fileBlock[ i + 4 ] );
-        if( testInteger != 0 )
-        {
-            throw std::runtime_error( "Error when reading ODF file, header file inconsistent" );
-        }
-    }
-}
-
-
-int currentBlockIsHeader(  char fileBlock[ 9 ][ 4 ], unsigned int& secondaryKeyInt )
-{
-    int headerType = -2;
-
-    int32_t primaryKey;
-    uint32_t secondaryKey;
-    uint32_t logicalrecordLength;
-    uint32_t groupStartPacketNumber;
-
-    // Try reading current block as a header, if an exception is caught, block is not a header.
-    try
-    {
-        parseHeader( fileBlock, primaryKey, secondaryKey, logicalrecordLength, groupStartPacketNumber );
-
-        // If block is a header, retrieve secondary key and header type
-        secondaryKeyInt = secondaryKey;
-        if( primaryKey ==  101 )
-        {
-            headerType = 1;
-        }
-        else if( primaryKey == 107 )
-        {
-            headerType = 2;
-        }
-        else if( primaryKey == 109 )
-        {
-            headerType = 3;
-        }
-        else if( primaryKey == 2030 )
-        {
-            headerType = 4;
-        }
-        else if( primaryKey == 2040 )
-        {
-            headerType = 5;
-        }
-        else if( primaryKey == -1 )
-        {
-            headerType = -1;
-        }
-    }
-    catch( std::runtime_error )
-    {
-        headerType = 0;
-    }
-    return headerType;
-}
-
-
-void parseIdentifierGroup( char fileBlock[ 9 ][ 4 ],
-    std::string& identifierGroupStringA, std::string&identifierGroupStringB, std::string& identifierGroupStringC )
-{
-    // Read three strings from data blocks
-    identifierGroupStringA.resize( 8 );
-    identifierGroupStringB.resize( 8 );
-    identifierGroupStringC.resize( 20 );
-
-    for( unsigned int i = 0; i < 4; i++ )
-    {
-        identifierGroupStringA[ i ] = fileBlock[ 0 ][ i ];
-        identifierGroupStringA[ i + 4 ] = fileBlock[ 1 ][ i ];
-
-        identifierGroupStringB[ i ] = fileBlock[ 2 ][ i ];
-        identifierGroupStringB[ i + 4 ] = fileBlock[ 3 ][ i ];
-
-        for( unsigned int j = 0; j < 5; j++ )
-        {
-            identifierGroupStringC[ i + j * 4 ] = fileBlock[ 4 + j ][ i ];
-        }
-    }
-}
-
-//! Function to read a single 36 byte block from ODF file
-void readOdfFileBlock(
-        char fileBlock[ 9 ][ 4 ],
-std::istream& file )
-{
-    for( unsigned int i = 0; i < 9; i++ )
-    {
-        file.read( (char*)fileBlock[ i ], 4 );
-    }
-
-    std::cout << fileBlock << std::endl;
 }
 
 void readOdfFileBlock( std::istream& file,
