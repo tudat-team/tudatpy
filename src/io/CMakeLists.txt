@@ -68,6 +68,7 @@ set(io_HEADERS
         "tabulatedAtmosphereReader.h"
         "util.h"
         "readOdfFile.h"
+        "readBinaryFile.h"
         )
 
 # Add library.

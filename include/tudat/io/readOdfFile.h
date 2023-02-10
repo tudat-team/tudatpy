@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2018, Delft University of Technology
+/*    Copyright (c) 2010-2023, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -6,12 +6,6 @@
  *    under the terms of the Modified BSD license. You should have received
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
- *
- *    Notes
- *      The function printStandardScientificNotation() has been implemented to cope with
- *      cross-platform incompatibilities in the printed output of floating-point numbers in
- *      scientific notation.
- *
  */
 
 #ifndef TUDAT_READ_ODF_FILE_H
@@ -32,168 +26,6 @@ namespace tudat
 {
 namespace input_output
 {
-
-template< int FirstInputSize, int SecondInputSize >
-std::bitset< FirstInputSize + SecondInputSize > mergeBitsets(
-        std::bitset< FirstInputSize > firstInput,
-        std::bitset< SecondInputSize > secondInput )
-{
-    std::bitset< FirstInputSize + SecondInputSize > returnBitset;
-    for( int i = 0; i < FirstInputSize; i++ )
-    {
-        returnBitset[ i + SecondInputSize ] = firstInput[ i ];
-    }
-
-    for( int i = 0; i < SecondInputSize; i++ )
-    {
-        returnBitset[ i ] = secondInput[ i ];
-    }
-    return returnBitset;
-}
-
-template< int OutputBits, int InputBits >
-std::bitset< OutputBits > getBitsetSegment(
-        const std::bitset< InputBits > inputBits,
-        const int startIndex )
-{
-    std::bitset< OutputBits > outputBits;
-
-    // Check if final bit is valid
-    if ( startIndex + OutputBits > InputBits )
-    {
-        throw std::runtime_error( "Error, when getting bit segment: requested bits are not part of the provided bitset." );
-    }
-
-    for( unsigned int i = 0; i < OutputBits; i++ )
-    {
-        outputBits[ i ] = inputBits[ InputBits - OutputBits - startIndex + i  ];
-    }
-    return outputBits;
-}
-
-template< int NumberOfBits >
-int getSignedNBitInteger(
-        std::bitset< NumberOfBits > inputBits )
-{
-    int outputInteger = -inputBits[ NumberOfBits - 1 ] * std::pow( 2, NumberOfBits - 1 );
-
-    for( unsigned int i = 0; i < NumberOfBits - 1; i ++ )
-    {
-        outputInteger += inputBits[ i ] * std::pow( 2.0, i );
-    }
-    return outputInteger;
-}
-
-template < int NumberOfBytes >
-void readBinaryFileBlock( std::istream& file,
-                          std::bitset< NumberOfBytes * 8 >& dataBits )
-{
-    int numberOfBits = NumberOfBytes * 8;
-
-    // TODO: Not being able to use read() with char dataChar [NumberOfBytes]... why?!
-    char dataChar [NumberOfBytes][1];
-    file.read( (char*)dataChar[0], NumberOfBytes );
-
-    if ( !file.good( ) )
-    {
-        throw std::runtime_error( "Error when reading data block from ODF file." );
-    }
-
-    // Convert to bitset
-    for ( int i = 0, bitCounter = 0; i < NumberOfBytes; ++i)
-    {
-        // Extract byte
-        uint8_t byte = dataChar[0][i];
-        for ( int j = 0; j < 8; ++j)
-        {
-            // Right shift byte to determine value of desired bit and save it to the bitset
-            // Indexing of the byte and bitset starts from the right (i.e. the 0th bit is the rightmost one)
-            dataBits[ numberOfBits - bitCounter - 1 ] = (byte >> ( 8 - 1 - j) ) & 1;
-            ++bitCounter;
-        }
-    }
-}
-
-template< unsigned int NumberOfBits >
-long convertBitsetToLong(const std::bitset< NumberOfBits >& bits) {
-    if ( NumberOfBits > 32 )
-    {
-        throw std::runtime_error( "Error when converting bitset to long: specified number of bits (" +
-            std::to_string(NumberOfBits) + "is larger than it is possible to represent with long (32).");
-    }
-
-    // Declare struct and create object s
-    struct {
-        // x with bit field of size numberOfBits
-        // Sign extension is done automatically
-        long x: NumberOfBits;
-    } s;
-
-    // Convert bitset to UNSIGNED long represented by numberOfBits bits. The remaining bits are determined by sign
-    // extension, hence representing a SIGNED long.
-    s.x = bits.to_ulong();
-    return s.x;
-}
-
-template< unsigned int NumberBlockBits, unsigned int NumberItemBits, typename T >
-void parseDataBlock (std::bitset< NumberBlockBits > dataBits,
-                     const std::vector< bool >& unsignedItemFlag,
-                     unsigned int argumentCounter,
-                     unsigned int startBitCounter,
-                     T& arg)
-{
-    if ( unsignedItemFlag.at( argumentCounter ) )
-    {
-        arg = getBitsetSegment< NumberItemBits, NumberBlockBits >( dataBits, startBitCounter ).to_ulong( );
-    }
-    else
-    {
-        arg = convertBitsetToLong< NumberItemBits >(
-                getBitsetSegment< NumberItemBits, NumberBlockBits >( dataBits, startBitCounter ) );
-    }
-
-    ++argumentCounter;
-    startBitCounter += NumberItemBits;
-
-    if ( startBitCounter != NumberBlockBits )
-    {
-        throw std::runtime_error(
-                "Error when parsing ODF file: block size (" + std::to_string( NumberBlockBits ) +
-                " bits) and total item size (" + std::to_string(startBitCounter) + "bits ) are not consistent." );
-    }
-    else if ( argumentCounter != unsignedItemFlag.size() )
-    {
-        throw std::runtime_error(
-                "Error when parsing ODF file: numbers of items (" + std::to_string( argumentCounter ) +
-                ") and size of unsigned flag vector (" + std::to_string( unsignedItemFlag.size() ) +
-                ") are not consistent." );
-    }
-}
-
-template< unsigned int NumberBlockBits, unsigned int NumberItemBits, unsigned int... NumberItemBitsN,
-        typename T, typename... TN >
-void parseDataBlock (std::bitset< NumberBlockBits > dataBits,
-                     const std::vector< bool >& unsignedItemFlag,
-                     unsigned int argumentCounter,
-                     unsigned int startBitCounter,
-                     T& arg, TN&... args)
-{
-    if ( unsignedItemFlag.at( argumentCounter ) )
-    {
-        arg = getBitsetSegment< NumberItemBits, NumberBlockBits >( dataBits, startBitCounter ).to_ulong( );
-    }
-    else
-    {
-        arg = convertBitsetToLong< NumberItemBits >(
-                getBitsetSegment< NumberItemBits, NumberBlockBits >( dataBits, startBitCounter ) );
-    }
-
-    ++argumentCounter;
-    startBitCounter += NumberItemBits;
-
-    parseDataBlock< NumberBlockBits, NumberItemBitsN ... >( dataBits, unsignedItemFlag, argumentCounter,
-                                                            startBitCounter, args ...);
-}
 
 class OdfClockOffsetBlock
 {
