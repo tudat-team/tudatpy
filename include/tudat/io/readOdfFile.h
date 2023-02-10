@@ -31,33 +31,33 @@ class OdfClockOffsetBlock
 {
 public:
 
-    unsigned int integerStartTime; // sec
-    unsigned int fractionalStartTime; // nsec
+    unsigned int integerStartTime_; // sec
+    unsigned int fractionalStartTime_; // nsec
 
-    int integerClockOffset;  // sec
-    int fractionalClockOffset; // nsec
+    int integerClockOffset_;  // sec
+    int fractionalClockOffset_; // nsec
 
-    unsigned int primaryStationId;
-    unsigned int secondaryStationId;
+    unsigned int primaryStationId_;
+    unsigned int secondaryStationId_;
 
-    unsigned int reservedBlock;
+    unsigned int reservedBlock_;
 
-    unsigned int integerEndTime; // sec
-    unsigned int fractionalEndTime; // nsec
+    unsigned int integerEndTime_; // sec
+    unsigned int fractionalEndTime_; // nsec
 
     double getStartTime( )
     {
-        return static_cast< double >( integerStartTime ) + static_cast< double >( fractionalStartTime ) * 1.0E-9;
+        return static_cast< double >( integerStartTime_ ) + static_cast< double >( fractionalStartTime_ ) * 1.0E-9;
     }
 
     double getEndTime( )
     {
-        return static_cast< double >( integerEndTime ) + static_cast< double >( fractionalEndTime ) * 1.0E-9;
+        return static_cast< double >( integerEndTime_ ) + static_cast< double >( fractionalEndTime_ ) * 1.0E-9;
     }
 
     double getClockOffset( )
     {
-        return static_cast< double >( integerClockOffset ) + static_cast< double >( fractionalClockOffset ) * 1.0E-9;
+        return static_cast< double >( integerClockOffset_ ) + static_cast< double >( fractionalClockOffset_ ) * 1.0E-9;
     }
 };
 
@@ -265,8 +265,12 @@ public:
     bool eofHeaderFound;
 
     std::vector< std::shared_ptr< OdfDataBlock > > dataBlocks;
+
+    // Indexed by transmitting station ID
     std::map< int, std::vector< std::shared_ptr< OdfRampBlock > > > rampBlocks;
-    std::shared_ptr< OdfClockOffsetBlock > clockOffsetBlock;
+
+    // Indexed by pair of (primary station ID, secondary station ID)
+    std::map< std::pair< int, int >, std::shared_ptr< OdfClockOffsetBlock > > clockOffsetBlocks;
 };
 
 std::shared_ptr< OdfClockOffsetBlock > parseClockOffsetData( std::bitset< 288 > dataBits );
