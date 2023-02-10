@@ -37,8 +37,8 @@ std::shared_ptr< OdfClockOffsetBlock > parseClockOffsetData( std::bitset< 288 > 
     unsignedCommonItemFlag.at( 2 ) = false;
     unsignedCommonItemFlag.at( 3 ) = false;
 
-    parseDataBlock< 288, 32, 32, 32, 32, 32, 32, 32, 32, 32 >(
-            dataBits, unsignedCommonItemFlag, 0, 0,
+    parseDataBlockWrapper< 288, 32, 32, 32, 32, 32, 32, 32, 32, 32 >(
+            dataBits, unsignedCommonItemFlag,
             clockOffsetBlock->integerStartTime,
             clockOffsetBlock->fractionalStartTime,
             clockOffsetBlock->integerClockOffset,
@@ -68,8 +68,8 @@ std::shared_ptr< OdfDopplerDataBlock > parseDopplerOrbitData( std::bitset< 128 >
 
     std::vector< bool > unsignedItemFlag = { true, true, true, true, true, false, true, true };
 
-    parseDataBlock< 128, 7, 10, 1, 22, 24, 20, 22, 22 >(
-            dataBits, unsignedItemFlag, 0, 0,
+    parseDataBlockWrapper< 128, 7, 10, 1, 22, 24, 20, 22, 22 >(
+            dataBits, unsignedItemFlag,
             dopplerDataBlock->receiverChannel,
             dopplerDataBlock->spacecraftId,
             dopplerDataBlock->receiverExciterFlag,
@@ -106,8 +106,8 @@ std::shared_ptr< OdfSequentialRangeDataBlock > parseSequentialRangeData( std::bi
 
     std::vector< bool > unsignedItemFlag = { true, true, true, true, true, false, true, true };
 
-    parseDataBlock< 128, 7, 10, 1, 22, 24, 20, 22, 22 >(
-            dataBits, unsignedItemFlag, 0, 0,
+    parseDataBlockWrapper< 128, 7, 10, 1, 22, 24, 20, 22, 22 >(
+            dataBits, unsignedItemFlag,
             rangeDataBlock->lowestRangingComponent,
             rangeDataBlock->spacecraftId,
             rangeDataBlock->reservedBlock,
@@ -159,8 +159,8 @@ std::shared_ptr< OdfDataBlock > parseOrbitData( std::bitset< 288 > dataBits )
     unsignedCommonItemFlag.at( 3 ) = false;
     unsignedCommonItemFlag.at( 4 ) = false;
 
-    parseDataBlock< 160, 32, 10, 22, 32, 32, 3, 7, 7, 2, 6, 2, 2, 2, 1 >(
-            commonDataBits, unsignedCommonItemFlag, 0, 0,
+    parseDataBlockWrapper< 160, 32, 10, 22, 32, 32, 3, 7, 7, 2, 6, 2, 2, 2, 1 >(
+            commonDataBits, unsignedCommonItemFlag,
             commonDataBlock->integerTimeTag,
             commonDataBlock->fractionalTimeTag,
             commonDataBlock->receivingStationDownlinkDelay,
@@ -231,8 +231,8 @@ std::shared_ptr< OdfRampBlock > parseRampData( std::bitset< 288 > dataBits )
     unsignedCommonItemFlag.at( 2 ) = false;
     unsignedCommonItemFlag.at( 3 ) = false;
 
-    parseDataBlock< 288, 32, 32, 32, 32, 22, 10, 32, 32, 32, 32 >(
-            dataBits, unsignedCommonItemFlag, 0, 0,
+    parseDataBlockWrapper< 288, 32, 32, 32, 32, 22, 10, 32, 32, 32, 32 >(
+            dataBits, unsignedCommonItemFlag,
             rampBlock->integerRampStartTime,
             rampBlock->fractionalRampStartTime,
             rampBlock->integerRampRate,
@@ -272,8 +272,8 @@ void parseHeader( std::bitset< 288 > dataBits,
     std::bitset< 4 * 32 > validDataBits = getBitsetSegment< 4 * 32, 288 >( dataBits, 0 );
 
     // Read data from block
-    parseDataBlock< 4 * 32, 32, 32, 32, 32 >(
-            validDataBits, unsignedItemFlag, 0, 0,
+    parseDataBlockWrapper< 4 * 32, 32, 32, 32, 32 >(
+            validDataBits, unsignedItemFlag,
             primaryKey,
             secondaryKey,
             logicalRecordLength,
@@ -284,7 +284,7 @@ void parseHeader( std::bitset< 288 > dataBits,
     for( int i = 0; i < 5; i++ )
     {
         std::bitset< 32 > testBits = getBitsetSegment< 32, 288 >( dataBits, ( i + 4 ) * 32 );
-        parseDataBlock< 32, 32 >( testBits, { true }, 0, 0, testInteger );
+        parseDataBlockWrapper< 32, 32 >( testBits, { true },  testInteger );
 
         if( testInteger != 0 )
         {
@@ -329,8 +329,8 @@ void parseFileLabelData(std::bitset< 288 > dataBits,
     std::vector< bool > unsignedItemFlag = { true, true, true, true, true };
 
     // Read data from block
-    parseDataBlock< 5 * 32, 32, 32, 32, 32, 32 >(
-            numericalDataBits, unsignedItemFlag, 0, 0,
+    parseDataBlockWrapper< 5 * 32, 32, 32, 32, 32, 32 >(
+            numericalDataBits, unsignedItemFlag,
             spacecraftId,
             fileCreationDate,
             fileCreationTime,
