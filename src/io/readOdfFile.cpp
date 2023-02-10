@@ -1,4 +1,15 @@
+/*    Copyright (c) 2010-2023, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
+
 #include "tudat/io/readOdfFile.h"
+#include "tudat/io/readBinaryFile.h"
 
 namespace tudat
 {
@@ -414,9 +425,9 @@ std::shared_ptr< OdfRawFileContents > readOdfFile(
                         odfFileContents->fileCreationTime,
                         odfFileContents->fileReferenceDate, odfFileContents->fileReferenceTime );
 
-//    std::cout<< odfFileContents->systemId << " " << odfFileContents->programId << " " << odfFileContents->spacecraftId <<
-//        " " << odfFileContents->fileCreationDate << " " << odfFileContents->fileCreationTime << " " <<
-//        odfFileContents->fileReferenceDate << " " << odfFileContents->fileReferenceTime << std::endl;
+    std::cout<< odfFileContents->systemId << " " << odfFileContents->programId << " " << odfFileContents->spacecraftId <<
+        " " << odfFileContents->fileCreationDate << " " << odfFileContents->fileCreationTime << " " <<
+        odfFileContents->fileReferenceDate << " " << odfFileContents->fileReferenceTime << std::endl;
 
     // Parse identifier header
     readOdfFileBlock( dataFile, currentFileBlock );
@@ -435,8 +446,8 @@ std::shared_ptr< OdfRawFileContents > readOdfFile(
             currentFileBlock, odfFileContents->identifierGroupStringA, odfFileContents->identifierGroupStringB,
             odfFileContents->identifierGroupStringC );
 
-//    std::cout<< odfFileContents->identifierGroupStringA << " " << odfFileContents->identifierGroupStringB << " " <<
-//        odfFileContents->identifierGroupStringC << std::endl;
+    std::cout<< odfFileContents->identifierGroupStringA << " " << odfFileContents->identifierGroupStringB << " " <<
+        odfFileContents->identifierGroupStringC << std::endl;
 
     // Parse orbit data header
     readOdfFileBlock( dataFile, currentFileBlock );
