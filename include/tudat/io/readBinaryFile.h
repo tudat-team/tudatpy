@@ -93,7 +93,7 @@ void readBinaryFileBlock( std::istream& file,
                           std::bitset< NumberOfBytes * 8 >& dataBits )
 {
     int numberOfBits = NumberOfBytes * 8;
-    
+
     char dataChar [NumberOfBytes];
     file.read( (char*)dataChar, NumberOfBytes );
 
@@ -103,7 +103,7 @@ void readBinaryFileBlock( std::istream& file,
     }
 
     // Convert to bitset
-    for ( int i = 0, bitCounter = 0; i < NumberOfBytes; ++i)
+    for ( int i = 0, bitCounter = 0; i < NumberOfBytes; ++i )
     {
         // Extract byte
         uint8_t byte = dataChar[i];
@@ -117,6 +117,9 @@ void readBinaryFileBlock( std::istream& file,
     }
 }
 
+// Note: "unsignedItemFlag.at( argumentCounter )" could be replaced by "std::is_unsigned< T >::value". In that case,
+// it would no longer be necessary to have unsignedItemFlag as an argument. However, that is more error-prone in case
+// the signed/unsigned types aren't specified correctly.
 template< unsigned int NumberBlockBits, unsigned int NumberItemBits, typename T >
 void parseDataBlock (std::bitset< NumberBlockBits > dataBits,
                      const std::vector< bool >& unsignedItemFlag,
@@ -175,6 +178,16 @@ void parseDataBlock (std::bitset< NumberBlockBits > dataBits,
 
     parseDataBlock< NumberBlockBits, NumberItemBitsN ... >( dataBits, unsignedItemFlag, argumentCounter,
                                                             startBitCounter, args ...);
+}
+
+template< unsigned int NumberBlockBits, unsigned int NumberItemBits, unsigned int... NumberItemBitsN,
+        typename T, typename... TN >
+void parseDataBlockWrapper (std::bitset< NumberBlockBits > dataBits,
+                            const std::vector< bool >& unsignedItemFlag,
+                            T& arg, TN&... args)
+{
+    parseDataBlock< NumberBlockBits, NumberItemBits, NumberItemBitsN ... > ( dataBits, unsignedItemFlag, 0, 0, arg,
+                                                                             args ... );
 }
 
 } // namespace input_output
