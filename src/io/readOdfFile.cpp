@@ -39,15 +39,15 @@ std::shared_ptr< OdfClockOffsetBlock > parseClockOffsetData( std::bitset< 288 > 
 
     parseDataBlockWrapper< 288, 32, 32, 32, 32, 32, 32, 32, 32, 32 >(
             dataBits, unsignedCommonItemFlag,
-            clockOffsetBlock->integerStartTime,
-            clockOffsetBlock->fractionalStartTime,
-            clockOffsetBlock->integerClockOffset,
-            clockOffsetBlock->fractionalClockOffset,
-            clockOffsetBlock->primaryStationId,
-            clockOffsetBlock->secondaryStationId,
-            clockOffsetBlock->reservedBlock,
-            clockOffsetBlock->integerEndTime,
-            clockOffsetBlock->fractionalEndTime );
+            clockOffsetBlock->integerStartTime_,
+            clockOffsetBlock->fractionalStartTime_,
+            clockOffsetBlock->integerClockOffset_,
+            clockOffsetBlock->fractionalClockOffset_,
+            clockOffsetBlock->primaryStationId_,
+            clockOffsetBlock->secondaryStationId_,
+            clockOffsetBlock->reservedBlock_,
+            clockOffsetBlock->integerEndTime_,
+            clockOffsetBlock->fractionalEndTime_ );
 
     return clockOffsetBlock;
 }
@@ -401,14 +401,14 @@ std::shared_ptr< OdfRawFileContents > readOdfFile(
     odfFileContents->fileName = odfFile;
 
     // Declare used variables
-    std::bitset< 36 * 8 > currentFileBlock;
+    std::bitset< 36 * 8 > currenBitBlock;
     // Variables to parse headers
     int primaryKey;
     unsigned int secondaryKey, logicalRecordLength, groupStartPacketNumber;
 
     // Parse file label header
-    readOdfFileBlock( dataFile, currentFileBlock );
-    parseHeader( currentFileBlock, primaryKey, secondaryKey, logicalRecordLength, groupStartPacketNumber );
+    readOdfFileBlock( dataFile, currenBitBlock );
+    parseHeader( currenBitBlock, primaryKey, secondaryKey, logicalRecordLength, groupStartPacketNumber );
 
     if( primaryKey != 101 || secondaryKey != 0 || logicalRecordLength != 1 || groupStartPacketNumber != 0 )
     {
@@ -419,8 +419,8 @@ std::shared_ptr< OdfRawFileContents > readOdfFile(
 //    std::cout << primaryKey << " " << secondaryKey << " " << logicalRecordLength << " " << groupStartPacketNumber << std::endl;
 
     // Parse file label data
-    readOdfFileBlock( dataFile, currentFileBlock );
-    parseFileLabelData( currentFileBlock, odfFileContents->systemId, odfFileContents->programId,
+    readOdfFileBlock( dataFile, currenBitBlock );
+    parseFileLabelData( currenBitBlock, odfFileContents->systemId, odfFileContents->programId,
                         odfFileContents->spacecraftId, odfFileContents->fileCreationDate,
                         odfFileContents->fileCreationTime,
                         odfFileContents->fileReferenceDate, odfFileContents->fileReferenceTime );
@@ -430,8 +430,8 @@ std::shared_ptr< OdfRawFileContents > readOdfFile(
         odfFileContents->fileReferenceDate << " " << odfFileContents->fileReferenceTime << std::endl;
 
     // Parse identifier header
-    readOdfFileBlock( dataFile, currentFileBlock );
-    parseHeader( currentFileBlock, primaryKey, secondaryKey, logicalRecordLength, groupStartPacketNumber );
+    readOdfFileBlock( dataFile, currenBitBlock );
+    parseHeader( currenBitBlock, primaryKey, secondaryKey, logicalRecordLength, groupStartPacketNumber );
 
     if( primaryKey != 107 || secondaryKey != 0 || logicalRecordLength != 1 || groupStartPacketNumber != 2 )
     {
@@ -441,17 +441,17 @@ std::shared_ptr< OdfRawFileContents > readOdfFile(
     }
 
     // Parse identifier data
-    readOdfFileBlock( dataFile, currentFileBlock );
+    readOdfFileBlock( dataFile, currenBitBlock );
     parseIdentifierData(
-            currentFileBlock, odfFileContents->identifierGroupStringA, odfFileContents->identifierGroupStringB,
+            currenBitBlock, odfFileContents->identifierGroupStringA, odfFileContents->identifierGroupStringB,
             odfFileContents->identifierGroupStringC );
 
     std::cout<< odfFileContents->identifierGroupStringA << " " << odfFileContents->identifierGroupStringB << " " <<
         odfFileContents->identifierGroupStringC << std::endl;
 
     // Parse orbit data header
-    readOdfFileBlock( dataFile, currentFileBlock );
-    parseHeader( currentFileBlock, primaryKey, secondaryKey, logicalRecordLength, groupStartPacketNumber );
+    readOdfFileBlock( dataFile, currenBitBlock );
+    parseHeader( currenBitBlock, primaryKey, secondaryKey, logicalRecordLength, groupStartPacketNumber );
     if( primaryKey != 109 || secondaryKey != 0 || logicalRecordLength != 1 || groupStartPacketNumber != 4 )
     {
         throw std::runtime_error( "Error when reading ODF file, orbit header invalid: primary key " +
@@ -462,20 +462,22 @@ std::shared_ptr< OdfRawFileContents > readOdfFile(
     // Reset data blocks and ramp blocks
     odfFileContents->dataBlocks.resize( 0 );
     odfFileContents->rampBlocks.clear();
+    odfFileContents->clockOffsetBlocks.clear();
 
-    // Read file until a non-ramp header is found or EOF is reached
+    // Read file until summary or EOF header is found or eof() is reached
     for ( int currentRampStation = -1, currentBlockType = 109; !dataFile.eof( ); )
     {
         // Read current block
-        readOdfFileBlock( dataFile, currentFileBlock );
+        readOdfFileBlock( dataFile, currenBitBlock );
 
         // Check if block is a header file
         bool blockIsHeader = currentBlockIsHeader(
-                currentFileBlock, primaryKey, secondaryKey, logicalRecordLength, groupStartPacketNumber );
+                currenBitBlock, primaryKey, secondaryKey, logicalRecordLength, groupStartPacketNumber );
 
         // If block is header
         if ( blockIsHeader )
         {
+            currentBlockType = primaryKey;
             // Ramp group header
             if ( primaryKey == 2030 )
             {
@@ -487,9 +489,18 @@ std::shared_ptr< OdfRawFileContents > readOdfFile(
                     ", logical record length " + std::to_string( logicalRecordLength ) + "." );
                 }
                 currentRampStation = secondaryKey;
-                currentBlockType = primaryKey;
             }
-            // Clock offset, summary, or EOF file header: exit loop
+            // Clock offset header
+            if ( primaryKey == 2040 )
+            {
+                if( primaryKey != 2040 || secondaryKey != 0 || logicalRecordLength != 1 )
+                {
+                    throw std::runtime_error( "Error when reading ODF file, clock offset header invalid: primary key " +
+                    std::to_string( primaryKey ) + ", secondary key " + std::to_string( secondaryKey ) +
+                    ", logical record length " + std::to_string( logicalRecordLength ) + "." );
+                }
+            }
+            // Summary or EOF file header: exit loop
             else
             {
                 break;
@@ -501,7 +512,7 @@ std::shared_ptr< OdfRawFileContents > readOdfFile(
             // Read orbit data
             if ( currentBlockType == 109 )
             {
-                std::shared_ptr< OdfDataBlock > currentDataBlock = parseOrbitData( currentFileBlock );
+                std::shared_ptr< OdfDataBlock > currentDataBlock = parseOrbitData( currenBitBlock );
                 if( currentDataBlock != nullptr )
                 {
                     odfFileContents->dataBlocks.push_back( currentDataBlock );
@@ -510,10 +521,21 @@ std::shared_ptr< OdfRawFileContents > readOdfFile(
             // Read ramp data
             else if ( currentBlockType == 2030 )
             {
-                std::shared_ptr< OdfRampBlock > currentDataBlock = parseRampData( currentFileBlock );
+                std::shared_ptr< OdfRampBlock > currentDataBlock = parseRampData( currenBitBlock );
                 if( currentDataBlock != nullptr )
                 {
                     odfFileContents->rampBlocks[ currentRampStation ].push_back( currentDataBlock );
+                }
+            }
+            // Clock offset data
+            else if ( currentBlockType == 2040 )
+            {
+                std::shared_ptr< OdfClockOffsetBlock > currentDataBlock = parseClockOffsetData( currenBitBlock );
+                if( currentDataBlock != nullptr )
+                {
+                    odfFileContents->clockOffsetBlocks[
+                            std::make_pair( currentDataBlock->primaryStationId_,
+                                            currentDataBlock->secondaryStationId_ ) ] = currentDataBlock;
                 }
             }
             else
@@ -528,31 +550,14 @@ std::shared_ptr< OdfRawFileContents > readOdfFile(
         throw std::runtime_error( "Error when reading ODF file: end of file was found before EOF group." );
     }
 
-    // Parse clock offset data
-    if ( primaryKey == 2040 )
-    {
-        if( primaryKey != 2040 || secondaryKey != 0 || logicalRecordLength != 1 )
-        {
-            throw std::runtime_error( "Error when reading ODF file, clock offset header invalid: primary key " +
-            std::to_string( primaryKey ) + ", secondary key " + std::to_string( secondaryKey ) + ", logical record length " +
-            std::to_string( logicalRecordLength ) + "." );
-        }
-
-        readOdfFileBlock( dataFile, currentFileBlock );
-        odfFileContents->clockOffsetBlock = parseClockOffsetData( currentFileBlock );
-
-        // Read next block
-        readOdfFileBlock( dataFile, currentFileBlock );
-    }
-
     // Ignore summary data
     if ( primaryKey == 105 )
     {
         // Read summary data block
-        readOdfFileBlock( dataFile, currentFileBlock );
+        readOdfFileBlock( dataFile, currenBitBlock );
 
         // Read next block
-        readOdfFileBlock( dataFile, currentFileBlock );
+        readOdfFileBlock( dataFile, currenBitBlock );
     }
 
     // EOF group
