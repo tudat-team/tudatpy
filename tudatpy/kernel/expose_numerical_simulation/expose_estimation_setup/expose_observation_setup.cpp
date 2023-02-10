@@ -141,7 +141,6 @@ void addDependentVariablesToObservationSimulationSettingsPy(
                 observationSimulationSettings, dependentVariableList, bodies, observableType, linkEnds );
 }
 
-
 }
 
 }
@@ -261,6 +260,12 @@ void expose_observation_setup(py::module &m) {
                 m, "OneWayDopplerObservationSettings",
                 get_docstring("OneWayDopplerObservationSettings").c_str() );
 
+    py::class_<tom::NWayRangeObservationSettings,
+            std::shared_ptr<tom::NWayRangeObservationSettings>,
+            tom::ObservationModelSettings >(
+            m, "NWayRangeObservationSettings",
+            get_docstring("NWayRangeObservationSettings").c_str() );
+
     py::class_<tom::LightTimeConvergenceCriteria,
             std::shared_ptr<tom::LightTimeConvergenceCriteria> >(
                 m, "LightTimeConvergenceCriteria",
@@ -377,12 +382,12 @@ void expose_observation_setup(py::module &m) {
     m.def("two_doppler_instantaneous",
           py::overload_cast<
           const tom::LinkDefinition&,
-          const std::shared_ptr< tom::LightTimeCorrectionSettings >,
+          const std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >&,
           const std::shared_ptr< tom::ObservationBiasSettings >,
           const std::shared_ptr< tom::LightTimeConvergenceCriteria >,
           const bool >( &tom::twoWayOpenLoopDoppler ),
           py::arg("link_ends" ),
-          py::arg("light_time_correction_settings" ) = nullptr,
+          py::arg("light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
           py::arg("bias_settings") = nullptr,
           py::arg("light_time_convergence_settings") = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
           py::arg("normalized_with_speed_of_light") = false,
@@ -909,12 +914,12 @@ void expose_observation_setup(py::module &m) {
     m.def("two_way_open_loop_doppler",
           py::overload_cast<
           const tom::LinkDefinition&,
-          const std::shared_ptr< tom::LightTimeCorrectionSettings >,
+          const std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >&,
           const std::shared_ptr< tom::ObservationBiasSettings >,
           const std::shared_ptr< tom::LightTimeConvergenceCriteria >,
           const bool >( &tom::twoWayOpenLoopDoppler ),
           py::arg("link_ends" ),
-          py::arg("light_time_correction_settings" ) = nullptr,
+          py::arg("light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
           py::arg("bias_settings") = nullptr,
           py::arg("light_time_convergence_settings") = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
           py::arg("normalized_with_speed_of_light") = false );
