@@ -201,6 +201,40 @@ uint32_t convertCharactersToUnsignedInt32(
 int32_t convertCharactersToSignedInt32(
         unsigned char data[ 4 ] );
 
+class OdfClockOffsetBlock
+{
+public:
+
+    unsigned int integerStartTime; // sec
+    unsigned int fractionalStartTime; // nsec
+
+    int integerClockOffset;  // sec
+    int fractionalClockOffset; // nsec
+
+    unsigned int primaryStationId;
+    unsigned int secondaryStationId;
+
+    unsigned int reservedBlock;
+
+    unsigned int integerEndTime; // sec
+    unsigned int fractionalEndTime; // nsec
+
+    double getStartTime( )
+    {
+        return static_cast< double >( integerStartTime ) + static_cast< double >( fractionalStartTime ) * 1.0E-9;
+    }
+
+    double getEndTime( )
+    {
+        return static_cast< double >( integerEndTime ) + static_cast< double >( fractionalEndTime ) * 1.0E-9;
+    }
+
+    double getClockOffset( )
+    {
+        return static_cast< double >( integerClockOffset ) + static_cast< double >( fractionalClockOffset ) * 1.0E-9;
+    }
+};
+
 class OdfRampBlock
 {
 public:
@@ -405,9 +439,11 @@ public:
     bool eofHeaderFound;
 
     std::vector< std::shared_ptr< OdfDataBlock > > dataBlocks;
-    std::map< int, std::vector< std::shared_ptr< OdfRampBlock > > > odfRampBlocks;
-
+    std::map< int, std::vector< std::shared_ptr< OdfRampBlock > > > rampBlocks;
+    std::shared_ptr< OdfClockOffsetBlock > clockOffsetBlock;
 };
+
+std::shared_ptr< OdfClockOffsetBlock > parseClockOffsetData( std::bitset< 288 > dataBits );
 
 //! Function to parse the contents of an ODF orbit data block, specific for sequenctial range data.
 std::shared_ptr< OdfSequentialRangeDataBlock > parseSequentialRangeData( unsigned char fileBlock[ 9 ][ 4 ], const int dopplerType );
