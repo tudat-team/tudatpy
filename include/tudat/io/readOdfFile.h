@@ -205,20 +205,21 @@ class OdfRampBlock
 {
 public:
 
-    int integerRampStartTime;
-    int fractionalRampStartTime;
+    unsigned int integerRampStartTime; // sec
+    unsigned int fractionalRampStartTime; // nsec
 
-    int integerRampEndTime;
-    int fractionalRampEndTime;
+    int integerRampRate; // Hz/s
+    int fractionalRampRate; // 1e-9 Hz/s
 
-    int integerRampRate;
-    int fractionalRampRate;
-
-    int integerRampStartFrequency;
-    int integerRampStartFrequencyModulo;
-    int fractionalRampStartFrequency;
+    int integerRampStartFrequency;  // GHz
 
     int transmittingStationId;
+
+    unsigned int integerRampStartFrequencyModulo; // Hz
+    unsigned int fractionalRampStartFrequency; // Hz
+
+    unsigned int integerRampEndTime; // sec
+    unsigned int fractionalRampEndTime; // nsec
 
     double getRampStartFrequency( )
     {
@@ -235,14 +236,12 @@ public:
 
     double getRampStartTime( )
     {
-        return static_cast< double >( integerRampStartTime ) -
-                86400.0 + static_cast< double >( fractionalRampStartTime ) * 1.0E-9;
+        return static_cast< double >( integerRampStartTime ) + static_cast< double >( fractionalRampStartTime ) * 1.0E-9;
     }
 
     double getRampEndTime( )
     {
-        return static_cast< double >( integerRampEndTime ) -
-                static_cast< double >( fractionalRampEndTime ) * 1.0E-9;
+        return static_cast< double >( integerRampEndTime ) + static_cast< double >( fractionalRampEndTime ) * 1.0E-9;
     }
 
     void printContents( )
@@ -279,12 +278,12 @@ public:
     int spacecraftId;
     int reservedBlock;
 
-    int referenceFrequencyHighPart;
-    int referenceFrequencyLowPart;
+    int referenceFrequencyHighPart; // 2^24 mHz
+    int referenceFrequencyLowPart; // mHz
 
-    int coderInPhaseTimeOffset;
-    int compositeTwo;
-    int transmittingStationUplinkDelay;
+    int coderInPhaseTimeOffset; // sec
+    int compositeTwo; // sec
+    int transmittingStationUplinkDelay; // nsec
 
     double getReferenceFrequency( )
     {
@@ -304,17 +303,17 @@ public:
     int receiverChannel;
     int spacecraftId;
     int receiverExciterFlag;
-    int referenceFrequencyHighPart;
-    int referenceFrequencyLowPart;
+    int referenceFrequencyHighPart; // 2^24 mHz
+    int referenceFrequencyLowPart; // mHz
 
     int reservedSegment;
-    int compressionTime;
+    int compressionTime; // 1e-2 sec
 
-    int transmittingStationUplinkDelay;
+    int transmittingStationUplinkDelay; // nsec
 
     double getReferenceFrequency( )
     {
-        return std::pow( 2.0, 24 )  /1.0E3 * referenceFrequencyHighPart + referenceFrequencyLowPart / 1.0E3;
+        return std::pow( 2.0, 24 )  / 1.0E3 * referenceFrequencyHighPart + referenceFrequencyLowPart / 1.0E3;
     }
 
     void printContents( )
@@ -346,12 +345,12 @@ public:
         return static_cast< double >( integerTimeTag ) + static_cast< double >( fractionalTimeTag ) / 1000.0;
     }
 
-    uint32_t integerTimeTag;
-    int fractionalTimeTag;
-    int receivingStationDownlinkDelay;
+    uint32_t integerTimeTag; // sec
+    int fractionalTimeTag; // msec
+    int receivingStationDownlinkDelay; // nsec
 
-    int integerObservable;
-    int fractionalObservable;
+    int integerObservable; // unit
+    int fractionalObservable; // 1e-9 * unit
 
     int formatId;
     int receivingStation;
@@ -391,11 +390,11 @@ public:
     std::string programId;
     uint32_t spacecraftId;
 
-    uint32_t fileCreationDate;
-    uint32_t fileCreationTime;
+    uint32_t fileCreationDate; // year, month, day (YYMMDD)
+    uint32_t fileCreationTime; // hour, minute, second (HHMMSS)
 
-    uint32_t fileReferenceDate;
-    uint32_t fileReferenceTime;
+    uint32_t fileReferenceDate; // year, month, day (YYMMDD)
+    uint32_t fileReferenceTime; // hour, minute, second (HHMMSS)
 
     std::string fileName;
 
@@ -406,7 +405,7 @@ public:
     bool eofHeaderFound;
 
     std::vector< std::shared_ptr< OdfDataBlock > > dataBlocks;
-    std::map< int, std::vector< OdfRampBlock > > odfRampBlocks;
+    std::map< int, std::vector< std::shared_ptr< OdfRampBlock > > > odfRampBlocks;
 
 };
 
@@ -427,6 +426,8 @@ std::shared_ptr< OdfDataBlock > parseOrbitData( std::bitset< 288 > dataBits );
 
 //! Function to parse the contents of an ODF ramp data block
 OdfRampBlock parseRampData( unsigned char fileBlock[ 9 ][ 4 ] );
+
+std::shared_ptr< OdfRampBlock > parseRampData( std::bitset< 288 > dataBits );
 
 //! Function to parse the contents of an ODF file label block
 void parseFileLabel( unsigned char fileBlock[ 9 ][ 4 ],

@@ -275,7 +275,7 @@ std::shared_ptr< ProcessedOdfFileContents > parseOdfFileContents(
     processedOdfFile->processedDataBlocks = processedDataBlocks;
     processedOdfFile->spacecraftName = spacecraftName;
 
-    std::map< int, std::vector< input_output::OdfRampBlock > > rampDataBlocks = rawOdfData->odfRampBlocks;
+    std::map< int, std::vector< std::shared_ptr< input_output::OdfRampBlock > > > rampDataBlocks = rawOdfData->odfRampBlocks;
     std::map< int, std::shared_ptr< RampedReferenceFrequencyInterpolator > > rampInterpolators;
 
     for( auto it = rampDataBlocks.begin( ); it != rampDataBlocks.end( ); it++ )

@@ -80,14 +80,14 @@ class RampedReferenceFrequencyInterpolator
 {
 public:
     RampedReferenceFrequencyInterpolator(
-            std::vector< input_output::OdfRampBlock > rampBlock )
+            std::vector< std::shared_ptr< input_output::OdfRampBlock > > rampBlock )
     {
         for( unsigned int i = 0; i < rampBlock.size( ); i++ )
         {
-            startTimes.push_back( rampBlock.at( i ).getRampStartTime( ) );
-            endTimes.push_back( rampBlock.at( i ).getRampEndTime( ) );
-            rampRates.push_back( rampBlock.at( i ).getRampRate( ) );
-            startFrequency.push_back( rampBlock.at( i ).getRampStartFrequency( ) );
+            startTimes.push_back( rampBlock.at( i )->getRampStartTime( ) );
+            endTimes.push_back( rampBlock.at( i )->getRampEndTime( ) );
+            rampRates.push_back( rampBlock.at( i )->getRampRate( ) );
+            startFrequency.push_back( rampBlock.at( i )->getRampStartFrequency( ) );
         }
 
         startTimeLookupScheme_ = std::make_shared<
