@@ -443,6 +443,7 @@ private:
  */
 enum class PanelRadiosityModelType
 {
+    constant,
     albedo,
     thermal_delayed,
     thermal_angle_based
@@ -469,6 +470,34 @@ public:
 
 private:
     PanelRadiosityModelType panelRadiosityModelType_;
+};
+
+/*!
+ * Settings for a constant radiosity model of a paneled source panel.
+ *
+ * The panel will emit radiation with a Lambertian law.
+ *
+ * @see ConstantPanelRadiosityModel
+ */
+class ConstantPanelRadiosityModelSettings : public PanelRadiosityModelSettings
+{
+public:
+    /*!
+     * Constructor.
+     *
+     * @param constantRadiosity Constant radiosity
+     */
+    explicit ConstantPanelRadiosityModelSettings(const double constantRadiosity) :
+            PanelRadiosityModelSettings(PanelRadiosityModelType::constant),
+            constantRadiosity_(constantRadiosity) {}
+
+    double getConstantRadiosity() const
+    {
+        return constantRadiosity_;
+    }
+
+private:
+    const double constantRadiosity_;
 };
 
 /*!
@@ -759,6 +788,18 @@ inline std::shared_ptr<AlbedoPanelRadiosityModelSettings>
 {
     return std::make_shared< AlbedoPanelRadiosityModelSettings >(
             sphericalHarmonicsSurfacePropertyDistributionSettings(albedoModel));
+}
+
+/*!
+ * Create settings for a constant panel radiosity model.
+ *
+ * @param constantRadiosity Constant radiosity
+ * @return Shared pointer to settings for a constant panel radiosity model
+ */
+inline std::shared_ptr<ConstantPanelRadiosityModelSettings>
+        constantPanelRadiosityModelSettings(double constantRadiosity)
+{
+    return std::make_shared< ConstantPanelRadiosityModelSettings >(constantRadiosity);
 }
 
 /*!

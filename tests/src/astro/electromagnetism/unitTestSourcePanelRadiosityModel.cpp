@@ -35,6 +35,49 @@ using namespace tudat::electromagnetism;
 
 BOOST_AUTO_TEST_SUITE(test_source_panel_radiosity_model)
 
+//! Test basic cases for constant panel radiosity model
+BOOST_AUTO_TEST_CASE( testConstantPanelRadiosityModel )
+{
+    ConstantSourcePanelRadiosityModel radiosityModel(42);
+    radiosityModel.updateMembers(TUDAT_NAN, TUDAT_NAN, TUDAT_NAN);
+
+    {
+        // Target in front of panel, 1 away orthogonal to panel
+        const auto expectedEmittedIrradiance = 42 / mathematical_constants::PI;
+        const auto actualEmittedIrradiance = radiosityModel.evaluateIrradianceAtPosition(
+                1,
+                Eigen::Vector3d::UnitX(),
+                Eigen::Vector3d::UnitX(),
+                1,
+                -Eigen::Vector3d::UnitX());
+        BOOST_CHECK_CLOSE(expectedEmittedIrradiance, actualEmittedIrradiance, 1e-15);
+    }
+
+    {
+        // Target at 45° angle with panel, 2 away orthogonal to panel
+        const auto expectedEmittedIrradiance = 42 / (mathematical_constants::PI * sqrt(2) * 4);
+        const auto actualEmittedIrradiance = radiosityModel.evaluateIrradianceAtPosition(
+                1,
+                Eigen::Vector3d::UnitX(),
+                2 * Eigen::Vector3d(1, 0, 1).normalized(),
+                4,
+                -Eigen::Vector3d(1, 1, 0).normalized());
+        BOOST_CHECK_CLOSE(expectedEmittedIrradiance, actualEmittedIrradiance, 1e-10);
+    }
+
+    {
+        // Target behind panel
+        const auto expectedEmittedIrradiance = 0;
+        const auto actualEmittedIrradiance = radiosityModel.evaluateIrradianceAtPosition(
+                1,
+                Eigen::Vector3d::UnitX(),
+                -Eigen::Vector3d::UnitX(),
+                1,
+                -Eigen::Vector3d::UnitX());
+        BOOST_CHECK_CLOSE(expectedEmittedIrradiance, actualEmittedIrradiance, 1e-15);
+    }
+}
+
 //! Test basic cases for albedo panel radiosity model
 BOOST_AUTO_TEST_CASE( testAlbedoPanelRadiosityModel )
 {

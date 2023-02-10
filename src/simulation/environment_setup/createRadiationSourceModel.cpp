@@ -241,6 +241,20 @@ std::unique_ptr<electromagnetism::SourcePanelRadiosityModel> createPanelRadiosit
 
     switch(modelSettings->getPanelRadiosityModelType())
     {
+        case PanelRadiosityModelType::constant:
+        {
+            auto constantPanelRadiosityModelSettings =
+                    std::dynamic_pointer_cast< ConstantPanelRadiosityModelSettings >(modelSettings);
+            if(constantPanelRadiosityModelSettings == nullptr)
+            {
+                throw std::runtime_error(
+                        "Error, expected constant panel radiosity model for body " + body );
+            }
+
+            panelRadiosityModel = std::make_unique<ConstantSourcePanelRadiosityModel>(
+                    constantPanelRadiosityModelSettings->getConstantRadiosity());
+            break;
+        }
         case PanelRadiosityModelType::albedo:
         {
             auto albedoPanelRadiosityModelSettings =
