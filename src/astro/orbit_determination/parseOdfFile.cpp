@@ -179,12 +179,12 @@ void addOdfDataBlockToParsedData(
         const std::shared_ptr< ProcessdOdfFileSingleLinkData > processedDataBlock )
 {
     // Add common properties to data object
-    processedDataBlock->downlinkBand.push_back( rawDataBlock->commonDataBlock->downlinkBand );
-    processedDataBlock->uplinkBand.push_back( rawDataBlock->commonDataBlock->uplinkBand );
-    processedDataBlock->referenceBand.push_back( rawDataBlock->commonDataBlock->referenceBand );
-    processedDataBlock->observableValues.push_back( rawDataBlock->commonDataBlock->getObservableValue( ) );
-    processedDataBlock->observationTimes.push_back( rawDataBlock->commonDataBlock->getObservableTime( ) );
-    processedDataBlock->receiverDownlinkDelay.push_back( rawDataBlock->commonDataBlock->receivingStationDownlinkDelay );
+    processedDataBlock->downlinkBand.push_back( rawDataBlock->commonDataBlock_->downlinkBandId_ );
+    processedDataBlock->uplinkBand.push_back( rawDataBlock->commonDataBlock_->uplinkBandId_ );
+    processedDataBlock->referenceBand.push_back( rawDataBlock->commonDataBlock_->referenceBandId_ );
+    processedDataBlock->observableValues.push_back( rawDataBlock->commonDataBlock_->getObservableValue( ) );
+    processedDataBlock->observationTimes.push_back( rawDataBlock->commonDataBlock_->getObservableTime( ) );
+    processedDataBlock->receiverDownlinkDelay.push_back( rawDataBlock->commonDataBlock_->receivingStationDownlinkDelay_ );
 
     // Add properties to data object for Doppler data
     if( currentObservableType == observation_models::one_way_differenced_range ||
@@ -192,17 +192,17 @@ void addOdfDataBlockToParsedData(
     {
         std::shared_ptr< input_output::OdfDopplerDataBlock > odfDopplerDataBlock =
                 std::dynamic_pointer_cast< input_output::OdfDopplerDataBlock >(
-                    rawDataBlock->observableSpecificDataBlock );
+                    rawDataBlock->observableSpecificDataBlock_ );
         std::shared_ptr< ProcessdOdfFileDopplerData > odfParsedDopplerDataBlock =
                 std::dynamic_pointer_cast< ProcessdOdfFileDopplerData >(
                     processedDataBlock );
 
-        odfParsedDopplerDataBlock->compressionTimes.push_back( odfDopplerDataBlock->compressionTime );
-        odfParsedDopplerDataBlock->receiverChannels.push_back( odfDopplerDataBlock->receiverChannel );
-        odfParsedDopplerDataBlock->rampingFlag.push_back( odfDopplerDataBlock->receiverExciterFlag );
+        odfParsedDopplerDataBlock->compressionTimes.push_back( odfDopplerDataBlock->compressionTime_ );
+        odfParsedDopplerDataBlock->receiverChannels.push_back( odfDopplerDataBlock->receiverChannel_ );
+        odfParsedDopplerDataBlock->rampingFlag.push_back( odfDopplerDataBlock->receiverExciterFlag_ );
         odfParsedDopplerDataBlock->referenceFrequency.push_back( odfDopplerDataBlock->getReferenceFrequency( ) );
-        odfParsedDopplerDataBlock->reservedData.push_back( odfDopplerDataBlock->reservedSegment );
-        odfParsedDopplerDataBlock->uplinkDelays.push_back( odfDopplerDataBlock->transmittingStationUplinkDelay );
+        odfParsedDopplerDataBlock->reservedData.push_back( odfDopplerDataBlock->reservedSegment_ );
+        odfParsedDopplerDataBlock->uplinkDelays.push_back( odfDopplerDataBlock->transmittingStationUplinkDelay_ );
     }
 }
 
@@ -212,10 +212,10 @@ std::shared_ptr< ProcessedOdfFileContents > parseOdfFileContents(
     // Create output object
     std::shared_ptr< ProcessedOdfFileContents > processedOdfFile =
             std::make_shared< ProcessedOdfFileContents >( );
-    std::string spacecraftName = std::to_string( rawOdfData->spacecraftId );
+    std::string spacecraftName = std::to_string( rawOdfData->spacecraftId_ );
 
     // Retrieve data blocks from ODF file raw contents
-    std::vector< std::shared_ptr< input_output::OdfDataBlock > > rawDataBlocks = rawOdfData->dataBlocks;
+    std::vector< std::shared_ptr< input_output::OdfDataBlock > > rawDataBlocks = rawOdfData->dataBlocks_;
 
     // Create list of data, sorted by observable type and link ends; single object per combination of the two
     std::map< observation_models::ObservableType, std::map< std::pair< std::string, std::string >,
@@ -230,13 +230,13 @@ std::shared_ptr< ProcessedOdfFileContents > parseOdfFileContents(
     for( unsigned int i = 0; i < rawDataBlocks.size( ); i++ )
     {
         // Retrieve observable type and link end names
-        currentObservableId = rawDataBlocks.at( i )->observableSpecificDataBlock->dataType_;
+        currentObservableId = rawDataBlocks.at( i )->observableSpecificDataBlock_->dataType_;
         currentObservableType = getObservableTypeForOdfId( currentObservableId );
         int appendedTransmittingStationId =
-                rawDataBlocks.at( i )->commonDataBlock->transmittingStation + 100 *
-                rawDataBlocks.at( i )->commonDataBlock->transmittingStationNetworkId;
+                rawDataBlocks.at( i )->commonDataBlock_->transmittingStationId_ + 100 *
+                                                                                  rawDataBlocks.at( i )->commonDataBlock_->transmittingStationNetworkId_;
         stationIds = std::make_pair( std::to_string( appendedTransmittingStationId ),
-                                     std::to_string( rawDataBlocks.at( i )->commonDataBlock->receivingStation ) );
+                                     std::to_string( rawDataBlocks.at( i )->commonDataBlock_->receivingStationId_ ) );
 
         // Check if data object already exists for current observable/link ends
         createNewObject = false;
@@ -258,7 +258,7 @@ std::shared_ptr< ProcessedOdfFileContents > parseOdfFileContents(
                 processedDataBlocks[ currentObservableType ][ stationIds ] = std::make_shared< ProcessdOdfFileDopplerData >( );
                 processedDataBlocks[ currentObservableType ][ stationIds ]->transmittingStation = appendedTransmittingStationId;
                 processedDataBlocks[ currentObservableType ][ stationIds ]->receivingStation =
-                        std::to_string( rawDataBlocks.at( i )->commonDataBlock->receivingStation );
+                        std::to_string( rawDataBlocks.at( i )->commonDataBlock_->receivingStationId_ );
                 processedDataBlocks[ currentObservableType ][ stationIds ]->observableType = currentObservableType;
             }
             else
@@ -275,7 +275,7 @@ std::shared_ptr< ProcessedOdfFileContents > parseOdfFileContents(
     processedOdfFile->processedDataBlocks = processedDataBlocks;
     processedOdfFile->spacecraftName = spacecraftName;
 
-    std::map< int, std::vector< std::shared_ptr< input_output::OdfRampBlock > > > rampDataBlocks = rawOdfData->rampBlocks;
+    std::map< int, std::vector< std::shared_ptr< input_output::OdfRampBlock > > > rampDataBlocks = rawOdfData->rampBlocks_;
     std::map< int, std::shared_ptr< RampedReferenceFrequencyInterpolator > > rampInterpolators;
 
     for( auto it = rampDataBlocks.begin( ); it != rampDataBlocks.end( ); it++ )

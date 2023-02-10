@@ -65,53 +65,53 @@ class OdfRampBlock
 {
 public:
 
-    unsigned int integerRampStartTime; // sec
-    unsigned int fractionalRampStartTime; // nsec
+    unsigned int integerRampStartTime_; // sec
+    unsigned int fractionalRampStartTime_; // nsec
 
-    int integerRampRate; // Hz/s
-    int fractionalRampRate; // 1e-9 Hz/s
+    int integerRampRate_; // Hz/s
+    int fractionalRampRate_; // 1e-9 Hz/s
 
-    int integerRampStartFrequency;  // GHz
+    int integerRampStartFrequency_;  // GHz
 
-    int transmittingStationId;
+    int transmittingStationId_;
 
-    unsigned int integerRampStartFrequencyModulo; // Hz
-    unsigned int fractionalRampStartFrequency; // Hz
+    unsigned int integerRampStartFrequencyModulo_; // Hz
+    unsigned int fractionalRampStartFrequency_; // Hz
 
-    unsigned int integerRampEndTime; // sec
-    unsigned int fractionalRampEndTime; // nsec
+    unsigned int integerRampEndTime_; // sec
+    unsigned int fractionalRampEndTime_; // nsec
 
     double getRampStartFrequency( )
     {
-        return static_cast< double >( integerRampStartFrequency ) * 1.0E9 +
-                static_cast< double >( integerRampStartFrequencyModulo ) +
-                static_cast< double >( fractionalRampStartFrequency ) * 1.0E-9;
+        return static_cast< double >( integerRampStartFrequency_ ) * 1.0E9 +
+               static_cast< double >( integerRampStartFrequencyModulo_ ) +
+               static_cast< double >( fractionalRampStartFrequency_ ) * 1.0E-9;
     }
 
     double getRampRate( )
     {
-        return static_cast< double >( integerRampRate ) +
-                static_cast< double >( fractionalRampRate ) * 1.0E-9;
+        return static_cast< double >( integerRampRate_ ) +
+               static_cast< double >( fractionalRampRate_ ) * 1.0E-9;
     }
 
     double getRampStartTime( )
     {
-        return static_cast< double >( integerRampStartTime ) + static_cast< double >( fractionalRampStartTime ) * 1.0E-9;
+        return static_cast< double >( integerRampStartTime_ ) + static_cast< double >( fractionalRampStartTime_ ) * 1.0E-9;
     }
 
     double getRampEndTime( )
     {
-        return static_cast< double >( integerRampEndTime ) + static_cast< double >( fractionalRampEndTime ) * 1.0E-9;
+        return static_cast< double >( integerRampEndTime_ ) + static_cast< double >( fractionalRampEndTime_ ) * 1.0E-9;
     }
 
     void printContents( )
     {
-        std::cout<<"Start time "<<integerRampStartTime<<" "<<fractionalRampStartTime<<std::endl;
-        std::cout<<"End time "<<integerRampEndTime<<" "<<fractionalRampEndTime<<std::endl;
-        std::cout<<"Ramp rate "<<integerRampRate<<" "<<fractionalRampRate<<std::endl;
-        std::cout<<"Start frequency "<<integerRampStartFrequency<<" "<<integerRampStartFrequencyModulo<<" "<<
-                   fractionalRampStartFrequency<<std::endl;
-        std::cout<<"Station "<<transmittingStationId<<std::endl<<std::endl;
+        std::cout << "Start time " << integerRampStartTime_ << " " << fractionalRampStartTime_ << std::endl;
+        std::cout << "End time " << integerRampEndTime_ << " " << fractionalRampEndTime_ << std::endl;
+        std::cout << "Ramp rate " << integerRampRate_ << " " << fractionalRampRate_ << std::endl;
+        std::cout << "Start frequency " << integerRampStartFrequency_ << " " << integerRampStartFrequencyModulo_ << " " <<
+                  fractionalRampStartFrequency_ << std::endl;
+        std::cout << "Station " << transmittingStationId_ << std::endl << std::endl;
     }
 };
 
@@ -125,31 +125,52 @@ public:
     int dataType_;
 };
 
-class OdfSequentialRangeDataBlock: public OdfDataSpecificBlock
+// Delta differential one-way Doppler data
+class OdfDDodDataBlock: public OdfDataSpecificBlock
 {
 public:
+    OdfDDodDataBlock( const int dDodDataType ):
+        OdfDataSpecificBlock( dDodDataType ){ }
 
-    OdfSequentialRangeDataBlock( ):
-        OdfDataSpecificBlock( 37 ){ }
+    ~OdfDDodDataBlock( ){ }
 
-    ~OdfSequentialRangeDataBlock( ){ }
-
-    int lowestRangingComponent;
-    int spacecraftId;
-    int reservedBlock;
-
-    int referenceFrequencyHighPart; // 2^24 mHz
-    int referenceFrequencyLowPart; // mHz
-
-    int coderInPhaseTimeOffset; // sec
-    int compositeTwo; // sec
-    int transmittingStationUplinkDelay; // nsec
+    int secondReceivingStationId_;
+    int quasarOrSpacecraftId_;
+    int phasePointIndicator_;
+    int referenceFrequencyHighPart_; // 2^24 mHz
+    int referenceFrequencyLowPart_; // mHz
+    int composite1_;
+    int compressionTime_; // 1e-2 sec
+    int secondReceivingStationDownlinkDelay_; // nsec
 
     double getReferenceFrequency( )
     {
-        return std::pow( 2.0, 24 )  / 1.0E3 * referenceFrequencyHighPart + referenceFrequencyLowPart / 1.0E3;
+        return std::pow( 2.0, 24 )  / 1.0E3 * referenceFrequencyHighPart_ + referenceFrequencyLowPart_ / 1.0E3;
     }
+};
 
+// Delta differential one-way ranging data
+class OdfDDorDataBlock: public OdfDataSpecificBlock
+{
+public:
+    OdfDDorDataBlock( const int dDorDataType ):
+        OdfDataSpecificBlock( dDorDataType ){ }
+
+    ~OdfDDorDataBlock( ){ }
+
+    int secondReceivingStationId_;
+    int quasarOrSpacecraftId_;
+    int modulusIndicator_;
+    int referenceFrequencyHighPart_; // 2^24 mHz
+    int referenceFrequencyLowPart_; // mHz
+    int composite1_;
+    int modulusLowPart_; // 1e-7 sec
+    int secondReceivingStationDownlinkDelay_; // nsec
+
+    double getReferenceFrequency( )
+    {
+        return std::pow( 2.0, 24 )  / 1.0E3 * referenceFrequencyHighPart_ + referenceFrequencyLowPart_ / 1.0E3;
+    }
 };
 
 class OdfDopplerDataBlock: public OdfDataSpecificBlock
@@ -160,14 +181,79 @@ public:
 
     ~OdfDopplerDataBlock( ){ }
 
-    int receiverChannel;
-    int spacecraftId;
-    int receiverExciterFlag;
+    int receiverChannel_;
+    int spacecraftId_;
+    int receiverExciterFlag_;
+    int referenceFrequencyHighPart_; // 2^24 mHz
+    int referenceFrequencyLowPart_; // mHz
+
+    int reservedSegment_;
+    int compressionTime_; // 1e-2 sec
+
+    int transmittingStationUplinkDelay_; // nsec
+
+    double getReferenceFrequency( )
+    {
+        return std::pow( 2.0, 24 ) / 1.0E3 * referenceFrequencyHighPart_ + referenceFrequencyLowPart_ / 1.0E3;
+    }
+
+    void printContents( )
+    {
+        std::cout << "Receiver: " << receiverChannel_ << " " << receiverExciterFlag_ << std::endl;
+        std::cout << "Spacecraft: " << spacecraftId_ << std::endl;
+        std::cout << "Reference frequency: " << referenceFrequencyHighPart_ << " " << referenceFrequencyLowPart_ << std::endl;
+
+        std::cout << "Reserved: " << reservedSegment_ << std::endl;
+        std::cout << "Compression time: " << compressionTime_ << std::endl;
+        std::cout << "Transmission delay: " << transmittingStationUplinkDelay_ << std::endl << std::endl;;
+
+    }
+};
+
+class OdfSequentialRangeDataBlock: public OdfDataSpecificBlock
+{
+public:
+
+    OdfSequentialRangeDataBlock( ):
+        OdfDataSpecificBlock( 37 ){ }
+
+    ~OdfSequentialRangeDataBlock( ){ }
+
+    int lowestRangingComponent_;
+    int spacecraftId_;
+    int reservedBlock_;
+
+    int referenceFrequencyHighPart_; // 2^24 mHz
+    int referenceFrequencyLowPart_; // mHz
+
+    int coderInPhaseTimeOffset_; // sec
+    int compositeTwo_; // sec
+    int transmittingStationUplinkDelay_; // nsec
+
+    double getReferenceFrequency( )
+    {
+        return std::pow( 2.0, 24 ) / 1.0E3 * referenceFrequencyHighPart_ + referenceFrequencyLowPart_ / 1.0E3;
+    }
+};
+
+class OdfToneRangeDataBlock: public OdfDataSpecificBlock
+{
+public:
+
+    OdfToneRangeDataBlock( ):
+        OdfDataSpecificBlock( 41 ){ }
+
+    ~OdfToneRangeDataBlock( ){ }
+
+    int integerObservableTime_; // sec
+    int spacecraftId_;
+    int reservedBlock1_;
+
     int referenceFrequencyHighPart; // 2^24 mHz
     int referenceFrequencyLowPart; // mHz
 
-    int reservedSegment;
-    int compressionTime; // 1e-2 sec
+    int reservedBlock2_;
+    int reservedBlock3_;
 
     int transmittingStationUplinkDelay; // nsec
 
@@ -175,19 +261,25 @@ public:
     {
         return std::pow( 2.0, 24 )  / 1.0E3 * referenceFrequencyHighPart + referenceFrequencyLowPart / 1.0E3;
     }
+};
 
-    void printContents( )
-    {
-        std::cout<<"Receiver: "<<receiverChannel<<" "<<receiverExciterFlag<<std::endl;
-        std::cout<<"Spacecraft: "<<spacecraftId<<std::endl;
-        std::cout<<"Reference frequency: "<<referenceFrequencyHighPart<<" "<<referenceFrequencyLowPart<<std::endl;
+class OdfAngleDataBlock: public OdfDataSpecificBlock
+{
+public:
 
-        std::cout<<"Reserved: "<<reservedSegment<<std::endl;
-        std::cout<<"Compression time: "<<compressionTime<<std::endl;
-        std::cout << "Transmission delay: " << transmittingStationUplinkDelay << std::endl << std::endl;;
+    OdfAngleDataBlock( const int angleDataType ):
+        OdfDataSpecificBlock( angleDataType ){ }
 
-    }
+    ~OdfAngleDataBlock( ){ }
 
+    int reservedBlock1_;
+    int spacecraftId_;
+    int reservedBlock2_;
+    int reservedBlock3_;
+    int reservedBlock4_;
+    int reservedBlock5_;
+    int reservedBlock6_;
+    int reservedBlock7_;
 };
 
 class OdfCommonDataBlock
@@ -196,41 +288,41 @@ public:
 
     double getObservableValue( )
     {
-        return static_cast< double >( integerObservable ) +
-                static_cast< double >( fractionalObservable ) / 1.0E9;
+        return static_cast< double >( integerObservable_ ) +
+               static_cast< double >( fractionalObservable_ ) / 1.0E9;
     }
 
     double getObservableTime( )
     {
-        return static_cast< double >( integerTimeTag ) + static_cast< double >( fractionalTimeTag ) / 1000.0;
+        return static_cast< double >( integerTimeTag_ ) + static_cast< double >( fractionalTimeTag_ ) / 1000.0;
     }
 
-    uint32_t integerTimeTag; // sec
-    int fractionalTimeTag; // msec
-    int receivingStationDownlinkDelay; // nsec
+    uint32_t integerTimeTag_; // sec
+    int fractionalTimeTag_; // msec
+    int receivingStationDownlinkDelay_; // nsec
 
-    int integerObservable; // unit
-    int fractionalObservable; // 1e-9 * unit
+    int integerObservable_; // unit
+    int fractionalObservable_; // 1e-9 * unit
 
-    int formatId;
-    int receivingStation;
-    int transmittingStation;
-    int transmittingStationNetworkId;
+    int formatId_;
+    int receivingStationId_;
+    int transmittingStationId_;
+    int transmittingStationNetworkId_;
 
-    int downlinkBand;
-    int uplinkBand;
-    int referenceBand;
+    int downlinkBandId_;
+    int uplinkBandId_;
+    int referenceBandId_;
     int validity;
 
     void printContents( )
     {
-        std::cout<<"Time: "<<integerTimeTag<<" "<<fractionalTimeTag<<std::endl;
-        std::cout<<"Downlink delay: "<<receivingStationDownlinkDelay<<std::endl;
-        std::cout<<"Observable: "<<integerObservable<<" "<<fractionalObservable<<std::endl;
+        std::cout << "Time: " << integerTimeTag_ << " " << fractionalTimeTag_ << std::endl;
+        std::cout << "Downlink delay: " << receivingStationDownlinkDelay_ << std::endl;
+        std::cout << "Observable: " << integerObservable_ << " " << fractionalObservable_ << std::endl;
 
-        std::cout<<"Format id: "<<formatId<<std::endl;
-        std::cout<<"Station data: "<<receivingStation<<" "<<transmittingStation<<" "<<transmittingStationNetworkId<<" "<<std::endl;
-        std::cout<<"Bands: "<<downlinkBand<<" "<<uplinkBand<<" "<<referenceBand<<" "<<std::endl;
+        std::cout << "Format id: " << formatId_ << std::endl;
+        std::cout << "Station data: " << receivingStationId_ << " " << transmittingStationId_ << " " << transmittingStationNetworkId_ << " " << std::endl;
+        std::cout << "Bands: " << downlinkBandId_ << " " << uplinkBandId_ << " " << referenceBandId_ << " " << std::endl;
         std::cout<<"Validity: "<<validity<<std::endl<<std::endl;
 
     }
@@ -239,38 +331,38 @@ public:
 class OdfDataBlock
 {
 public:
-    std::shared_ptr< OdfDataSpecificBlock > observableSpecificDataBlock;
-    std::shared_ptr< OdfCommonDataBlock > commonDataBlock;
+    std::shared_ptr< OdfDataSpecificBlock > observableSpecificDataBlock_;
+    std::shared_ptr< OdfCommonDataBlock > commonDataBlock_;
 };
 
 class OdfRawFileContents
 {
 public:
-    std::string systemId;
-    std::string programId;
-    uint32_t spacecraftId;
+    std::string systemId_;
+    std::string programId_;
+    uint32_t spacecraftId_;
 
-    uint32_t fileCreationDate; // year, month, day (YYMMDD)
-    uint32_t fileCreationTime; // hour, minute, second (HHMMSS)
+    uint32_t fileCreationDate_; // year, month, day (YYMMDD)
+    uint32_t fileCreationTime_; // hour, minute, second (HHMMSS)
 
-    uint32_t fileReferenceDate; // year, month, day (YYMMDD)
-    uint32_t fileReferenceTime; // hour, minute, second (HHMMSS)
+    uint32_t fileReferenceDate_; // year, month, day (YYMMDD)
+    uint32_t fileReferenceTime_; // hour, minute, second (HHMMSS)
 
-    std::string fileName;
+    std::string fileName_;
 
-    std::string identifierGroupStringA;
-    std::string identifierGroupStringB;
-    std::string identifierGroupStringC;
+    std::string identifierGroupStringA_;
+    std::string identifierGroupStringB_;
+    std::string identifierGroupStringC_;
 
-    bool eofHeaderFound;
+    bool eofHeaderFound_;
 
-    std::vector< std::shared_ptr< OdfDataBlock > > dataBlocks;
+    std::vector< std::shared_ptr< OdfDataBlock > > dataBlocks_;
 
     // Indexed by transmitting station ID
-    std::map< int, std::vector< std::shared_ptr< OdfRampBlock > > > rampBlocks;
+    std::map< int, std::vector< std::shared_ptr< OdfRampBlock > > > rampBlocks_;
 
     // Indexed by pair of (primary station ID, secondary station ID)
-    std::map< std::pair< int, int >, std::shared_ptr< OdfClockOffsetBlock > > clockOffsetBlocks;
+    std::map< std::pair< int, int >, std::shared_ptr< OdfClockOffsetBlock > > clockOffsetBlocks_;
 };
 
 std::shared_ptr< OdfClockOffsetBlock > parseClockOffsetData( std::bitset< 288 > dataBits );
