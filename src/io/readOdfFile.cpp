@@ -749,16 +749,12 @@ std::shared_ptr< OdfRawFileContents > readOdfFile(
         std::to_string( logicalRecordLength ) + ", packet number " + std::to_string( groupStartPacketNumber ) + "." );
     }
 
-    // Define output of data blocks and ramp blocks
-    std::vector< std::shared_ptr< OdfDataBlock > > unsortedOdfDataBlocks;
-    std::map< int, std::vector< std::shared_ptr< OdfRampBlock > > > odfRampBlocks;
+    // Reset data blocks and ramp blocks
+    odfFileContents->dataBlocks.resize( 0 );
+    odfFileContents->odfRampBlocks.clear();
 
-    bool continueFileRead = true;
-    int currentRampStation = -1;
-    int currentBlockType = 109;
-
-    // Read file until end
-    while( continueFileRead && !dataFile.eof( ) )
+    // Read file until a non-ramp header is found or EOF is reached
+    for ( int currentRampStation = -1, currentBlockType = 109; !dataFile.eof( ); )
     {
         // Read current block
         readOdfFileBlock( dataFile, currentFileBlock );
@@ -799,7 +795,7 @@ std::shared_ptr< OdfRawFileContents > readOdfFile(
                 std::shared_ptr< OdfDataBlock > currentDataBlock = parseOrbitData( currentFileBlock );
                 if( currentDataBlock != nullptr )
                 {
-                    unsortedOdfDataBlocks.push_back( currentDataBlock );
+                    odfFileContents->dataBlocks.push_back( currentDataBlock );
                 }
             }
             // Read ramp data
@@ -808,7 +804,7 @@ std::shared_ptr< OdfRawFileContents > readOdfFile(
                 std::shared_ptr< OdfRampBlock > currentDataBlock = parseRampData( currentFileBlock );
                 if( currentDataBlock != nullptr )
                 {
-                    odfRampBlocks[ currentRampStation ].push_back( currentDataBlock );
+                    odfFileContents->odfRampBlocks[ currentRampStation ].push_back( currentDataBlock );
                 }
             }
             else
@@ -816,42 +812,13 @@ std::shared_ptr< OdfRawFileContents > readOdfFile(
                 throw std::runtime_error( "Error when reading ODF group, invalid block type." );
             }
         }
-
-//        if( blockIsHeader == 0 && currentBlockType == 3 )
-//        {
-//            std::shared_ptr< OdfDataBlock > currentDataBlock = parseOrbitData( currentFileBlock );
-//            if( currentDataBlock != NULL )
-//            {
-//                unsortedOdfDataBlocks.push_back( currentDataBlock );
-//            }
-//        }
-//        else if( blockIsHeader == 0 && currentBlockType == 4 )
-//        {
-//            odfRampBlocks[ currentRampStation ].push_back( parseRampData( currentFileBlock ) );
-//        }
-//        // If block is a header, set current data block type accordingly.
-//        else if( blockIsHeader != 0 )
-//        {
-//            currentBlockType = blockIsHeader;
-//            if( currentBlockType == 4 )
-//            {
-//                currentRampStation = secondaryKey;
-//            }
-//            if( currentBlockType == -1 )
-//            {
-//                continueFileRead = 0;
-//            }
-//        }
-//        else
-//        {
-//            throw std::runtime_error( "Error, did not recognized header ODF block" );
-//        }
     }
 
-    // Set file contents
-    odfFileContents->dataBlocks = unsortedOdfDataBlocks;
-    odfFileContents->odfRampBlocks = odfRampBlocks;
-
+    if ( dataFile.eof( ) )
+    {
+        throw std::runtime_error( "Error when reading ODF file: end of file was found before EOF group." );
+    }
+    
 
 //    if( continueFileRead == 1 )
 //    {
