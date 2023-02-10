@@ -1502,7 +1502,8 @@ BOOST_AUTO_TEST_CASE( test_radiationSourceModelSetup_StaticallyPaneled )
 
     const auto expectedOriginalSourceName = "Sun";
     const auto expectedNumberOfPanels = 42;
-    const auto expectedNumberOfRadiosityModels = 3;
+    const auto expectedNumberOfRadiosityModels = 4;
+    const auto expectedConstantRadiosity = 420;
     const auto expectedAlbedo = 0.42;
     const auto expectedEmissivity = 0.32;
     const auto expectedMinTemperature = 100;
@@ -1512,6 +1513,7 @@ BOOST_AUTO_TEST_CASE( test_radiationSourceModelSetup_StaticallyPaneled )
     auto staticallyPaneledSourceModelSettings =
             staticallyPaneledRadiationSourceModelSettings(
                 expectedOriginalSourceName, {
+                            constantPanelRadiosityModelSettings(expectedConstantRadiosity),
                     albedoPanelRadiosityModelSettings(expectedAlbedo),
                     delayedThermalPanelRadiosityModelSettings(expectedEmissivity),
                     angleBasedThermalPanelRadiosityModelSettings(
@@ -1529,16 +1531,19 @@ BOOST_AUTO_TEST_CASE( test_radiationSourceModelSetup_StaticallyPaneled )
 
     BOOST_CHECK_EQUAL(panel.getRadiosityModels().size(), expectedNumberOfRadiosityModels);
 
+    const auto constantModel =
+            dynamic_cast<electromagnetism::ConstantSourcePanelRadiosityModel&>(*panel.getRadiosityModels()[0]);
     const auto albedoModel =
-            dynamic_cast<electromagnetism::AlbedoSourcePanelRadiosityModel&>(*panel.getRadiosityModels()[0]);
+            dynamic_cast<electromagnetism::AlbedoSourcePanelRadiosityModel&>(*panel.getRadiosityModels()[1]);
     const auto reflectionLaw = albedoModel.getReflectionLaw();
     const auto delayedThermalModel =
-            dynamic_cast<electromagnetism::DelayedThermalSourcePanelRadiosityModel&>(*panel.getRadiosityModels()[1]);
+            dynamic_cast<electromagnetism::DelayedThermalSourcePanelRadiosityModel&>(*panel.getRadiosityModels()[2]);
     const auto angleBasedThermalModel =
-            dynamic_cast<electromagnetism::AngleBasedThermalSourcePanelRadiosityModel&>(*panel.getRadiosityModels()[2]);
+            dynamic_cast<electromagnetism::AngleBasedThermalSourcePanelRadiosityModel&>(*panel.getRadiosityModels()[3]);
 
     const auto actualOriginalSourceName = staticallyPaneledSourceModel->getOriginalSourceName();
     const auto actualNumberOfPanels = staticallyPaneledSourceModel->getNumberOfPanels();
+    const auto actualConstantRadiosity = constantModel.getConstantRadiosity();
     const auto actualAlbedo = reflectionLaw->getDiffuseReflectivity();
     const auto actualEmissivityDelayed = delayedThermalModel.getEmissivity();
     const auto actualEmissivityAngleBased = angleBasedThermalModel.getEmissivity();
@@ -1548,6 +1553,7 @@ BOOST_AUTO_TEST_CASE( test_radiationSourceModelSetup_StaticallyPaneled )
 
     BOOST_CHECK_EQUAL(actualOriginalSourceName, expectedOriginalSourceName);
     BOOST_CHECK_EQUAL(actualNumberOfPanels, expectedNumberOfPanels);
+    BOOST_CHECK_EQUAL(actualConstantRadiosity, expectedConstantRadiosity);
     BOOST_CHECK_EQUAL(actualAlbedo, expectedAlbedo);
     BOOST_CHECK_EQUAL(actualEmissivityDelayed, expectedEmissivity);
     BOOST_CHECK_EQUAL(actualEmissivityAngleBased, expectedEmissivity);

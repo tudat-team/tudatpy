@@ -90,6 +90,46 @@ protected:
 };
 
 /*!
+ * Panel radiosity model with constant Lambertian radiosity.
+ */
+class ConstantSourcePanelRadiosityModel : public SourcePanelRadiosityModel
+{
+public:
+    /*!
+     * Constructor
+     *
+     * @param constantRadiosity Constant radiosity
+     */
+    explicit ConstantSourcePanelRadiosityModel(const double constantRadiosity) :
+        constantRadiosity_(constantRadiosity) {}
+
+    double evaluateIrradianceAtPosition(
+            double panelArea,
+            const Eigen::Vector3d& panelSurfaceNormal,
+            const Eigen::Vector3d& targetPosition,
+            double originalSourceIrradiance,
+            const Eigen::Vector3d& originalSourceToSourceDirection) const override;
+
+    std::unique_ptr<SourcePanelRadiosityModel> clone() const override
+    {
+        return std::make_unique<ConstantSourcePanelRadiosityModel>(*this);
+    }
+
+    double getConstantRadiosity() const
+    {
+        return constantRadiosity_;
+    }
+
+private:
+    bool isTimeInvariant() override
+    {
+        return true;
+    }
+
+    const double constantRadiosity_;
+};
+
+/*!
  * Panel radiosity model for albedo radiation. This model was introduced in Knocke (1988) for Earth thermal radiation,
  * assuming Lambertian reflectance.
  *
