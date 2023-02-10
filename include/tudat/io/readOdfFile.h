@@ -195,12 +195,6 @@ void parseDataBlock (std::bitset< NumberBlockBits > dataBits,
                                                             startBitCounter, args ...);
 }
 
-uint32_t convertCharactersToUnsignedInt32(
-        unsigned char data[ 4 ] );
-
-int32_t convertCharactersToSignedInt32(
-        unsigned char data[ 4 ] );
-
 class OdfClockOffsetBlock
 {
 public:
@@ -446,30 +440,18 @@ public:
 std::shared_ptr< OdfClockOffsetBlock > parseClockOffsetData( std::bitset< 288 > dataBits );
 
 //! Function to parse the contents of an ODF orbit data block, specific for sequenctial range data.
-std::shared_ptr< OdfSequentialRangeDataBlock > parseSequentialRangeData( unsigned char fileBlock[ 9 ][ 4 ], const int dopplerType );
-
 std::shared_ptr< OdfSequentialRangeDataBlock > parseSequentialRangeData( std::bitset< 128 > dataBits );
 
 //! Function to parse the contents of an ODF orbit data block, specific for Doppler data.
-std::shared_ptr< OdfDopplerDataBlock > parseDopplerOrbitData( unsigned char fileBlock[ 9 ][ 4 ], const int dopplerType );
-
 std::shared_ptr< OdfDopplerDataBlock > parseDopplerOrbitData( std::bitset< 128 > dataBits, const int dopplerType );
 
 //! Function to parse the contents of an ODF orbit data block
-std::shared_ptr< OdfDataBlock > parseOrbitData( unsigned char fileBlock[ 9 ][ 4 ] );
-
 std::shared_ptr< OdfDataBlock > parseOrbitData( std::bitset< 288 > dataBits );
 
 //! Function to parse the contents of an ODF ramp data block
-OdfRampBlock parseRampData( unsigned char fileBlock[ 9 ][ 4 ] );
-
 std::shared_ptr< OdfRampBlock > parseRampData( std::bitset< 288 > dataBits );
 
 //! Function to parse the contents of an ODF file label block
-void parseFileLabel( unsigned char fileBlock[ 9 ][ 4 ],
-std::string& systemId, std::string& programId, std::string& fileCreationDate, std::string& fileCreationTme,
-uint32_t& spacecraftIdNumber, uint32_t& fileReferenceDate, uint32_t& fileReferenceTime );
-
 void parseFileLabelData(
         std::bitset< 288 > dataBits, std::string& systemId, std::string& programId, uint32_t& spacecraftId,
         uint32_t& fileCreationDate, uint32_t& fileCreationTime, uint32_t& fileReferenceDate,
@@ -480,27 +462,16 @@ void parseIdentifierData(
         std::string& identifierGroupStringC );
 
 //! Function to parse the contents of an ODF file header block
-void parseHeader( unsigned char fileBlock[ 9 ][ 4 ],
-int32_t& primaryKey,
-uint32_t& secondaryKey,
-uint32_t& logicalrecordLength,
-uint32_t& groupStartPacketNumber );
-
 void parseHeader(
         std::bitset< 288 > dataBits, int32_t& primaryKey, uint32_t& secondaryKey, uint32_t& logicalRecordLength,
         uint32_t& groupStartPacketNumber);
 
 //! Function to check if the current ODF data block is a header.
-int currentBlockIsHeader(  unsigned char fileBlock[ 9 ][ 4 ], unsigned int& secondaryKeyInt );
-
 bool currentBlockIsHeader(
         std::bitset< 288 > dataBits, int& primaryKey, unsigned int& secondaryKey,
         unsigned int& logicalRecordLength, unsigned int& groupStartPacketNumber );
 
 //! Function to read a single 36 byte block from ODF file
-void readOdfFileBlock(
-        unsigned char fileBlock[ 9 ][ 4 ], std::istream& file );
-
 void readOdfFileBlock( std::istream& file, std::bitset< 36 * 8 >& dataBits );
 
 //! Function to read the contents of an ODF file into an OdfRawFileContents object
