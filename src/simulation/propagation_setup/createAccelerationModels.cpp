@@ -902,15 +902,8 @@ std::shared_ptr< aerodynamics::AerodynamicAcceleration > createAerodynamicAccele
     // Retrieve frame in which aerodynamic coefficients are defined.
     std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > aerodynamicCoefficients =
             bodyUndergoingAcceleration->getAerodynamicCoefficientInterface( );
-    reference_frames::AerodynamicsReferenceFrames accelerationFrame;
-    if( aerodynamicCoefficients->getAreCoefficientsInAerodynamicFrame( ) )
-    {
-        accelerationFrame = reference_frames::aerodynamic_frame;
-    }
-    else
-    {
-        accelerationFrame = reference_frames::body_frame;
-    }
+    reference_frames::AerodynamicsReferenceFrames accelerationFrame = aerodynamics::getCompleteFrameForCoefficients(
+            aerodynamicCoefficients->getForceCoefficientsFrame( ) );
 
     // Create function to transform from frame of aerodynamic coefficienrs to that of propagation.
     std::function< void( Eigen::Vector3d&, const Eigen::Vector3d& ) > toPropagationFrameTransformation;
@@ -937,7 +930,8 @@ std::shared_ptr< aerodynamics::AerodynamicAcceleration > createAerodynamicAccele
                 std::bind( &Body::getBodyMass, bodyUndergoingAcceleration ),
                 std::bind( &AerodynamicCoefficientInterface::getReferenceArea,
                            aerodynamicCoefficients ),
-                aerodynamicCoefficients->getAreCoefficientsInNegativeAxisDirection( ) );
+                aerodynamics::areCoefficientsInNegativeDirection(
+                        aerodynamicCoefficients->getForceCoefficientsFrame( ) ) );
 }
 
 //! Function to create a cannonball radiation pressure acceleration model.

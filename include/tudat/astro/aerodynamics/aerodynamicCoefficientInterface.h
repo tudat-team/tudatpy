@@ -24,12 +24,97 @@
 
 #include "tudat/astro/aerodynamics/controlSurfaceAerodynamicCoefficientInterface.h"
 #include "tudat/astro/aerodynamics/aerodynamics.h"
+#include "tudat/astro/reference_frames/referenceFrameTransformations.h"
 #include "tudat/basics/utilities.h"
 
 namespace tudat
 {
 namespace aerodynamics
 {
+
+enum AerodynamicCoefficientFrames
+{
+    body_fixed_frame_coefficients,
+    negative_body_fixed_frame_coefficients,
+    negative_aerodynamic_frame_coefficients,
+    positive_aerodynamic_frame_coefficients,
+    undefined_frame_coefficients
+};
+
+inline reference_frames::AerodynamicsReferenceFrames getCompleteFrameForCoefficients(
+        const AerodynamicCoefficientFrames coefficientsFrame )
+{
+    reference_frames::AerodynamicsReferenceFrames completeFrame;
+    switch( coefficientsFrame )
+    {
+        case body_fixed_frame_coefficients:
+            completeFrame = reference_frames::body_frame;
+            break;
+        case negative_body_fixed_frame_coefficients:
+            completeFrame = reference_frames::body_frame;
+            break;
+        case negative_aerodynamic_frame_coefficients:
+            completeFrame = reference_frames::aerodynamic_frame;
+            break;
+        case positive_aerodynamic_frame_coefficients:
+            completeFrame = reference_frames::aerodynamic_frame;
+            break;
+        default:
+            throw std::runtime_error( "Error when getting aerodynamic coefficient frame; frame not rezognized" );
+
+    }
+    return completeFrame;
+}
+
+inline bool areCoefficientsInNegativeDirection(
+        const AerodynamicCoefficientFrames coefficientsFrame )
+{
+    bool areCoefficientsInNegativeDirection;
+    switch( coefficientsFrame )
+    {
+        case body_fixed_frame_coefficients:
+            areCoefficientsInNegativeDirection = false;
+            break;
+        case negative_body_fixed_frame_coefficients:
+            areCoefficientsInNegativeDirection = true;
+            break;
+        case negative_aerodynamic_frame_coefficients:
+            areCoefficientsInNegativeDirection = true;
+            break;
+        case positive_aerodynamic_frame_coefficients:
+            areCoefficientsInNegativeDirection = false;
+            break;
+        default:
+            throw std::runtime_error( "Error when getting aerodynamic coefficient frame; frame not rezognized" );
+
+    }
+    return areCoefficientsInNegativeDirection;
+}
+
+
+inline AerodynamicCoefficientFrames getAerodynamicCoefficientFrame(
+    const bool areCoefficientsInAerodynamicFrame = true,
+    const bool areCoefficientsInNegativeAxisDirection = true )
+{
+    AerodynamicCoefficientFrames coefficientsFrame = undefined_frame_coefficients;
+    if( areCoefficientsInAerodynamicFrame && areCoefficientsInNegativeAxisDirection )
+    {
+        coefficientsFrame = negative_aerodynamic_frame_coefficients;
+    }
+    else if( areCoefficientsInAerodynamicFrame && !areCoefficientsInNegativeAxisDirection )
+    {
+        coefficientsFrame = positive_aerodynamic_frame_coefficients;
+    }
+    else if( !areCoefficientsInAerodynamicFrame && !areCoefficientsInNegativeAxisDirection )
+    {
+        coefficientsFrame = body_fixed_frame_coefficients;
+    }
+    else
+    {
+        throw std::runtime_error( "Error, could not define aerodynamic coefficient frame from booleans." );
+    }
+    return coefficientsFrame;
+}
 
 //! Base class to hold an aerodynamic coefficient interface.
 /*!
@@ -64,22 +149,20 @@ public:
     AerodynamicCoefficientInterface(
             const double referenceLength,
             const double referenceArea,
-            const double lateralReferenceLength,
             const Eigen::Vector3d& momentReferencePoint,
             const std::vector< AerodynamicCoefficientsIndependentVariables >
             independentVariableNames,
-            const bool areCoefficientsInAerodynamicFrame = true,
-            const bool areCoefficientsInNegativeAxisDirection = true ):
+            const AerodynamicCoefficientFrames forceCoefficientsFrame = negative_aerodynamic_frame_coefficients,
+            const AerodynamicCoefficientFrames momentCoefficientsFrame = body_fixed_frame_coefficients ):
         referenceLength_( referenceLength ),
         referenceArea_( referenceArea ),
-        lateralReferenceLength_( lateralReferenceLength ),
         momentReferencePoint_( momentReferencePoint ),
         independentVariableNames_( independentVariableNames ),
-        areCoefficientsInAerodynamicFrame_( areCoefficientsInAerodynamicFrame ),
-        areCoefficientsInNegativeAxisDirection_( areCoefficientsInNegativeAxisDirection )\
+        forceCoefficientsFrame_( forceCoefficientsFrame ),
+        momentCoefficientsFrame_( momentCoefficientsFrame )
     {
         numberOfIndependentVariables_ = independentVariableNames.size( );
-        referenceLengths_ << referenceLength_, lateralReferenceLength_, referenceLength_;
+        referenceLengths_ = Eigen::Vector3d::Constant( referenceLength_ );
     }
 
     //! Default destructor.
@@ -99,12 +182,6 @@ public:
      */
     double getReferenceLength( ) { return referenceLength_; }
 
-    //! Get lateral reference length.
-    /*!
-     * Returns lateral reference length used to non-dimensionalize aerodynamic moments.
-     * \return Aerodynamic lateral reference length.
-     */
-    double getLateralReferenceLength( ) { return lateralReferenceLength_; }
 
     //! Get reference lengths.
     /*!
@@ -272,26 +349,36 @@ public:
         return numberOfIndependentVariables_;
     }
 
-    //! Function that returns whether the coefficients are given in aerodynamic frame.
-    /*!
-     * Function that returns whether the coefficients are given in aerodynamic frame (given in body)
-     * frame if false.
-     * \return Boolean whether coefficients are in aerodynamic frame
-     */
-    bool getAreCoefficientsInAerodynamicFrame( )
+//    //! Function that returns whether the coefficients are given in aerodynamic frame.
+//    /*!
+//     * Function that returns whether the coefficients are given in aerodynamic frame (given in body)
+//     * frame if false.
+//     * \return Boolean whether coefficients are in aerodynamic frame
+//     */
+//    bool getAreCoefficientsInAerodynamicFrame( )
+//    {
+//        return areCoefficientsInAerodynamicFrame_;
+//    }
+//
+//    //! Function that returns whether the coefficients are positive in positive axes directions.
+//    /*!
+//     * Function that returns whether the coefficients are positive in positive axes directions, i.e.
+//     * if positive force (in given frame) gives positive coefficients.
+//     * \return Boolean whether coefficients are in positive direction.
+//     */
+//    bool getAreCoefficientsInNegativeAxisDirection( )
+//    {
+//        return areCoefficientsInNegativeAxisDirection_;
+//    }
+
+    AerodynamicCoefficientFrames getForceCoefficientsFrame( )
     {
-        return areCoefficientsInAerodynamicFrame_;
+        return forceCoefficientsFrame_;
     }
 
-    //! Function that returns whether the coefficients are positive in positive axes directions.
-    /*!
-     * Function that returns whether the coefficients are positive in positive axes directions, i.e.
-     * if positive force (in given frame) gives positive coefficients.
-     * \return Boolean whether coefficients are in positive direction.
-     */
-    bool getAreCoefficientsInNegativeAxisDirection( )
+    AerodynamicCoefficientFrames getMomentCoefficientsFrame( )
     {
-        return areCoefficientsInNegativeAxisDirection_;
+        return momentCoefficientsFrame_;
     }
 
     //! Function to set the list of control surface aerodynamic coefficient interfaces
@@ -429,12 +516,6 @@ protected:
      */
     double referenceArea_;
 
-    //! Lateral aerodynamic reference length.
-    /*!
-     * Lateral reference length with which aerodynamic moments are non-dimensionalized.
-     */
-    double lateralReferenceLength_;
-
     //! Aerodynamic reference lengths.
     /*!
      * All reference lengths with which aerodynamic moments are non-dimensionalized.
@@ -458,20 +539,9 @@ protected:
      */
     unsigned int numberOfIndependentVariables_;
 
-    //! Boolean to denote whether coefficients are defined in aerodynamic or body frame
-    /*! Boolean to define whether the aerodynamic
-     *  coefficients are defined in the aerodynamic frame (drag, side, lift force) or in the body
-     *  frame (typically denoted as Cx, Cy, Cz).
-     */
-    bool areCoefficientsInAerodynamicFrame_;
+    AerodynamicCoefficientFrames forceCoefficientsFrame_;
 
-    //! Boolean to denote whether coefficients are positive along frame axes
-    /*! Boolean to define whether the aerodynamic coefficients are
-      *  positive along tyhe positive axes of the body or aerodynamic frame
-      *  (see areCoefficientsInAerodynamicFrame). Note that for (drag, side, lift force), the
-      *  coefficients are typically defined in negative direction.
-     */
-    bool areCoefficientsInNegativeAxisDirection_;
+    AerodynamicCoefficientFrames momentCoefficientsFrame_;
 
     //! List of control surface aerodynamic coefficient interfaces
     std::map< std::string, std::shared_ptr< ControlSurfaceIncrementAerodynamicInterface > >
@@ -494,11 +564,10 @@ public:
         AerodynamicCoefficientInterface(
             baseCoefficientInterface->getReferenceLength( ),
             baseCoefficientInterface->getReferenceArea( ),
-            baseCoefficientInterface->getLateralReferenceLength( ),
             baseCoefficientInterface->getMomentReferencePoint( ),
             baseCoefficientInterface->getIndependentVariableNames( ),
-            baseCoefficientInterface->getAreCoefficientsInAerodynamicFrame( ),
-            baseCoefficientInterface->getAreCoefficientsInNegativeAxisDirection( ) ),
+            baseCoefficientInterface->getForceCoefficientsFrame( ),
+            baseCoefficientInterface->getMomentCoefficientsFrame( ) ),
     baseCoefficientInterface_( baseCoefficientInterface ),
     forceCoefficientScalingFunction_( forceCoefficientScalingFunction ),
     momentCoefficientScalingFunction_( momentCoefficientScalingFunction ),

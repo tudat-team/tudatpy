@@ -102,7 +102,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicForceAndAcceleration )
         AerodynamicCoefficientInterfacePointer aerodynamicCoefficientInterface =
                 createConstantCoefficientAerodynamicCoefficientInterface(
                     forceCoefficients, Eigen::Vector3d::Zero( ),
-                    referenceLength, referenceArea, referenceLength, Eigen::Vector3d::Zero( ) );
+                    referenceLength, referenceArea, Eigen::Vector3d::Zero( ) );
 
         // Compute aerodynamic force using free function with coefficient interface argument.
         Eigen::Vector3d force = computeAerodynamicForce( dynamicPressure,
@@ -135,7 +135,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicForceAndAcceleration )
         AerodynamicCoefficientInterfacePointer aerodynamicCoefficientInterface =
                 createConstantCoefficientAerodynamicCoefficientInterface(
                     forceCoefficients, Eigen::Vector3d::Zero( ),
-                    referenceLength, referenceArea, referenceLength, Eigen::Vector3d::Zero( ) );
+                    referenceLength, referenceArea, Eigen::Vector3d::Zero( ) );
 
         // Compute aerodynamic force from aerodynamic acceleration free function with primitive
         // arguments.
@@ -260,7 +260,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicMomentAndRotationalAcceleration )
         AerodynamicCoefficientInterfacePointer aerodynamicCoefficientInterface =
                 createConstantCoefficientAerodynamicCoefficientInterface(
                     Eigen::Vector3d::Zero( ), momentCoefficients,
-                    referenceLength, referenceArea, referenceLength, Eigen::Vector3d::Zero( ) );
+                    referenceLength, referenceArea, Eigen::Vector3d::Zero( ) );
 
         // Compute aerodynamic moment using free function with coefficient interface argument.
         Eigen::Vector3d moment = computeAerodynamicMoment( dynamicPressure,
@@ -383,8 +383,9 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
 
         std::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings =
                 std::make_shared< ConstantAerodynamicCoefficientSettings >(
-                    2.0, 4.0, 1.5, Eigen::Vector3d::Zero( ), aerodynamicCoefficients, Eigen::Vector3d::Zero( ),
-                    areCoefficientsInAerodynamicFrame, 1 );
+                    2.0, 4.0, Eigen::Vector3d::Zero( ), aerodynamicCoefficients, Eigen::Vector3d::Zero( ),
+                    aerodynamics::getAerodynamicCoefficientFrame( areCoefficientsInAerodynamicFrame, 1 ),
+                    aerodynamics::getAerodynamicCoefficientFrame( areCoefficientsInAerodynamicFrame, 1 ) );
         bodies.at( "Vehicle" )->setAerodynamicCoefficientInterface(
                     createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Vehicle" ) );
         Eigen::Vector3d aerodynamicCoefficientsDirection = aerodynamicCoefficients.normalized( );
