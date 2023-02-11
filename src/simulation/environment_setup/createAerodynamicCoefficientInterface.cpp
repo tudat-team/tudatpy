@@ -40,23 +40,25 @@ std::shared_ptr< AerodynamicCoefficientSettings > readTabulatedAerodynamicCoeffi
     if( numberOfIndependentVariables == 1 )
     {
         coefficientSettings = readGivenSizeTabulatedAerodynamicCoefficientsFromFiles< 1 >(
-                    forceCoefficientFiles, momentCoefficientFiles, referenceLength, referenceArea, lateralReferenceLength,
-                    momentReferencePoint, independentVariableNames, areCoefficientsInAerodynamicFrame,
-                    areCoefficientsInNegativeAxisDirection, interpolatorSettings );
+                    forceCoefficientFiles, momentCoefficientFiles, referenceLength, referenceArea,
+                    momentReferencePoint, independentVariableNames,
+                    aerodynamics::getAerodynamicCoefficientFrame( areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection ),
+                    aerodynamics::getAerodynamicCoefficientFrame( areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection ), interpolatorSettings );
     }
     else if( numberOfIndependentVariables == 2 )
     {
         coefficientSettings = readGivenSizeTabulatedAerodynamicCoefficientsFromFiles< 2 >(
-                    forceCoefficientFiles, momentCoefficientFiles, referenceLength, referenceArea, lateralReferenceLength,
-                    momentReferencePoint, independentVariableNames, areCoefficientsInAerodynamicFrame,
-                    areCoefficientsInNegativeAxisDirection, interpolatorSettings );
+                    forceCoefficientFiles, momentCoefficientFiles, referenceLength, referenceArea,
+                    momentReferencePoint, independentVariableNames,
+                    aerodynamics::getAerodynamicCoefficientFrame( areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection ),
+                    aerodynamics::getAerodynamicCoefficientFrame( areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection ), interpolatorSettings );
     }
     else if( numberOfIndependentVariables == 3 )
     {
         coefficientSettings = readGivenSizeTabulatedAerodynamicCoefficientsFromFiles< 3 >(
-                    forceCoefficientFiles, momentCoefficientFiles, referenceLength, referenceArea, lateralReferenceLength,
-                    momentReferencePoint, independentVariableNames, areCoefficientsInAerodynamicFrame,
-                    areCoefficientsInNegativeAxisDirection, interpolatorSettings );
+                    forceCoefficientFiles, momentCoefficientFiles, referenceLength, referenceArea,
+                    momentReferencePoint, independentVariableNames, aerodynamics::getAerodynamicCoefficientFrame( areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection ),
+                    aerodynamics::getAerodynamicCoefficientFrame( areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection ), interpolatorSettings );
     }
     else
     {
@@ -87,19 +89,22 @@ readTabulatedAerodynamicCoefficientsFromFiles(
     {
         coefficientSettings = readGivenSizeTabulatedAerodynamicCoefficientsFromFiles< 1 >(
                     forceCoefficientFiles, referenceArea, independentVariableNames,
-                    areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection, interpolatorSettings );
+                    areCoefficientsInAerodynamicFrame,
+                    areCoefficientsInNegativeAxisDirection, interpolatorSettings );
     }
     else if( numberOfIndependentVariables == 2 )
     {
         coefficientSettings = readGivenSizeTabulatedAerodynamicCoefficientsFromFiles< 2 >(
                     forceCoefficientFiles, referenceArea, independentVariableNames,
-                    areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection, interpolatorSettings );
+                    areCoefficientsInAerodynamicFrame,
+                    areCoefficientsInNegativeAxisDirection, interpolatorSettings );
     }
     else if( numberOfIndependentVariables == 3 )
     {
         coefficientSettings = readGivenSizeTabulatedAerodynamicCoefficientsFromFiles< 3 >(
                     forceCoefficientFiles, referenceArea, independentVariableNames,
-                    areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection, interpolatorSettings );
+                    areCoefficientsInAerodynamicFrame,
+                    areCoefficientsInNegativeAxisDirection, interpolatorSettings );
     }
     else
     {
@@ -117,19 +122,18 @@ createConstantCoefficientAerodynamicCoefficientInterface(
         const Eigen::Vector3d constantMomentCoefficient,
         const double referenceLength,
         const double referenceArea,
-        const double lateralReferenceLength,
         const Eigen::Vector3d& momentReferencePoint,
-        const bool areCoefficientsInAerodynamicFrame,
-        const bool areCoefficientsInNegativeAxisDirection )
+        const aerodynamics::AerodynamicCoefficientFrames forceCoefficientsFrame,
+        const aerodynamics::AerodynamicCoefficientFrames momentCoefficientsFrame  )
 {
     // Create coefficient interface
     std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > coefficientInterface =
             std::make_shared< aerodynamics::CustomAerodynamicCoefficientInterface >(
                 [ = ]( const std::vector< double >& ){ return constantForceCoefficient; },
                 [ = ]( const std::vector< double >& ){ return constantMomentCoefficient; },
-                referenceLength, referenceArea, lateralReferenceLength, momentReferencePoint,
+                referenceLength, referenceArea, momentReferencePoint,
                 std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables >( ),
-                areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection );
+                forceCoefficientsFrame, momentCoefficientsFrame );
     coefficientInterface->updateFullCurrentCoefficients( std::vector< double >( ) );
     return coefficientInterface;
 }
@@ -141,19 +145,18 @@ createZeroParameterAerodynamicCoefficientInterface(
         const std::function< Eigen::Vector3d( ) > constantMomentCoefficientFunction,
         const double referenceLength,
         const double referenceArea,
-        const double lateralReferenceLength,
         const Eigen::Vector3d& momentReferencePoint,
-        const bool areCoefficientsInAerodynamicFrame,
-        const bool areCoefficientsInNegativeAxisDirection )
+        const aerodynamics::AerodynamicCoefficientFrames forceCoefficientsFrame,
+        const aerodynamics::AerodynamicCoefficientFrames momentCoefficientsFrame )
 {
     // Create coefficient interface
     std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > coefficientInterface =
             std::make_shared< aerodynamics::CustomAerodynamicCoefficientInterface >(
                 [ = ]( const std::vector< double >& ){ return constantForceCoefficientFunction( ); },
                 [ = ]( const std::vector< double >& ){ return constantMomentCoefficientFunction( ); },
-                referenceLength, referenceArea, lateralReferenceLength, momentReferencePoint,
+                referenceLength, referenceArea, momentReferencePoint,
                 std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables >( ),
-                areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection );
+                forceCoefficientsFrame, momentCoefficientsFrame );
     coefficientInterface->updateFullCurrentCoefficients( std::vector< double >( ) );
     return coefficientInterface;
 }
@@ -204,11 +207,10 @@ createUnivariateTabulatedCoefficientAerodynamicCoefficientInterface(
                     std::bind( &Interpolator< double, Eigen::Vector3d >::interpolate, momentInterpolator, std::placeholders::_1 ),
                     tabulatedCoefficientSettings->getReferenceLength( ),
                     tabulatedCoefficientSettings->getReferenceArea( ),
-                    tabulatedCoefficientSettings->getReferenceLength( ),
                     tabulatedCoefficientSettings->getMomentReferencePoint( ),
                     tabulatedCoefficientSettings->getIndependentVariableNames( ),
-                    tabulatedCoefficientSettings->getAreCoefficientsInAerodynamicFrame( ),
-                    tabulatedCoefficientSettings->getAreCoefficientsInNegativeAxisDirection( ) );
+                    tabulatedCoefficientSettings->getForceCoefficientsFrame( ),
+                    tabulatedCoefficientSettings->getMomentCoefficientsFrame( ) );
     }
 }
 
@@ -244,10 +246,9 @@ createAerodynamicCoefficientInterface(
                         constantCoefficientSettings->getConstantMomentCoefficient( ),
                         constantCoefficientSettings->getReferenceLength( ),
                         constantCoefficientSettings->getReferenceArea( ),
-                        constantCoefficientSettings->getReferenceLength( ),
                         constantCoefficientSettings->getMomentReferencePoint( ),
-                        constantCoefficientSettings->getAreCoefficientsInAerodynamicFrame( ),
-                        constantCoefficientSettings->getAreCoefficientsInNegativeAxisDirection( ) );
+                        constantCoefficientSettings->getForceCoefficientsFrame( ),
+                        constantCoefficientSettings->getMomentCoefficientsFrame( ) );
         }
         break;
     }
@@ -270,11 +271,10 @@ createAerodynamicCoefficientInterface(
                         customCoefficientSettings->getMomentCoefficientFunction( ),
                         customCoefficientSettings->getReferenceLength( ),
                         customCoefficientSettings->getReferenceArea( ),
-                        customCoefficientSettings->getReferenceLength( ),
                         customCoefficientSettings->getMomentReferencePoint( ),
                         customCoefficientSettings->getIndependentVariableNames( ),
-                        customCoefficientSettings->getAreCoefficientsInAerodynamicFrame( ),
-                        customCoefficientSettings->getAreCoefficientsInNegativeAxisDirection( ) );
+                        customCoefficientSettings->getForceCoefficientsFrame( ),
+                        customCoefficientSettings->getMomentCoefficientsFrame( ) );
         }
         break;
     }

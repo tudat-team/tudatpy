@@ -82,15 +82,14 @@ public:
             const std::vector< std::vector< double > >& dataPointsOfIndependentVariables,
             const double referenceLength,
             const double referenceArea,
-            const double lateralReferenceLength,
             const Eigen::Vector3d& momentReferencePoint,
             const std::vector< AerodynamicCoefficientsIndependentVariables > independentVariableNames,
-            const bool areCoefficientsInAerodynamicFrame = true,
-            const bool areCoefficientsInNegativeAxisDirection = true ) :
+            const AerodynamicCoefficientFrames forceCoefficientsFrame = negative_aerodynamic_frame_coefficients,
+            const AerodynamicCoefficientFrames momentCoefficientsFrame = body_fixed_frame_coefficients ) :
         AerodynamicCoefficientInterface(
-            referenceLength, referenceArea, lateralReferenceLength, momentReferencePoint,
-            independentVariableNames, areCoefficientsInAerodynamicFrame,
-            areCoefficientsInNegativeAxisDirection ),
+            referenceLength, referenceArea, momentReferencePoint,
+            independentVariableNames, forceCoefficientsFrame,
+            momentCoefficientsFrame ),
         dataPointsOfIndependentVariables_( dataPointsOfIndependentVariables )
     {
         // Check that the size of dataPointsOfIndependentVariables matches the template parameter.

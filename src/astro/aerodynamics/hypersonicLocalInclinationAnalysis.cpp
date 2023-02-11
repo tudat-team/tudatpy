@@ -180,8 +180,9 @@ HypersonicLocalInclinationAnalysis::HypersonicLocalInclinationAnalysis(
         const Eigen::Vector3d& momentReferencePoint,
         const bool savePressureCoefficients )
     : AerodynamicCoefficientGenerator< 3, 6 >(
-          dataPointsOfIndependentVariables, referenceLength, referenceArea, referenceLength,
-          momentReferencePoint, { mach_number_dependent, angle_of_attack_dependent, angle_of_sideslip_dependent },true, false ),
+          dataPointsOfIndependentVariables, referenceLength, referenceArea,
+          momentReferencePoint, { mach_number_dependent, angle_of_attack_dependent, angle_of_sideslip_dependent },
+          positive_aerodynamic_frame_coefficients, positive_aerodynamic_frame_coefficients ),
       stagnationPressureCoefficient( 2.0 ),
       ratioOfSpecificHeats( 1.4 ),
       selectedMethods_( selectedMethods ),
