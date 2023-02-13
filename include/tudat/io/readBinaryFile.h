@@ -121,10 +121,10 @@ void readBinaryFileBlock( std::istream& file,
 // it would no longer be necessary to have unsignedItemFlag as an argument. However, that is more error-prone in case
 // the signed/unsigned types aren't specified correctly.
 template< unsigned int NumberBlockBits >
-void parseDataBlock (std::bitset< NumberBlockBits > dataBits,
-                     const std::vector< bool >& unsignedItemFlag,
-                     unsigned int argumentCounter,
-                     unsigned int startBitCounter )
+void parseNumericalDataBlock (std::bitset< NumberBlockBits > dataBits,
+                              const std::vector< bool >& unsignedItemFlag,
+                              unsigned int argumentCounter,
+                              unsigned int startBitCounter )
 {
     if ( startBitCounter != NumberBlockBits )
     {
@@ -143,11 +143,11 @@ void parseDataBlock (std::bitset< NumberBlockBits > dataBits,
 
 template< unsigned int NumberBlockBits, unsigned int NumberItemBits, unsigned int... NumberItemBitsN,
         typename T, typename... TN >
-void parseDataBlock (std::bitset< NumberBlockBits > dataBits,
-                     const std::vector< bool >& unsignedItemFlag,
-                     unsigned int argumentCounter,
-                     unsigned int startBitCounter,
-                     T& arg, TN&... args)
+void parseNumericalDataBlock (std::bitset< NumberBlockBits > dataBits,
+                              const std::vector< bool >& unsignedItemFlag,
+                              unsigned int argumentCounter,
+                              unsigned int startBitCounter,
+                              T& arg, TN&... args)
 {
     if ( unsignedItemFlag.at( argumentCounter ) )
     {
@@ -162,18 +162,19 @@ void parseDataBlock (std::bitset< NumberBlockBits > dataBits,
     ++argumentCounter;
     startBitCounter += NumberItemBits;
 
-    parseDataBlock< NumberBlockBits, NumberItemBitsN ... >( dataBits, unsignedItemFlag, argumentCounter,
-                                                            startBitCounter, args ...);
+    parseNumericalDataBlock< NumberBlockBits, NumberItemBitsN ... >( dataBits, unsignedItemFlag, argumentCounter,
+                                                                     startBitCounter, args ... );
 }
 
 template< unsigned int NumberBlockBits, unsigned int NumberItemBits, unsigned int... NumberItemBitsN,
         typename T, typename... TN >
-void parseDataBlockWrapper (std::bitset< NumberBlockBits > dataBits,
-                            const std::vector< bool >& unsignedItemFlag,
-                            T& arg, TN&... args)
+void parseNumericalDataBlockWrapper (std::bitset< NumberBlockBits > dataBits,
+                                     const std::vector< bool >& unsignedItemFlag,
+                                     T& arg, TN&... args)
 {
-    parseDataBlock< NumberBlockBits, NumberItemBits, NumberItemBitsN ... > ( dataBits, unsignedItemFlag, 0, 0, arg,
-                                                                             args ... );
+    parseNumericalDataBlock< NumberBlockBits, NumberItemBits, NumberItemBitsN ... >( dataBits, unsignedItemFlag, 0, 0,
+                                                                                     arg,
+                                                                                     args ... );
 }
 
 template< unsigned int NumberBlockBytes >
