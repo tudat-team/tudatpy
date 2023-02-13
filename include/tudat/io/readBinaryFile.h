@@ -99,7 +99,7 @@ void readBinaryFileBlock( std::istream& file,
 
     if ( !file.good( ) )
     {
-        throw std::runtime_error( "Error when reading data block from ODF file." );
+        throw std::runtime_error( "Error when reading data block from binary file." );
     }
 
     // Convert to bitset
@@ -120,36 +120,22 @@ void readBinaryFileBlock( std::istream& file,
 // Note: "unsignedItemFlag.at( argumentCounter )" could be replaced by "std::is_unsigned< T >::value". In that case,
 // it would no longer be necessary to have unsignedItemFlag as an argument. However, that is more error-prone in case
 // the signed/unsigned types aren't specified correctly.
-template< unsigned int NumberBlockBits, unsigned int NumberItemBits, typename T >
+template< unsigned int NumberBlockBits >
 void parseDataBlock (std::bitset< NumberBlockBits > dataBits,
                      const std::vector< bool >& unsignedItemFlag,
                      unsigned int argumentCounter,
-                     unsigned int startBitCounter,
-                     T& arg)
+                     unsigned int startBitCounter )
 {
-    if ( unsignedItemFlag.at( argumentCounter ) )
-    {
-        arg = getBitsetSegment< NumberItemBits, NumberBlockBits >( dataBits, startBitCounter ).to_ulong( );
-    }
-    else
-    {
-        arg = convertBitsetToLong< NumberItemBits >(
-                getBitsetSegment< NumberItemBits, NumberBlockBits >( dataBits, startBitCounter ) );
-    }
-
-    ++argumentCounter;
-    startBitCounter += NumberItemBits;
-
     if ( startBitCounter != NumberBlockBits )
     {
         throw std::runtime_error(
-                "Error when parsing ODF file: block size (" + std::to_string( NumberBlockBits ) +
+                "Error when parsing binary file: block size (" + std::to_string( NumberBlockBits ) +
                 " bits) and total item size (" + std::to_string(startBitCounter) + "bits ) are not consistent." );
     }
     else if ( argumentCounter != unsignedItemFlag.size() )
     {
         throw std::runtime_error(
-                "Error when parsing ODF file: numbers of items (" + std::to_string( argumentCounter ) +
+                "Error when parsing binary file: numbers of items (" + std::to_string( argumentCounter ) +
                 ") and size of unsigned flag vector (" + std::to_string( unsignedItemFlag.size() ) +
                 ") are not consistent." );
     }
@@ -188,6 +174,49 @@ void parseDataBlockWrapper (std::bitset< NumberBlockBits > dataBits,
 {
     parseDataBlock< NumberBlockBits, NumberItemBits, NumberItemBitsN ... > ( dataBits, unsignedItemFlag, 0, 0, arg,
                                                                              args ... );
+}
+
+template< unsigned int NumberBlockBytes >
+void parseStringsBlock (std::bitset< NumberBlockBytes * 8 > dataBits,
+                        unsigned int argumentCounter,
+                        unsigned int startByteCounter )
+{
+        if ( startByteCounter != NumberBlockBytes )
+        {
+            throw std::runtime_error(
+                    "Error when parsing binary file: block size (" + std::to_string( NumberBlockBytes ) +
+                    " bytes) and total item size (" + std::to_string( startByteCounter ) + " bytes) are not consistent." );
+        }
+}
+
+template< unsigned int NumberBlockBytes, unsigned int NumberItemBytes, unsigned int... NumberItemBytesN,
+        typename... TN >
+void parseStringsBlock (std::bitset< NumberBlockBytes * 8 > dataBits,
+                        unsigned int argumentCounter,
+                        unsigned int startByteCounter,
+                        std::string& arg, TN&... args )
+{
+    arg.resize( NumberItemBytes );
+
+    for ( unsigned int i = 0; i < NumberItemBytes; ++i )
+    {
+        arg[i] = getBitsetSegment< 8, NumberBlockBytes * 8 >( dataBits, (startByteCounter + i) * 8 ).to_ulong();
+    }
+
+    ++argumentCounter;
+    startByteCounter += NumberItemBytes;
+
+    parseStringsBlock< NumberBlockBytes, NumberItemBytesN ... >( dataBits, argumentCounter,
+                                                                 startByteCounter, args ...);
+}
+
+template< unsigned int NumberBlockBytes, unsigned int NumberItemBytes, unsigned int... NumberItemBytesN,
+        typename... TN >
+void parseStringsBlockWrapper (std::bitset< NumberBlockBytes * 8 > dataBits,
+                               std::string& arg, TN&... args )
+{
+    parseStringsBlock< NumberBlockBytes, NumberItemBytes, NumberItemBytesN ... >(
+            dataBits, 0, 0, arg, args ... );
 }
 
 } // namespace input_output

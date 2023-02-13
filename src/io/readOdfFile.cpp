@@ -303,21 +303,16 @@ void parseFileLabelData(std::bitset< 288 > dataBits,
                         uint32_t& fileReferenceTime )
 {
     // Get bits with ascii data
-    std::bitset< 16 * 8 > asciiDataBits = getBitsetSegment< 16 * 8, 288 >( dataBits, 0 );
-
     // systemId: ASCII-8
-    systemId.resize( 8 );
     // programId: ASCII-8
-    programId.resize( 8 );
+    const int numAsciiBits = 16 * 8, numAsciiBytes = 16;
+    std::bitset< numAsciiBits > asciiDataBits = getBitsetSegment< numAsciiBits, 288 >( dataBits, 0 );
 
-    for ( int i = 0; i < 8; ++i )
-    {
-        systemId[i] = getBitsetSegment< 8, 16 * 8 >( asciiDataBits, i * 8 ).to_ulong();
-        programId[i] = getBitsetSegment< 8, 16 * 8 >( asciiDataBits, 8 * 8 + i * 8 ).to_ulong();
-    }
+    parseStringsBlockWrapper< numAsciiBytes, 8, 8 >( asciiDataBits, systemId, programId );
 
     // Get bits with numerical data
-    std::bitset< 20 * 8 > numericalDataBits = getBitsetSegment< 20 * 8, 288 >( dataBits, 16 * 8 );
+    const int numNumericalBits = 20 * 8;
+    std::bitset< numNumericalBits > numericalDataBits = getBitsetSegment< numNumericalBits, 288 >( dataBits, numAsciiBits );
 
     // Items to parse:
     // spacecraftId: uint32
@@ -329,7 +324,7 @@ void parseFileLabelData(std::bitset< 288 > dataBits,
     std::vector< bool > unsignedItemFlag = { true, true, true, true, true };
 
     // Read data from block
-    parseDataBlockWrapper< 5 * 32, 32, 32, 32, 32, 32 >(
+    parseDataBlockWrapper< numNumericalBits, 32, 32, 32, 32, 32 >(
             numericalDataBits, unsignedItemFlag,
             spacecraftId,
             fileCreationDate,
@@ -340,24 +335,12 @@ void parseFileLabelData(std::bitset< 288 > dataBits,
 
 void parseIdentifierData( std::bitset< 288 > dataBits,
                           std::string& identifierGroupStringA,
-                          std::string&identifierGroupStringB,
+                          std::string& identifierGroupStringB,
                           std::string& identifierGroupStringC )
 {
-    // Read three strings from data blocks
-    identifierGroupStringA.resize( 8 );
-    identifierGroupStringB.resize( 8 );
-    identifierGroupStringC.resize( 20 );
-
-    for ( int i = 0; i < 8; ++i )
-    {
-        identifierGroupStringA[i] = getBitsetSegment< 8, 288 >( dataBits, i * 8 ).to_ulong();
-        identifierGroupStringB[i] = getBitsetSegment< 8, 288 >( dataBits, 8 * 8 + i * 8 ).to_ulong();
-    }
-
-    for ( int i = 0; i < 20; ++i )
-    {
-        identifierGroupStringC[i] = getBitsetSegment< 8, 288 >( dataBits, 16 * 8 + i * 8 ).to_ulong();
-    }
+    const int numBytes = 288 / 8;
+    parseStringsBlockWrapper< numBytes, 8, 8, 20 >( dataBits, identifierGroupStringA, identifierGroupStringB,
+                                                    identifierGroupStringC );
 }
 
 bool currentBlockIsHeader( std::bitset< 288 > dataBits,
