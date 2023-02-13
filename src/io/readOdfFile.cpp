@@ -128,6 +128,131 @@ std::shared_ptr< OdfSequentialRangeDataBlock > parseSequentialRangeData( std::bi
     return rangeDataBlock;
 }
 
+// TODO: test
+std::shared_ptr< OdfDDodDataBlock > parseDDodOrbitData( std::bitset< 128 > dataBits, const int dDodType )
+{
+    std::shared_ptr< OdfDDodDataBlock > dataBlock = std::make_shared< OdfDDodDataBlock >( dDodType );
+
+    // Items to read:
+    // secondReceivingStationId_: uint7
+    // quasarOrSpacecraftId_: uint10
+    // phasePointIndicator_: uint1
+    // referenceFrequencyHighPart_: uint22
+    // referenceFrequencyLowPart_: uint24
+    // composite1_: int20
+    // compressionTime_: uint22
+    // secondReceivingStationDownlinkDelay__: uint22
+
+    std::vector< bool > unsignedItemFlag = { true, true, true, true, true, false, true, true };
+
+    parseNumericalDataBlockWrapper< 128, 7, 10, 1, 22, 24, 20, 22, 22 >(
+            dataBits, unsignedItemFlag,
+            dataBlock->secondReceivingStationId_,
+            dataBlock->quasarOrSpacecraftId_,
+            dataBlock->phasePointIndicator_,
+            dataBlock->referenceFrequencyHighPart_,
+            dataBlock->referenceFrequencyLowPart_,
+            dataBlock->composite1_,
+            dataBlock->compressionTime_,
+            dataBlock->secondReceivingStationDownlinkDelay_ );
+
+    return dataBlock;
+}
+
+// TODO: test
+std::shared_ptr< OdfDDorDataBlock > parseDDorOrbitData( std::bitset< 128 > dataBits, const int dDorType )
+{
+    std::shared_ptr< OdfDDorDataBlock > dataBlock = std::make_shared< OdfDDorDataBlock >( dDorType );
+
+    // Items to read:
+    // secondReceivingStationId_: uint7
+    // quasarOrSpacecraftId_: uint10
+    // modulusIndicator_: uint1
+    // referenceFrequencyHighPart_: uint22
+    // referenceFrequencyLowPart_: uint24
+    // composite1_: int20
+    // modulusLowPart_: uint22
+    // secondReceivingStationDownlinkDelay__: uint22
+
+    std::vector< bool > unsignedItemFlag = { true, true, true, true, true, false, true, true };
+
+    parseNumericalDataBlockWrapper< 128, 7, 10, 1, 22, 24, 20, 22, 22 >(
+            dataBits, unsignedItemFlag,
+            dataBlock->secondReceivingStationId_,
+            dataBlock->quasarOrSpacecraftId_,
+            dataBlock->modulusIndicator_,
+            dataBlock->referenceFrequencyHighPart_,
+            dataBlock->referenceFrequencyLowPart_,
+            dataBlock->composite1_,
+            dataBlock->modulusLowPart_,
+            dataBlock->secondReceivingStationDownlinkDelay_ );
+
+    return dataBlock;
+}
+
+// TODO: test
+std::shared_ptr< OdfToneRangeDataBlock > parseToneRangeOrbitData( std::bitset< 128 > dataBits )
+{
+    std::shared_ptr< OdfToneRangeDataBlock > dataBlock = std::make_shared< OdfToneRangeDataBlock >( );
+
+    // Items to read:
+    // integerObservableTime_: uint7
+    // spacecraftId_: uint10
+    // reservedBlock1_: uint1
+    // referenceFrequencyHighPart_: uint22
+    // referenceFrequencyLowPart_: uint24
+    // reservedBlock2_: int20 -> incorrect information in TRK-2-18 2008
+    // reservedBlock3_: uint22 -> incorrect information in TRK-2-18 2008
+    // transmittingStationUplinkDelay_: uint22
+
+    std::vector< bool > unsignedItemFlag = { true, true, true, true, true, false, true, true };
+
+    parseNumericalDataBlockWrapper< 128, 7, 10, 1, 22, 24, 20, 22, 22 >(
+            dataBits, unsignedItemFlag,
+            dataBlock->integerObservableTime_,
+            dataBlock->spacecraftId_,
+            dataBlock->reservedBlock1_,
+            dataBlock->referenceFrequencyHighPart_,
+            dataBlock->referenceFrequencyLowPart_,
+            dataBlock->reservedBlock2_,
+            dataBlock->reservedBlock3_,
+            dataBlock->transmittingStationUplinkDelay_ );
+
+    return dataBlock;
+}
+
+// TODO: test
+std::shared_ptr< OdfAngleDataBlock > parseAngleOrbitData( std::bitset< 128 > dataBits, const int angleType )
+{
+    std::shared_ptr< OdfAngleDataBlock > dataBlock = std::make_shared< OdfAngleDataBlock >( angleType );
+
+    // Items to read:
+    // reservedBlock1_: uint7
+    // spacecraftId_: uint10
+    // reservedBlock2_: uint1
+    // reservedBlock3_: uint22
+    // reservedBlock4_: uint24
+    // reservedBlock5_: int20
+    // reservedBlock6_: uint22
+    // reservedBlock7_: uint22
+
+    std::vector< bool > unsignedItemFlag = { true, true, true, true, true, false, true, true };
+
+    parseNumericalDataBlockWrapper< 128, 7, 10, 1, 22, 24, 20, 22, 22 >(
+            dataBits, unsignedItemFlag,
+            dataBlock->reservedBlock1_,
+            dataBlock->spacecraftId_,
+            dataBlock->reservedBlock2_,
+            dataBlock->reservedBlock3_,
+            dataBlock->reservedBlock4_,
+            dataBlock->reservedBlock5_,
+            dataBlock->reservedBlock6_,
+            dataBlock->reservedBlock7_ );
+
+    return dataBlock;
+}
+
+
 std::shared_ptr< OdfDataBlock > parseOrbitData( std::bitset< 288 > dataBits )
 {
     std::shared_ptr< OdfDataBlock > dataBlock = std::make_shared< OdfDataBlock >( );
@@ -194,13 +319,30 @@ std::shared_ptr< OdfDataBlock > parseOrbitData( std::bitset< 288 > dataBits )
     // Read data type specific data
     std::bitset< 128 > specificDataBits = getBitsetSegment< 128, 288 >( dataBits, 160 );
 
-    if ( dataType == 11 || dataType == 12 || dataType == 13 )
+    if ( dataType == 1 || dataType == 2 || dataType == 3 || dataType == 4 )
+    {
+        dataBlock->observableSpecificDataBlock_ = parseDDodOrbitData( specificDataBits, dataType );
+    }
+    else if ( dataType == 5 || dataType == 6 )
+    {
+        dataBlock->observableSpecificDataBlock_ = parseDDorOrbitData( specificDataBits, dataType );
+    }
+    else if ( dataType == 11 || dataType == 12 || dataType == 13 )
     {
         dataBlock->observableSpecificDataBlock_ = parseDopplerOrbitData( specificDataBits, dataType );
     }
-    else if(  dataType == 37 )
+    else if( dataType == 37 )
     {
         dataBlock->observableSpecificDataBlock_ = parseSequentialRangeData( specificDataBits );
+    }
+    else if ( dataType == 41 )
+    {
+        dataBlock->observableSpecificDataBlock_ = parseToneRangeOrbitData( specificDataBits );
+    }
+    else if ( dataType == 51 || dataType == 52 || dataType == 53 || dataType == 54 || dataType == 55 ||
+                dataType == 56 || dataType == 57 || dataType == 58 )
+    {
+        dataBlock->observableSpecificDataBlock_ = parseAngleOrbitData( specificDataBits, dataType );
     }
     else
     {

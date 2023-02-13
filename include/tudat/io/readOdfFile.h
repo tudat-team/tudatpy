@@ -249,17 +249,17 @@ public:
     int spacecraftId_;
     int reservedBlock1_;
 
-    int referenceFrequencyHighPart; // 2^24 mHz
-    int referenceFrequencyLowPart; // mHz
+    int referenceFrequencyHighPart_; // 2^24 mHz
+    int referenceFrequencyLowPart_; // mHz
 
     int reservedBlock2_;
     int reservedBlock3_;
 
-    int transmittingStationUplinkDelay; // nsec
+    int transmittingStationUplinkDelay_; // nsec
 
     double getReferenceFrequency( )
     {
-        return std::pow( 2.0, 24 )  / 1.0E3 * referenceFrequencyHighPart + referenceFrequencyLowPart / 1.0E3;
+        return std::pow( 2.0, 24 ) / 1.0E3 * referenceFrequencyHighPart_ + referenceFrequencyLowPart_ / 1.0E3;
     }
 };
 
@@ -367,11 +367,20 @@ public:
 
 std::shared_ptr< OdfClockOffsetBlock > parseClockOffsetData( std::bitset< 288 > dataBits );
 
-//! Function to parse the contents of an ODF orbit data block, specific for sequenctial range data.
+//! Function to parse the contents of an ODF orbit data block, specific for sequential range data.
 std::shared_ptr< OdfSequentialRangeDataBlock > parseSequentialRangeData( std::bitset< 128 > dataBits );
 
 //! Function to parse the contents of an ODF orbit data block, specific for Doppler data.
 std::shared_ptr< OdfDopplerDataBlock > parseDopplerOrbitData( std::bitset< 128 > dataBits, const int dopplerType );
+
+std::shared_ptr< OdfDDodDataBlock > parseDDodOrbitData( std::bitset< 128 > dataBits, const int dDodType );
+
+std::shared_ptr< OdfDDorDataBlock > parseDDorOrbitData( std::bitset< 128 > dataBits, const int dDorType );
+
+std::shared_ptr< OdfToneRangeDataBlock > parseToneRangeOrbitData( std::bitset< 128 > dataBits );
+
+std::shared_ptr< OdfAngleDataBlock > parseAngleOrbitData( std::bitset< 128 > dataBits, const int angleType );
+
 
 //! Function to parse the contents of an ODF orbit data block
 std::shared_ptr< OdfDataBlock > parseOrbitData( std::bitset< 288 > dataBits );
