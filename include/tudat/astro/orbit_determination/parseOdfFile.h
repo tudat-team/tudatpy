@@ -6,6 +6,7 @@
 #include "tudat/io/readOdfFile.h"
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/math/interpolators/lookupScheme.h"
+#include "tudat/math/quadrature/trapezoidQuadrature.h"
 
 namespace tudat
 {
@@ -76,6 +77,8 @@ public:
     }
 };
 
+
+// TODO: test computation of frequencies and integral
 class RampedReferenceFrequencyInterpolator
 {
 public:
@@ -84,15 +87,15 @@ public:
     {
         for( unsigned int i = 0; i < rampBlock.size( ); i++ )
         {
-            startTimes.push_back( rampBlock.at( i )->getRampStartTime( ) );
-            endTimes.push_back( rampBlock.at( i )->getRampEndTime( ) );
-            rampRates.push_back( rampBlock.at( i )->getRampRate( ) );
-            startFrequency.push_back( rampBlock.at( i )->getRampStartFrequency( ) );
+            startTimes_.push_back( rampBlock.at( i )->getRampStartTime( ) );
+            endTimes_.push_back( rampBlock.at( i )->getRampEndTime( ) );
+            rampRates_.push_back( rampBlock.at( i )->getRampRate( ) );
+            startFrequencies_.push_back( rampBlock.at( i )->getRampStartFrequency( ) );
         }
 
         startTimeLookupScheme_ = std::make_shared<
                 interpolators::HuntingAlgorithmLookupScheme< double > >(
-                    startTimes );
+                startTimes_ );
     }
 
     RampedReferenceFrequencyInterpolator(
@@ -100,59 +103,82 @@ public:
             const std::vector< double >& endTimes_,
             const std::vector< double >& rampRates_,
             const std::vector< double >& startFrequency_ ):
-        startTimes( startTimes_ ), endTimes( endTimes_ ), rampRates( rampRates_ ), startFrequency( startFrequency_ )
+            startTimes_( startTimes_ ), endTimes_( endTimes_ ), rampRates_( rampRates_ ), startFrequencies_( startFrequency_ )
     {
         startTimeLookupScheme_ = std::make_shared<
                 interpolators::HuntingAlgorithmLookupScheme< double > >(
-                    startTimes );
+                startTimes_ );
     }
 
 
-    double getCurrentReferenceFrequencyIntegral(
-            const double lookupTime, const double integrationTime,
-            bool& issueForInterpolation )
+    double getCurrentReferenceFrequencyIntegral( const double quadratureStartTime, const double quadratureEndTime )
     {
-        int lowerNearestNeighbour = startTimeLookupScheme_->findNearestLowerNeighbour(
-                    lookupTime );
+        std::vector< double > quadratureTimes;
+        std::vector < double > quadratureFrequencies;
 
-        if( lookupTime > endTimes.at( lowerNearestNeighbour ) )
+        // Point corresponding to first partial ramp
+        quadratureTimes.push_back ( quadratureStartTime );
+        quadratureFrequencies.push_back ( getCurrentReferenceFrequency( quadratureStartTime ) );
+
+        // Points corresponding to full ramps
+        for( unsigned int i = 1; i < startTimes_.size( ) && startTimes_.at( i ) < quadratureEndTime; i++ )
         {
-            issueForInterpolation = true;
+            quadratureTimes.push_back( startTimes_.at( i ) );
+            quadratureFrequencies.push_back( startFrequencies_.at( i ) );
         }
 
-        return integrationTime * (
-                    startFrequency.at( lowerNearestNeighbour ) +
-                    rampRates.at( lowerNearestNeighbour ) * ( lookupTime - startTimes.at( lowerNearestNeighbour ) ) +
-                    0.5 * rampRates.at( lowerNearestNeighbour ) * integrationTime );
+        // Point corresponding to final partial ramp
+        quadratureTimes.push_back ( quadratureEndTime );
+        quadratureFrequencies.push_back ( getCurrentReferenceFrequency( quadratureEndTime ) );
+
+        return numerical_quadrature::performTrapezoidalQuadrature( quadratureTimes, quadratureFrequencies );
     }
 
-    double getCurrentReferenceFrequency(
-            const double lookupTime,
-            bool& issueForInterpolation )
+    double getCurrentReferenceFrequency( const double lookupTime )
     {
-        int lowerNearestNeighbour = startTimeLookupScheme_->findNearestLowerNeighbour(
-                    lookupTime );
+        int lowerNearestNeighbour = startTimeLookupScheme_->findNearestLowerNeighbour( lookupTime );
 
-
-        if( lookupTime > endTimes.at( lowerNearestNeighbour ) )
+        if( lookupTime > endTimes_.at( lowerNearestNeighbour ) || lookupTime < startTimes_.at ( lowerNearestNeighbour ) )
         {
-            issueForInterpolation = true;
+            throw std::runtime_error(
+                    "Error when interpolating ODF ramp reference frequency: look up time (" + std::to_string( lookupTime ) +
+                    ") is outside the ramp table interval (" + std::to_string( startTimes_.at( 0 ) ) + " to " +
+                    std::to_string( startTimes_.back( ) ) + ")." );
         }
 
-        return  startFrequency.at( lowerNearestNeighbour ) +
-                rampRates.at( lowerNearestNeighbour ) * ( lookupTime - startTimes.at( lowerNearestNeighbour ) );
+        return startFrequencies_.at( lowerNearestNeighbour ) +
+               rampRates_.at( lowerNearestNeighbour ) * ( lookupTime - startTimes_.at( lowerNearestNeighbour ) );
     }
 
+    std::vector< double > getStartTimes ( )
+    {
+        return startTimes_;
+    }
 
-    std::vector< double > startTimes;
-    std::vector< double > endTimes;
-    std::vector< double > rampRates;
-    std::vector< double > startFrequency;
+    std::vector< double > getEndTimes ( )
+    {
+        return endTimes_;
+    }
+
+    std::vector< double > getRampRates ( )
+    {
+        return rampRates_;
+    }
+
+    std::vector< double > getStartFrequencies ( )
+    {
+        return startFrequencies_;
+    }
+
+private:
+    std::vector< double > startTimes_;
+    std::vector< double > endTimes_;
+    std::vector< double > rampRates_;
+    std::vector< double > startFrequencies_;
 
     std::shared_ptr< interpolators::LookUpScheme< double > > startTimeLookupScheme_;
 
 };
-
 
 
 class ProcessedOdfFileContents

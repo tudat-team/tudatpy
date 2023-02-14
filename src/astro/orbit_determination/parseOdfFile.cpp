@@ -23,7 +23,7 @@ observation_models::ObservableType getObservableTypeForOdfId(
         observableType = observation_models::n_way_differenced_range;
         break;
     default:
-        throw std::runtime_error( "Error wen getting observable type for ODF ID, ID: " +
+        throw std::runtime_error( "Error when getting observable type for ODF ID, ID: " +
                                   std::to_string( odfId ) + " not recognized." );
     }
     return observableType;
@@ -39,14 +39,14 @@ std::shared_ptr< RampedReferenceFrequencyInterpolator > mergeRampDataInterpolato
 
     for( unsigned int i = 0; i < interpolatorList.size( ); i++ )
     {
-        for( unsigned int j = 0; j < interpolatorList.at( i )->startTimes.size( ); j++ )
+        for( unsigned int j = 0; j < interpolatorList.at( i )->getStartTimes().size( ); j++ )
         {
-            rampEndTimesPerStation[ interpolatorList.at( i )->startTimes.at( j ) ] =
-                    interpolatorList.at( i )->endTimes.at( j );
-            rampRatesPerStation[ interpolatorList.at( i )->startTimes.at( j ) ] =
-                    interpolatorList.at( i )->rampRates.at( j );
-            rampStartFrequenciesPerStation[ interpolatorList.at( i )->startTimes.at( j ) ] =
-                    interpolatorList.at( i )->startFrequency.at( j );
+            rampEndTimesPerStation[ interpolatorList.at( i )->getStartTimes().at( j ) ] =
+                    interpolatorList.at( i )->getEndTimes().at( j );
+            rampRatesPerStation[ interpolatorList.at( i )->getStartTimes().at( j ) ] =
+                    interpolatorList.at( i )->getRampRates().at( j );
+            rampStartFrequenciesPerStation[ interpolatorList.at( i )->getStartTimes().at( j ) ] =
+                    interpolatorList.at( i )->getStartFrequencies().at( j );
         }
     }
     return std::make_shared< RampedReferenceFrequencyInterpolator >(
