@@ -197,6 +197,16 @@ public:
         return std::pow( 2.0, 24 ) / 1.0E3 * referenceFrequencyHighPart_ + referenceFrequencyLowPart_ / 1.0E3;
     }
 
+    double getCompressionTime( )
+    {
+        return compressionTime_ * 1.0e-2;
+    }
+
+    double getTransmittingStationUplinkDelay( )
+    {
+        return transmittingStationUplinkDelay_ * 1.0e-9;
+    }
+
     void printContents( )
     {
         std::cout << "Receiver: " << receiverChannel_ << " " << receiverExciterFlag_ << std::endl;
@@ -286,15 +296,20 @@ class OdfCommonDataBlock
 {
 public:
 
+    double getObservableTime( )
+    {
+        return static_cast< double >( integerTimeTag_ ) + static_cast< double >( fractionalTimeTag_ ) / 1000.0;
+    }
+
     double getObservableValue( )
     {
         return static_cast< double >( integerObservable_ ) +
                static_cast< double >( fractionalObservable_ ) / 1.0E9;
     }
 
-    double getObservableTime( )
+    double getReceivingStationDownlinkDelay( )
     {
-        return static_cast< double >( integerTimeTag_ ) + static_cast< double >( fractionalTimeTag_ ) / 1000.0;
+        return receivingStationDownlinkDelay_ * 1.0e-9;
     }
 
     uint32_t integerTimeTag_; // sec
@@ -312,7 +327,7 @@ public:
     int downlinkBandId_;
     int uplinkBandId_;
     int referenceBandId_;
-    int validity;
+    int validity_;
 
     void printContents( )
     {
@@ -323,7 +338,7 @@ public:
         std::cout << "Format id: " << formatId_ << std::endl;
         std::cout << "Station data: " << receivingStationId_ << " " << transmittingStationId_ << " " << transmittingStationNetworkId_ << " " << std::endl;
         std::cout << "Bands: " << downlinkBandId_ << " " << uplinkBandId_ << " " << referenceBandId_ << " " << std::endl;
-        std::cout<<"Validity: "<<validity<<std::endl<<std::endl;
+        std::cout << "Validity: " << validity_ << std::endl << std::endl;
 
     }
 };
