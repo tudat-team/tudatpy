@@ -90,6 +90,7 @@ std::shared_ptr< OdfDopplerDataBlock > parseDopplerOrbitData( std::bitset< 128 >
     return dopplerDataBlock;
 }
 
+// TODO: test
 std::shared_ptr< OdfSequentialRangeDataBlock > parseSequentialRangeData( std::bitset< 128 > dataBits )
 {
     std::shared_ptr< OdfSequentialRangeDataBlock > rangeDataBlock = std::make_shared< OdfSequentialRangeDataBlock >( );
@@ -299,22 +300,22 @@ std::shared_ptr< OdfDataBlock > parseOrbitData( std::bitset< 288 > dataBits )
             commonDataBlock->downlinkBandId_,
             commonDataBlock->uplinkBandId_,
             commonDataBlock->referenceBandId_,
-            commonDataBlock->validity );
+            commonDataBlock->validity_ );
 
     std::cout << commonDataBlock->integerTimeTag_ << " " <<
         commonDataBlock->fractionalTimeTag_ << " " <<
         commonDataBlock->receivingStationDownlinkDelay_ << " " <<
-        commonDataBlock->integerObservable_ << " " <<
-        commonDataBlock->fractionalObservable_ << " " <<
-        commonDataBlock->formatId_ << " " <<
-        commonDataBlock->receivingStationId_ << " " <<
-        commonDataBlock->transmittingStationId_ << " " <<
-        commonDataBlock->transmittingStationNetworkId_ << " " <<
-        dataType << " " <<
-        commonDataBlock->downlinkBandId_ << " " <<
-        commonDataBlock->uplinkBandId_ << " " <<
-        commonDataBlock->referenceBandId_ << " " <<
-        commonDataBlock->validity << std::endl;
+                                                               commonDataBlock->integerObservable_ << " " <<
+                                                               commonDataBlock->fractionalObservable_ << " " <<
+                                                               commonDataBlock->formatId_ << " " <<
+                                                               commonDataBlock->receivingStationId_ << " " <<
+                                                               commonDataBlock->transmittingStationId_ << " " <<
+                                                               commonDataBlock->transmittingStationNetworkId_ << " " <<
+                                                               dataType << " " <<
+                                                               commonDataBlock->downlinkBandId_ << " " <<
+                                                               commonDataBlock->uplinkBandId_ << " " <<
+                                                               commonDataBlock->referenceBandId_ << " " <<
+                                                               commonDataBlock->validity_ << std::endl;
 
     // Read data type specific data
     std::bitset< 128 > specificDataBits = getBitsetSegment< 128, 288 >( dataBits, 160 );

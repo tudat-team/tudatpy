@@ -1,3 +1,13 @@
+/*    Copyright (c) 2010-2023, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
+
 #ifndef TUDAT_PARSEODFFILE_H
 #define TUDAT_PARSEODFFILE_H
 
@@ -14,17 +24,17 @@ namespace tudat
 namespace orbit_determination
 {
 
-observation_models::ObservableType getObservableTypeForOdfId(
-        const int odfId );
+observation_models::ObservableType getObservableTypeForOdfId( const int odfId );
 
+std::string getStationNameFromStationId ( const int networkId, const int stationId );
 
-class ProcessdOdfFileSingleLinkData
+class ProcessedOdfFileSingleLinkData
 {
 public:
 
-    ProcessdOdfFileSingleLinkData( ){ }
+    ProcessedOdfFileSingleLinkData( ){ }
 
-    virtual ~ProcessdOdfFileSingleLinkData( ){ }
+    virtual ~ProcessedOdfFileSingleLinkData( ){ }
 
     std::vector< double > observationTimes;
     std::vector< double > observableValues;
@@ -48,32 +58,31 @@ public:
     }
 };
 
-class ProcessdOdfFileDopplerData: public ProcessdOdfFileSingleLinkData
+class ProcessedOdfFileDopplerData: public ProcessedOdfFileSingleLinkData
 {
 public:
 
-    ~ProcessdOdfFileDopplerData( ){ }
+    ~ProcessedOdfFileDopplerData( ){ }
 
-    std::vector< int > receiverChannels;
-    std::vector< double > referenceFrequency;
-    std::vector< double > compressionTimes;
-    std::vector< double > uplinkDelays;
-    std::vector< double > reservedData;
-    std::vector< bool > rampingFlag;
+    std::vector< int > receiverChannels_;
+    std::vector< double > referenceFrequencies_;
+    std::vector< double > compressionTimes_;
+    std::vector< double > uplinkDelays_;
+    std::vector< bool > receiverRampingFlags_;
 
-    std::map< double, bool > getRampFlags( )
+    std::map< double, bool > getReceiverRampingFlags( )
     {
-        return utilities::createMapFromVectors( observationTimes, rampingFlag );
+        return utilities::createMapFromVectors( observationTimes, receiverRampingFlags_ );
     }
 
     std::map< double, double > getReferenceFrequencies( )
     {
-        return utilities::createMapFromVectors( observationTimes, referenceFrequency );
+        return utilities::createMapFromVectors( observationTimes, referenceFrequencies_ );
     }
 
     std::map< double, double > getCompressionTimes( )
     {
-        return utilities::createMapFromVectors( observationTimes, compressionTimes );
+        return utilities::createMapFromVectors( observationTimes, compressionTimes_ );
     }
 };
 
@@ -171,6 +180,7 @@ public:
     }
 
 private:
+
     std::vector< double > startTimes_;
     std::vector< double > endTimes_;
     std::vector< double > rampRates_;
@@ -185,12 +195,12 @@ class ProcessedOdfFileContents
 {
 public:
 
-    std::string spacecraftName;
+    std::string spacecraftName_;
 
     std::map< observation_models::ObservableType, std::map< std::pair< std::string, std::string >,
-    std::shared_ptr< ProcessdOdfFileSingleLinkData > > > processedDataBlocks;
+        std::shared_ptr< ProcessedOdfFileSingleLinkData > > > processedDataBlocks_;
 
-    std::map< int, std::shared_ptr< RampedReferenceFrequencyInterpolator > > rampInterpolators;
+    std::map< int, std::shared_ptr< RampedReferenceFrequencyInterpolator > > rampInterpolators_;
 };
 
 
@@ -199,18 +209,18 @@ std::shared_ptr< RampedReferenceFrequencyInterpolator > mergeRampDataInterpolato
 
 void addOdfFileContentsToMergedContents(
         const observation_models::ObservableType observableType,
-        std::shared_ptr< ProcessdOdfFileSingleLinkData > mergedOdfFileContents,
-        std::shared_ptr< ProcessdOdfFileSingleLinkData > blockToAdd );
+        std::shared_ptr< ProcessedOdfFileSingleLinkData > mergedOdfFileContents,
+        std::shared_ptr< ProcessedOdfFileSingleLinkData > blockToAdd );
 
 std::shared_ptr< ProcessedOdfFileContents > mergeOdfFileContents(
         const std::vector< std::shared_ptr< ProcessedOdfFileContents > > odfFileContents );
 
-void addOdfDataBlockToParsedData(
+void addOdfDataBlockToProcessedData(
         const observation_models::ObservableType currentObservableType,
         const std::shared_ptr< input_output::OdfDataBlock > rawDataBlock,
-        const std::shared_ptr< ProcessdOdfFileSingleLinkData > processedDataBlock );
+        const std::shared_ptr< ProcessedOdfFileSingleLinkData > processedDataBlock );
 
-std::shared_ptr< ProcessedOdfFileContents > parseOdfFileContents(
+std::shared_ptr< ProcessedOdfFileContents > processOdfFileContents(
         const std::shared_ptr< input_output::OdfRawFileContents > rawOdfData );
 
 } // namespace orbit_determination
