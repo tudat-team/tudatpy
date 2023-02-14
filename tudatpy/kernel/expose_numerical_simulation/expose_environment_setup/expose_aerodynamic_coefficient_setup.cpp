@@ -55,6 +55,8 @@ inline std::shared_ptr< AerodynamicCoefficientSettings > customAerodynamicCoeffi
                 areCoefficientsInNegativeAxisDirection );
 
 }
+
+
 }
 }
 
@@ -266,6 +268,16 @@ namespace aerodynamic_coefficients {
               py::arg("force_and_moment_coefficient_function"),
               py::arg("independent_variable_names"),
               get_docstring("custom_control_surface").c_str());
+
+        m.def("tabulated_from_files_control_surface",
+            py::overload_cast< const std::map< int, std::string >,
+                const std::map< int, std::string >,
+                const std::vector< ta::AerodynamicCoefficientsIndependentVariables > >(
+              &tss::readTabulatedControlIncrementAerodynamicCoefficientsFromFiles ),
+              py::arg("force_coefficient_files"),
+              py::arg("moment_coefficient_files"),
+              py::arg("independent_variable_names"),
+              get_docstring("tabulated_from_files_control_surface").c_str());
 
     }
 
