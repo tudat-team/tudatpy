@@ -8,6 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#include <algorithm>
+
 #include "tudat/astro/orbit_determination/parseOdfFile.h"
 
 namespace tudat
@@ -274,7 +276,7 @@ observation_models::LinkEnds getLinkEndsFromOdfBlock (
     else
     {
         throw std::runtime_error(
-                "Error when getting link definition from ODF data blocks, data type " +
+                "Error when getting link ends from ODF data blocks, data type " +
                 std::to_string( currentObservableId ) + " not recognized." );
     }
 
@@ -282,7 +284,8 @@ observation_models::LinkEnds getLinkEndsFromOdfBlock (
 }
 
 std::shared_ptr< ProcessedOdfFileContents > processOdfFileContents(
-        const std::shared_ptr< input_output::OdfRawFileContents > rawOdfData )
+        const std::shared_ptr< input_output::OdfRawFileContents > rawOdfData,
+        bool verbose )
 {
     // Create output object
     std::shared_ptr< ProcessedOdfFileContents > processedOdfFile = std::make_shared< ProcessedOdfFileContents >( );
@@ -295,12 +298,34 @@ std::shared_ptr< ProcessedOdfFileContents > processOdfFileContents(
     std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds,
             std::shared_ptr< ProcessedOdfFileSingleLinkData > > > processedDataBlocks;
 
+    // Vector keeping the invalid observable types that were found
+    std::vector< int > invalidObservableTypes;
+
     // Iterate over all block of ODF file.
     for( unsigned int i = 0; i < rawDataBlocks.size( ); i++ )
     {
         // Retrieve observable type and link ends
         int currentObservableId = rawDataBlocks.at( i )->observableSpecificDataBlock_->dataType_;
-        observation_models::ObservableType currentObservableType = getObservableTypeForOdfId( currentObservableId );
+
+        // Get current observable type and throw warning if not implemented
+        observation_models::ObservableType currentObservableType;
+        try
+        {
+            currentObservableType = getObservableTypeForOdfId( currentObservableId );
+        }
+        catch( const std::runtime_error& )
+        {
+            if ( verbose )
+            {
+                if ( std::find( invalidObservableTypes.begin( ), invalidObservableTypes.end( ), currentObservableId )
+                    == invalidObservableTypes.end( ) )
+                {
+                    invalidObservableTypes.push_back( currentObservableId );
+                    std::cerr << "Warning: processing of ODF data type " << currentObservableId << " is not implemented, ignoring the corresponding data." << std::endl;
+                }
+            }
+            continue;
+        }
 
         observation_models::LinkEnds linkEnds = getLinkEndsFromOdfBlock(
                 rawDataBlocks.at( i ), spacecraftName );
