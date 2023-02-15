@@ -139,7 +139,7 @@ void addOdfFileContentsToMergedContents(
 std::shared_ptr< ProcessedOdfFileContents > mergeOdfFileContents(
         const std::vector< std::shared_ptr< ProcessedOdfFileContents > > odfFileContents )
 {
-    std::map< observation_models::ObservableType, std::map< std::pair< std::string, std::string >,
+    std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds,
             std::shared_ptr< ProcessedOdfFileSingleLinkData > > > mergedOdfFileContents;
     std::map< int, std::vector< std::shared_ptr< RampedReferenceFrequencyInterpolator > > > rampInterpolatorList;
 
@@ -147,7 +147,7 @@ std::shared_ptr< ProcessedOdfFileContents > mergeOdfFileContents(
     for( unsigned int i = 0; i < odfFileContents.size( ); i++ )
     {
         // Retrieve contents of current file.
-        std::map< observation_models::ObservableType, std::map< std::pair< std::string, std::string >,
+        std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds,
                 std::shared_ptr< ProcessedOdfFileSingleLinkData > > >  dataBlocks =
                 odfFileContents.at( i )->processedDataBlocks_;
 
@@ -240,45 +240,86 @@ void addOdfDataBlockToProcessedData(
     }
 }
 
+observation_models::LinkEnds getLinkEndsFromOdfBlock (
+        const std::shared_ptr< input_output::OdfDataBlock > dataBlock,
+        std::string spacecraftName )
+{
+    int currentObservableId = dataBlock->observableSpecificDataBlock_->dataType_;
+
+    observation_models::LinkEnds linkEnds;
+
+    if ( currentObservableId == 11 )
+    {
+        linkEnds[ observation_models::transmitter ] = observation_models::LinkEndId ( spacecraftName );
+        linkEnds[ observation_models::receiver ] = observation_models::LinkEndId ( "Earth", getStationNameFromStationId(
+                0, dataBlock->commonDataBlock_->receivingStationId_ ) );
+    }
+    else if ( currentObservableId == 12 )
+    {
+        linkEnds[ observation_models::transmitter ] = observation_models::LinkEndId (
+                "Earth", getStationNameFromStationId( dataBlock->commonDataBlock_->transmittingStationNetworkId_,
+                                                      dataBlock->commonDataBlock_->transmittingStationId_ ) );
+        linkEnds[ observation_models::reflector1 ] = observation_models::LinkEndId ( spacecraftName );
+        linkEnds[ observation_models::receiver ] = observation_models::LinkEndId (
+                "Earth", getStationNameFromStationId( dataBlock->commonDataBlock_->transmittingStationNetworkId_,
+                                                      dataBlock->commonDataBlock_->receivingStationId_ ) );
+    }
+    else if ( currentObservableId == 13 )
+    {
+        linkEnds[ observation_models::transmitter ] = observation_models::LinkEndId (
+                "Earth", getStationNameFromStationId( dataBlock->commonDataBlock_->transmittingStationNetworkId_,
+                                                      dataBlock->commonDataBlock_->transmittingStationId_ ) );
+        linkEnds[ observation_models::reflector1 ] = observation_models::LinkEndId ( spacecraftName );
+        linkEnds[ observation_models::receiver ] = observation_models::LinkEndId (
+                "Earth", getStationNameFromStationId( 0, dataBlock->commonDataBlock_->receivingStationId_ ) );
+    }
+    else
+    {
+        throw std::runtime_error(
+                "Error when getting link definition from ODF data blocks, data type " +
+                std::to_string( currentObservableId ) + " not recognized." );
+    }
+
+    return linkEnds;
+}
+
 std::shared_ptr< ProcessedOdfFileContents > processOdfFileContents(
         const std::shared_ptr< input_output::OdfRawFileContents > rawOdfData )
 {
     // Create output object
-    std::shared_ptr< ProcessedOdfFileContents > processedOdfFile =
-            std::make_shared< ProcessedOdfFileContents >( );
+    std::shared_ptr< ProcessedOdfFileContents > processedOdfFile = std::make_shared< ProcessedOdfFileContents >( );
     std::string spacecraftName = std::to_string( rawOdfData->spacecraftId_ );
 
     // Retrieve data blocks from ODF file raw contents
     std::vector< std::shared_ptr< input_output::OdfDataBlock > > rawDataBlocks = rawOdfData->dataBlocks_;
 
     // Create list of data, sorted by observable type and link ends; single object per combination of the two
-    std::map< observation_models::ObservableType, std::map< std::pair< std::string, std::string >,
+    std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds,
             std::shared_ptr< ProcessedOdfFileSingleLinkData > > > processedDataBlocks;
 
-    bool createNewObject = false;
     int currentObservableId;
     observation_models::ObservableType currentObservableType;
-    std::pair< std::string, std::string > stationIds;
 
     // Iterate over all block of ODF file.
     for( unsigned int i = 0; i < rawDataBlocks.size( ); i++ )
     {
-        // Retrieve observable type and link end names
+        // Retrieve observable type and link ends
         currentObservableId = rawDataBlocks.at( i )->observableSpecificDataBlock_->dataType_;
         currentObservableType = getObservableTypeForOdfId( currentObservableId );
         int appendedTransmittingStationId =
                 rawDataBlocks.at( i )->commonDataBlock_->transmittingStationId_ +
                 1000 * rawDataBlocks.at( i )->commonDataBlock_->transmittingStationNetworkId_;
-        stationIds = std::make_pair( std::to_string( appendedTransmittingStationId ),
-                                     std::to_string( rawDataBlocks.at( i )->commonDataBlock_->receivingStationId_ ) );
+
+        observation_models::LinkEnds linkEnds = getLinkEndsFromOdfBlock(
+                rawDataBlocks.at( i ), spacecraftName );
 
         // Check if data object already exists for current observable/link ends
-        createNewObject = false;
+        bool createNewObject = false;
         if( processedDataBlocks.count( currentObservableType ) == 0 )
         {
             createNewObject = true;
         }
-        else if( processedDataBlocks.at( currentObservableType ).count( stationIds ) == 0 )
+        else if( processedDataBlocks.at( currentObservableType ).count( linkEnds ) == 0 )
         {
             createNewObject = true;
         }
@@ -289,11 +330,11 @@ std::shared_ptr< ProcessedOdfFileContents > processOdfFileContents(
             if( currentObservableType == observation_models::one_way_differenced_range ||
                     currentObservableType == observation_models::n_way_differenced_range )
             {
-                processedDataBlocks[ currentObservableType ][ stationIds ] = std::make_shared< ProcessedOdfFileDopplerData >( );
-                processedDataBlocks[ currentObservableType ][ stationIds ]->transmittingStation = appendedTransmittingStationId;
-                processedDataBlocks[ currentObservableType ][ stationIds ]->receivingStation =
+                processedDataBlocks[ currentObservableType ][ linkEnds ] = std::make_shared< ProcessedOdfFileDopplerData >( );
+                processedDataBlocks[ currentObservableType ][ linkEnds ]->transmittingStation = appendedTransmittingStationId;
+                processedDataBlocks[ currentObservableType ][ linkEnds ]->receivingStation =
                         std::to_string( rawDataBlocks.at( i )->commonDataBlock_->receivingStationId_ );
-                processedDataBlocks[ currentObservableType ][ stationIds ]->observableType = currentObservableType;
+                processedDataBlocks[ currentObservableType ][ linkEnds ]->observableType = currentObservableType;
             }
             else
             {
@@ -303,7 +344,7 @@ std::shared_ptr< ProcessedOdfFileContents > processOdfFileContents(
 
         addOdfDataBlockToProcessedData(
                 currentObservableType, rawDataBlocks.at( i ),
-                processedDataBlocks[ currentObservableType ][ stationIds ] );
+                processedDataBlocks[ currentObservableType ][ linkEnds ] );
     }
 
     // Save output and return
