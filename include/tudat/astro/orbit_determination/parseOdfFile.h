@@ -11,6 +11,8 @@
 #ifndef TUDAT_PARSEODFFILE_H
 #define TUDAT_PARSEODFFILE_H
 
+#include <unordered_map>
+
 #include "tudat/basics/utilities.h"
 #include "tudat/astro/orbit_determination/parseOdfFile.h"
 #include "tudat/io/readOdfFile.h"
@@ -197,7 +199,7 @@ public:
 
     std::string spacecraftName_;
 
-    std::map< observation_models::ObservableType, std::map< std::pair< std::string, std::string >,
+    std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds,
         std::shared_ptr< ProcessedOdfFileSingleLinkData > > > processedDataBlocks_;
 
     std::map< int, std::shared_ptr< RampedReferenceFrequencyInterpolator > > rampInterpolators_;
@@ -219,6 +221,10 @@ void addOdfDataBlockToProcessedData(
         const observation_models::ObservableType currentObservableType,
         const std::shared_ptr< input_output::OdfDataBlock > rawDataBlock,
         const std::shared_ptr< ProcessedOdfFileSingleLinkData > processedDataBlock );
+
+observation_models::LinkEnds getLinkEndsFromOdfBlock (
+        const std::shared_ptr< input_output::OdfDataBlock > dataBlock,
+        std::string spacecraftName );
 
 std::shared_ptr< ProcessedOdfFileContents > processOdfFileContents(
         const std::shared_ptr< input_output::OdfRawFileContents > rawOdfData );
