@@ -109,7 +109,7 @@ public:
     //! Function to convert a time value from the input to the output scale.
     /*!
      *  This function converts a time value from the input to the output scale.
-     *  The availabel time scales are defined in the TimeScales enum.
+     *  The available time scales are defined in the TimeScales enum.
      *  \param inputScale Time scale of inputTimeValue.
      *  \param outputScale Desired time scale for output value.
      *  \param inputTimeValue Time value that is to be converted.
@@ -140,6 +140,32 @@ public:
             convertedTime = getCurrentTimeList< TimeType >( ).getTimeValue( outputScale );
         }
         return convertedTime;
+    }
+
+    //! Function to convert a vector of time values from the input to the output scale.
+    /*!
+     *  This function converts a vector of time values from the input to the output scale.
+     *  The available time scales are defined in the TimeScales enum.
+     *  \param inputScale Time scale of inputTimeValues.
+     *  \param outputScale Desired time scale for output values.
+     *  \param inputTimeValues Time values that are to be converted.
+     *  \param earthFixedPosition Earth-fixed position at which time conversions are to be evaluated
+     *  \return Converted time values.
+     */
+    template< typename TimeType >
+    std::vector< TimeType > getCurrentTimes(
+            const basic_astrodynamics::TimeScales inputScale, const basic_astrodynamics::TimeScales outputScale,
+            const std::vector< TimeType >& inputTimeValues, const Eigen::Vector3d& earthFixedPosition = Eigen::Vector3d::Zero( ) )
+    {
+        std::vector < TimeType > convertedTimes;
+
+        for ( int i; i < inputTimeValues.size(); ++i )
+        {
+            convertedTimes.push_back(
+                    getCurrentTime( inputScale, outputScale, inputTimeValues.at( i ), earthFixedPosition ) );
+        }
+
+        return convertedTimes;
     }
 
     //! Function to reset all current times at given precision to NaN.
