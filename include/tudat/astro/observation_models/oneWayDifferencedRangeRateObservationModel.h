@@ -136,8 +136,8 @@ public:
         if ( linkEndAssociatedWithTime == receiver )
         {
             //Calculate reception time at ground station at the start and end of the count interval at reception time.
-            linkEndTimes[ 1 ] = static_cast< double >( time ) - currentIntegrationTime;
-            linkEndTimes[ 3 ] = static_cast< double >( time );
+            linkEndTimes[ 1 ] = static_cast< double >( time ) - currentIntegrationTime / 2.0;
+            linkEndTimes[ 3 ] = static_cast< double >( time ) + currentIntegrationTime / 2.0;
 
             // Calculate light times at the start of the reception interval
             lightTimeAtStartInterval = arcStartLightTimeCalculator_->calculateLightTimeWithLinkEndsStates(
@@ -154,8 +154,8 @@ public:
         else if ( linkEndAssociatedWithTime == transmitter )
         {
             //Calculate reception time at ground station at the start and end of the count interval at reception time.
-            linkEndTimes[ 0 ] = static_cast< double >( time ) - currentIntegrationTime;
-            linkEndTimes[ 2 ] = static_cast< double >( time );
+            linkEndTimes[ 0 ] = static_cast< double >( time ) - currentIntegrationTime / 2.0;
+            linkEndTimes[ 2 ] = static_cast< double >( time ) + currentIntegrationTime / 2.0;
 
             // Calculate light times at the start of the reception interval
             lightTimeAtEndInterval = arcEndLightTimeCalculator_->calculateLightTimeWithLinkEndsStates(

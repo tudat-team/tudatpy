@@ -17,7 +17,7 @@
 #include "tudat/astro/orbit_determination/parseOdfFile.h"
 #include "tudat/io/readOdfFile.h"
 #include "tudat/astro/observation_models/observableTypes.h"
-#include "tudat/simulation/estimation_setup/observations.h"
+//#include "tudat/simulation/estimation_setup/observations.h"
 #include "tudat/math/interpolators/lookupScheme.h"
 #include "tudat/math/quadrature/trapezoidQuadrature.h"
 

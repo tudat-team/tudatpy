@@ -384,27 +384,27 @@ std::shared_ptr< ProcessedOdfFileContents > processOdfFileContents(
     return processedOdfFile;
 }
 
-template< typename ObservationScalarType = double, typename TimeType = double >
-std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > createObservationCollectionFromOdf(
-        std::shared_ptr< ProcessedOdfFileContents > processedOdfFileContents )
-{
-
-    for ( auto observableTypeIterator = processedOdfFileContents->processedDataBlocks_.begin( );
-            observableTypeIterator != processedOdfFileContents->processedDataBlocks_.end( ); ++observableTypeIterator )
-    {
-        observation_models::ObservableType currentObservableType = observableTypeIterator->first;
-
-        for ( auto linkEndsIterator = observableTypeIterator->second.begin( );
-                linkEndsIterator != observableTypeIterator->second.end( ); ++linkEndsIterator )
-        {
-            observation_models::LinkEnds currentLinkEnds = linkEndsIterator->first;
-            std::shared_ptr< ProcessedOdfFileSingleLinkData > currentOdfData = linkEndsIterator->second;
-
-            
-        }
-    }
-
-}
+//template< typename ObservationScalarType = double, typename TimeType = double >
+//std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > createObservationCollectionFromOdf(
+//        std::shared_ptr< ProcessedOdfFileContents > processedOdfFileContents )
+//{
+//
+//    for ( auto observableTypeIterator = processedOdfFileContents->processedDataBlocks_.begin( );
+//            observableTypeIterator != processedOdfFileContents->processedDataBlocks_.end( ); ++observableTypeIterator )
+//    {
+//        observation_models::ObservableType currentObservableType = observableTypeIterator->first;
+//
+//        for ( auto linkEndsIterator = observableTypeIterator->second.begin( );
+//                linkEndsIterator != observableTypeIterator->second.end( ); ++linkEndsIterator )
+//        {
+//            observation_models::LinkEnds currentLinkEnds = linkEndsIterator->first;
+//            std::shared_ptr< ProcessedOdfFileSingleLinkData > currentOdfData = linkEndsIterator->second;
+//
+//
+//        }
+//    }
+//
+//}
 
 } // namespace orbit_determination
 
