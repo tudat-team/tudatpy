@@ -92,8 +92,8 @@ public:
                             std::string( caughtException.what( ) ) );
         }
 
-        return ( arcEndObservationModel_->computeObservations( time, linkEndAssociatedWithTime ) -
-                arcStartObservationModel_->computeObservations( time - integrationTime, linkEndAssociatedWithTime ) ) /
+        return ( arcEndObservationModel_->computeObservations( time + integrationTime / 2.0, linkEndAssociatedWithTime ) -
+                arcStartObservationModel_->computeObservations( time - integrationTime / 2.0, linkEndAssociatedWithTime ) ) /
                 static_cast< ObservationScalarType >( integrationTime );
     }
 

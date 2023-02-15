@@ -99,8 +99,8 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
 
             std::cout << "TEST: ************************************* " << testCase << " " << observationTime << std::endl;
             double dopplerCountInterval = integrationTimeFunction( observationTime );
-            double arcStartObservationTime = observationTime - dopplerCountInterval;
-            double arcEndObservationTime = observationTime;
+            double arcStartObservationTime = observationTime - dopplerCountInterval / 2.0;
+            double arcEndObservationTime = observationTime + dopplerCountInterval / 2.0;
             std::vector< double > rangeRateLinkEndTimes;
             std::vector< Eigen::Vector6d > rangeRateLinkEndStates;
 
