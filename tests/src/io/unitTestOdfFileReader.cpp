@@ -68,10 +68,10 @@ int main( )
 
         if( fileString.substr( stringSize - 3, stringSize -1 ) == "dat" )
         {
-            input_output::readOdfFile( "/Users/pipas/Documents/dsn_trk-2-18/" + fileString );
+//            input_output::readOdfFile( "/Users/pipas/Documents/dsn_trk-2-18/" + fileString );
 
-//            odfContentsList.push_back( orbit_determination::parseOdfFileContents(
-//                                           input_output::readOdfFile( "/Users/pipas/Documents/dsn_trk-2-18/" + fileString ) ) ); // "/home/dominic/Software/MercuryData/odf/"
+            odfContentsList.push_back( orbit_determination::processOdfFileContents(
+                                           input_output::readOdfFile( "/Users/pipas/Documents/dsn_trk-2-18/" + fileString ) ) ); // "/home/dominic/Software/MercuryData/odf/"
         }
     }
 

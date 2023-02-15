@@ -38,25 +38,24 @@ public:
 
     virtual ~ProcessedOdfFileSingleLinkData( ){ }
 
-    std::vector< double > observationTimes;
-    std::vector< double > observableValues;
-    std::vector< double > receiverDownlinkDelay;
+    std::vector< double > observationTimes_;
+    std::vector< double > observableValues_;
+    std::vector< double > receiverDownlinkDelays_;
 
-    std::vector< int > downlinkBand;
-    std::vector< int > uplinkBand;
-    std::vector< int > referenceBand;
+    std::vector< int > downlinkBandIds_;
+    std::vector< int > uplinkBandIds_;
+    std::vector< int > referenceBandIds_;
 
-    std::vector< std::string > originFile;
+    std::vector< std::string > originFiles_;
 
-    observation_models::ObservableType observableType;
+    observation_models::ObservableType observableType_;
 
-    std::string transmittingStation;
-    std::string receivingStation;
-    int transmitterNetworkId;
+    std::string transmittingStation_;
+    std::string receivingStation_;
 
     std::map< double, double > getObservationData( )
     {
-        return utilities::createMapFromVectors( observationTimes, observableValues );
+        return utilities::createMapFromVectors( observationTimes_, observableValues_ );
     }
 };
 
@@ -74,17 +73,17 @@ public:
 
     std::map< double, bool > getReceiverRampingFlags( )
     {
-        return utilities::createMapFromVectors( observationTimes, receiverRampingFlags_ );
+        return utilities::createMapFromVectors( observationTimes_, receiverRampingFlags_ );
     }
 
     std::map< double, double > getReferenceFrequencies( )
     {
-        return utilities::createMapFromVectors( observationTimes, referenceFrequencies_ );
+        return utilities::createMapFromVectors( observationTimes_, referenceFrequencies_ );
     }
 
     std::map< double, double > getCompressionTimes( )
     {
-        return utilities::createMapFromVectors( observationTimes, compressionTimes_ );
+        return utilities::createMapFromVectors( observationTimes_, compressionTimes_ );
     }
 };
 
