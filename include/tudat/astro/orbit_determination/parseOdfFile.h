@@ -226,7 +226,8 @@ observation_models::LinkEnds getLinkEndsFromOdfBlock (
         std::string spacecraftName );
 
 std::shared_ptr< ProcessedOdfFileContents > processOdfFileContents(
-        const std::shared_ptr< input_output::OdfRawFileContents > rawOdfData );
+        const std::shared_ptr< input_output::OdfRawFileContents > rawOdfData,
+        bool verbose = true );
 
 } // namespace orbit_determination
 
