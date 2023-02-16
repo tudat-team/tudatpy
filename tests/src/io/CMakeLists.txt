@@ -118,5 +118,6 @@ TUDAT_ADD_TEST_CASE(OdfFileReader
         tudat_orbit_determination
         tudat_input_output
         tudat_basic_astrodynamics
+        tudat_basic_mathematics
         tudat_basics
         )
