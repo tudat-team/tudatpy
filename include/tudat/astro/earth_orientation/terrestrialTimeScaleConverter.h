@@ -159,10 +159,43 @@ public:
     {
         std::vector < TimeType > convertedTimes;
 
-        for ( int i; i < inputTimeValues.size(); ++i )
+        for ( int i = 0; i < inputTimeValues.size(); ++i )
         {
             convertedTimes.push_back(
                     getCurrentTime( inputScale, outputScale, inputTimeValues.at( i ), earthFixedPosition ) );
+        }
+
+        return convertedTimes;
+    }
+
+    //! Function to convert a vector of time values from the input to the output scale.
+    /*!
+     *  This function converts a vector of time values from the input to the output scale.
+     *  The available time scales are defined in the TimeScales enum.
+     *  \param inputScale Time scale of inputTimeValues.
+     *  \param outputScale Desired time scale for output values.
+     *  \param inputTimeValues Time values that are to be converted.
+     *  \param earthFixedPositions Earth-fixed positions at which time conversions are to be evaluated
+     *  \return Converted time values.
+     */
+    template< typename TimeType >
+    std::vector< TimeType > getCurrentTimes(
+            const basic_astrodynamics::TimeScales inputScale, const basic_astrodynamics::TimeScales outputScale,
+            const std::vector< TimeType >& inputTimeValues,
+            const std::vector< Eigen::Vector3d >& earthFixedPositions )
+    {
+        if ( inputTimeValues.size( ) != earthFixedPositions.size( ) )
+        {
+            throw std::runtime_error(
+                "Error time values between scales: number of inputted time values and number of Earth-fixed positions are not consistent." );
+        }
+
+        std::vector < TimeType > convertedTimes;
+
+        for ( int i = 0; i < inputTimeValues.size(); ++i )
+        {
+            convertedTimes.push_back(
+                    getCurrentTime( inputScale, outputScale, inputTimeValues.at( i ), earthFixedPositions.at( i ) ) );
         }
 
         return convertedTimes;

@@ -11,13 +11,13 @@
 #ifndef TUDAT_PARSEODFFILE_H
 #define TUDAT_PARSEODFFILE_H
 
-#include <unordered_map>
-
 #include "tudat/basics/utilities.h"
-#include "tudat/astro/orbit_determination/parseOdfFile.h"
 #include "tudat/io/readOdfFile.h"
 #include "tudat/astro/observation_models/observableTypes.h"
-//#include "tudat/simulation/estimation_setup/observations.h"
+#include "tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h"
+#include "tudat/astro/basic_astro/timeConversions.h"
+#include "tudat/simulation/estimation_setup/observations.h"
+#include "tudat/simulation/environment_setup/body.h"
 #include "tudat/math/interpolators/lookupScheme.h"
 #include "tudat/math/quadrature/trapezoidQuadrature.h"
 
@@ -58,6 +58,32 @@ public:
     {
         return utilities::createMapFromVectors( observationTimes_, observableValues_ );
     }
+
+    std::vector< double > getObservationTimesUtc (  )
+    {
+        return observationTimes_;
+    }
+
+    std::vector< double > getObservationTimesTdb (
+            const simulation_setup::SystemOfBodies& bodies )
+    {
+        earth_orientation::TerrestrialTimeScaleConverter timeScaleConverter =
+                earth_orientation::TerrestrialTimeScaleConverter( );
+
+        std::vector< Eigen::Vector3d > earthFixedPositions;
+        for ( unsigned int i = 0; i < observationTimes_.size( ); ++i )
+        {
+            earthFixedPositions.push_back(
+                    bodies.getBody( "Earth" )->getGroundStation( receivingStation_ )->getStateInPlanetFixedFrame< double, double >(
+                            observationTimes_.at( i ) ).segment( 0, 3 )
+                            );
+        }
+
+        return timeScaleConverter.getCurrentTimes(
+                basic_astrodynamics::utc_scale, basic_astrodynamics::tdb_scale, observationTimes_,
+                earthFixedPositions );
+    }
+
 };
 
 class ProcessedOdfFileDopplerData: public ProcessedOdfFileSingleLinkData
