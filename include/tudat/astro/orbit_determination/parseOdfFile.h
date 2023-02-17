@@ -40,7 +40,7 @@ public:
     virtual ~ProcessedOdfFileSingleLinkData( ){ }
 
     std::vector< double > observationTimes_;
-    std::vector< double > observableValues_;
+    std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > observableValues_;
     std::vector< double > receiverDownlinkDelays_;
 
     std::vector< int > downlinkBandIds_;
@@ -54,7 +54,12 @@ public:
     std::string transmittingStation_;
     std::string receivingStation_;
 
-    std::map< double, double > getObservationData( )
+    std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > getUnprocessedObservables( )
+    {
+        return utilities::createMapFromVectors( observationTimes_, observableValues_ );
+    }
+
+    virtual std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > getProcessedObservables( )
     {
         return utilities::createMapFromVectors( observationTimes_, observableValues_ );
     }
@@ -86,6 +91,7 @@ public:
 
 };
 
+
 class ProcessedOdfFileDopplerData: public ProcessedOdfFileSingleLinkData
 {
 public:
@@ -94,9 +100,15 @@ public:
 
     std::vector< int > receiverChannels_;
     std::vector< double > referenceFrequencies_;
-    std::vector< double > compressionTimes_;
+    std::vector< double > countInterval_;
     std::vector< double > uplinkDelays_;
     std::vector< bool > receiverRampingFlags_;
+
+    std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > getProcessedObservables( )
+    {
+        throw std::runtime_error("Getting range rate observables not implemented");
+        return utilities::createMapFromVectors( observationTimes_, observableValues_ );
+    }
 
     std::map< double, bool > getReceiverRampingFlags( )
     {
@@ -108,9 +120,9 @@ public:
         return utilities::createMapFromVectors( observationTimes_, referenceFrequencies_ );
     }
 
-    std::map< double, double > getCompressionTimes( )
+    std::map< double, double > getCountInterval( )
     {
-        return utilities::createMapFromVectors( observationTimes_, compressionTimes_ );
+        return utilities::createMapFromVectors( observationTimes_, countInterval_ );
     }
 };
 

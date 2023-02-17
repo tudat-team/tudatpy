@@ -130,6 +130,17 @@ public:
         return returnVariable;
     }
 
+    bool operator==( const ObservationAncilliarySimulationSettings& rightSettings )
+    {
+        bool isEqual = false;
+        if ( doubleData_ == rightSettings.doubleData_ && doubleVectorData_ == rightSettings.doubleVectorData_ )
+        {
+            isEqual = true;
+        }
+
+        return isEqual;
+    }
+
 protected:
 
     std::map< ObservationAncilliarySimulationVariable, double > doubleData_;
