@@ -59,9 +59,19 @@ public:
         return utilities::createMapFromVectors( observationTimes_, observableValues_ );
     }
 
+    std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > getUnprocessedObservablesVector( )
+    {
+        return observableValues_;
+    }
+
     virtual std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > getProcessedObservables( )
     {
         return utilities::createMapFromVectors( observationTimes_, observableValues_ );
+    }
+
+    virtual std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > getProcessedObservablesVector( )
+    {
+        return observableValues_;
     }
 
     std::vector< double > getObservationTimesUtc (  )
@@ -108,6 +118,12 @@ public:
     {
         throw std::runtime_error("Getting range rate observables not implemented");
         return utilities::createMapFromVectors( observationTimes_, observableValues_ );
+    }
+
+    std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > getProcessedObservablesVector( )
+    {
+        throw std::runtime_error("Getting range rate observables not implemented");
+        return observableValues_;
     }
 
     std::map< double, bool > getReceiverRampingFlags( )
@@ -266,6 +282,139 @@ observation_models::LinkEnds getLinkEndsFromOdfBlock (
 std::shared_ptr< ProcessedOdfFileContents > processOdfFileContents(
         const std::shared_ptr< input_output::OdfRawFileContents > rawOdfData,
         bool verbose = true );
+
+template< typename TimeType = double >
+observation_models::ObservationAncilliarySimulationSettings< TimeType > createOdfAncillarySettings
+        ( std::shared_ptr< ProcessedOdfFileSingleLinkData > odfDataContents,
+          unsigned int dataIndex )
+{
+    if ( dataIndex >= odfDataContents->observationTimes_.size( ) )
+    {
+        throw std::runtime_error("Error when creating ODF data ancillary settings: specified data index is larger than data size.");
+    }
+
+    observation_models::ObservationAncilliarySimulationSettings< TimeType > ancillarySettings =
+            observation_models::ObservationAncilliarySimulationSettings< TimeType >( );
+
+    if ( std::dynamic_pointer_cast< ProcessedOdfFileDopplerData >( odfDataContents ) != nullptr )
+    {
+        std::shared_ptr< ProcessedOdfFileDopplerData > dopplerDataBlock
+                = std::dynamic_pointer_cast< ProcessedOdfFileDopplerData >( odfDataContents );
+
+        ancillarySettings.setAncilliaryDoubleData(
+                observation_models::doppler_integration_time, dopplerDataBlock->getCountInterval( ).at( dataIndex ) );
+    }
+    else
+    {
+        throw std::runtime_error("Error when casting ODF processed data: data type not identified.");
+    }
+}
+
+template< typename ObservationScalarType = double, typename TimeType = double >
+void separateSingleLinkOdfData(
+        std::shared_ptr< ProcessedOdfFileSingleLinkData > odfSingleLinkData,
+        std::vector< std::vector< TimeType > >& observationTimes,
+        std::vector< std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > >& observables,
+        std::vector< observation_models::ObservationAncilliarySimulationSettings< TimeType > >& ancillarySettings,
+        const simulation_setup::SystemOfBodies& bodies )
+{
+    // Initialize vectors
+    observationTimes.clear( );
+    observables.clear( );
+    ancillarySettings.clear( );
+
+    // Get time and observables vectors
+    std::vector< double > observationTimesTdb = odfSingleLinkData->getObservationTimesTdb( bodies );
+    std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > observablesVector =
+            odfSingleLinkData->getProcessedObservablesVector( );
+
+    for ( unsigned int i = 0; i < odfSingleLinkData->observationTimes_.size( ); ++i )
+    {
+        observation_models::ObservationAncilliarySimulationSettings< TimeType > currentAncillarySettings =
+                createOdfAncillarySettings( odfSingleLinkData, i );
+
+        bool newAncillarySettings = true;
+
+        for ( unsigned int j = 0; j < ancillarySettings.size( ); ++j )
+        {
+            if ( ancillarySettings.at( j ) == currentAncillarySettings )
+            {
+                newAncillarySettings = false;
+                observationTimes.at( j ).push_back( observationTimesTdb.at( i ) );
+                observables.at( j ).push_back( observablesVector.at( i ) );
+                break;
+            }
+        }
+
+        if ( newAncillarySettings )
+        {
+            observationTimes.push_back ( std::vector< TimeType >{ observationTimesTdb.at( i ) } );
+            observables.push_back( std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >{
+                observablesVector.at( i ) } );
+            ancillarySettings.push_back( currentAncillarySettings );
+        }
+    }
+}
+
+template< typename ObservationScalarType = double, typename TimeType = double >
+std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > createOdfObservationCollection(
+        std::shared_ptr< ProcessedOdfFileContents > processedOdfFileContents,
+        const simulation_setup::SystemOfBodies& bodies,
+        const std::shared_ptr< simulation_setup::ObservationDependentVariableCalculator > dependentVariableCalculator = nullptr )
+{
+
+    std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds, std::vector< std::shared_ptr<
+            observation_models::SingleObservationSet< ObservationScalarType, TimeType > > > > > sortedObservationSets;
+
+    for ( auto observableTypeIterator = processedOdfFileContents->processedDataBlocks_.begin( );
+            observableTypeIterator != processedOdfFileContents->processedDataBlocks_.end( ); ++observableTypeIterator )
+    {
+        observation_models::ObservableType currentObservableType = observableTypeIterator->first;
+
+        for ( auto linkEndsIterator = observableTypeIterator->second.begin( );
+                linkEndsIterator != observableTypeIterator->second.end( ); ++linkEndsIterator )
+        {
+            observation_models::LinkEnds currentLinkEnds = linkEndsIterator->first;
+            std::shared_ptr< ProcessedOdfFileSingleLinkData > currentOdfSingleLinkData = linkEndsIterator->second;
+
+            // Reset vector of observation sets
+            sortedObservationSets.at( currentObservableType ).at( currentLinkEnds ).clear( );
+
+            // Get vectors of times, observations, and ancillary settings for the current observable type and link ends
+            std::vector< std::vector< TimeType > > observationTimes;
+            std::vector< std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > > observables;
+            std::vector< observation_models::ObservationAncilliarySimulationSettings< TimeType > > ancillarySettings;
+
+            // Fill vectors
+            separateSingleLinkOdfData(
+                    currentOdfSingleLinkData, observationTimes, observables, ancillarySettings, bodies );
+
+            // Create the single observation sets and save them
+            for ( unsigned int i = 0; i < observationTimes.size( ); ++i )
+            {
+                if ( dependentVariableCalculator != nullptr )
+                {
+//                    sortedObservationSets.at( currentObservableType ).at( currentLinkEnds ).push_back(
+//                        currentObservableType, currentLinkEnds, observables.at( i ), observationTimes.at( i ),
+//                        observation_models::receiver,
+//                        dependentVariableCalculator->calculateDependentVariables( ),
+//                        dependentVariableCalculator, ancillarySettings.at( i ) );
+                    throw std::runtime_error( "Computation of dependent variables for ODF observables is not implemented." );
+                }
+                else
+                {
+                    sortedObservationSets.at( currentObservableType ).at( currentLinkEnds ).push_back(
+                        currentObservableType, currentLinkEnds, observables.at( i ), observationTimes.at( i ),
+                        observation_models::receiver,
+                        std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >( ),
+                        nullptr, ancillarySettings.at( i ) );
+                }
+
+            }
+        }
+    }
+
+}
 
 } // namespace orbit_determination
 
