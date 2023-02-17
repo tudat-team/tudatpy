@@ -127,9 +127,9 @@ void addOdfFileContentsToMergedContents(
                 currentDopplerObservableMergedData->receiverRampingFlags_.end( ),
                 dopplerBlockToAdd->receiverRampingFlags_.begin( ), dopplerBlockToAdd->receiverRampingFlags_.end( ) );
 
-        currentDopplerObservableMergedData->compressionTimes_.insert(
-                currentDopplerObservableMergedData->compressionTimes_.end( ),
-                dopplerBlockToAdd->compressionTimes_.begin( ), dopplerBlockToAdd->compressionTimes_.end( ) );
+        currentDopplerObservableMergedData->countInterval_.insert(
+                currentDopplerObservableMergedData->countInterval_.end( ),
+                dopplerBlockToAdd->countInterval_.begin( ), dopplerBlockToAdd->countInterval_.end( ) );
 
         currentDopplerObservableMergedData->receiverChannels_.insert(
                 currentDopplerObservableMergedData->receiverChannels_.end( ),
@@ -217,7 +217,6 @@ void addOdfDataBlockToProcessedData(
         processedDataBlock->downlinkBandIds_.push_back( rawDataBlock->commonDataBlock_->downlinkBandId_ );
         processedDataBlock->uplinkBandIds_.push_back( rawDataBlock->commonDataBlock_->uplinkBandId_ );
         processedDataBlock->referenceBandIds_.push_back( rawDataBlock->commonDataBlock_->referenceBandId_ );
-        processedDataBlock->observableValues_.push_back( rawDataBlock->commonDataBlock_->getObservableValue( ) );
         processedDataBlock->observationTimes_.push_back( rawDataBlock->commonDataBlock_->getObservableTime( ) );
         processedDataBlock->receiverDownlinkDelays_.push_back( rawDataBlock->commonDataBlock_->getReceivingStationDownlinkDelay( ) );
 
@@ -232,7 +231,11 @@ void addOdfDataBlockToProcessedData(
                     std::dynamic_pointer_cast< ProcessedOdfFileDopplerData >(
                             processedDataBlock );
 
-            odfParsedDopplerDataBlock->compressionTimes_.push_back( odfDopplerDataBlock->getCompressionTime( ) );
+            processedDataBlock->observableValues_.push_back(
+                    ( Eigen::Matrix< double, 1, 1 >( ) << rawDataBlock->commonDataBlock_->getObservableValue( )
+                    ).finished( ) );
+
+            odfParsedDopplerDataBlock->countInterval_.push_back( odfDopplerDataBlock->getCompressionTime( ) );
             odfParsedDopplerDataBlock->receiverChannels_.push_back( odfDopplerDataBlock->receiverChannel_ );
             odfParsedDopplerDataBlock->receiverRampingFlags_.push_back( odfDopplerDataBlock->receiverExciterFlag_ );
             odfParsedDopplerDataBlock->referenceFrequencies_.push_back( odfDopplerDataBlock->getReferenceFrequency( ) );
@@ -382,6 +385,74 @@ std::shared_ptr< ProcessedOdfFileContents > processOdfFileContents(
     processedOdfFile->rampInterpolators_ = rampInterpolators;
 
     return processedOdfFile;
+}
+
+template< typename TimeType = double >
+observation_models::ObservationAncilliarySimulationSettings< TimeType > createOdfAncillarySettings
+        ( std::shared_ptr< ProcessedOdfFileSingleLinkData > odfDataContents,
+          unsigned int dataIndex )
+{
+    if ( dataIndex >= odfDataContents->observationTimes_.size( ) )
+    {
+        throw std::runtime_error("Error when creating ODF data ancillary settings: specified data index is larger than data size.");
+    }
+
+    observation_models::ObservationAncilliarySimulationSettings< TimeType > ancillarySettings =
+            observation_models::ObservationAncilliarySimulationSettings< TimeType >( );
+
+    if ( std::dynamic_pointer_cast< ProcessedOdfFileDopplerData >( odfDataContents ) != nullptr )
+    {
+        std::shared_ptr< ProcessedOdfFileDopplerData > dopplerDataBlock
+                = std::dynamic_pointer_cast< ProcessedOdfFileDopplerData >( odfDataContents );
+
+        ancillarySettings.setAncilliaryDoubleData(
+                observation_models::doppler_integration_time, dopplerDataBlock->getCountInterval( ).at( dataIndex ) );
+    }
+    else
+    {
+        throw std::runtime_error("Error when casting ODF processed data: data type not identified.");
+    }
+}
+
+template< typename ObservationScalarType = double, typename TimeType = double >
+void separateSingleLinkOdfData(
+        std::shared_ptr< ProcessedOdfFileSingleLinkData > odfSingleLinkData,
+        std::vector< std::vector< TimeType > >& observationTimes,
+        std::vector< std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > >& observables,
+        std::vector< observation_models::ObservationAncilliarySimulationSettings< TimeType > >& ancillarySettings )
+{
+    // Initialize vectors
+    observationTimes.clear( );
+    observables.clear( );
+    ancillarySettings.clear( );
+
+    for ( unsigned int i = 0; i < odfSingleLinkData->observationTimes_.size( ); ++i )
+    {
+        observation_models::ObservationAncilliarySimulationSettings< TimeType > currentAncillarySettings =
+                createOdfAncillarySettings( odfSingleLinkData, i );
+
+        bool newAncillarySettings = true;
+
+        for ( unsigned int j = 0; j < ancillarySettings.size( ); ++j )
+        {
+            if ( ancillarySettings.at( j ) == currentAncillarySettings )
+            {
+                newAncillarySettings = false;
+                observationTimes.at( j ).push_back( odfSingleLinkData->observationTimes_.at( i ) );
+                observables.at( j ).push_back( odfSingleLinkData->getProcessedObservables( ).at( i ) );
+                break;
+            }
+        }
+
+        if ( newAncillarySettings )
+        {
+            observationTimes.push_back ( std::vector< TimeType >{ odfSingleLinkData->observationTimes_.at( i ) } );
+            observables.push_back( std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >{
+                odfSingleLinkData->getProcessedObservables( ).at( i ) } );
+            ancillarySettings.push_back( currentAncillarySettings );
+        }
+    }
+
 }
 
 //template< typename ObservationScalarType = double, typename TimeType = double >

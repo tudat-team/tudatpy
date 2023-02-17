@@ -159,7 +159,7 @@ public:
     {
         std::vector < TimeType > convertedTimes;
 
-        for ( int i = 0; i < inputTimeValues.size(); ++i )
+        for ( unsigned int i = 0; i < inputTimeValues.size(); ++i )
         {
             convertedTimes.push_back(
                     getCurrentTime( inputScale, outputScale, inputTimeValues.at( i ), earthFixedPosition ) );
@@ -192,7 +192,7 @@ public:
 
         std::vector < TimeType > convertedTimes;
 
-        for ( int i = 0; i < inputTimeValues.size(); ++i )
+        for ( unsigned int i = 0; i < inputTimeValues.size(); ++i )
         {
             convertedTimes.push_back(
                     getCurrentTime( inputScale, outputScale, inputTimeValues.at( i ), earthFixedPositions.at( i ) ) );
