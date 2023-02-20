@@ -64,9 +64,9 @@ public:
         return observableValues_;
     }
 
-    virtual std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > getProcessedObservables( )
+    std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > getProcessedObservables( )
     {
-        return utilities::createMapFromVectors( observationTimes_, observableValues_ );
+        return utilities::createMapFromVectors( observationTimes_, getProcessedObservablesVector( ) );
     }
 
     virtual std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > getProcessedObservablesVector( )
@@ -113,12 +113,6 @@ public:
     std::vector< double > countInterval_;
     std::vector< double > uplinkDelays_;
     std::vector< bool > receiverRampingFlags_;
-
-    std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > getProcessedObservables( )
-    {
-        throw std::runtime_error("Getting range rate observables not implemented");
-        return utilities::createMapFromVectors( observationTimes_, observableValues_ );
-    }
 
     std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > getProcessedObservablesVector( )
     {
