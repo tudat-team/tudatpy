@@ -63,10 +63,13 @@ class DsnNWayAveragedDopplerObservationModel: public ObservationModel< 1, Observ
 
         TimeType integrationTime;
         ObservationScalarType referenceFrequency;
+        FrequencyBands uplinkBand, downlinkBand;
         try
         {
             integrationTime = ancillarySettings->getAncilliaryDoubleData( doppler_integration_time );
             referenceFrequency = ancillarySettings->getAncilliaryDoubleData( doppler_reference_frequency );
+            uplinkBand = ancillarySettings->getAncilliaryDoubleData( uplink_band );
+            downlinkBand = ancillarySettings->getAncilliaryDoubleData( downlink_band );
         }
         catch( std::runtime_error& caughtException )
         {
@@ -84,7 +87,7 @@ class DsnNWayAveragedDopplerObservationModel: public ObservationModel< 1, Observ
 
 
         Eigen::Matrix< ObservationScalarType, 1, 1 > observation =
-                referenceFrequency - getDsnDefaultTurnaroundRatios( )
+                referenceFrequency - getDsnDefaultTurnaroundRatios( uplinkBand, downlinkBand ) /
 
         linkEndTimes.clear( );
         linkEndStates.clear( );

@@ -30,7 +30,7 @@ namespace orbit_determination
 
 observation_models::ObservableType getObservableTypeForOdfId( const int odfId );
 
-
+observation_models::FrequencyBands getFrequencyBandForOdfId ( const int odfId );
 
 std::string getStationNameFromStationId ( const int networkId, const int stationId );
 
@@ -191,6 +191,14 @@ observation_models::ObservationAncilliarySimulationSettings< TimeType > createOd
             observation_models::ObservationAncilliarySimulationSettings< TimeType >( );
 
     observation_models::ObservableType currentObservableType = odfDataContents->observableType_;
+
+    // Set common ancillary settings
+    ancillarySettings.setAncilliaryDoubleData(
+            observation_models::uplink_band, getFrequencyBandForOdfId(
+                    odfDataContents->uplinkBandIds_.at( dataIndex ) ) );
+    ancillarySettings.setAncilliaryDoubleData(
+            observation_models::downlink_band, getFrequencyBandForOdfId(
+                    odfDataContents->downlinkBandIds_.at( dataIndex ) ) );
 
     if ( std::dynamic_pointer_cast< ProcessedOdfFileDopplerData >( odfDataContents ) != nullptr )
     {
