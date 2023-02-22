@@ -22,7 +22,8 @@ enum FrequencyBands
 {
     s_band,
     x_band,
-    ka_band
+    ka_band,
+    ku_band
 };
 
 double getDsnDefaultTurnaroundRatios( FrequencyBands uplinkBand, FrequencyBands downlinkBand )

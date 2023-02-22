@@ -104,6 +104,12 @@ public:
             case doppler_reference_frequency:
                 returnVariable = doubleData_.at( doppler_reference_frequency );
                 break;
+            case uplink_band:
+                returnVariable = doubleData_.at( uplink_band );
+                break;
+            case downlink_band:
+                returnVariable = doubleData_.at( downlink_band );
+                break;
             default:
                 break;
             }
