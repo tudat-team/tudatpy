@@ -16,6 +16,14 @@ namespace tudat
 namespace input_output
 {
 
+//! Function to concatenate two bitsets.
+/*!
+ * @tparam FirstInputSize Size of the first bitset.
+ * @tparam SecondInputSize Size of the second bitset.
+ * @param firstInput Most significant bitset.
+ * @param secondInput Least significant bitset.
+ * @return Concatenated bitset.
+ */
 template< int FirstInputSize, int SecondInputSize >
 std::bitset< FirstInputSize + SecondInputSize > mergeBitsets(
         std::bitset< FirstInputSize > firstInput,
@@ -34,6 +42,15 @@ std::bitset< FirstInputSize + SecondInputSize > mergeBitsets(
     return returnBitset;
 }
 
+//! Function to extract a segment from a bitset.
+/*!
+ * @tparam OutputBits Desired size of outputted bitset.
+ * @tparam InputBits Size of inputted bitset.
+ * @param inputBits Bitset from which a segment will be extracted.
+ * @param startIndex Index from which to start extracting the desired bitset. 0 corresponds to the leftmost bit (i.e.
+ * most significant bit)
+ * @return Segment of inputBits.
+ */
 template< int OutputBits, int InputBits >
 std::bitset< OutputBits > getBitsetSegment(
         const std::bitset< InputBits > inputBits,
@@ -67,6 +84,12 @@ std::bitset< OutputBits > getBitsetSegment(
 //    return outputInteger;
 //}
 
+//! Function to convert an arbitrarily sized bitset to a long (i.e. binary to signed decimal number).
+/*!
+ * @tparam NumberOfBits Size of the provided bitset
+ * @param bits Bitset
+ * @return Signed integer representation of the bitset.
+ */
 template< unsigned int NumberOfBits >
 long convertBitsetToLong(const std::bitset< NumberOfBits >& bits) {
     if ( NumberOfBits > 32 )
@@ -88,6 +111,13 @@ long convertBitsetToLong(const std::bitset< NumberOfBits >& bits) {
     return s.x;
 }
 
+//! Function to a specified number of bytes from a file into a bitset.
+/*!
+ * Function to a specified number of bytes from a file into a bitset. The read bitset is returned by reference.
+ * @tparam NumberOfBytes Number of bytes to read from the file.
+ * @param file Input files.
+ * @param dataBits Bitset read from the file.
+ */
 template < int NumberOfBytes >
 void readBinaryFileBlock( std::istream& file,
                           std::bitset< NumberOfBytes * 8 >& dataBits )
@@ -111,15 +141,24 @@ void readBinaryFileBlock( std::istream& file,
         {
             // Right shift byte to determine value of desired bit and save it to the bitset
             // Indexing of the byte and bitset starts from the right (i.e. the 0th bit is the rightmost one)
-            dataBits[ numberOfBits - bitCounter - 1 ] = (byte >> ( 8 - 1 - j) ) & 1;
+            dataBits[ numberOfBits - bitCounter - 1 ] = ( byte >> ( 8 - 1 - j ) ) & 1;
             ++bitCounter;
         }
     }
 }
 
-// Note: "unsignedItemFlag.at( argumentCounter )" could be replaced by "std::is_unsigned< T >::value". In that case,
-// it would no longer be necessary to have unsignedItemFlag as an argument. However, that is more error-prone in case
-// the signed/unsigned types aren't specified correctly.
+//! Function to extract an arbitrary number of signed and unsigned integers from a bitset.
+/*!
+ * Function to extract an arbitrary number of integers from a bitset. Overload for 0 arguments, simply executes some
+ * error checking. Should not be called directly, but instead via parseNumericalDataBlockWrapper.
+ *
+ * @tparam NumberBlockBits Size of the inputted bitset.
+ * @param dataBits Bitset from which to extract data
+ * @param unsignedItemFlag Vector indicating whether each number should be extracted as signed or unsigned
+ * @param argumentCounter Counter for the number of integers already extracted
+ * @param startBitCounter Start bit of the current integer
+ * provided NumberItemBits, NumberItemBitsN.
+ */
 template< unsigned int NumberBlockBits >
 void parseNumericalDataBlock (std::bitset< NumberBlockBits > dataBits,
                               const std::vector< bool >& unsignedItemFlag,
@@ -141,6 +180,26 @@ void parseNumericalDataBlock (std::bitset< NumberBlockBits > dataBits,
     }
 }
 
+//! Function to extract an arbitrary number of signed and unsigned integers from a bitset.
+/*!
+ * Function to extract an arbitrary number of signed and unsigned integers from a bitset. The extracted numbers are
+ * returned by reference. Overload for >= 1 arguments. Should not be called directly, but instead via
+ * parseNumericalDataBlockWrapper.
+ *
+ * Note: "unsignedItemFlag.at( argumentCounter )" could be replaced by "std::is_unsigned< T >::value". In that case,
+ * it would no longer be necessary to have unsignedItemFlag as an argument. However, that is more error-prone in case
+ * the signed/unsigned types aren't specified correctly.
+ *
+ * @tparam NumberBlockBits Size of the inputted bitset.
+ * @tparam NumberItemBits, NumberItemBitsN Number of bits to convert into each integer.
+ * @tparam T, TN Types of the extracted integers. The type doesn't influence the conversion from binary to decimal.
+ * @param dataBits Bitset from which to extract data
+ * @param unsignedItemFlag Vector indicating whether each number should be extracted as signed or unsigned
+ * @param argumentCounter Counter for the number of integers already extracted
+ * @param startBitCounter Start bit of the current integer
+ * @param arg, args Extracted signed/unsigned integers. Their number should coincide with the number of
+ * provided NumberItemBits, NumberItemBitsN.
+ */
 template< unsigned int NumberBlockBits, unsigned int NumberItemBits, unsigned int... NumberItemBitsN,
         typename T, typename... TN >
 void parseNumericalDataBlock (std::bitset< NumberBlockBits > dataBits,
@@ -166,6 +225,18 @@ void parseNumericalDataBlock (std::bitset< NumberBlockBits > dataBits,
                                                                      startBitCounter, args ... );
 }
 
+//! Function to extract an arbitrary number of signed and unsigned integers from a bitset.
+/*!
+ * Function to extract an arbitrary number of integers from a bitset. The extracted numbers are returned by reference.
+ *
+ * @tparam NumberBlockBits Size of the inputted bitset.
+ * @tparam NumberItemBits, NumberItemBitsN Number of bits to convert into each integer.
+ * @tparam T, TN Types of the extracted integers. The type doesn't influence the conversion from binary to decimal.
+ * @param dataBits Bitset from which to extract data
+ * @param unsignedItemFlag Vector indicating whether each number should be extracted as signed or unsigned
+ * @param arg, args Extracted signed/unsigned integers. Their number should coincide with the number of
+ * provided NumberItemBits, NumberItemBitsN.
+ */
 template< unsigned int NumberBlockBits, unsigned int NumberItemBits, unsigned int... NumberItemBitsN,
         typename T, typename... TN >
 void parseNumericalDataBlockWrapper (std::bitset< NumberBlockBits > dataBits,
@@ -177,6 +248,16 @@ void parseNumericalDataBlockWrapper (std::bitset< NumberBlockBits > dataBits,
                                                                                      args ... );
 }
 
+//! Function to extract an arbitrary number of strings from a bitset.
+/*!
+ * Function to extract an arbitrary number of strings from a bitset. Overload for 0 arguments, simply executes some
+ * error checking. Should not be called directly, but instead via parseStringsBlockWrapper.
+ *
+ * @tparam NumberBlockBytes Size of the inputted bitset in bytes.
+ * @param dataBits Bitset from which to extract data
+ * @param argumentCounter Counter for the number of strings already extracted
+ * @param startByteCounter Start byte of the current string
+ */
 template< unsigned int NumberBlockBytes >
 void parseStringsBlock (std::bitset< NumberBlockBytes * 8 > dataBits,
                         unsigned int argumentCounter,
@@ -190,6 +271,20 @@ void parseStringsBlock (std::bitset< NumberBlockBytes * 8 > dataBits,
         }
 }
 
+//! Function to extract an arbitrary number of strings from a bitset.
+/*!
+ * Function to extract an arbitrary number of strings from a bitset. The extracted strings are returned by reference.
+ * Overload for >=1 arguments. Should not be called directly, but instead via parseStringsBlockWrapper.
+ *
+ * @tparam NumberBlockBytes Size of the inputted bitset in bytes.
+ * @tparam NumberItemBytes, NumberItemBytesN Number of bytes to convert into each string.
+ * @tparam TN Type of args. Has to be std::string (enforced via the variadic template "recursion")
+ * @param dataBits Bitset from which to extract data
+ * @param argumentCounter Counter for the number of strings already extracted
+ * @param startByteCounter Start byte of the current string
+ * @param arg, args Extracted strings. Their number should coincide with the number of the items
+ * provided in NumberItemBytes, NumberItemBytesN.
+ */
 template< unsigned int NumberBlockBytes, unsigned int NumberItemBytes, unsigned int... NumberItemBytesN,
         typename... TN >
 void parseStringsBlock (std::bitset< NumberBlockBytes * 8 > dataBits,
@@ -211,6 +306,17 @@ void parseStringsBlock (std::bitset< NumberBlockBytes * 8 > dataBits,
                                                                  startByteCounter, args ...);
 }
 
+//! Function to extract an arbitrary number of strings from a bitset.
+/*!
+ * Function to extract an arbitrary number of strings from a bitset. The extracted strings are returned by reference.
+ *
+ * @tparam NumberBlockBytes Size of the inputted bitset in bytes.
+ * @tparam NumberItemBytes, NumberItemBytesN Number of bytes to convert into each string.
+ * @tparam TN Type of args. Has to be std::string (enforced via the variadic template "recursion")
+ * @param dataBits Bitset from which to extract data
+ * @param arg, args Extracted strings. Their number should coincide with the number of the items
+ * provided in NumberItemBytes, NumberItemBytesN.
+ */
 template< unsigned int NumberBlockBytes, unsigned int NumberItemBytes, unsigned int... NumberItemBytesN,
         typename... TN >
 void parseStringsBlockWrapper (std::bitset< NumberBlockBytes * 8 > dataBits,
