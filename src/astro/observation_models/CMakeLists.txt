@@ -43,6 +43,8 @@ set(observation_models_HEADERS
         "observationViabilityCalculator.h"
         "corrections/lightTimeCorrection.h"
         "corrections/firstOrderRelativisticCorrection.h"
+        "dsnNWayAveragedDopplerObservationModel.h"
+        "observationFrequencyDefs.h"
         )
 
 TUDAT_ADD_LIBRARY("observation_models"

@@ -29,6 +29,8 @@ namespace orbit_determination
 
 observation_models::ObservableType getObservableTypeForOdfId( const int odfId );
 
+
+
 std::string getStationNameFromStationId ( const int networkId, const int stationId );
 
 class ProcessedOdfFileSingleLinkData
@@ -111,7 +113,7 @@ public:
     std::vector< int > receiverChannels_;
     std::vector< double > referenceFrequencies_;
     std::vector< double > countInterval_;
-    std::vector< double > uplinkDelays_;
+    std::vector< double > transmitterUplinkDelays_;
     std::vector< bool > receiverRampingFlags_;
 
     std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > getProcessedObservablesVector( )
@@ -136,12 +138,68 @@ public:
     }
 };
 
-// TODO: test computation of frequencies and integral
-class RampedReferenceFrequencyInterpolator
+class StationFrequencyInterpolator
 {
 public:
-    RampedReferenceFrequencyInterpolator(
-            std::vector< std::shared_ptr< input_output::OdfRampBlock > > rampBlock )
+    //! Constructor
+    StationFrequencyInterpolator( ) { }
+
+    //! Destructor
+    ~StationFrequencyInterpolator( ) { }
+
+    virtual double getCurrentFrequency( const double lookupTime ) = 0;
+
+    virtual double getFrequencyIntegral( const double quadratureStartTime, const double quadratureEndTime ) = 0;
+
+    virtual double getAveragedFrequencyIntegral( const double quadratureStartTime, const double quadratureEndTime )
+    {
+        return getFrequencyIntegral( quadratureStartTime, quadratureEndTime ) / ( quadratureEndTime - quadratureStartTime );
+    }
+
+private:
+
+};
+
+
+class ConstantFrequencyInterpolator: public StationFrequencyInterpolator
+{
+public:
+    //! Constructor
+    ConstantFrequencyInterpolator( double frequency ):
+        StationFrequencyInterpolator( ),
+        frequency_( frequency )
+    { }
+
+    //! Destructor
+    ~ConstantFrequencyInterpolator( ) { }
+
+    double getCurrentFrequency( const double lookupTime )
+    {
+        return frequency_;
+    }
+
+    double getFrequencyIntegral( const double quadratureStartTime, const double quadratureEndTime )
+    {
+        return frequency_ * ( quadratureEndTime - quadratureStartTime );
+    }
+
+    double getAveragedFrequencyIntegral( const double quadratureStartTime, const double quadratureEndTime )
+    {
+        return getFrequencyIntegral( quadratureStartTime, quadratureEndTime ) / ( quadratureEndTime - quadratureStartTime );
+    }
+
+private:
+
+    double frequency_;
+};
+
+// TODO: test computation of frequencies and integral
+class PiecewiseLinearFrequencyInterpolator: public StationFrequencyInterpolator
+{
+public:
+    PiecewiseLinearFrequencyInterpolator(
+            std::vector< std::shared_ptr< input_output::OdfRampBlock > > rampBlock ):
+        StationFrequencyInterpolator( )
     {
         for( unsigned int i = 0; i < rampBlock.size( ); i++ )
         {
@@ -151,32 +209,30 @@ public:
             startFrequencies_.push_back( rampBlock.at( i )->getRampStartFrequency( ) );
         }
 
-        startTimeLookupScheme_ = std::make_shared<
-                interpolators::HuntingAlgorithmLookupScheme< double > >(
+        startTimeLookupScheme_ = std::make_shared< interpolators::HuntingAlgorithmLookupScheme< double > >(
                 startTimes_ );
     }
 
-    RampedReferenceFrequencyInterpolator(
+    PiecewiseLinearFrequencyInterpolator(
             const std::vector< double >& startTimes_,
             const std::vector< double >& endTimes_,
             const std::vector< double >& rampRates_,
             const std::vector< double >& startFrequency_ ):
-            startTimes_( startTimes_ ), endTimes_( endTimes_ ), rampRates_( rampRates_ ), startFrequencies_( startFrequency_ )
+        StationFrequencyInterpolator( ),
+        startTimes_( startTimes_ ), endTimes_( endTimes_ ), rampRates_( rampRates_ ), startFrequencies_( startFrequency_ )
     {
-        startTimeLookupScheme_ = std::make_shared<
-                interpolators::HuntingAlgorithmLookupScheme< double > >(
+        startTimeLookupScheme_ = std::make_shared< interpolators::HuntingAlgorithmLookupScheme< double > >(
                 startTimes_ );
     }
 
-
-    double getCurrentReferenceFrequencyIntegral( const double quadratureStartTime, const double quadratureEndTime )
+    double getFrequencyIntegral( const double quadratureStartTime, const double quadratureEndTime )
     {
         std::vector< double > quadratureTimes;
         std::vector < double > quadratureFrequencies;
 
         // Point corresponding to first partial ramp
         quadratureTimes.push_back ( quadratureStartTime );
-        quadratureFrequencies.push_back ( getCurrentReferenceFrequency( quadratureStartTime ) );
+        quadratureFrequencies.push_back ( getCurrentFrequency( quadratureStartTime ) );
 
         // Points corresponding to full ramps
         for( unsigned int i = 1; i < startTimes_.size( ) && startTimes_.at( i ) < quadratureEndTime; i++ )
@@ -187,19 +243,19 @@ public:
 
         // Point corresponding to final partial ramp
         quadratureTimes.push_back ( quadratureEndTime );
-        quadratureFrequencies.push_back ( getCurrentReferenceFrequency( quadratureEndTime ) );
+        quadratureFrequencies.push_back ( getCurrentFrequency( quadratureEndTime ) );
 
         return numerical_quadrature::performTrapezoidalQuadrature( quadratureTimes, quadratureFrequencies );
     }
 
-    double getCurrentReferenceFrequency( const double lookupTime )
+    double getCurrentFrequency( const double lookupTime )
     {
         int lowerNearestNeighbour = startTimeLookupScheme_->findNearestLowerNeighbour( lookupTime );
 
         if( lookupTime > endTimes_.at( lowerNearestNeighbour ) || lookupTime < startTimes_.at ( lowerNearestNeighbour ) )
         {
             throw std::runtime_error(
-                    "Error when interpolating ODF ramp reference frequency: look up time (" + std::to_string( lookupTime ) +
+                    "Error when interpolating ramp reference frequency: look up time (" + std::to_string( lookupTime ) +
                     ") is outside the ramp table interval (" + std::to_string( startTimes_.at( 0 ) ) + " to " +
                     std::to_string( startTimes_.back( ) ) + ")." );
         }
@@ -240,6 +296,80 @@ private:
 };
 
 
+// All time intervals are assumed to have the same size
+class PiecewiseConstantFrequencyInterpolator: public StationFrequencyInterpolator
+{
+public:
+    //! Constructor
+    PiecewiseConstantFrequencyInterpolator( std::vector< double > frequencies,
+                                            std::vector< double > referenceTimes,
+                                            double timeIntervalsSize ):
+        StationFrequencyInterpolator( ),
+        frequencies_( frequencies ),
+        referenceTimes_( referenceTimes ),
+        timeIntervalsSize_( timeIntervalsSize )
+    {
+        if ( frequencies.size( ) != referenceTimes.size( ) )
+        {
+            throw std::runtime_error("Error when creating piecewise constant frequency interpolator: size of time stamps and "
+                                     "frequencies are not consistent.");
+        }
+
+        startTimeLookupScheme_ = std::make_shared< interpolators::HuntingAlgorithmLookupScheme< double > >(
+                referenceTimes_ );
+    }
+
+    //! Destructor
+    ~PiecewiseConstantFrequencyInterpolator( ) { }
+
+    double getCurrentFrequency( const double lookupTime )
+    {
+        int lowerNearestNeighbour = startTimeLookupScheme_->findNearestLowerNeighbour( lookupTime );
+        int higherNearestNeighbour = lowerNearestNeighbour + 1;
+
+        // Look-up time closer to lower nearest neighbour
+        if ( lookupTime - referenceTimes_.at( lowerNearestNeighbour ) <=  referenceTimes_.at( higherNearestNeighbour ) - lookupTime ||
+            lowerNearestNeighbour == referenceTimes_.size( ) - 1 )
+        {
+            return frequencies_.at( lowerNearestNeighbour );
+        }
+        // Look-up time closer to higher nearest neighbour
+        else
+        {
+            return frequencies_.at( higherNearestNeighbour );
+        }
+    }
+
+    double getFrequencyIntegral( const double quadratureStartTime, const double quadratureEndTime )
+    {
+        throw std::runtime_error("Computation of integral not implemented for piecewise constant frequency.");
+    }
+
+    double getAveragedFrequencyIntegral( const double quadratureStartTime, const double quadratureEndTime )
+    {
+        double referenceTime = quadratureStartTime + ( quadratureEndTime - quadratureStartTime ) / 2.0;
+
+        if ( ( referenceTime - quadratureStartTime ) / ( timeIntervalsSize_ / 2.0 ) - 1.0 > 1e-12 ||
+            ( quadratureEndTime - referenceTime ) / ( timeIntervalsSize_ / 2.0 ) - 1.0 > 1e-12 )
+        {
+            throw std::runtime_error("Error when computing the averaged integral of piecewise constant frequency: "
+                                     "the specified time interval does not coincide with any piecewise interval.");
+        }
+
+        return getCurrentFrequency( referenceTime );
+    }
+
+private:
+
+    std::vector< double > frequencies_;
+    std::vector< double > referenceTimes_;
+
+    double timeIntervalsSize_;
+
+    std::shared_ptr< interpolators::LookUpScheme< double > > startTimeLookupScheme_;
+};
+
+
 class ProcessedOdfFileContents
 {
 public:
@@ -249,12 +379,12 @@ public:
     std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds,
         std::shared_ptr< ProcessedOdfFileSingleLinkData > > > processedDataBlocks_;
 
-    std::map< int, std::shared_ptr< RampedReferenceFrequencyInterpolator > > rampInterpolators_;
+    std::map< int, std::shared_ptr< PiecewiseLinearFrequencyInterpolator > > rampInterpolators_;
 };
 
 
-std::shared_ptr< RampedReferenceFrequencyInterpolator > mergeRampDataInterpolators(
-        const std::vector< std::shared_ptr< RampedReferenceFrequencyInterpolator > >& interpolatorList );
+std::shared_ptr< PiecewiseLinearFrequencyInterpolator > mergeRampDataInterpolators(
+        const std::vector< std::shared_ptr< PiecewiseLinearFrequencyInterpolator > >& interpolatorList );
 
 void addOdfFileContentsToMergedContents(
         const observation_models::ObservableType observableType,
@@ -290,6 +420,11 @@ observation_models::ObservationAncilliarySimulationSettings< TimeType > createOd
     observation_models::ObservationAncilliarySimulationSettings< TimeType > ancillarySettings =
             observation_models::ObservationAncilliarySimulationSettings< TimeType >( );
 
+    observation_models::ObservableType currentObservableType = odfDataContents->observableType_;
+
+    ancillarySettings.setAncilliaryDoubleData(
+                observation_models::doppler_reference_frequency, currentObservableType->referenceFrequencies_.at( dataIndex ) );
+
     if ( std::dynamic_pointer_cast< ProcessedOdfFileDopplerData >( odfDataContents ) != nullptr )
     {
         std::shared_ptr< ProcessedOdfFileDopplerData > dopplerDataBlock
@@ -297,6 +432,24 @@ observation_models::ObservationAncilliarySimulationSettings< TimeType > createOd
 
         ancillarySettings.setAncilliaryDoubleData(
                 observation_models::doppler_integration_time, dopplerDataBlock->getCountInterval( ).at( dataIndex ) );
+        ancillarySettings.setAncilliaryDoubleData(
+                observation_models::doppler_reference_frequency, dopplerDataBlock->referenceFrequencies_.at( dataIndex ) );
+
+        if ( currentObservableType == observation_models::n_way_differenced_range )
+        {
+            ancillarySettings.setAncilliaryDoubleVectorData(
+                observation_models::retransmission_delays,  std::vector< double >{
+                    dopplerDataBlock->transmitterUplinkDelays_.at( dataIndex ), 0.0,
+                    dopplerDataBlock->receiverDownlinkDelays_.at( dataIndex ) } );
+        }
+        else
+        {
+            ancillarySettings.setAncilliaryDoubleVectorData(
+                observation_models::retransmission_delays, std::vector< double >{
+                    dopplerDataBlock->transmitterUplinkDelays_.at( dataIndex ),
+                    dopplerDataBlock->receiverDownlinkDelays_.at( dataIndex ) } );
+        }
+
     }
     else
     {
@@ -306,6 +459,7 @@ observation_models::ObservationAncilliarySimulationSettings< TimeType > createOd
 
 template< typename ObservationScalarType = double, typename TimeType = double >
 void separateSingleLinkOdfData(
+        observation_models::ObservableType currentObservableType,
         std::shared_ptr< ProcessedOdfFileSingleLinkData > odfSingleLinkData,
         std::vector< std::vector< TimeType > >& observationTimes,
         std::vector< std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > >& observables,
@@ -381,7 +535,8 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
 
             // Fill vectors
             separateSingleLinkOdfData(
-                    currentOdfSingleLinkData, observationTimes, observables, ancillarySettings, bodies );
+                    currentObservableType, currentOdfSingleLinkData, observationTimes, observables, ancillarySettings,
+                    bodies );
 
             // Create the single observation sets and save them
             for ( unsigned int i = 0; i < observationTimes.size( ); ++i )
