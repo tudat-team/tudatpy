@@ -25,6 +25,7 @@ set(ground_stations_HEADERS
         "basicTidalBodyDeformation.h"
         "bodyDeformationModel.h"
         "iers2010SolidTidalBodyDeformation.h"
+        "transmittingFrequencies.h"
         )
 
 TUDAT_ADD_LIBRARY("ground_stations"

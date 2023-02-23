@@ -14,5 +14,6 @@
 #include "ground_stations/groundStation.h"
 #include "ground_stations/groundStationState.h"
 #include "ground_stations/pointingAnglesCalculator.h"
+#include "ground_stations/transmittingFrequencies.h"
 
 #endif // TUDAT_GROUND_STATIONS_H

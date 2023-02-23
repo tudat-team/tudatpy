@@ -16,6 +16,7 @@
 
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/astro/observation_models/observationFrequencies.h"
+#include "tudat/astro/observation_models/nWayRangeObservationModel.h"
 
 namespace tudat
 {

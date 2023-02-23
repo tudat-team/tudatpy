@@ -14,9 +14,9 @@
 #include "tudat/basics/utilities.h"
 #include "tudat/io/readOdfFile.h"
 #include "tudat/astro/observation_models/observableTypes.h"
-#include "tudat/astro/observation_models/observationFrequencies.h"
 #include "tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h"
 #include "tudat/astro/basic_astro/timeConversions.h"
+#include "tudat/astro/ground_stations/transmittingFrequencies.h"
 #include "tudat/simulation/estimation_setup/observations.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/math/interpolators/lookupScheme.h"
@@ -149,12 +149,12 @@ public:
     std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds,
         std::shared_ptr< ProcessedOdfFileSingleLinkData > > > processedDataBlocks_;
 
-    std::map< std::string, std::shared_ptr< observation_models::PiecewiseLinearFrequencyInterpolator > > rampInterpolators_;
+    std::map< std::string, std::shared_ptr< ground_stations::PiecewiseLinearFrequencyInterpolator > > rampInterpolators_;
 };
 
 
-std::shared_ptr< observation_models::PiecewiseLinearFrequencyInterpolator > mergeRampDataInterpolators(
-        const std::vector< std::shared_ptr< observation_models::PiecewiseLinearFrequencyInterpolator > >& interpolatorList );
+std::shared_ptr< ground_stations::PiecewiseLinearFrequencyInterpolator > mergeRampDataInterpolators(
+        const std::vector< std::shared_ptr< ground_stations::PiecewiseLinearFrequencyInterpolator > >& interpolatorList );
 
 void addOdfFileContentsToMergedContents(
         const observation_models::ObservableType observableType,
@@ -281,14 +281,7 @@ void separateSingleLinkOdfData(
 
 void setGroundStationsTransmittingFrequencies(
         std::shared_ptr< ProcessedOdfFileContents > processedOdfFileContents,
-        const simulation_setup::SystemOfBodies& bodies )
-{
-    for( auto it = processedOdfFileContents->rampInterpolators_.begin( ); it != processedOdfFileContents->rampInterpolators_.end( ); it++ )
-    {
-       bodies.getBody( "Earth" )->getGroundStation( it->first )->setTransmittingFrequencyCalculator(
-               it->second );
-    }
-}
+        const simulation_setup::SystemOfBodies& bodies );
 
 template< typename ObservationScalarType = double, typename TimeType = double >
 std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > createOdfObservationCollection(
