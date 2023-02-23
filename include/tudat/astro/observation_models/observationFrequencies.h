@@ -12,6 +12,9 @@
 #ifndef TUDAT_OBSERVATIONFREQUENCYDEFS_H
 #define TUDAT_OBSERVATIONFREQUENCYDEFS_H
 
+#include "tudat/math/quadrature/trapezoidQuadrature.h"
+#include "tudat/io/readOdfFile.h"
+
 namespace tudat
 {
 
@@ -81,7 +84,7 @@ public:
     StationFrequencyInterpolator( ) { }
 
     //! Destructor
-    ~StationFrequencyInterpolator( ) { }
+    virtual ~StationFrequencyInterpolator( ) { }
 
     virtual double getCurrentFrequency( const double lookupTime ) = 0;
 
@@ -260,8 +263,8 @@ public:
 
     double getCurrentFrequency( const double lookupTime )
     {
-        int lowerNearestNeighbour = startTimeLookupScheme_->findNearestLowerNeighbour( lookupTime );
-        int higherNearestNeighbour = lowerNearestNeighbour + 1;
+        unsigned int lowerNearestNeighbour = startTimeLookupScheme_->findNearestLowerNeighbour( lookupTime );
+        unsigned int higherNearestNeighbour = lowerNearestNeighbour + 1;
 
         // Look-up time closer to lower nearest neighbour
         if ( lookupTime - referenceTimes_.at( lowerNearestNeighbour ) <=  referenceTimes_.at( higherNearestNeighbour ) - lookupTime ||
