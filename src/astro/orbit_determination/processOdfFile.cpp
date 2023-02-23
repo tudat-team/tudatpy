@@ -415,17 +415,6 @@ std::shared_ptr< ProcessedOdfFileContents > processOdfFileContents(
     return processedOdfFile;
 }
 
-void setGroundStationsTransmittingFrequencies(
-        std::shared_ptr< ProcessedOdfFileContents > processedOdfFileContents,
-        const simulation_setup::SystemOfBodies& bodies )
-{
-    for( auto it = processedOdfFileContents->rampInterpolators_.begin( ); it != processedOdfFileContents->rampInterpolators_.end( ); it++ )
-    {
-       bodies.getBody( "Earth" )->getGroundStation( it->first )->setTransmittingFrequencyCalculator(
-               it->second );
-    }
-}
-
 } // namespace orbit_determination
 
 } // namespace tudat
