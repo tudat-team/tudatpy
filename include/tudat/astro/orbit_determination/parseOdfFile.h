@@ -149,7 +149,7 @@ public:
     std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds,
         std::shared_ptr< ProcessedOdfFileSingleLinkData > > > processedDataBlocks_;
 
-    std::map< int, std::shared_ptr< observation_models::PiecewiseLinearFrequencyInterpolator > > rampInterpolators_;
+    std::map< std::string, std::shared_ptr< observation_models::PiecewiseLinearFrequencyInterpolator > > rampInterpolators_;
 };
 
 
@@ -279,6 +279,17 @@ void separateSingleLinkOdfData(
     }
 }
 
+void setGroundStationsTransmittingFrequencies(
+        std::shared_ptr< ProcessedOdfFileContents > processedOdfFileContents,
+        const simulation_setup::SystemOfBodies& bodies )
+{
+    for( auto it = processedOdfFileContents->rampInterpolators_.begin( ); it != processedOdfFileContents->rampInterpolators_.end( ); it++ )
+    {
+       bodies.getBody( "Earth" )->getGroundStation( it->first )->setTransmittingFrequencyCalculator(
+               it->second );
+    }
+}
+
 template< typename ObservationScalarType = double, typename TimeType = double >
 std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > createOdfObservationCollection(
         std::shared_ptr< ProcessedOdfFileContents > processedOdfFileContents,
@@ -286,6 +297,7 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
         const std::shared_ptr< simulation_setup::ObservationDependentVariableCalculator > dependentVariableCalculator = nullptr )
 {
 
+    // Create and fill single observation sets
     std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds, std::vector< std::shared_ptr<
             observation_models::SingleObservationSet< ObservationScalarType, TimeType > > > > > sortedObservationSets;
 
@@ -336,6 +348,13 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
 
             }
         }
+    }
+
+    // Add transmitting stations to ground stations
+    for( auto it = processedOdfFileContents->rampInterpolators_.begin( );
+            it != processedOdfFileContents->rampInterpolators_.end( ); it++ )
+    {
+       bodies.getBody( "Earth" )->getGroundStation( it->first )->setTransmittingFrequencyCalculator( it->second );
     }
 
 }
