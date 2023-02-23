@@ -12,12 +12,14 @@
 #define TUDAT_OBSERVATION_MODELS_H
 
 #include "observation_models/angularPositionObservationModel.h"
+#include "observation_models/dsnNWayAveragedDopplerObservationModel.h"
 #include "observation_models/eulerAngleObservationModel.h"
 #include "observation_models/lightTimeSolution.h"
 #include "observation_models/linkTypeDefs.h"
 #include "observation_models/nWayRangeObservationModel.h"
 #include "observation_models/observableTypes.h"
 #include "observation_models/observationBias.h"
+#include "observation_models/observationFrequencies.h"
 #include "observation_models/observationManager.h"
 #include "observation_models/observationModel.h"
 #include "observation_models/observationSimulator.h"
