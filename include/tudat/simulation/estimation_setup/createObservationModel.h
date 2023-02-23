@@ -1773,7 +1773,7 @@ public:
             }
             else if( nWayRangeObservationSettings->oneWayRangeObsevationSettings_.size( ) != linkEnds.size( ) - 1 )
             {
-                throw std::runtime_error( "Error whaen making n-way range, input data is inconsistent" );
+                throw std::runtime_error( "Error when making n-way range, input data is inconsistent" );
             }
 
             // Define light-time calculator list
@@ -1789,7 +1789,7 @@ public:
                 {
                     if( nWayRangeObservationSettings->oneWayRangeObsevationSettings_.at( i )->observableType_ != one_way_range )
                     {
-                        throw std::runtime_error( "Error in n-way observable creation, consituent link is not of type 1-way" );
+                        throw std::runtime_error( "Error in n-way observable creation, constituent link is not of type 1-way" );
                     }
                     lightTimeCalculators.push_back(
                                 createLightTimeCalculator< ObservationScalarType, TimeType >(
@@ -1823,7 +1823,7 @@ public:
                     std::dynamic_pointer_cast< NWayDifferencedRangeObservationSettings >( observationSettings );
             if( nWayDifferencedRangeObservationSettings == nullptr )
             {
-                throw std::runtime_error( "Error whaen making n-way differenced range observation model, input type inconsistent" );
+                throw std::runtime_error( "Error when making n-way differenced range observation model, input type inconsistent" );
             }
             std::shared_ptr< NWayRangeObservationModel< ObservationScalarType, TimeType > > arcStartObservationModel;
             std::shared_ptr< NWayRangeObservationModel< ObservationScalarType, TimeType > > arcEndObservationModel;
