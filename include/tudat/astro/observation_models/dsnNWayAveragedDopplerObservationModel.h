@@ -26,6 +26,7 @@ namespace observation_models
 template< typename ObservationScalarType = double, typename TimeType = double >
 class DsnNWayAveragedDopplerObservationModel: public ObservationModel< 1, ObservationScalarType, TimeType >
 {
+public:
     typedef Eigen::Matrix< ObservationScalarType, 6, 1 > StateType;
 
     DsnNWayAveragedDopplerObservationModel(
@@ -70,8 +71,8 @@ class DsnNWayAveragedDopplerObservationModel: public ObservationModel< 1, Observ
         {
             integrationTime = ancillarySettings->getAncilliaryDoubleData( doppler_integration_time );
             referenceFrequency = ancillarySettings->getAncilliaryDoubleData( doppler_reference_frequency );
-            uplinkBand = ancillarySettings->getAncilliaryDoubleData( uplink_band );
-            downlinkBand = ancillarySettings->getAncilliaryDoubleData( downlink_band );
+            uplinkBand = static_cast< FrequencyBands >( ancillarySettings->getAncilliaryDoubleData( uplink_band ) );
+            downlinkBand = static_cast< FrequencyBands >( ancillarySettings->getAncilliaryDoubleData( downlink_band ) );
         }
         catch( std::runtime_error& caughtException )
         {
@@ -85,27 +86,28 @@ class DsnNWayAveragedDopplerObservationModel: public ObservationModel< 1, Observ
 
         TimeType startLightTime = arcStartObservationModel_->computeIdealObservationsWithLinkEndData(
                 receptionStartTime, linkEndAssociatedWithTime, arcStartLinkEndTimes, arcStartLinkEndStates,
-                ancillarySettings ) / physical_constants::getSpeedOfLight< ObservationScalarType >( );
+                ancillarySettings )( 0, 0 ) / physical_constants::getSpeedOfLight< ObservationScalarType >( );
         TimeType endLightTime = arcEndObservationModel_->computeIdealObservationsWithLinkEndData(
                 receptionEndTime, linkEndAssociatedWithTime, arcStartLinkEndTimes, arcStartLinkEndStates,
-                ancillarySettings ) / physical_constants::getSpeedOfLight< ObservationScalarType >( );
+                ancillarySettings )( 0, 0 ) / physical_constants::getSpeedOfLight< ObservationScalarType >( );
 
         TimeType transmissionStartTime = receptionStartTime - startLightTime;
         TimeType transmissionEndTime = receptionEndTime - endLightTime;
 
         Eigen::Matrix< ObservationScalarType, 1, 1 > observation =
-                referenceFrequency - getDsnDefaultTurnaroundRatios( uplinkBand, downlinkBand ) / integrationTime *
+                ( Eigen::Matrix< ObservationScalarType, 1, 1 >( ) << referenceFrequency -
+                getDsnDefaultTurnaroundRatios( uplinkBand, downlinkBand ) / integrationTime *
                 bodyWithGroundStations_->getGroundStation(
                         this->getLinkEnds( ).at( observation_models::transmitter ).stationName_
-                        )->getTransmittingFrequencyCalculator( )->getFrequencyIntegral( transmissionStartTime,
-                                                                                        transmissionEndTime );
+                        )->getTransmittingFrequencyCalculator( )->getFrequencyIntegral(
+                                transmissionStartTime, transmissionEndTime ) ).finished( );
 
         linkEndTimes.clear( );
         linkEndStates.clear( );
         linkEndTimes.resize( 4 * ( numberOfLinkEnds_ - 1 ) );
         linkEndStates.resize( 4 * ( numberOfLinkEnds_ - 1 ) );
 
-        for( int i = 0; i < 2 * ( numberOfLinkEnds_ - 1 ) ; i++ )
+        for( unsigned int i = 0; i < 2 * ( numberOfLinkEnds_ - 1 ) ; i++ )
         {
             linkEndTimes[ i ] = arcStartLinkEndTimes[ i ];
             linkEndTimes[ i + 2 * ( numberOfLinkEnds_ - 1 ) ] = arcEndLinkEndTimes[ i ];
