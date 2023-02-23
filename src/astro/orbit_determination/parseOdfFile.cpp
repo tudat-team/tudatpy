@@ -88,8 +88,8 @@ std::string getStationNameFromStationId ( const int networkId, const int station
     return stationName;
 }
 
-std::shared_ptr< observation_models::PiecewiseLinearFrequencyInterpolator > mergeRampDataInterpolators(
-        const std::vector< std::shared_ptr< observation_models::PiecewiseLinearFrequencyInterpolator > >& interpolatorList )
+std::shared_ptr< ground_stations::PiecewiseLinearFrequencyInterpolator > mergeRampDataInterpolators(
+        const std::vector< std::shared_ptr< ground_stations::PiecewiseLinearFrequencyInterpolator > >& interpolatorList )
 {
     std::map< double, double > rampEndTimesPerStation;
     std::map< double, double > rampRatesPerStation;
@@ -107,7 +107,7 @@ std::shared_ptr< observation_models::PiecewiseLinearFrequencyInterpolator > merg
                     interpolatorList.at( i )->getStartFrequencies().at( j );
         }
     }
-    return std::make_shared< observation_models::PiecewiseLinearFrequencyInterpolator >(
+    return std::make_shared< ground_stations::PiecewiseLinearFrequencyInterpolator >(
                 utilities::createVectorFromMapKeys( rampEndTimesPerStation ),
                 utilities::createVectorFromMapValues( rampEndTimesPerStation ),
                 utilities::createVectorFromMapValues( rampRatesPerStation ),
@@ -169,7 +169,7 @@ std::shared_ptr< ProcessedOdfFileContents > mergeOdfFileContents(
 {
     std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds,
             std::shared_ptr< ProcessedOdfFileSingleLinkData > > > mergedOdfFileContents;
-    std::map< std::string, std::vector< std::shared_ptr< observation_models::PiecewiseLinearFrequencyInterpolator > > > rampInterpolatorList;
+    std::map< std::string, std::vector< std::shared_ptr< ground_stations::PiecewiseLinearFrequencyInterpolator > > > rampInterpolatorList;
 
     // Iterate over all ODF files
     for( unsigned int i = 0; i < odfFileContents.size( ); i++ )
@@ -205,7 +205,7 @@ std::shared_ptr< ProcessedOdfFileContents > mergeOdfFileContents(
             }
         }
 
-        std::map< std::string, std::shared_ptr< observation_models::PiecewiseLinearFrequencyInterpolator > > currentRampInterpolators =
+        std::map< std::string, std::shared_ptr< ground_stations::PiecewiseLinearFrequencyInterpolator > > currentRampInterpolators =
                 odfFileContents.at( i )->rampInterpolators_;
 
         for( auto it = currentRampInterpolators.begin( ); it != currentRampInterpolators.end( ); it++ )
@@ -214,7 +214,7 @@ std::shared_ptr< ProcessedOdfFileContents > mergeOdfFileContents(
         }
     }
 
-    std::map< std::string, std::shared_ptr< observation_models::PiecewiseLinearFrequencyInterpolator > > mergedRampInterpolators;
+    std::map< std::string, std::shared_ptr< ground_stations::PiecewiseLinearFrequencyInterpolator > > mergedRampInterpolators;
     for( auto it = rampInterpolatorList.begin( ); it != rampInterpolatorList.end( ); it++ )
     {
         mergedRampInterpolators[ it->first ] = mergeRampDataInterpolators(
@@ -403,16 +403,27 @@ std::shared_ptr< ProcessedOdfFileContents > processOdfFileContents(
     processedOdfFile->spacecraftName_ = spacecraftName;
 
     // Process ramp blocks
-    std::map< std::string, std::shared_ptr< observation_models::PiecewiseLinearFrequencyInterpolator > > rampInterpolators;
+    std::map< std::string, std::shared_ptr< ground_stations::PiecewiseLinearFrequencyInterpolator > > rampInterpolators;
 
     for( auto it = rawOdfData->rampBlocks_.begin( ); it != rawOdfData->rampBlocks_.end( ); it++ )
     {
         std::string stationName = getStationNameFromStationId( 0, it->first );
-        rampInterpolators[ stationName ] = std::make_shared< observation_models::PiecewiseLinearFrequencyInterpolator >( it->second );
+        rampInterpolators[ stationName ] = std::make_shared< ground_stations::PiecewiseLinearFrequencyInterpolator >( it->second );
     }
     processedOdfFile->rampInterpolators_ = rampInterpolators;
 
     return processedOdfFile;
+}
+
+void setGroundStationsTransmittingFrequencies(
+        std::shared_ptr< ProcessedOdfFileContents > processedOdfFileContents,
+        const simulation_setup::SystemOfBodies& bodies )
+{
+    for( auto it = processedOdfFileContents->rampInterpolators_.begin( ); it != processedOdfFileContents->rampInterpolators_.end( ); it++ )
+    {
+       bodies.getBody( "Earth" )->getGroundStation( it->first )->setTransmittingFrequencyCalculator(
+               it->second );
+    }
 }
 
 } // namespace orbit_determination

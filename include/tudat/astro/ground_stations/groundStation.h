@@ -18,7 +18,7 @@
 
 #include "tudat/astro/ground_stations/groundStationState.h"
 #include "tudat/astro/ground_stations/pointingAnglesCalculator.h"
-#include "tudat/astro/observation_models/observationFrequencies.h"
+#include "tudat/astro/ground_stations/transmittingFrequencies.h"
 
 namespace tudat
 {
@@ -42,7 +42,7 @@ public:
     GroundStation( const std::shared_ptr< GroundStationState > stationState,
                    const std::shared_ptr< PointingAnglesCalculator > pointingAnglesCalculator,
                    const std::string& stationId,
-                   const std::shared_ptr< observation_models::StationFrequencyInterpolator > transmittingFrequencyCalculator = nullptr):
+                   const std::shared_ptr< StationFrequencyInterpolator > transmittingFrequencyCalculator = nullptr):
         nominalStationState_( stationState ),
         pointingAnglesCalculator_( pointingAnglesCalculator ),
         stationId_( stationId ),
@@ -96,13 +96,13 @@ public:
     }
 
     //! Function to return the object used to compute the ground station's transmitting frequency at a given time
-    std::shared_ptr< observation_models::StationFrequencyInterpolator > getTransmittingFrequencyCalculator( )
+    std::shared_ptr< StationFrequencyInterpolator > getTransmittingFrequencyCalculator( )
     {
         return transmittingFrequencyCalculator_;
     }
 
     //! Function to set the object used to compute the ground station's transmitting frequency at a given time
-    void setTransmittingFrequencyCalculator( std::shared_ptr< observation_models::StationFrequencyInterpolator >
+    void setTransmittingFrequencyCalculator( std::shared_ptr< StationFrequencyInterpolator >
             transmittingFrequencyCalculator )
     {
         transmittingFrequencyCalculator_ = transmittingFrequencyCalculator;
@@ -120,7 +120,7 @@ private:
     std::string stationId_;
 
     //! Object used to defined and compute the ground station's transmitting frequency.
-    std::shared_ptr< observation_models::StationFrequencyInterpolator > transmittingFrequencyCalculator_;
+    std::shared_ptr< StationFrequencyInterpolator > transmittingFrequencyCalculator_;
 };
 
 } // namespace ground_stations
