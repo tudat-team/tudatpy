@@ -109,6 +109,10 @@ inline AerodynamicCoefficientFrames getAerodynamicCoefficientFrame(
     {
         coefficientsFrame = body_fixed_frame_coefficients;
     }
+    else if( !areCoefficientsInAerodynamicFrame && areCoefficientsInNegativeAxisDirection )
+    {
+        coefficientsFrame = negative_body_fixed_frame_coefficients;
+    }
     else
     {
         throw std::runtime_error( "Error, could not define aerodynamic coefficient frame from booleans." );
