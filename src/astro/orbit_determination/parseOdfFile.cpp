@@ -169,7 +169,7 @@ std::shared_ptr< ProcessedOdfFileContents > mergeOdfFileContents(
 {
     std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds,
             std::shared_ptr< ProcessedOdfFileSingleLinkData > > > mergedOdfFileContents;
-    std::map< int, std::vector< std::shared_ptr< observation_models::PiecewiseLinearFrequencyInterpolator > > > rampInterpolatorList;
+    std::map< std::string, std::vector< std::shared_ptr< observation_models::PiecewiseLinearFrequencyInterpolator > > > rampInterpolatorList;
 
     // Iterate over all ODF files
     for( unsigned int i = 0; i < odfFileContents.size( ); i++ )
@@ -205,7 +205,7 @@ std::shared_ptr< ProcessedOdfFileContents > mergeOdfFileContents(
             }
         }
 
-        std::map< int, std::shared_ptr< observation_models::PiecewiseLinearFrequencyInterpolator > > currentRampInterpolators =
+        std::map< std::string, std::shared_ptr< observation_models::PiecewiseLinearFrequencyInterpolator > > currentRampInterpolators =
                 odfFileContents.at( i )->rampInterpolators_;
 
         for( auto it = currentRampInterpolators.begin( ); it != currentRampInterpolators.end( ); it++ )
@@ -214,7 +214,7 @@ std::shared_ptr< ProcessedOdfFileContents > mergeOdfFileContents(
         }
     }
 
-    std::map< int, std::shared_ptr< observation_models::PiecewiseLinearFrequencyInterpolator > > mergedRampInterpolators;
+    std::map< std::string, std::shared_ptr< observation_models::PiecewiseLinearFrequencyInterpolator > > mergedRampInterpolators;
     for( auto it = rampInterpolatorList.begin( ); it != rampInterpolatorList.end( ); it++ )
     {
         mergedRampInterpolators[ it->first ] = mergeRampDataInterpolators(
@@ -403,11 +403,12 @@ std::shared_ptr< ProcessedOdfFileContents > processOdfFileContents(
     processedOdfFile->spacecraftName_ = spacecraftName;
 
     // Process ramp blocks
-    std::map< int, std::shared_ptr< observation_models::PiecewiseLinearFrequencyInterpolator > > rampInterpolators;
+    std::map< std::string, std::shared_ptr< observation_models::PiecewiseLinearFrequencyInterpolator > > rampInterpolators;
 
     for( auto it = rawOdfData->rampBlocks_.begin( ); it != rawOdfData->rampBlocks_.end( ); it++ )
     {
-        rampInterpolators[ it->first ] = std::make_shared< observation_models::PiecewiseLinearFrequencyInterpolator >( it->second );
+        std::string stationName = getStationNameFromStationId( 0, it->first );
+        rampInterpolators[ stationName ] = std::make_shared< observation_models::PiecewiseLinearFrequencyInterpolator >( it->second );
     }
     processedOdfFile->rampInterpolators_ = rampInterpolators;
 
