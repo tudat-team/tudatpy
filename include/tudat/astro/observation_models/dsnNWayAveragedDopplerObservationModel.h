@@ -96,7 +96,8 @@ public:
 
         Eigen::Matrix< ObservationScalarType, 1, 1 > observation =
                 ( Eigen::Matrix< ObservationScalarType, 1, 1 >( ) << referenceFrequency -
-                getDsnDefaultTurnaroundRatios( uplinkBand, downlinkBand ) / integrationTime *
+                getDsnDefaultTurnaroundRatios( uplinkBand, downlinkBand ) /
+                static_cast< ObservationScalarType >( integrationTime ) *
                 bodyWithGroundStations_->getGroundStation(
                         this->getLinkEnds( ).at( observation_models::transmitter ).stationName_
                         )->getTransmittingFrequencyCalculator( )->getFrequencyIntegral(

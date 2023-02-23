@@ -132,7 +132,6 @@ private:
     double frequency_;
 };
 
-// TODO: test computation of frequencies and integral
 class PiecewiseLinearFrequencyInterpolator: public StationFrequencyInterpolator
 {
 public:
