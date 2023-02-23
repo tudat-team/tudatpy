@@ -144,6 +144,12 @@ void expose_environment(py::module &m) {
             .def_property_readonly("current_force_coefficients", &ta::AerodynamicCoefficientInterface::getCurrentForceCoefficients )
             .def_property_readonly("current_moment_coefficients", &ta::AerodynamicCoefficientInterface::getCurrentMomentCoefficients )
             .def_property_readonly("current_coefficients", &ta::AerodynamicCoefficientInterface::getCurrentAerodynamicCoefficients )
+            .def_property_readonly("current_control_surface_free_force_coefficients", &ta::AerodynamicCoefficientInterface::getCurrentControlSurfaceFreeForceCoefficients )
+            .def_property_readonly("current_control_surface_free_moment_coefficients", &ta::AerodynamicCoefficientInterface::getCurrentControlSurfaceFreeMomentCoefficients )
+            .def("current_control_surface_force_coefficient_increment", &ta::AerodynamicCoefficientInterface::getCurrentForceCoefficientIncrement,
+                 py::arg( "control_surface_name" ) )
+            .def("current_control_surface_moment_coefficient_increment", &ta::AerodynamicCoefficientInterface::getCurrentMomentCoefficientIncrement,
+                 py::arg( "control_surface_name" ) )
             .def("set_control_surface_increments", &ta::AerodynamicCoefficientInterface::setControlSurfaceIncrements,
                  py::arg( "control_surface_list" ) )
             .def("update_coefficients", &ta::AerodynamicCoefficientInterface::updateCurrentCoefficients,
