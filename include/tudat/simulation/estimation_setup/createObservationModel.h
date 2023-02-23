@@ -855,6 +855,45 @@ public:
 
 };
 
+class DsnNWayAveragedDopplerObservationSettings: public ObservationModelSettings
+{
+public:
+
+    DsnNWayAveragedDopplerObservationSettings(
+            const LinkDefinition& linkEnds,
+            const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =
+            std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
+            const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
+            const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria
+            = std::make_shared< LightTimeConvergenceCriteria >( ) ):
+        ObservationModelSettings( n_way_differenced_range, linkEnds, lightTimeCorrectionsList, biasSettings )
+    {
+        for( unsigned int i = 0; i < linkEnds.size( ) - 1; i++ )
+        {
+            oneWayRangeObsevationSettings_.push_back(
+                        std::make_shared< ObservationModelSettings >(
+                            one_way_range, getSingleLegLinkEnds( linkEnds.linkEnds_, i ), lightTimeCorrectionsList, nullptr,
+                            lightTimeConvergenceCriteria ) );
+        }
+    }
+
+    DsnNWayAveragedDopplerObservationSettings(
+            const std::vector< std::shared_ptr< ObservationModelSettings > > oneWayRangeObsevationSettings,
+            const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr ):
+        ObservationModelSettings( n_way_differenced_range,
+                                  mergeOneWayLinkEnds( getObservationModelListLinkEnds( oneWayRangeObsevationSettings ) ),
+                                  std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ), biasSettings ),
+        oneWayRangeObsevationSettings_( oneWayRangeObsevationSettings ){ }
+
+    std::shared_ptr< ObservationModelSettings > getNWayRangeObservationSettings( )
+    {
+        return std::make_shared< NWayRangeObservationSettings >( oneWayRangeObsevationSettings_ );
+    }
+
+private:
+    std::vector< std::shared_ptr< ObservationModelSettings > > oneWayRangeObsevationSettings_;
+
+};
 
 inline std::shared_ptr< ObservationModelSettings > oneWayRangeSettings(
         const LinkDefinition& linkEnds,
@@ -1860,7 +1899,54 @@ public:
                         linkEnds, arcStartObservationModel, arcEndObservationModel, observationBias );
             break;
         }
+        case dsn_n_way_averaged_doppler:
+        {
+            std::shared_ptr< DsnNWayAveragedDopplerObservationSettings > dsnNWayAveragedDopplerObservationSettings =
+                    std::dynamic_pointer_cast< DsnNWayAveragedDopplerObservationSettings >( observationSettings );
+            if( dsnNWayAveragedDopplerObservationSettings == nullptr )
+            {
+                throw std::runtime_error( "Error when creating DSN N-way averaged Doppler observation model, input type "
+                                          "inconsistent." );
+            }
 
+            std::shared_ptr< NWayRangeObservationModel< ObservationScalarType, TimeType > > arcStartObservationModel;
+            std::shared_ptr< NWayRangeObservationModel< ObservationScalarType, TimeType > > arcEndObservationModel;
+            try
+            {
+                std::shared_ptr< ObservationModelSettings > nWayRangeObservationSettings =
+                        dsnNWayAveragedDopplerObservationSettings->getNWayRangeObservationSettings( );
+
+                arcStartObservationModel =
+                        std::dynamic_pointer_cast< NWayRangeObservationModel< ObservationScalarType, TimeType > >(
+                            ObservationModelCreator< 1, ObservationScalarType, TimeType >::createObservationModel(
+                                nWayRangeObservationSettings, bodies ) );
+                arcEndObservationModel =
+                        std::dynamic_pointer_cast< NWayRangeObservationModel< ObservationScalarType, TimeType > >(
+                            ObservationModelCreator< 1, ObservationScalarType, TimeType >::createObservationModel(
+                                nWayRangeObservationSettings, bodies ) );
+            }
+            catch( const std::exception& caughtException )
+            {
+                std::string exceptionText = std::string( caughtException.what( ) );
+                throw std::runtime_error( "Error when creating DSN N-way averaged Doppler observation model, error: " +
+                exceptionText );
+            }
+
+            std::shared_ptr< ObservationBias< 1 > > observationBias;
+            if( observationSettings->biasSettings_ != nullptr )
+            {
+                observationBias = createObservationBiasCalculator(
+                        linkEnds, observationSettings->observableType_, observationSettings->biasSettings_, bodies );
+            }
+
+            observationModel = std::make_shared<
+                    DsnNWayAveragedDopplerObservationModel< ObservationScalarType, TimeType > >(
+                        linkEnds, arcStartObservationModel, arcEndObservationModel,
+                        bodies.getBody( linkEnds.at( observation_models::transmitter ).bodyName_ ),
+                        observationBias );
+
+            break;
+        }
         default:
             std::string errorMessage = "Error, observable " + std::to_string(
                         observationSettings->observableType_ ) +
