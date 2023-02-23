@@ -210,7 +210,7 @@ observation_models::ObservationAncilliarySimulationSettings< TimeType > createOd
         ancillarySettings.setAncilliaryDoubleData(
                 observation_models::doppler_reference_frequency, dopplerDataBlock->referenceFrequencies_.at( dataIndex ) );
 
-        if ( currentObservableType == observation_models::n_way_differenced_range )
+        if ( currentObservableType == observation_models::dsn_n_way_averaged_doppler )
         {
             ancillarySettings.setAncilliaryDoubleVectorData(
                 observation_models::retransmission_delays,  std::vector< double >{
