@@ -247,13 +247,25 @@ int getDependentVariableSize(
     case total_acceleration_dependent_variable:
         variableSize = 3;
         break;
-    case single_acceleration_dependent_variable:
+    case    single_acceleration_dependent_variable:
         variableSize = 3;
         break;
     case aerodynamic_force_coefficients_dependent_variable:
         variableSize = 3;
         break;
     case aerodynamic_moment_coefficients_dependent_variable:
+        variableSize = 3;
+        break;
+    case aerodynamic_control_surface_free_force_coefficients_dependent_variable:
+        variableSize = 3;
+        break;
+    case aerodynamic_control_surface_free_moment_coefficients_dependent_variable:
+        variableSize = 3;
+        break;
+    case aerodynamic_control_surface_force_coefficients_increment_dependent_variable:
+        variableSize = 3;
+        break;
+    case aerodynamic_control_surface_moment_coefficients_increment_dependent_variable:
         variableSize = 3;
         break;
     case inertial_to_body_fixed_rotation_matrix_variable:
