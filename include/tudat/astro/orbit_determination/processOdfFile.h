@@ -279,10 +279,6 @@ void separateSingleLinkOdfData(
     }
 }
 
-void setGroundStationsTransmittingFrequencies(
-        std::shared_ptr< ProcessedOdfFileContents > processedOdfFileContents,
-        const simulation_setup::SystemOfBodies& bodies );
-
 template< typename ObservationScalarType = double, typename TimeType = double >
 std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > createOdfObservationCollection(
         std::shared_ptr< ProcessedOdfFileContents > processedOdfFileContents,
