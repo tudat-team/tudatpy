@@ -26,13 +26,13 @@ observation_models::ObservableType getObservableTypeForOdfId(
     switch( odfId )
     {
     case 11:
-        observableType = observation_models::one_way_differenced_range;
+        observableType = observation_models::dsn_one_way_averaged_doppler;
         break;
     case 12:
-        observableType = observation_models::n_way_differenced_range;
+        observableType = observation_models::dsn_n_way_averaged_doppler;
         break;
     case 13:
-        observableType = observation_models::n_way_differenced_range;
+        observableType = observation_models::dsn_n_way_averaged_doppler;
         break;
     default:
         throw std::runtime_error( "Error when getting observable type for ODF ID, ID: " +
@@ -135,8 +135,8 @@ void addOdfFileContentsToMergedContents(
             mergedOdfFileContents->originFiles_.end( ),
             blockToAdd->originFiles_.begin( ), blockToAdd->originFiles_.end( ) );
 
-    if( observableType == observation_models::one_way_differenced_range ||
-            observableType == observation_models::n_way_differenced_range )
+    if( observableType == observation_models::dsn_one_way_averaged_doppler ||
+            observableType == observation_models::dsn_n_way_averaged_doppler )
     {
         std::shared_ptr< ProcessedOdfFileDopplerData > dopplerBlockToAdd
                 = std::dynamic_pointer_cast< ProcessedOdfFileDopplerData >(
@@ -248,8 +248,8 @@ void addOdfDataBlockToProcessedData(
         processedDataBlock->receiverDownlinkDelays_.push_back( rawDataBlock->commonDataBlock_->getReceivingStationDownlinkDelay( ) );
 
         // Add properties to data object for Doppler data
-        if ( currentObservableType == observation_models::one_way_differenced_range ||
-             currentObservableType == observation_models::n_way_differenced_range )
+        if ( currentObservableType == observation_models::dsn_one_way_averaged_doppler ||
+             currentObservableType == observation_models::dsn_n_way_averaged_doppler )
         {
             std::shared_ptr< input_output::OdfDopplerDataBlock > odfDopplerDataBlock =
                     std::dynamic_pointer_cast< input_output::OdfDopplerDataBlock >(
@@ -374,8 +374,8 @@ std::shared_ptr< ProcessedOdfFileContents > processOdfFileContents(
         // Create new data object, if required
         if( createNewObject )
         {
-            if( currentObservableType == observation_models::one_way_differenced_range ||
-                    currentObservableType == observation_models::n_way_differenced_range )
+            if( currentObservableType == observation_models::dsn_one_way_averaged_doppler ||
+                    currentObservableType == observation_models::dsn_n_way_averaged_doppler )
             {
                 processedDataBlocks[ currentObservableType ][ linkEnds ] = std::make_shared< ProcessedOdfFileDopplerData >( );
             }
