@@ -1627,9 +1627,10 @@ BOOST_AUTO_TEST_CASE( test_flightConditionsSetup )
     bodySettings.addSettings( "Vehicle" );
     bodySettings.at( "Vehicle" ) ->aerodynamicCoefficientSettings =
             std::make_shared< ConstantAerodynamicCoefficientSettings >(
-                1.0, 2.0, 3.0, Eigen::Vector3d::Zero( ),
+                1.0, 2.0, Eigen::Vector3d::Zero( ),
                 ( Eigen::Vector3d( ) << -1.1, 0.1, 2.3 ).finished( ),
-                Eigen::Vector3d::Zero( ), 1, 1 );
+                Eigen::Vector3d::Zero( ),
+                negative_aerodynamic_frame_coefficients, negative_aerodynamic_frame_coefficients );
 
     // Create bodies
     SystemOfBodies bodies = createSystemOfBodies( bodySettings );

@@ -374,7 +374,7 @@ executeOrbiterSimulation(
     double aerodynamicCoefficient = 1.2;
     std::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings =
             std::make_shared< ConstantAerodynamicCoefficientSettings >(
-                referenceArea, aerodynamicCoefficient * ( Eigen::Vector3d( ) << 1.2, -0.1, -0.4 ).finished( ), 1, 1 );
+                referenceArea, aerodynamicCoefficient * ( Eigen::Vector3d( ) << 1.2, -0.1, -0.4 ).finished( ), negative_aerodynamic_frame_coefficients );
 
     // Create and set aerodynamic coefficients object
     bodies.at( "Vehicle" )->setAerodynamicCoefficientInterface(

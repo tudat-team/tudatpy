@@ -118,7 +118,7 @@ BOOST_AUTO_TEST_CASE( testTabulatedDragCoefficient )
     // Tabulated aerodynamic settings
     aerodynamicCoefficientSettings = std::make_shared< TabulatedAerodynamicCoefficientSettings< 1 > >(
                 altitudes, aerodynamicCoefficients, referenceArea,
-                aerodynamics::altitude_dependent, 1, 1, interpolatorSettings );
+                aerodynamics::altitude_dependent, negative_aerodynamic_frame_coefficients, interpolatorSettings );
 
     // Aerodynamics interface
     bodies.at( "Vehicle" )->setAerodynamicCoefficientInterface(

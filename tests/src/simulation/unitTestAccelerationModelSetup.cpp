@@ -535,8 +535,9 @@ BOOST_AUTO_TEST_CASE( test_aerodynamicAccelerationModelSetup )
 
         bodySettings.at( "Vehicle" )->aerodynamicCoefficientSettings =
                 std::make_shared< ConstantAerodynamicCoefficientSettings >(
-                    1.0, referenceArea, 1.0, Eigen::Vector3d::Zero( ), aerodynamicCoefficients, Eigen::Vector3d::Zero( ),
-                    areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection );
+                    1.0, referenceArea, Eigen::Vector3d::Zero( ), aerodynamicCoefficients, Eigen::Vector3d::Zero( ),
+                    getAerodynamicCoefficientFrame( areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection ),
+                    getAerodynamicCoefficientFrame( areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection ) );
 
         // Create body objects.
         SystemOfBodies bodies = createSystemOfBodies( bodySettings );
