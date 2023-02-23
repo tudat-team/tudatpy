@@ -10,7 +10,7 @@
 
 #include <algorithm>
 
-#include "tudat/astro/orbit_determination/parseOdfFile.h"
+#include "tudat/astro/orbit_determination/processOdfFile.h"
 
 namespace tudat
 {

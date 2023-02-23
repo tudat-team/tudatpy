@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef TUDAT_PARSEODFFILE_H
-#define TUDAT_PARSEODFFILE_H
+#ifndef TUDAT_PROCESSODFFILE_H
+#define TUDAT_PROCESSODFFILE_H
 
 #include "tudat/basics/utilities.h"
 #include "tudat/io/readOdfFile.h"
@@ -356,4 +356,4 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
 
 } // namespace tudat
 
-#endif // TUDAT_PARSEODFFILE_H
+#endif // TUDAT_PROCESSODFFILE_H

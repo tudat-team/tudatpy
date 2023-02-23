@@ -17,7 +17,7 @@ set(orbit_determination_SOURCES
   "massDerivativePartial.cpp"
   "stateDerivativePartial.cpp"
   "podInputOutputTypes.cpp"
-  "parseOdfFile.cpp"
+  "processOdfFile.cpp"
 )
 
 # Set the header files.

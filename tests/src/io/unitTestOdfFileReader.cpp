@@ -12,7 +12,7 @@
 #include "tudat/math/interpolators/lookupScheme.h"
 
 #include "tudat/io/readOdfFile.h"
-#include "tudat/astro/orbit_determination/parseOdfFile.h"
+#include "tudat/astro/orbit_determination/processOdfFile.h"
 
 int main( )
 {
