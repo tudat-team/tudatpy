@@ -230,6 +230,8 @@ observation_models::ObservationAncilliarySimulationSettings< TimeType > createOd
     {
         throw std::runtime_error("Error when casting ODF processed data: data type not identified.");
     }
+
+    return ancillarySettings;
 }
 
 template< typename ObservationScalarType = double, typename TimeType = double >
@@ -301,9 +303,6 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
             observation_models::LinkEnds currentLinkEnds = linkEndsIterator->first;
             std::shared_ptr< ProcessedOdfFileSingleLinkData > currentOdfSingleLinkData = linkEndsIterator->second;
 
-            // Reset vector of observation sets
-            sortedObservationSets.at( currentObservableType ).at( currentLinkEnds ).clear( );
-
             // Get vectors of times, observations, and ancillary settings for the current observable type and link ends
             std::vector< std::vector< TimeType > > observationTimes;
             std::vector< std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > > observables;
@@ -324,15 +323,17 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
 //                        observation_models::receiver,
 //                        dependentVariableCalculator->calculateDependentVariables( ),
 //                        dependentVariableCalculator, ancillarySettings.at( i ) );
-                    throw std::runtime_error( "Computation of dependent variables for ODF observables is not implemented." );
+                    throw std::runtime_error( "Computation of dependent variables for ODF observed observables is not implemented." );
                 }
                 else
                 {
-                    sortedObservationSets.at( currentObservableType ).at( currentLinkEnds ).push_back(
-                        currentObservableType, currentLinkEnds, observables.at( i ), observationTimes.at( i ),
-                        observation_models::receiver,
-                        std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >( ),
-                        nullptr, ancillarySettings.at( i ) );
+                    sortedObservationSets[ currentObservableType ][ currentLinkEnds ].push_back(
+                        std::make_shared< observation_models::SingleObservationSet< ObservationScalarType, TimeType > >(
+                            currentObservableType, currentLinkEnds, observables.at( i ), observationTimes.at( i ),
+                            observation_models::receiver,
+                            std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >( ),
+                            nullptr, std::make_shared< observation_models::ObservationAncilliarySimulationSettings< TimeType > >(
+                                ancillarySettings.at( i ) ) ) );
                 }
 
             }
@@ -346,6 +347,8 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
        bodies.getBody( "Earth" )->getGroundStation( it->first )->setTransmittingFrequencyCalculator( it->second );
     }
 
+    return std::make_shared< observation_models::ObservationCollection< ObservationScalarType, TimeType > >(
+            sortedObservationSets );
 }
 
 } // namespace orbit_determination
