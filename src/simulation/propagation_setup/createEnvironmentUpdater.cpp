@@ -638,6 +638,7 @@ void checkAndModifyEnvironmentForDependentVariableSaving(
             }
             else
             {
+
                 bodies.at( dependentVariableSaveSettings->associatedBody_ )->setFlightConditions(
                             simulation_setup::createFlightConditions(
                                 bodies.at( dependentVariableSaveSettings->associatedBody_ ),
