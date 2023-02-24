@@ -24,11 +24,10 @@ std::shared_ptr< AerodynamicCoefficientSettings > readTabulatedAerodynamicCoeffi
         const std::map< int, std::string > momentCoefficientFiles,
         const double referenceLength,
         const double referenceArea,
-        const double lateralReferenceLength,
         const Eigen::Vector3d& momentReferencePoint,
         const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames,
-        const bool areCoefficientsInAerodynamicFrame,
-        const bool areCoefficientsInNegativeAxisDirection,
+        const aerodynamics::AerodynamicCoefficientFrames forceCoefficientFrame,
+        const aerodynamics::AerodynamicCoefficientFrames momentCoefficientFrame,
         const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings )
 {
     // Retrieve number of independent variables from file.
@@ -42,23 +41,94 @@ std::shared_ptr< AerodynamicCoefficientSettings > readTabulatedAerodynamicCoeffi
         coefficientSettings = readGivenSizeTabulatedAerodynamicCoefficientsFromFiles< 1 >(
                     forceCoefficientFiles, momentCoefficientFiles, referenceLength, referenceArea,
                     momentReferencePoint, independentVariableNames,
-                    aerodynamics::getAerodynamicCoefficientFrame( areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection ),
-                    aerodynamics::getAerodynamicCoefficientFrame( areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection ), interpolatorSettings );
+                    forceCoefficientFrame,
+                    momentCoefficientFrame, interpolatorSettings );
     }
     else if( numberOfIndependentVariables == 2 )
     {
         coefficientSettings = readGivenSizeTabulatedAerodynamicCoefficientsFromFiles< 2 >(
                     forceCoefficientFiles, momentCoefficientFiles, referenceLength, referenceArea,
                     momentReferencePoint, independentVariableNames,
-                    aerodynamics::getAerodynamicCoefficientFrame( areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection ),
-                    aerodynamics::getAerodynamicCoefficientFrame( areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection ), interpolatorSettings );
+                    forceCoefficientFrame,
+                    momentCoefficientFrame, interpolatorSettings );
     }
     else if( numberOfIndependentVariables == 3 )
     {
         coefficientSettings = readGivenSizeTabulatedAerodynamicCoefficientsFromFiles< 3 >(
                     forceCoefficientFiles, momentCoefficientFiles, referenceLength, referenceArea,
-                    momentReferencePoint, independentVariableNames, aerodynamics::getAerodynamicCoefficientFrame( areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection ),
-                    aerodynamics::getAerodynamicCoefficientFrame( areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection ), interpolatorSettings );
+                    momentReferencePoint, independentVariableNames,
+                    forceCoefficientFrame,
+                    momentCoefficientFrame, interpolatorSettings );
+    }
+    else
+    {
+        throw std::runtime_error( "Error when reading aerodynamic coefficient settings from file, found " +
+                                  std::to_string( numberOfIndependentVariables ) +
+                                  " independent variables, up to 3 currently supported" );
+    }
+    return coefficientSettings;
+}
+
+std::shared_ptr< AerodynamicCoefficientSettings > readTabulatedAerodynamicCoefficientsFromFilesDeprecated(
+        const std::map< int, std::string > forceCoefficientFiles,
+        const std::map< int, std::string > momentCoefficientFiles,
+        const double referenceLength,
+        const double referenceArea,
+        const double lateralReferenceLength,
+        const Eigen::Vector3d& momentReferencePoint,
+        const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames,
+        const bool areCoefficientsInAerodynamicFrame,
+        const bool areCoefficientsInNegativeAxisDirection,
+        const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings )
+{
+    if( referenceLength != lateralReferenceLength && lateralReferenceLength == lateralReferenceLength )
+    {
+        throw std::runtime_error( "Error when using deprecated reading of aerodynamic coefficients from files, lateral reference length must be equal to regular reference length" );
+    }
+    return readTabulatedAerodynamicCoefficientsFromFiles(
+            forceCoefficientFiles, momentCoefficientFiles, referenceLength, referenceArea, momentReferencePoint,
+            independentVariableNames,
+            aerodynamics::getAerodynamicCoefficientFrame( areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection ),
+            aerodynamics::getAerodynamicCoefficientFrame( areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection ),
+            interpolatorSettings );
+}
+
+
+//! Function to create aerodynamic coefficient settings from coefficients stored in data files
+std::shared_ptr< AerodynamicCoefficientSettings >
+readTabulatedAerodynamicCoefficientsFromFilesDeprecated(
+        const std::map< int, std::string > forceCoefficientFiles,
+        const double referenceArea,
+        const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames,
+        const aerodynamics::AerodynamicCoefficientFrames forceCoefficientFrame,
+        const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings )
+{
+    // Retrieve number of independent variables from file.
+    int numberOfIndependentVariables =
+            input_output::getNumberOfIndependentVariablesInCoefficientFile( forceCoefficientFiles.begin( )->second );
+
+    // Call approriate file reading function for N independent variables
+    std::shared_ptr< AerodynamicCoefficientSettings > coefficientSettings;
+    if( numberOfIndependentVariables == 1 )
+    {
+        coefficientSettings = readGivenSizeTabulatedAerodynamicCoefficientsFromFiles< 1 >(
+                forceCoefficientFiles, referenceArea, independentVariableNames,
+                areCoefficientsInAerodynamicFrame,
+                areCoefficientsInNegativeAxisDirection, interpolatorSettings );
+    }
+    else if( numberOfIndependentVariables == 2 )
+    {
+        coefficientSettings = readGivenSizeTabulatedAerodynamicCoefficientsFromFiles< 2 >(
+                forceCoefficientFiles, referenceArea, independentVariableNames,
+                areCoefficientsInAerodynamicFrame,
+                areCoefficientsInNegativeAxisDirection, interpolatorSettings );
+    }
+    else if( numberOfIndependentVariables == 3 )
+    {
+        coefficientSettings = readGivenSizeTabulatedAerodynamicCoefficientsFromFiles< 3 >(
+                forceCoefficientFiles, referenceArea, independentVariableNames,
+                areCoefficientsInAerodynamicFrame,
+                areCoefficientsInNegativeAxisDirection, interpolatorSettings );
     }
     else
     {
@@ -71,7 +141,7 @@ std::shared_ptr< AerodynamicCoefficientSettings > readTabulatedAerodynamicCoeffi
 
 //! Function to create aerodynamic coefficient settings from coefficients stored in data files
 std::shared_ptr< AerodynamicCoefficientSettings >
-readTabulatedAerodynamicCoefficientsFromFiles(
+readTabulatedAerodynamicCoefficientsFromFilesDeprecated(
         const std::map< int, std::string > forceCoefficientFiles,
         const double referenceArea,
         const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames,

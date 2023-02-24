@@ -416,7 +416,7 @@ private:
 };
 
 //! @get_docstring(constantAerodynamicCoefficientSettings)
-inline std::shared_ptr< AerodynamicCoefficientSettings > constantAerodynamicCoefficientSettings(
+inline std::shared_ptr< AerodynamicCoefficientSettings > constantAerodynamicCoefficientSettingsDeprecated(
         const double referenceArea,
         const Eigen::Vector3d& constantForceCoefficient,
         const bool areCoefficientsInAerodynamicFrame = true,
@@ -425,7 +425,18 @@ inline std::shared_ptr< AerodynamicCoefficientSettings > constantAerodynamicCoef
     return std::make_shared< ConstantAerodynamicCoefficientSettings >(
                 referenceArea, constantForceCoefficient,
                 aerodynamics::getAerodynamicCoefficientFrame( areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection ),
-                aerodynamics::getAerodynamicCoefficientFrame( areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection ) );
+                aerodynamics::undefined_frame_coefficients );
+}
+
+//! @get_docstring(constantAerodynamicCoefficientSettings)
+inline std::shared_ptr< AerodynamicCoefficientSettings > constantAerodynamicCoefficientSettings(
+        const double referenceArea,
+        const Eigen::Vector3d& constantForceCoefficient,
+        const aerodynamics::AerodynamicCoefficientFrames coefficientsFrame = aerodynamics::negative_aerodynamic_frame_coefficients )
+{
+    return std::make_shared< ConstantAerodynamicCoefficientSettings >(
+            referenceArea, constantForceCoefficient,
+            coefficientsFrame );
 }
 
 //! @get_docstring(scaledAerodynamicCoefficientSettings)
@@ -469,7 +480,7 @@ inline std::shared_ptr< AerodynamicCoefficientSettings > scaledAerodynamicCoeffi
                 baseSettings, forceScaling, momentScaling, isScalingAbsolute );
 }
 
-inline std::shared_ptr< AerodynamicCoefficientSettings > customAerodynamicCoefficientSettings(
+inline std::shared_ptr< AerodynamicCoefficientSettings >  customAerodynamicCoefficientSettingsDeprecated(
         const std::function< Eigen::Vector3d( const std::vector< double >& ) > forceCoefficientFunction,
         const std::function< Eigen::Vector3d( const std::vector< double >& ) > momentCoefficientFunction,
         const double referenceLength,
@@ -487,8 +498,7 @@ inline std::shared_ptr< AerodynamicCoefficientSettings > customAerodynamicCoeffi
                 aerodynamics::getAerodynamicCoefficientFrame( areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection ) );
 }
 
-//! @get_docstring(customAerodynamicCoefficientSettings)
-inline std::shared_ptr< AerodynamicCoefficientSettings > customAerodynamicCoefficientSettings(
+inline std::shared_ptr< AerodynamicCoefficientSettings > customAerodynamicCoefficientSettingsDeprecated(
         const std::function< Eigen::Vector3d( const std::vector< double >& ) > forceCoefficientFunction,
         const double referenceArea,
         const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables >
@@ -504,6 +514,35 @@ inline std::shared_ptr< AerodynamicCoefficientSettings > customAerodynamicCoeffi
                 aerodynamics::getAerodynamicCoefficientFrame( areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection ) );
 }
 
+inline std::shared_ptr< AerodynamicCoefficientSettings > customAerodynamicCoefficientSettings(
+        const std::function< Eigen::Vector3d( const std::vector< double >& ) > forceCoefficientFunction,
+        const std::function< Eigen::Vector3d( const std::vector< double >& ) > momentCoefficientFunction,
+        const double referenceLength,
+        const double referenceArea,
+        const Eigen::Vector3d& momentReferencePoint,
+        const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables >
+        independentVariableNames,
+        const aerodynamics::AerodynamicCoefficientFrames forceCoefficientsFrame = aerodynamics::negative_aerodynamic_frame_coefficients,
+        const aerodynamics::AerodynamicCoefficientFrames momentCoefficientsFrame = aerodynamics::body_fixed_frame_coefficients )
+{
+    return std::make_shared< CustomAerodynamicCoefficientSettings >(
+            forceCoefficientFunction, momentCoefficientFunction, referenceLength, referenceArea,
+            momentReferencePoint, independentVariableNames, forceCoefficientsFrame, momentCoefficientsFrame );
+}
+
+inline std::shared_ptr< AerodynamicCoefficientSettings > customAerodynamicCoefficientSettings(
+        const std::function< Eigen::Vector3d( const std::vector< double >& ) > forceCoefficientFunction,
+        const double referenceArea,
+        const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables >
+        independentVariableNames,
+        const aerodynamics::AerodynamicCoefficientFrames forceCoefficientsFrame = aerodynamics::negative_aerodynamic_frame_coefficients )
+{
+    return std::make_shared< CustomAerodynamicCoefficientSettings >(
+            forceCoefficientFunction, [=](const std::vector< double >& ){ return Eigen::Vector3d::Constant( TUDAT_NAN ); },
+            TUDAT_NAN, referenceArea, Eigen::Vector3d::Constant( TUDAT_NAN ),
+            independentVariableNames,
+            forceCoefficientsFrame, aerodynamics::undefined_frame_coefficients );
+}
 
 //  Base class (non-functional) for the different classes of TabulatedAerodynamicCoefficientSettings.
 /*  
@@ -1190,7 +1229,7 @@ readGivenSizeTabulatedAerodynamicCoefficientsFromFiles(
  *  \return Settings for creation of aerodynamic coefficient interface, based on contents read from files defined in
  *  forceCoefficientFiles and reference data given as input.
  */
-std::shared_ptr< AerodynamicCoefficientSettings > readTabulatedAerodynamicCoefficientsFromFiles(
+std::shared_ptr< AerodynamicCoefficientSettings > readTabulatedAerodynamicCoefficientsFromFilesDeprecated(
         const std::map< int, std::string > forceCoefficientFiles,
         const std::map< int, std::string > momentCoefficientFiles,
         const double referenceLength,
@@ -1200,6 +1239,17 @@ std::shared_ptr< AerodynamicCoefficientSettings > readTabulatedAerodynamicCoeffi
         const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames,
         const bool areCoefficientsInAerodynamicFrame = true,
         const bool areCoefficientsInNegativeAxisDirection = true,
+        const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = nullptr );
+
+std::shared_ptr< AerodynamicCoefficientSettings > readTabulatedAerodynamicCoefficientsFromFiles(
+        const std::map< int, std::string > forceCoefficientFiles,
+        const std::map< int, std::string > momentCoefficientFiles,
+        const double referenceLength,
+        const double referenceArea,
+        const Eigen::Vector3d& momentReferencePoint,
+        const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames,
+        const aerodynamics::AerodynamicCoefficientFrames forceCoefficientFrame = aerodynamics::negative_aerodynamic_frame_coefficients,
+        const aerodynamics::AerodynamicCoefficientFrames momentCoefficientFrame = aerodynamics::body_fixed_frame_coefficients,
         const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = nullptr );
 
 //  Function to create aerodynamic coefficient settings from coefficients stored in data files
@@ -1223,12 +1273,20 @@ std::shared_ptr< AerodynamicCoefficientSettings > readTabulatedAerodynamicCoeffi
  *  forceCoefficientFiles and reference data given as input.
  */
 std::shared_ptr< AerodynamicCoefficientSettings >
-readTabulatedAerodynamicCoefficientsFromFiles(
+readTabulatedAerodynamicCoefficientsFromFilesDeprecated(
         const std::map< int, std::string > forceCoefficientFiles,
         const double referenceArea,
         const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames,
         const bool areCoefficientsInAerodynamicFrame = true,
         const bool areCoefficientsInNegativeAxisDirection = true,
+        const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = nullptr );
+
+std::shared_ptr< AerodynamicCoefficientSettings >
+readTabulatedAerodynamicCoefficientsFromFiles(
+        const std::map< int, std::string > forceCoefficientFiles,
+        const double referenceArea,
+        const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames,
+        const aerodynamics::AerodynamicCoefficientFrames forceCoefficientFrame = aerodynamics::negative_aerodynamic_frame_coefficients,
         const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = nullptr );
 
 //  Function to create an aerodynamic coefficient interface containing constant coefficients.
