@@ -72,11 +72,17 @@ public:
      *  of the vehicle are calculated.
      */
     FlightConditions( const std::shared_ptr< basic_astrodynamics::BodyShapeModel > shapeModel,
+                      const std::string& centralBodyName,
                       const std::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator =
             std::shared_ptr< reference_frames::AerodynamicAngleCalculator >( ) );
 
     //! Destructor
     virtual ~FlightConditions( ){ }
+
+    std::string getCentralBody( )
+    {
+        return centralBody_;
+    }
 
     //! Function to update all flight conditions.
     /*!
@@ -305,6 +311,7 @@ public:
                                  aerodynamicCoefficientInterface,
                                  const std::shared_ptr< reference_frames::AerodynamicAngleCalculator >
                                  aerodynamicAngleCalculator,
+                                 const std::string centralBodyName,
                                  const std::function< double( const std::string& )> controlSurfaceDeflectionFunction =
             std::function< double( const std::string& )>( ) );
 
