@@ -41,6 +41,30 @@ enum AerodynamicCoefficientFrames
     undefined_frame_coefficients
 };
 
+inline std::pair< reference_frames::AerodynamicsReferenceFrames, int > convertCoefficientFrameToGeneralAerodynamicFrame(
+        const AerodynamicCoefficientFrames coefficientFrame )
+{
+    std::pair< reference_frames::AerodynamicsReferenceFrames, int > frameConversion;
+    switch( coefficientFrame )
+    {
+        case body_fixed_frame_coefficients:
+            frameConversion = std::make_pair( reference_frames::body_frame, 1 );
+            break;
+        case negative_body_fixed_frame_coefficients:
+            frameConversion = std::make_pair( reference_frames::body_frame, -1 );
+            break;
+        case negative_aerodynamic_frame_coefficients:
+            frameConversion = std::make_pair( reference_frames::aerodynamic_frame, -1 );
+            break;
+        case positive_aerodynamic_frame_coefficients:
+            frameConversion = std::make_pair( reference_frames::aerodynamic_frame, 1 );
+            break;
+        default:
+            throw std::runtime_error( "Error when retrieving aerodynamic coefficient frame defintion; undefined frame used as input" );
+    }
+    return frameConversion;
+}
+
 inline reference_frames::AerodynamicsReferenceFrames getCompleteFrameForCoefficients(
         const AerodynamicCoefficientFrames coefficientsFrame )
 {
@@ -120,6 +144,17 @@ inline AerodynamicCoefficientFrames getAerodynamicCoefficientFrame(
     return coefficientsFrame;
 }
 
+struct AerodynamicMomentContributionInterface
+{
+    AerodynamicMomentContributionInterface( const std::function< Eigen::Matrix3d( ) > forceToMomentFrameRotation,
+                                            const std::function< Eigen::Vector3d( ) > centerOfMassPosition ):
+            forceToMomentFrameRotation_( forceToMomentFrameRotation ),
+            centerOfMassPosition_( centerOfMassPosition ){ }
+
+    std::function< Eigen::Matrix3d( ) > forceToMomentFrameRotation_;
+    std::function< Eigen::Vector3d( ) > centerOfMassPosition_;
+};
+
 //! Base class to hold an aerodynamic coefficient interface.
 /*!
  * This interface can, for instance, be a database of coefficients or an aerodynamic analysis code
@@ -129,6 +164,8 @@ inline AerodynamicCoefficientFrames getAerodynamicCoefficientFrame(
 class AerodynamicCoefficientInterface
 {
 public:
+
+    friend class ScaledAerodynamicCoefficientInterface;
 
     //! Constructor.
     /*!
@@ -157,13 +194,15 @@ public:
             const std::vector< AerodynamicCoefficientsIndependentVariables >
             independentVariableNames,
             const AerodynamicCoefficientFrames forceCoefficientsFrame = negative_aerodynamic_frame_coefficients,
-            const AerodynamicCoefficientFrames momentCoefficientsFrame = body_fixed_frame_coefficients ):
+            const AerodynamicCoefficientFrames momentCoefficientsFrame = body_fixed_frame_coefficients,
+            const std::shared_ptr< AerodynamicMomentContributionInterface > momentContributionInterface = nullptr ):
         referenceLength_( referenceLength ),
         referenceArea_( referenceArea ),
         momentReferencePoint_( momentReferencePoint ),
         independentVariableNames_( independentVariableNames ),
         forceCoefficientsFrame_( forceCoefficientsFrame ),
-        momentCoefficientsFrame_( momentCoefficientsFrame )
+        momentCoefficientsFrame_( momentCoefficientsFrame ),
+        momentContributionInterface_( momentContributionInterface )
     {
         numberOfIndependentVariables_ = independentVariableNames.size( );
         referenceLengths_ = Eigen::Vector3d::Constant( referenceLength_ );
@@ -202,48 +241,6 @@ public:
      */
     Eigen::VectorXd getMomentReferencePoint( ) { return momentReferencePoint_; }
 
-    //! Compute the aerodynamic coefficients of the body itself (without control surfaces) at current flight condition.
-    /*!
-     *  Computes the current force and moment coefficients of the body itself (without control surfaces) and is to be
-     *  implemented in derived classes. Input is a set of independent variables
-     *  (doubles) which represent the variables from which the coefficients are calculated
-     *  \param independentVariables Independent variables of force and moment coefficient
-     *  determination implemented by derived class
-     *  \param currentTime Time to which coefficients are to be updated
-     */
-    virtual void updateCurrentCoefficients(
-            const std::vector< double >& independentVariables,
-            const double currentTime = TUDAT_NAN ) = 0;
-
-    //! Compute the aerodynamic coefficients for a single control surface, and add to full configuration coefficients.
-    /*!
-     *  Compures the aerodynamic coefficients for a single control surface at the current flight conditions, and adds these
-     *  to the coefficients of the full configuration, stored in class instance by currentForceCoefficients_ and
-     *  currentMomentCoefficients_ variables.
-     *  \param currentControlSurface Name of control surface that is to be updated.
-     *  \param controlSurfaceIndependentVariables Current values of independent variables of force and moment coefficient
-     *  of given control surface.
-     */
-    void updateCurrentControlSurfaceCoefficientsCoefficients(
-            const std::string& currentControlSurface,
-            std::vector< double > controlSurfaceIndependentVariables )
-    {
-        if( controlSurfaceIncrementInterfaces_.count( currentControlSurface ) == 0 )
-        {
-            throw std::runtime_error( "Error when updating coefficients, could not fid control surface " + currentControlSurface );
-        }
-        controlSurfaceIncrementInterfaces_.at( currentControlSurface )->updateCurrentCoefficients(
-                    controlSurfaceIndependentVariables );
-
-        currentControlSurfaceForceCoefficient_[ currentControlSurface ] =
-                controlSurfaceIncrementInterfaces_.at( currentControlSurface )->getCurrentForceCoefficients( );
-        currentForceCoefficients_ += currentControlSurfaceForceCoefficient_.at( currentControlSurface );
-
-        currentControlSurfaceMomentCoefficient_[ currentControlSurface ] =
-                controlSurfaceIncrementInterfaces_.at( currentControlSurface )->getCurrentMomentCoefficients( );
-        currentMomentCoefficients_ += currentControlSurfaceMomentCoefficient_.at( currentControlSurface );
-    }
-
     //! Function to update the aerodynamic coefficients of the full body with control surfaces
     /*!
      *  Function to update the aerodynamic coefficients of the full body with control surfaces. The full body coefficients
@@ -274,6 +271,12 @@ public:
                 updateCurrentControlSurfaceCoefficientsCoefficients(
                         controlSurfaceIterator->first, controlSurfaceIterator->second );
             }
+        }
+
+        if( momentContributionInterface_ != nullptr )
+        {
+            currentMomentCoefficients_ += ( momentContributionInterface_->centerOfMassPosition_( ) - momentReferencePoint_ ).cross(
+                    currentForceCoefficients_ ) / referenceLength_;
         }
     }
 
@@ -557,6 +560,48 @@ public:
 
 protected:
 
+            //! Compute the aerodynamic coefficients of the body itself (without control surfaces) at current flight condition.
+            /*!
+             *  Computes the current force and moment coefficients of the body itself (without control surfaces) and is to be
+             *  implemented in derived classes. Input is a set of independent variables
+             *  (doubles) which represent the variables from which the coefficients are calculated
+             *  \param independentVariables Independent variables of force and moment coefficient
+             *  determination implemented by derived class
+             *  \param currentTime Time to which coefficients are to be updated
+             */
+            virtual void updateCurrentCoefficients(
+                    const std::vector< double >& independentVariables,
+                    const double currentTime = TUDAT_NAN ) = 0;
+
+            //! Compute the aerodynamic coefficients for a single control surface, and add to full configuration coefficients.
+            /*!
+             *  Compures the aerodynamic coefficients for a single control surface at the current flight conditions, and adds these
+             *  to the coefficients of the full configuration, stored in class instance by currentForceCoefficients_ and
+             *  currentMomentCoefficients_ variables.
+             *  \param currentControlSurface Name of control surface that is to be updated.
+             *  \param controlSurfaceIndependentVariables Current values of independent variables of force and moment coefficient
+             *  of given control surface.
+             */
+            void updateCurrentControlSurfaceCoefficientsCoefficients(
+                    const std::string& currentControlSurface,
+                    std::vector< double > controlSurfaceIndependentVariables )
+            {
+                if( controlSurfaceIncrementInterfaces_.count( currentControlSurface ) == 0 )
+                {
+                    throw std::runtime_error( "Error when updating coefficients, could not fid control surface " + currentControlSurface );
+                }
+                controlSurfaceIncrementInterfaces_.at( currentControlSurface )->updateCurrentCoefficients(
+                        controlSurfaceIndependentVariables );
+
+                currentControlSurfaceForceCoefficient_[ currentControlSurface ] =
+                        controlSurfaceIncrementInterfaces_.at( currentControlSurface )->getCurrentForceCoefficients( );
+                currentForceCoefficients_ += currentControlSurfaceForceCoefficient_.at( currentControlSurface );
+
+                currentControlSurfaceMomentCoefficient_[ currentControlSurface ] =
+                        controlSurfaceIncrementInterfaces_.at( currentControlSurface )->getCurrentMomentCoefficients( );
+                currentMomentCoefficients_ += currentControlSurfaceMomentCoefficient_.at( currentControlSurface );
+            }
+
     //! The current force coefficients.
     /*!
      * The force coefficients at the current flight condition.
@@ -615,6 +660,8 @@ protected:
     AerodynamicCoefficientFrames forceCoefficientsFrame_;
 
     AerodynamicCoefficientFrames momentCoefficientsFrame_;
+
+    std::shared_ptr< AerodynamicMomentContributionInterface > momentContributionInterface_;
 
     //! List of control surface aerodynamic coefficient interfaces
     std::map< std::string, std::shared_ptr< ControlSurfaceIncrementAerodynamicInterface > >

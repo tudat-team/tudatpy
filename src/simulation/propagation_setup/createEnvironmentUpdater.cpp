@@ -625,27 +625,8 @@ void checkAndModifyEnvironmentForDependentVariableSaving(
                                           getDependentVariableId( dependentVariableSaveSettings ) +
                                           ". PROBLEM: Body <" + dependentVariableSaveSettings->secondaryBody_ + "> does not exist" );
             }
-
-            if( ( bodies.at( dependentVariableSaveSettings->secondaryBody_ )->getAtmosphereModel( ) ) != nullptr &&
-                    ( bodies.at( dependentVariableSaveSettings->associatedBody_ )->getAerodynamicCoefficientInterface( ) != nullptr ) )
-            {
-                bodies.at( dependentVariableSaveSettings->associatedBody_ )->setFlightConditions(
-                            simulation_setup::createAtmosphericFlightConditions(
-                                bodies.at( dependentVariableSaveSettings->associatedBody_ ),
-                                bodies.at( dependentVariableSaveSettings->secondaryBody_ ),
-                                dependentVariableSaveSettings->associatedBody_,
-                                dependentVariableSaveSettings->secondaryBody_ ) );
-            }
-            else
-            {
-
-                bodies.at( dependentVariableSaveSettings->associatedBody_ )->setFlightConditions(
-                            simulation_setup::createFlightConditions(
-                                bodies.at( dependentVariableSaveSettings->associatedBody_ ),
-                                bodies.at( dependentVariableSaveSettings->secondaryBody_ ),
-                                dependentVariableSaveSettings->associatedBody_,
-                                dependentVariableSaveSettings->secondaryBody_ ) );
-            }
+            simulation_setup::addFlightConditions(
+                        bodies, dependentVariableSaveSettings->associatedBody_, dependentVariableSaveSettings->secondaryBody_ );
         }
         break;
     default:

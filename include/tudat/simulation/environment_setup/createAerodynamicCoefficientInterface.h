@@ -16,6 +16,7 @@
 
 #include "tudat/astro/aerodynamics/aerodynamicCoefficientInterface.h"
 #include "tudat/astro/aerodynamics/customAerodynamicCoefficientInterface.h"
+#include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/environment_setup/createAerodynamicControlSurfaces.h"
 #include "tudat/math/interpolators/multiLinearInterpolator.h"
 #include "tudat/math/interpolators/createInterpolator.h"
@@ -1179,8 +1180,7 @@ readGivenSizeTabulatedAerodynamicCoefficientsFromFiles(
         const std::map< int, std::string > forceCoefficientFiles,
         const double referenceArea,
         const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames,
-        const bool areCoefficientsInAerodynamicFrame = true,
-        const bool areCoefficientsInNegativeAxisDirection = true,
+        const aerodynamics::AerodynamicCoefficientFrames forceCoefficientsFrame = aerodynamics::negative_aerodynamic_frame_coefficients,
         const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = nullptr )
 {
     std::pair< boost::multi_array< Eigen::Vector3d, static_cast< size_t >( NumberOfDimensions ) >,
@@ -1197,8 +1197,7 @@ readGivenSizeTabulatedAerodynamicCoefficientsFromFiles(
     std::shared_ptr< TabulatedAerodynamicCoefficientSettings< NumberOfDimensions > > tabulatedCoefficients =
             std::make_shared< TabulatedAerodynamicCoefficientSettings< NumberOfDimensions > >(
                 aerodynamicCoefficients.second, aerodynamicCoefficients.first, referenceArea, independentVariableNames,
-                aerodynamics::getAerodynamicCoefficientFrame( areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection ),
-                aerodynamics::getAerodynamicCoefficientFrame( areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection ), interpolatorSettings );
+                forceCoefficientsFrame, aerodynamics::undefined_frame_coefficients, interpolatorSettings );
     tabulatedCoefficients->setForceCoefficientsFiles( forceCoefficientFiles );
     return tabulatedCoefficients;
 }
@@ -1358,7 +1357,7 @@ createZeroParameterAerodynamicCoefficientInterface(
  *  coefficients are typically defined in negative direction.
  *  \param interpolatorSettings Pointer to an interpolator settings object, where the
  *  conditions for interpolation are saved.
- *  \return Tabulated aerodynamic coefficient interface pointer.
+ *  \return Tabulated aerodynamic coefficient interface pointer.Body
  */
 template< unsigned int NumberOfDimensions >
 std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface >
@@ -1479,6 +1478,10 @@ createTabulatedCoefficientAerodynamicCoefficientInterface(
                     tabulatedCoefficientSettings->getInterpolatorSettings( ) );
     }
 }
+
+std::shared_ptr< aerodynamics::AerodynamicMomentContributionInterface > createMomentContributionInterface(
+        const std::shared_ptr< AerodynamicCoefficientSettings > coefficientSettings,
+        const std::shared_ptr< Body > body );
 
 //  Function to create an aerodynamic coefficient interface.
 /*  
