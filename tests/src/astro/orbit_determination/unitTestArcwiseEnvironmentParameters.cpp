@@ -80,7 +80,7 @@ BOOST_AUTO_TEST_CASE( test_ArcwiseEnvironmentParameters )
 
     // Create and set aerodynamic coefficients object
     bodies.at( "Vehicle" )->setAerodynamicCoefficientInterface(
-                createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Vehicle" ) );
+                createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Vehicle", bodies ) );
 
     // Create radiation pressure settings
     double referenceAreaRadiation = 4.0;

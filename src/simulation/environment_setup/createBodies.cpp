@@ -44,7 +44,7 @@ void addAerodynamicCoefficientInterface(
         throw std::runtime_error( "Error when setting aerodynamic coefficients for body "+ bodyName + ", body is not found in system of bodies" );
     }
     bodies.at( bodyName )->setAerodynamicCoefficientInterface(
-                createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, bodyName) );
+                createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, bodyName, bodies ) );
 }
 
 void addRadiationPressureInterface(

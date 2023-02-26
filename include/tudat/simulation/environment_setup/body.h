@@ -192,6 +192,74 @@ private:
     int stateMultiplier_;
 };
 
+class BodyMassProperties
+{
+public:
+    BodyMassProperties( ){ }
+
+    virtual ~BodyMassProperties( ){ }
+
+    virtual void update( const double currentTime ) = 0;
+
+    double getCurrentMass( )
+    {
+        return currentMass_;
+    }
+
+    Eigen::Vector3d getCurrentCenterOfMass( )
+    {
+        return currentCenterOfMass_;
+    }
+
+    Eigen::Matrix3d getCurrentInertiaTensor( )
+    {
+        return currentInertiaTensor_;
+    }
+
+    virtual void setCurrentMass( const double currentMass ) = 0;
+
+protected:
+
+    double currentMass_;
+
+    Eigen::Vector3d currentCenterOfMass_;
+
+    Eigen::Matrix3d currentInertiaTensor_;
+};
+
+class MassDependentBodyMassProperties: public BodyMassProperties
+{
+public:
+    MassDependentBodyMassProperties(
+            const double currentMass,
+            const std::function< Eigen::Vector3d( const double ) > centerOfMassFunction,
+            const std::function< Eigen::Matrix3d( const double ) > inertiaTensorFunction ):
+            centerOfMassFunction_( centerOfMassFunction ),
+            inertiaTensorFunction_( inertiaTensorFunction )
+    {
+        setCurrentMass( currentMass );
+    }
+
+    virtual ~MassDependentBodyMassProperties( ){ }
+
+    virtual void update( const double currentTime ){ }
+
+    virtual void setCurrentMass( const double currentMass )
+    {
+        currentMass_ = currentMass;
+        currentCenterOfMass_ = centerOfMassFunction_( currentMass );
+        currentInertiaTensor_ = inertiaTensorFunction_( currentMass );
+    }
+
+protected:
+
+    std::function< Eigen::Vector3d( const double ) > centerOfMassFunction_;
+
+    std::function< Eigen::Matrix3d( const double ) > inertiaTensorFunction_;
+
+};
+
+
 //! Body class representing the properties of a celestial body (natural or artificial).
 /*!
  *  Body class representing the properties of a celestial body (natural or artificial). By storing
@@ -220,6 +288,7 @@ public:
           currentAngularVelocityVectorInLocalFrame_( Eigen::Vector3d::Zero( ) ),
           bodyMassFunction_( nullptr ),
           bodyInertiaTensor_( Eigen::Matrix3d::Zero( ) ),
+          bodyFixedCenterOfMass_( Eigen::Vector3d::Zero( ) ),
           scaledMeanMomentOfInertia_( TUDAT_NAN ),
           density_( TUDAT_NAN ),
           bodyName_( "unnamed_body" )
@@ -1220,6 +1289,16 @@ public:
         return currentMass_;
     }
 
+    Eigen::Vector3d getBodyFixedCenterOfMass( )
+    {
+        return bodyFixedCenterOfMass_;
+    }
+
+    void setBodyFixedCenterOfMass( const Eigen::Vector3d& bodyFixedCenterOfMass )
+    {
+        bodyFixedCenterOfMass_ = bodyFixedCenterOfMass;
+    }
+
     //! Function to retrieve the body moment-of-inertia tensor.
     /*!
      * Function to retrieve the body moment-of-inertia tensor.
@@ -1505,6 +1584,8 @@ private:
 
     //! Body moment-of-inertia tensor.
     Eigen::Matrix3d bodyInertiaTensor_;
+
+    Eigen::Vector3d bodyFixedCenterOfMass_;
 
     //! Body scaled mean moment of inertia
     double scaledMeanMomentOfInertia_;

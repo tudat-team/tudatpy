@@ -378,7 +378,7 @@ executeOrbiterSimulation(
 
     // Create and set aerodynamic coefficients object
     bodies.at( "Vehicle" )->setAerodynamicCoefficientInterface(
-                createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Vehicle" ) );
+                createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Vehicle", bodies ) );
 
     // Create radiation pressure settings
     double referenceAreaRadiation = 4.0;
