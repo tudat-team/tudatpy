@@ -127,7 +127,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientsFromFile )
         }
 
         bodies.at( "SpacePlane" )->setAerodynamicCoefficientInterface(
-                    createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "SpacePlane" ) );
+                    createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "SpacePlane", bodies ) );
 
         bodies.at( "SpacePlane" )->setConstantBodyMass( 50.0E3 );
 

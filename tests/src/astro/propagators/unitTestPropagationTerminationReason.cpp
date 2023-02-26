@@ -82,7 +82,7 @@ BOOST_AUTO_TEST_CASE( testReasonAfterSuccessfulPropagationWithTimeLimit )
 
     // Create and set aerodynamic coefficients object
     bodies.at( "Asterix" )->setAerodynamicCoefficientInterface(
-                createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Asterix" ) );
+                createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Asterix", bodies ) );
 
     // Create radiation pressure settings
     double referenceAreaRadiation = 4.0;
@@ -263,7 +263,7 @@ BOOST_AUTO_TEST_CASE( testReasonAfterSuccessfulPropagationWithAltitudeLimit )
 
     // Create and set aerodynamic coefficients object
     bodies.at( "Asterix" )->setAerodynamicCoefficientInterface(
-                createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Asterix" ) );
+                createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Asterix", bodies ) );
 
     // Create radiation pressure settings
     double referenceAreaRadiation = 4.0;
@@ -454,7 +454,7 @@ BOOST_AUTO_TEST_CASE( testReasonAfterPropagationErrorCaught )
 
     // Create and set aerodynamic coefficients object
     bodies.at( "Asterix" )->setAerodynamicCoefficientInterface(
-                createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Asterix" ) );
+                createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Asterix", bodies ) );
 
     // Create radiation pressure settings
     double referenceAreaRadiation = 4.0;

@@ -91,7 +91,7 @@ BOOST_AUTO_TEST_CASE( testassessTerminationOnMinorStepsRKFixedStepSize )
 
         // Create and set aerodynamic coefficients object
         bodies.at( "Asterix" )->setAerodynamicCoefficientInterface(
-                    createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Asterix" ) );
+                    createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Asterix", bodies ) );
 
         // Create radiation pressure settings
         double referenceAreaRadiation = 4.0;
@@ -251,7 +251,7 @@ BOOST_AUTO_TEST_CASE( testassessTerminationOnMinorStepsRKVariableStepSize )
 
         // Create and set aerodynamic coefficients object
         bodies.at( "Asterix" )->setAerodynamicCoefficientInterface(
-                    createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Asterix" ) );
+                    createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Asterix", bodies ) );
 
         // Create radiation pressure settings
         double referenceAreaRadiation = 4.0;

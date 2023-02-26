@@ -279,15 +279,17 @@ std::shared_ptr< aerodynamics::AerodynamicMomentContributionInterface > createMo
                 forceCoefficientFrameId.first, momentCoefficientFrameId.first ); };
     }
     return std::make_shared< aerodynamics::AerodynamicMomentContributionInterface >(
-            coefficientRotationFunction, std::bind( &Body::getBodyInertiaTensor) )
+            coefficientRotationFunction, std::bind( &Body::getBodyFixedCenterOfMass, body ) );
 }
 
 //! Function to create and aerodynamic coefficient interface.
 std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface >
 createAerodynamicCoefficientInterface(
         const std::shared_ptr< AerodynamicCoefficientSettings > coefficientSettings,
-        const std::string& body )
+        const std::string& body,
+        const SystemOfBodies& bodies )
 {
+
     using namespace tudat::aerodynamics;
 
     std::shared_ptr< AerodynamicCoefficientInterface > coefficientInterface;
@@ -400,6 +402,10 @@ createAerodynamicCoefficientInterface(
         std::shared_ptr< ScaledAerodynamicCoefficientInterfaceSettings > scaledCoefficientSettings =
                 std::dynamic_pointer_cast< ScaledAerodynamicCoefficientInterfaceSettings >(
                     coefficientSettings );
+        if( coefficientSettings->getAddForceContributionToMoments( ) )
+        {
+            throw std::runtime_error( "Error when creating scaled aerodynamic coefficients, force contribution to moments not permitted." );
+        }
         if( scaledCoefficientSettings == nullptr )
         {
             throw std::runtime_error(
@@ -408,7 +414,7 @@ createAerodynamicCoefficientInterface(
         else
         {
             std::shared_ptr< AerodynamicCoefficientInterface > baseInterface = createAerodynamicCoefficientInterface(
-                        scaledCoefficientSettings->getBaseSettings( ), body );
+                        scaledCoefficientSettings->getBaseSettings( ), body, bodies );
             coefficientInterface = std::make_shared< ScaledAerodynamicCoefficientInterface >(
                         baseInterface, scaledCoefficientSettings->getForceScaling( ),
                         scaledCoefficientSettings->getMomentScaling( ), scaledCoefficientSettings->getIsScalingAbsolute( ) );
@@ -436,6 +442,17 @@ createAerodynamicCoefficientInterface(
         }
         coefficientInterface->setControlSurfaceIncrements( controlSurfaceIncrementInterfaces );
 
+    }
+
+    std::shared_ptr< AerodynamicMomentContributionInterface > momentContributionInterface;
+    if( coefficientSettings->getAddForceContributionToMoments( ) )
+    {
+        if( bodies.count( body ) == 0 )
+        {
+            throw std::runtime_error( "Error when making aerodynami moment correction interface, no body " + body + " was found." );
+        }
+        momentContributionInterface = createMomentContributionInterface( coefficientSettings, bodies.at( body ) );
+        coefficientInterface->setMomentContributionInterface( momentContributionInterface );
     }
 
     return coefficientInterface;

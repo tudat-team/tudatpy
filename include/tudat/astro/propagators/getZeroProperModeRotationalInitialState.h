@@ -153,7 +153,6 @@ Eigen::VectorXd getZeroProperModeRotationalState(
     std::shared_ptr< RotationalStatePropagatorSettings< StateScalarType, TimeType > > rotationPropagationSettings_ =
             std::dynamic_pointer_cast< RotationalStatePropagatorSettings< StateScalarType, TimeType > >(
                 propagatorSettings );
-    TimeType originalInitialTime = rotationPropagationSettings_->getInitialTime( );
 
     if( rotationPropagationSettings_ == nullptr )
     {
@@ -184,6 +183,8 @@ Eigen::VectorXd getZeroProperModeRotationalState(
             throw std::runtime_error( "Error when finding initial rotational state, no propagator settings found" );
         }
     }
+
+    TimeType originalInitialTime = rotationPropagationSettings_->getInitialTime( );
 
     // Get torque map
     torqueModelMap = rotationPropagationSettings_->getTorqueModelsMap( );

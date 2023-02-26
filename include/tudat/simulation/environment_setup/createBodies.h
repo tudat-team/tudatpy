@@ -288,7 +288,7 @@ SystemOfBodies createSystemOfBodies(
             bodyList.at( orderedBodySettings.at( i ).first )->setAerodynamicCoefficientInterface(
                         createAerodynamicCoefficientInterface(
                             orderedBodySettings.at( i ).second->aerodynamicCoefficientSettings,
-                            orderedBodySettings.at( i ).first ) );
+                            orderedBodySettings.at( i ).first, bodyList ) );
         }
     }
 
