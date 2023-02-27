@@ -65,8 +65,17 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
     std::shared_ptr< observation_models::ObservationCollection< > > observedObservationCollection =
             orbit_determination::createOdfObservationCollection(
                     orbit_determination::processOdfFileContents( input_output::readOdfFile(
-                            "/Users/pipas/Documents/mro-rawdata-odf/mromagr2009_332_1945xmmmv1.odf" ) ),
+//                            "/Users/pipas/Documents/mro-rawdata-odf/mromagr2009_332_1945xmmmv1.odf" ) ),
+                        "/Users/pipas/Documents/dsn_trk-2-18/odf07155.dat" ) ),
                     bodies );
+
+    std::cout << std::endl << "Observation type start and size:" << std::endl;
+    std::map< observation_models::ObservableType, std::pair< int, int > > observationTypeStartAndSize =
+            observedObservationCollection->getObservationTypeStartAndSize( );
+    for ( auto it = observationTypeStartAndSize.begin(); it != observationTypeStartAndSize.end(); ++it )
+    {
+        std::cout << it->first << " " << std::get<0>(it->second) << " " << std::get<1>(it->second) << std::endl;
+    }
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
