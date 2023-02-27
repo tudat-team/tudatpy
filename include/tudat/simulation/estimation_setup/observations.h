@@ -377,6 +377,27 @@ public:
         return observationSetListIndexSorted;
     }
 
+    std::map < ObservableType, std::vector< LinkEnds > > getLinkEndsPerObservableType( )
+    {
+        std::map < ObservableType, std::vector< LinkEnds > > linkEndsPerObservableType;
+
+        for ( auto observableTypeIt = observationSetList_.begin( ); observableTypeIt != observationSetList_.end( );
+            ++observableTypeIt )
+        {
+            std::vector< LinkEnds > linkEndsVector;
+
+            for ( auto linkEndsIt = observableTypeIt->second.begin( ); linkEndsIt != observableTypeIt->second.end( );
+                ++linkEndsIt )
+            {
+                linkEndsVector.push_back( linkEndsIt->first );
+            }
+
+            linkEndsPerObservableType[ observableTypeIt->first ] = linkEndsVector;
+        }
+
+        return linkEndsPerObservableType;
+    }
+
 
 private:
 
