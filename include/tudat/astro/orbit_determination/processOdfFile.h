@@ -19,6 +19,7 @@
 #include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/astro/ground_stations/transmittingFrequencies.h"
 #include "tudat/simulation/estimation_setup/observations.h"
+#include "tudat/simulation/estimation_setup/observationSimulationSettings.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/math/interpolators/lookupScheme.h"
 #include "tudat/math/quadrature/trapezoidQuadrature.h"
@@ -282,7 +283,7 @@ void separateSingleLinkOdfData(
 }
 
 template< typename ObservationScalarType = double, typename TimeType = double >
-std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > createOdfObservationCollection(
+std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > createOdfObservedObservationCollection(
         std::shared_ptr< ProcessedOdfFileContents > processedOdfFileContents,
         const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< simulation_setup::ObservationDependentVariableCalculator > dependentVariableCalculator = nullptr )
@@ -349,6 +350,47 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
 
     return std::make_shared< observation_models::ObservationCollection< ObservationScalarType, TimeType > >(
             sortedObservationSets );
+}
+
+template< typename ObservationScalarType = double, typename TimeType = double >
+std::vector< std::shared_ptr< simulation_setup::ObservationSimulationSettings< TimeType > > > createOdfObservationSimulationSettingsList(
+        std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > observedObservationCollection )
+{
+    std::vector< std::shared_ptr< simulation_setup::ObservationSimulationSettings< TimeType > > > observationSimulationSettings;
+
+    std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds, std::vector< std::shared_ptr<
+            observation_models::SingleObservationSet< ObservationScalarType, TimeType > > > > > observationSetList =
+                    observedObservationCollection->getObservations( );
+
+    for ( auto observableTypeIterator = observationSetList.begin( ); observableTypeIterator != observationSetList.end( );
+            ++observableTypeIterator )
+    {
+        observation_models::ObservableType currentObservableType = observableTypeIterator->first;
+
+        for ( auto linkEndsIterator = observableTypeIterator->second.begin( );
+              linkEndsIterator != observableTypeIterator->second.end( ); ++linkEndsIterator )
+        {
+            observation_models::LinkEnds currentLinkEnds = linkEndsIterator->first;
+            std::vector< std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > > >
+                singleObservationSets = linkEndsIterator->second;
+
+            for ( unsigned int i = 0; i < singleObservationSets.size( ); ++i )
+            {
+                observationSimulationSettings.push_back(
+                        std::make_shared< simulation_setup::TabulatedObservationSimulationSettings< TimeType > >(
+                                currentObservableType, currentLinkEnds, singleObservationSets.at( i )->getObservationTimes( ),
+                                singleObservationSets.at( i )->getReferenceLinkEnd( ),
+                                std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >( ),
+                                nullptr,
+                                singleObservationSets.at( i )->getAncilliarySettings( )
+                                )
+                        );
+            }
+
+        }
+    }
+
+    return observationSimulationSettings;
 }
 
 } // namespace orbit_determination

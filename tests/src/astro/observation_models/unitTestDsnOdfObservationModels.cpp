@@ -18,6 +18,7 @@
 
 #include "tudat/basics/testMacros.h"
 #include "tudat/simulation/estimation.h"
+#include "tudat/simulation/estimation_setup.h"
 
 #include "tudat/io/readOdfFile.h"
 #include "tudat/astro/orbit_determination/processOdfFile.h"
@@ -46,6 +47,9 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
     bodiesToCreate.push_back( "Moon" );
     bodiesToCreate.push_back( "Mars" );
 
+    // Define light-time perturbing bodies
+    std::vector< std::string > lightTimePerturbingBodies = { "Earth", "Sun" };
+
     // Specify initial time
     double initialEphemerisTime = 0.0;
     double finalEphemerisTime = initialEphemerisTime + 7.0 * 86400.0;
@@ -62,11 +66,12 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
     // Create bodies
     SystemOfBodies bodies = createSystemOfBodies( defaultBodySettings );
 
+    // Create observed observation collection
     std::shared_ptr< observation_models::ObservationCollection< > > observedObservationCollection =
-            orbit_determination::createOdfObservationCollection(
+            orbit_determination::createOdfObservedObservationCollection(
                     orbit_determination::processOdfFileContents( input_output::readOdfFile(
 //                            "/Users/pipas/Documents/mro-rawdata-odf/mromagr2009_332_1945xmmmv1.odf" ) ),
-                        "/Users/pipas/Documents/dsn_trk-2-18/odf07155.dat" ) ),
+                            "/Users/pipas/Documents/dsn_trk-2-18/odf07155.dat" ) ),
                     bodies );
 
     std::cout << std::endl << "Observation type start and size:" << std::endl;
@@ -76,6 +81,41 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
     {
         std::cout << it->first << " " << std::get<0>(it->second) << " " << std::get<1>(it->second) << std::endl;
     }
+
+    // Create computed observation collection
+    std::vector< std::shared_ptr< observation_models::ObservationModelSettings > > observationModelSettingsList;
+
+    std::vector< std::shared_ptr< observation_models::LightTimeCorrectionSettings > > lightTimeCorrectionSettings =
+            { std::make_shared< observation_models::FirstOrderRelativisticLightTimeCorrectionSettings >(
+                    lightTimePerturbingBodies ) };
+
+    std::map < observation_models::ObservableType, std::vector< observation_models::LinkEnds > > linkEndsPerObservable =
+            observedObservationCollection->getLinkEndsPerObservableType( );
+    for ( auto it = linkEndsPerObservable.begin(); it != linkEndsPerObservable.end(); ++it )
+    {
+        for ( unsigned int i = 0; i < it->second.size(); ++i )
+        {
+            observationModelSettingsList.push_back(
+                    std::make_shared< observation_models::ObservationModelSettings >(
+                            it->first, it->second.at( i ), lightTimeCorrectionSettings, nullptr, nullptr ) );
+        }
+    }
+
+    std::vector< std::shared_ptr< observation_models::ObservationSimulatorBase< double, double > > >
+            observationSimulators = observation_models::createObservationSimulators(
+                    observationModelSettingsList, bodies );
+
+
+    std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > observationSimulationSettings =
+            orbit_determination::createOdfObservationSimulationSettingsList< double >(
+                    observedObservationCollection );
+
+
+    std::shared_ptr< observation_models::ObservationCollection< double, double > >
+            simulatedObservationCollection = simulation_setup::simulateObservations< double, double >(
+                    observationSimulationSettings, observationSimulators, bodies );
+
+
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
