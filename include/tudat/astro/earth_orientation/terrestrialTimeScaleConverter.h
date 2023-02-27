@@ -123,6 +123,16 @@ public:
     {
         TimeType convertedTime;
 
+        // Check whether desired conversion is possible (conversion to/from UT1 requires interpolator)
+        if ( inputScale == basic_astrodynamics::ut1_scale || outputScale == basic_astrodynamics::ut1_scale )
+        {
+            if ( dailyUtcUt1CorrectionInterpolator_ == nullptr )
+            {
+                throw std::runtime_error("Error when converting to/from UT1 time scale: UTC to UT1 interpolator "
+                                         "was not provided.");
+            }
+        }
+
         // Check if any conversion should take place.
         if( inputScale == outputScale )
         {
@@ -279,11 +289,14 @@ public:
                         timesToUpdate.tt, siteLongitude, distanceFromSpinAxis, distanceFromEquatorialPlane ) );
             timesToUpdate.tdb = timesToUpdate.tt + tdbMinusTt;
 
-            timesToUpdate.ut1 = static_cast< TimeType >( dailyUtcUt1CorrectionInterpolator_->interpolate( timesToUpdate.utc ) )
-                    + timesToUpdate.utc;
-
-            timesToUpdate.ut1 += static_cast< TimeType >(
+            if ( dailyUtcUt1CorrectionInterpolator_ != nullptr )
+            {
+                timesToUpdate.ut1 =
+                        static_cast< TimeType >( dailyUtcUt1CorrectionInterpolator_->interpolate( timesToUpdate.utc ) )
+                        + timesToUpdate.utc;
+                timesToUpdate.ut1 += static_cast< TimeType >(
                         shortPeriodUt1CorrectionCalculator_->getCorrections( timesToUpdate.tdb ) );
+            }
 
             break;
         case basic_astrodynamics::ut1_scale:
@@ -325,6 +338,11 @@ public:
     {
         TimeType currentUtc = getCurrentTime( inputScale, basic_astrodynamics::utc_scale, inputTimeValue, currentPosition );
         TimeType currentTt = getCurrentTime( inputScale, basic_astrodynamics::tt_scale, inputTimeValue, currentPosition );
+
+        if ( dailyUtcUt1CorrectionInterpolator_ == nullptr )
+            {
+                throw std::runtime_error("Error when getting UT1 correction: UTC to UT1 interpolator was not provided.");
+            }
 
         return dailyUtcUt1CorrectionInterpolator_->interpolate( currentUtc ) +
                 shortPeriodUt1CorrectionCalculator_->getCorrections( currentTt );
@@ -370,12 +388,15 @@ private:
         getCurrentTimeList< TimeType >( ).utc = sofa_interface::convertTAItoUTC< TimeType >(
                     getCurrentTimeList< TimeType >( ).tai );
 
-        getCurrentTimeList< TimeType >( ).ut1 = static_cast< TimeType >( dailyUtcUt1CorrectionInterpolator_->interpolate(
+        if ( dailyUtcUt1CorrectionInterpolator_ != nullptr )
+        {
+            getCurrentTimeList< TimeType >( ).ut1 = static_cast< TimeType >( dailyUtcUt1CorrectionInterpolator_->interpolate(
                     getCurrentTimeList< TimeType >( ).utc ) ) + getCurrentTimeList< TimeType >( ).utc;
 
-        getCurrentTimeList< TimeType >( ).ut1 +=
-                static_cast< TimeType >( shortPeriodUt1CorrectionCalculator_->getCorrections(
-                    getCurrentTimeList< TimeType >( ).tt ) );
+            getCurrentTimeList< TimeType >( ).ut1 +=
+                    static_cast< TimeType >( shortPeriodUt1CorrectionCalculator_->getCorrections(
+                        getCurrentTimeList< TimeType >( ).tt ) );
+        }
     }
 
     //! Interpolator for UT1 corrections, values published daily by IERS

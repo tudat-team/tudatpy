@@ -16,6 +16,7 @@
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h"
 #include "tudat/astro/basic_astro/timeConversions.h"
+#include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/astro/ground_stations/transmittingFrequencies.h"
 #include "tudat/simulation/estimation_setup/observations.h"
 #include "tudat/simulation/environment_setup/body.h"
@@ -77,29 +78,45 @@ public:
         return observableValues_;
     }
 
-    std::vector< double > getObservationTimesUtc (  )
+    std::vector< double > getObservationTimesUtcSinceJ2000(  )
     {
-        return observationTimes_;
+        std::vector < double > observationTimesFromJ2000;
+
+        double EME1950ToJ2000Offset = basic_astrodynamics::convertCalendarDateToJulianDaysSinceEpoch< double >(
+                1950, 1, 1, 0, 0, 0, basic_astrodynamics::JULIAN_DAY_ON_J2000 )
+                        * physical_constants::JULIAN_DAY;
+
+        for ( unsigned int i = 0; i < observationTimes_.size( ); ++i )
+        {
+            observationTimesFromJ2000.push_back( observationTimes_.at( i ) + EME1950ToJ2000Offset );
+        }
+
+        return observationTimesFromJ2000;
     }
 
-    std::vector< double > getObservationTimesTdb (
+    std::vector< double > getObservationTimesTdbSinceJ2000(
             const simulation_setup::SystemOfBodies& bodies )
     {
         earth_orientation::TerrestrialTimeScaleConverter timeScaleConverter =
                 earth_orientation::TerrestrialTimeScaleConverter( );
 
+        std::vector< double > observationTimesFromJ2000Utc = getObservationTimesUtcSinceJ2000( );
+
         std::vector< Eigen::Vector3d > earthFixedPositions;
-        for ( unsigned int i = 0; i < observationTimes_.size( ); ++i )
+        for ( unsigned int i = 0; i < observationTimesFromJ2000Utc.size( ); ++i )
         {
+            // Approximation: UTC time used to retrieve the ground station's position
             earthFixedPositions.push_back(
                     bodies.getBody( "Earth" )->getGroundStation( receivingStation_ )->getStateInPlanetFixedFrame< double, double >(
-                            observationTimes_.at( i ) ).segment( 0, 3 )
-                            );
+                            observationTimesFromJ2000Utc.at( i ) ).segment( 0, 3 ) );
         }
 
-        return timeScaleConverter.getCurrentTimes(
-                basic_astrodynamics::utc_scale, basic_astrodynamics::tdb_scale, observationTimes_,
+        std::vector< double > observationTimesFromJ2000Tdb = timeScaleConverter.getCurrentTimes(
+                basic_astrodynamics::utc_scale, basic_astrodynamics::tdb_scale, observationTimesFromJ2000Utc,
                 earthFixedPositions );
+
+        throw std::runtime_error("hello");
+        return observationTimesFromJ2000Tdb;
     }
 
 };
@@ -249,7 +266,7 @@ void separateSingleLinkOdfData(
     ancillarySettings.clear( );
 
     // Get time and observables vectors
-    std::vector< double > observationTimesTdb = odfSingleLinkData->getObservationTimesTdb( bodies );
+    std::vector< double > observationTimesTdb = odfSingleLinkData->getObservationTimesTdbSinceJ2000( bodies );
     std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > observablesVector =
             odfSingleLinkData->getProcessedObservablesVector( );
 
