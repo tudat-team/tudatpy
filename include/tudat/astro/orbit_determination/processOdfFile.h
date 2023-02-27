@@ -58,22 +58,12 @@ public:
     std::string transmittingStation_;
     std::string receivingStation_;
 
-    std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > getUnprocessedObservables( )
+    std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > getObservables( )
     {
         return utilities::createMapFromVectors( observationTimes_, observableValues_ );
     }
 
-    std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > getUnprocessedObservablesVector( )
-    {
-        return observableValues_;
-    }
-
-    std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > getProcessedObservables( )
-    {
-        return utilities::createMapFromVectors( observationTimes_, getProcessedObservablesVector( ) );
-    }
-
-    virtual std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > getProcessedObservablesVector( )
+    std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > getObservablesVector( )
     {
         return observableValues_;
     }
@@ -115,7 +105,6 @@ public:
                 basic_astrodynamics::utc_scale, basic_astrodynamics::tdb_scale, observationTimesFromJ2000Utc,
                 earthFixedPositions );
 
-        throw std::runtime_error("hello");
         return observationTimesFromJ2000Tdb;
     }
 
@@ -133,12 +122,6 @@ public:
     std::vector< double > countInterval_;
     std::vector< double > transmitterUplinkDelays_;
     std::vector< bool > receiverRampingFlags_;
-
-    std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > getProcessedObservablesVector( )
-    {
-        throw std::runtime_error("Getting range rate observables not implemented");
-        return observableValues_;
-    }
 
     std::map< double, bool > getReceiverRampingFlags( )
     {
@@ -223,7 +206,7 @@ observation_models::ObservationAncilliarySimulationSettings< TimeType > createOd
                 = std::dynamic_pointer_cast< ProcessedOdfFileDopplerData >( odfDataContents );
 
         ancillarySettings.setAncilliaryDoubleData(
-                observation_models::doppler_integration_time, dopplerDataBlock->getCountInterval( ).at( dataIndex ) );
+                observation_models::doppler_integration_time, dopplerDataBlock->countInterval_.at( dataIndex ) );
         ancillarySettings.setAncilliaryDoubleData(
                 observation_models::doppler_reference_frequency, dopplerDataBlock->referenceFrequencies_.at( dataIndex ) );
 
@@ -268,7 +251,7 @@ void separateSingleLinkOdfData(
     // Get time and observables vectors
     std::vector< double > observationTimesTdb = odfSingleLinkData->getObservationTimesTdbSinceJ2000( bodies );
     std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > observablesVector =
-            odfSingleLinkData->getProcessedObservablesVector( );
+            odfSingleLinkData->getObservablesVector( );
 
     for ( unsigned int i = 0; i < odfSingleLinkData->observationTimes_.size( ); ++i )
     {
