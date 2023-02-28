@@ -369,8 +369,18 @@ std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > getLin
 {
     if( bodies.count( linkEndId.bodyName_ ) == 0  )
     {
-        std::string errorMessage = "Error when making ephemeris function for " + linkEndId.bodyName_ + ", " +
-                linkEndId.stationName_ + ", body not found.";
+        std::string errorMessage;
+        if ( linkEndId.stationName_ != "" )
+        {
+            errorMessage = "Error when making ephemeris function for body " + linkEndId.bodyName_ + ", station " +
+                    linkEndId.stationName_ + ": body not found.";
+        }
+        else
+        {
+            errorMessage = "Error when making ephemeris function for body " + linkEndId.bodyName_ + ": body not found.";
+        }
+
+
         throw std::runtime_error( errorMessage );
     }
     return getLinkEndCompleteEphemerisFunction< TimeType, StateScalarType >( bodies.at( linkEndId.bodyName_ ), linkEndId );
