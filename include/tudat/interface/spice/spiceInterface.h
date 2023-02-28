@@ -105,6 +105,9 @@ double getAverageRadius(const std::string &body);
 //! @get_docstring(convert_body_name_to_naif_id)
 int convertBodyNameToNaifId(const std::string &bodyName);
 
+//! Convert a NAIF identification number to its body name.
+std::string convertNaifIdToBodyName( int bodyNaifId );
+
 //! @get_docstring(check_body_property_in_kernel_pool)
 bool checkBodyPropertyInKernelPool(const std::string &bodyName, const std::string &bodyProperty);
 

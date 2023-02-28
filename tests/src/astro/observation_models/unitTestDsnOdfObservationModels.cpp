@@ -39,6 +39,7 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
 {
 
     spice_interface::loadStandardSpiceKernels( );
+    spice_interface::loadSpiceKernelInTudat( "/Users/pipas/Documents/messenger-spice/msgr_040803_080216_120401.bsp" );
 
     // Define bodies to use.
     std::vector< std::string > bodiesToCreate;
@@ -51,26 +52,34 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
     std::vector< std::string > lightTimePerturbingBodies = { "Earth", "Sun" };
 
     // Specify initial time
-    double initialEphemerisTime = 0.0;
-    double finalEphemerisTime = initialEphemerisTime + 7.0 * 86400.0;
-    double maximumTimeStep = 3600.0;
-    double buffer = 10.0 * maximumTimeStep;
+    double initialEphemerisTime = 234224663.2 - 10.0 * 86400.0;
+    double finalEphemerisTime = 234349306.2 + 10.0 * 86400.0;
+    double ephemerisTimeStep = 300.0;
+    double buffer = 10.0 * ephemerisTimeStep;
 
     // Create bodies settings needed in simulation
-    BodyListSettings defaultBodySettings =
+    BodyListSettings bodySettings =
             getDefaultBodySettings(
                 bodiesToCreate, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
 
-    defaultBodySettings.at( "Earth" )->groundStationSettings = getDsnStationSettings( );
+    bodySettings.at( "Earth" )->groundStationSettings = getDsnStationSettings( );
+
+    // Create spacecraft
+    std::string spacecraftName = "Messenger";
+    bodySettings.addSettings( spacecraftName );
+    bodySettings.at( spacecraftName )->ephemerisSettings =
+            std::make_shared< InterpolatedSpiceEphemerisSettings >(
+                    initialEphemerisTime - buffer, finalEphemerisTime + buffer, ephemerisTimeStep, "SSB", "ECLIPJ2000",
+                    std::make_shared< interpolators::LagrangeInterpolatorSettings >( 6 ), spacecraftName );
 
     // Create bodies
-    SystemOfBodies bodies = createSystemOfBodies( defaultBodySettings );
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
     // Read and process ODF file data
     std::shared_ptr< ProcessedOdfFileContents > processedOdfFileContents =
             orbit_determination::processOdfFileContents( input_output::readOdfFile(
 //                    "/Users/pipas/Documents/mro-rawdata-odf/mromagr2009_332_1945xmmmv1.odf" ) ),
-                    "/Users/pipas/Documents/dsn_trk-2-18/odf07155.dat" ) );
+                    "/Users/pipas/Documents/dsn_trk-2-18/odf07155.dat" ), spacecraftName );
 
     std::cout << std::endl << "Spacecraft name: " << processedOdfFileContents->getSpacecraftName( ) << std::endl;
     std::vector< std::string > groundStationsNames = processedOdfFileContents->getGroundStationsNames( );
