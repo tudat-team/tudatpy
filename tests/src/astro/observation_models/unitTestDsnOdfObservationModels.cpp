@@ -114,6 +114,10 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
         std::cout << it->first << " " << std::get<0>(it->second) << " " << std::get<1>(it->second) << std::endl;
     }
 
+    std::cerr << "DSS-14:" << bodies.at("Earth")->getGroundStation( "DSS-14" )->getTransmittingFrequencyCalculator( ) << std::endl;
+    std::cerr << "DSS-43:" << bodies.at("Earth")->getGroundStation( "DSS-43" )->getTransmittingFrequencyCalculator( ) << std::endl;
+    std::cerr << "DSS-63:" << bodies.at("Earth")->getGroundStation( "DSS-63" )->getTransmittingFrequencyCalculator( ) << std::endl;
+
     // Create computed observation collection
     std::vector< std::shared_ptr< observation_models::ObservationModelSettings > > observationModelSettingsList;
 

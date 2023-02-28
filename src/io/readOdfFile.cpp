@@ -79,13 +79,13 @@ std::shared_ptr< OdfDopplerDataBlock > parseDopplerOrbitData( std::bitset< 128 >
             dopplerDataBlock->compressionTime_,
             dopplerDataBlock->transmittingStationUplinkDelay_ );
 
-    std::cout << dopplerDataBlock->receiverChannel_ << " " <<
-              dopplerDataBlock->spacecraftId_ << " " <<
-              dopplerDataBlock->receiverExciterFlag_ << " " <<
-              std::fixed << dopplerDataBlock->getReferenceFrequency() << " " <<
-              dopplerDataBlock->reservedSegment_ << " " <<
-              dopplerDataBlock->compressionTime_ << " " <<
-              dopplerDataBlock->transmittingStationUplinkDelay_ << std::endl;
+//    std::cout << dopplerDataBlock->receiverChannel_ << " " <<
+//              dopplerDataBlock->spacecraftId_ << " " <<
+//              dopplerDataBlock->receiverExciterFlag_ << " " <<
+//              std::fixed << dopplerDataBlock->getReferenceFrequency() << " " <<
+//              dopplerDataBlock->reservedSegment_ << " " <<
+//              dopplerDataBlock->compressionTime_ << " " <<
+//              dopplerDataBlock->transmittingStationUplinkDelay_ << std::endl;
 
     return dopplerDataBlock;
 }
@@ -118,13 +118,13 @@ std::shared_ptr< OdfSequentialRangeDataBlock > parseSequentialRangeData( std::bi
             rangeDataBlock->compositeTwo_,
             rangeDataBlock->transmittingStationUplinkDelay_ );
 
-    std::cout << rangeDataBlock->lowestRangingComponent_ << " " <<
-              rangeDataBlock->spacecraftId_ << " " <<
-              rangeDataBlock->reservedBlock_ << " " <<
-              std::fixed << rangeDataBlock->getReferenceFrequency() << " " <<
-              rangeDataBlock->coderInPhaseTimeOffset_ << " " <<
-              rangeDataBlock->compositeTwo_ << " " <<
-              rangeDataBlock->transmittingStationUplinkDelay_ << std::endl;
+//    std::cout << rangeDataBlock->lowestRangingComponent_ << " " <<
+//              rangeDataBlock->spacecraftId_ << " " <<
+//              rangeDataBlock->reservedBlock_ << " " <<
+//              std::fixed << rangeDataBlock->getReferenceFrequency() << " " <<
+//              rangeDataBlock->coderInPhaseTimeOffset_ << " " <<
+//              rangeDataBlock->compositeTwo_ << " " <<
+//              rangeDataBlock->transmittingStationUplinkDelay_ << std::endl;
 
     return rangeDataBlock;
 }
@@ -302,20 +302,20 @@ std::shared_ptr< OdfDataBlock > parseOrbitData( std::bitset< 288 > dataBits )
             commonDataBlock->referenceBandId_,
             commonDataBlock->validity_ );
 
-    std::cout << commonDataBlock->integerTimeTag_ << " " <<
-        commonDataBlock->fractionalTimeTag_ << " " <<
-        commonDataBlock->receivingStationDownlinkDelay_ << " " <<
-                                                               commonDataBlock->integerObservable_ << " " <<
-                                                               commonDataBlock->fractionalObservable_ << " " <<
-                                                               commonDataBlock->formatId_ << " " <<
-                                                               commonDataBlock->receivingStationId_ << " " <<
-                                                               commonDataBlock->transmittingStationId_ << " " <<
-                                                               commonDataBlock->transmittingStationNetworkId_ << " " <<
-                                                               dataType << " " <<
-                                                               commonDataBlock->downlinkBandId_ << " " <<
-                                                               commonDataBlock->uplinkBandId_ << " " <<
-                                                               commonDataBlock->referenceBandId_ << " " <<
-                                                               commonDataBlock->validity_ << std::endl;
+//    std::cout << commonDataBlock->integerTimeTag_ << " " <<
+//        commonDataBlock->fractionalTimeTag_ << " " <<
+//        commonDataBlock->receivingStationDownlinkDelay_ << " " <<
+//                                                               commonDataBlock->integerObservable_ << " " <<
+//                                                               commonDataBlock->fractionalObservable_ << " " <<
+//                                                               commonDataBlock->formatId_ << " " <<
+//                                                               commonDataBlock->receivingStationId_ << " " <<
+//                                                               commonDataBlock->transmittingStationId_ << " " <<
+//                                                               commonDataBlock->transmittingStationNetworkId_ << " " <<
+//                                                               dataType << " " <<
+//                                                               commonDataBlock->downlinkBandId_ << " " <<
+//                                                               commonDataBlock->uplinkBandId_ << " " <<
+//                                                               commonDataBlock->referenceBandId_ << " " <<
+//                                                               commonDataBlock->validity_ << std::endl;
 
     // Read data type specific data
     std::bitset< 128 > specificDataBits = getBitsetSegment< 128, 288 >( dataBits, 160 );
@@ -617,7 +617,7 @@ std::shared_ptr< OdfRawFileContents > readOdfFile(
                 currentRampStation = secondaryKey;
             }
             // Clock offset header
-            if ( primaryKey == 2040 )
+            else if ( primaryKey == 2040 )
             {
                 if( primaryKey != 2040 || secondaryKey != 0 || logicalRecordLength != 1 )
                 {
