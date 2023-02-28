@@ -95,9 +95,15 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
     {
         for ( unsigned int i = 0; i < it->second.size(); ++i )
         {
-            observationModelSettingsList.push_back(
-                    std::make_shared< observation_models::ObservationModelSettings >(
-                            it->first, it->second.at( i ), lightTimeCorrectionSettings, nullptr, nullptr ) );
+//            observationModelSettingsList.push_back(
+//                    std::make_shared< observation_models::ObservationModelSettings >(
+//                            it->first, it->second.at( i ), lightTimeCorrectionSettings, nullptr, nullptr ) );
+            if ( it->first == observation_models::dsn_n_way_averaged_doppler )
+            {
+                observationModelSettingsList.push_back(
+                    std::make_shared< observation_models::DsnNWayAveragedDopplerObservationSettings >(
+                            it->second.at( i ), lightTimeCorrectionSettings, nullptr, nullptr ) );
+            }
         }
     }
 
