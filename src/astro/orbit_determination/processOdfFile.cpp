@@ -25,9 +25,9 @@ observation_models::ObservableType getObservableTypeForOdfId(
 
     switch( odfId )
     {
-    case 11:
-        observableType = observation_models::dsn_one_way_averaged_doppler;
-        break;
+//    case 11:
+//        observableType = observation_models::dsn_one_way_averaged_doppler;
+//        break;
     case 12:
         observableType = observation_models::dsn_n_way_averaged_doppler;
         break;

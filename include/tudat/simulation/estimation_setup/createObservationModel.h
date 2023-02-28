@@ -866,7 +866,7 @@ public:
             const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
             const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria
             = std::make_shared< LightTimeConvergenceCriteria >( ) ):
-        ObservationModelSettings( n_way_differenced_range, linkEnds, lightTimeCorrectionsList, biasSettings )
+        ObservationModelSettings( dsn_n_way_averaged_doppler, linkEnds, lightTimeCorrectionsList, biasSettings )
     {
         for( unsigned int i = 0; i < linkEnds.size( ) - 1; i++ )
         {
