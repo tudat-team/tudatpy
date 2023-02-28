@@ -332,6 +332,18 @@ int convertBodyNameToNaifId(const std::string &bodyName) {
     return static_cast<int>(bodyNaifId);
 }
 
+//! Convert a NAIF identification number to its body name.
+std::string convertNaifIdToBodyName( int bodyNaifId )
+{
+    // Maximum SPICE name length is 32. Therefore, a name length of 33 is used (+1 for null terminator)
+    SpiceChar bodyName[33];
+
+    bodc2s_c( bodyNaifId, 33, bodyName );
+
+    // Convert SpiceChar to std::string
+    return static_cast< std::string >( bodyName );
+}
+
 //! Check if a certain property of a body is in the kernel pool.
 bool checkBodyPropertyInKernelPool(const std::string &bodyName, const std::string &bodyProperty) {
     // Convert body name to NAIF ID.

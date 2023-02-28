@@ -219,6 +219,7 @@ observation_models::LinkEnds getLinkEndsFromOdfBlock (
 
 std::shared_ptr< ProcessedOdfFileContents > processOdfFileContents(
         const std::shared_ptr< input_output::OdfRawFileContents > rawOdfData,
+        std::string spacecraftName = "",
         bool verbose = true );
 
 template< typename TimeType = double >

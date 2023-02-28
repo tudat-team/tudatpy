@@ -358,11 +358,17 @@ observation_models::LinkEnds getLinkEndsFromOdfBlock (
 
 std::shared_ptr< ProcessedOdfFileContents > processOdfFileContents(
         const std::shared_ptr< input_output::OdfRawFileContents > rawOdfData,
+        std::string spacecraftName,
         bool verbose )
 {
     // Create output object
     std::shared_ptr< ProcessedOdfFileContents > processedOdfFile = std::make_shared< ProcessedOdfFileContents >( );
-    std::string spacecraftName = std::to_string( rawOdfData->spacecraftId_ );
+
+    if ( spacecraftName == "")
+    {
+        // Spacecraft name selected to be the "NAIF Id", which is equal to -"JPL Id" (for spacecraft)
+        spacecraftName = std::to_string( - rawOdfData->spacecraftId_ );
+    }
 
     // Retrieve data blocks from ODF file raw contents
     std::vector< std::shared_ptr< input_output::OdfDataBlock > > rawDataBlocks = rawOdfData->dataBlocks_;
