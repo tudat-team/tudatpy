@@ -66,13 +66,36 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
     // Create bodies
     SystemOfBodies bodies = createSystemOfBodies( defaultBodySettings );
 
+    // Read and process ODF file data
+    std::shared_ptr< ProcessedOdfFileContents > processedOdfFileContents =
+            orbit_determination::processOdfFileContents( input_output::readOdfFile(
+//                    "/Users/pipas/Documents/mro-rawdata-odf/mromagr2009_332_1945xmmmv1.odf" ) ),
+                    "/Users/pipas/Documents/dsn_trk-2-18/odf07155.dat" ) );
+
+    std::cout << std::endl << "Spacecraft name: " << processedOdfFileContents->getSpacecraftName( ) << std::endl;
+    std::vector< std::string > groundStationsNames = processedOdfFileContents->getGroundStationsNames( );
+    std::cout << "Ground stations: ";
+    for ( unsigned int i = 0; i < groundStationsNames.size( ); ++i )
+    {
+        std::cout << groundStationsNames.at( i ) << " ";
+    }
+    std::cout << std::endl;
+
+    std::cout << "Start time: " << processedOdfFileContents->getStartAndEndTime( bodies ).first << std::endl;
+    std::cout << "End time: " << processedOdfFileContents->getStartAndEndTime( bodies ).second << std::endl;
+
+    std::vector< observation_models::ObservableType > observableTypes = processedOdfFileContents->getProcessedObservableTypes( );
+    std::cout << "Observable types: ";
+    for ( unsigned int i = 0; i < observableTypes.size( ); ++i )
+    {
+        std::cout << observableTypes.at( i ) << " ";
+    }
+    std::cout << std::endl;
+
     // Create observed observation collection
     std::shared_ptr< observation_models::ObservationCollection< > > observedObservationCollection =
             orbit_determination::createOdfObservedObservationCollection(
-                    orbit_determination::processOdfFileContents( input_output::readOdfFile(
-//                            "/Users/pipas/Documents/mro-rawdata-odf/mromagr2009_332_1945xmmmv1.odf" ) ),
-                            "/Users/pipas/Documents/dsn_trk-2-18/odf07155.dat" ) ),
-                    bodies );
+                    processedOdfFileContents, bodies );
 
     std::cout << std::endl << "Observation type start and size:" << std::endl;
     std::map< observation_models::ObservableType, std::pair< int, int > > observationTypeStartAndSize =

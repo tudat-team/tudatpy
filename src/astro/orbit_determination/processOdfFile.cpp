@@ -88,6 +88,49 @@ std::string getStationNameFromStationId ( const int networkId, const int station
     return stationName;
 }
 
+
+std::vector< std::string > ProcessedOdfFileContents::getGroundStationsNames( )
+{
+    std::vector< std::string > groundStations;
+
+    for ( auto observableIt = processedDataBlocks_.begin( ); observableIt != processedDataBlocks_.end( );
+            ++observableIt )
+    {
+        for ( auto linkEndIt = observableIt->second.begin( ); linkEndIt != observableIt->second.end( );
+                ++linkEndIt )
+        {
+            observation_models::LinkEnds linkEnd = linkEndIt->first;
+
+            for ( auto linkEndTypeIt = linkEnd.begin( ); linkEndTypeIt != linkEnd.end( ); ++linkEndTypeIt )
+            {
+                // Check if linkEndId is a ground station
+                if ( linkEndTypeIt->second.stationName_ != "" )
+                {
+                    if ( !std::count( groundStations.begin( ), groundStations.end( ), linkEndTypeIt->second.stationName_)  )
+                    {
+                        groundStations.push_back( linkEndTypeIt->second.stationName_ );
+                    }
+                }
+            }
+        }
+    }
+
+    return groundStations;
+}
+
+std::vector< observation_models::ObservableType > ProcessedOdfFileContents::getProcessedObservableTypes( )
+{
+    std::vector< observation_models::ObservableType > observableTypes;
+
+    for ( auto observableIt = processedDataBlocks_.begin( ); observableIt != processedDataBlocks_.end( );
+            ++observableIt )
+    {
+        observableTypes.push_back( observableIt->first );
+    }
+
+    return observableTypes;
+}
+
 std::shared_ptr< ground_stations::PiecewiseLinearFrequencyInterpolator > mergeRampDataInterpolators(
         const std::vector< std::shared_ptr< ground_stations::PiecewiseLinearFrequencyInterpolator > >& interpolatorList )
 {
