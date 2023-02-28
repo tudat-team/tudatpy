@@ -326,11 +326,26 @@ void separateSingleLinkOdfData(
     }
 }
 
+// Add transmitting stations to ground stations
+inline void setGroundStationsTransmittingFrequencies(
+        std::shared_ptr< ProcessedOdfFileContents > processedOdfFileContents,
+        simulation_setup::SystemOfBodies& bodies )
+{
+    for( auto it = processedOdfFileContents->rampInterpolators_.begin( );
+            it != processedOdfFileContents->rampInterpolators_.end( ); it++ )
+    {
+       bodies.getBody( "Earth" )->getGroundStation( it->first )->setTransmittingFrequencyCalculator( it->second );
+       std::cerr << it->first << ":: " << bodies.getBody( "Earth" )->getGroundStation( it->first )->getTransmittingFrequencyCalculator( ) << std::endl;
+    }
+}
+
+
 template< typename ObservationScalarType = double, typename TimeType = double >
 std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > createOdfObservedObservationCollection(
         std::shared_ptr< ProcessedOdfFileContents > processedOdfFileContents,
-        const simulation_setup::SystemOfBodies& bodies,
-        const std::shared_ptr< simulation_setup::ObservationDependentVariableCalculator > dependentVariableCalculator = nullptr )
+        simulation_setup::SystemOfBodies& bodies,
+        const std::shared_ptr< simulation_setup::ObservationDependentVariableCalculator > dependentVariableCalculator = nullptr,
+        bool setGroundStationsFrequencies = true )
 {
 
     // Create and fill single observation sets
@@ -385,11 +400,9 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
         }
     }
 
-    // Add transmitting stations to ground stations
-    for( auto it = processedOdfFileContents->rampInterpolators_.begin( );
-            it != processedOdfFileContents->rampInterpolators_.end( ); it++ )
+    if ( setGroundStationsFrequencies )
     {
-       bodies.getBody( "Earth" )->getGroundStation( it->first )->setTransmittingFrequencyCalculator( it->second );
+        setGroundStationsTransmittingFrequencies( processedOdfFileContents, bodies );
     }
 
     return std::make_shared< observation_models::ObservationCollection< ObservationScalarType, TimeType > >(
