@@ -77,9 +77,9 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
 
     // Read and process ODF file data
     std::shared_ptr< ProcessedOdfFileContents > processedOdfFileContents =
-            orbit_determination::processOdfFileContents( input_output::readOdfFile(
-//                    "/Users/pipas/Documents/mro-rawdata-odf/mromagr2009_332_1945xmmmv1.odf" ) ),
-                    "/Users/pipas/Documents/dsn_trk-2-18/odf07155.dat" ), spacecraftName );
+            std::make_shared< ProcessedOdfFileContents >(
+                    input_output::readOdfFile( "/Users/pipas/Documents/dsn_trk-2-18/odf07155.dat" ), // "/Users/pipas/Documents/mro-rawdata-odf/mromagr2009_332_1945xmmmv1.odf"
+                    bodies.getBody( "Earth" ), true, spacecraftName );
 
     std::cout << std::endl << "Spacecraft name: " << processedOdfFileContents->getSpacecraftName( ) << std::endl;
     std::vector< std::string > groundStationsNames = processedOdfFileContents->getGroundStationsNames( );
@@ -113,10 +113,6 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
     {
         std::cout << it->first << " " << std::get<0>(it->second) << " " << std::get<1>(it->second) << std::endl;
     }
-
-    std::cerr << "DSS-14:" << bodies.at("Earth")->getGroundStation( "DSS-14" )->getTransmittingFrequencyCalculator( ) << std::endl;
-    std::cerr << "DSS-43:" << bodies.at("Earth")->getGroundStation( "DSS-43" )->getTransmittingFrequencyCalculator( ) << std::endl;
-    std::cerr << "DSS-63:" << bodies.at("Earth")->getGroundStation( "DSS-63" )->getTransmittingFrequencyCalculator( ) << std::endl;
 
     // Create computed observation collection
     std::vector< std::shared_ptr< observation_models::ObservationModelSettings > > observationModelSettingsList;
