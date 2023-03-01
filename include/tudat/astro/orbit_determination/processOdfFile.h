@@ -44,7 +44,9 @@ public:
 
     virtual ~ProcessedOdfFileSingleLinkData( ){ }
 
-    std::vector< double > observationTimes_;
+    std::vector< double > unprocessedObservationTimes_;
+    std::vector< double > processedObservationTimes_;
+
     std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > observableValues_;
     std::vector< double > receiverDownlinkDelays_;
 
@@ -61,7 +63,7 @@ public:
 
     std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > getObservables( )
     {
-        return utilities::createMapFromVectors( observationTimes_, observableValues_ );
+        return utilities::createMapFromVectors( processedObservationTimes_, observableValues_ );
     }
 
     std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > getObservablesVector( )
@@ -69,44 +71,9 @@ public:
         return observableValues_;
     }
 
-    std::vector< double > getObservationTimesUtcSinceJ2000(  )
+    std::vector< double > getObservationTimesVector( )
     {
-        std::vector < double > observationTimesFromJ2000;
-
-        double EME1950ToJ2000Offset = basic_astrodynamics::convertCalendarDateToJulianDaysSinceEpoch< double >(
-                1950, 1, 1, 0, 0, 0, basic_astrodynamics::JULIAN_DAY_ON_J2000 )
-                        * physical_constants::JULIAN_DAY;
-
-        for ( unsigned int i = 0; i < observationTimes_.size( ); ++i )
-        {
-            observationTimesFromJ2000.push_back( observationTimes_.at( i ) + EME1950ToJ2000Offset );
-        }
-
-        return observationTimesFromJ2000;
-    }
-
-    std::vector< double > getObservationTimesTdbSinceJ2000(
-            const simulation_setup::SystemOfBodies& bodies )
-    {
-        earth_orientation::TerrestrialTimeScaleConverter timeScaleConverter =
-                earth_orientation::TerrestrialTimeScaleConverter( );
-
-        std::vector< double > observationTimesFromJ2000Utc = getObservationTimesUtcSinceJ2000( );
-
-        std::vector< Eigen::Vector3d > earthFixedPositions;
-        for ( unsigned int i = 0; i < observationTimesFromJ2000Utc.size( ); ++i )
-        {
-            // Approximation: UTC time used to retrieve the ground station's position
-            earthFixedPositions.push_back(
-                    bodies.getBody( "Earth" )->getGroundStation( receivingStation_ )->getStateInPlanetFixedFrame< double, double >(
-                            observationTimesFromJ2000Utc.at( i ) ).segment( 0, 3 ) );
-        }
-
-        std::vector< double > observationTimesFromJ2000Tdb = timeScaleConverter.getCurrentTimes(
-                basic_astrodynamics::utc_scale, basic_astrodynamics::tdb_scale, observationTimesFromJ2000Utc,
-                earthFixedPositions );
-
-        return observationTimesFromJ2000Tdb;
+        return processedObservationTimes_;
     }
 
 };
@@ -126,17 +93,17 @@ public:
 
     std::map< double, bool > getReceiverRampingFlags( )
     {
-        return utilities::createMapFromVectors( observationTimes_, receiverRampingFlags_ );
+        return utilities::createMapFromVectors( processedObservationTimes_, receiverRampingFlags_ );
     }
 
     std::map< double, double > getReferenceFrequencies( )
     {
-        return utilities::createMapFromVectors( observationTimes_, referenceFrequencies_ );
+        return utilities::createMapFromVectors( processedObservationTimes_, referenceFrequencies_ );
     }
 
     std::map< double, double > getCountInterval( )
     {
-        return utilities::createMapFromVectors( observationTimes_, countInterval_ );
+        return utilities::createMapFromVectors( processedObservationTimes_, countInterval_ );
     }
 };
 
@@ -145,13 +112,70 @@ class ProcessedOdfFileContents
 {
 public:
 
-    std::string spacecraftName_;
+    // Constructor for single raw ODF data object
+    ProcessedOdfFileContents(
+            const std::shared_ptr< const input_output::OdfRawFileContents > rawOdfData,
+            const std::shared_ptr< const simulation_setup::Body > bodyWithGroundStations,
+            bool verbose = true,
+            std::string spacecraftName = "" ):
+        spacecraftName_( spacecraftName ),
+        bodyWithGroundStations_ ( bodyWithGroundStations ),
+        verbose_( verbose )
+    {
+        if ( spacecraftName != "" )
+        {
+            spacecraftName_ = spacecraftName;
+        }
+        else
+        {
+            // Spacecraft name selected to be the "NAIF Id", which is equal to -"JPL Id" (for a spacecraft)
+            spacecraftName_ = std::to_string( - rawOdfData->spacecraftId_ );
+        }
 
-    std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds,
-        std::shared_ptr< ProcessedOdfFileSingleLinkData > > > processedDataBlocks_;
+        extractRawOdfOrbitData( rawOdfData );
+        updateProcessedObservationTimes( );
+        extractRawOdfRampData( rawOdfData );
+    }
 
-    std::map< std::string, std::shared_ptr< ground_stations::PiecewiseLinearFrequencyInterpolator > > rampInterpolators_;
+    // Constructor for multiple ODF data objects
+    ProcessedOdfFileContents(
+            std::vector< std::shared_ptr< const input_output::OdfRawFileContents > > rawOdfDataVector,
+            const std::shared_ptr< const simulation_setup::Body > bodyWithGroundStations,
+            bool verbose = true,
+            std::string spacecraftName = "" ):
+        spacecraftName_( spacecraftName ),
+        bodyWithGroundStations_ ( bodyWithGroundStations ),
+        verbose_( verbose )
+    {
+        unsigned int spacecraftId = rawOdfDataVector.front( )->spacecraftId_;
 
+        if ( spacecraftName != "" )
+        {
+            spacecraftName_ = spacecraftName;
+        }
+        else
+        {
+            // Spacecraft name selected to be the "NAIF Id", which is equal to -"JPL Id" (for a spacecraft)
+            spacecraftName_ = std::to_string( - spacecraftId );
+        }
+
+        for ( unsigned int i = 0; i < rawOdfDataVector.size( ); ++i )
+        {
+            // Check if spacecraft ID is valid
+            if ( rawOdfDataVector.at( i )->spacecraftId_ != spacecraftId )
+            {
+                throw std::runtime_error("Error when creating processed ODF object from raw data: multiple spacecraft IDs"
+                                         "found (" + std::to_string( spacecraftId ) + " and " +
+                                         std::to_string( rawOdfDataVector.at( i )->spacecraftId_ ) + ").");
+            }
+
+            extractRawOdfOrbitData( rawOdfDataVector.at( i ) );
+        }
+
+        updateProcessedObservationTimes( );
+
+        extractMultipleRawOdfRampData( rawOdfDataVector );
+    }
 
     std::string getSpacecraftName( )
     {
@@ -162,56 +186,72 @@ public:
 
     std::vector< observation_models::ObservableType > getProcessedObservableTypes( );
 
-    std::pair< double, double > getStartAndEndTime( const simulation_setup::SystemOfBodies& bodies )
+    std::pair< double, double > getStartAndEndTime( const simulation_setup::SystemOfBodies& bodies );
+
+    std::vector< int > getNotReadRawOdfObservableTypes( )
     {
-        // Reset variables
-        double startTimeTdbSinceJ2000 = TUDAT_NAN;
-        double endTimeTdbSinceJ2000 = TUDAT_NAN;
-
-        // Loop over data
-        for ( auto observableIt = processedDataBlocks_.begin( ); observableIt != processedDataBlocks_.end( );
-                ++observableIt )
-        {
-            for ( auto linkEndIt = observableIt->second.begin( ); linkEndIt != observableIt->second.end( );
-                  ++linkEndIt )
-            {
-                std::shared_ptr< ProcessedOdfFileSingleLinkData > processedSingleLinkData = linkEndIt->second;
-
-                // Extract the start and end times
-                std::vector< double > timeVector = processedSingleLinkData->getObservationTimesTdbSinceJ2000( bodies );
-
-                if ( timeVector.front( ) < startTimeTdbSinceJ2000 || std::isnan( startTimeTdbSinceJ2000 ) )
-                {
-                    startTimeTdbSinceJ2000 = timeVector.front( );
-                }
-
-                if ( timeVector.back( ) > endTimeTdbSinceJ2000 || std::isnan( endTimeTdbSinceJ2000 ) )
-                {
-                    endTimeTdbSinceJ2000 = timeVector.back( );
-                }
-            }
-        }
-
-        return std::make_pair( startTimeTdbSinceJ2000, endTimeTdbSinceJ2000 );
+        return notReadRawOdfObservableTypes_;
     }
+
+    const std::map< std::string, std::shared_ptr< ground_stations::PiecewiseLinearFrequencyInterpolator > >& getRampInterpolators( )
+    {
+        return rampInterpolators_;
+    }
+
+    const std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds,
+        std::shared_ptr< ProcessedOdfFileSingleLinkData > > >& getProcessedDataBlocks( )
+    {
+        return processedDataBlocks_;
+    }
+
+private:
+
+    void extractRawOdfOrbitData( std::shared_ptr< const input_output::OdfRawFileContents > rawOdfData );
+
+    void extractRawOdfRampData( std::shared_ptr< const input_output::OdfRawFileContents > rawOdfData );
+
+    void extractMultipleRawOdfRampData(
+            std::vector< std::shared_ptr< const input_output::OdfRawFileContents > > rawOdfDataVector );
+
+    void addOdfRawDataBlockToProcessedData(
+            const observation_models::ObservableType currentObservableType,
+            const std::shared_ptr< const input_output::OdfDataBlock > rawDataBlock,
+            const std::shared_ptr< ProcessedOdfFileSingleLinkData > singleLinkProcessedData,
+            const std::string rawDataFileName );
+
+    void updateProcessedObservationTimes( );
+
+    std::vector< double > computeObservationTimesUtcFromJ2000( std::vector< double > observationTimesUtcFromEME1950 );
+
+    std::vector< double > computeObservationTimesTdbFromJ2000(
+            std::string groundStation, std::vector< double > observationTimesUtcFromEME1950 );
+
+    std::string spacecraftName_;
+
+    std::shared_ptr< const simulation_setup::Body > bodyWithGroundStations_;
+
+    std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds,
+        std::shared_ptr< ProcessedOdfFileSingleLinkData > > > processedDataBlocks_;
+
+    std::map< std::string, std::shared_ptr< ground_stations::PiecewiseLinearFrequencyInterpolator > > rampInterpolators_;
+
+    // Vector keeping the invalid observable types that were found in the raw ODF data
+    std::vector< int > notReadRawOdfObservableTypes_;
+
+    bool verbose_;
 };
 
 
-std::shared_ptr< ground_stations::PiecewiseLinearFrequencyInterpolator > mergeRampDataInterpolators(
-        const std::vector< std::shared_ptr< ground_stations::PiecewiseLinearFrequencyInterpolator > >& interpolatorList );
-
-void addOdfFileContentsToMergedContents(
-        const observation_models::ObservableType observableType,
-        std::shared_ptr< ProcessedOdfFileSingleLinkData > mergedOdfFileContents,
-        std::shared_ptr< ProcessedOdfFileSingleLinkData > blockToAdd );
-
-std::shared_ptr< ProcessedOdfFileContents > mergeOdfFileContents(
-        const std::vector< std::shared_ptr< ProcessedOdfFileContents > > odfFileContents );
-
-void addOdfDataBlockToProcessedData(
-        const observation_models::ObservableType currentObservableType,
-        const std::shared_ptr< input_output::OdfDataBlock > rawDataBlock,
-        const std::shared_ptr< ProcessedOdfFileSingleLinkData > processedDataBlock );
+//std::shared_ptr< ground_stations::PiecewiseLinearFrequencyInterpolator > mergeRampDataInterpolators(
+//        const std::vector< std::shared_ptr< ground_stations::PiecewiseLinearFrequencyInterpolator > >& interpolatorList );
+//
+//void addOdfFileContentsToMergedContents(
+//        const observation_models::ObservableType observableType,
+//        std::shared_ptr< ProcessedOdfFileSingleLinkData > mergedOdfFileContents,
+//        std::shared_ptr< ProcessedOdfFileSingleLinkData > blockToAdd );
+//
+//std::shared_ptr< ProcessedOdfFileContents > mergeOdfFileContents(
+//        const std::vector< std::shared_ptr< ProcessedOdfFileContents > > odfFileContents );
 
 observation_models::LinkEnds getLinkEndsFromOdfBlock (
         const std::shared_ptr< input_output::OdfDataBlock > dataBlock,
@@ -227,7 +267,7 @@ observation_models::ObservationAncilliarySimulationSettings< TimeType > createOd
         ( std::shared_ptr< ProcessedOdfFileSingleLinkData > odfDataContents,
           unsigned int dataIndex )
 {
-    if ( dataIndex >= odfDataContents->observationTimes_.size( ) )
+    if ( dataIndex >= odfDataContents->unprocessedObservationTimes_.size( ) )
     {
         throw std::runtime_error("Error when creating ODF data ancillary settings: specified data index is larger than data size.");
     }
@@ -294,11 +334,11 @@ void separateSingleLinkOdfData(
     ancillarySettings.clear( );
 
     // Get time and observables vectors
-    std::vector< double > observationTimesTdb = odfSingleLinkData->getObservationTimesTdbSinceJ2000( bodies );
+    std::vector< double > observationTimesTdb = odfSingleLinkData->processedObservationTimes_;
     std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > observablesVector =
             odfSingleLinkData->getObservablesVector( );
 
-    for ( unsigned int i = 0; i < odfSingleLinkData->observationTimes_.size( ); ++i )
+    for ( unsigned int i = 0; i < odfSingleLinkData->unprocessedObservationTimes_.size( ); ++i )
     {
         observation_models::ObservationAncilliarySimulationSettings< TimeType > currentAncillarySettings =
                 createOdfAncillarySettings( odfSingleLinkData, i );
@@ -331,11 +371,10 @@ inline void setGroundStationsTransmittingFrequencies(
         std::shared_ptr< ProcessedOdfFileContents > processedOdfFileContents,
         simulation_setup::SystemOfBodies& bodies )
 {
-    for( auto it = processedOdfFileContents->rampInterpolators_.begin( );
-            it != processedOdfFileContents->rampInterpolators_.end( ); it++ )
+    for( auto it = processedOdfFileContents->getRampInterpolators( ).begin( );
+            it != processedOdfFileContents->getRampInterpolators( ).end( ); it++ )
     {
        bodies.getBody( "Earth" )->getGroundStation( it->first )->setTransmittingFrequencyCalculator( it->second );
-       std::cerr << it->first << ":: " << bodies.getBody( "Earth" )->getGroundStation( it->first )->getTransmittingFrequencyCalculator( ) << std::endl;
     }
 }
 
@@ -352,8 +391,8 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
     std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds, std::vector< std::shared_ptr<
             observation_models::SingleObservationSet< ObservationScalarType, TimeType > > > > > sortedObservationSets;
 
-    for ( auto observableTypeIterator = processedOdfFileContents->processedDataBlocks_.begin( );
-            observableTypeIterator != processedOdfFileContents->processedDataBlocks_.end( ); ++observableTypeIterator )
+    for ( auto observableTypeIterator = processedOdfFileContents->getProcessedDataBlocks( ).begin( );
+            observableTypeIterator != processedOdfFileContents->getProcessedDataBlocks( ).end( ); ++observableTypeIterator )
     {
         observation_models::ObservableType currentObservableType = observableTypeIterator->first;
 

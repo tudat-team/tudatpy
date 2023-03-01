@@ -114,10 +114,4 @@ TUDAT_ADD_TEST_CASE(AerodynamicCoefficientReader
         )
 
 TUDAT_ADD_TEST_CASE(OdfFileReader
-        PRIVATE_LINKS
-        tudat_orbit_determination
-        tudat_input_output
-        tudat_basic_astrodynamics
-        tudat_basic_mathematics
-        tudat_basics
-        )
+        PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES} )

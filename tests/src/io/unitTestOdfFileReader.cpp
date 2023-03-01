@@ -14,9 +14,26 @@
 #include "tudat/io/readOdfFile.h"
 #include "tudat/astro/orbit_determination/processOdfFile.h"
 
+#include "tudat/simulation/estimation.h"
+
 int main( )
 {
     using namespace tudat;
+    using namespace tudat::spice_interface;
+    using namespace tudat::simulation_setup;
+
+    spice_interface::loadStandardSpiceKernels( );
+
+    // Create Earth and it ground stations
+    std::vector< std::string > bodiesToCreate;
+    bodiesToCreate.push_back( "Earth" );
+
+    BodyListSettings bodySettings = getDefaultBodySettings( bodiesToCreate );
+
+    bodySettings.at( "Earth" )->groundStationSettings = getDsnStationSettings( );
+
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+
     //   boost::shared_ptr< orbit_determination::ProcessedOdfFileContents > odfContents =
     //           orbit_determination::parseOdfFileContents(
     //               input_output::readOdfFile( "/home/dominic/Downloads/mromagr2017_117_0745xmmmv1.odf" ) );
@@ -54,26 +71,27 @@ int main( )
     std::vector< boost::filesystem::path > files = input_output::listAllFilesInDirectory(
                 "/Users/pipas/Documents/dsn_trk-2-18/", false ); // "/home/dominic/Software/MercuryData/odf/"
 
-    std::vector< std::shared_ptr< orbit_determination::ProcessedOdfFileContents > > odfContentsList;
+//    for( unsigned int i = 0; i < files.size( ); i++ )
+//    {
+//        if( i % 100 == 0 )
+//        {
+//            //std::cout<<i<<std::endl;
+//        }
+//        std::string fileString = files.at( i ).string( );
+//        int stringSize = fileString.size( );
+//
+//        if( fileString.substr( stringSize - 3, stringSize -1 ) == "dat" )
+//        {
+////            input_output::readOdfFile( "/Users/pipas/Documents/dsn_trk-2-18/" + fileString );
+//
+//            odfContentsList.push_back( orbit_determination::ProcessedOdfFileContents(
+//                    input_output::readOdfFile( "/Users/pipas/Documents/dsn_trk-2-18/" + fileString ) ) ); // "/home/dominic/Software/MercuryData/odf/"
+//        }
+//    }
 
-    //for( unsigned int i = 0; i < files.size( ); i++ )
-    for( unsigned int i = 0; i < files.size( ); i++ )
-    {
-        if( i % 100 == 0 )
-        {
-            //std::cout<<i<<std::endl;
-        }
-        std::string fileString = files.at( i ).string( );
-        int stringSize = fileString.size( );
-
-        if( fileString.substr( stringSize - 3, stringSize -1 ) == "dat" )
-        {
-//            input_output::readOdfFile( "/Users/pipas/Documents/dsn_trk-2-18/" + fileString );
-
-            odfContentsList.push_back( orbit_determination::processOdfFileContents(
-                                           input_output::readOdfFile( "/Users/pipas/Documents/dsn_trk-2-18/" + fileString ) ) ); // "/home/dominic/Software/MercuryData/odf/"
-        }
-    }
+    orbit_determination::ProcessedOdfFileContents odfContents = orbit_determination::ProcessedOdfFileContents(
+            input_output::readOdfFile( "/Users/pipas/Documents/dsn_trk-2-18/odf07155.dat" ),
+            bodies.getBody( "Earth" ) );
 
 //
 //    std::shared_ptr< orbit_determination::ProcessedOdfFileContents > mergedData =

@@ -78,21 +78,6 @@ private:
 class PiecewiseLinearFrequencyInterpolator: public StationFrequencyInterpolator
 {
 public:
-    PiecewiseLinearFrequencyInterpolator(
-            std::vector< std::shared_ptr< input_output::OdfRampBlock > > rampBlock ):
-        StationFrequencyInterpolator( )
-    {
-        for( unsigned int i = 0; i < rampBlock.size( ); i++ )
-        {
-            startTimes_.push_back( rampBlock.at( i )->getRampStartTime( ) );
-            endTimes_.push_back( rampBlock.at( i )->getRampEndTime( ) );
-            rampRates_.push_back( rampBlock.at( i )->getRampRate( ) );
-            startFrequencies_.push_back( rampBlock.at( i )->getRampStartFrequency( ) );
-        }
-
-        startTimeLookupScheme_ = std::make_shared< interpolators::HuntingAlgorithmLookupScheme< double > >(
-                startTimes_ );
-    }
 
     PiecewiseLinearFrequencyInterpolator(
             const std::vector< double >& startTimes_,
@@ -178,77 +163,77 @@ private:
 
 
 // All time intervals are assumed to have the same size
-class PiecewiseConstantFrequencyInterpolator: public StationFrequencyInterpolator
-{
-public:
-    //! Constructor
-    PiecewiseConstantFrequencyInterpolator( std::vector< double > frequencies,
-                                            std::vector< double > referenceTimes,
-                                            double timeIntervalsSize ):
-        StationFrequencyInterpolator( ),
-        frequencies_( frequencies ),
-        referenceTimes_( referenceTimes ),
-        timeIntervalsSize_( timeIntervalsSize )
-    {
-        if ( frequencies.size( ) != referenceTimes.size( ) )
-        {
-            throw std::runtime_error("Error when creating piecewise constant frequency interpolator: size of time stamps and "
-                                     "frequencies are not consistent.");
-        }
-
-        startTimeLookupScheme_ = std::make_shared< interpolators::HuntingAlgorithmLookupScheme< double > >(
-                referenceTimes_ );
-    }
-
-    //! Destructor
-    ~PiecewiseConstantFrequencyInterpolator( ) { }
-
-    double getCurrentFrequency( const double lookupTime )
-    {
-        unsigned int lowerNearestNeighbour = startTimeLookupScheme_->findNearestLowerNeighbour( lookupTime );
-        unsigned int higherNearestNeighbour = lowerNearestNeighbour + 1;
-
-        // Look-up time closer to lower nearest neighbour
-        if ( lookupTime - referenceTimes_.at( lowerNearestNeighbour ) <=  referenceTimes_.at( higherNearestNeighbour ) - lookupTime ||
-            lowerNearestNeighbour == referenceTimes_.size( ) - 1 )
-        {
-            return frequencies_.at( lowerNearestNeighbour );
-        }
-        // Look-up time closer to higher nearest neighbour
-        else
-        {
-            return frequencies_.at( higherNearestNeighbour );
-        }
-    }
-
-    double getFrequencyIntegral( const double quadratureStartTime, const double quadratureEndTime )
-    {
-        throw std::runtime_error("Computation of integral not implemented for piecewise constant frequency.");
-    }
-
-    double getAveragedFrequencyIntegral( const double quadratureStartTime, const double quadratureEndTime )
-    {
-        double referenceTime = quadratureStartTime + ( quadratureEndTime - quadratureStartTime ) / 2.0;
-
-        if ( ( referenceTime - quadratureStartTime ) / ( timeIntervalsSize_ / 2.0 ) - 1.0 > 1e-12 ||
-            ( quadratureEndTime - referenceTime ) / ( timeIntervalsSize_ / 2.0 ) - 1.0 > 1e-12 )
-        {
-            throw std::runtime_error("Error when computing the averaged integral of piecewise constant frequency: "
-                                     "the specified time interval does not coincide with any piecewise interval.");
-        }
-
-        return getCurrentFrequency( referenceTime );
-    }
-
-private:
-
-    std::vector< double > frequencies_;
-    std::vector< double > referenceTimes_;
-
-    double timeIntervalsSize_;
-
-    std::shared_ptr< interpolators::LookUpScheme< double > > startTimeLookupScheme_;
-};
+//class PiecewiseConstantFrequencyInterpolator: public StationFrequencyInterpolator
+//{
+//public:
+//    //! Constructor
+//    PiecewiseConstantFrequencyInterpolator( std::vector< double > frequencies,
+//                                            std::vector< double > referenceTimes,
+//                                            double timeIntervalsSize ):
+//        StationFrequencyInterpolator( ),
+//        frequencies_( frequencies ),
+//        referenceTimes_( referenceTimes ),
+//        timeIntervalsSize_( timeIntervalsSize )
+//    {
+//        if ( frequencies.size( ) != referenceTimes.size( ) )
+//        {
+//            throw std::runtime_error("Error when creating piecewise constant frequency interpolator: size of time stamps and "
+//                                     "frequencies are not consistent.");
+//        }
+//
+//        startTimeLookupScheme_ = std::make_shared< interpolators::HuntingAlgorithmLookupScheme< double > >(
+//                referenceTimes_ );
+//    }
+//
+//    //! Destructor
+//    ~PiecewiseConstantFrequencyInterpolator( ) { }
+//
+//    double getCurrentFrequency( const double lookupTime )
+//    {
+//        unsigned int lowerNearestNeighbour = startTimeLookupScheme_->findNearestLowerNeighbour( lookupTime );
+//        unsigned int higherNearestNeighbour = lowerNearestNeighbour + 1;
+//
+//        // Look-up time closer to lower nearest neighbour
+//        if ( lookupTime - referenceTimes_.at( lowerNearestNeighbour ) <=  referenceTimes_.at( higherNearestNeighbour ) - lookupTime ||
+//            lowerNearestNeighbour == referenceTimes_.size( ) - 1 )
+//        {
+//            return frequencies_.at( lowerNearestNeighbour );
+//        }
+//        // Look-up time closer to higher nearest neighbour
+//        else
+//        {
+//            return frequencies_.at( higherNearestNeighbour );
+//        }
+//    }
+//
+//    double getFrequencyIntegral( const double quadratureStartTime, const double quadratureEndTime )
+//    {
+//        throw std::runtime_error("Computation of integral not implemented for piecewise constant frequency.");
+//    }
+//
+//    double getAveragedFrequencyIntegral( const double quadratureStartTime, const double quadratureEndTime )
+//    {
+//        double referenceTime = quadratureStartTime + ( quadratureEndTime - quadratureStartTime ) / 2.0;
+//
+//        if ( ( referenceTime - quadratureStartTime ) / ( timeIntervalsSize_ / 2.0 ) - 1.0 > 1e-12 ||
+//            ( quadratureEndTime - referenceTime ) / ( timeIntervalsSize_ / 2.0 ) - 1.0 > 1e-12 )
+//        {
+//            throw std::runtime_error("Error when computing the averaged integral of piecewise constant frequency: "
+//                                     "the specified time interval does not coincide with any piecewise interval.");
+//        }
+//
+//        return getCurrentFrequency( referenceTime );
+//    }
+//
+//private:
+//
+//    std::vector< double > frequencies_;
+//    std::vector< double > referenceTimes_;
+//
+//    double timeIntervalsSize_;
+//
+//    std::shared_ptr< interpolators::LookUpScheme< double > > startTimeLookupScheme_;
+//};
 
 } // namespace ground_stations
 
