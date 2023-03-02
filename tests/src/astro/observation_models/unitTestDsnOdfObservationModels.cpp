@@ -90,6 +90,7 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
     }
     std::cout << std::endl;
 
+    std::cout << std::setprecision( 15 );
     std::cout << "Start time: " << processedOdfFileContents->getStartAndEndTime( bodies ).first << std::endl;
     std::cout << "End time: " << processedOdfFileContents->getStartAndEndTime( bodies ).second << std::endl;
 
@@ -153,6 +154,11 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
             simulatedObservationCollection = simulation_setup::simulateObservations< double, double >(
                     observationSimulationSettings, observationSimulators, bodies );
 
+
+    Eigen::Matrix< double, Eigen::Dynamic, 1 > observations =
+            simulatedObservationCollection->getObservationVector( );
+
+    std::cout << observations << std::endl;
 
 }
 

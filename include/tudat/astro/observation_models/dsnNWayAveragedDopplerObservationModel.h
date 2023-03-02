@@ -104,6 +104,8 @@ public:
                         )->getTransmittingFrequencyCalculator( )->getFrequencyIntegral(
                                 transmissionStartTime, transmissionEndTime ) ).finished( );
 
+        std::cerr << time << " " << transmissionStartTime << " " << transmissionEndTime << std::endl;
+
         linkEndTimes.clear( );
         linkEndStates.clear( );
         linkEndTimes.resize( 4 * ( numberOfLinkEnds_ - 1 ) );

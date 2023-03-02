@@ -31,9 +31,9 @@ observation_models::ObservableType getObservableTypeForOdfId(
     case 12:
         observableType = observation_models::dsn_n_way_averaged_doppler;
         break;
-    case 13:
-        observableType = observation_models::dsn_n_way_averaged_doppler;
-        break;
+//    case 13:
+//        observableType = observation_models::dsn_n_way_averaged_doppler;
+//        break;
     default:
         throw std::runtime_error( "Error when getting observable type for ODF ID, ID: " +
                                   std::to_string( odfId ) + " not recognized." );
@@ -550,6 +550,9 @@ void ProcessedOdfFileContents::extractRawOdfRampData( std::shared_ptr< const inp
                 computeObservationTimesTdbFromJ2000( stationName, startTimes ),
                 computeObservationTimesTdbFromJ2000( stationName, endTimes ),
                 rampRates, startFrequencies );
+
+        std::cout << stationName << ": " << std::setprecision( 15 ) << computeObservationTimesTdbFromJ2000( stationName, startTimes ).front( ) << " " <<
+            computeObservationTimesTdbFromJ2000( stationName, startTimes ).back( ) << std::endl;
     }
 
 }

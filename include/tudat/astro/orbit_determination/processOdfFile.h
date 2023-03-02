@@ -325,8 +325,7 @@ void separateSingleLinkOdfData(
         std::shared_ptr< ProcessedOdfFileSingleLinkData > odfSingleLinkData,
         std::vector< std::vector< TimeType > >& observationTimes,
         std::vector< std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > >& observables,
-        std::vector< observation_models::ObservationAncilliarySimulationSettings< TimeType > >& ancillarySettings,
-        const simulation_setup::SystemOfBodies& bodies )
+        std::vector< observation_models::ObservationAncilliarySimulationSettings< TimeType > >& ancillarySettings )
 {
     // Initialize vectors
     observationTimes.clear( );
@@ -369,12 +368,12 @@ void separateSingleLinkOdfData(
 // Add transmitting stations to ground stations
 inline void setGroundStationsTransmittingFrequencies(
         std::shared_ptr< ProcessedOdfFileContents > processedOdfFileContents,
-        simulation_setup::SystemOfBodies& bodies )
+        std::shared_ptr< simulation_setup::Body > bodyWithGroundStations )
 {
     for( auto it = processedOdfFileContents->getRampInterpolators( ).begin( );
             it != processedOdfFileContents->getRampInterpolators( ).end( ); it++ )
     {
-       bodies.getBody( "Earth" )->getGroundStation( it->first )->setTransmittingFrequencyCalculator( it->second );
+       bodyWithGroundStations->getGroundStation( it->first )->setTransmittingFrequencyCalculator( it->second );
     }
 }
 
@@ -384,7 +383,8 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
         std::shared_ptr< ProcessedOdfFileContents > processedOdfFileContents,
         simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< simulation_setup::ObservationDependentVariableCalculator > dependentVariableCalculator = nullptr,
-        bool setGroundStationsFrequencies = true )
+        bool setGroundStationsFrequencies = true,
+        std::string bodyWithGroundStations = "Earth")
 {
 
     // Create and fill single observation sets
@@ -409,8 +409,7 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
 
             // Fill vectors
             separateSingleLinkOdfData(
-                    currentObservableType, currentOdfSingleLinkData, observationTimes, observables, ancillarySettings,
-                    bodies );
+                    currentObservableType, currentOdfSingleLinkData, observationTimes, observables, ancillarySettings );
 
             // Create the single observation sets and save them
             for ( unsigned int i = 0; i < observationTimes.size( ); ++i )
@@ -441,7 +440,7 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
 
     if ( setGroundStationsFrequencies )
     {
-        setGroundStationsTransmittingFrequencies( processedOdfFileContents, bodies );
+        setGroundStationsTransmittingFrequencies( processedOdfFileContents, bodies.getBody( bodyWithGroundStations ) );
     }
 
     return std::make_shared< observation_models::ObservationCollection< ObservationScalarType, TimeType > >(
