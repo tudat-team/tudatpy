@@ -10,12 +10,12 @@
 
 #include <algorithm>
 
-#include "tudat/astro/orbit_determination/processOdfFile.h"
+#include "tudat/simulation/estimation_setup/processOdfFile.h"
 
 namespace tudat
 {
 
-namespace orbit_determination
+namespace observation_models
 {
 
 observation_models::ObservableType getObservableTypeForOdfId(
@@ -594,6 +594,6 @@ void ProcessedOdfFileContents::extractMultipleRawOdfRampData(
 
 }
 
-} // namespace orbit_determination
+} // namespace observation_models
 
 } // namespace tudat
