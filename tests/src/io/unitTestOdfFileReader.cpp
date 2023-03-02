@@ -12,7 +12,7 @@
 #include "tudat/math/interpolators/lookupScheme.h"
 
 #include "tudat/io/readOdfFile.h"
-#include "tudat/astro/orbit_determination/processOdfFile.h"
+#include "tudat/simulation/estimation_setup/processOdfFile.h"
 
 #include "tudat/simulation/estimation.h"
 
@@ -89,7 +89,7 @@ int main( )
 //        }
 //    }
 
-    orbit_determination::ProcessedOdfFileContents odfContents = orbit_determination::ProcessedOdfFileContents(
+    observation_models::ProcessedOdfFileContents odfContents = observation_models::ProcessedOdfFileContents(
             input_output::readOdfFile( "/Users/pipas/Documents/dsn_trk-2-18/odf07155.dat" ),
             bodies.getBody( "Earth" ) );
 

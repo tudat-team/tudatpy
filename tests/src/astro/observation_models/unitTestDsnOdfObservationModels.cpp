@@ -21,7 +21,7 @@
 #include "tudat/simulation/estimation_setup.h"
 
 #include "tudat/io/readOdfFile.h"
-#include "tudat/astro/orbit_determination/processOdfFile.h"
+#include "tudat/simulation/estimation_setup/processOdfFile.h"
 
 namespace tudat
 {
@@ -104,7 +104,7 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
 
     // Create observed observation collection
     std::shared_ptr< observation_models::ObservationCollection< > > observedObservationCollection =
-            orbit_determination::createOdfObservedObservationCollection(
+            observation_models::createOdfObservedObservationCollection(
                     processedOdfFileContents, bodies );
 
     std::cout << std::endl << "Observation type start and size:" << std::endl;
@@ -146,7 +146,7 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
 
 
     std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > observationSimulationSettings =
-            orbit_determination::createOdfObservationSimulationSettingsList< double >(
+            observation_models::createOdfObservationSimulationSettingsList< double >(
                     observedObservationCollection );
 
 

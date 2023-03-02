@@ -27,7 +27,7 @@
 namespace tudat
 {
 
-namespace orbit_determination
+namespace observation_models
 {
 
 observation_models::ObservableType getObservableTypeForOdfId( const int odfId );
@@ -488,7 +488,7 @@ std::vector< std::shared_ptr< simulation_setup::ObservationSimulationSettings< T
     return observationSimulationSettings;
 }
 
-} // namespace orbit_determination
+} // namespace observation_models
 
 } // namespace tudat
 
