@@ -382,7 +382,6 @@ template< typename ObservationScalarType = double, typename TimeType = double >
 std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > createOdfObservedObservationCollection(
         std::shared_ptr< ProcessedOdfFileContents > processedOdfFileContents,
         simulation_setup::SystemOfBodies& bodies,
-        const std::shared_ptr< simulation_setup::ObservationDependentVariableCalculator > dependentVariableCalculator = nullptr,
         bool setGroundStationsFrequencies = true,
         std::string bodyWithGroundStations = "Earth")
 {
@@ -414,26 +413,13 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
             // Create the single observation sets and save them
             for ( unsigned int i = 0; i < observationTimes.size( ); ++i )
             {
-                if ( dependentVariableCalculator != nullptr )
-                {
-//                    sortedObservationSets.at( currentObservableType ).at( currentLinkEnds ).push_back(
-//                        currentObservableType, currentLinkEnds, observables.at( i ), observationTimes.at( i ),
-//                        observation_models::receiver,
-//                        dependentVariableCalculator->calculateDependentVariables( ),
-//                        dependentVariableCalculator, ancillarySettings.at( i ) );
-                    throw std::runtime_error( "Computation of dependent variables for ODF observed observables is not implemented." );
-                }
-                else
-                {
-                    sortedObservationSets[ currentObservableType ][ currentLinkEnds ].push_back(
-                        std::make_shared< observation_models::SingleObservationSet< ObservationScalarType, TimeType > >(
-                            currentObservableType, currentLinkEnds, observables.at( i ), observationTimes.at( i ),
-                            observation_models::receiver,
-                            std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >( ),
-                            nullptr, std::make_shared< observation_models::ObservationAncilliarySimulationSettings< TimeType > >(
-                                ancillarySettings.at( i ) ) ) );
-                }
-
+                sortedObservationSets[ currentObservableType ][ currentLinkEnds ].push_back(
+                    std::make_shared< observation_models::SingleObservationSet< ObservationScalarType, TimeType > >(
+                        currentObservableType, currentLinkEnds, observables.at( i ), observationTimes.at( i ),
+                        observation_models::receiver,
+                        std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >( ),
+                        nullptr, std::make_shared< observation_models::ObservationAncilliarySimulationSettings< TimeType > >(
+                            ancillarySettings.at( i ) ) ) );
             }
         }
     }
