@@ -458,6 +458,16 @@ createAerodynamicCoefficientInterface(
     return coefficientInterface;
 }
 
+std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface >
+createAerodynamicCoefficientInterfaceDeprecated(
+        const std::shared_ptr< AerodynamicCoefficientSettings > coefficientSettings,
+        const std::string& body )
+{
+    std::cerr<<"Warning, you are using an outdated version of the create_aerodynamic_coefficient_interface function. Please use the updated one, which has the bodies (as SystemOfBodies object) as third input argument"<<std::endl;
+    SystemOfBodies bodies = SystemOfBodies( );
+    return createAerodynamicCoefficientInterface(
+            coefficientSettings, body, bodies );
+}
 } // simulation_setup
 
 } // tudat

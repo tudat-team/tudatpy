@@ -475,6 +475,17 @@ public:
         return gravitationalParameter_ * referenceRadius_ * referenceRadius_ / physical_constants::GRAVITATIONAL_CONSTANT;
     }
 
+    virtual Eigen::Vector3d getCenterOfMass( )
+    {
+        return ( Eigen::Vector3d( ) << cosineCoefficients_( 1, 1 ), sineCoefficients_( 1, 1 ), cosineCoefficients_( 1, 0 ) ).finished( ) /
+            referenceRadius_ * std::sqrt( 3.0 );
+    }
+
+    virtual Eigen::Matrix3d getInertiaTensor( const double scaledMeanMomentOfInertia )
+    {
+        return Eigen::Matrix3d::Zero( );
+    }
+
 protected:
 
     //! Reference radius of spherical harmonic field expansion
