@@ -244,6 +244,11 @@ public:
     {
         return std::pow( 2.0, 24 ) / 1.0E3 * referenceFrequencyHighPart_ + referenceFrequencyLowPart_ / 1.0E3;
     }
+
+    double getTransmittingStationUplinkDelay( )
+    {
+        return transmittingStationUplinkDelay_ * 1.0e-9;
+    }
 };
 
 class OdfToneRangeDataBlock: public OdfDataSpecificBlock
