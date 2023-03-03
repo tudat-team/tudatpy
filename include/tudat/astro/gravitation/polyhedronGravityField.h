@@ -24,6 +24,7 @@
 #include <iostream>
 
 #include "tudat/astro/gravitation/gravityFieldModel.h"
+#include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/astro/basic_astro/polyhedronFuntions.h"
 #include "tudat/math/basic/polyhedron.h"
 
@@ -151,6 +152,7 @@ public:
 
         // Compute volume
         volume_ = basic_astrodynamics::computePolyhedronVolume( verticesCoordinates, verticesDefiningEachFacet );
+        density_ = gravitationalParameter_ / physical_constants::GRAVITATIONAL_CONSTANT / volume_;
 
         // Compute edges in polyhedron
         computeVerticesAndFacetsDefiningEachEdge();
@@ -164,6 +166,9 @@ public:
         // Create cache object
         polyhedronGravityCache_ = std::make_shared< PolyhedronGravityCache >(
                 verticesCoordinates_, verticesDefiningEachFacet_, verticesDefiningEachEdge_);
+
+        inertiaTensor_ = basic_astrodynamics::computePolyhedronInertiaTensor(
+                verticesCoordinates_, verticesDefiningEachFacet_, density_ );
     }
 
     /*! Function to calculate the gravitational potential.
@@ -269,6 +274,11 @@ public:
     const std::vector< Eigen::MatrixXd >& getEdgeDyads( )
     { return edgeDyads_; }
 
+    virtual Eigen::Matrix3d getInertiaTensor( const double scaledMeanMomentOfInertia )
+    {
+        return inertiaTensor_;
+    }
+
 protected:
 
 private:
@@ -305,6 +315,10 @@ private:
 
     //! Volume of the polyhedron.
     double volume_;
+
+    double density_;
+
+    Eigen::Matrix3d inertiaTensor_;
 
     //! Cartesian coordinates of each vertex (one row per vertex, 3 columns).
     Eigen::MatrixXd verticesCoordinates_;

@@ -175,7 +175,7 @@ double calculateSphericalHarmonicGravitationalPotential(
  *  Class to represent a spherical harmonic gravity field expansion of a massive body with
  *  time-independent spherical harmonic gravity field coefficients.
  */
-class SphericalHarmonicsGravityField: public GravityFieldModel
+class SphericalHarmonicsGravityField: public GravityFieldModel, public std::enable_shared_from_this<SphericalHarmonicsGravityField>
 {
 public:
 
@@ -481,10 +481,7 @@ public:
             referenceRadius_ * std::sqrt( 3.0 );
     }
 
-    virtual Eigen::Matrix3d getInertiaTensor( const double scaledMeanMomentOfInertia )
-    {
-        return Eigen::Matrix3d::Zero( );
-    }
+    virtual Eigen::Matrix3d getInertiaTensor( const double scaledMeanMomentOfInertia );
 
 protected:
 
@@ -571,7 +568,7 @@ Eigen::Matrix3d getInertiaTensor(
  * reference radius of the gravity field
  * \return Inertia tensor of body
  */
-Eigen::Matrix3d getInertiaTensor(
+Eigen::Matrix3d getInertiaTensorFromGravityField(
         const std::shared_ptr< SphericalHarmonicsGravityField > sphericalHarmonicGravityField,
         const double scaledMeanMomentOfInertia );
 

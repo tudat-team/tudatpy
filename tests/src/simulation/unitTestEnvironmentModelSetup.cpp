@@ -652,6 +652,7 @@ BOOST_AUTO_TEST_CASE( test_polyhedronInertiaTensorSetup )
 
         SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
+        bodies.getBody( "Phobos" )->getMassProperties( )->update( 0.0 );
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedInertiaTensor, bodies.getBody( "Phobos" )->getBodyInertiaTensor(), 1e-15 );
     }
 }

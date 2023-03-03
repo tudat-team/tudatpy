@@ -176,7 +176,7 @@ private:
                 for( unsigned int i = 0; i < bodiesWithIntegratedMass.size( ); i++ )
                 {
                     bodyList_.at( std::get< 0 >( bodiesWithIntegratedMass[ i ] ) )
-                            ->setConstantBodyMass( integratedStateIterator_->second( i ) );
+                            ->setCurrentPropagatedBodyMass( integratedStateIterator_->second( i ) );
                 }
                 break;
             }

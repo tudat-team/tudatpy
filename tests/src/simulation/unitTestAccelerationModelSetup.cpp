@@ -485,6 +485,9 @@ BOOST_AUTO_TEST_CASE( test_radiationPressureAcceleration )
     Eigen::Vector3d expectedAcceleration = expectedForceDirection.normalized( ) * expectedForceMagnitude / bodyMass;
 
     // Compare results
+    std::cout<<expectedAcceleration.transpose( )<<std::endl;
+    std::cout<<calculatedAcceleration.transpose( )<<std::endl;
+
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                 expectedAcceleration, calculatedAcceleration, ( 2.0 * std::numeric_limits< double >::epsilon( ) ) );
 

@@ -230,6 +230,7 @@ BOOST_AUTO_TEST_CASE( test_customTorqueModelCreation )
                 bodiesToCreate, "Sun", "ECLIPJ2000" );
     SystemOfBodies bodies = createSystemOfBodies( bodySettings );
     bodies.createEmptyBody( "Vehicle" );
+    bodies.at( "Vehicle" )->setConstantBodyMass( 10.0 );
     Eigen::Matrix3d bodyInertiaTensor = 100.0 * Eigen::Matrix3d::Identity( );
     bodyInertiaTensor( 2, 2 ) *= 2.0;
     bodyInertiaTensor( 1, 1 ) *= 1.5;

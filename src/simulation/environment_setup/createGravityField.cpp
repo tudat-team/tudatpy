@@ -339,23 +339,6 @@ std::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
         }
         else
         {
-            std::function< void( ) > inertiaTensorUpdateFunction;
-            if( bodies.count( body ) == 0 )
-            {
-                inertiaTensorUpdateFunction = std::function< void( ) >( );
-            }
-            else
-            {
-                inertiaTensorUpdateFunction =
-                        std::bind( &Body::setBodyInertiaTensorFromGravityFieldAndExistingMeanMoment, bodies.at( body ), true );
-                if( sphericalHarmonicFieldSettings->getScaledMeanMomentOfInertia( ) == sphericalHarmonicFieldSettings->getScaledMeanMomentOfInertia( ) )
-                {
-                    bodies.at( body )->setBodyInertiaTensor(
-                                sphericalHarmonicFieldSettings->getInertiaTensor( ),
-                                sphericalHarmonicFieldSettings->getScaledMeanMomentOfInertia( )) ;
-
-                }
-            }
 
             // Check consistency of cosine and sine coefficients.
             if( ( sphericalHarmonicFieldSettings->getCosineCoefficients( ).rows( ) !=
@@ -394,8 +377,7 @@ std::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
                                 sphericalHarmonicFieldSettings->getReferenceRadius( ),
                                 sphericalHarmonicFieldSettings->getCosineCoefficients( ),
                                 sphericalHarmonicFieldSettings->getSineCoefficients( ),
-                                associatedReferenceFrame,
-                                inertiaTensorUpdateFunction );
+                                associatedReferenceFrame );
                 }
                 else
                 {
@@ -412,8 +394,7 @@ std::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
                                 sphericalHarmonicFieldSettings->getReferenceRadius( ),
                                 sphericalHarmonicFieldSettings->getCosineCoefficients( ),
                                 sphericalHarmonicFieldSettings->getSineCoefficients( ),
-                                associatedReferenceFrame,
-                                inertiaTensorUpdateFunction );
+                                associatedReferenceFrame );
                 }
 
 
@@ -439,24 +420,6 @@ std::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
         else
         {
             std::function< void( ) > inertiaTensorUpdateFunction;
-            if( bodies.count( body ) == 0 )
-            {
-                inertiaTensorUpdateFunction = std::function< void( ) >( );
-            }
-            else
-            {
-                inertiaTensorUpdateFunction =
-                    std::bind( &Body::setBodyInertiaTensorFromGravityFieldAndExistingDensity, bodies.at( body ) );
-                if( !std::isnan( polyhedronFieldSettings->getDensity( ) ) )
-                {
-                    bodies.at( body )->setBodyInertiaTensor( basic_astrodynamics::computePolyhedronInertiaTensor(
-                            polyhedronFieldSettings->getVerticesCoordinates( ),
-                            polyhedronFieldSettings->getVerticesDefiningEachFacet( ),
-                            polyhedronFieldSettings->getDensity( ) )
-                    );
-
-                }
-            }
 
             std::string associatedReferenceFrame = polyhedronFieldSettings->getAssociatedReferenceFrame( );
             if( associatedReferenceFrame == "" )
