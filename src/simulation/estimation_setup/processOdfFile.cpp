@@ -132,37 +132,37 @@ std::vector< observation_models::ObservableType > ProcessedOdfFileContents::getP
 }
 
 std::pair< double, double > ProcessedOdfFileContents::getStartAndEndTime( const simulation_setup::SystemOfBodies& bodies )
+{
+    // Reset variables
+    double startTimeTdbSinceJ2000 = TUDAT_NAN;
+    double endTimeTdbSinceJ2000 = TUDAT_NAN;
+
+    // Loop over data
+    for ( auto observableIt = processedDataBlocks_.begin( ); observableIt != processedDataBlocks_.end( );
+            ++observableIt )
     {
-        // Reset variables
-        double startTimeTdbSinceJ2000 = TUDAT_NAN;
-        double endTimeTdbSinceJ2000 = TUDAT_NAN;
-
-        // Loop over data
-        for ( auto observableIt = processedDataBlocks_.begin( ); observableIt != processedDataBlocks_.end( );
-                ++observableIt )
+        for ( auto linkEndIt = observableIt->second.begin( ); linkEndIt != observableIt->second.end( );
+              ++linkEndIt )
         {
-            for ( auto linkEndIt = observableIt->second.begin( ); linkEndIt != observableIt->second.end( );
-                  ++linkEndIt )
+            std::shared_ptr< ProcessedOdfFileSingleLinkData > processedSingleLinkData = linkEndIt->second;
+
+            // Extract the start and end times
+            std::vector< double > timeVector = processedSingleLinkData->processedObservationTimes_;
+
+            if ( timeVector.front( ) < startTimeTdbSinceJ2000 || std::isnan( startTimeTdbSinceJ2000 ) )
             {
-                std::shared_ptr< ProcessedOdfFileSingleLinkData > processedSingleLinkData = linkEndIt->second;
+                startTimeTdbSinceJ2000 = timeVector.front( );
+            }
 
-                // Extract the start and end times
-                std::vector< double > timeVector = processedSingleLinkData->processedObservationTimes_;
-
-                if ( timeVector.front( ) < startTimeTdbSinceJ2000 || std::isnan( startTimeTdbSinceJ2000 ) )
-                {
-                    startTimeTdbSinceJ2000 = timeVector.front( );
-                }
-
-                if ( timeVector.back( ) > endTimeTdbSinceJ2000 || std::isnan( endTimeTdbSinceJ2000 ) )
-                {
-                    endTimeTdbSinceJ2000 = timeVector.back( );
-                }
+            if ( timeVector.back( ) > endTimeTdbSinceJ2000 || std::isnan( endTimeTdbSinceJ2000 ) )
+            {
+                endTimeTdbSinceJ2000 = timeVector.back( );
             }
         }
-
-        return std::make_pair( startTimeTdbSinceJ2000, endTimeTdbSinceJ2000 );
     }
+
+    return std::make_pair( startTimeTdbSinceJ2000, endTimeTdbSinceJ2000 );
+}
 
 //std::shared_ptr< ground_stations::PiecewiseLinearFrequencyInterpolator > mergeRampDataInterpolators(
 //        const std::vector< std::shared_ptr< ground_stations::PiecewiseLinearFrequencyInterpolator > >& interpolatorList )
