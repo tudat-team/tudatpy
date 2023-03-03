@@ -114,10 +114,10 @@ void checkValidityOfRequiredEnvironmentUpdates(
                     break;
                 }
                 case body_mass_update:
-                    if( bodies.at( updateIterator->second.at( i ) )->getBodyMassFunction( ) == nullptr )
+                    if( bodies.at( updateIterator->second.at( i ) )->getMassProperties( ) == nullptr )
                     {
                         throw std::runtime_error(
-                                    "Error when making environment model update settings, no body mass function of body "
+                                    "Error when making environment model update settings, no mass properties of body "
                                     + updateIterator->second.at( i ) );
                     }
 
@@ -175,19 +175,19 @@ void removePropagatedStatesFomEnvironmentUpdates(
                 break;
                 // Check for propagated mass states in update list, and remove if necessary
             case body_mass_state:
-                if( environmentModelsToUpdate.count( body_mass_update ) > 0 )
-                {
-                    std::vector< std::string > bodiesToUpdate = environmentModelsToUpdate.at( body_mass_update );
-                    std::vector< std::string >::iterator findIterator =
-                            std::find( bodiesToUpdate.begin( ), bodiesToUpdate.end( ), std::get< 0 >( it->second.at( i ) ) );
-
-                    if( findIterator != bodiesToUpdate.end( ) )
-                    {
-                        bodiesToUpdate.erase( findIterator );
-                        environmentModelsToUpdate[ body_mass_update ] = bodiesToUpdate;
-
-                    }
-                }
+//                if( environmentModelsToUpdate.count( body_mass_update ) > 0 )
+//                {
+//                    std::vector< std::string > bodiesToUpdate = environmentModelsToUpdate.at( body_mass_update );
+//                    std::vector< std::string >::iterator findIterator =
+//                            std::find( bodiesToUpdate.begin( ), bodiesToUpdate.end( ), std::get< 0 >( it->second.at( i ) ) );
+//
+//                    if( findIterator != bodiesToUpdate.end( ) )
+//                    {
+//                        bodiesToUpdate.erase( findIterator );
+//                        environmentModelsToUpdate[ body_mass_update ] = bodiesToUpdate;
+//
+//                    }
+//                }
                 break;
             case custom_state:
                 break;
@@ -202,12 +202,21 @@ void removePropagatedStatesFomEnvironmentUpdates(
 //! Get list of required environment model update settings from torque models.
 std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >
 createRotationalEquationsOfMotionEnvironmentUpdaterSettings(
-        const basic_astrodynamics::TorqueModelMap& torqueModels, const simulation_setup::SystemOfBodies& bodies )
+        const basic_astrodynamics::TorqueModelMap& torqueModels, const simulation_setup::SystemOfBodies& bodies,
+        const std::vector< std::string > bodiesToIntegrate )
 {
     using namespace basic_astrodynamics;
 
     std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > environmentModelsToUpdate;
     std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > singleTorqueUpdateNeeds;
+
+    for( unsigned  int i = 0; i < bodiesToIntegrate.size( ); i++ )
+    {
+        singleTorqueUpdateNeeds[ body_mass_update ].push_back(
+                bodiesToIntegrate.at( i ) );
+    }
+    addEnvironmentUpdates( environmentModelsToUpdate, singleTorqueUpdateNeeds );
+
 
     // Iterate over all bodies on which torques are being exerting
     for( TorqueModelMap::const_iterator acceleratedBodyIterator = torqueModels.begin( );

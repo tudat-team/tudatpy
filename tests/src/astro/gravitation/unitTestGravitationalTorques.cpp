@@ -146,10 +146,12 @@ BOOST_AUTO_TEST_CASE( testDegreeTwoGravitationalTorque )
         bodies.at( "Moon" )->setStateFromEphemeris( evaluationTime );
         bodies.at( "Moon" )->setCurrentRotationalStateToLocalFrameFromEphemeris( evaluationTime );
         bodies.at( "Moon" )->setBodyInertiaTensorFromGravityField( 0.4 );
+        bodies.at( "Moon" )->getMassProperties( )->update( 0.0 );
 
         bodies.at( "Earth" )->setStateFromEphemeris( evaluationTime );
         bodies.at( "Earth" )->setCurrentRotationalStateToLocalFrameFromEphemeris( evaluationTime );
         bodies.at( "Earth" )->setBodyInertiaTensorFromGravityField( 0.4 );
+        bodies.at( "Earth" )->getMassProperties( )->update( 0.0 );
 
         if( testCase == 0 )
         {
@@ -275,6 +277,7 @@ BOOST_AUTO_TEST_CASE( testSphericalGravitationalTorque )
         bodies.at( "Moon" )->setStateFromEphemeris( evaluationTime );
         bodies.at( "Moon" )->setCurrentRotationalStateToLocalFrameFromEphemeris( evaluationTime );
         bodies.at( "Moon" )->setBodyInertiaTensorFromGravityField( 0.0 );
+        bodies.at( "Moon" )->getMassProperties( )->update( 0.0 );
 
         {
             // Test reconstructed spherical harmonic coefficients
@@ -313,6 +316,7 @@ BOOST_AUTO_TEST_CASE( testSphericalGravitationalTorque )
         bodies.at( "Earth" )->setStateFromEphemeris( evaluationTime );
         bodies.at( "Earth" )->setCurrentRotationalStateToLocalFrameFromEphemeris( evaluationTime );
         bodies.at( "Earth" )->setBodyInertiaTensorFromGravityField( 0.0 );
+        bodies.at( "Earth" )->getMassProperties( )->update( 0.0 );
 
         // Update and compute torque values
         secondDegreeGravitationalTorque->updateMembers( evaluationTime );

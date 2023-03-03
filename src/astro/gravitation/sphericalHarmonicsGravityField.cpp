@@ -28,6 +28,12 @@ namespace tudat
 namespace gravitation
 {
 
+
+Eigen::Matrix3d SphericalHarmonicsGravityField::getInertiaTensor( const double scaledMeanMomentOfInertia )
+{
+    return gravitation::getInertiaTensorFromGravityField( shared_from_this(), scaledMeanMomentOfInertia );
+}
+
 //! Compute gravitational acceleration due to multiple spherical harmonics terms, defined using geodesy-normalization.
 Eigen::Vector3d computeGeodesyNormalizedGravitationalAccelerationSum(
         const Eigen::Vector3d& positionOfBodySubjectToAcceleration,
@@ -280,7 +286,7 @@ Eigen::Matrix3d getInertiaTensor(
 }
 
 //! Function to determine a body's inertia tensor from its gravity field model
-Eigen::Matrix3d getInertiaTensor(
+Eigen::Matrix3d getInertiaTensorFromGravityField(
         const std::shared_ptr< SphericalHarmonicsGravityField > sphericalHarmonicGravityField,
         const double scaledMeanMomentOfInertia )
 {
