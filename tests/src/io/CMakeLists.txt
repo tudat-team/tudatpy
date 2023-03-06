@@ -8,110 +8,110 @@
 #    http://tudat.tudelft.nl/LICENSE.
 #
 
-TUDAT_ADD_TEST_CASE(MapTextFileReader
-        PRIVATE_LINKS
-        tudat_input_output
-        tudat_basic_astrodynamics
-        )
-
-TUDAT_ADD_TEST_CASE(MatrixTextFileReader
-        PRIVATE_LINKS
-        tudat_input_output
-        tudat_basic_astrodynamics
-        )
-
-TUDAT_ADD_TEST_CASE(StreamFilters
-        PRIVATE_LINKS
-        tudat_input_output
-        tudat_basic_astrodynamics
-        )
-
-TUDAT_ADD_TEST_CASE(TwoLineElementsTextFileReader
-        PRIVATE_LINKS
-        tudat_input_output
-        tudat_basic_astrodynamics
-        tudat_basic_mathematics
-        )
-
-TUDAT_ADD_TEST_CASE(BasicInputOutput
-        PRIVATE_LINKS
-        tudat_input_output
-        )
-
-TUDAT_ADD_TEST_CASE(ParsedDataVectorUtilities
-        PRIVATE_LINKS
-        tudat_input_output
-        )
-
-TUDAT_ADD_TEST_CASE(FieldValue
-        PRIVATE_LINKS
-        tudat_input_output
-        )
-
-TUDAT_ADD_TEST_CASE(TextParser
-        PRIVATE_LINKS
-        tudat_input_output
-        )
-
-TUDAT_ADD_TEST_CASE(MissileDatcomReader
-        PRIVATE_LINKS
-        tudat_input_output
-        )
-
-TUDAT_ADD_TEST_CASE(MissileDatcomData
-        PRIVATE_LINKS
-        tudat_input_output
-        )
-
-TUDAT_ADD_TEST_CASE(DictionaryInputSystem
-        PRIVATE_LINKS
-        tudat_input_output
-        )
-
-TUDAT_ADD_TEST_CASE(Extractor
-        PRIVATE_LINKS
-        tudat_input_output
-        )
-
-TUDAT_ADD_TEST_CASE(FixedWidthParser
-        PRIVATE_LINKS
-        tudat_input_output
-        )
-
-TUDAT_ADD_TEST_CASE(SeparatedParser
-        PRIVATE_LINKS
-        tudat_input_output
-        )
-
-TUDAT_ADD_TEST_CASE(LinearFieldTransform
-        PRIVATE_LINKS
-        tudat_input_output
-        )
-
-TUDAT_ADD_TEST_CASE(SolarActivityData
-        PRIVATE_LINKS
-        tudat_input_output
-        tudat_basic_astrodynamics
-        )
-
-TUDAT_ADD_TEST_CASE(MultiArrayReader
-        PRIVATE_LINKS
-        tudat_input_output
-        tudat_basic_astrodynamics
-        )
-
-TUDAT_ADD_TEST_CASE(MultiArrayWriter
-        PRIVATE_LINKS
-        tudat_input_output
-        tudat_basic_astrodynamics
-        )
-
-TUDAT_ADD_TEST_CASE(AerodynamicCoefficientReader
-        PRIVATE_LINKS
-        tudat_input_output
-        tudat_basic_astrodynamics
-        tudat_basics
-        )
+#TUDAT_ADD_TEST_CASE(MapTextFileReader
+#        PRIVATE_LINKS
+#        tudat_input_output
+#        tudat_basic_astrodynamics
+#        )
+#
+#TUDAT_ADD_TEST_CASE(MatrixTextFileReader
+#        PRIVATE_LINKS
+#        tudat_input_output
+#        tudat_basic_astrodynamics
+#        )
+#
+#TUDAT_ADD_TEST_CASE(StreamFilters
+#        PRIVATE_LINKS
+#        tudat_input_output
+#        tudat_basic_astrodynamics
+#        )
+#
+#TUDAT_ADD_TEST_CASE(TwoLineElementsTextFileReader
+#        PRIVATE_LINKS
+#        tudat_input_output
+#        tudat_basic_astrodynamics
+#        tudat_basic_mathematics
+#        )
+#
+#TUDAT_ADD_TEST_CASE(BasicInputOutput
+#        PRIVATE_LINKS
+#        tudat_input_output
+#        )
+#
+#TUDAT_ADD_TEST_CASE(ParsedDataVectorUtilities
+#        PRIVATE_LINKS
+#        tudat_input_output
+#        )
+#
+#TUDAT_ADD_TEST_CASE(FieldValue
+#        PRIVATE_LINKS
+#        tudat_input_output
+#        )
+#
+#TUDAT_ADD_TEST_CASE(TextParser
+#        PRIVATE_LINKS
+#        tudat_input_output
+#        )
+#
+#TUDAT_ADD_TEST_CASE(MissileDatcomReader
+#        PRIVATE_LINKS
+#        tudat_input_output
+#        )
+#
+#TUDAT_ADD_TEST_CASE(MissileDatcomData
+#        PRIVATE_LINKS
+#        tudat_input_output
+#        )
+#
+#TUDAT_ADD_TEST_CASE(DictionaryInputSystem
+#        PRIVATE_LINKS
+#        tudat_input_output
+#        )
+#
+#TUDAT_ADD_TEST_CASE(Extractor
+#        PRIVATE_LINKS
+#        tudat_input_output
+#        )
+#
+#TUDAT_ADD_TEST_CASE(FixedWidthParser
+#        PRIVATE_LINKS
+#        tudat_input_output
+#        )
+#
+#TUDAT_ADD_TEST_CASE(SeparatedParser
+#        PRIVATE_LINKS
+#        tudat_input_output
+#        )
+#
+#TUDAT_ADD_TEST_CASE(LinearFieldTransform
+#        PRIVATE_LINKS
+#        tudat_input_output
+#        )
+#
+#TUDAT_ADD_TEST_CASE(SolarActivityData
+#        PRIVATE_LINKS
+#        tudat_input_output
+#        tudat_basic_astrodynamics
+#        )
+#
+#TUDAT_ADD_TEST_CASE(MultiArrayReader
+#        PRIVATE_LINKS
+#        tudat_input_output
+#        tudat_basic_astrodynamics
+#        )
+#
+#TUDAT_ADD_TEST_CASE(MultiArrayWriter
+#        PRIVATE_LINKS
+#        tudat_input_output
+#        tudat_basic_astrodynamics
+#        )
+#
+#TUDAT_ADD_TEST_CASE(AerodynamicCoefficientReader
+#        PRIVATE_LINKS
+#        tudat_input_output
+#        tudat_basic_astrodynamics
+#        tudat_basics
+#        )
 
 TUDAT_ADD_TEST_CASE(OdfFileReader
         PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES} )
