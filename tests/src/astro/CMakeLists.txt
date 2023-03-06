@@ -19,7 +19,7 @@
 #add_subdirectory("electromagnetism")
 #add_subdirectory("ephemerides")
 #add_subdirectory("gravitation")
-#add_subdirectory("ground_stations")
+add_subdirectory("ground_stations")
 #add_subdirectory("low_thrust")
 #add_subdirectory("mission_segments")
 if (TUDAT_BUILD_WITH_ESTIMATION_TOOLS)

@@ -80,38 +80,74 @@ class PiecewiseLinearFrequencyInterpolator: public StationFrequencyInterpolator
 public:
 
     PiecewiseLinearFrequencyInterpolator(
-            const std::vector< double >& startTimes_,
-            const std::vector< double >& endTimes_,
-            const std::vector< double >& rampRates_,
-            const std::vector< double >& startFrequency_ ):
+            const std::vector< double >& startTimes,
+            const std::vector< double >& endTimes,
+            const std::vector< double >& rampRates,
+            const std::vector< double >& startFrequency ):
         StationFrequencyInterpolator( ),
-        startTimes_( startTimes_ ), endTimes_( endTimes_ ), rampRates_( rampRates_ ), startFrequencies_( startFrequency_ )
+        startTimes_( startTimes ), endTimes_( endTimes ), rampRates_( rampRates ), startFrequencies_( startFrequency )
     {
+        // Check if dimensions of all vectors are consistent
+        if ( startTimes_.size( ) != endTimes_.size( ) || startTimes_.size( ) != rampRates_.size( ) ||
+               startTimes_.size( ) != startFrequencies_.size( ) )
+        {
+            throw std::runtime_error(
+                    "Error when creating piecewise linear frequency interpolator: the dimensions of the specified vectors "
+                    "are not consistent: start times (" + std::to_string( startTimes_.size( ) ) + "), end times (" +
+                    std::to_string( endTimes_.size( ) ) + "), ramp rates (" + std::to_string( rampRates_.size( ) ) +
+                    "), start frequencies (" + std::to_string( startFrequencies_.size( ) ) + ")." );
+        }
+
+        // Check if there are no discontinuities between end times and subsequent start times
+        for ( unsigned int i = 1; i < startTimes_.size( ); ++i )
+        {
+            if ( startTimes_.at( i ) != endTimes_.at( i - 1 ) )
+            {
+                throw std::runtime_error(
+                        "Error when creating piecewise linear frequency interpolator: discontinuity between ramp end "
+                        "time (" + std::to_string( endTimes_.at( i - 1 ) ) + ") and start time of the following ramp (" +
+                        std::to_string( startTimes_.at( i ) ) + ")." );
+            }
+        }
+
         startTimeLookupScheme_ = std::make_shared< interpolators::HuntingAlgorithmLookupScheme< double > >(
                 startTimes_ );
     }
 
     double getFrequencyIntegral( const double quadratureStartTime, const double quadratureEndTime )
     {
-        std::vector< double > quadratureTimes;
-        std::vector < double > quadratureFrequencies;
+        double integral = 0;
 
-        // Point corresponding to first partial ramp
-        quadratureTimes.push_back ( quadratureStartTime );
-        quadratureFrequencies.push_back ( getCurrentFrequency( quadratureStartTime ) );
+        int startTimeLowestNearestNeighbour = startTimeLookupScheme_->findNearestLowerNeighbour( quadratureStartTime );
+        int endTimeLowestNearestNeighbour = startTimeLookupScheme_->findNearestLowerNeighbour( quadratureEndTime );
 
-        // Points corresponding to full ramps
-        for( unsigned int i = 1; i < startTimes_.size( ) && startTimes_.at( i ) < quadratureEndTime; i++ )
+        if ( startTimeLowestNearestNeighbour == endTimeLowestNearestNeighbour )
         {
-            quadratureTimes.push_back( startTimes_.at( i ) );
-            quadratureFrequencies.push_back( startFrequencies_.at( i ) );
+            integral += ( quadratureEndTime - quadratureStartTime ) * ( getCurrentFrequency( quadratureStartTime ) +
+                    getCurrentFrequency( quadratureEndTime ) ) / 2.0;
+        }
+        else
+        {
+            // First partial ramp
+            integral += ( endTimes_.at( startTimeLowestNearestNeighbour ) - quadratureStartTime ) *
+                    ( getCurrentFrequency( quadratureStartTime ) + rampRates_.at( startTimeLowestNearestNeighbour ) *
+                    ( endTimes_.at( startTimeLowestNearestNeighbour ) - quadratureStartTime ) / 2.0 );
+
+            // Full ramps
+            for( unsigned int i = startTimeLowestNearestNeighbour + 1; i < startTimes_.size( ) &&
+                    endTimes_.at( i ) < quadratureEndTime; i++ )
+            {
+                integral += ( endTimes_.at( i ) - startTimes_.at( i ) ) * ( startFrequencies_.at( i ) +
+                    rampRates_.at( i ) * ( endTimes_.at( i ) - startTimes_.at( i ) ) / 2.0 );
+            }
+
+            // Final partial ramp
+            integral += ( quadratureEndTime - startTimes_.at( endTimeLowestNearestNeighbour ) ) *
+                    ( startFrequencies_.at( endTimeLowestNearestNeighbour ) + rampRates_.at( endTimeLowestNearestNeighbour ) *
+                    ( quadratureEndTime - startTimes_.at( endTimeLowestNearestNeighbour ) ) / 2.0 );
         }
 
-        // Point corresponding to final partial ramp
-        quadratureTimes.push_back ( quadratureEndTime );
-        quadratureFrequencies.push_back ( getCurrentFrequency( quadratureEndTime ) );
-
-        return numerical_quadrature::performTrapezoidalQuadrature( quadratureTimes, quadratureFrequencies );
+        return integral;
     }
 
     double getCurrentFrequency( const double lookupTime )

@@ -104,7 +104,17 @@ public:
                         )->getTransmittingFrequencyCalculator( )->getFrequencyIntegral(
                                 transmissionStartTime, transmissionEndTime ) ).finished( );
 
-        std::cerr << time << " " << transmissionStartTime << " " << transmissionEndTime << std::endl;
+        std::cout << std::setprecision( 15 ) << time << " " << transmissionStartTime << " " << transmissionEndTime << std::endl;
+
+        std::cout << "Reference frequency: " << referenceFrequency << std::endl;
+        std::cout << "M2: " << getDsnDefaultTurnaroundRatios( uplinkBand, downlinkBand ) << std::endl;
+        std::cout << "Count interval: " << integrationTime << std::endl;
+        std::cout << "Transmission interval: " << transmissionEndTime - transmissionStartTime << std::endl;
+        std::cout << "Integral: " << bodyWithGroundStations_->getGroundStation(
+                this->getLinkEnds( ).at( observation_models::transmitter ).stationName_
+                )->getTransmittingFrequencyCalculator( )->getFrequencyIntegral(
+                        transmissionStartTime, transmissionEndTime ) << std::endl;
+        std::cout << "Transmitting station: " << this->getLinkEnds( ).at( observation_models::transmitter ).stationName_ << std::endl;
 
         linkEndTimes.clear( );
         linkEndStates.clear( );
