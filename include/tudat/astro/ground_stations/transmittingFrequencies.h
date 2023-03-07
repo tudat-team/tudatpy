@@ -125,6 +125,9 @@ public:
         {
             integral += ( quadratureEndTime - quadratureStartTime ) * ( getCurrentFrequency( quadratureStartTime ) +
                     getCurrentFrequency( quadratureEndTime ) ) / 2.0;
+//            integral += ( quadratureEndTime - quadratureStartTime ) *
+//                    ( getCurrentFrequency( quadratureStartTime ) + rampRates_.at( startTimeLowestNearestNeighbour ) *
+//                    ( quadratureEndTime - quadratureStartTime ) / 2.0 );
         }
         else
         {

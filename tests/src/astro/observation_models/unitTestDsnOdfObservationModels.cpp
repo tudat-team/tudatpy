@@ -38,18 +38,20 @@ BOOST_AUTO_TEST_SUITE( test_dsn_odf_observation_models )
 BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
 {
 
-    spice_interface::loadStandardSpiceKernels( );
-    spice_interface::loadSpiceKernelInTudat( "/Users/pipas/Documents/messenger-spice/msgr_040803_080216_120401.bsp" );
+    spice_interface::loadStandardSpiceKernels(
+            { "/Users/pipas/Documents/messenger-spice/msgr_040803_150430_150430_od431sc_2.bsp" } );
+//    spice_interface::loadSpiceKernelInTudat( "/Users/pipas/Documents/messenger-spice/msgr_040803_080216_120401.bsp" );
+//    spice_interface::loadSpiceKernelInTudat( "/Users/pipas/Documents/messenger-spice/msgr_040803_150430_150430_od431sc_2.bsp" );
 
     // Define bodies to use.
     std::vector< std::string > bodiesToCreate;
     bodiesToCreate.push_back( "Earth" );
     bodiesToCreate.push_back( "Sun" );
-    bodiesToCreate.push_back( "Moon" );
-    bodiesToCreate.push_back( "Mars" );
+    bodiesToCreate.push_back( "Mercury" );
+    bodiesToCreate.push_back( "Venus" );
 
     // Define light-time perturbing bodies
-    std::vector< std::string > lightTimePerturbingBodies = { "Earth", "Sun" };
+    std::vector< std::string > lightTimePerturbingBodies = { "Earth", "Sun", "Mercury", "Venus" };
 
     // Specify initial time
     double initialEphemerisTime = 234224663.2 - 10.0 * 86400.0;
@@ -115,6 +117,8 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
         std::cout << it->first << " " << std::get<0>(it->second) << " " << std::get<1>(it->second) << std::endl;
     }
 
+    std::cout << "Observed observables: "<< observedObservationCollection->getObservationVector( ) << std::endl;
+
     // Create computed observation collection
     std::vector< std::shared_ptr< observation_models::ObservationModelSettings > > observationModelSettingsList;
 
@@ -154,11 +158,32 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
             simulatedObservationCollection = simulation_setup::simulateObservations< double, double >(
                     observationSimulationSettings, observationSimulators, bodies );
 
+    std::cout << std::endl << "Observation type start and size:" << std::endl;
+    observationTypeStartAndSize = simulatedObservationCollection->getObservationTypeStartAndSize( );
+    for ( auto it = observationTypeStartAndSize.begin(); it != observationTypeStartAndSize.end(); ++it )
+    {
+        std::cout << it->first << " " << std::get<0>(it->second) << " " << std::get<1>(it->second) << std::endl;
+    }
 
-    Eigen::Matrix< double, Eigen::Dynamic, 1 > observations =
-            simulatedObservationCollection->getObservationVector( );
+    std::cout << simulatedObservationCollection->getObservationVector( ) << std::endl;
 
-    std::cout << observations << std::endl;
+
+//    Eigen::Matrix< double, Eigen::Dynamic, 1 > simulatedObservations =
+//            simulatedObservationCollection->getObservationVector( );
+//
+//    Eigen::MatrixXd observations ( simulatedObservationCollection->getObservationVector( ).size( ), 4 );
+//    observations.col( 1 ) = simulatedObservationCollection->getObservationVector( );
+//    observations.col( 3 ) = observedObservationCollection->getObservationVector( );
+//
+//    for ( unsigned int i = 0; i < simulatedObservationCollection->getObservationVector( ).size( ); ++i )
+//    {
+//        observations( i, 0 ) = simulatedObservationCollection->getConcatenatedTimeVector( ).at( i );
+//        observations( i, 2 ) = observedObservationCollection->getConcatenatedTimeVector( ).at( i );
+//    }
+//
+//    std::ofstream file("/Users/pipas/tudatpy-testing/observations.txt");
+//    file << std::setprecision( 15 ) << observations;
+//    file.close();
 
 }
 

@@ -66,12 +66,10 @@ public:
         std::vector< Eigen::Matrix< double, 6, 1 > > arcEndLinkEndStates;
 
         TimeType integrationTime;
-        ObservationScalarType referenceFrequency;
         FrequencyBands uplinkBand, downlinkBand;
         try
         {
             integrationTime = ancillarySettings->getAncilliaryDoubleData( doppler_integration_time );
-            referenceFrequency = ancillarySettings->getAncilliaryDoubleData( doppler_reference_frequency );
             uplinkBand = static_cast< FrequencyBands >( ancillarySettings->getAncilliaryDoubleData( uplink_band ) );
             downlinkBand = static_cast< FrequencyBands >( ancillarySettings->getAncilliaryDoubleData( downlink_band ) );
         }
@@ -95,25 +93,42 @@ public:
         TimeType transmissionStartTime = receptionStartTime - startLightTime;
         TimeType transmissionEndTime = receptionEndTime - endLightTime;
 
-        Eigen::Matrix< ObservationScalarType, 1, 1 > observation =
-                ( Eigen::Matrix< ObservationScalarType, 1, 1 >( ) << referenceFrequency -
-                getDsnDefaultTurnaroundRatios( uplinkBand, downlinkBand ) /
-                static_cast< ObservationScalarType >( integrationTime ) *
-                bodyWithGroundStations_->getGroundStation(
-                        this->getLinkEnds( ).at( observation_models::transmitter ).stationName_
-                        )->getTransmittingFrequencyCalculator( )->getFrequencyIntegral(
-                                transmissionStartTime, transmissionEndTime ) ).finished( );
+//        Eigen::Matrix< ObservationScalarType, 1, 1 > observation =
+//                ( Eigen::Matrix< ObservationScalarType, 1, 1 >( ) << referenceFrequency -
+//                getDsnDefaultTurnaroundRatios( uplinkBand, downlinkBand ) /
+//                static_cast< ObservationScalarType >( integrationTime ) *
+//                bodyWithGroundStations_->getGroundStation(
+//                        this->getLinkEnds( ).at( observation_models::transmitter ).stationName_
+//                        )->getTransmittingFrequencyCalculator( )->getFrequencyIntegral(
+//                                transmissionStartTime, transmissionEndTime ) ).finished( );
+
+        double turnaroundRatio = getDsnDefaultTurnaroundRatios( uplinkBand, downlinkBand );
+        double transmitterFrequencyIntegral = bodyWithGroundStations_->getGroundStation(
+                this->getLinkEnds( ).at( observation_models::transmitter ).stationName_
+                )->getTransmittingFrequencyCalculator( )->getFrequencyIntegral(
+                        transmissionStartTime, transmissionEndTime );
+        double receiverFrequencyIntegral = bodyWithGroundStations_->getGroundStation(
+                this->getLinkEnds( ).at( observation_models::receiver ).stationName_
+                )->getTransmittingFrequencyCalculator( )->getFrequencyIntegral(
+                        receptionStartTime, receptionEndTime );
+
+        Eigen::Matrix< ObservationScalarType, 1, 1 > observation = ( Eigen::Matrix< ObservationScalarType, 1, 1 >( ) <<
+                turnaroundRatio / static_cast< ObservationScalarType >( integrationTime ) *
+                ( receiverFrequencyIntegral - transmitterFrequencyIntegral ) ).finished( );
 
         std::cout << std::setprecision( 15 ) << time << " " << transmissionStartTime << " " << transmissionEndTime << std::endl;
 
-        std::cout << "Reference frequency: " << referenceFrequency << std::endl;
         std::cout << "M2: " << getDsnDefaultTurnaroundRatios( uplinkBand, downlinkBand ) << std::endl;
         std::cout << "Count interval: " << integrationTime << std::endl;
         std::cout << "Transmission interval: " << transmissionEndTime - transmissionStartTime << std::endl;
-        std::cout << "Integral: " << bodyWithGroundStations_->getGroundStation(
-                this->getLinkEnds( ).at( observation_models::transmitter ).stationName_
-                )->getTransmittingFrequencyCalculator( )->getFrequencyIntegral(
-                        transmissionStartTime, transmissionEndTime ) << std::endl;
+        std::cout << "Transmission start time: " << transmissionStartTime << std::endl;
+        std::cout << "Transmission end time: " << transmissionEndTime << std::endl;
+        std::cout << "Reception start time: " << receptionStartTime << std::endl;
+        std::cout << "Reception end time: " << receptionEndTime << std::endl;
+        std::cout << "Start light time: " << startLightTime << std::endl;
+        std::cout << "End light time: " << endLightTime << std::endl;
+        std::cout << "Integral receiver: " << receiverFrequencyIntegral << std::endl;
+        std::cout << "Integral transmitter: " << transmitterFrequencyIntegral << std::endl;
         std::cout << "Transmitting station: " << this->getLinkEnds( ).at( observation_models::transmitter ).stationName_ << std::endl;
 
         linkEndTimes.clear( );
