@@ -397,8 +397,6 @@ void ProcessedOdfFileContents::updateProcessedObservationTimes( )
     for ( auto observableTypeIterator = processedDataBlocks_.begin( );
             observableTypeIterator != processedDataBlocks_.end( ); ++observableTypeIterator )
     {
-        observation_models::ObservableType currentObservableType = observableTypeIterator->first;
-
         for ( auto linkEndsIterator = observableTypeIterator->second.begin( );
               linkEndsIterator != observableTypeIterator->second.end( ); ++linkEndsIterator )
         {
@@ -447,6 +445,9 @@ std::vector< double > ProcessedOdfFileContents::computeObservationTimesTdbFromJ2
         std::vector< double > observationTimesTdbFromJ2000 = timeScaleConverter.getCurrentTimes(
                 basic_astrodynamics::utc_scale, basic_astrodynamics::tdb_scale, observationTimesUtcFromJ2000,
                 earthFixedPositions );
+
+        std::cout << std::endl << std::setprecision(15) << "UTC " << observationTimesUtcFromJ2000.at(0) <<
+            " TDB " << observationTimesTdbFromJ2000.at(0) << std::endl;
 
         return observationTimesTdbFromJ2000;
     }
