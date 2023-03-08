@@ -107,7 +107,7 @@ There are two directions you can go from here. CLion or the command line.
 -DBoost_NO_BOOST_CMAKE=ON
 ```
 
-The `CONDA_PREFIX` may be determined with by activating the environment installed in step 4 and printing its value:
+The `CONDA_PREFIX` may be determined by activating the environment installed in step 4 and printing its value:
 ````
 conda activate tudat-bundle && echo $CONDA_PREFIX
 ````
