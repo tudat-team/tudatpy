@@ -107,6 +107,11 @@ There are two directions you can go from here. CLion or the command line.
 -DBoost_NO_BOOST_CMAKE=ON
 ```
 
+The `CONDA_PREFIX` may be determined with by activating the environment installed in step 4 and printing its value:
+````
+conda activate tudat-bundle && echo $CONDA_PREFIX
+````
+
 [**Optional**] Also add the following line to the `File > Settings > Build, Execution, Deployment > CMake > CMake options` text box to to build tudatpy with the tests.
 ````
 -DTUDAT_BUILD_TESTS="${build_tests:-1}"
@@ -116,13 +121,6 @@ The following line can also be edited if you wish to build tudatpy with its debu
 ````
 -DCMAKE_BUILD_TYPE=RelWithDebInfo
 ````
-
-
-> **Note** \
-> The `CONDA_PREFIX` may be determined with by activating the environment installed in step 4 and printing its value:
-> ````
-> conda activate tudat-bundle && echo $CONDA_PREFIX
-> ````
 
 [**Optional**] Add `-j<n>` to `File > Settings > Build, Execution, Deployment > CMake > Build options` to use multiple
 processors. It is likely that if you use all of your processors, your build will freeze your PC indefinitely. It is
