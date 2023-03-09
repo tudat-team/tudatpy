@@ -36,6 +36,7 @@ set(gravitation_SOURCES
         "periodicGravityFieldVariations.cpp"
         "polyhedronGravityField.cpp"
         "polyhedronGravityModel.cpp"
+        "ringGravityField.cpp"
         )
 
 # Set the header files.
@@ -64,6 +65,7 @@ set(gravitation_HEADERS
         "periodicGravityFieldVariations.h"
         "polyhedronGravityField.h"
         "polyhedronGravityModel.h"
+        "ringGravityField.h"
         )
 
 TUDAT_ADD_LIBRARY("gravitation"
