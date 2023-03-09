@@ -192,19 +192,34 @@ private:
     int stateMultiplier_;
 };
 
-class BodyMassProperties
-{
-public:
-    BodyMassProperties( ):
-        currentMass_( TUDAT_NAN ),
-        currentCenterOfMass_( Eigen::Vector3d::Constant( TUDAT_NAN ) ),
-        currentInertiaTensor_( Eigen::Matrix3d::Constant( TUDAT_NAN ) ),
-        isBodyInPropagation_( false )
-    { }
+class BodyMassProperties {
+  public:
+    BodyMassProperties()
+        : currentTime_( TUDAT_NAN ),
+          currentMass_(TUDAT_NAN),
+          currentCenterOfMass_(Eigen::Vector3d::Constant(TUDAT_NAN)),
+          currentInertiaTensor_(Eigen::Matrix3d::Constant(TUDAT_NAN)),
+          isBodyInPropagation_(false) {}
 
-    virtual ~BodyMassProperties( ){ }
+    virtual ~BodyMassProperties() {}
 
-    virtual void update( const double currentTime ) = 0;
+    void update(const double currentTime)
+    {
+        updateMass( currentTime );
+        updateMassDistribution( currentTime );
+    }
+
+    virtual void updateMass(const double currentTime) = 0;
+
+    virtual void updateMassDistribution(const double currentTime) = 0;
+
+    virtual void resetCurrentTime( )
+    {
+        if( currentTime_ == currentTime_ )
+        {
+            currentTime_ = TUDAT_NAN;
+        }
+    }
 
     double getCurrentMass( )
     {
@@ -227,7 +242,11 @@ public:
     {
         isBodyInPropagation_ = isBodyInPropagation;
     }
+
+
 protected:
+
+    double currentTime_;
 
     double currentMass_;
 
@@ -245,6 +264,7 @@ public:
             const std::function< double( const double ) > massFunction,
             const std::function< Eigen::Vector3d( const double ) > centerOfMassFunction = nullptr,
             const std::function< Eigen::Matrix3d( const double ) > inertiaTensorFunction = nullptr ):
+            inputIsConstant_( false ),
             massFunction_( massFunction ),
             centerOfMassFunction_( centerOfMassFunction ),
             inertiaTensorFunction_( inertiaTensorFunction )
@@ -255,6 +275,7 @@ public:
             const double mass,
             const Eigen::Vector3d& centerOfMass = Eigen::Vector3d::Constant( TUDAT_NAN ),
             const Eigen::Matrix3d& inertiaTensor = Eigen::Matrix3d::Constant( TUDAT_NAN )):
+            inputIsConstant_( true ),
             massFunction_( [=](const double){ return mass; } )
     {
         currentMass_ = mass;
@@ -290,25 +311,7 @@ public:
     void setMassFunction( const std::function< double( const double ) > massFunction )
     {
         massFunction_ = massFunction;
-    }
-
-    void setInertiaTensor( const Eigen::Matrix3d& inertiaTensor )
-    {
-        inertiaTensorFunction_ = ( [=](const double){ return inertiaTensor; } );
-    }
-
-    virtual void update( const double currentTime )
-    {
-        this->currentMass_ = massFunction_( currentTime );
-        if( centerOfMassFunction_ != nullptr )
-        {
-            this->currentCenterOfMass_ = centerOfMassFunction_( currentTime );
-        }
-
-        if( inertiaTensorFunction_ != nullptr )
-        {
-            this->currentInertiaTensor_ = inertiaTensorFunction_( currentTime );
-        }
+        inputIsConstant_ = false;
     }
 
     virtual void setCurrentMass( const double currentMass )
@@ -317,7 +320,36 @@ public:
         currentMass_ = currentMass;
     }
 
+    void setInertiaTensor( const Eigen::Matrix3d& inertiaTensor )
+    {
+        currentInertiaTensor_ = inertiaTensor;
+    }
+
+    virtual void updateMass( const double currentTime )
+    {
+        if( !inputIsConstant_ )
+        {
+            this->currentMass_ = massFunction_( currentTime );
+        }
+        currentTime_ = currentTime;
+    }
+
+    virtual void updateMassDistribution( const double currentTime )
+    {
+        if( centerOfMassFunction_ != nullptr && !inputIsConstant_ )
+        {
+            this->currentCenterOfMass_ = centerOfMassFunction_( currentTime );
+        }
+
+        if( inertiaTensorFunction_ != nullptr && !inputIsConstant_ )
+        {
+            this->currentInertiaTensor_ = inertiaTensorFunction_( currentTime );
+        }
+    }
+
 protected:
+
+    bool inputIsConstant_ = 0;
 
     std::function< double( const double ) > massFunction_;
 
@@ -338,12 +370,17 @@ public:
             inertiaTensorFunction_( inertiaTensorFunction )
     {
         setCurrentMass( currentMass );
-        update( TUDAT_NAN );
+        updateMassDistribution( TUDAT_NAN );
     }
 
     virtual ~MassDependentBodyMassProperties( ){ }
 
-    virtual void update( const double currentTime )
+    virtual void updateMass( const double currentTime )
+    {
+        currentTime_ = currentTime;
+    }
+
+    virtual void updateMassDistribution( const double currentTime )
     {
         currentCenterOfMass_ = centerOfMassFunction_( currentMass_ );
         currentInertiaTensor_ = inertiaTensorFunction_( currentMass_ );
@@ -379,11 +416,23 @@ public:
 
     virtual ~FromGravityFieldBodyMassProperties( ){ }
 
-    virtual void update( const double currentTime )
+    virtual void updateMass( const double currentTime )
     {
-        currentMass_ = gravityFieldModel_->getGravitationalParameter() / physical_constants::GRAVITATIONAL_CONSTANT;
-        currentCenterOfMass_ = gravityFieldModel_->getCenterOfMass( );
-        currentInertiaTensor_ = gravityFieldModel_->getInertiaTensor( scaledMeanMomentOfInertia_ );
+        if( !( currentTime_ != currentTime ) )
+        {
+            currentMass_ = gravityFieldModel_->getGravitationalParameter() /
+                           physical_constants::GRAVITATIONAL_CONSTANT;
+            currentTime_ = currentTime;
+        }
+    }
+
+    virtual void updateMassDistribution( const double currentTime )
+    {
+//        if( !( currentTime_ != currentTime ) )
+        {
+            currentCenterOfMass_ = gravityFieldModel_->getCenterOfMass();
+            currentInertiaTensor_ = gravityFieldModel_->getInertiaTensor( scaledMeanMomentOfInertia_);
+        }
     }
 
     double getScaledMeanMomentOfInertia( )
@@ -394,7 +443,7 @@ public:
     void setScaledMeanMomentOfInertia( const double scaledMeanMomentOfInertia )
     {
         scaledMeanMomentOfInertia_ = scaledMeanMomentOfInertia;
-        update( TUDAT_NAN );
+        updateMassDistribution( TUDAT_NAN );
     }
 
     virtual void setCurrentMass( const double currentMass )
@@ -1401,7 +1450,20 @@ public:
         }
         else
         {
-            massProperties_->update( time );
+            massProperties_->updateMass( time );
+        }
+    }
+
+    void updateMassDistribution(const double time)
+    {
+        if ( massProperties_ == nullptr)
+        {
+            throw std::runtime_error( "Error when updating body mass for " + bodyName_ +
+                                     ", no mass properties found" );
+        }
+        else
+        {
+            massProperties_->updateMassDistribution( time );
         }
     }
 
