@@ -97,8 +97,7 @@ BOOST_AUTO_TEST_CASE( testSecondDegreeGravitationalTorquePartials )
     bodies.at( "Phobos" )->setGravityFieldModel(
                 std::make_shared< gravitation::SphericalHarmonicsGravityField >(
                     phobosGravitationalParameter, phobosReferenceRadius, phobosCosineGravityFieldCoefficients,
-                    phobosSineGravityFieldCoefficients, "Phobos_Fixed" ) );
-    bodies.at( "Phobos" )->setScaledMeanMomentOfInertia( scaledMeanMomentOfInertia );
+                    phobosSineGravityFieldCoefficients, "Phobos_Fixed", scaledMeanMomentOfInertia ) );
     double testTime = 1000.0;
     bodies.at( "Phobos" )->getMassProperties( )->update( testTime );
     std::cout<<bodies.at( "Phobos" )->getBodyInertiaTensor( )<<std::endl;
@@ -358,8 +357,7 @@ BOOST_AUTO_TEST_CASE( testInertialTorquePartials )
     bodies.at( "Phobos" )->setGravityFieldModel(
                 std::make_shared< gravitation::SphericalHarmonicsGravityField >(
                     phobosGravitationalParameter, phobosReferenceRadius, phobosCosineGravityFieldCoefficients,
-                    phobosSineGravityFieldCoefficients, "Phobos_Fixed" ) );
-    bodies.at( "Phobos" )->setScaledMeanMomentOfInertia( scaledMeanMomentOfInertia );
+                    phobosSineGravityFieldCoefficients, "Phobos_Fixed", scaledMeanMomentOfInertia ) );
 
     Eigen::Quaterniond noRotationQuaternion = Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) );
     Eigen::Matrix< double, 7, 1 > unitRotationState = Eigen::Matrix< double, 7, 1 >::Zero( );
@@ -666,8 +664,7 @@ BOOST_AUTO_TEST_CASE( testConstantTorquePartials )
     bodies.at( "Phobos" )->setGravityFieldModel(
                 std::make_shared< gravitation::SphericalHarmonicsGravityField >(
                     phobosGravitationalParameter, phobosReferenceRadius, phobosCosineGravityFieldCoefficients,
-                    phobosSineGravityFieldCoefficients, "Phobos_Fixed" ) );
-    bodies.at( "Phobos" )->setScaledMeanMomentOfInertia( phobosScaledMeanMomentOfInertia );
+                    phobosSineGravityFieldCoefficients, "Phobos_Fixed", phobosScaledMeanMomentOfInertia ) );
 
     Eigen::Quaterniond noRotationQuaternion = Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) );
     Eigen::Matrix< double, 7, 1 > unitRotationState = Eigen::Matrix< double, 7, 1 >::Zero( );
