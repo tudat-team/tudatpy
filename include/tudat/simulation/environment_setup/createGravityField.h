@@ -135,7 +135,8 @@ public:
                                             const double referenceRadius,
                                             const Eigen::MatrixXd& cosineCoefficients,
                                             const Eigen::MatrixXd& sineCoefficients,
-                                            const std::string& associatedReferenceFrame ):
+                                            const std::string& associatedReferenceFrame,
+                                            const double scaledMeanMomentOfInertia = TUDAT_NAN ):
         GravityFieldSettings( spherical_harmonic ),
         gravitationalParameter_( gravitationalParameter ),
         referenceRadius_( referenceRadius ),
@@ -144,7 +145,7 @@ public:
         sineCoefficients_( sineCoefficients ),
         associatedReferenceFrame_( associatedReferenceFrame ),
         createTimeDependentField_( 0 ),
-        scaledMeanMomentOfInertia_( TUDAT_NAN )
+        scaledMeanMomentOfInertia_( scaledMeanMomentOfInertia )
     {  }
 
     SphericalHarmonicsGravityFieldSettings( const double gravitationalParameter,
@@ -206,6 +207,8 @@ public:
     Eigen::Matrix3d getInertiaTensor( ){ return inertiaTensor_; }
 
     double getScaledMeanMomentOfInertia( ){ return scaledMeanMomentOfInertia_; }
+
+    void setScaledMeanMomentOfInertia( const double scaledMeanMomentOfInertia ){ scaledMeanMomentOfInertia_ = scaledMeanMomentOfInertia; }
 
     void resetCosineCoefficients( const Eigen::MatrixXd cosineCoefficients ){ cosineCoefficients_ = cosineCoefficients; }
 

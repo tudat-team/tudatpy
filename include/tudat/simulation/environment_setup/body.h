@@ -195,11 +195,13 @@ private:
 class BodyMassProperties {
   public:
     BodyMassProperties()
-        : currentTime_( TUDAT_NAN ),
-          currentMass_(TUDAT_NAN),
+        : currentMass_(TUDAT_NAN),
           currentCenterOfMass_(Eigen::Vector3d::Constant(TUDAT_NAN)),
           currentInertiaTensor_(Eigen::Matrix3d::Constant(TUDAT_NAN)),
-          isBodyInPropagation_(false) {}
+          isBodyInPropagation_(false),
+          isMassComputed_(false),
+          isComComputed_(false),
+          isInertiaTensorComputed_(false){}
 
     virtual ~BodyMassProperties() {}
 
@@ -215,10 +217,9 @@ class BodyMassProperties {
 
     virtual void resetCurrentTime( )
     {
-        if( currentTime_ == currentTime_ )
-        {
-            currentTime_ = TUDAT_NAN;
-        }
+        isMassComputed_ = false;
+        isComComputed_ = false;
+        isInertiaTensorComputed_ = false;
     }
 
     double getCurrentMass( )
@@ -238,16 +239,14 @@ class BodyMassProperties {
 
     virtual void setCurrentMass( const double currentMass ) = 0;
 
-    void setIsBodyInPropagation( const bool isBodyInPropagation )
+    virtual void setIsBodyInPropagation( const bool isBodyInPropagation )
     {
         isBodyInPropagation_ = isBodyInPropagation;
     }
 
 
 protected:
-
-    double currentTime_;
-
+    
     double currentMass_;
 
     Eigen::Vector3d currentCenterOfMass_;
@@ -255,6 +254,12 @@ protected:
     Eigen::Matrix3d currentInertiaTensor_;
 
     bool isBodyInPropagation_;
+
+    bool isMassComputed_;
+
+    bool isComComputed_;
+
+    bool isInertiaTensorComputed_;
 };
 
 class TimeDependentBodyMassProperties: public BodyMassProperties
@@ -264,7 +269,6 @@ public:
             const std::function< double( const double ) > massFunction,
             const std::function< Eigen::Vector3d( const double ) > centerOfMassFunction = nullptr,
             const std::function< Eigen::Matrix3d( const double ) > inertiaTensorFunction = nullptr ):
-            inputIsConstant_( false ),
             massFunction_( massFunction ),
             centerOfMassFunction_( centerOfMassFunction ),
             inertiaTensorFunction_( inertiaTensorFunction )
@@ -275,27 +279,16 @@ public:
             const double mass,
             const Eigen::Vector3d& centerOfMass = Eigen::Vector3d::Constant( TUDAT_NAN ),
             const Eigen::Matrix3d& inertiaTensor = Eigen::Matrix3d::Constant( TUDAT_NAN )):
-            inputIsConstant_( true ),
-            massFunction_( [=](const double){ return mass; } )
+            massFunction_( nullptr ), centerOfMassFunction_( nullptr ), inertiaTensorFunction_( nullptr )
     {
         currentMass_ = mass;
-        if( centerOfMass.hasNaN( ) )
+        if( !centerOfMass.hasNaN( ) )
         {
-            centerOfMassFunction_ = nullptr;
-        }
-        else
-        {
-            centerOfMassFunction_ = ( [=](const double){ return centerOfMass; } );
             currentCenterOfMass_ = centerOfMass;
         }
 
-        if( inertiaTensor.hasNaN( ) )
+        if( !inertiaTensor.hasNaN( ) )
         {
-            inertiaTensorFunction_ = nullptr;
-        }
-        else
-        {
-            inertiaTensorFunction_ = ( [=](const double){ return inertiaTensor; } );
             currentInertiaTensor_ = inertiaTensor;
         }
     }
@@ -311,12 +304,10 @@ public:
     void setMassFunction( const std::function< double( const double ) > massFunction )
     {
         massFunction_ = massFunction;
-        inputIsConstant_ = false;
     }
 
     virtual void setCurrentMass( const double currentMass )
     {
-        massFunction_ = [=](const double){return currentMass;};
         currentMass_ = currentMass;
     }
 
@@ -327,29 +318,29 @@ public:
 
     virtual void updateMass( const double currentTime )
     {
-        if( !inputIsConstant_ )
+        if( massFunction_ != nullptr && ( !isMassComputed_ || !isBodyInPropagation_ ) )
         {
             this->currentMass_ = massFunction_( currentTime );
+            isMassComputed_ = true;
         }
-        currentTime_ = currentTime;
     }
 
     virtual void updateMassDistribution( const double currentTime )
     {
-        if( centerOfMassFunction_ != nullptr && !inputIsConstant_ )
+        if( centerOfMassFunction_ != nullptr && ( !isComComputed_ || !isBodyInPropagation_ )  )
         {
             this->currentCenterOfMass_ = centerOfMassFunction_( currentTime );
+            isComComputed_ = true;
         }
 
-        if( inertiaTensorFunction_ != nullptr && !inputIsConstant_ )
+        if( inertiaTensorFunction_ != nullptr && ( !isInertiaTensorComputed_ || !isBodyInPropagation_ ) )
         {
             this->currentInertiaTensor_ = inertiaTensorFunction_( currentTime );
+            isInertiaTensorComputed_ = true;
         }
     }
 
 protected:
-
-    bool inputIsConstant_ = 0;
 
     std::function< double( const double ) > massFunction_;
 
@@ -377,13 +368,21 @@ public:
 
     virtual void updateMass( const double currentTime )
     {
-        currentTime_ = currentTime;
     }
 
     virtual void updateMassDistribution( const double currentTime )
     {
-        currentCenterOfMass_ = centerOfMassFunction_( currentMass_ );
-        currentInertiaTensor_ = inertiaTensorFunction_( currentMass_ );
+        if( centerOfMassFunction_ != nullptr && ( !isComComputed_ || !isBodyInPropagation_ ) )
+        {
+            currentCenterOfMass_ = centerOfMassFunction_( currentMass_ );
+            isComComputed_ = true;
+        }
+
+        if( inertiaTensorFunction_ != nullptr && ( !isInertiaTensorComputed_ || !isBodyInPropagation_ ) )
+        {
+            currentInertiaTensor_ = inertiaTensorFunction_( currentMass_ );
+            isComComputed_ = true;
+        }
     }
 
     virtual void setCurrentMass( const double currentMass )
@@ -404,46 +403,44 @@ class FromGravityFieldBodyMassProperties: public BodyMassProperties
 {
 public:
     FromGravityFieldBodyMassProperties(
-            const std::shared_ptr< gravitation::GravityFieldModel > gravityFieldModel,
-            const double scaledMeanMomentOfInertia ):
-            gravityFieldModel_( gravityFieldModel ),
-            scaledMeanMomentOfInertia_( scaledMeanMomentOfInertia )
+            const std::shared_ptr< gravitation::GravityFieldModel > gravityFieldModel ):
+            gravityFieldModel_( gravityFieldModel )
     {
         currentMass_ = gravityFieldModel_->getGravitationalParameter() / physical_constants::GRAVITATIONAL_CONSTANT;
         currentCenterOfMass_ = gravityFieldModel_->getCenterOfMass( );
-        currentInertiaTensor_ = gravityFieldModel_->getInertiaTensor( scaledMeanMomentOfInertia );
+        currentInertiaTensor_ = gravityFieldModel_->getInertiaTensor( );
+
+        if( std::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >( gravityFieldModel ) != nullptr )
+        {
+            modelIsTimeDependent_  = true;
+        }
+        else
+        {
+            modelIsTimeDependent_ = false;
+        }
     }
 
     virtual ~FromGravityFieldBodyMassProperties( ){ }
 
     virtual void updateMass( const double currentTime )
     {
-        if( !( currentTime_ != currentTime ) )
+        if( ( modelIsTimeDependent_ && !isMassComputed_ ) || !isBodyInPropagation_ )
         {
             currentMass_ = gravityFieldModel_->getGravitationalParameter() /
                            physical_constants::GRAVITATIONAL_CONSTANT;
-            currentTime_ = currentTime;
+            isMassComputed_ = true;
         }
     }
 
     virtual void updateMassDistribution( const double currentTime )
     {
-//        if( !( currentTime_ != currentTime ) )
+        if( ( modelIsTimeDependent_ && ( !isComComputed_ || !isInertiaTensorComputed_ ) ) || !isBodyInPropagation_ )
         {
             currentCenterOfMass_ = gravityFieldModel_->getCenterOfMass();
-            currentInertiaTensor_ = gravityFieldModel_->getInertiaTensor( scaledMeanMomentOfInertia_);
+            currentInertiaTensor_ = gravityFieldModel_->getInertiaTensor();
+            isComComputed_ = true;
+            isInertiaTensorComputed_ = true;
         }
-    }
-
-    double getScaledMeanMomentOfInertia( )
-    {
-        return scaledMeanMomentOfInertia_;
-    }
-
-    void setScaledMeanMomentOfInertia( const double scaledMeanMomentOfInertia )
-    {
-        scaledMeanMomentOfInertia_ = scaledMeanMomentOfInertia;
-        updateMassDistribution( TUDAT_NAN );
     }
 
     virtual void setCurrentMass( const double currentMass )
@@ -451,11 +448,20 @@ public:
         throw std::runtime_error( "Error when resetting body mass; mass cannot be reset for bodies with a gravity field. Reset the gravity field's gravitational parameter instead." );
     }
 
+    virtual void setIsBodyInPropagation( const bool isBodyInPropagation )
+    {
+        currentMass_ = gravityFieldModel_->getGravitationalParameter() / physical_constants::GRAVITATIONAL_CONSTANT;
+        currentCenterOfMass_ = gravityFieldModel_->getCenterOfMass( );
+        currentInertiaTensor_ = gravityFieldModel_->getInertiaTensor( );
+
+        isBodyInPropagation_ = isBodyInPropagation;
+    }
+
 protected:
 
     const std::shared_ptr< gravitation::GravityFieldModel > gravityFieldModel_;
 
-    double scaledMeanMomentOfInertia_;
+    bool modelIsTimeDependent_;
 
 
 };
@@ -1082,7 +1088,7 @@ public:
         }
         else
         {
-            massProperties_ = std::make_shared< FromGravityFieldBodyMassProperties >( gravityFieldModel, TUDAT_NAN );
+            massProperties_ = std::make_shared< FromGravityFieldBodyMassProperties >( gravityFieldModel );
         }
 
     }
@@ -1506,36 +1512,36 @@ public:
      *  Function to retrieve body scaled mean moment of inertia
      * \return Body scaled mean moment of inertia
      */
-    double getScaledMeanMomentOfInertia( )
-    {
-        double scaledMeanMomentOfInertia;
-        if( std::dynamic_pointer_cast< FromGravityFieldBodyMassProperties >( massProperties_ ) == nullptr )
-        {
-            throw std::runtime_error( "Error when retrieving scaled mean moment of inertia; no mass properties from gravity field are found" );
-        }
-        else
-        {
-            scaledMeanMomentOfInertia = std::dynamic_pointer_cast< FromGravityFieldBodyMassProperties >( massProperties_ )->getScaledMeanMomentOfInertia( );
-        }
-        return scaledMeanMomentOfInertia;
-    }
+//    double getScaledMeanMomentOfInertia( )
+//    {
+//        double scaledMeanMomentOfInertia;
+//        if( std::dynamic_pointer_cast< FromGravityFieldBodyMassProperties >( massProperties_ ) == nullptr )
+//        {
+//            throw std::runtime_error( "Error when retrieving scaled mean moment of inertia; no mass properties from gravity field are found" );
+//        }
+//        else
+//        {
+//            scaledMeanMomentOfInertia = std::dynamic_pointer_cast< FromGravityFieldBodyMassProperties >( massProperties_ )->getScaledMeanMomentOfInertia( );
+//        }
+//        return scaledMeanMomentOfInertia;
+//    }
 
     //! Function to reset body scaled mean moment of inertia
     /*!
      *  Function to reset body scaled mean moment of inertia, and update associated inertia tensor
      *  \param scaledMeanMomentOfInertia New body scaled mean moment of inertia
      */
-    void setScaledMeanMomentOfInertia(const double scaledMeanMomentOfInertia)
-    {
-        if( std::dynamic_pointer_cast< FromGravityFieldBodyMassProperties >( massProperties_ ) == nullptr )
-        {
-            throw std::runtime_error( "Error when setting scaled mean moment of inertia; no mass properties from gravity field are found" );
-        }
-        else
-        {
-            std::dynamic_pointer_cast< FromGravityFieldBodyMassProperties >( massProperties_ )->setScaledMeanMomentOfInertia( scaledMeanMomentOfInertia );
-        }
-    }
+//    void setScaledMeanMomentOfInertia(const double scaledMeanMomentOfInertia)
+//    {
+//        if( std::dynamic_pointer_cast< FromGravityFieldBodyMassProperties >( massProperties_ ) == nullptr )
+//        {
+//            throw std::runtime_error( "Error when setting scaled mean moment of inertia; no mass properties from gravity field are found" );
+//        }
+//        else
+//        {
+//            std::dynamic_pointer_cast< FromGravityFieldBodyMassProperties >( massProperties_ )->setScaledMeanMomentOfInertia( scaledMeanMomentOfInertia );
+//        }
+//    }
 
     //! Function to (re)set the body moment-of-inertia tensor.
     /*!
@@ -1576,17 +1582,17 @@ public:
      * \param scaledMeanMomentOfInertia  Mean moment of inertial, divided by (M*R^2), with M the mass of the body and R the
      * reference radius of the gravity field.
      */
-    void setBodyInertiaTensorFromGravityField(const double scaledMeanMomentOfInertia)
-    {
-        if( std::dynamic_pointer_cast< FromGravityFieldBodyMassProperties >( massProperties_ ) == nullptr )
-        {
-            throw std::runtime_error( "Error when setting inertia tensor from scaled mean moment of inertia, no from-gravity field mass properties found." );
-        }
-        else
-        {
-            std::dynamic_pointer_cast< FromGravityFieldBodyMassProperties >( massProperties_ )->setScaledMeanMomentOfInertia( scaledMeanMomentOfInertia );
-        }
-    }
+//    void setBodyInertiaTensorFromGravityField(const double scaledMeanMomentOfInertia)
+//    {
+//        if( std::dynamic_pointer_cast< FromGravityFieldBodyMassProperties >( massProperties_ ) == nullptr )
+//        {
+//            throw std::runtime_error( "Error when setting inertia tensor from scaled mean moment of inertia, no from-gravity field mass properties found." );
+//        }
+//        else
+//        {
+//            std::dynamic_pointer_cast< FromGravityFieldBodyMassProperties >( massProperties_ )->setScaledMeanMomentOfInertia( scaledMeanMomentOfInertia );
+//        }
+//    }
 
 //    //! Function to (re)set the body moment-of-inertia tensor from existing gravity field and mean moment of inertia.
 //    /*!
@@ -1624,45 +1630,45 @@ public:
      * Requires only the density as argument. Other data are taken from this body's polyhedron gravity field
      * \param density Density of the body.
      */
-    void setBodyInertiaTensorFromGravityFieldAndDensity ( const double density )
-    {
-        std::shared_ptr< gravitation::PolyhedronGravityField > polyhedronGravityField =
-                std::dynamic_pointer_cast< gravitation::PolyhedronGravityField >( gravityFieldModel_ );
-        if ( polyhedronGravityField == nullptr )
-        {
-            throw std::runtime_error("Error when setting inertia tensor from density, gravity field model is not polyhedron");
-        }
-        else
-        {
-            throw std::runtime_error( "Error, linking of inertia tensor and polyhedron gravity field disabled" );
-//            bodyInertiaTensor_ = basic_astrodynamics::computePolyhedronInertiaTensor(
-//                    polyhedronGravityField->getVerticesCoordinates( ),
-//                    polyhedronGravityField->getVerticesDefiningEachEdge( ),
-//                    density );
-
-        }
-    }
+//    void setBodyInertiaTensorFromGravityFieldAndDensity ( const double density )
+//    {
+//        std::shared_ptr< gravitation::PolyhedronGravityField > polyhedronGravityField =
+//                std::dynamic_pointer_cast< gravitation::PolyhedronGravityField >( gravityFieldModel_ );
+//        if ( polyhedronGravityField == nullptr )
+//        {
+//            throw std::runtime_error("Error when setting inertia tensor from density, gravity field model is not polyhedron");
+//        }
+//        else
+//        {
+//            throw std::runtime_error( "Error, linking of inertia tensor and polyhedron gravity field disabled" );
+////            bodyInertiaTensor_ = basic_astrodynamics::computePolyhedronInertiaTensor(
+////                    polyhedronGravityField->getVerticesCoordinates( ),
+////                    polyhedronGravityField->getVerticesDefiningEachEdge( ),
+////                    density );
+//
+//        }
+//    }
 
     //! Function to (re)set the body moment-of-inertia tensor from the gravity field, for a polyhedron gravity field.
     /*!
      * Function to (re)set the body moment-of-inertia tensor from the gravity field, for a polyhedron gravity field.
      * Uses an already existing body density.
      */
-    void setBodyInertiaTensorFromGravityFieldAndExistingDensity( )
-    {
-        if (!std::isnan( density_ ) )
-        {
-            std::shared_ptr< gravitation::PolyhedronGravityField > polyhedronGravityField =
-                    std::dynamic_pointer_cast< gravitation::PolyhedronGravityField >( gravityFieldModel_ );
-            if ( polyhedronGravityField == nullptr )
-            {
-                throw std::runtime_error("Error when setting inertia tensor from polyhedron model, "
-                                         "gravity field model is not polyhedron.");
-            }
-
-            setBodyInertiaTensorFromGravityFieldAndDensity( density_ );
-        }
-    }
+//    void setBodyInertiaTensorFromGravityFieldAndExistingDensity( )
+//    {
+//        if (!std::isnan( density_ ) )
+//        {
+//            std::shared_ptr< gravitation::PolyhedronGravityField > polyhedronGravityField =
+//                    std::dynamic_pointer_cast< gravitation::PolyhedronGravityField >( gravityFieldModel_ );
+//            if ( polyhedronGravityField == nullptr )
+//            {
+//                throw std::runtime_error("Error when setting inertia tensor from polyhedron model, "
+//                                         "gravity field model is not polyhedron.");
+//            }
+//
+//            setBodyInertiaTensorFromGravityFieldAndDensity( density_ );
+//        }
+//    }
 
 
 

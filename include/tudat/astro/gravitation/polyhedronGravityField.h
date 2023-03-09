@@ -274,7 +274,7 @@ public:
     const std::vector< Eigen::MatrixXd >& getEdgeDyads( )
     { return edgeDyads_; }
 
-    virtual Eigen::Matrix3d getInertiaTensor( const double scaledMeanMomentOfInertia )
+    virtual Eigen::Matrix3d getInertiaTensor( )
     {
         return inertiaTensor_;
     }

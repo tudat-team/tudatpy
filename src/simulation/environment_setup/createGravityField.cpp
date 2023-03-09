@@ -377,7 +377,8 @@ std::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
                                 sphericalHarmonicFieldSettings->getReferenceRadius( ),
                                 sphericalHarmonicFieldSettings->getCosineCoefficients( ),
                                 sphericalHarmonicFieldSettings->getSineCoefficients( ),
-                                associatedReferenceFrame );
+                                associatedReferenceFrame,
+                                sphericalHarmonicFieldSettings->getScaledMeanMomentOfInertia( ) );
                 }
                 else
                 {
@@ -394,7 +395,8 @@ std::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
                                 sphericalHarmonicFieldSettings->getReferenceRadius( ),
                                 sphericalHarmonicFieldSettings->getCosineCoefficients( ),
                                 sphericalHarmonicFieldSettings->getSineCoefficients( ),
-                                associatedReferenceFrame );
+                                associatedReferenceFrame,
+                                sphericalHarmonicFieldSettings->getScaledMeanMomentOfInertia( ) );
                 }
 
 

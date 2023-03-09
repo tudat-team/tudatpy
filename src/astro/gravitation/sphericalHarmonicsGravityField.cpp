@@ -29,9 +29,9 @@ namespace gravitation
 {
 
 
-Eigen::Matrix3d SphericalHarmonicsGravityField::getInertiaTensor( const double scaledMeanMomentOfInertia )
+Eigen::Matrix3d SphericalHarmonicsGravityField::getInertiaTensor(  )
 {
-    return gravitation::getInertiaTensorFromGravityField( shared_from_this(), scaledMeanMomentOfInertia );
+    return gravitation::getInertiaTensorFromGravityField( shared_from_this(), scaledMeanMomentOfInertia_ );
 }
 
 //! Compute gravitational acceleration due to multiple spherical harmonics terms, defined using geodesy-normalization.

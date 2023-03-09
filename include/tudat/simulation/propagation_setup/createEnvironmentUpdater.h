@@ -225,13 +225,6 @@ std::vector< std::string > > createEnvironmentUpdaterSettings(
     }
     }
 
-    for( auto it : environmentModelsToUpdate )
-    {
-        for( unsigned int i = 0; i < it.second.size( ); i++ )
-        {
-            std::cout<<"Update A: "<<it.first<<" "<<it.second.at( i )<<std::endl;
-        }
-    }
 
     std::map< propagators::EnvironmentModelsToUpdate,
             std::vector< std::string > > environmentModelsToUpdateForDependentVariables =
@@ -244,27 +237,12 @@ std::vector< std::string > > createEnvironmentUpdaterSettings(
     addEnvironmentUpdates( environmentModelsToUpdate, environmentModelsToUpdateForTerminationConditions );
 
 
-    for( auto it : environmentModelsToUpdate )
-    {
-        for( unsigned int i = 0; i < it.second.size( ); i++ )
-        {
-            std::cout<<"Update A: "<<it.first<<" "<<it.second.at( i )<<std::endl;
-        }
-    }
     // Remove variables from environment updates that are numerically propagated.
     if( !isPartOfMultiTypePropagation )
     {
         removePropagatedStatesFomEnvironmentUpdates(
                     environmentModelsToUpdate, getIntegratedTypeAndBodyList( propagatorSettings ) );
         checkValidityOfRequiredEnvironmentUpdates( environmentModelsToUpdate, bodies );
-    }
-
-    for( auto it : environmentModelsToUpdate )
-    {
-        for( unsigned int i = 0; i < it.second.size( ); i++ )
-        {
-            std::cout<<"Update: "<<it.first<<" "<<it.second.at( i )<<std::endl;
-        }
     }
 
     return environmentModelsToUpdate;

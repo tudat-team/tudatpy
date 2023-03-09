@@ -196,10 +196,11 @@ public:
             const Eigen::MatrixXd& cosineCoefficients = Eigen::MatrixXd::Identity( 1, 1 ),
             const Eigen::MatrixXd& sineCoefficients = Eigen::MatrixXd::Zero( 1, 1 ),
             const std::string& fixedReferenceFrame = "",
-            const std::function< void( ) > updateInertiaTensor = std::function< void( ) > ( ) )
-        : GravityFieldModel( gravitationalParameter, updateInertiaTensor ), referenceRadius_( referenceRadius ),
+            const double scaledMeanMomentOfInertia = TUDAT_NAN )
+        : GravityFieldModel( gravitationalParameter ), referenceRadius_( referenceRadius ),
           cosineCoefficients_( cosineCoefficients ), sineCoefficients_( sineCoefficients ),
           fixedReferenceFrame_( fixedReferenceFrame ),
+          scaledMeanMomentOfInertia_( scaledMeanMomentOfInertia),
           maximumDegree_( cosineCoefficients_.rows( ) - 1 ),
           maximumOrder_( cosineCoefficients_.cols( ) - 1 )
     {
@@ -481,8 +482,17 @@ public:
             referenceRadius_ * std::sqrt( 3.0 );
     }
 
-    virtual Eigen::Matrix3d getInertiaTensor( const double scaledMeanMomentOfInertia );
+    virtual Eigen::Matrix3d getInertiaTensor(  );
 
+    double getScaledMeanMomentOfInertia( )
+    {
+        return scaledMeanMomentOfInertia_;
+    }
+
+    void setScaledMeanMomentOfInertia( const double scaledMeanMomentOfInertia )
+    {
+        scaledMeanMomentOfInertia_ = scaledMeanMomentOfInertia;
+    }
 protected:
 
     //! Reference radius of spherical harmonic field expansion
@@ -508,6 +518,8 @@ protected:
      *  Identifier for body-fixed reference frame
      */
     std::string fixedReferenceFrame_;
+
+    double scaledMeanMomentOfInertia_;
 
     const int maximumDegree_;
 

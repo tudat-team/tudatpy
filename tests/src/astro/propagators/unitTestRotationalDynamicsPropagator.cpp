@@ -105,8 +105,7 @@ SystemOfBodies getTestBodyMap( const double phobosSemiMajorAxis,
     bodies.at( "Phobos" )->setGravityFieldModel(
                 std::make_shared< gravitation::SphericalHarmonicsGravityField >(
                     phobosGravitationalParameter, phobosReferenceRadius, phobosCosineGravityFieldCoefficients,
-                    phobosSineGravityFieldCoefficients, "Phobos_Fixed" ) );
-    bodies.at( "Phobos" )->setScaledMeanMomentOfInertia( phobosScaledMeanMomentOfInertia );
+                    phobosSineGravityFieldCoefficients, "Phobos_Fixed", phobosScaledMeanMomentOfInertia ) );
 
 
 

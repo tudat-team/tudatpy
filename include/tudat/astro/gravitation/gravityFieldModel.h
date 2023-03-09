@@ -111,7 +111,7 @@ public:
         return Eigen::Vector3d::Zero( );
     }
 
-    virtual Eigen::Matrix3d getInertiaTensor( const double scaledMeanMomentOfInertia )
+    virtual Eigen::Matrix3d getInertiaTensor( )
     {
         return Eigen::Matrix3d::Zero( );
     }

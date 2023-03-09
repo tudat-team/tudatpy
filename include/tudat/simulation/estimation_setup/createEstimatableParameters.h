@@ -929,11 +929,18 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
                 std::string errorMessage = "Error, body is nullptr when making mean moment of inertia parameter.";
                 throw std::runtime_error( errorMessage );
             }
+            else if( std::dynamic_pointer_cast< SphericalHarmonicsGravityField >( currentBody->getGravityFieldModel( ) ) == nullptr )
+            {
+                std::string errorMessage = "Error, body gravity field is not spherical harmonic when making mean moment of inertia parameter.";
+                throw std::runtime_error( errorMessage );
+            }
             else
             {
+                auto gravityFieldModel =
+                        std::dynamic_pointer_cast< SphericalHarmonicsGravityField >( currentBody->getGravityFieldModel( ) );
                 doubleParameterToEstimate = std::make_shared< MeanMomentOfInertiaParameter >
-                        ( std::bind( &simulation_setup::Body::getScaledMeanMomentOfInertia, currentBody ),
-                          std::bind( &simulation_setup::Body::setScaledMeanMomentOfInertia, currentBody, std::placeholders::_1 ),
+                        ( std::bind( &SphericalHarmonicsGravityField::getScaledMeanMomentOfInertia, gravityFieldModel ),
+                          std::bind( &SphericalHarmonicsGravityField::setScaledMeanMomentOfInertia, gravityFieldModel, std::placeholders::_1 ),
                           currentBodyName );
             }
             break;
