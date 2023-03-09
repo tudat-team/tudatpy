@@ -122,6 +122,15 @@ void checkValidityOfRequiredEnvironmentUpdates(
                     }
 
                     break;
+                case body_mass_distribution_update:
+                    if( bodies.at( updateIterator->second.at( i ) )->getMassProperties( ) == nullptr )
+                    {
+                        throw std::runtime_error(
+                            "Error when making environment model update settings, no mass properties of body "
+                            + updateIterator->second.at( i ) );
+                    }
+
+                    break;
                 }
             }
         }
@@ -212,7 +221,7 @@ createRotationalEquationsOfMotionEnvironmentUpdaterSettings(
 
     for( unsigned  int i = 0; i < bodiesToIntegrate.size( ); i++ )
     {
-        singleTorqueUpdateNeeds[ body_mass_update ].push_back(
+        singleTorqueUpdateNeeds[ body_mass_distribution_update ].push_back(
                 bodiesToIntegrate.at( i ) );
     }
     addEnvironmentUpdates( environmentModelsToUpdate, singleTorqueUpdateNeeds );
@@ -258,10 +267,16 @@ createRotationalEquationsOfMotionEnvironmentUpdaterSettings(
                                 torqueModelIterator->first );
                     singleTorqueUpdateNeeds[ vehicle_flight_conditions_update ].push_back(
                                 acceleratedBodyIterator->first );
+                    singleTorqueUpdateNeeds[ body_mass_update ].push_back(
+                        acceleratedBodyIterator->first );
+                    singleTorqueUpdateNeeds[ body_mass_distribution_update ].push_back(
+                        acceleratedBodyIterator->first );
                     break;
                 case inertial_torque:
                     break;
                 case dissipative_torque:
+                    break;
+                case custom_torque:
                     break;
                 default:
                     std::cerr << "Error, update information not found for torque model " << currentTorqueModelType << std::endl;
