@@ -245,11 +245,11 @@ protected:
         }
     }
 
-    //! Name of central body (i.e. body with the atmosphere)
-    std::string centralBody_;
-
     //! Model describing the shape of the body w.r.t. which the flight is taking place.
     const std::shared_ptr< basic_astrodynamics::BodyShapeModel > shapeModel_;
+
+    //! Name of central body (i.e. body with the atmosphere)
+    std::string centralBody_;
 
     //! Object from which the aerodynamic/trajectory angles of the vehicle are calculated.
     std::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator_;
