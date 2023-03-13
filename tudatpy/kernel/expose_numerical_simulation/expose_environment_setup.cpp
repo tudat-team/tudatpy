@@ -162,8 +162,12 @@ namespace environment_setup {
               get_docstring("add_aerodynamic_coefficient_interface").c_str());
 
         m.def("create_aerodynamic_coefficient_interface",
+              &tss::createAerodynamicCoefficientInterfaceDeprecated,
+              py::arg("coefficient_settings"), py::arg("body") );
+
+        m.def("create_aerodynamic_coefficient_interface",
               &tss::createAerodynamicCoefficientInterface,
-              py::arg("coefficient_settings"), py::arg("body"),
+              py::arg("coefficient_settings"), py::arg("body"), py::arg("bodies"),
               get_docstring("create_aerodynamic_coefficient_interface").c_str());
 
         m.def("add_radiation_pressure_interface",
