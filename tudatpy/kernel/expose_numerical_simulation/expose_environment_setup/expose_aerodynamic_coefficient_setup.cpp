@@ -108,7 +108,7 @@ namespace aerodynamic_coefficients {
               py::arg("force_coefficient_function"),
               py::arg("reference_area"),
               py::arg("independent_variable_names"),
-              py::arg("force_coefficients_frame") = ta::negative_aerodynamic_frame_coefficients,,
+              py::arg("force_coefficients_frame") = ta::negative_aerodynamic_frame_coefficients,
               get_docstring("custom_aerodynamic_force_coefficients").c_str());
 
         m.def("custom_aerodynamic_force_and_moment_coefficients",
@@ -148,6 +148,7 @@ namespace aerodynamic_coefficients {
               py::arg("independent_variables"),
               py::arg("force_coefficients"),
               py::arg("moment_coefficients"),
+              py::arg("reference_length"),
               py::arg("reference_area"),
               py::arg("moment_reference_point"),
               py::arg("independent_variable_name"),
@@ -358,8 +359,7 @@ namespace aerodynamic_coefficients {
               py::arg("independent_variable_name"),
               py::arg("are_coefficients_in_aerodynamic_frame") = true,
               py::arg("are_coefficients_in_negative_axis_direction") = true,
-              py::arg("interpolator_settings") = nullptr,
-              get_docstring("tabulated_force_only").c_str());
+              py::arg("interpolator_settings") = nullptr);
 
         m.def("tabulated_force_only_from_files",
               py::overload_cast<
