@@ -157,7 +157,7 @@ void expose_environment(py::module &m) {
             .def("update_coefficients", &ta::AerodynamicCoefficientInterface::updateCurrentCoefficients,
                  py::arg( "independent_variables" ),
                  py::arg( "time") )
-            .def("update_coefficients", &ta::AerodynamicCoefficientInterface::updateFullCurrentCoefficients,
+            .def("update_full_coefficients", &ta::AerodynamicCoefficientInterface::updateFullCurrentCoefficients,
                  py::arg( "independent_variables" ),
                  py::arg( "control_surface_independent_variables" ),
                  py::arg( "time") );
