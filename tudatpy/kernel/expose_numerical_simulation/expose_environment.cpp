@@ -144,6 +144,8 @@ void expose_environment(py::module &m) {
             .def_property_readonly("current_force_coefficients", &ta::AerodynamicCoefficientInterface::getCurrentForceCoefficients )
             .def_property_readonly("current_moment_coefficients", &ta::AerodynamicCoefficientInterface::getCurrentMomentCoefficients )
             .def_property_readonly("current_coefficients", &ta::AerodynamicCoefficientInterface::getCurrentAerodynamicCoefficients )
+            .def_property_readonly("independent_variable_names", &ta::AerodynamicCoefficientInterface::getIndependentVariableNames )
+            .def_property_readonly("control_surface_independent_variable_names", &ta::AerodynamicCoefficientInterface::getControlSurfaceIndependentVariables )
             .def_property_readonly("current_control_surface_free_force_coefficients", &ta::AerodynamicCoefficientInterface::getCurrentControlSurfaceFreeForceCoefficients )
             .def_property_readonly("current_control_surface_free_moment_coefficients", &ta::AerodynamicCoefficientInterface::getCurrentControlSurfaceFreeMomentCoefficients )
             .def("current_control_surface_force_coefficient_increment", &ta::AerodynamicCoefficientInterface::getCurrentForceCoefficientIncrement,
@@ -154,6 +156,10 @@ void expose_environment(py::module &m) {
                  py::arg( "control_surface_list" ) )
             .def("update_coefficients", &ta::AerodynamicCoefficientInterface::updateCurrentCoefficients,
                  py::arg( "independent_variables" ),
+                 py::arg( "time") )
+            .def("update_coefficients", &ta::AerodynamicCoefficientInterface::updateFullCurrentCoefficients,
+                 py::arg( "independent_variables" ),
+                 py::arg( "control_surface_independent_variables" ),
                  py::arg( "time") );
 
     py::class_<ta::ControlSurfaceIncrementAerodynamicInterface,
