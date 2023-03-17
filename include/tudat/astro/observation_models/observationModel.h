@@ -41,6 +41,7 @@ enum ObservationAncilliarySimulationVariable
 {
     doppler_integration_time,
     retransmission_delays,
+    doppler_reference_frequency,
     uplink_band,
     downlink_band
 };
@@ -60,6 +61,9 @@ public:
         case doppler_integration_time:
             doubleData_[ doppler_integration_time ] = variable;
             break;
+        case doppler_reference_frequency:
+             doubleData_[ doppler_reference_frequency ] = variable;
+             break;
         case uplink_band:
             doubleData_[ uplink_band ] = variable;
             break;
@@ -97,6 +101,9 @@ public:
             case doppler_integration_time:
                 returnVariable = doubleData_.at( doppler_integration_time );
                 break;
+            case doppler_reference_frequency:
+                 returnVariable = doubleData_.at( doppler_reference_frequency );
+                 break;
             case uplink_band:
                 returnVariable = doubleData_.at( uplink_band );
                 break;

@@ -292,9 +292,14 @@ observation_models::ObservationAncilliarySimulationSettings< TimeType > createOd
 
         ancillarySettings.setAncilliaryDoubleData(
                 observation_models::doppler_integration_time, dopplerDataBlock->countInterval_.at( dataIndex ) );
+        ancillarySettings.setAncilliaryDoubleData(
+                 observation_models::doppler_reference_frequency, dopplerDataBlock->referenceFrequencies_.at( dataIndex ) );
 
         if ( currentObservableType == observation_models::dsn_n_way_averaged_doppler )
         {
+//            std::cout << "Delays (" << odfDataContents->processedObservationTimes_.at( dataIndex ) << "): " <<
+//                dopplerDataBlock->transmitterUplinkDelays_.at( dataIndex ) << " " << 0.0 << " " <<
+//                dopplerDataBlock->receiverDownlinkDelays_.at( dataIndex ) << std::endl;
             ancillarySettings.setAncilliaryDoubleVectorData(
                 observation_models::retransmission_delays,  std::vector< double >{
                     dopplerDataBlock->transmitterUplinkDelays_.at( dataIndex ), 0.0,

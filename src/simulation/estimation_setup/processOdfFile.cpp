@@ -386,7 +386,7 @@ void ProcessedOdfFileContents::addOdfRawDataBlockToProcessedData(
             odfParsedDopplerDataBlock->receiverChannels_.push_back( odfDopplerDataBlock->receiverChannel_ );
             odfParsedDopplerDataBlock->receiverRampingFlags_.push_back( odfDopplerDataBlock->receiverExciterFlag_ );
             odfParsedDopplerDataBlock->referenceFrequencies_.push_back( odfDopplerDataBlock->getReferenceFrequency( ) );
-            odfParsedDopplerDataBlock->transmitterUplinkDelays_.push_back( odfDopplerDataBlock->transmittingStationUplinkDelay_ );
+            odfParsedDopplerDataBlock->transmitterUplinkDelays_.push_back( odfDopplerDataBlock->getTransmittingStationUplinkDelay( ) );
         }
     }
 }
@@ -433,21 +433,34 @@ std::vector< double > ProcessedOdfFileContents::computeObservationTimesTdbFromJ2
 
         std::vector< double > observationTimesUtcFromJ2000 = computeObservationTimesUtcFromJ2000( observationTimesUtcFromEME1950 );
 
+        std::vector< double > observationTimesEarthCenterTdbFromJ2000 = timeScaleConverter.getCurrentTimes(
+                basic_astrodynamics::utc_scale, basic_astrodynamics::tdb_scale, observationTimesUtcFromJ2000 );
+
         std::vector< Eigen::Vector3d > earthFixedPositions;
         for ( unsigned int i = 0; i < observationTimesUtcFromJ2000.size( ); ++i )
         {
-            // Approximation: UTC time used to retrieve the ground station's position
+            // TDB time wrt Earth center used to retrieve the ground station's position
             earthFixedPositions.push_back(
                     bodyWithGroundStations_->getGroundStation( groundStation )->getStateInPlanetFixedFrame< double, double >(
-                            observationTimesUtcFromJ2000.at( i ) ).segment( 0, 3 ) );
+                            observationTimesEarthCenterTdbFromJ2000.at( i ) ).segment( 0, 3 ) );
         }
 
         std::vector< double > observationTimesTdbFromJ2000 = timeScaleConverter.getCurrentTimes(
                 basic_astrodynamics::utc_scale, basic_astrodynamics::tdb_scale, observationTimesUtcFromJ2000,
                 earthFixedPositions );
 
-        std::cout << std::endl << std::setprecision(15) << "UTC " << observationTimesUtcFromJ2000.at(0) <<
-            " TDB " << observationTimesTdbFromJ2000.at(0) << std::endl;
+//        for ( unsigned int i = 0; i < observationTimesUtcFromJ2000.size( ); ++i )
+//        {
+//            std::cout << std::setprecision(18) << "UTC_1950: " << observationTimesUtcFromEME1950.at(i) <<
+//            " UTC_J2000: " << observationTimesUtcFromJ2000.at(i) <<
+//            " TDB_J2000: " << observationTimesTdbFromJ2000.at(i) <<
+//            " Earth-fixed position: "  << earthFixedPositions.at(i).transpose( ) << std::endl;
+//        }
+
+        std::cout << std::setprecision(18) << "UTC_1950: " << observationTimesUtcFromEME1950.at(0) <<
+            " UTC_J2000: " << observationTimesUtcFromJ2000.at(0) <<
+            " TDB_J2000: " << observationTimesTdbFromJ2000.at(0) <<
+            " Earth-fixed position: "  << earthFixedPositions.at( 0 ).transpose( ) << std::endl;
 
         return observationTimesTdbFromJ2000;
     }
@@ -547,13 +560,11 @@ void ProcessedOdfFileContents::extractRawOdfRampData( std::shared_ptr< const inp
             startFrequencies.push_back( rampBlocks.at( i )->getRampStartFrequency( ) );
         }
 
+        std::cout << std::endl << stationName << ": " << std::endl;
         rampInterpolators_[ stationName ] = std::make_shared< ground_stations::PiecewiseLinearFrequencyInterpolator >(
                 computeObservationTimesTdbFromJ2000( stationName, startTimes ),
                 computeObservationTimesTdbFromJ2000( stationName, endTimes ),
                 rampRates, startFrequencies );
-
-        std::cout << stationName << ": " << std::setprecision( 15 ) << computeObservationTimesTdbFromJ2000( stationName, startTimes ).front( ) << " " <<
-            computeObservationTimesTdbFromJ2000( stationName, startTimes ).back( ) << std::endl;
     }
 
 }

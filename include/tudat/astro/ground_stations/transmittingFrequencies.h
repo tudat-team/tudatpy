@@ -116,18 +116,23 @@ public:
 
     double getFrequencyIntegral( const double quadratureStartTime, const double quadratureEndTime )
     {
-        double integral = 0;
+        long double integral = 0;
 
         int startTimeLowestNearestNeighbour = startTimeLookupScheme_->findNearestLowerNeighbour( quadratureStartTime );
         int endTimeLowestNearestNeighbour = startTimeLookupScheme_->findNearestLowerNeighbour( quadratureEndTime );
 
         if ( startTimeLowestNearestNeighbour == endTimeLowestNearestNeighbour )
         {
-            integral += ( quadratureEndTime - quadratureStartTime ) * ( getCurrentFrequency( quadratureStartTime ) +
-                    getCurrentFrequency( quadratureEndTime ) ) / 2.0;
+            integral += ( static_cast< long double >(quadratureEndTime) - static_cast< long double >(quadratureStartTime) ) * (
+                    static_cast< long double >(getCurrentFrequency( quadratureStartTime )) +
+                    static_cast< long double >(getCurrentFrequency( quadratureEndTime )) ) / 2.0;
 //            integral += ( quadratureEndTime - quadratureStartTime ) *
 //                    ( getCurrentFrequency( quadratureStartTime ) + rampRates_.at( startTimeLowestNearestNeighbour ) *
 //                    ( quadratureEndTime - quadratureStartTime ) / 2.0 );
+            std::cout << quadratureStartTime << std::endl << quadratureEndTime << std::endl << getCurrentFrequency( quadratureStartTime )
+                << std::endl << getCurrentFrequency( quadratureEndTime ) << std::endl <<
+                quadratureEndTime - quadratureStartTime << std::endl <<
+                ( getCurrentFrequency( quadratureStartTime ) + getCurrentFrequency( quadratureEndTime ) ) / 2.0 << std::endl << std::endl;
         }
         else
         {
@@ -150,7 +155,7 @@ public:
                     ( quadratureEndTime - startTimes_.at( endTimeLowestNearestNeighbour ) ) / 2.0 );
         }
 
-        return integral;
+        return static_cast< double >(integral);
     }
 
     double getCurrentFrequency( const double lookupTime )
