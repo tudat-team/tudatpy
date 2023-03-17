@@ -521,6 +521,10 @@ std::shared_ptr< OdfRawFileContents > readOdfFile(
 {
     // Open file
     std::ifstream dataFile( odfFile, std::ios_base::binary);
+    if ( !dataFile.good( ) )
+    {
+        throw std::runtime_error( "Error when opening ODF file file." );
+    }
 
     // Create OdfRawFileContents object, and add file name
     std::shared_ptr< OdfRawFileContents > odfFileContents = std::make_shared< OdfRawFileContents >( );
