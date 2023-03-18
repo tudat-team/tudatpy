@@ -338,16 +338,22 @@ void expose_environment(py::module &m) {
      **************   EPHEMERIDES  ******************
      */
 
-    py::class_<te::Ephemeris, std::shared_ptr<te::Ephemeris>>(m, "Ephemeris")
-            .def("cartesian_state", &te::Ephemeris::getCartesianState, py::arg("seconds_since_epoch") = 0.0)
-            .def("cartesian_position", &te::Ephemeris::getCartesianPosition, py::arg("seconds_since_epoch") = 0.0)
-            .def("cartesian_velocity", &te::Ephemeris::getCartesianVelocity, py::arg("seconds_since_epoch") = 0.0);
+    py::class_<te::Ephemeris, std::shared_ptr<te::Ephemeris>>(m, "Ephemeris", get_docstring("Ephemeris").c_str())
+            .def("cartesian_state", &te::Ephemeris::getCartesianState,
+                 py::arg("current_time"),
+                 get_docstring("Ephemeris.cartesian_state").c_str())
+            .def("cartesian_position", &te::Ephemeris::getCartesianPosition,
+                 py::arg("current_time"),
+                 get_docstring("Ephemeris.cartesian_position").c_str())
+            .def("cartesian_velocity", &te::Ephemeris::getCartesianVelocity,
+                 py::arg("current_time"),
+                 get_docstring("Ephemeris.cartesian_velocity").c_str());
 
 
     py::class_<te::ConstantEphemeris,
             std::shared_ptr<te::ConstantEphemeris>,
             te::Ephemeris>(
-                m, "ConstantEphemeris")
+                m, "ConstantEphemeris", get_docstring("ConstantEphemeris").c_str())
             .def(py::init<
                  const std::function<Eigen::Vector6d()>,//<pybind11/functional.h>,<pybind11/eigen.h>
                  const std::string &,
@@ -363,7 +369,8 @@ void expose_environment(py::module &m) {
                  py::arg("reference_frame_origin") = "SSB",
                  py::arg("reference_frame_orientation") = "ECLIPJ2000")
             .def("update_constant_state", &te::ConstantEphemeris::updateConstantState,
-                 py::arg("new_state"));
+                 py::arg("new_state"),
+                 get_docstring("ConstantEphemeris.update_constant_state").c_str());
 
 
     py::class_<te::KeplerEphemeris,
