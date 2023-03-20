@@ -336,14 +336,14 @@ void separateSingleLinkOdfData(
     ancillarySettings.clear( );
 
     // Get time and observables vectors
-    std::vector< double > observationTimesTdb = odfSingleLinkData->processedObservationTimes_;
+    std::vector< double > observationTimesTdb = odfSingleLinkData->getObservationTimesVector( );
     std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > observablesVector =
             odfSingleLinkData->getObservablesVector( );
 
     for ( unsigned int i = 0; i < odfSingleLinkData->unprocessedObservationTimes_.size( ); ++i )
     {
         observation_models::ObservationAncilliarySimulationSettings< TimeType > currentAncillarySettings =
-                createOdfAncillarySettings( odfSingleLinkData, i );
+                createOdfAncillarySettings< TimeType >( odfSingleLinkData, i );
 
         bool newAncillarySettings = true;
 
@@ -352,17 +352,17 @@ void separateSingleLinkOdfData(
             if ( ancillarySettings.at( j ) == currentAncillarySettings )
             {
                 newAncillarySettings = false;
-                observationTimes.at( j ).push_back( observationTimesTdb.at( i ) );
-                observables.at( j ).push_back( observablesVector.at( i ) );
+                observationTimes.at( j ).push_back( static_cast< TimeType >( observationTimesTdb.at( i ) ) );
+                observables.at( j ).push_back( observablesVector.at( i ).template cast< ObservationScalarType >( ) );
                 break;
             }
         }
 
         if ( newAncillarySettings )
         {
-            observationTimes.push_back ( std::vector< TimeType >{ observationTimesTdb.at( i ) } );
+            observationTimes.push_back ( std::vector< TimeType >{ static_cast< TimeType >( observationTimesTdb.at( i ) ) } );
             observables.push_back( std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >{
-                observablesVector.at( i ) } );
+                observablesVector.at( i ).template cast< ObservationScalarType >( ) } );
             ancillarySettings.push_back( currentAncillarySettings );
         }
     }
