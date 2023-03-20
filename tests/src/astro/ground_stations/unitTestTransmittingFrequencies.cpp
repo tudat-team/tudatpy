@@ -39,45 +39,53 @@ BOOST_AUTO_TEST_CASE( testPiecewiseLinearFrequencyInterpolator )
 
     // Frequency at t = 1.0s
     double frequency = startFrequency[ 0 ];
-    BOOST_CHECK_EQUAL ( frequencyInterpolator.getCurrentFrequency( 1.0 ), frequency );
+    double computedFrequency = frequencyInterpolator.template getTemplatedCurrentFrequency< >( 1.0 );
+    BOOST_CHECK_EQUAL ( computedFrequency , frequency );
 
     // Frequency at t = 2.0s
     frequency = startFrequency[ 0 ] + rampRates[ 0 ] * ( 2.0 - startTimes[ 0 ] );
-    BOOST_CHECK_EQUAL ( frequencyInterpolator.getCurrentFrequency( 2.0 ), frequency );
+    computedFrequency = frequencyInterpolator.template getTemplatedCurrentFrequency< >( 2.0 );
+    BOOST_CHECK_EQUAL ( computedFrequency, frequency );
 
     // Frequency at t = 5.0s: start frequency of the 1st ramp
     frequency = startFrequency[ 1 ];
-    BOOST_CHECK_EQUAL ( frequencyInterpolator.getCurrentFrequency( 5.0 ), frequency );
+    computedFrequency = frequencyInterpolator.template getTemplatedCurrentFrequency< >( 5.0 );
+    BOOST_CHECK_EQUAL ( computedFrequency, frequency );
 
     // Frequency at t = 13.0s
     frequency = startFrequency[ 3 ] + rampRates[ 3 ] * ( 13.0 - startTimes[ 3 ] );
-    BOOST_CHECK_EQUAL ( frequencyInterpolator.getCurrentFrequency( 13.0 ), frequency );
+    computedFrequency = frequencyInterpolator.template getTemplatedCurrentFrequency< >( 13.0 );
+    BOOST_CHECK_EQUAL ( computedFrequency, frequency );
 
     // Frequency at t = 15.0s
     frequency = startFrequency[ 3 ] + rampRates[ 3 ] * ( 15.0 - startTimes[ 3 ] );
-    BOOST_CHECK_EQUAL ( frequencyInterpolator.getCurrentFrequency( 15.0 ), frequency );
+    computedFrequency = frequencyInterpolator.template getTemplatedCurrentFrequency< >( 15.0 );
+    BOOST_CHECK_EQUAL ( computedFrequency, frequency );
 
     // Integral between t = 2.0s and t = 4.0s
     double integral = 2.0 * ( 11.0 + 13.0 ) / 2.0;
-    BOOST_CHECK_EQUAL ( frequencyInterpolator.getFrequencyIntegral( 2.0, 4.0 ), integral );
+    double computedIntegral = frequencyInterpolator.template getTemplatedFrequencyIntegral< >( 2.0, 4.0 );
+    BOOST_CHECK_EQUAL ( computedIntegral, integral );
 
     // Integral between t = 5.0s and t = 7.0s
     integral = 2.0 * ( 5.0 + 9.0 ) / 2.0;
-    BOOST_CHECK_EQUAL ( frequencyInterpolator.getFrequencyIntegral( 5.0, 7.0 ), integral );
+    computedIntegral = frequencyInterpolator.template getTemplatedFrequencyIntegral< >( 5.0, 7.0 );
+    BOOST_CHECK_EQUAL ( computedIntegral, integral );
 
     // Integral between t = 7.0s and t = 9.0s
     integral = 2.0 * ( 9.0 + 13.0 ) / 2.0;
-    BOOST_CHECK_EQUAL ( frequencyInterpolator.getFrequencyIntegral( 7.0, 9.0 ), integral );
+    computedIntegral = frequencyInterpolator.template getTemplatedFrequencyIntegral< >( 7.0, 9.0 );
+    BOOST_CHECK_EQUAL ( computedIntegral, integral );
 
     // Integral between t = 5.0s and t = 9.0s
     integral = 4.0 * ( 5.0 + 13.0 ) / 2.0;
-    BOOST_CHECK_EQUAL ( integral, frequencyInterpolator.getFrequencyIntegral( 5.0, 9.0 ) );
-    frequencyInterpolator.getFrequencyIntegral( 2.0, 4.0 );
-    frequencyInterpolator.getFrequencyIntegral( 5.0, 9.0 );
+    computedIntegral = frequencyInterpolator.template getTemplatedFrequencyIntegral< >( 5.0, 9.0 );
+    BOOST_CHECK_EQUAL ( integral, computedIntegral );
 
     // Integral between t = 2.0s and t = 13.0s
     integral = ( 3.0 * ( 11.0 + 14.0 ) + 4.0 * ( 5.0 + 13.0 ) + 1.0 * ( 11.0 + 10.0 ) + 3.0 * ( 2.0 + 11.0 ) ) / 2.0;
-    BOOST_CHECK_EQUAL ( frequencyInterpolator.getFrequencyIntegral( 2.0, 13.0 ), integral );
+    computedIntegral = frequencyInterpolator.template getTemplatedFrequencyIntegral< >( 2.0, 13.0 );
+    BOOST_CHECK_EQUAL ( computedIntegral, integral );
 
     // Check whether error is thrown for vectors with invalid size
     startTimes.push_back( 15.0 );

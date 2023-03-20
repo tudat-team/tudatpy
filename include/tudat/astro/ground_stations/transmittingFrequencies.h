@@ -12,7 +12,7 @@
 #define TUDAT_TRANSMITTINGFREQUENCIES_H
 
 #include "tudat/math/quadrature/trapezoidQuadrature.h"
-#include "tudat/io/readOdfFile.h"
+#include "tudat/math/interpolators.h"
 
 namespace tudat
 {
@@ -31,49 +31,57 @@ public:
 
     virtual double getCurrentFrequency( const double lookupTime ) = 0;
 
+    virtual double getCurrentFrequency( const Time& lookupTime ) = 0;
+
+    virtual long double getCurrentLongFrequency( const double lookupTime ) = 0;
+
+    virtual long double getCurrentLongFrequency( const Time& lookupTime ) = 0;
+
+    template< typename ObservationScalarType = double, typename TimeType = double >
+    ObservationScalarType getTemplatedCurrentFrequency( const TimeType& lookupTime );
+
     virtual double getFrequencyIntegral( const double quadratureStartTime, const double quadratureEndTime ) = 0;
 
-    virtual double getAveragedFrequencyIntegral( const double quadratureStartTime, const double quadratureEndTime )
-    {
-        return getFrequencyIntegral( quadratureStartTime, quadratureEndTime ) / ( quadratureEndTime - quadratureStartTime );
-    }
+    virtual double getFrequencyIntegral( const Time& quadratureStartTime, const Time& quadratureEndTime ) = 0;
+
+    virtual long double getLongFrequencyIntegral( const double quadratureStartTime, const double quadratureEndTime ) = 0;
+
+    virtual long double getLongFrequencyIntegral( const Time& quadratureStartTime, const Time& quadratureEndTime ) = 0;
+
+    template< typename ObservationScalarType = double, typename TimeType = double >
+    ObservationScalarType getTemplatedFrequencyIntegral( const TimeType& quadratureStartTime, const TimeType& quadratureEndTime );
 
 private:
 
 };
 
-
-class ConstantFrequencyInterpolator: public StationFrequencyInterpolator
-{
-public:
-    //! Constructor
-    ConstantFrequencyInterpolator( double frequency ):
-        StationFrequencyInterpolator( ),
-        frequency_( frequency )
-    { }
-
-    //! Destructor
-    ~ConstantFrequencyInterpolator( ) { }
-
-    double getCurrentFrequency( const double lookupTime )
-    {
-        return frequency_;
-    }
-
-    double getFrequencyIntegral( const double quadratureStartTime, const double quadratureEndTime )
-    {
-        return frequency_ * ( quadratureEndTime - quadratureStartTime );
-    }
-
-    double getAveragedFrequencyIntegral( const double quadratureStartTime, const double quadratureEndTime )
-    {
-        return getFrequencyIntegral( quadratureStartTime, quadratureEndTime ) / ( quadratureEndTime - quadratureStartTime );
-    }
-
-private:
-
-    double frequency_;
-};
+//class ConstantFrequencyInterpolator: public StationFrequencyInterpolator< ObservationScalarType, TimeType >
+//{
+//public:
+//    //! Constructor
+//    ConstantFrequencyInterpolator( ObservationScalarType frequency ):
+//        StationFrequencyInterpolator< ObservationScalarType, TimeType >( ),
+//        frequency_( frequency )
+//    { }
+//
+//    //! Destructor
+//    ~ConstantFrequencyInterpolator( ) { }
+//
+//    ObservationScalarType getCurrentFrequency( const TimeType lookupTime )
+//    {
+//        return frequency_;
+//    }
+//
+//    ObservationScalarType getFrequencyIntegral( const TimeType quadratureStartTime,
+//                                                const TimeType quadratureEndTime )
+//    {
+//        return frequency_ * ( quadratureEndTime - quadratureStartTime );
+//    }
+//
+//private:
+//
+//    ObservationScalarType frequency_;
+//};
 
 class PiecewiseLinearFrequencyInterpolator: public StationFrequencyInterpolator
 {
@@ -114,64 +122,113 @@ public:
                 startTimes_ );
     }
 
-    double getFrequencyIntegral( const double quadratureStartTime, const double quadratureEndTime )
-    {
-        long double integral = 0;
-
-        int startTimeLowestNearestNeighbour = startTimeLookupScheme_->findNearestLowerNeighbour( quadratureStartTime );
-        int endTimeLowestNearestNeighbour = startTimeLookupScheme_->findNearestLowerNeighbour( quadratureEndTime );
-
-        if ( startTimeLowestNearestNeighbour == endTimeLowestNearestNeighbour )
-        {
-            integral += ( static_cast< long double >(quadratureEndTime) - static_cast< long double >(quadratureStartTime) ) * (
-                    static_cast< long double >(getCurrentFrequency( quadratureStartTime )) +
-                    static_cast< long double >(getCurrentFrequency( quadratureEndTime )) ) / 2.0;
-//            integral += ( quadratureEndTime - quadratureStartTime ) *
-//                    ( getCurrentFrequency( quadratureStartTime ) + rampRates_.at( startTimeLowestNearestNeighbour ) *
-//                    ( quadratureEndTime - quadratureStartTime ) / 2.0 );
-            std::cout << quadratureStartTime << std::endl << quadratureEndTime << std::endl << getCurrentFrequency( quadratureStartTime )
-                << std::endl << getCurrentFrequency( quadratureEndTime ) << std::endl <<
-                quadratureEndTime - quadratureStartTime << std::endl <<
-                ( getCurrentFrequency( quadratureStartTime ) + getCurrentFrequency( quadratureEndTime ) ) / 2.0 << std::endl << std::endl;
-        }
-        else
-        {
-            // First partial ramp
-            integral += ( endTimes_.at( startTimeLowestNearestNeighbour ) - quadratureStartTime ) *
-                    ( getCurrentFrequency( quadratureStartTime ) + rampRates_.at( startTimeLowestNearestNeighbour ) *
-                    ( endTimes_.at( startTimeLowestNearestNeighbour ) - quadratureStartTime ) / 2.0 );
-
-            // Full ramps
-            for( unsigned int i = startTimeLowestNearestNeighbour + 1; i < startTimes_.size( ) &&
-                    endTimes_.at( i ) < quadratureEndTime; i++ )
-            {
-                integral += ( endTimes_.at( i ) - startTimes_.at( i ) ) * ( startFrequencies_.at( i ) +
-                    rampRates_.at( i ) * ( endTimes_.at( i ) - startTimes_.at( i ) ) / 2.0 );
-            }
-
-            // Final partial ramp
-            integral += ( quadratureEndTime - startTimes_.at( endTimeLowestNearestNeighbour ) ) *
-                    ( startFrequencies_.at( endTimeLowestNearestNeighbour ) + rampRates_.at( endTimeLowestNearestNeighbour ) *
-                    ( quadratureEndTime - startTimes_.at( endTimeLowestNearestNeighbour ) ) / 2.0 );
-        }
-
-        return static_cast< double >(integral);
-    }
-
-    double getCurrentFrequency( const double lookupTime )
+    template< typename ObservationScalarType = double, typename TimeType = double >
+    ObservationScalarType computeCurrentFrequency( const TimeType lookupTime )
     {
         int lowerNearestNeighbour = startTimeLookupScheme_->findNearestLowerNeighbour( lookupTime );
 
         if( lookupTime > endTimes_.at( lowerNearestNeighbour ) || lookupTime < startTimes_.at ( lowerNearestNeighbour ) )
         {
             throw std::runtime_error(
-                    "Error when interpolating ramp reference frequency: look up time (" + std::to_string( lookupTime ) +
+                    "Error when interpolating ramp reference frequency: look up time (" + std::to_string(
+                            static_cast< double >( lookupTime ) ) +
                     ") is outside the ramp table interval (" + std::to_string( startTimes_.at( 0 ) ) + " to " +
                     std::to_string( startTimes_.back( ) ) + ")." );
         }
 
         return startFrequencies_.at( lowerNearestNeighbour ) +
                rampRates_.at( lowerNearestNeighbour ) * ( lookupTime - startTimes_.at( lowerNearestNeighbour ) );
+    }
+
+    virtual double getCurrentFrequency( const double lookupTime )
+    {
+        return computeCurrentFrequency< double, double >( lookupTime );
+    }
+
+    virtual double getCurrentFrequency( const Time& lookupTime )
+    {
+        return computeCurrentFrequency< double, Time >( lookupTime );
+    }
+
+    virtual long double getCurrentLongFrequency( const double lookupTime )
+    {
+         return computeCurrentFrequency< long double, double >( lookupTime );
+    }
+
+    virtual long double getCurrentLongFrequency( const Time& lookupTime )
+    {
+         return computeCurrentFrequency< long double, Time >( lookupTime );
+    }
+
+    template< typename ObservationScalarType = double, typename TimeType = double >
+    ObservationScalarType computeFrequencyIntegral( const TimeType quadratureStartTime,
+                                                    const TimeType quadratureEndTime )
+    {
+        ObservationScalarType integral = 0;
+
+        int startTimeLowestNearestNeighbour = startTimeLookupScheme_->findNearestLowerNeighbour( quadratureStartTime );
+        int endTimeLowestNearestNeighbour = startTimeLookupScheme_->findNearestLowerNeighbour( quadratureEndTime );
+
+        if ( startTimeLowestNearestNeighbour == endTimeLowestNearestNeighbour )
+        {
+            integral += static_cast< ObservationScalarType > ( quadratureEndTime - quadratureStartTime ) *
+                    ( computeCurrentFrequency< ObservationScalarType, TimeType >( quadratureStartTime ) +
+                    computeCurrentFrequency< ObservationScalarType, TimeType >( quadratureEndTime ) ) / 2.0;
+//            integral += ( quadratureEndTime - quadratureStartTime ) *
+//                    ( computeCurrentFrequency< ObservationScalarType, TimeType >( quadratureStartTime ) + rampRates_.at( startTimeLowestNearestNeighbour ) *
+//                    ( quadratureEndTime - quadratureStartTime ) / 2.0 );
+            std::cout << quadratureStartTime << std::endl << quadratureEndTime << std::endl << computeCurrentFrequency< ObservationScalarType, TimeType >( quadratureStartTime )
+                << std::endl << computeCurrentFrequency< ObservationScalarType, TimeType >( quadratureEndTime ) << std::endl <<
+                quadratureEndTime - quadratureStartTime << std::endl <<
+                ( computeCurrentFrequency< ObservationScalarType, TimeType >( quadratureStartTime ) + computeCurrentFrequency< ObservationScalarType, TimeType >( quadratureEndTime ) ) / 2.0 << std::endl << std::endl;
+        }
+        else
+        {
+            ObservationScalarType timeDelta;
+
+            // First partial ramp
+            timeDelta = static_cast< ObservationScalarType >( endTimes_.at( startTimeLowestNearestNeighbour ) - quadratureStartTime );
+            integral += timeDelta *
+                    ( computeCurrentFrequency< ObservationScalarType, TimeType >( quadratureStartTime ) +
+                            static_cast< ObservationScalarType >( rampRates_.at( startTimeLowestNearestNeighbour ) ) *
+                    timeDelta / 2.0 );
+
+            // Full ramps
+            for( unsigned int i = startTimeLowestNearestNeighbour + 1; i < startTimes_.size( ) &&
+                    endTimes_.at( i ) < quadratureEndTime; i++ )
+            {
+                timeDelta = static_cast< ObservationScalarType >( endTimes_.at( i ) ) - static_cast< ObservationScalarType >( startTimes_.at( i ) );
+                integral += timeDelta * ( startFrequencies_.at( i ) + rampRates_.at( i ) * timeDelta / 2.0 );
+            }
+
+            // Final partial ramp
+            timeDelta = static_cast< ObservationScalarType >( quadratureEndTime - startTimes_.at( endTimeLowestNearestNeighbour ) );
+            integral += timeDelta *
+                    ( startFrequencies_.at( endTimeLowestNearestNeighbour ) + rampRates_.at( endTimeLowestNearestNeighbour ) *
+                    timeDelta / 2.0 );
+        }
+
+        return integral;
+    }
+
+    virtual double getFrequencyIntegral( const double quadratureStartTime, const double quadratureEndTime )
+    {
+        return computeFrequencyIntegral< double, double >( quadratureStartTime, quadratureEndTime );
+    }
+
+    virtual double getFrequencyIntegral( const Time& quadratureStartTime, const Time& quadratureEndTime )
+    {
+        return computeFrequencyIntegral< double, Time >( quadratureStartTime, quadratureEndTime );
+    }
+
+    virtual long double getLongFrequencyIntegral( const double quadratureStartTime, const double quadratureEndTime )
+    {
+        return computeFrequencyIntegral< long double, double >( quadratureStartTime, quadratureEndTime );
+    }
+
+    virtual long double getLongFrequencyIntegral( const Time& quadratureStartTime, const Time& quadratureEndTime )
+    {
+        return computeFrequencyIntegral< long double, Time >( quadratureStartTime, quadratureEndTime );
     }
 
     std::vector< double > getStartTimes ( )
@@ -204,80 +261,6 @@ private:
     std::shared_ptr< interpolators::LookUpScheme< double > > startTimeLookupScheme_;
 
 };
-
-
-// All time intervals are assumed to have the same size
-//class PiecewiseConstantFrequencyInterpolator: public StationFrequencyInterpolator
-//{
-//public:
-//    //! Constructor
-//    PiecewiseConstantFrequencyInterpolator( std::vector< double > frequencies,
-//                                            std::vector< double > referenceTimes,
-//                                            double timeIntervalsSize ):
-//        StationFrequencyInterpolator( ),
-//        frequencies_( frequencies ),
-//        referenceTimes_( referenceTimes ),
-//        timeIntervalsSize_( timeIntervalsSize )
-//    {
-//        if ( frequencies.size( ) != referenceTimes.size( ) )
-//        {
-//            throw std::runtime_error("Error when creating piecewise constant frequency interpolator: size of time stamps and "
-//                                     "frequencies are not consistent.");
-//        }
-//
-//        startTimeLookupScheme_ = std::make_shared< interpolators::HuntingAlgorithmLookupScheme< double > >(
-//                referenceTimes_ );
-//    }
-//
-//    //! Destructor
-//    ~PiecewiseConstantFrequencyInterpolator( ) { }
-//
-//    double getCurrentFrequency( const double lookupTime )
-//    {
-//        unsigned int lowerNearestNeighbour = startTimeLookupScheme_->findNearestLowerNeighbour( lookupTime );
-//        unsigned int higherNearestNeighbour = lowerNearestNeighbour + 1;
-//
-//        // Look-up time closer to lower nearest neighbour
-//        if ( lookupTime - referenceTimes_.at( lowerNearestNeighbour ) <=  referenceTimes_.at( higherNearestNeighbour ) - lookupTime ||
-//            lowerNearestNeighbour == referenceTimes_.size( ) - 1 )
-//        {
-//            return frequencies_.at( lowerNearestNeighbour );
-//        }
-//        // Look-up time closer to higher nearest neighbour
-//        else
-//        {
-//            return frequencies_.at( higherNearestNeighbour );
-//        }
-//    }
-//
-//    double getFrequencyIntegral( const double quadratureStartTime, const double quadratureEndTime )
-//    {
-//        throw std::runtime_error("Computation of integral not implemented for piecewise constant frequency.");
-//    }
-//
-//    double getAveragedFrequencyIntegral( const double quadratureStartTime, const double quadratureEndTime )
-//    {
-//        double referenceTime = quadratureStartTime + ( quadratureEndTime - quadratureStartTime ) / 2.0;
-//
-//        if ( ( referenceTime - quadratureStartTime ) / ( timeIntervalsSize_ / 2.0 ) - 1.0 > 1e-12 ||
-//            ( quadratureEndTime - referenceTime ) / ( timeIntervalsSize_ / 2.0 ) - 1.0 > 1e-12 )
-//        {
-//            throw std::runtime_error("Error when computing the averaged integral of piecewise constant frequency: "
-//                                     "the specified time interval does not coincide with any piecewise interval.");
-//        }
-//
-//        return getCurrentFrequency( referenceTime );
-//    }
-//
-//private:
-//
-//    std::vector< double > frequencies_;
-//    std::vector< double > referenceTimes_;
-//
-//    double timeIntervalsSize_;
-//
-//    std::shared_ptr< interpolators::LookUpScheme< double > > startTimeLookupScheme_;
-//};
 
 } // namespace ground_stations
 
