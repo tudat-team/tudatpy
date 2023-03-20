@@ -84,10 +84,10 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
 //    double finalEphemerisTime = 294489941.185480893 + 10.0 * 86400.0; // 2009
 //    double initialEphemerisTime = 406630870.68285096 - 10.0 * 86400.0; // 2011
 //    double finalEphemerisTime = 406717262.6828746 + 10.0 * 86400.0; // 2011
-    double initialEphemerisTime = 544795200 - 5.0 * 86400.0; // 2017
-    double finalEphemerisTime = 544881600 + 5.0 * 86400.0; // 2017
-    double ephemerisTimeStep = 300.0;
-    double buffer = 10.0 * ephemerisTimeStep;
+    Time initialEphemerisTime = Time( 544795200 - 5.0 * 86400.0 ); // 2017
+    Time finalEphemerisTime = Time( 544881600 + 5.0 * 86400.0 ); // 2017
+    Time ephemerisTimeStep = Time( 300.0 );
+    Time buffer = Time( 10.0 * ephemerisTimeStep );
 
     // Create bodies settings needed in simulation
     BodyListSettings bodySettings =
@@ -171,8 +171,8 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
     std::cout << std::endl;
 
     // Create observed observation collection
-    std::shared_ptr< observation_models::ObservationCollection< double, double > > observedObservationCollection =
-            observation_models::createOdfObservedObservationCollection< double, double >(
+    std::shared_ptr< observation_models::ObservationCollection< long double, Time > > observedObservationCollection =
+            observation_models::createOdfObservedObservationCollection< long double, Time >(
                     processedOdfFileContents, bodies );
 
     std::cout << std::endl << "Observation type start and size:" << std::endl;
@@ -213,18 +213,18 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
         }
     }
 
-    std::vector< std::shared_ptr< observation_models::ObservationSimulatorBase< double, double > > >
-            observationSimulators = observation_models::createObservationSimulators< double, double >(
+    std::vector< std::shared_ptr< observation_models::ObservationSimulatorBase< long double, Time > > >
+            observationSimulators = observation_models::createObservationSimulators< long double, Time >(
                     observationModelSettingsList, bodies );
 
 
-    std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > observationSimulationSettings =
-            observation_models::createOdfObservationSimulationSettingsList< double, double >(
+    std::vector< std::shared_ptr< ObservationSimulationSettings< Time > > > observationSimulationSettings =
+            observation_models::createOdfObservationSimulationSettingsList< long double, Time >(
                     observedObservationCollection );
 
 
-    std::shared_ptr< observation_models::ObservationCollection< double, double > >
-            simulatedObservationCollection = simulation_setup::simulateObservations< double, double >(
+    std::shared_ptr< observation_models::ObservationCollection< long double, Time > >
+            simulatedObservationCollection = simulation_setup::simulateObservations< long double, Time >(
                     observationSimulationSettings, observationSimulators, bodies );
 
     std::cout << std::endl << "Observation type start and size:" << std::endl;
@@ -266,10 +266,12 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
         }
     }
 
-    Eigen::Matrix< double, Eigen::Dynamic, 1 > simulatedObservations =
+    Eigen::Matrix< long double, Eigen::Dynamic, 1 > simulatedObservations =
             simulatedObservationCollection->getObservationVector( );
 
-    Eigen::MatrixXd observations ( simulatedObservationCollection->getObservationVector( ).size( ), 4 );
+    Eigen::Matrix< long double, Eigen::Dynamic, 4 > observations;
+    observations.resize( simulatedObservationCollection->getObservationVector( ).size( ), 4 );
+
     observations.col( 1 ) = simulatedObservationCollection->getObservationVector( );
     observations.col( 3 ) = observedObservationCollection->getObservationVector( );
 
