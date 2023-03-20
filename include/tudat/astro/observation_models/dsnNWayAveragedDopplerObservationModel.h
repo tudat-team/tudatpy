@@ -24,7 +24,7 @@ namespace tudat
 namespace observation_models
 {
 
-template< typename ObservationScalarType = double, typename TimeType = double >
+template< typename ObservationScalarType = double, typename TimeType = Time >
 class DsnNWayAveragedDopplerObservationModel: public ObservationModel< 1, ObservationScalarType, TimeType >
 {
 public:
@@ -42,6 +42,13 @@ public:
         bodyWithGroundStations_( bodyWithGroundStations ),
         numberOfLinkEnds_( linkEnds.size( ) )
     {
+        if( !std::is_same< Time, TimeType >::value )
+        {
+            throw std::runtime_error(
+                    "Error when defining DSN N-way averaged Doppler observation model: the selected time type "
+                    "is not valid, using it would lead to large numerical errors.");
+        }
+
         if ( numberOfLinkEnds_ < 1 || numberOfLinkEnds_ > 3 )
         {
             throw std::runtime_error(
