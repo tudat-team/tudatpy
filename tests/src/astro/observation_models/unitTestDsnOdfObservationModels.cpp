@@ -63,6 +63,11 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
 //    spice_interface::loadStandardSpiceKernels( );
 //    spice_interface::loadSpiceKernelInTudat( "/Users/pipas/Documents/mro-spice/mro_psp43_ssd_mro95a.bsp" );
 
+//    spice_interface::loadStandardSpiceKernels(
+//            { "/Users/pipas/Documents/mro-spice/de414.bsp",
+//              "/Users/pipas/Documents/mro-spice/mar063.bsp",
+//              "/Users/pipas/Documents/mro-spice/mro_psp43_ssd_mro95a.bsp"} );
+
     // MRO NAV kernerls
     spice_interface::loadStandardSpiceKernels(
             { "/Users/pipas/Documents/mro-spice/de414.bsp",
@@ -76,14 +81,14 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
     std::vector< std::string > lightTimePerturbingBodies = bodiesToCreate;
 
     // Specify initial time
-//    double initialEphemerisTime = 234224663.2 - 10.0 * 86400.0; // 2007
-//    double finalEphemerisTime = 234349306.2 + 10.0 * 86400.0; // 2007
-//    double initialEphemerisTime = 329140800 - 100.0 * 86400.0; // 2010
-//    double finalEphemerisTime = 329400000 + 100.0 * 86400.0; // 2010
-//    double initialEphemerisTime = 294455561.18548876 - 10.0 * 86400.0; // 2009
-//    double finalEphemerisTime = 294489941.185480893 + 10.0 * 86400.0; // 2009
-//    double initialEphemerisTime = 406630870.68285096 - 10.0 * 86400.0; // 2011
-//    double finalEphemerisTime = 406717262.6828746 + 10.0 * 86400.0; // 2011
+//    Time initialEphemerisTime = Time( 234224663.2 - 10.0 * 86400.0 ); // 2007
+//    Time finalEphemerisTime = Time( 234349306.2 + 10.0 * 86400.0 ); // 2007
+//    Time initialEphemerisTime = Time( 329140800 - 100.0 * 86400.0 ); // 2010
+//    Time finalEphemerisTime = Time( 329400000 + 100.0 * 86400.0 ); // 2010
+//    Time initialEphemerisTime = Time( 294455561.18548876 - 10.0 * 86400.0 ); // 2009
+//    Time finalEphemerisTime = Time( 294489941.185480893 + 10.0 * 86400.0 ); // 2009
+//    Time initialEphemerisTime = Time( 406630870.68285096 - 10.0 * 86400.0 ); // 2011
+//    Time finalEphemerisTime = Time( 406717262.6828746 + 10.0 * 86400.0 ); // 2011
     Time initialEphemerisTime = Time( 544795200 - 5.0 * 86400.0 ); // 2017
     Time finalEphemerisTime = Time( 544881600 + 5.0 * 86400.0 ); // 2017
     Time ephemerisTimeStep = Time( 300.0 );
