@@ -44,7 +44,7 @@ public:
             const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations,
             const std::vector< TimeType > observationTimes,
             const LinkEndType referenceLinkEnd,
-            const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observationsDependentVariables =
+            const std::vector< Eigen::VectorXd >& observationsDependentVariables =
                 std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >( ),
             const std::shared_ptr< simulation_setup::ObservationDependentVariableCalculator > dependentVariableCalculator = nullptr,
             const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings < TimeType > > ancilliarySettings = nullptr ):
@@ -128,7 +128,7 @@ public:
     }
 
 
-    std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > getObservationsDependentVariables( )
+    std::vector< Eigen::VectorXd > getObservationsDependentVariables( )
     {
         return observationsDependentVariables_;
     }
@@ -139,9 +139,9 @@ public:
         return dependentVariableCalculator_;
     }
 
-    std::map< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > getDependentVariableHistory( )
+    std::map< TimeType, Eigen::VectorXd > getDependentVariableHistory( )
     {
-        return utilities::createMapFromVectors< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >(
+        return utilities::createMapFromVectors< TimeType, Eigen::VectorXd >(
                     observationTimes_, observationsDependentVariables_ );
     }
 
@@ -164,7 +164,7 @@ private:
 
     const LinkEndType referenceLinkEnd_;
 
-    const std::vector<  Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observationsDependentVariables_;
+    const std::vector< Eigen::VectorXd > observationsDependentVariables_;
 
     const std::shared_ptr< simulation_setup::ObservationDependentVariableCalculator > dependentVariableCalculator_;
 

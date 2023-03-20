@@ -157,9 +157,9 @@ public:
 //            integral += ( quadratureEndTime - quadratureStartTime ) *
 //                    ( computeCurrentFrequency< ObservationScalarType, TimeType >( quadratureStartTime ) + rampRates_.at( startTimeLowestNearestNeighbour ) *
 //                    ( quadratureEndTime - quadratureStartTime ) / 2.0 );
-            std::cout << quadratureStartTime << std::endl << quadratureEndTime << std::endl << computeCurrentFrequency< ObservationScalarType, TimeType >( quadratureStartTime )
+            std::cout << integral << std::endl << quadratureStartTime << std::endl << quadratureEndTime << std::endl << computeCurrentFrequency< ObservationScalarType, TimeType >( quadratureStartTime )
                 << std::endl << computeCurrentFrequency< ObservationScalarType, TimeType >( quadratureEndTime ) << std::endl <<
-                quadratureEndTime - quadratureStartTime << std::endl <<
+                static_cast< ObservationScalarType > ( quadratureEndTime - quadratureStartTime ) << std::endl <<
                 ( computeCurrentFrequency< ObservationScalarType, TimeType >( quadratureStartTime ) + computeCurrentFrequency< ObservationScalarType, TimeType >( quadratureEndTime ) ) / 2.0 << std::endl << std::endl;
         }
         else

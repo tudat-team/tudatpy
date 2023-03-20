@@ -420,7 +420,7 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
                     std::make_shared< observation_models::SingleObservationSet< ObservationScalarType, TimeType > >(
                         currentObservableType, currentLinkEnds, observables.at( i ), observationTimes.at( i ),
                         observation_models::receiver,
-                        std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >( ),
+                        std::vector< Eigen::VectorXd >( ),
                         nullptr, std::make_shared< observation_models::ObservationAncilliarySimulationSettings< TimeType > >(
                             ancillarySettings.at( i ) ) ) );
             }
