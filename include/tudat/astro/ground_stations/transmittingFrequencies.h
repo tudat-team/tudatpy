@@ -29,6 +29,14 @@ public:
     //! Destructor
     virtual ~StationFrequencyInterpolator( ) { }
 
+    template< typename ObservationScalarType = double, typename TimeType = double >
+    ObservationScalarType getTemplatedCurrentFrequency( const TimeType& lookupTime );
+
+    template< typename ObservationScalarType = double, typename TimeType = double >
+    ObservationScalarType getTemplatedFrequencyIntegral( const TimeType& quadratureStartTime, const TimeType& quadratureEndTime );
+
+private:
+
     virtual double getCurrentFrequency( const double lookupTime ) = 0;
 
     virtual double getCurrentFrequency( const Time& lookupTime ) = 0;
@@ -37,9 +45,6 @@ public:
 
     virtual long double getCurrentLongFrequency( const Time& lookupTime ) = 0;
 
-    template< typename ObservationScalarType = double, typename TimeType = double >
-    ObservationScalarType getTemplatedCurrentFrequency( const TimeType& lookupTime );
-
     virtual double getFrequencyIntegral( const double quadratureStartTime, const double quadratureEndTime ) = 0;
 
     virtual double getFrequencyIntegral( const Time& quadratureStartTime, const Time& quadratureEndTime ) = 0;
@@ -47,11 +52,6 @@ public:
     virtual long double getLongFrequencyIntegral( const double quadratureStartTime, const double quadratureEndTime ) = 0;
 
     virtual long double getLongFrequencyIntegral( const Time& quadratureStartTime, const Time& quadratureEndTime ) = 0;
-
-    template< typename ObservationScalarType = double, typename TimeType = double >
-    ObservationScalarType getTemplatedFrequencyIntegral( const TimeType& quadratureStartTime, const TimeType& quadratureEndTime );
-
-private:
 
 };
 
@@ -140,26 +140,6 @@ public:
                rampRates_.at( lowerNearestNeighbour ) * ( lookupTime - startTimes_.at( lowerNearestNeighbour ) );
     }
 
-    virtual double getCurrentFrequency( const double lookupTime )
-    {
-        return computeCurrentFrequency< double, double >( lookupTime );
-    }
-
-    virtual double getCurrentFrequency( const Time& lookupTime )
-    {
-        return computeCurrentFrequency< double, Time >( lookupTime );
-    }
-
-    virtual long double getCurrentLongFrequency( const double lookupTime )
-    {
-         return computeCurrentFrequency< long double, double >( lookupTime );
-    }
-
-    virtual long double getCurrentLongFrequency( const Time& lookupTime )
-    {
-         return computeCurrentFrequency< long double, Time >( lookupTime );
-    }
-
     template< typename ObservationScalarType = double, typename TimeType = double >
     ObservationScalarType computeFrequencyIntegral( const TimeType quadratureStartTime,
                                                     const TimeType quadratureEndTime )
@@ -211,26 +191,6 @@ public:
         return integral;
     }
 
-    virtual double getFrequencyIntegral( const double quadratureStartTime, const double quadratureEndTime )
-    {
-        return computeFrequencyIntegral< double, double >( quadratureStartTime, quadratureEndTime );
-    }
-
-    virtual double getFrequencyIntegral( const Time& quadratureStartTime, const Time& quadratureEndTime )
-    {
-        return computeFrequencyIntegral< double, Time >( quadratureStartTime, quadratureEndTime );
-    }
-
-    virtual long double getLongFrequencyIntegral( const double quadratureStartTime, const double quadratureEndTime )
-    {
-        return computeFrequencyIntegral< long double, double >( quadratureStartTime, quadratureEndTime );
-    }
-
-    virtual long double getLongFrequencyIntegral( const Time& quadratureStartTime, const Time& quadratureEndTime )
-    {
-        return computeFrequencyIntegral< long double, Time >( quadratureStartTime, quadratureEndTime );
-    }
-
     std::vector< double > getStartTimes ( )
     {
         return startTimes_;
@@ -252,6 +212,46 @@ public:
     }
 
 private:
+
+    virtual double getCurrentFrequency( const double lookupTime )
+    {
+        return computeCurrentFrequency< double, double >( lookupTime );
+    }
+
+    virtual double getCurrentFrequency( const Time& lookupTime )
+    {
+        return computeCurrentFrequency< double, Time >( lookupTime );
+    }
+
+    virtual long double getCurrentLongFrequency( const double lookupTime )
+    {
+         return computeCurrentFrequency< long double, double >( lookupTime );
+    }
+
+    virtual long double getCurrentLongFrequency( const Time& lookupTime )
+    {
+         return computeCurrentFrequency< long double, Time >( lookupTime );
+    }
+
+        virtual double getFrequencyIntegral( const double quadratureStartTime, const double quadratureEndTime )
+    {
+        return computeFrequencyIntegral< double, double >( quadratureStartTime, quadratureEndTime );
+    }
+
+    virtual double getFrequencyIntegral( const Time& quadratureStartTime, const Time& quadratureEndTime )
+    {
+        return computeFrequencyIntegral< double, Time >( quadratureStartTime, quadratureEndTime );
+    }
+
+    virtual long double getLongFrequencyIntegral( const double quadratureStartTime, const double quadratureEndTime )
+    {
+        return computeFrequencyIntegral< long double, double >( quadratureStartTime, quadratureEndTime );
+    }
+
+    virtual long double getLongFrequencyIntegral( const Time& quadratureStartTime, const Time& quadratureEndTime )
+    {
+        return computeFrequencyIntegral< long double, Time >( quadratureStartTime, quadratureEndTime );
+    }
 
     std::vector< double > startTimes_;
     std::vector< double > endTimes_;
