@@ -121,7 +121,7 @@ public:
         double turnaroundRatio = getDsnDefaultTurnaroundRatios( uplinkBand, downlinkBand );
         double transmitterFrequencyIntegral = bodyWithGroundStations_->getGroundStation(
                 this->getLinkEnds( ).at( observation_models::transmitter ).stationName_
-                )->getTransmittingFrequencyCalculator( )->getFrequencyIntegral(
+                )->getTransmittingFrequencyCalculator( )->template getTemplatedFrequencyIntegral< ObservationScalarType, TimeType >(
                         transmissionStartTime, transmissionEndTime );
 //        double receiverFrequencyIntegral = bodyWithGroundStations_->getGroundStation(
 //                this->getLinkEnds( ).at( observation_models::receiver ).stationName_
@@ -139,10 +139,6 @@ public:
         if ( time > 544845633.685653 + 5400.0 && time < 544845633.685653 + 6400.0 )
         {
             std::cout << time - 544845633.685653 << ": " << transmitterFrequencyIntegral << std::endl;
-            bodyWithGroundStations_->getGroundStation(
-                this->getLinkEnds( ).at( observation_models::transmitter ).stationName_
-                )->getTransmittingFrequencyCalculator( )->getFrequencyIntegral(
-                        transmissionStartTime, transmissionEndTime );
 //            std::cout << time - 544845633.685653 << ": " << transmissionStartTime << std::endl;
 //            std::cout << time - 544845633.685653 << ": " << transmissionEndTime << std::endl;
         }
