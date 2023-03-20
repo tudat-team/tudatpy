@@ -19,53 +19,53 @@ namespace ground_stations
 template< >
 double StationFrequencyInterpolator::getTemplatedCurrentFrequency( const double& lookupTime )
 {
-    return StationFrequencyInterpolator::getCurrentFrequency( lookupTime );
+    return getCurrentFrequency( lookupTime );
 }
 
 template< >
 double StationFrequencyInterpolator::getTemplatedCurrentFrequency( const Time& lookupTime )
 {
-    return StationFrequencyInterpolator::getCurrentFrequency( lookupTime );
+    return getCurrentFrequency( lookupTime );
 }
 
 template< >
 long double StationFrequencyInterpolator::getTemplatedCurrentFrequency( const double& lookupTime )
 {
-    return StationFrequencyInterpolator::getCurrentLongFrequency( lookupTime );
+    return getCurrentLongFrequency( lookupTime );
 }
 
 template< >
 long double StationFrequencyInterpolator::getTemplatedCurrentFrequency( const Time& lookupTime )
 {
-    return StationFrequencyInterpolator::getCurrentLongFrequency( lookupTime );
+    return getCurrentLongFrequency( lookupTime );
 }
 
 template< >
 double StationFrequencyInterpolator::getTemplatedFrequencyIntegral(
         const double& quadratureStartTime, const double& quadratureEndTime )
 {
-    return StationFrequencyInterpolator::getFrequencyIntegral( quadratureStartTime, quadratureEndTime );
+    return getFrequencyIntegral( quadratureStartTime, quadratureEndTime );
 }
 
 template< >
 double StationFrequencyInterpolator::getTemplatedFrequencyIntegral(
         const Time& quadratureStartTime, const Time& quadratureEndTime )
 {
-    return StationFrequencyInterpolator::getFrequencyIntegral( quadratureStartTime, quadratureEndTime );
+    return getFrequencyIntegral( quadratureStartTime, quadratureEndTime );
 }
 
 template< >
 long double StationFrequencyInterpolator::getTemplatedFrequencyIntegral(
         const double& quadratureStartTime, const double& quadratureEndTime )
 {
-    return StationFrequencyInterpolator::getLongFrequencyIntegral( quadratureStartTime, quadratureEndTime );
+    return getLongFrequencyIntegral( quadratureStartTime, quadratureEndTime );
 }
 
 template< >
 long double StationFrequencyInterpolator::getTemplatedFrequencyIntegral(
         const Time& quadratureStartTime, const Time& quadratureEndTime )
 {
-    return StationFrequencyInterpolator::getLongFrequencyIntegral( quadratureStartTime, quadratureEndTime );
+    return getLongFrequencyIntegral( quadratureStartTime, quadratureEndTime );
 }
 
 
